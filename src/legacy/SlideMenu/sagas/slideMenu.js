@@ -13,8 +13,8 @@ import {
   setSlideMenuItems,
   setSmallLogo
 } from '../actions/slideMenu';
-import { getSelected } from '../../../helpers/slideMenu';
 import { fetchExpandableItems, getNewJournalsPageEnable } from '../helpers/slideMenu';
+import SidebarService from '../../../services/sidebar';
 
 function* fetchSmallLogo({ api, fakeApi, logger }) {
   try {
@@ -40,7 +40,7 @@ function* fetchSlideMenu({ api, fakeApi, logger }) {
   try {
     const apiData = yield call(api.menu.getSlideMenuItems);
     const menuItems = apiData.items;
-    const selectedId = getSelected();
+    const selectedId = SidebarService.getSelected();
     const expandableItems = fetchExpandableItems(menuItems, selectedId);
 
     yield put(setSelectedId(selectedId));

@@ -95,7 +95,7 @@ class RecordActionsService {
 
     if (context.actions) {
       if (!context.actions.length) {
-        return {};
+        return Promise.resolve({});
       }
       actions = this.__filterAndGetRecordsActionsConfig(recordIds, context.actions);
     } else if (context.mode === 'dashboard') {

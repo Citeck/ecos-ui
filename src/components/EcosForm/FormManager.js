@@ -115,4 +115,13 @@ class FormManager {
 window.Citeck = window.Citeck || {};
 window.Citeck.FormManager = FormManager;
 
+// Cause: https://citeck.atlassian.net/browse/ECOSCOM-3028
+window.Citeck.forms = window.Citeck.forms || {};
+window.Citeck.forms.eform =
+  window.Citeck.forms.eform ||
+  function(record, config = {}) {
+    const { params = {}, ...other } = config;
+    FormManager.openFormModal({ record, ...params, ...other });
+  };
+
 export default FormManager;

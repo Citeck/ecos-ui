@@ -129,7 +129,7 @@ export default class ColumnsSetup extends Component {
           )}
         </Dropdown>
 
-        <form ref={this.form} id="export-form" method="post" encType="multipart/form-data">
+        <form ref={this.form} method="post" encType="multipart/form-data">
           <input ref={this.textInput} type="hidden" name="jsondata" value="" />
         </form>
       </div>

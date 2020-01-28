@@ -234,6 +234,7 @@
   "ecos-table-form.create-button": "Create",
   "ecos-table-form.create-modal.title": "Create",
   "ecos-table-form.edit-modal.title": "Edit metadata",
+  "ecos-table-form.view-modal.title": "View metadata",
   "ecos-table-form.placeholder": "None",
   "ecos-ui.select.loading-message": "Loading...",
   "ecos-ui.select.no-options-message": "No options",

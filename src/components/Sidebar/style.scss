@@ -64,7 +64,7 @@ $transition-duration: 0.3s;
     &__img {
       transition: opacity $transition-duration;
       position: absolute;
-      max-height: 20px;
+      max-height: 25px;
     }
   }
 
@@ -84,6 +84,7 @@ $transition-duration: 0.3s;
     height: 38px;
     width: 100%;
     cursor: pointer;
+    padding-right: 15px;
 
     &:hover {
       background: $color-gray-25;
@@ -94,11 +95,17 @@ $transition-duration: 0.3s;
 
       &#{$menu-item}::before,
       & + #{$menu-item}::before {
-        display: none;
+        content: none;
       }
     }
 
-    &#{$menu-item}_selected:not(#{$menu-item}_expanded):not(:hover) {
+    &_collapsible {
+      #{$menu-item}__link {
+        width: calc(100% - 16px);
+      }
+    }
+
+    &#{$menu-item}_selected:not(#{$menu-item}_nested-expanded):not(:hover) {
       background: $color-blue-light;
 
       #{$menu-item}__icon,
@@ -140,6 +147,7 @@ $transition-duration: 0.3s;
       display: inline-flex;
       align-items: center;
       text-decoration: none;
+      padding-right: 3px;
     }
 
     &__icon {
@@ -206,13 +214,22 @@ $transition-duration: 0.3s;
     $list: &;
 
     min-height: 0;
+    max-height: 100%;
     transition: height $transition-duration;
 
+    &_collapsed {
+      display: none;
+    }
+
     &_lvl-0 {
-      padding-bottom: 30px;
+      &::after {
+        content: '';
+        padding-top: 10px;
+        display: block;
+      }
 
       #{$menu-item}_lvl-0 {
-        padding: 0 15px 0 26px;
+        padding-left: 26px;
 
         &:hover {
           background: initial;
@@ -221,6 +238,10 @@ $transition-duration: 0.3s;
         &#{$menu-item}_separator {
           cursor: none;
           pointer-events: none;
+
+          & :nth-child(n) {
+            display: none;
+          }
 
           &::after {
             @extend %menu-item-separator;
@@ -242,23 +263,17 @@ $transition-duration: 0.3s;
       }
 
       #{$menu-item}_lvl-1 {
-        padding-right: 15px;
-
-        &#{$menu-item}_expanded:not(:hover) {
+        &#{$menu-item}_nested-expanded:not(:hover) {
           background: $color-gray-25;
         }
 
         #{$menu-item}__link {
-          padding: 0 3px 0 25px;
+          padding-left: 25px;
         }
       }
     }
 
     &_lvl-2 {
-      &#{$menu-list}_collapsed {
-        display: none;
-      }
-
       #{$menu-item}_lvl-2 {
         &:not(:first-child)::before {
           @extend %menu-item-separator;
@@ -266,16 +281,17 @@ $transition-duration: 0.3s;
           left: 35px;
         }
 
-        &#{$menu-item}_no-action {
-          pointer-events: none;
+        &#{$menu-item}_collapsible {
+          background: unset;
 
-          &:hover {
-            background: unset;
+          &#{$menu-item}::before,
+          & + #{$menu-item}::before {
+            content: '';
           }
         }
 
         #{$menu-item}__link {
-          padding: 9px 35px;
+          padding-left: 35px;
         }
 
         #{$menu-item}__label {
@@ -304,7 +320,7 @@ $transition-duration: 0.3s;
       }
     }
 
-    &-tooltip {
+    &-dropdown-menu {
       & .tooltip.show {
         opacity: 1;
       }
@@ -329,8 +345,14 @@ $transition-duration: 0.3s;
 
       #{$menu-list}_lvl-2 {
         #{$menu-item}_lvl-2 {
+          transition: width $transition-duration;
+
           #{$menu-item}__link {
             padding: 0 18px;
+          }
+
+          #{$menu-item}__toggle {
+            position: initial;
           }
 
           &:first-child {

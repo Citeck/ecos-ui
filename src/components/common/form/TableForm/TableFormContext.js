@@ -16,6 +16,7 @@ export const TableFormContextProvider = props => {
   const { onChange, onError, source, defaultValue, triggerEventOnTableChange, computed } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
+  const [isViewOnlyForm, setIsViewOnlyForm] = useState(false);
   const [isModalFormOpen, setIsModalFormOpen] = useState(false);
   const [createVariant, setCreateVariant] = useState(null);
   const [record, setRecord] = useState(null);
@@ -218,6 +219,7 @@ export const TableFormContextProvider = props => {
         },
         error,
         formMode,
+        isViewOnlyForm,
         record,
         createVariant,
         isModalFormOpen,
@@ -232,6 +234,7 @@ export const TableFormContextProvider = props => {
         },
 
         showCreateForm: createVariant => {
+          setIsViewOnlyForm(false);
           setRecord(null);
           setCreateVariant(createVariant);
           setFormMode(FORM_MODE_CREATE);
@@ -239,6 +242,15 @@ export const TableFormContextProvider = props => {
         },
 
         showEditForm: record => {
+          setIsViewOnlyForm(false);
+          setCreateVariant(null);
+          setRecord(record);
+          setFormMode(FORM_MODE_EDIT);
+          setIsModalFormOpen(true);
+        },
+
+        showViewOnlyForm: record => {
+          setIsViewOnlyForm(true);
           setCreateVariant(null);
           setRecord(record);
           setFormMode(FORM_MODE_EDIT);

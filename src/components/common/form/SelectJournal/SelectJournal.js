@@ -466,11 +466,15 @@ export default class SelectJournal extends Component {
   };
 
   onCreateFormSubmit = (record, form, alias) => {
+    const { multiple } = this.props;
+
     this.setState(state => {
+      const prevSelected = state.gridData.selected || [];
       return {
         isCreateModalOpen: false,
         gridData: {
           ...state.gridData,
+          selected: multiple ? [...prevSelected, record.id] : [record.id],
           inMemoryData: [
             ...state.gridData.inMemoryData,
             {
