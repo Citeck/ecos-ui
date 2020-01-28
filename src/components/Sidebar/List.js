@@ -50,7 +50,7 @@ class List extends React.Component {
   );
 
   renderItem = (item, i) => {
-    const { level, expandableItems, isOpen, inDropdown, isExpanded, selectedId } = this.props;
+    const { level, expandableItems, isOpen, inDropdown, selectedId } = this.props;
     const listItemDomId = `${item.id}-${level}-${i}`;
     const listItemKey = `${item.id}-${item.label}-${level}`;
     const styleProps = SidebarService.getPropsStyleLevel({
