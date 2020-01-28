@@ -147,7 +147,7 @@ export default class TableFormComponent extends BaseReactComponent {
     }
   }
 
-  _onSelectRows = selected => {
+  _setSelectedRows = selected => {
     this._selectedRows = selected;
   };
 
@@ -183,7 +183,7 @@ export default class TableFormComponent extends BaseReactComponent {
         source: source,
         onChange: this.onReactValueChanged,
         isSelectableRows: component.isSelectableRows,
-        onSelectRows: this._onSelectRows,
+        onSelectRows: this._setSelectedRows,
         viewOnly: this.viewOnly,
         parentForm: this.root,
         triggerEventOnTableChange,
