@@ -120,7 +120,8 @@ window.Citeck.forms = window.Citeck.forms || {};
 window.Citeck.forms.eform =
   window.Citeck.forms.eform ||
   function(record, config) {
-    FormManager.openFormModal({ record, ...config });
+    const { params = {}, ...other } = config;
+    FormManager.openFormModal({ record, ...params, ...other });
   };
 
 export default FormManager;
