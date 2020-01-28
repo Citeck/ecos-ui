@@ -274,6 +274,15 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
       }
     );
 
+    /**
+     * open form manager
+     */
+    if (type.formId && payload.openForm) {
+      payload.openForm(type, results.filter(item => item !== null));
+
+      return;
+    }
+
     yield call(api.documents.uploadFilesWithNodes, {
       record: payload.record,
       type: payload.type,

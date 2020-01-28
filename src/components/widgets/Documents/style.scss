@@ -181,7 +181,9 @@
       }
 
       &_hidden {
-        display: none;
+        &.ecos-dropzone {
+          display: none;
+        }
       }
     }
 

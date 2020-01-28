@@ -373,8 +373,6 @@ class Documents extends BaseWidget {
       return;
     }
 
-    console.warn('row => ', row);
-
     this.handleSelectType(row);
   };
 
@@ -414,7 +412,7 @@ class Documents extends BaseWidget {
     const { selectedTypeForLoading } = this.state;
 
     if (selectedTypeForLoading.formId) {
-      this.openForm(selectedTypeForLoading, files);
+      this.props.onUploadFiles({ files, type: selectedTypeForLoading.type, openForm: this.openForm });
 
       return;
     }
@@ -452,7 +450,7 @@ class Documents extends BaseWidget {
     }
 
     if (type.formId) {
-      // this.props.onUploadFiles({ files, type: type.type, formId: type.formId });
+      this.props.onUploadFiles({ files, type: type.type, openForm: this.openForm });
     } else {
       this.props.onUploadFiles({ files, type: type.type });
     }
@@ -467,6 +465,13 @@ class Documents extends BaseWidget {
     }
   };
 
+  handleSubmitForm = () => {
+    const { selectedTypeForLoading } = this.state;
+
+    this.props.getDocuments(selectedTypeForLoading.type);
+    this.uploadingComplete();
+  };
+
   openForm = (type, files = []) => {
     FormManager.createRecordByVariant(
       DocumentsConverter.getDataToCreate({
@@ -474,7 +479,10 @@ class Documents extends BaseWidget {
         type: type.type,
         record: this.props.record,
         files
-      })
+      }),
+      {
+        onSubmit: this.handleSubmitForm
+      }
     );
   };
 
@@ -669,18 +677,17 @@ class Documents extends BaseWidget {
 
   renderDocumentsTable() {
     const { dynamicTypes, isUploadingFile } = this.props;
-    const { selectedType, isDragFiles, selectedTypeForLoading } = this.state;
+    const { selectedType, isDragFiles } = this.state;
 
     if (!selectedType && dynamicTypes.length !== 1) {
       return null;
     }
 
-    const formId = get(selectedTypeForLoading, 'formId', null);
     const columns = tableFields.DEFAULT.map(item => ({
       dataField: item.name,
       text: item.label
     }));
-    const isShowDropZone = isDragFiles; // && !formId;
+    const isShowDropZone = isDragFiles;
 
     return (
       <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>

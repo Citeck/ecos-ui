@@ -163,14 +163,7 @@ export default class DocumentsConverter {
       _parent: get(data, 'record', ''),
       _parentAtt: 'icase:documents',
       _etype: get(data, 'type', ''),
-      _content: get(data, 'files', []).map(file => {
-        file.label = file.name;
-
-        return {
-          size: file.size,
-          name: file.name
-        };
-      })
+      _content: get(data, 'files', [])
     }
   });
 
