@@ -2,38 +2,45 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { SelectOrgstructContext } from '../../../../SelectOrgstructContext';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../../constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, TAB_ALL_USERS } from '../../../../constants';
 import './ListItem.scss';
 
 const ListItem = ({ item, nestingLevel, nestedList }) => {
   const context = useContext(SelectOrgstructContext);
-  const { controlProps, renderListItem } = context;
+  const { controlProps = {}, renderListItem, currentTab } = context;
   const { allowedAuthorityTypes, allowedGroupTypes, allowedGroupSubTypes } = controlProps;
+
   const itemAuthorityType = item.attributes.authorityType;
   const itemGroupType = (item.attributes.groupType || '').toUpperCase();
   const itemGroupSubType = item.attributes.groupSubType || '';
 
-  let collapseHandler = null;
-  let onClickLabel = null;
-  if (item.hasChildren) {
-    const collapseHandlerClassNames = classNames('icon', 'select-orgstruct__collapse-handler', {
-      'icon-right': !item.isOpen,
-      'icon-down': item.isOpen
-    });
-    collapseHandler = <span className={collapseHandlerClassNames} />;
-    onClickLabel = () => {
-      context.onToggleCollapse(item);
-    };
-  }
-
-  let selectHandler = null;
-  if (allowedAuthorityTypes.indexOf(itemAuthorityType) !== -1) {
-    if (
-      itemAuthorityType === AUTHORITY_TYPE_USER ||
+  const isAllUsers = currentTab === TAB_ALL_USERS;
+  const isAllowedSelect =
+    allowedAuthorityTypes.includes(itemAuthorityType) &&
+    (itemAuthorityType === AUTHORITY_TYPE_USER ||
       (itemAuthorityType === AUTHORITY_TYPE_GROUP &&
-        allowedGroupTypes.indexOf(itemGroupType) !== -1 &&
-        (allowedGroupSubTypes.length === 0 || allowedGroupSubTypes.indexOf(itemGroupSubType) !== -1))
-    ) {
+        allowedGroupTypes.includes(itemGroupType) &&
+        (allowedGroupSubTypes.length === 0 || allowedGroupSubTypes.includes(itemGroupSubType))));
+
+  const onClickLabel = () => {
+    if (item.hasChildren) {
+      context.onToggleCollapse(item);
+    }
+  };
+
+  const renderCollapseHandler = () => {
+    if (item.hasChildren) {
+      const collapseHandlerClassNames = classNames('icon', 'select-orgstruct__collapse-handler', {
+        'icon-right': !item.isOpen,
+        'icon-down': item.isOpen
+      });
+
+      return <span className={collapseHandlerClassNames} />;
+    }
+  };
+
+  const renderSelectHandler = () => {
+    if (isAllUsers || isAllowedSelect) {
       const selectHandlerClassNames = classNames('icon', 'select-orgstruct__select-handler', {
         'icon-plus': !item.isSelected,
         'select-orgstruct__select-handler_not-selected': !item.isSelected,
@@ -41,16 +48,9 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
         'select-orgstruct__select-handler_selected': item.isSelected
       });
 
-      selectHandler = (
-        <span
-          className={selectHandlerClassNames}
-          onClick={() => {
-            context.onToggleSelectItem(item);
-          }}
-        />
-      );
+      return <span className={selectHandlerClassNames} onClick={() => context.onToggleSelectItem(item)} />;
     }
-  }
+  };
 
   const listItemClassNames = classNames('select-orgstruct__list-item', `select-orgstruct__list-item_level-${nestingLevel}`, {
     'select-orgstruct__list-item_strong': item.isStrong
@@ -65,10 +65,10 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
     <li>
       <div className={listItemClassNames}>
         <div className={listItemLabelClassNames} onClick={onClickLabel}>
-          {collapseHandler}
+          {renderCollapseHandler()}
           {renderListItem(item)}
         </div>
-        {selectHandler}
+        {renderSelectHandler()}
       </div>
       {nestedList}
     </li>
