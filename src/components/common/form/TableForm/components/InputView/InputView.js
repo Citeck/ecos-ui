@@ -79,17 +79,17 @@ const InputView = () => {
 
       const shouldShowViewButton = isBoolean(get(displayElements, 'view')) ? displayElements.view : true;
       if (shouldShowViewButton) {
-        iconButtons.push(<IcoBtn key={'view'} icon={'icon-on'} className={'${inlineToolsActionClassName} inline-tools-actions-btn__on'} onClick={onClickView} />);
+        iconButtons.push(<IcoBtn key={'view'} icon={'icon-on'} className={`${inlineToolsActionClassName} inline-tools-actions-btn__on`} onClick={onClickView} />);
       }
 
       const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : !viewOnly;
       if (shouldShowEditButton) {
-        iconButtons.push(<IcoBtn key={'edit'} icon={'icon-edit'} className={'${inlineToolsActionClassName} inline-tools-actions-btn__edit'} onClick={onClickEdit} />);
+        iconButtons.push(<IcoBtn key={'edit'} icon={'icon-edit'} className={`${inlineToolsActionClassName} inline-tools-actions-btn__edit`} onClick={onClickEdit} />);
       }
 
       const shouldShowDeleteButton = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : !disabled && !viewOnly;
       if (shouldShowDeleteButton) {
-        iconButtons.push(<IcoBtn key={'delete'} icon={'icon-delete'} className={'${inlineToolsActionClassName} inline-tools-actions-btn__delete'} onClick={onClickDelete} />);
+        iconButtons.push(<IcoBtn key={'delete'} icon={'icon-delete'} className={`${inlineToolsActionClassName} inline-tools-actions-btn__delete`} onClick={onClickDelete} />);
       }
 
       return <InlineToolsDisconnected {...inlineToolsOffsets} tools={iconButtons} />;
