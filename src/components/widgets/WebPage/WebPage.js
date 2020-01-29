@@ -11,7 +11,7 @@ import { Btn } from '../../common/btns/index';
 import { Caption, Input, Label } from '../../common/form/index';
 import Dashlet, { BaseActions } from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
+import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import { cancelPageLoading, changePageData, initPage, loadedPage, reloadPageData, setError } from '../../../actions/webPage';
 import { selectStateById } from '../../../selectors/webPage';
@@ -76,7 +76,7 @@ class WebPage extends BaseWidget {
       title: get(props, 'config.title', ''),
       url: get(props, 'config.url', ''),
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
+      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
     };
 
     props.initPage(props.config);

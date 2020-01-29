@@ -76,7 +76,7 @@ class BaseWidget extends Component {
 
   handleToggleContent = (isCollapsed = false) => {
     this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+    UserLocalSettingsService.setDashletProperty(this.props.id, { isCollapsed });
   };
 
   handleResize = width => {

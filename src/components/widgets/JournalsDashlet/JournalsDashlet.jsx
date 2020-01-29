@@ -9,7 +9,7 @@ import { goToJournalsPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
 import { t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
+import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import { getDashletConfig, initState, reloadGrid, setDashletConfigByParams, setEditorMode, setRecordRef } from '../../../actions/journals';
 
 import Measurer from '../../Measurer/Measurer';
@@ -78,7 +78,7 @@ class JournalsDashlet extends BaseWidget {
     this._stateId = props.stateId || props.id;
     this.state = {
       width: MIN_WIDTH_DASHLET_SMALL,
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
+      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
     };
 
     this.props.initState(this._stateId);
@@ -104,7 +104,7 @@ class JournalsDashlet extends BaseWidget {
 
   handleToggleContent = (isCollapsed = false) => {
     this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+    UserLocalSettingsService.setDashletProperty(this.props.id, { isCollapsed });
   };
 
   showEditor = () => this.props.setEditorMode(true);
