@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 
 import { SelectOrgstruct } from '../common/form';
-import { AUTHORITY_TYPE_USER, TAB_ALL_USERS } from '../common/form/SelectOrgstruct/constants';
+import { TAB_ALL_USERS } from '../common/form/SelectOrgstruct/constants';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 
 class SelectUserModal extends Component {
@@ -24,7 +24,16 @@ class SelectUserModal extends Component {
   };
 
   renderListItem = item => {
-    return `${get(item, 'label', '')} (${get(item, 'attributes.fullName', '')})`;
+    const str = [];
+    const userName = get(item, 'attributes.userName');
+
+    str.push(`${get(item, 'label', '')}`);
+
+    if (userName) {
+      str.push(`(${userName})`);
+    }
+
+    return str.join(' ');
   };
 
   render() {
@@ -36,21 +45,18 @@ class SelectUserModal extends Component {
 
     return (
       <SelectOrgstruct
-        allUsersGroup={'RU_GE_Users'}
+        defaultTab={TAB_ALL_USERS}
         defaultValue={defaultValue}
-        allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
+        modalTitle={CommonLabels.MODAL_SELECT_ORG_STRUCT_TITLE}
         onChange={onSelect}
         onCancelSelect={onCancel}
         renderListItem={this.renderListItem}
-        filterFields={['label', 'attributes.fullName']}
         isCompact
         openByDefault
-        withoutInput
-        withoutTabs
+        hideInputView
+        hideTabSwitcher
         getFullData
-        defaultTab={TAB_ALL_USERS}
         liveSearch
-        modalTitle={CommonLabels.MODAL_SELECT_ORG_STRUCT_TITLE}
       />
     );
   }

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 
 import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
-import { TAB_BY_LEVELS, TAB_ALL_USERS, TAB_ONLY_SELECTED, ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER } from './constants';
+import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, TAB_ALL_USERS, TAB_BY_LEVELS, TAB_ONLY_SELECTED } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
@@ -13,141 +13,110 @@ export const SelectOrgstructProvider = props => {
   const {
     multiple,
     defaultValue,
-    allUsersGroup,
     allowedAuthorityTypes,
+    excludeAuthoritiesByName,
+    excludeAuthoritiesByType,
     openByDefault,
     onCancelSelect,
     modalTitle,
     getFullData,
-    defaultTab = TAB_BY_LEVELS,
+    defaultTab,
     liveSearch,
-    withoutTabs,
-    renderListItem,
-    filterFields = []
+    hideTabSwitcher,
+    renderListItem
   } = controlProps;
-  const allUsersGroupShortName = allUsersGroup || ALL_USERS_GROUP_SHORT_NAME;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
-  const [currentTab, setCurrentTab] = useState(defaultTab);
-  const [isRootGroupsFetched, setIsRootGroupsFetched] = useState(false);
+  const [currentTab, setCurrentTab] = useState(defaultTab || TAB_BY_LEVELS);
   const [searchText, updateSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
+  const [isSelectedFetched, setIsSelectedFetched] = useState(false);
+  const [isRootGroupsFetched, setIsRootGroupsFetched] = useState(false);
+  const [isAllUsersGroupsFetched, setIsAllUsersGroupFetched] = useState(false);
+  const [isAllUsersGroupsExists, setIsAllUsersGroupsExists] = useState(undefined);
   const [tabItems, setTabItems] = useState({
     [TAB_BY_LEVELS]: [],
     [TAB_ALL_USERS]: [],
     [TAB_ONLY_SELECTED]: []
   });
 
-  const [isAllUsersGroupsExists, setIsAllUsersGroupsExists] = useState(false);
-  const [isAllUsersGroupsFetched, setIsAllUsersGroupFetched] = useState(false);
-  const [allUsers, setAllUsers] = useState([]);
-  const onSubmitSearchForm = (search = searchText) => {
-    // TODO: https://citeck.atlassian.net/browse/ECOSCOM-2129
-    const trimSearchText = search.trim();
+  const onSubmitSearchForm = () => {
+    setIsRootGroupsFetched(false);
+    setIsAllUsersGroupFetched(false);
+  };
 
-    orgStructApi
-      .fetchGroup({
-        groupName: ROOT_ORGSTRUCT_GROUP,
-        searchText: trimSearchText
-      })
-      .then(handleResponse)
-      .then(items => {
-        const allUsersFiltered = trimSearchText
-          ? allUsers.filter(item => {
-              if (!filterFields.length) {
-                return item.label.toUpperCase().indexOf(trimSearchText.toUpperCase()) !== -1;
-              }
+  const liveSearchDebounce = debounce(onSubmitSearchForm, 500);
 
-              return filterFields.map(field => get(item, field, '').indexOf(trimSearchText.toUpperCase()) !== -1).includes(true);
-            })
-          : allUsers.map(newItem => {
-              return {
-                ...newItem,
-                isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
-              };
-            });
+  const setSelectedItem = (item, selectedItems = tabItems[TAB_ONLY_SELECTED], extra = {}) => ({
+    ...item,
+    ...extra,
+    isSelected: selectedItems.some(selected => item.id === selected.id)
+  });
 
-        setTabItems({
-          ...tabItems,
-          [TAB_BY_LEVELS]: items
-            .filter(item => item.attributes.shortName !== allUsersGroupShortName)
-            .map(newItem => {
-              return {
-                ...newItem,
-                isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
-              };
-            }),
-          [TAB_ALL_USERS]: allUsersFiltered
-        });
-      });
+  const checkIsAllUsersGroupExists = () => {
+    const allowedUsers = allowedAuthorityTypes.includes(AUTHORITY_TYPE_USER);
+    setIsAllUsersGroupsExists(allowedUsers);
+
+    if (!allowedUsers && currentTab === TAB_ALL_USERS) {
+      setCurrentTab(TAB_BY_LEVELS);
+    }
   };
 
   // fetch root group list
   useEffect(() => {
-    if (!isRootGroupsFetched && isSelectModalOpen) {
+    const trimSearchText = (searchText || '').trim();
+
+    if (!isRootGroupsFetched && isSelectModalOpen && currentTab === TAB_BY_LEVELS) {
       orgStructApi
-        .fetchGroup()
+        .fetchGroup({
+          query: {
+            groupName: ROOT_ORGSTRUCT_GROUP,
+            searchText: trimSearchText
+          },
+          excludeAuthoritiesByName,
+          excludeAuthoritiesByType
+        })
         .then(handleResponse)
         .then(items => {
           setTabItems({
             ...tabItems,
             [TAB_BY_LEVELS]: items
-              .filter(item => item.attributes.shortName !== allUsersGroupShortName)
-              .map(newItem => {
-                return {
-                  ...newItem,
-                  isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
-                };
-              })
+              .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
+              .map(item => setSelectedItem(item))
           });
 
-          const allUsersGroupIdx = items.findIndex(item => item.attributes.shortName === allUsersGroupShortName);
-
-          const allowedUsers = allowedAuthorityTypes.indexOf(AUTHORITY_TYPE_USER) !== -1;
-          setIsAllUsersGroupsExists(allowedUsers && allUsersGroupIdx !== -1);
+          checkIsAllUsersGroupExists();
           setIsRootGroupsFetched(true);
         });
     }
-  }, [isRootGroupsFetched, isSelectModalOpen]);
+  }, [isRootGroupsFetched, isSelectModalOpen, currentTab]);
 
   // fetch "all" group list (all users)
   useEffect(() => {
-    if (!isAllUsersGroupsFetched && currentTab === TAB_ALL_USERS) {
-      orgStructApi
-        .fetchGroup({
-          groupName: allUsersGroupShortName
-        })
-        .then(handleResponse)
-        .then(items => {
-          const allUsersList = items.map(newItem => {
-            return {
-              ...newItem,
-              isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
-            };
-          });
-
-          let allUsersListFiltered = [...allUsersList];
-          const trimSearchText = searchText.trim();
-          if (trimSearchText) {
-            allUsersListFiltered = allUsersList.filter(item => {
-              return item.label.toUpperCase().indexOf(trimSearchText.toUpperCase()) !== -1;
-            });
-          }
-
-          setTabItems({
-            ...tabItems,
-            [TAB_ALL_USERS]: allUsersListFiltered
-          });
-
-          setAllUsers(allUsersList);
-          setIsAllUsersGroupFetched(true);
+    if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TAB_ALL_USERS) {
+      OrgStructApi.getUserList(searchText).then(items => {
+        setTabItems({
+          ...tabItems,
+          [TAB_ALL_USERS]: items.map(item => setSelectedItem(item))
         });
+
+        checkIsAllUsersGroupExists();
+        setIsAllUsersGroupFetched(true);
+      });
     }
-  }, [isAllUsersGroupsFetched, currentTab, searchText]);
+  }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab]);
 
   // set default value
   useEffect(() => {
+    if (isSelectedFetched) {
+      return;
+    }
+
+    setIsSelectedFetched(true);
+
     let initValue;
+    const promises = [];
+
     if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
       initValue = [...defaultValue];
     } else if (!multiple && Array.isArray(defaultValue)) {
@@ -157,7 +126,6 @@ export const SelectOrgstructProvider = props => {
     }
 
     if (Array.isArray(initValue)) {
-      const promises = [];
       for (let i = 0; i < initValue.length; i++) {
         promises.push(orgStructApi.fetchAuthority(initValue[i]));
       }
@@ -171,24 +139,13 @@ export const SelectOrgstructProvider = props => {
           setTabItems({
             ...tabItems,
             [TAB_ONLY_SELECTED]: [...selectedItems],
-            [TAB_BY_LEVELS]: tabItems[TAB_BY_LEVELS].map(newItem => {
-              return {
-                ...newItem,
-                isSelected: selectedItems.findIndex(item => item.id === newItem.id) !== -1
-              };
-            }),
-            [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(newItem => {
-              return {
-                ...newItem,
-                isSelected: selectedItems.findIndex(item => item.id === newItem.id) !== -1
-              };
-            })
+            [TAB_BY_LEVELS]: tabItems[TAB_BY_LEVELS].map(item => setSelectedItem(item, selectedItems)),
+            [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(item => setSelectedItem(item, selectedItems))
           });
-
           setSelectedRows([...selectedItems]);
         });
     }
-  }, [allUsers]);
+  }, [isSelectedFetched]);
 
   return (
     <SelectOrgstructContext.Provider
@@ -207,7 +164,7 @@ export const SelectOrgstructProvider = props => {
         isAllUsersGroupsExists,
         modalTitle,
         liveSearch,
-        withoutTabs,
+        hideTabSwitcher,
 
         renderListItem: item => {
           if (typeof renderListItem === 'function') {
@@ -231,18 +188,8 @@ export const SelectOrgstructProvider = props => {
           setTabItems({
             ...tabItems,
             [TAB_ONLY_SELECTED]: [...selectedRows],
-            [TAB_BY_LEVELS]: tabItems[TAB_BY_LEVELS].map(newItem => {
-              return {
-                ...newItem,
-                isSelected: selectedRows.findIndex(item => item.id === newItem.id) !== -1
-              };
-            }),
-            [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(newItem => {
-              return {
-                ...newItem,
-                isSelected: selectedRows.findIndex(item => item.id === newItem.id) !== -1
-              };
-            })
+            [TAB_BY_LEVELS]: tabItems[TAB_BY_LEVELS].map(item => setSelectedItem(item, selectedRows)),
+            [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(item => setSelectedItem(item, selectedRows))
           });
 
           toggleSelectModal(false);
@@ -298,7 +245,7 @@ export const SelectOrgstructProvider = props => {
           updateSearchText(e.target.value);
 
           if (liveSearch) {
-            onSubmitSearchForm(e.target.value);
+            liveSearchDebounce();
           }
         },
 
@@ -405,15 +352,13 @@ export const SelectOrgstructProvider = props => {
           if (!targetItem.isLoaded && targetItem.hasChildren) {
             const groupName = targetItem.attributes.shortName;
             orgStructApi
-              .fetchGroup({ groupName })
-              .then(handleResponse)
-              .then(items => {
-                return items.map(newItem => ({
-                  ...newItem,
-                  parentId: targetItem.id,
-                  isSelected: tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === newItem.id) !== -1
-                }));
+              .fetchGroup({
+                query: { groupName },
+                excludeAuthoritiesByName,
+                excludeAuthoritiesByType
               })
+              .then(handleResponse)
+              .then(items => items.map(item => setSelectedItem(item, tabItems[TAB_ONLY_SELECTED], { parentId: targetItem.id })))
               .then(newItems => {
                 setTabItems({
                   ...tabItems,
@@ -422,6 +367,7 @@ export const SelectOrgstructProvider = props => {
                     .concat([
                       {
                         ...targetItem,
+                        hasChildren: newItems.length > 0, // If no children, make not collapsible
                         isLoaded: true,
                         isOpen: !targetItem.isOpen
                       }
