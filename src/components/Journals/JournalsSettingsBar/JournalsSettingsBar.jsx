@@ -7,7 +7,7 @@ import { Search } from '../../common';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import Export from '../../Export/Export';
-import JournalsDashletPagination from '../JournalsDashletPagination';
+import JournalsPagination from '../JournalsPagination';
 
 import './JournalsSettingsBar.scss';
 
@@ -102,7 +102,7 @@ const JournalsSettingsBar = ({
       />
 
       <div className="ecos-journal__settings-bar_right">
-        <JournalsDashletPagination
+        <JournalsPagination
           stateId={stateId}
           className={classNames('ecos-journal__pagination', step, {
             'ecos-journal__pagination_mobile': isMobile

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import JournalsDashletPagination from './JournalsDashletPagination';
+import JournalsPagination from './JournalsPagination';
 import PageHeight from './PageHeight';
 import JournalsGrouping from './JournalsGrouping';
 import JournalsFilters from './JournalsFilters';
@@ -237,7 +237,7 @@ class Journals extends Component {
               <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} height={height - 165} />
 
               <div className={'ecos-journal__footer'}>
-                <JournalsDashletPagination
+                <JournalsPagination
                   stateId={stateId}
                   hasPageSize
                   className={classNames('ecos-journal__pagination', {

@@ -7,6 +7,7 @@ import Pagination from '../../common/Pagination/Pagination';
 import { PAGINATION_SIZES } from '../../Journals/constants';
 import { reloadGrid } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
+import UserLocalSettingsService, { JournalProps } from '../../../services/userLocalSettings';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -24,7 +25,7 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-class JournalsDashletPagination extends Component {
+class JournalsPagination extends Component {
   static propTypes = {
     className: PropTypes.string,
     grid: PropTypes.object,
@@ -69,4 +70,4 @@ class JournalsDashletPagination extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(JournalsDashletPagination);
+)(JournalsPagination);

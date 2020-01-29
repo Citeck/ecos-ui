@@ -22,7 +22,7 @@ function getKey(key) {
   return `${key}${prefixUser}${getCurrentUserName()}`;
 }
 
-class UserLocalSettingsService {
+export default class UserLocalSettingsService {
   static getMenuKey() {
     return `${prefixMenu}${getCurrentUserName()}`;
   }
@@ -31,8 +31,12 @@ class UserLocalSettingsService {
     return `${prefixDashlet}${getKey(key)}`;
   }
 
+  static getJournalKey(key) {
+    return `${prefixJournal}${getKey(key || 'all')}`;
+  }
+
   static checkOldData(dashletId) {
-    selfService.transferData(`${prefixDashlet}${dashletId}`, selfService.getDashletKey(dashletId));
+    self.transferData(`${prefixDashlet}${dashletId}`, self.getDashletKey(dashletId));
   }
 
   static transferData(oldKey, newKey) {
@@ -42,11 +46,32 @@ class UserLocalSettingsService {
   /*common settings*/
 
   static setMenuMode(data) {
-    setData(selfService.getMenuKey(), { ...selfService.getMenuMode(), ...data });
+    setData(self.getMenuKey(), { ...self.getMenuMode(), ...data });
   }
 
   static getMenuMode() {
-    return getData(selfService.getMenuKey());
+    return getData(self.getMenuKey());
+  }
+
+  /*journals settings*/
+
+  static setJournalProperty(key, property = {}, isTemp) {
+    const journal = self.getJournalKey(key);
+    const data = isTemp ? getSessionData(journal) || {} : getData(journal) || {};
+    const upData = { ...data, ...property };
+
+    if (isTemp) {
+      setSessionData(journal, upData);
+    } else {
+      setData(journal, upData);
+    }
+  }
+
+  static getJournalProperty(key, propertyName, isTemp) {
+    const journal = self.getJournalKey(key);
+    const data = isTemp ? getSessionData(journal) || {} : getData(journal) || {};
+
+    return get(data, [propertyName]);
   }
 
   /*dashlets settings*/
@@ -59,20 +84,20 @@ class UserLocalSettingsService {
   }
 
   static getDashletProperty(dashletId, propertyName) {
-    const key = selfService.getDashletKey(dashletId);
+    const key = self.getDashletKey(dashletId);
     const data = getDashletSettings(key);
 
     return get(data, [propertyName]);
   }
 
   static getDashletHeight(dashletId) {
-    const key = selfService.getDashletKey(dashletId);
+    const key = self.getDashletKey(dashletId);
 
     return get(getDashletSettings(key), DashletProps.CONTENT_HEIGHT);
   }
 
   static setDashletHeight(dashletId, height = null) {
-    const key = selfService.getDashletKey(dashletId);
+    const key = self.getDashletKey(dashletId);
     const dashletData = getDashletSettings(key);
 
     if (height === null) {
@@ -85,13 +110,13 @@ class UserLocalSettingsService {
   }
 
   static getDashletScale(dashletId) {
-    const key = selfService.getDashletKey(dashletId);
+    const key = self.getDashletKey(dashletId);
 
     return get(getDashletSettings(key), DashletProps.CONTENT_SCALE);
   }
 
   static setDashletScale(dashletId, scale) {
-    const key = selfService.getDashletKey(dashletId);
+    const key = self.getDashletKey(dashletId);
     const dashletData = getDashletSettings(key);
 
     dashletData.contentScale = scale;
@@ -99,10 +124,7 @@ class UserLocalSettingsService {
     setData(key, dashletData);
   }
 }
-
-const selfService = UserLocalSettingsService;
-
-export default UserLocalSettingsService;
+const self = UserLocalSettingsService;
 
 export const DashletProps = {
   IS_COLLAPSED: 'isCollapsed',
