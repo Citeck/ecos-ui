@@ -13,6 +13,7 @@ export const selectStateByKey = createSelector(
     availableTypes: getAvailableTypes(ownState),
     dynamicTypes: ownState.dynamicTypes,
     documents: ownState.documents,
+    actions: ownState.actions,
 
     isLoading: ownState.isLoading,
     isUploadingFile: ownState.isUploadingFile,

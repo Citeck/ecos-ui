@@ -187,7 +187,13 @@ class Grid extends Component {
 
         trigger.call(this, 'onMouseEnter', e);
       },
-      onMouseLeave: e => props.changeTrOptionsByRowClick && this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true),
+      onMouseLeave: e => {
+        if (props.changeTrOptionsByRowClick) {
+          this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true);
+        }
+
+        trigger.call(this, 'onRowMouseLeave', e);
+      },
       onDragOver: this.onDragOver,
       onDrop: this.onDrop,
       ...props.rowEvents
@@ -665,7 +671,8 @@ Grid.propTypes = {
 
   onRowDrop: PropTypes.func,
   onDragOver: PropTypes.func,
-  onRowDragEnter: PropTypes.func
+  onRowDragEnter: PropTypes.func,
+  onRowMouseLeave: PropTypes.func
 };
 
 export default Grid;

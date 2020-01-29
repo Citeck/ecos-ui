@@ -3,6 +3,7 @@ import { handleActions } from 'redux-actions';
 import {
   init,
   initSuccess,
+  initFinally,
   getAvailableTypes,
   setAvailableTypes,
   setDynamicTypes,
@@ -14,7 +15,8 @@ import {
   setUploadError,
   uploadFilesFinally,
   setConfig,
-  setError
+  setError,
+  setActions
 } from '../actions/documents';
 
 export const initialState = {
@@ -23,6 +25,7 @@ export const initialState = {
   availableTypes: [],
   dynamicTypes: [],
   documents: [],
+  actions: [],
   isLoading: false,
   isLoadingTableData: false,
   isUploadingFile: false,
@@ -54,6 +57,13 @@ export default handleActions(
       };
     },
     [initSuccess]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...state[payload],
+        isLoading: false
+      }
+    }),
+    [initFinally]: (state, { payload }) => ({
       ...state,
       [payload]: {
         ...state[payload],
@@ -158,6 +168,14 @@ export default handleActions(
       [payload.record]: {
         ...state[payload.record],
         [payload.type]: payload.message
+      }
+    }),
+
+    [setActions]: (state, { payload }) => ({
+      ...state,
+      [payload.record]: {
+        ...state[payload.record],
+        actions: payload.actions
       }
     })
   },

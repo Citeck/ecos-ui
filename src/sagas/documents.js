@@ -7,6 +7,7 @@ import { selectTypeNames, selectDynamicTypes, selectAvailableTypes, selectConfig
 import {
   init,
   initSuccess,
+  initFinally,
   getAvailableTypes,
   setAvailableTypes,
   setDynamicTypes,
@@ -17,10 +18,15 @@ import {
   uploadFiles,
   uploadFilesFinally,
   setConfig,
-  setUploadError
+  setUploadError,
+  setActions,
+  execRecordsAction
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
 import { deepClone } from '../helpers/util';
+import RecordActions from '../components/Records/actions/RecordActions';
+import isArray from 'lodash/isArray';
+import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
@@ -28,9 +34,13 @@ function* sagaInitWidget({ api, logger }, { payload }) {
     yield* sagaGetAvailableTypes({ api, logger }, { payload: payload.record });
     yield* sagaGetDynamicTypes({ api, logger }, { payload });
 
+    //const res = yield call(api.recordActions.getActions, { records: record, context }) || [];
+
     yield put(initSuccess(payload.record));
   } catch (e) {
     logger.error('[documents sagaInitWidget saga error', e.message);
+  } finally {
+    yield put(initFinally(payload.record));
   }
 }
 
@@ -163,8 +173,49 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     }
 
     yield put(setDynamicTypes({ record: payload.record, dynamicTypes }));
+
+    // const actions = yield call(
+    //   api.recordActions.getActions,
+    //   {
+    //     records: documents.map(item => item.id),
+    //     context: {
+    //       actions: ['ui/action$delete', 'ui/action$ecos-module-download', 'ui/action$edit', 'ui/action$view-dashboard']
+    //     }
+    //   }
+    // );
+
+    const actions = yield RecordActions.getActions(documents.map(item => item.id), {
+      actions: ['ui/action$download', 'ui/action$view', 'ui/action$edit', 'ui/action$delete']
+    });
+
+    // Object.keys(actions).forEach(key => {
+    //   actions[key].forEach(action => {
+    //     action.onClick = () => {
+    //       payload.actionCallback([key], action);
+    //     };
+    //   })
+    // });
+
+    yield put(setActions({ record: payload.record, actions }));
   } catch (e) {
     logger.error('[documents sagaGetDocumentsByType saga error', e.message);
+  }
+}
+
+function* sagaExecRecordsAction({ api, logger }, { payload }) {
+  try {
+    const actionResult = yield call(api.recordActions.executeAction, payload);
+    const check = isArray(actionResult) ? actionResult.some(res => res !== false) : actionResult !== false;
+
+    if (check) {
+      if (get(payload, 'action.type', '') !== BackgroundOpenAction.type) {
+        if (typeof payload.callback === 'function') {
+          payload.callback(get(payload, 'action.type', ''));
+        }
+      }
+    }
+  } catch (e) {
+    logger.error('[documents sagaExecRecordsAction saga error', e.message, e);
   }
 }
 
@@ -262,6 +313,7 @@ function* saga(ea) {
   yield takeEvery(getDocumentsByType().type, sagaGetDocumentsByType, ea);
   yield takeEvery(saveSettings().type, sagaSaveSettings, ea);
   yield takeEvery(uploadFiles().type, sagaUploadFiles, ea);
+  yield takeEvery(execRecordsAction().type, sagaExecRecordsAction, ea);
 }
 
 export default saga;

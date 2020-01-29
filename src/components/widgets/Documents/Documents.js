@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import BaseWidget from '../BaseWidget';
@@ -14,10 +15,11 @@ import { Dropdown } from '../../common/form';
 import FormManager from '../../EcosForm/FormManager';
 import DropZone from './DropZone';
 import Settings from './Settings';
-
+import InlineToolsDisconnected from '../../common/grid/InlineTools/InlineToolsDisconnected';
+import InlineTools from '../../common/grid/InlineTools';
 import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { getDocumentsByType, init, saveSettings, uploadFiles, setError } from '../../../actions/documents';
+import { getDocumentsByType, init, saveSettings, uploadFiles, setError, execRecordsAction, setActions } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
 import { statusesKeys, typesStatuses, tooltips, typeStatusesByFields, tableFields, errorTypes } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
@@ -35,6 +37,8 @@ const Labels = {
 };
 
 class Documents extends BaseWidget {
+  scrollPosition = {};
+
   constructor(props) {
     super(props);
 
@@ -56,7 +60,9 @@ class Documents extends BaseWidget {
       isDragFiles: false,
       typesFilter: '',
       tableFilter: '',
-      statusFilter: statusesKeys.ALL
+      statusFilter: statusesKeys.ALL,
+      selectedRowId: '',
+      selectedRowOptions: {}
     };
   }
 
@@ -471,6 +477,49 @@ class Documents extends BaseWidget {
     this.uploadingComplete();
   };
 
+  handleHoverRow = data => {
+    const options = deepClone(data);
+    let actions = deepClone(this.props.actions);
+    const id = options.row.id;
+
+    delete options.row;
+
+    this.handleMouseLeaveRow.cancel();
+
+    actions[id].forEach(action => {
+      action.onClick = () => {
+        this.props.execRecordsAction([id], action, this.initWidget);
+      };
+    });
+
+    this.setState({
+      selectedRowId: id,
+      selectedRowOptions: options
+    });
+    this.props.setActions(actions);
+  };
+
+  handleMouseLeaveRow = debounce(() => {
+    console.warn('handleMouseLeaveRow');
+    this.setState({ selectedRowOptions: {}, selectedRowId: '' });
+  }, 300);
+
+  handleScollingTable = event => {
+    console.warn('handleScollingTable => ', event);
+    this.scrollPosition = event;
+    this.setState({
+      scrollPosition: event
+      // selectedRowOptions: {
+      //   height: 0,
+      //   top: 0,
+      //   left: 0,
+      //   row: {},
+      //   actions: []
+      // },
+      // selectedRowId: ''
+    });
+  };
+
   openForm = (type, files = []) => {
     FormManager.createRecordByVariant(
       DocumentsConverter.getDataToCreate({
@@ -674,9 +723,28 @@ class Documents extends BaseWidget {
     );
   }
 
+  renderInlineTools = () => {
+    const { actions } = this.props;
+    const { selectedRowOptions, selectedRowId } = this.state;
+
+    if (!selectedRowId || !Object.keys(selectedRowOptions).length || !Object.keys(actions).length) {
+      return null;
+    }
+
+    let inlineActions = actions[selectedRowId];
+
+    if (!inlineActions) {
+      return null;
+    }
+
+    inlineActions = inlineActions.map(InlineTools.renderAction);
+
+    return <InlineToolsDisconnected tools={inlineActions} {...selectedRowOptions} />;
+  };
+
   renderDocumentsTable() {
     const { dynamicTypes, isUploadingFile } = this.props;
-    const { selectedType, isDragFiles } = this.state;
+    const { selectedType, isDragFiles, scrollPosition } = this.state;
 
     if (!selectedType && dynamicTypes.length !== 1) {
       return null;
@@ -691,14 +759,22 @@ class Documents extends BaseWidget {
     return (
       <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
         <Grid
+          // changeTrOptionsByRowClick
+          // scrollable
+          keyField="id"
+          // doInlineToolsOnRowClick
           className={classNames('ecos-docs__table', {
             'ecos-docs__table_hidden': isShowDropZone || isUploadingFile
           })}
           data={this.tableData}
           columns={columns}
-          onRowClick={this.handleClickTableRow}
-          scrollable
-          keyField="id"
+          onChangeTrOptions={this.handleHoverRow}
+          // onRowMouseLeave={this.handleMouseLeaveRow}
+          onScrolling={this.handleScollingTable}
+          inlineTools={this.renderInlineTools}
+          scrollable={false}
+          // scrollPosition={this.scrollPosition}
+          // scrollPosition={scrollPosition}
         />
 
         <DropZone
@@ -876,7 +952,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   getDocuments: (type = '') => dispatch(getDocumentsByType({ record: ownProps.record, type })),
   onSaveSettings: (types, config) => dispatch(saveSettings({ record: ownProps.record, types, config })),
   onUploadFiles: data => dispatch(uploadFiles({ record: ownProps.record, ...data })),
-  setError: (type, message = '') => dispatch(setError({ record: ownProps.record, type, message }))
+  setError: (type, message = '') => dispatch(setError({ record: ownProps.record, type, message })),
+  setActions: actions => dispatch(setActions({ record: ownProps.record, actions })),
+  execRecordsAction: (records, action, callback) => dispatch(execRecordsAction({ record: ownProps.record, records, action, callback }))
 });
 
 export default connect(
