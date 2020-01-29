@@ -13,8 +13,9 @@ import './InputView.scss';
 const InputView = () => {
   const context = useContext(TableFormContext);
 
-  const { placeholder, disabled, viewOnly, displayElements } = context.controlProps;
+  const { placeholder, disabled, viewOnly, displayElements, isSelectableRows } = context.controlProps;
   const {
+    gridRows,
     selectedRows,
     columns,
     error,
@@ -22,7 +23,8 @@ const InputView = () => {
     showEditForm,
     inlineToolsOffsets,
     setInlineToolsOffsets,
-    showViewOnlyForm
+    showViewOnlyForm,
+    onSelectGridItem
   } = context;
 
   const wrapperRef = useRef(null);
@@ -70,7 +72,7 @@ const InputView = () => {
     </p>
   );
 
-  if (selectedRows.length > 0) {
+  if (gridRows.length > 0) {
     const inlineTools = () => {
       const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
       const iconButtons = [];
@@ -96,11 +98,13 @@ const InputView = () => {
     valuesList = (
       <div ref={wrapperRef} className={'ecos-table-form__grid-wrapper'}>
         <Grid
-          data={selectedRows}
+          data={gridRows}
           columns={columns}
-          total={selectedRows.length}
+          total={gridRows.length}
           singleSelectable={false}
-          multiSelectable={false}
+          multiSelectable={!viewOnly && isSelectableRows}
+          onSelect={onSelectGridItem}
+          selected={selectedRows}
           inlineTools={inlineTools}
           onChangeTrOptions={setInlineToolsOffsets}
           className={'ecos-table-form__grid'}

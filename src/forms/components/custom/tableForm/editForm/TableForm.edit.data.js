@@ -136,6 +136,14 @@ export default [
     }
   },
   {
+    type: 'checkbox',
+    input: true,
+    key: 'isSelectableRows',
+    label: 'Selectable rows',
+    weight: 23,
+    defaultValue: false
+  },
+  {
     weight: 25,
     type: 'panel',
     title: 'Custom Create Variants',

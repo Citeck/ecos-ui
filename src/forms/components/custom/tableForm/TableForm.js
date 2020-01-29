@@ -31,6 +31,7 @@ export default class TableFormComponent extends BaseReactComponent {
         },
         customCreateVariantsJs: '',
         isStaticModalTitle: false,
+        isSelectableRows: false,
         displayElementsJS: {}
       },
       ...extend
@@ -49,6 +50,12 @@ export default class TableFormComponent extends BaseReactComponent {
 
   get defaultSchema() {
     return TableFormComponent.schema();
+  }
+
+  build() {
+    super.build();
+
+    this._selectedRows = [];
   }
 
   checkConditions(data) {
@@ -140,6 +147,14 @@ export default class TableFormComponent extends BaseReactComponent {
     }
   }
 
+  _setSelectedRows = selected => {
+    this._selectedRows = selected;
+  };
+
+  getSelectedRows = () => {
+    return this._selectedRows;
+  };
+
   getInitialReactProps() {
     const component = this.component;
 
@@ -167,6 +182,8 @@ export default class TableFormComponent extends BaseReactComponent {
         isStaticModalTitle: component.isStaticModalTitle,
         source: source,
         onChange: this.onReactValueChanged,
+        isSelectableRows: component.isSelectableRows,
+        onSelectRows: this._setSelectedRows,
         viewOnly: this.viewOnly,
         parentForm: this.root,
         triggerEventOnTableChange,
