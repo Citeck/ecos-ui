@@ -17,7 +17,7 @@ import Settings from './Settings';
 
 import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { getDocumentsByType, init, toggleType, saveSettings, uploadFiles, setError } from '../../../actions/documents';
+import { getDocumentsByType, init, saveSettings, uploadFiles, setError } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
 import { statusesKeys, typesStatuses, tooltips, typeStatusesByFields, tableFields, errorTypes } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
@@ -328,10 +328,6 @@ class Documents extends BaseWidget {
     });
   };
 
-  handleToggleSelectType = ({ id, checked }) => {
-    this.props.onToggleType(id, checked);
-  };
-
   handleFilterTypes = (filter = '') => {
     this.setState({ typesFilter: filter.toLowerCase() });
   };
@@ -461,6 +457,9 @@ class Documents extends BaseWidget {
   handleRowDragEnter = () => {
     if (this.props.uploadError) {
       this.props.setError(errorTypes.UPLOAD, '');
+    }
+
+    if (this.props.countFilesError) {
       this.props.setError(errorTypes.COUNT_FILES, '');
     }
   };
@@ -875,7 +874,6 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch, ownProps) => ({
   init: () => dispatch(init({ record: ownProps.record, config: ownProps.config })),
   getDocuments: (type = '') => dispatch(getDocumentsByType({ record: ownProps.record, type })),
-  onToggleType: (id, checked) => dispatch(toggleType({ record: ownProps.record, id, checked })),
   onSaveSettings: (types, config) => dispatch(saveSettings({ record: ownProps.record, types, config })),
   onUploadFiles: data => dispatch(uploadFiles({ record: ownProps.record, ...data })),
   setError: (type, message = '') => dispatch(setError({ record: ownProps.record, type, message }))

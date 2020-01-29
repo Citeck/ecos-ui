@@ -1,12 +1,8 @@
 import Records from '../components/Records';
-import { DocumentsApiRequests } from './stubs';
 import ecosXhr from '../helpers/ecosXhr';
-import ecosFetch from '../helpers/ecosFetch';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
-    // return DocumentsApiRequests.getDocumentTypes();
-
     return Records.query(
       {
         sourceId: 'emodel/type'
@@ -20,8 +16,6 @@ export class DocumentsApi {
   };
 
   getDynamicTypes = recordRef => {
-    // return DocumentsApiRequests.getDynamicTypes();
-
     return Records.query(
       {
         sourceId: 'alfresco/documents',
@@ -36,40 +30,7 @@ export class DocumentsApi {
     ).then(response => response);
   };
 
-  getCountDocumentsByTypes = (recordRef, types = []) => {
-    // return DocumentsApiRequests.getCountDocumentsByTypes();
-
-    return Records.query(
-      {
-        sourceId: 'alfresco/',
-        query: {
-          t: 'and',
-          val: [
-            {
-              t: 'eq',
-              att: '_parent',
-              val: recordRef
-            },
-            {
-              t: 'eq',
-              att: '_etype',
-              val: '$_IT'
-            }
-          ]
-        },
-        language: 'predicate'
-      },
-      {
-        _modified: '_modified',
-        _modifier: '_modifier.fullName'
-      },
-      types
-    ).then(response => response);
-  };
-
   getFormIdByType = type => {
-    // return DocumentsApiRequests.getFormIdByType();
-
     return Records.get(type).load('form?id');
   };
 

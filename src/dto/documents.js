@@ -38,7 +38,10 @@ export default class DocumentsConverter {
       let document = {};
 
       if (documents.length) {
-        document = documents[documents.length - 1];
+        document = DocumentsConverter.sortByDate({
+          data: documents,
+          type: 'desc'
+        })[0];
       }
 
       return {
@@ -46,8 +49,9 @@ export default class DocumentsConverter {
         formId: DocumentsConverter.formIdIsNull(item.formId) ? null : item.formId,
         name: item.name || get(typeNames, [item.type], ''),
         countDocuments: documents.length,
-        loadedBy: get(document, '_modifier', ''),
-        modified: DocumentsConverter.getFormattedDate(get(document, '_modified', ''))
+        lastDocumentRef: get(document, 'id', ''),
+        loadedBy: get(document, 'loadedBy', ''),
+        modified: DocumentsConverter.getFormattedDate(get(document, 'modified', ''))
       };
     });
   };
@@ -85,6 +89,19 @@ export default class DocumentsConverter {
       target.modified = DocumentsConverter.getFormattedDate(document.modified);
 
       return target;
+    });
+  };
+
+  static sortByDate = ({ data, byField = 'modified', type = 'asc' }) => {
+    return data.sort((...items) => {
+      const first = type === 'asc' ? items[0] : items[1];
+      const second = type === 'asc' ? items[1] : items[0];
+
+      if (!first[byField] || !second[byField]) {
+        return false;
+      }
+
+      return new Date(first[byField]) - new Date(second[byField]);
     });
   };
 
