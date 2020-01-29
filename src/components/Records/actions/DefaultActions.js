@@ -52,13 +52,10 @@ export const ViewAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
   execute: ({ record, action: { config = {}, context } }) => {
-    switch (config.viewType || '') {
-      case 'dashboard':
-      case 'task-details':
-      case 'task-document-dashboard':
-        const taskDocumentId = window.Citeck.Records.get(record.id).load('wfm:document?id');
-        goToCardDetailsPage(taskDocumentId);
-        return false;
+    if (config.viewType === 'task-document-dashboard') {
+      const taskDocumentId = window.Citeck.Records.get(record.id).load('wfm:document?id');
+      goToCardDetailsPage(taskDocumentId);
+      return false;
     }
 
     if (globalTasks.indexOf(context.scope) > -1) {
