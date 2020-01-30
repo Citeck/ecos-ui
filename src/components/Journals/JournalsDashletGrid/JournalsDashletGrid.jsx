@@ -16,7 +16,7 @@ import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
 import { PROXY_URI } from '../../../constants/alfresco';
-
+import { JournalProps } from '../../../services/userLocalSettings';
 import {
   deleteRecords,
   execRecordsAction,
@@ -28,7 +28,8 @@ import {
   setPerformGroupActionResponse,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setSelectedRecords
+  setSelectedRecords,
+  setSessionProps
 } from '../../../actions/journals';
 
 const mapStateToProps = (state, props) => {
@@ -59,7 +60,8 @@ const mapDispatchToProps = (dispatch, props) => {
     setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(w(settings))),
     goToJournalsPage: row => dispatch(goToJournalsPage(w(row))),
     performGroupAction: options => dispatch(performGroupAction(w(options))),
-    setPerformGroupActionResponse: options => dispatch(setPerformGroupActionResponse(w(options)))
+    setPerformGroupActionResponse: options => dispatch(setPerformGroupActionResponse(w(options))),
+    setSessionProps: props => dispatch(setSessionProps(w(props)))
   };
 };
 
@@ -101,16 +103,22 @@ class JournalsDashletGrid extends Component {
     this.filters = predicates;
 
     this.reloadGrid({ predicates });
+    this.props.setSessionProps({
+      [JournalProps.FILTERS]: predicates
+    });
   };
 
   onSort = e => {
-    this.reloadGrid({
-      sortBy: [
-        {
-          attribute: e.column.attribute,
-          ascending: !e.ascending
-        }
-      ]
+    const sortBy = [
+      {
+        attribute: e.column.attribute,
+        ascending: !e.ascending
+      }
+    ];
+
+    this.reloadGrid({ sortBy });
+    this.props.setSessionProps({
+      [JournalProps.SORT]: sortBy
     });
   };
 
@@ -294,7 +302,7 @@ class JournalsDashletGrid extends Component {
     }
   };
 
-  onDelete = () => {};
+  onDelete = () => null;
 
   closeDialog = () => {
     this.setState({ isDialogShow: false });
@@ -313,6 +321,7 @@ class JournalsDashletGrid extends Component {
       <EmptyGrid maxItems={performGroupActionResponse.length}>
         {performGroupActionResponseUrl ? (
           <Grid
+            className={className}
             keyField={'link'}
             data={[
               {
@@ -336,10 +345,10 @@ class JournalsDashletGrid extends Component {
                 }
               }
             ]}
-            className={className}
           />
         ) : (
           <Grid
+            className={className}
             keyField={'nodeRef'}
             data={performGroupActionResponse}
             columns={[
@@ -356,7 +365,6 @@ class JournalsDashletGrid extends Component {
                 text: t('group-action.label.message')
               }
             ]}
-            className={className}
           />
         )}
       </EmptyGrid>
@@ -411,7 +419,7 @@ class JournalsDashletGrid extends Component {
 
     return (
       <>
-        <div className={'ecos-journal-dashlet__grid'}>
+        <div className="ecos-journal-dashlet__grid">
           <HeightCalculation maxItems={maxItems} doNotCount={doNotCount} minHeight={minHeight} total={total}>
             {loading ? (
               <Loader />
@@ -450,7 +458,7 @@ class JournalsDashletGrid extends Component {
           title={t('group-action.label.header')}
           isOpen={Boolean(performGroupActionResponse.length)}
           hideModal={this.closePerformGroupActionDialog}
-          className={'journal__dialog'}
+          className="journal__dialog"
         >
           {this.renderPerformGroupActionResponse(performGroupActionResponse)}
         </EcosModal>

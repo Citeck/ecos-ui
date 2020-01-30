@@ -138,8 +138,7 @@ export const DashletProps = {
 };
 
 export const JournalProps = {
-  PAGE_NUM: 'page-num',
-  PAGE_SIZE: 'page-size',
+  PAGINATION: 'pagination',
   FILTERS: 'filters',
-  SORTS: 'sorts'
+  SORT: 'sort'
 };

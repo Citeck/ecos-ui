@@ -56,7 +56,7 @@ import { BackgroundOpenAction } from '../components/Records/actions/DefaultActio
 import { getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
 import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
-import UserLocalSettingsService from '../services/userLocalSettings';
+import UserLocalSettingsService, { JournalProps } from '../services/userLocalSettings';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -84,25 +84,24 @@ function getDefaultJournalSetting(journalConfig) {
   };
 }
 
-function getGridParams(journalConfig, journalSetting, stateId, pagination) {
+function getGridParams({ journalConfig, journalSetting, pagination, sessionSetting = {} }) {
   const {
     meta: { createVariants, predicate, actions },
     sourceId
   } = journalConfig;
   const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
-  const sessionProps = UserLocalSettingsService.getJournalAllProps(stateId, true);
-  console.log('>>>>', sessionProps);
+
   return {
     journalId: journalConfig.id,
     journalActions: actions,
     createVariants,
     predicate,
     sourceId: sourceId,
-    sortBy: sortBy.map(sort => ({ ...sort })),
+    sortBy: sessionSetting[JournalProps.SORT] || sortBy.map(sort => ({ ...sort })),
     columns: columns.map(col => ({ ...col })),
     groupBy: Array.from(groupBy),
-    predicates: journalSettingPredicate ? [{ ...journalSettingPredicate }] : [],
-    pagination: pagination
+    predicates: sessionSetting[JournalProps.FILTERS] || journalSettingPredicate ? [{ ...journalSettingPredicate }] : [],
+    pagination: sessionSetting[JournalProps.PAGINATION] || pagination
   };
 }
 
@@ -196,27 +195,27 @@ function* getJournalConfig(api, journalId, w) {
   return journalConfig;
 }
 
-function* getJournalSetting(api, journalSettingId, journalConfig, stateId, w) {
+function* getJournalSetting(api, { journalSettingId, journalConfig, sessionSetting, stateId }, w) {
   const url = yield select(state => state.journals[stateId].url);
 
   let journalSetting;
 
-  journalSettingId = journalSettingId || journalConfig.journalSettingId || api.journals.getLsJournalSettingId(journalConfig.id);
+  journalSettingId = journalSettingId || journalConfig.journalSettingId || api.journals.getLsJournalSettingId(journalConfig.id) || '';
 
   if (journalSettingId) {
     journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
   }
 
   if (!journalSetting) {
-    journalSettingId = '';
     journalSetting = getDefaultJournalSetting(journalConfig);
   }
 
   journalSetting = { ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
+
   const predicate = url.filter ? JSON.parse(url.filter) : null || journalSetting.predicate;
+
   journalSetting.predicate = predicate;
   journalSetting.predicate = url.selectionFilter ? JSON.parse(url.selectionFilter) : null || journalSetting.predicate;
-
   journalSetting.columns = journalSetting.columns.map(column => {
     const match = journalConfig.columns.filter(c => c.attribute === column.attribute)[0];
     return match ? { ...column, sortable: match.sortable } : column;
@@ -260,9 +259,9 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
 function* sagaCancelJournalSettingData({ api, logger, stateId, w }, action) {
   try {
     const journalSettingId = action.payload;
-    let journalConfig = yield select(state => state.journals[stateId].journalConfig);
+    const journalConfig = yield select(state => state.journals[stateId].journalConfig);
+    const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
 
-    let journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig, stateId, w);
     yield put(initJournalSettingData(w({ journalSetting })));
   } catch (e) {
     logger.error('[journals sagaCancelJournalSettingData saga error', e.message);
@@ -270,7 +269,6 @@ function* sagaCancelJournalSettingData({ api, logger, stateId, w }, action) {
 }
 
 function* getGridData(api, params, stateId) {
-  console.log('000000');
   const { pagination, predicates, ...forRequest } = params;
   const recordRef = yield select(state => state.journals[stateId].recordRef);
   const config = yield select(state => state.journals[stateId].config);
@@ -283,12 +281,11 @@ function* getGridData(api, params, stateId) {
   });
 }
 
-function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
+function* loadGrid(api, { journalSettingId, journalConfig, sessionSetting, stateId }, w) {
   const url = yield select(state => state.journals[stateId].url);
   const pagination = yield select(state => state.journals[stateId].grid.pagination);
-  const journalSetting = yield getJournalSetting(api, journalSettingId, journalConfig, stateId, w);
-  const params = getGridParams(journalConfig, journalSetting, stateId, pagination);
-
+  const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
+  const params = getGridParams({ journalConfig, journalSetting, pagination, sessionSetting });
   const gridData = yield getGridData(api, params, stateId);
 
   yield put(setSelectedRecords(w([])));
@@ -298,7 +295,6 @@ function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
   yield put(setPerformGroupActionResponse(w([])));
   yield put(setPreviewUrl(w('')));
   yield put(setPreviewFileName(w('')));
-
   yield put(setGrid(w({ ...params, ...gridData })));
 }
 
@@ -354,9 +350,10 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
 
     const { journalId, journalSettingId } = action.payload;
     const journalConfig = yield getJournalConfig(api, journalId, w);
+    const sessionSetting = UserLocalSettingsService.getJournalAllProps(stateId, true);
 
     yield getJournalSettings(api, journalConfig.id, w);
-    yield loadGrid(api, journalSettingId, journalConfig, stateId, w);
+    yield loadGrid(api, { journalSettingId, journalConfig, sessionSetting, stateId }, w);
 
     yield put(setLoading(w(false)));
   } catch (e) {
@@ -374,7 +371,7 @@ function* sagaOnJournalSettingsSelect({ api, logger, stateId, w }, action) {
 
     api.journals.setLsJournalSettingId(journalConfig.id, journalSettingId);
 
-    yield loadGrid(api, journalSettingId, journalConfig, stateId, w);
+    yield loadGrid(api, { journalSettingId, journalConfig, stateId }, w);
     yield put(setLoading(w(false)));
   } catch (e) {
     logger.error('[journals sagaOnJournalSettingsSelect saga error', e.message);
@@ -389,7 +386,7 @@ function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
     const journalConfig = yield getJournalConfig(api, journalId, w);
 
     yield getJournalSettings(api, journalConfig.id, w);
-    yield loadGrid(api, null, journalConfig, stateId, w);
+    yield loadGrid(api, { journalConfig, stateId }, w);
 
     yield put(setLoading(w(false)));
   } catch (e) {
@@ -473,7 +470,7 @@ function* sagaSaveJournalSetting({ api, logger, stateId, w }, action) {
 
     const journalConfig = yield select(state => state.journals[stateId].journalConfig);
 
-    yield loadGrid(api, journalSettingId, journalConfig, stateId, w);
+    yield loadGrid(api, { journalSettingId, journalConfig, stateId }, w);
   } catch (e) {
     logger.error('[journals sagaSaveJournalSetting saga error', e.message);
   }
@@ -498,7 +495,7 @@ function* sagaDeleteJournalSetting({ api, logger, stateId, w }, action) {
     const journalConfig = yield select(state => state.journals[stateId].journalConfig);
 
     yield getJournalSettings(api, journalConfig.id, w);
-    yield loadGrid(api, '', journalConfig, stateId, w);
+    yield loadGrid(api, { journalConfig, stateId }, w);
   } catch (e) {
     logger.error('[journals sagaCreateJournalSetting saga error', e.message);
   }
@@ -650,7 +647,7 @@ function* sagaCreateZip({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaSetSessionProps({ api, logger, stateId, w }, action) {
+function sagaSetSessionProps({ api, logger, stateId, w }, action) {
   try {
     UserLocalSettingsService.setJournalProperty(stateId, action.payload, true);
   } catch (e) {

@@ -40,10 +40,7 @@ class JournalsDashletPagination extends Component {
 
   reloadGrid = pagination => {
     this.props.reloadGrid({ pagination });
-    this.props.setSessionProps({
-      [JournalProps.PAGE_NUM]: pagination.page,
-      [JournalProps.PAGE_SIZE]: pagination.maxItems
-    });
+    this.props.setSessionProps({ [JournalProps.PAGINATION]: pagination });
   };
 
   render() {

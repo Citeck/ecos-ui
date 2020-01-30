@@ -61,5 +61,4 @@ export const createZip = createAction(prefix + 'CREATE_ZIP');
 export const setZipNodeRef = createAction(prefix + 'SET_ZIP_NODEREF');
 export const setRecordRef = createAction(prefix + 'SET_RECORD_REF');
 
-export const getSessionProps = createAction(prefix + 'GET_SESSION_PROPS');
 export const setSessionProps = createAction(prefix + 'SET_SESSION_PROPS');
