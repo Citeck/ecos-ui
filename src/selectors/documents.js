@@ -8,6 +8,7 @@ const selectState = (state, key) => get(state, ['documents', key], { ...initialS
 export const selectStateByKey = createSelector(
   selectState,
   ownState => ({
+    stateId: ownState.stateId,
     types: ownState.types,
     grouppedAvailableTypes: selectGrouppedAvailableTypes(ownState),
     availableTypes: getAvailableTypes(ownState),
@@ -27,7 +28,6 @@ export const selectStateByKey = createSelector(
 
 const getAvailableTypes = state => get(state, 'availableTypes', []);
 const getDynamicTypes = state => get(state, 'dynamicTypes', []);
-const getDocuments = state => get(state, 'dynamicTypes', []);
 
 export const selectTypesForTable = createSelector();
 

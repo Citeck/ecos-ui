@@ -16,10 +16,19 @@ import {
   uploadFilesFinally,
   setConfig,
   setError,
-  setActions
+  setActions,
+  setInlineTools
 } from '../actions/documents';
 
+const emptyTools = Object.freeze({
+  height: 0,
+  top: 0,
+  left: 0,
+  row: {},
+  actions: []
+});
 export const initialState = {
+  stateId: '',
   types: [],
   config: {},
   availableTypes: [],
@@ -31,7 +40,8 @@ export const initialState = {
   isUploadingFile: false,
   isLoadingSettings: false,
   countFilesError: '',
-  uploadError: ''
+  uploadError: '',
+  tools: { ...emptyTools }
 };
 
 Object.freeze(initialState);
@@ -60,6 +70,7 @@ export default handleActions(
       ...state,
       [payload]: {
         ...state[payload],
+        stateId: payload,
         isLoading: false
       }
     }),
@@ -176,6 +187,14 @@ export default handleActions(
       [payload.record]: {
         ...state[payload.record],
         actions: payload.actions
+      }
+    }),
+
+    [setInlineTools]: (state, { payload }) => ({
+      ...state,
+      [payload.record]: {
+        ...state[payload.record],
+        tools: payload.tools || { ...emptyTools }
       }
     })
   },

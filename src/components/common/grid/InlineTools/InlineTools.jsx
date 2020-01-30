@@ -1,14 +1,19 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
+import get from 'lodash/get';
+
 import { IcoBtn } from '../../../common/btns';
 
 import './InlineTools.scss';
 
 const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+  const reduxKey = get(props, 'reduxKey', 'journals');
+  const stateId = get(props, 'stateId', '');
+  const toolsKey = get(props, 'toolsKey', 'inlineToolSettings');
+  const newState = state[reduxKey][stateId] || {};
 
-  return { inlineToolSettings: newState.inlineToolSettings };
+  return { inlineToolSettings: newState[toolsKey] };
 };
 
 class InlineTools extends Component {

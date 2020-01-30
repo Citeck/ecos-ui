@@ -4,26 +4,33 @@ import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
-import debounce from 'lodash/debounce';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
 import { Icon, ResizeBoxes, EcosModal, Search, DefineHeight, Loader } from '../../common';
-import { Grid } from '../../common/grid';
 import { Dropdown } from '../../common/form';
 import FormManager from '../../EcosForm/FormManager';
 import DropZone from './DropZone';
 import Settings from './Settings';
-import InlineToolsDisconnected from '../../common/grid/InlineTools/InlineToolsDisconnected';
+import { Grid } from '../../common/grid';
 import InlineTools from '../../common/grid/InlineTools';
-import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { getDocumentsByType, init, saveSettings, uploadFiles, setError, execRecordsAction, setActions } from '../../../actions/documents';
+import DocumentsConverter from '../../../dto/documents';
+import {
+  getDocumentsByType,
+  init,
+  saveSettings,
+  uploadFiles,
+  setError,
+  execRecordsAction,
+  setActions,
+  setInlineTools
+} from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
 import { statusesKeys, typesStatuses, tooltips, typeStatusesByFields, tableFields, errorTypes } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
-import DocumentsConverter from '../../../dto/documents';
+import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 
 import './style.scss';
 
@@ -60,9 +67,7 @@ class Documents extends BaseWidget {
       isDragFiles: false,
       typesFilter: '',
       tableFilter: '',
-      statusFilter: statusesKeys.ALL,
-      selectedRowId: '',
-      selectedRowOptions: {}
+      statusFilter: statusesKeys.ALL
     };
   }
 
@@ -484,40 +489,27 @@ class Documents extends BaseWidget {
 
     delete options.row;
 
-    this.handleMouseLeaveRow.cancel();
+    if (actions[id]) {
+      actions[id].forEach(action => {
+        action.onClick = () => {
+          this.props.execRecordsAction([id], action, this.handleSuccessRecordsAction);
+        };
+      });
 
-    actions[id].forEach(action => {
-      action.onClick = () => {
-        this.props.execRecordsAction([id], action, this.initWidget);
-      };
-    });
-
-    this.setState({
-      selectedRowId: id,
-      selectedRowOptions: options
-    });
-    this.props.setActions(actions);
+      this.props.setInlineTools({
+        ...data,
+        actions: actions[id]
+      });
+    }
   };
 
-  handleMouseLeaveRow = debounce(() => {
-    console.warn('handleMouseLeaveRow');
-    this.setState({ selectedRowOptions: {}, selectedRowId: '' });
-  }, 300);
+  handleSuccessRecordsAction = () => {
+    this.props.getDocuments(this.state.selectedType);
+    this.props.setInlineTools();
+  };
 
   handleScollingTable = event => {
-    console.warn('handleScollingTable => ', event);
     this.scrollPosition = event;
-    this.setState({
-      scrollPosition: event
-      // selectedRowOptions: {
-      //   height: 0,
-      //   top: 0,
-      //   left: 0,
-      //   row: {},
-      //   actions: []
-      // },
-      // selectedRowId: ''
-    });
   };
 
   openForm = (type, files = []) => {
@@ -724,27 +716,14 @@ class Documents extends BaseWidget {
   }
 
   renderInlineTools = () => {
-    const { actions } = this.props;
-    const { selectedRowOptions, selectedRowId } = this.state;
+    const { stateId } = this.props;
 
-    if (!selectedRowId || !Object.keys(selectedRowOptions).length || !Object.keys(actions).length) {
-      return null;
-    }
-
-    let inlineActions = actions[selectedRowId];
-
-    if (!inlineActions) {
-      return null;
-    }
-
-    inlineActions = inlineActions.map(InlineTools.renderAction);
-
-    return <InlineToolsDisconnected tools={inlineActions} {...selectedRowOptions} />;
+    return <InlineTools stateId={stateId} reduxKey="documents" toolsKey="tools" />;
   };
 
   renderDocumentsTable() {
     const { dynamicTypes, isUploadingFile } = this.props;
-    const { selectedType, isDragFiles, scrollPosition } = this.state;
+    const { selectedType, isDragFiles } = this.state;
 
     if (!selectedType && dynamicTypes.length !== 1) {
       return null;
@@ -759,22 +738,18 @@ class Documents extends BaseWidget {
     return (
       <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
         <Grid
-          // changeTrOptionsByRowClick
-          // scrollable
+          scrollable
+          fixedHeader
           keyField="id"
-          // doInlineToolsOnRowClick
           className={classNames('ecos-docs__table', {
             'ecos-docs__table_hidden': isShowDropZone || isUploadingFile
           })}
           data={this.tableData}
           columns={columns}
           onChangeTrOptions={this.handleHoverRow}
-          // onRowMouseLeave={this.handleMouseLeaveRow}
           onScrolling={this.handleScollingTable}
           inlineTools={this.renderInlineTools}
-          scrollable={false}
-          // scrollPosition={this.scrollPosition}
-          // scrollPosition={scrollPosition}
+          scrollPosition={this.scrollPosition}
         />
 
         <DropZone
@@ -954,7 +929,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   onUploadFiles: data => dispatch(uploadFiles({ record: ownProps.record, ...data })),
   setError: (type, message = '') => dispatch(setError({ record: ownProps.record, type, message })),
   setActions: actions => dispatch(setActions({ record: ownProps.record, actions })),
-  execRecordsAction: (records, action, callback) => dispatch(execRecordsAction({ record: ownProps.record, records, action, callback }))
+  execRecordsAction: (records, action, callback) => dispatch(execRecordsAction({ record: ownProps.record, records, action, callback })),
+  setInlineTools: tools => dispatch(setInlineTools({ record: ownProps.record, tools }))
 });
 
 export default connect(

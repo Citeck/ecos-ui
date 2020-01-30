@@ -71,16 +71,11 @@ class Grid extends Component {
       this._inlineActionsNode = current.querySelector('.ecos-inline-tools-actions');
     }
 
-    const { scrollPosition = {} } = this.props;
-    const { scrollLeft, scrollTop } = scrollPosition;
+    this.checkScrollPosition();
+  }
 
-    if (this._scrollRef && scrollLeft !== undefined) {
-      this._scrollRef.scrollLeft(scrollLeft);
-    }
-
-    if (this._scrollRef && scrollTop !== undefined) {
-      this._scrollRef.scrollTop(scrollTop);
-    }
+  componentDidUpdate() {
+    this.checkScrollPosition();
   }
 
   componentWillUnmount() {
@@ -100,6 +95,19 @@ class Grid extends Component {
     const { freezeCheckboxes, fixedHeader } = this.props;
 
     return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
+  }
+
+  checkScrollPosition() {
+    const { scrollPosition = {} } = this.props;
+    const { scrollLeft, scrollTop } = scrollPosition;
+
+    if (this._scrollRef && scrollLeft !== undefined) {
+      this._scrollRef.scrollLeft(scrollLeft);
+    }
+
+    if (this._scrollRef && scrollTop !== undefined) {
+      this._scrollRef.scrollTop(scrollTop);
+    }
   }
 
   createKeydownEvents() {
@@ -509,6 +517,10 @@ class Grid extends Component {
     trigger.call(this, 'onScrolling', e);
   };
 
+  onScrollStop = e => {
+    trigger.call(this, 'onScrollStop', e);
+  };
+
   onDragOver = e => {
     if (this.props.onRowDrop) {
       e.preventDefault();
@@ -602,6 +614,7 @@ class Grid extends Component {
           ref={refCallback}
           onScrollStart={this.onScrollStart}
           onScrollFrame={this.onScrollFrame}
+          onScrollStop={this.onScrollStop}
           style={style}
           hideTracksWhenNotNeeded={true}
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
