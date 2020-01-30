@@ -3,11 +3,11 @@ import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
+import { reloadGrid, setSessionProps } from '../../../actions/journals';
+import { wrapArgs } from '../../../helpers/redux';
+import { JournalProps } from '../../../services/userLocalSettings';
 import Pagination from '../../common/Pagination/Pagination';
 import { PAGINATION_SIZES } from '../../Journals/constants';
-import { reloadGrid } from '../../../actions/journals';
-import { wrapArgs } from '../../../helpers/redux';
-import UserLocalSettingsService, { JournalProps } from '../../../services/userLocalSettings';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -21,11 +21,12 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    reloadGrid: options => dispatch(reloadGrid(w(options)))
+    reloadGrid: options => dispatch(reloadGrid(w(options))),
+    setSessionProps: props => dispatch(setSessionProps(w(props)))
   };
 };
 
-class JournalsPagination extends Component {
+class JournalsDashletPagination extends Component {
   static propTypes = {
     className: PropTypes.string,
     grid: PropTypes.object,
@@ -39,6 +40,10 @@ class JournalsPagination extends Component {
 
   reloadGrid = pagination => {
     this.props.reloadGrid({ pagination });
+    this.props.setSessionProps({
+      [JournalProps.PAGE_NUM]: pagination.page,
+      [JournalProps.PAGE_SIZE]: pagination.maxItems
+    });
   };
 
   render() {
@@ -70,4 +75,4 @@ class JournalsPagination extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(JournalsPagination);
+)(JournalsDashletPagination);

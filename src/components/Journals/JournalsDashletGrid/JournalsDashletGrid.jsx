@@ -91,19 +91,19 @@ class JournalsDashletGrid extends Component {
     }
   };
 
-  onFilter = predicates => {
-    this.filters = predicates;
-
-    this.reloadGrid({ predicates });
-  };
-
   reloadGrid(options) {
     options = options || {};
     this.hideGridInlineToolSettings();
     this.props.reloadGrid({ ...options });
   }
 
-  sort = e => {
+  onFilter = predicates => {
+    this.filters = predicates;
+
+    this.reloadGrid({ predicates });
+  };
+
+  onSort = e => {
     this.reloadGrid({
       sortBy: [
         {
@@ -200,7 +200,7 @@ class JournalsDashletGrid extends Component {
     this.closeDialog();
   };
 
-  tools = selected => {
+  renderTools = selected => {
     const toolsActionClassName = 'ecos-btn_i_sm ecos-btn_grey4';
     const {
       stateId,
@@ -294,7 +294,7 @@ class JournalsDashletGrid extends Component {
     }
   };
 
-  delete = () => {};
+  onDelete = () => {};
 
   closeDialog = () => {
     this.setState({ isDialogShow: false });
@@ -302,7 +302,7 @@ class JournalsDashletGrid extends Component {
 
   showDeleteRecordsDialog = () => {
     this.setState({ isDialogShow: true });
-    this.delete = this.deleteRecords;
+    this.onDelete = this.deleteRecords;
   };
 
   renderPerformGroupActionResponse = performGroupActionResponse => {
@@ -428,8 +428,8 @@ class JournalsDashletGrid extends Component {
                 changeTrOptionsByRowClick={doInlineToolsOnRowClick}
                 filters={this.filters}
                 inlineTools={this.inlineTools}
-                tools={this.tools}
-                onSort={this.sort}
+                tools={this.renderTools}
+                onSort={this.onSort}
                 onFilter={this.onFilter}
                 onSelect={this.setSelectedRecords}
                 onRowClick={doInlineToolsOnRowClick && this.onRowClick}
@@ -459,7 +459,7 @@ class JournalsDashletGrid extends Component {
           isOpen={this.state.isDialogShow}
           title={t('journals.action.delete-records-msg')}
           text={t('journals.action.remove-records-msg')}
-          onDelete={this.delete}
+          onDelete={this.onDelete}
           onCancel={this.closeDialog}
           onClose={this.closeDialog}
         />

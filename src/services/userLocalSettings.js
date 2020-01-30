@@ -67,9 +67,14 @@ export default class UserLocalSettingsService {
     }
   }
 
-  static getJournalProperty(key, propertyName, isTemp) {
+  static getJournalAllProps(key, isTemp) {
     const journal = self.getJournalKey(key);
-    const data = isTemp ? getSessionData(journal) || {} : getData(journal) || {};
+
+    return isTemp ? getSessionData(journal) || {} : getData(journal) || {};
+  }
+
+  static getJournalProperty(key, propertyName, isTemp) {
+    const data = self.getJournalAllProps(key, isTemp);
 
     return get(data, [propertyName]);
   }

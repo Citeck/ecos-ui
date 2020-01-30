@@ -10,7 +10,7 @@ import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import Export from '../../Export/Export';
 import FormManager from '../../EcosForm/FormManager';
-import JournalsPagination from '../JournalsPagination';
+import JournalsDashletPagination from '../JournalsDashletPagination';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 const mapStateToProps = (state, props) => {
@@ -126,7 +126,7 @@ class JournalsDashletToolbar extends Component {
 
         {!isSmall && (
           <div className={'ecos-journal-dashlet__actions'}>
-            {measurer.xs || measurer.xxs || measurer.xxxs ? null : <JournalsPagination stateId={stateId} />}
+            {measurer.xs || measurer.xxs || measurer.xxxs ? null : <JournalsDashletPagination stateId={stateId} />}
           </div>
         )}
       </div>
