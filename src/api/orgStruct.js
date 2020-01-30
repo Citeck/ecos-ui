@@ -1,14 +1,11 @@
 import { RecordService } from './recordService';
+import Records from '../components/Records';
 import { PROXY_URI } from '../constants/alfresco';
+import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
 
 export const ROOT_ORGSTRUCT_GROUP = '_orgstruct_home_';
 
 export class OrgStructApi extends RecordService {
-  _defaultQuery = {
-    groupName: ROOT_ORGSTRUCT_GROUP,
-    searchText: ''
-  };
-
   _loadedAuthorities = {};
   _loadedGroups = {};
 
@@ -20,7 +17,7 @@ export class OrgStructApi extends RecordService {
     return this.getJson(url).catch(() => []);
   };
 
-  fetchGroup = ({ query = this._defaultQuery, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [] }) => {
+  fetchGroup = ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [] }) => {
     excludeAuthoritiesByName = excludeAuthoritiesByName
       .split(',')
       .map(item => item.trim())
@@ -67,4 +64,54 @@ export class OrgStructApi extends RecordService {
       })
       .catch(() => []);
   };
+
+  static getUserList(searchText) {
+    const val = searchText.trim();
+
+    const queryVal = [
+      {
+        t: 'eq',
+        att: 'TYPE',
+        val: 'cm:person'
+      }
+    ];
+
+    if (searchText) {
+      queryVal.push({
+        t: 'or',
+        val: [
+          {
+            t: 'contains',
+            att: 'cm:userName',
+            val
+          },
+          {
+            t: 'contains',
+            att: 'cm:firstName',
+            val
+          },
+          {
+            t: 'contains',
+            att: 'cm:lastName',
+            val
+          }
+        ]
+      });
+    }
+
+    return Records.query(
+      {
+        query: { t: 'and', val: queryVal },
+        language: 'predicate',
+        page: {
+          maxItems: 20,
+          skipCount: 0
+        }
+      },
+      {
+        fullName: '.disp',
+        userName: 'userName'
+      }
+    ).then(result => converterUserList(result.records));
+  }
 }

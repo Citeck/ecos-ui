@@ -1,17 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import SelectOrgstructRoot from './components/SelectOrgstructRoot';
 import { SelectOrgstructProvider } from './SelectOrgstructContext';
 import { OrgStructApi } from '../../../../api/orgStruct';
 import {
+  AUTHORITY_TYPE_GROUP,
+  AUTHORITY_TYPE_USER,
   GROUP_TYPE_BRANCH,
   GROUP_TYPE_ROLE,
-  AUTHORITY_TYPE_USER,
-  AUTHORITY_TYPE_GROUP,
-  TAB_BY_LEVELS,
   TAB_ALL_USERS,
+  TAB_BY_LEVELS,
   TAB_ONLY_SELECTED
 } from './constants';
+
 import './SelectOrgstruct.scss';
 
 const orgStructApi = new OrgStructApi();
@@ -28,33 +30,31 @@ SelectOrgstruct.defaultProps = {
   allowedAuthorityTypes: [AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER],
   allowedGroupTypes: [GROUP_TYPE_BRANCH, GROUP_TYPE_ROLE],
   allowedGroupSubTypes: [],
-  searchFields: []
+  defaultTab: TAB_BY_LEVELS
 };
 
 SelectOrgstruct.propTypes = {
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
+  defaultTab: PropTypes.oneOf([TAB_BY_LEVELS, TAB_ALL_USERS, TAB_ONLY_SELECTED]),
   onChange: PropTypes.func,
   onCancelSelect: PropTypes.func,
   onError: PropTypes.func,
+  renderView: PropTypes.func,
+  renderListItem: PropTypes.func,
   multiple: PropTypes.bool,
   isCompact: PropTypes.bool,
-  allUsersGroup: PropTypes.string,
+  hideTabSwitcher: PropTypes.bool,
+  hideInputView: PropTypes.bool,
+  getFullData: PropTypes.bool, // return full data about selected user, not only nodeRef
+  viewOnly: PropTypes.bool,
+  openByDefault: PropTypes.bool,
+  modalTitle: PropTypes.string,
   allowedAuthorityTypes: PropTypes.array,
   allowedGroupTypes: PropTypes.array,
   allowedGroupSubTypes: PropTypes.array,
   excludeAuthoritiesByName: PropTypes.string,
   excludeAuthoritiesByType: PropTypes.array,
-  viewOnly: PropTypes.bool,
-  openByDefault: PropTypes.bool,
-  getFullData: PropTypes.bool, // return full data about selected user, not only nodeRef
-  liveSearch: PropTypes.bool, // search by key down
-  searchFields: PropTypes.array, // array fields for searching (['label', 'attributes.fullName'])
-  hideTabSwitcher: PropTypes.bool,
-  renderView: PropTypes.func,
-  renderListItem: PropTypes.func,
-  hideInputView: PropTypes.bool,
-  defaultTab: PropTypes.oneOf([TAB_BY_LEVELS, TAB_ALL_USERS, TAB_ONLY_SELECTED]),
-  modalTitle: PropTypes.string
+  liveSearch: PropTypes.bool // search by key down
 };
 
 export default SelectOrgstruct;
