@@ -31,20 +31,15 @@ timestamps {
           def jsonOut = readJSON text: groovy.json.JsonOutput.toJson(build_info)
           writeJSON(file: 'build/build-info.json', json: jsonOut, pretty: 2)
           if (!fileExists("/opt/ecos-ui-static/${env.BRANCH_NAME}")) {
-            sh "mkdir /opt/ecos-ui-static/${env.BRANCH_NAME}"
+            sh "mkdir -p /opt/ecos-ui-static/${env.BRANCH_NAME}"
           }
           sh "rm -rf /opt/ecos-ui-static/${env.BRANCH_NAME}/*"
           fileOperations([folderCopyOperation(destinationFolderPath: '/opt/ecos-ui-static/'+"${env.BRANCH_NAME}"+'/build', sourceFolderPath: "build")])
         }
       }
-      stage('Building an ecos-ui docker images') {
+      stage('Building an ecos-proxy-odic docker images') {
         build job: 'build_ecos_ui_image', parameters: [
-          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-ui'), 
-          string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
-        ]
-      }
-      stage('Transfer artifacts to Unilever Jenkins') {
-        build job: 'artifact_transfer_to_unilever_jenkins', parameters: [
+          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'), 
           string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
         ]
       }
