@@ -1,10 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
+import ReactResizeDetector from 'react-resize-detector';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
@@ -30,6 +32,7 @@ import { selectStateByKey } from '../../../selectors/documents';
 import { statusesKeys, typesStatuses, tooltips, typeStatusesByFields, tableFields, errorTypes } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
+import { GrouppedTypeInterface, DynamicTypeInterface, AvailableTypeInterface, DocumentInterface } from './propsInterfaces';
 
 import './style.scss';
 
@@ -44,6 +47,43 @@ const Labels = {
 
 class Documents extends BaseWidget {
   scrollPosition = {};
+
+  static propTypes = {
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    stateId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+
+    dragHandleProps: PropTypes.object,
+    grouppedAvailableTypes: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
+    availableTypes: PropTypes.arrayOf(PropTypes.shape(AvailableTypeInterface)),
+    dynamicTypes: PropTypes.arrayOf(PropTypes.shape(DynamicTypeInterface)),
+    documents: PropTypes.arrayOf(PropTypes.shape(DocumentInterface)),
+    actions: PropTypes.object,
+
+    uploadError: PropTypes.string,
+    countFilesError: PropTypes.string,
+
+    canDragging: PropTypes.bool,
+    isMobile: PropTypes.bool,
+    isLoading: PropTypes.bool,
+    isUploadingFile: PropTypes.bool,
+    isLoadingSettings: PropTypes.bool,
+    isLoadingTableData: PropTypes.bool,
+    maxHeightByContent: PropTypes.bool,
+
+    init: PropTypes.func,
+    getDocuments: PropTypes.func,
+    onSaveSettings: PropTypes.func,
+    onUploadFiles: PropTypes.func,
+    setError: PropTypes.func,
+    execRecordsAction: PropTypes.func,
+    setInlineTools: PropTypes.func
+  };
+
+  static defaultProps = {
+    canDragging: false,
+    maxHeightByContent: true,
+    dragHandleProps: {}
+  };
 
   constructor(props) {
     super(props);
@@ -391,6 +431,10 @@ class Documents extends BaseWidget {
   handleChangeHeight = height => {
     UserLocalSettingsService.setDashletHeight(this.props.id, height);
     this.setState({ userHeight: height });
+  };
+
+  handleResizeDetector = (...size) => {
+    this.handleChangeHeight(size[1]);
   };
 
   handleCancelSettings = () => {
@@ -744,7 +788,6 @@ class Documents extends BaseWidget {
       <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
         <Grid
           scrollable
-          fixedHeader
           keyField="id"
           className={classNames('ecos-docs__table', {
             'ecos-docs__table_hidden': isShowDropZone || isUploadingFile
@@ -908,13 +951,16 @@ class Documents extends BaseWidget {
               minHeight={1}
               getOptimalHeight={this.setContentHeight}
             >
-              <div className="ecos-docs__body" ref={this.contentRef}>
-                {this.renderTypes()}
-                {this.renderTable()}
-                {this.renderSettings()}
-                {this.renderUploadingModal()}
-                {this.renderLoader()}
+              <div>
+                <div className="ecos-docs__body" ref={this.contentRef}>
+                  {this.renderTypes()}
+                  {this.renderTable()}
+                  {this.renderLoader()}
+                  <ReactResizeDetector handleHeight onResize={this.handleResizeDetector} />
+                </div>
               </div>
+              {this.renderSettings()}
+              {this.renderUploadingModal()}
             </DefineHeight>
           </Scrollbars>
         </Dashlet>

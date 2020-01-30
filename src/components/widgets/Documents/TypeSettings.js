@@ -118,8 +118,6 @@ class TypeSettings extends Component {
   }
 
   renderColumns() {
-    return null;
-
     return (
       <section className="ecos-docs__modal-type-settings-group">
         <div className="ecos-docs__modal-type-settings-label">{t(Labels.SORT_LABEL)}</div>
@@ -139,7 +137,7 @@ class TypeSettings extends Component {
         hideModal={this.handleCloseModal}
       >
         {this.renderCountFiles()}
-        {this.renderColumns()}
+        {/*{this.renderColumns()}*/}
         <div className="ecos-docs__modal-type-settings-footer">
           <Btn onClick={this.handleCloseModal} className="ecos-docs__modal-settings-footer-item">
             {t(Labels.CANCEL_BUTTON)}

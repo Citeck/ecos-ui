@@ -201,7 +201,7 @@ function* sagaExecRecordsAction({ api, logger }, { payload }) {
 function* sagaSaveSettings({ api, logger }, { payload }) {
   try {
     const dynamicTypeKeys = payload.types.map(record => record.type);
-    const { records, errors: documentsErrors } = yield call(api.documents.getDocumentsByTypes, payload.record, dynamicTypeKeys);
+    const { records } = yield call(api.documents.getDocumentsByTypes, payload.record, dynamicTypeKeys);
     const countDocuments = records.map(record => record.documents);
 
     yield put(

@@ -9,7 +9,6 @@ export const selectStateByKey = createSelector(
   selectState,
   ownState => ({
     stateId: ownState.stateId,
-    types: ownState.types,
     grouppedAvailableTypes: selectGrouppedAvailableTypes(ownState),
     availableTypes: getAvailableTypes(ownState),
     dynamicTypes: ownState.dynamicTypes,

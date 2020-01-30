@@ -29,12 +29,11 @@ const emptyTools = Object.freeze({
 });
 export const initialState = {
   stateId: '',
-  types: [],
   config: {},
   availableTypes: [],
   dynamicTypes: [],
   documents: [],
-  actions: [],
+  actions: {},
   isLoading: false,
   isLoadingTableData: false,
   isUploadingFile: false,
