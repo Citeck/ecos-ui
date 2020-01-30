@@ -17,11 +17,3 @@ export function prepareSelected(selectedItem) {
     parentId: undefined
   };
 }
-
-export function converterUserList(source) {
-  return source.map(item => ({
-    id: item.id,
-    label: item.fullName,
-    attributes: item
-  }));
-}

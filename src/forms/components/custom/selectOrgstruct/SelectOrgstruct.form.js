@@ -1,14 +1,12 @@
 import baseEditForm from 'formiojs/components/base/Base.form';
-import SelectOrgstructCustomDisplay from './editForm/SelectOrgstruct.custom.data';
+import SelectOrgstructEditData from './editForm/SelectOrgstruct.edit.data';
 
 export default function(...extend) {
   return baseEditForm(
     [
       {
-        label: 'Custom',
-        key: 'custom',
-        weight: 5,
-        components: SelectOrgstructCustomDisplay
+        key: 'data',
+        components: SelectOrgstructEditData
       }
     ],
     ...extend
