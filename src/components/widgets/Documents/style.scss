@@ -208,6 +208,10 @@
         color: $color-red-1;
       }
     }
+
+    &-inline-tools {
+      z-index: 0;
+    }
   }
 
   &__modal {

@@ -110,7 +110,8 @@ export default handleActions(
       ...state,
       [payload.record]: {
         ...state[payload.record],
-        isLoadingTableData: true
+        isLoadingTableData: true,
+        tools: { ...emptyTools }
       }
     }),
     [setDocuments]: (state, { payload }) => ({

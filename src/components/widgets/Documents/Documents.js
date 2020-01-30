@@ -106,6 +106,10 @@ class Documents extends BaseWidget {
     if (prevProps.isUploadingFile && !this.props.isUploadingFile && (prevState.isOpenUploadModal || prevState.isDragFiles)) {
       this.uploadingComplete();
     }
+
+    if (prevState.selectedType !== this.state.selectedType) {
+      this.scrollPosition = {};
+    }
   }
 
   get widgetTitle() {
@@ -321,6 +325,7 @@ class Documents extends BaseWidget {
 
   handleClearSelectedType = () => {
     this.setState({ selectedType: '' });
+    this.scrollPosition = {};
   };
 
   handleSelectType = (selectedType = {}) => {
@@ -337,6 +342,7 @@ class Documents extends BaseWidget {
       statusFilter: statusesKeys.ALL,
       selectedTypeForLoading: selectedType
     });
+    this.scrollPosition = {};
   };
 
   handleFilterTypes = (filter = '') => {
@@ -718,7 +724,7 @@ class Documents extends BaseWidget {
   renderInlineTools = () => {
     const { stateId } = this.props;
 
-    return <InlineTools stateId={stateId} reduxKey="documents" toolsKey="tools" />;
+    return <InlineTools className="ecos-docs__table-inline-tools" stateId={stateId} reduxKey="documents" toolsKey="tools" />;
   };
 
   renderDocumentsTable() {
