@@ -4794,7 +4794,6 @@
                           },
                           "allowedAuthorityType": "USER, GROUP",
                           "allowedGroupType": "ROLE, BRANCH",
-                          "allUsersGroup": "all",
                           "currentUserByDefault": true,
                           "encrypted": false,
                           "properties": {
@@ -4915,7 +4914,6 @@
                           },
                           "allowedAuthorityType": "USER, GROUP",
                           "allowedGroupType": "ROLE, BRANCH",
-                          "allUsersGroup": "all",
                           "currentUserByDefault": true,
                           "encrypted": false,
                           "properties": {

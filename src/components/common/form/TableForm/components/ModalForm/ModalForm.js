@@ -61,6 +61,7 @@ const ModalForm = () => {
   if (isViewOnlyForm) {
     formOptions.readOnly = true;
     formOptions.viewAsHtml = true;
+    formOptions.disableInlineEdit = true;
   }
 
   return (

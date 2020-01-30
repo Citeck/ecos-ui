@@ -17,12 +17,12 @@ export default class SelectOrgstructComponent extends BaseComponent {
         label: 'SelectOrgstruct',
         key: 'selectOrgstruct',
         type: 'selectOrgstruct',
-        allUsersGroup: 'all',
         allowedAuthorityType: 'USER, GROUP',
         allowedGroupType: 'ROLE, BRANCH',
         allowedGroupSubType: '',
         excludeAuthoritiesByName: '',
-        excludeAuthoritiesByType: ''
+        excludeAuthoritiesByType: '',
+        modalTitle: ''
       },
       ...extend
     );
@@ -99,14 +99,14 @@ export default class SelectOrgstructComponent extends BaseComponent {
   renderReactComponent(config = {}) {
     let self = this;
     let component = this.component;
-    let allUsersGroup = this.component.allUsersGroup;
     let allowedAuthorityType = this.component.allowedAuthorityType || '';
     let allowedGroupType = this.component.allowedGroupType || '';
     let allowedGroupSubType = this.component.allowedGroupSubType || '';
-    const allowedAuthorityTypes = allowedAuthorityType.split(',').map(item => item.trim());
-    const allowedGroupTypes = allowedGroupType.split(',').map(item => item.trim());
+
     allowedGroupSubType = allowedGroupSubType.trim();
 
+    const allowedAuthorityTypes = allowedAuthorityType.split(',').map(item => item.trim());
+    const allowedGroupTypes = allowedGroupType.split(',').map(item => item.trim());
     const allowedGroupSubTypes = allowedGroupSubType.length > 0 ? allowedGroupSubType.split(',').map(item => item.trim()) : [];
     const onChange = this.onValueChange.bind(this);
 
@@ -123,7 +123,6 @@ export default class SelectOrgstructComponent extends BaseComponent {
           multiple={component.multiple}
           placeholder={component.placeholder}
           disabled={component.disabled}
-          allUsersGroup={allUsersGroup}
           allowedAuthorityTypes={allowedAuthorityTypes}
           allowedGroupTypes={allowedGroupTypes}
           allowedGroupSubTypes={allowedGroupSubTypes}
@@ -131,6 +130,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
           excludeAuthoritiesByType={excludedAuthoritiesByType}
           onChange={onChange}
           viewOnly={self.viewOnly}
+          hideTabSwitcher={component.hideTabSwitcher}
+          defaultTab={component.defaultTab}
+          modalTitle={component.modalTitle ? self.t(component.modalTitle) : null}
           onError={err => {
             // this.setCustomValidity(err, false);
           }}
