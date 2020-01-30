@@ -2,6 +2,7 @@ import { delay } from 'redux-saga';
 import { put, select, takeEvery, call } from 'redux-saga/effects';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import isArray from 'lodash/isArray';
 
 import { selectTypeNames, selectDynamicTypes, selectAvailableTypes, selectConfigTypes, selectDynamicType } from '../selectors/documents';
 import {
@@ -25,7 +26,6 @@ import {
 import DocumentsConverter from '../dto/documents';
 import { deepClone } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
-import isArray from 'lodash/isArray';
 import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
@@ -33,9 +33,6 @@ function* sagaInitWidget({ api, logger }, { payload }) {
     yield put(setConfig({ record: payload.record, config: payload.config }));
     yield* sagaGetAvailableTypes({ api, logger }, { payload: payload.record });
     yield* sagaGetDynamicTypes({ api, logger }, { payload });
-
-    //const res = yield call(api.recordActions.getActions, { records: record, context }) || [];
-
     yield put(initSuccess(payload.record));
   } catch (e) {
     logger.error('[documents sagaInitWidget saga error', e.message);
@@ -174,27 +171,9 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
 
     yield put(setDynamicTypes({ record: payload.record, dynamicTypes }));
 
-    // const actions = yield call(
-    //   api.recordActions.getActions,
-    //   {
-    //     records: documents.map(item => item.id),
-    //     context: {
-    //       actions: ['ui/action$delete', 'ui/action$ecos-module-download', 'ui/action$edit', 'ui/action$view-dashboard']
-    //     }
-    //   }
-    // );
-
     const actions = yield RecordActions.getActions(documents.map(item => item.id), {
-      actions: ['ui/action$download', 'ui/action$view', 'ui/action$edit', 'ui/action$delete']
+      actions: ['ui/action$content-download', 'ui/action$view-dashboard', 'ui/action$edit', 'ui/action$delete']
     });
-
-    // Object.keys(actions).forEach(key => {
-    //   actions[key].forEach(action => {
-    //     action.onClick = () => {
-    //       payload.actionCallback([key], action);
-    //     };
-    //   })
-    // });
 
     yield put(setActions({ record: payload.record, actions }));
   } catch (e) {

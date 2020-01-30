@@ -24,7 +24,6 @@ import {
   uploadFiles,
   setError,
   execRecordsAction,
-  setActions,
   setInlineTools
 } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
@@ -934,7 +933,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   onSaveSettings: (types, config) => dispatch(saveSettings({ record: ownProps.record, types, config })),
   onUploadFiles: data => dispatch(uploadFiles({ record: ownProps.record, ...data })),
   setError: (type, message = '') => dispatch(setError({ record: ownProps.record, type, message })),
-  setActions: actions => dispatch(setActions({ record: ownProps.record, actions })),
   execRecordsAction: (records, action, callback) => dispatch(execRecordsAction({ record: ownProps.record, records, action, callback })),
   setInlineTools: tools => dispatch(setInlineTools({ record: ownProps.record, tools }))
 });
