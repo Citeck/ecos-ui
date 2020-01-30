@@ -51,7 +51,13 @@ export const EditAction = {
 export const ViewAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record, action: { context } }) => {
+  execute: ({ record, action: { config = {}, context } }) => {
+    if (config.viewType === 'task-document-dashboard') {
+      const taskDocumentId = Records.get(record.id).load('wfm:document?id');
+      goToCardDetailsPage(taskDocumentId);
+      return false;
+    }
+
     if (globalTasks.indexOf(context.scope) > -1) {
       const name = record.att('cm:name?disp') || '';
       window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
