@@ -53,7 +53,9 @@ export const ViewAction = {
 
   execute: ({ record, action: { config = {}, context } }) => {
     if (config.viewType === 'task-document-dashboard') {
-      const taskDocumentId = Records.get(record.id).load('wfm:document?id');
+      const taskDocumentId = Records.get(record.id)
+        .load('wfm:document?id')
+        .then(res => res);
       goToCardDetailsPage(taskDocumentId);
       return false;
     }
