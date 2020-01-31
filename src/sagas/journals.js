@@ -84,7 +84,7 @@ function getDefaultJournalSetting(journalConfig) {
   };
 }
 
-function getGridParams({ journalConfig, journalSetting, pagination, sessionSetting = {} }) {
+function getGridParams({ journalConfig, journalSetting, pagination }) {
   const {
     meta: { createVariants, predicate, actions },
     sourceId
@@ -97,12 +97,25 @@ function getGridParams({ journalConfig, journalSetting, pagination, sessionSetti
     createVariants,
     predicate,
     sourceId: sourceId,
-    sortBy: sessionSetting[JournalProps.SORT] || sortBy.map(sort => ({ ...sort })),
+    sortBy: sortBy.map(sort => ({ ...sort })),
     columns: columns.map(col => ({ ...col })),
     groupBy: Array.from(groupBy),
-    predicates: sessionSetting[JournalProps.FILTERS] || journalSettingPredicate ? [{ ...journalSettingPredicate }] : [],
-    pagination: sessionSetting[JournalProps.PAGINATION] || pagination
+    predicates: journalSettingPredicate ? [{ ...journalSettingPredicate }] : [],
+    pagination: pagination
   };
+}
+
+function getSessionParams(params, sessionParams) {
+  if (sessionParams) {
+    return {
+      ...params,
+      sortBy: sessionParams[JournalProps.SORT] || params.sortBy,
+      predicates: sessionParams[JournalProps.FILTERS] || params.predicates,
+      pagination: sessionParams[JournalProps.PAGINATION] || params.pagination
+    };
+  }
+
+  return params;
 }
 
 function* sagaGetDashletEditorData({ api, logger, stateId, w }, action) {
@@ -285,7 +298,8 @@ function* loadGrid(api, { journalSettingId, journalConfig, sessionSetting, state
   const url = yield select(state => state.journals[stateId].url);
   const pagination = yield select(state => state.journals[stateId].grid.pagination);
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
-  const params = getGridParams({ journalConfig, journalSetting, pagination, sessionSetting });
+  let params = getGridParams({ journalConfig, journalSetting, pagination, sessionSetting });
+  params = getSessionParams(params, sessionSetting);
   const gridData = yield getGridData(api, params, stateId);
 
   yield put(setSelectedRecords(w([])));
