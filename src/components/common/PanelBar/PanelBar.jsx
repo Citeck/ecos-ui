@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Collapse } from 'react-collapse';
 
@@ -18,27 +19,38 @@ export default class PanelBar extends Component {
   };
 
   render() {
-    const props = this.props;
-    const css = props.css || {};
-    const cssClasses = classNames('panel-bar', props.className);
+    const { css = {}, className, header, children } = this.props;
+    const cssClasses = classNames('panel-bar', className);
     const headerClassName = classNames('panel-bar__header', css.headerClassName);
     const headerLabelClassName = classNames('panel-bar__header-label', css.headerLabelClassName);
     const contentClassName = classNames('panel-bar__content', css.contentClassName);
 
     return (
-      <div {...props} className={cssClasses}>
+      <div className={cssClasses}>
         <div className={headerClassName}>
           <h3 className={headerLabelClassName} onClick={this.showPanel}>
-            {props.header}
+            {header}
           </h3>
 
           <div className={'panel-bar__actions'} />
         </div>
 
         <Collapse isOpened={this.state.panelVisible}>
-          <div className={contentClassName}>{props.children}</div>
+          <div className={contentClassName}>{children}</div>
         </Collapse>
       </div>
     );
   }
 }
+
+PanelBar.propTypes = {
+  open: PropTypes.bool,
+  css: PropTypes.shape({
+    headerClassName: PropTypes.string,
+    headerLabelClassName: PropTypes.string,
+    contentClassName: PropTypes.string
+  }),
+  className: PropTypes.string,
+  header: PropTypes.string,
+  children: PropTypes.element
+};

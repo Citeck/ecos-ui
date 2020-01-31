@@ -1,9 +1,11 @@
 import isEmpty from 'lodash/isEmpty';
-import Records from '../Records';
+
 import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { ActionModes } from '../../../constants';
+import Records from '../Records';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
 
@@ -51,7 +53,14 @@ export const EditAction = {
 export const ViewAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record, action: { context } }) => {
+  execute: ({ record, action: { config = {}, context } }) => {
+    if (config.viewType === 'task-document-dashboard') {
+      Records.get(record.id)
+        .load('wfm:document?id')
+        .then(docId => (docId ? goToCardDetailsPage(docId) : ''));
+      return false;
+    }
+
     if (globalTasks.indexOf(context.scope) > -1) {
       const name = record.att('cm:name?disp') || '';
       window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
@@ -72,7 +81,7 @@ export const ViewAction = {
 
   canBeExecuted: ({ context }) => {
     const { scope = '', mode = '' } = context;
-    if (mode === 'dashboard') {
+    if (mode === ActionModes.DASHBOARD) {
       return false;
     }
     for (let pattern of ViewAction.disabledFor) {
@@ -127,7 +136,7 @@ export const BackgroundOpenAction = {
 
   canBeExecuted: ({ context }) => {
     const { scope = '', mode = '' } = context;
-    if (mode === 'dashboard') {
+    if (mode === ActionModes.DASHBOARD) {
       return false;
     }
     for (let pattern of ViewAction.disabledFor) {

@@ -87,9 +87,7 @@ export default class Search extends Component {
   };
 
   triggerSearch = () => {
-    if (this.state.text || this.props.searchWithEmpty) {
-      trigger.call(this, 'onSearch', this.state.text);
-    }
+    trigger.call(this, 'onSearch', this.state.text);
   };
 
   triggerClean = () => {

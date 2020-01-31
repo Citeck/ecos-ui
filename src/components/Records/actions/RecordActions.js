@@ -2,6 +2,7 @@ import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
 import Records from '../Records';
 import lodash from 'lodash';
 import { t } from '../../../helpers/util';
+import { ActionModes } from '../../../constants';
 
 const DEFAULT_MODEL = {
   name: '',
@@ -19,9 +20,13 @@ class RecordActionsService {
   getActions(records, context) {
     let isSingleRecord = false;
 
-    if (!lodash.isArray(records)) {
+    if (records && !lodash.isArray(records)) {
       records = [records];
       isSingleRecord = true;
+    }
+
+    if (!records || !records.length) {
+      return Promise.resolve({});
     }
 
     const recordsIds = records.map(r => (r.id ? r.id : r));
@@ -30,7 +35,7 @@ class RecordActionsService {
       .then(actionsByRecord => {
         let result = {};
 
-        for (let recordId of records) {
+        for (let recordId of recordsIds) {
           result[recordId] = this.__filterAndConvertRecordActions(recordId, actionsByRecord[recordId], context);
         }
 
@@ -97,8 +102,9 @@ class RecordActionsService {
       if (!context.actions.length) {
         return Promise.resolve({});
       }
+
       actions = this.__filterAndGetRecordsActionsConfig(recordIds, context.actions);
-    } else if (context.mode === 'dashboard') {
+    } else if (context.mode === ActionModes.DASHBOARD) {
       actions = this.__getRecordsActionsByType(recordIds);
     }
 
@@ -146,8 +152,9 @@ class RecordActionsService {
 
   __filterAndGetRecordsActionsConfig(recordsIds, actionsIds) {
     if (!recordsIds.length || !actionsIds) {
-      return [];
+      return Promise.resolve([]);
     }
+
     return Records.query(
       {
         sourceId: 'uiserv/action',

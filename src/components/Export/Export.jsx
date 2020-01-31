@@ -81,7 +81,7 @@ export default class ColumnsSetup extends Component {
       ...queryString.parse(search),
       filter: '',
       journalSettingId: '',
-      selectionFilter: predicates.length ? JSON.stringify(predicates[0]) : ''
+      selectionFilter: Array.isArray(predicates) && predicates.length ? JSON.stringify(predicates[0]) : ''
     };
 
     return decodeLink(
