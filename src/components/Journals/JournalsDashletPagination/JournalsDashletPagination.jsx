@@ -3,9 +3,8 @@ import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { reloadGrid, setSessionProps } from '../../../actions/journals';
+import { reloadGrid, setSettingsToUrl } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
-import { JournalProps } from '../../../services/userLocalSettings';
 import Pagination from '../../common/Pagination/Pagination';
 import { PAGINATION_SIZES } from '../../Journals/constants';
 
@@ -22,7 +21,7 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    setSessionProps: props => dispatch(setSessionProps(w(props)))
+    setSettingsToUrl: options => dispatch(setSettingsToUrl(w(options)))
   };
 };
 
@@ -40,7 +39,7 @@ class JournalsDashletPagination extends Component {
 
   reloadGrid = pagination => {
     this.props.reloadGrid({ pagination });
-    this.props.setSessionProps({ [JournalProps.PAGINATION]: pagination });
+    this.props.setSettingsToUrl({ pagination });
   };
 
   render() {

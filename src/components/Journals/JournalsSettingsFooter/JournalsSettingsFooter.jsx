@@ -1,22 +1,23 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import Columns from '../../common/templates/Columns/Columns';
-import EcosModal from '../../../../src/components/common/EcosModal';
-import { Btn } from '../../common/btns';
-import { Input } from '../../common/form';
-import {
-  reloadGrid,
-  saveJournalSetting,
-  createJournalSetting,
-  cancelJournalSettingData,
-  setJournalSetting
-} from '../../../actions/journals';
-import { JOURNAL_SETTING_ID_FIELD } from '../constants';
-import { closest, t, trigger } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
 import { withRouter } from 'react-router';
 import { push } from 'connected-react-router';
 import queryString from 'query-string';
+
+import { Btn } from '../../common/btns';
+import { Input } from '../../common/form';
+import Columns from '../../common/templates/Columns/Columns';
+import { EcosModal } from '../../../../src/components/common';
+import {
+  cancelJournalSettingData,
+  createJournalSetting,
+  reloadGrid,
+  saveJournalSetting,
+  setJournalSetting
+} from '../../../actions/journals';
+import { closest, t, trigger } from '../../../helpers/util';
+import { wrapArgs } from '../../../helpers/redux';
+import { JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 import './JournalsSettingsFooter.scss';
 
@@ -69,19 +70,13 @@ class JournalsSettingsFooter extends Component {
   }
 
   onKeydown = e => {
-    switch (e.key) {
-      case 'Enter':
-        const inputRef = this.settingTitleInputRef || {};
-
-        if (e.target === inputRef.current) {
-          this.createSetting();
-        } else if (closest(e.target, this.props.parentClass)) {
-          this.applySetting();
-        }
-
-        break;
-      default:
-        break;
+    if (e.key === 'Enter') {
+      const inputRef = this.settingTitleInputRef || {};
+      if (e.target === inputRef.current) {
+        this.createSetting();
+      } else if (closest(e.target, this.props.parentClass)) {
+        this.applySetting();
+      }
     }
   };
 
@@ -104,31 +99,35 @@ class JournalsSettingsFooter extends Component {
     const { setJournalSetting, reloadGrid } = this.props;
     const { columns, groupBy, sortBy, predicate } = journalSetting;
 
-    this.setFilterToUrl(predicate);
+    this.setFilterToUrl({ groupBy, sortBy, predicate });
 
     setJournalSetting(journalSetting);
     reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
     trigger.call(this, 'onApply');
   };
 
-  setFilterToUrl = predicate => {
+  setFilterToUrl = ({ groupBy, sortBy, predicate }) => {
     const {
       push,
       history: {
         location: { pathname, search }
       }
     } = this.props;
-    const urlParams = { ...queryString.parse(search), filter: predicate ? JSON.stringify(predicate) : '' };
+    const urlParams = {
+      ...queryString.parse(search),
+      filter: predicate ? JSON.stringify(predicate) : '',
+      groupBy: groupBy ? JSON.stringify(groupBy) : '',
+      sortBy: sortBy ? JSON.stringify(sortBy) : ''
+    };
 
     push(`${pathname}?${queryString.stringify(urlParams)}`);
   };
 
   cancelSetting = () => {
     const { cancelJournalSettingData, journalSetting } = this.props;
+
     cancelJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD]);
-
     this.setFilterToUrl();
-
     trigger.call(this, 'onCancel');
   };
 

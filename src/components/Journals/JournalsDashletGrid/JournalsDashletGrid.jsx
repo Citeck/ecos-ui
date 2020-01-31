@@ -16,7 +16,6 @@ import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
 import { PROXY_URI } from '../../../constants/alfresco';
-import { JournalProps } from '../../../services/userLocalSettings';
 import {
   deleteRecords,
   execRecordsAction,
@@ -29,7 +28,7 @@ import {
   setSelectAllRecords,
   setSelectAllRecordsVisible,
   setSelectedRecords,
-  setSessionProps
+  setSettingsToUrl
 } from '../../../actions/journals';
 
 const mapStateToProps = (state, props) => {
@@ -61,7 +60,7 @@ const mapDispatchToProps = (dispatch, props) => {
     goToJournalsPage: row => dispatch(goToJournalsPage(w(row))),
     performGroupAction: options => dispatch(performGroupAction(w(options))),
     setPerformGroupActionResponse: options => dispatch(setPerformGroupActionResponse(w(options))),
-    setSessionProps: props => dispatch(setSessionProps(w(props)))
+    setSettingsToUrl: options => dispatch(setSettingsToUrl(w(options)))
   };
 };
 
@@ -103,9 +102,7 @@ class JournalsDashletGrid extends Component {
     this.filters = predicates;
 
     this.reloadGrid({ predicates });
-    this.props.setSessionProps({
-      [JournalProps.FILTERS]: predicates
-    });
+    this.props.setSettingsToUrl({ predicates });
   };
 
   onSort = e => {
@@ -117,9 +114,7 @@ class JournalsDashletGrid extends Component {
     ];
 
     this.reloadGrid({ sortBy });
-    this.props.setSessionProps({
-      [JournalProps.SORT]: sortBy
-    });
+    this.props.setSettingsToUrl({ sortBy });
   };
 
   setSelectedRow(row) {

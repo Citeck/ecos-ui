@@ -137,8 +137,4 @@ export const DashletProps = {
   CONTENT_SCALE: 'contentScale'
 };
 
-export const JournalProps = {
-  PAGINATION: 'pagination',
-  FILTERS: 'filters',
-  SORT: 'sort'
-};
+export const JournalProps = {};
