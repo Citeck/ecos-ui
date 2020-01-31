@@ -6,7 +6,6 @@ import { UncontrolledTooltip } from 'reactstrap';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
-import ReactResizeDetector from 'react-resize-detector';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
@@ -35,14 +34,17 @@ import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
 import { GrouppedTypeInterface, DynamicTypeInterface, AvailableTypeInterface, DocumentInterface } from './propsInterfaces';
 
 import './style.scss';
+import { Btn } from '../../common/btns';
 
 const Labels = {
-  TITLE: 'Документы',
-  SETTINGS: 'Настройка типов документов',
-  UPLOAD_DROPZONE: 'Добавить файлы',
-  UPLOAD_MESSAGE: 'Перетяните сюда файл',
-  ERROR_UPLOAD: 'Не удалось загрузить файл',
-  ERROR_ONLY_ONE_FILE: 'Можно загрузить только один файл'
+  TITLE: 'documents-widget.title',
+  SETTINGS: 'documents-widget.settings.title',
+  UPLOAD_DROPZONE: 'documents-widget.upload.title',
+  UPLOAD_MESSAGE: 'documents-widget.upload.message',
+  NOT_CONFIGURATION_LABEL: 'documents-widget.label.not-configuration',
+  OPEN_SETTINGS_BUTTON: 'documents-widget.btn.settings',
+  ERROR_UPLOAD: 'documents-widget.error.upload-filed',
+  ERROR_ONLY_ONE_FILE: 'documents-widget.error.only-one-file'
 };
 
 class Documents extends BaseWidget {
@@ -112,6 +114,7 @@ class Documents extends BaseWidget {
     this._tablePanel = React.createRef();
     this._tableRef = React.createRef();
     this._typesList = React.createRef();
+    this._emptyStubRef = React.createRef();
   }
 
   componentDidMount() {
@@ -152,6 +155,7 @@ class Documents extends BaseWidget {
 
     if (prevState.selectedType !== this.state.selectedType) {
       this.scrollPosition = {};
+      this.setContentHeight(this.clientHeight);
     }
   }
 
@@ -167,23 +171,34 @@ class Documents extends BaseWidget {
     return get(this._typesList, 'current.offsetHeight', 0);
   }
 
+  get emptyStubHeight() {
+    return get(this._emptyStubRef, 'current.offsetHeight', 0);
+  }
+
   get clientHeight() {
     if (!this.props.maxHeightByContent) {
       return null;
     }
 
-    return Math.max(this.tablePanelHeight + this.tableHeight, this.typesListHeight);
+    return Math.max(this.tablePanelHeight + this.tableHeight, this.typesListHeight, this.emptyStubHeight);
+  }
+
+  get typesHeight() {
+    const { userHeight } = this.state;
+
+    return userHeight !== undefined ? userHeight : this.typesListHeight;
+  }
+
+  get emptyHeight() {
+    const { userHeight } = this.state;
+
+    return userHeight !== undefined ? userHeight : this.emptyStubHeight;
   }
 
   get tableMinHeight() {
-    const { userHeight, fitHeights } = this.state;
-    let height = userHeight ? userHeight - this.tablePanelHeight : this.tableHeight;
+    const { userHeight } = this.state;
 
-    if (fitHeights.max < height) {
-      height = fitHeights.max - this.tablePanelHeight;
-    }
-
-    return height;
+    return userHeight !== undefined ? userHeight - this.tablePanelHeight : this.tableHeight;
   }
 
   get widgetTitle() {
@@ -464,23 +479,22 @@ class Documents extends BaseWidget {
   };
 
   handleChangeHeight = height => {
-    console.warn('handleChangeHeight => ', height, this.state.userHeight);
+    let userHeight = height;
 
-    if (this.state.userHeight === height) {
+    if (this.state.userHeight === userHeight) {
       return;
     }
 
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
-    this.setState({ userHeight: height });
+    if (userHeight < 0) {
+      userHeight = 0;
+    }
+
+    UserLocalSettingsService.setDashletHeight(this.props.id, userHeight);
+    this.setState({ userHeight });
   };
 
   handleResizeDetector = () => {
-    const { userHeight } = this.state;
     let height = this.clientHeight;
-
-    if (userHeight < height) {
-      height = userHeight;
-    }
 
     this.setContentHeight(height);
   };
@@ -680,19 +694,25 @@ class Documents extends BaseWidget {
     }
 
     return (
-      <div id={leftColumnId} ref={this._typesList} className="ecos-docs__column ecos-docs__column_types">
-        <div className="ecos-docs__types">
-          <div
-            onClick={this.handleClearSelectedType}
-            className={classNames('ecos-docs__types-item', {
-              'ecos-docs__types-item_selected': !selectedType
-            })}
-          >
-            <div className="ecos-docs__types-item-label">{t('Все типы')}</div>
-          </div>
+      <div id={leftColumnId} className="ecos-docs__column ecos-docs__column_types">
+        <Scrollbars
+          style={{ height: this.typesHeight || '100%' }}
+          hideTracksWhenNotNeeded={true}
+          renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+        >
+          <div className="ecos-docs__types" ref={this._typesList}>
+            <div
+              onClick={this.handleClearSelectedType}
+              className={classNames('ecos-docs__types-item', {
+                'ecos-docs__types-item_selected': !selectedType
+              })}
+            >
+              <div className="ecos-docs__types-item-label">{t('Все типы')}</div>
+            </div>
 
-          {dynamicTypes.map(this.renderType)}
-        </div>
+            {dynamicTypes.map(this.renderType)}
+          </div>
+        </Scrollbars>
 
         <ResizeBoxes className="ecos-docs__resizer" leftId={leftColumnId} rightId={rightColumnId} />
       </div>
@@ -875,9 +895,10 @@ class Documents extends BaseWidget {
   }
 
   renderTypesTable() {
+    const { dynamicTypes } = this.props;
     const { selectedType } = this.state;
 
-    if (selectedType) {
+    if (selectedType || !dynamicTypes.length) {
       return null;
     }
 
@@ -927,7 +948,12 @@ class Documents extends BaseWidget {
   }
 
   renderTable() {
+    const { dynamicTypes } = this.props;
     const { rightColumnId } = this.state;
+
+    if (!dynamicTypes.length) {
+      return null;
+    }
 
     return (
       <div id={rightColumnId} className="ecos-docs__column ecos-docs__column_table">
@@ -989,12 +1015,26 @@ class Documents extends BaseWidget {
       return null;
     }
 
-    return <div className="ecos-docs__empty-stub">{t('Виджет не настроен, откройте настройки и сделайте все что нужно')}</div>;
+    return (
+      <Scrollbars
+        style={{ height: this.emptyHeight || '100%' }}
+        hideTracksWhenNotNeeded={true}
+        renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+      >
+        <div className="ecos-docs__empty-stub" ref={this._emptyStubRef}>
+          <div className="ecos-docs__empty-stub-label">{t(Labels.NOT_CONFIGURATION_LABEL)}</div>
+
+          <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-docs__empty-stub-button" onClick={this.handleToggleTypesSettings}>
+            {t(Labels.OPEN_SETTINGS_BUTTON)}
+          </Btn>
+        </div>
+      </Scrollbars>
+    );
   }
 
   render() {
     const { dragHandleProps, canDragging } = this.props;
-    const { isCollapsed, contentHeight, fitHeights, userHeight } = this.state;
+    const { isCollapsed, userHeight } = this.state;
 
     return (
       <div>
@@ -1013,30 +1053,24 @@ class Documents extends BaseWidget {
           onToggleCollapse={this.handleToggleContent}
           isCollapsed={isCollapsed}
         >
-          <Scrollbars
-            style={{ height: contentHeight || '100%' }}
-            renderTrackVertical={props => <div {...props} className="ecos-current-task-list__v-scroll" />}
+          <DefineHeight
+            className="ecos-docs__container"
+            fixHeight={userHeight || null}
+            maxHeight={this.clientHeight}
+            minHeight={1}
+            getOptimalHeight={this.setContentHeight}
           >
-            <DefineHeight
-              className="ecos-docs__container"
-              fixHeight={userHeight}
-              maxHeight={fitHeights.max}
-              minHeight={1}
-              getOptimalHeight={this.setContentHeight}
-            >
-              <div>
-                <div className="ecos-docs__body" ref={this.contentRef}>
-                  {this.renderTypes()}
-                  {this.renderTable()}
-                  {this.renderEmptyStub()}
-                  {this.renderLoader()}
-                  <ReactResizeDetector handleHeight onResize={this.handleResizeDetector} />
-                </div>
+            <div>
+              <div className="ecos-docs__body" ref={this.contentRef}>
+                {this.renderTypes()}
+                {this.renderTable()}
+                {this.renderEmptyStub()}
+                {this.renderLoader()}
               </div>
-              {this.renderSettings()}
-              {this.renderUploadingModal()}
-            </DefineHeight>
-          </Scrollbars>
+            </div>
+            {this.renderSettings()}
+            {this.renderUploadingModal()}
+          </DefineHeight>
         </Dashlet>
       </div>
     );

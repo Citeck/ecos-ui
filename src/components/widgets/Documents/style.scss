@@ -369,6 +369,27 @@
   &__resizer {
     top: 11px;
   }
+
+  &__empty-stub {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: auto;
+    height: 198px;
+
+    &-button {
+    }
+
+    &-label {
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 22px;
+      text-align: center;
+      color: $text-color-dark;
+      margin-bottom: 15px;
+    }
+  }
 }
 
 .ecos-tree {

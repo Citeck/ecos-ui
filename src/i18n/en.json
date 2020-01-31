@@ -780,5 +780,20 @@
   "esign.no-document-ref": "No documents to sign",
   "esign.message.plugin-is-fetching": "The process of initializing the extension for working with digital signature",
   "documents-widget.settings-modal.button.cancel": "Cancel",
-  "documents-widget.settings-modal.button.ok": "Done"
+  "documents-widget.settings-modal.button.ok": "Done",
+  "documents-widget.title": "Documents",
+  "documents-widget.settings.title": "Setting document types",
+  "documents-widget.upload.title": "Add files",
+  "documents-widget.upload.message": "Drag the file here",
+  "documents-widget.label.not-configuration": "Widget not configured",
+  "documents-widget.btn.settings": "Open Settings",
+  "documents-widget.error.upload-filed": "Could not upload file",
+  "documents-widget.error.only-one-file": "Only one file can be uploaded",
+  "documents-widget.tree.empty": "Nothing found",
+  "documents-widget.tree.not-selected": "Not selected for display",
+  "documents-widget.type-settings.title": "settings",
+  "documents-widget.type-settings.upload-label": "Ability to upload files",
+  "documents-widget.type-settings.sort-label": "Order and display of columns in the type",
+  "documents-widget.type-settings.one-file": "Only one",
+  "documents-widget.type-settings.multiple-files": "Multiple files"
 }

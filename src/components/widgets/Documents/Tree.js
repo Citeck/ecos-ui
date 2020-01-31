@@ -9,8 +9,8 @@ import { arrayCompare, t } from '../../../helpers/util';
 import { GrouppedTypeInterface } from './propsInterfaces';
 
 const LABELS = {
-  EMPTY: 'Ничего не найдено',
-  NOT_SELECTED: 'Не выбран для отображения'
+  EMPTY: 'documents-widget.tree.empty',
+  NOT_SELECTED: 'documents-widget.tree.not-selected'
 };
 
 class TreeItem extends Component {

@@ -7,13 +7,13 @@ import { Btn } from '../../common/btns';
 import { DynamicTypeInterface } from './propsInterfaces';
 
 const Labels = {
-  TITLE: 'настройки',
+  TITLE: 'documents-widget.type-settings.title',
   CANCEL_BUTTON: 'documents-widget.settings-modal.button.cancel',
   OK_BUTTON: 'documents-widget.settings-modal.button.ok',
-  UPLOAD_LABEL: 'Возможность загрузки файлов',
-  SORT_LABEL: 'Порядок и отображение колонок в типе',
-  ONE_FILE: 'Только один',
-  MULTIPLE_FILES: 'Несколько файлов'
+  UPLOAD_LABEL: 'documents-widget.type-settings.upload-label',
+  SORT_LABEL: 'documents-widget.type-settings.sort-label',
+  ONE_FILE: 'documents-widget.type-settings.one-file',
+  MULTIPLE_FILES: 'documents-widget.type-settings.multiple-files'
 };
 const FileCount = {
   ONE: 'one',

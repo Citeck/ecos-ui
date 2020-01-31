@@ -164,18 +164,20 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
       })[0];
 
       set(type, 'countDocuments', documents.length);
-      set(type, 'loadedBy', document.loadedBy);
-      set(type, 'lastDocumentRef', document.id);
-      set(type, 'modified', DocumentsConverter.getFormattedDate(document.modified));
+      set(type, 'loadedBy', get(document, 'loadedBy', ''));
+      set(type, 'lastDocumentRef', get(document, 'id', ''));
+      set(type, 'modified', DocumentsConverter.getFormattedDate(get(document, 'modified', '')));
     }
 
     yield put(setDynamicTypes({ record: payload.record, dynamicTypes }));
 
-    const actions = yield RecordActions.getActions(documents.map(item => item.id), {
-      actions: ['ui/action$content-download', 'ui/action$view-dashboard', 'ui/action$edit', 'ui/action$delete']
-    });
+    if (documents.length) {
+      const actions = yield RecordActions.getActions(documents.map(item => item.id), {
+        actions: ['ui/action$content-download', 'ui/action$view-dashboard', 'ui/action$edit', 'ui/action$delete']
+      });
 
-    yield put(setActions({ record: payload.record, actions }));
+      yield put(setActions({ record: payload.record, actions }));
+    }
   } catch (e) {
     logger.error('[documents sagaGetDocumentsByType saga error', e.message);
   }

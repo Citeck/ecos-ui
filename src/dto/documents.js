@@ -81,12 +81,12 @@ export default class DocumentsConverter {
         return target;
       }
 
-      target.id = document.id;
+      target.id = get(document, 'id', '');
       target.type = type;
-      target.name = document.name;
+      target.name = get(document, 'name', '');
       target.typeName = typeName;
-      target.loadedBy = document.loadedBy;
-      target.modified = DocumentsConverter.getFormattedDate(document.modified);
+      target.loadedBy = get(document, 'loadedBy', '');
+      target.modified = DocumentsConverter.getFormattedDate(get(document, 'modified', ''));
 
       return target;
     });

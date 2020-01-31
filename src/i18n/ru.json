@@ -784,5 +784,20 @@
   "esign.no-document-ref": "Нет документов для подписи",
   "esign.message.plugin-is-fetching": "Идёт процесс инициализации расширения для работы с цифровой подписью",
   "documents-widget.settings-modal.button.cancel": "Отмена",
-  "documents-widget.settings-modal.button.ok": "Готово"
+  "documents-widget.settings-modal.button.ok": "Готово",
+  "documents-widget.title": "Документы",
+  "documents-widget.settings.title": "Настройка типов документов",
+  "documents-widget.upload.title": "Добавить файлы",
+  "documents-widget.upload.message": "Перетяните сюда файл",
+  "documents-widget.label.not-configuration": "Виджет не настроен",
+  "documents-widget.btn.settings": "Открыть настройки",
+  "documents-widget.error.upload-filed": "Не удалось загрузить файл",
+  "documents-widget.error.only-one-file": "Можно загрузить только один файл",
+  "documents-widget.tree.empty": "Ничего не найдено",
+  "documents-widget.tree.not-selected": "Не выбран для отображения",
+  "documents-widget.type-settings.title": "настройки",
+  "documents-widget.type-settings.upload-label": "Возможность загрузки файлов",
+  "documents-widget.type-settings.sort-label": "Порядок и отображение колонок в типе",
+  "documents-widget.type-settings.one-file": "Только один",
+  "documents-widget.type-settings.multiple-files": "Несколько файлов"
 }
