@@ -470,6 +470,10 @@ export default class SelectJournal extends Component {
 
     this.setState(state => {
       const prevSelected = state.gridData.selected || [];
+      const newSkipCount =
+        Math.floor(state.gridData.total / state.requestParams.pagination.maxItems) * state.requestParams.pagination.maxItems;
+      const newPageNum = Math.ceil((state.gridData.total + 1) / state.requestParams.pagination.maxItems);
+
       return {
         isCreateModalOpen: false,
         gridData: {
@@ -485,7 +489,12 @@ export default class SelectJournal extends Component {
         },
         requestParams: {
           ...state.requestParams,
-          predicates: []
+          predicates: [],
+          pagination: {
+            ...state.requestParams.pagination,
+            skipCount: newSkipCount,
+            page: newPageNum
+          }
         }
       };
     }, this.refreshGridData);

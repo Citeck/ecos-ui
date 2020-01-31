@@ -299,6 +299,27 @@ class EcosForm extends React.Component {
       }
     };
 
+    const resetOutcomeButtonsValues = () => {
+      const allComponents = form.getAllComponents();
+      const outcomeButtonsKeys = [];
+
+      allComponents.forEach(item => {
+        if (item.component.type === 'button' && item.component.key.startsWith('outcome_')) {
+          outcomeButtonsKeys.push(item.component.key);
+        }
+      });
+
+      for (let field in form.data) {
+        if (!form.data.hasOwnProperty(field)) {
+          continue;
+        }
+
+        if (outcomeButtonsKeys.includes(field)) {
+          form.data[field] = undefined;
+        }
+      }
+    };
+
     if (this.props.saveOnSubmit !== false) {
       record
         .save()
@@ -307,6 +328,7 @@ class EcosForm extends React.Component {
         })
         .catch(e => {
           form.showErrors(e, true);
+          resetOutcomeButtonsValues();
         });
     } else {
       onSubmit(record, form);

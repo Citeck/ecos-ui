@@ -34,6 +34,10 @@ export default class AsyncDataComponent extends BaseComponent {
             id: '',
             attributes: {}
           },
+          recordsScript: {
+            script: '',
+            attributes: {}
+          },
           recordsQuery: {
             query: '',
             attributes: {},
@@ -185,6 +189,44 @@ export default class AsyncDataComponent extends BaseComponent {
           {},
           forceUpdate
         );
+
+        break;
+      case 'recordsScript':
+        let recordsScriptConfig = _.get(comp, 'source.recordsScript', {});
+
+        let records = this.evaluate(recordsScriptConfig.script, {}, 'value', true);
+        if (records) {
+          if (_.isArray(records)) {
+            records = records.map(rec => (rec.id ? rec.id : rec));
+          } else {
+            records = records.id ? records.id : records;
+          }
+        } else {
+          records = null;
+        }
+        const evalAsync = recs =>
+          this._evalAsyncValue(
+            'evaluatedRecordsScript',
+            recs,
+            records => {
+              if (!records) {
+                return {};
+              }
+              if (_.isArray(records)) {
+                return Promise.all(records.map(id => this._loadAtts(id, recordsScriptConfig.attributes)));
+              } else {
+                return this._loadAtts(records, recordsScriptConfig.attributes);
+              }
+            },
+            {},
+            forceUpdate
+          );
+
+        if (records && records.then) {
+          records.then(evalAsync);
+        } else {
+          evalAsync(records);
+        }
 
         break;
       case 'recordsArray':
