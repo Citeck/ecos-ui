@@ -1,9 +1,11 @@
 import isEmpty from 'lodash/isEmpty';
-import Records from '../Records';
+
 import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { ActionModes } from '../../../constants';
+import Records from '../Records';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
 
@@ -79,7 +81,7 @@ export const ViewAction = {
 
   canBeExecuted: ({ context }) => {
     const { scope = '', mode = '' } = context;
-    if (mode === 'dashboard') {
+    if (mode === ActionModes.DASHBOARD) {
       return false;
     }
     for (let pattern of ViewAction.disabledFor) {
@@ -134,7 +136,7 @@ export const BackgroundOpenAction = {
 
   canBeExecuted: ({ context }) => {
     const { scope = '', mode = '' } = context;
-    if (mode === 'dashboard') {
+    if (mode === ActionModes.DASHBOARD) {
       return false;
     }
     for (let pattern of ViewAction.disabledFor) {
