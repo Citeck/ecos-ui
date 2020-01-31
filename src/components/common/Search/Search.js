@@ -67,9 +67,7 @@ export default class Search extends Component {
   };
 
   triggerSearch = () => {
-    if (this.state.text) {
-      trigger.call(this, 'onSearch', this.state.text);
-    }
+    trigger.call(this, 'onSearch', this.state.text);
   };
 
   render() {

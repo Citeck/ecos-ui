@@ -1,15 +1,13 @@
-import { RecordService } from './recordService';
 import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
-import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
-import Records from '../components/Records';
+import { ActionModes, Permissions } from '../constants';
 import { debounce, queryByCriteria, t } from '../helpers/util';
 import * as ls from '../helpers/ls';
-import { DocPreviewApi } from './docPreview';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
-
-import { ActionModes, Permissions } from '../constants';
-
+import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
+import Records from '../components/Records';
 import RecordActions from '../components/Records/actions';
+import { DocPreviewApi } from './docPreview';
+import { RecordService } from './recordService';
 
 export class JournalsApi extends RecordService {
   lsJournalSettingIdsKey = ls.generateKey('journal-setting-ids', true);
@@ -81,7 +79,7 @@ export class JournalsApi extends RecordService {
       });
     }
 
-    let bodyQery = {
+    let bodyQuery = {
       consistency: 'EVENTUAL',
       query: query,
       language: 'predicate',
@@ -91,7 +89,7 @@ export class JournalsApi extends RecordService {
     };
 
     if (sourceId) {
-      bodyQery.sourceId = sourceId;
+      bodyQuery.sourceId = sourceId;
     }
 
     const dataSource = new dataSourceStore['GqlDataSource']({
@@ -99,7 +97,7 @@ export class JournalsApi extends RecordService {
       dataSourceName: 'GqlDataSource',
       ajax: {
         body: {
-          query: bodyQery
+          query: bodyQuery
         }
       },
       columns: columns || [],
@@ -108,21 +106,13 @@ export class JournalsApi extends RecordService {
 
     return dataSource.load().then(function({ data, total }) {
       const columns = dataSource.getColumns();
-
       const actionsContext = {
         mode: ActionModes.JOURNAL,
         scope: journalId,
         actions: journalActions
       };
 
-      return RecordActions.getActions((data || []).map(r => r.id), actionsContext).then(actions => {
-        return {
-          data,
-          actions,
-          total,
-          columns
-        };
-      });
+      return RecordActions.getActions(data, actionsContext).then(actions => ({ data, actions, total, columns }));
     });
   };
 
