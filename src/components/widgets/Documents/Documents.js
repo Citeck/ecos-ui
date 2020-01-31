@@ -108,6 +108,10 @@ class Documents extends BaseWidget {
       tableFilter: '',
       statusFilter: statusesKeys.ALL
     };
+
+    this._tablePanel = React.createRef();
+    this._tableRef = React.createRef();
+    this._typesList = React.createRef();
   }
 
   componentDidMount() {
@@ -149,6 +153,37 @@ class Documents extends BaseWidget {
     if (prevState.selectedType !== this.state.selectedType) {
       this.scrollPosition = {};
     }
+  }
+
+  get tablePanelHeight() {
+    return get(this._tablePanel, 'current.offsetHeight', 0);
+  }
+
+  get tableHeight() {
+    return get(this._tableRef, 'current.offsetHeight', 0);
+  }
+
+  get typesListHeight() {
+    return get(this._typesList, 'current.offsetHeight', 0);
+  }
+
+  get clientHeight() {
+    if (!this.props.maxHeightByContent) {
+      return null;
+    }
+
+    return Math.max(this.tablePanelHeight + this.tableHeight, this.typesListHeight);
+  }
+
+  get tableMinHeight() {
+    const { userHeight, fitHeights } = this.state;
+    let height = userHeight ? userHeight - this.tablePanelHeight : this.tableHeight;
+
+    if (fitHeights.max < height) {
+      height = fitHeights.max - this.tablePanelHeight;
+    }
+
+    return height;
   }
 
   get widgetTitle() {
@@ -429,12 +464,25 @@ class Documents extends BaseWidget {
   };
 
   handleChangeHeight = height => {
+    console.warn('handleChangeHeight => ', height, this.state.userHeight);
+
+    if (this.state.userHeight === height) {
+      return;
+    }
+
     UserLocalSettingsService.setDashletHeight(this.props.id, height);
     this.setState({ userHeight: height });
   };
 
-  handleResizeDetector = (...size) => {
-    this.handleChangeHeight(size[1]);
+  handleResizeDetector = () => {
+    const { userHeight } = this.state;
+    let height = this.clientHeight;
+
+    if (userHeight < height) {
+      height = userHeight;
+    }
+
+    this.setContentHeight(height);
   };
 
   handleCancelSettings = () => {
@@ -632,7 +680,7 @@ class Documents extends BaseWidget {
     }
 
     return (
-      <div id={leftColumnId} className="ecos-docs__column ecos-docs__column_types">
+      <div id={leftColumnId} ref={this._typesList} className="ecos-docs__column ecos-docs__column_types">
         <div className="ecos-docs__types">
           <div
             onClick={this.handleClearSelectedType}
@@ -745,8 +793,12 @@ class Documents extends BaseWidget {
     const { dynamicTypes } = this.props;
     const { statusFilter, selectedType } = this.state;
 
+    if (!selectedType && !dynamicTypes.length) {
+      return null;
+    }
+
     return (
-      <div className="ecos-docs__panel">
+      <div className="ecos-docs__panel" ref={this._tablePanel}>
         {this.renderUploadButton()}
         <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTable} className="ecos-docs__panel-search" />
         {!selectedType && dynamicTypes.length > 1 && (
@@ -766,6 +818,10 @@ class Documents extends BaseWidget {
 
   renderInlineTools = () => {
     const { stateId } = this.props;
+
+    if (!stateId) {
+      return null;
+    }
 
     return <InlineTools className="ecos-docs__table-inline-tools" stateId={stateId} reduxKey="documents" toolsKey="tools" />;
   };
@@ -788,6 +844,9 @@ class Documents extends BaseWidget {
       <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
         <Grid
           scrollable
+          forwardedRef={this._tableRef}
+          autoHeight
+          minHeight={this.tableMinHeight}
           keyField="id"
           className={classNames('ecos-docs__table', {
             'ecos-docs__table_hidden': isShowDropZone || isUploadingFile
@@ -845,6 +904,9 @@ class Documents extends BaseWidget {
         data={this.tableData}
         columns={columns}
         scrollable
+        forwardedRef={this._tableRef}
+        autoHeight
+        minHeight={this.tableMinHeight}
         keyField="type"
         onRowClick={this.handleClickTableRow}
         onRowDrop={this.handleRowDrop}
@@ -919,6 +981,17 @@ class Documents extends BaseWidget {
     return <Loader className="ecos-docs__loader" blur />;
   }
 
+  renderEmptyStub() {
+    const { dynamicTypes } = this.props;
+    const { selectedType } = this.state;
+
+    if (selectedType || dynamicTypes.length) {
+      return null;
+    }
+
+    return <div className="ecos-docs__empty-stub">{t('Виджет не настроен, откройте настройки и сделайте все что нужно')}</div>;
+  }
+
   render() {
     const { dragHandleProps, canDragging } = this.props;
     const { isCollapsed, contentHeight, fitHeights, userHeight } = this.state;
@@ -955,6 +1028,7 @@ class Documents extends BaseWidget {
                 <div className="ecos-docs__body" ref={this.contentRef}>
                   {this.renderTypes()}
                   {this.renderTable()}
+                  {this.renderEmptyStub()}
                   {this.renderLoader()}
                   <ReactResizeDetector handleHeight onResize={this.handleResizeDetector} />
                 </div>

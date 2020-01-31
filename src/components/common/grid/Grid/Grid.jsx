@@ -54,6 +54,10 @@ class Grid extends Component {
     this._shadowLeftNode = null;
     this._firstHeaderCellNode = null;
     this._inlineActionsNode = null;
+
+    this.state = {
+      tableHeight: 0
+    };
   }
 
   componentDidMount() {
@@ -608,6 +612,10 @@ class Grid extends Component {
     const gridStyle = props.minHeight ? { minHeight: props.minHeight } : { height: '100%' };
     const scrollStyle = props.minHeight ? { height: props.minHeight } : { autoHeight: true };
 
+    if (props.autoHeight) {
+      scrollStyle.autoHeight = props.autoHeight;
+    }
+
     const Scroll = ({ scrollable, children, style, refCallback }) =>
       scrollable ? (
         <Scrollbars
@@ -645,7 +653,9 @@ class Grid extends Component {
           {toolsVisible ? this.tools(props.selected) : null}
 
           <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
-            <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={ECOS_GRID_ROW_CLASS} />
+            <div ref={this.props.forwardedRef}>
+              <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={ECOS_GRID_ROW_CLASS} />
+            </div>
             {this.inlineTools()}
           </Scroll>
           {this.fixedHeader ? (

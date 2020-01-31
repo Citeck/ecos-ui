@@ -170,6 +170,10 @@
   &__table {
     width: 100%;
 
+    .table {
+      margin-bottom: 0;
+    }
+
     &_hidden {
       display: none;
     }
