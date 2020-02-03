@@ -66,6 +66,7 @@
     height: 40px;
     border-top: 2px solid $color-gray-4;
     padding: 0;
+    vertical-align: middle;
   }
 
   th {
@@ -78,12 +79,6 @@
   .react-bs-table-no-data {
     padding: 14px;
     text-align: center;
-  }
-
-  .react-bootstrap-table-editing-cell {
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 }
 
