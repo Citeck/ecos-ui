@@ -21,7 +21,7 @@ export default class AsyncDataComponent extends BaseComponent {
         source: {
           type: '',
           ajax: {
-            method: '',
+            method: 'GET',
             url: '',
             data: '',
             mapping: ''
