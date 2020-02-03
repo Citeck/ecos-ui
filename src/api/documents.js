@@ -31,7 +31,10 @@ export class DocumentsApi {
   };
 
   getFormIdByType = type => {
-    return Records.get(type).load('form?id');
+    return Records.get(type)
+      .load('form?id')
+      .then(response => response)
+      .catch(() => null);
   };
 
   uploadFile = (data, callback) => {

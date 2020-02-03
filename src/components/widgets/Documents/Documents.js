@@ -108,7 +108,11 @@ class Documents extends BaseWidget {
       isDragFiles: false,
       typesFilter: '',
       tableFilter: '',
-      statusFilter: statusesKeys.ALL
+      statusFilter: statusesKeys.ALL,
+      typesStatuses: typeStatusesByFields.map(type => ({
+        ...type,
+        value: t(type.value)
+      }))
     };
 
     this._tablePanel = React.createRef();
@@ -768,7 +772,7 @@ class Documents extends BaseWidget {
           arrowClassName="ecos-base-tooltip-arrow"
           target={target}
         >
-          {status}
+          {t(status)}
         </UncontrolledTooltip>
       </>
     );
@@ -811,7 +815,7 @@ class Documents extends BaseWidget {
 
   renderTablePanel() {
     const { dynamicTypes } = this.props;
-    const { statusFilter, selectedType } = this.state;
+    const { statusFilter, selectedType, typesStatuses } = this.state;
 
     if (!selectedType && !dynamicTypes.length) {
       return null;
@@ -828,7 +832,7 @@ class Documents extends BaseWidget {
             valueField="key"
             titleField="value"
             value={statusFilter}
-            source={typeStatusesByFields}
+            source={typesStatuses}
             onChange={this.handleChangeTypeFilter}
           />
         )}
@@ -856,7 +860,7 @@ class Documents extends BaseWidget {
 
     const columns = tableFields.DEFAULT.map(item => ({
       dataField: item.name,
-      text: item.label
+      text: t(item.label)
     }));
     const isShowDropZone = isDragFiles;
 
@@ -912,7 +916,7 @@ class Documents extends BaseWidget {
 
       return {
         dataField: name,
-        text: label,
+        text: t(label),
         ...other,
         ...extended
       };

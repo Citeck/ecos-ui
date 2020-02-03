@@ -1,6 +1,6 @@
 import moment from 'moment';
 import get from 'lodash/get';
-import { deepClone } from '../helpers/util';
+import { deepClone, t } from '../helpers/util';
 
 export default class DocumentsConverter {
   static formIdIsNull = (id = '') => {
@@ -47,7 +47,7 @@ export default class DocumentsConverter {
       return {
         ...item,
         formId: DocumentsConverter.formIdIsNull(item.formId) ? null : item.formId,
-        name: item.name || get(typeNames, [item.type], ''),
+        name: item.name || get(typeNames, [item.type], t('documents-widget.untitled')),
         countDocuments: documents.length,
         lastDocumentRef: get(document, 'id', ''),
         loadedBy: get(document, 'loadedBy', ''),
@@ -67,7 +67,7 @@ export default class DocumentsConverter {
     target.multiple = get(source, 'multiple', false);
     target.mandatory = get(source, 'mandatory', false);
     target.type = get(source, 'type', '');
-    target.name = get(source, 'name', '');
+    target.name = get(source, 'name', t('documents-widget.untitled'));
     target.countDocuments = get(source, 'countDocuments', 0);
 
     return target;
@@ -83,7 +83,7 @@ export default class DocumentsConverter {
 
       target.id = get(document, 'id', '');
       target.type = type;
-      target.name = get(document, 'name', '');
+      target.name = get(document, 'name', t('documents-widget.untitled'));
       target.typeName = typeName;
       target.loadedBy = get(document, 'loadedBy', '');
       target.modified = DocumentsConverter.getFormattedDate(get(document, 'modified', ''));
@@ -121,7 +121,7 @@ export default class DocumentsConverter {
     }
 
     target.type = get(source, 'id', '');
-    target.name = get(source, 'name', '');
+    target.name = get(source, 'name', t('documents-widget.untitled'));
     target.formId = get(source, 'formId', '');
     target.multiple = get(source, 'multiple', false);
     target.mandatory = get(source, 'mandatory', false);
@@ -192,7 +192,7 @@ export default class DocumentsConverter {
     }
 
     target.append('filedata', get(source, 'file', ''));
-    target.append('filename', get(source, 'file.name', ''));
+    target.append('filename', get(source, 'file.name', t('documents-widget.untitled')));
     target.append('updateNodeRef', get(source, 'record', ''));
     target.append('description', get(source, 'comment', ''));
     target.append('majorversion', get(source, 'isMajor', true));

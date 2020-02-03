@@ -27,6 +27,7 @@ import DocumentsConverter from '../dto/documents';
 import { deepClone } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
 import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
+import { documentActions } from '../constants/documents';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
@@ -43,18 +44,19 @@ function* sagaInitWidget({ api, logger }, { payload }) {
 
 function* sagaGetDynamicTypes({ api, logger }, { payload }) {
   try {
-    const { records: dynamicTypes, errors: dtErrors } = yield call(api.documents.getDynamicTypes, payload.record);
+    const { records, errors: dtErrors } = yield call(api.documents.getDynamicTypes, payload.record);
 
     if (dtErrors.length) {
       throw new Error(dtErrors.join(' '));
     }
 
+    const dynamicTypes = DocumentsConverter.getDynamicTypes(records);
     const configTypes = yield select(state => selectConfigTypes(state, payload.record));
     let combinedTypes = DocumentsConverter.combineTypes(dynamicTypes, configTypes);
     const typeNames = yield select(state => selectTypeNames(state, payload.record));
     const dynamicTypeKeys = combinedTypes.map(record => record.type);
-    const { records, errors: documentsErrors } = yield call(api.documents.getDocumentsByTypes, payload.record, dynamicTypeKeys);
-    const countDocuments = records.map(record => record.documents);
+    const { records: documents, errors: documentsErrors } = yield call(api.documents.getDocumentsByTypes, payload.record, dynamicTypeKeys);
+    const countDocuments = documents.map(record => record.documents);
 
     if (documentsErrors.length) {
       throw new Error(documentsErrors.join(' '));
@@ -173,7 +175,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
 
     if (documents.length) {
       const actions = yield RecordActions.getActions(documents.map(item => item.id), {
-        actions: ['ui/action$content-download', 'ui/action$view-dashboard', 'ui/action$edit', 'ui/action$delete']
+        actions: documentActions
       });
 
       yield put(setActions({ record: payload.record, actions }));

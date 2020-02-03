@@ -1,3 +1,5 @@
+import { t } from '../helpers/util';
+
 export const statusesKeys = {
   ALL: 'all',
   FILE_ADDED: 'file-added',
@@ -9,13 +11,13 @@ export const statusesKeys = {
 };
 
 export const typesStatuses = {
-  [statusesKeys.ALL]: 'Все статусы',
-  [statusesKeys.FILE_ADDED]: 'Добавлен файл',
-  [statusesKeys.MULTI_FILES_ADDED]: 'Добавлено несколько файлов',
-  [statusesKeys.NEED_ADD_FILES]: 'Необходимо добавить файлы',
-  [statusesKeys.NEED_ADD_FILE]: 'Необходимо добавить файл',
-  [statusesKeys.CAN_ADD_FILE]: 'Можно добавить файл',
-  [statusesKeys.CAN_ADD_FILES]: 'Можно добавить файлы'
+  [statusesKeys.ALL]: 'documents-widget.types-statuses.all',
+  [statusesKeys.FILE_ADDED]: 'documents-widget.types-statuses.file-added',
+  [statusesKeys.MULTI_FILES_ADDED]: 'documents-widget.types-statuses.multiple-files-added',
+  [statusesKeys.NEED_ADD_FILES]: 'documents-widget.types-statuses.need-add-files',
+  [statusesKeys.NEED_ADD_FILE]: 'documents-widget.types-statuses.need-add-file',
+  [statusesKeys.CAN_ADD_FILE]: 'documents-widget.types-statuses.can-add-file',
+  [statusesKeys.CAN_ADD_FILES]: 'documents-widget.types-statuses.can-add-files'
 };
 
 export const typeStatusesByFields = Object.keys(typesStatuses).map(key => ({
@@ -24,22 +26,22 @@ export const typeStatusesByFields = Object.keys(typesStatuses).map(key => ({
 }));
 
 export const tooltips = {
-  SETTINGS: 'Настроить типы и колонки'
+  SETTINGS: t('documents-widget.tooltip.settings')
 };
 
 export const tableFields = {
   ALL: [
     {
       name: 'name',
-      label: 'Тип'
+      label: 'documents-widget.table-fields.settings'
     },
     {
       name: 'loadedBy',
-      label: 'Загрузил'
+      label: 'documents-widget.table-fields.uploaded-by'
     },
     {
       name: 'modified',
-      label: 'Обновлено'
+      label: 'documents-widget.table-fields.updated-at'
     },
     {
       name: 'count',
@@ -49,15 +51,15 @@ export const tableFields = {
   DEFAULT: [
     {
       name: 'name',
-      label: 'Название'
+      label: 'documents-widget.table-fields.name'
     },
     {
       name: 'loadedBy',
-      label: 'Загрузил'
+      label: 'documents-widget.table-fields.uploaded-by'
     },
     {
       name: 'modified',
-      label: 'Обновлено'
+      label: 'documents-widget.table-fields.updated-at'
     }
   ]
 };
@@ -66,3 +68,5 @@ export const errorTypes = Object.freeze({
   UPLOAD: 'uploadError',
   COUNT_FILES: 'countFilesError'
 });
+
+export const documentActions = ['ui/action$content-download', 'ui/action$view-dashboard', 'ui/action$edit', 'ui/action$delete'];

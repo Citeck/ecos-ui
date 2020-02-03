@@ -41,11 +41,11 @@ class TypeSettings extends Component {
     countTabs: [
       {
         key: FileCount.ONE,
-        value: Labels.ONE_FILE
+        value: t(Labels.ONE_FILE)
       },
       {
         key: FileCount.MULTIPLE,
-        value: Labels.MULTIPLE_FILES
+        value: t(Labels.MULTIPLE_FILES)
       }
     ]
   };

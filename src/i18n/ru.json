@@ -799,5 +799,18 @@
   "documents-widget.type-settings.upload-label": "Возможность загрузки файлов",
   "documents-widget.type-settings.sort-label": "Порядок и отображение колонок в типе",
   "documents-widget.type-settings.one-file": "Только один",
-  "documents-widget.type-settings.multiple-files": "Несколько файлов"
+  "documents-widget.type-settings.multiple-files": "Несколько файлов",
+  "documents-widget.types-statuses.all": "Все статусы",
+  "documents-widget.types-statuses.file-added": "Добавлен файл",
+  "documents-widget.types-statuses.multiple-files-added": "Добавлено несколько файлов",
+  "documents-widget.types-statuses.need-add-files": "Необходимо добавить файлы",
+  "documents-widget.types-statuses.need-add-file": "Необходимо добавить файл",
+  "documents-widget.types-statuses.can-add-file": "Можно добавить файл",
+  "documents-widget.types-statuses.can-add-files": "Можно добавить файлы",
+  "documents-widget.tooltip.settings": "Настроить типы и колонки",
+  "documents-widget.table-fields.settings": "Тип",
+  "documents-widget.table-fields.uploaded-by": "Загрузил",
+  "documents-widget.table-fields.updated-at": "Обновлено",
+  "documents-widget.table-fields.name": "Название",
+  "documents-widget.untitled": "Без названия"
 }
