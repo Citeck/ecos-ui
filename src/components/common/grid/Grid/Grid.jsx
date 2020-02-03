@@ -305,8 +305,6 @@ class Grid extends Component {
       const Formatter = formatExtraData.formatter;
       const errorAttribute = row.error;
 
-      console.warn('Formatter => ', Formatter);
-
       return (
         <div
           className={classNames('ecos-grid__td', {
