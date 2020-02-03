@@ -4,6 +4,7 @@
   &__body {
     display: flex;
     height: 100%;
+    overflow: hidden;
   }
 
   &__container {

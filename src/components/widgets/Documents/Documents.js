@@ -815,7 +815,7 @@ class Documents extends BaseWidget {
 
   renderTablePanel() {
     const { dynamicTypes } = this.props;
-    const { statusFilter, selectedType, typesStatuses } = this.state;
+    const { statusFilter, selectedType, typesStatuses, contentHeight } = this.state;
 
     if (!selectedType && !dynamicTypes.length) {
       return null;
@@ -827,13 +827,15 @@ class Documents extends BaseWidget {
         <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTable} className="ecos-docs__panel-search" />
         {!selectedType && dynamicTypes.length > 1 && (
           <Dropdown
-            className="ecos-docs__panel-filter"
-            controlClassName="ecos-docs__panel-filter-control"
+            withScrollbar
             valueField="key"
             titleField="value"
             value={statusFilter}
             source={typesStatuses}
+            className="ecos-docs__panel-filter"
+            controlClassName="ecos-docs__panel-filter-control"
             onChange={this.handleChangeTypeFilter}
+            scrollbarHeightMax={contentHeight - this.tablePanelHeight}
           />
         )}
       </div>
