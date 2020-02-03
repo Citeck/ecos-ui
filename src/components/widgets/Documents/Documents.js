@@ -911,7 +911,7 @@ class Documents extends BaseWidget {
       const extended = {};
 
       if (name === 'count') {
-        extended.formatter = this.countFormatter;
+        extended.customFormatter = this.countFormatter;
       }
 
       return {

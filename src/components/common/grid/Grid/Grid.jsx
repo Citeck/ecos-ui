@@ -172,8 +172,10 @@ class Grid extends Component {
 
       column = this.setHeaderFormatter(column, filterable, column.sortable);
 
-      if (!column.formatter) {
+      if (column.customFormatter === undefined) {
         column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
+      } else {
+        column.formatter = column.customFormatter;
       }
 
       return column;
@@ -302,6 +304,8 @@ class Grid extends Component {
       formatExtraData = formatExtraData || {};
       const Formatter = formatExtraData.formatter;
       const errorAttribute = row.error;
+
+      console.warn('Formatter => ', Formatter);
 
       return (
         <div
