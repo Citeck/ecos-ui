@@ -1,8 +1,10 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import queryString from 'query-string';
+import { push } from 'connected-react-router';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 
 import {
   cancelJournalSettingData,
@@ -48,7 +50,6 @@ import {
   setSelectAllRecordsVisible,
   setSelectedRecords,
   setSettingsToUrl,
-  setUrl,
   setZipNodeRef
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
@@ -87,22 +88,28 @@ function getDefaultJournalSetting(journalConfig) {
 
 function getGridParams({ journalConfig, journalSetting, pagination }) {
   const {
-    meta: { createVariants, predicate, actions },
-    sourceId
+    meta: { createVariants, predicate, actions: journalActions },
+    sourceId,
+    id: journalId
   } = journalConfig;
   const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
+  const predicates = isArray(journalSettingPredicate)
+    ? journalSettingPredicate
+    : isEmpty(journalSettingPredicate)
+    ? []
+    : [journalSettingPredicate];
 
   return {
-    journalId: journalConfig.id,
-    journalActions: actions,
+    journalId,
+    journalActions,
     createVariants,
     predicate,
-    sourceId: sourceId,
+    sourceId,
     sortBy: sortBy.map(sort => ({ ...sort })),
     columns: columns.map(col => ({ ...col })),
     groupBy: Array.from(groupBy),
-    predicates: journalSettingPredicate ? [{ ...journalSettingPredicate }] : [],
-    pagination: pagination
+    predicates,
+    pagination
   };
 }
 
@@ -198,7 +205,6 @@ function* getJournalConfig(api, journalId, w) {
 
 function* getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w) {
   const url = yield select(state => state.journals[stateId].url);
-
   let journalSetting;
 
   journalSettingId = journalSettingId || journalConfig.journalSettingId || api.journals.getLsJournalSettingId(journalConfig.id) || '';
@@ -213,14 +219,14 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w
 
   journalSetting = { ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
 
-  const predicate = url.filter ? JSON.parse(url.filter) : null || journalSetting.predicate;
-  const sortBy = url.sortBy ? JSON.parse(url.sortBy) : null || journalSetting.sortBy;
-  const groupBy = url.groupBy ? JSON.parse(url.groupBy) : null || journalSetting.groupBy;
+  const predicate = (url.filter ? JSON.parse(url.filter) : null) || journalSetting.predicate;
+  const sortBy = (url.sortBy ? JSON.parse(url.sortBy) : null) || journalSetting.sortBy;
+  const groupBy = (url.groupBy ? JSON.parse(url.groupBy) : null) || journalSetting.groupBy;
+  const selectionFilter = url.selectionFilter ? JSON.parse(url.selectionFilter) : null;
 
-  journalSetting.predicate = predicate;
   journalSetting.sortBy = sortBy;
   journalSetting.groupBy = groupBy;
-  journalSetting.predicate = url.selectionFilter ? JSON.parse(url.selectionFilter) : null || journalSetting.predicate;
+  journalSetting.predicate = selectionFilter || predicate;
   journalSetting.columns = journalSetting.columns.map(column => {
     const match = journalConfig.columns.filter(c => c.attribute === column.attribute)[0];
     return match ? { ...column, sortable: match.sortable } : column;
@@ -274,16 +280,16 @@ function* sagaCancelJournalSettingData({ api, logger, stateId, w }, action) {
 }
 
 function* getGridData(api, params, stateId) {
-  const { pagination, predicates, ...forRequest } = params;
-  const recordRef = yield select(state => state.journals[stateId].recordRef);
+  const { pagination: _pagination, predicates: _predicates, ...forRequest } = params;
+  const _recordRef = yield select(state => state.journals[stateId].recordRef);
   const config = yield select(state => state.journals[stateId].config);
 
-  return yield call(api.journals.getGridData, {
-    ...forRequest,
-    predicates: ParserPredicate.removeEmptyPredicates(cloneDeep(predicates)),
-    pagination: forRequest.groupBy.length ? { ...pagination, maxItems: undefined } : pagination,
-    recordRef: recordRef && (config || {}).onlyLinked ? recordRef : null
-  });
+  const predicates = ParserPredicate.removeEmptyPredicates(cloneDeep(_predicates));
+  console.log('serarch', predicates);
+  const pagination = forRequest.groupBy.length ? { ..._pagination, maxItems: undefined } : _pagination;
+  const recordRef = _recordRef && (config || {}).onlyLinked ? _recordRef : null;
+
+  return yield call(api.journals.getGridData, { ...forRequest, predicates, pagination, recordRef });
 }
 
 function* loadGrid(api, { journalSettingId, journalConfig, stateId }, w) {
@@ -651,19 +657,26 @@ function* sagaCreateZip({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaUpdateUrl({ api, logger, stateId, w }, action) {
+function* sagaSetSettingsToUrl({ api, logger, stateId, w }, action) {
   try {
-    // const urlParams = { ...queryString.parse(search), filter: predicate ? JSON.stringify(predicate) : '' };
+    const location = yield select(state => state.router.location);
+    const { pathname, search } = location;
+    const { groupBy, sortBy, predicates } = action.payload || {};
+    const urlParams = queryString.parse(search);
 
-    // push(`${pathname}?${queryString.stringify(urlParams)}`);
+    if (!isEmpty(predicates)) {
+      urlParams.filter = JSON.stringify(predicates);
+    }
+    if (!isEmpty(groupBy)) {
+      urlParams.groupBy = JSON.stringify(groupBy);
+    }
+    if (!isEmpty(sortBy)) {
+      urlParams.sortBy = JSON.stringify(sortBy);
+    }
 
-    const url = yield select(state => state.journals[stateId].url);
-    console.log(action.payload);
-    yield put(setUrl(w(action.payload)));
-    const stringified = queryString.stringify({ ...action.payload });
-    console.log(stringified);
+    yield put(push(`${pathname}?${queryString.stringify(urlParams)}`));
   } catch (e) {
-    logger.error('[journals sagaSetSessionProps saga error', e.message);
+    logger.error('[journals sagaSetSettingsToUrl saga error', e);
   }
 }
 
@@ -698,7 +711,7 @@ function* saga(ea) {
   yield takeEvery(performGroupAction().type, wrapSaga, { ...ea, saga: sagaPerformGroupAction });
   yield takeEvery(createZip().type, wrapSaga, { ...ea, saga: sagaCreateZip });
 
-  yield takeEvery(setSettingsToUrl().type, wrapSaga, { ...ea, saga: sagaUpdateUrl });
+  yield takeEvery(setSettingsToUrl().type, wrapSaga, { ...ea, saga: sagaSetSettingsToUrl });
 }
 
 export default saga;

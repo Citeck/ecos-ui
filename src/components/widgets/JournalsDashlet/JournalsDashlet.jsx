@@ -14,10 +14,10 @@ import { getDashletConfig, initState, reloadGrid, setDashletConfigByParams, setE
 
 import Measurer from '../../Measurer/Measurer';
 import Dashlet, { BaseActions } from '../../Dashlet';
-import JournalsDashletGrid from '../../Journals/JournalsDashletGrid/index';
-import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar/index';
-import JournalsDashletEditor from '../../Journals/JournalsDashletEditor/index';
-import JournalsDashletFooter from '../../Journals/JournalsDashletFooter/index';
+import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
+import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
+import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
+import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
 import BaseWidget from '../BaseWidget';
 
 import './JournalsDashlet.scss';
@@ -158,7 +158,7 @@ class JournalsDashlet extends BaseWidget {
           <JournalsDashletToolbar stateId={this._stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
         </Measurer>
 
-        <JournalsDashletGrid stateId={this._stateId} />
+        <JournalsDashletGrid stateId={this._stateId} isWidget />
 
         <JournalsDashletFooter stateId={this._stateId} />
       </>

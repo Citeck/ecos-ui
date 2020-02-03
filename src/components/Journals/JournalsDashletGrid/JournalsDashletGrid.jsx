@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import lodash from 'lodash';
 import connect from 'react-redux/es/connect/connect';
-import Loader from '../../common/Loader/Loader';
+import cloneDeep from 'lodash/cloneDeep';
+
 import JournalsDownloadZip from '../JournalsDownloadZip';
-import EcosModal from '../../common/EcosModal/EcosModal';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import FormManager from '../../EcosForm/FormManager';
+import { ParserPredicate } from '../../Filters/predicates';
+import { EcosModal, Loader } from '../../common';
 import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
 import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
@@ -14,7 +16,6 @@ import { RemoveDialog } from '../../common/dialogs';
 import { goToNodeEditPage } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
 import { PROXY_URI } from '../../../constants/alfresco';
 import {
   deleteRecords,
@@ -30,6 +31,7 @@ import {
   setSelectedRecords,
   setSettingsToUrl
 } from '../../../actions/journals';
+import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -99,13 +101,19 @@ class JournalsDashletGrid extends Component {
   }
 
   onFilter = predicates => {
-    this.filters = predicates;
+    console.log('predicates', predicates);
+    const { setSettingsToUrl, isWidget } = this.props;
 
+    this.filters = predicates;
     this.reloadGrid({ predicates });
-    this.props.setSettingsToUrl({ predicates });
+
+    if (!isWidget) {
+      setSettingsToUrl({ predicates });
+    }
   };
 
   onSort = e => {
+    const { setSettingsToUrl, isWidget } = this.props;
     const sortBy = [
       {
         attribute: e.column.attribute,
@@ -114,7 +122,10 @@ class JournalsDashletGrid extends Component {
     ];
 
     this.reloadGrid({ sortBy });
-    this.props.setSettingsToUrl({ sortBy });
+
+    if (!isWidget) {
+      setSettingsToUrl({ sortBy });
+    }
   };
 
   setSelectedRow(row) {
@@ -286,7 +297,7 @@ class JournalsDashletGrid extends Component {
         formKey: groupAction.formKey,
         saveOnSubmit: false,
         onSubmit: rec => {
-          let action = lodash.cloneDeep(groupAction);
+          let action = cloneDeep(groupAction);
           action.params = action.params || {};
           action.params.attributes = rec.getAttributesToSave();
           performGroupAction({ groupAction: action, selected: selectedRecords });
@@ -470,6 +481,17 @@ class JournalsDashletGrid extends Component {
     );
   }
 }
+
+JournalsDashletGrid.propTypes = {
+  stateId: PropTypes.string,
+  className: PropTypes.string,
+  toolsClassName: PropTypes.string,
+  minHeight: PropTypes.any,
+
+  doInlineToolsOnRowClick: PropTypes.bool,
+  doNotCount: PropTypes.bool,
+  isWidget: PropTypes.bool
+};
 
 export default connect(
   mapStateToProps,

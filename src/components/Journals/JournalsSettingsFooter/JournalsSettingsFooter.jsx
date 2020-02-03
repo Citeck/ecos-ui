@@ -1,19 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import { withRouter } from 'react-router';
-import { push } from 'connected-react-router';
-import queryString from 'query-string';
 
+import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
 import { Input } from '../../common/form';
 import Columns from '../../common/templates/Columns/Columns';
-import { EcosModal } from '../../../../src/components/common';
 import {
   cancelJournalSettingData,
   createJournalSetting,
   reloadGrid,
   saveJournalSetting,
-  setJournalSetting
+  setJournalSetting,
+  setSettingsToUrl
 } from '../../../actions/journals';
 import { closest, t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
@@ -36,9 +34,9 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    push: url => dispatch(push(url)),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     setJournalSetting: setting => dispatch(setJournalSetting(w(setting))),
+    setSettingsToUrl: setting => dispatch(setSettingsToUrl(w(setting))),
     saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
     createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
     cancelJournalSettingData: journalSettingId => dispatch(cancelJournalSettingData(w(journalSettingId)))
@@ -95,39 +93,22 @@ class JournalsSettingsFooter extends Component {
   };
 
   applySetting = () => {
-    let journalSetting = this.getSetting();
-    const { setJournalSetting, reloadGrid } = this.props;
+    const { setJournalSetting, setSettingsToUrl, reloadGrid } = this.props;
+    const journalSetting = this.getSetting();
     const { columns, groupBy, sortBy, predicate } = journalSetting;
+    const predicates = predicate ? [predicate] : [];
 
-    this.setFilterToUrl({ groupBy, sortBy, predicate });
-
+    setSettingsToUrl({ groupBy, sortBy, predicates });
     setJournalSetting(journalSetting);
-    reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
+    reloadGrid({ columns, groupBy, sortBy, predicates });
     trigger.call(this, 'onApply');
   };
 
-  setFilterToUrl = ({ groupBy, sortBy, predicate }) => {
-    const {
-      push,
-      history: {
-        location: { pathname, search }
-      }
-    } = this.props;
-    const urlParams = {
-      ...queryString.parse(search),
-      filter: predicate ? JSON.stringify(predicate) : '',
-      groupBy: groupBy ? JSON.stringify(groupBy) : '',
-      sortBy: sortBy ? JSON.stringify(sortBy) : ''
-    };
-
-    push(`${pathname}?${queryString.stringify(urlParams)}`);
-  };
-
   cancelSetting = () => {
-    const { cancelJournalSettingData, journalSetting } = this.props;
+    const { cancelJournalSettingData, setSettingsToUrl, journalSetting } = this.props;
 
     cancelJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD]);
-    this.setFilterToUrl();
+    setSettingsToUrl();
     trigger.call(this, 'onCancel');
   };
 
@@ -225,4 +206,4 @@ class JournalsSettingsFooter extends Component {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(JournalsSettingsFooter));
+)(JournalsSettingsFooter);

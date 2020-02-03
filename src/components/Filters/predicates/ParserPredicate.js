@@ -1,13 +1,15 @@
-import { Predicate, GroupPredicate, FilterPredicate } from './';
+import isArray from 'lodash/isArray';
+
 import {
+  EQUAL_PREDICATES_MAP,
   filterPredicates,
   getPredicates,
   PREDICATE_AND,
   PREDICATE_EMPTY,
   PREDICATE_OR,
-  EQUAL_PREDICATES_MAP,
   SEARCH_EQUAL_PREDICATES_MAP
 } from '../../common/form/SelectJournal/predicates';
+import { FilterPredicate, GroupPredicate, Predicate } from './';
 
 export default class ParserPredicate {
   static getSearchPredicates({ text, columns, groupBy }) {
@@ -109,14 +111,14 @@ export default class ParserPredicate {
     val = val || [];
 
     for (let i = 0, length = val.length; i < length; i++) {
-      let item = val[i];
+      const item = val[i];
 
       if (Array.isArray(item.val)) {
         item.val = this.removeEmptyPredicates(item.val);
       }
     }
 
-    return val.filter(v => (Array.isArray(v.val) ? Boolean(v.val.length) : v.t !== PREDICATE_EMPTY && (Boolean(v.val) || v.val === 0)));
+    return val.filter(v => (Array.isArray(v.val) ? !!v.val.length : v.t !== PREDICATE_EMPTY && (!!v.val || v.val === 0)));
   }
 
   static getGroupConditions() {
