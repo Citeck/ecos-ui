@@ -19,11 +19,14 @@ const ModalForm = () => {
     controlProps,
     computed
   } = context;
-  const { parentForm, isStaticModalTitle } = controlProps;
+  const { parentForm, isStaticModalTitle, customStringForConcatWithStaticTitle } = controlProps;
 
   const [displayName, setDisplayName] = useState('');
   useEffect(() => {
     if (isStaticModalTitle) {
+      if (!!customStringForConcatWithStaticTitle) {
+        setDisplayName(customStringForConcatWithStaticTitle);
+      }
       return;
     }
     Records.get(record)
