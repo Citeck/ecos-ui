@@ -33,6 +33,7 @@ export class JournalsApi extends RecordService {
   };
 
   getLsJournalSettingId = journalConfigId => {
+    console.log(this.getLsJournalSettingIds());
     return (this.getLsJournalSettingIds().filter(j => j.key === journalConfigId)[0] || {}).value;
   };
 

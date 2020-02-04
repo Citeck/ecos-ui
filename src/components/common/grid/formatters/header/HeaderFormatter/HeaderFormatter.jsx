@@ -90,10 +90,14 @@ export default class HeaderFormatter extends Component {
     const { text, open } = this.state;
 
     return (
-      <div className={classNames({ 'ecos-th__filter': text })}>
+      <div className={classNames('ecos-th__filter', { 'ecos-th__filter_active': text })}>
         {columnText}
 
-        <Icon id={this.id} className="ecos-th__filter-icon icon-filter" onClick={this.onToggle} />
+        <Icon
+          id={this.id}
+          className={classNames('ecos-th__filter-icon ecos-th__action-icon icon-filter', { 'ecos-th__action-icon_active': text })}
+          onClick={this.onToggle}
+        />
 
         <Tooltip
           id={this.tooltipId}
@@ -131,7 +135,15 @@ export default class HeaderFormatter extends Component {
     const text = (
       <span className={classNames({ 'ecos-th__pointer': sortable })} onClick={this.onSort}>
         {column.text}
-        {ascending !== undefined && <Icon className={classNames('ecos-th__order', { 'icon-up': ascending, 'icon-down': !ascending })} />}
+        {ascending !== undefined && (
+          <Icon
+            className={classNames('ecos-th__order ecos-th__action-icon', {
+              'ecos-th__action-icon_active': ascending !== undefined,
+              'icon-up': ascending,
+              'icon-down': !ascending
+            })}
+          />
+        )}
       </span>
     );
 

@@ -281,7 +281,7 @@ export default class ParserPredicate {
     return out;
   }
 
-  static setPredicateVal(predicates, newPredicate) {
+  static setPredicateValue(predicates, newPredicate) {
     if (!predicates) {
       return [];
     }

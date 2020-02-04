@@ -100,16 +100,29 @@ class JournalsDashletGrid extends Component {
 
   reloadGrid(options) {
     options = options || {};
+    const {
+      predicate,
+      grid: { columns, groupBy, sortBy }
+    } = this.props;
+    const predicates = predicate ? [predicate] : [];
+    const currentOptions = { columns, groupBy, sortBy, predicates };
+
     this.hideGridInlineToolSettings();
-    this.props.reloadGrid({ ...options });
+    this.props.reloadGrid({ ...currentOptions, ...options });
   }
 
   onFilter = predicates => {
-    const { setSettingsToUrl, setPredicate, isWidget, predicate } = this.props;
-    const newPredicate = ParserPredicate.setPredicateVal(predicate, predicates[0]);
+    const {
+      setSettingsToUrl,
+      setPredicate,
+      isWidget,
+      grid: { columns }
+    } = this.props;
+    const predicate = ParserPredicate.getDefaultPredicates(columns);
+    const newPredicate = ParserPredicate.setPredicateValue(predicate, predicates[0], true);
 
     setPredicate(newPredicate);
-    this.reloadGrid({ predicates });
+    this.reloadGrid({ predicates: [newPredicate] });
 
     if (!isWidget) {
       setSettingsToUrl({ predicates: newPredicate });

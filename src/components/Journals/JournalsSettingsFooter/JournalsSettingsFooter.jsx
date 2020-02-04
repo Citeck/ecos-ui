@@ -104,11 +104,11 @@ class JournalsSettingsFooter extends Component {
     trigger.call(this, 'onApply');
   };
 
-  cancelSetting = () => {
+  resetSettings = () => {
     const { cancelJournalSettingData, setSettingsToUrl, journalSetting } = this.props;
 
     cancelJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD]);
-    setSettingsToUrl();
+    setSettingsToUrl({ resetAll: true });
     trigger.call(this, 'onCancel');
   };
 
@@ -169,7 +169,7 @@ class JournalsSettingsFooter extends Component {
             </Fragment>,
 
             <Fragment>
-              <Btn className={'ecos-btn_x-step_10'} onClick={this.cancelSetting}>
+              <Btn className={'ecos-btn_x-step_10'} onClick={this.resetSettings}>
                 {t('journals.action.reset')}
               </Btn>
               <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.applySetting}>
