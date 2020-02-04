@@ -406,14 +406,14 @@ class Documents extends BaseWidget {
       typesFilter: ''
     });
 
-    if (isOpenSettings) {
-      onSave(id, {
-        config: {
-          ...config,
-          types: DocumentsConverter.getTypesForConfig(dynamicTypes)
-        }
-      });
-    }
+    // if (isOpenSettings) {
+    //   onSave(id, {
+    //     config: {
+    //       ...config,
+    //       types: DocumentsConverter.getTypesForConfig(dynamicTypes)
+    //     }
+    //   });
+    // }
   };
 
   handleClearSelectedType = () => {
@@ -1084,17 +1084,70 @@ class Documents extends BaseWidget {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByKey(state, ownProps.record),
+  ...selectStateByKey(state, ownProps.id),
   isMobile: state.view.isMobile
 });
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  init: () => dispatch(init({ record: ownProps.record, config: ownProps.config })),
-  getDocuments: (type = '') => dispatch(getDocumentsByType({ record: ownProps.record, type })),
-  onSaveSettings: (types, config) => dispatch(saveSettings({ record: ownProps.record, types, config })),
-  onUploadFiles: data => dispatch(uploadFiles({ record: ownProps.record, ...data })),
-  setError: (type, message = '') => dispatch(setError({ record: ownProps.record, type, message })),
-  execRecordsAction: (records, action, callback) => dispatch(execRecordsAction({ record: ownProps.record, records, action, callback })),
-  setInlineTools: tools => dispatch(setInlineTools({ record: ownProps.record, tools }))
+  init: () =>
+    dispatch(
+      init({
+        record: ownProps.record,
+        config: ownProps.config,
+        key: ownProps.id
+      })
+    ),
+  getDocuments: (type = '') =>
+    dispatch(
+      getDocumentsByType({
+        record: ownProps.record,
+        type,
+        key: ownProps.id
+      })
+    ),
+  onSaveSettings: (types, config) =>
+    dispatch(
+      saveSettings({
+        record: ownProps.record,
+        types,
+        config,
+        key: ownProps.id
+      })
+    ),
+  onUploadFiles: data =>
+    dispatch(
+      uploadFiles({
+        record: ownProps.record,
+        ...data,
+        key: ownProps.id
+      })
+    ),
+  setError: (type, message = '') =>
+    dispatch(
+      setError({
+        record: ownProps.record,
+        type,
+        message,
+        key: ownProps.id
+      })
+    ),
+  execRecordsAction: (records, action, callback) =>
+    dispatch(
+      execRecordsAction({
+        record: ownProps.record,
+        records,
+        action,
+        callback,
+        key: ownProps.id
+      })
+    ),
+  setInlineTools: tools =>
+    dispatch(
+      setInlineTools({
+        record: ownProps.record,
+        tools,
+        key: ownProps.id
+      })
+    )
 });
 
 export default connect(

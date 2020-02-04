@@ -12,6 +12,7 @@ export const setDocumentTypes = createAction(prefix + 'SET_DOCUMENT_TYPES');
 export const getAvailableTypes = createAction(prefix + 'GET_AVAILABLE_TYPES');
 export const setAvailableTypes = createAction(prefix + 'SET_AVAILABLE_TYPES');
 
+export const getDynamicTypes = createAction(prefix + 'GET_DYNAMIC_TYPES');
 export const setDynamicTypes = createAction(prefix + 'SET_DYNAMIC_TYPES');
 
 export const setDocuments = createAction(prefix + 'SET_DOCUMENTS');

@@ -50,13 +50,13 @@ export default handleActions(
     [init]: (state, { payload }) => {
       let ownState = { ...initialState };
 
-      if (state[payload.record]) {
-        ownState = { ...ownState, ...state[payload.record] };
+      if (state[payload.key]) {
+        ownState = { ...ownState, ...state[payload.key] };
       }
 
       return {
         ...state,
-        [payload.record]: {
+        [payload.key]: {
           ...ownState,
           isLoading: true,
           isLoadingSettings: false,
@@ -89,16 +89,16 @@ export default handleActions(
     }),
     [setAvailableTypes]: (state, { payload }) => ({
       ...state,
-      [payload.record]: {
-        ...state[payload.record],
+      [payload.key]: {
+        ...state[payload.key],
         availableTypes: payload.types
       }
     }),
 
     [setDynamicTypes]: (state, { payload }) => ({
       ...state,
-      [payload.record]: {
-        ...state[payload.record],
+      [payload.key]: {
+        ...state[payload.key],
         dynamicTypes: payload.dynamicTypes,
         uploadError: '',
         countFilesError: ''
@@ -107,16 +107,16 @@ export default handleActions(
 
     [getDocumentsByType]: (state, { payload }) => ({
       ...state,
-      [payload.record]: {
-        ...state[payload.record],
+      [payload.key]: {
+        ...state[payload.key],
         isLoadingTableData: true,
         tools: { ...emptyTools }
       }
     }),
     [setDocuments]: (state, { payload }) => ({
       ...state,
-      [payload.record]: {
-        ...state[payload.record],
+      [payload.key]: {
+        ...state[payload.key],
         documents: payload.documents,
         isLoadingTableData: false,
         uploadError: '',
@@ -126,8 +126,8 @@ export default handleActions(
 
     [saveSettings]: (state, { payload }) => ({
       ...state,
-      [payload.record]: {
-        ...state[payload.record],
+      [payload.key]: {
+        ...state[payload.key],
         isLoadingSettings: true,
         uploadError: '',
         countFilesError: ''
@@ -143,8 +143,8 @@ export default handleActions(
 
     [uploadFiles]: (state, { payload }) => ({
       ...state,
-      [payload.record]: {
-        ...state[payload.record],
+      [payload.key]: {
+        ...state[payload.key],
         isUploadingFile: true,
         uploadError: '',
         countFilesError: ''
@@ -152,8 +152,8 @@ export default handleActions(
     }),
     [setUploadError]: (state, { payload }) => ({
       ...state,
-      [payload.record]: {
-        ...state[payload.record],
+      [payload.key]: {
+        ...state[payload.key],
         uploadError: payload.message,
         countFilesError: ''
       }
@@ -168,32 +168,32 @@ export default handleActions(
 
     [setConfig]: (state, { payload }) => ({
       ...state,
-      [payload.record]: {
-        ...state[payload.record],
+      [payload.key]: {
+        ...state[payload.key],
         config: payload.config
       }
     }),
 
     [setError]: (state, { payload }) => ({
       ...state,
-      [payload.record]: {
-        ...state[payload.record],
+      [payload.key]: {
+        ...state[payload.key],
         [payload.type]: payload.message
       }
     }),
 
     [setActions]: (state, { payload }) => ({
       ...state,
-      [payload.record]: {
-        ...state[payload.record],
+      [payload.key]: {
+        ...state[payload.key],
         actions: payload.actions
       }
     }),
 
     [setInlineTools]: (state, { payload }) => ({
       ...state,
-      [payload.record]: {
-        ...state[payload.record],
+      [payload.key]: {
+        ...state[payload.key],
         tools: payload.tools || { ...emptyTools }
       }
     })

@@ -12,6 +12,7 @@ import {
   getAvailableTypes,
   setAvailableTypes,
   setDynamicTypes,
+  getDynamicTypes,
   getDocumentsByType,
   setDocuments,
   saveSettings,
@@ -31,14 +32,14 @@ import { documentActions } from '../constants/documents';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
-    yield put(setConfig({ record: payload.record, config: payload.config }));
-    yield* sagaGetAvailableTypes({ api, logger }, { payload: payload.record });
-    yield* sagaGetDynamicTypes({ api, logger }, { payload });
-    yield put(initSuccess(payload.record));
+    yield put(setConfig({ ...payload }));
+    yield* sagaGetAvailableTypes({ api, logger }, { payload: payload.key });
+    yield* sagaGetDynamicTypes({ api, logger }, { payload: { ...payload } });
+    yield put(initSuccess(payload.key));
   } catch (e) {
     logger.error('[documents sagaInitWidget saga error', e.message);
   } finally {
-    yield put(initFinally(payload.record));
+    yield put(initFinally(payload.key));
   }
 }
 
@@ -50,10 +51,10 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
       throw new Error(dtErrors.join(' '));
     }
 
-    const dynamicTypes = DocumentsConverter.getDynamicTypes(records);
-    const configTypes = yield select(state => selectConfigTypes(state, payload.record));
+    const typeNames = yield select(state => selectTypeNames(state, payload.key));
+    const dynamicTypes = DocumentsConverter.getDynamicTypes({ types: records, typeNames });
+    const configTypes = yield select(state => selectConfigTypes(state, payload.key));
     let combinedTypes = DocumentsConverter.combineTypes(dynamicTypes, configTypes);
-    const typeNames = yield select(state => selectTypeNames(state, payload.record));
     const dynamicTypeKeys = combinedTypes.map(record => record.type);
     const { records: documents, errors: documentsErrors } = yield call(api.documents.getDocumentsByTypes, payload.record, dynamicTypeKeys);
     const countDocuments = documents.map(record => record.documents);
@@ -85,26 +86,21 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     combinedTypes = combinedTypes.filter(item => item !== null);
 
     if (combinedTypes.length === 1) {
-      yield put(
-        getDocumentsByType({
-          record: payload.record,
-          type: combinedTypes[0].type
-        })
-      );
+      yield put(getDocumentsByType({ ...payload, type: combinedTypes[0].type }));
     }
 
     yield put(
       setDynamicTypes({
-        record: payload.record,
+        key: payload.key,
         dynamicTypes: DocumentsConverter.getDynamicTypes({ types: combinedTypes, typeNames, countByTypes: countDocuments })
       })
     );
 
-    const types = yield select(state => selectAvailableTypes(state, payload.record));
+    const types = yield select(state => selectAvailableTypes(state, payload.key));
 
     yield put(
       setAvailableTypes({
-        record: payload.record,
+        key: payload.key,
         types
       })
     );
@@ -115,7 +111,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
 
 function* sagaGetAvailableTypes({ api, logger }, { payload }) {
   try {
-    const { records, errors } = yield call(api.documents.getDocumentTypes, payload);
+    const { records, errors } = yield call(api.documents.getDocumentTypes);
 
     if (errors.length) {
       throw new Error(errors.join(' '));
@@ -123,7 +119,7 @@ function* sagaGetAvailableTypes({ api, logger }, { payload }) {
 
     yield put(
       setAvailableTypes({
-        record: payload,
+        key: payload,
         types: DocumentsConverter.getAvailableTypes(records)
       })
     );
@@ -143,11 +139,11 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     }
 
     const documents = get(records, '[0].documents', []);
-    const typeNames = yield select(state => selectTypeNames(state, payload.record));
+    const typeNames = yield select(state => selectTypeNames(state, payload.key));
 
     yield put(
       setDocuments({
-        record: payload.record,
+        key: payload.key,
         documents: DocumentsConverter.getDocuments({
           documents,
           type: payload.type,
@@ -156,7 +152,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
       })
     );
 
-    const dynamicTypes = deepClone(yield select(state => selectDynamicTypes(state, payload.record)));
+    const dynamicTypes = deepClone(yield select(state => selectDynamicTypes(state, payload.key)));
 
     if (dynamicTypes.length) {
       const type = dynamicTypes.find(item => item.type === payload.type);
@@ -171,14 +167,14 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
       set(type, 'modified', DocumentsConverter.getFormattedDate(get(document, 'modified', '')));
     }
 
-    yield put(setDynamicTypes({ record: payload.record, dynamicTypes }));
+    yield put(setDynamicTypes({ key: payload.key, dynamicTypes }));
 
     if (documents.length) {
       const actions = yield RecordActions.getActions(documents.map(item => item.id), {
         actions: documentActions
       });
 
-      yield put(setActions({ record: payload.record, actions }));
+      yield put(setActions({ key: payload.key, actions }));
     }
   } catch (e) {
     logger.error('[documents sagaGetDocumentsByType saga error', e.message);
@@ -210,23 +206,23 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
 
     yield put(
       setDynamicTypes({
-        record: payload.record,
+        key: payload.key,
         dynamicTypes: DocumentsConverter.getDynamicTypes({ types: payload.types, countByTypes: countDocuments }), //
         countDocuments
       })
     );
 
-    yield put(init({ record: payload.record, config: payload.config }));
+    yield put(init({ ...payload }));
   } catch (e) {
     logger.error('[documents sagaSaveSettings saga error', e.message);
   } finally {
-    yield put(saveSettingsFinally(payload.record));
+    yield put(saveSettingsFinally(payload.key));
   }
 }
 
 function* sagaUploadFiles({ api, logger }, { payload }) {
   try {
-    const type = yield select(state => selectDynamicType(state, payload.record, payload.type));
+    const type = yield select(state => selectDynamicType(state, payload.key, payload.type));
 
     /**
      * update version
@@ -241,7 +237,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
         }),
         handleProgress: payload.callback
       });
-      yield put(getDocumentsByType({ record: payload.record, type: payload.type, delay: 0 }));
+      yield put(getDocumentsByType({ ...payload, delay: 0 }));
 
       return;
     }
@@ -281,12 +277,12 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
       type: payload.type,
       content: results.filter(item => item !== null)
     });
-    yield put(getDocumentsByType({ record: payload.record, type: payload.type, delay: 0 }));
+    yield put(getDocumentsByType({ ...payload, delay: 0 }));
   } catch (e) {
-    yield put(setUploadError({ record: payload.record, message: e.message }));
+    yield put(setUploadError({ ...payload, message: e.message }));
     logger.error('[documents sagaUploadFiles saga error', e.message);
   } finally {
-    yield put(uploadFilesFinally(payload.record));
+    yield put(uploadFilesFinally(payload.key));
   }
 }
 
@@ -294,6 +290,7 @@ function* saga(ea) {
   yield takeEvery(init().type, sagaInitWidget, ea);
   yield takeEvery(getAvailableTypes().type, sagaGetAvailableTypes, ea);
   yield takeEvery(getDocumentsByType().type, sagaGetDocumentsByType, ea);
+  yield takeEvery(getDynamicTypes().type, sagaGetDynamicTypes, ea);
   yield takeEvery(saveSettings().type, sagaSaveSettings, ea);
   yield takeEvery(uploadFiles().type, sagaUploadFiles, ea);
   yield takeEvery(execRecordsAction().type, sagaExecRecordsAction, ea);

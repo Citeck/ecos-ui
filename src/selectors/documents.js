@@ -55,8 +55,8 @@ export const selectDynamicTypes = createSelector(
   getDynamicTypes
 );
 
-export const selectDynamicType = (state, record, id) => {
-  const types = selectDynamicTypes(state, record);
+export const selectDynamicType = (state, key, id) => {
+  const types = selectDynamicTypes(state, key);
 
   return types.find(type => type.type === id);
 };
