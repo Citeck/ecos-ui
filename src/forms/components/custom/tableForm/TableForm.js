@@ -31,6 +31,7 @@ export default class TableFormComponent extends BaseReactComponent {
         },
         customCreateVariantsJs: '',
         isStaticModalTitle: false,
+        customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
         displayElementsJS: {}
       },
@@ -180,6 +181,7 @@ export default class TableFormComponent extends BaseReactComponent {
         placeholder: component.placeholder,
         disabled: component.disabled,
         isStaticModalTitle: component.isStaticModalTitle,
+        customStringForConcatWithStaticTitle: this.t(component.customStringForConcatWithStaticTitle),
         source: source,
         onChange: this.onReactValueChanged,
         isSelectableRows: component.isSelectableRows,
