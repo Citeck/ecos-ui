@@ -460,6 +460,10 @@
         font-size: 14px;
         color: $text-color-dark;
         margin-right: 18px;
+
+        &_locked {
+          color: $color-gray-5;
+        }
       }
 
       &-children {
@@ -528,7 +532,10 @@
           &-label {
             font-weight: 600;
             font-size: 14px;
-            color: $text-color-gray;
+
+            &:not(#{$item}-element-label_locked) {
+              color: $text-color-gray;
+            }
           }
         }
       }
@@ -576,6 +583,10 @@
           }
         }
       }
+    }
+
+    &_locked {
+      cursor: not-allowed;
     }
 
     &_open:last-child,

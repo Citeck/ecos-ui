@@ -8,9 +8,10 @@ import { Checkbox, Badge } from '../../common/form';
 import { arrayCompare, t } from '../../../helpers/util';
 import { GrouppedTypeInterface } from './propsInterfaces';
 
-const LABELS = {
+const Labels = {
   EMPTY: 'documents-widget.tree.empty',
-  NOT_SELECTED: 'documents-widget.tree.not-selected'
+  NOT_SELECTED: 'documents-widget.tree.not-selected',
+  NOT_BE_DISABLED: 'documents-widget.tree.cannot-be-disabled'
 };
 
 class TreeItem extends Component {
@@ -49,12 +50,24 @@ class TreeItem extends Component {
     return false;
   }
 
+  get title() {
+    const { item } = this.props;
+
+    if (!item.locked) {
+      return '';
+    }
+
+    return t('documents-widget.tooltip.cannot-be-changes');
+  }
+
   handleToggleOpen = () => {
     this.setState(state => ({ isOpen: !state.isOpen }));
   };
 
   handleToggleCheck = ({ checked }) => {
-    if (checked === this.props.item.isSelected) {
+    const { item } = this.props;
+
+    if (checked === item.isSelected || item.locked) {
       return;
     }
 
@@ -113,11 +126,13 @@ class TreeItem extends Component {
   renderBadge() {
     const { item } = this.props;
 
-    if (item.isSelected) {
+    if (item.isSelected && !item.locked) {
       return null;
     }
 
-    return <Badge text={t(LABELS.NOT_SELECTED)} className="ecos-tree__item-element-badge" />;
+    const text = item.locked ? t(Labels.NOT_BE_DISABLED) : t(Labels.NOT_SELECTED);
+
+    return <Badge text={text} className="ecos-tree__item-element-badge" />;
   }
 
   render() {
@@ -130,13 +145,26 @@ class TreeItem extends Component {
           'ecos-tree__item_child': isChild,
           'ecos-tree__item_parent': item.items.length,
           'ecos-tree__item_open': isOpen,
-          'ecos-tree__item_not-selected': !item.isSelected
+          'ecos-tree__item_not-selected': !item.isSelected,
+          'ecos-tree__item_locked': item.locked
         })}
       >
         <div className="ecos-tree__item-element">
           {this.renderArrow()}
-          <Checkbox className="ecos-tree__item-element-check" onChange={this.handleToggleCheck} checked={item.isSelected} />
-          <div className="ecos-tree__item-element-label">{item.name}</div>
+          <Checkbox
+            className="ecos-tree__item-element-check"
+            onChange={this.handleToggleCheck}
+            checked={item.isSelected}
+            disabled={item.locked}
+            title={this.title}
+          />
+          <div
+            className={classNames('ecos-tree__item-element-label', {
+              'ecos-tree__item-element-label_locked': item.locked
+            })}
+          >
+            {item.name}
+          </div>
           {this.renderBadge()}
           {this.renderSettings()}
         </div>
@@ -148,7 +176,7 @@ class TreeItem extends Component {
 
 class Tree extends Component {
   static propTypes = {
-    data: PropTypes.array,
+    data: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     groupBy: PropTypes.string,
     className: PropTypes.string,
     onOpenSettings: PropTypes.func,
@@ -198,7 +226,7 @@ class Tree extends Component {
       return null;
     }
 
-    return <div className="ecos-tree__empty">{t(LABELS.EMPTY)}</div>;
+    return <div className="ecos-tree__empty">{t(Labels.EMPTY)}</div>;
   }
 
   renderTree() {

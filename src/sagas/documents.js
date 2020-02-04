@@ -52,7 +52,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     }
 
     const typeNames = yield select(state => selectTypeNames(state, payload.key));
-    const dynamicTypes = DocumentsConverter.getDynamicTypes({ types: records, typeNames });
+    const dynamicTypes = DocumentsConverter.getDynamicTypes({ types: records, typeNames }, true);
     const configTypes = yield select(state => selectConfigTypes(state, payload.key));
     let combinedTypes = DocumentsConverter.combineTypes(dynamicTypes, configTypes);
     const dynamicTypeKeys = combinedTypes.map(record => record.type);

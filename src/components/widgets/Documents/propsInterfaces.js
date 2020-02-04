@@ -25,6 +25,7 @@ GrouppedTypeInterface = {
   isSelected: PropTypes.bool,
   mandatory: PropTypes.bool,
   multiple: PropTypes.bool,
+  locked: PropTypes.bool,
   countDocuments: PropTypes.number,
   items: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface))
 };

@@ -77,6 +77,7 @@ export const selectGrouppedAvailableTypes = createSelector(
         const dTypeParams = {
           multiple: get(dType, 'multiple', false),
           mandatory: get(dType, 'mandatory', false),
+          locked: get(dType, 'locked', false),
           countDocuments: get(dType, 'coundDocuments', 0)
         };
 

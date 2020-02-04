@@ -28,7 +28,7 @@ export default class DocumentsConverter {
     }));
   };
 
-  static getDynamicTypes = ({ types = [], typeNames = {}, countByTypes = [] }) => {
+  static getDynamicTypes = ({ types = [], typeNames = {}, countByTypes = [] }, locked = false) => {
     if (!types.length) {
       return types;
     }
@@ -46,6 +46,7 @@ export default class DocumentsConverter {
 
       return {
         ...item,
+        locked: get(item, 'locked', locked),
         formId: DocumentsConverter.formIdIsNull(item.formId) ? null : item.formId,
         name: item.name || get(typeNames, [item.type], t('documents-widget.untitled')),
         countDocuments: documents.length,
@@ -69,6 +70,7 @@ export default class DocumentsConverter {
     target.type = get(source, 'type', '');
     target.name = get(source, 'name', t('documents-widget.untitled'));
     target.countDocuments = get(source, 'countDocuments', 0);
+    target.locked = get(source, 'locked', false);
 
     return target;
   };
@@ -126,6 +128,7 @@ export default class DocumentsConverter {
     target.multiple = get(source, 'multiple', false);
     target.mandatory = get(source, 'mandatory', false);
     target.countDocuments = get(source, 'countDocuments', 0);
+    target.locked = get(source, 'locked', false);
 
     return target;
   };
