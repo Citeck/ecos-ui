@@ -1,14 +1,22 @@
 import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
+import get from 'lodash/get';
+
 import { IcoBtn } from '../../../common/btns';
 
 import './InlineTools.scss';
 
 const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+  const reduxKey = get(props, 'reduxKey', 'journals');
+  const stateId = get(props, 'stateId', '');
+  const toolsKey = get(props, 'toolsKey', 'inlineToolSettings');
+  const newState = state[reduxKey][stateId] || {};
 
-  return { inlineToolSettings: newState.inlineToolSettings };
+  return {
+    className: props.className,
+    inlineToolSettings: newState[toolsKey]
+  };
 };
 
 class InlineTools extends Component {
@@ -32,11 +40,14 @@ class InlineTools extends Component {
   }
 
   render() {
-    const { top, height, left, actions = [] } = this.props.inlineToolSettings;
+    const {
+      className,
+      inlineToolSettings: { top, height, left, actions = [] }
+    } = this.props;
 
     if (height) {
       return (
-        <div style={{ top, left }} className={'ecos-inline-tools'}>
+        <div style={{ top, left }} className={classNames('ecos-inline-tools', className)}>
           <div style={{ height }} className="ecos-inline-tools-border-left" />
           <div style={{ height }} className="ecos-inline-tools-actions">
             {actions.map((action, idx) => InlineTools.renderAction(action, idx))}

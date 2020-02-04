@@ -11,6 +11,10 @@
   color: $color-gray-6 !important;
   cursor: pointer;
 
+  &_disabled {
+    cursor: not-allowed;
+  }
+
   &__text {
     font-weight: $font-weight-semi-bold;
     font-size: $font-size-standard;
@@ -31,6 +35,10 @@
   &:before {
     margin: 0 !important;
     line-height: 1 !important;
+  }
+
+  &_disabled {
+    color: $color-gray-4;
   }
 }
 

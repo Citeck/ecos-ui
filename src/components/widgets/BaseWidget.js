@@ -38,7 +38,11 @@ class BaseWidget extends Component {
   }
 
   setContentHeight = contentHeight => {
-    const contentHeightState = this.state.contentHeight;
+    let contentHeightState = this.state.contentHeight;
+
+    if (contentHeight < 0) {
+      contentHeight = 0;
+    }
 
     if (contentHeightState !== contentHeight) {
       this.setState({ contentHeight });
