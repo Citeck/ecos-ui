@@ -32,7 +32,7 @@ const ModalForm = () => {
     Records.get(record)
       .load('.disp')
       .then(disp => setDisplayName(disp));
-  }, [record, setDisplayName]);
+  }, [record, setDisplayName, customStringForConcatWithStaticTitle]);
 
   let title = '';
   if (isViewOnlyForm) {

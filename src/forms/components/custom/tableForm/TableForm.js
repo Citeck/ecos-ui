@@ -3,7 +3,6 @@ import TableForm from '../../../../components/common/form/TableForm';
 import lodashGet from 'lodash/get';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../../components/Records';
-import { t } from '../../../../helpers/util';
 import _ from 'lodash';
 
 export default class TableFormComponent extends BaseReactComponent {
@@ -182,7 +181,7 @@ export default class TableFormComponent extends BaseReactComponent {
         placeholder: component.placeholder,
         disabled: component.disabled,
         isStaticModalTitle: component.isStaticModalTitle,
-        customStringForConcatWithStaticTitle: t(component.customStringForConcatWithStaticTitle),
+        customStringForConcatWithStaticTitle: this.t(component.customStringForConcatWithStaticTitle),
         source: source,
         onChange: this.onReactValueChanged,
         isSelectableRows: component.isSelectableRows,
