@@ -6,5 +6,18 @@ export default [
     label: 'Hide record name in modal title',
     weight: 18,
     defaultValue: false
+  },
+  {
+    type: 'textfield',
+    input: true,
+    key: 'customStringForConcatWithStaticTitle',
+    label: 'Enter custom static label for concat with basic',
+    weight: 18,
+    defaultValue: '',
+    conditional: {
+      json: {
+        and: [{ '==': [{ var: 'data.isStaticModalTitle' }, true] }]
+      }
+    }
   }
 ];
