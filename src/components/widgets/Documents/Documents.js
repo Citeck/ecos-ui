@@ -159,7 +159,7 @@ class Documents extends BaseWidget {
 
     if (prevState.selectedType !== this.state.selectedType) {
       this.scrollPosition = {};
-      this.setContentHeight(this.clientHeight);
+      this.setContentHeight(this.calculatedClientHeight);
     }
   }
 
@@ -179,7 +179,7 @@ class Documents extends BaseWidget {
     return get(this._emptyStubRef, 'current.offsetHeight', 0);
   }
 
-  get clientHeight() {
+  get calculatedClientHeight() {
     if (!this.props.maxHeightByContent) {
       return null;
     }
@@ -187,19 +187,19 @@ class Documents extends BaseWidget {
     return Math.max(this.tablePanelHeight + this.tableHeight, this.typesListHeight, this.emptyStubHeight);
   }
 
-  get typesHeight() {
+  get calculatedTypesHeight() {
     const { userHeight } = this.state;
 
     return userHeight !== undefined ? userHeight : this.typesListHeight;
   }
 
-  get emptyHeight() {
+  get calculatedEmptyHeight() {
     const { userHeight } = this.state;
 
     return userHeight !== undefined ? userHeight : this.emptyStubHeight;
   }
 
-  get tableMinHeight() {
+  get calculatedTableMinHeight() {
     const { userHeight } = this.state;
 
     return userHeight !== undefined ? userHeight - this.tablePanelHeight : this.tableHeight;
@@ -397,23 +397,11 @@ class Documents extends BaseWidget {
   };
 
   handleToggleTypesSettings = event => {
-    const { id, onSave, config, dynamicTypes } = this.props;
-    const { isOpenSettings } = this.state;
-
     event.stopPropagation();
-    this.setState({
-      isOpenSettings: !isOpenSettings,
+    this.setState(state => ({
+      isOpenSettings: !state.isOpenSettings,
       typesFilter: ''
-    });
-
-    // if (isOpenSettings) {
-    //   onSave(id, {
-    //     config: {
-    //       ...config,
-    //       types: DocumentsConverter.getTypesForConfig(dynamicTypes)
-    //     }
-    //   });
-    // }
+    }));
   };
 
   handleClearSelectedType = () => {
@@ -495,12 +483,6 @@ class Documents extends BaseWidget {
 
     UserLocalSettingsService.setDashletHeight(this.props.id, userHeight);
     this.setState({ userHeight });
-  };
-
-  handleResizeDetector = () => {
-    let height = this.clientHeight;
-
-    this.setContentHeight(height);
   };
 
   handleCancelSettings = () => {
@@ -700,7 +682,7 @@ class Documents extends BaseWidget {
     return (
       <div id={leftColumnId} className="ecos-docs__column ecos-docs__column_types">
         <Scrollbars
-          style={{ height: this.typesHeight || '100%' }}
+          style={{ height: this.calculatedTypesHeight || '100%' }}
           hideTracksWhenNotNeeded={true}
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
         >
@@ -872,7 +854,7 @@ class Documents extends BaseWidget {
           scrollable
           forwardedRef={this._tableRef}
           autoHeight
-          minHeight={this.tableMinHeight}
+          minHeight={this.calculatedTableMinHeight}
           keyField="id"
           className={classNames('ecos-docs__table', {
             'ecos-docs__table_hidden': isShowDropZone || isUploadingFile
@@ -933,7 +915,7 @@ class Documents extends BaseWidget {
         scrollable
         forwardedRef={this._tableRef}
         autoHeight
-        minHeight={this.tableMinHeight}
+        minHeight={this.calculatedTableMinHeight}
         keyField="type"
         onRowClick={this.handleClickTableRow}
         onRowDrop={this.handleRowDrop}
@@ -1023,7 +1005,7 @@ class Documents extends BaseWidget {
 
     return (
       <Scrollbars
-        style={{ height: this.emptyHeight || '100%' }}
+        style={{ height: this.calculatedEmptyHeight || '100%' }}
         hideTracksWhenNotNeeded={true}
         renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
       >
@@ -1051,7 +1033,7 @@ class Documents extends BaseWidget {
           actionConfig={this.dashletActionsConfig}
           canDragging={canDragging}
           resizable
-          contentMaxHeight={this.clientHeight}
+          contentMaxHeight={this.calculatedClientHeight}
           onResize={this.handleResize}
           dragHandleProps={dragHandleProps}
           onChangeHeight={this.handleChangeHeight}
@@ -1062,7 +1044,7 @@ class Documents extends BaseWidget {
           <DefineHeight
             className="ecos-docs__container"
             fixHeight={userHeight || null}
-            maxHeight={this.clientHeight}
+            maxHeight={this.calculatedClientHeight}
             minHeight={1}
             getOptimalHeight={this.setContentHeight}
           >
