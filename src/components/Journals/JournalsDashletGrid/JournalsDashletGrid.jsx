@@ -24,8 +24,10 @@ import {
   performGroupAction,
   reloadGrid,
   saveRecords,
+  setColumnsSetup,
   setGridInlineToolSettings,
   setPerformGroupActionResponse,
+  setPredicate,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
   setSelectedRecords,
@@ -39,6 +41,7 @@ const mapStateToProps = (state, props) => {
   return {
     loading: newState.loading,
     grid: newState.grid,
+    predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
     selectAllRecords: newState.selectAllRecords,
@@ -62,12 +65,13 @@ const mapDispatchToProps = (dispatch, props) => {
     goToJournalsPage: row => dispatch(goToJournalsPage(w(row))),
     performGroupAction: options => dispatch(performGroupAction(w(options))),
     setPerformGroupActionResponse: options => dispatch(setPerformGroupActionResponse(w(options))),
-    setSettingsToUrl: options => dispatch(setSettingsToUrl(w(options)))
+    setSettingsToUrl: options => dispatch(setSettingsToUrl(w(options))),
+    setPredicate: options => dispatch(setPredicate(w(options))),
+    setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup(w({ columns, sortBy })))
   };
 };
 
 class JournalsDashletGrid extends Component {
-  filters = [];
   selectedRow = {};
   scrollPosition = {};
 
@@ -101,26 +105,31 @@ class JournalsDashletGrid extends Component {
   }
 
   onFilter = predicates => {
-    console.log('predicates', predicates);
-    const { setSettingsToUrl, isWidget } = this.props;
+    const { setSettingsToUrl, setPredicate, isWidget, predicate } = this.props;
+    const newPredicate = ParserPredicate.setPredicateVal(predicate, predicates[0]);
 
-    this.filters = predicates;
+    setPredicate(newPredicate);
     this.reloadGrid({ predicates });
 
     if (!isWidget) {
-      setSettingsToUrl({ predicates });
+      setSettingsToUrl({ predicates: newPredicate });
     }
   };
 
   onSort = e => {
-    const { setSettingsToUrl, isWidget } = this.props;
+    const {
+      setSettingsToUrl,
+      setColumnsSetup,
+      isWidget,
+      grid: { columns }
+    } = this.props;
     const sortBy = [
       {
         attribute: e.column.attribute,
         ascending: !e.ascending
       }
     ];
-
+    setColumnsSetup(columns, sortBy);
     this.reloadGrid({ sortBy });
 
     if (!isWidget) {
@@ -401,6 +410,7 @@ class JournalsDashletGrid extends Component {
       performGroupActionResponse,
       doNotCount,
       minHeight,
+      predicate,
       journalConfig: { params = {} }
     } = this.props;
 
@@ -422,6 +432,7 @@ class JournalsDashletGrid extends Component {
 
       return <EmptyGrid maxItems={rowsNumber}>{children}</EmptyGrid>;
     };
+    const filters = ParserPredicate.getFlatFilters(predicate);
 
     return (
       <>
@@ -440,7 +451,7 @@ class JournalsDashletGrid extends Component {
                 multiSelectable
                 sortBy={sortBy}
                 changeTrOptionsByRowClick={doInlineToolsOnRowClick}
-                filters={this.filters}
+                filters={filters}
                 inlineTools={this.inlineTools}
                 tools={this.renderTools}
                 onSort={this.onSort}

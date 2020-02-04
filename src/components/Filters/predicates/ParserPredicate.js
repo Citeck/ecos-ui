@@ -1,5 +1,6 @@
 import isArray from 'lodash/isArray';
 
+import { deepClone } from '../../../helpers/util';
 import {
   EQUAL_PREDICATES_MAP,
   filterPredicates,
@@ -253,5 +254,52 @@ export default class ParserPredicate {
     }
 
     return groups;
+  }
+
+  static getFlatFilters(predicates) {
+    const out = [];
+
+    if (!predicates) {
+      return out;
+    }
+
+    predicates = deepClone(predicates);
+    predicates = isArray(predicates) ? predicates : predicates.val || [];
+
+    const flat = arr => {
+      arr.forEach(item => {
+        if (!isArray(item.val) && (!!item.val || item.val === 0)) {
+          out.push(item);
+        } else if (isArray(item.val)) {
+          flat(item.val);
+        }
+      });
+    };
+
+    flat(predicates);
+
+    return out;
+  }
+
+  static setPredicateVal(predicates, newPredicate) {
+    if (!predicates) {
+      return [];
+    }
+
+    predicates = deepClone(predicates);
+
+    const foreach = arr => {
+      arr.forEach(item => {
+        if (!isArray(item.val) && item.att === newPredicate.att) {
+          item.val = newPredicate.val;
+        } else if (isArray(item.val)) {
+          foreach(item.val);
+        }
+      });
+    };
+
+    foreach(predicates.val || []);
+
+    return predicates;
   }
 }

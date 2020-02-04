@@ -285,7 +285,6 @@ function* getGridData(api, params, stateId) {
   const config = yield select(state => state.journals[stateId].config);
 
   const predicates = ParserPredicate.removeEmptyPredicates(cloneDeep(_predicates));
-  console.log('serarch', predicates);
   const pagination = forRequest.groupBy.length ? { ..._pagination, maxItems: undefined } : _pagination;
   const recordRef = _recordRef && (config || {}).onlyLinked ? _recordRef : null;
 
