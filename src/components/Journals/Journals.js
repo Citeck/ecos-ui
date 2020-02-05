@@ -120,13 +120,11 @@ class Journals extends Component {
   };
 
   resetSettings = savedSetting => {
-    console.log('>>savedSetting', savedSetting);
     this.setState({ savedSetting });
   };
 
   toggleSettings = () => {
     const { savedSetting, settingsVisible } = this.state;
-    console.log('>>settingsVisible', settingsVisible);
 
     if (savedSetting && settingsVisible) {
       this.props.restoreJournalSettingData(savedSetting);
