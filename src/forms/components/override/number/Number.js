@@ -1,7 +1,14 @@
 import FormIONumberComponent from 'formiojs/components/number/Number';
 import _ from 'lodash';
+import { overrideTriggerChange } from '../misc';
 
 export default class NumberComponent extends FormIONumberComponent {
+  constructor(...args) {
+    super(...args);
+
+    overrideTriggerChange.call(this);
+  }
+
   getMaskedValue(value) {
     return this.formatValue(this.clearInput(value));
   }

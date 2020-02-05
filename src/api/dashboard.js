@@ -4,7 +4,7 @@ import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
 import { DASHBOARD_DEFAULT_KEY, QueryEntityKeys, SourcesId } from '../constants';
 import { RecordService } from './recordService';
-import Components from '../components/Components';
+import Components from '../components/widgets/Components';
 import Records from '../components/Records';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';

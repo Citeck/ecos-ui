@@ -1,18 +1,29 @@
 import { handleActions } from 'redux-actions';
-import { getDocuments, initStore, setAllowedConnections, setDocuments, getMenu, setMenu, setSectionList } from '../actions/docAssociations';
+import {
+  getAssociations,
+  initStore,
+  setAllowedConnections,
+  setAssociations,
+  getMenu,
+  setMenu,
+  setSectionList,
+  addAssociations,
+  setError,
+  removeAssociations
+} from '../actions/docAssociations';
 
 export const initialState = {
-  // список разделов
+  // list of sections
   sectionList: [],
-  // список документов, рассортированный по связям
-  documents: [],
-  // список доступных связей (первый уровень меню)
-  allowedConnections: [],
-  // меню-выпадашка (состоит из 3х уровней)
+  // list of associations sorted by relationship
+  associations: [],
+  // list of available associations (first level menu)
+  allowedAssociations: [],
+  // drop-down menu (consists of 3 levels)
   menu: [],
   isLoading: false,
   isLoadingMenu: false,
-  documentsTotalCount: 0
+  associationsTotalCount: 0
 };
 
 Object.freeze(initialState);
@@ -40,19 +51,33 @@ export default handleActions(
       }
     }),
 
-    [setDocuments]: (state, { payload }) => ({
+    [setAssociations]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        documents: payload.documents,
-        documentsTotalCount: payload.documentsTotalCount,
+        associations: payload.associations,
+        associationsTotalCount: payload.associationsTotalCount,
         isLoading: false
       }
     }),
-    [getDocuments]: (state, { payload }) => ({
+    [getAssociations]: (state, { payload }) => ({
       ...state,
       [payload]: {
         ...state[payload],
+        isLoading: true
+      }
+    }),
+    [addAssociations]: (state, { payload }) => ({
+      ...state,
+      [payload.record]: {
+        ...state[payload.record],
+        isLoading: true
+      }
+    }),
+    [removeAssociations]: (state, { payload }) => ({
+      ...state,
+      [payload.record]: {
+        ...state[payload.record],
         isLoading: true
       }
     }),
@@ -61,7 +86,7 @@ export default handleActions(
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        allowedConnections: payload.allowedConnections
+        allowedAssociations: payload.allowedAssociations
       }
     }),
 
@@ -78,6 +103,14 @@ export default handleActions(
         ...state[payload.key],
         menu: payload.menu,
         isLoadingMenu: false
+      }
+    }),
+
+    [setError]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        isLoading: false
       }
     })
   },

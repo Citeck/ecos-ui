@@ -1,0 +1,186 @@
+@import '../../../styles/constants';
+
+%h-indents {
+  padding: 0 20px;
+}
+
+.ecos-current-task {
+  $root: &;
+
+  &-list {
+    &__v-scroll {
+      @extend %v-scroll;
+    }
+
+    &-dashlet {
+      height: fit-content;
+    }
+
+    &__loader {
+      height: 100%;
+    }
+
+    &_view-enum {
+      overflow-x: hidden;
+    }
+
+    &_view-table {
+      padding: 0 20px;
+
+      .table {
+        border-top: none;
+
+        th {
+          border-top: none;
+        }
+      }
+
+      .ecos-th {
+        font-weight: $font-weight-bold;
+      }
+
+      .ecos-grid__td {
+        font-weight: $font-weight-semi-bold;
+      }
+    }
+  }
+
+  &-info {
+    $info: &;
+
+    &__title {
+      margin-bottom: 14px;
+    }
+
+    &__separator {
+      margin: 11px 0;
+    }
+
+    &__fields {
+      padding: 0 20px 10px;
+      color: $text-color-dark;
+
+      &-item {
+        display: flex;
+        align-items: center;
+        min-height: 26px;
+      }
+
+      #{$info}-label {
+        flex: 0 0 114px;
+        padding-right: 4px;
+        font-weight: $font-weight-semi-bold;
+        color: $text-color-gray;
+        font-style: normal;
+        font-size: $font-size-small;
+        @extend %ellipsis;
+      }
+
+      #{$info}-value {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-weight: $font-weight-bold;
+        font-size: $font-size-standard;
+        color: $text-color-dark;
+        font-style: normal;
+        display: inline-block;
+
+        &_mobile {
+          display: flex;
+
+          &-val {
+            width: auto;
+          }
+
+          &-icon {
+            position: relative;
+            top: -20px;
+          }
+        }
+
+        &_add {
+          margin-top: 10px;
+          margin-bottom: 10px;
+          padding-left: 0;
+          font-weight: bold;
+          max-width: 100%;
+        }
+
+        &__text {
+          display: inline-block;
+          @extend %ellipsis;
+
+          &:only-child {
+            max-width: 100%;
+          }
+
+          &:not(:only-child) {
+            max-width: calc(100% - 32px);
+          }
+        }
+      }
+    }
+  }
+
+  &__icon {
+    color: $color-gray-6;
+    font-size: 17px;
+    margin-left: 10px;
+
+    &-wrap {
+      display: inline-block;
+      vertical-align: top;
+    }
+
+    &:hover,
+    &_open {
+      color: $color-blue-light;
+      cursor: pointer;
+    }
+
+    &_big {
+      font-size: 32px;
+    }
+  }
+
+  &_no-data {
+    color: $color-gray-5;
+  }
+
+  &__tooltip {
+    .ecos-base-tooltip-inner {
+      text-align: left;
+      white-space: pre-line;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-word;
+      max-width: 348px;
+      padding: 0;
+      font-size: $font-size-small;
+      line-height: 18px;
+    }
+
+    &-text {
+      padding: 15px 0 15px 15px;
+      min-width: 153px;
+
+      &-inner {
+        margin-right: 15px;
+      }
+    }
+
+    &-list {
+      &-item {
+        @extend %ellipsis;
+      }
+    }
+
+    &__v-scroll {
+      @extend %v-scroll;
+    }
+
+    .tooltip.show {
+      opacity: 1;
+    }
+  }
+}

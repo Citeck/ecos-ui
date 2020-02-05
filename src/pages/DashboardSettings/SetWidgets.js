@@ -8,7 +8,7 @@ import classNames from 'classnames';
 
 import { deepClone, t } from '../../helpers/util';
 import { DndUtils, DragItem, Droppable } from '../../components/Drag-n-Drop';
-import Components from '../../components/Components';
+import Components from '../../components/widgets/Components';
 
 import './style.scss';
 
@@ -92,10 +92,10 @@ class SetWidgets extends React.Component {
 
   handleRemoveWidget = ({ item }, indexColumn, indexWidget) => {
     const { activeWidgets, setData } = this.props;
+    const newActiveWidgets = deepClone(activeWidgets);
 
-    activeWidgets[indexColumn].splice(indexWidget, 1);
-
-    setData(activeWidgets);
+    newActiveWidgets[indexColumn].splice(indexWidget, 1);
+    setData(newActiveWidgets);
   };
 
   renderWidgetColumns() {

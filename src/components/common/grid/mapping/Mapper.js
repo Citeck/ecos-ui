@@ -16,6 +16,10 @@ options
 +assoc
 */
 
+export function matchCardDetailsLinkFormatterColumn(column) {
+  return column.attribute === 'cm:name' || column.attribute === 'cm:title';
+}
+
 const MAP = [
   {
     options: column => {
@@ -52,10 +56,6 @@ const MAP = [
     enable: column => column.params && column.params.formatter
   },
   {
-    options: () => 'CardDetailsLinkFormatter',
-    enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
-  },
-  {
     options: () => 'DateFormatter',
     enable: column => column.attribute === 'bpm:startDate'
   },
@@ -72,7 +72,10 @@ const MAP = [
     enable: column => column.type === 'boolean'
   },
   {
-    options: () => 'SelectFormatter',
+    options: column => {
+      const params = column.params || {};
+      return { name: 'SelectFormatter', params: { ...params, column } };
+    },
     enable: column => column.type === 'options'
   },
   {
@@ -86,6 +89,10 @@ const MAP = [
   {
     options: () => 'NumberFormatter',
     enable: column => column.type === 'int' || column.type === 'long' || column.type === 'float' || column.type === 'double'
+  },
+  {
+    options: () => 'CardDetailsLinkFormatter',
+    enable: column => matchCardDetailsLinkFormatterColumn(column) && !column.disableFormatter
   }
 ];
 

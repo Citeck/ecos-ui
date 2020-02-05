@@ -7,8 +7,8 @@ import lodashGet from 'lodash/get';
 import { MenuApi } from '../../../../api/menu';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../../../../constants/pageTabs';
 import { getJournalPageUrl, isNewVersionPage, NEW_VERSION_PREFIX } from '../../../../helpers/urls';
-import { setSelected } from '../../../../helpers/slideMenu';
 import { URL } from '../../../../constants';
+import SidebarService from '../../../../services/sidebar';
 
 const PAGE_PREFIX = '/share/page';
 const menuApi = new MenuApi();
@@ -21,7 +21,7 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   onSelectItem: id => {
-    setSelected(id);
+    SidebarService.setSelected(id);
     ownProps.toggleSlideMenu();
     dispatch(setSelectedId(id));
   },

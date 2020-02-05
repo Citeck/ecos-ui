@@ -8,6 +8,7 @@ export default class IcoBtn extends Component {
     invert: PropTypes.bool,
     loading: PropTypes.bool,
     className: PropTypes.string,
+    colorLoader: PropTypes.string,
     icon: PropTypes.string
   };
 
@@ -26,7 +27,7 @@ export default class IcoBtn extends Component {
   }
 
   render() {
-    const { className, invert, children, loading, ...props } = this.props;
+    const { className, invert, children, loading, colorLoader, ...props } = this.props;
     const cssClasses = classNames('ecos-btn', className);
 
     const text = children ? <span className={'ecos-btn__text'}>{children}</span> : null;
@@ -35,7 +36,7 @@ export default class IcoBtn extends Component {
 
     return (
       <button {...props} className={cssClasses}>
-        {loading && <PointsLoader />}
+        {loading && <PointsLoader color={colorLoader} />}
         {!loading && first}
         {!loading && second}
       </button>

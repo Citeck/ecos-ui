@@ -5,12 +5,12 @@ import Formio from 'formiojs/Formio';
 import CustomEventEmitter from '../../forms/EventEmitter';
 import { cloneDeep } from 'lodash';
 
-import '../../forms/components';
+import '../../forms';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
-import { t, getCurrentLocale, isMobileDevice } from '../../helpers/util';
+import { getCurrentLocale, isMobileDevice, t } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
 
 import './formio.full.min.css';
@@ -34,9 +34,7 @@ class EcosForm extends React.Component {
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,
       recordId: record.id,
-      formId: 'eform@',
-      error: null,
-      formDefinition: {}
+      ...this.initState
     };
   }
 
@@ -51,16 +49,38 @@ class EcosForm extends React.Component {
     this.initForm();
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.formId !== this.props.formId) {
+      this.setState({ ...this.initState });
+      this.initForm();
+    }
+  }
+
+  get initState() {
+    return {
+      formId: 'eform@',
+      error: null,
+      formDefinition: {}
+    };
+  }
+
   initForm(newFormDefinition = this.state.formDefinition) {
-    const { record, formKey, options: propsOptions } = this.props;
+    const { record, formKey, options: propsOptions, formId } = this.props;
     const { recordId } = this.state;
 
     const options = cloneDeep(propsOptions);
-    let formLoadingPromise = EcosFormUtils.getForm(record, formKey, {
+    let formLoadingPromise = null;
+    const attributes = {
       definition: 'definition?json',
       customModule: 'customModule',
       i18n: 'i18n?json'
-    });
+    };
+
+    if (formId) {
+      formLoadingPromise = EcosFormUtils.getFormById(formId, attributes);
+    } else {
+      formLoadingPromise = EcosFormUtils.getForm(record, formKey, attributes);
+    }
 
     options.recordId = recordId;
     options.isMobileDevice = isMobileDevice();
@@ -77,17 +97,20 @@ class EcosForm extends React.Component {
 
     let self = this;
 
+    const onFormLoadingFailure = () => {
+      self.setState({
+        error: new Error(t('ecos-form.empty-form-data'))
+      });
+      self.props.onReady && self.props.onReady();
+    };
+
     formLoadingPromise.then(formData => {
-      if (!formData) {
-        self.setState({
-          error: new Error(t('ecos-form.empty-form-data'))
-        });
+      if (!formData || !formData.definition) {
+        onFormLoadingFailure();
         return null;
       }
 
-      this.setState({ formId: formData.id });
-
-      let customModulePromise = new Promise(function(resolve, reject) {
+      let customModulePromise = new Promise(function(resolve) {
         if (formData.customModule) {
           window.require([formData.customModule], function(Module) {
             resolve(
@@ -104,8 +127,13 @@ class EcosForm extends React.Component {
       let inputs = EcosFormUtils.getFormInputs(formData.definition);
       let recordDataPromise = EcosFormUtils.getData(recordId, inputs, this.state.containerId);
       let canWritePromise = false;
+      const isDebugModeOn = localStorage.getItem('enableLoggerForNewForms');
       if (options.readOnly && options.viewAsHtml) {
         canWritePromise = EcosFormUtils.hasWritePermission(recordId);
+      }
+
+      if (isDebugModeOn) {
+        options.isDebugModeOn = isDebugModeOn;
       }
 
       Promise.all([recordDataPromise, canWritePromise]).then(([recordData, canWrite]) => {
@@ -204,12 +232,14 @@ class EcosForm extends React.Component {
             }
           }
 
+          this.setState({ formId: formData.id });
+
           if (self.props.onReady) {
             self.props.onReady(form);
           }
         });
       });
-    });
+    }, onFormLoadingFailure);
   }
 
   fireEvent(event, data) {
@@ -269,6 +299,27 @@ class EcosForm extends React.Component {
       }
     };
 
+    const resetOutcomeButtonsValues = () => {
+      const allComponents = form.getAllComponents();
+      const outcomeButtonsKeys = [];
+
+      allComponents.forEach(item => {
+        if (item.component.type === 'button' && item.component.key.startsWith('outcome_')) {
+          outcomeButtonsKeys.push(item.component.key);
+        }
+      });
+
+      for (let field in form.data) {
+        if (!form.data.hasOwnProperty(field)) {
+          continue;
+        }
+
+        if (outcomeButtonsKeys.includes(field)) {
+          form.data[field] = undefined;
+        }
+      }
+    };
+
     if (this.props.saveOnSubmit !== false) {
       record
         .save()
@@ -277,6 +328,7 @@ class EcosForm extends React.Component {
         })
         .catch(e => {
           form.showErrors(e, true);
+          resetOutcomeButtonsValues();
         });
     } else {
       onSubmit(record, form);
@@ -309,6 +361,7 @@ EcosForm.propTypes = {
   attributes: PropTypes.object,
   options: PropTypes.object,
   formKey: PropTypes.string,
+  formId: PropTypes.string,
   onSubmit: PropTypes.func,
   onReady: PropTypes.func, // Form ready, but not rendered yet
   onFormCancel: PropTypes.func,

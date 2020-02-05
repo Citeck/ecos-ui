@@ -4,36 +4,36 @@ import PropTypes from 'prop-types';
 import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
+import set from 'lodash/set';
+
 import { closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
-import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
+import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 
 import './Grid.scss';
 
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
+const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
+const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
 const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
 
-const ECOS_GRID_FREEZE_TOP_CLASS = 'ecos-grid__freeze-top';
-const ECOS_GRID_FREEZE_LEFT_CLASS = 'ecos-grid__freeze-left';
 const ECOS_GRID_CHECKBOX_DEVIDER_CLASS = 'ecos-grid__checkbox-devider';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
 const Selector = ({ mode, ...rest }) => (
-  <div className={'ecos-grid__checkbox'}>
+  <div className="ecos-grid__checkbox">
     <Checkbox checked={rest.checked} />
   </div>
 );
 
 const SelectorHeader = ({ indeterminate, ...rest }) => (
-  <>
-    <div className={'ecos-grid__checkbox'}>
-      {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
-      <div className={ECOS_GRID_CHECKBOX_DEVIDER_CLASS} />
-    </div>
-  </>
+  <div className="ecos-grid__checkbox">
+    {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
+    <div className={ECOS_GRID_CHECKBOX_DEVIDER_CLASS} />
+  </div>
 );
 
 class Grid extends Component {
@@ -46,35 +46,62 @@ class Grid extends Component {
     this._keyField = props.keyField || 'id';
     this._scrollValues = {};
     this._tr = null;
+    this._dragTr = null;
     this._tableDom = null;
     this._ref = React.createRef();
     this._scrollRef = null;
-    this._freezeTopGridNode = null;
-    this._freezeLeftGridNode = null;
-    this._freezeTopGridFirstThNode = null;
-    this._freezeTopGridFirstThDeviderNode = null;
     this._shadowHeadNode = null;
     this._shadowLeftNode = null;
+    this._firstHeaderCellNode = null;
+    this._inlineActionsNode = null;
+
+    this.state = {
+      tableHeight: 0
+    };
   }
 
   componentDidMount() {
     this.createCloseFilterEvent();
     this.createColumnResizeEvents();
     this.createKeydownEvents();
+    this.createDragEvents();
 
     const current = this._ref.current;
 
     if (current) {
-      this._freezeLeftGridNode = current.getElementsByClassName(ECOS_GRID_FREEZE_LEFT_CLASS)[0];
-      this._freezeTopGridNode = current.getElementsByClassName(ECOS_GRID_FREEZE_TOP_CLASS)[0];
       this._shadowHeadNode = current.getElementsByClassName(ECOS_GRID_HEAD_SHADOW)[0];
       this._shadowLeftNode = current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW)[0];
-      this._freezeTopGridFirstThNode = this._freezeTopGridNode ? this._freezeTopGridNode.getElementsByTagName('th')[0] : null;
-      this._freezeTopGridFirstThDeviderNode = this._freezeTopGridFirstThNode
-        ? this._freezeTopGridFirstThNode.getElementsByClassName(ECOS_GRID_CHECKBOX_DEVIDER_CLASS)[0]
-        : null;
+      this._firstHeaderCellNode = current.querySelector(`thead > tr > th:first-child .${ECOS_GRID_CHECKBOX_DEVIDER_CLASS}`);
+      this._inlineActionsNode = current.querySelector('.ecos-inline-tools-actions');
     }
 
+    this.checkScrollPosition();
+  }
+
+  componentDidUpdate() {
+    this.checkScrollPosition();
+  }
+
+  componentWillUnmount() {
+    this.removeCloseFilterEvent();
+    this.removeColumnResizeEvents();
+    this.removeKeydownEvents();
+    this.removeDragEvents();
+  }
+
+  get hasCheckboxes() {
+    const { singleSelectable, multiSelectable } = this.props;
+
+    return singleSelectable || multiSelectable;
+  }
+
+  get fixedHeader() {
+    const { freezeCheckboxes, fixedHeader } = this.props;
+
+    return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
+  }
+
+  checkScrollPosition() {
     const { scrollPosition = {} } = this.props;
     const { scrollLeft, scrollTop } = scrollPosition;
 
@@ -87,18 +114,24 @@ class Grid extends Component {
     }
   }
 
-  componentWillUnmount() {
-    this.removeCloseFilterEvent();
-    this.removeColumnResizeEvents();
-    this.removeKeydownEvents();
-  }
-
   createKeydownEvents() {
     document.addEventListener('keydown', this.onKeydown);
   }
 
   removeKeydownEvents() {
     document.removeEventListener('keydown', this.onKeydown);
+  }
+
+  createDragEvents() {
+    if (this.props.onRowDrop) {
+      document.addEventListener('dragenter', this.onDragEnter);
+    }
+  }
+
+  removeDragEvents() {
+    if (this.props.onRowDrop) {
+      document.removeEventListener('dragenter', this.onDragEnter);
+    }
   }
 
   onKeydown = e => {
@@ -139,7 +172,11 @@ class Grid extends Component {
 
       column = this.setHeaderFormatter(column, filterable, column.sortable);
 
-      column.formatter = this.initFormatter(props.editable);
+      if (column.customFormatter === undefined) {
+        column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
+      } else {
+        column.formatter = column.customFormatter;
+      }
 
       return column;
     });
@@ -164,7 +201,15 @@ class Grid extends Component {
 
         trigger.call(this, 'onMouseEnter', e);
       },
-      onMouseLeave: e => props.changeTrOptionsByRowClick && this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true),
+      onMouseLeave: e => {
+        if (props.changeTrOptionsByRowClick) {
+          this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true);
+        }
+
+        trigger.call(this, 'onRowMouseLeave', e);
+      },
+      onDragOver: this.onDragOver,
+      onDrop: this.onDrop,
       ...props.rowEvents
     };
 
@@ -187,7 +232,11 @@ class Grid extends Component {
     return props;
   }
 
-  setHover = (tr, className, needRemove, nonHoveredTr) => {
+  setHover = (tr = null, className, needRemove, nonHoveredTr) => {
+    if (!tr) {
+      return;
+    }
+
     const trClassList = tr.classList;
     const checkboxGridTrClassList = this.getCheckboxGridTrClassList(tr);
 
@@ -250,7 +299,7 @@ class Grid extends Component {
     trigger.call(this, 'onSort', e);
   };
 
-  initFormatter = editable => {
+  initFormatter = ({ editable, className }) => {
     return (cell, row, rowIndex, formatExtraData) => {
       formatExtraData = formatExtraData || {};
       const Formatter = formatExtraData.formatter;
@@ -258,9 +307,11 @@ class Grid extends Component {
 
       return (
         <div
-          className={`ecos-grid__td ${editable ? 'ecos-grid__td_editable' : ''} ${
-            errorAttribute && row[errorAttribute] === cell ? 'ecos-grid__td_error' : ''
-          }`}
+          className={classNames('ecos-grid__td', {
+            'ecos-grid__td_editable': editable,
+            'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell,
+            [className]: !!className
+          })}
         >
           {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
         </div>
@@ -461,42 +512,89 @@ class Grid extends Component {
   onScrollFrame = e => {
     this._scrollValues = e;
 
-    this.handleFreezeCols(e);
-
-    if (this._tr) {
-      this.getTrOptions(this._tr);
+    if (this.fixedHeader) {
+      if (this.hasCheckboxes) {
+        set(this._shadowLeftNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
+      }
+      set(this._shadowHeadNode, 'style.display', e.scrollTop > 0 ? 'block' : 'none');
+      set(this._firstHeaderCellNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
     }
 
     trigger.call(this, 'onScrolling', e);
   };
 
-  scrollRefCallback = scroll => {
-    this._scrollRef = scroll;
+  onScrollStop = e => {
+    trigger.call(this, 'onScrollStop', e);
   };
 
-  handleFreezeCols = scrollingEvent => {
-    if (this._freezeTopGridNode) {
-      const scrollTop = scrollingEvent.scrollTop;
-      const scrollLeft = scrollingEvent.scrollLeft;
-
-      if (scrollTop) {
-        this._shadowHeadNode.style.display = 'block';
-      } else {
-        this._shadowHeadNode.style.display = 'none';
-      }
-
-      if (scrollLeft) {
-        this._shadowLeftNode.style.display = 'block';
-        this._freezeTopGridFirstThDeviderNode.style.display = 'none';
-      } else {
-        this._shadowLeftNode.style.display = 'none';
-        this._freezeTopGridFirstThDeviderNode.style.display = 'block';
-      }
-
-      this._freezeTopGridNode.style.left = scrollLeft ? '-' + scrollLeft + 'px' : scrollLeft + 'px';
-      this._freezeLeftGridNode.style.top = scrollTop ? '-' + scrollTop + 'px' : scrollTop + 'px';
-      this._freezeTopGridFirstThNode.style.left = scrollLeft + 'px';
+  onDragOver = e => {
+    if (this.props.onRowDrop) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
     }
+
+    if (!this.props.onDragOver) {
+      return false;
+    }
+
+    trigger.call(this, 'onDragOver', e);
+  };
+
+  onDragEnter = e => {
+    const target = e.target;
+    const tr = closest(target, ECOS_GRID_ROW_CLASS);
+
+    if (this.props.onRowDragEnter) {
+      this.props.onRowDragEnter();
+    }
+
+    if (tr === null) {
+      this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
+      this._dragTr = null;
+
+      return;
+    }
+
+    if (tr === this._dragTr) {
+      return;
+    }
+
+    if (this._dragTr) {
+      this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
+    }
+
+    this.setHover(tr, ECOS_GRID_GRAG_CLASS, false, this._tr);
+    this._dragTr = tr;
+
+    e.stopPropagation();
+    e.preventDefault();
+    return false;
+  };
+
+  onDrop = e => {
+    if (!this.props.onRowDrop) {
+      return false;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const tr = e.currentTarget;
+
+    this.setHover(tr, ECOS_GRID_GRAG_CLASS, true, this._tr);
+
+    trigger.call(this, 'onRowDrop', {
+      files: Array.from(e.dataTransfer.files),
+      type: this.props.data[tr.rowIndex - 1]
+    });
+    e.dataTransfer.clearData();
+
+    return false;
+  };
+
+  scrollRefCallback = scroll => {
+    this._scrollRef = scroll;
   };
 
   render() {
@@ -516,12 +614,17 @@ class Grid extends Component {
     const gridStyle = props.minHeight ? { minHeight: props.minHeight } : { height: '100%' };
     const scrollStyle = props.minHeight ? { height: props.minHeight } : { autoHeight: true };
 
+    if (props.autoHeight) {
+      scrollStyle.autoHeight = props.autoHeight;
+    }
+
     const Scroll = ({ scrollable, children, style, refCallback }) =>
       scrollable ? (
         <Scrollbars
           ref={refCallback}
           onScrollStart={this.onScrollStart}
           onScrollFrame={this.onScrollFrame}
+          onScrollStop={this.onScrollStop}
           style={style}
           hideTracksWhenNotNeeded={true}
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
@@ -541,7 +644,10 @@ class Grid extends Component {
           style={gridStyle}
           className={classNames(
             'ecos-grid',
-            (props.singleSelectable || props.multiSelectable) && 'ecos-grid_checkable',
+            {
+              'ecos-grid_freeze': this.fixedHeader,
+              'ecos-grid_checkable': this.hasCheckboxes
+            },
             this.props.className
           )}
           onMouseLeave={this.onMouseLeave}
@@ -549,16 +655,13 @@ class Grid extends Component {
           {toolsVisible ? this.tools(props.selected) : null}
 
           <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
-            <BootstrapTable {...props} />
-
+            <div ref={this.props.forwardedRef}>
+              <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={ECOS_GRID_ROW_CLASS} />
+            </div>
             {this.inlineTools()}
           </Scroll>
-
-          {props.freezeCheckboxes && (props.singleSelectable || props.multiSelectable) ? (
+          {this.fixedHeader ? (
             <>
-              <BootstrapTable {...props} classes={ECOS_GRID_FREEZE_LEFT_CLASS} />
-              <BootstrapTable {...props} classes={ECOS_GRID_FREEZE_TOP_CLASS} />
-
               <div className={ECOS_GRID_HEAD_SHADOW} />
               <div className={ECOS_GRID_LEFT_SHADOW} />
             </>
@@ -580,14 +683,21 @@ Grid.propTypes = {
   editable: PropTypes.bool,
   multiSelectable: PropTypes.bool,
   singleSelectable: PropTypes.bool,
+  freezeCheckboxes: PropTypes.bool,
   selectAll: PropTypes.bool,
   scrollable: PropTypes.bool,
+  fixedHeader: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,
   filters: PropTypes.array,
   sortBy: PropTypes.array,
-  selected: PropTypes.array
+  selected: PropTypes.array,
+
+  onRowDrop: PropTypes.func,
+  onDragOver: PropTypes.func,
+  onRowDragEnter: PropTypes.func,
+  onRowMouseLeave: PropTypes.func
 };
 
 export default Grid;

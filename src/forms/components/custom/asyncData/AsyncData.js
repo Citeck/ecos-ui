@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import BaseComponent from '../base/BaseComponent';
 import Formio from 'formiojs/Formio';
-
+import BaseComponent from '../base/BaseComponent';
+import ecosFetch from '../../../../helpers/ecosFetch';
 import Records from '../../../../components/Records';
 
 let ajaxGetCache = {};
@@ -21,7 +21,7 @@ export default class AsyncDataComponent extends BaseComponent {
         source: {
           type: '',
           ajax: {
-            method: '',
+            method: 'GET',
             url: '',
             data: '',
             mapping: ''
@@ -32,6 +32,10 @@ export default class AsyncDataComponent extends BaseComponent {
           },
           recordsArray: {
             id: '',
+            attributes: {}
+          },
+          recordsScript: {
+            script: '',
             attributes: {}
           },
           recordsQuery: {
@@ -120,6 +124,49 @@ export default class AsyncDataComponent extends BaseComponent {
     return true;
   }
 
+  _loadAtts(recordId, attributes) {
+    if (!this._recordWatchers) {
+      this._recordWatchers = {};
+    }
+
+    const record = Records.get(recordId);
+    const baseRecord = record.getBaseRecord();
+    const callback = () => this._updateValue();
+
+    let attributesMap;
+    if (_.isArray(attributes)) {
+      attributesMap = {};
+      for (let att of attributes) {
+        attributesMap[att] = att;
+      }
+    } else {
+      attributesMap = attributes;
+    }
+
+    let watcher = this._recordWatchers[recordId];
+    if (!watcher) {
+      watcher = baseRecord.watch(attributesMap, callback);
+      this._recordWatchers[record.id] = watcher;
+    } else {
+      let watchedAtts = watcher.getWatchedAttributes();
+      let isAllRequiredAttsWatched = true;
+      for (let attName in attributesMap) {
+        if (attributesMap.hasOwnProperty(attName) && !watchedAtts[attName]) {
+          watchedAtts[attName] = attributesMap[attName];
+          isAllRequiredAttsWatched = false;
+          break;
+        }
+      }
+      if (!isAllRequiredAttsWatched) {
+        watcher.unwatch();
+        watcher = baseRecord.watch(watchedAtts);
+        this._recordWatchers[record.id] = watcher;
+      }
+    }
+
+    return record.load(attributes);
+  }
+
   _updateValue(forceUpdate) {
     // console.log('_updateValue', this.key)
     let comp = this.component;
@@ -137,11 +184,49 @@ export default class AsyncDataComponent extends BaseComponent {
           'evaluatedRecordId',
           recordId,
           id => {
-            return Records.get(id).load(comp.source.record.attributes);
+            return this._loadAtts(id, comp.source.record.attributes);
           },
           {},
           forceUpdate
         );
+
+        break;
+      case 'recordsScript':
+        let recordsScriptConfig = _.get(comp, 'source.recordsScript', {});
+
+        let records = this.evaluate(recordsScriptConfig.script, {}, 'value', true);
+        if (records) {
+          if (_.isArray(records)) {
+            records = records.map(rec => (rec.id ? rec.id : rec));
+          } else {
+            records = records.id ? records.id : records;
+          }
+        } else {
+          records = null;
+        }
+        const evalAsync = recs =>
+          this._evalAsyncValue(
+            'evaluatedRecordsScript',
+            recs,
+            records => {
+              if (!records) {
+                return {};
+              }
+              if (_.isArray(records)) {
+                return Promise.all(records.map(id => this._loadAtts(id, recordsScriptConfig.attributes)));
+              } else {
+                return this._loadAtts(records, recordsScriptConfig.attributes);
+              }
+            },
+            {},
+            forceUpdate
+          );
+
+        if (records && records.then) {
+          records.then(evalAsync);
+        } else {
+          evalAsync(records);
+        }
 
         break;
       case 'recordsArray':
@@ -158,7 +243,7 @@ export default class AsyncDataComponent extends BaseComponent {
               return [];
             }
 
-            return Promise.all(ids.split(',').map(id => Records.get(id).load(comp.source.recordsArray.attributes)));
+            return Promise.all(ids.split(',').map(id => this._loadAtts(id, comp.source.recordsArray.attributes)));
           },
           {},
           forceUpdate
@@ -212,13 +297,10 @@ export default class AsyncDataComponent extends BaseComponent {
             }
 
             const fetchData = (url, body, method) => {
-              return fetch(url, {
-                method: method,
-                credentials: 'include',
-                headers: {
-                  'Content-type': 'application/json;charset=UTF-8'
-                },
-                body: body
+              return ecosFetch(url, {
+                method,
+                headers: { 'Content-type': 'application/json;charset=UTF-8' },
+                body
               }).then(response => {
                 return response.json();
               });
@@ -332,9 +414,23 @@ export default class AsyncDataComponent extends BaseComponent {
     }
   }
 
+  destroy() {
+    let watchers = this._recordWatchers || {};
+
+    for (let id in watchers) {
+      if (watchers.hasOwnProperty(id)) {
+        watchers[id].unwatch();
+      }
+    }
+    this._recordWatchers = {};
+
+    return super.destroy();
+  }
+
   build() {
     super.build();
 
+    this._recordWatchers = {};
     this.activeAsyncActionsCounter = 0;
 
     if (this.options.builder) {

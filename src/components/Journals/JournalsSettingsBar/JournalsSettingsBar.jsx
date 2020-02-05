@@ -1,9 +1,13 @@
 import React from 'react';
-import { IcoBtn } from '../../common/btns';
-import Search from '../../common/Search/Search';
+import classNames from 'classnames';
+import get from 'lodash/get';
+
+import { t } from '../../../helpers/util';
+import { Search } from '../../common';
+import { IcoBtn, TwoIcoBtn } from '../../common/btns';
+import { Dropdown } from '../../common/form';
 import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
-import { t } from '../../../helpers/util';
 
 import './JournalsSettingsBar.scss';
 
@@ -19,62 +23,108 @@ const JournalsSettingsBar = ({
   onSearch,
   journalConfig,
   addRecord,
-  grid
+  grid,
+  isMobile
 }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
-  const step = 'ecos-journal__settings-bar_step';
+  const step = classNames('ecos-journal__settings-bar_step', { 'ecos-journal__settings-bar_step-mobile': isMobile });
 
-  return (
-    <div className={'ecos-journal__settings-bar'}>
-      {journalConfig && journalConfig.meta && Array.isArray(journalConfig.meta.createVariants) && journalConfig.meta.createVariants[0] ? (
+  const renderCreateMenu = () => {
+    const createVariants = get(journalConfig, 'meta.createVariants') || [];
+
+    if (isMobile || !createVariants.length) {
+      return null;
+    }
+
+    if (createVariants.length === 1) {
+      return (
         <IcoBtn
-          icon={'icon-plus'}
+          icon={'icon-big-plus'}
           className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
-          onClick={addRecord}
+          onClick={() => addRecord(createVariants[0])}
+        />
+      );
+    }
+
+    return (
+      <Dropdown hasEmpty isButton source={createVariants} valueField="destination" titleField="title" onChange={addRecord} className={step}>
+        <TwoIcoBtn
+          icons={['icon-plus', 'icon-down']}
+          className="ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
           title={t('journals.create-record-btn')}
         />
-      ) : null}
+      </Dropdown>
+    );
+  };
 
-      <IcoBtn
-        title={t('journals.settings')}
-        icon={'icon-settings'}
-        className={`ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
-        onClick={toggleSettings}
+  return (
+    <div className="ecos-journal__settings-bar">
+      {renderCreateMenu()}
+
+      {!isMobile && (
+        <IcoBtn
+          title={t('journals.settings')}
+          icon={'icon-settings'}
+          className={`ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
+          onClick={toggleSettings}
+        />
+      )}
+
+      <Search
+        onSearch={onSearch}
+        className={`ecos-journal__settings-bar-search search_border-white ${step}`}
+        collapsed={isMobile}
+        cleaner
       />
 
-      <Search onSearch={onSearch} className={`search_border_white ${step}`} />
-
-      <Export journalConfig={journalConfig} grid={grid}>
+      <Export journalConfig={journalConfig} grid={grid} className={classNames('ecos-journal__settings-bar-download', step)}>
         <IcoBtn
           invert
-          icon={'icon-down'}
-          className={`ecos-btn_drop-down ecos-btn_grey3 ecos-btn_hover_blue2 ecos-btn_r_6 ecos-btn_line-height_normal ${step}`}
+          icon={isMobile ? 'icon-download' : 'icon-down'}
+          className={classNames('ecos-btn_hover_blue2 ecos-btn_r_6 ecos-btn_line-height_normal', {
+            'ecos-btn_drop-down ecos-btn_grey3': !isMobile,
+            'ecos-btn_i ecos-btn_white': isMobile
+          })}
         >
-          {t('button.export')}
+          {!isMobile && t('button.export')}
         </IcoBtn>
       </Export>
 
-      <IcoBtn title={t('dashlet.update.title')} icon={'icon-reload'} className={`${grey} ${step}`} onClick={refresh} />
+      <IcoBtn
+        title={t('dashlet.update.title')}
+        icon={'icon-reload'}
+        className={classNames('ecos-journal__settings-bar-update', step, {
+          [grey]: !isMobile,
+          'ecos-btn_i ecos-btn_white': isMobile
+        })}
+        onClick={refresh}
+      />
 
-      <div className={'ecos-journal__settings-bar_right '}>
-        <JournalsDashletPagination stateId={stateId} className={step} />
-
-        <IcoBtn
-          title={t('journal.title')}
-          icon={'icon-list'}
-          className={`${!showPie && !showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
-          onClick={showGrid}
+      <div className="ecos-journal__settings-bar_right">
+        <JournalsDashletPagination
+          stateId={stateId}
+          className={classNames('ecos-journal__pagination', step, {
+            'ecos-journal__pagination_mobile': isMobile
+          })}
         />
-
-        <IcoBtn
-          title={t('doc-preview.preview')}
-          icon={'icon-columns'}
-          className={`${showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
-          onClick={togglePreview}
-        />
-
-        {/*<IcoBtn icon={'icon-pie'} className={showPie ? blue : grey} onClick={togglePie} />*/}
+        {!isMobile && (
+          <>
+            <IcoBtn
+              title={t('journal.title')}
+              icon={'icon-list-1'}
+              className={`${!showPie && !showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
+              onClick={showGrid}
+            />
+            <IcoBtn
+              title={t('doc-preview.preview')}
+              icon={'icon-columns'}
+              className={`${showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
+              onClick={togglePreview}
+            />
+            {/*<IcoBtn icon={'icon-pie'} className={showPie ? blue : grey} onClick={togglePie} />*/}
+          </>
+        )}
       </div>
     </div>
   );

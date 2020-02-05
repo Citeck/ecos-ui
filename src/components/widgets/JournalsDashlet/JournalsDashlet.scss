@@ -1,0 +1,43 @@
+@import '../../../styles/constants';
+
+.ecos-journal-dashlet {
+  padding-top: 0;
+
+  &__toolbar {
+    margin: 12px 15px;
+    position: relative;
+    display: flex;
+
+    &-dropdown {
+      &_small {
+        width: calc(100% - 50px);
+
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  &__create-btn {
+    flex-shrink: 0;
+  }
+
+  &__actions {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  &__footer {
+    margin: 5px 15px;
+  }
+
+  &__grid {
+    position: relative;
+  }
+
+  &__body {
+    min-height: 115px;
+  }
+}

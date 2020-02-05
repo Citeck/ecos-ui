@@ -81,7 +81,7 @@ export default class ColumnsSetup extends Component {
       ...queryString.parse(search),
       filter: '',
       journalSettingId: '',
-      selectionFilter: predicates.length ? JSON.stringify(predicates[0]) : ''
+      selectionFilter: Array.isArray(predicates) && predicates.length ? JSON.stringify(predicates[0]) : ''
     };
 
     return decodeLink(
@@ -129,7 +129,7 @@ export default class ColumnsSetup extends Component {
           )}
         </Dropdown>
 
-        <form ref={this.form} id="export-form" method="post" encType="multipart/form-data">
+        <form ref={this.form} method="post" encType="multipart/form-data">
           <input ref={this.textInput} type="hidden" name="jsondata" value="" />
         </form>
       </div>

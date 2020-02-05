@@ -142,7 +142,7 @@ class JournalsDashletEditor extends Component {
     return (
       <div className={classNames('ecos-journal-dashlet-editor', className)}>
         <div className={classNames('ecos-journal-dashlet-editor__body', ifSmall('ecos-journal-dashlet-editor__body_small'))}>
-          <Caption middle className={classNames('ecos-journal-dashlet-editor__caption')}>
+          <Caption middle className="ecos-journal-dashlet-editor__caption">
             {t('journals.action.edit-dashlet')}
           </Caption>
 

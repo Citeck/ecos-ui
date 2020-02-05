@@ -5,7 +5,7 @@ import EcosFormUtils from './EcosFormUtils';
 import EcosFormModal from './EcosFormModal';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 
-export default class FormManager {
+class FormManager {
   static createRecordByVariant(variant, options = {}) {
     if (!variant) {
       console.error("Create variant is undefined. Record creation can't be preformed");
@@ -52,15 +52,21 @@ export default class FormManager {
             attributes['_parent'] = variant.destination;
           }
 
-          this.openFormModal({
+          const props = {
             record: recordRef,
             formKey: variant.formKey,
-            attributes: attributes,
+            attributes,
             options: {
               params: this.parseCreateArguments(variant.createArguments)
             },
             ...options
-          });
+          };
+
+          if (EcosFormUtils.isFormId(variant.formId)) {
+            props.formId = variant.formId;
+          }
+
+          this.openFormModal(props);
         } else {
           goToCreateRecordPage(variant);
         }
@@ -105,3 +111,17 @@ export default class FormManager {
     ReactDOM.render(form, container);
   }
 }
+
+window.Citeck = window.Citeck || {};
+window.Citeck.FormManager = FormManager;
+
+// Cause: https://citeck.atlassian.net/browse/ECOSCOM-3028
+window.Citeck.forms = window.Citeck.forms || {};
+window.Citeck.forms.eform =
+  window.Citeck.forms.eform ||
+  function(record, config = {}) {
+    const { params = {}, ...other } = config;
+    FormManager.openFormModal({ record, ...params, ...other });
+  };
+
+export default FormManager;

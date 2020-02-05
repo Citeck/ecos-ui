@@ -1,5 +1,5 @@
 import lodashGet from 'lodash/get';
-import { getCurrentLocale } from '../../helpers/util';
+import ecosFetch from '../../helpers/ecosFetch';
 
 const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
@@ -50,19 +50,14 @@ function recordsFetch(url, body) {
     url = GATEWAY_URL_MAP[url];
   }
 
-  return fetch(url + '?k=' + encodeURIComponent(urlKey), {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Accept-Language': getCurrentLocale(),
-      'Content-type': 'application/json;charset=UTF-8'
-    },
-    body: JSON.stringify(body)
-  }).then(response => {
+  url += '?k=' + encodeURIComponent(urlKey);
+
+  return ecosFetch(url, { method: 'POST', headers: { 'Content-type': 'application/json;charset=UTF-8' }, body }).then(response => {
     return response.json().then(body => {
-      if (response.status >= 200 && response.status < 300) {
+      if (response.ok) {
         return body;
       }
+
       if (body.message) {
         throw new Error(body.message);
       } else {

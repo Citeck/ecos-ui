@@ -1,6 +1,7 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
+import ecosXhr from '../helpers/ecosXhr';
 
 export class VersionsJournalApi extends RecordService {
   getVersions = record => {
@@ -23,12 +24,17 @@ export class VersionsJournalApi extends RecordService {
     ).then(response => response);
   };
 
-  addNewVersion = body => {
-    return fetch('/share/proxy/alfresco/api/upload', {
+  addNewVersion = ({ body, handleProgress }) => {
+    return ecosXhr('/share/proxy/alfresco/api/upload', {
       method: 'POST',
-      credentials: 'include',
-      body
-    }).then(response => response.json());
+      body,
+      handleProgress
+    }).then(
+      response => response,
+      error => {
+        throw error;
+      }
+    );
   };
 
   setActiveVersion = ({ id, ...attributes }) => {

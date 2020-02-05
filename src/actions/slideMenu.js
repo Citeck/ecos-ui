@@ -6,6 +6,7 @@ export const setSmallLogo = createAction(prefix + 'SET_SMALL_LOGO');
 export const setLargeLogo = createAction(prefix + 'LARGE_LOGO');
 export const setSlideMenuItems = createAction(prefix + 'SET_ITEMS');
 export const setSlideMenuExpandableItems = createAction(prefix + 'SET_EXPANDABLE_ITEMS');
+export const setInitExpandableItems = createAction(prefix + 'SET_INIT_EXPANDABLE_ITEMS');
 export const toggleIsOpen = createAction(prefix + 'TOGGLE_IS_OPEN');
 export const toggleExpanded = createAction(prefix + 'TOGGLE_EXPANDED');
 export const collapseAllItems = createAction(prefix + 'COLLAPSE_ALL_ITEMS');

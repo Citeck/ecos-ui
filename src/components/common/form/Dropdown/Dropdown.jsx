@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import { Scrollbars } from 'react-custom-scrollbars';
-
+import { IcoBtn } from '../../btns';
 import { getPropByStringKey } from '../../../../helpers/util';
 
 import './Dropdown.scss';
@@ -21,16 +21,18 @@ class MenuItem extends React.PureComponent {
 
 export default class Dropdown extends Component {
   static propTypes = {
-    titleField: PropTypes.string,
     valueField: PropTypes.any,
+    titleField: PropTypes.string,
     className: PropTypes.string,
     menuClassName: PropTypes.string,
     toggleClassName: PropTypes.string,
+    controlClassName: PropTypes.string,
     direction: PropTypes.string,
     hasEmpty: PropTypes.bool,
-    isStatic: PropTypes.bool,
     right: PropTypes.bool,
     full: PropTypes.bool,
+    isButton: PropTypes.bool,
+    isStatic: PropTypes.bool,
     isLinks: PropTypes.bool,
     cascade: PropTypes.bool,
     withScrollbar: PropTypes.bool,
@@ -46,6 +48,7 @@ export default class Dropdown extends Component {
     className: '',
     menuClassName: '',
     toggleClassName: '',
+    controlClassName: '',
     direction: 'down',
     hasEmpty: false,
     isStatic: false,
@@ -87,6 +90,16 @@ export default class Dropdown extends Component {
 
   getControl = text => {
     const props = this.props;
+    const { dropdownOpen } = this.state;
+
+    if (!props.children) {
+      return (
+        <IcoBtn className={props.controlClassName} invert icon={dropdownOpen ? 'icon-up' : 'icon-down'}>
+          {text}
+        </IcoBtn>
+      );
+    }
+
     return React.Children.map(this.props.children, child => {
       return React.cloneElement(child, {
         children: props.isButton ? child.props.children || '' : text
@@ -130,11 +143,11 @@ export default class Dropdown extends Component {
     return (
       <Wrapper>
         <ul>
-          {filteredSource.map(item =>
+          {filteredSource.map((item, i) =>
             CustomItem ? (
-              <CustomItem key={item[valueField]} onClick={this.onChange} item={item} />
+              <CustomItem key={item[valueField] || i} onClick={this.onChange} item={item} />
             ) : (
-              <MenuItem key={item[valueField]} onClick={this.onChange} item={item}>
+              <MenuItem key={item[valueField] || i} onClick={this.onChange} item={item}>
                 {getPropByStringKey(item, titleField)}
               </MenuItem>
             )

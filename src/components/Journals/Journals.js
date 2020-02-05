@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import PageHeight from './PageHeight';
@@ -8,17 +10,16 @@ import JournalsFilters from './JournalsFilters';
 import JournalsColumnsSetup from './JournalsColumnsSetup';
 import JournalsSettingsFooter from './JournalsSettingsFooter';
 import JournalsMenu from './JournalsMenu';
-import JournalsSettingBar from './JournalsSettingsBar';
+import JournalsSettingsBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
 
 import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
-import { Scrollbars } from 'react-custom-scrollbars';
+import { Well } from '../common/form';
 import { getJournalsData, reloadGrid, search } from '../../actions/journals';
 import { setActiveTabTitle } from '../../actions/pageTabs';
-import { Well } from '../common/form';
 import { t, trigger } from '../../helpers/util';
 import { goToCardDetailsPage } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
@@ -30,6 +31,7 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
+    isMobile: state.view.isMobile,
     pageTabsIsShow: state.pageTabs.isShow,
     activeTab: selectActiveTab(state),
     journalConfig: newState.journalConfig,
@@ -54,6 +56,7 @@ class Journals extends Component {
 
     this.state = {
       menuOpen: false,
+      menuOpenAnimate: false,
       settingsVisible: false,
       showPreview: this.props.urlParams.showPreview,
       showPie: false
@@ -106,14 +109,8 @@ class Journals extends Component {
     this.props.getJournalsData();
   }
 
-  addRecord = () => {
-    let {
-      journalConfig: {
-        meta: { createVariants = [{}] }
-      }
-    } = this.props;
-
-    FormManager.createRecordByVariant(createVariants[0], {
+  addRecord = createVariant => {
+    FormManager.createRecordByVariant(createVariant, {
       onSubmit: record => {
         goToCardDetailsPage(record.id);
       }
@@ -146,7 +143,14 @@ class Journals extends Component {
   };
 
   toggleMenu = () => {
-    this.setState({ menuOpen: !this.state.menuOpen });
+    this.setState({ menuOpenAnimate: !this.state.menuOpenAnimate });
+
+    setTimeout(
+      () => {
+        this.setState({ menuOpen: !this.state.menuOpen });
+      },
+      this.state.menuOpen ? 500 : 0
+    );
   };
 
   search = text => {
@@ -154,8 +158,8 @@ class Journals extends Component {
   };
 
   render() {
-    const { menuOpen, settingsVisible, showPreview, showPie } = this.state;
-    const { stateId, journalConfig, pageTabsIsShow, grid } = this.props;
+    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie } = this.state;
+    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile } = this.props;
 
     if (!journalConfig) {
       return null;
@@ -173,16 +177,20 @@ class Journals extends Component {
     }
 
     const visibleColumns = columns.filter(c => c.visible);
-    const journalSettingsClassName = 'ecos-journal__settings';
 
     return (
       <PageHeight>
         {height => (
-          <div className={'ecos-journal'} style={{ height }}>
-            <div className={`ecos-journal__body ${menuOpen ? 'ecos-journal__body_with-menu' : ''}`}>
-              <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} pageTabsIsShow={pageTabsIsShow} />
+          <div className={classNames('ecos-journal', { 'ecos-journal_mobile': isMobile })} style={{ height }}>
+            <div
+              className={classNames('ecos-journal__body', {
+                'ecos-journal__body_with-tabs': pageTabsIsShow,
+                'ecos-journal__body_mobile': isMobile
+              })}
+            >
+              <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} isMobile={isMobile} />
 
-              <JournalsSettingBar
+              <JournalsSettingsBar
                 grid={grid}
                 journalConfig={journalConfig}
                 stateId={stateId}
@@ -195,6 +203,7 @@ class Journals extends Component {
                 refresh={this.refresh}
                 onSearch={this.search}
                 addRecord={this.addRecord}
+                isMobile={isMobile}
               />
 
               <EcosModal
@@ -204,7 +213,7 @@ class Journals extends Component {
                 isBigHeader
                 className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
               >
-                <Well className={journalSettingsClassName}>
+                <Well className="ecos-journal__settings">
                   <EcosModalHeight>
                     {height => (
                       <Scrollbars style={{ height }}>
@@ -216,7 +225,7 @@ class Journals extends Component {
                   </EcosModalHeight>
 
                   <JournalsSettingsFooter
-                    parentClass={journalSettingsClassName}
+                    parentClass="ecos-journal__settings"
                     stateId={stateId}
                     journalId={journalId}
                     onApply={this.toggleSettings}
@@ -228,11 +237,24 @@ class Journals extends Component {
               <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} height={height - 165} />
 
               <div className={'ecos-journal__footer'}>
-                <JournalsDashletPagination stateId={stateId} hasPageSize />
+                <JournalsDashletPagination
+                  stateId={stateId}
+                  hasPageSize
+                  className={classNames('ecos-journal__pagination', {
+                    'ecos-journal__pagination_mobile': isMobile
+                  })}
+                />
               </div>
             </div>
 
-            <div className={`ecos-journal__menu ${pageTabsIsShow ? 'ecos-journal__menu_with-tabs' : ''}`} style={{ height }}>
+            <div
+              className={classNames('ecos-journal__menu', {
+                'ecos-journal__menu_with-tabs': pageTabsIsShow,
+                'ecos-journal__menu_mobile': isMobile,
+                'ecos-journal__menu_expanded': menuOpenAnimate
+              })}
+              style={{ height }}
+            >
               <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} height={height} />
             </div>
           </div>

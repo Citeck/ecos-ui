@@ -1,6 +1,7 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 
 import {
   cancelJournalSettingData,
@@ -50,10 +51,10 @@ import {
 import { setLoading } from '../actions/loader';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
+import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
 import { getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
 import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
-import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -83,13 +84,14 @@ function getDefaultJournalSetting(journalConfig) {
 
 function getGridParams(journalConfig, journalSetting, stateId, pagination) {
   const {
-    meta: { createVariants, predicate },
+    meta: { createVariants, predicate, actions },
     sourceId
   } = journalConfig;
   const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
 
   return {
     journalId: journalConfig.id,
+    journalActions: actions,
     createVariants,
     predicate,
     sourceId: sourceId,
@@ -409,7 +411,9 @@ function* sagaDeleteRecords({ api, logger, stateId, w }, action) {
 function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
   try {
     const actionResult = yield call(api.recordActions.executeAction, action.payload);
-    if (actionResult !== false) {
+    const check = isArray(actionResult) ? actionResult.some(res => res !== false) : actionResult !== false;
+
+    if (check) {
       if (get(action, 'payload.action.type', '') !== BackgroundOpenAction.type) {
         yield put(reloadGrid(w()));
         yield put(setSelectedRecords(w([])));

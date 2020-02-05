@@ -30,7 +30,10 @@ export default class TableFormComponent extends BaseReactComponent {
           valueFormKey: null
         },
         customCreateVariantsJs: '',
-        isStaticModalTitle: false
+        isStaticModalTitle: false,
+        customStringForConcatWithStaticTitle: '',
+        isSelectableRows: false,
+        displayElementsJS: {}
       },
       ...extend
     );
@@ -48,6 +51,30 @@ export default class TableFormComponent extends BaseReactComponent {
 
   get defaultSchema() {
     return TableFormComponent.schema();
+  }
+
+  build() {
+    super.build();
+
+    this._selectedRows = [];
+  }
+
+  checkConditions(data) {
+    let result = super.checkConditions(data);
+
+    if (!this.component.displayElementsJS) {
+      return result;
+    }
+
+    let displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
+    if (!_.isEqual(displayElements, this.displayElementsValue)) {
+      this.displayElementsValue = displayElements;
+      this.setReactProps({
+        displayElements
+      });
+    }
+
+    return result;
   }
 
   get emptyValue() {
@@ -108,8 +135,10 @@ export default class TableFormComponent extends BaseReactComponent {
       return;
     }
 
+    const isMultiple = this.component.multiple;
+
     const viewOnlyHasValueClassName = 'formio-component-tableForm_viewOnly-hasValue';
-    const hasValue = Array.isArray(this.dataValue) && this.dataValue.length > 0;
+    const hasValue = isMultiple ? Array.isArray(this.dataValue) && this.dataValue.length > 0 : !!this.dataValue;
     const elementHasClass = this.element.classList.contains(viewOnlyHasValueClassName);
 
     if (!hasValue && elementHasClass) {
@@ -118,6 +147,14 @@ export default class TableFormComponent extends BaseReactComponent {
       this.element.classList.add(viewOnlyHasValueClassName);
     }
   }
+
+  _setSelectedRows = selected => {
+    this._selectedRows = selected;
+  };
+
+  getSelectedRows = () => {
+    return this._selectedRows;
+  };
 
   getInitialReactProps() {
     const component = this.component;
@@ -144,8 +181,11 @@ export default class TableFormComponent extends BaseReactComponent {
         placeholder: component.placeholder,
         disabled: component.disabled,
         isStaticModalTitle: component.isStaticModalTitle,
+        customStringForConcatWithStaticTitle: this.t(component.customStringForConcatWithStaticTitle),
         source: source,
         onChange: this.onReactValueChanged,
+        isSelectableRows: component.isSelectableRows,
+        onSelectRows: this._setSelectedRows,
         viewOnly: this.viewOnly,
         parentForm: this.root,
         triggerEventOnTableChange,
@@ -190,7 +230,13 @@ export default class TableFormComponent extends BaseReactComponent {
               createVariants,
               record: this.getRecord(),
               attribute: this.getAttributeToEdit(),
-              columns: source.custom.columns.map(item => item.name || item)
+              columns: source.custom.columns.map(item => {
+                const col = { name: item.name };
+                if (item.formatter) {
+                  col.formatter = this.evaluate(item.formatter, {}, 'value', true);
+                }
+                return col;
+              })
             }
           });
         };

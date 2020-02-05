@@ -11,6 +11,7 @@ const ModalForm = () => {
     record,
     createVariant,
     formMode,
+    isViewOnlyForm,
     isModalFormOpen,
     toggleModal,
     onCreateFormSubmit,
@@ -18,19 +19,27 @@ const ModalForm = () => {
     controlProps,
     computed
   } = context;
-  const { parentForm, isStaticModalTitle } = controlProps;
+  const { parentForm, isStaticModalTitle, customStringForConcatWithStaticTitle } = controlProps;
 
   const [displayName, setDisplayName] = useState('');
   useEffect(() => {
     if (isStaticModalTitle) {
+      if (!!customStringForConcatWithStaticTitle) {
+        setDisplayName(customStringForConcatWithStaticTitle);
+      }
       return;
     }
     Records.get(record)
       .load('.disp')
       .then(disp => setDisplayName(disp));
-  }, [record, setDisplayName]);
+  }, [record, setDisplayName, customStringForConcatWithStaticTitle]);
 
-  let title = formMode === FORM_MODE_CREATE ? t('ecos-table-form.create-modal.title') : t('ecos-table-form.edit-modal.title');
+  let title = '';
+  if (isViewOnlyForm) {
+    title = t('ecos-table-form.view-modal.title');
+  } else {
+    title = formMode === FORM_MODE_CREATE ? t('ecos-table-form.create-modal.title') : t('ecos-table-form.edit-modal.title');
+  }
   if (displayName) {
     title = `${title}: ${displayName}`;
   }
@@ -47,6 +56,17 @@ const ModalForm = () => {
 
   let recordForForm = recordRef || record;
 
+  const formOptions = {
+    parentForm,
+    formMode
+  };
+
+  if (isViewOnlyForm) {
+    formOptions.readOnly = true;
+    formOptions.viewAsHtml = true;
+    formOptions.disableInlineEdit = true;
+  }
+
   return (
     <div>
       {recordForForm ? (
@@ -54,7 +74,7 @@ const ModalForm = () => {
           reactstrapProps={{
             backdrop: 'static'
           }}
-          className="ecos-modal_width-lg"
+          className="ecos-modal_width-lg ecos-form-modal"
           isBigHeader={true}
           title={title}
           isOpen={isModalFormOpen}
@@ -67,10 +87,7 @@ const ModalForm = () => {
             onSubmit={formMode === FORM_MODE_CREATE ? onCreateFormSubmit : onEditFormSubmit}
             onFormCancel={toggleModal}
             saveOnSubmit={false}
-            options={{
-              parentForm,
-              formMode
-            }}
+            options={formOptions}
           />
         </EcosModal>
       ) : null}

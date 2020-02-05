@@ -20,7 +20,7 @@ export default {
   'react-custom-scrollbars': () => import('react-custom-scrollbars'),
   'ecos-modal': () => import('../../src/components/common/EcosModal/CiteckEcosModal'),
   'ecos-records': () => Records,
-  'journals-dashlet': () => import('../../src/components/Journals/JournalsDashlet/export'),
+  'journals-dashlet': () => import('../../src/components/widgets/JournalsDashlet/export'),
   'ecos-form': () => import('../../src/components/EcosForm/export'),
   'ecos-form-utils': () => import('../../src/components/EcosForm/EcosFormUtils'),
   'idle-timer': () => import('../../src/components/IdleTimer'),

@@ -113,7 +113,7 @@ export const goToJournalsPage = options => {
   }
 };
 
-export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_blank');
+export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_self');
 
 export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true, remoteTitle: true }) => {
   const dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
@@ -125,7 +125,7 @@ export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true, remote
   }
 };
 
-export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page-v2?nodeRef=${nodeRef}`, '_blank');
+export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page-v2?nodeRef=${nodeRef}`, '_self');
 
 /**
  * Метод перебирает и сортирует параметры из url

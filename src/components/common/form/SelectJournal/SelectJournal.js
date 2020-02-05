@@ -4,6 +4,7 @@ import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import { Btn, IcoBtn } from '../../../common/btns';
 import Grid from '../../../common/grid/Grid/Grid';
+import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/Mapper';
 import Pagination from '../../../common/Pagination/Pagination';
 import Loader from '../../../common/Loader/Loader';
 import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
@@ -184,7 +185,13 @@ export default class SelectJournal extends Component {
 
       this.api.getJournalConfig(journalId).then(journalConfig => {
         // console.log('journalConfig', journalConfig);
-        let columns = journalConfig.columns;
+        let columns = journalConfig.columns.map(item => {
+          const column = { ...item };
+          if (matchCardDetailsLinkFormatterColumn(item)) {
+            column.disableFormatter = true;
+          }
+          return column;
+        });
 
         if (Array.isArray(displayColumns) && displayColumns.length > 0) {
           columns = columns.map(item => {
@@ -459,11 +466,19 @@ export default class SelectJournal extends Component {
   };
 
   onCreateFormSubmit = (record, form, alias) => {
+    const { multiple } = this.props;
+
     this.setState(state => {
+      const prevSelected = state.gridData.selected || [];
+      const newSkipCount =
+        Math.floor(state.gridData.total / state.requestParams.pagination.maxItems) * state.requestParams.pagination.maxItems;
+      const newPageNum = Math.ceil((state.gridData.total + 1) / state.requestParams.pagination.maxItems);
+
       return {
         isCreateModalOpen: false,
         gridData: {
           ...state.gridData,
+          selected: multiple ? [...prevSelected, record.id] : [record.id],
           inMemoryData: [
             ...state.gridData.inMemoryData,
             {
@@ -474,7 +489,12 @@ export default class SelectJournal extends Component {
         },
         requestParams: {
           ...state.requestParams,
-          predicates: []
+          predicates: [],
+          pagination: {
+            ...state.requestParams.pagination,
+            skipCount: newSkipCount,
+            page: newPageNum
+          }
         }
       };
     }, this.refreshGridData);
@@ -625,7 +645,7 @@ export default class SelectJournal extends Component {
                   <IcoBtn
                     invert
                     icon={isCollapsePanelOpen ? 'icon-up' : 'icon-down'}
-                    className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10"
+                    className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
                     onClick={this.toggleCollapsePanel}
                   >
                     {t('select-journal.select-modal.filter-button')}
@@ -673,8 +693,10 @@ export default class SelectJournal extends Component {
             </div>
 
             <div className="select-journal-select-modal__buttons">
-              <Btn onClick={this.onCancelSelect}>{t('select-journal.select-modal.cancel-button')}</Btn>
-              <Btn className={'ecos-btn_blue'} onClick={this.onSelectFromJournalPopup}>
+              <Btn className={'select-journal-select-modal__buttons-cancel'} onClick={this.onCancelSelect}>
+                {t('select-journal.select-modal.cancel-button')}
+              </Btn>
+              <Btn className={'ecos-btn_blue select-journal-select-modal__buttons-ok'} onClick={this.onSelectFromJournalPopup}>
                 {t('select-journal.select-modal.ok-button')}
               </Btn>
             </div>

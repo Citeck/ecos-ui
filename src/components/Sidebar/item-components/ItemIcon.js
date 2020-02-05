@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { loadMenuItemIconUrl } from '../../../actions/slideMenu';
 import { Icon } from '../../common';
 
-class ItemIcon extends React.Component {
+class ItemIcon extends React.PureComponent {
   static propTypes = {
     iconName: PropTypes.string,
     title: PropTypes.string
@@ -59,9 +59,12 @@ class ItemIcon extends React.Component {
         }
 
         const url = `/share/proxy/alfresco/api/node/workspace/SpacesStore/${data.value}/content;cm:content`;
-        const backgroundImage = `url(${url})`;
 
-        return <div className="ecos-sidebar-item__icon-img" style={{ backgroundImage }} title={title} />;
+        return (
+          <div className="ecos-sidebar-item__icon-img" title={title}>
+            <img src={url} alt={title} />
+          </div>
+        );
       default:
         return emptyIcon;
     }

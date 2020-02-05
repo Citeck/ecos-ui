@@ -5,12 +5,14 @@ import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
-import Records from '../Records/Records';
-import { getCurrentUserName, t } from '../../helpers/util';
-import { EcosForm } from '../EcosForm';
-import Modal from '../common/EcosModal/CiteckEcosModal';
-import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
 import uuidV4 from 'uuid/v4';
+
+import { getCurrentUserName, t } from '../../helpers/util';
+import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
+import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
+import Modal from '../common/EcosModal/CiteckEcosModal';
+import Records from '../Records';
+import EcosForm, { FORM_MODE_CREATE, FORM_MODE_EDIT } from './';
 
 const EDGE_PREFIX = 'edge__';
 
@@ -53,38 +55,6 @@ export default class EcosFormUtils {
     ).then(function(userNames) {
       return (userNames || []).indexOf(currentPersonName) !== -1;
     });
-  }
-
-  static isShouldDisplayForms() {
-    return Records.get('ecos-config@default-ui-left-menu-access-groups')
-      .load('.str')
-      .then(function(groupsInOneString) {
-        if (!groupsInOneString) {
-          return false;
-        }
-
-        const groups = groupsInOneString.split(',');
-        const results = [];
-
-        for (let groupsCounter = 0; groupsCounter < groups.length; ++groupsCounter) {
-          results.push(EcosFormUtils.isCurrentUserInGroup(groups[groupsCounter]));
-        }
-
-        return Promise.all(results).then(function(values) {
-          return values.indexOf(false) === -1;
-        });
-      });
-  }
-
-  static isShouldDisplayFormsForUser() {
-    return Records.get('ecos-config@default-ui-main-menu')
-      .load('.str')
-      .then(function(result) {
-        if (result === 'left') {
-          return EcosFormUtils.isShouldDisplayForms();
-        }
-        return false;
-      });
   }
 
   static eform(record, config) {
@@ -155,10 +125,9 @@ export default class EcosFormUtils {
         formMode: '_formMode'
       })
       .then(function(recordData) {
-        const displayName = recordData.displayName || '';
-        const formMode = recordData.formMode || 'EDIT';
+        const formMode = recordData.formMode || FORM_MODE_EDIT;
 
-        if (formMode === 'CREATE') {
+        if (formMode === FORM_MODE_CREATE) {
           Records.get(record).reset();
         }
 
@@ -167,16 +136,9 @@ export default class EcosFormUtils {
         options.formMode = formMode;
         formParams.options = options;
 
-        const prefixId = 'eform.header.' + formMode + '.title';
-        const prefix = t(prefixId);
-
-        if (!prefix || prefix === prefixId) {
-          config.header = displayName;
-        } else {
-          config.header = prefix + ' ' + displayName;
-        }
-
         const formInstance = React.createElement(EcosForm, formParams);
+
+        config.header = EcosFormUtils.getFormTitle(recordData);
 
         if (config.formContainer) {
           let container = config.formContainer;
@@ -228,7 +190,7 @@ export default class EcosFormUtils {
       isFormsEnabled = Promise.resolve(true);
     }
 
-    const isShouldDisplay = EcosFormUtils.isShouldDisplayFormsForUser();
+    const isShouldDisplay = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
 
     Promise.all([isFormsEnabled, isShouldDisplay])
       .then(function(values) {
@@ -293,19 +255,48 @@ export default class EcosFormUtils {
       return formRec.then(res => {
         if (res) {
           return res;
-        } else {
-          return getFormByKeysFromRecord(keys, idx + 1);
         }
+
+        return getFormByKeysFromRecord(keys, idx + 1);
       });
     };
 
     if (!formKey) {
-      return recordInstance.load('_formKey[]?str').then(keys => {
-        return getFormByKeysFromRecord(keys, 0);
-      });
+      return recordInstance
+        .load({
+          formKey: '_formKey[]?str',
+          typeId: '_etype?id'
+        })
+        .then(({ typeId, formKey }) => {
+          if (typeId && typeId.indexOf('emodel/type@') === 0) {
+            return Records.get(typeId)
+              .load('inheritedForm?id')
+              .then(formId => {
+                if (EcosFormUtils.isFormId(formId)) {
+                  return EcosFormUtils.getFormById(formId, attributes);
+                } else {
+                  return getFormByKeysFromRecord(formKey, 0);
+                }
+              })
+              .catch(e => {
+                console.error(e);
+                return getFormByKeysFromRecord(formKey, 0);
+              });
+          } else {
+            return getFormByKeysFromRecord(formKey, 0);
+          }
+        });
     } else {
       return getFormByKeysFromRecord([formKey], 0);
     }
+  }
+
+  static getFormById(formId, attributes = null) {
+    if (attributes) {
+      return Records.get(formId).load(attributes);
+    }
+
+    return Records.get(formId);
   }
 
   static getCreateVariants(record, attribute) {
@@ -333,10 +324,12 @@ export default class EcosFormUtils {
   static forEachComponent(root, action) {
     let components = [];
 
-    if (root.type === 'columns') {
-      components = root.columns || [];
-    } else {
-      components = root.components || [];
+    if (root) {
+      if (root.type === 'columns') {
+        components = root.columns || [];
+      } else {
+        components = root.components || [];
+      }
     }
 
     for (let i = 0; i < components.length; i++) {
@@ -642,5 +635,29 @@ export default class EcosFormUtils {
     record.att('definition?json', form);
 
     return record.save();
+  }
+
+  static isFormId(formId = '') {
+    return formId && /^uiserv\/eform@/.test(formId);
+  }
+
+  static getFormTitle(data) {
+    const displayName = data.displayName || '';
+    const formMode = data.formMode || FORM_MODE_EDIT;
+
+    const titleKey = 'eform.header.' + formMode + '.title';
+    const titleVal = t(titleKey);
+
+    const titles = [];
+
+    if (titleVal && titleVal !== titleKey) {
+      titles.push(titleVal);
+    }
+
+    if (displayName) {
+      titles.push(displayName);
+    }
+
+    return titles.join(' ');
   }
 }

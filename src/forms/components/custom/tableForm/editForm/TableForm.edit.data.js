@@ -100,6 +100,32 @@ export default [
           type: ''
         },
         row: '0-0'
+      },
+      {
+        type: 'panel',
+        title: 'Formatter',
+        collapsible: true,
+        collapsed: true,
+        style: {
+          'margin-bottom': '20px'
+        },
+        key: ''.concat('custom-formatter-js'),
+        components: [
+          {
+            type: 'textarea',
+            key: 'formatter',
+            rows: 5,
+            editor: 'ace',
+            hideLabel: true,
+            input: true,
+            placeholder: `value = { name: 'FormatterClassName', params: {} };`
+          },
+          {
+            type: 'htmlelement',
+            tag: 'div',
+            content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+          }
+        ]
       }
     ],
     weight: 21,
@@ -108,6 +134,14 @@ export default [
         and: [{ '==': [{ var: 'data.source.type' }, 'custom'] }]
       }
     }
+  },
+  {
+    type: 'checkbox',
+    input: true,
+    key: 'isSelectableRows',
+    label: 'Selectable rows',
+    weight: 23,
+    defaultValue: false
   },
   {
     weight: 25,

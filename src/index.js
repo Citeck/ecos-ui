@@ -35,6 +35,7 @@ import {
   MyTimesheetApi,
   OrgStructApi,
   PageTabsApi,
+  PropertiesApi,
   RecordActionsApi,
   TasksApi,
   TimesheetCommonApi,
@@ -43,7 +44,8 @@ import {
   TimesheetVerificationApi,
   UserApi,
   VersionsJournalApi,
-  ViewApi
+  ViewApi,
+  DocumentsApi
 } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
@@ -99,6 +101,8 @@ api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
 api.timesheetMine = new MyTimesheetApi(store);
 api.timesheetVerification = new TimesheetVerificationApi(store);
 api.timesheetDelegated = new TimesheetDelegatedApi(store);
+api.properties = new PropertiesApi(store);
+api.documents = new DocumentsApi(store);
 
 /**
  * todo: Maybe need such union all api?

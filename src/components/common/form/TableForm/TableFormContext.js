@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import TableFormPropTypes from './TableFormPropTypes';
 import { JournalsApi } from '../../../../api/journalsApi';
 import Records from '../../../Records/Records';
+import { parseAttribute } from '../../../Records/Record';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
@@ -12,16 +13,23 @@ export const TableFormContext = React.createContext();
 
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
-  const { onChange, onError, source, defaultValue, triggerEventOnTableChange, computed } = controlProps;
+  const { onChange, onError, source, defaultValue, triggerEventOnTableChange, computed, onSelectRows } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
+  const [isViewOnlyForm, setIsViewOnlyForm] = useState(false);
   const [isModalFormOpen, setIsModalFormOpen] = useState(false);
   const [createVariant, setCreateVariant] = useState(null);
   const [record, setRecord] = useState(null);
+  const [gridRows, setGridRows] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [columns, setColumns] = useState([]);
   const [createVariants, setCreateVariants] = useState([]);
   const [error, setError] = useState(null);
+
+  const onChangeHandler = rows => {
+    typeof onChange === 'function' && onChange(rows.map(item => item.id));
+    typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
+  };
 
   const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
     height: 0,
@@ -99,8 +107,12 @@ export const TableFormContextProvider = props => {
         }
 
         let atts = {};
+        let formatters = {};
         columns.forEach(item => {
-          atts[`.edge(n:"${item}"){title,type}`] = item;
+          atts[`.edge(n:"${item.name}"){title,type,multiple}`] = item.name;
+          if (item.formatter) {
+            formatters[item.name] = item.formatter;
+          }
         });
 
         let cvRecordRef = cv[0].recordRef;
@@ -117,6 +129,7 @@ export const TableFormContextProvider = props => {
                 default: true,
                 type: loadedAtt[i].type,
                 text: loadedAtt[i].title,
+                multiple: loadedAtt[i].multiple,
                 attribute: atts[i]
               });
             }
@@ -137,6 +150,10 @@ export const TableFormContextProvider = props => {
                   name: 'FormFieldFormatter',
                   params: input
                 };
+              }
+
+              if (formatters.hasOwnProperty(column.attribute)) {
+                column.formatter = formatters[column.attribute];
               }
             }
             setColumns(GqlDataSource.getColumnsStatic(columns));
@@ -164,9 +181,11 @@ export const TableFormContextProvider = props => {
     }
 
     if (initValue) {
-      let atts = ['id'];
+      let atts = [];
       columns.forEach(item => {
-        atts.push(`${item.attribute}`);
+        const multiplePostfix = item.multiple ? 's' : '';
+        const schema = `.att${multiplePostfix}(n:"${item.attribute}"){disp}`;
+        atts.push(schema);
       });
 
       Promise.all(
@@ -174,15 +193,29 @@ export const TableFormContextProvider = props => {
           return Records.get(r)
             .load(atts)
             .then(result => {
-              return { ...result, id: r };
+              const fetchedAtts = {};
+              for (let attSchema in result) {
+                if (!result.hasOwnProperty(attSchema)) {
+                  continue;
+                }
+
+                const attData = parseAttribute(attSchema);
+                if (!attData) {
+                  continue;
+                }
+
+                fetchedAtts[attData.name] = result[attSchema];
+              }
+
+              return { ...fetchedAtts, id: r };
             });
         })
       ).then(result => {
-        setSelectedRows(result);
+        setGridRows(result);
         typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
       });
     }
-  }, [defaultValue, columns, setSelectedRows]);
+  }, [defaultValue, columns, setGridRows]);
 
   return (
     <TableFormContext.Provider
@@ -192,9 +225,11 @@ export const TableFormContextProvider = props => {
         },
         error,
         formMode,
+        isViewOnlyForm,
         record,
         createVariant,
         isModalFormOpen,
+        gridRows,
         selectedRows,
         columns,
         inlineToolsOffsets,
@@ -206,6 +241,7 @@ export const TableFormContextProvider = props => {
         },
 
         showCreateForm: createVariant => {
+          setIsViewOnlyForm(false);
           setRecord(null);
           setCreateVariant(createVariant);
           setFormMode(FORM_MODE_CREATE);
@@ -213,6 +249,15 @@ export const TableFormContextProvider = props => {
         },
 
         showEditForm: record => {
+          setIsViewOnlyForm(false);
+          setCreateVariant(null);
+          setRecord(record);
+          setFormMode(FORM_MODE_EDIT);
+          setIsModalFormOpen(true);
+        },
+
+        showViewOnlyForm: record => {
+          setIsViewOnlyForm(true);
           setCreateVariant(null);
           setRecord(record);
           setFormMode(FORM_MODE_EDIT);
@@ -222,25 +267,23 @@ export const TableFormContextProvider = props => {
         onCreateFormSubmit: (record, form) => {
           setIsModalFormOpen(false);
 
-          const newSelectedRows = [
-            ...selectedRows,
+          const newGridRows = [
+            ...gridRows,
             {
               id: record.id,
               ...record.toJson()['attributes']
             }
           ];
 
-          setSelectedRows(newSelectedRows);
-
-          typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
-          typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
+          setGridRows(newGridRows);
+          onChangeHandler(newGridRows);
         },
 
         onEditFormSubmit: (record, form) => {
           let editRecordId = record.id;
           let isAlias = editRecordId.indexOf('-alias') !== -1;
 
-          let newSelectedRows = [...selectedRows];
+          let newGridRows = [...gridRows];
 
           const newRow = { ...record.toJson()['attributes'], id: editRecordId };
 
@@ -248,36 +291,34 @@ export const TableFormContextProvider = props => {
             // replace base record row by newRow in values list
             const baseRecord = record.getBaseRecord();
             const baseRecordId = baseRecord.id;
-            const baseRecordIndex = selectedRows.findIndex(item => item.id === baseRecordId);
+            const baseRecordIndex = gridRows.findIndex(item => item.id === baseRecordId);
             if (baseRecordIndex !== -1) {
-              newSelectedRows = [...newSelectedRows.slice(0, baseRecordIndex), newRow, ...newSelectedRows.slice(baseRecordIndex + 1)];
+              newGridRows = [...newGridRows.slice(0, baseRecordIndex), newRow, ...newGridRows.slice(baseRecordIndex + 1)];
             }
 
             Records.forget(baseRecordId); // reset cache for base record
           }
 
           // add or update record alias
-          const editRecordIndex = newSelectedRows.findIndex(item => item.id === record.id);
+          const editRecordIndex = newGridRows.findIndex(item => item.id === record.id);
           if (editRecordIndex !== -1) {
-            newSelectedRows = [...newSelectedRows.slice(0, editRecordIndex), newRow, ...newSelectedRows.slice(editRecordIndex + 1)];
+            newGridRows = [...newGridRows.slice(0, editRecordIndex), newRow, ...newGridRows.slice(editRecordIndex + 1)];
           } else {
-            newSelectedRows.push(newRow);
+            newGridRows.push(newRow);
           }
 
-          setSelectedRows(newSelectedRows);
+          setGridRows(newGridRows);
 
-          typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
-          typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
+          onChangeHandler(newGridRows);
 
           setIsModalFormOpen(false);
         },
 
         deleteSelectedItem: id => {
-          const newSelectedRows = selectedRows.filter(item => item.id !== id);
-          setSelectedRows([...newSelectedRows]);
+          const newGridRows = gridRows.filter(item => item.id !== id);
+          setGridRows([...newGridRows]);
 
-          typeof onChange === 'function' && onChange(newSelectedRows.map(item => item.id));
-          typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
+          onChangeHandler(newGridRows);
         },
 
         setInlineToolsOffsets: offsets => {
@@ -294,6 +335,11 @@ export const TableFormContextProvider = props => {
               rowId: offsets.row.id || null
             });
           }
+        },
+
+        onSelectGridItem: value => {
+          setSelectedRows(value.selected);
+          typeof onSelectRows === 'function' && onSelectRows(value.selected);
         }
       }}
     >

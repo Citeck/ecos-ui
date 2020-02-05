@@ -11,9 +11,8 @@ import Notification from '../Notification';
 import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
-import Footer from '../Footer';
 
-import { changeActiveTab, getShowTabsStatus, getTabs, getTabTitle, setTabs } from '../../actions/pageTabs';
+import { changeActiveTab, initTabs, getTabTitle, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 
@@ -30,15 +29,13 @@ const SubordinatesTimesheetPage = lazy(() => import('../../pages/Timesheet/Subor
 const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/VerificationTimesheetPage'));
 const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/DelegatedTimesheetsPage'));
 
-const EcosFormPage = lazy(() => import('../../pages/debug/EcosFormPage'));
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 
 class App extends Component {
   componentDidMount() {
-    const { getShowTabsStatus, getTabs, initMenuSettings } = this.props;
+    const { initTabs, initMenuSettings } = this.props;
 
-    getShowTabsStatus();
-    getTabs();
+    initTabs();
     initMenuSettings();
   }
 
@@ -51,8 +48,7 @@ class App extends Component {
   get wrapperStyle() {
     const tabs = document.querySelector('.page-tab');
     const alfrescoHeader = document.querySelector('#alf-hd');
-    const alfrescoFooter = document.querySelector('#alf-ft');
-    let height = ['3px'];
+    let height = [];
 
     if (tabs) {
       const style = window.getComputedStyle(tabs);
@@ -64,13 +60,6 @@ class App extends Component {
     if (alfrescoHeader) {
       const style = window.getComputedStyle(alfrescoHeader);
       const outerHeight = alfrescoHeader.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    if (alfrescoFooter) {
-      const style = window.getComputedStyle(alfrescoFooter);
-      const outerHeight = alfrescoFooter.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
 
       height.push(`${outerHeight}px`);
     }
@@ -106,12 +95,13 @@ class App extends Component {
   }
 
   renderTabs() {
-    const { changeActiveTab, isShow, tabs, setTabs, getTabTitle, isLoadingTitle, isMobile } = this.props;
+    const { changeActiveTab, isShow, tabs, setTabs, getTabTitle, isLoadingTitle, isMobile, tabsInited } = this.props;
 
     return (
       <PageTabs
         homepageLink={URL.DASHBOARD}
         isShow={isShow && !this.isOnlyContent && !isMobile}
+        inited={tabsInited}
         tabs={tabs}
         saveTabs={setTabs}
         changeActiveTab={changeActiveTab}
@@ -119,22 +109,6 @@ class App extends Component {
         isLoadingTitle={isLoadingTitle}
       />
     );
-  }
-
-  renderStickyPush() {
-    if (this.isOnlyContent) {
-      return null;
-    }
-
-    return <div className="sticky-push" />;
-  }
-
-  renderFooter() {
-    if (this.isOnlyContent) {
-      return null;
-    }
-
-    return <Footer key="card-details-footer" theme={this.props.theme} />;
   }
 
   renderReduxModal() {
@@ -199,7 +173,6 @@ class App extends Component {
 
                     {/* temporary routes */}
                     <Route path="/v2/debug/formio-develop" component={FormIOPage} />
-                    <Route path="/v2/debug/ecos-form-example" component={EcosFormPage} />
 
                     <Redirect to={URL.DASHBOARD} />
                   </Switch>
@@ -221,15 +194,15 @@ const mapStateToProps = state => ({
   isMobile: get(state, ['view', 'isMobile']),
   theme: get(state, ['view', 'theme']),
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
-  isShow: get(state, ['pageTabs', 'isShow']),
-  tabs: get(state, ['pageTabs', 'tabs']),
+  isShow: get(state, ['pageTabs', 'isShow'], false),
+  tabs: get(state, ['pageTabs', 'tabs'], []),
+  tabsInited: get(state, ['pageTabs', 'inited'], false),
   isLoadingTitle: get(state, ['pageTabs', 'isLoadingTitle']),
   menuType: get(state, ['menu', 'type'])
 });
 
 const mapDispatchToProps = dispatch => ({
-  getShowTabsStatus: () => dispatch(getShowTabsStatus()),
-  getTabs: () => dispatch(getTabs()),
+  initTabs: () => dispatch(initTabs()),
   setTabs: tabs => dispatch(setTabs(tabs)),
   changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
   getTabTitle: params => dispatch(getTabTitle(params)),

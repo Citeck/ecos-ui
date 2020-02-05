@@ -1,9 +1,11 @@
 import lodashGet from 'lodash/get';
 import moment from 'moment';
 import i18next from 'i18next';
+import * as queryString from 'query-string';
+import uuidV4 from 'uuid/v4';
+
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
-import * as queryString from 'query-string';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
@@ -76,7 +78,11 @@ export const queryByCriteria = criteria => {
 
 export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
 
-export function closest(node, selector) {
+export function closest(node = null, selector) {
+  if (!node) {
+    return null;
+  }
+
   const parent = node.parentElement;
 
   if (parent) {
@@ -163,7 +169,7 @@ export function isMobileDevice() {
 export function getCurrentLocale() {
   const cookiesLocale = getCookie(COOKIE_KEY_LOCALE);
   if (cookiesLocale) {
-    return cookiesLocale;
+    return cookiesLocale.substr(0, 2).toLowerCase();
   }
 
   if (!window.navigator) {
@@ -543,6 +549,8 @@ export function documentScrollTop() {
 }
 
 export function getAdaptiveNumberStr(number) {
+  number = number || 0;
+
   let num = parseInt(number);
   if (num >= 1000) {
     let res = parseInt((num / 1000).toString());
@@ -604,4 +612,54 @@ export function fromISO8601(formattedString) {
   }
 
   return result; // Date or null
+}
+
+export function animateScrollTo(element = null, scrollTo = {}) {
+  if (!element) {
+    return;
+  }
+
+  const { scrollLeft, scrollTop } = scrollTo;
+
+  if (scrollLeft !== undefined) {
+    element.scrollTo({
+      left: scrollLeft,
+      behavior: 'smooth'
+    });
+  }
+
+  if (scrollTop !== undefined) {
+    element.scrollTo({
+      top: scrollTop,
+      behavior: 'smooth'
+    });
+  }
+}
+
+export function hasChildWithId(items, selectedId) {
+  let childIndex = items.findIndex(item => item.id === selectedId);
+
+  if (childIndex !== -1) {
+    return true;
+  }
+
+  let totalItems = items.length;
+
+  for (let i = 0; i < totalItems; i++) {
+    if (!items[i].items) {
+      continue;
+    }
+
+    let hasChild = hasChildWithId(items[i].items, selectedId);
+
+    if (hasChild) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function prepareTooltipId(id = uuidV4()) {
+  return `${id}`.replace(/[^\d\w-]/g, '');
 }

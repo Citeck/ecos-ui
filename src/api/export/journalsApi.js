@@ -2,6 +2,7 @@ import { URL } from '../../constants';
 import { isNewVersionPage } from '../../helpers/export/urls';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import Records from '../../components/Records';
+import ecosFetch from '../../helpers/ecosFetch';
 
 const prepareJournalLinkParams = params => {
   let listId = params.listId || params.journalsListId;
@@ -50,9 +51,7 @@ const getFirstJournalByList = listId => {
     return fromCache;
   }
 
-  let request = fetch(`/share/proxy/alfresco/api/journals/list?journalsList=${listId}`, {
-    credentials: 'include'
-  })
+  let request = ecosFetch(`/share/proxy/alfresco/api/journals/list?journalsList=${listId}`)
     .then(response => {
       if (response.status >= 200 && response.status < 300) {
         return response.json();

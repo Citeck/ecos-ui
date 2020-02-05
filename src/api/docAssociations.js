@@ -1,55 +1,32 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
-import { t } from '../helpers/util';
+import ecosFetch from '../helpers/ecosFetch';
 
 export class DocAssociationsApi extends RecordService {
   /**
-   * Список доступных связей
-   * Используется при формировании меню (первый уровень) и в отрисовке документов
+   * List of available associations
+   * It is used when forming a menu (first level) and in render of documents
    *
    * @returns {*[]}
    */
-  getAllowedConnections = () => {
-    // TODO use real api
-    return [
-      {
-        name: 'assoc:associatedWith',
-        title: t('doc-associations-widget.assoc-with-docs')
-      }
-      // {
-      //   name: 'payments:basis',
-      //   title: 'Документ-основание'
-      // },
-      // {
-      //   name: 'contracts:closingDocumentAgreement',
-      //   title: 'Учётные документы'
-      // }
-    ];
-  };
-
-  /**
-   * Список выбранных документов (используется для отрисовки связей)
-   *
-   * @param recordRef
-   * @param connections
-   * @returns {*}
-   */
-  getDocuments = (recordRef, connections) => {
+  getAllowedAssociations = recordRef => {
     return Records.get(recordRef)
-      .load(
-        {
-          ...[...connections].reduce(
-            (result, key) => ({ ...result, [key]: `.atts(n:"${key}"){id: assoc, displayName: disp, created: att(n:"cm:created"){str}}` }),
-            {}
-          )
-        },
-        true
-      )
-      .then(response => response);
+      .load('_etype?id')
+      .then(type => {
+        if (!type) {
+          return [];
+        }
+        return Records.get(type)
+          .load('assocsFull[]{id,name,direction}')
+          .catch(e => {
+            console.error(e);
+            return [];
+          });
+      });
   };
 
   /**
-   * Список разделов - второй уровень меню
+   * Partition List - Second Level Menu
    *
    * @returns {*}
    */
@@ -64,26 +41,37 @@ export class DocAssociationsApi extends RecordService {
   };
 
   /**
-   * Список журналов - третий уровень меню
+   * Journal List - Third Level Menu
    *
    * @param site
    * @returns {Promise<any | never>}
    */
   getJournalList = site => {
-    return fetch(`/share/proxy/alfresco/api/journals/list?journalsList=site-${site}-main`, {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-type': 'application/json;charset=UTF-8'
-      }
+    return ecosFetch(`/share/proxy/alfresco/api/journals/list?journalsList=site-${site}-main`, {
+      headers: { 'Content-type': 'application/json;charset=UTF-8' }
     }).then(response => response.json().then(response => response.journals));
   };
 
-  sagaSaveDocuments = data => {
-    const { connectionId, recordRef, documents } = data;
-    const record = Records.get(recordRef);
+  getTargetAssociations = (id, recordRef) => {
+    return Records.get(recordRef).load(`${id}[]{id:.assoc,displayName:.disp,created}`, true);
+  };
 
-    record.att(connectionId, documents);
+  getSourceAssociations = (id, recordRef) => {
+    return Records.get(recordRef).load(`assoc_src_${id}[]{id:.assoc,displayName:.disp,created}`, true);
+  };
+
+  addAssociations = ({ associationId, associations, recordRef }) => {
+    const record = Records.getRecordToEdit(recordRef);
+
+    record.att(`att_add_${associationId}`, associations);
+
+    return record.save().then(response => response);
+  };
+
+  removeAssociations = ({ associationId, association, recordRef }) => {
+    const record = Records.getRecordToEdit(recordRef);
+
+    record.att(`att_rem_${associationId}`, [association]);
 
     return record.save().then(response => response);
   };

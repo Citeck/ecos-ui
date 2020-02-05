@@ -13,16 +13,23 @@ export default [
     }
   },
   {
-    type: 'select',
+    type: 'radio',
+    inline: true,
+    clearOnHide: false,
     input: true,
     label: 'Method:',
     key: 'source.ajax.method',
-    dataSrc: 'values',
+    values: [
+      {
+        label: 'GET',
+        value: 'GET'
+      },
+      {
+        label: 'POST',
+        value: 'POST'
+      }
+    ],
     defaultValue: 'GET',
-    clearOnHide: false,
-    data: {
-      values: [{ label: 'GET', value: 'GET' }, { label: 'POST', value: 'POST' }]
-    },
     validate: {
       required: true
     }

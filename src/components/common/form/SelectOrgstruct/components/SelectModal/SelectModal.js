@@ -27,8 +27,10 @@ const SelectModal = () => {
       <Body />
 
       <div className="select-orgstruct-select-modal__buttons">
-        <Btn onClick={onCancelSelect}>{t('select-orgstruct.select-modal.cancel-button')}</Btn>
-        <Btn onClick={onSelect} className={'ecos-btn_blue'}>
+        <Btn onClick={onCancelSelect} className={'select-orgstruct-select-modal__buttons-cancel'}>
+          {t('select-orgstruct.select-modal.cancel-button')}
+        </Btn>
+        <Btn onClick={onSelect} className={'ecos-btn_blue select-orgstruct-select-modal__buttons-ok'}>
           {t('select-orgstruct.select-modal.ok-button')}
         </Btn>
       </div>

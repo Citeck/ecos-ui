@@ -126,8 +126,39 @@ $scroll-z-index: 12;
   z-index: $scroll-z-index;
 }
 
+%h-scroll {
+  position: absolute;
+  height: $scroll-size;
+  right: 5px;
+  left: 5px;
+  bottom: 2px;
+  border-radius: $scroll-border-radius;
+  visibility: visible;
+  z-index: $scroll-z-index;
+}
+
 %ellipsis {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+}
+
+%hidden-scrollbar {
+  -ms-overflow-style: none; // Internet Explorer 10+
+  scrollbar-width: none; // Firefox
+  &::-webkit-scrollbar {
+    display: none; // Safari and Chrome
+  }
+}
+
+%grey-cycle {
+  background-color: rgba(44, 44, 44, 0.25);
+  border-radius: 20px;
+  width: 25px;
+  height: 25px;
+  color: $color-white;
+  font-size: small;
+  text-align: center;
+  vertical-align: middle;
+  padding-top: 3px;
 }

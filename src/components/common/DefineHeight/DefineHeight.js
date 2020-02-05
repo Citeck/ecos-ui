@@ -8,7 +8,6 @@ import { getOptimalHeight } from '../../../helpers/layout';
 export default class DefineHeight extends React.Component {
   static propTypes = {
     className: PropTypes.string,
-    querySelector: PropTypes.string,
     fixHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -29,18 +28,22 @@ export default class DefineHeight extends React.Component {
     optimalHeight: 0
   };
 
-  componentWillReceiveProps(nextProps, nextContext) {
-    if (nextProps.fixHeight !== this.props.fixHeight) {
-      this.getHeights(nextProps);
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.fixHeight !== this.props.fixHeight ||
+      prevProps.minHeight !== this.props.minHeight ||
+      prevProps.maxHeight !== this.props.maxHeight
+    ) {
+      this.getHeights();
     }
   }
 
   onResize = (w, contentHeight) => {
-    this.getHeights(this.props, contentHeight);
+    this.getHeights(contentHeight);
   };
 
-  getHeights(props, contentHeight) {
-    const { fixHeight, minHeight, maxHeight, isMin } = props;
+  getHeights(contentHeight) {
+    const { fixHeight, minHeight, maxHeight, isMin } = this.props;
     const optimalHeight = getOptimalHeight(fixHeight, contentHeight, minHeight, maxHeight, isMin);
 
     this.setState(prevState => {
@@ -54,11 +57,11 @@ export default class DefineHeight extends React.Component {
   }
 
   render() {
-    const { children, className, querySelector } = this.props;
+    const { children, className, ...detectorProps } = this.props;
 
     return children ? (
       <div className={classNames('ecos-def-height__container', className)}>
-        <ReactResizeDetector handleHeight onResize={this.onResize} querySelector={querySelector} />
+        <ReactResizeDetector handleHeight onResize={this.onResize} {...detectorProps} />
         {children}
       </div>
     ) : null;
