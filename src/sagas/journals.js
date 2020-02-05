@@ -272,7 +272,8 @@ function* sagaResetJournalSettingData({ api, logger, stateId, w }, action) {
   try {
     const journalSettingId = action.payload;
     const journalConfig = yield select(state => state.journals[stateId].journalConfig);
-    const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, resetAll: true, stateId }, w);
+
+    yield getJournalSetting(api, { journalSettingId, journalConfig, resetAll: true, stateId }, w);
   } catch (e) {
     logger.error('[journals sagaResetJournalSettingData saga error', e.message);
   }
