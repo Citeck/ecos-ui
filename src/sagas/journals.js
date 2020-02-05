@@ -286,7 +286,7 @@ function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
   let params = getGridParams(journalConfig, journalSetting, stateId, pagination);
 
   const gridData = yield getGridData(api, params, stateId);
-  const editingRules = yield getEditingRules(api, gridData);
+  const editingRules = yield getGridEditingRules(api, gridData);
 
   yield put(setSelectedRecords(w([])));
   yield put(setSelectAllRecords(w(!!url.selectionFilter)));
@@ -299,7 +299,7 @@ function* loadGrid(api, journalSettingId, journalConfig, stateId, w) {
   yield put(setGrid(w({ ...params, ...gridData, editingRules })));
 }
 
-function* getEditingRules(api, gridData) {
+function* getGridEditingRules(api, gridData) {
   const { data = [], columns = [] } = gridData;
   let editingRules = yield data.map(function*(row) {
     const canEditing = yield call(api.journals.checkRowEditRules, row.id);
@@ -354,7 +354,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
     };
 
     const gridData = yield getGridData(api, params, stateId);
-    const editingRules = yield getEditingRules(api, gridData);
+    const editingRules = yield getGridEditingRules(api, gridData);
 
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
 
@@ -369,7 +369,7 @@ function* sagaReloadTreeGrid({ api, logger, stateId, w }) {
     yield put(setLoading(w(true)));
 
     const gridData = yield call(api.journals.getTreeGridData);
-    const editingRules = yield getEditingRules(api, gridData);
+    const editingRules = yield getGridEditingRules(api, gridData);
 
     yield put(setGrid(w({ ...gridData, editingRules })));
 
@@ -471,7 +471,7 @@ function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
 function* sagaSaveRecords({ api, logger, stateId, w }, action) {
   try {
     const grid = yield select(state => state.journals[stateId].grid);
-    const editingRules = yield getEditingRules(api, grid);
+    const editingRules = yield getGridEditingRules(api, grid);
     const { id, attributes } = action.payload;
     const attribute = Object.keys(attributes)[0];
     const value = attributes[attribute];
