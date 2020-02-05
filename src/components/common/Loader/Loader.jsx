@@ -11,6 +11,7 @@ export default class Loader extends Component {
   static propTypes = {
     height: PropTypes.number,
     width: PropTypes.number,
+    zIndex: PropTypes.number,
     className: PropTypes.string,
     color: PropTypes.oneOf(['white', 'light-blue']),
     type: PropTypes.oneOf(['circle', 'points']),
@@ -22,6 +23,7 @@ export default class Loader extends Component {
   static defaultProps = {
     height: 45,
     width: 45,
+    zIndex: null,
     className: '',
     color: 'light-blue',
     type: 'circle',
@@ -29,6 +31,17 @@ export default class Loader extends Component {
     darkened: false,
     rounded: false
   };
+
+  get style() {
+    const { zIndex } = this.props;
+    const style = {};
+
+    if (zIndex !== null) {
+      style.zIndex = zIndex;
+    }
+
+    return style;
+  }
 
   render() {
     const { height, width, type, color } = this.props;
@@ -45,7 +58,7 @@ export default class Loader extends Component {
     });
 
     return (
-      <div className={cssClasses}>
+      <div className={cssClasses} style={this.style}>
         <ReactLoader type="Oval" color="#7396cd" height={height} width={width} />
       </div>
     );

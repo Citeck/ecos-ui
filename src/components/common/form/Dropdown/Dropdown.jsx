@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import { Scrollbars } from 'react-custom-scrollbars';
-
+import { IcoBtn } from '../../btns';
 import { getPropByStringKey } from '../../../../helpers/util';
 
 import './Dropdown.scss';
@@ -26,6 +26,7 @@ export default class Dropdown extends Component {
     className: PropTypes.string,
     menuClassName: PropTypes.string,
     toggleClassName: PropTypes.string,
+    controlClassName: PropTypes.string,
     direction: PropTypes.string,
     hasEmpty: PropTypes.bool,
     right: PropTypes.bool,
@@ -47,6 +48,7 @@ export default class Dropdown extends Component {
     className: '',
     menuClassName: '',
     toggleClassName: '',
+    controlClassName: '',
     direction: 'down',
     hasEmpty: false,
     isStatic: false,
@@ -88,6 +90,16 @@ export default class Dropdown extends Component {
 
   getControl = text => {
     const props = this.props;
+    const { dropdownOpen } = this.state;
+
+    if (!props.children) {
+      return (
+        <IcoBtn className={props.controlClassName} invert icon={dropdownOpen ? 'icon-up' : 'icon-down'}>
+          {text}
+        </IcoBtn>
+      );
+    }
+
     return React.Children.map(this.props.children, child => {
       return React.cloneElement(child, {
         children: props.isButton ? child.props.children || '' : text

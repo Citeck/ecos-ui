@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
+
 import { t, trigger } from '../../../helpers/util';
 import { Icon } from '../index';
 
@@ -10,7 +12,20 @@ export default class Search extends Component {
   static propTypes = {
     className: PropTypes.string,
     collapsed: PropTypes.bool,
-    cleaner: PropTypes.bool
+    cleaner: PropTypes.bool,
+    liveSearch: PropTypes.bool,
+    searchWithEmpty: PropTypes.bool,
+    delay: PropTypes.number,
+    onSearch: PropTypes.func
+  };
+
+  static defaultProps = {
+    className: '',
+    delay: 400,
+    cleaner: false,
+    collapsed: false,
+    liveSearch: false,
+    searchWithEmpty: false
   };
 
   state = {
@@ -36,9 +51,14 @@ export default class Search extends Component {
     switch (e.key) {
       case 'Enter':
         this.triggerSearch();
-        break;
+        this.onLiveSearch.cancel();
+        return;
       default:
         break;
+    }
+
+    if (this.props.liveSearch) {
+      this.onLiveSearch();
     }
   };
 
@@ -63,12 +83,18 @@ export default class Search extends Component {
       }
 
       return st;
-    });
+    }, this.triggerClean);
   };
 
   triggerSearch = () => {
     trigger.call(this, 'onSearch', this.state.text);
   };
+
+  triggerClean = () => {
+    trigger.call(this, 'onSearch', '');
+  };
+
+  onLiveSearch = debounce(this.triggerSearch, this.props.delay);
 
   render() {
     const { className, cleaner, collapsed: initCollapsed } = this.props;

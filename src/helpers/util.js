@@ -2,6 +2,7 @@ import lodashGet from 'lodash/get';
 import moment from 'moment';
 import i18next from 'i18next';
 import * as queryString from 'query-string';
+import uuidV4 from 'uuid/v4';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
@@ -77,7 +78,11 @@ export const queryByCriteria = criteria => {
 
 export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
 
-export function closest(node, selector) {
+export function closest(node = null, selector) {
+  if (!node) {
+    return null;
+  }
+
   const parent = node.parentElement;
 
   if (parent) {
@@ -653,4 +658,8 @@ export function hasChildWithId(items, selectedId) {
   }
 
   return false;
+}
+
+export function prepareTooltipId(id = uuidV4()) {
+  return `${id}`.replace(/[^\d\w-]/g, '');
 }
