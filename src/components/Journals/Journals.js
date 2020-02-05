@@ -18,7 +18,7 @@ import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
-import { getJournalsData, reloadGrid, search } from '../../actions/journals';
+import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
 import { setActiveTabTitle } from '../../actions/pageTabs';
 import { t, trigger } from '../../helpers/util';
 import { goToCardDetailsPage } from '../../helpers/urls';
@@ -46,6 +46,7 @@ const mapDispatchToProps = (dispatch, props) => {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     search: text => dispatch(search(w(text))),
+    restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
     setActiveTabTitle: text => dispatch(setActiveTabTitle(text))
   };
 };
@@ -59,7 +60,8 @@ class Journals extends Component {
       menuOpenAnimate: false,
       settingsVisible: false,
       showPreview: this.props.urlParams.showPreview,
-      showPie: false
+      showPie: false,
+      savedSetting: null
     };
   }
 
@@ -117,8 +119,20 @@ class Journals extends Component {
     });
   };
 
+  resetSettings = savedSetting => {
+    console.log('>>savedSetting', savedSetting);
+    this.setState({ savedSetting });
+  };
+
   toggleSettings = () => {
-    this.setState({ settingsVisible: !this.state.settingsVisible });
+    const { savedSetting, settingsVisible } = this.state;
+    console.log('>>settingsVisible', settingsVisible);
+
+    if (savedSetting && settingsVisible) {
+      this.props.restoreJournalSettingData(savedSetting);
+    }
+
+    this.setState({ settingsVisible: !settingsVisible, savedSetting: null });
   };
 
   togglePreview = () => {
@@ -230,6 +244,7 @@ class Journals extends Component {
                     journalId={journalId}
                     onApply={this.toggleSettings}
                     onCreate={this.toggleSettings}
+                    onReset={this.resetSettings}
                   />
                 </Well>
               </EcosModal>

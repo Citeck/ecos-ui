@@ -7,7 +7,6 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
 import {
-  cancelJournalSettingData,
   createJournalSetting,
   createZip,
   deleteJournalSetting,
@@ -26,6 +25,8 @@ import {
   reloadGrid,
   reloadTreeGrid,
   renameJournalSetting,
+  resetJournalSettingData,
+  restoreJournalSettingData,
   saveDashlet,
   saveJournalSetting,
   saveRecords,
@@ -203,8 +204,8 @@ function* getJournalConfig(api, journalId, w) {
   return journalConfig;
 }
 
-function* getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w) {
-  const url = yield select(state => state.journals[stateId].url);
+function* getJournalSetting(api, { journalSettingId, journalConfig, stateId, resetAll }, w) {
+  const url = resetAll ? {} : yield select(state => state.journals[stateId].url);
   let journalSetting;
 
   journalSettingId = journalSettingId || journalConfig.journalSettingId || api.journals.getLsJournalSettingId(journalConfig.id) || '';
@@ -267,15 +268,24 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaCancelJournalSettingData({ api, logger, stateId, w }, action) {
+function* sagaResetJournalSettingData({ api, logger, stateId, w }, action) {
   try {
     const journalSettingId = action.payload;
     const journalConfig = yield select(state => state.journals[stateId].journalConfig);
-    const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
+    const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, resetAll: true, stateId }, w);
+  } catch (e) {
+    logger.error('[journals sagaResetJournalSettingData saga error', e.message);
+  }
+}
 
+function* sagaRestoreJournalSettingData({ api, logger, stateId, w }, action) {
+  try {
+    const journalSetting = action.payload;
+
+    yield put(setJournalSetting(w(journalSetting)));
     yield put(initJournalSettingData(w({ journalSetting })));
   } catch (e) {
-    logger.error('[journals sagaCancelJournalSettingData saga error', e.message);
+    logger.error('[journals sagaResetJournalSettingData saga error', e.message);
   }
 }
 
@@ -702,7 +712,8 @@ function* saga(ea) {
   yield takeEvery(onJournalSettingsSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSettingsSelect });
   yield takeEvery(onJournalSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSelect });
   yield takeEvery(initJournalSettingData().type, wrapSaga, { ...ea, saga: sagaInitJournalSettingData });
-  yield takeEvery(cancelJournalSettingData().type, wrapSaga, { ...ea, saga: sagaCancelJournalSettingData });
+  yield takeEvery(resetJournalSettingData().type, wrapSaga, { ...ea, saga: sagaResetJournalSettingData });
+  yield takeEvery(restoreJournalSettingData().type, wrapSaga, { ...ea, saga: sagaRestoreJournalSettingData });
 
   yield takeEvery(initPreview().type, wrapSaga, { ...ea, saga: sagaInitPreview });
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });

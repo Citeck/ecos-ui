@@ -1,4 +1,5 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 
 import { EcosModal } from '../../common';
@@ -6,14 +7,14 @@ import { Btn } from '../../common/btns';
 import { Input } from '../../common/form';
 import Columns from '../../common/templates/Columns/Columns';
 import {
-  cancelJournalSettingData,
   createJournalSetting,
   reloadGrid,
+  resetJournalSettingData,
   saveJournalSetting,
   setJournalSetting,
   setSettingsToUrl
 } from '../../../actions/journals';
-import { closest, t, trigger } from '../../../helpers/util';
+import { closest, deepClone, t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_SETTING_ID_FIELD } from '../constants';
 
@@ -39,7 +40,7 @@ const mapDispatchToProps = (dispatch, props) => {
     setSettingsToUrl: setting => dispatch(setSettingsToUrl(w(setting))),
     saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
     createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
-    cancelJournalSettingData: journalSettingId => dispatch(cancelJournalSettingData(w(journalSettingId)))
+    resetJournalSettingData: journalSettingId => dispatch(resetJournalSettingData(w(journalSettingId)))
   };
 };
 
@@ -105,11 +106,10 @@ class JournalsSettingsFooter extends Component {
   };
 
   resetSettings = () => {
-    const { cancelJournalSettingData, setSettingsToUrl, journalSetting } = this.props;
+    const { resetJournalSettingData, journalSetting } = this.props;
 
-    cancelJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD]);
-    setSettingsToUrl({ resetAll: true });
-    trigger.call(this, 'onCancel');
+    resetJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD]);
+    trigger.call(this, 'onReset', deepClone(journalSetting));
   };
 
   getSetting = title => {
@@ -157,25 +157,25 @@ class JournalsSettingsFooter extends Component {
     const { journalSetting } = this.props;
 
     return (
-      <Fragment>
+      <>
         <Columns
           className={'ecos-journal__settings-footer'}
           cols={[
-            <Fragment>
+            <>
               <Btn className={'ecos-btn_x-step_10'} onClick={this.openDialog}>
                 {t('journals.action.create-template')}
               </Btn>
               {journalSetting[JOURNAL_SETTING_ID_FIELD] && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
-            </Fragment>,
+            </>,
 
-            <Fragment>
+            <>
               <Btn className={'ecos-btn_x-step_10'} onClick={this.resetSettings}>
                 {t('journals.action.reset')}
               </Btn>
               <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.applySetting}>
                 {t('journals.action.apply')}
               </Btn>
-            </Fragment>
+            </>
           ]}
           cfgs={[{}, { className: 'columns_right' }]}
         />
@@ -198,10 +198,21 @@ class JournalsSettingsFooter extends Component {
             </Btn>
           </div>
         </EcosModal>
-      </Fragment>
+      </>
     );
   }
 }
+
+JournalsSettingsFooter.propTypes = {
+  parentClass: PropTypes.string,
+  stateId: PropTypes.string,
+  journalId: PropTypes.string,
+
+  onApply: PropTypes.func,
+  onCreate: PropTypes.func,
+  onReset: PropTypes.func,
+  onSave: PropTypes.func
+};
 
 export default connect(
   mapStateToProps,
