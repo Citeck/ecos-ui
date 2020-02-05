@@ -31,6 +31,7 @@ import webPage from './webPage';
 import birthdays from './birthdays';
 import barcode from './barcode';
 import properties from './properties';
+import documents from './documents';
 
 const reducers = {
   app,
@@ -62,7 +63,8 @@ const reducers = {
   webPage,
   birthdays,
   barcode,
-  properties
+  properties,
+  documents
 };
 
 export default history =>

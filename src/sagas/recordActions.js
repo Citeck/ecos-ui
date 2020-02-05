@@ -1,4 +1,6 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
+import isEmpty from 'lodash/isEmpty';
+
 import { backExecuteAction, getActions, runExecuteAction, setActions } from '../actions/recordActions';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
@@ -6,9 +8,13 @@ import { t } from '../helpers/util';
 function* sagaGetActions({ api, logger }, { payload }) {
   try {
     const { record, stateId, context } = payload;
-    const res = yield call(api.recordActions.getActions, { records: record, context }) || [];
+    let list = yield call(api.recordActions.getActions, { records: record, context });
 
-    yield put(setActions({ stateId, list: res }));
+    if (isEmpty(list)) {
+      list = [];
+    }
+
+    yield put(setActions({ stateId, list }));
   } catch (e) {
     logger.error('[recordActions/sagaGetActions saga] error', e.message);
   }

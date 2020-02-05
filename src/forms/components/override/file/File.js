@@ -1,5 +1,8 @@
 import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isBoolean from 'lodash/isBoolean';
+import get from 'lodash/get';
 import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
 import { FILE_CLICK_ACTION_DOWNLOAD, FILE_CLICK_ACTION_OPEN_DASHBOARD, FILE_CLICK_ACTION_NOOP } from './editForm/File.edit.file';
@@ -14,7 +17,8 @@ export default class FileComponent extends FormIOFileComponent {
   static schema(...extend) {
     return FormIOFileComponent.schema(
       {
-        onFileClick: FILE_CLICK_ACTION_OPEN_DASHBOARD
+        onFileClick: FILE_CLICK_ACTION_OPEN_DASHBOARD,
+        displayElementsJS: {}
       },
       ...extend
     );
@@ -80,6 +84,55 @@ export default class FileComponent extends FormIOFileComponent {
     }
 
     return `/share/page/card-details?nodeRef=${recordRef}`;
+  }
+
+  checkConditions(data) {
+    let result = super.checkConditions(data);
+
+    if (!this.component.displayElementsJS) {
+      return result;
+    }
+
+    let displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
+    if (!isEqual(displayElements, this.displayElementsValue)) {
+      this.displayElementsValue = displayElements;
+      this.refreshDOM();
+    }
+
+    return result;
+  }
+
+  createFileListItem(fileInfo, index) {
+    const displayElements = this.displayElementsValue || {};
+    const shouldShowDeleteIcon = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
+
+    const fileService = this.fileService;
+    return this.ce(
+      'li',
+      { class: 'list-group-item' },
+      this.ce('div', { class: 'row' }, [
+        this.ce(
+          'div',
+          { class: 'col-md-1' },
+          shouldShowDeleteIcon && !this.disabled && !this.shouldDisable
+            ? this.ce('i', {
+                class: this.iconClass('remove'),
+                onClick: event => {
+                  if (fileInfo && this.component.storage === 'url') {
+                    fileService.makeRequest('', fileInfo.url, 'delete');
+                  }
+                  event.preventDefault();
+                  this.splice(index);
+                  this.refreshDOM();
+                }
+              })
+            : null
+        ),
+        this.ce('div', { class: `col-md-${this.hasTypes ? '7' : '9'}` }, this.createFileLink(fileInfo)),
+        this.ce('div', { class: 'col-md-2' }, this.fileSize(fileInfo.size)),
+        this.hasTypes ? this.ce('div', { class: 'col-md-2' }, this.createTypeSelect(fileInfo)) : null
+      ])
+    );
   }
 
   createFileLink(f) {

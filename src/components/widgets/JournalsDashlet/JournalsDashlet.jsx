@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
 
@@ -166,7 +167,7 @@ class JournalsDashlet extends BaseWidget {
   }
 
   render() {
-    const { journalConfig, className, dragHandleProps, editorMode } = this.props;
+    const { journalConfig, className, dragHandleProps, editorMode, config } = this.props;
     const { width, isCollapsed } = this.state;
 
     if (!journalConfig) {
@@ -196,7 +197,7 @@ class JournalsDashlet extends BaseWidget {
         style={{ minWidth: `${MIN_WIDTH_DASHLET_SMALL}px` }}
         title={journalConfig.meta.title || t('journal.title')}
         onGoTo={this.goToJournalsPage}
-        needGoTo={width >= MIN_WIDTH_DASHLET_LARGE}
+        needGoTo={width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config)}
         actionConfig={actions}
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}

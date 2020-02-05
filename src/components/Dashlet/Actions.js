@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { UncontrolledTooltip } from 'reactstrap';
 
 import { t } from '../../helpers/util';
@@ -74,6 +75,31 @@ const DropdownActions = ({ list, dashletId }) => {
   );
 };
 
+/**
+ * Actions - ряд иконочных кнопок (для шапки дашлета).
+ * Если кнопок более (по-умолчанию) 4, 4ая кнопка - дропдаун с остальными действиями.
+ * Если не переданы настройки, будут отображены только базовые кнопки, но только те, у которых есть событие.
+ * Базовые кнопки можно переобределить, но следует ограничется переоределением только события и текста
+ * Перечень кнопок (или их переопределений) передаются параметром actionConfig (формат ниже)
+ * В actionRules дополнительные правила отображения кнопок
+ *  - orderedVisible массив ключей кнопок - если значение задано выведутся только указнные кнопки в указанном порядке.
+ *  - countShow - кол-во отображаемых иконочных кнопок. По-умолчанию 4. Остальные уйдут в Dropdown.
+ * @param actionConfig : object  ->
+ *    {
+ *      [ключ кнопки]: {
+ *        icon: [string | класс иконки],
+ *        text: [string | подсказказка/текст кнопки в Dropdown],
+ *        onClick: [func | событие]
+ *       }
+ *    }
+ * @param dashletId
+ * @param actionRules : object  ->
+ *    {
+ *        orderedVisible: [array | отображаемые упорядоченные кнопки],
+ *        countShow: [number | кол-во видимых кнопок]
+ *    }
+ * @returns Elements
+ */
 const Actions = ({ actionConfig = {}, dashletId, actionRules }) => {
   const { orderedVisible, countShow = 4 } = actionRules || {};
   const baseOrderActions = [BaseActions.EDIT, BaseActions.HELP, BaseActions.RELOAD, BaseActions.SETTINGS];
@@ -155,6 +181,21 @@ const Actions = ({ actionConfig = {}, dashletId, actionRules }) => {
       {renderDropActions()}
     </>
   );
+};
+
+Actions.propTypes = {
+  dashletId: PropTypes.string,
+  actionConfig: PropTypes.objectOf(
+    PropTypes.shape({
+      icon: PropTypes.string,
+      onClick: PropTypes.func,
+      text: PropTypes.text
+    })
+  ),
+  actionRules: PropTypes.shape({
+    orderedVisible: PropTypes.arrayOf(PropTypes.string),
+    countShow: PropTypes.number
+  })
 };
 
 export default Actions;

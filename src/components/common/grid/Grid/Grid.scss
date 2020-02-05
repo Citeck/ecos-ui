@@ -54,6 +54,15 @@
       background: $color-yellow-1;
     }
   }
+
+  &_drag {
+  }
+
+  &_no-drag {
+  }
+
+  &__row {
+  }
 }
 
 .ecos-grid__table.table {
@@ -66,6 +75,7 @@
     height: 40px;
     border-top: 2px solid $color-gray-4;
     padding: 0;
+    vertical-align: middle;
   }
 
   th {

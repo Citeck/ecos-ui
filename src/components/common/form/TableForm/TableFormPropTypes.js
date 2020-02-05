@@ -9,6 +9,7 @@ export default {
   disabled: PropTypes.bool,
   isCompact: PropTypes.bool,
   isStaticModalTitle: PropTypes.bool,
+  customStringForConcatWithStaticTitle: PropTypes.string,
   isSelectableRows: PropTypes.bool,
   onSelectRows: PropTypes.func,
   parentForm: PropTypes.object,

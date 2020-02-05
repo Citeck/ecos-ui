@@ -26,7 +26,7 @@ class RecordActionsService {
     }
 
     if (!records || !records.length) {
-      return Promise.resolve({});
+      return Promise.resolve([]);
     }
 
     const recordsIds = records.map(r => (r.id ? r.id : r));
