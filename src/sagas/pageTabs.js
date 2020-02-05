@@ -1,21 +1,21 @@
 import { delay } from 'redux-saga';
-import { call, put, select, takeLatest, takeEvery } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
 
 import {
   getActiveTabTitle,
   getTabs,
   getTabTitle,
+  initTabs,
+  initTabsComplete,
   setActiveTabTitle,
   setShowTabsStatus,
   setTabs,
-  initTabs,
-  initTabsComplete,
   setTabTitle
 } from '../actions/pageTabs';
-import { selectTabs, selectInitStatus } from '../selectors/pageTabs';
+import { selectInitStatus, selectTabs } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
-import { t, deepClone, getCurrentUserName } from '../helpers/util';
+import { deepClone, getCurrentUserName, t } from '../helpers/util';
 import { getSearchParams } from '../helpers/urls';
 import { URL } from '../constants';
 import { TITLE } from '../constants/pageTabs';

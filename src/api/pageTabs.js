@@ -9,15 +9,15 @@ import { decodeLink, isNewVersionPage } from '../helpers/urls';
 import { PROXY_URI } from '../constants/alfresco';
 
 export class PageTabsApi extends CommonApi {
-  _lsKey = ls.generateKey('page-tabs', true);
-  _newVersionKeyPath = '/user';
+  #lsKey = ls.generateKey('page-tabs', true);
+  #newVersionKeyPath = '/user';
 
   get lsKey() {
-    return this._lsKey;
+    return this.#lsKey;
   }
 
   set lsKey(key) {
-    this._lsKey = key;
+    this.#lsKey = key;
   }
 
   getAll = () => {
@@ -31,12 +31,12 @@ export class PageTabsApi extends CommonApi {
   };
 
   checkOldVersion = userName => {
-    if (userName === USER_GUEST || this.lsKey.includes(this._newVersionKeyPath)) {
+    if (userName === USER_GUEST || this.lsKey.includes(this.#newVersionKeyPath)) {
       return;
     }
 
     const currentVersion = this.lsKey;
-    const newVersionKey = `${this.lsKey}${this._newVersionKeyPath}-${userName}`;
+    const newVersionKey = `${this.lsKey}${this.#newVersionKeyPath}-${userName}`;
 
     ls.transferData(currentVersion, newVersionKey, true);
     this.lsKey = newVersionKey;
