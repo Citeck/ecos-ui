@@ -5,6 +5,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
+import get from 'lodash/get';
 
 import { closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
@@ -145,6 +146,10 @@ class Grid extends Component {
 
       column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
 
+      if (props.editable) {
+        column.editable = this.checkColumnEditable.bind(null, column);
+      }
+
       return column;
     });
 
@@ -190,6 +195,39 @@ class Grid extends Component {
 
     return props;
   }
+
+  checkColumnEditable = (...data) => {
+    const { editingRules } = this.props;
+    const [column, , row] = data;
+    const rowRules = editingRules[row.id];
+    const columnEditableStatus = get(column, 'params.editable');
+
+    /**
+     * If there are rules for editing the column
+     */
+    if (columnEditableStatus !== undefined) {
+      return columnEditableStatus;
+    }
+
+    /**
+     * If there is an editing rule for the entire row
+     */
+    if (typeof rowRules === 'boolean') {
+      return rowRules;
+    }
+
+    /**
+     * Validating a rule for a single cell
+     */
+    if (typeof rowRules === 'object') {
+      return get(rowRules, column.dataField, false);
+    }
+
+    /**
+     * Editing by default is prohibited.
+     */
+    return false;
+  };
 
   setHover = (tr, className, needRemove, nonHoveredTr) => {
     const trClassList = tr.classList;
@@ -570,7 +608,8 @@ Grid.propTypes = {
   data: PropTypes.array,
   filters: PropTypes.array,
   sortBy: PropTypes.array,
-  selected: PropTypes.array
+  selected: PropTypes.array,
+  editingRules: PropTypes.object
 };
 
 export default Grid;
