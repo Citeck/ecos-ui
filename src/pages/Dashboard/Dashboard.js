@@ -56,7 +56,8 @@ class Dashboard extends Component {
   state = {
     urlParams: getSortedUrlParams(),
     canDragging: false,
-    activeLayoutId: null
+    activeLayoutId: null,
+    needGetConfig: false
   };
 
   constructor(props) {
@@ -65,39 +66,77 @@ class Dashboard extends Component {
     this.state.config = props.config || [];
   }
 
+  static getDerivedStateFromProps(props, state) {
+    const newState = {};
+    const newUrlParams = getSortedUrlParams();
+
+    if (isEmpty(state.activeLayoutId)) {
+      newState.activeLayoutId = get(props.config, '[0].id');
+    }
+
+    if (JSON.stringify(props.config) !== JSON.stringify(state.config)) {
+      newState.config = props.config;
+      newState.activeLayoutId = get(props.config, '[0].id');
+    }
+
+    if (state.urlParams !== newUrlParams) {
+      newState.urlParams = newUrlParams;
+      newState.needGetConfig = true;
+      props.resetDashboardConfig();
+      props.initMenuSettings();
+    }
+
+    if (state.urlParams === newUrlParams && props.isLoadingDashboard && !isEmpty(props.config)) {
+      props.setLoading(false);
+    }
+
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    return newState;
+  }
+
   componentDidMount() {
     this.getConfig();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { initMenuSettings, config, isLoadingDashboard, resetDashboardConfig, setLoading, identificationId } = nextProps;
-    const { urlParams, activeLayoutId } = this.state;
-    const newUrlParams = getSortedUrlParams();
-    const state = {};
-
-    if (urlParams !== newUrlParams) {
-      state.urlParams = newUrlParams;
-      resetDashboardConfig();
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.state.needGetConfig) {
       this.getConfig();
-      initMenuSettings();
-      state.urlParams = newUrlParams;
-    } else if (urlParams === newUrlParams && isLoadingDashboard && !isEmpty(config)) {
-      setLoading(false);
     }
-
-    if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
-      state.config = config;
-    }
-
-    if (
-      (JSON.stringify(config) !== JSON.stringify(this.props.config) && identificationId !== this.props.identificationId) ||
-      isEmpty(activeLayoutId)
-    ) {
-      state.activeLayoutId = get(config, '[0].id');
-    }
-
-    this.setState(state);
   }
+
+  // componentWillReceiveProps(nextProps) {
+  //   const { initMenuSettings, config, isLoadingDashboard, resetDashboardConfig, setLoading, identificationId } = nextProps;
+  //   const { urlParams, activeLayoutId } = this.state;
+  //   const newUrlParams = getSortedUrlParams();
+  //   const state = {};
+  //
+  //   // if (urlParams !== newUrlParams) {
+  //   if (this.state.needGetConfig) {
+  //     // state.urlParams = newUrlParams;
+  //     // resetDashboardConfig();
+  //     // this.getConfig();
+  //     // initMenuSettings();
+  //     // state.urlParams = newUrlParams;
+  //   } else if (urlParams === newUrlParams && isLoadingDashboard && !isEmpty(config)) {
+  //     // setLoading(false);
+  //   }
+  //
+  //   // if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
+  //   //   state.config = config;
+  //   // }
+  //
+  //   // if (
+  //   //   (JSON.stringify(config) !== JSON.stringify(this.props.config) && identificationId !== this.props.identificationId) ||
+  //   //   isEmpty(activeLayoutId)
+  //   // ) {
+  //   //   state.activeLayoutId = get(config, '[0].id');
+  //   // }
+  //
+  //   this.setState(state);
+  // }
 
   componentWillUnmount() {
     this.props.resetDashboardConfig();
@@ -121,6 +160,8 @@ class Dashboard extends Component {
 
     getDashboardConfig({ recordRef, dashboardKey });
     getDashboardTitle({ recordRef });
+
+    this.setState({ needGetConfig: false });
   }
 
   get activeLayout() {
