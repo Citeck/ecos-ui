@@ -11,7 +11,7 @@ import {
 } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
 import { setActiveTabTitle } from '../actions/pageTabs';
-import { selectDashboardConfigs, selectIdentificationForView } from '../selectors/dashboard';
+import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
 import { t } from '../helpers/util';
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
@@ -26,6 +26,13 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
     const webConfig = DashboardConverter.getDashboardForWeb(data);
     const webConfigMobile = DashboardConverter.getMobileDashboardForWeb(data);
+
+    const isReset = yield select(selectResetStatus);
+
+    if (isReset) {
+      console.warn('[dashboard/ doGetDashboardRequest saga] warning: Dashboard is unmounted');
+      return;
+    }
 
     yield put(setDashboardIdentification(webKeyInfo));
     yield put(setDashboardConfig(webConfig));
@@ -62,6 +69,8 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
       yield put(setMobileDashboardConfig(payload.config));
     } else {
       config.layouts = payload.config;
+      console.warn('doSaveDashboardConfigRequest => ', payload.config);
+
       yield put(setDashboardConfig(payload.config));
     }
     delete config.isMobile;

@@ -107,37 +107,6 @@ class Dashboard extends Component {
     }
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   const { initMenuSettings, config, isLoadingDashboard, resetDashboardConfig, setLoading, identificationId } = nextProps;
-  //   const { urlParams, activeLayoutId } = this.state;
-  //   const newUrlParams = getSortedUrlParams();
-  //   const state = {};
-  //
-  //   // if (urlParams !== newUrlParams) {
-  //   if (this.state.needGetConfig) {
-  //     // state.urlParams = newUrlParams;
-  //     // resetDashboardConfig();
-  //     // this.getConfig();
-  //     // initMenuSettings();
-  //     // state.urlParams = newUrlParams;
-  //   } else if (urlParams === newUrlParams && isLoadingDashboard && !isEmpty(config)) {
-  //     // setLoading(false);
-  //   }
-  //
-  //   // if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
-  //   //   state.config = config;
-  //   // }
-  //
-  //   // if (
-  //   //   (JSON.stringify(config) !== JSON.stringify(this.props.config) && identificationId !== this.props.identificationId) ||
-  //   //   isEmpty(activeLayoutId)
-  //   // ) {
-  //   //   state.activeLayoutId = get(config, '[0].id');
-  //   // }
-  //
-  //   this.setState(state);
-  // }
-
   componentWillUnmount() {
     this.props.resetDashboardConfig();
   }

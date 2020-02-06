@@ -2,6 +2,7 @@ import { get } from 'lodash';
 
 export const selectIdentificationForView = state => get(state, 'dashboard.identification', {});
 export const selectIdentificationForSet = state => get(state, 'dashboardSettings.identification', {});
+export const selectResetStatus = state => get(state, 'dashboard.reset', false);
 
 export const selectDashboardConfigs = state => {
   return {
