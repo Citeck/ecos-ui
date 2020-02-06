@@ -50,10 +50,6 @@ class Tab extends Component {
   renderLoader() {
     const { tab, isLoadingTitle } = this.props;
 
-    // if (!(tab.isActive && isLoadingTitle) && !tab.isLoading) {
-    //   return null;
-    // }
-
     if ((tab.isActive && isLoadingTitle) || tab.isLoading) {
       return <PointsLoader className="page-tab__tabs-item-title-loader" color="light-blue" />;
     }
