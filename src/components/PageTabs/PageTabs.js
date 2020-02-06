@@ -767,7 +767,7 @@ class PageTabs extends React.Component {
     return (
       <Tab
         key={item.id}
-        item={item}
+        tab={item}
         position={position}
         isLoadingTitle={isLoadingTitle}
         countTabs={tabs.length}
