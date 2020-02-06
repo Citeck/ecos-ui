@@ -150,6 +150,8 @@ function* getTabWithTitle(data, api) {
         }
       }
     } else {
+      title = t(get(TITLE, data.link, TITLE.HOMEPAGE));
+
       if (data.link === URL.DASHBOARD) {
         title = t(TITLE.HOMEPAGE);
       }

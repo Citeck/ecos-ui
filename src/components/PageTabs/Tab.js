@@ -69,7 +69,7 @@ class Tab extends React.Component {
   renderLoader() {
     const { item, isLoadingTitle } = this.props;
 
-    if (!item.isLoading || !isLoadingTitle) {
+    if (!item.isLoading && !isLoadingTitle) {
       return null;
     }
 
