@@ -30,7 +30,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     const isReset = yield select(selectResetStatus);
 
     if (isReset) {
-      console.warn('[dashboard/ doGetDashboardRequest saga] warning: Dashboard is unmounted');
+      console.info('[dashboard/ doGetDashboardRequest saga] info: Dashboard is unmounted');
       return;
     }
 
@@ -69,7 +69,6 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
       yield put(setMobileDashboardConfig(payload.config));
     } else {
       config.layouts = payload.config;
-      console.warn('doSaveDashboardConfigRequest => ', payload.config);
 
       yield put(setDashboardConfig(payload.config));
     }
