@@ -417,7 +417,8 @@ class JournalsDashletGrid extends Component {
         sortBy,
         pagination: { maxItems },
         groupBy,
-        total
+        total,
+        editingRules
       },
       doInlineToolsOnRowClick = false,
       performGroupActionResponse,
@@ -461,6 +462,7 @@ class JournalsDashletGrid extends Component {
                 freezeCheckboxes
                 filterable
                 editable={editable}
+                editingRules={editingRules}
                 multiSelectable
                 sortBy={sortBy}
                 changeTrOptionsByRowClick={doInlineToolsOnRowClick}

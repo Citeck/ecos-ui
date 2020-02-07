@@ -317,4 +317,33 @@ export class JournalsApi extends RecordService {
       .then(resp => this.getStatus(resp.nodeRef))
       .catch(() => null);
   };
+
+  /**
+   * Check line edit permissions
+   * true - we can edit, false - we can’t edit
+   *
+   * @param recordRef
+   * @returns {*}
+   */
+  checkRowEditRules = recordRef => {
+    return Records.get(recordRef)
+      .load('.att(n:"permissions"){has(n:"Write")}')
+      .then(response => response)
+      .catch(() => null);
+  };
+
+  /**
+   * Check if the cell is protected from editing or not
+   * true - we can’t edit the cell, false - we can edit the cell
+   *
+   * @param recordRef
+   * @param cell
+   * @returns {*}
+   */
+  checkCellProtectedFromEditing = (recordRef, cell) => {
+    return Records.get(recordRef)
+      .load(`#${cell}?protected`)
+      .then(response => response)
+      .catch(() => null);
+  };
 }

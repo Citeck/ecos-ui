@@ -53,7 +53,8 @@ const defaultState = {
     groupBy: null,
     sortBy: [],
     pagination: DEFAULT_PAGINATION,
-    minHeight: null
+    minHeight: null,
+    editingRules: {}
   },
 
   journalsList: [],

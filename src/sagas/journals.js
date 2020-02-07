@@ -309,6 +309,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, stateId }, w) {
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
   const params = getGridParams({ journalConfig, journalSetting, pagination, url });
   const gridData = yield getGridData(api, params, stateId);
+  const editingRules = yield getGridEditingRules(api, gridData);
 
   yield put(setSelectedRecords(w([])));
   yield put(setSelectAllRecords(w(!!url.selectionFilter)));
@@ -317,7 +318,48 @@ function* loadGrid(api, { journalSettingId, journalConfig, stateId }, w) {
   yield put(setPerformGroupActionResponse(w([])));
   yield put(setPreviewUrl(w('')));
   yield put(setPreviewFileName(w('')));
-  yield put(setGrid(w({ ...params, ...gridData })));
+
+  yield put(setGrid(w({ ...params, ...gridData, editingRules })));
+}
+
+function* getGridEditingRules(api, gridData) {
+  const { data = [], columns = [] } = gridData;
+  let editingRules = yield data.map(function*(row) {
+    const canEditing = yield call(api.journals.checkRowEditRules, row.id);
+    let byColumns = false;
+
+    if (canEditing) {
+      byColumns = yield columns.map(function*(column) {
+        const isProtected = yield call(api.journals.checkCellProtectedFromEditing, row.id, row[column.dataField]);
+
+        return {
+          [column.dataField]: !isProtected
+        };
+      });
+
+      byColumns = byColumns.reduce(
+        (current, result) => ({
+          ...result,
+          ...current
+        }),
+        {}
+      );
+    }
+
+    return {
+      [row.id]: byColumns
+    };
+  });
+
+  editingRules = editingRules.reduce(
+    (current, result) => ({
+      ...result,
+      ...current
+    }),
+    {}
+  );
+
+  return editingRules;
 }
 
 function* sagaReloadGrid({ api, logger, stateId, w }, action) {
@@ -334,8 +376,9 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
       ...(action.payload || {})
     };
     const gridData = yield getGridData(api, params, stateId);
+    const editingRules = yield getGridEditingRules(api, gridData);
 
-    yield put(setGrid(w({ ...params, ...gridData })));
+    yield put(setGrid(w({ ...params, ...gridData, editingRules })));
     yield put(setLoading(w(false)));
   } catch (e) {
     logger.error('[journals sagaReloadGrid saga error', e.message);
@@ -347,7 +390,9 @@ function* sagaReloadTreeGrid({ api, logger, stateId, w }) {
     yield put(setLoading(w(true)));
 
     const gridData = yield call(api.journals.getTreeGridData);
-    yield put(setGrid(w(gridData)));
+    const editingRules = yield getGridEditingRules(api, gridData);
+
+    yield put(setGrid(w({ ...gridData, editingRules })));
 
     yield put(setLoading(w(false)));
   } catch (e) {
@@ -446,6 +491,7 @@ function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
 function* sagaSaveRecords({ api, logger, stateId, w }, action) {
   try {
     const grid = yield select(state => state.journals[stateId].grid);
+    const editingRules = yield getGridEditingRules(api, grid);
     const { id, attributes } = action.payload;
     const attribute = Object.keys(attributes)[0];
     const value = attributes[attribute];
@@ -477,7 +523,8 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
 
       return record;
     });
-    yield put(setGrid(w(grid)));
+
+    yield put(setGrid(w({ ...grid, editingRules })));
   } catch (e) {
     logger.error('[journals sagaSaveRecords saga error', e.message);
   }
