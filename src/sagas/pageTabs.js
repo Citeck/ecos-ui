@@ -42,7 +42,7 @@ function* sagaInitTabs({ api, logger }) {
 
     PageTabList.init({ tabs: storageTabs, params: { initUrl } });
 
-    yield put(setLocalTabs());
+    yield put(setLocalTabs({ tabs: PageTabList.tabs }));
     yield put(initTabsComplete());
 
     const initTabs = deepClone(PageTabList.tabs);

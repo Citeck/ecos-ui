@@ -9,9 +9,9 @@ class PageTabListService {
   }
 
   set tabs({ tabs, params }) {
-    tabs = isArray(tabs) ? tabs : this.#tabs || [];
-
-    this.#tabs = tabs.map(item => new PageTab(item, params));
+    tabs = isArray(tabs) ? tabs : [];
+    this.#tabs = [];
+    tabs.forEach(item => this.add(item, params));
   }
 
   get storageList() {
