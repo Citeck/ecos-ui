@@ -59,7 +59,7 @@ const JournalsSettingsBar = ({
   };
 
   return (
-    <div className="ecos-journal__settings-bar">
+    <div className={classNames('ecos-journal__settings-bar', { 'ecos-journal__settings-bar_mobile': isMobile })}>
       {renderCreateMenu()}
 
       {!isMobile && (

@@ -1,4 +1,7 @@
 import Webform from 'formiojs/Webform';
+import cloneDeep from 'lodash/cloneDeep';
+import merge from 'lodash/merge';
+import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 
 const originalSetElement = Webform.prototype.setElement;
 const originalOnSubmit = Webform.prototype.onSubmit;
@@ -23,8 +26,32 @@ Webform.prototype.onSubmit = function(submission, saved) {
 
 Webform.prototype.submit = function(before, options) {
   const form = this;
+  const originalSubmission = cloneDeep(this.submission || {});
+  const originalSubmissionData = originalSubmission.data || {};
+
+  const outcomeButtonsAttributes = {}; // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3079
+  for (let [key, value] of Object.entries(originalSubmissionData)) {
+    if (!key.startsWith(OUTCOME_BUTTONS_PREFIX)) {
+      continue;
+    }
+
+    const component = form.getComponent(key);
+    if (!component || component.type !== 'button') {
+      continue;
+    }
+
+    outcomeButtonsAttributes[key] = value;
+  }
 
   return new Promise((resolve, reject) => {
+    const callSubmit = () => {
+      form.setValue(merge(form.submission, { data: outcomeButtonsAttributes }));
+      originalSubmit
+        .call(form, before, options)
+        .then(resolve)
+        .catch(reject);
+    };
+
     let fireSubmit = finishTime => {
       if (form.changing) {
         if (new Date().getTime() < finishTime) {
@@ -33,16 +60,10 @@ Webform.prototype.submit = function(before, options) {
           }, 300);
         } else {
           console.warn('Form will be submitted, but changing flag is still true');
-          originalSubmit
-            .call(this, before, options)
-            .then(resolve)
-            .catch(reject);
+          callSubmit();
         }
       } else {
-        originalSubmit
-          .call(this, before, options)
-          .then(resolve)
-          .catch(reject);
+        callSubmit();
       }
     };
 

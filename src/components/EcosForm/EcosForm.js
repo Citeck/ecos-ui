@@ -12,6 +12,7 @@ import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import { getCurrentLocale, isMobileDevice, t } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
+import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -304,7 +305,7 @@ class EcosForm extends React.Component {
       const outcomeButtonsKeys = [];
 
       allComponents.forEach(item => {
-        if (item.component.type === 'button' && item.component.key.startsWith('outcome_')) {
+        if (item.component.type === 'button' && item.component.key.startsWith(OUTCOME_BUTTONS_PREFIX)) {
           outcomeButtonsKeys.push(item.component.key);
         }
       });
