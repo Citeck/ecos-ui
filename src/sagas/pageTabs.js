@@ -113,7 +113,9 @@ function* sagaSetActiveTabTitle({ api, logger }, action) {
 
     if (activeIndex !== -1) {
       tabs[activeIndex].title = action.payload;
+      tabs[activeIndex].isLoading = false;
     }
+
     yield put(setTabs(tabs));
   } catch (e) {
     logger.error('[pageTabs sagaSetActiveTabTitle saga error', e.message);
@@ -148,6 +150,8 @@ function* getTabWithTitle(data, api) {
         }
       }
     } else {
+      title = t(get(TITLE, data.link, TITLE.HOMEPAGE));
+
       if (data.link === URL.DASHBOARD) {
         title = t(TITLE.HOMEPAGE);
       }
