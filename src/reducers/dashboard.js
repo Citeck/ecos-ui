@@ -31,7 +31,8 @@ const initialState = {
   requestResult: {
     status: '',
     dashboardId: ''
-  }
+  },
+  reset: false
 };
 
 Object.freeze(initialState);
@@ -41,6 +42,7 @@ export default handleActions(
     [getDashboardConfig]: state => {
       return {
         ...state,
+        reset: false,
         isLoading: true
       };
     },
@@ -89,7 +91,8 @@ export default handleActions(
 
     [resetDashboardConfig]: state => {
       return {
-        ...initialState
+        ...initialState,
+        reset: true
       };
     },
 
