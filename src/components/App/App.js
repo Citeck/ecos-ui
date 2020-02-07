@@ -12,7 +12,6 @@ import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
 
-import { changeActiveTab, initTabs, getTabTitle, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 
@@ -33,9 +32,8 @@ const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 
 class App extends Component {
   componentDidMount() {
-    const { initTabs, initMenuSettings } = this.props;
+    const { initMenuSettings } = this.props;
 
-    initTabs();
     initMenuSettings();
   }
 
@@ -95,20 +93,9 @@ class App extends Component {
   }
 
   renderTabs() {
-    const { changeActiveTab, isShow, tabs, setTabs, getTabTitle, isLoadingTitle, isMobile, tabsInited } = this.props;
+    const { isShowTabs, isMobile } = this.props;
 
-    return (
-      <PageTabs
-        homepageLink={URL.DASHBOARD}
-        isShow={isShow && !this.isOnlyContent && !isMobile}
-        inited={tabsInited}
-        tabs={tabs}
-        saveTabs={setTabs}
-        changeActiveTab={changeActiveTab}
-        getTabTitle={getTabTitle}
-        isLoadingTitle={isLoadingTitle}
-      />
-    );
+    return <PageTabs homepageLink={URL.DASHBOARD} isShow={isShowTabs && !this.isOnlyContent && !isMobile} />;
   }
 
   renderReduxModal() {
@@ -194,18 +181,11 @@ const mapStateToProps = state => ({
   isMobile: get(state, ['view', 'isMobile']),
   theme: get(state, ['view', 'theme']),
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
-  isShow: get(state, ['pageTabs', 'isShow'], false),
-  tabs: get(state, ['pageTabs', 'tabs'], []),
-  tabsInited: get(state, ['pageTabs', 'inited'], false),
-  isLoadingTitle: get(state, ['pageTabs', 'isLoadingTitle']),
+  isShowTabs: get(state, ['pageTabs', 'isShow'], false),
   menuType: get(state, ['menu', 'type'])
 });
 
 const mapDispatchToProps = dispatch => ({
-  initTabs: () => dispatch(initTabs()),
-  setTabs: tabs => dispatch(setTabs(tabs)),
-  changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
-  getTabTitle: params => dispatch(getTabTitle(params)),
   initMenuSettings: () => dispatch(initMenuSettings())
 });
 

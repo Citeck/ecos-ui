@@ -15,6 +15,7 @@ import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
 import { DashboardTypes, DeviceTabs, Layouts, MenuTypes } from '../../constants/dashboard';
 import { LAYOUT_TYPE } from '../../constants/layout';
 import DashboardService from '../../services/dashboard';
+import PageTabList from '../../services/pageTabs/PageTabListService';
 import {
   getAwayFromPage,
   getCheckUpdatedDashboardConfig,
@@ -25,7 +26,6 @@ import {
 } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
 import { DndUtils } from '../../components/Drag-n-Drop';
-import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { Checkbox } from '../../components/common/form';
@@ -607,8 +607,7 @@ class DashboardSettings extends React.Component {
     const urlGoTo = this.getUrlToDashboard();
 
     this.props.getAwayFromPage();
-
-    changeUrlLink(urlGoTo, { openNewTab: true, closeActiveTab: true });
+    PageTabList.changeUrlLink(urlGoTo, { openNewTab: true, closeActiveTab: true });
   };
 
   renderButtons() {

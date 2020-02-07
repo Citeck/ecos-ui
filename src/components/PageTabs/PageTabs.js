@@ -1,13 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { push, replace } from 'connected-react-router';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 
 import { animateScrollTo, arrayCompare, arrayMove, deepClone, getScrollbarWidth } from '../../helpers/util';
+import { decodeLink, isNewVersionPage } from '../../helpers/urls';
 import {
   getTitleByUrl,
   IGNORE_TABS_HANDLER_ATTR_NAME,
@@ -17,60 +19,26 @@ import {
   SCROLL_STEP,
   TITLE
 } from '../../constants/pageTabs';
-import { decodeLink, isNewVersionPage } from '../../helpers/urls';
+import { addTab, changeActiveTab, getTabTitle, initTabs, setTabs } from '../../actions/pageTabs';
+import PageTabList from '../../services/pageTabs/PageTabListService';
 import { SortableContainer } from '../Drag-n-Drop';
 import Tab from './Tab';
 
 import './style.scss';
 
-const CHANGE_URL_LINK_EVENT = 'CHANGE_URL_LINK_EVENT';
-const customEvent = document.createEvent('Event');
-
-/**
- *
- * @param link - string
- * @param params
- *    checkUrl - bool,
- *    openNewTab - bool,
- *    openNewBrowserTab - bool,
- *    reopenBrowserTab - bool,
- *    closeActiveTab - bool
- *    openInBackground - bool
- */
-export const changeUrlLink = (link = '', params = {}) => {
-  customEvent.params = { link, ...params };
-  document.dispatchEvent(customEvent);
-};
+const CHANGE_URL_LINK_EVENT = PageTabList.events.CHANGE_URL_LINK_EVENT;
 
 class PageTabs extends React.Component {
   static propTypes = {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
-    history: PropTypes.shape({
-      push: PropTypes.func.isRequired
-    }),
     homepageLink: PropTypes.string.isRequired,
     isShow: PropTypes.bool,
-    inited: PropTypes.bool,
-    isLoadingTitle: PropTypes.bool,
-    tabs: PropTypes.array,
-    linkIgnoreAttr: PropTypes.string,
-
-    saveTabs: PropTypes.func,
-    getTabTitle: PropTypes.func,
-    changeActiveTab: PropTypes.func
+    linkIgnoreAttr: PropTypes.string
   };
 
   static defaultProps = {
     children: null,
-    isShow: false,
-    inited: false,
-    isLoadingTitle: false,
-    tabs: [],
-    linkIgnoreAttr: IGNORE_TABS_HANDLER_ATTR_NAME,
-
-    saveTabs: () => {},
-    changeActiveTab: () => {},
-    getTabTitle: () => {}
+    linkIgnoreAttr: IGNORE_TABS_HANDLER_ATTR_NAME
   };
 
   state = {
@@ -93,7 +61,11 @@ class PageTabs extends React.Component {
   }
 
   componentDidMount() {
-    if (this.props.isShow && this.props.inited) {
+    const { isShow, inited, initTabs } = this.props;
+
+    initTabs();
+
+    if (isShow && inited) {
       this.init();
     }
   }
@@ -140,7 +112,7 @@ class PageTabs extends React.Component {
   }
 
   init() {
-    customEvent.initEvent(CHANGE_URL_LINK_EVENT, true, true);
+    PageTabList.customEvent.initEvent(CHANGE_URL_LINK_EVENT, true, true);
 
     this.checkUrls();
     this.initArrows();
@@ -155,11 +127,7 @@ class PageTabs extends React.Component {
   }
 
   get linkFromUrl() {
-    const {
-      history: {
-        location: { pathname, search, hash }
-      }
-    } = this.props;
+    const { pathname, search, hash } = this.props.location || {};
 
     return decodeLink([pathname, search, hash].join(''));
   }
@@ -204,7 +172,7 @@ class PageTabs extends React.Component {
   }
 
   checkUrls(props = this.props, state = this.state) {
-    const { saveTabs, inited } = props;
+    const { setTabs, inited } = props;
     const { tabs: oldTabs, isNewTab } = state;
     const tabs = deepClone(oldTabs);
     const activeTab = tabs.find(tab => tab.isActive === true);
@@ -225,7 +193,7 @@ class PageTabs extends React.Component {
             item.isActive = false;
           });
           tabs.push(this.generateNewTab({ link: linkFromUrl }));
-          saveTabs(tabs);
+          setTabs(tabs);
 
           this.setState({ tabs });
         }
@@ -307,7 +275,7 @@ class PageTabs extends React.Component {
     const link = decodeLink(event.params.link || '');
 
     if (!isShow) {
-      this.props.history.push.call(this, link);
+      this.props.push.call(this, link);
 
       return;
     }
@@ -332,7 +300,7 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { saveTabs, history } = this.props;
+    const { setTabs, push, replace } = this.props;
 
     event.preventDefault();
 
@@ -360,8 +328,8 @@ class PageTabs extends React.Component {
       } else {
         tabs.forEach(item => (item.isActive = false));
         tabs.push(this.generateNewTab({ link, remoteTitle }));
-        saveTabs(tabs);
-        history.push.call(this, link);
+        setTabs(tabs);
+        push.call(this, link);
 
         this.setState({ tabs }, () => {
           if (this.checkScrollPosition()) {
@@ -377,7 +345,7 @@ class PageTabs extends React.Component {
       const newTab = this.generateNewTab({ link, remoteTitle: true, isActive: false });
 
       tabs.push(newTab);
-      saveTabs(tabs);
+      setTabs(tabs);
 
       return;
     }
@@ -388,12 +356,12 @@ class PageTabs extends React.Component {
     tab.link = link;
     tab.title = this.getTitle(link);
 
-    saveTabs(tabs);
-    history.replace.call(this, link);
+    setTabs(tabs);
+    replace.call(this, link);
   };
 
   handlePopState = () => {
-    const { tabs, saveTabs } = this.props;
+    const { tabs, setTabs } = this.props;
     const newTabs = deepClone(tabs);
     const tab = newTabs.find(tab => tab.isActive);
     const linkFromUrl = this.linkFromUrl;
@@ -401,7 +369,7 @@ class PageTabs extends React.Component {
     tab.link = linkFromUrl;
     tab.title = this.getTitle(linkFromUrl);
 
-    saveTabs(newTabs);
+    setTabs(newTabs);
     this.setState({ tabs: newTabs });
   };
 
@@ -421,7 +389,7 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { saveTabs, history } = this.props;
+    const { setTabs, push } = this.props;
     const tabs = deepClone(this.state.tabs);
     const link = decodeLink(elem.getAttribute('href'));
 
@@ -440,7 +408,7 @@ class PageTabs extends React.Component {
       const newTab = this.generateNewTab({ link, remoteTitle: true, isActive: false });
 
       tabs.push(newTab);
-      saveTabs(tabs);
+      setTabs(tabs);
       this.setState({ tabs }, () => {
         if (this.checkScrollPosition(false)) {
           this.checkNeedArrow();
@@ -455,8 +423,8 @@ class PageTabs extends React.Component {
         tab.isActive = withLinkTabIndex === index;
       });
 
-      saveTabs(tabs);
-      history.push.call(this, link);
+      setTabs(tabs);
+      push.call(this, link);
       this.setState({ tabs, needScrollToActive: true }, this.scrollToActiveTab);
 
       return;
@@ -472,10 +440,10 @@ class PageTabs extends React.Component {
       tab.title = this.getTitle(link);
     }
 
-    saveTabs(tabs);
+    setTabs(tabs);
 
     this.setState({ tabs }, () => {
-      history.push.call(this, link);
+      push.call(this, link);
 
       if (this.checkScrollPosition()) {
         this.checkNeedArrow();
@@ -503,9 +471,24 @@ class PageTabs extends React.Component {
   };
 
   handleAddTab = () => {
+    // const { addTab, homepageLink } = this.props;
+    //
+    // addTab({ data: { link: homepageLink }, params: { activeUrl: homepageLink } });
+    //
+    // this.setState(
+    //   state => {
+    //     const tabs = deepClone(state.tabs);
+    //
+    //     tabs.forEach(tab => {
+    //       tab.isActive = false;
+    //     });
+    //     return { tabs };
+    //   }
+    // );
+
     this.setState(
       state => {
-        const { history, saveTabs } = this.props;
+        const { setTabs } = this.props;
         const tabs = deepClone(state.tabs);
         const newTab = this.generateNewTab({ isActive: true });
 
@@ -513,8 +496,8 @@ class PageTabs extends React.Component {
           tab.isActive = false;
         });
         tabs.push(newTab);
-        history.push.call(this, newTab.link);
-        saveTabs(tabs);
+        push.call(this, newTab.link);
+        setTabs(tabs);
 
         return { tabs, isNewTab: true };
       },
@@ -622,14 +605,14 @@ class PageTabs extends React.Component {
     this.setState(state => {
       const tabs = arrayMove(state.tabs, oldIndex, newIndex);
 
-      this.props.saveTabs(tabs);
+      this.props.setTabs(tabs);
 
       return { tabs, draggableNode: null };
     });
   };
 
   closeTab(tabId) {
-    const { saveTabs, history } = this.props;
+    const { setTabs, push } = this.props;
     let tabs = deepClone(this.state.tabs);
     const index = tabs.findIndex(tab => tab.id === tabId);
     let needNewTab = false;
@@ -659,11 +642,11 @@ class PageTabs extends React.Component {
           link = tabs[index + 1].link;
       }
 
-      history.push.call(this, link);
+      push.call(this, link);
     }
 
     tabs.splice(index, 1);
-    saveTabs(tabs);
+    setTabs(tabs);
 
     this.setState({ tabs }, () => {
       this.checkNeedArrow.bind(this);
@@ -675,15 +658,15 @@ class PageTabs extends React.Component {
   }
 
   activeTab = (tab, allTabs = this.state.tabs) => {
-    const { history, saveTabs } = this.props;
+    const { replace, setTabs } = this.props;
     const tabs = deepClone(allTabs);
 
     tabs.forEach(item => {
       item.isActive = item.id === tab.id;
     });
 
-    saveTabs(tabs);
-    history.replace.call(this, tab.link);
+    setTabs(tabs);
+    replace.call(this, tab.link);
 
     this.setState({ tabs, activeTab: tab.id });
   };
@@ -745,14 +728,12 @@ class PageTabs extends React.Component {
 
   renderTabItem = (item, position) => {
     const { tabs } = this.state;
-    const { isLoadingTitle } = this.props;
 
     return (
       <Tab
         key={item.id}
         tab={item}
         position={position}
-        isLoadingTitle={isLoadingTitle}
         countTabs={tabs.length}
         onClick={this.handleClickTab}
         onMouseUp={this.handleMouseUp}
@@ -824,4 +805,23 @@ class PageTabs extends React.Component {
   }
 }
 
-export default withRouter(PageTabs);
+const mapStateToProps = state => ({
+  location: get(state, 'router.location', {}),
+  tabs: get(state, ['pageTabs', 'tabs'], []),
+  inited: get(state, ['pageTabs', 'inited'], false)
+});
+
+const mapDispatchToProps = dispatch => ({
+  initTabs: () => dispatch(initTabs()),
+  setTabs: tabs => dispatch(setTabs(tabs)),
+  changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
+  getTabTitle: params => dispatch(getTabTitle(params)),
+  addTab: params => dispatch(addTab(params)),
+  push: url => dispatch(push(url)),
+  replace: url => dispatch(replace(url))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PageTabs);

@@ -10,7 +10,6 @@ import get from 'lodash/get';
 class Tab extends Component {
   static propTypes = {
     tab: PropTypes.object,
-    isLoadingTitle: PropTypes.bool,
     countTabs: PropTypes.number,
     position: PropTypes.number,
 
@@ -22,7 +21,6 @@ class Tab extends Component {
 
   static defaultProps = {
     tab: {},
-    isLoadingTitle: false,
     countTabs: 0,
     position: 0,
 
@@ -48,9 +46,9 @@ class Tab extends Component {
   };
 
   renderLoader() {
-    const { tab, isLoadingTitle } = this.props;
+    const { tab } = this.props;
 
-    if ((tab.isActive && isLoadingTitle) || tab.isLoading) {
+    if (tab.isLoading) {
       return <PointsLoader className="page-tab__tabs-item-title-loader" color="light-blue" />;
     }
 
@@ -68,7 +66,7 @@ class Tab extends Component {
   }
 
   render() {
-    const { tab, isLoadingTitle, position, onSortEnd } = this.props;
+    const { tab, position, onSortEnd } = this.props;
 
     return (
       <SortableElement key={tab.id} index={position} onSortEnd={onSortEnd}>
@@ -76,7 +74,7 @@ class Tab extends Component {
           key={tab.id}
           className={classNames('page-tab__tabs-item', {
             'page-tab__tabs-item_active': tab.isActive,
-            'page-tab__tabs-item_disabled': isLoadingTitle
+            'page-tab__tabs-item_disabled': tab.isLoading
           })}
           title={t(tab.title)}
           onClick={this.handleClickTab}

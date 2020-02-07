@@ -3,7 +3,7 @@ import { URL } from '../constants';
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
-import { changeUrlLink } from '../components/PageTabs/PageTabs';
+import PageTabList from '../services/pageTabs/PageTabListService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
@@ -21,7 +21,7 @@ const changeUrl = (url, opts = {}) => {
   if (isNewVersionSharePage()) {
     window.open(url, opts.openNewTab === true ? '_blank' : '_self');
   } else {
-    changeUrlLink(url, opts);
+    PageTabList.changeUrlLink(url, opts);
   }
 };
 

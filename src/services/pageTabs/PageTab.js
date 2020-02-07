@@ -13,13 +13,13 @@ export default class PageTab {
   isLoading;
 
   constructor(data, params) {
-    const { initUrl } = params || {};
+    const { activeUrl } = params || {};
     let { type, link, title, id, isLoading = true, isActive = false } = data || {};
 
     link = decodeLink(link);
 
-    if (initUrl) {
-      isActive = decodeLink(link) === decodeLink(initUrl);
+    if (activeUrl) {
+      isActive = decodeLink(link) === decodeLink(activeUrl);
     }
 
     this.id = id || `page-tab-${uuidv4()}`;

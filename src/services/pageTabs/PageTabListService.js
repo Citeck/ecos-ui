@@ -4,6 +4,12 @@ import PageTab from './PageTab';
 class PageTabListService {
   #tabs = [];
 
+  customEvent = document.createEvent('Event');
+
+  events = {
+    CHANGE_URL_LINK_EVENT: 'CHANGE_URL_LINK_EVENT'
+  };
+
   get tabs() {
     return this.#tabs;
   }
@@ -21,8 +27,8 @@ class PageTabListService {
   init({ tabs, params }) {
     this.tabs = { tabs, params };
 
-    if (!!params.initUrl) {
-      this.add({ link: params.initUrl }, params);
+    if (!!params.activeUrl) {
+      this.add({ link: params.activeUrl }, params);
     }
   }
 
@@ -43,6 +49,22 @@ class PageTabListService {
   isTabExist(key) {
     return this.#tabs.some(item => item.uniqueKey === key);
   }
+
+  /**
+   *
+   * @param link - string
+   * @param params
+   *    checkUrl - bool,
+   *    openNewTab - bool,
+   *    openNewBrowserTab - bool,
+   *    reopenBrowserTab - bool,
+   *    closeActiveTab - bool
+   *    openInBackground - bool
+   */
+  changeUrlLink = (link = '', params = {}) => {
+    this.customEvent.params = { link, ...params };
+    document.dispatchEvent(this.customEvent);
+  };
 }
 
 window.Citeck = window.Citeck || {};

@@ -9,6 +9,7 @@ export const initTabsComplete = createAction(prefix + 'INIT_TABS_COMPLETE');
 export const setLocalTabs = createAction(prefix + 'SET_LOCAL_TABS');
 export const setTabs = createAction(prefix + 'SET_TABS');
 export const getTabs = createAction(prefix + 'GET_TABS');
+export const addTab = createAction(prefix + 'ADD_TAB');
 
 export const changeActiveTab = createAction(prefix + 'CHANGE_ACTIVE_TAB');
 export const setActiveTabTitle = createAction(prefix + 'SET_ACTIVE_TAB_TITLE');

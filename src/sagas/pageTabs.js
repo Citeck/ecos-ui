@@ -1,10 +1,12 @@
 import { delay } from 'redux-saga';
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { push } from 'connected-react-router';
 import queryString from 'query-string';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import {
+  addTab,
   getTabs,
   getTabTitle,
   initTabs,
@@ -25,7 +27,7 @@ import PageTabList from '../services/pageTabs/PageTabListService';
 function* sagaInitTabs({ api, logger }) {
   try {
     const location = yield select(state => state.router.location);
-    const initUrl = location.pathname + location.search;
+    const activeUrl = location.pathname + location.search;
     const isAuthorized = yield select(selectIsAuthenticated);
     const needShowTabs = yield call(api.pageTabs.getShowStatus);
     const userName = yield call(getCurrentUserName);
@@ -40,9 +42,9 @@ function* sagaInitTabs({ api, logger }) {
 
     const storageTabs = yield call(api.pageTabs.getAll);
 
-    PageTabList.init({ tabs: storageTabs, params: { initUrl } });
+    PageTabList.init({ tabs: storageTabs, params: { activeUrl } });
 
-    yield put(setLocalTabs({ tabs: PageTabList.tabs }));
+    yield put(setLocalTabs());
     yield put(initTabsComplete());
 
     const initTabs = deepClone(PageTabList.tabs);
@@ -83,8 +85,12 @@ function* sagaGetTabs({ api, logger }, action) {
 
 function* sagaSetTabs({ api, logger }, action) {
   try {
-    PageTabList.tabs = action.payload || {};
+    const { tabs, params } = action.payload || {};
 
+    if (tabs) {
+      PageTabList.tabs = { tabs, params };
+    }
+    console.log(PageTabList.tabs);
     yield put(setTabs(PageTabList.tabs));
 
     const inited = yield select(selectInitStatus);
@@ -94,6 +100,19 @@ function* sagaSetTabs({ api, logger }, action) {
     }
 
     yield call(api.pageTabs.set, PageTabList.storageList);
+  } catch (e) {
+    logger.error('[pageTabs sagaSetTabs saga error', e.message);
+  }
+}
+
+function* sagaAddTab({ api, logger }, action) {
+  try {
+    const { data, params } = action.payload;
+
+    PageTabList.add(data, params);
+
+    yield put(push(params.activeUrl));
+    yield put(setLocalTabs());
   } catch (e) {
     logger.error('[pageTabs sagaSetTabs saga error', e.message);
   }
@@ -190,6 +209,7 @@ function* saga(ea) {
   yield takeLatest(getTabs().type, sagaGetTabs, ea);
   yield takeLatest(setLocalTabs().type, sagaSetTabs, ea);
   yield takeLatest(setActiveTabTitle().type, sagaSetActiveTabTitle, ea);
+  yield takeLatest(addTab().type, sagaAddTab, ea);
   yield takeEvery(getTabTitle().type, sagaGetTabTitle, ea);
 }
 
