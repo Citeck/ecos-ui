@@ -30,6 +30,7 @@ class JournalsDashletPagination extends Component {
     className: PropTypes.string,
     grid: PropTypes.object,
     hasPageSize: PropTypes.bool,
+    isWidget: PropTypes.bool,
     reloadGrid: PropTypes.func
   };
 
@@ -39,7 +40,10 @@ class JournalsDashletPagination extends Component {
 
   reloadGrid = pagination => {
     this.props.reloadGrid({ pagination });
-    this.props.setSettingsToUrl({ pagination });
+
+    if (!this.props.isWidget) {
+      this.props.setSettingsToUrl({ pagination });
+    }
   };
 
   render() {

@@ -161,7 +161,7 @@ class JournalsDashlet extends BaseWidget {
 
         <JournalsDashletGrid stateId={this._stateId} isWidget />
 
-        <JournalsDashletFooter stateId={this._stateId} />
+        <JournalsDashletFooter stateId={this._stateId} isWidget />
       </>
     );
   }

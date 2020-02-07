@@ -87,7 +87,7 @@ function getDefaultJournalSetting(journalConfig) {
   };
 }
 
-function getGridParams({ journalConfig, journalSetting, pagination }) {
+function getGridParams({ journalConfig, journalSetting, pagination, url }) {
   const {
     meta: { createVariants, predicate, actions: journalActions },
     sourceId,
@@ -99,6 +99,7 @@ function getGridParams({ journalConfig, journalSetting, pagination }) {
     : isEmpty(journalSettingPredicate)
     ? []
     : [journalSettingPredicate];
+  const urlPagination = url.pagination ? JSON.parse(url.pagination) : {};
 
   return {
     journalId,
@@ -110,7 +111,7 @@ function getGridParams({ journalConfig, journalSetting, pagination }) {
     columns: columns.map(col => ({ ...col })),
     groupBy: Array.from(groupBy),
     predicates,
-    pagination
+    pagination: { ...pagination, ...urlPagination }
   };
 }
 
@@ -303,11 +304,11 @@ function* getGridData(api, params, stateId) {
 }
 
 function* loadGrid(api, { journalSettingId, journalConfig, stateId }, w) {
+  const url = yield select(state => state.journals[stateId].url);
   const pagination = yield select(state => state.journals[stateId].grid.pagination);
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
-  const params = getGridParams({ journalConfig, journalSetting, pagination });
+  const params = getGridParams({ journalConfig, journalSetting, pagination, url });
   const gridData = yield getGridData(api, params, stateId);
-  const url = yield select(state => state.journals[stateId].url);
 
   yield put(setSelectedRecords(w([])));
   yield put(setSelectAllRecords(w(!!url.selectionFilter)));
@@ -671,7 +672,7 @@ function* sagaSetSettingsToUrl({ api, logger, stateId, w }, action) {
   try {
     const location = yield select(state => state.router.location);
     const { pathname, search } = location;
-    const { groupBy, sortBy, predicates } = action.payload || {};
+    const { groupBy, sortBy, predicates, pagination } = action.payload || {};
     const urlParams = queryString.parse(search);
 
     if (!isEmpty(predicates)) {
@@ -682,6 +683,9 @@ function* sagaSetSettingsToUrl({ api, logger, stateId, w }, action) {
     }
     if (!isEmpty(sortBy)) {
       urlParams.sortBy = JSON.stringify(sortBy);
+    }
+    if (!isEmpty(pagination)) {
+      urlParams.pagination = JSON.stringify(pagination);
     }
 
     yield put(push(`${pathname}?${queryString.stringify(urlParams)}`));
