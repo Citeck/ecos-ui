@@ -54,10 +54,11 @@ import {
   setZipNodeRef
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
+import { changeTabData } from '../actions/pageTabs';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
-import { getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
+import { decodeLink, getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
 import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
 
@@ -735,7 +736,10 @@ function* sagaSetSettingsToUrl({ api, logger, stateId, w }, action) {
       urlParams.pagination = JSON.stringify(pagination);
     }
 
-    yield put(push(`${pathname}?${queryString.stringify(urlParams)}`));
+    const link = decodeLink(`${pathname}?${queryString.stringify(urlParams)}`);
+
+    yield put(push(link));
+    yield put(changeTabData({ filter: { isActive: true }, data: { link } }));
   } catch (e) {
     logger.error('[journals sagaSetSettingsToUrl saga error', e);
   }
