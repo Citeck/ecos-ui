@@ -1,37 +1,45 @@
 import queryString from 'query-string';
-import uniqueId from 'lodash/uniqueId';
+import uuidv4 from 'uuid/v4';
+import { decodeLink } from '../../helpers/urls';
 
 export default class PageTab {
-  #id;
-  #link;
-  #type;
   #key;
 
+  id;
+  link;
+  type;
+  title;
   isActive;
   isLoading;
-  title;
 
-  constructor(info) {
-    const { params, ...data } = info;
-    const { type, url, title } = data;
+  constructor(data, params) {
+    const { initUrl } = params || {};
+    let { type, link, title, id, isLoading = true, isActive = false } = data || {};
 
-    this.#id = uniqueId('page-tab-');
-    this.#type = type;
-    this.#key = PageTab.getKeyFromUrl(url);
+    link = decodeLink(link);
+
+    if (initUrl) {
+      isActive = decodeLink(link) === decodeLink(initUrl);
+    }
+
+    this.id = id || `page-tab-${uuidv4()}`;
+    this.link = link;
+    this.type = type || PageTab.getTypeFromUrl(link);
     this.title = title;
-    this.isLoading = false;
-    this.isActive = false;
+    this.isLoading = isLoading;
+    this.isActive = isActive;
+    this.#key = PageTab.getKeyFromUrl(link, this.type);
   }
 
   get uniqueKey() {
-    return `${this.#type}-${this.#key}`;
+    return `${this.type}-${this.#key}`;
   }
 
-  get local() {
+  get storage() {
     return {
-      id: this.#id,
-      type: this.#type,
-      link: this.#link
+      id: this.id,
+      type: this.type,
+      link: this.link
     };
   }
 
@@ -40,14 +48,25 @@ export default class PageTab {
     JOURNALS: 'journals'
   };
 
+  static getTypeFromUrl(url) {
+    const urlProps = queryString.parseUrl(url);
+
+    switch (true) {
+      case urlProps.url.includes(PageTab.Types.DASHBOARD):
+        return PageTab.Types.DASHBOARD;
+      case urlProps.url.includes(PageTab.Types.JOURNALS):
+        return PageTab.Types.JOURNALS;
+    }
+  }
+
   static getKeyFromUrl(url, type) {
-    const urlProps = queryString.parse(url);
+    const urlProps = queryString.parseUrl(url);
 
     switch (type) {
       case PageTab.Types.DASHBOARD:
-        return urlProps.recordRef || '';
+        return urlProps.query.recordRef || '';
       case PageTab.Types.JOURNALS:
-        return urlProps.journalsListId || '';
+        return urlProps.query.journalsListId || '';
     }
   }
 }

@@ -7,7 +7,7 @@ import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 
-import { arrayCompare, arrayMove, deepClone, getScrollbarWidth, t, animateScrollTo } from '../../helpers/util';
+import { animateScrollTo, arrayCompare, arrayMove, deepClone, getScrollbarWidth, t } from '../../helpers/util';
 import { SortableContainer, SortableElement } from '../Drag-n-Drop';
 import {
   getTitleByUrl,
@@ -100,28 +100,6 @@ class PageTabs extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.isShow) {
-      if (nextProps.isShow !== this.props.isShow && !nextProps.tabs.length && nextProps.inited) {
-        const hasRecordRef = this.linkFromUrl.includes('recordRef');
-
-        let propsFirstTab = {
-          tabsCount: 0,
-          props: nextProps
-        };
-
-        if (hasRecordRef) {
-          propsFirstTab = {
-            ...propsFirstTab,
-            link: this.linkFromUrl,
-            remoteTitle: true
-          };
-        }
-
-        const tabs = [this.generateNewTab(propsFirstTab)];
-
-        nextProps.saveTabs(tabs);
-        this.setState({ tabs });
-      }
-
       if (JSON.stringify(nextProps.tabs) !== JSON.stringify(nextState.tabs)) {
         this.setState(
           {

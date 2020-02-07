@@ -1,32 +1,35 @@
+import isArray from 'lodash/isArray';
 import PageTab from './PageTab';
-import { PageTabsApi } from '../../api';
-import { getCurrentUserName } from '../../helpers/util';
-
-const api = new PageTabsApi();
 
 class PageTabListService {
   #tabs = [];
-
-  constructor() {
-    this.#tabs = this.getAll();
-  }
 
   get tabs() {
     return this.#tabs;
   }
 
-  getAll() {
-    api.checkOldVersion(getCurrentUserName());
+  set tabs({ tabs, params }) {
+    tabs = isArray(tabs) ? tabs : this.#tabs || [];
 
-    const tabs = api.getAll();
-    console.log('here', tabs);
-    return tabs.map(item => new PageTab(item));
+    this.#tabs = tabs.map(item => new PageTab(item, params));
   }
 
-  add(data, params = {}) {
+  get storageList() {
+    return this.#tabs.map(item => item.storage);
+  }
+
+  init({ tabs, params }) {
+    this.tabs = { tabs, params };
+
+    if (!!params.initUrl) {
+      this.add({ link: params.initUrl }, params);
+    }
+  }
+
+  add(data, params) {
     const tab = new PageTab(data, params);
 
-    if (this.isExist(tab.uniqueKey)) {
+    if (!this.isTabExist(tab.uniqueKey)) {
       this.#tabs.push(tab);
     }
   }
@@ -37,12 +40,13 @@ class PageTabListService {
     this.#tabs.splice(tabIndex, 1);
   }
 
-  isExist(key) {
+  isTabExist(key) {
     return this.#tabs.some(item => item.uniqueKey === key);
   }
 }
 
 window.Citeck = window.Citeck || {};
+
 const PageTabList = (window.Citeck.PageTabList = window.Citeck.PageTabList || new PageTabListService());
 
 export default PageTabList;

@@ -2,14 +2,14 @@ import get from 'lodash/get';
 
 import Records from '../components/Records';
 import { CommonApi } from './common';
-import * as ls from '../helpers/ls';
 import { USER_GUEST } from '../constants';
-import { deepClone, isNodeRef } from '../helpers/util';
-import { decodeLink, isNewVersionPage } from '../helpers/urls';
 import { PROXY_URI } from '../constants/alfresco';
+import * as storage from '../helpers/ls';
+import { deepClone, isNodeRef } from '../helpers/util';
+import { isNewVersionPage } from '../helpers/urls';
 
 export class PageTabsApi extends CommonApi {
-  #lsKey = ls.generateKey('page-tabs', true);
+  #lsKey = storage.generateKey('page-tabs', true);
   #newVersionKeyPath = '/user';
 
   get lsKey() {
@@ -23,8 +23,8 @@ export class PageTabsApi extends CommonApi {
   getAll = () => {
     let tabs = [];
 
-    if (ls.hasData(this.lsKey, 'array')) {
-      tabs = ls.getData(this.lsKey);
+    if (storage.hasData(this.lsKey, 'array')) {
+      tabs = storage.getData(this.lsKey);
     }
 
     return tabs;
@@ -38,16 +38,12 @@ export class PageTabsApi extends CommonApi {
     const currentVersion = this.lsKey;
     const newVersionKey = `${this.lsKey}${this.#newVersionKeyPath}-${userName}`;
 
-    ls.transferData(currentVersion, newVersionKey, true);
+    storage.transferData(currentVersion, newVersionKey, true);
     this.lsKey = newVersionKey;
   };
 
   set = tabs => {
-    const upTabs = deepClone(tabs);
-
-    upTabs.forEach(item => (item.link = decodeLink(item.link)));
-
-    ls.setData(this.lsKey, upTabs);
+    storage.setData(this.lsKey, deepClone(tabs));
   };
 
   getTabTitle = ({ recordRef, journalId = null }) => {
