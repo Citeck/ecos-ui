@@ -42,7 +42,8 @@ export const setPredicate = createAction(prefix + 'SET_PREDICATE');
 export const setColumnsSetup = createAction(prefix + 'SET_COLUMNS_SETUP');
 export const setGrouping = createAction(prefix + 'SET_GROUPING');
 export const initJournalSettingData = createAction(prefix + 'INIT_JOURNAL_SETTING_DATA');
-export const cancelJournalSettingData = createAction(prefix + 'CANCEL_JOURNAL_SETTING_DATA');
+export const resetJournalSettingData = createAction(prefix + 'RESET_JOURNAL_SETTING_DATA');
+export const restoreJournalSettingData = createAction(prefix + 'RESTORE_JOURNAL_SETTING_DATA');
 
 export const onJournalSettingsSelect = createAction(prefix + 'ON_JOURNAL_SETTINGS_SELECT');
 export const onJournalSelect = createAction(prefix + 'ON_JOURNAL_SELECT');
@@ -54,6 +55,7 @@ export const setPreviewFileName = createAction(prefix + 'SET_PREVIEW_FILE_NAME')
 export const goToJournalsPage = createAction(prefix + 'GO_TO_JOURNALS_PAGE');
 export const search = createAction(prefix + 'SEARCH');
 export const setUrl = createAction(prefix + 'SET_URL');
+export const setSettingsToUrl = createAction(prefix + 'SET_SETTINGS_TO_URL');
 export const initState = createAction(prefix + 'INIT_STATE');
 export const performGroupAction = createAction(prefix + 'PERFORM_GROUP_ACTION');
 export const setPerformGroupActionResponse = createAction(prefix + 'SET_PERFORM_GROUP_ACTION_RESPONSE');

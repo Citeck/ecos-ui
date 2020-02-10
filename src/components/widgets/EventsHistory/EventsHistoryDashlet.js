@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { isSmallMode, t } from '../../../helpers/util';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
+import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import EventsHistory from './EventsHistory';
@@ -44,7 +44,7 @@ class EventsHistoryDashlet extends BaseWidget {
       isSmallMode: false,
       fitHeights: {},
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
+      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
     };
   }
 

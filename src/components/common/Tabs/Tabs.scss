@@ -79,7 +79,7 @@
   &_editable {
     display: inline-flex;
     position: relative;
-    padding: 0 27px 0 14px;
+    padding: 0 calc(27px + 32px) 0 14px;
     min-width: 90px;
 
     &:hover {
@@ -125,17 +125,12 @@
     position: absolute;
     right: 0;
     height: 100%;
-    //padding-left: 3px;
     display: inline-flex;
     align-items: center;
     background: var(--back-actions);
 
     & :nth-child(n) {
       padding-right: 10px;
-    }
-
-    & :first-of-type:not(:last-of-type) {
-      box-shadow: -15px 0px 10px var(--back-actions);
     }
 
     &__icon {
@@ -161,9 +156,73 @@
         }
       }
 
+      &_menu {
+        $menu: &;
+
+        font-size: $font-size-extra-large;
+
+        &-opened {
+          color: $color-blue-light;
+        }
+
+        &-active-tab {
+          color: $color-blue-light;
+
+          &#{$menu}-opened {
+            color: $color-blue-light2;
+          }
+
+          &:hover {
+            color: $color-blue-light2;
+          }
+        }
+      }
+
       &.icon-drag {
         font-size: $font-size-extra-large;
         cursor: grab;
+      }
+    }
+
+    &__menu {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+
+      &.tooltip-inner {
+        padding: 0;
+      }
+
+      &-item {
+        $item: &;
+
+        padding: 9px 15px;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+
+        &:hover {
+          background-color: $color-gray-4;
+        }
+
+        &-icon {
+          color: $color-gray-5;
+          margin-right: 10px;
+          font-size: 16px;
+          vertical-align: text-top;
+        }
+
+        &-title {
+          font-size: $font-size-standard;
+        }
+
+        &_warning {
+          color: $color-red-1;
+
+          #{$item}-icon {
+            color: $color-red-1;
+          }
+        }
       }
     }
   }

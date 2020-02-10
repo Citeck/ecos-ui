@@ -9,7 +9,7 @@ import { selectStateByKey } from '../../../selectors/birthdays';
 import { getBirthdays, init } from '../../../actions/birthdays';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
+import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import PageTabList from '../../../services/pageTabs/PageTabListService';
 import { Avatar, DefineHeight, Loader } from '../../common';
 import { Btn } from '../../common/btns';
@@ -56,7 +56,7 @@ class Birthdays extends Component {
       contentHeight: null,
       width: MIN_WIDTH_DASHLET_SMALL,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
+      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
     };
 
     props.init();
@@ -95,7 +95,7 @@ class Birthdays extends Component {
 
   handleToggleContent = (isCollapsed = false) => {
     this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+    UserLocalSettingsService.setDashletProperty(this.props.id, { isCollapsed });
   };
 
   handleGoToProfile = url => {

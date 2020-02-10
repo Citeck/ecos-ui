@@ -243,6 +243,7 @@ function* saga(ea) {
   yield takeLatest(setActiveTabTitle().type, sagaSetActiveTabTitle, ea);
   yield takeEvery(changeTab().type, sagaChangeTabData, ea);
   yield takeEvery(getTabTitle().type, sagaGetTabTitle, ea);
+  yield takeEvery(changeTab().type, sagaChangeTabData, ea);
 }
 
 export default saga;
