@@ -720,11 +720,11 @@ function* sagaSetSettingsToUrl({ api, logger, stateId, w }, action) {
   try {
     const location = yield select(state => state.router.location);
     const { pathname, search } = location;
-    const { groupBy, sortBy, predicates, pagination } = action.payload || {};
+    const { groupBy, sortBy, predicate, pagination } = action.payload || {};
     const urlParams = queryString.parse(search);
 
-    if (!isEmpty(predicates)) {
-      urlParams.filter = JSON.stringify(predicates);
+    if (!isEmpty(predicate)) {
+      urlParams.filter = JSON.stringify(predicate);
     }
     if (!isEmpty(groupBy)) {
       urlParams.groupBy = JSON.stringify(groupBy);

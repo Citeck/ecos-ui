@@ -125,7 +125,7 @@ class JournalsDashletGrid extends Component {
     this.reloadGrid({ predicates: [newPredicate] });
 
     if (!isWidget) {
-      setSettingsToUrl({ predicates: newPredicate });
+      setSettingsToUrl({ predicate: newPredicate });
     }
   };
 
