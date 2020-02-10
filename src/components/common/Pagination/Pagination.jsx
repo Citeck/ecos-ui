@@ -40,11 +40,12 @@ export default class Pagination extends Component {
 
   triggerChange = (page, maxItems) => {
     const { onChange } = this.props;
+
     if (typeof onChange === 'function') {
       onChange({
         skipCount: (page - 1) * maxItems,
-        maxItems: maxItems,
-        page: page
+        maxItems,
+        page
       });
     }
   };
@@ -100,11 +101,13 @@ export default class Pagination extends Component {
 
         {hasPageSize ? (
           <Select
-            className={'ecos-pagination__page-size select_narrow select_page-size'}
+            className="ecos-pagination__page-size select_narrow select_page-size"
             options={sizes}
             value={pageSizeValue}
             onChange={this.onChangeMaxItems}
             menuPlacement={'auto'}
+            hideSelectedOptions
+            isSearchable={false}
           />
         ) : null}
       </div>
