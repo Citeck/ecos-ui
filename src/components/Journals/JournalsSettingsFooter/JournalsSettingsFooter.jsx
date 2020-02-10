@@ -99,7 +99,7 @@ class JournalsSettingsFooter extends Component {
     const { columns, groupBy, sortBy, predicate } = journalSetting;
     const predicates = predicate ? [predicate] : [];
 
-    setSettingsToUrl({ groupBy, sortBy, predicates });
+    setSettingsToUrl({ groupBy, sortBy, predicates: predicate });
     setJournalSetting(journalSetting);
     reloadGrid({ columns, groupBy, sortBy, predicates });
     trigger.call(this, 'onApply');

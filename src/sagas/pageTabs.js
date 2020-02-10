@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import findIndex from 'lodash/findIndex';
 
 import {
-  changeTabData,
+  changeTab,
   getActiveTabTitle,
   getTabs,
   getTabTitle,
@@ -222,7 +222,7 @@ function* saga(ea) {
   yield takeLatest(setTabs().type, sagaSetTabs, ea);
   yield takeLatest(setActiveTabTitle().type, sagaSetActiveTabTitle, ea);
   yield takeEvery(getTabTitle().type, sagaGetTabTitle, ea);
-  yield takeEvery(changeTabData().type, sagaChangeTabData, ea);
+  yield takeEvery(changeTab().type, sagaChangeTabData, ea);
 }
 
 export default saga;

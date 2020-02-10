@@ -1,6 +1,6 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import queryString from 'query-string';
-import { push } from 'connected-react-router';
+import { replace } from 'connected-react-router';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
@@ -54,7 +54,7 @@ import {
   setZipNodeRef
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { changeTabData } from '../actions/pageTabs';
+import { changeTab } from '../actions/pageTabs';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
@@ -738,8 +738,8 @@ function* sagaSetSettingsToUrl({ api, logger, stateId, w }, action) {
 
     const link = decodeLink(`${pathname}?${queryString.stringify(urlParams)}`);
 
-    yield put(push(link));
-    yield put(changeTabData({ filter: { isActive: true }, data: { link } }));
+    yield put(replace(link));
+    yield put(changeTab({ filter: { isActive: true }, data: { link } }));
   } catch (e) {
     logger.error('[journals sagaSetSettingsToUrl saga error', e);
   }
