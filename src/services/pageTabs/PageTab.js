@@ -36,11 +36,15 @@ export default class PageTab {
   }
 
   get storage() {
-    return {
-      id: this.id,
-      type: this.type,
-      link: this.link
-    };
+    const { id, type, link } = this;
+
+    return { id, type, link };
+  }
+
+  get store() {
+    const { id, type, link, title, isActive, isLoading } = this;
+
+    return { id, type, link, title, isActive, isLoading };
   }
 
   static Types = {

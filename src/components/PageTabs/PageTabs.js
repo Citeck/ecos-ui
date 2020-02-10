@@ -19,7 +19,7 @@ import {
   SCROLL_STEP,
   TITLE
 } from '../../constants/pageTabs';
-import { addTab, changeActiveTab, getTabTitle, initTabs, setTabs } from '../../actions/pageTabs';
+import { addTab, changeActiveTab, deleteTab, getTabTitle, initTabs, setTabs } from '../../actions/pageTabs';
 import PageTabList from '../../services/pageTabs/PageTabListService';
 import { SortableContainer } from '../Drag-n-Drop';
 import Tab from './Tab';
@@ -471,43 +471,14 @@ class PageTabs extends React.Component {
   };
 
   handleAddTab = () => {
-    // const { addTab, homepageLink } = this.props;
-    //
-    // addTab({ data: { link: homepageLink }, params: { activeUrl: homepageLink } });
-    //
-    // this.setState(
-    //   state => {
-    //     const tabs = deepClone(state.tabs);
-    //
-    //     tabs.forEach(tab => {
-    //       tab.isActive = false;
-    //     });
-    //     return { tabs };
-    //   }
-    // );
+    const { addTab, homepageLink } = this.props;
 
-    this.setState(
-      state => {
-        const { setTabs } = this.props;
-        const tabs = deepClone(state.tabs);
-        const newTab = this.generateNewTab({ isActive: true });
+    addTab({ data: { link: homepageLink, isActive: true } });
 
-        tabs.forEach(tab => {
-          tab.isActive = false;
-        });
-        tabs.push(newTab);
-        push.call(this, newTab.link);
-        setTabs(tabs);
-
-        return { tabs, isNewTab: true };
-      },
-      () => {
-        if (this.checkScrollPosition()) {
-          this.checkNeedArrow();
-          this.setState({ isNewTab: false });
-        }
-      }
-    );
+    // if (this.checkScrollPosition()) {
+    //       this.checkNeedArrow();
+    //       this.setState({ isNewTab: false });
+    //     }
   };
 
   /**
@@ -611,50 +582,10 @@ class PageTabs extends React.Component {
     });
   };
 
-  closeTab(tabId) {
-    const { setTabs, push } = this.props;
-    let tabs = deepClone(this.state.tabs);
-    const index = tabs.findIndex(tab => tab.id === tabId);
-    let needNewTab = false;
+  closeTab(tab) {
+    const { deleteTab } = this.props;
 
-    if (index === -1) {
-      return false;
-    }
-
-    if (tabs[index].isActive) {
-      let link = '/';
-
-      switch (index) {
-        case 0:
-          if (tabs.length === 1) {
-            needNewTab = true;
-          } else {
-            tabs[index + 1].isActive = true;
-            link = tabs[index + 1].link;
-          }
-          break;
-        case tabs.length - 1:
-          tabs[index - 1].isActive = true;
-          link = tabs[index - 1].link;
-          break;
-        default:
-          tabs[index + 1].isActive = true;
-          link = tabs[index + 1].link;
-      }
-
-      push.call(this, link);
-    }
-
-    tabs.splice(index, 1);
-    setTabs(tabs);
-
-    this.setState({ tabs }, () => {
-      this.checkNeedArrow.bind(this);
-
-      if (needNewTab) {
-        this.handleAddTab();
-      }
-    });
+    deleteTab(tab);
   }
 
   activeTab = (tab, allTabs = this.state.tabs) => {

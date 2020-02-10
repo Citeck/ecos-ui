@@ -37,12 +37,12 @@ class Tab extends Component {
   handleMouseUp = event => {
     const isWheelButton = get(event, 'nativeEvent.button', 0) === 1;
 
-    this.props.onMouseUp(this.props.tab.id, isWheelButton);
+    this.props.onMouseUp(this.props.tab, isWheelButton);
   };
 
   handleCloseTab = event => {
     event.stopPropagation();
-    this.props.onClose(this.props.tab.id);
+    this.props.onClose(this.props.tab);
   };
 
   renderLoader() {
