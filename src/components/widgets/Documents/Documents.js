@@ -529,8 +529,14 @@ class Documents extends BaseWidget {
   };
 
   handleDragIn = event => {
+    const types = get(event, 'dataTransfer.types', []);
+
     event.preventDefault();
     event.stopPropagation();
+
+    if (!types.includes('Files')) {
+      return;
+    }
 
     this.setState({ isDragFiles: true });
   };
@@ -544,6 +550,10 @@ class Documents extends BaseWidget {
 
   handleRowDrop = data => {
     const { files = [], type = {} } = data;
+
+    if (!files.length) {
+      return;
+    }
 
     if (!type.multiple && files.length > 1) {
       this.setState({ selectedTypeForLoading: type });
