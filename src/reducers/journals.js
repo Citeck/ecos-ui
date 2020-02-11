@@ -106,7 +106,6 @@ const defaultState = {
 const initialState = {};
 
 Object.freeze(initialState);
-Object.freeze(defaultState);
 
 export default handleActions(
   {

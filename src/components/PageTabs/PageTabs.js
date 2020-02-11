@@ -240,8 +240,7 @@ class PageTabs extends React.Component {
       if (
         !compareUrls({
           urls: [activeTab.link, linkFromUrl],
-          ignored: [SEARCH_KEYS.PAGINATION, SEARCH_KEYS.FILTER, SEARCH_KEYS.SORT],
-          compareBy: ['journalsListId']
+          ignored: [SEARCH_KEYS.PAGINATION, SEARCH_KEYS.FILTER, SEARCH_KEYS.SORT]
         })
       ) {
         const newActiveTab = tabs.find(tab => tab.link === linkFromUrl);
