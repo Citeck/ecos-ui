@@ -203,6 +203,16 @@
 
         &:hover {
           background-color: $color-gray-4;
+
+          &:first-child {
+            border-top-left-radius: $border-radius-large;
+            border-top-right-radius: $border-radius-large;
+          }
+
+          &:last-child {
+            border-bottom-left-radius: $border-radius-large;
+            border-bottom-right-radius: $border-radius-large;
+          }
         }
 
         &-icon {
