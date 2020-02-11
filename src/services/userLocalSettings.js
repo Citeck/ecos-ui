@@ -80,12 +80,7 @@ export default class UserLocalSettingsService {
   }
 
   /*dashlets settings*/
-
-  static getProperty(dashletId, propertyName) {
-    this.getDashletProperty(dashletId, propertyName);
-  }
-
-  static setProperty(dashletId, property = {}) {
+  static setDashletProperty(dashletId, property = {}) {
     const key = UserLocalSettingsService.getKey(dashletId);
     const data = getDashletSettings(key);
 
