@@ -106,6 +106,7 @@ const defaultState = {
 const initialState = {};
 
 Object.freeze(initialState);
+Object.freeze(defaultState);
 
 export default handleActions(
   {
@@ -131,7 +132,6 @@ export default handleActions(
             [stateId]: {
               ...state[stateId],
               url: {
-                ...state[stateId].url,
                 ...action.payload
               }
             }
@@ -139,7 +139,6 @@ export default handleActions(
         : {
             ...state,
             url: {
-              ...state.url,
               ...action.payload
             }
           };
