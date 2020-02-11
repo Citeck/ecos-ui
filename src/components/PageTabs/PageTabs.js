@@ -8,10 +8,10 @@ import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 
-import { animateScrollTo, arrayCompare, arrayMove, deepClone, getScrollbarWidth } from '../../helpers/util';
+import { animateScrollTo, arrayCompare, deepClone, getScrollbarWidth } from '../../helpers/util';
 import { decodeLink, isNewVersionPage } from '../../helpers/urls';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_TAG, OPEN_IN_BACKGROUND, SCROLL_STEP } from '../../constants/pageTabs';
-import { addTab, changeTab, deleteTab, initTabs } from '../../actions/pageTabs';
+import { addTab, changeTab, deleteTab, initTabs, moveTabs } from '../../actions/pageTabs';
 import PageTabList from '../../services/pageTabs/PageTabListService';
 import { SortableContainer } from '../Drag-n-Drop';
 import Tab from './Tab';
@@ -379,8 +379,7 @@ class PageTabs extends React.Component {
     event.stopPropagation();
     draggableNode.classList.toggle('page-tab__tabs-item_sorting');
 
-    const tabs = arrayMove(this.props.tabs, oldIndex, newIndex);
-
+    this.props.moveTabs({ indexFrom: oldIndex, indexTo: newIndex });
     this.setState({ draggableNode: null });
   };
 
@@ -518,9 +517,10 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initTabs: () => dispatch(initTabs()),
-  changeTab: tabs => dispatch(changeTab(tabs)),
+  moveTabs: params => dispatch(moveTabs(params)),
+  changeTab: tab => dispatch(changeTab(tab)),
   addTab: params => dispatch(addTab(params)),
-  deleteTab: params => dispatch(deleteTab(params)),
+  deleteTab: tab => dispatch(deleteTab(tab)),
   push: url => dispatch(push(url)),
   replace: url => dispatch(replace(url))
 });

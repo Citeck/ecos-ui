@@ -5,7 +5,17 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import find from 'lodash/find';
 
-import { addTab, changeTab, deleteTab, getTabs, initTabs, initTabsComplete, setShowTabsStatus, setTabs } from '../actions/pageTabs';
+import {
+  addTab,
+  changeTab,
+  deleteTab,
+  getTabs,
+  initTabs,
+  initTabsComplete,
+  moveTabs,
+  setShowTabsStatus,
+  setTabs
+} from '../actions/pageTabs';
 import { selectInitStatus } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
 import { getCurrentUserName, t } from '../helpers/util';
@@ -66,6 +76,17 @@ function* sagaGetTabs({ api, logger }, action) {
     }
 
     yield put(initTabs());
+  } catch (e) {
+    logger.error('[pageTabs sagaGetTabs saga error', e.message);
+  }
+}
+
+function* sagaMoveTabs({ api, logger }, action) {
+  try {
+    const { indexFrom, indexTo } = action.payload;
+
+    PageTabList.move(indexFrom, indexTo);
+    yield put(setTabs(PageTabList.storeList));
   } catch (e) {
     logger.error('[pageTabs sagaGetTabs saga error', e.message);
   }
@@ -181,8 +202,9 @@ function* sagaChangeTabData({ api, logger }, { payload }) {
 function* saga(ea) {
   yield takeLatest(initTabs().type, sagaInitTabs, ea);
   yield takeLatest(getTabs().type, sagaGetTabs, ea);
-  yield takeLatest(addTab().type, sagaAddTab, ea);
-  yield takeLatest(deleteTab().type, sagaDeleteTab, ea);
+  yield takeEvery(moveTabs().type, sagaMoveTabs, ea);
+  yield takeEvery(addTab().type, sagaAddTab, ea);
+  yield takeEvery(deleteTab().type, sagaDeleteTab, ea);
   yield takeEvery(changeTab().type, sagaChangeTabData, ea);
 }
 

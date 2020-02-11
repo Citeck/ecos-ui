@@ -1,11 +1,10 @@
 import isArray from 'lodash/isArray';
 
 import * as storage from '../../helpers/ls';
-
-import PageTab from './PageTab';
 import { decodeLink } from '../../helpers/urls';
 import { t } from '../../helpers/util';
 import { TITLE } from '../../constants/pageTabs';
+import PageTab from './PageTab';
 
 class PageTabListService {
   #tabs;
@@ -120,6 +119,12 @@ class PageTabListService {
     this.setToStorage();
 
     return changingTab;
+  }
+
+  move(indexFrom, indexTo) {
+    this.#tabs.splice(indexTo < 0 ? this.#tabs.length + indexTo : indexTo, 0, this.#tabs.splice(indexFrom, 1)[0]);
+
+    this.setToStorage();
   }
 
   setToStorage() {
