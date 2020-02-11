@@ -19,7 +19,6 @@ import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
-import { setActiveTabTitle } from '../../actions/pageTabs';
 import { t, trigger } from '../../helpers/util';
 import { goToCardDetailsPage } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
@@ -46,8 +45,7 @@ const mapDispatchToProps = (dispatch, props) => {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     search: text => dispatch(search(w(text))),
-    restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
-    setActiveTabTitle: text => dispatch(setActiveTabTitle(text))
+    restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting)))
   };
 };
 

@@ -3,22 +3,30 @@ import isArray from 'lodash/isArray';
 import * as storage from '../../helpers/ls';
 
 import PageTab from './PageTab';
+import { decodeLink } from '../../helpers/urls';
+import { t } from '../../helpers/util';
+import { TITLE } from '../../constants/pageTabs';
 
 class PageTabListService {
-  #tabs = [];
+  #tabs;
   #keyStorage;
-
-  customEvent = document.createEvent('Event');
+  #customEvent;
 
   events = {
     CHANGE_URL_LINK_EVENT: 'CHANGE_URL_LINK_EVENT'
   };
 
+  constructor() {
+    this.#tabs = [];
+    this.#customEvent = document.createEvent('Event');
+    this.#customEvent.initEvent(this.events.CHANGE_URL_LINK_EVENT, true, true);
+  }
+
   get tabs() {
     return this.#tabs;
   }
 
-  set tabs({ tabs, params }) {
+  set tabs({ tabs, params = {} }) {
     this.#tabs = [];
 
     tabs = isArray(tabs) ? tabs : [];
@@ -26,7 +34,7 @@ class PageTabListService {
   }
 
   get isActive() {
-    return this.#tabs.find(item => item.isActive) || {};
+    return this.#tabs.find(item => item.isActive);
   }
 
   get storageList() {
@@ -49,27 +57,33 @@ class PageTabListService {
     }
   }
 
-  update({ tabs, params }) {
+  updateAll({ tabs, params = {} }) {
     this.tabs = { tabs, params };
     this.setToStorage();
   }
 
-  add(data, params) {
-    const tab = new PageTab(data, params);
+  add(data, params = {}) {
+    const tab = new PageTab({ title: t(TITLE.LOADING), ...data }, params);
 
     if (!this.isTabExist(tab.uniqueKey)) {
       this.#tabs.push(tab);
     }
 
-    if (data.isActive) {
+    if (data.isActive || tab.link === decodeLink(params.activeUrl)) {
       this.activate(tab);
     }
+
+    this.setToStorage();
+
+    return tab;
   }
 
   activate(tab) {
     this.#tabs.forEach(item => {
       item.isActive = item.uniqueKey === tab.uniqueKey;
     });
+
+    this.setToStorage();
   }
 
   delete(tab) {
@@ -89,6 +103,23 @@ class PageTabListService {
         this.#tabs[tabIndex].isActive = true;
       }
     }
+
+    this.setToStorage();
+  }
+
+  changeOne({ data, key }) {
+    let changingTab = null;
+
+    this.#tabs.forEach(item => {
+      if (item.uniqueKey === key) {
+        item.change(data);
+        changingTab = item;
+      }
+    });
+
+    this.setToStorage();
+
+    return changingTab;
   }
 
   setToStorage() {
@@ -117,8 +148,8 @@ class PageTabListService {
    *    openInBackground - bool
    */
   changeUrlLink = (link = '', params = {}) => {
-    this.customEvent.params = { link, ...params };
-    document.dispatchEvent(this.customEvent);
+    this.#customEvent.params = { link, ...params };
+    document.dispatchEvent(this.#customEvent);
   };
 }
 

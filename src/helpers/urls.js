@@ -109,13 +109,13 @@ export const goToJournalsPage = options => {
   if (OLD_LINKS || !isNewVersionPage()) {
     window.open(journalPageUrl, '_blank');
   } else {
-    changeUrl(journalPageUrl, { openNewTab: true, remoteTitle: true });
+    changeUrl(journalPageUrl, { openNewTab: true });
   }
 };
 
 export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_self');
 
-export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true, remoteTitle: true }) => {
+export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
   const dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
 
   if (isNewVersionPage()) {

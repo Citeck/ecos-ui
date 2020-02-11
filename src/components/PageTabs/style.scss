@@ -81,7 +81,7 @@
   }
 
   &__tabs {
-    height: 95%;
+    height: 28px;
     align-self: flex-end;
     display: flex;
     max-width: 100%;
@@ -112,7 +112,7 @@
       min-width: #{$min-width};
       width: auto;
       max-width: 300px;
-      padding: 3px 5px 7px 10px;
+      padding: 3px 5px 6px 10px;
       border-radius: 6px 6px 0 0;
       background-color: $color-gray-6;
       z-index: 1;

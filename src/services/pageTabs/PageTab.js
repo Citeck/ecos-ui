@@ -2,6 +2,12 @@ import queryString from 'query-string';
 import uuidv4 from 'uuid/v4';
 import { decodeLink } from '../../helpers/urls';
 
+export const PageTypes = {
+  DASHBOARD: 'dashboard',
+  JOURNALS: 'journals',
+  SETTINGS: 'dashboard/settings'
+};
+
 export default class PageTab {
   #key;
 
@@ -12,15 +18,10 @@ export default class PageTab {
   isActive;
   isLoading;
 
-  constructor(data, params) {
-    const { activeUrl } = params || {};
+  constructor(data) {
     let { type, link, title, id, isLoading = true, isActive = false } = data || {};
 
     link = decodeLink(link);
-
-    if (activeUrl) {
-      isActive = decodeLink(link) === decodeLink(activeUrl);
-    }
 
     this.id = id || `page-tab-${uuidv4()}`;
     this.link = link;
@@ -47,19 +48,24 @@ export default class PageTab {
     return { id, type, link, title, isActive, isLoading };
   }
 
-  static Types = {
-    DASHBOARD: 'dashboard',
-    JOURNALS: 'journals'
-  };
+  change(data) {
+    for (const key in data) {
+      if (data.hasOwnProperty(key) && this.hasOwnProperty(key)) {
+        this[key] = data[key];
+      }
+    }
+  }
 
   static getTypeFromUrl(url) {
     const urlProps = queryString.parseUrl(url);
 
     switch (true) {
-      case urlProps.url.includes(PageTab.Types.DASHBOARD):
-        return PageTab.Types.DASHBOARD;
-      case urlProps.url.includes(PageTab.Types.JOURNALS):
-        return PageTab.Types.JOURNALS;
+      case urlProps.url.includes(PageTypes.SETTINGS):
+        return PageTypes.SETTINGS;
+      case urlProps.url.includes(PageTypes.DASHBOARD):
+        return PageTypes.DASHBOARD;
+      case urlProps.url.includes(PageTypes.JOURNALS):
+        return PageTypes.JOURNALS;
     }
   }
 
@@ -67,10 +73,12 @@ export default class PageTab {
     const urlProps = queryString.parseUrl(url);
 
     switch (type) {
-      case PageTab.Types.DASHBOARD:
+      case PageTypes.DASHBOARD:
         return urlProps.query.recordRef || '';
-      case PageTab.Types.JOURNALS:
+      case PageTypes.JOURNALS:
         return urlProps.query.journalsListId || '';
+      case PageTypes.SETTINGS:
+        return urlProps.query.dashboardId || '';
     }
   }
 }

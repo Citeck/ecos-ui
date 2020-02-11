@@ -10,16 +10,8 @@ import classNames from 'classnames';
 
 import { animateScrollTo, arrayCompare, arrayMove, deepClone, getScrollbarWidth } from '../../helpers/util';
 import { decodeLink, isNewVersionPage } from '../../helpers/urls';
-import {
-  getTitleByUrl,
-  IGNORE_TABS_HANDLER_ATTR_NAME,
-  LINK_TAG,
-  OPEN_IN_BACKGROUND,
-  REMOTE_TITLE_ATTR_NAME,
-  SCROLL_STEP,
-  TITLE
-} from '../../constants/pageTabs';
-import { addTab, changeActiveTab, deleteTab, getTabTitle, initTabs, setTabs } from '../../actions/pageTabs';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_TAG, OPEN_IN_BACKGROUND, SCROLL_STEP } from '../../constants/pageTabs';
+import { addTab, changeTab, deleteTab, initTabs } from '../../actions/pageTabs';
 import PageTabList from '../../services/pageTabs/PageTabListService';
 import { SortableContainer } from '../Drag-n-Drop';
 import Tab from './Tab';
@@ -42,64 +34,49 @@ class PageTabs extends React.Component {
   };
 
   state = {
-    tabs: [],
     isActiveLeftArrow: false,
     isActiveRightArrow: false,
     needArrow: false,
-    draggableNode: null,
-    isNewTab: false,
-    activeTab: '',
-    needScrollToActive: false
+    draggableNode: null
   };
+
+  inited = false;
 
   constructor(props) {
     super(props);
 
-    this.state.tabs = props.tabs;
-    this.state.activeTab = get(props.tabs.find(tab => tab.isActive), 'id', '');
     this.$tabWrapper = React.createRef();
   }
 
   componentDidMount() {
-    const { isShow, inited, initTabs } = this.props;
+    const { initTabs } = this.props;
 
     initTabs();
-
-    if (isShow && inited) {
-      this.init();
-    }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    if (nextProps.isShow) {
-      if (JSON.stringify(nextProps.tabs) !== JSON.stringify(nextState.tabs)) {
-        this.setState(
-          {
-            tabs: nextProps.tabs,
-            needScrollToActive: true,
-            activeTab: get(nextProps.tabs.find(tab => tab.isActive), 'id', '')
-          },
-          () => (nextState.isNewTab ? null : this.checkUrls(nextProps, nextState))
-        );
-      }
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    const { tabs, isShow, inited } = this.props;
 
-      if (this.state.activeTab !== nextState.activeTab) {
-        this.setState({ needScrollToActive: true });
-      }
-    }
-
-    return true;
+    return JSON.stringify(nextProps.tabs) !== JSON.stringify(tabs) || nextProps.isShow !== isShow || nextProps.inited !== inited;
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    this.scrollToActiveTab();
+    const { tabs, isShow, inited } = this.props;
+    const activeTabPrev = get(prevProps.tabs.find(tab => tab.isActive), 'id', '');
+    const activeTab = get(tabs.find(tab => tab.isActive), 'id', '');
 
-    if (!arrayCompare(prevState.tabs, this.state.tabs)) {
+    if (!arrayCompare(prevState.tabs, tabs)) {
       this.checkNeedArrow();
     }
 
-    if (!prevProps.isShow && this.props.isShow && this.props.inited) {
-      this.init();
+    if (isShow) {
+      if (JSON.stringify(prevProps.tabs) !== JSON.stringify(tabs) || activeTab !== activeTabPrev) {
+        this.handleScrollToActiveTab();
+      }
+
+      if (isShow && inited && !this.inited) {
+        this.init();
+      }
     }
   }
 
@@ -107,46 +84,20 @@ class PageTabs extends React.Component {
     window.clearInterval(this.checkArrowID);
     document.removeEventListener('click', this.handleClickLink);
     document.removeEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent);
-    window.removeEventListener('popstate', this.handlePopState);
     this.checkArrowID = null;
-  }
-
-  init() {
-    PageTabList.customEvent.initEvent(CHANGE_URL_LINK_EVENT, true, true);
-
-    this.checkUrls();
-    this.initArrows();
-
-    document.addEventListener('click', this.handleClickLink);
-    document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
-    window.addEventListener('popstate', this.handlePopState);
   }
 
   get wrapper() {
     return get(this.$tabWrapper, 'current', null);
   }
 
-  get linkFromUrl() {
-    const { pathname, search, hash } = this.props.location || {};
+  init() {
+    this.inited = true;
+    this.initArrows();
 
-    return decodeLink([pathname, search, hash].join(''));
+    document.addEventListener('click', this.handleClickLink);
+    document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
   }
-
-  scrollToActiveTab = () => {
-    const { needScrollToActive, needArrow } = this.state;
-    const wrapper = this.wrapper;
-
-    if (!needScrollToActive || !wrapper || !needArrow) {
-      return;
-    }
-
-    const activeTabElement = wrapper.querySelector('.page-tab__tabs-item_active');
-    const scrollLeft = activeTabElement.offsetLeft - wrapper.offsetWidth / 2 + activeTabElement.offsetWidth / 2;
-
-    animateScrollTo(wrapper, { scrollLeft });
-    this.checkNeedArrow(scrollLeft);
-    this.setState({ needScrollToActive: false });
-  };
 
   initArrows() {
     this.checkArrowID = window.setInterval(() => {
@@ -155,9 +106,10 @@ class PageTabs extends React.Component {
       if (wrapper) {
         this.checkNeedArrow();
 
-        const { left: activeLeft, width: activeWidth } = wrapper.querySelector('.page-tab__tabs-item_active').getBoundingClientRect();
-        let scrollValue = activeLeft - activeWidth / 2 - getScrollbarWidth() - wrapper.offsetWidth / 2;
+        const elmActive = wrapper.querySelector('.page-tab__tabs-item_active');
+        const { left: activeLeft = 0, width: activeWidth = 0 } = elmActive ? elmActive.getBoundingClientRect() : {};
 
+        let scrollValue = activeLeft - activeWidth / 2 - getScrollbarWidth() - wrapper.offsetWidth / 2;
         scrollValue = wrapper.scrollWidth > wrapper.offsetWidth + getScrollbarWidth() ? scrollValue : 0;
 
         this.setState({
@@ -169,65 +121,6 @@ class PageTabs extends React.Component {
         this.checkArrowID = null;
       }
     }, 300);
-  }
-
-  checkUrls(props = this.props, state = this.state) {
-    const { setTabs, inited } = props;
-    const { tabs: oldTabs, isNewTab } = state;
-    const tabs = deepClone(oldTabs);
-    const activeTab = tabs.find(tab => tab.isActive === true);
-    const linkFromUrl = this.linkFromUrl;
-
-    if (isNewTab || !inited) {
-      return;
-    }
-
-    if (activeTab) {
-      if (activeTab.link !== linkFromUrl) {
-        const newActiveTab = tabs.find(tab => tab.link === linkFromUrl);
-
-        if (newActiveTab) {
-          this.activeTab(newActiveTab);
-        } else {
-          tabs.forEach(item => {
-            item.isActive = false;
-          });
-          tabs.push(this.generateNewTab({ link: linkFromUrl }));
-          setTabs(tabs);
-
-          this.setState({ tabs });
-        }
-      }
-    }
-  }
-
-  generateNewTab(params = {}) {
-    const { props = this.props, link = '', remoteTitle = false, isActive = true } = params;
-    const { homepageLink, getTabTitle } = props;
-    const id = Math.random()
-      .toString(36)
-      .substring(6);
-    const tabLink = link || homepageLink;
-    let isLoading = false;
-
-    getTabTitle({
-      tabId: id,
-      link: tabLink,
-      isActive,
-      defaultTitle: remoteTitle ? TITLE.NEW_TAB : this.getTitle(link || homepageLink)
-    });
-
-    if (remoteTitle) {
-      isLoading = true;
-    }
-
-    return {
-      id,
-      isActive,
-      isLoading,
-      link: tabLink,
-      title: remoteTitle ? TITLE.NEW_TAB : this.getTitle(link || homepageLink)
-    };
   }
 
   checkNeedArrow(calculatedScrollLeft = null) {
@@ -248,6 +141,12 @@ class PageTabs extends React.Component {
     }
   }
 
+  closeTab(tab) {
+    const { deleteTab } = this.props;
+
+    deleteTab(tab);
+  }
+
   handleCustomEvent = event => {
     /**
      * params:
@@ -266,17 +165,17 @@ class PageTabs extends React.Component {
         openNewBrowserTab = false,
         reopenBrowserTab = false,
         closeActiveTab = false,
-        remoteTitle = false,
-        openInBackground = false
+        openInBackground = false,
+        link = ''
       }
     } = event;
-    const { isShow } = this.props;
-    const tabs = deepClone(this.state.tabs);
-    const link = decodeLink(event.params.link || '');
+    const { isShow, push, addTab } = this.props;
+    const tabs = deepClone(this.props.tabs);
+
+    let target = '';
 
     if (!isShow) {
-      this.props.push.call(this, link);
-
+      push.call(this, link);
       return;
     }
 
@@ -284,104 +183,44 @@ class PageTabs extends React.Component {
       const activeIndex = tabs.findIndex(tab => tab.isActive);
 
       if (activeIndex !== -1) {
-        if (!link) {
-          this.closeTab(tabs[activeIndex].id);
-
-          return;
-        }
-
-        tabs.splice(activeIndex, 1);
+        this.closeTab(tabs[activeIndex]);
       }
     }
-
-    if (checkUrl) {
-      this.checkUrls();
-
-      return;
-    }
-
-    const { setTabs, push, replace } = this.props;
 
     event.preventDefault();
 
     if (openNewBrowserTab) {
-      const tab = window.open(link, '_blank');
+      target = '_blank';
+    } else if (reopenBrowserTab) {
+      target = '_self';
+    }
+
+    if (target) {
+      const tab = window.open(link, target);
 
       tab.focus();
 
       return;
     }
 
-    if (reopenBrowserTab) {
-      const tab = window.open(link, '_self');
+    const data = {
+      link,
+      isActive: openNewTab
+    };
 
-      tab.focus();
-
-      return;
-    }
-
-    if (openNewTab) {
-      const newActiveTab = tabs.find(tab => tab.link === link);
-
-      if (newActiveTab) {
-        this.activeTab(newActiveTab, tabs);
-      } else {
-        tabs.forEach(item => (item.isActive = false));
-        tabs.push(this.generateNewTab({ link, remoteTitle }));
-        setTabs(tabs);
-        push.call(this, link);
-
-        this.setState({ tabs }, () => {
-          if (this.checkScrollPosition()) {
-            this.checkNeedArrow();
-          }
-        });
-      }
-
-      return;
-    }
-
-    if (openInBackground) {
-      const newTab = this.generateNewTab({ link, remoteTitle: true, isActive: false });
-
-      tabs.push(newTab);
-      setTabs(tabs);
-
-      return;
-    }
-
-    // default behavior - open on this tab with replace url
-    const tab = tabs.find(tab => tab.isActive);
-
-    tab.link = link;
-    tab.title = this.getTitle(link);
-
-    setTabs(tabs);
-    replace.call(this, link);
-  };
-
-  handlePopState = () => {
-    const { tabs, setTabs } = this.props;
-    const newTabs = deepClone(tabs);
-    const tab = newTabs.find(tab => tab.isActive);
-    const linkFromUrl = this.linkFromUrl;
-
-    tab.link = linkFromUrl;
-    tab.title = this.getTitle(linkFromUrl);
-
-    setTabs(newTabs);
-    this.setState({ tabs: newTabs });
+    addTab({ data });
   };
 
   handleClickLink = event => {
     const { isShow, linkIgnoreAttr } = this.props;
-    let elem = event.currentTarget;
 
     if (!isShow) {
       return;
     }
 
-    if (elem.tagName !== LINK_TAG) {
+    let elem = event.currentTarget;
+
+    if ((!elem || elem.tagName !== LINK_TAG) && event.target) {
       elem = event.target.closest('a[href]');
     }
 
@@ -389,8 +228,7 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { setTabs, push } = this.props;
-    const tabs = deepClone(this.state.tabs);
+    const { addTab } = this.props;
     const link = decodeLink(elem.getAttribute('href'));
 
     if (!isNewVersionPage(link)) {
@@ -401,63 +239,21 @@ class PageTabs extends React.Component {
 
     const isNewTab = elem.getAttribute('target') === '_blank';
     const isBackgroundOpening = elem.getAttribute(OPEN_IN_BACKGROUND);
-    const remoteTitle = !!elem.getAttribute(REMOTE_TITLE_ATTR_NAME);
-    const withLinkTabIndex = tabs.findIndex(tab => tab.link === link);
+    const data = {
+      link,
+      isActive: !(isBackgroundOpening || (event.button === 0 && event.ctrlKey))
+    };
 
-    if (isBackgroundOpening || (event.button === 0 && event.ctrlKey)) {
-      const newTab = this.generateNewTab({ link, remoteTitle: true, isActive: false });
-
-      tabs.push(newTab);
-      setTabs(tabs);
-      this.setState({ tabs }, () => {
-        if (this.checkScrollPosition(false)) {
-          this.checkNeedArrow();
-        }
-      });
-
-      return;
-    }
-
-    if (withLinkTabIndex !== -1) {
-      tabs.forEach((tab, index) => {
-        tab.isActive = withLinkTabIndex === index;
-      });
-
-      setTabs(tabs);
-      push.call(this, link);
-      this.setState({ tabs, needScrollToActive: true }, this.scrollToActiveTab);
-
-      return;
-    }
-
-    if (isNewTab) {
-      tabs.forEach(tab => (tab.isActive = false));
-      tabs.push(this.generateNewTab({ link, remoteTitle }));
-    } else {
-      const tab = tabs.find(tab => tab.isActive);
-
-      tab.link = link;
-      tab.title = this.getTitle(link);
-    }
-
-    setTabs(tabs);
-
-    this.setState({ tabs }, () => {
-      push.call(this, link);
-
-      if (this.checkScrollPosition()) {
-        this.checkNeedArrow();
-      }
-    });
+    addTab({ data });
   };
 
-  handleCloseTab = tabId => {
-    this.closeTab(tabId);
+  handleCloseTab = tab => {
+    this.closeTab(tab);
   };
 
-  handleMouseUp = (tabId, isWheelButton) => {
+  handleMouseUp = (tab, isWheelButton) => {
     if (isWheelButton) {
-      this.handleCloseTab(tabId);
+      this.handleCloseTab(tab);
     }
   };
 
@@ -466,19 +262,13 @@ class PageTabs extends React.Component {
       return;
     }
 
-    this.props.changeActiveTab({ url: tab.link });
-    this.activeTab(tab);
+    this.props.changeTab({ data: { isActive: true }, filter: { id: tab.id } });
   };
 
   handleAddTab = () => {
     const { addTab, homepageLink } = this.props;
 
     addTab({ data: { link: homepageLink, isActive: true } });
-
-    // if (this.checkScrollPosition()) {
-    //       this.checkNeedArrow();
-    //       this.setState({ isNewTab: false });
-    //     }
   };
 
   /**
@@ -561,6 +351,22 @@ class PageTabs extends React.Component {
     }
   };
 
+  handleScrollToActiveTab = () => {
+    const { needArrow } = this.state;
+    const wrapper = this.wrapper;
+
+    if (!wrapper || !needArrow) {
+      return;
+    }
+
+    const activeTabElement = wrapper.querySelector('.page-tab__tabs-item_active');
+    const scrollLeft = activeTabElement.offsetLeft - wrapper.offsetWidth / 2 + activeTabElement.offsetWidth / 2;
+
+    animateScrollTo(wrapper, { scrollLeft });
+
+    this.checkNeedArrow(scrollLeft);
+  };
+
   handleBeforeSortStart = ({ node }) => {
     node.classList.toggle('page-tab__tabs-item_sorting');
 
@@ -573,45 +379,13 @@ class PageTabs extends React.Component {
     event.stopPropagation();
     draggableNode.classList.toggle('page-tab__tabs-item_sorting');
 
-    this.setState(state => {
-      const tabs = arrayMove(state.tabs, oldIndex, newIndex);
+    const tabs = arrayMove(this.props.tabs, oldIndex, newIndex);
 
-      this.props.setTabs(tabs);
-
-      return { tabs, draggableNode: null };
-    });
+    this.setState({ draggableNode: null });
   };
-
-  closeTab(tab) {
-    const { deleteTab } = this.props;
-
-    deleteTab(tab);
-  }
-
-  activeTab = (tab, allTabs = this.state.tabs) => {
-    const { replace, setTabs } = this.props;
-    const tabs = deepClone(allTabs);
-
-    tabs.forEach(item => {
-      item.isActive = item.id === tab.id;
-    });
-
-    setTabs(tabs);
-    replace.call(this, tab.link);
-
-    this.setState({ tabs, activeTab: tab.id });
-  };
-
-  getTitle(url) {
-    let cleanUrl = url.replace(/\?.*/i, '');
-
-    cleanUrl = cleanUrl.replace(/#.*/i, '');
-
-    return getTitleByUrl(cleanUrl) || TITLE.NEW_TAB;
-  }
 
   handleResize = debounce(() => {
-    this.setState({ needScrollToActive: true }, this.scrollToActiveTab);
+    this.handleScrollToActiveTab();
     this.checkNeedArrow();
   }, 400);
 
@@ -658,7 +432,7 @@ class PageTabs extends React.Component {
   }
 
   renderTabItem = (item, position) => {
-    const { tabs } = this.state;
+    const { tabs } = this.props;
 
     return (
       <Tab
@@ -675,8 +449,8 @@ class PageTabs extends React.Component {
   };
 
   renderTabWrapper() {
-    const { isShow } = this.props;
-    const { tabs, isActiveRightArrow, isActiveLeftArrow, needArrow } = this.state;
+    const { tabs, isShow } = this.props;
+    const { isActiveRightArrow, isActiveLeftArrow, needArrow } = this.state;
 
     if (!tabs.length || !isShow) {
       return null;
@@ -744,10 +518,9 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initTabs: () => dispatch(initTabs()),
-  setTabs: tabs => dispatch(setTabs(tabs)),
-  changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
-  getTabTitle: params => dispatch(getTabTitle(params)),
+  changeTab: tabs => dispatch(changeTab(tabs)),
   addTab: params => dispatch(addTab(params)),
+  deleteTab: params => dispatch(deleteTab(params)),
   push: url => dispatch(push(url)),
   replace: url => dispatch(replace(url))
 });

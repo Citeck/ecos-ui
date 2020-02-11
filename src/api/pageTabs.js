@@ -1,12 +1,12 @@
 import get from 'lodash/get';
 
 import Records from '../components/Records';
-import { CommonApi } from './common';
 import { USER_GUEST } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import * as storage from '../helpers/ls';
 import { deepClone, isNodeRef } from '../helpers/util';
 import { isNewVersionPage } from '../helpers/urls';
+import { CommonApi } from './common';
 
 export class PageTabsApi extends CommonApi {
   #lsKey = storage.generateKey('page-tabs', true);

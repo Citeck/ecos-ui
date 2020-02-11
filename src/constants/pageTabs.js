@@ -10,6 +10,7 @@ export const LINK_TAG = 'A';
 export const TITLE = {
   HOMEPAGE: 'header.site-menu.home-page',
   NEW_TAB: 'page-tabs.new-tab',
+  LOADING: 'page-tabs.loading',
   NO_NAME: 'page-tabs.no-name',
   [URL.HOME]: 'header.site-menu.home-page',
   [URL.JOURNAL]: 'page-tabs.journal',
