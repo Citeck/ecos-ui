@@ -9,29 +9,29 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
-import { Icon, ResizeBoxes, EcosModal, Search, DefineHeight, Loader } from '../../common';
+import { DefineHeight, EcosModal, Icon, Loader, ResizeBoxes, Search } from '../../common';
 import { Dropdown } from '../../common/form';
 import FormManager from '../../EcosForm/FormManager';
 import DropZone from './DropZone';
 import Settings from './Settings';
 import { Grid } from '../../common/grid';
 import InlineTools from '../../common/grid/InlineTools';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
+import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import DocumentsConverter from '../../../dto/documents';
 import {
+  execRecordsAction,
   getDocumentsByType,
   init,
   saveSettings,
-  uploadFiles,
   setError,
-  execRecordsAction,
-  setInlineTools
+  setInlineTools,
+  uploadFiles
 } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
-import { statusesKeys, typesStatuses, tooltips, typeStatusesByFields, tableFields, errorTypes } from '../../../constants/documents';
+import { errorTypes, statusesKeys, tableFields, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
-import { t, prepareTooltipId, deepClone } from '../../../helpers/util';
-import { GrouppedTypeInterface, DynamicTypeInterface, AvailableTypeInterface, DocumentInterface } from './propsInterfaces';
+import { deepClone, prepareTooltipId, t } from '../../../helpers/util';
+import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
 
 import './style.scss';
 import { Btn } from '../../common/btns';
@@ -101,7 +101,7 @@ class Documents extends BaseWidget {
       contentHeight: null,
       width: MIN_WIDTH_DASHLET_SMALL,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
+      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
       isOpenSettings: false,
       isSentSettingsToSave: false,
       isOpenUploadModal: false,

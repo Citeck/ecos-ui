@@ -249,7 +249,7 @@ class Tab extends React.Component {
           isOpen={isOpenMenu}
           toggle={this.onToggleMenu}
           hideArrow
-          className="ecos-base-tooltip"
+          className="ecos-base-tooltip ecos-base-tooltip_opaque"
           innerClassName="ecos-base-tooltip-inner ecos-tab-actions__menu"
         >
           {menu}
