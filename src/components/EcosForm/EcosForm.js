@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
 import CustomEventEmitter from '../../forms/EventEmitter';
-import { cloneDeep } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import debounce from 'lodash/debounce';
 
 import '../../forms';
 import Records from '../Records';
@@ -265,7 +266,7 @@ class EcosForm extends React.Component {
     }
   };
 
-  submitForm(form, submission) {
+  submitForm = debounce((form, submission) => {
     let self = this;
 
     let inputs = EcosFormUtils.getFormInputs(form.component);
@@ -334,7 +335,7 @@ class EcosForm extends React.Component {
     } else {
       onSubmit(record, form);
     }
-  }
+  }, 300);
 
   onReload() {
     this.initForm({});

@@ -1,12 +1,14 @@
 import { goToCreateRecordPage } from '../../helpers/urls';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import debounce from 'lodash/debounce';
+
 import EcosFormUtils from './EcosFormUtils';
 import EcosFormModal from './EcosFormModal';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 
 class FormManager {
-  static createRecordByVariant(variant, options = {}) {
+  static createRecordByVariant = debounce((variant, options = {}) => {
     if (!variant) {
       console.error("Create variant is undefined. Record creation can't be preformed");
       return;
@@ -75,7 +77,7 @@ class FormManager {
         console.error(e);
         goToCreateRecordPage(variant);
       });
-  }
+  }, 300);
 
   static parseCreateArguments(createArgs) {
     if (!createArgs) {
