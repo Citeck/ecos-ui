@@ -29,7 +29,7 @@ class PageTabListService {
     this.#tabs = [];
 
     tabs = isArray(tabs) ? tabs : [];
-    tabs.forEach(item => this.add(item, params));
+    tabs.forEach(item => this.add(item, { params, last: true }));
   }
 
   get isActive() {
@@ -52,7 +52,9 @@ class PageTabListService {
     this.tabs = { tabs, params };
 
     if (!!params.activeUrl) {
-      this.add({ link: params.activeUrl }, params);
+      const tab = this.getVerifiableTab({ link: params.activeUrl });
+
+      this.activate(tab);
     }
   }
 
@@ -62,17 +64,24 @@ class PageTabListService {
   }
 
   add(data, params = {}) {
-    const tab = new PageTab({ title: t(TITLE.LOADING), ...data }, params);
+    const { last, ...tabParams } = params;
+    const tab = new PageTab({ title: t(TITLE.LOADING), isLoading: true, ...data }, tabParams);
+    const activeIndex = this.#tabs.findIndex(item => item.isActive);
+    const newTabIndex = this.existTabIndex(tab.uniqueKey);
+    const indexTo =
+      !!this.#tabs.length && !last && !!~activeIndex ? (activeIndex === newTabIndex ? activeIndex : activeIndex + 1) : this.#tabs.length;
 
-    if (!this.isTabExist(tab.uniqueKey)) {
-      this.#tabs.push(tab);
+    if (!!~newTabIndex) {
+      this.changeOne({ data: tab, key: tab.uniqueKey });
+      this.move(newTabIndex, indexTo);
+    } else {
+      this.#tabs.splice(indexTo, 0, tab);
+      this.setToStorage();
     }
 
     if (data.isActive || tab.link === decodeLink(params.activeUrl)) {
       this.activate(tab);
     }
-
-    this.setToStorage();
 
     return tab;
   }
@@ -86,7 +95,8 @@ class PageTabListService {
   }
 
   delete(tab) {
-    const tabIndex = this.#tabs.findIndex(item => item.uniqueKey === tab.uniqueKey || item.id === tab.id);
+    tab = tab.uniqueKey ? tab : this.getVerifiableTab(tab);
+    const tabIndex = this.#tabs.findIndex(item => item.uniqueKey === tab.uniqueKey);
 
     if (tabIndex === -1) {
       return false;
@@ -127,6 +137,10 @@ class PageTabListService {
     this.setToStorage();
   }
 
+  existTabIndex(key) {
+    return this.#tabs.findIndex(item => item.uniqueKey === key);
+  }
+
   setToStorage() {
     storage.setData(this.#keyStorage, this.storageList);
   }
@@ -137,8 +151,8 @@ class PageTabListService {
     }
   }
 
-  isTabExist(key) {
-    return this.#tabs.some(item => item.uniqueKey === key);
+  getVerifiableTab(data) {
+    return new PageTab(data);
   }
 
   /**

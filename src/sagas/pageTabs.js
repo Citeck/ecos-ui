@@ -1,4 +1,5 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { delay } from 'redux-saga';
 import { push } from 'connected-react-router';
 import queryString from 'query-string';
 import get from 'lodash/get';
@@ -94,7 +95,7 @@ function* sagaMoveTabs({ api, logger }, action) {
 
 function* sagaAddTab({ api, logger }, action) {
   try {
-    const tab = PageTabList.add(action.payload.data);
+    const tab = PageTabList.add(action.payload.data, action.payload.params);
 
     if (tab.isActive && tab.link) {
       yield put(push(tab.link));
@@ -129,14 +130,18 @@ function* sagaDeleteTab({ api, logger }, action) {
 function* getTabWithTitle({ api, logger }, action) {
   try {
     const data = action.payload;
-    const tab = {};
     const urlProps = queryString.parseUrl(data.link);
 
+    let msDelay = 80;
     let title = '';
 
     if (!isEmpty(urlProps.query)) {
       const { recordRef, nodeRef, journalId, dashboardId } = urlProps.query;
       const record = recordRef || nodeRef;
+
+      if (record || journalId) {
+        msDelay = 0;
+      }
 
       if (record) {
         const response = yield call(api.pageTabs.getTabTitle, { recordRef: record });
@@ -165,10 +170,12 @@ function* getTabWithTitle({ api, logger }, action) {
       title = t(TITLE[URL.DASHBOARD_SETTINGS]) + ' - ' + title;
     }
 
-    tab.title = title;
-    tab.isLoading = false;
+    yield delay(msDelay);
 
-    return tab;
+    return {
+      title,
+      isLoading: false
+    };
   } catch (e) {
     console.error(e);
     throw new Error('[pageTabs getTabWithTitle function error');

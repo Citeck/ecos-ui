@@ -66,6 +66,8 @@ export default class PageTab {
         return PageTypes.DASHBOARD;
       case urlProps.url.includes(PageTypes.JOURNALS):
         return PageTypes.JOURNALS;
+      default:
+        return;
     }
   }
 
@@ -79,6 +81,8 @@ export default class PageTab {
         return urlProps.query.journalsListId || '';
       case PageTypes.SETTINGS:
         return urlProps.query.dashboardId || '';
+      default:
+        return;
     }
   }
 }
