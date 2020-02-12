@@ -224,6 +224,8 @@
     }
 
     &-row {
+      cursor: pointer;
+
       &:hover {
         border-left: 2px solid $color-brown-2;
         border-right: 2px solid $color-brown-2;

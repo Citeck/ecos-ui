@@ -5,17 +5,18 @@ import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
 import { DefineHeight, EcosModal, Icon, Loader, ResizeBoxes, Search } from '../../common';
 import { Dropdown } from '../../common/form';
+import { Btn } from '../../common/btns';
+import { Grid, InlineTools } from '../../common/grid';
 import FormManager from '../../EcosForm/FormManager';
 import DropZone from './DropZone';
 import Settings from './Settings';
-import { Grid } from '../../common/grid';
-import InlineTools from '../../common/grid/InlineTools';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import DocumentsConverter from '../../../dto/documents';
 import {
@@ -34,7 +35,6 @@ import { deepClone, prepareTooltipId, t } from '../../../helpers/util';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
 
 import './style.scss';
-import { Btn } from '../../common/btns';
 
 const Labels = {
   TITLE: 'documents-widget.title',
@@ -112,7 +112,8 @@ class Documents extends BaseWidget {
       typesStatuses: typeStatusesByFields.map(type => ({
         ...type,
         value: t(type.value)
-      }))
+      })),
+      canHideInlineTools: true
     };
 
     this._tablePanel = React.createRef();
@@ -589,7 +590,16 @@ class Documents extends BaseWidget {
     this.uploadingComplete();
   };
 
+  handleMouseLeaveRow = debounce(() => {
+    if (this.state.canHideInlineTools) {
+      this.props.setInlineTools({});
+    }
+  }, 300);
+
   handleHoverRow = data => {
+    this.debouncedToolsLeave.cancel();
+    this.handleMouseLeaveRow.cancel();
+
     const options = deepClone(data);
     let actions = deepClone(this.props.actions);
     const id = options.row.id;
@@ -608,6 +618,8 @@ class Documents extends BaseWidget {
         actions: actions[id]
       });
     }
+
+    this.setState({ canHideInlineTools: true });
   };
 
   handleSuccessRecordsAction = () => {
@@ -617,6 +629,23 @@ class Documents extends BaseWidget {
 
   handleScollingTable = event => {
     this.scrollPosition = event;
+  };
+
+  handleMouseLeaveInlineTools = () => {
+    this.debouncedToolsLeave();
+  };
+
+  debouncedToolsLeave = debounce(() => {
+    this.props.setInlineTools({});
+    this.setState({
+      canHideInlineTools: true
+    });
+  }, 300);
+
+  handleMouseEnterInlineTools = () => {
+    this.setState({
+      canHideInlineTools: false
+    });
   };
 
   openForm = (type, files = []) => {
@@ -841,7 +870,16 @@ class Documents extends BaseWidget {
       return null;
     }
 
-    return <InlineTools className="ecos-docs__table-inline-tools" stateId={stateId} reduxKey="documents" toolsKey="tools" />;
+    return (
+      <InlineTools
+        className="ecos-docs__table-inline-tools"
+        stateId={stateId}
+        reduxKey="documents"
+        toolsKey="tools"
+        onMouseEnter={this.handleMouseEnterInlineTools}
+        onMouseLeave={this.handleMouseLeaveInlineTools}
+      />
+    );
   };
 
   renderDocumentsTable() {
@@ -872,6 +910,7 @@ class Documents extends BaseWidget {
           data={this.tableData}
           columns={columns}
           onChangeTrOptions={this.handleHoverRow}
+          onRowMouseLeave={this.handleMouseLeaveRow}
           onScrolling={this.handleScollingTable}
           inlineTools={this.renderInlineTools}
           scrollPosition={this.scrollPosition}

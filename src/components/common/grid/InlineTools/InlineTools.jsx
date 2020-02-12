@@ -42,14 +42,15 @@ class InlineTools extends Component {
   render() {
     const {
       className,
-      inlineToolSettings: { top, height, left, actions = [] }
+      inlineToolSettings: { top, height, left, actions = [] },
+      ...additionalProps
     } = this.props;
 
     if (height) {
       return (
         <div style={{ top, left }} className={classNames('ecos-inline-tools', className)}>
           <div style={{ height }} className="ecos-inline-tools-border-left" />
-          <div style={{ height }} className="ecos-inline-tools-actions">
+          <div style={{ height }} className="ecos-inline-tools-actions" {...additionalProps}>
             {actions.map((action, idx) => InlineTools.renderAction(action, idx))}
           </div>
           <div className="ecos-inline-tools-border-bottom" />
