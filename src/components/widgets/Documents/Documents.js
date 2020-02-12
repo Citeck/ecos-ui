@@ -1009,7 +1009,7 @@ class Documents extends BaseWidget {
     return (
       <Settings
         isOpen={isOpenSettings}
-        label={t(Labels.SETTINGS)}
+        title={t(Labels.SETTINGS)}
         isLoading={isLoadingSettings}
         types={this.availableTypes}
         onCancel={this.handleCancelSettings}
