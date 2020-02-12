@@ -918,6 +918,7 @@ class Documents extends BaseWidget {
       <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
         <Grid
           scrollable
+          fixedHeader
           scrollAutoHide={autoHide}
           forwardedRef={this._tableRef}
           autoHeight
@@ -981,6 +982,7 @@ class Documents extends BaseWidget {
         data={this.tableData}
         columns={columns}
         scrollable
+        fixedHeader
         scrollAutoHide={autoHide}
         forwardedRef={this._tableRef}
         autoHeight
