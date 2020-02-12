@@ -918,8 +918,8 @@ class Documents extends BaseWidget {
 
     return (
       <Grid
-        changeTrOptionsByRowClick
         className="ecos-docs__table"
+        rowClassName="ecos-docs__table-row"
         data={this.tableData}
         columns={columns}
         scrollable

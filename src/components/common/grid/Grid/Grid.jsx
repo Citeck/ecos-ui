@@ -695,7 +695,7 @@ class Grid extends Component {
 
           <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
             <div ref={this.props.forwardedRef}>
-              <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={ECOS_GRID_ROW_CLASS} />
+              <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={classNames(ECOS_GRID_ROW_CLASS, props.rowClassName)} />
             </div>
             {this.inlineTools()}
           </Scroll>
@@ -715,6 +715,7 @@ class Grid extends Component {
 
 Grid.propTypes = {
   className: PropTypes.string,
+  rowClassName: PropTypes.string,
   keyField: PropTypes.string,
   dataField: PropTypes.string,
 
