@@ -1,10 +1,34 @@
 import { CommonApi } from './common';
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
+import { getJournalUIType } from './export/journalsApi';
 import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records';
 import { QueryEntityKeys, URL } from '../constants';
+import lodashGet from 'lodash/get';
 
 const PREFIX = 'uiserv/config@';
+
+const postProcessMenuItemChildren = items => {
+  if (items && items.length) {
+    return Promise.all(items.map(i => postProcessMenuConfig(i)));
+  }
+  return Promise.resolve(items);
+};
+
+const postProcessMenuConfig = item => {
+  let journalRef = lodashGet(item, 'action.params.journalRef');
+
+  let items = postProcessMenuItemChildren(item.items);
+  let uiType = journalRef ? getJournalUIType(journalRef) : '';
+
+  return Promise.all([items, uiType]).then(itemsAndUIType => {
+    item.items = itemsAndUIType[0];
+    if (itemsAndUIType[1]) {
+      item.action.params.uiType = itemsAndUIType[1];
+    }
+    return item;
+  });
+};
 
 export class MenuApi extends CommonApi {
   getNewJournalPageUrl = params => {
@@ -63,7 +87,8 @@ export class MenuApi extends CommonApi {
     const username = getCurrentUserName();
     return this.getJsonWithSessionCache({
       url: `${PROXY_URI}citeck/menu/menu?username=${username}`,
-      timeout: 14400000 //4h
+      timeout: 14400000, //4h
+      postProcess: menu => postProcessMenuConfig(menu)
     }).catch(() => {});
   };
 

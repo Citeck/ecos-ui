@@ -56,7 +56,7 @@ export class CommonApi {
       return this.getJson(config.url);
     }
 
-    let { timeout, onError, url } = config;
+    let { timeout, onError, url, postProcess } = config;
 
     let shareProxyUrl = '';
     if (process.env.NODE_ENV === 'development') {
@@ -90,7 +90,16 @@ export class CommonApi {
     };
 
     let resultPromise = this.getJson(url).then(response => {
-      return addToStorage(response);
+      if (postProcess) {
+        response = postProcess(response);
+        if (response.then) {
+          return response.then(resp => addToStorage(resp));
+        } else {
+          return addToStorage(response);
+        }
+      } else {
+        return addToStorage(response);
+      }
     });
 
     if (onError) {
