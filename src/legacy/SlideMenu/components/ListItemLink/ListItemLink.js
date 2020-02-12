@@ -76,7 +76,10 @@ const ListItemLink = ({
           listId = params.listId || 'main';
         }
 
-        if (isNewVersionPage()) {
+        let uiType = params.uiType || '';
+        let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
+
+        if (isNewUILink) {
           targetUrl = getJournalPageUrl({
             journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
             journalId: params.journalRef,

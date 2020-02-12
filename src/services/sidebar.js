@@ -6,7 +6,6 @@ import { hasChildWithId } from '../helpers/util';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
-import { MenuApi } from '../api';
 import ULS from './userLocalSettings';
 
 export default class SidebarService {
@@ -96,7 +95,10 @@ export default class SidebarService {
               listId = params.listId || 'main';
             }
 
-            if (isNewVersionPage()) {
+            let uiType = params.uiType || '';
+            let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
+
+            if (isNewUILink) {
               targetUrl = getJournalPageUrl({
                 journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
                 journalId: params.journalRef,
@@ -136,8 +138,6 @@ export default class SidebarService {
               if (params.maxItems) {
                 targetUrl += `&maxItems=${params.maxItems}`;
               }
-
-              targetUrl = menuApi.getNewJournalPageUrl(params);
             }
           }
           break;
@@ -232,4 +232,3 @@ export default class SidebarService {
 
 const ATypes = SidebarService.ActionTypes;
 const PAGE_PREFIX = '/share/page';
-const menuApi = new MenuApi();
