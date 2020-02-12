@@ -529,12 +529,12 @@ class Documents extends BaseWidget {
   };
 
   handleDragIn = event => {
-    const types = get(event, 'dataTransfer.types', []);
+    const dataTypes = get(event, 'dataTransfer.types', []);
 
     event.preventDefault();
     event.stopPropagation();
 
-    if (!types.includes('Files')) {
+    if (!dataTypes.includes('Files')) {
       return;
     }
 

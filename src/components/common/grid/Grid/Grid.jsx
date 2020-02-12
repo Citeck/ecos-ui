@@ -581,6 +581,12 @@ class Grid extends Component {
   };
 
   onDragEnter = e => {
+    const dataTypes = get(e, 'dataTransfer.types', []);
+
+    if (!dataTypes.includes('Files')) {
+      return;
+    }
+
     const target = e.target;
     const tr = closest(target, ECOS_GRID_ROW_CLASS);
 
