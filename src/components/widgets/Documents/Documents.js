@@ -106,6 +106,7 @@ class Documents extends BaseWidget {
       isSentSettingsToSave: false,
       isOpenUploadModal: false,
       isDragFiles: false,
+      autoHide: false,
       typesFilter: '',
       tableFilter: '',
       statusFilter: statusesKeys.ALL,
@@ -153,7 +154,7 @@ class Documents extends BaseWidget {
     return newState;
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  componentDidUpdate(prevProps, prevState) {
     if (prevProps.isUploadingFile && !this.props.isUploadingFile && (prevState.isOpenUploadModal || prevState.isDragFiles)) {
       this.uploadingComplete();
     }
@@ -648,6 +649,13 @@ class Documents extends BaseWidget {
     });
   };
 
+  /**
+   * To recalculate the need for scroll bars
+   */
+  handleCompleteResizeColumns = () => {
+    this.setState({ autoHide: true }, () => this.setState({ autoHide: false }));
+  };
+
   openForm = (type, files = []) => {
     FormManager.createRecordByVariant(
       DocumentsConverter.getDataToCreate({
@@ -739,7 +747,13 @@ class Documents extends BaseWidget {
           </div>
         </Scrollbars>
 
-        <ResizeBoxes className="ecos-docs__resizer" leftId={leftColumnId} rightId={rightColumnId} />
+        <ResizeBoxes
+          className="ecos-docs__resizer"
+          leftId={leftColumnId}
+          rightId={rightColumnId}
+          notCountAtRight
+          onResizeComplete={this.handleCompleteResizeColumns}
+        />
       </div>
     );
   }
@@ -870,21 +884,25 @@ class Documents extends BaseWidget {
       return null;
     }
 
+    const actionsProps = {
+      onMouseEnter: this.handleMouseEnterInlineTools,
+      onMouseLeave: this.handleMouseLeaveInlineTools
+    };
+
     return (
       <InlineTools
         className="ecos-docs__table-inline-tools"
         stateId={stateId}
         reduxKey="documents"
         toolsKey="tools"
-        onMouseEnter={this.handleMouseEnterInlineTools}
-        onMouseLeave={this.handleMouseLeaveInlineTools}
+        actionsProps={actionsProps}
       />
     );
   };
 
   renderDocumentsTable() {
     const { dynamicTypes, isUploadingFile } = this.props;
-    const { selectedType, isDragFiles } = this.state;
+    const { selectedType, isDragFiles, autoHide } = this.state;
 
     if (!selectedType && dynamicTypes.length !== 1) {
       return null;
@@ -900,6 +918,7 @@ class Documents extends BaseWidget {
       <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
         <Grid
           scrollable
+          scrollAutoHide={autoHide}
           forwardedRef={this._tableRef}
           autoHeight
           minHeight={this.calculatedTableMinHeight}
@@ -933,7 +952,7 @@ class Documents extends BaseWidget {
 
   renderTypesTable() {
     const { dynamicTypes } = this.props;
-    const { selectedType } = this.state;
+    const { selectedType, autoHide } = this.state;
 
     if (selectedType || !dynamicTypes.length) {
       return null;
@@ -962,13 +981,16 @@ class Documents extends BaseWidget {
         data={this.tableData}
         columns={columns}
         scrollable
+        scrollAutoHide={autoHide}
         forwardedRef={this._tableRef}
         autoHeight
         minHeight={this.calculatedTableMinHeight}
         keyField="type"
+        onScrolling={this.handleScollingTable}
         onRowClick={this.handleClickTableRow}
         onRowDrop={this.handleRowDrop}
         onRowDragEnter={this.handleRowDragEnter}
+        scrollPosition={this.scrollPosition}
       />
     );
   }

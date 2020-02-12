@@ -663,7 +663,7 @@ class Grid extends Component {
       scrollStyle.autoHeight = props.autoHeight;
     }
 
-    const Scroll = ({ scrollable, children, style, refCallback }) =>
+    const Scroll = ({ scrollable, children, style, refCallback, autoHide }) =>
       scrollable ? (
         <Scrollbars
           ref={refCallback}
@@ -671,7 +671,8 @@ class Grid extends Component {
           onScrollFrame={this.onScrollFrame}
           onScrollStop={this.onScrollStop}
           style={style}
-          hideTracksWhenNotNeeded={true}
+          autoHide={autoHide}
+          hideTracksWhenNotNeeded
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
           renderTrackHorizontal={props => <div {...props} className="ecos-grid__h-scroll" />}
         >
@@ -699,7 +700,7 @@ class Grid extends Component {
         >
           {toolsVisible ? this.tools(props.selected) : null}
 
-          <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
+          <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback} autoHide={props.scrollAutoHide}>
             <div ref={this.props.forwardedRef}>
               <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={classNames(ECOS_GRID_ROW_CLASS, props.rowClassName)} />
             </div>
@@ -733,6 +734,7 @@ Grid.propTypes = {
   selectAll: PropTypes.bool,
   scrollable: PropTypes.bool,
   fixedHeader: PropTypes.bool,
+  scrollAutoHide: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,
