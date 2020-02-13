@@ -920,12 +920,6 @@ class Documents extends BaseWidget {
     }
 
     return <TablePanel />;
-
-    // return (
-    //   {this.needTablePanelScroll ? }
-    //
-    //   </Scrollbars>
-    // );
   }
 
   renderInlineTools = () => {
