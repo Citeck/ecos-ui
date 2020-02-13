@@ -14,6 +14,7 @@ import {
   initTabs,
   initTabsComplete,
   moveTabs,
+  setDisplayState,
   setShowTabsStatus,
   setTabs
 } from '../actions/pageTabs';
@@ -82,6 +83,14 @@ function* sagaGetTabs({ api, logger }, action) {
   }
 }
 
+function* sagaSetDisplayState({ api, logger }, { payload }) {
+  try {
+    PageTabList.displayState = payload;
+  } catch (e) {
+    logger.error('[pageTabs sagaSetDisplayState saga error', e.message);
+  }
+}
+
 function* sagaMoveTabs({ api, logger }, action) {
   try {
     const { indexFrom, indexTo } = action.payload;
@@ -89,13 +98,20 @@ function* sagaMoveTabs({ api, logger }, action) {
     PageTabList.move(indexFrom, indexTo);
     yield put(setTabs(PageTabList.storeList));
   } catch (e) {
-    logger.error('[pageTabs sagaGetTabs saga error', e.message);
+    logger.error('[pageTabs sagaMoveTabs saga error', e.message);
   }
 }
 
-function* sagaAddTab({ api, logger }, action) {
+function* sagaAddTab({ api, logger }, { payload }) {
   try {
-    const tab = PageTabList.add(action.payload.data, action.payload.params);
+    const { event, linkIgnoreAttr, ...params } = payload.params;
+    const initData = payload.data || PageTabList.defineProps({ event, linkIgnoreAttr });
+
+    if (!initData) {
+      return;
+    }
+
+    const tab = PageTabList.add(initData, params);
 
     if (tab.isActive && tab.link) {
       yield put(push(tab.link));
@@ -107,7 +123,7 @@ function* sagaAddTab({ api, logger }, action) {
 
     yield put(changeTab({ data, tab }));
   } catch (e) {
-    logger.error('[pageTabs sagaSetTabs saga error', e.message);
+    logger.error('[pageTabs sagaAddTab saga error', e.message);
   }
 }
 
@@ -115,7 +131,7 @@ function* sagaDeleteTab({ api, logger }, action) {
   try {
     PageTabList.delete(action.payload);
 
-    const activeTab = PageTabList.isActive;
+    const activeTab = PageTabList.isActiveTab;
 
     if (activeTab && activeTab.link) {
       yield put(push(activeTab.link));
@@ -123,7 +139,7 @@ function* sagaDeleteTab({ api, logger }, action) {
 
     yield put(setTabs(PageTabList.storeList));
   } catch (e) {
-    logger.error('[pageTabs sagaSetTabs saga error', e.message);
+    logger.error('[pageTabs sagaDeleteTab saga error', e.message);
   }
 }
 
@@ -209,6 +225,7 @@ function* sagaChangeTabData({ api, logger }, { payload }) {
 function* saga(ea) {
   yield takeLatest(initTabs().type, sagaInitTabs, ea);
   yield takeLatest(getTabs().type, sagaGetTabs, ea);
+  yield takeEvery(setDisplayState().type, sagaSetDisplayState, ea);
   yield takeEvery(moveTabs().type, sagaMoveTabs, ea);
   yield takeEvery(addTab().type, sagaAddTab, ea);
   yield takeEvery(deleteTab().type, sagaDeleteTab, ea);

@@ -4,7 +4,7 @@ import Records from '../components/Records';
 import { USER_GUEST } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import * as storage from '../helpers/ls';
-import { deepClone, isNodeRef } from '../helpers/util';
+import { isNodeRef } from '../helpers/util';
 import { isNewVersionPage } from '../helpers/urls';
 import { CommonApi } from './common';
 
@@ -40,10 +40,6 @@ export class PageTabsApi extends CommonApi {
 
     storage.transferData(currentVersion, newVersionKey, true);
     this.lsKey = newVersionKey;
-  };
-
-  set = tabs => {
-    storage.setData(this.lsKey, deepClone(tabs));
   };
 
   getTabTitle = ({ recordRef, journalId = null }) => {

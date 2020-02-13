@@ -9,6 +9,7 @@ export const initTabsComplete = createAction(prefix + 'INIT_TABS_COMPLETE');
 export const setTabs = createAction(prefix + 'SET_TABS');
 export const getTabs = createAction(prefix + 'GET_TABS');
 export const moveTabs = createAction(prefix + 'MOVE_TABS');
+export const setDisplayState = createAction(prefix + 'SET_DISPLAY_STATE');
 
 export const addTab = createAction(prefix + 'ADD_TAB');
 export const deleteTab = createAction(prefix + 'DELETE_TAB');

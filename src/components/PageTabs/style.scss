@@ -220,10 +220,12 @@
       }
 
       &_sorting {
-        top: -1px;
+        top: 0;
 
-        &:after {
-          display: none !important;
+        &:not(#{$item}_active) {
+          &::after {
+            display: none !important;
+          }
         }
       }
 

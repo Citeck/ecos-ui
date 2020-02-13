@@ -7,6 +7,7 @@ export const OPEN_IN_BACKGROUND = 'data-open-in-background';
 
 export const SCROLL_STEP = 150;
 export const LINK_TAG = 'A';
+export const LINK_HREF = 'href';
 export const TITLE = {
   HOMEPAGE: 'header.site-menu.home-page',
   NEW_TAB: 'page-tabs.new-tab',

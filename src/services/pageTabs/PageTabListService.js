@@ -1,14 +1,27 @@
 import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
+import set from 'lodash/set';
+import get from 'lodash/get';
 
 import * as storage from '../../helpers/ls';
-import { decodeLink } from '../../helpers/urls';
+import { decodeLink, isNewVersionPage } from '../../helpers/urls';
 import { t } from '../../helpers/util';
-import { TITLE } from '../../constants/pageTabs';
+import { LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
 
+/**
+ * @define Application Tabs Service (Singleton)
+ * @readonly
+ * @private
+ * @param tabs {array} application tabs
+ * @param keyStorage  {string} user key for local storage
+ * @param displayState {boolean} true = show
+ * @param customEvent {event} dispatch from anywhere you need
+ */
 class PageTabListService {
   #tabs;
   #keyStorage;
+  #displayState;
   #customEvent;
 
   events = {
@@ -25,14 +38,18 @@ class PageTabListService {
     return this.#tabs;
   }
 
-  set tabs({ tabs, params = {} }) {
+  set tabs({ tabs = [], params = {} }) {
     this.#tabs = [];
 
     tabs = isArray(tabs) ? tabs : [];
-    tabs.forEach(item => this.add(item, { params, last: true }));
+    tabs.forEach(item => this.add(item, params));
   }
 
-  get isActive() {
+  set displayState(state) {
+    this.#displayState = state;
+  }
+
+  get isActiveTab() {
     return this.#tabs.find(item => item.isActive);
   }
 
@@ -46,13 +63,18 @@ class PageTabListService {
 
   init({ params, keyStorage }) {
     this.#keyStorage = keyStorage || this.#keyStorage;
+    const activeTab = !!params.activeUrl && { link: params.activeUrl };
 
-    const tabs = this.getFromStorage();
+    let tabs = this.getFromStorage();
 
-    this.tabs = { tabs, params };
+    if (isEmpty(tabs) && activeTab) {
+      tabs = [activeTab];
+    }
 
-    if (!!params.activeUrl) {
-      const tab = this.getVerifiableTab({ link: params.activeUrl });
+    this.tabs = { tabs, ...params, last: true };
+
+    if (activeTab) {
+      const tab = this.getVerifiableTab(activeTab);
 
       this.activate(tab);
     }
@@ -63,13 +85,17 @@ class PageTabListService {
     this.setToStorage();
   }
 
+  /**
+   * Create new tab or recover exist by link and params
+   * @param data {object} data for create Tab
+   * @param params {object} extra condition info
+   * @returns {PageTab}
+   */
   add(data, params = {}) {
-    const { last, ...tabParams } = params;
-    const tab = new PageTab({ title: t(TITLE.LOADING), isLoading: true, ...data }, tabParams);
-    const activeIndex = this.#tabs.findIndex(item => item.isActive);
+    const { last } = params;
+    const tab = new PageTab({ title: t(TITLE.LOADING), isLoading: true, ...data });
     const newTabIndex = this.existTabIndex(tab.uniqueKey);
-    const indexTo =
-      !!this.#tabs.length && !last && !!~activeIndex ? (activeIndex === newTabIndex ? activeIndex : activeIndex + 1) : this.#tabs.length;
+    const indexTo = this.getPlaceTab(newTabIndex, last);
 
     if (!!~newTabIndex) {
       this.changeOne({ data: tab, key: tab.uniqueKey });
@@ -94,12 +120,17 @@ class PageTabListService {
     this.setToStorage();
   }
 
+  /**
+   * Delete tab and set next active
+   * @param tab
+   * @returns {PageTab | undefined}
+   */
   delete(tab) {
     tab = tab.uniqueKey ? tab : this.getVerifiableTab(tab);
     const tabIndex = this.#tabs.findIndex(item => item.uniqueKey === tab.uniqueKey);
 
-    if (tabIndex === -1) {
-      return false;
+    if (tabIndex === -1 || this.#tabs.length < 2) {
+      return;
     }
 
     const deletedTab = this.#tabs.splice(tabIndex, 1)[0];
@@ -114,6 +145,8 @@ class PageTabListService {
     }
 
     this.setToStorage();
+
+    return deletedTab;
   }
 
   changeOne({ data, key }) {
@@ -132,13 +165,41 @@ class PageTabListService {
   }
 
   move(indexFrom, indexTo) {
-    this.#tabs.splice(indexTo < 0 ? this.#tabs.length + indexTo : indexTo, 0, this.#tabs.splice(indexFrom, 1)[0]);
+    const tab = this.#tabs.splice(indexFrom, 1)[0];
+    indexTo = indexTo < 0 ? this.#tabs.length + indexTo : indexTo;
+
+    this.#tabs.splice(indexTo, 0, tab);
 
     this.setToStorage();
   }
 
   existTabIndex(key) {
     return this.#tabs.findIndex(item => item.uniqueKey === key);
+  }
+
+  /**
+   * Return index e.g. for move there
+   * @param currentTabIndex
+   * @param last
+   * @returns {*}
+   */
+  getPlaceTab(currentTabIndex, last) {
+    const activeIndex = this.#tabs.findIndex(item => item.isActive);
+
+    return !!this.#tabs.length && !last && !!~activeIndex
+      ? !!~currentTabIndex && currentTabIndex <= activeIndex
+        ? activeIndex
+        : activeIndex + 1
+      : this.#tabs.length;
+  }
+
+  /**
+   * Create test tab e.g. for check tab exist
+   * @param data
+   * @returns {PageTab}
+   */
+  getVerifiableTab(data) {
+    return new PageTab(data);
   }
 
   setToStorage() {
@@ -151,14 +212,11 @@ class PageTabListService {
     }
   }
 
-  getVerifiableTab(data) {
-    return new PageTab(data);
-  }
-
   /**
    *
    * @param link - string
    * @param params
+   *    link - string,
    *    checkUrl - bool,
    *    openNewTab - bool,
    *    openNewBrowserTab - bool,
@@ -170,10 +228,70 @@ class PageTabListService {
     this.#customEvent.params = { link, ...params };
     document.dispatchEvent(this.#customEvent);
   };
+
+  defineProps = ({ event, linkIgnoreAttr }) => {
+    const { type, currentTarget, params } = event || {};
+
+    if (type === this.events.CHANGE_URL_LINK_EVENT) {
+      const { openNewTab, openNewBrowserTab, reopenBrowserTab, closeActiveTab, link = '' } = params || {};
+
+      if (closeActiveTab) {
+        this.delete(this.isActiveTab);
+      }
+
+      event.preventDefault();
+
+      let target = '';
+
+      if (openNewBrowserTab) {
+        target = '_blank';
+      } else if (reopenBrowserTab) {
+        target = '_self';
+      }
+
+      if (target) {
+        const tab = window.open(link, target);
+
+        tab.focus();
+
+        return;
+      }
+
+      return {
+        link,
+        isActive: openNewTab
+      };
+    }
+
+    let elem = currentTarget;
+
+    if ((!elem || elem.tagName !== LINK_TAG) && event.target) {
+      elem = event.target.closest('a[href]');
+    }
+
+    if (!elem || elem.tagName !== LINK_TAG || !!elem.getAttribute(linkIgnoreAttr)) {
+      return;
+    }
+
+    const link = decodeLink(elem.getAttribute(LINK_HREF));
+
+    if (!link || !isNewVersionPage(link)) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const isBackgroundOpening = elem.getAttribute(OPEN_IN_BACKGROUND);
+
+    return {
+      link,
+      isActive: !(isBackgroundOpening || (event.button === 0 && event.ctrlKey))
+    };
+  };
 }
 
-window.Citeck = window.Citeck || {};
+const PageTabList = get(window, 'Citeck.PageTabList', new PageTabListService());
 
-const PageTabList = (window.Citeck.PageTabList = window.Citeck.PageTabList || new PageTabListService());
+set(window, 'Citeck.PageTabList', PageTabList);
 
 export default PageTabList;

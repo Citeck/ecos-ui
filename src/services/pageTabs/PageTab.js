@@ -8,6 +8,23 @@ export const PageTypes = {
   SETTINGS: 'dashboard/settings'
 };
 
+/**
+ * @define Describe One Application Tab
+ * @param id {string} id view
+ * @param link  {string} url
+ * @param type {string} relation to the page
+ * @param isActive {boolean} true = chosen tab
+ * @param isLoading {boolean} true = getting data for tab
+ *
+ * @readonly
+ * @private
+ * @param key {string} key data from link
+ *
+ * @readonly
+ * @uniqueKey {string} type + key
+ * @storage {object} prepared data for local storage
+ * @store {object} prepared data for local app store
+ */
 export default class PageTab {
   #key;
 
@@ -67,7 +84,7 @@ export default class PageTab {
       case urlProps.url.includes(PageTypes.JOURNALS):
         return PageTypes.JOURNALS;
       default:
-        return;
+        return '';
     }
   }
 
@@ -82,7 +99,7 @@ export default class PageTab {
       case PageTypes.SETTINGS:
         return urlProps.query.dashboardId || '';
       default:
-        return;
+        return '';
     }
   }
 }
