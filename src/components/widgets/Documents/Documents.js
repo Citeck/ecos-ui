@@ -181,6 +181,17 @@ class Documents extends BaseWidget {
     return get(this._emptyStubRef, 'current.offsetHeight', 0);
   }
 
+  get calculatedTablePanelHeight() {
+    const { userHeight } = this.state;
+    let calculatedHeight = this.tablePanelHeight;
+
+    if (userHeight < calculatedHeight) {
+      calculatedHeight = userHeight;
+    }
+
+    return calculatedHeight;
+  }
+
   get calculatedClientHeight() {
     if (!this.props.maxHeightByContent) {
       return null;
@@ -730,7 +741,7 @@ class Documents extends BaseWidget {
       <div id={leftColumnId} className="ecos-docs__column ecos-docs__column_types">
         <Scrollbars
           style={{ height: this.calculatedTypesHeight || '100%' }}
-          hideTracksWhenNotNeeded={true}
+          hideTracksWhenNotNeeded
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
         >
           <div className="ecos-docs__types" ref={this._typesList}>
@@ -857,23 +868,29 @@ class Documents extends BaseWidget {
     }
 
     return (
-      <div className="ecos-docs__panel" ref={this._tablePanel}>
-        {this.renderUploadButton()}
-        <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTable} className="ecos-docs__panel-search" />
-        {!selectedType && dynamicTypes.length > 1 && (
-          <Dropdown
-            withScrollbar
-            valueField="key"
-            titleField="value"
-            value={statusFilter}
-            source={typesStatuses}
-            className="ecos-docs__panel-filter"
-            controlClassName="ecos-docs__panel-filter-control"
-            onChange={this.handleChangeTypeFilter}
-            scrollbarHeightMax={contentHeight - this.tablePanelHeight}
-          />
-        )}
-      </div>
+      <Scrollbars
+        style={{ height: this.calculatedTablePanelHeight || '100%' }}
+        hideTracksWhenNotNeeded
+        renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+      >
+        <div className="ecos-docs__panel" ref={this._tablePanel}>
+          {this.renderUploadButton()}
+          <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTable} className="ecos-docs__panel-search" />
+          {!selectedType && dynamicTypes.length > 1 && (
+            <Dropdown
+              withScrollbar
+              valueField="key"
+              titleField="value"
+              value={statusFilter}
+              source={typesStatuses}
+              className="ecos-docs__panel-filter"
+              controlClassName="ecos-docs__panel-filter-control"
+              onChange={this.handleChangeTypeFilter}
+              scrollbarHeightMax={contentHeight - this.tablePanelHeight}
+            />
+          )}
+        </div>
+      </Scrollbars>
     );
   }
 
@@ -1079,7 +1096,7 @@ class Documents extends BaseWidget {
     return (
       <Scrollbars
         style={{ height: this.calculatedEmptyHeight || '100%' }}
-        hideTracksWhenNotNeeded={true}
+        hideTracksWhenNotNeeded
         renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
       >
         <div className="ecos-docs__empty-stub" ref={this._emptyStubRef}>
