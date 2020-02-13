@@ -114,7 +114,8 @@ class Documents extends BaseWidget {
         ...type,
         value: t(type.value)
       })),
-      canHideInlineTools: true
+      canHideInlineTools: true,
+      isLoadingUploadingModal: true
     };
 
     this._tablePanel = React.createRef();
@@ -190,6 +191,12 @@ class Documents extends BaseWidget {
     }
 
     return calculatedHeight;
+  }
+
+  get needTablePanelScroll() {
+    const { userHeight } = this.state;
+
+    return userHeight <= this.tablePanelHeight;
   }
 
   get calculatedClientHeight() {
@@ -444,9 +451,11 @@ class Documents extends BaseWidget {
   };
 
   handleToggleUploadModalByType = (type = null) => {
+    this.setState({ isLoadingUploadingModal: false });
+
     if (type === null) {
       this.setState({
-        electedTypeForLoading: null,
+        selectedTypeForLoading: null,
         isOpenUploadModal: false
       });
 
@@ -535,6 +544,10 @@ class Documents extends BaseWidget {
     }
 
     this.props.onUploadFiles({ files, type: selectedTypeForLoading.type, callback });
+  };
+
+  handleUploadedFiles = () => {
+    this.setState({ isLoadingUploadingModal: true });
   };
 
   handleDropRejected = () => {
@@ -826,7 +839,7 @@ class Documents extends BaseWidget {
 
   renderUploadButton() {
     const { dynamicTypes } = this.props;
-    const { selectedType } = this.state;
+    const { selectedType, contentHeight } = this.state;
 
     if (selectedType || dynamicTypes.length === 1) {
       const type = dynamicTypes.find(item => item.type === selectedType) || dynamicTypes[0];
@@ -846,6 +859,7 @@ class Documents extends BaseWidget {
     return (
       <Dropdown
         isStatic
+        withScrollbar
         toggleClassName={classNames('ecos-docs__panel-upload', {
           'ecos-docs__panel-upload_not-available': !dynamicTypes.length
         })}
@@ -853,6 +867,7 @@ class Documents extends BaseWidget {
         titleField="name"
         source={dynamicTypes}
         onChange={this.handleToggleUploadModalByType}
+        scrollbarHeightMax={contentHeight - this.tablePanelHeight}
       >
         <Icon className="icon-load ecos-docs__panel-upload-icon" />
       </Dropdown>
@@ -867,31 +882,50 @@ class Documents extends BaseWidget {
       return null;
     }
 
-    return (
+    const ScrollBar = props => (
       <Scrollbars
         style={{ height: this.calculatedTablePanelHeight || '100%' }}
         hideTracksWhenNotNeeded
         renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
       >
-        <div className="ecos-docs__panel" ref={this._tablePanel}>
-          {this.renderUploadButton()}
-          <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTable} className="ecos-docs__panel-search" />
-          {!selectedType && dynamicTypes.length > 1 && (
-            <Dropdown
-              withScrollbar
-              valueField="key"
-              titleField="value"
-              value={statusFilter}
-              source={typesStatuses}
-              className="ecos-docs__panel-filter"
-              controlClassName="ecos-docs__panel-filter-control"
-              onChange={this.handleChangeTypeFilter}
-              scrollbarHeightMax={contentHeight - this.tablePanelHeight}
-            />
-          )}
-        </div>
+        {props.children}
       </Scrollbars>
     );
+    const TablePanel = () => (
+      <div className="ecos-docs__panel" ref={this._tablePanel}>
+        {this.renderUploadButton()}
+        <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTable} className="ecos-docs__panel-search" />
+        {!selectedType && dynamicTypes.length > 1 && (
+          <Dropdown
+            withScrollbar
+            valueField="key"
+            titleField="value"
+            value={statusFilter}
+            source={typesStatuses}
+            className="ecos-docs__panel-filter"
+            controlClassName="ecos-docs__panel-filter-control"
+            onChange={this.handleChangeTypeFilter}
+            scrollbarHeightMax={contentHeight - this.tablePanelHeight}
+          />
+        )}
+      </div>
+    );
+
+    if (this.needTablePanelScroll) {
+      return (
+        <ScrollBar>
+          <TablePanel />
+        </ScrollBar>
+      );
+    }
+
+    return <TablePanel />;
+
+    // return (
+    //   {this.needTablePanelScroll ? }
+    //
+    //   </Scrollbars>
+    // );
   }
 
   renderInlineTools = () => {
@@ -1061,16 +1095,22 @@ class Documents extends BaseWidget {
 
   renderUploadingModal() {
     const { isUploadingFile } = this.props;
-    const { selectedTypeForLoading, isOpenUploadModal } = this.state;
+    const { selectedTypeForLoading, isOpenUploadModal, isLoadingUploadingModal } = this.state;
 
     return (
       <EcosModal
         title={get(selectedTypeForLoading, 'name', '')}
         isOpen={isOpenUploadModal}
+        isLoading={isLoadingUploadingModal}
         className="ecos-docs__modal-upload"
         hideModal={this.handleToggleUploadModalByType.bind(this, null)}
       >
-        <DropZone onSelect={this.handleSelectUploadFiles} isLoading={isUploadingFile} {...this.uploadingSettings} />
+        <DropZone
+          onSelect={this.handleSelectUploadFiles}
+          onUploaded={this.handleUploadedFiles}
+          isLoading={isUploadingFile}
+          {...this.uploadingSettings}
+        />
       </EcosModal>
     );
   }

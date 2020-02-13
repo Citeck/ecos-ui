@@ -739,7 +739,7 @@
     }
 
     &::-webkit-progress-value {
-      transition: width 1s ease-out;
+      transition: width 0.2s ease-out;
       border: 0;
       height: 6px;
       border-radius: 3px;
