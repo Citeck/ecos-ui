@@ -44,6 +44,7 @@ class PageTabs extends React.Component {
   };
 
   inited = false;
+  initedScroll = false;
 
   constructor(props) {
     super(props);
@@ -85,7 +86,8 @@ class PageTabs extends React.Component {
       if (inited && !this.inited) {
         this.init();
       } else if (this.inited) {
-        if (activeTab !== activeTabPrev) {
+        if (activeTab !== activeTabPrev || !this.initedScroll) {
+          this.initedScroll = true;
           this.handleScrollToActiveTab();
         } else if (!arrayCompare(prevProps.tabs, tabs)) {
           this.checkNeedArrow();
@@ -259,10 +261,11 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { left: scrollLeft } = this.elmActiveTab ? this.elmActiveTab.getBoundingClientRect() : {};
+    const { left: tLeft } = this.elmActiveTab ? this.elmActiveTab.getBoundingClientRect() : {};
+    const { left: wLeft } = this.elmActiveTab ? this.wrapper.getBoundingClientRect() : {};
 
-    animateScrollTo(wrapper, { scrollLeft });
-    this.checkNeedArrow(scrollLeft);
+    animateScrollTo(wrapper, { scrollLeft: tLeft - wLeft });
+    this.checkNeedArrow();
   };
 
   handleBeforeSortStart = ({ node }) => {
