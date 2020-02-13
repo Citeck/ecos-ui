@@ -612,6 +612,10 @@
       & > #{$item} {
         &-element {
           opacity: 0.5;
+
+          &:before {
+            border-color: darken($color-gray-6, 10%);
+          }
         }
       }
     }
