@@ -29,7 +29,8 @@ class DropZone extends Component {
     multiple: PropTypes.bool,
     isLoading: PropTypes.bool,
     immediateUploading: PropTypes.bool,
-    onSelect: PropTypes.func
+    onSelect: PropTypes.func,
+    onUploaded: PropTypes.func
   };
 
   static defaultProps = {
@@ -39,14 +40,16 @@ class DropZone extends Component {
     withoutButton: false,
     isLoading: false,
     immediateUploading: false,
-    onSelect: () => {}
+    onSelect: () => {},
+    onUploaded: () => {}
   };
 
   state = {
     xhr: null,
     file: null,
     filePercent: 0,
-    clientError: ''
+    clientError: '',
+    canCancel: false
   };
 
   dropzoneRef = React.createRef();
@@ -97,6 +100,15 @@ class DropZone extends Component {
           };
         }
         break;
+      case FileStatuses.HEADERS_RECEIVED:
+        if (filePercent === 100) {
+          this.props.onUploaded();
+        }
+        newState = {
+          ...newState,
+          canCancel: false
+        };
+        break;
       default:
         break;
     }
@@ -109,9 +121,9 @@ class DropZone extends Component {
     const clientError = this.validateUploadedFile(file);
 
     if (clientError) {
-      this.setState({ file: null, clientError });
+      this.setState({ file: null, clientError, canCancel: false });
     } else {
-      this.setState({ file, clientError: '' });
+      this.setState({ file, clientError: '', canCancel: true });
       this.props.onSelect(acceptedFiles, this.handleChangeStatus);
     }
   };
@@ -165,17 +177,19 @@ class DropZone extends Component {
   }
 
   renderProgressBar() {
-    const { filePercent, xhr } = this.state;
+    const { filePercent, canCancel, xhr } = this.state;
     const cancelUpload = () => {
       xhr && xhr.abort();
     };
 
     return (
       <div className="ecos-dropzone__uploading">
-        <progress max="100" value={filePercent} className="ecos-dropzone__progress-bar" />
-        <div className="ecos-dropzone__button" onClick={cancelUpload}>
-          {t(Labels.DROPZONE_BUTTON_CANCEL)}
-        </div>
+        {(filePercent < 100 || canCancel) && <progress max="100" value={filePercent} className="ecos-dropzone__progress-bar" />}
+        {canCancel && (
+          <div className="ecos-dropzone__button" onClick={cancelUpload}>
+            {t(Labels.DROPZONE_BUTTON_CANCEL)}
+          </div>
+        )}
       </div>
     );
   }

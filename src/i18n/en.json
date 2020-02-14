@@ -795,6 +795,8 @@
   "documents-widget.tree.empty": "Nothing found",
   "documents-widget.tree.cannot-be-disabled": "Always displayed",
   "documents-widget.tree.not-selected": "Not selected for display",
+  "documents-widget.tree.selected-inside": "Selected inside",
+  "documents-widget.tree.selected-inside-of": "of",
   "documents-widget.type-settings.title": "settings",
   "documents-widget.type-settings.upload-label": "Ability to upload files",
   "documents-widget.type-settings.sort-label": "Order and display of columns in the type",

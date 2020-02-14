@@ -581,6 +581,12 @@ class Grid extends Component {
   };
 
   onDragEnter = e => {
+    const dataTypes = get(e, 'dataTransfer.types', []);
+
+    if (!dataTypes.includes('Files')) {
+      return;
+    }
+
     const target = e.target;
     const tr = closest(target, ECOS_GRID_ROW_CLASS);
 
@@ -657,7 +663,7 @@ class Grid extends Component {
       scrollStyle.autoHeight = props.autoHeight;
     }
 
-    const Scroll = ({ scrollable, children, style, refCallback }) =>
+    const Scroll = ({ scrollable, children, style, refCallback, autoHide }) =>
       scrollable ? (
         <Scrollbars
           ref={refCallback}
@@ -665,7 +671,8 @@ class Grid extends Component {
           onScrollFrame={this.onScrollFrame}
           onScrollStop={this.onScrollStop}
           style={style}
-          hideTracksWhenNotNeeded={true}
+          autoHide={autoHide}
+          hideTracksWhenNotNeeded
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
           renderTrackHorizontal={props => <div {...props} className="ecos-grid__h-scroll" />}
         >
@@ -693,9 +700,9 @@ class Grid extends Component {
         >
           {toolsVisible ? this.tools(props.selected) : null}
 
-          <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
+          <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback} autoHide={props.scrollAutoHide}>
             <div ref={this.props.forwardedRef}>
-              <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={ECOS_GRID_ROW_CLASS} />
+              <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={classNames(ECOS_GRID_ROW_CLASS, props.rowClassName)} />
             </div>
             {this.inlineTools()}
           </Scroll>
@@ -715,6 +722,7 @@ class Grid extends Component {
 
 Grid.propTypes = {
   className: PropTypes.string,
+  rowClassName: PropTypes.string,
   keyField: PropTypes.string,
   dataField: PropTypes.string,
 
@@ -726,6 +734,7 @@ Grid.propTypes = {
   selectAll: PropTypes.bool,
   scrollable: PropTypes.bool,
   fixedHeader: PropTypes.bool,
+  scrollAutoHide: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,
