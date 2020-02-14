@@ -17,7 +17,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
         hideCreateButton: false,
         hideEditRowButton: false,
         hideDeleteRowButton: false,
-        isFullScreenWidthModal: false
+        isFullScreenWidthModal: false,
+        valueDisplayOption: 'text'
       },
       ...extend
     );
@@ -78,6 +79,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         hideCreateButton: component.hideCreateButton,
         hideEditRowButton: component.hideEditRowButton,
         hideDeleteRowButton: component.hideDeleteRowButton,
+        valueDisplayOption: component.valueDisplayOption,
         isFullScreenWidthModal: component.isFullScreenWidthModal,
         presetFilterPredicates,
         searchField: component.searchField,

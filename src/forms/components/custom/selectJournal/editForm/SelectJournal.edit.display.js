@@ -22,5 +22,27 @@ export default [
     label: 'Hide "Delete row" button',
     weight: 12,
     defaultValue: false
+  },
+  {
+    type: 'select',
+    label: 'Value Display Option',
+    key: 'valueDisplayOption',
+    weight: 30,
+    tooltip: '',
+    template: '<span>{{ item.label }}</span>',
+    data: {
+      values: [
+        {
+          value: 'text',
+          label: 'Text'
+        },
+        {
+          value: 'json-record',
+          label: 'Link'
+        }
+      ]
+    },
+    defaultValue: 'text',
+    input: true
   }
 ];

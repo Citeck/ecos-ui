@@ -569,7 +569,8 @@ export default class SelectJournal extends Component {
       onBlur,
       renderView,
       isFullScreenWidthModal,
-      presetFilterPredicates
+      presetFilterPredicates,
+      valueDisplayOption
     } = this.props;
     const {
       isGridDataReady,
@@ -605,7 +606,8 @@ export default class SelectJournal extends Component {
       autoFocus,
       onBlur,
       hideEditRowButton,
-      hideDeleteRowButton
+      hideDeleteRowButton,
+      valueDisplayOption
     };
 
     let selectModalTitle = t('select-journal.select-modal.title');
@@ -745,7 +747,8 @@ SelectJournal.propTypes = {
   viewOnly: PropTypes.bool,
   renderView: PropTypes.func,
   searchField: PropTypes.string,
-  isSelectModalOpen: PropTypes.bool
+  isSelectModalOpen: PropTypes.bool,
+  valueDisplayOption: PropTypes.string
 };
 
 SelectJournal.defaultProps = {
