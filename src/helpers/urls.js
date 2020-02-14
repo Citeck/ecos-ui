@@ -6,12 +6,13 @@ import { ParserPredicate } from '../components/Filters/predicates/index';
 import { changeUrlLink } from '../components/PageTabs/PageTabs';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
-const JOURNALS_LIST_ID_KEY = 'journalsListId';
-const JOURNAL_ID_KEY = 'journalId';
-const JOURNAL_SETTING_ID_KEY = 'journalSettingId';
-const TYPE_KEY = 'type';
-const DESTINATION_KEY = 'destination';
-const FILTER_KEY = 'filter';
+export const JOURNALS_LIST_ID_KEY = 'journalsListId';
+export const JOURNAL_ID_KEY = 'journalId';
+export const RECORD_REF_KEY = 'recordRef';
+export const JOURNAL_SETTING_ID_KEY = 'journalSettingId';
+export const TYPE_KEY = 'type';
+export const DESTINATION_KEY = 'destination';
+export const FILTER_KEY = 'filter';
 
 export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';
 

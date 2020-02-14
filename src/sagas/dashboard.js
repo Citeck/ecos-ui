@@ -13,6 +13,8 @@ import { setNotificationMessage } from '../actions/notification';
 import { setActiveTabTitle } from '../actions/pageTabs';
 import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
 import { t } from '../helpers/util';
+import { getSearchParams, JOURNAL_ID_KEY, RECORD_REF_KEY } from '../helpers/urls';
+import { URL } from '../constants';
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
 import { RequestStatuses } from '../constants';
