@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { default as DZ } from 'react-dropzone';
 import get from 'lodash/get';
 
-import { t, deepClone } from '../../../helpers/util';
+import { t } from '../../../helpers/util';
 import { FileStatuses } from '../../../helpers/ecosXhr';
 
 const Labels = {
