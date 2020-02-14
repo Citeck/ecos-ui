@@ -44,7 +44,6 @@ class PageTabs extends React.Component {
   };
 
   inited = false;
-  initedScroll = false;
 
   constructor(props) {
     super(props);
@@ -86,8 +85,7 @@ class PageTabs extends React.Component {
       if (inited && !this.inited) {
         this.init();
       } else if (this.inited) {
-        if (activeTab !== activeTabPrev || !this.initedScroll) {
-          this.initedScroll = true;
+        if (activeTab !== activeTabPrev && this.checkScrollPosition()) {
           this.handleScrollToActiveTab();
         } else if (!arrayCompare(prevProps.tabs, tabs)) {
           this.checkNeedArrow();
@@ -109,13 +107,23 @@ class PageTabs extends React.Component {
   }
 
   get sizeTab() {
-    return this.wrapper.querySelector('.page-tab__tabs-item:not(.page-tab__tabs-item_active)').offsetWidth;
+    return (this.wrapper.querySelector('.page-tab__tabs-item:not(.page-tab__tabs-item_active)') || {}).offsetWidth;
   }
 
   init() {
     this.inited = true;
-    this.handleScrollToActiveTab();
     document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
+    this.initScroll();
+  }
+
+  initScroll() {
+    const { left: tLeft } = this.elmActiveTab ? this.elmActiveTab.getBoundingClientRect() : {};
+    const { left: wLeft } = this.wrapper ? this.wrapper.getBoundingClientRect() : {};
+    const isLast = this.elmActiveTab.nextElementSibling ? 1 : -1;
+    const padding = 10;
+
+    animateScrollTo(this.wrapper, { scrollLeft: tLeft - wLeft - isLast * padding });
+    this.checkNeedArrow();
   }
 
   checkNeedArrow(calculatedScrollLeft = null) {
@@ -136,6 +144,23 @@ class PageTabs extends React.Component {
         isActiveLeftArrow: scrollLeft > 0
       });
     }
+  }
+
+  /**
+   * Checking scroll position and return true, when scrolled has happened
+   *
+   * @returns {boolean}
+   */
+  checkScrollPosition() {
+    const { current } = this.$tabWrapper;
+
+    if (current) {
+      if (current.scrollWidth > current.offsetWidth + getScrollbarWidth()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   closeTab(tab) {
@@ -261,12 +286,10 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { left: tLeft } = this.elmActiveTab ? this.elmActiveTab.getBoundingClientRect() : {};
-    const { left: wLeft } = this.elmActiveTab ? this.wrapper.getBoundingClientRect() : {};
-    const isLast = this.elmActiveTab.nextElementSibling ? 1 : -1;
-    const padding = 10;
+    const { offsetLeft = 0, offsetWidth = 0 } = this.elmActiveTab || {};
+    const scrollLeft = offsetLeft - wrapper.offsetWidth / 2 + offsetWidth / 2;
 
-    animateScrollTo(wrapper, { scrollLeft: tLeft - wLeft - isLast * padding });
+    animateScrollTo(wrapper, { scrollLeft });
     this.checkNeedArrow();
   };
 
