@@ -2,11 +2,18 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import queryString from 'query-string/index';
+import get from 'lodash/get';
+
 import { t } from '../../../helpers/util';
 import { getIconClassMenu, getSpecialClassByState } from '../../../helpers/menu';
 import handleControl from '../../../helpers/handleControl';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
+import { URL } from '../../../constants';
+import { getSearchParams, SEARCH_KEYS } from '../../../helpers/urls';
 
+const mapStateToProps = state => ({
+  dashboardId: get(state, 'dashboard.identification.id', '')
+});
 const mapDispatchToProps = dispatch => ({
   dispatch
 });
@@ -24,7 +31,8 @@ class DropdownMenuItem extends React.Component {
     }).isRequired,
     dispatch: PropTypes.func,
     onClick: PropTypes.func,
-    iconRight: PropTypes.string
+    iconRight: PropTypes.string,
+    dashboardId: PropTypes.string
   };
 
   static defaultProps = {
@@ -40,6 +48,32 @@ class DropdownMenuItem extends React.Component {
     const icon = getIconClassMenu(id, iconSpecialClass);
 
     return icon ? `ecos-dropdown-menu__icon ${icon}` : '';
+  }
+
+  get url() {
+    const {
+      data: { targetUrl = '' },
+      dashboardId
+    } = this.props;
+    const { recordRef, dashboardKey } = getSearchParams();
+    const params = [];
+    let link = targetUrl;
+
+    if (targetUrl === URL.DASHBOARD_SETTINGS) {
+      params.push(`${SEARCH_KEYS.DASHBOARD_ID}=${dashboardId}`);
+
+      if (recordRef) {
+        params.push(`${SEARCH_KEYS.RECORD_REF}=${recordRef}`);
+      }
+
+      if (dashboardKey) {
+        params.push(`${SEARCH_KEYS.DASHBOARD_KEY}=${dashboardKey}`);
+      }
+
+      link += `?${params.join('&')}`;
+    }
+
+    return link;
   }
 
   handlerClick = event => {
@@ -68,11 +102,11 @@ class DropdownMenuItem extends React.Component {
 
   render() {
     const { data, iconRight } = this.props;
-    const { id, img, targetUrl, label, target } = data;
+    const { id, img, label, target } = data;
 
     return (
       <li>
-        <a href={targetUrl} target={target} id={id} onClick={this.handlerClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
+        <a href={this.url} target={target} id={id} onClick={this.handlerClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
           {this.iconLeft && <i className={this.iconLeft} />}
           {img && this.renderImg()}
           {label && t(label)}
@@ -84,6 +118,6 @@ class DropdownMenuItem extends React.Component {
 }
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(DropdownMenuItem);
