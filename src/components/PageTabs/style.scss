@@ -223,6 +223,8 @@
         top: 0;
 
         &:not(#{$item}_active) {
+          background-color: $color-gray-1;
+
           &::after {
             display: none !important;
           }

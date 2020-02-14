@@ -263,8 +263,10 @@ class PageTabs extends React.Component {
 
     const { left: tLeft } = this.elmActiveTab ? this.elmActiveTab.getBoundingClientRect() : {};
     const { left: wLeft } = this.elmActiveTab ? this.wrapper.getBoundingClientRect() : {};
+    const isLast = this.elmActiveTab.nextElementSibling ? 1 : -1;
+    const padding = 10;
 
-    animateScrollTo(wrapper, { scrollLeft: tLeft - wLeft });
+    animateScrollTo(wrapper, { scrollLeft: tLeft - wLeft - isLast * padding });
     this.checkNeedArrow();
   };
 
