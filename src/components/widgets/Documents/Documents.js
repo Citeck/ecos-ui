@@ -455,7 +455,7 @@ class Documents extends BaseWidget {
 
     if (type === null) {
       this.setState({
-        selectedTypeForLoading: null,
+        selectedTypeForLoading: '',
         isOpenUploadModal: false
       });
 

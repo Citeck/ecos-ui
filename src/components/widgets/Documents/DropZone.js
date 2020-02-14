@@ -184,7 +184,7 @@ class DropZone extends Component {
 
     return (
       <div className="ecos-dropzone__uploading">
-        <progress max="100" value={filePercent} className="ecos-dropzone__progress-bar" />
+        {(filePercent < 100 || canCancel) && <progress max="100" value={filePercent} className="ecos-dropzone__progress-bar" />}
         {canCancel && (
           <div className="ecos-dropzone__button" onClick={cancelUpload}>
             {t(Labels.DROPZONE_BUTTON_CANCEL)}

@@ -484,6 +484,7 @@
         color: $color-gray-dark;
         font-size: 14px;
         margin-right: 7px;
+        cursor: pointer;
 
         &_open {
           transform: rotate(90deg);
@@ -582,6 +583,22 @@
       }
     }
 
+    &_has-grandchildren {
+      #{$item}-element-children {
+        #{$item}_child:not(#{$item}_parent) {
+          #{$item}-element {
+            padding: 9px 11px 9px 34px;
+          }
+        }
+
+        #{$item}_parent:not(#{$item}_has-grandchildren) {
+          #{$item}-element {
+            padding: 9px 11px;
+          }
+        }
+      }
+    }
+
     &_parent {
       position: relative;
 
@@ -611,11 +628,7 @@
     &_not-selected {
       & > #{$item} {
         &-element {
-          opacity: 0.5;
-
-          &:before {
-            border-color: darken($color-gray-6, 10%);
-          }
+          background: $color-gray-13;
         }
       }
     }
@@ -739,7 +752,7 @@
     }
 
     &::-webkit-progress-value {
-      transition: width 0.2s ease-out;
+      transition: width 1s ease-out;
       border: 0;
       height: 6px;
       border-radius: 3px;
