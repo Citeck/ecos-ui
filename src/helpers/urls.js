@@ -1,5 +1,5 @@
 import * as queryString from 'query-string';
-import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { URL } from '../constants';
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
@@ -17,7 +17,7 @@ const FILTER_KEY = 'filter';
 const SORT_KEY = 'sortBy';
 const PAGINATION_KEY = 'pagination';
 
-export const SEARCH_KEYS = {
+export const SearchKeys = {
   TYPE: [TYPE_KEY],
   DESTINATION: [DESTINATION_KEY],
   FILTER: [FILTER_KEY],
@@ -198,7 +198,7 @@ export const getBarcodePrintUrl = record => {
  *
  * @returns {boolean}
  */
-export const compareUrls = params => {
+export const equalsQueryUrls = params => {
   const { urls = [], ignored = [], compareBy = [] } = params;
 
   if (!urls.length || (!ignored.length && compareBy.length)) {
@@ -206,9 +206,14 @@ export const compareUrls = params => {
   }
 
   const [first, second] = urls;
-  const regExp = /(?<=\?).*/gm;
-  let firstParams = queryString.parse(get(first.match(regExp), [0], ''));
-  let secondParams = queryString.parse(get(second.match(regExp), [0], ''));
+
+  let firstParams = queryString.parseUrl(first).query || {};
+  let secondParams = queryString.parseUrl(second).query || {};
+
+  console.log('????', firstParams, secondParams);
+  if (isEmpty(firstParams) || isEmpty(secondParams)) {
+    return false;
+  }
 
   ignored.forEach(param => {
     delete firstParams[param];

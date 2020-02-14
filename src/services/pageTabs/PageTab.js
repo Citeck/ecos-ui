@@ -92,12 +92,12 @@ export default class PageTab {
     const urlProps = queryString.parseUrl(url);
 
     switch (type) {
+      case PageTypes.SETTINGS:
+        return urlProps.query.dashboardId || '';
       case PageTypes.DASHBOARD:
         return urlProps.query.recordRef || '';
       case PageTypes.JOURNALS:
         return urlProps.query.journalsListId || '';
-      case PageTypes.SETTINGS:
-        return urlProps.query.dashboardId || '';
       default:
         return '';
     }

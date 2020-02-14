@@ -1,13 +1,14 @@
 import isArray from 'lodash/isArray';
-import isEmpty from 'lodash/isEmpty';
 import set from 'lodash/set';
 import get from 'lodash/get';
 
 import * as storage from '../../helpers/ls';
-import { decodeLink, isNewVersionPage } from '../../helpers/urls';
+import { decodeLink, equalsQueryUrls, isNewVersionPage, SearchKeys } from '../../helpers/urls';
 import { t } from '../../helpers/util';
 import { LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
+
+const exist = index => !!~index;
 
 /**
  * @define Application Tabs Service (Singleton)
@@ -22,6 +23,7 @@ class PageTabListService {
   #tabs;
   #keyStorage;
   #displayState;
+  #isDuplicateAllowed;
   #customEvent;
 
   events = {
@@ -42,14 +44,14 @@ class PageTabListService {
     this.#tabs = [];
 
     tabs = isArray(tabs) ? tabs : [];
-    tabs.forEach(item => this.add(item, params));
+    tabs.forEach(item => this.setTab(item, params));
   }
 
   set displayState(state) {
     this.#displayState = state;
   }
 
-  get isActiveTab() {
+  get activeTab() {
     return this.#tabs.find(item => item.isActive);
   }
 
@@ -61,22 +63,16 @@ class PageTabListService {
     return this.#tabs.map(item => item.store);
   }
 
-  init({ params, keyStorage }) {
+  init({ activeUrl, keyStorage, isDuplicateAllowed, ...params }) {
     this.#keyStorage = keyStorage || this.#keyStorage;
-    const activeTab = !!params.activeUrl && { link: params.activeUrl };
+    this.#isDuplicateAllowed = !!isDuplicateAllowed;
 
-    let tabs = this.getFromStorage();
-
-    if (isEmpty(tabs) && activeTab) {
-      tabs = [activeTab];
-    }
+    const tabs = this.getFromStorage();
 
     this.tabs = { tabs, ...params, last: true };
 
-    if (activeTab) {
-      const tab = this.getVerifiableTab(activeTab);
-
-      this.activate(tab);
+    if (!!activeUrl) {
+      this.setTab({ link: activeUrl, isActive: true });
     }
   }
 
@@ -91,22 +87,17 @@ class PageTabListService {
    * @param params {object} extra condition info
    * @returns {PageTab}
    */
-  add(data, params = {}) {
+  setTab(data, params = {}) {
     const { last } = params;
     const tab = new PageTab({ title: t(TITLE.LOADING), isLoading: true, ...data });
-    const newTabIndex = this.existTabIndex(tab.uniqueKey);
+    const newTabIndex = this.existTabIndex(tab);
     const indexTo = this.getPlaceTab(newTabIndex, last);
 
-    if (!!~newTabIndex) {
-      this.changeOne({ data: tab, key: tab.uniqueKey });
+    if (exist(newTabIndex)) {
+      this.changeOne({ updates: tab, tab });
       this.move(newTabIndex, indexTo);
     } else {
-      this.#tabs.splice(indexTo, 0, tab);
-      this.setToStorage();
-    }
-
-    if (data.isActive || tab.link === decodeLink(params.activeUrl)) {
-      this.activate(tab);
+      this.add(tab, indexTo);
     }
 
     return tab;
@@ -114,7 +105,7 @@ class PageTabListService {
 
   activate(tab) {
     this.#tabs.forEach(item => {
-      item.isActive = item.uniqueKey === tab.uniqueKey;
+      item.isActive = item.id === tab.id;
     });
 
     this.setToStorage();
@@ -127,7 +118,7 @@ class PageTabListService {
    */
   delete(tab) {
     tab = tab.uniqueKey ? tab : this.getVerifiableTab(tab);
-    const tabIndex = this.#tabs.findIndex(item => item.uniqueKey === tab.uniqueKey);
+    const tabIndex = this.#tabs.findIndex(item => this.equals(tab, item));
 
     if (tabIndex === -1 || this.#tabs.length < 2) {
       return;
@@ -149,15 +140,39 @@ class PageTabListService {
     return deletedTab;
   }
 
-  changeOne({ data, key }) {
+  add(tab, indexTo) {
+    this.#tabs.splice(indexTo, 0, tab);
+
+    if (this.#tabs.length < 2) {
+      tab.isActive = true;
+    }
+
+    if (tab.isActive) {
+      this.activate(tab);
+    }
+
+    this.setToStorage();
+  }
+
+  changeOne({ updates, tab }) {
     let changingTab = null;
 
+    tab = tab instanceof PageTab ? tab : this.getVerifiableTab(tab);
+
+    if (this.#tabs.length < 2) {
+      updates.isActive = true;
+    }
+
     this.#tabs.forEach(item => {
-      if (item.uniqueKey === key) {
-        item.change(data);
+      if (this.equals(item, tab)) {
+        item.change(updates);
         changingTab = item;
       }
     });
+
+    if (updates.isActive) {
+      this.activate(tab);
+    }
 
     this.setToStorage();
 
@@ -173,8 +188,20 @@ class PageTabListService {
     this.setToStorage();
   }
 
-  existTabIndex(key) {
-    return this.#tabs.findIndex(item => item.uniqueKey === key);
+  existTabIndex(tab) {
+    if (this.#isDuplicateAllowed) {
+      return this.#tabs.findIndex(item => this.equalsLink(tab, item));
+    }
+
+    return this.#tabs.findIndex(item => this.equals(tab, item));
+  }
+
+  equals(tab1, tab2) {
+    return this.#isDuplicateAllowed ? tab1.link === tab2.link : tab1.uniqueKey === tab2.uniqueKey;
+  }
+
+  equalsLink(tab1, tab2) {
+    return equalsQueryUrls({ urls: [tab1.link, tab2.link], ignored: [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT] });
   }
 
   /**
@@ -186,8 +213,8 @@ class PageTabListService {
   getPlaceTab(currentTabIndex, last) {
     const activeIndex = this.#tabs.findIndex(item => item.isActive);
 
-    return !!this.#tabs.length && !last && !!~activeIndex
-      ? !!~currentTabIndex && currentTabIndex <= activeIndex
+    return !!this.#tabs.length && !last && exist(activeIndex)
+      ? exist(currentTabIndex) && currentTabIndex <= activeIndex
         ? activeIndex
         : activeIndex + 1
       : this.#tabs.length;
@@ -229,14 +256,20 @@ class PageTabListService {
     document.dispatchEvent(this.#customEvent);
   };
 
-  defineProps = ({ event, linkIgnoreAttr }) => {
+  /**
+   * Create link params from event & extra params
+   * @param event
+   * @param linkIgnoreAttr
+   * @returns {{link: string | undefined, isActive: boolean}} | undefined
+   */
+  definePropsLink = ({ event, linkIgnoreAttr }) => {
     const { type, currentTarget, params } = event || {};
 
     if (type === this.events.CHANGE_URL_LINK_EVENT) {
       const { openNewTab, openNewBrowserTab, reopenBrowserTab, closeActiveTab, link = '' } = params || {};
 
       if (closeActiveTab) {
-        this.delete(this.isActiveTab);
+        this.delete(this.activeTab);
       }
 
       event.preventDefault();

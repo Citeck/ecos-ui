@@ -42,7 +42,7 @@ function* sagaInitTabs({ api, logger }) {
 
     yield call(api.pageTabs.checkOldVersion, userName);
 
-    PageTabList.init({ params: { activeUrl }, keyStorage: api.pageTabs.lsKey });
+    PageTabList.init({ activeUrl, keyStorage: api.pageTabs.lsKey });
 
     yield put(setTabs(PageTabList.storeList));
     yield put(initTabsComplete());
@@ -105,13 +105,13 @@ function* sagaMoveTabs({ api, logger }, action) {
 function* sagaAddTab({ api, logger }, { payload }) {
   try {
     const { event, linkIgnoreAttr, ...params } = payload.params;
-    const initData = payload.data || PageTabList.defineProps({ event, linkIgnoreAttr });
+    const initData = payload.data || PageTabList.definePropsLink({ event, linkIgnoreAttr });
 
     if (!initData) {
       return;
     }
 
-    const tab = PageTabList.add(initData, params);
+    const tab = PageTabList.setTab(initData, params);
 
     if (tab.isActive && tab.link) {
       yield put(push(tab.link));
@@ -131,7 +131,7 @@ function* sagaDeleteTab({ api, logger }, action) {
   try {
     PageTabList.delete(action.payload);
 
-    const activeTab = PageTabList.isActiveTab;
+    const activeTab = PageTabList.activeTab;
 
     if (activeTab && activeTab.link) {
       yield put(push(activeTab.link));
@@ -206,13 +206,12 @@ function* sagaChangeTabData({ api, logger }, { payload }) {
       return;
     }
 
-    const { filter, data } = payload;
+    const { filter, data: updates } = payload;
     const tab = payload.tab || find(PageTabList.tabs, filter);
 
-    PageTabList.changeOne({ data, key: tab.uniqueKey });
+    PageTabList.changeOne({ tab, updates });
 
-    if (data.isActive) {
-      PageTabList.activate(tab);
+    if (updates.isActive) {
       yield put(push(tab.link));
     }
 
