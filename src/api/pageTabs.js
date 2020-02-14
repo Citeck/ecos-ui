@@ -10,7 +10,7 @@ import { CommonApi } from './common';
 
 export class PageTabsApi extends CommonApi {
   #lsKey = storage.generateKey('page-tabs', true);
-  #newVersionKeyPath = '/user';
+  #newVersionKeyPath = '/v3/user-';
 
   get lsKey() {
     return this.#lsKey;
@@ -36,7 +36,7 @@ export class PageTabsApi extends CommonApi {
     }
 
     const currentVersion = this.lsKey;
-    const newVersionKey = `${this.lsKey}${this.#newVersionKeyPath}-${userName}`;
+    const newVersionKey = `${this.lsKey}${this.#newVersionKeyPath}${userName}`;
 
     storage.transferData(currentVersion, newVersionKey, true);
     this.lsKey = newVersionKey;
