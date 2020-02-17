@@ -223,6 +223,9 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
 function* sagaUploadFiles({ api, logger }, { payload }) {
   try {
     const type = yield select(state => selectDynamicType(state, payload.key, payload.type));
+    const createVariants = yield call(api.documents.getCreateVariants, payload.type);
+
+    console.warn(createVariants);
 
     /**
      * update version
@@ -267,7 +270,15 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
      * open form manager
      */
     if (type.formId && payload.openForm) {
-      payload.openForm(type, results.filter(item => item !== null));
+      const createVariants = yield call(api.documents.getCreateVariants, payload.type);
+
+      if (createVariants === null) {
+        payload.openForm(type, results.filter(item => item !== null));
+
+        return;
+      }
+
+      // TODO: use createVariants for opening form
 
       return;
     }

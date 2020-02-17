@@ -83,4 +83,10 @@ export class DocumentsApi {
       }
     ).then(response => response);
   };
+
+  getCreateVariants = type => {
+    return Records.get(type)
+      .load('createVariants?json')
+      .then(response => response);
+  };
 }
