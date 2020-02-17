@@ -176,10 +176,24 @@ function* getTabWithTitle({ api, logger }, action) {
       if (dashboardId && !record && !journalId) {
         title = t(TITLE.HOMEPAGE);
       }
-    } else if (data.type === PageTypes.DASHBOARD) {
-      title = t(TITLE.HOMEPAGE);
     } else {
-      title = t(get(TITLE, data.link, TITLE.NO_NAME));
+      switch (data.type) {
+        case PageTypes.DASHBOARD: {
+          title = t(TITLE.HOMEPAGE);
+          break;
+        }
+        case PageTypes.BPMN_DESIGNER: {
+          title = t(TITLE[URL.BPMN_DESIGNER]);
+          break;
+        }
+        case PageTypes.TIMESHEET: {
+          title = t(TITLE.TIMESHEET);
+          break;
+        }
+        default: {
+          title = t(get(TITLE, data.link, TITLE.NO_NAME));
+        }
+      }
     }
 
     if (data.type === PageTypes.SETTINGS) {

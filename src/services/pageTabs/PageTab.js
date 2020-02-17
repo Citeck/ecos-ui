@@ -5,7 +5,9 @@ import { decodeLink } from '../../helpers/urls';
 export const PageTypes = {
   DASHBOARD: 'dashboard',
   JOURNALS: 'journals',
-  SETTINGS: 'dashboard/settings'
+  SETTINGS: 'dashboard/settings',
+  BPMN_DESIGNER: 'bpmn-designer',
+  TIMESHEET: 'timesheet'
 };
 
 /**
@@ -83,6 +85,10 @@ export default class PageTab {
         return PageTypes.DASHBOARD;
       case urlProps.url.includes(PageTypes.JOURNALS):
         return PageTypes.JOURNALS;
+      case urlProps.url.includes(PageTypes.BPMN_DESIGNER):
+        return PageTypes.BPMN_DESIGNER;
+      case urlProps.url.includes(PageTypes.TIMESHEET):
+        return PageTypes.TIMESHEET;
       default:
         return '';
     }

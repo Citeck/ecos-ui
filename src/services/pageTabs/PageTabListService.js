@@ -91,7 +91,7 @@ class PageTabListService {
     const { last } = params;
     const tab = new PageTab({ title: t(TITLE.LOADING), isLoading: true, ...data });
     const newTabIndex = this.existTabIndex(tab);
-    const indexTo = this.getPlaceTab(newTabIndex, last);
+    const indexTo = this.getPlaceTab({ newTabIndex, last });
 
     if (exist(newTabIndex)) {
       this.changeOne({ updates: tab, tab });
@@ -201,16 +201,20 @@ class PageTabListService {
   }
 
   equalsLink(tab1, tab2) {
-    return equalsQueryUrls({ urls: [tab1.link, tab2.link], ignored: [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT] });
+    return equalsQueryUrls({
+      urls: [tab1.link, tab2.link],
+      ignored: [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW]
+    });
   }
 
   /**
    * Return index e.g. for move there
    * @param currentTabIndex
-   * @param last
+   * @param last - to make page last
+   * @param reload > current page
    * @returns {*}
    */
-  getPlaceTab(currentTabIndex, last) {
+  getPlaceTab({ currentTabIndex, last }) {
     const activeIndex = this.#tabs.findIndex(item => item.isActive);
 
     return !!this.#tabs.length && !last && exist(activeIndex)
@@ -292,7 +296,8 @@ class PageTabListService {
 
       return {
         link,
-        isActive: openNewTab
+        isActive: true,
+        reload: !openNewTab
       };
     }
 

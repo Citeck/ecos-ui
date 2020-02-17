@@ -19,6 +19,7 @@ const DESTINATION_KEY = 'destination';
 const FILTER_KEY = 'filter';
 const SORT_KEY = 'sortBy';
 const PAGINATION_KEY = 'pagination';
+const SHOW_PREVIEW_KEY = 'showPreview';
 
 export const SearchKeys = {
   TYPE: [TYPE_KEY],
@@ -29,7 +30,8 @@ export const SearchKeys = {
   RECORD_REF: [RECORD_REF_KEY],
   JOURNAL_ID: [JOURNAL_ID_KEY],
   DASHBOARD_ID: [DASHBOARD_ID_KEY],
-  DASHBOARD_KEY: [DASHBOARD_KEY_KEY]
+  DASHBOARD_KEY: [DASHBOARD_KEY_KEY],
+  SHOW_PREVIEW: [SHOW_PREVIEW_KEY]
 };
 
 export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';
