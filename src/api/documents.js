@@ -53,10 +53,9 @@ export class DocumentsApi {
   uploadFilesWithNodes = (data = {}) => {
     const record = Records.getRecordToEdit('dict@cm:content');
 
-    record.att('_parent', data.record);
-    record.att('_parentAtt', 'icase:documents');
-    record.att('_etype', data.type);
-    record.att('_content', data.content);
+    Object.keys(data).forEach(key => {
+      record.att(key, data[key]);
+    });
 
     return record.save().then(response => response);
   };
@@ -82,5 +81,12 @@ export class DocumentsApi {
         type: 'type'
       }
     ).then(response => response);
+  };
+
+  getCreateVariants = type => {
+    return Records.get(type)
+      .load('createVariants?json')
+      .then(response => response)
+      .catch(() => null);
   };
 }
