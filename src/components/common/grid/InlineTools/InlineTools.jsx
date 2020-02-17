@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
 import get from 'lodash/get';
@@ -20,10 +21,28 @@ const mapStateToProps = (state, props) => {
 };
 
 class InlineTools extends Component {
+  static propTypes = {
+    reduxKey: PropTypes.string,
+    stateId: PropTypes.string,
+    toolsKey: PropTypes.string,
+    className: PropTypes.string,
+    inlineToolSettings: PropTypes.object,
+    actionsProps: PropTypes.object
+  };
+
+  static defaultProps = {
+    reduxKey: 'journals',
+    stateId: '',
+    toolsKey: 'inlineToolSettings',
+    className: '',
+    inlineToolSettings: {},
+    actionsProps: {}
+  };
+
   static renderAction(action, idx) {
     const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10';
-
     let themeClass = 'ecos-btn_hover_t-dark-brown';
+
     if (action.theme === 'danger') {
       themeClass = 'ecos-btn_hover_t_red';
     }
@@ -42,22 +61,23 @@ class InlineTools extends Component {
   render() {
     const {
       className,
-      inlineToolSettings: { top, height, left, actions = [] }
+      inlineToolSettings: { top, height, left, actions = [] },
+      actionsProps
     } = this.props;
 
-    if (height) {
-      return (
-        <div style={{ top, left }} className={classNames('ecos-inline-tools', className)}>
-          <div style={{ height }} className="ecos-inline-tools-border-left" />
-          <div style={{ height }} className="ecos-inline-tools-actions">
-            {actions.map((action, idx) => InlineTools.renderAction(action, idx))}
-          </div>
-          <div className="ecos-inline-tools-border-bottom" />
-        </div>
-      );
+    if (!height) {
+      return null;
     }
 
-    return null;
+    return (
+      <div style={{ top, left }} className={classNames('ecos-inline-tools', className)}>
+        <div style={{ height }} className="ecos-inline-tools-border-left" />
+        <div style={{ height }} className="ecos-inline-tools-actions" {...actionsProps}>
+          {actions.map((action, idx) => InlineTools.renderAction(action, idx))}
+        </div>
+        <div className="ecos-inline-tools-border-bottom" />
+      </div>
+    );
   }
 }
 

@@ -167,6 +167,11 @@ export default class DocumentsConverter {
           result[index] = current;
         }
 
+        if (result[index].mandatory !== current.mandatory) {
+          current.mandatory = result[index].mandatory;
+          result[index] = current;
+        }
+
         return result;
       }
 

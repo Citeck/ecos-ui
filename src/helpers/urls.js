@@ -10,6 +10,9 @@ import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';
+const DASHBOARD_ID_KEY = 'dashboardId';
+const DASHBOARD_KEY_KEY = 'dashboardKey';
+const RECORD_REF_KEY = 'recordRef';
 const JOURNAL_SETTING_ID_KEY = 'journalSettingId';
 const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
@@ -22,7 +25,11 @@ export const SearchKeys = {
   DESTINATION: [DESTINATION_KEY],
   FILTER: [FILTER_KEY],
   SORT: [SORT_KEY],
-  PAGINATION: [PAGINATION_KEY]
+  PAGINATION: [PAGINATION_KEY],
+  RECORD_REF: [RECORD_REF_KEY],
+  JOURNAL_ID: [JOURNAL_ID_KEY],
+  DASHBOARD_ID: [DASHBOARD_ID_KEY],
+  DASHBOARD_KEY: [DASHBOARD_KEY_KEY]
 };
 
 export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';

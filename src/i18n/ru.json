@@ -800,6 +800,8 @@
   "documents-widget.tree.empty": "Ничего не найдено",
   "documents-widget.tree.cannot-be-disabled": "Отображается всегда",
   "documents-widget.tree.not-selected": "Не выбран для отображения",
+  "documents-widget.tree.selected-inside": "Выбрано внутри",
+  "documents-widget.tree.selected-inside-of": "из",
   "documents-widget.type-settings.title": "настройки",
   "documents-widget.type-settings.upload-label": "Возможность загрузки файлов",
   "documents-widget.type-settings.sort-label": "Порядок и отображение колонок в типе",

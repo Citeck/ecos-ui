@@ -20,6 +20,7 @@
       flex-direction: column;
       flex-shrink: 2;
       width: 100%;
+      margin-left: -2px;
 
       tr:not(.ecos-grid_drag) > th:first-child,
       tr:not(.ecos-grid_drag) > td:first-child {
@@ -93,6 +94,11 @@
       cursor: pointer;
       height: 40px;
       padding: 9px 12px 9px 15px;
+      border-radius: 6px;
+
+      &:hover:not(&_selected) {
+        background: $color-gray-25;
+      }
 
       &-label {
         @extend %ellipsis;
@@ -143,7 +149,6 @@
 
       &_selected {
         background: $color-blue-light;
-        border-radius: 6px;
 
         #{$item} {
           &-label {
@@ -216,6 +221,42 @@
 
     &-inline-tools {
       z-index: 0;
+    }
+
+    &-row {
+      cursor: pointer;
+
+      &:hover {
+        border-left: 2px solid $color-brown-2;
+        border-right: 2px solid $color-brown-2;
+
+        td {
+          border-top: unset;
+          border-bottom: 5px solid transparent;
+          border-top: 2px solid $color-brown-2;
+          border-bottom: 2px solid $color-brown-2;
+        }
+
+        &:not(.ecos-grid_drag) > td:first-child {
+          padding-left: 18px;
+        }
+
+        .ecos-grid__td {
+          margin-top: 8px;
+        }
+
+        .ecos-docs__table-count-status {
+          margin: 9px 29px 9px 30px;
+        }
+      }
+    }
+
+    &.ecos-grid_freeze {
+      .ecos-grid__header {
+        th:first-child {
+          border-left: 2px $color-gray-4 solid;
+        }
+      }
     }
   }
 
@@ -443,6 +484,7 @@
         color: $color-gray-dark;
         font-size: 14px;
         margin-right: 7px;
+        cursor: pointer;
 
         &_open {
           transform: rotate(90deg);
@@ -541,6 +583,22 @@
       }
     }
 
+    &_has-grandchildren {
+      #{$item}-element-children {
+        #{$item}_child:not(#{$item}_parent) {
+          #{$item}-element {
+            padding: 9px 11px 9px 34px;
+          }
+        }
+
+        #{$item}_parent:not(#{$item}_has-grandchildren) {
+          #{$item}-element {
+            padding: 9px 11px;
+          }
+        }
+      }
+    }
+
     &_parent {
       position: relative;
 
@@ -570,7 +628,7 @@
     &_not-selected {
       & > #{$item} {
         &-element {
-          opacity: 0.5;
+          background: $color-gray-13;
         }
       }
     }
