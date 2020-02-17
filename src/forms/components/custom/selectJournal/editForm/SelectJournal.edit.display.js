@@ -24,25 +24,11 @@ export default [
     defaultValue: false
   },
   {
-    type: 'select',
-    label: 'Value Display Option',
-    key: 'valueDisplayOption',
-    weight: 30,
-    tooltip: '',
-    template: '<span>{{ item.label }}</span>',
-    data: {
-      values: [
-        {
-          value: 'text',
-          label: 'Text'
-        },
-        {
-          value: 'json-record',
-          label: 'Link'
-        }
-      ]
-    },
-    defaultValue: 'text',
-    input: true
+    type: 'checkbox',
+    input: true,
+    key: 'isSelectedValueAsLink',
+    label: 'Is selected value as Link',
+    weight: 13,
+    defaultValue: false
   }
 ];

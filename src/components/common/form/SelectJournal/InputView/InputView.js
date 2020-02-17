@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { t } from '../../../../../helpers/util';
+import { createDocumentUrl } from '../../../../../helpers/urls';
+import { changeUrlLink } from '../../../../PageTabs/PageTabs';
 import { Btn } from '../../../../common/btns';
 
 import './InputView.scss';
@@ -27,15 +29,23 @@ class InputView extends Component {
     }
   };
 
-  renderValue(item) {
-    const { editValue, valueDisplayOption } = this.props;
+  renderSelectedValue(item) {
+    const { isSelectedValueAsLink } = this.props;
+    const url = createDocumentUrl(item.id);
+    const onClick = () => {
+      if (isSelectedValueAsLink) {
+        changeUrlLink(url, { openNewBrowserTab: true });
+      }
+    };
 
-    switch (valueDisplayOption) {
-      case 'link':
-        return <a data-id={item.id} className={''} />;
-      default:
-        return <span className="select-journal__values-list-disp">{item.disp}</span>;
-    }
+    return (
+      <span
+        onClick={onClick}
+        className={classNames('select-journal__values-list-disp', { 'select-journal__values-list-disp_link': isSelectedValueAsLink })}
+      >
+        {item.disp}
+      </span>
+    );
   }
 
   render() {
@@ -75,7 +85,7 @@ class InputView extends Component {
           <ul className="select-journal__values-list">
             {selectedRows.map(item => (
               <li key={item.id}>
-                {this.renderValue(item)}
+                {this.renderSelectedValue(item)}
                 {disabled ? null : (
                   <div className="select-journal__values-list-actions">
                     {!(!item.canEdit || hideEditRowButton) && <span data-id={item.id} className="icon icon-edit" onClick={editValue} />}
@@ -125,7 +135,7 @@ InputView.propTypes = {
   openSelectModal: PropTypes.func,
   hideEditRowButton: PropTypes.bool,
   hideDeleteRowButton: PropTypes.bool,
-  valueDisplayOption: PropTypes.bool
+  isSelectedValueAsLink: PropTypes.bool
 };
 
 export default InputView;

@@ -77,6 +77,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   padding-right: 5px;
+
+  &_link {
+    cursor: pointer;
+    color: $text-link;
+
+    &:hover {
+      color: $text-link_hover;
+    }
+  }
 }
 
 .select-journal__error {

@@ -44,6 +44,14 @@ const changeUrl = (url, opts = {}) => {
   }
 };
 
+export const createDocumentUrl = recordRef => {
+  if (isNewVersionPage()) {
+    return `${URL.DASHBOARD}?recordRef=${recordRef}`;
+  }
+
+  return `/share/page/card-details?nodeRef=${recordRef}`;
+};
+
 const getPredicateFilterParam = options => {
   const filter = ParserPredicate.getRowPredicates(options);
   return filter ? JSON.stringify(filter) : '';
