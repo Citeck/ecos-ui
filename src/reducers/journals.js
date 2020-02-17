@@ -131,7 +131,6 @@ export default handleActions(
             [stateId]: {
               ...state[stateId],
               url: {
-                ...state[stateId].url,
                 ...action.payload
               }
             }
@@ -139,7 +138,6 @@ export default handleActions(
         : {
             ...state,
             url: {
-              ...state.url,
               ...action.payload
             }
           };

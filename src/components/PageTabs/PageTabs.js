@@ -19,7 +19,7 @@ import {
   SCROLL_STEP,
   TITLE
 } from '../../constants/pageTabs';
-import { decodeLink, isNewVersionPage } from '../../helpers/urls';
+import { decodeLink, isNewVersionPage, compareUrls, SEARCH_KEYS } from '../../helpers/urls';
 
 import './style.scss';
 
@@ -237,7 +237,12 @@ class PageTabs extends React.Component {
     }
 
     if (activeTab) {
-      if (activeTab.link !== linkFromUrl) {
+      if (
+        !compareUrls({
+          urls: [activeTab.link, linkFromUrl],
+          ignored: [SEARCH_KEYS.PAGINATION, SEARCH_KEYS.FILTER, SEARCH_KEYS.SORT]
+        })
+      ) {
         const newActiveTab = tabs.find(tab => tab.link === linkFromUrl);
 
         if (newActiveTab) {

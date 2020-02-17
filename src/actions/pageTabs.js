@@ -15,3 +15,4 @@ export const getActiveTabTitle = createAction(prefix + 'GET_ACTIVE_TITLE_INFO');
 
 export const setTabTitle = createAction(prefix + 'SET_TAB_TITLE');
 export const getTabTitle = createAction(prefix + 'GET_TAB_TITLE');
+export const changeTab = createAction(prefix + 'CHANGE_TAB');

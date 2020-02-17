@@ -1,21 +1,23 @@
 import { delay } from 'redux-saga';
-import { call, put, select, takeLatest, takeEvery } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
+import findIndex from 'lodash/findIndex';
 
 import {
+  changeTab,
   getActiveTabTitle,
   getTabs,
   getTabTitle,
+  initTabs,
+  initTabsComplete,
   setActiveTabTitle,
   setShowTabsStatus,
   setTabs,
-  initTabs,
-  initTabsComplete,
   setTabTitle
 } from '../actions/pageTabs';
-import { selectTabs, selectInitStatus } from '../selectors/pageTabs';
+import { selectInitStatus, selectTabs } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
-import { t, deepClone, getCurrentUserName } from '../helpers/util';
+import { deepClone, getCurrentUserName, t } from '../helpers/util';
 import { getSearchParams } from '../helpers/urls';
 import { URL } from '../constants';
 import { TITLE } from '../constants/pageTabs';
@@ -193,12 +195,38 @@ function* sagaGetTabTitle({ api, logger }, { payload }) {
   }
 }
 
+function* sagaChangeTabData({ api, logger }, { payload }) {
+  try {
+    const inited = yield select(selectInitStatus);
+
+    if (!inited) {
+      return;
+    }
+
+    const { filter, data } = payload;
+    const tabs = deepClone(yield select(selectTabs));
+    const tabIndex = findIndex(tabs, filter);
+
+    if (tabIndex !== -1) {
+      tabs[tabIndex] = {
+        ...tabs[tabIndex],
+        ...data
+      };
+    }
+
+    yield put(setTabs(tabs));
+  } catch (e) {
+    logger.error('[pageTabs sagaChangeTabData saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initTabs().type, sagaInitTabs, ea);
   yield takeLatest(getTabs().type, sagaGetTabs, ea);
   yield takeLatest(setTabs().type, sagaSetTabs, ea);
   yield takeLatest(setActiveTabTitle().type, sagaSetActiveTabTitle, ea);
   yield takeEvery(getTabTitle().type, sagaGetTabTitle, ea);
+  yield takeEvery(changeTab().type, sagaChangeTabData, ea);
 }
 
 export default saga;

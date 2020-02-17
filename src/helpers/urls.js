@@ -1,4 +1,6 @@
 import * as queryString from 'query-string';
+import get from 'lodash/get';
+
 import { URL } from '../constants';
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
@@ -8,10 +10,27 @@ import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';
+const DASHBOARD_ID_KEY = 'dashboardId';
+const DASHBOARD_KEY_KEY = 'dashboardKey';
+const RECORD_REF_KEY = 'recordRef';
 const JOURNAL_SETTING_ID_KEY = 'journalSettingId';
 const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
 const FILTER_KEY = 'filter';
+const SORT_KEY = 'sortBy';
+const PAGINATION_KEY = 'pagination';
+
+export const SEARCH_KEYS = {
+  TYPE: [TYPE_KEY],
+  DESTINATION: [DESTINATION_KEY],
+  FILTER: [FILTER_KEY],
+  SORT: [SORT_KEY],
+  PAGINATION: [PAGINATION_KEY],
+  RECORD_REF: [RECORD_REF_KEY],
+  JOURNAL_ID: [JOURNAL_ID_KEY],
+  DASHBOARD_ID: [DASHBOARD_ID_KEY],
+  DASHBOARD_KEY: [DASHBOARD_KEY_KEY]
+};
 
 export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
@@ -174,4 +193,50 @@ export const decodeLink = link => {
 
 export const getBarcodePrintUrl = record => {
   return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&property=contracts:barcode&barcodeType=code-128&scale=5.0&margins=20,200,20,500&print=true`;
+};
+
+/**
+ * Comparing two URL's with additional settings
+ *
+ * @param params {object}
+ * - urls {array} - two compared url's
+ * - ignored {array} - ignored for comparing params
+ * - searchBy {array} - params for comparing
+ *
+ * @returns {boolean}
+ */
+export const compareUrls = params => {
+  const { urls = [], ignored = [], compareBy = [] } = params;
+
+  if (!urls.length || (!ignored.length && compareBy.length)) {
+    return false;
+  }
+
+  const [first, second] = urls;
+  const regExp = /(?<=\?).*/gm;
+  let firstParams = queryString.parse(get(first.match(regExp), [0], ''));
+  let secondParams = queryString.parse(get(second.match(regExp), [0], ''));
+
+  ignored.forEach(param => {
+    delete firstParams[param];
+    delete secondParams[param];
+  });
+
+  if (!compareBy.length) {
+    return queryString.stringify(firstParams) === queryString.stringify(secondParams);
+  }
+
+  for (let param in firstParams) {
+    if (!compareBy.includes(param)) {
+      delete firstParams[param];
+    }
+  }
+
+  for (let param in secondParams) {
+    if (!compareBy.includes(param)) {
+      delete secondParams[param];
+    }
+  }
+
+  return queryString.stringify(firstParams) === queryString.stringify(secondParams);
 };

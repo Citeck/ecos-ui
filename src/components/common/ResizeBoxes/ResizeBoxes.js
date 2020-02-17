@@ -10,11 +10,17 @@ class ResizeBoxes extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     leftId: PropTypes.string,
-    rightId: PropTypes.string
+    rightId: PropTypes.string,
+    notCountAtLeft: PropTypes.bool,
+    notCountAtRight: PropTypes.bool,
+    onResizeComplete: PropTypes.func
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    notCountAtLeft: false,
+    notCountAtRight: false,
+    onResizeComplete: () => null
   };
 
   state = {
@@ -44,17 +50,17 @@ class ResizeBoxes extends React.Component {
   };
 
   doResize = event => {
+    const { leftId, rightId, notCountAtRight, notCountAtLeft } = this.props;
     const { resizing, startLeftWidth, startRightWidth, startX } = this.state;
-    const { leftId, rightId } = this.props;
 
     if (resizing) {
       let diff = event.pageX - startX;
 
-      if (leftId) {
+      if (leftId && !notCountAtLeft) {
         this.getElm(leftId).style.width = +startLeftWidth + diff + 'px';
       }
 
-      if (rightId) {
+      if (rightId && !notCountAtRight) {
         this.getElm(rightId).style.width = +startRightWidth - diff + 'px';
       }
     }
@@ -67,6 +73,7 @@ class ResizeBoxes extends React.Component {
 
     if (resizing) {
       this.setState({ resizing: false, startX: 0, startLeftWidth: 0, startRightWidth: 0 });
+      this.props.onResizeComplete();
     }
   };
 

@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { isMobileDevice, t } from '../../../helpers/util';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
+import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet/Dashlet';
 import DocStatus from './DocStatus';
 
@@ -31,12 +31,12 @@ class DocStatusDashlet extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state.isCollapsed = UserLocalSettingsService.getProperty(props.id, 'isCollapsed');
+    this.state.isCollapsed = UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED);
   }
 
   handleToggleContent = (isCollapsed = false) => {
     this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+    UserLocalSettingsService.setDashletProperty(this.props.id, { isCollapsed });
   };
 
   onResize = w => {

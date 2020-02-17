@@ -1093,16 +1093,19 @@ export default class SelectComponent extends BaseComponent {
   attachRefreshEvent(refreshData) {
     this.on(
       'change',
-      event => {
+      () => {
         if (refreshData === 'data') {
           this.refresh(this.data, refreshData);
-        } else if (
-          event.changed &&
-          event.changed.component &&
-          event.changed.component.key === refreshData &&
-          this.inContext(event.changed.instance)
-        ) {
-          this.refresh(event.changed.value, refreshData); // Cause https://citeck.atlassian.net/browse/ECOSCOM-2465
+        }
+      },
+      true
+    );
+
+    this.on(
+      'componentChange',
+      event => {
+        if (refreshData !== 'data' && event && event.component && event.component.key === refreshData && this.inContext(event.instance)) {
+          this.refresh(event.value, refreshData); // Cause https://citeck.atlassian.net/browse/ECOSCOM-2465
         }
       },
       true

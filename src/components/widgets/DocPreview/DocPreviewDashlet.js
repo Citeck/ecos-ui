@@ -5,7 +5,7 @@ import get from 'lodash/get';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
+import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
 import BaseWidget from '../BaseWidget';
@@ -51,7 +51,7 @@ class DocPreviewDashlet extends BaseWidget {
       width: MIN_WIDTH_DASHLET_SMALL,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       scale: isMobile ? DocScaleOptions.PAGE_WHOLE : UserLocalSettingsService.getDashletScale(props.id) || DocScaleOptions.AUTO,
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
+      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
       fitHeights: {}
     };
   }

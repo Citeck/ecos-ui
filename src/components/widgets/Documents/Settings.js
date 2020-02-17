@@ -18,7 +18,7 @@ class Settings extends Component {
   static propTypes = {
     isOpen: PropTypes.bool,
     isLoading: PropTypes.bool,
-    label: PropTypes.string,
+    title: PropTypes.string,
     types: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     onCancel: PropTypes.func,
     onSave: PropTypes.func
@@ -27,7 +27,7 @@ class Settings extends Component {
   static defaultProps = {
     isOpen: false,
     isLoading: false,
-    label: '',
+    title: '',
     types: [],
     onCancel: () => {},
     onSave: () => {}

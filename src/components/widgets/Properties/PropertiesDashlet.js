@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 
 import { isSmallMode, t } from '../../../helpers/util';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
+import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import Dashlet, { BaseActions } from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
@@ -65,7 +65,7 @@ class PropertiesDashlet extends BaseWidget {
       isEditProps: false,
       formIsChanged: false,
       isSmall: false,
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
+      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       fitHeights: {},
       canEditRecord: false,

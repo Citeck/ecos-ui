@@ -172,12 +172,6 @@ export function makeSiteMenu(params = {}) {
       targetUrl: URL.DASHBOARD_SETTINGS,
       targetUrlType: 'FULL_PATH'
     },
-    // { //todo: when page will be
-    //   id: 'SETTINGS_HOME_PAGE',
-    //   label: 'header.site-menu.menu-settings',
-    //   targetUrl: URL.DASHBOARD_SETTINGS,
-    //   targetUrlType: 'FULL_PATH'
-    // },
     {
       id: 'GO_ADMIN_PAGE',
       label: 'header.site-menu.admin-page',

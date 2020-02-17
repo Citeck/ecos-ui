@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
+import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import Dashlet, { BaseActions } from '../../Dashlet';
 import Tasks from './Tasks';
 import BaseWidget from '../BaseWidget';
@@ -43,7 +43,7 @@ class TasksDashlet extends BaseWidget {
     this.state = {
       isSmallMode: false,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed'),
+      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
       fitHeights: {},
       totalCount: 0,
       isLoading: true
