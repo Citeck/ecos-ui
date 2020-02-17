@@ -225,13 +225,10 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     const type = yield select(state => selectDynamicType(state, payload.key, payload.type));
     const createVariants = yield call(api.documents.getCreateVariants, payload.type);
 
-    console.warn(createVariants);
-
     /**
      * update version
      */
     if (!type.multiple && type.countDocuments > 0) {
-      // todo not updated data after uploading (maybe need type)
       yield call(api.versionsJournal.addNewVersion, {
         body: DocumentsConverter.getAddNewVersionFormDataForServer({
           record: type.lastDocumentRef,
@@ -265,29 +262,51 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
         };
       }
     );
+    const files = results.filter(item => item !== null);
 
     /**
      * open form manager
      */
     if (type.formId && payload.openForm) {
-      const createVariants = yield call(api.documents.getCreateVariants, payload.type);
-
       if (createVariants === null) {
-        payload.openForm(type, results.filter(item => item !== null));
+        payload.openForm(
+          DocumentsConverter.getDataToCreate({
+            ...type,
+            files,
+            record: payload.record
+          })
+        );
 
         return;
       }
 
-      // TODO: use createVariants for opening form
+      if (!createVariants.formRef) {
+        createVariants.formRef = type.formId;
+      }
+
+      createVariants.attributes = {
+        ...DocumentsConverter.getCreateAttributes({
+          record: payload.record,
+          type: payload.type,
+          files
+        }),
+        ...createVariants.attributes
+      };
+
+      payload.openForm(createVariants);
 
       return;
     }
 
-    yield call(api.documents.uploadFilesWithNodes, {
-      record: payload.record,
-      type: payload.type,
-      content: results.filter(item => item !== null)
-    });
+    yield call(
+      api.documents.uploadFilesWithNodes,
+      DocumentsConverter.getUploadAttributes({
+        record: payload.record,
+        type: payload.type,
+        content: results.filter(item => item !== null),
+        ...get(createVariants, 'attributes', {})
+      })
+    );
     yield put(getDocumentsByType({ ...payload, delay: 0 }));
   } catch (e) {
     yield put(setUploadError({ ...payload, message: e.message }));
