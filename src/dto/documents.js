@@ -1,5 +1,6 @@
 import moment from 'moment';
 import get from 'lodash/get';
+
 import { deepClone, t } from '../helpers/util';
 
 export default class DocumentsConverter {
@@ -184,13 +185,56 @@ export default class DocumentsConverter {
   static getDataToCreate = data => ({
     recordRef: 'dict@cm:content',
     formId: get(data, 'formId', ''),
-    attributes: {
-      _parent: get(data, 'record', ''),
-      _parentAtt: 'icase:documents',
-      _etype: get(data, 'type', ''),
-      _content: get(data, 'files', [])
-    }
+    attributes: DocumentsConverter.getCreateAttributes(data)
   });
+
+  static getCreateAttributes = (source = {}) => {
+    if (!Object.keys(source).length) {
+      return {};
+    }
+
+    const target = {};
+
+    target._parentAtt = 'icase:documents';
+
+    if (source.record) {
+      target._parent = source.record;
+    }
+
+    if (source.type) {
+      target._etype = source.type;
+    }
+
+    if (source.files) {
+      target._content = source.files;
+    }
+
+    return target;
+  };
+
+  static getUploadAttributes = (source = {}) => {
+    if (!Object.keys(source).length) {
+      return {};
+    }
+
+    const target = {};
+
+    target._parentAtt = get(source, '_parentAtt', 'icase:documents');
+
+    if (source._parent || source.record) {
+      target._parent = source._parent || source.record;
+    }
+
+    if (source._etype || source.type) {
+      target._etype = source._etype || source.type;
+    }
+
+    if (source._content || source.content) {
+      target._content = source._content || source.content;
+    }
+
+    return target;
+  };
 
   static getAddNewVersionFormDataForServer(source = {}) {
     const target = new FormData();
