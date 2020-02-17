@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
-import { changeUrlLink } from '../../../../PageTabs/PageTabs';
+import PageTabList from '../../../../../services/pageTabs/PageTabListService';
 
 import './ViewMode.scss';
 
@@ -14,7 +14,7 @@ class ViewMode extends Component {
     const url = createDocumentUrl(item.id);
     const onClick = () => {
       if (isSelectedValueAsLink) {
-        changeUrlLink(url, { openNewBrowserTab: true });
+        PageTabList.changeUrlLink(url, { openNewBrowserTab: true });
       }
     };
 
