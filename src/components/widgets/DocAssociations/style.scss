@@ -9,6 +9,10 @@
     overflow: unset;
   }
 
+  &__menu {
+    z-index: 1001;
+  }
+
   &__headline {
     display: flex;
     justify-content: space-between;
