@@ -1,7 +1,7 @@
 import { select } from 'redux-saga/effects';
 
 import { selectIdentificationForView } from '../selectors/dashboard';
-import { getSearchParams, SEARCH_KEYS } from '../helpers/urls';
+import { getSearchParams, SearchKeys } from '../helpers/urls';
 
 export default class MenuService {
   static processTransitSiteMenuItem = function*(menuItem) {
@@ -11,14 +11,14 @@ export default class MenuService {
     let link = menuItem.targetUrl;
 
     if (menuItem.id === 'SETTINGS_HOME_PAGE') {
-      params.push(`${SEARCH_KEYS.DASHBOARD_ID}=${dashboard.id}`);
+      params.push(`${SearchKeys.DASHBOARD_ID}=${dashboard.id}`);
 
       if (recordRef) {
-        params.push(`${SEARCH_KEYS.RECORD_REF}=${recordRef}`);
+        params.push(`${SearchKeys.RECORD_REF}=${recordRef}`);
       }
 
       if (dashboardKey) {
-        params.push(`${SEARCH_KEYS.DASHBOARD_KEY}=${dashboardKey}`);
+        params.push(`${SearchKeys.DASHBOARD_KEY}=${dashboardKey}`);
       }
     }
 
