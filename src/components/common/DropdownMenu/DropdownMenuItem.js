@@ -9,7 +9,7 @@ import { getIconClassMenu, getSpecialClassByState } from '../../../helpers/menu'
 import handleControl from '../../../helpers/handleControl';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
 import { URL } from '../../../constants';
-import { getSearchParams, SEARCH_KEYS } from '../../../helpers/urls';
+import { getSearchParams, SearchKeys } from '../../../helpers/urls';
 
 const mapStateToProps = state => ({
   dashboardId: get(state, 'dashboard.identification.id', '')
@@ -60,14 +60,14 @@ class DropdownMenuItem extends React.Component {
     let link = targetUrl;
 
     if (targetUrl === URL.DASHBOARD_SETTINGS) {
-      params.push(`${SEARCH_KEYS.DASHBOARD_ID}=${dashboardId}`);
+      params.push(`${SearchKeys.DASHBOARD_ID}=${dashboardId}`);
 
       if (recordRef) {
-        params.push(`${SEARCH_KEYS.RECORD_REF}=${recordRef}`);
+        params.push(`${SearchKeys.RECORD_REF}=${recordRef}`);
       }
 
       if (dashboardKey) {
-        params.push(`${SEARCH_KEYS.DASHBOARD_KEY}=${dashboardKey}`);
+        params.push(`${SearchKeys.DASHBOARD_KEY}=${dashboardKey}`);
       }
 
       link += `?${params.join('&')}`;
