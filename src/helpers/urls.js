@@ -1,11 +1,11 @@
 import * as queryString from 'query-string';
-import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { URL } from '../constants';
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
-import { changeUrlLink } from '../components/PageTabs/PageTabs';
+import PageTabList from '../services/pageTabs/PageTabListService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
@@ -20,7 +20,7 @@ const FILTER_KEY = 'filter';
 const SORT_KEY = 'sortBy';
 const PAGINATION_KEY = 'pagination';
 
-export const SEARCH_KEYS = {
+export const SearchKeys = {
   TYPE: [TYPE_KEY],
   DESTINATION: [DESTINATION_KEY],
   FILTER: [FILTER_KEY],
@@ -40,7 +40,7 @@ const changeUrl = (url, opts = {}) => {
   if (isNewVersionSharePage()) {
     window.open(url, opts.openNewTab === true ? '_blank' : '_self');
   } else {
-    changeUrlLink(url, opts);
+    PageTabList.changeUrlLink(url, opts);
   }
 };
 
@@ -136,13 +136,13 @@ export const goToJournalsPage = options => {
   if (OLD_LINKS || !isNewVersionPage()) {
     window.open(journalPageUrl, '_blank');
   } else {
-    changeUrl(journalPageUrl, { openNewTab: true, remoteTitle: true });
+    changeUrl(journalPageUrl, { openNewTab: true });
   }
 };
 
 export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_self');
 
-export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true, remoteTitle: true }) => {
+export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
   const dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
 
   if (isNewVersionPage()) {
@@ -213,7 +213,7 @@ export const getBarcodePrintUrl = record => {
  *
  * @returns {boolean}
  */
-export const compareUrls = params => {
+export const equalsQueryUrls = params => {
   const { urls = [], ignored = [], compareBy = [] } = params;
 
   if (!urls.length || (!ignored.length && compareBy.length)) {
@@ -221,9 +221,14 @@ export const compareUrls = params => {
   }
 
   const [first, second] = urls;
-  const regExp = /(?<=\?).*/gm;
-  let firstParams = queryString.parse(get(first.match(regExp), [0], ''));
-  let secondParams = queryString.parse(get(second.match(regExp), [0], ''));
+
+  let firstParams = queryString.parseUrl(first).query || {};
+  let secondParams = queryString.parseUrl(second).query || {};
+
+  console.log('????', firstParams, secondParams);
+  if (isEmpty(firstParams) || isEmpty(secondParams)) {
+    return false;
+  }
 
   ignored.forEach(param => {
     delete firstParams[param];

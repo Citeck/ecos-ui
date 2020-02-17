@@ -1,53 +1,45 @@
 import get from 'lodash/get';
 
 import Records from '../components/Records';
-import { CommonApi } from './common';
-import * as ls from '../helpers/ls';
 import { USER_GUEST } from '../constants';
-import { deepClone, isNodeRef } from '../helpers/util';
-import { decodeLink, isNewVersionPage } from '../helpers/urls';
 import { PROXY_URI } from '../constants/alfresco';
+import * as storage from '../helpers/ls';
+import { isNodeRef } from '../helpers/util';
+import { isNewVersionPage } from '../helpers/urls';
+import { CommonApi } from './common';
 
 export class PageTabsApi extends CommonApi {
-  _lsKey = ls.generateKey('page-tabs', true);
-  _newVersionKeyPath = '/user';
+  #lsKey = storage.generateKey('page-tabs', true);
+  #newVersionKeyPath = '/v3/user-';
 
   get lsKey() {
-    return this._lsKey;
+    return this.#lsKey;
   }
 
   set lsKey(key) {
-    this._lsKey = key;
+    this.#lsKey = key;
   }
 
   getAll = () => {
     let tabs = [];
 
-    if (ls.hasData(this.lsKey, 'array')) {
-      tabs = ls.getData(this.lsKey);
+    if (storage.hasData(this.lsKey, 'array')) {
+      tabs = storage.getData(this.lsKey);
     }
 
     return tabs;
   };
 
   checkOldVersion = userName => {
-    if (userName === USER_GUEST || this.lsKey.includes(this._newVersionKeyPath)) {
+    if (userName === USER_GUEST || this.lsKey.includes(this.#newVersionKeyPath)) {
       return;
     }
 
     const currentVersion = this.lsKey;
-    const newVersionKey = `${this.lsKey}${this._newVersionKeyPath}-${userName}`;
+    const newVersionKey = `${this.lsKey}${this.#newVersionKeyPath}${userName}`;
 
-    ls.transferData(currentVersion, newVersionKey, true);
+    storage.transferData(currentVersion, newVersionKey, true);
     this.lsKey = newVersionKey;
-  };
-
-  set = tabs => {
-    const upTabs = deepClone(tabs);
-
-    upTabs.forEach(item => (item.link = decodeLink(item.link)));
-
-    ls.setData(this.lsKey, upTabs);
   };
 
   getTabTitle = ({ recordRef, journalId = null }) => {

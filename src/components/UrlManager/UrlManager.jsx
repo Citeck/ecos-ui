@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
 import { withRouter } from 'react-router';
-import { trigger, getBool } from '../../helpers/util';
-import { changeUrlLink } from '../../components/PageTabs/PageTabs';
+import { getBool, trigger } from '../../helpers/util';
+import PageTabList from '../../services/pageTabs/PageTabListService';
 
 class UrlManager extends Component {
   _prevUrlParams = {};
@@ -39,7 +39,7 @@ class UrlManager extends Component {
       }
 
       if (needUpdate) {
-        changeUrlLink(`${pathname}?${queryString.stringify(fromUrlParams)}`);
+        PageTabList.changeUrlLink(`${pathname}?${queryString.stringify(fromUrlParams)}`);
         this.triggerParse(fromUrlParams);
       }
     }

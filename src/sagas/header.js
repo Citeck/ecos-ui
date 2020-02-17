@@ -14,13 +14,13 @@ import {
 } from '../actions/header';
 import { setDashboardIdentification } from '../actions/dashboard';
 import { setUserThumbnail } from '../actions/user';
-import { changeActiveTab } from '../actions/pageTabs';
-import { changeUrlLink } from '../components/PageTabs/PageTabs';
+import { changeTab } from '../actions/pageTabs';
 import { makeSiteMenu, makeUserMenuItems, processCreateVariantsItems } from '../helpers/menu';
 import { URL } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { hasInString } from '../helpers/util';
 import MenuService from '../services/menu';
+import PageTabList from '../services/pageTabs/PageTabListService';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
@@ -95,9 +95,9 @@ function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
   try {
     const link = yield MenuService.processTransitSiteMenuItem(payload);
 
-    changeUrlLink(link, { openNewTab: true });
+    PageTabList.changeUrlLink(link, { openNewTab: true });
   } catch (e) {
-    logger.error('[fetchSiteMenu saga] error', e.message);
+    logger.error('[goToPageSiteMenu saga] error', e.message);
   }
 }
 
@@ -110,7 +110,7 @@ function* sagaRunSearchAutocomplete({ api, fakeApi, logger }, { payload }) {
 
     yield put(setSearchAutocompleteItems({ documents, sites, people, noResults }));
   } catch (e) {
-    logger.error('[fetchSiteMenu saga] error', e.message);
+    logger.error('[sagaRunSearchAutocomplete saga] error', e.message);
   }
 }
 
@@ -118,7 +118,7 @@ function* headerSaga(ea) {
   yield takeLatest(fetchCreateCaseWidgetData().type, fetchCreateCaseWidget, ea);
   yield takeLatest(fetchUserMenuData().type, fetchUserMenu, ea);
   yield takeLatest(fetchSiteMenuData().type, fetchSiteMenu, ea);
-  yield takeLatest([setDashboardIdentification().type, changeActiveTab().type], filterSiteMenu, ea);
+  yield takeLatest([setDashboardIdentification().type, changeTab().type], filterSiteMenu, ea);
   yield takeLatest(goToPageFromSiteMenu().type, goToPageSiteMenu, ea);
   yield takeLatest(runSearchAutocompleteItems().type, sagaRunSearchAutocomplete, ea);
 }
