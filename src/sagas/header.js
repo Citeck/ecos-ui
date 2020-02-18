@@ -20,7 +20,7 @@ import { URL } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { hasInString } from '../helpers/util';
 import MenuService from '../services/menu';
-import PageTabList from '../services/pageTabs/PageTabListService';
+import PageTabList from '../services/pageTabs/PageTabList';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {

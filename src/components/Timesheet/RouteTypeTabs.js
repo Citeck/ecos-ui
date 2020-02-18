@@ -5,7 +5,7 @@ import get from 'lodash/get';
 
 import { deepClone } from '../../helpers/util';
 import CommonTimesheetService from '../../services/timesheet/common';
-import PageTabList from '../../services/pageTabs/PageTabListService';
+import PageTabList from '../../services/pageTabs/PageTabList';
 import { getTotalCounts } from '../../actions/timesheet/common';
 import { Tabs } from './';
 

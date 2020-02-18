@@ -16,15 +16,15 @@ const exist = index => !!~index;
  * @private
  * @param tabs {array} application tabs
  * @param keyStorage  {string} user key for local storage
- * @param displayState {boolean} true = show
+ * @param displayState {boolean} true => show
  * @param customEvent {event} dispatch from anywhere you need
  */
-class PageTabListService {
+class PageTabList {
   #tabs;
   #keyStorage;
+  #customEvent;
   #displayState;
   #isDuplicateAllowed;
-  #customEvent;
 
   events = {
     CHANGE_URL_LINK_EVENT: 'CHANGE_URL_LINK_EVENT'
@@ -63,8 +63,9 @@ class PageTabListService {
     return this.#tabs.map(item => item.store);
   }
 
-  init({ activeUrl, keyStorage, isDuplicateAllowed, ...params }) {
+  init({ activeUrl, keyStorage, isDuplicateAllowed, displayState, ...params }) {
     this.#keyStorage = keyStorage || this.#keyStorage;
+    this.#displayState = !!displayState;
     this.#isDuplicateAllowed = !!isDuplicateAllowed;
 
     const tabs = this.getFromStorage();
@@ -88,16 +89,21 @@ class PageTabListService {
    * @returns {PageTab}
    */
   setTab(data, params = {}) {
-    const { last } = params;
+    const { last, reopen } = params;
     const tab = new PageTab({ title: t(TITLE.LOADING), isLoading: true, ...data });
-    const newTabIndex = this.existTabIndex(tab);
-    const indexTo = this.getPlaceTab({ newTabIndex, last });
 
-    if (exist(newTabIndex)) {
-      this.changeOne({ updates: tab, tab });
-      this.move(newTabIndex, indexTo);
+    if (reopen) {
+      this.changeOne({ updates: tab, tab: this.activeTab });
     } else {
-      this.add(tab, indexTo);
+      const newTabIndex = this.existTabIndex(tab);
+      const indexTo = this.getPlaceTab({ newTabIndex, last });
+
+      if (exist(newTabIndex)) {
+        this.changeOne({ updates: tab, tab });
+        this.move(newTabIndex, indexTo);
+      } else {
+        this.add(tab, indexTo);
+      }
     }
 
     return tab;
@@ -117,7 +123,7 @@ class PageTabListService {
    * @returns {PageTab | undefined}
    */
   delete(tab) {
-    tab = tab.uniqueKey ? tab : this.getVerifiableTab(tab);
+    tab = tab.uniqueKey ? tab : new PageTab(tab);
     const tabIndex = this.#tabs.findIndex(item => this.equals(tab, item));
 
     if (tabIndex === -1 || this.#tabs.length < 2) {
@@ -157,7 +163,7 @@ class PageTabListService {
   changeOne({ updates, tab }) {
     let changingTab = null;
 
-    tab = tab instanceof PageTab ? tab : this.getVerifiableTab(tab);
+    tab = tab instanceof PageTab ? tab : new PageTab(tab);
 
     if (this.#tabs.length < 2) {
       updates.isActive = true;
@@ -211,7 +217,7 @@ class PageTabListService {
    * Return index e.g. for move there
    * @param currentTabIndex
    * @param last - to make page last
-   * @param reload > current page
+   * @param reopen > change current page
    * @returns {*}
    */
   getPlaceTab({ currentTabIndex, last }) {
@@ -222,15 +228,6 @@ class PageTabListService {
         ? activeIndex
         : activeIndex + 1
       : this.#tabs.length;
-  }
-
-  /**
-   * Create test tab e.g. for check tab exist
-   * @param data
-   * @returns {PageTab}
-   */
-  getVerifiableTab(data) {
-    return new PageTab(data);
   }
 
   setToStorage() {
@@ -270,7 +267,7 @@ class PageTabListService {
     const { type, currentTarget, params } = event || {};
 
     if (type === this.events.CHANGE_URL_LINK_EVENT) {
-      const { openNewTab, openNewBrowserTab, reopenBrowserTab, closeActiveTab, link = '' } = params || {};
+      const { openNewTab, openNewBrowserTab, reopenBrowserTab, closeActiveTab, openInBackground, link = '' } = params || {};
 
       if (closeActiveTab) {
         this.delete(this.activeTab);
@@ -294,10 +291,17 @@ class PageTabListService {
         return;
       }
 
+      if (openInBackground) {
+        return {
+          link,
+          isActive: false
+        };
+      }
+
       return {
         link,
         isActive: true,
-        reload: !openNewTab
+        reopen: !openNewTab
       };
     }
 
@@ -328,8 +332,8 @@ class PageTabListService {
   };
 }
 
-const PageTabList = get(window, 'Citeck.PageTabList', new PageTabListService());
+const pageTabList = get(window, 'Citeck.PageTabList', new PageTabList());
 
-set(window, 'Citeck.PageTabList', PageTabList);
+set(window, 'Citeck.PageTabList', pageTabList);
 
-export default PageTabList;
+export default pageTabList;

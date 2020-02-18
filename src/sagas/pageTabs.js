@@ -7,7 +7,6 @@ import isEmpty from 'lodash/isEmpty';
 import find from 'lodash/find';
 
 import {
-  addTab,
   changeTab,
   deleteTab,
   getTabs,
@@ -16,6 +15,7 @@ import {
   moveTabs,
   setDisplayState,
   setShowTabsStatus,
+  setTab,
   setTabs
 } from '../actions/pageTabs';
 import { selectInitStatus } from '../selectors/pageTabs';
@@ -23,8 +23,8 @@ import { selectIsAuthenticated } from '../selectors/user';
 import { getCurrentUserName, t } from '../helpers/util';
 import { URL } from '../constants';
 import { TITLE } from '../constants/pageTabs';
-import PageTabList from '../services/pageTabs/PageTabListService';
-import { PageTypes } from '../services/pageTabs/PageTab';
+import PageTabList from '../services/pageTabs/PageTabList';
+import { PageTypes } from '../services/PageService';
 
 function* sagaInitTabs({ api, logger }) {
   try {
@@ -102,16 +102,18 @@ function* sagaMoveTabs({ api, logger }, action) {
   }
 }
 
-function* sagaAddTab({ api, logger }, { payload }) {
+function* sagaSetTab({ api, logger }, { payload }) {
   try {
     const { event, linkIgnoreAttr, ...params } = payload.params;
-    const initData = payload.data || PageTabList.definePropsLink({ event, linkIgnoreAttr });
+    const props = payload.data || PageTabList.definePropsLink({ event, linkIgnoreAttr });
 
-    if (!initData) {
+    if (!props) {
       return;
     }
 
-    const tab = PageTabList.setTab(initData, params);
+    const { reopen, ...initData } = props || {};
+
+    const tab = PageTabList.setTab(initData, { reopen, ...params });
 
     if (tab.isActive && tab.link) {
       yield put(push(tab.link));
@@ -123,7 +125,7 @@ function* sagaAddTab({ api, logger }, { payload }) {
 
     yield put(changeTab({ data, tab }));
   } catch (e) {
-    logger.error('[pageTabs sagaAddTab saga error', e.message);
+    logger.error('[pageTabs sagaSetTab saga error', e.message);
   }
 }
 
@@ -240,7 +242,7 @@ function* saga(ea) {
   yield takeLatest(getTabs().type, sagaGetTabs, ea);
   yield takeEvery(setDisplayState().type, sagaSetDisplayState, ea);
   yield takeEvery(moveTabs().type, sagaMoveTabs, ea);
-  yield takeEvery(addTab().type, sagaAddTab, ea);
+  yield takeEvery(setTab().type, sagaSetTab, ea);
   yield takeEvery(deleteTab().type, sagaDeleteTab, ea);
   yield takeEvery(changeTab().type, sagaChangeTabData, ea);
 }

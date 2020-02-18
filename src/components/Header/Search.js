@@ -8,7 +8,7 @@ import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/urls';
 import { URL_PAGECONTEXT } from '../../constants/alfresco';
 import SearchService from '../../services/search';
-import PageTabList from '../../services/pageTabs/PageTabListService';
+import PageTabList from '../../services/pageTabs/PageTabList';
 import { SearchSelect } from '../common';
 import SearchItem from './SearchItem';
 

@@ -10,8 +10,8 @@ import classNames from 'classnames';
 
 import { animateScrollTo, arrayCompare, getScrollbarWidth, t } from '../../helpers/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
-import { addTab, changeTab, deleteTab, initTabs, moveTabs, setDisplayState } from '../../actions/pageTabs';
-import PageTabList from '../../services/pageTabs/PageTabListService';
+import { changeTab, deleteTab, initTabs, moveTabs, setDisplayState, setTab } from '../../actions/pageTabs';
+import PageTabList from '../../services/pageTabs/PageTabList';
 import { SortableContainer } from '../Drag-n-Drop';
 import ClickOutside from '../ClickOutside';
 import Tab from './Tab';
@@ -55,6 +55,7 @@ class PageTabs extends React.Component {
     const { initTabs } = this.props;
 
     initTabs();
+    document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -112,7 +113,6 @@ class PageTabs extends React.Component {
 
   init() {
     this.inited = true;
-    document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
     this.initScroll();
   }
 
@@ -173,24 +173,24 @@ class PageTabs extends React.Component {
     const {
       params: { link = '' }
     } = event;
-    const { isShow, push, addTab } = this.props;
+    const { isShow, push, setTab } = this.props;
 
     if (!isShow) {
       push.call(this, link);
       return;
     }
 
-    addTab({ params: { event } });
+    setTab({ params: { event } });
   };
 
   handleClickLink = event => {
-    const { isShow, linkIgnoreAttr, addTab } = this.props;
+    const { isShow, linkIgnoreAttr, setTab } = this.props;
 
     if (!isShow) {
       return;
     }
 
-    addTab({ params: { event, linkIgnoreAttr } });
+    setTab({ params: { event, linkIgnoreAttr } });
   };
 
   handleCloseTab = tab => {
@@ -212,9 +212,9 @@ class PageTabs extends React.Component {
   };
 
   handleAddTab = () => {
-    const { addTab, homepageLink } = this.props;
+    const { setTab, homepageLink } = this.props;
 
-    addTab({ data: { link: homepageLink, isActive: true }, params: { last: true } });
+    setTab({ data: { link: homepageLink, isActive: true }, params: { last: true } });
   };
 
   handleScrollLeft = () => {
@@ -448,7 +448,7 @@ const mapDispatchToProps = dispatch => ({
   moveTabs: params => dispatch(moveTabs(params)),
   setDisplayState: state => dispatch(setDisplayState(state)),
   changeTab: tab => dispatch(changeTab(tab)),
-  addTab: params => dispatch(addTab(params)),
+  setTab: params => dispatch(setTab(params)),
   deleteTab: tab => dispatch(deleteTab(tab)),
   push: url => dispatch(push(url)),
   replace: url => dispatch(replace(url))

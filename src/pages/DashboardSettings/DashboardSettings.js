@@ -15,7 +15,7 @@ import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
 import { DashboardTypes, DeviceTabs, Layouts, MenuTypes } from '../../constants/dashboard';
 import { LAYOUT_TYPE } from '../../constants/layout';
 import DashboardService from '../../services/dashboard';
-import PageTabList from '../../services/pageTabs/PageTabListService';
+import PageTabList from '../../services/pageTabs/PageTabList';
 import {
   getAwayFromPage,
   getCheckUpdatedDashboardConfig,

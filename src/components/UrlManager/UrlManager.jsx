@@ -1,9 +1,10 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
 import { withRouter } from 'react-router';
+
 import { getBool, trigger } from '../../helpers/util';
-import PageTabList from '../../services/pageTabs/PageTabListService';
+import PageTabList from '../../services/pageTabs/PageTabList';
 
 class UrlManager extends Component {
   _prevUrlParams = {};
@@ -69,9 +70,7 @@ class UrlManager extends Component {
     const urlParams = (this._prevUrlParams = this.updateUrl(params, this._prevUrlParams));
 
     return (
-      <Fragment>
-        {typeof children.type === 'function' ? React.cloneElement(children, { urlParams, onRender: this.onChildrenRender }) : children}
-      </Fragment>
+      <>{typeof children.type === 'function' ? React.cloneElement(children, { urlParams, onRender: this.onChildrenRender }) : children}</>
     );
   }
 }
