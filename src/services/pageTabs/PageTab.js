@@ -29,10 +29,8 @@ export default class PageTab {
   constructor(data) {
     let { link, title, id, isLoading = false, isActive = false } = data || {};
 
-    link = decodeLink(link);
-
     this.id = id || `page-tab-${uuidv4()}`;
-    this.link = link;
+    this.link = decodeLink(link);
     this.title = title;
     this.isLoading = isLoading;
     this.isActive = isActive;

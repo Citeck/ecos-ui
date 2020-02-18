@@ -160,7 +160,7 @@ class PageTabList {
     this.setToStorage();
   }
 
-  changeOne({ updates, tab }) {
+  changeOne({ tab, updates }) {
     let changingTab = null;
 
     tab = tab instanceof PageTab ? tab : new PageTab(tab);

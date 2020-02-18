@@ -1,9 +1,6 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import { delay } from 'redux-saga';
 import { push } from 'connected-react-router';
 import queryString from 'query-string';
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 import find from 'lodash/find';
 
 import {
@@ -20,43 +17,36 @@ import {
 } from '../actions/pageTabs';
 import { selectInitStatus } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
-import { getCurrentUserName, t } from '../helpers/util';
-import { URL } from '../constants';
-import { TITLE } from '../constants/pageTabs';
+import { getCurrentUserName } from '../helpers/util';
 import PageTabList from '../services/pageTabs/PageTabList';
-import { PageTypes } from '../services/PageService';
+import PageService from '../services/PageService';
 
 function* sagaInitTabs({ api, logger }) {
   try {
     const location = yield select(state => state.router.location);
     const activeUrl = location.pathname + location.search;
     const isAuthorized = yield select(selectIsAuthenticated);
-    const needShowTabs = yield call(api.pageTabs.getShowStatus);
+    const displayState = yield call(api.pageTabs.getShowStatus);
     const userName = yield call(getCurrentUserName);
 
-    yield put(setShowTabsStatus(needShowTabs));
+    yield put(setShowTabsStatus(displayState));
 
-    if (!isAuthorized || !needShowTabs) {
+    if (!isAuthorized || !displayState) {
       return;
     }
 
     yield call(api.pageTabs.checkOldVersion, userName);
 
-    PageTabList.init({ activeUrl, keyStorage: api.pageTabs.lsKey });
+    PageTabList.init({ activeUrl, keyStorage: api.pageTabs.lsKey, displayState });
 
     yield put(setTabs(PageTabList.storeList));
     yield put(initTabsComplete());
 
-    const tabs = yield PageTabList.tabs.map(function*(tab) {
-      const data = yield* getTabWithTitle({ api, logger }, { payload: tab });
-
-      return {
-        ...tab,
-        ...data
-      };
+    yield PageTabList.tabs.map(function*(tab) {
+      const updates = yield* getTitle(tab);
+      PageTabList.changeOne({ tab, updates });
     });
 
-    PageTabList.updateAll({ tabs });
     yield put(setTabs(PageTabList.storeList));
   } catch (e) {
     logger.error('[pageTabs sagaInitTabs saga error', e.message);
@@ -120,8 +110,7 @@ function* sagaSetTab({ api, logger }, { payload }) {
     }
 
     yield put(setTabs(PageTabList.storeList));
-
-    const data = yield* getTabWithTitle({ api, logger }, { payload: tab });
+    const data = yield* getTitle(tab);
 
     yield put(changeTab({ data, tab }));
   } catch (e) {
@@ -145,75 +134,6 @@ function* sagaDeleteTab({ api, logger }, action) {
   }
 }
 
-function* getTabWithTitle({ api, logger }, action) {
-  try {
-    const data = action.payload;
-    const urlProps = queryString.parseUrl(data.link);
-
-    let msDelay = 80;
-    let title = '';
-
-    if (!isEmpty(urlProps.query)) {
-      const { recordRef, nodeRef, journalId, dashboardId } = urlProps.query;
-      const record = recordRef || nodeRef;
-
-      if (record || journalId) {
-        msDelay = 0;
-      }
-
-      if (record) {
-        const response = yield call(api.pageTabs.getTabTitle, { recordRef: record });
-
-        title = get(response, 'displayName', t(TITLE.NEW_TAB));
-      }
-
-      if (journalId) {
-        const journalTitle = yield call(api.pageTabs.getTabTitle, { journalId });
-
-        if (journalTitle) {
-          title = `${t('journal.title')} "${journalTitle}"`;
-        }
-      }
-
-      if (dashboardId && !record && !journalId) {
-        title = t(TITLE.HOMEPAGE);
-      }
-    } else {
-      switch (data.type) {
-        case PageTypes.DASHBOARD: {
-          title = t(TITLE.HOMEPAGE);
-          break;
-        }
-        case PageTypes.BPMN_DESIGNER: {
-          title = t(TITLE[URL.BPMN_DESIGNER]);
-          break;
-        }
-        case PageTypes.TIMESHEET: {
-          title = t(TITLE.TIMESHEET);
-          break;
-        }
-        default: {
-          title = t(get(TITLE, data.link, TITLE.NO_NAME));
-        }
-      }
-    }
-
-    if (data.type === PageTypes.SETTINGS) {
-      title = t(TITLE[URL.DASHBOARD_SETTINGS]) + ' - ' + title;
-    }
-
-    yield delay(msDelay);
-
-    return {
-      title,
-      isLoading: false
-    };
-  } catch (e) {
-    console.error(e);
-    throw new Error('[pageTabs getTabWithTitle function error');
-  }
-}
-
 function* sagaChangeTabData({ api, logger }, { payload }) {
   try {
     const inited = yield select(selectInitStatus);
@@ -234,6 +154,23 @@ function* sagaChangeTabData({ api, logger }, { payload }) {
     yield put(setTabs(PageTabList.storeList));
   } catch (e) {
     logger.error('[pageTabs sagaChangeTabData saga error', e.message);
+  }
+}
+
+function* getTitle(tab) {
+  try {
+    const urlProps = queryString.parseUrl(tab.link);
+    const { recordRef: ref, nodeRef, journalId } = urlProps.query || {};
+    const recordRef = ref || nodeRef;
+    const title = yield PageService.getPage(tab).getTitle({ recordRef, journalId });
+
+    return {
+      title,
+      isLoading: false
+    };
+  } catch (e) {
+    console.error(e);
+    throw new Error('[pageTabs getTitle function error');
   }
 }
 

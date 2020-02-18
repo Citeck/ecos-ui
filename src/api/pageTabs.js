@@ -1,10 +1,6 @@
-import get from 'lodash/get';
-
 import Records from '../components/Records';
 import { USER_GUEST } from '../constants';
-import { PROXY_URI } from '../constants/alfresco';
 import * as storage from '../helpers/ls';
-import { isNodeRef } from '../helpers/util';
 import { isNewVersionPage } from '../helpers/urls';
 import { CommonApi } from './common';
 
@@ -40,24 +36,6 @@ export class PageTabsApi extends CommonApi {
 
     storage.transferData(currentVersion, newVersionKey, true);
     this.lsKey = newVersionKey;
-  };
-
-  getTabTitle = ({ recordRef, journalId = null }) => {
-    if (journalId) {
-      if (isNodeRef(journalId)) {
-        return Records.get(journalId)
-          .load('.disp')
-          .then(response => response);
-      }
-
-      return this.getJson(`${PROXY_URI}api/journals/config?journalId=${journalId}`)
-        .then(response => get(response, 'meta.title', ''))
-        .catch(() => {});
-    }
-
-    return Records.get(recordRef)
-      .load({ displayName: '.disp' }, true)
-      .then(response => response);
   };
 
   getShowStatus = () => {
