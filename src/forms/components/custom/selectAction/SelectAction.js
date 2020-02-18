@@ -1,3 +1,5 @@
+import React from 'react';
+
 import BaseReactComponent from '../base/BaseReactComponent';
 import Dropdown from '../../../../components/common/form/Dropdown';
 
@@ -34,10 +36,46 @@ export default class SelectActionComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
-    return Dropdown;
+    return () => <div>Select Action</div>;
+    // return Dropdown;
   }
 
-  getInitialReactProps() {}
+  setReactValue(component, value) {
+    console.warn('component, value => ', { component, value });
+    this.setReactProps({
+      defaultValue: value
+    });
+  }
+
+  getInitialReactProps() {
+    const resolveProps = data => {
+      console.warn('getInitialReactProps => ', data);
+      return {};
+    };
+
+    console.warn('getInitialReactProps => ', this.component);
+
+    // let resolve = createVariants => {
+    //   return resolveProps({
+    //     ...source,
+    //     custom: {
+    //       ...source.custom,
+    //       createVariants,
+    //       record: this.getRecord(),
+    //       attribute: this.getAttributeToEdit(),
+    //       columns: source.custom.columns.map(item => {
+    //         const col = { name: item.name };
+    //         if (item.formatter) {
+    //           col.formatter = this.evaluate(item.formatter, {}, 'value', true);
+    //         }
+    //         return col;
+    //       })
+    //     }
+    //   });
+    // };
+
+    return resolveProps();
+  }
 
   static getValueDisplayName = (component, value) => {};
 }
