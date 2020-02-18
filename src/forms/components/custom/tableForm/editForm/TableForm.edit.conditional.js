@@ -1,7 +1,7 @@
 export default [
   {
     type: 'panel',
-    title: 'DisplayElements',
+    title: 'Display Elements',
     collapsible: true,
     collapsed: true,
     style: {

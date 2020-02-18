@@ -73,7 +73,7 @@ export default class Checkbox extends Component {
       />
     ];
 
-    if (!checked && !indeterminate) {
+    if (!disabled && !checked && !indeterminate) {
       return icons;
     }
 
