@@ -465,7 +465,7 @@ class Documents extends BaseWidget {
     const formId = get(type, 'formId', null);
 
     if (formId !== null) {
-      this.openForm(type);
+      this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record }));
     }
 
     this.setState({
@@ -680,18 +680,10 @@ class Documents extends BaseWidget {
     this.setState({ autoHide: true }, () => this.setState({ autoHide: false }));
   };
 
-  openForm = (type, files = []) => {
-    FormManager.createRecordByVariant(
-      DocumentsConverter.getDataToCreate({
-        formId: type.formId,
-        type: type.type,
-        record: this.props.record,
-        files
-      }),
-      {
-        onSubmit: this.handleSubmitForm
-      }
-    );
+  openForm = (data = {}) => {
+    FormManager.createRecordByVariant(data, {
+      onSubmit: this.handleSubmitForm
+    });
   };
 
   countFormatter = (...params) => {

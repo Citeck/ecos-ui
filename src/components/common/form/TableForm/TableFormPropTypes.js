@@ -13,6 +13,7 @@ export default {
   isSelectableRows: PropTypes.bool,
   onSelectRows: PropTypes.func,
   parentForm: PropTypes.object,
+  nonSelectableRows: PropTypes.array,
   triggerEventOnTableChange: PropTypes.func,
   viewOnly: PropTypes.bool,
   displayElements: PropTypes.shape({

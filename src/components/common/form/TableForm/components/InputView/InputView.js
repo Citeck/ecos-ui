@@ -13,7 +13,7 @@ import './InputView.scss';
 const InputView = () => {
   const context = useContext(TableFormContext);
 
-  const { placeholder, disabled, viewOnly, displayElements, isSelectableRows } = context.controlProps;
+  const { placeholder, disabled, viewOnly, displayElements, isSelectableRows, nonSelectableRows } = context.controlProps;
   const {
     gridRows,
     selectedRows,
@@ -126,6 +126,7 @@ const InputView = () => {
           multiSelectable={!viewOnly && isSelectableRows}
           onSelect={onSelectGridItem}
           selected={selectedRows}
+          nonSelectable={nonSelectableRows}
           inlineTools={inlineTools}
           onChangeTrOptions={setInlineToolsOffsets}
           className={'ecos-table-form__grid'}
