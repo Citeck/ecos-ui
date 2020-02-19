@@ -15,7 +15,7 @@ import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
 import { DashboardTypes, DeviceTabs, Layouts, MenuTypes } from '../../constants/dashboard';
 import { LAYOUT_TYPE } from '../../constants/layout';
 import DashboardService from '../../services/dashboard';
-import PageTabList from '../../services/pageTabs/PageTabList';
+import PageService from '../../services/PageService';
 import {
   getAwayFromPage,
   getCheckUpdatedDashboardConfig,
@@ -607,7 +607,7 @@ class DashboardSettings extends React.Component {
     const urlGoTo = this.getUrlToDashboard();
 
     this.props.getAwayFromPage();
-    PageTabList.changeUrlLink(urlGoTo, { openNewTab: true, closeActiveTab: true });
+    PageService.changeUrlLink(urlGoTo, { openNewTab: true, closeActiveTab: true });
   };
 
   renderButtons() {

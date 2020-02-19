@@ -8,7 +8,7 @@ import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/urls';
 import { URL_PAGECONTEXT } from '../../constants/alfresco';
 import SearchService from '../../services/search';
-import PageTabList from '../../services/pageTabs/PageTabList';
+import PageService from '../../services/PageService';
 import { SearchSelect } from '../common';
 import SearchItem from './SearchItem';
 
@@ -65,7 +65,7 @@ class Search extends React.Component {
       return (window.location.href = url);
     }
 
-    PageTabList.changeUrlLink(url, { reopenBrowserTab: true });
+    PageService.changeUrlLink(url, { reopenBrowserTab: true });
   };
 
   goToResult = data => {
@@ -76,7 +76,7 @@ class Search extends React.Component {
     const reopenBrowserTab = !isNewVersionPage(data.url);
     const openNewTab = [Types.DOCUMENTS, Types.SITES].includes(data.type) && !reopenBrowserTab;
 
-    PageTabList.changeUrlLink(data.url, { openNewTab, reopenBrowserTab });
+    PageService.changeUrlLink(data.url, { openNewTab, reopenBrowserTab });
     this.props.resetSearchAutocomplete();
   };
 

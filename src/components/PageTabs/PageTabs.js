@@ -8,17 +8,15 @@ import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 
-import { animateScrollTo, arrayCompare, getScrollbarWidth, t } from '../../helpers/util';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
 import { changeTab, deleteTab, initTabs, moveTabs, setDisplayState, setTab } from '../../actions/pageTabs';
-import PageTabList from '../../services/pageTabs/PageTabList';
+import { animateScrollTo, arrayCompare, getScrollbarWidth, t } from '../../helpers/util';
+import PageService from '../../services/PageService';
 import { SortableContainer } from '../Drag-n-Drop';
 import ClickOutside from '../ClickOutside';
 import Tab from './Tab';
 
 import './style.scss';
 
-const CHANGE_URL_LINK_EVENT = PageTabList.events.CHANGE_URL_LINK_EVENT;
 const Labels = {
   GO_HOME: 'header.site-menu.go-home-page'
 };
@@ -27,13 +25,7 @@ class PageTabs extends React.Component {
   static propTypes = {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     homepageLink: PropTypes.string.isRequired,
-    linkIgnoreAttr: PropTypes.string,
     isShow: PropTypes.bool
-  };
-
-  static defaultProps = {
-    children: null,
-    linkIgnoreAttr: IGNORE_TABS_HANDLER_ATTR_NAME
   };
 
   state = {
@@ -55,7 +47,6 @@ class PageTabs extends React.Component {
     const { initTabs } = this.props;
 
     initTabs();
-    document.addEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -93,10 +84,6 @@ class PageTabs extends React.Component {
         }
       }
     }
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener(CHANGE_URL_LINK_EVENT, this.handleCustomEvent);
   }
 
   get wrapper() {
@@ -169,28 +156,16 @@ class PageTabs extends React.Component {
     deleteTab(tab);
   }
 
-  handleCustomEvent = event => {
-    const {
-      params: { link = '' }
-    } = event;
-    const { isShow, push, setTab } = this.props;
-
-    if (!isShow) {
-      push.call(this, link);
-      return;
-    }
-
-    setTab({ params: { event } });
-  };
-
   handleClickLink = event => {
-    const { isShow, linkIgnoreAttr, setTab } = this.props;
+    const { isShow, setTab } = this.props;
 
     if (!isShow) {
       return;
     }
 
-    setTab({ params: { event, linkIgnoreAttr } });
+    const { reopen, closeActiveTab, ...data } = PageService.definePropsLink({ event }) || {};
+
+    setTab({ data, params: { reopen, closeActiveTab } });
   };
 
   handleCloseTab = tab => {

@@ -1,4 +1,5 @@
 import uuidv4 from 'uuid/v4';
+
 import { decodeLink } from '../../helpers/urls';
 import PageService from '../PageService';
 
@@ -20,12 +21,6 @@ import PageService from '../PageService';
  * @store {object} prepared data for local app store
  */
 export default class PageTab {
-  id;
-  link;
-  title;
-  isActive;
-  isLoading;
-
   constructor(data) {
     let { link, title, id, isLoading = false, isActive = false } = data || {};
 

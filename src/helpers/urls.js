@@ -5,7 +5,7 @@ import { URL } from '../constants';
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
-import PageTabList from '../services/pageTabs/PageTabList';
+import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
@@ -42,7 +42,7 @@ const changeUrl = (url, opts = {}) => {
   if (isNewVersionSharePage()) {
     window.open(url, opts.openNewTab === true ? '_blank' : '_self');
   } else {
-    PageTabList.changeUrlLink(url, opts);
+    PageService.changeUrlLink(url, opts);
   }
 };
 
@@ -219,7 +219,6 @@ export const equalsQueryUrls = params => {
   let firstParams = queryString.parseUrl(first).query || {};
   let secondParams = queryString.parseUrl(second).query || {};
 
-  console.log('????', firstParams, secondParams);
   if (isEmpty(firstParams) || isEmpty(secondParams)) {
     return false;
   }

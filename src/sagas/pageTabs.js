@@ -94,16 +94,19 @@ function* sagaMoveTabs({ api, logger }, action) {
 
 function* sagaSetTab({ api, logger }, { payload }) {
   try {
-    const { event, linkIgnoreAttr, ...params } = payload.params;
-    const props = payload.data || PageTabList.definePropsLink({ event, linkIgnoreAttr });
+    const { data: initData, params } = payload;
 
-    if (!props) {
+    if (!initData || !initData.link) {
       return;
     }
 
-    const { reopen, ...initData } = props || {};
+    const { closeActiveTab } = params || {};
 
-    const tab = PageTabList.setTab(initData, { reopen, ...params });
+    if (closeActiveTab) {
+      PageTabList.delete(PageTabList.activeTab);
+    }
+
+    const tab = PageTabList.setTab(initData, params);
 
     if (tab.isActive && tab.link) {
       yield put(push(tab.link));

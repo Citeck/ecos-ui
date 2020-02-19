@@ -3,9 +3,9 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 
 import * as storage from '../../helpers/ls';
-import { decodeLink, equalsQueryUrls, isNewVersionPage, SearchKeys } from '../../helpers/urls';
+import { equalsQueryUrls, SearchKeys } from '../../helpers/urls';
 import { t } from '../../helpers/util';
-import { LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../../constants/pageTabs';
+import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
 
 const exist = index => !!~index;
@@ -20,21 +20,10 @@ const exist = index => !!~index;
  * @param customEvent {event} dispatch from anywhere you need
  */
 class PageTabList {
-  #tabs;
+  #tabs = [];
   #keyStorage;
-  #customEvent;
   #displayState;
   #isDuplicateAllowed;
-
-  events = {
-    CHANGE_URL_LINK_EVENT: 'CHANGE_URL_LINK_EVENT'
-  };
-
-  constructor() {
-    this.#tabs = [];
-    this.#customEvent = document.createEvent('Event');
-    this.#customEvent.initEvent(this.events.CHANGE_URL_LINK_EVENT, true, true);
-  }
 
   get tabs() {
     return this.#tabs;
@@ -247,97 +236,6 @@ class PageTabList {
       return storage.getData(this.#keyStorage);
     }
   }
-
-  /**
-   *
-   * @param link - string
-   * @param params
-   *    link - string,
-   *    checkUrl - bool,
-   *    openNewTab - bool,
-   *    openNewBrowserTab - bool,
-   *    reopenBrowserTab - bool,
-   *    closeActiveTab - bool
-   *    openInBackground - bool
-   */
-  changeUrlLink = (link = '', params = {}) => {
-    this.#customEvent.params = { link, ...params };
-    document.dispatchEvent(this.#customEvent);
-  };
-
-  /**
-   * Create link params from event & extra params
-   * @param event
-   * @param linkIgnoreAttr
-   * @returns {{link: string | undefined, isActive: boolean}} | undefined
-   */
-  definePropsLink = ({ event, linkIgnoreAttr }) => {
-    const { type, currentTarget, params } = event || {};
-
-    if (type === this.events.CHANGE_URL_LINK_EVENT) {
-      const { openNewTab, openNewBrowserTab, reopenBrowserTab, closeActiveTab, openInBackground, link = '' } = params || {};
-
-      if (closeActiveTab) {
-        this.delete(this.activeTab);
-      }
-
-      event.preventDefault();
-
-      let target = '';
-
-      if (openNewBrowserTab) {
-        target = '_blank';
-      } else if (reopenBrowserTab) {
-        target = '_self';
-      }
-
-      if (target) {
-        const tab = window.open(link, target);
-
-        tab.focus();
-
-        return;
-      }
-
-      if (openInBackground) {
-        return {
-          link,
-          isActive: false
-        };
-      }
-
-      return {
-        link,
-        isActive: true,
-        reopen: !openNewTab
-      };
-    }
-
-    let elem = currentTarget;
-
-    if ((!elem || elem.tagName !== LINK_TAG) && event.target) {
-      elem = event.target.closest('a[href]');
-    }
-
-    if (!elem || elem.tagName !== LINK_TAG || !!elem.getAttribute(linkIgnoreAttr)) {
-      return;
-    }
-
-    const link = decodeLink(elem.getAttribute(LINK_HREF));
-
-    if (!link || !isNewVersionPage(link)) {
-      return;
-    }
-
-    event.preventDefault();
-
-    const isBackgroundOpening = elem.getAttribute(OPEN_IN_BACKGROUND);
-
-    return {
-      link,
-      isActive: !(isBackgroundOpening || (event.button === 0 && event.ctrlKey))
-    };
-  };
 }
 
 const pageTabList = get(window, 'Citeck.PageTabList', new PageTabList());
