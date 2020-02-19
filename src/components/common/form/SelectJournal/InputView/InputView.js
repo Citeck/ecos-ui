@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
-import PageTabList from '../../../../../services/pageTabs/PageTabListService';
+import PageService from '../../../../../services/PageService';
 import { Btn } from '../../../../common/btns';
 
 import './InputView.scss';
@@ -34,7 +34,7 @@ class InputView extends Component {
     const url = createDocumentUrl(item.id);
     const onClick = () => {
       if (isSelectedValueAsLink) {
-        PageTabList.changeUrlLink(url, { openNewBrowserTab: true });
+        PageService.changeUrlLink(url, { openNewBrowserTab: true });
       }
     };
 
