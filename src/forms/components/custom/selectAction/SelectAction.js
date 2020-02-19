@@ -1,13 +1,16 @@
 import React from 'react';
+import get from 'lodash/get';
 
 import BaseReactComponent from '../base/BaseReactComponent';
 import Dropdown from '../../../../components/common/form/Dropdown';
+import { Types } from './constants';
 
 export default class SelectActionComponent extends BaseReactComponent {
   static schema(...extend) {
     return BaseReactComponent.schema(
       {
         label: 'SelectAction',
+        placeholder: 'Select action',
         key: 'selectAction',
         type: 'selectAction',
         customPredicateJs: null,
@@ -15,7 +18,10 @@ export default class SelectActionComponent extends BaseReactComponent {
         hideCreateButton: false,
         hideEditRowButton: false,
         hideDeleteRowButton: false,
-        isFullScreenWidthModal: false
+        isFullScreenWidthModal: false,
+        source: {
+          items: []
+        }
       },
       ...extend
     );
@@ -36,46 +42,53 @@ export default class SelectActionComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
-    return () => <div>Select Action</div>;
-    // return Dropdown;
+    return Dropdown;
   }
 
   setReactValue(component, value) {
-    console.warn('component, value => ', { component, value });
     this.setReactProps({
-      defaultValue: value
+      value
     });
   }
 
+  execute = js => {
+    this.evaluate(js, {}, 'value', true);
+  };
+
+  call = eventName => {
+    this.emit(this.interpolate(eventName));
+  };
+
+  onSelectItem = item => {
+    switch (item.type) {
+      case Types.JS.value:
+        this.execute(item.formatter);
+        break;
+      case Types.TRIGGER.value:
+        this.call(item.trigger);
+        break;
+      default:
+        console.error('Action type not defined');
+    }
+
+    this.setValue(item.name);
+  };
+
   getInitialReactProps() {
-    const resolveProps = data => {
-      console.warn('getInitialReactProps => ', data);
-      return {};
-    };
-
-    console.warn('getInitialReactProps => ', this.component);
-
-    // let resolve = createVariants => {
-    //   return resolveProps({
-    //     ...source,
-    //     custom: {
-    //       ...source.custom,
-    //       createVariants,
-    //       record: this.getRecord(),
-    //       attribute: this.getAttributeToEdit(),
-    //       columns: source.custom.columns.map(item => {
-    //         const col = { name: item.name };
-    //         if (item.formatter) {
-    //           col.formatter = this.evaluate(item.formatter, {}, 'value', true);
-    //         }
-    //         return col;
-    //       })
-    //     }
-    //   });
-    // };
+    const resolveProps = () => ({
+      source: get(this.component, 'source.items', []),
+      valueField: 'name',
+      titleField: 'name',
+      hasEmpty: true,
+      placeholder: get(this.component, 'placeholder', ''),
+      hideSelected: get(this.component, 'hideSelectedItem', false),
+      className: 'formio-select-action__dropdown',
+      toggleClassName: 'formio-select-action__dropdown-toggle',
+      menuClassName: 'formio-select-action__dropdown-menu',
+      controlClassName: 'formio-select-action__dropdown-control',
+      onChange: this.onSelectItem
+    });
 
     return resolveProps();
   }
-
-  static getValueDisplayName = (component, value) => {};
 }

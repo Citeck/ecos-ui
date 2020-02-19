@@ -1,13 +1,4 @@
-const Types = {
-  JS: {
-    label: 'JavaScript',
-    value: 'javascript'
-  },
-  TRIGGER: {
-    label: 'Event Trigger',
-    value: 'event-trigger'
-  }
-};
+import { Types } from '../constants';
 
 export default [
   {
@@ -50,59 +41,74 @@ export default [
         },
         row: '0-1'
       },
-
       {
         label: 'Action',
         type: 'panel',
-        title: 'JavaScript',
-        collapsible: true,
-        collapsed: true,
-        style: {
-          'margin-bottom': '20px'
-        },
-        key: ''.concat('custom-formatter-js'),
+        customClass: 'formio-select-action__editor-group',
         components: [
-          {
-            type: 'textarea',
-            key: 'formatter',
-            rows: 5,
-            editor: 'ace',
-            hideLabel: true,
-            input: true,
-            placeholder: `value = { name: 'FormatterClassName', params: {} };`
-          },
           {
             type: 'htmlelement',
             tag: 'div',
-            content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+            customClass: 'mt-2',
+            content: '<p>Select action type</p>',
+            conditional: {
+              json: {
+                and: [{ '==': [{ var: 'row.type' }, false] }]
+              }
+            }
+          },
+          {
+            type: 'panel',
+            title: 'JavaScript',
+            collapsible: true,
+            collapsed: true,
+            style: {
+              'margin-bottom': '20px'
+            },
+            key: ''.concat('custom-formatter-js'),
+            components: [
+              {
+                type: 'textarea',
+                key: 'formatter',
+                rows: 5,
+                editor: 'ace',
+                hideLabel: true,
+                input: true,
+                placeholder: `value = { name: 'FormatterClassName', params: {} };`
+              },
+              {
+                type: 'htmlelement',
+                tag: 'div',
+                content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+              }
+            ],
+            conditional: {
+              json: {
+                and: [{ '==': [{ var: 'row.type' }, Types.JS.value] }]
+              }
+            }
+          },
+          {
+            label: false,
+            allowMultipleMasks: false,
+            showWordCount: false,
+            showCharCount: false,
+            tableView: true,
+            alwaysEnabled: false,
+            type: 'textfield',
+            input: true,
+            key: 'trigger',
+            placeholder: 'Enter event trigger',
+            widget: {
+              type: ''
+            },
+            conditional: {
+              json: {
+                and: [{ '==': [{ var: 'row.type' }, Types.TRIGGER.value] }]
+              }
+            }
           }
         ],
-        conditional: {
-          json: {
-            and: [{ '==': [{ var: 'row.type' }, Types.JS.value] }]
-          }
-        },
-        row: '0-2'
-      },
-      {
-        label: 'Action',
-        allowMultipleMasks: false,
-        showWordCount: false,
-        showCharCount: false,
-        tableView: true,
-        alwaysEnabled: false,
-        type: 'textfield',
-        input: true,
-        key: 'trigger',
-        placeholder: 'Enter action trigger',
-        widget: {
-          type: ''
-        },
-        conditional: {
-          json: {
-            and: [{ '==': [{ var: 'row.type' }, Types.TRIGGER.value] }]
-          }
-        },
         row: '0-2'
       }
     ],
