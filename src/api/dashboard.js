@@ -11,10 +11,10 @@ import { DashboardTypes } from '../constants/dashboard';
 import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
-  key: QueryEntityKeys.KEY,
-  config: QueryEntityKeys.CONFIG_JSON,
-  user: QueryEntityKeys.USER,
-  type: QueryEntityKeys.TYPE,
+  config: 'config?json',
+  authority: 'authority',
+  typeRef: 'typeRef?id',
+  type: 'typeRef.dashboardType?str',
   id: 'id'
 };
 
@@ -48,8 +48,9 @@ export class DashboardApi extends RecordService {
   };
 
   saveDashboardConfig = ({ identification, config }) => {
-    const { key, id, user, type } = identification;
-    const record = Records.get(DashboardService.formFullId(id));
+    const { key, user, type } = identification;
+
+    const record = Records.get('eapps/module@ui/dashboard$');
 
     record.att(QueryEntityKeys.CONFIG_JSON, config);
     record.att(QueryEntityKeys.USER, user);
@@ -59,20 +60,12 @@ export class DashboardApi extends RecordService {
     return record.save().then(response => response);
   };
 
-  getDashboardByOneOf = ({ dashboardId, dashboardKey, recordRef, off = {} }) => {
+  getDashboardByOneOf = ({ dashboardId, recordRef, off = {} }) => {
     if (!isEmpty(dashboardId)) {
       return this.getDashboardById(dashboardId);
     }
 
-    if (!isEmpty(recordRef) && !off.ref) {
-      return this.getDashboardByRecordRef(recordRef, dashboardKey);
-    }
-
-    if (!off.user) {
-      return this.getDashboardByUser();
-    }
-
-    return {};
+    return this.getDashboardByRecordRef(recordRef);
   };
 
   getDashboardById = (dashboardId, force = false) => {
@@ -81,78 +74,39 @@ export class DashboardApi extends RecordService {
       .then(response => response);
   };
 
-  getDashboardByKeyType = (key, type) => {
+  getDashboardByUserAndType = (user, typeRef) => {
     return Records.queryOne(
       {
         sourceId: SourcesId.DASHBOARD,
         query: {
-          key,
-          type,
-          user: getCurrentUserName()
-        }
-      },
-      { ...defaultAttr }
-    ).then(response => response);
-  };
-
-  getDashboardByRecordRef = function*(recordRef, dashboardKey = '') {
-    const result = yield Records.get(recordRef).load({
-      type: '_dashboardType',
-      keys: '_dashboardKey[]?str'
-    });
-    const { keys, type } = result;
-
-    let dashboardKeys = Array.from(keys || []);
-
-    dashboardKeys.push(DASHBOARD_DEFAULT_KEY);
-
-    if (dashboardKey) {
-      dashboardKeys = dashboardKeys.filter(item => item === dashboardKey);
-    }
-
-    const cacheKey = dashboardKeys.find(key => cache.check(DashboardService.getCacheKey(key, recordRef)));
-    const dashboardId = cacheKey ? cache.get(DashboardService.getCacheKey(cacheKey, recordRef)) : null;
-
-    if (!isEmpty(dashboardId)) {
-      return yield this.getDashboardById(dashboardId);
-    }
-
-    let data;
-
-    for (let key of dashboardKeys) {
-      data = yield this.getDashboardByKeyType(key, type);
-
-      if (!isEmpty(data)) {
-        cache.set(DashboardService.getCacheKey(key, recordRef), data.id);
-        break;
-      }
-    }
-
-    return data;
-  };
-
-  getDashboardByUser = function() {
-    const user = getCurrentUserName();
-    const dashboardId = cache.get(user);
-
-    if (!isEmpty(dashboardId)) {
-      return this.getDashboardById(dashboardId);
-    }
-
-    return Records.queryOne(
-      {
-        sourceId: SourcesId.DASHBOARD,
-        query: {
-          type: DashboardTypes.USER,
+          typeRef,
           user
         }
       },
       { ...defaultAttr }
-    ).then(response => {
-      cache.set(user, response.id);
+    );
+  };
 
-      return response;
-    });
+  getDashboardByRecordRef = function*(recordRef) {
+    let recType = null;
+
+    if (recordRef) {
+      recType = yield Records.get(recordRef).load('_etype{.id,dashboardType}');
+    }
+
+    const user = getCurrentUserName();
+
+    const cacheKey = `${recType}|${user}`;
+
+    let result = cache.get(cacheKey);
+    if (result) {
+      return result;
+    }
+
+    let dashboard = yield this.getDashboardByUserAndType(user, recType);
+    cache.set(cacheKey, dashboard);
+
+    return dashboard;
   };
 
   getTitleInfo = function*(recordRef = '') {
