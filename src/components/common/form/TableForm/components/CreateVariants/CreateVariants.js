@@ -1,5 +1,7 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
+import isBoolean from 'lodash/isBoolean';
+import get from 'lodash/get';
 import { Btn, IcoBtn } from '../../../../../common/btns';
 import Dropdown from '../../../Dropdown/Dropdown';
 import { TableFormContext } from '../../TableFormContext';
@@ -8,10 +10,12 @@ import { t } from '../../../../../../helpers/util';
 const CreateVariants = () => {
   const context = useContext(TableFormContext);
 
-  const { disabled, multiple, viewOnly } = context.controlProps;
+  const { disabled, multiple, viewOnly, displayElements } = context.controlProps;
   const { showCreateForm, createVariants = [], gridRows } = context;
 
-  if (viewOnly) {
+  const shouldShowCreateButton = isBoolean(get(displayElements, 'create')) ? displayElements.create : true;
+
+  if (viewOnly || !shouldShowCreateButton) {
     return null;
   }
 

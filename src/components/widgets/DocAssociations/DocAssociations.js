@@ -267,7 +267,7 @@ class DocAssociations extends BaseWidget {
             {t(LABELS.TOOLTIP_ADD_LINK)}
           </UncontrolledTooltip>
         </DropdownToggle>
-        <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade">
+        <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade ecos-doc-associations__menu">
           <Menu
             emptyMessage={t(LABELS.EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE)}
             items={menu}
