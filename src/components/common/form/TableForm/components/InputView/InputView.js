@@ -89,8 +89,8 @@ const InputView = () => {
         );
       }
 
-      const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : !viewOnly;
-      if (shouldShowEditButton) {
+      const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : true;
+      if (!disabled && !viewOnly && shouldShowEditButton) {
         iconButtons.push(
           <IcoBtn
             key={'edit'}
@@ -101,8 +101,8 @@ const InputView = () => {
         );
       }
 
-      const shouldShowDeleteButton = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : !disabled && !viewOnly;
-      if (shouldShowDeleteButton) {
+      const shouldShowDeleteButton = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
+      if (!disabled && !viewOnly && shouldShowDeleteButton) {
         iconButtons.push(
           <IcoBtn
             key={'delete'}
