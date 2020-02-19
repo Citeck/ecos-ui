@@ -17,6 +17,7 @@ export default {
   triggerEventOnTableChange: PropTypes.func,
   viewOnly: PropTypes.bool,
   displayElements: PropTypes.shape({
+    create: PropTypes.bool,
     view: PropTypes.bool,
     edit: PropTypes.bool,
     delete: PropTypes.bool
