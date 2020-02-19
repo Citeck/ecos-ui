@@ -70,16 +70,18 @@ class PageTabList {
 
     const tabs = this.getFromStorage();
 
-    this.tabs = { tabs, ...params, last: true };
+    params = { ...params, last: true };
+    this.tabs = { tabs, params };
 
     if (!!activeUrl) {
-      this.setTab({ link: activeUrl, isActive: true });
-    }
-  }
+      const tab = this.existTab({ link: activeUrl, isActive: true });
 
-  updateAll({ tabs, params = {} }) {
-    this.tabs = { tabs, params };
-    this.setToStorage();
+      if (tab) {
+        this.activate(tab);
+      } else {
+        this.setTab(tab);
+      }
+    }
   }
 
   /**
@@ -95,12 +97,12 @@ class PageTabList {
     if (reopen) {
       this.changeOne({ updates: tab, tab: this.activeTab });
     } else {
-      const newTabIndex = this.existTabIndex(tab);
-      const indexTo = this.getPlaceTab({ newTabIndex, last });
+      const currentTabIndex = this.existTabIndex(tab);
+      const indexTo = this.getPlaceTab({ currentTabIndex, last });
 
-      if (exist(newTabIndex)) {
+      if (exist(currentTabIndex)) {
         this.changeOne({ updates: tab, tab });
-        this.move(newTabIndex, indexTo);
+        this.move(currentTabIndex, indexTo);
       } else {
         this.add(tab, indexTo);
       }
@@ -202,6 +204,12 @@ class PageTabList {
     return this.#tabs.findIndex(item => this.equals(tab, item));
   }
 
+  existTab(data) {
+    const check = new PageTab(data);
+    const i = this.existTabIndex(check);
+    return exist(i) ? this.#tabs[i] : null;
+  }
+
   equals(tab1, tab2) {
     return this.#isDuplicateAllowed ? tab1.link === tab2.link : tab1.uniqueKey === tab2.uniqueKey;
   }
@@ -223,11 +231,11 @@ class PageTabList {
   getPlaceTab({ currentTabIndex, last }) {
     const activeIndex = this.#tabs.findIndex(item => item.isActive);
 
-    return !!this.#tabs.length && !last && exist(activeIndex)
-      ? exist(currentTabIndex) && currentTabIndex <= activeIndex
-        ? activeIndex
-        : activeIndex + 1
-      : this.#tabs.length;
+    return last || !this.#tabs.length || !exist(activeIndex)
+      ? this.#tabs.length
+      : exist(currentTabIndex) && currentTabIndex <= activeIndex
+      ? activeIndex
+      : activeIndex + 1;
   }
 
   setToStorage() {

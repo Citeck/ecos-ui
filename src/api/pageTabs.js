@@ -16,16 +16,6 @@ export class PageTabsApi extends CommonApi {
     this.#lsKey = key;
   }
 
-  getAll = () => {
-    let tabs = [];
-
-    if (storage.hasData(this.lsKey, 'array')) {
-      tabs = storage.getData(this.lsKey);
-    }
-
-    return tabs;
-  };
-
   checkOldVersion = userName => {
     if (userName === USER_GUEST || this.lsKey.includes(this.#newVersionKeyPath)) {
       return;

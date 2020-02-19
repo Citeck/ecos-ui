@@ -43,7 +43,6 @@ export default class PageService {
   }
 
   static keyId({ link, type, key }) {
-    link = link || window.location.href;
     type = type || PageService.getType(link);
     key = key || PageService.getKey({ link, type });
 
@@ -51,7 +50,6 @@ export default class PageService {
   }
 
   static getPage({ link, type }) {
-    link = link || window.location.href;
     type = type || PageService.getType(link);
 
     return PageService.pages[type] || getDefaultPage();
@@ -72,7 +70,7 @@ export default class PageService {
       getTitle: ({ recordRef, journalId }) => {
         const prom = recordRef ? pageApi.getRecordTitle(recordRef) : pageApi.getJournalTitle(journalId);
 
-        return prom.then(title => `${TITLE[URL.DASHBOARD_SETTINGS]} ${title}`);
+        return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} ${title}`);
       }
     },
     [PageTypes.BPMN_DESIGNER]: {
