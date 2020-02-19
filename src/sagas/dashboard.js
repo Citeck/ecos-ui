@@ -10,7 +10,6 @@ import {
   setRequestResultDashboard
 } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
-import { setActiveTabTitle } from '../actions/pageTabs';
 import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
 import { t } from '../helpers/util';
 import DashboardConverter from '../dto/dashboard';
@@ -50,7 +49,6 @@ function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
     const titleInfo = DashboardConverter.getTitleInfo(resTitle);
 
     yield put(setDashboardTitleInfo(titleInfo));
-    yield put(setActiveTabTitle(titleInfo.name));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error5')));
     logger.error('[dashboard/ doGetDashboardTitleRequest saga] error', e.message);

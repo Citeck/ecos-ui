@@ -110,7 +110,6 @@ export default class SidebarService {
               ignoreTabHandler = false;
               attributes.target = '_blank';
               attributes.rel = 'noopener noreferrer';
-              // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
             } else {
               targetUrl = PAGE_PREFIX;
               if (params.siteName) {

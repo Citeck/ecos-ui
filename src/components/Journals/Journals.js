@@ -19,7 +19,6 @@ import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
-import { setActiveTabTitle } from '../../actions/pageTabs';
 import { t, trigger } from '../../helpers/util';
 import { goToCardDetailsPage } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
@@ -46,8 +45,7 @@ const mapDispatchToProps = (dispatch, props) => {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     search: text => dispatch(search(w(text))),
-    restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
-    setActiveTabTitle: text => dispatch(setActiveTabTitle(text))
+    restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting)))
   };
 };
 
@@ -67,7 +65,6 @@ class Journals extends Component {
 
   componentDidMount() {
     this.getJournalsData();
-    this.setActiveTabTitle();
     trigger.call(this, 'onRender');
   }
 
@@ -79,28 +76,7 @@ class Journals extends Component {
       this.getJournalsData();
     }
 
-    this.setActiveTabTitle();
     trigger.call(this, 'onRender');
-  }
-
-  // TODO rid of this dirty hack.
-  setActiveTabTitle() {
-    const { journalConfig, pageTabsIsShow, setActiveTabTitle, activeTab } = this.props;
-
-    if (!journalConfig) {
-      return null;
-    }
-
-    const {
-      meta: { title = '' }
-    } = journalConfig;
-
-    if (pageTabsIsShow && title && activeTab) {
-      const newTitle = `${t('page-tabs.journal')} "${title}"`;
-      if (activeTab.title !== newTitle) {
-        setActiveTabTitle(newTitle);
-      }
-    }
   }
 
   refresh = () => {
