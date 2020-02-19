@@ -73,7 +73,7 @@ function* sagaGetTabs({ api, logger }, action) {
   }
 }
 
-function* sagaSetDisplayState({ api, logger }, { payload }) {
+function sagaSetDisplayState({ api, logger }, { payload }) {
   try {
     PageTabList.displayState = payload;
   } catch (e) {

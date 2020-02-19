@@ -121,7 +121,7 @@ export default class PageService {
     const linkIgnoreAttr = IGNORE_TABS_HANDLER_ATTR_NAME;
 
     if (type === Events.CHANGE_URL_LINK_EVENT) {
-      const { openNewTab, openNewBrowserTab, reopenBrowserTab, openInBackground, ...props } = params || {};
+      const { openNewTab, openNewBrowserTab, reopenBrowserTab, openInBackground, link, ...props } = params || {};
 
       event.preventDefault();
 
@@ -144,12 +144,14 @@ export default class PageService {
       if (openInBackground) {
         return {
           ...props,
+          link,
           isActive: false
         };
       }
 
       return {
         ...props,
+        link,
         isActive: true,
         reopen: !openNewTab
       };
