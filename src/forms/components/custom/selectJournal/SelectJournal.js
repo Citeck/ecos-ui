@@ -65,7 +65,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         presetFilterPredicates = this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true);
       }
 
-      return {
+      const reactComponentProps = {
         defaultValue: this.dataValue,
         isCompact: component.isCompact,
         multiple: component.multiple,
@@ -88,6 +88,12 @@ export default class SelectJournalComponent extends BaseReactComponent {
           // this.setCustomValidity(err, false);
         }
       };
+
+      if (this.customPredicateValue) {
+        reactComponentProps.initCustomPredicate = this.customPredicateValue;
+      }
+
+      return reactComponentProps;
     };
 
     let journalId = this.component.journalId;

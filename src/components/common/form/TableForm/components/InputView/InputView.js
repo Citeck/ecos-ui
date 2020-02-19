@@ -13,7 +13,7 @@ import './InputView.scss';
 const InputView = () => {
   const context = useContext(TableFormContext);
 
-  const { placeholder, disabled, viewOnly, displayElements, isSelectableRows } = context.controlProps;
+  const { placeholder, disabled, viewOnly, displayElements, isSelectableRows, nonSelectableRows } = context.controlProps;
   const {
     gridRows,
     selectedRows,
@@ -89,8 +89,8 @@ const InputView = () => {
         );
       }
 
-      const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : !viewOnly;
-      if (shouldShowEditButton) {
+      const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : true;
+      if (!disabled && !viewOnly && shouldShowEditButton) {
         iconButtons.push(
           <IcoBtn
             key={'edit'}
@@ -101,8 +101,8 @@ const InputView = () => {
         );
       }
 
-      const shouldShowDeleteButton = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : !disabled && !viewOnly;
-      if (shouldShowDeleteButton) {
+      const shouldShowDeleteButton = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
+      if (!disabled && !viewOnly && shouldShowDeleteButton) {
         iconButtons.push(
           <IcoBtn
             key={'delete'}
@@ -126,6 +126,7 @@ const InputView = () => {
           multiSelectable={!viewOnly && isSelectableRows}
           onSelect={onSelectGridItem}
           selected={selectedRows}
+          nonSelectable={nonSelectableRows}
           inlineTools={inlineTools}
           onChangeTrOptions={setInlineToolsOffsets}
           className={'ecos-table-form__grid'}

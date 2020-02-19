@@ -26,13 +26,13 @@ const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
 const Selector = ({ mode, ...rest }) => (
   <div className="ecos-grid__checkbox">
-    <Checkbox checked={rest.checked} />
+    <Checkbox checked={rest.checked} disabled={rest.disabled} />
   </div>
 );
 
 const SelectorHeader = ({ indeterminate, ...rest }) => (
   <div className="ecos-grid__checkbox">
-    {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
+    {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} disabled={rest.disabled} /> : null}
     <div className={ECOS_GRID_CHECKBOX_DEVIDER_CLASS} />
   </div>
 );
@@ -387,6 +387,7 @@ class Grid extends Component {
       mode: 'radio',
       classes: 'ecos-grid__tr_selected',
       selected: this._selected,
+      nonSelectable: props.nonSelectable || [],
       onSelect: row => {
         const selected = this._selected[0];
         const keyValue = row[this._keyField];
@@ -410,6 +411,7 @@ class Grid extends Component {
       mode: 'checkbox',
       classes: 'ecos-grid__tr_selected',
       selected: this._selected,
+      nonSelectable: props.nonSelectable || [],
       onSelect: (row, isSelect) => {
         const selected = this._selected;
         const keyValue = row[this._keyField];
@@ -741,6 +743,7 @@ Grid.propTypes = {
   filters: PropTypes.array,
   sortBy: PropTypes.array,
   selected: PropTypes.array,
+  nonSelectable: PropTypes.array,
   editingRules: PropTypes.object,
 
   onRowDrop: PropTypes.func,
