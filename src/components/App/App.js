@@ -13,7 +13,9 @@ import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
 
 import { initMenuSettings } from '../../actions/menu';
+import { setTab } from '../../actions/pageTabs';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
+import PageService, { Events } from '../../services/PageService';
 
 import './App.scss';
 
@@ -35,7 +37,24 @@ class App extends Component {
     const { initMenuSettings } = this.props;
 
     initMenuSettings();
+    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
   }
+
+  handleCustomEvent = event => {
+    const {
+      params: { link = '' }
+    } = event;
+    const { isShowTabs, isMobile, push, setTab } = this.props;
+
+    if (!(isShowTabs && !this.isOnlyContent && !isMobile)) {
+      push.call(this, link);
+      return;
+    }
+
+    const { reopen, closeActiveTab, ...data } = PageService.definePropsLink({ event }) || {};
+
+    setTab({ data, params: { reopen, closeActiveTab } });
+  };
 
   get isOnlyContent() {
     const url = get(this.props, ['history', 'location', 'pathname'], '/');
@@ -186,7 +205,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  initMenuSettings: () => dispatch(initMenuSettings())
+  initMenuSettings: () => dispatch(initMenuSettings()),
+  setTab: params => dispatch(setTab(params))
 });
 
 export default withRouter(

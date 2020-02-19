@@ -73,7 +73,7 @@ export default class SelectJournal extends Component {
   }
 
   componentDidMount() {
-    const { defaultValue, multiple, journalId, onError, isSelectModalOpen } = this.props;
+    const { defaultValue, multiple, journalId, onError, isSelectModalOpen, initCustomPredicate } = this.props;
 
     if (!journalId) {
       const err = new Error('The "journalId" config is required!');
@@ -94,6 +94,10 @@ export default class SelectJournal extends Component {
 
     if (isSelectModalOpen) {
       this.openSelectModal();
+    }
+
+    if (initCustomPredicate) {
+      this.setCustomPredicate(initCustomPredicate);
     }
   }
 
@@ -725,6 +729,12 @@ export default class SelectJournal extends Component {
   }
 }
 
+const predicateShape = PropTypes.shape({
+  t: PropTypes.string.isRequired,
+  att: PropTypes.string.isRequired,
+  val: PropTypes.any
+});
+
 SelectJournal.propTypes = {
   journalId: PropTypes.string,
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
@@ -737,13 +747,8 @@ SelectJournal.propTypes = {
   hideEditRowButton: PropTypes.bool,
   hideDeleteRowButton: PropTypes.bool,
   displayColumns: PropTypes.array,
-  presetFilterPredicates: PropTypes.arrayOf(
-    PropTypes.shape({
-      t: PropTypes.string.isRequired,
-      att: PropTypes.string.isRequired,
-      val: PropTypes.any
-    })
-  ),
+  presetFilterPredicates: PropTypes.arrayOf(predicateShape),
+  initCustomPredicate: PropTypes.oneOfType([PropTypes.arrayOf(predicateShape), predicateShape]),
   viewOnly: PropTypes.bool,
   renderView: PropTypes.func,
   searchField: PropTypes.string,

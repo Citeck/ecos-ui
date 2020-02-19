@@ -24,3 +24,4 @@ export { BirthdaysApi } from './birthdays';
 export { BarcodeApi } from './barcode';
 export { PropertiesApi } from './properties';
 export { DocumentsApi } from './documents';
+export { PageApi } from './page';
