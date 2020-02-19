@@ -5,7 +5,7 @@ import get from 'lodash/get';
 
 import { deepClone } from '../../helpers/util';
 import CommonTimesheetService from '../../services/timesheet/common';
-import PageTabList from '../../services/pageTabs/PageTabListService';
+import PageService from '../../services/PageService';
 import { getTotalCounts } from '../../actions/timesheet/common';
 import { Tabs } from './';
 
@@ -59,7 +59,7 @@ class RouteTypeTabs extends React.Component {
       tab.isActive = index === tabIndex;
 
       if (tab.isActive) {
-        PageTabList.changeUrlLink(tab.link);
+        PageService.changeUrlLink(tab.link);
       }
     });
 

@@ -5,7 +5,7 @@ import { URL } from '../constants';
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
-import PageTabList from '../services/pageTabs/PageTabListService';
+import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
@@ -19,6 +19,7 @@ const DESTINATION_KEY = 'destination';
 const FILTER_KEY = 'filter';
 const SORT_KEY = 'sortBy';
 const PAGINATION_KEY = 'pagination';
+const SHOW_PREVIEW_KEY = 'showPreview';
 
 export const SearchKeys = {
   TYPE: [TYPE_KEY],
@@ -29,7 +30,8 @@ export const SearchKeys = {
   RECORD_REF: [RECORD_REF_KEY],
   JOURNAL_ID: [JOURNAL_ID_KEY],
   DASHBOARD_ID: [DASHBOARD_ID_KEY],
-  DASHBOARD_KEY: [DASHBOARD_KEY_KEY]
+  DASHBOARD_KEY: [DASHBOARD_KEY_KEY],
+  SHOW_PREVIEW: [SHOW_PREVIEW_KEY]
 };
 
 export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';
@@ -40,7 +42,7 @@ const changeUrl = (url, opts = {}) => {
   if (isNewVersionSharePage()) {
     window.open(url, opts.openNewTab === true ? '_blank' : '_self');
   } else {
-    PageTabList.changeUrlLink(url, opts);
+    PageService.changeUrlLink(url, opts);
   }
 };
 
@@ -217,7 +219,6 @@ export const equalsQueryUrls = params => {
   let firstParams = queryString.parseUrl(first).query || {};
   let secondParams = queryString.parseUrl(second).query || {};
 
-  console.log('????', firstParams, secondParams);
   if (isEmpty(firstParams) || isEmpty(secondParams)) {
     return false;
   }

@@ -20,7 +20,7 @@ import { URL } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { hasInString } from '../helpers/util';
 import MenuService from '../services/menu';
-import PageTabList from '../services/pageTabs/PageTabListService';
+import PageService from '../services/PageService';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
@@ -95,7 +95,7 @@ function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
   try {
     const link = yield MenuService.processTransitSiteMenuItem(payload);
 
-    PageTabList.changeUrlLink(link, { openNewTab: true });
+    PageService.changeUrlLink(link, { openNewTab: true });
   } catch (e) {
     logger.error('[goToPageSiteMenu saga] error', e.message);
   }

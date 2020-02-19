@@ -10,7 +10,7 @@ import { getBirthdays, init } from '../../../actions/birthdays';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
-import PageTabList from '../../../services/pageTabs/PageTabListService';
+import PageService from '../../../services/PageService';
 import { Avatar, DefineHeight, Loader } from '../../common';
 import { Btn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
@@ -99,7 +99,7 @@ class Birthdays extends Component {
   };
 
   handleGoToProfile = url => {
-    PageTabList.changeUrlLink(url, { openNewBrowserTab: true });
+    PageService.changeUrlLink(url, { openNewBrowserTab: true });
   };
 
   handleReloadData = () => {
