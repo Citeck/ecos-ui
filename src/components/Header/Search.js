@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
-import { SearchSelect } from '../common';
 import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../actions/header';
-import SearchService from '../../services/search';
-import SearchItem from './SearchItem';
-import { changeUrlLink } from '../PageTabs/PageTabs';
+import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/urls';
 import { URL_PAGECONTEXT } from '../../constants/alfresco';
+import SearchService from '../../services/search';
+import PageService from '../../services/PageService';
+import { SearchSelect } from '../common';
+import SearchItem from './SearchItem';
 
 const Types = SearchService.SearchAutocompleteTypes;
 
@@ -65,7 +65,7 @@ class Search extends React.Component {
       return (window.location.href = url);
     }
 
-    changeUrlLink(url, { reopenBrowserTab: true });
+    PageService.changeUrlLink(url, { reopenBrowserTab: true });
   };
 
   goToResult = data => {
@@ -76,7 +76,7 @@ class Search extends React.Component {
     const reopenBrowserTab = !isNewVersionPage(data.url);
     const openNewTab = [Types.DOCUMENTS, Types.SITES].includes(data.type) && !reopenBrowserTab;
 
-    changeUrlLink(data.url, { openNewTab, reopenBrowserTab });
+    PageService.changeUrlLink(data.url, { openNewTab, reopenBrowserTab });
     this.props.resetSearchAutocomplete();
   };
 
