@@ -71,14 +71,16 @@ export default class PageService {
     },
     [PageTypes.JOURNALS]: {
       getTitle: ({ journalId }) => {
-        return pageApi.getJournalTitle(journalId);
+        const prom = pageApi.getJournalTitle(journalId);
+
+        return prom.then(title => `${t('page-tabs.journal')} "${title}"`);
       }
     },
     [PageTypes.SETTINGS]: {
       getTitle: ({ recordRef, journalId }) => {
         const prom = recordRef ? pageApi.getRecordTitle(recordRef) : pageApi.getJournalTitle(journalId);
 
-        return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} ${title}`);
+        return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${title}"`);
       }
     },
     [PageTypes.BPMN_DESIGNER]: {
