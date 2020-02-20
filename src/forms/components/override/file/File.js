@@ -5,13 +5,12 @@ import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
 import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
-import { FILE_CLICK_ACTION_DOWNLOAD, FILE_CLICK_ACTION_OPEN_DASHBOARD, FILE_CLICK_ACTION_NOOP } from './editForm/File.edit.file';
+import { FILE_CLICK_ACTION_DOWNLOAD, FILE_CLICK_ACTION_NOOP, FILE_CLICK_ACTION_OPEN_DASHBOARD } from './editForm/File.edit.file';
 import RecordActionExecutorsRegistry from '../../../../components/Records/actions/RecordActionExecutorsRegistry';
 import Records from '../../../../components/Records';
-import { isNewVersionPage } from '../../../../helpers/urls';
+import { createDocumentUrl, isNewVersionPage } from '../../../../helpers/urls';
 import { t } from '../../../../helpers/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
-import { URL } from '../../../../constants';
 
 export default class FileComponent extends FormIOFileComponent {
   static schema(...extend) {
@@ -79,11 +78,7 @@ export default class FileComponent extends FormIOFileComponent {
   }
 
   static buildDocumentUrl(recordRef) {
-    if (isNewVersionPage()) {
-      return `${URL.DASHBOARD}?recordRef=${recordRef}`;
-    }
-
-    return `/share/page/card-details?nodeRef=${recordRef}`;
+    return createDocumentUrl(recordRef);
   }
 
   checkConditions(data) {
