@@ -28,6 +28,7 @@ export default class Dropdown extends Component {
     toggleClassName: PropTypes.string,
     controlClassName: PropTypes.string,
     direction: PropTypes.string,
+    placeholder: PropTypes.string,
     hasEmpty: PropTypes.bool,
     right: PropTypes.bool,
     full: PropTypes.bool,
@@ -49,6 +50,7 @@ export default class Dropdown extends Component {
     menuClassName: '',
     toggleClassName: '',
     controlClassName: '',
+    placeholder: '',
     direction: 'down',
     hasEmpty: false,
     isStatic: false,
@@ -89,20 +91,25 @@ export default class Dropdown extends Component {
   };
 
   getControl = text => {
-    const props = this.props;
+    const { controlClassName, children, placeholder, hasEmpty, isButton, value } = this.props;
     const { dropdownOpen } = this.state;
+    let label = text;
 
-    if (!props.children) {
+    if (!children) {
+      if (placeholder && hasEmpty && !value) {
+        label = placeholder;
+      }
+
       return (
-        <IcoBtn className={props.controlClassName} invert icon={dropdownOpen ? 'icon-up' : 'icon-down'}>
-          {text}
+        <IcoBtn className={controlClassName} invert icon={dropdownOpen ? 'icon-up' : 'icon-down'}>
+          {label}
         </IcoBtn>
       );
     }
 
-    return React.Children.map(this.props.children, child => {
+    return React.Children.map(children, child => {
       return React.cloneElement(child, {
-        children: props.isButton ? child.props.children || '' : text
+        children: isButton ? child.props.children || '' : label
       });
     });
   };
