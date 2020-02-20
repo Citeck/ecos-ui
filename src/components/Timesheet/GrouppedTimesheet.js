@@ -78,13 +78,10 @@ class GrouppedTimesheet extends BaseTimesheet {
       draggableNode: null,
       eventHistory: initEventHistory
     };
-
-    console.warn(this.initGroupsStatuses(props) || {});
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
     if (JSON.stringify(nextProps.eventTypes) !== JSON.stringify(this.state.filteredEventTypes)) {
-      console.warn(this.initGroupsStatuses(nextProps) || {});
       this.setState({
         filteredEventTypes: deepClone(nextProps.eventTypes),
         groupsStatuses: this.initGroupsStatuses(nextProps)

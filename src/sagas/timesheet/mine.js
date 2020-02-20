@@ -1,4 +1,4 @@
-import { put, select, takeLatest, takeEvery } from 'redux-saga/effects';
+import { put, select, takeLatest, takeEvery, call } from 'redux-saga/effects';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
   getMyTimesheetByParams,
@@ -77,7 +77,8 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
       comment
     } = payload;
 
-    yield api.timesheetCommon.modifyStatus({
+    yield call(api.timesheetCommon.changeTaskOwner, { taskId, currentUser });
+    yield call(api.timesheetCommon.modifyStatus, {
       outcome,
       taskId,
       currentUser,
@@ -85,6 +86,8 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
     });
     yield put(setUpdatingStatus(true));
   } catch (e) {
+    yield put(setStatus(payload.status));
+    yield put(setUpdatingStatus(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
     logger.error('[timesheetMine sagaModifyStatus saga] error', e.message);
   }
