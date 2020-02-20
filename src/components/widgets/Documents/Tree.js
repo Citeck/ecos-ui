@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 import { Icon } from '../../common';
 import { Checkbox, Badge } from '../../common/form';
-import { arrayCompare, t } from '../../../helpers/util';
+import { arrayCompare, arrayFlat, t } from '../../../helpers/util';
 import { GrouppedTypeInterface } from './propsInterfaces';
 
 const Labels = {
@@ -144,7 +144,8 @@ class TreeItem extends Component {
 
   renderBadge() {
     const { item } = this.props;
-    const selectedChildren = item.items.filter(child => child.isSelected);
+    const children = arrayFlat({ data: item.items, byField: 'items' });
+    const selectedChildren = children.filter(child => child.isSelected);
 
     if (!item.locked && !selectedChildren.length && item.isSelected) {
       return null;
@@ -152,8 +153,8 @@ class TreeItem extends Component {
 
     let text = '';
 
-    if (item.items.length && selectedChildren.length) {
-      text = `${t(Labels.SELECTED_INSIDE)} ${selectedChildren.length} ${t(Labels.OF)} ${item.items.length}`;
+    if (children.length && selectedChildren.length) {
+      text = `${t(Labels.SELECTED_INSIDE)} ${selectedChildren.length} ${t(Labels.OF)} ${children.length}`;
     } else {
       text = item.locked ? t(Labels.NOT_BE_DISABLED) : t(Labels.NOT_SELECTED);
     }

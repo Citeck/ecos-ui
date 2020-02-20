@@ -663,3 +663,25 @@ export function hasChildWithId(items, selectedId) {
 export function prepareTooltipId(id = uuidV4()) {
   return `${id}`.replace(/[^\d\w-]/g, '');
 }
+
+export function arrayFlat({ data = [], depth = Infinity, byField = '' }) {
+  if (!data.length) {
+    return [];
+  }
+
+  const array = deepClone(data);
+
+  if (!byField) {
+    return array.flat(depth);
+  }
+
+  const getChildren = child => {
+    if (!child[byField].length) {
+      return child;
+    }
+
+    return child[byField].map(getChildren);
+  };
+
+  return Array.prototype.flat.call(array.map(getChildren), depth);
+}
