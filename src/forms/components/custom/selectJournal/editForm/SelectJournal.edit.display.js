@@ -22,5 +22,13 @@ export default [
     label: 'Hide "Delete row" button',
     weight: 12,
     defaultValue: false
+  },
+  {
+    type: 'checkbox',
+    input: true,
+    key: 'isSelectedValueAsLink',
+    label: 'Display selected value as a link',
+    weight: 13,
+    defaultValue: false
   }
 ];
