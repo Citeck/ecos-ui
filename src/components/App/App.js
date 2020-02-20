@@ -1,10 +1,11 @@
 import React, { Component, lazy, Suspense } from 'react';
+import classNames from 'classnames';
+import get from 'lodash/get';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
 import { NotificationContainer } from 'react-notifications';
-import classNames from 'classnames';
-import get from 'lodash/get';
+import { push } from 'connected-react-router';
 
 import Header from '../Header';
 import Notification from '../Notification';
@@ -206,7 +207,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initMenuSettings: () => dispatch(initMenuSettings()),
-  setTab: params => dispatch(setTab(params))
+  setTab: params => dispatch(setTab(params)),
+  push: url => dispatch(push(url))
 });
 
 export default withRouter(
