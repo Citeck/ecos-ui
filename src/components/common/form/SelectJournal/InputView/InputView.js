@@ -31,16 +31,17 @@ class InputView extends Component {
 
   renderSelectedValue(item) {
     const { isSelectedValueAsLink } = this.props;
-    const url = createDocumentUrl(item.id);
-    const onClick = () => {
-      if (isSelectedValueAsLink) {
+    let onClickHandler = null;
+    if (isSelectedValueAsLink) {
+      const url = createDocumentUrl(item.id);
+      onClickHandler = () => {
         PageService.changeUrlLink(url, { openNewBrowserTab: true });
-      }
-    };
+      };
+    }
 
     return (
       <span
-        onClick={onClick}
+        onClick={onClickHandler}
         className={classNames('select-journal__values-list-disp', { 'select-journal__values-list-disp_link': isSelectedValueAsLink })}
       >
         {item.disp}
