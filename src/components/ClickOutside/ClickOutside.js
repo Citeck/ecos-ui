@@ -4,11 +4,13 @@ import PropTypes from 'prop-types';
 export default class ClickOutside extends React.Component {
   static propTypes = {
     handleClickOutside: PropTypes.func,
-    className: PropTypes.string
+    className: PropTypes.string,
+    type: PropTypes.string
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    type: 'mousedown'
   };
 
   constructor(props) {
@@ -19,11 +21,11 @@ export default class ClickOutside extends React.Component {
   }
 
   componentDidMount() {
-    document.addEventListener('mousedown', this.handleClickOutside);
+    document.addEventListener(this.props.type, this.handleClickOutside);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('mousedown', this.handleClickOutside);
+    document.removeEventListener(this.props.type, this.handleClickOutside);
   }
 
   setWrapperRef(node) {
@@ -32,7 +34,7 @@ export default class ClickOutside extends React.Component {
 
   handleClickOutside(event) {
     if (typeof this.props.handleClickOutside === 'function' && this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-      this.props.handleClickOutside();
+      this.props.handleClickOutside(event);
     }
   }
 

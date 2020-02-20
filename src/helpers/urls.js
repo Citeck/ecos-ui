@@ -1,11 +1,11 @@
 import * as queryString from 'query-string';
-import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { URL } from '../constants';
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
-import { changeUrlLink } from '../components/PageTabs/PageTabs';
+import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
@@ -19,8 +19,9 @@ const DESTINATION_KEY = 'destination';
 const FILTER_KEY = 'filter';
 const SORT_KEY = 'sortBy';
 const PAGINATION_KEY = 'pagination';
+const SHOW_PREVIEW_KEY = 'showPreview';
 
-export const SEARCH_KEYS = {
+export const SearchKeys = {
   TYPE: [TYPE_KEY],
   DESTINATION: [DESTINATION_KEY],
   FILTER: [FILTER_KEY],
@@ -29,7 +30,8 @@ export const SEARCH_KEYS = {
   RECORD_REF: [RECORD_REF_KEY],
   JOURNAL_ID: [JOURNAL_ID_KEY],
   DASHBOARD_ID: [DASHBOARD_ID_KEY],
-  DASHBOARD_KEY: [DASHBOARD_KEY_KEY]
+  DASHBOARD_KEY: [DASHBOARD_KEY_KEY],
+  SHOW_PREVIEW: [SHOW_PREVIEW_KEY]
 };
 
 export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';
@@ -40,8 +42,16 @@ const changeUrl = (url, opts = {}) => {
   if (isNewVersionSharePage()) {
     window.open(url, opts.openNewTab === true ? '_blank' : '_self');
   } else {
-    changeUrlLink(url, opts);
+    PageService.changeUrlLink(url, opts);
   }
+};
+
+export const createDocumentUrl = recordRef => {
+  if (isNewVersionPage()) {
+    return `${URL.DASHBOARD}?recordRef=${recordRef}`;
+  }
+
+  return `/share/page/card-details?nodeRef=${recordRef}`;
 };
 
 const getPredicateFilterParam = options => {
@@ -128,13 +138,13 @@ export const goToJournalsPage = options => {
   if (OLD_LINKS || !isNewVersionPage()) {
     window.open(journalPageUrl, '_blank');
   } else {
-    changeUrl(journalPageUrl, { openNewTab: true, remoteTitle: true });
+    changeUrl(journalPageUrl, { openNewTab: true });
   }
 };
 
 export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_self');
 
-export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true, remoteTitle: true }) => {
+export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
   const dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
 
   if (isNewVersionPage()) {
@@ -205,7 +215,7 @@ export const getBarcodePrintUrl = record => {
  *
  * @returns {boolean}
  */
-export const compareUrls = params => {
+export const equalsQueryUrls = params => {
   const { urls = [], ignored = [], compareBy = [] } = params;
 
   if (!urls.length || (!ignored.length && compareBy.length)) {
@@ -213,9 +223,13 @@ export const compareUrls = params => {
   }
 
   const [first, second] = urls;
-  const regExp = /(?<=\?).*/gm;
-  let firstParams = queryString.parse(get(first.match(regExp), [0], ''));
-  let secondParams = queryString.parse(get(second.match(regExp), [0], ''));
+
+  let firstParams = queryString.parseUrl(first).query || {};
+  let secondParams = queryString.parseUrl(second).query || {};
+
+  if (isEmpty(firstParams) || isEmpty(secondParams)) {
+    return false;
+  }
 
   ignored.forEach(param => {
     delete firstParams[param];

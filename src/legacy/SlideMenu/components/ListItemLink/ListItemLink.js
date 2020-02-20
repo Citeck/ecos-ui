@@ -91,7 +91,6 @@ const ListItemLink = ({
           ignoreTabHandler = false;
           attributes.target = '_blank';
           attributes.rel = 'noopener noreferrer';
-          // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
         } else {
           targetUrl = PAGE_PREFIX;
           if (params.siteName) {
@@ -136,7 +135,6 @@ const ListItemLink = ({
           ignoreTabHandler = false;
           attributes.target = '_blank';
           attributes.rel = 'noopener noreferrer';
-          // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
 
           if (!isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
             const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');

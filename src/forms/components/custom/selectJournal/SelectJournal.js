@@ -1,9 +1,9 @@
-import BaseReactComponent from '../base/BaseReactComponent';
-import SelectJournal from '../../../../components/common/form/SelectJournal';
-import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 import _ from 'lodash';
+import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
+import { SelectJournal } from '../../../../components/common/form';
 import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
+import BaseReactComponent from '../base/BaseReactComponent';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -17,7 +17,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
         hideCreateButton: false,
         hideEditRowButton: false,
         hideDeleteRowButton: false,
-        isFullScreenWidthModal: false
+        isFullScreenWidthModal: false,
+        isSelectedValueAsLink: false
       },
       ...extend
     );
@@ -78,6 +79,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         hideCreateButton: component.hideCreateButton,
         hideEditRowButton: component.hideEditRowButton,
         hideDeleteRowButton: component.hideDeleteRowButton,
+        isSelectedValueAsLink: component.isSelectedValueAsLink,
         isFullScreenWidthModal: component.isFullScreenWidthModal,
         presetFilterPredicates,
         searchField: component.searchField,

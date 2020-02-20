@@ -2,25 +2,25 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
+import isEqual from 'lodash/isEqual';
+import lodashGet from 'lodash/get';
+
+import { t } from '../../../../helpers/util';
+import { JournalsApi } from '../../../../api/journalsApi';
+import { EcosModal, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
-import Grid from '../../../common/grid/Grid/Grid';
+import { Grid } from '../../../common/grid';
 import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/Mapper';
-import Pagination from '../../../common/Pagination/Pagination';
-import Loader from '../../../common/Loader/Loader';
 import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
-import EcosModal from '../../EcosModal';
+import Records from '../../../Records';
 import InputView from './InputView';
 import ViewMode from './ViewMode';
 import Filters from './Filters';
 import Search from './Search';
 import CreateVariants from './CreateVariants';
 import FiltersProvider from './Filters/FiltersProvider';
-import { JournalsApi } from '../../../../api/journalsApi';
-import { t } from '../../../../helpers/util';
+
 import './SelectJournal.scss';
-import Records from '../../../Records';
-import isEqual from 'lodash/isEqual';
-import lodashGet from 'lodash/get';
 
 const paginationInitState = {
   skipCount: 0,
@@ -573,7 +573,8 @@ export default class SelectJournal extends Component {
       onBlur,
       renderView,
       isFullScreenWidthModal,
-      presetFilterPredicates
+      presetFilterPredicates,
+      isSelectedValueAsLink
     } = this.props;
     const {
       isGridDataReady,
@@ -609,7 +610,8 @@ export default class SelectJournal extends Component {
       autoFocus,
       onBlur,
       hideEditRowButton,
-      hideDeleteRowButton
+      hideDeleteRowButton,
+      isSelectedValueAsLink
     };
 
     let selectModalTitle = t('select-journal.select-modal.title');
@@ -750,7 +752,8 @@ SelectJournal.propTypes = {
   viewOnly: PropTypes.bool,
   renderView: PropTypes.func,
   searchField: PropTypes.string,
-  isSelectModalOpen: PropTypes.bool
+  isSelectModalOpen: PropTypes.bool,
+  isSelectedValueAsLink: PropTypes.bool
 };
 
 SelectJournal.defaultProps = {
