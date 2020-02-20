@@ -1,6 +1,4 @@
-import React from 'react';
 import get from 'lodash/get';
-
 import BaseReactComponent from '../base/BaseReactComponent';
 import Dropdown from '../../../../components/common/form/Dropdown';
 import { Types } from './constants';
@@ -9,16 +7,10 @@ export default class SelectActionComponent extends BaseReactComponent {
   static schema(...extend) {
     return BaseReactComponent.schema(
       {
-        label: 'SelectAction',
+        label: 'Select Action',
         placeholder: 'Select action',
         key: 'selectAction',
         type: 'selectAction',
-        customPredicateJs: null,
-        presetFilterPredicatesJs: null,
-        hideCreateButton: false,
-        hideEditRowButton: false,
-        hideDeleteRowButton: false,
-        isFullScreenWidthModal: false,
         source: {
           items: []
         }
@@ -30,9 +22,9 @@ export default class SelectActionComponent extends BaseReactComponent {
   static get builderInfo() {
     return {
       title: 'Select Action',
-      icon: 'fa fa-th-list',
-      group: 'advanced',
-      weight: 0,
+      icon: 'fa fa-chevron-circle-down',
+      group: 'basic',
+      weight: 120,
       schema: SelectActionComponent.schema()
     };
   }
@@ -55,33 +47,33 @@ export default class SelectActionComponent extends BaseReactComponent {
     this.evaluate(js, {}, 'value', true);
   };
 
-  call = eventName => {
+  triggerEvent = eventName => {
     this.emit(this.interpolate(eventName));
   };
 
   onSelectItem = item => {
     switch (item.type) {
       case Types.JS.value:
-        this.execute(item.formatter);
+        this.execute(item.code);
         break;
       case Types.TRIGGER.value:
-        this.call(item.trigger);
+        this.triggerEvent(item.eventName);
         break;
       default:
-        console.error('Action type not defined');
+        console.error('Action type is not defined');
     }
 
     this.setValue(item.name);
   };
 
   getInitialReactProps() {
+    const component = this.component;
     const resolveProps = () => ({
-      source: get(this.component, 'source.items', []),
+      source: get(component, 'source.items', []),
       valueField: 'name',
       titleField: 'name',
       hasEmpty: true,
-      placeholder: get(this.component, 'placeholder', ''),
-      hideSelected: get(this.component, 'hideSelectedItem', false),
+      placeholder: component.placeholder,
       className: 'formio-select-action__dropdown',
       toggleClassName: 'formio-select-action__dropdown-toggle',
       menuClassName: 'formio-select-action__dropdown-menu',

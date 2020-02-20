@@ -62,24 +62,20 @@ export default [
             title: 'JavaScript',
             collapsible: true,
             collapsed: true,
-            style: {
-              'margin-bottom': '20px'
-            },
-            key: ''.concat('custom-formatter-js'),
+            key: 'code-panel',
             components: [
               {
                 type: 'textarea',
-                key: 'formatter',
+                key: 'code',
                 rows: 5,
                 editor: 'ace',
                 hideLabel: true,
-                input: true,
-                placeholder: `value = { name: 'FormatterClassName', params: {} };`
+                input: true
               },
               {
                 type: 'htmlelement',
                 tag: 'div',
-                content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+                content: '<p>Enter custom javascript code.</p>'
               }
             ],
             conditional: {
@@ -97,8 +93,8 @@ export default [
             alwaysEnabled: false,
             type: 'textfield',
             input: true,
-            key: 'trigger',
-            placeholder: 'Enter event trigger',
+            key: 'eventName',
+            placeholder: 'Enter event name',
             widget: {
               type: ''
             },
