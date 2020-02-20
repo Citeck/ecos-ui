@@ -201,13 +201,13 @@ class RecordActionsService {
         })
       );
     } else {
-      return Promise.all(
+      return Promise.resolve(
         executor.groupExec({
           records: [Records.get(records)],
           action
         })
       ).then(result => {
-        return result[0];
+        return lodash.isArray(result) ? result[0] : result;
       });
     }
   }

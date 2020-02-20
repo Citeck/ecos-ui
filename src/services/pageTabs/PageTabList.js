@@ -91,7 +91,12 @@ class PageTabList {
       const indexTo = this.getPlaceTab({ currentTabIndex, last });
 
       if (exist(currentTabIndex)) {
-        this.changeOne({ updates: tab, tab });
+        const updates = {
+          ...tab,
+          isActive: this.equals(this.activeTab, tab) || tab.isActive
+        };
+
+        this.changeOne({ updates, tab });
         this.move(currentTabIndex, indexTo);
       } else {
         this.add(tab, indexTo);
