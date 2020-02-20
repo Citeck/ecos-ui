@@ -25,12 +25,14 @@ class Hour extends Component {
       eq: PropTypes.number
     }),
     updatingInfo: PropTypes.object,
+    notInteger: PropTypes.bool,
     onChange: PropTypes.func,
     onReset: PropTypes.func
   };
 
   static defaultProps = {
     count: 0,
+    notInteger: false,
     color: '#b7b7b7',
     settings: {}
   };
@@ -137,11 +139,24 @@ class Hour extends Component {
   };
 
   handleChangeValue = event => {
-    let value = parseInt(event.target.value.replace(/\D/g, ''), 10);
+    const { notInteger } = this.props;
+    let value = event.target.value.replace(/[^0-9\.,]/g, '');
 
-    if (Number.isNaN(value)) {
-      value = 0;
+    if (notInteger) {
+      // value = parseFloat(value);
+    } else {
+      value = parseInt(value.replace(/\D/g, ''), 10);
+
+      if (Number.isNaN(value)) {
+        value = 0;
+      }
     }
+
+    console.warn(value, event.target.value);
+
+    // if (Number.isNaN(value)) {
+    //   value = 0;
+    // }
 
     this.setState({ value, isChanged: true });
   };
