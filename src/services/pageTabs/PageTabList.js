@@ -63,12 +63,13 @@ class PageTabList {
     this.tabs = { tabs, params };
 
     if (!!activeUrl) {
-      const tab = this.existTab({ link: activeUrl, isActive: true });
+      const newTab = { link: activeUrl, isActive: true };
+      const tab = this.existTab(newTab);
 
       if (tab) {
         this.activate(tab);
       } else {
-        this.setTab(tab);
+        this.setTab(newTab);
       }
     }
   }
