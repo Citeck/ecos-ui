@@ -23,4 +23,8 @@ export default class Cache {
   remove = key => {
     return this.#map.delete(key + this.#suffix);
   };
+
+  clear = () => {
+    this.#map.clear();
+  };
 }

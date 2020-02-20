@@ -1,8 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
-import { DASHBOARD_DEFAULT_KEY, QueryEntityKeys, SourcesId } from '../constants';
+import { SourcesId } from '../constants';
 import { RecordService } from './recordService';
 import Components from '../components/widgets/Components';
 import Records from '../components/Records';
@@ -13,8 +12,9 @@ import DashboardService from '../services/dashboard';
 const defaultAttr = {
   config: 'config?json',
   authority: 'authority',
-  typeRef: 'typeRef?id',
-  type: 'typeRef.dashboardType?str',
+  user: 'authority',
+  type: 'typeRef.inhDashboardType?str',
+  key: 'typeRef?id',
   id: 'id'
 };
 
@@ -30,37 +30,48 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardKeysByRef = function*(recordRef) {
-    const result = yield Records.get(recordRef)
-      .load('.atts(n:"_dashboardKey"){str,disp}')
-      .then(response => response);
+    let parents;
+    if (recordRef) {
+      const recType = yield Records.get(recordRef).load('_etype?id');
+      parents = yield Records.get(recType).load('.atts(n:"parents"){id, disp}');
+    } else {
+      const userDashboardId = 'emodel/type@user-dashboard';
+      parents = [
+        {
+          id: userDashboardId,
+          disp: yield Records.get(userDashboardId).load('.disp')
+        }
+      ];
+    }
 
     let dashboardKeys = [];
 
-    if (!isEmpty(result)) {
-      dashboardKeys = result.map(item => ({
-        key: item.str,
-        displayName: t(item.disp)
-      }));
-      dashboardKeys.push({ key: DASHBOARD_DEFAULT_KEY, displayName: t('dashboard-settings.default') });
+    for (let p of parents) {
+      dashboardKeys.push({
+        key: p.id,
+        displayName: p.disp
+      });
     }
 
     return dashboardKeys;
   };
 
   saveDashboardConfig = ({ identification, config }) => {
-    const { key, user, type } = identification;
+    const { key, user } = identification;
 
     const record = Records.get('eapps/module@ui/dashboard$');
 
-    record.att(QueryEntityKeys.CONFIG_JSON, config);
-    record.att(QueryEntityKeys.USER, user);
-    record.att(QueryEntityKeys.KEY, key || DASHBOARD_DEFAULT_KEY);
-    record.att(QueryEntityKeys.TYPE, type);
+    record.att('config?json', config);
+    record.att('authority?str', user);
+    record.att('typeRef', key.replace('emodel/type@', 'model/type$'));
 
-    return record.save().then(response => response);
+    return record.save().then(response => {
+      cache.clear();
+      return response;
+    });
   };
 
-  getDashboardByOneOf = ({ dashboardId, recordRef, off = {} }) => {
+  getDashboardByOneOf = ({ dashboardId, recordRef }) => {
     if (!isEmpty(dashboardId)) {
       return this.getDashboardById(dashboardId);
     }
@@ -80,7 +91,7 @@ export class DashboardApi extends RecordService {
         sourceId: SourcesId.DASHBOARD,
         query: {
           typeRef,
-          user
+          authority: user
         }
       },
       { ...defaultAttr }
@@ -91,7 +102,7 @@ export class DashboardApi extends RecordService {
     let recType = null;
 
     if (recordRef) {
-      recType = yield Records.get(recordRef).load('_etype{.id,dashboardType}');
+      recType = yield Records.get(recordRef).load('_etype?id');
     }
 
     const user = getCurrentUserName();
@@ -176,22 +187,18 @@ export class DashboardApi extends RecordService {
   };
 
   checkExistDashboard = function*({ key, type, user }) {
-    return yield Records.queryOne(
-      {
-        sourceId: SourcesId.DASHBOARD,
-        query: {
-          type,
-          user,
-          key
-        }
-      },
-      { user: QueryEntityKeys.USER }
-    ).then(response => {
-      const resUser = get(response, 'user', null);
-
+    return yield Records.queryOne({
+      sourceId: SourcesId.DASHBOARD,
+      query: {
+        typeRef: key,
+        authority: user,
+        includeForAll: false,
+        expandType: false
+      }
+    }).then(response => {
       return {
-        exist: !isEmpty(response) && (!resUser || resUser === user),
-        id: get(response, 'id', null)
+        exist: !!response,
+        id: ''
       };
     });
   };
