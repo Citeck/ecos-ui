@@ -1,8 +1,10 @@
-import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
-import Records from '../Records';
 import lodash from 'lodash';
+
 import { t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
+import Records from '../Records';
+import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
+import { DefaultActionTypes } from './DefaultActions';
 
 const DEFAULT_MODEL = {
   name: '',
@@ -213,7 +215,13 @@ class RecordActionsService {
   }
 
   getActionCreateVariants() {
-    let types = ['download', 'view', 'edit', 'delete', 'record-actions'];
+    let types = [
+      DefaultActionTypes.DOWNLOAD,
+      DefaultActionTypes.VIEW,
+      DefaultActionTypes.EDIT,
+      DefaultActionTypes.DELETE,
+      'record-actions'
+    ];
 
     return types.map(type => {
       const formKey = 'action_' + type;

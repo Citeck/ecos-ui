@@ -6,6 +6,7 @@ import { backExecuteAction, getActions, runExecuteAction, setActions } from '../
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import PageService from '../services/PageService';
+import { DefaultActionTypes } from '../components/Records/actions';
 import { URL } from '../constants';
 
 function* sagaGetActions({ api, logger }, { payload }) {
@@ -34,7 +35,7 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
       yield put(setNotificationMessage(t('records-actions.action-failed')));
     }
 
-    if (action.type === 'delete') {
+    if (action.type === DefaultActionTypes.DELETE) {
       const location = yield select(state => state.router.location);
       const { pathname, search } = location;
       const isShowTabs = yield select(state => get(state, 'pageTabs.isShow', false));
