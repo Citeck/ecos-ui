@@ -240,7 +240,7 @@ class BaseTimesheet extends Component {
               color={eventItem.color}
               count={count}
               settings={eventItem.hours}
-              notInteger={eventItem.name === ServerEventTypes.DAYTIME_WORK}
+              halfHour={eventItem.name === ServerEventTypes.DAYTIME_WORK}
               onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value, userName)}
               onReset={value => this.handleResetEventHours(eventItem.name, day.number, value, userName)}
               updatingInfo={get(updatingHours, keyHour, null)}
