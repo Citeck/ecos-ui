@@ -273,5 +273,5 @@ export const getLinkWithout = params => {
     delete query[param];
   });
 
-  return parsed.url + queryString.stringify(query);
+  return `${parsed.url}?${queryString.stringify(query)}`;
 };

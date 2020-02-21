@@ -1,7 +1,7 @@
 import queryString from 'query-string';
 import get from 'lodash/get';
 
-import { t } from '../helpers/util';
+import { getCurrentUserName, t } from '../helpers/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
 import { URL } from '../constants';
 import { decodeLink, getLinkWithout, isNewVersionPage, SearchKeys } from '../helpers/urls';
@@ -122,7 +122,7 @@ export default class PageService {
   static parseEvent = ({ event }) => {
     const { type, currentTarget, params } = event || {};
     const linkIgnoreAttr = IGNORE_TABS_HANDLER_ATTR_NAME;
-    const currentLink = window.location.href;
+    const currentLink = window.location.href.replace(window.location.origin, '');
 
     if (type === Events.CHANGE_URL_LINK_EVENT) {
       const { openNewTab, openNewBrowserTab, reopenBrowserTab, openInBackground, link, ...props } = params || {};
@@ -191,9 +191,9 @@ export default class PageService {
     };
   };
 
-  static setWhereLinkOpen = ({ username, parentLink, subsidiaryLink }) => {
+  static setWhereLinkOpen = ({ parentLink, subsidiaryLink }) => {
     if (isExistLocalStorage()) {
-      const key = getKeyHistory(username);
+      const key = getKeyHistory();
       const history = getData(key) || {};
       const keyLink = PageService.keyId({ link: subsidiaryLink });
       const parent = getLinkWithout({
@@ -217,9 +217,9 @@ export default class PageService {
     }
   };
 
-  static getWhereLinkOpen = ({ username, subsidiaryLink }) => {
+  static getWhereLinkOpen = ({ subsidiaryLink }) => {
     if (isExistLocalStorage()) {
-      const key = getKeyHistory(username);
+      const key = getKeyHistory();
       const history = getData(key) || {};
       const keyLink = PageService.keyId({ link: subsidiaryLink });
 
@@ -256,6 +256,6 @@ function getDefaultPage() {
   });
 }
 
-function getKeyHistory(username) {
-  return 'transitions-history/v3/' + username;
+function getKeyHistory() {
+  return 'ecos-ui-transitions-history/v3/user-' + getCurrentUserName();
 }

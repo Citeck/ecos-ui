@@ -39,16 +39,14 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
       const location = yield select(state => state.router.location);
       const { pathname, search } = location;
       const isShowTabs = yield select(state => get(state, 'pageTabs.isShow', false));
-      const home = URL.DASHBOARD;
-      if (isShowTabs) {
-        const page = PageService.getWhereLinkOpen({ subsidiaryLink: pathname + search }) || home; //todo
-        PageService.changeUrlLink(page);
+      const hasTabs = yield select(state => get(state, 'pageTabs.tabs.length', 0));
+
+      if (!isShowTabs && window.history.length > 1) {
+        window.history.back();
       } else {
-        if (window.history.length > 1) {
-          window.history.back();
-        } else {
-          window.history.go(URL.DASHBOARD);
-        }
+        const pageUrl = PageService.getWhereLinkOpen({ subsidiaryLink: pathname + search }) || (hasTabs > 1 ? null : URL.DASHBOARD);
+
+        PageService.changeUrlLink(pageUrl, { closeActiveTab: true });
       }
     }
   } catch (e) {

@@ -96,14 +96,15 @@ function* sagaSetTab({ api, logger }, { payload }) {
   try {
     const { data: initData, params } = payload;
 
-    if (!initData || !initData.link) {
-      return;
-    }
-
     const { closeActiveTab } = params || {};
 
     if (closeActiveTab) {
       PageTabList.delete(PageTabList.activeTab);
+      yield put(setTabs(PageTabList.storeList));
+    }
+
+    if (!initData || !initData.link) {
+      return;
     }
 
     const tab = PageTabList.setTab(initData, params);
