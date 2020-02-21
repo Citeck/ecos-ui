@@ -30,10 +30,25 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardKeysByRef = function*(recordRef) {
+    const baseTypeId = 'emodel/type@base';
+
     let parents;
     if (recordRef) {
       const recType = yield Records.get(recordRef).load('_etype?id');
-      parents = yield Records.get(recType).load('.atts(n:"parents"){id, disp}');
+      if (recType) {
+        parents = yield Records.get(recType).load('.atts(n:"parents"){id, disp}');
+
+        if (recType !== baseTypeId) {
+          parents = parents.filter(t => t.id !== baseTypeId);
+        }
+      } else {
+        parents = [
+          {
+            id: baseTypeId,
+            disp: yield Records.get(baseTypeId).load('.disp')
+          }
+        ];
+      }
     } else {
       const userDashboardId = 'emodel/type@user-dashboard';
       parents = [
@@ -52,7 +67,6 @@ export class DashboardApi extends RecordService {
         displayName: p.disp
       });
     }
-
     return dashboardKeys;
   };
 
