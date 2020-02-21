@@ -1,4 +1,6 @@
 import { put, select, takeLatest, takeEvery, call } from 'redux-saga/effects';
+import get from 'lodash/get';
+
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
   getSubordinatesTimesheetByParams,
@@ -12,15 +14,22 @@ import {
   setUpdatingEventDayHours,
   delegateTo,
   setDelegatedTo,
-  removeDelegation
+  removeDelegation,
+  setEvents
 } from '../../actions/timesheet/subordinates';
-import { selectTSubordinatesDelegatedTo, selectTSubordinatesMergedList, selectTSubordinatesUpdatingHours } from '../../selectors/timesheet';
+import {
+  selectTSubordinatesDelegatedTo,
+  selectTSubordinatesMergedList,
+  selectTSubordinatesUpdatingHours,
+  selectTSubordinatesList
+} from '../../selectors/timesheet';
 import { selectUserName } from '../../selectors/user';
 import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
 import CommonTimesheetService from '../../services/timesheet/common';
 import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
 import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
 import { DelegationTypes } from '../../constants/timesheet';
+import { deepClone } from '../../helpers/util';
 
 function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -88,6 +97,41 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   }
 }
 
+function* updateEvents({ value, number, userName, eventType }) {
+  try {
+    const list = deepClone(yield select(selectTSubordinatesList));
+    const subordinateIndex = list.findIndex(item => item.userName === userName);
+
+    if (!~subordinateIndex) {
+      return;
+    }
+
+    const eventsIndex = list[subordinateIndex].eventTypes.findIndex(event => event.name === eventType);
+
+    if (!~eventsIndex) {
+      return;
+    }
+
+    const event = list[subordinateIndex].eventTypes[eventsIndex];
+    let dayIndex = event.days.findIndex(day => day.number === number);
+
+    if (!~dayIndex) {
+      event.days.push({ number, hours: value });
+      dayIndex = event.days.length - 1;
+    }
+
+    if (!!value) {
+      event.days[dayIndex].hours = value;
+    } else {
+      event.days.splice(dayIndex, 1);
+    }
+
+    yield put(setEvents(list));
+  } catch (e) {
+    console.error('[timesheetSubordinates updateEvents] error', e.message);
+  }
+}
+
 function* sagaModifyEventDayHours({ api, logger }, { payload }) {
   const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
   const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload);
@@ -95,12 +139,13 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
   yield put(setUpdatingEventDayHours(firstState));
 
   try {
-    yield api.timesheetCommon.modifyEventHours({ ...payload });
+    yield call(api.timesheetCommon.modifyEventHours, { ...payload });
 
     const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
 
     yield put(setUpdatingEventDayHours(secondState));
+    yield* updateEvents(payload);
   } catch (e) {
     const updatingHoursState = yield select(selectTSubordinatesUpdatingHours);
     const thirdState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });

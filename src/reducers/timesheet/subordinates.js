@@ -9,7 +9,8 @@ import {
   setPopupMessage,
   setSubordinatesTimesheetByParams,
   setUpdatingEventDayHours,
-  setDelegatedTo
+  setDelegatedTo,
+  setEvents
 } from '../../actions/timesheet/subordinates';
 
 const initialState = {
@@ -66,6 +67,10 @@ export default handleActions(
       delegatedToRef: actions.payload.ref,
       delegatedToUserName: actions.payload.name,
       delegatedToDisplayName: actions.payload.displayName
+    }),
+    [setEvents]: (state, { payload }) => ({
+      ...state,
+      mergedList: payload
     })
   },
   initialState

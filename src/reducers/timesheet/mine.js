@@ -11,7 +11,8 @@ import {
   setStatus,
   setUpdatingEventDayHours,
   setUpdatingStatus,
-  setDelegatedTo
+  setDelegatedTo,
+  setEvents
 } from '../../actions/timesheet/mine';
 
 const initialState = {
@@ -83,6 +84,10 @@ export default handleActions(
       delegatedToRef: actions.payload.ref,
       delegatedToUserName: actions.payload.name,
       delegatedToDisplayName: actions.payload.displayName
+    }),
+    [setEvents]: (state, { payload }) => ({
+      ...state,
+      mergedEvents: payload
     })
   },
   initialState
