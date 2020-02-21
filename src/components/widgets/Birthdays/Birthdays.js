@@ -5,15 +5,15 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
-import Dashlet from '../../Dashlet/Dashlet';
 import { selectStateByKey } from '../../../selectors/birthdays';
 import { getBirthdays, init } from '../../../actions/birthdays';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
-import { Avatar, DefineHeight, Loader } from '../../common/index';
-import { Btn } from '../../common/btns/index';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
-import { changeUrlLink } from '../../PageTabs/PageTabs';
+import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import PageService from '../../../services/PageService';
+import { Avatar, DefineHeight, Loader } from '../../common';
+import { Btn } from '../../common/btns';
+import Dashlet from '../../Dashlet';
 
 import './style.scss';
 
@@ -56,7 +56,7 @@ class Birthdays extends Component {
       contentHeight: null,
       width: MIN_WIDTH_DASHLET_SMALL,
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getProperty(props.id, 'isCollapsed')
+      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
     };
 
     props.init();
@@ -95,11 +95,11 @@ class Birthdays extends Component {
 
   handleToggleContent = (isCollapsed = false) => {
     this.setState({ isCollapsed });
-    UserLocalSettingsService.setProperty(this.props.id, { isCollapsed });
+    UserLocalSettingsService.setDashletProperty(this.props.id, { isCollapsed });
   };
 
   handleGoToProfile = url => {
-    changeUrlLink(url, { openNewBrowserTab: true });
+    PageService.changeUrlLink(url, { openNewBrowserTab: true });
   };
 
   handleReloadData = () => {

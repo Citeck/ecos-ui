@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+
 import { deepClone } from '../../helpers/util';
 import CommonTimesheetService from '../../services/timesheet/common';
+import PageService from '../../services/PageService';
 import { getTotalCounts } from '../../actions/timesheet/common';
-import { changeUrlLink } from '../PageTabs/PageTabs';
 import { Tabs } from './';
 
 import './style.scss';
@@ -58,7 +59,7 @@ class RouteTypeTabs extends React.Component {
       tab.isActive = index === tabIndex;
 
       if (tab.isActive) {
-        changeUrlLink(tab.link);
+        PageService.changeUrlLink(tab.link);
       }
     });
 

@@ -92,8 +92,11 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     this.createDescription(this.element);
 
-    // this.attachLogic();
     this.createInlineEditSaveAndCancelButtons();
+
+    this.attachRefreshOn();
+    // this.autofocus();
+    this.attachLogic();
   }
 
   renderReactComponent(config = {}) {
@@ -152,6 +155,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
   onValueChange(value) {
     this.dataValue = value;
+    this.setPristine(false);
     this.triggerChange();
     this.refreshDOM();
   }

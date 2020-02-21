@@ -3,13 +3,20 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ContentEditable from 'react-contenteditable';
 import { sortableHandle } from 'react-sortable-hoc';
+import { Tooltip } from 'reactstrap';
+import uuidV4 from 'uuidv4';
 
 import { commonOneTabDefaultProps, commonOneTabPropTypes } from './utils';
 import { placeCaretAtEnd, t } from '../../../helpers/util';
 import ClickOutside from '../../ClickOutside/ClickOutside';
-import { Icon } from '../index';
+import { Icon } from '../';
 
 const EMPTY_STR = '';
+const Labels = {
+  BUTTON_EDIT: 'dashboard-settings.tabs.button.edit',
+  BUTTON_DELETE: 'dashboard-settings.tabs.button.delete',
+  LABEL_OPEN_MENU: 'dashboard-settings.tabs.label.menu'
+};
 const DragHandle = sortableHandle(() => <Icon className="icon-drag ecos-tab-actions__icon ecos-tab-actions__icon_paler" />);
 
 class Tab extends React.Component {
@@ -36,15 +43,21 @@ class Tab extends React.Component {
     this.labelRef = React.createRef();
 
     this.state = {
+      id: `tab-${uuidV4()}`,
       editing: props.isNew,
+      isOpenMenu: false,
       text: props.isNew ? EMPTY_STR : props.label,
       defText: `${t('page-tabs.tab-name-default')} ${props.index + 1}`
     };
   }
 
+  componentDidMount() {
+    document.addEventListener('click', this.onCloseMenu);
+  }
+
   shouldComponentUpdate(nextProps, nextState) {
     const { index, isActive, hasHover, label, hasHint, disabled, isNew } = this.props;
-    const { editing, text } = this.state;
+    const { editing, text, isOpenMenu } = this.state;
     let needUpdate = false;
 
     if (
@@ -56,7 +69,8 @@ class Tab extends React.Component {
       nextProps.disabled !== disabled ||
       nextProps.isNew !== isNew ||
       nextState.editing !== editing ||
-      nextState.text !== text
+      nextState.text !== text ||
+      nextState.isOpenMenu !== isOpenMenu
     ) {
       needUpdate = true;
     }
@@ -68,6 +82,10 @@ class Tab extends React.Component {
     if (this.props.isNew && prevProps.isNew) {
       this.setFocus();
     }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.onCloseMenu);
   }
 
   get isEditable() {
@@ -135,6 +153,14 @@ class Tab extends React.Component {
     e.stopPropagation();
   };
 
+  onClose = e => {
+    const { text } = this.state;
+
+    e.persist();
+
+    text ? this.onClear(e) : this.onDelete(e);
+  };
+
   onClear = e => {
     this.setState({ text: EMPTY_STR }, this.setFocus.bind(this, true));
     e.stopPropagation();
@@ -164,6 +190,88 @@ class Tab extends React.Component {
     }
   };
 
+  onCloseMenu = () => {
+    if (!this.state.isOpenMenu) {
+      return;
+    }
+
+    this.setState({ isOpenMenu: false });
+  };
+
+  onToggleMenu = e => {
+    this.setState({ isOpenMenu: !this.state.isOpenMenu });
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  renderMenu() {
+    const isEdit = this.isEditable;
+
+    if (isEdit) {
+      return null;
+    }
+
+    const { isActive } = this.props;
+    const { isOpenMenu, id } = this.state;
+    const menu = [];
+
+    menu.push(
+      <div key="edit" onClick={this.startEdit} className="ecos-tab-actions__menu-item">
+        <Icon className="icon-edit ecos-tab-actions__menu-item-icon" />
+        <span className="ecos-tab-actions__menu-item-title">{t(Labels.BUTTON_EDIT)}</span>
+      </div>
+    );
+    menu.push(
+      <div key="delete" onClick={this.onDelete} className="ecos-tab-actions__menu-item ecos-tab-actions__menu-item_warning">
+        <Icon className="icon-delete ecos-tab-actions__menu-item-icon" />
+        <span className="ecos-tab-actions__menu-item-title">{t(Labels.BUTTON_DELETE)}</span>
+      </div>
+    );
+
+    return (
+      <>
+        <Icon
+          data-ignore-close-menu
+          id={id}
+          onClick={this.onToggleMenu}
+          title={t(Labels.LABEL_OPEN_MENU)}
+          className={classNames('ecos-tab-actions__icon ecos-tab-actions__icon_menu', {
+            'icon-menu-small': !isOpenMenu,
+            'icon-menu-small-press ecos-tab-actions__icon_menu-opened': isOpenMenu,
+            'ecos-tab-actions__icon_menu-active-tab': isActive
+          })}
+        />
+        <Tooltip
+          placement="bottom-start"
+          target={id}
+          trigger="click"
+          boundariesElement="window"
+          isOpen={isOpenMenu}
+          toggle={this.onToggleMenu}
+          hideArrow
+          className="ecos-base-tooltip ecos-base-tooltip_opaque"
+          innerClassName="ecos-base-tooltip-inner ecos-tab-actions__menu"
+        >
+          {menu}
+        </Tooltip>
+      </>
+    );
+  }
+
+  renderActions() {
+    const isEdit = this.isEditable;
+    const actions = [];
+
+    if (isEdit) {
+      actions.push(<Icon key="close" className="icon-close ecos-tab-actions__icon" onClick={this.onClose} />);
+    } else {
+      actions.push(<React.Fragment key="menu">{this.renderMenu()}</React.Fragment>);
+      actions.push(<DragHandle key="drag" />);
+    }
+
+    return <div className="ecos-tab-actions">{actions}</div>;
+  }
+
   render() {
     const { isActive, onClick, hasHover, hasHint, disabled, className, isNew } = this.props;
     const { text, defText } = this.state;
@@ -189,14 +297,9 @@ class Tab extends React.Component {
           onChange={this.onChange}
           onKeyPress={this.onKeyPress}
           onClick={this.onClick}
+          onDoubleClick={this.startEdit}
         />
-        <div className="ecos-tab-actions">
-          {!isEdit && <Icon className="icon-edit ecos-tab-actions__icon ecos-tab-actions__icon_hidden" onClick={this.startEdit} />}
-          {!isEdit && <Icon className="icon-delete ecos-tab-actions__icon ecos-tab-actions__icon_hidden" onClick={this.onDelete} />}
-          {isEdit && text && <Icon className="icon-close ecos-tab-actions__icon" onClick={this.onClear} />}
-          {isEdit && !text && <Icon className="icon-close ecos-tab-actions__icon" onClick={this.onDelete} />}
-          {!isEdit && <DragHandle />}
-        </div>
+        {this.renderActions()}
       </ClickOutside>
     );
   }

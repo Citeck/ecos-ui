@@ -76,7 +76,10 @@ const ListItemLink = ({
           listId = params.listId || 'main';
         }
 
-        if (isNewVersionPage()) {
+        let uiType = params.uiType || '';
+        let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
+
+        if (isNewUILink) {
           targetUrl = getJournalPageUrl({
             journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
             journalId: params.journalRef,
@@ -88,7 +91,6 @@ const ListItemLink = ({
           ignoreTabHandler = false;
           attributes.target = '_blank';
           attributes.rel = 'noopener noreferrer';
-          // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
         } else {
           targetUrl = PAGE_PREFIX;
           if (params.siteName) {
@@ -133,7 +135,6 @@ const ListItemLink = ({
           ignoreTabHandler = false;
           attributes.target = '_blank';
           attributes.rel = 'noopener noreferrer';
-          // attributes[REMOTE_TITLE_ATTR_NAME] = true; // TODO
 
           if (!isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
             const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');

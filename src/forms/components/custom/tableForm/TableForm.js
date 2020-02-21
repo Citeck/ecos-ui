@@ -33,7 +33,8 @@ export default class TableFormComponent extends BaseReactComponent {
         isStaticModalTitle: false,
         customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
-        displayElementsJS: {}
+        displayElementsJS: '',
+        nonSelectableRowsJS: ''
       },
       ...extend
     );
@@ -62,16 +63,24 @@ export default class TableFormComponent extends BaseReactComponent {
   checkConditions(data) {
     let result = super.checkConditions(data);
 
-    if (!this.component.displayElementsJS) {
-      return result;
+    if (this.component.displayElementsJS) {
+      let displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
+      if (!_.isEqual(displayElements, this.displayElementsValue)) {
+        this.displayElementsValue = displayElements;
+        this.setReactProps({
+          displayElements
+        });
+      }
     }
 
-    let displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
-    if (!_.isEqual(displayElements, this.displayElementsValue)) {
-      this.displayElementsValue = displayElements;
-      this.setReactProps({
-        displayElements
-      });
+    if (this.component.nonSelectableRowsJS) {
+      let nonSelectableRows = this.evaluate(this.component.nonSelectableRowsJS, {}, 'value', true);
+      if (!_.isEqual(nonSelectableRows, this.nonSelectableRows)) {
+        this.nonSelectableRows = nonSelectableRows;
+        this.setReactProps({
+          nonSelectableRows
+        });
+      }
     }
 
     return result;

@@ -1,10 +1,11 @@
 import React, { Component, lazy, Suspense } from 'react';
+import classNames from 'classnames';
+import get from 'lodash/get';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
 import { NotificationContainer } from 'react-notifications';
-import classNames from 'classnames';
-import get from 'lodash/get';
+import { push } from 'connected-react-router';
 
 import Header from '../Header';
 import Notification from '../Notification';
@@ -12,9 +13,10 @@ import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
 
-import { changeActiveTab, initTabs, getTabTitle, setTabs } from '../../actions/pageTabs';
 import { initMenuSettings } from '../../actions/menu';
+import { setTab } from '../../actions/pageTabs';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
+import PageService, { Events } from '../../services/PageService';
 
 import './App.scss';
 
@@ -33,11 +35,27 @@ const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 
 class App extends Component {
   componentDidMount() {
-    const { initTabs, initMenuSettings } = this.props;
+    const { initMenuSettings } = this.props;
 
-    initTabs();
     initMenuSettings();
+    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
   }
+
+  handleCustomEvent = event => {
+    const {
+      params: { link = '' }
+    } = event;
+    const { isShowTabs, isMobile, push, setTab } = this.props;
+
+    if (!(isShowTabs && !this.isOnlyContent && !isMobile)) {
+      push.call(this, link);
+      return;
+    }
+
+    const { reopen, closeActiveTab, ...data } = PageService.definePropsLink({ event }) || {};
+
+    setTab({ data, params: { reopen, closeActiveTab } });
+  };
 
   get isOnlyContent() {
     const url = get(this.props, ['history', 'location', 'pathname'], '/');
@@ -95,20 +113,9 @@ class App extends Component {
   }
 
   renderTabs() {
-    const { changeActiveTab, isShow, tabs, setTabs, getTabTitle, isLoadingTitle, isMobile, tabsInited } = this.props;
+    const { isShowTabs, isMobile } = this.props;
 
-    return (
-      <PageTabs
-        homepageLink={URL.DASHBOARD}
-        isShow={isShow && !this.isOnlyContent && !isMobile}
-        inited={tabsInited}
-        tabs={tabs}
-        saveTabs={setTabs}
-        changeActiveTab={changeActiveTab}
-        getTabTitle={getTabTitle}
-        isLoadingTitle={isLoadingTitle}
-      />
-    );
+    return <PageTabs homepageLink={URL.DASHBOARD} isShow={isShowTabs && !this.isOnlyContent && !isMobile} />;
   }
 
   renderReduxModal() {
@@ -194,19 +201,14 @@ const mapStateToProps = state => ({
   isMobile: get(state, ['view', 'isMobile']),
   theme: get(state, ['view', 'theme']),
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
-  isShow: get(state, ['pageTabs', 'isShow'], false),
-  tabs: get(state, ['pageTabs', 'tabs'], []),
-  tabsInited: get(state, ['pageTabs', 'inited'], false),
-  isLoadingTitle: get(state, ['pageTabs', 'isLoadingTitle']),
+  isShowTabs: get(state, ['pageTabs', 'isShow'], false),
   menuType: get(state, ['menu', 'type'])
 });
 
 const mapDispatchToProps = dispatch => ({
-  initTabs: () => dispatch(initTabs()),
-  setTabs: tabs => dispatch(setTabs(tabs)),
-  changeActiveTab: tabs => dispatch(changeActiveTab(tabs)),
-  getTabTitle: params => dispatch(getTabTitle(params)),
-  initMenuSettings: () => dispatch(initMenuSettings())
+  initMenuSettings: () => dispatch(initMenuSettings()),
+  setTab: params => dispatch(setTab(params)),
+  push: url => dispatch(push(url))
 });
 
 export default withRouter(

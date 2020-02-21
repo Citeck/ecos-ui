@@ -22,6 +22,7 @@ import DataGridAssoc from './components/custom/datagridAssoc';
 import EcosSelect from './components/custom/ecosSelect';
 import HorizontalLine from './components/custom/horizontalLine';
 import SelectJournal from './components/custom/selectJournal';
+import SelectAction from './components/custom/selectAction';
 import SelectOrgstruct from './components/custom/selectOrgstruct';
 import TableForm from './components/custom/tableForm';
 
@@ -46,6 +47,7 @@ Components.setComponents({
   panel: Panel,
   phoneNumber: PhoneNumber,
   selectJournal: SelectJournal,
+  selectAction: SelectAction,
   selectOrgstruct: SelectOrgstruct,
   tableForm: TableForm,
   tabs: Tabs,

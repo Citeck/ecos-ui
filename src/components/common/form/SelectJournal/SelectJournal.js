@@ -2,25 +2,25 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
+import isEqual from 'lodash/isEqual';
+import lodashGet from 'lodash/get';
+
+import { t } from '../../../../helpers/util';
+import { JournalsApi } from '../../../../api/journalsApi';
+import { EcosModal, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
-import Grid from '../../../common/grid/Grid/Grid';
+import { Grid } from '../../../common/grid';
 import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/Mapper';
-import Pagination from '../../../common/Pagination/Pagination';
-import Loader from '../../../common/Loader/Loader';
 import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
-import EcosModal from '../../EcosModal';
+import Records from '../../../Records';
 import InputView from './InputView';
 import ViewMode from './ViewMode';
 import Filters from './Filters';
 import Search from './Search';
 import CreateVariants from './CreateVariants';
 import FiltersProvider from './Filters/FiltersProvider';
-import { JournalsApi } from '../../../../api/journalsApi';
-import { t } from '../../../../helpers/util';
+
 import './SelectJournal.scss';
-import Records from '../../../Records';
-import isEqual from 'lodash/isEqual';
-import lodashGet from 'lodash/get';
 
 const paginationInitState = {
   skipCount: 0,
@@ -73,7 +73,7 @@ export default class SelectJournal extends Component {
   }
 
   componentDidMount() {
-    const { defaultValue, multiple, journalId, onError, isSelectModalOpen } = this.props;
+    const { defaultValue, multiple, journalId, onError, isSelectModalOpen, initCustomPredicate } = this.props;
 
     if (!journalId) {
       const err = new Error('The "journalId" config is required!');
@@ -94,6 +94,10 @@ export default class SelectJournal extends Component {
 
     if (isSelectModalOpen) {
       this.openSelectModal();
+    }
+
+    if (initCustomPredicate) {
+      this.setCustomPredicate(initCustomPredicate);
     }
   }
 
@@ -569,7 +573,8 @@ export default class SelectJournal extends Component {
       onBlur,
       renderView,
       isFullScreenWidthModal,
-      presetFilterPredicates
+      presetFilterPredicates,
+      isSelectedValueAsLink
     } = this.props;
     const {
       isGridDataReady,
@@ -605,7 +610,8 @@ export default class SelectJournal extends Component {
       autoFocus,
       onBlur,
       hideEditRowButton,
-      hideDeleteRowButton
+      hideDeleteRowButton,
+      isSelectedValueAsLink
     };
 
     let selectModalTitle = t('select-journal.select-modal.title');
@@ -723,6 +729,12 @@ export default class SelectJournal extends Component {
   }
 }
 
+const predicateShape = PropTypes.shape({
+  t: PropTypes.string.isRequired,
+  att: PropTypes.string.isRequired,
+  val: PropTypes.any
+});
+
 SelectJournal.propTypes = {
   journalId: PropTypes.string,
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
@@ -735,17 +747,13 @@ SelectJournal.propTypes = {
   hideEditRowButton: PropTypes.bool,
   hideDeleteRowButton: PropTypes.bool,
   displayColumns: PropTypes.array,
-  presetFilterPredicates: PropTypes.arrayOf(
-    PropTypes.shape({
-      t: PropTypes.string.isRequired,
-      att: PropTypes.string.isRequired,
-      val: PropTypes.any
-    })
-  ),
+  presetFilterPredicates: PropTypes.arrayOf(predicateShape),
+  initCustomPredicate: PropTypes.oneOfType([PropTypes.arrayOf(predicateShape), predicateShape]),
   viewOnly: PropTypes.bool,
   renderView: PropTypes.func,
   searchField: PropTypes.string,
-  isSelectModalOpen: PropTypes.bool
+  isSelectModalOpen: PropTypes.bool,
+  isSelectedValueAsLink: PropTypes.bool
 };
 
 SelectJournal.defaultProps = {

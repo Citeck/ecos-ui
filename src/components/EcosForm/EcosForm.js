@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
 import CustomEventEmitter from '../../forms/EventEmitter';
-import { cloneDeep } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import debounce from 'lodash/debounce';
 
 import '../../forms';
 import Records from '../Records';
@@ -12,6 +13,7 @@ import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import { getCurrentLocale, isMobileDevice, t } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
+import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -264,76 +266,83 @@ class EcosForm extends React.Component {
     }
   };
 
-  submitForm(form, submission) {
-    let self = this;
+  submitForm = debounce(
+    (form, submission) => {
+      let self = this;
 
-    let inputs = EcosFormUtils.getFormInputs(form.component);
-    let keysMapping = EcosFormUtils.getKeysMapping(inputs);
-    let inputByKey = EcosFormUtils.getInputByKey(inputs);
+      let inputs = EcosFormUtils.getFormInputs(form.component);
+      let keysMapping = EcosFormUtils.getKeysMapping(inputs);
+      let inputByKey = EcosFormUtils.getInputByKey(inputs);
 
-    let record = Records.get(this.state.recordId);
+      let record = Records.get(this.state.recordId);
 
-    if (submission.state) {
-      record.att('_state', submission.state);
-    }
-
-    for (let key in submission.data) {
-      if (submission.data.hasOwnProperty(key)) {
-        let value = submission.data[key];
-        let input = inputByKey[key];
-
-        if (input && input.type === 'horizontalLine') {
-          continue;
-        }
-
-        value = EcosFormUtils.processValueBeforeSubmit(value, input, keysMapping);
-
-        record.att(keysMapping[key] || key, value);
+      if (submission.state) {
+        record.att('_state', submission.state);
       }
-    }
 
-    const onSubmit = (persistedRecord, form, record) => {
-      Records.releaseAll(this.state.containerId);
-      if (self.props.onSubmit) {
-        self.props.onSubmit(persistedRecord, form, record);
-      }
-    };
+      for (let key in submission.data) {
+        if (submission.data.hasOwnProperty(key)) {
+          let value = submission.data[key];
+          let input = inputByKey[key];
 
-    const resetOutcomeButtonsValues = () => {
-      const allComponents = form.getAllComponents();
-      const outcomeButtonsKeys = [];
+          if (input && input.type === 'horizontalLine') {
+            continue;
+          }
 
-      allComponents.forEach(item => {
-        if (item.component.type === 'button' && item.component.key.startsWith('outcome_')) {
-          outcomeButtonsKeys.push(item.component.key);
-        }
-      });
+          value = EcosFormUtils.processValueBeforeSubmit(value, input, keysMapping);
 
-      for (let field in form.data) {
-        if (!form.data.hasOwnProperty(field)) {
-          continue;
-        }
-
-        if (outcomeButtonsKeys.includes(field)) {
-          form.data[field] = undefined;
+          record.att(keysMapping[key] || key, value);
         }
       }
-    };
 
-    if (this.props.saveOnSubmit !== false) {
-      record
-        .save()
-        .then(persistedRecord => {
-          onSubmit(persistedRecord, form, record);
-        })
-        .catch(e => {
-          form.showErrors(e, true);
-          resetOutcomeButtonsValues();
+      const onSubmit = (persistedRecord, form, record) => {
+        Records.releaseAll(this.state.containerId);
+        if (self.props.onSubmit) {
+          self.props.onSubmit(persistedRecord, form, record);
+        }
+      };
+
+      const resetOutcomeButtonsValues = () => {
+        const allComponents = form.getAllComponents();
+        const outcomeButtonsKeys = [];
+
+        allComponents.forEach(item => {
+          if (item.component.type === 'button' && item.component.key.startsWith(OUTCOME_BUTTONS_PREFIX)) {
+            outcomeButtonsKeys.push(item.component.key);
+          }
         });
-    } else {
-      onSubmit(record, form);
+
+        for (let field in form.data) {
+          if (!form.data.hasOwnProperty(field)) {
+            continue;
+          }
+
+          if (outcomeButtonsKeys.includes(field)) {
+            form.data[field] = undefined;
+          }
+        }
+      };
+
+      if (this.props.saveOnSubmit !== false) {
+        record
+          .save()
+          .then(persistedRecord => {
+            onSubmit(persistedRecord, form, record);
+          })
+          .catch(e => {
+            form.showErrors(e, true);
+            resetOutcomeButtonsValues();
+          });
+      } else {
+        onSubmit(record, form);
+      }
+    },
+    3000,
+    {
+      leading: true,
+      trailing: false
     }
-  }
+  );
 
   onReload() {
     this.initForm({});

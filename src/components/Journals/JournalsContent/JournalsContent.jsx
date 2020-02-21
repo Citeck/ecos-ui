@@ -50,15 +50,20 @@ class JournalsContent extends Component {
   };
 
   render() {
-    let { stateId, showPreview, showPie, height } = this.props;
+    const { stateId, showPreview, showPie, height } = this.props;
 
     let cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} height={height} />];
-    if (showPreview)
+
+    if (showPreview) {
       cols = [
         <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} height={height} />,
         <Preview stateId={stateId} />
       ];
-    if (showPie) cols = [<Pie />];
+    }
+
+    if (showPie) {
+      cols = [<Pie />];
+    }
 
     return (
       <JournalsUrlManager stateId={stateId} params={{ showPreview }}>

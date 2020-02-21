@@ -18,8 +18,7 @@ import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
-import { getJournalsData, reloadGrid, search } from '../../actions/journals';
-import { setActiveTabTitle } from '../../actions/pageTabs';
+import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
 import { t, trigger } from '../../helpers/util';
 import { goToCardDetailsPage } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
@@ -46,7 +45,7 @@ const mapDispatchToProps = (dispatch, props) => {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     search: text => dispatch(search(w(text))),
-    setActiveTabTitle: text => dispatch(setActiveTabTitle(text))
+    restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting)))
   };
 };
 
@@ -59,13 +58,13 @@ class Journals extends Component {
       menuOpenAnimate: false,
       settingsVisible: false,
       showPreview: this.props.urlParams.showPreview,
-      showPie: false
+      showPie: false,
+      savedSetting: null
     };
   }
 
   componentDidMount() {
     this.getJournalsData();
-    this.setActiveTabTitle();
     trigger.call(this, 'onRender');
   }
 
@@ -77,28 +76,7 @@ class Journals extends Component {
       this.getJournalsData();
     }
 
-    this.setActiveTabTitle();
     trigger.call(this, 'onRender');
-  }
-
-  // TODO rid of this dirty hack.
-  setActiveTabTitle() {
-    const { journalConfig, pageTabsIsShow, setActiveTabTitle, activeTab } = this.props;
-
-    if (!journalConfig) {
-      return null;
-    }
-
-    const {
-      meta: { title = '' }
-    } = journalConfig;
-
-    if (pageTabsIsShow && title && activeTab) {
-      const newTitle = `${t('page-tabs.journal')} "${title}"`;
-      if (activeTab.title !== newTitle) {
-        setActiveTabTitle(newTitle);
-      }
-    }
   }
 
   refresh = () => {
@@ -117,8 +95,18 @@ class Journals extends Component {
     });
   };
 
+  resetSettings = savedSetting => {
+    this.setState({ savedSetting });
+  };
+
   toggleSettings = () => {
-    this.setState({ settingsVisible: !this.state.settingsVisible });
+    const { savedSetting, settingsVisible } = this.state;
+
+    if (savedSetting && settingsVisible) {
+      this.props.restoreJournalSettingData(savedSetting);
+    }
+
+    this.setState({ settingsVisible: !settingsVisible, savedSetting: null });
   };
 
   togglePreview = () => {
@@ -230,6 +218,7 @@ class Journals extends Component {
                     journalId={journalId}
                     onApply={this.toggleSettings}
                     onCreate={this.toggleSettings}
+                    onReset={this.resetSettings}
                   />
                 </Well>
               </EcosModal>

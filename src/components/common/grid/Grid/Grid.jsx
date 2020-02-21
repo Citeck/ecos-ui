@@ -5,6 +5,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
+import get from 'lodash/get';
 
 import { closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
@@ -25,13 +26,13 @@ const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
 const Selector = ({ mode, ...rest }) => (
   <div className="ecos-grid__checkbox">
-    <Checkbox checked={rest.checked} />
+    <Checkbox checked={rest.checked} disabled={rest.disabled} />
   </div>
 );
 
 const SelectorHeader = ({ indeterminate, ...rest }) => (
   <div className="ecos-grid__checkbox">
-    {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} /> : null}
+    {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} disabled={rest.disabled} /> : null}
     <div className={ECOS_GRID_CHECKBOX_DEVIDER_CLASS} />
   </div>
 );
@@ -142,14 +143,14 @@ class Grid extends Component {
         case 38:
           if (tr && tr.previousSibling) {
             this.getTrOptions(tr.previousSibling);
-            this.triggerRowClick(tr.previousSibling);
+            this.onRowClick(tr.previousSibling);
           }
 
           break;
         case 40:
           if (tr && tr.nextSibling) {
             this.getTrOptions(tr.nextSibling);
-            this.triggerRowClick(tr.nextSibling);
+            this.onRowClick(tr.nextSibling);
           }
           break;
         default:
@@ -176,6 +177,10 @@ class Grid extends Component {
         column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
       } else {
         column.formatter = column.customFormatter;
+      }
+
+      if (props.editable) {
+        column.editable = this.checkColumnEditable.bind(null, column);
       }
 
       return column;
@@ -216,7 +221,7 @@ class Grid extends Component {
     props.rowEvents = {
       onClick: e => {
         props.changeTrOptionsByRowClick && this.getTrOptions(e.currentTarget);
-        this.triggerRowClick(e.currentTarget);
+        this.onRowClick(e.currentTarget);
       },
       ...props.rowEvents
     };
@@ -231,6 +236,39 @@ class Grid extends Component {
 
     return props;
   }
+
+  checkColumnEditable = (...data) => {
+    const { editingRules } = this.props;
+    const [column, , row] = data;
+    const rowRules = editingRules[row.id];
+    const columnEditableStatus = get(column, 'params.editable');
+
+    /**
+     * If there are rules for editing the column
+     */
+    if (columnEditableStatus !== undefined) {
+      return columnEditableStatus;
+    }
+
+    /**
+     * If there is an editing rule for the entire row
+     */
+    if (typeof rowRules === 'boolean') {
+      return rowRules;
+    }
+
+    /**
+     * Validating a rule for a single cell
+     */
+    if (typeof rowRules === 'object') {
+      return get(rowRules, column.dataField, false);
+    }
+
+    /**
+     * Editing by default is prohibited.
+     */
+    return false;
+  };
 
   setHover = (tr = null, className, needRemove, nonHoveredTr) => {
     if (!tr) {
@@ -271,11 +309,6 @@ class Grid extends Component {
     return classList;
   };
 
-  triggerRowClick = tr => {
-    this.setHover(tr, ECOS_GRID_HOVERED_CLASS, true);
-    trigger.call(this, 'onRowClick', this.props.data[tr.rowIndex - 1]);
-  };
-
   getTrOptions = tr => {
     const { scrollLeft = 0 } = this._scrollValues;
     const height = tr.offsetHeight - 2;
@@ -293,10 +326,6 @@ class Grid extends Component {
       blurToSave: true,
       afterSaveCell: this.onEdit
     });
-  };
-
-  sort = e => {
-    trigger.call(this, 'onSort', e);
   };
 
   initFormatter = ({ editable, className }) => {
@@ -334,15 +363,16 @@ class Grid extends Component {
     column.headerFormatter = (column, colIndex) => {
       return (
         <HeaderFormatter
-          closeFilterEvent={CLOSE_FILTER_EVENT}
           filterable={filterable}
+          closeFilterEvent={CLOSE_FILTER_EVENT}
           filterValue={((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || ''}
+          onFilter={this.onFilter}
+          sortable={sortable}
+          onSort={this.onSort}
           ascending={((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending}
           column={column}
           colIndex={colIndex}
-          onFilter={this.onFilter}
           onDeviderMouseDown={this.getStartDeviderPosition}
-          onTextClick={sortable && this.sort}
         />
       );
     };
@@ -357,6 +387,7 @@ class Grid extends Component {
       mode: 'radio',
       classes: 'ecos-grid__tr_selected',
       selected: this._selected,
+      nonSelectable: props.nonSelectable || [],
       onSelect: row => {
         const selected = this._selected[0];
         const keyValue = row[this._keyField];
@@ -380,6 +411,7 @@ class Grid extends Component {
       mode: 'checkbox',
       classes: 'ecos-grid__tr_selected',
       selected: this._selected,
+      nonSelectable: props.nonSelectable || [],
       onSelect: (row, isSelect) => {
         const selected = this._selected;
         const keyValue = row[this._keyField];
@@ -406,17 +438,6 @@ class Grid extends Component {
     };
   }
 
-  onEdit = (oldValue, newValue, row, column) => {
-    if (oldValue !== newValue) {
-      trigger.call(this, 'onEdit', {
-        id: row[this._keyField],
-        attributes: {
-          [column.attribute]: column.formatExtraData.formatter.getId(newValue)
-        }
-      });
-    }
-  };
-
   toolsVisible = () => {
     return this._selected.length && this.getSelectedByPage(this.props.data, true).length;
   };
@@ -426,10 +447,6 @@ class Grid extends Component {
       const length = records.filter(record => record[this._keyField] === id).length;
       return onPage ? length : !length;
     });
-  };
-
-  onFilter = predicates => {
-    trigger.call(this, 'onFilter', predicates);
   };
 
   createCloseFilterEvent = () => {
@@ -504,6 +521,30 @@ class Grid extends Component {
     trigger.call(this, 'onMouseLeave', e);
   };
 
+  onRowClick = tr => {
+    this.setHover(tr, ECOS_GRID_HOVERED_CLASS, true);
+    trigger.call(this, 'onRowClick', this.props.data[tr.rowIndex - 1]);
+  };
+
+  onSort = e => {
+    trigger.call(this, 'onSort', e);
+  };
+
+  onFilter = predicates => {
+    trigger.call(this, 'onFilter', predicates);
+  };
+
+  onEdit = (oldValue, newValue, row, column) => {
+    if (oldValue !== newValue) {
+      trigger.call(this, 'onEdit', {
+        id: row[this._keyField],
+        attributes: {
+          [column.attribute]: column.formatExtraData.formatter.getId(newValue)
+        }
+      });
+    }
+  };
+
   onScrollStart = e => {
     this.triggerCloseFilterEvent(document.body);
     trigger.call(this, 'onScrollStart', e);
@@ -542,6 +583,12 @@ class Grid extends Component {
   };
 
   onDragEnter = e => {
+    const dataTypes = get(e, 'dataTransfer.types', []);
+
+    if (!dataTypes.includes('Files')) {
+      return;
+    }
+
     const target = e.target;
     const tr = closest(target, ECOS_GRID_ROW_CLASS);
 
@@ -618,7 +665,7 @@ class Grid extends Component {
       scrollStyle.autoHeight = props.autoHeight;
     }
 
-    const Scroll = ({ scrollable, children, style, refCallback }) =>
+    const Scroll = ({ scrollable, children, style, refCallback, autoHide }) =>
       scrollable ? (
         <Scrollbars
           ref={refCallback}
@@ -626,7 +673,8 @@ class Grid extends Component {
           onScrollFrame={this.onScrollFrame}
           onScrollStop={this.onScrollStop}
           style={style}
-          hideTracksWhenNotNeeded={true}
+          autoHide={autoHide}
+          hideTracksWhenNotNeeded
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
           renderTrackHorizontal={props => <div {...props} className="ecos-grid__h-scroll" />}
         >
@@ -654,9 +702,9 @@ class Grid extends Component {
         >
           {toolsVisible ? this.tools(props.selected) : null}
 
-          <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback}>
+          <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback} autoHide={props.scrollAutoHide}>
             <div ref={this.props.forwardedRef}>
-              <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={ECOS_GRID_ROW_CLASS} />
+              <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={classNames(ECOS_GRID_ROW_CLASS, props.rowClassName)} />
             </div>
             {this.inlineTools()}
           </Scroll>
@@ -676,6 +724,7 @@ class Grid extends Component {
 
 Grid.propTypes = {
   className: PropTypes.string,
+  rowClassName: PropTypes.string,
   keyField: PropTypes.string,
   dataField: PropTypes.string,
 
@@ -687,12 +736,15 @@ Grid.propTypes = {
   selectAll: PropTypes.bool,
   scrollable: PropTypes.bool,
   fixedHeader: PropTypes.bool,
+  scrollAutoHide: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,
   filters: PropTypes.array,
   sortBy: PropTypes.array,
   selected: PropTypes.array,
+  nonSelectable: PropTypes.array,
+  editingRules: PropTypes.object,
 
   onRowDrop: PropTypes.func,
   onDragOver: PropTypes.func,

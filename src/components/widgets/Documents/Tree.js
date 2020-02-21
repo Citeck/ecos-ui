@@ -11,7 +11,9 @@ import { GrouppedTypeInterface } from './propsInterfaces';
 const Labels = {
   EMPTY: 'documents-widget.tree.empty',
   NOT_SELECTED: 'documents-widget.tree.not-selected',
-  NOT_BE_DISABLED: 'documents-widget.tree.cannot-be-disabled'
+  NOT_BE_DISABLED: 'documents-widget.tree.cannot-be-disabled',
+  SELECTED_INSIDE: 'documents-widget.tree.selected-inside',
+  OF: 'documents-widget.tree.selected-inside-of'
 };
 
 class TreeItem extends Component {
@@ -53,11 +55,28 @@ class TreeItem extends Component {
   get title() {
     const { item } = this.props;
 
-    if (!item.locked) {
+    if (item.locked) {
+      return t('documents-widget.tooltip.cannot-be-changes');
+    }
+
+    if (item.isSelected) {
       return '';
     }
 
     return t('documents-widget.tooltip.cannot-be-changes');
+  }
+
+  get hasGrandchildren() {
+    const { item } = this.props;
+    let has = false;
+
+    item.items.forEach(child => {
+      if (child.items.length) {
+        has = true;
+      }
+    });
+
+    return has;
   }
 
   handleToggleOpen = () => {
@@ -125,12 +144,19 @@ class TreeItem extends Component {
 
   renderBadge() {
     const { item } = this.props;
+    const selectedChildren = item.items.filter(child => child.isSelected);
 
-    if (item.isSelected && !item.locked) {
+    if (!item.locked && !selectedChildren.length && item.isSelected) {
       return null;
     }
 
-    const text = item.locked ? t(Labels.NOT_BE_DISABLED) : t(Labels.NOT_SELECTED);
+    let text = '';
+
+    if (item.items.length && selectedChildren.length) {
+      text = `${t(Labels.SELECTED_INSIDE)} ${selectedChildren.length} ${t(Labels.OF)} ${item.items.length}`;
+    } else {
+      text = item.locked ? t(Labels.NOT_BE_DISABLED) : t(Labels.NOT_SELECTED);
+    }
 
     return <Badge text={text} className="ecos-tree__item-element-badge" />;
   }
@@ -146,7 +172,8 @@ class TreeItem extends Component {
           'ecos-tree__item_parent': item.items.length,
           'ecos-tree__item_open': isOpen,
           'ecos-tree__item_not-selected': !item.isSelected,
-          'ecos-tree__item_locked': item.locked
+          'ecos-tree__item_locked': item.locked,
+          'ecos-tree__item_has-grandchildren': this.hasGrandchildren
         })}
       >
         <div className="ecos-tree__item-element">

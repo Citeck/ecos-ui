@@ -10,8 +10,7 @@ import {
   setRequestResultDashboard
 } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
-import { setActiveTabTitle } from '../actions/pageTabs';
-import { selectDashboardConfigs, selectIdentificationForView } from '../selectors/dashboard';
+import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
 import { t } from '../helpers/util';
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
@@ -26,6 +25,13 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
     const webConfig = DashboardConverter.getDashboardForWeb(data);
     const webConfigMobile = DashboardConverter.getMobileDashboardForWeb(data);
+
+    const isReset = yield select(selectResetStatus);
+
+    if (isReset) {
+      console.info('[dashboard/ doGetDashboardRequest saga] info: Dashboard is unmounted');
+      return;
+    }
 
     yield put(setDashboardIdentification(webKeyInfo));
     yield put(setDashboardConfig(webConfig));
@@ -43,7 +49,6 @@ function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
     const titleInfo = DashboardConverter.getTitleInfo(resTitle);
 
     yield put(setDashboardTitleInfo(titleInfo));
-    yield put(setActiveTabTitle(titleInfo.name));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error5')));
     logger.error('[dashboard/ doGetDashboardTitleRequest saga] error', e.message);
@@ -62,6 +67,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
       yield put(setMobileDashboardConfig(payload.config));
     } else {
       config.layouts = payload.config;
+
       yield put(setDashboardConfig(payload.config));
     }
     delete config.isMobile;

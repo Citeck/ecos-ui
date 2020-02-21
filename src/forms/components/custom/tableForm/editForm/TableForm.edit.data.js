@@ -3,14 +3,6 @@ const VALUE_FORM_KEY_FIELD = 'computed.valueFormKey';
 
 export default [
   {
-    type: 'checkbox',
-    input: true,
-    key: 'triggerEventOnChange',
-    label: 'Trigger event on table change',
-    weight: 18,
-    defaultValue: false
-  },
-  {
     type: 'textfield',
     input: true,
     key: 'eventName',
@@ -144,14 +136,50 @@ export default [
     defaultValue: false
   },
   {
+    type: 'panel',
+    title: 'Specify nonselectable rows',
+    collapsible: true,
+    collapsed: true,
+    key: 'nonSelectableRowsJS-js',
+    customClass: 'form-builder__panel-js',
+    components: [
+      {
+        type: 'textarea',
+        key: 'nonSelectableRowsJS',
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content:
+          '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. The <strong>value</strong> variable accept an recordRef array.</p>'
+      }
+    ],
+    conditional: {
+      json: {
+        and: [{ '==': [{ var: 'data.isSelectableRows' }, true] }]
+      }
+    },
+    weight: 23
+  },
+  {
+    type: 'checkbox',
+    input: true,
+    key: 'triggerEventOnChange',
+    label: 'Trigger event on table change',
+    weight: 24,
+    defaultValue: false
+  },
+  {
     weight: 25,
     type: 'panel',
     title: 'Custom Create Variants',
     collapsible: true,
     collapsed: true,
-    style: {
-      'margin-bottom': '20px'
-    },
+    customClass: 'form-builder__panel-js',
     key: ''.concat(CUSTOM_CREATE_VARIANTS_FIELD, '-js'),
     components: [
       {
@@ -175,9 +203,7 @@ export default [
     title: 'Value Form Key',
     collapsible: true,
     collapsed: true,
-    style: {
-      'margin-bottom': '20px'
-    },
+    customClass: 'form-builder__panel-js',
     key: ''.concat(VALUE_FORM_KEY_FIELD, '-js'),
     components: [
       {

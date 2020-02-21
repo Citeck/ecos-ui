@@ -9,7 +9,6 @@ import {
   setMobileDashboardConfig,
   setRequestResultDashboard
 } from '../actions/dashboard';
-import { changeActiveTab } from '../actions/pageTabs';
 
 const initialState = {
   isLoading: false,
@@ -31,7 +30,8 @@ const initialState = {
   requestResult: {
     status: '',
     dashboardId: ''
-  }
+  },
+  reset: false
 };
 
 Object.freeze(initialState);
@@ -41,16 +41,10 @@ export default handleActions(
     [getDashboardConfig]: state => {
       return {
         ...state,
+        reset: false,
         isLoading: true
       };
     },
-    [changeActiveTab]: state => {
-      return {
-        ...state,
-        isLoading: true
-      };
-    },
-
     [setDashboardIdentification]: (state, { payload }) => {
       const { identification } = payload;
 
@@ -89,7 +83,8 @@ export default handleActions(
 
     [resetDashboardConfig]: state => {
       return {
-        ...initialState
+        ...initialState,
+        reset: true
       };
     },
 
