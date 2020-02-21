@@ -152,6 +152,10 @@ class Hour extends Component {
       } else {
         const parts = value.split(DELIMITERS[1]);
 
+        if (parts.length === 1) {
+          value = parseInt(value.replace(/\D/g, ''), 10);
+        }
+
         if (parts.length > 1 && parts[1] !== '') {
           value = parseFloat(value);
           value = parseFloat((Math.round(value * 2) / 2).toFixed(value % 1 === 0 ? 0 : 1));
