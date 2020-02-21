@@ -103,6 +103,9 @@ export class DashboardApi extends RecordService {
 
     if (recordRef) {
       recType = yield Records.get(recordRef).load('_etype?id');
+      if (!recType) {
+        recType = 'emodel/type@base';
+      }
     }
 
     const user = getCurrentUserName();
