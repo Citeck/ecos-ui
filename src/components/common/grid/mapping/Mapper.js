@@ -94,6 +94,13 @@ const MAP = [
     options: () => 'CardDetailsLinkFormatter',
     enable: column => matchCardDetailsLinkFormatterColumn(column) && !column.disableFormatter
   }
+  // it is not used and breaks UX (users are uncomfortable when they cannot select elements with a simple click on the element,
+  // since it opens the viewing of the record they poked on). Return if necessary.
+  //
+  // {
+  //   options: () => 'CardDetailsLinkFormatter',
+  //   enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
+  // },
 ];
 
 export default class Mapper {
