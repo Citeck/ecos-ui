@@ -35,3 +35,5 @@ export const execRecordsAction = createAction(prefix + 'EXECUTE_RECORDS_ACTIONS'
 export const setInlineTools = createAction(prefix + 'SET_INLINE_TOOLS');
 
 export const setError = createAction(prefix + 'SET_ERROR');
+
+export const updateVersion = createAction(prefix + 'UPDATE_VERSION');
