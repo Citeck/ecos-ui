@@ -10,15 +10,20 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
     // --- Validate user ---
     let isAuthenticated = false;
     try {
-      const resp = yield call(api.user.getUserData);
-      if (!resp.success) {
+      const checkAuthResp = yield call(api.user.checkIsAuthenticated);
+      if (!checkAuthResp.success) {
         yield put(validateUserFailure());
       } else {
-        isAuthenticated = true;
-        yield put(validateUserSuccess(resp.payload));
+        const resp = yield call(api.user.getUserData);
+        if (!resp.success) {
+          yield put(validateUserFailure());
+        } else {
+          isAuthenticated = true;
+          yield put(validateUserSuccess(resp.payload));
 
-        // TODO remove in future: see src/helpers/util.js getCurrentUserName()
-        lodashSet(window, 'Alfresco.constants.USERNAME', lodashGet(resp.payload, 'userName'));
+          // TODO remove in future: see src/helpers/util.js getCurrentUserName()
+          lodashSet(window, 'Alfresco.constants.USERNAME', lodashGet(resp.payload, 'userName'));
+        }
       }
     } catch (e) {
       yield put(validateUserFailure());
