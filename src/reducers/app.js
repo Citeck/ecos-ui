@@ -1,10 +1,9 @@
 import { handleActions } from 'redux-actions';
-import { initAppFailure, initAppSuccess, setAllUsersGroupName } from '../actions/app';
+import { initAppFailure, initAppSuccess } from '../actions/app';
 
 const initialState = {
   isInit: false,
-  isInitFailure: false,
-  allUsersGroupName: ''
+  isInitFailure: false
 };
 
 Object.freeze(initialState);
@@ -22,12 +21,6 @@ export default handleActions(
         ...state,
         isInit: true,
         isInitFailure: true
-      };
-    },
-    [setAllUsersGroupName]: (state, action) => {
-      return {
-        ...state,
-        allUsersGroupName: action.payload
       };
     }
   },
