@@ -163,7 +163,7 @@ class PageTabs extends React.Component {
       return;
     }
 
-    const { reopen, closeActiveTab, ...data } = PageService.definePropsLink({ event }) || {};
+    const { reopen, closeActiveTab, ...data } = PageService.parseEvent({ event }) || {};
 
     setTab({ data, params: { reopen, closeActiveTab } });
   };

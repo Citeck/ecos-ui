@@ -1,30 +1,32 @@
 import Registry from './RecordActionExecutorsRegistry';
 import {
-  EditAction,
-  ViewAction,
-  DownloadAction,
-  DeleteAction,
-  MoveToLinesJournal,
   BackgroundOpenAction,
-  DownloadCardTemplate,
   CreateNodeAction,
-  OpenURL
+  DefaultActionTypes,
+  DeleteAction,
+  DownloadAction,
+  DownloadCardTemplate,
+  EditAction,
+  MoveToLinesJournal,
+  OpenURL,
+  ViewAction
 } from './DefaultActions';
 
-import { CaseRequestAction, CaseCreateNodeAction, CaseRedirectAction } from './CaseActions';
+import { CaseCreateNodeAction, CaseRedirectAction, CaseRequestAction } from './CaseActions';
 
 export { default } from './RecordActions';
+export { DefaultActionTypes } from './DefaultActions';
 
 Registry.addExecutors({
-  edit: EditAction,
-  view: ViewAction,
-  'open-in-background': BackgroundOpenAction,
-  download: DownloadAction,
-  delete: DeleteAction,
-  'move-to-lines': MoveToLinesJournal,
-  'download-card-template': DownloadCardTemplate,
-  create: CreateNodeAction,
-  [OpenURL.type]: OpenURL,
+  [DefaultActionTypes.EDIT]: EditAction,
+  [DefaultActionTypes.VIEW]: ViewAction,
+  [DefaultActionTypes.OPEN_IN_BACKGROUND]: BackgroundOpenAction,
+  [DefaultActionTypes.DOWNLOAD]: DownloadAction,
+  [DefaultActionTypes.DELETE]: DeleteAction,
+  [DefaultActionTypes.MOVE_TO_LINES]: MoveToLinesJournal,
+  [DefaultActionTypes.DOWNLOAD_CARD_TEMPLATE]: DownloadCardTemplate,
+  [DefaultActionTypes.CREATE]: CreateNodeAction,
+  [DefaultActionTypes.OPEN_URL]: OpenURL,
 
   //legacy case actions
 
