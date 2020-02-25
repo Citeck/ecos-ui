@@ -57,7 +57,7 @@ class PageTabList {
     this.#displayState = !!displayState;
     this.#isDuplicateAllowed = !!isDuplicateAllowed;
 
-    const tabs = this.getFromStorage();
+    const tabs = this.removeInvalid(this.getFromStorage());
 
     params = { ...params, last: true };
     this.tabs = { tabs, params };
@@ -83,15 +83,25 @@ class PageTabList {
   setTab(data, params = {}) {
     const { last, reopen } = params;
     const tab = new PageTab({ title: t(TITLE.LOADING), isLoading: true, ...data });
+    const currentTabIndex = this.existTabIndex(tab);
+    const isExist = exist(currentTabIndex);
 
     if (reopen) {
+      if (isExist) {
+        this.delete(tab);
+      }
+
       this.changeOne({ updates: tab, tab: this.activeTab });
     } else {
-      const currentTabIndex = this.existTabIndex(tab);
       const indexTo = this.getPlaceTab({ currentTabIndex, last });
 
-      if (exist(currentTabIndex)) {
-        this.changeOne({ updates: tab, tab });
+      if (isExist) {
+        const updates = {
+          ...tab,
+          isActive: this.equals(this.activeTab, tab) || tab.isActive
+        };
+
+        this.changeOne({ updates, tab });
         this.move(currentTabIndex, indexTo);
       } else {
         this.add(tab, indexTo);
@@ -157,7 +167,7 @@ class PageTabList {
 
     tab = tab instanceof PageTab ? tab : new PageTab(tab);
 
-    if (this.#tabs.length < 2) {
+    if (this.#tabs.length === 1) {
       updates.isActive = true;
     }
 
@@ -226,6 +236,10 @@ class PageTabList {
       : exist(currentTabIndex) && currentTabIndex <= activeIndex
       ? activeIndex
       : activeIndex + 1;
+  }
+
+  removeInvalid(tabs) {
+    return tabs.filter(tab => tab.link);
   }
 
   setToStorage() {

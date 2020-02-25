@@ -1,8 +1,10 @@
-import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
-import Records from '../Records';
 import lodash from 'lodash';
+
 import { t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
+import Records from '../Records';
+import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
+import { DefaultActionTypes } from './DefaultActions';
 
 const DEFAULT_MODEL = {
   name: '',
@@ -201,19 +203,25 @@ class RecordActionsService {
         })
       );
     } else {
-      return Promise.all(
+      return Promise.resolve(
         executor.groupExec({
           records: [Records.get(records)],
           action
         })
       ).then(result => {
-        return result[0];
+        return lodash.isArray(result) ? result[0] : result;
       });
     }
   }
 
   getActionCreateVariants() {
-    let types = ['download', 'view', 'edit', 'delete', 'record-actions'];
+    let types = [
+      DefaultActionTypes.DOWNLOAD,
+      DefaultActionTypes.VIEW,
+      DefaultActionTypes.EDIT,
+      DefaultActionTypes.DELETE,
+      'record-actions'
+    ];
 
     return types.map(type => {
       const formKey = 'action_' + type;

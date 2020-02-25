@@ -5,12 +5,14 @@ import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
 import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
-import { FILE_CLICK_ACTION_DOWNLOAD, FILE_CLICK_ACTION_NOOP, FILE_CLICK_ACTION_OPEN_DASHBOARD } from './editForm/File.edit.file';
+
 import RecordActionExecutorsRegistry from '../../../../components/Records/actions/RecordActionExecutorsRegistry';
+import { DefaultActionTypes } from '../../../../components/Records/actions';
 import Records from '../../../../components/Records';
 import { createDocumentUrl, isNewVersionPage } from '../../../../helpers/urls';
 import { t } from '../../../../helpers/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
+import { FILE_CLICK_ACTION_DOWNLOAD, FILE_CLICK_ACTION_NOOP, FILE_CLICK_ACTION_OPEN_DASHBOARD } from './editForm/File.edit.file';
 
 export default class FileComponent extends FormIOFileComponent {
   static schema(...extend) {
@@ -53,7 +55,7 @@ export default class FileComponent extends FormIOFileComponent {
   }
 
   static getDownloadExecutor() {
-    const downloadExecutor = RecordActionExecutorsRegistry.get('download');
+    const downloadExecutor = RecordActionExecutorsRegistry.get(DefaultActionTypes.DOWNLOAD);
     if (!downloadExecutor) {
       throw new Error("Cant't extract downloadExecutor");
     }
