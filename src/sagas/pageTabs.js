@@ -92,22 +92,21 @@ function* sagaMoveTabs({ api, logger }, action) {
   }
 }
 
-function* sagaSetTab({ api, logger }, { payload }) {
+function* sagaSetOneTab({ api, logger }, { payload }) {
   try {
-    const { data: initData, params } = payload;
+    const { data: dataTab, params } = payload;
 
     const { closeActiveTab } = params || {};
 
     if (closeActiveTab) {
-      PageTabList.delete(PageTabList.activeTab);
-      yield put(setTabs(PageTabList.storeList));
+      yield put(deleteTab(PageTabList.activeTab));
     }
 
-    if (!initData || !initData.link) {
+    if (!dataTab || !dataTab.link) {
       return;
     }
 
-    const tab = PageTabList.setTab(initData, params);
+    const tab = PageTabList.setTab(dataTab, params);
 
     if (tab.isActive && tab.link) {
       yield put(push(tab.link));
@@ -124,7 +123,8 @@ function* sagaSetTab({ api, logger }, { payload }) {
 
 function* sagaDeleteTab({ api, logger }, action) {
   try {
-    PageTabList.delete(action.payload);
+    const deletedTab = PageTabList.delete(action.payload);
+    PageService.extractWhereLinkOpen({ subsidiaryLink: deletedTab.link });
 
     const activeTab = PageTabList.activeTab;
 
@@ -183,7 +183,7 @@ function* saga(ea) {
   yield takeLatest(getTabs().type, sagaGetTabs, ea);
   yield takeEvery(setDisplayState().type, sagaSetDisplayState, ea);
   yield takeEvery(moveTabs().type, sagaMoveTabs, ea);
-  yield takeEvery(setTab().type, sagaSetTab, ea);
+  yield takeEvery(setTab().type, sagaSetOneTab, ea);
   yield takeEvery(deleteTab().type, sagaDeleteTab, ea);
   yield takeEvery(changeTab().type, sagaChangeTabData, ea);
 }

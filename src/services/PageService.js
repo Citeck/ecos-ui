@@ -195,9 +195,9 @@ export default class PageService {
     if (isExistLocalStorage()) {
       const key = getKeyHistory();
       const history = getData(key) || {};
-      const keyLink = PageService.keyId({ link: subsidiaryLink });
+      const keyLink = PageService.keyId({ link: decodeLink(subsidiaryLink) });
       const parent = getLinkWithout({
-        url: parentLink,
+        url: decodeLink(parentLink),
         ignored: [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW]
       });
 
@@ -217,11 +217,11 @@ export default class PageService {
     }
   };
 
-  static getWhereLinkOpen = ({ subsidiaryLink }) => {
+  static extractWhereLinkOpen = ({ subsidiaryLink }) => {
     if (isExistLocalStorage()) {
       const key = getKeyHistory();
       const history = getData(key) || {};
-      const keyLink = PageService.keyId({ link: subsidiaryLink });
+      const keyLink = PageService.keyId({ link: decodeLink(subsidiaryLink) });
 
       for (const parentLink in history) {
         if (history.hasOwnProperty(parentLink)) {
@@ -233,6 +233,11 @@ export default class PageService {
 
           if (!!~foundI) {
             history[parent].splice(foundI, 1);
+
+            if (!history[parent].length) {
+              delete history[parent];
+            }
+
             setData(key, history);
             return parent;
           }

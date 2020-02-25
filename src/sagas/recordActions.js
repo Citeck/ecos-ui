@@ -1,13 +1,11 @@
-import { call, put, select, takeEvery } from 'redux-saga/effects';
+import { call, put, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 
 import { backExecuteAction, getActions, runExecuteAction, setActions } from '../actions/recordActions';
 import { setNotificationMessage } from '../actions/notification';
+import { backPageFromTransitionsHistory } from '../actions/webPage';
 import { t } from '../helpers/util';
-import PageService from '../services/PageService';
 import { DefaultActionTypes } from '../components/Records/actions';
-import { URL } from '../constants';
 
 function* sagaGetActions({ api, logger }, { payload }) {
   try {
@@ -28,26 +26,15 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
   try {
     const { record, action, stateId } = payload;
     const res = yield call(api.recordActions.executeAction, { records: record, action });
-    console.log(action.type, res);
+
     yield put(backExecuteAction({ stateId }));
 
     if (res === null) {
       yield put(setNotificationMessage(t('records-actions.action-failed')));
     }
 
-    if (action.type === DefaultActionTypes.DELETE) {
-      const location = yield select(state => state.router.location);
-      const { pathname, search } = location;
-      const isShowTabs = yield select(state => get(state, 'pageTabs.isShow', false));
-      const hasTabs = yield select(state => get(state, 'pageTabs.tabs.length', 0));
-
-      if (!isShowTabs && window.history.length > 1) {
-        window.history.back();
-      } else {
-        const pageUrl = PageService.getWhereLinkOpen({ subsidiaryLink: pathname + search }) || (hasTabs > 1 ? null : URL.DASHBOARD);
-
-        PageService.changeUrlLink(pageUrl, { closeActiveTab: true });
-      }
+    if (res === true && action.type === DefaultActionTypes.DELETE) {
+      yield put(backPageFromTransitionsHistory());
     }
   } catch (e) {
     yield put(setNotificationMessage(t('records-actions.action-failed')));
