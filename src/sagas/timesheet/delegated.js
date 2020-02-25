@@ -1,4 +1,4 @@
-import { put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { put, select, takeEvery, takeLatest, call } from 'redux-saga/effects';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
   declineDelegation,
@@ -105,7 +105,8 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
     const mergedList = yield select(selectTDelegatedMergedList);
     const { outcome, taskId, userName, comment } = payload;
 
-    yield api.timesheetCommon.modifyStatus({
+    yield call(api.timesheetCommon.changeTaskOwner, { taskId, currentUser });
+    yield call(api.timesheetCommon.modifyStatus, {
       outcome,
       taskId,
       currentUser,

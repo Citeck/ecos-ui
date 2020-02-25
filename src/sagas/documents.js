@@ -22,7 +22,8 @@ import {
   setConfig,
   setUploadError,
   setActions,
-  execRecordsAction
+  execRecordsAction,
+  updateVersion
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
 import { deepClone } from '../helpers/util';
@@ -220,6 +221,86 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
   }
 }
 
+function* sagaUpdateVersion({ api, logger }, { payload }) {
+  try {
+    const type = yield select(state => selectDynamicType(state, payload.key, payload.type));
+
+    yield call(api.versionsJournal.addNewVersion, {
+      body: DocumentsConverter.getAddNewVersionFormDataForServer({
+        record: type.lastDocumentRef,
+        type: payload.type,
+        file: payload.files[0]
+      }),
+      handleProgress: payload.callback
+    });
+    yield put(getDocumentsByType({ ...payload, delay: 0 }));
+  } catch (e) {
+    logger.error('[documents sagaUpdateVerion saga error]', e.message);
+  }
+}
+
+function* uploadFile({ api, file, callback }) {
+  try {
+    const formData = new FormData();
+
+    formData.append('file', file);
+    formData.append('name', file.name);
+
+    const { nodeRef = null } = yield call(api.documents.uploadFile, formData, callback);
+
+    if (!nodeRef) {
+      return Promise.reject('Error: No file nodeRef');
+    }
+
+    return {
+      size: file.size,
+      name: file.name,
+      data: { nodeRef }
+    };
+  } catch (e) {
+    console.error('[documents uploadFile error]', e.message);
+
+    return Promise.reject(e);
+  }
+}
+
+function* formManager({ api, payload, files }) {
+  try {
+    const createVariants = yield call(api.documents.getCreateVariants, payload.type);
+
+    if (createVariants === null) {
+      payload.openForm(
+        DocumentsConverter.getDataToCreate({
+          ...payload.type,
+          files,
+          record: payload.record
+        })
+      );
+
+      return;
+    }
+
+    if (!createVariants.formRef) {
+      createVariants.formRef = payload.type.formId;
+    }
+
+    createVariants.attributes = {
+      ...DocumentsConverter.getCreateAttributes({
+        record: payload.record,
+        type: payload.type,
+        files
+      }),
+      ...createVariants.attributes
+    };
+
+    payload.openForm(createVariants);
+  } catch (e) {
+    console.error('[documents formManager error]', e.message);
+
+    return Promise.reject(e);
+  }
+}
+
 function* sagaUploadFiles({ api, logger }, { payload }) {
   try {
     const type = yield select(state => selectDynamicType(state, payload.key, payload.type));
@@ -229,84 +310,36 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
      * update version
      */
     if (!type.multiple && type.countDocuments > 0) {
-      yield call(api.versionsJournal.addNewVersion, {
-        body: DocumentsConverter.getAddNewVersionFormDataForServer({
-          record: type.lastDocumentRef,
-          type: payload.type,
-          file: payload.files[0]
-        }),
-        handleProgress: payload.callback
-      });
-      yield put(getDocumentsByType({ ...payload, delay: 0 }));
+      yield put(updateVersion(payload));
 
       return;
     }
 
-    const results = yield payload.files.map(
-      yield function*(file) {
-        const formData = new FormData();
-
-        formData.append('file', file);
-        formData.append('name', file.name);
-
-        const { nodeRef = null } = yield call(api.documents.uploadFile, formData, payload.callback);
-
-        if (!nodeRef) {
-          return null;
-        }
-
-        return {
-          size: file.size,
-          name: file.name,
-          data: { nodeRef }
-        };
-      }
-    );
-    const files = results.filter(item => item !== null);
+    const files = yield payload.files.map(function*(file) {
+      return yield uploadFile({ api, file, callback: payload.callback });
+    });
 
     /**
      * open form manager
      */
     if (type.formId && payload.openForm) {
-      if (createVariants === null) {
-        payload.openForm(
-          DocumentsConverter.getDataToCreate({
-            ...type,
-            files,
-            record: payload.record
-          })
-        );
-
-        return;
-      }
-
-      if (!createVariants.formRef) {
-        createVariants.formRef = type.formId;
-      }
-
-      createVariants.attributes = {
-        ...DocumentsConverter.getCreateAttributes({
-          record: payload.record,
-          type: payload.type,
-          files
-        }),
-        ...createVariants.attributes
-      };
-
-      payload.openForm(createVariants);
+      yield* formManager({ api, payload, files });
 
       return;
     }
 
-    yield call(
-      api.documents.uploadFilesWithNodes,
-      DocumentsConverter.getUploadAttributes({
-        record: payload.record,
-        type: payload.type,
-        content: results.filter(item => item !== null),
-        ...get(createVariants, 'attributes', {})
-      })
-    );
+    yield files.map(function*(file) {
+      return yield call(
+        api.documents.uploadFilesWithNodes,
+        DocumentsConverter.getUploadAttributes({
+          record: payload.record,
+          type: payload.type,
+          content: file,
+          ...get(createVariants, 'attributes', {})
+        })
+      );
+    });
+
     yield put(getDocumentsByType({ ...payload, delay: 0 }));
   } catch (e) {
     yield put(setUploadError({ ...payload, message: e.message }));
@@ -323,6 +356,7 @@ function* saga(ea) {
   yield takeEvery(getDynamicTypes().type, sagaGetDynamicTypes, ea);
   yield takeEvery(saveSettings().type, sagaSaveSettings, ea);
   yield takeEvery(uploadFiles().type, sagaUploadFiles, ea);
+  yield takeEvery(updateVersion().type, sagaUpdateVersion, ea);
   yield takeEvery(execRecordsAction().type, sagaExecRecordsAction, ea);
 }
 

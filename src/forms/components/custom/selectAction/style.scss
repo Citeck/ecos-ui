@@ -1,0 +1,58 @@
+@import '../../../../styles/constants';
+
+.formio-select-action {
+  &__dropdown {
+    $dropdown: &;
+
+    &-toggle {
+      .ecos-btn {
+        height: 26px;
+        padding: 2px 21px;
+      }
+    }
+
+    &.show {
+      #{$dropdown}-toggle {
+        .ecos-btn {
+          color: $color-white;
+          background: $color-blue-dark;
+          border: none;
+        }
+      }
+    }
+
+    &-menu {
+      li {
+        padding: 5px 15px;
+        font-style: normal;
+        font-weight: 600;
+        font-size: 12px;
+        line-height: 16px;
+      }
+    }
+
+    &-control {
+      &.ecos-btn {
+        display: flex;
+        justify-content: space-between;
+        border: 2px solid $color-gray-6;
+        box-sizing: border-box;
+        border-radius: 6px;
+        background: $color-white;
+        padding: 5px 15px;
+        font-style: normal;
+        font-weight: 600;
+        font-size: 12px;
+        min-width: 100px;
+      }
+    }
+  }
+
+  &__editor {
+    &-group {
+      & > .panel-body.card-body {
+        padding-top: 0;
+      }
+    }
+  }
+}

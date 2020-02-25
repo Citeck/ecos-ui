@@ -327,17 +327,16 @@ export const DownloadCardTemplate = {
 
 export const CreateNodeAction = {
   execute: ({ record, action }) => {
-    const fromRecordRegexp = /^\$/,
-      showForm = (recordRef, params) => {
-        EcosFormUtils.eform(recordRef, {
-          params: params,
-          class: 'ecos-modal_width-lg',
-          isBigHeader: true
-        });
-      };
-
-    let { config = {} } = action,
-      attributesFromRecord = {};
+    const fromRecordRegexp = /^\$/;
+    const { config = {} } = action;
+    const attributesFromRecord = {};
+    const showForm = (recordRef, params) => {
+      EcosFormUtils.eform(recordRef, {
+        params: params,
+        class: 'ecos-modal_width-lg',
+        isBigHeader: true
+      });
+    };
 
     Object.entries(config.attributes || {})
       .filter(entry => fromRecordRegexp.test(entry[1]))
@@ -346,10 +345,13 @@ export const CreateNodeAction = {
       });
 
     return new Promise(resolve => {
-      let params = {
+      const params = {
         attributes: config.attributes || {},
         options: config.options || {},
-        onSubmit: () => resolve(true),
+        onSubmit: () => {
+          record.update();
+          resolve(true);
+        },
         onFormCancel: () => resolve(false)
       };
 

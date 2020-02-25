@@ -637,6 +637,8 @@ class Grid extends Component {
     });
     e.dataTransfer.clearData();
 
+    this._dragTr = null;
+
     return false;
   };
 
