@@ -422,7 +422,6 @@ class JournalsDashletGrid extends Component {
       },
       doInlineToolsOnRowClick = false,
       performGroupActionResponse,
-      doNotCount,
       minHeight,
       predicate,
       journalConfig: { params = {} }
@@ -434,8 +433,8 @@ class JournalsDashletGrid extends Component {
       editable = false;
     }
 
-    const HeightCalculation = ({ doNotCount, children, maxItems, minHeight, total }) => {
-      if (doNotCount) {
+    const HeightCalculation = ({ children, maxItems, minHeight, total }) => {
+      if (minHeight !== undefined) {
         return <div style={{ height: minHeight }}>{children}</div>;
       }
 
@@ -451,7 +450,7 @@ class JournalsDashletGrid extends Component {
     return (
       <>
         <div className="ecos-journal-dashlet__grid">
-          <HeightCalculation maxItems={maxItems} doNotCount={doNotCount} minHeight={minHeight} total={total}>
+          <HeightCalculation maxItems={maxItems} minHeight={minHeight} total={total}>
             {loading ? (
               <Loader />
             ) : (
@@ -513,9 +512,7 @@ JournalsDashletGrid.propTypes = {
   className: PropTypes.string,
   toolsClassName: PropTypes.string,
   minHeight: PropTypes.any,
-
   doInlineToolsOnRowClick: PropTypes.bool,
-  doNotCount: PropTypes.bool,
   isWidget: PropTypes.bool
 };
 
