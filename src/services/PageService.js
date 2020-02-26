@@ -67,21 +67,21 @@ export default class PageService {
   static pageTypes = Object.freeze({
     [PageTypes.DASHBOARD]: {
       getTitle: ({ recordRef }) => {
-        return recordRef ? pageApi.getRecordTitle(recordRef) : staticTitle(TITLE.HOMEPAGE);
+        return recordRef ? pageApi.getRecordTitle(recordRef).then(title => convertTitle(title)) : staticTitle(TITLE.HOMEPAGE);
       }
     },
     [PageTypes.JOURNALS]: {
       getTitle: ({ journalId }) => {
         const prom = pageApi.getJournalTitle(journalId);
 
-        return prom.then(title => `${t('page-tabs.journal')} "${title}"`);
+        return prom.then(title => `${t('page-tabs.journal')} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.SETTINGS]: {
       getTitle: ({ recordRef, journalId }) => {
         const prom = recordRef ? pageApi.getRecordTitle(recordRef) : pageApi.getJournalTitle(journalId);
 
-        return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${title}"`);
+        return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.BPMN_DESIGNER]: {
@@ -263,4 +263,8 @@ function getDefaultPage() {
 
 function getKeyHistory() {
   return 'ecos-ui-transitions-history/v3/user-' + getCurrentUserName();
+}
+
+function convertTitle(title) {
+  return t(title || TITLE.NO_NAME);
 }
