@@ -5,6 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
 import { setScrollTop, setSelectedId, toggleExpanded } from '../../actions/slideMenu';
+import { t } from '../../helpers/util';
 import SidebarService from '../../services/sidebar';
 import { Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
@@ -79,11 +80,13 @@ class Item extends React.Component {
       styleProps: { noIcon }
     } = this.props;
     const extraParams = { isSiteDashboardEnable };
+
+    const label = t(data.label);
     const content = (
       <>
         {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : get(data, 'label', '')} />}
-        <div className="ecos-sidebar-item__label" title={data.label}>
-          {data.label}
+        <div className="ecos-sidebar-item__label" title={label}>
+          {label}
         </div>
       </>
     );
@@ -185,7 +188,4 @@ const mapDispatchToProps = dispatch => ({
   setScrollTop: value => dispatch(setScrollTop(value))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Item);
+export default connect(mapStateToProps, mapDispatchToProps)(Item);
