@@ -188,4 +188,7 @@ const mapDispatchToProps = dispatch => ({
   setScrollTop: value => dispatch(setScrollTop(value))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Item);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Item);
