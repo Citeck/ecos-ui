@@ -558,7 +558,7 @@ class Grid extends Component {
         set(this._shadowLeftNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
       }
       set(this._shadowHeadNode, 'style.display', e.scrollTop > 0 ? 'block' : 'none');
-      set(this._firstHeaderCellNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
+      set(this._firstHeaderCellNode, 'style.display', e.scrollLeft > 0 ? 'none' : 'block');
     }
 
     trigger.call(this, 'onScrolling', e);
