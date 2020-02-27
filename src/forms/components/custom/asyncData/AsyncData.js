@@ -115,10 +115,15 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   get shouldExecute() {
-    let comp = this.component;
+    const { component, root } = this;
 
-    if (comp.executionCondition) {
-      return this.evaluate(comp.executionCondition, {}, 'value', true);
+    // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3229
+    if (root && root.loading) {
+      return false;
+    }
+
+    if (component.executionCondition) {
+      return this.evaluate(component.executionCondition, {}, 'value', true);
     }
 
     return true;
