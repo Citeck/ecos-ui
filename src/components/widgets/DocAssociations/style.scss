@@ -124,15 +124,15 @@
       position: relative;
       display: flex;
       height: 38px;
-      border-bottom: 2px solid $color-gray-4;
+      border: 2px solid $color-white;
+      border-bottom-color: $color-gray-4;
 
       &:first-child {
-        border-top: 2px solid $color-gray-4;
+        border-top-color: $color-gray-4;
       }
 
       #{$table}:not(#{$table}_small) &:hover {
-        outline: 2px solid $color-brown-2;
-        border: none;
+        border-color: $color-brown-2;
         padding-bottom: 2px;
 
         &:first-child {

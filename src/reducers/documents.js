@@ -1,23 +1,23 @@
 import { handleActions } from 'redux-actions';
 
 import {
-  init,
-  initSuccess,
-  initFinally,
   getAvailableTypes,
-  setAvailableTypes,
-  setDynamicTypes,
   getDocumentsByType,
-  setDocuments,
+  initFinally,
+  initStore,
+  initSuccess,
   saveSettings,
   saveSettingsFinally,
-  uploadFiles,
-  setUploadError,
-  uploadFilesFinally,
-  setConfig,
-  setError,
   setActions,
-  setInlineTools
+  setAvailableTypes,
+  setConfig,
+  setDocuments,
+  setDynamicTypes,
+  setError,
+  setInlineTools,
+  setUploadError,
+  uploadFiles,
+  uploadFilesFinally
 } from '../actions/documents';
 
 const emptyTools = Object.freeze({
@@ -47,7 +47,7 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
-    [init]: (state, { payload }) => {
+    [initStore]: (state, { payload }) => {
       let ownState = { ...initialState };
 
       if (state[payload.key]) {

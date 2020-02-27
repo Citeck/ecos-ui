@@ -22,7 +22,7 @@ import DocumentsConverter from '../../../dto/documents';
 import {
   execRecordsAction,
   getDocumentsByType,
-  init,
+  initStore,
   saveSettings,
   setError,
   setInlineTools,
@@ -72,7 +72,7 @@ class Documents extends BaseWidget {
     isLoadingTableData: PropTypes.bool,
     maxHeightByContent: PropTypes.bool,
 
-    init: PropTypes.func,
+    initStore: PropTypes.func,
     getDocuments: PropTypes.func,
     onSaveSettings: PropTypes.func,
     onUploadFiles: PropTypes.func,
@@ -399,7 +399,7 @@ class Documents extends BaseWidget {
   };
 
   initWidget = () => {
-    this.props.init();
+    this.props.initStore();
     this.setState({
       isDragFiles: false
     });
@@ -413,7 +413,7 @@ class Documents extends BaseWidget {
   }
 
   handleReloadData = () => {
-    this.props.init();
+    this.props.initStore();
   };
 
   handleToggleTypesSettings = event => {
@@ -1186,9 +1186,9 @@ const mapStateToProps = (state, ownProps) => ({
   isMobile: state.view.isMobile
 });
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  init: () =>
+  initStore: () =>
     dispatch(
-      init({
+      initStore({
         record: ownProps.record,
         config: ownProps.config,
         key: ownProps.id
