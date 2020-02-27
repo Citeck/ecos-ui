@@ -15,6 +15,7 @@ import 'moment/locale/en-gb';
 import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
+import { polyfills } from './helpers/polyfills';
 import { getCurrentLocale } from './helpers/util';
 
 import configureStore, { getHistory } from './store';
@@ -51,7 +52,6 @@ import {
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
-import { polyfills } from './helpers/polyfills';
 
 import './styles/index.scss';
 

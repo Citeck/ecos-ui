@@ -160,7 +160,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   render() {
     const { currentDate, statusTabs, isOpenSelectUserModal } = this.state;
-    const { isLoading, delegatedToRef, delegatedToDisplayName, allUsersGroupName } = this.props;
+    const { isLoading, delegatedToRef, delegatedToDisplayName } = this.props;
 
     return (
       <div className="ecos-timesheet">
@@ -220,7 +220,6 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
         {this.renderCommentModal(true)}
 
         <SelectUserModal
-          allUsersGroupName={allUsersGroupName}
           getFullData
           defaultValue={delegatedToRef}
           isOpen={isOpenSelectUserModal}
@@ -233,7 +232,6 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 }
 
 const mapStateToProps = state => ({
-  allUsersGroupName: get(state, 'app.allUsersGroupName'),
   mergedList: get(state, 'timesheetSubordinates.mergedList', []),
   isLoading: get(state, 'timesheetSubordinates.isLoading', false),
   updatingHours: get(state, 'timesheetSubordinates.updatingHours', {}),

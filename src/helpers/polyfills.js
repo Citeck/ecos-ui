@@ -210,4 +210,27 @@ export const polyfills = () => {
       return !!~this.indexOf(search);
     };
   }
+
+  if (!Array.prototype.flat) {
+    Array.prototype.flat = function() {
+      return (function f(arr) {
+        return arr.reduce((a, v) => (Array.isArray(v) ? a.concat(f(v)) : a.concat(v)), []);
+      })(this);
+    };
+  }
+
+  if (!Object.values) {
+    const reduce = Function.bind.call(Function.call, Array.prototype.reduce);
+    const isEnumerable = Function.bind.call(Function.call, Object.prototype.propertyIsEnumerable);
+    const concat = Function.bind.call(Function.call, Array.prototype.concat);
+    const keys = function(target) {
+      return Object.getOwnPropertyNames(target).concat(Object.getOwnPropertySymbols(target));
+    };
+
+    Object.values = function values(O) {
+      return reduce(keys(O), (v, k) => concat(v, typeof k === 'string' && isEnumerable(O, k) ? [O[k]] : []), []);
+    };
+  }
 };
+
+polyfills();

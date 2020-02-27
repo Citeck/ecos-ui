@@ -11,6 +11,18 @@ const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordina
 
 const globalTaskPatterns = [/active-tasks/, /completed-tasks/, /controlled/, /subordinate-tasks/, /task-statistic/, /initiator-tasks/];
 
+export const DefaultActionTypes = {
+  CREATE: 'create',
+  EDIT: 'edit',
+  VIEW: 'view',
+  DELETE: 'delete',
+  DOWNLOAD: 'download',
+  OPEN_IN_BACKGROUND: 'open-in-background',
+  MOVE_TO_LINES: 'move-to-lines',
+  DOWNLOAD_CARD_TEMPLATE: 'download-card-template',
+  OPEN_URL: 'open-url'
+};
+
 export const EditAction = {
   disabledFor: [/task-statistic/, /completed-tasks/],
 
@@ -34,7 +46,7 @@ export const EditAction = {
   getDefaultModel: () => {
     return {
       name: 'grid.inline-tools.edit',
-      type: 'edit',
+      type: DefaultActionTypes.EDIT,
       icon: 'icon-edit'
     };
   },
@@ -74,7 +86,7 @@ export const ViewAction = {
   getDefaultModel: () => {
     return {
       name: 'grid.inline-tools.show',
-      type: 'view',
+      type: DefaultActionTypes.VIEW,
       icon: 'icon-on'
     };
   },
@@ -94,7 +106,7 @@ export const ViewAction = {
 };
 
 export const OpenURL = {
-  type: 'open-url',
+  type: DefaultActionTypes.OPEN_URL,
 
   execute: ({ record, action }) => {
     const config = action.config || {};
@@ -106,11 +118,17 @@ export const OpenURL = {
     }
 
     window.open(url, config.target || '_blank');
+  },
+
+  getDefaultModel: () => {
+    return {
+      type: OpenURL.type
+    };
   }
 };
 
 export const BackgroundOpenAction = {
-  type: 'open-in-background',
+  type: DefaultActionTypes.OPEN_IN_BACKGROUND,
 
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
@@ -173,7 +191,7 @@ export const DownloadAction = {
   getDefaultModel: () => {
     return {
       name: 'grid.inline-tools.download',
-      type: 'download',
+      type: DefaultActionTypes.DOWNLOAD,
       icon: 'icon-download'
     };
   },
@@ -228,7 +246,7 @@ export const DeleteAction = {
   getDefaultModel: () => {
     return {
       name: 'grid.inline-tools.delete',
-      type: 'delete',
+      type: DefaultActionTypes.DELETE,
       icon: 'icon-delete',
       theme: 'danger'
     };
@@ -270,7 +288,7 @@ export const MoveToLinesJournal = {
   getDefaultModel: () => {
     return {
       name: 'grid.inline-tools.details',
-      type: 'move-to-lines',
+      type: DefaultActionTypes.MOVE_TO_LINES,
       icon: 'icon-big-arrow'
     };
   },
@@ -309,17 +327,16 @@ export const DownloadCardTemplate = {
 
 export const CreateNodeAction = {
   execute: ({ record, action }) => {
-    const fromRecordRegexp = /^\$/,
-      showForm = (recordRef, params) => {
-        EcosFormUtils.eform(recordRef, {
-          params: params,
-          class: 'ecos-modal_width-lg',
-          isBigHeader: true
-        });
-      };
-
-    let { config = {} } = action,
-      attributesFromRecord = {};
+    const fromRecordRegexp = /^\$/;
+    const { config = {} } = action;
+    const attributesFromRecord = {};
+    const showForm = (recordRef, params) => {
+      EcosFormUtils.eform(recordRef, {
+        params: params,
+        class: 'ecos-modal_width-lg',
+        isBigHeader: true
+      });
+    };
 
     Object.entries(config.attributes || {})
       .filter(entry => fromRecordRegexp.test(entry[1]))
@@ -328,10 +345,13 @@ export const CreateNodeAction = {
       });
 
     return new Promise(resolve => {
-      let params = {
+      const params = {
         attributes: config.attributes || {},
         options: config.options || {},
-        onSubmit: () => resolve(true),
+        onSubmit: () => {
+          record.update();
+          resolve(true);
+        },
         onFormCancel: () => resolve(false)
       };
 
@@ -362,7 +382,7 @@ export const CreateNodeAction = {
   getDefaultModel: () => {
     return {
       name: 'grid.inline-tools.create',
-      type: 'create',
+      type: DefaultActionTypes.CREATE,
       icon: 'icon-plus'
     };
   }

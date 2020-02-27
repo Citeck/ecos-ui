@@ -254,3 +254,24 @@ export const equalsQueryUrls = params => {
 
   return queryString.stringify(firstParams) === queryString.stringify(secondParams);
 };
+
+export const getLinkWithout = params => {
+  const { url = '', ignored = [] } = params;
+
+  if (!url || !ignored.length) {
+    return url;
+  }
+
+  let parsed = queryString.parseUrl(url) || {};
+  let query = parsed.query || {};
+
+  if (isEmpty(query)) {
+    return url;
+  }
+
+  ignored.forEach(param => {
+    delete query[param];
+  });
+
+  return `${parsed.url}?${queryString.stringify(query)}`;
+};

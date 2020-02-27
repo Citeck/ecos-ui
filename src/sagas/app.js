@@ -1,7 +1,7 @@
 import { put, takeLatest, call } from 'redux-saga/effects';
 import lodashSet from 'lodash/set';
 import lodashGet from 'lodash/get';
-import { initAppRequest, initAppSuccess, initAppFailure, setAllUsersGroupName } from '../actions/app';
+import { initAppRequest, initAppSuccess, initAppFailure } from '../actions/app';
 import { validateUserSuccess, validateUserFailure } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
 
@@ -9,28 +9,27 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
   try {
     // --- Validate user ---
     let isAuthenticated = false;
-    const checkAuthResp = yield call(api.user.checkIsAuthenticated);
-    if (checkAuthResp.success) {
-      const resp = yield call(api.user.getUserData);
-      if (!resp.success) {
+    try {
+      const checkAuthResp = yield call(api.user.checkIsAuthenticated);
+      if (!checkAuthResp.success) {
         yield put(validateUserFailure());
       } else {
-        isAuthenticated = true;
-        yield put(validateUserSuccess(resp.payload));
+        const resp = yield call(api.user.getUserData);
+        if (!resp.success) {
+          yield put(validateUserFailure());
+        } else {
+          isAuthenticated = true;
+          yield put(validateUserSuccess(resp.payload));
 
-        // TODO remove in future: see src/helpers/util.js getCurrentUserName()
-        lodashSet(window, 'Alfresco.constants.USERNAME', lodashGet(resp.payload, 'userName'));
+          // TODO remove in future: see src/helpers/util.js getCurrentUserName()
+          lodashSet(window, 'Alfresco.constants.USERNAME', lodashGet(resp.payload, 'userName'));
+        }
       }
+    } catch (e) {
+      yield put(validateUserFailure());
     }
 
     yield put(detectMobileDevice());
-
-    const allUsersGroupName = yield call(api.app.getOrgstructAllUsersGroupName);
-    yield put(setAllUsersGroupName(allUsersGroupName));
-
-    // --- Load translation messages ---
-    // TODO load translation messages
-
     yield put(initAppSuccess());
 
     if (payload && payload.onSuccess) {

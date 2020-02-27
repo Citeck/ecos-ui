@@ -3,6 +3,9 @@
 .ecos-timesheet {
   $root: &;
 
+  min-width: 1024px;
+  height: 100%;
+
   %icon-style {
     font-family: citeck;
     font-size: $font-size-standard;
@@ -112,6 +115,7 @@
     border-radius: 12px;
     padding: 17px 21px;
     max-height: 60px;
+    margin-bottom: 15px;
   }
 
   &__type {
@@ -119,9 +123,9 @@
   }
 
   &__header {
-    margin-bottom: 15px;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
 
     &-box {
       display: flex;
@@ -148,7 +152,7 @@
 
   &__date-settings {
     @extend #{$root}__white-block;
-    //width: 65%;
+
     margin-right: 13px;
     flex: auto;
 
@@ -1096,4 +1100,8 @@
   &__no-data {
     justify-content: center;
   }
+}
+
+.ecos-main-content {
+  overflow: scroll;
 }

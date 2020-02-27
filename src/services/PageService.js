@@ -1,11 +1,12 @@
 import queryString from 'query-string';
 import get from 'lodash/get';
 
-import { t } from '../helpers/util';
+import { getCurrentUserName, t } from '../helpers/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
 import { URL } from '../constants';
+import { decodeLink, getLinkWithout, isNewVersionPage, SearchKeys } from '../helpers/urls';
+import { getData, isExistLocalStorage, setData } from '../helpers/ls';
 import { PageApi } from '../api';
-import { decodeLink, isNewVersionPage } from '../helpers/urls';
 
 const pageApi = new PageApi();
 
@@ -60,27 +61,27 @@ export default class PageService {
   static getPage({ link, type }) {
     const _type = type || PageService.getType(link);
 
-    return PageService.pages[_type] || getDefaultPage();
+    return PageService.pageTypes[_type] || getDefaultPage();
   }
 
-  static pages = Object.freeze({
+  static pageTypes = Object.freeze({
     [PageTypes.DASHBOARD]: {
       getTitle: ({ recordRef }) => {
-        return recordRef ? pageApi.getRecordTitle(recordRef) : staticTitle(TITLE.HOMEPAGE);
+        return recordRef ? pageApi.getRecordTitle(recordRef).then(title => convertTitle(title)) : staticTitle(TITLE.HOMEPAGE);
       }
     },
     [PageTypes.JOURNALS]: {
       getTitle: ({ journalId }) => {
         const prom = pageApi.getJournalTitle(journalId);
 
-        return prom.then(title => `${t('page-tabs.journal')} "${title}"`);
+        return prom.then(title => `${t('page-tabs.journal')} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.SETTINGS]: {
       getTitle: ({ recordRef, journalId }) => {
         const prom = recordRef ? pageApi.getRecordTitle(recordRef) : pageApi.getJournalTitle(journalId);
 
-        return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${title}"`);
+        return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.BPMN_DESIGNER]: {
@@ -118,9 +119,10 @@ export default class PageService {
    * @param linkIgnoreAttr
    * @returns {{link: string | undefined, isActive: boolean}} | undefined
    */
-  static definePropsLink = ({ event }) => {
+  static parseEvent = ({ event }) => {
     const { type, currentTarget, params } = event || {};
     const linkIgnoreAttr = IGNORE_TABS_HANDLER_ATTR_NAME;
+    const currentLink = window.location.href.replace(window.location.origin, '');
 
     if (type === Events.CHANGE_URL_LINK_EVENT) {
       const { openNewTab, openNewBrowserTab, reopenBrowserTab, openInBackground, link, ...props } = params || {};
@@ -142,6 +144,8 @@ export default class PageService {
 
         return;
       }
+
+      PageService.setWhereLinkOpen({ parentLink: currentLink, subsidiaryLink: link });
 
       if (openInBackground) {
         return {
@@ -175,6 +179,8 @@ export default class PageService {
       return;
     }
 
+    PageService.setWhereLinkOpen({ parentLink: currentLink, subsidiaryLink: link });
+
     event.preventDefault();
 
     const isBackgroundOpening = elem.getAttribute(OPEN_IN_BACKGROUND);
@@ -183,6 +189,61 @@ export default class PageService {
       link,
       isActive: !(isBackgroundOpening || (event.button === 0 && event.ctrlKey))
     };
+  };
+
+  static setWhereLinkOpen = ({ parentLink, subsidiaryLink }) => {
+    if (isExistLocalStorage()) {
+      const key = getKeyHistory();
+      const history = getData(key) || {};
+      const keyLink = PageService.keyId({ link: decodeLink(subsidiaryLink) });
+      const parent = getLinkWithout({
+        url: decodeLink(parentLink),
+        ignored: [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW]
+      });
+
+      if (!history[parent]) {
+        history[parent] = [];
+      }
+
+      const found = history[parent].find(item => keyLink === item);
+
+      if (found) {
+        return;
+      }
+
+      history[parent].push(keyLink);
+
+      setData(key, history);
+    }
+  };
+
+  static extractWhereLinkOpen = ({ subsidiaryLink }) => {
+    if (isExistLocalStorage()) {
+      const key = getKeyHistory();
+      const history = getData(key) || {};
+      const keyLink = PageService.keyId({ link: decodeLink(subsidiaryLink) });
+
+      for (const parentLink in history) {
+        if (history.hasOwnProperty(parentLink)) {
+          const parent = getLinkWithout({
+            url: parentLink,
+            ignored: [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW]
+          });
+          const foundI = history[parent].findIndex(item => keyLink === item);
+
+          if (!!~foundI) {
+            history[parent].splice(foundI, 1);
+
+            if (!history[parent].length) {
+              delete history[parent];
+            }
+
+            setData(key, history);
+            return parent;
+          }
+        }
+      }
+    }
   };
 }
 
@@ -198,4 +259,12 @@ function getDefaultPage() {
   return Object.freeze({
     getTitle: () => staticTitle(TITLE.NO_NAME)
   });
+}
+
+function getKeyHistory() {
+  return 'ecos-ui-transitions-history/v3/user-' + getCurrentUserName();
+}
+
+function convertTitle(title) {
+  return t(title || TITLE.NO_NAME);
 }
