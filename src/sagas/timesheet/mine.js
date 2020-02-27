@@ -101,7 +101,7 @@ function* updateEvents({ value, number, userName }) {
   try {
     const events = deepClone(yield select(selectTMineEvents));
     const event = get(events, `[${userName}]`, []);
-    const dayIndex = event.days.findIndex(day => day.number === number);
+    let dayIndex = event.days.findIndex(day => day.number === number);
 
     if (!~dayIndex) {
       event.days.push({ number, hours: value });

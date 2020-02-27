@@ -1,5 +1,4 @@
 import { put, select, takeLatest, takeEvery, call } from 'redux-saga/effects';
-import get from 'lodash/get';
 
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
@@ -14,8 +13,7 @@ import {
   setUpdatingEventDayHours,
   delegateTo,
   setDelegatedTo,
-  removeDelegation,
-  setEvents
+  removeDelegation
 } from '../../actions/timesheet/subordinates';
 import {
   selectTSubordinatesDelegatedTo,
@@ -126,7 +124,7 @@ function* updateEvents({ value, number, userName, eventType }) {
       event.days.splice(dayIndex, 1);
     }
 
-    yield put(setEvents(list));
+    yield put(setMergedList(list));
   } catch (e) {
     console.error('[timesheetSubordinates updateEvents] error', e.message);
   }
