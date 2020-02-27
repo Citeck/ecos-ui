@@ -36,7 +36,7 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
 
     const userNames = CommonTimesheetService.getUserNameList(requestList.records);
 
-    const peopleList = yield api.timesheetCommon.getInfoPeopleList({ userNames });
+    const peopleList = yield call(api.timesheetCommon.getInfoPeopleList, { userNames });
 
     const innerCounts = yield api.timesheetDelegated.getTotalCountsForTypes({ userName, delegationType });
 
@@ -102,7 +102,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
   yield put(setUpdatingEventDayHours(firstState));
 
   try {
-    yield api.timesheetCommon.modifyEventHours({ ...payload });
+    yield call(api.timesheetCommon.modifyEventHours, { ...payload });
 
     const updatingHoursState = yield select(selectTDelegatedUpdatingHours);
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
@@ -180,7 +180,7 @@ function* sagaDeclineDelegation({ api, logger }, { payload }) {
   try {
     const mergedList = yield select(selectTDelegatedMergedList);
 
-    yield api.timesheetDelegated.removeRecord({
+    yield call(api.timesheetDelegated.removeRecord, {
       userName: _userName,
       delegationType,
       deputyName: _deputyName
@@ -200,7 +200,7 @@ function* sagaGetDelegatedDeputies({ api, logger }, { payload }) {
   try {
     const userName = yield select(selectUserName);
     const { type } = payload;
-    const result = yield api.timesheetDelegated.getDeputyList({
+    const result = yield call(api.timesheetDelegated.getDeputyList, {
       userName,
       type
     });

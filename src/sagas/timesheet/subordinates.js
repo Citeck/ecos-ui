@@ -34,11 +34,11 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
     const { currentDate, status } = payload;
     const userName = yield select(selectUserName);
 
-    const subordinates = yield api.timesheetSubordinates.getSubordinatesList({ userName });
+    const subordinates = yield call(api.timesheetSubordinates.getSubordinatesList, { userName });
 
     const userNames = CommonTimesheetService.getUserNameList(subordinates.records);
 
-    const requestList = yield api.timesheetSubordinates.getRequestListByStatus({
+    const requestList = yield call(api.timesheetSubordinates.getRequestListByStatus, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userNames,
@@ -53,7 +53,10 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
       userNames: userNamesPure
     });
 
-    const delegationStatus = yield api.timesheetDelegated.getDelegationInfo({ user: userName, delegationType: DelegationTypes.APPROVE });
+    const delegationStatus = yield call(api.timesheetDelegated.getDelegationInfo, {
+      user: userName,
+      delegationType: DelegationTypes.APPROVE
+    });
     const deputy = DelegationTimesheetConverter.getDelegationInfo(delegationStatus.records);
 
     const list = SubordinatesTimesheetService.mergeManyToOneList({
@@ -176,7 +179,7 @@ function* sagaDelegateTo({ api, logger }, { payload }) {
   const userName = yield select(selectUserName);
 
   try {
-    yield api.timesheetDelegated.setRecord({
+    yield call(api.timesheetDelegated.setRecord, {
       userName,
       deputyName: deputy.name,
       delegationType: payload.delegationType
@@ -194,7 +197,7 @@ function* sagaRemoveDelegation({ api, logger }) {
   const deputyName = yield select(selectTSubordinatesDelegatedTo);
 
   try {
-    yield api.timesheetDelegated.removeRecord({ userName, deputyName, delegationType: DelegationTypes.APPROVE });
+    yield call(api.timesheetDelegated.removeRecord, { userName, deputyName, delegationType: DelegationTypes.APPROVE });
 
     yield put(setDelegatedTo(DelegationTimesheetConverter.getDeputyData()));
   } catch (e) {

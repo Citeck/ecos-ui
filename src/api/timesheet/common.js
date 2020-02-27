@@ -60,6 +60,7 @@ export class TimesheetCommonApi extends RecordService {
     ).then(res => res);
   };
 
+  // TODO: Need to get rid of the generators in API
   getTimesheetCalendarEventsList = function*({ month, year, userNames }) {
     const events = {};
 
