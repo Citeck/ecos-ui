@@ -48,7 +48,7 @@ export class DocPreviewApi extends RecordService {
         resp = resp || {};
 
         const json = resp.json || {};
-        const { url = '', ext = '' } = json;
+        const { ext = '' } = json;
         const fileName = resp.fileName || '';
 
         if (ext) {
