@@ -144,7 +144,7 @@ class Hour extends Component {
     let value = event.target.value;
 
     if (halfHour) {
-      value = event.target.value.replace(/[^0-9\.,]/g, '');
+      value = event.target.value.replace(/[^0-9.,]/g, '');
       value = value.replace(DELIMITERS[0], DELIMITERS[1]);
 
       if (value === DELIMITERS[1]) {

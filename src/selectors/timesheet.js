@@ -1,9 +1,11 @@
 export const selectTSubordinatesMergedList = state => state.timesheetSubordinates.mergedList || [];
 export const selectTSubordinatesUpdatingHours = state => state.timesheetSubordinates.updatingHours || {};
 export const selectTSubordinatesDelegatedTo = state => state.timesheetSubordinates.delegatedToUserName || '';
+export const selectTSubordinatesList = state => state.timesheetSubordinates.mergedList || [];
 
 export const selectTMineUpdatingHours = state => state.timesheetMine.updatingHours || {};
 export const selectTMineDelegatedTo = state => state.timesheetMine.delegatedToUserName || '';
+export const selectTMineEvents = state => state.timesheetMine.mergedEvents || [];
 
 export const selectTVerificationMergedList = state => state.timesheetVerification.mergedList || {};
 
