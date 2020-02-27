@@ -1,5 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
+import get from 'lodash/get';
+
 import TasksService from '../services/tasks';
 
 export default class TasksConverter {
@@ -32,14 +34,20 @@ export default class TasksConverter {
       return target;
     }
 
-    const actors = source.actors || {};
+    const actors = source.actors || [];
 
     target.id = source.id || '';
     target.title = source.title || '';
-    target.actors = TasksService.getActorsDisplayNameStr(actors);
+    target.actors = TasksService.getActorsDisplayNameStr(actors[0]);
     target.deadline = source.dueDate;
-    target.isGroup = TasksService.getIsGroup(actors);
-    target.usersGroup = TasksService.getUsersOfGroupArrayStr(actors.containedUsers);
+
+    if (actors.length > 1) {
+      target.isGroup = true;
+      target.usersGroup = TasksService.getUsersOfGroupArrayStr(actors);
+    } else {
+      target.isGroup = TasksService.getIsGroup(actors);
+      target.usersGroup = TasksService.getUsersOfGroupArrayStr(get(actors, '[0].containedUsers', []));
+    }
 
     return target;
   }

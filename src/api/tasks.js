@@ -35,7 +35,7 @@ export class TasksApi extends RecordService {
       title: 'title',
       started: 'started',
       dueDate: 'dueDate',
-      actors: 'actors?json',
+      actors: 'actors[]?json',
       sender: 'sender?json',
       lastcomment: 'lastcomment',
       reassignable: 'reassignable?bool',
@@ -49,13 +49,13 @@ export class TasksApi extends RecordService {
     return TasksApi.getTasks(SOURCE_ID_CURRENT_TASKS, document, undefined, {
       title: 'title',
       dueDate: 'dueDate',
-      actors: 'actors?json'
+      actors: 'actors[]?json'
     });
   };
 
   getTaskStateAssign = ({ taskId }) => {
     return TasksApi.getTask(taskId, {
-      actors: 'actors?json',
+      actors: 'actors[]?json',
       reassignable: 'reassignable?bool',
       releasable: 'reassignable?bool',
       claimable: 'claimable?bool',
