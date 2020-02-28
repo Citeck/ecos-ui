@@ -69,7 +69,7 @@ const PersistedValue = function(att, innerAtt) {
     if (withLoading && (!this._isLoaded || forceReload || (multiple && !this._isArrayLoaded))) {
       let attributeToLoad = convertToFullAttributeName(this._att.getName(), this._innerAtt, multiple);
 
-      this._value = this._att._record._loadRecordAttImpl(attributeToLoad);
+      this._value = this._att._record._loadRecordAttImpl(attributeToLoad, forceReload);
       this._isLoaded = true;
       this._isArrayLoaded = multiple;
       if (this._value != null && this._value.then) {

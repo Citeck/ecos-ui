@@ -519,7 +519,7 @@ export default class EcosFormUtils {
     }
 
     return Records.get(recordId)
-      .load(attributes)
+      .load(attributes, true)
       .then(recordData => {
         let edges = {};
         let submission = {};
