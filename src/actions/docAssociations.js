@@ -2,7 +2,8 @@ import { createAction } from 'redux-actions';
 
 const prefix = 'docAssociations/';
 
-export const initStore = createAction(prefix + 'INIT_STORE');
+export const initStore = createAction(prefix + 'INIT_STORE_RECORD');
+export const resetStore = createAction(prefix + 'RESET_STORE_RECORD');
 
 export const getSectionList = createAction(prefix + 'GET_SECTION_LIST');
 export const setSectionList = createAction(prefix + 'SET_SECTION_LIST');
