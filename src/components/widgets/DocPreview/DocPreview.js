@@ -35,7 +35,7 @@ class DocPreview extends Component {
     link: PropTypes.string,
     className: PropTypes.string,
     fileName: PropTypes.string,
-    recordKey: PropTypes.string,
+    recordId: PropTypes.string,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -55,7 +55,6 @@ class DocPreview extends Component {
     height: 'inherit',
     scale: DocScaleOptions.AUTO,
     firstPageNumber: 1,
-    recordKey: 'recordRef',
     fileName: ''
   };
 
@@ -75,7 +74,8 @@ class DocPreview extends Component {
       link: props.link,
       contentHeight: 0,
       error: '',
-      fileName: props.fileName
+      fileName: props.fileName,
+      downloadLink: props.downloadLink
     };
   }
 
@@ -93,7 +93,7 @@ class DocPreview extends Component {
     const prevProps = this.props;
     const { link, isLoading, byLink, isCollapsed, runUpdate } = nextProps;
     const { recordId } = this.state;
-    const newRecordId = this.getRecordId(nextProps);
+    const newRecordId = this.getRecordId();
     const isPdf = isPDFbyStr(link);
     const newState = {};
 
@@ -126,6 +126,10 @@ class DocPreview extends Component {
       newState.fileName = nextProps.fileName;
     }
 
+    if ((!prevProps.downloadLink && nextProps.downloadLink) || prevProps.downloadLink !== nextProps.downloadLink) {
+      newState.downloadLink = nextProps.downloadLink;
+    }
+
     this.setState({ ...newState }, () => {
       if (newState.recordId) {
         this.getUrlByRecord();
@@ -133,6 +137,10 @@ class DocPreview extends Component {
 
       if (!newState.fileName) {
         this.getFileName();
+      }
+
+      if (!newState.downloadLink) {
+        this.getDownloadLink();
       }
     });
   }
@@ -203,23 +211,22 @@ class DocPreview extends Component {
     return heightTool >= heightBody && !this.message;
   }
 
-  getRecordId(props = this.props) {
-    const { recordKey } = props;
-    const searchParams = queryString.parse(window.location.search);
+  getRecordId() {
+    const searchParams = queryString.parseUrl(window.location.href).query;
 
-    return searchParams[recordKey] || '';
+    return searchParams['recordRef'] || '';
   }
 
   getUrlByRecord = () => {
-    const { recordKey, byLink } = this.props;
-    const searchParams = queryString.parse(window.location.search);
+    const { byLink } = this.props;
+    const recordId = this.getRecordId();
 
-    if (byLink || !searchParams[recordKey]) {
+    if (byLink || !recordId) {
       return;
     }
 
     this.setState({ isLoading: true });
-    DocPreviewApi.getLinkByRecord(searchParams[recordKey]).then(link => {
+    DocPreviewApi.getLinkByRecord(recordId).then(link => {
       const error = link ? '' : t(Labels.Errors.FAILURE_FETCH);
 
       this.setState({ isLoading: false, link, error });
@@ -231,10 +238,10 @@ class DocPreview extends Component {
   };
 
   getFileName = () => {
-    const { recordKey, byLink } = this.props;
-    const searchParams = queryString.parse(window.location.search);
+    const { byLink } = this.props;
+    const recordId = this.getRecordId();
 
-    if (byLink || !searchParams[recordKey]) {
+    if (byLink || !recordId) {
       return;
     }
 
@@ -242,6 +249,18 @@ class DocPreview extends Component {
       this.setState({ fileName });
     });
   };
+
+  getDownloadLink() {
+    const recordId = this.getRecordId();
+
+    if (!recordId) {
+      return;
+    }
+
+    DocPreviewApi.getDownloadLink(recordId).then(downloadLink => {
+      this.setState({ downloadLink });
+    });
+  }
 
   loadPDF = link => {
     const { firstPageNumber } = this.props;
@@ -319,7 +338,8 @@ class DocPreview extends Component {
         forwardedRef={forwardedRef}
         resizable={resizable}
         {...this.commonProps}
-        onError={() => {
+        onError={error => {
+          console.error(error);
           this.setState({ error: t(Labels.Errors.FAILURE_FETCH) });
         }}
       />
@@ -328,7 +348,7 @@ class DocPreview extends Component {
 
   renderToolbar() {
     const { scale } = this.props;
-    const { pdf, scrollPage, calcScale, link, fileName } = this.state;
+    const { pdf, scrollPage, calcScale, downloadLink, fileName } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
     if (!this.loaded) {
@@ -345,8 +365,8 @@ class DocPreview extends Component {
         scrollPage={scrollPage}
         calcScale={calcScale}
         inputRef={this.refToolbar}
-        link={link}
         fileName={fileName}
+        downloadLink={downloadLink}
       />
     );
   }

@@ -513,7 +513,8 @@ JournalsDashletGrid.propTypes = {
   toolsClassName: PropTypes.string,
   minHeight: PropTypes.any,
   doInlineToolsOnRowClick: PropTypes.bool,
-  isWidget: PropTypes.bool
+  isWidget: PropTypes.bool,
+  onRowClick: PropTypes.func
 };
 
 export default connect(

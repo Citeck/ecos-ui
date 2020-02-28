@@ -1,5 +1,6 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
+
 import endsWith from 'lodash/endsWith';
 
 export class DocPreviewApi extends RecordService {
@@ -13,17 +14,17 @@ export class DocPreviewApi extends RecordService {
         true
       )
       .then(resp => {
-        console.log('resp', resp);
         resp = resp || {};
 
         const fileName = resp.fileName || '';
-        const { url = '', ext = '', originalUrl } = resp.info || {};
+        const { url = '', ext = '', originalUrl = '' } = resp.info || {};
+        const link = url || originalUrl;
 
-        if (url && ext) {
+        if (link && ext) {
           const extWithDot = '.' + ext;
           const withFileName = fileName ? `|${fileName}.${ext}` : '';
 
-          return endsWith(url, extWithDot) ? url + withFileName : `${url}#.${ext}` + withFileName;
+          return endsWith(link, extWithDot) ? `${link}${withFileName}` : `${link}#.${ext}${withFileName}`;
         }
 
         return '';
@@ -57,6 +58,29 @@ export class DocPreviewApi extends RecordService {
 
         return fileName;
       })
+      .catch(e => {
+        console.error(e);
+        return '';
+      });
+  };
+
+  static getDownloadLink = nodeRef => {
+    return Records.get(nodeRef)
+      .load(
+        {
+          info: 'previewInfo?json',
+          fileName: '.disp'
+        },
+        true
+      )
+      .then(resp => {
+        resp = resp || {};
+
+        const { originalUrl = '' } = resp.info || {};
+
+        return originalUrl || '';
+      })
+      .then(url => (url ? `/share/proxy/${url}` : ''))
       .catch(e => {
         console.error(e);
         return '';
