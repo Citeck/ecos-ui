@@ -1,16 +1,18 @@
 import { handleActions } from 'redux-actions';
 import {
+  addAssociations,
   getAssociations,
+  getMenu,
   initStore,
+  removeAssociations,
+  resetStore,
   setAllowedConnections,
   setAssociations,
-  getMenu,
-  setMenu,
-  setSectionList,
-  addAssociations,
   setError,
-  removeAssociations
+  setMenu,
+  setSectionList
 } from '../actions/docAssociations';
+import { getCurrentStateById } from '../helpers/redux';
 
 export const initialState = {
   // list of sections
@@ -42,7 +44,11 @@ export default handleActions(
         [payload]: { ...ownState }
       };
     },
+    [resetStore]: (state, { payload }) => {
+      delete state[payload];
 
+      return state;
+    },
     [setSectionList]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
@@ -63,7 +69,7 @@ export default handleActions(
     [getAssociations]: (state, { payload }) => ({
       ...state,
       [payload]: {
-        ...state[payload],
+        ...getCurrentStateById(state, payload, initialState),
         isLoading: true
       }
     }),

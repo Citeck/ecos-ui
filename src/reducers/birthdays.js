@@ -1,6 +1,7 @@
 import { handleActions } from 'redux-actions';
 
-import { init, getBirthdays, setBirthdays, setError } from '../actions/birthdays';
+import { getBirthdays, initStore, resetStore, setBirthdays, setError } from '../actions/birthdays';
+import { getCurrentStateById } from '../helpers/redux';
 
 export const initialState = {
   birthdays: [],
@@ -13,7 +14,7 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
-    [init]: (state, { payload }) => {
+    [initStore]: (state, { payload }) => {
       let ownState = { ...initialState };
 
       if (state[payload]) {
@@ -30,7 +31,7 @@ export default handleActions(
     [getBirthdays]: (state, { payload }) => ({
       ...state,
       [payload]: {
-        ...state[payload],
+        ...getCurrentStateById(state, payload, initialState),
         error: '',
         isLoading: true
       }
@@ -50,7 +51,12 @@ export default handleActions(
         error: payload.data,
         isLoading: false
       }
-    })
+    }),
+    [resetStore]: (state, { payload }) => {
+      delete state[payload];
+
+      return state;
+    }
   },
   {}
 );

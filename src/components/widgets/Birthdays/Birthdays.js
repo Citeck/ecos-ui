@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 
 import { selectStateByKey } from '../../../selectors/birthdays';
-import { getBirthdays, init } from '../../../actions/birthdays';
+import { getBirthdays, resetStore } from '../../../actions/birthdays';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
@@ -37,10 +37,8 @@ class Birthdays extends Component {
         url: PropTypes.string
       })
     ).isRequired,
-    isLoading: PropTypes.bool,
     error: PropTypes.string,
-    init: PropTypes.func.isRequired,
-    getBirthdays: PropTypes.func.isRequired
+    isLoading: PropTypes.bool
   };
 
   static defaultProps = {
@@ -58,12 +56,14 @@ class Birthdays extends Component {
       userHeight: UserLocalSettingsService.getDashletHeight(props.id),
       isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
     };
-
-    props.init();
   }
 
   componentDidMount() {
     this.props.getBirthdays();
+  }
+
+  componentWillUnmount() {
+    this.props.resetStore();
   }
 
   get isLargeSize() {
@@ -220,7 +220,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  init: () => dispatch(init(ownProps.id)),
+  resetStore: () => dispatch(resetStore(ownProps.id)),
   getBirthdays: () => dispatch(getBirthdays(ownProps.id))
 });
 
