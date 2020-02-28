@@ -284,7 +284,7 @@ export default class Record {
           if (!force && value !== undefined) {
             return value;
           } else {
-            value = this._loadRecordAttImpl(att);
+            value = this._loadRecordAttImpl(att, force);
             if (value && value.then) {
               this._recordFields[att] = value
                 .then(loaded => {
@@ -323,9 +323,9 @@ export default class Record {
     });
   }
 
-  _loadRecordAttImpl(attribute) {
+  _loadRecordAttImpl(attribute, force) {
     if (this._baseRecord) {
-      return this._baseRecord.load(attribute);
+      return this._baseRecord.load(attribute, force);
     } else {
       return loadAttribute(this.id, attribute);
     }
