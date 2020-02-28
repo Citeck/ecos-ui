@@ -2,7 +2,7 @@ import { createAction } from 'redux-actions';
 
 const prefix = 'documents/';
 
-export const init = createAction(prefix + 'INIT_WIDGET');
+export const initStore = createAction(prefix + 'INIT_WIDGET_STORE');
 export const initSuccess = createAction(prefix + 'INIT_WIDGET_SUCCESS');
 export const initFinally = createAction(prefix + 'INIT_WIDGET_FINALLY');
 

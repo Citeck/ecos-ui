@@ -34,4 +34,32 @@ export class DocPreviewApi extends RecordService {
         return '';
       });
   };
+
+  static getFileName = nodeRef => {
+    return Records.get(nodeRef)
+      .load(
+        {
+          json: 'previewInfo?json',
+          fileName: '.disp'
+        },
+        true
+      )
+      .then(resp => {
+        resp = resp || {};
+
+        const json = resp.json || {};
+        const { ext = '' } = json;
+        const fileName = resp.fileName || '';
+
+        if (ext) {
+          return `${fileName}.${ext}`;
+        }
+
+        return fileName;
+      })
+      .catch(e => {
+        console.error(e);
+        return '';
+      });
+  };
 }

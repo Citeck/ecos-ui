@@ -74,7 +74,8 @@ class DocPreview extends Component {
       recordId: this.getRecordId(),
       link: props.link,
       contentHeight: 0,
-      error: ''
+      error: '',
+      fileName: props.fileName
     };
   }
 
@@ -121,9 +122,17 @@ class DocPreview extends Component {
       this.getUrlByRecord();
     }
 
+    if ((!prevProps.fileName && nextProps.fileName) || prevProps.fileName !== nextProps.fileName) {
+      newState.fileName = nextProps.fileName;
+    }
+
     this.setState({ ...newState }, () => {
       if (newState.recordId) {
         this.getUrlByRecord();
+      }
+
+      if (!newState.fileName) {
+        this.getFileName();
       }
     });
   }
@@ -221,6 +230,19 @@ class DocPreview extends Component {
     });
   };
 
+  getFileName = () => {
+    const { recordKey, byLink } = this.props;
+    const searchParams = queryString.parse(window.location.search);
+
+    if (byLink || !searchParams[recordKey]) {
+      return;
+    }
+
+    DocPreviewApi.getFileName(searchParams[recordKey]).then(fileName => {
+      this.setState({ fileName });
+    });
+  };
+
   loadPDF = link => {
     const { firstPageNumber } = this.props;
     const loadingTask = pdfjs.getDocument(link);
@@ -305,8 +327,8 @@ class DocPreview extends Component {
   }
 
   renderToolbar() {
-    const { scale, fileName } = this.props;
-    const { pdf, scrollPage, calcScale, link } = this.state;
+    const { scale } = this.props;
+    const { pdf, scrollPage, calcScale, link, fileName } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
     if (!this.loaded) {
