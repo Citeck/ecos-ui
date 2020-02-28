@@ -7,17 +7,17 @@ export class DocPreviewApi extends RecordService {
     return Records.get(nodeRef)
       .load(
         {
-          json: 'previewInfo?json',
+          info: 'previewInfo?json',
           fileName: '.disp'
         },
         true
       )
       .then(resp => {
+        console.log('resp', resp);
         resp = resp || {};
 
         const fileName = resp.fileName || '';
-        const json = resp.json || {};
-        const { url = '', ext = '' } = json;
+        const { url = '', ext = '', originalUrl } = resp.info || {};
 
         if (url && ext) {
           const extWithDot = '.' + ext;
