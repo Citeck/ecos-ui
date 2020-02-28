@@ -6,15 +6,16 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
+import { DocPreviewApi } from '../../../api';
+import { DocScaleOptions } from '../../../constants';
 import { getOptimalHeight } from '../../../helpers/layout';
 import { isPDFbyStr, t } from '../../../helpers/util';
-import { DocPreviewApi } from '../../../api';
 import { InfoText, Loader } from '../../common';
+import { Btn } from '../../common/btns';
 import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
-import { DocScaleOptions } from '../../../constants';
 
 import './style.scss';
 
@@ -27,7 +28,8 @@ const Labels = {
     FAILURE_FETCH: 'doc-preview.error.failure-to-fetch',
     LOADING_FAILURE: 'doc-preview.error.loading-failure',
     NOT_SPECIFIED: 'doc-preview.error.not-specified'
-  }
+  },
+  DOWNLOAD: 'doc-preview.download'
 };
 
 class DocPreview extends Component {
@@ -70,7 +72,7 @@ class DocPreview extends Component {
       settings: {},
       isLoading: this.isPDF,
       scrollPage: props.firstPageNumber,
-      recordId: this.getRecordId(),
+      recordId: props.recordId || this.getRecordId(),
       link: props.link,
       contentHeight: 0,
       error: '',
@@ -80,6 +82,8 @@ class DocPreview extends Component {
   }
 
   componentDidMount() {
+    this.exist = true;
+
     if (this.isPDF) {
       const { link } = this.props;
 
@@ -93,7 +97,6 @@ class DocPreview extends Component {
     const prevProps = this.props;
     const { link, isLoading, byLink, isCollapsed, runUpdate } = nextProps;
     const { recordId } = this.state;
-    const newRecordId = this.getRecordId();
     const isPdf = isPDFbyStr(link);
     const newState = {};
 
@@ -113,6 +116,8 @@ class DocPreview extends Component {
     if (prevProps.link !== link) {
       newState.link = link;
     }
+
+    const newRecordId = nextProps.recordId || this.getRecordId();
 
     if ((!byLink && recordId !== newRecordId) || (!byLink && prevProps.isCollapsed && !isCollapsed)) {
       newState.recordId = newRecordId;
@@ -143,6 +148,10 @@ class DocPreview extends Component {
         this.getDownloadLink();
       }
     });
+  }
+
+  componentWillUnmount() {
+    this.exist = false;
   }
 
   get isPDF() {
@@ -212,14 +221,12 @@ class DocPreview extends Component {
   }
 
   getRecordId() {
-    const searchParams = queryString.parseUrl(window.location.href).query;
-
-    return searchParams['recordRef'] || '';
+    return queryString.parseUrl(window.location.href).query.recordRef || '';
   }
 
   getUrlByRecord = () => {
     const { byLink } = this.props;
-    const recordId = this.getRecordId();
+    const { recordId } = this.state;
 
     if (byLink || !recordId) {
       return;
@@ -227,38 +234,45 @@ class DocPreview extends Component {
 
     this.setState({ isLoading: true });
     DocPreviewApi.getLinkByRecord(recordId).then(link => {
-      const error = link ? '' : t(Labels.Errors.FAILURE_FETCH);
+      if (this.exist) {
+        const error = link ? '' : t(Labels.Errors.FAILURE_FETCH);
 
-      this.setState({ isLoading: false, link, error });
+        this.setState({ isLoading: false, link, error });
 
-      if (link && isPDFbyStr(link)) {
-        this.loadPDF(link);
+        if (link && isPDFbyStr(link)) {
+          this.loadPDF(link);
+        }
       }
     });
   };
 
   getFileName = () => {
     const { byLink } = this.props;
-    const recordId = this.getRecordId();
+    const { recordId } = this.state;
 
     if (byLink || !recordId) {
       return;
     }
 
-    DocPreviewApi.getFileName(searchParams[recordKey]).then(fileName => {
-      this.setState({ fileName });
+    DocPreviewApi.getFileName(recordId).then(fileName => {
+      this.exist && this.setState({ fileName });
     });
   };
 
   getDownloadLink() {
-    const recordId = this.getRecordId();
+    const { recordId, byLink, link } = this.state;
+
+    if (byLink && link) {
+      this.setState({ downloadLink: link });
+      return;
+    }
 
     if (!recordId) {
       return;
     }
 
     DocPreviewApi.getDownloadLink(recordId).then(downloadLink => {
-      this.setState({ downloadLink });
+      this.exist && this.setState({ downloadLink });
     });
   }
 
@@ -270,11 +284,11 @@ class DocPreview extends Component {
 
     loadingTask.promise.then(
       pdf => {
-        this.setState({ pdf, isLoading: false, scrollPage: firstPageNumber, error: '' });
+        this.exist && this.setState({ pdf, isLoading: false, scrollPage: firstPageNumber, error: '' });
       },
       err => {
         console.error(`Error during loading document: ${err}`);
-        this.setState({ isLoading: false, error: t(Labels.Errors.FAILURE_FETCH) });
+        this.exist && this.setState({ isLoading: false, error: t(Labels.Errors.FAILURE_FETCH) });
       }
     );
   };
@@ -348,7 +362,7 @@ class DocPreview extends Component {
 
   renderToolbar() {
     const { scale } = this.props;
-    const { pdf, scrollPage, calcScale, downloadLink, fileName } = this.state;
+    const { pdf, scrollPage, calcScale, downloadLink, link, fileName } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
     if (!this.loaded) {
@@ -366,7 +380,7 @@ class DocPreview extends Component {
         calcScale={calcScale}
         inputRef={this.refToolbar}
         fileName={fileName}
-        downloadLink={downloadLink}
+        downloadLink={downloadLink || link}
       />
     );
   }
@@ -382,9 +396,21 @@ class DocPreview extends Component {
   }
 
   renderMessage() {
+    const { downloadLink, fileName } = this.state;
     const message = this.message;
 
-    return message && <InfoText text={message} />;
+    return (
+      message && (
+        <div className="ecos-doc-preview__info-block">
+          <InfoText className="ecos-doc-preview__info-block-msg" text={message} />
+          {downloadLink && (
+            <a href={downloadLink} download={fileName} data-external>
+              <Btn className="ecos-btn_narrow">{t(Labels.DOWNLOAD)}</Btn>
+            </a>
+          )}
+        </div>
+      )
+    );
   }
 
   render() {
