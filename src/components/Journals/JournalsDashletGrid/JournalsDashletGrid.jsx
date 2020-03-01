@@ -41,6 +41,7 @@ const mapStateToProps = (state, props) => {
   return {
     loading: newState.loading,
     grid: newState.grid,
+    isMobile: state.view.isMobile,
     predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
@@ -240,6 +241,7 @@ class JournalsDashletGrid extends Component {
     const toolsActionClassName = 'ecos-btn_i_sm ecos-btn_grey4';
     const {
       stateId,
+      isMobile,
       selectAllRecordsVisible,
       selectAllRecords,
       grid: { total },
@@ -294,7 +296,7 @@ class JournalsDashletGrid extends Component {
               className={'dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn'}
               onClick={this.onGoTo}
             >
-              {t('grid.tools.group-actions')}
+              {t(isMobile ? 'grid.tools.group-actions-mobile' : 'grid.tools.group-actions')}
             </IcoBtn>
           </Dropdown>
         ]}
