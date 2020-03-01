@@ -178,6 +178,14 @@
 
     .table {
       margin-bottom: 0;
+
+      &:after {
+        bottom: unset;
+      }
+    }
+
+    &.ecos-grid_freeze .ecos-grid__header th:first-child {
+      box-shadow: -2px 0px 0px 0px $color-gray-4;
     }
 
     &_hidden {
