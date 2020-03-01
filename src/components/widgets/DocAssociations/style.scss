@@ -11,6 +11,11 @@
 
   &__menu {
     z-index: 1001;
+    left: -13px !important;
+
+    .ecos-dropdown__menu_cascade[x-placement='left-start'] {
+      left: -5px !important;
+    }
   }
 
   &__headline {
