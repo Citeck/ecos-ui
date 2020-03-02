@@ -72,7 +72,6 @@ export class DashboardApi extends RecordService {
 
   saveDashboardConfig = ({ identification, config }) => {
     const { key, user } = identification;
-
     const record = Records.get('eapps/module@ui/dashboard$');
 
     record.att('config?json', config);
