@@ -126,7 +126,15 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     const identificationData = { ...identification, ...newIdentification };
 
     if (!isAdmin) {
-      identificationData.user = yield select(selectUserName);
+      const user = yield select(selectUserName);
+
+      if (!user) {
+        yield put(setNotificationMessage(t('dashboard-settings.error4')));
+
+        return;
+      }
+
+      identificationData.user = user;
     }
 
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
