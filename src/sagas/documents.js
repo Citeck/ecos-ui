@@ -4,7 +4,14 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import isArray from 'lodash/isArray';
 
-import { selectAvailableTypes, selectConfigTypes, selectDynamicType, selectDynamicTypes, selectTypeNames } from '../selectors/documents';
+import {
+  selectAvailableTypes,
+  selectConfigTypes,
+  selectDynamicType,
+  selectDynamicTypes,
+  selectTypeNames,
+  selectIsLoadChecklist
+} from '../selectors/documents';
 import {
   execRecordsAction,
   getAvailableTypes,
@@ -46,14 +53,20 @@ function* sagaInitWidget({ api, logger }, { payload }) {
 
 function* sagaGetDynamicTypes({ api, logger }, { payload }) {
   try {
-    const { records, errors: dtErrors } = yield call(api.documents.getDynamicTypes, payload.record);
+    const isLoadChecklist = yield select(state => selectIsLoadChecklist(state, payload.key));
+    const typeNames = yield select(state => selectTypeNames(state, payload.key));
+    let dynamicTypes = [];
 
-    if (dtErrors.length) {
-      throw new Error(dtErrors.join(' '));
+    if (isLoadChecklist) {
+      const { records, errors: dtErrors } = yield call(api.documents.getDynamicTypes, payload.record);
+
+      if (dtErrors.length) {
+        throw new Error(dtErrors.join(' '));
+      }
+
+      dynamicTypes = DocumentsConverter.getDynamicTypes({ types: records, typeNames }, true);
     }
 
-    const typeNames = yield select(state => selectTypeNames(state, payload.key));
-    const dynamicTypes = DocumentsConverter.getDynamicTypes({ types: records, typeNames }, true);
     const configTypes = yield select(state => selectConfigTypes(state, payload.key));
     let combinedTypes = DocumentsConverter.combineTypes(dynamicTypes, configTypes);
     const dynamicTypeKeys = combinedTypes.map(record => record.type);
