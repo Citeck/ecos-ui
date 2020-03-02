@@ -14,8 +14,9 @@ class ViewMode extends Component {
     let onClickHandler = null;
     if (isSelectedValueAsLink) {
       const url = createDocumentUrl(item.id);
+
       onClickHandler = () => {
-        PageService.changeUrlLink(url, { openNewBrowserTab: true });
+        PageService.changeUrlLink(url, { openNewTab: true, openInBackground: true });
       };
     }
 
