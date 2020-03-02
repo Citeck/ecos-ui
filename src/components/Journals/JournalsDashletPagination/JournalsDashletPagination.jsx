@@ -12,7 +12,8 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
-    grid: newState.grid
+    grid: newState.grid,
+    loading: newState.loading
   };
 };
 
@@ -50,7 +51,8 @@ class JournalsDashletPagination extends Component {
     const {
       grid: { total, pagination, groupBy },
       hasPageSize,
-      className
+      className,
+      loading
     } = this.props;
 
     const cssClasses = classNames('ecos-journal-dashlet__pagination', className);
@@ -63,10 +65,11 @@ class JournalsDashletPagination extends Component {
       <Pagination
         className={cssClasses}
         total={total}
-        {...pagination}
         sizes={PAGINATION_SIZES}
-        onChange={this.changePage}
         hasPageSize={hasPageSize}
+        loading={loading}
+        onChange={this.changePage}
+        {...pagination}
       />
     );
   }
