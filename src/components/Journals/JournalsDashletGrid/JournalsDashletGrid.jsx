@@ -33,7 +33,7 @@ import {
   setSelectedRecords,
   setSettingsToUrl
 } from '../../../actions/journals';
-import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION } from '../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -116,16 +116,18 @@ class JournalsDashletGrid extends Component {
       setSettingsToUrl,
       setPredicate,
       isWidget,
-      grid: { columns }
+      grid: { columns, pagination: pager }
     } = this.props;
     const predicate = ParserPredicate.getDefaultPredicates(columns, [filter.att]);
     const newPredicate = ParserPredicate.setPredicateValue(predicate, filter, true);
+    const { maxItems } = pager || DEFAULT_JOURNALS_PAGINATION;
+    const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 
     setPredicate(newPredicate);
-    this.reloadGrid({ predicates: [newPredicate] });
+    this.reloadGrid({ predicates: [newPredicate], pagination });
 
     if (!isWidget) {
-      setSettingsToUrl({ predicate: newPredicate });
+      setSettingsToUrl({ predicate: newPredicate, pagination });
     }
   };
 
