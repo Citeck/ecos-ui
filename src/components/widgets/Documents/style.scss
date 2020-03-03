@@ -351,6 +351,12 @@
         margin-bottom: 30px;
       }
     }
+
+    &-checklist {
+      display: flex;
+      width: 100%;
+      margin-bottom: 20px;
+    }
   }
 
   &__panel {

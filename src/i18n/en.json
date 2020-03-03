@@ -787,6 +787,7 @@
   "esign.message.plugin-is-fetching": "The process of initializing the extension for working with digital signature",
   "documents-widget.settings-modal.button.cancel": "Cancel",
   "documents-widget.settings-modal.button.ok": "Done",
+  "documents-widget.settings-modal.checklist": "Download document types from checklists",
   "documents-widget.title": "Documents",
   "documents-widget.settings.title": "Setting document types",
   "documents-widget.upload.title": "Add files",
