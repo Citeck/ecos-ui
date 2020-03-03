@@ -6,7 +6,7 @@ import { AssocEditor } from '../../editors';
 
 export default class AssocFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
-    return `.att(n:"${attribute}"){disp,assoc}`;
+    return `.atts(n:"${attribute}"){disp,assoc}`;
   }
 
   static getEditor(editorProps, value, row, column) {
