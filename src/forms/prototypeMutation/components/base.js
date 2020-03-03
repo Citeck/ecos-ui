@@ -227,6 +227,10 @@ Base.prototype.build = function(state) {
     });
   }
 
+  if (this.viewOnly) {
+    this.errorContainer = this.element;
+  }
+
   this.createInlineEditSaveAndCancelButtons();
 };
 
