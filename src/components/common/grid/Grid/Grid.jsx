@@ -6,6 +6,7 @@ import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
@@ -159,8 +160,17 @@ class Grid extends Component {
     }
   };
 
-  setAdditionalOptions(props) {
-    props.columns = props.columns.map(column => {
+  setBootstrapTableProps(props, extra) {
+    const options = {
+      keyField: this._keyField,
+      bootstrap4: true,
+      bordered: false,
+      scrollable: true,
+      noDataIndication: () => t('grid.no-data-indication'),
+      ...props
+    };
+
+    options.columns = extra.columns.map(column => {
       if (column.width) {
         column = this.setWidth(column);
       }
@@ -187,14 +197,12 @@ class Grid extends Component {
     });
 
     if (props.editable) {
-      props.cellEdit = this.setEditable(props.editable);
+      options.cellEdit = this.setEditable(props.editable);
     } else {
-      props.cellEdit = undefined;
+      options.cellEdit = undefined;
     }
 
-    props.rowEvents = props.rowEvents || {};
-
-    props.rowEvents = {
+    options.rowEvents = {
       onMouseEnter: e => {
         const tr = e.currentTarget;
 
@@ -213,28 +221,24 @@ class Grid extends Component {
 
         trigger.call(this, 'onRowMouseLeave', e);
       },
-      onDragOver: this.onDragOver,
-      onDrop: this.onDrop,
-      ...props.rowEvents
-    };
-
-    props.rowEvents = {
       onClick: e => {
         props.changeTrOptionsByRowClick && this.getTrOptions(e.currentTarget);
         this.onRowClick(e.currentTarget);
       },
-      ...props.rowEvents
+      onDragOver: this.onDragOver,
+      onDrop: this.onDrop,
+      ...extra.rowEvents
     };
 
     if (props.multiSelectable) {
-      props.selectRow = this.createMultiSelectioCheckboxs(props);
+      options.selectRow = this.createMultiSelectioCheckboxs(props);
     }
 
     if (props.singleSelectable) {
-      props.selectRow = this.createSingleSelectionCheckboxs(props);
+      options.selectRow = this.createSingleSelectionCheckboxs(props);
     }
 
-    return props;
+    return options;
   }
 
   checkColumnEditable = (...data) => {
@@ -502,18 +506,22 @@ class Grid extends Component {
   };
 
   inlineTools = () => {
-    const inlineTools = this.props.inlineTools;
+    const { inlineTools } = this.props;
+
     if (typeof inlineTools === 'function') {
       return inlineTools();
     }
+
     return null;
   };
 
   tools = selected => {
-    const tools = this.props.tools;
+    const { tools } = this.props;
+
     if (typeof tools === 'function') {
       return tools(selected);
     }
+
     return null;
   };
 
@@ -647,24 +655,14 @@ class Grid extends Component {
   };
 
   render() {
-    let props = {
-      keyField: this._keyField,
-      bootstrap4: true,
-      bordered: false,
-      scrollable: true,
-      headerClasses: 'ecos-grid__header',
-      noDataIndication: () => t('grid.no-data-indication'),
-      ...this.props
-    };
-
-    props = this.setAdditionalOptions(props);
-
+    const { minHeight, autoHeight, scrollAutoHide, className, rowClassName, forwardedRef, columns, rowEvents, ...otherProps } = this.props;
+    const bootProps = this.setBootstrapTableProps(otherProps, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
     const toolsVisible = this.toolsVisible();
-    const gridStyle = props.minHeight ? { minHeight: props.minHeight } : { height: '100%' };
-    const scrollStyle = props.minHeight ? { height: props.minHeight } : { autoHeight: true };
+    const gridStyle = minHeight ? { minHeight } : { height: '100%' };
+    const scrollStyle = minHeight ? { height: minHeight } : { autoHeight: true };
 
-    if (props.autoHeight) {
-      scrollStyle.autoHeight = props.autoHeight;
+    if (autoHeight) {
+      scrollStyle.autoHeight = autoHeight;
     }
 
     const Scroll = ({ scrollable, children, style, refCallback, autoHide }) =>
@@ -686,27 +684,28 @@ class Grid extends Component {
         <>{children}</>
       );
 
-    if (props.columns.length) {
+    if (columns && columns.length) {
       return (
         <div
           ref={this._ref}
           key={this._id}
           style={gridStyle}
-          className={classNames(
-            'ecos-grid',
-            {
-              'ecos-grid_freeze': this.fixedHeader,
-              'ecos-grid_checkable': this.hasCheckboxes
-            },
-            this.props.className
-          )}
+          className={classNames('ecos-grid', {
+            'ecos-grid_freeze': this.fixedHeader,
+            'ecos-grid_checkable': this.hasCheckboxes,
+            [className]: !!className
+          })}
           onMouseLeave={this.onMouseLeave}
         >
-          {toolsVisible ? this.tools(props.selected) : null}
-
-          <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback} autoHide={props.scrollAutoHide}>
-            <div ref={this.props.forwardedRef}>
-              <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={classNames(ECOS_GRID_ROW_CLASS, props.rowClassName)} />
+          {!!toolsVisible && this.tools(bootProps.selected)}
+          <Scroll scrollable={bootProps.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback} autoHide={scrollAutoHide}>
+            <div ref={forwardedRef}>
+              <BootstrapTable
+                {...bootProps}
+                classes="ecos-grid__table"
+                headerClasses="ecos-grid__header"
+                rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
+              />
             </div>
             {this.inlineTools()}
           </Scroll>
