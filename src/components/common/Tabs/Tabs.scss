@@ -2,17 +2,32 @@
 
 .ecos-tabs {
   display: inline-flex;
-}
 
-.ecos-tabs_mt-10 {
-  margin-top: 10px;
-}
+  &_mt-10 {
+    margin-top: 10px;
+  }
 
-.ecos-tabs_width-full {
-  display: flex;
+  &_width-full {
+    display: flex;
+
+    .ecos-tab {
+      flex-grow: 1;
+    }
+  }
 
   .ecos-tab {
-    flex-grow: 1;
+    border-radius: 0;
+
+    &:first-of-type {
+      border-top-left-radius: $border-radius-standard;
+      border-bottom-left-radius: $border-radius-standard;
+    }
+
+    &:last-of-type {
+      border-top-right-radius: $border-radius-standard;
+      border-bottom-right-radius: $border-radius-standard;
+      margin-right: 0;
+    }
   }
 }
 
@@ -23,7 +38,7 @@
   background: $color-white;
   color: $text-color-gray;
   font-weight: $font-weight-semi-bold;
-  border-radius: 0;
+  border-radius: $border-radius-standard;
   border-color: $color-gray-4;
   padding: 0 5px;
   line-height: 40px;
@@ -34,17 +49,6 @@
   white-space: nowrap;
   overflow: hidden;
   user-select: none;
-
-  &:first-of-type {
-    border-top-left-radius: $border-radius-standard;
-    border-bottom-left-radius: $border-radius-standard;
-  }
-
-  &:last-of-type {
-    border-top-right-radius: $border-radius-standard;
-    border-bottom-right-radius: $border-radius-standard;
-    margin-right: 0;
-  }
 
   &_active {
     color: $color-white;
