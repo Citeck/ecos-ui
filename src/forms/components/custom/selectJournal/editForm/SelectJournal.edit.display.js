@@ -26,8 +26,8 @@ export default [
   {
     type: 'checkbox',
     input: true,
-    key: 'isSelectedValueAsLink',
-    label: 'Display selected value as a link',
+    key: 'isSelectedValueAsText',
+    label: 'Display selected value as a text. Default value is link',
     weight: 13,
     defaultValue: false
   }

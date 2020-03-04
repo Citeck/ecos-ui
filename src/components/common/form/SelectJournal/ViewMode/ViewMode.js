@@ -10,13 +10,12 @@ import './ViewMode.scss';
 
 class ViewMode extends Component {
   renderValue(item) {
-    const { isSelectedValueAsLink } = this.props;
+    const { isSelectedValueAsText } = this.props;
     let onClickHandler = null;
-    if (isSelectedValueAsLink) {
-      const url = createDocumentUrl(item.id);
 
+    if (!isSelectedValueAsText) {
       onClickHandler = () => {
-        PageService.changeUrlLink(url, { openNewTab: true, openInBackground: true });
+        PageService.changeUrlLink(createDocumentUrl(item.id), { openNewTab: true, openInBackground: true });
       };
     }
 
@@ -24,7 +23,7 @@ class ViewMode extends Component {
       <span
         onClick={onClickHandler}
         className={classNames('select-journal-view-mode__list-value', {
-          'select-journal-view-mode__list-value_link': isSelectedValueAsLink
+          'select-journal-view-mode__list-value_link': !isSelectedValueAsText
         })}
       >
         {item.disp}

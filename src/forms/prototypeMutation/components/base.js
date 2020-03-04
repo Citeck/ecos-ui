@@ -106,6 +106,7 @@ Base.prototype.createInlineEditButton = function(container) {
       this.options.readOnly = false;
       this.options.viewAsHtml = false;
       this._isInlineEditingMode = true;
+      this.options.isInlineEditingMode = this._isInlineEditingMode;
 
       this.redraw();
       container.classList.add('inline-editing');

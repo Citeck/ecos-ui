@@ -30,19 +30,23 @@ class InputView extends Component {
   };
 
   renderSelectedValue(item) {
-    const { isSelectedValueAsLink } = this.props;
+    const { isSelectedValueAsText, isInlineEditingMode } = this.props;
     let onClickHandler = null;
-    if (isSelectedValueAsLink) {
-      const url = createDocumentUrl(item.id);
+
+    if (!isSelectedValueAsText) {
       onClickHandler = () => {
-        PageService.changeUrlLink(url, { openNewBrowserTab: true });
+        PageService.changeUrlLink(createDocumentUrl(item.id), {
+          openNewBrowserTab: !isInlineEditingMode,
+          openNewTab: isInlineEditingMode,
+          openInBackground: isInlineEditingMode
+        });
       };
     }
 
     return (
       <span
         onClick={onClickHandler}
-        className={classNames('select-journal__values-list-disp', { 'select-journal__values-list-disp_link': isSelectedValueAsLink })}
+        className={classNames('select-journal__values-list-disp', { 'select-journal__values-list-disp_link': !isSelectedValueAsText })}
       >
         {item.disp}
       </span>
@@ -136,7 +140,8 @@ InputView.propTypes = {
   openSelectModal: PropTypes.func,
   hideEditRowButton: PropTypes.bool,
   hideDeleteRowButton: PropTypes.bool,
-  isSelectedValueAsLink: PropTypes.bool
+  isSelectedValueAsText: PropTypes.bool,
+  isInlineEditingMode: PropTypes.bool
 };
 
 export default InputView;
