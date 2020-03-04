@@ -83,7 +83,7 @@
   &_editable {
     display: inline-flex;
     position: relative;
-    padding: 0 calc(27px + 32px) 0 14px;
+    padding: 0 59px 0 14px;
     min-width: 90px;
 
     &:hover {
@@ -102,6 +102,11 @@
 
     &:focus {
       outline: none;
+    }
+
+    &[contenteditable] {
+      -webkit-user-select: text;
+      user-select: text;
     }
 
     &_editing {
