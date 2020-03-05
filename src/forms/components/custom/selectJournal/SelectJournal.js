@@ -61,9 +61,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
   getInitialReactProps() {
     let resolveProps = journalId => {
       const component = this.component;
-      const isInlineEditingMode = _.get(this, 'options.isInlineEditingMode', false);
-
       let presetFilterPredicates = null;
+
       if (component.presetFilterPredicatesJs) {
         presetFilterPredicates = this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true);
       }
@@ -83,8 +82,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
         hideDeleteRowButton: component.hideDeleteRowButton,
         isSelectedValueAsText: component.isSelectedValueAsText,
         isFullScreenWidthModal: component.isFullScreenWidthModal,
+        isInlineEditingMode: this._isInlineEditingMode,
         presetFilterPredicates,
-        isInlineEditingMode,
         searchField: component.searchField,
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
