@@ -47,6 +47,7 @@ SelectOrgstruct.propTypes = {
   hideInputView: PropTypes.bool,
   getFullData: PropTypes.bool, // return full data about selected user, not only nodeRef
   viewOnly: PropTypes.bool,
+  isSelectedValueAsText: PropTypes.bool,
   openByDefault: PropTypes.bool,
   modalTitle: PropTypes.string,
   allowedAuthorityTypes: PropTypes.array,

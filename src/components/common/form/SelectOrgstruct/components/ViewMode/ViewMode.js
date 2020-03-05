@@ -1,4 +1,4 @@
-import React, { useContext, Fragment } from 'react';
+import React, { useContext } from 'react';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import { t } from '../../../../../../helpers/util';
 import './ViewMode.scss';
@@ -6,13 +6,13 @@ import './ViewMode.scss';
 const ViewMode = () => {
   const context = useContext(SelectOrgstructContext);
 
-  const { placeholder } = context.controlProps;
+  const { placeholder, isSelectedValueAsText } = context.controlProps;
   const { selectedRows } = context;
 
   const placeholderText = placeholder ? placeholder : t('select-orgstruct.placeholder');
 
   return (
-    <Fragment>
+    <>
       {selectedRows.length > 0 ? (
         <ul className="select-orgstruct-view-mode__list">
           {selectedRows.map(item => (
@@ -24,7 +24,7 @@ const ViewMode = () => {
       ) : (
         <p>{placeholderText}</p>
       )}
-    </Fragment>
+    </>
   );
 };
 

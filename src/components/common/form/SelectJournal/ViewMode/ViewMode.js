@@ -1,34 +1,23 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
-import PageService from '../../../../../services/PageService';
+import { AssocLink } from '../../AssocLink';
 
 import './ViewMode.scss';
 
 class ViewMode extends Component {
   renderValue(item) {
     const { isSelectedValueAsText } = this.props;
-    let onClickHandler = null;
+    const props = {};
 
     if (!isSelectedValueAsText) {
-      onClickHandler = () => {
-        PageService.changeUrlLink(createDocumentUrl(item.id), { openNewTab: true, openInBackground: true });
-      };
+      props.link = createDocumentUrl(item.id);
+      props.paramsLink = { openNewTab: true, openInBackground: true };
     }
 
-    return (
-      <span
-        onClick={onClickHandler}
-        className={classNames('select-journal-view-mode__list-value', {
-          'select-journal-view-mode__list-value_link': !isSelectedValueAsText
-        })}
-      >
-        {item.disp}
-      </span>
-    );
+    return <AssocLink label={item.disp} asText={isSelectedValueAsText} {...props} className="select-journal-view-mode__list-value" />;
   }
 
   render() {

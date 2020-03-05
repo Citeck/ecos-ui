@@ -4,8 +4,8 @@ import classNames from 'classnames';
 
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
-import PageService from '../../../../../services/PageService';
 import { Btn } from '../../../../common/btns';
+import { AssocLink } from '../../AssocLink';
 
 import './InputView.scss';
 
@@ -31,26 +31,18 @@ class InputView extends Component {
 
   renderSelectedValue(item) {
     const { isSelectedValueAsText, isInlineEditingMode } = this.props;
-    let onClickHandler = null;
+    const props = {};
 
     if (!isSelectedValueAsText) {
-      onClickHandler = () => {
-        PageService.changeUrlLink(createDocumentUrl(item.id), {
-          openNewBrowserTab: !isInlineEditingMode,
-          openNewTab: isInlineEditingMode,
-          openInBackground: isInlineEditingMode
-        });
+      props.link = createDocumentUrl(item.id);
+      props.paramsLink = {
+        openNewBrowserTab: !isInlineEditingMode,
+        openNewTab: isInlineEditingMode,
+        openInBackground: isInlineEditingMode
       };
     }
 
-    return (
-      <span
-        onClick={onClickHandler}
-        className={classNames('select-journal__values-list-disp', { 'select-journal__values-list-disp_link': !isSelectedValueAsText })}
-      >
-        {item.disp}
-      </span>
-    );
+    return <AssocLink label={item.disp} asText={isSelectedValueAsText} {...props} className="select-journal__values-list-disp" />;
   }
 
   render() {

@@ -1,15 +1,25 @@
-import React, { useContext, Fragment } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { Btn } from '../../../../../common/btns';
 import ViewMode from '../ViewMode';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import { t } from '../../../../../../helpers/util';
 import './InputView.scss';
+import { AssocLink } from '../../../AssocLink';
 
 const InputView = () => {
   const context = useContext(SelectOrgstructContext);
-
-  const { isCompact, disabled, multiple, placeholder, viewOnly, renderView, hideInputView } = context.controlProps;
+  const {
+    isCompact,
+    disabled,
+    multiple,
+    placeholder,
+    viewOnly,
+    renderView,
+    hideInputView,
+    isSelectedValueAsText,
+    isInlineEditingMode
+  } = context.controlProps;
   const { selectedRows, error, toggleSelectModal, deleteSelectedItem } = context;
 
   if (hideInputView) {
@@ -39,19 +49,34 @@ const InputView = () => {
     deleteSelectedItem(e.target.dataset.id);
   };
 
+  const renderSelectedValue = item => {
+    const props = {};
+    console.log(item);
+    if (!isSelectedValueAsText) {
+      // props.link = createDocumentUrl(item.id);
+      props.paramsLink = {
+        openNewBrowserTab: !isInlineEditingMode,
+        openNewTab: isInlineEditingMode,
+        openInBackground: isInlineEditingMode
+      };
+    }
+
+    return <AssocLink label={item.label} asText={isSelectedValueAsText} {...props} className="select-orgstruct__values-list-disp" />;
+  };
+
   const valuesList = isCompact ? (
-    <Fragment>
+    <>
       {selectedRows.length > 0 ? (
         <div className={'select-orgstruct__values-list_compact'}>{selectedRows.map(item => item.label).join(', ')}</div>
       ) : null}
-    </Fragment>
+    </>
   ) : (
-    <Fragment>
+    <>
       {selectedRows.length > 0 ? (
         <ul className={'select-orgstruct__values-list'}>
           {selectedRows.map(item => (
             <li key={item.id}>
-              <span className="select-orgstruct__values-list-disp">{item.label}</span>
+              {renderSelectedValue(item)}
               {disabled ? null : (
                 <div className="select-orgstruct__values-list-actions">
                   {/*<span data-id={item.id} className={'icon icon-edit'} onClick={() => {}} />*/}
@@ -64,7 +89,7 @@ const InputView = () => {
       ) : (
         <p className={'select-orgstruct__value-not-selected'}>{placeholderText}</p>
       )}
-    </Fragment>
+    </>
   );
 
   return (

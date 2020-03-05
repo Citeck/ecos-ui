@@ -23,7 +23,8 @@ export default class SelectOrgstructComponent extends BaseComponent {
         currentUserByDefault: false,
         excludeAuthoritiesByName: '',
         excludeAuthoritiesByType: '',
-        modalTitle: ''
+        modalTitle: '',
+        isSelectedValueAsText: false
       },
       ...extend
     );
@@ -137,6 +138,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           hideTabSwitcher={component.hideTabSwitcher}
           defaultTab={component.defaultTab}
           modalTitle={component.modalTitle ? self.t(component.modalTitle) : null}
+          isSelectedValueAsText={component.isSelectedValueAsText}
           onError={err => {
             // this.setCustomValidity(err, false);
           }}
