@@ -1,15 +1,19 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { Btn } from '../../../../../common/btns';
-import ViewMode from '../ViewMode';
-import { SelectOrgstructContext } from '../../SelectOrgstructContext';
+import get from 'lodash/get';
+
 import { t } from '../../../../../../helpers/util';
+import { createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
+import { Btn } from '../../../../../common/btns';
 import { AssocLink } from '../../../AssocLink';
+import { SelectOrgstructContext } from '../../SelectOrgstructContext';
+import ViewMode from '../ViewMode';
 
 import './InputView.scss';
 
 const InputView = () => {
   const context = useContext(SelectOrgstructContext);
+  const { selectedRows, error, toggleSelectModal, deleteSelectedItem, controlProps } = context;
   const {
     isCompact,
     disabled,
@@ -20,8 +24,7 @@ const InputView = () => {
     hideInputView,
     isSelectedValueAsText,
     isInlineEditingMode
-  } = context.controlProps;
-  const { selectedRows, error, toggleSelectModal, deleteSelectedItem } = context;
+  } = controlProps;
 
   if (hideInputView) {
     return null;
@@ -52,14 +55,10 @@ const InputView = () => {
 
   const renderSelectedValue = item => {
     const props = {};
-    console.log(item);
+
     if (!isSelectedValueAsText) {
-      // props.link = createDocumentUrl(item.id);
-      props.paramsLink = {
-        openNewBrowserTab: !isInlineEditingMode,
-        openNewTab: isInlineEditingMode,
-        openInBackground: isInlineEditingMode
-      };
+      props.link = createProfileUrl(get(item, 'attributes.shortName', ''));
+      props.paramsLink = { openNewBrowserTab: !isInlineEditingMode || !isNewVersionPage(props.link) };
     }
 
     return <AssocLink label={item.label} asText={isSelectedValueAsText} {...props} className="select-orgstruct__values-list-disp" />;
@@ -68,7 +67,7 @@ const InputView = () => {
   const valuesList = isCompact ? (
     <>
       {selectedRows.length > 0 ? (
-        <div className={'select-orgstruct__values-list_compact'}>{selectedRows.map(item => item.label).join(', ')}</div>
+        <div className="select-orgstruct__values-list_compact">{selectedRows.map(item => item.label).join(', ')}</div>
       ) : null}
     </>
   ) : (

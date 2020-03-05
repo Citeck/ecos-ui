@@ -188,7 +188,6 @@ export default class SelectJournal extends Component {
       }
 
       this.api.getJournalConfig(journalId).then(journalConfig => {
-        // console.log('journalConfig', journalConfig);
         let columns = journalConfig.columns.map(item => {
           const column = { ...item };
           if (matchCardDetailsLinkFormatterColumn(item)) {

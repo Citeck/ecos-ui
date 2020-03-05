@@ -1,8 +1,7 @@
 import React from 'react';
-import DefaultGqlFormatter from './DefaultGqlFormatter';
-import { isNewVersionPage } from '../../../../../helpers/urls';
-import { URL } from '../../../../../constants';
+import { createDocumentUrl, isNewVersionPage } from '../../../../../helpers/urls';
 import { REMOTE_TITLE_ATTR_NAME } from '../../../../../constants/pageTabs';
+import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class DocumentLinkFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
@@ -16,15 +15,22 @@ export default class DocumentLinkFormatter extends DefaultGqlFormatter {
   render() {
     let props = this.props;
     let cell = props.cell || {};
+    let linkProps = {};
+
+    const url = createDocumentUrl(cell.id);
 
     if (isNewVersionPage()) {
-      return (
-        <a target="_blank" rel="noopener noreferrer" href={`${URL.DASHBOARD}?recordRef=${cell.id}`} {...{ [REMOTE_TITLE_ATTR_NAME]: true }}>
-          {this.value(cell)}
-        </a>
-      );
+      linkProps = {
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        ...{ [REMOTE_TITLE_ATTR_NAME]: true }
+      };
     }
 
-    return <a href={`/share/page/card-details?nodeRef=${cell.id}`}>{this.value(cell)}</a>;
+    return (
+      <a href={url} {...linkProps}>
+        {this.value(cell)}
+      </a>
+    );
   }
 }

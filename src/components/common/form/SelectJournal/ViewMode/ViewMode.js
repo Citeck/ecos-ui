@@ -8,20 +8,8 @@ import { AssocLink } from '../../AssocLink';
 import './ViewMode.scss';
 
 class ViewMode extends Component {
-  renderValue(item) {
-    const { isSelectedValueAsText } = this.props;
-    const props = {};
-
-    if (!isSelectedValueAsText) {
-      props.link = createDocumentUrl(item.id);
-      props.paramsLink = { openNewTab: true, openInBackground: true };
-    }
-
-    return <AssocLink label={item.disp} asText={isSelectedValueAsText} {...props} className="select-journal-view-mode__list-value" />;
-  }
-
   render() {
-    const { selectedRows, placeholder } = this.props;
+    const { selectedRows, placeholder, isSelectedValueAsText } = this.props;
 
     const placeholderText = placeholder ? placeholder : t('select-journal.placeholder');
 
@@ -30,7 +18,14 @@ class ViewMode extends Component {
         {selectedRows.length > 0 ? (
           <ul className="select-journal-view-mode__list">
             {selectedRows.map(item => (
-              <li key={item.id}>{this.renderValue(item)}</li>
+              <li key={item.id}>
+                <AssocLink
+                  label={item.disp}
+                  asText={isSelectedValueAsText}
+                  link={createDocumentUrl(item.id)}
+                  className="select-journal-view-mode__list-value"
+                />
+              </li>
             ))}
           </ul>
         ) : (
