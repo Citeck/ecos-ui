@@ -4,8 +4,9 @@ import { Btn } from '../../../../../common/btns';
 import ViewMode from '../ViewMode';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import { t } from '../../../../../../helpers/util';
-import './InputView.scss';
 import { AssocLink } from '../../../AssocLink';
+
+import './InputView.scss';
 
 const InputView = () => {
   const context = useContext(SelectOrgstructContext);
