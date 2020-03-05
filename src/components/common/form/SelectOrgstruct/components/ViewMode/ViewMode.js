@@ -2,9 +2,10 @@ import React, { useContext } from 'react';
 import get from 'lodash/get';
 
 import { t } from '../../../../../../helpers/util';
-import { createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
+import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
 import { AssocLink } from '../../../AssocLink';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../constants';
 
 import './ViewMode.scss';
 
@@ -15,7 +16,18 @@ const ViewMode = () => {
   const placeholderText = placeholder ? placeholder : t('select-orgstruct.placeholder');
 
   const renderValue = item => {
-    const url = createProfileUrl(get(item, 'attributes.shortName', ''));
+    let url = '';
+
+    switch (get(item, 'attributes.authorityType', '')) {
+      case AUTHORITY_TYPE_USER:
+        url = createProfileUrl(get(item, 'attributes.shortName', ''));
+        break;
+      case AUTHORITY_TYPE_GROUP:
+      default:
+        url = createDocumentUrl(get(item, 'attributes.nodeRef', ''));
+        break;
+    }
+
     const paramsLink = { openNewBrowserTab: !isNewVersionPage(url) };
 
     return (

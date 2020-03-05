@@ -3,10 +3,11 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 
 import { t } from '../../../../../../helpers/util';
-import { createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
+import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
 import { Btn } from '../../../../../common/btns';
 import { AssocLink } from '../../../AssocLink';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../constants';
 import ViewMode from '../ViewMode';
 
 import './InputView.scss';
@@ -57,7 +58,15 @@ const InputView = () => {
     const props = {};
 
     if (!isSelectedValueAsText) {
-      props.link = createProfileUrl(get(item, 'attributes.shortName', ''));
+      switch (get(item, 'attributes.authorityType', '')) {
+        case AUTHORITY_TYPE_USER:
+          props.link = createProfileUrl(get(item, 'attributes.shortName', ''));
+          break;
+        case AUTHORITY_TYPE_GROUP:
+        default:
+          props.link = createDocumentUrl(get(item, 'attributes.nodeRef', ''));
+          break;
+      }
       props.paramsLink = { openNewBrowserTab: !isInlineEditingMode || !isNewVersionPage(props.link) };
     }
 
