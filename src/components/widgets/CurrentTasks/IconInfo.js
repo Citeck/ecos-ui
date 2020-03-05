@@ -87,7 +87,7 @@ export default class IconInfo extends React.Component {
             boundariesElement="window"
             target={domId}
             isOpen={isOpen}
-            trigger="click"
+            trigger="hover"
             className="ecos-base-tooltip ecos-current-task__tooltip"
             innerClassName="ecos-base-tooltip-inner"
             arrowClassName="ecos-base-tooltip-arrow"

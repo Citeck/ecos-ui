@@ -655,7 +655,18 @@ class Grid extends Component {
   };
 
   render() {
-    const { minHeight, autoHeight, scrollAutoHide, className, rowClassName, forwardedRef, columns, rowEvents, ...otherProps } = this.props;
+    const {
+      minHeight,
+      autoHeight,
+      scrollAutoHide,
+      className,
+      rowClassName,
+      forwardedRef,
+      noTopBorder,
+      columns,
+      rowEvents,
+      ...otherProps
+    } = this.props;
     const bootProps = this.setBootstrapTableProps(otherProps, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
     const toolsVisible = this.toolsVisible();
     const gridStyle = minHeight ? { minHeight } : { height: '100%' };
@@ -693,6 +704,7 @@ class Grid extends Component {
           className={classNames('ecos-grid', {
             'ecos-grid_freeze': this.fixedHeader,
             'ecos-grid_checkable': this.hasCheckboxes,
+            'ecos-grid_no-top-border': noTopBorder,
             [className]: !!className
           })}
           onMouseLeave={this.onMouseLeave}
@@ -738,6 +750,7 @@ Grid.propTypes = {
   scrollable: PropTypes.bool,
   fixedHeader: PropTypes.bool,
   scrollAutoHide: PropTypes.bool,
+  noTopBorder: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,

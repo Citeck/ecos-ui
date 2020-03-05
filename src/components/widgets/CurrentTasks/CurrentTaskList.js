@@ -53,6 +53,7 @@ class CurrentTaskList extends React.Component {
       [DC.actors.key]: (
         <React.Fragment key={uniqueId(cleanTaskId(task.id))}>
           {task[DC.actors.key] || noData}
+          {task.usersGroup && task.usersGroup.length > 1 && ` +${task.usersGroup.length - 1}`}
           {task.usersGroup && (
             <IconInfo iconClass={'icon-usergroup'} id={uniqueId(cleanTaskId(task.id))} isShow={task.isGroup}>
               {!task.usersGroup.length
@@ -73,7 +74,7 @@ class CurrentTaskList extends React.Component {
     const updCols = ArrayOfObjects.replaceKeys(cols, { key: 'dataField', label: 'text' });
     const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
 
-    return <Grid data={formatTasks} columns={gridCols} scrollable={false} className="ecos-current-task-list_view-table" />;
+    return <Grid data={formatTasks} columns={gridCols} scrollable={false} className="ecos-current-task-list_view-table" noTopBorder />;
   }
 
   renderContent() {

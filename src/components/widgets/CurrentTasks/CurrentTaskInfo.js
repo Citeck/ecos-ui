@@ -58,6 +58,7 @@ class CurrentTaskInfo extends React.Component {
             >
               <div className="ecos-current-task-info-value__text" title={task[DC.actors.key] || ''}>
                 {task[DC.actors.key] || noData}
+                {task.usersGroup && task.usersGroup.length > 1 && ` +${task.usersGroup.length - 1}`}
               </div>
               {task.usersGroup && (
                 <IconInfo

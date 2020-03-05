@@ -23,8 +23,7 @@ $header-height: 52px;
 
   &_no-top-border {
     #{$selector-table} {
-      &::before,
-      &::after {
+      &::before {
         content: none;
       }
     }
@@ -81,6 +80,7 @@ $header-height: 52px;
 #{$selector-table} {
   margin-bottom: 13px;
   width: 100%;
+  position: relative;
 
   &::before {
     @extend %shadow-h-line;
