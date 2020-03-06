@@ -20,9 +20,12 @@ export class UserApi extends CommonApi {
     return this.getJson(url).catch(() => ({ success: false }));
   };
 
-  getUserData = () => {
+  getUserData = record => {
+    const query = record ? { record } : {};
+
     return Records.query(
       {
+        query,
         sourceId: SourcesId.PEOPLE
       },
       {

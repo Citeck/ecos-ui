@@ -4,14 +4,15 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 
+import { getUserData } from '../../../actions/user';
 import { t } from '../../../helpers/util';
 import Dashlet from '../../Dashlet';
 import { Avatar } from '../../common';
+import { Badge } from '../../common/form';
 import { Btn } from '../../common/btns';
 import BaseWidget from '../BaseWidget';
 
 import './style.scss';
-import { Badge } from '../../common/form';
 
 const Labels = {
   TITLE: 'user-profile-widget.title',
@@ -26,18 +27,20 @@ const Labels = {
 class UserProfileDashlet extends BaseWidget {
   static propTypes = {
     className: PropTypes.string,
-    record: PropTypes.string,
-    stateId: PropTypes.string
+    record: PropTypes.string
   };
 
   static defaultProps = {
-    classNameDashlet: '',
-    items: []
+    classNameDashlet: ''
   };
 
   state = {};
 
-  componentDidMount() {}
+  componentDidMount() {
+    if (!this.props.isYou) {
+      this.props.getUserData(this.props.record);
+    }
+  }
 
   onChangePhoto = () => {};
 
@@ -81,15 +84,18 @@ class UserProfileDashlet extends BaseWidget {
 
 const mapStateToProps = (state, context) => {
   const isYou = state.user.nodeRef === context.record || !context.record;
-  console.log(isYou, state.user);
 
   return {
-    user: isYou ? state.user : get(state, `userProfile.${context.stateId}`, {}),
+    user: isYou ? state.user : get(state, `userProfile.${context.record}`, {}),
     isYou
   };
 };
 
+const mapDispatchToProps = dispatch => ({
+  getUserData: record => dispatch(getUserData(record))
+});
+
 export default connect(
   mapStateToProps,
-  null
+  mapDispatchToProps
 )(UserProfileDashlet);
