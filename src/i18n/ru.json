@@ -164,6 +164,7 @@
   "dashboard-settings.widgets.subtitle-mobile": "Выберите порядок расположения виджетов, перетащив их в колонку справа",
   "dashboard-settings.widgets.title": "Виджеты",
   "dashboard-settings.widget.documents": "Документы",
+  "dashboard-settings.widget.user-basic-info": "Профиль",
   "dashlet.edit.title": "Редактировать данные",
   "dashlet.edit.tooltip": "Редактировать данные",
   "dashlet.goto": "Перейти в раздел",
@@ -613,6 +614,7 @@
   "size.kilobytes": "КБ",
   "size.megabytes": "МБ",
   "slide_menu_click_to_open.label": "Нажмите для раскрытия меню",
+
   "tasks-widget.assign.assign": "Назначить",
   "tasks-widget.assign.me": "Я выполню это",
   "tasks-widget.assign.reassign": "Переназначить",
@@ -627,6 +629,7 @@
   "tasks-widget.saga.error1": "Ошибка получения данных",
   "tasks-widget.saga.error2": "Ошибка назначения",
   "tasks-widget.title": "Мои задачи",
+
   "timesheets.allForms.title": "Табели учёта времени",
   "timesheets.allForms.delegation": "Делегирование",
   "timesheets.tabs.myTimesheetTab": "Мой табель",
@@ -788,6 +791,7 @@
   "esign.no-data": "Нет данных",
   "esign.no-document-ref": "Нет документов для подписи",
   "esign.message.plugin-is-fetching": "Идёт процесс инициализации расширения для работы с цифровой подписью",
+
   "documents-widget.settings-modal.button.cancel": "Отмена",
   "documents-widget.settings-modal.button.ok": "Готово",
   "documents-widget.settings-modal.checklist": "Подгружать типы документов из чек-листов",
@@ -822,5 +826,13 @@
   "documents-widget.table-fields.uploaded-by": "Загрузил",
   "documents-widget.table-fields.updated-at": "Обновлено",
   "documents-widget.table-fields.name": "Название",
-  "documents-widget.untitled": "Без названия"
+  "documents-widget.untitled": "Без названия",
+
+  "user-profile-widget.title": "Профиль",
+  "user-profile-widget.label.admin": "Администратор",
+  "user-profile-widget.label.it-is-you": "Вы",
+  "user-profile-widget.placeholder.photo": "Фото",
+  "user-profile-widget.placeholder.full-name": "Имя",
+  "user-profile-widget.button.change-photo": "Изменить фото",
+  "user-profile-widget.button.change-password": "Изменить пароль"
 }

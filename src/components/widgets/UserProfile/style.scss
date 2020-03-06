@@ -1,0 +1,53 @@
+@import '../../../styles/constants';
+
+.ecos-user-profile {
+  &__dashlet-body {
+    padding: 20px;
+  }
+
+  &__info {
+    display: flex;
+
+    &-photo {
+      min-width: 49px;
+      width: 49px;
+      height: 49px;
+      margin-right: 15px;
+    }
+
+    &-name {
+      font-weight: $font-weight-bold;
+
+      &-primary {
+        font-size: $font-size-large;
+        color: $text-color-dark;
+      }
+
+      &-secondary {
+        font-size: $font-size-standard;
+        color: $color-gray-5;
+      }
+    }
+  }
+
+  &__badges {
+    display: flex;
+
+    & > :nth-child(even) {
+      margin-left: 5px;
+    }
+    & > :nth-child(n) {
+      margin-top: 5px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+
+    & > :nth-child(even) {
+      margin-top: 10px;
+    }
+  }
+}
