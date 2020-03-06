@@ -5,6 +5,8 @@ import { Types } from './constants';
 
 export default class SelectActionComponent extends BaseReactComponent {
   static schema(...extend) {
+    console.warn('extend => ', extend);
+
     return BaseReactComponent.schema(
       {
         label: 'Select Action',
@@ -13,7 +15,8 @@ export default class SelectActionComponent extends BaseReactComponent {
         type: 'selectAction',
         source: {
           items: []
-        }
+        },
+        showValidations: false
       },
       ...extend
     );
