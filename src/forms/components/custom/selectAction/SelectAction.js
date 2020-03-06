@@ -62,8 +62,6 @@ export default class SelectActionComponent extends BaseReactComponent {
       default:
         console.error('Action type is not defined');
     }
-
-    this.setValue(item.name);
   };
 
   getInitialReactProps() {
