@@ -340,7 +340,7 @@ export default class CheckListComponent extends BaseComponent {
         this.video.play();
       },
       err => {
-        console.log(err);
+        console.error(err);
       }
     );
   }
