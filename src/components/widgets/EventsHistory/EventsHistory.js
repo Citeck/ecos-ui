@@ -186,7 +186,8 @@ class EventsHistory extends React.Component {
         data={list}
         columns={columns}
         scrollable={!isMobile}
-        className="ecos-event-history-list ecos-event-history-list_view-table ecos-grid_no-top-border"
+        noTopBorder
+        className="ecos-event-history-list ecos-event-history-list_view-table"
       />
       // filterable={false}
       // filters={filters}

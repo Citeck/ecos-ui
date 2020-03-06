@@ -2,9 +2,7 @@ import { handleActions } from 'redux-actions';
 import { getCurrentTaskList, resetCurrentTaskList, setCurrentTaskList } from '../actions/currentTasks';
 import { getCurrentStateById } from '../helpers/redux';
 
-const commonInitialState = {
-  updateRequestRecord: null
-};
+const commonInitialState = {};
 
 const initialState = {
   isLoading: false,
@@ -32,8 +30,7 @@ export default handleActions(
           ...getCurrentStateById(state, stateId, initialState),
           ...data,
           isLoading: false
-        },
-        updateRequestRecord: null
+        }
       };
     },
     [resetCurrentTaskList]: (state, { payload: { stateId } }) => {
