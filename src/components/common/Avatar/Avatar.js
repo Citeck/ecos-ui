@@ -12,7 +12,8 @@ export default class Avatar extends React.Component {
     theme: PropTypes.string,
     className: PropTypes.string,
     classNameEmpty: PropTypes.string,
-    userName: PropTypes.string
+    userName: PropTypes.string,
+    noBorder: PropTypes.bool
   };
 
   static defaultProps = {
@@ -21,8 +22,6 @@ export default class Avatar extends React.Component {
     classNameEmpty: '',
     userName: ''
   };
-
-  className = 'ecos-avatar';
 
   state = { error: '' };
 
@@ -42,6 +41,7 @@ export default class Avatar extends React.Component {
   }
 
   onError = error => {
+    console.error(error);
     this.setState({ error: true });
   };
 
@@ -49,10 +49,10 @@ export default class Avatar extends React.Component {
     const { url, userName } = this.props;
 
     if (!this.empty) {
-      return <img alt="avatar" src={url} className={classNames(`${this.className}__image`)} ref={this.refImg} />;
+      return <img alt="avatar" src={url} className="ecos-avatar__image" ref={this.refImg} />;
     } else if (this.empty && userName) {
       return (
-        <div className={classNames(`${this.className}__name`)}>
+        <div className="ecos-avatar__name">
           {userName
             .split(' ')
             .map(word => word[0])
@@ -61,15 +61,21 @@ export default class Avatar extends React.Component {
         </div>
       );
     } else {
-      return <Icon className={classNames(`${this.className}__icon`, 'icon-User_avatar')} />;
+      return <Icon className="ecos-avatar__icon icon-User_avatar" />;
     }
   }
 
   render() {
-    const { className, classNameEmpty, theme } = this.props;
+    const { className, classNameEmpty, theme, noBorder } = this.props;
 
     return (
-      <div className={classNames(this.className, `${this.className}_theme_${theme}`, className, { [classNameEmpty]: this.empty })}>
+      <div
+        className={classNames('ecos-avatar', className, {
+          [`ecos-avatar_theme_${theme}`]: !!theme,
+          [classNameEmpty]: this.empty,
+          'ecos-avatar_no-border': noBorder
+        })}
+      >
         {this.renderContent()}
       </div>
     );

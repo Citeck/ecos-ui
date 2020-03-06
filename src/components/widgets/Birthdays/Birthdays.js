@@ -129,6 +129,7 @@ class Birthdays extends Component {
               userName={item.name}
               className="ecos-hb2u__list-item-photo"
               classNameEmpty="ecos-hb2u__list-item-photo_empty"
+              noBorder
             />
 
             <div className="ecos-hb2u__list-item-info">

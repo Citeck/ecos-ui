@@ -16,6 +16,12 @@
     background: $color-green-light;
   }
 
+  &_no-border {
+    #{$root}__image {
+      border: none;
+    }
+  }
+
   &__image {
     height: 100%;
     width: 100%;
