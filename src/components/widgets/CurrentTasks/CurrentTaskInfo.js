@@ -6,7 +6,7 @@ import uniqueId from 'lodash/uniqueId';
 import { getOutputFormat } from '../../../helpers/util';
 import { Headline } from '../../common/form/index';
 import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
-import IconInfo from './IconInfo';
+import BtnTooltipInfo from './BtnTooltipInfo';
 
 class CurrentTaskInfo extends React.Component {
   static propTypes = {
@@ -58,18 +58,19 @@ class CurrentTaskInfo extends React.Component {
             >
               <div className="ecos-current-task-info-value__text" title={task[DC.actors.key] || ''}>
                 {task[DC.actors.key] || noData}
-                {task.usersGroup && task.usersGroup.length > 1 && ` +${task.usersGroup.length - 1}`}
               </div>
               {task.usersGroup && (
-                <IconInfo
-                  iconClass={'icon-usergroup'}
+                <BtnTooltipInfo
+                  iconClass="icon-usergroup"
                   id={uniqueId(cleanTaskId(task.id))}
                   isShow={task.isGroup}
                   noTooltip={isMobile}
-                  handleClick={res => this.setState({ isOpen: res })}
+                  handleClick={isOpen => this.setState({ isOpen })}
+                  isActive={isOpen}
+                  count={task.usersGroup.length}
                 >
                   {this.renderUsersGroup(task.usersGroup)}
-                </IconInfo>
+                </BtnTooltipInfo>
               )}
             </div>
           </div>

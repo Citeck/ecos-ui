@@ -9,7 +9,7 @@ import { Grid } from '../../common/grid/index';
 import { InfoText, Loader, Separator } from '../../common/index';
 import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
 import CurrentTaskInfo from './CurrentTaskInfo';
-import IconInfo from './IconInfo';
+import BtnTooltipInfo from './BtnTooltipInfo';
 
 class CurrentTaskList extends React.Component {
   static propTypes = {
@@ -53,9 +53,13 @@ class CurrentTaskList extends React.Component {
       [DC.actors.key]: (
         <React.Fragment key={uniqueId(cleanTaskId(task.id))}>
           {task[DC.actors.key] || noData}
-          {task.usersGroup && task.usersGroup.length > 1 && ` +${task.usersGroup.length - 1}`}
           {task.usersGroup && (
-            <IconInfo iconClass={'icon-usergroup'} id={uniqueId(cleanTaskId(task.id))} isShow={task.isGroup}>
+            <BtnTooltipInfo
+              iconClass="icon-usergroup"
+              id={uniqueId(cleanTaskId(task.id))}
+              isShow={task.isGroup}
+              count={task.usersGroup.length}
+            >
               {!task.usersGroup.length
                 ? noData
                 : task.usersGroup.map((user, position) => (
@@ -63,7 +67,7 @@ class CurrentTaskList extends React.Component {
                       {user}
                     </div>
                   ))}
-            </IconInfo>
+            </BtnTooltipInfo>
           )}
         </React.Fragment>
       ),
