@@ -13,8 +13,7 @@ export default class SelectActionComponent extends BaseReactComponent {
         type: 'selectAction',
         source: {
           items: []
-        },
-        showValidations: false
+        }
       },
       ...extend
     );
