@@ -6,6 +6,10 @@ import Records from '../../../../components/Records';
 import _ from 'lodash';
 
 export default class TableFormComponent extends BaseReactComponent {
+  _selectedRows = [];
+  _displayElementsValue = {};
+  _nonSelectableRows = [];
+
   static schema(...extend) {
     return BaseReactComponent.schema(
       {
@@ -54,19 +58,13 @@ export default class TableFormComponent extends BaseReactComponent {
     return TableFormComponent.schema();
   }
 
-  build() {
-    super.build();
-
-    this._selectedRows = [];
-  }
-
   checkConditions(data) {
     let result = super.checkConditions(data);
 
     if (this.component.displayElementsJS) {
       let displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
-      if (!_.isEqual(displayElements, this.displayElementsValue)) {
-        this.displayElementsValue = displayElements;
+      if (!_.isEqual(displayElements, this._displayElementsValue)) {
+        this._displayElementsValue = displayElements;
         this.setReactProps({
           displayElements
         });
@@ -75,8 +73,8 @@ export default class TableFormComponent extends BaseReactComponent {
 
     if (this.component.nonSelectableRowsJS) {
       let nonSelectableRows = this.evaluate(this.component.nonSelectableRowsJS, {}, 'value', true);
-      if (!_.isEqual(nonSelectableRows, this.nonSelectableRows)) {
-        this.nonSelectableRows = nonSelectableRows;
+      if (!_.isEqual(nonSelectableRows, this._nonSelectableRows)) {
+        this._nonSelectableRows = nonSelectableRows;
         this.setReactProps({
           nonSelectableRows
         });
@@ -198,6 +196,8 @@ export default class TableFormComponent extends BaseReactComponent {
         viewOnly: this.viewOnly,
         parentForm: this.root,
         triggerEventOnTableChange,
+        displayElements: this._displayElementsValue,
+        nonSelectableRows: this._nonSelectableRows,
         onError: err => {
           // this.setCustomValidity(err, false);
         },
