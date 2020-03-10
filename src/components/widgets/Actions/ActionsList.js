@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import { UncontrolledTooltip } from 'reactstrap';
 
-import { InfoText, Loader, Separator } from '../../common/index';
+import { InfoText, Loader, Separator, Tooltip } from '../../common/index';
 import { t } from '../../../helpers/util';
 
 class ActionsList extends React.Component {
@@ -44,25 +44,41 @@ class ActionsList extends React.Component {
 
     return (
       <React.Fragment key={id}>
-        <div
+        <Tooltip
           id={id}
-          className={classNames('ecos-actions-list__item-variants__item', {
-            'ecos-actions-list__item-variants__item_disabled': isLoading
-          })}
-          onClick={() => this.onClick(action)}
-        >
-          {variant.name}
-        </div>
-        <UncontrolledTooltip
-          placement="top"
-          boundariesElement="window"
-          className="ecos-base-tooltip"
-          innerClassName="ecos-base-tooltip-inner"
-          arrowClassName="ecos-base-tooltip-arrow"
-          target={id}
-        >
-          {variant.name}
-        </UncontrolledTooltip>
+          uncontrolled
+          ForComponent={() => (
+            <div
+              id={id}
+              className={classNames('ecos-actions-list__item-variants__item', {
+                'ecos-actions-list__item-variants__item_disabled': isLoading
+              })}
+              onClick={() => this.onClick(action)}
+            >
+              {variant.name}
+            </div>
+          )}
+          text={variant.name}
+        />
+        {/*<div*/}
+        {/*  id={id}*/}
+        {/*  className={classNames('ecos-actions-list__item-variants__item', {*/}
+        {/*    'ecos-actions-list__item-variants__item_disabled': isLoading*/}
+        {/*  })}*/}
+        {/*  onClick={() => this.onClick(action)}*/}
+        {/*>*/}
+        {/*  {variant.name}*/}
+        {/*</div>*/}
+        {/*<UncontrolledTooltip*/}
+        {/*  placement="top"*/}
+        {/*  boundariesElement="window"*/}
+        {/*  className="ecos-base-tooltip"*/}
+        {/*  innerClassName="ecos-base-tooltip-inner"*/}
+        {/*  arrowClassName="ecos-base-tooltip-arrow"*/}
+        {/*  target={id}*/}
+        {/*>*/}
+        {/*  {variant.name}*/}
+        {/*</UncontrolledTooltip>*/}
       </React.Fragment>
     );
   };
@@ -88,21 +104,52 @@ class ActionsList extends React.Component {
                   { 'ecos-actions-list__item_disabled': isLoading },
                   { 'ecos-actions-list__item_warning': action.theme }
                 )}
-                onClick={() => (hasVariants ? null : this.onClick(action))}
+                // onClick={() => (hasVariants ? null : this.onClick(action))}
               >
-                <div className="ecos-actions-list__item-title" id={id}>
+                {/*<div className="ecos-actions-list__item-title" id={id}>*/}
+                {/*  {action.name}*/}
+                {/*</div>*/}
+                <div id={id} className="ecos-actions-list__item-title">
                   {action.name}
                 </div>
-                <UncontrolledTooltip
-                  placement="top"
-                  boundariesElement="window"
-                  className="ecos-base-tooltip"
-                  innerClassName="ecos-base-tooltip-inner"
-                  arrowClassName="ecos-base-tooltip-arrow"
+                <Tooltip
+                  bySize
                   target={id}
-                >
-                  {action.name}
-                </UncontrolledTooltip>
+                  uncontrolled
+                  ForComponent={({ forwardedRef, ...props }) => (
+                    <div
+                      className="ecos-actions-list__item-title"
+                      ref={forwardedRef}
+                      // id={id}
+                      {...props}
+                    >
+                      {action.name}
+                    </div>
+                  )}
+                  // ForComponent={(...props) => {
+                  //   console.warn(...props);
+                  //
+                  //   return (
+                  //     <div
+                  //       className="ecos-actions-list__item-title"
+                  //       {...props}
+                  //     >
+                  //       {action.name}
+                  //     </div>
+                  //   );
+                  // }}
+                  text={action.name}
+                />
+                {/*<UncontrolledTooltip*/}
+                {/*  placement="top"*/}
+                {/*  boundariesElement="window"*/}
+                {/*  className="ecos-base-tooltip"*/}
+                {/*  innerClassName="ecos-base-tooltip-inner"*/}
+                {/*  arrowClassName="ecos-base-tooltip-arrow"*/}
+                {/*  target={id}*/}
+                {/*>*/}
+                {/*  {action.name}*/}
+                {/*</UncontrolledTooltip>*/}
                 {hasVariants && (
                   <div className="ecos-actions-list__item-variants">
                     {!isEmpty(action.variants) &&
