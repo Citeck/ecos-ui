@@ -1,1 +1,1 @@
-export { default } from './UserDashlet';
+export { default } from './UserProfileDashlet';

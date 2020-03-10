@@ -37,8 +37,10 @@ class UserProfileDashlet extends BaseWidget {
   state = {};
 
   componentDidMount() {
-    if (!this.props.isYou) {
-      this.props.getUserData(this.props.record);
+    const { record, isYou, getUserData } = this.props;
+
+    if (!isYou) {
+      getUserData(record);
     }
   }
 
@@ -69,10 +71,12 @@ class UserProfileDashlet extends BaseWidget {
             <div className="ecos-user-profile__info-name-secondary">{[firstName, middleName].filter(name => !!name).join(' ')}</div>
           </div>
         </div>
-        <div className="ecos-user-profile__badges">
-          {isYou && <Badge text={t(Labels.YOU)} pill />}
-          {isAdmin && <Badge text={t(Labels.ADMIN)} pill />}
-        </div>
+        {[isYou, isAdmin].some(flag => flag) && (
+          <div className="ecos-user-profile__badges">
+            {/*{isYou && <Badge text={t(Labels.YOU)} pill/>}*/}
+            {isAdmin && <Badge text={t(Labels.ADMIN)} pill />}
+          </div>
+        )}
         <div className="ecos-user-profile__actions">
           <Btn onClick={this.onChangePhoto}>{t(Labels.Btns.CHANGE_PHOTO)}</Btn>
           <Btn onClick={this.onChangePassword}>{t(Labels.Btns.CHANGE_PW)}</Btn>
@@ -83,10 +87,10 @@ class UserProfileDashlet extends BaseWidget {
 }
 
 const mapStateToProps = (state, context) => {
-  const isYou = state.user.nodeRef === context.record || !context.record;
+  const isYou = state.user.nodeRef === context.record;
 
   return {
-    user: isYou ? state.user : get(state, `userProfile.${context.record}`, {}),
+    user: get(state, `userProfile.${context.record}`, {}),
     isYou
   };
 };

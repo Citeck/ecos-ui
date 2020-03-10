@@ -120,7 +120,7 @@ export default class Components {
     [ComponentKeys.USER]: {
       load: () => lazy(() => import('./UserProfile')),
       label: 'dashboard-settings.widget.user-basic-info',
-      supportedDashboardTypes: [DashboardTypes.USER]
+      supportedDashboardTypes: [DashboardTypes.PROFILE]
     }
   });
 
