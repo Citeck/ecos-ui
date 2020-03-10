@@ -38,6 +38,10 @@
     }
   }
 
+  & .show {
+    opacity: 1;
+  }
+
   &-inner {
     box-shadow: $box-shadow-tooltip;
     background: $color-white;

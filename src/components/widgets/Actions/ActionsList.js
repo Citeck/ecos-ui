@@ -2,8 +2,10 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
-import { t } from '../../../helpers/util';
+import { UncontrolledTooltip } from 'reactstrap';
+
 import { InfoText, Loader, Separator } from '../../common/index';
+import { t } from '../../../helpers/util';
 
 class ActionsList extends React.Component {
   static propTypes = {
@@ -36,6 +38,35 @@ class ActionsList extends React.Component {
     }
   };
 
+  renderVariant = (action, variant, postfix) => {
+    const { isLoading } = this.props;
+    const id = `variant-action-${action.type}-${variant.type}-${postfix}`;
+
+    return (
+      <React.Fragment key={id}>
+        <div
+          id={id}
+          className={classNames('ecos-actions-list__item-variants__item', {
+            'ecos-actions-list__item-variants__item_disabled': isLoading
+          })}
+          onClick={() => this.onClick(action)}
+        >
+          {variant.name}
+        </div>
+        <UncontrolledTooltip
+          placement="top"
+          boundariesElement="window"
+          className="ecos-base-tooltip"
+          innerClassName="ecos-base-tooltip-inner"
+          arrowClassName="ecos-base-tooltip-arrow"
+          target={id}
+        >
+          {variant.name}
+        </UncontrolledTooltip>
+      </React.Fragment>
+    );
+  };
+
   render() {
     const { isLoading, list = [], isMobile, forwardedRef } = this.props;
 
@@ -46,10 +77,11 @@ class ActionsList extends React.Component {
         {Array.isArray(list) &&
           list.map((action, index) => {
             const hasVariants = !isEmpty(action.variants);
+            const id = `action-${action.type}-${index}`;
 
             return (
               <div
-                key={`action-${action.type}-${index}`}
+                key={id}
                 className={classNames(
                   'ecos-actions-list__item',
                   { 'ecos-actions-list__item_group': hasVariants },
@@ -58,21 +90,23 @@ class ActionsList extends React.Component {
                 )}
                 onClick={() => (hasVariants ? null : this.onClick(action))}
               >
-                <div className="ecos-actions-list__item-title">{action.name}</div>
+                <div className="ecos-actions-list__item-title" id={id}>
+                  {action.name}
+                </div>
+                <UncontrolledTooltip
+                  placement="top"
+                  boundariesElement="window"
+                  className="ecos-base-tooltip"
+                  innerClassName="ecos-base-tooltip-inner"
+                  arrowClassName="ecos-base-tooltip-arrow"
+                  target={id}
+                >
+                  {action.name}
+                </UncontrolledTooltip>
                 {hasVariants && (
                   <div className="ecos-actions-list__item-variants">
                     {!isEmpty(action.variants) &&
-                      action.variants.map(variant => (
-                        <div
-                          key={`action-${action.type}-${index}-${variant.type}`}
-                          className={classNames('ecos-actions-list__item-variants__item', {
-                            'ecos-actions-list__item-variants__item_disabled': isLoading
-                          })}
-                          onClick={() => this.onClick(action)}
-                        >
-                          {variant.name}
-                        </div>
-                      ))}
+                      action.variants.map((variant, position) => this.renderVariant(action, variant, `${index}-${position}`))}
                   </div>
                 )}
                 {isMobile && index < list.length - 1 && !hasVariants && <Separator noIndents />}
