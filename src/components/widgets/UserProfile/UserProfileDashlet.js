@@ -7,7 +7,7 @@ import get from 'lodash/get';
 import { changePassword, changePhoto, getUserData } from '../../../actions/user';
 import { t } from '../../../helpers/util';
 import Dashlet from '../../Dashlet';
-import { Avatar } from '../../common';
+import { Avatar, Loader } from '../../common';
 // import { Badge } from '../../common/form';
 import { Btn } from '../../common/btns';
 import BaseWidget from '../BaseWidget';
@@ -55,7 +55,10 @@ class UserProfileDashlet extends BaseWidget {
       title,
       classNameDashlet,
       profile: { lastName, firstName, middleName, isAdmin, userName, thumbnail },
-      isCurrentUser
+      isCurrentUser,
+      isLoading,
+      isLoadingPhoto,
+      isLoadingPassword
     } = this.props;
 
     return (
@@ -66,24 +69,33 @@ class UserProfileDashlet extends BaseWidget {
         needGoTo={false}
         noActions
       >
-        <div className="ecos-user-profile__info">
-          <Avatar className="ecos-user-profile__info-photo" userName={userName} url={thumbnail} noBorder />
-          <div className="ecos-user-profile__info-name">
-            <div className="ecos-user-profile__info-name-primary">{lastName}</div>
-            <div className="ecos-user-profile__info-name-secondary">{[firstName, middleName].filter(name => !!name).join(' ')}</div>
-          </div>
-        </div>
-        {/*{[isCurrentUser, isAdmin].some(flag => flag) && (*/}
-        {/*  <div className="ecos-user-profile__badges">*/}
-        {/*    /!*{isCurrentUser && <Badge text={t(Labels.YOU)} pill/>}*!/*/}
-        {/*    {isAdmin && <Badge text={t(Labels.ADMIN)} pill/>}*/}
-        {/*  </div>*/}
-        {/*)}*/}
-        {[isCurrentUser].some(flag => flag) && (
-          <div className="ecos-user-profile__actions">
-            <Btn onClick={this.onChangePhoto}>{t(Labels.Btns.CHANGE_PHOTO)}</Btn>
-            <Btn onClick={this.onChangePassword}>{t(Labels.Btns.CHANGE_PW)}</Btn>
-          </div>
+        {isLoading && <Loader />}
+        {!isLoading && (
+          <>
+            <div className="ecos-user-profile__info">
+              <Avatar className="ecos-user-profile__info-photo" userName={userName} url={thumbnail} noBorder />
+              <div className="ecos-user-profile__info-name">
+                <div className="ecos-user-profile__info-name-primary">{lastName}</div>
+                <div className="ecos-user-profile__info-name-secondary">{[firstName, middleName].filter(name => !!name).join(' ')}</div>
+              </div>
+            </div>
+            {/*{[isCurrentUser, isAdmin].some(flag => flag) && (*/}
+            {/*  <div className="ecos-user-profile__badges">*/}
+            {/*    /!*{isCurrentUser && <Badge text={t(Labels.YOU)} pill/>}*!/*/}
+            {/*    {isAdmin && <Badge text={t(Labels.ADMIN)} pill/>}*/}
+            {/*  </div>*/}
+            {/*)}*/}
+            {[isCurrentUser].some(flag => flag) && (
+              <div className="ecos-user-profile__actions">
+                <Btn loading={isLoadingPhoto} onClick={this.onChangePhoto}>
+                  {t(Labels.Btns.CHANGE_PHOTO)}
+                </Btn>
+                <Btn loading={isLoadingPassword} onClick={this.onChangePassword}>
+                  {t(Labels.Btns.CHANGE_PW)}
+                </Btn>
+              </div>
+            )}
+          </>
         )}
       </Dashlet>
     );
@@ -97,6 +109,8 @@ const mapStateToProps = (state, context) => {
 
   return {
     isLoading: profile.isLoading,
+    isLoadingPhoto: profile.isLoadingPhoto,
+    isLoadingPassword: profile.isLoadingPassword,
     profile: profile.data || {},
     isCurrentUser
   };
@@ -104,11 +118,12 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = (dispatch, context) => {
   const { record } = context;
+  const stateId = record;
 
   return {
-    getUserData: () => dispatch(getUserData({ record, stateId: record })),
-    changePassword: data => dispatch(changePassword({ data, stateId: record })),
-    changePhoto: data => dispatch(changePhoto({ data, stateId: record }))
+    getUserData: () => dispatch(getUserData({ record, stateId })),
+    changePassword: data => dispatch(changePassword({ data, record, stateId })),
+    changePhoto: data => dispatch(changePhoto({ data, record, stateId }))
   };
 };
 

@@ -1,9 +1,11 @@
 import { handleActions } from 'redux-actions';
-import { getUserData, setUserData } from '../actions/user';
+import { changePassword, changePhoto, getUserData, setUserData } from '../actions/user';
 import { getCurrentStateById } from '../helpers/redux';
 
 const initialState = {
   isLoading: false,
+  isLoadingPhoto: false,
+  isLoadingPassword: false,
   data: {}
 };
 
@@ -27,6 +29,28 @@ export default handleActions(
           ...getCurrentStateById(state, stateId, initialState),
           ...data,
           isLoading: false
+        }
+      };
+    },
+    [changePhoto]: (state, { payload }) => {
+      const { stateId } = payload;
+
+      return {
+        ...state,
+        [stateId]: {
+          ...getCurrentStateById(state, stateId, initialState),
+          isLoadingPhoto: true
+        }
+      };
+    },
+    [changePassword]: (state, { payload }) => {
+      const { stateId } = payload;
+
+      return {
+        ...state,
+        [stateId]: {
+          ...getCurrentStateById(state, stateId, initialState),
+          isLoadingPassword: true
         }
       };
     }
