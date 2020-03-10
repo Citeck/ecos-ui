@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 
-import { getUserData } from '../../../actions/user';
+import { changePassword, changePhoto, getUserData } from '../../../actions/user';
 import { t } from '../../../helpers/util';
 import Dashlet from '../../Dashlet';
 import { Avatar } from '../../common';
-import { Badge } from '../../common/form';
+// import { Badge } from '../../common/form';
 import { Btn } from '../../common/btns';
 import BaseWidget from '../BaseWidget';
 
@@ -17,7 +17,7 @@ import './style.scss';
 const Labels = {
   TITLE: 'user-profile-widget.title',
   ADMIN: 'user-profile-widget.label.admin',
-  YOU: 'user-profile-widget.label.it-is-you',
+  YOU: 'user-profile-widget.label.you',
   Btns: {
     CHANGE_PHOTO: 'user-profile-widget.button.change-photo',
     CHANGE_PW: 'user-profile-widget.button.change-password'
@@ -37,23 +37,25 @@ class UserProfileDashlet extends BaseWidget {
   state = {};
 
   componentDidMount() {
-    const { record, isYou, getUserData } = this.props;
+    const { getUserData } = this.props;
 
-    if (!isYou) {
-      getUserData(record);
-    }
+    getUserData();
   }
 
-  onChangePhoto = () => {};
+  onChangePhoto = () => {
+    this.props.changePhoto();
+  };
 
-  onChangePassword = () => {};
+  onChangePassword = () => {
+    this.props.changePassword();
+  };
 
   render() {
     const {
       title,
       classNameDashlet,
-      user: { lastName, firstName, middleName, isAdmin, userName, thumbnail },
-      isYou
+      profile: { lastName, firstName, middleName, isAdmin, userName, thumbnail },
+      isCurrentUser
     } = this.props;
 
     return (
@@ -71,33 +73,44 @@ class UserProfileDashlet extends BaseWidget {
             <div className="ecos-user-profile__info-name-secondary">{[firstName, middleName].filter(name => !!name).join(' ')}</div>
           </div>
         </div>
-        {[isYou, isAdmin].some(flag => flag) && (
-          <div className="ecos-user-profile__badges">
-            {/*{isYou && <Badge text={t(Labels.YOU)} pill/>}*/}
-            {isAdmin && <Badge text={t(Labels.ADMIN)} pill />}
+        {/*{[isCurrentUser, isAdmin].some(flag => flag) && (*/}
+        {/*  <div className="ecos-user-profile__badges">*/}
+        {/*    /!*{isCurrentUser && <Badge text={t(Labels.YOU)} pill/>}*!/*/}
+        {/*    {isAdmin && <Badge text={t(Labels.ADMIN)} pill/>}*/}
+        {/*  </div>*/}
+        {/*)}*/}
+        {[isCurrentUser].some(flag => flag) && (
+          <div className="ecos-user-profile__actions">
+            <Btn onClick={this.onChangePhoto}>{t(Labels.Btns.CHANGE_PHOTO)}</Btn>
+            <Btn onClick={this.onChangePassword}>{t(Labels.Btns.CHANGE_PW)}</Btn>
           </div>
         )}
-        <div className="ecos-user-profile__actions">
-          <Btn onClick={this.onChangePhoto}>{t(Labels.Btns.CHANGE_PHOTO)}</Btn>
-          <Btn onClick={this.onChangePassword}>{t(Labels.Btns.CHANGE_PW)}</Btn>
-        </div>
       </Dashlet>
     );
   }
 }
 
 const mapStateToProps = (state, context) => {
-  const isYou = state.user.nodeRef === context.record;
+  const { record } = context;
+  const isCurrentUser = state.user.id === record;
+  const profile = get(state, `userProfile.${record}`, {}) || {};
 
   return {
-    user: get(state, `userProfile.${context.record}`, {}),
-    isYou
+    isLoading: profile.isLoading,
+    profile: profile.data || {},
+    isCurrentUser
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  getUserData: record => dispatch(getUserData(record))
-});
+const mapDispatchToProps = (dispatch, context) => {
+  const { record } = context;
+
+  return {
+    getUserData: () => dispatch(getUserData({ record, stateId: record })),
+    changePassword: data => dispatch(changePassword({ data, stateId: record })),
+    changePhoto: data => dispatch(changePhoto({ data, stateId: record }))
+  };
+};
 
 export default connect(
   mapStateToProps,

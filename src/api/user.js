@@ -20,12 +20,9 @@ export class UserApi extends CommonApi {
     return this.getJson(url).catch(() => ({ success: false }));
   };
 
-  getUserData = record => {
-    const query = record ? { record } : {};
-
+  getUserData = () => {
     return Records.query(
       {
-        query,
         sourceId: SourcesId.PEOPLE
       },
       {
@@ -55,4 +52,25 @@ export class UserApi extends CommonApi {
       };
     });
   };
+
+  getUserDataByRef(ref) {
+    return Records.get(ref)
+      .load({
+        userName: 'userName',
+        firstName: 'cm:firstName',
+        lastName: 'cm:lastName',
+        middleName: 'cm:middleName',
+        isAdmin: 'isAdmin?bool',
+        nodeRef: 'nodeRef?str'
+      })
+      .then(responce => responce);
+  }
+
+  changePassword({}) {
+    return Promise.resolve(true);
+  }
+
+  changePhoto({}) {
+    return Promise.resolve(true);
+  }
 }

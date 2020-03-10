@@ -32,9 +32,7 @@ class ImgViewer extends Component {
   }
 
   componentDidMount() {
-    if (this.props.onError) {
-      this.elImage.onerror = this.props.onError;
-    }
+    this.elImage.onerror = this.onError;
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -70,6 +68,11 @@ class ImgViewer extends Component {
     return calcScale ? { transform: `scale(${calcScale})` } : {};
   }
 
+  onError = e => {
+    console.error(e);
+    this.props.onError && this.props.onError();
+  };
+
   getCalcScale = props => {
     let {
       settings: { scale }
@@ -87,7 +90,14 @@ class ImgViewer extends Component {
 
     return (
       <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_img" style={style} ref={this.refImgCtr}>
-        <img src={src} alt={src} className="ecos-doc-preview__viewer-page-content" style={this.styleZoom} ref={this.refImg} />
+        <img
+          src={src}
+          alt={src}
+          className="ecos-doc-preview__viewer-page-content"
+          style={this.styleZoom}
+          ref={this.refImg}
+          onError={this.onError}
+        />
       </div>
     );
   }

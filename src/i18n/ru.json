@@ -830,7 +830,7 @@
 
   "user-profile-widget.title": "Профиль",
   "user-profile-widget.label.admin": "Администратор",
-  "user-profile-widget.label.it-is-you": "Вы",
+  "user-profile-widget.label.you": "Вы",
   "user-profile-widget.placeholder.photo": "Фото",
   "user-profile-widget.placeholder.full-name": "Имя",
   "user-profile-widget.button.change-photo": "Изменить фото",

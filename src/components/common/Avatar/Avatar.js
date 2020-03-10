@@ -49,7 +49,7 @@ export default class Avatar extends React.Component {
     const { url, userName } = this.props;
 
     if (!this.empty) {
-      return <img alt="avatar" src={url} className="ecos-avatar__image" ref={this.refImg} />;
+      return <img alt="avatar" src={url} className="ecos-avatar__image" ref={this.refImg} onError={this.onError} />;
     } else if (this.empty && userName) {
       return (
         <div className="ecos-avatar__name">

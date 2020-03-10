@@ -62,6 +62,12 @@ export const createDocumentUrl = recordRef => {
   return _createOldVersionUrlDocument(recordRef);
 };
 
+export const createThumbnailUrl = (nodeRef, extra) => {
+  const params = { property: 'ecos:photo', width: 150, ...extra, nodeRef };
+
+  return `${PROXY_URI}citeck/ecos/image/thumbnail?` + queryString.stringify(params);
+};
+
 const getPredicateFilterParam = options => {
   const filter = ParserPredicate.getRowPredicates(options);
   return filter ? JSON.stringify(filter) : '';

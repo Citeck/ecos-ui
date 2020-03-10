@@ -31,10 +31,13 @@ export class DashboardApi extends RecordService {
 
   getDashboardKeysByRef = function*(recordRef) {
     const baseTypeId = 'emodel/type@base';
-
+    const userDashboardId = 'emodel/type@user-dashboard';
+    const dashboardKeys = [];
     let parents;
+
     if (recordRef) {
       const recType = yield Records.get(recordRef).load('_etype?id');
+
       if (recType) {
         parents = yield Records.get(recType).load('.atts(n:"parents"){id, disp}');
 
@@ -50,7 +53,6 @@ export class DashboardApi extends RecordService {
         ];
       }
     } else {
-      const userDashboardId = 'emodel/type@user-dashboard';
       parents = [
         {
           id: userDashboardId,
@@ -59,20 +61,18 @@ export class DashboardApi extends RecordService {
       ];
     }
 
-    let dashboardKeys = [];
-
     for (let p of parents) {
       dashboardKeys.push({
         key: p.id,
         displayName: p.disp
       });
     }
+
     return dashboardKeys;
   };
 
   saveDashboardConfig = ({ identification, config }) => {
     const { key, user } = identification;
-
     const record = Records.get('eapps/module@ui/dashboard$');
 
     record.att('config?json', config);
@@ -95,8 +95,14 @@ export class DashboardApi extends RecordService {
 
   getDashboardById = (dashboardId, force = false) => {
     return Records.get(DashboardService.formFullId(dashboardId))
-      .load({ ...defaultAttr }, force)
-      .then(response => response);
+      .load({ ...defaultAttr, dashboardType: '_dashboardType' }, force)
+      .then(response => {
+        if (!response.type || (response.dashboardType && response.type !== response.dashboardType)) {
+          response.type = response.dashboardType;
+        }
+
+        return response;
+      });
   };
 
   getDashboardByUserAndType = (user, typeRef) => {
@@ -113,25 +119,27 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardByRecordRef = function*(recordRef) {
-    let recType = null;
-
-    if (recordRef) {
-      recType = yield Records.get(recordRef).load('_etype?id');
-      if (!recType) {
-        recType = 'emodel/type@base';
-      }
-    }
+    const { etype, dashboardType } = recordRef
+      ? yield Records.get(recordRef).load({
+          etype: '_etype?id',
+          dashboardType: '_dashboardType'
+        })
+      : {};
+    const recType = etype || 'emodel/type@base';
 
     const user = getCurrentUserName();
-
     const cacheKey = `${recType}|${user}`;
+    const result = cache.get(cacheKey);
 
-    let result = cache.get(cacheKey);
     if (result) {
       return result;
     }
 
-    let dashboard = yield this.getDashboardByUserAndType(user, recType);
+    const dashboard = yield this.getDashboardByUserAndType(user, recType);
+
+    if (!dashboard.type || (dashboard.dashboardType && dashboard.type !== dashboard.dashboardType)) {
+      dashboard.type = dashboardType;
+    }
     cache.set(cacheKey, dashboard);
 
     return dashboard;
