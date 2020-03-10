@@ -820,5 +820,13 @@
   "documents-widget.table-fields.uploaded-by": "Uploaded",
   "documents-widget.table-fields.updated-at": "Updated",
   "documents-widget.table-fields.name": "Title",
-  "documents-widget.untitled": "Untitled"
+  "documents-widget.untitled": "Untitled",
+
+  "user-profile-widget.title": "Profile",
+  "user-profile-widget.label.admin": "Administrator",
+  "user-profile-widget.label.it-is-you": "You",
+  "user-profile-widget.placeholder.photo": "Photo",
+  "user-profile-widget.placeholder.full-name": "Name",
+  "user-profile-widget.button.change-photo": "Change Photo",
+  "user-profile-widget.button.change-password": "Change Password"
 }
