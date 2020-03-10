@@ -43,43 +43,17 @@ class ActionsList extends React.Component {
     const id = `variant-action-${action.type}-${variant.type}-${postfix}`;
 
     return (
-      <React.Fragment key={id}>
-        <Tooltip
+      <Tooltip bySize key={id} target={id} uncontrolled text={variant.name}>
+        <div
           id={id}
-          uncontrolled
-          ForComponent={() => (
-            <div
-              id={id}
-              className={classNames('ecos-actions-list__item-variants__item', {
-                'ecos-actions-list__item-variants__item_disabled': isLoading
-              })}
-              onClick={() => this.onClick(action)}
-            >
-              {variant.name}
-            </div>
-          )}
-          text={variant.name}
-        />
-        {/*<div*/}
-        {/*  id={id}*/}
-        {/*  className={classNames('ecos-actions-list__item-variants__item', {*/}
-        {/*    'ecos-actions-list__item-variants__item_disabled': isLoading*/}
-        {/*  })}*/}
-        {/*  onClick={() => this.onClick(action)}*/}
-        {/*>*/}
-        {/*  {variant.name}*/}
-        {/*</div>*/}
-        {/*<UncontrolledTooltip*/}
-        {/*  placement="top"*/}
-        {/*  boundariesElement="window"*/}
-        {/*  className="ecos-base-tooltip"*/}
-        {/*  innerClassName="ecos-base-tooltip-inner"*/}
-        {/*  arrowClassName="ecos-base-tooltip-arrow"*/}
-        {/*  target={id}*/}
-        {/*>*/}
-        {/*  {variant.name}*/}
-        {/*</UncontrolledTooltip>*/}
-      </React.Fragment>
+          className={classNames('ecos-actions-list__item-variants__item', {
+            'ecos-actions-list__item-variants__item_disabled': isLoading
+          })}
+          onClick={() => this.onClick(action)}
+        >
+          {variant.name}
+        </div>
+      </Tooltip>
     );
   };
 
@@ -104,52 +78,13 @@ class ActionsList extends React.Component {
                   { 'ecos-actions-list__item_disabled': isLoading },
                   { 'ecos-actions-list__item_warning': action.theme }
                 )}
-                // onClick={() => (hasVariants ? null : this.onClick(action))}
+                onClick={() => (hasVariants ? null : this.onClick(action))}
               >
-                {/*<div className="ecos-actions-list__item-title" id={id}>*/}
-                {/*  {action.name}*/}
-                {/*</div>*/}
-                <div id={id} className="ecos-actions-list__item-title">
-                  {action.name}
-                </div>
-                <Tooltip
-                  bySize
-                  target={id}
-                  uncontrolled
-                  ForComponent={({ forwardedRef, ...props }) => (
-                    <div
-                      className="ecos-actions-list__item-title"
-                      ref={forwardedRef}
-                      // id={id}
-                      {...props}
-                    >
-                      {action.name}
-                    </div>
-                  )}
-                  // ForComponent={(...props) => {
-                  //   console.warn(...props);
-                  //
-                  //   return (
-                  //     <div
-                  //       className="ecos-actions-list__item-title"
-                  //       {...props}
-                  //     >
-                  //       {action.name}
-                  //     </div>
-                  //   );
-                  // }}
-                  text={action.name}
-                />
-                {/*<UncontrolledTooltip*/}
-                {/*  placement="top"*/}
-                {/*  boundariesElement="window"*/}
-                {/*  className="ecos-base-tooltip"*/}
-                {/*  innerClassName="ecos-base-tooltip-inner"*/}
-                {/*  arrowClassName="ecos-base-tooltip-arrow"*/}
-                {/*  target={id}*/}
-                {/*>*/}
-                {/*  {action.name}*/}
-                {/*</UncontrolledTooltip>*/}
+                <Tooltip bySize target={id} uncontrolled text={action.name}>
+                  <div id={id} className="ecos-actions-list__item-title">
+                    {action.name}
+                  </div>
+                </Tooltip>
                 {hasVariants && (
                   <div className="ecos-actions-list__item-variants">
                     {!isEmpty(action.variants) &&

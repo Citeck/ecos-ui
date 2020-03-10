@@ -1,28 +1,56 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { UncontrolledTooltip, Tooltip } from 'reactstrap';
+import { Tooltip as RTooltip } from 'reactstrap';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
-class CustomTooltip extends Component {
+class Tooltip extends Component {
   static propTypes = {
+    target: PropTypes.string.isRequired,
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
+    autohide: PropTypes.bool,
     uncontrolled: PropTypes.bool,
-    ForComponent: PropTypes.element,
+    hideArrow: PropTypes.bool,
     text: PropTypes.string,
-    placement: PropTypes.string, // todo: one of
+    placement: PropTypes.oneOf([
+      'auto',
+      'auto-start',
+      'auto-end',
+      'top',
+      'top-start',
+      'top-end',
+      'right',
+      'right-start',
+      'right-end',
+      'bottom',
+      'bottom-start',
+      'bottom-end',
+      'left',
+      'left-start',
+      'left-end'
+    ]),
+    modifiers: PropTypes.object,
+    delay: PropTypes.oneOfType([PropTypes.shape({ show: PropTypes.number, hide: PropTypes.number }), PropTypes.number]),
+    offset: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.string, PropTypes.object]),
+    trigger: PropTypes.oneOf(['hover', 'focus']),
     boundariesElement: PropTypes.string,
     className: PropTypes.string,
     innerClassName: PropTypes.string,
     arrowClassName: PropTypes.string,
-    target: PropTypes.string.isRequired
+    onToggle: PropTypes.func
   };
 
   static defaultProps = {
+    autohide: false,
+    hideArrow: false,
     uncontrolled: false,
-    ForComponent: () => null,
     text: '',
+    delay: 0,
     placement: 'top',
-    boundariesElement: 'window'
+    trigger: 'hover',
+    boundariesElement: 'window',
+    onToggle: () => null
   };
 
   constructor(props) {
@@ -39,102 +67,72 @@ class CustomTooltip extends Component {
   };
 
   tooltipProps = () => {
-    const { target, placement, boundariesElement, className, innerClassName, arrowClassName, uncontrolled } = this.props;
-    const { isOpen } = this.state;
-
-    const props = {
+    const {
       target,
       placement,
       boundariesElement,
+      className,
+      innerClassName,
+      arrowClassName,
+      trigger,
+      autohide,
+      delay,
+      uncontrolled,
+      modifiers,
+      offset,
+      innerRef,
+      onToggle
+    } = this.props;
+
+    return {
+      target,
+      placement,
+      boundariesElement,
+      trigger,
+      autohide,
+      innerRef,
+      delay,
+      modifiers,
+      offset,
       className: classNames('ecos-base-tooltip', className),
       innerClassName: classNames('ecos-base-tooltip-inner', innerClassName),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),
-      toggle: this.onToggle
-      // isOpen
+      toggle: uncontrolled ? this.onToggle : onToggle
     };
-
-    if (uncontrolled) {
-      props.trigger = 'hover';
-      props.autohide = false;
-    }
-
-    return props;
   };
 
   renderTooltip = () => {
     const { text, bySize, target } = this.props;
     const { isOpen } = this.state;
-    const element = get(this._componentRef, 'current', null);
+    const element = document.querySelector(`#${target}`);
     let needTooltip = false;
-    const el = document.querySelector(`#${target}`);
 
-    // if (element) {
-    //   const c = document.createElement('canvas');
-    //   const ctx = c.getContext('2d');
-    //
-    //   needTooltip = ctx.measureText(text).width > element.getBoundingClientRect().width;
-    //
-    //   console.warn(needTooltip, ctx.measureText(text).width, element.getBoundingClientRect().width)
-    // }
+    if (element) {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      const styles = window.getComputedStyle(element, null);
+      const paddingLeft = parseInt(styles.getPropertyValue('padding-left'), 10) || 0;
+      const paddingRight = parseInt(styles.getPropertyValue('padding-right'), 10) || 0;
 
-    if (el) {
-      const c = document.createElement('canvas');
-      const ctx = c.getContext('2d');
-      const paddingLeft = parseInt(window.getComputedStyle(el, null).getPropertyValue('padding-left'), 10) || 0;
-      const paddingRight = parseInt(window.getComputedStyle(el, null).getPropertyValue('padding-right'), 10) || 0;
-      const padding = paddingLeft + paddingRight;
-
-      ctx.font = window.getComputedStyle(el, null).getPropertyValue('font');
-      needTooltip = ctx.measureText(text).width > el.getBoundingClientRect().width - padding;
+      context.font = styles.getPropertyValue('font');
+      needTooltip = context.measureText(text).width > element.getBoundingClientRect().width - (paddingLeft + paddingRight);
     }
 
     return (
-      <Tooltip
-        {...this.tooltipProps()}
-        // target={target}
-        isOpen={bySize && needTooltip && isOpen}
-        // placement="top"
-        // trigger="hover"
-        // delay={250}
-        // autohide={false}
-        // toggle={this.onToggle.bind(this)}
-        // boundariesElement="window"
-        // className="ecos-base-tooltip"
-        // innerClassName="ecos-base-tooltip-inner"
-        // arrowClassName="ecos-base-tooltip-arrow"
-      >
+      <RTooltip {...this.tooltipProps()} isOpen={bySize && needTooltip && isOpen}>
         {text}
-      </Tooltip>
+      </RTooltip>
     );
   };
 
   render() {
-    const { uncontrolled } = this.props;
-
-    if (uncontrolled) {
-      // const Element = React.cloneElement(this.props.children, { id: target, ref: this._componentRef });
-
-      return (
-        <>
-          {/*<div ref={this._componentRef} id={target}>Событие mouseleave срабатывает, когда курсор манипулятора (обычно мыши) перемещается за границы элемента.</div>*/}
-          {/*<Element*/}
-          {/*  // id={target}*/}
-          {/*  // ref={this._componentRef}*/}
-          {/*  // onMouseOver={() => {*/}
-          {/*  //   if (this.state.isOpen) {*/}
-          {/*  //     return;*/}
-          {/*  //   }*/}
-          {/*  //*/}
-          {/*  //   this.setState({ isOpen: true });*/}
-          {/*  // }}*/}
-          {/*/>*/}
-          {this.renderTooltip()}
-        </>
-      );
-    }
-
-    return <div />;
+    return (
+      <>
+        {this.props.children}
+        {this.renderTooltip()}
+      </>
+    );
   }
 }
 
-export default CustomTooltip;
+export default Tooltip;
