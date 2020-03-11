@@ -837,5 +837,8 @@
   "user-profile-widget.button.change-password": "Изменить пароль",
   "user-profile-widget.error.get-profile-data": "Ошибка получения данных профиля",
   "user-profile-widget.error.upload-profile-photo": "Ошибка загрузки фотографии",
-  "user-profile-widget.error.change-profile-password": "Ошибка смены пароля"
+  "user-profile-widget.error.change-profile-password": "Ошибка смены пароля",
+  "user-profile-widget.modal.password.old-password": "Старый пароль",
+  "user-profile-widget.modal.password.new-password": "Придумайте новый пароль",
+  "user-profile-widget.modal.password.repeat-new": "Новый пароль ещё раз"
 }

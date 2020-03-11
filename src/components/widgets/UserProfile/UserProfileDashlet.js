@@ -6,11 +6,12 @@ import get from 'lodash/get';
 
 import { changePassword, changePhoto, getUserData } from '../../../actions/user';
 import { t } from '../../../helpers/util';
-import Dashlet from '../../Dashlet';
 import { Avatar, BtnUpload, Loader } from '../../common';
 // import { Badge } from '../../common/form';
 import { Btn } from '../../common/btns';
+import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
+import PasswordModal from './PasswordModal';
 
 import './style.scss';
 
@@ -34,7 +35,9 @@ class UserProfileDashlet extends BaseWidget {
     classNameDashlet: ''
   };
 
-  state = {};
+  state = {
+    isShowPasswordModal: false
+  };
 
   componentDidMount() {
     const { getUserData } = this.props;
@@ -46,6 +49,10 @@ class UserProfileDashlet extends BaseWidget {
     if (files && files.length) {
       this.props.changePhoto(files[0]);
     }
+  };
+
+  onTogglePassword = flag => {
+    this.setState({ isShowPasswordModal: flag });
   };
 
   onChangePassword = () => {
@@ -62,6 +69,7 @@ class UserProfileDashlet extends BaseWidget {
       isLoadingPhoto,
       isLoadingPassword
     } = this.props;
+    const { isShowPasswordModal } = this.state;
 
     return (
       <Dashlet
@@ -72,6 +80,7 @@ class UserProfileDashlet extends BaseWidget {
         noActions
       >
         {isLoading && <Loader />}
+        {<PasswordModal isShow={isShowPasswordModal} onCancel={() => this.onTogglePassword(false)} />}
         {!isLoading && (
           <>
             <div className="ecos-user-profile__info">
@@ -90,7 +99,7 @@ class UserProfileDashlet extends BaseWidget {
             {[isCurrentUser, isAdmin].some(flag => flag) && (
               <div className="ecos-user-profile__actions">
                 <BtnUpload label={t(Labels.Btns.CHANGE_PHOTO)} loading={isLoadingPhoto} onSelected={this.onChangePhoto} accept="image/*" />
-                <Btn loading={isLoadingPassword} onClick={this.onChangePassword}>
+                <Btn loading={isLoadingPassword} onClick={() => this.onTogglePassword(true)}>
                   {t(Labels.Btns.CHANGE_PW)}
                 </Btn>
               </div>

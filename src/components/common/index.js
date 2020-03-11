@@ -22,3 +22,4 @@ export { default as DropdownFilter } from './DropdownFilter/DropdownFilter';
 export { default as ResizeBoxes } from './ResizeBoxes/ResizeBoxes';
 export { default as Fullpage } from './Fullpage';
 export { default as BtnUpload } from './BtnUpload';
+export { default as Password } from './Password';

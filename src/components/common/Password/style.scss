@@ -1,0 +1,36 @@
+@import '../../../styles/constants';
+
+.ecos-password {
+  position: relative;
+
+  &__input {
+    padding: 0 30px 0 15px;
+
+    &_verifiable {
+    }
+  }
+
+  &__icon-btn {
+    position: absolute;
+    font-size: 15px;
+    color: $color-gray-5;
+    cursor: pointer;
+
+    &:hover {
+      color: $text-color-gray;
+    }
+  }
+
+  &__opener {
+    top: 10px;
+    right: 12px;
+
+    &_close {
+      color: $color-gray-6;
+    }
+  }
+
+  &__rules {
+    color: $text-color-gray;
+  }
+}
