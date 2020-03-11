@@ -2,7 +2,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
-import { UncontrolledTooltip } from 'reactstrap';
 
 import { InfoText, Loader, Separator, Tooltip } from '../../common/index';
 import { t } from '../../../helpers/util';
@@ -43,7 +42,7 @@ class ActionsList extends React.Component {
     const id = `variant-action-${action.type}-${variant.type}-${postfix}`;
 
     return (
-      <Tooltip bySize key={id} target={id} uncontrolled text={variant.name}>
+      <Tooltip showAsNeeded key={id} target={id} uncontrolled text={variant.name}>
         <div
           id={id}
           className={classNames('ecos-actions-list__item-variants__item', {
@@ -80,7 +79,7 @@ class ActionsList extends React.Component {
                 )}
                 onClick={() => (hasVariants ? null : this.onClick(action))}
               >
-                <Tooltip bySize target={id} uncontrolled text={action.name}>
+                <Tooltip showAsNeeded target={id} uncontrolled text={action.name}>
                   <div id={id} className="ecos-actions-list__item-title">
                     {action.name}
                   </div>

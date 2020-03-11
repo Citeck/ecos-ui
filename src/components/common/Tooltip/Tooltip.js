@@ -2,15 +2,22 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip as RTooltip } from 'reactstrap';
 import classNames from 'classnames';
-import get from 'lodash/get';
+
+import './style.scss';
 
 class Tooltip extends Component {
+  /**
+   * @param children - The element to which the tooltip is attached
+   * @param showAsNeeded - To display the tooltip only when the text does not fit into the child-element
+   * @param uncontrolled - Used to set the trigger to “hover” if “uncontrolled” to “false” or to “click” otherwise
+   */
   static propTypes = {
     target: PropTypes.string.isRequired,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
     autohide: PropTypes.bool,
-    uncontrolled: PropTypes.bool,
     hideArrow: PropTypes.bool,
+    isOpen: PropTypes.bool,
+    uncontrolled: PropTypes.bool,
     text: PropTypes.string,
     placement: PropTypes.oneOf([
       'auto',
@@ -33,7 +40,7 @@ class Tooltip extends Component {
     delay: PropTypes.oneOfType([PropTypes.shape({ show: PropTypes.number, hide: PropTypes.number }), PropTypes.number]),
     offset: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     innerRef: PropTypes.oneOfType([PropTypes.func, PropTypes.string, PropTypes.object]),
-    trigger: PropTypes.oneOf(['hover', 'focus']),
+    trigger: PropTypes.oneOf(['hover', 'focus', 'click']),
     boundariesElement: PropTypes.string,
     className: PropTypes.string,
     innerClassName: PropTypes.string,
@@ -45,25 +52,43 @@ class Tooltip extends Component {
     autohide: false,
     hideArrow: false,
     uncontrolled: false,
+    isOpen: false,
     text: '',
     delay: 0,
     placement: 'top',
-    trigger: 'hover',
-    boundariesElement: 'window',
-    onToggle: () => null
+    boundariesElement: 'window'
   };
+
+  static getDerivedStateFromProps(props, state) {
+    const newState = {};
+
+    if (typeof props.onToggle === 'function' && props.isOpen !== state.isOpen && !props.uncontrolled) {
+      newState.isOpen = props.isOpen;
+    }
+
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    return newState;
+  }
 
   constructor(props) {
     super(props);
 
-    this._componentRef = React.createRef();
     this.state = {
-      isOpen: false
+      isOpen: props.isOpen
     };
   }
 
   onToggle = () => {
-    this.setState(state => ({ isOpen: !state.isOpen }));
+    const { onToggle, uncontrolled } = this.props;
+
+    if (typeof onToggle === 'function' && !uncontrolled) {
+      onToggle.call(this);
+    } else {
+      this.setState(state => ({ isOpen: !state.isOpen }));
+    }
   };
 
   tooltipProps = () => {
@@ -75,20 +100,19 @@ class Tooltip extends Component {
       innerClassName,
       arrowClassName,
       trigger,
+      uncontrolled,
       autohide,
       delay,
-      uncontrolled,
       modifiers,
       offset,
-      innerRef,
-      onToggle
+      innerRef
     } = this.props;
 
     return {
       target,
       placement,
       boundariesElement,
-      trigger,
+      trigger: uncontrolled ? (!trigger ? 'hover' : trigger) : 'click',
       autohide,
       innerRef,
       delay,
@@ -97,17 +121,17 @@ class Tooltip extends Component {
       className: classNames('ecos-base-tooltip', className),
       innerClassName: classNames('ecos-base-tooltip-inner', innerClassName),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),
-      toggle: uncontrolled ? this.onToggle : onToggle
+      toggle: this.onToggle
     };
   };
 
   renderTooltip = () => {
-    const { text, bySize, target } = this.props;
+    const { text, showAsNeeded, target } = this.props;
     const { isOpen } = this.state;
-    const element = document.querySelector(`#${target}`);
-    let needTooltip = false;
+    const element = document.getElementById(target);
+    let needTooltip = !showAsNeeded;
 
-    if (element) {
+    if (showAsNeeded && element) {
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
       const styles = window.getComputedStyle(element, null);
@@ -119,7 +143,7 @@ class Tooltip extends Component {
     }
 
     return (
-      <RTooltip {...this.tooltipProps()} isOpen={bySize && needTooltip && isOpen}>
+      <RTooltip {...this.tooltipProps()} isOpen={needTooltip && isOpen}>
         {text}
       </RTooltip>
     );
