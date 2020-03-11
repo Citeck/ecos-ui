@@ -13,8 +13,23 @@ const originalCheckValidity = Base.prototype.checkValidity;
 const originalCheckConditions = Base.prototype.checkConditions;
 const originalSetValue = Base.prototype.setValue;
 const originalT = Base.prototype.t;
+const originalApplyActions = Base.prototype.applyActions;
 
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
+
+Base.prototype.applyActions = function(actions, result, data, newComponent) {
+  return actions.reduce((changed, action) => {
+    switch (action.type) {
+      // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3102
+      case 'validation':
+        this.setPristine(false);
+        this.checkValidity(this.getValue(), false);
+        return false;
+      default:
+        return originalApplyActions.call(this, actions, result, data, newComponent);
+    }
+  }, false);
+};
 
 Base.prototype.setValue = function(value, flags) {
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2980
@@ -111,12 +126,15 @@ Base.prototype.createViewOnlyValue = function(container) {
   this.createInlineEditButton(container);
 };
 
-Base.prototype.createViewOnlyElement = function(container) {
+Base.prototype.createViewOnlyElement = function() {
   if (this.element) {
     return this.element;
   }
 
-  return originalCreateViewOnlyElement.call(this);
+  const element = originalCreateViewOnlyElement.call(this);
+  this.errorContainer = element;
+
+  return element;
 };
 
 Base.prototype.createInlineEditSaveAndCancelButtons = function() {

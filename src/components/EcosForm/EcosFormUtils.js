@@ -223,7 +223,7 @@ export default class EcosFormUtils {
     return this.getForm(recordRef, formKey)
       .then(record => record !== null)
       .catch(err => {
-        console.log(err);
+        console.error(err);
         return false;
       });
   }

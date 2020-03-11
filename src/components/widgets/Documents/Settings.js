@@ -8,16 +8,19 @@ import Tree from './Tree';
 import TypeSettings from './TypeSettings';
 import { GrouppedTypeInterface } from './propsInterfaces';
 import { deepClone, t, arrayCompare } from '../../../helpers/util';
+import { Checkbox } from '../../common/form';
 
 const Labels = {
   CANCEL_BUTTON: 'documents-widget.settings-modal.button.cancel',
-  OK_BUTTON: 'documents-widget.settings-modal.button.ok'
+  OK_BUTTON: 'documents-widget.settings-modal.button.ok',
+  CHECKLIST: 'documents-widget.settings-modal.checklist'
 };
 
 class Settings extends Component {
   static propTypes = {
     isOpen: PropTypes.bool,
     isLoading: PropTypes.bool,
+    isLoadChecklist: PropTypes.bool,
     title: PropTypes.string,
     types: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     onCancel: PropTypes.func,
@@ -27,6 +30,7 @@ class Settings extends Component {
   static defaultProps = {
     isOpen: false,
     isLoading: false,
+    isLoadChecklist: false,
     title: '',
     types: [],
     onCancel: () => {},
@@ -39,16 +43,27 @@ class Settings extends Component {
     this.state = {
       types: props.types,
       filter: '',
+      isLoadChecklist: props.isLoadChecklist,
       editableType: null
     };
   }
 
   static getDerivedStateFromProps(props, state) {
+    const newState = {};
+
     if (!props.isOpen && !arrayCompare(props.types, state.types)) {
-      return { types: props.types };
+      newState.types = props.types;
     }
 
-    return null;
+    if (!props.isOpen && props.isLoadChecklist !== state.isLoadChecklist) {
+      newState.isLoadChecklist = props.isLoadChecklist;
+    }
+
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    return newState;
   }
 
   get availableTypes() {
@@ -151,6 +166,7 @@ class Settings extends Component {
   };
 
   handleClickSave = () => {
+    const { isLoadChecklist } = this.state;
     const types = deepClone(this.state.types);
     const selected = [];
 
@@ -165,7 +181,7 @@ class Settings extends Component {
     };
 
     types.forEach(checkStatus);
-    this.props.onSave(selected);
+    this.props.onSave({ types: selected, isLoadChecklist });
   };
 
   handleToggleSelectType = ({ id, checked }) => {
@@ -185,9 +201,13 @@ class Settings extends Component {
     this.setState({ editableType: null });
   };
 
+  handleToggleLoadChecklist = ({ checked }) => {
+    this.setState({ isLoadChecklist: checked });
+  };
+
   render() {
     const { isOpen, title, isLoading } = this.props;
-    const { editableType } = this.state;
+    const { editableType, isLoadChecklist } = this.state;
 
     return (
       <>
@@ -198,6 +218,9 @@ class Settings extends Component {
           className="ecos-docs__modal-settings"
           hideModal={this.handleCloseModal}
         >
+          <Checkbox className="ecos-docs__modal-checklist" onChange={this.handleToggleLoadChecklist} checked={isLoadChecklist}>
+            {t(Labels.CHECKLIST)}
+          </Checkbox>
           <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__modal-settings-search" />
           <div className="ecos-docs__modal-settings-field">
             <Tree data={this.availableTypes} onToggleSelect={this.handleToggleSelectType} onOpenSettings={this.handleToggleTypeSettings} />

@@ -1,38 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
-import PageService from '../../../../../services/PageService';
+import { AssocLink } from '../../AssocLink';
 
 import './ViewMode.scss';
 
 class ViewMode extends Component {
-  renderValue(item) {
-    const { isSelectedValueAsLink } = this.props;
-    let onClickHandler = null;
-    if (isSelectedValueAsLink) {
-      const url = createDocumentUrl(item.id);
-      onClickHandler = () => {
-        PageService.changeUrlLink(url, { openNewBrowserTab: true });
-      };
-    }
-
-    return (
-      <span
-        onClick={onClickHandler}
-        className={classNames('select-journal-view-mode__list-value', {
-          'select-journal-view-mode__list-value_link': isSelectedValueAsLink
-        })}
-      >
-        {item.disp}
-      </span>
-    );
-  }
-
   render() {
-    const { selectedRows, placeholder } = this.props;
+    const { selectedRows, placeholder, isSelectedValueAsText } = this.props;
 
     const placeholderText = placeholder ? placeholder : t('select-journal.placeholder');
 
@@ -41,7 +18,14 @@ class ViewMode extends Component {
         {selectedRows.length > 0 ? (
           <ul className="select-journal-view-mode__list">
             {selectedRows.map(item => (
-              <li key={item.id}>{this.renderValue(item)}</li>
+              <li key={item.id}>
+                <AssocLink
+                  label={item.disp}
+                  asText={isSelectedValueAsText}
+                  link={createDocumentUrl(item.id)}
+                  className="select-journal-view-mode__list-value"
+                />
+              </li>
             ))}
           </ul>
         ) : (

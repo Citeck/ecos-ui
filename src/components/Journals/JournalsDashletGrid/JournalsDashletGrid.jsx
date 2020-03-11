@@ -33,7 +33,7 @@ import {
   setSelectedRecords,
   setSettingsToUrl
 } from '../../../actions/journals';
-import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION } from '../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -41,6 +41,7 @@ const mapStateToProps = (state, props) => {
   return {
     loading: newState.loading,
     grid: newState.grid,
+    isMobile: state.view.isMobile,
     predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
@@ -116,16 +117,18 @@ class JournalsDashletGrid extends Component {
       setSettingsToUrl,
       setPredicate,
       isWidget,
-      grid: { columns }
+      grid: { columns, pagination: pager }
     } = this.props;
     const predicate = ParserPredicate.getDefaultPredicates(columns, [filter.att]);
     const newPredicate = ParserPredicate.setPredicateValue(predicate, filter, true);
+    const { maxItems } = pager || DEFAULT_JOURNALS_PAGINATION;
+    const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 
     setPredicate(newPredicate);
-    this.reloadGrid({ predicates: [newPredicate] });
+    this.reloadGrid({ predicates: [newPredicate], pagination });
 
     if (!isWidget) {
-      setSettingsToUrl({ predicate: newPredicate });
+      setSettingsToUrl({ predicate: newPredicate, pagination });
     }
   };
 
@@ -240,6 +243,7 @@ class JournalsDashletGrid extends Component {
     const toolsActionClassName = 'ecos-btn_i_sm ecos-btn_grey4';
     const {
       stateId,
+      isMobile,
       selectAllRecordsVisible,
       selectAllRecords,
       grid: { total },
@@ -294,7 +298,7 @@ class JournalsDashletGrid extends Component {
               className={'dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn'}
               onClick={this.onGoTo}
             >
-              {t('grid.tools.group-actions')}
+              {t(isMobile ? 'grid.tools.group-actions-mobile' : 'grid.tools.group-actions')}
             </IcoBtn>
           </Dropdown>
         ]}

@@ -7,28 +7,48 @@ const selectState = (state, key) => get(state, ['documents', key], { ...initialS
 
 export const selectStateByKey = createSelector(
   selectState,
-  ownState => ({
-    stateId: ownState.stateId,
-    grouppedAvailableTypes: selectGrouppedAvailableTypes(ownState),
-    availableTypes: getAvailableTypes(ownState),
-    dynamicTypes: ownState.dynamicTypes,
-    documents: ownState.documents,
-    actions: ownState.actions,
+  ownState => {
+    let isLoadChecklist = get(ownState, 'config.isLoadChecklist', undefined);
 
-    isLoading: ownState.isLoading,
-    isUploadingFile: ownState.isUploadingFile,
-    isLoadingSettings: ownState.isLoadingSettings,
-    isLoadingTableData: ownState.isLoadingTableData,
+    if (isLoadChecklist === undefined) {
+      isLoadChecklist = true;
+    }
 
-    uploadError: ownState.uploadError,
-    countFilesError: ownState.countFilesError
-  })
+    return {
+      stateId: ownState.stateId,
+      grouppedAvailableTypes: selectGrouppedAvailableTypes(ownState),
+      availableTypes: getAvailableTypes(ownState),
+      dynamicTypes: ownState.dynamicTypes,
+      documents: ownState.documents,
+      actions: ownState.actions,
+
+      isLoading: ownState.isLoading,
+      isUploadingFile: ownState.isUploadingFile,
+      isLoadingSettings: ownState.isLoadingSettings,
+      isLoadingTableData: ownState.isLoadingTableData,
+      isLoadChecklist,
+
+      uploadError: ownState.uploadError,
+      countFilesError: ownState.countFilesError
+    };
+  }
 );
 
 const getAvailableTypes = state => get(state, 'availableTypes', []);
 const getDynamicTypes = state => get(state, 'dynamicTypes', []);
 
-export const selectTypesForTable = createSelector();
+export const selectIsLoadChecklist = createSelector(
+  selectState,
+  state => {
+    let isLoadChecklist = get(state, 'config.isLoadChecklist', undefined);
+
+    if (isLoadChecklist === undefined) {
+      isLoadChecklist = true;
+    }
+
+    return isLoadChecklist;
+  }
+);
 
 export const selectConfigTypes = createSelector(
   selectState,

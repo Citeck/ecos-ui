@@ -13,6 +13,7 @@ const KEYS = {
   ESC: 'Escape'
 };
 const KEY_FOR_SAVE = [KEYS.ENTER];
+const DELIMITERS = [',', '.'];
 
 class Hour extends Component {
   static propTypes = {
@@ -25,12 +26,14 @@ class Hour extends Component {
       eq: PropTypes.number
     }),
     updatingInfo: PropTypes.object,
+    halfHour: PropTypes.bool,
     onChange: PropTypes.func,
     onReset: PropTypes.func
   };
 
   static defaultProps = {
     count: 0,
+    halfHour: false,
     color: '#b7b7b7',
     settings: {}
   };
@@ -137,7 +140,30 @@ class Hour extends Component {
   };
 
   handleChangeValue = event => {
-    let value = parseInt(event.target.value.replace(/\D/g, ''), 10);
+    const { halfHour } = this.props;
+    let value = event.target.value;
+
+    if (halfHour) {
+      value = event.target.value.replace(/[^0-9.,]/g, '');
+      value = value.replace(DELIMITERS[0], DELIMITERS[1]);
+
+      if (value === DELIMITERS[1]) {
+        value = '0.';
+      } else {
+        const parts = value.split(DELIMITERS[1]);
+
+        if (parts.length === 1) {
+          value = parseInt(value.replace(/\D/g, ''), 10);
+        }
+
+        if (parts.length > 1 && parts[1] !== '') {
+          value = parseFloat(value);
+          value = parseFloat((Math.round(value * 2) / 2).toFixed(value % 1 === 0 ? 0 : 1));
+        }
+      }
+    } else {
+      value = parseInt(value.replace(/\D/g, ''), 10);
+    }
 
     if (Number.isNaN(value)) {
       value = 0;
@@ -147,7 +173,13 @@ class Hour extends Component {
   };
 
   handleInputKeyDown = event => {
+    const { halfHour } = this.props;
     const { key } = event;
+    let { value } = this.state;
+
+    if (halfHour) {
+      value = parseFloat(value);
+    }
 
     if (KEY_FOR_SAVE.includes(key)) {
       event.preventDefault();
@@ -166,7 +198,7 @@ class Hour extends Component {
       event.preventDefault();
       event.stopPropagation();
 
-      this.setState(state => ({ value: state.value + 1, isChanged: true }));
+      this.setState({ value: ++value, isChanged: true });
 
       return;
     }

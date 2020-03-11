@@ -1,10 +1,5 @@
-import BaseDataSource from './BaseDataSource';
-import formatterStore from '../formatters/formatterStore';
-import Mapper from '../mapping/Mapper';
 import { RecordService } from '../../../../api/recordService';
-import { t } from '../../../../helpers/util';
-
-const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
+import BaseDataSource from './BaseDataSource';
 
 export default class TreeDataSource extends BaseDataSource {
   constructor(options) {
@@ -58,8 +53,8 @@ export default class TreeDataSource extends BaseDataSource {
     );
   }
 
-  _getColumns(columns) {
-    columns = [
+  _getColumns() {
+    const columns = [
       {
         dataField: 'value',
         text: 'Заголовок'
@@ -70,45 +65,11 @@ export default class TreeDataSource extends BaseDataSource {
       }
     ];
 
-    return columns.map((column, idx) => {
-      let newColumn = { ...column };
-
-      newColumn.dataField = newColumn.dataField || newColumn.attribute;
-      newColumn.text = t(newColumn.text || newColumn.dataField);
-
-      let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
-      let { formatter, params } = this._getFormatter(formatterOptions);
-
-      newColumn.formatExtraData = { formatter, params, createVariants: this._createVariants };
-
-      newColumn.filterValue = (cell, row) => formatter.getFilterValue(cell, row, params);
-      newColumn.editorRenderer = formatter.getEditor;
-
-      return newColumn;
-    });
-  }
-
-  _getFormatter(options) {
-    let name;
-    let params;
-    let defaultFormatter = formatterStore[DEFAULT_FORMATTER];
-
-    if (options) {
-      ({ name, params } = options);
-    }
-
-    let formatter = formatterStore[name || options] || defaultFormatter;
-
-    params = params || {};
-
-    return {
-      formatter,
-      params
-    };
+    return super._getColumns(columns);
   }
 
   _getDefaultOptions() {
-    const options = {
+    return {
       columns: [],
       url: undefined,
       ajax: {
@@ -120,7 +81,5 @@ export default class TreeDataSource extends BaseDataSource {
         body: {}
       }
     };
-
-    return options;
   }
 }

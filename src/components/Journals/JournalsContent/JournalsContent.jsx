@@ -14,7 +14,7 @@ const Grid = ({ stateId, showPreview, onRowClick, height }) => (
       stateId={stateId}
       onRowClick={onRowClick}
       doInlineToolsOnRowClick={showPreview}
-      className="ecos-grid_no-top-border"
+      noTopBorder
       toolsClassName={'grid-tools_r_12'}
       minHeight={height}
     />

@@ -122,24 +122,37 @@
     }
   }
 
-  &__icon {
-    color: $color-gray-6;
-    font-size: 17px;
-    margin-left: 10px;
+  &__tooltip {
+    $t: &;
 
-    &-wrap {
+    &-btn {
+      margin-left: 10px;
       display: inline-block;
       vertical-align: top;
+
+      &:hover,
+      &_active {
+        #{$t}-icon,
+        #{$t}-count {
+          color: $color-blue-light;
+          cursor: pointer;
+        }
+      }
     }
 
-    &:hover,
-    &_open {
-      color: $color-blue-light;
-      cursor: pointer;
+    &-count {
+      font-size: 15px;
+      color: $color-gray-6;
     }
 
-    &_big {
-      font-size: 32px;
+    &-icon {
+      color: $color-gray-6;
+      font-size: 17px;
+      margin-left: 3px;
+
+      &_big {
+        font-size: 32px;
+      }
     }
   }
 

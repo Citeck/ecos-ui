@@ -514,9 +514,9 @@ class Documents extends BaseWidget {
     });
   };
 
-  handleSaveSettings = settings => {
+  handleSaveSettings = ({ types, isLoadChecklist = false }) => {
     const { availableTypes, onSave, id, config, onSaveSettings } = this.props;
-    const selectedTypes = settings.map(item => {
+    const selectedTypes = types.map(item => {
       const type = availableTypes.find(type => type.id === item.id);
 
       return DocumentsConverter.getFormattedDynamicType({
@@ -526,7 +526,8 @@ class Documents extends BaseWidget {
     });
     const newConfig = {
       ...config,
-      types: DocumentsConverter.getTypesForConfig(selectedTypes)
+      types: DocumentsConverter.getTypesForConfig(selectedTypes),
+      isLoadChecklist
     };
 
     onSave(id, { config: newConfig });
@@ -1064,7 +1065,7 @@ class Documents extends BaseWidget {
   }
 
   renderSettings() {
-    const { isLoadingSettings } = this.props;
+    const { isLoadingSettings, isLoadChecklist } = this.props;
     const { isOpenSettings } = this.state;
 
     return (
@@ -1073,6 +1074,7 @@ class Documents extends BaseWidget {
         title={t(Labels.SETTINGS)}
         isLoading={isLoadingSettings}
         types={this.availableTypes}
+        isLoadChecklist={isLoadChecklist}
         onCancel={this.handleCancelSettings}
         onSave={this.handleSaveSettings}
       />

@@ -9,7 +9,7 @@ import { Grid } from '../../common/grid/index';
 import { InfoText, Loader, Separator } from '../../common/index';
 import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
 import CurrentTaskInfo from './CurrentTaskInfo';
-import IconInfo from './IconInfo';
+import BtnTooltipInfo from './BtnTooltipInfo';
 
 class CurrentTaskList extends React.Component {
   static propTypes = {
@@ -54,7 +54,12 @@ class CurrentTaskList extends React.Component {
         <React.Fragment key={uniqueId(cleanTaskId(task.id))}>
           {task[DC.actors.key] || noData}
           {task.usersGroup && (
-            <IconInfo iconClass={'icon-usergroup'} id={uniqueId(cleanTaskId(task.id))} isShow={task.isGroup}>
+            <BtnTooltipInfo
+              iconClass="icon-usergroup"
+              id={uniqueId(cleanTaskId(task.id))}
+              isShow={task.isGroup}
+              count={task.usersGroup.length}
+            >
               {!task.usersGroup.length
                 ? noData
                 : task.usersGroup.map((user, position) => (
@@ -62,7 +67,7 @@ class CurrentTaskList extends React.Component {
                       {user}
                     </div>
                   ))}
-            </IconInfo>
+            </BtnTooltipInfo>
           )}
         </React.Fragment>
       ),
@@ -73,7 +78,7 @@ class CurrentTaskList extends React.Component {
     const updCols = ArrayOfObjects.replaceKeys(cols, { key: 'dataField', label: 'text' });
     const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
 
-    return <Grid data={formatTasks} columns={gridCols} scrollable={false} className="ecos-current-task-list_view-table" />;
+    return <Grid data={formatTasks} columns={gridCols} scrollable={false} className="ecos-current-task-list_view-table" noTopBorder />;
   }
 
   renderContent() {

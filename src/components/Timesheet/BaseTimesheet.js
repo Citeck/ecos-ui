@@ -16,6 +16,7 @@ import { Input } from '../common/form';
 import Hour from './Hour';
 import Tooltip from './Tooltip';
 import { CalendarCell, CalendarRow, Header } from './Calendar';
+import { ServerEventTypes } from '../../constants/timesheet';
 
 import './style.scss';
 
@@ -239,6 +240,7 @@ class BaseTimesheet extends Component {
               color={eventItem.color}
               count={count}
               settings={eventItem.hours}
+              halfHour={eventItem.name === ServerEventTypes.DAYTIME_WORK}
               onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value, userName)}
               onReset={value => this.handleResetEventHours(eventItem.name, day.number, value, userName)}
               updatingInfo={get(updatingHours, keyHour, null)}

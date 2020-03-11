@@ -29,7 +29,7 @@ export default class DropdownFilter extends React.Component {
   className = 'ecos-dropdown-filter';
 
   handleFilter = field => {
-    console.log(field);
+    console.info(field);
   };
 
   getStateOpen = isOpenFilter => {

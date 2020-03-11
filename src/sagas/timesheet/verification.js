@@ -16,6 +16,7 @@ import CommonTimesheetService from '../../services/timesheet/common';
 import { selectTVerificationUpdatingHours, selectTVerificationMergedList } from '../../selectors/timesheet';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import { selectUserName } from '../../selectors/user';
+import { deepClone } from '../../helpers/util';
 
 function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -51,6 +52,41 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
   }
 }
 
+function* updateEvents({ value, number, userName, eventType }) {
+  try {
+    const list = deepClone(yield select(selectTVerificationMergedList));
+    const itemIndex = list.findIndex(item => item.userName === userName);
+
+    if (!~itemIndex) {
+      return;
+    }
+
+    const eventsIndex = list[itemIndex].eventTypes.findIndex(event => event.name === eventType);
+
+    if (!~eventsIndex) {
+      return;
+    }
+
+    const event = list[itemIndex].eventTypes[eventsIndex];
+    let dayIndex = event.days.findIndex(day => day.number === number);
+
+    if (!~dayIndex) {
+      event.days.push({ number, hours: value });
+      dayIndex = event.days.length - 1;
+    }
+
+    if (!!value) {
+      event.days[dayIndex].hours = value;
+    } else {
+      event.days.splice(dayIndex, 1);
+    }
+
+    yield put(setMergedList(list));
+  } catch (e) {
+    console.error('[timesheetVerification updateEvents] error', e.message);
+  }
+}
+
 function* sagaModifyEventDayHours({ api, logger }, { payload }) {
   const updatingHoursState = yield select(selectTVerificationUpdatingHours);
   const firstState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload);
@@ -64,6 +100,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
 
     yield put(setUpdatingEventDayHours(secondState));
+    yield* updateEvents(payload);
   } catch (e) {
     const updatingHoursState = yield select(selectTVerificationUpdatingHours);
     const thirdState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });

@@ -46,12 +46,20 @@ const changeUrl = (url, opts = {}) => {
   }
 };
 
+export const _createOldVersionUrlDocument = recordRef => {
+  return `/share/page/card-details?nodeRef=${recordRef}`;
+};
+
+export const createProfileUrl = userName => {
+  return `/share/page/user/${userName}/profile`;
+};
+
 export const createDocumentUrl = recordRef => {
   if (isNewVersionPage()) {
     return `${URL.DASHBOARD}?recordRef=${recordRef}`;
   }
 
-  return `/share/page/card-details?nodeRef=${recordRef}`;
+  return _createOldVersionUrlDocument(recordRef);
 };
 
 const getPredicateFilterParam = options => {

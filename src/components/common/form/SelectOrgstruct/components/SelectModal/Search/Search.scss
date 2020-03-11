@@ -1,16 +1,46 @@
 @import '../../../../../../../styles/constants';
 
-.select-orgstruct__search {
-  position: relative;
-}
+.select-orgstruct {
+  &__search {
+    position: relative;
+    display: flex;
 
-.select-orgstruct__search-input {
-  padding-left: 40px;
-}
+    &-wrapper {
+      position: relative;
+      width: 100%;
+      margin-right: 10px;
+    }
 
-.select-orgstruct__search-icon {
-  position: absolute;
-  line-height: 40px;
-  left: 12px;
-  color: $color-gray-5;
+    &-input {
+      padding-left: 40px;
+    }
+
+    &-icon {
+      position: absolute;
+      line-height: 40px;
+      left: 12px;
+      color: $color-gray-5;
+    }
+
+    &-cleaner {
+      color: $color-gray-5;
+      cursor: pointer;
+      position: absolute;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0s;
+      transition-delay: 0s;
+
+      padding: 5px 7px;
+      top: calc(50% - 15px);
+      right: 5px;
+      pointer-events: none;
+
+      &_show {
+        pointer-events: auto;
+        opacity: 1;
+        transition-delay: 0.5s;
+      }
+    }
+  }
 }

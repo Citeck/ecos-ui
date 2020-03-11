@@ -2,7 +2,7 @@ import baseEditForm from 'formiojs/components/base/Base.form';
 import SelectActionEditData from './editForm/SelectAction.edit.data';
 
 export default function(...extend) {
-  return baseEditForm(
+  const editForm = baseEditForm(
     [
       {
         key: 'data',
@@ -11,4 +11,16 @@ export default function(...extend) {
     ],
     ...extend
   );
+  const editFormTabs = editForm.components.find(component => component.key === 'tabs');
+  const dataFormTabIndex = editFormTabs.components.findIndex(component => component.key === 'data');
+
+  if (!!~dataFormTabIndex) {
+    editFormTabs.components[dataFormTabIndex].components = editFormTabs.components[dataFormTabIndex].components.filter(
+      component => component.key === 'source.items'
+    );
+  }
+
+  editFormTabs.components = editFormTabs.components.filter(component => component.key !== 'validation');
+
+  return editForm;
 }

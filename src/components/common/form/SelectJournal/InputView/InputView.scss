@@ -71,23 +71,6 @@
   }
 }
 
-.select-journal__values-list-disp {
-  white-space: nowrap;
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 5px;
-
-  &_link {
-    cursor: pointer;
-    color: $text-link;
-
-    &:hover {
-      color: $text-link_hover;
-    }
-  }
-}
-
 .select-journal__error {
   color: $color-red-1;
 }

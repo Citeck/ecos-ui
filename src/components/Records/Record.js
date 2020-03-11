@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { recordsMutateFetch, loadAttribute } from './recordsApi';
+import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import Attribute from './Attribute';
 import { EventEmitter2 } from 'eventemitter2';
 import { mapValueToInnerAtt } from './recordUtils';
@@ -221,7 +221,7 @@ export default class Record {
     })
       .then(cleanUpdateStatus)
       .catch(e => {
-        console.log(e);
+        console.error(e);
         cleanUpdateStatus();
       });
     this._updatePromise = promise;

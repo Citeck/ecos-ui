@@ -4,8 +4,8 @@ import classNames from 'classnames';
 
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
-import PageService from '../../../../../services/PageService';
 import { Btn } from '../../../../common/btns';
+import { AssocLink } from '../../AssocLink';
 
 import './InputView.scss';
 
@@ -30,23 +30,15 @@ class InputView extends Component {
   };
 
   renderSelectedValue(item) {
-    const { isSelectedValueAsLink } = this.props;
-    let onClickHandler = null;
-    if (isSelectedValueAsLink) {
-      const url = createDocumentUrl(item.id);
-      onClickHandler = () => {
-        PageService.changeUrlLink(url, { openNewBrowserTab: true });
-      };
+    const { isSelectedValueAsText, isInlineEditingMode } = this.props;
+    const props = {};
+
+    if (!isSelectedValueAsText) {
+      props.link = createDocumentUrl(item.id);
+      props.paramsLink = { openNewBrowserTab: !isInlineEditingMode };
     }
 
-    return (
-      <span
-        onClick={onClickHandler}
-        className={classNames('select-journal__values-list-disp', { 'select-journal__values-list-disp_link': isSelectedValueAsLink })}
-      >
-        {item.disp}
-      </span>
-    );
+    return <AssocLink label={item.disp} asText={isSelectedValueAsText} {...props} className="select-journal__values-list-disp" />;
   }
 
   render() {
@@ -136,7 +128,8 @@ InputView.propTypes = {
   openSelectModal: PropTypes.func,
   hideEditRowButton: PropTypes.bool,
   hideDeleteRowButton: PropTypes.bool,
-  isSelectedValueAsLink: PropTypes.bool
+  isSelectedValueAsText: PropTypes.bool,
+  isInlineEditingMode: PropTypes.bool
 };
 
 export default InputView;

@@ -20,6 +20,9 @@ export default class NumberComponent extends FormIONumberComponent {
       return `${value}${this.decimalSeparator}${_.repeat('0', decimalLimit)}`;
     } else if (this.component.requireDecimal && value && value.includes(this.decimalSeparator)) {
       return `${value}${_.repeat('0', decimalLimit - value.split(this.decimalSeparator)[1].length)}`;
+    } else if (this.component.requireDecimal && !value) {
+      // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3118
+      return '';
     }
 
     return value;

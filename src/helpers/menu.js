@@ -2,6 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import { URL } from '../constants';
 import { HandleControlTypes } from './handleControl';
+import { createProfileUrl } from './urls';
 
 export function processCreateVariantsItems(sites) {
   let menuItems = [];
@@ -60,7 +61,7 @@ export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAu
     {
       id: 'HEADER_USER_MENU_MY_PROFILE',
       label: 'header.my-profile.label',
-      targetUrl: '/share/page/user/' + encodeURIComponent(userName) + '/profile'
+      targetUrl: createProfileUrl(encodeURIComponent(userName))
     },
     {
       id: 'HEADER_USER_MENU_AVAILABILITY',

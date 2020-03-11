@@ -18,7 +18,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         hideEditRowButton: false,
         hideDeleteRowButton: false,
         isFullScreenWidthModal: false,
-        isSelectedValueAsLink: false
+        isSelectedValueAsText: false
       },
       ...extend
     );
@@ -60,8 +60,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
   getInitialReactProps() {
     let resolveProps = journalId => {
-      let component = this.component;
+      const component = this.component;
       let presetFilterPredicates = null;
+
       if (component.presetFilterPredicatesJs) {
         presetFilterPredicates = this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true);
       }
@@ -79,8 +80,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
         hideCreateButton: component.hideCreateButton,
         hideEditRowButton: component.hideEditRowButton,
         hideDeleteRowButton: component.hideDeleteRowButton,
-        isSelectedValueAsLink: component.isSelectedValueAsLink,
+        isSelectedValueAsText: component.isSelectedValueAsText,
         isFullScreenWidthModal: component.isFullScreenWidthModal,
+        isInlineEditingMode: this._isInlineEditingMode,
         presetFilterPredicates,
         searchField: component.searchField,
         computed: {
