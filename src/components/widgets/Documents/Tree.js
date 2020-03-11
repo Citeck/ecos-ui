@@ -144,16 +144,16 @@ class TreeItem extends Component {
 
   renderBadge() {
     const { item } = this.props;
-    const children = arrayFlat({ data: item.items, byField: 'items' });
+    const children = arrayFlat({ data: item.items, byField: 'items', withParent: true });
     const selectedChildren = children.filter(child => child.isSelected);
 
-    if (!item.locked && !selectedChildren.length && item.isSelected) {
+    if (!item.locked && !children.length && item.isSelected) {
       return null;
     }
 
     let text = '';
 
-    if (children.length && selectedChildren.length) {
+    if (children.length) {
       text = `${t(Labels.SELECTED_INSIDE)} ${selectedChildren.length} ${t(Labels.OF)} ${children.length}`;
     } else {
       text = item.locked ? t(Labels.NOT_BE_DISABLED) : t(Labels.NOT_SELECTED);

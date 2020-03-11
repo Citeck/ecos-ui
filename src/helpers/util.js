@@ -664,7 +664,7 @@ export function prepareTooltipId(id = uuidV4()) {
   return `${id}`.replace(/[^\d\w-]/g, '');
 }
 
-export function arrayFlat({ data = [], depth = Infinity, byField = '' }) {
+export function arrayFlat({ data = [], depth = Infinity, byField = '', withParent = false }) {
   if (!data.length) {
     return [];
   }
@@ -680,7 +680,15 @@ export function arrayFlat({ data = [], depth = Infinity, byField = '' }) {
       return child;
     }
 
-    return child[byField].map(getChildren);
+    const children = child[byField].map(getChildren);
+
+    if (withParent) {
+      children.push(child);
+
+      return children;
+    }
+
+    return children;
   };
 
   return Array.prototype.flat.call(array.map(getChildren), depth);
