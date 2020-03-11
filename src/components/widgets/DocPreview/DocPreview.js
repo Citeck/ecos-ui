@@ -77,7 +77,7 @@ class DocPreview extends Component {
       contentHeight: 0,
       error: '',
       fileName: props.fileName,
-      downloadLink: props.downloadLink
+      downloadData: {}
     };
   }
 
@@ -131,10 +131,6 @@ class DocPreview extends Component {
       newState.fileName = nextProps.fileName;
     }
 
-    if ((!prevProps.downloadLink && nextProps.downloadLink) || prevProps.downloadLink !== nextProps.downloadLink) {
-      newState.downloadLink = nextProps.downloadLink;
-    }
-
     this.setState({ ...newState }, () => {
       if (newState.recordId) {
         this.getUrlByRecord();
@@ -144,8 +140,8 @@ class DocPreview extends Component {
         this.getFileName();
       }
 
-      if (!newState.downloadLink) {
-        this.getDownloadLink();
+      if (!newState.downloadData || !newState.downloadData.link) {
+        this.getDownloadData();
       }
     });
   }
@@ -233,7 +229,7 @@ class DocPreview extends Component {
     }
 
     this.setState({ isLoading: true });
-    DocPreviewApi.getLinkByRecord(recordId).then(link => {
+    DocPreviewApi.getPreviewLinkByRecord(recordId).then(link => {
       if (this.exist) {
         const error = link ? '' : t(Labels.Errors.FAILURE_FETCH);
 
@@ -259,11 +255,11 @@ class DocPreview extends Component {
     });
   };
 
-  getDownloadLink() {
-    const { recordId, byLink, link } = this.state;
+  getDownloadData() {
+    const { recordId, byLink, link, fileName } = this.state;
 
     if (byLink && link) {
-      this.setState({ downloadLink: link });
+      this.setState({ downloadData: { link, fileName } });
       return;
     }
 
@@ -271,8 +267,8 @@ class DocPreview extends Component {
       return;
     }
 
-    DocPreviewApi.getDownloadLink(recordId).then(downloadLink => {
-      this.exist && this.setState({ downloadLink });
+    DocPreviewApi.getDownloadData(recordId).then(downloadData => {
+      this.exist && this.setState({ downloadData });
     });
   }
 
@@ -362,7 +358,7 @@ class DocPreview extends Component {
 
   renderToolbar() {
     const { scale } = this.props;
-    const { pdf, scrollPage, calcScale, downloadLink, link, fileName } = this.state;
+    const { pdf, scrollPage, calcScale, downloadData, fileName } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
     if (!this.loaded) {
@@ -380,7 +376,7 @@ class DocPreview extends Component {
         calcScale={calcScale}
         inputRef={this.refToolbar}
         fileName={fileName}
-        downloadLink={downloadLink || link}
+        downloadData={downloadData}
       />
     );
   }
@@ -396,15 +392,15 @@ class DocPreview extends Component {
   }
 
   renderMessage() {
-    const { downloadLink, fileName } = this.state;
+    const { downloadData } = this.state;
     const message = this.message;
 
     return (
       message && (
         <div className="ecos-doc-preview__info-block">
           <InfoText className="ecos-doc-preview__info-block-msg" text={message} />
-          {downloadLink && (
-            <a href={downloadLink} download={fileName} data-external>
+          {downloadData && downloadData.link && (
+            <a href={downloadData.link} download={downloadData.fileName} data-external>
               <Btn className="ecos-btn_narrow">{t(Labels.DOWNLOAD)}</Btn>
             </a>
           )}

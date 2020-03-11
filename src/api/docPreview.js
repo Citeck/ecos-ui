@@ -4,7 +4,7 @@ import Records from '../components/Records';
 import endsWith from 'lodash/endsWith';
 
 export class DocPreviewApi extends RecordService {
-  static getLinkByRecord = nodeRef => {
+  static getPreviewLinkByRecord = nodeRef => {
     return Records.get(nodeRef)
       .load(
         {
@@ -64,7 +64,7 @@ export class DocPreviewApi extends RecordService {
       });
   };
 
-  static getDownloadLink = nodeRef => {
+  static getDownloadData = nodeRef => {
     return Records.get(nodeRef)
       .load(
         {
@@ -76,14 +76,19 @@ export class DocPreviewApi extends RecordService {
       .then(resp => {
         resp = resp || {};
 
-        const { originalUrl = '' } = resp.info || {};
+        const { originalUrl, originalName, originalExt } = resp.info || {};
+        const link = originalUrl ? `/share/proxy/${originalUrl}` : '';
+        let fileName = originalName || resp.fileName;
 
-        return originalUrl || '';
+        if (!endsWith(fileName, originalExt)) {
+          fileName += `.${originalExt}`;
+        }
+
+        return { link, fileName };
       })
-      .then(url => (url ? `/share/proxy/${url}` : ''))
       .catch(e => {
         console.error(e);
-        return '';
+        return {};
       });
   };
 }
