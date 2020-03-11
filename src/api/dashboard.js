@@ -96,13 +96,7 @@ export class DashboardApi extends RecordService {
   getDashboardById = (dashboardId, force = false) => {
     return Records.get(DashboardService.formFullId(dashboardId))
       .load({ ...defaultAttr, dashboardType: '_dashboardType' }, force)
-      .then(response => {
-        if (!response.type || (response.dashboardType && response.type !== response.dashboardType)) {
-          response.type = response.dashboardType;
-        }
-
-        return response;
-      });
+      .then(response => response);
   };
 
   getDashboardByUserAndType = (user, typeRef) => {
@@ -119,12 +113,7 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardByRecordRef = function*(recordRef) {
-    const { etype, dashboardType } = recordRef
-      ? yield Records.get(recordRef).load({
-          etype: '_etype?id',
-          dashboardType: '_dashboardType'
-        })
-      : {};
+    const { etype, dashboardType } = recordRef ? yield Records.get(recordRef).load({ etype: '_etype?id' }) : {};
     const recType = etype || 'emodel/type@base';
 
     const user = getCurrentUserName();
@@ -137,9 +126,6 @@ export class DashboardApi extends RecordService {
 
     const dashboard = yield this.getDashboardByUserAndType(user, recType);
 
-    if (!dashboard.type || (dashboard.dashboardType && dashboard.type !== dashboard.dashboardType)) {
-      dashboard.type = dashboardType;
-    }
     cache.set(cacheKey, dashboard);
 
     return dashboard;
