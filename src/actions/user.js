@@ -11,5 +11,6 @@ export const changePassword = createAction(prefix + 'CHANGE_USER_PASSWORD');
 export const changePhoto = createAction(prefix + 'CHANGE_USER_PHOTO');
 
 export const setUserData = createAction(prefix + 'SET_USER_DATA');
+export const setUserPhoto = createAction(prefix + 'SET_USER_PHOTO');
 export const setUserThumbnail = createAction(prefix + 'SET_USER_THUMBNAIL');
 export const setIsAuthenticated = createAction(prefix + 'SET_USER_IS_AUTHENTICATED');

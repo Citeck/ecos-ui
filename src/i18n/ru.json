@@ -834,5 +834,8 @@
   "user-profile-widget.placeholder.photo": "Фото",
   "user-profile-widget.placeholder.full-name": "Имя",
   "user-profile-widget.button.change-photo": "Изменить фото",
-  "user-profile-widget.button.change-password": "Изменить пароль"
+  "user-profile-widget.button.change-password": "Изменить пароль",
+  "user-profile-widget.error.get-profile-data": "Ошибка получения данных профиля",
+  "user-profile-widget.error.upload-profile-photo": "Ошибка загрузки фотографии",
+  "user-profile-widget.error.change-profile-password": "Ошибка смены пароля"
 }

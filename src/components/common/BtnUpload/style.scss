@@ -1,0 +1,16 @@
+@import '../btns/Btn/Btn';
+@import '../../../styles/constants';
+
+.ecos-btn-upload {
+  &-input:disabled + &-label {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  &-label {
+    @extend button.ecos-btn;
+
+    display: block;
+    line-height: normal;
+  }
+}
