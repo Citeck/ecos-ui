@@ -65,10 +65,16 @@ class Password extends React.Component {
     ];
 
     return (
-      <div className="ecos-password__rules">
+      <div className="ecos-password-rules">
         {rules.map(item => (
-          <div key={Math.random()} className={classNames('ecos-password__rules-item')}>
-            <Icon className="icon-check" />
+          <div
+            key={Math.random()}
+            className={classNames('ecos-password-rules-item', {
+              'ecos-password-rules-item_invalid': item.done === false,
+              'ecos-password-rules-item_valid': !!item.done
+            })}
+          >
+            <Icon className="ecos-password-rules__item-icon icon-check" />
             {t(item.name)}
           </div>
         ))}
@@ -81,23 +87,25 @@ class Password extends React.Component {
     const { isShowWord } = this.state;
 
     return (
-      <div className="ecos-password">
+      <>
         {verifiable && this.renderRules()}
-        <Input
-          {...addProps}
-          type={isShowWord ? 'text' : 'password'}
-          className={classNames('ecos-password__input', { 'ecos-password__input_verifiable': verifiable }, className)}
-          onChange={this.onChange}
-          autocomplete={autocomplete ? 'on' : 'off'}
-        />
-        <Icon
-          className={classNames('ecos-password__icon-btn ecos-password__opener', {
-            'icon-on': isShowWord,
-            'icon-off': !isShowWord
-          })}
-          onClick={this.toggleEye}
-        />
-      </div>
+        <div className="ecos-password-field">
+          <Input
+            {...addProps}
+            type={isShowWord ? 'text' : 'password'}
+            className={classNames('ecos-password-field__input', { 'ecos-password-field__input_verifiable': verifiable }, className)}
+            onChange={this.onChange}
+            autocomplete={autocomplete ? 'on' : 'off'}
+          />
+          <Icon
+            className={classNames('ecos-password-field__icon-btn ecos-password-field__opener', {
+              'icon-on': isShowWord,
+              'icon-off': !isShowWord
+            })}
+            onClick={this.toggleEye}
+          />
+        </div>
+      </>
     );
   }
 }
