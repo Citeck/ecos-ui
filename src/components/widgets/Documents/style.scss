@@ -182,10 +182,20 @@
       &:after {
         bottom: unset;
       }
+
+      &:before {
+        content: none;
+      }
     }
 
-    &.ecos-grid_freeze .ecos-grid__header th:first-child {
-      box-shadow: -2px 0px 0px 0px $color-gray-4;
+    &.ecos-grid_freeze .ecos-grid__header {
+      th {
+        &:first-child {
+          box-shadow: -2px 0px 0px 0px $color-gray-4;
+        }
+
+        border-top: 2px solid $color-gray-4;
+      }
     }
 
     &_hidden {
@@ -262,7 +272,15 @@
     &.ecos-grid_freeze {
       .ecos-grid__header {
         th:first-child {
-          border-left: 2px $color-gray-4 solid;
+          &:before {
+            content: '';
+            width: 2px;
+            background: $color-gray-4;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+          }
         }
       }
     }
