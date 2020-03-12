@@ -2,8 +2,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
+
+import { InfoText, Loader, Separator, Tooltip } from '../../common/index';
 import { t } from '../../../helpers/util';
-import { InfoText, Loader, Separator } from '../../common/index';
 
 class ActionsList extends React.Component {
   static propTypes = {
@@ -36,6 +37,25 @@ class ActionsList extends React.Component {
     }
   };
 
+  renderVariant = (action, variant, postfix) => {
+    const { isLoading } = this.props;
+    const id = `variant-action-${action.type}-${variant.type}-${postfix}`;
+
+    return (
+      <Tooltip showAsNeeded key={id} target={id} uncontrolled text={variant.name}>
+        <div
+          id={id}
+          className={classNames('ecos-actions-list__item-variants__item', {
+            'ecos-actions-list__item-variants__item_disabled': isLoading
+          })}
+          onClick={() => this.onClick(action)}
+        >
+          {variant.name}
+        </div>
+      </Tooltip>
+    );
+  };
+
   render() {
     const { isLoading, list = [], isMobile, forwardedRef } = this.props;
 
@@ -46,10 +66,11 @@ class ActionsList extends React.Component {
         {Array.isArray(list) &&
           list.map((action, index) => {
             const hasVariants = !isEmpty(action.variants);
+            const id = `action-${action.type}-${index}`;
 
             return (
               <div
-                key={`action-${action.type}-${index}`}
+                key={id}
                 className={classNames(
                   'ecos-actions-list__item',
                   { 'ecos-actions-list__item_group': hasVariants },
@@ -58,21 +79,15 @@ class ActionsList extends React.Component {
                 )}
                 onClick={() => (hasVariants ? null : this.onClick(action))}
               >
-                <div className="ecos-actions-list__item-title">{action.name}</div>
+                <Tooltip showAsNeeded target={id} uncontrolled text={action.name}>
+                  <div id={id} className="ecos-actions-list__item-title">
+                    {action.name}
+                  </div>
+                </Tooltip>
                 {hasVariants && (
                   <div className="ecos-actions-list__item-variants">
                     {!isEmpty(action.variants) &&
-                      action.variants.map(variant => (
-                        <div
-                          key={`action-${action.type}-${index}-${variant.type}`}
-                          className={classNames('ecos-actions-list__item-variants__item', {
-                            'ecos-actions-list__item-variants__item_disabled': isLoading
-                          })}
-                          onClick={() => this.onClick(action)}
-                        >
-                          {variant.name}
-                        </div>
-                      ))}
+                      action.variants.map((variant, position) => this.renderVariant(action, variant, `${index}-${position}`))}
                   </div>
                 )}
                 {isMobile && index < list.length - 1 && !hasVariants && <Separator noIndents />}

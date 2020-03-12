@@ -19,18 +19,18 @@ class Toolbar extends Component {
   static propTypes = {
     isPDF: PropTypes.bool.isRequired,
     className: PropTypes.string,
+    fileName: PropTypes.string,
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     totalPages: PropTypes.number.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
     inputRef: PropTypes.any,
-    link: PropTypes.string,
-    fileName: PropTypes.string
+    downloadData: PropTypes.object
   };
 
   static defaultProps = {
     scale: '',
     className: '',
-    link: '',
+    downloadData: {},
     fileName: ''
   };
 
@@ -217,15 +217,15 @@ class Toolbar extends Component {
   }
 
   renderExtraBtns() {
-    const { link, fileName } = this.props;
+    const { downloadData, fileName } = this.props;
 
-    return (
+    return downloadData && downloadData.link ? (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-extra-btns">
-        <a href={link} download={fileName} data-external>
-          <IcoBtn icon={'icon-download'} className="ecos-btn_sq_sm ecos-btn_tight" title={t(Labels.DOWNLOAD)} />
+        <a href={downloadData.link} download={downloadData.fileName || fileName} data-external>
+          <IcoBtn icon="icon-download" className="ecos-btn_sq_sm ecos-btn_tight" title={t(Labels.DOWNLOAD)} />
         </a>
       </div>
-    );
+    ) : null;
   }
 
   render() {
