@@ -63,5 +63,10 @@
     &-filed {
       margin-bottom: 20px;
     }
+
+    &-actions {
+      display: flex;
+      justify-content: space-between;
+    }
   }
 }

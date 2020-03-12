@@ -24,22 +24,22 @@ const RULES = [
   {
     key: 'count-characters',
     name: Labels.Rules.COUNT_CHARACTERS,
-    rule: /[^ \t\n\r\f\v]{3,}/
+    rule: /^[\t\n\r\f\v\s]{3,}$/
   },
   {
     key: 'count-digits',
     name: Labels.Rules.COUNT_DIGITS,
-    rule: /\d+/
+    rule: /\d+$/
   },
   {
     key: 'count-capitals',
     name: Labels.Rules.COUNT_CAPITALS,
-    rule: /[А-ЯЁA-Z]+/
+    rule: /[А-ЯЁA-Z]+$/
   },
   {
     key: 'count-lowercase',
     name: Labels.Rules.COUNT_LOWERCASE,
-    rule: /[a-zа-яё]+/
+    rule: /[a-zа-яё]+$/
   }
 ];
 
@@ -49,6 +49,7 @@ class Password extends React.Component {
     keyValue: PropTypes.string,
     value: PropTypes.string,
     onChange: PropTypes.func,
+    errMsgs: PropTypes.array,
     autocomplete: PropTypes.bool,
     verifiable: PropTypes.bool
   };
@@ -61,13 +62,21 @@ class Password extends React.Component {
   };
 
   state = {
-    isShowWord: false
+    isShowWord: false,
+    touched: false
   };
 
   onChange = e => {
-    const { onChange, keyValue } = this.props;
+    const { onChange, keyValue: key } = this.props;
+    const value = e.target.value;
 
-    onChange && onChange(e.target.value, keyValue);
+    onChange && onChange({ value, key, valid: BASE_RULE.test(String(value)) });
+  };
+
+  onFocus = () => {
+    if (!this.state.touched) {
+      this.setState({ touched: true });
+    }
   };
 
   toggleEye = () => {
@@ -76,7 +85,7 @@ class Password extends React.Component {
 
   renderRules() {
     const { verifiable, value } = this.props;
-    const strValue = value ? String(value) : '';
+    const { touched } = this.state;
 
     if (!verifiable) {
       return null;
@@ -86,10 +95,10 @@ class Password extends React.Component {
       <div className="ecos-password-rules">
         {RULES.map(item => (
           <div
-            key={Math.random()}
+            key={getKey()}
             className={classNames('ecos-password-rules__item', {
-              'ecos-password-rules__item_invalid': !!strValue && !item.rule.test(strValue),
-              'ecos-password-rules__item_valid': !!strValue && item.rule.test(strValue)
+              'ecos-password-rules__item_invalid': touched && !item.rule.test(value),
+              'ecos-password-rules__item_valid': touched && item.rule.test(value)
             })}
           >
             <Icon className="ecos-password-rules__item-icon icon-check" />
@@ -100,9 +109,25 @@ class Password extends React.Component {
     );
   }
 
+  renderMessages() {
+    const { verifiable, errMsgs } = this.props;
+
+    return (
+      <div className="ecos-password-messages">
+        {verifiable && <div className="ecos-password-messages__item">{t(Labels.Rules.VALID_CHARACTERS)}</div>}
+        {errMsgs &&
+          errMsgs.map(msg => (
+            <div key={getKey()} className="ecos-password-messages__item ecos-password-messages__item_error">
+              {t(msg)}
+            </div>
+          ))}
+      </div>
+    );
+  }
+
   render() {
-    const { className, keyValue, autocomplete, verifiable, value, valid, ...addProps } = this.props;
-    const { isShowWord } = this.state;
+    const { className, keyValue, autocomplete, verifiable, value, valid, errMsgs, ...addProps } = this.props;
+    const { isShowWord, touched } = this.state;
     const check = BASE_RULE.test(String(value));
 
     return (
@@ -114,11 +139,12 @@ class Password extends React.Component {
             value={value}
             type={isShowWord ? 'text' : 'password'}
             className={classNames('ecos-password-field__input', {
-              'ecos-password-field__input_invalid': (verifiable && !!value && !check) || valid === false,
-              'ecos-password-field__input_valid': (verifiable && !!value && check) || valid
+              'ecos-password-field__input_invalid': (verifiable && touched && !check) || (errMsgs && errMsgs.length),
+              'ecos-password-field__input_valid': verifiable && touched && check
             })}
             onChange={this.onChange}
-            autoComplete={autocomplete ? 'on' : 'off'}
+            autoComplete={autocomplete ? 'on' : 'none'}
+            onFocus={this.onFocus}
           />
           <Icon
             className={classNames('ecos-password-field__icon-btn ecos-password-field__opener', {
@@ -128,10 +154,14 @@ class Password extends React.Component {
             onClick={this.toggleEye}
           />
         </div>
-        {verifiable && <div className="ecos-password-rule">{t(Labels.Rules.VALID_CHARACTERS)}</div>}
+        {this.renderMessages()}
       </div>
     );
   }
 }
 
 export default Password;
+
+function getKey() {
+  return Math.random() + '-' + Date.now();
+}

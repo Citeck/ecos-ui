@@ -67,7 +67,8 @@ class UserProfileDashlet extends BaseWidget {
       isCurrentUser,
       isLoading,
       isLoadingPhoto,
-      isLoadingPassword
+      isLoadingPassword,
+      isMobile
     } = this.props;
     const { isShowPasswordModal } = this.state;
 
@@ -80,7 +81,7 @@ class UserProfileDashlet extends BaseWidget {
         noActions
       >
         {isLoading && <Loader />}
-        {<PasswordModal isShow={isShowPasswordModal} onCancel={() => this.onTogglePassword(false)} />}
+        {<PasswordModal isMobile={isMobile} isShow={isShowPasswordModal} onCancel={() => this.onTogglePassword(false)} />}
         {!isLoading && (
           <>
             <div className="ecos-user-profile__info">
@@ -121,7 +122,8 @@ const mapStateToProps = (state, context) => {
     isLoadingPhoto: profile.isLoadingPhoto,
     isLoadingPassword: profile.isLoadingPassword,
     profile: profile.data || {},
-    isCurrentUser
+    isCurrentUser,
+    isMobile: state.view.isMobile
   };
 };
 

@@ -59,10 +59,17 @@
     }
   }
 
-  &-rule {
+  &-messages {
     margin-top: 8px;
-    color: $color-gray-5;
-    font-size: $font-size-small;
-    font-weight: $font-weight-semi-bold;
+
+    &__item {
+      color: $color-gray-5;
+      font-size: $font-size-small;
+      font-weight: $font-weight-semi-bold;
+
+      &_error {
+        color: $color-red-1;
+      }
+    }
   }
 }
