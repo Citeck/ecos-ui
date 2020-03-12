@@ -3,7 +3,7 @@ import isObject from 'lodash/isObject';
 import clone from 'lodash/clone';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
-import Widgets from '../../widgets';
+import Widgets from '../../../widgets';
 
 const originalCreateTooltip = Base.prototype.createTooltip;
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;

@@ -367,7 +367,7 @@ export default class EcosFormUtils {
       inputs = [];
     }
 
-    this.forEachComponent(root, component => {
+    const getComponentInput = component => {
       let attribute = EcosFormUtils.getComponentAttribute(component);
 
       if (!attribute || component.input !== true || component.type === 'button' || component.type === 'horizontalLine') {
@@ -400,7 +400,17 @@ export default class EcosFormUtils {
         edgeSchema: edgeSchema,
         dataType: lodashGet(component, 'ecos.dataType', '')
       });
-    });
+    };
+
+    if (typeof root.getAllComponents === 'function') {
+      const allComponents = root.getAllComponents();
+      allComponents.forEach(instance => {
+        const component = instance ? instance.component : {};
+        getComponentInput(component);
+      });
+    } else {
+      this.forEachComponent(root, getComponentInput);
+    }
 
     return inputs;
   }
