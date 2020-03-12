@@ -50,12 +50,13 @@ class UserProfileDashlet extends BaseWidget {
     }
   };
 
-  onTogglePassword = flag => {
+  onTogglePasswordModal = flag => {
     this.setState({ isShowPasswordModal: flag });
   };
 
-  onChangePassword = () => {
-    this.props.changePassword();
+  onChangePassword = data => {
+    this.props.changePassword(data);
+    this.onTogglePasswordModal(false);
   };
 
   render() {
@@ -80,7 +81,14 @@ class UserProfileDashlet extends BaseWidget {
         noActions
       >
         {isLoading && <Loader />}
-        {<PasswordModal isMobile={isMobile} isShow={isShowPasswordModal} onCancel={() => this.onTogglePassword(false)} />}
+        {
+          <PasswordModal
+            isMobile={isMobile}
+            isShow={isShowPasswordModal}
+            onCancel={() => this.onTogglePasswordModal(false)}
+            onChange={this.onChangePassword}
+          />
+        }
         {!isLoading && (
           <>
             <div className="ecos-user-profile__info">
@@ -93,7 +101,7 @@ class UserProfileDashlet extends BaseWidget {
             {[isCurrentUser, isAdmin].some(flag => flag) && (
               <div className={classNames('ecos-user-profile__actions', { 'ecos-user-profile__actions_mobile': isMobile })}>
                 <BtnUpload label={t(Labels.Btns.CHANGE_PHOTO)} loading={isLoadingPhoto} onSelected={this.onChangePhoto} accept="image/*" />
-                <Btn loading={isLoadingPassword} onClick={() => this.onTogglePassword(true)}>
+                <Btn loading={isLoadingPassword} onClick={() => this.onTogglePasswordModal(true)}>
                   {t(Labels.Btns.CHANGE_PW)}
                 </Btn>
               </div>

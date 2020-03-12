@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { changePassword, changePhoto, getUserData, setUserData, setUserPhoto } from '../actions/user';
+import { changePassword, changePhoto, getUserData, setChangePhoto, setUserData, setUserPhoto } from '../actions/user';
 import { getCurrentStateById } from '../helpers/redux';
 
 const initialState = {
@@ -67,6 +67,17 @@ export default handleActions(
         [stateId]: {
           ...getCurrentStateById(state, stateId, initialState),
           isLoadingPassword: true
+        }
+      };
+    },
+    [setChangePhoto]: (state, { payload }) => {
+      const { stateId } = payload;
+
+      return {
+        ...state,
+        [stateId]: {
+          ...getCurrentStateById(state, stateId, initialState),
+          isLoadingPassword: false
         }
       };
     }

@@ -1,5 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { changePhoto, getUserData, setUserData, setUserPhoto } from '../actions/user';
+import { changePassword, changePhoto, getUserData, setChangePhoto, setUserData, setUserPhoto } from '../actions/user';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import { createThumbnailUrl } from '../helpers/urls';
@@ -32,13 +32,31 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
     }
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.upload-profile-photo')));
-    logger.error('[userProfile/sagaGetUserData saga] error', e.message);
+    logger.error('[userProfile/sagaChangePhoto saga] error', e.message);
+  }
+}
+
+function* sagaChangePassword({ api, logger }, { payload }) {
+  const { data, record, stateId } = payload;
+
+  try {
+    const response = yield call(api.user.changePassword, { record, data });
+
+    yield put(setChangePhoto({ stateId }));
+
+    if (!response) {
+      yield put(setNotificationMessage(t('user-profile-widget.error.upload-profile-photo')));
+    }
+  } catch (e) {
+    yield put(setNotificationMessage(t('user-profile-widget.error.upload-profile-photo')));
+    logger.error('[userProfile/sagaChangePassword saga] error', e.message);
   }
 }
 
 function* userProfileSaga(ea) {
   yield takeEvery(getUserData().type, sagaGetUserData, ea);
   yield takeEvery(changePhoto().type, sagaChangePhoto, ea);
+  yield takeEvery(changePassword().type, sagaChangePassword, ea);
 }
 
 export default userProfileSaga;

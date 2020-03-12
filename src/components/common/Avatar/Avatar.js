@@ -41,7 +41,6 @@ export default class Avatar extends React.Component {
   }
 
   onError = error => {
-    console.error(error);
     this.setState({ error: true });
   };
 

@@ -66,6 +66,19 @@ class Password extends React.Component {
     touched: false
   };
 
+  componentDidMount() {
+    const { onChange, keyValue: key } = this.props;
+
+    onChange && onChange({ key });
+  }
+
+  componentWillUnmount() {
+    const { onChange, keyValue: key } = this.props;
+
+    onChange && onChange({ key });
+    this.setState({ touched: false, isShowWord: false });
+  }
+
   onChange = e => {
     const { onChange, keyValue: key } = this.props;
     const value = e.target.value;
