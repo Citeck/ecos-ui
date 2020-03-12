@@ -9,6 +9,7 @@ import { selectStateByKey } from '../../../selectors/birthdays';
 import { getBirthdays, resetStore } from '../../../actions/birthdays';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
+import { isNewVersionPage } from '../../../helpers/urls';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import PageService from '../../../services/PageService';
 import { Avatar, DefineHeight, Loader } from '../../common';
@@ -99,7 +100,7 @@ class Birthdays extends Component {
   };
 
   handleGoToProfile = url => {
-    PageService.changeUrlLink(url, { openNewBrowserTab: true });
+    PageService.changeUrlLink(url, { openNewBrowserTab: !isNewVersionPage(url), openNewTab: isNewVersionPage(url) });
   };
 
   handleReloadData = () => {

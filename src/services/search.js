@@ -1,16 +1,12 @@
 import { nth, split } from 'lodash';
 import { formatFileSize, getIconFileByMimetype, getRelativeTime, t } from '../helpers/util';
 import { getData, getSessionData, isExistLocalStorage, isExistSessionStorage, setSessionData } from '../helpers/ls';
-
-const Versions = {
-  V1: '/share/page',
-  V2: '/v2'
-};
+import { createDocumentUrl, createProfileUrl } from '../helpers/urls';
 
 const Urls = {
-  DASHBOARD: ref => Versions.V2 + '/dashboard?recordRef=' + ref,
-  USER: login => Versions.V1 + '/user/' + login + '/profile',
-  OTHER_DOC: (item, prefix) => Versions.V1 + (item.site ? 'site/' + item.site.shortName + '/' : '') + prefix + encodeURIComponent(item.name)
+  DASHBOARD: ref => createDocumentUrl(ref),
+  USER: login => createProfileUrl(login),
+  OTHER_DOC: (item, prefix) => `/share/page/${item.site ? `site/${item.site.shortName}/` : ''}${prefix}${encodeURIComponent(item.name)}`
 };
 
 export default class SearchService {
@@ -68,7 +64,7 @@ export default class SearchService {
         data.description = (item.jobtitle || '') + (item.location ? ', ' + item.location : '');
         break;
       default:
-        console.log('Unknown search autocomplete item type');
+        console.warn('Unknown search autocomplete item type');
     }
     return data;
   };
