@@ -47,24 +47,24 @@ class PasswordModal extends React.Component {
 
     return (
       <EcosModal isOpen={isShow} hideModal={this.handleHideModal} className="ecos-user-profile-password-modal">
-        <div>{t(Labels.Titles.OLD)}</div>
+        <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.OLD)}</div>
         <div>
-          <Password className="ecos-user-profile-password-modal__word" keyValue="oldWord" onChange={this.onChangeWord} value={oldWord} />
+          <Password className="ecos-user-profile__password-modal-filed" keyValue="oldWord" onChange={this.onChangeWord} value={oldWord} />
         </div>
-        <div>{t(Labels.Titles.NEW)}</div>
+        <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.NEW)}</div>
         <div>
           <Password
-            className="ecos-user-profile-password-modal__word"
+            className="ecos-user-profile__password-modal-filed"
             keyValue="newWord"
             onChange={this.onChangeWord}
             value={newWord}
             verifiable
           />
         </div>
-        <div>{t(Labels.Titles.REPEAT)}</div>
+        <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.REPEAT)}</div>
         <div>
           <Password
-            className="ecos-user-profile-password-modal__word"
+            className="ecos-user-profile__password-modal-filed"
             keyValue="repeatWord"
             onChange={this.onChangeWord}
             value={repeatWord}
