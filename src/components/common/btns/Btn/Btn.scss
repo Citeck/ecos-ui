@@ -524,7 +524,7 @@ button {
 
   &.ecos-btn_hover_back_dark-red {
     &:hover {
-      background: $color-red-10;
+      background: $color-red-2;
       color: $color-white;
     }
   }
@@ -658,7 +658,7 @@ button {
     color: $color-white;
 
     &:focus {
-      background: $color-red-10;
+      background: $color-red-2;
       color: $color-white;
     }
 
@@ -673,7 +673,7 @@ button {
 
     &:focus,
     &:hover {
-      background: $color-red-10;
+      background: $color-red-2;
     }
   }
 
