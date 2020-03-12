@@ -24,22 +24,22 @@ const RULES = [
   {
     key: 'count-characters',
     name: Labels.Rules.COUNT_CHARACTERS,
-    rule: /^[\t\n\r\f\v\s]{3,}$/
+    rule: /[^\s]{3,}/
   },
   {
     key: 'count-digits',
     name: Labels.Rules.COUNT_DIGITS,
-    rule: /\d+$/
+    rule: /\d+/
   },
   {
     key: 'count-capitals',
     name: Labels.Rules.COUNT_CAPITALS,
-    rule: /[А-ЯЁA-Z]+$/
+    rule: /[А-ЯЁA-Z]+/
   },
   {
     key: 'count-lowercase',
     name: Labels.Rules.COUNT_LOWERCASE,
-    rule: /[a-zа-яё]+$/
+    rule: /[a-zа-яё]+/
   }
 ];
 
@@ -84,12 +84,8 @@ class Password extends React.Component {
   };
 
   renderRules() {
-    const { verifiable, value } = this.props;
+    const { value } = this.props;
     const { touched } = this.state;
-
-    if (!verifiable) {
-      return null;
-    }
 
     return (
       <div className="ecos-password-rules">
@@ -97,8 +93,8 @@ class Password extends React.Component {
           <div
             key={getKey()}
             className={classNames('ecos-password-rules__item', {
-              'ecos-password-rules__item_invalid': touched && !item.rule.test(value),
-              'ecos-password-rules__item_valid': touched && item.rule.test(value)
+              'ecos-password-rules__item_invalid': touched && !item.rule.test(String(value || '')),
+              'ecos-password-rules__item_valid': touched && item.rule.test(String(value || ''))
             })}
           >
             <Icon className="ecos-password-rules__item-icon icon-check" />
@@ -128,7 +124,7 @@ class Password extends React.Component {
   render() {
     const { className, keyValue, autocomplete, verifiable, value, valid, errMsgs, ...addProps } = this.props;
     const { isShowWord, touched } = this.state;
-    const check = BASE_RULE.test(String(value));
+    const check = BASE_RULE.test(String(value || ''));
 
     return (
       <div className={classNames('ecos-password', className)}>
@@ -138,7 +134,7 @@ class Password extends React.Component {
             {...addProps}
             value={value}
             type={isShowWord ? 'text' : 'password'}
-            className={classNames('ecos-password-field__input', {
+            className={classNames('ecos-password-field__input ecos-input_focus ecos-input_hover', {
               'ecos-password-field__input_invalid': (verifiable && touched && !check) || (errMsgs && errMsgs.length),
               'ecos-password-field__input_valid': verifiable && touched && check
             })}

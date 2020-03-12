@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 
 import { t } from '../../../helpers/util';
 import { EcosModal, Password } from '../../common';
@@ -47,8 +46,22 @@ class PasswordModal extends React.Component {
     repeatWordMsgs: []
   };
 
-  handleHideModal = () => {
+  hideModal = () => {
     this.props.onCancel && this.props.onCancel();
+  };
+
+  checkWords = () => {
+    const { oldWord, newWord, repeatWord, oldWordMsgs, newWordMsgs, repeatWordMsgs } = this.state;
+
+    return (
+      !oldWordMsgs.length &&
+      !newWordMsgs.length &&
+      !repeatWordMsgs.length &&
+      !!oldWord.value &&
+      !!repeatWord.value &&
+      !!newWord.value &&
+      newWord.valid
+    );
   };
 
   onConfirmChangePassword = () => {
@@ -103,7 +116,7 @@ class PasswordModal extends React.Component {
     const { oldWord, newWord, repeatWord, repeatWordMsgs, newWordMsgs, oldWordMsgs } = this.state;
 
     return (
-      <EcosModal noHeader isOpen={isShow} hideModal={this.handleHideModal} className={classNames('ecos-user-profile-password-modal')}>
+      <EcosModal noHeader isOpen={isShow} hideModal={this.hideModal} className="ecos-user-profile-password-modal ecos-modal_width-xs">
         <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.OLD)}</div>
         <Password
           className="ecos-user-profile__password-modal-filed"
@@ -133,8 +146,8 @@ class PasswordModal extends React.Component {
           errMsgs={repeatWordMsgs}
         />
         <div className="ecos-user-profile__password-modal-actions">
-          <Btn onClick={this.handleHideModal}>{t(Labels.Btns.CANCEL)}</Btn>
-          <Btn onClick={this.onConfirmChangePassword} className="ecos-btn_blue">
+          <Btn onClick={this.hideModal}>{t(Labels.Btns.CANCEL)}</Btn>
+          <Btn onClick={this.onConfirmChangePassword} className="ecos-btn_blue" disabled={!this.checkWords()}>
             {t(Labels.Btns.CHANGE)}
           </Btn>
         </div>

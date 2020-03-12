@@ -3,6 +3,10 @@
 .ecos-user-profile {
   &__dashlet-body {
     padding: 20px;
+
+    .dashlet__body-actions {
+      padding: 0;
+    }
   }
 
   &__info {
@@ -47,7 +51,12 @@
     flex-direction: column;
     margin-top: 20px;
 
-    & > :nth-child(even) {
+    &_mobile {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    &:not(&_mobile) > :nth-child(even) {
       margin-top: 10px;
     }
   }

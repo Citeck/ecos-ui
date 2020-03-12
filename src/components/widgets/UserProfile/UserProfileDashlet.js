@@ -7,7 +7,6 @@ import get from 'lodash/get';
 import { changePassword, changePhoto, getUserData } from '../../../actions/user';
 import { t } from '../../../helpers/util';
 import { Avatar, BtnUpload, Loader } from '../../common';
-// import { Badge } from '../../common/form';
 import { Btn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
@@ -91,14 +90,8 @@ class UserProfileDashlet extends BaseWidget {
                 <div className="ecos-user-profile__info-name-secondary">{[firstName, middleName].filter(name => !!name).join(' ')}</div>
               </div>
             </div>
-            {/*{[isCurrentUser, isAdmin].some(flag => flag) && (*/}
-            {/*  <div className="ecos-user-profile__badges">*/}
-            {/*    /!*{isCurrentUser && <Badge text={t(Labels.YOU)} pill/>}*!/*/}
-            {/*    {isAdmin && <Badge text={t(Labels.ADMIN)} pill/>}*/}
-            {/*  </div>*/}
-            {/*)}*/}
             {[isCurrentUser, isAdmin].some(flag => flag) && (
-              <div className="ecos-user-profile__actions">
+              <div className={classNames('ecos-user-profile__actions', { 'ecos-user-profile__actions_mobile': isMobile })}>
                 <BtnUpload label={t(Labels.Btns.CHANGE_PHOTO)} loading={isLoadingPhoto} onSelected={this.onChangePhoto} accept="image/*" />
                 <Btn loading={isLoadingPassword} onClick={() => this.onTogglePassword(true)}>
                   {t(Labels.Btns.CHANGE_PW)}
