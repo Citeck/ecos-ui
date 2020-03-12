@@ -187,7 +187,7 @@ const smoothScroll = function() {
   });
 };
 
-export const polyfills = () => {
+const polyfills = () => {
   if (!String.prototype.startsWith) {
     Object.defineProperty(String.prototype, 'startsWith', {
       enumerable: false,
