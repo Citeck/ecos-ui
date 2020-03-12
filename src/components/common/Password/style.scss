@@ -7,7 +7,12 @@
     &__input {
       padding: 0 30px 0 15px;
 
-      &_verifiable {
+      &_invalid {
+        border-color: $color-red-1;
+      }
+
+      &_valid {
+        border-color: $color-green1;
       }
     }
 
@@ -34,6 +39,8 @@
 
   &-rules {
     color: $text-color-gray;
+    font-size: $font-size-small;
+    font-weight: $font-weight-semi-bold;
     margin: 10px 0;
 
     &__item {
@@ -43,10 +50,19 @@
       }
 
       &_invalid {
+        color: $color-red-1;
       }
 
       &_valid {
+        color: $color-green1;
       }
     }
+  }
+
+  &-rule {
+    margin-top: 8px;
+    color: $color-gray-5;
+    font-size: $font-size-small;
+    font-weight: $font-weight-semi-bold;
   }
 }

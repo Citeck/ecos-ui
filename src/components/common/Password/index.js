@@ -8,10 +8,46 @@ import { Input } from '../form';
 import './style.scss';
 import { Icon } from '../index';
 
+const Labels = {
+  Rules: {
+    VALID_CHARACTERS: 'Допустимы латинские, русские и другие символы',
+    COUNT_CHARACTERS: 'минимум 3 знака/символа',
+    COUNT_DIGITS: '1 цифра',
+    COUNT_CAPITALS: '1 заглавная',
+    COUNT_LOWERCASE: '1 строчная'
+  },
+  Titles: {}
+};
+
+const BASE_RULE = /[а-яА-ЯёЁ\w\`\~\!@\#\$\%\^\&\*\(\)\-\_\+\=\|\\\/\,\.\?\<\>\[\]\;\'\{\}\:\"\ ]{3,}$/;
+const RULES = [
+  {
+    key: 'count-characters',
+    name: Labels.Rules.COUNT_CHARACTERS,
+    rule: /[^ \t\n\r\f\v]{3,}/
+  },
+  {
+    key: 'count-digits',
+    name: Labels.Rules.COUNT_DIGITS,
+    rule: /\d+/
+  },
+  {
+    key: 'count-capitals',
+    name: Labels.Rules.COUNT_CAPITALS,
+    rule: /[А-ЯЁA-Z]+/
+  },
+  {
+    key: 'count-lowercase',
+    name: Labels.Rules.COUNT_LOWERCASE,
+    rule: /[a-zа-яё]+/
+  }
+];
+
 class Password extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     keyValue: PropTypes.string,
+    value: PropTypes.string,
     onChange: PropTypes.func,
     autocomplete: PropTypes.bool,
     verifiable: PropTypes.bool
@@ -39,39 +75,21 @@ class Password extends React.Component {
   };
 
   renderRules() {
-    const { verifiable } = this.props;
+    const { verifiable, value } = this.props;
+    const strValue = value ? String(value) : '';
 
     if (!verifiable) {
       return null;
     }
 
-    const rules = [
-      {
-        name: '8 знаков / символов', //todo,
-        done: undefined
-      },
-      {
-        name: '1 цифра', //todo,
-        done: undefined
-      },
-      {
-        name: '1 заглавная', //todo,
-        done: undefined
-      },
-      {
-        name: '1 строчная', //todo,
-        done: undefined
-      }
-    ];
-
     return (
       <div className="ecos-password-rules">
-        {rules.map(item => (
+        {RULES.map(item => (
           <div
             key={Math.random()}
-            className={classNames('ecos-password-rules-item', {
-              'ecos-password-rules-item_invalid': item.done === false,
-              'ecos-password-rules-item_valid': !!item.done
+            className={classNames('ecos-password-rules__item', {
+              'ecos-password-rules__item_invalid': !!strValue && !item.rule.test(strValue),
+              'ecos-password-rules__item_valid': !!strValue && item.rule.test(strValue)
             })}
           >
             <Icon className="ecos-password-rules__item-icon icon-check" />
@@ -83,19 +101,24 @@ class Password extends React.Component {
   }
 
   render() {
-    const { className, keyValue, autocomplete, verifiable, ...addProps } = this.props;
+    const { className, keyValue, autocomplete, verifiable, value, valid, ...addProps } = this.props;
     const { isShowWord } = this.state;
+    const check = BASE_RULE.test(String(value));
 
     return (
-      <>
+      <div className={classNames('ecos-password', className)}>
         {verifiable && this.renderRules()}
         <div className="ecos-password-field">
           <Input
             {...addProps}
+            value={value}
             type={isShowWord ? 'text' : 'password'}
-            className={classNames('ecos-password-field__input', { 'ecos-password-field__input_verifiable': verifiable }, className)}
+            className={classNames('ecos-password-field__input', {
+              'ecos-password-field__input_invalid': (verifiable && !!value && !check) || valid === false,
+              'ecos-password-field__input_valid': (verifiable && !!value && check) || valid
+            })}
             onChange={this.onChange}
-            autocomplete={autocomplete ? 'on' : 'off'}
+            autoComplete={autocomplete ? 'on' : 'off'}
           />
           <Icon
             className={classNames('ecos-password-field__icon-btn ecos-password-field__opener', {
@@ -105,7 +128,8 @@ class Password extends React.Component {
             onClick={this.toggleEye}
           />
         </div>
-      </>
+        {verifiable && <div className="ecos-password-rule">{t(Labels.Rules.VALID_CHARACTERS)}</div>}
+      </div>
     );
   }
 }
