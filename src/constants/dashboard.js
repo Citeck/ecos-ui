@@ -65,6 +65,12 @@ export const Layouts = [
     isActive: false,
     columns: [[{}], [{}, {}, {}], [{}]]
   },
+  {
+    position: 10,
+    type: LAYOUT_TYPE.ADAPTIVE,
+    isActive: false,
+    columns: [{}]
+  },
 
   {
     position: 999,

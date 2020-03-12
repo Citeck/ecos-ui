@@ -11,6 +11,7 @@ export const LAYOUT_TYPE = {
   CUSTOM: 'custom',
   FRANKENSTEIN: 'frankenstein',
   CLASSIC_SITE: 'classic-site',
+  ADAPTIVE: 'adaptive',
   MOBILE: 'mobile'
 };
 
