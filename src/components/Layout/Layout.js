@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
 import get from 'lodash/get';
+import classNames from 'classnames';
+import ReactResizeDetector from 'react-resize-detector';
 
 import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../widgets/Components';
@@ -78,15 +80,53 @@ class Layout extends Component {
 
   checkWrapperStyle() {
     const { columns } = this.props;
+    const wrapper = get(this._wrapperRef, 'current', null);
 
-    if (this._wrapperRef.current) {
-      this._wrapperRef.current.style.flexDirection = '';
+    if (wrapper) {
+      wrapper.style.flexDirection = '';
 
       if (Array.isArray(get(columns, '0', null))) {
-        this._wrapperRef.current.style.flexDirection = 'column';
+        wrapper.style.flexDirection = 'column';
       }
+
+      this.checkWidgets();
     }
   }
+
+  checkWidgets = () => {
+    const wrapper = get(this._wrapperRef, 'current', null);
+
+    if (wrapper) {
+      const adaptiveColumns = [...wrapper.querySelectorAll('.ecos-layout__column_adaptive')];
+
+      if (!adaptiveColumns.length) {
+        return;
+      }
+
+      adaptiveColumns.forEach(adaptiveColumn => {
+        const columnWidth = adaptiveColumn.offsetWidth;
+        const items = [...adaptiveColumn.querySelectorAll('.ecos-layout__element')];
+        const countInnerColumns = Math.floor(columnWidth / get(items, '[0].offsetWidth', 1));
+
+        items.forEach((item, index) => {
+          item.style.marginTop = 0;
+
+          if (index < countInnerColumns) {
+            return;
+          }
+
+          const topElement = items[index - countInnerColumns];
+          const topElementChild = get(topElement, 'firstElementChild', null);
+
+          if (!topElement || !topElementChild) {
+            return;
+          }
+
+          item.style.marginTop = `${topElementChild.offsetHeight - topElement.offsetHeight}px`;
+        });
+      });
+    }
+  };
 
   draggablePositionAdjusment = () => {
     const { menuType } = this.props;
@@ -130,6 +170,22 @@ class Layout extends Component {
     this.props.onSaveWidget(dataDrag, { source, destination });
   };
 
+  handleLoadComponent = component => {
+    console.info(`Widget ${component.constructor.name} has mounted`);
+
+    this.checkWidgets();
+  };
+
+  handleUpdateComponent = component => {
+    console.info(`Widget ${component.constructor.name} has updated`);
+
+    this.checkWidgets();
+  };
+
+  handleResizeLayout = () => {
+    this.checkWidgets();
+  };
+
   renderWidgets(widgets = [], columnName) {
     const { canDragging } = this.props;
     const { recordRef } = getSearchParams();
@@ -164,13 +220,22 @@ class Layout extends Component {
               id={`${widget.props.id}-${urlParams}`}
               record={recordRef}
               onSave={this.props.onSaveWidgetProps}
+              onLoad={this.handleLoadComponent}
+              onUpdate={this.handleUpdateComponent}
             />
           </DragItem>
         );
       } else {
         components.push(
           <div key={key} className="ecos-layout__element">
-            <Widget {...widget.props} canDragging={canDragging} record={recordRef} onSave={this.props.onSaveWidgetProps} />
+            <Widget
+              {...widget.props}
+              canDragging={canDragging}
+              record={recordRef}
+              onSave={this.props.onSaveWidgetProps}
+              onLoad={this.handleLoadComponent}
+              onUpdate={this.handleUpdateComponent}
+            />
           </div>
         );
       }
@@ -225,7 +290,7 @@ class Layout extends Component {
     }
 
     return (
-      <div className="ecos-layout__column" style={styles} key={id}>
+      <div className={classNames('ecos-layout__column', `ecos-layout__column_${type}`)} style={styles} key={id}>
         {this.renderWidgets(column.widgets, id)}
       </div>
     );
@@ -241,6 +306,7 @@ class Layout extends Component {
     return (
       <div className="ecos-layout__wrapper" ref={this._wrapperRef}>
         {columns && columns.map(this.renderColumn.bind(this, columns))}
+        <ReactResizeDetector handleHeight handleWidth onResize={this.handleResizeLayout} />
       </div>
     );
   }

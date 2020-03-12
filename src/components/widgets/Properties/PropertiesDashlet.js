@@ -75,6 +75,8 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+
     EcosFormUtils.hasWritePermission(this.props.record).then(canEditRecord => {
       this.setState({ canEditRecord });
     });

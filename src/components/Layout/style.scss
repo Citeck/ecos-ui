@@ -195,6 +195,18 @@ $indents-of-items: 10px;
     &:not(:first-child) {
       margin-left: $indents-of-items;
     }
+
+    &_adaptive {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-gap: 10px;
+
+      #{$root}__element {
+        &:not(:last-child):not(:empty) {
+          margin-bottom: 0;
+        }
+      }
+    }
   }
 
   &__wrapper {

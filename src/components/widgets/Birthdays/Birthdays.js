@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -14,6 +14,7 @@ import PageService from '../../../services/PageService';
 import { Avatar, DefineHeight, Loader } from '../../common';
 import { Btn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
+import BaseWidget from '../BaseWidget';
 
 import './style.scss';
 
@@ -24,7 +25,7 @@ export const LABELS = {
   BTN_TRY_ONE_MORE_TIME: 'birthdays-widget.btn.try-one-more-time'
 };
 
-class Birthdays extends Component {
+class Birthdays extends BaseWidget {
   static propTypes = {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     birthdays: PropTypes.arrayOf(
@@ -59,6 +60,8 @@ class Birthdays extends Component {
   }
 
   componentDidMount() {
+    super.componentDidUpdate();
+
     this.props.getBirthdays();
   }
 

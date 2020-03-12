@@ -171,10 +171,14 @@ class VersionsJournal extends BaseWidget {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+
     this.props.getVersionsList();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    super.componentDidUpdate();
+
     if (!arrayCompare(prevProps.versionsLabels, this.props.versionsLabels)) {
       this.setState({
         ...VersionsJournal.getDefaultSelectedVersions(this.props)
