@@ -1,12 +1,13 @@
 import { handleActions } from 'redux-actions';
-import { changePassword, changePhoto, getUserData, setChangePhoto, setUserData, setUserPhoto } from '../actions/user';
+import { changePassword, changePhoto, getUserData, setChangePassword, setMessage, setUserData, setUserPhoto } from '../actions/user';
 import { getCurrentStateById } from '../helpers/redux';
 
 const initialState = {
   isLoading: false,
   isLoadingPhoto: false,
   isLoadingPassword: false,
-  data: {}
+  data: {},
+  message: null
 };
 
 const startLoading = (state, { payload: { stateId } }) => ({
@@ -70,7 +71,7 @@ export default handleActions(
         }
       };
     },
-    [setChangePhoto]: (state, { payload }) => {
+    [setChangePassword]: (state, { payload }) => {
       const { stateId } = payload;
 
       return {
@@ -78,6 +79,18 @@ export default handleActions(
         [stateId]: {
           ...getCurrentStateById(state, stateId, initialState),
           isLoadingPassword: false
+        }
+      };
+    },
+    [setMessage]: (state, { payload }) => {
+      const { stateId, message = {}, ...extra } = payload;
+
+      return {
+        ...state,
+        [stateId]: {
+          ...getCurrentStateById(state, stateId, initialState),
+          message,
+          ...extra
         }
       };
     }

@@ -3,6 +3,8 @@
 .ecos-user-profile {
   &__dashlet-body {
     padding: 20px;
+    position: relative;
+    min-height: 50px;
 
     .dashlet__body-actions {
       padding: 0;
@@ -43,6 +45,16 @@
 
     & > :nth-child(n) {
       margin-top: 5px;
+    }
+  }
+
+  &__message {
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-small;
+    margin-top: 10px;
+
+    &_error {
+      color: $color-red-1;
     }
   }
 

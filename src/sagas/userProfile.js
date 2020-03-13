@@ -1,5 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { changePassword, changePhoto, getUserData, setChangePhoto, setUserData, setUserPhoto } from '../actions/user';
+import { changePassword, changePhoto, getUserData, setChangePassword, setMessage, setUserData, setUserPhoto } from '../actions/user';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import { createThumbnailUrl } from '../helpers/urls';
@@ -28,7 +28,9 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
       yield put(setUserPhoto({ thumbnail: null, stateId }));
       yield put(setUserPhoto({ thumbnail: createThumbnailUrl(record), stateId }));
     } else {
-      yield put(setNotificationMessage(t('user-profile-widget.error.upload-profile-photo')));
+      yield put(
+        setMessage({ message: { text: t('user-profile-widget.error.upload-profile-photo'), error: true }, stateId, isLoadingPhoto: false })
+      );
     }
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.upload-profile-photo')));
@@ -42,11 +44,11 @@ function* sagaChangePassword({ api, logger }, { payload }) {
   try {
     const response = yield call(api.user.changePassword, { record, data });
 
-    yield put(setChangePhoto({ stateId }));
+    yield put(setChangePassword({ stateId }));
 
-    if (!response) {
-      yield put(setNotificationMessage(t('user-profile-widget.error.change-profile-password')));
-    }
+    const text = response ? 'user-profile-widget.success.change-profile-password' : 'user-profile-widget.error.change-profile-password';
+
+    yield put(setMessage({ message: { text, error: response }, stateId, isLoadingPassword: false }));
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.change-profile-password')));
     logger.error('[userProfile/sagaChangePassword saga] error', e.message);

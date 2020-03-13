@@ -67,10 +67,14 @@ export class UserApi extends CommonApi {
   }
 
   changePassword({}) {
-    return Promise.resolve(true);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => resolve(true), 1000);
+    });
   }
 
   changePhoto({}) {
-    return Promise.resolve(true);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => resolve(true), 1000);
+    });
   }
 }

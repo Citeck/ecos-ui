@@ -68,7 +68,8 @@ class UserProfileDashlet extends BaseWidget {
       isLoading,
       isLoadingPhoto,
       isLoadingPassword,
-      isMobile
+      isMobile,
+      message
     } = this.props;
     const { isShowPasswordModal } = this.state;
 
@@ -106,6 +107,11 @@ class UserProfileDashlet extends BaseWidget {
                 </Btn>
               </div>
             )}
+            {message && (
+              <div className={classNames('ecos-user-profile__message', { 'ecos-user-profile__message_error': message.error })}>
+                {t(message.text)}
+              </div>
+            )}
           </>
         )}
       </Dashlet>
@@ -123,6 +129,7 @@ const mapStateToProps = (state, context) => {
     isLoadingPhoto: profile.isLoadingPhoto,
     isLoadingPassword: profile.isLoadingPassword,
     profile: profile.data || {},
+    message: profile.message,
     isCurrentUser,
     isMobile: state.view.isMobile
   };

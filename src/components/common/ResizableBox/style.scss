@@ -2,8 +2,10 @@
 
 .ecos-resize {
   &__bottom {
-    padding-top: 1px;
-    padding-bottom: 6px;
+    &:not(&_none) {
+      padding-top: 1px;
+      padding-bottom: 6px;
+    }
   }
 
   &__control {
