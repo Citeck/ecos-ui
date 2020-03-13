@@ -1,16 +1,17 @@
 import React from 'react';
 import get from 'lodash/get';
 
-import BaseLayoutItem from './BaseLayoutItem';
+import Base from './Base';
 
-import './style.scss';
+import '../style.scss';
 
-export default class ColumnsLayoutItem extends BaseLayoutItem {
+export default class Columns extends Base {
   static defaultProps = {
-    ...BaseLayoutItem.defaultProps,
+    ...Base.defaultProps,
     config: {
       columns: [{}, { width: '25%' }]
-    }
+    },
+    type: ''
   };
 
   _templateRef = React.createRef();

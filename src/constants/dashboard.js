@@ -69,6 +69,7 @@ export const Layouts = [
     position: 10,
     type: LAYOUT_TYPE.ADAPTIVE,
     isActive: false,
+    // columns: [{ width: '20%' }, {}, { width: '20%' }]
     columns: [{}]
   },
 

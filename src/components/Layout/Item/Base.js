@@ -1,13 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './style.scss';
 
-export default class BaseLayoutItem extends React.Component {
+import '../style.scss';
+
+export default class Base extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     active: PropTypes.bool,
     config: PropTypes.object,
     description: PropTypes.string,
+    type: PropTypes.string,
     onClick: PropTypes.func
   };
 

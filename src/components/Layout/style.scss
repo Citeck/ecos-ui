@@ -1,6 +1,20 @@
 @import '../../styles/constants';
 
 $indents-of-items: 10px;
+$adaptive-columns-size: 68%;
+
+%arrow {
+  content: '';
+  position: absolute;
+  background: $color-gray-8;
+  border-radius: $border-radius-standard;
+  width: 10px;
+  height: 2px;
+  top: calc(50% - 1px);
+  left: 0;
+  z-index: 1;
+  transform-origin: left center;
+}
 
 .ecos-layout {
   $root: &;
@@ -38,6 +52,7 @@ $indents-of-items: 10px;
       cursor: pointer;
       z-index: 1;
       font-size: 24px;
+      position: relative;
 
       #{$root}__menu {
         padding: 10px;
@@ -47,11 +62,19 @@ $indents-of-items: 10px;
         background: $color-gray-1;
         border-color: $color-gray-5;
 
-        #{$root}__item-template {
+        #{$template} {
           &-column,
           &-row {
             border-color: $color-gray-5;
             color: $color-gray-5;
+          }
+
+          &-arrow {
+            &,
+            &:after,
+            &:before {
+              background: $color-gray-5;
+            }
           }
         }
 
@@ -111,6 +134,28 @@ $indents-of-items: 10px;
       &_menu {
         height: 100px;
       }
+
+      &-arrow {
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+        top: calc(50% - 1px);
+        width: calc(100% - #{$adaptive-columns-size});
+        height: 2px;
+        background: $color-gray-8;
+
+        &:after {
+          @extend %arrow;
+          transform: rotate(45deg);
+          top: calc(50% + -3px / 2);
+        }
+
+        &:before {
+          @extend %arrow;
+          transform: rotate(-45deg);
+          top: calc(50% + -1px / 2);
+        }
+      }
     }
 
     &_active {
@@ -135,6 +180,26 @@ $indents-of-items: 10px;
         &-item-template,
         &-left {
           background: $color-blue-dark !important;
+        }
+      }
+
+      &#{$item}_adaptive {
+        #{$item}-template {
+          &-columns:after {
+            border-color: $color-blue-dark;
+          }
+
+          #{$item}-template-column-element {
+            background: $color-blue-dark;
+          }
+
+          &-arrow {
+            &,
+            &:after,
+            &:before {
+              background: $color-blue-dark;
+            }
+          }
         }
       }
 
@@ -166,6 +231,65 @@ $indents-of-items: 10px;
           height: $size;
           border-radius: 50%;
           z-index: 1;
+        }
+      }
+    }
+
+    &_adaptive {
+      $adaptive: &;
+
+      #{$item}-template {
+        &:hover {
+          #{$item}-template {
+            &-columns {
+              &:after {
+                border-color: $color-gray-5;
+              }
+            }
+
+            &-column-element {
+              background: $color-gray-5;
+            }
+          }
+        }
+
+        &-column {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(0px, 45px));
+          grid-template-rows: repeat(auto-fill, minmax(0px, 34px));
+          grid-gap: 5px;
+          padding: 5px 4px;
+
+          &:before {
+            display: none;
+          }
+
+          &-element {
+            width: 100%;
+            max-height: 34px;
+            max-width: 45px;
+            height: 100%;
+            background: $color-gray-8;
+            margin-bottom: 5px;
+            border-radius: 2px;
+          }
+        }
+
+        &-columns {
+          display: flex;
+          width: $adaptive-columns-size;
+          position: relative;
+
+          &:after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            border-right: 2px $color-gray-8 solid;
+            border-radius: $border-radius-standard;
+          }
         }
       }
     }
