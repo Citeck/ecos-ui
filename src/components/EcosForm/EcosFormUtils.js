@@ -639,8 +639,7 @@ export default class EcosFormUtils {
   }
 
   static saveFormBuilder(form, formId) {
-    let moduleId = formId.replace('uiserv/eform@', 'eapps/module@form$');
-    const record = Records.get(moduleId);
+    const record = Records.get(formId);
 
     record.att('definition?json', form);
 
