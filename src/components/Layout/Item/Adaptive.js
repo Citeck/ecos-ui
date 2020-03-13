@@ -1,9 +1,23 @@
 import React from 'react';
 import classNames from 'classnames';
 
+import { Tooltip } from '../../common';
+import { t } from '../../../helpers/util';
 import Columns from './Columns';
 
+const Labels = {
+  TOOLTIP: 'dashboard-settings.layout.tooltip.adaptive'
+};
+
 class Adaptive extends Columns {
+  static defaultProps = {
+    ...Columns.defaultProps,
+    config: {
+      columns: [{}]
+    },
+    tooltip: Labels.TOOLTIP
+  };
+
   #order = 0;
 
   renderColumns() {
@@ -50,11 +64,12 @@ class Adaptive extends Columns {
     );
   };
 
-  render() {
-    const { className, active, onClick } = this.props;
+  renderLayout() {
+    const { className, active, onClick, type } = this.props;
 
     return (
       <div
+        id={`layout-${type}`}
         className={classNames('ecos-layout__item ecos-layout__item_adaptive', className, {
           'ecos-layout__item_active': active
         })}
@@ -64,6 +79,20 @@ class Adaptive extends Columns {
           <div className="ecos-layout__item-template-arrow" />
         </div>
       </div>
+    );
+  }
+
+  render() {
+    const { tooltip, type } = this.props;
+
+    if (!tooltip) {
+      return this.renderLayout();
+    }
+
+    return (
+      <Tooltip target={`layout-${type}`} text={t(tooltip)} uncontrolled>
+        {this.renderLayout()}
+      </Tooltip>
     );
   }
 }

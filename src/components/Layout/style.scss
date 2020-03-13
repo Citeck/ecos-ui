@@ -239,19 +239,7 @@ $adaptive-columns-size: 68%;
       $adaptive: &;
 
       #{$item}-template {
-        &:hover {
-          #{$item}-template {
-            &-columns {
-              &:after {
-                border-color: $color-gray-5;
-              }
-            }
-
-            &-column-element {
-              background: $color-gray-5;
-            }
-          }
-        }
+        pointer-events: all;
 
         &-column {
           display: grid;
@@ -289,6 +277,24 @@ $adaptive-columns-size: 68%;
             width: 5px;
             border-right: 2px $color-gray-8 solid;
             border-radius: $border-radius-standard;
+          }
+        }
+      }
+
+      &:not(#{$item}_active) {
+        #{$item}-template {
+          &:hover {
+            #{$item}-template {
+              &-columns {
+                &:after {
+                  border-color: $color-gray-5;
+                }
+              }
+
+              &-column-element {
+                background: $color-gray-5;
+              }
+            }
           }
         }
       }

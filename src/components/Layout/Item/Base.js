@@ -10,6 +10,7 @@ export default class Base extends React.Component {
     config: PropTypes.object,
     description: PropTypes.string,
     type: PropTypes.string,
+    tooltip: PropTypes.string,
     onClick: PropTypes.func
   };
 
@@ -18,6 +19,8 @@ export default class Base extends React.Component {
     active: false,
     config: {},
     description: '',
+    tooltip: '',
+    type: '',
     onClick: () => null
   };
 

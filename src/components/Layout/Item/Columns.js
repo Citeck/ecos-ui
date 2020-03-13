@@ -82,7 +82,7 @@ export default class Columns extends Base {
     const { onClick } = this.props;
 
     return (
-      <div className={this.className}>
+      <div className={this.className} id={this.id}>
         <div className="ecos-layout__item-template" onClick={onClick} ref={this._templateRef}>
           {this.renderColumns()}
         </div>

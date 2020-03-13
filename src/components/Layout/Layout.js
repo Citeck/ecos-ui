@@ -306,7 +306,7 @@ class Layout extends Component {
     return (
       <div className="ecos-layout__wrapper" ref={this._wrapperRef}>
         {columns && columns.map(this.renderColumn.bind(this, columns))}
-        <ReactResizeDetector handleHeight handleWidth onResize={this.handleResizeLayout} />
+        <ReactResizeDetector handleWidth onResize={this.handleResizeLayout} />
       </div>
     );
   }
