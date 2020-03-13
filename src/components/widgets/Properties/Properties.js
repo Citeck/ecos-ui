@@ -79,6 +79,10 @@ class Properties extends React.Component {
     this.setState({ contentHeight });
   };
 
+  getTitle = title => {
+    this.props.getTitle && this.props.getTitle(title);
+  };
+
   renderLoader() {
     const { loaded } = this.state;
     if (!loaded) {
@@ -116,6 +120,7 @@ class Properties extends React.Component {
           onReady={this.onReady}
           className={formClassNames}
           formId={formId}
+          getTitle={this.getTitle}
         />
         {/* Cause: https://citeck.atlassian.net/browse/ECOSCOM-2654 */}
         <EcosForm

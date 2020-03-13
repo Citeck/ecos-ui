@@ -67,8 +67,8 @@ export default class Checkbox extends Component {
     const icons = [
       <i
         key="unchecked"
-        className={classNames('checkbox__i icon-unchecked', {
-          checkbox__i_hover_blue: !disabled
+        className={classNames('ecos-checkbox__icon ecos-checkbox__icon_unchecked icon-unchecked', {
+          'ecos-checkbox__icon_hover_blue': !disabled
         })}
       />
     ];
@@ -80,16 +80,16 @@ export default class Checkbox extends Component {
     icons.push(
       <i
         key="dark"
-        className={classNames('checkbox__i icon-checkbox-dark', {
-          checkbox__i_blue: !disabled,
-          checkbox__i_disabled: disabled
+        className={classNames('ecos-checkbox__icon ecos-checkbox__icon_checked icon-checkbox-dark', {
+          'ecos-checkbox__icon_blue': !disabled,
+          'ecos-checkbox__icon_disabled': disabled
         })}
       />
     );
     icons.push(
       <i
         key="check-status"
-        className={classNames('checkbox__i checkbox__i_white', {
+        className={classNames('ecos-checkbox__icon ecos-checkbox__icon_checked ecos-checkbox__icon_white', {
           'icon-checkbox-minus-icon': indeterminate,
           'icon-checkbox-check-icon': !indeterminate && checked
         })}
@@ -101,10 +101,8 @@ export default class Checkbox extends Component {
 
   render() {
     const { className, disabled, children, title } = this.props;
-    const cssClasses = classNames('ecos-checkbox', className, {
-      'ecos-checkbox_disabled': disabled
-    });
-    const text = children ? <span className={'ecos-checkbox__text'}>{children}</span> : null;
+    const cssClasses = classNames('ecos-checkbox', className, { 'ecos-checkbox_disabled': disabled });
+    const text = children ? <span className="ecos-checkbox__text">{children}</span> : null;
 
     return (
       <span className={cssClasses} onClick={this.toggle} title={title}>
