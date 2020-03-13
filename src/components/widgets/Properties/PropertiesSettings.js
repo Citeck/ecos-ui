@@ -6,7 +6,7 @@ import get from 'lodash/get';
 import { t } from '../../../helpers/util';
 import { getFormList } from '../../../actions/properties';
 import { InfoText } from '../../common';
-import { Caption, Dropdown } from '../../common/form';
+import { Caption, Checkbox, Dropdown } from '../../common/form';
 import { Btn, IcoBtn } from '../../common/btns';
 
 import './style.scss';
@@ -17,7 +17,8 @@ const Labels = {
   SETTINGS_BTN_SAVE: 'properties-widget.settings.btn.save',
   DISPLAYED_PROPERTIES: 'properties-widget.settings.displayed-properties',
   DEFAULT_FORM: 'properties-widget.settings.default-form',
-  FORM_NOT_EXISTED: 'properties-widget.settings.form-not-existed-in-list'
+  FORM_NOT_EXISTED: 'properties-widget.settings.form-not-existed-in-list',
+  CHECKBOX_LABEL_1: 'properties-widget.settings.title-as-form-name'
 };
 
 class PropertiesSettings extends React.Component {
@@ -37,7 +38,8 @@ class PropertiesSettings extends React.Component {
     super(props);
 
     this.state = {
-      formId: props.formId
+      formId: props.formId,
+      titleAsFormName: false
     };
   }
 
@@ -57,19 +59,23 @@ class PropertiesSettings extends React.Component {
     this.setState({ formId: form.id || null });
   };
 
+  onChangeTitle = field => {
+    this.setState({ titleAsFormName: field.checked });
+  };
+
   onCancel = () => {
     this.props.onCancel();
   };
 
   onSave = () => {
-    const { formId } = this.state;
+    const { formId, titleAsFormName } = this.state;
 
-    this.props.onSave({ formId });
+    this.props.onSave({ formId, titleAsFormName });
   };
 
   render() {
     const { forms, isLoading } = this.props;
-    const { formId } = this.state;
+    const { formId, titleAsFormName } = this.state;
     const arrForms = forms.slice();
 
     arrForms.unshift({ id: null, title: t(Labels.DEFAULT_FORM) });
@@ -108,6 +114,12 @@ class PropertiesSettings extends React.Component {
           {!isLoading && !isExist && (
             <InfoText text={t(Labels.FORM_NOT_EXISTED)} type="warn" noIndents className="ecos-properties-settings__msg" />
           )}
+
+          <div className="ecos-properties-settings__checkbox-block">
+            <Checkbox checked={titleAsFormName} onChange={this.onChangeTitle} className="ecos-checkbox_flex">
+              {t(Labels.CHECKBOX_LABEL_1)}
+            </Checkbox>
+          </div>
         </div>
         <div className="ecos-properties-settings__buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.onCancel}>
