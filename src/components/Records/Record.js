@@ -523,6 +523,16 @@ export default class Record {
     return this._processAttField(name, value, arguments.length === 1, Attribute.prototype.getValue, Attribute.prototype.setValue);
   }
 
+  removeAtt(name) {
+    let parsedAtt = parseAttribute(name);
+    if (!parsedAtt) {
+      delete this._attributes[name];
+      return;
+    }
+
+    delete this._attributes[parsedAtt.name];
+  }
+
   _processAttField(name, value, isRead, getter, setter) {
     if (!name) {
       return null;

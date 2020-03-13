@@ -270,7 +270,7 @@ class EcosForm extends React.Component {
     (form, submission) => {
       let self = this;
 
-      let inputs = EcosFormUtils.getFormInputs(form.component);
+      let inputs = EcosFormUtils.getFormInputs(form);
       let keysMapping = EcosFormUtils.getKeysMapping(inputs);
       let inputByKey = EcosFormUtils.getInputByKey(inputs);
 
@@ -285,13 +285,23 @@ class EcosForm extends React.Component {
           let value = submission.data[key];
           let input = inputByKey[key];
 
-          if (input && input.type === 'horizontalLine') {
+          if (!input || input.type === 'horizontalLine') {
             continue;
           }
 
           value = EcosFormUtils.processValueBeforeSubmit(value, input, keysMapping);
 
-          record.att(keysMapping[key] || key, value);
+          const attName = keysMapping[key] || key;
+          switch (input.component.persistent) {
+            case true:
+              record.att(attName, value);
+              break;
+            case 'client-only':
+              record.persistedAtt(attName, value);
+              break;
+            default:
+              record.removeAtt(attName);
+          }
         }
       }
 
