@@ -196,7 +196,7 @@ class PropertiesDashlet extends BaseWidget {
 
     return (
       <Dashlet
-        title={(titleAsFormName && titleForm) || title || t(Labels.WIDGET_TITLE)}
+        title={t((titleAsFormName && titleForm) || title || Labels.WIDGET_TITLE)}
         className={classNames('ecos-properties-dashlet', classNameDashlet)}
         bodyClassName="ecos-properties-dashlet__body"
         actionConfig={this.dashletActions}
@@ -231,7 +231,7 @@ class PropertiesDashlet extends BaseWidget {
           <PropertiesSettings
             record={record}
             stateId={id}
-            formId={formId}
+            config={config}
             onCancel={this.toggleDisplayFormSettings}
             onSave={this.onSaveFormSettings}
           />

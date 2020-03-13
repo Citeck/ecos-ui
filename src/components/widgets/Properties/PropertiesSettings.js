@@ -25,21 +25,21 @@ class PropertiesSettings extends React.Component {
   static propTypes = {
     record: PropTypes.string,
     stateId: PropTypes.string,
-    formId: PropTypes.string,
+    config: PropTypes.object,
     onSave: PropTypes.func,
     onCancel: PropTypes.func
   };
 
   static defaultProps = {
-    formId: null
+    config: {}
   };
 
   constructor(props) {
     super(props);
 
     this.state = {
-      formId: props.formId,
-      titleAsFormName: false
+      formId: get(props, 'config.formId', null),
+      titleAsFormName: get(props, 'config.titleAsFormName', false)
     };
   }
 
@@ -50,8 +50,10 @@ class PropertiesSettings extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.formId !== this.props.formId && this.state.formId !== this.props.formId) {
-      return { formId: this.props.formId };
+    const formId = get(this.props, 'config.formId');
+
+    if (get(prevProps, 'config.formId') !== formId && this.state.formId !== formId) {
+      return { formId };
     }
   }
 
