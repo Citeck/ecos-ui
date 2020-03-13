@@ -292,10 +292,15 @@ class EcosForm extends React.Component {
           value = EcosFormUtils.processValueBeforeSubmit(value, input, keysMapping);
 
           const attName = keysMapping[key] || key;
-          if (input.component.persistent) {
-            record.att(attName, value);
-          } else {
-            record.removeAtt(attName);
+          switch (input.component.persistent) {
+            case true:
+              record.att(attName, value);
+              break;
+            case 'client-only':
+              record.persistedAtt(attName, value);
+              break;
+            default:
+              record.removeAtt(attName);
           }
         }
       }
