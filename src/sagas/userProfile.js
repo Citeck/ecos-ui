@@ -45,10 +45,10 @@ function* sagaChangePassword({ api, logger }, { payload }) {
     yield put(setChangePhoto({ stateId }));
 
     if (!response) {
-      yield put(setNotificationMessage(t('user-profile-widget.error.upload-profile-photo')));
+      yield put(setNotificationMessage(t('user-profile-widget.error.change-profile-password')));
     }
   } catch (e) {
-    yield put(setNotificationMessage(t('user-profile-widget.error.upload-profile-photo')));
+    yield put(setNotificationMessage(t('user-profile-widget.error.change-profile-password')));
     logger.error('[userProfile/sagaChangePassword saga] error', e.message);
   }
 }

@@ -19,8 +19,7 @@ const Labels = {
   },
   Msgs: {
     REPEATED_NOT_MATCH: 'repeated does not match',
-    NEW_EQ_OLD: 'new is the same as old',
-    PASSWORD_REQUIRED: 'Password is required'
+    NEW_EQ_OLD: 'new is the same as old'
   }
 };
 
@@ -41,7 +40,6 @@ class PasswordModal extends React.Component {
     oldWord: '',
     newWord: '',
     repeatWord: '',
-    oldWordMsgs: [],
     newWordMsgs: [],
     repeatWordMsgs: []
   };
@@ -51,17 +49,9 @@ class PasswordModal extends React.Component {
   };
 
   checkWords = () => {
-    const { oldWord, newWord, repeatWord, oldWordMsgs, newWordMsgs, repeatWordMsgs } = this.state;
+    const { oldWord, newWord, repeatWord, newWordMsgs, repeatWordMsgs } = this.state;
 
-    return (
-      !oldWordMsgs.length &&
-      !newWordMsgs.length &&
-      !repeatWordMsgs.length &&
-      !!oldWord.value &&
-      !!repeatWord.value &&
-      !!newWord.value &&
-      newWord.valid
-    );
+    return !newWordMsgs.length && !repeatWordMsgs.length && !!oldWord.value && !!repeatWord.value && !!newWord.value && newWord.valid;
   };
 
   onConfirmChangePassword = () => {
@@ -74,37 +64,22 @@ class PasswordModal extends React.Component {
     this.setState({ [key]: { value, valid } });
   };
 
-  onBlurOld = () => {
-    const { oldWord } = this.state;
-    const oldWordMsgs = [];
-
-    if (!oldWord.value) {
-      oldWordMsgs.push(Labels.Msgs.PASSWORD_REQUIRED);
-    }
-
-    this.setState({ oldWordMsgs });
-  };
-
-  onBlurNew = () => {
+  checkNewWord = () => {
     const { oldWord, newWord } = this.state;
     const newWordMsgs = [];
 
-    if (!newWord.value) {
-      newWordMsgs.push(Labels.Msgs.PASSWORD_REQUIRED);
-    } else if (oldWord.value === newWord.value) {
+    if (newWord.value && oldWord.value === newWord.value) {
       newWordMsgs.push(Labels.Msgs.NEW_EQ_OLD);
     }
 
     this.setState({ newWordMsgs });
   };
 
-  onBlurRepeat = () => {
+  checkRepeatWord = () => {
     const { repeatWord, newWord } = this.state;
     const repeatWordMsgs = [];
 
-    if (!repeatWord.value) {
-      repeatWordMsgs.push(Labels.Msgs.PASSWORD_REQUIRED);
-    } else if (repeatWord.value !== newWord.value) {
+    if (repeatWord.value && repeatWord.value !== newWord.value) {
       repeatWordMsgs.push(Labels.Msgs.REPEATED_NOT_MATCH);
     }
 
@@ -113,7 +88,7 @@ class PasswordModal extends React.Component {
 
   render() {
     const { isShow } = this.props;
-    const { oldWord, newWord, repeatWord, repeatWordMsgs, newWordMsgs, oldWordMsgs } = this.state;
+    const { oldWord, newWord, repeatWord, repeatWordMsgs, newWordMsgs } = this.state;
 
     return (
       <EcosModal noHeader isOpen={isShow} hideModal={this.hideModal} className="ecos-user-profile-password-modal ecos-modal_width-xs">
@@ -123,8 +98,6 @@ class PasswordModal extends React.Component {
           keyValue="oldWord"
           value={oldWord.value}
           onChange={this.onChangeWord}
-          onBlur={this.onBlurOld}
-          errMsgs={oldWordMsgs}
         />
         <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.NEW)}</div>
         <Password
@@ -133,7 +106,7 @@ class PasswordModal extends React.Component {
           keyValue="newWord"
           value={newWord.value}
           onChange={this.onChangeWord}
-          onBlur={this.onBlurNew}
+          onBlur={this.checkNewWord}
           errMsgs={newWordMsgs}
         />
         <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.REPEAT)}</div>
@@ -142,7 +115,7 @@ class PasswordModal extends React.Component {
           keyValue="repeatWord"
           value={repeatWord.value}
           onChange={this.onChangeWord}
-          onBlur={this.onBlurRepeat}
+          onBlur={this.checkRepeatWord}
           errMsgs={repeatWordMsgs}
         />
         <div className="ecos-user-profile__password-modal-actions">

@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isArray from 'lodash/isArray';
 
 import { t } from '../../../helpers/util';
 import { Input } from '../form';
+import { Icon } from '../';
 
 import './style.scss';
-import { Icon } from '../index';
 
 const Labels = {
   Rules: {
@@ -14,9 +15,13 @@ const Labels = {
     COUNT_CHARACTERS: 'минимум 3 знака/символа',
     COUNT_DIGITS: '1 цифра',
     COUNT_CAPITALS: '1 заглавная',
-    COUNT_LOWERCASE: '1 строчная'
-  },
-  Titles: {}
+    COUNT_LOWERCASE: '1 строчная',
+    REQUIRED: 'Password is required'
+  }
+};
+
+const MsgTypes = {
+  ERROR: 'error'
 };
 
 const BASE_RULE = /[а-яА-ЯёЁ\w\`\~\!@\#\$\%\^\&\*\(\)\-\_\+\=\|\\\/\,\.\?\<\>\[\]\;\'\{\}\:\"\ ]{3,}$/;
@@ -79,6 +84,28 @@ class Password extends React.Component {
     this.setState({ touched: false, isShowWord: false });
   }
 
+  get messages() {
+    const { verifiable, errMsgs, value } = this.props;
+    const { touched } = this.state;
+    const messages = [];
+
+    if (verifiable) {
+      messages.push({ text: Labels.Rules.VALID_CHARACTERS });
+    }
+
+    if (isArray(errMsgs)) {
+      errMsgs.forEach(msg => {
+        messages.push({ text: msg, type: MsgTypes.ERROR });
+      });
+    }
+
+    if (touched && !String(value || '')) {
+      messages.push({ text: Labels.Rules.REQUIRED, type: MsgTypes.ERROR });
+    }
+
+    return messages;
+  }
+
   onChange = e => {
     const { onChange, keyValue: key } = this.props;
     const value = e.target.value;
@@ -119,17 +146,16 @@ class Password extends React.Component {
   }
 
   renderMessages() {
-    const { verifiable, errMsgs } = this.props;
-
     return (
       <div className="ecos-password-messages">
-        {verifiable && <div className="ecos-password-messages__item">{t(Labels.Rules.VALID_CHARACTERS)}</div>}
-        {errMsgs &&
-          errMsgs.map(msg => (
-            <div key={getKey()} className="ecos-password-messages__item ecos-password-messages__item_error">
-              {t(msg)}
-            </div>
-          ))}
+        {this.messages.map(msg => (
+          <div
+            key={getKey()}
+            className={classNames('ecos-password-messages__item', { [`ecos-password-messages__item_${msg.type}`]: !!msg.type })}
+          >
+            {t(msg.text)}
+          </div>
+        ))}
       </div>
     );
   }
@@ -148,7 +174,8 @@ class Password extends React.Component {
             value={value}
             type={isShowWord ? 'text' : 'password'}
             className={classNames('ecos-password-field__input ecos-input_focus ecos-input_hover', {
-              'ecos-password-field__input_invalid': (verifiable && touched && !check) || (errMsgs && errMsgs.length),
+              'ecos-password-field__input_invalid':
+                (verifiable && touched && !check) || this.messages.some(msg => msg.type === MsgTypes.ERROR),
               'ecos-password-field__input_valid': verifiable && touched && check
             })}
             onChange={this.onChange}
@@ -163,7 +190,7 @@ class Password extends React.Component {
             onClick={this.toggleEye}
           />
         </div>
-        {this.renderMessages()}
+        {!!this.messages.length && this.renderMessages()}
       </div>
     );
   }

@@ -840,5 +840,12 @@
   "user-profile-widget.error.change-profile-password": "Ошибка смены пароля",
   "user-profile-widget.modal.password.old-password": "Старый пароль",
   "user-profile-widget.modal.password.new-password": "Придумайте новый пароль",
-  "user-profile-widget.modal.password.repeat-new": "Новый пароль ещё раз"
+  "user-profile-widget.modal.password.repeat-new": "Новый пароль ещё раз",
+
+  "password-field.rule.valid-characters": "Допустимы латинские, русские и другие символы",
+  "password-field.rule.count-characters": "минимум 3 знака/символа",
+  "password-field.rule.count-digits": "1 цифра",
+  "password-field.rule.count-capitals": "1 заглавная",
+  "password-field.rule.count-lowercase": "1 строчная",
+  "password-field.rule.required": "Необходимо ввести пароль"
 }
