@@ -9,17 +9,17 @@ import './style.scss';
 
 const Labels = {
   Titles: {
-    OLD: 'user-profile-widget.modal.password.old-password',
-    NEW: 'user-profile-widget.modal.password.new-password',
-    REPEAT: 'user-profile-widget.modal.password.repeat-new'
+    OLD: 'user-profile-widget.modal-password.label.old-password',
+    NEW: 'user-profile-widget.modal-password.label.new-password',
+    REPEAT: 'user-profile-widget.modal-password.label.repeat-new'
   },
   Btns: {
-    CANCEL: 'Отмена',
-    CHANGE: 'Изменить пароль'
+    CANCEL: 'user-profile-widget.modal-password.button.cancel',
+    CHANGE: 'user-profile-widget.modal-password.button.change'
   },
   Msgs: {
-    REPEATED_NOT_MATCH: 'repeated does not match',
-    NEW_EQ_OLD: 'new is the same as old'
+    REPEATED_NOT_MATCH: 'user-profile-widget.modal-password.msg.new-passwords-not-match',
+    NEW_EQ_OLD: 'user-profile-widget.modal-password.msg.new-n-old-passwords-match'
   }
 };
 

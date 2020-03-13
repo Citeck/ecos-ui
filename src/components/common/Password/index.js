@@ -11,12 +11,12 @@ import './style.scss';
 
 const Labels = {
   Rules: {
-    VALID_CHARACTERS: 'Допустимы латинские, русские и другие символы',
-    COUNT_CHARACTERS: 'минимум 3 знака/символа',
-    COUNT_DIGITS: '1 цифра',
-    COUNT_CAPITALS: '1 заглавная',
-    COUNT_LOWERCASE: '1 строчная',
-    REQUIRED: 'Password is required'
+    VALID_CHARACTERS: 'password-field.rule.valid-characters',
+    COUNT_CHARACTERS: 'password-field.rule.count-characters',
+    COUNT_DIGITS: 'password-field.rule.count-digits',
+    COUNT_CAPITALS: 'password-field.rule.count-capitals',
+    COUNT_LOWERCASE: 'password-field.rule.count-lowercase',
+    REQUIRED: 'password-field.rule.required'
   }
 };
 
