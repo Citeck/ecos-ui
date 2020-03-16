@@ -2,18 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
-import CustomEventEmitter from '../../forms/EventEmitter';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 
 import '../../forms';
+import CustomEventEmitter from '../../forms/EventEmitter';
+import { getCurrentLocale, isMobileDevice, t } from '../../helpers/util';
+import { PROXY_URI } from '../../constants/alfresco';
+import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
-import { getCurrentLocale, isMobileDevice, t } from '../../helpers/util';
-import { PROXY_URI } from '../../constants/alfresco';
-import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -67,16 +67,20 @@ class EcosForm extends React.Component {
   }
 
   initForm(newFormDefinition = this.state.formDefinition) {
-    const { record, formKey, options: propsOptions, formId } = this.props;
-    const { recordId } = this.state;
-
+    const { record, formKey, options: propsOptions, formId, getTitle } = this.props;
+    const { recordId, containerId } = this.state;
+    const self = this;
     const options = cloneDeep(propsOptions);
-    let formLoadingPromise = null;
     const attributes = {
       definition: 'definition?json',
       customModule: 'customModule',
+      title: 'title',
       i18n: 'i18n?json'
     };
+
+    let formLoadingPromise;
+    let alfConstants = (window.Alfresco || {}).constants || {};
+    let proxyUri = PROXY_URI || '/';
 
     if (formId) {
       formLoadingPromise = EcosFormUtils.getFormById(formId, attributes);
@@ -87,9 +91,6 @@ class EcosForm extends React.Component {
     options.recordId = recordId;
     options.isMobileDevice = isMobileDevice();
 
-    let alfConstants = (window.Alfresco || {}).constants || {};
-    let proxyUri = PROXY_URI || '/';
-
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
     Formio.setProjectUrl(proxyUri);
 
@@ -97,39 +98,36 @@ class EcosForm extends React.Component {
       Formio.setUser(alfConstants.USERNAME);
     }
 
-    let self = this;
-
     const onFormLoadingFailure = () => {
-      self.setState({
-        error: new Error(t('ecos-form.empty-form-data'))
-      });
+      self.setState({ error: new Error(t('ecos-form.empty-form-data')) });
       self.props.onReady && self.props.onReady();
     };
 
     formLoadingPromise.then(formData => {
+      if (formData && formData.title) {
+        getTitle && getTitle(formData.title);
+      }
+
       if (!formData || !formData.definition) {
         onFormLoadingFailure();
         return null;
       }
 
-      let customModulePromise = new Promise(function(resolve) {
+      const customModulePromise = new Promise(function(resolve) {
         if (formData.customModule) {
           window.require([formData.customModule], function(Module) {
-            resolve(
-              new Module.default({
-                recordId: recordId
-              })
-            );
+            resolve(new Module.default({ recordId }));
           });
         } else {
           resolve({});
         }
       });
-
-      let inputs = EcosFormUtils.getFormInputs(formData.definition);
-      let recordDataPromise = EcosFormUtils.getData(recordId, inputs, this.state.containerId);
-      let canWritePromise = false;
+      const inputs = EcosFormUtils.getFormInputs(formData.definition);
+      const recordDataPromise = EcosFormUtils.getData(recordId, inputs, containerId);
       const isDebugModeOn = localStorage.getItem('enableLoggerForNewForms');
+
+      let canWritePromise = false;
+
       if (options.readOnly && options.viewAsHtml) {
         canWritePromise = EcosFormUtils.hasWritePermission(recordId);
       }
@@ -144,13 +142,13 @@ class EcosForm extends React.Component {
         }
 
         const definition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
-        let formDefinition = cloneDeep(definition);
+        const formDefinition = cloneDeep(definition);
+        const attributesTitles = {};
 
         this.setState({ formDefinition });
 
-        let attributesTitles = {};
         EcosFormUtils.forEachComponent(formDefinition, component => {
-          let edgeData = recordData.edges[component.key] || {};
+          const edgeData = recordData.edges[component.key] || {};
 
           if (component.key) {
             if (edgeData.protected) {
@@ -162,49 +160,44 @@ class EcosForm extends React.Component {
           }
         });
 
-        let i18n = options.i18n || {};
-
-        let language = options.language || getCurrentLocale();
-        options.language = language;
-
-        let defaultI18N = i18n[language] || {};
-        let formI18N = (formData.i18n || {})[language] || {};
+        const i18n = options.i18n || {};
+        const language = options.language || getCurrentLocale();
+        const defaultI18N = i18n[language] || {};
+        const formI18N = (formData.i18n || {})[language] || {};
 
         i18n[language] = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formI18N);
-
+        options.language = language;
         options.i18n = i18n;
         options.events = new CustomEventEmitter({
           wildcard: false,
           maxListeners: 0,
           loadLimit: 200,
           onOverload: () => {
-            if (this._form) {
-              this._form.showErrors('Infinite loop detected');
+            if (self._form) {
+              self._form.showErrors('Infinite loop detected');
             }
           }
         });
 
-        const containerElement = document.getElementById(this.state.containerId);
+        const containerElement = document.getElementById(containerId);
+
         if (!containerElement) {
           return;
         }
 
-        let formPromise = Formio.createForm(containerElement, formDefinition, options);
+        const formPromise = Formio.createForm(containerElement, formDefinition, options);
 
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
-          let form = formAndCustom[0];
-          let customModule = formAndCustom[1];
+          const form = formAndCustom[0];
+          const customModule = formAndCustom[1];
+          const handlersPrefix = 'onForm';
 
-          this._form = form;
+          self._form = form;
 
-          form.ecos = {
-            custom: customModule
-          };
+          form.ecos = { custom: customModule };
 
           if (customModule.init) {
-            customModule.init({
-              form: form
-            });
+            customModule.init({ form });
           }
 
           form.submission = {
@@ -218,11 +211,9 @@ class EcosForm extends React.Component {
             self.submitForm(form, submission);
           });
 
-          let handlersPrefix = 'onForm';
-
-          for (let key in self.props) {
+          for (const key in self.props) {
             if (self.props.hasOwnProperty(key) && key.startsWith(handlersPrefix)) {
-              let event = key.slice(handlersPrefix.length).toLowerCase();
+              const event = key.slice(handlersPrefix.length).toLowerCase();
 
               if (event !== 'submit') {
                 form.on(event, () => {
@@ -234,7 +225,7 @@ class EcosForm extends React.Component {
             }
           }
 
-          this.setState({ formId: formData.id });
+          self.setState({ formId: formData.id });
 
           if (self.props.onReady) {
             self.props.onReady(form);
@@ -268,22 +259,22 @@ class EcosForm extends React.Component {
 
   submitForm = debounce(
     (form, submission) => {
-      let self = this;
-
-      let inputs = EcosFormUtils.getFormInputs(form);
-      let keysMapping = EcosFormUtils.getKeysMapping(inputs);
-      let inputByKey = EcosFormUtils.getInputByKey(inputs);
-
-      let record = Records.get(this.state.recordId);
+      const self = this;
+      const { recordId, containerId } = this.state;
+      const inputs = EcosFormUtils.getFormInputs(form);
+      const keysMapping = EcosFormUtils.getKeysMapping(inputs);
+      const inputByKey = EcosFormUtils.getInputByKey(inputs);
+      const record = Records.get(recordId);
 
       if (submission.state) {
         record.att('_state', submission.state);
       }
 
-      for (let key in submission.data) {
+      for (const key in submission.data) {
         if (submission.data.hasOwnProperty(key)) {
+          const input = inputByKey[key];
+
           let value = submission.data[key];
-          let input = inputByKey[key];
 
           if (!input || input.type === 'horizontalLine') {
             continue;
@@ -292,6 +283,7 @@ class EcosForm extends React.Component {
           value = EcosFormUtils.processValueBeforeSubmit(value, input, keysMapping);
 
           const attName = keysMapping[key] || key;
+
           switch (input.component.persistent) {
             case true:
               record.att(attName, value);
@@ -306,7 +298,8 @@ class EcosForm extends React.Component {
       }
 
       const onSubmit = (persistedRecord, form, record) => {
-        Records.releaseAll(this.state.containerId);
+        Records.releaseAll(containerId);
+
         if (self.props.onSubmit) {
           self.props.onSubmit(persistedRecord, form, record);
         }
@@ -322,7 +315,7 @@ class EcosForm extends React.Component {
           }
         });
 
-        for (let field in form.data) {
+        for (const field in form.data) {
           if (!form.data.hasOwnProperty(field)) {
             continue;
           }

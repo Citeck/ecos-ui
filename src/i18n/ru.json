@@ -542,6 +542,7 @@
   "properties-widget.settings.displayed-properties": "Какие свойства отображать в виджете",
   "properties-widget.settings.default-form": "По-умолчанию",
   "properties-widget.settings.form-not-existed-in-list": "В списке нет установленой формы",
+  "properties-widget.settings.title-as-form-name": "Использовать имя формы в качестве заголовка виджета",
   "react-select.default-value.label": "Выбрать",
   "react-select.value-false.label": "Нет",
   "react-select.value-true.label": "Да",

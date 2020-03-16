@@ -1,6 +1,6 @@
 import lodash from 'lodash';
 
-import { t } from '../../../helpers/util';
+import { t, getCurrentLocale } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
 import Records from '../Records';
 import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
@@ -90,7 +90,23 @@ class RecordActionsService {
           }
         }
 
-        resultAction.name = t(resultAction.name) || resultAction.name;
+        let name;
+        if (lodash.isObject(resultAction.name)) {
+          name = resultAction.name[getCurrentLocale()];
+          if (!name) {
+            let keys = Object.keys(resultAction);
+            if (keys && keys.length) {
+              name = resultAction.name[keys[0]];
+              if (!lodash.isString(name)) {
+                name = '';
+              }
+            }
+          }
+        } else {
+          name = resultAction.name;
+        }
+
+        resultAction.name = t(name) || name;
         resultAction.context = Object.assign({}, context);
 
         return resultAction;
