@@ -77,7 +77,7 @@ export class DashboardApi extends RecordService {
 
     record.att('config?json', config);
     record.att('authority?str', user);
-    record.att('typeRef', key.replace('emodel/type@', 'model/type$'));
+    record.att('typeRef', key);
 
     return record.save().then(response => {
       cache.clear();
