@@ -1,16 +1,17 @@
 import React from 'react';
 import get from 'lodash/get';
 
-import BaseLayoutItem from './BaseLayoutItem';
+import Base from './Base';
 
-import './style.scss';
+import '../style.scss';
 
-export default class ColumnsLayoutItem extends BaseLayoutItem {
+export default class Columns extends Base {
   static defaultProps = {
-    ...BaseLayoutItem.defaultProps,
+    ...Base.defaultProps,
     config: {
       columns: [{}, { width: '25%' }]
-    }
+    },
+    type: ''
   };
 
   _templateRef = React.createRef();
@@ -81,7 +82,7 @@ export default class ColumnsLayoutItem extends BaseLayoutItem {
     const { onClick } = this.props;
 
     return (
-      <div className={this.className}>
+      <div className={this.className} id={this.id}>
         <div className="ecos-layout__item-template" onClick={onClick} ref={this._templateRef}>
           {this.renderColumns()}
         </div>

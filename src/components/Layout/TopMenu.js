@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { cloneDeep } from 'lodash';
+
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
 import { t } from '../../helpers/util';
+
 import './style.scss';
 
 class TopMenu extends Component {

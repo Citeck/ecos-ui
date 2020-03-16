@@ -65,12 +65,16 @@ class DocStatus extends BaseWidget {
   };
 
   componentDidMount() {
+    super.componentDidMount();
+
     const { stateId, record, initDocStatus } = this.props;
 
     initDocStatus({ stateId, record });
   }
 
   componentDidUpdate(prevProps) {
+    super.componentDidUpdate();
+
     const { isLoading, status } = this.props;
 
     if (prevProps.isLoading && !isLoading) {

@@ -84,6 +84,8 @@ class DocAssociations extends BaseWidget {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+
     this.props.getAssociations();
     this.checkHeight();
   }

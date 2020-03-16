@@ -164,6 +164,7 @@
   "dashboard-settings.widgets.subtitle-mobile": "Выберите порядок расположения виджетов, перетащив их в колонку справа",
   "dashboard-settings.widgets.title": "Виджеты",
   "dashboard-settings.widget.documents": "Документы",
+  "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
   "dashlet.edit.title": "Редактировать данные",
   "dashlet.edit.tooltip": "Редактировать данные",
   "dashlet.goto": "Перейти в раздел",

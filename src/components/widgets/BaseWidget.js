@@ -17,6 +17,22 @@ class BaseWidget extends Component {
     };
   }
 
+  componentDidMount() {
+    const { onLoad } = this.props;
+
+    if (typeof onLoad === 'function') {
+      onLoad(this);
+    }
+  }
+
+  componentDidUpdate() {
+    const { onUpdate } = this.props;
+
+    if (typeof onUpdate === 'function') {
+      onUpdate(this);
+    }
+  }
+
   get instanceRecord() {
     return Records.get(this.props.record);
   }
