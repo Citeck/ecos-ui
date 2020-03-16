@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
+import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 
@@ -261,7 +262,8 @@ class EcosForm extends React.Component {
     (form, submission) => {
       const self = this;
       const { recordId, containerId } = this.state;
-      const inputs = EcosFormUtils.getFormInputs(form);
+      const inputs = EcosFormUtils.getFormInputs(form.component);
+      const allComponents = form.getAllComponents();
       const keysMapping = EcosFormUtils.getKeysMapping(inputs);
       const inputByKey = EcosFormUtils.getInputByKey(inputs);
       const record = Records.get(recordId);
@@ -284,15 +286,21 @@ class EcosForm extends React.Component {
 
           const attName = keysMapping[key] || key;
 
-          switch (input.component.persistent) {
-            case true:
-              record.att(attName, value);
-              break;
-            case 'client-only':
-              record.persistedAtt(attName, value);
-              break;
-            default:
-              record.removeAtt(attName);
+          const currentComponent = allComponents.find(item => get(item, 'component.key', '') === key);
+          if (!currentComponent) {
+            record.att(attName, value);
+          } else {
+            const isPersistent = get(currentComponent, 'component.persistent', true);
+            switch (isPersistent) {
+              case true:
+                record.att(attName, value);
+                break;
+              case 'client-only':
+                record.persistedAtt(attName, value);
+                break;
+              default:
+                record.removeAtt(attName);
+            }
           }
         }
       }
