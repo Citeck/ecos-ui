@@ -139,6 +139,7 @@ class VersionsJournal extends BaseWidget {
     this.state = { ...state, ...VersionsJournal.getDefaultSelectedVersions(props) };
 
     this.topPanel = React.createRef();
+    this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateData);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -181,6 +182,14 @@ class VersionsJournal extends BaseWidget {
       });
     }
   }
+
+  componentWillUnmount() {
+    this.instanceRecord.unwatch(this.watcher);
+  }
+
+  updateData = () => {
+    this.props.getVersionsList();
+  };
 
   handleToggleAddModal = () => {
     this.props.toggleModal(MODAL.ADD);

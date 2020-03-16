@@ -25,7 +25,7 @@ export class VersionsJournalApi extends RecordService {
   };
 
   addNewVersion = ({ body, handleProgress }) => {
-    return ecosXhr('/share/proxy/alfresco/api/upload', {
+    return ecosXhr('/share/proxy/alfresco/api/v2/citeck/upload', {
       method: 'POST',
       body,
       handleProgress
