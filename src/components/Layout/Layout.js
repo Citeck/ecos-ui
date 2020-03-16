@@ -9,6 +9,7 @@ import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../widgets/Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import { MENU_TYPE } from '../../constants';
+import { LAYOUT_TYPE, GRID_GAP } from '../../constants/layout';
 import { documentScrollTop, getSearchParams } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 
@@ -32,6 +33,7 @@ class Layout extends Component {
     ).isRequired,
     menuType: PropTypes.string,
     className: PropTypes.string,
+    type: PropTypes.string,
     onSaveWidget: PropTypes.func,
     onSaveWidgetProps: PropTypes.func,
     canDragging: PropTypes.bool
@@ -41,7 +43,8 @@ class Layout extends Component {
     onSaveWidget: () => {},
     onSaveWidgetProps: () => {},
     canDragging: false,
-    className: ''
+    className: '',
+    type: ''
   };
 
   state = {
@@ -94,6 +97,12 @@ class Layout extends Component {
   }
 
   checkWidgets = () => {
+    const { type } = this.props;
+
+    if (type !== LAYOUT_TYPE.ADAPTIVE) {
+      return;
+    }
+
     const wrapper = get(this._wrapperRef, 'current', null);
 
     if (wrapper) {
@@ -103,7 +112,7 @@ class Layout extends Component {
         return;
       }
 
-      adaptiveColumns.forEach(adaptiveColumn => {
+      adaptiveColumns.forEach((adaptiveColumn, columnIndex) => {
         const columnWidth = adaptiveColumn.offsetWidth;
         const items = [...adaptiveColumn.querySelectorAll('.ecos-layout__element')];
         const countInnerColumns = Math.floor(columnWidth / get(items, '[0].offsetWidth', 1));
@@ -111,11 +120,18 @@ class Layout extends Component {
         items.forEach((item, index) => {
           item.style.marginTop = 0;
 
-          if (index < countInnerColumns) {
+          if (countInnerColumns && index < countInnerColumns) {
             return;
           }
 
-          const topElement = items[index - countInnerColumns];
+          let topElement;
+
+          if (countInnerColumns) {
+            topElement = items[index - countInnerColumns];
+          } else {
+            topElement = items[index - 1];
+          }
+
           const topElementChild = get(topElement, 'firstElementChild', null);
 
           if (!topElement || !topElementChild) {

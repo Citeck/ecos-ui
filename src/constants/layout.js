@@ -22,3 +22,5 @@ export const MIN_WIDTH_COLUMN = {
   FULL: '690px',
   AUTO: 'auto'
 };
+
+export const GRID_GAP = 10;

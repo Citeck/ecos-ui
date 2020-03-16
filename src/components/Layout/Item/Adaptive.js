@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { Tooltip } from '../../common';
 import { t } from '../../../helpers/util';
 import Columns from './Columns';
+import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 
 const Labels = {
   TOOLTIP: 'dashboard-settings.layout.tooltip.adaptive'
