@@ -9,7 +9,7 @@ import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../widgets/Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import { MENU_TYPE } from '../../constants';
-import { LAYOUT_TYPE, GRID_GAP } from '../../constants/layout';
+import { LAYOUT_TYPE } from '../../constants/layout';
 import { documentScrollTop, getSearchParams } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 
