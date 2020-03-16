@@ -79,7 +79,11 @@ export default class PageService {
     },
     [PageTypes.SETTINGS]: {
       getTitle: ({ recordRef, journalId }) => {
-        const prom = recordRef ? pageApi.getRecordTitle(recordRef) : pageApi.getJournalTitle(journalId);
+        const prom = journalId
+          ? pageApi.getJournalTitle(journalId)
+          : recordRef
+          ? pageApi.getRecordTitle(recordRef)
+          : staticTitle(TITLE.HOMEPAGE);
 
         return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${convertTitle(title)}"`);
       }

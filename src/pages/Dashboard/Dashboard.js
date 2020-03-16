@@ -21,6 +21,7 @@ import { DocStatus } from '../../components/widgets/DocStatus';
 import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
+import Records from '../../components/Records';
 
 import './style.scss';
 
@@ -62,8 +63,9 @@ class Dashboard extends Component {
 
   constructor(props) {
     super(props);
-
     this.state.config = props.config || [];
+    this.instanceRecord = Records.get(this.getPathInfo().recordRef);
+    this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateSomeDetails);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -109,6 +111,7 @@ class Dashboard extends Component {
 
   componentWillUnmount() {
     this.props.resetDashboardConfig();
+    this.instanceRecord.unwatch(this.watcher);
   }
 
   getPathInfo(search = window.location.search) {
@@ -156,6 +159,13 @@ class Dashboard extends Component {
   get isShowTabs() {
     return this.tabList.length > 1;
   }
+
+  updateSomeDetails = () => {
+    const { getDashboardTitle } = this.props;
+    const { recordRef } = this.getPathInfo();
+
+    getDashboardTitle({ recordRef });
+  };
 
   saveDashboardConfig = payload => {
     this.props.saveDashboardConfig && this.props.saveDashboardConfig(payload);

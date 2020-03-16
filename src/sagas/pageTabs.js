@@ -13,7 +13,8 @@ import {
   setDisplayState,
   setShowTabsStatus,
   setTab,
-  setTabs
+  setTabs,
+  updateTab
 } from '../actions/pageTabs';
 import { selectInitStatus } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
@@ -161,6 +162,25 @@ function* sagaChangeTabData({ api, logger }, { payload }) {
   }
 }
 
+function* sagaUpdateTabData({ api, logger }, { payload }) {
+  try {
+    const inited = yield select(selectInitStatus);
+
+    if (!inited) {
+      return;
+    }
+
+    const tab = payload.tab;
+    const updates = yield* getTitle(tab);
+
+    PageTabList.changeOne({ tab, updates });
+
+    yield put(setTabs(PageTabList.storeList));
+  } catch (e) {
+    logger.error('[pageTabs sagaUpdateTabData saga error', e.message);
+  }
+}
+
 function* getTitle(tab) {
   try {
     const urlProps = queryString.parseUrl(tab.link);
@@ -186,6 +206,7 @@ function* saga(ea) {
   yield takeEvery(setTab().type, sagaSetOneTab, ea);
   yield takeEvery(deleteTab().type, sagaDeleteTab, ea);
   yield takeEvery(changeTab().type, sagaChangeTabData, ea);
+  yield takeEvery(updateTab().type, sagaUpdateTabData, ea);
 }
 
 export default saga;
