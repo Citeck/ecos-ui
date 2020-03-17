@@ -7,6 +7,7 @@ import './style.scss';
 class Droppable extends React.Component {
   static propTypes = {
     className: PropTypes.string,
+    classNameView: PropTypes.string,
     style: PropTypes.object,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     droppableIndex: PropTypes.number,
@@ -24,6 +25,7 @@ class Droppable extends React.Component {
 
   static defaultProps = {
     className: '',
+    classNameView: '',
     children: null,
     style: {},
     placeholder: '',
@@ -79,7 +81,7 @@ class Droppable extends React.Component {
   }
 
   renderScroll(children) {
-    const { withoutScroll, scrollHeight, autoHeight, className } = this.props;
+    const { withoutScroll, scrollHeight, autoHeight, classNameView } = this.props;
 
     if (withoutScroll) {
       return children;
@@ -98,7 +100,7 @@ class Droppable extends React.Component {
         style={{ height: typeof scrollHeight === 'string' ? scrollHeight : `${scrollHeight}px` }}
         autoHide
         hideTracksWhenNotNeeded
-        renderView={props => <div {...props} className={className} />}
+        renderView={props => <div {...props} className={classNameView} />}
         renderTrackHorizontal={props => <div {...props} hidden />}
         renderThumbHorizontal={props => <div {...props} hidden />}
         {...additionalParams}

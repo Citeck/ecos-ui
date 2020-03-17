@@ -124,6 +124,7 @@ class SetWidgets extends React.Component {
                 droppableIndex={indexColumn}
                 childPosition="column"
                 className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__column-widgets__items"
+                classNameView="ecos-dashboard-settings__drag-scrollbar-wrapper"
                 placeholder={t('dashboard-settings.column.placeholder')}
                 isDragingOver={draggableDestination === NAMES.WIDGETS_TO + indexColumn}
                 scrollHeight={320}
@@ -173,6 +174,7 @@ class SetWidgets extends React.Component {
               className={classNames('ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_col', {
                 'ecos-dashboard-settings__drag-container_widgets-from_mobile': isMobile
               })}
+              classNameView="ecos-dashboard-settings__drag-scrollbar-wrapper"
               placeholder={t('dashboard-settings.widgets.placeholder')}
               isDropDisabled={true}
               scrollHeight={324}
