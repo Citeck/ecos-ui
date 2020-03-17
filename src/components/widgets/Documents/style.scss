@@ -544,6 +544,7 @@
 
       &-check {
         margin-right: 12px;
+        min-width: 22px;
       }
 
       &-label {
@@ -590,6 +591,7 @@
         border: 2px solid $color-gray-1;
         background: $color-white;
         color: $color-gray-5;
+        min-width: auto;
       }
 
       &:hover {
