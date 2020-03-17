@@ -175,7 +175,7 @@ class SetWidgets extends React.Component {
               })}
               placeholder={t('dashboard-settings.widgets.placeholder')}
               isDropDisabled={true}
-              scrollHeight={136}
+              scrollHeight={324}
             >
               {availableWidgets &&
                 availableWidgets.length &&

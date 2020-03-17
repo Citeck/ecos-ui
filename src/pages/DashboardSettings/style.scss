@@ -207,9 +207,9 @@
 
       &_widgets-from_mobile {
         margin-right: 15px;
-        margin-bottom: 0;
-        width: 80%;
-        height: 320px;
+        margin-bottom: 0 !important;
+        //overflow: hidden;
+        height: 324px;
       }
     }
 

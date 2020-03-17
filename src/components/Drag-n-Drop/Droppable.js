@@ -17,8 +17,9 @@ class Droppable extends React.Component {
     isDragingOver: PropTypes.bool,
     isWrapper: PropTypes.bool,
     withoutScroll: PropTypes.bool,
+    autoHeight: PropTypes.bool,
     childPosition: PropTypes.oneOf(['column', 'row']),
-    scrollHeight: PropTypes.number
+    scrollHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   };
 
   static defaultProps = {
@@ -32,6 +33,7 @@ class Droppable extends React.Component {
     isDragingOver: false,
     isWrapper: false,
     withoutScroll: false,
+    autoHeight: false,
     childPosition: 'row',
     scrollHeight: 200
   };
@@ -77,21 +79,29 @@ class Droppable extends React.Component {
   }
 
   renderScroll(children) {
-    const { withoutScroll, scrollHeight } = this.props;
+    const { withoutScroll, scrollHeight, autoHeight, className } = this.props;
 
     if (withoutScroll) {
       return children;
     }
 
+    const additionalParams = {};
+
+    if (autoHeight) {
+      additionalParams.autoHeight = true;
+      additionalParams.autoHeightMin = 0;
+      additionalParams.autoHeightMax = scrollHeight;
+    }
+
     return (
       <Scrollbars
-        style={{ height: `${scrollHeight}px` }}
+        style={{ height: typeof scrollHeight === 'string' ? scrollHeight : `${scrollHeight}px` }}
         autoHide
-        autoHeightMax={scrollHeight}
-        autoHeight
         hideTracksWhenNotNeeded
+        renderView={props => <div {...props} className={className} />}
         renderTrackHorizontal={props => <div {...props} hidden />}
         renderThumbHorizontal={props => <div {...props} hidden />}
+        {...additionalParams}
       >
         {children}
       </Scrollbars>
