@@ -163,7 +163,6 @@
       display: flex;
       width: 100%;
       flex-wrap: wrap;
-      //height: 136px;
 
       &_full {
         min-width: 100%;
@@ -173,14 +172,10 @@
         &-to {
           flex-basis: 40%;
           max-width: 298px;
-          //height: 270px;
-          //height: 100%;
         }
 
         &-from {
           margin-right: 10px;
-          //height: 270px;
-          //height: 100%;
         }
       }
 
@@ -207,10 +202,14 @@
 
       &_widgets-from_mobile {
         margin-right: 15px;
-        margin-bottom: 0;
-        width: 80%;
-        height: 320px;
+        margin-bottom: 0 !important;
+        height: 100%;
+        padding: unset;
       }
+    }
+
+    &-scrollbar-wrapper {
+      padding: 10px;
     }
 
     &-item {
@@ -247,7 +246,6 @@
 
     &__items {
       width: 100%;
-      min-height: 320px;
       box-sizing: border-box;
 
       &__cell {
