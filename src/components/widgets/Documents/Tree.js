@@ -154,7 +154,11 @@ class TreeItem extends Component {
     let text = '';
 
     if (children.length) {
-      text = `${t(Labels.SELECTED_INSIDE)} ${selectedChildren.length} ${t(Labels.OF)} ${children.length}`;
+      if (!selectedChildren.length && !item.isSelected) {
+        text = t(Labels.NOT_SELECTED);
+      } else {
+        text = `${t(Labels.SELECTED_INSIDE)} ${selectedChildren.length} ${t(Labels.OF)} ${children.length}`;
+      }
     } else {
       text = item.locked ? t(Labels.NOT_BE_DISABLED) : t(Labels.NOT_SELECTED);
     }
