@@ -10,7 +10,6 @@ import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
 import { getCurrentLocale, isMobileDevice, t } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
-import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
@@ -278,7 +277,7 @@ class EcosForm extends React.Component {
 
           let value = submission.data[key];
 
-          if (!input || input.type === 'horizontalLine') {
+          if (input && input.type === 'horizontalLine') {
             continue;
           }
 
@@ -287,7 +286,7 @@ class EcosForm extends React.Component {
           const attName = keysMapping[key] || key;
 
           const currentComponent = allComponents.find(item => get(item, 'component.key', '') === key);
-          if (!currentComponent) {
+          if (!currentComponent || EcosFormUtils.isOutcomeButton(currentComponent.component)) {
             record.att(attName, value);
           } else {
             const isPersistent = get(currentComponent, 'component.persistent', true);
@@ -318,7 +317,7 @@ class EcosForm extends React.Component {
         const outcomeButtonsKeys = [];
 
         allComponents.forEach(item => {
-          if (item.component.type === 'button' && item.component.key.startsWith(OUTCOME_BUTTONS_PREFIX)) {
+          if (EcosFormUtils.isOutcomeButton(item.component)) {
             outcomeButtonsKeys.push(item.component.key);
           }
         });

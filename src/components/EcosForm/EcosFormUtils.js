@@ -10,6 +10,7 @@ import uuidV4 from 'uuid/v4';
 import { getCurrentUserName, t } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
+import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import Modal from '../common/EcosModal/CiteckEcosModal';
 import Records from '../Records';
 import EcosForm, { FORM_MODE_CREATE, FORM_MODE_EDIT } from './';
@@ -658,5 +659,9 @@ export default class EcosFormUtils {
     }
 
     return titles.join(' ');
+  }
+
+  static isOutcomeButton(component) {
+    return component && component.type === 'button' && component.key.startsWith(OUTCOME_BUTTONS_PREFIX);
   }
 }
