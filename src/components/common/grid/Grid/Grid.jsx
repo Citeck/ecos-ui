@@ -21,7 +21,7 @@ const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
 const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
 
-const ECOS_GRID_CHECKBOX_DEVIDER_CLASS = 'ecos-grid__checkbox-devider';
+const ECOS_GRID_CHECKBOX_DIVIDER_CLASS = 'ecos-grid__checkbox-divider';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
@@ -34,7 +34,7 @@ const Selector = ({ mode, ...rest }) => (
 const SelectorHeader = ({ indeterminate, ...rest }) => (
   <div className="ecos-grid__checkbox">
     {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} disabled={rest.disabled} /> : null}
-    <div className={ECOS_GRID_CHECKBOX_DEVIDER_CLASS} />
+    <div className={ECOS_GRID_CHECKBOX_DIVIDER_CLASS} />
   </div>
 );
 
@@ -73,7 +73,7 @@ class Grid extends Component {
     if (current) {
       this._shadowHeadNode = current.getElementsByClassName(ECOS_GRID_HEAD_SHADOW)[0];
       this._shadowLeftNode = current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW)[0];
-      this._firstHeaderCellNode = current.querySelector(`thead > tr > th:first-child .${ECOS_GRID_CHECKBOX_DEVIDER_CLASS}`);
+      this._firstHeaderCellNode = current.querySelector(`thead > tr > th:first-child .${ECOS_GRID_CHECKBOX_DIVIDER_CLASS}`);
       this._inlineActionsNode = current.querySelector('.ecos-inline-tools-actions');
     }
 
@@ -365,18 +365,21 @@ class Grid extends Component {
     const { filters, sortBy } = this.props;
 
     column.headerFormatter = (column, colIndex) => {
+      const filterValue = ((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || '';
+      const ascending = ((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending;
+
       return (
         <HeaderFormatter
           filterable={filterable}
           closeFilterEvent={CLOSE_FILTER_EVENT}
-          filterValue={((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || ''}
+          filterValue={filterValue}
           onFilter={this.onFilter}
           sortable={sortable}
           onSort={this.onSort}
-          ascending={((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending}
+          ascending={ascending}
           column={column}
           colIndex={colIndex}
-          onDeviderMouseDown={this.getStartDeviderPosition}
+          onDividerMouseDown={this.getStartDividerPosition}
         />
       );
     };
@@ -475,7 +478,7 @@ class Grid extends Component {
     document.removeEventListener('mouseup', this.clearResizingColumn);
   };
 
-  getStartDeviderPosition = options => {
+  getStartDividerPosition = options => {
     this._resizingTh = options.th;
     this._tableDom = closest(options.th, 'table');
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
