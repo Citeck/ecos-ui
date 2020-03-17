@@ -46,6 +46,8 @@ class Toolbar extends Component {
     };
   }
 
+  toolbarZoom = React.createRef();
+
   componentDidMount() {
     const { scale } = this.state;
 
@@ -184,16 +186,18 @@ class Toolbar extends Component {
 
   renderZoom() {
     const { scale, selectedZoom } = this.state;
-    const maxH = get(window, 'document.body.offsetHeight', 1000) * 0.65;
+    const bodyH = get(window, 'document.body.offsetHeight', 400);
+    const bottom = this.toolbarZoom.current ? this.toolbarZoom.current.getBoundingClientRect().bottom : 0;
+    const maxH = bodyH - bottom - 10;
 
     return (
-      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom">
+      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom" ref={this.toolbarZoom}>
         <IcoBtn
           icon={'icon-minus'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= ZOOM_STEP })}
-          onClick={e => this.setScale(-1)}
+          onClick={() => this.setScale(-1)}
         />
-        <IcoBtn icon={'icon-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={e => this.setScale(1)} />
+        <IcoBtn icon={'icon-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={() => this.setScale(1)} />
         <Dropdown
           source={this.zoomOptions}
           value={selectedZoom}
