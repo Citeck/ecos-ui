@@ -481,7 +481,12 @@ class Grid extends Component {
   getStartDividerPosition = options => {
     this._resizingTh = options.th;
     this._tableDom = closest(options.th, 'table');
-    this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
+
+    const thStyles = window.getComputedStyle(this._resizingTh);
+    const paddingLeft = parseInt(thStyles.getPropertyValue('padding-left'), 10) || 0;
+    const paddingRight = parseInt(thStyles.getPropertyValue('padding-right'), 10) || 0;
+
+    this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX - paddingLeft - paddingRight;
   };
 
   resizeColumn = e => {
@@ -493,6 +498,10 @@ class Grid extends Component {
 
       for (let i = 0; i < rows.length; i++) {
         let firstCol = rows[i].cells[th.cellIndex];
+
+        if (!firstCol) {
+          continue;
+        }
 
         firstCol.style.width = width;
         firstCol.firstChild.style.width = width;
