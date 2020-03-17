@@ -92,7 +92,7 @@ class JournalsDashletToolbar extends Component {
     } = this.props;
 
     return (
-      <div className={'ecos-journal-dashlet__toolbar'}>
+      <div className="ecos-journal-dashlet__toolbar">
         {this.renderCreateMenu()}
 
         <Dropdown
@@ -106,7 +106,7 @@ class JournalsDashletToolbar extends Component {
           })}
           onChange={this.onChangeJournal}
         >
-          <IcoBtn invert icon={'icon-down'} className={'ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10'} />
+          <IcoBtn invert icon={'icon-down'} className="ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10" />
         </Dropdown>
 
         {!isSmall && (
@@ -118,14 +118,14 @@ class JournalsDashletToolbar extends Component {
             isButton
             onChange={this.onChangeJournalSetting}
           >
-            <TwoIcoBtn icons={['icon-settings', 'icon-down']} className={'ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10'} />
+            <TwoIcoBtn icons={['icon-settings', 'icon-down']} className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10" />
           </Dropdown>
         )}
 
         {!isSmall && <Export journalConfig={journalConfig} grid={grid} dashletConfig={config} />}
 
         {!isSmall && (
-          <div className={'ecos-journal-dashlet__actions'}>
+          <div className="ecos-journal-dashlet__actions">
             {measurer.xs || measurer.xxs || measurer.xxxs ? null : <JournalsDashletPagination stateId={stateId} />}
           </div>
         )}
