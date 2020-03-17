@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 
 import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
@@ -54,14 +55,14 @@ class Toolbar extends Component {
     this.onChangeZoomOption(foundScale);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { scrollPage: currentPage, calcScale: scale } = nextProps;
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { scrollPage: currentPage, calcScale: scale } = this.props;
 
-    if (currentPage !== this.props.scrollPage) {
+    if (currentPage !== prevProps.scrollPage) {
       this.setState({ currentPage });
     }
 
-    if (scale !== this.props.calcScale) {
+    if (scale !== prevProps.calcScale) {
       this.setState({ scale });
     }
   }
@@ -183,6 +184,7 @@ class Toolbar extends Component {
 
   renderZoom() {
     const { scale, selectedZoom } = this.state;
+    const maxH = get(window, 'document.body.offsetHeight', 1000) * 0.65;
 
     return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom">
@@ -200,6 +202,8 @@ class Toolbar extends Component {
           onChange={this.onChangeZoomOption}
           hideSelected={selectedZoom === CUSTOM}
           className="ecos-doc-preview__toolbar-zoom-dropdown"
+          withScrollbar
+          scrollbarHeightMax={`${maxH}px`}
         >
           <IcoBtn
             invert
