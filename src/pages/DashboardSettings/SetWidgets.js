@@ -176,8 +176,8 @@ class SetWidgets extends React.Component {
               })}
               classNameView="ecos-dashboard-settings__drag-scrollbar-wrapper"
               placeholder={t('dashboard-settings.widgets.placeholder')}
-              isDropDisabled={true}
-              scrollHeight={324}
+              isDropDisabled
+              scrollHeight={320}
             >
               {availableWidgets &&
                 availableWidgets.length &&
