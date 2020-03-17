@@ -22,7 +22,7 @@ export default class WorkflowPriorityFormatter extends DefaultGqlFormatter {
     const priority = WorkflowPriorityFormatter.getDisplayText(cell);
 
     return priority ? (
-      <span className={`workflow-priority-formatter workflow-priority-formatter_${priority}`}>{priority}</span>
+      <span className={`workflow-priority-formatter workflow-priority-formatter_${Codes[cell]}`}>{priority}</span>
     ) : (
       <Fragment>{this.value(cell)}</Fragment>
     );
