@@ -186,22 +186,6 @@ class Layout extends Component {
     this.props.onSaveWidget(dataDrag, { source, destination });
   };
 
-  handleLoadComponent = component => {
-    console.info(`Widget ${component.constructor.name} has mounted`);
-
-    this.checkWidgets();
-  };
-
-  handleUpdateComponent = component => {
-    console.info(`Widget ${component.constructor.name} has updated`);
-
-    this.checkWidgets();
-  };
-
-  handleResizeLayout = () => {
-    this.checkWidgets();
-  };
-
   renderWidgets(widgets = [], columnName) {
     const { canDragging } = this.props;
     const { recordRef } = getSearchParams();
@@ -236,8 +220,8 @@ class Layout extends Component {
               id={`${widget.props.id}-${urlParams}`}
               record={recordRef}
               onSave={this.props.onSaveWidgetProps}
-              onLoad={this.handleLoadComponent}
-              onUpdate={this.handleUpdateComponent}
+              onLoad={this.checkWidgets}
+              onUpdate={this.checkWidgets}
             />
           </DragItem>
         );
@@ -249,8 +233,8 @@ class Layout extends Component {
               canDragging={canDragging}
               record={recordRef}
               onSave={this.props.onSaveWidgetProps}
-              onLoad={this.handleLoadComponent}
-              onUpdate={this.handleUpdateComponent}
+              onLoad={this.checkWidgets}
+              onUpdate={this.checkWidgets}
             />
           </div>
         );
@@ -322,7 +306,7 @@ class Layout extends Component {
     return (
       <div className="ecos-layout__wrapper" ref={this._wrapperRef}>
         {columns && columns.map(this.renderColumn.bind(this, columns))}
-        <ReactResizeDetector handleWidth onResize={this.handleResizeLayout} />
+        <ReactResizeDetector handleWidth onResize={this.checkWidgets} />
       </div>
     );
   }
