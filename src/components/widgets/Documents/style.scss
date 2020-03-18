@@ -198,8 +198,6 @@
           border-right: 2px solid $color-brown-2;
 
           td {
-            border-top: unset;
-            border-bottom: 5px solid transparent;
             border-top: 2px solid $color-brown-2;
             border-bottom: 2px solid $color-brown-2;
           }
@@ -213,19 +211,40 @@
           }
 
           .ecos-docs__table-count-status {
-            margin: 9px 29px 9px 30px;
+            padding: 9px 29px 9px 30px;
+          }
+        }
+
+        &:first-child {
+          td {
+            border-top: 0;
           }
         }
       }
     }
 
-    &.ecos-grid_freeze .ecos-grid__header {
-      th {
-        &:first-child {
-          box-shadow: -2px 0px 0px 0px $color-gray-4;
-        }
+    .ecos-grid {
+      &__head-shadow {
+        display: block;
 
+        &:after {
+          bottom: -2px;
+        }
+      }
+
+      &__header {
         border-top: 2px solid $color-gray-4;
+        border-bottom: 2px solid $color-gray-4;
+      }
+    }
+
+    &-view {
+      padding-top: 2px;
+    }
+
+    &.ecos-grid_freeze thead > tr.ecos-grid__header {
+      th {
+        top: 1px;
       }
     }
 
@@ -251,7 +270,8 @@
       flex-direction: row;
       justify-content: flex-end;
       align-items: center;
-      margin: 9px 30px;
+      padding: 9px 30px;
+      position: relative;
     }
 
     &-upload-label {
@@ -259,7 +279,7 @@
       background: $color-white;
       top: 2px;
       bottom: 2px;
-      right: 100px;
+      left: calc(-100% - 17px);
       display: flex;
       align-items: center;
       visibility: hidden;
