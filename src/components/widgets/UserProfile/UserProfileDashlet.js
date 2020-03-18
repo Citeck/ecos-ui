@@ -69,7 +69,8 @@ class UserProfileDashlet extends BaseWidget {
       isLoadingPhoto,
       isLoadingPassword,
       isMobile,
-      message
+      message,
+      isCurrentAdmin
     } = this.props;
     const { isShowPasswordModal } = this.state;
 
@@ -84,6 +85,7 @@ class UserProfileDashlet extends BaseWidget {
         {isLoading && <Loader />}
         {
           <PasswordModal
+            isAdmin={isCurrentAdmin}
             isMobile={isMobile}
             isShow={isShowPasswordModal}
             onCancel={() => this.onTogglePasswordModal(false)}
@@ -99,7 +101,7 @@ class UserProfileDashlet extends BaseWidget {
                 <div className="ecos-user-profile__info-name-secondary">{[firstName, middleName].filter(name => !!name).join(' ')}</div>
               </div>
             </div>
-            {[isCurrentUser, isAdmin].some(flag => flag) && (
+            {[isCurrentUser, isCurrentAdmin].some(flag => flag) && (
               <div className={classNames('ecos-user-profile__actions', { 'ecos-user-profile__actions_mobile': isMobile })}>
                 <BtnUpload label={t(Labels.Btns.CHANGE_PHOTO)} loading={isLoadingPhoto} onSelected={this.onChangePhoto} accept="image/*" />
                 <Btn loading={isLoadingPassword} onClick={() => this.onTogglePasswordModal(true)}>
@@ -131,7 +133,8 @@ const mapStateToProps = (state, context) => {
     profile: profile.data || {},
     message: profile.message,
     isCurrentUser,
-    isMobile: state.view.isMobile
+    isMobile: state.view.isMobile,
+    isCurrentAdmin: get(state, 'user.isAdmin', false)
   };
 };
 

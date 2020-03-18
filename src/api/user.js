@@ -66,10 +66,22 @@ export class UserApi extends CommonApi {
       .then(responce => responce);
   }
 
-  changePassword({}) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(true), 1000);
-    });
+  changePassword({ record, data: { oldPass, pass, passVerify } }) {
+    const user = Records.get(record);
+
+    user.att('ecos:pass', pass);
+    user.att('ecos:passVerify', passVerify);
+    user.att('ecos:oldPass', oldPass);
+
+    return user
+      .save()
+      .then(response => ({ response, success: true }))
+      .catch(response => {
+        console.error(response);
+        const message = response.message || (response.errors && response.errors.join('; ')) || '';
+
+        return { success: false, message };
+      });
   }
 
   changePhoto({}) {

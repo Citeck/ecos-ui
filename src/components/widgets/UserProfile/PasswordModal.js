@@ -25,6 +25,7 @@ const Labels = {
 
 class PasswordModal extends React.Component {
   static propTypes = {
+    isAdmin: PropTypes.bool,
     isShow: PropTypes.bool,
     isMobile: PropTypes.bool,
     onCancel: PropTypes.func,
@@ -55,9 +56,9 @@ class PasswordModal extends React.Component {
   };
 
   onConfirmChangePassword = () => {
-    const { oldWord, newWord } = this.state;
+    const { oldWord, newWord, repeatWord } = this.state;
 
-    this.props.onChange && this.props.onChange({ oldWord, newWord });
+    this.props.onChange && this.props.onChange({ oldPass: oldWord.value, pass: newWord.value, passVerify: repeatWord.value });
   };
 
   onChangeWord = ({ value, key, valid }) => {
@@ -87,18 +88,22 @@ class PasswordModal extends React.Component {
   };
 
   render() {
-    const { isShow } = this.props;
+    const { isShow, isAdmin } = this.props;
     const { oldWord, newWord, repeatWord, repeatWordMsgs, newWordMsgs } = this.state;
 
     return (
       <EcosModal noHeader isOpen={isShow} hideModal={this.hideModal} className="ecos-user-profile-password-modal ecos-modal_width-xs">
-        <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.OLD)}</div>
-        <Password
-          className="ecos-user-profile__password-modal-filed"
-          keyValue="oldWord"
-          value={oldWord.value}
-          onChange={this.onChangeWord}
-        />
+        {!isAdmin && (
+          <>
+            <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.OLD)}</div>
+            <Password
+              className="ecos-user-profile__password-modal-filed"
+              keyValue="oldWord"
+              value={oldWord.value}
+              onChange={this.onChangeWord}
+            />
+          </>
+        )}
         <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.NEW)}</div>
         <Password
           verifiable

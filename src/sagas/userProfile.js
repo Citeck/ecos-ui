@@ -43,12 +43,13 @@ function* sagaChangePassword({ api, logger }, { payload }) {
 
   try {
     const response = yield call(api.user.changePassword, { record, data });
+    const text =
+      response && response.success
+        ? t('user-profile-widget.success.change-profile-password')
+        : `${t('user-profile-widget.error.change-profile-password')}. ${response.message}`;
 
     yield put(setChangePassword({ stateId }));
-
-    const text = response ? 'user-profile-widget.success.change-profile-password' : 'user-profile-widget.error.change-profile-password';
-
-    yield put(setMessage({ message: { text, error: response }, stateId, isLoadingPassword: false }));
+    yield put(setMessage({ message: { text, error: !(response && response.success) }, stateId, isLoadingPassword: false }));
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.change-profile-password')));
     logger.error('[userProfile/sagaChangePassword saga] error', e.message);
