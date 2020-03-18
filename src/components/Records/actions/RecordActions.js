@@ -94,7 +94,7 @@ class RecordActionsService {
         if (lodash.isObject(resultAction.name)) {
           name = resultAction.name[getCurrentLocale()];
           if (!name) {
-            let keys = Object.keys(resultAction);
+            let keys = Object.keys(resultAction.name);
             if (keys && keys.length) {
               name = resultAction.name[keys[0]];
               if (!lodash.isString(name)) {
