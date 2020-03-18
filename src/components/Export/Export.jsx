@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import omit from 'lodash/omit';
+import get from 'lodash/get';
 import queryString from 'query-string';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { NotificationManager } from 'react-notifications';
 
 import { URL } from '../../constants';
-import { PROXY_URI } from '../../constants/alfresco';
+import { ALFRESCO, PROXY_URI } from '../../constants/alfresco';
 import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
 import { Dropdown } from '../common/form';
@@ -49,6 +50,18 @@ export default class extends Component {
         )
       }
     ];
+  }
+
+  get isShow() {
+    const sourceId = get(this.props, 'journalConfig.sourceId', null);
+
+    if (sourceId) {
+      const parts = sourceId.split('/');
+
+      return parts.length === 1 || parts[0] === ALFRESCO;
+    }
+
+    return !!sourceId;
   }
 
   export = item => {
@@ -132,7 +145,7 @@ export default class extends Component {
     const { right, className, children, ...props } = this.props;
     const attributes = omit(props, ['journalConfig', 'dashletConfig', 'grid']);
 
-    return (
+    return this.isShow ? (
       <div {...attributes} className={classNames('ecos-btn-export', className)}>
         <Dropdown
           source={this.dropdownSource}
@@ -150,6 +163,6 @@ export default class extends Component {
           <input ref={this.textInput} type="hidden" name="jsondata" value="" />
         </form>
       </div>
-    );
+    ) : null;
   }
 }
