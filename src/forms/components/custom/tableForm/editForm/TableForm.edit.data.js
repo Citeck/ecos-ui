@@ -1,5 +1,3 @@
-import { Types } from '../../selectAction/constants';
-
 const CUSTOM_CREATE_VARIANTS_FIELD = 'customCreateVariantsJs';
 const VALUE_FORM_KEY_FIELD = 'computed.valueFormKey';
 
