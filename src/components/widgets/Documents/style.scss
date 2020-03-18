@@ -34,12 +34,23 @@
 
       .ecos-grid {
         &_drag {
-          background: $color-yellow;
-          outline: 2px solid $color-brown-2;
+          &.ecos-grid__row {
+            background: $color-yellow;
+            border-right: 2px solid $color-brown-2;
 
-          & > th:first-child,
-          & > td:first-child {
-            padding-left: 14px;
+            td {
+              border-top: 2px solid $color-brown-2;
+              border-bottom: 2px solid $color-brown-2;
+
+              &:first-child {
+                padding-left: 12px;
+                border-left: 4px solid $color-brown-2;
+              }
+
+              .ecos-docs__table-count-status {
+                padding: 9px 29px 9px 30px;
+              }
+            }
           }
         }
 
@@ -194,7 +205,6 @@
         transform: scale(1);
 
         &:hover {
-          border-left: 2px solid $color-brown-2;
           border-right: 2px solid $color-brown-2;
 
           td {
@@ -202,8 +212,13 @@
             border-bottom: 2px solid $color-brown-2;
           }
 
-          &:not(.ecos-grid_drag) > td:first-child {
-            padding-left: 18px;
+          &:not(.ecos-grid_drag) {
+            & > td {
+              &:first-child {
+                padding-left: 17px;
+                border-left: 4px solid $color-brown-2;
+              }
+            }
           }
 
           .ecos-grid__td {
@@ -219,14 +234,18 @@
           td {
             border-top: 0;
           }
+
+          &:hover {
+            td {
+              border-top: 2px solid $color-brown-2;
+            }
+          }
         }
       }
     }
 
     .ecos-grid {
       &__head-shadow {
-        display: block;
-
         &:after {
           bottom: -2px;
         }
