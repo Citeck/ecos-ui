@@ -673,6 +673,7 @@ class Grid extends Component {
       scrollAutoHide,
       className,
       rowClassName,
+      tableViewClassName,
       forwardedRef,
       noTopBorder,
       columns,
@@ -698,6 +699,7 @@ class Grid extends Component {
           style={style}
           autoHide={autoHide}
           hideTracksWhenNotNeeded
+          renderView={props => <dic {...props} className={tableViewClassName} />}
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
           renderTrackHorizontal={props => <div {...props} className="ecos-grid__h-scroll" />}
         >
@@ -750,6 +752,7 @@ class Grid extends Component {
 Grid.propTypes = {
   className: PropTypes.string,
   rowClassName: PropTypes.string,
+  tableViewClassName: PropTypes.string,
   keyField: PropTypes.string,
   dataField: PropTypes.string,
 
