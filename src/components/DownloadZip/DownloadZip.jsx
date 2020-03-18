@@ -1,12 +1,12 @@
-import React, { Component, Fragment } from 'react';
-import Loader from '../common/Loader/Loader';
+import React, { Component } from 'react';
+
+import { Loader } from '../common';
 import { IcoBtn } from '../common/btns';
 import { getId, t, trigger } from '../../helpers/util';
 
-export default class ColumnsSetup extends Component {
+export default class extends Component {
   form = React.createRef();
   id = getId();
-
   state = { loading: false };
 
   componentDidUpdate(prevProps) {
@@ -31,7 +31,7 @@ export default class ColumnsSetup extends Component {
 
   render() {
     return (
-      <Fragment>
+      <>
         {this.state.loading ? (
           <Loader className={'ecos-loader_pin'} width={30} height={30} />
         ) : (
@@ -44,7 +44,7 @@ export default class ColumnsSetup extends Component {
         )}
 
         <form ref={this.form} id={this.id} action="" method="get" encType="multipart/form-data" target="_self" />
-      </Fragment>
+      </>
     );
   }
 }
