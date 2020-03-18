@@ -129,6 +129,7 @@ class SetMenu extends React.Component {
             <Droppable
               droppableId={NAMES.MENU_FROM}
               className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_menu-from"
+              classNameView="ecos-dashboard-settings__drag-scrollbar-wrapper"
               placeholder={t('dashboard-settings.menu-constructor.placeholder1')}
               style={{ marginRight: '10px' }}
               direction="horizontal"
@@ -151,6 +152,7 @@ class SetMenu extends React.Component {
               droppableId={NAMES.MENU_TO}
               placeholder={t('dashboard-settings.menu-constructor.placeholder2')}
               className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_menu-to"
+              classNameView="ecos-dashboard-settings__drag-scrollbar-wrapper"
               childPosition="column"
               isDragingOver={draggableDestination === NAMES.MENU_TO}
               scrollHeight={270}

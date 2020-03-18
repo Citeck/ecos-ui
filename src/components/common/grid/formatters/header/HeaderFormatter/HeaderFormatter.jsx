@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { debounce, replace } from 'lodash';
+import debounce from 'lodash/debounce';
+import replace from 'lodash/replace';
+import get from 'lodash/get';
 import { Tooltip } from 'reactstrap';
 
 import { getId, trigger } from '../../../../../../helpers/util';
@@ -16,9 +18,32 @@ export default class HeaderFormatter extends Component {
 
     this.thRef = React.createRef();
     this._id = getId();
-    this.state = { open: false, text: props.filterValue };
+    this.fetchValue = false;
+    this.state = { open: false };
 
     this.onCloseFilter = this.onCloseFilter.bind(this);
+  }
+
+  componentDidMount() {
+    const { column, filterValue } = this.props;
+    const formatter = get(column, 'formatExtraData.formatter.getDisplayText', null);
+    const value = formatter && formatter(filterValue);
+
+    if (value instanceof Promise) {
+      this.fetchValue = true;
+      value.then(text => {
+        if (this.fetchValue) {
+          this.setState({ text, first: text });
+          this.fetchValue = false;
+        }
+      });
+    } else {
+      this.setState({ text: filterValue, first: filterValue });
+    }
+  }
+
+  componentWillUnmount() {
+    this.fetchValue = false;
   }
 
   onToggle = () => {
@@ -38,8 +63,10 @@ export default class HeaderFormatter extends Component {
   };
 
   onKeyDown = e => {
-    if (e.key === 'Enter') {
-      this.triggerPendingChange(this.state.text, this.props.column.dataField);
+    const { text, first } = this.state;
+
+    if (e.key === 'Enter' && text !== first) {
+      this.triggerPendingChange(text, this.props.column.dataField);
     }
   };
 
@@ -69,10 +96,10 @@ export default class HeaderFormatter extends Component {
     this.onToggle();
   }
 
-  onDeviderMouseDown = e => {
+  onDividerMouseDown = e => {
     const current = this.thRef.current;
 
-    trigger.call(this, 'onDeviderMouseDown', {
+    trigger.call(this, 'onDividerMouseDown', {
       e: e,
       th: current.parentElement
     });
@@ -88,14 +115,14 @@ export default class HeaderFormatter extends Component {
 
   renderFilter = columnText => {
     const { text, open } = this.state;
+    const active = text || open;
 
     return (
-      <div className={classNames('ecos-th__filter', { 'ecos-th__filter_active': text })}>
+      <div className={classNames('ecos-th__filter', { 'ecos-th__filter_active': active })}>
         {columnText}
-
         <Icon
           id={this.id}
-          className={classNames('ecos-th__filter-icon ecos-th__action-icon icon-filter', { 'ecos-th__action-icon_active': text })}
+          className={classNames('ecos-th__filter-icon ecos-th__action-icon icon-filter', { 'ecos-th__action-icon_active': active })}
           onClick={this.onToggle}
         />
 
@@ -127,12 +154,13 @@ export default class HeaderFormatter extends Component {
 
   render() {
     const { column = {}, filterable, ascending, sortable } = this.props;
-    const state = this.state;
+    const { text, open } = this.state;
+    const active = text || open;
 
     this.id = `filter-${replace(column.dataField, ':', '_')}-${this._id}`;
     this.tooltipId = `tooltip-${this.id}`;
 
-    const text = (
+    const content = (
       <span className={classNames({ 'ecos-th__pointer': sortable })} onClick={this.onSort}>
         {column.text}
         {ascending !== undefined && (
@@ -148,9 +176,9 @@ export default class HeaderFormatter extends Component {
     );
 
     return (
-      <div ref={this.thRef} className={classNames('ecos-th', { 'ecos-th_filtered': state.text })}>
-        {filterable ? this.renderFilter(text) : text}
-        <div className="ecos-th__devider" onMouseDown={this.onDeviderMouseDown} />
+      <div ref={this.thRef} className={classNames('ecos-th', { 'ecos-th_filtered': active })}>
+        {filterable ? this.renderFilter(content) : content}
+        <div className="ecos-th__devider" onMouseDown={this.onDividerMouseDown} />
       </div>
     );
   }
@@ -168,5 +196,5 @@ HeaderFormatter.propTypes = {
 
   column: PropTypes.object,
   colIndex: PropTypes.number,
-  onDeviderMouseDown: PropTypes.func
+  onDividerMouseDown: PropTypes.func
 };

@@ -73,11 +73,11 @@ export class DashboardApi extends RecordService {
 
   saveDashboardConfig = ({ identification, config }) => {
     const { key, user } = identification;
-    const record = Records.get('eapps/module@ui/dashboard$');
+    const record = Records.get('uiserv/dashboard@');
 
     record.att('config?json', config);
     record.att('authority?str', user);
-    record.att('typeRef', key.replace('emodel/type@', 'model/type$'));
+    record.att('typeRef', key);
 
     return record.save().then(response => {
       cache.clear();

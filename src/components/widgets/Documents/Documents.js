@@ -125,6 +125,8 @@ class Documents extends BaseWidget {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+
     this.initWidget();
   }
 

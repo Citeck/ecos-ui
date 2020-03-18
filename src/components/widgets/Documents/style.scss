@@ -57,7 +57,6 @@
           position: relative;
 
           &:hover {
-            //outline: 2px solid $color-brown-2;
             transform: scale(1);
 
             .ecos-docs__table-upload-label {
@@ -121,6 +120,8 @@
         background: $color-green1;
 
         &-counter {
+          display: flex;
+          align-self: normal;
           margin-left: 6px;
         }
 
@@ -175,6 +176,7 @@
 
   &__table {
     width: 100%;
+    $table: &;
 
     .table {
       margin-bottom: 0;
@@ -182,10 +184,49 @@
       &:after {
         bottom: unset;
       }
+
+      &:before {
+        content: none;
+      }
+
+      #{$table}-row {
+        cursor: pointer;
+        transform: scale(1);
+
+        &:hover {
+          border-left: 2px solid $color-brown-2;
+          border-right: 2px solid $color-brown-2;
+
+          td {
+            border-top: unset;
+            border-bottom: 5px solid transparent;
+            border-top: 2px solid $color-brown-2;
+            border-bottom: 2px solid $color-brown-2;
+          }
+
+          &:not(.ecos-grid_drag) > td:first-child {
+            padding-left: 18px;
+          }
+
+          .ecos-grid__td {
+            margin-top: 8px;
+          }
+
+          .ecos-docs__table-count-status {
+            margin: 9px 29px 9px 30px;
+          }
+        }
+      }
     }
 
-    &.ecos-grid_freeze .ecos-grid__header th:first-child {
-      box-shadow: -2px 0px 0px 0px $color-gray-4;
+    &.ecos-grid_freeze .ecos-grid__header {
+      th {
+        &:first-child {
+          box-shadow: -2px 0px 0px 0px $color-gray-4;
+        }
+
+        border-top: 2px solid $color-gray-4;
+      }
     }
 
     &_hidden {
@@ -214,12 +255,28 @@
     }
 
     &-upload-label {
+      position: absolute;
+      background: $color-white;
+      top: 2px;
+      bottom: 2px;
+      right: 100px;
+      display: flex;
+      align-items: center;
       visibility: hidden;
-      margin-right: 17px;
       font-weight: bold;
       font-size: 14px;
       line-height: 20px;
       color: $color-brown-1;
+
+      &:before {
+        content: '';
+        width: 25px;
+        position: absolute;
+        left: -25px;
+        height: 100%;
+        margin: 0;
+        background: linear-gradient(to right, rgba(255, 255, 255, 0), $color-white);
+      }
 
       &_error {
         visibility: visible;
@@ -231,38 +288,18 @@
       z-index: 0;
     }
 
-    &-row {
-      cursor: pointer;
-
-      &:hover {
-        border-left: 2px solid $color-brown-2;
-        border-right: 2px solid $color-brown-2;
-
-        td {
-          border-top: unset;
-          border-bottom: 5px solid transparent;
-          border-top: 2px solid $color-brown-2;
-          border-bottom: 2px solid $color-brown-2;
-        }
-
-        &:not(.ecos-grid_drag) > td:first-child {
-          padding-left: 18px;
-        }
-
-        .ecos-grid__td {
-          margin-top: 8px;
-        }
-
-        .ecos-docs__table-count-status {
-          margin: 9px 29px 9px 30px;
-        }
-      }
-    }
-
     &.ecos-grid_freeze {
       .ecos-grid__header {
         th:first-child {
-          border-left: 2px $color-gray-4 solid;
+          &:before {
+            content: '';
+            width: 2px;
+            background: $color-gray-4;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+          }
         }
       }
     }
@@ -393,6 +430,7 @@
       width: var(--e-docs-panel-search-width);
       margin-right: 10px;
       transition: none;
+      height: 40px;
     }
 
     &-filter {
@@ -507,6 +545,7 @@
 
       &-check {
         margin-right: 12px;
+        min-width: 22px;
       }
 
       &-label {
@@ -553,6 +592,7 @@
         border: 2px solid $color-gray-1;
         background: $color-white;
         color: $color-gray-5;
+        min-width: auto;
       }
 
       &:hover {

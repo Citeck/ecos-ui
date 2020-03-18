@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { t } from '../../helpers/util';
 import { Layouts } from '../../constants/dashboard';
-import { ColumnsLayoutItem } from '../../components/Layout';
+import { LayoutItem } from '../../components/Layout';
 
 import './style.scss';
 
@@ -33,9 +33,10 @@ class SetLayouts extends React.Component {
     const { activeLayout } = this.props;
 
     return Layouts.filter(item => !item.excluded).map(layout => (
-      <ColumnsLayoutItem
+      <LayoutItem
         key={`${layout.position}-${layout.type}`}
         onClick={this.handleClickColumn.bind(this, layout)}
+        type={layout.type}
         active={layout.type === activeLayout}
         config={{ columns: layout.columns || [] }}
         className="ecos-dashboard-settings__container-group-item"

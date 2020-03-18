@@ -11,6 +11,7 @@ export const LAYOUT_TYPE = {
   CUSTOM: 'custom',
   FRANKENSTEIN: 'frankenstein',
   CLASSIC_SITE: 'classic-site',
+  ADAPTIVE: 'adaptive',
   MOBILE: 'mobile'
 };
 
@@ -21,3 +22,5 @@ export const MIN_WIDTH_COLUMN = {
   FULL: '690px',
   AUTO: 'auto'
 };
+
+export const GRID_GAP = 10;

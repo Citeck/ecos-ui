@@ -1,0 +1,65 @@
+@import '../../../styles/constants';
+
+.ecos-base-tooltip {
+  &_opaque {
+    & .show {
+      opacity: 1;
+    }
+  }
+
+  & .show {
+    opacity: 1;
+  }
+
+  &-inner {
+    box-shadow: $box-shadow-tooltip;
+    background: $color-white;
+    color: $text-color-dark;
+    border-radius: $border-radius-large;
+    padding: 7px 15px;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  &-arrow {
+    $size: 12px;
+
+    &:before {
+      border: none !important;
+      width: $size;
+      height: $size;
+      background: $color-white;
+      transform: rotate(45deg);
+    }
+  }
+
+  .bs-tooltip {
+    &-top {
+      .arrow {
+        &:before {
+          top: -6px !important;
+          box-shadow: 4px 4px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+
+    &-bottom {
+      .arrow {
+        &:before {
+          bottom: -6px;
+          box-shadow: -2px -2px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+
+    &-right {
+      .arrow {
+        &:before {
+          right: -14px;
+          box-shadow: -2px 2px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+  }
+}

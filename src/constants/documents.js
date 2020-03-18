@@ -69,4 +69,9 @@ export const errorTypes = Object.freeze({
   COUNT_FILES: 'countFilesError'
 });
 
-export const documentActions = ['ui/action$content-download', 'ui/action$view-dashboard', 'ui/action$edit', 'ui/action$delete'];
+export const documentActions = [
+  'uiserv/action@content-download',
+  'uiserv/action@view-dashboard',
+  'uiserv/action@edit',
+  'uiserv/action@delete'
+];

@@ -122,7 +122,7 @@ class AddModal extends Component {
 
   handleChangeStatus = (state, xhr) => {
     const { clientError: _clientError } = this.state;
-    const { status: fileStatus, percent: filePercent, response } = state;
+    const { status: fileStatus, percent: filePercent, response = {} } = state;
     let newState = { fileStatus, filePercent };
 
     switch (fileStatus) {
@@ -144,9 +144,9 @@ class AddModal extends Component {
         };
         break;
       case FileStatuses.ERROR_UPLOAD:
-        const { message, status } = response || {};
-        const { description } = status || {};
-        const clientError = `${t(Labels.Messages.ERROR_FILE_UPLOAD)}. ${message} ${description}`;
+        const { message = '', status = '' } = response || {};
+        const { description = '' } = status || {};
+        const clientError = `${t(Labels.Messages.ERROR_FILE_UPLOAD)} ${message} ${description}`;
 
         if (_clientError !== clientError) {
           newState = {
@@ -360,14 +360,14 @@ class AddModal extends Component {
   }
 
   renderErrorMessage() {
-    const { errorMessage } = this.props;
-    const { clientError } = this.state;
+    const { errorMessage = '' } = this.props;
+    const { clientError = '' } = this.state;
 
     if (!errorMessage && !clientError) {
       return null;
     }
 
-    return <div className="vj-modal__error">{clientError || errorMessage}</div>;
+    return <div className="vj-modal__error">{`${clientError} ${errorMessage}`}</div>;
   }
 
   render() {

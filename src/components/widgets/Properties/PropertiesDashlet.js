@@ -70,11 +70,14 @@ class PropertiesDashlet extends BaseWidget {
       fitHeights: {},
       canEditRecord: false,
       isShowSetting: false,
-      wasLastModifiedWithInlineEditor: false
+      wasLastModifiedWithInlineEditor: false,
+      title: ''
     };
   }
 
   componentDidMount() {
+    super.componentDidMount();
+
     EcosFormUtils.hasWritePermission(this.props.record).then(canEditRecord => {
       this.setState({ canEditRecord });
     });
@@ -174,14 +177,28 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 
+  setTitle = title => {
+    this.setState({ title });
+  };
+
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
-    const { isSmallMode, isReady, isEditProps, userHeight, fitHeights, formIsChanged, isCollapsed, isShowSetting } = this.state;
-    const { formId = null } = config || {};
+    const {
+      isSmallMode,
+      isReady,
+      isEditProps,
+      userHeight,
+      fitHeights,
+      formIsChanged,
+      isCollapsed,
+      isShowSetting,
+      title: titleForm
+    } = this.state;
+    const { formId = null, titleAsFormName } = config || {};
 
     return (
       <Dashlet
-        title={title || t(Labels.WIDGET_TITLE)}
+        title={t((titleAsFormName && titleForm) || title || Labels.WIDGET_TITLE)}
         className={classNames('ecos-properties-dashlet', classNameDashlet)}
         bodyClassName="ecos-properties-dashlet__body"
         actionConfig={this.dashletActions}
@@ -210,12 +227,13 @@ class PropertiesDashlet extends BaseWidget {
           onUpdate={this.onPropertiesUpdate}
           formId={formId}
           onInlineEditSave={this.onInlineEditSave}
+          getTitle={this.setTitle}
         />
         {isShowSetting && (
           <PropertiesSettings
             record={record}
             stateId={id}
-            formId={formId}
+            config={config}
             onCancel={this.toggleDisplayFormSettings}
             onSave={this.onSaveFormSettings}
           />

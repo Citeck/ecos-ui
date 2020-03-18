@@ -8,7 +8,7 @@ import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 
-import { changeTab, deleteTab, initTabs, moveTabs, setDisplayState, setTab } from '../../actions/pageTabs';
+import { changeTab, deleteTab, initTabs, moveTabs, setDisplayState, setTab, updateTab } from '../../actions/pageTabs';
 import { animateScrollTo, arrayCompare, getScrollbarWidth, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
 import { SortableContainer } from '../Drag-n-Drop';
@@ -186,6 +186,10 @@ class PageTabs extends React.Component {
     this.props.changeTab({ data: { isActive: true }, filter: { id: tab.id } });
   };
 
+  updateTab = tab => {
+    this.props.updateTab({ tab });
+  };
+
   handleAddTab = () => {
     const { setTab, homepageLink } = this.props;
 
@@ -344,6 +348,7 @@ class PageTabs extends React.Component {
         onMouseUp={this.handleMouseUp}
         onClose={this.handleCloseTab}
         onSortEnd={this.handleSortEnd}
+        runUpdate={this.updateTab}
       />
     );
   };
@@ -424,6 +429,7 @@ const mapDispatchToProps = dispatch => ({
   setDisplayState: state => dispatch(setDisplayState(state)),
   changeTab: tab => dispatch(changeTab(tab)),
   setTab: params => dispatch(setTab(params)),
+  updateTab: tab => dispatch(updateTab(tab)),
   deleteTab: tab => dispatch(deleteTab(tab)),
   push: url => dispatch(push(url)),
   replace: url => dispatch(replace(url))

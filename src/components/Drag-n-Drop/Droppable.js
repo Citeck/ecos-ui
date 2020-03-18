@@ -7,6 +7,7 @@ import './style.scss';
 class Droppable extends React.Component {
   static propTypes = {
     className: PropTypes.string,
+    classNameView: PropTypes.string,
     style: PropTypes.object,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     droppableIndex: PropTypes.number,
@@ -17,12 +18,14 @@ class Droppable extends React.Component {
     isDragingOver: PropTypes.bool,
     isWrapper: PropTypes.bool,
     withoutScroll: PropTypes.bool,
+    autoHeight: PropTypes.bool,
     childPosition: PropTypes.oneOf(['column', 'row']),
-    scrollHeight: PropTypes.number
+    scrollHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   };
 
   static defaultProps = {
     className: '',
+    classNameView: '',
     children: null,
     style: {},
     placeholder: '',
@@ -32,6 +35,7 @@ class Droppable extends React.Component {
     isDragingOver: false,
     isWrapper: false,
     withoutScroll: false,
+    autoHeight: false,
     childPosition: 'row',
     scrollHeight: 200
   };
@@ -77,21 +81,29 @@ class Droppable extends React.Component {
   }
 
   renderScroll(children) {
-    const { withoutScroll, scrollHeight } = this.props;
+    const { withoutScroll, scrollHeight, autoHeight, classNameView } = this.props;
 
     if (withoutScroll) {
       return children;
     }
 
+    const additionalParams = {};
+
+    if (autoHeight) {
+      additionalParams.autoHeight = true;
+      additionalParams.autoHeightMin = 0;
+      additionalParams.autoHeightMax = scrollHeight;
+    }
+
     return (
       <Scrollbars
-        style={{ height: `${scrollHeight}px` }}
+        style={{ height: typeof scrollHeight === 'string' ? scrollHeight : `${scrollHeight}px` }}
         autoHide
-        autoHeightMax={scrollHeight}
-        autoHeight
         hideTracksWhenNotNeeded
+        renderView={props => <div {...props} className={classNameView} />}
         renderTrackHorizontal={props => <div {...props} hidden />}
         renderThumbHorizontal={props => <div {...props} hidden />}
+        {...additionalParams}
       >
         {children}
       </Scrollbars>
