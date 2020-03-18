@@ -1,3 +1,5 @@
+import { Types } from '../../selectAction/constants';
+
 const CUSTOM_CREATE_VARIANTS_FIELD = 'customCreateVariantsJs';
 const VALUE_FORM_KEY_FIELD = 'computed.valueFormKey';
 
@@ -79,43 +81,60 @@ export default [
     key: 'source.custom.columns',
     components: [
       {
-        label: 'Column field name',
-        allowMultipleMasks: false,
-        showWordCount: false,
-        showCharCount: false,
-        tableView: true,
-        alwaysEnabled: false,
-        type: 'textfield',
-        input: true,
-        key: 'name',
-        widget: {
-          type: ''
-        },
-        row: '0-0'
-      },
-      {
-        type: 'panel',
-        title: 'Formatter',
-        collapsible: true,
-        collapsed: true,
-        style: {
-          'margin-bottom': '20px'
-        },
-        key: ''.concat('custom-formatter-js'),
-        components: [
+        label: '',
+        key: 'column-filed-layout',
+        type: 'columns',
+        columns: [
           {
-            type: 'textarea',
-            key: 'formatter',
-            rows: 5,
-            editor: 'ace',
-            hideLabel: true,
-            input: true,
-            placeholder: `value = { name: 'FormatterClassName', params: {} };`
-          },
-          {
-            type: 'htmlelement',
-            tag: 'div',
-            content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+            components: [
+              {
+                label: 'Column field name',
+                allowMultipleMasks: false,
+                showWordCount: false,
+                showCharCount: false,
+                tableView: true,
+                alwaysEnabled: false,
+                type: 'textfield',
+                input: true,
+                key: 'name',
+                widget: {
+                  type: ''
+                },
+                row: '0-0'
+              },
+              {
+                type: 'panel',
+                title: 'Formatter',
+                collapsible: true,
+                collapsed: true,
+                style: {
+                  'margin-bottom': '20px'
+                },
+                key: ''.concat('custom-formatter-js'),
+                components: [
+                  {
+                    type: 'textarea',
+                    key: 'formatter',
+                    rows: 5,
+                    editor: 'ace',
+                    hideLabel: true,
+                    input: true,
+                    placeholder: `value = { name: 'FormatterClassName', params: {} };`
+                  },
+                  {
+                    type: 'htmlelement',
+                    tag: 'div',
+                    content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+                  }
+                ]
+              }
+            ],
+            xs: 12,
+            sm: 12,
+            md: 12,
+            lg: 12,
+            xl: 12,
+            classes: ''
           }
         ]
       }
