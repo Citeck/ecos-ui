@@ -84,9 +84,18 @@ export class UserApi extends CommonApi {
       });
   }
 
-  changePhoto({}) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(true), 1000);
-    });
+  changePhoto({ record, data }) {
+    const user = Records.get(record);
+
+    user.att('ecos:photo', { ...data });
+
+    return user
+      .save()
+      .then(response => ({ response, success: true }))
+      .catch(response => {
+        const message = response.message || (response.errors && response.errors.join('; ')) || '';
+
+        return { success: false, message };
+      });
   }
 }

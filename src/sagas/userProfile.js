@@ -19,12 +19,30 @@ function* sagaGetUserData({ api, logger }, { payload }) {
 }
 
 function* sagaChangePhoto({ api, logger }, { payload }) {
-  const { data, record, stateId } = payload;
+  const { data: file, record, stateId } = payload;
 
   try {
-    const response = yield call(api.user.changePhoto, { record, data });
+    const formData = new FormData();
 
-    if (response) {
+    formData.append('file', file);
+    formData.append('name', file.name);
+
+    const { nodeRef = null } = yield call(api.app.uploadFile, formData);
+
+    if (!nodeRef) {
+      throw new Error('No file nodeRef');
+    }
+
+    const response = yield call(api.user.changePhoto, {
+      record,
+      data: {
+        size: file.size,
+        name: file.name,
+        data: { nodeRef }
+      }
+    });
+
+    if (response.success) {
       yield put(setUserPhoto({ thumbnail: null, stateId }));
       yield put(setUserPhoto({ thumbnail: createThumbnailUrl(record), stateId }));
     } else {
@@ -43,13 +61,12 @@ function* sagaChangePassword({ api, logger }, { payload }) {
 
   try {
     const response = yield call(api.user.changePassword, { record, data });
-    const text =
-      response && response.success
-        ? t('user-profile-widget.success.change-profile-password')
-        : `${t('user-profile-widget.error.change-profile-password')}. ${response.message}`;
+    const text = response.success
+      ? t('user-profile-widget.success.change-profile-password')
+      : `${t('user-profile-widget.error.change-profile-password')}. ${response.message}`;
 
     yield put(setChangePassword({ stateId }));
-    yield put(setMessage({ message: { text, error: !(response && response.success) }, stateId, isLoadingPassword: false }));
+    yield put(setMessage({ message: { text, error: !response.success }, stateId, isLoadingPassword: false }));
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.change-profile-password')));
     logger.error('[userProfile/sagaChangePassword saga] error', e.message);

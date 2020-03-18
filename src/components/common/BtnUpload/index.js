@@ -15,6 +15,7 @@ class BtnUpload extends Component {
     const files = get(this._inputRef, 'current.files', []);
 
     this.props.onSelected && this.props.onSelected(files);
+    this._inputRef.current.value = '';
   };
 
   render() {
