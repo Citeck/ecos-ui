@@ -56,7 +56,7 @@ export default class extends Component {
     const sourceId = get(this.props, 'journalConfig.sourceId') || '';
     const [first, second] = sourceId.split('/');
 
-    return !second || (first === ALFRESCO && !!second);
+    return !second || first === ALFRESCO;
   }
 
   export = item => {
