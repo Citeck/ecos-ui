@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import omit from 'lodash/omit';
 import queryString from 'query-string';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -15,6 +16,18 @@ import { TwoIcoBtn } from '../common/btns';
 import './Export.scss';
 
 export default class extends Component {
+  static propTypes = {
+    className: PropTypes.string,
+    dashletConfig: PropTypes.object,
+    journalConfig: PropTypes.object,
+    grid: PropTypes.object,
+    right: PropTypes.bool
+  };
+
+  static defaultProps = {
+    className: ''
+  };
+
   constructor(props) {
     super(props);
     this.textInput = React.createRef();
@@ -48,12 +61,6 @@ export default class extends Component {
 
       form.action = `${PROXY_URI}report/criteria-report?download=${item.download}`;
       form.target = item.target;
-      form.error = () => {
-        console.log('rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr');
-      };
-      form.onerror = () => {
-        console.log('ytutyutyutyutyututyutu');
-      };
 
       form.submit();
     }

@@ -11,7 +11,7 @@ import { Dropdown } from '../../common/form';
 import Export from '../../Export/Export';
 import FormManager from '../../EcosForm/FormManager';
 import JournalsDashletPagination from '../JournalsDashletPagination';
-import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
+import { ALFRESCO, JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -35,6 +35,18 @@ const mapDispatchToProps = (dispatch, props) => {
 };
 
 class JournalsDashletToolbar extends Component {
+  get isShowExport() {
+    const sourceId = get(this.props, 'journalConfig.sourceId', null);
+
+    if (sourceId) {
+      const parts = sourceId.split('/');
+
+      return parts.length === 1 || parts[0] === ALFRESCO;
+    }
+
+    return !!sourceId;
+  }
+
   addRecord = createVariant => {
     FormManager.createRecordByVariant(createVariant, {
       onSubmit: record => {
@@ -122,7 +134,9 @@ class JournalsDashletToolbar extends Component {
           </Dropdown>
         )}
 
-        {!isSmall && <Export journalConfig={journalConfig} grid={grid} dashletConfig={config} />}
+        {!isSmall && this.isShowExport && (
+          <Export className="ecos-journal-dashlet__action-export" journalConfig={journalConfig} grid={grid} dashletConfig={config} />
+        )}
 
         {!isSmall && (
           <div className="ecos-journal-dashlet__actions">
