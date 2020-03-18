@@ -53,15 +53,10 @@ export default class extends Component {
   }
 
   get isShow() {
-    const sourceId = get(this.props, 'journalConfig.sourceId', null);
+    const sourceId = get(this.props, 'journalConfig.sourceId') || '';
+    const [first, second] = sourceId.split('/');
 
-    if (sourceId) {
-      const parts = sourceId.split('/');
-
-      return parts.length === 1 || parts[0] === ALFRESCO;
-    }
-
-    return !!sourceId;
+    return !second || (first === ALFRESCO && !!second);
   }
 
   export = item => {
