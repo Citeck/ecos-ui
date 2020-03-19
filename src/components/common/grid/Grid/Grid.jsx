@@ -81,7 +81,6 @@ class Grid extends Component {
   }
 
   componentDidUpdate() {
-    console.warn('componentDidUpdate');
     this.checkScrollPosition();
   }
 
@@ -479,15 +478,35 @@ class Grid extends Component {
     document.removeEventListener('mouseup', this.clearResizingColumn);
   };
 
+  getElementPaddings = (element = null) => {
+    const paddings = {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0
+    };
+
+    if (!element) {
+      return paddings;
+    }
+
+    const elementStyles = window.getComputedStyle(element);
+
+    paddings.left = parseInt(elementStyles.getPropertyValue('padding-left'), 10) || 0;
+    paddings.right = parseInt(elementStyles.getPropertyValue('padding-right'), 10) || 0;
+    paddings.top = parseInt(elementStyles.getPropertyValue('padding-top'), 10) || 0;
+    paddings.bottom = parseInt(elementStyles.getPropertyValue('padding-bottom'), 10) || 0;
+
+    return paddings;
+  };
+
   getStartDividerPosition = options => {
+    const { left, right } = this.getElementPaddings(options.th);
+
     this._resizingTh = options.th;
     this._tableDom = closest(options.th, 'table');
 
-    const thStyles = window.getComputedStyle(this._resizingTh);
-    const paddingLeft = parseInt(thStyles.getPropertyValue('padding-left'), 10) || 0;
-    const paddingRight = parseInt(thStyles.getPropertyValue('padding-right'), 10) || 0;
-
-    this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX - paddingLeft - paddingRight;
+    this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX - left - right;
   };
 
   resizeColumn = e => {
@@ -510,7 +529,15 @@ class Grid extends Component {
     }
   };
 
-  clearResizingColumn = () => {
+  clearResizingColumn = e => {
+    const { onResizeColumn } = this.props;
+
+    if (this._resizingTh && this._tableDom && typeof onResizeColumn === 'function') {
+      const { left, right } = this.getElementPaddings(this._resizingTh);
+
+      this.props.onResizeColumn(this._resizingTh.cellIndex, this._startResizingThOffset + e.pageX, left + right);
+    }
+
     this._resizingTh = null;
   };
 
@@ -540,6 +567,10 @@ class Grid extends Component {
 
   onMouseLeave = e => {
     trigger.call(this, 'onMouseLeave', e);
+  };
+
+  onMouseEnter = e => {
+    trigger.call(this, 'onGridMouseEnter', e);
   };
 
   onRowClick = tr => {
@@ -723,6 +754,7 @@ class Grid extends Component {
             [className]: !!className
           })}
           onMouseLeave={this.onMouseLeave}
+          onMouseEnter={this.onMouseEnter}
         >
           {!!toolsVisible && this.tools(bootProps.selected)}
           <Scroll scrollable={bootProps.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback} autoHide={scrollAutoHide}>
@@ -779,7 +811,9 @@ Grid.propTypes = {
   onRowDrop: PropTypes.func,
   onDragOver: PropTypes.func,
   onRowDragEnter: PropTypes.func,
-  onRowMouseLeave: PropTypes.func
+  onRowMouseLeave: PropTypes.func,
+  onResizeColumn: PropTypes.func,
+  onGridMouseEnter: PropTypes.func
 };
 
 export default Grid;

@@ -115,7 +115,8 @@ class Documents extends BaseWidget {
         value: t(type.value)
       })),
       canHideInlineTools: true,
-      isLoadingUploadingModal: true
+      isLoadingUploadingModal: true,
+      columnsSizes: {}
     };
 
     this._tablePanel = React.createRef();
@@ -167,6 +168,10 @@ class Documents extends BaseWidget {
       this.scrollPosition = {};
       this.setContentHeight(this.calculatedClientHeight);
     }
+  }
+
+  componentWillUnmount() {
+    this.handleRowMouseLeave.cancel();
   }
 
   get tablePanelHeight() {
@@ -428,7 +433,7 @@ class Documents extends BaseWidget {
   };
 
   handleClearSelectedType = () => {
-    this.setState({ selectedType: '' });
+    this.setState({ selectedType: '', columnsSizes: {} });
     this.scrollPosition = {};
   };
 
@@ -440,12 +445,13 @@ class Documents extends BaseWidget {
     }
 
     this.props.getDocuments(type);
-    this.setState({
+    this.setState(state => ({
       isDragFiles: false,
       selectedType: type,
       statusFilter: statusesKeys.ALL,
-      selectedTypeForLoading: selectedType
-    });
+      selectedTypeForLoading: selectedType,
+      columnsSizes: state.selectedTypeForLoading ? state.columnsSizes : {}
+    }));
     this.scrollPosition = {};
   };
 
@@ -619,16 +625,15 @@ class Documents extends BaseWidget {
     this.uploadingComplete();
   };
 
-  handleMouseLeaveRow = debounce(() => {
-    if (this.state.canHideInlineTools) {
-      this.props.setInlineTools({});
-    }
-  }, 300);
+  handleMouseLeaveTable = () => {
+    this.setToolsOptions();
+  };
+
+  setToolsOptions = (options = {}) => {
+    this.props.setInlineTools(options);
+  };
 
   handleHoverRow = data => {
-    this.debouncedToolsLeave.cancel();
-    this.handleMouseLeaveRow.cancel();
-
     const options = deepClone(data);
     let actions = deepClone(this.props.actions);
     const id = options.row.id;
@@ -642,39 +647,30 @@ class Documents extends BaseWidget {
         };
       });
 
-      this.props.setInlineTools({
+      this.setToolsOptions({
         ...data,
         actions: actions[id]
       });
     }
 
-    // this.setState({ canHideInlineTools: true });
+    if (!this.state.canHideInlineTools) {
+      this.setState({ canHideInlineTools: true });
+    }
   };
 
   handleSuccessRecordsAction = () => {
     this.props.getDocuments(this.state.selectedType);
-    this.props.setInlineTools();
+    this.setToolsOptions();
   };
 
   handleScollingTable = event => {
     this.scrollPosition = event;
   };
 
-  handleMouseLeaveInlineTools = () => {
-    this.debouncedToolsLeave();
-  };
-
-  debouncedToolsLeave = debounce(() => {
-    this.props.setInlineTools({});
-    this.setState({
-      canHideInlineTools: true
-    });
-  }, 300);
-
-  handleMouseEnterInlineTools = () => {
-    this.setState({
-      canHideInlineTools: false
-    });
+  handleResizeColumn = (position, width, indents = 0) => {
+    this.setState(state => ({
+      columnsSizes: { ...state.columnsSizes, [position]: { width, indents } }
+    }));
   };
 
   /**
@@ -925,6 +921,18 @@ class Documents extends BaseWidget {
     return <TablePanel />;
   }
 
+  handleMouseEnterInlineTools = () => {
+    this.handleRowMouseLeave.cancel();
+  };
+
+  handleRowMouseEnter = () => {
+    this.handleRowMouseLeave.cancel();
+  };
+
+  handleRowMouseLeave = debounce(() => {
+    this.setToolsOptions();
+  }, 300);
+
   renderInlineTools = () => {
     const { stateId } = this.props;
 
@@ -933,8 +941,7 @@ class Documents extends BaseWidget {
     }
 
     const actionsProps = {
-      onMouseEnter: this.handleMouseEnterInlineTools,
-      onMouseLeave: this.handleMouseLeaveInlineTools
+      onMouseEnter: this.handleMouseEnterInlineTools
     };
 
     return (
@@ -943,23 +950,29 @@ class Documents extends BaseWidget {
         stateId={stateId}
         reduxKey="documents"
         toolsKey="tools"
-        actionsProps={actionsProps}
         withTooltip
+        actionsProps={actionsProps}
       />
     );
   };
 
   renderDocumentsTable() {
     const { dynamicTypes, isUploadingFile } = this.props;
-    const { selectedType, isDragFiles, autoHide } = this.state;
+    const { selectedType, isDragFiles, autoHide, columnsSizes } = this.state;
 
     if (!selectedType && dynamicTypes.length !== 1) {
       return null;
     }
 
-    const columns = tableFields.DEFAULT.map(item => ({
+    const columns = tableFields.DEFAULT.map((item, index) => ({
       dataField: item.name,
-      text: t(item.label)
+      text: t(item.label),
+      headerStyle: (...params) => {
+        return this.calculateColumnStyle(params[params.length - 1]);
+      },
+      style: (...params) => {
+        return this.calculateColumnStyle(params[params.length - 1]);
+      }
     }));
     const isShowDropZone = isDragFiles;
 
@@ -979,10 +992,14 @@ class Documents extends BaseWidget {
           data={this.tableData}
           columns={columns}
           onChangeTrOptions={this.handleHoverRow}
-          onRowMouseLeave={this.handleMouseLeaveRow}
           onScrolling={this.handleScollingTable}
+          onResizeColumn={this.handleResizeColumn}
           inlineTools={this.renderInlineTools}
           scrollPosition={this.scrollPosition}
+          onRowMouseLeave={this.handleRowMouseLeave}
+          onMouseEnter={this.handleRowMouseEnter}
+          onMouseLeave={this.handleMouseLeaveTable}
+          onGridMouseEnter={this.handleMouseLeaveTable}
         />
 
         <DropZone
@@ -1000,6 +1017,21 @@ class Documents extends BaseWidget {
     );
   }
 
+  calculateColumnStyle = colIndex => {
+    const { columnsSizes } = this.state;
+
+    if (columnsSizes[colIndex]) {
+      const { width } = columnsSizes[colIndex];
+
+      return {
+        width: `${width}px`,
+        '--column-size': `${width}px`
+      };
+    }
+
+    return {};
+  };
+
   renderTypesTable() {
     const { dynamicTypes } = this.props;
     const { selectedType, autoHide } = this.state;
@@ -1010,7 +1042,14 @@ class Documents extends BaseWidget {
 
     const columns = tableFields.ALL.map(item => {
       const { name, label, ...other } = item;
-      const extended = {};
+      const extended = {
+        headerStyle: (...params) => {
+          return this.calculateColumnStyle(params[params.length - 1]);
+        },
+        style: (...params) => {
+          return this.calculateColumnStyle(params[params.length - 1]);
+        }
+      };
 
       if (name === 'count') {
         extended.customFormatter = this.countFormatter;
@@ -1041,6 +1080,7 @@ class Documents extends BaseWidget {
         onRowClick={this.handleClickTableRow}
         onRowDrop={this.handleRowDrop}
         onRowDragEnter={this.handleRowDragEnter}
+        onResizeColumn={this.handleResizeColumn}
         scrollPosition={this.scrollPosition}
       />
     );
