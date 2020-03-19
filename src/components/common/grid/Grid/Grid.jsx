@@ -38,6 +38,8 @@ const SelectorHeader = ({ indeterminate, ...rest }) => (
   </div>
 );
 
+const MIN_TH_WIDTH = 60;
+
 class Grid extends Component {
   constructor(props) {
     super(props);
@@ -478,6 +480,24 @@ class Grid extends Component {
     document.removeEventListener('mouseup', this.clearResizingColumn);
   };
 
+  fixAllThWidth = () => {
+    if (!this._tableDom) {
+      return;
+    }
+
+    const allTh = this._tableDom.querySelectorAll('th');
+    if (allTh.length < 3) {
+      return;
+    }
+
+    for (let i = 0; i < allTh.length - 1; i++) {
+      const th = allTh[i];
+      const thStyles = window.getComputedStyle(th);
+      th.style['width'] = thStyles['width'];
+      th.style['min-width'] = thStyles['width'];
+    }
+  };
+
   getElementPaddings = (element = null) => {
     const paddings = {
       top: 0,
@@ -506,6 +526,8 @@ class Grid extends Component {
     this._resizingTh = options.th;
     this._tableDom = closest(options.th, 'table');
 
+    this.fixAllThWidth(); // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3196
+
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX - left - right;
   };
 
@@ -513,7 +535,13 @@ class Grid extends Component {
     let th = this._resizingTh;
 
     if (th && this._tableDom) {
-      const width = this._startResizingThOffset + e.pageX + 'px';
+      const { left, right } = this.getElementPaddings(th);
+      let width = this._startResizingThOffset + e.pageX;
+
+      if (width < MIN_TH_WIDTH - left - right) {
+        width = MIN_TH_WIDTH - left - right;
+      }
+
       const rows = this._tableDom.rows;
 
       for (let i = 0; i < rows.length; i++) {
@@ -523,8 +551,9 @@ class Grid extends Component {
           continue;
         }
 
-        firstCol.style.width = width;
-        firstCol.firstChild.style.width = width;
+        firstCol.style.removeProperty('min-width');
+        firstCol.style.width = `${width}px`;
+        firstCol.firstChild.style.width = `${width}px`;
       }
     }
   };
