@@ -114,7 +114,6 @@ class Documents extends BaseWidget {
         ...type,
         value: t(type.value)
       })),
-      canHideInlineTools: true,
       isLoadingUploadingModal: true,
       columnsSizes: {}
     };
@@ -652,10 +651,6 @@ class Documents extends BaseWidget {
         actions: actions[id]
       });
     }
-
-    if (!this.state.canHideInlineTools) {
-      this.setState({ canHideInlineTools: true });
-    }
   };
 
   handleSuccessRecordsAction = () => {
@@ -667,9 +662,9 @@ class Documents extends BaseWidget {
     this.scrollPosition = event;
   };
 
-  handleResizeColumn = (position, width, indents = 0) => {
+  handleResizeColumn = columnsSizes => {
     this.setState(state => ({
-      columnsSizes: { ...state.columnsSizes, [position]: { width, indents } }
+      columnsSizes: { ...state.columnsSizes, ...columnsSizes }
     }));
   };
 
@@ -964,7 +959,7 @@ class Documents extends BaseWidget {
       return null;
     }
 
-    const columns = tableFields.DEFAULT.map((item, index) => ({
+    const columns = tableFields.DEFAULT.map(item => ({
       dataField: item.name,
       text: t(item.label),
       headerStyle: (...params) => {
@@ -1021,11 +1016,11 @@ class Documents extends BaseWidget {
     const { columnsSizes } = this.state;
 
     if (columnsSizes[colIndex]) {
-      const { width } = columnsSizes[colIndex];
+      const { width, indents } = columnsSizes[colIndex];
 
       return {
-        width: `${width}px`,
-        '--column-size': `${width}px`
+        width: `${width - indents}px`,
+        '--column-size': `${width - indents}px`
       };
     }
 

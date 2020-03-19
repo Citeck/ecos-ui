@@ -8,7 +8,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { closest, getId, t, trigger } from '../../../../helpers/util';
+import { arrayCompare, closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
@@ -80,6 +80,36 @@ class Grid extends Component {
     }
 
     this.checkScrollPosition();
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    return (
+      !arrayCompare(nextProps.data, this.props.data) ||
+      !arrayCompare(nextProps.columns, this.props.columns) ||
+      !arrayCompare(nextProps.filters, this.props.filters) ||
+      !arrayCompare(nextProps.sortBy, this.props.sortBy) ||
+      !arrayCompare(nextProps.selected, this.props.selected) ||
+      !arrayCompare(nextProps.nonSelectable, this.props.nonSelectable) ||
+      JSON.stringify(nextProps.editingRules) !== JSON.stringify(this.props.editingRules) ||
+      JSON.stringify(nextProps.scrollPosition) !== JSON.stringify(this.props.scrollPosition) ||
+      nextProps.minHeight !== this.props.minHeight ||
+      nextProps.scrollAutoHide !== this.props.scrollAutoHide ||
+      nextProps.scrollable !== this.props.scrollable ||
+      nextProps.keyField !== this.props.keyField ||
+      nextProps.dataField !== this.props.dataField ||
+      nextProps.fixedHeader !== this.props.fixedHeader ||
+      nextProps.className !== this.props.className ||
+      nextProps.rowClassName !== this.props.rowClassName ||
+      nextProps.tableViewClassName !== this.props.tableViewClassName ||
+      nextProps.autoHeight !== this.props.autoHeight ||
+      nextProps.filterable !== this.props.filterable ||
+      nextProps.editable !== this.props.editable ||
+      nextProps.multiSelectable !== this.props.multiSelectable ||
+      nextProps.singleSelectable !== this.props.singleSelectable ||
+      nextProps.freezeCheckboxes !== this.props.freezeCheckboxes ||
+      nextProps.selectAll !== this.props.selectAll ||
+      nextProps.noTopBorder !== this.props.noTopBorder
+    );
   }
 
   componentDidUpdate() {
@@ -480,7 +510,7 @@ class Grid extends Component {
     document.removeEventListener('mouseup', this.clearResizingColumn);
   };
 
-  fixAllThWidth = () => {
+  fixAllThWidth = (sizes = {}) => {
     if (!this._tableDom) {
       return;
     }
@@ -492,9 +522,21 @@ class Grid extends Component {
 
     for (let i = 0; i < allTh.length - 1; i++) {
       const th = allTh[i];
-      const thStyles = window.getComputedStyle(th);
-      th.style['width'] = thStyles['width'];
-      th.style['min-width'] = thStyles['width'];
+
+      if (!Object.keys(sizes).length) {
+        const thStyles = window.getComputedStyle(th);
+
+        th.style['width'] = thStyles['width'];
+        th.style['min-width'] = thStyles['width'];
+      } else {
+        if (sizes[i]) {
+          th.style['width'] = `${sizes[i].width}px`;
+          th.style['min-width'] = `${sizes[i].width}px`;
+          if (th.firstChild && th.firstChild.style) {
+            th.firstChild.style.width = `${sizes[i].width}px`;
+          }
+        }
+      }
     }
   };
 
@@ -553,7 +595,10 @@ class Grid extends Component {
 
         firstCol.style.removeProperty('min-width');
         firstCol.style.width = `${width}px`;
-        firstCol.firstChild.style.width = `${width}px`;
+
+        if (firstCol.firstChild && firstCol.firstChild.style) {
+          firstCol.firstChild.style.width = `${width}px`;
+        }
       }
     }
   };
@@ -562,9 +607,23 @@ class Grid extends Component {
     const { onResizeColumn } = this.props;
 
     if (this._resizingTh && this._tableDom && typeof onResizeColumn === 'function') {
-      const { left, right } = this.getElementPaddings(this._resizingTh);
+      const rows = this._tableDom.rows;
+      const cells = rows[0].cells;
+      const params = {};
 
-      this.props.onResizeColumn(this._resizingTh.cellIndex, this._startResizingThOffset + e.pageX, left + right);
+      for (let i = 0; i < cells.length; i++) {
+        if (!cells[i]) {
+          continue;
+        }
+
+        const elementStyles = window.getComputedStyle(cells[i]);
+        const width = parseInt(elementStyles.getPropertyValue('width'), 10) || 0;
+        const { left, right } = this.getElementPaddings(cells[i]);
+
+        params[i] = { width, indents: left + right };
+      }
+
+      onResizeColumn(params);
     }
 
     this._resizingTh = null;
