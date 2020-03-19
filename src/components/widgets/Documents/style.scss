@@ -38,12 +38,6 @@
         }
       }
 
-      th:nth-last-child(2) {
-        .ecos-th__devider {
-          display: none;
-        }
-      }
-
       .ecos-grid {
         &_drag {
           &.ecos-grid__row {
@@ -396,12 +390,20 @@
     &_without-after-element {
       .table {
         &:after {
-          display: none;
+          background: transparent;
         }
       }
 
       #{$table}-inline-tools {
         margin-top: 0;
+      }
+    }
+
+    &_types {
+      th:nth-last-child(2) {
+        .ecos-th__devider {
+          display: none;
+        }
       }
     }
   }

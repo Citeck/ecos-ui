@@ -1015,7 +1015,7 @@ class Documents extends BaseWidget {
           autoHeight
           minHeight={this.calculatedTableMinHeight}
           keyField="id"
-          className={classNames('ecos-docs__table', {
+          className={classNames('ecos-docs__table ecos-docs__table_documents', {
             'ecos-docs__table_hidden': isShowDropZone || isUploadingFile,
             'ecos-docs__table_without-after-element': isHoverLastRow
           })}
@@ -1095,7 +1095,7 @@ class Documents extends BaseWidget {
 
     return (
       <Grid
-        className={classNames('ecos-docs__table', {
+        className={classNames('ecos-docs__table ecos-docs__table_types', {
           'ecos-docs__table_without-after-element': isHoverLastRow
         })}
         rowClassName="ecos-docs__table-row"

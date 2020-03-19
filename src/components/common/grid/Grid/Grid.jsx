@@ -80,6 +80,7 @@ class Grid extends Component {
     }
 
     this.checkScrollPosition();
+    this.fixAllThWidth();
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -497,20 +498,21 @@ class Grid extends Component {
     for (let i = 0; i < allTh.length - 1; i++) {
       const th = allTh[i];
 
-      if (!Object.keys(sizes).length) {
-        const thStyles = window.getComputedStyle(th);
+      if (Object.keys(sizes).length && sizes[i]) {
+        th.style['width'] = `${sizes[i].width}px`;
+        th.style['min-width'] = `${sizes[i].width}px`;
 
-        th.style['width'] = thStyles['width'];
-        th.style['min-width'] = thStyles['width'];
-      } else {
-        if (sizes[i]) {
-          th.style['width'] = `${sizes[i].width}px`;
-          th.style['min-width'] = `${sizes[i].width}px`;
-          if (th.firstChild && th.firstChild.style) {
-            th.firstChild.style.width = `${sizes[i].width}px`;
-          }
+        if (th.firstChild && th.firstChild.style) {
+          th.firstChild.style.width = `${sizes[i].width}px`;
         }
+
+        continue;
       }
+
+      const thStyles = window.getComputedStyle(th);
+
+      th.style['width'] = thStyles['width'];
+      th.style['min-width'] = thStyles['width'];
     }
   };
 
