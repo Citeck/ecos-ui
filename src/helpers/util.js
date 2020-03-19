@@ -727,7 +727,5 @@ export function objectCompare(obj1, obj2, params = {}) {
     }
   });
 
-  console.warn({ results, keys });
-
   return !results.includes(false);
 }

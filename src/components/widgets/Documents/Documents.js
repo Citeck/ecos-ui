@@ -628,10 +628,6 @@ class Documents extends BaseWidget {
     this.setToolsOptions();
   };
 
-  setToolsOptions = (options = {}) => {
-    this.props.setInlineTools(options);
-  };
-
   handleHoverRow = data => {
     const options = deepClone(data);
     let actions = deepClone(this.props.actions);
@@ -673,6 +669,22 @@ class Documents extends BaseWidget {
    */
   handleCompleteResizeColumns = () => {
     this.setState({ autoHide: true }, () => this.setState({ autoHide: false }));
+  };
+
+  handleMouseEnterInlineTools = () => {
+    this.handleRowMouseLeave.cancel();
+  };
+
+  handleRowMouseEnter = () => {
+    this.handleRowMouseLeave.cancel();
+  };
+
+  handleRowMouseLeave = debounce(() => {
+    this.setToolsOptions();
+  }, 300);
+
+  setToolsOptions = (options = {}) => {
+    this.props.setInlineTools(options);
   };
 
   openForm = (data = {}) => {
@@ -868,27 +880,21 @@ class Documents extends BaseWidget {
     );
   }
 
-  renderTablePanel() {
+  renderPanel = React.memo(() => {
     const { dynamicTypes } = this.props;
-    const { statusFilter, selectedType, typesStatuses, contentHeight } = this.state;
+    const { statusFilter, selectedType, typesStatuses, contentHeight, tableFilter } = this.state;
 
-    if (!selectedType && !dynamicTypes.length) {
-      return null;
-    }
-
-    const ScrollBar = props => (
-      <Scrollbars
-        style={{ height: this.calculatedTablePanelHeight || '100%' }}
-        hideTracksWhenNotNeeded
-        renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
-      >
-        {props.children}
-      </Scrollbars>
-    );
-    const TablePanel = () => (
+    return (
       <div className="ecos-docs__panel" ref={this._tablePanel}>
         {this.renderUploadButton()}
-        <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTable} className="ecos-docs__panel-search" />
+        <Search
+          text={tableFilter}
+          cleaner
+          liveSearch
+          searchWithEmpty
+          onSearch={this.handleFilterTable}
+          className="ecos-docs__panel-search"
+        />
         {!selectedType && dynamicTypes.length > 1 && (
           <Dropdown
             withScrollbar
@@ -904,29 +910,30 @@ class Documents extends BaseWidget {
         )}
       </div>
     );
+  });
+
+  renderTablePanel() {
+    const { dynamicTypes } = this.props;
+    const { selectedType } = this.state;
+
+    if (!selectedType && !dynamicTypes.length) {
+      return null;
+    }
 
     if (this.needTablePanelScroll) {
       return (
-        <ScrollBar>
-          <TablePanel />
-        </ScrollBar>
+        <Scrollbars
+          style={{ height: this.calculatedTablePanelHeight || '100%' }}
+          hideTracksWhenNotNeeded
+          renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+        >
+          <this.renderPanel />
+        </Scrollbars>
       );
     }
 
-    return <TablePanel />;
+    return <this.renderPanel />;
   }
-
-  handleMouseEnterInlineTools = () => {
-    this.handleRowMouseLeave.cancel();
-  };
-
-  handleRowMouseEnter = () => {
-    this.handleRowMouseLeave.cancel();
-  };
-
-  handleRowMouseLeave = debounce(() => {
-    this.setToolsOptions();
-  }, 300);
 
   renderInlineTools = () => {
     const { stateId } = this.props;
@@ -951,9 +958,9 @@ class Documents extends BaseWidget {
     );
   };
 
-  renderDocumentsTable() {
+  renderDocumentsTable = () => {
     const { dynamicTypes, isUploadingFile } = this.props;
-    const { selectedType, isDragFiles, autoHide, columnsSizes } = this.state;
+    const { selectedType, isDragFiles, autoHide } = this.state;
 
     if (!selectedType && dynamicTypes.length !== 1) {
       return null;
@@ -1010,7 +1017,7 @@ class Documents extends BaseWidget {
         />
       </div>
     );
-  }
+  };
 
   calculateColumnStyle = colIndex => {
     const { columnsSizes } = this.state;

@@ -11,6 +11,7 @@ import './Search.scss';
 export default class Search extends Component {
   static propTypes = {
     className: PropTypes.string,
+    text: PropTypes.string,
     collapsed: PropTypes.bool,
     cleaner: PropTypes.bool,
     liveSearch: PropTypes.bool,
@@ -21,6 +22,7 @@ export default class Search extends Component {
 
   static defaultProps = {
     className: '',
+    text: '',
     delay: 400,
     cleaner: false,
     collapsed: false,
@@ -37,6 +39,7 @@ export default class Search extends Component {
     super(props);
 
     this.state.collapsed = !!props.collapsed;
+    this.state.text = props.text;
   }
 
   onPressBtn = () => {
