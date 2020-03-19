@@ -226,6 +226,8 @@ class Grid extends Component {
           this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true);
         }
 
+        this._tr = null;
+
         trigger.call(this, 'onRowMouseLeave', e);
       },
       onClick: e => {
@@ -708,9 +710,7 @@ class Grid extends Component {
     const target = e.target;
     const tr = closest(target, ECOS_GRID_ROW_CLASS);
 
-    if (this.props.onRowDragEnter) {
-      this.props.onRowDragEnter();
-    }
+    trigger.call(this, 'onRowDragEnter', e);
 
     if (tr === null) {
       this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
@@ -728,6 +728,7 @@ class Grid extends Component {
     }
 
     this.setHover(tr, ECOS_GRID_GRAG_CLASS, false, this._tr);
+
     this._dragTr = tr;
 
     e.stopPropagation();

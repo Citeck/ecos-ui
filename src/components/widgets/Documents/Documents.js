@@ -608,7 +608,7 @@ class Documents extends BaseWidget {
     this.setState({ selectedTypeForLoading: type });
   };
 
-  handleRowDragEnter = () => {
+  handleRowDragEnter = event => {
     if (this.props.uploadError) {
       this.props.setError(errorTypes.UPLOAD, '');
     }
@@ -616,6 +616,8 @@ class Documents extends BaseWidget {
     if (this.props.countFilesError) {
       this.props.setError(errorTypes.COUNT_FILES, '');
     }
+
+    this.handleTypeRowMouseEnter(event);
   };
 
   handleSubmitForm = () => {
@@ -692,20 +694,20 @@ class Documents extends BaseWidget {
     const row = closest(event.target, rowSelector);
 
     if (!row) {
+      this.setState({ isHoverLastRow: false });
       return;
     }
 
     const table = closest(event.target, 'ecos-grid__table');
 
     if (!table) {
+      this.setState({ isHoverLastRow: false });
       return;
     }
 
     const index = [...table.rows].findIndex(item => item === row);
 
-    if (index === table.rows.length - 1) {
-      this.setState({ isHoverLastRow: true });
-    }
+    this.setState({ isHoverLastRow: index === table.rows.length - 1 });
   };
 
   handleTypeRowMouseLeave = () => this.setState({ isHoverLastRow: false });
@@ -772,6 +774,21 @@ class Documents extends BaseWidget {
         {this.renderCountStatus(params[1], 'grid')}
       </div>
     );
+  };
+
+  calculateColumnStyle = colIndex => {
+    const { columnsSizes } = this.state;
+
+    if (columnsSizes[colIndex]) {
+      const { width, indents } = columnsSizes[colIndex];
+
+      return {
+        width: `${width - indents}px`,
+        '--column-size': `${width - indents}px`
+      };
+    }
+
+    return {};
   };
 
   renderTypes() {
@@ -1034,6 +1051,9 @@ class Documents extends BaseWidget {
 
         <DropZone
           withoutButton
+          style={{
+            height: `${this.calculatedTableMinHeight - 2 * 19}px`
+          }}
           label={t(Labels.UPLOAD_DROPZONE)}
           className={classNames('ecos-docs__table-dropzone', {
             'ecos-docs__table-dropzone_hidden': !isShowDropZone
@@ -1045,21 +1065,6 @@ class Documents extends BaseWidget {
         />
       </div>
     );
-  };
-
-  calculateColumnStyle = colIndex => {
-    const { columnsSizes } = this.state;
-
-    if (columnsSizes[colIndex]) {
-      const { width, indents } = columnsSizes[colIndex];
-
-      return {
-        width: `${width - indents}px`,
-        '--column-size': `${width - indents}px`
-      };
-    }
-
-    return {};
   };
 
   renderTypesTable() {
