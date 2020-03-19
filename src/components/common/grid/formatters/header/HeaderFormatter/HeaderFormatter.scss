@@ -38,6 +38,8 @@
 }
 
 .ecos-th__filter {
+  @extend %ellipsis;
+
   &_active {
     padding: 6px 10px;
     border-radius: 6px;
@@ -122,4 +124,5 @@
 
 .ecos-th__pointer {
   cursor: pointer;
+  @extend %ellipsis;
 }
