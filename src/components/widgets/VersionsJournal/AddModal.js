@@ -11,6 +11,8 @@ import EcosModal from '../../common/EcosModal';
 import Radio from '../../common/form/Radio';
 import Btn from '../../common/btns/Btn/Btn';
 
+import './style.scss';
+
 const Labels = {
   DROPZONE_PLACEHOLDER: 'versions-journal-widget.modal.dropzone_placeholder',
   DROPZONE_BUTTON_SELECT: 'versions-journal-widget.modal.dropzone_button_select',
@@ -46,7 +48,8 @@ class AddModal extends Component {
     title: PropTypes.string,
     currentVersion: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     commentMaxLength: PropTypes.number,
-    errorMessage: PropTypes.string
+    errorMessage: PropTypes.string,
+    className: PropTypes.string
   };
 
   static defaultProps = {
@@ -56,7 +59,8 @@ class AddModal extends Component {
     title: '',
     currentVersion: 1,
     commentMaxLength: 200,
-    errorMessage: ''
+    errorMessage: '',
+    className: ''
   };
 
   state = {
@@ -371,10 +375,10 @@ class AddModal extends Component {
   }
 
   render() {
-    const { isShow, title } = this.props;
+    const { isShow, title, className } = this.props;
 
     return (
-      <EcosModal isOpen={isShow} hideModal={this.handleHideModal} title={title} className="vj-modal">
+      <EcosModal isOpen={isShow} hideModal={this.handleHideModal} title={title} className={classNames('vj-modal', className)}>
         {this.renderDropzone()}
         {this.renderErrorMessage()}
         {this.renderFile()}
