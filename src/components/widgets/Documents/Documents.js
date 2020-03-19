@@ -31,7 +31,7 @@ import {
 import { selectStateByKey } from '../../../selectors/documents';
 import { errorTypes, statusesKeys, tableFields, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
-import { deepClone, prepareTooltipId, t } from '../../../helpers/util';
+import { deepClone, prepareTooltipId, t, closest } from '../../../helpers/util';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
 
 import './style.scss';
@@ -115,6 +115,7 @@ class Documents extends BaseWidget {
         value: t(type.value)
       })),
       isLoadingUploadingModal: true,
+      isHoverLastRow: false,
       columnsSizes: {}
     };
 
@@ -626,6 +627,7 @@ class Documents extends BaseWidget {
 
   handleMouseLeaveTable = () => {
     this.setToolsOptions();
+    this.setState({ isHoverLastRow: false });
   };
 
   handleHoverRow = data => {
@@ -675,13 +677,38 @@ class Documents extends BaseWidget {
     this.handleRowMouseLeave.cancel();
   };
 
-  handleRowMouseEnter = () => {
+  handleRowMouseEnter = event => {
+    this.setState({ isHoverLastRow: false });
+    this.handleTypeRowMouseEnter(event, 'ecos-grid__row');
     this.handleRowMouseLeave.cancel();
   };
 
   handleRowMouseLeave = debounce(() => {
+    this.setState({ isHoverLastRow: false });
     this.setToolsOptions();
   }, 300);
+
+  handleTypeRowMouseEnter = (event, rowSelector = 'ecos-docs__table-row') => {
+    const row = closest(event.target, rowSelector);
+
+    if (!row) {
+      return;
+    }
+
+    const table = closest(event.target, 'ecos-grid__table');
+
+    if (!table) {
+      return;
+    }
+
+    const index = [...table.rows].findIndex(item => item === row);
+
+    if (index === table.rows.length - 1) {
+      this.setState({ isHoverLastRow: true });
+    }
+  };
+
+  handleTypeRowMouseLeave = () => this.setState({ isHoverLastRow: false });
 
   setToolsOptions = (options = {}) => {
     this.props.setInlineTools(options);
@@ -960,7 +987,7 @@ class Documents extends BaseWidget {
 
   renderDocumentsTable = () => {
     const { dynamicTypes, isUploadingFile } = this.props;
-    const { selectedType, isDragFiles, autoHide } = this.state;
+    const { selectedType, isDragFiles, autoHide, isHoverLastRow } = this.state;
 
     if (!selectedType && dynamicTypes.length !== 1) {
       return null;
@@ -989,7 +1016,8 @@ class Documents extends BaseWidget {
           minHeight={this.calculatedTableMinHeight}
           keyField="id"
           className={classNames('ecos-docs__table', {
-            'ecos-docs__table_hidden': isShowDropZone || isUploadingFile
+            'ecos-docs__table_hidden': isShowDropZone || isUploadingFile,
+            'ecos-docs__table_without-after-element': isHoverLastRow
           })}
           data={this.tableData}
           columns={columns}
@@ -1036,7 +1064,7 @@ class Documents extends BaseWidget {
 
   renderTypesTable() {
     const { dynamicTypes } = this.props;
-    const { selectedType, autoHide } = this.state;
+    const { selectedType, autoHide, isHoverLastRow } = this.state;
 
     if (selectedType || !dynamicTypes.length) {
       return null;
@@ -1067,7 +1095,9 @@ class Documents extends BaseWidget {
 
     return (
       <Grid
-        className="ecos-docs__table"
+        className={classNames('ecos-docs__table', {
+          'ecos-docs__table_without-after-element': isHoverLastRow
+        })}
         rowClassName="ecos-docs__table-row"
         data={this.tableData}
         columns={columns}
@@ -1083,6 +1113,8 @@ class Documents extends BaseWidget {
         onRowDrop={this.handleRowDrop}
         onRowDragEnter={this.handleRowDragEnter}
         onResizeColumn={this.handleResizeColumn}
+        onMouseEnter={this.handleTypeRowMouseEnter}
+        onRowMouseLeave={this.handleTypeRowMouseLeave}
         scrollPosition={this.scrollPosition}
       />
     );

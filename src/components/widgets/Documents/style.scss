@@ -2,6 +2,7 @@
 
 :root {
   --column-size: 100%;
+  --table-after-background: transparent;
 }
 
 .ecos-docs {
@@ -16,6 +17,8 @@
   }
 
   &__column {
+    $column: &;
+
     position: relative;
     display: flex;
 
@@ -24,7 +27,6 @@
       flex-direction: column;
       flex-shrink: 2;
       width: 100%;
-      margin-left: -2px;
 
       tr:not(.ecos-grid_drag) > th:first-child,
       tr:not(.ecos-grid_drag) > td:first-child {
@@ -33,6 +35,12 @@
         .ecos-th,
         .ecos-grid__td {
           padding-left: 0;
+        }
+      }
+
+      th:nth-last-child(2) {
+        .ecos-th__devider {
+          display: none;
         }
       }
 
@@ -87,6 +95,10 @@
       min-width: 150px;
       max-width: 100%;
       flex-shrink: 0;
+
+      & + #{$column}_table {
+        margin-left: -2px;
+      }
     }
 
     &:not(:last-child) {
@@ -195,10 +207,16 @@
 
     .table {
       margin-bottom: 0;
-      //table-layout: fixed;
 
       &:after {
         bottom: unset;
+        background: #e8edef;
+      }
+
+      &:after:not(#{$table}-row:last-child:hover) {
+        bottom: unset;
+        --table-after-background: #e8edef;
+        background: transparent;
       }
 
       &:before {
@@ -234,6 +252,10 @@
           .ecos-docs__table-count-status {
             padding: 9px 29px 9px 30px;
           }
+
+          &:last-child {
+            --table-after-background: transparent;
+          }
         }
 
         &:first-child {
@@ -246,6 +268,18 @@
               border-top: 2px solid $color-brown-2;
             }
           }
+        }
+
+        &:last-child {
+          &:hover {
+            .table:after {
+              background: transparent;
+            }
+          }
+        }
+
+        .ecos-docs__table .table:after {
+          background: transparent;
         }
       }
 
@@ -340,6 +374,7 @@
 
     &-inline-tools {
       z-index: 0;
+      margin-top: 2px;
     }
 
     &.ecos-grid_freeze {
@@ -355,6 +390,18 @@
             top: 0;
           }
         }
+      }
+    }
+
+    &_without-after-element {
+      .table {
+        &:after {
+          display: none;
+        }
+      }
+
+      #{$table}-inline-tools {
+        margin-top: 0;
       }
     }
   }
