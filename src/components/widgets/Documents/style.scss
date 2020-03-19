@@ -203,6 +203,7 @@
       #{$table}-row {
         cursor: pointer;
         transform: scale(1);
+        position: relative;
 
         &:hover {
           border-right: 2px solid $color-brown-2;
@@ -290,22 +291,30 @@
       justify-content: flex-end;
       align-items: center;
       padding: 9px 30px;
-      position: relative;
     }
 
     &-upload-label {
+      --label-right-indent: 0;
+
       position: absolute;
       background: $color-white;
       top: 2px;
       bottom: 2px;
-      left: calc(-100% - 17px);
-      display: flex;
-      align-items: center;
+      //left: calc(-100% - 17px);
+      //display: flex;
+      //align-items: center;
       visibility: hidden;
       font-weight: bold;
       font-size: 14px;
       line-height: 20px;
       color: $color-brown-1;
+
+      //right: calc(52px + 30px + 17px);
+      right: calc(var(--label-right-indent) + 17px + 30px);
+      display: flex;
+      align-items: flex-end;
+      flex-direction: column;
+      justify-content: center;
 
       &:before {
         content: '';

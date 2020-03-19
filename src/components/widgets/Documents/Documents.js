@@ -122,6 +122,7 @@ class Documents extends BaseWidget {
     this._tableRef = React.createRef();
     this._typesList = React.createRef();
     this._emptyStubRef = React.createRef();
+    this._counterRef = React.createRef();
   }
 
   componentDidMount() {
@@ -647,7 +648,7 @@ class Documents extends BaseWidget {
       });
     }
 
-    this.setState({ canHideInlineTools: true });
+    // this.setState({ canHideInlineTools: true });
   };
 
   handleSuccessRecordsAction = () => {
@@ -693,6 +694,7 @@ class Documents extends BaseWidget {
     const { uploadError, countFilesError, id } = this.props;
     const { selectedTypeForLoading } = this.state;
     const target = prepareTooltipId(`grid-label-${params[1].type}-${id}`);
+    const style = {};
     let label = t(Labels.UPLOAD_MESSAGE);
     let hasTooltip = false;
     let hasError = false;
@@ -710,6 +712,10 @@ class Documents extends BaseWidget {
       }
     }
 
+    if (this._counterRef.current) {
+      style['--label-right-indent'] = `${this._counterRef.current.offsetWidth}px`;
+    }
+
     return (
       <div className="ecos-docs__table-count-status">
         <div
@@ -717,6 +723,7 @@ class Documents extends BaseWidget {
           className={classNames('ecos-docs__table-upload-label', {
             'ecos-docs__table-upload-label_error': hasError
           })}
+          style={style}
         >
           {label}
         </div>
@@ -805,6 +812,7 @@ class Documents extends BaseWidget {
       <>
         <div
           id={target}
+          ref={this._counterRef}
           className={classNames('ecos-docs__types-item-status', {
             'ecos-docs__types-item-status_files-need': !type.countDocuments && type.mandatory,
             'ecos-docs__types-item-status_files-can': !type.countDocuments && !type.mandatory

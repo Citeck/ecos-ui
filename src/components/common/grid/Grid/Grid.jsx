@@ -81,6 +81,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate() {
+    console.warn('componentDidUpdate');
     this.checkScrollPosition();
   }
 
