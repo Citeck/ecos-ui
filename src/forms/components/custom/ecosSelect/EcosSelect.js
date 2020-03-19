@@ -48,6 +48,17 @@ export default class SelectComponent extends BaseComponent {
     };
   }
 
+  _hasItemsBeenAlreadyLoadedOnce = false;
+
+  checkConditions(data) {
+    let result = super.checkConditions(data);
+    if (result && !this._hasItemsBeenAlreadyLoadedOnce) {
+      this.triggerUpdate();
+    }
+
+    return result;
+  }
+
   build() {
     super.build();
 
@@ -554,10 +565,12 @@ export default class SelectComponent extends BaseComponent {
     }
 
     // Only load the data if it is visible.
-    if (!this.checkConditions()) {
+    if (!this.visible) {
       this.itemsLoadedResolve();
       return;
     }
+
+    this._hasItemsBeenAlreadyLoadedOnce = true;
 
     switch (this.component.dataSrc) {
       case 'values':
