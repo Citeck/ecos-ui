@@ -8,7 +8,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { arrayCompare, closest, getId, t, trigger } from '../../../../helpers/util';
+import { objectCompare, closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
@@ -83,33 +83,7 @@ class Grid extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return (
-      !arrayCompare(nextProps.data, this.props.data) ||
-      !arrayCompare(nextProps.columns, this.props.columns) ||
-      !arrayCompare(nextProps.filters, this.props.filters) ||
-      !arrayCompare(nextProps.sortBy, this.props.sortBy) ||
-      !arrayCompare(nextProps.selected, this.props.selected) ||
-      !arrayCompare(nextProps.nonSelectable, this.props.nonSelectable) ||
-      JSON.stringify(nextProps.editingRules) !== JSON.stringify(this.props.editingRules) ||
-      JSON.stringify(nextProps.scrollPosition) !== JSON.stringify(this.props.scrollPosition) ||
-      nextProps.minHeight !== this.props.minHeight ||
-      nextProps.scrollAutoHide !== this.props.scrollAutoHide ||
-      nextProps.scrollable !== this.props.scrollable ||
-      nextProps.keyField !== this.props.keyField ||
-      nextProps.dataField !== this.props.dataField ||
-      nextProps.fixedHeader !== this.props.fixedHeader ||
-      nextProps.className !== this.props.className ||
-      nextProps.rowClassName !== this.props.rowClassName ||
-      nextProps.tableViewClassName !== this.props.tableViewClassName ||
-      nextProps.autoHeight !== this.props.autoHeight ||
-      nextProps.filterable !== this.props.filterable ||
-      nextProps.editable !== this.props.editable ||
-      nextProps.multiSelectable !== this.props.multiSelectable ||
-      nextProps.singleSelectable !== this.props.singleSelectable ||
-      nextProps.freezeCheckboxes !== this.props.freezeCheckboxes ||
-      nextProps.selectAll !== this.props.selectAll ||
-      nextProps.noTopBorder !== this.props.noTopBorder
-    );
+    return !objectCompare(nextProps, this.props, { exclude: ['forwardedRef'] });
   }
 
   componentDidUpdate() {
