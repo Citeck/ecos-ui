@@ -944,6 +944,7 @@ class Documents extends BaseWidget {
         reduxKey="documents"
         toolsKey="tools"
         actionsProps={actionsProps}
+        withTooltip
       />
     );
   };
