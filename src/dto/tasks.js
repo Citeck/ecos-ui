@@ -44,9 +44,11 @@ export default class TasksConverter {
     if (actors.length > 1) {
       target.isGroup = true;
       target.usersGroup = TasksService.getUsersOfGroupArrayStr(actors);
+      target.count = target.usersGroup.length;
     } else {
       target.isGroup = TasksService.getIsGroup(actors);
       target.usersGroup = TasksService.getUsersOfGroupArrayStr(get(actors, '[0].containedUsers', []));
+      target.count = target.usersGroup.length && !target.isGroup ? `+ ${target.usersGroup.length - 1}` : target.usersGroup.length;
     }
 
     return target;
