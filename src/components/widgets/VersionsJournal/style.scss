@@ -322,6 +322,10 @@
 .vj-modal {
   max-width: 468px !important;
 
+  &__loader {
+    border-radius: 10px;
+  }
+
   &__dropzone {
     display: flex;
     align-items: center;
