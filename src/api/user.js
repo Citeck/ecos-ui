@@ -87,7 +87,7 @@ export class UserApi extends CommonApi {
   changePhoto({ record, data }) {
     const user = Records.get(record);
 
-    user.att('ecos:photo', { ...data });
+    user.att('ecos:photo?str', { ...data });
 
     return user
       .save()
