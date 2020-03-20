@@ -8,7 +8,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { objectCompare, closest, getId, t, trigger } from '../../../../helpers/util';
+import { closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
@@ -41,6 +41,8 @@ const SelectorHeader = ({ indeterminate, ...rest }) => (
 const MIN_TH_WIDTH = 60;
 
 class Grid extends Component {
+  #columnsSizes = {};
+
   constructor(props) {
     super(props);
     this._selected = [];
@@ -80,15 +82,17 @@ class Grid extends Component {
     }
 
     this.checkScrollPosition();
-    this.fixAllThWidth();
-  }
-
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return !objectCompare(nextProps, this.props, { exclude: ['forwardedRef'] });
   }
 
   componentDidUpdate() {
+    const grid = get(this.props, 'forwardedRef.current', null);
+
+    if (grid) {
+      this._tableDom = grid.querySelector('table');
+    }
+
     this.checkScrollPosition();
+    this.setColumnsSizes();
   }
 
   componentWillUnmount() {
@@ -109,6 +113,40 @@ class Grid extends Component {
 
     return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
   }
+
+  /**
+   * Fixes loss of column sizes when redrawing a component
+   */
+  setColumnsSizes = () => {
+    if (!this._tableDom) {
+      return;
+    }
+
+    const rows = this._tableDom.rows;
+
+    for (let i = 0; i < rows.length; i++) {
+      for (let j = 0, row = rows[i]; j < row.cells.length; j++) {
+        let cell = row.cells[j];
+
+        if (!cell) {
+          continue;
+        }
+
+        let { width = 0, indents = 0 } = get(this.#columnsSizes, `[${j}]`, {});
+
+        if (!width) {
+          continue;
+        }
+
+        cell.style.width = `${width}px`;
+        cell.style.minWidth = `${width - indents}px`;
+
+        if (cell.firstChild && cell.firstChild.style) {
+          cell.firstChild.style.width = `${width - indents}px`;
+        }
+      }
+    }
+  };
 
   checkScrollPosition() {
     const { scrollPosition = {} } = this.props;
@@ -487,30 +525,19 @@ class Grid extends Component {
     document.removeEventListener('mouseup', this.clearResizingColumn);
   };
 
-  fixAllThWidth = (sizes = {}) => {
+  fixAllThWidth = () => {
     if (!this._tableDom) {
       return;
     }
 
     const allTh = this._tableDom.querySelectorAll('th');
+
     if (allTh.length < 3) {
       return;
     }
 
     for (let i = 0; i < allTh.length - 1; i++) {
       const th = allTh[i];
-
-      if (Object.keys(sizes).length && sizes[i]) {
-        th.style['width'] = `${sizes[i].width}px`;
-        th.style['min-width'] = `${sizes[i].width}px`;
-
-        if (th.firstChild && th.firstChild.style) {
-          th.firstChild.style.width = `${sizes[i].width}px`;
-        }
-
-        continue;
-      }
-
       const thStyles = window.getComputedStyle(th);
 
       th.style['width'] = thStyles['width'];
@@ -541,14 +568,12 @@ class Grid extends Component {
   };
 
   getStartDividerPosition = options => {
-    const { left, right } = this.getElementPaddings(options.th);
-
     this._resizingTh = options.th;
     this._tableDom = closest(options.th, 'table');
 
     this.fixAllThWidth(); // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3196
 
-    this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX - left - right;
+    this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
   };
 
   resizeColumn = e => {
@@ -558,8 +583,8 @@ class Grid extends Component {
       const { left, right } = this.getElementPaddings(th);
       let width = this._startResizingThOffset + e.pageX;
 
-      if (width < MIN_TH_WIDTH - left - right) {
-        width = MIN_TH_WIDTH - left - right;
+      if (width < MIN_TH_WIDTH) {
+        width = MIN_TH_WIDTH; //  - left - right;
       }
 
       const rows = this._tableDom.rows;
@@ -571,23 +596,21 @@ class Grid extends Component {
           continue;
         }
 
-        firstCol.style.removeProperty('min-width');
         firstCol.style.width = `${width}px`;
+        firstCol.style.minWidth = `${width - left - right}px`;
 
         if (firstCol.firstChild && firstCol.firstChild.style) {
-          firstCol.firstChild.style.width = `${width}px`;
+          firstCol.firstChild.style.width = `${width - left - right}px`;
         }
       }
     }
   };
 
   clearResizingColumn = e => {
-    const { onResizeColumn } = this.props;
-
-    if (this._resizingTh && this._tableDom && typeof onResizeColumn === 'function') {
+    if (this._resizingTh && this._tableDom) {
       const rows = this._tableDom.rows;
       const cells = rows[0].cells;
-      const params = {};
+      const columnsSizes = {};
 
       for (let i = 0; i < cells.length; i++) {
         if (!cells[i]) {
@@ -595,13 +618,13 @@ class Grid extends Component {
         }
 
         const elementStyles = window.getComputedStyle(cells[i]);
-        const width = parseInt(elementStyles.getPropertyValue('width'), 10) || 0;
         const { left, right } = this.getElementPaddings(cells[i]);
+        let width = parseInt(elementStyles.getPropertyValue('width'), 10) || 0;
 
-        params[i] = { width, indents: left + right };
+        columnsSizes[i] = { width, indents: left + right };
       }
 
-      onResizeColumn(params);
+      this.#columnsSizes = columnsSizes;
     }
 
     this._resizingTh = null;
