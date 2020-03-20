@@ -4,8 +4,6 @@ import get from 'lodash/get';
 import { VersionsJournalApi } from '../../api';
 import { t } from '../../helpers/util';
 import VersionsJournalConverter from '../../dto/versionsJournal';
-import { TunableDialog } from '../common/dialogs';
-import { Loader } from '../common';
 import { AddModal } from '../widgets/VersionsJournal';
 
 import './style.scss';
@@ -72,7 +70,7 @@ export default function UploadNewVersion({ record, onClose }) {
     }
   }, [isShow]);
 
-  return !isLoadingModal && currentVersion ? (
+  return (
     <AddModal
       isShow={isShow}
       title={t('record-action.upload-new-version.title.upload-model')}
@@ -81,14 +79,8 @@ export default function UploadNewVersion({ record, onClose }) {
       onCreate={onCreate}
       errorMessage={errorMessage}
       isLoading={isLoading}
+      isLoadingModal={isLoadingModal}
       className="upload-new-version__add-modal"
-    />
-  ) : (
-    <TunableDialog
-      isOpen={isShow}
-      onClose={onHideModal}
-      content={isLoadingModal ? <Loader className="upload-new-version__loader" /> : errorMessage}
-      title={errorMessage && t('record-action.upload-new-version.title.error-modal')}
     />
   );
 }
