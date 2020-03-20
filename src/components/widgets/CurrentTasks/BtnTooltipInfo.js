@@ -74,6 +74,8 @@ export default class BtnTooltipInfo extends React.Component {
             boundariesElement="window"
             target={domId}
             trigger="hover"
+            delay={{ show: 0, hide: 200 }}
+            autohide={false}
             className="ecos-base-tooltip ecos-current-task__tooltip"
             innerClassName="ecos-base-tooltip-inner"
             arrowClassName="ecos-base-tooltip-arrow"
