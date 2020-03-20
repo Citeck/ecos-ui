@@ -31,7 +31,7 @@ import {
 import { selectStateByKey } from '../../../selectors/documents';
 import { errorTypes, statusesKeys, tableFields, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
-import { deepClone, prepareTooltipId, t } from '../../../helpers/util';
+import { deepClone, prepareTooltipId, t, closest } from '../../../helpers/util';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
 
 import './style.scss';
@@ -114,14 +114,16 @@ class Documents extends BaseWidget {
         ...type,
         value: t(type.value)
       })),
-      canHideInlineTools: true,
-      isLoadingUploadingModal: true
+      isLoadingUploadingModal: true,
+      isHoverLastRow: false,
+      columnsSizes: {}
     };
 
     this._tablePanel = React.createRef();
     this._tableRef = React.createRef();
     this._typesList = React.createRef();
     this._emptyStubRef = React.createRef();
+    this._counterRef = React.createRef();
   }
 
   componentDidMount() {
@@ -166,6 +168,10 @@ class Documents extends BaseWidget {
       this.scrollPosition = {};
       this.setContentHeight(this.calculatedClientHeight);
     }
+  }
+
+  componentWillUnmount() {
+    this.handleRowMouseLeave.cancel();
   }
 
   get tablePanelHeight() {
@@ -427,7 +433,7 @@ class Documents extends BaseWidget {
   };
 
   handleClearSelectedType = () => {
-    this.setState({ selectedType: '' });
+    this.setState({ selectedType: '', columnsSizes: {} });
     this.scrollPosition = {};
   };
 
@@ -439,12 +445,13 @@ class Documents extends BaseWidget {
     }
 
     this.props.getDocuments(type);
-    this.setState({
+    this.setState(state => ({
       isDragFiles: false,
       selectedType: type,
       statusFilter: statusesKeys.ALL,
-      selectedTypeForLoading: selectedType
-    });
+      selectedTypeForLoading: selectedType,
+      columnsSizes: state.selectedTypeForLoading ? state.columnsSizes : {}
+    }));
     this.scrollPosition = {};
   };
 
@@ -601,7 +608,7 @@ class Documents extends BaseWidget {
     this.setState({ selectedTypeForLoading: type });
   };
 
-  handleRowDragEnter = () => {
+  handleRowDragEnter = event => {
     if (this.props.uploadError) {
       this.props.setError(errorTypes.UPLOAD, '');
     }
@@ -609,6 +616,8 @@ class Documents extends BaseWidget {
     if (this.props.countFilesError) {
       this.props.setError(errorTypes.COUNT_FILES, '');
     }
+
+    this.handleTypeRowMouseEnter(event);
   };
 
   handleSubmitForm = () => {
@@ -618,16 +627,12 @@ class Documents extends BaseWidget {
     this.uploadingComplete();
   };
 
-  handleMouseLeaveRow = debounce(() => {
-    if (this.state.canHideInlineTools) {
-      this.props.setInlineTools({});
-    }
-  }, 300);
+  handleMouseLeaveTable = () => {
+    this.setToolsOptions();
+    this.setState({ isHoverLastRow: false });
+  };
 
   handleHoverRow = data => {
-    this.debouncedToolsLeave.cancel();
-    this.handleMouseLeaveRow.cancel();
-
     const options = deepClone(data);
     let actions = deepClone(this.props.actions);
     const id = options.row.id;
@@ -641,39 +646,26 @@ class Documents extends BaseWidget {
         };
       });
 
-      this.props.setInlineTools({
+      this.setToolsOptions({
         ...data,
         actions: actions[id]
       });
     }
-
-    this.setState({ canHideInlineTools: true });
   };
 
   handleSuccessRecordsAction = () => {
     this.props.getDocuments(this.state.selectedType);
-    this.props.setInlineTools();
+    this.setToolsOptions();
   };
 
   handleScollingTable = event => {
     this.scrollPosition = event;
   };
 
-  handleMouseLeaveInlineTools = () => {
-    this.debouncedToolsLeave();
-  };
-
-  debouncedToolsLeave = debounce(() => {
-    this.props.setInlineTools({});
-    this.setState({
-      canHideInlineTools: true
-    });
-  }, 300);
-
-  handleMouseEnterInlineTools = () => {
-    this.setState({
-      canHideInlineTools: false
-    });
+  handleResizeColumn = columnsSizes => {
+    this.setState(state => ({
+      columnsSizes: { ...state.columnsSizes, ...columnsSizes }
+    }));
   };
 
   /**
@@ -681,6 +673,47 @@ class Documents extends BaseWidget {
    */
   handleCompleteResizeColumns = () => {
     this.setState({ autoHide: true }, () => this.setState({ autoHide: false }));
+  };
+
+  handleMouseEnterInlineTools = () => {
+    this.handleRowMouseLeave.cancel();
+  };
+
+  handleRowMouseEnter = event => {
+    this.setState({ isHoverLastRow: false });
+    this.handleTypeRowMouseEnter(event, 'ecos-grid__row');
+    this.handleRowMouseLeave.cancel();
+  };
+
+  handleRowMouseLeave = debounce(() => {
+    this.setState({ isHoverLastRow: false });
+    this.setToolsOptions();
+  }, 300);
+
+  handleTypeRowMouseEnter = (event, rowSelector = 'ecos-docs__table-row') => {
+    const row = closest(event.target, rowSelector);
+
+    if (!row) {
+      this.setState({ isHoverLastRow: false });
+      return;
+    }
+
+    const table = closest(event.target, 'ecos-grid__table');
+
+    if (!table) {
+      this.setState({ isHoverLastRow: false });
+      return;
+    }
+
+    const index = [...table.rows].findIndex(item => item === row);
+
+    this.setState({ isHoverLastRow: index === table.rows.length - 1 });
+  };
+
+  handleTypeRowMouseLeave = () => this.setState({ isHoverLastRow: false });
+
+  setToolsOptions = (options = {}) => {
+    this.props.setInlineTools(options);
   };
 
   openForm = (data = {}) => {
@@ -693,6 +726,7 @@ class Documents extends BaseWidget {
     const { uploadError, countFilesError, id } = this.props;
     const { selectedTypeForLoading } = this.state;
     const target = prepareTooltipId(`grid-label-${params[1].type}-${id}`);
+    const style = {};
     let label = t(Labels.UPLOAD_MESSAGE);
     let hasTooltip = false;
     let hasError = false;
@@ -710,6 +744,10 @@ class Documents extends BaseWidget {
       }
     }
 
+    if (this._counterRef.current) {
+      style['--label-right-indent'] = `${this._counterRef.current.offsetWidth}px`;
+    }
+
     return (
       <div className="ecos-docs__table-count-status">
         <div
@@ -717,6 +755,7 @@ class Documents extends BaseWidget {
           className={classNames('ecos-docs__table-upload-label', {
             'ecos-docs__table-upload-label_error': hasError
           })}
+          style={style}
         >
           {label}
         </div>
@@ -735,6 +774,21 @@ class Documents extends BaseWidget {
         {this.renderCountStatus(params[1], 'grid')}
       </div>
     );
+  };
+
+  calculateColumnStyle = colIndex => {
+    const { columnsSizes } = this.state;
+
+    if (columnsSizes[colIndex]) {
+      const { width, indents } = columnsSizes[colIndex];
+
+      return {
+        width: `${width - indents}px`,
+        '--column-size': `${width - indents}px`
+      };
+    }
+
+    return {};
   };
 
   renderTypes() {
@@ -805,6 +859,7 @@ class Documents extends BaseWidget {
       <>
         <div
           id={target}
+          ref={this._counterRef}
           className={classNames('ecos-docs__types-item-status', {
             'ecos-docs__types-item-status_files-need': !type.countDocuments && type.mandatory,
             'ecos-docs__types-item-status_files-can': !type.countDocuments && !type.mandatory
@@ -869,27 +924,21 @@ class Documents extends BaseWidget {
     );
   }
 
-  renderTablePanel() {
+  renderPanel = React.memo(() => {
     const { dynamicTypes } = this.props;
-    const { statusFilter, selectedType, typesStatuses, contentHeight } = this.state;
+    const { statusFilter, selectedType, typesStatuses, contentHeight, tableFilter } = this.state;
 
-    if (!selectedType && !dynamicTypes.length) {
-      return null;
-    }
-
-    const ScrollBar = props => (
-      <Scrollbars
-        style={{ height: this.calculatedTablePanelHeight || '100%' }}
-        hideTracksWhenNotNeeded
-        renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
-      >
-        {props.children}
-      </Scrollbars>
-    );
-    const TablePanel = () => (
+    return (
       <div className="ecos-docs__panel" ref={this._tablePanel}>
         {this.renderUploadButton()}
-        <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTable} className="ecos-docs__panel-search" />
+        <Search
+          text={tableFilter}
+          cleaner
+          liveSearch
+          searchWithEmpty
+          onSearch={this.handleFilterTable}
+          className="ecos-docs__panel-search"
+        />
         {!selectedType && dynamicTypes.length > 1 && (
           <Dropdown
             withScrollbar
@@ -905,16 +954,29 @@ class Documents extends BaseWidget {
         )}
       </div>
     );
+  });
+
+  renderTablePanel() {
+    const { dynamicTypes } = this.props;
+    const { selectedType } = this.state;
+
+    if (!selectedType && !dynamicTypes.length) {
+      return null;
+    }
 
     if (this.needTablePanelScroll) {
       return (
-        <ScrollBar>
-          <TablePanel />
-        </ScrollBar>
+        <Scrollbars
+          style={{ height: this.calculatedTablePanelHeight || '100%' }}
+          hideTracksWhenNotNeeded
+          renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+        >
+          <this.renderPanel />
+        </Scrollbars>
       );
     }
 
-    return <TablePanel />;
+    return <this.renderPanel />;
   }
 
   renderInlineTools = () => {
@@ -925,8 +987,7 @@ class Documents extends BaseWidget {
     }
 
     const actionsProps = {
-      onMouseEnter: this.handleMouseEnterInlineTools,
-      onMouseLeave: this.handleMouseLeaveInlineTools
+      onMouseEnter: this.handleMouseEnterInlineTools
     };
 
     return (
@@ -935,15 +996,15 @@ class Documents extends BaseWidget {
         stateId={stateId}
         reduxKey="documents"
         toolsKey="tools"
-        actionsProps={actionsProps}
         withTooltip
+        actionsProps={actionsProps}
       />
     );
   };
 
-  renderDocumentsTable() {
+  renderDocumentsTable = () => {
     const { dynamicTypes, isUploadingFile } = this.props;
-    const { selectedType, isDragFiles, autoHide } = this.state;
+    const { selectedType, isDragFiles, autoHide, isHoverLastRow } = this.state;
 
     if (!selectedType && dynamicTypes.length !== 1) {
       return null;
@@ -951,7 +1012,13 @@ class Documents extends BaseWidget {
 
     const columns = tableFields.DEFAULT.map(item => ({
       dataField: item.name,
-      text: t(item.label)
+      text: t(item.label),
+      headerStyle: (...params) => {
+        return this.calculateColumnStyle(params[params.length - 1]);
+      },
+      style: (...params) => {
+        return this.calculateColumnStyle(params[params.length - 1]);
+      }
     }));
     const isShowDropZone = isDragFiles;
 
@@ -965,20 +1032,28 @@ class Documents extends BaseWidget {
           autoHeight
           minHeight={this.calculatedTableMinHeight}
           keyField="id"
-          className={classNames('ecos-docs__table', {
-            'ecos-docs__table_hidden': isShowDropZone || isUploadingFile
+          className={classNames('ecos-docs__table ecos-docs__table_documents', {
+            'ecos-docs__table_hidden': isShowDropZone || isUploadingFile,
+            'ecos-docs__table_without-after-element': isHoverLastRow
           })}
           data={this.tableData}
           columns={columns}
           onChangeTrOptions={this.handleHoverRow}
-          onRowMouseLeave={this.handleMouseLeaveRow}
           onScrolling={this.handleScollingTable}
+          onResizeColumn={this.handleResizeColumn}
           inlineTools={this.renderInlineTools}
           scrollPosition={this.scrollPosition}
+          onRowMouseLeave={this.handleRowMouseLeave}
+          onMouseEnter={this.handleRowMouseEnter}
+          onMouseLeave={this.handleMouseLeaveTable}
+          onGridMouseEnter={this.handleMouseLeaveTable}
         />
 
         <DropZone
           withoutButton
+          style={{
+            height: `${this.calculatedTableMinHeight - 2 * 19}px`
+          }}
           label={t(Labels.UPLOAD_DROPZONE)}
           className={classNames('ecos-docs__table-dropzone', {
             'ecos-docs__table-dropzone_hidden': !isShowDropZone
@@ -990,11 +1065,11 @@ class Documents extends BaseWidget {
         />
       </div>
     );
-  }
+  };
 
   renderTypesTable() {
     const { dynamicTypes } = this.props;
-    const { selectedType, autoHide } = this.state;
+    const { selectedType, autoHide, isHoverLastRow } = this.state;
 
     if (selectedType || !dynamicTypes.length) {
       return null;
@@ -1002,7 +1077,14 @@ class Documents extends BaseWidget {
 
     const columns = tableFields.ALL.map(item => {
       const { name, label, ...other } = item;
-      const extended = {};
+      const extended = {
+        headerStyle: (...params) => {
+          return this.calculateColumnStyle(params[params.length - 1]);
+        },
+        style: (...params) => {
+          return this.calculateColumnStyle(params[params.length - 1]);
+        }
+      };
 
       if (name === 'count') {
         extended.customFormatter = this.countFormatter;
@@ -1018,7 +1100,9 @@ class Documents extends BaseWidget {
 
     return (
       <Grid
-        className="ecos-docs__table"
+        className={classNames('ecos-docs__table ecos-docs__table_types', {
+          'ecos-docs__table_without-after-element': isHoverLastRow
+        })}
         rowClassName="ecos-docs__table-row"
         data={this.tableData}
         columns={columns}
@@ -1033,6 +1117,9 @@ class Documents extends BaseWidget {
         onRowClick={this.handleClickTableRow}
         onRowDrop={this.handleRowDrop}
         onRowDragEnter={this.handleRowDragEnter}
+        onResizeColumn={this.handleResizeColumn}
+        onMouseEnter={this.handleTypeRowMouseEnter}
+        onRowMouseLeave={this.handleTypeRowMouseLeave}
         scrollPosition={this.scrollPosition}
       />
     );

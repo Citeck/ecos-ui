@@ -8,7 +8,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { closest, getId, t, trigger } from '../../../../helpers/util';
+import { objectCompare, closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
@@ -80,6 +80,11 @@ class Grid extends Component {
     }
 
     this.checkScrollPosition();
+    this.fixAllThWidth();
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    return !objectCompare(nextProps, this.props, { exclude: ['forwardedRef'] });
   }
 
   componentDidUpdate() {
@@ -220,6 +225,8 @@ class Grid extends Component {
         if (props.changeTrOptionsByRowClick) {
           this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true);
         }
+
+        this._tr = null;
 
         trigger.call(this, 'onRowMouseLeave', e);
       },
@@ -480,7 +487,7 @@ class Grid extends Component {
     document.removeEventListener('mouseup', this.clearResizingColumn);
   };
 
-  fixAllThWidth = () => {
+  fixAllThWidth = (sizes = {}) => {
     if (!this._tableDom) {
       return;
     }
@@ -492,36 +499,67 @@ class Grid extends Component {
 
     for (let i = 0; i < allTh.length - 1; i++) {
       const th = allTh[i];
+
+      if (Object.keys(sizes).length && sizes[i]) {
+        th.style['width'] = `${sizes[i].width}px`;
+        th.style['min-width'] = `${sizes[i].width}px`;
+
+        if (th.firstChild && th.firstChild.style) {
+          th.firstChild.style.width = `${sizes[i].width}px`;
+        }
+
+        continue;
+      }
+
       const thStyles = window.getComputedStyle(th);
+
       th.style['width'] = thStyles['width'];
       th.style['min-width'] = thStyles['width'];
     }
   };
 
+  getElementPaddings = (element = null) => {
+    const paddings = {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0
+    };
+
+    if (!element) {
+      return paddings;
+    }
+
+    const elementStyles = window.getComputedStyle(element);
+
+    paddings.left = parseInt(elementStyles.getPropertyValue('padding-left'), 10) || 0;
+    paddings.right = parseInt(elementStyles.getPropertyValue('padding-right'), 10) || 0;
+    paddings.top = parseInt(elementStyles.getPropertyValue('padding-top'), 10) || 0;
+    paddings.bottom = parseInt(elementStyles.getPropertyValue('padding-bottom'), 10) || 0;
+
+    return paddings;
+  };
+
   getStartDividerPosition = options => {
+    const { left, right } = this.getElementPaddings(options.th);
+
     this._resizingTh = options.th;
     this._tableDom = closest(options.th, 'table');
 
     this.fixAllThWidth(); // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3196
 
-    const thStyles = window.getComputedStyle(this._resizingTh);
-    const paddingLeft = parseInt(thStyles.getPropertyValue('padding-left'), 10) || 0;
-    const paddingRight = parseInt(thStyles.getPropertyValue('padding-right'), 10) || 0;
-
-    this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX - paddingLeft - paddingRight;
+    this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX - left - right;
   };
 
   resizeColumn = e => {
     let th = this._resizingTh;
 
     if (th && this._tableDom) {
+      const { left, right } = this.getElementPaddings(th);
       let width = this._startResizingThOffset + e.pageX;
-      const thStyles = window.getComputedStyle(th);
-      const paddingLeft = parseInt(thStyles.getPropertyValue('padding-left'), 10) || 0;
-      const paddingRight = parseInt(thStyles.getPropertyValue('padding-right'), 10) || 0;
 
-      if (width < MIN_TH_WIDTH - paddingLeft - paddingRight) {
-        width = MIN_TH_WIDTH - paddingLeft - paddingRight;
+      if (width < MIN_TH_WIDTH - left - right) {
+        width = MIN_TH_WIDTH - left - right;
       }
 
       const rows = this._tableDom.rows;
@@ -535,12 +573,37 @@ class Grid extends Component {
 
         firstCol.style.removeProperty('min-width');
         firstCol.style.width = `${width}px`;
-        firstCol.firstChild.style.width = `${width}px`;
+
+        if (firstCol.firstChild && firstCol.firstChild.style) {
+          firstCol.firstChild.style.width = `${width}px`;
+        }
       }
     }
   };
 
-  clearResizingColumn = () => {
+  clearResizingColumn = e => {
+    const { onResizeColumn } = this.props;
+
+    if (this._resizingTh && this._tableDom && typeof onResizeColumn === 'function') {
+      const rows = this._tableDom.rows;
+      const cells = rows[0].cells;
+      const params = {};
+
+      for (let i = 0; i < cells.length; i++) {
+        if (!cells[i]) {
+          continue;
+        }
+
+        const elementStyles = window.getComputedStyle(cells[i]);
+        const width = parseInt(elementStyles.getPropertyValue('width'), 10) || 0;
+        const { left, right } = this.getElementPaddings(cells[i]);
+
+        params[i] = { width, indents: left + right };
+      }
+
+      onResizeColumn(params);
+    }
+
     this._resizingTh = null;
   };
 
@@ -570,6 +633,10 @@ class Grid extends Component {
 
   onMouseLeave = e => {
     trigger.call(this, 'onMouseLeave', e);
+  };
+
+  onMouseEnter = e => {
+    trigger.call(this, 'onGridMouseEnter', e);
   };
 
   onRowClick = tr => {
@@ -643,9 +710,7 @@ class Grid extends Component {
     const target = e.target;
     const tr = closest(target, ECOS_GRID_ROW_CLASS);
 
-    if (this.props.onRowDragEnter) {
-      this.props.onRowDragEnter();
-    }
+    trigger.call(this, 'onRowDragEnter', e);
 
     if (tr === null) {
       this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
@@ -663,6 +728,7 @@ class Grid extends Component {
     }
 
     this.setHover(tr, ECOS_GRID_GRAG_CLASS, false, this._tr);
+
     this._dragTr = tr;
 
     e.stopPropagation();
@@ -753,6 +819,7 @@ class Grid extends Component {
             [className]: !!className
           })}
           onMouseLeave={this.onMouseLeave}
+          onMouseEnter={this.onMouseEnter}
         >
           {!!toolsVisible && this.tools(bootProps.selected)}
           <Scroll scrollable={bootProps.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback} autoHide={scrollAutoHide}>
@@ -809,7 +876,9 @@ Grid.propTypes = {
   onRowDrop: PropTypes.func,
   onDragOver: PropTypes.func,
   onRowDragEnter: PropTypes.func,
-  onRowMouseLeave: PropTypes.func
+  onRowMouseLeave: PropTypes.func,
+  onResizeColumn: PropTypes.func,
+  onGridMouseEnter: PropTypes.func
 };
 
 export default Grid;

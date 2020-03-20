@@ -1,10 +1,11 @@
 import isEmpty from 'lodash/isEmpty';
 
 import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
-import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-import dialogManager from '../../common/dialogs/Manager';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import { ActionModes } from '../../../constants';
+import VersionsJournalService from '../../../services/VersionsJournalService';
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
+import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
@@ -20,7 +21,8 @@ export const DefaultActionTypes = {
   OPEN_IN_BACKGROUND: 'open-in-background',
   MOVE_TO_LINES: 'move-to-lines',
   DOWNLOAD_CARD_TEMPLATE: 'download-card-template',
-  OPEN_URL: 'open-url'
+  OPEN_URL: 'open-url',
+  UPLOAD_NEW_VERSION: 'upload-new-version'
 };
 
 export const EditAction = {
@@ -45,7 +47,7 @@ export const EditAction = {
 
   getDefaultModel: () => {
     return {
-      name: 'grid.inline-tools.edit',
+      name: 'record-action.name.edit',
       type: DefaultActionTypes.EDIT,
       icon: 'icon-edit'
     };
@@ -85,7 +87,7 @@ export const ViewAction = {
 
   getDefaultModel: () => {
     return {
-      name: 'grid.inline-tools.show',
+      name: 'record-action.name.show',
       type: DefaultActionTypes.VIEW,
       icon: 'icon-on'
     };
@@ -146,7 +148,7 @@ export const BackgroundOpenAction = {
 
   getDefaultModel: () => {
     return {
-      name: 'grid.inline-tools.open-in-background',
+      name: 'record-action.name.open-in-background',
       type: BackgroundOpenAction.type,
       icon: 'icon-newtab'
     };
@@ -190,7 +192,7 @@ export const DownloadAction = {
 
   getDefaultModel: () => {
     return {
-      name: 'grid.inline-tools.download',
+      name: 'record-action.name.download',
       type: DefaultActionTypes.DOWNLOAD,
       icon: 'icon-download'
     };
@@ -245,7 +247,7 @@ export const DeleteAction = {
 
   getDefaultModel: () => {
     return {
-      name: 'grid.inline-tools.delete',
+      name: 'record-action.name.delete',
       type: DefaultActionTypes.DELETE,
       icon: 'icon-delete',
       theme: 'danger'
@@ -287,7 +289,7 @@ export const MoveToLinesJournal = {
 
   getDefaultModel: () => {
     return {
-      name: 'grid.inline-tools.details',
+      name: 'record-action.name.details',
       type: DefaultActionTypes.MOVE_TO_LINES,
       icon: 'icon-big-arrow'
     };
@@ -381,9 +383,27 @@ export const CreateNodeAction = {
 
   getDefaultModel: () => {
     return {
-      name: 'grid.inline-tools.create',
+      name: 'record-action.name.create',
       type: DefaultActionTypes.CREATE,
       icon: 'icon-plus'
+    };
+  }
+};
+
+export const UploadNewVersion = {
+  execute: ({ record, action }) => {
+    const onClose = done => {
+      done && Records.get(record).update();
+    };
+
+    VersionsJournalService.addVersion({ record, onClose });
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.upload-new-version',
+      type: DefaultActionTypes.UPLOAD_NEW_VERSION,
+      icon: 'icon-load'
     };
   }
 };
