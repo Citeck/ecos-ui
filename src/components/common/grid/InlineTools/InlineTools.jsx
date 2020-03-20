@@ -65,14 +65,8 @@ class InlineTools extends Component {
     const id = `tooltip-${action.order}-${action.type}-${idx}`;
 
     return (
-      <Tooltip target={id} uncontrolled text={action.name}>
-        <IcoBtn
-          id={id}
-          key={idx}
-          icon={action.icon}
-          onClick={action.onClick}
-          className={classNames(inlineToolsActionClassName, themeClass)}
-        />
+      <Tooltip key={idx} target={id} uncontrolled text={action.name}>
+        <IcoBtn id={id} icon={action.icon} onClick={action.onClick} className={classNames(inlineToolsActionClassName, themeClass)} />
       </Tooltip>
     );
   }
