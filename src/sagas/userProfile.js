@@ -43,8 +43,9 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
     });
 
     if (response.success) {
-      yield put(setUserPhoto({ thumbnail: null, stateId }));
-      yield put(setUserPhoto({ thumbnail: createThumbnailUrl(record), stateId }));
+      const data = yield call(api.user.getUserDataByRef, record);
+
+      yield put(setUserPhoto({ thumbnail: createThumbnailUrl(data.nodeRef, { t: Date.now() }), stateId }));
     } else {
       yield put(
         setMessage({ message: { text: t('user-profile-widget.error.upload-profile-photo'), error: true }, stateId, isLoadingPhoto: false })

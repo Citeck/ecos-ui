@@ -23,13 +23,19 @@ export default class Avatar extends React.Component {
     userName: ''
   };
 
-  state = { error: '' };
+  state = { error: false };
 
   refImg = React.createRef();
 
   componentDidMount() {
     if (this.refImg.current) {
       this.refImg.current.onerror = this.onError;
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.url !== this.props.url) {
+      this.setState({ error: false });
     }
   }
 
