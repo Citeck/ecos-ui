@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import get from 'lodash/get';
 
 export default class ClickOutside extends React.Component {
   static propTypes = {
     handleClickOutside: PropTypes.func,
     className: PropTypes.string,
-    type: PropTypes.string,
-    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
+    type: PropTypes.string
   };
 
   static defaultProps = {
@@ -35,18 +33,16 @@ export default class ClickOutside extends React.Component {
   }
 
   handleClickOutside(event) {
-    const ref = get(this.props, 'forwardedRef.current', this.wrapperRef);
-
-    if (typeof this.props.handleClickOutside === 'function' && ref && !ref.contains(event.target)) {
+    if (typeof this.props.handleClickOutside === 'function' && this.wrapperRef && !this.wrapperRef.contains(event.target)) {
       this.props.handleClickOutside(event);
     }
   }
 
   render() {
-    const { handleClickOutside, className, children, forwardedRef, ...props } = this.props;
+    const { handleClickOutside, className, children, ...props } = this.props;
 
     return (
-      <div className={className} ref={forwardedRef || this.setWrapperRef} {...props}>
+      <div className={className} ref={this.setWrapperRef} {...props}>
         {children}
       </div>
     );

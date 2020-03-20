@@ -113,10 +113,6 @@
           &:only-child {
             max-width: 100%;
           }
-
-          &:not(:only-child) {
-            //max-width: calc(100% - 32px);
-          }
         }
 
         #{$root}__tooltip-btn {
