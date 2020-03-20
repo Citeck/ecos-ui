@@ -62,7 +62,7 @@ export default class BtnTooltipInfo extends React.Component {
           handleClickOutside={this.closeTooltip}
           className={classNames('ecos-current-task__tooltip-btn', { 'ecos-current-task__tooltip-btn_active': isActive })}
         >
-          {!!count && <span className="ecos-current-task__tooltip-count">{count}</span>}
+          {count && <span className="ecos-current-task__tooltip-count">{count}</span>}
           <Icon
             className={classNames('ecos-current-task__tooltip-icon', iconClass)}
             onClick={isActive ? this.closeTooltip : this.openTooltip}
