@@ -3,7 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import { ActionModes } from '../../../constants';
-import VersionsJournalService from '../../../services/VersionsJournalService';
+import { VersionsJournalService } from '../../../services/VersionsJournalService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
