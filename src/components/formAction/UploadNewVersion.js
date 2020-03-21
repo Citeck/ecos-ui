@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import get from 'lodash/get';
 
-import { VersionsJournalApi } from '../../api';
+import { VersionsJournalApi } from '../../api/versionsJournal';
 import { t } from '../../helpers/util';
 import VersionsJournalConverter from '../../dto/versionsJournal';
 import { AddModal } from '../widgets/VersionsJournal';
