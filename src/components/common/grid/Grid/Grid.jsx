@@ -91,8 +91,8 @@ class Grid extends Component {
       this._tableDom = grid.querySelector('table');
     }
 
-    this.checkScrollPosition();
     this.setColumnsSizes();
+    this.checkScrollPosition();
   }
 
   componentWillUnmount() {
@@ -122,6 +122,10 @@ class Grid extends Component {
       return;
     }
 
+    if (!Object.keys(this.#columnsSizes).length) {
+      return;
+    }
+
     const rows = this._tableDom.rows;
 
     for (let i = 0; i < rows.length; i++) {
@@ -139,7 +143,6 @@ class Grid extends Component {
         }
 
         cell.style.width = `${width}px`;
-        cell.style.minWidth = `${width - indents}px`;
 
         if (cell.firstChild && cell.firstChild.style) {
           cell.firstChild.style.width = `${width - indents}px`;
@@ -596,8 +599,8 @@ class Grid extends Component {
           continue;
         }
 
+        firstCol.style.removeProperty('min-width');
         firstCol.style.width = `${width}px`;
-        firstCol.style.minWidth = `${width - left - right}px`;
 
         if (firstCol.firstChild && firstCol.firstChild.style) {
           firstCol.firstChild.style.width = `${width - left - right}px`;
@@ -608,8 +611,7 @@ class Grid extends Component {
 
   clearResizingColumn = e => {
     if (this._resizingTh && this._tableDom) {
-      const rows = this._tableDom.rows;
-      const cells = rows[0].cells;
+      const cells = this._tableDom.rows[0].cells;
       const columnsSizes = {};
 
       for (let i = 0; i < cells.length; i++) {
@@ -617,9 +619,8 @@ class Grid extends Component {
           continue;
         }
 
-        const elementStyles = window.getComputedStyle(cells[i]);
         const { left, right } = this.getElementPaddings(cells[i]);
-        let width = parseInt(elementStyles.getPropertyValue('width'), 10) || 0;
+        let width = parseInt(cells[i].style.width, 10) || '';
 
         columnsSizes[i] = { width, indents: left + right };
       }
