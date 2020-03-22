@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 
-import { getOutputFormat } from '../../../helpers/util';
-import { Headline } from '../../common/form/index';
+import { getOutputFormat, prepareTooltipId } from '../../../helpers/util';
+import { Tooltip } from '../../common';
+import { Headline } from '../../common/form';
 import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
 import BtnTooltipInfo from './BtnTooltipInfo';
 
@@ -43,6 +44,7 @@ class CurrentTaskInfo extends React.Component {
   render() {
     const { task, isMobile } = this.props;
     const { isOpen } = this.state;
+    const id = prepareTooltipId(`tooltip-${task.id}`);
 
     return (
       <div className="ecos-current-task-info">
@@ -56,9 +58,12 @@ class CurrentTaskInfo extends React.Component {
                 'ecos-current-task-info-value_mobile': isMobile
               })}
             >
-              <div className="ecos-current-task-info-value__text" title={task[DC.actors.key] || ''}>
-                {task[DC.actors.key] || noData}
-              </div>
+              <Tooltip showAsNeeded target={id} uncontrolled text={task[DC.actors.key] || noData}>
+                <div id={id} className="ecos-current-task-info-value__text">
+                  {task[DC.actors.key] || noData}
+                </div>
+              </Tooltip>
+
               {task.usersGroup && (
                 <BtnTooltipInfo
                   iconClass="icon-usergroup"
@@ -67,7 +72,7 @@ class CurrentTaskInfo extends React.Component {
                   noTooltip={isMobile}
                   handleClick={isOpen => this.setState({ isOpen })}
                   isActive={isOpen}
-                  count={task.usersGroup.length}
+                  count={task.count}
                 >
                   {this.renderUsersGroup(task.usersGroup)}
                 </BtnTooltipInfo>

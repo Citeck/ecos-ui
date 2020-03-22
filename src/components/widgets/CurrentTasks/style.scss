@@ -77,13 +77,13 @@
       }
 
       #{$info}-value {
-        flex: 1 1 auto;
         min-width: 0;
         font-weight: $font-weight-bold;
         font-size: $font-size-standard;
         color: $text-color-dark;
         font-style: normal;
-        display: inline-block;
+        display: flex;
+        flex-wrap: nowrap;
 
         &_mobile {
           display: flex;
@@ -113,10 +113,10 @@
           &:only-child {
             max-width: 100%;
           }
+        }
 
-          &:not(:only-child) {
-            max-width: calc(100% - 32px);
-          }
+        #{$root}__tooltip-btn {
+          display: flex;
         }
       }
     }
@@ -128,7 +128,7 @@
     &-btn {
       margin-left: 10px;
       display: inline-block;
-      vertical-align: top;
+      vertical-align: middle;
 
       &:hover,
       &_active {
@@ -143,6 +143,7 @@
     &-count {
       font-size: 15px;
       color: $color-gray-6;
+      white-space: nowrap;
     }
 
     &-icon {
