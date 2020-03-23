@@ -63,7 +63,7 @@ export const QueryEntityKeys = {
 export const MIN_WIDTH_DASHLET_SMALL = 290;
 export const MIN_WIDTH_DASHLET_LARGE = 593;
 
-export const MAX_DEFAULT_HEIGHT_DASHLET = 500;
+export const MAX_DEFAULT_HEIGHT_DASHLET = 800;
 export const MIN_DEFAULT_HEIGHT_DASHLET = 155;
 
 export const DataFormatTypes = {

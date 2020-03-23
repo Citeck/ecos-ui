@@ -71,6 +71,7 @@ class Dashlet extends Component {
   };
 
   refDashlet = React.createRef();
+  resizableRef = React.createRef();
 
   constructor(props) {
     super(props);
@@ -98,7 +99,7 @@ class Dashlet extends Component {
   get busyDashletHeight() {
     const elDashlet = this.refDashlet.current || {};
     const headerH = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
-    const resizerH = get(elDashlet.querySelector('.dashlet__resizer'), ['offsetHeight'], 0);
+    const resizerH = get(this.resizableRef, 'current.resizeBtnHeight', 0);
 
     return headerH + resizerH;
   }
@@ -141,7 +142,7 @@ class Dashlet extends Component {
     }
 
     return (
-      <ResizableBox resizable={resizable} classNameResizer="dashlet__resizer" getHeight={this.onChangeHeight}>
+      <ResizableBox ref={this.resizableRef} resizable={resizable} classNameResizer="dashlet__resizer" getHeight={this.onChangeHeight}>
         {children}
       </ResizableBox>
     );
