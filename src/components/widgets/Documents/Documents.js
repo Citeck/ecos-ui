@@ -10,7 +10,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
-import { DefineHeight, EcosModal, Icon, Loader, ResizeBoxes, Search } from '../../common';
+import { DefineHeight, EcosModal, Icon, Loader, ResizeBoxes, Search, Tooltip } from '../../common';
 import { Dropdown } from '../../common/form';
 import { Btn } from '../../common/btns';
 import { Grid, InlineTools } from '../../common/grid';
@@ -48,6 +48,10 @@ const Labels = {
 };
 
 class Documents extends BaseWidget {
+  #documentsColumns = tableFields.DEFAULT.map(item => ({
+    dataField: item.name,
+    text: t(item.label)
+  }));
   scrollPosition = {};
 
   static propTypes = {
@@ -115,8 +119,7 @@ class Documents extends BaseWidget {
         value: t(type.value)
       })),
       isLoadingUploadingModal: true,
-      isHoverLastRow: false,
-      columnsSizes: {}
+      isHoverLastRow: false
     };
 
     this._tablePanel = React.createRef();
@@ -433,7 +436,7 @@ class Documents extends BaseWidget {
   };
 
   handleClearSelectedType = () => {
-    this.setState({ selectedType: '', columnsSizes: {} });
+    this.setState({ selectedType: '' });
     this.scrollPosition = {};
   };
 
@@ -449,8 +452,7 @@ class Documents extends BaseWidget {
       isDragFiles: false,
       selectedType: type,
       statusFilter: statusesKeys.ALL,
-      selectedTypeForLoading: selectedType,
-      columnsSizes: state.selectedTypeForLoading ? state.columnsSizes : {}
+      selectedTypeForLoading: selectedType
     }));
     this.scrollPosition = {};
   };
@@ -662,12 +664,6 @@ class Documents extends BaseWidget {
     this.scrollPosition = event;
   };
 
-  handleResizeColumn = columnsSizes => {
-    this.setState(state => ({
-      columnsSizes: { ...state.columnsSizes, ...columnsSizes }
-    }));
-  };
-
   /**
    * To recalculate the need for scroll bars
    */
@@ -776,21 +772,6 @@ class Documents extends BaseWidget {
     );
   };
 
-  calculateColumnStyle = colIndex => {
-    const { columnsSizes } = this.state;
-
-    if (columnsSizes[colIndex]) {
-      const { width, indents } = columnsSizes[colIndex];
-
-      return {
-        width: `${width - indents}px`,
-        '--column-size': `${width - indents}px`
-      };
-    }
-
-    return {};
-  };
-
   renderTypes() {
     const { dynamicTypes } = this.props;
     const { selectedType, leftColumnId, rightColumnId } = this.state;
@@ -831,21 +812,25 @@ class Documents extends BaseWidget {
     );
   }
 
-  renderType = type => {
+  renderType = item => {
     const { selectedType } = this.state;
+    const id = prepareTooltipId(`type-${item.type}`);
 
     return (
       <div
-        key={type.type}
-        onClick={() => this.handleSelectType(type)}
+        key={item.type}
+        onClick={() => this.handleSelectType(item)}
         className={classNames('ecos-docs__types-item', {
-          'ecos-docs__types-item_selected': selectedType === type.type
+          'ecos-docs__types-item_selected': selectedType === item.type
         })}
       >
-        <div className="ecos-docs__types-item-label" title={t(type.name)}>
-          {t(type.name)}
-        </div>
-        {this.renderCountStatus(type)}
+        <Tooltip target={id} text={t(item.name)} uncontrolled showAsNeeded autohide>
+          <div id={id} className="ecos-docs__types-item-label">
+            {t(item.name)}
+          </div>
+        </Tooltip>
+
+        {this.renderCountStatus(item)}
       </div>
     );
   };
@@ -1010,16 +995,6 @@ class Documents extends BaseWidget {
       return null;
     }
 
-    const columns = tableFields.DEFAULT.map(item => ({
-      dataField: item.name,
-      text: t(item.label),
-      headerStyle: (...params) => {
-        return this.calculateColumnStyle(params[params.length - 1]);
-      },
-      style: (...params) => {
-        return this.calculateColumnStyle(params[params.length - 1]);
-      }
-    }));
     const isShowDropZone = isDragFiles;
 
     return (
@@ -1037,10 +1012,9 @@ class Documents extends BaseWidget {
             'ecos-docs__table_without-after-element': isHoverLastRow
           })}
           data={this.tableData}
-          columns={columns}
+          columns={this.#documentsColumns}
           onChangeTrOptions={this.handleHoverRow}
           onScrolling={this.handleScollingTable}
-          onResizeColumn={this.handleResizeColumn}
           inlineTools={this.renderInlineTools}
           scrollPosition={this.scrollPosition}
           onRowMouseLeave={this.handleRowMouseLeave}
@@ -1077,14 +1051,7 @@ class Documents extends BaseWidget {
 
     const columns = tableFields.ALL.map(item => {
       const { name, label, ...other } = item;
-      const extended = {
-        headerStyle: (...params) => {
-          return this.calculateColumnStyle(params[params.length - 1]);
-        },
-        style: (...params) => {
-          return this.calculateColumnStyle(params[params.length - 1]);
-        }
-      };
+      const extended = {};
 
       if (name === 'count') {
         extended.customFormatter = this.countFormatter;
@@ -1117,7 +1084,6 @@ class Documents extends BaseWidget {
         onRowClick={this.handleClickTableRow}
         onRowDrop={this.handleRowDrop}
         onRowDragEnter={this.handleRowDragEnter}
-        onResizeColumn={this.handleResizeColumn}
         onMouseEnter={this.handleTypeRowMouseEnter}
         onRowMouseLeave={this.handleTypeRowMouseLeave}
         scrollPosition={this.scrollPosition}
