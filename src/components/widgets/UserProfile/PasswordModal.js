@@ -93,36 +93,38 @@ class PasswordModal extends React.Component {
 
     return (
       <EcosModal noHeader isOpen={isShow} hideModal={this.hideModal} className="ecos-user-profile-password-modal ecos-modal_width-xs">
-        {!isAdmin && (
-          <>
-            <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.OLD)}</div>
-            <Password
-              className="ecos-user-profile__password-modal-filed"
-              keyValue="oldWord"
-              value={oldWord.value}
-              onChange={this.onChangeWord}
-            />
-          </>
-        )}
-        <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.NEW)}</div>
-        <Password
-          verifiable
-          className="ecos-user-profile__password-modal-filed"
-          keyValue="newWord"
-          value={newWord.value}
-          onChange={this.onChangeWord}
-          onBlur={this.checkNewWord}
-          errMsgs={newWordMsgs}
-        />
-        <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.REPEAT)}</div>
-        <Password
-          className="ecos-user-profile__password-modal-filed"
-          keyValue="repeatWord"
-          value={repeatWord.value}
-          onChange={this.onChangeWord}
-          onBlur={this.checkRepeatWord}
-          errMsgs={repeatWordMsgs}
-        />
+        <form autoComplete="off">
+          {!isAdmin && (
+            <>
+              <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.OLD)}</div>
+              <Password
+                className="ecos-user-profile__password-modal-filed"
+                keyValue="oldWord"
+                value={oldWord.value}
+                onChange={this.onChangeWord}
+              />
+            </>
+          )}
+          <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.NEW)}</div>
+          <Password
+            verifiable
+            className="ecos-user-profile__password-modal-filed"
+            keyValue="newWord"
+            value={newWord.value}
+            onChange={this.onChangeWord}
+            onBlur={this.checkNewWord}
+            errMsgs={newWordMsgs}
+          />
+          <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.REPEAT)}</div>
+          <Password
+            className="ecos-user-profile__password-modal-filed"
+            keyValue="repeatWord"
+            value={repeatWord.value}
+            onChange={this.onChangeWord}
+            onBlur={this.checkRepeatWord}
+            errMsgs={repeatWordMsgs}
+          />
+        </form>
         <div className="ecos-user-profile__password-modal-actions">
           <Btn onClick={this.hideModal}>{t(Labels.Btns.CANCEL)}</Btn>
           <Btn onClick={this.onConfirmChangePassword} className="ecos-btn_blue" disabled={!this.checkWords()}>

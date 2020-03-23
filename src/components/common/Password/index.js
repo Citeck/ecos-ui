@@ -23,8 +23,8 @@ const Labels = {
 const MsgTypes = {
   ERROR: 'error'
 };
-
-const BASE_RULE = /[а-яА-ЯёЁ\w`~!@#$%^&*()\-_+=|\\\/,.?<>\[\];'{}:" ]{3,}$/;
+// eslint-disable-next-line no-useless-escape
+const BASE_RULE = /[а-яА-ЯёЁ\w`~!@#$%^&*()\-_+=|\\/,.?<>\[\];'{}:" ]{3,}$/;
 const RULES = [
   {
     key: 'count-characters',
