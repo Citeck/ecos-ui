@@ -63,7 +63,7 @@ class UserProfileDashlet extends BaseWidget {
     const {
       title,
       classNameDashlet,
-      profile: { lastName, firstName, middleName, isAdmin, userName, thumbnail },
+      profile: { lastName, firstName, middleName, userName, thumbnail },
       isCurrentUser,
       isLoading,
       isLoadingPhoto,

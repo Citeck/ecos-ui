@@ -113,7 +113,7 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardByRecordRef = function*(recordRef) {
-    const { etype, dashboardType } = recordRef ? yield Records.get(recordRef).load({ etype: '_etype?id' }) : {};
+    const { etype } = recordRef ? yield Records.get(recordRef).load({ etype: '_etype?id' }) : {};
     const recType = etype || 'emodel/type@base';
 
     const user = getCurrentUserName();

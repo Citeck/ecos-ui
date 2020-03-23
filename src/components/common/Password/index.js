@@ -24,7 +24,7 @@ const MsgTypes = {
   ERROR: 'error'
 };
 
-const BASE_RULE = /[а-яА-ЯёЁ\w\`\~\!@\#\$\%\^\&\*\(\)\-\_\+\=\|\\\/\,\.\?\<\>\[\]\;\'\{\}\:\"\ ]{3,}$/;
+const BASE_RULE = /[а-яА-ЯёЁ\w`~!@#$%^&*()\-_+=|\\\/,.?<>\[\];'{}:" ]{3,}$/;
 const RULES = [
   {
     key: 'count-characters',
@@ -179,7 +179,7 @@ class Password extends React.Component {
               'ecos-password-field__input_valid': verifiable && touched && check
             })}
             onChange={this.onChange}
-            autoComplete={autocomplete ? 'on' : 'none'}
+            autoComplete={autocomplete ? 'on' : 'off'}
             onFocus={this.onFocus}
           />
           <Icon
