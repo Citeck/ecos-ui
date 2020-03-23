@@ -35,6 +35,10 @@
         .ecos-th,
         .ecos-grid__td {
           padding-left: 0;
+
+          span {
+            @extend %ellipsis;
+          }
         }
       }
 
