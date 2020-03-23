@@ -284,14 +284,21 @@
   "filter-list.panel-header": "Фильтрация",
 
   "record-action.name.delete": "Удалить",
+  "record-action.delete.dialog.title.remove-many": "Удаление записей",
+  "record-action.delete.dialog.title.remove-one": "Удаление записи",
+  "record-action.delete.dialog.msg.remove-many": "Вы действительно хотите удалить записи?",
+  "record-action.delete.dialog.msg.remove-one": "Вы действительно хотите удалить эту запись?",
+  "record-action.delete.dialog.title.error": "Ошибка",
+  "record-action.delete.dialog.msg.error": "Произошла ошибка при удалении",
+
   "record-action.name.details": "Детальная информация",
   "record-action.name.download": "Скачать",
   "record-action.name.create": "Создать",
   "record-action.name.edit": "Редактировать",
   "record-action.name.show": "Смотреть документ",
   "record-action.name.open-in-background": "Открыть в фоновой вкладке",
-  "record-action.name.upload-new-version": "Загрузить новую версию",
 
+  "record-action.name.upload-new-version": "Загрузить новую версию",
   "record-action.upload-new-version.title.upload-model": "Добавление новой версии документа",
   "record-action.upload-new-version.title.error-modal": "Ошибка",
   "record-action.upload-new-version.error.no-version": "Нет версий",

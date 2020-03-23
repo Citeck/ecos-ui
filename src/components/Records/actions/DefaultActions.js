@@ -228,14 +228,22 @@ export const DeleteAction = {
   groupExec: ({ records }) => {
     return new Promise(resolve => {
       dialogManager.showRemoveDialog({
+        title: records.length === 1 && 'record-action.delete.dialog.title.remove-one',
+        text: records.length === 1 && 'record-action.delete.dialog.msg.remove-one',
         onDelete: () => {
           Records.remove(records)
             .then(() => {
               resolve(true);
             })
             .catch(e => {
+              dialogManager.showInfoDialog({
+                title: 'record-action.delete.dialog.title.error',
+                text: e.message || 'record-action.delete.dialog.msg.error',
+                onClose: () => {
+                  resolve(false);
+                }
+              });
               console.error(e);
-              resolve(false);
             });
         },
         onCancel: () => {

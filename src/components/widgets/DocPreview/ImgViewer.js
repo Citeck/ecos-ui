@@ -32,8 +32,8 @@ class ImgViewer extends Component {
   }
 
   componentDidMount() {
-    if (this.props.onError) {
-      this.elImage.onerror = this.props.onError;
+    if (this.elImage.addEventListener) {
+      this.elImage.addEventListener('error', this.onError);
     }
   }
 
@@ -56,6 +56,12 @@ class ImgViewer extends Component {
     }
   }
 
+  componentWillUnmount() {
+    if (this.elImage.removeEventListener) {
+      this.elImage.removeEventListener('error', this.onError);
+    }
+  }
+
   get elImage() {
     return this.refImg.current || {};
   }
@@ -69,6 +75,10 @@ class ImgViewer extends Component {
 
     return calcScale ? { transform: `scale(${calcScale})` } : {};
   }
+
+  onError = error => {
+    this.props.onError && this.props.onError(error);
+  };
 
   getCalcScale = props => {
     let {
