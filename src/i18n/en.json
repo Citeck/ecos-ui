@@ -284,12 +284,20 @@
   "filter-list.panel-header": "Filter",
 
   "record-action.name.delete": "Delete",
+  "record-action.delete.dialog.title.remove-many": "Delete records",
+  "record-action.delete.dialog.title.remove-one": "Delete record",
+  "record-action.delete.dialog.msg.remove-many": "Do you really want to delete records?",
+  "record-action.delete.dialog.msg.remove-one": "Do you really want to delete the record?",
+  "record-action.delete.dialog.title.error": "Error",
+  "record-action.delete.dialog.msg.error": "An error occurred while deleting",
+
   "record-action.name.details": "Details",
   "record-action.name.download": "Download",
   "record-action.name.create": "Create",
   "record-action.name.edit": "Edit",
   "record-action.name.show": "View document",
   "record-action.name.open-in-background": "Open in background tab",
+
   "record-action.name.upload-new-version": "Upload new version",
   "record-action.upload-new-version.title.upload-model": "Add new document version",
   "record-action.upload-new-version.title.error-modal": "Error",

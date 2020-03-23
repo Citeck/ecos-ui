@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+
 import { t } from '../../../../helpers/util';
-import { RemoveDialog } from '../index';
 import { Btn } from '../../btns';
 import EcosModal from '../../EcosModal';
+import { RemoveDialog } from '../index';
+
 import './DialogManager.scss';
 
 const REMOVE_DIALOG_ID = 'DialogManager-remove-dialog';
@@ -37,32 +39,22 @@ class DialogWrapper extends React.Component {
   }
 
   render() {
-    return (
-      <this.props.dialogComponent
-        isVisible={this.state.isVisible}
-        setVisible={value => this.setVisible(value)}
-        dialogProps={this.state.dialogProps}
-      />
-    );
+    const { isVisible, dialogProps } = this.state;
+
+    return <this.props.dialogComponent isVisible={isVisible} setVisible={value => this.setVisible(value)} dialogProps={dialogProps} />;
   }
 }
 
 const dialogsById = {
   [REMOVE_DIALOG_ID]: props => {
     const dialogProps = props.dialogProps || {};
-
-    const { onDelete = () => {}, onCancel = () => {}, onClose = onCancel } = dialogProps;
-
-    let dProps = Object.assign(
-      {
-        title: t('journals.action.delete-records-msg'),
-        text: t('journals.action.remove-records-msg')
-      },
-      dialogProps,
-      {
-        isOpen: props.isVisible
-      }
-    );
+    const { onDelete = () => {}, onCancel = () => {}, onClose = onCancel, title, text } = dialogProps;
+    const dProps = {
+      ...dialogProps,
+      title: t(title || 'record-action.delete.dialog.title.remove-many'),
+      text: t(text || 'record-action.delete.dialog.msg.remove-many'),
+      isOpen: props.isVisible
+    };
 
     dProps.onDelete = () => {
       props.setVisible(false);
@@ -83,19 +75,13 @@ const dialogsById = {
   },
   [INFO_DIALOG_ID]: props => {
     const dialogProps = props.dialogProps || {};
-
-    const { onClose = () => {} } = dialogProps;
-
-    let dProps = Object.assign(
-      {
-        title: '',
-        text: ''
-      },
-      dialogProps,
-      {
-        isOpen: props.isVisible
-      }
-    );
+    const { onClose = () => {}, title, text } = dialogProps;
+    const dProps = {
+      ...dialogProps,
+      title: t(title || ''),
+      text: t(text || ''),
+      isOpen: props.isVisible
+    };
 
     dProps.onClose = () => {
       props.setVisible(false);
@@ -113,19 +99,13 @@ const dialogsById = {
   },
   [CONFIRM_DIALOG_ID]: props => {
     const dialogProps = props.dialogProps || {};
-
-    const { onNo = () => {}, onYes = () => {} } = dialogProps;
-
-    let dProps = Object.assign(
-      {
-        title: '',
-        text: ''
-      },
-      dialogProps,
-      {
-        isOpen: props.isVisible
-      }
-    );
+    const { onNo = () => {}, onYes = () => {}, title, text } = dialogProps;
+    const dProps = {
+      ...dialogProps,
+      title: t(title || ''),
+      text: t(text || ''),
+      isOpen: props.isVisible
+    };
 
     dProps.onNo = () => {
       props.setVisible(false);
@@ -149,18 +129,19 @@ const dialogsById = {
   }
 };
 
-let dialogs = {};
+const dialogs = {};
 
 const showDialog = (id, props) => {
   let dialog = dialogs[id];
 
   if (!dialog) {
-    let dialogComponent = dialogsById[id];
+    const dialogComponent = dialogsById[id];
+
     if (!dialogComponent) {
       throw new Error(`Dialog with id ${id} is not registered`);
     }
 
-    let container = document.createElement('div');
+    const container = document.createElement('div');
     container.id = id;
     document.body.appendChild(container);
 
