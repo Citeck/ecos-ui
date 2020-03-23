@@ -48,7 +48,7 @@ const RULES = [
   }
 ];
 
-class Password extends React.Component {
+export default class Password extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     keyValue: PropTypes.string,
@@ -61,7 +61,6 @@ class Password extends React.Component {
 
   static defaultProps = {
     className: '',
-    keyValue: '',
     autocomplete: false,
     verifiable: false
   };
@@ -71,16 +70,7 @@ class Password extends React.Component {
     touched: false
   };
 
-  componentDidMount() {
-    const { onChange, keyValue: key } = this.props;
-
-    onChange && onChange({ key });
-  }
-
   componentWillUnmount() {
-    const { onChange, keyValue: key } = this.props;
-
-    onChange && onChange({ key });
     this.setState({ touched: false, isShowWord: false });
   }
 
@@ -171,7 +161,7 @@ class Password extends React.Component {
         <div className="ecos-password-field">
           <Input
             {...addProps}
-            value={value}
+            defaultValue={value}
             type={isShowWord ? 'text' : 'password'}
             className={classNames('ecos-password-field__input ecos-input_focus ecos-input_hover', {
               'ecos-password-field__input_invalid':
@@ -195,8 +185,6 @@ class Password extends React.Component {
     );
   }
 }
-
-export default Password;
 
 function getKey() {
   return Math.random() + '-' + Date.now();
