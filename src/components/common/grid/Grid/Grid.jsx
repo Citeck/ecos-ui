@@ -38,7 +38,11 @@ const SelectorHeader = ({ indeterminate, ...rest }) => (
   </div>
 );
 
+const MIN_TH_WIDTH = 60;
+
 class Grid extends Component {
+  #columnsSizes = {};
+
   constructor(props) {
     super(props);
     this._selected = [];
@@ -81,6 +85,13 @@ class Grid extends Component {
   }
 
   componentDidUpdate() {
+    const grid = get(this.props, 'forwardedRef.current', null);
+
+    if (grid) {
+      this._tableDom = grid.querySelector('table');
+    }
+
+    this.setColumnsSizes();
     this.checkScrollPosition();
   }
 
@@ -102,6 +113,43 @@ class Grid extends Component {
 
     return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
   }
+
+  /**
+   * Fixes loss of column sizes when redrawing a component
+   */
+  setColumnsSizes = () => {
+    if (!this._tableDom) {
+      return;
+    }
+
+    if (!Object.keys(this.#columnsSizes).length) {
+      return;
+    }
+
+    const rows = this._tableDom.rows;
+
+    for (let i = 0; i < rows.length; i++) {
+      for (let j = 0, row = rows[i]; j < row.cells.length; j++) {
+        let cell = row.cells[j];
+
+        if (!cell) {
+          continue;
+        }
+
+        let { width = 0, indents = 0 } = get(this.#columnsSizes, `[${j}]`, {});
+
+        if (!width) {
+          continue;
+        }
+
+        cell.style.width = `${width}px`;
+
+        if (cell.firstChild && cell.firstChild.style) {
+          cell.firstChild.style.width = `${width - indents}px`;
+        }
+      }
+    }
+  };
 
   checkScrollPosition() {
     const { scrollPosition = {} } = this.props;
@@ -218,6 +266,8 @@ class Grid extends Component {
         if (props.changeTrOptionsByRowClick) {
           this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true);
         }
+
+        this._tr = null;
 
         trigger.call(this, 'onRowMouseLeave', e);
       },
@@ -478,22 +528,68 @@ class Grid extends Component {
     document.removeEventListener('mouseup', this.clearResizingColumn);
   };
 
+  fixAllThWidth = () => {
+    if (!this._tableDom) {
+      return;
+    }
+
+    const allTh = this._tableDom.querySelectorAll('th');
+
+    if (allTh.length < 3) {
+      return;
+    }
+
+    for (let i = 0; i < allTh.length - 1; i++) {
+      const th = allTh[i];
+      const thStyles = window.getComputedStyle(th);
+
+      th.style['width'] = thStyles['width'];
+      th.style['min-width'] = thStyles['width'];
+    }
+  };
+
+  getElementPaddings = (element = null) => {
+    const paddings = {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0
+    };
+
+    if (!element) {
+      return paddings;
+    }
+
+    const elementStyles = window.getComputedStyle(element);
+
+    paddings.left = parseInt(elementStyles.getPropertyValue('padding-left'), 10) || 0;
+    paddings.right = parseInt(elementStyles.getPropertyValue('padding-right'), 10) || 0;
+    paddings.top = parseInt(elementStyles.getPropertyValue('padding-top'), 10) || 0;
+    paddings.bottom = parseInt(elementStyles.getPropertyValue('padding-bottom'), 10) || 0;
+
+    return paddings;
+  };
+
   getStartDividerPosition = options => {
     this._resizingTh = options.th;
     this._tableDom = closest(options.th, 'table');
 
-    const thStyles = window.getComputedStyle(this._resizingTh);
-    const paddingLeft = parseInt(thStyles.getPropertyValue('padding-left'), 10) || 0;
-    const paddingRight = parseInt(thStyles.getPropertyValue('padding-right'), 10) || 0;
+    this.fixAllThWidth(); // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3196
 
-    this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX - paddingLeft - paddingRight;
+    this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
   };
 
   resizeColumn = e => {
     let th = this._resizingTh;
 
     if (th && this._tableDom) {
-      const width = this._startResizingThOffset + e.pageX + 'px';
+      const { left, right } = this.getElementPaddings(th);
+      let width = this._startResizingThOffset + e.pageX;
+
+      if (width < MIN_TH_WIDTH) {
+        width = MIN_TH_WIDTH; //  - left - right;
+      }
+
       const rows = this._tableDom.rows;
 
       for (let i = 0; i < rows.length; i++) {
@@ -503,13 +599,35 @@ class Grid extends Component {
           continue;
         }
 
-        firstCol.style.width = width;
-        firstCol.firstChild.style.width = width;
+        firstCol.style.removeProperty('min-width');
+        firstCol.style.width = `${width}px`;
+
+        if (firstCol.firstChild && firstCol.firstChild.style) {
+          firstCol.firstChild.style.width = `${width - left - right}px`;
+        }
       }
     }
   };
 
-  clearResizingColumn = () => {
+  clearResizingColumn = e => {
+    if (this._resizingTh && this._tableDom) {
+      const cells = this._tableDom.rows[0].cells;
+      const columnsSizes = {};
+
+      for (let i = 0; i < cells.length; i++) {
+        if (!cells[i]) {
+          continue;
+        }
+
+        const { left, right } = this.getElementPaddings(cells[i]);
+        let width = parseInt(cells[i].style.width, 10) || '';
+
+        columnsSizes[i] = { width, indents: left + right };
+      }
+
+      this.#columnsSizes = columnsSizes;
+    }
+
     this._resizingTh = null;
   };
 
@@ -539,6 +657,10 @@ class Grid extends Component {
 
   onMouseLeave = e => {
     trigger.call(this, 'onMouseLeave', e);
+  };
+
+  onMouseEnter = e => {
+    trigger.call(this, 'onGridMouseEnter', e);
   };
 
   onRowClick = tr => {
@@ -612,9 +734,7 @@ class Grid extends Component {
     const target = e.target;
     const tr = closest(target, ECOS_GRID_ROW_CLASS);
 
-    if (this.props.onRowDragEnter) {
-      this.props.onRowDragEnter();
-    }
+    trigger.call(this, 'onRowDragEnter', e);
 
     if (tr === null) {
       this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
@@ -632,6 +752,7 @@ class Grid extends Component {
     }
 
     this.setHover(tr, ECOS_GRID_GRAG_CLASS, false, this._tr);
+
     this._dragTr = tr;
 
     e.stopPropagation();
@@ -673,6 +794,7 @@ class Grid extends Component {
       scrollAutoHide,
       className,
       rowClassName,
+      tableViewClassName,
       forwardedRef,
       noTopBorder,
       columns,
@@ -698,6 +820,7 @@ class Grid extends Component {
           style={style}
           autoHide={autoHide}
           hideTracksWhenNotNeeded
+          renderView={props => <div {...props} className={tableViewClassName} />}
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
           renderTrackHorizontal={props => <div {...props} className="ecos-grid__h-scroll" />}
         >
@@ -720,6 +843,7 @@ class Grid extends Component {
             [className]: !!className
           })}
           onMouseLeave={this.onMouseLeave}
+          onMouseEnter={this.onMouseEnter}
         >
           {!!toolsVisible && this.tools(bootProps.selected)}
           <Scroll scrollable={bootProps.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback} autoHide={scrollAutoHide}>
@@ -750,6 +874,7 @@ class Grid extends Component {
 Grid.propTypes = {
   className: PropTypes.string,
   rowClassName: PropTypes.string,
+  tableViewClassName: PropTypes.string,
   keyField: PropTypes.string,
   dataField: PropTypes.string,
 
@@ -775,7 +900,9 @@ Grid.propTypes = {
   onRowDrop: PropTypes.func,
   onDragOver: PropTypes.func,
   onRowDragEnter: PropTypes.func,
-  onRowMouseLeave: PropTypes.func
+  onRowMouseLeave: PropTypes.func,
+  onResizeColumn: PropTypes.func,
+  onGridMouseEnter: PropTypes.func
 };
 
 export default Grid;

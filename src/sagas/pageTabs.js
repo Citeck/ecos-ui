@@ -96,7 +96,6 @@ function* sagaMoveTabs({ api, logger }, action) {
 function* sagaSetOneTab({ api, logger }, { payload }) {
   try {
     const { data: dataTab, params } = payload;
-
     const { closeActiveTab } = params || {};
 
     if (closeActiveTab) {

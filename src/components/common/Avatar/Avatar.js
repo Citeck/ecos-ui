@@ -29,7 +29,13 @@ export default class Avatar extends React.Component {
 
   componentDidMount() {
     if (this.refImg.current) {
-      this.refImg.current.onerror = this.onError;
+      this.refImg.current.addEventListener('error', this.onError);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.refImg.current) {
+      this.refImg.current.removeEventListener('error', this.onError);
     }
   }
 

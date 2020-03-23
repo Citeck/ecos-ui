@@ -1,9 +1,9 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
 
+import { backPageFromTransitionsHistory } from '../actions/app';
 import { backExecuteAction, getActions, runExecuteAction, setActions } from '../actions/recordActions';
 import { setNotificationMessage } from '../actions/notification';
-import { backPageFromTransitionsHistory } from '../actions/webPage';
 import { t } from '../helpers/util';
 import { DefaultActionTypes } from '../components/Records/actions';
 

@@ -693,3 +693,39 @@ export function arrayFlat({ data = [], depth = Infinity, byField = '', withParen
 
   return Array.prototype.flat.call(array.map(getChildren), depth);
 }
+
+export function objectCompare(obj1, obj2, params = {}) {
+  const { include = [], exclude = [] } = params;
+  let keys = Object.keys(obj1);
+
+  if (include.length) {
+    keys = keys.filter(key => include.includes(key));
+  }
+
+  if (exclude.length) {
+    keys = keys.filter(key => !exclude.includes(key));
+  }
+
+  const results = keys.map(key => {
+    const type = typeof obj1[key];
+
+    if (obj1[key] === null || obj1[key] === undefined) {
+      return obj1[key] === obj2[key];
+    }
+
+    switch (type) {
+      case 'string':
+      case 'number':
+      case 'boolean':
+        return obj1[key] === obj2[key];
+      case 'array':
+        return arrayCompare(obj1[key], obj2[key]);
+      case 'object':
+        return JSON.stringify(obj1[key]) === JSON.stringify(obj2[key]);
+      default:
+        return true;
+    }
+  });
+
+  return !results.includes(false);
+}
