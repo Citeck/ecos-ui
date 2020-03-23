@@ -38,9 +38,9 @@ class PasswordModal extends React.Component {
   };
 
   state = {
-    oldWord: '',
-    newWord: '',
-    repeatWord: '',
+    oldWord: {},
+    newWord: {},
+    repeatWord: {},
     newWordMsgs: [],
     repeatWordMsgs: []
   };
@@ -50,9 +50,17 @@ class PasswordModal extends React.Component {
   };
 
   checkWords = () => {
+    const { isAdmin } = this.props;
     const { oldWord, newWord, repeatWord, newWordMsgs, repeatWordMsgs } = this.state;
 
-    return !newWordMsgs.length && !repeatWordMsgs.length && !!oldWord.value && !!repeatWord.value && !!newWord.value && newWord.valid;
+    return (
+      !newWordMsgs.length &&
+      !repeatWordMsgs.length &&
+      (isAdmin || !!oldWord.value) &&
+      !!repeatWord.value &&
+      !!newWord.value &&
+      newWord.valid
+    );
   };
 
   onConfirmChangePassword = () => {
