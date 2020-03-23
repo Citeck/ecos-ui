@@ -18,6 +18,7 @@ class Tooltip extends Component {
     hideArrow: PropTypes.bool,
     isOpen: PropTypes.bool,
     uncontrolled: PropTypes.bool,
+    showAsNeeded: PropTypes.bool,
     text: PropTypes.string,
     placement: PropTypes.oneOf([
       'auto',
