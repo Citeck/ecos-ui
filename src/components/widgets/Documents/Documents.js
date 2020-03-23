@@ -824,7 +824,7 @@ class Documents extends BaseWidget {
           'ecos-docs__types-item_selected': selectedType === item.type
         })}
       >
-        <Tooltip target={id} text={t(item.name)} uncontrolled showAsNeeded>
+        <Tooltip target={id} text={t(item.name)} uncontrolled showAsNeeded autohide>
           <div id={id} className="ecos-docs__types-item-label">
             {t(item.name)}
           </div>
