@@ -10,7 +10,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
-import { DefineHeight, EcosModal, Icon, Loader, ResizeBoxes, Search } from '../../common';
+import { DefineHeight, EcosModal, Icon, Loader, ResizeBoxes, Search, Tooltip } from '../../common';
 import { Dropdown } from '../../common/form';
 import { Btn } from '../../common/btns';
 import { Grid, InlineTools } from '../../common/grid';
@@ -812,21 +812,25 @@ class Documents extends BaseWidget {
     );
   }
 
-  renderType = type => {
+  renderType = item => {
     const { selectedType } = this.state;
+    const id = prepareTooltipId(`type-${item.type}`);
 
     return (
       <div
-        key={type.type}
-        onClick={() => this.handleSelectType(type)}
+        key={item.type}
+        onClick={() => this.handleSelectType(item)}
         className={classNames('ecos-docs__types-item', {
-          'ecos-docs__types-item_selected': selectedType === type.type
+          'ecos-docs__types-item_selected': selectedType === item.type
         })}
       >
-        <div className="ecos-docs__types-item-label" title={t(type.name)}>
-          {t(type.name)}
-        </div>
-        {this.renderCountStatus(type)}
+        <Tooltip target={id} text={t(item.name)} uncontrolled showAsNeeded autohide>
+          <div id={id} className="ecos-docs__types-item-label">
+            {t(item.name)}
+          </div>
+        </Tooltip>
+
+        {this.renderCountStatus(item)}
       </div>
     );
   };

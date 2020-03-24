@@ -1,4 +1,5 @@
 import { isEmpty } from 'lodash';
+import { createThumbnailUrl } from '../helpers/urls';
 
 export function getCommentForWeb(source) {
   if (isEmpty(source)) {
@@ -18,7 +19,7 @@ export function getCommentForWeb(source) {
   target.middleName = author.middleName || '';
   target.lastName = author.lastName || '';
   target.displayName = author.displayName || '';
-  target.avatar = `/share/proxy/alfresco/citeck/ecos/image/thumbnail?nodeRef=${author.id}&property=ecos:photo&width=150&height=150`;
+  target.avatar = createThumbnailUrl(author.id, { height: 150 });
 
   target.canEdit = !!permissions.canEdit;
   target.canDelete = !!permissions.canDelete;

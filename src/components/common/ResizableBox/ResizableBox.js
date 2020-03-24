@@ -94,7 +94,10 @@ class ResizableBox extends React.Component {
         <div ref={this.refBox} className={classNames('ecos-resize__container', classNameBox)}>
           {children}
         </div>
-        <div className={classNames('ecos-resize__bottom', classNameResizer)} ref={this.resizeWrapperRef}>
+        <div
+          className={classNames('ecos-resize__bottom', classNameResizer, { 'ecos-resize__bottom_none': !resizable })}
+          ref={this.resizeWrapperRef}
+        >
           {resizable && (
             <div ref={this.resizeButtonRef} className="ecos-resize__control">
               <Icon className="icon-resize" title={t('dashlet.resize.title')} onMouseDown={this.startResize} />

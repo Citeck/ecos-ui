@@ -91,6 +91,10 @@
         display: block;
       }
     }
+
+    &#{$root}_disabled {
+      padding-right: 14px;
+    }
   }
 
   &-label {

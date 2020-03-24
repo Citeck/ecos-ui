@@ -573,8 +573,9 @@ class Comments extends BaseWidget {
             <Avatar
               url={avatar}
               userName={displayName}
-              className={'ecos-comments__comment-avatar'}
-              classNameEmpty={'ecos-comments__comment-avatar_empty'}
+              noBorder
+              className="ecos-comments__comment-avatar"
+              classNameEmpty="ecos-comments__comment-avatar_empty"
             />
             <div className="ecos-comments__comment-header-column">
               <div className="ecos-comments__comment-name">

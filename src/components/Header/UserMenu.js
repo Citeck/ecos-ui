@@ -42,16 +42,16 @@ class UserMenu extends React.Component {
     const disabled = !(!isEmpty(items) && isArray(items));
     const mob = isMobile || medium;
     const classNameIcoBtn = classNames(`ecos-header-user__btn ecos-btn_tight ecos-btn_r_6`, {
-      [`ecos-btn_theme_${theme}`]: !mob,
+      [`ecos-btn_theme_${theme}`]: !mob && !!theme,
       'ecos-btn_no-back ecos-btn_width_auto': mob
     });
 
     return (
       <>
-        {!mob ? <Avatar theme={theme} url={userPhotoUrl} /> : null}
+        {!mob ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
         <Dropdown className="ecos-header-user ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
           <DropdownToggle tag="div" className="ecos-header-dropdown__toggle">
-            {mob ? <Avatar theme={theme} url={userPhotoUrl} /> : null}
+            {mob ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
             <IcoBtn invert={true} icon={dropdownOpen ? 'icon-up' : 'icon-down'} className={classNameIcoBtn} disabled={disabled}>
               {!mob && userFullName}
             </IcoBtn>

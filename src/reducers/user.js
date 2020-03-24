@@ -1,7 +1,8 @@
 import { handleActions } from 'redux-actions';
-import { validateUserSuccess, validateUserFailure, setUserThumbnail, setIsAuthenticated } from '../actions/user';
+import { setIsAuthenticated, setUserPhoto, setUserThumbnail, validateUserFailure, validateUserSuccess } from '../actions/user';
 
 const initialState = {
+  id: '',
   firstName: '',
   lastName: '',
   middleName: '',
@@ -27,7 +28,7 @@ export default handleActions(
         isMutable: action.payload.isMutable,
         isAdmin: action.payload.isAdmin,
         fullName: action.payload.fullName,
-        nodeRef: `workspace://SpacesStore/${action.payload.uid}`,
+        nodeRef: action.payload.nodeRef,
         isAuthenticated: true
       };
     },
@@ -47,6 +48,17 @@ export default handleActions(
         ...state,
         isAuthenticated: action.payload
       };
+    },
+    [setUserPhoto]: (state, { payload }) => {
+      const { stateId, thumbnail } = payload;
+      if (state.id === stateId) {
+        return {
+          ...state,
+          thumbnail
+        };
+      }
+
+      return state;
     }
   },
   initialState

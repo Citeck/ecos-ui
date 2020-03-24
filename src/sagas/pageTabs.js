@@ -2,6 +2,7 @@ import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import { push } from 'connected-react-router';
 import queryString from 'query-string';
 import find from 'lodash/find';
+import get from 'lodash/get';
 
 import {
   changeTab,
@@ -96,7 +97,6 @@ function* sagaMoveTabs({ api, logger }, action) {
 function* sagaSetOneTab({ api, logger }, { payload }) {
   try {
     const { data: dataTab, params } = payload;
-
     const { closeActiveTab } = params || {};
 
     if (closeActiveTab) {
@@ -170,10 +170,19 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
       return;
     }
 
-    const tab = payload.tab;
+    const updatingPayload = get(payload, 'updates', {});
+    let tab = payload.tab;
+
+    if (!tab) {
+      tab = PageTabList.changeOne({
+        tab: PageTabList.activeTab,
+        updates: updatingPayload
+      });
+    }
+
     const updates = yield* getTitle(tab);
 
-    PageTabList.changeOne({ tab, updates });
+    PageTabList.changeOne({ tab, updates: { ...updatingPayload, ...updates } });
 
     yield put(setTabs(PageTabList.storeList));
   } catch (e) {

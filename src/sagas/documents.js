@@ -9,8 +9,8 @@ import {
   selectConfigTypes,
   selectDynamicType,
   selectDynamicTypes,
-  selectTypeNames,
-  selectIsLoadChecklist
+  selectIsLoadChecklist,
+  selectTypeNames
 } from '../selectors/documents';
 import {
   execRecordsAction,
@@ -259,7 +259,7 @@ function* uploadFile({ api, file, callback }) {
     formData.append('file', file);
     formData.append('name', file.name);
 
-    const { nodeRef = null } = yield call(api.documents.uploadFile, formData, callback);
+    const { nodeRef = null } = yield call(api.app.uploadFile, formData, callback);
 
     if (!nodeRef) {
       return Promise.reject('Error: No file nodeRef');

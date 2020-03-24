@@ -1,0 +1,81 @@
+@import '../../../styles/constants';
+
+.ecos-password {
+  &-field {
+    position: relative;
+
+    &__input {
+      padding: 0 30px 0 15px;
+      transition: border-color ease 0.5s;
+
+      &::-ms-reveal,
+      &::-ms-clear {
+        display: none;
+      }
+
+      &_invalid {
+        border-color: $color-red-1;
+      }
+
+      &_valid {
+        border-color: $color-green1;
+      }
+    }
+
+    &__icon-btn {
+      position: absolute;
+      font-size: 15px;
+      color: $color-gray-5;
+      cursor: pointer;
+
+      &:hover {
+        color: $text-color-gray;
+      }
+    }
+
+    &__opener {
+      top: 10px;
+      right: 12px;
+
+      &_close {
+        color: $color-gray-6;
+      }
+    }
+  }
+
+  &-rules {
+    color: $text-color-gray;
+    font-size: $font-size-small;
+    font-weight: $font-weight-semi-bold;
+    margin: 10px 0;
+
+    &__item {
+      &-icon {
+        font-size: $font-size-small;
+        padding-right: 10px;
+      }
+
+      &_invalid {
+        color: $color-red-1;
+      }
+
+      &_valid {
+        color: $color-green1;
+      }
+    }
+  }
+
+  &-messages {
+    margin-top: 8px;
+
+    &__item {
+      color: $color-gray-5;
+      font-size: $font-size-small;
+      font-weight: $font-weight-semi-bold;
+
+      &_error {
+        color: $color-red-1;
+      }
+    }
+  }
+}

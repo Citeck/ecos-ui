@@ -1,5 +1,4 @@
 import Records from '../components/Records';
-import ecosXhr from '../helpers/ecosXhr';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
@@ -35,19 +34,6 @@ export class DocumentsApi {
       .load('form?id')
       .then(response => response)
       .catch(() => null);
-  };
-
-  uploadFile = (data, callback) => {
-    return ecosXhr('/share/proxy/alfresco/eform/file', {
-      method: 'POST',
-      body: data,
-      handleProgress: callback
-    }).then(
-      response => response,
-      error => {
-        throw error;
-      }
-    );
   };
 
   uploadFilesWithNodes = (data = {}) => {

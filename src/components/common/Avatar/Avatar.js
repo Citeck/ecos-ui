@@ -12,7 +12,8 @@ export default class Avatar extends React.Component {
     theme: PropTypes.string,
     className: PropTypes.string,
     classNameEmpty: PropTypes.string,
-    userName: PropTypes.string
+    userName: PropTypes.string,
+    noBorder: PropTypes.bool
   };
 
   static defaultProps = {
@@ -22,15 +23,25 @@ export default class Avatar extends React.Component {
     userName: ''
   };
 
-  className = 'ecos-avatar';
-
-  state = { error: '' };
+  state = { error: false };
 
   refImg = React.createRef();
 
   componentDidMount() {
     if (this.refImg.current) {
-      this.refImg.current.onerror = this.onError;
+      this.refImg.current.addEventListener('error', this.onError);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.refImg.current) {
+      this.refImg.current.removeEventListener('error', this.onError);
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.url !== this.props.url) {
+      this.setState({ error: false });
     }
   }
 
@@ -49,10 +60,10 @@ export default class Avatar extends React.Component {
     const { url, userName } = this.props;
 
     if (!this.empty) {
-      return <img alt="avatar" src={url} className={classNames(`${this.className}__image`)} ref={this.refImg} />;
+      return <img alt="avatar" src={url} className="ecos-avatar__image" ref={this.refImg} onError={this.onError} />;
     } else if (this.empty && userName) {
       return (
-        <div className={classNames(`${this.className}__name`)}>
+        <div className="ecos-avatar__name">
           {userName
             .split(' ')
             .map(word => word[0])
@@ -61,15 +72,21 @@ export default class Avatar extends React.Component {
         </div>
       );
     } else {
-      return <Icon className={classNames(`${this.className}__icon`, 'icon-User_avatar')} />;
+      return <Icon className="ecos-avatar__icon icon-User_avatar" />;
     }
   }
 
   render() {
-    const { className, classNameEmpty, theme } = this.props;
+    const { className, classNameEmpty, theme, noBorder } = this.props;
 
     return (
-      <div className={classNames(this.className, `${this.className}_theme_${theme}`, className, { [classNameEmpty]: this.empty })}>
+      <div
+        className={classNames('ecos-avatar', className, {
+          [`ecos-avatar_theme_${theme}`]: !!theme,
+          [classNameEmpty]: this.empty,
+          'ecos-avatar_no-border': noBorder
+        })}
+      >
         {this.renderContent()}
       </div>
     );
