@@ -97,7 +97,14 @@ class ImgViewer extends Component {
 
     return (
       <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_img" style={style} ref={this.refImgCtr}>
-        <img src={src} alt={src} className="ecos-doc-preview__viewer-page-content" style={this.styleZoom} ref={this.refImg} />
+        <img
+          src={src}
+          alt={src}
+          className="ecos-doc-preview__viewer-page-content"
+          style={this.styleZoom}
+          ref={this.refImg}
+          onError={this.onError}
+        />
       </div>
     );
   }

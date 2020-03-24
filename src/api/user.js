@@ -53,4 +53,50 @@ export class UserApi extends CommonApi {
       };
     });
   };
+
+  getUserDataByRef(ref) {
+    return Records.get(ref)
+      .load({
+        userName: 'userName',
+        firstName: 'cm:firstName',
+        lastName: 'cm:lastName',
+        middleName: 'cm:middleName',
+        isAdmin: 'isAdmin?bool',
+        nodeRef: 'nodeRef?str'
+      })
+      .then(responce => responce);
+  }
+
+  changePassword({ record, data: { oldPass, pass, passVerify } }) {
+    const user = Records.get(record);
+
+    user.att('ecos:pass', pass);
+    user.att('ecos:passVerify', passVerify);
+    user.att('ecos:oldPass', oldPass);
+
+    return user
+      .save()
+      .then(response => ({ response, success: true }))
+      .catch(response => {
+        console.error(response);
+        const message = response.message || (response.errors && response.errors.join('; ')) || '';
+
+        return { success: false, message };
+      });
+  }
+
+  changePhoto({ record, data }) {
+    const user = Records.get(record);
+
+    user.att('ecos:photo?str', { ...data });
+
+    return user
+      .save()
+      .then(response => ({ response, success: true }))
+      .catch(response => {
+        const message = response.message || (response.errors && response.errors.join('; ')) || '';
+
+        return { success: false, message };
+      });
+  }
 }

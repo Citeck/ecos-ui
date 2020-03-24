@@ -1,4 +1,5 @@
 import 'react-app-polyfill/ie9';
+import './helpers/polyfills';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -15,7 +16,6 @@ import 'moment/locale/en-gb';
 import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
-import { polyfills } from './helpers/polyfills';
 import { getCurrentLocale } from './helpers/util';
 
 import configureStore, { getHistory } from './store';
@@ -57,8 +57,6 @@ import './styles/index.scss';
 
 import './build-info';
 import './services/esign';
-
-polyfills();
 
 const logger = Logger.create('EcoS');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);

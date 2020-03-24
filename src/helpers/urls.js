@@ -1,7 +1,7 @@
 import * as queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
 
-import { URL } from '../constants';
+import { SourcesId, URL } from '../constants';
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJournal/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
@@ -51,6 +51,10 @@ export const _createOldVersionUrlDocument = recordRef => {
 };
 
 export const createProfileUrl = userName => {
+  if (isNewVersionPage()) {
+    return `${URL.DASHBOARD}?recordRef=${SourcesId.PEOPLE}@${userName}`;
+  }
+
   return `/share/page/user/${userName}/profile`;
 };
 
@@ -60,6 +64,12 @@ export const createDocumentUrl = recordRef => {
   }
 
   return _createOldVersionUrlDocument(recordRef);
+};
+
+export const createThumbnailUrl = (nodeRef, extra) => {
+  const params = { property: 'ecos:photo', width: 150, ...extra, nodeRef };
+
+  return `${PROXY_URI}citeck/ecos/image/thumbnail?` + queryString.stringify(params);
 };
 
 const getPredicateFilterParam = options => {

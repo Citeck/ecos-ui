@@ -1,7 +1,8 @@
 import { handleActions } from 'redux-actions';
-import { setIsAuthenticated, setUserThumbnail, validateUserFailure, validateUserSuccess } from '../actions/user';
+import { setIsAuthenticated, setUserPhoto, setUserThumbnail, validateUserFailure, validateUserSuccess } from '../actions/user';
 
 const initialState = {
+  id: '',
   firstName: '',
   lastName: '',
   middleName: '',
@@ -47,6 +48,17 @@ export default handleActions(
         ...state,
         isAuthenticated: action.payload
       };
+    },
+    [setUserPhoto]: (state, { payload }) => {
+      const { stateId, thumbnail } = payload;
+      if (state.id === stateId) {
+        return {
+          ...state,
+          thumbnail
+        };
+      }
+
+      return state;
     }
   },
   initialState

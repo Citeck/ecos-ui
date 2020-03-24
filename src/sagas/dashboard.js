@@ -6,6 +6,7 @@ import {
   setDashboardConfig,
   setDashboardIdentification,
   setDashboardTitleInfo,
+  setLoading,
   setMobileDashboardConfig,
   setRequestResultDashboard
 } from '../actions/dashboard';
@@ -31,6 +32,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
     if (isReset) {
       console.info('[dashboard/ doGetDashboardRequest saga] info: Dashboard is unmounted');
+      yield put(setLoading(false));
       return;
     }
 
@@ -39,6 +41,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     yield put(setMobileDashboardConfig(webConfigMobile));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error5')));
+    yield put(setLoading(false));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
   }
 }

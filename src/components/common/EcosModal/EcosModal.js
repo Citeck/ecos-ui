@@ -91,7 +91,8 @@ export default class EcosModal extends Component {
       isLoading,
       isEmptyTitle,
       onResize,
-      customButtons
+      customButtons,
+      noHeader
     } = this.props;
     const { isOpen, level, draggableState } = this.state;
 
@@ -126,7 +127,7 @@ export default class EcosModal extends Component {
       );
     }
 
-    const header = (
+    const header = noHeader ? null : (
       <ModalHeader toggle={hideModal} close={closeBtn} className={`modal-header_level-${level}`}>
         {title && !isEmptyTitle ? title : ''}
         {customButtons}
@@ -176,6 +177,7 @@ EcosModal.propTypes = {
   isLoading: PropTypes.bool,
   isEmptyTitle: PropTypes.bool,
   noDraggable: PropTypes.bool,
+  noHeader: PropTypes.bool,
   hideModal: PropTypes.func,
   reactstrapProps: PropTypes.object,
   title: PropTypes.string,

@@ -262,8 +262,8 @@ export default class Record {
   load(attributes, force) {
     let attsMapping = {};
     let attsToLoad = [];
-
     let isSingleAttribute = _.isString(attributes);
+
     if (isSingleAttribute) {
       attsToLoad = [attributes];
     } else if (_.isArray(attributes)) {

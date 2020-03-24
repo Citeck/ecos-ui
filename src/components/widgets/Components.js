@@ -22,7 +22,8 @@ export const ComponentKeys = {
   WEB_PAGE: 'web-page',
   BARCODE: 'barcode',
   BIRTHDAYS: 'birthdays',
-  DOCUMENTS: 'documents'
+  DOCUMENTS: 'documents',
+  USER_PROFILE: 'user-profile'
 };
 
 /**
@@ -115,6 +116,11 @@ export default class Components {
       load: () => lazy(() => import('./Documents')),
       label: 'dashboard-settings.widget.documents',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.PROFILE]
+    },
+    [ComponentKeys.USER_PROFILE]: {
+      load: () => lazy(() => import('./UserProfile')),
+      label: 'dashboard-settings.widget.user-basic-info',
+      supportedDashboardTypes: [DashboardTypes.PROFILE]
     }
   });
 
