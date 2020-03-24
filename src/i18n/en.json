@@ -82,7 +82,7 @@
   "comments-widget.editor.cancel": "Cancel",
   "comments-widget.editor.placeholder": "Write a comment no more than 350 characters...",
   "comments-widget.editor.save": "Send",
-  "comments-widget.error": "Failure to se, try again",
+  "comments-widget.error": "Failure to send, try again",
   "comments-widget.hour-form1": "hour",
   "comments-widget.hour-form2": "hours",
   "comments-widget.hour-form3": "hours",
