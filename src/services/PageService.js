@@ -105,7 +105,7 @@ export default class PageService {
    * @param link - string
    * @param params
    *    link - string,
-   *    checkUrl - bool,
+   *    updateUrl - bool,
    *    openNewTab - bool,
    *    openNewBrowserTab - bool,
    *    reopenBrowserTab - bool,
@@ -129,9 +129,19 @@ export default class PageService {
     const currentLink = window.location.href.replace(window.location.origin, '');
 
     if (type === Events.CHANGE_URL_LINK_EVENT) {
-      const { openNewTab, openNewBrowserTab, reopenBrowserTab, openInBackground, link, ...props } = params || {};
+      const { openNewTab, openNewBrowserTab, reopenBrowserTab, openInBackground, link, updateUrl, ...props } = params || {};
 
       event.preventDefault();
+
+      if (updateUrl) {
+        window.history.pushState(window.history.state, '', link);
+
+        return {
+          ...props,
+          link,
+          updates: { link }
+        };
+      }
 
       let target = '';
 
