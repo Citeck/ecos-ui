@@ -15,6 +15,7 @@ noderef
 options
 +assoc
 */
+import get from 'lodash/get';
 
 export function matchCardDetailsLinkFormatterColumn(column) {
   return column.attribute === 'cm:name' || column.attribute === 'cm:title';
@@ -23,35 +24,38 @@ export function matchCardDetailsLinkFormatterColumn(column) {
 const MAP = [
   {
     options: column => {
-      let formatter = column.params.formatter;
+      const formatter = column.params.formatter;
+      const params = { ...column.params };
+      let name = '';
 
       switch (formatter) {
         case 'workflowPriority':
-          formatter = 'WorkflowPriorityFormatter';
+          name = 'WorkflowPriorityFormatter';
           break;
         case 'taskTitle':
-          formatter = 'TaskTitleFormatter';
+          name = 'TaskTitleFormatter';
           break;
         case 'documentLink':
-          formatter = 'DocumentLinkFormatter';
+          name = 'DocumentLinkFormatter';
           break;
         case 'dateOrDateTime':
-          formatter = 'DateOrDateTimeFormatter';
+          name = 'DateOrDateTimeFormatter';
           break;
         case 'datetime':
-          formatter = 'DateTimeFormatter';
+          name = 'DateTimeFormatter';
           break;
         case 'percent':
-          formatter = 'PercentFormatter';
+          name = 'PercentFormatter';
           break;
         default:
-          // console.log('**************************************');
-          // console.log('No such formatter: ', formatter);
-          // console.log('**************************************');
+          if (formatter.includes('dateFormatter')) {
+            name = 'DateTimeFormatter';
+            params.format = get(formatter.split("'"), '[1]', '').toUpperCase();
+          }
           break;
       }
 
-      return { name: formatter, params: column.params };
+      return { name, params };
     },
     enable: column => column.params && column.params.formatter
   },
@@ -106,6 +110,7 @@ const MAP = [
 export default class Mapper {
   static getFormatterOptions(column, idx) {
     const match = MAP.filter(map => map.enable(column, idx))[0] || {};
+
     return match.options && match.options(column, idx);
   }
 }
