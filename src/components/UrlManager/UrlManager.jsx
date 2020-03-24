@@ -40,7 +40,7 @@ class UrlManager extends Component {
       }
 
       if (needUpdate) {
-        PageService.changeUrlLink(`${pathname}?${queryString.stringify(fromUrlParams)}`);
+        PageService.changeUrlLink(`${pathname}?${queryString.stringify(fromUrlParams)}`, { updateUrl: true });
         this.triggerParse(fromUrlParams);
       }
     }
