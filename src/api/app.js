@@ -25,7 +25,7 @@ export class AppApi extends CommonApi {
   };
 
   uploadFile = (data, callback) => {
-    return ecosXhr('/share/proxy/alfresco/eform/file', {
+    return ecosXhr(`${PROXY_URI}eform/file`, {
       method: 'POST',
       body: data,
       handleProgress: callback
