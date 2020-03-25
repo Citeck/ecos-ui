@@ -30,8 +30,7 @@ import {
   setPredicate,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setSelectedRecords,
-  setSettingsToUrl
+  setSelectedRecords
 } from '../../../actions/journals';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION } from '../constants';
 
@@ -66,7 +65,6 @@ const mapDispatchToProps = (dispatch, props) => {
     goToJournalsPage: row => dispatch(goToJournalsPage(w(row))),
     performGroupAction: options => dispatch(performGroupAction(w(options))),
     setPerformGroupActionResponse: options => dispatch(setPerformGroupActionResponse(w(options))),
-    setSettingsToUrl: options => dispatch(setSettingsToUrl(w(options))),
     setPredicate: options => dispatch(setPredicate(w(options))),
     setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup(w({ columns, sortBy })))
   };
@@ -114,7 +112,6 @@ class JournalsDashletGrid extends Component {
 
   onFilter = ([filter]) => {
     const {
-      setSettingsToUrl,
       setPredicate,
       isWidget,
       grid: { columns, pagination: pager }
@@ -126,15 +123,10 @@ class JournalsDashletGrid extends Component {
 
     setPredicate(newPredicate);
     this.reloadGrid({ predicates: [newPredicate], pagination });
-
-    if (!isWidget) {
-      setSettingsToUrl({ predicate: newPredicate, pagination });
-    }
   };
 
   onSort = e => {
     const {
-      setSettingsToUrl,
       setColumnsSetup,
       isWidget,
       grid: { columns }
@@ -147,10 +139,6 @@ class JournalsDashletGrid extends Component {
     ];
     setColumnsSetup(columns, sortBy);
     this.reloadGrid({ sortBy });
-
-    if (!isWidget) {
-      setSettingsToUrl({ sortBy });
-    }
   };
 
   setSelectedRow(row) {
