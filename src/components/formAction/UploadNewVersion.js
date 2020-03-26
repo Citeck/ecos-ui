@@ -26,7 +26,7 @@ export default function UploadNewVersion({ record, onClose }) {
     setLoading(true);
     versionsJournalApi
       .addNewVersion({
-        body: VersionsJournalConverter.getAddVersionFormDataForServer({ ...data, record }),
+        body: VersionsJournalConverter.getAddVersionFormDataForServer({ ...data, record: record.id }),
         handleProgress
       })
       .then(r => {
@@ -38,30 +38,38 @@ export default function UploadNewVersion({ record, onClose }) {
   };
 
   useEffect(() => {
+    let isExist = true;
+
     setShow(true);
 
-    if (record) {
-      const _versions = versionsJournalApi.getVersions(record);
+    if (record.id) {
+      const _versions = versionsJournalApi.getVersions(record.id);
 
       Promise.all([_versions])
         .then(response => {
-          const [versions] = response;
+          if (isExist) {
+            const [versions] = response;
 
-          if (!versions) {
-            throw new Error(t('record-action.upload-new-version.error.no-version'));
+            if (!versions) {
+              throw new Error(t('record-action.upload-new-version.error.no-version'));
+            }
+
+            if (versions.errors && versions.errors.length) {
+              throw new Error(versions.errors.map(item => item.msg).join('; '));
+            }
+
+            setCurrentVersion(get(versions, 'records.[0].version', 1));
           }
-
-          if (versions.errors && versions.errors.length) {
-            throw new Error(versions.errors.map(item => item.msg).join('; '));
-          }
-
-          setCurrentVersion(get(versions, 'records.[0].version', 1));
         })
-        .catch(e => setErrorMessage(e.message))
-        .finally(() => setLoadingModal(false));
+        .catch(e => isExist && setErrorMessage(e.message))
+        .finally(() => isExist && setLoadingModal(false));
     } else {
       setErrorMessage(t('record-action.upload-new-version.error.no-record'));
     }
+
+    return () => {
+      isExist = false;
+    };
   }, [record]);
 
   useEffect(() => {

@@ -17,6 +17,16 @@ export default class FunctionFormatter extends DefaultGqlFormatter {
 
     if (typeof params.fn === 'function') {
       params.fn(elCell, oRecord, oColumn, sData, rowIndex);
+    } else if (typeof params.fn === 'string') {
+      try {
+        // eslint-disable-next-line
+        const extractedFn = eval(`(function() { const fn = ${params.fn}; return fn; })()`);
+        if (typeof extractedFn === 'function') {
+          extractedFn(elCell, oRecord, oColumn, sData, rowIndex);
+        }
+      } catch (e) {
+        console.error(`FunctionFormatter error: ${e.message}`);
+      }
     }
 
     return elCell.innerHTML;
