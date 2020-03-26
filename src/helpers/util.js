@@ -696,7 +696,7 @@ export function arrayFlat({ data = [], depth = Infinity, byField = '', withParen
 
 export function objectCompare(obj1, obj2, params = {}) {
   const { include = [], exclude = [] } = params;
-  let keys = Object.keys(obj1);
+  let keys = [...new Set([...Object.keys(obj1), ...Object.keys(obj2)])];
 
   if (include.length) {
     keys = keys.filter(key => include.includes(key));
