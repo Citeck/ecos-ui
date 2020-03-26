@@ -29,7 +29,8 @@ export const SourcesId = {
   COMMENT: 'comment',
   VERSION: 'version',
   PEOPLE: 'people',
-  BIRTHDAYS: 'birthdays'
+  BIRTHDAYS: 'birthdays',
+  USER_CONF: 'uiserv/user-conf'
 };
 
 export const ActionModes = {

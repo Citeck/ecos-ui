@@ -80,12 +80,7 @@ export default class extends Component {
     const name = (config.meta.createVariants[0] || {}).title || config.meta.title;
     const reportColumns = (grid.columns || config.columns || [])
       .filter(c => c.default)
-      .map(column => {
-        return {
-          attribute: column.attribute,
-          title: column.text
-        };
-      });
+      .map(column => ({ attribute: column.attribute, title: column.text }));
 
     const query = {
       sortBy: [
@@ -109,7 +104,14 @@ export default class extends Component {
     return query;
   };
 
-  getSelectionFilterUrl = () => {
+  getSelectionFilter = () => {
+    const { columns } = this.props.journalConfig || {};
+    const { groupBy, sortBy, pagination, predicates } = this.props.grid || {};
+
+    return { columns, groupBy, sortBy, pagination, predicate: predicates[0] };
+  };
+
+  getSelectionUrl = () => {
     const { dashletConfig } = this.props;
     const { href, host } = window.location;
 
@@ -128,10 +130,10 @@ export default class extends Component {
   onCopyUrl = e => {
     e.stopPropagation();
 
-    const { columns, predicate, groupBy, sortBy, pagination, predicates } = this.props.grid || {};
-    const url = this.getSelectionFilterUrl();
+    const data = this.getSelectionFilter();
+    const url = this.getSelectionUrl();
 
-    api.copyUrlConfig({ data: { columns, predicate, groupBy, sortBy, pagination, predicates }, url });
+    api.copyUrlConfig({ data, url });
   };
 
   render() {

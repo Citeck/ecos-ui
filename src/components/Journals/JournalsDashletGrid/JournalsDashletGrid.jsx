@@ -113,7 +113,6 @@ class JournalsDashletGrid extends Component {
   onFilter = ([filter]) => {
     const {
       setPredicate,
-      isWidget,
       grid: { columns, pagination: pager }
     } = this.props;
     const predicate = ParserPredicate.getDefaultPredicates(columns, [filter.att]);
@@ -128,7 +127,6 @@ class JournalsDashletGrid extends Component {
   onSort = e => {
     const {
       setColumnsSetup,
-      isWidget,
       grid: { columns }
     } = this.props;
     const sortBy = [

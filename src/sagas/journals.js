@@ -162,7 +162,6 @@ function* sagaGetJournalsData({ api, logger, stateId, w }) {
   try {
     const url = yield select(state => state.journals[stateId].url);
     const { journalsListId, journalId, journalSettingId = '', userConfigId } = url;
-    console.log('userConfigId', userConfigId, url);
 
     yield put(setGrid(w({ pagination: DEFAULT_JOURNALS_PAGINATION })));
     yield getJournals(api, journalsListId, w);
@@ -202,52 +201,36 @@ function* getJournalConfig(api, journalId, w) {
   return journalConfig;
 }
 
-function* getJournalSetting(api, { journalSettingId, journalConfig, userConfigId, stateId }, w) {
+function* getJournalSetting(api, { journalSettingId, journalConfig, userConfig, stateId }, w) {
   let journalSetting;
 
-  if (userConfigId) {
-    const res = yield call(api.journals.getJournalSetting, journalSettingId);
-    console.log(res);
-    const res1 = yield call(api.userConfig.getConfig, userConfigId);
-    console.log(res1);
-  }
-  journalSettingId = journalSettingId || journalConfig.journalSettingId || api.journals.getLsJournalSettingId(journalConfig.id) || '';
+  if (userConfig) {
+    journalSetting = userConfig;
+  } else {
+    journalSettingId = journalSettingId || journalConfig.journalSettingId || api.journals.getLsJournalSettingId(journalConfig.id) || '';
 
-  if (journalSettingId) {
-    journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
-  }
+    if (journalSettingId) {
+      journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
+    }
 
-  if (!journalSetting) {
-    journalSetting = getDefaultJournalSetting(journalConfig);
+    if (!journalSetting) {
+      journalSetting = getDefaultJournalSetting(journalConfig);
+    }
   }
 
   journalSetting = { ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
 
-  const predicate = journalSetting.predicate;
-  const sortBy = journalSetting.sortBy;
-  const groupBy = journalSetting.groupBy;
-
-  journalSetting.sortBy = sortBy;
-  journalSetting.groupBy = groupBy;
-  journalSetting.predicate = predicate;
   journalSetting.columns = journalSetting.columns.map(column => {
     const match = journalConfig.columns.filter(c => c.attribute === column.attribute)[0];
     return match ? { ...column, sortable: match.sortable } : column;
   });
 
+  const predicate = journalSetting.predicate;
+
   yield put(setJournalSetting(w(journalSetting)));
   yield put(initJournalSettingData(w({ journalSetting, predicate })));
 
   return journalSetting;
-}
-
-function* getUserJournalConfig(api, { journalConfig, stateId }, w) {
-  const { userConfigId } = yield select(state => state.journals[stateId].url);
-
-  const remote = yield call(api.userConfig.getSavedConfig, { id: userConfigId }) || {};
-  const local = yield call(api.userConfig.getLocalConfig, { key: journalConfig.id }) || {};
-
-  return { ...remote, ...local };
 }
 
 function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
@@ -314,16 +297,15 @@ function* getGridData(api, params, stateId) {
 }
 
 function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w) {
-  console.log('>>>', userConfigId);
-  const url = yield select(state => state.journals[stateId].url);
-  const pagination = yield select(state => state.journals[stateId].grid.pagination);
-  const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, userConfigId, stateId }, w);
+  const userConfig = userConfigId ? yield call(api.userConfig.getConfig, { id: userConfigId }) : null;
+  const pagination = userConfig ? userConfig.pagination : yield select(state => state.journals[stateId].grid.pagination);
+  const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, userConfig, stateId }, w);
   const params = getGridParams({ journalConfig, journalSetting, pagination });
   const gridData = yield getGridData(api, params, stateId);
   const editingRules = yield getGridEditingRules(api, gridData);
 
   yield put(setSelectedRecords(w([])));
-  yield put(setSelectAllRecords(w(!!url.userConfigId)));
+  yield put(setSelectAllRecords(w(!!userConfigId)));
   yield put(setSelectAllRecordsVisible(w(false)));
   yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
   yield put(setPerformGroupActionResponse(w([])));
