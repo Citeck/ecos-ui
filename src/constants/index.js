@@ -60,6 +60,19 @@ export const QueryEntityKeys = {
   TYPE: 'type'
 };
 
+export const QueryLanguage = {
+  FORMS_FOR_TYPE: 'forms-for-type',
+  PREDICATE: 'predicate',
+  CHILDREN: 'children',
+  FTS_ALFRESCO: 'fts-alfresco',
+  DOC_TYPES: 'document-types',
+  TYPES_DOCS: 'types-documents',
+  DOC: 'document',
+  JSON: 'json',
+  CRITERIA: 'criteria',
+  WITHOUT: null
+};
+
 export const MIN_WIDTH_DASHLET_SMALL = 290;
 export const MIN_WIDTH_DASHLET_LARGE = 593;
 
