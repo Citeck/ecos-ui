@@ -28,7 +28,6 @@ import {
   saveDashlet,
   saveJournalSetting,
   saveRecords,
-  saveUserConfig,
   search,
   setColumnsSetup,
   setDashletConfig,
@@ -203,9 +202,15 @@ function* getJournalConfig(api, journalId, w) {
   return journalConfig;
 }
 
-function* getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w) {
+function* getJournalSetting(api, { journalSettingId, journalConfig, userConfigId, stateId }, w) {
   let journalSetting;
 
+  if (userConfigId) {
+    const res = yield call(api.journals.getJournalSetting, journalSettingId);
+    console.log(res);
+    const res1 = yield call(api.userConfig.getConfig, userConfigId);
+    console.log(res1);
+  }
   journalSettingId = journalSettingId || journalConfig.journalSettingId || api.journals.getLsJournalSettingId(journalConfig.id) || '';
 
   if (journalSettingId) {
@@ -308,10 +313,11 @@ function* getGridData(api, params, stateId) {
   return yield call(api.journals.getGridData, { ...forRequest, predicates, pagination, recordRef });
 }
 
-function* loadGrid(api, { journalSettingId, journalConfig, stateId }, w) {
+function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w) {
+  console.log('>>>', userConfigId);
   const url = yield select(state => state.journals[stateId].url);
   const pagination = yield select(state => state.journals[stateId].grid.pagination);
-  const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
+  const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, userConfigId, stateId }, w);
   const params = getGridParams({ journalConfig, journalSetting, pagination });
   const gridData = yield getGridData(api, params, stateId);
   const editingRules = yield getGridEditingRules(api, gridData);
@@ -720,14 +726,6 @@ function* sagaCreateZip({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaSaveUserConfig({ api, logger, stateId, w }, action) {
-  try {
-    const journalConfig = yield select(state => state.journals[stateId].journalConfig);
-  } catch (e) {
-    logger.error('[journals sagaSaveUserConfig saga error', e);
-  }
-}
-
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(setDashletConfigByParams().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
@@ -759,8 +757,6 @@ function* saga(ea) {
   yield takeEvery(search().type, wrapSaga, { ...ea, saga: sagaSearch });
   yield takeEvery(performGroupAction().type, wrapSaga, { ...ea, saga: sagaPerformGroupAction });
   yield takeEvery(createZip().type, wrapSaga, { ...ea, saga: sagaCreateZip });
-
-  yield takeEvery(saveUserConfig().type, wrapSaga, { ...ea, saga: sagaSaveUserConfig });
 }
 
 export default saga;

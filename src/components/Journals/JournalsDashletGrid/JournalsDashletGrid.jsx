@@ -241,6 +241,48 @@ class JournalsDashletGrid extends Component {
       toolsClassName
     } = this.props;
 
+    const sourceGroupActions = groupActions.filter(g => (selectAllRecords && g.type === 'filtered') || g.type === 'selected');
+    const tools = [
+      <JournalsDownloadZip stateId={stateId} selected={selected} />,
+      <IcoBtn
+        icon={'icon-copy'}
+        className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+        title={t('grid.tools.copy-to')}
+      />,
+      <IcoBtn
+        icon={'icon-big-arrow'}
+        className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+        title={t('grid.tools.move-to')}
+      />,
+      <IcoBtn
+        icon={'icon-delete'}
+        className={classNames(toolsActionClassName, 'ecos-btn_hover_t_red')}
+        title={t('grid.tools.delete')}
+        onClick={this.showDeleteRecordsDialog}
+      />
+    ];
+
+    if (sourceGroupActions && sourceGroupActions.length) {
+      tools.push(
+        <Dropdown
+          className={'grid-tools__item_left_5'}
+          source={sourceGroupActions}
+          valueField={'id'}
+          titleField={'title'}
+          isButton={true}
+          onChange={this.changeGroupAction}
+        >
+          <IcoBtn
+            invert
+            icon={'icon-down'}
+            className={'dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn'}
+            onClick={this.onGoTo}
+          >
+            {t(isMobile ? 'grid.tools.group-actions-mobile' : 'grid.tools.group-actions')}
+          </IcoBtn>
+        </Dropdown>
+      );
+    }
     return (
       <Tools
         onSelectAll={this.setSelectAllRecords}
@@ -248,48 +290,7 @@ class JournalsDashletGrid extends Component {
         selectAll={selectAllRecords}
         total={total}
         className={toolsClassName}
-        tools={[
-          <JournalsDownloadZip stateId={stateId} selected={selected} />,
-          <IcoBtn
-            icon={'icon-copy'}
-            className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-            title={t('grid.tools.copy-to')}
-          />,
-          <IcoBtn
-            icon={'icon-big-arrow'}
-            className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-            title={t('grid.tools.move-to')}
-          />,
-          <IcoBtn
-            icon={'icon-delete'}
-            className={classNames(toolsActionClassName, 'ecos-btn_hover_t_red')}
-            title={t('grid.tools.delete')}
-            onClick={this.showDeleteRecordsDialog}
-          />,
-          <Dropdown
-            className={'grid-tools__item_left_5'}
-            source={groupActions.filter(g => {
-              if (selectAllRecords) {
-                return g.type === 'filtered';
-              }
-
-              return g.type === 'selected';
-            })}
-            valueField={'id'}
-            titleField={'title'}
-            isButton={true}
-            onChange={this.changeGroupAction}
-          >
-            <IcoBtn
-              invert
-              icon={'icon-down'}
-              className={'dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn'}
-              onClick={this.onGoTo}
-            >
-              {t(isMobile ? 'grid.tools.group-actions-mobile' : 'grid.tools.group-actions')}
-            </IcoBtn>
-          </Dropdown>
-        ]}
+        tools={tools}
       />
     );
   };

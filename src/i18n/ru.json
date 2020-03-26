@@ -272,10 +272,14 @@
   "events-history-widget.info.no-events": "Нет событий",
   "events-history-widget.info.no-data": "Нет данных",
   "events-history-widget.title": "История событий",
+
   "export-component.action.html-load": "HTML (скачивание)",
   "export-component.action.html-read": "HTML (просмотр)",
   "export-component.action.copy-link": "Копировать ссылку на выборку",
-  "export-component.notice.to-buffer": "Ссылка на выборку скопирована в буфер обмена",
+  "export-component.notice.buffer-link-done": "Ссылка на выборку скопирована в буфер обмена",
+  "export-component.notice.buffer-link-err": "Не удалось создать ссылку на выборку",
+  "export-component.notice.buffer-link-preparation": "Подождите, идет подготовка ссылки на выборку",
+
   "filter-list.add-criterion": "Добавить критерий",
   "filter-list.add-operator": "Добавить оператор",
   "filter-list.condition-group": "Группу условий",

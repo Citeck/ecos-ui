@@ -61,4 +61,3 @@ export const setPerformGroupActionResponse = createAction(prefix + 'SET_PERFORM_
 export const createZip = createAction(prefix + 'CREATE_ZIP');
 export const setZipNodeRef = createAction(prefix + 'SET_ZIP_NODE-REF');
 export const setRecordRef = createAction(prefix + 'SET_RECORD_REF');
-export const saveUserConfig = createAction(prefix + 'SAVE_USER_CONFIG');
