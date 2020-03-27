@@ -1,25 +1,27 @@
 import PropTypes from 'prop-types';
 
 export default {
-  journalId: PropTypes.string,
+  createVariants: PropTypes.array,
+  columns: PropTypes.array,
+  error: PropTypes.any,
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
-  displayColumns: PropTypes.array,
-  onChange: PropTypes.func,
-  onError: PropTypes.func,
-  disabled: PropTypes.bool,
   isCompact: PropTypes.bool,
+  multiple: PropTypes.bool,
+  placeholder: PropTypes.string,
+  disabled: PropTypes.bool,
   isStaticModalTitle: PropTypes.bool,
   customStringForConcatWithStaticTitle: PropTypes.string,
+  onChange: PropTypes.func,
   isSelectableRows: PropTypes.bool,
   onSelectRows: PropTypes.func,
-  parentForm: PropTypes.object,
-  nonSelectableRows: PropTypes.array,
-  triggerEventOnTableChange: PropTypes.func,
   viewOnly: PropTypes.bool,
+  parentForm: PropTypes.object,
+  triggerEventOnTableChange: PropTypes.func,
   displayElements: PropTypes.shape({
     create: PropTypes.bool,
     view: PropTypes.bool,
     edit: PropTypes.bool,
     delete: PropTypes.bool
-  })
+  }),
+  nonSelectableRows: PropTypes.array
 };
