@@ -72,7 +72,14 @@ function* fetchSiteMenu({ api, fakeApi, logger }) {
 
 function* filterSiteMenu({ api, logger }, { payload = {} }) {
   try {
-    const { identification = null, url = '' } = payload;
+    const { identification = null } = payload;
+    const tabLink = get(payload, 'tab.link', '');
+    let { url = '' } = payload;
+
+    if (!url && tabLink) {
+      url = tabLink;
+    }
+
     let isDashboardPage = false;
 
     if (identification) {

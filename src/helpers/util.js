@@ -3,6 +3,7 @@ import moment from 'moment';
 import i18next from 'i18next';
 import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
+import isEqual from 'lodash/isEqual';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
@@ -696,7 +697,7 @@ export function arrayFlat({ data = [], depth = Infinity, byField = '', withParen
 
 export function objectCompare(obj1, obj2, params = {}) {
   const { include = [], exclude = [] } = params;
-  let keys = Object.keys(obj1);
+  let keys = [...new Set([...Object.keys(obj1), ...Object.keys(obj2)])];
 
   if (include.length) {
     keys = keys.filter(key => include.includes(key));
@@ -706,26 +707,20 @@ export function objectCompare(obj1, obj2, params = {}) {
     keys = keys.filter(key => !exclude.includes(key));
   }
 
-  const results = keys.map(key => {
-    const type = typeof obj1[key];
+  const filteredFirst = Object.keys(obj1)
+    .filter(key => keys.includes(key))
+    .reduce((obj, key) => {
+      obj[key] = obj1[key];
 
-    if (obj1[key] === null || obj1[key] === undefined) {
-      return obj1[key] === obj2[key];
-    }
+      return obj;
+    }, {});
+  const filteredSecond = Object.keys(obj2)
+    .filter(key => keys.includes(key))
+    .reduce((obj, key) => {
+      obj[key] = obj2[key];
 
-    switch (type) {
-      case 'string':
-      case 'number':
-      case 'boolean':
-        return obj1[key] === obj2[key];
-      case 'array':
-        return arrayCompare(obj1[key], obj2[key]);
-      case 'object':
-        return JSON.stringify(obj1[key]) === JSON.stringify(obj2[key]);
-      default:
-        return true;
-    }
-  });
+      return obj;
+    }, {});
 
-  return !results.includes(false);
+  return isEqual(filteredFirst, filteredSecond);
 }

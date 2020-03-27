@@ -31,7 +31,7 @@ import {
 import { selectStateByKey } from '../../../selectors/documents';
 import { errorTypes, statusesKeys, tableFields, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
-import { deepClone, prepareTooltipId, t, closest } from '../../../helpers/util';
+import { deepClone, prepareTooltipId, t, closest, objectCompare } from '../../../helpers/util';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
 
 import './style.scss';
@@ -1041,55 +1041,59 @@ class Documents extends BaseWidget {
     );
   };
 
-  renderTypesTable() {
-    const { dynamicTypes } = this.props;
-    const { selectedType, autoHide, isHoverLastRow } = this.state;
+  renderTypesTable = React.memo(
+    props => {
+      const { dynamicTypes, selectedType, autoHide, isHoverLastRow, forwardedRef, minHeight, tableData, scrollPosition } = props;
 
-    if (selectedType || !dynamicTypes.length) {
-      return null;
-    }
-
-    const columns = tableFields.ALL.map(item => {
-      const { name, label, ...other } = item;
-      const extended = {};
-
-      if (name === 'count') {
-        extended.customFormatter = this.countFormatter;
+      if (selectedType || !dynamicTypes.length) {
+        return null;
       }
 
-      return {
-        dataField: name,
-        text: t(label),
-        ...other,
-        ...extended
-      };
-    });
+      const columns = tableFields.ALL.map(item => {
+        const { name, label, ...other } = item;
+        const extended = {};
 
-    return (
-      <Grid
-        className={classNames('ecos-docs__table ecos-docs__table_types', {
-          'ecos-docs__table_without-after-element': isHoverLastRow
-        })}
-        rowClassName="ecos-docs__table-row"
-        data={this.tableData}
-        columns={columns}
-        scrollable
-        fixedHeader
-        scrollAutoHide={autoHide}
-        forwardedRef={this._tableRef}
-        autoHeight
-        minHeight={this.calculatedTableMinHeight}
-        keyField="type"
-        onScrolling={this.handleScollingTable}
-        onRowClick={this.handleClickTableRow}
-        onRowDrop={this.handleRowDrop}
-        onRowDragEnter={this.handleRowDragEnter}
-        onMouseEnter={this.handleTypeRowMouseEnter}
-        onRowMouseLeave={this.handleTypeRowMouseLeave}
-        scrollPosition={this.scrollPosition}
-      />
-    );
-  }
+        if (name === 'count') {
+          extended.customFormatter = this.countFormatter;
+        }
+
+        return {
+          dataField: name,
+          text: t(label),
+          ...other,
+          ...extended
+        };
+      });
+
+      return (
+        <Grid
+          className={classNames('ecos-docs__table ecos-docs__table_types', {
+            'ecos-docs__table_without-after-element': isHoverLastRow
+          })}
+          rowClassName="ecos-docs__table-row"
+          data={tableData}
+          columns={columns}
+          scrollable
+          fixedHeader
+          scrollAutoHide={autoHide}
+          forwardedRef={forwardedRef}
+          autoHeight
+          minHeight={minHeight}
+          keyField="type"
+          onScrolling={this.handleScollingTable}
+          onRowClick={this.handleClickTableRow}
+          onRowDrop={this.handleRowDrop}
+          onRowDragEnter={this.handleRowDragEnter}
+          onMouseEnter={this.handleTypeRowMouseEnter}
+          onRowMouseLeave={this.handleTypeRowMouseLeave}
+          scrollPosition={scrollPosition}
+        />
+      );
+    },
+    (prevProps, nextProps) => {
+      return objectCompare(prevProps, nextProps, { exclude: ['forwardedRef'] });
+    }
+  );
 
   renderTableLoader() {
     const { isLoading, isLoadingTableData, isUploadingFile } = this.props;
@@ -1104,17 +1108,27 @@ class Documents extends BaseWidget {
 
   renderTable() {
     const { dynamicTypes } = this.props;
-    const { rightColumnId } = this.state;
 
     if (!dynamicTypes.length) {
       return null;
     }
 
+    const { rightColumnId, selectedType, autoHide, isHoverLastRow } = this.state;
+
     return (
       <div id={rightColumnId} className="ecos-docs__column ecos-docs__column_table">
         {this.renderTablePanel()}
         {this.renderDocumentsTable()}
-        {this.renderTypesTable()}
+        <this.renderTypesTable
+          dynamicTypes={dynamicTypes}
+          selectedType={selectedType}
+          autoHide={autoHide}
+          isHoverLastRow={isHoverLastRow}
+          forwardedRef={this._tableRef}
+          minHeight={this.calculatedTableMinHeight + 2}
+          scrollPosition={this.scrollPosition}
+          tableData={this.tableData}
+        />
         {this.renderTableLoader()}
       </div>
     );

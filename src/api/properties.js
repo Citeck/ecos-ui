@@ -1,19 +1,18 @@
-import { SourcesId } from '../constants';
 import Records from '../components/Records';
 import { RecordService } from './recordService';
+import { SourcesId, QueryLanguage, QueryEntityKeys } from '../constants';
 
 export class PropertiesApi extends RecordService {
-  getFormList = function*({ record }) {
-    const formKeys = yield Records.get(record)
-      .load('_formKey[]?str')
-      .then(res => res || []);
+  getFormList = async function({ record }) {
+    const typeRef = await Records.get(record).load('_etype?id');
 
-    return yield Records.query(
-      { sourceId: SourcesId.EFORM, query: { formKeys } },
+    return await Records.query(
       {
-        id: 'id',
-        title: 'title'
-      }
-    ).then(res => res);
+        sourceId: SourcesId.EFORM,
+        language: QueryLanguage.FORMS_FOR_TYPE,
+        query: { typeRef }
+      },
+      [QueryEntityKeys.TITLE]
+    ).then(response => response);
   };
 }
