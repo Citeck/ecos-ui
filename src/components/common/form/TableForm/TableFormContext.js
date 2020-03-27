@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import isObject from 'lodash/isObject';
-import get from 'lodash/get';
 import TableFormPropTypes from './TableFormPropTypes';
-import { JournalsApi } from '../../../../api/journalsApi';
 import Records from '../../../Records/Records';
 import { parseAttribute } from '../../../Records/Record';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
-import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
-import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 
 export const TableFormContext = React.createContext();
 
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
-  const { onChange, onError, source, defaultValue, triggerEventOnTableChange, computed, onSelectRows } = controlProps;
+  const { onChange, createVariants, columns, error, defaultValue, triggerEventOnTableChange, computed, onSelectRows } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
   const [isViewOnlyForm, setIsViewOnlyForm] = useState(false);
@@ -23,9 +18,6 @@ export const TableFormContextProvider = props => {
   const [record, setRecord] = useState(null);
   const [gridRows, setGridRows] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [columns, setColumns] = useState([]);
-  const [createVariants, setCreateVariants] = useState([]);
-  const [error, setError] = useState(null);
 
   const onChangeHandler = rows => {
     typeof onChange === 'function' && onChange(rows.map(item => item.id));
@@ -37,161 +29,6 @@ export const TableFormContextProvider = props => {
     top: 0,
     rowId: null
   });
-
-  // TODO move this logic to src/forms/components/custom/tableForm/TableForm.js?
-  useEffect(() => {
-    if (!source) {
-      return;
-    }
-
-    const { type } = source;
-
-    if (type === 'journal') {
-      const { journal } = source;
-      const journalId = journal.journalId;
-
-      if (!journalId) {
-        const err = new Error('The "journalId" config is required!');
-        typeof onError === 'function' && onError(err);
-        setError(err);
-        return;
-      }
-
-      const journalsApi = new JournalsApi();
-      const displayColumns = journal.columns;
-
-      journalsApi.getJournalConfig(journalId).then(journalConfig => {
-        setCreateVariants(journalConfig.meta.createVariants || []);
-
-        let columns = journalConfig.columns;
-        if (Array.isArray(displayColumns) && displayColumns.length > 0) {
-          columns = columns.map(item => {
-            return {
-              ...item,
-              default: displayColumns.indexOf(item.attribute) !== -1
-            };
-          });
-        }
-
-        setColumns(GqlDataSource.getColumnsStatic(columns));
-      });
-    } else if (type === 'custom') {
-      const { custom } = source;
-      const { createVariants, columns } = custom;
-
-      let createVariantsPromise;
-      if (!Array.isArray(createVariants) || createVariants.length < 1) {
-        if (custom.attribute) {
-          createVariantsPromise = EcosFormUtils.getCreateVariants(custom.record, custom.attribute);
-        } else {
-          createVariantsPromise = Promise.resolve([]);
-        }
-      } else {
-        createVariantsPromise = Promise.all(
-          createVariants.map(variant => {
-            if (isObject(variant)) {
-              return variant;
-            }
-
-            return Records.get(variant)
-              .load('.disp')
-              .then(dispName => {
-                return {
-                  recordRef: variant,
-                  label: dispName
-                };
-              });
-          })
-        );
-      }
-
-      createVariantsPromise.then(cv => {
-        setCreateVariants(cv);
-
-        let columnsMap = {};
-        let formatters = {};
-        columns.forEach(item => {
-          const key = `.edge(n:"${item.name}"){title,type,multiple}`;
-          columnsMap[key] = item;
-          if (item.formatter) {
-            formatters[item.name] = item.formatter;
-          }
-        });
-
-        let columnsInfoPromise;
-        let inputsPromise;
-        if (cv.length < 1 || columns.length < 1) {
-          columnsInfoPromise = Promise.resolve(
-            columns.map(item => {
-              return {
-                default: true,
-                type: item.type,
-                text: item.title,
-                multiple: item.multiple,
-                attribute: item.name
-              };
-            })
-          );
-          inputsPromise = Promise.resolve({});
-        } else {
-          let cvRecordRef = cv[0].recordRef;
-          columnsInfoPromise = Records.get(cvRecordRef)
-            .load(Object.keys(columnsMap))
-            .then(loadedAtt => {
-              let cols = [];
-              for (let i in columnsMap) {
-                if (!columnsMap.hasOwnProperty(i)) {
-                  continue;
-                }
-
-                const originalColumn = columnsMap[i];
-                const isManualAttributes = originalColumn.setAttributesManually;
-
-                cols.push({
-                  default: true,
-                  type: isManualAttributes && originalColumn.type ? originalColumn.type : loadedAtt[i].type,
-                  text: isManualAttributes ? originalColumn.title : loadedAtt[i].title,
-                  multiple: isManualAttributes ? originalColumn.multiple : loadedAtt[i].multiple,
-                  attribute: originalColumn.name
-                });
-              }
-              return cols;
-            });
-
-          inputsPromise = EcosFormUtils.getRecordFormInputsMap(cvRecordRef);
-        }
-
-        Promise.all([columnsInfoPromise, inputsPromise])
-          .then(columnsAndInputs => {
-            let [columns, inputs] = columnsAndInputs;
-
-            for (let column of columns) {
-              let input = inputs[column.attribute] || {};
-              let computedDispName = get(input, 'component.computed.valueDisplayName', '');
-
-              if (computedDispName) {
-                //Is this filter required?
-                column.formatter = {
-                  name: 'FormFieldFormatter',
-                  params: input
-                };
-              }
-
-              if (formatters.hasOwnProperty(column.attribute)) {
-                column.formatter = formatters[column.attribute];
-              }
-            }
-            setColumns(GqlDataSource.getColumnsStatic(columns));
-          })
-          .catch(err => {
-            console.error(err);
-            columnsInfoPromise.then(columns => {
-              setColumns(GqlDataSource.getColumnsStatic(columns));
-            });
-          });
-      });
-    }
-  }, []);
 
   useEffect(() => {
     if (!defaultValue || columns.length < 1) {
