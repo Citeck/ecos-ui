@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import isObject from 'lodash/isObject';
+import get from 'lodash/get';
 import TableFormPropTypes from './TableFormPropTypes';
 import { JournalsApi } from '../../../../api/journalsApi';
 import Records from '../../../Records/Records';
@@ -7,7 +9,6 @@ import { parseAttribute } from '../../../Records/Record';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
-import _ from 'lodash';
 
 export const TableFormContext = React.createContext();
 
@@ -37,6 +38,7 @@ export const TableFormContextProvider = props => {
     rowId: null
   });
 
+  // TODO move this logic to src/forms/components/custom/tableForm/TableForm.js?
   useEffect(() => {
     if (!source) {
       return;
@@ -79,11 +81,15 @@ export const TableFormContextProvider = props => {
 
       let createVariantsPromise;
       if (!Array.isArray(createVariants) || createVariants.length < 1) {
-        createVariantsPromise = EcosFormUtils.getCreateVariants(custom.record, custom.attribute);
+        if (custom.attribute) {
+          createVariantsPromise = EcosFormUtils.getCreateVariants(custom.record, custom.attribute);
+        } else {
+          createVariantsPromise = Promise.resolve([]);
+        }
       } else {
         createVariantsPromise = Promise.all(
           createVariants.map(variant => {
-            if (_.isObject(variant)) {
+            if (isObject(variant)) {
               return variant;
             }
 
@@ -102,47 +108,66 @@ export const TableFormContextProvider = props => {
       createVariantsPromise.then(cv => {
         setCreateVariants(cv);
 
-        if (cv.length < 1 || columns.length < 1) {
-          return;
-        }
-
-        let atts = {};
+        let columnsMap = {};
         let formatters = {};
         columns.forEach(item => {
-          atts[`.edge(n:"${item.name}"){title,type,multiple}`] = item.name;
+          const key = `.edge(n:"${item.name}"){title,type,multiple}`;
+          columnsMap[key] = item;
           if (item.formatter) {
             formatters[item.name] = item.formatter;
           }
         });
 
-        let cvRecordRef = cv[0].recordRef;
-
-        let columnsInfoPromise = Records.get(cvRecordRef)
-          .load(Object.keys(atts))
-          .then(loadedAtt => {
-            let cols = [];
-            for (let i in atts) {
-              if (!atts.hasOwnProperty(i)) {
-                continue;
-              }
-              cols.push({
+        let columnsInfoPromise;
+        let inputsPromise;
+        if (cv.length < 1 || columns.length < 1) {
+          columnsInfoPromise = Promise.resolve(
+            columns.map(item => {
+              return {
                 default: true,
-                type: loadedAtt[i].type,
-                text: loadedAtt[i].title,
-                multiple: loadedAtt[i].multiple,
-                attribute: atts[i]
-              });
-            }
-            return cols;
-          });
+                type: item.type,
+                text: item.title,
+                multiple: item.multiple,
+                attribute: item.name
+              };
+            })
+          );
+          inputsPromise = Promise.resolve({});
+        } else {
+          let cvRecordRef = cv[0].recordRef;
+          columnsInfoPromise = Records.get(cvRecordRef)
+            .load(Object.keys(columnsMap))
+            .then(loadedAtt => {
+              let cols = [];
+              for (let i in columnsMap) {
+                if (!columnsMap.hasOwnProperty(i)) {
+                  continue;
+                }
 
-        Promise.all([columnsInfoPromise, EcosFormUtils.getRecordFormInputsMap(cvRecordRef)])
+                const originalColumn = columnsMap[i];
+                const isManualAttributes = originalColumn.setAttributesManually;
+
+                cols.push({
+                  default: true,
+                  type: isManualAttributes && originalColumn.type ? originalColumn.type : loadedAtt[i].type,
+                  text: isManualAttributes ? originalColumn.title : loadedAtt[i].title,
+                  multiple: isManualAttributes ? originalColumn.multiple : loadedAtt[i].multiple,
+                  attribute: originalColumn.name
+                });
+              }
+              return cols;
+            });
+
+          inputsPromise = EcosFormUtils.getRecordFormInputsMap(cvRecordRef);
+        }
+
+        Promise.all([columnsInfoPromise, inputsPromise])
           .then(columnsAndInputs => {
             let [columns, inputs] = columnsAndInputs;
 
             for (let column of columns) {
               let input = inputs[column.attribute] || {};
-              let computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
+              let computedDispName = get(input, 'component.computed.valueDisplayName', '');
 
               if (computedDispName) {
                 //Is this filter required?

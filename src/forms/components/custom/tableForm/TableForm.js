@@ -137,6 +137,10 @@ export default class TableFormComponent extends BaseReactComponent {
     return changed;
   }
 
+  getAttributeToEdit() {
+    return (this.component.properties || {}).attribute;
+  }
+
   refreshElementHasValueClasses() {
     if (!this.element) {
       return;
@@ -240,7 +244,7 @@ export default class TableFormComponent extends BaseReactComponent {
               record: this.getRecord(),
               attribute: this.getAttributeToEdit(),
               columns: source.custom.columns.map(item => {
-                const col = { name: item.name };
+                const col = { ...item };
                 if (item.formatter) {
                   col.formatter = this.evaluate(item.formatter, {}, 'value', true);
                 }

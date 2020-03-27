@@ -86,7 +86,7 @@ export default [
           {
             components: [
               {
-                label: 'Column field name',
+                label: 'Column attribute name',
                 allowMultipleMasks: false,
                 showWordCount: false,
                 showCharCount: false,
@@ -105,9 +105,7 @@ export default [
                 title: 'Formatter',
                 collapsible: true,
                 collapsed: true,
-                style: {
-                  'margin-bottom': '20px'
-                },
+                customClass: 'form-builder__panel-js',
                 key: ''.concat('custom-formatter-js'),
                 components: [
                   {
@@ -125,6 +123,70 @@ export default [
                     content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
                   }
                 ]
+              },
+              {
+                type: 'checkbox',
+                input: true,
+                key: 'setAttributesManually',
+                label: 'Set attributes manually',
+                defaultValue: false
+              },
+              {
+                label: 'Column title',
+                type: 'textfield',
+                input: true,
+                key: 'title',
+                widget: {
+                  type: ''
+                },
+                conditional: {
+                  json: {
+                    and: [{ '==': [{ var: 'row.setAttributesManually' }, true] }]
+                  }
+                }
+              },
+              {
+                type: 'select',
+                input: true,
+                label: 'Column data type:',
+                key: 'type',
+                dataSrc: 'values',
+                defaultValue: '',
+                data: {
+                  values: [
+                    { label: 'text', value: 'text' },
+                    { label: 'int', value: 'int' },
+                    { label: 'boolean', value: 'boolean' },
+                    { label: 'date', value: 'date' },
+                    { label: 'datetime', value: 'datetime' },
+                    { label: 'options', value: 'options' },
+                    { label: 'assoc', value: 'assoc' },
+                    { label: 'person', value: 'person' },
+                    { label: 'authority', value: 'authority' },
+                    { label: 'authorityGroup', value: 'authorityGroup' },
+                    { label: 'mltext', value: 'mltext' },
+                    { label: 'long', value: 'long' },
+                    { label: 'float', value: 'float' },
+                    { label: 'double', value: 'double' }
+                  ]
+                },
+                conditional: {
+                  json: {
+                    and: [{ '==': [{ var: 'row.setAttributesManually' }, true] }]
+                  }
+                }
+              },
+              {
+                type: 'checkbox',
+                input: true,
+                key: 'multiple',
+                label: 'Multiple',
+                defaultValue: false,
+                conditional: {
+                  json: {
+                    and: [{ '==': [{ var: 'row.setAttributesManually' }, true] }]
+                  }
+                }
               }
             ],
             xs: 12,
