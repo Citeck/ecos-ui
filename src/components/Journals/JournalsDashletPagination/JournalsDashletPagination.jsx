@@ -3,7 +3,7 @@ import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { reloadGrid, setSettingsToUrl } from '../../../actions/journals';
+import { reloadGrid } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import Pagination from '../../common/Pagination/Pagination';
 import { PAGINATION_SIZES } from '../../Journals/constants';
@@ -21,8 +21,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    reloadGrid: options => dispatch(reloadGrid(w(options))),
-    setSettingsToUrl: options => dispatch(setSettingsToUrl(w(options)))
+    reloadGrid: options => dispatch(reloadGrid(w(options)))
   };
 };
 
@@ -41,10 +40,6 @@ class JournalsDashletPagination extends Component {
 
   reloadGrid = pagination => {
     this.props.reloadGrid({ pagination });
-
-    if (!this.props.isWidget) {
-      this.props.setSettingsToUrl({ pagination });
-    }
   };
 
   render() {
