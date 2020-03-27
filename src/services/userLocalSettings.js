@@ -3,10 +3,12 @@ import isEmpty from 'lodash/isEmpty';
 import { getData, getSessionData, setData, setSessionData, transferData } from '../helpers/ls';
 import { getCurrentUserName } from '../helpers/util';
 
-const prefixDashlet = 'ecos-ui-dashlet-settings_id-';
-const prefixJournal = 'ecos-ui-journal-settings_id-';
-const prefixMenu = 'menuSettings_';
-const prefixUser = '/user-';
+export const Prefixes = {
+  DASHLET: 'ecos-ui-dashlet-settings_id-',
+  JOURNAL: 'ecos-ui-journal-settings_id-',
+  MENU: 'menuSettings_',
+  USER: '/user-'
+};
 
 function getDashletSettings(key) {
   let dashletData = getData(key);
@@ -19,24 +21,24 @@ function getDashletSettings(key) {
 }
 
 function getKey(key) {
-  return `${key}${prefixUser}${getCurrentUserName()}`;
+  return `${key}${Prefixes.USER}${getCurrentUserName()}`;
 }
 
 export default class UserLocalSettingsService {
   static getMenuKey() {
-    return `${prefixMenu}${getCurrentUserName()}`;
+    return `${Prefixes.MENU}${getCurrentUserName()}`;
   }
 
   static getDashletKey(key) {
-    return `${prefixDashlet}${getKey(key)}`;
+    return `${Prefixes.DASHLET}${getKey(key)}`;
   }
 
   static getJournalKey(key) {
-    return `${prefixJournal}${getKey(key || 'all')}`;
+    return `${Prefixes.JOURNAL}${getKey(key || 'all')}`;
   }
 
   static checkOldData(dashletId) {
-    self.transferData(`${prefixDashlet}${dashletId}`, self.getDashletKey(dashletId));
+    self.transferData(`${Prefixes.DASHLET}${dashletId}`, self.getDashletKey(dashletId));
   }
 
   static transferData(oldKey, newKey) {
