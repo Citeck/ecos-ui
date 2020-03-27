@@ -3,10 +3,10 @@ import { RecordService } from './recordService';
 import { SourcesId, QueryLanguage, QueryEntityKeys } from '../constants';
 
 export class PropertiesApi extends RecordService {
-  getFormList = function*({ record }) {
-    const typeRef = yield Records.get(record).load('_etype?id');
+  getFormList = async function({ record }) {
+    const typeRef = await Records.get(record).load('_etype?id');
 
-    return yield Records.query(
+    return await Records.query(
       {
         sourceId: SourcesId.EFORM,
         language: QueryLanguage.FORMS_FOR_TYPE,
