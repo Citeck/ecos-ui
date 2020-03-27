@@ -5,7 +5,7 @@ import omit from 'lodash/omit';
 import get from 'lodash/get';
 import queryString from 'query-string';
 
-import { UserConfigApi } from '../../api';
+import { UserConfigApi } from '../../api/userConfig';
 import { URL } from '../../constants';
 import { ALFRESCO, PROXY_URI } from '../../constants/alfresco';
 import { t } from '../../helpers/util';
