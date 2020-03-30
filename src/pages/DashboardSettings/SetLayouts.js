@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import { t } from '../../helpers/util';
-import { Layouts } from '../../constants/dashboard';
+import { getLayouts } from '../../helpers/layout';
+import { Layouts } from '../../constants/layout';
 import { LayoutItem } from '../../components/Layout';
 
 import './style.scss';
@@ -9,15 +11,23 @@ import './style.scss';
 class SetLayouts extends React.Component {
   static propTypes = {
     activeLayout: PropTypes.string,
+    dashboardType: PropTypes.string,
     setData: PropTypes.func,
     isMobile: PropTypes.bool
   };
 
   static defaultProps = {
     activeLayout: '',
+    dashboardType: '',
     setData: () => {},
     isMobile: false
   };
+
+  get layouts() {
+    const { dashboardType } = this.props;
+
+    return getLayouts(dashboardType);
+  }
 
   handleClickColumn = layout => {
     const { activeLayout, setData } = this.props;
@@ -32,16 +42,18 @@ class SetLayouts extends React.Component {
   renderColumnLayouts() {
     const { activeLayout } = this.props;
 
-    return Layouts.filter(item => !item.excluded).map(layout => (
-      <LayoutItem
-        key={`${layout.position}-${layout.type}`}
-        onClick={this.handleClickColumn.bind(this, layout)}
-        type={layout.type}
-        active={layout.type === activeLayout}
-        config={{ columns: layout.columns || [] }}
-        className="ecos-dashboard-settings__container-group-item"
-      />
-    ));
+    return this.layouts
+      .filter(item => !item.excluded)
+      .map(layout => (
+        <LayoutItem
+          key={`${layout.position}-${layout.type}`}
+          onClick={this.handleClickColumn.bind(this, layout)}
+          type={layout.type}
+          active={layout.type === activeLayout}
+          config={{ columns: layout.columns || [] }}
+          className="ecos-dashboard-settings__container-group-item"
+        />
+      ));
   }
 
   render() {
