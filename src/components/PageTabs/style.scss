@@ -269,7 +269,12 @@
     display: flex;
 
     &-content {
+      height: 100%;
       padding: 0 10px 10px;
     }
+  }
+
+  &__panel {
+    height: 100%;
   }
 }

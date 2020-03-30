@@ -24,6 +24,7 @@ import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
 
 import './style.scss';
+import { getCachingComponents } from '../../components/ReactRouter';
 
 const mapStateToProps = state => {
   const isMobile = get(state, ['view', 'isMobile'], false);
@@ -83,9 +84,10 @@ class Dashboard extends Component {
 
     if (state.urlParams !== newUrlParams) {
       newState.urlParams = newUrlParams;
-      newState.needGetConfig = true;
-      props.resetDashboardConfig();
-      props.initMenuSettings();
+      console.warn('dashboard => ', props, getCachingComponents());
+      // newState.needGetConfig = true;
+      // props.resetDashboardConfig();
+      // props.initMenuSettings();
     }
 
     if (state.urlParams === newUrlParams && props.isLoadingDashboard && !isEmpty(props.config)) {
@@ -110,7 +112,7 @@ class Dashboard extends Component {
   }
 
   componentWillUnmount() {
-    this.props.resetDashboardConfig();
+    // this.props.resetDashboardConfig();
     this.instanceRecord.unwatch(this.watcher);
   }
 

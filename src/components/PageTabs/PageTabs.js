@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -7,6 +7,8 @@ import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
+import CacheRoute, { CacheSwitch } from 'react-router-cache-route';
+import { Provider, KeepAlive } from 'react-keep-alive';
 
 import { changeTab, deleteTab, initTabs, moveTabs, setDisplayState, setTab, updateTab } from '../../actions/pageTabs';
 import { animateScrollTo, arrayCompare, getScrollbarWidth, t } from '../../helpers/util';
@@ -16,10 +18,14 @@ import ClickOutside from '../ClickOutside';
 import Tab from './Tab';
 
 import './style.scss';
+import { URL } from '../../constants';
+import { Route, Switch } from 'react-router';
 
 const Labels = {
   GO_HOME: 'header.site-menu.go-home-page'
 };
+const DashboardPage = lazy(() => import('../../pages/Dashboard'));
+const JournalsPage = lazy(() => import('../../pages/JournalsPage'));
 
 class PageTabs extends React.Component {
   static propTypes = {
@@ -399,6 +405,7 @@ class PageTabs extends React.Component {
         <div className="page-tab__body" key="children">
           <Scrollbars className="page-tab__body-scroll" style={{ height: '100%' }}>
             <div className="page-tab__body-content">{children}</div>
+            {/*{this.renderPanels()}*/}
           </Scrollbars>
         </div>
       );
@@ -407,11 +414,67 @@ class PageTabs extends React.Component {
     return children;
   }
 
+  renderPanel = () => {
+    return this.props.children;
+  };
+
+  renderPanels() {
+    return this.props.tabs.map(tab => {
+      const styles = {
+        height: '100%'
+      };
+
+      if (!tab.isActive) {
+        styles.display = 'none';
+      }
+
+      return (
+        <div style={styles} key={tab.id}>
+          {tab.id}
+
+          <CacheSwitch key={tab.id}>
+            <CacheRoute className="page-tab__panel" multiple={true} path={URL.DASHBOARD} exact component={DashboardPage} />
+            <CacheRoute className="page-tab__panel" multiple path={URL.JOURNAL} component={JournalsPage} />
+          </CacheSwitch>
+        </div>
+        // <Provider key={tab.id}>
+        //   <KeepAlive name={tab.id}>
+        //
+        //   </KeepAlive>
+        //   {/*<KeepAlive name={tab.id}>{this.props.children}</KeepAlive>*/}
+        // </Provider>
+        // <CacheSwitch key={tab.id} className="page-tab__switch" which={(...props) => {
+        //   console.warn(props);
+        //
+        //   return true;
+        // }}>
+        //   <CacheRoute
+        //     className="page-tab__panel"
+        //     // multiple
+        //     path={URL.DASHBOARD}
+        //     exact
+        //     component={DashboardPage}
+        //   />
+        //   <CacheRoute className="page-tab__panel" multiple path={URL.JOURNAL} component={JournalsPage} />
+        // </CacheSwitch>
+        // <CacheRoute
+        //   className="page-tab__panel"
+        //   // multiple
+        //   path={tab.link}
+        //   exact
+        //   // component={this.props.children}
+        //   render={this.renderPanel}
+        // />
+      );
+    });
+  }
+
   render() {
     return (
       <>
         {this.renderTabWrapper()}
         {this.renderChildren()}
+        {/*{this.renderPanels()}*/}
       </>
     );
   }
