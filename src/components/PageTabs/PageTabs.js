@@ -46,7 +46,7 @@ class PageTabs extends React.Component {
   componentDidMount() {
     const { initTabs } = this.props;
 
-    // initTabs();
+    initTabs();
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {

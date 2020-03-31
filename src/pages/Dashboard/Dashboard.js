@@ -23,9 +23,9 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
 import { initialState } from '../../reducers/dashboard';
+import pageTabList from '../../services/pageTabs/PageTabList';
 
 import './style.scss';
-import pageTabList from '../../services/pageTabs/PageTabList';
 
 const mapStateToProps = state => {
   const id = pageTabList.activeTabId;
@@ -71,25 +71,10 @@ class Dashboard extends Component {
   constructor(props) {
     super(props);
 
-    // this.initStore().then(() => {
-    //   this.setState({ inited: true });
-    // });
     this.state.config = props.config || [];
     this.instanceRecord = Records.get(this.getPathInfo().recordRef);
     this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateSomeDetails);
   }
-
-  initStore = async () => {
-    let tabs = await pageTabList.tabs;
-
-    if (!tabs.length) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      tabs = await this.initStore();
-    }
-
-    return tabs;
-  };
 
   static getDerivedStateFromProps(props, state) {
     const newState = {};
@@ -104,13 +89,9 @@ class Dashboard extends Component {
       newState.activeLayoutId = get(props.config, '[0].id');
     }
 
-    if (
-      state.urlParams !== newUrlParams
-      // || (!props.tabId && !state.inited)
-    ) {
+    if (state.urlParams !== newUrlParams) {
       newState.urlParams = newUrlParams;
       newState.needGetConfig = true;
-      // props.resetDashboardConfig();
       props.initMenuSettings();
     }
 

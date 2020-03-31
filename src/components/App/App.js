@@ -19,7 +19,6 @@ import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 import PageService, { Events } from '../../services/PageService';
 
 import './App.scss';
-import pageTabList from '../../services/pageTabs/PageTabList';
 
 const LoginForm = lazy(() => import('../LoginForm'));
 
@@ -38,7 +37,6 @@ class App extends Component {
   constructor(props) {
     super(props);
 
-    // pageTabList.init();
     props.initTabs();
   }
 
