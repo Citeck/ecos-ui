@@ -40,7 +40,7 @@ class EventHistoryModal extends React.Component {
           'ecos-modal_width-lg': !isMobile,
           'ecos-modal_width-xs': isMobile
         })}
-        isBigHeader={true}
+        isBigHeader
         title={t(CommonLabels.EVENT_HISTORY_TITLE)}
         isOpen={isOpen}
         hideModal={onClose}

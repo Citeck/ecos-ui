@@ -1,11 +1,5 @@
 @import '../../../styles/constants';
 
-.ecos-modal_draggable {
-  .modal-header {
-    cursor: move;
-  }
-}
-
 .ecos-modal {
   &.modal-dialog {
     margin-bottom: 0;
@@ -18,39 +12,91 @@
   .modal-header {
     border-bottom: none;
     color: $text-color-dark;
-    padding: 24px 21px 1px 21px;
+    padding: 24px 20px 20px;
 
     .close {
       margin: 0;
       padding: 0;
-
       position: absolute;
       right: 15px;
-      top: 6px;
-
-      color: $color-gray-dark;
+      top: 15px;
       opacity: 1;
       z-index: 1;
+      line-height: 0;
+      color: $color-gray-dark;
 
-      .icon {
-        font-size: 14px;
+      .ecos-modal-close__icon {
+        font-size: $font-size-standard;
+      }
+    }
+
+    &.ecos-modal-header {
+      &_big {
+        padding: 22px 20px 20px;
+        align-items: center;
+
+        & .modal-title {
+          font-size: 24px;
+        }
+
+        & .close {
+          position: static;
+
+          .ecos-modal-close__icon {
+            margin-left: 5px;
+          }
+        }
+      }
+
+      &_divider {
+        border-bottom: 2px $color-gray-4 solid;
       }
     }
   }
 
   .modal-body {
-    padding: 21px;
+    padding: 0 20px 20px;
   }
 
   .modal-title {
     font-size: $font-size-large;
     font-weight: $font-weight-bold;
-    line-height: 22px;
     color: $text-color-dark;
+    line-height: 22px;
+    word-break: break-all;
+    display: flex;
+    align-items: center;
   }
 
   .modal-loading {
-    border-radius: 12px;
+    border-radius: $border-radius-extra-large;
+  }
+
+  &-header {
+    &__title,
+    &__buttons {
+      display: inline-block;
+    }
+
+    &__title + &__buttons {
+      margin-left: 15px;
+    }
+
+    &__buttons {
+      height: 24px;
+    }
+  }
+
+  &-close__text {
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-standard;
+    color: $text-color-dark;
+  }
+}
+
+.ecos-modal_draggable {
+  .modal-header {
+    cursor: move;
   }
 }
 
@@ -74,37 +120,6 @@
   .modal-body {
     padding-top: 0;
   }
-}
-
-.ecos-modal.ecos-modal_big-header {
-  .modal-header {
-    padding-top: 28px;
-    padding-bottom: 7px;
-  }
-
-  .modal-title {
-    font-size: 24px;
-  }
-
-  .close {
-    position: static;
-
-    > span {
-      display: flex;
-      justify-content: center;
-      align-items: baseline;
-    }
-
-    .icon {
-      margin-left: 5px;
-    }
-  }
-}
-
-.ecos-modal-close {
-  font-weight: $font-weight-semi-bold;
-  font-size: 14px;
-  color: $text-color-dark;
 }
 
 .ecos-modal_level-1 {
