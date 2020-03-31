@@ -50,7 +50,6 @@ export default class FormLocaleEditorModal extends React.Component {
           backdrop: 'static'
         }}
         className="ecos-modal_width-extra-lg"
-        isBigHeader={false}
         title={'Edit Locale'}
         isOpen={this.state.isModalOpen}
         hideModal={toggleVisibility}

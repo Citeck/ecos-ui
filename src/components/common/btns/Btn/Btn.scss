@@ -16,7 +16,7 @@ button {
     font-size: $font-size-standard;
     font-weight: $font-weight-semi-bold;
     font-style: normal;
-    line-height: 1;
+    line-height: 20px;
     padding: 9px 21px;
     height: 40px;
     cursor: pointer;
@@ -60,10 +60,6 @@ button {
       background-color: inherit;
       box-shadow: none;
     }
-  }
-
-  &.ecos-btn_line-height_normal {
-    line-height: normal;
   }
 
   &.ecos-btn_tight {
