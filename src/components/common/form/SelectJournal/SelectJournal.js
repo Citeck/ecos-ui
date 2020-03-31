@@ -715,7 +715,7 @@ export default class SelectJournal extends Component {
             backdrop: 'static'
           }}
           className="ecos-modal_width-lg"
-          isBigHeader={true}
+          isBigHeader
           title={editModalTitle}
           isOpen={isEditModalOpen}
           hideModal={this.toggleEditModal}

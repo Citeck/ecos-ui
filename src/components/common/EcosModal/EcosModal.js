@@ -5,14 +5,14 @@ import { ModalBody, ModalHeader } from 'reactstrap';
 import ReactResizeDetector from 'react-resize-detector';
 import throttle from 'lodash/throttle';
 
-import Modal from './ModalDraggable';
 import { t, trigger } from '../../../helpers/util';
+import Modal from './ModalDraggable';
+import { Icon } from '../';
 
 import './EcosModal.scss';
 
-const zIndex = 10000;
-const maxLevel = 4;
-const COMPONENT_CLASS_NAME = 'ecos-modal';
+const DEFAULT_Z_INDEX = 10000;
+const MAX_LEVEL = 4;
 
 export default class EcosModal extends Component {
   state = {
@@ -23,7 +23,7 @@ export default class EcosModal extends Component {
 
   static getDerivedStateFromProps(props, state) {
     if (props.isOpen !== state.isOpen) {
-      let openModalsCounter = document.querySelectorAll(`.${COMPONENT_CLASS_NAME}`).length;
+      let openModalsCounter = document.querySelectorAll('.ecos-modal').length;
       openModalsCounter += props.isOpen ? 1 : -1;
       if (openModalsCounter < 0) {
         openModalsCounter = 0;
@@ -39,9 +39,9 @@ export default class EcosModal extends Component {
   }
 
   componentDidMount() {
-    this._calculateBounds();
+    this.calculateBounds();
 
-    this._onResizeHandlerThrottled = throttle(this._calculateBounds, 300, {
+    this._onResizeHandlerThrottled = throttle(this.calculateBounds, 300, {
       leading: false,
       trailing: true
     });
@@ -55,10 +55,10 @@ export default class EcosModal extends Component {
   }
 
   componentDidUpdate() {
-    this._calculateBounds();
+    this.calculateBounds();
   }
 
-  _calculateBounds = () => {
+  calculateBounds = () => {
     if (this.props.noDraggable) {
       return;
     }
@@ -80,67 +80,58 @@ export default class EcosModal extends Component {
     trigger.call(this, 'onCalculateBounds');
   };
 
-  render() {
-    const {
-      hideModal,
-      children,
-      title,
-      isBigHeader,
-      className,
-      reactstrapProps,
-      isLoading,
-      isEmptyTitle,
-      onResize,
-      customButtons,
-      noHeader
-    } = this.props;
-    const { isOpen, level, draggableState } = this.state;
+  renderCloseButton() {
+    const { hideModal, isBigHeader } = this.props;
 
-    const modalZIndex = this.props.zIndex ? this.props.zIndex + level : zIndex + level;
-
-    let levelClassName = null;
-    if (level > 0) {
-      const modalLevel = level > maxLevel ? maxLevel : level;
-      levelClassName = `ecos-modal_level-${modalLevel}`;
-    }
-    const modalClassName = classNames(COMPONENT_CLASS_NAME, className, levelClassName, {
-      'ecos-modal_big-header': isBigHeader,
-      'ecos-modal_draggable': draggableState !== null
-    });
-
-    let closeBtn = (
+    return (
       <button type="button" className="close" aria-label="Close" onClick={hideModal}>
         <span aria-hidden="true">
-          <span className={'icon icon-close'} />
+          {isBigHeader && <span className="ecos-modal-close__text">{t('close-button.label')}</span>}
+          <Icon className="icon-close ecos-modal-close__icon" />
         </span>
       </button>
     );
+  }
 
-    if (isBigHeader) {
-      closeBtn = (
-        <button type="button" className="close" aria-label="Close" onClick={hideModal}>
-          <span aria-hidden="true">
-            <span className={'ecos-modal-close'}>{t('close-button.label')}</span>
-            <span className={'icon icon-close'} />
-          </span>
-        </button>
-      );
-    }
+  renderModalHeader() {
+    const { hideModal, title, isEmptyTitle, isBigHeader, customButtons, noHeader, classNameHeader, isTopDivider } = this.props;
+    const { level } = this.state;
 
-    const header = noHeader ? null : (
-      <ModalHeader toggle={hideModal} close={closeBtn} className={`modal-header_level-${level}`}>
-        {title && !isEmptyTitle ? title : ''}
-        {customButtons}
+    return noHeader ? null : (
+      <ModalHeader
+        toggle={hideModal}
+        close={this.renderCloseButton()}
+        className={classNames('ecos-modal-header', classNameHeader, `ecos-modal-header_level-${level}`, {
+          'ecos-modal-header_big': isBigHeader,
+          'ecos-modal-header_divider': isTopDivider
+        })}
+      >
+        {!isEmptyTitle && title && <div className="ecos-modal-header__title">{title}</div>}
+        {!!customButtons && !!customButtons.length && <div className="ecos-modal-header__buttons">{customButtons}</div>}
       </ModalHeader>
     );
+  }
+
+  render() {
+    const { hideModal, children, className, reactstrapProps, isLoading, onResize, zIndex } = this.props;
+    const { isOpen, level, draggableState } = this.state;
+
+    const modalZIndex = (zIndex || DEFAULT_Z_INDEX) + level;
+    const modalLevel = level > MAX_LEVEL ? MAX_LEVEL : level;
+    const modalClassName = classNames('ecos-modal', className, {
+      'ecos-modal_draggable': draggableState !== null,
+      [`ecos-modal_level-${modalLevel}`]: !!modalLevel
+    });
 
     const draggableProps = {
       disabled: true
     };
+
     if (draggableState) {
       const { boundX, boundY } = draggableState;
+
       draggableProps.disabled = false;
-      draggableProps.handle = `.modal-header_level-${level}`;
+      draggableProps.handle = `.ecos-modal-header_level-${level}`;
       draggableProps.bounds = {
         top: -boundY,
         left: -boundX,
@@ -161,7 +152,7 @@ export default class EcosModal extends Component {
         draggableProps={draggableProps}
         data-level={level}
       >
-        {header}
+        {this.renderModalHeader()}
         <ModalBody>{children}</ModalBody>
         <ReactResizeDetector handleWidth handleHeight onResize={onResize} />
       </Modal>
@@ -173,6 +164,7 @@ EcosModal.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
   isBigHeader: PropTypes.bool,
+  isTopDivider: PropTypes.bool,
   isOpen: PropTypes.bool,
   isLoading: PropTypes.bool,
   isEmptyTitle: PropTypes.bool,
@@ -188,14 +180,10 @@ EcosModal.propTypes = {
 
 EcosModal.defaultProps = {
   className: '',
-  isBigHeader: false,
-  isOpen: false,
-  isLoading: false,
-  isEmptyTitle: false,
   reactstrapProps: {},
   title: '',
   customButtons: [],
-  hideModal: () => {},
-  onResize: () => {},
+  hideModal: () => null,
+  onResize: () => null,
   zIndex: 9000
 };
