@@ -30,8 +30,6 @@ export default class AssocFormatter extends DefaultGqlFormatter {
   }
 
   static getDisplayText(value) {
-    if (!value) return value;
-
     if (Array.isArray(value)) {
       return Promise.all(value.map(AssocFormatter.getDisplayName)).then(results => results.join(', '));
     }

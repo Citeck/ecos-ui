@@ -239,8 +239,10 @@ export default class Record {
 
   watch(attributes, callback) {
     const watcher = new RecordWatcher(this, attributes, callback);
+    const attsPromise = this.load(attributes);
+
     this._watchers.push(watcher);
-    let attsPromise = this.load(attributes);
+
     Promise.all([attsPromise, this.load('pendingUpdate?bool')])
       .then(([loadedAtts, pendingUpdate]) => {
         if (pendingUpdate) {
@@ -250,8 +252,10 @@ export default class Record {
       })
       .catch(e => {
         console.error(e);
-        attsPromise.then(atts => watcher.setAttributes(atts));
+
+        attsPromise.then(atts => watcher.setAttributes(atts)).catch(console.error);
       });
+
     return watcher;
   }
 

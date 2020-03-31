@@ -163,6 +163,11 @@ $header-height: 52px;
 .ecos-grid_freeze {
   .ecos-th {
     height: 34px;
+    user-select: none;
+
+    span {
+      @extend %ellipsis;
+    }
   }
 
   &.ecos-grid_checkable {

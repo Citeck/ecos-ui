@@ -97,11 +97,13 @@ export default class HeaderFormatter extends Component {
   }
 
   onDividerMouseDown = e => {
+    const { colIndex } = this.props;
     const current = this.thRef.current;
 
     trigger.call(this, 'onDividerMouseDown', {
       e: e,
-      th: current.parentElement
+      th: current.parentElement,
+      colIndex
     });
   };
 

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class FunctionFormatter extends DefaultGqlFormatter {
@@ -6,22 +6,41 @@ export default class FunctionFormatter extends DefaultGqlFormatter {
     return this.prototype._format(this.prototype.value(cell), params);
   }
 
-  _format(value, params) {
-    let elCell = {};
-    let oRecord = {};
-    let oColumn = {};
-    let sData = value;
+  _format(cell, params) {
+    const { rowIndex, row } = this.props;
+
+    const oRecord = row;
+    const oColumn = {};
+    const sData = this.value(cell);
+    const elCell = document.createElement('div');
+    elCell.innerText = sData;
 
     if (typeof params.fn === 'function') {
-      params.fn(elCell, oRecord, oColumn, sData);
+      params.fn(elCell, oRecord, oColumn, sData, rowIndex);
+    } else if (typeof params.fn === 'string') {
+      try {
+        // eslint-disable-next-line
+        const extractedFn = eval(`(function() { const fn = ${params.fn}; return fn; })()`);
+        if (typeof extractedFn === 'function') {
+          extractedFn(elCell, oRecord, oColumn, sData, rowIndex);
+        }
+      } catch (e) {
+        console.error(`FunctionFormatter error: ${e.message}`);
+      }
     }
 
-    return elCell.innerHTML || value;
+    return elCell.innerHTML;
   }
 
   render() {
     let { cell, params } = this.props;
 
-    return <Fragment>{this._format(this.value(cell), params)}</Fragment>;
+    return (
+      <div
+        dangerouslySetInnerHTML={{
+          __html: this._format(cell, params)
+        }}
+      />
+    );
   }
 }

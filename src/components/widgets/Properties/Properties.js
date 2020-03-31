@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
+
 import { t } from '../../../helpers/util';
 import EcosForm, { FORM_MODE_EDIT } from '../../EcosForm/index';
 import { DefineHeight, InfoText, Loader } from '../../common/index';

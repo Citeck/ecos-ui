@@ -12,8 +12,7 @@ import {
   reloadGrid,
   resetJournalSettingData,
   saveJournalSetting,
-  setJournalSetting,
-  setSettingsToUrl
+  setJournalSetting
 } from '../../../actions/journals';
 import { closest, deepClone, t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
@@ -39,7 +38,6 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     setJournalSetting: setting => dispatch(setJournalSetting(w(setting))),
-    setSettingsToUrl: setting => dispatch(setSettingsToUrl(w(setting))),
     saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
     createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
     resetJournalSettingData: journalSettingId => dispatch(resetJournalSettingData(w(journalSettingId)))
@@ -96,13 +94,12 @@ class JournalsSettingsFooter extends Component {
   };
 
   applySetting = () => {
-    const { setJournalSetting, setSettingsToUrl, reloadGrid, maxItems } = this.props;
+    const { setJournalSetting, reloadGrid, maxItems } = this.props;
     const journalSetting = this.getSetting();
     const { columns, groupBy, sortBy, predicate } = journalSetting;
     const predicates = predicate ? [predicate] : [];
     const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 
-    setSettingsToUrl({ groupBy, sortBy, predicate, pagination });
     setJournalSetting(journalSetting);
     reloadGrid({ columns, groupBy, sortBy, predicates, pagination });
     trigger.call(this, 'onApply');

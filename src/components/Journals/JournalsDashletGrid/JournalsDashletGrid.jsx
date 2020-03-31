@@ -30,8 +30,7 @@ import {
   setPredicate,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setSelectedRecords,
-  setSettingsToUrl
+  setSelectedRecords
 } from '../../../actions/journals';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION } from '../constants';
 
@@ -66,7 +65,6 @@ const mapDispatchToProps = (dispatch, props) => {
     goToJournalsPage: row => dispatch(goToJournalsPage(w(row))),
     performGroupAction: options => dispatch(performGroupAction(w(options))),
     setPerformGroupActionResponse: options => dispatch(setPerformGroupActionResponse(w(options))),
-    setSettingsToUrl: options => dispatch(setSettingsToUrl(w(options))),
     setPredicate: options => dispatch(setPredicate(w(options))),
     setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup(w({ columns, sortBy })))
   };
@@ -114,9 +112,7 @@ class JournalsDashletGrid extends Component {
 
   onFilter = ([filter]) => {
     const {
-      setSettingsToUrl,
       setPredicate,
-      isWidget,
       grid: { columns, pagination: pager }
     } = this.props;
     const predicate = ParserPredicate.getDefaultPredicates(columns, [filter.att]);
@@ -126,17 +122,11 @@ class JournalsDashletGrid extends Component {
 
     setPredicate(newPredicate);
     this.reloadGrid({ predicates: [newPredicate], pagination });
-
-    if (!isWidget) {
-      setSettingsToUrl({ predicate: newPredicate, pagination });
-    }
   };
 
   onSort = e => {
     const {
-      setSettingsToUrl,
       setColumnsSetup,
-      isWidget,
       grid: { columns }
     } = this.props;
     const sortBy = [
@@ -147,10 +137,6 @@ class JournalsDashletGrid extends Component {
     ];
     setColumnsSetup(columns, sortBy);
     this.reloadGrid({ sortBy });
-
-    if (!isWidget) {
-      setSettingsToUrl({ sortBy });
-    }
   };
 
   setSelectedRow(row) {
@@ -253,6 +239,48 @@ class JournalsDashletGrid extends Component {
       toolsClassName
     } = this.props;
 
+    const sourceGroupActions = groupActions.filter(g => (selectAllRecords && g.type === 'filtered') || g.type === 'selected');
+    const tools = [
+      <JournalsDownloadZip stateId={stateId} selected={selected} />,
+      <IcoBtn
+        icon={'icon-copy'}
+        className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+        title={t('grid.tools.copy-to')}
+      />,
+      <IcoBtn
+        icon={'icon-big-arrow'}
+        className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+        title={t('grid.tools.move-to')}
+      />,
+      <IcoBtn
+        icon={'icon-delete'}
+        className={classNames(toolsActionClassName, 'ecos-btn_hover_t_red')}
+        title={t('grid.tools.delete')}
+        onClick={this.showDeleteRecordsDialog}
+      />
+    ];
+
+    if (sourceGroupActions && sourceGroupActions.length) {
+      tools.push(
+        <Dropdown
+          className={'grid-tools__item_left_5'}
+          source={sourceGroupActions}
+          valueField={'id'}
+          titleField={'title'}
+          isButton={true}
+          onChange={this.changeGroupAction}
+        >
+          <IcoBtn
+            invert
+            icon={'icon-down'}
+            className={'dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn'}
+            onClick={this.onGoTo}
+          >
+            {t(isMobile ? 'grid.tools.group-actions-mobile' : 'grid.tools.group-actions')}
+          </IcoBtn>
+        </Dropdown>
+      );
+    }
     return (
       <Tools
         onSelectAll={this.setSelectAllRecords}
@@ -260,48 +288,7 @@ class JournalsDashletGrid extends Component {
         selectAll={selectAllRecords}
         total={total}
         className={toolsClassName}
-        tools={[
-          <JournalsDownloadZip stateId={stateId} selected={selected} />,
-          <IcoBtn
-            icon={'icon-copy'}
-            className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-            title={t('grid.tools.copy-to')}
-          />,
-          <IcoBtn
-            icon={'icon-big-arrow'}
-            className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-            title={t('grid.tools.move-to')}
-          />,
-          <IcoBtn
-            icon={'icon-delete'}
-            className={classNames(toolsActionClassName, 'ecos-btn_hover_t_red')}
-            title={t('grid.tools.delete')}
-            onClick={this.showDeleteRecordsDialog}
-          />,
-          <Dropdown
-            className={'grid-tools__item_left_5'}
-            source={groupActions.filter(g => {
-              if (selectAllRecords) {
-                return g.type === 'filtered';
-              }
-
-              return g.type === 'selected';
-            })}
-            valueField={'id'}
-            titleField={'title'}
-            isButton={true}
-            onChange={this.changeGroupAction}
-          >
-            <IcoBtn
-              invert
-              icon={'icon-down'}
-              className={'dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn'}
-              onClick={this.onGoTo}
-            >
-              {t(isMobile ? 'grid.tools.group-actions-mobile' : 'grid.tools.group-actions')}
-            </IcoBtn>
-          </Dropdown>
-        ]}
+        tools={tools}
       />
     );
   };

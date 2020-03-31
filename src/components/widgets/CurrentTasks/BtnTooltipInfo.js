@@ -18,6 +18,7 @@ export default class BtnTooltipInfo extends React.Component {
     noTooltip: PropTypes.bool,
     minHeight: PropTypes.string,
     text: PropTypes.string,
+    count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     handleClick: PropTypes.func
   };
 
@@ -61,7 +62,7 @@ export default class BtnTooltipInfo extends React.Component {
           handleClickOutside={this.closeTooltip}
           className={classNames('ecos-current-task__tooltip-btn', { 'ecos-current-task__tooltip-btn_active': isActive })}
         >
-          {!!count && count > 1 && <span className="ecos-current-task__tooltip-count">+{count - 1}</span>}
+          {count && <span className="ecos-current-task__tooltip-count">{count}</span>}
           <Icon
             className={classNames('ecos-current-task__tooltip-icon', iconClass)}
             onClick={isActive ? this.closeTooltip : this.openTooltip}
@@ -74,6 +75,8 @@ export default class BtnTooltipInfo extends React.Component {
             boundariesElement="window"
             target={domId}
             trigger="hover"
+            delay={{ show: 0, hide: 200 }}
+            autohide={false}
             className="ecos-base-tooltip ecos-current-task__tooltip"
             innerClassName="ecos-base-tooltip-inner"
             arrowClassName="ecos-base-tooltip-arrow"

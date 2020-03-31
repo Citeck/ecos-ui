@@ -14,7 +14,7 @@ import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
 
 import { initMenuSettings } from '../../actions/menu';
-import { setTab } from '../../actions/pageTabs';
+import { setTab, updateTab } from '../../actions/pageTabs';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 import PageService, { Events } from '../../services/PageService';
 
@@ -45,15 +45,20 @@ class App extends Component {
     const {
       params: { link = '' }
     } = event;
-    const { isShowTabs, isMobile, push, setTab } = this.props;
+    const { isShowTabs, isMobile, push, setTab, updateTab } = this.props;
 
     if (!(isShowTabs && !this.isOnlyContent && !isMobile)) {
       push.call(this, link);
       return;
     }
 
-    const { reopen, closeActiveTab, ...data } = PageService.parseEvent({ event }) || {};
+    const { reopen, closeActiveTab, updates, ...data } = PageService.parseEvent({ event }) || {};
 
+    if (updates) {
+      updateTab({ updates });
+
+      return;
+    }
     setTab({ data, params: { reopen, closeActiveTab } });
   };
 
@@ -208,6 +213,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   initMenuSettings: () => dispatch(initMenuSettings()),
   setTab: params => dispatch(setTab(params)),
+  updateTab: params => dispatch(updateTab(params)),
   push: url => dispatch(push(url))
 });
 

@@ -1,5 +1,10 @@
 @import '../../../styles/constants';
 
+:root {
+  --column-size: 100%;
+  --table-after-background: transparent;
+}
+
 .ecos-docs {
   &__body {
     display: flex;
@@ -12,6 +17,8 @@
   }
 
   &__column {
+    $column: &;
+
     position: relative;
     display: flex;
 
@@ -20,7 +27,6 @@
       flex-direction: column;
       flex-shrink: 2;
       width: 100%;
-      margin-left: -2px;
 
       tr:not(.ecos-grid_drag) > th:first-child,
       tr:not(.ecos-grid_drag) > td:first-child {
@@ -29,17 +35,32 @@
         .ecos-th,
         .ecos-grid__td {
           padding-left: 0;
+
+          span {
+            @extend %ellipsis;
+          }
         }
       }
 
       .ecos-grid {
         &_drag {
-          background: $color-yellow;
-          outline: 2px solid $color-brown-2;
+          &.ecos-grid__row {
+            background: $color-yellow;
+            border-right: 2px solid $color-brown-2;
 
-          & > th:first-child,
-          & > td:first-child {
-            padding-left: 14px;
+            td {
+              border-top: 2px solid $color-brown-2;
+              border-bottom: 2px solid $color-brown-2;
+
+              &:first-child {
+                padding-left: 12px;
+                border-left: 4px solid $color-brown-2;
+              }
+
+              .ecos-docs__table-count-status {
+                padding: 9px 29px 9px 30px;
+              }
+            }
           }
         }
 
@@ -72,6 +93,10 @@
       min-width: 150px;
       max-width: 100%;
       flex-shrink: 0;
+
+      & + #{$column}_table {
+        margin-left: -2px;
+      }
     }
 
     &:not(:last-child) {
@@ -183,6 +208,13 @@
 
       &:after {
         bottom: unset;
+        background: #e8edef;
+      }
+
+      &:after:not(#{$table}-row:last-child:hover) {
+        bottom: unset;
+        --table-after-background: #e8edef;
+        background: transparent;
       }
 
       &:before {
@@ -192,20 +224,23 @@
       #{$table}-row {
         cursor: pointer;
         transform: scale(1);
+        position: relative;
 
         &:hover {
-          border-left: 2px solid $color-brown-2;
           border-right: 2px solid $color-brown-2;
 
           td {
-            border-top: unset;
-            border-bottom: 5px solid transparent;
             border-top: 2px solid $color-brown-2;
             border-bottom: 2px solid $color-brown-2;
           }
 
-          &:not(.ecos-grid_drag) > td:first-child {
-            padding-left: 18px;
+          &:not(.ecos-grid_drag) {
+            & > td {
+              &:first-child {
+                padding-left: 17px;
+                border-left: 4px solid $color-brown-2;
+              }
+            }
           }
 
           .ecos-grid__td {
@@ -213,19 +248,64 @@
           }
 
           .ecos-docs__table-count-status {
-            margin: 9px 29px 9px 30px;
+            padding: 9px 29px 9px 30px;
+          }
+
+          &:last-child {
+            --table-after-background: transparent;
           }
         }
+
+        &:not(.ecos-grid_drag):first-child {
+          td {
+            border-top: 0;
+          }
+
+          &:hover {
+            td {
+              border-top: 2px solid $color-brown-2;
+            }
+          }
+        }
+
+        &:last-child {
+          &:hover {
+            .table:after {
+              background: transparent;
+            }
+          }
+        }
+
+        .ecos-docs__table .table:after {
+          background: transparent;
+        }
+      }
+
+      .ecos-th {
+        width: var(--column-size);
       }
     }
 
-    &.ecos-grid_freeze .ecos-grid__header {
-      th {
-        &:first-child {
-          box-shadow: -2px 0px 0px 0px $color-gray-4;
+    .ecos-grid {
+      &__head-shadow {
+        &:after {
+          bottom: -2px;
         }
+      }
 
+      &__header {
         border-top: 2px solid $color-gray-4;
+        border-bottom: 2px solid $color-gray-4;
+      }
+    }
+
+    &-view {
+      padding-top: 2px;
+    }
+
+    &.ecos-grid_freeze thead > tr.ecos-grid__header {
+      th {
+        top: 1px;
       }
     }
 
@@ -236,7 +316,12 @@
     &-dropzone {
       &.ecos-dropzone {
         margin: 19px;
+        min-height: 90px;
         height: calc(100% - 2 * 19px);
+      }
+
+      .ecos-dropzone__label {
+        pointer-events: none;
       }
 
       &_hidden {
@@ -251,22 +336,28 @@
       flex-direction: row;
       justify-content: flex-end;
       align-items: center;
-      margin: 9px 30px;
+      padding: 9px 30px;
+      position: relative;
     }
 
     &-upload-label {
+      --label-right-indent: 0;
+
       position: absolute;
       background: $color-white;
       top: 2px;
       bottom: 2px;
-      right: 100px;
-      display: flex;
-      align-items: center;
       visibility: hidden;
       font-weight: bold;
       font-size: 14px;
       line-height: 20px;
       color: $color-brown-1;
+      right: calc(var(--label-right-indent) + 17px + 30px);
+      display: flex;
+      align-items: flex-end;
+      flex-direction: column;
+      justify-content: center;
+      white-space: nowrap;
 
       &:before {
         content: '';
@@ -286,6 +377,7 @@
 
     &-inline-tools {
       z-index: 0;
+      margin-top: 2px;
     }
 
     &.ecos-grid_freeze {
@@ -300,6 +392,26 @@
             left: 0;
             top: 0;
           }
+        }
+      }
+    }
+
+    &_without-after-element {
+      .table {
+        &:after {
+          background: transparent;
+        }
+      }
+
+      #{$table}-inline-tools {
+        margin-top: 0;
+      }
+    }
+
+    &_types {
+      th:nth-last-child(2) {
+        .ecos-th__devider {
+          display: none;
         }
       }
     }
@@ -754,7 +866,12 @@
 
   &__uploading {
     width: 190px;
+    height: 100%;
     position: relative;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
   }
 
   &__label {
@@ -795,8 +912,12 @@
     height: 6px;
     border-radius: 3px;
     background-color: $color-blue-dark;
-    margin: 28px auto 20px;
-    width: 100%;
+    width: 244px;
+    margin-bottom: 20px;
+
+    &:only-child {
+      margin: auto;
+    }
 
     &::-webkit-progress-bar {
       background-color: $color-gray-6;

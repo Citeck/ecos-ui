@@ -3,6 +3,7 @@ import moment from 'moment';
 import i18next from 'i18next';
 import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
+import isEqual from 'lodash/isEqual';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
@@ -692,4 +693,34 @@ export function arrayFlat({ data = [], depth = Infinity, byField = '', withParen
   };
 
   return Array.prototype.flat.call(array.map(getChildren), depth);
+}
+
+export function objectCompare(obj1, obj2, params = {}) {
+  const { include = [], exclude = [] } = params;
+  let keys = [...new Set([...Object.keys(obj1), ...Object.keys(obj2)])];
+
+  if (include.length) {
+    keys = keys.filter(key => include.includes(key));
+  }
+
+  if (exclude.length) {
+    keys = keys.filter(key => !exclude.includes(key));
+  }
+
+  const filteredFirst = Object.keys(obj1)
+    .filter(key => keys.includes(key))
+    .reduce((obj, key) => {
+      obj[key] = obj1[key];
+
+      return obj;
+    }, {});
+  const filteredSecond = Object.keys(obj2)
+    .filter(key => keys.includes(key))
+    .reduce((obj, key) => {
+      obj[key] = obj2[key];
+
+      return obj;
+    }, {});
+
+  return isEqual(filteredFirst, filteredSecond);
 }

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
-import { isSmallMode, t } from '../../../helpers/util';
+import { isSmallMode, t, objectCompare } from '../../../helpers/util';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import Dashlet, { BaseActions } from '../../Dashlet';
@@ -78,9 +78,19 @@ class PropertiesDashlet extends BaseWidget {
   componentDidMount() {
     super.componentDidMount();
 
-    EcosFormUtils.hasWritePermission(this.props.record).then(canEditRecord => {
-      this.setState({ canEditRecord });
-    });
+    EcosFormUtils.hasWritePermission(this.props.record)
+      .then(canEditRecord => {
+        this.setState({ canEditRecord });
+      })
+      .catch(console.error);
+  }
+
+  componentDidUpdate(prevProps) {
+    super.componentDidUpdate(prevProps);
+
+    if (!objectCompare(prevProps.config, this.props.config)) {
+      this.reload();
+    }
   }
 
   componentWillUnmount() {

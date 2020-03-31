@@ -128,9 +128,9 @@ class Dashboard extends Component {
 
   getConfig() {
     const { getDashboardConfig, getDashboardTitle } = this.props;
-    const { recordRef, dashboardKey } = this.getPathInfo();
+    const { recordRef } = this.getPathInfo();
 
-    getDashboardConfig({ recordRef, dashboardKey });
+    getDashboardConfig({ recordRef });
     getDashboardTitle({ recordRef });
 
     this.setState({ needGetConfig: false });
