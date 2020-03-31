@@ -36,64 +36,98 @@ const initialState = {
 
 Object.freeze(initialState);
 
+export { initialState };
+
 export default handleActions(
   {
-    [getDashboardConfig]: state => {
-      return {
-        ...state,
-        reset: false,
-        isLoading: true
-      };
-    },
-    [setDashboardIdentification]: (state, { payload }) => {
-      const { identification } = payload;
+    [getDashboardConfig]: (state, { payload }) => {
+      let ownState = { ...initialState };
+
+      if (state[payload.key]) {
+        ownState = { ...ownState, ...state[payload.key] };
+      }
 
       return {
         ...state,
-        identification
+        [payload.key]: {
+          ...ownState,
+          reset: false,
+          isLoading: true
+        }
+      };
+    },
+    [setDashboardIdentification]: (state, { payload }) => {
+      const { identification, key } = payload;
+
+      return {
+        ...state,
+        [key]: {
+          ...state[key],
+          identification
+        }
       };
     },
     [setDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        config: payload,
-        isLoading: false
+        [payload.key]: {
+          ...state[payload.key],
+          config: payload.config,
+          isLoading: false
+        }
       };
     },
     [setMobileDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
-        mobileConfig: payload,
-        isLoading: false
+        [payload.key]: {
+          ...state[payload.key],
+          mobileConfig: payload.config,
+          isLoading: false
+        }
       };
     },
     [setRequestResultDashboard]: (state, { payload }) => {
+      const { key, ...result } = payload;
+
       return {
         ...state,
-        requestResult: payload,
-        isLoading: false
+        [key]: {
+          ...state[key],
+          requestResult: result,
+          isLoading: false
+        }
       };
     },
     [setDashboardTitleInfo]: (state, { payload }) => {
       return {
         ...state,
-        titleInfo: payload
+        [payload.key]: {
+          ...state[payload.key],
+          titleInfo: payload.titleInfo
+        }
       };
     },
 
-    [resetDashboardConfig]: state => {
+    [resetDashboardConfig]: (state, payload) => {
       return {
-        ...initialState,
-        reset: true
+        ...state,
+        [payload]: {
+          ...initialState,
+          reset: true
+        }
       };
     },
 
     [setLoading]: (state, { payload }) => {
       return {
         ...state,
-        isLoading: payload
+        [payload.key]: {
+          ...state[payload.key],
+          isLoading: payload.status
+        }
       };
     }
   },
-  initialState
+  {}
 );

@@ -32,16 +32,16 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
     if (isReset) {
       console.info('[dashboard/ doGetDashboardRequest saga] info: Dashboard is unmounted');
-      yield put(setLoading(false));
+      yield put(setLoading({ key: payload.key, status: false }));
       return;
     }
 
-    yield put(setDashboardIdentification(webKeyInfo));
-    yield put(setDashboardConfig(webConfig));
-    yield put(setMobileDashboardConfig(webConfigMobile));
+    yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key }));
+    yield put(setDashboardConfig({ config: webConfig, key: payload.key }));
+    yield put(setMobileDashboardConfig({ config: webConfigMobile, key: payload.key }));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error5')));
-    yield put(setLoading(false));
+    yield put(setLoading({ key: payload.key, status: false }));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
   }
 }
@@ -52,7 +52,7 @@ function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
     const resTitle = yield call(api.dashboard.getTitleInfo, recordRef);
     const titleInfo = DashboardConverter.getTitleInfo(resTitle);
 
-    yield put(setDashboardTitleInfo(titleInfo));
+    yield put(setDashboardTitleInfo({ titleInfo, key: payload.key }));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error5')));
     logger.error('[dashboard/ doGetDashboardTitleRequest saga] error', e.message);
@@ -60,7 +60,7 @@ function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
 }
 
 function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
-  yield put(setRequestResultDashboard({}));
+  yield put(setRequestResultDashboard({ key: payload.key }));
 
   try {
     const identification = yield select(selectIdentificationForView);
@@ -72,7 +72,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
     } else {
       config.layouts = payload.config;
 
-      yield put(setDashboardConfig(payload.config));
+      yield put(setDashboardConfig({ config: payload.config, key: payload.key }));
     }
     delete config.isMobile;
 
@@ -82,7 +82,8 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
     yield put(
       setRequestResultDashboard({
         status: res.dashboardId ? RequestStatuses.SUCCESS : RequestStatuses.FAILURE,
-        dashboardId: res.dashboardId
+        dashboardId: res.dashboardId,
+        key: payload.key
       })
     );
   } catch (e) {
