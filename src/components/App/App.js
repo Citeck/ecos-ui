@@ -157,8 +157,6 @@ class App extends Component {
     const appClassNames = classNames('app-container', { mobile: isMobile });
     const basePageClassNames = classNames('ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
 
-    console.warn('getCachingKeys => ', getCachingKeys(), getCachingComponents());
-
     const baseCacheRouteProps = {
       className: 'page-tab__panel',
       multiple: true,
