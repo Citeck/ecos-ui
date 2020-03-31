@@ -11,7 +11,7 @@ export const isExist = val => !(isUndefined(val) || isNull(val));
 
 export const isArray = val => val instanceof Array;
 
-export const isNaN = val => val !== val;
+export const isNaN = val => Number.isNaN(val);
 
 export const isNumber = val => typeof val === 'number' && !isNaN(val);
 // 值类型判断 -------------------------------------------------------------

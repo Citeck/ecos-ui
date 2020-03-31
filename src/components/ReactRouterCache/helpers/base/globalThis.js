@@ -11,7 +11,9 @@ const getImplementation = () => {
     return global;
   }
 
-  return Function('return this')();
+  return (function() {
+    return this;
+  })();
 };
 
 const implementation = getImplementation();

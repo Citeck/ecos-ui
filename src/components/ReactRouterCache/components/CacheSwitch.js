@@ -31,8 +31,6 @@ class CacheSwitch extends Switch {
     const { children, which } = this.props;
     const { location, match: contextMatch } = this.getContext();
 
-    console.warn('location => ', location);
-
     let __matchedAlready = false;
 
     return (

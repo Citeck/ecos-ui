@@ -3,12 +3,11 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Redirect, Route, Switch } from 'react-router';
+import { Redirect } from 'react-router';
 import { NotificationContainer } from 'react-notifications';
 import { push } from 'connected-react-router';
-import CacheRoute, { CacheSwitch } from '../ReactRouter';
-// import CacheRoute, { CacheSwitch } from 'react-router-cache-route';
 
+import CacheRoute, { CacheSwitch, getCachingKeys, getCachingComponents } from '../ReactRouterCache';
 import Header from '../Header';
 import Notification from '../Notification';
 import Menu from '../Sidebar/Sidebar';
@@ -21,7 +20,6 @@ import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 import PageService, { Events } from '../../services/PageService';
 
 import './App.scss';
-import { getSortedUrlParams } from '../../helpers/urls';
 
 const LoginForm = lazy(() => import('../LoginForm'));
 
@@ -36,8 +34,6 @@ const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/Verif
 const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/DelegatedTimesheetsPage'));
 
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
-
-const match = {};
 
 class App extends Component {
   componentDidMount() {
@@ -138,7 +134,7 @@ class App extends Component {
   }
 
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShowTabs } = this.props;
+    const { isInit, isInitFailure, isAuthenticated, isMobile, theme } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -161,6 +157,14 @@ class App extends Component {
     const appClassNames = classNames('app-container', { mobile: isMobile });
     const basePageClassNames = classNames('ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
 
+    console.warn('getCachingKeys => ', getCachingKeys(), getCachingComponents());
+
+    const baseCacheRouteProps = {
+      className: 'page-tab__panel',
+      multiple: true,
+      needUseFullPath: true
+    };
+
     return (
       <div className={appClassNames}>
         {this.renderReduxModal()}
@@ -171,65 +175,37 @@ class App extends Component {
             {this.renderMenu()}
 
             <div className="ecos-main-area">
-              {/*<Suspense fallback={null}>*/}
-              {/*  <PageTabs homepageLink={URL.DASHBOARD} isShow={isShowTabs && !this.isOnlyContent && !isMobile}>*/}
-              {/*    <div>test</div>*/}
-              {/*    <CacheSwitch*/}
-              {/*      className="page-tab__switch"*/}
-              {/*      // which={(...props) => {*/}
-              {/*      //   console.warn('which => ', props);*/}
-              {/*      //*/}
-              {/*      //   return true;*/}
-              {/*      // }}*/}
-              {/*    >*/}
-              {/*      <CacheRoute*/}
-              {/*        className="page-tab__panel"*/}
-              {/*        // multiple*/}
-              {/*        path={URL.DASHBOARD}*/}
-              {/*        exact*/}
-              {/*        when={(...props) => {*/}
-              {/*          console.warn('when in CacheRoute Dashboard => ', props);*/}
-
-              {/*          return true;*/}
-              {/*        }}*/}
-              {/*        component={DashboardPage}*/}
-              {/*      />*/}
-              {/*      <CacheRoute className="page-tab__panel" multiple path={URL.JOURNAL} component={JournalsPage} />*/}
-              {/*    </CacheSwitch>*/}
-              {/*  </PageTabs>*/}
-              {/*</Suspense>*/}
-
               {this.renderTabs()}
               <div className="ecos-main-content" style={this.wrapperStyle}>
                 <Suspense fallback={null}>
-                  <CacheSwitch match={this.props.match} location={this.props.location} fullLocationCaching>
-                    {/*<CacheRoute exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />*/}
-                    {/*<CacheRoute path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />*/}
+                  <CacheSwitch match={this.props.match} location={this.props.location}>
                     <CacheRoute
-                      className="page-tab__panel"
-                      multiple
-                      // multiple={10}
-                      path={URL.DASHBOARD}
+                      {...baseCacheRouteProps}
                       exact
-                      cacheKey="Dashboard"
-                      // fullLocationCaching
-                      component={DashboardPage}
+                      path="/share/page/bpmn-designer"
+                      render={() => <Redirect to={URL.BPMN_DESIGNER} />}
                     />
-                    {/*<CacheRoute path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />*/}
-                    {/*<CacheRoute className="page-tab__panel" fullLocationCaching multiple path={URL.JOURNAL} component={JournalsPage} />*/}
-                    {/*<CacheRoute path={URL.TIMESHEET} exact component={MyTimesheetPage} />*/}
-                    {/*<CacheRoute path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />*/}
-                    {/*<CacheRoute path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />*/}
-                    {/*<CacheRoute path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />*/}
-                    {/*<CacheRoute path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />*/}
-                    {/*<CacheRoute path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />*/}
-                    {/*<CacheRoute path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />*/}
-                    {/*<CacheRoute path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />*/}
+                    <CacheRoute {...baseCacheRouteProps} path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
+                    <CacheRoute {...baseCacheRouteProps} path={URL.DASHBOARD} exact component={DashboardPage} />
+                    <CacheRoute {...baseCacheRouteProps} path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
+                    <CacheRoute {...baseCacheRouteProps} path={URL.JOURNAL} component={JournalsPage} />
+                    <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET} exact component={MyTimesheetPage} />
+                    <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
+                    <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+                    <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />
+                    <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
+                    <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
+                    <CacheRoute
+                      {...baseCacheRouteProps}
+                      path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION}
+                      component={VerificationTimesheetPage}
+                    />
+                    <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
 
                     {/*temporary routes */}
-                    {/*<CacheRoute path="/v2/debug/formio-develop" component={FormIOPage} />*/}
+                    <CacheRoute {...baseCacheRouteProps} path="/v2/debug/formio-develop" component={FormIOPage} />
 
-                    {/*<Redirect to={URL.DASHBOARD} />*/}
+                    <Redirect to={URL.DASHBOARD} />
                   </CacheSwitch>
                 </Suspense>
               </div>

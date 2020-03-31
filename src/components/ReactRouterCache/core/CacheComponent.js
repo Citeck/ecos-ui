@@ -256,8 +256,6 @@ export default class CacheComponent extends Component {
     const className = run(`${propsClassName} ${behaviorClassName}`, 'trim');
     const hasClassName = className !== '';
 
-    console.warn('manager.getCache() => ', manager.getCache());
-
     return cached ? (
       <div
         className={hasClassName ? className : undefined}

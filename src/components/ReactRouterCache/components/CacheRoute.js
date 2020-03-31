@@ -17,11 +17,13 @@ export default class CacheRoute extends Component {
     render: PropTypes.func,
     children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
     computedMatchForCacheRoute: PropTypes.object,
+    needUseFullPath: PropTypes.bool,
     multiple: PropTypes.oneOfType([PropTypes.bool, PropTypes.number])
   };
 
   static defaultProps = {
-    multiple: false
+    multiple: false,
+    needUseFullPath: false
   };
 
   cache = {};
@@ -39,7 +41,7 @@ export default class CacheRoute extends Component {
       saveScrollPosition,
       computedMatchForCacheRoute,
       multiple,
-      fullLocationCaching,
+      needUseFullPath,
       ...restProps
     } = this.props;
 
@@ -85,7 +87,7 @@ export default class CacheRoute extends Component {
           };
           let { pathname: currentPathname, search } = location;
 
-          currentPathname += fullLocationCaching ? search : '';
+          currentPathname += needUseFullPath ? search : '';
 
           const renderSingle = props => (
             <CacheComponent {...props}>
@@ -105,21 +107,11 @@ export default class CacheRoute extends Component {
             </CacheComponent>
           );
 
-          if (isMatchCurrentRoute) {
-            console.warn('isMatchCurrentRoute CACHING => ', this.cache);
-          } else {
-            console.warn('NOT isMatchCurrentRoute CACHING => ', this.cache);
-          }
-
           if (multiple && isMatchCurrentRoute) {
-            console.warn('fullLocationCaching => ', fullLocationCaching, currentPathname);
-
-            // if (!this.cache[currentPathname]) {
-            this.cache[currentPathname + '' + search] = {
+            this.cache[currentPathname] = {
               updateTime: Date.now(),
               render: renderSingle
             };
-            // }
 
             Object.entries(this.cache)
               .sort(([, prev], [, next]) => next.updateTime - prev.updateTime)
@@ -132,10 +124,8 @@ export default class CacheRoute extends Component {
 
           return multiple ? (
             <Fragment>
-              {Object.entries(this.cache).map(([pathname, { render }], ...params) => {
-                const recomputedMatch = pathname === currentPathname + '' + search ? match || computedMatch : null;
-
-                console.warn('pathname => => => ', pathname, currentPathname + '' + search);
+              {Object.entries(this.cache).map(([pathname, { render }]) => {
+                const recomputedMatch = pathname === currentPathname ? match || computedMatch : null;
 
                 return (
                   <Fragment key={pathname}>
@@ -145,10 +135,10 @@ export default class CacheRoute extends Component {
                       cacheKey: cacheKey
                         ? {
                             cacheKey,
-                            pathname: currentPathname + '' + search,
+                            pathname,
                             multiple: true
                           }
-                        : undefined,
+                        : currentPathname, // + location.search, // undefined,
                       key: pathname,
                       match: recomputedMatch
                     })}
