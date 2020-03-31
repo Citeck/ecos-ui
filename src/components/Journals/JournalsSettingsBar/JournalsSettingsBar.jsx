@@ -82,7 +82,7 @@ const JournalsSettingsBar = ({
         <IcoBtn
           invert
           icon={isMobile ? 'icon-download' : 'icon-down'}
-          className={classNames('ecos-btn_hover_blue2 ecos-btn_r_6 ecos-btn_line-height_normal', {
+          className={classNames('ecos-btn_hover_blue2 ecos-btn_r_6', {
             'ecos-btn_drop-down ecos-btn_grey3': !isMobile,
             'ecos-btn_i ecos-btn_white': isMobile
           })}
