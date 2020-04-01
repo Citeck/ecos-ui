@@ -14,7 +14,7 @@ import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
 
 import { initMenuSettings } from '../../actions/menu';
-import { initTabs, setTab, updateTab } from '../../actions/pageTabs';
+import { setTab, updateTab } from '../../actions/pageTabs';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 import PageService, { Events } from '../../services/PageService';
 
@@ -34,12 +34,6 @@ const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/Delegat
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-
-    props.initTabs();
-  }
-
   componentDidMount() {
     const { initMenuSettings } = this.props;
 
@@ -218,7 +212,6 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initMenuSettings: () => dispatch(initMenuSettings()),
-  initTabs: () => dispatch(initTabs()),
   setTab: params => dispatch(setTab(params)),
   updateTab: params => dispatch(updateTab(params)),
   push: url => dispatch(push(url))

@@ -109,7 +109,7 @@ export default handleActions(
       };
     },
 
-    [resetDashboardConfig]: (state, payload) => {
+    [resetDashboardConfig]: (state, { payload }) => {
       return {
         ...state,
         [payload]: {
