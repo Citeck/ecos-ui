@@ -490,9 +490,9 @@ export default class EcosFormUtils {
       value = DataGridAssocComponent.convertToAssoc(value, input, keysMapping);
     }
 
-    // cause: https://citeck.atlassian.net/browse/ECOSCOM-2561, https://citeck.atlassian.net/browse/ECOSCOM-3204
+    // cause: https://citeck.atlassian.net/browse/ECOSCOM-2561, https://citeck.atlassian.net/browse/ECOSCOM-3204, https://citeck.atlassian.net/browse/ECOSCOM-3428
     if (input && input.component.type === 'ecosSelect' && !value) {
-      value = [];
+      value = input.component.multiple ? [] : null;
     }
 
     // cause: https://citeck.atlassian.net/browse/ECOSCOM-2581
