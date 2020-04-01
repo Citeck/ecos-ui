@@ -52,6 +52,10 @@ class PageTabList {
     return this.#tabs.map(item => item.store);
   }
 
+  get activeTabId() {
+    return get(this.activeTab, 'id', null);
+  }
+
   init({ activeUrl, keyStorage, isDuplicateAllowed, displayState, ...params }) {
     this.#keyStorage = keyStorage || this.#keyStorage;
     this.#displayState = !!displayState;
