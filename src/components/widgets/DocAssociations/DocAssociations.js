@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
-import get from 'lodash/get';
 
 import BaseWidget from '../BaseWidget';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';

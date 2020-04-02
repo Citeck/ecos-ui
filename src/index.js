@@ -46,6 +46,7 @@ import {
   TimesheetSubordinatesApi,
   TimesheetVerificationApi,
   UserApi,
+  UserConfigApi,
   VersionsJournalApi,
   ViewApi
 } from './api';
@@ -103,6 +104,7 @@ api.timesheetDelegated = new TimesheetDelegatedApi(store);
 api.properties = new PropertiesApi(store);
 api.documents = new DocumentsApi(store);
 api.page = new PageApi(store);
+api.userConfig = new UserConfigApi(store);
 
 /**
  * todo: Maybe need such union all api?

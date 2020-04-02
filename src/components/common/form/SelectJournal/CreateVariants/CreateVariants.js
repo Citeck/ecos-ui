@@ -63,7 +63,7 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
         backdrop: 'static'
       }}
       className="ecos-modal_width-lg ecos-form-modal"
-      isBigHeader={true}
+      isBigHeader
       title={title}
       isOpen={isCreateModalOpen}
       hideModal={toggleCreateModal}

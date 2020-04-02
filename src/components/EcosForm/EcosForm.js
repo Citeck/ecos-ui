@@ -277,7 +277,8 @@ class EcosForm extends React.Component {
 
           let value = submission.data[key];
 
-          if (input && input.type === 'horizontalLine') {
+          const excludeComponents = ['horizontalLine', 'asyncData'];
+          if (input && input.component && excludeComponents.includes(input.component.type)) {
             continue;
           }
 

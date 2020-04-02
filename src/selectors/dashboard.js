@@ -1,6 +1,8 @@
 import { get } from 'lodash';
 
-export const selectIdentificationForView = state => get(state, 'dashboard.identification', {});
+import pageTabList from '../services/pageTabs/PageTabList';
+
+export const selectIdentificationForView = state => get(state, `dashboard[${pageTabList.activeTabId}].identification`, {});
 export const selectIdentificationForSet = state => get(state, 'dashboardSettings.identification', {});
 export const selectResetStatus = state => get(state, 'dashboard.reset', false);
 

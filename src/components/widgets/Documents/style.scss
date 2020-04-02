@@ -316,7 +316,7 @@
     &-dropzone {
       &.ecos-dropzone {
         margin: 19px;
-        min-height: 70px;
+        min-height: 90px;
         height: calc(100% - 2 * 19px);
       }
 
@@ -866,7 +866,12 @@
 
   &__uploading {
     width: 190px;
+    height: 100%;
     position: relative;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
   }
 
   &__label {
@@ -907,8 +912,12 @@
     height: 6px;
     border-radius: 3px;
     background-color: $color-blue-dark;
-    margin: 28px auto 20px;
-    width: 100%;
+    width: 244px;
+    margin-bottom: 20px;
+
+    &:only-child {
+      margin: auto;
+    }
 
     &::-webkit-progress-bar {
       background-color: $color-gray-6;

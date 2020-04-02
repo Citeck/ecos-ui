@@ -4,9 +4,8 @@ import PropTypes from 'prop-types';
 import omit from 'lodash/omit';
 import get from 'lodash/get';
 import queryString from 'query-string';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { NotificationManager } from 'react-notifications';
 
+import { UserConfigApi } from '../../api/userConfig';
 import { URL } from '../../constants';
 import { ALFRESCO, PROXY_URI } from '../../constants/alfresco';
 import { t } from '../../helpers/util';
@@ -15,6 +14,8 @@ import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
 
 import './Export.scss';
+
+const api = new UserConfigApi();
 
 export default class extends Component {
   static propTypes = {
@@ -43,11 +44,7 @@ export default class extends Component {
       { id: 3, title: 'CSV', type: 'csv', download: true, target: '_self' },
       {
         id: 4,
-        title: (
-          <CopyToClipboard text={this.getSelectionFilterUrl()} onCopy={this.onCopyUrl}>
-            <div>{t('export-component.action.copy-link')}</div>
-          </CopyToClipboard>
-        )
+        title: <div onClick={this.onCopyUrl}>{t('export-component.action.copy-link')}</div>
       }
     ];
   }
@@ -83,12 +80,7 @@ export default class extends Component {
     const name = (config.meta.createVariants[0] || {}).title || config.meta.title;
     const reportColumns = (grid.columns || config.columns || [])
       .filter(c => c.default)
-      .map(column => {
-        return {
-          attribute: column.attribute,
-          title: column.text
-        };
-      });
+      .map(column => ({ attribute: column.attribute, title: column.text }));
 
     const query = {
       sortBy: [
@@ -112,28 +104,36 @@ export default class extends Component {
     return query;
   };
 
-  getSelectionFilterUrl = () => {
-    const {
-      grid: { predicates = [] },
-      dashletConfig
-    } = this.props;
-    const { search, host } = window.location;
-    const urlParams = {
-      ...queryString.parse(search),
-      filter: '',
-      journalSettingId: '',
-      selectionFilter: Array.isArray(predicates) && predicates.length ? JSON.stringify(predicates[0]) : ''
-    };
+  getSelectionFilter = () => {
+    const { columns } = this.props.journalConfig || {};
+    const { groupBy, sortBy, pagination, predicates } = this.props.grid || {};
 
-    return decodeLink(
-      `${host}${URL.JOURNAL}?${queryString.stringify(
-        dashletConfig ? { ...urlParams, journalId: dashletConfig.journalId, journalsListId: dashletConfig.journalsListId } : urlParams
-      )}`
-    );
+    return { columns, groupBy, sortBy, pagination, predicate: predicates[0] };
   };
 
-  onCopyUrl = () => {
-    NotificationManager.success('', t('export-component.notice.to-buffer'), 3000);
+  getSelectionUrl = () => {
+    const { dashletConfig } = this.props;
+    const { href, host } = window.location;
+
+    if (dashletConfig) {
+      const { journalId, journalsListId } = dashletConfig;
+
+      return decodeLink(`${host}${URL.JOURNAL}?${queryString.stringify({ journalId, journalsListId })}`);
+    }
+
+    const objectUrl = queryString.parseUrl(href);
+    const { journalId, journalsListId } = objectUrl.query;
+
+    return `${objectUrl.url}?${queryString.stringify({ journalId, journalsListId })}`;
+  };
+
+  onCopyUrl = e => {
+    e.stopPropagation();
+
+    const data = this.getSelectionFilter();
+    const url = this.getSelectionUrl();
+
+    api.copyUrlConfig({ data, url });
   };
 
   render() {
