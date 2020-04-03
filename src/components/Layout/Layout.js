@@ -15,7 +15,7 @@ import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
-class Layout extends Component {
+class Layout extends React.PureComponent {
   static propTypes = {
     columns: PropTypes.arrayOf(
       PropTypes.oneOfType([
@@ -30,7 +30,7 @@ class Layout extends Component {
           widgets: PropTypes.array
         })
       ])
-    ).isRequired,
+    ),
     menuType: PropTypes.string,
     className: PropTypes.string,
     type: PropTypes.string,
@@ -40,11 +40,11 @@ class Layout extends Component {
   };
 
   static defaultProps = {
-    onSaveWidget: () => {},
-    onSaveWidgetProps: () => {},
     canDragging: false,
     className: '',
-    type: ''
+    type: '',
+    onSaveWidget: () => {},
+    onSaveWidgetProps: () => {}
   };
 
   state = {

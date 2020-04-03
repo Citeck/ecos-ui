@@ -21,6 +21,7 @@ import Dashlet, { BaseActions } from '../../Dashlet';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
+import pageTabList from '../../../services/pageTabs/PageTabList';
 
 const BASE_HEIGHT = 21;
 const BUTTONS_TYPE = {
@@ -356,8 +357,6 @@ class Comments extends BaseWidget {
     let convertedComment = ContentState.createFromText(comment.text);
 
     if (!comment) {
-      console.warn('Comment not found');
-
       return;
     }
 

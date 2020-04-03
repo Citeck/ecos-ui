@@ -79,6 +79,11 @@ class Dashboard extends Component {
   static getDerivedStateFromProps(props, state) {
     const newState = {};
     const newUrlParams = getSortedUrlParams();
+    const isCurrentTab = props.tabLink === pageTabList.activeTab.link;
+
+    if (!isCurrentTab) {
+      return {};
+    }
 
     if (isEmpty(state.activeLayoutId)) {
       newState.activeLayoutId = get(props.config, '[0].id');
@@ -297,27 +302,21 @@ class Dashboard extends Component {
     );
   }
 
-  renderLayout() {
-    const { menuType, isMobile } = this.props;
-    const { canDragging } = this.state;
-    const { columns, type } = this.activeLayout;
-
-    if (!columns) {
-      return null;
-    }
+  renderLayout = React.memo(props => {
+    const { menuType, isMobile, canDragging, columns, type } = props;
 
     return (
       <Layout
         className={classNames({ 'ecos-layout_mobile': isMobile })}
         columns={columns}
-        onSaveWidget={this.prepareWidgetsConfig}
         type={type}
         menuType={menuType}
-        onSaveWidgetProps={this.handleSaveWidgetProps}
         canDragging={canDragging}
+        onSaveWidget={this.prepareWidgetsConfig}
+        onSaveWidgetProps={this.handleSaveWidgetProps}
       />
     );
-  }
+  });
 
   renderTopMenu() {
     const { menuType, isLoadingMenu, links } = this.props;
@@ -400,6 +399,10 @@ class Dashboard extends Component {
   }
 
   render() {
+    const { menuType, isMobile } = this.props;
+    const { canDragging } = this.state;
+    const { columns, type } = this.activeLayout;
+
     return (
       <Scrollbars
         style={{ height: '100%' }}
@@ -410,7 +413,7 @@ class Dashboard extends Component {
         {this.renderTopMenu()}
         {this.renderHeader()}
         {this.renderTabs()}
-        {this.renderLayout()}
+        <this.renderLayout menuType={menuType} isMobile={isMobile} canDragging={canDragging} columns={columns} type={type} />
         {this.renderLoader()}
       </Scrollbars>
     );

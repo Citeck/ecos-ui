@@ -410,15 +410,19 @@ class PageTabs extends React.Component {
     return children;
   }
 
-  renderPanel = () => {
-    return this.props.children;
-  };
+  renderTabPanes = React.memo(props => {
+    const { tabs, ContentComponent } = props;
+
+    return tabs.map(tab => React.createElement(ContentComponent, { tab, key: tab.id }));
+  });
 
   render() {
+    const { tabs, ContentComponent } = this.props;
+
     return (
       <>
         {this.renderTabWrapper()}
-        {this.renderChildren()}
+        <this.renderTabPanes tabs={tabs} ContentComponent={ContentComponent} />
       </>
     );
   }
