@@ -12,7 +12,9 @@
   .modal-header {
     border-bottom: none;
     color: $text-color-dark;
-    padding: 24px 20px 20px;
+    height: 70px;
+    padding: 0 20px;
+    align-items: center;
 
     .close {
       margin: 0;
@@ -32,15 +34,13 @@
 
     &.ecos-modal-header {
       &_big {
-        padding: 22px 20px 20px;
-        align-items: center;
-
         & .modal-title {
           font-size: 24px;
         }
 
         & .close {
           position: static;
+          margin-left: 15px;
 
           .ecos-modal-close__icon {
             margin-left: 5px;
@@ -52,18 +52,22 @@
         border-bottom: 2px $color-gray-4 solid;
       }
     }
+
+    &:not(.ecos-modal-header_divider) + .modal-body {
+      padding-top: 0;
+    }
   }
 
   .modal-body {
-    padding: 0 20px 20px;
+    padding: 20px;
   }
 
   .modal-title {
+    @extend %ellipsis;
     font-size: $font-size-large;
     font-weight: $font-weight-bold;
     color: $text-color-dark;
     line-height: 22px;
-    word-break: break-all;
     display: flex;
     align-items: center;
   }
@@ -82,8 +86,10 @@
       margin-left: 15px;
     }
 
-    &__buttons {
-      height: 24px;
+    &__title {
+      @extend %ellipsis;
+      flex: 1 1 auto;
+      min-width: 0;
     }
   }
 

@@ -163,6 +163,7 @@ export default class EcosModal extends Component {
 EcosModal.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
+  classNameHeader: PropTypes.string,
   isBigHeader: PropTypes.bool,
   isTopDivider: PropTypes.bool,
   isOpen: PropTypes.bool,
@@ -180,6 +181,7 @@ EcosModal.propTypes = {
 
 EcosModal.defaultProps = {
   className: '',
+  classNameHeader: PropTypes.string,
   reactstrapProps: {},
   title: '',
   customButtons: [],
