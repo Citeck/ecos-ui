@@ -1,24 +1,23 @@
-import { MENU_TYPE, QueryEntityKeys } from '../constants';
-
-const getDefaultMenuConfig = {
-  type: MENU_TYPE.LEFT,
-  links: []
-};
+import { MenuTypes } from '../constants/menu';
 
 export default class MenuConverter {
-  static parseGetResult(result) {
-    if (!result || (result && !Object.keys(result).length)) {
-      return getDefaultMenuConfig;
+  static parseGetResult(source) {
+    const target = {
+      type: MenuTypes.LEFT,
+      links: [],
+      items: []
+    };
+
+    if (source) {
+      target.type = source.type || MenuTypes.LEFT;
+      target.links = source.links;
+      target.items = source.items;
     }
 
-    let resultConfig = result[QueryEntityKeys.VALUE_JSON];
-    if (!resultConfig || !resultConfig.type) {
-      resultConfig = getDefaultMenuConfig;
-    }
-    return resultConfig;
+    return target;
   }
 
-  static getAvailableMenuItemsForWeb(items = []) {
+  static getAvailableSoloItemsForWeb(items = []) {
     return items.map(item => {
       return {
         label: item.label,
@@ -42,10 +41,10 @@ export default class MenuConverter {
   static getSettingsConfigForServer(source) {
     const target = {};
 
-    const { menuType, menuLinks } = source;
+    const { type, links } = source;
 
-    target.type = menuType;
-    target.links = MenuConverter.getMenuItemsForServer(menuLinks);
+    target.type = type;
+    target.links = MenuConverter.getMenuItemsForServer(links);
 
     return target;
   }

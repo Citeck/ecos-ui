@@ -15,12 +15,10 @@ import {
 import { setNotificationMessage } from '../actions/notification';
 import { selectIdentificationForSet } from '../selectors/dashboard';
 import { selectIsAdmin, selectUserName } from '../selectors/user';
-import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
 import { DASHBOARD_DEFAULT_KEY, RequestStatuses } from '../constants';
 import DashboardService from '../services/dashboard';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
-import MenuConverter from '../dto/menu';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
@@ -116,10 +114,9 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
     const serverConfig = {
       layouts: DashboardSettingsConverter.getSettingsConfigForServer(payload),
-      menu: MenuConverter.getSettingsConfigForServer(payload),
       mobile: DashboardSettingsConverter.getSettingsMobileConfigForServer(payload)
     };
-    const { layouts, menu, mobile } = serverConfig;
+    const { layouts, mobile } = serverConfig;
     const identification = yield select(selectIdentificationForSet);
     const newIdentification = payload.newIdentification || {};
     const isAdmin = yield select(selectIsAdmin);
@@ -150,7 +147,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       DashboardService.getCacheKey(newIdentification.key, payload.recordRef),
       newIdentification.user
     ]);
-    yield put(saveMenuConfig(menu));
+
     yield put(
       setRequestResultDashboard({
         status: parseDashboard.dashboardId ? RequestStatuses.SUCCESS : RequestStatuses.FAILURE,

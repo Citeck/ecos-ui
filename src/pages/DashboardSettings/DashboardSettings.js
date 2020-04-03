@@ -9,11 +9,11 @@ import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
 import find from 'lodash/find';
 
-import { arrayCompare, documentScrollTop, t } from '../../helpers/util';
+import { arrayCompare, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
-import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
-import { DashboardTypes, DeviceTabs, MenuTypes } from '../../constants/dashboard';
-import { LAYOUT_TYPE, Layouts } from '../../constants/layout';
+import { RequestStatuses, URL } from '../../constants';
+import { DashboardTypes, DeviceTabs } from '../../constants/dashboard';
+import { Layouts, LayoutTypes } from '../../constants/layout';
 import DashboardService from '../../services/dashboard';
 import PageService from '../../services/PageService';
 import {
@@ -24,7 +24,6 @@ import {
   saveDashboardConfig,
   setCheckUpdatedDashboardConfig
 } from '../../actions/dashboardSettings';
-import { initMenuSettings } from '../../actions/menu';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
@@ -35,7 +34,6 @@ import SetBind from './SetBind';
 import SetTabs from './SetTabs';
 import SetLayouts from './SetLayouts';
 import SetWidgets from './SetWidgets';
-import SetMenu from './SetMenu';
 
 import './style.scss';
 
@@ -44,10 +42,6 @@ const mapStateToProps = state => ({
     userName: get(state, 'user.userName'),
     isAdmin: get(state, 'user.isAdmin', false)
   },
-  menuType: get(state, 'menu.type'),
-  menuLinks: get(state, 'menu.links', []),
-  availableMenuItems: get(state, ['menu', 'availableMenuItems'], []),
-  isLoadingMenu: get(state, ['menu', 'isLoading']),
   config: get(state, 'dashboardSettings.config.layouts', []),
   mobileConfig: get(state, 'dashboardSettings.config.mobile', []),
   availableWidgets: get(state, ['dashboardSettings', 'availableWidgets'], []),
@@ -58,13 +52,12 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  initMenuSettings: () => dispatch(initMenuSettings()),
-  initDashboardSettings: payload => dispatch(initDashboardSettings(payload)),
+  initSettings: payload => dispatch(initDashboardSettings(payload)),
   checkUpdatedSettings: payload => dispatch(getCheckUpdatedDashboardConfig(payload)),
   saveSettings: payload => dispatch(saveDashboardConfig(payload)),
   getAwayFromPage: payload => dispatch(getAwayFromPage(payload)),
-  setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig(payload)),
-  resetDashboardConfig: () => dispatch(resetDashboardConfig())
+  setCheckUpdatedConfig: payload => dispatch(setCheckUpdatedDashboardConfig(payload)),
+  resetConfig: () => dispatch(resetDashboardConfig())
 });
 
 const DESK_VER = find(DeviceTabs, ['key', 'desktop']);
@@ -75,8 +68,6 @@ class DashboardSettings extends React.Component {
   static propTypes = {
     identification: PropTypes.object,
     userData: PropTypes.object,
-    menuType: PropTypes.string,
-    menuLinks: PropTypes.array,
     config: PropTypes.arrayOf(
       PropTypes.shape({
         type: PropTypes.string,
@@ -85,7 +76,6 @@ class DashboardSettings extends React.Component {
       })
     ),
     mobileConfig: PropTypes.array,
-    availableMenuItems: PropTypes.array,
     availableWidgets: PropTypes.array,
     dashboardKeyItems: PropTypes.array,
     requestResult: PropTypes.object,
@@ -95,12 +85,9 @@ class DashboardSettings extends React.Component {
   static defaultProps = {
     identification: {},
     userData: {},
-    menuType: '',
-    menuLinks: [],
     config: [],
     mobileConfig: [],
     availableWidgets: [],
-    availableMenuItems: [],
     dashboardKeyItems: [],
     requestResult: {}
   };
@@ -122,8 +109,6 @@ class DashboardSettings extends React.Component {
     selectedWidgets: {},
     mobileSelectedWidgets: {},
 
-    selectedMenuItems: [],
-    typeMenu: MenuTypes,
     urlParams: getSortedUrlParams()
   };
 
@@ -132,15 +117,13 @@ class DashboardSettings extends React.Component {
 
     const state = {
       ...this.state,
-      availableWidgets: DndUtils.setDndId(props.availableWidgets),
-      availableMenuItems: DndUtils.setDndId(props.availableMenuItems)
+      availableWidgets: DndUtils.setDndId(props.availableWidgets)
     };
 
     this.state = {
       ...state,
       ...this.setStateConfig(props),
-      ...this.setStateMobileConfig(props),
-      ...this.setStateMenu(props, state)
+      ...this.setStateMobileConfig(props)
     };
   }
 
@@ -149,13 +132,13 @@ class DashboardSettings extends React.Component {
   }
 
   componentWillUnmount() {
-    this.props.resetDashboardConfig();
+    this.props.resetConfig();
   }
 
   componentWillReceiveProps(nextProps) {
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
-    let { config, mobileConfig, menuType, availableMenuItems, availableWidgets } = this.props;
+    let { config, mobileConfig, availableWidgets } = this.props;
     let state = {};
 
     if (urlParams !== newUrlParams) {
@@ -175,16 +158,6 @@ class DashboardSettings extends React.Component {
       state = { ...state, ...resultConfig };
     }
 
-    if (menuType !== nextProps.menuType) {
-      const resultMenu = this.setStateMenu(nextProps);
-
-      state = { ...state, ...resultMenu };
-    }
-
-    if (!arrayCompare(availableMenuItems, nextProps.availableMenuItems)) {
-      state.availableMenuItems = DndUtils.setDndId(nextProps.availableMenuItems);
-    }
-
     if (
       !arrayCompare(availableWidgets, nextProps.availableWidgets) ||
       !arrayCompare(nextProps.availableWidgets, this.state.availableWidgets, 'name')
@@ -197,11 +170,10 @@ class DashboardSettings extends React.Component {
   }
 
   fetchData(props = this.props) {
-    const { initDashboardSettings, initMenuSettings } = props;
+    const { initSettings } = props;
     const { recordRef, dashboardId } = this.getPathInfo(props);
 
-    initDashboardSettings({ recordRef, dashboardId });
-    initMenuSettings();
+    initSettings({ recordRef, dashboardId });
   }
 
   setStateConfig(props) {
@@ -259,19 +231,6 @@ class DashboardSettings extends React.Component {
     return { mobileSelectedWidgets, mobileTabs, mobileActiveLayoutTabId };
   }
 
-  setStateMenu(props, state = this.state) {
-    const { typeMenu } = state;
-
-    let selectedMenuItems = get(props, 'menuLinks');
-    selectedMenuItems = DndUtils.setDndId(selectedMenuItems);
-
-    typeMenu.forEach(item => {
-      item.isActive = item.type === get(props, 'menuType', '');
-    });
-
-    return { typeMenu, selectedMenuItems };
-  }
-
   setSelectedWidgets(item, availableWidgets) {
     const columns = item ? item.columns || [] : [];
     const newWidgets = new Array([].concat.apply([], columns).length);
@@ -319,16 +278,6 @@ class DashboardSettings extends React.Component {
     return URL.DASHBOARD + (isEmpty(pathDashboardParams) ? '' : `?${queryString.stringify(pathDashboardParams)}`);
   }
 
-  get menuWidth() {
-    const menu = document.querySelector('.slide-menu');
-
-    if (!menu) {
-      return 0;
-    }
-
-    return -menu.clientWidth;
-  }
-
   get selectedTypeLayout() {
     return findLayout(this.activeData.layout);
   }
@@ -340,7 +289,7 @@ class DashboardSettings extends React.Component {
       widgets: this.isSelectedMobileVer
         ? get(mobileSelectedWidgets, mobileActiveLayoutTabId, [])
         : get(selectedWidgets, activeLayoutTabId, []),
-      layout: this.isSelectedMobileVer ? LAYOUT_TYPE.MOBILE : get(selectedLayout, activeLayoutTabId, '')
+      layout: this.isSelectedMobileVer ? LayoutTypes.MOBILE : get(selectedLayout, activeLayoutTabId, '')
     };
   }
 
@@ -351,15 +300,6 @@ class DashboardSettings extends React.Component {
   get isSelectedMobileVer() {
     return find(DeviceTabs, ['key', 'mobile']).key === this.state.activeDeviceTabId;
   }
-
-  draggablePositionAdjustment = () => {
-    const menuType = get(this.props, 'menuType', '');
-
-    return {
-      top: menuType === MENU_TYPE.LEFT ? documentScrollTop() : 0,
-      left: menuType === MENU_TYPE.LEFT ? this.menuWidth : 0
-    };
-  };
 
   renderHeader() {
     let title = '';
@@ -378,7 +318,7 @@ class DashboardSettings extends React.Component {
     return (
       <Row>
         <Col md={12}>
-          <h1 className="ecos-dashboard-settings__header">{title}</h1>
+          <div className="ecos-dashboard-settings__header">{title}</div>
         </Col>
       </Row>
     );
@@ -522,29 +462,10 @@ class DashboardSettings extends React.Component {
         availableWidgets={availableWidgets}
         activeWidgets={this.activeData.widgets}
         columns={this.selectedTypeLayout.columns}
-        positionAdjustment={this.draggablePositionAdjustment}
         setData={setData}
         isMobile={isMob}
       />
     );
-  }
-
-  renderMenuBlock() {
-    const { selectedMenuItems, availableMenuItems, typeMenu } = this.state;
-
-    const setData = data => {
-      this.setState(data);
-    };
-
-    return this.isUserType ? (
-      <SetMenu
-        typeMenu={typeMenu}
-        availableMenuItems={availableMenuItems}
-        selectedMenuItems={selectedMenuItems}
-        setData={setData}
-        positionAdjustment={this.draggablePositionAdjustment}
-      />
-    ) : null;
   }
 
   handleCloseSettings = () => {
@@ -564,17 +485,13 @@ class DashboardSettings extends React.Component {
 
     const {
       selectedWidgets: widgets,
-      selectedMenuItems: menuLinks,
-      typeMenu,
-      tabs,
       selectedLayout: layoutType,
       selectedDashboardKey: dashboardKey,
+      tabs,
       isForAllUsers,
       mobileSelectedWidgets,
       mobileTabs
     } = this.state;
-    const activeMenuType = typeMenu.find(item => item.isActive);
-    const menuType = activeMenuType ? activeMenuType.type : typeMenu[0].type;
     const userName = isForAllUsers ? null : identification.user || userData.userName;
     const newIdentification = { user: userName, key: dashboardKey, id: checkResultId };
 
@@ -583,8 +500,6 @@ class DashboardSettings extends React.Component {
       layoutType,
       widgets,
       tabs,
-      menuType,
-      menuLinks,
       recordRef,
       mobile: {
         widgets: mobileSelectedWidgets,
@@ -614,15 +529,15 @@ class DashboardSettings extends React.Component {
   }
 
   renderDialogs() {
-    const { setCheckUpdatedDashboardConfig, requestResult } = this.props;
+    const { setCheckUpdatedConfig, requestResult } = this.props;
 
     if (requestResult.saveWay === DashboardService.SaveWays.CONFIRM) {
       const handleReplace = () => {
-        setCheckUpdatedDashboardConfig({ ...requestResult, saveWay: DashboardService.SaveWays.UPDATE });
+        setCheckUpdatedConfig({ ...requestResult, saveWay: DashboardService.SaveWays.UPDATE });
       };
 
       const handleCancel = () => {
-        setCheckUpdatedDashboardConfig({});
+        setCheckUpdatedConfig({});
       };
 
       return (
@@ -647,9 +562,9 @@ class DashboardSettings extends React.Component {
   }
 
   renderLoader() {
-    let { isLoading, isLoadingMenu } = this.props;
+    let { isLoading } = this.props;
 
-    if (isLoading || isLoadingMenu) {
+    if (isLoading) {
       return <Loader height={100} width={100} className="ecos-dashboard-settings__loader-wrapper" darkened />;
     }
 
@@ -668,7 +583,6 @@ class DashboardSettings extends React.Component {
           {this.renderGeneralSettingsBlock()}
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
-          {this.renderMenuBlock()}
           {this.renderButtons()}
         </div>
         {this.renderDialogs()}

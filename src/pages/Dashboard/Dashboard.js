@@ -9,12 +9,13 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
-import { LoaderTypes, MENU_TYPE } from '../../constants';
+import { LoaderTypes } from '../../constants';
+import { MenuTypes } from '../../constants/menu';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
-import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
+import { saveMenuConfig } from '../../actions/menu';
 import { Loader, ScrollArrow, Tabs } from '../../components/common';
 import { Badge } from '../../components/common/form';
 import { DocStatus } from '../../components/widgets/DocStatus';
@@ -53,7 +54,6 @@ const mapDispatchToProps = dispatch => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key: pageTabList.activeTabId })),
   getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: pageTabList.activeTabId })),
   saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: pageTabList.activeTabId })),
-  initMenuSettings: payload => dispatch(getMenuConfig({ ...payload, key: pageTabList.activeTabId })),
   saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: pageTabList.activeTabId })),
   setLoading: status => dispatch(setLoading({ status, key: pageTabList.activeTabId })),
   resetDashboardConfig: () => dispatch(resetDashboardConfig(pageTabList.activeTabId))
@@ -92,7 +92,6 @@ class Dashboard extends Component {
     if (state.urlParams !== newUrlParams) {
       newState.urlParams = newUrlParams;
       newState.needGetConfig = true;
-      props.initMenuSettings();
     }
 
     if (state.urlParams === newUrlParams && props.isLoadingDashboard && !isEmpty(props.config)) {
@@ -322,7 +321,7 @@ class Dashboard extends Component {
   renderTopMenu() {
     const { menuType, isLoadingMenu, links } = this.props;
 
-    if (menuType !== MENU_TYPE.TOP) {
+    if (menuType !== MenuTypes.TOP) {
       return null;
     }
 

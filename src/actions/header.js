@@ -16,3 +16,4 @@ export const setUserMenuItems = createAction(prefix + 'USER_MENU_SET_ITEMS');
 export const fetchSiteMenuData = createAction(prefix + 'SITE_MENU_FETCH_DATA');
 export const setSiteMenuItems = createAction(prefix + 'SITE_MENU_SET_ITEMS');
 export const goToPageFromSiteMenu = createAction(prefix + 'GO_TO_PAGE_FROM_SITE_MENU');
+export const runActionFromSiteMenu = createAction(prefix + 'RUN_ACTION_FROM_SITE_MENU');

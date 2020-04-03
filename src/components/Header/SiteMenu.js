@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { isArray, isEmpty } from 'lodash';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-import { goToPageFromSiteMenu } from '../../actions/header';
-import IcoBtn from '../common/btns/IcoBtn';
-import Icon from '../common/icons/Icon/Icon';
-import { DropdownMenu as Menu } from '../common';
+
+import { goToPageFromSiteMenu, runActionFromSiteMenu } from '../../actions/header';
+import { DropdownMenu as Menu, Icon } from '../common';
+import { IcoBtn } from '../common/btns';
 
 const mapStateToProps = state => ({
   items: state.header.siteMenu.items,
@@ -15,7 +15,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  goToPage: payload => dispatch(goToPageFromSiteMenu(payload))
+  goToPage: payload => dispatch(goToPageFromSiteMenu(payload)),
+  runAction: payload => dispatch(runActionFromSiteMenu(payload))
 });
 
 class SiteMenu extends React.Component {
@@ -39,7 +40,12 @@ class SiteMenu extends React.Component {
 
   handelItem = data => {
     this.toggle();
-    this.props.goToPage(data);
+
+    if (data.isAction) {
+      this.props.runAction(data);
+    } else {
+      this.props.goToPage(data);
+    }
   };
 
   render() {

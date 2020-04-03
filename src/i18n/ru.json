@@ -106,6 +106,7 @@
   "current-tasks-widget.no-tasks": "Текущих задач нет",
   "current-tasks-widget.saga.error1": "Ошибка получения данных",
   "current-tasks-widget.title": "Все задачи",
+
   "dashboard-settings.already-exists": "Дашборд для установленного типа и/или пользователя уже существует",
   "dashboard-settings.button.cancel": "Отмена",
   "dashboard-settings.button.save": "Применить",
@@ -127,13 +128,6 @@
   "dashboard-settings.error5": "Ошибка получения данных по дашборду",
   "dashboard-settings.error6": "Ошибка сохранения дашборда",
   "dashboard-settings.for-all": "Для всех пользователей",
-  "dashboard-settings.menu-constructor.placeholder1": "Нет доступных пунктов меню",
-  "dashboard-settings.menu-constructor.placeholder2": "Перетащите пункты меню сюда",
-  "dashboard-settings.menu-constructor.subtitle": "Какие пункты меню следует отображать",
-  "dashboard-settings.menu-type1": "Меню слева",
-  "dashboard-settings.menu-type2": "Меню в виде кнопок перед виджетами",
-  "dashboard-settings.menu.subtitle": "Выберите расположение меню.",
-  "dashboard-settings.menu.title": "Меню",
   "dashboard-settings.page-display-settings": "Настройка отображения страницы",
   "dashboard-settings.page-title": "Настройки домашней страницы",
   "dashboard-settings.remove-tab-dialog.text1": "Удалить вкладку",
@@ -166,6 +160,7 @@
   "dashboard-settings.widget.documents": "Документы",
   "dashboard-settings.widget.user-basic-info": "Профиль",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
+
   "dashlet.edit.title": "Редактировать данные",
   "dashlet.edit.tooltip": "Редактировать данные",
   "dashlet.goto": "Перейти в раздел",
@@ -280,6 +275,9 @@
   "export-component.notice.buffer-link-done": "Ссылка на выборку скопирована в буфер обмена",
   "export-component.notice.buffer-link-err": "Не удалось создать ссылку на выборку",
   "export-component.notice.buffer-link-preparation": "Подождите, идет подготовка ссылки на выборку",
+
+  "tree-component.tooltip.cannot-be-changes": "Нельзя изменить состояние",
+  "tree-component.empty": "Элементов не найдено",
 
   "filter-list.add-criterion": "Добавить критерий",
   "filter-list.add-operator": "Добавить оператор",
@@ -874,5 +872,26 @@
   "password-field.rule.count-digits": "1 цифра",
   "password-field.rule.count-capitals": "1 заглавная",
   "password-field.rule.count-lowercase": "1 строчная",
-  "password-field.rule.required": "Необходимо ввести пароль"
+  "password-field.rule.required": "Необходимо ввести пароль",
+
+  "menu-settings.header.title": "Настройки меню",
+  "menu-settings.header.btn.journal-menu-template": "Журнал шаблонов меню",
+  "menu-settings.location.title": "Расположение меню",
+  "menu-settings.location.type.left": "Меню слева",
+  "menu-settings.location.type.top-buttons": "Меню в виде кнопок перед виджетами",
+  "menu-settings.location.type.hidden": "Скрыть меню",
+  "menu-settings.editor-items.none": "Разделы не созданы",
+  "menu-settings.editor-items.no-available": "Нет доступных пунктов меню",
+  "menu-settings.editor-items.drag-item-here": "Перетащите пункты меню сюда",
+  "menu-settings.location.subtitle": "Отображаемые пункты меню",
+  "menu-settings.editor-items.title": "Редактор разделов",
+  "menu-settings.editor-items.subtitle": "Разделы",
+  "menu-settings.editor-items.btn.add": "Добавить",
+
+  "menu-settings.button.cancel": "Отмена",
+  "menu-settings.button.apply": "Применить",
+
+  "menu-item.type.arbitrary": "Произвольный пункт меню",
+  "menu-item.type.link-to-create-case": "Ссылку на создание кейса",
+  "menu-item.type.header-divider": "Разделяющий загловок"
 }

@@ -2,7 +2,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
 import head from 'lodash/head';
-import { LAYOUT_TYPE, Layouts } from '../constants/layout';
+import { Layouts, LayoutTypes } from '../constants/layout';
 import Components from '../components/widgets/Components';
 import DashboardService from '../services/dashboard';
 import DashboardConverter from './dashboard';
@@ -59,7 +59,7 @@ export default class DashboardSettingsConverter {
 
     target.id = layout.id;
     target.tab = layout.tab || DashboardService.defaultDashboardTab(layout.id);
-    target.type = layout.type || LAYOUT_TYPE.TWO_COLUMNS_BS;
+    target.type = layout.type || LayoutTypes.TWO_COLUMNS_BS;
     target.widgets = isArray(layout.columns) ? [].concat.apply([], layout.columns).map(item => item.widgets) : [];
 
     return target;
@@ -71,7 +71,7 @@ export default class DashboardSettingsConverter {
 
     tabs.forEach(tab => {
       const { label, idLayout } = tab;
-      const type = layoutType[idLayout] || LAYOUT_TYPE.TWO_COLUMNS_BS;
+      const type = layoutType[idLayout] || LayoutTypes.TWO_COLUMNS_BS;
       const columns = Layouts.find(layout => layout.type === type).columns;
 
       target.push({
@@ -95,7 +95,7 @@ export default class DashboardSettingsConverter {
       target.push({
         id: idLayout,
         tab: { label, idLayout },
-        type: LAYOUT_TYPE.MOBILE,
+        type: LayoutTypes.MOBILE,
         columns: [
           {
             widgets: head(Components.setDefaultPropsOfWidgets(mobile.widgets[idLayout])) || []

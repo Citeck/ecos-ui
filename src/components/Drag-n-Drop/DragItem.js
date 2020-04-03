@@ -17,7 +17,7 @@ class DragItem extends React.Component {
     canRemove: PropTypes.bool,
     removeItem: PropTypes.func,
     // In order to get the adjustment of the position of the draggable element
-    getPositionAdjusment: PropTypes.func,
+    getPositionAdjustment: PropTypes.func,
     isDragDisabled: PropTypes.bool,
     isCloning: PropTypes.bool,
     isWrapper: PropTypes.bool,
@@ -34,7 +34,7 @@ class DragItem extends React.Component {
     draggableIndex: 0,
     item: null,
     removeItem: () => {},
-    getPositionAdjusment: () => ({ top: 0, left: 0 }),
+    getPositionAdjustment: () => ({ top: 0, left: 0 }),
     children: null,
     isWrapper: false
   };
@@ -105,13 +105,13 @@ class DragItem extends React.Component {
   }
 
   renderBody = (provided, snapshot) => {
-    const positionAdjusment = this.props.getPositionAdjusment();
+    const positionAdjustment = this.props.getPositionAdjustment();
 
-    if (positionAdjusment) {
+    if (positionAdjustment) {
       const {
         draggableProps: { style }
       } = provided;
-      const { top, left } = positionAdjusment;
+      const { top, left } = positionAdjustment;
 
       if (top && style.top) {
         provided.draggableProps.style.top = style.top + top;
@@ -151,13 +151,13 @@ class DragItem extends React.Component {
 
 class Wrapper extends DragItem {
   renderBody = (provided, snapshot) => {
-    const positionAdjusment = this.props.getPositionAdjusment();
+    const positionAdjustment = this.props.getPositionAdjusment();
 
-    if (positionAdjusment) {
+    if (positionAdjustment) {
       const {
         draggableProps: { style }
       } = provided;
-      const { top, left } = positionAdjusment;
+      const { top, left } = positionAdjustment;
 
       if (top && style.top) {
         provided.draggableProps.style.top = style.top + top;

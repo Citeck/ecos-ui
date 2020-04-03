@@ -3,6 +3,7 @@ export const URL = {
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
+  MENU_SETTINGS: '/v2/menu-settings',
   BPMN_DESIGNER: '/v2/bpmn-designer',
   TIMESHEET: '/v2/timesheet',
   TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
@@ -24,23 +25,19 @@ export const pagesWithOnlyContent = [
 export const SourcesId = {
   DASHBOARD: 'uiserv/dashboard',
   EFORM: 'uiserv/eform',
+  USER_CONF: 'uiserv/user-conf',
+  CONFIG: 'uiserv/config',
   HISTORY: 'history',
   STATUS: 'status',
   COMMENT: 'comment',
   VERSION: 'version',
   PEOPLE: 'people',
-  BIRTHDAYS: 'birthdays',
-  USER_CONF: 'uiserv/user-conf'
+  BIRTHDAYS: 'birthdays'
 };
 
 export const ActionModes = {
   DASHBOARD: 'dashboard',
   JOURNAL: 'journal'
-};
-
-export const MENU_TYPE = {
-  LEFT: 'LEFT',
-  TOP: 'TOP'
 };
 
 export const RequestStatuses = {
@@ -49,30 +46,6 @@ export const RequestStatuses = {
 };
 
 export const DASHBOARD_DEFAULT_KEY = 'DEFAULT';
-
-export const QueryEntityKeys = {
-  CONFIG_JSON: 'config?json',
-  VALUE_JSON: 'value?json',
-  KEY: 'key',
-  VALUE: 'value',
-  TITLE: 'title',
-  DESCRIPTION: 'description',
-  USER: 'user',
-  TYPE: 'type'
-};
-
-export const QueryLanguage = {
-  FORMS_FOR_TYPE: 'forms-for-type',
-  PREDICATE: 'predicate',
-  CHILDREN: 'children',
-  FTS_ALFRESCO: 'fts-alfresco',
-  DOC_TYPES: 'document-types',
-  TYPES_DOCS: 'types-documents',
-  DOC: 'document',
-  JSON: 'json',
-  CRITERIA: 'criteria',
-  WITHOUT: null
-};
 
 export const MIN_WIDTH_DASHLET_SMALL = 290;
 export const MIN_WIDTH_DASHLET_LARGE = 593;

@@ -4,8 +4,9 @@ import nth from 'lodash/nth';
 import split from 'lodash/split';
 import includes from 'lodash/includes';
 import uuid from 'uuidv4';
-import { LAYOUT_TYPE } from '../constants/layout';
+
 import { DASHBOARD_DEFAULT_KEY, SourcesId } from '../constants';
+import { LayoutTypes } from '../constants/layout';
 import { t } from '../helpers/util';
 
 const separatorId = '@';
@@ -27,7 +28,7 @@ export default class DashboardService {
     layout: {
       id: idLayout,
       tab: DashboardService.defaultDashboardTab(idLayout),
-      type: LAYOUT_TYPE.TWO_COLUMNS_BS,
+      type: LayoutTypes.TWO_COLUMNS_BS,
       columns: [
         {
           width: '30%',
@@ -123,7 +124,7 @@ export default class DashboardService {
       mobile.push({
         id: idLayout,
         tab: { label: tab.label, idLayout },
-        type: LAYOUT_TYPE.MOBILE,
+        type: LayoutTypes.MOBILE,
         columns: [
           {
             widgets: columns.reduce((result, current) => {

@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
-import { MENU_TYPE } from '../../constants';
-import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
 
+import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
+import { MenuTypes } from '../../constants/menu';
 import SlideMenuBtn from './SlideMenuBtn';
 import CreateMenu from './CreateMenu';
 import UserMenu from './UserMenu';
@@ -44,7 +44,7 @@ class Header extends React.Component {
     const menuSelector = document.querySelector('.slide-menu');
     const width = (menuSelector && menuSelector.clientWidth) || 0;
 
-    return menuType === MENU_TYPE.LEFT ? width : 0;
+    return menuType === MenuTypes.LEFT ? width : 0;
   }
 
   onResize = width => {

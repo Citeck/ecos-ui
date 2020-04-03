@@ -12,10 +12,12 @@ import Notification from '../Notification';
 import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
+import MenuSettings from '../../pages/MenuSettings';
 
-import { initMenuSettings } from '../../actions/menu';
+import { getMenuConfig } from '../../actions/menu';
 import { setTab, updateTab } from '../../actions/pageTabs';
-import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
+import { pagesWithOnlyContent, URL } from '../../constants';
+import { MenuTypes } from '../../constants/menu';
 import PageService, { Events } from '../../services/PageService';
 
 import './App.scss';
@@ -35,9 +37,9 @@ const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 
 class App extends Component {
   componentDidMount() {
-    const { initMenuSettings } = this.props;
+    const { getMenuConfig } = this.props;
 
-    initMenuSettings();
+    getMenuConfig();
     document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
   }
 
@@ -97,7 +99,7 @@ class App extends Component {
       return null;
     }
 
-    if (menuType === MENU_TYPE.LEFT) {
+    if (menuType === MenuTypes.LEFT) {
       return <Menu />;
     }
 
@@ -132,7 +134,7 @@ class App extends Component {
   }
 
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile, theme } = this.props;
+    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isOpenMenuSettings } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -194,6 +196,8 @@ class App extends Component {
           </div>
         </div>
 
+        {isOpenMenuSettings && <MenuSettings />}
+
         <NotificationContainer />
       </div>
     );
@@ -201,17 +205,18 @@ class App extends Component {
 }
 
 const mapStateToProps = state => ({
+  theme: get(state, ['view', 'theme']),
+  menuType: get(state, ['menu', 'type']),
   isInit: get(state, ['app', 'isInit']),
   isInitFailure: get(state, ['app', 'isInitFailure']),
   isMobile: get(state, ['view', 'isMobile']),
-  theme: get(state, ['view', 'theme']),
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
-  menuType: get(state, ['menu', 'type'])
+  isOpenMenuSettings: get(state, ['menu', 'isOpenMenuSettings'])
 });
 
 const mapDispatchToProps = dispatch => ({
-  initMenuSettings: () => dispatch(initMenuSettings()),
+  getMenuConfig: () => dispatch(getMenuConfig()),
   setTab: params => dispatch(setTab(params)),
   updateTab: params => dispatch(updateTab(params)),
   push: url => dispatch(push(url))

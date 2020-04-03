@@ -5,13 +5,13 @@ import get from 'lodash/get';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 
+import { LayoutTypes } from '../../constants/layout';
 import { getMinWidthColumn } from '../../helpers/layout';
+import { getSearchParams } from '../../helpers/util';
+import { getSortedUrlParams } from '../../helpers/urls';
+import { getPositionAdjustment } from '../../helpers/menu';
 import Components from '../widgets/Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
-import { MENU_TYPE } from '../../constants';
-import { LAYOUT_TYPE } from '../../constants/layout';
-import { documentScrollTop, getSearchParams } from '../../helpers/util';
-import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
@@ -99,7 +99,7 @@ class Layout extends Component {
   checkWidgets = () => {
     const { type } = this.props;
 
-    if (type !== LAYOUT_TYPE.ADAPTIVE) {
+    if (type !== LayoutTypes.ADAPTIVE) {
       return;
     }
 
@@ -144,13 +144,10 @@ class Layout extends Component {
     }
   };
 
-  draggablePositionAdjusment = () => {
+  draggablePositionAdjustment = () => {
     const { menuType } = this.props;
 
-    return {
-      top: menuType === MENU_TYPE.LEFT ? documentScrollTop() : 0,
-      left: menuType === MENU_TYPE.LEFT ? this.menuWidth : 0
-    };
+    return getPositionAdjustment(menuType);
   };
 
   handleDragUpdate = provided => {
@@ -213,7 +210,7 @@ class Layout extends Component {
 
       if (canDragging) {
         components.push(
-          <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjusment}>
+          <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjustment}>
             <Widget
               {...widget.props}
               canDragging={canDragging}

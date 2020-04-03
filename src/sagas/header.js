@@ -5,6 +5,7 @@ import {
   fetchSiteMenuData,
   fetchUserMenuData,
   goToPageFromSiteMenu,
+  runActionFromSiteMenu,
   runSearchAutocompleteItems,
   setCreateCaseWidgetIsCascade,
   setCreateCaseWidgetItems,
@@ -12,6 +13,7 @@ import {
   setSiteMenuItems,
   setUserMenuItems
 } from '../actions/header';
+import { setOpenMenuSettings } from '../actions/menu';
 import { setDashboardIdentification } from '../actions/dashboard';
 import { setUserThumbnail } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
@@ -63,7 +65,9 @@ function* fetchUserMenu({ api, fakeApi, logger }) {
 
 function* fetchSiteMenu({ api, fakeApi, logger }) {
   try {
-    const menuItems = makeSiteMenu();
+    const isAdmin = yield select(state => state.user.isAdmin);
+    const menuItems = makeSiteMenu({ isAdmin });
+
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
     logger.error('[fetchSiteMenu saga] error', e.message);
@@ -72,6 +76,7 @@ function* fetchSiteMenu({ api, fakeApi, logger }) {
 
 function* filterSiteMenu({ api, logger }, { payload = {} }) {
   try {
+    const isAdmin = yield select(state => state.user.isAdmin);
     const { identification = null } = payload;
     const tabLink = get(payload, 'tab.link', '');
     let { url = '' } = payload;
@@ -90,7 +95,7 @@ function* filterSiteMenu({ api, logger }, { payload = {} }) {
       isDashboardPage = hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
     }
 
-    const menuItems = makeSiteMenu({ isDashboardPage });
+    const menuItems = makeSiteMenu({ isDashboardPage, isAdmin });
 
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
@@ -100,11 +105,21 @@ function* filterSiteMenu({ api, logger }, { payload = {} }) {
 
 function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
   try {
-    const link = yield MenuService.processTransitSiteMenuItem(payload);
+    const link = yield MenuService.getSiteMenuLink(payload);
 
     PageService.changeUrlLink(link, { openNewTab: true });
   } catch (e) {
-    logger.error('[goToPageSiteMenu saga] error', e.message);
+    logger.error('[header goToPageSiteMenu saga] error', e.message);
+  }
+}
+
+function* runActionSiteMenu({ api, fakeApi, logger }, { payload }) {
+  try {
+    if (payload.id === 'SETTINGS_MENU') {
+      yield put(setOpenMenuSettings(true));
+    }
+  } catch (e) {
+    logger.error('[header runActionSiteMenu saga] error', e.message);
   }
 }
 
@@ -113,7 +128,7 @@ function* sagaRunSearchAutocomplete({ api, fakeApi, logger }, { payload }) {
     const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
     const sites = yield api.menu.getLiveSearchSites(payload);
     const people = yield api.menu.getLiveSearchPeople(payload);
-    const noResults = !(sites.totalRecords + documents.totalRecords + people.totalRecords);
+    const noResults = !(!!sites.totalRecords + !!documents.totalRecords + !!people.totalRecords);
 
     yield put(setSearchAutocompleteItems({ documents, sites, people, noResults }));
   } catch (e) {
@@ -127,6 +142,7 @@ function* headerSaga(ea) {
   yield takeLatest(fetchSiteMenuData().type, fetchSiteMenu, ea);
   yield takeLatest([setDashboardIdentification().type, changeTab().type], filterSiteMenu, ea);
   yield takeLatest(goToPageFromSiteMenu().type, goToPageSiteMenu, ea);
+  yield takeLatest(runActionFromSiteMenu().type, runActionSiteMenu, ea);
   yield takeLatest(runSearchAutocompleteItems().type, sagaRunSearchAutocomplete, ea);
 }
 

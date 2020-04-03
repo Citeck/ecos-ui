@@ -106,6 +106,7 @@
   "current-tasks-widget.no-tasks": "No current tasks",
   "current-tasks-widget.saga.error1": "Error. Failure to fetch data",
   "current-tasks-widget.title": "All tasks",
+
   "dashboard-settings.already-exists": "A dashboard for the installed type and / or user already exists",
   "dashboard-settings.button.cancel": "Cancel",
   "dashboard-settings.button.save": "Save",
@@ -127,13 +128,6 @@
   "dashboard-settings.error5": "Error getting dashboard data",
   "dashboard-settings.error6": "Error saving dashboard",
   "dashboard-settings.for-all": "For all users",
-  "dashboard-settings.menu-constructor.placeholder1": "No available menu items",
-  "dashboard-settings.menu-constructor.placeholder2": "Drag menu items here",
-  "dashboard-settings.menu-constructor.subtitle": "Choose menu items to display",
-  "dashboard-settings.menu-type1": "Left menu",
-  "dashboard-settings.menu-type2": "Menu in front of widgets",
-  "dashboard-settings.menu.subtitle": "Choose menu locations.",
-  "dashboard-settings.menu.title": "Menu",
   "dashboard-settings.page-display-settings": "Page display settings",
   "dashboard-settings.page-title": "Dashboard settings",
   "dashboard-settings.remove-tab-dialog.text1": "Are you sure you want to delete the tab",
@@ -166,6 +160,7 @@
   "dashboard-settings.widget.documents": "Documents",
   "dashboard-settings.widget.user-basic-info": "Profile",
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",
+
   "dashlet.edit.title": "Edit data",
   "dashlet.edit.tooltip": "Edit data",
   "dashlet.goto": "Go to section",
@@ -280,6 +275,9 @@
   "export-component.notice.buffer-link-done": "Selection link was copied to clipboard",
   "export-component.notice.buffer-link-err": "Failed to create select link",
   "export-component.notice.buffer-link-preparation": "Wait while preparing a sample link",
+
+  "tree-component.tooltip.cannot-be-changes": "Cannot change state",
+  "tree-component.empty": "Nothing found",
 
   "filter-list.add-criterion": "Add criterion",
   "filter-list.add-operator": "Add operator",
@@ -869,5 +867,26 @@
   "password-field.rule.count-digits": "1 digit",
   "password-field.rule.count-capitals": "1 capital",
   "password-field.rule.count-lowercase": "1 lowercase",
-  "password-field.rule.required": "Password is required"
+  "password-field.rule.required": "Password is required",
+
+  "menu-settings.header.title": "Menu Settings",
+  "menu-settings.header.btn.journal-menu-template": "Journal Menu Template",
+  "menu-settings.location.title": "Menu location",
+  "menu-settings.location.type.left": "Left menu",
+  "menu-settings.location.type.top-buttons": "Menu in front of widgets",
+  "menu-settings.location.type.hidden": "Hidden",
+  "menu-settings.editor-items.none": "No sections created",
+  "menu-settings.editor-items.no-available": "No available menu items",
+  "menu-settings.editor-items.drag-item-here": "Drag menu items here",
+  "menu-settings.location.subtitle": "Displayed menu items",
+  "menu-settings.editor-items.title": "Editor items",
+  "menu-settings.editor-items.subtitle": "Sections",
+  "menu-settings.editor-items.btn.add": "Add",
+
+  "menu-settings.button.cancel": "Cancel",
+  "menu-settings.button.apply": "Apply",
+
+  "menu-item.type.arbitrary": "Arbitrary menu item",
+  "menu-item.type.link-to-create-case": "Link to create a case",
+  "menu-item.type.header-divider": "Header Divider"
 }
