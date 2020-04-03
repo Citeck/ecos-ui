@@ -281,6 +281,9 @@
   "export-component.notice.buffer-link-err": "Failed to create select link",
   "export-component.notice.buffer-link-preparation": "Wait while preparing a sample link",
 
+  "tree-component.tooltip.cannot-be-changes": "Cannot change state",
+  "tree-component.empty": "Nothing found",
+
   "filter-list.add-criterion": "Add criterion",
   "filter-list.add-operator": "Add operator",
   "filter-list.condition-group": "Condition group",
