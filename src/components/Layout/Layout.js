@@ -15,7 +15,7 @@ import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
-class Layout extends React.PureComponent {
+class Layout extends Component {
   static propTypes = {
     columns: PropTypes.arrayOf(
       PropTypes.oneOfType([

@@ -41,7 +41,7 @@ class PageTabList {
   }
 
   get activeTab() {
-    return this.#tabs.find(item => item.isActive);
+    return this.#tabs.find(item => item.isActive) || {};
   }
 
   get storageList() {

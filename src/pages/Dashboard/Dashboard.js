@@ -81,7 +81,7 @@ class Dashboard extends Component {
     const newUrlParams = getSortedUrlParams();
     const isCurrentTab = props.tabLink === pageTabList.activeTab.link;
 
-    if (!isCurrentTab) {
+    if (!isCurrentTab && props.tabLink) {
       return {};
     }
 

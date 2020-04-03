@@ -25,14 +25,17 @@ const Labels = {
 class PageTabs extends React.Component {
   static propTypes = {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+    ContentComponent: PropTypes.node,
     homepageLink: PropTypes.string.isRequired,
-    isShow: PropTypes.bool
+    isShow: PropTypes.bool,
+    enableCache: PropTypes.bool
   };
 
   state = {
     isActiveLeftArrow: false,
     isActiveRightArrow: false,
     needArrow: false,
+    enableCache: false,
     draggableNode: null
   };
 
@@ -152,9 +155,11 @@ class PageTabs extends React.Component {
   }
 
   closeTab(tab) {
-    const { deleteTab } = this.props;
+    const { deleteTab, enableCache } = this.props;
 
-    dropByCacheKey(tab.link);
+    if (enableCache) {
+      dropByCacheKey(tab.link);
+    }
 
     deleteTab(tab);
   }
@@ -422,7 +427,7 @@ class PageTabs extends React.Component {
     return (
       <>
         {this.renderTabWrapper()}
-        <this.renderTabPanes tabs={tabs} ContentComponent={ContentComponent} />
+        {ContentComponent && <this.renderTabPanes tabs={tabs} ContentComponent={ContentComponent} />}
       </>
     );
   }
@@ -431,6 +436,7 @@ class PageTabs extends React.Component {
 const mapStateToProps = state => ({
   location: get(state, 'router.location', {}),
   tabs: get(state, 'pageTabs.tabs', []),
+  enableCache: get(state, 'app.enableCache', false),
   inited: get(state, 'pageTabs.inited', false)
 });
 

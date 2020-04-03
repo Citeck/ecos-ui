@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Redirect, Route } from 'react-router';
+import { Redirect, Route, Switch } from 'react-router';
 import { NotificationContainer } from 'react-notifications';
 import { push } from 'connected-react-router';
 
@@ -24,7 +24,6 @@ import './App.scss';
 const LoginForm = lazy(() => import('../LoginForm'));
 const BPMNDesignerPage = lazy(() => import('../../pages/BPMNDesignerPage'));
 const DashboardPage = lazy(() => import('../../pages/Dashboard'));
-const CommentWidget = lazy(() => import('../widgets/Comments'));
 const DashboardSettingsPage = lazy(() => import('../../pages/DashboardSettings'));
 const JournalsPage = lazy(() => import('../../pages/JournalsPage'));
 const MyTimesheetPage = lazy(() => import('../../pages/Timesheet/MyTimesheetPage'));
@@ -119,9 +118,24 @@ class App extends Component {
   }
 
   renderTabs() {
-    const { isShowTabs, isMobile } = this.props;
+    const { isShowTabs, isMobile, enableCache } = this.props;
 
-    return <PageTabs homepageLink={URL.DASHBOARD} isShow={isShowTabs && !this.isOnlyContent && !isMobile} />;
+    if (enableCache) {
+      return (
+        <PageTabs
+          homepageLink={URL.DASHBOARD}
+          isShow={isShowTabs && !this.isOnlyContent && !isMobile}
+          ContentComponent={this.renderCachedRouter}
+        />
+      );
+    }
+
+    return (
+      <>
+        <PageTabs homepageLink={URL.DASHBOARD} isShow={isShowTabs && !this.isOnlyContent && !isMobile} />
+        {this.renderRouter()}
+      </>
+    );
   }
 
   renderReduxModal() {
@@ -132,7 +146,7 @@ class App extends Component {
     return <ReduxModal />;
   }
 
-  renderRouting = React.memo(props => {
+  renderCachedRouter = React.memo(props => {
     const { tab } = props;
     const baseCacheRouteProps = {
       className: 'page-tab__panel',
@@ -184,6 +198,33 @@ class App extends Component {
     );
   });
 
+  renderRouter = () => (
+    <div className="ecos-main-content" style={this.wrapperStyle}>
+      <Suspense fallback={null}>
+        <Switch>
+          <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
+          <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
+          <Route path={URL.DASHBOARD} exact component={DashboardPage} />
+          <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
+          <Route path={URL.JOURNAL} component={JournalsPage} />
+          <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
+          <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
+          <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+          <Route path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />
+          <Route path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
+          <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
+          <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+          <Route path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
+
+          {/* temporary routes */}
+          <Route path="/v2/debug/formio-develop" component={FormIOPage} />
+
+          <Redirect to={URL.DASHBOARD} />
+        </Switch>
+      </Suspense>
+    </div>
+  );
+
   render() {
     const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShowTabs, tabs } = this.props;
 
@@ -217,13 +258,7 @@ class App extends Component {
           <div className={basePageClassNames}>
             {this.renderMenu()}
 
-            <div className="ecos-main-area">
-              <PageTabs
-                homepageLink={URL.DASHBOARD}
-                isShow={isShowTabs && !this.isOnlyContent && !isMobile}
-                ContentComponent={this.renderRouting}
-              />
-            </div>
+            <div className="ecos-main-area">{this.renderTabs()}</div>
           </div>
         </div>
 
@@ -234,6 +269,7 @@ class App extends Component {
 }
 
 const mapStateToProps = state => ({
+  enableCache: get(state, ['app', 'enableCache']),
   isInit: get(state, ['app', 'isInit']),
   isInitFailure: get(state, ['app', 'isInitFailure']),
   isMobile: get(state, ['view', 'isMobile']),
