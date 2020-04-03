@@ -113,8 +113,11 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardByRecordRef = function*(recordRef) {
-    const { etype } = recordRef ? yield Records.get(recordRef).load({ etype: '_etype?id' }) : {};
-    const recType = etype || 'emodel/type@base';
+    let { recType } = recordRef ? yield Records.get(recordRef).load({ recType: '_etype?id' }) : {};
+
+    if (!recType) {
+      recType = recordRef ? 'emodel/type@base' : 'emodel/type@user-dashboard';
+    }
 
     const user = getCurrentUserName();
     const cacheKey = `${recType}|${user}`;
