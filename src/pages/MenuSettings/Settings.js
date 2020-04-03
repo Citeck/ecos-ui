@@ -8,9 +8,10 @@ import { arrayCompare, t } from '../../helpers/util';
 import { getPositionAdjustment } from '../../helpers/menu';
 import { MenuTypes } from '../../constants/menu';
 import { EcosModal, Loader } from '../../components/common';
-import { Btn } from '../../components/common/btns';
+import { Btn, IcoBtn } from '../../components/common/btns';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import Location from './Location';
+import EditorLeft from './EditorLeft';
 import EditorTop from './EditorTop';
 
 import './style.scss';
@@ -28,6 +29,7 @@ class Settings extends React.Component {
 
     this.state = {
       selectedType: props.type,
+      items: DndUtils.setDndId(props.items),
       selectedItems: DndUtils.setDndId(props.links),
       soloItems: DndUtils.setDndId(props.soloItems)
     };
@@ -100,20 +102,19 @@ class Settings extends React.Component {
   }
 
   render() {
-    const { isLoading } = this.props;
-    const { selectedType, selectedItems, soloItems } = this.state;
-    //need for ECOSENT-1076
-    // const customButtons = [
-    //   <IcoBtn
-    //     key="ecos-menu-settings-btn-goto"
-    //     invert
-    //     icon={'icon-big-arrow'}
-    //     className="ecos-menu-settings__btn-goto ecos-btn_narrow"
-    //     onClick={this.handleGoJournal}
-    //   >
-    //     {t(Labels.GOTO_JOURNAL)}
-    //   </IcoBtn>
-    // ];
+    const { isLoading, createOptions } = this.props;
+    const { selectedType, selectedItems, soloItems, items } = this.state;
+    const customButtons = [
+      <IcoBtn
+        key="ecos-menu-settings-btn-goto"
+        invert
+        icon={'icon-big-arrow'}
+        className="ecos-menu-settings__btn-goto ecos-btn_narrow"
+        onClick={this.handleGoJournal}
+      >
+        {t(Labels.GOTO_JOURNAL)}
+      </IcoBtn>
+    ];
 
     return (
       <EcosModal
@@ -123,10 +124,12 @@ class Settings extends React.Component {
         isBigHeader
         hideModal={this.handleHideModal}
         title={t(Labels.TITLE)}
+        customButtons={customButtons}
         classNameHeader="ecos-menu-settings__modal-header"
       >
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
         <Location selectedType={selectedType} setData={this.setData} />
+        {selectedType === MenuTypes.LEFT && <EditorLeft setData={this.setData} items={items} createOptions={createOptions} />}
         {selectedType === MenuTypes.TOP && (
           <EditorTop
             setData={this.setData}
@@ -146,6 +149,7 @@ const mapStateToProps = state => ({
   items: get(state, 'menu.items', []),
   links: get(state, 'menu.links', []),
   soloItems: get(state, 'menu.availableSoloItems', []),
+  createOptions: get(state, 'menu.createOptions', []),
   isLoading: get(state, 'menu.isLoading')
 });
 

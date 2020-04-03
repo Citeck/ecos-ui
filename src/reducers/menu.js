@@ -5,6 +5,7 @@ import {
   initMenuSettings,
   saveMenuConfig,
   setAvailableSoloItems,
+  setCreateOptionsMenu,
   setMenuConfig,
   setOpenMenuSettings,
   setRequestResultMenuConfig
@@ -62,6 +63,10 @@ export default handleActions(
     [setOpenMenuSettings]: (state, { payload }) => ({
       ...state,
       isOpenMenuSettings: payload
+    }),
+    [setCreateOptionsMenu]: (state, { payload }) => ({
+      ...state,
+      createOptions: payload
     })
   },
   initialState
