@@ -33,20 +33,25 @@ class DragItem extends React.Component {
     isCloning: false,
     draggableIndex: 0,
     item: null,
-    removeItem: () => {},
+    removeItem: () => null,
     getPositionAdjustment: () => ({ top: 0, left: 0 }),
     children: null,
     isWrapper: false
   };
 
-  _className = 'ecos-drag-item';
-
   getDragItemStyle = (isDragging, draggableStyle) => {
     const { className, selected, isDragDisabled } = this.props;
 
-    return classNames(this._className, className, { [`${this._className}_selected`]: selected }, { test: isDragging }, draggableStyle, {
-      [`${this._className}_disabled`]: isDragDisabled
-    });
+    return classNames(
+      'ecos-drag-item',
+      {
+        'ecos-drag-item_selected': selected,
+        'ecos-drag-item_disabled': isDragDisabled,
+        test: isDragging
+      },
+      className,
+      draggableStyle
+    );
   };
 
   removeItem = () => {
@@ -57,27 +62,23 @@ class DragItem extends React.Component {
 
   renderActions() {
     const { selected, canRemove } = this.props;
-    const _actions = `${this._className}__actions`;
     const _btn = `ecos-btn_width_auto ecos-btn_transparent`;
 
     return (
-      <div className={_actions}>
+      <div className="ecos-drag-item__actions">
         {canRemove && (
           <IcoBtn
             icon={'icon-close'}
-            className={classNames(_btn, `${_actions}__btn-remove`, { 'ecos-btn_grey5': selected })}
+            className={classNames(_btn, 'ecos-drag-item__actions__btn-remove', { 'ecos-btn_grey5': selected })}
             onClick={this.removeItem}
           />
         )}
         <IcoBtn
           icon={'icon-drag'}
-          className={classNames(
-            _btn,
-            `${_actions}__btn-move`,
-            'ecos-btn_focus_no',
-            { 'ecos-btn_grey': selected },
-            { 'ecos-btn_grey4': !selected }
-          )}
+          className={classNames(_btn, 'ecos-drag-item__actions__btn-move ecos-btn_focus_no', {
+            'ecos-btn_grey': selected,
+            'ecos-btn_grey4': !selected
+          })}
         />
       </div>
     );
@@ -88,20 +89,20 @@ class DragItem extends React.Component {
 
     return (
       <React.Fragment>
-        <span className={`${this._className}__title`}>{title}</span>
+        <span className="ecos-drag-item__title">{title}</span>
         {this.renderActions()}
       </React.Fragment>
     );
   }
 
   renderDoppelganger(isDragging) {
-    const { isCloning } = this.props;
+    const { isCloning, className } = this.props;
 
     if (!isDragging || !isCloning) {
       return null;
     }
 
-    return <div className={`${this.props.className} ${this._className} ${this._className}_clone`}>{this.renderItem()}</div>;
+    return <div className={`${className} ecos-drag-item ecos-drag-item_clone`}>{this.renderItem()}</div>;
   }
 
   renderBody = (provided, snapshot) => {
