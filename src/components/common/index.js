@@ -24,3 +24,4 @@ export { default as Fullpage } from './Fullpage';
 export { default as Tooltip } from './Tooltip';
 export { default as BtnUpload } from './BtnUpload';
 export { default as Password } from './Password';
+export { default as Tree } from './Tree';
