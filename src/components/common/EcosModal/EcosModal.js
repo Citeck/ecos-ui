@@ -181,7 +181,7 @@ EcosModal.propTypes = {
 
 EcosModal.defaultProps = {
   className: '',
-  classNameHeader: PropTypes.string,
+  classNameHeader: '',
   reactstrapProps: {},
   title: '',
   customButtons: [],
