@@ -909,9 +909,8 @@ class Documents extends BaseWidget {
     );
   }
 
-  renderPanel = React.memo(() => {
-    const { dynamicTypes } = this.props;
-    const { statusFilter, selectedType, typesStatuses, contentHeight, tableFilter } = this.state;
+  renderPanel = React.memo(props => {
+    const { dynamicTypes, statusFilter, selectedType, typesStatuses, contentHeight, tableFilter } = props;
 
     return (
       <div className="ecos-docs__panel" ref={this._tablePanel}>
@@ -943,7 +942,7 @@ class Documents extends BaseWidget {
 
   renderTablePanel() {
     const { dynamicTypes } = this.props;
-    const { selectedType } = this.state;
+    const { selectedType, statusFilter, typesStatuses, contentHeight, tableFilter } = this.state;
 
     if (!selectedType && !dynamicTypes.length) {
       return null;
@@ -956,12 +955,28 @@ class Documents extends BaseWidget {
           hideTracksWhenNotNeeded
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
         >
-          <this.renderPanel />
+          <this.renderPanel
+            dynamicTypes={dynamicTypes}
+            selectedType={selectedType}
+            statusFilter={statusFilter}
+            typesStatuses={typesStatuses}
+            contentHeight={contentHeight}
+            tableFilter={tableFilter}
+          />
         </Scrollbars>
       );
     }
 
-    return <this.renderPanel />;
+    return (
+      <this.renderPanel
+        dynamicTypes={dynamicTypes}
+        selectedType={selectedType}
+        statusFilter={statusFilter}
+        typesStatuses={typesStatuses}
+        contentHeight={contentHeight}
+        tableFilter={tableFilter}
+      />
+    );
   }
 
   renderInlineTools = () => {
