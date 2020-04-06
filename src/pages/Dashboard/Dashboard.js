@@ -23,41 +23,42 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
 import { initialState } from '../../reducers/dashboard';
-import pageTabList from '../../services/pageTabs/PageTabList';
+import DashboardService from '../../services/dashboard';
 
 import './style.scss';
 
 const mapStateToProps = state => {
-  const id = pageTabList.activeTabId;
   const isMobile = get(state, ['view', 'isMobile'], false);
   const tabs = get(state, ['pageTabs', 'tabs'], []);
-  const dashboardState = get(state, ['dashboard', id], initialState);
+  const dashboardState = () => get(state, ['dashboard', DashboardService.key], initialState);
 
   return {
-    tabId: tabs.length ? pageTabList.activeTabId : null,
-    config: get(dashboardState, [isMobile ? 'mobileConfig' : 'config'], []),
-    isLoadingDashboard: get(dashboardState, ['isLoading']),
-    saveResultDashboard: get(dashboardState, ['requestResult'], {}),
+    tabId: tabs.length ? DashboardService.key : null,
+    config: get(dashboardState(), [isMobile ? 'mobileConfig' : 'config'], []),
+    isLoadingDashboard: get(dashboardState(), ['isLoading']),
+    saveResultDashboard: get(dashboardState(), ['requestResult'], {}),
     isLoadingMenu: get(state, ['menu', 'isLoading']),
     saveResultMenu: get(state, ['menu', 'requestResult']),
     menuType: get(state, ['menu', 'type']),
     links: get(state, ['menu', 'links']),
-    dashboardType: get(dashboardState, ['identification', 'type']),
-    identificationId: get(dashboardState, ['identification', 'id'], null),
-    titleInfo: get(dashboardState, ['titleInfo'], {}),
+    dashboardType: get(dashboardState(), ['identification', 'type']),
+    identificationId: get(dashboardState(), ['identification', 'id'], null),
+    titleInfo: get(dashboardState(), ['titleInfo'], {}),
     isMobile
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key: pageTabList.activeTabId })),
-  getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: pageTabList.activeTabId })),
-  saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: pageTabList.activeTabId })),
-  initMenuSettings: payload => dispatch(getMenuConfig({ ...payload, key: pageTabList.activeTabId })),
-  saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: pageTabList.activeTabId })),
-  setLoading: status => dispatch(setLoading({ status, key: pageTabList.activeTabId })),
-  resetDashboardConfig: () => dispatch(resetDashboardConfig(pageTabList.activeTabId))
-});
+const mapDispatchToProps = dispatch => {
+  return {
+    getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key: DashboardService.key })),
+    getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: DashboardService.key })),
+    saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: DashboardService.key })),
+    initMenuSettings: payload => dispatch(getMenuConfig({ ...payload, key: DashboardService.key })),
+    saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: DashboardService.key })),
+    setLoading: status => dispatch(setLoading({ status, key: DashboardService.key })),
+    resetDashboardConfig: () => dispatch(resetDashboardConfig(DashboardService.key))
+  };
+};
 
 class Dashboard extends Component {
   state = {
