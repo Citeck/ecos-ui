@@ -298,7 +298,7 @@ export default class TableFormComponent extends BaseReactComponent {
                   return {
                     default: true,
                     type: item.type,
-                    text: item.title,
+                    text: this.t(item.title),
                     multiple: item.multiple,
                     attribute: item.name
                   };
@@ -322,7 +322,7 @@ export default class TableFormComponent extends BaseReactComponent {
                     cols.push({
                       default: true,
                       type: isManualAttributes && originalColumn.type ? originalColumn.type : loadedAtt[i].type,
-                      text: isManualAttributes ? originalColumn.title : loadedAtt[i].title,
+                      text: isManualAttributes ? this.t(originalColumn.title) : loadedAtt[i].title,
                       multiple: isManualAttributes ? originalColumn.multiple : loadedAtt[i].multiple,
                       attribute: originalColumn.name
                     });
