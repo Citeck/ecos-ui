@@ -71,9 +71,9 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
       yield put(setMobileDashboardConfig(payload.config));
     } else {
       config.layouts = payload.config;
-
       yield put(setDashboardConfig({ config: payload.config, key: payload.key }));
     }
+
     delete config.isMobile;
 
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification });
@@ -81,8 +81,8 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
 
     yield put(
       setRequestResultDashboard({
+        ...res,
         status: res.dashboardId ? RequestStatuses.SUCCESS : RequestStatuses.FAILURE,
-        dashboardId: res.dashboardId,
         key: payload.key
       })
     );
