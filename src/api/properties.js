@@ -1,6 +1,6 @@
 import Records from '../components/Records';
+import { SourcesId } from '../constants';
 import { RecordService } from './recordService';
-import { SourcesId, QueryLanguage, QueryEntityKeys } from '../constants';
 
 export class PropertiesApi extends RecordService {
   getFormList = async function({ record }) {
@@ -9,10 +9,10 @@ export class PropertiesApi extends RecordService {
     return await Records.query(
       {
         sourceId: SourcesId.EFORM,
-        language: QueryLanguage.FORMS_FOR_TYPE,
+        language: 'forms-for-type',
         query: { typeRef }
       },
-      [QueryEntityKeys.TITLE]
+      ['title']
     ).then(response => response);
   };
 }
