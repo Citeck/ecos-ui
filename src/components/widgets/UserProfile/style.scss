@@ -83,6 +83,10 @@
 
     &-filed {
       margin-bottom: 20px;
+
+      &_hidden {
+        display: none;
+      }
     }
 
     &-actions {
