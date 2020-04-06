@@ -109,3 +109,5 @@ export const Permissions = {
   Write: 'Write',
   Read: 'Read'
 };
+
+export const MOBILE_APP_USER_AGENT = 'ecos-mobile-app';
