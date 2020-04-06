@@ -11,7 +11,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import { LoaderTypes, MENU_TYPE } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
-import { deepClone, t } from '../../helpers/util';
+import { deepClone, t, isMobileAppWebView } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
@@ -157,7 +157,7 @@ class Dashboard extends Component {
   }
 
   get isShowTabs() {
-    return this.tabList.length > 1;
+    return this.tabList.length > 1 && !isMobileAppWebView();
   }
 
   updateSomeDetails = () => {
@@ -323,6 +323,10 @@ class Dashboard extends Component {
   }
 
   renderHeader() {
+    if (isMobileAppWebView()) {
+      return null;
+    }
+
     const {
       titleInfo: { name = '', version = '' },
       dashboardType,
