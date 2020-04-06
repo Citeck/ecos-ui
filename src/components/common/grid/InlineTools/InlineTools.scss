@@ -1,36 +1,46 @@
 @import '../../../../styles/constants';
 
+$border: $border-width-standard solid $color-brown-2;
+
 .ecos-inline-tools {
-  border-top: 2px solid $color-brown-2;
+  border-top: $border;
   position: absolute;
   height: 0;
   width: 100%;
   z-index: 0;
-}
 
-.ecos-inline-tools-border-left {
-  border-left: 2px solid $color-brown-2;
-  width: 0;
-  position: relative;
-}
+  &_selected {
+    background: red;
+  }
 
-.ecos-inline-tools-border-bottom {
-  border-top: 2px solid $color-brown-2;
-  position: relative;
-}
+  &-border-left {
+    border-left: $border;
+    width: 0;
+    position: relative;
+  }
 
-.ecos-inline-tools-actions {
-  background: $color-white;
-  border-right: 2px solid $color-brown-2;
-  display: flex;
-  align-items: center;
-  position: absolute;
-  top: 0;
-  right: 0;
-  overflow: hidden;
-}
+  &-border-bottom {
+    border-top: $border;
+    position: relative;
+  }
 
-.ecos-inline-tools-btn {
-  height: auto !important;
-  padding: 0 !important;
+  &-actions {
+    border-right: $border;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    overflow: hidden;
+  }
+
+  &-btn.ecos-btn {
+    background-color: rgba(0, 0, 0, 0);
+
+    &:hover,
+    &:active,
+    &:focus {
+      background-color: rgba(0, 0, 0, 0);
+    }
+  }
 }

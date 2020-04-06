@@ -17,7 +17,8 @@ const mapStateToProps = (state, props) => {
 
   return {
     className: props.className,
-    inlineToolSettings: newState[toolsKey]
+    inlineToolSettings: newState[toolsKey],
+    selectedRecords: newState.selectedRecords || []
   };
 };
 
@@ -43,30 +44,23 @@ class InlineTools extends Component {
   };
 
   static renderAction(action, idx, withTooltip = false) {
-    const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10';
     let themeClass = 'ecos-btn_hover_t-dark-brown';
 
     if (action.theme === 'danger') {
       themeClass = 'ecos-btn_hover_t_red';
     }
 
+    const classes = classNames('ecos-inline-tools-btn ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10', themeClass);
+
     if (!withTooltip) {
-      return (
-        <IcoBtn
-          key={idx}
-          title={action.name}
-          icon={action.icon}
-          onClick={action.onClick}
-          className={classNames(inlineToolsActionClassName, themeClass)}
-        />
-      );
+      return <IcoBtn key={idx} title={action.name} icon={action.icon} onClick={action.onClick} className={classes} />;
     }
 
     const id = `tooltip-${action.order}-${action.type}-${idx}`;
 
     return (
       <Tooltip key={idx} target={id} uncontrolled text={action.name}>
-        <IcoBtn id={id} icon={action.icon} onClick={action.onClick} className={classNames(inlineToolsActionClassName, themeClass)} />
+        <IcoBtn id={id} icon={action.icon} onClick={action.onClick} className={classes} />
       </Tooltip>
     );
   }
@@ -74,7 +68,8 @@ class InlineTools extends Component {
   render() {
     const {
       className,
-      inlineToolSettings: { top, height, left, actions = [] },
+      inlineToolSettings: { top, height, left, actions = [], row = {} },
+      selectedRecords,
       actionsProps,
       withTooltip
     } = this.props;
@@ -83,8 +78,10 @@ class InlineTools extends Component {
       return null;
     }
 
+    const selected = selectedRecords.includes(row.id);
+
     return (
-      <div style={{ top, left }} className={classNames('ecos-inline-tools', className)}>
+      <div style={{ top, left }} className={classNames('ecos-inline-tools', className, { 'ecos-inline-tools_selected': selected })}>
         <div style={{ height }} className="ecos-inline-tools-border-left" />
         <div style={{ height }} className="ecos-inline-tools-actions" {...actionsProps}>
           {actions.map((action, idx) => InlineTools.renderAction(action, idx, withTooltip))}
