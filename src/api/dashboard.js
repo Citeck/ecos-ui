@@ -1,13 +1,13 @@
 import isEmpty from 'lodash/isEmpty';
+
 import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
 import { SourcesId } from '../constants';
-import { RecordService } from './recordService';
-import Components from '../components/widgets/Components';
-import Records from '../components/Records';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';
-import DashboardService from '../services/dashboard';
+import Components from '../components/widgets/Components';
+import Records from '../components/Records';
+import { RecordService } from './recordService';
 
 const defaultAttr = {
   config: 'config?json',
@@ -73,7 +73,7 @@ export class DashboardApi extends RecordService {
 
   saveDashboardConfig = ({ identification, config }) => {
     const { key, user } = identification;
-    const record = Records.get('uiserv/dashboard@');
+    const record = Records.get(`${SourcesId.DASHBOARD}@`);
 
     record.att('config?json', config);
     record.att('authority?str', user);
@@ -94,7 +94,7 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardById = (dashboardId, force = false) => {
-    return Records.get(DashboardService.formFullId(dashboardId))
+    return Records.get(`${SourcesId.DASHBOARD}@${dashboardId}`)
       .load({ ...defaultAttr, dashboardType: '_dashboardType' }, force)
       .then(response => response);
   };
