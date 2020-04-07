@@ -1,5 +1,7 @@
-import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
+import get from 'lodash/get';
+
 import { ActionModes, Permissions } from '../constants';
+import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
 import { debounce, queryByCriteria, t } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
@@ -171,7 +173,13 @@ export class JournalsApi extends RecordService {
 
     return this.getJson(`${PROXY_URI}api/journals/config?journalId=${journalId}`)
       .then(resp => {
-        return resp || {};
+        const data = resp || {};
+
+        (data.columns || []).forEach((col, i) => {
+          col.type = get(col, 'params.edgeType') || col.type;
+        });
+
+        return data;
       })
       .catch(() => {});
   };

@@ -1,9 +1,6 @@
 import moment from 'moment';
-import Input from '../../../common/form/Input';
-import DatePicker from '../../../common/form/DatePicker';
-import Select from '../../../common/form/Select';
-import SelectJournal from '../../../common/form/SelectJournal';
-import SelectOrgstruct from '../../../common/form/SelectOrgstruct';
+
+import { DatePicker, Input, Select, SelectJournal, SelectOrgstruct } from '../../../common/form';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../common/form/SelectOrgstruct/constants';
 import { RecordService } from '../../../../api/recordService';
 import { t } from '../../../../helpers/util';
@@ -150,6 +147,7 @@ const PREDICATE_LIST_TYPE_NO_CONTROL_YET = [PREDICATE_NOT_EMPTY, PREDICATE_EMPTY
 const PREDICATE_LIST_TYPE_FILTER_GROUP = [PREDICATE_AND, PREDICATE_OR];
 
 let allPredicates = [];
+
 export function filterPredicates(filterArr) {
   if (!allPredicates.length) {
     allPredicates = getAllPredicates();
@@ -159,8 +157,8 @@ export function filterPredicates(filterArr) {
 }
 
 export function getPredicates(field) {
-  let type = field.type || COLUMN_DATA_TYPE_TEXT;
-
+  const type = field.type || COLUMN_DATA_TYPE_TEXT;
+  console.log(type);
   switch (type) {
     case COLUMN_DATA_TYPE_FILTER_GROUP:
       return filterPredicates(PREDICATE_LIST_TYPE_FILTER_GROUP);
