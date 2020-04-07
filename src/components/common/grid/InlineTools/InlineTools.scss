@@ -9,10 +9,6 @@ $border: $border-width-standard solid $color-brown-2;
   width: 100%;
   z-index: 0;
 
-  &_selected {
-    background: red;
-  }
-
   &-border-left {
     border-left: $border;
     width: 0;
@@ -32,6 +28,16 @@ $border: $border-width-standard solid $color-brown-2;
     top: 0;
     right: 0;
     overflow: hidden;
+    background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
+
+    &::before {
+      content: ' ';
+      width: 35px;
+    }
+  }
+
+  &_selected > &-actions {
+    background: linear-gradient(to right, rgba($color-yellow-1, 0), $color-yellow-1 15%);
   }
 
   &-btn.ecos-btn {

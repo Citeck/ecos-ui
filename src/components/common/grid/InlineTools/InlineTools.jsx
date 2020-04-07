@@ -44,7 +44,7 @@ class InlineTools extends Component {
   };
 
   static renderAction(action, idx, withTooltip = false) {
-    let themeClass = 'ecos-btn_hover_t-dark-brown';
+    let themeClass = '';
 
     if (action.theme === 'danger') {
       themeClass = 'ecos-btn_hover_t_red';
