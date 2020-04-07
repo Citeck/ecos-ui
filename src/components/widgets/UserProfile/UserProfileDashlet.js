@@ -85,6 +85,8 @@ class UserProfileDashlet extends BaseWidget {
         {isLoading && <Loader />}
         {
           <PasswordModal
+            userName={userName}
+            isCurrentUser={isCurrentUser}
             isAdmin={isCurrentAdmin}
             isMobile={isMobile}
             isShow={isShowPasswordModal}

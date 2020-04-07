@@ -28,6 +28,8 @@ class PasswordModal extends React.Component {
     isAdmin: PropTypes.bool,
     isShow: PropTypes.bool,
     isMobile: PropTypes.bool,
+    isCurrentUser: PropTypes.bool,
+    userName: PropTypes.string,
     onCancel: PropTypes.func,
     onChange: PropTypes.func
   };
@@ -42,11 +44,13 @@ class PasswordModal extends React.Component {
     newWord: {},
     repeatWord: {},
     newWordMsgs: [],
-    repeatWordMsgs: []
+    repeatWordMsgs: [],
+    passwordType: window.PasswordCredential ? 'text' : 'password'
   };
 
   hideModal = () => {
     this.props.onCancel && this.props.onCancel();
+    this.clearData();
   };
 
   checkWords = () => {
@@ -63,10 +67,35 @@ class PasswordModal extends React.Component {
     );
   };
 
+  clearData = () => {
+    this.setState({
+      newWord: {},
+      repeatWord: {},
+      newWordMsgs: [],
+      repeatWordMsgs: [],
+      passwordType: window.PasswordCredential ? 'text' : 'password'
+    });
+  };
+
   onConfirmChangePassword = () => {
+    const { isCurrentUser, userName } = this.props;
     const { oldWord, newWord, repeatWord } = this.state;
 
+    if (!window.PasswordCredential || !isCurrentUser) {
+      this.props.onChange && this.props.onChange({ oldPass: oldWord.value, pass: newWord.value, passVerify: repeatWord.value });
+      this.clearData();
+
+      return;
+    }
+
+    const passwordCredential = new window.PasswordCredential({
+      id: userName,
+      password: newWord.value
+    });
+
+    navigator.credentials.store(passwordCredential);
     this.props.onChange && this.props.onChange({ oldPass: oldWord.value, pass: newWord.value, passVerify: repeatWord.value });
+    this.clearData();
   };
 
   onChangeWord = ({ value, key, valid }) => {
@@ -97,7 +126,7 @@ class PasswordModal extends React.Component {
 
   render() {
     const { isShow, isAdmin } = this.props;
-    const { oldWord, newWord, repeatWord, repeatWordMsgs, newWordMsgs } = this.state;
+    const { oldWord, newWord, repeatWord, repeatWordMsgs, newWordMsgs, passwordType } = this.state;
 
     return (
       <EcosModal noHeader isOpen={isShow} hideModal={this.hideModal} className="ecos-user-profile-password-modal ecos-modal_width-xs">
@@ -107,6 +136,7 @@ class PasswordModal extends React.Component {
               <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.OLD)}</div>
               <Password
                 className="ecos-user-profile__password-modal-filed"
+                type={passwordType}
                 keyValue="oldWord"
                 value={oldWord.value}
                 onChange={this.onChangeWord}
@@ -116,6 +146,7 @@ class PasswordModal extends React.Component {
           <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.NEW)}</div>
           <Password
             verifiable
+            type={passwordType}
             className="ecos-user-profile__password-modal-filed"
             keyValue="newWord"
             value={newWord.value}
@@ -125,6 +156,7 @@ class PasswordModal extends React.Component {
           />
           <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.REPEAT)}</div>
           <Password
+            type={passwordType}
             className="ecos-user-profile__password-modal-filed"
             keyValue="repeatWord"
             value={repeatWord.value}

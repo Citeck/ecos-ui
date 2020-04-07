@@ -574,6 +574,7 @@
 
   &__resizer {
     top: 11px;
+    z-index: 999;
   }
 
   &__empty-stub {

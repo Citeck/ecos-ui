@@ -62,7 +62,8 @@ export default class Password extends React.Component {
   static defaultProps = {
     className: '',
     autocomplete: false,
-    verifiable: false
+    verifiable: false,
+    type: 'text'
   };
 
   state = {
@@ -150,8 +151,19 @@ export default class Password extends React.Component {
     );
   }
 
+  get type() {
+    const { type } = this.props;
+    const { isShowWord } = this.state;
+
+    if (type === 'text') {
+      return type;
+    }
+
+    return isShowWord ? 'text' : 'password';
+  }
+
   render() {
-    const { className, keyValue, autocomplete, verifiable, value, valid, errMsgs, ...addProps } = this.props;
+    const { className, keyValue, autocomplete, verifiable, value, valid, errMsgs, forwardedRef, name, ...addProps } = this.props;
     const { isShowWord, touched } = this.state;
     const check = BASE_RULE.test(String(value || ''));
 
@@ -161,12 +173,15 @@ export default class Password extends React.Component {
         <div className="ecos-password-field">
           <Input
             {...addProps}
+            forwardedRef={forwardedRef}
             defaultValue={value}
-            type={isShowWord ? 'text' : 'password'}
+            type={this.type}
+            name={name}
             className={classNames('ecos-password-field__input ecos-input_focus ecos-input_hover', {
               'ecos-password-field__input_invalid':
                 (verifiable && touched && !check) || this.messages.some(msg => msg.type === MsgTypes.ERROR),
-              'ecos-password-field__input_valid': verifiable && touched && check
+              'ecos-password-field__input_valid': verifiable && touched && check,
+              'ecos-password-field__input_show-word': isShowWord
             })}
             onChange={this.onChange}
             autoComplete={autocomplete ? 'on' : 'off'}
