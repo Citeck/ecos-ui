@@ -9,9 +9,9 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
-import { LoaderTypes, MENU_TYPE } from '../../constants';
+import { LoaderTypes, MENU_TYPE, URL } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
-import { deepClone, t } from '../../helpers/util';
+import { deepClone, t, isMobileAppWebView } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
@@ -112,6 +112,10 @@ class Dashboard extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.tabList.length) {
+      this.toggleTabLayoutFromUrl();
+    }
+
     if (this.state.needGetConfig || (!prevProps.tabId && this.props.tabId)) {
       this.getConfig();
     }
@@ -165,7 +169,7 @@ class Dashboard extends Component {
   }
 
   get isShowTabs() {
-    return this.tabList.length > 1;
+    return this.tabList.length > 1 && !isMobileAppWebView();
   }
 
   updateSomeDetails = () => {
@@ -260,8 +264,34 @@ class Dashboard extends Component {
 
   toggleTabLayout = index => {
     const tab = get(this.tabList, [index], {});
+    const searchParams = queryString.parse(window.location.search);
 
-    this.setState({ activeLayoutId: tab.idLayout });
+    searchParams.activeLayoutId = tab.idLayout;
+    this.props.history.push({
+      pathname: URL.DASHBOARD,
+      search: queryString.stringify(searchParams)
+    });
+  };
+
+  toggleTabLayoutFromUrl = () => {
+    const searchParams = queryString.parse(window.location.search);
+    const { activeLayoutId } = searchParams;
+    if (activeLayoutId !== this.state.activeLayoutId) {
+      const tab = this.tabList.find(el => el.idLayout === activeLayoutId);
+
+      if (tab && this.state.activeLayoutId !== activeLayoutId) {
+        this.setState({ activeLayoutId });
+        return;
+      }
+
+      if (activeLayoutId && !tab) {
+        delete searchParams.activeLayoutId;
+        this.props.history.push({
+          pathname: URL.DASHBOARD,
+          search: queryString.stringify(searchParams)
+        });
+      }
+    }
   };
 
   renderTabs() {
@@ -275,7 +305,7 @@ class Dashboard extends Component {
     if (isMobile) {
       return (
         <div className="ecos-dashboard__tabs ecos-dashboard__tabs_mobile">
-          <Tabs items={this.tabList} onClick={this.toggleTabLayout} keyField={'idLayout'} activeTabKey={activeLayoutId} />
+          <Tabs items={this.tabList} onClick={this.toggleTabLayout} keyField="idLayout" activeTabKey={activeLayoutId} />
         </div>
       );
     }
@@ -290,7 +320,7 @@ class Dashboard extends Component {
             classNameTab="ecos-dashboard__tabs-item"
             items={this.tabList}
             onClick={this.toggleTabLayout}
-            keyField={'idLayout'}
+            keyField="idLayout"
             activeTabKey={activeLayoutId}
           />
         </ScrollArrow>
@@ -331,6 +361,10 @@ class Dashboard extends Component {
   }
 
   renderHeader() {
+    if (isMobileAppWebView()) {
+      return null;
+    }
+
     const {
       titleInfo: { name = '', version = '' },
       dashboardType,
