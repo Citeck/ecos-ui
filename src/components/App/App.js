@@ -17,6 +17,7 @@ import { initMenuSettings } from '../../actions/menu';
 import { setTab, updateTab } from '../../actions/pageTabs';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 import PageService, { Events } from '../../services/PageService';
+import { isMobileAppWebView } from '../../helpers/util';
 
 import './App.scss';
 
@@ -65,7 +66,7 @@ class App extends Component {
   get isOnlyContent() {
     const url = get(this.props, ['history', 'location', 'pathname'], '/');
 
-    return pagesWithOnlyContent.includes(url);
+    return isMobileAppWebView() || pagesWithOnlyContent.includes(url);
   }
 
   get wrapperStyle() {
@@ -106,6 +107,14 @@ class App extends Component {
 
   renderHeader() {
     if (this.isOnlyContent) {
+      if (isMobileAppWebView()) {
+        return (
+          <div id="alf-hd">
+            <Notification />
+          </div>
+        );
+      }
+
       return null;
     }
 
