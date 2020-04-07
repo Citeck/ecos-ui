@@ -136,6 +136,7 @@ class PasswordModal extends React.Component {
               <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.OLD)}</div>
               <Password
                 className="ecos-user-profile__password-modal-filed"
+                type={passwordType}
                 keyValue="oldWord"
                 value={oldWord.value}
                 onChange={this.onChangeWord}
@@ -148,8 +149,6 @@ class PasswordModal extends React.Component {
             type={passwordType}
             className="ecos-user-profile__password-modal-filed"
             keyValue="newWord"
-            name="password"
-            autocomplete="new-password"
             value={newWord.value}
             onChange={this.onChangeWord}
             onBlur={this.checkNewWord}
@@ -158,7 +157,6 @@ class PasswordModal extends React.Component {
           <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.REPEAT)}</div>
           <Password
             type={passwordType}
-            autocomplete="new-password"
             className="ecos-user-profile__password-modal-filed"
             keyValue="repeatWord"
             value={repeatWord.value}
