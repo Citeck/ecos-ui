@@ -18,7 +18,8 @@ const mapStateToProps = (state, props) => {
   return {
     className: props.className,
     inlineToolSettings: newState[toolsKey],
-    selectedRecords: newState.selectedRecords || []
+    selectedRecords: newState.selectedRecords || [],
+    selectAllRecords: newState.selectAllRecords || []
   };
 };
 
@@ -70,6 +71,7 @@ class InlineTools extends Component {
       className,
       inlineToolSettings: { top, height, left, actions = [], row = {} },
       selectedRecords,
+      selectAllRecords,
       actionsProps,
       withTooltip
     } = this.props;
@@ -78,7 +80,7 @@ class InlineTools extends Component {
       return null;
     }
 
-    const selected = selectedRecords.includes(row.id);
+    const selected = selectedRecords.includes(row.id) || selectAllRecords;
 
     return (
       <div style={{ top, left }} className={classNames('ecos-inline-tools', className, { 'ecos-inline-tools_selected': selected })}>
