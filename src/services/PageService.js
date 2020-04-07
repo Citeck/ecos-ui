@@ -134,8 +134,6 @@ export default class PageService {
       event.preventDefault();
 
       if (updateUrl) {
-        window.history.pushState(window.history.state, '', link);
-
         return {
           ...props,
           link,
