@@ -1,9 +1,10 @@
 import moment from 'moment';
+import get from 'lodash/get';
 
+import { t } from '../../../../helpers/util';
+import Records from '../../../../components/Records';
 import { DatePicker, Input, Select, SelectJournal, SelectOrgstruct } from '../../../common/form';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../common/form/SelectOrgstruct/constants';
-import { RecordService } from '../../../../api/recordService';
-import { t } from '../../../../helpers/util';
 
 export const COLUMN_DATA_TYPE_TEXT = 'text';
 export const COLUMN_DATA_TYPE_MLTEXT = 'mltext';
@@ -158,7 +159,7 @@ export function filterPredicates(filterArr) {
 
 export function getPredicates(field) {
   const type = field.type || COLUMN_DATA_TYPE_TEXT;
-  console.log(type);
+
   switch (type) {
     case COLUMN_DATA_TYPE_FILTER_GROUP:
       return filterPredicates(PREDICATE_LIST_TYPE_FILTER_GROUP);
@@ -205,8 +206,6 @@ export function getPredicates(field) {
   }
 }
 
-const recordServiceAPI = new RecordService();
-
 export function getPredicateInput(field, sourceId, metaRecord) {
   const defaultValue = {
     label: t('react-select.default-value.label'),
@@ -218,23 +217,6 @@ export function getPredicateInput(field, sourceId, metaRecord) {
     { label: t('react-select.value-true.label'), value: true },
     { label: t('react-select.value-false.label'), value: false }
   ];
-
-  const input = {
-    component: Input,
-    defaultValue: '',
-    getProps: ({ predicateValue, changePredicateValue, applyFilters }) => ({
-      className: 'ecos-input_narrow',
-      value: predicateValue,
-      onChange: function(e) {
-        changePredicateValue(e.target.value);
-      },
-      onKeyDown: function(e) {
-        if (e.key === 'Enter' && typeof applyFilters === 'function') {
-          applyFilters();
-        }
-      }
-    })
-  };
 
   switch (field.type) {
     case COLUMN_DATA_TYPE_DATE:
@@ -257,41 +239,31 @@ export function getPredicateInput(field, sourceId, metaRecord) {
           showTimeInput: field.type === COLUMN_DATA_TYPE_DATETIME
         })
       };
-    case COLUMN_DATA_TYPE_INT:
-    case COLUMN_DATA_TYPE_DOUBLE:
-    case COLUMN_DATA_TYPE_LONG:
-    case COLUMN_DATA_TYPE_FLOAT:
-    // TODO use input type number
-    /* eslint-disable-next-line */
-    case COLUMN_DATA_TYPE_MLTEXT:
-    case COLUMN_DATA_TYPE_TEXT:
-    case COLUMN_DATA_TYPE_CATEGORY:
-    case COLUMN_DATA_TYPE_NODEREF:
-    case COLUMN_DATA_TYPE_QNAME:
-      return input;
     case COLUMN_DATA_TYPE_OPTIONS:
       const loadOptions = () => {
+        const customOptions = get(field, 'params.edgeOptions');
+        const parseOptions = (data = []) => {
+          const array = Array.from(data);
+          const options = array.map(item => ({ label: item.label || item.title, value: item.value }));
+
+          return [defaultValue, ...options];
+        };
+
+        if (customOptions) {
+          const functionOptions = new Function('return ' + customOptions);
+          const resultOptions = functionOptions() || [];
+
+          if (resultOptions instanceof Promise) {
+            return new Promise(resolve => resultOptions.then(res => resolve(parseOptions(res))));
+          } else {
+            return Promise.resolve(parseOptions(resultOptions));
+          }
+        }
+
         return new Promise(resolve => {
-          //todo: replace to using Records.js
-          recordServiceAPI
-            .query({
-              attributes: {
-                opt: `#${field.attribute}?options`
-              },
-              record: metaRecord || `${sourceId || ''}@`
-            })
-            .then(record => record.attributes.opt || [])
-            .then(opt =>
-              opt.map(item => {
-                return {
-                  label: item.label || item.title,
-                  value: item.value
-                };
-              })
-            )
-            .then(opt => {
-              resolve([defaultValue, ...opt]);
-            });
+          Records.get(metaRecord || `${sourceId || ''}@`)
+            .load(`#${field.attribute}?options`)
+            .then(res => resolve(parseOptions(res)));
         });
       };
 
@@ -304,8 +276,8 @@ export function getPredicateInput(field, sourceId, metaRecord) {
           cacheOptions: true,
           defaultOptions: true,
           isSearchable: false,
-          loadOptions: loadOptions,
-          defaultValue: defaultValue,
+          loadOptions,
+          defaultValue,
           value: predicateValue,
           handleSetValue: (value, options) => options.filter(o => o.value === value)[0],
           onChange: function(selected) {
@@ -365,7 +337,34 @@ export function getPredicateInput(field, sourceId, metaRecord) {
         })
       };
     /* eslint-disable-next-line */
+
+    case COLUMN_DATA_TYPE_INT:
+    case COLUMN_DATA_TYPE_DOUBLE:
+    case COLUMN_DATA_TYPE_LONG:
+    case COLUMN_DATA_TYPE_FLOAT:
+    // TODO use input type number
+    /* eslint-disable-next-line */
+    case COLUMN_DATA_TYPE_MLTEXT:
+    case COLUMN_DATA_TYPE_TEXT:
+    case COLUMN_DATA_TYPE_CATEGORY:
+    case COLUMN_DATA_TYPE_NODEREF:
+    case COLUMN_DATA_TYPE_QNAME:
     default:
-      return input;
+      return {
+        component: Input,
+        defaultValue: '',
+        getProps: ({ predicateValue, changePredicateValue, applyFilters }) => ({
+          className: 'ecos-input_narrow',
+          value: predicateValue,
+          onChange: function(e) {
+            changePredicateValue(e.target.value);
+          },
+          onKeyDown: function(e) {
+            if (e.key === 'Enter' && typeof applyFilters === 'function') {
+              applyFilters();
+            }
+          }
+        })
+      };
   }
 }
