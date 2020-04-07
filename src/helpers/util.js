@@ -4,6 +4,7 @@ import i18next from 'i18next';
 import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
 import isEqual from 'lodash/isEqual';
+import { MOBILE_APP_USER_AGENT } from '../constants';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
@@ -157,7 +158,10 @@ export function generateSearchTerm(terms, hiddenSearchTerms) {
 
 export function isMobileDevice() {
   const ua = navigator.userAgent;
+  const ecosMobileAppRegex = new RegExp(MOBILE_APP_USER_AGENT);
+
   return (
+    ecosMobileAppRegex.test(ua) ||
     /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
       ua
     ) ||
@@ -165,6 +169,10 @@ export function isMobileDevice() {
       ua.substr(0, 4)
     )
   );
+}
+
+export function isMobileAppWebView() {
+  return navigator.userAgent === MOBILE_APP_USER_AGENT;
 }
 
 export function getCurrentLocale() {
