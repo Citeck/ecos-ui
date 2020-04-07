@@ -250,6 +250,7 @@ export function getPredicateInput(field, sourceId, metaRecord) {
         };
 
         if (customOptions) {
+          /* eslint-disable-next-line */
           const functionOptions = new Function('return ' + customOptions);
           const resultOptions = functionOptions() || [];
 
@@ -336,14 +337,12 @@ export function getPredicateInput(field, sourceId, metaRecord) {
           }
         })
       };
-    /* eslint-disable-next-line */
 
     case COLUMN_DATA_TYPE_INT:
     case COLUMN_DATA_TYPE_DOUBLE:
     case COLUMN_DATA_TYPE_LONG:
     case COLUMN_DATA_TYPE_FLOAT:
     // TODO use input type number
-    /* eslint-disable-next-line */
     case COLUMN_DATA_TYPE_MLTEXT:
     case COLUMN_DATA_TYPE_TEXT:
     case COLUMN_DATA_TYPE_CATEGORY:
