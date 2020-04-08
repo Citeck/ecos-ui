@@ -24,6 +24,7 @@ class PageTabList {
   #keyStorage;
   #displayState;
   #isDuplicateAllowed;
+  #callbacks = [];
 
   get tabs() {
     return this.#tabs;
@@ -52,6 +53,14 @@ class PageTabList {
     return this.#tabs.map(item => item.store);
   }
 
+  get activeTabId() {
+    return get(this.activeTab, 'id', null);
+  }
+
+  pushCallback = callback => {
+    this.#callbacks.push(callback);
+  };
+
   init({ activeUrl, keyStorage, isDuplicateAllowed, displayState, ...params }) {
     this.#keyStorage = keyStorage || this.#keyStorage;
     this.#displayState = !!displayState;
@@ -73,6 +82,16 @@ class PageTabList {
         this.setTab(newTab);
       }
     }
+
+    this.#callbacks.forEach(callback => {
+      callback({
+        tabs: this.tabs,
+        activeTab: this.activeTab,
+        storeList: this.storeList,
+        storageList: this.storageList,
+        activeTabId: this.activeTabId
+      });
+    });
   }
 
   /**

@@ -1,7 +1,9 @@
 import { CommonApi } from './common';
+import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
+import ecosXhr from '../helpers/ecosXhr';
 
 export class AppApi extends CommonApi {
   getEcosConfig = configName => {
@@ -17,9 +19,22 @@ export class AppApi extends CommonApi {
   };
 
   getOrgstructAllUsersGroupName = () => {
-    return Records.get('uiserv/config@orgstruct-allUsers-group-shortName')
+    return Records.get(`${SourcesId.CONFIG}@orgstruct-allUsers-group-shortName`)
       .load('value')
       .then(resp => resp || ALL_USERS_GROUP_SHORT_NAME)
       .catch(() => ALL_USERS_GROUP_SHORT_NAME);
+  };
+
+  uploadFile = (data, callback) => {
+    return ecosXhr(`${PROXY_URI}eform/file`, {
+      method: 'POST',
+      body: data,
+      handleProgress: callback
+    }).then(
+      response => response,
+      error => {
+        throw error;
+      }
+    );
   };
 }

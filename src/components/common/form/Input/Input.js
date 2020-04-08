@@ -6,7 +6,7 @@ import './Input.scss';
 export default class Input extends Component {
   constructor(props) {
     super(props);
-    this.inputRef = React.createRef();
+    this.inputRef = props.forwardedRef || React.createRef();
   }
 
   componentDidMount() {
@@ -30,10 +30,10 @@ export default class Input extends Component {
   }
 
   render() {
-    const { getInputRef, className, autoSelect, ...props } = this.props;
+    const { getInputRef, className, autoSelect, forwardedRef, ...props } = this.props;
 
     const cssClasses = classNames('ecos-input', className);
 
-    return <input ref={this.inputRef} {...props} className={cssClasses} />;
+    return <input ref={forwardedRef || this.inputRef} {...props} className={cssClasses} />;
   }
 }

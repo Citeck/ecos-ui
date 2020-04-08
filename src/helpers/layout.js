@@ -1,5 +1,6 @@
-import { LAYOUT_TYPE, MIN_WIDTH_COLUMN } from '../constants/layout';
 import { isNumber, isSafeInteger, toFinite } from 'lodash';
+
+import { LAYOUT_TYPE, MIN_WIDTH_COLUMN, Layouts } from '../constants/layout';
 
 /**
  * Получение минимальной ширины колонки по виду лайоута
@@ -55,4 +56,18 @@ export function getOptimalHeight(fixedHeight, contentHeight, minHeight, maxHeigh
   }
 
   return min;
+}
+
+export function getLayouts(dashboardType) {
+  if (!dashboardType) {
+    return Layouts;
+  }
+
+  return Layouts.filter(layout => {
+    if (!layout.allowedDashboards.length) {
+      return true;
+    }
+
+    return layout.allowedDashboards.includes(dashboardType);
+  });
 }

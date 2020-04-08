@@ -152,18 +152,27 @@ class TreeItem extends Component {
     }
 
     let text = '';
+    let somethingSelected = false;
 
     if (children.length) {
       if (!selectedChildren.length && !item.isSelected) {
         text = t(Labels.NOT_SELECTED);
       } else {
+        somethingSelected = true;
         text = `${t(Labels.SELECTED_INSIDE)} ${selectedChildren.length} ${t(Labels.OF)} ${children.length}`;
       }
     } else {
       text = item.locked ? t(Labels.NOT_BE_DISABLED) : t(Labels.NOT_SELECTED);
     }
 
-    return <Badge text={text} className="ecos-tree__item-element-badge" />;
+    return (
+      <Badge
+        text={text}
+        className={classNames('ecos-tree__item-element-badge', {
+          'ecos-tree__item-element-badge_selected': somethingSelected
+        })}
+      />
+    );
   }
 
   render() {

@@ -14,7 +14,7 @@ import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../const
 import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../../constants/versionsJournal';
 
 import BaseWidget from '../BaseWidget';
-import { Avatar, DefineHeight, Icon, Loader } from '../../common/index';
+import { Avatar, DefineHeight, Icon, Loader, Tooltip } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import { Dropdown, Headline } from '../../common/form/index';
 import Dashlet from '../../Dashlet/Dashlet';
@@ -310,7 +310,11 @@ class VersionsJournal extends BaseWidget {
       <div className="ecos-vj__version" key={key}>
         <Headline className="ecos-vj__headline">
           <div className="ecos-vj__version-number">{version.version}</div>
-          <div className="ecos-vj__version-title">{version.name}</div>
+          <Tooltip showAsNeeded target={key} uncontrolled text={version.name}>
+            <div id={key} className="ecos-vj__version-title">
+              {version.name}
+            </div>
+          </Tooltip>
           {showActions && !isMobile && this.renderVersionActions(version)}
         </Headline>
         <div className="ecos-vj__version-body">

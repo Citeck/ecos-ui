@@ -51,7 +51,6 @@ export default class EcosFormBuilderModal extends React.Component {
           backdrop: 'static'
         }}
         className="ecos-modal_width-extra-lg"
-        isBigHeader={false}
         title={'Form Builder'}
         isOpen={this.state.isModalOpen}
         zIndex={9000}

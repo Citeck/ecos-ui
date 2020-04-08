@@ -42,4 +42,18 @@ export default class NumberComponent extends FormIONumberComponent {
 
     element.innerHTML = value;
   }
+
+  getValueAt(index) {
+    if (!this.inputs.length || !this.inputs[index]) {
+      return null;
+    }
+
+    const val = this.inputs[index].value;
+
+    if (!val) {
+      return ''; // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2501 (See const "changed" in Base.updateValue())
+    }
+
+    return this.parseNumber(val);
+  }
 }

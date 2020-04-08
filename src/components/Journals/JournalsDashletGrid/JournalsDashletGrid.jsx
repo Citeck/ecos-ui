@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import connect from 'react-redux/es/connect/connect';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 
 import JournalsDownloadZip from '../JournalsDownloadZip';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
@@ -167,14 +168,8 @@ class JournalsDashletGrid extends Component {
   getCurrentRowInlineActions() {
     const {
       execRecordsAction,
-      selectedRecords,
       grid: { groupBy = [], actions }
     } = this.props;
-    let currentRow = this.getSelectedRow().id;
-
-    if (selectedRecords.length) {
-      return [];
-    }
 
     if (groupBy.length) {
       return [
@@ -186,11 +181,10 @@ class JournalsDashletGrid extends Component {
       ];
     }
 
-    return ((actions || {})[currentRow] || []).map(action => {
-      return Object.assign({}, action, {
-        onClick: () => execRecordsAction([currentRow], action)
-      });
-    });
+    const currentRow = this.getSelectedRow().id;
+    const recordActions = get(actions, currentRow, []);
+
+    return recordActions.map(action => ({ ...action, onClick: () => execRecordsAction([currentRow], action) }));
   }
 
   hideGridInlineToolSettings = () => {

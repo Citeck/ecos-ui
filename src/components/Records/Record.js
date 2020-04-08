@@ -262,8 +262,8 @@ export default class Record {
   load(attributes, force) {
     let attsMapping = {};
     let attsToLoad = [];
-
     let isSingleAttribute = _.isString(attributes);
+
     if (isSingleAttribute) {
       attsToLoad = [attributes];
     } else if (_.isArray(attributes)) {
@@ -422,11 +422,13 @@ export default class Record {
   save() {
     let self = this;
 
-    let recordsToSavePromises = [this._getWhenReadyToSave(), this._getLinkedRecordsToSave()];
     let requestRecords = [];
 
-    return Promise.all(recordsToSavePromises).then(([baseRecordToSave, linkedRecordsToSave]) => {
-      const recordsToSave = [baseRecordToSave, ...linkedRecordsToSave];
+    let recordsToSavePromises = this._getWhenReadyToSave().then(baseRecordToSave => {
+      return this._getLinkedRecordsToSave().then(linkedRecords => [baseRecordToSave, ...linkedRecords]);
+    });
+
+    return recordsToSavePromises.then(recordsToSave => {
       for (let record of recordsToSave) {
         let attributesToSave = record.getAttributesToSave();
         if (!_.isEmpty(attributesToSave)) {

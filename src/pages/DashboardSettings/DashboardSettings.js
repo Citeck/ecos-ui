@@ -12,8 +12,8 @@ import find from 'lodash/find';
 import { arrayCompare, documentScrollTop, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
-import { DashboardTypes, DeviceTabs, Layouts, MenuTypes } from '../../constants/dashboard';
-import { LAYOUT_TYPE } from '../../constants/layout';
+import { DashboardTypes, DeviceTabs, MenuTypes } from '../../constants/dashboard';
+import { LAYOUT_TYPE, Layouts } from '../../constants/layout';
 import DashboardService from '../../services/dashboard';
 import PageService from '../../services/PageService';
 import {
@@ -488,6 +488,9 @@ class DashboardSettings extends React.Component {
   }
 
   renderLayoutsBlock() {
+    const {
+      identification: { type }
+    } = this.props;
     const setData = layout => {
       const { activeLayoutTabId, selectedWidgets, selectedLayout } = this.state;
 
@@ -497,7 +500,7 @@ class DashboardSettings extends React.Component {
       this.setState({ selectedWidgets, selectedLayout });
     };
 
-    return <SetLayouts activeLayout={this.activeData.layout} setData={setData} isMobile={this.isSelectedMobileVer} />;
+    return <SetLayouts dashboardType={type} activeLayout={this.activeData.layout} setData={setData} isMobile={this.isSelectedMobileVer} />;
   }
 
   renderWidgetsBlock() {

@@ -16,7 +16,7 @@ button {
     font-size: $font-size-standard;
     font-weight: $font-weight-semi-bold;
     font-style: normal;
-    line-height: 1;
+    line-height: 20px;
     padding: 9px 21px;
     height: 40px;
     cursor: pointer;
@@ -60,10 +60,6 @@ button {
       background-color: inherit;
       box-shadow: none;
     }
-  }
-
-  &.ecos-btn_line-height_normal {
-    line-height: normal;
   }
 
   &.ecos-btn_tight {
@@ -436,6 +432,10 @@ button {
     background: $color-white;
     color: $color-brown-2;
 
+    &:hover {
+      color: $color-brown-1;
+    }
+
     &:active,
     &:focus {
       background: $color-white;
@@ -451,7 +451,8 @@ button {
       background-color: $color-brown-2;
     }
 
-    &:active {
+    &:active,
+    &:focus {
       background-color: $color-brown-1;
     }
   }
@@ -524,7 +525,7 @@ button {
 
   &.ecos-btn_hover_back_dark-red {
     &:hover {
-      background: $color-red-10;
+      background: $color-red-2;
       color: $color-white;
     }
   }
@@ -658,7 +659,7 @@ button {
     color: $color-white;
 
     &:focus {
-      background: $color-red-10;
+      background: $color-red-2;
       color: $color-white;
     }
 
@@ -673,7 +674,7 @@ button {
 
     &:focus,
     &:hover {
-      background: $color-red-10;
+      background: $color-red-2;
     }
   }
 

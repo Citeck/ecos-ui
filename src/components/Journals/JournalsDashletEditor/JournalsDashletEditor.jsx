@@ -22,6 +22,7 @@ import {
 import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
+import DashboardService from '../../../services/dashboard';
 
 import './JournalsDashletEditor.scss';
 
@@ -35,7 +36,7 @@ const mapStateToProps = (state, ownProps) => {
     config: newState.config,
     initConfig: newState.initConfig,
     editorMode: newState.editorMode,
-    resultDashboard: get(state, 'dashboard.requestResult', {})
+    resultDashboard: get(state, ['dashboard', DashboardService.key, 'requestResult'], {})
   };
 };
 

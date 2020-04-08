@@ -17,10 +17,10 @@ import { setUserThumbnail } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
 import { makeSiteMenu, makeUserMenuItems, processCreateVariantsItems } from '../helpers/menu';
 import { URL } from '../constants';
-import { PROXY_URI } from '../constants/alfresco';
 import { hasInString } from '../helpers/util';
 import MenuService from '../services/menu';
 import PageService from '../services/PageService';
+import { createThumbnailUrl } from '../helpers/urls';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
@@ -52,7 +52,7 @@ function* fetchUserMenu({ api, fakeApi, logger }) {
     if (userNodeRef) {
       const userPhotoSize = yield call(api.user.getPhotoSize, userNodeRef);
       if (userPhotoSize > 0) {
-        const photoUrl = PROXY_URI + `citeck/ecos/image/thumbnail?nodeRef=${userNodeRef}&property=ecos:photo&width=150`;
+        const photoUrl = createThumbnailUrl(userNodeRef);
         yield put(setUserThumbnail(photoUrl));
       }
     }

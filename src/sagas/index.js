@@ -27,6 +27,7 @@ import birthdays from './birthdays';
 import barcode from './barcode';
 import properties from './properties';
 import documents from './documents';
+import userProfile from './userProfile';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -57,6 +58,7 @@ export default function* rootSaga(extraArguments) {
     birthdays(extraArguments),
     barcode(extraArguments),
     properties(extraArguments),
-    documents(extraArguments)
+    documents(extraArguments),
+    userProfile(extraArguments)
   ]);
 }

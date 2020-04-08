@@ -71,6 +71,7 @@ class Dashlet extends Component {
   };
 
   refDashlet = React.createRef();
+  resizableRef = React.createRef();
 
   constructor(props) {
     super(props);
@@ -78,13 +79,34 @@ class Dashlet extends Component {
     this.dashletId = uniqueId('dashlet-id');
 
     this.state = {
-      isCollapsed: props.isCollapsed || false
+      isCollapsed: props.isCollapsed || false,
+      busyHeightsCalculated: false
     };
   }
 
   componentDidMount() {
     this.props.getFitHeights(this.fitHeightChildren);
   }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!this.state.busyHeightsCalculated) {
+      this.checkBusyHeights();
+    }
+
+    if (!prevState.busyHeightsCalculated && this.state.busyHeightsCalculated) {
+      this.props.getFitHeights(this.fitHeightChildren);
+    }
+  }
+
+  checkBusyHeights = () => {
+    const elDashlet = this.refDashlet.current || {};
+    const headerH = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
+    const resizerH = get(this.resizableRef, 'current.resizeBtnHeight', 0);
+
+    if (resizerH && headerH) {
+      this.setState({ busyHeightsCalculated: true });
+    }
+  };
 
   get fitHeightChildren() {
     const busyArea = this.busyDashletHeight;
@@ -98,7 +120,7 @@ class Dashlet extends Component {
   get busyDashletHeight() {
     const elDashlet = this.refDashlet.current || {};
     const headerH = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
-    const resizerH = get(elDashlet.querySelector('.dashlet__resizer'), ['offsetHeight'], 0);
+    const resizerH = get(this.resizableRef, 'current.resizeBtnHeight', 0);
 
     return headerH + resizerH;
   }
@@ -141,7 +163,7 @@ class Dashlet extends Component {
     }
 
     return (
-      <ResizableBox resizable={resizable} classNameResizer="dashlet__resizer" getHeight={this.onChangeHeight}>
+      <ResizableBox ref={this.resizableRef} resizable={resizable} classNameResizer="dashlet__resizer" getHeight={this.onChangeHeight}>
         {children}
       </ResizableBox>
     );

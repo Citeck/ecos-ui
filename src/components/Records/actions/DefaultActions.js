@@ -1,4 +1,6 @@
+import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
@@ -7,6 +9,8 @@ import { VersionsJournalService } from '../../../services/VersionsJournalService
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
+import RecordActions from './RecordActions';
+import { t } from '../../../helpers/util';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
 
@@ -22,7 +26,8 @@ export const DefaultActionTypes = {
   MOVE_TO_LINES: 'move-to-lines',
   DOWNLOAD_CARD_TEMPLATE: 'download-card-template',
   OPEN_URL: 'open-url',
-  UPLOAD_NEW_VERSION: 'upload-new-version'
+  UPLOAD_NEW_VERSION: 'upload-new-version',
+  ASSOC_ACTION: 'assoc-action'
 };
 
 export const EditAction = {
@@ -67,7 +72,7 @@ export const EditAction = {
 export const ViewAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record, action: { config = {}, context } }) => {
+  execute: ({ record, action: { config = {}, context = {} } }) => {
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
@@ -412,6 +417,37 @@ export const UploadNewVersion = {
       name: 'record-action.name.upload-new-version',
       type: DefaultActionTypes.UPLOAD_NEW_VERSION,
       icon: 'icon-load'
+    };
+  }
+};
+
+export const AssocAction = {
+  execute: ({ record, action }) => {
+    const actionType = get(action, 'config.action', null);
+    let assoc = get(action, 'config.assoc', '');
+
+    if (!assoc.includes('?')) {
+      assoc += '?id';
+    }
+
+    Records.get(record)
+      .load(assoc, true)
+      .then(result => {
+        if (!result) {
+          NotificationManager.error('', t('record-action.assoc-action.not-found'));
+          return;
+        }
+
+        if (actionType) {
+          RecordActions.execAction(result, actionType);
+        }
+      });
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.assoc-action',
+      type: DefaultActionTypes.ASSOC_ACTION
     };
   }
 };

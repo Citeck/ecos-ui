@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { createThumbnailUrl } from '../helpers/urls';
 
 export default class VersionsJournalConverter {
   static getVersionForWeb(source = {}) {
@@ -27,9 +28,7 @@ export default class VersionsJournalConverter {
     target.name = source.name || '';
     target.id = source.id || '';
     target.url = source.downloadUrl || '';
-    target.avatar = source.modifierId
-      ? `/share/proxy/alfresco/citeck/ecos/image/thumbnail?nodeRef=${source.modifierId}&property=ecos:photo&width=50`
-      : '';
+    target.avatar = source.modifierId ? createThumbnailUrl(source.modifierId, { width: 50 }) : '';
 
     return target;
   }

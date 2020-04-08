@@ -9,6 +9,7 @@ import { selectStateByKey } from '../../../selectors/birthdays';
 import { getBirthdays, resetStore } from '../../../actions/birthdays';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
+import { isNewVersionPage } from '../../../helpers/urls';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import PageService from '../../../services/PageService';
 import { Avatar, DefineHeight, Loader } from '../../common';
@@ -102,7 +103,7 @@ class Birthdays extends BaseWidget {
   };
 
   handleGoToProfile = url => {
-    PageService.changeUrlLink(url, { openNewBrowserTab: true });
+    PageService.changeUrlLink(url, { openNewBrowserTab: !isNewVersionPage(url), openNewTab: isNewVersionPage(url) });
   };
 
   handleReloadData = () => {
@@ -132,6 +133,7 @@ class Birthdays extends BaseWidget {
               userName={item.name}
               className="ecos-hb2u__list-item-photo"
               classNameEmpty="ecos-hb2u__list-item-photo_empty"
+              noBorder
             />
 
             <div className="ecos-hb2u__list-item-info">

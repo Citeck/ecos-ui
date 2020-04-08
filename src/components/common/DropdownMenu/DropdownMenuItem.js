@@ -10,9 +10,10 @@ import handleControl from '../../../helpers/handleControl';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
 import { URL } from '../../../constants';
 import { getSearchParams, SearchKeys } from '../../../helpers/urls';
+import pageTabList from '../../../services/pageTabs/PageTabList';
 
 const mapStateToProps = state => ({
-  dashboardId: get(state, 'dashboard.identification.id', '')
+  dashboardId: get(state, `dashboard[${pageTabList.activeTabId}].identification.id`, '')
 });
 const mapDispatchToProps = dispatch => ({
   dispatch
@@ -60,7 +61,9 @@ class DropdownMenuItem extends React.Component {
     let link = targetUrl;
 
     if (targetUrl === URL.DASHBOARD_SETTINGS) {
-      params.push(`${SearchKeys.DASHBOARD_ID}=${dashboardId}`);
+      if (dashboardId) {
+        params.push(`${SearchKeys.DASHBOARD_ID}=${dashboardId}`);
+      }
 
       if (recordRef) {
         params.push(`${SearchKeys.RECORD_REF}=${recordRef}`);
