@@ -11,7 +11,7 @@ import {
   OpenURL,
   UploadNewVersion,
   ViewAction,
-  Association
+  AssocAction
 } from './DefaultActions';
 
 import { CaseCreateNodeAction, CaseRedirectAction, CaseRequestAction } from './CaseActions';
@@ -30,7 +30,7 @@ Registry.addExecutors({
   [DefaultActionTypes.CREATE]: CreateNodeAction,
   [DefaultActionTypes.OPEN_URL]: OpenURL,
   [DefaultActionTypes.UPLOAD_NEW_VERSION]: UploadNewVersion,
-  [DefaultActionTypes.ASSOCIATION]: Association,
+  [DefaultActionTypes.ASSOC_ACTION]: AssocAction,
 
   //legacy case actions
 

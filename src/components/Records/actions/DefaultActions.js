@@ -27,7 +27,7 @@ export const DefaultActionTypes = {
   DOWNLOAD_CARD_TEMPLATE: 'download-card-template',
   OPEN_URL: 'open-url',
   UPLOAD_NEW_VERSION: 'upload-new-version',
-  ASSOCIATION: 'assoc-action'
+  ASSOC_ACTION: 'assoc-action'
 };
 
 export const EditAction = {
@@ -421,7 +421,7 @@ export const UploadNewVersion = {
   }
 };
 
-export const Association = {
+export const AssocAction = {
   execute: ({ record, action }) => {
     const actionType = get(action, 'config.action', null);
     let assoc = get(action, 'config.assoc', '');
@@ -434,7 +434,7 @@ export const Association = {
       .load(assoc, true)
       .then(result => {
         if (!result) {
-          NotificationManager.error('', t('record-action.association.assoc-not-found'));
+          NotificationManager.error('', t('record-action.assoc-action.not-found'));
           return;
         }
 
@@ -446,8 +446,8 @@ export const Association = {
 
   getDefaultModel: () => {
     return {
-      name: 'record-action.name.association',
-      type: DefaultActionTypes.ASSOCIATION
+      name: 'record-action.name.assoc-action',
+      type: DefaultActionTypes.ASSOC_ACTION
     };
   }
 };
