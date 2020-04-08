@@ -84,7 +84,7 @@ $header-height: 52px;
 
   &::before {
     @extend %shadow-h-line;
-    top: 0;
+    top: -2px;
   }
   &::after {
     @extend %shadow-h-line;
