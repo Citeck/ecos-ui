@@ -19,7 +19,7 @@ const mapStateToProps = (state, props) => {
     className: props.className,
     inlineToolSettings: newState[toolsKey],
     selectedRecords: newState.selectedRecords || [],
-    selectAllRecords: newState.selectAllRecords || []
+    selectAllRecords: newState.selectAllRecords
   };
 };
 
