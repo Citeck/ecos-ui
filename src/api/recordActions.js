@@ -1,43 +1,14 @@
-import { t } from '../helpers/util';
-
-import recordActions from '../components/Records/actions/RecordActions';
+import RecordActions from '../components/Records/actions';
 import { CommonApi } from './common';
 
-//todo need api
-const RecordsActions = {
-  getActions: () => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve([
-          { title: t('records-actions.create') },
-          { title: t('records-actions.edit') },
-          { title: t('records-actions.download'), variants: [{ title: t('records-actions.original') }, { title: 'PDF' }] },
-          { title: t('records-actions.remove'), theme: 'warning' }
-        ]);
-      }, 1500);
-    });
-  },
-  execute: () => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(true);
-      }, 1500);
-    });
-  }
-};
-
 export class RecordActionsApi extends CommonApi {
-  //Deprecated
-  getActions = ({ record, dashboardId }) => {
-    return RecordsActions.getActions(record, 'dashboard', dashboardId).then(res => res);
+  getActions = ({ records, context }) => {
+    return RecordActions.getActions(records, context).catch(() => []);
   };
 
-  //Deprecated
-  executeAction = ({ record, action }) => {
-    return RecordsActions.execute(record, action).then(res => res);
-  };
-
-  execAction = ({ records, action, context }) => {
-    return recordActions.execAction(records, action, context);
+  executeAction = ({ records, action }) => {
+    return RecordActions.execAction(records, action)
+      .then(response => response)
+      .catch(() => false);
   };
 }

@@ -1,8 +1,12 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Btn } from '../../../../common/btns';
+
 import { t } from '../../../../../helpers/util';
+import { createDocumentUrl } from '../../../../../helpers/urls';
+import PageService from '../../../../../services/PageService';
+import { Btn } from '../../../../common/btns';
+
 import './InputView.scss';
 
 class InputView extends Component {
@@ -25,6 +29,26 @@ class InputView extends Component {
     }
   };
 
+  renderSelectedValue(item) {
+    const { isSelectedValueAsLink } = this.props;
+    let onClickHandler = null;
+    if (isSelectedValueAsLink) {
+      const url = createDocumentUrl(item.id);
+      onClickHandler = () => {
+        PageService.changeUrlLink(url, { openNewBrowserTab: true });
+      };
+    }
+
+    return (
+      <span
+        onClick={onClickHandler}
+        className={classNames('select-journal__values-list-disp', { 'select-journal__values-list-disp_link': isSelectedValueAsLink })}
+      >
+        {item.disp}
+      </span>
+    );
+  }
+
   render() {
     const {
       selectedRows,
@@ -41,47 +65,41 @@ class InputView extends Component {
       hideDeleteRowButton
     } = this.props;
 
-    const wrapperClasses = classNames(
-      'select-journal__input-view',
-      {
-        'select-journal__input-view_compact': isCompact
-      },
-      className
-    );
+    const wrapperClasses = classNames('select-journal__input-view', { 'select-journal__input-view_compact': isCompact }, className);
 
     const buttonClasses = classNames('ecos-btn_blue', {
-      'ecos-btn_narrow': true, //isCompact,
+      'ecos-btn_narrow': true,
       'select-journal__input-view-button_compact': isCompact
     });
 
     const placeholderText = placeholder ? placeholder : t('select-journal.placeholder');
 
     const valuesList = isCompact ? (
-      <Fragment>
-        {selectedRows.length > 0 ? (
-          <div className={'select-journal__values-list_compact'}>{selectedRows.map(item => item.disp).join(', ')}</div>
-        ) : null}
-      </Fragment>
+      <>
+        {selectedRows.length > 0 && (
+          <div className="select-journal__values-list_compact">{selectedRows.map(item => item.disp).join(', ')}</div>
+        )}
+      </>
     ) : (
-      <Fragment>
+      <>
         {selectedRows.length > 0 ? (
-          <ul className={'select-journal__values-list'}>
+          <ul className="select-journal__values-list">
             {selectedRows.map(item => (
               <li key={item.id}>
-                <span className="select-journal__values-list-disp">{item.disp}</span>
+                {this.renderSelectedValue(item)}
                 {disabled ? null : (
                   <div className="select-journal__values-list-actions">
-                    {hideEditRowButton ? null : <span data-id={item.id} className={'icon icon-edit'} onClick={editValue} />}
-                    {hideDeleteRowButton ? null : <span data-id={item.id} className={'icon icon-delete'} onClick={deleteValue} />}
+                    {!(!item.canEdit || hideEditRowButton) && <span data-id={item.id} className="icon icon-edit" onClick={editValue} />}
+                    {!hideDeleteRowButton && <span data-id={item.id} className="icon icon-delete" onClick={deleteValue} />}
                   </div>
                 )}
               </li>
             ))}
           </ul>
         ) : (
-          <p className={'select-journal__value-not-selected'}>{placeholderText}</p>
+          <p className="select-journal__value-not-selected">{placeholderText}</p>
         )}
-      </Fragment>
+      </>
     );
 
     return (
@@ -89,7 +107,7 @@ class InputView extends Component {
         {isCompact ? null : valuesList}
 
         {error ? (
-          <p className={'select-journal__error'}>{error.message}</p>
+          <p className="select-journal__error">{error.message}</p>
         ) : (
           <Btn className={buttonClasses} onClick={this.onClick} disabled={disabled} autoFocus={autoFocus} onBlur={this.onBlur}>
             {selectedRows.length > 0
@@ -117,7 +135,8 @@ InputView.propTypes = {
   deleteValue: PropTypes.func,
   openSelectModal: PropTypes.func,
   hideEditRowButton: PropTypes.bool,
-  hideDeleteRowButton: PropTypes.bool
+  hideDeleteRowButton: PropTypes.bool,
+  isSelectedValueAsLink: PropTypes.bool
 };
 
 export default InputView;

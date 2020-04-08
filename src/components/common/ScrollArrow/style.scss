@@ -1,4 +1,4 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 %shadow {
   content: '';
@@ -10,8 +10,11 @@
   pointer-events: none;
 }
 
-$shadow-step_small: 35px;
 $btn-circle_small: 26px;
+$shadow-step_small: 35px;
+
+$btn-circle_medium: 40px;
+$shadow-step_medium: 40px;
 
 .ecos-scrollbar-arrow {
   display: flex;
@@ -24,36 +27,75 @@ $btn-circle_small: 26px;
     margin: 0 10px;
   }
 
-  &__btn_small.ecos-btn {
-    height: $btn-circle_small;
-    width: $btn-circle_small;
+  &__btn {
+    &_medium.ecos-btn {
+      height: $btn-circle_medium;
+      width: $btn-circle_medium;
+      min-width: $btn-circle_medium;
+      padding: 0 12px;
+    }
+
+    &_small.ecos-btn {
+      height: $btn-circle_small;
+      width: $btn-circle_small;
+      min-width: $btn-circle_small;
+    }
   }
 
   &__scroll {
+    $scroll: &;
+
     overflow: auto;
     width: 100%;
 
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
     &_intend-left {
-      &:before {
+      &::before {
         @extend %shadow;
         background: linear-gradient(90deg, $color-gray-4 0%, rgba($color-white, 0) 100%);
-        left: $shadow-step_small;
       }
     }
 
     &_intend-right {
-      &:after {
+      &::after {
         @extend %shadow;
-        right: $shadow-step_small;
         background: linear-gradient(270deg, $color-gray-4 0%, rgba($color-white, 0) 100%);
       }
     }
 
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    &_medium {
+      &#{$scroll}_intend-left {
+        &::before {
+          left: $shadow-step_medium;
+        }
+      }
 
-    &::-webkit-scrollbar {
-      display: none;
+      &#{$scroll}_intend-right {
+        &::after {
+          right: $shadow-step_medium;
+        }
+      }
+    }
+
+    &_small {
+      &#{$scroll}_intend-left {
+        &::before {
+          left: $shadow-step_small;
+        }
+      }
+
+      &#{$scroll}_intend-right {
+        &::after {
+          right: $shadow-step_small;
+        }
+      }
     }
   }
 }

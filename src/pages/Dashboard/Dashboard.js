@@ -3,22 +3,24 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactPlaceholder from 'react-placeholder';
-import { RoundShape, RectShape } from 'react-placeholder/lib/placeholders';
+import { RectShape, RoundShape } from 'react-placeholder/lib/placeholders';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
-import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
-import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
-import Layout from '../../components/Layout';
-import { DndUtils } from '../../components/Drag-n-Drop';
-import TopMenu from '../../components/Layout/TopMenu';
-import { Loader, ScrollArrow, Tabs } from '../../components/common';
-import { MENU_TYPE } from '../../constants';
+import { LoaderTypes, MENU_TYPE } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
+import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
+import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
+import { Loader, ScrollArrow, Tabs } from '../../components/common';
+import { Badge } from '../../components/common/form';
+import { DocStatus } from '../../components/widgets/DocStatus';
+import Layout from '../../components/Layout';
+import { DndUtils } from '../../components/Drag-n-Drop';
+import TopMenu from '../../components/Layout/TopMenu';
 
 import './style.scss';
 
@@ -34,6 +36,7 @@ const mapStateToProps = state => {
     menuType: get(state, ['menu', 'type']),
     links: get(state, ['menu', 'links']),
     dashboardType: get(state, ['dashboard', 'identification', 'type']),
+    identificationId: get(state, ['dashboard', 'identification', 'id'], null),
     titleInfo: get(state, ['dashboard', 'titleInfo']),
     isMobile
   };
@@ -53,7 +56,8 @@ class Dashboard extends Component {
   state = {
     urlParams: getSortedUrlParams(),
     canDragging: false,
-    activeLayoutId: null
+    activeLayoutId: null,
+    needGetConfig: false
   };
 
   constructor(props) {
@@ -62,44 +66,52 @@ class Dashboard extends Component {
     this.state.config = props.config || [];
   }
 
+  static getDerivedStateFromProps(props, state) {
+    const newState = {};
+    const newUrlParams = getSortedUrlParams();
+
+    if (isEmpty(state.activeLayoutId)) {
+      newState.activeLayoutId = get(props.config, '[0].id');
+    }
+
+    if (JSON.stringify(props.config) !== JSON.stringify(state.config)) {
+      newState.config = props.config;
+      newState.activeLayoutId = get(props.config, '[0].id');
+    }
+
+    if (state.urlParams !== newUrlParams) {
+      newState.urlParams = newUrlParams;
+      newState.needGetConfig = true;
+      props.resetDashboardConfig();
+      props.initMenuSettings();
+    }
+
+    if (state.urlParams === newUrlParams && props.isLoadingDashboard && !isEmpty(props.config)) {
+      props.setLoading(false);
+    }
+
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    return newState;
+  }
+
   componentDidMount() {
     this.getConfig();
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { initMenuSettings, config, isLoadingDashboard, resetDashboardConfig, setLoading } = nextProps;
-    const { urlParams, activeLayoutId } = this.state;
-    const newUrlParams = getSortedUrlParams();
-    const state = {};
-
-    if (urlParams !== newUrlParams) {
-      state.urlParams = newUrlParams;
-      resetDashboardConfig();
-      this.getConfig(nextProps);
-      initMenuSettings();
-    } else if (urlParams === newUrlParams && isLoadingDashboard && !isEmpty(config)) {
-      setLoading(false);
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.state.needGetConfig) {
+      this.getConfig();
     }
-
-    if (JSON.stringify(config) !== JSON.stringify(this.props.config)) {
-      state.config = config;
-    }
-
-    if (JSON.stringify(config) !== JSON.stringify(this.props.config) || isEmpty(activeLayoutId)) {
-      state.activeLayoutId = get(config, '[0].id');
-    }
-
-    this.setState(state);
   }
 
   componentWillUnmount() {
     this.props.resetDashboardConfig();
   }
 
-  getPathInfo(props) {
-    const {
-      location: { search }
-    } = props || this.props;
+  getPathInfo(search = window.location.search) {
     const searchParams = queryString.parse(search);
     const { recordRef, dashboardId, dashboardKey } = searchParams;
 
@@ -111,42 +123,14 @@ class Dashboard extends Component {
     };
   }
 
-  getConfig(props) {
+  getConfig() {
     const { getDashboardConfig, getDashboardTitle } = this.props;
-    const { recordRef, dashboardKey } = this.getPathInfo(props);
+    const { recordRef, dashboardKey } = this.getPathInfo();
 
     getDashboardConfig({ recordRef, dashboardKey });
     getDashboardTitle({ recordRef });
-  }
 
-  get wrapperStyle() {
-    const tabs = document.querySelector('.page-tab');
-    const alfrescoHeader = document.querySelector('#alf-hd');
-    const alfrescoFooter = document.querySelector('#alf-ft');
-    let height = ['3px'];
-
-    if (tabs) {
-      const style = window.getComputedStyle(tabs);
-      const outerHeight = tabs.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    if (alfrescoHeader) {
-      const style = window.getComputedStyle(alfrescoHeader);
-      const outerHeight = alfrescoHeader.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    if (alfrescoFooter) {
-      const style = window.getComputedStyle(alfrescoFooter);
-      const outerHeight = alfrescoFooter.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
-
-      height.push(`${outerHeight}px`);
-    }
-
-    return { height: `calc(100vh - (${height.join(' + ')}))` };
+    this.setState({ needGetConfig: false });
   }
 
   get activeLayout() {
@@ -167,6 +151,10 @@ class Dashboard extends Component {
     }
 
     return [];
+  }
+
+  get isShowTabs() {
+    return this.tabList.length > 1;
   }
 
   saveDashboardConfig = payload => {
@@ -227,8 +215,7 @@ class Dashboard extends Component {
   handleSaveWidgetProps = (id, props = {}) => {
     const activeLayout = deepClone(this.activeLayout, {});
     const columns = activeLayout.columns || [];
-
-    columns.forEach(column => {
+    const eachColumns = column => {
       const index = column.widgets.findIndex(widget => widget.id === id);
 
       if (index !== -1) {
@@ -237,6 +224,14 @@ class Dashboard extends Component {
       }
 
       return true;
+    };
+
+    columns.forEach(column => {
+      if (Array.isArray(column)) {
+        column.forEach(eachColumns);
+      } else {
+        eachColumns(column);
+      }
     });
     activeLayout.columns = columns;
 
@@ -252,7 +247,7 @@ class Dashboard extends Component {
   };
 
   renderTabs() {
-    if (this.tabList.length < 2) {
+    if (!this.isShowTabs) {
       return null;
     }
 
@@ -269,7 +264,7 @@ class Dashboard extends Component {
 
     return (
       <div className="ecos-dashboard__tabs-wrapper">
-        <ScrollArrow className="ecos-dashboard__tabs-arrows">
+        <ScrollArrow className="ecos-dashboard__tabs-arrows" small>
           <Tabs
             hasHover
             hasHint
@@ -296,9 +291,7 @@ class Dashboard extends Component {
 
     return (
       <Layout
-        className={classNames({
-          'ecos-layout_mobile': isMobile
-        })}
+        className={classNames({ 'ecos-layout_mobile': isMobile })}
         columns={columns}
         onSaveWidget={this.prepareWidgetsConfig}
         type={type}
@@ -323,8 +316,11 @@ class Dashboard extends Component {
     const {
       titleInfo: { name = '', version = '' },
       dashboardType,
-      isMobile
+      isMobile,
+      isLoadingDashboard
     } = this.props;
+    const { recordRef } = this.getPathInfo();
+
     let title = null;
 
     switch (dashboardType) {
@@ -343,7 +339,7 @@ class Dashboard extends Component {
               }
             >
               <div className="ecos-dashboard__header-name">{t(name)}</div>
-              {version && <div className="ecos-dashboard__header-version">{version}</div>}
+              {version && <Badge text={version} size={isMobile ? 'small' : 'large'} />}
             </ReactPlaceholder>
           </div>
         );
@@ -356,13 +352,24 @@ class Dashboard extends Component {
         break;
     }
 
+    const showStatus = isMobile && [DashboardTypes.CASE_DETAILS].includes(dashboardType);
+
     return (
       <div
         className={classNames('ecos-dashboard__header', {
-          'ecos-dashboard__header_mobile': isMobile
+          'ecos-dashboard__header_mobile': isMobile,
+          'ecos-dashboard__header_no-next': isMobile && !this.isShowTabs
         })}
       >
         {title}
+        {showStatus && (
+          <DocStatus
+            record={recordRef}
+            className="ecos-dashboard__header-status"
+            loaderType={LoaderTypes.POINTS}
+            noLoader={isLoadingDashboard}
+          />
+        )}
       </div>
     );
   }
@@ -377,24 +384,20 @@ class Dashboard extends Component {
 
   render() {
     return (
-      <div style={this.wrapperStyle}>
-        <Scrollbars
-          style={{ height: '100%' }}
-          renderTrackHorizontal={props => <div {...props} hidden />}
-          renderThumbHorizontal={props => <div {...props} hidden />}
-        >
-          {this.renderTopMenu()}
-          {this.renderHeader()}
-          {this.renderTabs()}
-          {this.renderLayout()}
-          {this.renderLoader()}
-        </Scrollbars>
-      </div>
+      <Scrollbars
+        style={{ height: '100%' }}
+        renderTrackHorizontal={props => <div {...props} hidden />}
+        renderThumbVertical={props => <div {...props} className="ecos-dashboard__scrollbars-track-vertical" />}
+        renderThumbHorizontal={props => <div {...props} hidden />}
+      >
+        {this.renderTopMenu()}
+        {this.renderHeader()}
+        {this.renderTabs()}
+        {this.renderLayout()}
+        {this.renderLoader()}
+      </Scrollbars>
     );
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Dashboard);
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

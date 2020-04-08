@@ -1,6 +1,7 @@
 import { CommonApi } from './common';
-import { PROXY_URI, MICRO_URI } from '../constants/alfresco';
-import { DEFAULT_THEME } from '../constants/theme';
+import { PROXY_URI } from '../constants/alfresco';
+import Records from '../components/Records/Records';
+import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 
 export class AppApi extends CommonApi {
   getEcosConfig = configName => {
@@ -10,9 +11,15 @@ export class AppApi extends CommonApi {
       .catch(() => '');
   };
 
-  getCurrentThemeName = siteId => {
-    return this.getHtml(`${MICRO_URI}api/themes/current?siteId=${siteId || ''}`)
-      .then(resp => resp)
-      .catch(() => DEFAULT_THEME);
+  touch = () => {
+    const url = `${PROXY_URI}citeck/ecos/touch`;
+    return this.getJson(url);
+  };
+
+  getOrgstructAllUsersGroupName = () => {
+    return Records.get('uiserv/config@orgstruct-allUsers-group-shortName')
+      .load('value')
+      .then(resp => resp || ALL_USERS_GROUP_SHORT_NAME)
+      .catch(() => ALL_USERS_GROUP_SHORT_NAME);
   };
 }

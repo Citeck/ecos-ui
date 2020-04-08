@@ -1,4 +1,4 @@
-@import '../../../../constants';
+@import '../../../../styles/constants';
 
 .ecos-select {
   .select__indicator-separator {
@@ -67,6 +67,7 @@
     border-radius: $border-radius-standard;
     margin-top: 5px;
     overflow: hidden;
+    z-index: 1000;
   }
 
   .select__option {

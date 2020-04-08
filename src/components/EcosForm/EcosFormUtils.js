@@ -1,15 +1,46 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import moment from 'moment';
 import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
-import Records from '../Records/Records';
+import uuidV4 from 'uuid/v4';
+
 import { getCurrentUserName, t } from '../../helpers/util';
-import { EcosForm } from '../EcosForm';
+import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
+import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
 import Modal from '../common/EcosModal/CiteckEcosModal';
+import Records from '../Records';
+import EcosForm, { FORM_MODE_CREATE, FORM_MODE_EDIT } from './';
 
 const EDGE_PREFIX = 'edge__';
+
+const getComponentInnerAttSchema = component => {
+  let dataType = lodashGet(component, 'ecos.dataType', '');
+
+  if (dataType === 'json') {
+    return 'json';
+  }
+
+  switch (component.type) {
+    case 'number':
+      return 'num';
+    case 'checkbox':
+      return 'bool';
+    case 'datagridAssoc':
+    case 'tableForm':
+    case 'selectJournal':
+      return 'assoc';
+    case 'datamap':
+    case 'container':
+      return 'json';
+    case 'file':
+      return 'as(n:"content-data"){json}';
+    default:
+      return 'str';
+  }
+};
 
 export default class EcosFormUtils {
   static isCurrentUserInGroup(group) {
@@ -24,38 +55,6 @@ export default class EcosFormUtils {
     ).then(function(userNames) {
       return (userNames || []).indexOf(currentPersonName) !== -1;
     });
-  }
-
-  static isShouldDisplayForms() {
-    return Records.get('ecos-config@default-ui-left-menu-access-groups')
-      .load('.str')
-      .then(function(groupsInOneString) {
-        if (!groupsInOneString) {
-          return false;
-        }
-
-        const groups = groupsInOneString.split(',');
-        const results = [];
-
-        for (let groupsCounter = 0; groupsCounter < groups.length; ++groupsCounter) {
-          results.push(EcosFormUtils.isCurrentUserInGroup(groups[groupsCounter]));
-        }
-
-        return Promise.all(results).then(function(values) {
-          return values.indexOf(false) === -1;
-        });
-      });
-  }
-
-  static isShouldDisplayFormsForUser() {
-    return Records.get('ecos-config@default-ui-main-menu')
-      .load('.str')
-      .then(function(result) {
-        if (result === 'left') {
-          return EcosFormUtils.isShouldDisplayForms();
-        }
-        return false;
-      });
   }
 
   static eform(record, config) {
@@ -126,10 +125,9 @@ export default class EcosFormUtils {
         formMode: '_formMode'
       })
       .then(function(recordData) {
-        const displayName = recordData.displayName || '';
-        const formMode = recordData.formMode || 'EDIT';
+        const formMode = recordData.formMode || FORM_MODE_EDIT;
 
-        if (formMode === 'CREATE') {
+        if (formMode === FORM_MODE_CREATE) {
           Records.get(record).reset();
         }
 
@@ -138,16 +136,9 @@ export default class EcosFormUtils {
         options.formMode = formMode;
         formParams.options = options;
 
-        const prefixId = 'eform.header.' + formMode + '.title';
-        const prefix = t(prefixId);
-
-        if (!prefix || prefix === prefixId) {
-          config.header = displayName;
-        } else {
-          config.header = prefix + ' ' + displayName;
-        }
-
         const formInstance = React.createElement(EcosForm, formParams);
+
+        config.header = EcosFormUtils.getFormTitle(recordData);
 
         if (config.formContainer) {
           let container = config.formContainer;
@@ -199,7 +190,7 @@ export default class EcosFormUtils {
       isFormsEnabled = Promise.resolve(true);
     }
 
-    const isShouldDisplay = EcosFormUtils.isShouldDisplayFormsForUser();
+    const isShouldDisplay = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
 
     Promise.all([isFormsEnabled, isShouldDisplay])
       .then(function(values) {
@@ -241,28 +232,13 @@ export default class EcosFormUtils {
     let recordInstance = isString(record) ? Records.get(record) : record;
     recordInstance = recordInstance.getBaseRecord();
 
-    let getFormByRecord = () => {
-      const query = {
-        sourceId: 'eform',
-        query: {
-          record: recordInstance.id,
-          formKey: formKey
-        }
-      };
-      if (attributes) {
-        return Records.queryOne(query, attributes);
-      } else {
-        return Records.queryOne(query);
-      }
-    };
-
     let getFormByKeysFromRecord = (keys, idx) => {
       if (!keys || idx >= keys.length) {
         return null;
       }
 
       let query = {
-        sourceId: 'eform',
+        sourceId: 'uiserv/eform',
         query: {
           record: recordInstance.id,
           formKey: keys[idx]
@@ -279,19 +255,48 @@ export default class EcosFormUtils {
       return formRec.then(res => {
         if (res) {
           return res;
-        } else {
-          return getFormByKeysFromRecord(keys, idx + 1);
         }
+
+        return getFormByKeysFromRecord(keys, idx + 1);
       });
     };
 
-    if (!formKey && recordInstance && (recordInstance.id || '').indexOf('/') > 0) {
-      return recordInstance.load('_formKey[]?str').then(keys => {
-        return getFormByKeysFromRecord(keys, 0);
-      });
+    if (!formKey) {
+      return recordInstance
+        .load({
+          formKey: '_formKey[]?str',
+          typeId: '_etype?id'
+        })
+        .then(({ typeId, formKey }) => {
+          if (typeId && typeId.indexOf('emodel/type@') === 0) {
+            return Records.get(typeId)
+              .load('inheritedForm?id')
+              .then(formId => {
+                if (EcosFormUtils.isFormId(formId)) {
+                  return EcosFormUtils.getFormById(formId, attributes);
+                } else {
+                  return getFormByKeysFromRecord(formKey, 0);
+                }
+              })
+              .catch(e => {
+                console.error(e);
+                return getFormByKeysFromRecord(formKey, 0);
+              });
+          } else {
+            return getFormByKeysFromRecord(formKey, 0);
+          }
+        });
     } else {
-      return getFormByRecord();
+      return getFormByKeysFromRecord([formKey], 0);
     }
+  }
+
+  static getFormById(formId, attributes = null) {
+    if (attributes) {
+      return Records.get(formId).load(attributes);
+    }
+
+    return Records.get(formId);
   }
 
   static getCreateVariants(record, attribute) {
@@ -319,10 +324,12 @@ export default class EcosFormUtils {
   static forEachComponent(root, action) {
     let components = [];
 
-    if (root.type === 'columns') {
-      components = root.columns || [];
-    } else {
-      components = root.components || [];
+    if (root) {
+      if (root.type === 'columns') {
+        components = root.columns || [];
+      } else {
+        components = root.components || [];
+      }
     }
 
     for (let i = 0; i < components.length; i++) {
@@ -339,6 +346,9 @@ export default class EcosFormUtils {
   static getRecordFormInputsMap(record) {
     return EcosFormUtils.getForm(record, null, 'definition?json')
       .then(formDef => {
+        if (!formDef) {
+          return {};
+        }
         let inputs = this.getFormInputs(formDef) || [];
         let result = {};
         for (let input of inputs) {
@@ -360,62 +370,65 @@ export default class EcosFormUtils {
     this.forEachComponent(root, component => {
       let attribute = EcosFormUtils.getComponentAttribute(component);
 
-      if (attribute && component.input === true && component.type !== 'button') {
-        let questionIdx = attribute.indexOf('?');
-
-        if (questionIdx !== -1) {
-          attribute = attribute.substring(0, questionIdx);
-        }
-
-        let attributeSchema;
-
-        let dataType = lodashGet(component, 'ecos.dataType', '');
-
-        switch (component.type) {
-          case 'checkbox':
-            attributeSchema = 'bool';
-            break;
-          case 'datagridAssoc':
-          case 'tableForm':
-          case 'selectJournal':
-            attributeSchema = 'assoc';
-            break;
-          case 'container':
-            attributeSchema = 'json';
-            break;
-          case 'file':
-            attributeSchema = 'as(n:"content-data"){json}';
-            break;
-          default:
-            attributeSchema = 'str';
-        }
-
-        let multiplePostfix = component.multiple ? 's' : '';
-        let schema = '.att' + multiplePostfix + '(n:"' + attribute + '"){' + attributeSchema + '}';
-        let edgeSchema = '.edge(n:"' + attribute + '"){protected,';
-        if (component.label === attribute) {
-          edgeSchema += 'title}';
-        } else {
-          // Type is not used. Just to add more than 1 field in result to avoid simplifying
-          // result: {protected:true} -> result: true
-          edgeSchema += 'type}';
-        }
-
-        inputs.push({
-          attribute: attribute,
-          component: component,
-          schema: schema,
-          edgeSchema: edgeSchema,
-          dataType: dataType
-        });
+      if (!attribute || component.input !== true || component.type === 'button' || component.type === 'horizontalLine') {
+        return;
       }
+
+      let questionIdx = attribute.indexOf('?');
+
+      if (questionIdx !== -1) {
+        attribute = attribute.substring(0, questionIdx);
+      }
+
+      let innerAttSchema = getComponentInnerAttSchema(component);
+      let multiplePostfix = component.multiple ? 's' : '';
+      let schema = '.att' + multiplePostfix + '(n:"' + attribute + '"){' + innerAttSchema + '}';
+      let edgeSchema = '.edge(n:"' + attribute + '"){protected,';
+
+      if (component.label === attribute) {
+        edgeSchema += 'title}';
+      } else {
+        // Type is not used. Just to add more than 1 field in result to avoid simplifying
+        // result: {protected:true} -> result: true
+        edgeSchema += 'type}';
+      }
+
+      inputs.push({
+        attribute: attribute,
+        component: component,
+        schema: schema,
+        edgeSchema: edgeSchema,
+        dataType: lodashGet(component, 'ecos.dataType', '')
+      });
     });
 
     return inputs;
   }
 
+  static getKeysMapping(inputs) {
+    let keysMapping = {};
+
+    for (let i = 0; i < inputs.length; i++) {
+      let key = inputs[i].component.key;
+      keysMapping[key] = inputs[i].schema;
+    }
+
+    return keysMapping;
+  }
+
+  static getInputByKey(inputs) {
+    let inputByKey = {};
+
+    for (let i = 0; i < inputs.length; i++) {
+      let key = inputs[i].component.key;
+      inputByKey[key] = inputs[i];
+    }
+
+    return inputByKey;
+  }
+
   static getI18n(defaultI18n, attributes, formI18n) {
-    let global = lodashGet(window, 'Alfresco.messages.global', {});
+    let global = lodashGet(window, 'Alfresco.messages.ecosForms', {});
 
     let result = cloneDeep(defaultI18n);
 
@@ -429,7 +442,67 @@ export default class EcosFormUtils {
     return Object.assign(result, attributes, formI18n);
   }
 
-  static getData(recordId, inputs) {
+  static hasWritePermission(recordId) {
+    return Records.get(recordId).load('.att(n:"permissions"){has(n:"Write")}');
+  }
+
+  static processValueBeforeSubmit(value, input, keysMapping) {
+    const mapEachValue = (value, mapping) => {
+      if (Array.isArray(value)) {
+        return value.map(mapping);
+      } else {
+        return mapping(value);
+      }
+    };
+
+    if (value && input && input.dataType === 'json-record') {
+      value = mapEachValue(value, v => JSON.stringify(Records.get(v).toJson()));
+    }
+    if (value && input && input.dataType === 'json') {
+      value = mapEachValue(value, v => {
+        let recData = (Records.get(v).toJson() || {}).attributes || {};
+        let result = {};
+
+        for (let att in recData) {
+          if (
+            recData.hasOwnProperty(att) &&
+            att.charAt(0) !== '.' &&
+            att !== '_alias' &&
+            att !== '_state' &&
+            att !== 'submit' &&
+            //id should be in att_id
+            att !== 'id'
+          ) {
+            if (att === 'att_id') {
+              result['id'] = recData[att];
+            } else {
+              result[att] = recData[att];
+            }
+          }
+        }
+
+        return result;
+      });
+    }
+
+    if (value && input && input.component.type === 'datagridAssoc') {
+      value = DataGridAssocComponent.convertToAssoc(value, input, keysMapping);
+    }
+
+    // cause: https://citeck.atlassian.net/browse/ECOSCOM-2561, https://citeck.atlassian.net/browse/ECOSCOM-3204
+    if (input && input.component.type === 'ecosSelect' && !value) {
+      value = [];
+    }
+
+    // cause: https://citeck.atlassian.net/browse/ECOSCOM-2581
+    if (value && input && input.component.type === 'datetime' && input.component.enableDate && !input.component.enableTime) {
+      value = moment(value).format('YYYY-MM-DD[T]00:00:00[Z]');
+    }
+
+    return value;
+  }
+
+  static getData(recordId, inputs, ownerId) {
     if (!recordId) {
       return Promise.resolve({});
     }
@@ -458,9 +531,21 @@ export default class EcosFormUtils {
             } else if (recordData[att] !== null) {
               let input = inputByKey[att];
               if (input && input.dataType === 'json-record') {
-                submission[att] = EcosFormUtils.initJsonRecord(recordData[att]);
+                submission[att] = EcosFormUtils.initJsonRecord(recordData[att], ownerId);
+              } else if (input && input.dataType === 'json' && input.component && input.component.type === 'tableForm') {
+                submission[att] = EcosFormUtils.initJsonRecord(recordData[att], ownerId);
               } else if (input && input.component && input.component.type === 'file') {
                 submission[att] = EcosFormUtils.removeEmptyValuesFromArray(recordData[att]);
+              } else if (
+                input &&
+                input.component &&
+                input.component.type === 'datetime' &&
+                input.component.enableDate &&
+                !input.component.enableTime
+              ) {
+                const serverDate = new Date(recordData[att]);
+                serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
+                submission[att] = serverDate.toISOString();
               } else {
                 submission[att] = recordData[att];
               }
@@ -483,11 +568,11 @@ export default class EcosFormUtils {
     return data.filter(item => !isEmpty(item));
   }
 
-  static initJsonRecord(data) {
+  static initJsonRecord(data, ownerId) {
     if (Array.isArray(data)) {
       let result = [];
       for (let v of data) {
-        let record = this.initJsonRecord(v);
+        let record = this.initJsonRecord(v, ownerId);
         if (record) {
           result.push(record);
         }
@@ -503,23 +588,37 @@ export default class EcosFormUtils {
       }
     }
 
-    let id = data.nodeRef || data.id;
-
-    if (!id) {
-      return null;
-    }
-
+    let id;
     let attributes = {};
-    if (data.nodeRef) {
-      let dataAttributes = data.attributes || [];
-      for (let att of dataAttributes) {
-        attributes[att.name] = att.value;
+
+    if (data.attributes) {
+      id = data.nodeRef || data.id;
+
+      if (!id) {
+        return null;
       }
-    } else if (data.id && data.attributes) {
-      attributes = data.attributes;
+
+      if (data.nodeRef) {
+        let dataAttributes = data.attributes || [];
+        for (let att of dataAttributes) {
+          attributes[att.name] = att.value;
+        }
+      } else if (data.id && data.attributes) {
+        attributes = data.attributes;
+      }
+    } else {
+      id = uuidV4();
+
+      for (let att in data) {
+        if (data.hasOwnProperty(att)) {
+          let attKey = att === 'id' ? 'att_id' : att;
+          attributes[attKey] = data[att];
+        }
+      }
     }
 
-    let record = Records.get(id);
+    let record = Records.get(id, ownerId);
+
     for (let att in attributes) {
       if (attributes.hasOwnProperty(att)) {
         record.persistedAtt(att, attributes[att]);
@@ -530,10 +629,35 @@ export default class EcosFormUtils {
   }
 
   static saveFormBuilder(form, formId) {
-    const record = Records.get(formId);
+    let moduleId = formId.replace('uiserv/eform@', 'eapps/module@form$');
+    const record = Records.get(moduleId);
 
     record.att('definition?json', form);
 
     return record.save();
+  }
+
+  static isFormId(formId = '') {
+    return formId && /^uiserv\/eform@/.test(formId);
+  }
+
+  static getFormTitle(data) {
+    const displayName = data.displayName || '';
+    const formMode = data.formMode || FORM_MODE_EDIT;
+
+    const titleKey = 'eform.header.' + formMode + '.title';
+    const titleVal = t(titleKey);
+
+    const titles = [];
+
+    if (titleVal && titleVal !== titleKey) {
+      titles.push(titleVal);
+    }
+
+    if (displayName) {
+      titles.push(displayName);
+    }
+
+    return titles.join(' ');
   }
 }

@@ -1,6 +1,17 @@
-@import '../../../../../constants';
+@import '../../../../../styles/constants';
 
 .select-journal-view-mode__list {
   list-style: none;
   padding-left: 0;
+
+  &-value {
+    &_link {
+      cursor: pointer;
+      color: $text-link;
+
+      &:hover {
+        color: $text-link_hover;
+      }
+    }
+  }
 }

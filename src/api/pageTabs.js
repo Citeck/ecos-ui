@@ -1,47 +1,45 @@
-import * as ls from '../helpers/ls';
+import Records from '../components/Records';
 import { USER_GUEST } from '../constants';
-import { deepClone } from '../helpers/util';
-import { decodeLink } from '../helpers/urls';
+import * as storage from '../helpers/ls';
+import { isNewVersionPage } from '../helpers/urls';
+import { CommonApi } from './common';
 
-export class PageTabsApi {
-  _lsKey = ls.generateKey('page-tabs', true);
-  _newVersionKeyPath = '/user';
+export class PageTabsApi extends CommonApi {
+  #lsKey = storage.generateKey('page-tabs', true);
+  #newVersionKeyPath = '/v3/user-';
 
   get lsKey() {
-    return this._lsKey;
+    return this.#lsKey;
   }
 
   set lsKey(key) {
-    this._lsKey = key;
+    this.#lsKey = key;
   }
 
-  getAll = () => {
-    let tabs = [];
-
-    if (ls.hasData(this.lsKey, 'array')) {
-      tabs = ls.getData(this.lsKey);
-    }
-
-    return tabs;
-  };
-
-  checkOldVersion(userName) {
-    if (userName === USER_GUEST || this.lsKey.includes(this._newVersionKeyPath)) {
+  checkOldVersion = userName => {
+    if (userName === USER_GUEST || this.lsKey.includes(this.#newVersionKeyPath)) {
       return;
     }
 
     const currentVersion = this.lsKey;
-    const newVersionKey = `${this.lsKey}${this._newVersionKeyPath}-${userName}`;
+    const newVersionKey = `${this.lsKey}${this.#newVersionKeyPath}${userName}`;
 
-    ls.transferData(currentVersion, newVersionKey, true);
+    storage.transferData(currentVersion, newVersionKey, true);
     this.lsKey = newVersionKey;
-  }
+  };
 
-  set = tabs => {
-    const upTabs = deepClone(tabs);
+  getShowStatus = () => {
+    if (!isNewVersionPage()) {
+      return Promise.resolve(false);
+    }
 
-    upTabs.forEach(item => (item.link = decodeLink(item.link)));
-
-    ls.setData(this.lsKey, upTabs);
+    return Records.get('uiserv/config@tabs-enabled')
+      .load('value?bool')
+      .then(value => {
+        return value != null ? value : true;
+      })
+      .catch(() => {
+        return false;
+      });
   };
 }

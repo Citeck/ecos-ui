@@ -4,15 +4,17 @@ import {
   fetchSlideMenuItems,
   fetchSmallLogoSrc,
   getSiteDashboardEnable,
+  setInitExpandableItems,
   setIsReady,
   setLargeLogo,
   setSelectedId,
   setSiteDashboardEnable,
-  setSlideMenuExpandableItems,
   setSlideMenuItems,
-  setSmallLogo
+  setSmallLogo,
+  toggleIsOpen
 } from '../actions/slideMenu';
-import { fetchExpandableItems, selectedMenuItemIdKey } from '../helpers/slideMenu';
+import SidebarService from '../services/sidebar';
+import SidebarConverter from '../dto/sidebar';
 
 function* fetchSmallLogo({ api, fakeApi, logger }) {
   try {
@@ -37,19 +39,14 @@ function* fetchLargeLogo({ api, fakeApi, logger }) {
 function* fetchSlideMenu({ api, fakeApi, logger }) {
   try {
     const apiData = yield call(api.menu.getSlideMenuItems);
-    const menuItems = apiData.items;
-    // console.log('menuItems', menuItems);
+    const menuItems = SidebarConverter.getMenuListWeb(apiData.items);
+    const selectedId = SidebarService.getSelected();
+    const isOpen = SidebarService.getOpenState();
 
-    let selectedId = null;
-    if (sessionStorage && sessionStorage.getItem) {
-      selectedId = sessionStorage.getItem(selectedMenuItemIdKey);
-      yield put(setSelectedId(selectedId));
-    }
-
-    const expandableItems = fetchExpandableItems(menuItems, selectedId);
-
+    yield put(toggleIsOpen(isOpen));
+    yield put(setSelectedId(selectedId));
     yield put(setSlideMenuItems(menuItems));
-    yield put(setSlideMenuExpandableItems(expandableItems));
+    yield put(setInitExpandableItems());
     yield put(setIsReady(true));
   } catch (e) {
     logger.error('[fetchSlideMenu saga] error', e.message);
@@ -66,11 +63,29 @@ function* fetchSiteDashboardEnable({ api, logger }) {
   }
 }
 
+function fetchToggleMenu({ api, logger }, action) {
+  try {
+    SidebarService.setOpenState(action.payload);
+  } catch (e) {
+    logger.error('[fetchToggleMenu saga] error', e.message);
+  }
+}
+
+function fetchSelectedId({ api, logger }, action) {
+  try {
+    SidebarService.setSelected(action.payload);
+  } catch (e) {
+    logger.error('[fetchToggleMenu saga] error', e.message);
+  }
+}
+
 function* headerSaga(ea) {
   yield takeLatest(fetchSmallLogoSrc().type, fetchSmallLogo, ea);
   yield takeLatest(fetchLargeLogoSrc().type, fetchLargeLogo, ea);
   yield takeLatest(fetchSlideMenuItems().type, fetchSlideMenu, ea);
   yield takeLatest(getSiteDashboardEnable().type, fetchSiteDashboardEnable, ea);
+  yield takeLatest(toggleIsOpen().type, fetchToggleMenu, ea);
+  yield takeLatest(setSelectedId().type, fetchSelectedId, ea);
 }
 
 export default headerSaga;

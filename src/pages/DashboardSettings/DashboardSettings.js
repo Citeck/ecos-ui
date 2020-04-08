@@ -15,6 +15,7 @@ import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
 import { DashboardTypes, DeviceTabs, Layouts, MenuTypes } from '../../constants/dashboard';
 import { LAYOUT_TYPE } from '../../constants/layout';
 import DashboardService from '../../services/dashboard';
+import PageService from '../../services/PageService';
 import {
   getAwayFromPage,
   getCheckUpdatedDashboardConfig,
@@ -25,9 +26,9 @@ import {
 } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
 import { DndUtils } from '../../components/Drag-n-Drop';
-import { changeUrlLink } from '../../components/PageTabs/PageTabs';
 import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
+import { Checkbox } from '../../components/common/form';
 import { TunableDialog } from '../../components/common/dialogs';
 
 import SetBind from './SetBind';
@@ -235,7 +236,6 @@ class DashboardSettings extends React.Component {
 
   setStateMobileConfig(props) {
     const { mobileConfig } = props;
-
     let mobileActiveLayoutTabId = null;
     let mobileTabs = [];
     let mobileSelectedWidgets = {};
@@ -274,7 +274,7 @@ class DashboardSettings extends React.Component {
 
   setSelectedWidgets(item, availableWidgets) {
     const columns = item ? item.columns || [] : [];
-    const newWidgets = new Array(columns.length);
+    const newWidgets = new Array([].concat.apply([], columns).length);
 
     newWidgets.fill([]);
     newWidgets.forEach((value, index) => {
@@ -309,20 +309,11 @@ class DashboardSettings extends React.Component {
   }
 
   getUrlToDashboard() {
-    const { identification = {}, dashboardKeyItems = [] } = this.props;
-    const { selectedDashboardKey } = this.state;
     const { recordRef } = this.getPathInfo();
     const pathDashboardParams = {};
 
     if (recordRef) {
       pathDashboardParams.recordRef = recordRef;
-    }
-
-    const oldKeyI = dashboardKeyItems.findIndex(k => k.key === identification.key);
-    const newKeyI = dashboardKeyItems.findIndex(k => k.key === selectedDashboardKey);
-
-    if (oldKeyI <= newKeyI) {
-      pathDashboardParams.dashboardKey = selectedDashboardKey;
     }
 
     return URL.DASHBOARD + (isEmpty(pathDashboardParams) ? '' : `?${queryString.stringify(pathDashboardParams)}`);
@@ -473,6 +464,29 @@ class DashboardSettings extends React.Component {
     return <SetTabs tabs={currentTabs} activeTabKey={active} setData={setData} />;
   }
 
+  renderGeneralSettingsBlock() {
+    const {
+      userData: { isAdmin }
+    } = this.props;
+    const { isForAllUsers } = this.state;
+
+    if (!(this.isUserType && isAdmin)) {
+      return null;
+    }
+
+    const onChangeKeyForAllUser = field => {
+      this.setState({ isForAllUsers: field.checked });
+    };
+
+    return (
+      <div className="ecos-dashboard-settings__container-group">
+        <Checkbox checked={isForAllUsers} onChange={onChangeKeyForAllUser} className="ecos-dashboard-settings__all-users">
+          {t('dashboard-settings.for-all')}
+        </Checkbox>
+      </div>
+    );
+  }
+
   renderLayoutsBlock() {
     const setData = layout => {
       const { activeLayoutTabId, selectedWidgets, selectedLayout } = this.state;
@@ -580,17 +594,16 @@ class DashboardSettings extends React.Component {
     const urlGoTo = this.getUrlToDashboard();
 
     this.props.getAwayFromPage();
-
-    changeUrlLink(urlGoTo, { openNewTab: true, closeActiveTab: true });
+    PageService.changeUrlLink(urlGoTo, { openNewTab: true, closeActiveTab: true });
   };
 
   renderButtons() {
     return (
-      <div className={'ecos-dashboard-settings__actions'}>
-        <Btn className={'ecos-btn_x-step_10'} onClick={this.handleCloseSettings}>
+      <div className="ecos-dashboard-settings__actions">
+        <Btn className="ecos-btn_x-step_10" onClick={this.handleCloseSettings}>
           {t('dashboard-settings.button.cancel')}
         </Btn>
-        <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.handleCheckChanges}>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleCheckChanges}>
           {t('dashboard-settings.button.save')}
         </Btn>
       </div>
@@ -619,7 +632,7 @@ class DashboardSettings extends React.Component {
             <Btn key="handleCancel" onClick={handleCancel}>
               {t('dashboard-settings.cancel')}
             </Btn>,
-            <Btn key="handleReplace" onClick={handleReplace} className={'ecos-btn_blue'}>
+            <Btn key="handleReplace" onClick={handleReplace} className="ecos-btn_blue">
               {t('dashboard-settings.replace')}
             </Btn>
           ]}
@@ -649,6 +662,7 @@ class DashboardSettings extends React.Component {
         {this.renderDeviceTabsBlock()}
         {this.renderLayoutTabsBlock()}
         <div className="ecos-dashboard-settings__container">
+          {this.renderGeneralSettingsBlock()}
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
           {this.renderMenuBlock()}
@@ -660,7 +674,4 @@ class DashboardSettings extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DashboardSettings);
+export default connect(mapStateToProps, mapDispatchToProps)(DashboardSettings);

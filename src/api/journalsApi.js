@@ -1,11 +1,13 @@
-import { RecordService } from './recordService';
-import { PROXY_URI, MICRO_URI } from '../constants/alfresco';
+import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
+import { ActionModes, Permissions } from '../constants';
+import { debounce, queryByCriteria, t } from '../helpers/util';
+import * as ls from '../helpers/ls';
+import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
 import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
 import Records from '../components/Records';
-import { queryByCriteria, t, debounce } from '../helpers/util';
-import * as ls from '../helpers/ls';
+import RecordActions from '../components/Records/actions';
 import { DocPreviewApi } from './docPreview';
-import { PREDICATE_OR, COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS } from '../components/common/form/SelectJournal/predicates';
+import { RecordService } from './recordService';
 
 export class JournalsApi extends RecordService {
   lsJournalSettingIdsKey = ls.generateKey('journal-setting-ids', true);
@@ -51,7 +53,7 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId, recordRef }) => {
+  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId, recordRef, journalId, journalActions }) => {
     const query = {
       t: 'and',
       val: [
@@ -77,7 +79,7 @@ export class JournalsApi extends RecordService {
       });
     }
 
-    let bodyQery = {
+    let bodyQuery = {
       consistency: 'EVENTUAL',
       query: query,
       language: 'predicate',
@@ -87,7 +89,7 @@ export class JournalsApi extends RecordService {
     };
 
     if (sourceId) {
-      bodyQery.sourceId = sourceId;
+      bodyQuery.sourceId = sourceId;
     }
 
     const dataSource = new dataSourceStore['GqlDataSource']({
@@ -95,15 +97,22 @@ export class JournalsApi extends RecordService {
       dataSourceName: 'GqlDataSource',
       ajax: {
         body: {
-          query: bodyQery
+          query: bodyQuery
         }
       },
-      columns: columns || []
+      columns: columns || [],
+      permissions: [Permissions.Write]
     });
 
     return dataSource.load().then(function({ data, total }) {
       const columns = dataSource.getColumns();
-      return { data, total, columns };
+      const actionsContext = {
+        mode: ActionModes.JOURNAL,
+        scope: journalId,
+        actions: journalActions
+      };
+
+      return RecordActions.getActions(data, actionsContext).then(actions => ({ data, actions, total, columns }));
     });
   };
 
@@ -131,7 +140,8 @@ export class JournalsApi extends RecordService {
       query,
       language: 'predicate',
       page: pagination,
-      consistency: 'EVENTUAL'
+      consistency: 'EVENTUAL',
+      sortBy: [{ attribute: 'sys:node-dbid', ascending: true }]
     };
 
     if (sourceId) {
@@ -146,7 +156,8 @@ export class JournalsApi extends RecordService {
           query: bodyQuery
         }
       },
-      columns: columns || []
+      columns: columns || [],
+      permissions: [Permissions.Write]
     });
 
     return dataSource.load().then(function({ data, total }) {
@@ -302,8 +313,40 @@ export class JournalsApi extends RecordService {
   };
 
   createZip = selected => {
-    return this.postJson(`${PROXY_URI}api/internal/downloads`, selected.map(s => ({ nodeRef: s })))
+    return this.postJson(
+      `${PROXY_URI}api/internal/downloads`,
+      selected.map(s => ({ nodeRef: s }))
+    )
       .then(resp => this.getStatus(resp.nodeRef))
+      .catch(() => null);
+  };
+
+  /**
+   * Check line edit permissions
+   * true - we can edit, false - we can’t edit
+   *
+   * @param recordRef
+   * @returns {*}
+   */
+  checkRowEditRules = recordRef => {
+    return Records.get(recordRef)
+      .load('.att(n:"permissions"){has(n:"Write")}')
+      .then(response => response)
+      .catch(() => null);
+  };
+
+  /**
+   * Check if the cell is protected from editing or not
+   * true - we can’t edit the cell, false - we can edit the cell
+   *
+   * @param recordRef
+   * @param cell
+   * @returns {*}
+   */
+  checkCellProtectedFromEditing = (recordRef, cell) => {
+    return Records.get(recordRef)
+      .load(`#${cell}?protected`)
+      .then(response => response)
       .catch(() => null);
   };
 }

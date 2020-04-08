@@ -13,11 +13,20 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     return <AssocEditor {...editorProps} value={value} column={column} />;
   }
 
-  value(cell) {
-    if (typeof cell === 'string') {
-      return cell;
+  static async getDisplayName(item) {
+    if (isNodeRef(item)) {
+      return Records.get(item).load('.disp');
     }
-    return cell.disp || '';
+
+    if (typeof item === 'string') {
+      return Promise.resolve(item);
+    }
+
+    if (item && item.disp) {
+      return Promise.resolve(item.disp);
+    }
+
+    return Promise.resolve('');
   }
 
   getId(cell) {
@@ -31,13 +40,13 @@ export default class AssocFormatter extends DefaultGqlFormatter {
   componentDidMount() {
     let cell = this.props.cell;
 
-    if (isNodeRef(cell)) {
-      Records.get(cell)
-        .load('.disp')
+    if (Array.isArray(cell)) {
+      return Promise.all(cell.map(AssocFormatter.getDisplayName))
+        .then(results => results.join(', '))
         .then(displayName => this.setState({ displayName }));
-    } else {
-      this.setState({ displayName: this.value(cell || {}) });
     }
+
+    AssocFormatter.getDisplayName(cell).then(displayName => this.setState({ displayName }));
   }
 
   render() {

@@ -712,7 +712,6 @@ export default class SelectComponent extends BaseComponent {
       position: this.component.dropdown || 'auto',
       searchEnabled: useSearch,
       searchChoices: !this.component.searchField,
-      searchFields: _.get(this, 'component.searchFields', ['label']),
       fuseOptions: Object.assign(
         {
           include: 'score',
@@ -1078,12 +1077,13 @@ export default class SelectComponent extends BaseComponent {
   }
 
   destroy() {
-    super.destroy();
     if (this.choices) {
       this.choices.destroyed = true;
       this.choices.destroy();
       this.choices = null;
     }
+
+    return super.destroy();
   }
 
   focus() {
@@ -1093,16 +1093,19 @@ export default class SelectComponent extends BaseComponent {
   attachRefreshEvent(refreshData) {
     this.on(
       'change',
-      event => {
+      () => {
         if (refreshData === 'data') {
           this.refresh(this.data, refreshData);
-        } else if (
-          event.changed &&
-          event.changed.component &&
-          event.changed.component.key === refreshData &&
-          this.inContext(event.changed.instance)
-        ) {
-          this.refresh(event.changed.value, refreshData); // Cause https://citeck.atlassian.net/browse/ECOSCOM-2465
+        }
+      },
+      true
+    );
+
+    this.on(
+      'componentChange',
+      event => {
+        if (refreshData !== 'data' && event && event.component && event.component.key === refreshData && this.inContext(event.instance)) {
+          this.refresh(event.value, refreshData); // Cause https://citeck.atlassian.net/browse/ECOSCOM-2465
         }
       },
       true

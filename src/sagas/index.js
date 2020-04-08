@@ -3,7 +3,6 @@ import app from './app';
 import bpmn from './bpmn';
 import header from './header';
 import slideMenu from './slideMenu';
-import user from './user';
 import journals from './journals';
 import pageTabs from './pageTabs';
 import tasks from './tasks';
@@ -22,6 +21,12 @@ import timesheetMine from './timesheet/mine';
 import timesheetVerification from './timesheet/verification';
 import timesheetDelegated from './timesheet/delegated';
 import timesheetCommon from './timesheet/common';
+import view from './view';
+import webPage from './webPage';
+import birthdays from './birthdays';
+import barcode from './barcode';
+import properties from './properties';
+import documents from './documents';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -29,7 +34,6 @@ export default function* rootSaga(extraArguments) {
     bpmn(extraArguments),
     header(extraArguments),
     slideMenu(extraArguments),
-    user(extraArguments),
     journals(extraArguments),
     pageTabs(extraArguments),
     tasks(extraArguments),
@@ -47,6 +51,12 @@ export default function* rootSaga(extraArguments) {
     timesheetMine(extraArguments),
     timesheetVerification(extraArguments),
     timesheetDelegated(extraArguments),
-    timesheetCommon(extraArguments)
+    timesheetCommon(extraArguments),
+    view(extraArguments),
+    webPage(extraArguments),
+    birthdays(extraArguments),
+    barcode(extraArguments),
+    properties(extraArguments),
+    documents(extraArguments)
   ]);
 }

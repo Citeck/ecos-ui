@@ -10,7 +10,7 @@ import './SelectModal.scss';
 
 const SelectModal = () => {
   const context = useContext(SelectOrgstructContext);
-  const { isSelectModalOpen, toggleSelectModal, onCancelSelect, onSelect, modalTitle, withoutTabs } = context;
+  const { isSelectModalOpen, toggleSelectModal, onCancelSelect, onSelect, modalTitle, hideTabSwitcher } = context;
 
   return (
     <EcosModal
@@ -21,14 +21,16 @@ const SelectModal = () => {
     >
       <div className={'select-orgstruct-control-panel'}>
         <Search />
-        {!withoutTabs && <Tabs />}
+        {!hideTabSwitcher && <Tabs />}
       </div>
 
       <Body />
 
       <div className="select-orgstruct-select-modal__buttons">
-        <Btn onClick={onCancelSelect}>{t('select-orgstruct.select-modal.cancel-button')}</Btn>
-        <Btn onClick={onSelect} className={'ecos-btn_blue'}>
+        <Btn onClick={onCancelSelect} className={'select-orgstruct-select-modal__buttons-cancel'}>
+          {t('select-orgstruct.select-modal.cancel-button')}
+        </Btn>
+        <Btn onClick={onSelect} className={'ecos-btn_blue select-orgstruct-select-modal__buttons-ok'}>
           {t('select-orgstruct.select-modal.ok-button')}
         </Btn>
       </div>

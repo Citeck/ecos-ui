@@ -5,7 +5,7 @@ import EcosModal from '../common/EcosModal';
 import { isMobileDevice, t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import CommonTimesheetService from '../../services/timesheet/common';
-import { EventsHistory } from '../EventsHistory';
+import { EventsHistory } from '../widgets/EventsHistory';
 
 import './style.scss';
 

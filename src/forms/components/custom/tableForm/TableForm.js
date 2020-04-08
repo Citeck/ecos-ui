@@ -1,6 +1,9 @@
 import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
 import lodashGet from 'lodash/get';
+import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
+import Records from '../../../../components/Records';
+import _ from 'lodash';
 
 export default class TableFormComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -22,7 +25,16 @@ export default class TableFormComponent extends BaseReactComponent {
             record: null,
             attribute: null
           }
-        }
+        },
+        computed: {
+          valueFormKey: null
+        },
+        customCreateVariantsJs: '',
+        isStaticModalTitle: false,
+        customStringForConcatWithStaticTitle: '',
+        isSelectableRows: false,
+        displayElementsJS: '',
+        nonSelectableRowsJS: ''
       },
       ...extend
     );
@@ -42,11 +54,41 @@ export default class TableFormComponent extends BaseReactComponent {
     return TableFormComponent.schema();
   }
 
+  build() {
+    super.build();
+
+    this._selectedRows = [];
+  }
+
+  checkConditions(data) {
+    let result = super.checkConditions(data);
+
+    if (this.component.displayElementsJS) {
+      let displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
+      if (!_.isEqual(displayElements, this.displayElementsValue)) {
+        this.displayElementsValue = displayElements;
+        this.setReactProps({
+          displayElements
+        });
+      }
+    }
+
+    if (this.component.nonSelectableRowsJS) {
+      let nonSelectableRows = this.evaluate(this.component.nonSelectableRowsJS, {}, 'value', true);
+      if (!_.isEqual(nonSelectableRows, this.nonSelectableRows)) {
+        this.nonSelectableRows = nonSelectableRows;
+        this.setReactProps({
+          nonSelectableRows
+        });
+      }
+    }
+
+    return result;
+  }
+
   get emptyValue() {
     return [];
   }
-
-  viewOnlyBuild() {} // hide control for viewOnly mode
 
   getComponentToRender() {
     return TableForm;
@@ -57,6 +99,71 @@ export default class TableFormComponent extends BaseReactComponent {
       defaultValue: value
     });
   }
+
+  getValueFormKey(value) {
+    let formKeyJs = _.get(this.component, 'computed.valueFormKey', null);
+
+    if (formKeyJs) {
+      let model = { _ };
+
+      let recordsOwnerId;
+
+      if (_.isString(value)) {
+        recordsOwnerId = 'owner-' + this.component.id + '-' + this.component.key;
+        let recordId = value[0] === '{' ? EcosFormUtils.initJsonRecord(value, this.id, recordsOwnerId) : value;
+        model.record = Records.get(recordId);
+      } else {
+        model.record = value;
+      }
+
+      try {
+        return this.evaluate(formKeyJs, model, 'value', true);
+      } finally {
+        Records.releaseAll(recordsOwnerId);
+      }
+    } else {
+      return null;
+    }
+  }
+
+  viewOnlyBuild() {
+    super.viewOnlyBuild();
+    this.refreshElementHasValueClasses();
+  }
+
+  updateValue(flags, value) {
+    const changed = super.updateValue(flags, value);
+
+    this.refreshElementHasValueClasses();
+
+    return changed;
+  }
+
+  refreshElementHasValueClasses() {
+    if (!this.element) {
+      return;
+    }
+
+    const isMultiple = this.component.multiple;
+
+    const viewOnlyHasValueClassName = 'formio-component-tableForm_viewOnly-hasValue';
+    const hasValue = isMultiple ? Array.isArray(this.dataValue) && this.dataValue.length > 0 : !!this.dataValue;
+    const elementHasClass = this.element.classList.contains(viewOnlyHasValueClassName);
+
+    if (!hasValue && elementHasClass) {
+      this.element.classList.remove(viewOnlyHasValueClassName);
+    } else if (hasValue && !elementHasClass) {
+      this.element.classList.add(viewOnlyHasValueClassName);
+    }
+  }
+
+  _setSelectedRows = selected => {
+    this._selectedRows = selected;
+  };
+
+  getSelectedRows = () => {
+    return this._selectedRows;
+  };
 
   getInitialReactProps() {
     const component = this.component;
@@ -82,13 +189,20 @@ export default class TableFormComponent extends BaseReactComponent {
         multiple: component.multiple,
         placeholder: component.placeholder,
         disabled: component.disabled,
+        isStaticModalTitle: component.isStaticModalTitle,
+        customStringForConcatWithStaticTitle: this.t(component.customStringForConcatWithStaticTitle),
         source: source,
         onChange: this.onReactValueChanged,
+        isSelectableRows: component.isSelectableRows,
+        onSelectRows: this._setSelectedRows,
         viewOnly: this.viewOnly,
         parentForm: this.root,
         triggerEventOnTableChange,
         onError: err => {
           // this.setCustomValidity(err, false);
+        },
+        computed: {
+          valueFormKey: value => this.getValueFormKey(value)
         }
       };
     };
@@ -117,15 +231,44 @@ export default class TableFormComponent extends BaseReactComponent {
           return resolveProps(source);
         }
       case 'custom':
-        return resolveProps({
-          ...source,
-          custom: {
-            ...source.custom,
-            record: this.getRecord(),
-            attribute: this.getAttributeToEdit(),
-            columns: source.custom.columns.map(item => item.name || item)
+        let resolve = createVariants => {
+          return resolveProps({
+            ...source,
+            custom: {
+              ...source.custom,
+              createVariants,
+              record: this.getRecord(),
+              attribute: this.getAttributeToEdit(),
+              columns: source.custom.columns.map(item => {
+                const col = { name: item.name };
+                if (item.formatter) {
+                  col.formatter = this.evaluate(item.formatter, {}, 'value', true);
+                }
+                return col;
+              })
+            }
+          });
+        };
+
+        let createVariants = null;
+        if (component.customCreateVariantsJs) {
+          try {
+            createVariants = this.evaluate(component.customCreateVariantsJs, {}, 'value', true);
+          } catch (e) {
+            console.error(e);
           }
-        });
+        } else if (source.custom.createVariants) {
+          createVariants = source.custom.createVariants;
+        }
+
+        if (createVariants && createVariants.then) {
+          return createVariants.then(resolve).catch(e => {
+            console.error(e);
+            resolve(null);
+          });
+        } else {
+          return resolve(createVariants);
+        }
       default:
         return resolveProps(null);
     }

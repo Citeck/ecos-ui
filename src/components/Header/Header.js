@@ -1,38 +1,34 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
+import { MENU_TYPE } from '../../constants';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
+
+import SlideMenuBtn from './SlideMenuBtn';
 import CreateMenu from './CreateMenu';
-import HamburgerIcon from './HamburgerIcon';
 import UserMenu from './UserMenu';
 import SiteMenu from './SiteMenu';
 import Search from './Search';
 import LanguageSwitcher from './LanguageSwitcher';
-import { MENU_TYPE } from '../../constants';
 
 import './style.scss';
 
 const mapDispatchToProps = dispatch => ({
-  fetchCreateCaseWidgetData: () => {
-    dispatch(fetchCreateCaseWidgetData());
-  },
-  fetchUserMenuData: () => {
-    dispatch(fetchUserMenuData());
-  },
-  fetchSiteMenuData: () => {
-    dispatch(fetchSiteMenuData());
-  }
+  fetchCreateCaseWidgetData: () => dispatch(fetchCreateCaseWidgetData()),
+  fetchUserMenuData: () => dispatch(fetchUserMenuData()),
+  fetchSiteMenuData: () => dispatch(fetchSiteMenuData())
 });
 
 const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
-  menuType: state.menu.type
+  theme: state.view.theme,
+  menuType: state.menu ? state.menu.type : ''
 });
 
 class Header extends React.Component {
-  className = 'ecos-header';
-
   state = {
     widthHeader: 0
   };
@@ -52,29 +48,25 @@ class Header extends React.Component {
   }
 
   onResize = width => {
-    const widthHeader = width >= 550 ? width + this.menuWidth : width;
-
-    this.setState({ widthHeader });
+    this.setState({ widthHeader: width });
   };
 
   render() {
     const { widthHeader } = this.state;
-    const { isMobile } = this.props;
-    const classNameContainer = classNames(this.className, { [`${this.className}_small`]: isMobile });
-    const classNameSide = `${this.className}__side`;
+    const { isMobile, hideSiteMenu, theme } = this.props;
 
     return (
       <React.Fragment>
-        <ReactResizeDetector handleWidth handleHeight onResize={this.onResize} />
-        <div className={classNameContainer}>
-          <div className={`${classNameSide} ${classNameSide}_left`}>
-            <HamburgerIcon />
+        <ReactResizeDetector handleWidth handleHeight onResize={debounce(this.onResize, 400)} />
+        <div className={classNames('ecos-header', `ecos-header_theme_${theme}`, { 'ecos-header_small': isMobile })}>
+          <div className="ecos-header__side ecos-header__side_left">
+            <SlideMenuBtn />
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
-          <div className={`${classNameSide} ${classNameSide}_right`}>
+          <div className="ecos-header__side ecos-header__side_right">
             <Search isMobile={widthHeader <= 600} />
-            {isMobile || (widthHeader > 600 && <SiteMenu />)}
-            {isMobile || (widthHeader > 600 && <LanguageSwitcher />)}
+            {hideSiteMenu || isMobile || (widthHeader > 600 && <SiteMenu />)}
+            {isMobile || (widthHeader > 600 && <LanguageSwitcher theme={theme} />)}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
           </div>
         </div>
@@ -83,7 +75,8 @@ class Header extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Header);
+Header.propTypes = {
+  hideSiteMenu: PropTypes.bool
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

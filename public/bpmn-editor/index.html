@@ -31,6 +31,7 @@
     <!-- build:css styles/3thparty.css -->
     <link rel="stylesheet" href="libs/bootstrap_3.1.1/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="libs/bootstrap-tour_0.9.1/bootstrap-tour.min.css"/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="libs/angular-spectrum-colorpicker_1.0.13/spectrum.css"/>
     <!-- endbuild -->
 
@@ -45,86 +46,87 @@
 
 </head>
 <body ng-app="flowableModeler" ng-cloak id="Share" class="alfresco-share claro">
-<div id="page-content-root">
+<div class="page-content-root">
   <div class="sticky-wrapper" >
     <div id="alf-hd">
       <div id="share-header"></div>
-      <div id="slide-menu"></div>
     </div>
-    <div>
+    <div class="ecos-base-page">
+      <div id="slide-menu"></div>
+      <div class="ecos-main-area">
+        <div class="navbar navbar-inverse" role="navigation" id="main-header" ng-show="showNav">
+          <div class="fixed-container">
+            <div class="navbar-header">
+              <!--<a ng-click="backToLanding()" class="landing-logo" ng-if="account != null && account != undefined" title="{{'GENERAL.MAIN-TITLE' | translate}}">-->
+                <!--<img ng-src="{{appResourceRoot}}images/flowable-logo.png" ng-srcset="{{appResourceRoot}}images/flowable-logo.png 1x, {{appResourceRoot}}images/flowable-logo@2x.png 2x">-->
+              <!--</a>-->
+              <ul class="nav navbar-nav" id="main-nav">
+                <li ng-class="{'active' : item.id == mainPage.id}" ng-repeat="item in $root.mainNavigation">
+                  <a ng-click="setMainPage(item)">{{item.title | translate}}</a>
+                </li>
+              </ul>
+            </div>
+            <!--<div class="pull-right {{currentAppDefinition.definition.theme}}"-->
+                 <!--ng-class="{'app-indicator': currentAppDefinition}" ng-if="authenticated" ng-cloack>-->
+                  <!--<span ng-if="currentAppDefinition.definition.theme">-->
+                      <!--{{currentAppDefinition.name}}-->
+                  <!--</span>-->
+              <!--<i class="glyphicon {{currentAppDefinition.definition.icon}}"></i>-->
 
-      <div class="navbar navbar-inverse" role="navigation" id="main-header" ng-show="showNav">
-        <div class="fixed-container">
-          <div class="navbar-header">
-            <!--<a ng-click="backToLanding()" class="landing-logo" ng-if="account != null && account != undefined" title="{{'GENERAL.MAIN-TITLE' | translate}}">-->
-              <!--<img ng-src="{{appResourceRoot}}images/flowable-logo.png" ng-srcset="{{appResourceRoot}}images/flowable-logo.png 1x, {{appResourceRoot}}images/flowable-logo@2x.png 2x">-->
-            <!--</a>-->
-            <ul class="nav navbar-nav" id="main-nav">
-              <li ng-class="{'active' : item.id == mainPage.id}" ng-repeat="item in $root.mainNavigation">
-                <a ng-click="setMainPage(item)">{{item.title | translate}}</a>
-              </li>
-            </ul>
-          </div>
-          <!--<div class="pull-right {{currentAppDefinition.definition.theme}}"-->
-               <!--ng-class="{'app-indicator': currentAppDefinition}" ng-if="authenticated" ng-cloack>-->
-                <!--<span ng-if="currentAppDefinition.definition.theme">-->
-                    <!--{{currentAppDefinition.name}}-->
-                <!--</span>-->
-            <!--<i class="glyphicon {{currentAppDefinition.definition.icon}}"></i>-->
-
-            <!--<div class="dropdown btn-group btn-group-sm" activiti-fix-dropdown-bug>-->
-              <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">-->
-                <!--{{account.firstName && account.firstName != 'null' ? account.firstName : ''}} {{account.lastName && account.lastName != 'null' ? account.lastName : ''}}-->
-                <!--<span class="glyphicon glyphicon-chevron-down" style="font-size: 10px" aria-hidden="true"></span>-->
-              <!--</button>-->
-              <!--<ul class="dropdown-menu pull-right">-->
-                <!--<li><a href="" ng-click="logout()" translate>GENERAL.ACTION.LOGOUT</a></li>-->
-              <!--</ul>-->
+              <!--<div class="dropdown btn-group btn-group-sm" activiti-fix-dropdown-bug>-->
+                <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">-->
+                  <!--{{account.firstName && account.firstName != 'null' ? account.firstName : ''}} {{account.lastName && account.lastName != 'null' ? account.lastName : ''}}-->
+                  <!--<span class="glyphicon glyphicon-chevron-down" style="font-size: 10px" aria-hidden="true"></span>-->
+                <!--</button>-->
+                <!--<ul class="dropdown-menu pull-right">-->
+                  <!--<li><a href="" ng-click="logout()" translate>GENERAL.ACTION.LOGOUT</a></li>-->
+                <!--</ul>-->
+              <!--</div>-->
             <!--</div>-->
-          <!--</div>-->
-        </div>
-      </div>
-
-      <!--[if lt IE 9]>
-      <div class="unsupported-browser">
-        <p class="alert error">You are using an unsupported browser. Please upgrade your browser in order to use the
-          editor.</p>
-      </div>
-      <![endif]-->
-      <!--[if IE 9]>
-      <div id="no-flash-message" class="unsupported-browser" style="display: none">
-        <p class="alert error">No Adobe Flash installed. Please install Adobe Flash in order to use the file upload capabilities on this version of Internet Explorer.</p>
-      </div>
-      <script>
-        var hasFlash = false;
-        try {
-          hasFlash = Boolean(new ActiveXObject('ShockwaveFlash.ShockwaveFlash'));
-        } catch(exception) {
-          hasFlash = ('undefined' != typeof navigator.mimeTypes['application/x-shockwave-flash']);
-        }
-        if (!hasFlash) {
-          var showNoFlashMessage = function () {
-            var element = document.getElementById('no-flash-message');
-            element.style.display="block";
-          };
-          showNoFlashMessage();
-        }
-      </script>
-      <![endif]-->
-
-      <div class="alert-wrapper" ng-cloak>
-        <div class="alert fadein {{alerts.current.type}}" ng-show="alerts.current" ng-click="dismissAlert()">
-          <i class="glyphicon"
-             ng-class="{'glyphicon-ok': alerts.current.type == 'info', 'glyphicon-remove': alerts.current.type == 'error'}"></i>
-          <span>{{alerts.current.message}}</span>
-
-          <div class="pull-right" ng-show="alerts.queue.length > 0">
-            <span class="badge">{{alerts.queue.length + 1}}</span>
           </div>
         </div>
-      </div>
 
-      <div id="main" class="wrapper full clearfix" ng-view="" ng-cloak ng-style="{height: (window.height - 42) + 'px'}"></div>
+        <!--[if lt IE 9]>
+        <div class="unsupported-browser">
+          <p class="alert error">You are using an unsupported browser. Please upgrade your browser in order to use the
+            editor.</p>
+        </div>
+        <![endif]-->
+        <!--[if IE 9]>
+        <div id="no-flash-message" class="unsupported-browser" style="display: none">
+          <p class="alert error">No Adobe Flash installed. Please install Adobe Flash in order to use the file upload capabilities on this version of Internet Explorer.</p>
+        </div>
+        <script>
+          var hasFlash = false;
+          try {
+            hasFlash = Boolean(new ActiveXObject('ShockwaveFlash.ShockwaveFlash'));
+          } catch(exception) {
+            hasFlash = ('undefined' != typeof navigator.mimeTypes['application/x-shockwave-flash']);
+          }
+          if (!hasFlash) {
+            var showNoFlashMessage = function () {
+              var element = document.getElementById('no-flash-message');
+              element.style.display="block";
+            };
+            showNoFlashMessage();
+          }
+        </script>
+        <![endif]-->
+
+        <div class="alert-wrapper" ng-cloak>
+          <div class="alert fadein {{alerts.current.type}}" ng-show="alerts.current" ng-click="dismissAlert()">
+            <i class="glyphicon"
+               ng-class="{'glyphicon-ok': alerts.current.type == 'info', 'glyphicon-remove': alerts.current.type == 'error'}"></i>
+            <span>{{alerts.current.message}}</span>
+
+            <div class="pull-right" ng-show="alerts.queue.length > 0">
+              <span class="badge">{{alerts.queue.length + 1}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="main" class="wrapper full clearfix" ng-view="" ng-cloak ng-style="{height: (window.height - 62) + 'px'}"></div>
+      </div>
     </div>
 
     <!--<div class="sticky-push"></div>-->
@@ -287,123 +289,51 @@
 <script src="scripts/resource-loader.js?v=2" app="editor"></script>
 
 <!-- Share header and slide menu -->
-<script type="text/javascript" src="/share/service/surf/dojo/bootstrap.js?{ASSETS_CACHE}"></script>
+<script type="text/javascript" src="scripts/dojo-bootstrap.js"></script>
+<script type="text/javascript" src="libs/dojo.js"></script>
+
+<script src="scripts/helpers.js"></script>
+
 <script type="text/javascript">
-  if (window.dojoConfig) {
-    window.dojoConfig.cacheBust = "{ASSETS_CACHE}";
+  window.BPMN_DESIGNER_CONTEXT = '/v2/bpmn-designer';
+  window.CARD_DETAILS_CONTEXT = '/share/page/card-details?nodeRef=workspace://SpacesStore/';
+
+  function redirectToBPMNDesignerPage() {
+    window.location.href = window.BPMN_DESIGNER_CONTEXT;
   }
-</script>
-<script type="text/javascript" src="/share/res/js/lib/dojo-1.10.4/dojo/dojo.js?{ASSETS_CACHE}"></script>
-<script type="text/javascript" src="/share/res/js/yui-common.js?{ASSETS_CACHE}"></script>
 
-<script src="scripts/helpers.js?{ASSETS_CACHE}"></script>
+  fetch('/share/service/modules/authenticated?noCache=${new Date().getTime()}&a=user', {
+    credentials: 'include'
+  }).then(function (response) {
+    if (response.status !== 200) {
+      redirectToBPMNDesignerPage();
+    }
 
-
-<script type="text/javascript">
-  Citeck.helpers.dynamicallyLoadScript('/share/service/messages.js?locale=' + Citeck.helpers.getCurrentLocale() + '&v=' + window.dojoConfig.cacheBust, function() {
-    Citeck.helpers.dynamicallyLoadScript('/share/res/js/alfresco.js?' + window.dojoConfig.cacheBust, function() {
-      window.Alfresco.constants.PROXY_URI = '/share/proxy/alfresco/';
-      window.Alfresco.constants.URL_SERVICECONTEXT = '/share/service/';
-      window.Alfresco.constants.URL_CONTEXT = '/share/';
-      window.BPMN_DESIGNER_CONTEXT = '/v2/bpmn-designer';
-      window.CARD_DETAILS_CONTEXT = '/share/page/card-details?nodeRef=workspace://SpacesStore/';
-
-      Citeck.helpers.dynamicallyLoadScript('/share/res/lib/underscore.js?' + window.dojoConfig.cacheBust, function() {
-        fetch(Alfresco.constants.URL_CONTEXT +  'service/modules/authenticated?noCache=${new Date().getTime()}&a=user', {
-          credentials: 'include'
-        }).then(function (response) {
-          if (response.status !== 200) {
-            window.location.href = window.BPMN_DESIGNER_CONTEXT;
-          }
+    require(['ecosui!header'], function(Header) {
+      Header.render('share-header', {
+        hideSiteMenu: true
+      }, () => {
+        require([
+          'ecosui!slide-menu-next'
+        ], function(SlideMenu) {
+          SlideMenu.render('slide-menu');
         });
-
-        window.Citeck.helpers.getCurrentThemeName().then(themeName => {
-          document.body.classList.add(`yui-skin-${themeName}`);
-
-          let skinCss = `/share/res/themes/${themeName}/yui/assets/skin.css`;
-          if (themeName === 'default') {
-            skinCss = `/share/res/yui/assets/skins/default/skin.css`;
-          }
-
-          window.require([
-            `xstyle!${skinCss}`,
-            `xstyle!/share/res/themes/${themeName}/presentation.css`,
-            'xstyle!/share/res/css/yui-fonts-grids.css',
-            'xstyle!/share/res/yui/columnbrowser/assets/columnbrowser.css',
-            'xstyle!/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css',
-            'xstyle!/share/res/css/base.css',
-            'xstyle!/share/res/js/citeck/modules/utils/citeck.css',
-            'xstyle!/share/res/css/yui-layout.css',
-            'xstyle!/share/res/modules/create-site.css',
-            'xstyle!/share/res/components/form/form.css',
-            'xstyle!/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro.css'
-          ]);
-
-          require([
-            'js/citeck/modules/header/index'
-          ], function(ShareHeader) {
-            const fetchUserPromise = fetch('/share/proxy/alfresco/citeck/ecos/records/query', {
-              credentials: 'include',
-              method: 'post',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                query: { sourceId: 'people' },
-                attributes: {
-                  userName: 'userName',
-                  isAvailable: 'isAvailable',
-                  isMutable: 'isMutable',
-                  fullName: 'fullName',
-                  uid: 'cm:name',
-                }
-              })
-            }).then(Citeck.helpers.checkStatus).then(Citeck.helpers.parseJSON).then(json => json.records[0].attributes);
-
-            const fetchIsCascadeMenuPromise = fetch('/share/proxy/alfresco/citeck/ecosConfig/ecos-config-value?configName=default-ui-create-menu', {
-              credentials: 'include'
-            })
-              .then(Citeck.helpers.checkStatus)
-              .then(Citeck.helpers.parseJSON)
-              .then(json => json.value === "cascad");
-
-            Promise.all([
-              fetchUserPromise,
-              fetchIsCascadeMenuPromise,
-            ]).then(([ user, isCascadeMenu ]) => {
-              ShareHeader.render('share-header', {
-                userName: user.userName,
-                userFullname: user.fullName,
-                userNodeRef: "workspace://SpacesStore/" + user.uid,
-                userIsAvailable: user.isAvailable,
-                userIsMutable: user.isMutable,
-                isExternalAuthentication: "false", // TODO
-                siteMenuItems: [],
-                isCascadeCreateMenu: isCascadeMenu ? "true" : "false"
-              });
-            });
-          });
-
-          require([
-            'js/citeck/modules/slide-menu/slide-menu'
-          ], function(SlideMenu) {
-            SlideMenu.render('slide-menu', {
-              slideMenuConfig: {
-                id: "HEADER_SLIDE_MENU",
-                logoSrc: '/share/res/themes/' + themeName + '/images/app-logo-48.png',
-                logoSrcMobile: '/share/res/themes/' + themeName + '/images/app-logo-mobile.png'
-              },
-            });
-          });
-
-        }).catch(e => {
-          console.log('getCurrentThemeName error: ', e);
-        });
-
       });
     });
-  });
 
+    require(['ecosui!idle-timer'], function(IdleTimer) {
+      const idleTimer = new IdleTimer.default();
+      idleTimer
+        .setCheckInterval(60000)
+        .setIdleTimeout(60000 * 60 * 3)
+        .setNoIdleCallback(() => {
+          fetch('/share/proxy/alfresco/citeck/ecos/touch', { credentials: 'include' });
+        })
+        .run();
+    });
+  }).catch(() => {
+    redirectToBPMNDesignerPage();
+  });
 </script>
 
 </div>

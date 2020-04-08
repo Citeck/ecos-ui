@@ -3,116 +3,18 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import ReactResizeDetector from 'react-resize-detector';
+import debounce from 'lodash/debounce';
 import get from 'lodash/get';
+import uniqueId from 'lodash/uniqueId';
 
+import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 import Panel from '../common/panels/Panel/Panel';
 import Measurer from '../Measurer/Measurer';
-import { Btn, IcoBtn } from '../common/btns';
-import { Badge } from '../common/form';
-import { Icon, ResizableBox } from '../common';
-import { t } from '../../helpers/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
+import { Btn } from '../common/btns';
+import { ResizableBox } from '../common';
+import Header from './Header';
 
 import './Dashlet.scss';
-
-const Header = ({
-  dragHandleProps,
-  title,
-  needGoTo,
-  onGoTo,
-  onReload,
-  onEdit,
-  onToggleCollapse,
-  actionReload,
-  actionEdit,
-  actionHelp,
-  actionDrag,
-  measurer,
-  actionEditTitle,
-  customButtons,
-  titleClassName,
-  isMobile,
-  badgeText
-}) => {
-  const btnGoTo = isMobile ? null : (
-    <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
-      {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
-    </IcoBtn>
-  );
-  const actions = [...customButtons];
-  let toggleIcon = null;
-  let dragBtn = null;
-
-  if (actionReload) {
-    actions.push(
-      <IcoBtn
-        key="action-reload"
-        icon={'icon-reload'}
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-        onClick={onReload}
-        title={t('dashlet.update.title')}
-      />
-    );
-  }
-
-  if (actionEdit) {
-    actions.push(
-      <IcoBtn
-        key="action-edit"
-        icon={'icon-edit'}
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-        onClick={onEdit}
-        title={actionEditTitle || t('dashlet.edit.title')}
-      />
-    );
-  }
-
-  if (actionHelp) {
-    actions.push(
-      <IcoBtn
-        key="action-help"
-        icon={'icon-question'}
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-        title={t('dashlet.help.title')}
-      />
-    );
-  }
-
-  if (actionDrag) {
-    dragBtn = (
-      <span className="dashlet__btn_move-wrapper" {...dragHandleProps}>
-        <IcoBtn
-          key="action-drag"
-          icon={'icon-drag'}
-          className="ecos-btn_i dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1"
-          title={t('dashlet.move.title')}
-        />
-      </span>
-    );
-  }
-
-  if (isMobile) {
-    toggleIcon = <Icon className="dashlet__header-collapser icon-down" />;
-  }
-
-  return (
-    <div className="dashlet__header" onClick={onToggleCollapse}>
-      <span className={classNames('dashlet__caption', titleClassName)}>
-        {toggleIcon}
-        {title}
-      </span>
-
-      <Badge text={badgeText} />
-
-      {needGoTo && btnGoTo}
-
-      <div className="dashlet__header-actions">
-        {!isMobile && actions}
-        {dragBtn}
-      </div>
-    </div>
-  );
-};
 
 class Dashlet extends Component {
   static propTypes = {
@@ -120,14 +22,10 @@ class Dashlet extends Component {
     className: PropTypes.string,
     bodyClassName: PropTypes.string,
     titleClassName: PropTypes.string,
-    actionEditTitle: PropTypes.string,
     badgeText: PropTypes.string,
     noHeader: PropTypes.bool,
     noBody: PropTypes.bool,
     needGoTo: PropTypes.bool,
-    actionReload: PropTypes.bool,
-    actionEdit: PropTypes.bool,
-    actionHelp: PropTypes.bool,
     actionDrag: PropTypes.bool,
     resizable: PropTypes.bool,
     canDragging: PropTypes.bool,
@@ -135,15 +33,16 @@ class Dashlet extends Component {
     isCollapsed: PropTypes.bool,
     collapsible: PropTypes.bool,
     dragHandleProps: PropTypes.object,
-    customButtons: PropTypes.array,
-    onEdit: PropTypes.func,
+    contentMaxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
     onGoTo: PropTypes.func,
-    onReload: PropTypes.func,
     onResize: PropTypes.func,
     onToggleCollapse: PropTypes.func,
     dragButton: PropTypes.func,
     onChangeHeight: PropTypes.func,
-    getFitHeights: PropTypes.func
+    getFitHeights: PropTypes.func,
+    actionConfig: PropTypes.object,
+    actionRules: PropTypes.object,
+    noActions: PropTypes.bool
   };
 
   static defaultProps = {
@@ -155,9 +54,6 @@ class Dashlet extends Component {
     noHeader: false,
     noBody: false,
     needGoTo: true,
-    actionReload: true,
-    actionEdit: true,
-    actionHelp: true,
     actionDrag: true,
     resizable: false,
     canDragging: false,
@@ -166,10 +62,8 @@ class Dashlet extends Component {
     collapsible: true,
     dragButton: null,
     dragHandleProps: {},
-    customButtons: [],
-    onEdit: () => {},
+    contentMaxHeight: null,
     onGoTo: () => {},
-    onReload: () => {},
     onResize: () => {},
     onToggleCollapse: () => {},
     onChangeHeight: () => null,
@@ -180,6 +74,8 @@ class Dashlet extends Component {
 
   constructor(props) {
     super(props);
+
+    this.dashletId = uniqueId('dashlet-id');
 
     this.state = {
       isCollapsed: props.isCollapsed || false
@@ -207,14 +103,6 @@ class Dashlet extends Component {
     return headerH + resizerH;
   }
 
-  onEdit = () => {
-    const { onEdit } = this.props;
-
-    if (typeof onEdit === 'function') {
-      onEdit.call(this);
-    }
-  };
-
   onGoTo = () => {
     const { onGoTo } = this.props;
 
@@ -223,21 +111,13 @@ class Dashlet extends Component {
     }
   };
 
-  onReload = () => {
-    const { onReload } = this.props;
-
-    if (typeof onReload === 'function') {
-      onReload.call(this);
-    }
-  };
-
   onChangeHeight = height => {
-    const { onChangeHeight } = this.props;
+    const { onChangeHeight, contentMaxHeight, getFitHeights } = this.props;
 
     if (typeof onChangeHeight === 'function') {
-      onChangeHeight(height);
+      onChangeHeight(contentMaxHeight && height > contentMaxHeight ? contentMaxHeight : height);
 
-      this.props.getFitHeights(this.fitHeightChildren);
+      getFitHeights && getFitHeights(this.fitHeightChildren);
     }
   };
 
@@ -261,7 +141,7 @@ class Dashlet extends Component {
     }
 
     return (
-      <ResizableBox resizable={resizable} classNameResizer={'dashlet__resizer'} getHeight={this.onChangeHeight}>
+      <ResizableBox resizable={resizable} classNameResizer="dashlet__resizer" getHeight={this.onChangeHeight}>
         {children}
       </ResizableBox>
     );
@@ -293,29 +173,26 @@ class Dashlet extends Component {
       className,
       bodyClassName,
       titleClassName,
-      actionEditTitle,
       badgeText,
       needGoTo,
-      actionReload,
-      actionEdit,
-      actionHelp,
       actionDrag,
       onResize,
       dragHandleProps,
       canDragging,
-      customButtons,
       isMobile,
       noHeader,
-      noBody
+      noBody,
+      actionConfig,
+      actionRules,
+      noActions
     } = this.props;
     const { isCollapsed } = this.state;
-    const cssClasses = classNames('dashlet', className);
 
     return (
       <div ref={this.refDashlet}>
         <Panel
           {...this.props}
-          className={cssClasses}
+          className={classNames('dashlet', className, { dashlet_mobile: isMobile })}
           headClassName={classNames('dashlet__header-wrapper', {
             'dashlet__header-wrapper_collapsed': noBody || (isMobile && isCollapsed)
           })}
@@ -330,35 +207,29 @@ class Dashlet extends Component {
                   title={title}
                   needGoTo={needGoTo}
                   onGoTo={this.onGoTo}
-                  actionReload={actionReload}
-                  onReload={this.onReload}
                   onToggleCollapse={this.onToggle}
-                  actionEdit={actionEdit}
-                  onEdit={this.onEdit}
-                  actionHelp={actionHelp}
                   actionDrag={actionDrag && canDragging}
                   dragHandleProps={dragHandleProps}
-                  actionEditTitle={actionEditTitle}
-                  customButtons={customButtons}
                   titleClassName={titleClassName}
                   isMobile={isMobile}
+                  isCollapsed={isCollapsed}
                   badgeText={badgeText}
+                  dashletId={this.dashletId}
+                  actionConfig={actionConfig}
+                  actionRules={actionRules}
+                  noActions={noActions}
                 />
               </Measurer>
             )
           }
         >
-          <div
-            className={classNames('dashlet__body-content', {
-              'dashlet__body-content_hidden': noBody || (isMobile && isCollapsed)
-            })}
-          >
+          <div className={classNames('dashlet__body-content', { 'dashlet__body-content_hidden': noBody || (isMobile && isCollapsed) })}>
             {this.renderContent()}
             {this.renderHideButton()}
           </div>
         </Panel>
 
-        <ReactResizeDetector handleWidth handleHeight onResize={onResize} />
+        <ReactResizeDetector handleWidth handleHeight onResize={debounce(onResize, 400)} />
       </div>
     );
   }
@@ -369,7 +240,4 @@ const mapStateToProps = state => ({
 });
 const mapDispatchToProps = dispatch => ({});
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Dashlet);
+export default connect(mapStateToProps, mapDispatchToProps)(Dashlet);

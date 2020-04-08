@@ -2,7 +2,9 @@ import BaseDataSource from './BaseDataSource';
 import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
 import Records from '../../../Records';
-import { getCurrentLocale } from '../../../../helpers/util';
+import { getCurrentLocale, t } from '../../../../helpers/util';
+import lodashGet from 'lodash/get';
+import ecosFetch from '../../../../helpers/ecosFetch';
 
 const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
 
@@ -11,7 +13,7 @@ export default class GqlDataSource extends BaseDataSource {
     super(options);
 
     this._createVariants = this.options.createVariants;
-    this.options.ajax.body = this._getBodyJson(this.options.ajax.body, this.options.columns);
+    this.options.ajax.body = this._getBodyJson(this.options.ajax.body, this.options.columns, this.options.permissions);
     this._columns = this._getColumns(this.options.columns);
   }
 
@@ -37,7 +39,7 @@ export default class GqlDataSource extends BaseDataSource {
 
   _legacyLoad() {
     let options = this.options;
-    return fetch(options.url, options.ajax)
+    return ecosFetch(options.url, options.ajax)
       .then(response => {
         return response.json();
       })
@@ -65,7 +67,7 @@ export default class GqlDataSource extends BaseDataSource {
       let newColumn = { ...column };
 
       newColumn.dataField = newColumn.dataField || newColumn.attribute;
-      newColumn.text = window.Alfresco.util.message(newColumn.text || newColumn.dataField);
+      newColumn.text = t(newColumn.text || newColumn.dataField);
 
       let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
       let { formatter, params } = this._getFormatter(formatterOptions);
@@ -84,7 +86,7 @@ export default class GqlDataSource extends BaseDataSource {
       let newColumn = { ...column };
 
       newColumn.dataField = newColumn.dataField || newColumn.attribute;
-      newColumn.text = window.Alfresco.util.message(newColumn.text || newColumn.dataField);
+      newColumn.text = t(newColumn.text || newColumn.dataField);
 
       let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
       let { formatter, params } = GqlDataSource.getFormatterStatic(formatterOptions);
@@ -98,9 +100,12 @@ export default class GqlDataSource extends BaseDataSource {
     });
   }
 
-  _getBodyJson(body, columns) {
+  _getBodyJson(body, columns, permissions) {
     let defaultBody = {
-      attributes: this._getAttributes(columns)
+      attributes: {
+        ...this._getAttributes(columns),
+        ...this._getPermissions(permissions)
+      }
     };
 
     return JSON.stringify({ ...defaultBody, ...body });
@@ -117,6 +122,23 @@ export default class GqlDataSource extends BaseDataSource {
     });
 
     attributes.hasContent = '.has(n:"cm:content")';
+
+    let groupAtts = lodashGet(this.options || {}, 'ajax.body.query.groupBy', []);
+    for (let i = 0; i < groupAtts.length; i++) {
+      let att = groupAtts[i];
+      attributes['groupBy_' + att] = att + '?str';
+    }
+
+    return attributes;
+  }
+
+  _getPermissions(permissions) {
+    let attributes = {};
+
+    for (let i = 0; i < permissions.length; i++) {
+      let permission = permissions[i];
+      attributes[`hasPerission${permission}`] = `.att(n:"permissions"){has(n:"${permission}")}`;
+    }
 
     return attributes;
   }

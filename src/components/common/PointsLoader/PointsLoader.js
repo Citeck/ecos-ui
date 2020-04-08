@@ -6,21 +6,43 @@ import './style.scss';
 
 export default class PointsLoader extends React.Component {
   static propTypes = {
-    className: PropTypes.string
+    className: PropTypes.string,
+    color: PropTypes.oneOf(['white', 'light-blue']),
+    width: PropTypes.number,
+    height: PropTypes.number
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    color: 'white'
   };
 
+  get styles() {
+    const { width, height } = this.props;
+    const styles = {};
+
+    if (width !== undefined) {
+      styles.width = width;
+    }
+
+    if (height !== undefined) {
+      styles.height = height;
+    }
+
+    return styles;
+  }
+
   render() {
-    const { className } = this.props;
+    const { className, color } = this.props;
+    const points = new Array(3);
+
+    points.fill('ecos-points-loader-child');
 
     return (
-      <div className={classNames('ecos-points-loader', className)}>
-        <div className="ecos-points-loader-child ecos-points-loader-child-1" />
-        <div className="ecos-points-loader-child ecos-points-loader-child-2" />
-        <div className="ecos-points-loader-child ecos-points-loader-child-3" />
+      <div className={classNames('ecos-points-loader', className)} style={this.styles}>
+        {points.map((point, i) => (
+          <div key={`${className}-${point}-${i}`} className={classNames(point, `${point}-${i + 1}`, `${point}_${color}`)} />
+        ))}
       </div>
     );
   }

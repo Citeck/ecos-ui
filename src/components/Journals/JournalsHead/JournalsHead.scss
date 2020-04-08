@@ -1,24 +1,27 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 .journals-head {
   position: relative;
   width: 100%;
   margin-bottom: 20px;
   height: 26px;
-}
+  display: flex;
+  justify-content: space-between;
 
-.journals-head__caption {
-  display: inline;
-}
+  &__caption {
+    &_small {
+      @extend %ellipsis;
+    }
+  }
 
-.journals-head__menu-btn {
-  position: absolute;
-  right: 0;
-  text-align: right;
-  height: 26px;
-  display: inline-block;
-}
+  &__menu-btn {
+    text-align: right;
+    height: inherit;
+    opacity: 1;
+    transition: opacity 0.2s;
 
-.journals-head_with-tabs {
-  margin-top: 9px;
+    &_hidden {
+      opacity: 0;
+    }
+  }
 }

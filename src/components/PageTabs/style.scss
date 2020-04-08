@@ -1,4 +1,4 @@
-@import '../../constants';
+@import '../../styles/constants';
 
 .page-tab {
   height: 30px;
@@ -81,7 +81,7 @@
   }
 
   &__tabs {
-    height: 95%;
+    height: 28px;
     align-self: flex-end;
     display: flex;
     max-width: 100%;
@@ -112,7 +112,7 @@
       min-width: #{$min-width};
       width: auto;
       max-width: 300px;
-      padding: 3px 5px 7px 10px;
+      padding: 3px 5px 6px 10px;
       border-radius: 6px 6px 0 0;
       background-color: $color-gray-6;
       z-index: 1;
@@ -220,10 +220,14 @@
       }
 
       &_sorting {
-        top: -1px;
+        top: 0;
 
-        &:after {
-          display: none !important;
+        &:not(#{$item}_active) {
+          background-color: $color-gray-1;
+
+          &::after {
+            display: none !important;
+          }
         }
       }
 
@@ -242,10 +246,6 @@
           margin-right: 5px;
           width: 40px;
           display: inline-flex;
-
-          .ecos-points-loader-child {
-            background-color: #7396cd;
-          }
         }
       }
 

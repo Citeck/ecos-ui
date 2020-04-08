@@ -1,12 +1,7 @@
+const CUSTOM_CREATE_VARIANTS_FIELD = 'customCreateVariantsJs';
+const VALUE_FORM_KEY_FIELD = 'computed.valueFormKey';
+
 export default [
-  {
-    type: 'checkbox',
-    input: true,
-    key: 'triggerEventOnChange',
-    label: 'Trigger event on table change',
-    weight: 18,
-    defaultValue: false
-  },
   {
     type: 'textfield',
     input: true,
@@ -31,7 +26,10 @@ export default [
     dataSrc: 'values',
     defaultValue: 'journal',
     data: {
-      values: [{ label: 'Journal', value: 'journal' }, { label: 'Custom', value: 'custom' }]
+      values: [
+        { label: 'Journal', value: 'journal' },
+        { label: 'Custom', value: 'custom' }
+      ]
     },
     weight: 20
   },
@@ -97,6 +95,32 @@ export default [
           type: ''
         },
         row: '0-0'
+      },
+      {
+        type: 'panel',
+        title: 'Formatter',
+        collapsible: true,
+        collapsed: true,
+        style: {
+          'margin-bottom': '20px'
+        },
+        key: ''.concat('custom-formatter-js'),
+        components: [
+          {
+            type: 'textarea',
+            key: 'formatter',
+            rows: 5,
+            editor: 'ace',
+            hideLabel: true,
+            input: true,
+            placeholder: `value = { name: 'FormatterClassName', params: {} };`
+          },
+          {
+            type: 'htmlelement',
+            tag: 'div',
+            content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+          }
+        ]
       }
     ],
     weight: 21,
@@ -105,6 +129,100 @@ export default [
         and: [{ '==': [{ var: 'data.source.type' }, 'custom'] }]
       }
     }
+  },
+  {
+    type: 'checkbox',
+    input: true,
+    key: 'isSelectableRows',
+    label: 'Selectable rows',
+    weight: 23,
+    defaultValue: false
+  },
+  {
+    type: 'panel',
+    title: 'Specify nonselectable rows',
+    collapsible: true,
+    collapsed: true,
+    key: 'nonSelectableRowsJS-js',
+    customClass: 'form-builder__panel-js',
+    components: [
+      {
+        type: 'textarea',
+        key: 'nonSelectableRowsJS',
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content:
+          '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. The <strong>value</strong> variable accept an recordRef array.</p>'
+      }
+    ],
+    conditional: {
+      json: {
+        and: [{ '==': [{ var: 'data.isSelectableRows' }, true] }]
+      }
+    },
+    weight: 23
+  },
+  {
+    type: 'checkbox',
+    input: true,
+    key: 'triggerEventOnChange',
+    label: 'Trigger event on table change',
+    weight: 24,
+    defaultValue: false
+  },
+  {
+    weight: 25,
+    type: 'panel',
+    title: 'Custom Create Variants',
+    collapsible: true,
+    collapsed: true,
+    customClass: 'form-builder__panel-js',
+    key: ''.concat(CUSTOM_CREATE_VARIANTS_FIELD, '-js'),
+    components: [
+      {
+        type: 'textarea',
+        key: CUSTOM_CREATE_VARIANTS_FIELD,
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+      }
+    ]
+  },
+  {
+    weight: 28,
+    type: 'panel',
+    title: 'Value Form Key',
+    collapsible: true,
+    collapsed: true,
+    customClass: 'form-builder__panel-js',
+    key: ''.concat(VALUE_FORM_KEY_FIELD, '-js'),
+    components: [
+      {
+        type: 'textarea',
+        key: VALUE_FORM_KEY_FIELD,
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. You can use "record" variable.</p>'
+      }
+    ]
   },
   {
     type: 'asyncData',

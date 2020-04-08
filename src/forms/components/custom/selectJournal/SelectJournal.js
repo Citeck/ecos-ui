@@ -1,9 +1,9 @@
-import BaseReactComponent from '../base/BaseReactComponent';
-import SelectJournal from '../../../../components/common/form/SelectJournal';
-import { evaluate as formioEvaluate } from 'formiojs//utils/utils';
 import _ from 'lodash';
+import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
+import { SelectJournal } from '../../../../components/common/form';
 import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
+import BaseReactComponent from '../base/BaseReactComponent';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -13,10 +13,12 @@ export default class SelectJournalComponent extends BaseReactComponent {
         key: 'selectJournal',
         type: 'selectJournal',
         customPredicateJs: null,
+        presetFilterPredicatesJs: null,
         hideCreateButton: false,
         hideEditRowButton: false,
         hideDeleteRowButton: false,
-        isFullScreenWidthModal: false
+        isFullScreenWidthModal: false,
+        isSelectedValueAsLink: false
       },
       ...extend
     );
@@ -59,8 +61,12 @@ export default class SelectJournalComponent extends BaseReactComponent {
   getInitialReactProps() {
     let resolveProps = journalId => {
       let component = this.component;
+      let presetFilterPredicates = null;
+      if (component.presetFilterPredicatesJs) {
+        presetFilterPredicates = this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true);
+      }
 
-      return {
+      const reactComponentProps = {
         defaultValue: this.dataValue,
         isCompact: component.isCompact,
         multiple: component.multiple,
@@ -73,7 +79,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
         hideCreateButton: component.hideCreateButton,
         hideEditRowButton: component.hideEditRowButton,
         hideDeleteRowButton: component.hideDeleteRowButton,
+        isSelectedValueAsLink: component.isSelectedValueAsLink,
         isFullScreenWidthModal: component.isFullScreenWidthModal,
+        presetFilterPredicates,
         searchField: component.searchField,
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
@@ -82,6 +90,12 @@ export default class SelectJournalComponent extends BaseReactComponent {
           // this.setCustomValidity(err, false);
         }
       };
+
+      if (this.customPredicateValue) {
+        reactComponentProps.initCustomPredicate = this.customPredicateValue;
+      }
+
+      return reactComponentProps;
     };
 
     let journalId = this.component.journalId;

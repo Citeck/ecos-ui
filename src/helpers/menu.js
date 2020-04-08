@@ -1,6 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import { URL } from '../constants';
+import { HandleControlTypes } from './handleControl';
 
 export function processCreateVariantsItems(sites) {
   let menuItems = [];
@@ -33,7 +34,7 @@ export function processCreateVariantsItems(sites) {
         id: 'HEADER_' + (site.siteId + '_' + variant.type).replace(/-/g, '_').toUpperCase(),
         label: variant.title,
         control: {
-          type: 'ECOS_CREATE_VARIANT',
+          type: HandleControlTypes.ECOS_CREATE_VARIANT,
           payload: variant
         }
       });
@@ -69,7 +70,7 @@ export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAu
         isAvailable === false
           ? null
           : {
-              type: 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE',
+              type: HandleControlTypes.ALF_SHOW_MODAL_MAKE_UNAVAILABLE,
               payload: {
                 targetUrl: '/share/page/components/deputy/make-available?available=' + (isAvailable === false ? 'true' : 'false')
               }
@@ -108,7 +109,7 @@ export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAu
       id: 'HEADER_USER_MENU_LOGOUT',
       label: 'header.logout.label',
       control: {
-        type: 'ALF_DOLOGOUT'
+        type: HandleControlTypes.ALF_DOLOGOUT
       }
     });
   }
@@ -171,12 +172,6 @@ export function makeSiteMenu(params = {}) {
       targetUrl: URL.DASHBOARD_SETTINGS,
       targetUrlType: 'FULL_PATH'
     },
-    // { //todo: when page will be
-    //   id: 'SETTINGS_HOME_PAGE',
-    //   label: 'header.site-menu.menu-settings',
-    //   targetUrl: URL.DASHBOARD_SETTINGS,
-    //   targetUrlType: 'FULL_PATH'
-    // },
     {
       id: 'GO_ADMIN_PAGE',
       label: 'header.site-menu.admin-page',

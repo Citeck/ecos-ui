@@ -1,8 +1,8 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import {
   getDashboardConfig,
-  saveDashboardConfig,
   getDashboardTitle,
+  saveDashboardConfig,
   setDashboardConfig,
   setDashboardIdentification,
   setDashboardTitleInfo,
@@ -10,8 +10,7 @@ import {
   setRequestResultDashboard
 } from '../actions/dashboard';
 import { setNotificationMessage } from '../actions/notification';
-import { setActiveTabTitle } from '../actions/pageTabs';
-import { selectDashboardConfigs, selectIdentificationForView } from '../selectors/dashboard';
+import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
 import { t } from '../helpers/util';
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
@@ -19,13 +18,21 @@ import { RequestStatuses } from '../constants';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
-    const { recordRef, dashboardKey } = payload;
-    const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef, dashboardKey });
+    const { recordRef } = payload;
+
+    const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
 
     const data = DashboardService.checkDashboardResult(result);
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
     const webConfig = DashboardConverter.getDashboardForWeb(data);
     const webConfigMobile = DashboardConverter.getMobileDashboardForWeb(data);
+
+    const isReset = yield select(selectResetStatus);
+
+    if (isReset) {
+      console.info('[dashboard/ doGetDashboardRequest saga] info: Dashboard is unmounted');
+      return;
+    }
 
     yield put(setDashboardIdentification(webKeyInfo));
     yield put(setDashboardConfig(webConfig));
@@ -43,7 +50,6 @@ function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
     const titleInfo = DashboardConverter.getTitleInfo(resTitle);
 
     yield put(setDashboardTitleInfo(titleInfo));
-    yield put(setActiveTabTitle(titleInfo.name));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error5')));
     logger.error('[dashboard/ doGetDashboardTitleRequest saga] error', e.message);
@@ -51,6 +57,8 @@ function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
 }
 
 function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
+  yield put(setRequestResultDashboard({}));
+
   try {
     const identification = yield select(selectIdentificationForView);
     const config = yield select(selectDashboardConfigs);
@@ -60,6 +68,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
       yield put(setMobileDashboardConfig(payload.config));
     } else {
       config.layouts = payload.config;
+
       yield put(setDashboardConfig(payload.config));
     }
     delete config.isMobile;

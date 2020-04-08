@@ -1,12 +1,36 @@
 import Registry from './RecordActionExecutorsRegistry';
-import { EditAction, ViewAction, DownloadAction, RemoveAction, MoveToLinesJournal } from './DefaultActions';
+import {
+  BackgroundOpenAction,
+  CreateNodeAction,
+  DefaultActionTypes,
+  DeleteAction,
+  DownloadAction,
+  DownloadCardTemplate,
+  EditAction,
+  MoveToLinesJournal,
+  OpenURL,
+  ViewAction
+} from './DefaultActions';
+
+import { CaseCreateNodeAction, CaseRedirectAction, CaseRequestAction } from './CaseActions';
 
 export { default } from './RecordActions';
+export { DefaultActionTypes } from './DefaultActions';
 
 Registry.addExecutors({
-  edit: EditAction,
-  view: ViewAction,
-  download: DownloadAction,
-  remove: RemoveAction,
-  'move-to-lines': MoveToLinesJournal
+  [DefaultActionTypes.EDIT]: EditAction,
+  [DefaultActionTypes.VIEW]: ViewAction,
+  [DefaultActionTypes.OPEN_IN_BACKGROUND]: BackgroundOpenAction,
+  [DefaultActionTypes.DOWNLOAD]: DownloadAction,
+  [DefaultActionTypes.DELETE]: DeleteAction,
+  [DefaultActionTypes.MOVE_TO_LINES]: MoveToLinesJournal,
+  [DefaultActionTypes.DOWNLOAD_CARD_TEMPLATE]: DownloadCardTemplate,
+  [DefaultActionTypes.CREATE]: CreateNodeAction,
+  [DefaultActionTypes.OPEN_URL]: OpenURL,
+
+  //legacy case actions
+
+  REQUEST: CaseRequestAction,
+  CREATE_NODE: CaseCreateNodeAction,
+  REDIRECT: CaseRedirectAction
 });

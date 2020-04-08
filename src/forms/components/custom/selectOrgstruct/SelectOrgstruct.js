@@ -16,7 +16,13 @@ export default class SelectOrgstructComponent extends BaseComponent {
       {
         label: 'SelectOrgstruct',
         key: 'selectOrgstruct',
-        type: 'selectOrgstruct'
+        type: 'selectOrgstruct',
+        allowedAuthorityType: 'USER, GROUP',
+        allowedGroupType: 'ROLE, BRANCH',
+        allowedGroupSubType: '',
+        excludeAuthoritiesByName: '',
+        excludeAuthoritiesByType: '',
+        modalTitle: ''
       },
       ...extend
     );
@@ -48,6 +54,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
   createViewOnlyValue(container) {
     this.reactContainer = this.ce('dd');
     container.appendChild(this.reactContainer);
+    this.createInlineEditButton(container);
     this.renderReactComponent();
   }
 
@@ -85,23 +92,31 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     this.createDescription(this.element);
 
-    // this.attachLogic();
+    this.createInlineEditSaveAndCancelButtons();
+
+    this.attachRefreshOn();
+    // this.autofocus();
+    this.attachLogic();
   }
 
   renderReactComponent(config = {}) {
     let self = this;
     let component = this.component;
-    let allUsersGroup = this.component.allUsersGroup;
     let allowedAuthorityType = this.component.allowedAuthorityType || '';
     let allowedGroupType = this.component.allowedGroupType || '';
     let allowedGroupSubType = this.component.allowedGroupSubType || '';
-    const allowedAuthorityTypes = allowedAuthorityType.split(',').map(item => item.trim());
-    const allowedGroupTypes = allowedGroupType.split(',').map(item => item.trim());
 
     allowedGroupSubType = allowedGroupSubType.trim();
-    const allowedGroupSubTypes = allowedGroupSubType.length > 0 ? allowedGroupSubType.split(',').map(item => item.trim()) : [];
 
+    const allowedAuthorityTypes = allowedAuthorityType.split(',').map(item => item.trim());
+    const allowedGroupTypes = allowedGroupType.split(',').map(item => item.trim());
+    const allowedGroupSubTypes = allowedGroupSubType.length > 0 ? allowedGroupSubType.split(',').map(item => item.trim()) : [];
     const onChange = this.onValueChange.bind(this);
+
+    const excludeAuthoritiesByName = this.component.excludeAuthoritiesByName;
+    const excludeAuthoritiesByType = this.component.excludeAuthoritiesByType;
+    const excludedAuthoritiesByType =
+      excludeAuthoritiesByType.length > 0 ? excludeAuthoritiesByType.split(',').map(item => item.trim()) : [];
 
     let renderControl = function() {
       ReactDOM.render(
@@ -111,12 +126,16 @@ export default class SelectOrgstructComponent extends BaseComponent {
           multiple={component.multiple}
           placeholder={component.placeholder}
           disabled={component.disabled}
-          allUsersGroup={allUsersGroup}
           allowedAuthorityTypes={allowedAuthorityTypes}
           allowedGroupTypes={allowedGroupTypes}
           allowedGroupSubTypes={allowedGroupSubTypes}
+          excludeAuthoritiesByName={excludeAuthoritiesByName}
+          excludeAuthoritiesByType={excludedAuthoritiesByType}
           onChange={onChange}
           viewOnly={self.viewOnly}
+          hideTabSwitcher={component.hideTabSwitcher}
+          defaultTab={component.defaultTab}
+          modalTitle={component.modalTitle ? self.t(component.modalTitle) : null}
           onError={err => {
             // this.setCustomValidity(err, false);
           }}
@@ -136,6 +155,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
   onValueChange(value) {
     this.dataValue = value;
+    this.setPristine(false);
     this.triggerChange();
     this.refreshDOM();
   }

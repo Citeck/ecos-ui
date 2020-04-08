@@ -7,11 +7,7 @@ import ModalForm from '../ModalForm';
 const TableFormRoot = () => {
   const context = useContext(TableFormContext);
   const { controlProps } = context;
-  const { isCompact, viewOnly } = controlProps;
-
-  if (viewOnly) {
-    return null;
-  }
+  const { isCompact } = controlProps;
 
   const wrapperClasses = classNames('ecos-table-form', {
     'ecos-table-form_compact': isCompact

@@ -64,6 +64,19 @@ $tabs-height: 26px;
         }
       }
 
+      &.disabled {
+        .nav-link {
+          color: $color-gray-6;
+          cursor: default;
+
+          &.active {
+            background: $color-gray-4;
+            color: $color-gray-6;
+            border-color: $color-gray-4;
+          }
+        }
+      }
+
       &.first-visible-tab {
         .nav-link {
           border-top-left-radius: $border-radius-standard;
@@ -82,11 +95,11 @@ $tabs-height: 26px;
 
     &_scrollable {
       .nav-item {
-        &:first-child {
+        &.first-visible-tab {
           border-left: 10px solid transparent;
         }
 
-        &:last-child {
+        &.last-visible-tab {
           border-right: 10px solid transparent;
         }
       }

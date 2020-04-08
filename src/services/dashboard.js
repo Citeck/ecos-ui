@@ -41,11 +41,12 @@ export default class DashboardService {
   });
 
   static formShortId(id) {
+    let result = id;
     if (includes(id, separatorId)) {
-      return nth(split(id, separatorId), 1);
+      result = nth(split(id, separatorId), 1);
     }
-
-    return id;
+    result = result.replace('ui/dashboard$', '');
+    return result;
   }
 
   static formFullId(id) {
@@ -125,7 +126,13 @@ export default class DashboardService {
         type: LAYOUT_TYPE.MOBILE,
         columns: [
           {
-            widgets: columns.reduce((result, current) => [...result, ...current.widgets], [])
+            widgets: columns.reduce((result, current) => {
+              if (Array.isArray(current)) {
+                return [...result, ...[].concat.apply([], current)];
+              }
+
+              return [...result, ...current.widgets];
+            }, [])
           }
         ]
       });

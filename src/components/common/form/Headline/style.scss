@@ -1,4 +1,4 @@
-@import '../../../../constants';
+@import '../../../../styles/constants';
 
 .ecos-headline {
   display: flex;
@@ -10,13 +10,17 @@
   font-size: $font-size-standard;
   color: $text-color-dark;
 
-  @extend %ellipsis;
-
   &_highlight {
     background-color: $color-yellow;
   }
 
   &_inline {
     display: inline-flex;
+  }
+
+  &__text {
+    @extend %ellipsis;
+    flex: 1 1 auto;
+    min-width: 0;
   }
 }

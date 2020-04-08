@@ -1,5 +1,7 @@
 import { handleActions } from 'redux-actions';
 import {
+  collapseAllItems,
+  setInitExpandableItems,
   setIsReady,
   setLargeLogo,
   setScrollTop,
@@ -11,6 +13,7 @@ import {
   toggleExpanded,
   toggleIsOpen
 } from '../actions/slideMenu';
+import SidebarService from '../services/sidebar';
 
 const initialState = {
   smallLogo: null,
@@ -58,20 +61,43 @@ export default handleActions(
         expandableItems: action.payload
       };
     },
-    [toggleExpanded]: (state, action) => {
+    [setInitExpandableItems]: (state, action) => {
+      const expandableItems = SidebarService.getExpandableItems(state.items, state.selectedId, state.isOpen);
+
       return {
         ...state,
-        expandableItems: (() => {
-          const expandableItem = state.expandableItems.find(fi => fi.id === action.payload);
-          const listWithoutItem = state.expandableItems.filter(fi => fi.id !== action.payload);
-          return [
-            ...listWithoutItem,
-            {
-              ...expandableItem,
-              isNestedListExpanded: !expandableItem.isNestedListExpanded
-            }
-          ];
-        })()
+        expandableItems
+      };
+    },
+    [toggleExpanded]: (state, { payload: selectedItem }) => {
+      const isObject = !!selectedItem && typeof selectedItem === 'object';
+      const idItem = isObject ? selectedItem.id : selectedItem;
+      const initNestedItems = isObject && SidebarService.getExpandableItems(selectedItem.items || [], state.selectedId, state.isOpen);
+
+      return {
+        ...state,
+        expandableItems: state.expandableItems.map(item => {
+          if (item.id === idItem) {
+            return {
+              ...item,
+              isNestedListExpanded: !item.isNestedListExpanded
+            };
+          }
+
+          const nested = initNestedItems && initNestedItems.find(nested => item.id === nested.id);
+
+          if (nested) {
+            return nested;
+          }
+
+          return item;
+        })
+      };
+    },
+    [collapseAllItems]: (state, action) => {
+      return {
+        ...state,
+        expandableItems: state.expandableItems.map(item => ({ ...item, isNestedListExpanded: false }))
       };
     },
     [toggleIsOpen]: (state, action) => {

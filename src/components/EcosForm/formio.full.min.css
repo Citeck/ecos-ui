@@ -4424,7 +4424,7 @@ dialog.fixed {
 
 .formio-component-submit .submit-success::after {
   font-family: 'citeck';
-  content: '\79';
+  content: '\e832';
   position: relative;
   right: -4px;
   top: 1;
@@ -4433,7 +4433,7 @@ dialog.fixed {
 
 .formio-component-submit .submit-fail::after {
   font-family: 'citeck';
-  content: '\62';
+  content: '\e823';
   position: relative;
   right: -4px;
   top: 1;

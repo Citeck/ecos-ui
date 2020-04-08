@@ -11,16 +11,11 @@ import { Icon, Loader } from '../';
 
 import './style.scss';
 
-const Themes = {
-  DARK: 'dark',
-  LIGHT: 'light'
-};
-
 export default class SearchSelect extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     formattedSearchResult: PropTypes.array,
-    theme: PropTypes.oneOf([Themes.DARK, Themes.LIGHT]),
+    theme: PropTypes.string,
     autocomplete: PropTypes.bool,
     noResults: PropTypes.bool,
     isMobile: PropTypes.bool,
@@ -55,8 +50,6 @@ export default class SearchSelect extends React.Component {
       hiddenPlaceholder: false
     };
   }
-
-  className = 'ecos-input-search';
 
   runSearch = debounce(() => {
     this.props.onSearch(this.state.searchText);
@@ -112,9 +105,11 @@ export default class SearchSelect extends React.Component {
   };
 
   setFocused = isFocused => {
-    this.setState({
-      focused: isFocused
-    });
+    if (this.state.focused !== isFocused) {
+      this.setState({
+        focused: isFocused
+      });
+    }
   };
 
   onLoupe = () => {
@@ -129,17 +124,19 @@ export default class SearchSelect extends React.Component {
   };
 
   onClickOutside = () => {
-    if (this.props.collapsible) {
+    if (this.props.collapsible && !this.state.collapsed) {
       this.setState({ collapsed: true });
     }
 
     this.setFocused(false);
   };
 
-  hidePlaceholder = flag => {
-    this.setState({
-      hiddenPlaceholder: flag
-    });
+  hidePlaceholder = isHidden => {
+    if (this.state.hiddenPlaceholder !== isHidden) {
+      this.setState({
+        hiddenPlaceholder: isHidden
+      });
+    }
   };
 
   getInputRef = ref => {
@@ -149,15 +146,15 @@ export default class SearchSelect extends React.Component {
   renderNoResults() {
     const { noResults } = this.props;
 
-    return noResults ? <li className={`${this.className}__no-results`}>{t('search.no-results')}</li> : null;
+    return noResults ? <li className="ecos-input-search__no-results">{t('search.no-results')}</li> : null;
   }
 
   renderBtnShowAll() {
     const { formattedSearchResult } = this.props;
 
     return !isEmpty(formattedSearchResult) ? (
-      <li className={`${this.className}__show-all`}>
-        <Btn className={`${this.className}__show-all-btn ecos-btn_narrow-t_standart`} onClick={this.openFullSearch}>
+      <li className="ecos-input-search__show-all">
+        <Btn className="ecos-input-search__show-all-btn ecos-btn_narrow-t_standart" onClick={this.openFullSearch}>
           {t('search.show-more-results')}
         </Btn>
       </li>
@@ -168,7 +165,7 @@ export default class SearchSelect extends React.Component {
     const { isLoading } = this.props;
 
     return isLoading ? (
-      <li className={`${this.className}__loader`}>
+      <li className="ecos-input-search__loader">
         <Loader height={30} width={30} />
       </li>
     ) : null;
@@ -188,27 +185,24 @@ export default class SearchSelect extends React.Component {
     const { className, theme, autocomplete, formattedSearchResult, noResults, isLoading, collapsible, isMobile } = this.props;
     const isSearchCollapsed = collapsible && collapsed;
     const stateSearch = isSearchCollapsed ? 'close' : 'open';
-    const classNameContainer = classNames(className, this.className, `${this.className}_${theme}`, `${this.className}_${stateSearch}`);
-    const commonIcon = `${this.className}__icon`;
     const isOpen = (!isEmpty(formattedSearchResult) || noResults || isLoading) && autocomplete && searchText && focused;
 
     return (
-      <div className={classNameContainer}>
-        <ClickOutside handleClickOutside={this.onClickOutside} className={`${this.className}__click_outside`}>
+      <div className={classNames(className, 'ecos-input-search', `ecos-input-search_theme_${theme}`, `ecos-input-search_${stateSearch}`)}>
+        <ClickOutside handleClickOutside={this.onClickOutside} className="ecos-input-search__click_outside">
           <Dropdown isOpen={isOpen} toggle={() => null}>
             <DropdownToggle tag="div">
               <Icon
-                className={classNames(commonIcon, `${commonIcon}-search`, 'icon-search', {
-                  [`${commonIcon}-search_no-collapse`]: !collapsible
+                className={classNames('ecos-input-search__icon ecos-input-search__icon-search icon-search', {
+                  'ecos-input-search__icon-search_no-collapse': !collapsible
                 })}
                 onClick={this.onLoupe}
               />
               <Input
-                className={classNames(
-                  `${this.className}__input`,
-                  { [`${this.className}__input_empty`]: !searchText },
-                  { hide: isSearchCollapsed }
-                )}
+                className={classNames('ecos-input-search__input', {
+                  'ecos-input-search__input_empty': !searchText,
+                  'ecos-input-search__input_hidden': isSearchCollapsed
+                })}
                 placeholder={isMobile || hiddenPlaceholder ? '' : t('search.label')}
                 value={searchText || ''}
                 onChange={this.onChange}
@@ -218,11 +212,13 @@ export default class SearchSelect extends React.Component {
                 getInputRef={this.getInputRef}
               />
               <Icon
-                className={classNames(commonIcon, `${commonIcon}-clear`, 'icon-close', { hide: isSearchCollapsed || !searchText })}
+                className={classNames('ecos-input-search__icon ecos-input-search__icon-clear icon-close', {
+                  'ecos-input-search__icon_hidden': isSearchCollapsed || !searchText
+                })}
                 onClick={this.resetSearch}
               />
             </DropdownToggle>
-            <DropdownMenu className={`${this.className}__results ecos-dropdown__menu`}>
+            <DropdownMenu className="ecos-input-search__results ecos-dropdown__menu">
               {!noResults && !isEmpty(formattedSearchResult) && formattedSearchResult}
               {this.renderNoResults()}
               {this.renderBtnShowAll()}

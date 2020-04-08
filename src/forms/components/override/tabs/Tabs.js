@@ -1,9 +1,9 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import lodashGet from 'lodash/get';
 import throttle from 'lodash/throttle';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, SCROLL_STEP } from '../../../../constants/pageTabs';
+import { animateScrollTo } from '../../../../helpers/util';
 
-const SCROLL_STEP = 120;
 const SCROLLABLE_CLASS = 'formio-component-tabs_scrollable';
 
 //Override default tabs component to fix validation in inner fields
@@ -91,11 +91,20 @@ export default class TabsComponent extends NestedComponent {
 
   updateTabsVisibility() {
     let tabsVisibility = new Array(this.tabs.length).fill(false);
+    let tabsDisability = new Array(this.tabs.length).fill(false);
+    const visibleTabs = new Set();
     for (let component of this.getComponents()) {
       let tabIdx = lodashGet(component, 'component.tab', -1);
       if (tabIdx >= 0 && component.visible) {
         tabsVisibility[tabIdx] = true;
+        visibleTabs.add(tabIdx);
       }
+    }
+
+    // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2847. Disable tab, if it is the only one
+    if (visibleTabs.size === 1) {
+      const iterator = visibleTabs.values();
+      tabsDisability[iterator.next().value] = true;
     }
 
     if (!tabsVisibility[this.currentTab]) {
@@ -125,6 +134,16 @@ export default class TabsComponent extends NestedComponent {
           this.removeClass(tabLink, 'hidden');
         } else {
           this.addClass(tabLink, 'hidden');
+        }
+      }
+
+      let shouldBeDisabled = tabsDisability[i];
+      const isAlreadyDisabled = tabLink.classList.contains('disabled');
+      if (isAlreadyDisabled !== shouldBeDisabled) {
+        if (shouldBeDisabled) {
+          this.addClass(tabLink, 'disabled');
+        } else {
+          this.removeClass(tabLink, 'disabled');
         }
       }
     });
@@ -225,8 +244,8 @@ export default class TabsComponent extends NestedComponent {
   };
 
   destroyComponents() {
-    super.destroyComponents();
     this.removeEventListeners();
+    return super.destroyComponents();
   }
 
   createElement() {
@@ -376,11 +395,11 @@ export default class TabsComponent extends NestedComponent {
   _calculateTabsContentHeightThrottled = throttle(this._calculateTabsContentHeight, 300);
 
   onLeftButtonClick = () => {
-    this.tabsBar.scrollLeft -= SCROLL_STEP;
+    animateScrollTo(this.tabsBar, { scrollLeft: this.tabsBar.scrollLeft - SCROLL_STEP });
   };
 
   onRightButtonClick = () => {
-    this.tabsBar.scrollLeft += SCROLL_STEP;
+    animateScrollTo(this.tabsBar, { scrollLeft: this.tabsBar.scrollLeft + SCROLL_STEP });
   };
 
   onVisibilityChange = () => {

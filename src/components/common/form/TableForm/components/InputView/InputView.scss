@@ -1,10 +1,16 @@
-@import '../../../../../../constants';
+@import '../../../../../../styles/constants';
 
 .ecos-table-form__value-not-selected {
   line-height: 36px;
   border: solid $color-gray-4;
   border-width: 2px 0 2px 0;
   margin-bottom: 15px;
+
+  &_view-only {
+    border: none;
+    line-height: inherit;
+    margin: 0;
+  }
 }
 
 .ecos-table-form__error {
@@ -14,4 +20,9 @@
 .ecos-table-form__grid {
   margin-bottom: 15px;
   overflow: auto;
+  position: static;
+
+  &-wrapper {
+    position: relative;
+  }
 }

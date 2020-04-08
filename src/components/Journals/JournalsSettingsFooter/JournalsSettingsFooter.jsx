@@ -1,22 +1,22 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
-import Columns from '../../common/templates/Columns/Columns';
-import EcosModal from '../../../../src/components/common/EcosModal';
+
+import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
 import { Input } from '../../common/form';
+import Columns from '../../common/templates/Columns/Columns';
 import {
-  reloadGrid,
-  saveJournalSetting,
   createJournalSetting,
-  cancelJournalSettingData,
-  setJournalSetting
+  reloadGrid,
+  resetJournalSettingData,
+  saveJournalSetting,
+  setJournalSetting,
+  setSettingsToUrl
 } from '../../../actions/journals';
-import { JOURNAL_SETTING_ID_FIELD } from '../constants';
-import { closest, t, trigger } from '../../../helpers/util';
+import { closest, deepClone, t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { withRouter } from 'react-router';
-import { push } from 'connected-react-router';
-import queryString from 'query-string';
+import { JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 import './JournalsSettingsFooter.scss';
 
@@ -35,12 +35,12 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    push: url => dispatch(push(url)),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     setJournalSetting: setting => dispatch(setJournalSetting(w(setting))),
+    setSettingsToUrl: setting => dispatch(setSettingsToUrl(w(setting))),
     saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
     createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
-    cancelJournalSettingData: journalSettingId => dispatch(cancelJournalSettingData(w(journalSettingId)))
+    resetJournalSettingData: journalSettingId => dispatch(resetJournalSettingData(w(journalSettingId)))
   };
 };
 
@@ -69,19 +69,13 @@ class JournalsSettingsFooter extends Component {
   }
 
   onKeydown = e => {
-    switch (e.key) {
-      case 'Enter':
-        const inputRef = this.settingTitleInputRef || {};
-
-        if (e.target === inputRef.current) {
-          this.createSetting();
-        } else if (closest(e.target, this.props.parentClass)) {
-          this.applySetting();
-        }
-
-        break;
-      default:
-        break;
+    if (e.key === 'Enter') {
+      const inputRef = this.settingTitleInputRef || {};
+      if (e.target === inputRef.current) {
+        this.createSetting();
+      } else if (closest(e.target, this.props.parentClass)) {
+        this.applySetting();
+      }
     }
   };
 
@@ -100,36 +94,22 @@ class JournalsSettingsFooter extends Component {
   };
 
   applySetting = () => {
-    let journalSetting = this.getSetting();
-    const { setJournalSetting, reloadGrid } = this.props;
+    const { setJournalSetting, setSettingsToUrl, reloadGrid } = this.props;
+    const journalSetting = this.getSetting();
     const { columns, groupBy, sortBy, predicate } = journalSetting;
+    const predicates = predicate ? [predicate] : [];
 
-    this.setFilterToUrl(predicate);
-
+    setSettingsToUrl({ groupBy, sortBy, predicate });
     setJournalSetting(journalSetting);
-    reloadGrid({ columns, groupBy, sortBy, predicates: predicate ? [predicate] : [] });
+    reloadGrid({ columns, groupBy, sortBy, predicates });
     trigger.call(this, 'onApply');
   };
 
-  setFilterToUrl = predicate => {
-    const {
-      push,
-      history: {
-        location: { pathname, search }
-      }
-    } = this.props;
-    const urlParams = { ...queryString.parse(search), filter: predicate ? JSON.stringify(predicate) : '' };
+  resetSettings = () => {
+    const { resetJournalSettingData, journalSetting } = this.props;
 
-    push(`${pathname}?${queryString.stringify(urlParams)}`);
-  };
-
-  cancelSetting = () => {
-    const { cancelJournalSettingData, journalSetting } = this.props;
-    cancelJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD]);
-
-    this.setFilterToUrl();
-
-    trigger.call(this, 'onCancel');
+    resetJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD]);
+    trigger.call(this, 'onReset', deepClone(journalSetting));
   };
 
   getSetting = title => {
@@ -177,25 +157,25 @@ class JournalsSettingsFooter extends Component {
     const { journalSetting } = this.props;
 
     return (
-      <Fragment>
+      <>
         <Columns
           className={'ecos-journal__settings-footer'}
           cols={[
-            <Fragment>
+            <>
               <Btn className={'ecos-btn_x-step_10'} onClick={this.openDialog}>
                 {t('journals.action.create-template')}
               </Btn>
               {journalSetting[JOURNAL_SETTING_ID_FIELD] && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
-            </Fragment>,
+            </>,
 
-            <Fragment>
-              <Btn className={'ecos-btn_x-step_10'} onClick={this.cancelSetting}>
+            <>
+              <Btn className={'ecos-btn_x-step_10'} onClick={this.resetSettings}>
                 {t('journals.action.reset')}
               </Btn>
               <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.applySetting}>
                 {t('journals.action.apply')}
               </Btn>
-            </Fragment>
+            </>
           ]}
           cfgs={[{}, { className: 'columns_right' }]}
         />
@@ -218,12 +198,20 @@ class JournalsSettingsFooter extends Component {
             </Btn>
           </div>
         </EcosModal>
-      </Fragment>
+      </>
     );
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withRouter(JournalsSettingsFooter));
+JournalsSettingsFooter.propTypes = {
+  parentClass: PropTypes.string,
+  stateId: PropTypes.string,
+  journalId: PropTypes.string,
+
+  onApply: PropTypes.func,
+  onCreate: PropTypes.func,
+  onReset: PropTypes.func,
+  onSave: PropTypes.func
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsSettingsFooter);

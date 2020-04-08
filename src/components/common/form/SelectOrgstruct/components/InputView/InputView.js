@@ -9,10 +9,10 @@ import './InputView.scss';
 const InputView = () => {
   const context = useContext(SelectOrgstructContext);
 
-  const { isCompact, disabled, multiple, placeholder, viewOnly, renderView, withoutInput } = context.controlProps;
+  const { isCompact, disabled, multiple, placeholder, viewOnly, renderView, hideInputView } = context.controlProps;
   const { selectedRows, error, toggleSelectModal, deleteSelectedItem } = context;
 
-  if (withoutInput) {
+  if (hideInputView) {
     return null;
   }
 

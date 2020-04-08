@@ -1,11 +1,11 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 .ecos-loader {
   display: flex;
   align-items: center;
   justify-content: center;
   position: absolute;
-  z-index: 1000;
+  z-index: 100;
   top: 0;
   bottom: 0;
   left: 0;

@@ -1129,13 +1129,17 @@ hot-table .column-header.label {
     height: 50px;
     background-color: #e8edf1;
     text-align: center;
-    bottom: 1px;
-    position: fixed;
     z-index: 101;
     border-top: 1px solid #a4acb9;
     border-right: 1px solid #a4acb9;
     cursor: pointer;
     left: 0;
+    position: absolute;
+    bottom: 0;
+}
+
+.ecos-main-area {
+  position: relative;
 }
 
 #paletteSectionOpen i {
@@ -1154,6 +1158,12 @@ hot-table .column-header.label {
 
 .close {
     width: 0px !important;
+  /*overflow: hidden;*/
+}
+
+button.close {
+  width: auto !important;
+  /*overflow: visible;*/
 }
 
 #contentCanvasWrapper {

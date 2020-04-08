@@ -1,20 +1,20 @@
 import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
-import { DASHBOARD_DEFAULT_KEY, QueryEntityKeys, SourcesId } from '../constants';
+import { SourcesId } from '../constants';
 import { RecordService } from './recordService';
-import Components from '../components/Components';
+import Components from '../components/widgets/Components';
 import Records from '../components/Records';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';
 import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
-  key: QueryEntityKeys.KEY,
-  config: QueryEntityKeys.CONFIG_JSON,
-  user: QueryEntityKeys.USER,
-  type: QueryEntityKeys.TYPE,
+  config: 'config?json',
+  authority: 'authority',
+  user: 'authority',
+  type: 'typeRef.inhDashboardType?str',
+  key: 'typeRef?id',
   id: 'id'
 };
 
@@ -30,49 +30,67 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardKeysByRef = function*(recordRef) {
-    const result = yield Records.get(recordRef)
-      .load('.atts(n:"_dashboardKey"){str,disp}')
-      .then(response => response);
+    const baseTypeId = 'emodel/type@base';
+
+    let parents;
+    if (recordRef) {
+      const recType = yield Records.get(recordRef).load('_etype?id');
+      if (recType) {
+        parents = yield Records.get(recType).load('.atts(n:"parents"){id, disp}');
+
+        if (recType !== baseTypeId) {
+          parents = parents.filter(t => t.id !== baseTypeId);
+        }
+      } else {
+        parents = [
+          {
+            id: baseTypeId,
+            disp: yield Records.get(baseTypeId).load('.disp')
+          }
+        ];
+      }
+    } else {
+      const userDashboardId = 'emodel/type@user-dashboard';
+      parents = [
+        {
+          id: userDashboardId,
+          disp: yield Records.get(userDashboardId).load('.disp')
+        }
+      ];
+    }
 
     let dashboardKeys = [];
 
-    if (!isEmpty(result)) {
-      dashboardKeys = result.map(item => ({
-        key: item.str,
-        displayName: t(item.disp)
-      }));
-      dashboardKeys.push({ key: DASHBOARD_DEFAULT_KEY, displayName: t('dashboard-settings.default') });
+    for (let p of parents) {
+      dashboardKeys.push({
+        key: p.id,
+        displayName: p.disp
+      });
     }
-
     return dashboardKeys;
   };
 
   saveDashboardConfig = ({ identification, config }) => {
-    const { key, id, user, type } = identification;
-    const record = Records.get(DashboardService.formFullId(id));
+    const { key, user } = identification;
 
-    record.att(QueryEntityKeys.CONFIG_JSON, config);
-    record.att(QueryEntityKeys.USER, user);
-    record.att(QueryEntityKeys.KEY, key || DASHBOARD_DEFAULT_KEY);
-    record.att(QueryEntityKeys.TYPE, type);
+    const record = Records.get('eapps/module@ui/dashboard$');
 
-    return record.save().then(response => response);
+    record.att('config?json', config);
+    record.att('authority?str', user);
+    record.att('typeRef', key.replace('emodel/type@', 'model/type$'));
+
+    return record.save().then(response => {
+      cache.clear();
+      return response;
+    });
   };
 
-  getDashboardByOneOf = ({ dashboardId, dashboardKey, recordRef, off = {} }) => {
+  getDashboardByOneOf = ({ dashboardId, recordRef }) => {
     if (!isEmpty(dashboardId)) {
       return this.getDashboardById(dashboardId);
     }
 
-    if (!isEmpty(recordRef) && !off.ref) {
-      return this.getDashboardByRecordRef(recordRef, dashboardKey);
-    }
-
-    if (!off.user) {
-      return this.getDashboardByUser();
-    }
-
-    return {};
+    return this.getDashboardByRecordRef(recordRef);
   };
 
   getDashboardById = (dashboardId, force = false) => {
@@ -81,78 +99,42 @@ export class DashboardApi extends RecordService {
       .then(response => response);
   };
 
-  getDashboardByKeyType = (key, type) => {
+  getDashboardByUserAndType = (user, typeRef) => {
     return Records.queryOne(
       {
         sourceId: SourcesId.DASHBOARD,
         query: {
-          key,
-          type,
-          user: getCurrentUserName()
+          typeRef,
+          authority: user
         }
       },
       { ...defaultAttr }
-    ).then(response => response);
+    );
   };
 
-  getDashboardByRecordRef = function*(recordRef, dashboardKey = '') {
-    const result = yield Records.get(recordRef).load({
-      type: '_dashboardType',
-      keys: '_dashboardKey[]?str'
-    });
-    const { keys, type } = result;
+  getDashboardByRecordRef = function*(recordRef) {
+    let recType = null;
 
-    let dashboardKeys = Array.from(keys || []);
-
-    dashboardKeys.push(DASHBOARD_DEFAULT_KEY);
-
-    if (dashboardKey) {
-      dashboardKeys = dashboardKeys.filter(item => item === dashboardKey);
-    }
-
-    const cacheKey = dashboardKeys.find(key => cache.check(DashboardService.getCacheKey(key, recordRef)));
-    const dashboardId = cacheKey ? cache.get(DashboardService.getCacheKey(cacheKey, recordRef)) : null;
-
-    if (!isEmpty(dashboardId)) {
-      return yield this.getDashboardById(dashboardId);
-    }
-
-    let data;
-
-    for (let key of dashboardKeys) {
-      data = yield this.getDashboardByKeyType(key, type);
-
-      if (!isEmpty(data)) {
-        cache.set(DashboardService.getCacheKey(key, recordRef), data.id);
-        break;
+    if (recordRef) {
+      recType = yield Records.get(recordRef).load('_etype?id');
+      if (!recType) {
+        recType = 'emodel/type@base';
       }
     }
 
-    return data;
-  };
-
-  getDashboardByUser = function() {
     const user = getCurrentUserName();
-    const dashboardId = cache.get(user);
 
-    if (!isEmpty(dashboardId)) {
-      return this.getDashboardById(dashboardId);
+    const cacheKey = `${recType}|${user}`;
+
+    let result = cache.get(cacheKey);
+    if (result) {
+      return result;
     }
 
-    return Records.queryOne(
-      {
-        sourceId: SourcesId.DASHBOARD,
-        query: {
-          type: DashboardTypes.USER,
-          user
-        }
-      },
-      { ...defaultAttr }
-    ).then(response => {
-      cache.set(user, response.id);
+    let dashboard = yield this.getDashboardByUserAndType(user, recType);
+    cache.set(cacheKey, dashboard);
 
-      return response;
-    });
+    return dashboard;
   };
 
   getTitleInfo = function*(recordRef = '') {
@@ -222,22 +204,18 @@ export class DashboardApi extends RecordService {
   };
 
   checkExistDashboard = function*({ key, type, user }) {
-    return yield Records.queryOne(
-      {
-        sourceId: SourcesId.DASHBOARD,
-        query: {
-          type,
-          user,
-          key
-        }
-      },
-      { user: QueryEntityKeys.USER }
-    ).then(response => {
-      const resUser = get(response, 'user', null);
-
+    return yield Records.queryOne({
+      sourceId: SourcesId.DASHBOARD,
+      query: {
+        typeRef: key,
+        authority: user,
+        includeForAll: false,
+        expandType: false
+      }
+    }).then(response => {
       return {
-        exist: !isEmpty(response) && (!resUser || resUser === user),
-        id: get(response, 'id', null)
+        exist: !!response,
+        id: ''
       };
     });
   };

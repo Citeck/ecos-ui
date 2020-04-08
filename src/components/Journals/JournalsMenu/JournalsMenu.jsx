@@ -1,13 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
-import CollapsableList from '../../common/CollapsableList/CollapsableList';
-import JournalsUrlManager from '../JournalsUrlManager';
+import classNames from 'classnames';
+
+import { getPropByStringKey, t, trigger } from '../../../helpers/util';
+import { wrapArgs } from '../../../helpers/redux';
+import { deleteJournalSetting, onJournalSelect, onJournalSettingsSelect, renameJournalSetting } from '../../../actions/journals';
 import { IcoBtn } from '../../common/btns';
 import { RemoveDialog } from '../../common/dialogs';
 import { Input, Well } from '../../common/form';
-import { deleteJournalSetting, onJournalSelect, onJournalSettingsSelect, renameJournalSetting } from '../../../actions/journals';
-import { getPropByStringKey, t, trigger } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
+import CollapsableList from '../../common/CollapsableList/CollapsableList';
+import JournalsUrlManager from '../JournalsUrlManager';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 import './JournalsMenu.scss';
@@ -20,6 +22,7 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
+    isMobile: state.view.isMobile,
     pageTabsIsShow: state.pageTabs.isShow,
     journals: newState.journals,
     journalSettings: newState.journalSettings,
@@ -283,7 +286,8 @@ class JournalsMenu extends Component {
         id: journalId,
         meta: { nodeRef }
       },
-      pageTabsIsShow
+      pageTabsIsShow,
+      isMobile
     } = this.props;
     const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
 
@@ -297,7 +301,13 @@ class JournalsMenu extends Component {
 
     return (
       <JournalsUrlManager stateId={stateId} params={{ journalId, journalSettingId }}>
-        <div className={`ecos-journal-menu ${open ? 'ecos-journal-menu_open' : ''} ${pageTabsIsShow ? 'ecos-journal-menu_tabs' : ''}`}>
+        <div
+          className={classNames('ecos-journal-menu', {
+            'ecos-journal-menu_open': open,
+            'ecos-journal-menu_tabs': pageTabsIsShow,
+            'ecos-journal-menu_mobile': isMobile
+          })}
+        >
           <div className={'ecos-journal-menu__hide-menu-btn'}>
             <IcoBtn
               onClick={this.onClose}
@@ -305,13 +315,13 @@ class JournalsMenu extends Component {
               invert
               className={'ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
             >
-              {t('journals.action.hide-menu')}
+              {isMobile ? t('journals.action.hide-menu_sm') : t('journals.action.hide-menu')}
             </IcoBtn>
           </div>
 
           <Well className={'ecos-journal-menu__journals'}>
             <CollapsableList
-              height={journalsHeight}
+              height={!isMobile && journalsHeight}
               classNameList={'ecos-list-group_mode_journal'}
               list={this.getMenuJornals(journals)}
               selected={this.getSelectedIndex(journals, nodeRef, 'nodeRef')}
@@ -322,7 +332,7 @@ class JournalsMenu extends Component {
 
           <Well className={'ecos-journal-menu__presets'}>
             <CollapsableList
-              height={settingsHeight}
+              height={!isMobile && settingsHeight}
               classNameList={'ecos-list-group_mode_journal'}
               list={this.getMenuJournalSettings(journalSettings, menuJournalSettingsSelectedIndex)}
               selected={menuJournalSettingsSelectedIndex}
@@ -336,7 +346,4 @@ class JournalsMenu extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsMenu);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsMenu);

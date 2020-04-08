@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
+import get from 'lodash/get';
 
 import { getMinWidthColumn } from '../../helpers/layout';
-import Components from '../Components';
+import Components from '../widgets/Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import { MENU_TYPE } from '../../constants';
-import { getSearchParams, documentScrollTop } from '../../helpers/util';
+import { documentScrollTop, getSearchParams } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
@@ -14,10 +15,18 @@ import './style.scss';
 class Layout extends Component {
   static propTypes = {
     columns: PropTypes.arrayOf(
-      PropTypes.shape({
-        width: PropTypes.string,
-        widgets: PropTypes.array
-      })
+      PropTypes.oneOfType([
+        PropTypes.arrayOf(
+          PropTypes.shape({
+            width: PropTypes.string,
+            widgets: PropTypes.array
+          })
+        ),
+        PropTypes.shape({
+          width: PropTypes.string,
+          widgets: PropTypes.array
+        })
+      ])
     ).isRequired,
     menuType: PropTypes.string,
     className: PropTypes.string,
@@ -40,6 +49,16 @@ class Layout extends Component {
   // for caching loaded components
   _components = {};
 
+  _wrapperRef = React.createRef();
+
+  componentDidMount() {
+    this.checkWrapperStyle();
+  }
+
+  componentDidUpdate() {
+    this.checkWrapperStyle();
+  }
+
   get className() {
     const { className } = this.props;
     const classes = ['ecos-layout', className];
@@ -55,6 +74,18 @@ class Layout extends Component {
     }
 
     return -menu.clientWidth;
+  }
+
+  checkWrapperStyle() {
+    const { columns } = this.props;
+
+    if (this._wrapperRef.current) {
+      this._wrapperRef.current.style.flexDirection = '';
+
+      if (Array.isArray(get(columns, '0', null))) {
+        this._wrapperRef.current.style.flexDirection = 'column';
+      }
+    }
   }
 
   draggablePositionAdjusment = () => {
@@ -148,8 +179,18 @@ class Layout extends Component {
     return components;
   }
 
-  renderColumn = (column, index) => {
-    const { columns, type, canDragging } = this.props;
+  renderColumn = (columns, column, index) => {
+    if (Array.isArray(column)) {
+      this.checkWrapperStyle();
+
+      return (
+        <div className="ecos-layout__row" key={index}>
+          {column.map(this.renderColumn.bind(this, column))}
+        </div>
+      );
+    }
+
+    const { type, canDragging } = this.props;
     const { draggableDestination } = this.state;
     const styles = {
       minWidth: getMinWidthColumn(type, index),
@@ -157,21 +198,14 @@ class Layout extends Component {
       height: '100%',
       borderRadius: '5px'
     };
-    const otherWidth = columns
-      .map(column => column.width || '')
-      .filter(item => item !== '')
-      .join(' + ');
+    const otherWidth = columns.map(column => column.width || '').filter(item => item !== '');
     const withoutSize = columns.filter(column => !column.width).length;
-    const availableWidth = otherWidth ? `(100% - ${otherWidth})` : '100%';
+    const availableWidth = otherWidth.length ? `(100% - (${otherWidth.join(' + ')}))` : '100%';
+    const id = JSON.stringify({ type: 'column', index });
 
     if (!column.width) {
       styles.width = `calc(${availableWidth} / ${withoutSize})`;
     }
-
-    const id = JSON.stringify({
-      type: 'column',
-      index
-    });
 
     if (canDragging) {
       return (
@@ -197,14 +231,18 @@ class Layout extends Component {
     );
   };
 
-  renderColumns() {
+  renderLayout() {
     const { columns } = this.props;
 
     if (!columns) {
       return null;
     }
 
-    return <div className="ecos-layout__column-wrapper">{columns && columns.map(this.renderColumn)}</div>;
+    return (
+      <div className="ecos-layout__wrapper" ref={this._wrapperRef}>
+        {columns && columns.map(this.renderColumn.bind(this, columns))}
+      </div>
+    );
   }
 
   render() {
@@ -213,12 +251,12 @@ class Layout extends Component {
     if (canDragging) {
       return (
         <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDragEnd}>
-          <div className={this.className}>{this.renderColumns()}</div>
+          <div className={this.className}>{this.renderLayout()}</div>
         </DragDropContext>
       );
     }
 
-    return <div className={this.className}>{this.renderColumns()}</div>;
+    return <div className={this.className}>{this.renderLayout()}</div>;
   }
 }
 

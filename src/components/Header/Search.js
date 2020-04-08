@@ -1,14 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
-import { SearchSelect } from '../common';
 import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../actions/header';
-import SearchService from '../../services/search';
-import SearchItem from './SearchItem';
-import { changeUrlLink } from '../PageTabs/PageTabs';
+import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/urls';
+import { URL_PAGECONTEXT } from '../../constants/alfresco';
+import SearchService from '../../services/search';
+import PageService from '../../services/PageService';
+import { SearchSelect } from '../common';
+import SearchItem from './SearchItem';
 
 const Types = SearchService.SearchAutocompleteTypes;
 
@@ -17,7 +19,8 @@ const mapStateToProps = state => ({
   people: state.header.search.people,
   sites: state.header.search.sites,
   noResults: state.header.search.noResults,
-  isLoading: state.header.search.isLoading
+  isLoading: state.header.search.isLoading,
+  theme: state.view.theme
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -45,8 +48,6 @@ class Search extends React.Component {
     isMobile: false
   };
 
-  className = 'ecos-header-search';
-
   onSearch = searchText => {
     this.props.resetSearchAutocomplete();
 
@@ -57,16 +58,25 @@ class Search extends React.Component {
 
   openFullSearch = searchText => {
     const { searchPageUrl, hiddenSearchTerms } = this.props;
-    const url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
+    const path = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
+    const url = URL_PAGECONTEXT + path;
 
-    changeUrlLink(window.Alfresco.constants.URL_PAGECONTEXT + url, { reopenBrowserTab: true });
+    if (!isNewVersionPage()) {
+      return (window.location.href = url);
+    }
+
+    PageService.changeUrlLink(url, { reopenBrowserTab: true });
   };
 
   goToResult = data => {
+    if (!isNewVersionPage()) {
+      return (window.location.href = data.url);
+    }
+
     const reopenBrowserTab = !isNewVersionPage(data.url);
     const openNewTab = [Types.DOCUMENTS, Types.SITES].includes(data.type) && !reopenBrowserTab;
 
-    changeUrlLink(data.url, { openNewTab, reopenBrowserTab });
+    PageService.changeUrlLink(data.url, { openNewTab, reopenBrowserTab });
     this.props.resetSearchAutocomplete();
   };
 
@@ -95,19 +105,21 @@ class Search extends React.Component {
     const searchResult = this.searchResult;
 
     return !noResults && !isEmpty(searchResult)
-      ? searchResult.map((item, i, arr) => <SearchItem key={`${this.className}-${i}`} data={item} onClick={this.goToResult} />)
+      ? searchResult.map((item, i, arr) => <SearchItem key={`ecos-header-search-${i}`} data={item} onClick={this.goToResult} />)
       : null;
   }
 
   render() {
-    const { noResults, isMobile } = this.props;
+    const { noResults, isMobile, theme } = this.props;
+
+    const classes = classNames('ecos-header-search', `ecos-header-search_theme_${theme}`);
 
     return (
       <SearchSelect
-        className={this.className}
+        className={classes}
         onSearch={this.onSearch}
         openFullSearch={this.openFullSearch}
-        theme={'dark'}
+        theme={theme}
         formattedSearchResult={this.formattedSearchResult}
         autocomplete
         isMobile={isMobile}
@@ -119,7 +131,4 @@ class Search extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Search);
+export default connect(mapStateToProps, mapDispatchToProps)(Search);

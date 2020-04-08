@@ -6,6 +6,7 @@ import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
 export default class BaseReactComponent extends BaseComponent {
   build() {
     this.onReactValueChanged = value => {
+      this.setPristine(false);
       this.setValue(value, { skipReactWrapperUpdating: true });
     };
 
@@ -58,12 +59,17 @@ export default class BaseReactComponent extends BaseComponent {
 
     this.createDescription(this.element);
 
-    // this.attachLogic();
+    this.createInlineEditSaveAndCancelButtons();
+
+    this.attachRefreshOn();
+    // this.autofocus();
+    this.attachLogic();
   }
 
   createViewOnlyValue(container) {
     this.react.container = this.ce('dd');
     container.appendChild(this.react.container);
+    this.createInlineEditButton(container);
     this.renderReactComponent();
   }
 
@@ -142,7 +148,7 @@ export default class BaseReactComponent extends BaseComponent {
       this.react.wrapper = null;
     }
 
-    super.destroy();
+    return super.destroy();
   }
 
   get emptyValue() {

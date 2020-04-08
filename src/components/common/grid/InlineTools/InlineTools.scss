@@ -1,4 +1,4 @@
-@import '../../../../constants';
+@import '../../../../styles/constants';
 
 .ecos-inline-tools {
   border-top: 2px solid $color-brown-2;
@@ -27,6 +27,7 @@
   position: absolute;
   top: 0;
   right: 0;
+  overflow: hidden;
 }
 
 .ecos-inline-tools-btn {

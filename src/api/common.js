@@ -1,5 +1,6 @@
 import { getCurrentLocale } from '../helpers/util';
 import { setIsAuthenticated } from '../actions/user';
+import ecosFetch from '../helpers/ecosFetch';
 
 const getOptions = {
   credentials: 'include',
@@ -55,10 +56,15 @@ export class CommonApi {
       return this.getJson(config.url);
     }
 
-    let { timeout, onError, url } = config;
+    let { timeout, onError, url, postProcess } = config;
+
+    let shareProxyUrl = '';
+    if (process.env.NODE_ENV === 'development') {
+      shareProxyUrl = process.env.REACT_APP_SHARE_PROXY_URL;
+    }
 
     const locale = getCurrentLocale();
-    const key = `CommonApi_${locale}_${url}`;
+    const key = `CommonApi_${locale}_${shareProxyUrl}${url}`;
 
     let result = sessionStorage.getItem(key);
     if (result) {
@@ -84,7 +90,16 @@ export class CommonApi {
     };
 
     let resultPromise = this.getJson(url).then(response => {
-      return addToStorage(response);
+      if (postProcess) {
+        response = postProcess(response);
+        if (response.then) {
+          return response.then(resp => addToStorage(resp));
+        } else {
+          return addToStorage(response);
+        }
+      } else {
+        return addToStorage(response);
+      }
     });
 
     if (onError) {
@@ -103,7 +118,7 @@ export class CommonApi {
   };
 
   getJson = url => {
-    return fetch(url, {
+    return ecosFetch(url, {
       ...getOptions,
       headers: {
         ...this.getCommonHeaders()
@@ -114,7 +129,7 @@ export class CommonApi {
   };
 
   getHtml = url => {
-    return fetch(url, {
+    return ecosFetch(url, {
       ...getOptions,
       headers: {
         ...this.getCommonHeaders()
@@ -125,7 +140,7 @@ export class CommonApi {
   };
 
   deleteJson = (url, notJsonResp) => {
-    const prms = fetch(url, {
+    const prms = ecosFetch(url, {
       ...deleteOptions,
       headers: {
         ...this.getCommonHeaders()
@@ -136,9 +151,9 @@ export class CommonApi {
   };
 
   putJson = (url, data, notJsonResp) => {
-    const prms = fetch(url, {
+    const prms = ecosFetch(url, {
       ...putOptions,
-      body: JSON.stringify(data),
+      body: data,
       headers: {
         ...this.getCommonHeaders(),
         ...putOptions.headers
@@ -149,9 +164,9 @@ export class CommonApi {
   };
 
   postJson = (url, data, notJsonResp) => {
-    const prms = fetch(url, {
+    const prms = ecosFetch(url, {
       ...postOptions,
-      body: JSON.stringify(data),
+      body: data,
       headers: {
         ...this.getCommonHeaders(),
         ...postOptions.headers

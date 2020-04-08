@@ -1,8 +1,11 @@
 import lodashGet from 'lodash/get';
 import moment from 'moment';
-import { DataFormatTypes, MIN_WIDTH_DASHLET_LARGE } from '../constants';
-import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
+import i18next from 'i18next';
 import * as queryString from 'query-string';
+import uuidV4 from 'uuid/v4';
+
+import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../constants';
+import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
@@ -37,7 +40,7 @@ export function setCookie(name, value, options = {}) {
 
 export const utcAsLocal = jsonDate =>
   moment(jsonDate)
-    .zone(0)
+    .utcOffset(0)
     .format(UTC_AS_LOCAL_FORMAT);
 
 export const revokeUtcAsLocal = jsonDate => moment(jsonDate).format(UTC_AS_LOCAL_FORMAT) + 'Z';
@@ -75,7 +78,11 @@ export const queryByCriteria = criteria => {
 
 export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
 
-export function closest(node, selector) {
+export function closest(node = null, selector) {
+  if (!node) {
+    return null;
+  }
+
   const parent = node.parentElement;
 
   if (parent) {
@@ -162,7 +169,7 @@ export function isMobileDevice() {
 export function getCurrentLocale() {
   const cookiesLocale = getCookie(COOKIE_KEY_LOCALE);
   if (cookiesLocale) {
-    return cookiesLocale;
+    return cookiesLocale.substr(0, 2).toLowerCase();
   }
 
   if (!window.navigator) {
@@ -174,9 +181,11 @@ export function getCurrentLocale() {
   return language.substr(0, 2).toLowerCase();
 }
 
-export function dynamicallyLoadScript(url, callback) {
+export function loadScript(url, callback) {
   const script = document.createElement('script');
-  script.src = url;
+
+  const prefix = url.indexOf('?') === -1 ? '?' : '&v=';
+  script.src = `${url}${prefix}${process.env.REACT_APP_BUILD_VERSION}`;
 
   document.body.appendChild(script);
 
@@ -185,27 +194,22 @@ export function dynamicallyLoadScript(url, callback) {
   }
 }
 
-// TODO
-export function t(messageId, multipleValues, scope = 'global') {
-  // https://dev.alfresco.com/resource/docs/aikau-jsdoc/Core.js.html
-  if (!messageId) {
+export function t(key, options, scope = 'global') {
+  if (!key) {
     return '';
   }
 
+  if (i18next.exists(key)) {
+    return i18next.t(key, options);
+  }
+
+  // TODO remove in future
   const Alfresco = window.Alfresco;
-
-  if (!Alfresco || !Alfresco.util || !Alfresco.util.message) {
-    // console.warn('[t]: Alfresco.util.message is not available');
-    return messageId;
+  if (Alfresco && Alfresco.util && Alfresco.util.message) {
+    return Alfresco.util.message(key, scope, options);
   }
 
-  const translatedMessage = Alfresco.util.message(messageId, scope, multipleValues);
-
-  if (translatedMessage === messageId) {
-    // console.warn(`[t]: looks like message '${messageId}' has not translation`);
-  }
-
-  return translatedMessage;
+  return key;
 }
 
 export function cellMsg(prefix) {
@@ -282,13 +286,13 @@ export function getRelativeTime(from, to) {
   };
 
   if (minutes_ago <= 0) {
-    return fnTime('relative.seconds', seconds_ago);
+    return fnTime('relative.seconds', { value: seconds_ago });
   }
   if (minutes_ago === 1) {
     return fnTime('relative.minute');
   }
   if (minutes_ago < 45) {
-    return fnTime('relative.minutes', minutes_ago);
+    return fnTime('relative.minutes', { value: minutes_ago });
   }
   if (minutes_ago < 90) {
     return fnTime('relative.hour');
@@ -296,7 +300,7 @@ export function getRelativeTime(from, to) {
 
   const hours_ago = Math.round(minutes_ago / 60);
   if (minutes_ago < 1440) {
-    return fnTime('relative.hours', hours_ago);
+    return fnTime('relative.hours', { value: hours_ago });
   }
   if (minutes_ago < 2880) {
     return fnTime('relative.day');
@@ -304,7 +308,7 @@ export function getRelativeTime(from, to) {
 
   const days_ago = Math.round(minutes_ago / 1440);
   if (minutes_ago < 43200) {
-    return fnTime('relative.days', days_ago);
+    return fnTime('relative.days', { value: days_ago });
   }
   if (minutes_ago < 86400) {
     return fnTime('relative.month');
@@ -312,14 +316,14 @@ export function getRelativeTime(from, to) {
 
   const months_ago = Math.round(minutes_ago / 43200);
   if (minutes_ago < 525960) {
-    return fnTime('relative.months', months_ago);
+    return fnTime('relative.months', { value: months_ago });
   }
   if (minutes_ago < 1051920) {
     return fnTime('relative.year');
   }
 
   const years_ago = Math.round(minutes_ago / 525960);
-  return fnTime('relative.years', years_ago);
+  return fnTime('relative.years', { value: years_ago });
 }
 
 export function getScrollbarWidth() {
@@ -371,10 +375,10 @@ export function fileDownload(link) {
  */
 export function getScaleModes() {
   return [
-    { id: 'auto', title: t('doc-preview.scale.auto'), scale: 'auto' },
-    { id: 'pageFit', title: t('doc-preview.scale.page-fit'), scale: 'page-fit' },
-    { id: 'pageHeight', title: t('doc-preview.scale.page-height'), scale: 'page-height' },
-    { id: 'pageWidth', title: t('doc-preview.scale.page-width'), scale: 'page-width' },
+    { id: 'auto', title: t('doc-preview.scale.auto'), scale: DocScaleOptions.AUTO },
+    { id: 'pageFit', title: t('doc-preview.scale.page-fit'), scale: DocScaleOptions.PAGE_FIT },
+    { id: 'pageHeight', title: t('doc-preview.scale.page-height'), scale: DocScaleOptions.PAGE_HEIGHT },
+    { id: 'pageWidth', title: t('doc-preview.scale.page-width'), scale: DocScaleOptions.PAGE_WIDTH },
     { id: '50', title: '50%', scale: 0.5 },
     { id: '75', title: '75%', scale: 0.75 },
     { id: '100', title: '100%', scale: 1 },
@@ -390,35 +394,37 @@ export function getScaleModes() {
  * Вычисление масштабирования для строковых режимов
  * @param scale {Number|String} - режим см getScaleModes
  * @param paramsContainer {Object} - ширина и высота объекта масштабирования
- * @param paramsScaleObject {Object} - ширина и высота контейнера
+ * @param paramsPage {Object} - ширина и высота контейнера
  * @param ratioAuto
- * @param paddingContainer
  * @returns {Number} масштаб
  */
-export function getScale(scale = 'auto', paramsContainer, paramsScaleObject, ratioAuto = 50, paddingContainer = 0) {
-  let { width: soW, height: soH } = paramsScaleObject || {};
+export function getScale(scale, paramsContainer, paramsPage, ratioAuto = 50) {
+  let { origW, origH, scaleW } = paramsPage || {};
   let { width: cW, height: cH } = paramsContainer || {};
 
   let calcScale = (c, so) => {
-    return +Number((c - paddingContainer) / so).toFixed(2);
+    return +Number(c / so).toFixed(2);
   };
 
   let fit = ratio => {
     if (Math.min(cH, cW) === cH) {
-      return calcScale(cH + ratio, soH);
+      return calcScale(cH + ratio, origH);
     }
-    return calcScale(cW + ratio, soW);
+
+    return calcScale(cW + ratio, origW);
   };
 
   switch (scale) {
-    case 'page-height':
-      return calcScale(cH, soH);
-    case 'page-width':
-      return calcScale(cW, soW);
-    case 'page-fit':
+    case DocScaleOptions.PAGE_HEIGHT:
+      return calcScale(cH, origH);
+    case DocScaleOptions.PAGE_WIDTH:
+      return calcScale(cW, origW);
+    case DocScaleOptions.PAGE_FIT:
       return fit(0);
-    case 'auto':
+    case DocScaleOptions.AUTO:
       return fit(ratioAuto);
+    case DocScaleOptions.PAGE_WHOLE:
+      return calcScale(cW - 10, scaleW);
     default:
       if (scale && !Number.isNaN(parseFloat(scale))) {
         return scale;
@@ -543,6 +549,8 @@ export function documentScrollTop() {
 }
 
 export function getAdaptiveNumberStr(number) {
+  number = number || 0;
+
   let num = parseInt(number);
   if (num >= 1000) {
     let res = parseInt((num / 1000).toString());
@@ -565,4 +573,115 @@ export function removeItemFromArray(array = [], item = '', byKey = '') {
 
 export function isNodeRef(str) {
   return typeof str === 'string' && str.indexOf('workspace://SpacesStore/') === 0;
+}
+
+/**
+ * Convert from ISO8601 date to JavaScript date
+ */
+export function fromISO8601(formattedString) {
+  var isoRegExp = /^(?:(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?)?(?:T(\d{2}):(\d{2})(?::(\d{2})(.\d+)?)?((?:[+-](\d{2}):(\d{2}))|Z)?)?$/;
+
+  var match = isoRegExp.exec(formattedString);
+  var result = null;
+
+  if (match) {
+    match.shift();
+    if (match[1]) {
+      match[1]--;
+    } // Javascript Date months are 0-based
+    if (match[6]) {
+      match[6] *= 1000;
+    } // Javascript Date expects fractional seconds as milliseconds
+
+    result = new Date(match[0] || 1970, match[1] || 0, match[2] || 1, match[3] || 0, match[4] || 0, match[5] || 0, match[6] || 0);
+
+    var offset = 0;
+    var zoneSign = match[7] && match[7].charAt(0);
+    if (zoneSign !== 'Z') {
+      offset = (match[8] || 0) * 60 + (Number(match[9]) || 0);
+      if (zoneSign !== '-') {
+        offset *= -1;
+      }
+    }
+    if (zoneSign) {
+      offset -= result.getTimezoneOffset();
+    }
+    if (offset) {
+      result.setTime(result.getTime() + offset * 60000);
+    }
+  }
+
+  return result; // Date or null
+}
+
+export function animateScrollTo(element = null, scrollTo = {}) {
+  if (!element) {
+    return;
+  }
+
+  const { scrollLeft, scrollTop } = scrollTo;
+
+  if (scrollLeft !== undefined) {
+    element.scrollTo({
+      left: scrollLeft,
+      behavior: 'smooth'
+    });
+  }
+
+  if (scrollTop !== undefined) {
+    element.scrollTo({
+      top: scrollTop,
+      behavior: 'smooth'
+    });
+  }
+}
+
+export function hasChildWithId(items, selectedId) {
+  let childIndex = items.findIndex(item => item.id === selectedId);
+
+  if (childIndex !== -1) {
+    return true;
+  }
+
+  let totalItems = items.length;
+
+  for (let i = 0; i < totalItems; i++) {
+    if (!items[i].items) {
+      continue;
+    }
+
+    let hasChild = hasChildWithId(items[i].items, selectedId);
+
+    if (hasChild) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function prepareTooltipId(id = uuidV4()) {
+  return `${id}`.replace(/[^\d\w-]/g, '');
+}
+
+export function arrayFlat({ data = [], depth = Infinity, byField = '' }) {
+  if (!data.length) {
+    return [];
+  }
+
+  const array = deepClone(data);
+
+  if (!byField) {
+    return array.flat(depth);
+  }
+
+  const getChildren = child => {
+    if (!child[byField].length) {
+      return child;
+    }
+
+    return child[byField].map(getChildren);
+  };
+
+  return Array.prototype.flat.call(array.map(getChildren), depth);
 }

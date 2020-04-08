@@ -33,17 +33,13 @@ class JournalsFilters extends Component {
     const { predicate, columns, sourceId, metaRecord } = this.props;
 
     return (
-      <PanelBar
-        header={t('filter-list.panel-header')}
-        className={'ecos-journals-filters__panel-bar'}
-        css={{ headerClassName: 'panel-bar__header_full panel-bar__header_upper' }}
-      >
+      <PanelBar header={t('filter-list.panel-header')} css={{ headerClassName: 'panel-bar__header_upper' }}>
         <Filters
           predicate={predicate}
           columns={columns}
           sourceId={sourceId}
           metaRecord={metaRecord}
-          className={'ecos-journals-filters'}
+          className="ecos-journals-filters"
           onChange={this.onChangeFilters}
         />
       </PanelBar>
@@ -51,7 +47,4 @@ class JournalsFilters extends Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsFilters);
+export default connect(mapStateToProps, mapDispatchToProps)(JournalsFilters);

@@ -3,15 +3,18 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 
-import IcoBtn from '../common/btns/IcoBtn';
-import EcosForm from './EcosForm';
-import EcosModal from '../common/EcosModal';
-import Records from '../Records';
 import { t } from '../../helpers/util';
+import { SourcesId } from '../../constants';
+import Records from '../Records';
+import IcoBtn from '../common/btns/IcoBtn';
+import EcosModal from '../common/EcosModal';
+import EcosFormUtils from './EcosFormUtils';
+import EcosForm, { FORM_MODE_EDIT } from './';
+
 import './EcosFormModal.scss';
 
 const LABELS = {
-  CONSTRUCTOR_BTN_TOOLTIP: 'Перейти в конструктор'
+  CONSTRUCTOR_BTN_TOOLTIP: 'eform.btn.tooltip.constructor'
 };
 
 export default class EcosFormModal extends React.Component {
@@ -21,7 +24,8 @@ export default class EcosFormModal extends React.Component {
     super(props);
 
     this.state = {
-      isModalOpen: false
+      isModalOpen: false,
+      isAdmin: false
     };
   }
 
@@ -50,20 +54,29 @@ export default class EcosFormModal extends React.Component {
   }
 
   componentDidMount() {
+    this.checkEditRights();
     Records.get(this.props.record)
       .load({
         displayName: '.disp',
         formMode: '_formMode'
       })
-      .then(data => {
-        this.setState({
-          recordData: data
-        });
+      .then(recordData => {
+        this.setState({ recordData });
       });
   }
 
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this._onbeforeunload);
+  }
+
+  checkEditRights() {
+    Records.query({ sourceId: SourcesId.PEOPLE }, { isAdmin: 'isAdmin?bool' }).then(result => {
+      if (!Array.isArray(result.records) || result.records.length < 1) {
+        return;
+      }
+
+      this.setState({ isAdmin: result.records[0].isAdmin });
+    });
   }
 
   _onbeforeunload = e => {
@@ -85,6 +98,12 @@ export default class EcosFormModal extends React.Component {
   };
 
   renderConstructorButton() {
+    const { isAdmin } = this.state;
+
+    if (!isAdmin) {
+      return null;
+    }
+
     return (
       <React.Fragment key="ecos-form-modal-constructor-btn">
         <IcoBtn
@@ -108,18 +127,19 @@ export default class EcosFormModal extends React.Component {
   }
 
   render() {
-    const { record, title, isBigHeader } = this.props;
+    const { title, isBigHeader } = this.props;
+    const { recordData, isModalOpen } = this.state;
 
-    let recordData = this.state.recordData;
-
-    if (!this.state.isModalOpen || !recordData || !record) {
+    if (!isModalOpen || !recordData) {
       return null;
     }
 
-    let formProps = Object.assign({}, this.props);
+    const modalTitle = title || EcosFormUtils.getFormTitle(recordData, title);
 
+    let formProps = Object.assign({}, this.props);
     let formOptions = formProps.options || {};
-    formOptions['formMode'] = recordData.formMode;
+
+    formOptions['formMode'] = recordData.formMode || formOptions['formMode'] || FORM_MODE_EDIT;
     formProps['options'] = formOptions;
 
     formProps['onSubmit'] = (record, form) => {
@@ -128,12 +148,14 @@ export default class EcosFormModal extends React.Component {
         this.props.onSubmit(record, form);
       }
     };
+
     formProps['onFormCancel'] = (record, form) => {
       this.hide();
       if (this.props.onFormCancel) {
         this.props.onFormCancel(record, form);
       }
     };
+
     formProps['onReady'] = (record, form) => {
       if (this.props.onReady) {
         this.props.onReady(record, form);
@@ -148,8 +170,8 @@ export default class EcosFormModal extends React.Component {
           }}
           className="ecos-modal_width-lg ecos-form-modal"
           isBigHeader={isBigHeader}
-          title={title || t('eform.header.' + recordData.formMode + '.title')}
-          isOpen={this.state.isModalOpen}
+          title={modalTitle}
+          isOpen={isModalOpen}
           hideModal={() => this.hide()}
           customButtons={[this.renderConstructorButton()]}
           zIndex={9000}

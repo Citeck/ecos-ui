@@ -1,12 +1,12 @@
-import { t } from '../helpers/util';
+import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
+import { getCurrentUserName, t } from '../helpers/util';
 import { showModal } from './modal';
+import ecosFetch from '../helpers/ecosFetch';
 
 export function leaveSiteRequest({ site, siteTitle, user, userFullName }) {
   return (dispatch, getState, api) => {
-    const url = window.Alfresco.constants.PROXY_URI + `api/sites/${encodeURIComponent(site)}/memberships/${encodeURIComponent(user)}`;
-    return fetch(url, {
-      method: 'DELETE'
-    })
+    const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/memberships/${encodeURIComponent(user)}`;
+    return ecosFetch(url, { method: 'DELETE' })
       .then(resp => {
         if (resp.status !== 200) {
           return dispatch(
@@ -29,7 +29,7 @@ export function leaveSiteRequest({ site, siteTitle, user, userFullName }) {
           })
         );
 
-        window.location.href = window.Alfresco.constants.URL_PAGECONTEXT + 'user/' + encodeURIComponent(user) + '/dashboard';
+        window.location.href = URL_PAGECONTEXT + 'user/' + encodeURIComponent(user) + '/dashboard';
       })
       .catch(err => {
         console.log('error', err);
@@ -39,7 +39,7 @@ export function leaveSiteRequest({ site, siteTitle, user, userFullName }) {
 
 export function joinSiteRequest({ site, siteTitle, user, userFullName }) {
   return (dispatch, getState, api) => {
-    const url = window.Alfresco.constants.PROXY_URI + `api/sites/${encodeURIComponent(site)}/memberships`;
+    const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/memberships`;
     const data = {
       role: 'SiteConsumer',
       person: {
@@ -47,14 +47,7 @@ export function joinSiteRequest({ site, siteTitle, user, userFullName }) {
       }
     };
 
-    return fetch(url, {
-      method: 'PUT',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
+    return ecosFetch(url, { method: 'PUT', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: data })
       .then(resp => {
         if (resp.status !== 200) {
           console.log('joinSiteRequest err', resp);
@@ -77,22 +70,15 @@ export function joinSiteRequest({ site, siteTitle, user, userFullName }) {
 
 export function becomeSiteManagerRequest({ site, siteTitle, user, userFullName }) {
   return (dispatch, getState, api) => {
-    const url = window.Alfresco.constants.PROXY_URI + `api/sites/${encodeURIComponent(site)}/memberships`;
+    const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/memberships`;
     const data = {
       role: 'SiteManager',
       person: {
-        userName: user ? user : window.Alfresco.constants.USERNAME
+        userName: user ? user : getCurrentUserName()
       }
     };
 
-    return fetch(url, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
+    return ecosFetch(url, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: data })
       .then(resp => {
         if (resp.status !== 200) {
           console.log('becomeSiteManagerRequest err', resp);
@@ -109,7 +95,7 @@ export function becomeSiteManagerRequest({ site, siteTitle, user, userFullName }
 
 export function requestSiteMembership({ site, siteTitle, user, userFullName }) {
   return (dispatch, getState, api) => {
-    const url = window.Alfresco.constants.PROXY_URI + `api/sites/${encodeURIComponent(site)}/invitations`;
+    const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/invitations`;
     const data = {
       invitationType: 'MODERATED',
       inviteeRoleName: 'SiteConsumer',
@@ -117,13 +103,10 @@ export function requestSiteMembership({ site, siteTitle, user, userFullName }) {
       inviteeComments: ''
     };
 
-    return fetch(url, {
+    return ecosFetch(url, {
       method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: data
     })
       .then(resp => {
         // console.log('requestSiteMembership resp', resp);
@@ -145,7 +128,7 @@ export function requestSiteMembership({ site, siteTitle, user, userFullName }) {
             title: t('message.request-join-success-title'),
             content: t('message.request-join-success', { '0': user, '1': siteTitle || site }),
             onCloseCallback: () => {
-              window.location.href = window.Alfresco.constants.URL_PAGECONTEXT + 'user/' + encodeURIComponent(user) + '/dashboard';
+              window.location.href = URL_PAGECONTEXT + 'user/' + encodeURIComponent(user) + '/dashboard';
             },
             buttons: [
               {

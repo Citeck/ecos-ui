@@ -14,10 +14,11 @@ category
 noderef
 options
 +assoc
-person
-authorityGroup
-authority
 */
+
+export function matchCardDetailsLinkFormatterColumn(column) {
+  return column.attribute === 'cm:name' || column.attribute === 'cm:title';
+}
 
 const MAP = [
   {
@@ -55,10 +56,6 @@ const MAP = [
     enable: column => column.params && column.params.formatter
   },
   {
-    options: () => 'CardDetailsLinkFormatter',
-    enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
-  },
-  {
     options: () => 'DateFormatter',
     enable: column => column.attribute === 'bpm:startDate'
   },
@@ -75,13 +72,35 @@ const MAP = [
     enable: column => column.type === 'boolean'
   },
   {
-    options: () => 'SelectFormatter',
+    options: column => {
+      const params = column.params || {};
+      return { name: 'SelectFormatter', params: { ...params, column } };
+    },
     enable: column => column.type === 'options'
   },
   {
     options: () => 'AssocFormatter',
     enable: column => column.type === 'assoc'
+  },
+  {
+    options: () => 'AssocFormatter',
+    enable: column => column.type === 'person' || column.type === 'authority' || column.type === 'authorityGroup'
+  },
+  {
+    options: () => 'NumberFormatter',
+    enable: column => column.type === 'int' || column.type === 'long' || column.type === 'float' || column.type === 'double'
+  },
+  {
+    options: () => 'CardDetailsLinkFormatter',
+    enable: column => matchCardDetailsLinkFormatterColumn(column) && !column.disableFormatter
   }
+  // it is not used and breaks UX (users are uncomfortable when they cannot select elements with a simple click on the element,
+  // since it opens the viewing of the record they poked on). Return if necessary.
+  //
+  // {
+  //   options: () => 'CardDetailsLinkFormatter',
+  //   enable: column => column.attribute === 'cm:name' || column.attribute === 'cm:title'
+  // },
 ];
 
 export default class Mapper {

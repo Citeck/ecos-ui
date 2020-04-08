@@ -1,6 +1,8 @@
 import { URL } from '../../constants';
 import { isNewVersionPage } from '../../helpers/export/urls';
+import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import Records from '../../components/Records';
+import ecosFetch from '../../helpers/ecosFetch';
 
 const prepareJournalLinkParams = params => {
   let listId = params.listId || params.journalsListId;
@@ -49,9 +51,7 @@ const getFirstJournalByList = listId => {
     return fromCache;
   }
 
-  let request = fetch(`/share/proxy/alfresco/api/journals/list?journalsList=${listId}`, {
-    credentials: 'include'
-  })
+  let request = ecosFetch(`/share/proxy/alfresco/api/journals/list?journalsList=${listId}`)
     .then(response => {
       if (response.status >= 200 && response.status < 300) {
         return response.json();
@@ -126,20 +126,77 @@ const getOldPageUrl = params => {
   return targetUrl;
 };
 
+let uiTypeByJournalId = {};
+let uiTypeByJournalIdQueryBatch = null;
+
+export const getJournalUIType = journalId => {
+  let uiType = uiTypeByJournalId[journalId];
+  if (uiType) {
+    return uiType.typePromise;
+  }
+
+  if (!uiType) {
+    let queryRequired = false;
+    if (uiTypeByJournalIdQueryBatch == null) {
+      queryRequired = true;
+      uiTypeByJournalIdQueryBatch = {};
+    }
+
+    uiTypeByJournalIdQueryBatch[journalId] = true;
+
+    uiType = {};
+    uiType.typePromise = new Promise(resolve => {
+      uiType.resolve = resolve;
+    });
+    uiTypeByJournalId[journalId] = uiType;
+
+    if (queryRequired) {
+      setTimeout(() => {
+        const journalsList = Object.keys(uiTypeByJournalIdQueryBatch);
+        uiTypeByJournalIdQueryBatch = null;
+
+        ecosFetch(`/share/proxy/alfresco/api/journals/journals-ui-type`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: {
+            journals: journalsList
+          }
+        })
+          .then(response => {
+            if (response.status >= 200 && response.status < 300) {
+              return response.json();
+            }
+            return {};
+          })
+          .catch(e => {
+            console.error(e);
+            return {};
+          })
+          .then(res => {
+            for (let journalId of journalsList) {
+              let journalIdCache = uiTypeByJournalId[journalId];
+              if (journalIdCache && journalIdCache.resolve) {
+                journalIdCache.resolve(res[journalId] || '');
+              }
+            }
+          });
+      }, 100);
+    }
+  }
+  return uiType.typePromise;
+};
+
 export const getJournalPageUrl = params => {
   const preparedParams = prepareJournalLinkParams(params);
 
   if (isNewVersionPage()) {
-    return getNewPageUrl(preparedParams);
-  } else {
-    return Records.get('ecos-config@new-journals-page-enable')
-      .load('.bool')
-      .then(value => {
-        if (value === true) {
-          return getNewPageUrl(preparedParams);
-        } else {
-          return getOldPageUrl(preparedParams);
-        }
-      });
+    const isNewJournalPageEnable = Records.get('ecos-config@new-journals-page-enable').load('.bool');
+    const isJournalAvailibleForUser = checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
+
+    return Promise.all([isNewJournalPageEnable, isJournalAvailibleForUser]).then(values => {
+      return values.includes(true) ? getNewPageUrl(preparedParams) : getOldPageUrl(preparedParams);
+    });
   }
 };

@@ -50,7 +50,7 @@ export default class MenuLayoutItem extends BaseLayoutItem {
 
     return (
       <div className={this.className}>
-        <div className="ecos-layout__item-template" onClick={onClick}>
+        <div className="ecos-layout__item-template ecos-layout__item-template_menu" onClick={onClick}>
           {this.renderMenu()}
           {this.renderActiveIcon()}
         </div>

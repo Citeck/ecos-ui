@@ -4,6 +4,7 @@ import { getPredicates, getPredicateInput } from '../predicates';
 
 export default class FiltersProvider extends Component {
   state = {
+    allFields: [],
     fields: [],
     searchText: '',
     isReady: false
@@ -12,7 +13,7 @@ export default class FiltersProvider extends Component {
   componentDidMount() {
     const { columns } = this.props;
     if (columns) {
-      this.setFields(columns.filter(item => item.default));
+      this.setFields(columns);
     }
   }
 
@@ -21,25 +22,41 @@ export default class FiltersProvider extends Component {
     const { isReady } = this.state;
 
     if (columns && !isReady) {
-      this.setFields(columns.filter(item => item.default));
+      this.setFields(columns);
     }
   }
 
   setFields = fields => {
-    const { sourceId } = this.props;
+    const { sourceId, presetFilterPredicates } = this.props;
 
     this.setState({
-      fields: fields.map(item => {
-        const predicates = getPredicates(item);
-        const input = getPredicateInput(item, sourceId);
-        return {
-          ...item,
-          predicates,
-          selectedPredicate: predicates[0],
-          predicateValue: input ? input.defaultValue : null,
-          input
-        };
-      }),
+      allFields: fields,
+      fields: fields
+        .filter(item => {
+          return item.default || (Array.isArray(presetFilterPredicates) && presetFilterPredicates.find(i => item.attribute === i.att));
+        })
+        .map(item => {
+          const predicates = getPredicates(item);
+          const input = getPredicateInput(item, sourceId);
+
+          let predicateValue = input ? input.defaultValue : null;
+          let selectedPredicate = predicates[0];
+          if (Array.isArray(presetFilterPredicates)) {
+            const presetFilterPredicate = presetFilterPredicates.find(i => item.attribute === i.att);
+            if (presetFilterPredicate) {
+              predicateValue = presetFilterPredicate.val;
+              selectedPredicate = predicates.find(i => i.value === presetFilterPredicate.t) || predicates[0];
+            }
+          }
+
+          return {
+            ...item,
+            predicates,
+            selectedPredicate,
+            predicateValue,
+            input
+          };
+        }),
       isReady: true
     });
   };
@@ -69,6 +86,7 @@ export default class FiltersProvider extends Component {
     return (
       <FiltersContext.Provider
         value={{
+          allFields: this.state.allFields,
           fields: this.state.fields,
           searchText: this.state.searchText,
           updateSearchText: e => {

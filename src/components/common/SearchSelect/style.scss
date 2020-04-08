@@ -1,4 +1,4 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 .ecos-input-search {
   $root: &;
@@ -9,6 +9,10 @@
   &__icon {
     position: absolute;
     cursor: pointer;
+
+    &_hidden {
+      display: none;
+    }
 
     &-search {
       $isearch: &;
@@ -35,6 +39,10 @@
     &_empty {
       padding-right: 0;
     }
+
+    &_hidden {
+      display: none;
+    }
   }
 
   &_close {
@@ -46,7 +54,7 @@
     }
   }
 
-  &_dark {
+  &_theme_citeckTheme {
     background: $color-blue-dark;
     border-radius: $border-radius-standard;
 
@@ -65,12 +73,41 @@
     }
 
     #{$root}__input {
-      background: unset;
-      border: none;
+      background: transparent;
+      border: none !important;
       color: $color-white;
 
       &::placeholder {
         color: $color-blue-light2;
+      }
+    }
+  }
+
+  &_theme_uedmsTheme {
+    background: $color-green-dark;
+    border-radius: $border-radius-standard;
+
+    #{$root}__icon {
+      &-search {
+        color: $color-white;
+      }
+
+      &-clear {
+        color: $color-green-light2;
+
+        &:hover {
+          color: $color-white;
+        }
+      }
+    }
+
+    #{$root}__input {
+      background: transparent;
+      border: none !important;
+      color: $color-white;
+
+      &::placeholder {
+        color: $color-green-light2;
       }
     }
   }
@@ -105,9 +142,5 @@
     #{$root}__loader {
       padding: 15px 0;
     }
-  }
-
-  & .hide {
-    display: none;
   }
 }

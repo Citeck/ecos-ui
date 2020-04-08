@@ -1,5 +1,7 @@
 import React, { useContext, useRef, useEffect } from 'react';
 import classNames from 'classnames';
+import isBoolean from 'lodash/isBoolean';
+import get from 'lodash/get';
 import { IcoBtn } from '../../../../../common/btns';
 import Grid from '../../../../grid/Grid';
 import InlineToolsDisconnected from '../../../../grid/InlineTools/InlineToolsDisconnected';
@@ -11,8 +13,19 @@ import './InputView.scss';
 const InputView = () => {
   const context = useContext(TableFormContext);
 
-  const { placeholder, disabled } = context.controlProps;
-  const { selectedRows, columns, error, deleteSelectedItem, showEditForm, inlineToolsOffsets, setInlineToolsOffsets } = context;
+  const { placeholder, disabled, viewOnly, displayElements, isSelectableRows, nonSelectableRows } = context.controlProps;
+  const {
+    gridRows,
+    selectedRows,
+    columns,
+    error,
+    deleteSelectedItem,
+    showEditForm,
+    inlineToolsOffsets,
+    setInlineToolsOffsets,
+    showViewOnlyForm,
+    onSelectGridItem
+  } = context;
 
   const wrapperRef = useRef(null);
 
@@ -45,32 +58,75 @@ const InputView = () => {
     showEditForm(inlineToolsOffsets.rowId);
   };
 
-  let valuesList = <p className={'ecos-table-form__value-not-selected'}>{placeholderText}</p>;
-  if (selectedRows.length > 0) {
-    const inlineTools = disabled
-      ? null
-      : () => {
-          const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
+  const onClickView = () => {
+    showViewOnlyForm(inlineToolsOffsets.rowId);
+  };
 
-          return (
-            <InlineToolsDisconnected
-              {...inlineToolsOffsets}
-              tools={[
-                <IcoBtn key={'edit'} icon={'icon-edit'} className={inlineToolsActionClassName} onClick={onClickEdit} />,
-                <IcoBtn key={'delete'} icon={'icon-delete'} className={inlineToolsActionClassName} onClick={onClickDelete} />
-              ]}
-            />
-          );
-        };
+  let valuesList = (
+    <p
+      className={classNames('ecos-table-form__value-not-selected', {
+        'ecos-table-form__value-not-selected_view-only': viewOnly
+      })}
+    >
+      {placeholderText}
+    </p>
+  );
+
+  if (gridRows.length > 0) {
+    const inlineTools = () => {
+      const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
+      const iconButtons = [];
+
+      const shouldShowViewButton = isBoolean(get(displayElements, 'view')) ? displayElements.view : true;
+      if (shouldShowViewButton) {
+        iconButtons.push(
+          <IcoBtn
+            key={'view'}
+            icon={'icon-on'}
+            className={`${inlineToolsActionClassName} inline-tools-actions-btn__on`}
+            onClick={onClickView}
+          />
+        );
+      }
+
+      const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : true;
+      if (!disabled && !viewOnly && shouldShowEditButton) {
+        iconButtons.push(
+          <IcoBtn
+            key={'edit'}
+            icon={'icon-edit'}
+            className={`${inlineToolsActionClassName} inline-tools-actions-btn__edit`}
+            onClick={onClickEdit}
+          />
+        );
+      }
+
+      const shouldShowDeleteButton = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
+      if (!disabled && !viewOnly && shouldShowDeleteButton) {
+        iconButtons.push(
+          <IcoBtn
+            key={'delete'}
+            icon={'icon-delete'}
+            className={`${inlineToolsActionClassName} inline-tools-actions-btn__delete`}
+            onClick={onClickDelete}
+          />
+        );
+      }
+
+      return <InlineToolsDisconnected {...inlineToolsOffsets} tools={iconButtons} />;
+    };
 
     valuesList = (
       <div ref={wrapperRef} className={'ecos-table-form__grid-wrapper'}>
         <Grid
-          data={selectedRows}
+          data={gridRows}
           columns={columns}
-          total={selectedRows.length}
+          total={gridRows.length}
           singleSelectable={false}
-          multiSelectable={false}
+          multiSelectable={!viewOnly && isSelectableRows}
+          onSelect={onSelectGridItem}
+          selected={selectedRows}
+          nonSelectable={nonSelectableRows}
           inlineTools={inlineTools}
           onChangeTrOptions={setInlineToolsOffsets}
           className={'ecos-table-form__grid'}

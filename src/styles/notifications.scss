@@ -1,0 +1,39 @@
+@import '~react-notifications/lib/notifications.css';
+
+.notification-container {
+  top: 45px;
+  padding: 15px;
+}
+
+.notification {
+  color: $text-color-dark;
+  background: $color-white;
+  border-radius: $border-radius-extra-large;
+  box-shadow: $box-shadow-default;
+
+  .title {
+    margin: 0;
+  }
+}
+
+.notification-success {
+  &::before {
+    color: $color-green1;
+  }
+}
+
+.notification-warning {
+  &::before {
+    color: $color-yellow3;
+  }
+}
+
+.notification-error {
+  &::before {
+    color: $color-red-1;
+  }
+}
+
+.notification-container-empty {
+  display: none;
+}

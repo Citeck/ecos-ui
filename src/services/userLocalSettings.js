@@ -1,10 +1,12 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import { getData, setData, transferData } from '../helpers/ls';
+import { getData, getSessionData, setData, setSessionData, transferData } from '../helpers/ls';
 import { getCurrentUserName } from '../helpers/util';
 
-const prefix = 'dashletSettings_';
-const newVersionPath = '/user-';
+const prefixDashlet = 'ecos-ui-dashlet-settings_id-';
+const prefixJournal = 'ecos-ui-journal-settings_id-';
+const prefixMenu = 'menuSettings_';
+const prefixUser = '/user-';
 
 function getDashletSettings(key) {
   let dashletData = getData(key);
@@ -16,72 +18,122 @@ function getDashletSettings(key) {
   return dashletData;
 }
 
-function setDashletSettings(key, data) {
-  setData(key, data);
+function getKey(key) {
+  return `${key}${prefixUser}${getCurrentUserName()}`;
 }
 
 export default class UserLocalSettingsService {
-  static getPrefix = () => prefix;
+  static getMenuKey() {
+    return `${prefixMenu}${getCurrentUserName()}`;
+  }
 
-  static getNewVersionPath = () => newVersionPath;
+  static getDashletKey(key) {
+    return `${prefixDashlet}${getKey(key)}`;
+  }
 
-  static getOldKey = dashletId => `${UserLocalSettingsService.getPrefix()}${dashletId}`;
-
-  static getKey(dashletId) {
-    const userName = getCurrentUserName();
-
-    return `${UserLocalSettingsService.getPrefix()}${dashletId}${UserLocalSettingsService.getNewVersionPath()}${userName}`;
+  static getJournalKey(key) {
+    return `${prefixJournal}${getKey(key || 'all')}`;
   }
 
   static checkOldData(dashletId) {
-    UserLocalSettingsService.transferData(UserLocalSettingsService.getOldKey(dashletId), UserLocalSettingsService.getKey(dashletId));
+    self.transferData(`${prefixDashlet}${dashletId}`, self.getDashletKey(dashletId));
   }
 
   static transferData(oldKey, newKey) {
     transferData(oldKey, newKey, true);
   }
 
-  static getDashletHeight(dashletId) {
-    const key = UserLocalSettingsService.getKey(dashletId);
+  /*common settings*/
 
-    return get(getDashletSettings(key), 'contentHeight');
+  static setMenuMode(data) {
+    setData(self.getMenuKey(), { ...self.getMenuMode(), ...data });
   }
 
-  static setDashletHeight(dashletId, height) {
-    const key = UserLocalSettingsService.getKey(dashletId);
-    const dashletData = getDashletSettings(key);
-
-    dashletData.contentHeight = height;
-
-    setDashletSettings(key, dashletData);
+  static getMenuMode() {
+    return getData(self.getMenuKey());
   }
 
-  static getDashletScale(dashletId) {
-    const key = UserLocalSettingsService.getKey(dashletId);
+  /*journals settings*/
 
-    return get(getDashletSettings(key), 'contentScale');
+  static setJournalProperty(key, property = {}, isTemp) {
+    const journal = self.getJournalKey(key);
+    const data = isTemp ? getSessionData(journal) || {} : getData(journal) || {};
+    const upData = { ...data, ...property };
+
+    if (isTemp) {
+      setSessionData(journal, upData);
+    } else {
+      setData(journal, upData);
+    }
   }
 
-  static setDashletScale(dashletId, scale) {
-    const key = UserLocalSettingsService.getKey(dashletId);
-    const dashletData = getDashletSettings(key);
+  static getJournalAllProps(key, isTemp) {
+    const journal = self.getJournalKey(key);
 
-    dashletData.contentScale = scale;
-
-    setDashletSettings(key, dashletData);
+    return isTemp ? getSessionData(journal) || {} : getData(journal) || {};
   }
 
-  static setProperty(dashletId, property = {}) {
+  static getJournalProperty(key, propertyName, isTemp) {
+    const data = self.getJournalAllProps(key, isTemp);
+
+    return get(data, [propertyName]);
+  }
+
+  /*dashlets settings*/
+  static setDashletProperty(dashletId, property = {}) {
     const key = UserLocalSettingsService.getKey(dashletId);
     const data = getDashletSettings(key);
 
-    setDashletSettings(key, { ...data, ...property });
+    setData(key, { ...data, ...property });
   }
 
-  static getProperty(dashletId, propertyName) {
-    const key = UserLocalSettingsService.getKey(dashletId);
+  static getDashletProperty(dashletId, propertyName) {
+    const key = self.getDashletKey(dashletId);
     const data = getDashletSettings(key);
 
     return get(data, [propertyName]);
   }
+
+  static getDashletHeight(dashletId) {
+    const key = self.getDashletKey(dashletId);
+
+    return get(getDashletSettings(key), DashletProps.CONTENT_HEIGHT);
+  }
+
+  static setDashletHeight(dashletId, height = null) {
+    const key = self.getDashletKey(dashletId);
+    const dashletData = getDashletSettings(key);
+
+    if (height === null) {
+      delete dashletData.contentHeight;
+    } else {
+      dashletData.contentHeight = height;
+    }
+
+    setData(key, dashletData);
+  }
+
+  static getDashletScale(dashletId) {
+    const key = self.getDashletKey(dashletId);
+
+    return get(getDashletSettings(key), DashletProps.CONTENT_SCALE);
+  }
+
+  static setDashletScale(dashletId, scale) {
+    const key = self.getDashletKey(dashletId);
+    const dashletData = getDashletSettings(key);
+
+    dashletData.contentScale = scale;
+
+    setData(key, dashletData);
+  }
 }
+const self = UserLocalSettingsService;
+
+export const DashletProps = {
+  IS_COLLAPSED: 'isCollapsed',
+  CONTENT_HEIGHT: 'contentHeight',
+  CONTENT_SCALE: 'contentScale'
+};
+
+export const JournalProps = {};

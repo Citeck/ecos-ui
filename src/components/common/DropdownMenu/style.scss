@@ -1,4 +1,4 @@
-@import '../../../constants';
+@import '../../../styles/constants';
 
 .ecos-dropdown-menu {
   $dropdown: &;
@@ -90,5 +90,18 @@
   &__img {
     width: 22px;
     margin-right: 7px;
+  }
+
+  &__empty {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    color: $text-color-gray;
+    text-align: center;
+    padding: 5px;
+  }
+
+  &_loading {
+    height: 40px;
   }
 }

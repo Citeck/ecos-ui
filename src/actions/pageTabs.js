@@ -2,10 +2,15 @@ import { createAction } from 'redux-actions';
 
 const prefix = 'pageTabs/';
 
-export const getShowTabsStatus = createAction(prefix + 'GET_SHOW_TABS_STATUS');
 export const setShowTabsStatus = createAction(prefix + 'SET_SHOW_TABS_STATUS');
+
+export const initTabs = createAction(prefix + 'INIT_TABS');
+export const initTabsComplete = createAction(prefix + 'INIT_TABS_COMPLETE');
 export const setTabs = createAction(prefix + 'SET_TABS');
-export const changeActiveTab = createAction(prefix + 'CHANGE_ACTIVE_TAB');
 export const getTabs = createAction(prefix + 'GET_TABS');
-export const setActiveTabTitle = createAction(prefix + 'SET_ACTIVE_TAB_TITLE');
-export const getActiveTabTitle = createAction(prefix + 'GET_ACTIVE_TITLE_INFO');
+export const moveTabs = createAction(prefix + 'MOVE_TABS');
+export const setDisplayState = createAction(prefix + 'SET_DISPLAY_STATE');
+
+export const setTab = createAction(prefix + 'SET_ONE_TAB');
+export const deleteTab = createAction(prefix + 'DELETE_TAB');
+export const changeTab = createAction(prefix + 'CHANGE_TAB');

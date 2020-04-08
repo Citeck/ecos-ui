@@ -1,17 +1,194 @@
-import { cloneDeep, isEmpty } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isBoolean from 'lodash/isBoolean';
+import get from 'lodash/get';
+import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
+
+import RecordActionExecutorsRegistry from '../../../../components/Records/actions/RecordActionExecutorsRegistry';
+import { DefaultActionTypes } from '../../../../components/Records/actions';
+import Records from '../../../../components/Records';
+import { createDocumentUrl, isNewVersionPage } from '../../../../helpers/urls';
+import { t } from '../../../../helpers/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
-import { isNewVersionPage } from '../../../../helpers/urls';
-import { URL } from '../../../../constants';
+import { FILE_CLICK_ACTION_DOWNLOAD, FILE_CLICK_ACTION_NOOP, FILE_CLICK_ACTION_OPEN_DASHBOARD } from './editForm/File.edit.file';
 
 export default class FileComponent extends FormIOFileComponent {
-  createFileLink(file) {
-    return file.originalName || file.name;
+  static schema(...extend) {
+    return FormIOFileComponent.schema(
+      {
+        onFileClick: FILE_CLICK_ACTION_OPEN_DASHBOARD,
+        displayElementsJS: {}
+      },
+      ...extend
+    );
+  }
 
-    // If we need a download link, uncomment this
-    // const fileLink = super.createFileLink(file);
-    // fileLink.setAttribute(IGNORE_TABS_HANDLER_ATTR_NAME, true);
-    // return fileLink;
+  get defaultSchema() {
+    return FileComponent.schema();
+  }
+
+  static extractFileRecordRef(file) {
+    let recordRef = null;
+    if (file.data && file.data.recordRef) {
+      recordRef = file.data.recordRef;
+    } else if (file.data && file.data.nodeRef) {
+      recordRef = file.data.nodeRef;
+    } else {
+      const documentUrl = file.url;
+      const documentUrlParts = documentUrl.split('?');
+      if (documentUrlParts.length !== 2) {
+        throw new Error("Cant't extract recordRef");
+      }
+
+      const queryPart = documentUrlParts[1];
+      const urlParams = queryString.parse(queryPart);
+      if (!urlParams.recordRef && !urlParams.nodeRef) {
+        throw new Error("Cant't extract recordRef");
+      }
+
+      recordRef = urlParams.recordRef || urlParams.nodeRef;
+    }
+
+    return recordRef;
+  }
+
+  static getDownloadExecutor() {
+    const downloadExecutor = RecordActionExecutorsRegistry.get(DefaultActionTypes.DOWNLOAD);
+    if (!downloadExecutor) {
+      throw new Error("Cant't extract downloadExecutor");
+    }
+
+    return downloadExecutor;
+  }
+
+  static downloadFile(recordRef, fileName) {
+    try {
+      const downloadExecutor = FileComponent.getDownloadExecutor();
+      downloadExecutor.execute({
+        record: Records.get(recordRef),
+        action: {
+          config: {
+            filename: fileName
+          }
+        }
+      });
+    } catch (e) {
+      console.error(`EcosForm File: Failure to download file. Cause: ${e.message}`);
+    }
+  }
+
+  static buildDocumentUrl(recordRef) {
+    return createDocumentUrl(recordRef);
+  }
+
+  checkConditions(data) {
+    let result = super.checkConditions(data);
+
+    if (!this.component.displayElementsJS) {
+      return result;
+    }
+
+    let displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
+    if (!isEqual(displayElements, this.displayElementsValue)) {
+      this.displayElementsValue = displayElements;
+      this.refreshDOM();
+    }
+
+    return result;
+  }
+
+  createFileListItem(fileInfo, index) {
+    const displayElements = this.displayElementsValue || {};
+    const shouldShowDeleteIcon = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
+
+    const fileService = this.fileService;
+    return this.ce(
+      'li',
+      { class: 'list-group-item' },
+      this.ce('div', { class: 'row' }, [
+        this.ce(
+          'div',
+          { class: 'col-md-1' },
+          shouldShowDeleteIcon && !this.disabled && !this.shouldDisable
+            ? this.ce('i', {
+                class: this.iconClass('remove'),
+                onClick: event => {
+                  if (fileInfo && this.component.storage === 'url') {
+                    fileService.makeRequest('', fileInfo.url, 'delete');
+                  }
+                  event.preventDefault();
+                  this.splice(index);
+                  this.refreshDOM();
+                }
+              })
+            : null
+        ),
+        this.ce('div', { class: `col-md-${this.hasTypes ? '7' : '9'}` }, this.createFileLink(fileInfo)),
+        this.ce('div', { class: 'col-md-2' }, this.fileSize(fileInfo.size)),
+        this.hasTypes ? this.ce('div', { class: 'col-md-2' }, this.createTypeSelect(fileInfo)) : null
+      ])
+    );
+  }
+
+  createFileLink(f) {
+    const file = cloneDeep(f);
+    const fileName = file.originalName || file.name;
+    let onFileClickAction = this.component.onFileClick;
+
+    if (!onFileClickAction && this.viewOnly) {
+      onFileClickAction = FILE_CLICK_ACTION_OPEN_DASHBOARD;
+    }
+
+    if (!onFileClickAction || onFileClickAction === FILE_CLICK_ACTION_NOOP) {
+      return fileName;
+    }
+
+    let documentUrl = file.url;
+    let recordRef;
+    try {
+      recordRef = FileComponent.extractFileRecordRef(file);
+      documentUrl = FileComponent.buildDocumentUrl(recordRef);
+    } catch (e) {
+      console.warn(`EcosForm File: ${e.message}`);
+      return fileName;
+    }
+
+    const linkAttributes = {
+      href: documentUrl,
+      target: '_blank'
+    };
+
+    if (!isNewVersionPage(documentUrl)) {
+      linkAttributes[IGNORE_TABS_HANDLER_ATTR_NAME] = true;
+    }
+
+    if (onFileClickAction === FILE_CLICK_ACTION_DOWNLOAD) {
+      linkAttributes.onClick = e => {
+        e.stopPropagation();
+        e.preventDefault();
+        FileComponent.downloadFile(recordRef, fileName);
+      };
+    } else if (onFileClickAction === FILE_CLICK_ACTION_OPEN_DASHBOARD && !this.viewOnly) {
+      linkAttributes.onClick = e => {
+        const confirmation = window.confirm(t('eform.file.on-click-confirmation'));
+        if (!confirmation) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      };
+    }
+
+    return this.ce('a', linkAttributes, fileName);
+  }
+
+  focus() {
+    if (!this.browseLink) {
+      return;
+    }
+
+    this.browseLink.focus();
   }
 
   buildUpload() {
@@ -33,6 +210,8 @@ export default class FileComponent extends FormIOFileComponent {
     this.disabled = this.shouldDisable;
 
     super.build();
+
+    this.createInlineEditSaveAndCancelButtons();
   }
 
   setupValueElement(element) {
@@ -52,39 +231,28 @@ export default class FileComponent extends FormIOFileComponent {
       return this.defaultViewOnlyValue;
     }
 
+    const classList = ['file-list-view-mode'];
+
+    if (this.component && this.component.hideLabel) {
+      classList.push('file-list-view-mode_hide-label');
+    }
+
     return this.ce(
       'ul',
-      { class: 'file-list_view-mode' },
+      { class: classList.join(' ') },
       Array.isArray(value) ? value.map(fileInfo => this.createFileListItemViewMode(fileInfo)) : this.createFileListItemViewMode(value)
     );
   }
 
   createFileListItemViewMode(fileInfo) {
-    return this.ce('li', { class: 'file-item_view-mode' }, this.createFileLinkViewMode(fileInfo));
-  }
-
-  createFileLinkViewMode(f) {
-    const file = cloneDeep(f);
-
-    if (isNewVersionPage()) {
-      file.url = file.url.replace(/\/share\/page\/(.*\/)?card-details/, URL.DASHBOARD);
-      file.url = file.url.replace('nodeRef', 'recordRef');
-    }
-
-    if (this.options.uploadOnly) {
-      return file.originalName || file.name;
-    }
-
-    const linkAttributes = {
-      href: file.url,
-      target: '_blank'
-    };
-
-    if (!isNewVersionPage(file.url)) {
-      linkAttributes[IGNORE_TABS_HANDLER_ATTR_NAME] = true;
-    }
-
-    return this.ce('a', linkAttributes, file.originalName || file.name);
+    return this.ce(
+      'li',
+      {
+        class: 'file-item_view-mode',
+        title: fileInfo.originalName || fileInfo.name
+      },
+      this.createFileLink(fileInfo)
+    );
   }
 
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2667

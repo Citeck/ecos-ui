@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { PAGINATION_SIZES } from '../../../components/Journals/constants';
 import Select from '../../common/form/Select';
 import { IcoBtn } from '../../common/btns';
-import { t, trigger } from '../../../helpers/util';
+import { t } from '../../../helpers/util';
 
 import './Pagination.scss';
 
@@ -29,27 +29,32 @@ export default class Pagination extends Component {
   };
 
   prev = () => {
-    this.min > 1 && this.triggerChange(this.props.page - 1);
+    const { page, maxItems } = this.props;
+    this.min > 1 && this.triggerChange(page - 1, maxItems);
   };
 
   next = () => {
-    const { total, page } = this.props;
-    this.max < total && this.triggerChange(page + 1);
+    const { total, page, maxItems } = this.props;
+    this.max < total && this.triggerChange(page + 1, maxItems);
   };
 
-  triggerChange = page => {
-    const { onChange, maxItems } = this.props;
+  triggerChange = (page, maxItems) => {
+    const { onChange } = this.props;
+
     if (typeof onChange === 'function') {
       onChange({
         skipCount: (page - 1) * maxItems,
-        maxItems: maxItems,
-        page: page
+        maxItems,
+        page
       });
     }
   };
 
   onChangeMaxItems = item => {
-    trigger.call(this, 'onChangeMaxItems', item);
+    const maxItems = item.value;
+    const page = Math.ceil(this.min / maxItems);
+
+    this.triggerChange(page, maxItems);
   };
 
   getPageSize = () => {
@@ -76,33 +81,33 @@ export default class Pagination extends Component {
     }
 
     return (
-      <div className={classNames('pagination', className)}>
-        <span className={'pagination__text'}>
+      <div className={classNames('ecos-pagination', className)}>
+        <span className={'ecos-pagination__text ecos-pagination__text-current'}>
           {this.min}-{this.max}
         </span>
-        <span className={'pagination__text'}> {t('pagination.from')} </span>
-        <span className={'pagination__text pagination__step'}>{total}</span>
+        <span className={'ecos-pagination__text ecos-pagination__text-from'}> {t('pagination.from')} </span>
+        <span className={'ecos-pagination__text ecos-pagination__text-total'}>{total}</span>
 
         <IcoBtn
           icon={'icon-left'}
-          className={'pagination__btn-step ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue'}
+          className={'ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue'}
           onClick={this.prev}
         />
         <IcoBtn
           icon={'icon-right'}
-          className={`ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue pagination__text ${
-            hasPageSize ? 'pagination__step' : ''
-          }`}
+          className={`ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue`}
           onClick={this.next}
         />
 
         {hasPageSize ? (
           <Select
-            className={'select_narrow pagination__page-size select_page-size'}
+            className="ecos-pagination__page-size select_narrow select_page-size"
             options={sizes}
             value={pageSizeValue}
             onChange={this.onChangeMaxItems}
             menuPlacement={'auto'}
+            hideSelectedOptions
+            isSearchable={false}
           />
         ) : null}
       </div>

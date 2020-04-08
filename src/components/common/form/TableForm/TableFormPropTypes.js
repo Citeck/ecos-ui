@@ -8,7 +8,18 @@ export default {
   onError: PropTypes.func,
   disabled: PropTypes.bool,
   isCompact: PropTypes.bool,
+  isStaticModalTitle: PropTypes.bool,
+  customStringForConcatWithStaticTitle: PropTypes.string,
+  isSelectableRows: PropTypes.bool,
+  onSelectRows: PropTypes.func,
   parentForm: PropTypes.object,
+  nonSelectableRows: PropTypes.array,
   triggerEventOnTableChange: PropTypes.func,
-  viewOnly: PropTypes.bool
+  viewOnly: PropTypes.bool,
+  displayElements: PropTypes.shape({
+    create: PropTypes.bool,
+    view: PropTypes.bool,
+    edit: PropTypes.bool,
+    delete: PropTypes.bool
+  })
 };

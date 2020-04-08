@@ -1,4 +1,4 @@
-import { put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { put, select, takeEvery, takeLatest, call } from 'redux-saga/effects';
 import {
   getVerificationTimesheetByParams,
   modifyEventDayHours,
@@ -98,7 +98,8 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
 
     const mergedList = yield select(selectTVerificationMergedList);
 
-    yield api.timesheetCommon.modifyStatus({
+    yield call(api.timesheetCommon.changeTaskOwner, { taskId, currentUser });
+    yield call(api.timesheetCommon.modifyStatus, {
       outcome,
       taskId,
       currentUser,

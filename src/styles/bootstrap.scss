@@ -1,0 +1,104 @@
+// Override default variables before the import
+@import './constants';
+
+// Import Bootstrap and its default variables
+@import '~bootstrap/scss/bootstrap';
+
+.tooltip-inner-custom {
+  max-width: 200px;
+  padding: 0.5rem 1rem;
+  color: #444;
+  text-align: center;
+  background-color: #fff;
+  border-radius: $border-radius-large;
+  box-shadow: $box-shadow-tooltip;
+  font-weight: $font-weight-semi-bold;
+}
+
+.bs-tooltip-top .arrow-custom::before,
+.bs-tooltip-auto[x-placement^='top'] .arrow-custom::before {
+  top: -0.25rem;
+  left: 0.25rem;
+  border-width: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: $color-white;
+  border-top-color: $color-white;
+  transform: rotate(-45deg);
+  box-shadow: $box-shadow-tooltip-arrow-top;
+  &:before {
+    content: none;
+  }
+}
+
+.ecos-base-tooltip {
+  &_opaque {
+    & .show {
+      opacity: 1;
+    }
+  }
+
+  &-inner {
+    box-shadow: $box-shadow-tooltip;
+    background: $color-white;
+    color: $text-color-dark;
+    border-radius: $border-radius-large;
+    padding: 7px 15px;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  &-arrow {
+    $size: 12px;
+
+    &:before {
+      border: none !important;
+      width: $size;
+      height: $size;
+      background: $color-white;
+      transform: rotate(45deg);
+    }
+  }
+
+  .bs-tooltip {
+    &-top {
+      .arrow {
+        &:before {
+          top: -6px !important;
+          box-shadow: 4px 4px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+
+    &-bottom {
+      .arrow {
+        &:before {
+          bottom: -6px;
+          box-shadow: -2px -2px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+
+    &-right {
+      .arrow {
+        &:before {
+          right: -14px;
+          box-shadow: -2px 2px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+  }
+}
+
+.ecos-modal-tooltip {
+  .tooltip {
+    z-index: 11000;
+
+    .arrow {
+      &:before {
+        top: -6px;
+      }
+    }
+  }
+}
