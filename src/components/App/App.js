@@ -56,6 +56,12 @@ class App extends Component {
     const { reopen, closeActiveTab, updates, ...data } = PageService.parseEvent({ event }) || {};
 
     if (updates) {
+      const { link } = updates;
+
+      if (link) {
+        this.props.history.replace(link);
+      }
+
       updateTab({ updates });
 
       return;
