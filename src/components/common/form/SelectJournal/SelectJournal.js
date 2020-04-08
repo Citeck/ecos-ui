@@ -188,7 +188,6 @@ export default class SelectJournal extends Component {
       }
 
       this.api.getJournalConfig(journalId).then(journalConfig => {
-        // console.log('journalConfig', journalConfig);
         let columns = journalConfig.columns.map(item => {
           const column = { ...item };
           if (matchCardDetailsLinkFormatterColumn(item)) {
@@ -574,7 +573,8 @@ export default class SelectJournal extends Component {
       renderView,
       isFullScreenWidthModal,
       presetFilterPredicates,
-      isSelectedValueAsLink
+      isSelectedValueAsText,
+      isInlineEditingMode
     } = this.props;
     const {
       isGridDataReady,
@@ -611,7 +611,8 @@ export default class SelectJournal extends Component {
       onBlur,
       hideEditRowButton,
       hideDeleteRowButton,
-      isSelectedValueAsLink
+      isSelectedValueAsText,
+      isInlineEditingMode
     };
 
     let selectModalTitle = t('select-journal.select-modal.title');
@@ -753,7 +754,7 @@ SelectJournal.propTypes = {
   renderView: PropTypes.func,
   searchField: PropTypes.string,
   isSelectModalOpen: PropTypes.bool,
-  isSelectedValueAsLink: PropTypes.bool
+  isSelectedValueAsText: PropTypes.bool
 };
 
 SelectJournal.defaultProps = {

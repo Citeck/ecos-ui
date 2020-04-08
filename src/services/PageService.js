@@ -67,21 +67,25 @@ export default class PageService {
   static pageTypes = Object.freeze({
     [PageTypes.DASHBOARD]: {
       getTitle: ({ recordRef }) => {
-        return recordRef ? pageApi.getRecordTitle(recordRef) : staticTitle(TITLE.HOMEPAGE);
+        return recordRef ? pageApi.getRecordTitle(recordRef).then(title => convertTitle(title)) : staticTitle(TITLE.HOMEPAGE);
       }
     },
     [PageTypes.JOURNALS]: {
       getTitle: ({ journalId }) => {
         const prom = pageApi.getJournalTitle(journalId);
 
-        return prom.then(title => `${t('page-tabs.journal')} "${title}"`);
+        return prom.then(title => `${t('page-tabs.journal')} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.SETTINGS]: {
       getTitle: ({ recordRef, journalId }) => {
-        const prom = recordRef ? pageApi.getRecordTitle(recordRef) : pageApi.getJournalTitle(journalId);
+        const prom = journalId
+          ? pageApi.getJournalTitle(journalId)
+          : recordRef
+          ? pageApi.getRecordTitle(recordRef)
+          : staticTitle(TITLE.HOMEPAGE);
 
-        return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${title}"`);
+        return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.BPMN_DESIGNER]: {
@@ -101,7 +105,7 @@ export default class PageService {
    * @param link - string
    * @param params
    *    link - string,
-   *    checkUrl - bool,
+   *    updateUrl - bool,
    *    openNewTab - bool,
    *    openNewBrowserTab - bool,
    *    reopenBrowserTab - bool,
@@ -125,9 +129,19 @@ export default class PageService {
     const currentLink = window.location.href.replace(window.location.origin, '');
 
     if (type === Events.CHANGE_URL_LINK_EVENT) {
-      const { openNewTab, openNewBrowserTab, reopenBrowserTab, openInBackground, link, ...props } = params || {};
+      const { openNewTab, openNewBrowserTab, reopenBrowserTab, openInBackground, link, updateUrl, ...props } = params || {};
 
       event.preventDefault();
+
+      if (updateUrl) {
+        window.history.pushState(window.history.state, '', link);
+
+        return {
+          ...props,
+          link,
+          updates: { link }
+        };
+      }
 
       let target = '';
 
@@ -263,4 +277,8 @@ function getDefaultPage() {
 
 function getKeyHistory() {
   return 'ecos-ui-transitions-history/v3/user-' + getCurrentUserName();
+}
+
+function convertTitle(title) {
+  return t(title || TITLE.NO_NAME);
 }

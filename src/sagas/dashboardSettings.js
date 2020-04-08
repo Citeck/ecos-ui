@@ -14,6 +14,7 @@ import {
 } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
 import { selectIdentificationForSet } from '../selectors/dashboard';
+import { selectIsAdmin, selectUserName } from '../selectors/user';
 import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
 import { DASHBOARD_DEFAULT_KEY, RequestStatuses } from '../constants';
@@ -121,10 +122,24 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     const { layouts, menu, mobile } = serverConfig;
     const identification = yield select(selectIdentificationForSet);
     const newIdentification = payload.newIdentification || {};
+    const isAdmin = yield select(selectIsAdmin);
+    const identificationData = { ...identification, ...newIdentification };
+
+    if (!isAdmin) {
+      const user = yield select(selectUserName);
+
+      if (!user) {
+        yield put(setNotificationMessage(t('dashboard-settings.error4')));
+
+        return;
+      }
+
+      identificationData.user = user;
+    }
 
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: { layouts, mobile },
-      identification: { ...identification, ...newIdentification }
+      identification: identificationData
     });
 
     const parseDashboard = DashboardService.parseRequestResult(dashboardResult);

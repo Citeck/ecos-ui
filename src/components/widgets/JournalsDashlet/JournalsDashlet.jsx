@@ -88,6 +88,8 @@ class JournalsDashlet extends BaseWidget {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+
     const { setRecordRef, getDashletConfig, setDashletConfigByParams, id, config, onSave } = this.props;
 
     setRecordRef(this.recordRef);

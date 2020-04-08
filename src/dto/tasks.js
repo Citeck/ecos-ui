@@ -1,5 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
+import get from 'lodash/get';
+
+import { deepClone } from '../helpers/util';
+
 import TasksService from '../services/tasks';
 
 export default class TasksConverter {
@@ -32,14 +36,23 @@ export default class TasksConverter {
       return target;
     }
 
-    const actors = source.actors || {};
+    const actors = deepClone(source.actors || []);
 
     target.id = source.id || '';
     target.title = source.title || '';
-    target.actors = TasksService.getActorsDisplayNameStr(actors);
+    target.actors = TasksService.getActorsDisplayNameStr(actors[0]);
     target.deadline = source.dueDate;
-    target.isGroup = TasksService.getIsGroup(actors);
-    target.usersGroup = TasksService.getUsersOfGroupArrayStr(actors.containedUsers);
+
+    if (source.actors.length > 1) {
+      actors.shift();
+      target.isGroup = true;
+      target.usersGroup = TasksService.getUsersOfGroupArrayStr(actors);
+      target.count = `+ ${target.usersGroup.length}`;
+    } else {
+      target.isGroup = TasksService.getIsGroup(actors);
+      target.usersGroup = TasksService.getUsersOfGroupArrayStr(get(actors, '[0].containedUsers', []));
+      target.count = target.usersGroup.length && !target.isGroup ? `+ ${target.usersGroup.length - 1}` : target.usersGroup.length;
+    }
 
     return target;
   }

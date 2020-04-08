@@ -57,7 +57,8 @@ class PageTabList {
     this.#displayState = !!displayState;
     this.#isDuplicateAllowed = !!isDuplicateAllowed;
 
-    const tabs = this.removeInvalid(this.getFromStorage());
+    let tabs = this.getFromStorage();
+    tabs = this.getValidList(tabs);
 
     params = { ...params, last: true };
     this.tabs = { tabs, params };
@@ -238,7 +239,9 @@ class PageTabList {
       : activeIndex + 1;
   }
 
-  removeInvalid(tabs) {
+  getValidList(tabs) {
+    tabs = isArray(tabs) ? tabs : [];
+
     return tabs.filter(tab => tab.link);
   }
 

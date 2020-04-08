@@ -1,68 +1,53 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Tooltip } from 'reactstrap';
+import { UncontrolledTooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { Icon } from '../../common/index';
-import ClickOutside from '../../ClickOutside/index';
+import { Icon } from '../../common';
+import ClickOutside from '../../ClickOutside';
 
 import './style.scss';
 
-export default class IconInfo extends React.Component {
+export default class BtnTooltipInfo extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
     iconClass: PropTypes.string.isRequired,
+    isActive: PropTypes.bool,
     isShow: PropTypes.bool,
     noTooltip: PropTypes.bool,
     minHeight: PropTypes.string,
     text: PropTypes.string,
+    count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     handleClick: PropTypes.func
   };
 
   static defaultProps = {
     isShow: true,
-    noTooltip: false,
     minHeight: '',
-    handleClick: () => {}
+    handleClick: () => null
   };
 
-  state = {
-    isOpen: false
-  };
-
-  setTooltipOpen = () => {
-    this.setState(
-      state => ({ isOpen: !state.isOpen }),
-      () => {
-        if (this.props.noTooltip) {
-          this.props.handleClick(this.state.isOpen);
-        }
-      }
-    );
+  openTooltip = () => {
+    if (this.props.noTooltip) {
+      this.props.handleClick(true);
+    }
   };
 
   closeTooltip = () => {
-    this.setState({ isOpen: false }, () => {
-      if (this.props.noTooltip) {
-        this.props.handleClick(false);
-      }
-    });
+    if (this.props.noTooltip) {
+      this.props.handleClick(false);
+    }
   };
 
   renderContent() {
     const { text, children } = this.props;
 
-    if (text) {
-      return <div className="ecos-current-task__tooltip-text-inner">{text}</div>;
-    }
-
-    return <div className="ecos-current-task__tooltip-text-inner">{children}</div>;
+    return <div className="ecos-current-task__tooltip-text-inner">{text || children}</div>;
   }
 
   render() {
-    const { id, iconClass, isShow, noTooltip, text, children } = this.props;
-    const { isOpen } = this.state;
+    const { id, iconClass, isShow, noTooltip, text, children, count, isActive } = this.props;
     const domId = `ecos-current-task-${id}`;
 
     if (!isShow || (!text && !children)) {
@@ -71,23 +56,27 @@ export default class IconInfo extends React.Component {
 
     return (
       <>
-        <ClickOutside key={`icon-info-outside=${domId}`} handleClickOutside={this.closeTooltip} className="ecos-current-task__icon-wrap">
+        <ClickOutside
+          id={domId}
+          key={`tooltip-info-click-outside=${domId}`}
+          handleClickOutside={this.closeTooltip}
+          className={classNames('ecos-current-task__tooltip-btn', { 'ecos-current-task__tooltip-btn_active': isActive })}
+        >
+          {count && <span className="ecos-current-task__tooltip-count">{count}</span>}
           <Icon
-            id={domId}
-            className={classNames('ecos-current-task__icon', iconClass, {
-              'ecos-current-task__icon_open': isOpen
-            })}
-            onClick={this.setTooltipOpen}
+            className={classNames('ecos-current-task__tooltip-icon', iconClass)}
+            onClick={isActive ? this.closeTooltip : this.openTooltip}
           />
         </ClickOutside>
         {!noTooltip && (
-          <Tooltip
-            key={`icon-info-tooltip-${domId}`}
+          <UncontrolledTooltip
+            key={`task-info-tooltip-${domId}`}
             placement="top"
             boundariesElement="window"
             target={domId}
-            isOpen={isOpen}
-            trigger="click"
+            trigger="hover"
+            delay={{ show: 0, hide: 200 }}
+            autohide={false}
             className="ecos-base-tooltip ecos-current-task__tooltip"
             innerClassName="ecos-base-tooltip-inner"
             arrowClassName="ecos-base-tooltip-arrow"
@@ -104,7 +93,7 @@ export default class IconInfo extends React.Component {
                 {this.renderContent()}
               </Scrollbars>
             </div>
-          </Tooltip>
+          </UncontrolledTooltip>
         )}
       </>
     );

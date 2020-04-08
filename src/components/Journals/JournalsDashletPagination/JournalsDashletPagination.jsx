@@ -3,7 +3,7 @@ import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { reloadGrid, setSettingsToUrl } from '../../../actions/journals';
+import { reloadGrid } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import Pagination from '../../common/Pagination/Pagination';
 import { PAGINATION_SIZES } from '../../Journals/constants';
@@ -12,7 +12,8 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
-    grid: newState.grid
+    grid: newState.grid,
+    loading: newState.loading
   };
 };
 
@@ -20,8 +21,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    reloadGrid: options => dispatch(reloadGrid(w(options))),
-    setSettingsToUrl: options => dispatch(setSettingsToUrl(w(options)))
+    reloadGrid: options => dispatch(reloadGrid(w(options)))
   };
 };
 
@@ -40,17 +40,14 @@ class JournalsDashletPagination extends Component {
 
   reloadGrid = pagination => {
     this.props.reloadGrid({ pagination });
-
-    if (!this.props.isWidget) {
-      this.props.setSettingsToUrl({ pagination });
-    }
   };
 
   render() {
     const {
       grid: { total, pagination, groupBy },
       hasPageSize,
-      className
+      className,
+      loading
     } = this.props;
 
     const cssClasses = classNames('ecos-journal-dashlet__pagination', className);
@@ -63,10 +60,11 @@ class JournalsDashletPagination extends Component {
       <Pagination
         className={cssClasses}
         total={total}
-        {...pagination}
         sizes={PAGINATION_SIZES}
-        onChange={this.changePage}
         hasPageSize={hasPageSize}
+        loading={loading}
+        onChange={this.changePage}
+        {...pagination}
       />
     );
   }

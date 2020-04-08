@@ -231,7 +231,7 @@
   &-dropdown__toggle {
     display: flex;
 
-    .ecos-avatar {
+    .ecos-header-user-avatar {
       margin-right: 10px;
     }
   }
@@ -275,7 +275,7 @@
         width: $size !important;
         z-index: 102;
 
-        & ~ .ecos-avatar,
+        & ~ .ecos-header-user-avatar,
         & ~ .ecos-header-user {
           opacity: 0;
           transition: opacity 0.15s ease-out;

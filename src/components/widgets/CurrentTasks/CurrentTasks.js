@@ -18,7 +18,6 @@ const mapStateToProps = (state, context) => {
     currentTasks: currentTasksState.list,
     isLoading: currentTasksState.isLoading,
     isMobile: state.view.isMobile,
-    updateRequestRecord: state.currentTasks.updateRequestRecord,
     totalCount: currentTasksState.totalCount
   };
 };

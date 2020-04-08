@@ -269,7 +269,7 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getPreviewUrl = DocPreviewApi.getLinkByRecord;
+  getPreviewUrl = DocPreviewApi.getPreviewLinkByRecord;
 
   performGroupAction = ({ groupAction, selected, criteria, journalId }) => {
     const { id, type, params } = groupAction;

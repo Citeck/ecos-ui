@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 
 import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
@@ -19,18 +20,18 @@ class Toolbar extends Component {
   static propTypes = {
     isPDF: PropTypes.bool.isRequired,
     className: PropTypes.string,
+    fileName: PropTypes.string,
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     totalPages: PropTypes.number.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
     inputRef: PropTypes.any,
-    link: PropTypes.string,
-    fileName: PropTypes.string
+    downloadData: PropTypes.object
   };
 
   static defaultProps = {
     scale: '',
     className: '',
-    link: '',
+    downloadData: {},
     fileName: ''
   };
 
@@ -45,6 +46,8 @@ class Toolbar extends Component {
     };
   }
 
+  toolbarZoom = React.createRef();
+
   componentDidMount() {
     const { scale } = this.state;
 
@@ -54,14 +57,14 @@ class Toolbar extends Component {
     this.onChangeZoomOption(foundScale);
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { scrollPage: currentPage, calcScale: scale } = nextProps;
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { scrollPage: currentPage, calcScale: scale } = this.props;
 
-    if (currentPage !== this.props.scrollPage) {
+    if (currentPage !== prevState.currentPage && !Object.is(currentPage, prevState.currentPage)) {
       this.setState({ currentPage });
     }
 
-    if (scale !== this.props.calcScale) {
+    if (scale !== prevState.scale && !Object.is(scale, prevState.scale)) {
       this.setState({ scale });
     }
   }
@@ -183,15 +186,18 @@ class Toolbar extends Component {
 
   renderZoom() {
     const { scale, selectedZoom } = this.state;
+    const bodyH = get(window, 'document.body.offsetHeight', 400);
+    const bottom = this.toolbarZoom.current ? this.toolbarZoom.current.getBoundingClientRect().bottom : 0;
+    const maxH = bodyH - bottom - 10;
 
     return (
-      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom">
+      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom" ref={this.toolbarZoom}>
         <IcoBtn
           icon={'icon-minus'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= ZOOM_STEP })}
-          onClick={e => this.setScale(-1)}
+          onClick={() => this.setScale(-1)}
         />
-        <IcoBtn icon={'icon-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={e => this.setScale(1)} />
+        <IcoBtn icon={'icon-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={() => this.setScale(1)} />
         <Dropdown
           source={this.zoomOptions}
           value={selectedZoom}
@@ -200,6 +206,8 @@ class Toolbar extends Component {
           onChange={this.onChangeZoomOption}
           hideSelected={selectedZoom === CUSTOM}
           className="ecos-doc-preview__toolbar-zoom-dropdown"
+          withScrollbar
+          scrollbarHeightMax={`${maxH}px`}
         >
           <IcoBtn
             invert
@@ -217,15 +225,15 @@ class Toolbar extends Component {
   }
 
   renderExtraBtns() {
-    const { link, fileName } = this.props;
+    const { downloadData, fileName } = this.props;
 
-    return (
+    return downloadData && downloadData.link ? (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-extra-btns">
-        <a href={link} download={fileName} data-external>
-          <IcoBtn icon={'icon-download'} className="ecos-btn_sq_sm ecos-btn_tight" title={t(Labels.DOWNLOAD)} />
+        <a href={downloadData.link} download={downloadData.fileName || fileName} data-external>
+          <IcoBtn icon="icon-download" className="ecos-btn_sq_sm ecos-btn_tight" title={t(Labels.DOWNLOAD)} />
         </a>
       </div>
-    );
+    ) : null;
   }
 
   render() {

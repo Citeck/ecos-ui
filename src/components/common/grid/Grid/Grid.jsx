@@ -6,6 +6,7 @@ import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { closest, getId, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
@@ -20,7 +21,7 @@ const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
 const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
 
-const ECOS_GRID_CHECKBOX_DEVIDER_CLASS = 'ecos-grid__checkbox-devider';
+const ECOS_GRID_CHECKBOX_DIVIDER_CLASS = 'ecos-grid__checkbox-divider';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
@@ -33,11 +34,15 @@ const Selector = ({ mode, ...rest }) => (
 const SelectorHeader = ({ indeterminate, ...rest }) => (
   <div className="ecos-grid__checkbox">
     {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} disabled={rest.disabled} /> : null}
-    <div className={ECOS_GRID_CHECKBOX_DEVIDER_CLASS} />
+    <div className={ECOS_GRID_CHECKBOX_DIVIDER_CLASS} />
   </div>
 );
 
+const MIN_TH_WIDTH = 60;
+
 class Grid extends Component {
+  #columnsSizes = {};
+
   constructor(props) {
     super(props);
     this._selected = [];
@@ -72,7 +77,7 @@ class Grid extends Component {
     if (current) {
       this._shadowHeadNode = current.getElementsByClassName(ECOS_GRID_HEAD_SHADOW)[0];
       this._shadowLeftNode = current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW)[0];
-      this._firstHeaderCellNode = current.querySelector(`thead > tr > th:first-child .${ECOS_GRID_CHECKBOX_DEVIDER_CLASS}`);
+      this._firstHeaderCellNode = current.querySelector(`thead > tr > th:first-child .${ECOS_GRID_CHECKBOX_DIVIDER_CLASS}`);
       this._inlineActionsNode = current.querySelector('.ecos-inline-tools-actions');
     }
 
@@ -80,6 +85,13 @@ class Grid extends Component {
   }
 
   componentDidUpdate() {
+    const grid = get(this.props, 'forwardedRef.current', null);
+
+    if (grid) {
+      this._tableDom = grid.querySelector('table');
+    }
+
+    this.setColumnsSizes();
     this.checkScrollPosition();
   }
 
@@ -101,6 +113,43 @@ class Grid extends Component {
 
     return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
   }
+
+  /**
+   * Fixes loss of column sizes when redrawing a component
+   */
+  setColumnsSizes = () => {
+    if (!this._tableDom) {
+      return;
+    }
+
+    if (!Object.keys(this.#columnsSizes).length) {
+      return;
+    }
+
+    const rows = this._tableDom.rows;
+
+    for (let i = 0; i < rows.length; i++) {
+      for (let j = 0, row = rows[i]; j < row.cells.length; j++) {
+        let cell = row.cells[j];
+
+        if (!cell) {
+          continue;
+        }
+
+        let { width = 0, indents = 0 } = get(this.#columnsSizes, `[${j}]`, {});
+
+        if (!width) {
+          continue;
+        }
+
+        cell.style.width = `${width}px`;
+
+        if (cell.firstChild && cell.firstChild.style) {
+          cell.firstChild.style.width = `${width - indents}px`;
+        }
+      }
+    }
+  };
 
   checkScrollPosition() {
     const { scrollPosition = {} } = this.props;
@@ -159,8 +208,17 @@ class Grid extends Component {
     }
   };
 
-  setAdditionalOptions(props) {
-    props.columns = props.columns.map(column => {
+  setBootstrapTableProps(props, extra) {
+    const options = {
+      keyField: this._keyField,
+      bootstrap4: true,
+      bordered: false,
+      scrollable: true,
+      noDataIndication: () => t('grid.no-data-indication'),
+      ...props
+    };
+
+    options.columns = extra.columns.map(column => {
       if (column.width) {
         column = this.setWidth(column);
       }
@@ -187,14 +245,12 @@ class Grid extends Component {
     });
 
     if (props.editable) {
-      props.cellEdit = this.setEditable(props.editable);
+      options.cellEdit = this.setEditable(props.editable);
     } else {
-      props.cellEdit = undefined;
+      options.cellEdit = undefined;
     }
 
-    props.rowEvents = props.rowEvents || {};
-
-    props.rowEvents = {
+    options.rowEvents = {
       onMouseEnter: e => {
         const tr = e.currentTarget;
 
@@ -211,30 +267,28 @@ class Grid extends Component {
           this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true);
         }
 
+        this._tr = null;
+
         trigger.call(this, 'onRowMouseLeave', e);
       },
-      onDragOver: this.onDragOver,
-      onDrop: this.onDrop,
-      ...props.rowEvents
-    };
-
-    props.rowEvents = {
       onClick: e => {
         props.changeTrOptionsByRowClick && this.getTrOptions(e.currentTarget);
         this.onRowClick(e.currentTarget);
       },
-      ...props.rowEvents
+      onDragOver: this.onDragOver,
+      onDrop: this.onDrop,
+      ...extra.rowEvents
     };
 
     if (props.multiSelectable) {
-      props.selectRow = this.createMultiSelectioCheckboxs(props);
+      options.selectRow = this.createMultiSelectioCheckboxs(props);
     }
 
     if (props.singleSelectable) {
-      props.selectRow = this.createSingleSelectionCheckboxs(props);
+      options.selectRow = this.createSingleSelectionCheckboxs(props);
     }
 
-    return props;
+    return options;
   }
 
   checkColumnEditable = (...data) => {
@@ -361,18 +415,21 @@ class Grid extends Component {
     const { filters, sortBy } = this.props;
 
     column.headerFormatter = (column, colIndex) => {
+      const filterValue = ((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || '';
+      const ascending = ((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending;
+
       return (
         <HeaderFormatter
           filterable={filterable}
           closeFilterEvent={CLOSE_FILTER_EVENT}
-          filterValue={((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || ''}
+          filterValue={filterValue}
           onFilter={this.onFilter}
           sortable={sortable}
           onSort={this.onSort}
-          ascending={((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending}
+          ascending={ascending}
           column={column}
           colIndex={colIndex}
-          onDeviderMouseDown={this.getStartDeviderPosition}
+          onDividerMouseDown={this.getStartDividerPosition}
         />
       );
     };
@@ -471,9 +528,54 @@ class Grid extends Component {
     document.removeEventListener('mouseup', this.clearResizingColumn);
   };
 
-  getStartDeviderPosition = options => {
+  fixAllThWidth = () => {
+    if (!this._tableDom) {
+      return;
+    }
+
+    const allTh = this._tableDom.querySelectorAll('th');
+
+    if (allTh.length < 3) {
+      return;
+    }
+
+    for (let i = 0; i < allTh.length - 1; i++) {
+      const th = allTh[i];
+      const thStyles = window.getComputedStyle(th);
+
+      th.style['width'] = thStyles['width'];
+      th.style['min-width'] = thStyles['width'];
+    }
+  };
+
+  getElementPaddings = (element = null) => {
+    const paddings = {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0
+    };
+
+    if (!element) {
+      return paddings;
+    }
+
+    const elementStyles = window.getComputedStyle(element);
+
+    paddings.left = parseInt(elementStyles.getPropertyValue('padding-left'), 10) || 0;
+    paddings.right = parseInt(elementStyles.getPropertyValue('padding-right'), 10) || 0;
+    paddings.top = parseInt(elementStyles.getPropertyValue('padding-top'), 10) || 0;
+    paddings.bottom = parseInt(elementStyles.getPropertyValue('padding-bottom'), 10) || 0;
+
+    return paddings;
+  };
+
+  getStartDividerPosition = options => {
     this._resizingTh = options.th;
     this._tableDom = closest(options.th, 'table');
+
+    this.fixAllThWidth(); // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3196
+
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
   };
 
@@ -481,19 +583,51 @@ class Grid extends Component {
     let th = this._resizingTh;
 
     if (th && this._tableDom) {
-      const width = this._startResizingThOffset + e.pageX + 'px';
+      const { left, right } = this.getElementPaddings(th);
+      let width = this._startResizingThOffset + e.pageX;
+
+      if (width < MIN_TH_WIDTH) {
+        width = MIN_TH_WIDTH; //  - left - right;
+      }
+
       const rows = this._tableDom.rows;
 
       for (let i = 0; i < rows.length; i++) {
         let firstCol = rows[i].cells[th.cellIndex];
 
-        firstCol.style.width = width;
-        firstCol.firstChild.style.width = width;
+        if (!firstCol) {
+          continue;
+        }
+
+        firstCol.style.removeProperty('min-width');
+        firstCol.style.width = `${width}px`;
+
+        if (firstCol.firstChild && firstCol.firstChild.style) {
+          firstCol.firstChild.style.width = `${width - left - right}px`;
+        }
       }
     }
   };
 
-  clearResizingColumn = () => {
+  clearResizingColumn = e => {
+    if (this._resizingTh && this._tableDom) {
+      const cells = this._tableDom.rows[0].cells;
+      const columnsSizes = {};
+
+      for (let i = 0; i < cells.length; i++) {
+        if (!cells[i]) {
+          continue;
+        }
+
+        const { left, right } = this.getElementPaddings(cells[i]);
+        let width = parseInt(cells[i].style.width, 10) || '';
+
+        columnsSizes[i] = { width, indents: left + right };
+      }
+
+      this.#columnsSizes = columnsSizes;
+    }
+
     this._resizingTh = null;
   };
 
@@ -502,23 +636,31 @@ class Grid extends Component {
   };
 
   inlineTools = () => {
-    const inlineTools = this.props.inlineTools;
+    const { inlineTools } = this.props;
+
     if (typeof inlineTools === 'function') {
       return inlineTools();
     }
+
     return null;
   };
 
   tools = selected => {
-    const tools = this.props.tools;
+    const { tools } = this.props;
+
     if (typeof tools === 'function') {
       return tools(selected);
     }
+
     return null;
   };
 
   onMouseLeave = e => {
     trigger.call(this, 'onMouseLeave', e);
+  };
+
+  onMouseEnter = e => {
+    trigger.call(this, 'onGridMouseEnter', e);
   };
 
   onRowClick = tr => {
@@ -558,7 +700,7 @@ class Grid extends Component {
         set(this._shadowLeftNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
       }
       set(this._shadowHeadNode, 'style.display', e.scrollTop > 0 ? 'block' : 'none');
-      set(this._firstHeaderCellNode, 'style.display', e.scrollLeft > 0 ? 'block' : 'none');
+      set(this._firstHeaderCellNode, 'style.display', e.scrollLeft > 0 ? 'none' : 'block');
     }
 
     trigger.call(this, 'onScrolling', e);
@@ -592,9 +734,7 @@ class Grid extends Component {
     const target = e.target;
     const tr = closest(target, ECOS_GRID_ROW_CLASS);
 
-    if (this.props.onRowDragEnter) {
-      this.props.onRowDragEnter();
-    }
+    trigger.call(this, 'onRowDragEnter', e);
 
     if (tr === null) {
       this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
@@ -612,6 +752,7 @@ class Grid extends Component {
     }
 
     this.setHover(tr, ECOS_GRID_GRAG_CLASS, false, this._tr);
+
     this._dragTr = tr;
 
     e.stopPropagation();
@@ -647,24 +788,26 @@ class Grid extends Component {
   };
 
   render() {
-    let props = {
-      keyField: this._keyField,
-      bootstrap4: true,
-      bordered: false,
-      scrollable: true,
-      headerClasses: 'ecos-grid__header',
-      noDataIndication: () => t('grid.no-data-indication'),
-      ...this.props
-    };
-
-    props = this.setAdditionalOptions(props);
-
+    const {
+      minHeight,
+      autoHeight,
+      scrollAutoHide,
+      className,
+      rowClassName,
+      tableViewClassName,
+      forwardedRef,
+      noTopBorder,
+      columns,
+      rowEvents,
+      ...otherProps
+    } = this.props;
+    const bootProps = this.setBootstrapTableProps(otherProps, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
     const toolsVisible = this.toolsVisible();
-    const gridStyle = props.minHeight ? { minHeight: props.minHeight } : { height: '100%' };
-    const scrollStyle = props.minHeight ? { height: props.minHeight } : { autoHeight: true };
+    const gridStyle = minHeight ? { minHeight } : { height: '100%' };
+    const scrollStyle = minHeight ? { height: minHeight } : { autoHeight: true };
 
-    if (props.autoHeight) {
-      scrollStyle.autoHeight = props.autoHeight;
+    if (autoHeight) {
+      scrollStyle.autoHeight = autoHeight;
     }
 
     const Scroll = ({ scrollable, children, style, refCallback, autoHide }) =>
@@ -677,6 +820,7 @@ class Grid extends Component {
           style={style}
           autoHide={autoHide}
           hideTracksWhenNotNeeded
+          renderView={props => <div {...props} className={tableViewClassName} />}
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
           renderTrackHorizontal={props => <div {...props} className="ecos-grid__h-scroll" />}
         >
@@ -686,27 +830,30 @@ class Grid extends Component {
         <>{children}</>
       );
 
-    if (props.columns.length) {
+    if (columns && columns.length) {
       return (
         <div
           ref={this._ref}
           key={this._id}
           style={gridStyle}
-          className={classNames(
-            'ecos-grid',
-            {
-              'ecos-grid_freeze': this.fixedHeader,
-              'ecos-grid_checkable': this.hasCheckboxes
-            },
-            this.props.className
-          )}
+          className={classNames('ecos-grid', {
+            'ecos-grid_freeze': this.fixedHeader,
+            'ecos-grid_checkable': this.hasCheckboxes,
+            'ecos-grid_no-top-border': noTopBorder,
+            [className]: !!className
+          })}
           onMouseLeave={this.onMouseLeave}
+          onMouseEnter={this.onMouseEnter}
         >
-          {toolsVisible ? this.tools(props.selected) : null}
-
-          <Scroll scrollable={props.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback} autoHide={props.scrollAutoHide}>
-            <div ref={this.props.forwardedRef}>
-              <BootstrapTable {...props} classes="ecos-grid__table" rowClasses={classNames(ECOS_GRID_ROW_CLASS, props.rowClassName)} />
+          {!!toolsVisible && this.tools(bootProps.selected)}
+          <Scroll scrollable={bootProps.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback} autoHide={scrollAutoHide}>
+            <div ref={forwardedRef}>
+              <BootstrapTable
+                {...bootProps}
+                classes="ecos-grid__table"
+                headerClasses="ecos-grid__header"
+                rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
+              />
             </div>
             {this.inlineTools()}
           </Scroll>
@@ -727,6 +874,7 @@ class Grid extends Component {
 Grid.propTypes = {
   className: PropTypes.string,
   rowClassName: PropTypes.string,
+  tableViewClassName: PropTypes.string,
   keyField: PropTypes.string,
   dataField: PropTypes.string,
 
@@ -739,6 +887,7 @@ Grid.propTypes = {
   scrollable: PropTypes.bool,
   fixedHeader: PropTypes.bool,
   scrollAutoHide: PropTypes.bool,
+  noTopBorder: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,
@@ -751,7 +900,9 @@ Grid.propTypes = {
   onRowDrop: PropTypes.func,
   onDragOver: PropTypes.func,
   onRowDragEnter: PropTypes.func,
-  onRowMouseLeave: PropTypes.func
+  onRowMouseLeave: PropTypes.func,
+  onResizeColumn: PropTypes.func,
+  onGridMouseEnter: PropTypes.func
 };
 
 export default Grid;

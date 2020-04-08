@@ -48,6 +48,7 @@ $color-brown-3: #ada690;
 $color-pink: #ffbcb3;
 $color-pink-2: #ffe9e9;
 $color-pink-3: #ebcdcd;
+$color-pink-4: #fdf4f5;
 $color-green: #cbf8cd;
 $color-green1: #00c308;
 $color-green-dark: #138e6d;
@@ -116,7 +117,7 @@ $background-loader: rgba($color-gray-5, 0.3);
 
 $scroll-size: 6px;
 $scroll-border-radius: 3px;
-$scroll-z-index: 12;
+$scroll-z-index: 30;
 
 %v-scroll {
   position: absolute;

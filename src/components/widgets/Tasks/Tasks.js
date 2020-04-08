@@ -93,7 +93,10 @@ class Tasks extends React.Component {
     });
   };
 
-  onSubmitForm = () => Records.get(this.props.record).update();
+  onSubmitForm = () => {
+    Records.get(this.props.record).update();
+    this.getTaskList();
+  };
 
   setHeight = contentHeight => {
     this.setState({ contentHeight });

@@ -9,6 +9,7 @@ import {
   EditAction,
   MoveToLinesJournal,
   OpenURL,
+  UploadNewVersion,
   ViewAction
 } from './DefaultActions';
 
@@ -27,6 +28,7 @@ Registry.addExecutors({
   [DefaultActionTypes.DOWNLOAD_CARD_TEMPLATE]: DownloadCardTemplate,
   [DefaultActionTypes.CREATE]: CreateNodeAction,
   [DefaultActionTypes.OPEN_URL]: OpenURL,
+  [DefaultActionTypes.UPLOAD_NEW_VERSION]: UploadNewVersion,
 
   //legacy case actions
 

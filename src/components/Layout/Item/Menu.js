@@ -1,11 +1,13 @@
 import React from 'react';
-import { MENU_TYPE } from '../../constants';
-import './style.scss';
-import BaseLayoutItem from './BaseLayoutItem';
 
-export default class MenuLayoutItem extends BaseLayoutItem {
+import { MENU_TYPE } from '../../../constants';
+import Base from './Base';
+
+import '../style.scss';
+
+export default class Menu extends Base {
   static defaultProps = {
-    ...BaseLayoutItem.defaultProps,
+    ...Base.defaultProps,
     config: {
       menu: null
     }

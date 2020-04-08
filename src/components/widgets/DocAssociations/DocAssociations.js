@@ -8,7 +8,14 @@ import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'rea
 import BaseWidget from '../BaseWidget';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../../constants/index';
-import { addAssociations, getAssociations, getMenu, getSectionList, initStore, removeAssociations } from '../../../actions/docAssociations';
+import {
+  addAssociations,
+  getAssociations,
+  getMenu,
+  getSectionList,
+  removeAssociations,
+  resetStore
+} from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 
@@ -44,7 +51,6 @@ class DocAssociations extends BaseWidget {
     isLoadingMenu: PropTypes.bool,
     menu: PropTypes.array,
     associationsTotalCount: PropTypes.number,
-    initStore: PropTypes.func,
     getSectionList: PropTypes.func,
     getAssociations: PropTypes.func,
     getMenu: PropTypes.func,
@@ -75,13 +81,17 @@ class DocAssociations extends BaseWidget {
       associationId: '',
       selectedDocument: null
     };
-
-    props.initStore();
   }
 
   componentDidMount() {
+    super.componentDidMount();
+
     this.props.getAssociations();
     this.checkHeight();
+  }
+
+  componentWillUnmount() {
+    this.props.resetStore();
   }
 
   checkHeight() {
@@ -223,11 +233,11 @@ class DocAssociations extends BaseWidget {
     </div>
   );
 
-  renderAssociationsItem = data => {
+  renderAssociationsItem = (data = {}) => {
     const { id } = this.props;
     const { associations, title } = data;
 
-    if (!associations.length) {
+    if (!associations || !associations.length) {
       return null;
     }
 
@@ -329,7 +339,6 @@ class DocAssociations extends BaseWidget {
   render() {
     const { canDragging, dragHandleProps, isCollapsed, associationsTotalCount, isLoading, isMobile } = this.props;
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
-    const fixHeight = userHeight || null;
     const actions = {};
     const actionRules = { orderedVisible: ['addLink'] };
 
@@ -342,9 +351,7 @@ class DocAssociations extends BaseWidget {
 
     return (
       <Dashlet
-        className={classNames('ecos-doc-associations', {
-          'ecos-doc-associations_small': this.isSmallWidget
-        })}
+        className={classNames('ecos-doc-associations', { 'ecos-doc-associations_small': this.isSmallWidget })}
         title={t(LABELS.TITLE)}
         needGoTo={false}
         actionConfig={actions}
@@ -365,7 +372,7 @@ class DocAssociations extends BaseWidget {
           this.renderAssociations()
         ) : (
           <Scrollbars style={{ height: contentHeight || '100%' }}>
-            <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
+            <DefineHeight fixHeight={userHeight || null} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
               {this.renderAssociations()}
             </DefineHeight>
           </Scrollbars>
@@ -383,7 +390,7 @@ const mapStateToProps = (state, ownProps) => ({
   isMobile: state.view.isMobile
 });
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  initStore: () => dispatch(initStore(ownProps.record)),
+  resetStore: () => dispatch(resetStore(ownProps.record)),
   getSectionList: () => dispatch(getSectionList(ownProps.record)),
   getAssociations: () => dispatch(getAssociations(ownProps.record)),
   getMenu: () => dispatch(getMenu(ownProps.record)),

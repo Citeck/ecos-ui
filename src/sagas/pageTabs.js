@@ -2,6 +2,7 @@ import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import { push } from 'connected-react-router';
 import queryString from 'query-string';
 import find from 'lodash/find';
+import get from 'lodash/get';
 
 import {
   changeTab,
@@ -13,7 +14,8 @@ import {
   setDisplayState,
   setShowTabsStatus,
   setTab,
-  setTabs
+  setTabs,
+  updateTab
 } from '../actions/pageTabs';
 import { selectInitStatus } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
@@ -95,7 +97,6 @@ function* sagaMoveTabs({ api, logger }, action) {
 function* sagaSetOneTab({ api, logger }, { payload }) {
   try {
     const { data: dataTab, params } = payload;
-
     const { closeActiveTab } = params || {};
 
     if (closeActiveTab) {
@@ -161,6 +162,34 @@ function* sagaChangeTabData({ api, logger }, { payload }) {
   }
 }
 
+function* sagaUpdateTabData({ api, logger }, { payload }) {
+  try {
+    const inited = yield select(selectInitStatus);
+
+    if (!inited) {
+      return;
+    }
+
+    const updatingPayload = get(payload, 'updates', {});
+    let tab = payload.tab;
+
+    if (!tab) {
+      tab = PageTabList.changeOne({
+        tab: PageTabList.activeTab,
+        updates: updatingPayload
+      });
+    }
+
+    const updates = yield* getTitle(tab);
+
+    PageTabList.changeOne({ tab, updates: { ...updatingPayload, ...updates } });
+
+    yield put(setTabs(PageTabList.storeList));
+  } catch (e) {
+    logger.error('[pageTabs sagaUpdateTabData saga error', e.message);
+  }
+}
+
 function* getTitle(tab) {
   try {
     const urlProps = queryString.parseUrl(tab.link);
@@ -186,6 +215,7 @@ function* saga(ea) {
   yield takeEvery(setTab().type, sagaSetOneTab, ea);
   yield takeEvery(deleteTab().type, sagaDeleteTab, ea);
   yield takeEvery(changeTab().type, sagaChangeTabData, ea);
+  yield takeEvery(updateTab().type, sagaUpdateTabData, ea);
 }
 
 export default saga;

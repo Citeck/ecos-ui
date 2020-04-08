@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
+
 import { t } from '../../../helpers/util';
 import EcosForm, { FORM_MODE_EDIT } from '../../EcosForm/index';
 import { DefineHeight, InfoText, Loader } from '../../common/index';
@@ -79,6 +80,10 @@ class Properties extends React.Component {
     this.setState({ contentHeight });
   };
 
+  getTitle = title => {
+    this.props.getTitle && this.props.getTitle(title);
+  };
+
   renderLoader() {
     const { loaded } = this.state;
     if (!loaded) {
@@ -116,6 +121,7 @@ class Properties extends React.Component {
           onReady={this.onReady}
           className={formClassNames}
           formId={formId}
+          getTitle={this.getTitle}
         />
         {/* Cause: https://citeck.atlassian.net/browse/ECOSCOM-2654 */}
         <EcosForm

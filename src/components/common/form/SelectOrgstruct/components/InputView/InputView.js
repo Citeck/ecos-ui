@@ -1,16 +1,31 @@
-import React, { useContext, Fragment } from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { Btn } from '../../../../../common/btns';
-import ViewMode from '../ViewMode';
-import { SelectOrgstructContext } from '../../SelectOrgstructContext';
+import get from 'lodash/get';
+
 import { t } from '../../../../../../helpers/util';
+import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
+import { Btn } from '../../../../../common/btns';
+import { AssocLink } from '../../../AssocLink';
+import { SelectOrgstructContext } from '../../SelectOrgstructContext';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../constants';
+import ViewMode from '../ViewMode';
+
 import './InputView.scss';
 
 const InputView = () => {
   const context = useContext(SelectOrgstructContext);
-
-  const { isCompact, disabled, multiple, placeholder, viewOnly, renderView, hideInputView } = context.controlProps;
-  const { selectedRows, error, toggleSelectModal, deleteSelectedItem } = context;
+  const { selectedRows, error, toggleSelectModal, deleteSelectedItem, controlProps } = context;
+  const {
+    isCompact,
+    disabled,
+    multiple,
+    placeholder,
+    viewOnly,
+    renderView,
+    hideInputView,
+    isSelectedValueAsText,
+    isInlineEditingMode
+  } = controlProps;
 
   if (hideInputView) {
     return null;
@@ -39,19 +54,38 @@ const InputView = () => {
     deleteSelectedItem(e.target.dataset.id);
   };
 
+  const renderSelectedValue = item => {
+    const props = {};
+
+    if (!isSelectedValueAsText) {
+      switch (get(item, 'attributes.authorityType', '')) {
+        case AUTHORITY_TYPE_USER:
+          props.link = createProfileUrl(get(item, 'attributes.shortName', ''));
+          break;
+        case AUTHORITY_TYPE_GROUP:
+        default:
+          props.link = createDocumentUrl(get(item, 'attributes.nodeRef', ''));
+          break;
+      }
+      props.paramsLink = { openNewBrowserTab: !isInlineEditingMode || !isNewVersionPage(props.link) };
+    }
+
+    return <AssocLink label={item.label} asText={isSelectedValueAsText} {...props} className="select-orgstruct__values-list-disp" />;
+  };
+
   const valuesList = isCompact ? (
-    <Fragment>
+    <>
       {selectedRows.length > 0 ? (
-        <div className={'select-orgstruct__values-list_compact'}>{selectedRows.map(item => item.label).join(', ')}</div>
+        <div className="select-orgstruct__values-list_compact">{selectedRows.map(item => item.label).join(', ')}</div>
       ) : null}
-    </Fragment>
+    </>
   ) : (
-    <Fragment>
+    <>
       {selectedRows.length > 0 ? (
         <ul className={'select-orgstruct__values-list'}>
           {selectedRows.map(item => (
             <li key={item.id}>
-              <span className="select-orgstruct__values-list-disp">{item.label}</span>
+              {renderSelectedValue(item)}
               {disabled ? null : (
                 <div className="select-orgstruct__values-list-actions">
                   {/*<span data-id={item.id} className={'icon icon-edit'} onClick={() => {}} />*/}
@@ -64,7 +98,7 @@ const InputView = () => {
       ) : (
         <p className={'select-orgstruct__value-not-selected'}>{placeholderText}</p>
       )}
-    </Fragment>
+    </>
   );
 
   return (

@@ -60,6 +60,7 @@ export class TimesheetCommonApi extends RecordService {
     ).then(res => res);
   };
 
+  // TODO: Need to get rid of the generators in API
   getTimesheetCalendarEventsList = function*({ month, year, userNames }) {
     const events = {};
 
@@ -143,5 +144,24 @@ export class TimesheetCommonApi extends RecordService {
         userName: 'timesheet:requestorUsername'
       }
     }).then(res => res.totalCount);
+  };
+
+  getHoursByDay = ({ date, userName, eventType }) => {
+    const [day, month, year] = date.split('.');
+
+    return Records.query({
+      query: {
+        query: { day, month, year, userName, eventType },
+        language: 'json',
+        maxItems: 100,
+        sourceId: 'timesheet-calendar',
+        debug: false
+      },
+      attributes: {
+        date: 'date',
+        hoursCount: 'hoursCount',
+        eventType: 'eventType'
+      }
+    }).then(res => res);
   };
 }

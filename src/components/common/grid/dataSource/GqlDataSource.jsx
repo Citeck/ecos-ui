@@ -1,20 +1,19 @@
-import BaseDataSource from './BaseDataSource';
+import lodashGet from 'lodash/get';
+
+import { getCurrentLocale, t } from '../../../../helpers/util';
+import ecosFetch from '../../../../helpers/ecosFetch';
+import Records from '../../../Records';
 import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
-import Records from '../../../Records';
-import { getCurrentLocale, t } from '../../../../helpers/util';
-import lodashGet from 'lodash/get';
-import ecosFetch from '../../../../helpers/ecosFetch';
-
-const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
+import BaseDataSource, { DEFAULT_FORMATTER } from './BaseDataSource';
 
 export default class GqlDataSource extends BaseDataSource {
   constructor(options) {
     super(options);
 
-    this._createVariants = this.options.createVariants;
     this.options.ajax.body = this._getBodyJson(this.options.ajax.body, this.options.columns, this.options.permissions);
     this._columns = this._getColumns(this.options.columns);
+    this._createVariants = this.options.createVariants;
   }
 
   getColumns() {
@@ -22,7 +21,7 @@ export default class GqlDataSource extends BaseDataSource {
   }
 
   load() {
-    let options = this.options;
+    const options = this.options;
 
     return Records.query(JSON.parse(options.ajax.body))
       .then(resp => {
@@ -62,37 +61,15 @@ export default class GqlDataSource extends BaseDataSource {
       });
   }
 
-  _getColumns(columns) {
-    return columns.map((column, idx) => {
-      let newColumn = { ...column };
-
-      newColumn.dataField = newColumn.dataField || newColumn.attribute;
-      newColumn.text = t(newColumn.text || newColumn.dataField);
-
-      let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
-      let { formatter, params } = this._getFormatter(formatterOptions);
-
-      newColumn.formatExtraData = { formatter, params, createVariants: this._createVariants };
-
-      newColumn.filterValue = (cell, row) => formatter.getFilterValue(cell, row, params);
-      newColumn.editorRenderer = formatter.getEditor;
-
-      return newColumn;
-    });
-  }
-
   static getColumnsStatic(columns) {
     return columns.map((column, idx) => {
-      let newColumn = { ...column };
+      const newColumn = { ...column };
+      const formatterOptions = column.formatter || Mapper.getFormatterOptions(newColumn, idx);
+      const { formatter, params } = GqlDataSource.getFormatterStatic(formatterOptions);
 
       newColumn.dataField = newColumn.dataField || newColumn.attribute;
       newColumn.text = t(newColumn.text || newColumn.dataField);
-
-      let formatterOptions = newColumn.formatter || Mapper.getFormatterOptions(newColumn, idx);
-      let { formatter, params } = GqlDataSource.getFormatterStatic(formatterOptions);
-
       newColumn.formatExtraData = { formatter, params };
-
       newColumn.filterValue = (cell, row) => formatter.getFilterValue(cell, row, params);
       newColumn.editorRenderer = formatter.getEditor;
 
@@ -112,20 +89,21 @@ export default class GqlDataSource extends BaseDataSource {
   }
 
   _getAttributes(columns) {
-    let attributes = {};
+    const attributes = {};
 
     columns.forEach((column, idx) => {
-      let formatterOptions = column.formatter || Mapper.getFormatterOptions(column, idx);
-      let { formatter } = this._getFormatter(formatterOptions);
+      const formatterOptions = column.formatter || Mapper.getFormatterOptions(column, idx);
+      const { formatter } = this._getFormatter(formatterOptions);
 
       attributes[column.dataField || column.attribute] = column.schema || formatter.getQueryString(column.attribute || column.dataField);
     });
 
     attributes.hasContent = '.has(n:"cm:content")';
 
-    let groupAtts = lodashGet(this.options || {}, 'ajax.body.query.groupBy', []);
+    const groupAtts = lodashGet(this.options || {}, 'ajax.body.query.groupBy', []);
+
     for (let i = 0; i < groupAtts.length; i++) {
-      let att = groupAtts[i];
+      const att = groupAtts[i];
       attributes['groupBy_' + att] = att + '?str';
     }
 
@@ -133,39 +111,20 @@ export default class GqlDataSource extends BaseDataSource {
   }
 
   _getPermissions(permissions) {
-    let attributes = {};
+    const attributes = {};
 
     for (let i = 0; i < permissions.length; i++) {
-      let permission = permissions[i];
+      const permission = permissions[i];
       attributes[`hasPerission${permission}`] = `.att(n:"permissions"){has(n:"${permission}")}`;
     }
 
     return attributes;
   }
 
-  _getFormatter(options) {
-    let name;
-    let params;
-    let defaultFormatter = formatterStore[DEFAULT_FORMATTER];
-
-    if (options) {
-      ({ name, params } = options);
-    }
-
-    let formatter = formatterStore[name || options] || defaultFormatter;
-
-    params = params || {};
-
-    return {
-      formatter,
-      params
-    };
-  }
-
   static getFormatterStatic(options) {
+    const defaultFormatter = formatterStore[DEFAULT_FORMATTER];
     let name;
     let params;
-    let defaultFormatter = formatterStore[DEFAULT_FORMATTER];
 
     if (options) {
       ({ name, params } = options);
@@ -182,7 +141,7 @@ export default class GqlDataSource extends BaseDataSource {
   }
 
   _getDefaultOptions() {
-    const options = {
+    return {
       columns: [],
       url: undefined,
       ajax: {
@@ -195,7 +154,5 @@ export default class GqlDataSource extends BaseDataSource {
         body: {}
       }
     };
-
-    return options;
   }
 }

@@ -79,6 +79,18 @@ $border-base: #c1c1c1;
     position: relative;
   }
 
+  &__info-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+
+    &-msg {
+      height: unset;
+    }
+  }
+
   &__toolbar {
     @extend %base-flex;
     justify-content: center;

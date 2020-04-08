@@ -1,5 +1,6 @@
 import React from 'react';
 import { isEmpty } from 'lodash';
+import { createProfileUrl } from '../../../../../helpers/urls';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class UserNameLinkFormatter extends DefaultGqlFormatter {
@@ -15,7 +16,8 @@ export default class UserNameLinkFormatter extends DefaultGqlFormatter {
     }
 
     const { userName, displayName } = cell;
+    const url = createProfileUrl(userName);
 
-    return <a href={`/share/page/user/${userName}/profile`}>{this.value(displayName)}</a>;
+    return <a href={url}>{this.value(displayName)}</a>;
   }
 }

@@ -108,6 +108,8 @@ class Comments extends BaseWidget {
   }
 
   componentDidMount() {
+    super.componentDidMount();
+
     const { getComments } = this.props;
 
     getComments();

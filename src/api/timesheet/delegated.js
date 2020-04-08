@@ -50,6 +50,7 @@ export class TimesheetDelegatedApi extends RecordService {
     }).then(res => (res ? res.totalCount : 0));
   };
 
+  // TODO: Need to get rid of the generators in API
   getTotalCountsForTypes = function*({ userName }) {
     const delegationTypes = [DelegationTypes.FILL, DelegationTypes.APPROVE];
     const counts = {};

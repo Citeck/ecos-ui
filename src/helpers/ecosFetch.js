@@ -25,7 +25,7 @@ export default function(url, options = {}) {
     };
   }
 
-  if (url && url.includes('http')) {
+  if (url && !url.includes('http')) {
     params.credentials = 'include';
   }
 

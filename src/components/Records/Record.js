@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { recordsMutateFetch, loadAttribute } from './recordsApi';
+import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import Attribute from './Attribute';
 import { EventEmitter2 } from 'eventemitter2';
 import { mapValueToInnerAtt } from './recordUtils';
@@ -221,7 +221,7 @@ export default class Record {
     })
       .then(cleanUpdateStatus)
       .catch(e => {
-        console.log(e);
+        console.error(e);
         cleanUpdateStatus();
       });
     this._updatePromise = promise;
@@ -239,8 +239,10 @@ export default class Record {
 
   watch(attributes, callback) {
     const watcher = new RecordWatcher(this, attributes, callback);
+    const attsPromise = this.load(attributes);
+
     this._watchers.push(watcher);
-    let attsPromise = this.load(attributes);
+
     Promise.all([attsPromise, this.load('pendingUpdate?bool')])
       .then(([loadedAtts, pendingUpdate]) => {
         if (pendingUpdate) {
@@ -250,8 +252,10 @@ export default class Record {
       })
       .catch(e => {
         console.error(e);
-        attsPromise.then(atts => watcher.setAttributes(atts));
+
+        attsPromise.then(atts => watcher.setAttributes(atts)).catch(console.error);
       });
+
     return watcher;
   }
 
@@ -284,7 +288,7 @@ export default class Record {
           if (!force && value !== undefined) {
             return value;
           } else {
-            value = this._loadRecordAttImpl(att);
+            value = this._loadRecordAttImpl(att, force);
             if (value && value.then) {
               this._recordFields[att] = value
                 .then(loaded => {
@@ -323,9 +327,9 @@ export default class Record {
     });
   }
 
-  _loadRecordAttImpl(attribute) {
+  _loadRecordAttImpl(attribute, force) {
     if (this._baseRecord) {
-      return this._baseRecord.load(attribute);
+      return this._baseRecord.load(attribute, force);
     } else {
       return loadAttribute(this.id, attribute);
     }
@@ -521,6 +525,16 @@ export default class Record {
 
   att(name, value) {
     return this._processAttField(name, value, arguments.length === 1, Attribute.prototype.getValue, Attribute.prototype.setValue);
+  }
+
+  removeAtt(name) {
+    let parsedAtt = parseAttribute(name);
+    if (!parsedAtt) {
+      delete this._attributes[name];
+      return;
+    }
+
+    delete this._attributes[parsedAtt.name];
   }
 
   _processAttField(name, value, isRead, getter, setter) {

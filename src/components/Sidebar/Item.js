@@ -4,7 +4,8 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
-import { setScrollTop, setSelectedId, toggleExpanded } from '../../actions/slideMenu';
+import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
+import { t } from '../../helpers/util';
 import SidebarService from '../../services/sidebar';
 import { Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
@@ -59,9 +60,13 @@ class Item extends React.Component {
   }
 
   onToggleList = e => {
+    const { isMobile, data, toggleExpanded, toggleIsOpen } = this.props;
+
     if (this.collapsible) {
-      this.props.toggleExpanded(this.props.data);
+      toggleExpanded(data);
       e.stopPropagation();
+    } else if (isMobile) {
+      toggleIsOpen(false);
     }
   };
 
@@ -79,11 +84,13 @@ class Item extends React.Component {
       styleProps: { noIcon }
     } = this.props;
     const extraParams = { isSiteDashboardEnable };
+
+    const label = t(data.label);
     const content = (
       <>
         {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : get(data, 'label', '')} />}
-        <div className="ecos-sidebar-item__label" title={data.label}>
-          {data.label}
+        <div className="ecos-sidebar-item__label" title={label}>
+          {label}
         </div>
       </>
     );
@@ -176,13 +183,15 @@ class Item extends React.Component {
 
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
-  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable
+  isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable,
+  isMobile: state.view.isMobile
 });
 
 const mapDispatchToProps = dispatch => ({
   setSelectItem: id => dispatch(setSelectedId(id)),
   toggleExpanded: item => dispatch(toggleExpanded(item)),
-  setScrollTop: value => dispatch(setScrollTop(value))
+  setScrollTop: value => dispatch(setScrollTop(value)),
+  toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Item);

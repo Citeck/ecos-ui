@@ -29,6 +29,7 @@ class DropZone extends Component {
     multiple: PropTypes.bool,
     isLoading: PropTypes.bool,
     immediateUploading: PropTypes.bool,
+    style: PropTypes.object,
     onSelect: PropTypes.func,
     onUploaded: PropTypes.func
   };
@@ -40,6 +41,7 @@ class DropZone extends Component {
     withoutButton: false,
     isLoading: false,
     immediateUploading: false,
+    style: {},
     onSelect: () => {},
     onUploaded: () => {}
   };
@@ -195,7 +197,7 @@ class DropZone extends Component {
   }
 
   render() {
-    const { multiple, isLoading, className, onDropRejected } = this.props;
+    const { multiple, isLoading, className, onDropRejected, style } = this.props;
 
     return (
       <DZ
@@ -214,6 +216,7 @@ class DropZone extends Component {
               'ecos-dropzone_loading': isLoading
             })}
             {...getRootProps()}
+            style={style}
             onClick={event => event.preventDefault()}
           >
             <input {...getInputProps()} />

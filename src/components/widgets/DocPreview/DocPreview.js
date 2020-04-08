@@ -6,15 +6,16 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
+import { DocPreviewApi } from '../../../api';
+import { DocScaleOptions } from '../../../constants';
 import { getOptimalHeight } from '../../../helpers/layout';
 import { isPDFbyStr, t } from '../../../helpers/util';
-import { DocPreviewApi } from '../../../api';
 import { InfoText, Loader } from '../../common';
+import { Btn } from '../../common/btns';
 import Toolbar from './Toolbar';
 import PdfViewer from './PdfViewer';
 import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
-import { DocScaleOptions } from '../../../constants';
 
 import './style.scss';
 
@@ -27,7 +28,8 @@ const Labels = {
     FAILURE_FETCH: 'doc-preview.error.failure-to-fetch',
     LOADING_FAILURE: 'doc-preview.error.loading-failure',
     NOT_SPECIFIED: 'doc-preview.error.not-specified'
-  }
+  },
+  DOWNLOAD: 'doc-preview.download'
 };
 
 class DocPreview extends Component {
@@ -35,7 +37,7 @@ class DocPreview extends Component {
     link: PropTypes.string,
     className: PropTypes.string,
     fileName: PropTypes.string,
-    recordKey: PropTypes.string,
+    recordId: PropTypes.string,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -55,7 +57,6 @@ class DocPreview extends Component {
     height: 'inherit',
     scale: DocScaleOptions.AUTO,
     firstPageNumber: 1,
-    recordKey: 'recordRef',
     fileName: ''
   };
 
@@ -71,14 +72,18 @@ class DocPreview extends Component {
       settings: {},
       isLoading: this.isPDF,
       scrollPage: props.firstPageNumber,
-      recordId: this.getRecordId(),
+      recordId: props.recordId || this.getRecordId(),
       link: props.link,
       contentHeight: 0,
-      error: ''
+      error: '',
+      fileName: props.fileName,
+      downloadData: {}
     };
   }
 
   componentDidMount() {
+    this.exist = true;
+
     if (this.isPDF) {
       const { link } = this.props;
 
@@ -92,7 +97,6 @@ class DocPreview extends Component {
     const prevProps = this.props;
     const { link, isLoading, byLink, isCollapsed, runUpdate } = nextProps;
     const { recordId } = this.state;
-    const newRecordId = this.getRecordId(nextProps);
     const isPdf = isPDFbyStr(link);
     const newState = {};
 
@@ -113,6 +117,8 @@ class DocPreview extends Component {
       newState.link = link;
     }
 
+    const newRecordId = nextProps.recordId || this.getRecordId();
+
     if ((!byLink && recordId !== newRecordId) || (!byLink && prevProps.isCollapsed && !isCollapsed)) {
       newState.recordId = newRecordId;
     }
@@ -121,11 +127,27 @@ class DocPreview extends Component {
       this.getUrlByRecord();
     }
 
+    if ((!prevProps.fileName && nextProps.fileName) || prevProps.fileName !== nextProps.fileName) {
+      newState.fileName = nextProps.fileName;
+    }
+
     this.setState({ ...newState }, () => {
       if (newState.recordId) {
         this.getUrlByRecord();
       }
+
+      if (!newState.fileName) {
+        this.getFileName();
+      }
+
+      if (!newState.downloadData || !newState.downloadData.link) {
+        this.getDownloadData();
+      }
     });
+  }
+
+  componentWillUnmount() {
+    this.exist = false;
   }
 
   get isPDF() {
@@ -194,32 +216,61 @@ class DocPreview extends Component {
     return heightTool >= heightBody && !this.message;
   }
 
-  getRecordId(props = this.props) {
-    const { recordKey } = props;
-    const searchParams = queryString.parse(window.location.search);
-
-    return searchParams[recordKey] || '';
+  getRecordId() {
+    return queryString.parseUrl(window.location.href).query.recordRef || '';
   }
 
   getUrlByRecord = () => {
-    const { recordKey, byLink } = this.props;
-    const searchParams = queryString.parse(window.location.search);
+    const { byLink } = this.props;
+    const { recordId } = this.state;
 
-    if (byLink || !searchParams[recordKey]) {
+    if (byLink || !recordId) {
       return;
     }
 
     this.setState({ isLoading: true });
-    DocPreviewApi.getLinkByRecord(searchParams[recordKey]).then(link => {
-      const error = link ? '' : t(Labels.Errors.FAILURE_FETCH);
+    DocPreviewApi.getPreviewLinkByRecord(recordId).then(link => {
+      if (this.exist) {
+        const error = link ? '' : t(Labels.Errors.FAILURE_FETCH);
 
-      this.setState({ isLoading: false, link, error });
+        this.setState({ isLoading: false, link, error });
 
-      if (link && isPDFbyStr(link)) {
-        this.loadPDF(link);
+        if (link && isPDFbyStr(link)) {
+          this.loadPDF(link);
+        }
       }
     });
   };
+
+  getFileName = () => {
+    const { byLink } = this.props;
+    const { recordId } = this.state;
+
+    if (byLink || !recordId) {
+      return;
+    }
+
+    DocPreviewApi.getFileName(recordId).then(fileName => {
+      this.exist && this.setState({ fileName });
+    });
+  };
+
+  getDownloadData() {
+    const { recordId, byLink, link, fileName } = this.state;
+
+    if (byLink && link) {
+      this.setState({ downloadData: { link, fileName } });
+      return;
+    }
+
+    if (!recordId) {
+      return;
+    }
+
+    DocPreviewApi.getDownloadData(recordId).then(downloadData => {
+      this.exist && this.setState({ downloadData });
+    });
+  }
 
   loadPDF = link => {
     const { firstPageNumber } = this.props;
@@ -229,11 +280,11 @@ class DocPreview extends Component {
 
     loadingTask.promise.then(
       pdf => {
-        this.setState({ pdf, isLoading: false, scrollPage: firstPageNumber, error: '' });
+        this.exist && this.setState({ pdf, isLoading: false, scrollPage: firstPageNumber, error: '' });
       },
       err => {
         console.error(`Error during loading document: ${err}`);
-        this.setState({ isLoading: false, error: t(Labels.Errors.FAILURE_FETCH) });
+        this.exist && this.setState({ isLoading: false, error: t(Labels.Errors.FAILURE_FETCH) });
       }
     );
   };
@@ -297,7 +348,8 @@ class DocPreview extends Component {
         forwardedRef={forwardedRef}
         resizable={resizable}
         {...this.commonProps}
-        onError={() => {
+        onError={error => {
+          console.error(error);
           this.setState({ error: t(Labels.Errors.FAILURE_FETCH) });
         }}
       />
@@ -305,8 +357,8 @@ class DocPreview extends Component {
   }
 
   renderToolbar() {
-    const { scale, fileName } = this.props;
-    const { pdf, scrollPage, calcScale, link } = this.state;
+    const { scale } = this.props;
+    const { pdf, scrollPage, calcScale, downloadData, fileName } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
     if (!this.loaded) {
@@ -323,8 +375,8 @@ class DocPreview extends Component {
         scrollPage={scrollPage}
         calcScale={calcScale}
         inputRef={this.refToolbar}
-        link={link}
         fileName={fileName}
+        downloadData={downloadData}
       />
     );
   }
@@ -340,9 +392,21 @@ class DocPreview extends Component {
   }
 
   renderMessage() {
+    const { downloadData } = this.state;
     const message = this.message;
 
-    return message && <InfoText text={message} />;
+    return (
+      message && (
+        <div className="ecos-doc-preview__info-block">
+          <InfoText className="ecos-doc-preview__info-block-msg" text={message} />
+          {downloadData && downloadData.link && (
+            <a href={downloadData.link} download={downloadData.fileName} data-external>
+              <Btn className="ecos-btn_narrow">{t(Labels.DOWNLOAD)}</Btn>
+            </a>
+          )}
+        </div>
+      )
+    );
   }
 
   render() {

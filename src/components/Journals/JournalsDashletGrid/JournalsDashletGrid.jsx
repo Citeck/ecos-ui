@@ -30,10 +30,9 @@ import {
   setPredicate,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setSelectedRecords,
-  setSettingsToUrl
+  setSelectedRecords
 } from '../../../actions/journals';
-import { DEFAULT_INLINE_TOOL_SETTINGS } from '../constants';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION } from '../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -41,6 +40,7 @@ const mapStateToProps = (state, props) => {
   return {
     loading: newState.loading,
     grid: newState.grid,
+    isMobile: state.view.isMobile,
     predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
@@ -65,7 +65,6 @@ const mapDispatchToProps = (dispatch, props) => {
     goToJournalsPage: row => dispatch(goToJournalsPage(w(row))),
     performGroupAction: options => dispatch(performGroupAction(w(options))),
     setPerformGroupActionResponse: options => dispatch(setPerformGroupActionResponse(w(options))),
-    setSettingsToUrl: options => dispatch(setSettingsToUrl(w(options))),
     setPredicate: options => dispatch(setPredicate(w(options))),
     setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup(w({ columns, sortBy })))
   };
@@ -113,27 +112,21 @@ class JournalsDashletGrid extends Component {
 
   onFilter = ([filter]) => {
     const {
-      setSettingsToUrl,
       setPredicate,
-      isWidget,
-      grid: { columns }
+      grid: { columns, pagination: pager }
     } = this.props;
     const predicate = ParserPredicate.getDefaultPredicates(columns, [filter.att]);
     const newPredicate = ParserPredicate.setPredicateValue(predicate, filter, true);
+    const { maxItems } = pager || DEFAULT_JOURNALS_PAGINATION;
+    const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 
     setPredicate(newPredicate);
-    this.reloadGrid({ predicates: [newPredicate] });
-
-    if (!isWidget) {
-      setSettingsToUrl({ predicate: newPredicate });
-    }
+    this.reloadGrid({ predicates: [newPredicate], pagination });
   };
 
   onSort = e => {
     const {
-      setSettingsToUrl,
       setColumnsSetup,
-      isWidget,
       grid: { columns }
     } = this.props;
     const sortBy = [
@@ -144,10 +137,6 @@ class JournalsDashletGrid extends Component {
     ];
     setColumnsSetup(columns, sortBy);
     this.reloadGrid({ sortBy });
-
-    if (!isWidget) {
-      setSettingsToUrl({ sortBy });
-    }
   };
 
   setSelectedRow(row) {
@@ -240,6 +229,7 @@ class JournalsDashletGrid extends Component {
     const toolsActionClassName = 'ecos-btn_i_sm ecos-btn_grey4';
     const {
       stateId,
+      isMobile,
       selectAllRecordsVisible,
       selectAllRecords,
       grid: { total },
@@ -249,6 +239,48 @@ class JournalsDashletGrid extends Component {
       toolsClassName
     } = this.props;
 
+    const sourceGroupActions = groupActions.filter(g => (selectAllRecords && g.type === 'filtered') || g.type === 'selected');
+    const tools = [
+      <JournalsDownloadZip stateId={stateId} selected={selected} />,
+      <IcoBtn
+        icon={'icon-copy'}
+        className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+        title={t('grid.tools.copy-to')}
+      />,
+      <IcoBtn
+        icon={'icon-big-arrow'}
+        className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+        title={t('grid.tools.move-to')}
+      />,
+      <IcoBtn
+        icon={'icon-delete'}
+        className={classNames(toolsActionClassName, 'ecos-btn_hover_t_red')}
+        title={t('grid.tools.delete')}
+        onClick={this.showDeleteRecordsDialog}
+      />
+    ];
+
+    if (sourceGroupActions && sourceGroupActions.length) {
+      tools.push(
+        <Dropdown
+          className={'grid-tools__item_left_5'}
+          source={sourceGroupActions}
+          valueField={'id'}
+          titleField={'title'}
+          isButton={true}
+          onChange={this.changeGroupAction}
+        >
+          <IcoBtn
+            invert
+            icon={'icon-down'}
+            className={'dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn'}
+            onClick={this.onGoTo}
+          >
+            {t(isMobile ? 'grid.tools.group-actions-mobile' : 'grid.tools.group-actions')}
+          </IcoBtn>
+        </Dropdown>
+      );
+    }
     return (
       <Tools
         onSelectAll={this.setSelectAllRecords}
@@ -256,48 +288,7 @@ class JournalsDashletGrid extends Component {
         selectAll={selectAllRecords}
         total={total}
         className={toolsClassName}
-        tools={[
-          <JournalsDownloadZip stateId={stateId} selected={selected} />,
-          <IcoBtn
-            icon={'icon-copy'}
-            className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-            title={t('grid.tools.copy-to')}
-          />,
-          <IcoBtn
-            icon={'icon-big-arrow'}
-            className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
-            title={t('grid.tools.move-to')}
-          />,
-          <IcoBtn
-            icon={'icon-delete'}
-            className={classNames(toolsActionClassName, 'ecos-btn_hover_t_red')}
-            title={t('grid.tools.delete')}
-            onClick={this.showDeleteRecordsDialog}
-          />,
-          <Dropdown
-            className={'grid-tools__item_left_5'}
-            source={groupActions.filter(g => {
-              if (selectAllRecords) {
-                return g.type === 'filtered';
-              }
-
-              return g.type === 'selected';
-            })}
-            valueField={'id'}
-            titleField={'title'}
-            isButton={true}
-            onChange={this.changeGroupAction}
-          >
-            <IcoBtn
-              invert
-              icon={'icon-down'}
-              className={'dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn'}
-              onClick={this.onGoTo}
-            >
-              {t('grid.tools.group-actions')}
-            </IcoBtn>
-          </Dropdown>
-        ]}
+        tools={tools}
       />
     );
   };
@@ -422,7 +413,6 @@ class JournalsDashletGrid extends Component {
       },
       doInlineToolsOnRowClick = false,
       performGroupActionResponse,
-      doNotCount,
       minHeight,
       predicate,
       journalConfig: { params = {} }
@@ -434,8 +424,8 @@ class JournalsDashletGrid extends Component {
       editable = false;
     }
 
-    const HeightCalculation = ({ doNotCount, children, maxItems, minHeight, total }) => {
-      if (doNotCount) {
+    const HeightCalculation = ({ children, maxItems, minHeight, total }) => {
+      if (minHeight !== undefined) {
         return <div style={{ height: minHeight }}>{children}</div>;
       }
 
@@ -451,7 +441,7 @@ class JournalsDashletGrid extends Component {
     return (
       <>
         <div className="ecos-journal-dashlet__grid">
-          <HeightCalculation maxItems={maxItems} doNotCount={doNotCount} minHeight={minHeight} total={total}>
+          <HeightCalculation maxItems={maxItems} minHeight={minHeight} total={total}>
             {loading ? (
               <Loader />
             ) : (
@@ -513,10 +503,9 @@ JournalsDashletGrid.propTypes = {
   className: PropTypes.string,
   toolsClassName: PropTypes.string,
   minHeight: PropTypes.any,
-
   doInlineToolsOnRowClick: PropTypes.bool,
-  doNotCount: PropTypes.bool,
-  isWidget: PropTypes.bool
+  isWidget: PropTypes.bool,
+  onRowClick: PropTypes.func
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletGrid);

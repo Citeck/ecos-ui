@@ -31,7 +31,8 @@ export const SearchKeys = {
   JOURNAL_ID: [JOURNAL_ID_KEY],
   DASHBOARD_ID: [DASHBOARD_ID_KEY],
   DASHBOARD_KEY: [DASHBOARD_KEY_KEY],
-  SHOW_PREVIEW: [SHOW_PREVIEW_KEY]
+  SHOW_PREVIEW: [SHOW_PREVIEW_KEY],
+  JOURNAL_SETTING_ID: [JOURNAL_SETTING_ID_KEY]
 };
 
 export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';
@@ -46,12 +47,20 @@ const changeUrl = (url, opts = {}) => {
   }
 };
 
+export const _createOldVersionUrlDocument = recordRef => {
+  return `/share/page/card-details?nodeRef=${recordRef}`;
+};
+
+export const createProfileUrl = userName => {
+  return `/share/page/user/${userName}/profile`;
+};
+
 export const createDocumentUrl = recordRef => {
   if (isNewVersionPage()) {
     return `${URL.DASHBOARD}?recordRef=${recordRef}`;
   }
 
-  return `/share/page/card-details?nodeRef=${recordRef}`;
+  return _createOldVersionUrlDocument(recordRef);
 };
 
 const getPredicateFilterParam = options => {

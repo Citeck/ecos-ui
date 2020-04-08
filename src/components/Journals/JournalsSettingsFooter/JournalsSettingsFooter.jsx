@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
+import get from 'lodash/get';
 
 import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
@@ -11,12 +12,11 @@ import {
   reloadGrid,
   resetJournalSettingData,
   saveJournalSetting,
-  setJournalSetting,
-  setSettingsToUrl
+  setJournalSetting
 } from '../../../actions/journals';
 import { closest, deepClone, t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { JOURNAL_SETTING_ID_FIELD } from '../constants';
+import { DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 import './JournalsSettingsFooter.scss';
 
@@ -27,7 +27,8 @@ const mapStateToProps = (state, props) => {
     predicate: newState.predicate,
     columnsSetup: newState.columnsSetup,
     grouping: newState.grouping,
-    journalSetting: newState.journalSetting
+    journalSetting: newState.journalSetting,
+    maxItems: get(newState, 'grid.pagination.maxItems', DEFAULT_JOURNALS_PAGINATION.maxItems)
   };
 };
 
@@ -37,7 +38,6 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     setJournalSetting: setting => dispatch(setJournalSetting(w(setting))),
-    setSettingsToUrl: setting => dispatch(setSettingsToUrl(w(setting))),
     saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
     createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
     resetJournalSettingData: journalSettingId => dispatch(resetJournalSettingData(w(journalSettingId)))
@@ -94,14 +94,14 @@ class JournalsSettingsFooter extends Component {
   };
 
   applySetting = () => {
-    const { setJournalSetting, setSettingsToUrl, reloadGrid } = this.props;
+    const { setJournalSetting, reloadGrid, maxItems } = this.props;
     const journalSetting = this.getSetting();
     const { columns, groupBy, sortBy, predicate } = journalSetting;
     const predicates = predicate ? [predicate] : [];
+    const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 
-    setSettingsToUrl({ groupBy, sortBy, predicate });
     setJournalSetting(journalSetting);
-    reloadGrid({ columns, groupBy, sortBy, predicates });
+    reloadGrid({ columns, groupBy, sortBy, predicates, pagination });
     trigger.call(this, 'onApply');
   };
 

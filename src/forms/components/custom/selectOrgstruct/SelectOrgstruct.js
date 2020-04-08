@@ -20,9 +20,11 @@ export default class SelectOrgstructComponent extends BaseComponent {
         allowedAuthorityType: 'USER, GROUP',
         allowedGroupType: 'ROLE, BRANCH',
         allowedGroupSubType: '',
+        currentUserByDefault: false,
         excludeAuthoritiesByName: '',
         excludeAuthoritiesByType: '',
-        modalTitle: ''
+        modalTitle: '',
+        isSelectedValueAsText: false
       },
       ...extend
     );
@@ -136,6 +138,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           hideTabSwitcher={component.hideTabSwitcher}
           defaultTab={component.defaultTab}
           modalTitle={component.modalTitle ? self.t(component.modalTitle) : null}
+          isSelectedValueAsText={component.isSelectedValueAsText}
           onError={err => {
             // this.setCustomValidity(err, false);
           }}
@@ -216,7 +219,13 @@ export default class SelectOrgstructComponent extends BaseComponent {
   }
 
   setValue(value, flags) {
-    if (isEqual(value, this.emptyValue) && this.component.currentUserByDefault && !this.viewOnly && this.options.formMode === 'CREATE') {
+    if (
+      this.pristine && // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3241
+      isEqual(value, this.emptyValue) &&
+      this.component.currentUserByDefault &&
+      !this.viewOnly &&
+      this.options.formMode === 'CREATE'
+    ) {
       if (Array.isArray(value)) {
         value = [Formio.getUser()];
       } else {

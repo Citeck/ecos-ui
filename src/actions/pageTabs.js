@@ -14,3 +14,4 @@ export const setDisplayState = createAction(prefix + 'SET_DISPLAY_STATE');
 export const setTab = createAction(prefix + 'SET_ONE_TAB');
 export const deleteTab = createAction(prefix + 'DELETE_TAB');
 export const changeTab = createAction(prefix + 'CHANGE_TAB');
+export const updateTab = createAction(prefix + 'UPDATE_TAB');

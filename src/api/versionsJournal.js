@@ -1,9 +1,9 @@
-import { RecordService } from './recordService';
+import { CommonApi } from './common';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import ecosXhr from '../helpers/ecosXhr';
 
-export class VersionsJournalApi extends RecordService {
+export class VersionsJournalApi extends CommonApi {
   getVersions = record => {
     return Records.query(
       {
@@ -25,7 +25,7 @@ export class VersionsJournalApi extends RecordService {
   };
 
   addNewVersion = ({ body, handleProgress }) => {
-    return ecosXhr('/share/proxy/alfresco/api/upload', {
+    return ecosXhr('/share/proxy/alfresco/api/v2/citeck/upload', {
       method: 'POST',
       body,
       handleProgress

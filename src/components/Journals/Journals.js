@@ -72,7 +72,7 @@ class Journals extends Component {
     const journalId = this.props.urlParams.journalId;
     const prevJournalId = prevProps.urlParams.journalId;
 
-    if (journalId !== prevJournalId) {
+    if (journalId && journalId !== prevJournalId) {
       this.getJournalsData();
     }
 

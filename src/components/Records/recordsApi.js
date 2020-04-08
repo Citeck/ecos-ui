@@ -42,7 +42,7 @@ function recordsFetch(url, body) {
     urlKey = 'rec_' + body.record;
     withAppName = isRecordWithAppName(body.record);
   } else if (body.records) {
-    urlKey = 'recs_' + (body.records[0] || '');
+    urlKey = 'recs_' + lodashGet(body, 'records[0].id', '');
     withAppName = isAnyWithAppName(body.records);
   }
 

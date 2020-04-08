@@ -23,36 +23,56 @@
     position: absolute;
     left: 30px;
   }
-}
 
-.checkbox__i {
-  display: block;
-  position: absolute;
-  left: 0;
-  height: 22px;
-  line-height: 0 !important;
+  &__icon {
+    display: block;
+    position: absolute;
+    left: 0;
+    height: 22px;
+    line-height: 0 !important;
 
-  &:before {
-    margin: 0 !important;
-    line-height: 1 !important;
+    &:before {
+      margin: 0 !important;
+      line-height: 1 !important;
+    }
+
+    &_disabled {
+      color: $color-gray-4;
+    }
+
+    &_blue {
+      color: $color-blue-dark;
+    }
+
+    &_white {
+      color: $color-white;
+    }
+
+    &_hover_blue {
+      &:hover {
+        color: $color-blue-dark;
+      }
+    }
   }
 
-  &_disabled {
-    color: $color-gray-4;
-  }
-}
+  &_flex {
+    display: inline-flex;
+    height: auto;
+    width: auto;
 
-.checkbox__i_blue {
-  color: $color-blue-dark;
-}
+    .ecos-checkbox__icon {
+      position: static;
 
-.checkbox__i_white {
-  color: $color-white;
-}
+      &_checked {
+        position: absolute;
+      }
+    }
 
-.checkbox__i_hover_blue {
-  &:hover {
-    color: $color-blue-dark;
+    .ecos-checkbox__text {
+      position: static;
+      padding-left: 10px;
+      line-height: normal;
+    }
   }
 }
 
@@ -74,7 +94,7 @@
     background: $color-white;
     z-index: 2;
     left: 0;
-    top: calc(50% - #{$slider-size}/ 2);
+    top: calc(50% - #{$slider-size} / 2);
     width: $slider-size;
     height: $slider-size;
     border-radius: 50%;

@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-
-import { PointsLoader } from '../common';
-import { t } from '../../helpers/util';
-import { SortableElement } from '../Drag-n-Drop';
+import * as queryString from 'query-string';
 import get from 'lodash/get';
+
+import { t } from '../../helpers/util';
+import { PointsLoader } from '../common';
+import { SortableElement } from '../Drag-n-Drop';
+import Records from '../Records';
 
 class Tab extends Component {
   static propTypes = {
@@ -16,7 +18,8 @@ class Tab extends Component {
     onClick: PropTypes.func,
     onClose: PropTypes.func,
     onMouseUp: PropTypes.func,
-    onSortEnd: PropTypes.func
+    onSortEnd: PropTypes.func,
+    runUpdate: PropTypes.func
   };
 
   static defaultProps = {
@@ -28,6 +31,24 @@ class Tab extends Component {
     onClose: () => null,
     onMouseUp: () => null,
     onSortEnd: () => null
+  };
+
+  componentDidMount() {
+    const link = get(this.props, 'tab.link', null);
+    const recordRef = get(queryString.parseUrl(link), 'query.recordRef', null);
+
+    if (recordRef) {
+      this.instanceRecord = Records.get(recordRef);
+      this.watcher = this.instanceRecord && this.instanceRecord.watch(['name'], this.updateTab);
+    }
+  }
+
+  componentWillUnmount() {
+    this.watcher && this.instanceRecord.unwatch(this.watcher);
+  }
+
+  updateTab = () => {
+    this.props.runUpdate(this.props.tab);
   };
 
   handleClickTab = () => {

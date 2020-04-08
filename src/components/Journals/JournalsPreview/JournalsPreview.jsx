@@ -17,14 +17,12 @@ const mapStateToProps = (state, props) => {
 
 class JournalsPreview extends Component {
   render() {
-    const { previewUrl, previewFileName, className } = this.props;
-    const parseUrl = previewUrl ? previewUrl.split('|') : [];
-    const [link, fileName] = parseUrl;
+    const { recordId, className } = this.props;
 
     return (
       <div className={classNames('ecos-journals-preview', className)}>
         <div className="ecos-journals-preview__container">
-          <DocPreview fileName={previewFileName || fileName} link={link} height={'100%'} scale={1} byLink />
+          <DocPreview height={'100%'} scale={1} recordId={recordId} />
         </div>
       </div>
     );

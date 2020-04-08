@@ -7,9 +7,12 @@ import get from 'lodash/get';
 import { t } from '../../../helpers/util';
 import { FileStatuses } from '../../../helpers/ecosXhr';
 import { VERSIONS } from '../../../constants/versionsJournal';
+import { Loader } from '../../common';
 import EcosModal from '../../common/EcosModal';
 import Radio from '../../common/form/Radio';
 import Btn from '../../common/btns/Btn/Btn';
+
+import './style.scss';
 
 const Labels = {
   DROPZONE_PLACEHOLDER: 'versions-journal-widget.modal.dropzone_placeholder',
@@ -41,22 +44,26 @@ const Labels = {
 class AddModal extends Component {
   static propTypes = {
     isShow: PropTypes.bool,
+    isLoadingModal: PropTypes.bool,
     isLoading: PropTypes.bool,
     onHideModal: PropTypes.func,
     title: PropTypes.string,
     currentVersion: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     commentMaxLength: PropTypes.number,
-    errorMessage: PropTypes.string
+    errorMessage: PropTypes.string,
+    className: PropTypes.string
   };
 
   static defaultProps = {
     isShow: false,
+    isLoadingModal: false,
     isLoading: false,
     onHideModal: () => {},
     title: '',
     currentVersion: 1,
     commentMaxLength: 200,
-    errorMessage: ''
+    errorMessage: '',
+    className: ''
   };
 
   state = {
@@ -96,9 +103,9 @@ class AddModal extends Component {
     if (isMajor) {
       result = Math.floor(version + 1);
     } else {
-      let [major, minor] = oldVersion.toString().split('.');
+      const [major, minor] = oldVersion.toString().split('.');
 
-      result = `${major}.${+minor + 1}`;
+      result = Number.isNaN(+minor) ? `${major}.0` : `${major}.${+minor + 1}`;
     }
 
     return Number.isInteger(result) ? `${result}.0` : result;
@@ -122,7 +129,7 @@ class AddModal extends Component {
 
   handleChangeStatus = (state, xhr) => {
     const { clientError: _clientError } = this.state;
-    const { status: fileStatus, percent: filePercent, response } = state;
+    const { status: fileStatus, percent: filePercent, response = {} } = state;
     let newState = { fileStatus, filePercent };
 
     switch (fileStatus) {
@@ -144,9 +151,9 @@ class AddModal extends Component {
         };
         break;
       case FileStatuses.ERROR_UPLOAD:
-        const { message, status } = response || {};
-        const { description } = status || {};
-        const clientError = `${t(Labels.Messages.ERROR_FILE_UPLOAD)}. ${message} ${description}`;
+        const { message = '', status = '' } = response || {};
+        const { description = '' } = status || {};
+        const clientError = `${t(Labels.Messages.ERROR_FILE_UPLOAD)} ${message} ${description}`;
 
         if (_clientError !== clientError) {
           newState = {
@@ -360,21 +367,22 @@ class AddModal extends Component {
   }
 
   renderErrorMessage() {
-    const { errorMessage } = this.props;
-    const { clientError } = this.state;
+    const { errorMessage = '' } = this.props;
+    const { clientError = '' } = this.state;
 
     if (!errorMessage && !clientError) {
       return null;
     }
 
-    return <div className="vj-modal__error">{clientError || errorMessage}</div>;
+    return <div className="vj-modal__error">{`${clientError} ${errorMessage}`}</div>;
   }
 
   render() {
-    const { isShow, title } = this.props;
+    const { isShow, title, className, isLoadingModal } = this.props;
 
     return (
-      <EcosModal isOpen={isShow} hideModal={this.handleHideModal} title={title} className="vj-modal">
+      <EcosModal isOpen={isShow} hideModal={this.handleHideModal} title={title} className={classNames('vj-modal', className)}>
+        {isLoadingModal && <Loader className="vj-modal__loader" blur />}
         {this.renderDropzone()}
         {this.renderErrorMessage()}
         {this.renderFile()}

@@ -6,7 +6,7 @@ import { AssocEditor } from '../../editors';
 
 export default class AssocFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
-    return `.att(n:"${attribute}"){disp,assoc}`;
+    return `.atts(n:"${attribute}"){disp,assoc}`;
   }
 
   static getEditor(editorProps, value, row, column) {
@@ -29,6 +29,14 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     return Promise.resolve('');
   }
 
+  static getDisplayText(value) {
+    if (Array.isArray(value)) {
+      return Promise.all(value.map(AssocFormatter.getDisplayName)).then(results => results.join(', '));
+    }
+
+    return AssocFormatter.getDisplayName(value);
+  }
+
   getId(cell) {
     return cell.assoc || '';
   }
@@ -37,16 +45,22 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     displayName: ''
   };
 
+  fetchName = false;
+
   componentDidMount() {
-    let cell = this.props.cell;
+    const { cell } = this.props;
 
-    if (Array.isArray(cell)) {
-      return Promise.all(cell.map(AssocFormatter.getDisplayName))
-        .then(results => results.join(', '))
-        .then(displayName => this.setState({ displayName }));
-    }
+    this.fetchName = true;
+    AssocFormatter.getDisplayText(cell).then(displayName => {
+      if (this.fetchName) {
+        this.setState({ displayName });
+        this.fetchName = false;
+      }
+    });
+  }
 
-    AssocFormatter.getDisplayName(cell).then(displayName => this.setState({ displayName }));
+  componentWillUnmount() {
+    this.fetchName = false;
   }
 
   render() {

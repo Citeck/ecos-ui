@@ -199,7 +199,7 @@ class JournalsMenu extends Component {
     }
   };
 
-  onJornalSelect = journal => {
+  onJournalSelect = journal => {
     this.props.onJournalSelect(journal.nodeRef);
   };
 
@@ -216,7 +216,7 @@ class JournalsMenu extends Component {
   };
 
   getMenuJornals = journals => {
-    return journals.map(journal => <ListItem onClick={this.onJornalSelect} item={journal} titleField={'title'} />);
+    return journals.map(journal => <ListItem onClick={this.onJournalSelect} item={journal} titleField={'title'} />);
   };
 
   getMenuJournalSettings = (settings, selectedIndex) => {
@@ -289,18 +289,23 @@ class JournalsMenu extends Component {
       pageTabsIsShow,
       isMobile
     } = this.props;
-    const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
 
     if (!open) {
       return null;
     }
 
+    const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
     const menuJournalSettingsSelectedIndex = this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD);
-
     const { settingsHeight, journalsHeight } = this.calculateHeight(journals, journalSettings);
+    const urlParams = { journalId };
+
+    if (journalSettingId) {
+      urlParams.journalSettingId = journalSettingId;
+      urlParams.userConfigId = '';
+    }
 
     return (
-      <JournalsUrlManager stateId={stateId} params={{ journalId, journalSettingId }}>
+      <JournalsUrlManager stateId={stateId} params={urlParams}>
         <div
           className={classNames('ecos-journal-menu', {
             'ecos-journal-menu_open': open,

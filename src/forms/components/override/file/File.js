@@ -127,9 +127,43 @@ export default class FileComponent extends FormIOFileComponent {
         ),
         this.ce('div', { class: `col-md-${this.hasTypes ? '7' : '9'}` }, this.createFileLink(fileInfo)),
         this.ce('div', { class: 'col-md-2' }, this.fileSize(fileInfo.size)),
-        this.hasTypes ? this.ce('div', { class: 'col-md-2' }, this.createTypeSelect(fileInfo)) : null
+        this.hasTypes ? this.ce('div', { class: 'col-md-2' }, this.createTypeSelect(index, fileInfo)) : null
       ])
     );
+  }
+
+  createTypeSelect(index, fileInfo) {
+    return this.ce(
+      'select',
+      {
+        class: 'file-type',
+        onChange: event => {
+          this.replaceValueItemByIndex(index, {
+            ...fileInfo,
+            fileType: event.target.value
+          });
+        }
+      },
+      this.component.fileTypes.map(type =>
+        this.ce(
+          'option',
+          {
+            value: type.value,
+            selected: type.value === fileInfo.fileType ? 'selected' : undefined
+          },
+          type.label
+        )
+      )
+    );
+  }
+
+  replaceValueItemByIndex(index, newItem) {
+    if (this.hasValue()) {
+      if (Array.isArray(this.dataValue) && this.dataValue.hasOwnProperty(index)) {
+        this.dataValue = [...this.dataValue.slice(0, index), newItem, ...this.dataValue.slice(index + 1)];
+        this.triggerChange();
+      }
+    }
   }
 
   createFileLink(f) {
