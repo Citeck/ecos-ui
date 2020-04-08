@@ -1,5 +1,6 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
+
 import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
@@ -32,7 +33,7 @@ function* sagaGetTasks({ api, logger }, { payload }) {
 
 function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
   const err = t('tasks-widget.saga.error2');
-  const suc = id => t('tasks-widget.saga.change-assignee-success');
+  const suc = () => t('tasks-widget.saga.change-assignee-success');
 
   try {
     const { taskId, stateId, ownerUserName, actionOfAssignment } = payload;
