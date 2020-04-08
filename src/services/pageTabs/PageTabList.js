@@ -106,6 +106,10 @@ class PageTabList {
     const currentTabIndex = this.existTabIndex(tab);
     const isExist = exist(currentTabIndex);
 
+    if (isExist) {
+      tab.id = this.#tabs[currentTabIndex].id;
+    }
+
     if (reopen) {
       if (isExist) {
         this.delete(tab);
