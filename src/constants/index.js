@@ -14,10 +14,6 @@ export const URL = {
   TIMESHEET_IFRAME_DELEGATED: '/v2/pure-timesheet/delegated'
 };
 
-window.Citeck = window.Citeck || {};
-window.Citeck.constants = window.Citeck.constants || {};
-window.Citeck.constants.URL = URL;
-
 export const pagesWithOnlyContent = [
   URL.TIMESHEET_IFRAME,
   URL.TIMESHEET_IFRAME_SUBORDINATES,
@@ -92,3 +88,7 @@ export const Permissions = {
 };
 
 export const MOBILE_APP_USER_AGENT = 'ecos-mobile-app';
+
+window.Citeck = window.Citeck || {};
+window.Citeck.constants = window.Citeck.constants || {};
+window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };
