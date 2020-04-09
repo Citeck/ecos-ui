@@ -1,15 +1,22 @@
-import lodashGet from 'lodash/get';
 import moment from 'moment';
 import i18next from 'i18next';
 import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
+import lodashGet from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import { MOBILE_APP_USER_AGENT } from '../constants';
+import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
 
-import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../constants';
+import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
+
+const LOCALE_EN = 'en';
+
+const BYTES_KB = 1024;
+const BYTES_MB = 1048576;
+const BYTES_GB = 1073741824;
 
 export function getCookie(name) {
   // eslint-disable-next-line
@@ -182,7 +189,7 @@ export function getCurrentLocale() {
   }
 
   if (!window.navigator) {
-    return 'en';
+    return LOCALE_EN;
   }
 
   const language = navigator.languages ? navigator.languages[0] : navigator.language || navigator.systemLanguage || navigator.userLanguage;
@@ -226,10 +233,6 @@ export function cellMsg(prefix) {
     elCell.innerHTML = t(prefix + sData);
   };
 }
-
-const BYTES_KB = 1024;
-const BYTES_MB = 1048576;
-const BYTES_GB = 1073741824;
 
 // From FileSizeMixin.js (modified)
 export function formatFileSize(fileSize, decimalPlaces) {
@@ -731,4 +734,23 @@ export function objectCompare(obj1, obj2, params = {}) {
     }, {});
 
   return isEqual(filteredFirst, filteredSecond);
+}
+
+export function extractLabel(text) {
+  let displayText = text || '';
+
+  if (isObject(text)) {
+    displayText = text[getCurrentLocale()] || text[LOCALE_EN] || '';
+
+    if (!displayText) {
+      for (const key in text) {
+        if (text.hasOwnProperty(key) && isString(text[key])) {
+          displayText = text[key] || '';
+          break;
+        }
+      }
+    }
+  }
+
+  return t(displayText);
 }

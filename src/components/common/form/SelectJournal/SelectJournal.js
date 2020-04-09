@@ -38,7 +38,7 @@ export default class SelectJournal extends Component {
     editRecordName: null,
     isJournalConfigFetched: false,
     journalConfig: {
-      meta: []
+      meta: {}
     },
     isGridDataReady: false,
     gridData: {
@@ -188,7 +188,9 @@ export default class SelectJournal extends Component {
       }
 
       this.api.getJournalConfig(journalId).then(journalConfig => {
-        let columns = journalConfig.columns.map(item => {
+        journalConfig = journalConfig || { meta: {} };
+
+        let columns = (journalConfig.columns || []).map(item => {
           const column = { ...item };
           if (matchCardDetailsLinkFormatterColumn(item)) {
             column.disableFormatter = true;
