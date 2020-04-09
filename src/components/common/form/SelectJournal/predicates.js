@@ -1,7 +1,9 @@
 import moment from 'moment';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isObject from 'lodash/isObject';
 
-import { serializeOptionsToArrayObj, t } from '../../../../helpers/util';
+import { extractLabel, t } from '../../../../helpers/util';
 import Records from '../../../../components/Records';
 import { DatePicker, Input, Select, SelectJournal, SelectOrgstruct } from '../../../common/form';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../common/form/SelectOrgstruct/constants';
@@ -242,9 +244,25 @@ export function getPredicateInput(field, sourceId, metaRecord) {
     case COLUMN_DATA_TYPE_OPTIONS:
       const loadOptions = () => {
         const customOptions = get(field, 'params.edgeOptions');
-        const serializeOptions = (data = []) => {
-          const options = serializeOptionsToArrayObj(data);
-          return [defaultValue, ...options];
+        const serializeOptions = data => {
+          if (!data) {
+            return [defaultValue];
+          }
+
+          if (!isArray(data)) {
+            data = [data];
+          }
+
+          return [
+            defaultValue,
+            ...data.map(item => {
+              if (isObject(item)) {
+                return { label: extractLabel(item.label || item.title), value: item.value };
+              }
+
+              return { label: extractLabel(String(item)), value: item };
+            })
+          ];
         };
 
         if (customOptions) {
@@ -253,7 +271,7 @@ export function getPredicateInput(field, sourceId, metaRecord) {
           const resultOptions = functionOptions() || [];
 
           if (resultOptions instanceof Promise) {
-            return new Promise(resolve => resultOptions.then(res => resolve(serializeOptions(res))));
+            return resultOptions.then(serializeOptions);
           } else {
             return Promise.resolve(serializeOptions(resultOptions));
           }

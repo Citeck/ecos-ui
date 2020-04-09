@@ -1,6 +1,6 @@
 import lodash from 'lodash';
 
-import { getDisplayText, t } from '../../../helpers/util';
+import { extractLabel, t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
 import Records from '../Records';
 import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
@@ -89,7 +89,7 @@ class RecordActionsService {
           }
         }
 
-        resultAction.name = getDisplayText(resultAction.name);
+        resultAction.name = extractLabel(resultAction.name);
         resultAction.context = Object.assign({}, context);
 
         return resultAction;

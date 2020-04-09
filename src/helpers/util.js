@@ -6,14 +6,13 @@ import lodashGet from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
-import isArray from 'lodash/isArray';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
-const LOCAL_EN = 'en';
+const LOCALE_EN = 'en';
 
 const BYTES_KB = 1024;
 const BYTES_MB = 1048576;
@@ -190,7 +189,7 @@ export function getCurrentLocale() {
   }
 
   if (!window.navigator) {
-    return LOCAL_EN;
+    return LOCALE_EN;
   }
 
   const language = navigator.languages ? navigator.languages[0] : navigator.language || navigator.systemLanguage || navigator.userLanguage;
@@ -737,11 +736,11 @@ export function objectCompare(obj1, obj2, params = {}) {
   return isEqual(filteredFirst, filteredSecond);
 }
 
-export function getDisplayText(text) {
+export function extractLabel(text) {
   let displayText = text || '';
 
   if (isObject(text)) {
-    displayText = text[getCurrentLocale()] || text[LOCAL_EN] || '';
+    displayText = text[getCurrentLocale()] || text[LOCALE_EN] || '';
 
     if (!displayText) {
       for (const key in text) {
@@ -753,23 +752,5 @@ export function getDisplayText(text) {
     }
   }
 
-  return t(displayText) || displayText;
-}
-
-export function serializeOptionsToArrayObj(data) {
-  if (!data) {
-    return [];
-  }
-
-  if (!isArray(data)) {
-    data = [data];
-  }
-
-  return data.map(item => {
-    if (isObject(item)) {
-      return { label: getDisplayText(item.label || item.title), value: item.value };
-    }
-
-    return { label: getDisplayText(String(item)), value: item };
-  });
+  return t(displayText);
 }
