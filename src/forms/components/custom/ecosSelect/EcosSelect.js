@@ -1142,10 +1142,7 @@ export default class SelectComponent extends BaseComponent {
         this.setValue(null);
       }
 
-      // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3216
-      if (this.pristine) {
-        this.triggerRedraw();
-      }
+      this.triggerRedraw();
     }
   }
 }
