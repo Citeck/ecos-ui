@@ -39,7 +39,8 @@ export default class TableFormComponent extends BaseReactComponent {
         customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
         displayElementsJS: '',
-        nonSelectableRowsJS: ''
+        nonSelectableRowsJS: '',
+        selectedRowsJS: ''
       },
       ...extend
     );
@@ -78,6 +79,16 @@ export default class TableFormComponent extends BaseReactComponent {
         this._nonSelectableRows = nonSelectableRows;
         this.setReactProps({
           nonSelectableRows
+        });
+      }
+    }
+
+    if (this.component.selectedRowsJS) {
+      let selectedRows = this.evaluate(this.component.selectedRowsJS, {}, 'value', true);
+      if (!_.isEqual(selectedRows, this._selectedRows)) {
+        this._selectedRows = selectedRows;
+        this.setReactProps({
+          selectedRows
         });
       }
     }
@@ -160,8 +171,11 @@ export default class TableFormComponent extends BaseReactComponent {
     }
   }
 
-  _setSelectedRows = selected => {
-    this._selectedRows = selected;
+  _setSelectedRows = selectedRows => {
+    this._selectedRows = selectedRows;
+    this.setReactProps({
+      selectedRows
+    });
   };
 
   getSelectedRows = () => {
@@ -298,7 +312,7 @@ export default class TableFormComponent extends BaseReactComponent {
                   return {
                     default: true,
                     type: item.type,
-                    text: this.t(item.title),
+                    text: item.title ? this.t(item.title) : '',
                     multiple: item.multiple,
                     attribute: item.name
                   };
@@ -417,6 +431,7 @@ export default class TableFormComponent extends BaseReactComponent {
         triggerEventOnTableChange,
         displayElements: this._displayElementsValue,
         nonSelectableRows: this._nonSelectableRows,
+        selectedRows: this._selectedRows,
         computed: {
           valueFormKey: value => this.getValueFormKey(value)
         }
