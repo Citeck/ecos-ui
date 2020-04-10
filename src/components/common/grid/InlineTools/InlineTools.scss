@@ -3,28 +3,16 @@
 $border: $border-width-standard solid $color-brown-2;
 
 .ecos-inline-tools {
-  border-top: $border;
+  border: $border;
   position: absolute;
-  height: 0;
   width: 100%;
-  z-index: 0;
-
-  &-border-left {
-    border-left: $border;
-    width: 0;
-    position: relative;
-  }
-
-  &-border-bottom {
-    border-top: $border;
-    position: relative;
-  }
+  z-index: 21;
 
   &-actions {
-    border-right: $border;
     display: flex;
     align-items: center;
     position: absolute;
+    height: 100%;
     top: 0;
     right: 0;
     overflow: hidden;
@@ -41,6 +29,8 @@ $border: $border-width-standard solid $color-brown-2;
   }
 
   &-btn.ecos-btn {
+    padding: 0;
+    height: 100%;
     background-color: rgba(0, 0, 0, 0);
 
     &:hover,

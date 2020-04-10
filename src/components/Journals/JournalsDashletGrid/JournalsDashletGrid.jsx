@@ -155,14 +155,7 @@ class JournalsDashletGrid extends Component {
   showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
 
-    this.props.setGridInlineToolSettings(
-      Object.assign(
-        {
-          actions: this.getCurrentRowInlineActions()
-        },
-        options
-      )
-    );
+    this.props.setGridInlineToolSettings({ actions: this.getCurrentRowInlineActions(), ...options });
   };
 
   getCurrentRowInlineActions() {
