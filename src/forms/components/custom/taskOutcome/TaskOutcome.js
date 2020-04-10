@@ -1,7 +1,6 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 
 import Records from '../../../../components/Records';
-import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 
 export default class TaskOutcome extends NestedComponent {
   #buttonKeyPrefix = 'outcome_';
@@ -10,7 +9,7 @@ export default class TaskOutcome extends NestedComponent {
     return NestedComponent.schema(
       {
         label: 'Task Outcome',
-        key: 'title',
+        key: 'taskOutcome',
         type: 'taskOutcome',
         mask: false,
         inputType: 'taskOutcome',
@@ -52,44 +51,31 @@ export default class TaskOutcome extends NestedComponent {
       this.createLabel(this.element);
     }
 
-    const record = this.root.options.recordId || '@';
+    this.getButtonsData();
+  }
+
+  getButtonsData() {
+    const record = this.root.options.recordId || '';
     const attr = (this.component.properties || {}).attribute || this.key;
 
     if (!record || !attr) {
+      this.generateButtons(this.parseButtons());
+      this.attachLogic();
+
       return;
     }
 
-    console.warn({ record, attr });
+    Records.get(record)
+      .load(attr)
+      .then((result = '') => {
+        this.dataValue = result;
 
-    EcosFormUtils.getForm(record, null, 'definition?json').then(formDef => {
-      let inputs = EcosFormUtils.getFormInputs(formDef) || [];
-
-      this.inputs = inputs;
-
-      EcosFormUtils.getData(record, inputs).then(console.warn);
-
-      Records.get(record)
-        .load(attr)
-        .then(str => {
-          console.warn({ str, value: this.dataValue });
-          str = 'aaa|Согласовать#alf#bbb|Не согласовать#alf#ccc|Отмена';
-
-          this.generateButtons(this.parseButtons(str));
-        });
-    });
-
-    // EcosFormUtils.getData(record, inputs).then(console.warn)
-
-    // TODO: load real data
-    // Records.get(record).load(attr).then(str => {
-    //   console.warn({ str, value: this.dataValue });
-    //   str = 'aaa|Согласовать#alf#bbb|Не согласовать#alf#ccc|Отмена';
-    //
-    //   this.generateButtons(this.parseButtons(str));
-    // });
+        this.generateButtons(this.parseButtons());
+        this.attachLogic();
+      });
   }
 
-  parseButtons(template = '') {
+  parseButtons(template = this.dataValue) {
     if (!template) {
       this.component.buttons = [];
 
@@ -109,6 +95,21 @@ export default class TaskOutcome extends NestedComponent {
   }
 
   generateButtons() {
+    if (!this.dataValue) {
+      this.element.appendChild(
+        this.ce(
+          'div',
+          {
+            id: this.id,
+            class: 'mb-2 mt-2 formio-task-outcome__panel'
+          },
+          this.component.message
+        )
+      );
+
+      return;
+    }
+
     const panel = this.ce('div', {
       id: this.id,
       class: 'mb-2 mt-2 formio-task-outcome__panel'
@@ -126,10 +127,6 @@ export default class TaskOutcome extends NestedComponent {
     });
 
     this.element.appendChild(panel);
-
-    console.warn(this);
-
-    this.attachLogic();
   }
 
   beforeSubmit() {
@@ -140,7 +137,7 @@ export default class TaskOutcome extends NestedComponent {
         delete this.data[key];
       }
     });
-    console.warn('beforeSubmit => ', this.data);
+
     super.beforeSubmit();
   }
 

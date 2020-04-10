@@ -20,5 +20,17 @@ export default [
       ]
     }
   },
+  {
+    weight: 0,
+    type: 'textfield',
+    input: true,
+    key: 'message',
+    label: 'Message',
+    tooltip: 'This message is displayed when the action buttons are not defined',
+    defaultValue: 'Action buttons not defined',
+    validate: {
+      required: true
+    }
+  },
   ...BaseEditDisplay
 ];
