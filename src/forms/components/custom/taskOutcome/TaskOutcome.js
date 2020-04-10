@@ -134,7 +134,7 @@ export default class TaskOutcome extends NestedComponent {
 
     keys.forEach(key => {
       if (!this.data[key]) {
-        delete this.data[key];
+        this.data[key] = undefined;
       }
     });
 
