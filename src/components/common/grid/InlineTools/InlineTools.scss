@@ -7,8 +7,10 @@ $border: $border-width-standard solid $color-brown-2;
   position: absolute;
   width: 100%;
   z-index: 21;
+  pointer-events: none;
 
   &-actions {
+    pointer-events: auto;
     display: flex;
     align-items: center;
     position: absolute;

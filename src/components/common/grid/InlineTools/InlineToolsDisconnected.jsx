@@ -16,12 +16,8 @@ class InlineToolsDisconnected extends Component {
 
     if (height) {
       return (
-        <div style={{ top }} className={classNames('ecos-inline-tools', { 'ecos-inline-tools_selected': selected })}>
-          <div style={{ height }} className="ecos-inline-tools-border-left" />
-          <div style={{ height }} className="ecos-inline-tools-actions">
-            {tools || []}
-          </div>
-          <div className="ecos-inline-tools-border-bottom" />
+        <div style={{ top, height }} className={classNames('ecos-inline-tools', { 'ecos-inline-tools_selected': selected })}>
+          <div className="ecos-inline-tools-actions">{tools || []}</div>
         </div>
       );
     }
