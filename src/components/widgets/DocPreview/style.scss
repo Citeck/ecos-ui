@@ -177,7 +177,11 @@ $border-base: #c1c1c1;
       margin: 0 auto;
 
       &_pdf {
-        margin: 12px auto;
+        &::before {
+          content: ' ';
+          height: 10px;
+          display: block;
+        }
       }
 
       &_img {
