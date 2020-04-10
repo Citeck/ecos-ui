@@ -83,12 +83,10 @@ class InlineTools extends Component {
     const selected = selectedRecords.includes(row.id) || selectAllRecords;
 
     return (
-      <div style={{ top, left }} className={classNames('ecos-inline-tools', className, { 'ecos-inline-tools_selected': selected })}>
-        <div style={{ height }} className="ecos-inline-tools-border-left" />
-        <div style={{ height }} className="ecos-inline-tools-actions" {...actionsProps}>
+      <div style={{ top, left, height }} className={classNames('ecos-inline-tools', className, { 'ecos-inline-tools_selected': selected })}>
+        <div className="ecos-inline-tools-actions" {...actionsProps}>
           {actions.map((action, idx) => InlineTools.renderAction(action, idx, withTooltip))}
         </div>
-        <div className="ecos-inline-tools-border-bottom" />
       </div>
     );
   }

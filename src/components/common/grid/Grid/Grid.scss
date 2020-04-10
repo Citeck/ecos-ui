@@ -86,6 +86,7 @@ $header-height: 52px;
     @extend %shadow-h-line;
     top: -2px;
   }
+
   &::after {
     @extend %shadow-h-line;
     bottom: 0;
@@ -97,8 +98,10 @@ $header-height: 52px;
     vertical-align: middle;
   }
 
-  .ecos-grid__row td {
-    border-top: 2px solid $color-gray-4;
+  .ecos-grid__row {
+    & td {
+      border-top: 2px solid $color-gray-4;
+    }
   }
 
   th {
