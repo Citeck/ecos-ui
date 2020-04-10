@@ -1,6 +1,6 @@
 import lodash from 'lodash';
 
-import { t, getCurrentLocale } from '../../../helpers/util';
+import { extractLabel, t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
 import Records from '../Records';
 import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
@@ -79,10 +79,9 @@ class RecordActionsService {
         return !executor.canBeExecuted || executor.canBeExecuted({ record, action, context });
       })
       .map(action => {
-        let executor = RecordActionExecutorsRegistry.get(action.type);
-        let executorDefaultModel = executor.getDefaultModel ? executor.getDefaultModel() || {} : {};
-
-        let resultAction = {};
+        const executor = RecordActionExecutorsRegistry.get(action.type);
+        const executorDefaultModel = executor.getDefaultModel ? executor.getDefaultModel() || {} : {};
+        const resultAction = {};
 
         for (let field in DEFAULT_MODEL) {
           if (DEFAULT_MODEL.hasOwnProperty(field)) {
@@ -90,23 +89,7 @@ class RecordActionsService {
           }
         }
 
-        let name;
-        if (lodash.isObject(resultAction.name)) {
-          name = resultAction.name[getCurrentLocale()];
-          if (!name) {
-            let keys = Object.keys(resultAction.name);
-            if (keys && keys.length) {
-              name = resultAction.name[keys[0]];
-              if (!lodash.isString(name)) {
-                name = '';
-              }
-            }
-          }
-        } else {
-          name = resultAction.name;
-        }
-
-        resultAction.name = t(name) || name;
+        resultAction.name = extractLabel(resultAction.name);
         resultAction.context = Object.assign({}, context);
 
         return resultAction;

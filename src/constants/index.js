@@ -88,3 +88,7 @@ export const Permissions = {
 };
 
 export const MOBILE_APP_USER_AGENT = 'ecos-mobile-app';
+
+window.Citeck = window.Citeck || {};
+window.Citeck.constants = window.Citeck.constants || {};
+window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };

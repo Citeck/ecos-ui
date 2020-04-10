@@ -61,6 +61,7 @@ export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAu
     {
       id: 'HEADER_USER_MENU_MY_PROFILE',
       label: 'header.my-profile.label',
+      target: '_blank',
       targetUrl: createProfileUrl(encodeURIComponent(userName))
     },
     {
