@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
+
 import { isLastItem, t } from '../../../helpers/util';
 import { InfoText, Loader, Separator } from '../../common/index';
 import TaskDetails from './TaskDetails';

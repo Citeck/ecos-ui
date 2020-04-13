@@ -1,21 +1,19 @@
-import { MENU_TYPE, QueryEntityKeys } from '../constants';
-
-const getDefaultMenuConfig = {
-  type: MENU_TYPE.LEFT,
-  links: []
-};
+import { MENU_TYPE } from '../constants';
 
 export default class MenuConverter {
-  static parseGetResult(result) {
-    if (!result || (result && !Object.keys(result).length)) {
-      return getDefaultMenuConfig;
+  static parseGetResult(source) {
+    const target = {
+      type: MENU_TYPE.LEFT,
+      links: [],
+      items: []
+    };
+
+    if (source) {
+      target.type = source.type || MENU_TYPE.LEFT;
+      target.links = source.links;
     }
 
-    let resultConfig = result[QueryEntityKeys.VALUE_JSON];
-    if (!resultConfig || !resultConfig.type) {
-      resultConfig = getDefaultMenuConfig;
-    }
-    return resultConfig;
+    return target;
   }
 
   static getAvailableMenuItemsForWeb(items = []) {

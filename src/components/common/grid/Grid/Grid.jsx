@@ -365,8 +365,8 @@ class Grid extends Component {
 
   getTrOptions = tr => {
     const { scrollLeft = 0 } = this._scrollValues;
-    const height = tr.offsetHeight - 2;
-    const top = tr.offsetTop - 1;
+    const height = tr.offsetHeight;
+    const top = tr.offsetTop;
     const row = this.props.data[tr.rowIndex - 1];
 
     this._tr = tr;

@@ -1,12 +1,11 @@
-import { CommonApi } from './common';
-import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
-import { getJournalUIType } from './export/journalsApi';
-import { PROXY_URI } from '../constants/alfresco';
-import Records from '../components/Records';
-import { QueryEntityKeys, URL } from '../constants';
 import lodashGet from 'lodash/get';
 
-const PREFIX = 'uiserv/config@';
+import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
+import { SourcesId, URL } from '../constants';
+import { PROXY_URI } from '../constants/alfresco';
+import Records from '../components/Records';
+import { getJournalUIType } from './export/journalsApi';
+import { CommonApi } from './common';
 
 const postProcessMenuItemChildren = items => {
   if (items && items.length) {
@@ -116,32 +115,24 @@ export class MenuApi extends CommonApi {
   };
 
   getMenuConfig = (disabledCache = false) => {
-    return Records.get(`${PREFIX}menu-config`)
-      .load([QueryEntityKeys.VALUE_JSON], disabledCache)
+    return Records.get(`${SourcesId.CONFIG}@menu-config`)
+      .load('value?json', disabledCache)
       .then(resp => resp)
-      .catch(e => {
-        console.error(e);
-        return {
-          [QueryEntityKeys.VALUE_JSON]: {
-            type: 'LEFT',
-            links: []
-          }
-        };
-      });
+      .catch(console.error);
   };
 
   saveMenuConfig = ({ config = {}, title = '', description = '' }) => {
-    const record = Records.get(`${PREFIX}menu-config`);
+    const record = Records.get(`${SourcesId.CONFIG}@menu-config`);
 
-    record.att(QueryEntityKeys.VALUE_JSON, config);
-    record.att(QueryEntityKeys.TITLE, title);
-    record.att(QueryEntityKeys.DESCRIPTION, description);
+    record.att('value?json', config);
+    record.att('title', title);
+    record.att('description', description);
 
     return record.save().then(resp => resp);
   };
 
   checkSiteDashboardEnable = () => {
-    return Records.get('uiserv/config@site-dashboard-enable')
+    return Records.get(`${SourcesId.CONFIG}@site-dashboard-enable`)
       .load('value?bool')
       .then(resp => resp);
   };

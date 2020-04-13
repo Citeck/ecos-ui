@@ -9,9 +9,9 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
-import { LoaderTypes, MENU_TYPE } from '../../constants';
+import { LoaderTypes, MENU_TYPE, URL } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
-import { deepClone, t } from '../../helpers/util';
+import { deepClone, t, isMobileAppWebView } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
@@ -23,41 +23,42 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
 import { initialState } from '../../reducers/dashboard';
-import pageTabList from '../../services/pageTabs/PageTabList';
+import DashboardService from '../../services/dashboard';
 
 import './style.scss';
 
 const mapStateToProps = state => {
-  const id = pageTabList.activeTabId;
   const isMobile = get(state, ['view', 'isMobile'], false);
   const tabs = get(state, ['pageTabs', 'tabs'], []);
-  const dashboardState = get(state, ['dashboard', id], initialState);
+  const dashboardState = () => get(state, ['dashboard', DashboardService.key], initialState);
 
   return {
-    tabId: tabs.length ? pageTabList.activeTabId : null,
-    config: get(dashboardState, [isMobile ? 'mobileConfig' : 'config'], []),
-    isLoadingDashboard: get(dashboardState, ['isLoading']),
-    saveResultDashboard: get(dashboardState, ['requestResult'], {}),
+    tabId: tabs.length ? DashboardService.key : null,
+    config: get(dashboardState(), [isMobile ? 'mobileConfig' : 'config'], []),
+    isLoadingDashboard: get(dashboardState(), ['isLoading']),
+    saveResultDashboard: get(dashboardState(), ['requestResult'], {}),
     isLoadingMenu: get(state, ['menu', 'isLoading']),
     saveResultMenu: get(state, ['menu', 'requestResult']),
     menuType: get(state, ['menu', 'type']),
     links: get(state, ['menu', 'links']),
-    dashboardType: get(dashboardState, ['identification', 'type']),
-    identificationId: get(dashboardState, ['identification', 'id'], null),
-    titleInfo: get(dashboardState, ['titleInfo'], {}),
+    dashboardType: get(dashboardState(), ['identification', 'type']),
+    identificationId: get(dashboardState(), ['identification', 'id'], null),
+    titleInfo: get(dashboardState(), ['titleInfo'], {}),
     isMobile
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key: pageTabList.activeTabId })),
-  getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: pageTabList.activeTabId })),
-  saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: pageTabList.activeTabId })),
-  initMenuSettings: payload => dispatch(getMenuConfig({ ...payload, key: pageTabList.activeTabId })),
-  saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: pageTabList.activeTabId })),
-  setLoading: status => dispatch(setLoading({ status, key: pageTabList.activeTabId })),
-  resetDashboardConfig: () => dispatch(resetDashboardConfig(pageTabList.activeTabId))
-});
+const mapDispatchToProps = dispatch => {
+  return {
+    getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key: DashboardService.key })),
+    getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: DashboardService.key })),
+    saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: DashboardService.key })),
+    initMenuSettings: payload => dispatch(getMenuConfig({ ...payload, key: DashboardService.key })),
+    saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: DashboardService.key })),
+    setLoading: status => dispatch(setLoading({ status, key: DashboardService.key })),
+    resetDashboardConfig: () => dispatch(resetDashboardConfig(DashboardService.key))
+  };
+};
 
 class Dashboard extends Component {
   state = {
@@ -116,6 +117,10 @@ class Dashboard extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.tabList.length) {
+      this.toggleTabLayoutFromUrl();
+    }
+
     if (this.state.needGetConfig || (!prevProps.tabId && this.props.tabId)) {
       this.getConfig();
     }
@@ -169,7 +174,7 @@ class Dashboard extends Component {
   }
 
   get isShowTabs() {
-    return this.tabList.length > 1;
+    return this.tabList.length > 1 && !isMobileAppWebView();
   }
 
   updateSomeDetails = () => {
@@ -264,8 +269,34 @@ class Dashboard extends Component {
 
   toggleTabLayout = index => {
     const tab = get(this.tabList, [index], {});
+    const searchParams = queryString.parse(window.location.search);
 
-    this.setState({ activeLayoutId: tab.idLayout });
+    searchParams.activeLayoutId = tab.idLayout;
+    this.props.history.push({
+      pathname: URL.DASHBOARD,
+      search: queryString.stringify(searchParams)
+    });
+  };
+
+  toggleTabLayoutFromUrl = () => {
+    const searchParams = queryString.parse(window.location.search);
+    const { activeLayoutId } = searchParams;
+    if (activeLayoutId !== this.state.activeLayoutId) {
+      const tab = this.tabList.find(el => el.idLayout === activeLayoutId);
+
+      if (tab && this.state.activeLayoutId !== activeLayoutId) {
+        this.setState({ activeLayoutId });
+        return;
+      }
+
+      if (activeLayoutId && !tab) {
+        delete searchParams.activeLayoutId;
+        this.props.history.push({
+          pathname: URL.DASHBOARD,
+          search: queryString.stringify(searchParams)
+        });
+      }
+    }
   };
 
   renderTabs() {
@@ -279,7 +310,7 @@ class Dashboard extends Component {
     if (isMobile) {
       return (
         <div className="ecos-dashboard__tabs ecos-dashboard__tabs_mobile">
-          <Tabs items={this.tabList} onClick={this.toggleTabLayout} keyField={'idLayout'} activeTabKey={activeLayoutId} />
+          <Tabs items={this.tabList} onClick={this.toggleTabLayout} keyField="idLayout" activeTabKey={activeLayoutId} />
         </div>
       );
     }
@@ -294,7 +325,7 @@ class Dashboard extends Component {
             classNameTab="ecos-dashboard__tabs-item"
             items={this.tabList}
             onClick={this.toggleTabLayout}
-            keyField={'idLayout'}
+            keyField="idLayout"
             activeTabKey={activeLayoutId}
           />
         </ScrollArrow>
@@ -329,6 +360,10 @@ class Dashboard extends Component {
   }
 
   renderHeader() {
+    if (isMobileAppWebView()) {
+      return null;
+    }
+
     const {
       titleInfo: { name = '', version = '' },
       dashboardType,

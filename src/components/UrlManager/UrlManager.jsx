@@ -3,19 +3,26 @@ import queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
 import { withRouter } from 'react-router';
 
-import { getBool, trigger } from '../../helpers/util';
+import { deepClone, getBool, trigger } from '../../helpers/util';
 import PageService from '../../services/PageService';
 
 class UrlManager extends Component {
   _prevUrlParams = {};
 
-  updateUrl(params, prevUrlParams) {
+  updateUrl(currentUrlParams, prevUrlParams) {
     const {
       history: {
         location: { pathname, search }
       }
     } = this.props;
+    const params = deepClone(currentUrlParams);
     let fromUrlParams = this.setBools(queryString.parse(search));
+
+    Object.keys(params).forEach(key => {
+      if (params[key] === undefined) {
+        delete params[key];
+      }
+    });
 
     if (isEmpty(params)) {
       for (let key in fromUrlParams) {

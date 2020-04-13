@@ -1,0 +1,11 @@
+.formio-task-outcome {
+  &__panel {
+    display: flex;
+  }
+
+  &__button {
+    &:not(:last-child) {
+      margin-right: 1.5em;
+    }
+  }
+}

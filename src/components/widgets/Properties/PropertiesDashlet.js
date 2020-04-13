@@ -204,7 +204,7 @@ class PropertiesDashlet extends BaseWidget {
       isShowSetting,
       title: titleForm
     } = this.state;
-    const { formId = null, titleAsFormName } = config || {};
+    const { formId = '', titleAsFormName } = config || {};
 
     return (
       <Dashlet
@@ -251,6 +251,7 @@ class PropertiesDashlet extends BaseWidget {
         <PropertiesEditModal
           record={record}
           isOpen={isEditProps}
+          formId={formId}
           onFormCancel={this.closeModal}
           onFormSubmit={this.onPropertiesEditFormSubmit}
           formIsChanged={formIsChanged}

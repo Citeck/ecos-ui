@@ -245,6 +245,36 @@ export default [
     weight: 23
   },
   {
+    type: 'panel',
+    title: 'Specify selected rows',
+    collapsible: true,
+    collapsed: true,
+    key: 'selectedRowsJS-js',
+    customClass: 'form-builder__panel-js',
+    components: [
+      {
+        type: 'textarea',
+        key: 'selectedRowsJS',
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content:
+          '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. The <strong>value</strong> variable accept an recordRef array.</p>'
+      }
+    ],
+    conditional: {
+      json: {
+        and: [{ '==': [{ var: 'data.isSelectableRows' }, true] }]
+      }
+    },
+    weight: 23
+  },
+  {
     type: 'checkbox',
     input: true,
     key: 'triggerEventOnChange',
