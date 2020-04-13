@@ -10,27 +10,19 @@ import { t } from '../../../helpers/util';
 import './Pagination.scss';
 
 export default class Pagination extends Component {
-  constructor(props) {
-    super(props);
+  static propTypes = {
+    page: PropTypes.number,
+    maxItems: PropTypes.number,
+    total: PropTypes.number,
+    sizes: PropTypes.array,
+    onChange: PropTypes.func,
+    hasPageSize: PropTypes.bool,
+    loading: PropTypes.bool
+  };
 
-    this.state = {
-      min: 0,
-      max: 0,
-      page: props.page
-    };
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { page: _page, maxItems, total } = this.props;
-
-    if (prevProps.maxItems !== maxItems || prevProps.total !== total || prevProps.page !== _page) {
-      const page = _page > this.maxPage ? this.maxPage : _page;
-      const max = this.getMax(page, maxItems, total);
-      const min = this.getMin(page, maxItems);
-
-      this.setState({ max, min, page });
-    }
-  }
+  static defaultProps = {
+    sizes: PAGINATION_SIZES
+  };
 
   get maxPage() {
     const { maxItems, total } = this.props;
@@ -38,27 +30,43 @@ export default class Pagination extends Component {
     return Math.ceil(total / maxItems);
   }
 
-  getMax = (page, maxItems, total) => {
+  get page() {
+    const { page } = this.props;
+    const maxPage = this.maxPage;
+
+    return page > maxPage ? maxPage : page;
+  }
+
+  get max() {
+    const { page, maxItems, total } = this.props;
     const max = page * maxItems;
+
     return max > total ? total : max;
-  };
+  }
 
-  getMin = (page, maxItems) => {
+  get min() {
+    const { page, maxItems } = this.props;
+
     return (page - 1) * maxItems + 1;
-  };
+  }
 
-  prev = () => {
+  handleClickPrev = () => {
     const { maxItems } = this.props;
-    const { min, page } = this.state;
 
-    min > 1 && this.triggerChange(page - 1, maxItems);
+    this.min > 1 && this.triggerChange(this.page - 1, maxItems);
   };
 
-  next = () => {
+  handleClickNext = () => {
     const { total, maxItems } = this.props;
-    const { max, page } = this.state;
 
-    max < total && this.triggerChange(page + 1, maxItems);
+    this.max < total && this.triggerChange(this.page + 1, maxItems);
+  };
+
+  handleChangeMaxItems = item => {
+    const maxItems = item.value;
+    const page = Math.ceil(this.min / maxItems);
+
+    this.triggerChange(page, maxItems);
   };
 
   triggerChange = (page, maxItems) => {
@@ -71,13 +79,6 @@ export default class Pagination extends Component {
         page
       });
     }
-  };
-
-  onChangeMaxItems = item => {
-    const maxItems = item.value;
-    const page = Math.ceil(this.state.min / maxItems);
-
-    this.triggerChange(page, maxItems);
   };
 
   getPageSize = () => {
@@ -94,12 +95,15 @@ export default class Pagination extends Component {
 
   render() {
     const { total, className, hasPageSize, loading } = this.props;
-    const { page, min, max } = this.state;
-    const { value: pageSizeValue, sizes } = this.getPageSize();
 
     if (!total) {
       return null;
     }
+
+    const { value: pageSizeValue, sizes } = this.getPageSize();
+    const min = this.min;
+    const max = this.max;
+    const page = this.page;
 
     return (
       <div className={classNames('ecos-pagination', { 'ecos-pagination_loading': loading }, className)}>
@@ -113,13 +117,13 @@ export default class Pagination extends Component {
           icon={'icon-left'}
           className="ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue"
           disabled={page <= 1}
-          onClick={this.prev}
+          onClick={this.handleClickPrev}
         />
         <IcoBtn
           icon={'icon-right'}
           className="ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue"
           disabled={page >= this.maxPage}
-          onClick={this.next}
+          onClick={this.handleClickNext}
         />
 
         {hasPageSize ? (
@@ -127,7 +131,7 @@ export default class Pagination extends Component {
             className="ecos-pagination__page-size select_narrow select_page-size"
             options={sizes}
             value={pageSizeValue}
-            onChange={this.onChangeMaxItems}
+            onChange={this.handleChangeMaxItems}
             menuPlacement={'auto'}
             hideSelectedOptions
             isSearchable={false}
@@ -137,17 +141,3 @@ export default class Pagination extends Component {
     );
   }
 }
-
-Pagination.propTypes = {
-  page: PropTypes.number,
-  maxItems: PropTypes.number,
-  total: PropTypes.number,
-  sizes: PropTypes.array,
-  onChange: PropTypes.func,
-  hasPageSize: PropTypes.bool,
-  loading: PropTypes.bool
-};
-
-Pagination.defaultProps = {
-  sizes: PAGINATION_SIZES
-};
