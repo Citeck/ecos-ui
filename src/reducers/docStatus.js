@@ -8,7 +8,7 @@ import {
   setAvailableToChangeStatuses,
   setDocStatus
 } from '../actions/docStatus';
-import { getCurrentStateById } from '../helpers/redux';
+import { deleteStateById, getCurrentStateById } from '../helpers/redux';
 
 const commonInitialState = {};
 
@@ -59,11 +59,7 @@ export default handleActions(
         isLoading: true
       }
     }),
-    [resetDocStatus]: (state, { payload: { stateId } }) => {
-      delete state[stateId];
-
-      return state;
-    }
+    [resetDocStatus]: (state, { payload: { stateId } }) => deleteStateById(state, stateId)
   },
   commonInitialState
 );

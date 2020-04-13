@@ -30,7 +30,8 @@ export const SourcesId = {
   VERSION: 'version',
   PEOPLE: 'people',
   BIRTHDAYS: 'birthdays',
-  USER_CONF: 'uiserv/user-conf'
+  USER_CONF: 'uiserv/user-conf',
+  TASK: 'wftask'
 };
 
 export const ActionModes = {
