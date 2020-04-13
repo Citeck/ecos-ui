@@ -267,7 +267,7 @@ export default class TableFormComponent extends BaseReactComponent {
           });
 
           let createVariantsPromise;
-          if (!Array.isArray(customCV) || customCV.length < 1) {
+          if (!Array.isArray(customCV)) {
             if (attribute) {
               createVariantsPromise = EcosFormUtils.getCreateVariants(record, attribute);
             } else {
