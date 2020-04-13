@@ -649,6 +649,7 @@
   "tasks-widget.saga.change-assignee-success": "Task assigned successfully",
   "tasks-widget.saga.error1": "Error. Failure to fetch data",
   "tasks-widget.saga.error2": "Assignment error",
+  "tasks-widget.saga.error3": "There was a problem while assign. Please, check task",
   "tasks-widget.title": "My tasks",
   "timesheets.allForms.title": "Timesheets",
   "timesheets.allForms.delegation": "Delegation",

@@ -653,6 +653,7 @@
   "tasks-widget.saga.change-assignee-success": "Успешное назначение задачи",
   "tasks-widget.saga.error1": "Ошибка получения данных",
   "tasks-widget.saga.error2": "Ошибка назначения",
+  "tasks-widget.saga.error3": "При назначении возникла проблема. Пожалуйста, проверьте задачу",
   "tasks-widget.title": "Мои задачи",
 
   "timesheets.allForms.title": "Табели учёта времени",
