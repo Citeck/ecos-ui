@@ -1,7 +1,7 @@
 import { handleActions } from 'redux-actions';
 
 import { getBirthdays, initStore, resetStore, setBirthdays, setError } from '../actions/birthdays';
-import { getCurrentStateById } from '../helpers/redux';
+import { deleteStateById, getCurrentStateById } from '../helpers/redux';
 
 export const initialState = {
   birthdays: [],
@@ -52,11 +52,7 @@ export default handleActions(
         isLoading: false
       }
     }),
-    [resetStore]: (state, { payload }) => {
-      delete state[payload];
-
-      return state;
-    }
+    [resetStore]: (state, { payload }) => deleteStateById(state, payload)
   },
   {}
 );

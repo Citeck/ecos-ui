@@ -12,7 +12,7 @@ import {
   setMenu,
   setSectionList
 } from '../actions/docAssociations';
-import { getCurrentStateById } from '../helpers/redux';
+import { deleteStateById, getCurrentStateById } from '../helpers/redux';
 
 export const initialState = {
   // list of sections
@@ -44,11 +44,7 @@ export default handleActions(
         [payload]: { ...ownState }
       };
     },
-    [resetStore]: (state, { payload }) => {
-      delete state[payload];
-
-      return state;
-    },
+    [resetStore]: (state, { payload }) => deleteStateById(state, payload),
     [setSectionList]: (state, { payload }) => ({
       ...state,
       [payload.key]: {

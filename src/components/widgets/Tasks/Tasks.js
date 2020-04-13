@@ -65,12 +65,18 @@ class Tasks extends React.Component {
       this.getTaskList();
     }
 
+    let info = null;
+
     if (this.props.totalCount !== prevProps.totalCount) {
-      this.props.setInfo && this.props.setInfo({ totalCount: this.props.totalCount });
+      info = { ...info, totalCount: this.props.totalCount };
     }
 
     if (this.props.isLoading !== prevProps.isLoading) {
-      this.props.setInfo && this.props.setInfo({ isLoading: this.props.isLoading });
+      info = { ...info, isLoading: this.props.isLoading };
+    }
+
+    if (info) {
+      this.props.setInfo && this.props.setInfo(info);
     }
   }
 
