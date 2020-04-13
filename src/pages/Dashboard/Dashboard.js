@@ -24,6 +24,7 @@ import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
 import { initialState } from '../../reducers/dashboard';
 import DashboardService from '../../services/dashboard';
+import pageTabList from '../../services/pageTabs/PageTabList';
 
 import './style.scss';
 
