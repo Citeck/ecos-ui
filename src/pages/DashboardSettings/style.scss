@@ -33,14 +33,13 @@
     margin-top: 30px;
   }
 
-  &__keys {
-    &-wrapper {
-      display: flex;
-      align-items: center;
+  &__bindings {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
 
-      & > :not(:first-child) {
-        margin-left: 23px;
-      }
+    & > :nth-child(odd) {
+      margin-right: 23px;
     }
 
     &-dropdown {
@@ -52,10 +51,10 @@
         min-width: 100%;
       }
     }
-  }
 
-  &__all-users {
-    width: 100%;
+    &-owner {
+      padding-top: 5px;
+    }
   }
 
   &__device-tabs {
