@@ -1,13 +1,9 @@
 @import '../../../styles/constants';
 
 .ecos-journal-dashlet-editor {
+  display: flex;
+  flex-direction: column;
   padding: 20px 20px 10px;
-}
-
-.ecos-journal-dashlet-editor__body {
-}
-
-.ecos-journal-dashlet-editor__body_small {
 }
 
 .ecos-journal-dashlet-editor__caption {
@@ -15,22 +11,34 @@
 }
 
 .ecos-journal-dashlet-editor__actions {
-  margin-top: 10px;
-}
+  $actions: &;
 
-.ecos-journal-dashlet-editor__actions_small {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  &-diver {
+    flex: auto;
+    height: 10px;
+  }
+
+  .ecos-btn:last-child {
+    margin-left: 10px;
+  }
+
+  &_small {
+    .ecos-btn:first-child,
+    #{$actions}-diver {
+      width: 100%;
+
+      & ~ .ecos-btn {
+        flex: 1;
+      }
+    }
+  }
 }
 
 .ecos-journal-dashlet-editor__select {
   max-width: 360px;
-}
-
-.ecos-journal-dashlet-editor_small-btn {
-  width: calc(50% - 5px);
-  margin-top: 20px;
-  margin-right: 0;
-}
-
-.ecos-journal-dashlet-editor_small-btn_full-width {
-  width: 100%;
 }
