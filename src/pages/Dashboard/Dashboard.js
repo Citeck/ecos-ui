@@ -11,7 +11,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import { LoaderTypes, MENU_TYPE, URL } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
-import { deepClone, t, isMobileAppWebView } from '../../helpers/util';
+import { deepClone, isMobileAppWebView, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
@@ -385,7 +385,7 @@ class Dashboard extends Component {
               showLoadingAnimation={true}
               customPlaceholder={
                 <div className="ecos-dashboard__header-placeholder">
-                  <RectShape color="#b7b7b7" style={{ width: 150, height: 18 }} />
+                  <RectShape color="#b7b7b7" style={{ width: 150, height: 20, borderRadius: 10 }} />
                   <RoundShape color="#b7b7b7" style={{ width: 32, height: 20 }} />
                 </div>
               }
@@ -396,9 +396,11 @@ class Dashboard extends Component {
           </div>
         );
         break;
+      case DashboardTypes.PROFILE:
+        title = null;
+        break;
       case DashboardTypes.USER:
       case DashboardTypes.SITE:
-      case DashboardTypes.PROFILE:
       default:
         title = <div className="ecos-dashboard__header-title">{name && <div className="ecos-dashboard__header-name">{t(name)}</div>}</div>;
         break;
