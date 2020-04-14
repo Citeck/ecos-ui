@@ -41,3 +41,9 @@ export function getCurrentStateById(state, stateId, initialState = {}) {
 
   return { ...initialState, ...currentState };
 }
+
+export function deleteStateById(state, stateId) {
+  const { [stateId]: del, ...newState } = state;
+
+  return newState;
+}

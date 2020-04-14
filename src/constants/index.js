@@ -31,7 +31,8 @@ export const SourcesId = {
   COMMENT: 'comment',
   VERSION: 'version',
   PEOPLE: 'people',
-  BIRTHDAYS: 'birthdays'
+  BIRTHDAYS: 'birthdays',
+  TASK: 'wftask'
 };
 
 export const ActionModes = {

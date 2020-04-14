@@ -28,7 +28,6 @@ import { initMenuSettings } from '../../actions/menu';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
-import { Checkbox } from '../../components/common/form';
 import { TunableDialog } from '../../components/common/dialogs';
 
 import SetBind from './SetBind';
@@ -392,7 +391,7 @@ class DashboardSettings extends React.Component {
       this.setState(data);
     };
 
-    return isEmpty(dashboardKeyItems) ? null : (
+    return (
       <div className="ecos-dashboard-settings__container">
         <SetBind
           keys={dashboardKeyItems}
@@ -462,29 +461,6 @@ class DashboardSettings extends React.Component {
     const active = isMob ? mobileActiveLayoutTabId : activeLayoutTabId;
 
     return <SetTabs tabs={currentTabs} activeTabKey={active} setData={setData} />;
-  }
-
-  renderGeneralSettingsBlock() {
-    const {
-      userData: { isAdmin }
-    } = this.props;
-    const { isForAllUsers } = this.state;
-
-    if (!(this.isUserType && isAdmin)) {
-      return null;
-    }
-
-    const onChangeKeyForAllUser = field => {
-      this.setState({ isForAllUsers: field.checked });
-    };
-
-    return (
-      <div className="ecos-dashboard-settings__container-group">
-        <Checkbox checked={isForAllUsers} onChange={onChangeKeyForAllUser} className="ecos-dashboard-settings__all-users">
-          {t('dashboard-settings.for-all')}
-        </Checkbox>
-      </div>
-    );
   }
 
   renderLayoutsBlock() {
@@ -665,7 +641,6 @@ class DashboardSettings extends React.Component {
         {this.renderDeviceTabsBlock()}
         {this.renderLayoutTabsBlock()}
         <div className="ecos-dashboard-settings__container">
-          {this.renderGeneralSettingsBlock()}
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
           {this.renderMenuBlock()}

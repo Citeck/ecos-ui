@@ -653,6 +653,7 @@
   "tasks-widget.saga.change-assignee-success": "Успешное назначение задачи",
   "tasks-widget.saga.error1": "Ошибка получения данных",
   "tasks-widget.saga.error2": "Ошибка назначения",
+  "tasks-widget.saga.error3": "При назначении возникла проблема. Пожалуйста, проверьте задачу",
   "tasks-widget.title": "Мои задачи",
 
   "timesheets.allForms.title": "Табели учёта времени",
@@ -738,6 +739,7 @@
   "versions-journal-widget.modal.comment_placeholder_not_necessary": "Не обязательно",
   "versions-journal-widget.modal.comment_title": "Комментарий",
   "versions-journal-widget.modal.download": "Скачать",
+  "versions-journal-widget.modal.no-document-data": "Данные документа отсутствуют",
   "versions-journal-widget.modal.dropzone_placeholder": "Перетяните сюда файл или выберете вручную",
   "versions-journal-widget.modal.dropzone_button_select": "Выбрать файл",
   "versions-journal-widget.modal.dropzone_button_cancel": "Отмена",

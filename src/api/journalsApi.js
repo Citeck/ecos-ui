@@ -128,7 +128,7 @@ export class JournalsApi extends RecordService {
   };
 
   getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId }) => {
-    let queryPredicates = journalPredicate ? [journalPredicate] : [];
+    const queryPredicates = journalPredicate ? [journalPredicate] : [];
     const query = {
       t: 'and',
       val: queryPredicates.concat(
@@ -137,8 +137,7 @@ export class JournalsApi extends RecordService {
         })
       )
     };
-
-    let bodyQuery = {
+    const bodyQuery = {
       query,
       language: 'predicate',
       page: pagination,
@@ -162,10 +161,7 @@ export class JournalsApi extends RecordService {
       permissions: [Permissions.Write]
     });
 
-    return dataSource.load().then(function({ data, total }) {
-      const columns = dataSource.getColumns();
-      return { data, total, columns };
-    });
+    return dataSource.load().then(({ data, total, attributes }) => ({ data, total, attributes, columns: dataSource.getColumns() }));
   };
 
   getJournalConfig = journalId => {

@@ -1,6 +1,16 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 
 import Records from '../../../../components/Records';
+import { t } from '../../../../helpers/util';
+
+const ButtonType = {
+  NEGATIVE: 'n',
+  POSITIVE: 'p'
+};
+const ThemeByType = {
+  [ButtonType.NEGATIVE]: 'default',
+  [ButtonType.POSITIVE]: 'primary'
+};
 
 export default class TaskOutcome extends NestedComponent {
   #buttonKeyPrefix = 'outcome_';
@@ -82,14 +92,25 @@ export default class TaskOutcome extends NestedComponent {
       return [];
     }
 
-    this.component.buttons = template.split('#alf#').map(item => {
-      const fields = item.split('|');
+    this.component.buttons = template
+      .split('#alf#')
+      .map(item => {
+        const [buttonKey = '', label] = item.split('|');
 
-      return {
-        key: fields[0],
-        label: fields[1]
-      };
-    });
+        if (!buttonKey) {
+          return null;
+        }
+
+        const [key, theme = ButtonType.POSITIVE] = buttonKey.split('^');
+
+        return {
+          key,
+          theme: ThemeByType[theme],
+          label: t(label || key)
+        };
+      })
+      .filter(button => button)
+      .sort((first, second) => first.theme.localeCompare(second.theme));
 
     return this.component.buttons;
   }
@@ -118,8 +139,8 @@ export default class TaskOutcome extends NestedComponent {
     this.component.buttons.forEach(button => {
       const config = {
         ...this.baseButtonConfig,
+        ...button,
         key: `${this.#buttonKeyPrefix}${button.key}`,
-        label: button.label,
         size: this.component.buttonSize
       };
 

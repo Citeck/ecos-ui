@@ -1,4 +1,4 @@
-import { createStore, applyMiddleware, compose } from 'redux';
+import { applyMiddleware, compose, createStore } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
@@ -12,7 +12,11 @@ const history = createBrowserHistory();
 
 let optionalMiddlewares = [];
 if (process.env.NODE_ENV === 'development') {
-  const logger = createLogger({ collapsed: true, diff: true });
+  const logger = createLogger({
+    collapsed: true,
+    diff: true
+    //predicate: (getState, action) => action.type.startsWith("tasks/")
+  });
   optionalMiddlewares.push(logger);
 }
 

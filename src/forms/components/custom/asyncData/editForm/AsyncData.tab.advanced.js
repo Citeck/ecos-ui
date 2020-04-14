@@ -134,5 +134,12 @@ export default [
         content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
       }
     ]
+  },
+  {
+    type: 'checkbox',
+    input: true,
+    key: 'ignoreValuesEqualityChecking',
+    label: 'Refresh always, ignore values equality checking',
+    defaultValue: false
   }
 ];
