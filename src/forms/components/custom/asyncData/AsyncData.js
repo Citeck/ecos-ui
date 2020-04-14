@@ -18,6 +18,7 @@ export default class AsyncDataComponent extends BaseComponent {
         eventName: '',
         executionCondition: '',
         refreshOn: [],
+        ignoreValuesEqualityChecking: false,
         source: {
           type: '',
           forceLoad: false,
@@ -368,7 +369,8 @@ export default class AsyncDataComponent extends BaseComponent {
     }
 
     let currentValue = this[dataField];
-    if (forceUpdate || !_.isEqual(currentValue, data)) {
+    const { ignoreValuesEqualityChecking } = comp;
+    if (ignoreValuesEqualityChecking || forceUpdate || !_.isEqual(currentValue, data)) {
       this[dataField] = data;
 
       this.activeAsyncActionsCounter++;
@@ -492,7 +494,9 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   setValue(value, flags) {
-    if (!_.isEqual(this.dataValue, value)) {
+    const component = this.component;
+    const { ignoreValuesEqualityChecking } = component;
+    if (ignoreValuesEqualityChecking || !_.isEqual(this.dataValue, value)) {
       flags = this.getFlags.apply(this, arguments);
       this.dataValue = value;
       this.updateValue(flags);
