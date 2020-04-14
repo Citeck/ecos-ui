@@ -21,7 +21,7 @@ export default handleActions(
     [getTaskList]: (state, { payload: { stateId } }) => updateState(state, stateId, { ...initialState, isLoading: true }),
     [changeTaskAssignee]: (state, { payload: { stateId } }) => updateState(state, stateId, { isLoading: true }),
     [setTaskList]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, { ...data, isLoading: false }),
-    [setTaskAssignee]: (state, { stateId, ...data }) => updateState(state, stateId, { ...data, isLoading: false }),
+    [setTaskAssignee]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, { ...data, isLoading: false }),
     [resetTaskList]: (state, { payload: { stateId } }) => deleteStateById(state, stateId)
   },
   {}
