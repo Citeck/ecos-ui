@@ -739,6 +739,7 @@
   "versions-journal-widget.modal.comment_placeholder_not_necessary": "Не обязательно",
   "versions-journal-widget.modal.comment_title": "Комментарий",
   "versions-journal-widget.modal.download": "Скачать",
+  "versions-journal-widget.modal.no-document-data": "Данные документа отсутствуют",
   "versions-journal-widget.modal.dropzone_placeholder": "Перетяните сюда файл или выберете вручную",
   "versions-journal-widget.modal.dropzone_button_select": "Выбрать файл",
   "versions-journal-widget.modal.dropzone_button_cancel": "Отмена",

@@ -11,13 +11,14 @@ import { t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 
 const LABELS = {
-  DOWNLOAD: 'versions-journal-widget.modal.download'
+  DOWNLOAD: 'versions-journal-widget.modal.download',
+  NO_DATA_MESSAGE: 'versions-journal-widget.modal.no-document-data'
 };
 
 class ComparisonModal extends Component {
   static propTypes = {
     versions: PropTypes.array,
-    comparison: PropTypes.string.isRequired,
+    comparison: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(null)]),
     isShow: PropTypes.bool,
     isLoading: PropTypes.bool,
     isMobile: PropTypes.bool,
@@ -96,8 +97,25 @@ class ComparisonModal extends Component {
     );
   }
 
+  renderComparisonWarning = () => {
+    const { comparison } = this.props;
+
+    if (comparison) {
+      return null;
+    }
+
+    return <div className="vj-modal-comparison__document-content-message">{t(LABELS.NO_DATA_MESSAGE)}</div>;
+  };
+
   renderBody() {
     const { comparison, versions } = this.props;
+    const params = {};
+
+    if (comparison) {
+      params.dangerouslySetInnerHTML = {
+        __html: comparison
+      };
+    }
 
     if (this.isSmall) {
       const { selected } = this.state;
@@ -110,8 +128,10 @@ class ComparisonModal extends Component {
                 className={classNames('vj-modal-comparison__document-content', {
                   'vj-modal-comparison__document-content_right': selected
                 })}
-                dangerouslySetInnerHTML={{ __html: comparison }}
-              />
+                {...params}
+              >
+                {this.renderComparisonWarning()}
+              </div>
             </div>
           </div>
         </Scrollbars>
@@ -122,7 +142,9 @@ class ComparisonModal extends Component {
       <Scrollbars autoHeight autoHeightMin="100px" autoHeightMax="80vh">
         <div className="vj-modal-comparison__body">
           <div className="vj-modal-comparison__document">
-            <div className="vj-modal-comparison__document-content" dangerouslySetInnerHTML={{ __html: comparison }} />
+            <div className="vj-modal-comparison__document-content" {...params}>
+              {this.renderComparisonWarning()}
+            </div>
             <a href={versions[0].url} download data-external>
               <Btn className="ecos-btn_grey5 ecos-btn_narrow vj-modal-comparison__document-btn">
                 <Icon className="icon-download vj-modal-comparison__document-btn-icon" />
@@ -131,10 +153,9 @@ class ComparisonModal extends Component {
             </a>
           </div>
           <div className="vj-modal-comparison__document">
-            <div
-              className="vj-modal-comparison__document-content vj-modal-comparison__document-content_right"
-              dangerouslySetInnerHTML={{ __html: comparison }}
-            />
+            <div className="vj-modal-comparison__document-content vj-modal-comparison__document-content_right" {...params}>
+              {this.renderComparisonWarning()}
+            </div>
             <a href={versions[1].url} download data-external>
               <Btn className="ecos-btn_grey5 ecos-btn_narrow vj-modal-comparison__document-btn">
                 <Icon className="icon-download vj-modal-comparison__document-btn-icon" />
