@@ -110,7 +110,7 @@ export default class TaskOutcome extends NestedComponent {
         };
       })
       .filter(button => button)
-      .sort((first, second) => second.theme.localeCompare(first.theme));
+      .sort((first, second) => first.theme.localeCompare(second.theme));
 
     return this.component.buttons;
   }
