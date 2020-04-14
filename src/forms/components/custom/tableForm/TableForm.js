@@ -25,7 +25,6 @@ export default class TableFormComponent extends BaseReactComponent {
             columns: []
           },
           custom: {
-            createVariants: [],
             columns: [],
             record: null,
             attribute: null
@@ -237,25 +236,6 @@ export default class TableFormComponent extends BaseReactComponent {
           break;
         case 'custom':
           const component = this.component;
-          let customCreateVariants = null;
-          if (component.customCreateVariantsJs) {
-            try {
-              customCreateVariants = this.evaluate(component.customCreateVariantsJs, {}, 'value', true);
-            } catch (e) {
-              console.error(e);
-            }
-          } else if (source.custom.createVariants) {
-            customCreateVariants = source.custom.createVariants;
-          }
-
-          let fetchCustomCreateVariantsPromise;
-          if (customCreateVariants && customCreateVariants.then) {
-            fetchCustomCreateVariantsPromise = customCreateVariants;
-          } else {
-            fetchCustomCreateVariantsPromise = Promise.resolve(customCreateVariants);
-          }
-
-          const customCV = await fetchCustomCreateVariantsPromise;
           const record = this.getRecord();
           const attribute = this.getAttributeToEdit();
           const columns = source.custom.columns.map(item => {
@@ -266,16 +246,25 @@ export default class TableFormComponent extends BaseReactComponent {
             return col;
           });
 
-          let createVariantsPromise;
-          if (!Array.isArray(customCV)) {
-            if (attribute) {
-              createVariantsPromise = EcosFormUtils.getCreateVariants(record, attribute);
-            } else {
-              createVariantsPromise = Promise.resolve([]);
+          let customCreateVariants = null;
+          if (component.customCreateVariantsJs) {
+            try {
+              customCreateVariants = this.evaluate(component.customCreateVariantsJs, {}, 'value', true);
+            } catch (e) {
+              console.error(e);
             }
-          } else {
+          }
+
+          let createVariantsPromise = Promise.resolve([]);
+          if (customCreateVariants) {
+            let fetchCustomCreateVariantsPromise;
+            if (customCreateVariants.then) {
+              fetchCustomCreateVariantsPromise = customCreateVariants;
+            } else {
+              fetchCustomCreateVariantsPromise = Promise.resolve(customCreateVariants);
+            }
             createVariantsPromise = Promise.all(
-              customCV.map(variant => {
+              (await fetchCustomCreateVariantsPromise).map(variant => {
                 if (_.isObject(variant)) {
                   return variant;
                 }
@@ -290,6 +279,8 @@ export default class TableFormComponent extends BaseReactComponent {
                   });
               })
             );
+          } else if (attribute) {
+            createVariantsPromise = EcosFormUtils.getCreateVariants(record, attribute);
           }
 
           try {
