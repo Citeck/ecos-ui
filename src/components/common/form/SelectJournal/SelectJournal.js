@@ -226,53 +226,65 @@ export default class SelectJournal extends Component {
     });
   };
 
-  refreshGridData = () => {
+  refreshGridData = info => {
     return new Promise(resolve => {
-      this.setState(
-        {
-          isGridDataReady: false
-        },
-        () => {
-          let requestParams = this.state.requestParams;
-          if (this.state.customPredicate) {
-            if (requestParams.journalPredicate) {
-              requestParams = {
-                ...requestParams,
-                journalPredicate: {
-                  t: 'and',
-                  val: [requestParams.journalPredicate, this.state.customPredicate]
-                }
-              };
-            } else {
-              requestParams = {
-                ...requestParams,
-                journalPredicate: this.state.customPredicate
-              };
+      this.setState({ isGridDataReady: false }, () => {
+        let { requestParams, customPredicate, journalConfig } = this.state;
+        let sourceId = lodashGet(journalConfig, 'sourceId', '');
+
+        if (customPredicate) {
+          if (requestParams.journalPredicate) {
+            requestParams = {
+              ...requestParams,
+              journalPredicate: {
+                t: 'and',
+                val: [requestParams.journalPredicate, customPredicate]
+              }
+            };
+          } else {
+            requestParams = {
+              ...requestParams,
+              journalPredicate: customPredicate
+            };
+          }
+        }
+
+        if (sourceId) {
+          requestParams.sourceId = sourceId;
+        }
+
+        return this.api
+          .getGridDataUsePredicates(requestParams)
+          .then(fetchedGridData => {
+            const recordId = lodashGet(info, 'record.id');
+
+            if (!recordId) {
+              return Promise.resolve(fetchedGridData);
             }
-          }
 
-          let sourceId = lodashGet(this.state, 'journalConfig.sourceId', '');
-          if (sourceId) {
-            requestParams['sourceId'] = sourceId;
-          }
-
-          return this.api.getGridDataUsePredicates(requestParams).then(fetchedGridData => {
+            return new Promise(resolve =>
+              Records.get(recordId)
+                .load(fetchedGridData.attributes)
+                .then(recordData => {
+                  recordData.id = recordId;
+                  resolve({ ...fetchedGridData, recordData });
+                })
+            );
+          })
+          .then(fetchedGridData => {
             const gridData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
 
-            this.setState(prevState => {
-              return {
-                gridData: {
-                  ...prevState.gridData,
-                  ...gridData
-                },
-                isGridDataReady: true
-              };
-            });
+            this.setState(prevState => ({
+              gridData: {
+                ...prevState.gridData,
+                ...gridData
+              },
+              isGridDataReady: true
+            }));
 
             resolve(gridData);
           });
-        }
-      );
+      });
     });
   };
 
@@ -288,12 +300,19 @@ export default class SelectJournal extends Component {
     let newInMemoryData = [...inMemoryData];
 
     for (let i = 0; i < inMemoryData.length; i++) {
-      const exists = fetchedGridData.data.find(item => item.id === inMemoryData[i].id);
-      // если запись успела проиндексироваться, удаляем её из inMemoryData, иначе добаляем в fetchedGridData.data временную запись
+      const memoryRecord = inMemoryData[i];
+      const exists = fetchedGridData.data.find(item => item.id === memoryRecord.id);
+      // если запись успела проиндексироваться, удаляем её из inMemoryData, иначе добаляем в fetchedData.data временную запись
       if (exists) {
-        newInMemoryData = newInMemoryData.filter(item => item.id !== inMemoryData[i].id);
+        newInMemoryData = newInMemoryData.filter(item => item.id !== memoryRecord.id);
       } else if (fetchedGridData.data.length < pagination.maxItems) {
-        fetchedGridData.data.push(inMemoryData[i]);
+        let record = memoryRecord;
+
+        if (memoryRecord.id === lodashGet(fetchedGridData, 'recordData.id')) {
+          newInMemoryData[i] = record = fetchedGridData.recordData;
+        }
+
+        fetchedGridData.data.push(record);
       }
     }
 
@@ -473,36 +492,39 @@ export default class SelectJournal extends Component {
   onCreateFormSubmit = (record, form, alias) => {
     const { multiple } = this.props;
 
-    this.setState(state => {
-      const prevSelected = state.gridData.selected || [];
-      const newSkipCount =
-        Math.floor(state.gridData.total / state.requestParams.pagination.maxItems) * state.requestParams.pagination.maxItems;
-      const newPageNum = Math.ceil((state.gridData.total + 1) / state.requestParams.pagination.maxItems);
+    this.setState(
+      state => {
+        const prevSelected = state.gridData.selected || [];
+        const newSkipCount =
+          Math.floor(state.gridData.total / state.requestParams.pagination.maxItems) * state.requestParams.pagination.maxItems;
+        const newPageNum = Math.ceil((state.gridData.total + 1) / state.requestParams.pagination.maxItems);
 
-      return {
-        isCreateModalOpen: false,
-        gridData: {
-          ...state.gridData,
-          selected: multiple ? [...prevSelected, record.id] : [record.id],
-          inMemoryData: [
-            ...state.gridData.inMemoryData,
-            {
-              id: record.id,
-              ...alias.getRawAttributes()
+        return {
+          isCreateModalOpen: false,
+          gridData: {
+            ...state.gridData,
+            selected: multiple ? [...prevSelected, record.id] : [record.id],
+            inMemoryData: [
+              ...state.gridData.inMemoryData,
+              {
+                id: record.id,
+                ...alias.getRawAttributes()
+              }
+            ]
+          },
+          requestParams: {
+            ...state.requestParams,
+            predicates: [],
+            pagination: {
+              ...state.requestParams.pagination,
+              skipCount: newSkipCount,
+              page: newPageNum
             }
-          ]
-        },
-        requestParams: {
-          ...state.requestParams,
-          predicates: [],
-          pagination: {
-            ...state.requestParams.pagination,
-            skipCount: newSkipCount,
-            page: newPageNum
           }
-        }
-      };
-    }, this.refreshGridData);
+        };
+      },
+      () => this.refreshGridData({ record })
+    );
   };
 
   onEditFormSubmit = form => {
