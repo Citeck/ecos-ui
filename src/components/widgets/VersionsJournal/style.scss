@@ -670,6 +670,21 @@
             color: $color-black;
           }
         }
+
+        &-message {
+          padding: 12px;
+          border-radius: $border-radius-extra-large;
+          background: $color-gray-15;
+          display: flex;
+          margin: auto;
+          max-width: 152px;
+          text-align: center;
+          font-style: normal;
+          font-weight: 600;
+          font-size: $font-size-small;
+          line-height: 16px;
+          color: $text-color-dark;
+        }
       }
 
       &-btn {
