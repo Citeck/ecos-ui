@@ -785,7 +785,10 @@ SelectJournal.propTypes = {
   searchField: PropTypes.string,
   isSelectModalOpen: PropTypes.bool,
   isSelectedValueAsText: PropTypes.bool,
-  sortBy: PropTypes.object
+  sortBy: PropTypes.shape({
+    attribute: PropTypes.string,
+    ascending: PropTypes.string
+  })
 };
 
 SelectJournal.defaultProps = {

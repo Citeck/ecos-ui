@@ -87,7 +87,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         searchField: component.searchField,
         sortBy: {
           attribute: component.sortAttribute,
-          ascending: !!parseInt(component.sortAscending)
+          ascending: component.sortAscending === 'asc'
         },
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)

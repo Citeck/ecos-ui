@@ -1,10 +1,10 @@
 export const SortOrderOptions = {
   ASC: {
     label: 'ASC',
-    value: '1'
+    value: 'asc'
   },
   DESC: {
     label: 'DESC',
-    value: '0'
+    value: 'desc'
   }
 };
