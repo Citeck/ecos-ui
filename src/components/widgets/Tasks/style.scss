@@ -24,6 +24,11 @@
   &-ins {
     $ins: &;
 
+    &:not(:last-child) {
+      border-bottom: $border-width-standard solid $color-gray-4;
+      padding-bottom: 20px;
+    }
+
     &__title {
       justify-content: space-between;
 
