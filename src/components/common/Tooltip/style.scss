@@ -61,5 +61,11 @@
         }
       }
     }
+
+    &-left {
+      .arrow {
+        right: 6px;
+      }
+    }
   }
 }
