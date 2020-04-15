@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 
-import { ActionModes, Permissions } from '../constants';
+import { ActionModes, Attributes, Permissions } from '../constants';
 import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
 import { debounce, queryByCriteria, t } from '../helpers/util';
 import * as ls from '../helpers/ls';
@@ -144,8 +144,8 @@ export class JournalsApi extends RecordService {
       consistency: 'EVENTUAL',
       sortBy: [
         {
-          attribute: get(sortBy, 'attribute') || 'sys:node-dbid',
-          ascending: get(sortBy, 'ascending') || true
+          attribute: get(sortBy, 'attribute') || Attributes.DBID,
+          ascending: get(sortBy, 'ascending') !== false
         }
       ]
     };

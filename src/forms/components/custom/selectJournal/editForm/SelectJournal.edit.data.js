@@ -1,3 +1,4 @@
+import { Attributes } from '../../../../../constants';
 import { SortOrderOptions } from '../constants';
 
 const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';
@@ -166,7 +167,7 @@ export default [
                 input: true,
                 key: 'sortAttribute',
                 placeholder: 'Enter column name',
-                defaultValue: 'sys:node-dbid'
+                defaultValue: Attributes.DBID
               }
             ],
             xs: 0,

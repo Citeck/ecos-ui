@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import lodashGet from 'lodash/get';
 
+import { Attributes } from '../../../../constants';
 import { t } from '../../../../helpers/util';
 import { JournalsApi } from '../../../../api/journalsApi';
 import { EcosModal, Loader, Pagination } from '../../../common';
@@ -27,8 +28,6 @@ const paginationInitState = {
   maxItems: 10,
   page: 1
 };
-
-const DBID = 'sys:node-dbid';
 
 export default class SelectJournal extends Component {
   state = {
@@ -129,7 +128,7 @@ export default class SelectJournal extends Component {
       const dbIDs = {};
       const dbIDsPromises = selectedRows.map(item => {
         return Records.get(item.id)
-          .load(DBID)
+          .load(Attributes.DBID)
           .then(dbID => {
             dbIDs[item.id] = dbID;
           });
@@ -140,7 +139,7 @@ export default class SelectJournal extends Component {
         const sourceId = lodashGet(journalConfig, 'sourceId', '');
 
         if (customPredicate) {
-          let selectedRowsPredicate = selectedRows.map(item => ({ t: 'eq', att: DBID, val: dbIDs[item.id] }));
+          let selectedRowsPredicate = selectedRows.map(item => ({ t: 'eq', att: Attributes.DBID, val: dbIDs[item.id] }));
 
           selectedRowsPredicate = {
             t: 'or',
