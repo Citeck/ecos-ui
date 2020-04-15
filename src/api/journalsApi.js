@@ -127,7 +127,7 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId }) => {
+  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy }) => {
     const queryPredicates = journalPredicate ? [journalPredicate] : [];
     const query = {
       t: 'and',
@@ -142,7 +142,12 @@ export class JournalsApi extends RecordService {
       language: 'predicate',
       page: pagination,
       consistency: 'EVENTUAL',
-      sortBy: [{ attribute: 'sys:node-dbid', ascending: true }]
+      sortBy: [
+        {
+          attribute: get(sortBy, 'attribute') || 'sys:node-dbid',
+          ascending: get(sortBy, 'ascending') || true
+        }
+      ]
     };
 
     if (sourceId) {

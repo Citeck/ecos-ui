@@ -85,6 +85,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
         isInlineEditingMode: this._isInlineEditingMode,
         presetFilterPredicates,
         searchField: component.searchField,
+        sortBy: {
+          attribute: component.sortAttribute,
+          ascending: !!parseInt(component.sortAscending)
+        },
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },
