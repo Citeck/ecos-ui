@@ -1,8 +1,9 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
-import { isLastItem, t } from '../../../helpers/util';
-import { InfoText, Loader, Separator } from '../../common/index';
+
+import { t } from '../../../helpers/util';
+import { InfoText, Loader } from '../../common/index';
 import TaskDetails from './TaskDetails';
 import { TaskPropTypes } from './utils';
 
@@ -62,7 +63,6 @@ class TaskList extends React.Component {
           className={className}
           isSmallMode={isSmallMode}
         />
-        {!isLastItem(tasks, i) && <Separator noIndents />}
       </React.Fragment>
     ));
   }
