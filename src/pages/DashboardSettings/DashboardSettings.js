@@ -9,6 +9,7 @@ import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
 import find from 'lodash/find';
 
+import { clearCache } from '../../components/ReactRouterCache';
 import { arrayCompare, documentScrollTop, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
@@ -293,6 +294,7 @@ class DashboardSettings extends React.Component {
     const newSaveWay = checkResult.saveWay;
 
     if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
+      clearCache();
       this.closePage(nextProps);
     } else if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
       this.acceptChanges(checkResult.dashboardId);

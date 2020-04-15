@@ -18,6 +18,12 @@ export const remove = key => {
   delete __components[key];
 };
 
+export const removeAll = () => {
+  const keys = getCachingKeys();
+
+  keys.forEach(key => delete __components[key]);
+};
+
 const dropComponent = component => run(component, 'reset');
 
 export const dropByCacheKey = key => {

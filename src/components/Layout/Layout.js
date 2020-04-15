@@ -15,6 +15,9 @@ import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
+// for caching loaded widgets
+let loadedWidgets = {};
+
 class Layout extends Component {
   static propTypes = {
     columns: PropTypes.arrayOf(
@@ -50,9 +53,6 @@ class Layout extends Component {
   state = {
     draggableDestination: ''
   };
-
-  // for caching loaded components
-  _components = {};
 
   _wrapperRef = React.createRef();
 
@@ -187,7 +187,7 @@ class Layout extends Component {
   };
 
   renderWidgets(widgets = [], columnName) {
-    const { canDragging } = this.props;
+    const { canDragging, tabLink } = this.props;
     const { recordRef } = getSearchParams();
     const components = [];
 
@@ -203,12 +203,12 @@ class Layout extends Component {
       };
       const urlParams = getSortedUrlParams();
       const id = JSON.stringify(dataWidget);
-      const key = `${widget.name}-${widget.id}-${urlParams}`;
-      let Widget = this._components[widget.name];
+      const key = `${widget.name}-${widget.id}`;
+      let Widget = loadedWidgets[widget.name];
 
       if (!Widget) {
         Widget = Components.get(widget.name);
-        this._components[widget.name] = Widget;
+        loadedWidgets[widget.name] = Widget;
       }
 
       if (canDragging) {
@@ -217,7 +217,7 @@ class Layout extends Component {
             <Widget
               {...widget.props}
               canDragging={canDragging}
-              id={`${widget.props.id}-${urlParams}`}
+              id={widget.props.id}
               record={recordRef}
               onSave={this.props.onSaveWidgetProps}
               onLoad={this.checkWidgets}
@@ -240,6 +240,8 @@ class Layout extends Component {
         );
       }
     });
+
+    // console.warn('Layout renderWidgets => ', tabLink)
 
     return components;
   }

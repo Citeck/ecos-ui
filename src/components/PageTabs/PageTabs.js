@@ -191,7 +191,11 @@ class PageTabs extends React.Component {
       return;
     }
 
-    this.props.changeTab({ data: { isActive: true }, filter: { id: tab.id } });
+    this.props.changeTab({
+      data: { isActive: true },
+      filter: { id: tab.id },
+      url: tab.link
+    });
   };
 
   updateTab = tab => {

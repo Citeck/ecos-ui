@@ -12,7 +12,7 @@ import isEmpty from 'lodash/isEmpty';
 import { LoaderTypes, MENU_TYPE, URL } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, isMobileAppWebView, t } from '../../helpers/util';
-import { getSortedUrlParams } from '../../helpers/urls';
+import { getSortedUrlParams, isDashboard } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import { Loader, ScrollArrow, Tabs } from '../../components/common';
@@ -25,6 +25,7 @@ import Records from '../../components/Records';
 import { initialState } from '../../reducers/dashboard';
 import DashboardService from '../../services/dashboard';
 import pageTabList from '../../services/pageTabs/PageTabList';
+import { getCachingKeys } from '../../components/ReactRouterCache';
 
 import './style.scss';
 
@@ -97,9 +98,12 @@ class Dashboard extends Component {
     }
 
     if (state.urlParams !== newUrlParams) {
-      newState.urlParams = newUrlParams;
-      newState.needGetConfig = true;
       props.initMenuSettings();
+      newState.urlParams = newUrlParams;
+
+      if (isDashboard()) {
+        newState.needGetConfig = true;
+      }
     }
 
     if (state.urlParams === newUrlParams && props.isLoadingDashboard && !isEmpty(props.config)) {
@@ -128,7 +132,7 @@ class Dashboard extends Component {
   }
 
   componentWillUnmount() {
-    this.props.resetDashboardConfig();
+    // this.props.resetDashboardConfig();
     this.instanceRecord.unwatch(this.watcher);
   }
 
@@ -335,13 +339,14 @@ class Dashboard extends Component {
   }
 
   renderLayout = React.memo(props => {
-    const { menuType, isMobile, canDragging, columns, type } = props;
+    const { menuType, isMobile, canDragging, columns, type, tabLink } = props;
 
     return (
       <Layout
         className={classNames({ 'ecos-layout_mobile': isMobile })}
         columns={columns}
         type={type}
+        tabLink={tabLink}
         menuType={menuType}
         canDragging={canDragging}
         onSaveWidget={this.prepareWidgetsConfig}
@@ -437,7 +442,7 @@ class Dashboard extends Component {
   }
 
   render() {
-    const { menuType, isMobile } = this.props;
+    const { menuType, isMobile, tabLink } = this.props;
     const { canDragging } = this.state;
     const { columns, type } = this.activeLayout;
 
@@ -451,7 +456,14 @@ class Dashboard extends Component {
         {this.renderTopMenu()}
         {this.renderHeader()}
         {this.renderTabs()}
-        <this.renderLayout menuType={menuType} isMobile={isMobile} canDragging={canDragging} columns={columns} type={type} />
+        <this.renderLayout
+          menuType={menuType}
+          isMobile={isMobile}
+          canDragging={canDragging}
+          columns={columns}
+          type={type}
+          tabLink={tabLink}
+        />
         {this.renderLoader()}
       </Scrollbars>
     );
