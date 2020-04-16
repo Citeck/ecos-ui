@@ -39,12 +39,12 @@ class EmptyGrid extends React.Component {
   };
 
   render() {
-    const { maxItems } = this.props;
+    const { maxItems, minHeight, maxHeight } = this.props;
     const { height } = this.state;
     const fakeData = Array.from(Array(maxItems), (e, i) => ({ id: i }));
 
     return maxItems ? (
-      <div ref={this._ref} style={{ height: height || 'auto' }}>
+      <div ref={this._ref} style={{ height: height || 'auto', minHeight, maxHeight }}>
         {height ? (
           this.getChild(height)
         ) : (
