@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 
-import { ActionModes, Permissions } from '../constants';
+import { ActionModes, Attributes, Permissions } from '../constants';
 import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
 import { debounce, queryByCriteria, t } from '../helpers/util';
 import * as ls from '../helpers/ls';
@@ -127,7 +127,7 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId }) => {
+  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy }) => {
     const queryPredicates = journalPredicate ? [journalPredicate] : [];
     const query = {
       t: 'and',
@@ -142,7 +142,12 @@ export class JournalsApi extends RecordService {
       language: 'predicate',
       page: pagination,
       consistency: 'EVENTUAL',
-      sortBy: [{ attribute: 'sys:node-dbid', ascending: true }]
+      sortBy: [
+        {
+          attribute: get(sortBy, 'attribute') || Attributes.DBID,
+          ascending: get(sortBy, 'ascending') !== false
+        }
+      ]
     };
 
     if (sourceId) {
