@@ -62,9 +62,37 @@ export class MenuApi extends CommonApi {
     return `${URL.JOURNAL}?journalId=${journalRef}&journalSettingId=&journalsListId=${listId}`;
   };
 
+  getCreateWorkflowVariants = () => {
+    return Promise.resolve([
+      {
+        id: 'HEADER_CREATE_WORKFLOW',
+        label: 'header.create-workflow.label',
+        items: [
+          {
+            id: 'HEADER_CREATE_WORKFLOW_ADHOC',
+            label: 'header.create-workflow-adhoc.label',
+            targetUrl: '/share/page/workflow-start-page?formType=workflowId&formKey=activiti$perform'
+          },
+          {
+            id: 'HEADER_CREATE_WORKFLOW_CONFIRM',
+            label: 'header.create-workflow-confirm.label',
+            targetUrl: '/share/page/start-specified-workflow?workflowId=activiti$confirm'
+          }
+        ]
+      }
+    ]);
+  };
+
   getCreateVariantsForAllSites = () => {
     const url = `${PROXY_URI}api/journals/create-variants/site/ALL`;
     return this.getJson(url).catch(() => []);
+  };
+
+  getCustomCreateVariants = () => {
+    return Records.get(`${SourcesId.CONFIG}@custom-create-buttons`)
+      .load('value[]?json', true)
+      .then(res => lodashGet(res, '[0]', []))
+      .catch(() => []);
   };
 
   getLiveSearchDocuments = (terms, startIndex) => {
@@ -88,7 +116,7 @@ export class MenuApi extends CommonApi {
       url: `${PROXY_URI}citeck/menu/menu?username=${username}`,
       timeout: 14400000, //4h
       postProcess: menu => postProcessMenuConfig(menu)
-    }).catch(() => {});
+    }).catch(() => ({}));
   };
 
   getMenuItemIconUrl = iconName => {
