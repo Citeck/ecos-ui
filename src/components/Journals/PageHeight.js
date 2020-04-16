@@ -42,6 +42,10 @@ export default class PageHeight extends React.Component {
   };
 
   render() {
-    return <div ref={this._ref}>{this.props.children(this.state.height)}</div>;
+    return (
+      <div ref={this._ref} style={{ height: '100%' }}>
+        {this.props.children(this.state.height)}
+      </div>
+    );
   }
 }
