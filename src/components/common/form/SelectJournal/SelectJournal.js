@@ -787,7 +787,7 @@ SelectJournal.propTypes = {
   isSelectedValueAsText: PropTypes.bool,
   sortBy: PropTypes.shape({
     attribute: PropTypes.string,
-    ascending: PropTypes.string
+    ascending: PropTypes.bool
   })
 };
 
