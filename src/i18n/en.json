@@ -4,6 +4,10 @@
   "aggregation.type": "Aggregation type",
   "boolean.no": "No",
   "boolean.yes": "Yes",
+  "page.error-loading.title": "The error occurred while loading the page",
+  "page.error-loading.message": "Try reloading the page. If the error persists, contact your administrator",
+  "page.error-loading.log": "Error log",
+
   "bpmn-card.go-back-to-list-button.text": "Back to list",
   "bpmn-card.open-editor-button.text": "Visual Editor",
   "bpmn-designer.add-category": "Create category",
