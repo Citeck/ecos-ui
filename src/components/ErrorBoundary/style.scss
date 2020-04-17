@@ -1,0 +1,28 @@
+@import '../../styles/content';
+
+.ecos-error-boundary {
+  @extend %block--1;
+  margin: 40px;
+
+  &__title {
+    @extend %title-block--1;
+  }
+
+  &__message {
+    margin-bottom: 20px;
+  }
+
+  &__panel-bar {
+    .panel-bar__header {
+      margin: 0 0 15px;
+    }
+  }
+
+  &__details {
+    @extend %block--2;
+
+    &-stack {
+      white-space: pre-wrap;
+    }
+  }
+}
