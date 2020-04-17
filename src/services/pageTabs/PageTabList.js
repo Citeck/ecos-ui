@@ -277,6 +277,10 @@ class PageTabList {
       return storage.getData(this.#keyStorage);
     }
   }
+
+  getTabById = id => {
+    return this.#tabs.find(tab => tab.id === id) || {};
+  };
 }
 
 const pageTabList = get(window, 'Citeck.PageTabList', new PageTabList());

@@ -189,7 +189,7 @@ class App extends Component {
               {...baseCacheRouteProps}
               path={URL.DASHBOARD}
               exact
-              render={props => <DashboardPage {...props} tabLink={tab.link} />}
+              render={props => <DashboardPage {...props} tabLink={tab.link} tabId={tab.id} />}
             />
             <CacheRoute {...baseCacheRouteProps} path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
             <CacheRoute {...baseCacheRouteProps} path={URL.JOURNAL} component={JournalsPage} />

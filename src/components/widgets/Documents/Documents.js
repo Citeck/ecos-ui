@@ -34,6 +34,8 @@ import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import { deepClone, prepareTooltipId, t, closest, objectCompare } from '../../../helpers/util';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
 
+import pageTabList from '../../../services/pageTabs/PageTabList';
+
 import './style.scss';
 
 const Labels = {
@@ -1268,72 +1270,28 @@ class Documents extends BaseWidget {
   }
 }
 
+const getKey = props => `[${props.tabId}]-[${props.id}]`;
+
 const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByKey(state, ownProps.id),
+  ...selectStateByKey(state, getKey(ownProps)),
   isMobile: state.view.isMobile
 });
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  initStore: () =>
-    dispatch(
-      initStore({
-        record: ownProps.record,
-        config: ownProps.config,
-        key: ownProps.id
-      })
-    ),
-  getDocuments: (type = '') =>
-    dispatch(
-      getDocumentsByType({
-        record: ownProps.record,
-        type,
-        key: ownProps.id
-      })
-    ),
-  onSaveSettings: (types, config) =>
-    dispatch(
-      saveSettings({
-        record: ownProps.record,
-        types,
-        config,
-        key: ownProps.id
-      })
-    ),
-  onUploadFiles: data =>
-    dispatch(
-      uploadFiles({
-        record: ownProps.record,
-        ...data,
-        key: ownProps.id
-      })
-    ),
-  setError: (type, message = '') =>
-    dispatch(
-      setError({
-        record: ownProps.record,
-        type,
-        message,
-        key: ownProps.id
-      })
-    ),
-  execRecordsAction: (records, action, callback) =>
-    dispatch(
-      execRecordsAction({
-        record: ownProps.record,
-        records,
-        action,
-        callback,
-        key: ownProps.id
-      })
-    ),
-  setInlineTools: tools =>
-    dispatch(
-      setInlineTools({
-        record: ownProps.record,
-        tools,
-        key: ownProps.id
-      })
-    )
-});
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const baseParams = {
+    record: ownProps.record,
+    key: getKey(ownProps)
+  };
+
+  return {
+    initStore: () => dispatch(initStore({ ...baseParams, config: ownProps.config })),
+    getDocuments: (type = '') => dispatch(getDocumentsByType({ ...baseParams, type })),
+    onSaveSettings: (types, config) => dispatch(saveSettings({ ...baseParams, types, config })),
+    onUploadFiles: data => dispatch(uploadFiles({ ...baseParams, ...data })),
+    setError: (type, message = '') => dispatch(setError({ ...baseParams, type, message })),
+    execRecordsAction: (records, action, callback) => dispatch(execRecordsAction({ ...baseParams, records, action, callback })),
+    setInlineTools: tools => dispatch(setInlineTools({ ...baseParams, tools }))
+  };
+};
 
 export default connect(
   mapStateToProps,
