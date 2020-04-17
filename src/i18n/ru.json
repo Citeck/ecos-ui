@@ -4,6 +4,10 @@
   "aggregation.type": "Тип агрегации",
   "boolean.no": "Нет",
   "boolean.yes": "Да",
+  "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",
+  "page.error-loading.message": "Попробуйте перезагрузить страницу. Если ошибка повториться, обратитесь к администратору ",
+  "page.error-loading.log": "Журнал ошибки",
+
   "bpmn-card.go-back-to-list-button.text": "Назад к списку",
   "bpmn-card.open-editor-button.text": "Визуальный редактор",
   "bpmn-designer.add-category": "Добавить категорию",
