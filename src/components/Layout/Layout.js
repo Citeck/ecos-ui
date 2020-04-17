@@ -15,9 +15,6 @@ import { getSortedUrlParams } from '../../helpers/urls';
 
 import './style.scss';
 
-// for caching loaded widgets
-let loadedWidgets = {};
-
 class Layout extends Component {
   static propTypes = {
     columns: PropTypes.arrayOf(
@@ -49,6 +46,9 @@ class Layout extends Component {
     onSaveWidget: () => {},
     onSaveWidgetProps: () => {}
   };
+
+  // for caching loaded widgets
+  #loadedWidgets = {};
 
   state = {
     draggableDestination: ''
@@ -187,7 +187,7 @@ class Layout extends Component {
   };
 
   renderWidgets(widgets = [], columnName) {
-    const { canDragging, tabLink } = this.props;
+    const { canDragging, tabId } = this.props;
     const { recordRef } = getSearchParams();
     const components = [];
 
@@ -204,11 +204,11 @@ class Layout extends Component {
       const urlParams = getSortedUrlParams();
       const id = JSON.stringify(dataWidget);
       const key = `${widget.name}-${widget.id}`;
-      let Widget = loadedWidgets[widget.name];
+      let Widget = this.#loadedWidgets[widget.name];
 
       if (!Widget) {
         Widget = Components.get(widget.name);
-        loadedWidgets[widget.name] = Widget;
+        this.#loadedWidgets[widget.name] = Widget;
       }
 
       if (canDragging) {
@@ -218,6 +218,7 @@ class Layout extends Component {
               {...widget.props}
               canDragging={canDragging}
               id={widget.props.id}
+              tabId={tabId}
               record={recordRef}
               onSave={this.props.onSaveWidgetProps}
               onLoad={this.checkWidgets}
@@ -232,6 +233,7 @@ class Layout extends Component {
               {...widget.props}
               canDragging={canDragging}
               record={recordRef}
+              tabId={tabId}
               onSave={this.props.onSaveWidgetProps}
               onLoad={this.checkWidgets}
               onUpdate={this.checkWidgets}
@@ -240,8 +242,6 @@ class Layout extends Component {
         );
       }
     });
-
-    // console.warn('Layout renderWidgets => ', tabLink)
 
     return components;
   }

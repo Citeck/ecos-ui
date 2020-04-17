@@ -339,14 +339,14 @@ class Dashboard extends Component {
   }
 
   renderLayout = React.memo(props => {
-    const { menuType, isMobile, canDragging, columns, type, tabLink } = props;
+    const { menuType, isMobile, canDragging, columns, type, tabId } = props;
 
     return (
       <Layout
         className={classNames({ 'ecos-layout_mobile': isMobile })}
         columns={columns}
         type={type}
-        tabLink={tabLink}
+        tabId={tabId}
         menuType={menuType}
         canDragging={canDragging}
         onSaveWidget={this.prepareWidgetsConfig}
@@ -442,7 +442,7 @@ class Dashboard extends Component {
   }
 
   render() {
-    const { menuType, isMobile, tabLink } = this.props;
+    const { menuType, isMobile, tabId } = this.props;
     const { canDragging } = this.state;
     const { columns, type } = this.activeLayout;
 
@@ -456,14 +456,7 @@ class Dashboard extends Component {
         {this.renderTopMenu()}
         {this.renderHeader()}
         {this.renderTabs()}
-        <this.renderLayout
-          menuType={menuType}
-          isMobile={isMobile}
-          canDragging={canDragging}
-          columns={columns}
-          type={type}
-          tabLink={tabLink}
-        />
+        <this.renderLayout menuType={menuType} isMobile={isMobile} canDragging={canDragging} columns={columns} type={type} tabId={tabId} />
         {this.renderLoader()}
       </Scrollbars>
     );
