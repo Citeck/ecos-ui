@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+
 import { USER_CURRENT } from '../../../constants';
 import { AssignActions } from '../../../constants/tasks';
 import { t } from '../../../helpers/util';

@@ -17,6 +17,15 @@ const NAMES = {
   WIDGETS_TO: 'selectedWidgets'
 };
 
+const Labels = {
+  TITLE: 'dashboard-settings.widgets.title',
+  SUBTITLE: 'dashboard-settings.widgets.subtitle',
+  SUBTITLE_M: 'dashboard-settings.widgets.subtitle-mobile',
+  TIP_NO_AVAILABLE: 'dashboard-settings.widgets.placeholder',
+  COLUMN: 'dashboard-settings.column',
+  TIP_DROP_HERE: 'dashboard-settings.column.placeholder'
+};
+
 class SetWidgets extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -115,9 +124,7 @@ class SetWidgets extends React.Component {
           return (
             <div className="ecos-dashboard-settings__column-widgets" key={key_id}>
               {isMobile ? null : (
-                <div className="ecos-dashboard-settings__column-widgets__title">
-                  {`${t('dashboard-settings.column')} ${indexColumn + 1}`}
-                </div>
+                <div className="ecos-dashboard-settings__column-widgets__title">{`${t(Labels.COLUMN)} ${indexColumn + 1}`}</div>
               )}
               <Droppable
                 droppableId={NAMES.WIDGETS_TO + indexColumn}
@@ -125,7 +132,7 @@ class SetWidgets extends React.Component {
                 childPosition="column"
                 className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__column-widgets__items"
                 classNameView="ecos-dashboard-settings__drag-scrollbar-wrapper"
-                placeholder={t('dashboard-settings.column.placeholder')}
+                placeholder={t(Labels.TIP_DROP_HERE)}
                 isDragingOver={draggableDestination === NAMES.WIDGETS_TO + indexColumn}
                 scrollHeight={320}
               >
@@ -159,10 +166,8 @@ class SetWidgets extends React.Component {
 
     return (
       <>
-        <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.widgets.title')}</h5>
-        <h6 className="ecos-dashboard-settings__container-subtitle">
-          {isMobile ? t('dashboard-settings.widgets.subtitle-mobile') : t('dashboard-settings.widgets.subtitle')}
-        </h6>
+        <h5 className="ecos-dashboard-settings__container-title">{t(Labels.TITLE)}</h5>
+        <h6 className="ecos-dashboard-settings__container-subtitle">{isMobile ? t(Labels.SUBTITLE_M) : t(Labels.SUBTITLE)}</h6>
         <div
           className={classNames('ecos-dashboard-settings__container-group', {
             'ecos-dashboard-settings__container-group_mobile': isMobile
@@ -175,9 +180,10 @@ class SetWidgets extends React.Component {
                 'ecos-dashboard-settings__drag-container_widgets-from_mobile': isMobile
               })}
               classNameView="ecos-dashboard-settings__drag-scrollbar-wrapper"
-              placeholder={t('dashboard-settings.widgets.placeholder')}
+              placeholder={t(Labels.TIP_NO_AVAILABLE)}
               isDropDisabled
-              scrollHeight={320}
+              scrollHeight={250}
+              autoHeight
             >
               {availableWidgets &&
                 availableWidgets.length &&

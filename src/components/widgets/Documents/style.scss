@@ -574,6 +574,7 @@
 
   &__resizer {
     top: 11px;
+    z-index: 999;
   }
 
   &__empty-stub {
@@ -705,6 +706,11 @@
         background: $color-white;
         color: $color-gray-5;
         min-width: auto;
+
+        &_selected {
+          color: $color-blue-light;
+          border-color: $color-blue-light;
+        }
       }
 
       &:hover {

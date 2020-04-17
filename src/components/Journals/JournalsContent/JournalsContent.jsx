@@ -8,15 +8,15 @@ import JournalsUrlManager from '../JournalsUrlManager';
 
 import './JournalsContent.scss';
 
-const Grid = ({ stateId, showPreview, onRowClick, height }) => (
-  <Well className="ecos-grid_overflow_hidden">
+const Grid = ({ stateId, showPreview, onRowClick, maxHeight }) => (
+  <Well className="ecos-journals-content__grid-well_overflow_hidden">
     <JournalsDashletGrid
       stateId={stateId}
       onRowClick={onRowClick}
       doInlineToolsOnRowClick={showPreview}
       noTopBorder
+      maxHeight={maxHeight}
       toolsClassName={'grid-tools_r_12'}
-      minHeight={height}
     />
   </Well>
 );
@@ -27,11 +27,7 @@ const Preview = ({ stateId, recordId }) => (
   </Well>
 );
 
-const Pie = () => (
-  <>
-    <div>{'showPie'}</div>
-  </>
-);
+const Pie = () => <div>{'showPie'}</div>;
 
 class JournalsContent extends Component {
   state = {};
@@ -41,14 +37,14 @@ class JournalsContent extends Component {
   };
 
   render() {
-    const { stateId, showPreview, showPie, height } = this.props;
+    const { stateId, showPreview, showPie, maxHeight } = this.props;
     const { recordId } = this.state;
 
-    let cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} height={height} />];
+    let cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />];
 
     if (showPreview) {
       cols = [
-        <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} height={height} />,
+        <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />,
         <Preview stateId={stateId} recordId={recordId} />
       ];
     }

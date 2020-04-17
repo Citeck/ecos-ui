@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import lodashGet from 'lodash/get';
 
+import { Attributes } from '../../../../constants';
 import { t } from '../../../../helpers/util';
 import { JournalsApi } from '../../../../api/journalsApi';
 import { EcosModal, Loader, Pagination } from '../../../common';
@@ -38,7 +39,7 @@ export default class SelectJournal extends Component {
     editRecordName: null,
     isJournalConfigFetched: false,
     journalConfig: {
-      meta: []
+      meta: {}
     },
     isGridDataReady: false,
     gridData: {
@@ -117,7 +118,9 @@ export default class SelectJournal extends Component {
 
   shouldResetValue = () => {
     return new Promise(resolve => {
-      const selectedRows = this.state.selectedRows;
+      const { selectedRows } = this.state;
+      const { sortBy } = this.props;
+
       if (selectedRows.length < 1) {
         return resolve(false);
       }
@@ -125,19 +128,18 @@ export default class SelectJournal extends Component {
       const dbIDs = {};
       const dbIDsPromises = selectedRows.map(item => {
         return Records.get(item.id)
-          .load('sys:node-dbid')
+          .load(Attributes.DBID)
           .then(dbID => {
             dbIDs[item.id] = dbID;
           });
       });
 
       Promise.all(dbIDsPromises).then(() => {
-        let requestParams = this.state.requestParams;
-        let customPredicate = this.state.customPredicate;
+        let { requestParams, customPredicate, journalConfig } = this.state;
+        const sourceId = lodashGet(journalConfig, 'sourceId', '');
+
         if (customPredicate) {
-          let selectedRowsPredicate = selectedRows.map(item => {
-            return { t: 'eq', att: 'sys:node-dbid', val: dbIDs[item.id] };
-          });
+          let selectedRowsPredicate = selectedRows.map(item => ({ t: 'eq', att: Attributes.DBID, val: dbIDs[item.id] }));
 
           selectedRowsPredicate = {
             t: 'or',
@@ -163,10 +165,11 @@ export default class SelectJournal extends Component {
           }
         }
 
-        let sourceId = lodashGet(this.state, 'journalConfig.sourceId', '');
         if (sourceId) {
-          requestParams['sourceId'] = sourceId;
+          requestParams.sourceId = sourceId;
         }
+
+        requestParams.sortBy = sortBy;
 
         return this.api.getGridDataUsePredicates(requestParams).then(gridData => {
           if (gridData.total && gridData.total === selectedRows.length) {
@@ -188,7 +191,9 @@ export default class SelectJournal extends Component {
       }
 
       this.api.getJournalConfig(journalId).then(journalConfig => {
-        let columns = journalConfig.columns.map(item => {
+        journalConfig = journalConfig || { meta: {} };
+
+        let columns = (journalConfig.columns || []).map(item => {
           const column = { ...item };
           if (matchCardDetailsLinkFormatterColumn(item)) {
             column.disableFormatter = true;
@@ -224,53 +229,68 @@ export default class SelectJournal extends Component {
     });
   };
 
-  refreshGridData = () => {
+  refreshGridData = info => {
     return new Promise(resolve => {
-      this.setState(
-        {
-          isGridDataReady: false
-        },
-        () => {
-          let requestParams = this.state.requestParams;
-          if (this.state.customPredicate) {
-            if (requestParams.journalPredicate) {
-              requestParams = {
-                ...requestParams,
-                journalPredicate: {
-                  t: 'and',
-                  val: [requestParams.journalPredicate, this.state.customPredicate]
-                }
-              };
-            } else {
-              requestParams = {
-                ...requestParams,
-                journalPredicate: this.state.customPredicate
-              };
+      this.setState({ isGridDataReady: false }, () => {
+        const { sortBy } = this.props;
+        let { requestParams, customPredicate, journalConfig } = this.state;
+        const sourceId = lodashGet(journalConfig, 'sourceId', '');
+
+        if (customPredicate) {
+          if (requestParams.journalPredicate) {
+            requestParams = {
+              ...requestParams,
+              journalPredicate: {
+                t: 'and',
+                val: [requestParams.journalPredicate, customPredicate]
+              }
+            };
+          } else {
+            requestParams = {
+              ...requestParams,
+              journalPredicate: customPredicate
+            };
+          }
+        }
+
+        if (sourceId) {
+          requestParams.sourceId = sourceId;
+        }
+
+        requestParams.sortBy = sortBy;
+
+        return this.api
+          .getGridDataUsePredicates(requestParams)
+          .then(fetchedGridData => {
+            const recordId = lodashGet(info, 'record.id');
+
+            if (!recordId) {
+              return Promise.resolve(fetchedGridData);
             }
-          }
 
-          let sourceId = lodashGet(this.state, 'journalConfig.sourceId', '');
-          if (sourceId) {
-            requestParams['sourceId'] = sourceId;
-          }
-
-          return this.api.getGridDataUsePredicates(requestParams).then(fetchedGridData => {
+            return new Promise(resolve =>
+              Records.get(recordId)
+                .load(fetchedGridData.attributes)
+                .then(recordData => {
+                  recordData.id = recordId;
+                  resolve({ ...fetchedGridData, recordData });
+                })
+            );
+          })
+          .then(fetchedGridData => {
             const gridData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
 
-            this.setState(prevState => {
-              return {
-                gridData: {
-                  ...prevState.gridData,
-                  ...gridData
-                },
-                isGridDataReady: true
-              };
-            });
+            this.setState(prevState => ({
+              gridData: {
+                ...prevState.gridData,
+                ...gridData
+              },
+              isGridDataReady: true
+            }));
 
             resolve(gridData);
           });
-        }
-      );
+      });
     });
   };
 
@@ -286,12 +306,19 @@ export default class SelectJournal extends Component {
     let newInMemoryData = [...inMemoryData];
 
     for (let i = 0; i < inMemoryData.length; i++) {
-      const exists = fetchedGridData.data.find(item => item.id === inMemoryData[i].id);
-      // если запись успела проиндексироваться, удаляем её из inMemoryData, иначе добаляем в fetchedGridData.data временную запись
+      const memoryRecord = inMemoryData[i];
+      const exists = fetchedGridData.data.find(item => item.id === memoryRecord.id);
+      // если запись успела проиндексироваться, удаляем её из inMemoryData, иначе добаляем в fetchedData.data временную запись
       if (exists) {
-        newInMemoryData = newInMemoryData.filter(item => item.id !== inMemoryData[i].id);
+        newInMemoryData = newInMemoryData.filter(item => item.id !== memoryRecord.id);
       } else if (fetchedGridData.data.length < pagination.maxItems) {
-        fetchedGridData.data.push(inMemoryData[i]);
+        let record = memoryRecord;
+
+        if (memoryRecord.id === lodashGet(fetchedGridData, 'recordData.id')) {
+          newInMemoryData[i] = record = fetchedGridData.recordData;
+        }
+
+        fetchedGridData.data.push(record);
       }
     }
 
@@ -471,36 +498,39 @@ export default class SelectJournal extends Component {
   onCreateFormSubmit = (record, form, alias) => {
     const { multiple } = this.props;
 
-    this.setState(state => {
-      const prevSelected = state.gridData.selected || [];
-      const newSkipCount =
-        Math.floor(state.gridData.total / state.requestParams.pagination.maxItems) * state.requestParams.pagination.maxItems;
-      const newPageNum = Math.ceil((state.gridData.total + 1) / state.requestParams.pagination.maxItems);
+    this.setState(
+      state => {
+        const prevSelected = state.gridData.selected || [];
+        const newSkipCount =
+          Math.floor(state.gridData.total / state.requestParams.pagination.maxItems) * state.requestParams.pagination.maxItems;
+        const newPageNum = Math.ceil((state.gridData.total + 1) / state.requestParams.pagination.maxItems);
 
-      return {
-        isCreateModalOpen: false,
-        gridData: {
-          ...state.gridData,
-          selected: multiple ? [...prevSelected, record.id] : [record.id],
-          inMemoryData: [
-            ...state.gridData.inMemoryData,
-            {
-              id: record.id,
-              ...alias.getRawAttributes()
+        return {
+          isCreateModalOpen: false,
+          gridData: {
+            ...state.gridData,
+            selected: multiple ? [...prevSelected, record.id] : [record.id],
+            inMemoryData: [
+              ...state.gridData.inMemoryData,
+              {
+                id: record.id,
+                ...alias.getRawAttributes()
+              }
+            ]
+          },
+          requestParams: {
+            ...state.requestParams,
+            predicates: [],
+            pagination: {
+              ...state.requestParams.pagination,
+              skipCount: newSkipCount,
+              page: newPageNum
             }
-          ]
-        },
-        requestParams: {
-          ...state.requestParams,
-          predicates: [],
-          pagination: {
-            ...state.requestParams.pagination,
-            skipCount: newSkipCount,
-            page: newPageNum
           }
-        }
-      };
-    }, this.refreshGridData);
+        };
+      },
+      () => this.refreshGridData({ record })
+    );
   };
 
   onEditFormSubmit = form => {
@@ -754,7 +784,11 @@ SelectJournal.propTypes = {
   renderView: PropTypes.func,
   searchField: PropTypes.string,
   isSelectModalOpen: PropTypes.bool,
-  isSelectedValueAsText: PropTypes.bool
+  isSelectedValueAsText: PropTypes.bool,
+  sortBy: PropTypes.shape({
+    attribute: PropTypes.string,
+    ascending: PropTypes.bool
+  })
 };
 
 SelectJournal.defaultProps = {

@@ -19,6 +19,7 @@ import { setTab, updateTab } from '../../actions/pageTabs';
 import { pagesWithOnlyContent, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import PageService, { Events } from '../../services/PageService';
+import { isMobileAppWebView } from '../../helpers/util';
 
 import './App.scss';
 
@@ -57,6 +58,12 @@ class App extends Component {
     const { reopen, closeActiveTab, updates, ...data } = PageService.parseEvent({ event }) || {};
 
     if (updates) {
+      const { link } = updates;
+
+      if (link) {
+        this.props.history.replace(link);
+      }
+
       updateTab({ updates });
 
       return;
@@ -67,7 +74,7 @@ class App extends Component {
   get isOnlyContent() {
     const url = get(this.props, ['history', 'location', 'pathname'], '/');
 
-    return pagesWithOnlyContent.includes(url);
+    return isMobileAppWebView() || pagesWithOnlyContent.includes(url);
   }
 
   get wrapperStyle() {
@@ -108,6 +115,14 @@ class App extends Component {
 
   renderHeader() {
     if (this.isOnlyContent) {
+      if (isMobileAppWebView()) {
+        return (
+          <div id="alf-hd">
+            <Notification />
+          </div>
+        );
+      }
+
       return null;
     }
 

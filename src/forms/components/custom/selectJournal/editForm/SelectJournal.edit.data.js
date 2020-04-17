@@ -1,3 +1,6 @@
+import { Attributes } from '../../../../../constants';
+import { SortOrderOptions } from '../constants';
+
 const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';
 const FILTER_PREDICATES_FIELD = 'presetFilterPredicatesJs';
 const VALUE_DISPLAY_NAME_FIELD = 'computed.valueDisplayName';
@@ -64,9 +67,7 @@ export default [
     title: 'Custom Predicate',
     collapsible: true,
     collapsed: true,
-    style: {
-      'margin-bottom': '20px'
-    },
+    customClass: 'mb-3',
     key: ''.concat(CUSTOM_PREDICATE_FIELD, '-js'),
     components: [
       {
@@ -90,9 +91,7 @@ export default [
     title: 'Value Display Name',
     collapsible: true,
     collapsed: true,
-    style: {
-      'margin-bottom': '20px'
-    },
+    customClass: 'mb-3',
     key: ''.concat(VALUE_DISPLAY_NAME_FIELD, '-js'),
     components: [
       {
@@ -147,6 +146,65 @@ export default [
     ]
   },
   {
+    weight: 29,
+    type: 'panel',
+    title: 'Sorting',
+    collapsible: true,
+    collapsed: true,
+    customClass: 'mb-3',
+    key: 'sorting',
+    components: [
+      {
+        label: '',
+        key: 'sortingColumns',
+        type: 'columns',
+        columns: [
+          {
+            components: [
+              {
+                label: 'Sort by attribute',
+                type: 'textfield',
+                input: true,
+                key: 'sortAttribute',
+                placeholder: 'Enter column name',
+                defaultValue: Attributes.DBID
+              }
+            ],
+            xs: 0,
+            sm: 12,
+            md: 6,
+            lg: 0,
+            xl: 0,
+            classes: ''
+          },
+          {
+            components: [
+              {
+                label: 'Sort order',
+                type: 'select',
+                input: true,
+                key: 'sortAscending',
+                dataSrc: 'values',
+                valueProperty: 'value',
+                defaultValue: SortOrderOptions.ASC.value,
+                searchEnabled: false,
+                data: {
+                  values: [SortOrderOptions.ASC, SortOrderOptions.DESC]
+                }
+              }
+            ],
+            xs: 0,
+            sm: 12,
+            md: 6,
+            lg: 0,
+            xl: 0,
+            classes: ''
+          }
+        ]
+      }
+    ]
+  },
+  {
     type: 'asyncData',
     input: true,
     key: 'displayColumnsAsyncData',
@@ -169,7 +227,7 @@ export default [
                 label: item.text,
                 value: item.attribute
               };
-            });  
+            });
           } else {
             value = [];
           }

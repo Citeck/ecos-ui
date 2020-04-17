@@ -1,7 +1,6 @@
 import Records from '../components/Records';
 import { RecordService } from './recordService';
-import { USER_CURRENT } from '../constants';
-import { SOURCE_ID_CURRENT_TASKS } from '../constants/tasks';
+import { SourcesId, USER_CURRENT } from '../constants';
 
 export class TasksApi extends RecordService {
   static getTask = (taskId, attrs) => {
@@ -30,7 +29,7 @@ export class TasksApi extends RecordService {
   };
 
   getTasksForUser = ({ document }) => {
-    return TasksApi.getTasks(SOURCE_ID_CURRENT_TASKS, document, USER_CURRENT, {
+    return TasksApi.getTasks(SourcesId.TASK, document, USER_CURRENT, {
       formKey: '_formKey?str',
       title: 'title',
       started: 'started',
@@ -39,14 +38,14 @@ export class TasksApi extends RecordService {
       sender: 'sender?json',
       lastcomment: 'lastcomment',
       reassignable: 'reassignable?bool',
-      releasable: 'reassignable?bool',
+      releasable: 'releasable?bool',
       claimable: 'claimable?bool',
       assignable: 'assignable?bool'
     });
   };
 
   getCurrentTasksForUser = ({ document }) => {
-    return TasksApi.getTasks(SOURCE_ID_CURRENT_TASKS, document, undefined, {
+    return TasksApi.getTasks(SourcesId.TASK, document, undefined, {
       title: 'title',
       dueDate: 'dueDate',
       actors: 'actors[]?json'
@@ -57,7 +56,7 @@ export class TasksApi extends RecordService {
     return TasksApi.getTask(taskId, {
       actors: 'actors[]?json',
       reassignable: 'reassignable?bool',
-      releasable: 'reassignable?bool',
+      releasable: 'releasable?bool',
       claimable: 'claimable?bool',
       assignable: 'assignable?bool'
     });
@@ -71,6 +70,9 @@ export class TasksApi extends RecordService {
       owner
     });
 
-    return record.save().then(res => res);
+    return record
+      .save()
+      .then(() => true)
+      .catch(console.error);
   };
 }

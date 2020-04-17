@@ -32,7 +32,8 @@ export const SourcesId = {
   COMMENT: 'comment',
   VERSION: 'version',
   PEOPLE: 'people',
-  BIRTHDAYS: 'birthdays'
+  BIRTHDAYS: 'birthdays',
+  TASK: 'wftask'
 };
 
 export const ActionModes = {
@@ -82,3 +83,13 @@ export const Permissions = {
   Write: 'Write',
   Read: 'Read'
 };
+
+export const MOBILE_APP_USER_AGENT = 'ecos-mobile-app';
+
+export const Attributes = {
+  DBID: 'sys:node-dbid'
+};
+
+window.Citeck = window.Citeck || {};
+window.Citeck.constants = window.Citeck.constants || {};
+window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };

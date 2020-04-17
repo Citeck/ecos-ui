@@ -1,5 +1,7 @@
+import get from 'lodash/get';
+
+import { ActionModes, Attributes, Permissions } from '../constants';
 import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
-import { ActionModes, Permissions } from '../constants';
 import { debounce, queryByCriteria, t } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
@@ -125,8 +127,8 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId }) => {
-    let queryPredicates = journalPredicate ? [journalPredicate] : [];
+  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy }) => {
+    const queryPredicates = journalPredicate ? [journalPredicate] : [];
     const query = {
       t: 'and',
       val: queryPredicates.concat(
@@ -135,13 +137,17 @@ export class JournalsApi extends RecordService {
         })
       )
     };
-
-    let bodyQuery = {
+    const bodyQuery = {
       query,
       language: 'predicate',
       page: pagination,
       consistency: 'EVENTUAL',
-      sortBy: [{ attribute: 'sys:node-dbid', ascending: true }]
+      sortBy: [
+        {
+          attribute: get(sortBy, 'attribute') || Attributes.DBID,
+          ascending: get(sortBy, 'ascending') !== false
+        }
+      ]
     };
 
     if (sourceId) {
@@ -160,10 +166,7 @@ export class JournalsApi extends RecordService {
       permissions: [Permissions.Write]
     });
 
-    return dataSource.load().then(function({ data, total }) {
-      const columns = dataSource.getColumns();
-      return { data, total, columns };
-    });
+    return dataSource.load().then(({ data, total, attributes }) => ({ data, total, attributes, columns: dataSource.getColumns() }));
   };
 
   getJournalConfig = journalId => {
@@ -171,7 +174,13 @@ export class JournalsApi extends RecordService {
 
     return this.getJson(`${PROXY_URI}api/journals/config?journalId=${journalId}`)
       .then(resp => {
-        return resp || {};
+        const data = resp || {};
+
+        (data.columns || []).forEach((col, i) => {
+          col.type = get(col, 'params.edgeType') || col.type;
+        });
+
+        return data;
       })
       .catch(() => {});
   };

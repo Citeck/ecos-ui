@@ -67,9 +67,7 @@ function* sagaGetVersionsComparison({ api, logger }, { payload }) {
     const result = yield call(api.versionsJournal.getVersionsComparison, VersionsJournalConverter.getVersionsComparisonForServer(payload));
     const comparison = get(result, ['records', '0', 'diff'], '');
 
-    if (comparison) {
-      yield put(setVersionsComparison({ record: payload.record, id: payload.id, comparison }));
-    }
+    yield put(setVersionsComparison({ record: payload.record, id: payload.id, comparison }));
   } catch (e) {
     logger.error('[versionJournal/sagaGetVersionsComparison saga] error', e.message);
   }
