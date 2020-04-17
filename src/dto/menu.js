@@ -2,6 +2,7 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { MENU_TYPE } from '../constants';
+import { CreateMenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
 import { extractLabel } from '../helpers/util';
 
@@ -84,13 +85,23 @@ export default class MenuConverter {
   }
 
   static getCreateCustomItems(source = []) {
-    return source.map(item => ({
-      ...item,
-      id: getId(`${item.siteId}_${item.type}`),
-      label: extractLabel(item.label),
-      targetUrl: get(item, 'config.uri'),
-      target: get(item, 'config.target')
-    }));
+    return source.map(params => {
+      const item = {
+        ...params,
+        id: getId(`${params.siteId}_${params.type}`),
+        label: extractLabel(params.label)
+      };
+
+      if (params.type === CreateMenuTypes.Custom.LINK) {
+        return {
+          ...item,
+          targetUrl: get(params, 'config.uri'),
+          target: get(params, 'config.target')
+        };
+      }
+
+      return item;
+    });
   }
 
   static mergeCustomsAndSites(_customs, _sites) {
