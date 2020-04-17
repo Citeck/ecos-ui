@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
-import { isSmallMode, t, objectCompare } from '../../../helpers/util';
+import { isSmallMode, objectCompare, t } from '../../../helpers/util';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import Dashlet, { BaseActions } from '../../Dashlet';
@@ -61,7 +61,6 @@ class PropertiesDashlet extends BaseWidget {
 
     this.state = {
       isSmallMode: false,
-      isReady: true,
       isEditProps: false,
       formIsChanged: false,
       isSmall: false,
@@ -148,12 +147,14 @@ class PropertiesDashlet extends BaseWidget {
     if (this.state.wasLastModifiedWithInlineEditor) {
       this.setState({ wasLastModifiedWithInlineEditor: false });
     } else {
-      this.setState({ isReady: false }, () => this.setState({ isReady: true }));
+      this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
     }
   };
 
   onResize = width => {
-    this.setState({ isSmallMode: isSmallMode(width) });
+    if (width > 0) {
+      this.setState({ isSmallMode: isSmallMode(width) });
+    }
   };
 
   openModal = () => {
@@ -180,7 +181,7 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   onPropertiesEditFormSubmit = () => {
-    this.setState({ isReady: false, isEditProps: false }, () => this.setState({ isReady: true }));
+    this.setState({ isEditProps: false });
   };
 
   onPropertiesUpdate = () => {
@@ -195,7 +196,7 @@ class PropertiesDashlet extends BaseWidget {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
     const {
       isSmallMode,
-      isReady,
+      runUpdate,
       isEditProps,
       userHeight,
       fitHeights,
@@ -229,13 +230,12 @@ class PropertiesDashlet extends BaseWidget {
           className={classNames(classNameProps, { 'ecos-properties_hidden': isShowSetting })}
           record={record}
           isSmallMode={isSmallMode}
-          isReady={isReady}
           stateId={id}
           height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onUpdate={this.onPropertiesUpdate}
-          formId={formId}
+          formId={!runUpdate && formId}
           onInlineEditSave={this.onInlineEditSave}
           getTitle={this.setTitle}
         />
