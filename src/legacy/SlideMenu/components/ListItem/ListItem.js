@@ -69,4 +69,7 @@ class ListItem extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ListItem);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ListItem);

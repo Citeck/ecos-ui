@@ -214,4 +214,7 @@ const ListItemLink = ({
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ListItemLink);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ListItemLink);

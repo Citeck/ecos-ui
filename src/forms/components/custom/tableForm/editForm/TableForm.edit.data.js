@@ -26,10 +26,7 @@ export default [
     dataSrc: 'values',
     defaultValue: 'journal',
     data: {
-      values: [
-        { label: 'Journal', value: 'journal' },
-        { label: 'Custom', value: 'custom' }
-      ]
+      values: [{ label: 'Journal', value: 'journal' }, { label: 'Custom', value: 'custom' }]
     },
     weight: 20
   },

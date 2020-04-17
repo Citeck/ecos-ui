@@ -75,4 +75,7 @@ const mapDispatchToProps = dispatch => ({
   loadMenuItemIconUrl: (iconName, cb) => dispatch(loadMenuItemIconUrl(iconName, cb))
 });
 
-export default connect(null, mapDispatchToProps)(ItemIcon);
+export default connect(
+  null,
+  mapDispatchToProps
+)(ItemIcon);

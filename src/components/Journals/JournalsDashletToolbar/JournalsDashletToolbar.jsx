@@ -136,4 +136,7 @@ class JournalsDashletToolbar extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletToolbar);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(JournalsDashletToolbar);

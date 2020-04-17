@@ -351,4 +351,7 @@ class JournalsMenu extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(JournalsMenu);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(JournalsMenu);

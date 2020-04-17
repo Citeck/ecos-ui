@@ -101,4 +101,7 @@ const mapDispatchToProps = dispatch => ({
   collapseAllItems: () => dispatch(collapseAllItems())
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Sidebar);

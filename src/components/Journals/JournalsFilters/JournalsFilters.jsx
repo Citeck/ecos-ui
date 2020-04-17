@@ -47,4 +47,7 @@ class JournalsFilters extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(JournalsFilters);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(JournalsFilters);

@@ -203,4 +203,7 @@ class DocStatus extends BaseWidget {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DocStatus);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DocStatus);

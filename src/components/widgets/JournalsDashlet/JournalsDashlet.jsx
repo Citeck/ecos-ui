@@ -213,4 +213,8 @@ class JournalsDashlet extends BaseWidget {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(JournalsDashlet);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+  mergeProps
+)(JournalsDashlet);

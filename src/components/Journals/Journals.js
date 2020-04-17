@@ -253,4 +253,7 @@ class Journals extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Journals);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Journals);

@@ -502,4 +502,7 @@ JournalsDashletGrid.propTypes = {
   onRowClick: PropTypes.func
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletGrid);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(JournalsDashletGrid);

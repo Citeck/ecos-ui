@@ -44,4 +44,7 @@ class ListItemIcon extends React.Component {
   }
 }
 
-export default connect(null, mapDispatchToProps)(ListItemIcon);
+export default connect(
+  null,
+  mapDispatchToProps
+)(ListItemIcon);

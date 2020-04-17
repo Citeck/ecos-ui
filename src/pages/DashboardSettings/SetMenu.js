@@ -115,11 +115,7 @@ class SetMenu extends React.Component {
     const { draggableDestination } = this.state;
     const { selectedMenuItems, positionAdjustment, typeMenu } = this.props;
     const filterMenuItems = this.filterAvailableMenuItems;
-    const activeType = get(
-      typeMenu.find(item => item.isActive),
-      'type',
-      ''
-    );
+    const activeType = get(typeMenu.find(item => item.isActive), 'type', '');
 
     if (activeType === MENU_TYPE.LEFT) {
       return null;

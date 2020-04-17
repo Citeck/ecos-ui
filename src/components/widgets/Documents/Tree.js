@@ -247,10 +247,7 @@ class Tree extends Component {
 
         return {
           ...item,
-          items: getChilds(
-            types.filter(type => type[groupBy] && type[groupBy] === item.id),
-            types
-          )
+          items: getChilds(types.filter(type => type[groupBy] && type[groupBy] === item.id), types)
         };
       });
     };
@@ -259,10 +256,7 @@ class Tree extends Component {
       .filter(item => item[groupBy] === null)
       .map(item => ({
         ...item,
-        items: getChilds(
-          data.filter(type => type[groupBy] === item.id),
-          data
-        )
+        items: getChilds(data.filter(type => type[groupBy] === item.id), data)
       }));
   }
 

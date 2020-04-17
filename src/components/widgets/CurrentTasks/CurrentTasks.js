@@ -133,4 +133,7 @@ class CurrentTasks extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CurrentTasks);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CurrentTasks);

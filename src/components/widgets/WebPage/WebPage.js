@@ -386,4 +386,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   changePageData: data => dispatch(changePageData({ stateId: ownProps.id, data }))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(WebPage);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(WebPage);

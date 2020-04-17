@@ -194,4 +194,7 @@ const mapDispatchToProps = dispatch => ({
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Item);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Item);

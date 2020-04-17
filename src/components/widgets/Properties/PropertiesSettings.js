@@ -149,4 +149,7 @@ const mapDispatchToProps = dispatch => ({
   getFormList: payload => dispatch(getFormList(payload))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(PropertiesSettings);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PropertiesSettings);

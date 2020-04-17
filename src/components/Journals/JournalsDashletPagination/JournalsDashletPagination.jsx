@@ -70,4 +70,7 @@ class JournalsDashletPagination extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletPagination);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(JournalsDashletPagination);

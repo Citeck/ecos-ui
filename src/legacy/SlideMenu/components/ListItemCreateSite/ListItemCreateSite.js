@@ -25,4 +25,7 @@ const ListItemCreateSite = ({ item, toggleSlideMenu, dispatch }) => {
   );
 };
 
-export default connect(null, mapDispatchToProps)(ListItemCreateSite);
+export default connect(
+  null,
+  mapDispatchToProps
+)(ListItemCreateSite);

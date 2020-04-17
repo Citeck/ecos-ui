@@ -120,4 +120,7 @@ class DropdownMenuItem extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DropdownMenuItem);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DropdownMenuItem);

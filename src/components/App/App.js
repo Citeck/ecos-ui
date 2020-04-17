@@ -232,4 +232,9 @@ const mapDispatchToProps = dispatch => ({
   push: url => dispatch(push(url))
 });
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(App)
+);

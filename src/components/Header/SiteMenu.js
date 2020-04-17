@@ -63,4 +63,7 @@ class SiteMenu extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SiteMenu);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SiteMenu);

@@ -98,4 +98,7 @@ class SlideMenu extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SlideMenu);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SlideMenu);

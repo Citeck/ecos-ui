@@ -36,4 +36,7 @@ class ItemBtn extends React.Component {
   }
 }
 
-export default connect(null, mapDispatchToProps)(ItemBtn);
+export default connect(
+  null,
+  mapDispatchToProps
+)(ItemBtn);

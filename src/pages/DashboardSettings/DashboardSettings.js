@@ -677,4 +677,7 @@ class DashboardSettings extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DashboardSettings);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DashboardSettings);

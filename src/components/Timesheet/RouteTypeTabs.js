@@ -85,4 +85,7 @@ const mapDispatchToProps = dispatch => ({
   getTotalCounts: payload => dispatch(getTotalCounts(payload))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(RouteTypeTabs);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(RouteTypeTabs);

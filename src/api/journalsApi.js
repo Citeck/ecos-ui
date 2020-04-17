@@ -313,10 +313,7 @@ export class JournalsApi extends RecordService {
   };
 
   createZip = selected => {
-    return this.postJson(
-      `${PROXY_URI}api/internal/downloads`,
-      selected.map(s => ({ nodeRef: s }))
-    )
+    return this.postJson(`${PROXY_URI}api/internal/downloads`, selected.map(s => ({ nodeRef: s })))
       .then(resp => this.getStatus(resp.nodeRef))
       .catch(() => null);
   };

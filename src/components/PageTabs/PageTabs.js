@@ -66,16 +66,8 @@ class PageTabs extends React.Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { tabs, isShow, inited, setDisplayState } = this.props;
-    const activeTabPrev = get(
-      prevProps.tabs.find(tab => tab.isActive),
-      'id',
-      ''
-    );
-    const activeTab = get(
-      tabs.find(tab => tab.isActive),
-      'id',
-      ''
-    );
+    const activeTabPrev = get(prevProps.tabs.find(tab => tab.isActive), 'id', '');
+    const activeTab = get(tabs.find(tab => tab.isActive), 'id', '');
 
     if (prevProps.isShow !== isShow) {
       setDisplayState(isShow);
@@ -443,4 +435,7 @@ const mapDispatchToProps = dispatch => ({
   replace: url => dispatch(replace(url))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(PageTabs);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PageTabs);

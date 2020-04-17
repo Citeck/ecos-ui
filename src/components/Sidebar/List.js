@@ -128,6 +128,9 @@ const mapDispatchToProps = dispatch => ({
   toggleExpanded: item => dispatch(toggleExpanded(item))
 });
 
-const ConnectList = connect(mapStateToProps, mapDispatchToProps)(List);
+const ConnectList = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(List);
 
 export default ConnectList;

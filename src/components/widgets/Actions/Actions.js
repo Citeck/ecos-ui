@@ -143,4 +143,7 @@ class Actions extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Actions);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Actions);

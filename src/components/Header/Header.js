@@ -79,4 +79,7 @@ Header.propTypes = {
   hideSiteMenu: PropTypes.bool
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Header);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Header);

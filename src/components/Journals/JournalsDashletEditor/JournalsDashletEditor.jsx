@@ -223,4 +223,7 @@ class JournalsDashletEditor extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(JournalsDashletEditor);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(JournalsDashletEditor);

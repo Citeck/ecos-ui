@@ -1335,4 +1335,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     )
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Documents);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Documents);

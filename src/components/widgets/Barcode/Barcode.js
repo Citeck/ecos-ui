@@ -79,4 +79,7 @@ class Barcode extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Barcode);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Barcode);

@@ -613,4 +613,7 @@ class VersionsJournal extends BaseWidget {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(VersionsJournal);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(VersionsJournal);

@@ -229,4 +229,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   getBirthdays: () => dispatch(getBirthdays(ownProps.id))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Birthdays);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Birthdays);

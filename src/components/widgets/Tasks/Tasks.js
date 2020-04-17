@@ -148,4 +148,7 @@ class Tasks extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Tasks);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Tasks);

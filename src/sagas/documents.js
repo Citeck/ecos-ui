@@ -184,12 +184,9 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes }));
 
     if (documents.length) {
-      const actions = yield RecordActions.getActions(
-        documents.map(item => item.id),
-        {
-          actions: documentActions
-        }
-      );
+      const actions = yield RecordActions.getActions(documents.map(item => item.id), {
+        actions: documentActions
+      });
 
       yield put(setActions({ key: payload.key, actions }));
     }

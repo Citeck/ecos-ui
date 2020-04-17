@@ -184,4 +184,7 @@ const mapDispatchToProps = dispatch => ({
   setPopupMessage: payload => dispatch(setPopupMessage(payload))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(VerificationTimesheetPage);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(VerificationTimesheetPage);

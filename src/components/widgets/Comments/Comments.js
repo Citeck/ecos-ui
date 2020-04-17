@@ -702,4 +702,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   setErrorMessage: message => dispatch(setError({ message, nodeRef: ownProps.record }))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Comments);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Comments);

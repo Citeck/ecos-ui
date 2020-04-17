@@ -233,4 +233,7 @@ class EventsHistory extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EventsHistory);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(EventsHistory);

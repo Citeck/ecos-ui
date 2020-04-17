@@ -131,4 +131,7 @@ class Search extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Search);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Search);

@@ -214,4 +214,7 @@ JournalsSettingsFooter.propTypes = {
   onSave: PropTypes.func
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(JournalsSettingsFooter);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(JournalsSettingsFooter);
