@@ -54,7 +54,6 @@ const mapDispatchToProps = dispatch => {
     getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key: DashboardService.key })),
     getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: DashboardService.key })),
     saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: DashboardService.key })),
-    initMenuSettings: payload => dispatch(getMenuConfig({ ...payload, key: DashboardService.key })),
     saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: DashboardService.key })),
     setLoading: status => dispatch(setLoading({ status, key: DashboardService.key })),
     resetDashboardConfig: () => dispatch(resetDashboardConfig(DashboardService.key))
