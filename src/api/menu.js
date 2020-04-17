@@ -93,6 +93,7 @@ export class MenuApi extends CommonApi {
     return Records.get(`${SourcesId.CONFIG}@custom-create-buttons`)
       .load('value[]?json', true)
       .then(res => lodashGet(res, '[0]', []))
+      .then(res => (Array.isArray(res) ? res : []))
       .catch(() => []);
   };
 

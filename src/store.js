@@ -14,8 +14,8 @@ let optionalMiddlewares = [];
 if (process.env.NODE_ENV === 'development') {
   const logger = createLogger({
     collapsed: true,
-    diff: true,
-    predicate: (getState, action) => action.type.startsWith('header/')
+    diff: true
+    // predicate: (getState, action) => action.type.startsWith('header/')
   });
   optionalMiddlewares.push(logger);
 }
