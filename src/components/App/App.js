@@ -165,7 +165,6 @@ class App extends Component {
     const { tab } = props;
     const baseCacheRouteProps = {
       className: 'page-tab__panel',
-      multiple: true,
       needUseFullPath: true,
       when: 'always'
     };
