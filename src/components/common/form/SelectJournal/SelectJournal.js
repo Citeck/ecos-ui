@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import lodashGet from 'lodash/get';
 
+import { Attributes } from '../../../../constants';
 import { t } from '../../../../helpers/util';
 import { JournalsApi } from '../../../../api/journalsApi';
 import { EcosModal, Loader, Pagination } from '../../../common';
@@ -117,7 +118,9 @@ export default class SelectJournal extends Component {
 
   shouldResetValue = () => {
     return new Promise(resolve => {
-      const selectedRows = this.state.selectedRows;
+      const { selectedRows } = this.state;
+      const { sortBy } = this.props;
+
       if (selectedRows.length < 1) {
         return resolve(false);
       }
@@ -125,19 +128,18 @@ export default class SelectJournal extends Component {
       const dbIDs = {};
       const dbIDsPromises = selectedRows.map(item => {
         return Records.get(item.id)
-          .load('sys:node-dbid')
+          .load(Attributes.DBID)
           .then(dbID => {
             dbIDs[item.id] = dbID;
           });
       });
 
       Promise.all(dbIDsPromises).then(() => {
-        let requestParams = this.state.requestParams;
-        let customPredicate = this.state.customPredicate;
+        let { requestParams, customPredicate, journalConfig } = this.state;
+        const sourceId = lodashGet(journalConfig, 'sourceId', '');
+
         if (customPredicate) {
-          let selectedRowsPredicate = selectedRows.map(item => {
-            return { t: 'eq', att: 'sys:node-dbid', val: dbIDs[item.id] };
-          });
+          let selectedRowsPredicate = selectedRows.map(item => ({ t: 'eq', att: Attributes.DBID, val: dbIDs[item.id] }));
 
           selectedRowsPredicate = {
             t: 'or',
@@ -163,10 +165,11 @@ export default class SelectJournal extends Component {
           }
         }
 
-        let sourceId = lodashGet(this.state, 'journalConfig.sourceId', '');
         if (sourceId) {
-          requestParams['sourceId'] = sourceId;
+          requestParams.sourceId = sourceId;
         }
+
+        requestParams.sortBy = sortBy;
 
         return this.api.getGridDataUsePredicates(requestParams).then(gridData => {
           if (gridData.total && gridData.total === selectedRows.length) {
@@ -229,8 +232,9 @@ export default class SelectJournal extends Component {
   refreshGridData = info => {
     return new Promise(resolve => {
       this.setState({ isGridDataReady: false }, () => {
+        const { sortBy } = this.props;
         let { requestParams, customPredicate, journalConfig } = this.state;
-        let sourceId = lodashGet(journalConfig, 'sourceId', '');
+        const sourceId = lodashGet(journalConfig, 'sourceId', '');
 
         if (customPredicate) {
           if (requestParams.journalPredicate) {
@@ -252,6 +256,8 @@ export default class SelectJournal extends Component {
         if (sourceId) {
           requestParams.sourceId = sourceId;
         }
+
+        requestParams.sortBy = sortBy;
 
         return this.api
           .getGridDataUsePredicates(requestParams)
@@ -778,7 +784,11 @@ SelectJournal.propTypes = {
   renderView: PropTypes.func,
   searchField: PropTypes.string,
   isSelectModalOpen: PropTypes.bool,
-  isSelectedValueAsText: PropTypes.bool
+  isSelectedValueAsText: PropTypes.bool,
+  sortBy: PropTypes.shape({
+    attribute: PropTypes.string,
+    ascending: PropTypes.bool
+  })
 };
 
 SelectJournal.defaultProps = {

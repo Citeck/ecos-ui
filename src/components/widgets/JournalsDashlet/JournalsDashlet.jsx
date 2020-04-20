@@ -9,7 +9,7 @@ import queryString from 'query-string';
 import { goToJournalsPage } from '../../../helpers/urls';
 import { wrapArgs } from '../../../helpers/redux';
 import { t } from '../../../helpers/util';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
+import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import { getDashletConfig, initState, reloadGrid, setDashletConfigByParams, setEditorMode, setRecordRef } from '../../../actions/journals';
 
@@ -163,7 +163,7 @@ class JournalsDashlet extends BaseWidget {
           <JournalsDashletToolbar stateId={stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
         </Measurer>
 
-        <JournalsDashletGrid stateId={stateId} isWidget />
+        <JournalsDashletGrid stateId={stateId} isWidget maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - 100} />
 
         <JournalsDashletFooter stateId={stateId} isWidget />
       </>

@@ -13,12 +13,13 @@ import Notification from '../Notification';
 import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
+import { ErrorBoundary } from '../ErrorBoundary';
 
 import { initMenuSettings } from '../../actions/menu';
 import { setTab, updateTab } from '../../actions/pageTabs';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 import PageService, { Events } from '../../services/PageService';
-import { isMobileAppWebView } from '../../helpers/util';
+import { isMobileAppWebView, t } from '../../helpers/util';
 import pageTabList from '../../services/pageTabs/PageTabList';
 
 import './App.scss';
@@ -95,7 +96,7 @@ class App extends Component {
       height.push(`${outerHeight}px`);
     }
 
-    return { height: `calc(100vh - (${height.join(' + ')}))` };
+    return { height: height.length ? `calc(100vh - (${height.join(' + ')}))` : '100%' };
   }
 
   renderMenu() {
@@ -277,20 +278,22 @@ class App extends Component {
     const basePageClassNames = classNames('ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
 
     return (
-      <div className={appClassNames}>
-        {this.renderReduxModal()}
+      <ErrorBoundary title={t('page.error-loading.title')} message={t('page.error-loading.message')}>
+        <div className={appClassNames}>
+          {this.renderReduxModal()}
 
-        <div className="ecos-sticky-wrapper" id="sticky-wrapper">
-          {this.renderHeader()}
-          <div className={basePageClassNames}>
-            {this.renderMenu()}
+          <div className="ecos-sticky-wrapper" id="sticky-wrapper">
+            {this.renderHeader()}
+            <div className={basePageClassNames}>
+              {this.renderMenu()}
 
-            <div className="ecos-main-area">{this.renderTabs()}</div>
+              <div className="ecos-main-area">{this.renderTabs()}</div>
+            </div>
           </div>
-        </div>
 
-        <NotificationContainer />
-      </div>
+          <NotificationContainer />
+        </div>
+      </ErrorBoundary>
     );
   }
 }

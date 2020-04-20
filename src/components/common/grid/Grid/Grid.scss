@@ -46,10 +46,6 @@ $header-height: 52px;
     }
   }
 
-  &_overflow_hidden {
-    overflow: hidden;
-  }
-
   &__v-scroll {
     @extend %v-scroll;
     top: calc(#{$header-height} + 2px);

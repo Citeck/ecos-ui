@@ -169,7 +169,7 @@ class Journals extends Component {
     return (
       <PageHeight>
         {height => (
-          <div className={classNames('ecos-journal', { 'ecos-journal_mobile': isMobile })} style={{ height }}>
+          <div className={classNames('ecos-journal', { 'ecos-journal_mobile': isMobile })}>
             <div
               className={classNames('ecos-journal__body', {
                 'ecos-journal__body_with-tabs': pageTabsIsShow,
@@ -223,7 +223,7 @@ class Journals extends Component {
                 </Well>
               </EcosModal>
 
-              <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} height={height - 165} />
+              <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} maxHeight={height - 165} />
 
               <div className={'ecos-journal__footer'}>
                 <JournalsDashletPagination
@@ -242,7 +242,6 @@ class Journals extends Component {
                 'ecos-journal__menu_mobile': isMobile,
                 'ecos-journal__menu_expanded': menuOpenAnimate
               })}
-              style={{ height }}
             >
               <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} height={height} />
             </div>

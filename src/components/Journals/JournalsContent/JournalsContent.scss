@@ -1,5 +1,11 @@
 @import '../../../styles/constants';
 
+.ecos-journals-content__grid-well {
+  &_overflow_hidden {
+    overflow: hidden;
+  }
+}
+
 .ecos-journals-content__preview-well {
   padding: 17px 15px;
 }
