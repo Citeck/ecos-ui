@@ -13,14 +13,16 @@ import './style.scss';
 import { selectIdentificationForView } from '../../../selectors/dashboard';
 import { ActionModes } from '../../../constants';
 
-const mapStateToProps = (state, context) => {
-  const aState = selectDataRecordActionsByStateId(state, context.stateId) || {};
+const mapStateToProps = (state, { stateId, tabId }) => {
+  console.log(state.pageTabs.tabs, tabId);
+  const aState = selectDataRecordActionsByStateId(state, stateId) || {};
 
   return {
     dashboardId: selectIdentificationForView(state).id,
     list: aState.list,
     isLoading: aState.isLoading,
-    isMobile: state.view.isMobile
+    isMobile: state.view.isMobile,
+    isActivePage: !!state.pageTabs.tabs.find(t => t.id === tabId && t.isActive)
   };
 };
 
@@ -94,7 +96,7 @@ class Actions extends React.Component {
   };
 
   renderActionsList = () => {
-    const { isLoading, className, list, isMobile, forwardedRef, onActionsChanged } = this.props;
+    const { isLoading, className, list, isMobile, forwardedRef, onActionsChanged, isActivePage } = this.props;
 
     return (
       <ActionsList
@@ -105,6 +107,7 @@ class Actions extends React.Component {
         isMobile={isMobile}
         executeAction={this.executeAction}
         onActionsChanged={onActionsChanged}
+        isActivePage={isActivePage}
       />
     );
   };

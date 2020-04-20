@@ -11,6 +11,7 @@ class ActionsList extends React.Component {
     list: PropTypes.array,
     isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
+    isActivePage: PropTypes.bool,
     executeAction: PropTypes.func,
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
     onActionsChanged: PropTypes.func
@@ -38,11 +39,11 @@ class ActionsList extends React.Component {
   };
 
   renderVariant = (action, variant, postfix) => {
-    const { isLoading } = this.props;
+    const { isLoading, isActivePage } = this.props;
     const id = `variant-action-${action.type}-${variant.type}-${postfix}`;
 
     return (
-      <Tooltip showAsNeeded uncontrolled key={id} target={id} text={variant.name}>
+      <Tooltip showAsNeeded uncontrolled key={id} target={id} text={variant.name} off={!isActivePage}>
         <div
           id={id}
           className={classNames('ecos-actions-list__item-variants__item', {
@@ -57,7 +58,7 @@ class ActionsList extends React.Component {
   };
 
   render() {
-    const { isLoading, list = [], isMobile, forwardedRef } = this.props;
+    const { isLoading, list = [], isMobile, forwardedRef, isActivePage } = this.props;
 
     return (
       <div className="ecos-actions-list" ref={forwardedRef}>
@@ -79,7 +80,7 @@ class ActionsList extends React.Component {
                 )}
                 onClick={() => (hasVariants ? null : this.onClick(action))}
               >
-                <Tooltip showAsNeeded uncontrolled target={id} text={action.name}>
+                <Tooltip showAsNeeded uncontrolled target={id} text={action.name} off={!isActivePage}>
                   <div id={id} className="ecos-actions-list__item-title">
                     {action.name}
                   </div>

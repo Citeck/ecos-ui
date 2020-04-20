@@ -140,7 +140,7 @@ function* sagaAddAssociations({ api, logger }, { payload }) {
       });
     }
 
-    Records.get([record, ...associations]).forEach(r => r.update());
+    Records.get([record, ...associations]).forEach(r => r && r.update());
   } catch (e) {
     yield put(setError({ key: payload.record }));
     logger.error('[docAssociations sagaAddAssociations saga error', e.message);
@@ -165,7 +165,7 @@ function* sagaRemoveAssociations({ api, logger }, { payload }) {
       associationId
     });
 
-    Records.get([record, associationRef]).forEach(r => r.update());
+    Records.get([record, associationRef]).forEach(r => r && r.update());
   } catch (e) {
     yield put(setError({ key: payload.record }));
     logger.error('[docAssociations sagaRemoveAssociations saga error', e.message);

@@ -56,7 +56,7 @@ class ActionsDashlet extends BaseWidget {
   };
 
   render() {
-    const { title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging } = this.props;
+    const { title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging, tabId } = this.props;
     const { isSmallMode, userHeight, fitHeights, isCollapsed, runUpdate } = this.state;
 
     return (
@@ -79,10 +79,11 @@ class ActionsDashlet extends BaseWidget {
         <Actions
           {...config}
           forwardedRef={this.contentRef}
-          className={classNameContent}
           record={record}
-          isSmallMode={isSmallMode}
+          tabId={tabId}
           stateId={this.stateId}
+          className={classNameContent}
+          isSmallMode={isSmallMode}
           height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
