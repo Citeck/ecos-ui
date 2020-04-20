@@ -138,7 +138,7 @@ export default class CacheRoute extends Component {
                             pathname,
                             multiple: true
                           }
-                        : currentPathname, // + location.search, // undefined,
+                        : currentPathname, // undefined,
                       key: pathname,
                       match: recomputedMatch
                     })}
