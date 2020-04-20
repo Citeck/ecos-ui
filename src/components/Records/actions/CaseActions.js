@@ -1,8 +1,8 @@
 import { PROXY_URI, URL_PAGECONTEXT } from '../../../constants/alfresco';
 import dialogManager from '../../common/dialogs/Manager';
-import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import { t } from '../../../helpers/util';
 import ecosFetch from '../../../helpers/ecosFetch';
+import { createUserActionNode } from './export/recordActions';
 
 export const CaseRedirectAction = {
   execute: ({
@@ -21,36 +21,7 @@ export const CaseRedirectAction = {
 };
 
 export const CaseCreateNodeAction = {
-  execute: ({ action }) => {
-    return new Promise(resolve => {
-      let config = action.config;
-      let recordRef = 'dict@' + config.nodeType;
-
-      let attributes = {
-        _parent: config.destination,
-        _parentAtt: config.destinationAssoc
-      };
-
-      if (config.eventRef) {
-        attributes['icaseEproc:eventRef'] = config.eventRef;
-      }
-
-      try {
-        EcosFormUtils.eform(recordRef, {
-          params: {
-            onSubmit: () => resolve(true),
-            onFormCancel: () => resolve(false),
-            attributes
-          },
-          class: 'ecos-modal_width-lg',
-          isBigHeader: true
-        });
-      } catch (e) {
-        console.error(e);
-        resolve(false);
-      }
-    });
-  }
+  execute: ({ action }) => createUserActionNode(action.config)
 };
 
 export const CaseRequestAction = {

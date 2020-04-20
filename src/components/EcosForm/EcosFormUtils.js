@@ -150,6 +150,17 @@ export default class EcosFormUtils {
 
           ReactDOM.render(formInstance, container);
         } else {
+          if (configParams.onFormCancel) {
+            config.onHideModal = () => {
+              if (configParams.onFormCancel) {
+                configParams.onFormCancel();
+              }
+              if (configParams.onCancel) {
+                configParams.onCancel();
+              }
+            };
+          }
+
           modal.open(formInstance, config);
         }
       });
