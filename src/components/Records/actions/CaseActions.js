@@ -26,15 +26,21 @@ export const CaseCreateNodeAction = {
       let config = action.config;
       let recordRef = 'dict@' + config.nodeType;
 
+      let attributes = {
+        _parent: config.destination,
+        _parentAtt: config.destinationAssoc
+      };
+
+      if (config.eventRef) {
+        attributes['icaseEproc:eventRef'] = config.eventRef;
+      }
+
       try {
         EcosFormUtils.eform(recordRef, {
           params: {
             onSubmit: () => resolve(true),
             onFormCancel: () => resolve(false),
-            attributes: {
-              _parent: config.destination,
-              _parentAtt: config.destinationAssoc
-            }
+            attributes
           },
           class: 'ecos-modal_width-lg',
           isBigHeader: true
