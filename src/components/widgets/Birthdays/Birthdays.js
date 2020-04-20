@@ -19,12 +19,14 @@ import BaseWidget from '../BaseWidget';
 
 import './style.scss';
 
-export const LABELS = {
+export const Labels = {
   TITLE: 'birthdays-widget.title',
   ERROR_DEFAULT_MESSAGE: 'birthdays-widget.error.default-message',
   BTN_TO_PROFILE: 'birthdays-widget.btn.go-to-profile',
   BTN_TRY_ONE_MORE_TIME: 'birthdays-widget.btn.try-one-more-time'
 };
+
+const stateId = ({ tabId = '', id = '' }) => `[${tabId}]-[${id}]`;
 
 class Birthdays extends BaseWidget {
   static propTypes = {
@@ -51,12 +53,14 @@ class Birthdays extends BaseWidget {
   constructor(props) {
     super(props);
 
+    this.stateId = stateId(props);
+
     this.state = {
       fitHeights: {},
       contentHeight: null,
       width: MIN_WIDTH_DASHLET_SMALL,
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
+      userHeight: UserLocalSettingsService.getDashletHeight(this.stateId),
+      isCollapsed: UserLocalSettingsService.getDashletProperty(this.stateId, DashletProps.IS_COLLAPSED)
     };
   }
 
@@ -93,13 +97,13 @@ class Birthdays extends BaseWidget {
   };
 
   handleChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.stateId, height);
     this.setState({ userHeight: height });
   };
 
   handleToggleContent = (isCollapsed = false) => {
     this.setState({ isCollapsed });
-    UserLocalSettingsService.setDashletProperty(this.props.id, { isCollapsed });
+    UserLocalSettingsService.setDashletProperty(this.stateId, { isCollapsed });
   };
 
   handleGoToProfile = url => {
@@ -124,7 +128,7 @@ class Birthdays extends BaseWidget {
             className={classNames('ecos-hb2u__list-item', {
               'ecos-hb2u__list-item_small': !this.isLargeSize
             })}
-            title={this.isLargeSize ? '' : t(LABELS.BTN_TO_PROFILE)}
+            title={this.isLargeSize ? '' : t(Labels.BTN_TO_PROFILE)}
             key={item.id}
             onClick={this.isLargeSize ? null : () => this.handleGoToProfile(item.url)}
           >
@@ -143,7 +147,7 @@ class Birthdays extends BaseWidget {
 
             {this.isLargeSize && (
               <Btn className="ecos-hb2u__list-item-btn" onClick={() => this.handleGoToProfile(item.url)}>
-                {t(LABELS.BTN_TO_PROFILE)}
+                {t(Labels.BTN_TO_PROFILE)}
               </Btn>
             )}
           </div>
@@ -173,7 +177,7 @@ class Birthdays extends BaseWidget {
       <div className="ecos-hb2u__error">
         <div className="ecos-hb2u__error-message">{error}</div>
         <Btn className="ecos-hb2u__error-reload-btn" onClick={this.handleReloadData}>
-          {t(LABELS.BTN_TRY_ONE_MORE_TIME)}
+          {t(Labels.BTN_TRY_ONE_MORE_TIME)}
         </Btn>
       </div>
     );
@@ -187,7 +191,7 @@ class Birthdays extends BaseWidget {
     return (
       <Dashlet
         className="ecos-hb2u"
-        title={t(LABELS.TITLE)}
+        title={t(Labels.TITLE)}
         needGoTo={false}
         noActions
         canDragging={canDragging}
@@ -220,13 +224,13 @@ class Birthdays extends BaseWidget {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByKey(state, ownProps.id),
+  ...selectStateByKey(state, stateId(ownProps)),
   isMobile: get(state, 'view.isMobile', false)
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  resetStore: () => dispatch(resetStore(ownProps.id)),
-  getBirthdays: () => dispatch(getBirthdays(ownProps.id))
+  resetStore: () => dispatch(resetStore(stateId(ownProps))),
+  getBirthdays: () => dispatch(getBirthdays(stateId(ownProps)))
 });
 
 export default connect(

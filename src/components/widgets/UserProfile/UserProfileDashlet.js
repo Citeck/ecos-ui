@@ -24,6 +24,8 @@ const Labels = {
   }
 };
 
+const getStateId = ({ tabId = '', record = '' }) => `[${tabId}]-[${record}]`;
+
 class UserProfileDashlet extends BaseWidget {
   static propTypes = {
     className: PropTypes.string,
@@ -125,8 +127,9 @@ class UserProfileDashlet extends BaseWidget {
 
 const mapStateToProps = (state, context) => {
   const { record } = context;
+  const stateId = getStateId(context);
   const isCurrentUser = state.user.id === record;
-  const profile = get(state, `userProfile.${record}`, {}) || {};
+  const profile = get(state, ['userProfile', stateId], {}) || {};
 
   return {
     isLoading: profile.isLoading,
@@ -142,7 +145,7 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = (dispatch, context) => {
   const { record } = context;
-  const stateId = record;
+  const stateId = getStateId(context);
 
   return {
     getUserData: () => dispatch(getUserData({ record, stateId })),

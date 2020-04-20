@@ -24,9 +24,14 @@ class BarcodeDashlet extends BaseWidget {
     classNameBarcode: '',
     classNameDashlet: ''
   };
+  constructor(props) {
+    super(props);
+
+    this.stateId = `[${props.tabId}]-[${props.id}]`;
+  }
 
   render() {
-    const { id, title, config, classNameBarcode, classNameDashlet, record } = this.props;
+    const { title, config, classNameBarcode, classNameDashlet, record } = this.props;
 
     return (
       <Dashlet
@@ -38,7 +43,7 @@ class BarcodeDashlet extends BaseWidget {
         noActions
         actionDrag={isMobileDevice()}
       >
-        <Barcode {...config} className={classNameBarcode} record={record} stateId={id} />
+        <Barcode {...config} className={classNameBarcode} record={record} stateId={this.stateId} />
       </Dashlet>
     );
   }

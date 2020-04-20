@@ -144,7 +144,7 @@ class Layout extends Component {
     }
   };
 
-  draggablePositionAdjusment = () => {
+  draggablePositionAdjustment = () => {
     const { menuType } = this.props;
 
     return {
@@ -213,7 +213,7 @@ class Layout extends Component {
 
       if (canDragging) {
         components.push(
-          <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjusment}>
+          <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjustment}>
             <Widget
               {...widget.props}
               canDragging={canDragging}

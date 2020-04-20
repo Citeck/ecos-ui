@@ -19,6 +19,7 @@ class Tooltip extends Component {
     isOpen: PropTypes.bool,
     uncontrolled: PropTypes.bool,
     showAsNeeded: PropTypes.bool,
+    off: PropTypes.bool,
     text: PropTypes.string,
     placement: PropTypes.oneOf([
       'auto',
@@ -154,7 +155,7 @@ class Tooltip extends Component {
     return (
       <>
         {this.props.children}
-        {this.renderTooltip()}
+        {!this.props.off && this.renderTooltip()}
       </>
     );
   }

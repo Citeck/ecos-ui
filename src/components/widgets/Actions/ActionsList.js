@@ -42,7 +42,7 @@ class ActionsList extends React.Component {
     const id = `variant-action-${action.type}-${variant.type}-${postfix}`;
 
     return (
-      <Tooltip showAsNeeded key={id} target={id} uncontrolled text={variant.name}>
+      <Tooltip showAsNeeded uncontrolled key={id} target={id} text={variant.name}>
         <div
           id={id}
           className={classNames('ecos-actions-list__item-variants__item', {
@@ -79,7 +79,7 @@ class ActionsList extends React.Component {
                 )}
                 onClick={() => (hasVariants ? null : this.onClick(action))}
               >
-                <Tooltip showAsNeeded target={id} uncontrolled text={action.name}>
+                <Tooltip showAsNeeded uncontrolled target={id} text={action.name}>
                   <div id={id} className="ecos-actions-list__item-title">
                     {action.name}
                   </div>
