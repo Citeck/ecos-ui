@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
+
 import { DefineHeight } from '../../common/index';
 import { selectDataRecordActionsByStateId } from '../../../selectors/recordActions';
 import { getActions, resetActions, runExecuteAction } from '../../../actions/recordActions';
@@ -23,17 +24,17 @@ const mapStateToProps = (state, context) => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  getActions: payload => dispatch(getActions(payload)),
-  runExecuteAction: payload => dispatch(runExecuteAction(payload)),
-  resetActions: payload => dispatch(resetActions(payload))
+const mapDispatchToProps = (dispatch, { stateId, record }) => ({
+  getActions: payload => dispatch(getActions({ ...payload, stateId, record })),
+  runExecuteAction: payload => dispatch(runExecuteAction({ ...payload, stateId, record })),
+  resetActions: () => stateId && dispatch(resetActions({ stateId }))
 });
 
 class Actions extends React.Component {
   static propTypes = {
-    record: PropTypes.string.isRequired,
-    dashboardId: PropTypes.string.isRequired,
-    stateId: PropTypes.string.isRequired,
+    record: PropTypes.string,
+    dashboardId: PropTypes.string,
+    stateId: PropTypes.string,
     className: PropTypes.string,
     isLoading: PropTypes.bool,
     isMobile: PropTypes.bool,
@@ -46,9 +47,7 @@ class Actions extends React.Component {
   };
 
   static defaultProps = {
-    className: '',
-    isLoading: false,
-    isMobile: false
+    className: ''
   };
 
   state = {
@@ -66,39 +65,28 @@ class Actions extends React.Component {
   }
 
   componentWillUnmount() {
-    const { resetActions, stateId } = this.props;
+    const { resetActions } = this.props;
 
-    resetActions({ stateId });
+    resetActions();
   }
 
   getContext() {
     const { dashboardId } = this.props;
 
-    return {
-      mode: ActionModes.DASHBOARD,
-      dashboardId
-    };
+    return { mode: ActionModes.DASHBOARD, dashboardId };
   }
 
   getActions = () => {
-    const { getActions, record, stateId } = this.props;
+    const { getActions } = this.props;
     const context = this.getContext();
 
-    getActions({
-      stateId,
-      record,
-      context
-    });
+    getActions({ context });
   };
 
   executeAction = action => {
-    const { runExecuteAction, record, stateId } = this.props;
+    const { runExecuteAction } = this.props;
 
-    runExecuteAction({
-      stateId,
-      record,
-      action
-    });
+    runExecuteAction({ action });
   };
 
   setHeight = contentHeight => {
