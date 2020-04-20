@@ -3,7 +3,7 @@ import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { getJournalUIType } from './export/journalsApi';
 import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records';
-import { QueryEntityKeys, URL } from '../constants';
+import { QueryEntityKeys, SourcesId, URL } from '../constants';
 import lodashGet from 'lodash/get';
 
 const PREFIX = 'uiserv/config@';

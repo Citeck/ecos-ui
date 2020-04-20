@@ -8,8 +8,12 @@ import { MOBILE_APP_USER_AGENT } from '../constants';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
+import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
+
+const LOCALE_EN = 'en';
 
 export function getCookie(name) {
   // eslint-disable-next-line
@@ -731,4 +735,23 @@ export function objectCompare(obj1, obj2, params = {}) {
     }, {});
 
   return isEqual(filteredFirst, filteredSecond);
+}
+
+export function extractLabel(text) {
+  let displayText = text || '';
+
+  if (isObject(text)) {
+    displayText = text[getCurrentLocale()] || text[LOCALE_EN] || '';
+
+    if (!displayText) {
+      for (const key in text) {
+        if (text.hasOwnProperty(key) && isString(text[key])) {
+          displayText = text[key] || '';
+          break;
+        }
+      }
+    }
+  }
+
+  return t(displayText);
 }
