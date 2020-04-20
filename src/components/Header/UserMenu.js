@@ -51,16 +51,17 @@ class UserMenu extends React.Component {
         {!mob ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
         <Dropdown className="ecos-header-user ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
           <DropdownToggle tag="div" className="ecos-header-dropdown__toggle" id="ecos-header-dropdown--user-name">
-            {mob ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
-            <IcoBtn invert={true} icon={dropdownOpen ? 'icon-up' : 'icon-down'} className={classNameIcoBtn} disabled={disabled}>
-              {!mob && userFullName}
-            </IcoBtn>
+            <Tooltip target="ecos-header-dropdown--user-name" text={userFullName} placement={'left'} uncontrolled showAsNeeded>
+              {mob ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
+              <IcoBtn invert={true} icon={dropdownOpen ? 'icon-up' : 'icon-down'} className={classNameIcoBtn} disabled={disabled}>
+                {!mob && userFullName}
+              </IcoBtn>
+            </Tooltip>
           </DropdownToggle>
           <DropdownMenu className="ecos-header-user__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
             <Menu items={items} />
           </DropdownMenu>
         </Dropdown>
-        <Tooltip target="ecos-header-dropdown--user-name" text={userFullName} placement={'left'} uncontrolled />
       </>
     );
   }

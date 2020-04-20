@@ -281,6 +281,16 @@ class PageTabList {
   getTabById = id => {
     return this.#tabs.find(tab => tab.id === id) || {};
   };
+
+  getTabByLink = (link = '') => {
+    let url = link;
+
+    if (!link.length) {
+      url = window.location.pathname + window.location.search;
+    }
+
+    return this.#tabs.find(tab => tab.link === url) || {};
+  };
 }
 
 const pageTabList = get(window, 'Citeck.PageTabList', new PageTabList());

@@ -420,18 +420,28 @@ class PageTabs extends React.Component {
   }
 
   renderTabPanes = React.memo(props => {
-    const { tabs, ContentComponent } = props;
+    const { tabs, ContentComponent, url } = props;
+    const activeTabId = get(tabs.find(tab => tab.isActive), 'id', null);
 
-    return tabs.map(tab => React.createElement(ContentComponent, { tab, key: tab.id }));
+    return tabs.map(tab =>
+      React.createElement(ContentComponent, {
+        tab,
+        url,
+        isActive: activeTabId === tab.id,
+        key: tab.id
+      })
+    );
   });
 
   render() {
-    const { tabs, ContentComponent } = this.props;
+    const { tabs, ContentComponent, location } = this.props;
 
     return (
       <>
         {this.renderTabWrapper()}
-        {ContentComponent && <this.renderTabPanes tabs={tabs} ContentComponent={ContentComponent} />}
+        {ContentComponent && (
+          <this.renderTabPanes url={location.pathname + location.search} tabs={tabs} ContentComponent={ContentComponent} />
+        )}
       </>
     );
   }

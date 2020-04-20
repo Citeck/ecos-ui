@@ -22,30 +22,28 @@ import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
-import { initialState } from '../../reducers/dashboard';
 import DashboardService from '../../services/dashboard';
-import pageTabList from '../../services/pageTabs/PageTabList';
-import { getCachingKeys } from '../../components/ReactRouterCache';
+import { selectDashboardByKey } from '../../selectors/dashboard';
 
 import './style.scss';
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
   const isMobile = get(state, ['view', 'isMobile'], false);
-  const tabs = get(state, ['pageTabs', 'tabs'], []);
-  const dashboardState = () => get(state, ['dashboard', DashboardService.key], initialState);
+  const stateKey = ownProps.tabId || null;
+
+  const dashboardState = selectDashboardByKey(state, stateKey);
 
   return {
-    tabId: tabs.length ? DashboardService.key : null,
-    config: get(dashboardState(), [isMobile ? 'mobileConfig' : 'config'], []),
-    isLoadingDashboard: get(dashboardState(), ['isLoading']),
-    saveResultDashboard: get(dashboardState(), ['requestResult'], {}),
+    config: get(dashboardState, [isMobile ? 'mobileConfig' : 'config'], []),
+    isLoadingDashboard: get(dashboardState, ['isLoading']),
+    saveResultDashboard: get(dashboardState, ['requestResult'], {}),
     isLoadingMenu: get(state, ['menu', 'isLoading']),
     saveResultMenu: get(state, ['menu', 'requestResult']),
     menuType: get(state, ['menu', 'type']),
     links: get(state, ['menu', 'links']),
-    dashboardType: get(dashboardState(), ['identification', 'type']),
-    identificationId: get(dashboardState(), ['identification', 'id'], null),
-    titleInfo: get(dashboardState(), ['titleInfo'], {}),
+    dashboardType: get(dashboardState, ['identification', 'type']),
+    identificationId: get(dashboardState, ['identification', 'id'], null),
+    titleInfo: get(dashboardState, ['titleInfo'], {}),
     isMobile
   };
 };
@@ -82,11 +80,6 @@ class Dashboard extends Component {
   static getDerivedStateFromProps(props, state) {
     const newState = {};
     const newUrlParams = getSortedUrlParams();
-    const isCurrentTab = props.tabLink === pageTabList.activeTab.link;
-
-    if (!isCurrentTab && props.tabLink) {
-      return {};
-    }
 
     if (isEmpty(state.activeLayoutId)) {
       newState.activeLayoutId = get(props.config, '[0].id');
@@ -121,6 +114,10 @@ class Dashboard extends Component {
     this.getConfig();
   }
 
+  // shouldComponentUpdate(nextProps, nextState, nextContext) {
+  //   return !(nextProps.tabId && !nextProps.isCurrent);
+  // }
+
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.tabList.length) {
       this.toggleTabLayoutFromUrl();
@@ -132,7 +129,6 @@ class Dashboard extends Component {
   }
 
   componentWillUnmount() {
-    // this.props.resetDashboardConfig();
     this.instanceRecord.unwatch(this.watcher);
   }
 

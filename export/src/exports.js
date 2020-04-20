@@ -34,4 +34,5 @@ export default {
   'slide-menu': () => import('../../src/legacy/SlideMenu/export'),
   'slide-menu-next': () => import('../../src/components/Sidebar/export'),
   'user-in-groups-list-helper': () => import('../../src/helpers/export/userInGroupsHelper'),
+  'record-actions': () => import('../../src/components/Records/actions/export/recordActions')
 };

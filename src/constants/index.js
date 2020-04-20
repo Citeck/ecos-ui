@@ -90,6 +90,10 @@ export const Permissions = {
 
 export const MOBILE_APP_USER_AGENT = 'ecos-mobile-app';
 
+export const Attributes = {
+  DBID: 'sys:node-dbid'
+};
+
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};
 window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };

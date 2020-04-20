@@ -13,12 +13,14 @@ import Notification from '../Notification';
 import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
+import { ErrorBoundary } from '../ErrorBoundary';
 
 import { initMenuSettings } from '../../actions/menu';
 import { setTab, updateTab } from '../../actions/pageTabs';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 import PageService, { Events } from '../../services/PageService';
-import { isMobileAppWebView } from '../../helpers/util';
+import { isMobileAppWebView, t } from '../../helpers/util';
+import pageTabList from '../../services/pageTabs/PageTabList';
 
 import './App.scss';
 
@@ -94,7 +96,7 @@ class App extends Component {
       height.push(`${outerHeight}px`);
     }
 
-    return { height: `calc(100vh - (${height.join(' + ')}))` };
+    return { height: height.length ? `calc(100vh - (${height.join(' + ')}))` : '100%' };
   }
 
   renderMenu() {
@@ -166,7 +168,14 @@ class App extends Component {
     const baseCacheRouteProps = {
       className: 'page-tab__panel',
       needUseFullPath: true,
-      when: 'always'
+      when: 'always',
+      isCurrent: pageTabList.activeTabId === tab.id,
+      tabLink: tab.link
+    };
+    const basePageProps = {
+      tabId: tab.id,
+      tabLink: tab.link,
+      isCurrent: pageTabList.activeTabId === tab.id
     };
     const styles = { ...this.wrapperStyle };
 
@@ -177,7 +186,12 @@ class App extends Component {
     return (
       <div className="ecos-main-content" style={styles}>
         <Suspense fallback={null}>
-          <CacheSwitch match={this.props.match} location={this.props.location}>
+          <CacheSwitch
+            match={this.props.match}
+            location={this.props.location}
+            isCurrent={pageTabList.activeTabId === tab.id}
+            tabLink={tab.link}
+          >
             <CacheRoute
               {...baseCacheRouteProps}
               exact
@@ -189,10 +203,10 @@ class App extends Component {
               {...baseCacheRouteProps}
               path={URL.DASHBOARD}
               exact
-              render={props => <DashboardPage {...props} tabLink={tab.link} tabId={tab.id} />}
+              render={props => <DashboardPage {...props} {...basePageProps} />}
             />
             <CacheRoute {...baseCacheRouteProps} path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
-            <CacheRoute {...baseCacheRouteProps} path={URL.JOURNAL} component={JournalsPage} />
+            <CacheRoute {...baseCacheRouteProps} path={URL.JOURNAL} render={props => <JournalsPage {...props} {...basePageProps} />} />
             <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET} exact component={MyTimesheetPage} />
             <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
             <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
@@ -264,20 +278,22 @@ class App extends Component {
     const basePageClassNames = classNames('ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
 
     return (
-      <div className={appClassNames}>
-        {this.renderReduxModal()}
+      <ErrorBoundary title={t('page.error-loading.title')} message={t('page.error-loading.message')}>
+        <div className={appClassNames}>
+          {this.renderReduxModal()}
 
-        <div className="ecos-sticky-wrapper" id="sticky-wrapper">
-          {this.renderHeader()}
-          <div className={basePageClassNames}>
-            {this.renderMenu()}
+          <div className="ecos-sticky-wrapper" id="sticky-wrapper">
+            {this.renderHeader()}
+            <div className={basePageClassNames}>
+              {this.renderMenu()}
 
-            <div className="ecos-main-area">{this.renderTabs()}</div>
+              <div className="ecos-main-area">{this.renderTabs()}</div>
+            </div>
           </div>
-        </div>
 
-        <NotificationContainer />
-      </div>
+          <NotificationContainer />
+        </div>
+      </ErrorBoundary>
     );
   }
 }
