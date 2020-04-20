@@ -36,15 +36,16 @@ class CurrentTasksDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
+    this.stateId = `[${props.tabId}]-[${props.id}]`;
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
+
+    UserLocalSettingsService.checkOldData(this.stateId);
 
     this.state = {
       isSmallMode: false,
       fitHeights: {},
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
+      userHeight: UserLocalSettingsService.getDashletHeight(this.stateId),
+      isCollapsed: UserLocalSettingsService.getDashletProperty(this.stateId, DashletProps.IS_COLLAPSED),
       totalCount: 0,
       isLoading: true
     };
@@ -55,7 +56,7 @@ class CurrentTasksDashlet extends BaseWidget {
   }
 
   onResize = width => {
-    this.setState({ isSmallMode: isSmallMode(width) });
+    !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   setInfo = data => {
@@ -96,7 +97,7 @@ class CurrentTasksDashlet extends BaseWidget {
           className={classNameTasks}
           record={record}
           isSmallMode={isSmallMode}
-          stateId={record}
+          stateId={this.stateId}
           height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}

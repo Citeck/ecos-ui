@@ -24,6 +24,7 @@ class BarcodeDashlet extends BaseWidget {
     classNameBarcode: '',
     classNameDashlet: ''
   };
+
   constructor(props) {
     super(props);
 
