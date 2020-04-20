@@ -684,6 +684,7 @@
   "timesheets.allForms.buttons.approve.tip": "Approve Timesheet",
   "timesheets.allForms.buttons.approve.withoutManager.tip": "Approve Without Manager Reconciliation",
   "timesheets.allForms.buttons.sendToApproval.tip": "Send to manager approval",
+  "timesheets.allForms.buttons.approve3.tip": "Approve Timesheet",
   "timesheets.allForms.statuses.notFilled": "Not Filled",
   "timesheets.allForms.statuses.reworking": "Sent Back",
   "timesheets.allForms.statuses.onApproval": "On Approval",
