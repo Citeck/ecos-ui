@@ -152,7 +152,6 @@ class Tooltip extends Component {
   };
 
   render() {
-    console.log('this.props.off', this.props.off);
     return (
       <>
         {this.props.children}
