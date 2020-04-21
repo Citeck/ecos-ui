@@ -163,6 +163,10 @@ export default class UserLocalSettingsService {
       const lastUsedDate = get(dashletData, 'lastUsedDate', null);
 
       if (!lastUsedDate) {
+        setData(key, {
+          ...dashletData,
+          lastUsedDate: Date.now()
+        });
         return;
       }
 
