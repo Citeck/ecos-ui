@@ -6,6 +6,7 @@ import get from 'lodash/get';
 
 import { changePassword, changePhoto, getUserData } from '../../../actions/user';
 import { t } from '../../../helpers/util';
+import { getStateId } from '../../../helpers/redux';
 import { Avatar, BtnUpload, Loader } from '../../common';
 import { Btn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
@@ -23,8 +24,6 @@ const Labels = {
     CHANGE_PW: 'user-profile-widget.button.change-password'
   }
 };
-
-const getStateId = ({ tabId = '', record = '' }) => `[${tabId}]-[${record}]`;
 
 class UserProfileDashlet extends BaseWidget {
   static propTypes = {
@@ -126,8 +125,8 @@ class UserProfileDashlet extends BaseWidget {
 }
 
 const mapStateToProps = (state, context) => {
-  const { record } = context;
-  const stateId = getStateId(context);
+  const { record, tabId } = context;
+  const stateId = getStateId({ tabId, id: record });
   const isCurrentUser = state.user.id === record;
   const profile = get(state, ['userProfile', stateId], {}) || {};
 
@@ -144,8 +143,8 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = (dispatch, context) => {
-  const { record } = context;
-  const stateId = getStateId(context);
+  const { record, tabId } = context;
+  const stateId = getStateId({ tabId, id: record });
 
   return {
     getUserData: () => dispatch(getUserData({ record, stateId })),

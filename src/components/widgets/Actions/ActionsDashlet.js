@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { isSmallMode, t } from '../../../helpers/util';
+import { getStateId } from '../../../helpers/redux';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
@@ -34,7 +35,7 @@ class ActionsDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.stateId = `[${props.tabId}]-[${props.id}]`;
+    this.stateId = getStateId(props);
     this.watcher = this.instanceRecord.watch(['caseStatus', 'idocs:documentStatus'], this.reload);
 
     UserLocalSettingsService.checkOldData(this.stateId);

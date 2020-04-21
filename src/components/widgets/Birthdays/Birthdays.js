@@ -10,6 +10,7 @@ import { getBirthdays, resetStore } from '../../../actions/birthdays';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import { isNewVersionPage } from '../../../helpers/urls';
+import { getStateId } from '../../../helpers/redux';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import PageService from '../../../services/PageService';
 import { Avatar, DefineHeight, Loader } from '../../common';
@@ -25,8 +26,6 @@ export const Labels = {
   BTN_TO_PROFILE: 'birthdays-widget.btn.go-to-profile',
   BTN_TRY_ONE_MORE_TIME: 'birthdays-widget.btn.try-one-more-time'
 };
-
-const stateId = ({ tabId = '', id = '' }) => `[${tabId}]-[${id}]`;
 
 class Birthdays extends BaseWidget {
   static propTypes = {
@@ -53,7 +52,7 @@ class Birthdays extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.stateId = stateId(props);
+    this.stateId = getStateId(props);
 
     this.state = {
       fitHeights: {},
@@ -224,13 +223,13 @@ class Birthdays extends BaseWidget {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByKey(state, stateId(ownProps)),
+  ...selectStateByKey(state, getStateId(ownProps)),
   isMobile: get(state, 'view.isMobile', false)
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  resetStore: () => dispatch(resetStore(stateId(ownProps))),
-  getBirthdays: () => dispatch(getBirthdays(stateId(ownProps)))
+  resetStore: () => dispatch(resetStore(getStateId(ownProps))),
+  getBirthdays: () => dispatch(getBirthdays(getStateId(ownProps)))
 });
 
 export default connect(

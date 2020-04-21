@@ -29,12 +29,11 @@ import {
   uploadFiles
 } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
-import { errorTypes, statusesKeys, tableFields, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
-import { deepClone, prepareTooltipId, t, closest, objectCompare } from '../../../helpers/util';
+import { errorTypes, statusesKeys, tableFields, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
+import { closest, deepClone, objectCompare, prepareTooltipId, t } from '../../../helpers/util';
+import { getStateId } from '../../../helpers/redux';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
-
-import pageTabList from '../../../services/pageTabs/PageTabList';
 
 import './style.scss';
 
@@ -1270,16 +1269,14 @@ class Documents extends BaseWidget {
   }
 }
 
-const getKey = props => `[${props.tabId}]-[${props.id}]`;
-
 const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByKey(state, getKey(ownProps)),
+  ...selectStateByKey(state, getStateId(ownProps)),
   isMobile: state.view.isMobile
 });
 const mapDispatchToProps = (dispatch, ownProps) => {
   const baseParams = {
     record: ownProps.record,
-    key: getKey(ownProps)
+    key: getStateId(ownProps)
   };
 
   return {
