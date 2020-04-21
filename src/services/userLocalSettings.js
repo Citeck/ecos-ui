@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+
 import { getData, getSessionData, setData, setSessionData, transferData } from '../helpers/ls';
 import { getCurrentUserName } from '../helpers/util';
 
@@ -86,7 +87,11 @@ export default class UserLocalSettingsService {
     const key = UserLocalSettingsService.getDashletKey(dashletId);
     const data = getDashletSettings(key);
 
-    setData(key, { ...data, ...property });
+    setData(key, {
+      ...data,
+      ...property,
+      lastUsedDate: Date.now()
+    });
   }
 
   static getDashletProperty(dashletId, propertyName) {
@@ -112,7 +117,7 @@ export default class UserLocalSettingsService {
       dashletData.contentHeight = height;
     }
 
-    setData(key, dashletData);
+    self.setDashletProperty(dashletId, dashletData);
   }
 
   static getDashletScale(dashletId) {
@@ -121,13 +126,8 @@ export default class UserLocalSettingsService {
     return get(getDashletSettings(key), DashletProps.CONTENT_SCALE);
   }
 
-  static setDashletScale(dashletId, scale) {
-    const key = self.getDashletKey(dashletId);
-    const dashletData = getDashletSettings(key);
-
-    dashletData.contentScale = scale;
-
-    setData(key, dashletData);
+  static setDashletScale(dashletId, contentScale) {
+    self.setDashletProperty(dashletId, { contentScale });
   }
 }
 const self = UserLocalSettingsService;

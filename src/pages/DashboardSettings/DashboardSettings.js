@@ -23,20 +23,21 @@ import {
   initDashboardSettings,
   resetDashboardConfig,
   saveDashboardConfig,
-  setCheckUpdatedDashboardConfig,
-  clearLocalStorage
+  setCheckUpdatedDashboardConfig
 } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { TunableDialog } from '../../components/common/dialogs';
+import { removeItems } from '../../helpers/ls';
 
 import SetBind from './SetBind';
 import SetTabs from './SetTabs';
 import SetLayouts from './SetLayouts';
 import SetWidgets from './SetWidgets';
 import SetMenu from './SetMenu';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 
 import './style.scss';
 
@@ -65,8 +66,7 @@ const mapDispatchToProps = dispatch => ({
   saveSettings: payload => dispatch(saveDashboardConfig(payload)),
   getAwayFromPage: payload => dispatch(getAwayFromPage(payload)),
   setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig(payload)),
-  resetDashboardConfig: () => dispatch(resetDashboardConfig()),
-  clearLocalStorage: payload => dispatch(clearLocalStorage(payload))
+  resetDashboardConfig: () => dispatch(resetDashboardConfig())
 });
 
 const DESK_VER = find(DeviceTabs, ['key', 'desktop']);
@@ -126,7 +126,9 @@ class DashboardSettings extends React.Component {
 
     selectedMenuItems: [],
     typeMenu: MenuTypes,
-    urlParams: getSortedUrlParams()
+    urlParams: getSortedUrlParams(),
+
+    removedWidgets: []
   };
 
   constructor(props) {
@@ -195,7 +197,11 @@ class DashboardSettings extends React.Component {
     }
 
     this.setState({ ...state });
-    this.checkRequestResult(nextProps);
+    // this.checkRequestResult(nextProps);
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    this.checkRequestResult(prevProps);
   }
 
   fetchData(props = this.props) {
@@ -288,20 +294,27 @@ class DashboardSettings extends React.Component {
     return newWidgets;
   }
 
-  checkRequestResult(nextProps) {
-    const oldRStatus = get(this.props, 'requestResult.status', null);
-    const newRStatus = get(nextProps, 'requestResult.status', null);
-    const oldSaveWay = get(this.props, 'requestResult.saveWay', null);
-    const checkResult = get(nextProps, 'requestResult', {});
+  checkRequestResult(prevProps) {
+    const oldRStatus = get(prevProps, 'requestResult.status', null);
+    const newRStatus = get(this.props, 'requestResult.status', null);
+    const oldSaveWay = get(prevProps, 'requestResult.saveWay', null);
+    const checkResult = get(this.props, 'requestResult', {});
     const newSaveWay = checkResult.saveWay;
 
     if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
       clearCache();
-      this.closePage(nextProps);
+      this.clearLocalStorage();
+      this.closePage(this.props);
     } else if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
       this.acceptChanges(checkResult.dashboardId);
     }
   }
+
+  clearLocalStorage = () => {
+    const { removedWidgets } = this.state;
+
+    removeItems(removedWidgets.map(id => UserLocalSettingsService.getDashletKey(id)));
+  };
 
   getPathInfo(props = this.props) {
     const {
@@ -487,13 +500,17 @@ class DashboardSettings extends React.Component {
     const { availableWidgets, activeLayoutTabId, selectedWidgets, mobileSelectedWidgets, mobileActiveLayoutTabId } = this.state;
     const isMob = this.isSelectedMobileVer;
 
-    const setData = data => {
+    const setData = (data, removedWidgets) => {
       if (isMob) {
         mobileSelectedWidgets[mobileActiveLayoutTabId] = data;
         this.setState({ mobileSelectedWidgets });
       } else {
         selectedWidgets[activeLayoutTabId] = data;
         this.setState({ selectedWidgets });
+      }
+
+      if (removedWidgets) {
+        this.setState({ removedWidgets });
       }
     };
 
@@ -503,7 +520,6 @@ class DashboardSettings extends React.Component {
         activeWidgets={this.activeData.widgets}
         columns={this.selectedTypeLayout.columns}
         positionAdjustment={this.draggablePositionAdjustment}
-        clearLocalStorage={this.handleClearLocalStorage}
         setData={setData}
         isMobile={isMob}
       />
@@ -537,10 +553,6 @@ class DashboardSettings extends React.Component {
     const { selectedDashboardKey: dashboardKey, isForAllUsers } = this.state;
 
     checkUpdatedSettings({ isForAllUsers, dashboardKey });
-  };
-
-  handleClearLocalStorage = data => {
-    this.props.clearLocalStorage(data);
   };
 
   acceptChanges = checkResultId => {

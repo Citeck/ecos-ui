@@ -33,7 +33,6 @@ class SetWidgets extends React.Component {
     activeWidgets: PropTypes.array,
     setData: PropTypes.func,
     positionAdjustment: PropTypes.func,
-    clearLocalStorage: PropTypes.func,
     isMobile: PropTypes.bool
   };
 
@@ -44,12 +43,12 @@ class SetWidgets extends React.Component {
     columns: [],
     setData: () => {},
     positionAdjustment: () => {},
-    clearLocalStorage: () => {},
     isMobile: false
   };
 
   state = {
-    draggableDestination: ''
+    draggableDestination: '',
+    removedWidgets: []
   };
 
   getWidgetLabel(widget) {
@@ -71,7 +70,7 @@ class SetWidgets extends React.Component {
 
   handleDropEndWidget = result => {
     const { source, destination } = result;
-    const { availableWidgets, activeWidgets, setData } = this.props;
+    const { availableWidgets, activeWidgets } = this.props;
 
     let selectedWidgets = deepClone(activeWidgets);
 
@@ -98,16 +97,25 @@ class SetWidgets extends React.Component {
     }
 
     this.setState({ draggableDestination: '' });
-    setData(selectedWidgets);
+    this.setData(selectedWidgets);
   };
 
   handleRemoveWidget = ({ item }, indexColumn, indexWidget) => {
-    const { activeWidgets, setData, clearLocalStorage } = this.props;
+    const { activeWidgets } = this.props;
+    const { removedWidgets } = this.state;
     const newActiveWidgets = deepClone(activeWidgets);
 
-    clearLocalStorage(item.id);
+    if (item.id) {
+      removedWidgets.push(item.id);
+      this.setState({ removedWidgets });
+    }
+
     newActiveWidgets[indexColumn].splice(indexWidget, 1);
-    setData(newActiveWidgets);
+    this.setData(newActiveWidgets, removedWidgets);
+  };
+
+  setData = (activeWidgets, removedWidgets) => {
+    this.props.setData(activeWidgets, removedWidgets);
   };
 
   renderWidgetColumns() {
