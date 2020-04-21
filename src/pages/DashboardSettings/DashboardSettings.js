@@ -23,7 +23,8 @@ import {
   initDashboardSettings,
   resetDashboardConfig,
   saveDashboardConfig,
-  setCheckUpdatedDashboardConfig
+  setCheckUpdatedDashboardConfig,
+  clearLocalStorage
 } from '../../actions/dashboardSettings';
 import { initMenuSettings } from '../../actions/menu';
 import { DndUtils } from '../../components/Drag-n-Drop';
@@ -64,7 +65,8 @@ const mapDispatchToProps = dispatch => ({
   saveSettings: payload => dispatch(saveDashboardConfig(payload)),
   getAwayFromPage: payload => dispatch(getAwayFromPage(payload)),
   setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig(payload)),
-  resetDashboardConfig: () => dispatch(resetDashboardConfig())
+  resetDashboardConfig: () => dispatch(resetDashboardConfig()),
+  clearLocalStorage: payload => dispatch(clearLocalStorage(payload))
 });
 
 const DESK_VER = find(DeviceTabs, ['key', 'desktop']);
@@ -501,6 +503,7 @@ class DashboardSettings extends React.Component {
         activeWidgets={this.activeData.widgets}
         columns={this.selectedTypeLayout.columns}
         positionAdjustment={this.draggablePositionAdjustment}
+        clearLocalStorage={this.handleClearLocalStorage}
         setData={setData}
         isMobile={isMob}
       />
@@ -534,6 +537,10 @@ class DashboardSettings extends React.Component {
     const { selectedDashboardKey: dashboardKey, isForAllUsers } = this.state;
 
     checkUpdatedSettings({ isForAllUsers, dashboardKey });
+  };
+
+  handleClearLocalStorage = data => {
+    this.props.clearLocalStorage(data);
   };
 
   acceptChanges = checkResultId => {

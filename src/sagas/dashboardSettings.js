@@ -1,5 +1,6 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import {
+  clearLocalStorage,
   getAvailableWidgets,
   getCheckUpdatedDashboardConfig,
   getDashboardConfig,
@@ -17,10 +18,12 @@ import { selectIdentificationForSet } from '../selectors/dashboard';
 import { selectIsAdmin, selectUserName } from '../selectors/user';
 import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
+import { removeItem } from '../helpers/ls';
 import { DASHBOARD_DEFAULT_KEY, RequestStatuses } from '../constants';
 import DashboardService from '../services/dashboard';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
 import MenuConverter from '../dto/menu';
+import { Prefixes } from '../services/userLocalSettings';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
@@ -163,6 +166,20 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
   }
 }
 
+function* goClearLocalStorage({ api, logger }, { payload }) {
+  try {
+    const user = yield select(selectUserName);
+
+    if (Array.isArray(payload)) {
+      payload.forEach(key => removeItem(`${Prefixes.DASHLET}${key}${Prefixes.USER}${user}`));
+    } else {
+      removeItem(`${Prefixes.DASHLET}${payload}${Prefixes.USER}${user}`);
+    }
+  } catch (e) {
+    logger.error('[dashboard/settings/ goClearLocalStorage saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initDashboardSettings().type, doInitDashboardSettingsRequest, ea);
   yield takeLatest(getDashboardConfig().type, doGetDashboardConfigRequest, ea);
@@ -170,6 +187,7 @@ function* saga(ea) {
   yield takeLatest(saveDashboardConfig().type, doSaveSettingsRequest, ea);
   yield takeLatest(getDashboardKeys().type, doGetDashboardKeys, ea);
   yield takeLatest(getCheckUpdatedDashboardConfig().type, doCheckUpdatedSettings, ea);
+  yield takeLatest(clearLocalStorage().type, goClearLocalStorage, ea);
 }
 
 export default saga;

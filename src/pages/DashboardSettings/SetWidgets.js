@@ -33,6 +33,7 @@ class SetWidgets extends React.Component {
     activeWidgets: PropTypes.array,
     setData: PropTypes.func,
     positionAdjustment: PropTypes.func,
+    clearLocalStorage: PropTypes.func,
     isMobile: PropTypes.bool
   };
 
@@ -43,6 +44,7 @@ class SetWidgets extends React.Component {
     columns: [],
     setData: () => {},
     positionAdjustment: () => {},
+    clearLocalStorage: () => {},
     isMobile: false
   };
 
@@ -100,9 +102,10 @@ class SetWidgets extends React.Component {
   };
 
   handleRemoveWidget = ({ item }, indexColumn, indexWidget) => {
-    const { activeWidgets, setData } = this.props;
+    const { activeWidgets, setData, clearLocalStorage } = this.props;
     const newActiveWidgets = deepClone(activeWidgets);
 
+    clearLocalStorage(item.id);
     newActiveWidgets[indexColumn].splice(indexWidget, 1);
     setData(newActiveWidgets);
   };

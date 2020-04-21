@@ -17,3 +17,5 @@ export const getDashboardKeys = createAction(prefix + 'GET_DASHBOARD_KEYS');
 export const getDashboardConfig = createAction(prefix + 'GET_DASHBOARD_CONFIG');
 export const saveDashboardConfig = createAction(prefix + 'SAVE_DASHBOARD_CONFIG');
 export const getCheckUpdatedDashboardConfig = createAction(prefix + 'GET_CHECK_UPDATED_DASHBOARD_CONFIG');
+
+export const clearLocalStorage = createAction(prefix + 'CLEAR_LS_DATA');

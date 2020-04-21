@@ -21,12 +21,12 @@ import Dashlet from '../../Dashlet/Dashlet';
 import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import ComparisonModal from './ComparisonModal';
+import { getStateId } from '../../../helpers/redux';
 
 import './style.scss';
 
-const getStoreKey = props => `[${props.tabId}]-[${props.id}]`;
 const mapStateToProps = (state, ownProps) => {
-  const id = getStoreKey(ownProps);
+  const id = getStateId(ownProps);
   const versionState = selectStateByKey(state, id);
   const isMobile = get(state, ['view', 'isMobile'], false);
 
@@ -53,7 +53,7 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
-  const id = getStoreKey(ownProps);
+  const id = getStateId(ownProps);
 
   return {
     getVersionsList: () => dispatch(getVersions({ record: ownProps.record, id })),
