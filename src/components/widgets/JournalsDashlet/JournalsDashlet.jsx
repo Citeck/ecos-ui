@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import queryString from 'query-string';
 
 import { goToJournalsPage } from '../../../helpers/urls';
-import { wrapArgs } from '../../../helpers/redux';
+import { getStateId, wrapArgs } from '../../../helpers/redux';
 import { t } from '../../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
@@ -23,7 +23,7 @@ import BaseWidget from '../BaseWidget';
 
 import './JournalsDashlet.scss';
 
-const getKey = props => `[${props.tabId}]-[${props.stateId || props.id}]`;
+const getKey = ({ tabId, stateId, id }) => getStateId({ tabId, id: stateId || id });
 
 const mapStateToProps = (state, ownProps) => {
   const newState = state.journals[getKey(ownProps)] || {};

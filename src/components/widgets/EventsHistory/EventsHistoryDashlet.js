@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { isSmallMode, t } from '../../../helpers/util';
+import { getStateId } from '../../../helpers/redux';
 import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
@@ -36,15 +37,16 @@ class EventsHistoryDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
+    this.stateId = getStateId(props);
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
+
+    UserLocalSettingsService.checkOldData(props.id);
 
     this.state = {
       isSmallMode: false,
       fitHeights: {},
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
+      userHeight: UserLocalSettingsService.getDashletHeight(this.stateId),
+      isCollapsed: UserLocalSettingsService.getDashletProperty(this.stateId, DashletProps.IS_COLLAPSED)
     };
   }
 
@@ -57,11 +59,11 @@ class EventsHistoryDashlet extends BaseWidget {
   }
 
   onResize = width => {
-    this.setState({ isSmallMode: isSmallMode(width) });
+    !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   render() {
-    const { id, title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, runUpdate, userHeight, fitHeights, isCollapsed } = this.state;
 
     return (
@@ -85,7 +87,7 @@ class EventsHistoryDashlet extends BaseWidget {
           forwardedRef={this.contentRef}
           className={classNameContent}
           record={record}
-          stateId={id}
+          stateId={this.stateId}
           isSmallMode={isSmallMode}
           runUpdate={runUpdate}
           height={userHeight}
