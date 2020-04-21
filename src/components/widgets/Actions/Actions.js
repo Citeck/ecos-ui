@@ -14,7 +14,6 @@ import { selectIdentificationForView } from '../../../selectors/dashboard';
 import { ActionModes } from '../../../constants';
 
 const mapStateToProps = (state, { stateId, tabId }) => {
-  console.log(state.pageTabs.tabs, tabId);
   const aState = selectDataRecordActionsByStateId(state, stateId) || {};
 
   return {
