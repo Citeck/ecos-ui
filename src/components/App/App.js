@@ -21,6 +21,7 @@ import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 import PageService, { Events } from '../../services/PageService';
 import { isMobileAppWebView, t } from '../../helpers/util';
 import pageTabList from '../../services/pageTabs/PageTabList';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 
 import './App.scss';
 
@@ -42,6 +43,7 @@ class App extends Component {
 
     initMenuSettings();
     document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
+    UserLocalSettingsService.checkDasletsUpdatedDate();
   }
 
   handleCustomEvent = event => {

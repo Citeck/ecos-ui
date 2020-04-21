@@ -23,6 +23,8 @@ class BaseWidget extends Component {
     if (typeof onLoad === 'function') {
       onLoad(this);
     }
+
+    this.updateLocalStorageDate();
   }
 
   componentDidUpdate() {
@@ -71,6 +73,10 @@ class BaseWidget extends Component {
     if (JSON.stringify(fitHeightsState) !== JSON.stringify(fitHeights)) {
       this.setState({ fitHeights });
     }
+  };
+
+  updateLocalStorageDate = () => {
+    UserLocalSettingsService.updateDashletDate(this.props.id);
   };
 
   checkHeight = debounce((force = false) => {
