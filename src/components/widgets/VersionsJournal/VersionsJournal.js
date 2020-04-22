@@ -8,7 +8,6 @@ import get from 'lodash/get';
 
 import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../../actions/versionsJournal';
 import { selectLabelsVersions, selectStateByKey } from '../../../selectors/versionsJournal';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import { arrayCompare, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../../constants/versionsJournal';
@@ -121,18 +120,12 @@ class VersionsJournal extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
     const state = {
-      width: 290,
+      ...this.state,
       selectedVersion: null,
       comparisonFirstVersion: null,
       comparisonSecondVersion: null,
-      editorHeight: BASE_HEIGHT,
-      contentHeight: null,
-      fitHeights: {},
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
+      editorHeight: BASE_HEIGHT
     };
 
     this.state = { ...state, ...VersionsJournal.getDefaultSelectedVersions(props) };

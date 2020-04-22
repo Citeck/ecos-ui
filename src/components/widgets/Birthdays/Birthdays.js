@@ -7,11 +7,11 @@ import get from 'lodash/get';
 
 import { selectStateByKey } from '../../../selectors/birthdays';
 import { getBirthdays, resetStore } from '../../../actions/birthdays';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
+import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import { isNewVersionPage } from '../../../helpers/urls';
 import { getStateId } from '../../../helpers/redux';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 import PageService from '../../../services/PageService';
 import { Avatar, DefineHeight, Loader } from '../../common';
 import { Btn } from '../../common/btns';
@@ -53,14 +53,6 @@ class Birthdays extends BaseWidget {
     super(props);
 
     this.stateId = getStateId(props);
-
-    this.state = {
-      fitHeights: {},
-      contentHeight: null,
-      width: MIN_WIDTH_DASHLET_SMALL,
-      userHeight: UserLocalSettingsService.getDashletHeight(this.stateId),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(this.stateId, DashletProps.IS_COLLAPSED)
-    };
   }
 
   componentDidMount() {
@@ -96,13 +88,8 @@ class Birthdays extends BaseWidget {
   };
 
   handleChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.stateId, height);
+    UserLocalSettingsService.setDashletHeight(this.state.lsId, height);
     this.setState({ userHeight: height });
-  };
-
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setDashletProperty(this.stateId, { isCollapsed });
   };
 
   handleGoToProfile = url => {

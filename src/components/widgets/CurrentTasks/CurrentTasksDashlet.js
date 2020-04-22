@@ -4,7 +4,6 @@ import classNames from 'classnames';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import Dashlet, { BaseActions } from '../../Dashlet';
 import CurrentTasks from './CurrentTasks';
 import BaseWidget from '../BaseWidget';
@@ -40,13 +39,9 @@ class CurrentTasksDashlet extends BaseWidget {
     this.stateId = getStateId(props);
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
 
-    UserLocalSettingsService.checkOldData(this.stateId);
-
     this.state = {
+      ...this.state,
       isSmallMode: false,
-      fitHeights: {},
-      userHeight: UserLocalSettingsService.getDashletHeight(this.stateId),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(this.stateId, DashletProps.IS_COLLAPSED),
       totalCount: 0,
       isLoading: true
     };

@@ -41,7 +41,11 @@ export default class UserLocalSettingsService {
     return `${Prefixes.MENU}${getCurrentUserName()}`;
   }
 
-  static getDashletKey(key) {
+  static getDashletKey(key, tabId) {
+    if (tabId) {
+      return self.getDashletKey(`${key}/${tabId}`);
+    }
+
     return `${Prefixes.DASHLET}${getKey(key)}`;
   }
 
@@ -49,8 +53,12 @@ export default class UserLocalSettingsService {
     return `${Prefixes.JOURNAL}${getKey(key || 'all')}`;
   }
 
-  static checkOldData(dashletId) {
-    self.transferData(`${Prefixes.DASHLET}${dashletId}`, self.getDashletKey(dashletId));
+  static checkOldData(dashletId, tabId = false) {
+    if (tabId) {
+      self.transferData(self.getDashletKey(dashletId), self.getDashletKey(dashletId, tabId));
+    } else {
+      self.transferData(`${Prefixes.DASHLET}${dashletId}`, self.getDashletKey(dashletId));
+    }
   }
 
   static transferData(oldKey, newKey) {

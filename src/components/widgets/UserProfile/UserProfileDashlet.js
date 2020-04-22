@@ -35,9 +35,14 @@ class UserProfileDashlet extends BaseWidget {
     classNameDashlet: ''
   };
 
-  state = {
-    isShowPasswordModal: false
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      ...this.state,
+      isShowPasswordModal: false
+    };
+  }
 
   componentDidMount() {
     const { getUserData } = this.props;

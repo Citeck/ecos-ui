@@ -17,7 +17,7 @@ import {
   resetStore
 } from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
@@ -69,11 +69,7 @@ class DocAssociations extends BaseWidget {
     super(props);
 
     this.state = {
-      fitHeights: {},
-      contentHeight: null,
-      width: MIN_WIDTH_DASHLET_SMALL,
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
+      ...this.state,
       isMenuOpen: false,
       isConfirmRemoveDialogOpen: false,
       journalId: '',
@@ -104,7 +100,7 @@ class DocAssociations extends BaseWidget {
   }
 
   checkHeight = () => {
-    if (UserLocalSettingsService.getDashletHeight(this.props.id) > this.clientHeight && this.clientHeight) {
+    if (UserLocalSettingsService.getDashletHeight(this.state.lsId) > this.clientHeight && this.clientHeight) {
       this.handleChangeHeight(this.clientHeight);
     }
   };

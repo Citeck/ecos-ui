@@ -5,8 +5,8 @@ import get from 'lodash/get';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
-import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
 import BaseWidget from '../BaseWidget';
@@ -47,14 +47,9 @@ class DocPreviewDashlet extends BaseWidget {
     this.stateId = getStateId(props);
     this.watcher = this.instanceRecord.watch('version', this.reload);
 
-    UserLocalSettingsService.checkOldData(this.stateId);
-
     this.state = {
-      width: MIN_WIDTH_DASHLET_SMALL,
-      userHeight: UserLocalSettingsService.getDashletHeight(this.stateId),
-      scale: isMobile ? DocScaleOptions.PAGE_WHOLE : UserLocalSettingsService.getDashletScale(this.stateId) || DocScaleOptions.AUTO,
-      isCollapsed: UserLocalSettingsService.getDashletProperty(this.stateId, DashletProps.IS_COLLAPSED),
-      fitHeights: {}
+      ...this.state,
+      scale: isMobile ? DocScaleOptions.PAGE_WHOLE : UserLocalSettingsService.getDashletScale(this.state.lsId) || DocScaleOptions.AUTO
     };
   }
 
@@ -75,7 +70,7 @@ class DocPreviewDashlet extends BaseWidget {
   };
 
   setUserScale = scale => {
-    scale && !isMobile && UserLocalSettingsService.setDashletScale(this.stateId, scale);
+    scale && !isMobile && UserLocalSettingsService.setDashletScale(this.state.lsId, scale);
   };
 
   setContainerPageHeight = height => {

@@ -10,7 +10,6 @@ import { goToJournalsPage } from '../../../helpers/urls';
 import { getStateId, wrapArgs } from '../../../helpers/redux';
 import { t } from '../../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import { getDashletConfig, initState, reloadGrid, setDashletConfigByParams, setEditorMode, setRecordRef } from '../../../actions/journals';
 
 import Measurer from '../../Measurer/Measurer';
@@ -79,11 +78,6 @@ class JournalsDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.state = {
-      width: MIN_WIDTH_DASHLET_SMALL,
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
-    };
-
     this.props.initState();
 
     this.recordRef = queryString.parse(window.location.search).recordRef;
@@ -105,11 +99,6 @@ class JournalsDashlet extends BaseWidget {
 
   handleResize = width => {
     this.setState({ width });
-  };
-
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setDashletProperty(this.props.id, { isCollapsed });
   };
 
   showEditor = () => this.props.setEditorMode(true);

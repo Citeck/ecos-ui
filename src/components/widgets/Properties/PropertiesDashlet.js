@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 
 import { isSmallMode, objectCompare, t } from '../../../helpers/util';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import Dashlet, { BaseActions } from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
@@ -55,18 +54,14 @@ class PropertiesDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
 
     this.state = {
+      ...this.state,
       isSmallMode: false,
       isEditProps: false,
       formIsChanged: false,
       isSmall: false,
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      fitHeights: {},
       canEditRecord: false,
       isShowSetting: false,
       wasLastModifiedWithInlineEditor: false,

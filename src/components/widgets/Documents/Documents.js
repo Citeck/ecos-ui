@@ -17,7 +17,7 @@ import { Grid, InlineTools } from '../../common/grid';
 import FormManager from '../../EcosForm/FormManager';
 import DropZone from './DropZone';
 import Settings from './Settings';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 import DocumentsConverter from '../../../dto/documents';
 import {
   execRecordsAction,
@@ -29,7 +29,6 @@ import {
   uploadFiles
 } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
-import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import { errorTypes, statusesKeys, tableFields, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
 import { closest, deepClone, objectCompare, prepareTooltipId, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
@@ -95,18 +94,12 @@ class Documents extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
     this.state = {
+      ...this.state,
       leftColumnId: uniqueId('leftColumn_'),
       rightColumnId: uniqueId('rightColumn_'),
       selectedType: '',
       selectedTypeForLoading: '',
-      fitHeights: {},
-      contentHeight: null,
-      width: MIN_WIDTH_DASHLET_SMALL,
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
       isOpenSettings: false,
       isSentSettingsToSave: false,
       isOpenUploadModal: false,
@@ -515,7 +508,7 @@ class Documents extends BaseWidget {
       userHeight = 0;
     }
 
-    UserLocalSettingsService.setDashletHeight(this.props.id, userHeight);
+    UserLocalSettingsService.setDashletHeight(this.state.lsId, userHeight);
     this.setState({ userHeight });
   };
 

@@ -4,7 +4,6 @@ import classNames from 'classnames';
 
 import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import EventsHistory from './EventsHistory';
@@ -40,13 +39,9 @@ class EventsHistoryDashlet extends BaseWidget {
     this.stateId = getStateId(props);
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
     this.state = {
-      isSmallMode: false,
-      fitHeights: {},
-      userHeight: UserLocalSettingsService.getDashletHeight(this.stateId),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(this.stateId, DashletProps.IS_COLLAPSED)
+      ...this.state,
+      isSmallMode: false
     };
   }
 
