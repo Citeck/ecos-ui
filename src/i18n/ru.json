@@ -686,6 +686,7 @@
   "timesheets.allForms.buttons.approve.tip": "Согласовать табель",
   "timesheets.allForms.buttons.approve.withoutManager.tip": "Согласовать без утверждения менеджером",
   "timesheets.allForms.buttons.sendToApproval.tip": "Отправить на согласование менеджеру",
+  "timesheets.allForms.buttons.approve3.tip": "Согласовать табель (передать  T&A команде)",
   "timesheets.allForms.statuses.notFilled": "Не заполнены",
   "timesheets.allForms.statuses.reworking": "На доработке",
   "timesheets.allForms.statuses.onApproval": "На согласовании",
