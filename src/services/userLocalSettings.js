@@ -2,7 +2,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import moment from 'moment';
 
-import { getData, getSessionData, setData, setSessionData, transferData, removeItem } from '../helpers/ls';
+import { getData, getSessionData, setData, setSessionData, transferData, removeItem, getFilteredKeys } from '../helpers/ls';
 import { getCurrentUserName } from '../helpers/util';
 
 export const Prefixes = {
@@ -15,11 +15,13 @@ export const Prefixes = {
 /**
  * maximum data storage time in lS
  *
- * @type {{COUNT: number, TYPE: string momentjs month key}}
+ * @type {{ count: number, token: string }}
+ *
+ * @token - momentjs format token https://momentjs.com/docs/#/displaying/format/
  */
 export const DateStorageTime = {
-  TYPE: 'M',
-  COUNT: 6
+  token: 'M',
+  count: 6
 };
 
 function getDashletSettings(key) {
@@ -163,8 +165,8 @@ export default class UserLocalSettingsService {
     });
   }
 
-  static checkDasletsUpdatedDate() {
-    const keys = Object.keys(window.localStorage).filter(key => key.includes(Prefixes.DASHLET));
+  static checkDasletsUpdatedDate({ token, count } = DateStorageTime) {
+    const keys = getFilteredKeys(Prefixes.DASHLET);
 
     keys.forEach(key => {
       const dashletData = getDashletSettings(key);
@@ -178,12 +180,25 @@ export default class UserLocalSettingsService {
         return;
       }
 
-      if (moment().diff(moment(lastUsedDate), DateStorageTime.TYPE) >= DateStorageTime.COUNT) {
+      if (moment().diff(moment(lastUsedDate), token) >= count) {
         removeItem(key);
       }
     });
   }
+
+  static removeDataOnTab(tabId = '') {
+    if (isEmpty(tabId)) {
+      return;
+    }
+
+    const keys = getFilteredKeys(tabId);
+
+    keys.forEach(key => {
+      removeItem(key);
+    });
+  }
 }
+
 const self = UserLocalSettingsService;
 
 export const DashletProps = {

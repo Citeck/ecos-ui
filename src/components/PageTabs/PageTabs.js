@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { changeTab, deleteTab, initTabs, moveTabs, setDisplayState, setTab, updateTab } from '../../actions/pageTabs';
 import { animateScrollTo, arrayCompare, getScrollbarWidth, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 import { SortableContainer } from '../Drag-n-Drop';
 import ClickOutside from '../ClickOutside';
 import { dropByCacheKey } from '../ReactRouterCache';
@@ -161,6 +162,7 @@ class PageTabs extends React.Component {
       dropByCacheKey(tab.link);
     }
 
+    UserLocalSettingsService.removeDataOnTab(tab.id);
     deleteTab(tab);
   }
 

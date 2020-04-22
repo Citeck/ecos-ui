@@ -126,3 +126,13 @@ export function setSessionData(key = '', data = null) {
 
   window.sessionStorage.setItem(key, JSON.stringify(data));
 }
+
+export function getFilteredKeys(filter = '') {
+  const keys = Object.keys(window.localStorage);
+
+  if (!filter.length) {
+    return keys;
+  }
+
+  return keys.filter(key => key.includes(filter));
+}
