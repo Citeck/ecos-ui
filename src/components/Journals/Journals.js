@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
+import ReactResizeDetector from 'react-resize-detector';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
-import PageHeight from './PageHeight';
 import JournalsGrouping from './JournalsGrouping';
 import JournalsFilters from './JournalsFilters';
 import JournalsColumnsSetup from './JournalsColumnsSetup';
@@ -165,11 +165,13 @@ class Journals extends Component {
     }
 
     const visibleColumns = columns.filter(c => c.visible);
+    const minH = 300;
+    const availableHeight = height => (height > minH ? height : minH);
 
     return (
-      <PageHeight>
-        {height => (
-          <div className={classNames('ecos-journal', { 'ecos-journal_mobile': isMobile })}>
+      <ReactResizeDetector handleHeight>
+        {({ height }) => (
+          <div className={classNames('ecos-journal', { 'ecos-journal_mobile': isMobile, 'ecos-journal_scroll': height <= minH })}>
             <div
               className={classNames('ecos-journal__body', {
                 'ecos-journal__body_with-tabs': pageTabsIsShow,
@@ -223,7 +225,7 @@ class Journals extends Component {
                 </Well>
               </EcosModal>
 
-              <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} maxHeight={height - 165} />
+              <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} maxHeight={availableHeight(height) - 165} />
 
               <div className={'ecos-journal__footer'}>
                 <JournalsDashletPagination
@@ -243,11 +245,11 @@ class Journals extends Component {
                 'ecos-journal__menu_expanded': menuOpenAnimate
               })}
             >
-              <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} height={height} />
+              <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} height={availableHeight(height)} />
             </div>
           </div>
         )}
-      </PageHeight>
+      </ReactResizeDetector>
     );
   }
 }

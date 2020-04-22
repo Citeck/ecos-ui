@@ -15,7 +15,7 @@ if (process.env.NODE_ENV === 'development') {
   const logger = createLogger({
     collapsed: true,
     diff: true
-    // predicate: (getState, action) => action.type.startsWith('header/')
+    // predicate: (getState, action) => action.type.startsWith('')
   });
   optionalMiddlewares.push(logger);
 }
