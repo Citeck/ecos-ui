@@ -102,9 +102,9 @@ class JournalsDashletEditor extends Component {
   }
 
   cancel = () => {
-    if (this.props.config) {
-      this.props.setEditorMode(false);
-    }
+    const { config, setEditorMode } = this.props;
+
+    config && setEditorMode(false);
   };
 
   save = () => {
@@ -122,7 +122,9 @@ class JournalsDashletEditor extends Component {
   };
 
   clear = () => {
-    this.props.setDashletConfig(this.props.initConfig);
+    const { initConfig, setDashletConfig } = this.props;
+
+    setDashletConfig(initConfig);
   };
 
   setSettingItem = item => {

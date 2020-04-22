@@ -56,9 +56,7 @@ export default handleActions(
         }
       };
     },
-    [setDashboardIdentification]: (state, { payload }) => {
-      const { identification, key } = payload;
-
+    [setDashboardIdentification]: (state, { payload: { identification, key } }) => {
       return {
         ...state,
         [key]: {
@@ -67,14 +65,23 @@ export default handleActions(
         }
       };
     },
-    [setDashboardConfig]: (state, { payload }) => {
+    [setDashboardConfig]: (state, { payload: { key, config } }) => {
+      const { id: _id, key: _key } = state[key].identification;
+      const boards = {};
+
+      for (const k in state) {
+        if (state.hasOwnProperty(k) && state[k].identification.id === _id && state[k].identification.key === _key) {
+          boards[k] = {
+            ...state[k],
+            config,
+            isLoading: false
+          };
+        }
+      }
+
       return {
         ...state,
-        [payload.key]: {
-          ...state[payload.key],
-          config: payload.config,
-          isLoading: false
-        }
+        ...boards
       };
     },
     [setMobileDashboardConfig]: (state, { payload }) => {
