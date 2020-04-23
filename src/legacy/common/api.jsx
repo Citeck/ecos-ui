@@ -69,6 +69,10 @@ export default class {
     return this.getJSON(url).catch(() => []);
   };
 
+  getCustomCreateVariants = () => {
+    return menuApi.getCustomCreateVariants();
+  };
+
   getSiteData = siteId => {
     const url = 'api/sites/' + siteId;
     return this.getJSON(url).catch(() => {});

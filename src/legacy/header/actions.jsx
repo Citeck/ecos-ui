@@ -1,5 +1,6 @@
-import { processMenuItemsFromOldMenu, makeUserMenuItems } from './misc/util';
+import { makeUserMenuItems, processMenuItemsFromOldMenu } from './misc/util';
 import { t } from '../common/util';
+import MenuConverter from '../../dto/menu';
 
 const Alfresco = window.Alfresco || {};
 
@@ -211,8 +212,7 @@ export function setIsMobile(payload) {
 /* COMMON */
 export function loadTopMenuData(userName, isUserAvailable, isUserMutable, isExternalAuthentication, oldMenuSiteWidgetItems) {
   return (dispatch, getState, api) => {
-    let promises = [];
-
+    const promises = [];
     const getCreateCaseMenuDataRequest = api.getCreateVariantsForAllSites().then(sites => {
       let menuItems = [];
 
@@ -251,9 +251,9 @@ export function loadTopMenuData(userName, isUserAvailable, isUserMutable, isExte
           });
         }
 
-        const siteId = 'HEADER_' + site.siteId.replace(/\-/g, '_').toUpperCase();
         menuItems.push({
-          id: siteId,
+          id: 'HEADER_' + site.siteId.replace(/\-/g, '_').toUpperCase(),
+          siteId: site.siteId,
           label: site.siteTitle,
           items: createVariants
         });
@@ -261,13 +261,17 @@ export function loadTopMenuData(userName, isUserAvailable, isUserMutable, isExte
 
       return menuItems;
     });
+    const getCreateCustomMenuDataRequest = api.getCustomCreateVariants().then(items => MenuConverter.getCreateCustomItems(items));
 
     promises.push(getCreateCaseMenuDataRequest);
+    promises.push(getCreateCustomMenuDataRequest);
 
     Promise.all(promises)
-      .then(([createCaseMenu]) => {
+      .then(([_sites, _customs]) => {
+        const { sites, customs } = MenuConverter.mergeCustomsAndSites(_customs, _sites);
+
         return {
-          createCaseMenu: createCaseMenu,
+          createCaseMenu: [].concat(customs, sites),
           siteMenu: processMenuItemsFromOldMenu(oldMenuSiteWidgetItems),
           userMenu: makeUserMenuItems(userName, isUserAvailable, isUserMutable, isExternalAuthentication)
         };
