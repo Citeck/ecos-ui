@@ -1,4 +1,5 @@
 {
   "realmId": "REALM_ID",
-  "eisId": "EIS_ID"
+  "eisId": "EIS_ID",
+  "logoutUrl": "LOGOUT_URL"
 }

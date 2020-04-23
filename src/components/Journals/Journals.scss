@@ -7,6 +7,10 @@
   overflow: hidden;
   display: flex;
 
+  &_scroll {
+    overflow: scroll;
+  }
+
   &_mobile {
     display: block;
   }
