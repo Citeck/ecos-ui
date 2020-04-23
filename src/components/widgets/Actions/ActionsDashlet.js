@@ -52,7 +52,7 @@ class ActionsDashlet extends BaseWidget {
   };
 
   render() {
-    const { title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging, tabId } = this.props;
+    const { title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging, tabId, isActiveLayout } = this.props;
     const { isSmallMode, userHeight, fitHeights, isCollapsed, runUpdate } = this.state;
 
     return (
@@ -85,6 +85,7 @@ class ActionsDashlet extends BaseWidget {
           maxHeight={fitHeights.max}
           onActionsChanged={this.checkHeight}
           runUpdate={runUpdate}
+          isActiveLayout={isActiveLayout}
         />
       </Dashlet>
     );

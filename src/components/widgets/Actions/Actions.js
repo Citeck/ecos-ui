@@ -4,24 +4,23 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
 
-import { DefineHeight } from '../../common/index';
+import { ActionModes } from '../../../constants';
 import { selectDataRecordActionsByStateId } from '../../../selectors/recordActions';
+import { selectIdentificationForView } from '../../../selectors/dashboard';
 import { getActions, resetActions, runExecuteAction } from '../../../actions/recordActions';
+import { DefineHeight } from '../../common/index';
 import ActionsList from './ActionsList';
 
 import './style.scss';
-import { selectIdentificationForView } from '../../../selectors/dashboard';
-import { ActionModes } from '../../../constants';
 
-const mapStateToProps = (state, { stateId, tabId }) => {
+const mapStateToProps = (state, { stateId }) => {
   const aState = selectDataRecordActionsByStateId(state, stateId) || {};
 
   return {
     dashboardId: selectIdentificationForView(state).id,
     list: aState.list,
     isLoading: aState.isLoading,
-    isMobile: state.view.isMobile,
-    isActivePage: !!state.pageTabs.tabs.find(t => t.id === tabId && t.isActive)
+    isMobile: state.view.isMobile
   };
 };
 
@@ -95,7 +94,7 @@ class Actions extends React.Component {
   };
 
   renderActionsList = () => {
-    const { isLoading, className, list, isMobile, forwardedRef, onActionsChanged, isActivePage } = this.props;
+    const { isLoading, className, list, isMobile, forwardedRef, onActionsChanged, isActiveLayout } = this.props;
 
     return (
       <ActionsList
@@ -106,7 +105,7 @@ class Actions extends React.Component {
         isMobile={isMobile}
         executeAction={this.executeAction}
         onActionsChanged={onActionsChanged}
-        isActivePage={isActivePage}
+        isActiveLayout={isActiveLayout}
       />
     );
   };

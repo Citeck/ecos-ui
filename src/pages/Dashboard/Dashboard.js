@@ -23,6 +23,7 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
 import DashboardService from '../../services/dashboard';
+import pageTabList from '../../services/pageTabs/PageTabList';
 import { selectDashboardByKey } from '../../selectors/dashboard';
 
 import './style.scss';
@@ -30,7 +31,6 @@ import './style.scss';
 const mapStateToProps = (state, ownProps) => {
   const isMobile = get(state, ['view', 'isMobile'], false);
   const stateKey = ownProps.tabId || null;
-
   const dashboardState = selectDashboardByKey(state, stateKey);
 
   return {
@@ -331,18 +331,12 @@ class Dashboard extends Component {
   }
 
   renderLayout = React.memo(props => {
-    const { menuType, isMobile, canDragging, columns, type, tabId } = props;
-
     return (
       <Layout
-        className={classNames({ 'ecos-layout_mobile': isMobile })}
-        columns={columns}
-        type={type}
-        tabId={tabId}
-        menuType={menuType}
-        canDragging={canDragging}
+        className={classNames({ 'ecos-layout_mobile': props.isMobile })}
         onSaveWidget={this.prepareWidgetsConfig}
         onSaveWidgetProps={this.handleSaveWidgetProps}
+        {...props}
       />
     );
   });
@@ -448,7 +442,15 @@ class Dashboard extends Component {
         {this.renderTopMenu()}
         {this.renderHeader()}
         {this.renderTabs()}
-        <this.renderLayout menuType={menuType} isMobile={isMobile} canDragging={canDragging} columns={columns} type={type} tabId={tabId} />
+        <this.renderLayout
+          menuType={menuType}
+          isMobile={isMobile}
+          canDragging={canDragging}
+          columns={columns}
+          type={type}
+          tabId={tabId}
+          isActiveLayout={pageTabList.isActiveTab(tabId)}
+        />
         {this.renderLoader()}
       </Scrollbars>
     );
