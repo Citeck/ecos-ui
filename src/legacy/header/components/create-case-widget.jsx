@@ -1,14 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { UncontrolledDropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
+import { DropdownMenu, DropdownToggle, UncontrolledDropdown } from 'reactstrap';
 import DropDownMenuGroup from './dropdown-menu-group';
 import DropdownMenuCascade from './dropdown-menu-cascade';
+import DropDownMenuItem from './dropdown-menu-item';
 import { t } from '../../common/util';
 
 const CreateCaseWidget = ({ items, isCascade }) => {
   let menuListItems = null;
   if (Array.isArray(items) && items.length > 0) {
     menuListItems = items.map((item, key) => {
+      if (!item.items) {
+        return <DropDownMenuItem key={key} data={item} />;
+      }
+
       return isCascade ? (
         <DropdownMenuCascade key={key} label={item.label} items={item.items} id={item.id} />
       ) : (
