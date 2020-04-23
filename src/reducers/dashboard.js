@@ -56,9 +56,7 @@ export default handleActions(
         }
       };
     },
-    [setDashboardIdentification]: (state, { payload }) => {
-      const { identification, key } = payload;
-
+    [setDashboardIdentification]: (state, { payload: { identification, key } }) => {
       return {
         ...state,
         [key]: {
@@ -67,14 +65,23 @@ export default handleActions(
         }
       };
     },
-    [setDashboardConfig]: (state, { payload }) => {
+    [setDashboardConfig]: (state, { payload: { key, config } }) => {
+      const { id: _id, key: _key } = state[key].identification;
+      const boards = {};
+      const keys = Object.keys(state);
+
+      for (const k of keys) {
+        const bState = state[k] || {};
+        const { identification } = bState;
+
+        if (identification.id === _id && identification.key === _key) {
+          boards[k] = { ...bState, config, isLoading: false };
+        }
+      }
+
       return {
         ...state,
-        [payload.key]: {
-          ...state[payload.key],
-          config: payload.config,
-          isLoading: false
-        }
+        ...boards
       };
     },
     [setMobileDashboardConfig]: (state, { payload }) => {

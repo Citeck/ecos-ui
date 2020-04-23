@@ -22,9 +22,8 @@ export const handleAction = action => {
   return action;
 };
 
-export function wrapArgs(id) {
-  let stateId = id;
-  return args => ({ _args: args, stateId });
+export function wrapArgs(stateId) {
+  return _args => ({ _args, stateId });
 }
 
 export function* wrapSaga({ api, logger, saga }, action) {

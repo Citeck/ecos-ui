@@ -6,6 +6,30 @@ export const FILE_CLICK_ACTION_NOOP = 'noop';
 
 export default [
   {
+    type: 'panel',
+    title: 'Value display name',
+    collapsible: true,
+    collapsed: true,
+    customClass: 'form-builder__panel-js',
+    key: 'valueDisplayName-js',
+    weight: 0,
+    components: [
+      {
+        type: 'textarea',
+        key: 'valueDisplayName',
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content: '<p>Enter custom javascript code. You must assign the <strong>disp</strong> variable.</p>'
+      }
+    ]
+  },
+  {
     type: 'select',
     input: true,
     key: 'onFileClick',

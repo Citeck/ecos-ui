@@ -8,7 +8,7 @@ import queryString from 'query-string';
 
 import { goToJournalsPage } from '../../../helpers/urls';
 import { getStateId, wrapArgs } from '../../../helpers/redux';
-import { t } from '../../../helpers/util';
+import { arrayCompare, t } from '../../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import { getDashletConfig, initState, reloadGrid, setDashletConfigByParams, setEditorMode, setRecordRef } from '../../../actions/journals';
 
@@ -22,7 +22,7 @@ import BaseWidget from '../BaseWidget';
 
 import './JournalsDashlet.scss';
 
-const getKey = ({ tabId, stateId, id }) => getStateId({ tabId, id: stateId || id });
+const getKey = ({ tabId, stateId, id }) => ((stateId || '').includes(tabId) ? stateId : getStateId({ tabId, id: stateId || id }));
 
 const mapStateToProps = (state, ownProps) => {
   const newState = state.journals[getKey(ownProps)] || {};
@@ -49,7 +49,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 };
 
 function mergeProps(stateProps, dispatchProps, ownProps) {
-  const newState = get(stateProps, ['journals', ownProps.stateId || ownProps.id], {});
+  const newState = get(stateProps, ['journals', getKey(ownProps)], {});
 
   return {
     ...ownProps,
@@ -97,14 +97,24 @@ class JournalsDashlet extends BaseWidget {
     }
   }
 
+  componentDidUpdate({ config: prevConfig }, prevState, snapshot) {
+    super.componentDidUpdate();
+    const { id, config, setDashletConfigByParams, onSave, reloadGrid } = this.props;
+
+    if (!arrayCompare(config, prevConfig) && !!onSave) {
+      setDashletConfigByParams(id, config);
+      reloadGrid();
+    }
+  }
+
   handleResize = width => {
-    this.setState({ width });
+    !!width && this.setState({ width });
   };
 
   showEditor = () => this.props.setEditorMode(true);
 
   handleReload = () => {
-    this.props.reloadGrid && this.props.reloadGrid();
+    this.props.reloadGrid();
   };
 
   goToJournalsPage = () => {
