@@ -114,10 +114,6 @@ class Dashboard extends Component {
     this.getConfig();
   }
 
-  // shouldComponentUpdate(nextProps, nextState, nextContext) {
-  //   return !(nextProps.tabId && !nextProps.isCurrent);
-  // }
-
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.tabList.length) {
       this.toggleTabLayoutFromUrl();

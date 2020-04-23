@@ -10,8 +10,8 @@ import isNull from 'lodash/isNull';
 import find from 'lodash/find';
 
 import { clearCache } from '../../components/ReactRouterCache';
-import { arrayCompare, documentScrollTop, t } from '../../helpers/util';
-import { getSortedUrlParams } from '../../helpers/urls';
+import { arrayCompare, deepClone, documentScrollTop, t } from '../../helpers/util';
+import { getSortedUrlParams, getSearchParams, SearchKeys } from '../../helpers/urls';
 import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
 import { DashboardTypes, DeviceTabs, MenuTypes } from '../../constants/dashboard';
 import { LAYOUT_TYPE, Layouts } from '../../constants/layout';
@@ -38,10 +38,15 @@ import SetLayouts from './SetLayouts';
 import SetWidgets from './SetWidgets';
 import SetMenu from './SetMenu';
 import UserLocalSettingsService from '../../services/userLocalSettings';
+import { selectStateByKey } from '../../selectors/dashboardSettings';
 
 import './style.scss';
+import pageTabList from '../../services/pageTabs/PageTabList';
 
-const mapStateToProps = state => ({
+const getStateId = props => get(getSearchParams(), SearchKeys.DASHBOARD_ID, props.tabId || 'base');
+const mapStateToProps = (state, ownProps) => ({
+  isActive: ownProps.tabId ? pageTabList.isActiveTab(ownProps.tabId) : true,
+
   userData: {
     userName: get(state, 'user.userName'),
     isAdmin: get(state, 'user.isAdmin', false)
@@ -50,24 +55,22 @@ const mapStateToProps = state => ({
   menuLinks: get(state, 'menu.links', []),
   availableMenuItems: get(state, ['menu', 'availableMenuItems'], []),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
-  config: get(state, 'dashboardSettings.config.layouts', []),
-  mobileConfig: get(state, 'dashboardSettings.config.mobile', []),
-  availableWidgets: get(state, ['dashboardSettings', 'availableWidgets'], []),
-  isLoading: get(state, ['dashboardSettings', 'isLoading']),
-  requestResult: get(state, ['dashboardSettings', 'requestResult'], {}),
-  identification: get(state, ['dashboardSettings', 'identification'], {}),
-  dashboardKeyItems: get(state, ['dashboardSettings', 'dashboardKeys'], [])
+  ...selectStateByKey(state, getStateId(ownProps))
 });
 
-const mapDispatchToProps = dispatch => ({
-  initMenuSettings: () => dispatch(initMenuSettings()),
-  initDashboardSettings: payload => dispatch(initDashboardSettings(payload)),
-  checkUpdatedSettings: payload => dispatch(getCheckUpdatedDashboardConfig(payload)),
-  saveSettings: payload => dispatch(saveDashboardConfig(payload)),
-  getAwayFromPage: payload => dispatch(getAwayFromPage(payload)),
-  setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig(payload)),
-  resetDashboardConfig: () => dispatch(resetDashboardConfig())
-});
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const key = getStateId(ownProps);
+
+  return {
+    initMenuSettings: () => dispatch(initMenuSettings()),
+    initDashboardSettings: payload => dispatch(initDashboardSettings({ ...payload, key })),
+    checkUpdatedSettings: payload => dispatch(getCheckUpdatedDashboardConfig({ ...payload, key })),
+    saveSettings: payload => dispatch(saveDashboardConfig({ ...payload, key })),
+    getAwayFromPage: () => dispatch(getAwayFromPage(key)),
+    setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig({ ...payload, key })),
+    resetDashboardConfig: () => dispatch(resetDashboardConfig(key))
+  };
+};
 
 const DESK_VER = find(DeviceTabs, ['key', 'desktop']);
 
@@ -162,6 +165,10 @@ class DashboardSettings extends React.Component {
     let { config, mobileConfig, menuType, availableMenuItems, availableWidgets } = this.props;
     let state = {};
 
+    if (!nextProps.isActive) {
+      return;
+    }
+
     if (urlParams !== newUrlParams) {
       this.setState({ urlParams: newUrlParams });
       this.fetchData(nextProps);
@@ -197,15 +204,19 @@ class DashboardSettings extends React.Component {
     }
 
     this.setState({ ...state });
-    // this.checkRequestResult(nextProps);
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  componentDidUpdate(prevProps, prevState) {
     this.checkRequestResult(prevProps);
   }
 
   fetchData(props = this.props) {
-    const { initDashboardSettings, initMenuSettings } = props;
+    const { initDashboardSettings, initMenuSettings, isActive } = props;
+
+    if (!isActive) {
+      return;
+    }
+
     const { recordRef, dashboardId } = this.getPathInfo(props);
 
     initDashboardSettings({ recordRef, dashboardId });
@@ -485,7 +496,7 @@ class DashboardSettings extends React.Component {
       identification: { type }
     } = this.props;
     const setData = layout => {
-      const { activeLayoutTabId, selectedWidgets, selectedLayout } = this.state;
+      const { activeLayoutTabId, selectedWidgets, selectedLayout } = deepClone(this.state);
 
       selectedLayout[activeLayoutTabId] = layout.type;
       selectedWidgets[activeLayoutTabId] = this.setSelectedWidgets(layout, selectedWidgets[activeLayoutTabId]);
@@ -675,5 +686,9 @@ class DashboardSettings extends React.Component {
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
+  null,
+  {
+    areStatePropsEqual: next => !next.isActive
+  }
 )(DashboardSettings);

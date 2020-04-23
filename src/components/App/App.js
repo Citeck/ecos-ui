@@ -167,17 +167,18 @@ class App extends Component {
 
   renderCachedRouter = React.memo(props => {
     const { tab } = props;
+    const isCurrent = pageTabList.isActiveTab(tab.id);
     const baseCacheRouteProps = {
       className: 'page-tab__panel',
       needUseFullPath: true,
       when: 'always',
-      isCurrent: pageTabList.activeTabId === tab.id,
+      isCurrent,
       tabLink: tab.link
     };
     const basePageProps = {
       tabId: tab.id,
       tabLink: tab.link,
-      isCurrent: pageTabList.activeTabId === tab.id
+      isCurrent
     };
     const styles = { ...this.wrapperStyle };
 
@@ -188,19 +189,18 @@ class App extends Component {
     return (
       <div className="ecos-main-content" style={styles}>
         <Suspense fallback={null}>
-          <CacheSwitch
-            match={this.props.match}
-            location={this.props.location}
-            isCurrent={pageTabList.activeTabId === tab.id}
-            tabLink={tab.link}
-          >
+          <CacheSwitch match={this.props.match} location={this.props.location} isCurrent={isCurrent} tabLink={tab.link}>
             <CacheRoute
               {...baseCacheRouteProps}
               exact
               path="/share/page/bpmn-designer"
               render={() => <Redirect to={URL.BPMN_DESIGNER} />}
             />
-            <CacheRoute {...baseCacheRouteProps} path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.DASHBOARD_SETTINGS}
+              render={props => <DashboardSettingsPage {...props} {...basePageProps} />}
+            />
             <CacheRoute
               {...baseCacheRouteProps}
               path={URL.DASHBOARD}

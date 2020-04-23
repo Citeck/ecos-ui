@@ -291,6 +291,14 @@ class PageTabList {
 
     return this.#tabs.find(tab => tab.link === url) || {};
   };
+
+  isActiveTab = tabId => {
+    if (!tabId) {
+      return false;
+    }
+
+    return get(this.#tabs.find(tab => tab.id === tabId), 'isActive', false);
+  };
 }
 
 const pageTabList = get(window, 'Citeck.PageTabList', new PageTabList());
