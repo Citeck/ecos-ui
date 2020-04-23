@@ -27,7 +27,8 @@ export const DefaultActionTypes = {
   DOWNLOAD_CARD_TEMPLATE: 'download-card-template',
   OPEN_URL: 'open-url',
   UPLOAD_NEW_VERSION: 'upload-new-version',
-  ASSOC_ACTION: 'assoc-action'
+  ASSOC_ACTION: 'assoc-action',
+  MODAL_DOC_PREVIEW: 'modal-doc-preview'
 };
 
 export const EditAction = {
@@ -450,4 +451,25 @@ export const AssocAction = {
       type: DefaultActionTypes.ASSOC_ACTION
     };
   }
+};
+
+export const ModalDocPreview = {
+  execute: ({ record, action = {}, action: { config = {} } }) => {
+    let url =
+      '/share/proxy/alfresco/citeck/print/metadata-printpdf' +
+      '?nodeRef=' +
+      record.id +
+      '&templateType=' +
+      config.templateType +
+      '&print=true&format=' +
+      config.format;
+
+    //todo: аналогично компоненту в UploadNewVersion
+  },
+
+  getDefaultModel: () => ({
+    name: 'record-action.name.modal-doc-preview',
+    type: DefaultActionTypes.MODAL_DOC_PREVIEW,
+    icon: 'icon-filetype-none'
+  })
 };
