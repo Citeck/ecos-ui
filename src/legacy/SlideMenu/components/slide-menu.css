@@ -2,6 +2,11 @@
   display: none;
 }
 
+.yui-overlay,
+.yui-panel-container {
+  z-index: 12;
+}
+
 /* .page-content-root */
 body > .sticky-wrapper, /* faceted-search page hack */
 body > .sticky-footer, /* faceted-search page hack */
