@@ -7,6 +7,7 @@ import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
+import { withRouter } from 'react-router-dom';
 
 import { changeTab, deleteTab, initTabs, moveTabs, setDisplayState, setTab, updateTab } from '../../actions/pageTabs';
 import { animateScrollTo, arrayCompare, getScrollbarWidth, t } from '../../helpers/util';
@@ -28,6 +29,7 @@ class PageTabs extends React.Component {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     ContentComponent: PropTypes.node,
     homepageLink: PropTypes.string.isRequired,
+    allowedLinks: PropTypes.array,
     isShow: PropTypes.bool,
     enableCache: PropTypes.bool
   };
@@ -46,6 +48,8 @@ class PageTabs extends React.Component {
     super(props);
 
     this.$tabWrapper = React.createRef();
+
+    this.checkUrl();
   }
 
   componentDidMount() {
@@ -101,6 +105,14 @@ class PageTabs extends React.Component {
 
   get sizeTab() {
     return (this.wrapper.querySelector('.page-tab__tabs-item:not(.page-tab__tabs-item_active)') || {}).offsetWidth;
+  }
+
+  checkUrl() {
+    const { enableCache, allowedLinks, location, homepageLink, history } = this.props;
+
+    if (enableCache && !allowedLinks.includes(location.pathname)) {
+      history.replace(homepageLink);
+    }
   }
 
   init() {
@@ -468,7 +480,9 @@ const mapDispatchToProps = dispatch => ({
   replace: url => dispatch(replace(url))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(PageTabs);
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(PageTabs)
+);

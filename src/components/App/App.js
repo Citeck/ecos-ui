@@ -8,6 +8,7 @@ import { NotificationContainer } from 'react-notifications';
 import { push } from 'connected-react-router';
 
 import CacheRoute, { CacheSwitch } from '../ReactRouterCache';
+
 import Header from '../Header';
 import Notification from '../Notification';
 import Menu from '../Sidebar/Sidebar';
@@ -36,6 +37,23 @@ const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/Verif
 const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/DelegatedTimesheetsPage'));
 
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
+
+const allowedLinks = [
+  URL.DASHBOARD,
+  '/share/page/bpmn-designer',
+  '/v2/debug/formio-develop',
+  URL.DASHBOARD_SETTINGS,
+  URL.BPMN_DESIGNER,
+  URL.JOURNAL,
+  URL.TIMESHEET,
+  URL.TIMESHEET_SUBORDINATES,
+  URL.TIMESHEET_FOR_VERIFICATION,
+  URL.TIMESHEET_DELEGATED,
+  URL.TIMESHEET_IFRAME,
+  URL.TIMESHEET_IFRAME_SUBORDINATES,
+  URL.TIMESHEET_IFRAME_FOR_VERIFICATION,
+  URL.TIMESHEET_IFRAME_DELEGATED
+];
 
 class App extends Component {
   componentDidMount() {
@@ -142,6 +160,8 @@ class App extends Component {
     if (enableCache) {
       return (
         <PageTabs
+          enableCache
+          allowedLinks={allowedLinks}
           homepageLink={URL.DASHBOARD}
           isShow={isShowTabs && !this.isOnlyContent && !isMobile}
           ContentComponent={this.renderCachedRouter}
@@ -189,7 +209,12 @@ class App extends Component {
     return (
       <div className="ecos-main-content" style={styles}>
         <Suspense fallback={null}>
-          <CacheSwitch match={this.props.match} location={this.props.location} isCurrent={isCurrent} tabLink={tab.link}>
+          <CacheSwitch
+            // match={this.props.match}
+            // location={this.props.location}
+            isCurrent={isCurrent}
+            tabLink={tab.link}
+          >
             <CacheRoute
               {...baseCacheRouteProps}
               exact
@@ -219,8 +244,9 @@ class App extends Component {
             <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
 
             {/*temporary routes */}
-            <Route {...baseCacheRouteProps} path="/v2/debug/formio-develop" component={FormIOPage} />
+            <Route path="/v2/debug/formio-develop" render={props => <FormIOPage {...props} {...basePageProps} />} />
 
+            {/* Redirect not working: https://github.com/CJY0208/react-router-cache-route/issues/72 */}
             <Redirect to={URL.DASHBOARD} />
           </CacheSwitch>
         </Suspense>
