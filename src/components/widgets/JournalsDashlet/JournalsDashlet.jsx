@@ -99,10 +99,15 @@ class JournalsDashlet extends BaseWidget {
 
   componentDidUpdate({ config: prevConfig }, prevState, snapshot) {
     super.componentDidUpdate();
-    const { id, config, setDashletConfigByParams, onSave, reloadGrid } = this.props;
+    const { id, config, setDashletConfigByParams, onSave, reloadGrid, tabId, isActiveLayout } = this.props;
 
     if (!arrayCompare(config, prevConfig) && !!onSave) {
       setDashletConfigByParams(id, config);
+      !isActiveLayout && this.setState({ runUpdate: true });
+    }
+
+    if (isActiveLayout && this.state.runUpdate) {
+      this.setState({ runUpdate: false });
       reloadGrid();
     }
   }
