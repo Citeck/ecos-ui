@@ -1,4 +1,4 @@
-import { URL_RESCONTEXT, URL_SERVICECONTEXT } from '../constants/alfresco';
+import { URL_RESCONTEXT, URL_SERVICECONTEXT, URL_EIS_CONFIG } from '../constants/alfresco';
 import { loadScript, t } from '../helpers/util';
 import { goToCardDetailsPage } from '../helpers/urls';
 import { hideModal, showModal } from '../actions/modal';
@@ -25,9 +25,22 @@ const HCT = HandleControlTypes;
 export default function handleControl(type, payload, dispatch) {
   switch (type) {
     case HCT.ALF_DOLOGOUT:
-      ecosFetch(URL_SERVICECONTEXT + 'dologout', { method: 'POST' }).then(() => {
-        window.location.reload();
-      });
+      const logoutHandler = (logoutURL = `${URL_SERVICECONTEXT}dologout`) => {
+        ecosFetch(logoutURL, { method: 'POST' }).then(() => {
+          window.location.reload();
+        });
+      };
+      ecosFetch(URL_EIS_CONFIG)
+        .then(r => r.json())
+        .then(config => {
+          const EIS_LOGOUT_URL_DEFAULT_VALUE = 'LOGOUT_URL';
+          const { logoutUrl = EIS_LOGOUT_URL_DEFAULT_VALUE } = config || {};
+          if (logoutUrl !== EIS_LOGOUT_URL_DEFAULT_VALUE) {
+            return logoutHandler(logoutUrl);
+          }
+          return logoutHandler();
+        })
+        .catch(() => logoutHandler());
       break;
 
     case HCT.ALF_SHOW_MODAL_MAKE_UNAVAILABLE:
