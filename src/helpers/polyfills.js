@@ -148,7 +148,7 @@ const smoothScroll = function() {
   Object.defineProperty(Element.prototype, 'scrollTo', {
     enumerable: false,
     configurable: false,
-    writable: false,
+    writable: true,
     value: function() {
       // avoid action when no arguments are passed
       if (arguments[0] === undefined) {
