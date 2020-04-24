@@ -1,8 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
 
-import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
-import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { createPrintUrl, getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
+import { getTimezoneValue } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
+import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import { VersionsJournalService } from '../../../services/VersionsJournalService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
@@ -21,6 +22,7 @@ export const DefaultActionTypes = {
   OPEN_IN_BACKGROUND: 'open-in-background',
   MOVE_TO_LINES: 'move-to-lines',
   DOWNLOAD_CARD_TEMPLATE: 'download-card-template',
+  VIEW_CARD_TEMPLATE: 'view-card-template',
   OPEN_URL: 'open-url',
   UPLOAD_NEW_VERSION: 'upload-new-version'
 };
@@ -311,17 +313,10 @@ export const MoveToLinesJournal = {
 
 export const DownloadCardTemplate = {
   execute: ({ record, action = {}, action: { config = {} } }) => {
-    let url =
-      '/share/proxy/alfresco/citeck/print/metadata-printpdf' +
-      '?nodeRef=' +
-      record.id +
-      '&templateType=' +
-      config.templateType +
-      '&print=true&format=' +
-      config.format;
+    const url = createPrintUrl({ record, config });
 
     return DownloadAction.execute({
-      record: record,
+      record,
       action: {
         ...action,
         config: {
@@ -414,4 +409,19 @@ export const UploadNewVersion = {
       icon: 'icon-load'
     };
   }
+};
+
+export const ViewCardTemplate = {
+  type: DefaultActionTypes.VIEW_CARD_TEMPLATE,
+  execute: ({ record, action: { config = {} } }) => {
+    const timezoneConfig = config.includeTimezone || config.includeTimezone == null ? getTimezoneValue() : {};
+    const url = createPrintUrl({ record, config: { ...config, ...timezoneConfig } });
+
+    window.open(url, '_blank');
+  },
+  getDefaultModel: () => ({
+    name: 'record-action.name.view-card-template-in-background',
+    type: DefaultActionTypes.VIEW_CARD_TEMPLATE,
+    icon: 'icon-newtab'
+  })
 };

@@ -1,12 +1,10 @@
-import lodashGet from 'lodash/get';
 import moment from 'moment';
 import i18next from 'i18next';
 import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
+import lodashGet from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import { MOBILE_APP_USER_AGENT } from '../constants';
-
-import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../constants';
+import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
@@ -754,4 +752,27 @@ export function extractLabel(text) {
   }
 
   return t(displayText);
+}
+
+export function getTimezoneValue() {
+  let timezone, offset;
+
+  if (Intl) {
+    timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } else {
+    const numberOffset = -new Date().getTimezoneOffset();
+    const hours = Math.floor(numberOffset / 60);
+    const minutes = Math.floor(numberOffset - hours * 60);
+
+    offset = 'GMT';
+    offset += numberOffset > 0 ? '+' : '-';
+    offset += Math.abs(hours);
+
+    if (minutes > 0) {
+      offset += ':';
+      offset += minutes;
+    }
+  }
+
+  return { timezone, offset };
 }
