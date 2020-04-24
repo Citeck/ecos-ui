@@ -306,6 +306,7 @@
   "record-action.name.edit": "Edit",
   "record-action.name.show": "View document",
   "record-action.name.open-in-background": "Open in background tab",
+  "record-action.name.view-card-template-in-background": "View in background tab",
 
   "record-action.name.assoc-action": "Assoc action",
   "record-action.assoc-action.not-found": "Association is not found",
