@@ -108,7 +108,8 @@ class Tooltip extends Component {
       delay,
       modifiers,
       offset,
-      innerRef
+      innerRef,
+      hideArrow
     } = this.props;
 
     return {
@@ -121,6 +122,7 @@ class Tooltip extends Component {
       delay,
       modifiers,
       offset,
+      hideArrow,
       className: classNames('ecos-base-tooltip', className),
       innerClassName: classNames('ecos-base-tooltip-inner', innerClassName),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),

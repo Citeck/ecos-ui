@@ -5,7 +5,7 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 
 import { t } from '../../helpers/util';
-import { PointsLoader } from '../common';
+import { PointsLoader, Tooltip } from '../common';
 import { SortableElement } from '../Drag-n-Drop';
 import Records from '../Records';
 
@@ -91,23 +91,25 @@ class Tab extends Component {
 
     return (
       <SortableElement key={tab.id} index={position} onSortEnd={onSortEnd}>
-        <div
-          key={tab.id}
-          className={classNames('page-tab__tabs-item', {
-            'page-tab__tabs-item_active': tab.isActive,
-            'page-tab__tabs-item_disabled': tab.isLoading
-          })}
-          title={t(tab.title)}
-          onClick={this.handleClickTab}
-          onMouseUp={this.handleMouseUp}
-        >
-          <span className="page-tab__tabs-item-title">
-            {this.renderLoader()}
-            {t(tab.title)}
-          </span>
+        <Tooltip target={tab.id} text={t(tab.title)} uncontrolled placement="bottom" hideArrow autohide minWidthByContent>
+          <div
+            id={tab.id}
+            key={tab.id}
+            className={classNames('page-tab__tabs-item', {
+              'page-tab__tabs-item_active': tab.isActive,
+              'page-tab__tabs-item_disabled': tab.isLoading
+            })}
+            onClick={this.handleClickTab}
+            onMouseUp={this.handleMouseUp}
+          >
+            <span className="page-tab__tabs-item-title">
+              {this.renderLoader()}
+              {t(tab.title)}
+            </span>
 
-          {this.renderCloseButton()}
-        </div>
+            {this.renderCloseButton()}
+          </div>
+        </Tooltip>
       </SortableElement>
     );
   }
