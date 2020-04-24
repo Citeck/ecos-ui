@@ -8,11 +8,11 @@ import {
   DownloadAction,
   DownloadCardTemplate,
   EditAction,
-  ModalDocPreview,
   MoveToLinesJournal,
   OpenURL,
   UploadNewVersion,
-  ViewAction
+  ViewAction,
+  ViewCardTemplate
 } from './DefaultActions';
 
 import { CaseCreateNodeAction, CaseRedirectAction, CaseRequestAction } from './CaseActions';
@@ -32,7 +32,7 @@ Registry.addExecutors({
   [DefaultActionTypes.OPEN_URL]: OpenURL,
   [DefaultActionTypes.UPLOAD_NEW_VERSION]: UploadNewVersion,
   [DefaultActionTypes.ASSOC_ACTION]: AssocAction,
-  [DefaultActionTypes.MODAL_DOC_PREVIEW]: ModalDocPreview,
+  [DefaultActionTypes.VIEW_CARD_TEMPLATE]: ViewCardTemplate,
 
   //legacy case actions
 

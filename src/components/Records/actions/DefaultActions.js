@@ -2,15 +2,15 @@ import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import { getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
-import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { createPrintUrl, getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
+import { getTimezoneValue, t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
+import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import { VersionsJournalService } from '../../../services/VersionsJournalService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 import RecordActions from './RecordActions';
-import { t } from '../../../helpers/util';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
 
@@ -25,6 +25,7 @@ export const DefaultActionTypes = {
   OPEN_IN_BACKGROUND: 'open-in-background',
   MOVE_TO_LINES: 'move-to-lines',
   DOWNLOAD_CARD_TEMPLATE: 'download-card-template',
+  VIEW_CARD_TEMPLATE: 'view-card-template',
   OPEN_URL: 'open-url',
   UPLOAD_NEW_VERSION: 'upload-new-version',
   ASSOC_ACTION: 'assoc-action',
@@ -317,17 +318,10 @@ export const MoveToLinesJournal = {
 
 export const DownloadCardTemplate = {
   execute: ({ record, action = {}, action: { config = {} } }) => {
-    let url =
-      '/share/proxy/alfresco/citeck/print/metadata-printpdf' +
-      '?nodeRef=' +
-      record.id +
-      '&templateType=' +
-      config.templateType +
-      '&print=true&format=' +
-      config.format;
+    const url = createPrintUrl({ record, config });
 
     return DownloadAction.execute({
-      record: record,
+      record,
       action: {
         ...action,
         config: {
@@ -453,23 +447,17 @@ export const AssocAction = {
   }
 };
 
-export const ModalDocPreview = {
-  execute: ({ record, action = {}, action: { config = {} } }) => {
-    let url =
-      '/share/proxy/alfresco/citeck/print/metadata-printpdf' +
-      '?nodeRef=' +
-      record.id +
-      '&templateType=' +
-      config.templateType +
-      '&print=true&format=' +
-      config.format;
+export const ViewCardTemplate = {
+  type: DefaultActionTypes.VIEW_CARD_TEMPLATE,
+  execute: ({ record, action: { config = {} } }) => {
+    const timezoneConfig = config.includeTimezone ? getTimezoneValue() : {};
+    const url = createPrintUrl({ record, config: { ...config, ...timezoneConfig } });
 
-    //todo: аналогично компоненту в UploadNewVersion
+    window.open(url, '_blank');
   },
-
   getDefaultModel: () => ({
-    name: 'record-action.name.modal-doc-preview',
-    type: DefaultActionTypes.MODAL_DOC_PREVIEW,
-    icon: 'icon-filetype-none'
+    name: 'record-action.name.view-card-template-in-background',
+    type: DefaultActionTypes.VIEW_CARD_TEMPLATE,
+    icon: 'icon-newtab'
   })
 };
