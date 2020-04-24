@@ -9,7 +9,7 @@ export class EventsHistoryApi extends RecordService {
       query: {
         nodeRef: record,
         events:
-          'node.created,node.updated,assoc.updated,task.complete,user.action,status.changed,esign.signed,approval.cancelled,role.changed'
+          'node.created,node.updated,assoc.updated,task.complete,user.action,email.sent,status.changed,esign.signed,approval.cancelled,role.changed'
       },
       sourceId: SourcesId.HISTORY,
       language: 'document'
