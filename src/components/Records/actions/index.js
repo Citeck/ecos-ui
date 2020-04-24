@@ -8,6 +8,7 @@ import {
   DownloadAction,
   DownloadCardTemplate,
   EditAction,
+  ModalDocPreview,
   MoveToLinesJournal,
   OpenURL,
   UploadNewVersion,
