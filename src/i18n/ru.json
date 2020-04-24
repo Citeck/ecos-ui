@@ -305,6 +305,7 @@
   "record-action.name.edit": "Редактировать",
   "record-action.name.show": "Смотреть документ",
   "record-action.name.open-in-background": "Открыть в фоновой вкладке",
+  "record-action.name.view-card-template-in-background": "Просмотреть в фоновом режиме",
 
   "record-action.name.upload-new-version": "Загрузить новую версию",
   "record-action.upload-new-version.title.upload-model": "Добавление новой версии документа",

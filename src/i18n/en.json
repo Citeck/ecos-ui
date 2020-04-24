@@ -305,6 +305,7 @@
   "record-action.name.edit": "Edit",
   "record-action.name.show": "View document",
   "record-action.name.open-in-background": "Open in background tab",
+  "record-action.name.view-card-template-in-background": "View in background tab",
 
   "record-action.name.upload-new-version": "Upload new version",
   "record-action.upload-new-version.title.upload-model": "Add new document version",
