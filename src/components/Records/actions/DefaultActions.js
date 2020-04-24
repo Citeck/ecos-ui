@@ -450,7 +450,7 @@ export const AssocAction = {
 export const ViewCardTemplate = {
   type: DefaultActionTypes.VIEW_CARD_TEMPLATE,
   execute: ({ record, action: { config = {} } }) => {
-    const timezoneConfig = config.includeTimezone ? getTimezoneValue() : {};
+    const timezoneConfig = config.includeTimezone || config.includeTimezone == null ? getTimezoneValue() : {};
     const url = createPrintUrl({ record, config: { ...config, ...timezoneConfig } });
 
     window.open(url, '_blank');
