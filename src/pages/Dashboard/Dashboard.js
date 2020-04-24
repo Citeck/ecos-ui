@@ -353,24 +353,20 @@ class Dashboard extends Component {
     }
 
     return (
-      <>
-        <div className="ecos-dashboard__tabs-wrapper">
-          <ScrollArrow className="ecos-dashboard__tabs-arrows" small>
-            <Tabs
-              hasHover
-              hasHint
-              className="ecos-dashboard__tabs-block"
-              classNameTab="ecos-dashboard__tabs-item"
-              items={this.tabList}
-              onClick={this.toggleTabLayout}
-              keyField="idLayout"
-              activeTabKey={activeLayoutId}
-            />
-          </ScrollArrow>
-        </div>
-
-        {this.renderTabPanels()}
-      </>
+      <div className="ecos-dashboard__tabs-wrapper">
+        <ScrollArrow className="ecos-dashboard__tabs-arrows" small>
+          <Tabs
+            hasHover
+            hasHint
+            className="ecos-dashboard__tabs-block"
+            classNameTab="ecos-dashboard__tabs-item"
+            items={this.tabList}
+            onClick={this.toggleTabLayout}
+            keyField="idLayout"
+            activeTabKey={activeLayoutId}
+          />
+        </ScrollArrow>
+      </div>
     );
   }
 
@@ -471,7 +467,7 @@ class Dashboard extends Component {
     return null;
   }
 
-  renderTabPanels() {
+  renderContent() {
     const { menuType, isMobile, tabId } = this.props;
     const { canDragging, activeLayoutId, openedTabs } = this.state;
 
@@ -515,6 +511,7 @@ class Dashboard extends Component {
         {this.renderTopMenu()}
         {this.renderHeader()}
         {this.renderTabs()}
+        {this.renderContent()}
         {this.renderLoader()}
       </Scrollbars>
     );

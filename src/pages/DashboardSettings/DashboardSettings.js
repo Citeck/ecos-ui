@@ -159,13 +159,21 @@ class DashboardSettings extends React.Component {
     this.props.resetDashboardConfig();
   }
 
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    if (nextProps.tabId && !pageTabList.isActiveTab(nextProps.tabId)) {
+      return false;
+    }
+
+    return true;
+  }
+
   componentWillReceiveProps(nextProps) {
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
     let { config, mobileConfig, menuType, availableMenuItems, availableWidgets } = this.props;
     let state = {};
 
-    if (!nextProps.isActive) {
+    if (!pageTabList.isActiveTab(nextProps.tabId)) {
       return;
     }
 
@@ -211,9 +219,9 @@ class DashboardSettings extends React.Component {
   }
 
   fetchData(props = this.props) {
-    const { initDashboardSettings, initMenuSettings, isActive } = props;
+    const { initDashboardSettings, initMenuSettings } = props;
 
-    if (!isActive) {
+    if (!pageTabList.isActiveTab(props.tabId)) {
       return;
     }
 

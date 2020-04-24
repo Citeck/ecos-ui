@@ -20,6 +20,7 @@ class Tooltip extends Component {
     isOpen: PropTypes.bool,
     uncontrolled: PropTypes.bool,
     showAsNeeded: PropTypes.bool,
+    minWidthByContent: PropTypes.bool,
     off: PropTypes.bool,
     text: PropTypes.string,
     placement: PropTypes.oneOf([
@@ -56,6 +57,7 @@ class Tooltip extends Component {
     hideArrow: false,
     uncontrolled: false,
     isOpen: false,
+    minWidthByContent: false,
     text: '',
     delay: 0,
     placement: 'top',
@@ -131,9 +133,10 @@ class Tooltip extends Component {
   };
 
   renderTooltip = () => {
-    const { text, showAsNeeded, target } = this.props;
+    const { text, showAsNeeded, target, minWidthByContent } = this.props;
     const { isOpen } = this.state;
     const element = document.getElementById(target);
+    const styles = {};
     let needTooltip = !showAsNeeded;
 
     if (isClosestHidden(`#${target}`)) {
@@ -151,8 +154,12 @@ class Tooltip extends Component {
       needTooltip = context.measureText(text).width > element.getBoundingClientRect().width - (paddingLeft + paddingRight);
     }
 
+    if (minWidthByContent) {
+      styles.minWidth = parseInt(window.getComputedStyle(element, null).getPropertyValue('width'), 10) || 0;
+    }
+
     return (
-      <RTooltip {...this.tooltipProps()} isOpen={needTooltip && isOpen}>
+      <RTooltip {...this.tooltipProps()} isOpen={needTooltip && isOpen} style={styles}>
         {text}
       </RTooltip>
     );

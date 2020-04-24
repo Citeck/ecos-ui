@@ -91,7 +91,16 @@ class Tab extends Component {
 
     return (
       <SortableElement key={tab.id} index={position} onSortEnd={onSortEnd}>
-        <Tooltip target={tab.id} text={t(tab.title)} uncontrolled placement="bottom" hideArrow autohide minWidthByContent>
+        <Tooltip
+          target={tab.id}
+          text={t(tab.title)}
+          uncontrolled
+          placement="bottom"
+          hideArrow
+          autohide
+          minWidthByContent
+          innerClassName="page-tab__tabs-item-tooltip"
+        >
           <div
             id={tab.id}
             key={tab.id}

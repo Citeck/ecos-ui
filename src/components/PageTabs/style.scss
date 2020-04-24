@@ -231,6 +231,12 @@
         }
       }
 
+      .tooltip &-tooltip {
+        text-align: left;
+        max-width: 260px;
+        min-width: 200px;
+      }
+
       &-title {
         font-style: normal;
         font-weight: 600;
