@@ -754,3 +754,41 @@ export function extractLabel(text) {
 
   return t(displayText);
 }
+
+/**
+ * check self or closest parent on hiddens
+ *
+ * @param el
+ * @returns {null|boolean}
+ */
+export function isClosestHidden(el = null) {
+  let node = el;
+
+  if (typeof node === 'string') {
+    node = document.querySelector(el);
+  }
+
+  if (!node) {
+    return true;
+  }
+
+  const isHidden = el => {
+    return el.style.display === 'none' || el.style.visibility === 'hidden';
+  };
+
+  if (isHidden(node)) {
+    return true;
+  }
+
+  const parent = node.parentElement;
+
+  if (parent) {
+    if (isHidden(parent)) {
+      return true;
+    } else {
+      return isClosestHidden(parent);
+    }
+  }
+
+  return false;
+}

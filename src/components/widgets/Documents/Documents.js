@@ -808,7 +808,7 @@ class Documents extends BaseWidget {
 
   renderType = item => {
     const { selectedType } = this.state;
-    const id = prepareTooltipId(`type-${item.type}`);
+    const id = prepareTooltipId(`type-${this.props.stateId}-${item.type}`);
 
     return (
       <div

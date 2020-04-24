@@ -25,6 +25,7 @@ import Records from '../../components/Records';
 import DashboardService from '../../services/dashboard';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import { selectDashboardByKey } from '../../selectors/dashboard';
+import PageService from '../../services/PageService';
 
 import './style.scss';
 
@@ -82,22 +83,15 @@ class Dashboard extends Component {
     const newState = {};
     const newUrlParams = getSortedUrlParams();
     const firstLayoutId = get(props.config, '[0].id');
+    const activeLayoutId = get(queryString.parse(window.location.search), 'activeLayoutId', firstLayoutId);
 
     if (isEmpty(state.activeLayoutId)) {
-      newState.activeLayoutId = firstLayoutId;
-
-      if (firstLayoutId) {
-        newState.openedTabs = state.openedTabs.add(firstLayoutId);
-      }
+      newState.activeLayoutId = activeLayoutId;
     }
 
     if (JSON.stringify(props.config) !== JSON.stringify(state.config)) {
       newState.config = props.config;
-      newState.activeLayoutId = firstLayoutId;
-
-      if (firstLayoutId) {
-        newState.openedTabs = state.openedTabs.add(firstLayoutId);
-      }
+      newState.activeLayoutId = activeLayoutId;
     }
 
     if (state.urlParams !== newUrlParams) {
@@ -117,11 +111,28 @@ class Dashboard extends Component {
       return null;
     }
 
+    if (newState.activeLayoutId) {
+      newState.openedTabs = state.openedTabs.add(activeLayoutId);
+      Dashboard.updateTabLink();
+    }
+
     return newState;
+  }
+
+  static updateTabLink() {
+    PageService.changeUrlLink(`${window.location.pathname}${window.location.search}`, { updateUrl: true });
   }
 
   componentDidMount() {
     this.getConfig();
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    if (nextProps.tabId && !pageTabList.isActiveTab(nextProps.tabId)) {
+      return false;
+    }
+
+    return true;
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -291,10 +302,13 @@ class Dashboard extends Component {
     this.setState(state => ({ openedTabs: state.openedTabs.add(tab.idLayout) }));
 
     searchParams.activeLayoutId = tab.idLayout;
+
     this.props.history.push({
       pathname: URL.DASHBOARD,
       search: queryString.stringify(searchParams)
     });
+
+    Dashboard.updateTabLink();
   };
 
   toggleTabLayoutFromUrl = () => {
@@ -305,7 +319,10 @@ class Dashboard extends Component {
       const tab = this.tabList.find(el => el.idLayout === activeLayoutId);
 
       if (tab && this.state.activeLayoutId !== activeLayoutId) {
-        this.setState({ activeLayoutId });
+        this.setState(state => ({
+          activeLayoutId,
+          openedTabs: state.openedTabs.add(activeLayoutId)
+        }));
         return;
       }
 

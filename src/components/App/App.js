@@ -197,8 +197,7 @@ class App extends Component {
     };
     const basePageProps = {
       tabId: tab.id,
-      tabLink: tab.link,
-      isCurrent
+      tabLink: tab.link
     };
     const styles = { ...this.wrapperStyle };
 
@@ -209,12 +208,7 @@ class App extends Component {
     return (
       <div className="ecos-main-content" style={styles}>
         <Suspense fallback={null}>
-          <CacheSwitch
-            // match={this.props.match}
-            // location={this.props.location}
-            isCurrent={isCurrent}
-            tabLink={tab.link}
-          >
+          <CacheSwitch isCurrent={isCurrent} tabLink={tab.link}>
             <CacheRoute
               {...baseCacheRouteProps}
               exact
@@ -232,16 +226,33 @@ class App extends Component {
               exact
               render={props => <DashboardPage {...props} {...basePageProps} />}
             />
-            <CacheRoute {...baseCacheRouteProps} path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.BPMN_DESIGNER}
+              render={props => <BPMNDesignerPage {...props} {...basePageProps} />}
+            />
             <CacheRoute {...baseCacheRouteProps} path={URL.JOURNAL} render={props => <JournalsPage {...props} {...basePageProps} />} />
-            <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET} exact component={MyTimesheetPage} />
-            <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
-            <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
-            <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />
-            <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
-            <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
-            <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
-            <CacheRoute {...baseCacheRouteProps} path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={[URL.TIMESHEET, URL.TIMESHEET_IFRAME]}
+              exact
+              render={props => <MyTimesheetPage {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={[URL.TIMESHEET_SUBORDINATES, URL.TIMESHEET_IFRAME_SUBORDINATES]}
+              render={props => <SubordinatesTimesheetPage {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={[URL.TIMESHEET_FOR_VERIFICATION, URL.TIMESHEET_IFRAME_FOR_VERIFICATION]}
+              render={props => <VerificationTimesheetPage {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={[URL.TIMESHEET_DELEGATED, URL.TIMESHEET_IFRAME_DELEGATED]}
+              render={props => <DelegatedTimesheetsPage {...props} {...basePageProps} />}
+            />
 
             {/*temporary routes */}
             <Route path="/v2/debug/formio-develop" render={props => <FormIOPage {...props} {...basePageProps} />} />
@@ -282,7 +293,7 @@ class App extends Component {
   );
 
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isShowTabs, tabs } = this.props;
+    const { isInit, isInitFailure, isAuthenticated, isMobile, theme } = this.props;
 
     if (!isInit) {
       // TODO: Loading component

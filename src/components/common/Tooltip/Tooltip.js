@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip as RTooltip } from 'reactstrap';
 import classNames from 'classnames';
+import { isClosestHidden } from '../../../helpers/util';
 
 import './style.scss';
 
@@ -132,6 +133,10 @@ class Tooltip extends Component {
     const { isOpen } = this.state;
     const element = document.getElementById(target);
     let needTooltip = !showAsNeeded;
+
+    if (isClosestHidden(`#${target}`)) {
+      return null;
+    }
 
     if (showAsNeeded && element) {
       const canvas = document.createElement('canvas');
