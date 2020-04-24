@@ -33,19 +33,23 @@ export class DashboardApi extends RecordService {
     const baseTypeId = 'emodel/type@base';
     const userDashboardId = 'emodel/type@user-dashboard';
     const dashboardKeys = [];
-    let parents;
 
+    let typesToSelect;
     if (recordRef) {
       const recType = yield Records.get(recordRef).load('_etype?id');
 
       if (recType) {
-        parents = yield Records.get(recType).load('.atts(n:"parents"){id, disp}');
+        typesToSelect = yield Records.get(recType).load('.atts(n:"parents"){id, disp}');
+        typesToSelect.unshift({
+          id: recType,
+          disp: yield Records.get(recType).load('.disp')
+        });
 
         if (recType !== baseTypeId) {
-          parents = parents.filter(t => t.id !== baseTypeId);
+          typesToSelect = typesToSelect.filter(t => t.id !== baseTypeId);
         }
       } else {
-        parents = [
+        typesToSelect = [
           {
             id: baseTypeId,
             disp: yield Records.get(baseTypeId).load('.disp')
@@ -53,7 +57,8 @@ export class DashboardApi extends RecordService {
         ];
       }
     } else {
-      parents = [
+      const userDashboardId = 'emodel/type@user-dashboard';
+      typesToSelect = [
         {
           id: userDashboardId,
           disp: yield Records.get(userDashboardId).load('.disp')
@@ -61,7 +66,7 @@ export class DashboardApi extends RecordService {
       ];
     }
 
-    for (let p of parents) {
+    for (let p of typesToSelect) {
       dashboardKeys.push({
         key: p.id,
         displayName: p.disp
