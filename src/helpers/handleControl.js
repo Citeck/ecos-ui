@@ -26,7 +26,7 @@ export default function handleControl(type, payload, dispatch) {
   switch (type) {
     case HCT.ALF_DOLOGOUT:
       const logoutHandler = (logoutURL = `${URL_SERVICECONTEXT}dologout`) => {
-        ecosFetch(logoutURL, { method: 'POST' }).then(() => {
+        ecosFetch(logoutURL, { method: 'POST', mode: 'no-cors' }).then(() => {
           window.location.reload();
         });
       };
