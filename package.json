@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "1.13.5",
+  "version": "1.13.6-snapshot",
   "private": true,
   "dependencies": {
     "async-cadesplugin": "^0.9.9",
