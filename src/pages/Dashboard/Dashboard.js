@@ -66,7 +66,8 @@ class Dashboard extends Component {
     canDragging: false,
     activeLayoutId: null,
     needGetConfig: false,
-    inited: false
+    inited: false,
+    openedTabs: new Set()
   };
 
   constructor(props) {
@@ -80,14 +81,23 @@ class Dashboard extends Component {
   static getDerivedStateFromProps(props, state) {
     const newState = {};
     const newUrlParams = getSortedUrlParams();
+    const firstLayoutId = get(props.config, '[0].id');
 
     if (isEmpty(state.activeLayoutId)) {
-      newState.activeLayoutId = get(props.config, '[0].id');
+      newState.activeLayoutId = firstLayoutId;
+
+      if (firstLayoutId) {
+        newState.openedTabs = state.openedTabs.add(firstLayoutId);
+      }
     }
 
     if (JSON.stringify(props.config) !== JSON.stringify(state.config)) {
       newState.config = props.config;
-      newState.activeLayoutId = get(props.config, '[0].id');
+      newState.activeLayoutId = firstLayoutId;
+
+      if (firstLayoutId) {
+        newState.openedTabs = state.openedTabs.add(firstLayoutId);
+      }
     }
 
     if (state.urlParams !== newUrlParams) {
@@ -159,6 +169,16 @@ class Dashboard extends Component {
 
     return {};
   }
+
+  getLayout = layoutId => {
+    const { config } = this.state;
+
+    if (!isEmpty(config) && isArray(config) && !!layoutId) {
+      return config.find(item => item.id === layoutId) || {};
+    }
+
+    return {};
+  };
 
   get tabList() {
     const { config } = this.state;
@@ -268,6 +288,8 @@ class Dashboard extends Component {
     const tab = get(this.tabList, [index], {});
     const searchParams = queryString.parse(window.location.search);
 
+    this.setState(state => ({ openedTabs: state.openedTabs.add(tab.idLayout) }));
+
     searchParams.activeLayoutId = tab.idLayout;
     this.props.history.push({
       pathname: URL.DASHBOARD,
@@ -278,6 +300,7 @@ class Dashboard extends Component {
   toggleTabLayoutFromUrl = () => {
     const searchParams = queryString.parse(window.location.search);
     const { activeLayoutId } = searchParams;
+
     if (activeLayoutId !== this.state.activeLayoutId) {
       const tab = this.tabList.find(el => el.idLayout === activeLayoutId);
 
@@ -313,20 +336,24 @@ class Dashboard extends Component {
     }
 
     return (
-      <div className="ecos-dashboard__tabs-wrapper">
-        <ScrollArrow className="ecos-dashboard__tabs-arrows" small>
-          <Tabs
-            hasHover
-            hasHint
-            className="ecos-dashboard__tabs-block"
-            classNameTab="ecos-dashboard__tabs-item"
-            items={this.tabList}
-            onClick={this.toggleTabLayout}
-            keyField="idLayout"
-            activeTabKey={activeLayoutId}
-          />
-        </ScrollArrow>
-      </div>
+      <>
+        <div className="ecos-dashboard__tabs-wrapper">
+          <ScrollArrow className="ecos-dashboard__tabs-arrows" small>
+            <Tabs
+              hasHover
+              hasHint
+              className="ecos-dashboard__tabs-block"
+              classNameTab="ecos-dashboard__tabs-item"
+              items={this.tabList}
+              onClick={this.toggleTabLayout}
+              keyField="idLayout"
+              activeTabKey={activeLayoutId}
+            />
+          </ScrollArrow>
+        </div>
+
+        {this.renderTabPanels()}
+      </>
     );
   }
 
@@ -427,11 +454,40 @@ class Dashboard extends Component {
     return null;
   }
 
-  render() {
+  renderTabPanels() {
     const { menuType, isMobile, tabId } = this.props;
-    const { canDragging } = this.state;
-    const { columns, type } = this.activeLayout;
+    const { canDragging, activeLayoutId, openedTabs } = this.state;
 
+    return this.tabList.map(tab => {
+      const { columns, type } = this.getLayout(tab.idLayout);
+      const styles = {};
+      const isActive = tab.idLayout === activeLayoutId;
+
+      if (!isActive) {
+        styles.display = 'none';
+      }
+
+      if (!isActive && !openedTabs.has(tab.idLayout)) {
+        return null;
+      }
+
+      return (
+        <div style={styles} key={tab.idLayout}>
+          <this.renderLayout
+            menuType={menuType}
+            isMobile={isMobile}
+            canDragging={canDragging}
+            columns={columns}
+            type={type}
+            tabId={tabId}
+            isActiveLayout={pageTabList.isActiveTab(tabId)}
+          />
+        </div>
+      );
+    });
+  }
+
+  render() {
     return (
       <Scrollbars
         style={{ height: '100%' }}
@@ -442,15 +498,6 @@ class Dashboard extends Component {
         {this.renderTopMenu()}
         {this.renderHeader()}
         {this.renderTabs()}
-        <this.renderLayout
-          menuType={menuType}
-          isMobile={isMobile}
-          canDragging={canDragging}
-          columns={columns}
-          type={type}
-          tabId={tabId}
-          isActiveLayout={pageTabList.isActiveTab(tabId)}
-        />
         {this.renderLoader()}
       </Scrollbars>
     );
