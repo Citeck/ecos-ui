@@ -40,6 +40,11 @@ export class DashboardApi extends RecordService {
 
       if (recType) {
         typesToSelect = yield Records.get(recType).load('.atts(n:"parents"){id, disp}');
+        if (typesToSelect) {
+          typesToSelect = [...typesToSelect];
+        } else {
+          typesToSelect = [];
+        }
         typesToSelect.unshift({
           id: recType,
           disp: yield Records.get(recType).load('.disp')
