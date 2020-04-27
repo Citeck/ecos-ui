@@ -678,6 +678,10 @@ export function hasChildWithId(items, selectedId) {
 }
 
 export function prepareTooltipId(id = uuidV4()) {
+  if (!isNaN(id[0])) {
+    id = `tooltip-${id}`;
+  }
+
   return `${id}`.replace(/[^\d\w-]/g, '');
 }
 

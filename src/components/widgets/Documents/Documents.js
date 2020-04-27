@@ -830,12 +830,12 @@ class Documents extends BaseWidget {
   };
 
   renderCountStatus = (type, keyPostfix = '') => {
-    const { id } = this.props;
-    const target = prepareTooltipId(`${type.type}-${id}-${keyPostfix}`);
+    const { id, stateId } = this.props;
+    const target = prepareTooltipId(`${type.type}-${id}-${stateId}-${keyPostfix}`);
     const status = typesStatuses[this.getTypeStatus(type)];
 
     return (
-      <>
+      <Tooltip target={target} text={t(status)} uncontrolled showAsNeeded autohide>
         <div
           id={target}
           ref={this._counterRef}
@@ -852,17 +852,7 @@ class Documents extends BaseWidget {
           />
           <div className="ecos-docs__types-item-status-counter">{type.countDocuments}</div>
         </div>
-        <UncontrolledTooltip
-          placement="top"
-          boundariesElement="window"
-          className="ecos-base-tooltip"
-          innerClassName="ecos-base-tooltip-inner"
-          arrowClassName="ecos-base-tooltip-arrow"
-          target={target}
-        >
-          {t(status)}
-        </UncontrolledTooltip>
-      </>
+      </Tooltip>
     );
   };
 

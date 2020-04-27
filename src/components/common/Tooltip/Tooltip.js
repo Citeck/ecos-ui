@@ -82,9 +82,26 @@ class Tooltip extends Component {
     super(props);
 
     this.state = {
-      isOpen: props.isOpen
+      isOpen: props.isOpen,
+      isHidden: true
     };
   }
+
+  componentDidMount() {
+    this.stealthCheck();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    this.stealthCheck();
+  }
+
+  stealthCheck = () => {
+    const isHidden = isClosestHidden(`#${this.props.target}`);
+
+    if (isHidden !== this.state.isHidden) {
+      this.setState({ isHidden });
+    }
+  };
 
   onToggle = () => {
     const { onToggle, uncontrolled } = this.props;
@@ -139,7 +156,7 @@ class Tooltip extends Component {
     const styles = {};
     let needTooltip = !showAsNeeded;
 
-    if (isClosestHidden(`#${target}`)) {
+    if (isClosestHidden(`#${this.props.target}`)) {
       return null;
     }
 

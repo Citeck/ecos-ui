@@ -23,7 +23,8 @@ const Labels = {
   SUBTITLE_M: 'dashboard-settings.widgets.subtitle-mobile',
   TIP_NO_AVAILABLE: 'dashboard-settings.widgets.placeholder',
   COLUMN: 'dashboard-settings.column',
-  TIP_DROP_HERE: 'dashboard-settings.column.placeholder'
+  TIP_DROP_HERE: 'dashboard-settings.column.placeholder',
+  WIDGET_WITH_CONFIG: 'dashboard-settings.widget.with-config'
 };
 
 class SetWidgets extends React.Component {
@@ -118,6 +119,16 @@ class SetWidgets extends React.Component {
     this.props.setData(activeWidgets, removedWidgets);
   };
 
+  getMessage = widget => {
+    const hasSettings = !isEmpty(get(widget, 'props.config', {}));
+
+    if (!hasSettings) {
+      return '';
+    }
+
+    return t(Labels.WIDGET_WITH_CONFIG);
+  };
+
   renderWidgetColumns() {
     const { activeWidgets, columns, isMobile } = this.props;
     const { draggableDestination } = this.state;
@@ -157,6 +168,7 @@ class SetWidgets extends React.Component {
                       className="ecos-dashboard-settings__column-widgets__items__cell"
                       title={this.getWidgetLabel(widget)}
                       selected={true}
+                      alertTooltip={this.getMessage(widget)}
                       canRemove={true}
                       removeItem={response => {
                         this.handleRemoveWidget(response, indexColumn, indexWidget);

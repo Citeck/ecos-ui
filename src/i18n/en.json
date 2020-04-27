@@ -169,6 +169,7 @@
   "dashboard-settings.widgets.title": "Widgets",
   "dashboard-settings.widget.documents": "Documents",
   "dashboard-settings.widget.user-basic-info": "Profile",
+  "dashboard-settings.widget.with-config": "This widget has settings. When you delete the widget, the settings will be lost",
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",
   "dashlet.edit.title": "Edit data",
   "dashlet.edit.tooltip": "Edit data",
