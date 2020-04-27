@@ -180,15 +180,26 @@ export const DownloadAction = {
     const config = action.config || {};
 
     if (config.downloadType === 'ecos_module') {
-      record.load({ title: 'title', name: 'name', module_id: 'module_id', json: '.json' }, true).then(data => {
-        let filename = config.filename || data.module_id || data.title || data.name;
-        filename = filename.replace(/[^a-zA-Zа-яА-Я0-9.]+/g, '_');
+      record
+        .load(
+          {
+            title: 'title',
+            name: 'name',
+            module_id: 'module_id',
+            moduleId: 'moduleId',
+            json: '.json'
+          },
+          true
+        )
+        .then(data => {
+          let filename = config.filename || data.moduleId || data.module_id || data.title || data.name;
+          filename = filename.replace(/[^a-zA-Zа-яА-Я0-9.]+/g, '_');
 
-        if (!filename.endsWith('.json')) {
-          filename += '.json';
-        }
-        DownloadAction._downloadText(JSON.stringify(data.json), filename, 'text/json');
-      });
+          if (!filename.endsWith('.json')) {
+            filename += '.json';
+          }
+          DownloadAction._downloadText(JSON.stringify(data.json), filename, 'text/json');
+        });
     } else {
       const name = config.filename || 'file';
       DownloadAction._downloadByUrl(config.url, name, record);
