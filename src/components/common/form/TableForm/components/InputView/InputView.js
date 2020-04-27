@@ -83,7 +83,7 @@ const InputView = () => {
           <IcoBtn
             key={'view'}
             icon={'icon-on'}
-            className={`${inlineToolsActionClassName} inline-tools-actions-btn__on`}
+            className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__on')}
             onClick={onClickView}
           />
         );
@@ -95,7 +95,7 @@ const InputView = () => {
           <IcoBtn
             key={'edit'}
             icon={'icon-edit'}
-            className={`${inlineToolsActionClassName} inline-tools-actions-btn__edit`}
+            className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__edit')}
             onClick={onClickEdit}
           />
         );
@@ -107,7 +107,7 @@ const InputView = () => {
           <IcoBtn
             key={'delete'}
             icon={'icon-delete'}
-            className={`${inlineToolsActionClassName} inline-tools-actions-btn__delete`}
+            className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__delete')}
             onClick={onClickDelete}
           />
         );
