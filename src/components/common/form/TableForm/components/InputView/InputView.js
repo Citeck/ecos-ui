@@ -79,18 +79,37 @@ const InputView = () => {
 
       const shouldShowViewButton = isBoolean(get(displayElements, 'view')) ? displayElements.view : true;
       if (shouldShowViewButton) {
-        iconButtons.push(<IcoBtn key={'view'} icon={'icon-on'} className={`${inlineToolsActionClassName}`} onClick={onClickView} />);
+        iconButtons.push(
+          <IcoBtn
+            key={'view'}
+            icon={'icon-on'}
+            className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__on')}
+            onClick={onClickView}
+          />
+        );
       }
 
       const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : true;
       if (!disabled && !viewOnly && shouldShowEditButton) {
-        iconButtons.push(<IcoBtn key={'edit'} icon={'icon-edit'} className={`${inlineToolsActionClassName}`} onClick={onClickEdit} />);
+        iconButtons.push(
+          <IcoBtn
+            key={'edit'}
+            icon={'icon-edit'}
+            className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__edit')}
+            onClick={onClickEdit}
+          />
+        );
       }
 
       const shouldShowDeleteButton = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
       if (!disabled && !viewOnly && shouldShowDeleteButton) {
         iconButtons.push(
-          <IcoBtn key={'delete'} icon={'icon-delete'} className={`${inlineToolsActionClassName}`} onClick={onClickDelete} />
+          <IcoBtn
+            key={'delete'}
+            icon={'icon-delete'}
+            className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__delete')}
+            onClick={onClickDelete}
+          />
         );
       }
 
