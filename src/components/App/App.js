@@ -198,7 +198,8 @@ class App extends Component {
     };
     const basePageProps = {
       tabId: tab.id,
-      tabLink: tab.link
+      tabLink: tab.link,
+      enableCache: true
     };
     const styles = { ...this.wrapperStyle };
 

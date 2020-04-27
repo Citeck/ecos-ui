@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import { Scrollbars } from 'react-custom-scrollbars';
 import ReactPlaceholder from 'react-placeholder';
 import { RectShape, RoundShape } from 'react-placeholder/lib/placeholders';
 import * as queryString from 'query-string';
@@ -29,12 +28,19 @@ import PageService from '../../services/PageService';
 
 import './style.scss';
 
+const getStateId = state => {
+  return state.enableCache ? state.tabId || DashboardService.key : null;
+};
+
 const mapStateToProps = (state, ownProps) => {
+  const enableCache = get(state, ['app', 'enableCache']);
   const isMobile = get(state, ['view', 'isMobile'], false);
-  const stateKey = ownProps.tabId || null;
+  const stateKey = getStateId(ownProps);
   const dashboardState = selectDashboardByKey(state, stateKey);
 
   return {
+    stateKey,
+    enableCache,
     config: get(dashboardState, [isMobile ? 'mobileConfig' : 'config'], []),
     isLoadingDashboard: get(dashboardState, ['isLoading']),
     saveResultDashboard: get(dashboardState, ['requestResult'], {}),
@@ -49,17 +55,15 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
-  return {
-    getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key: DashboardService.key })),
-    getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: DashboardService.key })),
-    saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: DashboardService.key })),
-    initMenuSettings: payload => dispatch(getMenuConfig({ ...payload, key: DashboardService.key })),
-    saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: DashboardService.key })),
-    setLoading: status => dispatch(setLoading({ status, key: DashboardService.key })),
-    resetDashboardConfig: () => dispatch(resetDashboardConfig(DashboardService.key))
-  };
-};
+const mapDispatchToProps = (dispatch, state) => ({
+  getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key: getStateId(state) })),
+  getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: getStateId(state) })),
+  saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: getStateId(state) })),
+  initMenuSettings: payload => dispatch(getMenuConfig({ ...payload, key: getStateId(state) })),
+  saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: getStateId(state) })),
+  setLoading: status => dispatch(setLoading({ status, key: getStateId(state) })),
+  resetDashboardConfig: () => dispatch(resetDashboardConfig(getStateId(state)))
+});
 
 class Dashboard extends Component {
   state = {
@@ -67,7 +71,6 @@ class Dashboard extends Component {
     canDragging: false,
     activeLayoutId: null,
     needGetConfig: false,
-    inited: false,
     openedTabs: new Set()
   };
 
@@ -95,6 +98,10 @@ class Dashboard extends Component {
     }
 
     if (state.urlParams !== newUrlParams) {
+      if (!props.enableCache) {
+        props.resetDashboardConfig();
+      }
+
       props.initMenuSettings();
       newState.urlParams = newUrlParams;
 
@@ -120,7 +127,7 @@ class Dashboard extends Component {
   }
 
   static updateTabLink() {
-    PageService.changeUrlLink(`${window.location.pathname}${window.location.search}`, { updateUrl: true });
+    PageService.changeUrlLink(unescape(`${window.location.pathname}${window.location.search}`), { updateUrl: true });
   }
 
   componentDidMount() {
@@ -140,7 +147,11 @@ class Dashboard extends Component {
       this.toggleTabLayoutFromUrl();
     }
 
-    if (this.state.needGetConfig || (!prevProps.tabId && this.props.tabId)) {
+    if (
+      this.state.needGetConfig ||
+      (!prevProps.tabId && this.props.tabId) ||
+      (this.props.enableCache && prevProps.stateKey !== this.props.stateKey)
+    ) {
       this.getConfig();
     }
   }
@@ -162,7 +173,12 @@ class Dashboard extends Component {
   }
 
   getConfig() {
-    const { getDashboardConfig, getDashboardTitle } = this.props;
+    const { getDashboardConfig, getDashboardTitle, tabId } = this.props;
+
+    if (tabId && !pageTabList.isActiveTab(tabId)) {
+      return;
+    }
+
     const { recordRef } = this.getPathInfo();
 
     getDashboardConfig({ recordRef });
