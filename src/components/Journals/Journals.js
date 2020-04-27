@@ -22,7 +22,6 @@ import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '
 import { t, trigger } from '../../helpers/util';
 import { goToCardDetailsPage } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
-import { selectActiveTab } from '../../selectors/pageTabs';
 
 import './Journals.scss';
 
@@ -32,7 +31,6 @@ const mapStateToProps = (state, props) => {
   return {
     isMobile: state.view.isMobile,
     pageTabsIsShow: state.pageTabs.isShow,
-    activeTab: selectActiveTab(state),
     journalConfig: newState.journalConfig,
     grid: newState.grid
   };
@@ -57,7 +55,7 @@ class Journals extends Component {
       menuOpen: false,
       menuOpenAnimate: false,
       settingsVisible: false,
-      showPreview: this.props.urlParams.showPreview,
+      showPreview: props.urlParams.showPreview,
       showPie: false,
       savedSetting: null
     };
@@ -69,14 +67,18 @@ class Journals extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const journalId = this.props.urlParams.journalId;
-    const prevJournalId = prevProps.urlParams.journalId;
+    const {
+      isActivePage,
+      urlParams: { journalId }
+    } = this.props;
+    const {
+      isActivePage: _isActivePage,
+      urlParams: { journalId: _journalId }
+    } = prevProps;
 
-    if (journalId && journalId !== prevJournalId) {
+    if (_isActivePage && isActivePage && journalId && journalId !== _journalId) {
       this.getJournalsData();
     }
-
-    trigger.call(this, 'onRender');
   }
 
   refresh = () => {
@@ -110,24 +112,15 @@ class Journals extends Component {
   };
 
   togglePreview = () => {
-    this.setState({
-      showPreview: !this.state.showPreview,
-      showPie: false
-    });
+    this.setState(state => ({ showPreview: !state.showPreview, showPie: false }));
   };
 
   togglePie = () => {
-    this.setState({
-      showPreview: false,
-      showPie: !this.state.showPie
-    });
+    this.setState(state => ({ showPreview: false, showPie: !state.showPie }));
   };
 
   showGrid = () => {
-    this.setState({
-      showPreview: false,
-      showPie: false
-    });
+    this.setState({ showPreview: false, showPie: false });
   };
 
   toggleMenu = () => {

@@ -135,11 +135,7 @@ class Dashboard extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    if (nextProps.tabId && !pageTabList.isActiveTab(nextProps.tabId)) {
-      return false;
-    }
-
-    return true;
+    return !(nextProps.tabId && !pageTabList.isActiveTab(nextProps.tabId));
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {

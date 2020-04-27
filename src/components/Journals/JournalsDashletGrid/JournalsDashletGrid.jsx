@@ -319,7 +319,7 @@ class JournalsDashletGrid extends Component {
     this.onDelete = this.deleteRecords;
   };
 
-  renderPerformGroupActionResponse = performGroupActionResponse => {
+  renderPerformGroupActionResponse = (performGroupActionResponse = []) => {
     const { className } = this.props;
     const performGroupActionResponseUrl = (performGroupActionResponse[0] || {}).url;
 
@@ -474,7 +474,7 @@ class JournalsDashletGrid extends Component {
 
         <EcosModal
           title={t('group-action.label.header')}
-          isOpen={Boolean(performGroupActionResponse.length)}
+          isOpen={!!(performGroupActionResponse && performGroupActionResponse.length)}
           hideModal={this.closePerformGroupActionDialog}
           className="journal__dialog"
         >
