@@ -62,7 +62,6 @@ export class DashboardApi extends RecordService {
         ];
       }
     } else {
-      const userDashboardId = 'emodel/type@user-dashboard';
       typesToSelect = [
         {
           id: userDashboardId,

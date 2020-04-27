@@ -9,7 +9,7 @@ import JournalsUrlManager from '../JournalsUrlManager';
 import './JournalsContent.scss';
 
 const Grid = ({ stateId, showPreview, onRowClick, maxHeight }) => (
-  <Well className="ecos-journals-content__grid-well_overflow_hidden">
+  <Well className="ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden">
     <JournalsDashletGrid
       stateId={stateId}
       onRowClick={onRowClick}

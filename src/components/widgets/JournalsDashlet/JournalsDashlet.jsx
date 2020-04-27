@@ -22,7 +22,8 @@ import BaseWidget from '../BaseWidget';
 
 import './JournalsDashlet.scss';
 
-const getKey = ({ tabId, stateId, id }) => ((stateId || '').includes(tabId) ? stateId : getStateId({ tabId, id: stateId || id }));
+const getKey = ({ tabId = '', stateId, id }) =>
+  (stateId || '').includes(tabId) && stateId === tabId ? stateId : getStateId({ tabId, id: stateId || id });
 
 const mapStateToProps = (state, ownProps) => {
   const newState = state.journals[getKey(ownProps)] || {};
