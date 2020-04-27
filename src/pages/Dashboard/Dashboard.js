@@ -502,18 +502,13 @@ class Dashboard extends Component {
 
   render() {
     return (
-      <Scrollbars
-        style={{ height: '100%' }}
-        renderTrackHorizontal={props => <div {...props} hidden />}
-        renderThumbVertical={props => <div {...props} className="ecos-dashboard__scrollbars-track-vertical" />}
-        renderThumbHorizontal={props => <div {...props} hidden />}
-      >
+      <>
         {this.renderTopMenu()}
         {this.renderHeader()}
         {this.renderTabs()}
         {this.renderContent()}
         {this.renderLoader()}
-      </Scrollbars>
+      </>
     );
   }
 }

@@ -19,6 +19,7 @@ import { dropByCacheKey } from '../ReactRouterCache';
 import Tab from './Tab';
 
 import './style.scss';
+import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 
 const Labels = {
   GO_HOME: 'header.site-menu.go-home-page'
@@ -110,7 +111,11 @@ class PageTabs extends React.Component {
   checkUrl() {
     const { enableCache, allowedLinks, location, homepageLink, history } = this.props;
 
-    if (enableCache && !allowedLinks.includes(location.pathname)) {
+    if (!enableCache) {
+      return;
+    }
+
+    if (!allowedLinks.includes(location.pathname)) {
       history.replace(homepageLink);
     }
   }
@@ -202,6 +207,7 @@ class PageTabs extends React.Component {
 
   handleClickTab = tab => {
     if (tab.isActive) {
+      this.scrollToTop();
       return;
     }
 
@@ -210,6 +216,10 @@ class PageTabs extends React.Component {
       filter: { id: tab.id },
       url: tab.link
     });
+  };
+
+  scrollToTop = () => {
+    animateScrollTo(document.querySelectorAll(`.${PANEL_CLASS_NAME}`), { scrollTop: 0 });
   };
 
   updateTab = tab => {

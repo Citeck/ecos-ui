@@ -281,6 +281,9 @@
   }
 
   &__panel {
+    overflow: scroll;
+    display: block;
     height: 100%;
+    width: 100%;
   }
 }

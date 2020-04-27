@@ -23,6 +23,7 @@ import PageService, { Events } from '../../services/PageService';
 import { isMobileAppWebView, t } from '../../helpers/util';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
+import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 
 import './App.scss';
 
@@ -172,7 +173,7 @@ class App extends Component {
     return (
       <>
         <PageTabs homepageLink={URL.DASHBOARD} isShow={isShowTabs && !this.isOnlyContent && !isMobile} />
-        {this.renderRouter()}
+        <div className={PANEL_CLASS_NAME}>{this.renderRouter()}</div>
       </>
     );
   }
@@ -189,7 +190,7 @@ class App extends Component {
     const { tab } = props;
     const isCurrent = pageTabList.isActiveTab(tab.id);
     const baseCacheRouteProps = {
-      className: 'page-tab__panel',
+      className: PANEL_CLASS_NAME,
       needUseFullPath: true,
       when: 'always',
       isCurrent,

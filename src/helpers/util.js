@@ -626,8 +626,13 @@ export function fromISO8601(formattedString) {
   return result; // Date or null
 }
 
-export function animateScrollTo(element = null, scrollTo = {}) {
+export function animateScrollTo(element = '', scrollTo = {}) {
   if (!element) {
+    return;
+  }
+
+  if (element.length) {
+    element.forEach(item => animateScrollTo(item, scrollTo));
     return;
   }
 
