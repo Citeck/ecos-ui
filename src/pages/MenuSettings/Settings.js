@@ -10,7 +10,6 @@ import { MenuTypes } from '../../constants/menu';
 import { EcosModal, Loader } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { DndUtils } from '../../components/Drag-n-Drop';
-import Location from './Location';
 import EditorTop from './EditorTop';
 
 import './style.scss';
@@ -126,7 +125,7 @@ class Settings extends React.Component {
         classNameHeader="ecos-menu-settings__modal-header"
       >
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
-        <Location selectedType={selectedType} setData={this.setData} />
+        {/*<Location selectedType={selectedType} setData={this.setData} />*/}
         {selectedType === MenuTypes.TOP && (
           <EditorTop
             setData={this.setData}
@@ -135,6 +134,7 @@ class Settings extends React.Component {
             positionAdjustment={this.draggablePositionAdjustment}
           />
         )}
+        {selectedType === MenuTypes.LEFT && <div>nothing</div>}
         {this.renderButtons()}
       </EcosModal>
     );
@@ -142,7 +142,7 @@ class Settings extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  type: get(state, 'menu.type', ''),
+  type: get(state, 'menu.type', MenuTypes.LEFT),
   items: get(state, 'menu.items', []),
   links: get(state, 'menu.links', []),
   soloItems: get(state, 'menu.availableSoloItems', []),
