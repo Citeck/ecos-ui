@@ -20,6 +20,7 @@ export default class AsyncDataComponent extends BaseComponent {
         refreshOn: [],
         source: {
           type: '',
+          forceLoad: false,
           ajax: {
             method: 'GET',
             url: '',
@@ -164,7 +165,8 @@ export default class AsyncDataComponent extends BaseComponent {
       }
     }
 
-    return record.load(attributes);
+    const force = _.get(this.component, 'source.forceLoad', false);
+    return record.load(attributes, force);
   }
 
   _updateValue(forceUpdate) {
