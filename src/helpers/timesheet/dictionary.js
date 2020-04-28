@@ -52,6 +52,7 @@ export const CommonLabels = {
   STATUSES_VAL_AGREED: 'timesheets.allForms.statuses.approved',
   STATUSES_VAL_ON_AGREEMENT_BY_MANAGER: 'timesheets.allForms.statuses.onManagerApproval',
   STATUSES_VAL_AGREED_BY_MANAGER: 'timesheets.allForms.statuses.approvedByManager',
+  STATUSES_VAL_SENT_TO_ACCOUNTING_SYSTEM: 'timesheets.allForms.statuses.sentToAccountingSystem',
 
   DELEGATION_TYPE_FILL_IN: 'timesheets.allForms.status.action.fillIn',
   DELEGATION_TYPE_TO_APPROVE: 'timesheets.allForms.status.action.approve',
