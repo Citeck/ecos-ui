@@ -69,18 +69,27 @@ ModalWrapper.propTypes = {
 class Modal {
   open = (node, config = {}, callback) => {
     this.el = document.createElement('div');
+
     document.body.appendChild(this.el);
 
     if (config.rawHtml) {
       node = <div dangerouslySetInnerHTML={{ __html: node }} />;
     }
 
+    this.onHideModal = () => {
+      this.destroy();
+
+      if (config.onHideModal) {
+        config.onHideModal();
+      }
+    };
+
     ReactDOM.render(
       <ModalWrapper
         title={config.title || config.header || EMPTY_HEADER_TITLE}
         isBigHeader={config.isBigHeader}
         className={config.class}
-        onHideModal={this.destroy}
+        onHideModal={this.onHideModal}
         getInstance={el => (this.modal = el)}
         reactstrapProps={config.reactstrapProps}
       >

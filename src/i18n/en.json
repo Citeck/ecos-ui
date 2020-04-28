@@ -4,6 +4,10 @@
   "aggregation.type": "Aggregation type",
   "boolean.no": "No",
   "boolean.yes": "Yes",
+  "page.error-loading.title": "The error occurred while loading the page",
+  "page.error-loading.message": "Try reloading the page. If the error persists, contact your administrator",
+  "page.error-loading.log": "Error log",
+
   "bpmn-card.go-back-to-list-button.text": "Back to list",
   "bpmn-card.open-editor-button.text": "Visual Editor",
   "bpmn-designer.add-category": "Create category",
@@ -300,6 +304,7 @@
   "record-action.name.edit": "Edit",
   "record-action.name.show": "View document",
   "record-action.name.open-in-background": "Open in background tab",
+  "record-action.name.view-card-template-in-background": "View in background tab",
 
   "record-action.name.assoc-action": "Assoc action",
   "record-action.assoc-action.not-found": "Association is not found",
@@ -678,6 +683,7 @@
   "timesheets.allForms.buttons.approve.tip": "Approve Timesheet",
   "timesheets.allForms.buttons.approve.withoutManager.tip": "Approve Without Manager Reconciliation",
   "timesheets.allForms.buttons.sendToApproval.tip": "Send to manager approval",
+  "timesheets.allForms.buttons.approve3.tip": "Approve Timesheet",
   "timesheets.allForms.statuses.notFilled": "Not Filled",
   "timesheets.allForms.statuses.reworking": "Sent Back",
   "timesheets.allForms.statuses.onApproval": "On Approval",

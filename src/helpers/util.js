@@ -754,3 +754,26 @@ export function extractLabel(text) {
 
   return t(displayText);
 }
+
+export function getTimezoneValue() {
+  let timezone, offset;
+
+  if (Intl) {
+    timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } else {
+    const numberOffset = -new Date().getTimezoneOffset();
+    const hours = Math.floor(numberOffset / 60);
+    const minutes = Math.floor(numberOffset - hours * 60);
+
+    offset = 'GMT';
+    offset += numberOffset > 0 ? '+' : '-';
+    offset += Math.abs(hours);
+
+    if (minutes > 0) {
+      offset += ':';
+      offset += minutes;
+    }
+  }
+
+  return { timezone, offset };
+}

@@ -21,3 +21,9 @@ export const MenuTypesView = [
   //   description: 'menu-settings.location.type.hidden'
   // }
 ];
+
+export const CreateMenuTypes = {
+  Custom: {
+    LINK: 'link'
+  }
+};

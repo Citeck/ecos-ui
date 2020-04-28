@@ -172,7 +172,12 @@ export class JournalsApi extends RecordService {
   getJournalConfig = journalId => {
     //return this.getJson(`${MICRO_URI}api/journalcfg?journalId=contract-agreements`).then(resp => {
 
-    return this.getJson(`${PROXY_URI}api/journals/config?journalId=${journalId}`)
+    if (journalId.indexOf('@') === -1) {
+      journalId = 'uiserv/journal_v1@' + journalId;
+    }
+
+    return Records.get(journalId)
+      .load('.json')
       .then(resp => {
         const data = resp || {};
 
@@ -182,7 +187,19 @@ export class JournalsApi extends RecordService {
 
         return data;
       })
-      .catch(() => {});
+      .catch(() => {
+        return this.getJson(`${PROXY_URI}api/journals/config?journalId=${journalId}`)
+          .then(resp => {
+            const data = resp || {};
+
+            (data.columns || []).forEach((col, i) => {
+              col.type = get(col, 'params.edgeType') || col.type;
+            });
+
+            return data;
+          })
+          .catch(() => {});
+      });
   };
 
   getJournalsList = () => {
@@ -202,8 +219,30 @@ export class JournalsApi extends RecordService {
     //journalsListId = 'site-contracts-main';
     //return this.getJson(`${MICRO_URI}api/journallist?listId=${journalsListId}`).then(resp => {
 
+    let journalsFromUiserv = Records.query(
+      {
+        sourceId: 'uiserv/journal_v1',
+        language: 'list-id',
+        query: { listId: journalsListId }
+      },
+      { title: 'meta.title' }
+    )
+      .then(res => res.records)
+      .catch(() => []);
+
     return this.getJson(`${PROXY_URI}api/journals/list?journalsList=${journalsListId}`).then(resp => {
-      return resp.journals || [];
+      return journalsFromUiserv.then(uiservJournals => {
+        let result = [...(resp.journals || [])];
+        for (let journal of uiservJournals) {
+          let localId = journal.id.replace('uiserv/journal_v1@', '');
+          result.push({
+            nodeRef: localId,
+            title: journal.title,
+            type: localId
+          });
+        }
+        return result;
+      });
     });
   };
 
