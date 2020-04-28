@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { UncontrolledTooltip } from 'reactstrap';
 import classNames from 'classnames';
-import uniqueId from 'lodash/uniqueId';
 
 import { t } from '../../../helpers/util';
 import { IcoBtn } from '../btns';
@@ -36,20 +35,18 @@ const BtnAction = ({ id, text, icon, onClick, component, className = '' }) => {
   );
 };
 
-const Actions = ({ actionConfig = [] }) => {
-  const actions = actionConfig.filter(item => item && (item.onClick || item.component));
-
+const Actions = ({ actionConfig = [], onClick = () => null }) => {
   return (
     <>
-      {actions.map(action => (
-        <BtnAction key={uniqueId('tree-action-') + (action.id || '')} {...action} />
+      {actionConfig.map((action, i) => (
+        <BtnAction key={`tree-action-${i}-${action.id || ''}`} {...action} onClick={() => onClick(action)} />
       ))}
     </>
   );
 };
 
 Actions.propTypes = {
-  actionConfig: PropTypes.objectOf(
+  actionConfig: PropTypes.arrayOf(
     PropTypes.shape({
       icon: PropTypes.string,
       onClick: PropTypes.func,
