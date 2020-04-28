@@ -49,6 +49,22 @@ export default function(...extend) {
                 }
               },
               {
+                type: 'checkbox',
+                input: true,
+                key: 'source.forceLoad',
+                label: 'Force attributes loading, ignore Records cache',
+                defaultValue: false,
+                conditional: {
+                  json: {
+                    or: [
+                      { '==': [{ var: 'data.source.type' }, 'record'] },
+                      { '==': [{ var: 'data.source.type' }, 'recordsScript'] },
+                      { '==': [{ var: 'data.source.type' }, 'recordsArray'] }
+                    ]
+                  }
+                }
+              },
+              {
                 type: 'panel',
                 collapsible: false,
                 key: 'source.records.config-panel',
