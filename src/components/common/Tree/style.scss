@@ -41,11 +41,6 @@
     &-element {
       $element: &;
 
-      &_higher {
-        --e-tree-parent-height: 60px;
-        --e-tree-parent-padding: 19px 18px;
-      }
-
       display: flex;
       align-items: center;
       position: relative;
@@ -54,6 +49,11 @@
       height: var(--e-tree-parent-height);
       padding: var(--e-tree-parent-padding);
       transition: margin-bottom 0.2s ease-in-out 0.05s;
+
+      &_higher {
+        --e-tree-parent-height: 60px;
+        --e-tree-parent-padding: 19px 18px;
+      }
 
       &-arrow {
         transition: 0.25s;
@@ -100,6 +100,10 @@
 
       &-space {
         flex: auto;
+      }
+
+      &-drag {
+        padding-left: 20px;
       }
 
       &-children {
