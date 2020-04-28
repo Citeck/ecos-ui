@@ -1,56 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+
 import { URL } from '../constants';
 import { HandleControlTypes } from './handleControl';
 import { createProfileUrl } from './urls';
-
-export function processCreateVariantsItems(sites) {
-  let menuItems = [];
-
-  // TODO add it to API response
-  menuItems.push({
-    id: 'HEADER_CREATE_WORKFLOW',
-    label: 'header.create-workflow.label',
-    items: [
-      {
-        id: 'HEADER_CREATE_WORKFLOW_ADHOC',
-        label: 'header.create-workflow-adhoc.label',
-        targetUrl: '/share/page/workflow-start-page?formType=workflowId&formKey=activiti$perform'
-      },
-      {
-        id: 'HEADER_CREATE_WORKFLOW_CONFIRM',
-        label: 'header.create-workflow-confirm.label',
-        targetUrl: '/share/page/start-specified-workflow?workflowId=activiti$confirm'
-      }
-    ]
-  });
-
-  for (let site of sites) {
-    let createVariants = [];
-    for (let variant of site.createVariants) {
-      if (!variant.canCreate) {
-        continue;
-      }
-      createVariants.push({
-        id: 'HEADER_' + (site.siteId + '_' + variant.type).replace(/-/g, '_').toUpperCase(),
-        label: variant.title,
-        control: {
-          type: HandleControlTypes.ECOS_CREATE_VARIANT,
-          payload: variant
-        }
-      });
-    }
-
-    const siteId = 'HEADER_' + site.siteId.replace(/-/g, '_').toUpperCase();
-    menuItems.push({
-      id: siteId,
-      label: site.siteTitle,
-      items: createVariants
-    });
-  }
-
-  return menuItems;
-}
 
 export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAuthentication) => {
   const availability = 'make-' + (isAvailable === false ? '' : 'not') + 'available';
@@ -61,6 +14,7 @@ export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAu
     {
       id: 'HEADER_USER_MENU_MY_PROFILE',
       label: 'header.my-profile.label',
+      target: '_blank',
       targetUrl: createProfileUrl(encodeURIComponent(userName))
     },
     {

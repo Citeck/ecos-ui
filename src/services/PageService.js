@@ -1,9 +1,9 @@
 import queryString from 'query-string';
 import get from 'lodash/get';
 
-import { getCurrentUserName, t } from '../helpers/util';
-import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
 import { URL } from '../constants';
+import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
+import { getCurrentUserName, t } from '../helpers/util';
 import { decodeLink, getLinkWithout, isNewVersionPage, SearchKeys } from '../helpers/urls';
 import { getData, isExistLocalStorage, setData } from '../helpers/ls';
 import { PageApi } from '../api';
@@ -134,8 +134,6 @@ export default class PageService {
       event.preventDefault();
 
       if (updateUrl) {
-        window.history.pushState(window.history.state, '', link);
-
         return {
           ...props,
           link,

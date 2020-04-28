@@ -1,12 +1,11 @@
-import { CommonApi } from './common';
-import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
-import { getJournalUIType } from './export/journalsApi';
-import { PROXY_URI } from '../constants/alfresco';
-import Records from '../components/Records';
-import { QueryEntityKeys, URL } from '../constants';
 import lodashGet from 'lodash/get';
 
-const PREFIX = 'uiserv/config@';
+import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
+import { SourcesId, URL } from '../constants';
+import { PROXY_URI } from '../constants/alfresco';
+import Records from '../components/Records';
+import { getJournalUIType } from './export/journalsApi';
+import { CommonApi } from './common';
 
 const postProcessMenuItemChildren = items => {
   if (items && items.length) {
@@ -63,9 +62,38 @@ export class MenuApi extends CommonApi {
     return `${URL.JOURNAL}?journalId=${journalRef}&journalSettingId=&journalsListId=${listId}`;
   };
 
+  getCreateWorkflowVariants = () => {
+    return Promise.resolve([
+      {
+        id: 'HEADER_CREATE_WORKFLOW',
+        label: 'header.create-workflow.label',
+        items: [
+          {
+            id: 'HEADER_CREATE_WORKFLOW_ADHOC',
+            label: 'header.create-workflow-adhoc.label',
+            targetUrl: '/share/page/workflow-start-page?formType=workflowId&formKey=activiti$perform'
+          },
+          {
+            id: 'HEADER_CREATE_WORKFLOW_CONFIRM',
+            label: 'header.create-workflow-confirm.label',
+            targetUrl: '/share/page/start-specified-workflow?workflowId=activiti$confirm'
+          }
+        ]
+      }
+    ]);
+  };
+
   getCreateVariantsForAllSites = () => {
     const url = `${PROXY_URI}api/journals/create-variants/site/ALL`;
     return this.getJson(url).catch(() => []);
+  };
+
+  getCustomCreateVariants = () => {
+    return Records.get(`${SourcesId.CONFIG}@custom-create-buttons`)
+      .load('value[]?json', true)
+      .then(res => lodashGet(res, '[0]', []))
+      .then(res => (Array.isArray(res) ? res : []))
+      .catch(() => []);
   };
 
   getLiveSearchDocuments = (terms, startIndex) => {
@@ -89,7 +117,7 @@ export class MenuApi extends CommonApi {
       url: `${PROXY_URI}citeck/menu/menu?username=${username}`,
       timeout: 14400000, //4h
       postProcess: menu => postProcessMenuConfig(menu)
-    }).catch(() => {});
+    }).catch(() => ({}));
   };
 
   getMenuItemIconUrl = iconName => {
@@ -116,32 +144,24 @@ export class MenuApi extends CommonApi {
   };
 
   getMenuConfig = (disabledCache = false) => {
-    return Records.get(`${PREFIX}menu-config`)
-      .load([QueryEntityKeys.VALUE_JSON], disabledCache)
+    return Records.get(`${SourcesId.CONFIG}@menu-config`)
+      .load('value?json', disabledCache)
       .then(resp => resp)
-      .catch(e => {
-        console.error(e);
-        return {
-          [QueryEntityKeys.VALUE_JSON]: {
-            type: 'LEFT',
-            links: []
-          }
-        };
-      });
+      .catch(console.error);
   };
 
   saveMenuConfig = ({ config = {}, title = '', description = '' }) => {
-    const record = Records.get(`${PREFIX}menu-config`);
+    const record = Records.get(`${SourcesId.CONFIG}@menu-config`);
 
-    record.att(QueryEntityKeys.VALUE_JSON, config);
-    record.att(QueryEntityKeys.TITLE, title);
-    record.att(QueryEntityKeys.DESCRIPTION, description);
+    record.att('value?json', config);
+    record.att('title', title);
+    record.att('description', description);
 
     return record.save().then(resp => resp);
   };
 
   checkSiteDashboardEnable = () => {
-    return Records.get('uiserv/config@site-dashboard-enable')
+    return Records.get(`${SourcesId.CONFIG}@site-dashboard-enable`)
       .load('value?bool')
       .then(resp => resp);
   };

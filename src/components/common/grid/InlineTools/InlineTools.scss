@@ -1,36 +1,44 @@
 @import '../../../../styles/constants';
 
+$border: $border-width-standard solid $color-brown-2;
+
 .ecos-inline-tools {
-  border-top: 2px solid $color-brown-2;
+  border: $border;
   position: absolute;
-  height: 0;
   width: 100%;
-  z-index: 0;
-}
+  z-index: 21;
+  pointer-events: none;
 
-.ecos-inline-tools-border-left {
-  border-left: 2px solid $color-brown-2;
-  width: 0;
-  position: relative;
-}
+  &-actions {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    height: 100%;
+    top: 0;
+    right: 0;
+    overflow: hidden;
+    background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
 
-.ecos-inline-tools-border-bottom {
-  border-top: 2px solid $color-brown-2;
-  position: relative;
-}
+    &::before {
+      content: ' ';
+      width: 35px;
+    }
+  }
 
-.ecos-inline-tools-actions {
-  background: $color-white;
-  border-right: 2px solid $color-brown-2;
-  display: flex;
-  align-items: center;
-  position: absolute;
-  top: 0;
-  right: 0;
-  overflow: hidden;
-}
+  &_selected > &-actions {
+    background: linear-gradient(to right, rgba($color-yellow-1, 0), $color-yellow-1 15%);
+  }
 
-.ecos-inline-tools-btn {
-  height: auto !important;
-  padding: 0 !important;
+  &-btn.ecos-btn {
+    padding: 0;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0);
+
+    &:hover,
+    &:active,
+    &:focus {
+      background-color: rgba(0, 0, 0, 0);
+    }
+  }
 }

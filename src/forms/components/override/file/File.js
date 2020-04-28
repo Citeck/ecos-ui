@@ -19,7 +19,8 @@ export default class FileComponent extends FormIOFileComponent {
     return FormIOFileComponent.schema(
       {
         onFileClick: FILE_CLICK_ACTION_OPEN_DASHBOARD,
-        displayElementsJS: {}
+        displayElementsJS: {},
+        valueDisplayName: {}
       },
       ...extend
     );
@@ -166,17 +167,50 @@ export default class FileComponent extends FormIOFileComponent {
     }
   }
 
+  calculateFileLinkText({ fileItemElement, originalFileName, recordRef, file }) {
+    const component = this.component;
+    const valueDisplayName = component.valueDisplayName;
+
+    if (!valueDisplayName) {
+      fileItemElement.innerText = originalFileName;
+    }
+
+    const calculatedFileName = this.evaluate(
+      valueDisplayName,
+      {
+        record: recordRef ? Records.get(recordRef) : null,
+        originalFileName,
+        file
+      },
+      'disp',
+      true
+    );
+
+    if (calculatedFileName instanceof Promise) {
+      calculatedFileName.then(name => {
+        fileItemElement.innerText = name;
+      });
+    } else if (typeof calculatedFileName === 'string') {
+      fileItemElement.innerText = calculatedFileName;
+    } else {
+      fileItemElement.innerText = originalFileName;
+    }
+  }
+
   createFileLink(f) {
     const file = cloneDeep(f);
-    const fileName = file.originalName || file.name;
+    const originalFileName = file.originalName || file.name;
     let onFileClickAction = this.component.onFileClick;
+
+    let fileItemElement = this.ce('span', {});
 
     if (!onFileClickAction && this.viewOnly) {
       onFileClickAction = FILE_CLICK_ACTION_OPEN_DASHBOARD;
     }
 
     if (!onFileClickAction || onFileClickAction === FILE_CLICK_ACTION_NOOP) {
-      return fileName;
+      this.calculateFileLinkText({ fileItemElement, originalFileName, file });
+      return fileItemElement;
     }
 
     let documentUrl = file.url;
@@ -186,7 +220,8 @@ export default class FileComponent extends FormIOFileComponent {
       documentUrl = FileComponent.buildDocumentUrl(recordRef);
     } catch (e) {
       console.warn(`EcosForm File: ${e.message}`);
-      return fileName;
+      this.calculateFileLinkText({ fileItemElement, originalFileName, file });
+      return fileItemElement;
     }
 
     const linkAttributes = {
@@ -202,7 +237,7 @@ export default class FileComponent extends FormIOFileComponent {
       linkAttributes.onClick = e => {
         e.stopPropagation();
         e.preventDefault();
-        FileComponent.downloadFile(recordRef, fileName);
+        FileComponent.downloadFile(recordRef, originalFileName);
       };
     } else if (onFileClickAction === FILE_CLICK_ACTION_OPEN_DASHBOARD && !this.viewOnly) {
       linkAttributes.onClick = e => {
@@ -214,7 +249,10 @@ export default class FileComponent extends FormIOFileComponent {
       };
     }
 
-    return this.ce('a', linkAttributes, fileName);
+    fileItemElement = this.ce('a', linkAttributes);
+    this.calculateFileLinkText({ fileItemElement, originalFileName, recordRef, file });
+
+    return fileItemElement;
   }
 
   focus() {

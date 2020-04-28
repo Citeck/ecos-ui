@@ -108,9 +108,9 @@ export class TimesheetCommonApi extends RecordService {
   };
 
   modifyStatus = ({ outcome, taskId, currentUser, comment = '' }) => {
-    const task = Records.get(`wftask@${taskId}`);
+    const task = Records.get(`${SourcesId.TASK}@${taskId}`);
 
-    task.att(`outcome_${outcome}`, 'true');
+    task.att(`outcome_${outcome}`, true);
     task.att('cm:owner', currentUser);
 
     if (comment) {

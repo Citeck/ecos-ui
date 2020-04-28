@@ -41,7 +41,7 @@ export const CommonLabels = {
   STATUS_TIP_SENT_IMPROVE_1: 'timesheets.allForms.buttons.sentBack.tip',
   STATUS_TIP_APPROVE_1: 'timesheets.allForms.buttons.approve.tip',
   STATUS_TIP_APPROVE_2: 'timesheets.allForms.buttons.approve.withoutManager.tip',
-  STATUS_TIP_APPROVE_3: 'Согласовать табель (передать  T&A команде)',
+  STATUS_TIP_APPROVE_3: 'timesheets.allForms.buttons.approve3.tip',
   STATUS_TIP_SEND_MANAGER_APPROVE_1: 'timesheets.allForms.buttons.sendToApproval.tip',
 
   STATUSES_VAL_NOT_FILLED: 'timesheets.allForms.statuses.notFilled',
@@ -52,6 +52,7 @@ export const CommonLabels = {
   STATUSES_VAL_AGREED: 'timesheets.allForms.statuses.approved',
   STATUSES_VAL_ON_AGREEMENT_BY_MANAGER: 'timesheets.allForms.statuses.onManagerApproval',
   STATUSES_VAL_AGREED_BY_MANAGER: 'timesheets.allForms.statuses.approvedByManager',
+  STATUSES_VAL_SENT_TO_ACCOUNTING_SYSTEM: 'timesheets.allForms.statuses.sentToAccountingSystem',
 
   DELEGATION_TYPE_FILL_IN: 'timesheets.allForms.status.action.fillIn',
   DELEGATION_TYPE_TO_APPROVE: 'timesheets.allForms.status.action.approve',

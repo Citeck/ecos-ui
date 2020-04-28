@@ -22,6 +22,7 @@ import {
 import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
+import DashboardService from '../../../services/dashboard';
 
 import './JournalsDashletEditor.scss';
 
@@ -35,7 +36,7 @@ const mapStateToProps = (state, ownProps) => {
     config: newState.config,
     initConfig: newState.initConfig,
     editorMode: newState.editorMode,
-    resultDashboard: get(state, 'dashboard.requestResult', {})
+    resultDashboard: get(state, ['dashboard', DashboardService.key, 'requestResult'], {})
   };
 };
 
@@ -189,32 +190,12 @@ class JournalsDashletEditor extends Component {
           ) : null}
         </div>
 
-        <div className={classNames('ecos-journal-dashlet-editor__actions', ifSmall('ecos-journal-dashlet-editor__actions_small'))}>
-          <Btn
-            className={classNames(`ecos-btn_x-step_10`, ifSmall('ecos-journal-dashlet-editor_small-btn_full-width'))}
-            onClick={this.clear}
-          >
-            {t('journals.action.reset-settings')}
-          </Btn>
-
-          <Btn
-            className={classNames(
-              `ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_float_right`,
-              ifSmall('ecos-journal-dashlet-editor_small-btn')
-            )}
-            onClick={this.save}
-          >
+        <div className={classNames('ecos-journal-dashlet-editor__actions', { 'ecos-journal-dashlet-editor__actions_small': isSmall })}>
+          <Btn onClick={this.clear}>{t('journals.action.reset-settings')}</Btn>
+          <div className="ecos-journal-dashlet-editor__actions-diver" />
+          <Btn onClick={this.cancel}>{t('journals.action.cancel')}</Btn>
+          <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.save}>
             {t('journals.action.save')}
-          </Btn>
-
-          <Btn
-            className={classNames(
-              `ecos-btn_x-step_10 ecos-btn_float_right`,
-              ifSmall('ecos-journal-dashlet-editor_small-btn ecos-btn_float_left')
-            )}
-            onClick={this.cancel}
-          >
-            {t('journals.action.cancel')}
           </Btn>
         </div>
       </div>

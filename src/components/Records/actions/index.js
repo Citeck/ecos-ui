@@ -1,5 +1,6 @@
 import Registry from './RecordActionExecutorsRegistry';
 import {
+  AssocAction,
   BackgroundOpenAction,
   CreateNodeAction,
   DefaultActionTypes,
@@ -10,7 +11,8 @@ import {
   MoveToLinesJournal,
   OpenURL,
   UploadNewVersion,
-  ViewAction
+  ViewAction,
+  ViewCardTemplate
 } from './DefaultActions';
 
 import { CaseCreateNodeAction, CaseRedirectAction, CaseRequestAction } from './CaseActions';
@@ -29,6 +31,8 @@ Registry.addExecutors({
   [DefaultActionTypes.CREATE]: CreateNodeAction,
   [DefaultActionTypes.OPEN_URL]: OpenURL,
   [DefaultActionTypes.UPLOAD_NEW_VERSION]: UploadNewVersion,
+  [DefaultActionTypes.ASSOC_ACTION]: AssocAction,
+  [DefaultActionTypes.VIEW_CARD_TEMPLATE]: ViewCardTemplate,
 
   //legacy case actions
 

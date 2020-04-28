@@ -1,6 +1,6 @@
 import { handleActions } from 'redux-actions';
 import { getCurrentTaskList, resetCurrentTaskList, setCurrentTaskList } from '../actions/currentTasks';
-import { getCurrentStateById } from '../helpers/redux';
+import { deleteStateById, getCurrentStateById } from '../helpers/redux';
 
 const commonInitialState = {};
 
@@ -10,34 +10,19 @@ const initialState = {
   totalCount: 0
 };
 
-const startLoading = (state, { payload: { stateId } }) => ({
+const updateState = (state, stateId, newData = {}) => ({
   ...state,
   [stateId]: {
     ...getCurrentStateById(state, stateId, initialState),
-    isLoading: true
+    ...newData
   }
 });
 
 export default handleActions(
   {
-    [getCurrentTaskList]: startLoading,
-    [setCurrentTaskList]: (state, { payload }) => {
-      const { stateId, ...data } = payload;
-
-      return {
-        ...state,
-        [stateId]: {
-          ...getCurrentStateById(state, stateId, initialState),
-          ...data,
-          isLoading: false
-        }
-      };
-    },
-    [resetCurrentTaskList]: (state, { payload: { stateId } }) => {
-      delete state[stateId];
-
-      return state;
-    }
+    [getCurrentTaskList]: (state, { payload: { stateId } }) => updateState(state, stateId, { ...initialState, isLoading: true }),
+    [setCurrentTaskList]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, { ...data, isLoading: false }),
+    [resetCurrentTaskList]: (state, { payload: { stateId } }) => deleteStateById(state, stateId)
   },
   commonInitialState
 );

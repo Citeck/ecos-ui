@@ -73,6 +73,19 @@ export const createThumbnailUrl = (nodeRef, extra) => {
   return `${PROXY_URI}citeck/ecos/image/thumbnail?` + queryString.stringify(params);
 };
 
+export function createPrintUrl({ record, config }) {
+  const params = {
+    nodeRef: record.id,
+    print: true,
+    templateType: config.templateType,
+    format: config.format,
+    timezone: config.timezone,
+    offset: config.offset
+  };
+
+  return `${PROXY_URI}citeck/print/metadata-printpdf?` + queryString.stringify(params);
+}
+
 const getPredicateFilterParam = options => {
   const filter = ParserPredicate.getRowPredicates(options);
   return filter ? JSON.stringify(filter) : '';
@@ -221,7 +234,7 @@ export const decodeLink = link => {
 };
 
 export const getBarcodePrintUrl = record => {
-  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&property=contracts:barcode&barcodeType=code-128&scale=5.0&margins=20,200,20,500&print=true`;
+  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&barcodeType=code-128&scale=5.0&margins=20,200,20,500&print=true`;
 };
 
 /**

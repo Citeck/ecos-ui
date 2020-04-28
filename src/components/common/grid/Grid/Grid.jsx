@@ -365,8 +365,8 @@ class Grid extends Component {
 
   getTrOptions = tr => {
     const { scrollLeft = 0 } = this._scrollValues;
-    const height = tr.offsetHeight - 2;
-    const top = tr.offsetTop - 1;
+    const height = tr.offsetHeight;
+    const top = tr.offsetTop;
     const row = this.props.data[tr.rowIndex - 1];
 
     this._tr = tr;
@@ -790,6 +790,7 @@ class Grid extends Component {
   render() {
     const {
       minHeight,
+      maxHeight,
       autoHeight,
       scrollAutoHide,
       className,
@@ -803,26 +804,30 @@ class Grid extends Component {
     } = this.props;
     const bootProps = this.setBootstrapTableProps(otherProps, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
     const toolsVisible = this.toolsVisible();
-    const gridStyle = minHeight ? { minHeight } : { height: '100%' };
-    const scrollStyle = minHeight ? { height: minHeight } : { autoHeight: true };
+
+    let scrollStyle = {};
+    let scrollProps = {};
 
     if (autoHeight) {
-      scrollStyle.autoHeight = autoHeight;
+      scrollProps = { ...scrollProps, autoHeight, autoHeightMax: maxHeight, autoHeightMin: minHeight };
+    } else {
+      scrollStyle = { ...scrollStyle, height: minHeight || '100%' };
     }
 
-    const Scroll = ({ scrollable, children, style, refCallback, autoHide }) =>
+    const Scroll = ({ scrollable, children, refCallback }) =>
       scrollable ? (
         <Scrollbars
           ref={refCallback}
           onScrollStart={this.onScrollStart}
           onScrollFrame={this.onScrollFrame}
           onScrollStop={this.onScrollStop}
-          style={style}
-          autoHide={autoHide}
+          style={scrollStyle}
+          autoHide={scrollAutoHide}
           hideTracksWhenNotNeeded
           renderView={props => <div {...props} className={tableViewClassName} />}
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
           renderTrackHorizontal={props => <div {...props} className="ecos-grid__h-scroll" />}
+          {...scrollProps}
         >
           {children}
         </Scrollbars>
@@ -835,7 +840,6 @@ class Grid extends Component {
         <div
           ref={this._ref}
           key={this._id}
-          style={gridStyle}
           className={classNames('ecos-grid', {
             'ecos-grid_freeze': this.fixedHeader,
             'ecos-grid_checkable': this.hasCheckboxes,
@@ -846,7 +850,7 @@ class Grid extends Component {
           onMouseEnter={this.onMouseEnter}
         >
           {!!toolsVisible && this.tools(bootProps.selected)}
-          <Scroll scrollable={bootProps.scrollable} style={scrollStyle} refCallback={this.scrollRefCallback} autoHide={scrollAutoHide}>
+          <Scroll scrollable={bootProps.scrollable} refCallback={this.scrollRefCallback}>
             <div ref={forwardedRef}>
               <BootstrapTable
                 {...bootProps}
@@ -884,10 +888,11 @@ Grid.propTypes = {
   singleSelectable: PropTypes.bool,
   freezeCheckboxes: PropTypes.bool,
   selectAll: PropTypes.bool,
-  scrollable: PropTypes.bool,
   fixedHeader: PropTypes.bool,
-  scrollAutoHide: PropTypes.bool,
   noTopBorder: PropTypes.bool,
+  scrollable: PropTypes.bool,
+  scrollAutoHide: PropTypes.bool,
+  autoHeight: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,
@@ -903,6 +908,10 @@ Grid.propTypes = {
   onRowMouseLeave: PropTypes.func,
   onResizeColumn: PropTypes.func,
   onGridMouseEnter: PropTypes.func
+};
+
+Grid.defaultProps = {
+  scrollable: true
 };
 
 export default Grid;

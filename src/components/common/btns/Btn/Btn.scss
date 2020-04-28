@@ -432,6 +432,10 @@ button {
     background: $color-white;
     color: $color-brown-2;
 
+    &:hover {
+      color: $color-brown-1;
+    }
+
     &:active,
     &:focus {
       background: $color-white;
@@ -447,7 +451,8 @@ button {
       background-color: $color-brown-2;
     }
 
-    &:active {
+    &:active,
+    &:focus {
       background-color: $color-brown-1;
     }
   }

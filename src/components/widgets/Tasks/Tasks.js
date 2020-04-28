@@ -23,11 +23,15 @@ const mapStateToProps = (state, context) => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  getTaskList: payload => dispatch(getTaskList(payload)),
-  changeTaskAssignee: payload => dispatch(changeTaskAssignee(payload)),
-  resetTaskList: payload => dispatch(resetTaskList(payload))
-});
+const mapDispatchToProps = (dispatch, props) => {
+  const { record, stateId } = props;
+
+  return {
+    getTaskList: () => dispatch(getTaskList({ stateId, record })),
+    changeTaskAssignee: payload => dispatch(changeTaskAssignee({ stateId, ...payload })),
+    resetTaskList: () => dispatch(resetTaskList({ stateId }))
+  };
+};
 
 class Tasks extends React.Component {
   static propTypes = {
@@ -61,34 +65,39 @@ class Tasks extends React.Component {
       this.getTaskList();
     }
 
+    let info = null;
+
     if (this.props.totalCount !== prevProps.totalCount) {
-      this.props.setInfo && this.props.setInfo({ totalCount: this.props.totalCount });
+      info = { ...info, totalCount: this.props.totalCount };
     }
 
     if (this.props.isLoading !== prevProps.isLoading) {
-      this.props.setInfo && this.props.setInfo({ isLoading: this.props.isLoading });
+      info = { ...info, isLoading: this.props.isLoading };
+    }
+
+    if (info) {
+      this.props.setInfo && this.props.setInfo(info);
     }
   }
 
   componentWillUnmount() {
-    const { resetTaskList, stateId } = this.props;
+    const { resetTaskList } = this.props;
 
-    resetTaskList({ stateId });
+    resetTaskList();
   }
 
   getTaskList = () => {
-    const { getTaskList, record, stateId } = this.props;
+    const { getTaskList } = this.props;
 
-    getTaskList({ stateId, record });
+    getTaskList();
   };
 
   onAssignClick = ({ taskId, actionOfAssignment, ownerUserName }) => {
-    const { changeTaskAssignee, stateId } = this.props;
+    const { changeTaskAssignee } = this.props;
 
     changeTaskAssignee({
       actionOfAssignment,
       ownerUserName,
-      stateId,
       taskId
     });
   };

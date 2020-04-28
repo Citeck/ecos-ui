@@ -31,7 +31,9 @@ export default {
   'cardlet-node-view': () => import('../../src/legacy/cardlets/node-view/node-view'),
   'journalsApi': () => journalsApi,
   'header': () => import('../../src/components/Header/export'),
-  'slide-menu': () => import('../../src/legacy/SlideMenu/export'),
-  'slide-menu-next': () => import('../../src/components/Sidebar/export'),
+  'header-legacy': () => import('../../src/legacy/header/index'),
+  'slide-menu': () => import('../../src/components/Sidebar/export'),
+  'slide-menu-legacy': () => import('../../src/legacy/SlideMenu/export'),
   'user-in-groups-list-helper': () => import('../../src/helpers/export/userInGroupsHelper'),
+  'record-actions': () => import('../../src/components/Records/actions/export/recordActions')
 };

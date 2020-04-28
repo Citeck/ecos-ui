@@ -1,7 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
-import { recordsQueryFetch, recordsDeleteFetch } from './recordsApi';
+import { recordsDeleteFetch, recordsQueryFetch } from './recordsApi';
 import Record from './Record';
 
 let Records;
@@ -206,23 +206,21 @@ class RecordsComponent {
     }
 
     return recordsQueryFetch(queryBody).then(response => {
+      const { errors, hasMore, totalCount, records: _records } = response;
       let records;
+
       if (!foreach) {
-        records = processRespRecords(response.records);
+        records = processRespRecords(_records);
       } else {
+        const recordsArr = _records || [];
         records = [];
-        let recordsArr = response.records || [];
+
         for (let resRecs of recordsArr) {
           records.push(processRespRecords(resRecs));
         }
       }
 
-      return {
-        records: records,
-        errors: response.errors,
-        hasMore: response.hasMore,
-        totalCount: response.totalCount
-      };
+      return { records, errors, hasMore, totalCount, attributes: queryBody.attributes };
     });
   }
 }

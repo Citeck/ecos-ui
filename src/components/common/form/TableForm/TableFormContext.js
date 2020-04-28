@@ -9,7 +9,17 @@ export const TableFormContext = React.createContext();
 
 export const TableFormContextProvider = props => {
   const { controlProps } = props;
-  const { onChange, createVariants, columns, error, defaultValue, triggerEventOnTableChange, computed, onSelectRows } = controlProps;
+  const {
+    onChange,
+    createVariants,
+    columns,
+    error,
+    defaultValue,
+    triggerEventOnTableChange,
+    computed,
+    onSelectRows,
+    selectedRows
+  } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
   const [isViewOnlyForm, setIsViewOnlyForm] = useState(false);
@@ -17,7 +27,6 @@ export const TableFormContextProvider = props => {
   const [createVariant, setCreateVariant] = useState(null);
   const [record, setRecord] = useState(null);
   const [gridRows, setGridRows] = useState([]);
-  const [selectedRows, setSelectedRows] = useState([]);
 
   const onChangeHandler = rows => {
     typeof onChange === 'function' && onChange(rows.map(item => item.id));
@@ -200,7 +209,6 @@ export const TableFormContextProvider = props => {
         },
 
         onSelectGridItem: value => {
-          setSelectedRows(value.selected);
           typeof onSelectRows === 'function' && onSelectRows(value.selected);
         }
       }}

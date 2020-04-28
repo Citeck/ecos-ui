@@ -27,7 +27,8 @@ export default class GqlDataSource extends BaseDataSource {
       .then(resp => {
         return {
           data: resp.records,
-          total: resp.totalCount
+          total: resp.totalCount,
+          attributes: resp.attributes
         };
       })
       .catch(err => {

@@ -46,10 +46,6 @@ $header-height: 52px;
     }
   }
 
-  &_overflow_hidden {
-    overflow: hidden;
-  }
-
   &__v-scroll {
     @extend %v-scroll;
     top: calc(#{$header-height} + 2px);
@@ -84,8 +80,9 @@ $header-height: 52px;
 
   &::before {
     @extend %shadow-h-line;
-    top: 0;
+    top: -2px;
   }
+
   &::after {
     @extend %shadow-h-line;
     bottom: 0;
@@ -97,8 +94,10 @@ $header-height: 52px;
     vertical-align: middle;
   }
 
-  .ecos-grid__row td {
-    border-top: 2px solid $color-gray-4;
+  .ecos-grid__row {
+    & td {
+      border-top: 2px solid $color-gray-4;
+    }
   }
 
   th {

@@ -1,24 +1,23 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 import './InlineTools.scss';
 
-class InlineTools extends Component {
+class InlineToolsDisconnected extends Component {
   tools = () => {
     return (this.props.tools || []).map((action, idx) => React.cloneElement(action, { key: idx }));
   };
 
   render() {
-    const { top, height } = this.props;
+    const { top, height, tools, selectedRecords, rowId } = this.props;
+
+    const selected = selectedRecords.includes(rowId);
 
     if (height) {
       return (
-        <div style={{ top }} className={'ecos-inline-tools'}>
-          <div style={{ height }} className="ecos-inline-tools-border-left" />
-          <div style={{ height }} className="ecos-inline-tools-actions">
-            {/*{this.tools()}*/}
-            {this.props.tools || []}
-          </div>
-          <div className="ecos-inline-tools-border-bottom" />
+        <div style={{ top, height }} className={classNames('ecos-inline-tools', { 'ecos-inline-tools_selected': selected })}>
+          <div className="ecos-inline-tools-actions">{tools || []}</div>
         </div>
       );
     }
@@ -27,4 +26,14 @@ class InlineTools extends Component {
   }
 }
 
-export default InlineTools;
+const numberOrStringType = PropTypes.oneOfType(PropTypes.number, PropTypes.string);
+
+InlineToolsDisconnected.propTypes = {
+  rowId: numberOrStringType,
+  top: numberOrStringType,
+  height: numberOrStringType,
+  tools: PropTypes.arrayOf(PropTypes.node),
+  selectedRecords: PropTypes.arrayOf(numberOrStringType)
+};
+
+export default InlineToolsDisconnected;

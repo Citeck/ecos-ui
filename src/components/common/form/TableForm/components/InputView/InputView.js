@@ -13,10 +13,9 @@ import './InputView.scss';
 const InputView = () => {
   const context = useContext(TableFormContext);
 
-  const { placeholder, disabled, viewOnly, displayElements, isSelectableRows, nonSelectableRows } = context.controlProps;
+  const { placeholder, disabled, viewOnly, displayElements, isSelectableRows, nonSelectableRows, selectedRows } = context.controlProps;
   const {
     gridRows,
-    selectedRows,
     columns,
     error,
     deleteSelectedItem,
@@ -74,7 +73,8 @@ const InputView = () => {
 
   if (gridRows.length > 0) {
     const inlineTools = () => {
-      const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
+      const inlineToolsActionClassName =
+        'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10 ecos-inline-tools-btn';
       const iconButtons = [];
 
       const shouldShowViewButton = isBoolean(get(displayElements, 'view')) ? displayElements.view : true;
@@ -83,7 +83,7 @@ const InputView = () => {
           <IcoBtn
             key={'view'}
             icon={'icon-on'}
-            className={`${inlineToolsActionClassName} inline-tools-actions-btn__on`}
+            className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__on')}
             onClick={onClickView}
           />
         );
@@ -95,7 +95,7 @@ const InputView = () => {
           <IcoBtn
             key={'edit'}
             icon={'icon-edit'}
-            className={`${inlineToolsActionClassName} inline-tools-actions-btn__edit`}
+            className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__edit')}
             onClick={onClickEdit}
           />
         );
@@ -107,13 +107,13 @@ const InputView = () => {
           <IcoBtn
             key={'delete'}
             icon={'icon-delete'}
-            className={`${inlineToolsActionClassName} inline-tools-actions-btn__delete`}
+            className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__delete')}
             onClick={onClickDelete}
           />
         );
       }
 
-      return <InlineToolsDisconnected {...inlineToolsOffsets} tools={iconButtons} />;
+      return <InlineToolsDisconnected selectedRecords={selectedRows} {...inlineToolsOffsets} tools={iconButtons} />;
     };
 
     valuesList = (
