@@ -393,9 +393,9 @@ class JournalsDashletGrid extends Component {
         data,
         columns,
         sortBy,
-        pagination: { maxItems },
+        pagination: { maxItems = 0 },
         groupBy,
-        total,
+        total = 0,
         editingRules
       },
       doInlineToolsOnRowClick = false,
@@ -435,7 +435,7 @@ class JournalsDashletGrid extends Component {
     return (
       <>
         <div className="ecos-journal-dashlet__grid">
-          <HeightCalculation maxItems={maxItems} minHeight={minHeight} total={total}>
+          <HeightCalculation>
             {loading ? (
               <Loader />
             ) : (
