@@ -80,9 +80,9 @@ function* sagaGetCreateOptionsMenu({ api, logger }, { payload }) {
 }
 
 function* saga(ea) {
+  yield takeLatest(initMenuSettings().type, doInitMenuSettings, ea);
   yield takeLatest(getMenuConfig().type, doGetMenuConfigRequest, ea);
   yield takeLatest(saveMenuConfig().type, doSaveMenuConfigRequest, ea);
-  yield takeLatest(initMenuSettings().type, doInitMenuSettings, ea);
   yield takeLatest(getAvailableSoloItems().type, doGetAvailableSoloItemsRequest, ea);
   yield takeLatest(getCreateOptionsMenu().type, sagaGetCreateOptionsMenu, ea);
 }

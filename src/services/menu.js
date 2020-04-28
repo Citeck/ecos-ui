@@ -59,6 +59,7 @@ export default class MenuService {
   static setActionConfig = items => {
     items.forEach(item => {
       item.actionConfig = MenuService.getAvailableActions(item);
+      item.items && MenuService.setActionConfig(item.items);
     });
   };
 
@@ -88,8 +89,8 @@ export default class MenuService {
     return array.filter(opt => !item || !opt.forbiddenTypes.includes(item.type));
   };
 
-  static testItems = Array(5).fill({
-    id: () => uniqueId('menu'),
+  static testItems = Array(3).fill({
+    id: uniqueId('menu-'),
     name: 'test',
     icon: { value: 'icon' },
     selected: true,
@@ -99,7 +100,7 @@ export default class MenuService {
     expandable: true,
     items: [
       {
-        id: () => uniqueId('submenu'),
+        id: uniqueId('submenu-'),
         name: 'child',
         selected: true,
         editable: true,
@@ -108,7 +109,7 @@ export default class MenuService {
         items: []
       },
       {
-        id: () => uniqueId('submenu'),
+        id: uniqueId('submenu-'),
         name: 'child',
         items: []
       }

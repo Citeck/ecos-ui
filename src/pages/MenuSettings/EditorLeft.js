@@ -81,7 +81,14 @@ class EditorLeft extends React.Component {
           {this.renderButtonAddSection({ onChange: this.handleChooseOption })}
         </div>
         <div className="ecos-menu-settings-editor-items__tree-field">
-          <Tree data={items} draggable classNameItem="ecos-menu-settings-editor-items__tree-item" />
+          <Tree
+            data={items}
+            classNameItem="ecos-menu-settings-editor-items__tree-item"
+            openAll
+            draggable
+            dragLvlTo={1}
+            onClickActionItem={console.log}
+          />
         </div>
       </div>
     );
