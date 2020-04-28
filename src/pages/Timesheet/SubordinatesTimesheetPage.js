@@ -62,7 +62,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
       case ServerStatusKeys.CORRECTION:
         arrBtns[second] = {
           ...BaseConfigGroupButtons.APPROVE,
-          tooltip: CommonLabels.STATUS_TIP_APPROVE_3,
+          tooltip: t(CommonLabels.STATUS_TIP_APPROVE_3),
           onClick: data => this.handleChangeStatus(data, ServerStatusOutcomeKeys.MANAGER_APPROVE)
         };
         break;

@@ -1,13 +1,11 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import nth from 'lodash/nth';
-import split from 'lodash/split';
-import includes from 'lodash/includes';
 import uuid from 'uuidv4';
 
 import { DASHBOARD_DEFAULT_KEY, SourcesId } from '../constants';
 import { LayoutTypes } from '../constants/layout';
 import { t } from '../helpers/util';
+import pageTabList from './pageTabs/PageTabList';
 
 const separatorId = '@';
 
@@ -17,6 +15,10 @@ export default class DashboardService {
     UPDATE: 'UPDATE',
     CONFIRM: 'CONFIRM'
   };
+
+  static get key() {
+    return pageTabList.activeTabId || null;
+  }
 
   static get newIdLayout() {
     return `layout_${uuid()}`;
@@ -42,16 +44,7 @@ export default class DashboardService {
   });
 
   static formShortId(id) {
-    let result = id;
-    if (includes(id, separatorId)) {
-      result = nth(split(id, separatorId), 1);
-    }
-    result = result.replace('ui/dashboard$', '');
-    return result;
-  }
-
-  static formFullId(id) {
-    return `${SourcesId.DASHBOARD}${separatorId}${DashboardService.formShortId(id)}`;
+    return (id || '').replace(SourcesId.DASHBOARD + separatorId, '');
   }
 
   static checkDashboardResult(result) {
@@ -67,7 +60,7 @@ export default class DashboardService {
       return {};
     }
 
-    const fullId = result._id || '';
+    const fullId = result.id || '';
     const dashboardId = DashboardService.formShortId(fullId);
 
     return {

@@ -1,5 +1,6 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
+
 import {
   fetchCreateCaseWidgetData,
   fetchSiteMenuData,
@@ -17,19 +18,25 @@ import { setOpenMenuSettings } from '../actions/menu';
 import { setDashboardIdentification } from '../actions/dashboard';
 import { setUserThumbnail } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
-import { makeSiteMenu, makeUserMenuItems, processCreateVariantsItems } from '../helpers/menu';
-import { URL } from '../constants';
+import { makeSiteMenu, makeUserMenuItems } from '../helpers/menu';
+import { createThumbnailUrl } from '../helpers/urls';
 import { hasInString } from '../helpers/util';
+import { URL } from '../constants';
 import MenuService from '../services/menu';
 import PageService from '../services/PageService';
-import { createThumbnailUrl } from '../helpers/urls';
+import MenuConverter from '../dto/menu';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
-    const resp = yield call(api.menu.getCreateVariantsForAllSites);
-    const createVariants = processCreateVariantsItems(resp);
+    const workflowVars = yield call(api.menu.getCreateWorkflowVariants);
+    const siteVars = yield call(api.menu.getCreateVariantsForAllSites);
+    const customVars = yield call(api.menu.getCustomCreateVariants);
 
-    yield put(setCreateCaseWidgetItems(createVariants));
+    const _sites = MenuConverter.getCreateSiteItems(siteVars);
+    const _customs = MenuConverter.getCreateCustomItems(customVars);
+    const { sites, customs } = MenuConverter.mergeCustomsAndSites(_customs, _sites);
+
+    yield put(setCreateCaseWidgetItems([].concat(customs, workflowVars, sites)));
 
     const isCascadeMenu = yield call(api.app.getEcosConfig, 'default-ui-create-menu');
     yield put(setCreateCaseWidgetIsCascade(isCascadeMenu === 'cascad'));

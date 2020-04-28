@@ -89,7 +89,10 @@ export default class SelectComponent extends BaseComponent {
     super(component, options, data);
 
     // Trigger an update.
-    this.triggerUpdate = _.debounce(this.updateItems.bind(this), 100);
+    this.triggerUpdate = _.debounce(this.updateItems.bind(this), 100, {
+      leading: true,
+      trailing: true
+    });
 
     // Keep track of the select options.
     this.selectOptions = [];
@@ -1142,10 +1145,7 @@ export default class SelectComponent extends BaseComponent {
         this.setValue(null);
       }
 
-      // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3216
-      if (this.pristine) {
-        this.triggerRedraw();
-      }
+      this.triggerRedraw();
     }
   }
 }

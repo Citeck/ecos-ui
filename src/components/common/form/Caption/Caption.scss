@@ -13,7 +13,7 @@
 }
 
 .ecos-caption_middle {
-  font-size: 18px;
+  font-size: $font-size-large;
   font-weight: $font-weight-semi-bold;
 }
 
@@ -23,6 +23,6 @@
 }
 
 .ecos-caption_small {
-  font-size: 14px;
+  font-size: $font-size-standard;
   font-weight: $font-weight-semi-bold;
 }

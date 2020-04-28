@@ -1,7 +1,8 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Droppable as DropWrapper } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
+
 import './style.scss';
 
 class Droppable extends React.Component {
@@ -88,16 +89,19 @@ class Droppable extends React.Component {
     }
 
     const additionalParams = {};
+    const style = {};
 
     if (autoHeight) {
       additionalParams.autoHeight = true;
-      additionalParams.autoHeightMin = 0;
+      additionalParams.autoHeightMin = 40;
       additionalParams.autoHeightMax = scrollHeight;
+    } else {
+      style.height = typeof scrollHeight === 'string' ? scrollHeight : `${scrollHeight}px`;
     }
 
     return (
       <Scrollbars
-        style={{ height: typeof scrollHeight === 'string' ? scrollHeight : `${scrollHeight}px` }}
+        style={style}
         autoHide
         hideTracksWhenNotNeeded
         renderView={props => <div {...props} className={classNameView} />}
@@ -120,10 +124,10 @@ class Droppable extends React.Component {
 
     if (this.hasChildren) {
       body = (
-        <Fragment>
+        <>
           {children}
           {provided.placeholder}
-        </Fragment>
+        </>
       );
     }
 

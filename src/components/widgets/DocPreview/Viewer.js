@@ -31,7 +31,10 @@ export default function getViewer(WrappedComponent, isPdf) {
       settings: {}
     };
 
-    state = {};
+    state = {
+      isFullscreenOn: false,
+      scrollPage: 1
+    };
 
     constructor(props) {
       super(props);
@@ -52,7 +55,7 @@ export default function getViewer(WrappedComponent, isPdf) {
       const { currentPage, isFullscreen, isLoading } = this.props.settings || {};
 
       if (!!prevIsFullscreen !== !!isFullscreen) {
-        snapshot = snapshot || {};
+        snapshot = { ...snapshot };
         snapshot.openFullscreen = isFullscreen;
       }
 
@@ -61,7 +64,7 @@ export default function getViewer(WrappedComponent, isPdf) {
           const children = this.childrenScroll;
           const childrenLen = children.length;
 
-          snapshot = snapshot || {};
+          snapshot = { ...snapshot };
           snapshot.page = currentPage > 0 && currentPage <= childrenLen ? currentPage : 1;
         }
       }
@@ -70,15 +73,16 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+      const { scrollPage } = this.state;
+
       if (snapshot !== null) {
         if (snapshot.openFullscreen) {
           this.onOpenFullscreen();
         }
 
-        if (snapshot.page !== null) {
+        if (snapshot.page !== null && snapshot.page !== scrollPage) {
           const children = this.childrenScroll;
-          const scrollTo = get(children, `${[snapshot.page - 1]}.offsetTop`, 0);
-
+          const scrollTo = get(children, [snapshot.page - 1, 'offsetTop'], 0);
           set(this.elScrollbar, 'view.scrollTop', scrollTo);
         }
       }
@@ -124,14 +128,32 @@ export default function getViewer(WrappedComponent, isPdf) {
       return false;
     }
 
-    onScrollFrame = e => {
+    prevScroll = 0;
+    onScrollFrame = data => {
       if (isPdf) {
-        let children = this.childrenScroll;
-        let coords = Array.from(children).map(el => get(el, 'offsetTop', 0));
-        let found = coords.reverse().find(val => get(e, 'scrollTop', 0) + get(children, '[0].offsetHeight', 0) / 5 >= val);
-        let foundIdx = coords.reverse().findIndex(val => found === val);
+        const { scrollPage } = this.state;
+        const { scrollTop } = data;
+        const children = this.childrenScroll;
+        const isDown = this.prevScroll - scrollTop <= 0;
+        this.prevScroll = scrollTop;
 
-        this.props.scrollPage && this.props.scrollPage(foundIdx + 1);
+        const coords = Array.from(children).map(child => {
+          const top = get(child, 'offsetTop', 0);
+          const h = get(child, 'offsetHeight', 0);
+          return { top, h, bottom: top + h };
+        });
+
+        const foundIdx = coords.findIndex((val, i) => {
+          const scroll = scrollTop + ((isDown ? 1 : -1) * val.h) / 4;
+          return isDown ? scroll < val.bottom : scroll < val.top;
+        });
+
+        const newPage = foundIdx === -1 ? 1 : foundIdx + 1;
+
+        if (scrollPage !== newPage) {
+          this.setState({ scrollPage: newPage });
+          this.props.scrollPage && this.props.scrollPage(newPage);
+        }
       }
     };
 

@@ -12,6 +12,7 @@ import Notification from '../Notification';
 import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
+import { ErrorBoundary } from '../ErrorBoundary';
 import MenuSettings from '../../pages/MenuSettings';
 
 import { getMenuConfig } from '../../actions/menu';
@@ -19,6 +20,7 @@ import { setTab, updateTab } from '../../actions/pageTabs';
 import { pagesWithOnlyContent, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import PageService, { Events } from '../../services/PageService';
+import { isMobileAppWebView, t } from '../../helpers/util';
 
 import './App.scss';
 
@@ -57,6 +59,12 @@ class App extends Component {
     const { reopen, closeActiveTab, updates, ...data } = PageService.parseEvent({ event }) || {};
 
     if (updates) {
+      const { link } = updates;
+
+      if (link) {
+        this.props.history.replace(link);
+      }
+
       updateTab({ updates });
 
       return;
@@ -67,7 +75,7 @@ class App extends Component {
   get isOnlyContent() {
     const url = get(this.props, ['history', 'location', 'pathname'], '/');
 
-    return pagesWithOnlyContent.includes(url);
+    return isMobileAppWebView() || pagesWithOnlyContent.includes(url);
   }
 
   get wrapperStyle() {
@@ -89,7 +97,7 @@ class App extends Component {
       height.push(`${outerHeight}px`);
     }
 
-    return { height: `calc(100vh - (${height.join(' + ')}))` };
+    return { height: height.length ? `calc(100vh - (${height.join(' + ')}))` : '100%' };
   }
 
   renderMenu() {
@@ -108,6 +116,14 @@ class App extends Component {
 
   renderHeader() {
     if (this.isOnlyContent) {
+      if (isMobileAppWebView()) {
+        return (
+          <div id="alf-hd">
+            <Notification />
+          </div>
+        );
+      }
+
       return null;
     }
 
@@ -158,48 +174,48 @@ class App extends Component {
     const basePageClassNames = classNames('ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
 
     return (
-      <div className={appClassNames}>
-        {this.renderReduxModal()}
+      <ErrorBoundary title={t('page.error-loading.title')} message={t('page.error-loading.message')}>
+        <div className={appClassNames}>
+          {this.renderReduxModal()}
 
-        <div className="ecos-sticky-wrapper" id="sticky-wrapper">
-          {this.renderHeader()}
-          <div className={basePageClassNames}>
-            {this.renderMenu()}
+          <div className="ecos-sticky-wrapper" id="sticky-wrapper">
+            {this.renderHeader()}
+            <div className={basePageClassNames}>
+              {this.renderMenu()}
 
-            <div className="ecos-main-area">
-              {this.renderTabs()}
-              <div className="ecos-main-content" style={this.wrapperStyle}>
-                <Suspense fallback={null}>
-                  <Switch>
-                    <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
-                    <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
-                    <Route path={URL.DASHBOARD} exact component={DashboardPage} />
-                    <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
-                    <Route path={URL.JOURNAL} component={JournalsPage} />
-                    <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
-                    <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
-                    <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
-                    <Route path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />
-                    <Route path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
-                    <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
-                    <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
-                    <Route path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
+              <div className="ecos-main-area">
+                {this.renderTabs()}
+                <div className="ecos-main-content" style={this.wrapperStyle}>
+                  <Suspense fallback={null}>
+                    <Switch>
+                      <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
+                      <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
+                      <Route path={URL.DASHBOARD} exact component={DashboardPage} />
+                      <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
+                      <Route path={URL.JOURNAL} component={JournalsPage} />
+                      <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
+                      <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
+                      <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+                      <Route path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />
+                      <Route path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
+                      <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
+                      <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+                      <Route path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
 
-                    {/* temporary routes */}
-                    <Route path="/v2/debug/formio-develop" component={FormIOPage} />
+                      {/* temporary routes */}
+                      <Route path="/v2/debug/formio-develop" component={FormIOPage} />
 
-                    <Redirect to={URL.DASHBOARD} />
-                  </Switch>
-                </Suspense>
+                      <Redirect to={URL.DASHBOARD} />
+                    </Switch>
+                  </Suspense>
+                </div>
               </div>
             </div>
           </div>
+          {isOpenMenuSettings && <MenuSettings />}
+          <NotificationContainer />
         </div>
-
-        {isOpenMenuSettings && <MenuSettings />}
-
-        <NotificationContainer />
-      </div>
+      </ErrorBoundary>
     );
   }
 }

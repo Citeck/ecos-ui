@@ -148,7 +148,7 @@ const smoothScroll = function() {
   Object.defineProperty(Element.prototype, 'scrollTo', {
     enumerable: false,
     configurable: false,
-    writable: false,
+    writable: true,
     value: function() {
       // avoid action when no arguments are passed
       if (arguments[0] === undefined) {
@@ -230,6 +230,32 @@ const polyfills = () => {
     Object.values = function values(O) {
       return reduce(keys(O), (v, k) => concat(v, typeof k === 'string' && isEnumerable(O, k) ? [O[k]] : []), []);
     };
+  }
+
+  if (!Array.prototype.fill) {
+    Object.defineProperty(Array.prototype, 'fill', {
+      value: function(value) {
+        if (this == null) {
+          throw new TypeError('this is null or not defined');
+        }
+
+        const O = Object(this);
+        const len = O.length >>> 0;
+        const start = arguments[1];
+        const relativeStart = start >> 0;
+        let k = relativeStart < 0 ? Math.max(len + relativeStart, 0) : Math.min(relativeStart, len);
+        const end = arguments[2];
+        const relativeEnd = end === undefined ? len : end >> 0;
+        const final = relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
+
+        while (k < final) {
+          O[k] = value;
+          k++;
+        }
+
+        return O;
+      }
+    });
   }
 };
 

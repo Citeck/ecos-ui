@@ -1,5 +1,5 @@
 import Records from '../components/Records';
-import { USER_GUEST } from '../constants';
+import { SourcesId, USER_GUEST } from '../constants';
 import * as storage from '../helpers/ls';
 import { isNewVersionPage } from '../helpers/urls';
 import { CommonApi } from './common';
@@ -33,7 +33,7 @@ export class PageTabsApi extends CommonApi {
       return Promise.resolve(false);
     }
 
-    return Records.get('uiserv/config@tabs-enabled')
+    return Records.get(`${SourcesId.CONFIG}@tabs-enabled`)
       .load('value?bool')
       .then(value => {
         return value != null ? value : true;

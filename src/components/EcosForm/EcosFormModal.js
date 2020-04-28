@@ -55,7 +55,8 @@ export default class EcosFormModal extends React.Component {
 
   componentDidMount() {
     this.checkEditRights();
-    Records.get(this.props.record)
+    this.instanceRecord = Records.get(this.props.record);
+    this.instanceRecord
       .load({
         displayName: '.disp',
         formMode: '_formMode'
@@ -63,10 +64,20 @@ export default class EcosFormModal extends React.Component {
       .then(recordData => {
         this.setState({ recordData });
       });
+    this.watcher = this.instanceRecord.watch(['.disp'], changed => {
+      this.setState({
+        recordData: {
+          ...this.state.recordData,
+          displayName: changed['.disp']
+        }
+      });
+    });
   }
 
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this._onbeforeunload);
+
+    this.instanceRecord.unwatch(this.watcher);
   }
 
   checkEditRights() {
@@ -185,6 +196,7 @@ export default class EcosFormModal extends React.Component {
 
 EcosFormModal.propTypes = {
   record: PropTypes.string.isRequired,
+  formId: PropTypes.string,
   formKey: PropTypes.string,
   isModalOpen: PropTypes.bool,
   isBigHeader: PropTypes.bool,

@@ -128,8 +128,7 @@ class Settings extends React.Component {
         classNameHeader="ecos-menu-settings__modal-header"
       >
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
-        <Location selectedType={selectedType} setData={this.setData} />
-        {selectedType === MenuTypes.LEFT && <EditorLeft setData={this.setData} items={items} createOptions={createOptions} />}
+        {/*<Location selectedType={selectedType} setData={this.setData} />*/}
         {selectedType === MenuTypes.TOP && (
           <EditorTop
             setData={this.setData}
@@ -138,6 +137,7 @@ class Settings extends React.Component {
             positionAdjustment={this.draggablePositionAdjustment}
           />
         )}
+        {selectedType === MenuTypes.LEFT && <EditorLeft setData={this.setData} items={items} createOptions={createOptions} />}
         {this.renderButtons()}
       </EcosModal>
     );
@@ -145,7 +145,7 @@ class Settings extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  type: get(state, 'menu.type', ''),
+  type: get(state, 'menu.type', MenuTypes.LEFT),
   items: get(state, 'menu.items', []),
   links: get(state, 'menu.links', []),
   soloItems: get(state, 'menu.availableSoloItems', []),
