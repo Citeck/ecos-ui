@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { arrayCompare, t } from '../../../helpers/util';
 import { Icon } from '../../common';
 import { Checkbox } from '../../common/form';
-import { IcoBtn } from '../btns';
+import { SortableContainer, SortableElement, SortableHandle } from '../../Drag-n-Drop';
 import Actions from './Actions';
 
 import './style.scss';
@@ -156,13 +156,14 @@ class TreeItem extends Component {
 
     return (
       <Collapse isOpen={isOpen} className="ecos-tree__item-element-children">
-        {item.items.map(item => (
+        {item.items.map((item, index) => (
           <TreeItem
+            item={item}
             key={item.id}
+            index={index}
             isChild
             className={className}
             level={level + STEP_LVL}
-            item={item}
             onToggleSelect={onToggleSelect}
             onClickAction={onClickAction}
             openAll={openAll}
@@ -175,12 +176,13 @@ class TreeItem extends Component {
   }
 
   render() {
-    const { isChild, item, selectable, className, dragLvlTo, draggable, level } = this.props;
+    const { isChild, item, selectable, className, dragLvlTo, draggable, level, index } = this.props;
     const { isOpen } = this.state;
     const { items, selected, locked, icon, name, actionConfig, customComponents } = item || {};
     const canDrag = draggable && (dragLvlTo == null || dragLvlTo >= level);
+    const key = `${item.id}-${index}-${level}`;
 
-    return (
+    const itemElement = (
       <div
         className={classNames('ecos-tree__item', {
           'ecos-tree__item_child': isChild,
@@ -221,15 +223,21 @@ class TreeItem extends Component {
             </div>
           )}
           {canDrag && (
-            <IcoBtn
-              key="action-drag"
-              icon={'icon-drag'}
-              className="ecos-btn_transparent ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-tree__item-element-drag"
-            />
+            <SortableHandle>
+              <i className="icon-drag ecos-tree__item-element-drag" />
+            </SortableHandle>
           )}
         </div>
         {this.renderChildren()}
       </div>
+    );
+
+    return canDrag ? (
+      <SortableElement key={key} index={key} disabled={locked}>
+        {itemElement}
+      </SortableElement>
+    ) : (
+      itemElement
     );
   }
 }
@@ -284,6 +292,21 @@ class Tree extends Component {
       }));
   }
 
+  handleBeforeSortStart = ({ node }) => {
+    node.classList.toggle('ecos-tree__item_dragging');
+
+    this.setState({ draggableNode: node });
+  };
+
+  handleSortEnd = ({ oldIndex, newIndex }, event) => {
+    const { draggableNode } = this.state;
+
+    event.stopPropagation();
+    draggableNode.classList.toggle('ecos-tree__item_dragging');
+    //todo
+    this.setState({ draggableNode: null }, () => null);
+  };
+
   renderEmpty() {
     const { data } = this.props;
 
@@ -297,15 +320,16 @@ class Tree extends Component {
   renderTree() {
     const { onToggleSelect, selectable, classNameItem, openAll, draggable, dragLvlTo, onClickActionItem } = this.props;
     const data = this.formattedTree;
-    console.log(data);
+
     if (!data.length) {
       return null;
     }
 
-    return data.map(item => (
+    return data.map((item, index) => (
       <TreeItem
         item={item}
         key={item.id}
+        index={index}
         className={classNameItem}
         openAll={openAll}
         onToggleSelect={onToggleSelect}
@@ -318,11 +342,17 @@ class Tree extends Component {
   }
 
   render() {
-    const { className } = this.props;
+    const { className, draggable } = this.props;
 
     return (
       <div className={classNames('ecos-tree', className)}>
-        {this.renderTree()}
+        {draggable ? (
+          <SortableContainer axis="xy" onSortEnd={this.handleSortEnd} updateBeforeSortStart={this.handleBeforeSortStart} useDragHandle>
+            {this.renderTree()}
+          </SortableContainer>
+        ) : (
+          this.renderTree()
+        )}
         {this.renderEmpty()}
       </div>
     );

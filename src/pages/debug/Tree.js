@@ -26,10 +26,10 @@ const _actions = [
 ];
 
 const _items = Array(3)
-  .fill({})
-  .map(() => ({
+  .fill('menu')
+  .map((v, i) => ({
     id: uniqueId('menu-'),
-    name: 'test',
+    name: v + i,
     icon: { value: 'icon' },
     selected: true,
     editable: true,
@@ -41,7 +41,7 @@ const _items = Array(3)
     items: [
       {
         id: uniqueId('submenu-'),
-        name: 'child',
+        name: 'child-1',
         selected: true,
         editable: true,
         removable: true,
@@ -51,7 +51,7 @@ const _items = Array(3)
       },
       {
         id: uniqueId('submenu-'),
-        name: 'child',
+        name: 'child-2',
         items: []
       }
     ]

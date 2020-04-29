@@ -1,12 +1,14 @@
 @import '../../../styles/constants';
 @import '../../../styles/content';
 
-.ecos-tree {
+:root {
   --e-tree-child-height: 40px;
   --e-tree-child-padding: 10px 15px;
   --e-tree-parent-height: var(--e-tree-child-height);
   --e-tree-parent-padding: var(--e-tree-child-padding);
+}
 
+.ecos-tree {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -102,9 +104,9 @@
         flex: auto;
       }
 
-      & &-drag {
-        padding-left: 10px;
+      &-drag {
         font-size: $font-size-extra-large;
+        width: $font-size-extra-large;
         color: $color-gray-6;
         cursor: grab;
       }
@@ -245,6 +247,16 @@
     &_parent:not(&_child) {
       &:before {
         display: none;
+      }
+    }
+
+    &_dragging {
+      #{$item} {
+        &-element {
+          &:before {
+            display: none;
+          }
+        }
       }
     }
   }
