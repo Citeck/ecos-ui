@@ -231,7 +231,16 @@ class RecordActionsService {
 
     await Promise.all(
       keys.map(async key => {
+        if (typeof mutableData[key] === 'object') {
+          mutableData[key] = await this.replaceAttributeValues(mutableData[key], record);
+          return;
+        }
+
         const fields = mutableData[key].match(regExp);
+
+        if (!fields) {
+          return;
+        }
 
         await Promise.all(
           fields.map(async strKey => {
