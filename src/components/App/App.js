@@ -204,7 +204,7 @@ class App extends Component {
 
                       {/* temporary routes */}
                       <Route path="/v2/debug/formio-develop" component={FormIOPage} />
-                      <Route path="/tree" component={Tree} />
+                      <Route path="/v2/tree" component={Tree} />
 
                       <Redirect to={URL.DASHBOARD} />
                     </Switch>

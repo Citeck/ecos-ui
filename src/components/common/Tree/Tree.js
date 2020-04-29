@@ -71,6 +71,7 @@ class TreeItem extends Component {
       !arrayCompare(nextProps.item.items, item.items) ||
       nextProps.item.id !== item.id ||
       nextProps.item.selected !== item.selected ||
+      JSON.stringify(nextProps.item.actionConfig) !== JSON.stringify(item.actionConfig) ||
       nextProps.openAll !== openAll ||
       nextProps.isChild !== isChild
     );
@@ -223,7 +224,7 @@ class TreeItem extends Component {
             <IcoBtn
               key="action-drag"
               icon={'icon-drag'}
-              className="ecos-btn_i ecos-tree__item-element-drag ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1"
+              className="ecos-btn_transparent ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-tree__item-element-drag"
             />
           )}
         </div>
@@ -296,7 +297,7 @@ class Tree extends Component {
   renderTree() {
     const { onToggleSelect, selectable, classNameItem, openAll, draggable, dragLvlTo, onClickActionItem } = this.props;
     const data = this.formattedTree;
-
+    console.log(data);
     if (!data.length) {
       return null;
     }
