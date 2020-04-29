@@ -19,6 +19,8 @@ import { setTab, updateTab } from '../../actions/pageTabs';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
 import PageService, { Events } from '../../services/PageService';
 import { isMobileAppWebView, t } from '../../helpers/util';
+//test pages
+import Tree from '../../pages/debug/Tree';
 
 import './App.scss';
 
@@ -202,6 +204,7 @@ class App extends Component {
 
                       {/* temporary routes */}
                       <Route path="/v2/debug/formio-develop" component={FormIOPage} />
+                      <Route path="/tree" component={Tree} />
 
                       <Redirect to={URL.DASHBOARD} />
                     </Switch>
