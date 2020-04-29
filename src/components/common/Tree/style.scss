@@ -102,8 +102,11 @@
         flex: auto;
       }
 
-      &-drag {
-        padding-left: 20px;
+      & &-drag {
+        padding-left: 10px;
+        font-size: $font-size-extra-large;
+        color: $color-gray-6;
+        cursor: grab;
       }
 
       &-children {

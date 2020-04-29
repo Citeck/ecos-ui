@@ -39,7 +39,11 @@ const Actions = ({ actionConfig = [], onClick = () => null }) => {
   return (
     <>
       {actionConfig.map((action, i) => (
-        <BtnAction key={`tree-action-${i}-${action.id || ''}`} {...action} onClick={() => onClick(action)} />
+        <BtnAction
+          key={`tree-action-${i}-${action.type || action.id || ''}`}
+          {...action}
+          onClick={() => onClick(action.type || action.id)}
+        />
       ))}
     </>
   );
@@ -48,6 +52,7 @@ const Actions = ({ actionConfig = [], onClick = () => null }) => {
 Actions.propTypes = {
   actionConfig: PropTypes.arrayOf(
     PropTypes.shape({
+      type: PropTypes.string,
       icon: PropTypes.string,
       onClick: PropTypes.func,
       text: PropTypes.string
