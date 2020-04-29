@@ -29,18 +29,25 @@ export default class MenuService {
     return link;
   };
 
+  static ActionTypes = {
+    ACTIVE: 'ACTIVE',
+    EDIT: 'EDIT',
+    DELETE: 'DELETE'
+  };
+
   static getAvailableActions = item => {
     const actions = [];
 
     if (item.editable) {
       actions.push({
-        icon: 'icon-edit',
-        onClick: () => null
+        type: MenuService.ActionTypes.EDIT,
+        icon: 'icon-edit'
       });
     }
 
     if (item.removable) {
       actions.push({
+        type: MenuService.ActionTypes.DELETE,
         icon: 'icon-delete',
         className: 'ecos-menu-settings-editor-items__action_caution',
         onClick: () => null
@@ -48,6 +55,7 @@ export default class MenuService {
     }
 
     actions.push({
+      type: MenuService.ActionTypes.ACTIVE,
       icon: 'icon-on',
       className: 'ecos-menu-settings-editor-items__action_no-hide',
       onClick: () => null
