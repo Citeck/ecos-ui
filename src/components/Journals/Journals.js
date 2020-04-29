@@ -159,7 +159,7 @@ class Journals extends Component {
 
     const visibleColumns = columns.filter(c => c.visible);
     const minH = 300;
-    const availableHeight = height => (height > minH ? height : minH);
+    const availableHeight = height => (height && height > minH ? height : minH);
 
     return (
       <ReactResizeDetector handleHeight>
