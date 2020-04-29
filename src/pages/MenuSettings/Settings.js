@@ -10,9 +10,7 @@ import { MenuTypes } from '../../constants/menu';
 import { EcosModal, Loader } from '../../components/common';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import { DndUtils } from '../../components/Drag-n-Drop';
-import Location from './Location';
 import EditorLeft from './EditorLeft';
-import EditorTop from './EditorTop';
 
 import './style.scss';
 
@@ -103,7 +101,7 @@ class Settings extends React.Component {
 
   render() {
     const { isLoading, createOptions } = this.props;
-    const { selectedType, selectedItems, soloItems, items } = this.state;
+    const { items } = this.state;
     const customButtons = [
       <IcoBtn
         key="ecos-menu-settings-btn-goto"
@@ -128,16 +126,7 @@ class Settings extends React.Component {
         classNameHeader="ecos-menu-settings__modal-header"
       >
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
-        {/*<Location selectedType={selectedType} setData={this.setData} />*/}
-        {selectedType === MenuTypes.TOP && (
-          <EditorTop
-            setData={this.setData}
-            selectedItems={selectedItems}
-            availableItems={soloItems}
-            positionAdjustment={this.draggablePositionAdjustment}
-          />
-        )}
-        {selectedType === MenuTypes.LEFT && <EditorLeft setData={this.setData} items={items} createOptions={createOptions} />}
+        <EditorLeft setData={this.setData} items={items} createOptions={createOptions} />
         {this.renderButtons()}
       </EcosModal>
     );

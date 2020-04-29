@@ -71,6 +71,28 @@ export function filterKeys(array, aKeys) {
 export function getObjectByKV(array, key, value) {
   return array.find(item => item[key] === value) || {};
 }
+
 export function getIndexObjectByKV(array, key, value) {
   return array.findIndex(item => item[key] === value);
+}
+
+/**
+ * Поиск певого элемент в дереве
+ * @param items {Array} источник
+ * @param key {String} ключ поля,
+ * @param value {Primitive} значение поля,
+ * @returns {Object} найденный элемент или undefined
+ */
+export function findFirstItemByKey({ items, key, value }) {
+  for (const item of items) {
+    if (item[key] === value) {
+      return item;
+    }
+
+    const sub = item.items && findFirstItemByKey({ items: item.items, key, value });
+
+    if (sub) {
+      return sub;
+    }
+  }
 }

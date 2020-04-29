@@ -30,7 +30,19 @@ class EditorLeft extends React.Component {
     createOptions: []
   };
 
-  state = {};
+  state = {
+    items: []
+  };
+
+  static getDerivedStateFromProps({ items = [] }, state) {
+    let newState = null;
+
+    if (items.length !== state.items.length) {
+      newState = { ...newState, items };
+    }
+
+    return newState;
+  }
 
   handleSelectOption = (a, b, c) => {
     console.log(a, b, c);
@@ -42,6 +54,11 @@ class EditorLeft extends React.Component {
 
   handleChooseOption = (a, b, c) => {
     console.log(a, b, c);
+  };
+
+  handleActionItem = ({ action, id }) => {
+    const items = MenuService.processAction({ action, id, items: this.state.items });
+    this.setState({ items });
   };
 
   renderButtonAddSection({ onChange, item }) {
@@ -65,13 +82,13 @@ class EditorLeft extends React.Component {
   }
 
   render() {
-    const { items } = this.props;
+    const items = MenuService.setActiveActions(this.state.items);
 
-    items.forEach(item => {
-      if (item.expandable && item.selected) {
-        item.customComponents = [this.renderButtonAddSection({ onChange: this.handleChooseOption, item })];
-      }
-    });
+    // items.forEach(item => {
+    //   if (item.expandable && item.selected) {
+    //     item.customComponents = [this.renderButtonAddSection({ onChange: this.handleChooseOption, item })];
+    //   }
+    // });
 
     return (
       <div className="ecos-menu-settings-editor-items">
@@ -86,8 +103,7 @@ class EditorLeft extends React.Component {
             classNameItem="ecos-menu-settings-editor-items__tree-item"
             openAll
             draggable
-            dragLvlTo={1}
-            onClickActionItem={console.log}
+            onClickActionItem={this.handleActionItem}
           />
         </div>
       </div>
