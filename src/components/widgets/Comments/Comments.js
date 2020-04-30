@@ -10,8 +10,7 @@ import get from 'lodash/get';
 
 import BaseWidget from '../BaseWidget';
 import { num2str, t } from '../../../helpers/util';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
 
@@ -91,19 +90,13 @@ class Comments extends BaseWidget {
     this._scroll = React.createRef();
     this._header = React.createRef();
 
-    UserLocalSettingsService.checkOldData(props.id);
-
     this.state = {
+      ...this.state,
       isEdit: false,
-      fitHeights: {},
-      contentHeight: null,
       editableComment: null,
       commentForDeletion: null,
       editorHeight: BASE_HEIGHT,
-      width: MIN_WIDTH_DASHLET_SMALL,
-      comment: EditorState.createEmpty(),
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
+      comment: EditorState.createEmpty()
     };
   }
 
@@ -356,8 +349,6 @@ class Comments extends BaseWidget {
     let convertedComment = ContentState.createFromText(comment.text);
 
     if (!comment) {
-      console.warn('Comment not found');
-
       return;
     }
 
