@@ -268,7 +268,7 @@ class Tree extends Component {
     moveInLevel: PropTypes.bool,
     onToggleSelect: PropTypes.func,
     onClickActionItem: PropTypes.func,
-    moveItemTo: PropTypes.func
+    dragEnd: PropTypes.func
   };
 
   static defaultProps = {
@@ -321,7 +321,7 @@ class Tree extends Component {
     event.stopPropagation();
     draggableNode.classList.toggle('ecos-tree__item_dragging');
 
-    this.setState({ draggableNode: null }, () => this.props.moveItemTo(oldIndex, newIndex));
+    this.setState({ draggableNode: null }, () => this.props.dragEnd(oldIndex, newIndex));
   };
 
   renderEmpty() {
