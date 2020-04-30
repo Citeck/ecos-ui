@@ -1,15 +1,12 @@
-import RecordActions from '../';
-import './recordActions.mock';
+import RecordActions from '../index';
+import '../__mocks__/recordActions.mock';
 
-describe('Testing RecordActions service', () => {
-  it('Method replaceAttributeValues', async () => {
+describe('RecordActions service', () => {
+  describe('Method replaceAttributeValues', () => {
     const record = 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e';
     const data = [
       {
-        input: { name: '${cm:name}' },
-        output: { name: 'Договор №1244 (1).txt' }
-      },
-      {
+        title: 'with simple field',
         input: {
           someField: 'prefix-${cm:name}'
         },
@@ -18,6 +15,7 @@ describe('Testing RecordActions service', () => {
         }
       },
       {
+        title: 'with inner objects',
         input: {
           someField: 'prefix-${cm:name}',
           innerObj: {
@@ -44,23 +42,63 @@ describe('Testing RecordActions service', () => {
         }
       },
       {
+        title: 'with array of strings',
+        input: {
+          name: '${cm:name}',
+          arrayData: ['username', 'password', 'Договор с: ${contracts:contractWith}']
+        },
+        output: {
+          name: 'Договор №1244 (1).txt',
+          arrayData: ['username', 'password', 'Договор с: Заказчиком']
+        }
+      },
+      {
+        title: 'with array of objects',
+        input: {
+          arrayObjects: [
+            { note: 'Примечание: ${idocs:note}' },
+            { signatory: 'Подписант: ${idocs:signatory}' },
+            { finance: 'Сумма договора ${contracts:agreementAmount} (в т.ч. НДС ${contracts:VAT})' }
+          ]
+        },
+        output: {
+          arrayObjects: [
+            { note: 'Примечание: Тестовый договор' },
+            { signatory: 'Подписант: Бухгалтер Горбункова' },
+            { finance: 'Сумма договора 980000 (в т.ч. НДС 120000)' }
+          ]
+        }
+      },
+      {
+        title: 'with simple string',
         input: {
           withoutVariable: 'username=User, password=Password'
         },
         output: {
           withoutVariable: 'username=User, password=Password'
         }
+      },
+      {
+        title: 'with number',
+        input: {
+          totalCount: 300,
+          sum: 100000,
+          page: 12
+        },
+        output: {
+          totalCount: 300,
+          sum: 100000,
+          page: 12
+        }
       }
     ];
 
-    expect.assertions(data.length);
-
-    await Promise.all(
-      data.map(async item => {
+    data.forEach(async item => {
+      it(item.title, async () => {
         const result = await RecordActions.replaceAttributeValues(item.input, record);
 
-        return await expect(result).toEqual(item.output);
-      })
-    );
+        expect(result).toEqual(item.output);
+      });
+    });
   });
 });

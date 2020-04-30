@@ -236,6 +236,10 @@ class RecordActionsService {
           return;
         }
 
+        if (typeof mutableData[key] !== 'string') {
+          return;
+        }
+
         const fields = mutableData[key].match(regExp);
 
         if (!fields) {

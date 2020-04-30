@@ -9,7 +9,12 @@ jest.spyOn(global, 'fetch').mockImplementation(() => {
           'cm:name?disp': 'Договор №1244 (1).txt',
           'idocs:performer?disp': 'Admin Adminov2',
           'contracts:contractor?disp': 'ОАО ТЕСТ',
-          '.disp': 'Договор №1244'
+          '.disp': 'Договор №1244',
+          'contracts:contractWith?disp': 'Заказчиком',
+          'idocs:note?disp': 'Тестовый договор',
+          'idocs:signatory?disp': 'Бухгалтер Горбункова',
+          'contracts:VAT?disp': '120000',
+          'contracts:agreementAmount?disp': '980000'
         }
       })
   });
