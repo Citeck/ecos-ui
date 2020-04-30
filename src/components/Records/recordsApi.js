@@ -1,7 +1,7 @@
 import lodashGet from 'lodash/get';
 import ecosFetch from '../../helpers/ecosFetch';
 
-const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
+export const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
 const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
 const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
 
