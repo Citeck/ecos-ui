@@ -7,6 +7,7 @@ import MenuService from '../../services/menu';
 import { Tree } from '../../components/common';
 import { IcoBtn } from '../../components/common/btns';
 import { Dropdown } from '../../components/common/form';
+import dialogManager from '../../components/common/dialogs/Manager';
 
 import './style.scss';
 
@@ -58,6 +59,20 @@ class EditorLeft extends React.Component {
   };
 
   handleActionItem = ({ action, id }) => {
+    if (action === MenuService.ActionTypes.DELETE) {
+      dialogManager.showRemoveDialog({
+        title: '',
+        text: `Удалить раздел “${id}”?`,
+        className: 'ecos-modal_width-xs',
+        onDelete: () => {
+          console.log('onDelete');
+        },
+        onCancel: () => {
+          console.log('onCancel');
+        }
+      });
+    }
+
     const items = MenuService.processAction({ action, id, items: this.state.items });
     this.setState({ items });
   };
@@ -106,7 +121,7 @@ class EditorLeft extends React.Component {
         <div className="ecos-menu-settings-editor-items__tree-field">
           <Tree
             data={items}
-            classNameItem="ecos-menu-settings-editor-items__tree-item"
+            prefixClassName="ecos-menu-settings-editor-items"
             openAll
             draggable
             onClickActionItem={this.handleActionItem}

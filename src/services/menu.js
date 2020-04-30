@@ -5,6 +5,7 @@ import { selectIdentificationForView } from '../selectors/dashboard';
 import { deepClone, t } from '../helpers/util';
 import { getSearchParams, SearchKeys } from '../helpers/urls';
 import { findFirstItemByKey } from '../helpers/arrayOfObjects';
+import { toGeneratorTree } from '../helpers/dataGenerators';
 
 export default class MenuService {
   static getSiteMenuLink = function*(menuItem) {
@@ -95,6 +96,10 @@ export default class MenuService {
           ? foundItem.availableActions.filter(act => !!act.whenSelected === foundItem.selected)
           : [];
         break;
+      case MenuService.ActionTypes.DELETE:
+        break;
+      default:
+        break;
     }
 
     return items;
@@ -137,29 +142,7 @@ export default class MenuService {
     return array.filter(opt => !item || !opt.forbiddenTypes.includes(item.type));
   };
 
-  static testItems = Array(5)
-    .fill('menu')
-    .map((v, i) => ({
-      id: v + ' - ' + i,
-      name: v + ' - ' + i,
-      icon: { value: 'icon' },
-      selected: i % 2,
-      editable: i % 2,
-      removable: i % 2,
-      draggable: i % 2,
-      expandable: i % 2,
-      items: Array(i)
-        .fill('submenu')
-        .map((v, j) => ({
-          id: v + ' - ' + i + ' - ' + j,
-          name: v + ' - ' + i + ' - ' + j,
-          selected: i % 2,
-          editable: j % 2,
-          removable: j % 2,
-          draggable: j % 2,
-          items: []
-        }))
-    }));
+  static testItems = toGeneratorTree(5, 5);
 
   static testCreateOptions = [
     {
