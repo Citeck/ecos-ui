@@ -251,12 +251,20 @@
     }
 
     &_dragging {
-      #{$item} {
+      & > #{$item} {
         &-element {
           &:before {
             display: none;
           }
         }
+      }
+
+      &#{$item}_parent {
+        padding: 5px;
+        margin: 5px 0;
+        background: $color-gray-4;
+        border: $border-width-standard dot-dash $color-gray-2;
+        border-radius: 5px;
       }
     }
   }

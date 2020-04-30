@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
 import { arrayCompare, t } from '../../../helpers/util';
 import { Icon } from '../../common';
@@ -99,15 +100,7 @@ class TreeItem extends Component {
 
   get hasGrandchildren() {
     const { item } = this.props;
-    let has = false;
-
-    item.items.forEach(child => {
-      if (child.items.length) {
-        has = true;
-      }
-    });
-
-    return has;
+    return get(item, 'items.length') && item.items.some(child => !!child.items.length);
   }
 
   handleToggleOpen = () => {
@@ -132,7 +125,7 @@ class TreeItem extends Component {
     const { item } = this.props;
     const { isOpen } = this.state;
 
-    if (!item.items.length) {
+    if (!get(item, 'items.length')) {
       return null;
     }
 
@@ -147,19 +140,19 @@ class TreeItem extends Component {
   }
 
   renderChildren() {
-    const { item, openAll, level, draggable, dragLvlTo, className, onToggleSelect, onClickAction } = this.props;
+    const { item, openAll, level, draggable, dragLvlTo, className, onToggleSelect, onClickAction, moveInLevel, moveInParent } = this.props;
     const { isOpen } = this.state;
 
-    if (!item.items.length) {
+    if (!get(item, 'items.length')) {
       return null;
     }
 
     return (
       <Collapse isOpen={isOpen} className="ecos-tree__item-element-children">
-        {item.items.map((item, index) => (
+        {item.items.map((child, index) => (
           <TreeItem
-            item={item}
-            key={item.id}
+            item={child}
+            key={child.id}
             index={index}
             isChild
             className={className}
@@ -169,6 +162,9 @@ class TreeItem extends Component {
             openAll={openAll}
             draggable={draggable}
             dragLvlTo={dragLvlTo}
+            moveInLevel={moveInLevel}
+            moveInParent={moveInParent}
+            parentKey={item.id}
           />
         ))}
       </Collapse>
@@ -176,10 +172,22 @@ class TreeItem extends Component {
   }
 
   render() {
-    const { isChild, item, selectable, className, dragLvlTo, draggable, level, index } = this.props;
+    const {
+      isChild,
+      item,
+      selectable,
+      className,
+      dragLvlTo,
+      draggable,
+      level,
+      index,
+      moveInLevel,
+      moveInParent,
+      parentKey = 'tree'
+    } = this.props;
     const { isOpen } = this.state;
     const { items, selected, locked, icon, name, actionConfig, customComponents } = item || {};
-    const canDrag = draggable && (dragLvlTo == null || dragLvlTo >= level);
+    const canDrag = draggable && item.draggable !== false && (dragLvlTo == null || dragLvlTo >= level);
     const key = `${item.id}-${index}-${level}`;
 
     const itemElement = (
@@ -232,8 +240,13 @@ class TreeItem extends Component {
       </div>
     );
 
+    const dragProps = {};
+
+    moveInLevel && (dragProps.collection = level);
+    moveInParent && (dragProps.collection = parentKey);
+
     return canDrag ? (
-      <SortableElement key={key} index={key} disabled={locked}>
+      <SortableElement key={key} index={key} disabled={locked} {...dragProps}>
         {itemElement}
       </SortableElement>
     ) : (
@@ -252,6 +265,8 @@ class Tree extends Component {
     draggable: PropTypes.bool,
     dragLvlTo: PropTypes.number,
     openAll: PropTypes.bool,
+    moveInParent: PropTypes.bool,
+    moveInLevel: PropTypes.bool,
     onToggleSelect: PropTypes.func,
     onClickActionItem: PropTypes.func
   };
@@ -260,6 +275,8 @@ class Tree extends Component {
     data: [],
     groupBy: '',
     className: '',
+    moveInLevel: true,
+    moveInParent: false,
     onToggleSelect: () => null,
     onClickActionItem: () => null
   };
@@ -292,7 +309,8 @@ class Tree extends Component {
       }));
   }
 
-  handleBeforeSortStart = ({ node }) => {
+  handleBeforeSortStart = ({ node, ...props }) => {
+    console.log(props);
     node.classList.toggle('ecos-tree__item_dragging');
 
     this.setState({ draggableNode: node });
@@ -318,7 +336,17 @@ class Tree extends Component {
   }
 
   renderTree() {
-    const { onToggleSelect, selectable, classNameItem, openAll, draggable, dragLvlTo, onClickActionItem } = this.props;
+    const {
+      onToggleSelect,
+      selectable,
+      classNameItem,
+      openAll,
+      draggable,
+      dragLvlTo,
+      onClickActionItem,
+      moveInLevel,
+      moveInParent
+    } = this.props;
     const data = this.formattedTree;
 
     if (!data.length) {
@@ -337,6 +365,8 @@ class Tree extends Component {
         draggable={draggable}
         dragLvlTo={dragLvlTo}
         onClickAction={onClickActionItem}
+        moveInLevel={moveInLevel}
+        moveInParent={moveInParent}
       />
     ));
   }
@@ -344,17 +374,19 @@ class Tree extends Component {
   render() {
     const { className, draggable } = this.props;
 
-    return (
+    const treeElement = (
       <div className={classNames('ecos-tree', className)}>
-        {draggable ? (
-          <SortableContainer axis="xy" onSortEnd={this.handleSortEnd} updateBeforeSortStart={this.handleBeforeSortStart} useDragHandle>
-            {this.renderTree()}
-          </SortableContainer>
-        ) : (
-          this.renderTree()
-        )}
+        {this.renderTree()}
         {this.renderEmpty()}
       </div>
+    );
+
+    return draggable ? (
+      <SortableContainer axis="xy" onSortEnd={this.handleSortEnd} updateBeforeSortStart={this.handleBeforeSortStart} useDragHandle>
+        {treeElement}
+      </SortableContainer>
+    ) : (
+      treeElement
     );
   }
 }

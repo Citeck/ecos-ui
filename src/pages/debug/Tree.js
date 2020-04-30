@@ -25,7 +25,7 @@ const _actions = [
   }
 ];
 
-const _items = Array(3)
+const _items = Array(5)
   .fill('menu')
   .map((v, i) => ({
     id: uniqueId('menu-'),
@@ -124,6 +124,8 @@ export default class extends React.Component {
           openAll
           draggable
           onClickActionItem={this.onClickActionItem}
+          moveInParent
+          moveInLevel
         />
       </div>
     );
