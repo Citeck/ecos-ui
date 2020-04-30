@@ -226,6 +226,7 @@
   "dochist.task.create": "Задача создана",
   "dochist.unknown-user": "Неизвестный пользователь",
   "dochist.user.action": "Действие пользователя",
+  "dochist.email.sent": "Письмо отправлено",
   "dochist.workflow.end": "Процесс завершен",
   "dochist.workflow.end.cancelled": "Процесс отменен",
   "dochist.workflow.start": "Процесс запущен",

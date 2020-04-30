@@ -172,14 +172,19 @@ export class JournalsApi extends RecordService {
   getJournalConfig = journalId => {
     //return this.getJson(`${MICRO_URI}api/journalcfg?journalId=contract-agreements`).then(resp => {
 
-    if (journalId.indexOf('@') === -1) {
-      journalId = 'uiserv/journal_v1@' + journalId;
+    let journalRecordId = journalId;
+
+    if (journalRecordId.indexOf('@') === -1) {
+      journalRecordId = 'uiserv/journal_v1@' + journalId;
     }
 
-    return Records.get(journalId)
+    return Records.get(journalRecordId)
       .load('.json')
       .then(resp => {
         const data = resp || {};
+        if (!data.columns || data.columns.length === 0) {
+          throw new Error('fallback to legacy config get');
+        }
 
         (data.columns || []).forEach((col, i) => {
           col.type = get(col, 'params.edgeType') || col.type;

@@ -42,7 +42,7 @@ export const MaxAttempts = {
 };
 
 export const GroupedStatuses = {
-  APPROVED: [ServerStatusKeys.APPROVED_BY_MANAGER, ServerStatusKeys.APPROVED_BY_HR]
+  APPROVED: [ServerStatusKeys.APPROVED_BY_MANAGER, ServerStatusKeys.APPROVED_BY_HR, ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM]
 };
 
 export const DelegationTypes = {
