@@ -71,6 +71,54 @@ export function filterKeys(array, aKeys) {
 export function getObjectByKV(array, key, value) {
   return array.find(item => item[key] === value) || {};
 }
+
 export function getIndexObjectByKV(array, key, value) {
   return array.findIndex(item => item[key] === value);
+}
+
+export function moveItemAfterById({ movedItemId, afterItemId, items: original }) {
+  if (movedItemId === afterItemId) {
+    return original;
+  }
+
+  const items = deepClone(original);
+
+  const spliceItem = (items, id) => {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      if (item.id === id) {
+        return items.splice(i, 1)[0];
+      }
+
+      const sub = item.items && spliceItem(item.items, id);
+
+      if (sub) {
+        return sub;
+      }
+    }
+  };
+
+  const movedItem = spliceItem(items, movedItemId);
+
+  const pushItem = (items, item, afterId) => {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      if (item.id === afterId) {
+        items.splice(i, 0, movedItem);
+        return true;
+      }
+
+      const sub = item.items && pushItem(item.items, afterId);
+
+      if (sub) {
+        return true;
+      }
+    }
+  };
+
+  pushItem(items, movedItem, afterItemId);
+
+  return items;
 }

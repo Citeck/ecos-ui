@@ -2,6 +2,7 @@ import React from 'react';
 import { Tree } from '../../components/common';
 import { uniqueId } from 'lodash';
 import { deepClone } from '../../helpers/util';
+import { moveItemAfterById } from '../../helpers/arrayOfObjects';
 
 const _actions = [
   {
@@ -113,6 +114,12 @@ export default class extends React.Component {
     this.setState({ items });
   };
 
+  moveItemTo = (movedItemId, afterItemId) => {
+    console.log(movedItemId, afterItemId);
+    const items = moveItemAfterById({ movedItemId, afterItemId, items: this.state.items });
+    this.setState({ items });
+  };
+
   render() {
     const { items } = this.state;
 
@@ -121,11 +128,12 @@ export default class extends React.Component {
         <Tree
           data={items}
           classNameItem="ecos-menu-settings-editor-items__tree-item"
-          openAll
+          openAll={false}
           draggable
           onClickActionItem={this.onClickActionItem}
           moveInParent
           moveInLevel
+          moveItemTo={this.moveItemTo}
         />
       </div>
     );

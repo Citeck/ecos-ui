@@ -183,12 +183,11 @@ class TreeItem extends Component {
       index,
       moveInLevel,
       moveInParent,
-      parentKey = 'tree'
+      parentKey = ''
     } = this.props;
     const { isOpen } = this.state;
     const { items, selected, locked, icon, name, actionConfig, customComponents } = item || {};
     const canDrag = draggable && item.draggable !== false && (dragLvlTo == null || dragLvlTo >= level);
-    const key = `${item.id}-${index}-${level}`;
 
     const itemElement = (
       <div
@@ -243,10 +242,10 @@ class TreeItem extends Component {
     const dragProps = {};
 
     moveInLevel && (dragProps.collection = level);
-    moveInParent && (dragProps.collection = parentKey);
+    moveInParent && (dragProps.collection += parentKey);
 
     return canDrag ? (
-      <SortableElement key={key} index={key} disabled={locked} {...dragProps}>
+      <SortableElement key={`${item.id}-${index}-${level}`} index={item.id} disabled={locked} {...dragProps}>
         {itemElement}
       </SortableElement>
     ) : (
@@ -268,7 +267,8 @@ class Tree extends Component {
     moveInParent: PropTypes.bool,
     moveInLevel: PropTypes.bool,
     onToggleSelect: PropTypes.func,
-    onClickActionItem: PropTypes.func
+    onClickActionItem: PropTypes.func,
+    moveItemTo: PropTypes.func
   };
 
   static defaultProps = {
@@ -309,8 +309,7 @@ class Tree extends Component {
       }));
   }
 
-  handleBeforeSortStart = ({ node, ...props }) => {
-    console.log(props);
+  handleBeforeSortStart = ({ node }) => {
     node.classList.toggle('ecos-tree__item_dragging');
 
     this.setState({ draggableNode: node });
@@ -321,8 +320,8 @@ class Tree extends Component {
 
     event.stopPropagation();
     draggableNode.classList.toggle('ecos-tree__item_dragging');
-    //todo
-    this.setState({ draggableNode: null }, () => null);
+
+    this.setState({ draggableNode: null }, () => this.props.moveItemTo(oldIndex, newIndex));
   };
 
   renderEmpty() {
