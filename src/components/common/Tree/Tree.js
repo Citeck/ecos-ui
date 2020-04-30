@@ -41,7 +41,7 @@ class TreeItem extends Component {
     isChild: PropTypes.bool,
     openAll: PropTypes.bool,
     level: PropTypes.number,
-    className: PropTypes.string,
+    prefixClassName: PropTypes.string,
     onToggleSelect: PropTypes.func,
     onClickAction: PropTypes.func
   };
@@ -51,7 +51,7 @@ class TreeItem extends Component {
     isChild: false,
     openAll: false,
     level: 1,
-    className: '',
+    prefixClassName: '',
     onClickAction: () => null
   };
 
@@ -140,7 +140,18 @@ class TreeItem extends Component {
   }
 
   renderChildren() {
-    const { item, openAll, level, draggable, dragLvlTo, className, onToggleSelect, onClickAction, moveInLevel, moveInParent } = this.props;
+    const {
+      item,
+      openAll,
+      level,
+      draggable,
+      dragLvlTo,
+      prefixClassName,
+      onToggleSelect,
+      onClickAction,
+      moveInLevel,
+      moveInParent
+    } = this.props;
     const { isOpen } = this.state;
 
     if (!get(item, 'items.length')) {
@@ -155,7 +166,7 @@ class TreeItem extends Component {
             key={child.id}
             index={index}
             isChild
-            className={className}
+            prefixClassName={prefixClassName}
             level={level + STEP_LVL}
             onToggleSelect={onToggleSelect}
             onClickAction={onClickAction}
@@ -176,7 +187,7 @@ class TreeItem extends Component {
       isChild,
       item,
       selectable,
-      className,
+      prefixClassName,
       dragLvlTo,
       draggable,
       level,
@@ -197,10 +208,11 @@ class TreeItem extends Component {
           'ecos-tree__item_open': isOpen,
           'ecos-tree__item_not-selected': !selected,
           'ecos-tree__item_locked': locked,
-          'ecos-tree__item_has-grandchildren': this.hasGrandchildren
+          'ecos-tree__item_has-grandchildren': this.hasGrandchildren,
+          [`${prefixClassName}--item-container`]: !!prefixClassName
         })}
       >
-        <div className={classNames('ecos-tree__item-element', className)}>
+        <div className={classNames('ecos-tree__item-element', { [`${prefixClassName}--item-element`]: !!prefixClassName })}>
           {this.renderArrow()}
           {selectable && (
             <Checkbox
@@ -258,8 +270,7 @@ class Tree extends Component {
   static propTypes = {
     data: PropTypes.arrayOf(PropTypes.shape(ItemInterface)),
     groupBy: PropTypes.string,
-    className: PropTypes.string,
-    classNameItem: PropTypes.string,
+    prefixClassName: PropTypes.string,
     selectable: PropTypes.bool,
     draggable: PropTypes.bool,
     dragLvlTo: PropTypes.number,
@@ -268,17 +279,18 @@ class Tree extends Component {
     moveInLevel: PropTypes.bool,
     onToggleSelect: PropTypes.func,
     onClickActionItem: PropTypes.func,
-    dragEnd: PropTypes.func
+    onDragEnd: PropTypes.func
   };
 
   static defaultProps = {
     data: [],
     groupBy: '',
-    className: '',
+    prefixClassName: '',
     moveInLevel: true,
     moveInParent: false,
     onToggleSelect: () => null,
-    onClickActionItem: () => null
+    onClickActionItem: () => null,
+    onDragEnd: () => null
   };
 
   get formattedTree() {
@@ -321,7 +333,7 @@ class Tree extends Component {
     event.stopPropagation();
     draggableNode.classList.toggle('ecos-tree__item_dragging');
 
-    this.setState({ draggableNode: null }, () => this.props.dragEnd(oldIndex, newIndex));
+    this.setState({ draggableNode: null }, () => this.props.onDragEnd(oldIndex, newIndex));
   };
 
   renderEmpty() {
@@ -338,7 +350,7 @@ class Tree extends Component {
     const {
       onToggleSelect,
       selectable,
-      classNameItem,
+      prefixClassName,
       openAll,
       draggable,
       dragLvlTo,
@@ -357,7 +369,7 @@ class Tree extends Component {
         item={item}
         key={item.id}
         index={index}
-        className={classNameItem}
+        prefixClassName={prefixClassName}
         openAll={openAll}
         onToggleSelect={onToggleSelect}
         selectable={selectable}
@@ -371,10 +383,10 @@ class Tree extends Component {
   }
 
   render() {
-    const { className, draggable } = this.props;
+    const { prefixClassName, draggable } = this.props;
 
     const treeElement = (
-      <div className={classNames('ecos-tree', className)}>
+      <div className={classNames('ecos-tree', { [`${prefixClassName}--tree`]: !!prefixClassName })}>
         {this.renderTree()}
         {this.renderEmpty()}
       </div>
