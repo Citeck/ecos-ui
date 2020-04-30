@@ -101,9 +101,13 @@
         max-height: 300px;
         overflow-x: hidden;
       }
+    }
 
-      &-item {
-        .ecos-tree__action#{$editor}__action_no-hide {
+    &--item {
+      &-container {
+        z-index: 9999;
+
+        & .ecos-tree__action#{$editor}__action_no-hide {
           display: inline-block;
         }
       }
