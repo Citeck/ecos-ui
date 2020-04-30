@@ -231,6 +231,7 @@
   "dochist.task.create": "Task created",
   "dochist.unknown-user": "Unknown user",
   "dochist.user.action": "User action",
+  "dochist.email.sent": "Email sent",
   "dochist.workflow.end": "Workflow ended",
   "dochist.workflow.end.cancelled": "Workflow cancelled",
   "dochist.workflow.start": "Workflow started",
