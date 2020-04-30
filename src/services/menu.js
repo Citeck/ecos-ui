@@ -1,5 +1,4 @@
 import { select } from 'redux-saga/effects';
-import uniqueId from 'lodash/uniqueId';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { selectIdentificationForView } from '../selectors/dashboard';
@@ -138,33 +137,28 @@ export default class MenuService {
     return array.filter(opt => !item || !opt.forbiddenTypes.includes(item.type));
   };
 
-  static testItems = Array(3)
-    .fill({})
-    .map(() => ({
-      id: uniqueId('menu-'),
-      name: 'test',
+  static testItems = Array(5)
+    .fill('menu')
+    .map((v, i) => ({
+      id: v + ' - ' + i,
+      name: v + ' - ' + i,
       icon: { value: 'icon' },
-      selected: true,
-      editable: true,
-      removable: true,
-      draggable: true,
-      expandable: true,
-      items: [
-        {
-          id: uniqueId('submenu-'),
-          name: 'child',
-          selected: true,
-          editable: true,
-          removable: true,
-          draggable: true,
+      selected: i % 2,
+      editable: i % 2,
+      removable: i % 2,
+      draggable: i % 2,
+      expandable: i % 2,
+      items: Array(i)
+        .fill('submenu')
+        .map((v, j) => ({
+          id: v + ' - ' + i + ' - ' + j,
+          name: v + ' - ' + i + ' - ' + j,
+          selected: i % 2,
+          editable: j % 2,
+          removable: j % 2,
+          draggable: j % 2,
           items: []
-        },
-        {
-          id: uniqueId('submenu-'),
-          name: 'child',
-          items: []
-        }
-      ]
+        }))
     }));
 
   static testCreateOptions = [
