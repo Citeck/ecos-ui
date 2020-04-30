@@ -1,8 +1,8 @@
 import React from 'react';
 import { Tree } from '../../components/common';
-import { uniqueId } from 'lodash';
 import { deepClone } from '../../helpers/util';
 import { moveItemAfterById } from '../../helpers/arrayOfObjects';
+import { toGeneratorTree } from '../../helpers/dataGenerators';
 
 const _actions = [
   {
@@ -26,37 +26,7 @@ const _actions = [
   }
 ];
 
-const _items = Array(5)
-  .fill('menu')
-  .map((v, i) => ({
-    id: uniqueId('menu-'),
-    name: v + i,
-    icon: { value: 'icon' },
-    selected: true,
-    editable: true,
-    removable: true,
-    draggable: true,
-    expandable: true,
-    allActions: _actions,
-    actionConfig: [],
-    items: [
-      {
-        id: uniqueId('submenu-'),
-        name: 'child-1',
-        selected: true,
-        editable: true,
-        removable: true,
-        draggable: true,
-        items: [],
-        allActions: _actions
-      },
-      {
-        id: uniqueId('submenu-'),
-        name: 'child-2',
-        items: []
-      }
-    ]
-  }));
+const _items = toGeneratorTree(5, 5);
 
 const _createOptions = [
   {
@@ -127,13 +97,13 @@ export default class extends React.Component {
       <div style={{ width: '50%', height: '100%', background: '#E8EDEF', padding: '10px', overflow: 'auto', border: '1px solid darkgray' }}>
         <Tree
           data={items}
-          classNameItem="ecos-menu-settings-editor-items__tree-item"
+          prefixClassName="ecos-menu-settings-editor"
           openAll={false}
           draggable
           onClickActionItem={this.onClickActionItem}
           moveInParent
           moveInLevel
-          moveItemTo={this.moveItemTo}
+          onDragEnd={this.moveItemTo}
         />
       </div>
     );
