@@ -2,6 +2,7 @@ import React from 'react';
 import { Tree } from '../../components/common';
 import { uniqueId } from 'lodash';
 import { deepClone } from '../../helpers/util';
+import { moveItemAfterById } from '../../helpers/arrayOfObjects';
 
 const _actions = [
   {
@@ -25,11 +26,11 @@ const _actions = [
   }
 ];
 
-const _items = Array(3)
-  .fill({})
-  .map(() => ({
+const _items = Array(5)
+  .fill('menu')
+  .map((v, i) => ({
     id: uniqueId('menu-'),
-    name: 'test',
+    name: v + i,
     icon: { value: 'icon' },
     selected: true,
     editable: true,
@@ -41,7 +42,7 @@ const _items = Array(3)
     items: [
       {
         id: uniqueId('submenu-'),
-        name: 'child',
+        name: 'child-1',
         selected: true,
         editable: true,
         removable: true,
@@ -51,7 +52,7 @@ const _items = Array(3)
       },
       {
         id: uniqueId('submenu-'),
-        name: 'child',
+        name: 'child-2',
         items: []
       }
     ]
@@ -113,6 +114,12 @@ export default class extends React.Component {
     this.setState({ items });
   };
 
+  moveItemTo = (movedItemId, afterItemId) => {
+    console.log(movedItemId, afterItemId);
+    const items = moveItemAfterById({ movedItemId, afterItemId, items: this.state.items });
+    this.setState({ items });
+  };
+
   render() {
     const { items } = this.state;
 
@@ -121,9 +128,12 @@ export default class extends React.Component {
         <Tree
           data={items}
           classNameItem="ecos-menu-settings-editor-items__tree-item"
-          openAll
+          openAll={false}
           draggable
           onClickActionItem={this.onClickActionItem}
+          moveInParent
+          moveInLevel
+          moveItemTo={this.moveItemTo}
         />
       </div>
     );

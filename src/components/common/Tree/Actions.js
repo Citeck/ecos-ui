@@ -36,17 +36,9 @@ const BtnAction = ({ id, text, icon, onClick, component, className = '' }) => {
 };
 
 const Actions = ({ actionConfig = [], onClick = () => null }) => {
-  return (
-    <>
-      {actionConfig.map((action, i) => (
-        <BtnAction
-          key={`tree-action-${i}-${action.type || action.id || ''}`}
-          {...action}
-          onClick={() => onClick(action.type || action.id)}
-        />
-      ))}
-    </>
-  );
+  return actionConfig.map((action, i) => (
+    <BtnAction key={`tree-action-${i}-${action.type || action.id || ''}`} {...action} onClick={() => onClick(action.type || action.id)} />
+  ));
 };
 
 Actions.propTypes = {
