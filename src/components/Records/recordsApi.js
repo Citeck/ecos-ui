@@ -1,4 +1,5 @@
 import lodashGet from 'lodash/get';
+import isString from 'lodash/isString';
 import ecosFetch from '../../helpers/ecosFetch';
 
 export const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
@@ -22,7 +23,7 @@ function isRecordWithAppName(record) {
   if (!record) {
     return false;
   }
-  if (record.id) {
+  if (isString(record.id)) {
     record = record.id;
   }
   let sourceDelimIdx = record.indexOf('@');
