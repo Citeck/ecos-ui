@@ -6,11 +6,11 @@ export function toGeneratorTree(len, lvl) {
       id: v + ' - ' + lvl + ' - ' + i,
       name: v + ' - ' + lvl + ' - ' + i,
       icon: { value: 'icon' },
-      selected: i % 2,
-      editable: i % 2,
-      removable: i % 2,
-      draggable: i % 2,
-      expandable: i % 2,
+      selected: true,
+      editable: true,
+      removable: true,
+      draggable: true,
+      expandable: true,
       items: lvl && toGeneratorTree(i, lvl)
     }));
 }

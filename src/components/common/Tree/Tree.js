@@ -34,11 +34,15 @@ const Labels = {
 };
 
 const STEP_LVL = 1;
+const TOP_LVL = 1;
+
+//при отсутствии класса у нужного элемента добавить > [`${prefixClassName}--item-[описание элемента]`]: !!prefixClassName
 
 class TreeItem extends Component {
   static propTypes = {
     item: PropTypes.shape(ItemInterface),
     isChild: PropTypes.bool,
+    isMajor: PropTypes.bool,
     openAll: PropTypes.bool,
     level: PropTypes.number,
     prefixClassName: PropTypes.string,
@@ -49,8 +53,9 @@ class TreeItem extends Component {
   static defaultProps = {
     item: {},
     isChild: false,
+    isMajor: false,
     openAll: false,
-    level: 1,
+    level: TOP_LVL,
     prefixClassName: '',
     onClickAction: () => null
   };
@@ -194,7 +199,8 @@ class TreeItem extends Component {
       index,
       moveInLevel,
       moveInParent,
-      parentKey = ''
+      parentKey = '',
+      isMajor
     } = this.props;
     const { isOpen } = this.state;
     const { items, selected, locked, icon, name, actionConfig, customComponents } = item || {};
@@ -209,6 +215,8 @@ class TreeItem extends Component {
           'ecos-tree__item_not-selected': !selected,
           'ecos-tree__item_locked': locked,
           'ecos-tree__item_has-grandchildren': this.hasGrandchildren,
+          'ecos-tree__item_major': isMajor,
+          [`ecos-tree__item-level--${level}`]: true,
           [`${prefixClassName}--item-container`]: !!prefixClassName
         })}
       >
@@ -378,6 +386,7 @@ class Tree extends Component {
         onClickAction={onClickActionItem}
         moveInLevel={moveInLevel}
         moveInParent={moveInParent}
+        isMajor
       />
     ));
   }
