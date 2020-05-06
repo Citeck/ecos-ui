@@ -1,13 +1,6 @@
 @import '../../../styles/constants';
 @import '../../../styles/content';
 
-:root {
-  --e-tree-child-height: 40px;
-  --e-tree-child-padding: 10px 15px;
-  --e-tree-parent-height: var(--e-tree-child-height);
-  --e-tree-parent-padding: var(--e-tree-child-padding);
-}
-
 .ecos-tree {
   display: flex;
   flex-direction: column;
@@ -50,14 +43,9 @@
       background: $color-white;
       border-radius: $border-radius-standard;
       border: 1px solid $color-gray-1;
-      height: var(--e-tree-parent-height);
-      padding: var(--e-tree-parent-padding);
+      height: 40px;
+      padding: 12px 10px;
       transition: margin-bottom 0.2s ease-in-out 0.05s;
-
-      &_higher {
-        --e-tree-parent-height: 60px;
-        --e-tree-parent-padding: 19px 18px;
-      }
 
       &:hover {
         border: 1px solid $color-gray-2;
@@ -137,8 +125,6 @@
       #{$item} {
         &-element {
           position: relative;
-          height: var(--e-tree-child-height);
-          padding: var(--e-tree-child-padding);
           margin-bottom: 0;
 
           &::before {
@@ -161,7 +147,7 @@
       #{$item}-element-children {
         #{$item}_child:not(#{$item}_parent) {
           #{$item}-element {
-            padding: 9px 11px 9px 34px;
+            padding: 9px 11px;
           }
         }
 

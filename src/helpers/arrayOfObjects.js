@@ -142,6 +142,7 @@ export function treeGetPathItem({ items, key, value }, path = '') {
 }
 
 export function treeMoveItem({ fromId, toId, original, key = 'id' }) {
+  console.log(fromId, toId);
   if (fromId === toId || !original) {
     return original;
   }
