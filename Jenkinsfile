@@ -18,8 +18,8 @@ timestamps {
       def package_props = readJSON file:("package.json")
       if ((env.BRANCH_NAME != "master") && (!package_props.version.contains('snapshot')))  {
         echo "Assembly of release artifacts is allowed only from the master branch!"
-        currentBuild.result = 'SUCCESS'
-        return
+        //currentBuild.result = 'SUCCESS'
+        //return
       }
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
@@ -39,19 +39,19 @@ timestamps {
       }
       stage('Building an ecos-proxy-odic docker images') {
         build job: 'build_ecos_ui_image', parameters: [
-          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'), 
+          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'),
           string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
         ]
       }
       stage('Building an ecos-proxy docker images') {
         build job: 'build_ecos_ui_image', parameters: [
-          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy'), 
+          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy'),
           string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
         ]
       }
       stage('Building an ecos-proxy docker images') {
         build job: 'build_ecos_ui_image', parameters: [
-          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-ssg'), 
+          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-ssg'),
           string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
         ]
       }
