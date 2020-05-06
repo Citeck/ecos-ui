@@ -1,6 +1,8 @@
 @import '../../../styles/constants';
 
 .ecos-journals-content__grid-well {
+  min-height: 50px;
+
   &_overflow_hidden {
     overflow: hidden;
   }

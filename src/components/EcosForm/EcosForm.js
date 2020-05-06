@@ -368,10 +368,10 @@ class EcosForm extends React.Component {
     }
 
     return (
-      <>
-        <div className={classNames(className)} id={containerId} />
+      <div className={className}>
+        <div id={containerId} />
         <EcosFormBuilderModal ref={this._formBuilderModal} />
-      </>
+      </div>
     );
   }
 }
