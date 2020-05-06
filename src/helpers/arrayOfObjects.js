@@ -76,49 +76,83 @@ export function getIndexObjectByKV(array, key, value) {
   return array.findIndex(item => item[key] === value);
 }
 
-export function moveItemAfterByKey({ fromId, toId, original, key = 'id' }) {
+export function treeRemoveItem({ items, key, value }) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    if (item[key] === value) {
+      return items.splice(i, 1)[0];
+    }
+
+    const sub = !!item.items && treeRemoveItem({ items: item.items, key, value });
+
+    if (sub) {
+      return sub;
+    }
+  }
+}
+
+export function treeAddItem({ items, newItem, key, value, indexTo }) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    if (item[key] === value) {
+      items.splice(indexTo, 0, newItem);
+      return true;
+    }
+
+    const sub = !!item.items && treeAddItem({ items: item.items, newItem, key, value, indexTo });
+
+    if (sub) {
+      return true;
+    }
+  }
+}
+
+export function treeGetIndexInLvl({ items, key, value }) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    if (item[key] === value) {
+      return i;
+    }
+
+    const sub = !!item.items && treeGetIndexInLvl({ items: item.items, key, value });
+
+    if (sub) {
+      return i;
+    }
+  }
+}
+
+export function treeGetPathItem({ items, key, value }, path = '') {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    if (item[key] === value) {
+      return `${path}${i}`;
+    }
+
+    const sub = !!item.items && treeGetPathItem({ items: item.items, key, value }, `${path}${i}.`);
+
+    if (sub) {
+      return sub;
+    }
+  }
+}
+
+export function treeMoveItem({ fromId, toId, original, key = 'id' }) {
   if (fromId === toId || !original) {
     return original;
   }
 
   const items = deepClone(original);
 
-  const spliceItem = items => {
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
+  const indexTo = treeGetIndexInLvl({ items, key, value: toId });
 
-      if (item[key] === fromId) {
-        return items.splice(i, 1)[0];
-      }
+  const movedItem = treeRemoveItem({ items, key, value: fromId });
 
-      const sub = !!item.items && spliceItem(item.items);
-
-      if (sub) {
-        return sub;
-      }
-    }
-  };
-
-  const movedItem = spliceItem(items);
-
-  const pushItem = items => {
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-
-      if (item[key] === toId) {
-        items.splice(i, 0, movedItem);
-        return true;
-      }
-
-      const sub = !!item.items && pushItem(item.items);
-
-      if (sub) {
-        return true;
-      }
-    }
-  };
-
-  pushItem(items);
+  treeAddItem({ items, key, value: toId, indexTo, newItem: movedItem });
 
   return items;
 }

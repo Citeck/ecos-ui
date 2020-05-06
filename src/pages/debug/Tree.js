@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tree } from '../../components/common';
 import { deepClone } from '../../helpers/util';
-import { moveItemAfterByKey } from '../../helpers/arrayOfObjects';
+import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import { toGeneratorTree } from '../../helpers/dataGenerators';
 
 const _actions = [
@@ -26,7 +26,7 @@ const _actions = [
   }
 ];
 
-const _items = toGeneratorTree(3, 1);
+const _items = toGeneratorTree(5, 5);
 
 const _createOptions = [
   {
@@ -85,7 +85,7 @@ export default class extends React.Component {
   };
 
   moveItemTo = (fromId, toId) => {
-    const items = moveItemAfterByKey({ fromId, toId, original: this.state.items, key: 'dndIdx' });
+    const items = treeMoveItem({ fromId, toId, original: this.state.items, key: 'dndIdx' });
     this.setState({ items });
   };
 
@@ -102,7 +102,6 @@ export default class extends React.Component {
           openAll={false}
           draggable
           onClickActionItem={this.onClickActionItem}
-          moveInParent
           moveInLevel
           onDragEnd={this.moveItemTo}
         />

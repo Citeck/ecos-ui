@@ -347,7 +347,8 @@ class Tree extends Component {
     event.stopPropagation();
     draggableNode.classList.toggle('ecos-tree__item_dragging');
 
-    this.setState({ draggableNode: null }, () => this.props.onDragEnd(oldIndex, newIndex));
+    this.setState({ draggableNode: null });
+    this.props.onDragEnd(oldIndex, newIndex);
   };
 
   renderEmpty() {

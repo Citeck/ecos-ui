@@ -1,4 +1,4 @@
-export function toGeneratorTree(len, lvl, parentI = 0) {
+export function toGeneratorTree(len = 0, lvl = 0, parentI = 0) {
   lvl--;
   return Array(len)
     .fill('test--')
@@ -11,7 +11,7 @@ export function toGeneratorTree(len, lvl, parentI = 0) {
       removable: true,
       draggable: true,
       expandable: true,
-      dndIdx: parseInt(`${lvl}${parentI}${i}`),
+      dndIdx: parseInt(`${lvl}${parentI}${i}`, 10),
       items: lvl >= 0 ? toGeneratorTree(i, lvl, i) : []
     }));
 }
