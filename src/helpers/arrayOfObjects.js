@@ -76,22 +76,22 @@ export function getIndexObjectByKV(array, key, value) {
   return array.findIndex(item => item[key] === value);
 }
 
-export function moveItemAfterById({ movedItemId, afterItemId, items: original }) {
-  if (movedItemId === afterItemId) {
+export function moveItemAfterByKey({ fromId, toId, original, key = 'id' }) {
+  if (fromId === toId || !original) {
     return original;
   }
 
   const items = deepClone(original);
 
-  const spliceItem = (items, id) => {
+  const spliceItem = items => {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
 
-      if (item.id === id) {
+      if (item[key] === fromId) {
         return items.splice(i, 1)[0];
       }
 
-      const sub = item.items && spliceItem(item.items, id);
+      const sub = !!item.items && spliceItem(item.items);
 
       if (sub) {
         return sub;
@@ -99,18 +99,18 @@ export function moveItemAfterById({ movedItemId, afterItemId, items: original })
     }
   };
 
-  const movedItem = spliceItem(items, movedItemId);
+  const movedItem = spliceItem(items);
 
-  const pushItem = (items, item, afterId) => {
+  const pushItem = items => {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
 
-      if (item.id === afterId) {
+      if (item[key] === toId) {
         items.splice(i, 0, movedItem);
         return true;
       }
 
-      const sub = item.items && pushItem(item.items, afterId);
+      const sub = !!item.items && pushItem(item.items);
 
       if (sub) {
         return true;
@@ -118,7 +118,7 @@ export function moveItemAfterById({ movedItemId, afterItemId, items: original })
     }
   };
 
-  pushItem(items, movedItem, afterItemId);
+  pushItem(items);
 
   return items;
 }

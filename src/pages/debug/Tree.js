@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tree } from '../../components/common';
 import { deepClone } from '../../helpers/util';
-import { moveItemAfterById } from '../../helpers/arrayOfObjects';
+import { moveItemAfterByKey } from '../../helpers/arrayOfObjects';
 import { toGeneratorTree } from '../../helpers/dataGenerators';
 
 const _actions = [
@@ -26,7 +26,7 @@ const _actions = [
   }
 ];
 
-const _items = toGeneratorTree(5, 5);
+const _items = toGeneratorTree(3, 1);
 
 const _createOptions = [
   {
@@ -84,9 +84,8 @@ export default class extends React.Component {
     this.setState({ items });
   };
 
-  moveItemTo = (movedItemId, afterItemId) => {
-    console.log(movedItemId, afterItemId);
-    const items = moveItemAfterById({ movedItemId, afterItemId, items: this.state.items });
+  moveItemTo = (fromId, toId) => {
+    const items = moveItemAfterByKey({ fromId, toId, original: this.state.items, key: 'dndIdx' });
     this.setState({ items });
   };
 
@@ -94,7 +93,9 @@ export default class extends React.Component {
     const { items } = this.state;
 
     return (
-      <div style={{ width: '50%', height: '100%', background: '#E8EDEF', padding: '10px', overflow: 'auto', border: '1px solid darkgray' }}>
+      <div
+        style={{ width: '50%', height: '500px', background: '#E8EDEF', padding: '10px', overflow: 'auto', border: '1px solid darkgray' }}
+      >
         <Tree
           data={items}
           prefixClassName="ecos-menu-settings-editor"

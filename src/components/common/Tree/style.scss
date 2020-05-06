@@ -11,6 +11,7 @@
 .ecos-tree {
   display: flex;
   flex-direction: column;
+  position: relative;
   height: 100%;
 
   &__item {
@@ -152,11 +153,6 @@
             border-width: 0 0 2px 2px;
             border-style: solid;
           }
-
-          &-label {
-            font-weight: $font-weight-semi-bold;
-            font-size: $font-size-standard;
-          }
         }
       }
     }
@@ -251,11 +247,8 @@
       }
 
       &#{$item}_parent {
-        padding: 5px;
-        margin: 5px 0;
         background: $color-gray-4;
-        border: $border-width-standard dot-dash $color-gray-2;
-        border-radius: 5px;
+        border-radius: $border-radius-standard;
       }
     }
 

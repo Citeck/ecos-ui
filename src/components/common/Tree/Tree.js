@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
-import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { arrayCompare, t } from '../../../helpers/util';
-import { Icon } from '../../common';
+import { Icon, Tooltip } from '../../common';
 import { Checkbox } from '../../common/form';
 import { SortableContainer, SortableElement, SortableHandle } from '../../Drag-n-Drop';
 import Actions from './Actions';
@@ -14,6 +14,7 @@ import './style.scss';
 
 const ItemInterface = {
   id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  dndIdx: PropTypes.number,
   name: PropTypes.string,
   icon: PropTypes.shape({
     type: PropTypes.string,
@@ -105,7 +106,8 @@ class TreeItem extends Component {
 
   get hasGrandchildren() {
     const { item } = this.props;
-    return get(item, 'items.length') && item.items.some(child => !!child.items.length);
+
+    return !!item && !isEmpty(item.items) && item.items.some(child => !!child.items.length);
   }
 
   handleToggleOpen = () => {
@@ -130,7 +132,7 @@ class TreeItem extends Component {
     const { item } = this.props;
     const { isOpen } = this.state;
 
-    if (!get(item, 'items.length')) {
+    if (!item || isEmpty(item.items)) {
       return null;
     }
 
@@ -159,7 +161,7 @@ class TreeItem extends Component {
     } = this.props;
     const { isOpen } = this.state;
 
-    if (!get(item, 'items.length')) {
+    if (!item || isEmpty(item.items)) {
       return null;
     }
 
@@ -205,6 +207,7 @@ class TreeItem extends Component {
     const { isOpen } = this.state;
     const { items, selected, locked, icon, name, actionConfig, customComponents } = item || {};
     const canDrag = draggable && item.draggable !== false && (dragLvlTo == null || dragLvlTo >= level);
+    const key = `lvl${level}i${index}id${item.id}`.replace(/[\s\-]*/g, '');
 
     const itemElement = (
       <div
@@ -233,13 +236,16 @@ class TreeItem extends Component {
           )}
           {!!icon && <Icon className="ecos-tree__item-element-icon icon-empty-icon" />}
           {/*todo icon*/}
-          <div
-            className={classNames('ecos-tree__item-element-label', {
-              'ecos-tree__item-element-label_locked': item.locked
-            })}
-          >
-            {t(name)}
-          </div>
+          <Tooltip target={key} text={t(name)} showAsNeeded uncontrolled autohide>
+            <div
+              className={classNames('ecos-tree__item-element-label', {
+                'ecos-tree__item-element-label_locked': item.locked
+              })}
+              id={key}
+            >
+              {t(name)}
+            </div>
+          </Tooltip>
           {customComponents && !!customComponents.length && (
             <div className="ecos-tree__item-element-custom-components">{customComponents}</div>
           )}
@@ -265,7 +271,7 @@ class TreeItem extends Component {
     moveInParent && (dragProps.collection += parentKey);
 
     return canDrag ? (
-      <SortableElement key={`${item.id}-${index}-${level}`} index={item.id} disabled={locked} {...dragProps}>
+      <SortableElement key={key} index={item.dndIdx} disabled={locked} {...dragProps}>
         {itemElement}
       </SortableElement>
     ) : (
@@ -402,7 +408,14 @@ class Tree extends Component {
     );
 
     return draggable ? (
-      <SortableContainer axis="xy" onSortEnd={this.handleSortEnd} updateBeforeSortStart={this.handleBeforeSortStart} useDragHandle>
+      <SortableContainer
+        axis="y"
+        lockAxis="y"
+        distance={3}
+        onSortEnd={this.handleSortEnd}
+        updateBeforeSortStart={this.handleBeforeSortStart}
+        useDragHandle
+      >
         {treeElement}
       </SortableContainer>
     ) : (
