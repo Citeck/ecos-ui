@@ -14,8 +14,19 @@ const originalCheckConditions = Base.prototype.checkConditions;
 const originalSetValue = Base.prototype.setValue;
 const originalT = Base.prototype.t;
 const originalApplyActions = Base.prototype.applyActions;
+const originalCalculateValue = Base.prototype.calculateValue;
 
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
+
+Base.prototype.calculateValue = function(data, flags) {
+  const changed = originalCalculateValue.call(this, data, flags);
+
+  if (changed && this.component.triggerChangeWhenCalculate) {
+    this.triggerChange(flags);
+  }
+
+  return changed;
+};
 
 Base.prototype.applyActions = function(actions, result, data, newComponent) {
   return actions.reduce((changed, action) => {
