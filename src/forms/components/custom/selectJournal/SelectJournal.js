@@ -79,8 +79,6 @@ export default class SelectJournalComponent extends BaseReactComponent {
         presetFilterPredicates = this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true);
       }
 
-      console.warn(component);
-
       const reactComponentProps = {
         columns,
         defaultValue: this.dataValue,
