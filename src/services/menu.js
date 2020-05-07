@@ -4,7 +4,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { selectIdentificationForView } from '../selectors/dashboard';
 import { deepClone, t } from '../helpers/util';
 import { getSearchParams, SearchKeys } from '../helpers/urls';
-import { findFirstItemByKey } from '../helpers/arrayOfObjects';
+import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { toGeneratorTree } from '../helpers/dataGenerators';
 
 export default class MenuService {
@@ -86,7 +86,7 @@ export default class MenuService {
 
   static processAction = ({ items: original, action, id }) => {
     const items = cloneDeep(original);
-    const foundItem = findFirstItemByKey({ items, key: 'id', value: id });
+    const foundItem = treeFindFirstItem({ items, key: 'id', value: id });
 
     switch (action) {
       case MenuService.ActionTypes.ACTIVE:

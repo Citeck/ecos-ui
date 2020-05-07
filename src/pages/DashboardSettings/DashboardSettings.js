@@ -10,13 +10,16 @@ import isNull from 'lodash/isNull';
 import find from 'lodash/find';
 
 import { clearCache } from '../../components/ReactRouterCache';
-import { arrayCompare, t } from '../../helpers/util';
-import { getSortedUrlParams } from '../../helpers/urls';
+import { arrayCompare, deepClone, t } from '../../helpers/util';
+import { getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
 import { RequestStatuses, URL } from '../../constants';
 import { DashboardTypes, DeviceTabs } from '../../constants/dashboard';
 import { Layouts, LayoutTypes } from '../../constants/layout';
 import DashboardService from '../../services/dashboard';
 import PageService from '../../services/PageService';
+import UserLocalSettingsService from '../../services/userLocalSettings';
+import pageTabList from '../../services/pageTabs/PageTabList';
+import { selectStateByKey } from '../../selectors/dashboardSettings';
 import {
   getAwayFromPage,
   getCheckUpdatedDashboardConfig,
@@ -35,23 +38,17 @@ import SetBind from './SetBind';
 import SetTabs from './SetTabs';
 import SetLayouts from './SetLayouts';
 import SetWidgets from './SetWidgets';
-import UserLocalSettingsService from '../../services/userLocalSettings';
-import { selectStateByKey } from '../../selectors/dashboardSettings';
 
 import './style.scss';
-import pageTabList from '../../services/pageTabs/PageTabList';
 
 const getStateId = props => get(getSearchParams(), SearchKeys.DASHBOARD_ID, props.tabId || 'base');
+
 const mapStateToProps = (state, ownProps) => ({
   isActive: ownProps.tabId ? pageTabList.isActiveTab(ownProps.tabId) : true,
-
   userData: {
     userName: get(state, 'user.userName'),
     isAdmin: get(state, 'user.isAdmin', false)
   },
-  menuType: get(state, 'menu.type'),
-  menuLinks: get(state, 'menu.links', []),
-  availableMenuItems: get(state, ['menu', 'availableMenuItems'], []),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
   ...selectStateByKey(state, getStateId(ownProps))
 });
@@ -118,8 +115,6 @@ class DashboardSettings extends React.Component {
     selectedWidgets: {},
     mobileSelectedWidgets: {},
 
-    selectedMenuItems: [],
-    typeMenu: MenuTypes,
     urlParams: getSortedUrlParams(),
 
     removedWidgets: []

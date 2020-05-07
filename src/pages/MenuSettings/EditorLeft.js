@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../helpers/util';
-import { moveItemAfterById } from '../../helpers/arrayOfObjects';
+import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import MenuService from '../../services/menu';
 import { Tree } from '../../components/common';
 import { IcoBtn } from '../../components/common/btns';
@@ -97,8 +97,8 @@ class EditorLeft extends React.Component {
     );
   }
 
-  onDragEnd = (movedItemId, afterItemId) => {
-    const items = moveItemAfterById({ movedItemId, afterItemId, items: this.state.items });
+  onDragEnd = (fromId, toId) => {
+    const items = treeMoveItem({ fromId, toId, original: this.state.items, key: 'dndIdx' });
     this.setState({ items });
   };
 

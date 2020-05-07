@@ -151,7 +151,6 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       DashboardService.getCacheKey(newIdentification.key, payload.recordRef),
       newIdentification.user
     ]);
-    yield put(saveMenuConfig(menu));
     yield put(setRequestResultDashboard({ request, key: payload.key }));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error4')));
