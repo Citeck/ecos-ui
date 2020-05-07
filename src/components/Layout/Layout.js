@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { DragDropContext } from 'react-beautiful-dnd';
-import get from 'lodash/get';
 import classNames from 'classnames';
+import { DragDropContext } from 'react-beautiful-dnd';
 import ReactResizeDetector from 'react-resize-detector';
+import get from 'lodash/get';
 
 import { LayoutTypes } from '../../constants/layout';
 import { getMinWidthColumn } from '../../helpers/layout';
 import { getSearchParams } from '../../helpers/util';
-import { getSortedUrlParams } from '../../helpers/urls';
 import { getPositionAdjustment } from '../../helpers/menu';
 import Components from '../widgets/Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
@@ -30,7 +29,7 @@ class Layout extends Component {
           widgets: PropTypes.array
         })
       ])
-    ).isRequired,
+    ),
     menuType: PropTypes.string,
     className: PropTypes.string,
     type: PropTypes.string,
@@ -40,19 +39,19 @@ class Layout extends Component {
   };
 
   static defaultProps = {
-    onSaveWidget: () => {},
-    onSaveWidgetProps: () => {},
     canDragging: false,
     className: '',
-    type: ''
+    type: '',
+    onSaveWidget: () => {},
+    onSaveWidgetProps: () => {}
   };
+
+  // for caching loaded widgets
+  #loadedWidgets = {};
 
   state = {
     draggableDestination: ''
   };
-
-  // for caching loaded components
-  _components = {};
 
   _wrapperRef = React.createRef();
 
@@ -184,7 +183,7 @@ class Layout extends Component {
   };
 
   renderWidgets(widgets = [], columnName) {
-    const { canDragging } = this.props;
+    const { canDragging, tabId, isActiveLayout } = this.props;
     const { recordRef } = getSearchParams();
     const components = [];
 
@@ -198,41 +197,34 @@ class Layout extends Component {
         positionTo: index,
         isWidget: true
       };
-      const urlParams = getSortedUrlParams();
       const id = JSON.stringify(dataWidget);
-      const key = `${widget.name}-${widget.id}-${urlParams}`;
-      let Widget = this._components[widget.name];
+      const key = `${widget.name}-${widget.id}`;
+      const commonProps = {
+        canDragging,
+        tabId,
+        isActiveLayout,
+        record: recordRef,
+        onSave: this.props.onSaveWidgetProps,
+        onLoad: this.checkWidgets,
+        onUpdate: this.checkWidgets
+      };
+      let Widget = this.#loadedWidgets[widget.name];
 
       if (!Widget) {
         Widget = Components.get(widget.name);
-        this._components[widget.name] = Widget;
+        this.#loadedWidgets[widget.name] = Widget;
       }
 
       if (canDragging) {
         components.push(
           <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjustment}>
-            <Widget
-              {...widget.props}
-              canDragging={canDragging}
-              id={`${widget.props.id}-${urlParams}`}
-              record={recordRef}
-              onSave={this.props.onSaveWidgetProps}
-              onLoad={this.checkWidgets}
-              onUpdate={this.checkWidgets}
-            />
+            <Widget {...widget.props} {...commonProps} id={widget.props.id} />
           </DragItem>
         );
       } else {
         components.push(
           <div key={key} className="ecos-layout__element">
-            <Widget
-              {...widget.props}
-              canDragging={canDragging}
-              record={recordRef}
-              onSave={this.props.onSaveWidgetProps}
-              onLoad={this.checkWidgets}
-              onUpdate={this.checkWidgets}
-            />
+            <Widget {...widget.props} {...commonProps} />
           </div>
         );
       }

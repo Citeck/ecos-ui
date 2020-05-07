@@ -1,16 +1,18 @@
-export function toGeneratorTree(len, lvl) {
+export function toGeneratorTree(len = 0, lvl = 0, parentI = 0) {
   lvl--;
   return Array(len)
-    .fill('menu')
+    .fill('test--')
     .map((v, i) => ({
-      id: v + ' - ' + lvl + ' - ' + i,
-      name: v + ' - ' + lvl + ' - ' + i,
-      icon: { value: 'icon' },
-      selected: i % 2,
-      editable: i % 2,
-      removable: i % 2,
-      draggable: i % 2,
-      expandable: i % 2,
-      items: lvl && toGeneratorTree(i, lvl)
+      id: v + lvl + parentI + i,
+      name: v + lvl + ' - ' + i,
+      icon: { value: 'fa-plus', type: 'fa' },
+      // badge: i*3,
+      selected: true,
+      editable: true,
+      removable: true,
+      draggable: true,
+      expandable: true,
+      dndIdx: parseInt(`${lvl}${parentI}${i}`, 10),
+      items: lvl >= 0 ? toGeneratorTree(len, lvl, i) : []
     }));
 }

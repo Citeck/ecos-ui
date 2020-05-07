@@ -7,15 +7,19 @@ import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
+import { withRouter } from 'react-router-dom';
 
 import { changeTab, deleteTab, initTabs, moveTabs, setDisplayState, setTab, updateTab } from '../../actions/pageTabs';
 import { animateScrollTo, arrayCompare, getScrollbarWidth, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
+import UserLocalSettingsService from '../../services/userLocalSettings';
 import { SortableContainer } from '../Drag-n-Drop';
 import ClickOutside from '../ClickOutside';
+import { dropByCacheKey } from '../ReactRouterCache';
 import Tab from './Tab';
 
 import './style.scss';
+import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 
 const Labels = {
   GO_HOME: 'header.site-menu.go-home-page'
@@ -24,14 +28,18 @@ const Labels = {
 class PageTabs extends React.Component {
   static propTypes = {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+    ContentComponent: PropTypes.node,
     homepageLink: PropTypes.string.isRequired,
-    isShow: PropTypes.bool
+    allowedLinks: PropTypes.array,
+    isShow: PropTypes.bool,
+    enableCache: PropTypes.bool
   };
 
   state = {
     isActiveLeftArrow: false,
     isActiveRightArrow: false,
     needArrow: false,
+    enableCache: false,
     draggableNode: null
   };
 
@@ -41,6 +49,8 @@ class PageTabs extends React.Component {
     super(props);
 
     this.$tabWrapper = React.createRef();
+
+    this.checkUrl();
   }
 
   componentDidMount() {
@@ -98,6 +108,18 @@ class PageTabs extends React.Component {
     return (this.wrapper.querySelector('.page-tab__tabs-item:not(.page-tab__tabs-item_active)') || {}).offsetWidth;
   }
 
+  checkUrl() {
+    const { enableCache, allowedLinks, location, homepageLink, history } = this.props;
+
+    if (!enableCache) {
+      return;
+    }
+
+    if (!allowedLinks.includes(location.pathname)) {
+      history.replace(homepageLink);
+    }
+  }
+
   init() {
     this.inited = true;
     this.initScroll();
@@ -151,8 +173,13 @@ class PageTabs extends React.Component {
   }
 
   closeTab(tab) {
-    const { deleteTab } = this.props;
+    const { deleteTab, enableCache } = this.props;
 
+    if (enableCache) {
+      dropByCacheKey(tab.link);
+    }
+
+    UserLocalSettingsService.removeDataOnTab(tab.id);
     deleteTab(tab);
   }
 
@@ -180,10 +207,19 @@ class PageTabs extends React.Component {
 
   handleClickTab = tab => {
     if (tab.isActive) {
+      this.scrollToTop();
       return;
     }
 
-    this.props.changeTab({ data: { isActive: true }, filter: { id: tab.id } });
+    this.props.changeTab({
+      data: { isActive: true },
+      filter: { id: tab.id },
+      url: tab.link
+    });
+  };
+
+  scrollToTop = () => {
+    animateScrollTo(document.querySelectorAll(`.${PANEL_CLASS_NAME}`), { scrollTop: 0 });
   };
 
   updateTab = tab => {
@@ -407,11 +443,29 @@ class PageTabs extends React.Component {
     return children;
   }
 
+  renderTabPanes = React.memo(props => {
+    const { tabs, ContentComponent, url } = props;
+    const activeTabId = get(tabs.find(tab => tab.isActive), 'id', null);
+
+    return tabs.map(tab =>
+      React.createElement(ContentComponent, {
+        tab,
+        url,
+        isActive: activeTabId === tab.id,
+        key: tab.id
+      })
+    );
+  });
+
   render() {
+    const { tabs, ContentComponent, location } = this.props;
+
     return (
       <>
         {this.renderTabWrapper()}
-        {this.renderChildren()}
+        {ContentComponent && (
+          <this.renderTabPanes url={location.pathname + location.search} tabs={tabs} ContentComponent={ContentComponent} />
+        )}
       </>
     );
   }
@@ -420,6 +474,7 @@ class PageTabs extends React.Component {
 const mapStateToProps = state => ({
   location: get(state, 'router.location', {}),
   tabs: get(state, 'pageTabs.tabs', []),
+  enableCache: get(state, 'app.enableCache', false),
   inited: get(state, 'pageTabs.inited', false)
 });
 
@@ -435,7 +490,9 @@ const mapDispatchToProps = dispatch => ({
   replace: url => dispatch(replace(url))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(PageTabs);
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(PageTabs)
+);

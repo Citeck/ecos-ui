@@ -13,7 +13,7 @@ import {
   setVersionsComparison
 } from '../actions/versionsJournal';
 
-const initialState = {
+export const initialState = {
   versions: [],
   hasMore: false,
   totalCount: 0,

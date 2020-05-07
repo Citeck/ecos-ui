@@ -1,5 +1,6 @@
 import { handleActions } from 'redux-actions';
 import get from 'lodash/get';
+
 import {
   initState,
   setColumnsSetup,

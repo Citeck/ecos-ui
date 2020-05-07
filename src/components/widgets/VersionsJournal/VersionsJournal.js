@@ -7,8 +7,7 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 
 import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../../actions/versionsJournal';
-import { selectLabelsVersions } from '../../../selectors/versionsJournal';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import { selectLabelsVersions, selectStateByKey } from '../../../selectors/versionsJournal';
 import { arrayCompare, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../../constants/versionsJournal';
@@ -21,49 +20,48 @@ import Dashlet from '../../Dashlet/Dashlet';
 import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import ComparisonModal from './ComparisonModal';
+import { getStateId } from '../../../helpers/redux';
 
 import './style.scss';
 
 const mapStateToProps = (state, ownProps) => {
-  const id = get(ownProps, ['id']);
+  const id = getStateId(ownProps);
+  const versionState = selectStateByKey(state, id);
   const isMobile = get(state, ['view', 'isMobile'], false);
 
   return {
-    id,
+    id: ownProps.id,
     isMobile,
-    versions: get(state, ['versionsJournal', id, 'versions']),
+    versions: get(versionState, 'versions', []),
     versionsLabels: selectLabelsVersions(state, id, isMobile),
-    isLoading: get(state, ['versionsJournal', id, 'listIsLoading']),
+    isLoading: get(versionState, 'listIsLoading', false),
 
-    addModalIsLoading: get(state, ['versionsJournal', id, 'addModalIsLoading']),
-    addModalIsShow: get(state, ['versionsJournal', id, 'addModalIsShow']),
-    addModalErrorMessage: get(state, ['versionsJournal', id, 'addModalErrorMessage']),
+    addModalIsLoading: get(versionState, 'addModalIsLoading', false),
+    addModalIsShow: get(versionState, 'addModalIsShow', false),
+    addModalErrorMessage: get(versionState, 'addModalErrorMessage', ''),
 
-    changeVersionModalIsShow: get(state, ['versionsJournal', id, 'changeVersionModalIsShow']),
-    changeVersionModalIsLoading: get(state, ['versionsJournal', id, 'changeVersionModalIsLoading']),
-    changeVersionModalErrorMessage: get(state, ['versionsJournal', id, 'changeVersionModalErrorMessage']),
+    changeVersionModalIsShow: get(versionState, 'changeVersionModalIsShow', false),
+    changeVersionModalIsLoading: get(versionState, 'changeVersionModalIsLoading', false),
+    changeVersionModalErrorMessage: get(versionState, 'changeVersionModalErrorMessage', ''),
 
-    comparison: get(state, ['versionsJournal', id, 'comparison']),
-    comparisonModalIsShow: get(state, ['versionsJournal', id, 'comparisonModalIsShow']),
-    comparisonModalIsLoading: get(state, ['versionsJournal', id, 'comparisonModalIsLoading']),
-    comparisonModalErrorMessage: get(state, ['versionsJournal', id, 'comparisonModalErrorMessage'])
+    comparison: get(versionState, 'comparison', ''),
+    comparisonModalIsShow: get(versionState, 'comparisonModalIsShow', false),
+    comparisonModalIsLoading: get(versionState, 'comparisonModalIsLoading', false),
+    comparisonModalErrorMessage: get(versionState, 'comparisonModalErrorMessage', '')
   };
 };
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  getVersionsList: () => dispatch(getVersions({ record: ownProps.record, id: ownProps.id })),
-  getVersionsComparison: payload =>
-    dispatch(
-      getVersionsComparison({
-        ...payload,
-        record: ownProps.record,
-        id: ownProps.id
-      })
-    ),
-  addNewVersion: payload => dispatch(addNewVersion({ ...payload, record: ownProps.record, id: ownProps.id })),
-  toggleModal: key => dispatch(toggleModal({ key, record: ownProps.record, id: ownProps.id })),
-  setActiveVersion: payload => dispatch(setActiveVersion({ ...payload, record: ownProps.record, id: ownProps.id }))
-});
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const id = getStateId(ownProps);
+
+  return {
+    getVersionsList: () => dispatch(getVersions({ record: ownProps.record, id })),
+    getVersionsComparison: payload => dispatch(getVersionsComparison({ ...payload, record: ownProps.record, id })),
+    addNewVersion: payload => dispatch(addNewVersion({ ...payload, record: ownProps.record, id })),
+    toggleModal: key => dispatch(toggleModal({ key, record: ownProps.record, id })),
+    setActiveVersion: payload => dispatch(setActiveVersion({ ...payload, record: ownProps.record, id }))
+  };
+};
 
 class VersionsJournal extends BaseWidget {
   static propTypes = {
@@ -122,18 +120,12 @@ class VersionsJournal extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
     const state = {
-      width: 290,
+      ...this.state,
       selectedVersion: null,
       comparisonFirstVersion: null,
       comparisonSecondVersion: null,
-      editorHeight: BASE_HEIGHT,
-      contentHeight: null,
-      fitHeights: {},
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
+      editorHeight: BASE_HEIGHT
     };
 
     this.state = { ...state, ...VersionsJournal.getDefaultSelectedVersions(props) };
@@ -560,7 +552,7 @@ class VersionsJournal extends BaseWidget {
     const fixHeight = userHeight ? userHeight : null;
 
     return (
-      <Scrollbars autoHide style={{ height: contentHeight - this.otherHeight || '100%' }}>
+      <Scrollbars autoHide style={{ height: userHeight ? contentHeight - this.otherHeight : contentHeight || '100%' }}>
         <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
           {body}
         </DefineHeight>

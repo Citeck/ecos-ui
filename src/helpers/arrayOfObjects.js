@@ -80,16 +80,16 @@ export function getIndexObjectByKV(array, key, value) {
  * Поиск певого элемент в дереве
  * @param items {Array} источник
  * @param key {String} ключ поля,
- * @param value {Primitive} значение поля,
- * @returns {Object} найденный элемент или undefined
+ * @param value {number|string|boolean} значение поля,
+ * @returns {Object|undefined} найденный элемент
  */
-export function findFirstItemByKey({ items, key, value }) {
+export function treeFindFirstItem({ items, key, value }) {
   for (const item of items) {
     if (item[key] === value) {
       return item;
     }
 
-    const sub = item.items && findFirstItemByKey({ items: item.items, key, value });
+    const sub = item.items && treeFindFirstItem({ items: item.items, key, value });
 
     if (sub) {
       return sub;
@@ -97,49 +97,124 @@ export function findFirstItemByKey({ items, key, value }) {
   }
 }
 
-export function moveItemAfterById({ movedItemId, afterItemId, items: original }) {
-  if (movedItemId === afterItemId) {
+/**
+ * Удаление певого найденного элемента
+ * @param items {Array} источник
+ * @param key {String} ключ поля,
+ * @param value {number|string|boolean} значение поля,
+ * @returns {Object|undefined} удаленный элемент
+ */
+export function treeRemoveItem({ items, key, value }) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    if (item[key] === value) {
+      return items.splice(i, 1)[0];
+    }
+
+    const sub = !!item.items && treeRemoveItem({ items: item.items, key, value });
+
+    if (sub) {
+      return sub;
+    }
+  }
+}
+
+/**
+ * Добавление элемента
+ * key и value для поиска ветки в которую вставлять
+ * @param items {Array} источник
+ * @param newItem {Object} новый элемент
+ * @param key {String} ключ поля,
+ * @param value {number|string|boolean} значение поля,
+ * @param indexTo {number|undefined} куда вставлять, если не указано использует найденный i для value,
+ * @returns {boolean} успешно ли вставлено
+ */
+export function treeAddItem({ items, newItem, key, value, indexTo }) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    if (item[key] === value) {
+      items.splice(indexTo != null ? i : indexTo, 0, newItem);
+      return true;
+    }
+
+    const sub = !!item.items && treeAddItem({ items: item.items, newItem, key, value, indexTo });
+
+    if (sub) {
+      return true;
+    }
+  }
+}
+
+/**
+ * Получение индекса элемента относительно своей ветки
+ * @param items {Array} источник
+ * @param key {String} ключ поля,
+ * @param value {number|string|boolean} значение поля,
+ * @returns {number} индекс
+ */
+export function treeGetIndexInLvl({ items, key, value }) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    if (item[key] === value) {
+      return i;
+    }
+
+    const sub = !!item.items && treeGetIndexInLvl({ items: item.items, key, value });
+
+    if (sub) {
+      return i;
+    }
+  }
+}
+
+/**
+ * Получение пути к элементу
+ * @param items {Array} источник
+ * @param key {String} ключ поля,
+ * @param value {number|string|boolean} значение поля,
+ * @param _path {string} внутренняя переменная, не следует задавать инит значение без необходимости,
+ * @returns {string} путь
+ */
+export function treeGetPathItem({ items, key, value }, _path = '') {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+
+    if (item[key] === value) {
+      return `${_path}[${i}]`;
+    }
+
+    const sub = !!item.items && treeGetPathItem({ items: item.items, key, value }, `${_path}[${i}]items`);
+
+    if (sub) {
+      return sub;
+    }
+  }
+}
+
+/**
+ * Перемещение элемента из одной вветки в другую
+ * путь состоит только из индексов пр. 0.1.1.0
+ * @param original {Array} источник
+ * @param key {String} ключ поля,
+ * @param fromId {number|string|boolean} уникальное значение поля перемещаяего элемента,
+ * @param toId {number|string|boolean} уникальное значение поля к которому перемещают,
+ * @returns {Array} обновленное дерево
+ */
+export function treeMoveItem({ fromId, toId, original, key = 'id' }) {
+  if (fromId === toId || !original) {
     return original;
   }
 
   const items = deepClone(original);
 
-  const spliceItem = (items, id) => {
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
+  const indexTo = treeGetIndexInLvl({ items, key, value: toId });
 
-      if (item.id === id) {
-        return items.splice(i, 1)[0];
-      }
+  const movedItem = treeRemoveItem({ items, key, value: fromId });
 
-      const sub = item.items && spliceItem(item.items, id);
-
-      if (sub) {
-        return sub;
-      }
-    }
-  };
-
-  const movedItem = spliceItem(items, movedItemId);
-
-  const pushItem = (items, item, afterId) => {
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-
-      if (item.id === afterId) {
-        items.splice(i, 0, movedItem);
-        return true;
-      }
-
-      const sub = item.items && pushItem(item.items, afterId);
-
-      if (sub) {
-        return true;
-      }
-    }
-  };
-
-  pushItem(items, movedItem, afterItemId);
+  treeAddItem({ items, key, value: toId, indexTo, newItem: movedItem });
 
   return items;
 }

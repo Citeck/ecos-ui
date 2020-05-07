@@ -6,6 +6,7 @@ import get from 'lodash/get';
 
 import { changePassword, changePhoto, getUserData } from '../../../actions/user';
 import { t } from '../../../helpers/util';
+import { getStateId } from '../../../helpers/redux';
 import { Avatar, BtnUpload, Loader } from '../../common';
 import { Btn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
@@ -34,9 +35,14 @@ class UserProfileDashlet extends BaseWidget {
     classNameDashlet: ''
   };
 
-  state = {
-    isShowPasswordModal: false
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      ...this.state,
+      isShowPasswordModal: false
+    };
+  }
 
   componentDidMount() {
     const { getUserData } = this.props;
@@ -124,9 +130,10 @@ class UserProfileDashlet extends BaseWidget {
 }
 
 const mapStateToProps = (state, context) => {
-  const { record } = context;
+  const { record, tabId } = context;
+  const stateId = getStateId({ tabId, id: record });
   const isCurrentUser = state.user.id === record;
-  const profile = get(state, `userProfile.${record}`, {}) || {};
+  const profile = get(state, ['userProfile', stateId], {}) || {};
 
   return {
     isLoading: profile.isLoading,
@@ -141,8 +148,8 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = (dispatch, context) => {
-  const { record } = context;
-  const stateId = record;
+  const { record, tabId } = context;
+  const stateId = getStateId({ tabId, id: record });
 
   return {
     getUserData: () => dispatch(getUserData({ record, stateId })),

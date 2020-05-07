@@ -1,8 +1,9 @@
 import React from 'react';
 import { Tree } from '../../components/common';
 import { deepClone } from '../../helpers/util';
-import { moveItemAfterById } from '../../helpers/arrayOfObjects';
+import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import { toGeneratorTree } from '../../helpers/dataGenerators';
+import { IcoBtn } from '../../components/common/btns';
 
 const _actions = [
   {
@@ -84,26 +85,35 @@ export default class extends React.Component {
     this.setState({ items });
   };
 
-  moveItemTo = (movedItemId, afterItemId) => {
-    console.log(movedItemId, afterItemId);
-    const items = moveItemAfterById({ movedItemId, afterItemId, items: this.state.items });
+  moveItemTo = (fromId, toId) => {
+    const items = treeMoveItem({ fromId, toId, original: this.state.items, key: 'dndIdx' });
     this.setState({ items });
+  };
+
+  getExtraComponents = item => {
+    return (
+      <IcoBtn icon="icon-plus" className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm">
+        Add
+      </IcoBtn>
+    );
   };
 
   render() {
     const { items } = this.state;
 
     return (
-      <div style={{ width: '50%', height: '100%', background: '#E8EDEF', padding: '10px', overflow: 'auto', border: '1px solid darkgray' }}>
+      <div
+        style={{ width: '50%', height: '500px', background: '#E8EDEF', padding: '10px', overflow: 'auto', border: '1px solid darkgray' }}
+      >
         <Tree
           data={items}
           prefixClassName="ecos-menu-settings-editor"
           openAll={false}
           draggable
           onClickActionItem={this.onClickActionItem}
-          moveInParent
           moveInLevel
           onDragEnd={this.moveItemTo}
+          getExtraComponents={this.getExtraComponents}
         />
       </div>
     );

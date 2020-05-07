@@ -4,6 +4,7 @@ import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import { routerMiddleware } from 'connected-react-router';
 import { createBrowserHistory } from 'history';
+
 import createRootReducer, { createReducer } from './reducers';
 import sagas from './sagas';
 
@@ -14,8 +15,8 @@ let optionalMiddlewares = [];
 if (process.env.NODE_ENV === 'development') {
   const logger = createLogger({
     collapsed: true,
-    diff: true,
-    predicate: (getState, action) => action.type.startsWith('menu/')
+    diff: true
+    //, predicate: (getState, action) => action.type.startsWith('dashboard-settings/')
   });
   optionalMiddlewares.push(logger);
 }

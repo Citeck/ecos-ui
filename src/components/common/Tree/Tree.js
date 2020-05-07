@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
-import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { arrayCompare, t } from '../../../helpers/util';
-import { Icon } from '../../common';
-import { Checkbox } from '../../common/form';
+import { EcosIcon, Icon, Tooltip } from '../../common';
+import { Badge, Checkbox } from '../../common/form';
 import { SortableContainer, SortableElement, SortableHandle } from '../../Drag-n-Drop';
 import Actions from './Actions';
 
@@ -14,18 +14,19 @@ import './style.scss';
 
 const ItemInterface = {
   id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  dndIdx: PropTypes.number,
   name: PropTypes.string,
   icon: PropTypes.shape({
     type: PropTypes.string,
     value: PropTypes.string
   }),
+  bage: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   selected: PropTypes.bool,
   multiple: PropTypes.bool,
   mandatory: PropTypes.bool,
   locked: PropTypes.bool,
   items: PropTypes.array,
-  actionConfig: PropTypes.array,
-  customComponents: PropTypes.array
+  actionConfig: PropTypes.array
 };
 
 const Labels = {
@@ -34,23 +35,29 @@ const Labels = {
 };
 
 const STEP_LVL = 1;
+const TOP_LVL = 1;
+
+//при отсутствии класса у нужного элемента добавить > [`${prefixClassName}--item-[описание элемента]`]: !!prefixClassName
 
 class TreeItem extends Component {
   static propTypes = {
     item: PropTypes.shape(ItemInterface),
     isChild: PropTypes.bool,
+    isMajor: PropTypes.bool,
     openAll: PropTypes.bool,
     level: PropTypes.number,
     prefixClassName: PropTypes.string,
     onToggleSelect: PropTypes.func,
-    onClickAction: PropTypes.func
+    onClickAction: PropTypes.func,
+    getExtraComponents: PropTypes.func
   };
 
   static defaultProps = {
     item: {},
     isChild: false,
+    isMajor: false,
     openAll: false,
-    level: 1,
+    level: TOP_LVL,
     prefixClassName: '',
     onClickAction: () => null
   };
@@ -100,7 +107,8 @@ class TreeItem extends Component {
 
   get hasGrandchildren() {
     const { item } = this.props;
-    return get(item, 'items.length') && item.items.some(child => !!child.items.length);
+
+    return !!item && !isEmpty(item.items) && item.items.some(child => !!child.items.length);
   }
 
   handleToggleOpen = () => {
@@ -125,7 +133,7 @@ class TreeItem extends Component {
     const { item } = this.props;
     const { isOpen } = this.state;
 
-    if (!get(item, 'items.length')) {
+    if (!item || isEmpty(item.items)) {
       return null;
     }
 
@@ -150,11 +158,12 @@ class TreeItem extends Component {
       onToggleSelect,
       onClickAction,
       moveInLevel,
-      moveInParent
+      moveInParent,
+      getExtraComponents
     } = this.props;
     const { isOpen } = this.state;
 
-    if (!get(item, 'items.length')) {
+    if (!item || isEmpty(item.items)) {
       return null;
     }
 
@@ -176,6 +185,7 @@ class TreeItem extends Component {
             moveInLevel={moveInLevel}
             moveInParent={moveInParent}
             parentKey={item.id}
+            getExtraComponents={getExtraComponents}
           />
         ))}
       </Collapse>
@@ -194,11 +204,14 @@ class TreeItem extends Component {
       index,
       moveInLevel,
       moveInParent,
-      parentKey = ''
+      parentKey = '',
+      isMajor,
+      getExtraComponents
     } = this.props;
     const { isOpen } = this.state;
-    const { items, selected, locked, icon, name, actionConfig, customComponents } = item || {};
+    const { items, selected, locked, icon, name, actionConfig } = item || {};
     const canDrag = draggable && item.draggable !== false && (dragLvlTo == null || dragLvlTo >= level);
+    const key = `key_${level}_${index}_${item.id}`.replace(/[\s\-]*/g, '');
 
     const itemElement = (
       <div
@@ -209,6 +222,8 @@ class TreeItem extends Component {
           'ecos-tree__item_not-selected': !selected,
           'ecos-tree__item_locked': locked,
           'ecos-tree__item_has-grandchildren': this.hasGrandchildren,
+          'ecos-tree__item_major': isMajor,
+          [`ecos-tree__item-level--${level}`]: true,
           [`${prefixClassName}--item-container`]: !!prefixClassName
         })}
       >
@@ -223,18 +238,20 @@ class TreeItem extends Component {
               title={this.title}
             />
           )}
-          {!!icon && <Icon className="ecos-tree__item-element-icon icon-empty-icon" />}
           {/*todo icon*/}
-          <div
-            className={classNames('ecos-tree__item-element-label', {
-              'ecos-tree__item-element-label_locked': item.locked
-            })}
-          >
-            {t(name)}
-          </div>
-          {customComponents && !!customComponents.length && (
-            <div className="ecos-tree__item-element-custom-components">{customComponents}</div>
-          )}
+          {!!icon && <EcosIcon code={item.icon.code} data={item.icon} source="menu" className="ecos-tree__item-element-icon" />}
+          {item.badge != null && <Badge text={String(item.badge)} className="ecos-tree__item-element-badge" />}
+          <Tooltip target={key} text={t(name)} showAsNeeded uncontrolled autohide>
+            <div
+              className={classNames('ecos-tree__item-element-label', {
+                'ecos-tree__item-element-label_locked': item.locked
+              })}
+              id={key}
+            >
+              {t(name)}
+            </div>
+          </Tooltip>
+          {getExtraComponents && <div className="ecos-tree__item-element-custom-components">{getExtraComponents(item)}</div>}
           <div className="ecos-tree__item-element-space" />
           {actionConfig && !!actionConfig.length && (
             <div className="ecos-tree__item-element-actions">
@@ -257,7 +274,7 @@ class TreeItem extends Component {
     moveInParent && (dragProps.collection += parentKey);
 
     return canDrag ? (
-      <SortableElement key={`${item.id}-${index}-${level}`} index={item.id} disabled={locked} {...dragProps}>
+      <SortableElement key={key} index={item.dndIdx} disabled={locked} {...dragProps}>
         {itemElement}
       </SortableElement>
     ) : (
@@ -333,7 +350,8 @@ class Tree extends Component {
     event.stopPropagation();
     draggableNode.classList.toggle('ecos-tree__item_dragging');
 
-    this.setState({ draggableNode: null }, () => this.props.onDragEnd(oldIndex, newIndex));
+    this.setState({ draggableNode: null });
+    this.props.onDragEnd(oldIndex, newIndex);
   };
 
   renderEmpty() {
@@ -356,7 +374,8 @@ class Tree extends Component {
       dragLvlTo,
       onClickActionItem,
       moveInLevel,
-      moveInParent
+      moveInParent,
+      getExtraComponents
     } = this.props;
     const data = this.formattedTree;
 
@@ -378,6 +397,8 @@ class Tree extends Component {
         onClickAction={onClickActionItem}
         moveInLevel={moveInLevel}
         moveInParent={moveInParent}
+        getExtraComponents={getExtraComponents}
+        isMajor
       />
     ));
   }
@@ -393,7 +414,14 @@ class Tree extends Component {
     );
 
     return draggable ? (
-      <SortableContainer axis="xy" onSortEnd={this.handleSortEnd} updateBeforeSortStart={this.handleBeforeSortStart} useDragHandle>
+      <SortableContainer
+        axis="y"
+        lockAxis="y"
+        distance={3}
+        onSortEnd={this.handleSortEnd}
+        updateBeforeSortStart={this.handleBeforeSortStart}
+        useDragHandle
+      >
         {treeElement}
       </SortableContainer>
     ) : (

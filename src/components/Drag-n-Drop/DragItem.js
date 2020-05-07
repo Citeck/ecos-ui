@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
@@ -6,6 +6,8 @@ import { Draggable } from 'react-beautiful-dnd';
 import { IcoBtn } from '../common/btns';
 
 import './drag-item.scss';
+import { Tooltip, Icon } from '../common';
+import { prepareTooltipId } from '../../helpers/util';
 
 class DragItem extends React.Component {
   static propTypes = {
@@ -13,6 +15,7 @@ class DragItem extends React.Component {
     draggableId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     className: PropTypes.string,
     title: PropTypes.string,
+    alertTooltip: PropTypes.string,
     selected: PropTypes.bool,
     canRemove: PropTypes.bool,
     removeItem: PropTypes.func,
@@ -27,6 +30,7 @@ class DragItem extends React.Component {
   static defaultProps = {
     className: '',
     title: '',
+    alertTooltip: '',
     selected: false,
     canRemove: false,
     isDragDisabled: false,
@@ -60,12 +64,29 @@ class DragItem extends React.Component {
     this.props.removeItem({ item, draggable: { draggableId, draggableIndex } });
   };
 
+  renderAlert = () => {
+    const { alertTooltip, draggableId } = this.props;
+
+    if (!alertTooltip) {
+      return null;
+    }
+
+    const tooltipId = prepareTooltipId(`widget-tooltip-${draggableId}`);
+
+    return (
+      <Tooltip target={tooltipId} text={alertTooltip} placement="top" trigger="hover" uncontrolled autohide>
+        <Icon id={tooltipId} className={classNames('icon-big_alert ecos-drag-item__actions-item ecos-drag-item__actions-item-alert')} />
+      </Tooltip>
+    );
+  };
+
   renderActions() {
     const { selected, canRemove } = this.props;
     const _btn = `ecos-btn_width_auto ecos-btn_transparent`;
 
     return (
       <div className="ecos-drag-item__actions">
+        {this.renderAlert()}
         {canRemove && (
           <IcoBtn
             icon={'icon-close'}
@@ -88,10 +109,10 @@ class DragItem extends React.Component {
     const { title } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         <span className="ecos-drag-item__title">{title}</span>
         {this.renderActions()}
-      </React.Fragment>
+      </>
     );
   }
 
@@ -124,7 +145,7 @@ class DragItem extends React.Component {
     }
 
     return (
-      <Fragment>
+      <>
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
@@ -135,7 +156,7 @@ class DragItem extends React.Component {
           {this.renderItem()}
         </div>
         {this.renderDoppelganger(snapshot.isDragging)}
-      </Fragment>
+      </>
     );
   };
 
@@ -170,14 +191,14 @@ class Wrapper extends DragItem {
     }
 
     return (
-      <Fragment>
+      <>
         {this.renderDoppelganger(snapshot.isDragging)}
 
         <div ref={provided.innerRef} {...provided.draggableProps} style={provided.draggableProps.style}>
           {React.cloneElement(this.props.children, { dragHandleProps: { ...provided.dragHandleProps } })}
           <div {...provided.dragHandleProps} />
         </div>
-      </Fragment>
+      </>
     );
   };
 }

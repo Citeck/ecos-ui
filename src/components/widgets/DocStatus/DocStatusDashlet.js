@@ -1,14 +1,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+
 import { isMobileDevice, t } from '../../../helpers/util';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet/Dashlet';
 import DocStatus from './DocStatus';
+import BaseWidget from '../BaseWidget';
 
 import './style.scss';
 
-class DocStatusDashlet extends React.Component {
+class DocStatusDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
     record: PropTypes.string.isRequired,
@@ -24,20 +25,14 @@ class DocStatusDashlet extends React.Component {
     title: ''
   };
 
-  state = {
-    isSmall: false
-  };
-
   constructor(props) {
     super(props);
 
-    this.state.isCollapsed = UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED);
+    this.state = {
+      ...this.state,
+      isSmall: false
+    };
   }
-
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setDashletProperty(this.props.id, { isCollapsed });
-  };
 
   onResize = w => {
     this.setState({ isSmall: w <= 263 });

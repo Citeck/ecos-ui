@@ -1,4 +1,4 @@
-import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 import {
   getAvailableWidgets,
   getCheckUpdatedDashboardConfig,
@@ -31,16 +31,16 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
-    const { dashboardId, recordRef } = payload;
+    const { dashboardId, recordRef, key } = payload;
 
     if (dashboardId) {
       const result = yield call(api.dashboard.getDashboardById, dashboardId, true);
       const data = DashboardService.checkDashboardResult(result);
       const webConfigs = DashboardSettingsConverter.getSettingsForWeb(data);
 
-      yield put(setDashboardConfig(webConfigs));
-      yield put(getAvailableWidgets(data.type));
-      yield put(getDashboardKeys(recordRef));
+      yield put(setDashboardConfig({ ...webConfigs, key }));
+      yield put(getAvailableWidgets({ type: data.type, key }));
+      yield put(getDashboardKeys({ recordRef, key }));
     } else {
       yield put(setNotificationMessage(t('dashboard-settings.error2')));
     }
@@ -52,9 +52,9 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
 
 function* doGetWidgetsRequest({ api, logger }, { payload }) {
   try {
-    const apiData = yield call(api.dashboard.getWidgetsByDashboardType, payload);
+    const widgets = yield call(api.dashboard.getWidgetsByDashboardType, payload.type);
 
-    yield put(setAvailableWidgets(apiData));
+    yield put(setAvailableWidgets({ widgets, key: payload.key }));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error3')));
     logger.error('[dashboard/settings/ doGetWidgetsRequest saga] error', e.message);
@@ -63,9 +63,9 @@ function* doGetWidgetsRequest({ api, logger }, { payload }) {
 
 function* doGetDashboardKeys({ api, logger }, { payload }) {
   try {
-    const result = yield call(api.dashboard.getDashboardKeysByRef, payload);
+    const keys = yield call(api.dashboard.getDashboardKeysByRef, payload.recordRef);
 
-    yield put(setDashboardKeys(result));
+    yield put(setDashboardKeys({ keys, key: payload.key }));
   } catch (e) {
     logger.error('[dashboard/settings/ doGetDashboardKeys saga] error', e.message);
   }
@@ -104,7 +104,7 @@ function* doCheckUpdatedSettings({ api, logger }, { payload }) {
       dashboardId = '';
     }
 
-    yield put(setCheckUpdatedDashboardConfig({ saveWay, dashboardId }));
+    yield put(setCheckUpdatedDashboardConfig({ saveWay, dashboardId, key: payload.key }));
   } catch (e) {
     logger.error('[dashboard/settings/ doCheckUpdatedSettings saga] error', e.message);
   }
@@ -140,6 +140,10 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     });
 
     const parseDashboard = DashboardService.parseRequestResult(dashboardResult);
+    const request = {
+      status: parseDashboard.dashboardId ? RequestStatuses.SUCCESS : RequestStatuses.FAILURE,
+      dashboardId: parseDashboard.dashboardId
+    };
 
     yield call(api.dashboard.deleteFromCache, [
       DashboardService.getCacheKey(identification.key, payload.recordRef),
@@ -147,13 +151,8 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       DashboardService.getCacheKey(newIdentification.key, payload.recordRef),
       newIdentification.user
     ]);
-
-    yield put(
-      setRequestResultDashboard({
-        status: parseDashboard.dashboardId ? RequestStatuses.SUCCESS : RequestStatuses.FAILURE,
-        dashboardId: parseDashboard.dashboardId
-      })
-    );
+    yield put(saveMenuConfig(menu));
+    yield put(setRequestResultDashboard({ request, key: payload.key }));
   } catch (e) {
     yield put(setNotificationMessage(t('dashboard-settings.error4')));
     logger.error('[dashboard/settings/ doSaveSettingsRequest saga] error', e.message);
@@ -161,12 +160,12 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
 }
 
 function* saga(ea) {
-  yield takeLatest(initDashboardSettings().type, doInitDashboardSettingsRequest, ea);
-  yield takeLatest(getDashboardConfig().type, doGetDashboardConfigRequest, ea);
-  yield takeLatest(getAvailableWidgets().type, doGetWidgetsRequest, ea);
-  yield takeLatest(saveDashboardConfig().type, doSaveSettingsRequest, ea);
-  yield takeLatest(getDashboardKeys().type, doGetDashboardKeys, ea);
-  yield takeLatest(getCheckUpdatedDashboardConfig().type, doCheckUpdatedSettings, ea);
+  yield takeEvery(initDashboardSettings().type, doInitDashboardSettingsRequest, ea);
+  yield takeEvery(getDashboardConfig().type, doGetDashboardConfigRequest, ea);
+  yield takeEvery(getAvailableWidgets().type, doGetWidgetsRequest, ea);
+  yield takeEvery(saveDashboardConfig().type, doSaveSettingsRequest, ea);
+  yield takeEvery(getDashboardKeys().type, doGetDashboardKeys, ea);
+  yield takeEvery(getCheckUpdatedDashboardConfig().type, doCheckUpdatedSettings, ea);
 }
 
 export default saga;

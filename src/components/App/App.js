@@ -7,6 +7,8 @@ import { Redirect, Route, Switch } from 'react-router';
 import { NotificationContainer } from 'react-notifications';
 import { push } from 'connected-react-router';
 
+import CacheRoute, { CacheSwitch } from '../ReactRouterCache';
+
 import Header from '../Header';
 import Notification from '../Notification';
 import Menu from '../Sidebar/Sidebar';
@@ -21,13 +23,13 @@ import { pagesWithOnlyContent, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import PageService, { Events } from '../../services/PageService';
 import { isMobileAppWebView, t } from '../../helpers/util';
-//test pages
-import Tree from '../../pages/debug/Tree';
+import pageTabList from '../../services/pageTabs/PageTabList';
+import UserLocalSettingsService from '../../services/userLocalSettings';
+import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 
 import './App.scss';
 
 const LoginForm = lazy(() => import('../LoginForm'));
-
 const BPMNDesignerPage = lazy(() => import('../../pages/BPMNDesignerPage'));
 const DashboardPage = lazy(() => import('../../pages/Dashboard'));
 const DashboardSettingsPage = lazy(() => import('../../pages/DashboardSettings'));
@@ -38,6 +40,25 @@ const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/Verif
 const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/DelegatedTimesheetsPage'));
 
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
+const TreePage = lazy(() => import('../../pages/debug/Tree'));
+
+const allowedLinks = [
+  URL.DASHBOARD,
+  '/share/page/bpmn-designer',
+  '/v2/debug/formio-develop',
+  '/v2/debug/tree',
+  URL.DASHBOARD_SETTINGS,
+  URL.BPMN_DESIGNER,
+  URL.JOURNAL,
+  URL.TIMESHEET,
+  URL.TIMESHEET_SUBORDINATES,
+  URL.TIMESHEET_FOR_VERIFICATION,
+  URL.TIMESHEET_DELEGATED,
+  URL.TIMESHEET_IFRAME,
+  URL.TIMESHEET_IFRAME_SUBORDINATES,
+  URL.TIMESHEET_IFRAME_FOR_VERIFICATION,
+  URL.TIMESHEET_IFRAME_DELEGATED
+];
 
 class App extends Component {
   componentDidMount() {
@@ -45,6 +66,7 @@ class App extends Component {
 
     getMenuConfig();
     document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
+    UserLocalSettingsService.checkDasletsUpdatedDate();
   }
 
   handleCustomEvent = event => {
@@ -138,9 +160,26 @@ class App extends Component {
   }
 
   renderTabs() {
-    const { isShowTabs, isMobile } = this.props;
+    const { isShowTabs, isMobile, enableCache } = this.props;
 
-    return <PageTabs homepageLink={URL.DASHBOARD} isShow={isShowTabs && !this.isOnlyContent && !isMobile} />;
+    if (enableCache) {
+      return (
+        <PageTabs
+          enableCache
+          allowedLinks={allowedLinks}
+          homepageLink={URL.DASHBOARD}
+          isShow={isShowTabs && !this.isOnlyContent && !isMobile}
+          ContentComponent={this.renderCachedRouter}
+        />
+      );
+    }
+
+    return (
+      <>
+        <PageTabs homepageLink={URL.DASHBOARD} isShow={isShowTabs && !this.isOnlyContent && !isMobile} />
+        <div className={PANEL_CLASS_NAME}>{this.renderRouter()}</div>
+      </>
+    );
   }
 
   renderReduxModal() {
@@ -150,6 +189,116 @@ class App extends Component {
 
     return <ReduxModal />;
   }
+
+  renderCachedRouter = React.memo(props => {
+    const { tab } = props;
+    const isCurrent = pageTabList.isActiveTab(tab.id);
+    const baseCacheRouteProps = {
+      className: PANEL_CLASS_NAME,
+      needUseFullPath: true,
+      when: 'always',
+      isCurrent,
+      tabLink: tab.link
+    };
+    const basePageProps = {
+      tabId: tab.id,
+      tabLink: tab.link,
+      enableCache: true
+    };
+    const styles = { ...this.wrapperStyle };
+
+    if (!tab.isActive) {
+      styles.display = 'none';
+    }
+
+    return (
+      <div className="ecos-main-content" style={styles}>
+        <Suspense fallback={null}>
+          <CacheSwitch isCurrent={isCurrent} tabLink={tab.link}>
+            <CacheRoute
+              {...baseCacheRouteProps}
+              exact
+              path="/share/page/bpmn-designer"
+              render={() => <Redirect to={URL.BPMN_DESIGNER} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.DASHBOARD_SETTINGS}
+              render={props => <DashboardSettingsPage {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.DASHBOARD}
+              exact
+              render={props => <DashboardPage {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.BPMN_DESIGNER}
+              render={props => <BPMNDesignerPage {...props} {...basePageProps} />}
+            />
+            <CacheRoute {...baseCacheRouteProps} path={URL.JOURNAL} render={props => <JournalsPage {...props} {...basePageProps} />} />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={[URL.TIMESHEET, URL.TIMESHEET_IFRAME]}
+              exact
+              render={props => <MyTimesheetPage {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={[URL.TIMESHEET_SUBORDINATES, URL.TIMESHEET_IFRAME_SUBORDINATES]}
+              render={props => <SubordinatesTimesheetPage {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={[URL.TIMESHEET_FOR_VERIFICATION, URL.TIMESHEET_IFRAME_FOR_VERIFICATION]}
+              render={props => <VerificationTimesheetPage {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={[URL.TIMESHEET_DELEGATED, URL.TIMESHEET_IFRAME_DELEGATED]}
+              render={props => <DelegatedTimesheetsPage {...props} {...basePageProps} />}
+            />
+
+            {/*temporary routes */}
+            <Route path="/v2/debug/formio-develop" render={props => <FormIOPage {...props} {...basePageProps} />} />
+            <Route path="/v2/debug/tree" render={props => <TreePage {...props} {...basePageProps} />} />
+
+            {/* Redirect not working: https://github.com/CJY0208/react-router-cache-route/issues/72 */}
+            <Redirect to={URL.DASHBOARD} />
+          </CacheSwitch>
+        </Suspense>
+      </div>
+    );
+  });
+
+  renderRouter = () => (
+    <div className="ecos-main-content" style={this.wrapperStyle}>
+      <Suspense fallback={null}>
+        <Switch>
+          <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
+          <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
+          <Route path={URL.DASHBOARD} exact component={DashboardPage} />
+          <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
+          <Route path={URL.JOURNAL} component={JournalsPage} />
+          <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
+          <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
+          <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+          <Route path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />
+          <Route path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
+          <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
+          <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
+          <Route path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
+
+          {/* temporary routes */}
+          <Route path="/v2/debug/formio-develop" component={FormIOPage} />
+          <Route path="/v2/debug/tree" component={TreePage} />
+
+          <Redirect to={URL.DASHBOARD} />
+        </Switch>
+      </Suspense>
+    </div>
+  );
 
   render() {
     const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isOpenMenuSettings } = this.props;
@@ -185,34 +334,7 @@ class App extends Component {
             <div className={basePageClassNames}>
               {this.renderMenu()}
 
-              <div className="ecos-main-area">
-                {this.renderTabs()}
-                <div className="ecos-main-content" style={this.wrapperStyle}>
-                  <Suspense fallback={null}>
-                    <Switch>
-                      <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
-                      <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
-                      <Route path={URL.DASHBOARD} exact component={DashboardPage} />
-                      <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
-                      <Route path={URL.JOURNAL} component={JournalsPage} />
-                      <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
-                      <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
-                      <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
-                      <Route path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />
-                      <Route path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
-                      <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
-                      <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
-                      <Route path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
-
-                      {/* temporary routes */}
-                      <Route path="/v2/debug/formio-develop" component={FormIOPage} />
-                      <Route path="/v2/tree" component={Tree} />
-
-                      <Redirect to={URL.DASHBOARD} />
-                    </Switch>
-                  </Suspense>
-                </div>
-              </div>
+              <div className="ecos-main-area">{this.renderTabs()}</div>
             </div>
           </div>
           {isOpenMenuSettings && <MenuSettings />}
@@ -224,13 +346,15 @@ class App extends Component {
 }
 
 const mapStateToProps = state => ({
-  theme: get(state, ['view', 'theme']),
-  menuType: get(state, ['menu', 'type']),
+  enableCache: get(state, ['app', 'enableCache']),
   isInit: get(state, ['app', 'isInit']),
   isInitFailure: get(state, ['app', 'isInitFailure']),
   isMobile: get(state, ['view', 'isMobile']),
+  theme: get(state, ['view', 'theme']),
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
+  tabs: get(state, 'pageTabs.tabs', []),
+  menuType: get(state, ['menu', 'type']),
   isOpenMenuSettings: get(state, ['menu', 'isOpenMenuSettings'])
 });
 
