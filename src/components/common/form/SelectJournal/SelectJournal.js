@@ -589,26 +589,27 @@ export default class SelectJournal extends Component {
   render() {
     const {
       multiple,
-      placeholder,
-      disabled,
       isCompact,
       viewOnly,
       hideCreateButton,
+      searchField,
+      isFullScreenWidthModal,
+      presetFilterPredicates,
+      placeholder,
+      disabled,
       hideEditRowButton,
       hideDeleteRowButton,
-      searchField,
       inputViewClass,
       autoFocus,
       onBlur,
       renderView,
-      isFullScreenWidthModal,
-      presetFilterPredicates,
       isSelectedValueAsText,
-      isInlineEditingMode
+      isInlineEditingMode,
+      viewMode,
+      columns
     } = this.props;
     const {
       isGridDataReady,
-      selectedRows,
       isSelectModalOpen,
       isEditModalOpen,
       isCreateModalOpen,
@@ -618,14 +619,9 @@ export default class SelectJournal extends Component {
       editRecordName,
       requestParams,
       journalConfig,
+      selectedRows,
       error
     } = this.state;
-
-    const wrapperClasses = classNames('select-journal', {
-      'select-journal_compact': isCompact,
-      'select-journal_view-only': viewOnly
-    });
-
     const inputViewProps = {
       disabled,
       isCompact,
@@ -642,8 +638,29 @@ export default class SelectJournal extends Component {
       hideEditRowButton,
       hideDeleteRowButton,
       isSelectedValueAsText,
-      isInlineEditingMode
+      isInlineEditingMode,
+      viewMode,
+      gridData: {
+        ...this.state.gridData,
+        columns: columns || this.state.gridData.columns,
+        data: this.state.gridData.data.filter(item => this.state.gridData.selected.includes(item.id)),
+        editable: false,
+        singleSelectable: false,
+        multiSelectable: false,
+        onSelect: () => {},
+        selectAllRecords: null,
+        selectAllRecordsVisible: null,
+        className: classNames('select-journal__grid', {
+          'select-journal__grid_transparent': !isGridDataReady
+        }),
+        scrollable: false
+      }
     };
+    const defaultView = viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />;
+    const wrapperClasses = classNames('select-journal', {
+      'select-journal_compact': isCompact,
+      'select-journal_view-only': viewOnly
+    });
 
     let selectModalTitle = t('select-journal.select-modal.title');
     let editModalTitle = t('select-journal.edit-modal.title');
@@ -655,7 +672,6 @@ export default class SelectJournal extends Component {
       editModalTitle += `: ${editRecordName}`;
     }
 
-    const defaultView = viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />;
     const selectModalClasses = classNames('select-journal-select-modal', {
       'ecos-modal_width-lg': !isFullScreenWidthModal,
       'ecos-modal_width-full': isFullScreenWidthModal
@@ -783,6 +799,7 @@ SelectJournal.propTypes = {
   viewOnly: PropTypes.bool,
   renderView: PropTypes.func,
   searchField: PropTypes.string,
+  viewMode: PropTypes.string,
   isSelectModalOpen: PropTypes.bool,
   isSelectedValueAsText: PropTypes.bool,
   sortBy: PropTypes.shape({

@@ -1,11 +1,13 @@
 import _ from 'lodash';
+import get from 'lodash/get';
 import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
-import { SelectJournal } from '../../../../components/common/form';
+
+import { SelectJournal, TableForm } from '../../../../components/common/form';
 import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import { Attributes } from '../../../../constants';
 import BaseReactComponent from '../base/BaseReactComponent';
-import { SortOrderOptions } from './constants';
+import { SortOrderOptions, TableTypes, DisplayModes } from './constants';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -21,8 +23,13 @@ export default class SelectJournalComponent extends BaseReactComponent {
         hideDeleteRowButton: false,
         isFullScreenWidthModal: false,
         isSelectedValueAsText: false,
+        isTableMode: false,
         sortAttribute: Attributes.DBID,
-        sortAscending: SortOrderOptions.ASC.value
+        sortAscending: SortOrderOptions.ASC.value,
+        source: {
+          type: TableTypes.JOURNAL,
+          viewMode: DisplayModes.DEFAULT
+        }
       },
       ...extend
     );
@@ -65,13 +72,17 @@ export default class SelectJournalComponent extends BaseReactComponent {
   getInitialReactProps() {
     let resolveProps = journalId => {
       const component = this.component;
+      const columns = get(component, 'source.custom.columns');
       let presetFilterPredicates = null;
 
       if (component.presetFilterPredicatesJs) {
         presetFilterPredicates = this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true);
       }
 
+      console.warn(component);
+
       const reactComponentProps = {
+        columns,
         defaultValue: this.dataValue,
         isCompact: component.isCompact,
         multiple: component.multiple,
@@ -80,6 +91,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         journalId: journalId,
         onChange: this.onReactValueChanged,
         viewOnly: this.viewOnly,
+        viewMode: component.source.viewMode,
         displayColumns: component.displayColumns,
         hideCreateButton: component.hideCreateButton,
         hideEditRowButton: component.hideEditRowButton,
