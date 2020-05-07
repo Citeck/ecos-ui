@@ -5,8 +5,8 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 
 import { arrayCompare, t } from '../../../helpers/util';
-import { Icon, Tooltip } from '../../common';
-import { Checkbox } from '../../common/form';
+import { EcosIcon, Icon, Tooltip } from '../../common';
+import { Badge, Checkbox } from '../../common/form';
 import { SortableContainer, SortableElement, SortableHandle } from '../../Drag-n-Drop';
 import Actions from './Actions';
 
@@ -20,6 +20,7 @@ const ItemInterface = {
     type: PropTypes.string,
     value: PropTypes.string
   }),
+  bage: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   selected: PropTypes.bool,
   multiple: PropTypes.bool,
   mandatory: PropTypes.bool,
@@ -207,7 +208,7 @@ class TreeItem extends Component {
     const { isOpen } = this.state;
     const { items, selected, locked, icon, name, actionConfig, customComponents } = item || {};
     const canDrag = draggable && item.draggable !== false && (dragLvlTo == null || dragLvlTo >= level);
-    const key = `lvl${level}i${index}id${item.id}`.replace(/[\s\-]*/g, '');
+    const key = `key_${level}_${index}_${item.id}`.replace(/[\s\-]*/g, '');
 
     const itemElement = (
       <div
@@ -234,8 +235,9 @@ class TreeItem extends Component {
               title={this.title}
             />
           )}
-          {!!icon && <Icon className="ecos-tree__item-element-icon icon-empty-icon" />}
           {/*todo icon*/}
+          {!!icon && <EcosIcon code={item.icon.code} data={item.icon} source="menu" className="ecos-tree__item-element-icon" />}
+          {item.badge != null && <Badge text={String(item.badge)} className="ecos-tree__item-element-badge" />}
           <Tooltip target={key} text={t(name)} showAsNeeded uncontrolled autohide>
             <div
               className={classNames('ecos-tree__item-element-label', {

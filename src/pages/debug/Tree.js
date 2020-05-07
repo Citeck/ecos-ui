@@ -26,7 +26,7 @@ const _actions = [
   }
 ];
 
-const _items = toGeneratorTree(5, 5);
+const _items = toGeneratorTree(5, 0);
 
 const _createOptions = [
   {

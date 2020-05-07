@@ -69,7 +69,14 @@
       }
 
       &-icon {
-        color: $text-color-dark;
+        margin-right: 5px;
+      }
+
+      &-badge {
+        background: $text-color-gray;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-small;
+        padding: 0 5px;
         margin-right: 10px;
       }
 

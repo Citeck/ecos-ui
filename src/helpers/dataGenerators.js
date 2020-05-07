@@ -5,7 +5,8 @@ export function toGeneratorTree(len = 0, lvl = 0, parentI = 0) {
     .map((v, i) => ({
       id: v + lvl + parentI + i,
       name: v + lvl + ' - ' + i,
-      icon: { value: 'icon' },
+      icon: { value: 'fa-plus', type: 'fa' },
+      // badge: i*3,
       selected: true,
       editable: true,
       removable: true,
