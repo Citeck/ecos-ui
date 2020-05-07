@@ -5,6 +5,8 @@ import classNames from 'classnames';
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
 import { Btn } from '../../../../common/btns';
+import { TableForm } from '../../../../common/form';
+import { Grid } from '../../../../common/grid';
 import { AssocLink } from '../../AssocLink';
 
 import './InputView.scss';
@@ -41,21 +43,68 @@ class InputView extends Component {
     return <AssocLink label={item.disp} asText={isSelectedValueAsText} {...props} className="select-journal__values-list-disp" />;
   }
 
-  render() {
+  renderCompactList = () => {
+    const { selectedRows, isCompact } = this.props;
+
+    if (!isCompact) {
+      return null;
+    }
+
+    return (
+      <>
+        {selectedRows.length > 0 && (
+          <div className="select-journal__values-list_compact">{selectedRows.map(item => item.disp).join(', ')}</div>
+        )}
+      </>
+    );
+  };
+
+  renderList = () => {
     const {
-      selectedRows,
-      placeholder,
-      error,
+      viewMode,
       disabled,
-      multiple,
       isCompact,
       editValue,
+      placeholder,
       deleteValue,
-      className,
-      autoFocus,
+      selectedRows,
       hideEditRowButton,
-      hideDeleteRowButton
+      hideDeleteRowButton,
+      gridData
     } = this.props;
+
+    if (isCompact) {
+      return null;
+    }
+
+    if (!selectedRows.length) {
+      return <p className="select-journal__value-not-selected">{placeholder ? placeholder : t('select-journal.placeholder')}</p>;
+    }
+
+    if (viewMode === 'table') {
+      // return <Grid {...gridData}/>;
+      return <TableForm {...gridData} />;
+    }
+
+    return (
+      <ul className="select-journal__values-list">
+        {selectedRows.map(item => (
+          <li key={item.id}>
+            {this.renderSelectedValue(item)}
+            {disabled ? null : (
+              <div className="select-journal__values-list-actions">
+                {!(!item.canEdit || hideEditRowButton) && <span data-id={item.id} className="icon icon-edit" onClick={editValue} />}
+                {!hideDeleteRowButton && <span data-id={item.id} className="icon icon-delete" onClick={deleteValue} />}
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  render() {
+    const { selectedRows, error, disabled, multiple, isCompact, className, autoFocus } = this.props;
 
     const wrapperClasses = classNames('select-journal__input-view', { 'select-journal__input-view_compact': isCompact }, className);
 
@@ -64,39 +113,9 @@ class InputView extends Component {
       'select-journal__input-view-button_compact': isCompact
     });
 
-    const placeholderText = placeholder ? placeholder : t('select-journal.placeholder');
-
-    const valuesList = isCompact ? (
-      <>
-        {selectedRows.length > 0 && (
-          <div className="select-journal__values-list_compact">{selectedRows.map(item => item.disp).join(', ')}</div>
-        )}
-      </>
-    ) : (
-      <>
-        {selectedRows.length > 0 ? (
-          <ul className="select-journal__values-list">
-            {selectedRows.map(item => (
-              <li key={item.id}>
-                {this.renderSelectedValue(item)}
-                {disabled ? null : (
-                  <div className="select-journal__values-list-actions">
-                    {!(!item.canEdit || hideEditRowButton) && <span data-id={item.id} className="icon icon-edit" onClick={editValue} />}
-                    {!hideDeleteRowButton && <span data-id={item.id} className="icon icon-delete" onClick={deleteValue} />}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="select-journal__value-not-selected">{placeholderText}</p>
-        )}
-      </>
-    );
-
     return (
       <div className={wrapperClasses}>
-        {isCompact ? null : valuesList}
+        {this.renderList()}
 
         {error ? (
           <p className="select-journal__error">{error.message}</p>
@@ -110,7 +129,7 @@ class InputView extends Component {
           </Btn>
         )}
 
-        {isCompact ? valuesList : null}
+        {this.renderCompactList()}
       </div>
     );
   }
@@ -119,6 +138,7 @@ class InputView extends Component {
 InputView.propTypes = {
   selectedRows: PropTypes.array,
   placeholder: PropTypes.string,
+  viewMode: PropTypes.string,
   error: PropTypes.instanceOf(Error),
   disabled: PropTypes.bool,
   multiple: PropTypes.bool,

@@ -1,5 +1,5 @@
 import { Attributes } from '../../../../../constants';
-import { SortOrderOptions } from '../constants';
+import { SortOrderOptions, TableTypes, DisplayModes } from '../constants';
 
 const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';
 const FILTER_PREDICATES_FIELD = 'presetFilterPredicatesJs';
@@ -53,13 +53,210 @@ export default [
     clearOnRefresh: true,
     dataSrc: 'custom'
   },
+  // {
+  //   type: 'checkbox',
+  //   input: true,
+  //   key: 'isTableMode',
+  //   label: 'Table mode',
+  //   tooltip: 'Values will be displayed in table form.',
+  //   weight: 23
+  // },
+  {
+    type: 'select',
+    label: 'Display mode',
+    key: 'source.viewMode',
+    weight: 23,
+    tooltip: 'Select a data display mode',
+    clearOnHide: false,
+    template: '<span>{{ item.label }}</span>',
+    data: {
+      values: [
+        {
+          value: DisplayModes.DEFAULT,
+          label: 'Default'
+        },
+        {
+          value: DisplayModes.TABLE,
+          label: 'Table'
+        }
+      ]
+    },
+    defaultValue: DisplayModes.DEFAULT,
+    input: true
+  },
+  {
+    type: 'well',
+    weight: 23,
+    customClass: 'mb-3',
+    conditional: {
+      json: {
+        and: [{ '==': [{ var: 'data.source.viewMode' }, DisplayModes.TABLE] }]
+      }
+    },
+    components: [
+      {
+        type: 'select',
+        input: true,
+        label: 'Data source:',
+        key: 'source.type',
+        dataSrc: 'values',
+        clearOnHide: false,
+        defaultValue: TableTypes.JOURNAL,
+        data: {
+          values: [{ label: 'Journal', value: TableTypes.JOURNAL }, { label: 'Custom', value: TableTypes.CUSTOM }]
+        },
+        weight: 1
+      },
+      {
+        label: 'Columns',
+        disableAddingRemovingRows: false,
+        defaultOpen: false,
+        addAnother: '',
+        addAnotherPosition: 'bottom',
+        mask: false,
+        tableView: true,
+        alwaysEnabled: false,
+        type: 'datagrid',
+        input: true,
+        key: 'source.custom.columns',
+        components: [
+          {
+            label: '',
+            key: 'column-filed-layout',
+            type: 'columns',
+            columns: [
+              {
+                components: [
+                  {
+                    label: 'Column attribute name',
+                    allowMultipleMasks: false,
+                    showWordCount: false,
+                    showCharCount: false,
+                    tableView: true,
+                    alwaysEnabled: false,
+                    type: 'textfield',
+                    input: true,
+                    key: 'name',
+                    widget: {
+                      type: ''
+                    },
+                    row: '0-0'
+                  },
+                  {
+                    type: 'panel',
+                    title: 'Formatter',
+                    collapsible: true,
+                    collapsed: true,
+                    customClass: 'form-builder__panel-js',
+                    key: ''.concat('custom-formatter-js'),
+                    components: [
+                      {
+                        type: 'textarea',
+                        key: 'formatter',
+                        rows: 5,
+                        editor: 'ace',
+                        hideLabel: true,
+                        input: true,
+                        placeholder: `value = { name: 'FormatterClassName', params: {} };`
+                      },
+                      {
+                        type: 'htmlelement',
+                        tag: 'div',
+                        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+                      }
+                    ]
+                  },
+                  {
+                    type: 'checkbox',
+                    input: true,
+                    key: 'setAttributesManually',
+                    label: 'Set attributes manually',
+                    defaultValue: false
+                  },
+                  {
+                    label: 'Column title',
+                    type: 'textfield',
+                    input: true,
+                    key: 'title',
+                    widget: {
+                      type: ''
+                    },
+                    conditional: {
+                      json: {
+                        and: [{ '==': [{ var: 'row.setAttributesManually' }, true] }]
+                      }
+                    }
+                  },
+                  {
+                    type: 'select',
+                    input: true,
+                    label: 'Column data type:',
+                    key: 'type',
+                    dataSrc: 'values',
+                    defaultValue: '',
+                    data: {
+                      values: [
+                        { label: 'text', value: 'text' },
+                        { label: 'int', value: 'int' },
+                        { label: 'boolean', value: 'boolean' },
+                        { label: 'date', value: 'date' },
+                        { label: 'datetime', value: 'datetime' },
+                        { label: 'options', value: 'options' },
+                        { label: 'assoc', value: 'assoc' },
+                        { label: 'person', value: 'person' },
+                        { label: 'authority', value: 'authority' },
+                        { label: 'authorityGroup', value: 'authorityGroup' },
+                        { label: 'mltext', value: 'mltext' },
+                        { label: 'long', value: 'long' },
+                        { label: 'float', value: 'float' },
+                        { label: 'double', value: 'double' }
+                      ]
+                    },
+                    conditional: {
+                      json: {
+                        and: [{ '==': [{ var: 'row.setAttributesManually' }, true] }]
+                      }
+                    }
+                  },
+                  {
+                    type: 'checkbox',
+                    input: true,
+                    key: 'multiple',
+                    label: 'Multiple',
+                    defaultValue: false,
+                    conditional: {
+                      json: {
+                        and: [{ '==': [{ var: 'row.setAttributesManually' }, true] }]
+                      }
+                    }
+                  }
+                ],
+                xs: 12,
+                sm: 12,
+                md: 12,
+                lg: 12,
+                xl: 12,
+                classes: ''
+              }
+            ]
+          }
+        ],
+        weight: 2,
+        conditional: {
+          json: {
+            and: [{ '==': [{ var: 'data.source.type' }, TableTypes.CUSTOM] }]
+          }
+        }
+      }
+    ]
+  },
   {
     type: 'checkbox',
     input: true,
     key: 'isFullScreenWidthModal',
     label: 'Full-width modal',
     tooltip: 'Check to display modal window in full screen width',
-    weight: 23
+    weight: 24
   },
   {
     weight: 25,
