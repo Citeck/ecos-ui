@@ -543,8 +543,7 @@ export default class SelectJournal extends Component {
     this.refreshGridData();
   };
 
-  onValueEdit = e => {
-    const editRecordId = e.target.dataset.id;
+  onValueEdit = editRecordId => {
     Records.get(editRecordId)
       .load('.disp')
       .then(disp => {
@@ -556,8 +555,8 @@ export default class SelectJournal extends Component {
       });
   };
 
-  onValueDelete = e => {
-    const newValue = this.state.selectedRows.filter(item => item.id !== e.target.dataset.id);
+  onValueDelete = id => {
+    const newValue = this.state.selectedRows.filter(item => item.id !== id);
 
     this.setValue(newValue);
   };

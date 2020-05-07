@@ -4,15 +4,38 @@ import classNames from 'classnames';
 
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
-import { Btn } from '../../../../common/btns';
-import { TableForm } from '../../../../common/form';
+import { Btn, IcoBtn } from '../../../../common/btns';
+import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDisconnected';
 import { Grid } from '../../../../common/grid';
 import { AssocLink } from '../../AssocLink';
 
 import './InputView.scss';
 
 class InputView extends Component {
+  state = {
+    inlineToolsOffsets: { height: 0, top: 0, row: {} }
+  };
+
+  wrapperRef = React.createRef();
   stopBlur = false;
+
+  componentDidMount() {
+    const gridWrapper = this.wrapperRef.current;
+
+    if (gridWrapper) {
+      gridWrapper.addEventListener('mouseleave', this.resetInlineToolsOffsets);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.wrapperRef.current) {
+      this.wrapperRef.current.removeEventListener('mouseleave', this.resetInlineToolsOffsets);
+    }
+  }
+
+  resetInlineToolsOffsets = () => {
+    this.setState({ inlineToolsOffsets: { height: 0, top: 0, row: {} } });
+  };
 
   onBlur = () => {
     const { onBlur } = this.props;
@@ -28,6 +51,26 @@ class InputView extends Component {
     if (typeof openSelectModal === 'function') {
       this.stopBlur = true;
       openSelectModal.call(this);
+    }
+  };
+
+  setInlineToolsOffsets = offsets => {
+    const { inlineToolsOffsets } = this.state;
+
+    if (
+      offsets &&
+      inlineToolsOffsets &&
+      (offsets.height !== inlineToolsOffsets.height ||
+        offsets.top !== inlineToolsOffsets.top ||
+        offsets.row.id !== inlineToolsOffsets.rowId)
+    ) {
+      this.setState({
+        inlineToolsOffsets: {
+          height: offsets.height,
+          top: offsets.top,
+          rowId: offsets.row.id || null
+        }
+      });
     }
   };
 
@@ -59,6 +102,39 @@ class InputView extends Component {
     );
   };
 
+  renderInlineTools = () => {
+    const { editValue, deleteValue, selectedRows, hideEditRowButton, hideDeleteRowButton } = this.props;
+    const { inlineToolsOffsets } = this.state;
+    const inlineToolsActionClassName =
+      'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10 ecos-inline-tools-btn';
+    const iconButtons = [];
+    const row = selectedRows.find(row => row.id === inlineToolsOffsets.rowId);
+
+    if (row && !(!row.canEdit || hideEditRowButton)) {
+      iconButtons.push(
+        <IcoBtn
+          key={'edit'}
+          icon={'icon-edit'}
+          className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__edit')}
+          onClick={() => editValue(row.id)}
+        />
+      );
+    }
+
+    if (row && !hideDeleteRowButton) {
+      iconButtons.push(
+        <IcoBtn
+          key={'delete'}
+          icon={'icon-delete'}
+          className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__delete')}
+          onClick={() => deleteValue(row.id)}
+        />
+      );
+    }
+
+    return <InlineToolsDisconnected selectedRecords={selectedRows} {...inlineToolsOffsets} tools={iconButtons} />;
+  };
+
   renderList = () => {
     const {
       viewMode,
@@ -82,8 +158,19 @@ class InputView extends Component {
     }
 
     if (viewMode === 'table') {
-      // return <Grid {...gridData}/>;
-      return <TableForm {...gridData} />;
+      return (
+        <div
+          ref={ref => {
+            if (ref) {
+              ref.addEventListener('mouseleave', this.resetInlineToolsOffsets);
+              this.wrapperRef.current = ref;
+            }
+          }}
+          className={'ecos-table-form__grid-wrapper'}
+        >
+          <Grid {...gridData} inlineTools={this.renderInlineTools} onChangeTrOptions={this.setInlineToolsOffsets} />
+        </div>
+      );
     }
 
     return (
@@ -93,8 +180,10 @@ class InputView extends Component {
             {this.renderSelectedValue(item)}
             {disabled ? null : (
               <div className="select-journal__values-list-actions">
-                {!(!item.canEdit || hideEditRowButton) && <span data-id={item.id} className="icon icon-edit" onClick={editValue} />}
-                {!hideDeleteRowButton && <span data-id={item.id} className="icon icon-delete" onClick={deleteValue} />}
+                {!(!item.canEdit || hideEditRowButton) && (
+                  <span data-id={item.id} className="icon icon-edit" onClick={() => editValue(item.id)} />
+                )}
+                {!hideDeleteRowButton && <span data-id={item.id} className="icon icon-delete" onClick={() => deleteValue(item.id)} />}
               </div>
             )}
           </li>
@@ -105,9 +194,7 @@ class InputView extends Component {
 
   render() {
     const { selectedRows, error, disabled, multiple, isCompact, className, autoFocus } = this.props;
-
     const wrapperClasses = classNames('select-journal__input-view', { 'select-journal__input-view_compact': isCompact }, className);
-
     const buttonClasses = classNames('ecos-btn_blue', {
       'ecos-btn_narrow': true,
       'select-journal__input-view-button_compact': isCompact
