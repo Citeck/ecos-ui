@@ -221,7 +221,8 @@ class RecordActionsService {
 
   replaceAttributeValues = async (data = {}, record) => {
     const mutableData = deepClone(data);
-    const regExp = /(?<=\${)([^}]+)(?=})/g;
+    const regExp = /\$\{([^}]+)\}/g;
+    const nonSpecialsRegex = /([^${}]+)/g;
     const keys = Object.keys(mutableData);
     const results = new Map();
 
@@ -240,11 +241,13 @@ class RecordActionsService {
           return;
         }
 
-        const fields = mutableData[key].match(regExp);
+        let fields = mutableData[key].match(regExp);
 
         if (!fields) {
           return;
         }
+
+        fields = fields.map(el => el.match(nonSpecialsRegex)[0]);
 
         await Promise.all(
           fields.map(async strKey => {
