@@ -3,6 +3,7 @@ import { Tree } from '../../components/common';
 import { deepClone } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import { toGeneratorTree } from '../../helpers/dataGenerators';
+import { IcoBtn } from '../../components/common/btns';
 
 const _actions = [
   {
@@ -26,7 +27,7 @@ const _actions = [
   }
 ];
 
-const _items = toGeneratorTree(5, 0);
+const _items = toGeneratorTree(5, 5);
 
 const _createOptions = [
   {
@@ -89,6 +90,14 @@ export default class extends React.Component {
     this.setState({ items });
   };
 
+  getExtraComponents = item => {
+    return (
+      <IcoBtn icon="icon-plus" className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm">
+        Add
+      </IcoBtn>
+    );
+  };
+
   render() {
     const { items } = this.state;
 
@@ -104,6 +113,7 @@ export default class extends React.Component {
           onClickActionItem={this.onClickActionItem}
           moveInLevel
           onDragEnd={this.moveItemTo}
+          getExtraComponents={this.getExtraComponents}
         />
       </div>
     );

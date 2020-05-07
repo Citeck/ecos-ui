@@ -13,6 +13,6 @@ export function toGeneratorTree(len = 0, lvl = 0, parentI = 0) {
       draggable: true,
       expandable: true,
       dndIdx: parseInt(`${lvl}${parentI}${i}`, 10),
-      items: lvl >= 0 ? toGeneratorTree(i, lvl, i) : []
+      items: lvl >= 0 ? toGeneratorTree(len, lvl, i) : []
     }));
 }

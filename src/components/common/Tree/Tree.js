@@ -26,8 +26,7 @@ const ItemInterface = {
   mandatory: PropTypes.bool,
   locked: PropTypes.bool,
   items: PropTypes.array,
-  actionConfig: PropTypes.array,
-  customComponents: PropTypes.array
+  actionConfig: PropTypes.array
 };
 
 const Labels = {
@@ -49,7 +48,8 @@ class TreeItem extends Component {
     level: PropTypes.number,
     prefixClassName: PropTypes.string,
     onToggleSelect: PropTypes.func,
-    onClickAction: PropTypes.func
+    onClickAction: PropTypes.func,
+    getExtraComponents: PropTypes.func
   };
 
   static defaultProps = {
@@ -158,7 +158,8 @@ class TreeItem extends Component {
       onToggleSelect,
       onClickAction,
       moveInLevel,
-      moveInParent
+      moveInParent,
+      getExtraComponents
     } = this.props;
     const { isOpen } = this.state;
 
@@ -184,6 +185,7 @@ class TreeItem extends Component {
             moveInLevel={moveInLevel}
             moveInParent={moveInParent}
             parentKey={item.id}
+            getExtraComponents={getExtraComponents}
           />
         ))}
       </Collapse>
@@ -203,10 +205,11 @@ class TreeItem extends Component {
       moveInLevel,
       moveInParent,
       parentKey = '',
-      isMajor
+      isMajor,
+      getExtraComponents
     } = this.props;
     const { isOpen } = this.state;
-    const { items, selected, locked, icon, name, actionConfig, customComponents } = item || {};
+    const { items, selected, locked, icon, name, actionConfig } = item || {};
     const canDrag = draggable && item.draggable !== false && (dragLvlTo == null || dragLvlTo >= level);
     const key = `key_${level}_${index}_${item.id}`.replace(/[\s\-]*/g, '');
 
@@ -248,9 +251,7 @@ class TreeItem extends Component {
               {t(name)}
             </div>
           </Tooltip>
-          {customComponents && !!customComponents.length && (
-            <div className="ecos-tree__item-element-custom-components">{customComponents}</div>
-          )}
+          {getExtraComponents && <div className="ecos-tree__item-element-custom-components">{getExtraComponents(item)}</div>}
           <div className="ecos-tree__item-element-space" />
           {actionConfig && !!actionConfig.length && (
             <div className="ecos-tree__item-element-actions">
@@ -373,7 +374,8 @@ class Tree extends Component {
       dragLvlTo,
       onClickActionItem,
       moveInLevel,
-      moveInParent
+      moveInParent,
+      getExtraComponents
     } = this.props;
     const data = this.formattedTree;
 
@@ -395,6 +397,7 @@ class Tree extends Component {
         onClickAction={onClickActionItem}
         moveInLevel={moveInLevel}
         moveInParent={moveInParent}
+        getExtraComponents={getExtraComponents}
         isMajor
       />
     ));

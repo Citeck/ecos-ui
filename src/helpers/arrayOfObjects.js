@@ -76,6 +76,34 @@ export function getIndexObjectByKV(array, key, value) {
   return array.findIndex(item => item[key] === value);
 }
 
+/**
+ * Поиск певого элемент в дереве
+ * @param items {Array} источник
+ * @param key {String} ключ поля,
+ * @param value {number|string|boolean} значение поля,
+ * @returns {Object|undefined} найденный элемент
+ */
+export function treeFindFirstItem({ items, key, value }) {
+  for (const item of items) {
+    if (item[key] === value) {
+      return item;
+    }
+
+    const sub = item.items && treeFindFirstItem({ items: item.items, key, value });
+
+    if (sub) {
+      return sub;
+    }
+  }
+}
+
+/**
+ * Удаление певого найденного элемента
+ * @param items {Array} источник
+ * @param key {String} ключ поля,
+ * @param value {number|string|boolean} значение поля,
+ * @returns {Object|undefined} удаленный элемент
+ */
 export function treeRemoveItem({ items, key, value }) {
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
@@ -92,12 +120,22 @@ export function treeRemoveItem({ items, key, value }) {
   }
 }
 
+/**
+ * Добавление элемента
+ * key и value для поиска ветки в которую вставлять
+ * @param items {Array} источник
+ * @param newItem {Object} новый элемент
+ * @param key {String} ключ поля,
+ * @param value {number|string|boolean} значение поля,
+ * @param indexTo {number|undefined} куда вставлять, если не указано использует найденный i для value,
+ * @returns {boolean} успешно ли вставлено
+ */
 export function treeAddItem({ items, newItem, key, value, indexTo }) {
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
 
     if (item[key] === value) {
-      items.splice(indexTo, 0, newItem);
+      items.splice(indexTo != null ? i : indexTo, 0, newItem);
       return true;
     }
 
@@ -109,6 +147,13 @@ export function treeAddItem({ items, newItem, key, value, indexTo }) {
   }
 }
 
+/**
+ * Получение индекса элемента относительно своей ветки
+ * @param items {Array} источник
+ * @param key {String} ключ поля,
+ * @param value {number|string|boolean} значение поля,
+ * @returns {number} индекс
+ */
 export function treeGetIndexInLvl({ items, key, value }) {
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
@@ -125,15 +170,23 @@ export function treeGetIndexInLvl({ items, key, value }) {
   }
 }
 
-export function treeGetPathItem({ items, key, value }, path = '') {
+/**
+ * Получение пути к элементу
+ * @param items {Array} источник
+ * @param key {String} ключ поля,
+ * @param value {number|string|boolean} значение поля,
+ * @param _path {string} внутренняя переменная, не следует задавать инит значение без необходимости,
+ * @returns {string} путь
+ */
+export function treeGetPathItem({ items, key, value }, _path = '') {
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
 
     if (item[key] === value) {
-      return `${path}${i}`;
+      return `${_path}[${i}]`;
     }
 
-    const sub = !!item.items && treeGetPathItem({ items: item.items, key, value }, `${path}${i}.`);
+    const sub = !!item.items && treeGetPathItem({ items: item.items, key, value }, `${_path}[${i}]items`);
 
     if (sub) {
       return sub;
@@ -141,8 +194,16 @@ export function treeGetPathItem({ items, key, value }, path = '') {
   }
 }
 
+/**
+ * Перемещение элемента из одной вветки в другую
+ * путь состоит только из индексов пр. 0.1.1.0
+ * @param original {Array} источник
+ * @param key {String} ключ поля,
+ * @param fromId {number|string|boolean} уникальное значение поля перемещаяего элемента,
+ * @param toId {number|string|boolean} уникальное значение поля к которому перемещают,
+ * @returns {Array} обновленное дерево
+ */
 export function treeMoveItem({ fromId, toId, original, key = 'id' }) {
-  console.log(fromId, toId);
   if (fromId === toId || !original) {
     return original;
   }
