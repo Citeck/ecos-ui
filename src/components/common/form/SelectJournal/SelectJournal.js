@@ -233,7 +233,7 @@ export default class SelectJournal extends Component {
   refreshGridData = info => {
     return new Promise(resolve => {
       this.setState({ isGridDataReady: false }, () => {
-        const { sortBy, columns } = this.props;
+        const { sortBy } = this.props;
         let { requestParams, customPredicate, journalConfig } = this.state;
         const sourceId = lodashGet(journalConfig, 'sourceId', '');
 
@@ -285,15 +285,6 @@ export default class SelectJournal extends Component {
               ...prevGridData,
               ...gridData
             };
-
-            // if (!isEmpty(columns)) {
-            //   newGridData.columns = gridData.columns.map(column => {
-            //     return {
-            //       ...(columns.find(item => item.name === column.dataField) || {}),
-            //       ...column
-            //     };
-            //   });
-            // }
 
             this.setState({
               gridData: { ...newGridData },
@@ -838,7 +829,8 @@ SelectJournal.propTypes = {
   sortBy: PropTypes.shape({
     attribute: PropTypes.string,
     ascending: PropTypes.bool
-  })
+  }),
+  columns: PropTypes.array
 };
 
 SelectJournal.defaultProps = {
