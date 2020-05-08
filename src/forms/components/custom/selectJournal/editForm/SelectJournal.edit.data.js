@@ -53,14 +53,6 @@ export default [
     clearOnRefresh: true,
     dataSrc: 'custom'
   },
-  // {
-  //   type: 'checkbox',
-  //   input: true,
-  //   key: 'isTableMode',
-  //   label: 'Table mode',
-  //   tooltip: 'Values will be displayed in table form.',
-  //   weight: 23
-  // },
   {
     type: 'select',
     label: 'Display mode',
