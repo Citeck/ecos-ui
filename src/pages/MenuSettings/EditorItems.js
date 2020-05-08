@@ -5,7 +5,7 @@ import { t } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import MenuService from '../../services/menu';
 import { Tree } from '../../components/common';
-import { IcoBtn } from '../../components/common/btns';
+import { Btn, IcoBtn } from '../../components/common/btns';
 import { Dropdown } from '../../components/common/form';
 import dialogManager from '../../components/common/dialogs/Manager';
 
@@ -16,10 +16,12 @@ const Labels = {
   SUBTITLE: 'menu-settings.editor-items.subtitle',
   BTN_ADD: 'menu-settings.editor-items.btn.add',
   TIP_NO_ITEMS: 'menu-settings.editor-items.none',
-  TIP_DRAG_HERE: 'menu-settings.editor-items.drag-item-here'
+  TIP_DRAG_HERE: 'menu-settings.editor-items.drag-item-here',
+  BTN_EXPAND_ALL: 'menu-settings.editor-items.btn.expand-all',
+  BTN_COLLAPSE_ALL: 'menu-settings.editor-items.btn.collapse-all'
 };
 
-class EditorLeft extends React.Component {
+class EditorItems extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     items: PropTypes.array,
@@ -33,7 +35,8 @@ class EditorLeft extends React.Component {
   };
 
   state = {
-    items: []
+    items: [],
+    openAllMenuItems: false
   };
 
   static getDerivedStateFromProps({ items = [] }, state) {
@@ -45,6 +48,10 @@ class EditorLeft extends React.Component {
 
     return newState;
   }
+
+  toggleOpenAMI = () => {
+    this.setState(({ openAllMenuItems }) => ({ openAllMenuItems: !openAllMenuItems }));
+  };
 
   handleSelectOption = (a, b, c) => {
     console.log(a, b, c);
@@ -77,55 +84,60 @@ class EditorLeft extends React.Component {
     this.setState({ items });
   };
 
-  renderButtonAddSection({ onChange, item }) {
-    const createOptions = MenuService.getAvailableCreateOptions(this.props.createOptions, item);
-
-    return (
-      <Dropdown
-        source={createOptions}
-        valueField={'id'}
-        titleField={'label'}
-        onChange={onChange}
-        isButton
-        className=""
-        menuClassName="ecos-menu-settings-editor-items__menu-options"
-      >
-        <IcoBtn icon="icon-plus" className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm">
-          {t(Labels.BTN_ADD)}
-        </IcoBtn>
-      </Dropdown>
-    );
-  }
-
   onDragEnd = (fromId, toId) => {
     const items = treeMoveItem({ fromId, toId, original: this.state.items, key: 'dndIdx' });
     this.setState({ items });
   };
 
-  render() {
-    const items = MenuService.setActiveActions(this.state.items);
+  renderButtonAddSection = item => {
+    if (!item || (item.expandable && item.selected)) {
+      const createOptions = MenuService.getAvailableCreateOptions(this.props.createOptions, item);
 
-    // items.forEach(item => {
-    //   if (item.expandable && item.selected) {
-    //     item.customComponents = [this.renderButtonAddSection({ onChange: this.handleChooseOption, item })];
-    //   }
-    // });
+      return createOptions && createOptions.length ? (
+        <Dropdown
+          source={createOptions}
+          valueField={'id'}
+          titleField={'label'}
+          onChange={this.handleChooseOption}
+          isButton
+          className=""
+          menuClassName="ecos-menu-settings-editor-items__menu-options"
+        >
+          <IcoBtn icon="icon-plus" className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm">
+            {t(Labels.BTN_ADD)}
+          </IcoBtn>
+        </Dropdown>
+      ) : null;
+    }
+
+    return null;
+  };
+
+  render() {
+    const { openAllMenuItems } = this.state;
+    const items = MenuService.setActiveActions(this.state.items);
 
     return (
       <div className="ecos-menu-settings-editor-items">
         <div className="ecos-menu-settings__title">{t(Labels.TITLE)}</div>
         <div className="ecos-menu-settings-editor-items__header">
           <div className="ecos-menu-settings__subtitle ecos-menu-settings-editor-items__subtitle">{t(Labels.SUBTITLE)}</div>
-          {this.renderButtonAddSection({ onChange: this.handleChooseOption })}
+          {this.renderButtonAddSection()}
+          <div className="ecos-menu-settings--flex-space" />
+          <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAMI}>
+            {t(openAllMenuItems ? Labels.BTN_COLLAPSE_ALL : Labels.BTN_EXPAND_ALL)}
+          </Btn>
         </div>
         <div className="ecos-menu-settings-editor-items__tree-field">
           <Tree
             data={items}
             prefixClassName="ecos-menu-settings-editor-items"
-            openAll
+            openAll={openAllMenuItems}
             draggable
             onClickActionItem={this.handleActionItem}
             onDragEnd={this.onDragEnd}
+            moveInLevel
+            renderExtraItemComponents={this.renderButtonAddSection}
           />
         </div>
       </div>
@@ -133,4 +145,4 @@ class EditorLeft extends React.Component {
   }
 }
 
-export default EditorLeft;
+export default EditorItems;

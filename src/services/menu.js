@@ -132,7 +132,7 @@ export default class MenuService {
   ];
 
   static getAvailableCreateOptions = (options, item) => {
-    const array = deepClone(options);
+    const array = deepClone(options || []);
 
     array.forEach(item => {
       item.id = item.id || item.label;
@@ -142,7 +142,7 @@ export default class MenuService {
     return array.filter(opt => !item || !opt.forbiddenTypes.includes(item.type));
   };
 
-  static testItems = toGeneratorTree(5, 5);
+  static testItems = toGeneratorTree(5, 1);
 
   static testCreateOptions = [
     {

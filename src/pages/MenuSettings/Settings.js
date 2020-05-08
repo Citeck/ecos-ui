@@ -10,7 +10,7 @@ import { MenuTypes } from '../../constants/menu';
 import { EcosModal, Loader } from '../../components/common';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import { DndUtils } from '../../components/Drag-n-Drop';
-import EditorLeft from './EditorLeft';
+import EditorItems from './EditorItems';
 
 import './style.scss';
 
@@ -126,7 +126,7 @@ class Settings extends React.Component {
         classNameHeader="ecos-menu-settings__modal-header"
       >
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
-        <EditorLeft setData={this.setData} items={items} createOptions={createOptions} />
+        <EditorItems setData={this.setData} items={items} createOptions={createOptions} />
         {this.renderButtons()}
       </EcosModal>
     );

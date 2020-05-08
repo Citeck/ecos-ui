@@ -898,8 +898,10 @@
   "menu-settings.editor-items.drag-item-here": "Перетащите пункты меню сюда",
   "menu-settings.location.subtitle": "Отображаемые пункты меню",
   "menu-settings.editor-items.title": "Редактор разделов",
-  "menu-settings.editor-items.subtitle": "Разделы",
+  "menu-settings.editor-items.subtitle": "Элементы меню",
   "menu-settings.editor-items.btn.add": "Добавить",
+  "menu-settings.editor-items.btn.expand-all": "Развернуть все",
+  "menu-settings.editor-items.btn.collapse-all": "Свернуть все",
 
   "menu-settings.button.cancel": "Отмена",
   "menu-settings.button.apply": "Применить",

@@ -2,6 +2,10 @@
 @import '../../styles/content';
 
 .ecos-menu-settings {
+  &--flex-space {
+    flex: auto;
+  }
+
   &__loader {
     border-radius: $border-radius-large;
   }
@@ -105,7 +109,7 @@
 
     &--item {
       &-container {
-        z-index: 9999;
+        //z-index: 999;
 
         & .ecos-tree__action#{$editor}__action_no-hide {
           display: inline-block;

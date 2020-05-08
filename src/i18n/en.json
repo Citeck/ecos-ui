@@ -893,8 +893,10 @@
   "menu-settings.editor-items.drag-item-here": "Drag menu items here",
   "menu-settings.location.subtitle": "Displayed menu items",
   "menu-settings.editor-items.title": "Editor items",
-  "menu-settings.editor-items.subtitle": "Sections",
+  "menu-settings.editor-items.subtitle": "Menu items",
   "menu-settings.editor-items.btn.add": "Add",
+  "menu-settings.editor-items.btn.expand-all": "Expand all",
+  "menu-settings.editor-items.btn.collapse-all": "Collapse all",
 
   "menu-settings.button.cancel": "Cancel",
   "menu-settings.button.apply": "Apply",
