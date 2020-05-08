@@ -49,7 +49,7 @@ class TreeItem extends Component {
     prefixClassName: PropTypes.string,
     onToggleSelect: PropTypes.func,
     onClickAction: PropTypes.func,
-    getExtraComponents: PropTypes.func
+    renderExtraItemComponents: PropTypes.func
   };
 
   static defaultProps = {
@@ -159,7 +159,7 @@ class TreeItem extends Component {
       onClickAction,
       moveInLevel,
       moveInParent,
-      getExtraComponents
+      renderExtraItemComponents
     } = this.props;
     const { isOpen } = this.state;
 
@@ -185,7 +185,7 @@ class TreeItem extends Component {
             moveInLevel={moveInLevel}
             moveInParent={moveInParent}
             parentKey={item.id}
-            getExtraComponents={getExtraComponents}
+            renderExtraItemComponents={renderExtraItemComponents}
           />
         ))}
       </Collapse>
@@ -206,7 +206,7 @@ class TreeItem extends Component {
       moveInParent,
       parentKey = '',
       isMajor,
-      getExtraComponents
+      renderExtraItemComponents
     } = this.props;
     const { isOpen } = this.state;
     const { items, selected, locked, icon, name, actionConfig } = item || {};
@@ -251,7 +251,7 @@ class TreeItem extends Component {
               {t(name)}
             </div>
           </Tooltip>
-          {getExtraComponents && <div className="ecos-tree__item-element-custom-components">{getExtraComponents(item)}</div>}
+          {renderExtraItemComponents && <div className="ecos-tree__item-element-custom-components">{renderExtraItemComponents(item)}</div>}
           <div className="ecos-tree__item-element-space" />
           {actionConfig && !!actionConfig.length && (
             <div className="ecos-tree__item-element-actions">
@@ -296,7 +296,8 @@ class Tree extends Component {
     moveInLevel: PropTypes.bool,
     onToggleSelect: PropTypes.func,
     onClickActionItem: PropTypes.func,
-    onDragEnd: PropTypes.func
+    onDragEnd: PropTypes.func,
+    renderExtraItemComponents: PropTypes.func
   };
 
   static defaultProps = {
@@ -375,7 +376,7 @@ class Tree extends Component {
       onClickActionItem,
       moveInLevel,
       moveInParent,
-      getExtraComponents
+      renderExtraItemComponents
     } = this.props;
     const data = this.formattedTree;
 
@@ -397,7 +398,7 @@ class Tree extends Component {
         onClickAction={onClickActionItem}
         moveInLevel={moveInLevel}
         moveInParent={moveInParent}
-        getExtraComponents={getExtraComponents}
+        renderExtraItemComponents={renderExtraItemComponents}
         isMajor
       />
     ));

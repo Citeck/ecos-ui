@@ -90,7 +90,7 @@ export default class extends React.Component {
     this.setState({ items });
   };
 
-  getExtraComponents = item => {
+  renderExtraItemComponents = item => {
     return (
       <IcoBtn icon="icon-plus" className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm">
         Add
@@ -113,7 +113,7 @@ export default class extends React.Component {
           onClickActionItem={this.onClickActionItem}
           moveInLevel
           onDragEnd={this.moveItemTo}
-          getExtraComponents={this.getExtraComponents}
+          renderExtraItemComponents={this.renderExtraItemComponents}
         />
       </div>
     );
