@@ -14,8 +14,19 @@ const originalCheckConditions = Base.prototype.checkConditions;
 const originalSetValue = Base.prototype.setValue;
 const originalT = Base.prototype.t;
 const originalApplyActions = Base.prototype.applyActions;
+const originalCalculateValue = Base.prototype.calculateValue;
 
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
+
+Base.prototype.calculateValue = function(data, flags) {
+  const changed = originalCalculateValue.call(this, data, flags);
+
+  if (changed && this.component.triggerChangeWhenCalculate) {
+    this.triggerChange(flags);
+  }
+
+  return changed;
+};
 
 Base.prototype.applyActions = function(actions, result, data, newComponent) {
   return actions.reduce((changed, action) => {
@@ -25,13 +36,6 @@ Base.prototype.applyActions = function(actions, result, data, newComponent) {
         this.setPristine(false);
         this.checkValidity(this.getValue(), false);
         return false;
-      case 'property':
-        const applyActionsResult = originalApplyActions.call(this, actions, result, data, newComponent);
-        // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3394
-        if (action.property.value === 'hidden') {
-          this.showElement(action.state.toString() !== 'true');
-        }
-        return applyActionsResult;
       default:
         return originalApplyActions.call(this, actions, result, data, newComponent);
     }
@@ -242,6 +246,9 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
 
 Base.prototype.build = function(state) {
   originalBuild.call(this, state);
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-37
+  this.showElement(!this.component.hidden);
 
   const { options = {} } = this;
   const { isDebugModeOn = false } = options;

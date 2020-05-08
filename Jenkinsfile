@@ -23,7 +23,7 @@ timestamps {
       }
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
-          sh "yarn && yarn build"
+          sh "yarn && yarn test --watchAll=false && yarn build"
           def build_info = [:]
           def build_timestamp = new Date()
           build_info.put("version", "${package_props.version}")
@@ -39,19 +39,19 @@ timestamps {
       }
       stage('Building an ecos-proxy-odic docker images') {
         build job: 'build_ecos_ui_image', parameters: [
-          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'), 
+          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'),
           string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
         ]
       }
       stage('Building an ecos-proxy docker images') {
         build job: 'build_ecos_ui_image', parameters: [
-          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy'), 
+          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy'),
           string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
         ]
       }
       stage('Building an ecos-proxy docker images') {
         build job: 'build_ecos_ui_image', parameters: [
-          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-ssg'), 
+          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-ssg'),
           string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
         ]
       }

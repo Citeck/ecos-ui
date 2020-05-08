@@ -9,7 +9,7 @@ const acceptLanguage = getCurrentLocale();
 export default function(url, options = {}) {
   // Token.check();
 
-  const { method, headers = {}, body, noHeaders = false } = options;
+  const { method, headers = {}, body, noHeaders = false, mode } = options;
 
   const params = {};
 
@@ -33,6 +33,10 @@ export default function(url, options = {}) {
     params.body = body;
   } else if (!isEmpty(body)) {
     params.body = JSON.stringify(body);
+  }
+
+  if (mode) {
+    params.mode = mode;
   }
 
   return fetch(url, params);

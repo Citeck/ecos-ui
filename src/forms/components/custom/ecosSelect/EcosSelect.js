@@ -1041,35 +1041,29 @@ export default class SelectComponent extends BaseComponent {
   asString(value) {
     value = value || this.getValue();
 
-    if (this.component.dataSrc === 'url') {
-      const selectedItems = this.currentItems
-        .filter(item => {
-          if (Array.isArray(value)) {
-            return value.indexOf(item.value) !== -1;
-          }
+    if (['values', 'custom', 'url'].includes(this.component.dataSrc)) {
+      let items;
+      let valueProperty;
 
-          return item.value === value;
-        })
-        .map(item => item.label);
-
-      return selectedItems.length > 0 ? selectedItems.join('<br />') : '-';
-    }
-
-    if (['values', 'custom'].includes(this.component.dataSrc)) {
-      const { items, valueProperty } =
-        this.component.dataSrc === 'values'
-          ? {
-              items: this.component.data.values,
-              valueProperty: 'value'
-            }
-          : {
-              items: this.getCustomItems(),
-              valueProperty: this.component.valueProperty
-            };
+      switch (this.component.dataSrc) {
+        case 'values':
+          items = this.component.data.values;
+          valueProperty = 'value';
+          break;
+        case 'custom':
+          items = this.getCustomItems();
+          valueProperty = this.component.valueProperty;
+          break;
+        case 'url':
+        default:
+          items = this.currentItems;
+          valueProperty = this.component.valueProperty;
+          break;
+      }
 
       value =
         this.component.multiple && Array.isArray(value)
-          ? _.filter(items, item => value.includes(item.value))
+          ? _.filter(items, item => value.includes(item[valueProperty]))
           : valueProperty
           ? _.find(items, [valueProperty, value])
           : value;
