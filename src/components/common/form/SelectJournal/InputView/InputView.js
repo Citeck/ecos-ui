@@ -33,6 +33,13 @@ class InputView extends Component {
     }
   }
 
+  setRef = ref => {
+    if (ref) {
+      ref.addEventListener('mouseleave', this.resetInlineToolsOffsets);
+      this.wrapperRef.current = ref;
+    }
+  };
+
   resetInlineToolsOffsets = () => {
     this.setState({ inlineToolsOffsets: { height: 0, top: 0, row: {} } });
   };
@@ -159,15 +166,7 @@ class InputView extends Component {
 
     if (viewMode === 'table') {
       return (
-        <div
-          ref={ref => {
-            if (ref) {
-              ref.addEventListener('mouseleave', this.resetInlineToolsOffsets);
-              this.wrapperRef.current = ref;
-            }
-          }}
-          className={'ecos-table-form__grid-wrapper'}
-        >
+        <div ref={this.setRef} className="mb-3">
           <Grid {...gridData} inlineTools={this.renderInlineTools} onChangeTrOptions={this.setInlineToolsOffsets} />
         </div>
       );

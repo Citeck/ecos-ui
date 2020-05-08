@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 
 import { Attributes } from '../../../../constants';
@@ -232,7 +233,7 @@ export default class SelectJournal extends Component {
   refreshGridData = info => {
     return new Promise(resolve => {
       this.setState({ isGridDataReady: false }, () => {
-        const { sortBy } = this.props;
+        const { sortBy, columns } = this.props;
         let { requestParams, customPredicate, journalConfig } = this.state;
         const sourceId = lodashGet(journalConfig, 'sourceId', '');
 
@@ -279,14 +280,25 @@ export default class SelectJournal extends Component {
           })
           .then(fetchedGridData => {
             const gridData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
+            const { gridData: prevGridData } = this.state;
+            const newGridData = {
+              ...prevGridData,
+              ...gridData
+            };
 
-            this.setState(prevState => ({
-              gridData: {
-                ...prevState.gridData,
-                ...gridData
-              },
+            // if (!isEmpty(columns)) {
+            //   newGridData.columns = gridData.columns.map(column => {
+            //     return {
+            //       ...(columns.find(item => item.name === column.dataField) || {}),
+            //       ...column
+            //     };
+            //   });
+            // }
+
+            this.setState({
+              gridData: { ...newGridData },
               isGridDataReady: true
-            }));
+            });
 
             resolve(gridData);
           });
@@ -585,6 +597,29 @@ export default class SelectJournal extends Component {
     }, this.refreshGridData);
   };
 
+  getColumns = () => {
+    const { columns } = this.props;
+    const baseColumns = lodashGet(this.state, 'gridData.columns', []);
+
+    if (isEmpty(columns)) {
+      return baseColumns;
+    }
+
+    return columns.map(item => {
+      try {
+        const { dataField, ...otherData } = baseColumns.find(column => column.dataField === item.dataField) || {};
+
+        return {
+          ...otherData,
+          ...item,
+          dataField
+        };
+      } catch (e) {
+        return item;
+      }
+    });
+  };
+
   render() {
     const {
       multiple,
@@ -604,8 +639,7 @@ export default class SelectJournal extends Component {
       renderView,
       isSelectedValueAsText,
       isInlineEditingMode,
-      viewMode,
-      columns
+      viewMode
     } = this.props;
     const {
       isGridDataReady,
@@ -641,7 +675,7 @@ export default class SelectJournal extends Component {
       viewMode,
       gridData: {
         ...this.state.gridData,
-        columns: columns || this.state.gridData.columns,
+        columns: this.getColumns(),
         data: this.state.gridData.data.filter(item => this.state.gridData.selected.includes(item.id)),
         editable: false,
         singleSelectable: false,
