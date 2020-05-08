@@ -826,7 +826,9 @@ class Grid extends Component {
           hideTracksWhenNotNeeded
           renderView={props => <div {...props} className={tableViewClassName} />}
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
-          renderTrackHorizontal={props => <div {...props} className="ecos-grid__h-scroll" />}
+          renderTrackHorizontal={props => (
+            <div {...props} className={classNames('ecos-grid__h-scroll', { 'ecos-grid__h-scroll_higher': minHeight > maxHeight })} />
+          )}
           {...scrollProps}
         >
           {children}
