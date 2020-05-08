@@ -22,10 +22,18 @@ export const HandleControlTypes = {
 
 const HCT = HandleControlTypes;
 
+const LOGOUT_URL_DEFAULT = `${URL_SERVICECONTEXT}dologout`;
+
 export default function handleControl(type, payload, dispatch) {
   switch (type) {
     case HCT.ALF_DOLOGOUT:
-      const logoutHandler = (logoutURL = `${URL_SERVICECONTEXT}dologout`) => {
+      const logoutHandler = (logoutURL = LOGOUT_URL_DEFAULT) => {
+        if (logoutURL !== LOGOUT_URL_DEFAULT) {
+          // temp fix
+          setTimeout(() => {
+            window.location.reload();
+          }, 700);
+        }
         ecosFetch(logoutURL, { method: 'POST', mode: 'no-cors' }).then(() => {
           window.location.reload();
         });
