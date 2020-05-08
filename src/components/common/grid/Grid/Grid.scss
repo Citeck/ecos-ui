@@ -53,6 +53,10 @@ $header-height: 52px;
 
   &__h-scroll {
     @extend %h-scroll;
+
+    &_higher {
+      bottom: 12px;
+    }
   }
 
   .ecos-grid__tr_selected {
