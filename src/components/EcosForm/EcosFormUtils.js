@@ -150,6 +150,16 @@ export default class EcosFormUtils {
 
           ReactDOM.render(formInstance, container);
         } else {
+          if (configParams.onFormCancel || configParams.onCancel) {
+            config.onHideModal = () => {
+              if (configParams.onFormCancel) {
+                configParams.onFormCancel();
+              }
+              if (configParams.onCancel) {
+                configParams.onCancel();
+              }
+            };
+          }
           modal.open(formInstance, config);
         }
       });
@@ -170,6 +180,12 @@ export default class EcosFormUtils {
 
         if (formKey) {
           params.formKey = config.formKey;
+        }
+        if (config.onCancel) {
+          params.onCancel = config.onCancel;
+        }
+        if (config.onFormCancel) {
+          params.onFormCancel = config.onFormCancel;
         }
 
         EcosFormUtils.eform(recordRef, {

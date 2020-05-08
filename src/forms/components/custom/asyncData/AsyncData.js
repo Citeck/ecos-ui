@@ -464,14 +464,14 @@ export default class AsyncDataComponent extends BaseComponent {
     const refreshOn = _.get(this.component, 'refreshOn', []);
     if (Array.isArray(refreshOn) && refreshOn.length > 0) {
       this.on(
-        'change',
+        'componentChange',
         event => {
           // console.log('changed event', event)
           if (
-            event.changed &&
-            event.changed.component &&
-            refreshOn.findIndex(item => item.value === event.changed.component.key) !== -1 &&
-            this.inContext(event.changed.instance) && // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set in fields inside EditGrids could alter their state from other rows (which is bad).
+            event &&
+            event.component &&
+            refreshOn.findIndex(item => item.value === event.component.key) !== -1 &&
+            this.inContext(event.instance) && // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set in fields inside EditGrids could alter their state from other rows (which is bad).
             this.shouldExecute // !!! это условие должно быть последним в этом "if" во избежание ненужных вызовов this.shouldExecute
           ) {
             this._updateValue(false);

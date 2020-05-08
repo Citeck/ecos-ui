@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import connect from 'react-redux/es/connect/connect';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 
 import JournalsDownloadZip from '../JournalsDownloadZip';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
@@ -154,27 +155,14 @@ class JournalsDashletGrid extends Component {
   showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
 
-    this.props.setGridInlineToolSettings(
-      Object.assign(
-        {
-          actions: this.getCurrentRowInlineActions()
-        },
-        options
-      )
-    );
+    this.props.setGridInlineToolSettings({ actions: this.getCurrentRowInlineActions(), ...options });
   };
 
   getCurrentRowInlineActions() {
     const {
       execRecordsAction,
-      selectedRecords,
       grid: { groupBy = [], actions }
     } = this.props;
-    let currentRow = this.getSelectedRow().id;
-
-    if (selectedRecords.length) {
-      return [];
-    }
 
     if (groupBy.length) {
       return [
@@ -186,11 +174,10 @@ class JournalsDashletGrid extends Component {
       ];
     }
 
-    return ((actions || {})[currentRow] || []).map(action => {
-      return Object.assign({}, action, {
-        onClick: () => execRecordsAction([currentRow], action)
-      });
-    });
+    const currentRow = this.getSelectedRow().id;
+    const recordActions = get(actions, currentRow, []);
+
+    return recordActions.map(action => ({ ...action, onClick: () => execRecordsAction([currentRow], action) }));
   }
 
   hideGridInlineToolSettings = () => {
@@ -414,6 +401,8 @@ class JournalsDashletGrid extends Component {
       doInlineToolsOnRowClick = false,
       performGroupActionResponse,
       minHeight,
+      maxHeight,
+      autoHeight,
       predicate,
       journalConfig: { params = {} }
     } = this.props;
@@ -424,9 +413,11 @@ class JournalsDashletGrid extends Component {
       editable = false;
     }
 
-    const HeightCalculation = ({ children, maxItems, minHeight, total }) => {
+    const filters = ParserPredicate.getFlatFilters(predicate);
+
+    const HeightCalculation = ({ children }) => {
       if (minHeight !== undefined) {
-        return <div style={{ height: minHeight }}>{children}</div>;
+        return <div style={{ minHeight, maxHeight }}>{children}</div>;
       }
 
       let rowsNumber = total > maxItems ? maxItems : total;
@@ -434,9 +425,12 @@ class JournalsDashletGrid extends Component {
         rowsNumber = 1;
       }
 
-      return <EmptyGrid maxItems={rowsNumber}>{children}</EmptyGrid>;
+      return (
+        <EmptyGrid maxItems={rowsNumber} minHeight={minHeight} maxHeight={maxHeight}>
+          {children}
+        </EmptyGrid>
+      );
     };
-    const filters = ParserPredicate.getFlatFilters(predicate);
 
     return (
       <>
@@ -470,6 +464,8 @@ class JournalsDashletGrid extends Component {
                 selected={selectedRecords}
                 selectAll={selectAllRecords}
                 minHeight={minHeight}
+                maxHeight={maxHeight}
+                autoHeight={autoHeight}
                 scrollPosition={this.scrollPosition}
               />
             )}
@@ -503,6 +499,8 @@ JournalsDashletGrid.propTypes = {
   className: PropTypes.string,
   toolsClassName: PropTypes.string,
   minHeight: PropTypes.any,
+  maxHeight: PropTypes.any,
+  autoHeight: PropTypes.bool,
   doInlineToolsOnRowClick: PropTypes.bool,
   isWidget: PropTypes.bool,
   onRowClick: PropTypes.func

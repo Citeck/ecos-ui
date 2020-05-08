@@ -68,7 +68,7 @@ class BaseWidget extends Component {
   setFitHeights = fitHeights => {
     const fitHeightsState = this.state.fitHeights;
 
-    if (fitHeightsState !== fitHeights) {
+    if (JSON.stringify(fitHeightsState) !== JSON.stringify(fitHeights)) {
       this.setState({ fitHeights });
     }
   };
@@ -91,6 +91,7 @@ class BaseWidget extends Component {
     }
 
     UserLocalSettingsService.setDashletHeight(this.props.id, userHeight);
+
     this.setState({ userHeight });
   };
 

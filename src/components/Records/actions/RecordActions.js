@@ -1,6 +1,6 @@
 import lodash from 'lodash';
 
-import { t, getCurrentLocale } from '../../../helpers/util';
+import { deepClone, extractLabel, t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
 import Records from '../Records';
 import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
@@ -79,10 +79,9 @@ class RecordActionsService {
         return !executor.canBeExecuted || executor.canBeExecuted({ record, action, context });
       })
       .map(action => {
-        let executor = RecordActionExecutorsRegistry.get(action.type);
-        let executorDefaultModel = executor.getDefaultModel ? executor.getDefaultModel() || {} : {};
-
-        let resultAction = {};
+        const executor = RecordActionExecutorsRegistry.get(action.type);
+        const executorDefaultModel = executor.getDefaultModel ? executor.getDefaultModel() || {} : {};
+        const resultAction = {};
 
         for (let field in DEFAULT_MODEL) {
           if (DEFAULT_MODEL.hasOwnProperty(field)) {
@@ -90,23 +89,7 @@ class RecordActionsService {
           }
         }
 
-        let name;
-        if (lodash.isObject(resultAction.name)) {
-          name = resultAction.name[getCurrentLocale()];
-          if (!name) {
-            let keys = Object.keys(resultAction.name);
-            if (keys && keys.length) {
-              name = resultAction.name[keys[0]];
-              if (!lodash.isString(name)) {
-                name = '';
-              }
-            }
-          }
-        } else {
-          name = resultAction.name;
-        }
-
-        resultAction.name = t(name) || name;
+        resultAction.name = extractLabel(resultAction.name);
         resultAction.context = Object.assign({}, context);
 
         return resultAction;
@@ -190,8 +173,9 @@ class RecordActionsService {
       });
   }
 
-  execAction(records, action) {
+  execAction = async (records, action) => {
     let executor = RecordActionExecutorsRegistry.get(action.type);
+
     if (lodash.isArray(records)) {
       if (executor.groupExec) {
         return Promise.resolve(
@@ -202,20 +186,25 @@ class RecordActionsService {
         );
       } else {
         return Promise.all(
-          records.map(r =>
-            executor.execute({
-              record: Records.get(r),
-              action
-            })
-          )
+          records.map(async record => {
+            const config = await this.replaceAttributeValues(action.config, record);
+
+            return executor.execute({
+              record: Records.get(record),
+              action: { ...action, config }
+            });
+          })
         );
       }
     }
+
     if (executor.execute) {
+      const config = await this.replaceAttributeValues(action.config, records);
+
       return Promise.resolve(
         executor.execute({
           record: Records.get(records),
-          action
+          action: { ...action, config }
         })
       );
     } else {
@@ -228,7 +217,64 @@ class RecordActionsService {
         return lodash.isArray(result) ? result[0] : result;
       });
     }
-  }
+  };
+
+  replaceAttributeValues = async (data = {}, record) => {
+    const mutableData = deepClone(data);
+    const regExp = /\$\{([^}]+)\}/g;
+    const nonSpecialsRegex = /([^${}]+)/g;
+    const keys = Object.keys(mutableData);
+    const results = new Map();
+
+    if (!keys.length) {
+      return mutableData;
+    }
+
+    await Promise.all(
+      keys.map(async key => {
+        if (typeof mutableData[key] === 'object') {
+          mutableData[key] = await this.replaceAttributeValues(mutableData[key], record);
+          return;
+        }
+
+        if (typeof mutableData[key] !== 'string') {
+          return;
+        }
+
+        let fields = mutableData[key].match(regExp);
+
+        if (!fields) {
+          return;
+        }
+
+        fields = fields.map(el => el.match(nonSpecialsRegex)[0]);
+
+        await Promise.all(
+          fields.map(async strKey => {
+            if (results.has(strKey)) {
+              return;
+            }
+
+            let recordData = '';
+
+            if (strKey === 'recordRef') {
+              recordData = await Records.get(record).id;
+            } else {
+              recordData = await Records.get(record).load(strKey);
+            }
+
+            results.set(strKey, recordData);
+          })
+        );
+
+        fields.forEach(field => {
+          mutableData[key] = mutableData[key].replace('${' + field + '}', results.get(field));
+        });
+      })
+    );
+
+    return mutableData;
+  };
 
   getActionCreateVariants() {
     let types = [

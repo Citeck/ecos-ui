@@ -196,6 +196,7 @@ export default class EcosFormModal extends React.Component {
 
 EcosFormModal.propTypes = {
   record: PropTypes.string.isRequired,
+  formId: PropTypes.string,
   formKey: PropTypes.string,
   isModalOpen: PropTypes.bool,
   isBigHeader: PropTypes.bool,

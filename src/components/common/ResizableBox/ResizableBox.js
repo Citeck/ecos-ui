@@ -1,13 +1,14 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
 import { t } from '../../../helpers/util';
 import { Icon } from '../';
 
 import './style.scss';
 
-export default class ResizableBox extends React.Component {
+class ResizableBox extends React.Component {
   static propTypes = {
     resizable: PropTypes.bool,
     classNameBox: PropTypes.string,
@@ -28,6 +29,24 @@ export default class ResizableBox extends React.Component {
 
   refBox = React.createRef();
   resizeButtonRef = React.createRef();
+  resizeWrapperRef = React.createRef();
+
+  get resizeBtnHeight() {
+    const btn = get(this.resizeButtonRef, 'current', null);
+    const wrapper = get(this.resizeWrapperRef, 'current', null);
+    let height = 0;
+
+    if (btn) {
+      height += parseInt(window.getComputedStyle(btn)['height'], 10) || 0;
+    }
+
+    if (wrapper) {
+      height += parseInt(window.getComputedStyle(wrapper)['padding-top'], 10) || 0;
+      height += parseInt(window.getComputedStyle(wrapper)['padding-bottom'], 10) || 0;
+    }
+
+    return height;
+  }
 
   startResize = event => {
     event.preventDefault();
@@ -75,7 +94,10 @@ export default class ResizableBox extends React.Component {
         <div ref={this.refBox} className={classNames('ecos-resize__container', classNameBox)}>
           {children}
         </div>
-        <div className={classNames('ecos-resize__bottom', classNameResizer)}>
+        <div
+          className={classNames('ecos-resize__bottom', classNameResizer, { 'ecos-resize__bottom_none': !resizable })}
+          ref={this.resizeWrapperRef}
+        >
           {resizable && (
             <div ref={this.resizeButtonRef} className="ecos-resize__control">
               <Icon className="icon-resize" title={t('dashlet.resize.title')} onMouseDown={this.startResize} />
@@ -86,3 +108,9 @@ export default class ResizableBox extends React.Component {
     );
   }
 }
+
+export default React.forwardRef((props, ref) => (
+  <ResizableBox {...props} ref={ref}>
+    {props.children}
+  </ResizableBox>
+));

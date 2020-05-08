@@ -94,11 +94,11 @@ class DocAssociations extends BaseWidget {
     this.props.resetStore();
   }
 
-  checkHeight() {
-    if (UserLocalSettingsService.getDashletHeight(this.props.id) > this.clientHeight) {
+  checkHeight = () => {
+    if (UserLocalSettingsService.getDashletHeight(this.props.id) > this.clientHeight && this.clientHeight) {
       this.handleChangeHeight(this.clientHeight);
     }
-  }
+  };
 
   get isSmallWidget() {
     const { isMobile } = this.props;
@@ -177,7 +177,7 @@ class DocAssociations extends BaseWidget {
     this.closeConfirmRemovingModal();
   };
 
-  renderTable(data = []) {
+  renderTable(data = [], key) {
     const { isMobile } = this.props;
 
     if (!data.length) {
@@ -198,8 +198,8 @@ class DocAssociations extends BaseWidget {
         </div>
 
         <div className="ecos-doc-associations__table-body">
-          {data.map(item => (
-            <div className="ecos-doc-associations__table-row surfbug_highlight" key={item.record}>
+          {data.map((item, position) => (
+            <div className="ecos-doc-associations__table-row surfbug_highlight" key={`${key}-${item.record}-${position}`}>
               <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">
                 <a
                   href={`${URL.DASHBOARD}?recordRef=${item.record}`}
@@ -233,21 +233,21 @@ class DocAssociations extends BaseWidget {
     </div>
   );
 
-  renderAssociationsItem = (data = {}) => {
+  renderAssociationsItem = (data = {}, position) => {
     const { id } = this.props;
-    const { associations, title } = data;
+    const { associations, title, key } = data;
 
     if (!associations || !associations.length) {
       return null;
     }
 
     return (
-      <React.Fragment key={`document-list-${title}-${id}`}>
+      <React.Fragment key={`document-list-${position}-${title}-${id}`}>
         <div className="ecos-doc-associations__headline">
           <div className="ecos-doc-associations__headline-text">{t(title)}</div>
         </div>
 
-        {this.renderTable(associations)}
+        {this.renderTable(associations, key)}
       </React.Fragment>
     );
   };
@@ -372,7 +372,12 @@ class DocAssociations extends BaseWidget {
           this.renderAssociations()
         ) : (
           <Scrollbars style={{ height: contentHeight || '100%' }}>
-            <DefineHeight fixHeight={userHeight || null} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
+            <DefineHeight
+              fixHeight={userHeight || null}
+              maxHeight={fitHeights.max}
+              minHeight={fitHeights.min}
+              getOptimalHeight={this.setContentHeight}
+            >
               {this.renderAssociations()}
             </DefineHeight>
           </Scrollbars>

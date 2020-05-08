@@ -13,10 +13,9 @@ import './InputView.scss';
 const InputView = () => {
   const context = useContext(TableFormContext);
 
-  const { placeholder, disabled, viewOnly, displayElements, isSelectableRows, nonSelectableRows } = context.controlProps;
+  const { placeholder, disabled, viewOnly, displayElements, isSelectableRows, nonSelectableRows, selectedRows } = context.controlProps;
   const {
     gridRows,
-    selectedRows,
     columns,
     error,
     deleteSelectedItem,
@@ -74,7 +73,8 @@ const InputView = () => {
 
   if (gridRows.length > 0) {
     const inlineTools = () => {
-      const inlineToolsActionClassName = 'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10';
+      const inlineToolsActionClassName =
+        'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10 ecos-inline-tools-btn';
       const iconButtons = [];
 
       const shouldShowViewButton = isBoolean(get(displayElements, 'view')) ? displayElements.view : true;
@@ -113,7 +113,7 @@ const InputView = () => {
         );
       }
 
-      return <InlineToolsDisconnected {...inlineToolsOffsets} tools={iconButtons} />;
+      return <InlineToolsDisconnected selectedRecords={selectedRows} {...inlineToolsOffsets} tools={iconButtons} />;
     };
 
     valuesList = (

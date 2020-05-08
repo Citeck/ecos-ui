@@ -3,7 +3,9 @@ import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 import { SelectJournal } from '../../../../components/common/form';
 import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
+import { Attributes } from '../../../../constants';
 import BaseReactComponent from '../base/BaseReactComponent';
+import { SortOrderOptions } from './constants';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -18,7 +20,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
         hideEditRowButton: false,
         hideDeleteRowButton: false,
         isFullScreenWidthModal: false,
-        isSelectedValueAsText: false
+        isSelectedValueAsText: false,
+        sortAttribute: Attributes.DBID,
+        sortAscending: SortOrderOptions.ASC.value
       },
       ...extend
     );
@@ -85,6 +89,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
         isInlineEditingMode: this._isInlineEditingMode,
         presetFilterPredicates,
         searchField: component.searchField,
+        sortBy: {
+          attribute: component.sortAttribute,
+          ascending: component.sortAscending !== SortOrderOptions.DESC.value
+        },
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },

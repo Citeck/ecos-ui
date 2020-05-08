@@ -4,14 +4,19 @@ import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
 import lodashGet from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
-import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
+
+import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
+import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
 const LOCALE_EN = 'en';
+
+const BYTES_KB = 1024;
+const BYTES_MB = 1048576;
+const BYTES_GB = 1073741824;
 
 export function getCookie(name) {
   // eslint-disable-next-line
@@ -184,7 +189,7 @@ export function getCurrentLocale() {
   }
 
   if (!window.navigator) {
-    return 'en';
+    return LOCALE_EN;
   }
 
   const language = navigator.languages ? navigator.languages[0] : navigator.language || navigator.systemLanguage || navigator.userLanguage;
@@ -228,10 +233,6 @@ export function cellMsg(prefix) {
     elCell.innerHTML = t(prefix + sData);
   };
 }
-
-const BYTES_KB = 1024;
-const BYTES_MB = 1048576;
-const BYTES_GB = 1073741824;
 
 // From FileSizeMixin.js (modified)
 export function formatFileSize(fileSize, decimalPlaces) {

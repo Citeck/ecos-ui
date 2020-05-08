@@ -12,8 +12,8 @@ import find from 'lodash/find';
 import { arrayCompare, documentScrollTop, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
-import { DashboardTypes, DeviceTabs, Layouts, MenuTypes } from '../../constants/dashboard';
-import { LAYOUT_TYPE } from '../../constants/layout';
+import { DashboardTypes, DeviceTabs, MenuTypes } from '../../constants/dashboard';
+import { LAYOUT_TYPE, Layouts } from '../../constants/layout';
 import DashboardService from '../../services/dashboard';
 import PageService from '../../services/PageService';
 import {
@@ -28,7 +28,6 @@ import { initMenuSettings } from '../../actions/menu';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
-import { Checkbox } from '../../components/common/form';
 import { TunableDialog } from '../../components/common/dialogs';
 
 import SetBind from './SetBind';
@@ -392,7 +391,7 @@ class DashboardSettings extends React.Component {
       this.setState(data);
     };
 
-    return isEmpty(dashboardKeyItems) ? null : (
+    return (
       <div className="ecos-dashboard-settings__container">
         <SetBind
           keys={dashboardKeyItems}
@@ -464,30 +463,10 @@ class DashboardSettings extends React.Component {
     return <SetTabs tabs={currentTabs} activeTabKey={active} setData={setData} />;
   }
 
-  renderGeneralSettingsBlock() {
-    const {
-      userData: { isAdmin }
-    } = this.props;
-    const { isForAllUsers } = this.state;
-
-    if (!(this.isUserType && isAdmin)) {
-      return null;
-    }
-
-    const onChangeKeyForAllUser = field => {
-      this.setState({ isForAllUsers: field.checked });
-    };
-
-    return (
-      <div className="ecos-dashboard-settings__container-group">
-        <Checkbox checked={isForAllUsers} onChange={onChangeKeyForAllUser} className="ecos-dashboard-settings__all-users">
-          {t('dashboard-settings.for-all')}
-        </Checkbox>
-      </div>
-    );
-  }
-
   renderLayoutsBlock() {
+    const {
+      identification: { type }
+    } = this.props;
     const setData = layout => {
       const { activeLayoutTabId, selectedWidgets, selectedLayout } = this.state;
 
@@ -497,7 +476,7 @@ class DashboardSettings extends React.Component {
       this.setState({ selectedWidgets, selectedLayout });
     };
 
-    return <SetLayouts activeLayout={this.activeData.layout} setData={setData} isMobile={this.isSelectedMobileVer} />;
+    return <SetLayouts dashboardType={type} activeLayout={this.activeData.layout} setData={setData} isMobile={this.isSelectedMobileVer} />;
   }
 
   renderWidgetsBlock() {
@@ -662,7 +641,6 @@ class DashboardSettings extends React.Component {
         {this.renderDeviceTabsBlock()}
         {this.renderLayoutTabsBlock()}
         <div className="ecos-dashboard-settings__container">
-          {this.renderGeneralSettingsBlock()}
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
           {this.renderMenuBlock()}

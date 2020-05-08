@@ -20,7 +20,7 @@ export default class FunctionFormatter extends DefaultGqlFormatter {
     } else if (typeof params.fn === 'string') {
       try {
         // eslint-disable-next-line
-        const extractedFn = eval(`(function() { const fn = ${params.fn}; return fn; })()`);
+        const extractedFn = eval(`(function() { return ${params.fn}; })()`);
         if (typeof extractedFn === 'function') {
           extractedFn(elCell, oRecord, oColumn, sData, rowIndex);
         }

@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
+import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
-import { Scrollbars } from 'react-custom-scrollbars';
 
 import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../../actions/eventsHistory';
 import { selectDataEventsHistoryByStateId } from '../../../selectors/eventsHistory';
@@ -177,7 +177,7 @@ class EventsHistory extends React.Component {
   }
 
   renderTable() {
-    const { list, columns, isMobile } = this.props;
+    const { list, columns, isMobile, maxHeight } = this.props;
     //todo for server filer const { filters } = this.state;
 
     return (
@@ -188,6 +188,8 @@ class EventsHistory extends React.Component {
         scrollable={!isMobile}
         noTopBorder
         className="ecos-event-history-list ecos-event-history-list_view-table"
+        maxHeight={maxHeight}
+        autoHeight
       />
       // filterable={false}
       // filters={filters}

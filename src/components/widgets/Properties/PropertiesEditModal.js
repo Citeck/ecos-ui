@@ -14,7 +14,7 @@ function usePrevious(value = false) {
 }
 
 function PropertiesEditModal(props) {
-  const { record, isOpen, onFormSubmit, onFormCancel, formIsChanged } = props;
+  const { record, isOpen, onFormSubmit, onFormCancel, formIsChanged, formId } = props;
   const prev = usePrevious({ formIsChanged });
   const formRef = useRef();
 
@@ -26,6 +26,7 @@ function PropertiesEditModal(props) {
 
   return (
     <EcosFormModal
+      formId={formId}
       record={record}
       onFormCancel={onFormCancel}
       onSubmit={onFormSubmit}
@@ -40,6 +41,7 @@ function PropertiesEditModal(props) {
 
 PropertiesEditModal.propTypes = {
   record: PropTypes.string.isRequired,
+  formId: PropTypes.string,
   isOpen: PropTypes.bool.isRequired,
   onFormCancel: PropTypes.func.isRequired,
   onFormSubmit: PropTypes.func.isRequired

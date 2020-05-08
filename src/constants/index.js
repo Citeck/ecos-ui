@@ -24,6 +24,7 @@ export const pagesWithOnlyContent = [
 export const SourcesId = {
   DASHBOARD: 'uiserv/dashboard',
   EFORM: 'uiserv/eform',
+  USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',
   HISTORY: 'history',
   STATUS: 'status',
@@ -31,7 +32,6 @@ export const SourcesId = {
   VERSION: 'version',
   PEOPLE: 'people',
   BIRTHDAYS: 'birthdays',
-  USER_CONF: 'uiserv/user-conf',
   TASK: 'wftask'
 };
 
@@ -52,34 +52,10 @@ export const RequestStatuses = {
 
 export const DASHBOARD_DEFAULT_KEY = 'DEFAULT';
 
-export const QueryEntityKeys = {
-  CONFIG_JSON: 'config?json',
-  VALUE_JSON: 'value?json',
-  KEY: 'key',
-  VALUE: 'value',
-  TITLE: 'title',
-  DESCRIPTION: 'description',
-  USER: 'user',
-  TYPE: 'type'
-};
-
-export const QueryLanguage = {
-  FORMS_FOR_TYPE: 'forms-for-type',
-  PREDICATE: 'predicate',
-  CHILDREN: 'children',
-  FTS_ALFRESCO: 'fts-alfresco',
-  DOC_TYPES: 'document-types',
-  TYPES_DOCS: 'types-documents',
-  DOC: 'document',
-  JSON: 'json',
-  CRITERIA: 'criteria',
-  WITHOUT: null
-};
-
 export const MIN_WIDTH_DASHLET_SMALL = 290;
 export const MIN_WIDTH_DASHLET_LARGE = 593;
 
-export const MAX_DEFAULT_HEIGHT_DASHLET = 500;
+export const MAX_DEFAULT_HEIGHT_DASHLET = 800;
 export const MIN_DEFAULT_HEIGHT_DASHLET = 155;
 
 export const DataFormatTypes = {
@@ -113,3 +89,11 @@ export const Permissions = {
 };
 
 export const MOBILE_APP_USER_AGENT = 'ecos-mobile-app';
+
+export const Attributes = {
+  DBID: 'sys:node-dbid'
+};
+
+window.Citeck = window.Citeck || {};
+window.Citeck.constants = window.Citeck.constants || {};
+window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };

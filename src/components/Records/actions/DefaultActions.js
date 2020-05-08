@@ -1,13 +1,16 @@
+import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import { createPrintUrl, getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
-import { getTimezoneValue } from '../../../helpers/util';
+import { getTimezoneValue, t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import { VersionsJournalService } from '../../../services/VersionsJournalService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
+import RecordActions from './RecordActions';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
 
@@ -24,7 +27,9 @@ export const DefaultActionTypes = {
   DOWNLOAD_CARD_TEMPLATE: 'download-card-template',
   VIEW_CARD_TEMPLATE: 'view-card-template',
   OPEN_URL: 'open-url',
-  UPLOAD_NEW_VERSION: 'upload-new-version'
+  UPLOAD_NEW_VERSION: 'upload-new-version',
+  ASSOC_ACTION: 'assoc-action',
+  MODAL_DOC_PREVIEW: 'modal-doc-preview'
 };
 
 export const EditAction = {
@@ -69,7 +74,7 @@ export const EditAction = {
 export const ViewAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record, action: { config = {}, context } }) => {
+  execute: ({ record, action: { config = {}, context = {} } }) => {
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
@@ -175,15 +180,26 @@ export const DownloadAction = {
     const config = action.config || {};
 
     if (config.downloadType === 'ecos_module') {
-      record.load({ title: 'title', name: 'name', module_id: 'module_id', json: '.json' }, true).then(data => {
-        let filename = config.filename || data.module_id || data.title || data.name;
-        filename = filename.replace(/[^a-zA-Zа-яА-Я0-9.]+/g, '_');
+      record
+        .load(
+          {
+            title: 'title',
+            name: 'name',
+            module_id: 'module_id',
+            moduleId: 'moduleId',
+            json: '.json'
+          },
+          true
+        )
+        .then(data => {
+          let filename = config.filename || data.moduleId || data.module_id || data.title || data.name;
+          filename = filename.replace(/[^a-zA-Zа-яА-Я0-9.]+/g, '_');
 
-        if (!filename.endsWith('.json')) {
-          filename += '.json';
-        }
-        DownloadAction._downloadText(JSON.stringify(data.json), filename, 'text/json');
-      });
+          if (!filename.endsWith('.json')) {
+            filename += '.json';
+          }
+          DownloadAction._downloadText(JSON.stringify(data.json), filename, 'text/json');
+        });
     } else {
       const name = config.filename || 'file';
       DownloadAction._downloadByUrl(config.url, name, record);
@@ -407,6 +423,37 @@ export const UploadNewVersion = {
       name: 'record-action.name.upload-new-version',
       type: DefaultActionTypes.UPLOAD_NEW_VERSION,
       icon: 'icon-load'
+    };
+  }
+};
+
+export const AssocAction = {
+  execute: ({ record, action }) => {
+    const actionType = get(action, 'config.action', null);
+    let assoc = get(action, 'config.assoc', '');
+
+    if (!assoc.includes('?')) {
+      assoc += '?id';
+    }
+
+    Records.get(record)
+      .load(assoc, true)
+      .then(result => {
+        if (!result) {
+          NotificationManager.error('', t('record-action.assoc-action.not-found'));
+          return;
+        }
+
+        if (actionType) {
+          RecordActions.execAction(result, actionType);
+        }
+      });
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.assoc-action',
+      type: DefaultActionTypes.ASSOC_ACTION
     };
   }
 };

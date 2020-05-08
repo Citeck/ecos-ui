@@ -1,18 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import queryString from 'query-string/index';
+import queryString from 'query-string';
 import get from 'lodash/get';
 
 import { t } from '../../../helpers/util';
 import { getIconClassMenu, getSpecialClassByState } from '../../../helpers/menu';
 import handleControl from '../../../helpers/handleControl';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
+import { getSearchParams, isNewVersionPage, SearchKeys } from '../../../helpers/urls';
 import { URL } from '../../../constants';
-import { getSearchParams, SearchKeys } from '../../../helpers/urls';
+import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
+import pageTabList from '../../../services/pageTabs/PageTabList';
 
 const mapStateToProps = state => ({
-  dashboardId: get(state, 'dashboard.identification.id', '')
+  dashboardId: get(state, `dashboard[${pageTabList.activeTabId}].identification.id`, '')
 });
 const mapDispatchToProps = dispatch => ({
   dispatch
@@ -60,7 +61,9 @@ class DropdownMenuItem extends React.Component {
     let link = targetUrl;
 
     if (targetUrl === URL.DASHBOARD_SETTINGS) {
-      params.push(`${SearchKeys.DASHBOARD_ID}=${dashboardId}`);
+      if (dashboardId) {
+        params.push(`${SearchKeys.DASHBOARD_ID}=${dashboardId}`);
+      }
 
       if (recordRef) {
         params.push(`${SearchKeys.RECORD_REF}=${recordRef}`);
@@ -103,10 +106,15 @@ class DropdownMenuItem extends React.Component {
   render() {
     const { data, iconRight } = this.props;
     const { id, img, label, target } = data;
+    const extra = {};
+
+    if (!isNewVersionPage(this.url)) {
+      extra[IGNORE_TABS_HANDLER_ATTR_NAME] = true;
+    }
 
     return (
       <li>
-        <a href={this.url} target={target} id={id} onClick={this.handlerClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
+        <a href={this.url} target={target} id={id} onClick={this.handlerClick} {...extra}>
           {this.iconLeft && <i className={this.iconLeft} />}
           {img && this.renderImg()}
           {label && t(label)}

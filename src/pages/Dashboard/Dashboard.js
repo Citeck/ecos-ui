@@ -11,7 +11,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import { LoaderTypes, MENU_TYPE, URL } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
-import { deepClone, t, isMobileAppWebView } from '../../helpers/util';
+import { deepClone, isMobileAppWebView, t } from '../../helpers/util';
 import { getSortedUrlParams } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
@@ -22,47 +22,56 @@ import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
+import { initialState } from '../../reducers/dashboard';
+import DashboardService from '../../services/dashboard';
 
 import './style.scss';
 
 const mapStateToProps = state => {
   const isMobile = get(state, ['view', 'isMobile'], false);
+  const tabs = get(state, ['pageTabs', 'tabs'], []);
+  const dashboardState = () => get(state, ['dashboard', DashboardService.key], initialState);
 
   return {
-    config: get(state, ['dashboard', isMobile ? 'mobileConfig' : 'config'], []),
-    isLoadingDashboard: get(state, ['dashboard', 'isLoading']),
-    saveResultDashboard: get(state, ['dashboard', 'requestResult']),
+    tabId: tabs.length ? DashboardService.key : null,
+    config: get(dashboardState(), [isMobile ? 'mobileConfig' : 'config'], []),
+    isLoadingDashboard: get(dashboardState(), ['isLoading']),
+    saveResultDashboard: get(dashboardState(), ['requestResult'], {}),
     isLoadingMenu: get(state, ['menu', 'isLoading']),
     saveResultMenu: get(state, ['menu', 'requestResult']),
     menuType: get(state, ['menu', 'type']),
     links: get(state, ['menu', 'links']),
-    dashboardType: get(state, ['dashboard', 'identification', 'type']),
-    identificationId: get(state, ['dashboard', 'identification', 'id'], null),
-    titleInfo: get(state, ['dashboard', 'titleInfo']),
+    dashboardType: get(dashboardState(), ['identification', 'type']),
+    identificationId: get(dashboardState(), ['identification', 'id'], null),
+    titleInfo: get(dashboardState(), ['titleInfo'], {}),
     isMobile
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  getDashboardConfig: payload => dispatch(getDashboardConfig(payload)),
-  getDashboardTitle: payload => dispatch(getDashboardTitle(payload)),
-  saveDashboardConfig: payload => dispatch(saveDashboardConfig(payload)),
-  initMenuSettings: payload => dispatch(getMenuConfig(payload)),
-  saveMenuConfig: config => dispatch(saveMenuConfig(config)),
-  setLoading: flag => dispatch(setLoading(flag)),
-  resetDashboardConfig: () => dispatch(resetDashboardConfig())
-});
+const mapDispatchToProps = dispatch => {
+  return {
+    getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key: DashboardService.key })),
+    getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: DashboardService.key })),
+    saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: DashboardService.key })),
+    initMenuSettings: payload => dispatch(getMenuConfig({ ...payload, key: DashboardService.key })),
+    saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: DashboardService.key })),
+    setLoading: status => dispatch(setLoading({ status, key: DashboardService.key })),
+    resetDashboardConfig: () => dispatch(resetDashboardConfig(DashboardService.key))
+  };
+};
 
 class Dashboard extends Component {
   state = {
     urlParams: getSortedUrlParams(),
     canDragging: false,
     activeLayoutId: null,
-    needGetConfig: false
+    needGetConfig: false,
+    inited: false
   };
 
   constructor(props) {
     super(props);
+
     this.state.config = props.config || [];
     this.instanceRecord = Records.get(this.getPathInfo().recordRef);
     this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateSomeDetails);
@@ -84,7 +93,6 @@ class Dashboard extends Component {
     if (state.urlParams !== newUrlParams) {
       newState.urlParams = newUrlParams;
       newState.needGetConfig = true;
-      props.resetDashboardConfig();
       props.initMenuSettings();
     }
 
@@ -108,7 +116,7 @@ class Dashboard extends Component {
       this.toggleTabLayoutFromUrl();
     }
 
-    if (this.state.needGetConfig) {
+    if (this.state.needGetConfig || (!prevProps.tabId && this.props.tabId)) {
       this.getConfig();
     }
   }
@@ -377,7 +385,7 @@ class Dashboard extends Component {
               showLoadingAnimation={true}
               customPlaceholder={
                 <div className="ecos-dashboard__header-placeholder">
-                  <RectShape color="#b7b7b7" style={{ width: 150, height: 18 }} />
+                  <RectShape color="#b7b7b7" style={{ width: 150, height: 20, borderRadius: 10 }} />
                   <RoundShape color="#b7b7b7" style={{ width: 32, height: 20 }} />
                 </div>
               }
@@ -388,9 +396,11 @@ class Dashboard extends Component {
           </div>
         );
         break;
+      case DashboardTypes.PROFILE:
+        title = null;
+        break;
       case DashboardTypes.USER:
       case DashboardTypes.SITE:
-      case DashboardTypes.PROFILE:
       default:
         title = <div className="ecos-dashboard__header-title">{name && <div className="ecos-dashboard__header-name">{t(name)}</div>}</div>;
         break;

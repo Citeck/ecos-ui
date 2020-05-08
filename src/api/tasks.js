@@ -38,7 +38,7 @@ export class TasksApi extends RecordService {
       sender: 'sender?json',
       lastcomment: 'lastcomment',
       reassignable: 'reassignable?bool',
-      releasable: 'reassignable?bool',
+      releasable: 'releasable?bool',
       claimable: 'claimable?bool',
       assignable: 'assignable?bool'
     });
@@ -56,7 +56,7 @@ export class TasksApi extends RecordService {
     return TasksApi.getTask(taskId, {
       actors: 'actors[]?json',
       reassignable: 'reassignable?bool',
-      releasable: 'reassignable?bool',
+      releasable: 'releasable?bool',
       claimable: 'claimable?bool',
       assignable: 'assignable?bool'
     });
@@ -70,6 +70,9 @@ export class TasksApi extends RecordService {
       owner
     });
 
-    return record.save().then(res => res);
+    return record
+      .save()
+      .then(() => true)
+      .catch(console.error);
   };
 }

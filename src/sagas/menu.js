@@ -35,9 +35,9 @@ function* doGetAvailableMenuItemsRequest({ api, logger }, action) {
   }
 }
 
-function* doGetMenuConfigRequest({ api, logger }, { payload }) {
+function* doGetMenuConfigRequest({ api, logger }) {
   try {
-    const result = yield call(() => api.menu.getMenuConfig(true));
+    const result = yield call(api.menu.getMenuConfig, true);
     const menu = MenuConverter.parseGetResult(result);
 
     yield put(setMenuConfig(menu));

@@ -1,5 +1,7 @@
+import get from 'lodash/get';
+
+import { ActionModes, Attributes, Permissions } from '../constants';
 import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
-import { ActionModes, Permissions } from '../constants';
 import { debounce, queryByCriteria, t } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
@@ -125,8 +127,8 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId }) => {
-    let queryPredicates = journalPredicate ? [journalPredicate] : [];
+  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy }) => {
+    const queryPredicates = journalPredicate ? [journalPredicate] : [];
     const query = {
       t: 'and',
       val: queryPredicates.concat(
@@ -135,13 +137,17 @@ export class JournalsApi extends RecordService {
         })
       )
     };
-
-    let bodyQuery = {
+    const bodyQuery = {
       query,
       language: 'predicate',
       page: pagination,
       consistency: 'EVENTUAL',
-      sortBy: [{ attribute: 'sys:node-dbid', ascending: true }]
+      sortBy: [
+        {
+          attribute: get(sortBy, 'attribute') || Attributes.DBID,
+          ascending: get(sortBy, 'ascending') !== false
+        }
+      ]
     };
 
     if (sourceId) {
@@ -160,20 +166,45 @@ export class JournalsApi extends RecordService {
       permissions: [Permissions.Write]
     });
 
-    return dataSource.load().then(function({ data, total }) {
-      const columns = dataSource.getColumns();
-      return { data, total, columns };
-    });
+    return dataSource.load().then(({ data, total, attributes }) => ({ data, total, attributes, columns: dataSource.getColumns() }));
   };
 
   getJournalConfig = journalId => {
     //return this.getJson(`${MICRO_URI}api/journalcfg?journalId=contract-agreements`).then(resp => {
 
-    return this.getJson(`${PROXY_URI}api/journals/config?journalId=${journalId}`)
+    let journalRecordId = journalId;
+
+    if (journalRecordId.indexOf('@') === -1) {
+      journalRecordId = 'uiserv/journal_v1@' + journalId;
+    }
+
+    return Records.get(journalRecordId)
+      .load('.json')
       .then(resp => {
-        return resp || {};
+        const data = resp || {};
+        if (!data.columns || data.columns.length === 0) {
+          throw new Error('fallback to legacy config get');
+        }
+
+        (data.columns || []).forEach((col, i) => {
+          col.type = get(col, 'params.edgeType') || col.type;
+        });
+
+        return data;
       })
-      .catch(() => {});
+      .catch(() => {
+        return this.getJson(`${PROXY_URI}api/journals/config?journalId=${journalId}`)
+          .then(resp => {
+            const data = resp || {};
+
+            (data.columns || []).forEach((col, i) => {
+              col.type = get(col, 'params.edgeType') || col.type;
+            });
+
+            return data;
+          })
+          .catch(() => {});
+      });
   };
 
   getJournalsList = () => {
@@ -193,8 +224,30 @@ export class JournalsApi extends RecordService {
     //journalsListId = 'site-contracts-main';
     //return this.getJson(`${MICRO_URI}api/journallist?listId=${journalsListId}`).then(resp => {
 
+    let journalsFromUiserv = Records.query(
+      {
+        sourceId: 'uiserv/journal_v1',
+        language: 'list-id',
+        query: { listId: journalsListId }
+      },
+      { title: 'meta.title' }
+    )
+      .then(res => res.records)
+      .catch(() => []);
+
     return this.getJson(`${PROXY_URI}api/journals/list?journalsList=${journalsListId}`).then(resp => {
-      return resp.journals || [];
+      return journalsFromUiserv.then(uiservJournals => {
+        let result = [...(resp.journals || [])];
+        for (let journal of uiservJournals) {
+          let localId = journal.id.replace('uiserv/journal_v1@', '');
+          result.push({
+            nodeRef: localId,
+            title: journal.title,
+            type: localId
+          });
+        }
+        return result;
+      });
     });
   };
 

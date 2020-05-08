@@ -1,9 +1,10 @@
+import _ from 'lodash';
 import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
-import lodashGet from 'lodash/get';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../../components/Records';
-import _ from 'lodash';
+import { JournalsApi } from '../../../../api';
+import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 
 export default class TableFormComponent extends BaseReactComponent {
   _selectedRows = [];
@@ -24,7 +25,6 @@ export default class TableFormComponent extends BaseReactComponent {
             columns: []
           },
           custom: {
-            createVariants: [],
             columns: [],
             record: null,
             attribute: null
@@ -38,7 +38,8 @@ export default class TableFormComponent extends BaseReactComponent {
         customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
         displayElementsJS: '',
-        nonSelectableRowsJS: ''
+        nonSelectableRowsJS: '',
+        selectedRowsJS: ''
       },
       ...extend
     );
@@ -77,6 +78,16 @@ export default class TableFormComponent extends BaseReactComponent {
         this._nonSelectableRows = nonSelectableRows;
         this.setReactProps({
           nonSelectableRows
+        });
+      }
+    }
+
+    if (this.component.selectedRowsJS) {
+      let selectedRows = this.evaluate(this.component.selectedRowsJS, {}, 'value', true);
+      if (!_.isEqual(selectedRows, this._selectedRows)) {
+        this._selectedRows = selectedRows;
+        this.setReactProps({
+          selectedRows
         });
       }
     }
@@ -137,6 +148,10 @@ export default class TableFormComponent extends BaseReactComponent {
     return changed;
   }
 
+  getAttributeToEdit() {
+    return (this.component.properties || {}).attribute;
+  }
+
   refreshElementHasValueClasses() {
     if (!this.element) {
       return;
@@ -155,18 +170,225 @@ export default class TableFormComponent extends BaseReactComponent {
     }
   }
 
-  _setSelectedRows = selected => {
-    this._selectedRows = selected;
+  _setSelectedRows = selectedRows => {
+    this._selectedRows = selectedRows;
+    this.setReactProps({
+      selectedRows
+    });
   };
 
   getSelectedRows = () => {
     return this._selectedRows;
   };
 
+  _fetchAsyncProperties = source => {
+    return new Promise(async resolve => {
+      if (!source) {
+        return resolve({ error: new Error('Empty source') });
+      }
+
+      switch (source.type) {
+        case 'journal':
+          const { journal } = source;
+
+          let fetchJournalIdPromise;
+          if (!journal.journalId) {
+            fetchJournalIdPromise = new Promise(resolve1 => {
+              const attribute = this.getAttributeToEdit();
+              return this.getRecord()
+                .loadEditorKey(attribute)
+                .then(resolve1)
+                .catch(() => {
+                  resolve1(null);
+                });
+            });
+          } else {
+            fetchJournalIdPromise = Promise.resolve(journal.journalId);
+          }
+
+          const journalId = await fetchJournalIdPromise;
+          if (!journalId) {
+            return resolve({ error: new Error('The "journalId" config is required!') });
+          }
+
+          const journalsApi = new JournalsApi();
+          const displayColumns = journal.columns;
+
+          try {
+            const journalConfig = await journalsApi.getJournalConfig(journalId);
+            let columns = journalConfig.columns;
+            if (Array.isArray(displayColumns) && displayColumns.length > 0) {
+              columns = columns.map(item => {
+                return {
+                  ...item,
+                  default: displayColumns.indexOf(item.attribute) !== -1
+                };
+              });
+            }
+
+            resolve({
+              createVariants: journalConfig.meta.createVariants || [],
+              columns: GqlDataSource.getColumnsStatic(columns)
+            });
+          } catch (e) {
+            return resolve({ error: new Error(`Can't fetch journal config: ${e.message}`) });
+          }
+          break;
+        case 'custom':
+          const component = this.component;
+          const record = this.getRecord();
+          const attribute = this.getAttributeToEdit();
+          const columns = source.custom.columns.map(item => {
+            const col = { ...item };
+            if (item.formatter) {
+              col.formatter = this.evaluate(item.formatter, {}, 'value', true);
+            }
+            return col;
+          });
+
+          let customCreateVariants = null;
+          if (component.customCreateVariantsJs) {
+            try {
+              customCreateVariants = this.evaluate(component.customCreateVariantsJs, {}, 'value', true);
+            } catch (e) {
+              console.error(e);
+            }
+          }
+
+          let createVariantsPromise = Promise.resolve([]);
+          if (customCreateVariants) {
+            let fetchCustomCreateVariantsPromise;
+            if (customCreateVariants.then) {
+              fetchCustomCreateVariantsPromise = customCreateVariants;
+            } else {
+              fetchCustomCreateVariantsPromise = Promise.resolve(customCreateVariants);
+            }
+            createVariantsPromise = Promise.all(
+              (await fetchCustomCreateVariantsPromise).map(variant => {
+                if (_.isObject(variant)) {
+                  return variant;
+                }
+
+                return Records.get(variant)
+                  .load('.disp')
+                  .then(dispName => {
+                    return {
+                      recordRef: variant,
+                      label: dispName
+                    };
+                  });
+              })
+            );
+          } else if (attribute) {
+            createVariantsPromise = EcosFormUtils.getCreateVariants(record, attribute);
+          }
+
+          try {
+            const createVariants = await createVariantsPromise;
+            let columnsMap = {};
+            let formatters = {};
+            columns.forEach(item => {
+              const key = `.edge(n:"${item.name}"){title,type,multiple}`;
+              columnsMap[key] = item;
+              if (item.formatter) {
+                formatters[item.name] = item.formatter;
+              }
+            });
+
+            let columnsInfoPromise;
+            let inputsPromise;
+            if (createVariants.length < 1 || columns.length < 1) {
+              columnsInfoPromise = Promise.resolve(
+                columns.map(item => {
+                  return {
+                    default: true,
+                    type: item.type,
+                    text: item.title ? this.t(item.title) : '',
+                    multiple: item.multiple,
+                    attribute: item.name
+                  };
+                })
+              );
+              inputsPromise = Promise.resolve({});
+            } else {
+              let cvRecordRef = createVariants[0].recordRef;
+              columnsInfoPromise = Records.get(cvRecordRef)
+                .load(Object.keys(columnsMap))
+                .then(loadedAtt => {
+                  let cols = [];
+                  for (let i in columnsMap) {
+                    if (!columnsMap.hasOwnProperty(i)) {
+                      continue;
+                    }
+
+                    const originalColumn = columnsMap[i];
+                    const isManualAttributes = originalColumn.setAttributesManually;
+
+                    cols.push({
+                      default: true,
+                      type: isManualAttributes && originalColumn.type ? originalColumn.type : loadedAtt[i].type,
+                      text: isManualAttributes ? this.t(originalColumn.title) : loadedAtt[i].title,
+                      multiple: isManualAttributes ? originalColumn.multiple : loadedAtt[i].multiple,
+                      attribute: originalColumn.name
+                    });
+                  }
+                  return cols;
+                });
+
+              inputsPromise = EcosFormUtils.getRecordFormInputsMap(cvRecordRef);
+            }
+
+            Promise.all([columnsInfoPromise, inputsPromise])
+              .then(columnsAndInputs => {
+                let [columns, inputs] = columnsAndInputs;
+
+                for (let column of columns) {
+                  let input = inputs[column.attribute] || {};
+                  let computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
+
+                  if (computedDispName) {
+                    //Is this filter required?
+                    column.formatter = {
+                      name: 'FormFieldFormatter',
+                      params: input
+                    };
+                  }
+
+                  if (formatters.hasOwnProperty(column.attribute)) {
+                    column.formatter = formatters[column.attribute];
+                  }
+                }
+
+                resolve({
+                  createVariants,
+                  columns: GqlDataSource.getColumnsStatic(columns)
+                });
+              })
+              .catch(err => {
+                console.error(err);
+                columnsInfoPromise.then(columns => {
+                  resolve({
+                    createVariants,
+                    columns: GqlDataSource.getColumnsStatic(columns)
+                  });
+                });
+              });
+          } catch (e) {
+            return resolve({ error: new Error(`Can't fetch create variants: ${e.message}`) });
+          }
+          break;
+        default:
+          return resolve({ error: new Error(`Invalid source type`) });
+      }
+    });
+  };
+
   getInitialReactProps() {
     const component = this.component;
 
-    let resolveProps = source => {
+    let resolveProps = props => {
+      const { createVariants = [], columns = [], error } = props || {};
+
       let triggerEventOnTableChange = null;
       if (component.eventName) {
         triggerEventOnTableChange = () => {
@@ -182,6 +404,9 @@ export default class TableFormComponent extends BaseReactComponent {
       }
 
       return {
+        createVariants,
+        columns,
+        error,
         defaultValue: this.dataValue,
         isCompact: component.isCompact,
         multiple: component.multiple,
@@ -189,7 +414,6 @@ export default class TableFormComponent extends BaseReactComponent {
         disabled: component.disabled,
         isStaticModalTitle: component.isStaticModalTitle,
         customStringForConcatWithStaticTitle: this.t(component.customStringForConcatWithStaticTitle),
-        source: source,
         onChange: this.onReactValueChanged,
         isSelectableRows: component.isSelectableRows,
         onSelectRows: this._setSelectedRows,
@@ -198,79 +422,13 @@ export default class TableFormComponent extends BaseReactComponent {
         triggerEventOnTableChange,
         displayElements: this._displayElementsValue,
         nonSelectableRows: this._nonSelectableRows,
-        onError: err => {
-          // this.setCustomValidity(err, false);
-        },
+        selectedRows: this._selectedRows,
         computed: {
           valueFormKey: value => this.getValueFormKey(value)
         }
       };
     };
 
-    const source = component.source;
-
-    switch (source.type) {
-      case 'journal':
-        let journalId = lodashGet(component, 'source.journal.journalId', null);
-
-        if (!journalId) {
-          let attribute = this.getAttributeToEdit();
-          return this.getRecord()
-            .loadEditorKey(attribute)
-            .then(editorKey => {
-              this.component._journalId = editorKey;
-              return resolveProps({
-                ...source,
-                journal: {
-                  ...source.journal,
-                  journalId: editorKey
-                }
-              });
-            });
-        } else {
-          return resolveProps(source);
-        }
-      case 'custom':
-        let resolve = createVariants => {
-          return resolveProps({
-            ...source,
-            custom: {
-              ...source.custom,
-              createVariants,
-              record: this.getRecord(),
-              attribute: this.getAttributeToEdit(),
-              columns: source.custom.columns.map(item => {
-                const col = { name: item.name };
-                if (item.formatter) {
-                  col.formatter = this.evaluate(item.formatter, {}, 'value', true);
-                }
-                return col;
-              })
-            }
-          });
-        };
-
-        let createVariants = null;
-        if (component.customCreateVariantsJs) {
-          try {
-            createVariants = this.evaluate(component.customCreateVariantsJs, {}, 'value', true);
-          } catch (e) {
-            console.error(e);
-          }
-        } else if (source.custom.createVariants) {
-          createVariants = source.custom.createVariants;
-        }
-
-        if (createVariants && createVariants.then) {
-          return createVariants.then(resolve).catch(e => {
-            console.error(e);
-            resolve(null);
-          });
-        } else {
-          return resolve(createVariants);
-        }
-      default:
-        return resolveProps(null);
-    }
+    return this._fetchAsyncProperties(component.source).then(resolveProps);
   }
 }

@@ -276,21 +276,27 @@ class Tab extends React.Component {
     const { isActive, onClick, hasHover, hasHint, disabled, className, isNew } = this.props;
     const { text, defText } = this.state;
     const isEdit = this.isEditable;
-    const tabClassNames = classNames('ecos-tab', 'ecos-tab_editable', className, {
+    const tabClassNames = classNames('ecos-tab ecos-tab_editable', className, {
       'ecos-tab_active': isActive,
       'ecos-tab_hover': hasHover,
       'ecos-tab_disabled': disabled,
       'ecos-tab_editing': isEdit
     });
-    const placeholder = isNew ? defText : '';
+    const addProps = {};
+
+    if (isNew) {
+      addProps.placeholder = defText;
+    }
+
+    if (hasHint) {
+      addProps.title = text;
+    }
 
     return (
       <ClickOutside className={tabClassNames} onClick={onClick} handleClickOutside={this.endEdit}>
         <ContentEditable
           tagName="div"
           html={text}
-          placeholder={placeholder}
-          title={hasHint ? text : EMPTY_STR}
           disabled={!isEdit}
           className={classNames('ecos-tab-label', { 'ecos-tab-label_editing': isEdit })}
           innerRef={this.labelRef}
@@ -298,8 +304,9 @@ class Tab extends React.Component {
           onKeyPress={this.onKeyPress}
           onClick={this.onClick}
           onDoubleClick={this.startEdit}
+          {...addProps}
         />
-        {this.renderActions()}
+        {!disabled && this.renderActions()}
       </ClickOutside>
     );
   }

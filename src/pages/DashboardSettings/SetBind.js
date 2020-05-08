@@ -18,9 +18,7 @@ class SetBind extends React.Component {
   static defaultProps = {
     selectedDashboardKey: '',
     keys: [],
-    isAdmin: false,
-    isForAllUsers: false,
-    setData: () => {}
+    setData: () => null
   };
 
   state = {
@@ -35,7 +33,7 @@ class SetBind extends React.Component {
     this.props.setData({ selectedDashboardKey: field.key });
   };
 
-  onChangeKeyForAllUser = field => {
+  onChangeOwner = field => {
     this.props.setData({ isForAllUsers: field.checked });
   };
 
@@ -44,29 +42,33 @@ class SetBind extends React.Component {
     const { isOpenKeys } = this.state;
 
     return (
-      <React.Fragment>
+      <>
         <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.case-type')}</h5>
-        <div className="ecos-dashboard-settings__keys-wrapper">
-          <Dropdown
-            source={keys}
-            value={selectedDashboardKey}
-            valueField={'key'}
-            titleField={'displayName'}
-            onChange={this.onChangeDashboardKey}
-            getStateOpen={this.getStateOpen}
-            hideSelected
-            className="ecos-dashboard-settings__keys-dropdown"
-            menuClassName="ecos-dashboard-settings__keys-dropdown__menu"
-          >
-            <IcoBtn invert icon={isOpenKeys ? 'icon-up' : 'icon-down'} className="ecos-btn_white2 ecos-btn_focus_no ecos-btn_drop-down" />
-          </Dropdown>
+        <div className="ecos-dashboard-settings__bindings">
+          {keys && !!keys.length && (
+            <Dropdown
+              source={keys}
+              value={selectedDashboardKey}
+              valueField={'key'}
+              titleField={'displayName'}
+              onChange={this.onChangeDashboardKey}
+              getStateOpen={this.getStateOpen}
+              hideSelected
+              className="ecos-dashboard-settings__bindings-dropdown"
+              menuClassName="ecos-dashboard-settings__bindings-dropdown__menu"
+            >
+              <IcoBtn invert icon={isOpenKeys ? 'icon-up' : 'icon-down'} className="ecos-btn_white2 ecos-btn_focus_no ecos-btn_drop-down" />
+            </Dropdown>
+          )}
           {isAdmin && (
-            <Checkbox checked={isForAllUsers} onChange={this.onChangeKeyForAllUser} className="ecos-dashboard-settings__all-users">
-              {t('dashboard-settings.for-all')}
-            </Checkbox>
+            <div className="ecos-dashboard-settings__bindings-owner">
+              <Checkbox checked={isForAllUsers} onChange={this.onChangeOwner} className="ecos-checkbox_flex">
+                {t('dashboard-settings.for-all')}
+              </Checkbox>
+            </div>
           )}
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }
