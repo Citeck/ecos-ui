@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 import * as common from '../__mocks__/common';
-import { treeAddItem, treeFindFirstItem, treeGetIndexInLvl, treeGetPathItem, treeRemoveItem } from '../arrayOfObjects';
+import { treeAddItem, treeFindFirstItem, treeGetItemCoords, treeGetPathItem, treeRemoveItem } from '../arrayOfObjects';
 
 describe('Helpers for Array of Objects / Tree', () => {
   const items = common.ITEMS; // don't mutate, else create local
@@ -71,12 +71,12 @@ describe('Helpers for Array of Objects / Tree', () => {
     });
   });
 
-  describe('function treeGetIndexInLvl', () => {
+  describe('function treeGetItemCoords', () => {
     it('check on top level by DndIdx', () => {
       const value = 20;
-      const found1 = treeGetIndexInLvl({ items, key: 'dndIdx', value });
+      const found1 = treeGetItemCoords({ items, key: 'dndIdx', value });
       const found2 = items.findIndex(item => item.dndIdx === value);
-      expect(found1).toBe(found2);
+      expect(found1).toEqual({ parent: 0, level: 0, index: found2 });
     });
   });
 
@@ -84,6 +84,15 @@ describe('Helpers for Array of Objects / Tree', () => {
     it('get path and get element by path', () => {
       const value = 20201010;
       const path = treeGetPathItem({ items, key: 'dndIdx', value });
+      const item = get(items, path);
+      expect(item && item.dndIdx).toBe(value);
+    });
+  });
+
+  describe('function treeMoveItem', () => {
+    it('get path and get element by path', () => {
+      const value = 20201010;
+      const path = treeMoveItem({});
       const item = get(items, path);
       expect(item && item.dndIdx).toBe(value);
     });

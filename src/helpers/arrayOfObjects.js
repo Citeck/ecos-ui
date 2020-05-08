@@ -99,6 +99,7 @@ export function treeFindFirstItem({ items, key, value }) {
 
 /**
  * Удаление певого найденного элемента
+ * * изменяет массив
  * @param items {Array} источник
  * @param key {String} ключ поля,
  * @param value {number|string|boolean} значение поля,
@@ -122,6 +123,7 @@ export function treeRemoveItem({ items, key, value }) {
 
 /**
  * Добавление элемента
+ * * изменяет массив
  * key и value для поиска ветки в которую вставлять
  * @param items {Array} источник
  * @param newItem {Object} новый элемент
@@ -135,7 +137,7 @@ export function treeAddItem({ items, newItem, key, value, indexTo }) {
     const item = items[i];
 
     if (item[key] === value) {
-      items.splice(indexTo != null ? i : indexTo, 0, newItem);
+      items.splice(indexTo != null ? indexTo : i + 1, 0, newItem);
       return true;
     }
 
@@ -148,26 +150,30 @@ export function treeAddItem({ items, newItem, key, value, indexTo }) {
 }
 
 /**
- * Получение индекса элемента относительно своей ветки
+ * Получение координат элемента
  * @param items {Array} источник
- * @param key {String} ключ поля,
- * @param value {number|string|boolean} значение поля,
- * @returns {number} индекс
+ * @param key {String} ключ поля
+ * @param value {number|string|boolean} значение поля
+ * @returns {object} {уровень, родительИндекс, индекс}
  */
-export function treeGetIndexInLvl({ items, key, value }) {
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i];
+export function treeGetItemCoords({ items, key, value }) {
+  function find(_items, level, parent) {
+    for (let i = 0; i < _items.length; i++) {
+      const item = _items[i];
 
-    if (item[key] === value) {
-      return i;
-    }
+      if (item[key] === value) {
+        return { level, parent, index: i };
+      }
 
-    const sub = !!item.items && treeGetIndexInLvl({ items: item.items, key, value });
+      const sub = !!item.items && find(item.items, level++, i);
 
-    if (sub) {
-      return i;
+      if (sub) {
+        return sub;
+      }
     }
   }
+
+  return find(items, 0, 0) || {};
 }
 
 /**
@@ -210,11 +216,17 @@ export function treeMoveItem({ fromId, toId, original, key = 'id' }) {
 
   const items = deepClone(original);
 
-  const indexTo = treeGetIndexInLvl({ items, key, value: toId });
-
+  const infoTo = treeGetItemCoords({ items, key, value: toId });
+  const infoFrom = treeGetItemCoords({ items, key, value: fromId });
   const movedItem = treeRemoveItem({ items, key, value: fromId });
 
-  treeAddItem({ items, key, value: toId, indexTo, newItem: movedItem });
+  treeAddItem({
+    items,
+    key,
+    value: toId,
+    newItem: movedItem,
+    indexTo: infoTo.parent === infoFrom.parent ? infoTo.index : undefined
+  });
 
   return items;
 }
