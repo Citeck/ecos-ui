@@ -177,7 +177,8 @@ class EventsHistory extends React.Component {
   }
 
   renderTable() {
-    const { list, columns, isMobile, maxHeight } = this.props;
+    const { list, columns, isMobile, maxHeight, height } = this.props;
+    const maxHeightGrid = height != null ? height : maxHeight;
     //todo for server filer const { filters } = this.state;
 
     return (
@@ -188,7 +189,7 @@ class EventsHistory extends React.Component {
         scrollable={!isMobile}
         noTopBorder
         className="ecos-event-history-list ecos-event-history-list_view-table"
-        maxHeight={maxHeight}
+        maxHeight={maxHeightGrid}
         autoHeight
       />
       // filterable={false}
