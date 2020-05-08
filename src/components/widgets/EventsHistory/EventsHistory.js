@@ -178,7 +178,7 @@ class EventsHistory extends React.Component {
 
   renderTable() {
     const { list, columns, isMobile, maxHeight, height } = this.props;
-    const maxHeightGrid = height != null ? height : maxHeight;
+    const maxHeightGrid = typeof height === 'number' ? height : maxHeight;
     //todo for server filer const { filters } = this.state;
 
     return (
