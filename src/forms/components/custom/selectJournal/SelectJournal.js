@@ -28,7 +28,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
         sortAttribute: Attributes.DBID,
         sortAscending: SortOrderOptions.ASC.value,
         source: {
-          custom: {},
+          custom: {
+            columns: []
+          },
           type: TableTypes.JOURNAL,
           viewMode: DisplayModes.DEFAULT
         }
