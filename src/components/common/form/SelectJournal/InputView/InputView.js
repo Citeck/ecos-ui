@@ -19,12 +19,6 @@ class InputView extends Component {
   gridWrapperRef = undefined;
   stopBlur = false;
 
-  componentDidMount() {
-    if (this.gridWrapperRef) {
-      this.gridWrapperRef.addEventListener('mouseleave', this.resetInlineToolsOffsets);
-    }
-  }
-
   componentWillUnmount() {
     if (this.gridWrapperRef) {
       this.gridWrapperRef.removeEventListener('mouseleave', this.resetInlineToolsOffsets);
