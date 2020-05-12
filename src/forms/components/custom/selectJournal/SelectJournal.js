@@ -28,6 +28,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         sortAttribute: Attributes.DBID,
         sortAscending: SortOrderOptions.ASC.value,
         source: {
+          custom: {},
           type: TableTypes.JOURNAL,
           viewMode: DisplayModes.DEFAULT
         }
@@ -65,6 +66,16 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
 
     return result;
+  }
+
+  setValue(value, flags) {
+    const { source } = this.component;
+
+    super.setValue(value, flags);
+
+    if (!source.viewMode || source.viewMode === DisplayModes.DEFAULT) {
+      source.type = TableTypes.JOURNAL;
+    }
   }
 
   getComponentToRender() {
@@ -175,6 +186,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
             inputsPromise = Promise.resolve({});
           } else {
             let cvRecordRef = createVariants[0].recordRef;
+
             columnsInfoPromise = Records.get(cvRecordRef)
               .load(Object.keys(columnsMap))
               .then(loadedAtt => {

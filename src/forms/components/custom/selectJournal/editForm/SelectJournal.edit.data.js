@@ -55,7 +55,7 @@ export default [
   },
   {
     type: 'select',
-    label: 'Display mode',
+    label: 'View mode',
     key: 'source.viewMode',
     weight: 23,
     tooltip: 'Select a data display mode',
@@ -96,6 +96,11 @@ export default [
         defaultValue: TableTypes.JOURNAL,
         data: {
           values: [{ label: 'Journal', value: TableTypes.JOURNAL }, { label: 'Custom', value: TableTypes.CUSTOM }]
+        },
+        conditional: {
+          json: {
+            and: [{ '==': [{ var: 'data.source.viewMode' }, DisplayModes.TABLE] }]
+          }
         },
         weight: 1
       },
