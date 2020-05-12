@@ -207,7 +207,7 @@ export default class PageService {
 
     PageService.setWhereLinkOpen({ parentLink: currentLink, subsidiaryLink: link });
 
-    // event.preventDefault();
+    event.preventDefault();
 
     const isBackgroundOpening = elem.getAttribute(OPEN_IN_BACKGROUND);
 
