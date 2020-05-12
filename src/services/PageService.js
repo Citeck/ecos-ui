@@ -26,6 +26,8 @@ const CHANGE_URL = document.createEvent('Event');
 CHANGE_URL.initEvent(Events.CHANGE_URL_LINK_EVENT, true, true);
 
 export default class PageService {
+  static eventIsDispatched = false;
+
   static getType(link) {
     const _link = link || window.location.href;
     const found = queryString.parseUrl(_link).url.split('/v2/');
@@ -113,8 +115,20 @@ export default class PageService {
    *    openInBackground - bool
    */
   static changeUrlLink = (link = '', params = {}) => {
-    CHANGE_URL.params = { link, ...params };
-    document.dispatchEvent(CHANGE_URL);
+    if (PageService.eventIsDispatched) {
+      return;
+    }
+
+    PageService.eventIsDispatched = true;
+
+    try {
+      CHANGE_URL.params = { link, ...params };
+      document.dispatchEvent(CHANGE_URL);
+      PageService.eventIsDispatched = false;
+    } catch (e) {
+      console.error(e);
+      PageService.eventIsDispatched = false;
+    }
   };
 
   /**
@@ -193,7 +207,7 @@ export default class PageService {
 
     PageService.setWhereLinkOpen({ parentLink: currentLink, subsidiaryLink: link });
 
-    event.preventDefault();
+    // event.preventDefault();
 
     const isBackgroundOpening = elem.getAttribute(OPEN_IN_BACKGROUND);
 
