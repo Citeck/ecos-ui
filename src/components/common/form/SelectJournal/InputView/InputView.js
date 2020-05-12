@@ -62,13 +62,25 @@ class InputView extends Component {
   isNewOffsets = offsets => {
     const { inlineToolsOffsets } = this.state;
 
-    return (
-      offsets &&
-      inlineToolsOffsets &&
-      (offsets.height !== inlineToolsOffsets.height ||
-        offsets.top !== inlineToolsOffsets.top ||
-        offsets.row.id !== inlineToolsOffsets.rowId)
-    );
+    if (!offsets || !inlineToolsOffsets) {
+      return false;
+    }
+
+    let isDifferentData = false;
+
+    if (offsets.height !== inlineToolsOffsets.height) {
+      isDifferentData = true;
+    }
+
+    if (offsets.top !== inlineToolsOffsets.top) {
+      isDifferentData = true;
+    }
+
+    if (offsets.row.id !== inlineToolsOffsets.rowId) {
+      isDifferentData = true;
+    }
+
+    return isDifferentData;
   };
 
   setInlineToolsOffsets = offsets => {
