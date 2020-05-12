@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import isEmpty from 'lodash/isEmpty';
 import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 
 import { SelectJournal } from '../../../../components/common/form';
@@ -59,6 +58,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
 
     let customPredicate = this.evaluate(this.component.customPredicateJs, {}, 'value', true);
+
     if (!_.isEqual(customPredicate, this.customPredicateValue)) {
       this.customPredicateValue = customPredicate;
       this.updateReactComponent(component => component.setCustomPredicate(customPredicate));
@@ -71,7 +71,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return SelectJournal;
   }
 
-  _fetchAsyncProperties = source => {
+  fetchAsyncProperties = source => {
     return new Promise(async resolve => {
       if (!source) {
         return resolve({ error: new Error('Empty source') });
@@ -241,16 +241,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
     });
   };
 
-  prepareColumns = columns => {
-    if (isEmpty(columns)) {
-      return columns;
-    }
-
-    return trimFields(columns);
-  };
-
   getInitialReactProps() {
-    let resolveProps = (journalId, columns) => {
+    let resolveProps = (journalId, columns = []) => {
       const component = this.component;
       let presetFilterPredicates = null;
 
@@ -259,7 +251,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       }
 
       const reactComponentProps = {
-        columns: this.prepareColumns(columns),
+        columns: columns.length ? trimFields(columns) : undefined,
         defaultValue: this.dataValue,
         isCompact: component.isCompact,
         multiple: component.multiple,
@@ -285,9 +277,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },
-        onError: err => {
-          // this.setCustomValidity(err, false);
-        }
+        onError: () => {}
       };
 
       if (this.customPredicateValue) {
@@ -311,7 +301,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
           return resolveProps(null);
         });
     } else {
-      return this._fetchAsyncProperties(this.component.source).then(columns => resolveProps(journalId, columns));
+      return this.fetchAsyncProperties(this.component.source).then(columns => resolveProps(journalId, columns));
     }
   }
 

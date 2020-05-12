@@ -16,27 +16,25 @@ class InputView extends Component {
     inlineToolsOffsets: { height: 0, top: 0, row: {} }
   };
 
-  wrapperRef = React.createRef();
+  gridWrapperRef = undefined;
   stopBlur = false;
 
   componentDidMount() {
-    const gridWrapper = this.wrapperRef.current;
-
-    if (gridWrapper) {
-      gridWrapper.addEventListener('mouseleave', this.resetInlineToolsOffsets);
+    if (this.gridWrapperRef) {
+      this.gridWrapperRef.addEventListener('mouseleave', this.resetInlineToolsOffsets);
     }
   }
 
   componentWillUnmount() {
-    if (this.wrapperRef.current) {
-      this.wrapperRef.current.removeEventListener('mouseleave', this.resetInlineToolsOffsets);
+    if (this.gridWrapperRef) {
+      this.gridWrapperRef.removeEventListener('mouseleave', this.resetInlineToolsOffsets);
     }
   }
 
   setRef = ref => {
     if (ref) {
-      ref.addEventListener('mouseleave', this.resetInlineToolsOffsets);
-      this.wrapperRef.current = ref;
+      this.gridWrapperRef = ref;
+      this.gridWrapperRef.addEventListener('mouseleave', this.resetInlineToolsOffsets);
     }
   };
 
@@ -61,16 +59,20 @@ class InputView extends Component {
     }
   };
 
-  setInlineToolsOffsets = offsets => {
+  isNewOffsets = offsets => {
     const { inlineToolsOffsets } = this.state;
 
-    if (
+    return (
       offsets &&
       inlineToolsOffsets &&
       (offsets.height !== inlineToolsOffsets.height ||
         offsets.top !== inlineToolsOffsets.top ||
         offsets.row.id !== inlineToolsOffsets.rowId)
-    ) {
+    );
+  };
+
+  setInlineToolsOffsets = offsets => {
+    if (this.isNewOffsets(offsets)) {
       this.setState({
         inlineToolsOffsets: {
           height: offsets.height,
@@ -194,8 +196,7 @@ class InputView extends Component {
   render() {
     const { selectedRows, error, disabled, multiple, isCompact, className, autoFocus } = this.props;
     const wrapperClasses = classNames('select-journal__input-view', { 'select-journal__input-view_compact': isCompact }, className);
-    const buttonClasses = classNames('ecos-btn_blue', {
-      'ecos-btn_narrow': true,
+    const buttonClasses = classNames('ecos-btn_blue ecos-btn_narrow', {
       'select-journal__input-view-button_compact': isCompact
     });
 
