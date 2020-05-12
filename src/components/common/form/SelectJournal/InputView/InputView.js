@@ -16,7 +16,7 @@ class InputView extends Component {
     inlineToolsOffsets: { height: 0, top: 0, row: {} }
   };
 
-  gridWrapperRef = undefined;
+  gridWrapperRef = null;
   stopBlur = false;
 
   componentWillUnmount() {
