@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
 import Records from '../Records/Records';
-import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 
 class BaseWidget extends Component {
   contentRef = React.createRef();
@@ -72,6 +72,10 @@ class BaseWidget extends Component {
       contentHeight = 0;
     }
 
+    if (!contentHeight && this.state.userHeight === undefined) {
+      return;
+    }
+
     if (contentHeightState !== contentHeight) {
       this.setState({ contentHeight });
     }
@@ -117,7 +121,7 @@ class BaseWidget extends Component {
   };
 
   handleResize = width => {
-    this.setState({ width });
+    !!width && this.setState({ width });
   };
 
   reload = () => {

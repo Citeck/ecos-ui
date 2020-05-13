@@ -6,10 +6,9 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { ContentState, convertFromRaw, convertToRaw, Editor, EditorState, RichUtils } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
-import get from 'lodash/get';
 
 import BaseWidget from '../BaseWidget';
-import { num2str, t } from '../../../helpers/util';
+import { deepClone, num2str, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
@@ -20,6 +19,8 @@ import Dashlet, { BaseActions } from '../../Dashlet';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
+import debounce from 'lodash/debounce';
+import ReactResizeDetector from 'react-resize-detector';
 
 const BASE_HEIGHT = 21;
 const BUTTONS_TYPE = {
@@ -93,6 +94,7 @@ class Comments extends BaseWidget {
     this.state = {
       ...this.state,
       isEdit: false,
+      headerHeight: 0,
       editableComment: null,
       commentForDeletion: null,
       editorHeight: BASE_HEIGHT,
@@ -233,7 +235,25 @@ class Comments extends BaseWidget {
   }
 
   get otherHeight() {
-    return get(this._header, 'current.offsetHeight', 0);
+    return this.state.headerHeight;
+  }
+
+  get scrollHeight() {
+    const { userHeight, contentHeight } = this.state;
+
+    let height = 0;
+
+    if (userHeight === undefined) {
+      return contentHeight - this.otherHeight;
+    }
+
+    if (userHeight <= 0) {
+      return 0;
+    }
+
+    height = userHeight - this.otherHeight;
+
+    return height < 0 ? 0 : height;
   }
 
   updateEditorHeight = () => {
@@ -250,9 +270,12 @@ class Comments extends BaseWidget {
     }
   };
 
-  recalculateScrollbarHeight = () => {
-    if (this._scroll.current) {
-      this._scroll.current.container.style.minHeight = this.scrollbarHeight;
+  setFitHeights = data => {
+    const fitHeights = deepClone(data);
+    const fitHeightsState = this.state.fitHeights;
+
+    if (JSON.stringify(fitHeightsState) !== JSON.stringify(fitHeights)) {
+      this.setState({ fitHeights });
     }
   };
 
@@ -389,23 +412,33 @@ class Comments extends BaseWidget {
     getComments();
   };
 
+  handleResizeHeader = debounce((width, headerHeight) => {
+    if (this.state.headerHeight !== headerHeight) {
+      this.setState({ headerHeight });
+    }
+  }, 400);
+
   renderHeader() {
     const { isEdit } = this.state;
 
     return (
-      <div className="ecos-comments__header" ref={this._header}>
-        {isEdit ? (
-          this.renderEditor()
-        ) : (
-          <>
-            <div className="ecos-comments__count">
-              <span className="ecos-comments__count-text">{this.countComments}</span>
-            </div>
-            <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
-              {t('comments-widget.add')}
-            </Btn>
-          </>
-        )}
+      <div>
+        <div className="ecos-comments__header" ref={this._header}>
+          {isEdit ? (
+            this.renderEditor()
+          ) : (
+            <>
+              <div className="ecos-comments__count">
+                <span className="ecos-comments__count-text">{this.countComments}</span>
+              </div>
+              <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
+                {t('comments-widget.add')}
+              </Btn>
+            </>
+          )}
+        </div>
+
+        <ReactResizeDetector handleWidth handleHeight onResize={this.handleResizeHeader} />
       </div>
     );
   }
@@ -607,10 +640,8 @@ class Comments extends BaseWidget {
       return null;
     }
 
-    const { userHeight = 0, contentHeight, fitHeights } = this.state;
-    const _commentsHeader = this._header.current || {};
-    const headerHeight = _commentsHeader.offsetHeight || 0;
-    const fixHeight = userHeight ? userHeight - headerHeight : null;
+    const { userHeight, fitHeights } = this.state;
+    const fixHeight = userHeight ? userHeight - this.otherHeight : null;
 
     const renderCommentList = () => (
       <div className="ecos-comments__list" ref={this.contentRef}>
@@ -623,11 +654,12 @@ class Comments extends BaseWidget {
     }
 
     return (
-      <Scrollbars autoHide ref={this._scroll} style={{ height: contentHeight || '100%' }}>
+      <Scrollbars autoHide ref={this._scroll} style={{ height: this.scrollHeight }}>
         <DefineHeight
           fixHeight={fixHeight}
-          maxHeight={fitHeights.max - headerHeight}
-          minHeight={1}
+          maxHeight={userHeight !== undefined ? fitHeights.max - this.otherHeight : fitHeights.max}
+          // maxHeight={fitHeights.max - this.state.headerHeight + fitHeights.headerHeight}
+          minHeight={0}
           getOptimalHeight={this.setContentHeight}
         >
           {renderCommentList()}
