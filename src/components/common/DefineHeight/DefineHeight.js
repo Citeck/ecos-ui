@@ -39,7 +39,7 @@ export default class DefineHeight extends React.Component {
   }
 
   onResize = (w, contentHeight) => {
-    this.getHeights(contentHeight);
+    !!contentHeight && this.getHeights(contentHeight);
   };
 
   getHeights(contentHeight) {

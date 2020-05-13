@@ -35,7 +35,7 @@ class DocStatusDashlet extends BaseWidget {
   }
 
   onResize = w => {
-    this.setState({ isSmall: w <= 263 });
+    this.setState({ isSmall: w && w <= 263 });
   };
 
   render() {
