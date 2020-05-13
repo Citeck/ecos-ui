@@ -89,7 +89,6 @@ class Comments extends BaseWidget {
 
     this.contentRef = React.createRef();
     this._scroll = React.createRef();
-    this._header = React.createRef();
 
     this.state = {
       ...this.state,
@@ -423,7 +422,7 @@ class Comments extends BaseWidget {
 
     return (
       <div>
-        <div className="ecos-comments__header" ref={this._header}>
+        <div className="ecos-comments__header">
           {isEdit ? (
             this.renderEditor()
           ) : (
@@ -658,7 +657,6 @@ class Comments extends BaseWidget {
         <DefineHeight
           fixHeight={fixHeight}
           maxHeight={userHeight !== undefined ? fitHeights.max - this.otherHeight : fitHeights.max}
-          // maxHeight={fitHeights.max - this.state.headerHeight + fitHeights.headerHeight}
           minHeight={0}
           getOptimalHeight={this.setContentHeight}
         >
