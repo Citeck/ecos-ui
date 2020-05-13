@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
 import Records from '../Records/Records';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 
 class BaseWidget extends Component {
   contentRef = React.createRef();
