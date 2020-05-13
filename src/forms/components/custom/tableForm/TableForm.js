@@ -332,6 +332,7 @@ export default class TableFormComponent extends BaseReactComponent {
                       attribute: originalColumn.name
                     });
                   }
+
                   return cols;
                 });
 
