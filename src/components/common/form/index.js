@@ -13,3 +13,4 @@ export { default as Headline } from './Headline/Headline';
 export { default as Badge } from './Badge/Badge';
 export { default as SelectOrgstruct } from './SelectOrgstruct';
 export { default as SelectJournal } from './SelectJournal';
+export { default as TableForm } from './TableForm';

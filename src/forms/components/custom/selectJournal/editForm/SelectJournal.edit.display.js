@@ -1,3 +1,5 @@
+import { DisplayModes } from '../constants';
+
 export default [
   {
     type: 'checkbox',
@@ -29,6 +31,11 @@ export default [
     key: 'isSelectedValueAsText',
     label: 'Display selected value as a text. Default value is link',
     weight: 13,
-    defaultValue: false
+    defaultValue: false,
+    conditional: {
+      json: {
+        and: [{ '==': [{ var: 'data.source.viewMode' }, DisplayModes.DEFAULT] }]
+      }
+    }
   }
 ];
