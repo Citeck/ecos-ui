@@ -169,25 +169,26 @@ class TreeItem extends Component {
 
     return (
       <Collapse isOpen={isOpen} className="ecos-tree__item-element-children">
-        {item.items.map((child, index) => (
-          <TreeItem
-            item={child}
-            key={child.id}
-            index={index}
-            isChild
-            prefixClassName={prefixClassName}
-            level={level + STEP_LVL}
-            onToggleSelect={onToggleSelect}
-            onClickAction={onClickAction}
-            openAll={openAll}
-            draggable={draggable}
-            dragLvlTo={dragLvlTo}
-            moveInLevel={moveInLevel}
-            moveInParent={moveInParent}
-            parentKey={item.id}
-            renderExtraItemComponents={renderExtraItemComponents}
-          />
-        ))}
+        {isOpen &&
+          item.items.map((child, index) => (
+            <TreeItem
+              item={child}
+              key={child.id}
+              index={index}
+              isChild
+              prefixClassName={prefixClassName}
+              level={level + STEP_LVL}
+              onToggleSelect={onToggleSelect}
+              onClickAction={onClickAction}
+              openAll={openAll}
+              draggable={draggable}
+              dragLvlTo={dragLvlTo}
+              moveInLevel={moveInLevel}
+              moveInParent={moveInParent}
+              parentKey={item.id}
+              renderExtraItemComponents={renderExtraItemComponents}
+            />
+          ))}
       </Collapse>
     );
   }
