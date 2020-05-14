@@ -58,6 +58,7 @@ import './styles/index.scss';
 
 import './build-info';
 import './services/esign';
+import preval from 'preval.macro';
 
 const logger = Logger.create('EcoS');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
@@ -119,6 +120,11 @@ api.userConfig = new UserConfigApi(store);
 // }));
 
 const history = getHistory();
+
+window.requirejs.config({
+  baseUrl: '/share/res',
+  urlArgs: 'b=' + preval`module.exports = new Date().getTime()`
+});
 
 // TODO simplify
 store.dispatch(
