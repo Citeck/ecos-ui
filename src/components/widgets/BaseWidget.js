@@ -72,6 +72,10 @@ class BaseWidget extends Component {
       contentHeight = 0;
     }
 
+    if (!contentHeight && this.state.userHeight === undefined) {
+      return;
+    }
+
     if (contentHeightState !== contentHeight) {
       this.setState({ contentHeight });
     }
@@ -117,7 +121,7 @@ class BaseWidget extends Component {
   };
 
   handleResize = width => {
-    this.setState({ width });
+    !!width && this.setState({ width });
   };
 
   reload = () => {
