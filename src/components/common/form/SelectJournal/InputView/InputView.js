@@ -4,13 +4,37 @@ import classNames from 'classnames';
 
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
-import { Btn } from '../../../../common/btns';
+import { Btn, IcoBtn } from '../../../../common/btns';
+import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDisconnected';
+import { Grid } from '../../../../common/grid';
 import { AssocLink } from '../../AssocLink';
 
 import './InputView.scss';
 
 class InputView extends Component {
+  state = {
+    inlineToolsOffsets: { height: 0, top: 0, row: {} }
+  };
+
+  gridWrapperRef = null;
   stopBlur = false;
+
+  componentWillUnmount() {
+    if (this.gridWrapperRef) {
+      this.gridWrapperRef.removeEventListener('mouseleave', this.resetInlineToolsOffsets);
+    }
+  }
+
+  setRef = ref => {
+    if (ref) {
+      this.gridWrapperRef = ref;
+      this.gridWrapperRef.addEventListener('mouseleave', this.resetInlineToolsOffsets);
+    }
+  };
+
+  resetInlineToolsOffsets = () => {
+    this.setState({ inlineToolsOffsets: { height: 0, top: 0, row: {} } });
+  };
 
   onBlur = () => {
     const { onBlur } = this.props;
@@ -29,6 +53,42 @@ class InputView extends Component {
     }
   };
 
+  isNewOffsets = offsets => {
+    const { inlineToolsOffsets } = this.state;
+
+    if (!offsets || !inlineToolsOffsets) {
+      return false;
+    }
+
+    let isDifferentData = false;
+
+    if (offsets.height !== inlineToolsOffsets.height) {
+      isDifferentData = true;
+    }
+
+    if (offsets.top !== inlineToolsOffsets.top) {
+      isDifferentData = true;
+    }
+
+    if (offsets.row.id !== inlineToolsOffsets.rowId) {
+      isDifferentData = true;
+    }
+
+    return isDifferentData;
+  };
+
+  setInlineToolsOffsets = offsets => {
+    if (this.isNewOffsets(offsets)) {
+      this.setState({
+        inlineToolsOffsets: {
+          height: offsets.height,
+          top: offsets.top,
+          rowId: offsets.row.id || null
+        }
+      });
+    }
+  };
+
   renderSelectedValue(item) {
     const { isSelectedValueAsText, isInlineEditingMode } = this.props;
     const props = {};
@@ -41,62 +101,114 @@ class InputView extends Component {
     return <AssocLink label={item.disp} asText={isSelectedValueAsText} {...props} className="select-journal__values-list-disp" />;
   }
 
-  render() {
-    const {
-      selectedRows,
-      placeholder,
-      error,
-      disabled,
-      multiple,
-      isCompact,
-      editValue,
-      deleteValue,
-      className,
-      autoFocus,
-      hideEditRowButton,
-      hideDeleteRowButton
-    } = this.props;
+  renderCompactList = () => {
+    const { selectedRows, isCompact } = this.props;
 
-    const wrapperClasses = classNames('select-journal__input-view', { 'select-journal__input-view_compact': isCompact }, className);
+    if (!isCompact) {
+      return null;
+    }
 
-    const buttonClasses = classNames('ecos-btn_blue', {
-      'ecos-btn_narrow': true,
-      'select-journal__input-view-button_compact': isCompact
-    });
-
-    const placeholderText = placeholder ? placeholder : t('select-journal.placeholder');
-
-    const valuesList = isCompact ? (
+    return (
       <>
         {selectedRows.length > 0 && (
           <div className="select-journal__values-list_compact">{selectedRows.map(item => item.disp).join(', ')}</div>
         )}
       </>
-    ) : (
-      <>
-        {selectedRows.length > 0 ? (
-          <ul className="select-journal__values-list">
-            {selectedRows.map(item => (
-              <li key={item.id}>
-                {this.renderSelectedValue(item)}
-                {disabled ? null : (
-                  <div className="select-journal__values-list-actions">
-                    {!(!item.canEdit || hideEditRowButton) && <span data-id={item.id} className="icon icon-edit" onClick={editValue} />}
-                    {!hideDeleteRowButton && <span data-id={item.id} className="icon icon-delete" onClick={deleteValue} />}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="select-journal__value-not-selected">{placeholderText}</p>
-        )}
-      </>
     );
+  };
+
+  renderInlineTools = () => {
+    const { editValue, deleteValue, selectedRows, hideEditRowButton, hideDeleteRowButton } = this.props;
+    const { inlineToolsOffsets } = this.state;
+    const inlineToolsActionClassName =
+      'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10 ecos-inline-tools-btn';
+    const iconButtons = [];
+    const row = selectedRows.find(row => row.id === inlineToolsOffsets.rowId);
+
+    if (row && !(!row.canEdit || hideEditRowButton)) {
+      iconButtons.push(
+        <IcoBtn
+          key={'edit'}
+          icon={'icon-edit'}
+          className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__edit')}
+          onClick={() => editValue(row.id)}
+        />
+      );
+    }
+
+    if (row && !hideDeleteRowButton) {
+      iconButtons.push(
+        <IcoBtn
+          key={'delete'}
+          icon={'icon-delete'}
+          className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__delete')}
+          onClick={() => deleteValue(row.id)}
+        />
+      );
+    }
+
+    return <InlineToolsDisconnected selectedRecords={selectedRows} {...inlineToolsOffsets} tools={iconButtons} />;
+  };
+
+  renderList = () => {
+    const {
+      viewMode,
+      disabled,
+      isCompact,
+      editValue,
+      placeholder,
+      deleteValue,
+      selectedRows,
+      hideEditRowButton,
+      hideDeleteRowButton,
+      gridData
+    } = this.props;
+
+    if (isCompact) {
+      return null;
+    }
+
+    if (!selectedRows.length) {
+      return <p className="select-journal__value-not-selected">{placeholder ? placeholder : t('select-journal.placeholder')}</p>;
+    }
+
+    if (viewMode === 'table') {
+      return (
+        <div ref={this.setRef} className="mb-3">
+          <Grid {...gridData} inlineTools={this.renderInlineTools} onChangeTrOptions={this.setInlineToolsOffsets} />
+        </div>
+      );
+    }
+
+    return (
+      <ul className="select-journal__values-list">
+        {selectedRows.map(item => (
+          <li key={item.id}>
+            {this.renderSelectedValue(item)}
+            {disabled ? null : (
+              <div className="select-journal__values-list-actions">
+                {!(!item.canEdit || hideEditRowButton) && (
+                  <span data-id={item.id} className="icon icon-edit" onClick={() => editValue(item.id)} />
+                )}
+                {!hideDeleteRowButton && <span data-id={item.id} className="icon icon-delete" onClick={() => deleteValue(item.id)} />}
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  render() {
+    const { selectedRows, error, disabled, multiple, isCompact, className, autoFocus } = this.props;
+    const wrapperClasses = classNames('select-journal__input-view', { 'select-journal__input-view_compact': isCompact }, className);
+    const buttonClasses = classNames('ecos-btn_blue ecos-btn_narrow', {
+      'select-journal__input-view-button_compact': isCompact
+    });
 
     return (
       <div className={wrapperClasses}>
-        {isCompact ? null : valuesList}
+        {this.renderList()}
 
         {error ? (
           <p className="select-journal__error">{error.message}</p>
@@ -110,7 +222,7 @@ class InputView extends Component {
           </Btn>
         )}
 
-        {isCompact ? valuesList : null}
+        {this.renderCompactList()}
       </div>
     );
   }
@@ -119,6 +231,7 @@ class InputView extends Component {
 InputView.propTypes = {
   selectedRows: PropTypes.array,
   placeholder: PropTypes.string,
+  viewMode: PropTypes.string,
   error: PropTypes.instanceOf(Error),
   disabled: PropTypes.bool,
   multiple: PropTypes.bool,
