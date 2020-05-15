@@ -1,11 +1,11 @@
 @import '../../styles/constants';
 @import '../../styles/content';
 
-.ecos-menu-settings {
-  &--flex-space {
-    flex: auto;
-  }
+.ecos--flex-space {
+  flex: auto;
+}
 
+.ecos-menu-settings {
   &__loader {
     border-radius: $border-radius-large;
   }
@@ -132,5 +132,29 @@
     & > :nth-child(even) {
       margin-left: 10px;
     }
+  }
+}
+
+.ecos-menu-create-section {
+  &__title {
+    @extend %subtitle-block--2;
+
+    &_required {
+      &::after {
+        content: '*';
+        padding-left: 5px;
+        color: $color-blue-dark;
+      }
+    }
+  }
+
+  &__descriptor {
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-small;
+    color: $color-gray-5;
+  }
+
+  &__set-icon {
+    display: flex;
   }
 }

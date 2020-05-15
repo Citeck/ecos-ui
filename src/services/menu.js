@@ -118,14 +118,27 @@ export default class MenuService {
 
   static extraCreateOptions = [
     {
+      key: 'section',
+      forbiddenTypes: [],
+      label: 'Раздел'
+    },
+    {
+      key: 'journal',
+      forbiddenTypes: [],
+      label: 'Журнал'
+    },
+    {
+      key: 'arbitrary',
       forbiddenTypes: [],
       label: 'menu-item.type.arbitrary'
     },
     {
+      key: 'link-create-case',
       forbiddenTypes: [],
       label: 'menu-item.type.link-to-create-case'
     },
     {
+      key: 'header-divider',
       forbiddenTypes: [],
       label: 'menu-item.type.header-divider'
     }
@@ -148,12 +161,12 @@ export default class MenuService {
     {
       id: '1111',
       forbiddenTypes: [],
-      label: 'Договоры'
+      label: 'Раздел'
     },
     {
       id: '22222',
       forbiddenTypes: [],
-      label: 'Журналы'
+      label: 'Журнал'
     }
   ];
 }
