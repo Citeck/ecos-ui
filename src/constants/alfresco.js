@@ -13,6 +13,7 @@ export const ALFRESCO = 'alfresco';
 
 window.Alfresco = window.Alfresco || {};
 window.Alfresco.constants = window.Alfresco.constants || {};
+
 window.Alfresco.constants = {
   ...window.Alfresco.constants,
   URL_CONTEXT,
@@ -23,3 +24,15 @@ window.Alfresco.constants = {
   URL_PAGECONTEXT,
   URL_SERVICECONTEXT
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+  import('./util').then(({ default: util }) => {
+    console.warn(util);
+
+    window.Alfresco.util = window.Alfresco.util || {};
+    window.Alfresco.util = {
+      ...window.Alfresco.util,
+      ...util
+    };
+  });
+});
