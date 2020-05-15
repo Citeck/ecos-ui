@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
 
 import { TunableDialog } from '../../components/common/dialogs';
 import EcosModal from '../../components/common/EcosModal';
@@ -14,6 +15,7 @@ class PopupManager {
 
   #modal = null;
   #container = null;
+  #modalWillBeDestroyed = false;
 
   zIndex = 15;
 
@@ -108,17 +110,25 @@ class PopupManager {
     ReactDOM.render(React.createElement(this.#modal, props), this.#container, callback);
   };
 
-  destroyModal = () => {
+  destroyModal = debounce(() => {
+    if (!this.#modalWillBeDestroyed) {
+      return;
+    }
+
+    console.warn('destroyModal');
     document.body.removeChild(this.#container);
     ReactDOM.unmountComponentAtNode(this.#container);
     this.#modal = null;
     this.#container = null;
-  };
+    this.#modalWillBeDestroyed = false;
+  }, 5000);
 
   onClose = () => {
     if (!this.#modal || !this.#container) {
       return;
     }
+
+    this.#modalWillBeDestroyed = true;
 
     this.render({ isOpen: false }, this.destroyModal);
   };
@@ -126,6 +136,11 @@ class PopupManager {
   destroy() {
     this.onClose();
   }
+
+  cancelDestroy = () => {
+    this.#modalWillBeDestroyed = false;
+    this.destroyModal.cancel();
+  };
 
   displayForm(k) {
     console.warn('displayForm', { k });
@@ -234,6 +249,8 @@ class PopupManager {
     const { buttons = [], text, title } = props;
     console.warn('displayPrompt', { props, container });
 
+    this.cancelDestroy();
+
     this.#modal = TunableDialog;
 
     this.createModal(
@@ -290,8 +307,29 @@ class PopupManager {
     // return l
   }
 
-  getUserInput(l) {
-    console.warn('getUserInput', { l });
+  getUserInput(props = {}) {
+    console.warn('getUserInput', { props });
+
+    this.cancelDestroy();
+
+    const { input = 'text', okButtonText = 'Ok', title = '', text = '', fn = () => null } = props;
+
+    this.#modal = TunableDialog;
+
+    this.createModal({
+      title,
+      isOpen: true,
+      content: text,
+      footer: [
+        <Btn key={okButtonText} className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={fn.bind(this)}>
+          {t(okButtonText)}
+        </Btn>,
+        <Btn key="cancel" onClick={this.destroy.bind(this)}>
+          {t('Cancel')}
+        </Btn>
+      ]
+    });
+
     // if (this.defaultGetUserInputConfig.buttons[0].text === null) {
     //   this.defaultGetUserInputConfig.buttons[0].text = Alfresco.util.message("button.ok", this.name)
     // }
