@@ -41,7 +41,7 @@ const mapStateToProps = (state, props) => {
   return {
     loading: newState.loading,
     grid: newState.grid,
-    isMobile: state.view.isMobile,
+    isMobile: (state.view || {}).isMobile === true,
     predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
