@@ -123,7 +123,10 @@ const history = getHistory();
 
 window.requirejs.config({
   baseUrl: '/share/res',
-  urlArgs: 'b=' + preval`module.exports = new Date().getTime()`
+  urlArgs: 'b=' + preval`module.exports = new Date().getTime()`,
+  paths: {
+    ecosui: '/js/ecos/ecosui'
+  }
 });
 
 // TODO simplify
