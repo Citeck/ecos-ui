@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { IcoBtn } from '../../btns';
+import { IcoBtn, TwoIcoBtn } from '../../btns';
 import { getPropByStringKey } from '../../../../helpers/util';
 
 import './Dropdown.scss';
@@ -27,6 +27,8 @@ export default class Dropdown extends Component {
     menuClassName: PropTypes.string,
     toggleClassName: PropTypes.string,
     controlClassName: PropTypes.string,
+    controlLabel: PropTypes.string,
+    controlIcon: PropTypes.string,
     direction: PropTypes.string,
     placeholder: PropTypes.string,
     hasEmpty: PropTypes.bool,
@@ -101,7 +103,11 @@ export default class Dropdown extends Component {
       }
 
       return (
-        <IcoBtn className={controlClassName} invert icon={dropdownOpen ? 'icon-up' : 'icon-down'}>
+        <IcoBtn
+          className={classNames('ecos-dropdown__toggle_selected', controlClassName)}
+          invert
+          icon={dropdownOpen ? 'icon-up' : 'icon-down'}
+        >
           {label}
         </IcoBtn>
       );
@@ -112,6 +118,23 @@ export default class Dropdown extends Component {
         children: isButton ? child.props.children || '' : label
       });
     });
+  };
+
+  getStaticControl = () => {
+    const { children, controlLabel = '', controlIcon = '', controlClassName } = this.props;
+    const { dropdownOpen } = this.state;
+
+    return (
+      children || (
+        <TwoIcoBtn
+          icons={[controlIcon, dropdownOpen ? 'icon-up' : 'icon-down']}
+          label={controlLabel}
+          className={classNames('ecos-dropdown__toggle_static', controlClassName)}
+        >
+          <span className="ecos-dropdown__toggle-label">{controlLabel}</span>
+        </TwoIcoBtn>
+      )
+    );
   };
 
   onChange = selected => {
@@ -192,7 +215,7 @@ export default class Dropdown extends Component {
     return (
       <Drd className={cssClasses} isOpen={dropdownOpen} toggle={this.toggle} direction={direction}>
         <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} className={cssDropdownToggle} tag="span">
-          {isStatic ? children : this.getControl(getPropByStringKey(this.selected, titleField))}
+          {isStatic ? this.getStaticControl() : this.getControl(getPropByStringKey(this.selected, titleField))}
         </DropdownToggle>
         <DropdownMenu className={cssDropdownMenu}>{this.renderMenuItems()}</DropdownMenu>
       </Drd>

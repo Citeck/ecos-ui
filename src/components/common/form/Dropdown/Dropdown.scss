@@ -11,6 +11,12 @@
     }
   }
 
+  &__toggle {
+    &-label {
+      padding: 0 5px;
+    }
+  }
+
   &__menu {
     &:not(.ecos-dropdown__menu_cascade) {
       transform: none !important;
