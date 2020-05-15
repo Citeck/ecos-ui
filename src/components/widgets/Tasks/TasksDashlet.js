@@ -50,7 +50,7 @@ class TasksDashlet extends BaseWidget {
   }
 
   onResize = width => {
-    this.setState({ isSmallMode: isSmallMode(width) });
+    !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   setInfo = data => {
