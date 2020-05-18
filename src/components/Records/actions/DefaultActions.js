@@ -411,11 +411,7 @@ export const CreateNodeAction = {
 
 export const UploadNewVersion = {
   execute: ({ record, action }) => {
-    const onClose = done => {
-      done && Records.get(record).update();
-    };
-
-    VersionsJournalService.addVersion({ record, onClose });
+    VersionsJournalService.addVersion({ record });
   },
 
   getDefaultModel: () => {
