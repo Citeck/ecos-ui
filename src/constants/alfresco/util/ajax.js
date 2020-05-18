@@ -28,12 +28,18 @@ class Ajax {
       .then(response => response.json())
       .then(json => ({ json }))
       .then(body => {
-        config.successCallback.fn(body);
+        this.callCallback(config.successCallback, body);
       })
       .catch(error => {
-        config.failureCallback.fn(error);
+        this.callCallback(config.failureCallback, error);
       });
   }
+
+  callCallback = (callback, data) => {
+    if (callback && typeof callback.fn === 'function') {
+      callback.fn.call(typeof callback.scope === 'object' ? callback.scope : this, data);
+    }
+  };
 }
 
 export default new Ajax();
