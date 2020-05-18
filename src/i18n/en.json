@@ -880,5 +880,7 @@
   "password-field.rule.count-digits": "1 digit",
   "password-field.rule.count-capitals": "1 capital",
   "password-field.rule.count-lowercase": "1 lowercase",
-  "password-field.rule.required": "Password is required"
+  "password-field.rule.required": "Password is required",
+
+  "btn.cancel.label": "Cancel"
 }

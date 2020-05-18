@@ -885,5 +885,7 @@
   "password-field.rule.count-digits": "1 цифра",
   "password-field.rule.count-capitals": "1 заглавная",
   "password-field.rule.count-lowercase": "1 строчная",
-  "password-field.rule.required": "Необходимо ввести пароль"
+  "password-field.rule.required": "Необходимо ввести пароль",
+
+  "btn.cancel.label": "Отмена"
 }
