@@ -5,12 +5,13 @@ import get from 'lodash/get';
 import { createPrintUrl, getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
 import { getTimezoneValue, t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
-import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { PROXY_URI, URL_PAGECONTEXT } from '../../../constants/alfresco';
 import { VersionsJournalService } from '../../../services/VersionsJournalService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 import RecordActions from './RecordActions';
+import ecosFetch from '../../../helpers/ecosFetch';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
 
@@ -25,6 +26,7 @@ export const DefaultActionTypes = {
   OPEN_IN_BACKGROUND: 'open-in-background',
   MOVE_TO_LINES: 'move-to-lines',
   DOWNLOAD_CARD_TEMPLATE: 'download-card-template',
+  DOWNLOAD_CASE_TEMPLATE: 'download-case-template',
   VIEW_CARD_TEMPLATE: 'view-card-template',
   OPEN_URL: 'open-url',
   UPLOAD_NEW_VERSION: 'upload-new-version',
@@ -340,6 +342,44 @@ export const DownloadCardTemplate = {
           filename: 'template.' + config.format
         }
       }
+    });
+  },
+
+  getDefaultModel: () => DownloadAction.getDefaultModel()
+};
+
+export const DownloadCaseTemplate = {
+  execute: ({ record, action = {}, action: { config = {} } }) => {
+    return new Promise(resolve => {
+      ecosFetch(`${PROXY_URI}citeck/case/template`, { method: 'POST', body: { nodeRef: record.id } })
+        .then(response => response.json())
+        .then(response => {
+          console.log(response);
+          // response = {"success": true, "template": "workspace://SpacesStore/5baafadc-7ba3-4c46-b637-d9e9556d5724"}
+          // record.load('.str').then(console.log)
+          if (response.success && response.template) {
+            // console.log(Records.get(response.template))
+            const url = `/share/proxy/alfresco/api/node/workspace/SpacesStore/${response.template}/content;cm:content`;
+
+            return DownloadAction.execute({
+              record,
+              action: {
+                ...action,
+                config: {
+                  url,
+                  filename: 'template.' + config.format
+                }
+              }
+            });
+          } else {
+            const message = response.message || '';
+            dialogManager.showInfoDialog({
+              title: t('record-action.msg.info.title'),
+              text: message.slice(0, message.lastIndexOf('(')),
+              onClose: () => resolve(true)
+            });
+          }
+        });
     });
   },
 

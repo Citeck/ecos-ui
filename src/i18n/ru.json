@@ -300,6 +300,10 @@
   "record-action.delete.dialog.title.error": "Ошибка",
   "record-action.delete.dialog.msg.error": "Произошла ошибка при удалении",
 
+  "record-action.msg.confirm.title": "Предупреждение",
+  "record-action.msg.error.title": "Ошибки",
+  "record-action.msg.info.title": "Информация",
+
   "record-action.name.details": "Детальная информация",
   "record-action.name.download": "Скачать",
   "record-action.name.create": "Создать",

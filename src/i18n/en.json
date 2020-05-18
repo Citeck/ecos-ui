@@ -300,6 +300,10 @@
   "record-action.delete.dialog.title.error": "Error",
   "record-action.delete.dialog.msg.error": "An error occurred while deleting",
 
+  "record-action.msg.confirm.title": "Confirmation",
+  "record-action.msg.error.title": "Action error",
+  "record-action.msg.info.title": "Information",
+
   "record-action.name.details": "Details",
   "record-action.name.download": "Download",
   "record-action.name.create": "Create",

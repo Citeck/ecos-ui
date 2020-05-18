@@ -73,9 +73,9 @@ export const createThumbnailUrl = (nodeRef, extra) => {
   return `${PROXY_URI}citeck/ecos/image/thumbnail?` + queryString.stringify(params);
 };
 
-export function createPrintUrl({ record, config }) {
+export function createPrintUrl({ nodeRef, record, config }) {
   const params = {
-    nodeRef: record.id,
+    nodeRef: nodeRef || record.id,
     print: true,
     templateType: config.templateType,
     format: config.format,
