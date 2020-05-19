@@ -2,7 +2,14 @@ import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import { createPrintUrl, getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
+import {
+  createPrintUrl,
+  getDownloadContentUrl,
+  getTemplateUrl,
+  goToCardDetailsPage,
+  goToJournalsPage,
+  goToNodeEditPage
+} from '../../../helpers/urls';
 import { getTimezoneValue, t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
@@ -11,6 +18,7 @@ import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 import RecordActions from './RecordActions';
+import ecosFetch from '../../../helpers/ecosFetch';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
 
@@ -29,7 +37,8 @@ export const DefaultActionTypes = {
   OPEN_URL: 'open-url',
   UPLOAD_NEW_VERSION: 'upload-new-version',
   ASSOC_ACTION: 'assoc-action',
-  MODAL_DOC_PREVIEW: 'modal-doc-preview'
+  MODAL_DOC_PREVIEW: 'modal-doc-preview',
+  SAVE_AS_CASE_TEMPLATE: 'save-as-case-template'
 };
 
 export const EditAction = {
@@ -466,5 +475,34 @@ export const ViewCardTemplate = {
     name: 'record-action.name.view-card-template-in-background',
     type: DefaultActionTypes.VIEW_CARD_TEMPLATE,
     icon: 'icon-newtab'
+  })
+};
+
+export const SaveAsCaseTemplate = {
+  execute: ({ record, action = {} }) => {
+    return ecosFetch(getTemplateUrl(record.id), { method: 'POST' })
+      .then(response => response.json())
+      .then(response => {
+        if (response.success && response.template) {
+          if (get(action, 'config.download') === false) {
+            goToCardDetailsPage(response.template);
+          } else {
+            return DownloadAction.execute({ record: Records.get(response.template), action });
+          }
+        } else {
+          const message =
+            response.message || response.originalMessage || get(response, 'status.description', t('record-action.msg.error.title'));
+
+          dialogManager.showInfoDialog({
+            title: t('record-action.msg.info.title'),
+            text: message.slice(0, message.lastIndexOf('('))
+          });
+        }
+      });
+  },
+
+  getDefaultModel: () => ({
+    name: 'record-action.name.save-as-case-template',
+    type: DefaultActionTypes.SAVE_AS_CASE_TEMPLATE
   })
 };

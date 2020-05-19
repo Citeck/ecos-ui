@@ -300,6 +300,10 @@
   "record-action.delete.dialog.title.error": "Error",
   "record-action.delete.dialog.msg.error": "An error occurred while deleting",
 
+  "record-action.msg.confirm.title": "Confirmation",
+  "record-action.msg.error.title": "Action error",
+  "record-action.msg.info.title": "Information",
+
   "record-action.name.details": "Details",
   "record-action.name.download": "Download",
   "record-action.name.create": "Create",
@@ -316,6 +320,8 @@
   "record-action.upload-new-version.title.error-modal": "Error",
   "record-action.upload-new-version.error.no-version": "No version",
   "record-action.upload-new-version.error.no-record": "No record",
+
+  "record-action.name.save-as-case-template": "Save as template",
 
   "grid.inline-tools.details": "Details",
   "grid.no-data-indication": "No items in the list",
