@@ -321,6 +321,8 @@
   "record-action.upload-new-version.error.no-version": "No version",
   "record-action.upload-new-version.error.no-record": "No record",
 
+  "record-action.name.save-as-case-template": "Save as template",
+
   "grid.inline-tools.details": "Details",
   "grid.no-data-indication": "No items in the list",
   "grid.tools.copy-to": "Copy to...",

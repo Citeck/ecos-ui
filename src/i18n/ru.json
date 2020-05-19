@@ -301,7 +301,7 @@
   "record-action.delete.dialog.msg.error": "Произошла ошибка при удалении",
 
   "record-action.msg.confirm.title": "Предупреждение",
-  "record-action.msg.error.title": "Ошибки",
+  "record-action.msg.error.title": "Ошибка",
   "record-action.msg.info.title": "Информация",
 
   "record-action.name.details": "Детальная информация",
@@ -320,6 +320,8 @@
   "record-action.upload-new-version.title.error-modal": "Ошибка",
   "record-action.upload-new-version.error.no-version": "Нет версий",
   "record-action.upload-new-version.error.no-record": "Запись не найдена",
+
+  "record-action.name.save-as-case-template": "Сохранить как шаблон",
 
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.inline-tools.details": "Детальная информация",
