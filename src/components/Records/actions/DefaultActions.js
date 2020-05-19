@@ -2,10 +2,17 @@ import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import { createPrintUrl, getDownloadContentUrl, goToCardDetailsPage, goToJournalsPage, goToNodeEditPage } from '../../../helpers/urls';
+import {
+  createPrintUrl,
+  getDownloadContentUrl,
+  getTemplateUrl,
+  goToCardDetailsPage,
+  goToJournalsPage,
+  goToNodeEditPage
+} from '../../../helpers/urls';
 import { getTimezoneValue, t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
-import { PROXY_URI, URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import { VersionsJournalService } from '../../../services/VersionsJournalService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
@@ -476,8 +483,8 @@ export const ViewCardTemplate = {
 };
 
 export const SaveAsCaseTemplate = {
-  execute: ({ record, action = {}, action: { config } }) => {
-    return ecosFetch(`${PROXY_URI}citeck/case/template?ref=${record.id}`, { method: 'POST' })
+  execute: ({ record, action = {} }) => {
+    return ecosFetch(getTemplateUrl(record.id), { method: 'POST' })
       .then(response => response.json())
       .then(response => {
         if (response.success && response.template) {
