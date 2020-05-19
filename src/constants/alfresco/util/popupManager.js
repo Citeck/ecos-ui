@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
-import { NotificationManager } from 'react-notifications';
 
 import { TunableDialog } from '../../../components/common/dialogs';
 import { t } from '../../../helpers/util';
@@ -156,26 +155,26 @@ class PopupManager {
   }
 
   displayMessage(props = {}, container = document.body) {
-    if (props.text === undefined) {
+    const { text } = props;
+
+    if (text === undefined || typeof text !== 'string') {
       throw new Error('Property text in userConfig must be set');
     }
 
-    let messages = props.text.trim().split(/\r\n|\r|\n/g);
+    const content = text
+      .trim()
+      .split(/\r\n|\r|\n/g)
+      .map((item, i) => <div key={i}>{item}</div>);
 
-    if (messages.length > 5) {
-      this.createModal(
-        {
-          isOpen: true,
-          noHeader: true,
-          content: messages.map((item, i) => <div key={i}>{item}</div>),
-          className: 'ecos-modal_center'
-        },
-        container
-      );
-    } else {
-      messages.map((item, i) => NotificationManager.info('', t(item), 3000 + i * 1000));
-      this.destroy();
-    }
+    this.createModal(
+      {
+        content,
+        isOpen: true,
+        noHeader: true,
+        className: 'ecos-modal_center'
+      },
+      container
+    );
   }
 
   displayPrompt(props = {}, container = document.body) {

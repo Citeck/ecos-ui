@@ -15,7 +15,7 @@ class Ajax {
       Accept: this.contentTypes.JSON,
       'Content-Type': this.contentTypes.JSON
     };
-    config.method = this.contentTypes.POST;
+    config.method = config.method || this.contentTypes.POST;
     config.body = config.dataObj;
 
     this.request(config);
