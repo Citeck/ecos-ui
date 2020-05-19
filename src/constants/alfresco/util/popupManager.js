@@ -25,6 +25,7 @@ class Popup {
 
     this.render({
       ...props,
+      noHeader: !props.title,
       onClose: this.onClose
     });
 
@@ -94,9 +95,7 @@ class PopupManager {
       buttons: [
         {
           text: null,
-          handler: () => {
-            this.destroy();
-          },
+          handler: () => this.destroy(),
           isDefault: true
         }
       ]
@@ -129,9 +128,7 @@ class PopupManager {
         },
         {
           text: null,
-          handler: () => {
-            this.destroy();
-          }
+          handler: () => this.destroy()
         }
       ]
     };
@@ -178,7 +175,7 @@ class PopupManager {
   }
 
   displayPrompt(props = {}, container = document.body) {
-    const { buttons = [], text, title } = props;
+    const { buttons = [], text = '', title = '' } = props;
 
     this.createModal(
       {
@@ -210,17 +207,21 @@ class PopupManager {
     }
   }
 
-  renderButton = (button = {}) => (
-    <Btn
-      key={button.text}
-      className={classNames('', {
-        'ecos-btn_blue ecos-btn_hover_light-blue': !button.isDefault
-      })}
-      onClick={button.handler.bind(this)}
-    >
-      {t(button.text)}
-    </Btn>
-  );
+  renderButton = (button = {}) => {
+    const { text = '', isDefault, handler = () => null } = button;
+
+    return (
+      <Btn
+        key={text}
+        className={classNames('', {
+          'ecos-btn_blue ecos-btn_hover_light-blue': !isDefault
+        })}
+        onClick={handler.bind(this)}
+      >
+        {t(text)}
+      </Btn>
+    );
+  };
 
   getUserInput(props = {}) {
     const { okButtonText = 'Ok', title = '', text = '', callback: { fn = () => null } = {}, buttons = [] } = props;
