@@ -1,6 +1,6 @@
-import { t } from '../../../helpers/util';
-import PopupManager from './popupManager';
 import Ajax from './ajax';
+import PopupManager from './popupManager';
+import { t } from '../../../helpers/util';
 
 export default {
   Ajax,

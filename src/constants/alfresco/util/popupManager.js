@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 
-import { TunableDialog } from '../../../components/common/dialogs';
-import { t } from '../../../helpers/util';
 import { Btn } from '../../../components/common/btns';
 import { Input } from '../../../components/common/form';
+import { TunableDialog } from '../../../components/common/dialogs';
+import { t } from '../../../helpers/util';
 
 class Popup {
   #container = null;
@@ -260,4 +260,7 @@ class PopupManager {
   msg = text => t(text);
 }
 
-export default new PopupManager();
+const popupManager = new PopupManager();
+
+export { PopupManager, Popup };
+export default popupManager;
