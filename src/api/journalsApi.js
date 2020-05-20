@@ -334,6 +334,12 @@ export class JournalsApi extends RecordService {
   performGroupAction = ({ groupAction, selected, criteria, journalId }) => {
     const { id, type, params } = groupAction;
 
+    if (params.js_action) {
+      var actionFunction = new Function('records', 'parameters', params.js_action);
+      actionFunction(selected, params);
+      return Promise.resolve([]);
+    }
+
     return Promise.all([
       this.postJson(`${PROXY_URI}api/journals/group-action`, {
         actionId: id,

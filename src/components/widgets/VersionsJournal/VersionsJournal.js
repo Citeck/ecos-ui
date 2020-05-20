@@ -245,6 +245,20 @@ class VersionsJournal extends BaseWidget {
     return get(this.topPanel, 'current.offsetHeight', 0);
   }
 
+  getScrollHeight = () => {
+    const { userHeight, contentHeight } = this.state;
+
+    if (userHeight === 0) {
+      return 0;
+    }
+
+    if (!userHeight) {
+      return contentHeight;
+    }
+
+    return contentHeight - this.otherHeight;
+  };
+
   renderAddButton() {
     return (
       <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-vj__btn-add" onClick={this.handleToggleAddModal}>
@@ -548,12 +562,12 @@ class VersionsJournal extends BaseWidget {
       return body;
     }
 
-    const { userHeight = 0, fitHeights, contentHeight } = this.state;
+    const { userHeight = 0, fitHeights } = this.state;
     const fixHeight = userHeight ? userHeight : null;
 
     return (
-      <Scrollbars autoHide style={{ height: userHeight ? contentHeight - this.otherHeight : contentHeight || '100%' }}>
-        <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={1} getOptimalHeight={this.setContentHeight}>
+      <Scrollbars autoHide style={{ height: this.getScrollHeight() }}>
+        <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={0} getOptimalHeight={this.setContentHeight}>
           {body}
         </DefineHeight>
       </Scrollbars>
