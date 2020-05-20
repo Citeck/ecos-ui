@@ -260,7 +260,7 @@ Base.prototype.build = function(state) {
   originalBuild.call(this, state);
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-37
-  this.showElement(!this.component.hidden);
+  this.showElement(this.visible && !this.component.hidden);
 
   const { options = {} } = this;
   const { isDebugModeOn = false } = options;
