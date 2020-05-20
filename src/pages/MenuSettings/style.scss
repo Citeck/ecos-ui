@@ -136,6 +136,31 @@
 }
 
 .ecos-menu-create-section {
+  &__field {
+    &-icon {
+      display: flex;
+    }
+  }
+
+  &__buttons {
+    display: flex;
+    margin-top: 20px;
+
+    & > .ecos-btn {
+      flex: 1;
+
+      &:last-child {
+        margin-left: 25px;
+      }
+    }
+  }
+}
+
+.ecos-field-col {
+  & + & {
+    margin-top: 20px;
+  }
+
   &__title {
     @extend %subtitle-block--2;
 
@@ -148,13 +173,9 @@
     }
   }
 
-  &__descriptor {
+  &__description {
     font-weight: $font-weight-semi-bold;
     font-size: $font-size-small;
     color: $color-gray-5;
-  }
-
-  &__set-icon {
-    display: flex;
   }
 }

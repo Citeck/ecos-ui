@@ -55,6 +55,7 @@ export default class MenuService {
       actions.push({
         type: MenuService.ActionTypes.DELETE,
         icon: 'icon-delete',
+        text: 'menu-settings.editor-items.action.delete',
         className: 'ecos-menu-settings-editor-items__action_caution',
         whenSelected: true
       });
@@ -158,7 +159,7 @@ export default class MenuService {
     return array.filter(opt => !item || !opt.forbiddenTypes.includes(item.type));
   };
 
-  static testItems = toGeneratorTree(5, 1);
+  static testItems = toGeneratorTree(5, 2);
 
   static testCreateOptions = [
     {

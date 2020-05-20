@@ -4,10 +4,11 @@ import PropTypes from 'prop-types';
 import { t } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import MenuService from '../../services/menu';
-import { EcosModal, Icon, Tree } from '../../components/common';
+import { Tree } from '../../components/common';
 import { Btn } from '../../components/common/btns';
-import { Dropdown, Input } from '../../components/common/form';
+import { Dropdown } from '../../components/common/form';
 import dialogManager from '../../components/common/dialogs/Manager';
+import EditorItemModal from './EditorItemModal';
 
 import './style.scss';
 
@@ -84,68 +85,31 @@ class EditorItems extends React.Component {
     this.setState({ items });
   };
 
+  handleClickIcon = item => {
+    console.log('handleClickIcon', item);
+  };
+
   onDragEnd = (fromId, toId) => {
     const items = treeMoveItem({ fromId, toId, original: this.state.items, key: 'dndIdx' });
     this.setState({ items });
   };
 
-  renderCreateSection = () => {
+  renderEditorItem = () => {
     const { createSectionInfo } = this.state;
 
     if (!createSectionInfo) {
       return null;
     }
 
-    const { type, item } = createSectionInfo || {};
-
-    const data = {};
-
     const handleHideModal = () => {
       this.setState({ createSectionInfo: null });
     };
 
-    const handleChangeTitle = event => {
-      data.title = event.target.value;
-    };
-    const resetIcon = () => {
-      data.icon = '';
-    };
-    const selectIcon = () => {
-      data.icon = 'icon-exit';
-    };
-    const handleCancel = () => {
-      data.icon = 'icon-exit';
-    };
-    const handleApply = () => {
-      data.icon = 'icon-exit';
+    const handleSave = data => {
+      console.log(data);
     };
 
-    return (
-      <EcosModal className="ecos-menu-create-section__modal ecos-modal_width-xs" isOpen hideModal={handleHideModal} title={t(type.label)}>
-        <div className="ecos-menu-create-section__title ecos-menu-create-section__title_required">Название</div>
-        <div>
-          <Input onChange={handleChangeTitle} value={data.title} />
-        </div>
-        <div className="ecos-menu-create-section__title">Иконка</div>
-        <div className="ecos-menu-create-section__set-icon">
-          <Icon className={data.icon || 'icon-empty-icon'} />
-          <div className="ecos--flex-space" />
-          <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={resetIcon}>
-            Сбросить
-          </Btn>
-          <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={selectIcon}>
-            Выбрать другую
-          </Btn>
-        </div>
-        <div className="ecos-menu-create-section__descriptor">
-          Чтобы иконка выглядела хорошо, используйте png 20x20 px или svg. Старайтесь использовать иконки без мелких деталей.
-        </div>
-        <div className="ecos-menu-create-section__buttons">
-          <Btn onClick={handleCancel}>Cancel</Btn>
-          <Btn onClick={handleApply}>Apply</Btn>
-        </div>
-      </EcosModal>
-    );
+    return <EditorItemModal type={createSectionInfo.type} onClose={handleHideModal} onSave={handleSave} />;
   };
 
   renderButtonAddSection = item => {
@@ -191,15 +155,16 @@ class EditorItems extends React.Component {
             data={items}
             prefixClassName="ecos-menu-settings-editor-items"
             openAll={openAllMenuItems}
-            onClickActionItem={this.handleActionItem}
+            onClickAction={this.handleActionItem}
             onDragEnd={this.onDragEnd}
+            onClickIcon={this.handleClickIcon}
             renderExtraItemComponents={this.renderButtonAddSection}
             draggable={false}
             moveInLevel
             moveInParent
           />
         </div>
-        {this.renderCreateSection()}
+        {this.renderEditorItem()}
       </div>
     );
   }
