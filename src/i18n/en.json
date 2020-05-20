@@ -170,6 +170,8 @@
   "dashboard-settings.widget.documents": "Documents",
   "dashboard-settings.widget.user-basic-info": "Profile",
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",
+
+  "dashlet.error-boundary.msg": "The error occurred in the widget. Try updating the widget/page. If the error reappears, contact your administrator",
   "dashlet.edit.title": "Edit data",
   "dashlet.edit.tooltip": "Edit data",
   "dashlet.goto": "Go to section",
@@ -178,6 +180,7 @@
   "dashlet.resize.title": "Resize",
   "dashlet.update.title": "Update the data",
   "dashlet.settings.title": "Setting widget",
+
   "doc-associations-widget.add-association": "Add association",
   "doc-associations-widget.assoc-with-docs": "Associated with documents",
   "doc-associations-widget.basis-document": "Basis document",
@@ -361,6 +364,9 @@
   "header.site-menu.page-settings": "Page settings",
   "hints.disabled": "Hints is disabled",
   "hints.enabled": "Hints is enabled",
+
+  "journal.page.error-boundary.title": "Error",
+  "journal.page.error-boundary.msg": "Try updating the page. If the error reappears, contact your administrator",
   "journal.add-filter-criterion": "Add Filter Criterion",
   "journal.apply-criteria": "Apply Criteria",
   "journal.create": "Create",
