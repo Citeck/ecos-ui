@@ -270,4 +270,10 @@
     font-size: $font-size-large;
     color: $color-gray-6;
   }
+
+  &__action-tooltip {
+    & > .tooltip {
+      z-index: 9999;
+    }
+  }
 }

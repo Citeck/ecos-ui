@@ -110,7 +110,7 @@ export default class extends React.Component {
           prefixClassName="ecos-menu-settings-editor"
           openAll={false}
           draggable
-          onClickActionItem={this.onClickActionItem}
+          onClickAction={this.onClickActionItem}
           moveInLevel
           onDragEnd={this.moveItemTo}
           renderExtraItemComponents={this.renderExtraItemComponents}

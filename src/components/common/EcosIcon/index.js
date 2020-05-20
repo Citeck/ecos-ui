@@ -10,10 +10,15 @@ import './style.scss';
 
 const menuApi = new MenuApi();
 
-function EcosIcon({ code, className, data, title, source }) {
+function EcosIcon({ code, className, data, title, source, onClick }) {
   const [remoteData, setRemoteData] = useState({});
-  const emptyIcon = <Icon className={classNames('ecos-sidebar-item__icon icon-empty-icon', className)} />;
   const { type, value } = remoteData || {};
+  const commonClass = classNames('ecos-icon', className, { 'ecos-icon_button': onClick });
+  const commonProps = { title };
+
+  if (onClick) {
+    commonProps.onClick = onClick;
+  }
 
   useEffect(() => {
     if (source === 'menu' && code) {
@@ -23,26 +28,17 @@ function EcosIcon({ code, className, data, title, source }) {
     }
   }, [code, data]);
 
-  switch (type) {
-    case 'icon':
-      return <Icon className={classNames('ecos-icon', value, className)} title={title} />;
-    case 'fa':
-      return <Icon className={classNames('ecos-icon fa', value, className)} title={title} />;
-    case 'img':
-      if (!value) {
-        return emptyIcon;
-      }
+  if (type === 'img' && !!value) {
+    const url = createContentUrl({ value });
 
-      const url = createContentUrl({ value });
-
-      return (
-        <div className={classNames('ecos-icon-img', className)} title={title}>
-          <img src={url} alt={title} />
-        </div>
-      );
-    default:
-      return emptyIcon;
+    return (
+      <div className={classNames(commonClass, 'ecos-icon-img')} {...commonProps}>
+        <img src={url} alt={title} />
+      </div>
+    );
   }
+
+  return <Icon className={classNames(commonClass, { 'icon-empty-icon': !value, fa: type === 'fa', [value]: !!value })} {...commonProps} />;
 }
 
 EcosIcon.propTypes = {
@@ -53,7 +49,8 @@ EcosIcon.propTypes = {
   data: PropTypes.shape({
     type: PropTypes.string,
     value: PropTypes.string
-  })
+  }),
+  onClick: PropTypes.func
 };
 
 EcosIcon.defaultProps = {

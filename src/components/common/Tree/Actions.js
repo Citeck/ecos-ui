@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { UncontrolledTooltip } from 'reactstrap';
 import classNames from 'classnames';
+import uniqueId from 'lodash/uniqueId';
 
 import { t } from '../../../helpers/util';
 import { IcoBtn } from '../btns';
@@ -11,21 +12,23 @@ const BtnAction = ({ id, text, icon, onClick, component, className = '' }) => {
     return component;
   }
 
+  const targetId = id || uniqueId('menu-item-action-');
+
   return (
     <>
       <IcoBtn
-        id={id}
+        id={targetId}
         icon={icon}
         className={classNames('ecos-btn_transparent ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-tree__action', className)}
         onClick={onClick}
       />
       {text && (
         <UncontrolledTooltip
-          target={id}
+          target={targetId}
           delay={0}
           placement="top"
-          className="ecos-base-tooltip ecos-base-tooltip_opaque header-action-tooltip"
-          innerClassName="ecos-base-tooltip-inner header-action-tooltip-inner"
+          className="ecos-base-tooltip ecos-base-tooltip_opaque ecos-tree__action-tooltip"
+          innerClassName="ecos-base-tooltip-inner"
           arrowClassName="ecos-base-tooltip-arrow"
         >
           {t(text)}
