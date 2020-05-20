@@ -899,14 +899,23 @@
   "menu-settings.location.subtitle": "Отображаемые пункты меню",
   "menu-settings.editor-items.title": "Редактор разделов",
   "menu-settings.editor-items.subtitle": "Элементы меню",
-  "menu-settings.editor-items.btn.add": "Добавить",
+  "menu-settings.editor-items.dropdown.add": "Добавить",
   "menu-settings.editor-items.btn.expand-all": "Развернуть все",
   "menu-settings.editor-items.btn.collapse-all": "Свернуть все",
+  "menu-settings.editor-items.action.edit": "Редактировать",
+  "menu-settings.editor-items.action.hide": "Скрыть",
+  "menu-settings.editor-items.action.show": "Показать",
+  "menu-settings.editor-items.action.delete": "Удалить",
+  "menu-settings.editor-items.action.edit-icon": "Обновить иконку",
 
   "menu-settings.button.cancel": "Отмена",
   "menu-settings.button.apply": "Применить",
 
+  "menu-item.type.section": "Раздел",
+  "menu-item.type.journal": "Журнал",
   "menu-item.type.arbitrary": "Произвольный пункт меню",
-  "menu-item.type.link-to-create-case": "Ссылку на создание кейса",
-  "menu-item.type.header-divider": "Разделяющий загловок"
+  "menu-item.type.link-create-case": "Ссылку на создание кейса",
+  "menu-item.type.header-divider": "Разделяющий загловок",
+
+  "menu-settings.message.delete-item": "Удалить раздел \"{{name}}\"?"
 }

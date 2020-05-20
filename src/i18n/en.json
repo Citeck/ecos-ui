@@ -894,14 +894,23 @@
   "menu-settings.location.subtitle": "Displayed menu items",
   "menu-settings.editor-items.title": "Editor items",
   "menu-settings.editor-items.subtitle": "Menu items",
-  "menu-settings.editor-items.btn.add": "Add",
+  "menu-settings.editor-items.dropdown.add": "Add",
   "menu-settings.editor-items.btn.expand-all": "Expand all",
   "menu-settings.editor-items.btn.collapse-all": "Collapse all",
+  "menu-settings.editor-items.action.edit": "Edit",
+  "menu-settings.editor-items.action.hide": "Hide",
+  "menu-settings.editor-items.action.show": "Show",
+  "menu-settings.editor-items.action.delete": "Delete",
+  "menu-settings.editor-items.action.edit-icon": "Update icon",
 
   "menu-settings.button.cancel": "Cancel",
   "menu-settings.button.apply": "Apply",
 
+  "menu-item.type.section": "Section",
+  "menu-item.type.journal": "Journal",
   "menu-item.type.arbitrary": "Arbitrary menu item",
-  "menu-item.type.link-to-create-case": "Link to create a case",
-  "menu-item.type.header-divider": "Header Divider"
+  "menu-item.type.link-create-case": "Link to create a case",
+  "menu-item.type.header-divider": "Header Divider",
+
+  "menu-settings.message.delete-item": "Delete the \"{{name}}\" section?"
 }

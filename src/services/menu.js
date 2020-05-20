@@ -46,6 +46,7 @@ export default class MenuService {
       actions.push({
         type: MenuService.ActionTypes.EDIT,
         icon: 'icon-edit',
+        text: 'menu-settings.editor-items.action.edit',
         whenSelected: true
       });
     }
@@ -64,13 +65,15 @@ export default class MenuService {
         type: MenuService.ActionTypes.ACTIVE,
         icon: 'icon-on',
         className: 'ecos-menu-settings-editor-items__action_no-hide',
-        whenSelected: true
+        whenSelected: true,
+        text: 'menu-settings.editor-items.action.hide'
       },
       {
         type: MenuService.ActionTypes.NO_ACTIVE,
         icon: 'icon-off',
         className: 'ecos-menu-settings-editor-items__action_no-hide',
-        whenSelected: false
+        whenSelected: false,
+        text: 'menu-settings.editor-items.action.show'
       }
     );
 
@@ -135,7 +138,7 @@ export default class MenuService {
     {
       key: 'link-create-case',
       forbiddenTypes: [],
-      label: 'menu-item.type.link-to-create-case'
+      label: 'menu-item.type.link-create-case'
     },
     {
       key: 'header-divider',

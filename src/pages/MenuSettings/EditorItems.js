@@ -14,7 +14,7 @@ import './style.scss';
 const Labels = {
   TITLE: 'menu-settings.editor-items.title',
   SUBTITLE: 'menu-settings.editor-items.subtitle',
-  BTN_ADD: 'menu-settings.editor-items.btn.add',
+  BTN_ADD: 'menu-settings.editor-items.dropdown.add',
   TIP_NO_ITEMS: 'menu-settings.editor-items.none',
   TIP_DRAG_HERE: 'menu-settings.editor-items.drag-item-here',
   BTN_EXPAND_ALL: 'menu-settings.editor-items.btn.expand-all',
@@ -69,7 +69,7 @@ class EditorItems extends React.Component {
     if (action === MenuService.ActionTypes.DELETE) {
       dialogManager.showRemoveDialog({
         title: '',
-        text: `Удалить раздел “${id}”?`,
+        text: t('menu-settings.message.delete-item', { name: id }),
         className: 'ecos-modal_width-xs',
         onDelete: () => {
           console.log('onDelete');
