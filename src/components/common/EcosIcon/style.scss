@@ -5,6 +5,13 @@
   font-size: $font-size-extra-large !important;
   min-width: 25px;
 
+  &_button {
+    &:hover {
+      color: $color-blue-light;
+      cursor: pointer;
+    }
+  }
+
   &-img {
     background-repeat: no-repeat;
     background-size: cover;

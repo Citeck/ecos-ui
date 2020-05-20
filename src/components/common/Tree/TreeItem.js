@@ -26,6 +26,7 @@ class TreeItem extends Component {
     prefixClassName: PropTypes.string,
     onToggleSelect: PropTypes.func,
     onClickAction: PropTypes.func,
+    onClickIcon: PropTypes.func,
     renderExtraItemComponents: PropTypes.func
   };
 
@@ -134,6 +135,7 @@ class TreeItem extends Component {
       prefixClassName,
       onToggleSelect,
       onClickAction,
+      onClickIcon,
       moveInLevel,
       moveInParent,
       renderExtraItemComponents
@@ -157,6 +159,7 @@ class TreeItem extends Component {
               level={level + STEP_LVL}
               onToggleSelect={onToggleSelect}
               onClickAction={onClickAction}
+              onClickIcon={onClickIcon}
               openAll={openAll}
               draggable={draggable}
               dragLvlTo={dragLvlTo}
@@ -184,10 +187,11 @@ class TreeItem extends Component {
       moveInParent,
       parentKey = '',
       isMajor,
-      renderExtraItemComponents
+      renderExtraItemComponents,
+      onClickIcon
     } = this.props;
     const { isOpen } = this.state;
-    const { items, selected, locked, icon, name, actionConfig } = item || {};
+    const { items, selected, locked, icon, name, actionConfig, badge } = item || {};
     const canDrag = draggable && item.draggable !== false && (dragLvlTo == null || dragLvlTo >= level);
     const key = `key_${level}_${index}_${item.id}`.replace(/[\s\-]*/g, '');
 
@@ -216,9 +220,16 @@ class TreeItem extends Component {
               title={this.title}
             />
           )}
-          {/*todo icon*/}
-          {!!icon && <EcosIcon code={item.icon.code} data={item.icon} source="menu" className="ecos-tree__item-element-icon" />}
-          {item.badge != null && <Badge text={String(item.badge)} className="ecos-tree__item-element-badge" />}
+          {!!icon && (
+            <EcosIcon
+              code={item.icon.code}
+              data={item.icon}
+              source="menu"
+              className="ecos-tree__item-element-icon"
+              onClick={() => onClickIcon(item)}
+            />
+          )}
+          {badge != null && <Badge text={String(badge)} className="ecos-tree__item-element-badge" />}
           <Tooltip target={key} text={t(name)} showAsNeeded uncontrolled autohide>
             <div
               className={classNames('ecos-tree__item-element-label', {

@@ -24,7 +24,8 @@ class Tree extends Component {
     moveInParent: PropTypes.bool,
     moveInLevel: PropTypes.bool,
     onToggleSelect: PropTypes.func,
-    onClickActionItem: PropTypes.func,
+    onClickAction: PropTypes.func,
+    onClickIcon: PropTypes.func,
     onDragEnd: PropTypes.func,
     renderExtraItemComponents: PropTypes.func
   };
@@ -36,7 +37,7 @@ class Tree extends Component {
     moveInLevel: true,
     moveInParent: false,
     onToggleSelect: () => null,
-    onClickActionItem: () => null,
+    onClickAction: () => null,
     onDragEnd: () => null
   };
 
@@ -102,7 +103,8 @@ class Tree extends Component {
       openAll,
       draggable,
       dragLvlTo,
-      onClickActionItem,
+      onClickAction,
+      onClickIcon,
       moveInLevel,
       moveInParent,
       renderExtraItemComponents
@@ -124,7 +126,8 @@ class Tree extends Component {
         selectable={selectable}
         draggable={draggable}
         dragLvlTo={dragLvlTo}
-        onClickAction={onClickActionItem}
+        onClickAction={onClickAction}
+        onClickIcon={onClickIcon}
         moveInLevel={moveInLevel}
         moveInParent={moveInParent}
         renderExtraItemComponents={renderExtraItemComponents}
