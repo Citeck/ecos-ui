@@ -343,6 +343,12 @@ class EcosForm extends React.Component {
           .catch(e => {
             form.showErrors(e, true);
             resetOutcomeButtonsValues();
+          })
+          .finally(() => {
+            // TODO This may not be the best solution.
+            //  But at the moment it works for
+            //  https://citeck.atlassian.net/browse/ECOSUI-64
+            record.reset();
           });
       } else {
         onSubmit(record, form);

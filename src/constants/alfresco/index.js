@@ -27,8 +27,6 @@ window.Alfresco.constants = {
 
 document.addEventListener('DOMContentLoaded', () => {
   import('./util').then(({ default: util }) => {
-    console.warn(util);
-
     window.Alfresco.util = window.Alfresco.util || {};
     window.Alfresco.util = {
       ...window.Alfresco.util,

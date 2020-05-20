@@ -384,6 +384,7 @@ export default class Record {
 
       if (!attribute.isPersisted()) {
         attributesToPersist[attribute.getNewValueAttName()] = attribute.getValue();
+        attribute.setValue(attribute.getNewValueAttName(), attribute.getValue());
       }
     }
 
