@@ -10,6 +10,7 @@ import {
   EditAction,
   MoveToLinesJournal,
   OpenURL,
+  SaveAsCaseTemplate,
   UploadNewVersion,
   ViewAction,
   ViewCardTemplate
@@ -28,6 +29,7 @@ Registry.addExecutors({
   [DefaultActionTypes.DELETE]: DeleteAction,
   [DefaultActionTypes.MOVE_TO_LINES]: MoveToLinesJournal,
   [DefaultActionTypes.DOWNLOAD_CARD_TEMPLATE]: DownloadCardTemplate,
+  [DefaultActionTypes.SAVE_AS_CASE_TEMPLATE]: SaveAsCaseTemplate,
   [DefaultActionTypes.CREATE]: CreateNodeAction,
   [DefaultActionTypes.OPEN_URL]: OpenURL,
   [DefaultActionTypes.UPLOAD_NEW_VERSION]: UploadNewVersion,

@@ -226,7 +226,8 @@ class JournalsDashletGrid extends Component {
       toolsClassName
     } = this.props;
 
-    const sourceGroupActions = groupActions.filter(g => (selectAllRecords && g.type === 'filtered') || g.type === 'selected');
+    const sourceGroupActions =
+      groupActions && groupActions.filter(g => (selectAllRecords && g.type === 'filtered') || g.type === 'selected');
     const tools = [
       <JournalsDownloadZip stateId={stateId} selected={selected} />,
       <IcoBtn

@@ -169,6 +169,14 @@ export const getZipUrl = nodeRef => {
   return `${PROXY_URI}api/node/content/${nodeRef.replace(':/', '')}/Archive.zip`;
 };
 
+export const getTemplateUrl = nodeRef => {
+  return `${PROXY_URI}citeck/case/template?nodeRef=${nodeRef}`;
+};
+
+export const getBarcodePrintUrl = record => {
+  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&barcodeType=code-128&scale=5.0&margins=20,200,20,500&print=true`;
+};
+
 export const goToJournalsPage = options => {
   const journalPageUrl = getJournalPageUrl(options);
 
@@ -236,10 +244,6 @@ export const decodeLink = link => {
   } catch (e) {
     return link;
   }
-};
-
-export const getBarcodePrintUrl = record => {
-  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&barcodeType=code-128&scale=5.0&margins=20,200,20,500&print=true`;
 };
 
 /**

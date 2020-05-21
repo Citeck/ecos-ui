@@ -4,6 +4,8 @@
   "aggregation.type": "Тип агрегации",
   "boolean.no": "Нет",
   "boolean.yes": "Да",
+  "btn.cancel.label": "Отмена",
+
   "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",
   "page.error-loading.message": "Попробуйте перезагрузить страницу. Если ошибка повториться, обратитесь к администратору ",
   "page.error-loading.log": "Журнал ошибки",
@@ -166,6 +168,7 @@
   "dashboard-settings.widget.with-config": "У данного виджета есть настройки. При удалении виджета, настройки будут утеряны",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
 
+  "dashlet.error-boundary.msg": "При работе виджета произошла ошибка. Попробуйте обновить виджет или страницу. Если ошибка повторится, обратитесь к администратору",
   "dashlet.edit.title": "Редактировать данные",
   "dashlet.edit.tooltip": "Редактировать данные",
   "dashlet.goto": "Перейти в раздел",
@@ -174,6 +177,7 @@
   "dashlet.resize.title": "Изменить размер",
   "dashlet.update.title": "Обновить данные",
   "dashlet.settings.title": "Настроить виджет",
+
   "doc-associations-widget.add-association": "Добавить связь",
   "doc-associations-widget.assoc-with-docs": "Связан с документами",
   "doc-associations-widget.basis-document": "Документ-основание",
@@ -300,6 +304,10 @@
   "record-action.delete.dialog.title.error": "Ошибка",
   "record-action.delete.dialog.msg.error": "Произошла ошибка при удалении",
 
+  "record-action.msg.confirm.title": "Предупреждение",
+  "record-action.msg.error.title": "Ошибка",
+  "record-action.msg.info.title": "Информация",
+
   "record-action.name.details": "Детальная информация",
   "record-action.name.download": "Скачать",
   "record-action.name.create": "Создать",
@@ -316,6 +324,8 @@
   "record-action.upload-new-version.title.error-modal": "Ошибка",
   "record-action.upload-new-version.error.no-version": "Нет версий",
   "record-action.upload-new-version.error.no-record": "Запись не найдена",
+
+  "record-action.name.save-as-case-template": "Сохранить как шаблон",
 
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.inline-tools.details": "Детальная информация",
@@ -355,6 +365,9 @@
   "header.site-menu.page-settings": "Настроить страницу",
   "hints.disabled": "Подсказки выключены",
   "hints.enabled": "Подсказки включены",
+
+  "journal.page.error-boundary.title": "Ошибка",
+  "journal.page.error-boundary.msg": "Попробуйте обновить страницу. Если ошибка повторится, обратитесь к администратору",
   "journal.add-filter-criterion": "Добавить критерий фильтрации",
   "journal.apply-criteria": "Применить",
   "journal.create": "Создать",
