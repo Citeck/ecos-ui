@@ -139,6 +139,10 @@
   &__field {
     &-icon {
       display: flex;
+
+      .ecos-btn + .ecos-btn {
+        margin-left: 10px;
+      }
     }
   }
 
@@ -177,5 +181,6 @@
     font-weight: $font-weight-semi-bold;
     font-size: $font-size-small;
     color: $color-gray-5;
+    margin-top: 15px;
   }
 }

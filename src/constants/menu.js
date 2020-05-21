@@ -27,3 +27,19 @@ export const CreateMenuTypes = {
     LINK: 'link'
   }
 };
+
+export const MenuSettings = {
+  ActionTypes: {
+    ACTIVE: 'ACTIVE',
+    NO_ACTIVE: 'NO_ACTIVE',
+    EDIT: 'EDIT',
+    DELETE: 'DELETE'
+  },
+  OptionKeys: {
+    SECTION: 'SECTION',
+    JOURNAL: 'JOURNAL',
+    ARBITRARY: 'ARBITRARY',
+    LINK_CREATE_CASE: 'LINK-CREATE-CASE',
+    HEADER_DIVIDER: 'HEADER-DIVIDER'
+  }
+};

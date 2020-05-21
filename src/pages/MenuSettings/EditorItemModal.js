@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../helpers/util';
+import { MenuSettings } from '../../constants/menu';
 import { EcosModal, Icon } from '../../components/common';
 import { Input } from '../../components/common/form';
 import { Btn } from '../../components/common/btns';
@@ -32,12 +33,12 @@ function EditorItemModal({ type, onClose, onSave }) {
       <Field label={'Название'} required>
         <Input onChange={e => setName(e.target.value)} value={name} />
       </Field>
-      {['arbitrary'].includes(type.key) && (
+      {[MenuSettings.OptionKeys.ARBITRARY].includes(type.key) && (
         <Field label={'URL'} required>
           <Input onChange={e => setUrl(e.target.value)} value={url} />
         </Field>
       )}
-      {!['header-divider'].includes(type.key) && (
+      {![MenuSettings.OptionKeys.HEADER_DIVIDER].includes(type.key) && (
         <Field
           label={'Иконка'}
           description={

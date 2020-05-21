@@ -6,6 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import { initMenuSettings, saveMenuConfig, setOpenMenuSettings } from '../../actions/menu';
 import { arrayCompare, t } from '../../helpers/util';
 import { getPositionAdjustment } from '../../helpers/menu';
+import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
 import { EcosModal, Loader } from '../../components/common';
 import { Btn, IcoBtn } from '../../components/common/btns';
@@ -66,7 +67,14 @@ class Settings extends React.Component {
     this.props.setOpenMenuSettings(false);
   };
 
-  handleGoJournal = () => {};
+  handleGoJournal = () => {
+    this.handleHideModal(); //todo ref
+    goToJournalsPage({
+      journalId: 'workspace://SpacesStore/3700b0df-b8b6-440a-a399-dd30f127e404',
+      journalsListId: 'global-system',
+      nodeRef: 'workspace://SpacesStore/3700b0df-b8b6-440a-a399-dd30f127e404'
+    });
+  };
 
   handleCancel = () => {
     this.handleHideModal();

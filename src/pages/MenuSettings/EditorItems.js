@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { t } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
+import { MenuSettings } from '../../constants/menu';
 import MenuService from '../../services/menu';
 import { Tree } from '../../components/common';
 import { Btn } from '../../components/common/btns';
@@ -67,7 +68,7 @@ class EditorItems extends React.Component {
   };
 
   handleActionItem = ({ action, id }) => {
-    if (action === MenuService.ActionTypes.DELETE) {
+    if (action === MenuSettings.ActionTypes.DELETE) {
       dialogManager.showRemoveDialog({
         title: '',
         text: t('menu-settings.message.delete-item', { name: id }),

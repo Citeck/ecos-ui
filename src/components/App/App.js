@@ -15,7 +15,6 @@ import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
 import { ErrorBoundary } from '../ErrorBoundary';
-import MenuSettings from '../../pages/MenuSettings';
 
 import { getMenuConfig } from '../../actions/menu';
 import { setTab, updateTab } from '../../actions/pageTabs';
@@ -38,6 +37,7 @@ const MyTimesheetPage = lazy(() => import('../../pages/Timesheet/MyTimesheetPage
 const SubordinatesTimesheetPage = lazy(() => import('../../pages/Timesheet/SubordinatesTimesheetPage'));
 const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/VerificationTimesheetPage'));
 const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/DelegatedTimesheetsPage'));
+const MenuSettingsPage = lazy(() => import('../../pages/MenuSettings'));
 
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 const TreePage = lazy(() => import('../../pages/debug/Tree'));
@@ -300,8 +300,18 @@ class App extends Component {
     </div>
   );
 
+  renderMenuSettings = () => {
+    const { isOpenMenuSettings } = this.props;
+
+    return isOpenMenuSettings || 1 ? (
+      <Suspense fallback={null}>
+        <MenuSettingsPage />
+      </Suspense>
+    ) : null;
+  };
+
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, isOpenMenuSettings } = this.props;
+    const { isInit, isInitFailure, isAuthenticated, isMobile, theme } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -337,9 +347,9 @@ class App extends Component {
               <div className="ecos-main-area">{this.renderTabs()}</div>
             </div>
           </div>
-          {isOpenMenuSettings && <MenuSettings />}
           <NotificationContainer />
         </div>
+        {this.renderMenuSettings()}
       </ErrorBoundary>
     );
   }

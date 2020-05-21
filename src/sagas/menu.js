@@ -70,7 +70,7 @@ function* doSaveMenuConfigRequest({ api, logger }, { payload }) {
 
 function* sagaGetCreateOptionsMenu({ api, logger }, { payload }) {
   try {
-    const createOptions = [...MenuService.testCreateOptions, ...MenuService.extraCreateOptions];
+    const createOptions = [...MenuService.extraCreateOptions];
 
     yield put(setCreateOptionsMenu(createOptions));
   } catch (e) {

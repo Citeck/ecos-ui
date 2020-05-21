@@ -6,6 +6,7 @@ import { deepClone, t } from '../helpers/util';
 import { getSearchParams, SearchKeys } from '../helpers/urls';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { toGeneratorTree } from '../helpers/dataGenerators';
+import { MenuSettings as ms } from '../constants/menu';
 
 export default class MenuService {
   static getSiteMenuLink = function*(menuItem) {
@@ -31,20 +32,13 @@ export default class MenuService {
     return link;
   };
 
-  static ActionTypes = {
-    ACTIVE: 'ACTIVE',
-    NO_ACTIVE: 'NO_ACTIVE',
-    EDIT: 'EDIT',
-    DELETE: 'DELETE'
-  };
-
   static getAvailableActions = item => {
     const actions = [];
 
     //if whenSelected == null it is both states
     if (item.editable) {
       actions.push({
-        type: MenuService.ActionTypes.EDIT,
+        type: ms.ActionTypes.EDIT,
         icon: 'icon-edit',
         text: 'menu-settings.editor-items.action.edit',
         whenSelected: true
@@ -53,7 +47,7 @@ export default class MenuService {
 
     if (item.removable) {
       actions.push({
-        type: MenuService.ActionTypes.DELETE,
+        type: ms.ActionTypes.DELETE,
         icon: 'icon-delete',
         text: 'menu-settings.editor-items.action.delete',
         className: 'ecos-menu-settings-editor-items__action_caution',
@@ -63,14 +57,14 @@ export default class MenuService {
 
     actions.push(
       {
-        type: MenuService.ActionTypes.ACTIVE,
+        type: ms.ActionTypes.ACTIVE,
         icon: 'icon-on',
         className: 'ecos-menu-settings-editor-items__action_no-hide',
         whenSelected: true,
         text: 'menu-settings.editor-items.action.hide'
       },
       {
-        type: MenuService.ActionTypes.NO_ACTIVE,
+        type: ms.ActionTypes.NO_ACTIVE,
         icon: 'icon-off',
         className: 'ecos-menu-settings-editor-items__action_no-hide',
         whenSelected: false,
@@ -93,14 +87,14 @@ export default class MenuService {
     const foundItem = treeFindFirstItem({ items, key: 'id', value: id });
 
     switch (action) {
-      case MenuService.ActionTypes.ACTIVE:
-      case MenuService.ActionTypes.NO_ACTIVE:
+      case ms.ActionTypes.ACTIVE:
+      case ms.ActionTypes.NO_ACTIVE:
         foundItem.selected = !foundItem.selected;
         foundItem.actionConfig = foundItem.availableActions
           ? foundItem.availableActions.filter(act => !!act.whenSelected === foundItem.selected)
           : [];
         break;
-      case MenuService.ActionTypes.DELETE:
+      case ms.ActionTypes.DELETE:
         break;
       default:
         break;
@@ -122,28 +116,32 @@ export default class MenuService {
 
   static extraCreateOptions = [
     {
-      key: 'section',
+      key: ms.OptionKeys.SECTION,
       forbiddenTypes: [],
-      label: 'Раздел'
+      label: 'menu-item.type.section'
     },
     {
-      key: 'journal',
+      key: ms.OptionKeys.JOURNAL,
       forbiddenTypes: [],
-      label: 'Журнал'
+      forbiddenAllTypes: true,
+      label: 'menu-item.type.journal'
     },
     {
-      key: 'arbitrary',
+      key: ms.OptionKeys.ARBITRARY,
       forbiddenTypes: [],
+      forbiddenAllTypes: true,
       label: 'menu-item.type.arbitrary'
     },
     {
-      key: 'link-create-case',
+      key: ms.OptionKeys.LINK_CREATE_CASE,
       forbiddenTypes: [],
+      forbiddenAllTypes: true,
       label: 'menu-item.type.link-create-case'
     },
     {
-      key: 'header-divider',
+      key: ms.OptionKeys.HEADER_DIVIDER,
       forbiddenTypes: [],
+      forbiddenAllTypes: true,
       label: 'menu-item.type.header-divider'
     }
   ];
@@ -156,21 +154,8 @@ export default class MenuService {
       item.label = t(item.label);
     });
 
-    return array.filter(opt => !item || !opt.forbiddenTypes.includes(item.type));
+    return array.filter(opt => !item || !!opt.forbiddenAllTypes || !opt.forbiddenTypes.includes(item.type));
   };
 
   static testItems = toGeneratorTree(5, 2);
-
-  static testCreateOptions = [
-    {
-      id: '1111',
-      forbiddenTypes: [],
-      label: 'Раздел'
-    },
-    {
-      id: '22222',
-      forbiddenTypes: [],
-      label: 'Журнал'
-    }
-  ];
 }
