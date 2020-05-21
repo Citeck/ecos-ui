@@ -114,6 +114,5 @@ export default class DocAssociationsConverter {
 
   static getId(source = {}) {
     return source.id;
-    // return source.attribute || source.id;
   }
 }
