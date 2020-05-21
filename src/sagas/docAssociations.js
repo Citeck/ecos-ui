@@ -15,7 +15,7 @@ import {
 } from '../actions/docAssociations';
 import DocAssociationsConverter from '../dto/docAssociations';
 import { DIRECTIONS } from '../constants/docAssociations';
-import { selectAllowedDirectionsByKey } from '../selectors/docAssociations';
+import { selectAllowedDirectionsByKey, selectAssocByAssocName, selectDirectionByAssocName } from '../selectors/docAssociations';
 
 function* sagaGetSectionList({ api, logger }, { payload }) {
   try {
@@ -72,7 +72,11 @@ function* sagaGetAssociations({ api, logger }, { payload }) {
     yield put(setAllowedConnections({ key: payload, allowedAssociations }));
 
     const response = yield allowedAssociations.map(function*(connection) {
-      const result = yield getAssociation({ api, logger }, { id: connection.name, direction: connection.direction }, payload);
+      const result = yield getAssociation(
+        { api, logger },
+        { id: connection.attribute || connection.name, direction: connection.direction },
+        payload
+      );
 
       return { [connection.name]: result };
     });
@@ -122,20 +126,23 @@ function* sagaAddAssociations({ api, logger }, { payload }) {
   try {
     const { associationId, record, associations } = payload;
     const directions = yield select(state => selectAllowedDirectionsByKey(state, record));
+    const association = yield select(state => selectAssocByAssocName(state, record, associationId));
+    const direction = association.attribute ? association.direction : directions[associationId];
 
-    if (directions[associationId] === DIRECTIONS.SOURCE) {
+    if (direction === DIRECTIONS.SOURCE) {
       yield associations.map(function*(recordRef) {
         return yield call(api.docAssociations.addAssociations, {
           recordRef,
           associations: [record],
-          associationId
+          associationId: association.attribute || associationId,
+          isSource: true
         });
       });
     } else {
       yield call(api.docAssociations.addAssociations, {
         recordRef: record,
         associations,
-        associationId
+        associationId: association.attribute || associationId
       });
     }
 
@@ -152,6 +159,7 @@ function* sagaRemoveAssociations({ api, logger }, { payload }) {
     const directions = yield select(state => selectAllowedDirectionsByKey(state, record));
     let recordRef = record;
     let association = associationRef;
+    const assocData = yield select(state => selectAssocByAssocName(state, record, associationId));
 
     if (directions[associationId] === DIRECTIONS.SOURCE) {
       recordRef = associationRef;
@@ -161,7 +169,7 @@ function* sagaRemoveAssociations({ api, logger }, { payload }) {
     yield call(api.docAssociations.removeAssociations, {
       recordRef,
       association,
-      associationId
+      associationId: assocData.attribute || associationId
     });
     yield put(getAssociations(record));
   } catch (e) {

@@ -75,9 +75,9 @@ export default class DocAssociationsConverter {
     return firstLvl.map(item => {
       const target = {};
 
-      target.id = item.id;
+      target.id = DocAssociationsConverter.getId(item);
       target.label = item.name;
-      target.items = secondLvl.map(i => mappingNextLevel(i, item.id)).filter(i => i.items.length);
+      target.items = secondLvl.map(i => mappingNextLevel(i, target.id)).filter(i => i.items.length);
 
       return target;
     });
@@ -103,11 +103,17 @@ export default class DocAssociationsConverter {
     return data.map((source = {}) => {
       const target = {};
 
-      target.name = source.id;
+      target.name = DocAssociationsConverter.getId(source);
+      target.attribute = source.attribute;
       target.title = source.name;
       target.direction = source.direction === DIRECTIONS.NULL ? DIRECTIONS.TARGET : source.direction;
 
       return target;
     });
+  }
+
+  static getId(source = {}) {
+    return source.id;
+    // return source.attribute || source.id;
   }
 }

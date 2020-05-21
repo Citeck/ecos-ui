@@ -17,7 +17,7 @@ export class DocAssociationsApi extends RecordService {
           return [];
         }
         return Records.get(type)
-          .load('assocsFull[]{id,name,direction}')
+          .load('assocsFull[]{id,attribute,name,direction}')
           .catch(e => {
             console.error(e);
             return [];
@@ -53,17 +53,18 @@ export class DocAssociationsApi extends RecordService {
   };
 
   getTargetAssociations = (id, recordRef) => {
-    return Records.get(recordRef).load(`${id}[]{id:.assoc,displayName:.disp,created}`, true);
+    return Records.get(recordRef).load(`${id}[]{id:.assoc,displayName:.disp,created,attr:attribute}`, true);
   };
 
   getSourceAssociations = (id, recordRef) => {
-    return Records.get(recordRef).load(`assoc_src_${id}[]{id:.assoc,displayName:.disp,created}`, true);
+    return Records.get(recordRef).load(`assoc_src_${id}[]{id:.assoc,displayName:.disp,created,attr:attribute}`, true);
   };
 
-  addAssociations = ({ associationId, associations, recordRef }) => {
+  addAssociations = ({ associationId, associations, recordRef, isSource }) => {
     const record = Records.getRecordToEdit(recordRef);
+    const prefix = isSource ? 'assoc_src_' : '';
 
-    record.att(`att_add_${associationId}`, associations);
+    record.att(`att_add_${prefix}${associationId}`, associations);
 
     return record.save().then(response => response);
   };
