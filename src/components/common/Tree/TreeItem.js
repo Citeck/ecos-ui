@@ -240,7 +240,9 @@ class TreeItem extends Component {
               {t(name)}
             </div>
           </Tooltip>
-          {renderExtraItemComponents && <div className="ecos-tree__item-element-custom-components">{renderExtraItemComponents(item)}</div>}
+          {renderExtraItemComponents && (
+            <div className="ecos-tree__item-element-custom-components">{renderExtraItemComponents({ item, level, isOpen })}</div>
+          )}
           <div className="ecos-tree__item-element-space" />
           {actionConfig && !!actionConfig.length && (
             <div className="ecos-tree__item-element-actions">

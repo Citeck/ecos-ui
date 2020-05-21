@@ -113,8 +113,8 @@ class EditorItems extends React.Component {
     return <EditorItemModal type={createSectionInfo.type} onClose={handleHideModal} onSave={handleSave} />;
   };
 
-  renderButtonAddSection = item => {
-    if (!item || (item.expandable && item.selected)) {
+  renderButtonAddSection = ({ item, level, isOpen }) => {
+    if (!item || (level < 3 && item.expandable && item.selected)) {
       const createOptions = MenuService.getAvailableCreateOptions(this.props.createOptions, item);
 
       return createOptions && createOptions.length ? (
@@ -145,7 +145,7 @@ class EditorItems extends React.Component {
         <div className="ecos-menu-settings__title">{t(Labels.TITLE)}</div>
         <div className="ecos-menu-settings-editor-items__header">
           <div className="ecos-menu-settings__subtitle ecos-menu-settings-editor-items__subtitle">{t(Labels.SUBTITLE)}</div>
-          {this.renderButtonAddSection()}
+          {this.renderButtonAddSection({})}
           <div className="ecos--flex-space" />
           <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAMI}>
             {t(openAllMenuItems ? Labels.BTN_COLLAPSE_ALL : Labels.BTN_EXPAND_ALL)}

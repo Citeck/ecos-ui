@@ -128,19 +128,16 @@ export default class MenuService {
     },
     {
       key: ms.OptionKeys.ARBITRARY,
-      forbiddenTypes: [],
       forbiddenAllTypes: true,
       label: 'menu-item.type.arbitrary'
     },
     {
       key: ms.OptionKeys.LINK_CREATE_CASE,
-      forbiddenTypes: [],
       forbiddenAllTypes: true,
       label: 'menu-item.type.link-create-case'
     },
     {
       key: ms.OptionKeys.HEADER_DIVIDER,
-      forbiddenTypes: [],
       forbiddenAllTypes: true,
       label: 'menu-item.type.header-divider'
     }
@@ -157,5 +154,5 @@ export default class MenuService {
     return array.filter(opt => !item || !!opt.forbiddenAllTypes || !opt.forbiddenTypes.includes(item.type));
   };
 
-  static testItems = toGeneratorTree(5, 2);
+  static testItems = toGeneratorTree(3, 4);
 }
