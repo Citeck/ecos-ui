@@ -1224,3 +1224,7 @@ button.close {
 .row.row_display-block {
   display: block;
 }
+
+.btn-group-justified > .btn-group {
+  width: 100%;
+}

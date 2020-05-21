@@ -173,50 +173,46 @@ class RecordActionsService {
       });
   }
 
-  execAction = async (records, action) => {
-    let executor = RecordActionExecutorsRegistry.get(action.type);
+  execAction = async (recordsId, action) => {
+    const records = Records.get(recordsId);
+    const executorPromise = (async () => {
+      const executor = RecordActionExecutorsRegistry.get(action.type);
 
-    if (lodash.isArray(records)) {
-      if (executor.groupExec) {
+      if (lodash.isArray(recordsId)) {
+        if (executor.groupExec) {
+          return Promise.resolve(executor.groupExec({ records, action }));
+        } else {
+          return Promise.all(
+            recordsId.map(async record => {
+              const config = await this.replaceAttributeValues(action.config, record);
+
+              return executor.execute({
+                record: Records.get(record),
+                action: { ...action, config }
+              });
+            })
+          );
+        }
+      }
+
+      if (executor.execute) {
+        const config = await this.replaceAttributeValues(action.config, recordsId);
+
         return Promise.resolve(
-          executor.groupExec({
-            records: Records.get(records),
-            action
+          executor.execute({
+            record: records,
+            action: { ...action, config }
           })
         );
       } else {
-        return Promise.all(
-          records.map(async record => {
-            const config = await this.replaceAttributeValues(action.config, record);
-
-            return executor.execute({
-              record: Records.get(record),
-              action: { ...action, config }
-            });
-          })
-        );
+        return Promise.resolve(executor.groupExec({ records, action })).then(result => (lodash.isArray(result) ? result[0] : result));
       }
-    }
+    })();
 
-    if (executor.execute) {
-      const config = await this.replaceAttributeValues(action.config, records);
-
-      return Promise.resolve(
-        executor.execute({
-          record: Records.get(records),
-          action: { ...action, config }
-        })
-      );
-    } else {
-      return Promise.resolve(
-        executor.groupExec({
-          records: [Records.get(records)],
-          action
-        })
-      ).then(result => {
-        return lodash.isArray(result) ? result[0] : result;
-      });
-    }
+    return executorPromise.then(result => {
+      lodash.isArray(records) ? records.forEach(record => record.update()) : records.update();
+      return result;
+    });
   };
 
   replaceAttributeValues = async (data = {}, record) => {

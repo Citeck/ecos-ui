@@ -242,12 +242,23 @@ export default class FileComponent extends FormIOFileComponent {
     } else if (onFileClickAction === FILE_CLICK_ACTION_OPEN_DASHBOARD && !this.viewOnly) {
       linkAttributes.onClick = e => {
         const confirmation = window.confirm(t('eform.file.on-click-confirmation'));
+
         if (!confirmation) {
           e.stopPropagation();
           e.preventDefault();
         }
       };
     }
+
+    linkAttributes.onmousedown = e => {
+      if (e.which === 2) {
+        e.stopPropagation();
+        e.preventDefault();
+        linkAttributes.onClick(e);
+
+        return false;
+      }
+    };
 
     fileItemElement = this.ce('a', linkAttributes);
     this.calculateFileLinkText({ fileItemElement, originalFileName, recordRef, file });

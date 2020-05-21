@@ -220,12 +220,6 @@ export function t(key, options, scope = 'global') {
     return i18next.t(key, options);
   }
 
-  // TODO remove in future
-  const Alfresco = window.Alfresco;
-  if (Alfresco && Alfresco.util && Alfresco.util.message) {
-    return Alfresco.util.message(key, scope, options);
-  }
-
   return key;
 }
 

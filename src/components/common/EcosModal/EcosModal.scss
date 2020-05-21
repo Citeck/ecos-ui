@@ -199,6 +199,15 @@
   max-width: calc(100% - 1rem);
 }
 
+.modal .modal-dialog.ecos-modal.ecos-modal_center {
+  margin: 0;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+}
+
 @media (max-width: 600px) {
   .ecos-modal.ecos-modal_width-sm {
     margin: 0.5rem;
