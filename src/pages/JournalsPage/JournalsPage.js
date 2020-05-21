@@ -8,6 +8,8 @@ import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { Journals, JournalsUrlManager } from '../../components/Journals';
 import pageTabList from '../../services/pageTabs/PageTabList';
 
+import './style.scss';
+
 const getKeys = ({ id, tabId, stateId }) => stateId || getStateId({ tabId, id: id || getId() });
 
 const Labels = {
@@ -39,13 +41,13 @@ class JournalsPage extends React.Component {
     const { isActivePage } = this.props;
 
     return (
-      <ErrorBoundary title={t(Labels.ERROR_BOUNDARY_TITLE)} message={t(Labels.ERROR_BOUNDARY_MSG)}>
-        {stateId === this.getStateId() ? (
+      <div className="ecos-journal-page">
+        <ErrorBoundary title={t(Labels.ERROR_BOUNDARY_TITLE)} message={t(Labels.ERROR_BOUNDARY_MSG)}>
           <JournalsUrlManager stateId={this.stateId}>
             <Journals stateId={this.stateId} isActivePage={isActivePage} />
           </JournalsUrlManager>
-        ) : null}
-      </ErrorBoundary>
+        </ErrorBoundary>
+      </div>
     );
   }
 }
