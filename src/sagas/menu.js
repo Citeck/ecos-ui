@@ -43,7 +43,7 @@ function* doGetMenuConfigRequest({ api, logger }) {
   try {
     const result = yield call(api.menu.getMenuConfig, true);
 
-    result.items = MenuService.testItems; //todo
+    result.items = []; //todo
     MenuService.setAvailableActions(result.items);
 
     const menu = MenuConverter.parseGetResult(result);

@@ -922,6 +922,18 @@
   "menu-settings.editor-items.action.delete": "Удалить",
   "menu-settings.editor-items.action.edit-icon": "Обновить иконку",
 
+  "menu-settings.editor-item.field.name.label": "Название",
+  "menu-settings.editor-item.field.url.label": "Ссылка",
+  "menu-settings.editor-item.field.icon.label": "Иконка",
+  "menu-settings.editor-item.field.icon.desc": "Чтобы иконка выглядела хорошо, используйте png 20x20 px или svg. Старайтесь использовать иконки без мелких деталей.",
+  "menu-settings.editor-item.field.icon.btn.cancel": "Сбросить",
+  "menu-settings.editor-item.field.icon.btn.select": "Выбрать",
+  "menu-settings.editor-item.title.add": "Создать",
+  "menu-settings.editor-item.title.edit": "Редактировать",
+  "menu-settings.editor-item.button.cancel": "Отмена",
+  "menu-settings.editor-item.button.add": "Добавить",
+  "menu-settings.editor-item.button.edit": "Изменить",
+
   "menu-settings.button.cancel": "Отмена",
   "menu-settings.button.apply": "Применить",
 

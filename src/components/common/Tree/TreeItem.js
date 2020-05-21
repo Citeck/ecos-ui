@@ -104,7 +104,7 @@ class TreeItem extends Component {
   };
 
   handleActionItem = action => {
-    this.props.onClickAction({ action, id: this.props.item.id });
+    this.props.onClickAction({ action, item: this.props.item });
   };
 
   renderArrow() {

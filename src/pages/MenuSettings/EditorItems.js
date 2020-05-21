@@ -83,11 +83,11 @@ class EditorItems extends React.Component {
     }
   };
 
-  handleActionItem = ({ action, id }) => {
+  handleActionItem = ({ action, item }) => {
     if (action === MenuSettings.ActionTypes.DELETE) {
       dialogManager.showRemoveDialog({
         title: '',
-        text: t('menu-settings.message.delete-item', { name: id }),
+        text: t('menu-settings.message.delete-item', { name: item.name }),
         className: 'ecos-modal_width-xs',
         onDelete: () => {
           console.log('onDelete');
@@ -98,7 +98,11 @@ class EditorItems extends React.Component {
       });
     }
 
-    const items = MenuService.processAction({ action, id, items: this.state.items });
+    if (action === MenuSettings.ActionTypes.EDIT) {
+      this.handleChooseOption(this.props.createOptions.find(o => o.key === item.type), item);
+    }
+
+    const items = MenuService.processAction({ action, id: item.id, items: this.state.items });
     this.setState({ items });
   };
 
