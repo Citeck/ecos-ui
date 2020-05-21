@@ -34,14 +34,14 @@ class TunableDialog extends React.Component {
   };
 
   render() {
-    const { title, content, footer, className, bodyClassName, footerClassName, isOpen } = this.props;
+    const { content, footer, className, bodyClassName, footerClassName, ...extraProps } = this.props;
 
     const cssClasses = classNames('ecos-tune-dialog ecos-modal_width-sm', className);
     const bodyCssClasses = classNames('ecos-tune-dialog__body', bodyClassName);
     const footerCssClasses = classNames('ecos-tune-dialog__footer', footerClassName);
 
     return (
-      <EcosModal title={title} isOpen={isOpen} hideModal={this.onClose} className={cssClasses} noDraggable>
+      <EcosModal hideModal={this.onClose} className={cssClasses} noDraggable {...extraProps}>
         {!isEmpty(content) && <div className={bodyCssClasses}>{content}</div>}
 
         {!isEmpty(footer) && <div className={footerCssClasses}>{footer}</div>}
