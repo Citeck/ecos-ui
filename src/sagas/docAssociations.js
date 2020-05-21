@@ -15,7 +15,7 @@ import {
 } from '../actions/docAssociations';
 import DocAssociationsConverter from '../dto/docAssociations';
 import { DIRECTIONS } from '../constants/docAssociations';
-import { selectAllowedDirectionsByKey, selectAssocByAssocName, selectDirectionByAssocName } from '../selectors/docAssociations';
+import { selectAllowedDirectionsByKey, selectAssocByAssocName } from '../selectors/docAssociations';
 
 function* sagaGetSectionList({ api, logger }, { payload }) {
   try {
@@ -159,7 +159,7 @@ function* sagaRemoveAssociations({ api, logger }, { payload }) {
     const directions = yield select(state => selectAllowedDirectionsByKey(state, record));
     let recordRef = record;
     let association = associationRef;
-    const assocData = yield select(state => selectAssocByAssocName(state, record, associationId));
+    const { attribute } = yield select(state => selectAssocByAssocName(state, record, associationId));
 
     if (directions[associationId] === DIRECTIONS.SOURCE) {
       recordRef = associationRef;
@@ -169,7 +169,7 @@ function* sagaRemoveAssociations({ api, logger }, { payload }) {
     yield call(api.docAssociations.removeAssociations, {
       recordRef,
       association,
-      associationId: assocData.attribute || associationId
+      associationId: attribute || associationId
     });
     yield put(getAssociations(record));
   } catch (e) {

@@ -53,11 +53,11 @@ export class DocAssociationsApi extends RecordService {
   };
 
   getTargetAssociations = (id, recordRef) => {
-    return Records.get(recordRef).load(`${id}[]{id:.assoc,displayName:.disp,created,attr:attribute}`, true);
+    return Records.get(recordRef).load(`${id}[]{id:.assoc,displayName:.disp,created}`, true);
   };
 
   getSourceAssociations = (id, recordRef) => {
-    return Records.get(recordRef).load(`assoc_src_${id}[]{id:.assoc,displayName:.disp,created,attr:attribute}`, true);
+    return Records.get(recordRef).load(`assoc_src_${id}[]{id:.assoc,displayName:.disp,created}`, true);
   };
 
   addAssociations = ({ associationId, associations, recordRef, isSource }) => {
