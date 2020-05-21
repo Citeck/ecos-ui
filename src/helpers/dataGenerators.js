@@ -11,7 +11,6 @@ export function toGeneratorTree(len = 0, lvl = 0) {
         name: v + d + ' - ' + i,
         icon: d === 1 ? { value: 'fa-plus', type: 'fa' } : undefined,
         // badge: i*3,
-        lvl: d,
         selected: true,
         editable: true,
         removable: true,

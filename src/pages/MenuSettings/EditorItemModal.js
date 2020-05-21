@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../helpers/util';
-import { MenuSettings } from '../../constants/menu';
+import { MenuSettings as MS } from '../../constants/menu';
 import { EcosModal, Icon } from '../../components/common';
 import { Input } from '../../components/common/form';
 import { Btn } from '../../components/common/btns';
@@ -12,16 +12,32 @@ import './style.scss';
 
 //todo consts, dictionary
 function EditorItemModal({ type, onClose, onSave }) {
+  const defaultIcon = { value: 'icon-empty-icon', type: 'icon' };
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
-  const [icon, setIcon] = useState('icon-empty-icon');
+  const [icon, setIcon] = useState(defaultIcon);
 
   const cancel = () => {
     onClose();
   };
 
   const apply = () => {
-    onSave({ name, icon });
+    const dndIdx = Date.now();
+    const id = `${type.key}-${dndIdx}`;
+
+    onSave({
+      name,
+      icon,
+      id,
+      dndIdx,
+      type: type.key,
+      selected: true,
+      editable: true,
+      removable: true,
+      draggable: true,
+      expandable: true,
+      items: []
+    });
   };
 
   const isValid = () => {
@@ -33,12 +49,14 @@ function EditorItemModal({ type, onClose, onSave }) {
       <Field label={'Название'} required>
         <Input onChange={e => setName(e.target.value)} value={name} />
       </Field>
-      {[MenuSettings.OptionKeys.ARBITRARY].includes(type.key) && (
+      {/*todo valid url*/}
+      {[MS.OptionKeys.ARBITRARY].includes(type.key) && (
         <Field label={'URL'} required>
           <Input onChange={e => setUrl(e.target.value)} value={url} />
         </Field>
       )}
-      {![MenuSettings.OptionKeys.HEADER_DIVIDER].includes(type.key) && (
+      {/*todo select*/}
+      {![MS.OptionKeys.HEADER_DIVIDER].includes(type.key) && (
         <Field
           label={'Иконка'}
           description={
@@ -46,12 +64,12 @@ function EditorItemModal({ type, onClose, onSave }) {
           }
         >
           <div className="ecos-menu-create-section__field-icon">
-            <Icon className={icon} />
+            <Icon className={icon.value} />
             <div className="ecos--flex-space" />
-            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setIcon('icon-empty-icon')}>
+            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setIcon(defaultIcon)}>
               Сбросить
             </Btn>
-            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setIcon('icon-exit')}>
+            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setIcon({ value: 'icon-exit', type: 'icon' })}>
               Выбрать другую
             </Btn>
           </div>

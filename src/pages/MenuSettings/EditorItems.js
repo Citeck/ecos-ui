@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
 
-import { t } from '../../helpers/util';
-import { treeMoveItem } from '../../helpers/arrayOfObjects';
+import { deepClone, t } from '../../helpers/util';
+import { treeGetPathItem, treeMoveItem } from '../../helpers/arrayOfObjects';
 import { MenuSettings } from '../../constants/menu';
 import MenuService from '../../services/menu';
 import { Tree } from '../../components/common';
 import { Btn } from '../../components/common/btns';
-import { Dropdown } from '../../components/common/form';
+import { Dropdown, SelectJournal } from '../../components/common/form';
 import dialogManager from '../../components/common/dialogs/Manager';
 import EditorItemModal from './EditorItemModal';
 
@@ -44,7 +45,7 @@ class EditorItems extends React.Component {
   static getDerivedStateFromProps({ items = [] }, state) {
     let newState = null;
 
-    if (items.length !== state.items.length) {
+    if (!!items.length && !state.items.length) {
       newState = { ...newState, items };
     }
 
@@ -64,7 +65,22 @@ class EditorItems extends React.Component {
   };
 
   handleChooseOption = (type, item) => {
-    this.setState({ createSectionInfo: { type, item } });
+    if ([MenuSettings.OptionKeys.JOURNAL, MenuSettings.OptionKeys.LINK_CREATE_CASE].includes(type.key)) {
+      //todo
+      this.setState({
+        createItemInfo: {
+          type,
+          item,
+          several: true,
+          journalId:
+            type.key === MenuSettings.OptionKeys.JOURNAL
+              ? 'workspace%3A%2F%2FSpacesStore%2F3700b0df-b8b6-440a-a399-dd30f127e404'
+              : 'workspace%3A%2F%2FSpacesStore%2F564bbe41-c456-44b3-8ab2-1b3d82e15aaa'
+        }
+      });
+    } else {
+      this.setState({ createItemInfo: { type, item } });
+    }
   };
 
   handleActionItem = ({ action, id }) => {
@@ -96,21 +112,43 @@ class EditorItems extends React.Component {
   };
 
   renderEditorItem = () => {
-    const { createSectionInfo } = this.state;
+    const { createItemInfo } = this.state;
 
-    if (!createSectionInfo) {
+    if (!createItemInfo) {
       return null;
     }
 
     const handleHideModal = () => {
-      this.setState({ createSectionInfo: null });
+      this.setState({ createItemInfo: null });
     };
 
-    const handleSave = data => {
-      console.log(data);
+    const handleSave = newItem => {
+      const items = deepClone(this.state.items || []);
+      const path = treeGetPathItem({ items, value: get(createItemInfo, 'item.dndIdx'), key: 'dndIdx' });
+
+      if (path) {
+        get(items, path, {}).items.push(newItem);
+      } else {
+        items.push(newItem);
+      }
+
+      this.setState({ createItemInfo: null, items });
     };
 
-    return <EditorItemModal type={createSectionInfo.type} onClose={handleHideModal} onSave={handleSave} />;
+    if (createItemInfo.several) {
+      return (
+        <SelectJournal
+          journalId={createItemInfo.journalId}
+          isSelectModalOpen
+          multiple
+          renderView={() => null}
+          onChange={handleSave}
+          onCancel={handleHideModal}
+        />
+      );
+    }
+
+    return <EditorItemModal type={createItemInfo.type} onClose={handleHideModal} onSave={handleSave} />;
   };
 
   renderButtonAddSection = ({ item, level, isOpen }) => {
@@ -138,7 +176,7 @@ class EditorItems extends React.Component {
 
   render() {
     const { openAllMenuItems } = this.state;
-    const items = MenuService.setActiveActions(this.state.items);
+    const items = MenuService.setActiveActions(deepClone(this.state.items));
 
     return (
       <div className="ecos-menu-settings-editor-items">

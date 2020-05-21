@@ -102,6 +102,7 @@
     &__tree {
       &-field {
         @extend %block--2;
+        min-height: 300px;
         max-height: 300px;
         overflow-x: hidden;
       }
