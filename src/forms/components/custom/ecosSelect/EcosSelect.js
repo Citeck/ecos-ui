@@ -31,7 +31,11 @@ export default class SelectComponent extends BaseComponent {
         searchThreshold: 0.3,
         fuseOptions: {},
         customOptions: {},
-        refreshEventName: ''
+        refreshEventName: '',
+        unavailableItems: {
+          isActive: false,
+          code: ''
+        }
       },
       ...extend
     );
@@ -61,6 +65,8 @@ export default class SelectComponent extends BaseComponent {
 
   build() {
     super.build();
+
+    console.warn(this.component);
 
     if (this.component.refreshEventName) {
       this.on(

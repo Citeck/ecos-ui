@@ -4,6 +4,44 @@ SelectEditData.push(
   {
     type: 'checkbox',
     input: true,
+    key: 'unavailableItems.isActive',
+    label: 'Unavailable items',
+    tooltip: 'Configure items that will not be available for selection',
+    weight: 18,
+    defaultValue: false
+  },
+  {
+    type: 'panel',
+    title: 'JavaScript',
+    collapsible: true,
+    collapsed: false,
+    key: 'code-panel',
+    weight: 18,
+    components: [
+      {
+        type: 'textarea',
+        key: 'unavailableItems.code',
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true,
+        placeholder: 'value = []'
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content: '<p>Enter custom javascript code.</p>'
+      }
+    ],
+    conditional: {
+      json: {
+        and: [{ '==': [{ var: 'data.unavailableItems.isActive' }, true] }]
+      }
+    }
+  },
+  {
+    type: 'checkbox',
+    input: true,
     key: 'refreshOnEvent',
     label: 'Refresh on event',
     weight: 18,
