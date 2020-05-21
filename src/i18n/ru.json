@@ -4,6 +4,7 @@
   "aggregation.type": "Тип агрегации",
   "boolean.no": "Нет",
   "boolean.yes": "Да",
+
   "btn.cancel.label": "Отмена",
 
   "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",
