@@ -335,7 +335,7 @@ export class JournalsApi extends RecordService {
     const { id, type, params } = groupAction;
 
     if (params.js_action) {
-      var actionFunction = new Function('records', 'parameters', params.js_action);
+      var actionFunction = new Function('records', 'parameters', params.js_action); //eslint-disable-line
       actionFunction(selected, params);
       return Promise.resolve([]);
     }
