@@ -8,13 +8,18 @@ import get from 'lodash/get';
 import uniqueId from 'lodash/uniqueId';
 
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
-import Panel from '../common/panels/Panel/Panel';
-import Measurer from '../Measurer/Measurer';
+import { t } from '../../helpers/util';
+import { Panel, ResizableBox } from '../common';
 import { Btn } from '../common/btns';
-import { ResizableBox } from '../common';
+import Measurer from '../Measurer/Measurer';
+import { ErrorBoundary } from '../ErrorBoundary';
 import Header from './Header';
 
 import './Dashlet.scss';
+
+const Labels = {
+  ERROR_BOUNDARY_MSG: 'dashlet.error-boundary.msg'
+};
 
 class Dashlet extends Component {
   static propTypes = {
@@ -109,20 +114,21 @@ class Dashlet extends Component {
   };
 
   get fitHeightChildren() {
-    const busyArea = this.busyDashletHeight;
+    const { headerHeight, resizerHeight } = this.busyDashletHeight;
+    const busyArea = headerHeight + resizerHeight;
 
     const max = MAX_DEFAULT_HEIGHT_DASHLET - busyArea;
     const min = MIN_DEFAULT_HEIGHT_DASHLET - busyArea;
 
-    return { min, max };
+    return { min, max, headerHeight, resizerHeight };
   }
 
   get busyDashletHeight() {
     const elDashlet = this.refDashlet.current || {};
-    const headerH = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
-    const resizerH = get(this.resizableRef, 'current.resizeBtnHeight', 0);
+    const headerHeight = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
+    const resizerHeight = get(this.resizableRef, 'current.resizeBtnHeight', 0);
 
-    return headerH + resizerH;
+    return { headerHeight, resizerHeight };
   }
 
   onGoTo = () => {
@@ -245,12 +251,13 @@ class Dashlet extends Component {
             )
           }
         >
-          <div className={classNames('dashlet__body-content', { 'dashlet__body-content_hidden': noBody || (isMobile && isCollapsed) })}>
-            {this.renderContent()}
-            {this.renderHideButton()}
-          </div>
+          <ErrorBoundary message={t(Labels.ERROR_BOUNDARY_MSG)} className="dashlet__error-boundary">
+            <div className={classNames('dashlet__body-content', { 'dashlet__body-content_hidden': noBody || (isMobile && isCollapsed) })}>
+              {this.renderContent()}
+              {this.renderHideButton()}
+            </div>
+          </ErrorBoundary>
         </Panel>
-
         <ReactResizeDetector handleWidth handleHeight onResize={debounce(onResize, 400)} />
       </div>
     );

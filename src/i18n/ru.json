@@ -84,7 +84,8 @@
   "comments-widget.confirm.delete": "Удалить",
   "comments-widget.confirm.title": "Удалить этот комментарий",
   "comments-widget.editor.cancel": "Отмена",
-  "comments-widget.editor.placeholder": "Напишите комментарий не более 350 символов...",
+  "comments-widget.editor.placeholder.part-1": "Напишите комментарий не более",
+  "comments-widget.editor.placeholder.part-2": "символов...",
   "comments-widget.editor.save": "Отправить",
   "comments-widget.error": "Ошибка отправки. Попробуйте еще раз",
   "comments-widget.hour-form1": "час",
@@ -170,6 +171,8 @@
   "dashboard-settings.widget.documents": "Документы",
   "dashboard-settings.widget.user-basic-info": "Профиль",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
+
+  "dashlet.error-boundary.msg": "При работе виджета произошла ошибка. Попробуйте обновить виджет или страницу. Если ошибка повторится, обратитесь к администратору",
   "dashlet.edit.title": "Редактировать данные",
   "dashlet.edit.tooltip": "Редактировать данные",
   "dashlet.goto": "Перейти в раздел",
@@ -178,6 +181,7 @@
   "dashlet.resize.title": "Изменить размер",
   "dashlet.update.title": "Обновить данные",
   "dashlet.settings.title": "Настроить виджет",
+
   "doc-associations-widget.add-association": "Добавить связь",
   "doc-associations-widget.assoc-with-docs": "Связан с документами",
   "doc-associations-widget.basis-document": "Документ-основание",
@@ -361,6 +365,9 @@
   "header.site-menu.page-settings": "Настроить страницу",
   "hints.disabled": "Подсказки выключены",
   "hints.enabled": "Подсказки включены",
+
+  "journal.page.error-boundary.title": "Ошибка",
+  "journal.page.error-boundary.msg": "Попробуйте обновить страницу. Если ошибка повторится, обратитесь к администратору",
   "journal.add-filter-criterion": "Добавить критерий фильтрации",
   "journal.apply-criteria": "Применить",
   "journal.create": "Создать",

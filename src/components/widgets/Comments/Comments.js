@@ -4,14 +4,14 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { ContentState, convertFromRaw, convertToRaw, Editor, EditorState, RichUtils } from 'draft-js';
+import { ContentState, Editor, EditorState, convertToRaw, convertFromRaw, getDefaultKeyBinding, Modifier, RichUtils } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
-import get from 'lodash/get';
+import debounce from 'lodash/debounce';
+import ReactResizeDetector from 'react-resize-detector';
 
 import BaseWidget from '../BaseWidget';
-import { num2str, t } from '../../../helpers/util';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import { deepClone, num2str, t } from '../../../helpers/util';
+import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
 
@@ -28,6 +28,9 @@ const BUTTONS_TYPE = {
   ITALIC: 'ITALIC',
   UNDERLINE: 'UNDERLINE',
   LIST: 'unordered-list-item'
+};
+const KEY_COMMANDS = {
+  SEND: 'comment-send'
 };
 
 class Comments extends BaseWidget {
@@ -68,7 +71,7 @@ class Comments extends BaseWidget {
 
   static defaultProps = {
     comments: [],
-    maxLength: 350,
+    maxLength: 5000,
     errorMessage: '',
     saveIsLoading: false,
     fetchIsLoading: false,
@@ -89,21 +92,15 @@ class Comments extends BaseWidget {
 
     this.contentRef = React.createRef();
     this._scroll = React.createRef();
-    this._header = React.createRef();
-
-    UserLocalSettingsService.checkOldData(props.id);
 
     this.state = {
+      ...this.state,
       isEdit: false,
-      fitHeights: {},
-      contentHeight: null,
+      headerHeight: 0,
       editableComment: null,
       commentForDeletion: null,
       editorHeight: BASE_HEIGHT,
-      width: MIN_WIDTH_DASHLET_SMALL,
-      comment: EditorState.createEmpty(),
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
+      comment: EditorState.createEmpty()
     };
   }
 
@@ -165,6 +162,14 @@ class Comments extends BaseWidget {
     }
 
     return t('comments-widget.now');
+  }
+
+  get editorPlaceholder() {
+    const { maxLength } = this.props;
+    const start = t('comments-widget.editor.placeholder.part-1');
+    const end = t('comments-widget.editor.placeholder.part-2');
+
+    return `${start} ${maxLength} ${end}`;
   }
 
   get countComments() {
@@ -229,18 +234,49 @@ class Comments extends BaseWidget {
     let height = this.props.commentListMaxHeight;
 
     if (!this.contentRef.current) {
-      return `${height}px`;
+      return height;
     }
 
     const { clientHeight } = this.contentRef.current;
 
     height = clientHeight > height ? height : clientHeight;
 
-    return `${height}px`;
+    return height;
   }
 
   get otherHeight() {
-    return get(this._header, 'current.offsetHeight', 0);
+    return this.state.headerHeight;
+  }
+
+  get scrollHeight() {
+    const {
+      userHeight,
+      contentHeight = 0,
+      fitHeights: { max }
+    } = this.state;
+    let height = 0;
+
+    if (userHeight === undefined) {
+      if (contentHeight + this.otherHeight >= max) {
+        return max - this.otherHeight;
+      }
+
+      return contentHeight;
+    }
+
+    if (userHeight <= 0) {
+      return 0;
+    }
+
+    height = userHeight - this.otherHeight;
+
+    return height < 0 ? 0 : height;
+  }
+
+  get canSendComment() {
+    const { maxLength, saveIsLoading } = this.props;
+
+    return this.commentLength && this.commentLength <= maxLength && !saveIsLoading;
   }
 
   updateEditorHeight = () => {
@@ -257,10 +293,21 @@ class Comments extends BaseWidget {
     }
   };
 
-  recalculateScrollbarHeight = () => {
-    if (this._scroll.current) {
-      this._scroll.current.container.style.minHeight = this.scrollbarHeight;
+  setFitHeights = data => {
+    const fitHeights = deepClone(data);
+    const fitHeightsState = this.state.fitHeights;
+
+    if (JSON.stringify(fitHeightsState) !== JSON.stringify(fitHeights)) {
+      this.setState({ fitHeights });
     }
+  };
+
+  handleCommentSend = event => {
+    if (this.canSendComment && event.ctrlKey && event.key === 'Enter') {
+      return KEY_COMMANDS.SEND;
+    }
+
+    return getDefaultKeyBinding(event);
   };
 
   handleShowEditor = () => {
@@ -330,6 +377,10 @@ class Comments extends BaseWidget {
   handleKeyCommand = (command, editorState) => {
     const newComment = RichUtils.handleKeyCommand(editorState, command);
 
+    if (command === KEY_COMMANDS.SEND) {
+      return this.handleSaveComment();
+    }
+
     if (newComment) {
       this.handleChangeComment(newComment);
 
@@ -340,12 +391,12 @@ class Comments extends BaseWidget {
   };
 
   handlePastedText = text => {
-    this.setState(
-      {
-        comment: EditorState.moveFocusToEnd(EditorState.createWithContent(ContentState.createFromText(text)))
-      },
-      this.updateEditorHeight
-    );
+    const { comment } = this.state;
+    const pastedBlocks = ContentState.createFromText(text).blockMap;
+    const newState = Modifier.replaceWithFragment(comment.getCurrentContent(), comment.getSelection(), pastedBlocks);
+    const newCommentState = EditorState.push(comment, newState, 'insert-fragment');
+
+    this.setState({ comment: newCommentState }, this.updateEditorHeight);
 
     return true;
   };
@@ -356,8 +407,6 @@ class Comments extends BaseWidget {
     let convertedComment = ContentState.createFromText(comment.text);
 
     if (!comment) {
-      console.warn('Comment not found');
-
       return;
     }
 
@@ -398,23 +447,33 @@ class Comments extends BaseWidget {
     getComments();
   };
 
+  handleResizeHeader = debounce((width, headerHeight) => {
+    if (this.state.headerHeight !== headerHeight) {
+      this.setState({ headerHeight });
+    }
+  }, 400);
+
   renderHeader() {
     const { isEdit } = this.state;
 
     return (
-      <div className="ecos-comments__header" ref={this._header}>
-        {isEdit ? (
-          this.renderEditor()
-        ) : (
-          <>
-            <div className="ecos-comments__count">
-              <span className="ecos-comments__count-text">{this.countComments}</span>
-            </div>
-            <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
-              {t('comments-widget.add')}
-            </Btn>
-          </>
-        )}
+      <div>
+        <div className="ecos-comments__header">
+          {isEdit ? (
+            this.renderEditor()
+          ) : (
+            <>
+              <div className="ecos-comments__count">
+                <span className="ecos-comments__count-text">{this.countComments}</span>
+              </div>
+              <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__add-btn" onClick={this.handleShowEditor}>
+                {t('comments-widget.add')}
+              </Btn>
+            </>
+          )}
+        </div>
+
+        <ReactResizeDetector handleWidth handleHeight onResize={this.handleResizeHeader} />
       </div>
     );
   }
@@ -430,7 +489,7 @@ class Comments extends BaseWidget {
   }
 
   renderEditor() {
-    const { maxLength, errorMessage, saveIsLoading } = this.props;
+    const { errorMessage, saveIsLoading } = this.props;
     const { comment, editorHeight } = this.state;
     let minHeight = '1em';
 
@@ -478,10 +537,11 @@ class Comments extends BaseWidget {
               spellCheck
               ref={this.setEditor}
               editorState={comment}
+              keyBindingFn={this.handleCommentSend}
               onChange={this.handleChangeComment}
               handleKeyCommand={this.handleKeyCommand}
               handlePastedText={this.handlePastedText}
-              placeholder={t('comments-widget.editor.placeholder')}
+              placeholder={this.editorPlaceholder}
             />
           </Scrollbars>
         </div>
@@ -499,7 +559,7 @@ class Comments extends BaseWidget {
             <Btn
               className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__editor-footer-btn"
               onClick={this.handleSaveComment}
-              disabled={!this.commentLength || this.commentLength > maxLength || saveIsLoading}
+              disabled={!this.canSendComment}
               loading={saveIsLoading}
             >
               {t('comments-widget.editor.save')}
@@ -616,10 +676,8 @@ class Comments extends BaseWidget {
       return null;
     }
 
-    const { userHeight = 0, contentHeight, fitHeights } = this.state;
-    const _commentsHeader = this._header.current || {};
-    const headerHeight = _commentsHeader.offsetHeight || 0;
-    const fixHeight = userHeight ? userHeight - headerHeight : null;
+    const { userHeight, fitHeights } = this.state;
+    const fixHeight = userHeight ? userHeight - this.otherHeight : null;
 
     const renderCommentList = () => (
       <div className="ecos-comments__list" ref={this.contentRef}>
@@ -632,11 +690,11 @@ class Comments extends BaseWidget {
     }
 
     return (
-      <Scrollbars autoHide ref={this._scroll} style={{ height: contentHeight || '100%' }}>
+      <Scrollbars autoHide ref={this._scroll} style={{ height: this.scrollHeight }}>
         <DefineHeight
           fixHeight={fixHeight}
-          maxHeight={fitHeights.max - headerHeight}
-          minHeight={1}
+          maxHeight={userHeight !== undefined ? fitHeights.max - this.otherHeight : fitHeights.max}
+          minHeight={0}
           getOptimalHeight={this.setContentHeight}
         >
           {renderCommentList()}

@@ -81,8 +81,11 @@
   }
 
   &__body {
-    padding-bottom: 0;
     min-height: 20px;
+
+    &.ecos-panel__body {
+      padding-bottom: 0;
+    }
 
     &_relative {
       position: relative;
@@ -128,6 +131,11 @@
 
   &__footer {
     padding: 2px 0 5px;
+  }
+
+  &__error-boundary {
+    margin: 0;
+    box-shadow: none;
   }
 
   &_mobile {
