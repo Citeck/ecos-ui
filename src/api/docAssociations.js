@@ -60,11 +60,10 @@ export class DocAssociationsApi extends RecordService {
     return Records.get(recordRef).load(`assoc_src_${id}[]{id:.assoc,displayName:.disp,created}`, true);
   };
 
-  addAssociations = ({ associationId, associations, recordRef, isSource }) => {
+  addAssociations = ({ associationId, associations, recordRef /*, isSource*/ }) => {
     const record = Records.getRecordToEdit(recordRef);
-    const prefix = isSource ? 'assoc_src_' : '';
 
-    record.att(`att_add_${prefix}${associationId}`, associations);
+    record.att(`att_add_${associationId}`, associations);
 
     return record.save().then(response => response);
   };
