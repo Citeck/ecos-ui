@@ -41,7 +41,7 @@ const mapStateToProps = (state, props) => {
   return {
     loading: newState.loading,
     grid: newState.grid,
-    isMobile: state.view.isMobile,
+    isMobile: (state.view || {}).isMobile === true,
     predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
@@ -226,7 +226,8 @@ class JournalsDashletGrid extends Component {
       toolsClassName
     } = this.props;
 
-    const sourceGroupActions = groupActions.filter(g => (selectAllRecords && g.type === 'filtered') || g.type === 'selected');
+    const sourceGroupActions =
+      groupActions && groupActions.filter(g => (selectAllRecords && g.type === 'filtered') || g.type === 'selected');
     const tools = [
       <JournalsDownloadZip stateId={stateId} selected={selected} />,
       <IcoBtn
@@ -319,7 +320,7 @@ class JournalsDashletGrid extends Component {
     this.onDelete = this.deleteRecords;
   };
 
-  renderPerformGroupActionResponse = performGroupActionResponse => {
+  renderPerformGroupActionResponse = (performGroupActionResponse = []) => {
     const { className } = this.props;
     const performGroupActionResponseUrl = (performGroupActionResponse[0] || {}).url;
 
@@ -393,9 +394,9 @@ class JournalsDashletGrid extends Component {
         data,
         columns,
         sortBy,
-        pagination: { maxItems },
+        pagination: { maxItems = 0 },
         groupBy,
-        total,
+        total = 0,
         editingRules
       },
       doInlineToolsOnRowClick = false,
@@ -435,7 +436,7 @@ class JournalsDashletGrid extends Component {
     return (
       <>
         <div className="ecos-journal-dashlet__grid">
-          <HeightCalculation maxItems={maxItems} minHeight={minHeight} total={total}>
+          <HeightCalculation>
             {loading ? (
               <Loader />
             ) : (
@@ -474,7 +475,7 @@ class JournalsDashletGrid extends Component {
 
         <EcosModal
           title={t('group-action.label.header')}
-          isOpen={Boolean(performGroupActionResponse.length)}
+          isOpen={!!(performGroupActionResponse && performGroupActionResponse.length)}
           hideModal={this.closePerformGroupActionDialog}
           className="journal__dialog"
         >

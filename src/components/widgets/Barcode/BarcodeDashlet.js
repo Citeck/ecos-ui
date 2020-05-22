@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { isMobileDevice, t } from '../../../helpers/util';
+import { getStateId } from '../../../helpers/redux';
 import Dashlet from '../../Dashlet/Dashlet';
 import Barcode from './Barcode';
 import BaseWidget from '../BaseWidget';
@@ -25,8 +26,14 @@ class BarcodeDashlet extends BaseWidget {
     classNameDashlet: ''
   };
 
+  constructor(props) {
+    super(props);
+
+    this.stateId = getStateId(props);
+  }
+
   render() {
-    const { id, title, config, classNameBarcode, classNameDashlet, record } = this.props;
+    const { title, config, classNameBarcode, classNameDashlet, record } = this.props;
 
     return (
       <Dashlet
@@ -38,7 +45,7 @@ class BarcodeDashlet extends BaseWidget {
         noActions
         actionDrag={isMobileDevice()}
       >
-        <Barcode {...config} className={classNameBarcode} record={record} stateId={id} />
+        <Barcode {...config} className={classNameBarcode} record={record} stateId={this.stateId} />
       </Dashlet>
     );
   }

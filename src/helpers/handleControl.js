@@ -161,6 +161,6 @@ export default function handleControl(type, payload, dispatch) {
       break;
 
     default:
-      console.log('Unknown control type: ', type);
+      console.warn('Unknown control type: ', type);
   }
 }

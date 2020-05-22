@@ -7,10 +7,9 @@ import PropTypes from 'prop-types';
 import queryString from 'query-string';
 
 import { goToJournalsPage } from '../../../helpers/urls';
-import { wrapArgs } from '../../../helpers/redux';
-import { t } from '../../../helpers/util';
+import { getStateId, wrapArgs } from '../../../helpers/redux';
+import { arrayCompare, t } from '../../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
 import { getDashletConfig, initState, reloadGrid, setDashletConfigByParams, setEditorMode, setRecordRef } from '../../../actions/journals';
 
 import Measurer from '../../Measurer/Measurer';
@@ -23,10 +22,14 @@ import BaseWidget from '../BaseWidget';
 
 import './JournalsDashlet.scss';
 
+const getKey = ({ tabId = '', stateId, id }) =>
+  (stateId || '').includes(tabId) && stateId === tabId ? stateId : getStateId({ tabId, id: stateId || id });
+
 const mapStateToProps = (state, ownProps) => {
-  const newState = state.journals[ownProps.stateId || ownProps.id] || {};
+  const newState = state.journals[getKey(ownProps)] || {};
 
   return {
+    stateId: getKey(ownProps),
     editorMode: newState.editorMode,
     journalConfig: newState.journalConfig,
     config: newState.config
@@ -34,10 +37,10 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
-  const w = wrapArgs(ownProps.stateId || ownProps.id);
+  const w = wrapArgs(getKey(ownProps));
 
   return {
-    initState: stateId => dispatch(initState(stateId)),
+    initState: () => dispatch(initState(getKey(ownProps))),
     getDashletConfig: id => dispatch(getDashletConfig(w(id))),
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
@@ -47,7 +50,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 };
 
 function mergeProps(stateProps, dispatchProps, ownProps) {
-  const newState = get(stateProps, ['journals', ownProps.stateId || ownProps.id], {});
+  const newState = get(stateProps, ['journals', getKey(ownProps)], {});
 
   return {
     ...ownProps,
@@ -76,13 +79,7 @@ class JournalsDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this._stateId = props.stateId || props.id;
-    this.state = {
-      width: MIN_WIDTH_DASHLET_SMALL,
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
-    };
-
-    this.props.initState(this._stateId);
+    this.props.initState();
 
     this.recordRef = queryString.parse(window.location.search).recordRef;
   }
@@ -101,19 +98,29 @@ class JournalsDashlet extends BaseWidget {
     }
   }
 
-  handleResize = width => {
-    this.setState({ width });
-  };
+  componentDidUpdate({ config: prevConfig }, prevState, snapshot) {
+    super.componentDidUpdate();
+    const { id, config, setDashletConfigByParams, onSave, reloadGrid, isActiveLayout } = this.props;
 
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setDashletProperty(this.props.id, { isCollapsed });
+    if (!arrayCompare(config, prevConfig) && !!onSave) {
+      setDashletConfigByParams(id, config);
+      !isActiveLayout && this.setState({ runUpdate: true });
+    }
+
+    if (isActiveLayout && this.state.runUpdate) {
+      this.setState({ runUpdate: false });
+      reloadGrid();
+    }
+  }
+
+  handleResize = width => {
+    !!width && this.setState({ width });
   };
 
   showEditor = () => this.props.setEditorMode(true);
 
   handleReload = () => {
-    this.props.reloadGrid && this.props.reloadGrid();
+    this.props.reloadGrid();
   };
 
   goToJournalsPage = () => {
@@ -128,7 +135,7 @@ class JournalsDashlet extends BaseWidget {
   };
 
   renderEditor() {
-    const { editorMode, id, config, onSave } = this.props;
+    const { editorMode, id, config, onSave, stateId } = this.props;
 
     let addProps = {};
 
@@ -142,13 +149,13 @@ class JournalsDashlet extends BaseWidget {
 
     return (
       <Measurer>
-        <JournalsDashletEditor id={id} stateId={this._stateId} recordRef={this.recordRef} {...addProps} />
+        <JournalsDashletEditor id={id} stateId={stateId} recordRef={this.recordRef} {...addProps} />
       </Measurer>
     );
   }
 
   renderJournal() {
-    const { editorMode } = this.props;
+    const { editorMode, stateId } = this.props;
     const { width } = this.state;
 
     if (editorMode) {
@@ -158,12 +165,12 @@ class JournalsDashlet extends BaseWidget {
     return (
       <>
         <Measurer>
-          <JournalsDashletToolbar stateId={this._stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
+          <JournalsDashletToolbar stateId={stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
         </Measurer>
 
-        <JournalsDashletGrid stateId={this._stateId} isWidget maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - 100} />
+        <JournalsDashletGrid stateId={stateId} isWidget maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - 100} />
 
-        <JournalsDashletFooter stateId={this._stateId} isWidget />
+        <JournalsDashletFooter stateId={stateId} isWidget />
       </>
     );
   }

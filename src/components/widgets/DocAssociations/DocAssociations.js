@@ -17,12 +17,12 @@ import {
   resetStore
 } from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
-import Dashlet from '../../Dashlet';
+import Dashlet, { BaseActions } from '../../Dashlet';
 
 import './style.scss';
 
@@ -69,11 +69,7 @@ class DocAssociations extends BaseWidget {
     super(props);
 
     this.state = {
-      fitHeights: {},
-      contentHeight: null,
-      width: MIN_WIDTH_DASHLET_SMALL,
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
+      ...this.state,
       isMenuOpen: false,
       isConfirmRemoveDialogOpen: false,
       journalId: '',
@@ -81,6 +77,8 @@ class DocAssociations extends BaseWidget {
       associationId: '',
       selectedDocument: null
     };
+
+    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
   }
 
   componentDidMount() {
@@ -90,12 +88,19 @@ class DocAssociations extends BaseWidget {
     this.checkHeight();
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.state.runUpdate && !prevState.runUpdate) {
+      this.props.getAssociations();
+    }
+  }
+
   componentWillUnmount() {
     this.props.resetStore();
+    this.instanceRecord.unwatch(this.watcher);
   }
 
   checkHeight = () => {
-    if (UserLocalSettingsService.getDashletHeight(this.props.id) > this.clientHeight && this.clientHeight) {
+    if (UserLocalSettingsService.getDashletHeight(this.state.lsId) > this.clientHeight && this.clientHeight) {
       this.handleChangeHeight(this.clientHeight);
     }
   };
@@ -104,7 +109,7 @@ class DocAssociations extends BaseWidget {
     const { isMobile } = this.props;
     const { width } = this.state;
 
-    return isMobile || width <= MIN_WIDTH_DASHLET_SMALL;
+    return isMobile || (!!width && width <= MIN_WIDTH_DASHLET_SMALL);
   }
 
   get confirmRemoveModalText() {
@@ -263,9 +268,9 @@ class DocAssociations extends BaseWidget {
     const { isMenuOpen } = this.state;
 
     return (
-      <Dropdown isOpen={isMenuOpen} toggle={this.handleToggleMenu} key="add-button">
-        <DropdownToggle tag="div">
-          <Icon id={`tooltip-plus-${id}`} className="icon-big-plus ecos-doc-associations__icon-plus" />
+      <Dropdown isOpen={isMenuOpen} toggle={this.handleToggleMenu} key="add-button" className="ecos-doc-associations__button-add">
+        <DropdownToggle tag="button" className="ecos-btn ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue">
+          <Icon id={`tooltip-plus-${id}`} className="icon-big-plus" />
           <UncontrolledTooltip
             placement="top"
             boundariesElement="window"
@@ -339,8 +344,12 @@ class DocAssociations extends BaseWidget {
   render() {
     const { canDragging, dragHandleProps, isCollapsed, associationsTotalCount, isLoading, isMobile } = this.props;
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
-    const actions = {};
-    const actionRules = { orderedVisible: ['addLink'] };
+    const actions = {
+      [BaseActions.RELOAD]: {
+        onClick: () => this.reload()
+      }
+    };
+    const actionRules = { orderedVisible: [BaseActions.RELOAD, 'addLink'] };
 
     if (!isMobile) {
       actions.addLink = {
@@ -390,19 +399,20 @@ class DocAssociations extends BaseWidget {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByKey(state, ownProps.record),
+const mapStateToProps = (state, { record }) => ({
+  ...selectStateByKey(state, record),
   isMobile: state.view.isMobile
 });
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  resetStore: () => dispatch(resetStore(ownProps.record)),
-  getSectionList: () => dispatch(getSectionList(ownProps.record)),
-  getAssociations: () => dispatch(getAssociations(ownProps.record)),
-  getMenu: () => dispatch(getMenu(ownProps.record)),
+
+const mapDispatchToProps = (dispatch, { record }) => ({
+  resetStore: () => dispatch(resetStore(record)),
+  getSectionList: () => dispatch(getSectionList(record)),
+  getAssociations: () => dispatch(getAssociations(record)),
+  getMenu: () => dispatch(getMenu(record)),
   addAssociations: (associationId, journalRef, associations) =>
     dispatch(
       addAssociations({
-        record: ownProps.record,
+        record,
         associationId,
         journalRef,
         associations
@@ -411,7 +421,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   removeAssociations: (associationId, associationRef) =>
     dispatch(
       removeAssociations({
-        record: ownProps.record,
+        record,
         associationId,
         associationRef
       })

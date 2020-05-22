@@ -1,9 +1,10 @@
-import React, { Component, Fragment } from 'react';
-import UrlManager from '../../UrlManager';
-import connect from 'react-redux/es/connect/connect';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+
 import { setUrl } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
-import Loader from '../../common/Loader/Loader';
+import { Loader } from '../../common/index';
+import UrlManager from '../../UrlManager';
 
 const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
@@ -34,14 +35,15 @@ class JournalsUrlManager extends Component {
 
   render() {
     const { params, children } = this.props;
-    return (
-      <Fragment>
-        {this.state.showLoader ? <Loader blur height={100} width={100} /> : null}
+    const { showLoader } = this.state;
 
+    return (
+      <>
+        {!!showLoader && <Loader blur height={100} width={100} />}
         <UrlManager params={params} onParse={this.setUrl} onChildrenRender={this.onChildrenRender}>
           {children}
         </UrlManager>
-      </Fragment>
+      </>
     );
   }
 }

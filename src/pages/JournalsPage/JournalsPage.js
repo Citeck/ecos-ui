@@ -1,59 +1,53 @@
-import React, { Fragment } from 'react';
-import connect from 'react-redux/es/connect/connect';
-import { Journals } from '../../components/Journals';
-import { JournalsUrlManager } from '../../components/Journals';
-import { getId } from '../../helpers/util';
+import React from 'react';
+import { connect } from 'react-redux';
+
+import { getId, t } from '../../helpers/util';
+import { getStateId } from '../../helpers/redux';
 import { initState } from '../../actions/journals';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
+import { Journals, JournalsUrlManager } from '../../components/Journals';
+import pageTabList from '../../services/pageTabs/PageTabList';
+
+import './style.scss';
+
+const getKeys = ({ id, tabId, stateId }) => stateId || getStateId({ tabId, id: id || getId() });
+
+const Labels = {
+  ERROR_BOUNDARY_TITLE: 'journal.page.error-boundary.title',
+  ERROR_BOUNDARY_MSG: 'journal.page.error-boundary.msg'
+};
 
 const mapDispatchToProps = dispatch => ({
   initState: stateId => dispatch(initState(stateId))
 });
 
-const mapStateToProps = state => {
-  return {
-    tabs: state.pageTabs.tabs,
-    pageTabsIsShow: state.pageTabs.isShow
-  };
-};
+const mapStateToProps = (state, props) => ({
+  pageTabsIsShow: state.pageTabs.isShow,
+  isActivePage: !(props.tabId && !pageTabList.isActiveTab(props.tabId))
+});
 
 class JournalsPage extends React.Component {
   constructor(props) {
     super(props);
 
-    const stateId = this.getStateId();
-
-    this.state = { stateId };
-    this.props.initState(stateId);
+    this.stateId = getKeys(props);
   }
 
-  getStateId = () => {
-    return this.getActiveTabId() || (this.state || {}).stateId || getId();
-  };
-
-  getActiveTabId = () => {
-    return (this.props.tabs.filter(t => t.isActive)[0] || {}).id;
-  };
-
-  componentDidUpdate = () => {
-    const stateId = this.getStateId();
-
-    if (stateId !== this.state.stateId) {
-      this.props.initState(stateId);
-      this.setState({ stateId });
-    }
-  };
+  componentDidMount() {
+    this.props.initState(this.stateId);
+  }
 
   render() {
-    const stateId = this.state.stateId;
+    const { isActivePage } = this.props;
 
     return (
-      <Fragment>
-        {stateId === this.getStateId() ? (
-          <JournalsUrlManager stateId={stateId}>
-            <Journals stateId={stateId} />
+      <div className="ecos-journal-page">
+        <ErrorBoundary title={t(Labels.ERROR_BOUNDARY_TITLE)} message={t(Labels.ERROR_BOUNDARY_MSG)}>
+          <JournalsUrlManager stateId={this.stateId}>
+            <Journals stateId={this.stateId} isActivePage={isActivePage} />
           </JournalsUrlManager>
-        ) : null}
-      </Fragment>
+        </ErrorBoundary>
+      </div>
     );
   }
 }

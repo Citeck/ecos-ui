@@ -3,7 +3,8 @@ import { initAppFailure, initAppSuccess } from '../actions/app';
 
 const initialState = {
   isInit: false,
-  isInitFailure: false
+  isInitFailure: false,
+  enableCache: true
 };
 
 Object.freeze(initialState);
