@@ -66,8 +66,6 @@ export default class SelectComponent extends BaseComponent {
   build() {
     super.build();
 
-    console.warn(this.component);
-
     if (this.component.refreshEventName) {
       this.on(
         this.component.refreshEventName,
@@ -128,6 +126,16 @@ export default class SelectComponent extends BaseComponent {
 
   get emptyValue() {
     return '';
+  }
+
+  get unavailableItems() {
+    const { code: items, isActive } = _.get(this.component, 'unavailableItems', {});
+
+    if (!isActive) {
+      return [];
+    }
+
+    return this.evaluate(items, {}, 'value', true);
   }
 
   elementInfo() {
@@ -202,17 +210,22 @@ export default class SelectComponent extends BaseComponent {
   addOption(value, label, attr) {
     const option = {
       value: value,
-      label: label
+      label: label,
+      disabled: this.unavailableItems.includes(value),
+      // TODO: unable to add multiple custom properties
+      customProperties: this.unavailableItems.includes(value)
     };
 
     if (value) {
       this.selectOptions.push(option);
     }
+
     if (this.choices) {
       return;
     }
 
     option.element = document.createElement('option');
+
     if (this.dataValue === option.value) {
       option.element.setAttribute('selected', 'selected');
       option.element.selected = 'selected';
@@ -906,6 +919,7 @@ export default class SelectComponent extends BaseComponent {
         });
       }
     }
+
     return added;
   }
 

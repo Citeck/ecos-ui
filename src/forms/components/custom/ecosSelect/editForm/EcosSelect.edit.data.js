@@ -15,7 +15,7 @@ SelectEditData.push(
     title: 'JavaScript',
     collapsible: true,
     collapsed: false,
-    key: 'code-panel',
+    key: 'unavailableItems.code-js',
     weight: 18,
     components: [
       {
