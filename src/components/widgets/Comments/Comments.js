@@ -537,7 +537,7 @@ class Comments extends BaseWidget {
               spellCheck
               ref={this.setEditor}
               editorState={comment}
-              // keyBindingFn={this.handleCommentSend}
+              keyBindingFn={this.handleCommentSend}
               onChange={this.handleChangeComment}
               handleKeyCommand={this.handleKeyCommand}
               handlePastedText={this.handlePastedText}
