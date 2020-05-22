@@ -17,7 +17,7 @@ export class DocAssociationsApi extends RecordService {
           return [];
         }
         return Records.get(type)
-          .load('assocsFull[]{id,name,direction}')
+          .load('assocsFull[]{id,attribute,name,direction}')
           .catch(e => {
             console.error(e);
             return [];
@@ -60,7 +60,7 @@ export class DocAssociationsApi extends RecordService {
     return Records.get(recordRef).load(`assoc_src_${id}[]{id:.assoc,displayName:.disp,created}`, true);
   };
 
-  addAssociations = ({ associationId, associations, recordRef }) => {
+  addAssociations = ({ associationId, associations, recordRef /*, isSource*/ }) => {
     const record = Records.getRecordToEdit(recordRef);
 
     record.att(`att_add_${associationId}`, associations);

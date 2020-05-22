@@ -26,3 +26,13 @@ export const selectAllowedDirectionsByKey = (state, recordRef) => {
     {}
   );
 };
+
+export const selectAssocByAssocName = (state, key, assocName) => {
+  return get(state, ['docAssociations', key, 'allowedAssociations'], []).find(item => item.name === assocName) || {};
+};
+
+export const selectDirectionByAssocName = (state, key, assocName) => {
+  const association = selectAssocByAssocName(state, key, assocName);
+
+  return get(association, 'direction', 'BOTH');
+};
