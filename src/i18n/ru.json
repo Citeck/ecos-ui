@@ -169,6 +169,7 @@
   "dashboard-settings.widgets.title": "Виджеты",
   "dashboard-settings.widget.documents": "Документы",
   "dashboard-settings.widget.user-basic-info": "Профиль",
+  "dashboard-settings.widget.with-config": "У данного виджета есть настройки. При удалении виджета, настройки будут утеряны",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
 
   "dashlet.error-boundary.msg": "При работе виджета произошла ошибка. Попробуйте обновить виджет или страницу. Если ошибка повторится, обратитесь к администратору",
@@ -234,6 +235,7 @@
   "dochist.task.create": "Задача создана",
   "dochist.unknown-user": "Неизвестный пользователь",
   "dochist.user.action": "Действие пользователя",
+  "dochist.email.sent": "Письмо отправлено",
   "dochist.workflow.end": "Процесс завершен",
   "dochist.workflow.end.cancelled": "Процесс отменен",
   "dochist.workflow.start": "Процесс запущен",

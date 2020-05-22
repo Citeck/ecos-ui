@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { isSmallMode, t } from '../../../helpers/util';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import { getStateId } from '../../../helpers/redux';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import Actions from './Actions';
@@ -12,8 +12,8 @@ import './style.scss';
 
 class ActionsDashlet extends BaseWidget {
   static propTypes = {
-    id: PropTypes.string.isRequired,
-    record: PropTypes.string.isRequired,
+    id: PropTypes.string,
+    record: PropTypes.string,
     title: PropTypes.string,
     classNameContent: PropTypes.string,
     classNameDashlet: PropTypes.string,
@@ -34,15 +34,12 @@ class ActionsDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
+    this.stateId = getStateId(props);
     this.watcher = this.instanceRecord.watch(['caseStatus', 'idocs:documentStatus'], this.reload);
 
     this.state = {
-      isSmallMode: false,
-      fitHeights: {},
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
+      ...this.state,
+      isSmallMode: false
     };
   }
 
@@ -55,7 +52,7 @@ class ActionsDashlet extends BaseWidget {
   };
 
   render() {
-    const { id, title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging } = this.props;
+    const { title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging, tabId, isActiveLayout } = this.props;
     const { isSmallMode, userHeight, fitHeights, isCollapsed, runUpdate } = this.state;
 
     return (
@@ -78,15 +75,17 @@ class ActionsDashlet extends BaseWidget {
         <Actions
           {...config}
           forwardedRef={this.contentRef}
-          className={classNameContent}
           record={record}
+          tabId={tabId}
+          stateId={this.stateId}
+          className={classNameContent}
           isSmallMode={isSmallMode}
-          stateId={id}
           height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onActionsChanged={this.checkHeight}
           runUpdate={runUpdate}
+          isActiveLayout={isActiveLayout}
         />
       </Dashlet>
     );

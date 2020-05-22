@@ -218,31 +218,33 @@ class Grid extends Component {
       ...props
     };
 
-    options.columns = extra.columns.map(column => {
-      if (column.width) {
-        column = this.setWidth(column);
-      }
+    if (Array.isArray(extra.columns)) {
+      options.columns = extra.columns.map(column => {
+        if (column.width) {
+          column = this.setWidth(column);
+        }
 
-      if (column.default !== undefined) {
-        column.hidden = !column.default;
-      }
+        if (column.default !== undefined) {
+          column.hidden = !column.default;
+        }
 
-      const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
+        const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
 
-      column = this.setHeaderFormatter(column, filterable, column.sortable);
+        column = this.setHeaderFormatter(column, filterable, column.sortable);
 
-      if (column.customFormatter === undefined) {
-        column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
-      } else {
-        column.formatter = column.customFormatter;
-      }
+        if (column.customFormatter === undefined) {
+          column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
+        } else {
+          column.formatter = column.customFormatter;
+        }
 
-      if (props.editable) {
-        column.editable = this.checkColumnEditable.bind(null, column);
-      }
+        if (props.editable) {
+          column.editable = this.checkColumnEditable.bind(null, column);
+        }
 
-      return column;
-    });
+        return column;
+      });
+    }
 
     if (props.editable) {
       options.cellEdit = this.setEditable(props.editable);

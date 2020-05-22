@@ -621,8 +621,13 @@ export function fromISO8601(formattedString) {
   return result; // Date or null
 }
 
-export function animateScrollTo(element = null, scrollTo = {}) {
+export function animateScrollTo(element = '', scrollTo = {}) {
   if (!element) {
+    return;
+  }
+
+  if (element.length) {
+    element.forEach(item => animateScrollTo(item, scrollTo));
     return;
   }
 
@@ -668,6 +673,10 @@ export function hasChildWithId(items, selectedId) {
 }
 
 export function prepareTooltipId(id = uuidV4()) {
+  if (!isNaN(id[0])) {
+    id = `tooltip-${id}`;
+  }
+
   return `${id}`.replace(/[^\d\w-]/g, '');
 }
 

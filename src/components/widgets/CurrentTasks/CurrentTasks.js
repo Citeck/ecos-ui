@@ -115,7 +115,7 @@ class CurrentTasks extends React.Component {
 
     return (
       <Scrollbars
-        style={{ height: contentHeight + 7 || '100%' }}
+        style={{ height: contentHeight + (contentHeight ? 7 : 0) || '100%' }}
         className="ecos-current-task-list"
         renderTrackVertical={props => <div {...props} className="ecos-current-task-list__v-scroll" />}
       >
