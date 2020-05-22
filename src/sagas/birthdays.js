@@ -2,7 +2,7 @@ import { put, takeEvery } from 'redux-saga/effects';
 import { getBirthdays, setBirthdays, setError } from '../actions/birthdays';
 import { getBirthdayDateForWeb } from '../dto/birthday';
 import { t } from '../helpers/util';
-import { LABELS } from '../components/widgets/Birthdays/Birthdays';
+import { Labels } from '../components/widgets/Birthdays/Birthdays';
 
 function* sagaGetBirthdays({ api, logger }, action) {
   try {
@@ -17,7 +17,7 @@ function* sagaGetBirthdays({ api, logger }, action) {
     yield put(
       setError({
         stateId: action.payload,
-        data: e.message || t(LABELS.ERROR_DEFAULT_MESSAGE)
+        data: e.message || t(Labels.ERROR_DEFAULT_MESSAGE)
       })
     );
     logger.error('[birthdays sagaGetBirthdays saga error', e.message);

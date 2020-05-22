@@ -1,4 +1,8 @@
+import get from 'lodash/get';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+
+import { t } from '../helpers/util';
+import { RequestStatuses } from '../constants';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -10,12 +14,12 @@ import {
   setMobileDashboardConfig,
   setRequestResultDashboard
 } from '../actions/dashboard';
+import { setDashboardConfig as setDashboardSettingsConfig } from '../actions/dashboardSettings';
 import { setNotificationMessage } from '../actions/notification';
 import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
-import { t } from '../helpers/util';
 import DashboardConverter from '../dto/dashboard';
+import DashboardSettingsConverter from '../dto/dashboardSettings';
 import DashboardService from '../services/dashboard';
-import { RequestStatuses } from '../constants';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
@@ -78,6 +82,12 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
 
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification });
     const res = DashboardService.parseRequestResult(dashboardResult);
+    const isExistSettings = !!(yield select(state => get(state, ['dashboardSettings', res.dashboardId])));
+
+    if (isExistSettings) {
+      const settingsConfig = DashboardSettingsConverter.getSettingsForWeb({ config, ...identification });
+      yield put(setDashboardSettingsConfig({ ...settingsConfig, key: res.dashboardId }));
+    }
 
     yield put(
       setRequestResultDashboard({
