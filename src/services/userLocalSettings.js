@@ -1,6 +1,8 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import { getData, getSessionData, setData, setSessionData, transferData } from '../helpers/ls';
+import moment from 'moment';
+
+import { getData, getSessionData, getFilteredKeys, setData, setSessionData, transferData, removeItem } from '../helpers/ls';
 import { getCurrentUserName } from '../helpers/util';
 
 export const Prefixes = {
@@ -8,6 +10,18 @@ export const Prefixes = {
   JOURNAL: 'ecos-ui-journal-settings_id-',
   MENU: 'menuSettings_',
   USER: '/user-'
+};
+
+/**
+ * maximum data storage time in lS
+ *
+ * @type {{ count: number, token: string }}
+ *
+ * @token - momentjs format token https://momentjs.com/docs/#/displaying/format/
+ */
+export const DateStorageTime = {
+  token: 'M',
+  count: 6
 };
 
 function getDashletSettings(key) {
@@ -128,6 +142,41 @@ export default class UserLocalSettingsService {
     dashletData.contentScale = scale;
 
     setData(key, dashletData);
+  }
+
+  static updateDashletDate(dashletId) {
+    const key = self.getDashletKey(dashletId);
+    const dashletData = getDashletSettings(key);
+
+    if (isEmpty(dashletData)) {
+      return;
+    }
+
+    self.setDashletProperty(dashletId, {
+      ...dashletData,
+      lastUsedDate: Date.now()
+    });
+  }
+
+  static checkDasletsUpdatedDate({ token, count } = DateStorageTime) {
+    const keys = getFilteredKeys(Prefixes.DASHLET);
+
+    keys.forEach(key => {
+      const dashletData = getDashletSettings(key);
+      const lastUsedDate = get(dashletData, 'lastUsedDate', null);
+
+      if (!lastUsedDate) {
+        setData(key, {
+          ...dashletData,
+          lastUsedDate: Date.now()
+        });
+        return;
+      }
+
+      if (moment().diff(moment(lastUsedDate), token) >= count) {
+        removeItem(key);
+      }
+    });
   }
 }
 const self = UserLocalSettingsService;
