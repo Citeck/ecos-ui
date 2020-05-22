@@ -31,7 +31,11 @@ export default class SelectComponent extends BaseComponent {
         searchThreshold: 0.3,
         fuseOptions: {},
         customOptions: {},
-        refreshEventName: ''
+        refreshEventName: '',
+        unavailableItems: {
+          isActive: false,
+          code: ''
+        }
       },
       ...extend
     );
@@ -124,6 +128,16 @@ export default class SelectComponent extends BaseComponent {
     return '';
   }
 
+  get unavailableItems() {
+    const { code: items, isActive } = _.get(this.component, 'unavailableItems', {});
+
+    if (!isActive) {
+      return [];
+    }
+
+    return this.evaluate(items, {}, 'value', true);
+  }
+
   elementInfo() {
     const info = super.elementInfo();
     info.type = 'select';
@@ -196,17 +210,22 @@ export default class SelectComponent extends BaseComponent {
   addOption(value, label, attr) {
     const option = {
       value: value,
-      label: label
+      label: label,
+      disabled: this.unavailableItems.includes(value),
+      // TODO: unable to add multiple custom properties
+      customProperties: this.unavailableItems.includes(value)
     };
 
     if (value) {
       this.selectOptions.push(option);
     }
+
     if (this.choices) {
       return;
     }
 
     option.element = document.createElement('option');
+
     if (this.dataValue === option.value) {
       option.element.setAttribute('selected', 'selected');
       option.element.selected = 'selected';
@@ -900,6 +919,7 @@ export default class SelectComponent extends BaseComponent {
         });
       }
     }
+
     return added;
   }
 
