@@ -114,20 +114,21 @@ class Dashlet extends Component {
   };
 
   get fitHeightChildren() {
-    const busyArea = this.busyDashletHeight;
+    const { headerHeight, resizerHeight } = this.busyDashletHeight;
+    const busyArea = headerHeight + resizerHeight;
 
     const max = MAX_DEFAULT_HEIGHT_DASHLET - busyArea;
     const min = MIN_DEFAULT_HEIGHT_DASHLET - busyArea;
 
-    return { min, max };
+    return { min, max, headerHeight, resizerHeight };
   }
 
   get busyDashletHeight() {
     const elDashlet = this.refDashlet.current || {};
-    const headerH = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
-    const resizerH = get(this.resizableRef, 'current.resizeBtnHeight', 0);
+    const headerHeight = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
+    const resizerHeight = get(this.resizableRef, 'current.resizeBtnHeight', 0);
 
-    return headerH + resizerH;
+    return { headerHeight, resizerHeight };
   }
 
   onGoTo = () => {

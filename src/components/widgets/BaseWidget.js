@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 
-import UserLocalSettingsService from '../../services/userLocalSettings';
+import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
 import Records from '../Records/Records';
+import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 
 class BaseWidget extends Component {
   contentRef = React.createRef();
@@ -11,9 +12,17 @@ class BaseWidget extends Component {
   constructor(props) {
     super(props);
 
+    const lsId = `${props.id}/${props.tabId}`;
+
+    UserLocalSettingsService.checkOldData(props.id, props.tabId);
+
     this.state = {
       runUpdate: false,
-      userHeight: undefined
+      fitHeights: {},
+      contentHeight: null,
+      width: MIN_WIDTH_DASHLET_SMALL,
+      userHeight: UserLocalSettingsService.getDashletHeight(lsId),
+      isCollapsed: UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED)
     };
   }
 
@@ -23,6 +32,8 @@ class BaseWidget extends Component {
     if (typeof onLoad === 'function') {
       onLoad(this);
     }
+
+    this.updateLocalStorageDate();
   }
 
   componentDidUpdate() {
@@ -60,6 +71,10 @@ class BaseWidget extends Component {
       contentHeight = 0;
     }
 
+    if (!contentHeight && this.state.userHeight === undefined) {
+      return;
+    }
+
     if (contentHeightState !== contentHeight) {
       this.setState({ contentHeight });
     }
@@ -71,6 +86,10 @@ class BaseWidget extends Component {
     if (JSON.stringify(fitHeightsState) !== JSON.stringify(fitHeights)) {
       this.setState({ fitHeights });
     }
+  };
+
+  updateLocalStorageDate = () => {
+    UserLocalSettingsService.updateDashletDate(this.state.lsId);
   };
 
   checkHeight = debounce((force = false) => {
