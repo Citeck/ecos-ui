@@ -5,7 +5,7 @@ import {
   initMenuSettings,
   saveMenuConfig,
   setAvailableSoloItems,
-  setCreateOptionsMenu,
+  setCustomIcons,
   setMenuConfig,
   setOpenMenuSettings,
   setRequestResultMenuConfig
@@ -64,9 +64,9 @@ export default handleActions(
       ...state,
       isOpenMenuSettings: payload
     }),
-    [setCreateOptionsMenu]: (state, { payload }) => ({
+    [setCustomIcons]: (state, { payload }) => ({
       ...state,
-      createOptions: payload
+      customIcons: payload
     })
   },
   initialState

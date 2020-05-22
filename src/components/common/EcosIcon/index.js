@@ -12,7 +12,7 @@ const menuApi = new MenuApi();
 
 function EcosIcon({ code, className, data, title, source, onClick }) {
   const [remoteData, setRemoteData] = useState({});
-  const { type, value } = remoteData || {};
+  const { type, value, url } = remoteData || {};
   const commonClass = classNames('ecos-icon', className, { 'ecos-icon_button': onClick });
   const commonProps = { title };
 
@@ -28,12 +28,12 @@ function EcosIcon({ code, className, data, title, source, onClick }) {
     }
   }, [code, data]);
 
-  if (type === 'img' && !!value) {
-    const url = createContentUrl({ value });
+  if (type === 'img' && !!(value || url)) {
+    const src = url || createContentUrl({ value });
 
     return (
       <div className={classNames(commonClass, 'ecos-icon-img')} {...commonProps}>
-        <img src={url} alt={title} />
+        <img src={src} alt={title} />
       </div>
     );
   }

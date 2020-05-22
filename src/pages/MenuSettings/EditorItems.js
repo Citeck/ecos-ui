@@ -28,13 +28,12 @@ class EditorItems extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     items: PropTypes.array,
-    createOptions: PropTypes.array
+    customIcons: PropTypes.array
   };
 
   static defaultProps = {
     className: '',
-    items: [],
-    createOptions: []
+    items: []
   };
 
   state = {
@@ -68,7 +67,7 @@ class EditorItems extends React.Component {
     if ([MenuSettings.OptionKeys.JOURNAL, MenuSettings.OptionKeys.LINK_CREATE_CASE].includes(type.key)) {
       //todo
       this.setState({
-        createItemInfo: {
+        editItemInfo: {
           type,
           item,
           several: true,
@@ -79,7 +78,7 @@ class EditorItems extends React.Component {
         }
       });
     } else {
-      this.setState({ createItemInfo: { type, item } });
+      this.setState({ editItemInfo: { type, item } });
     }
   };
 
@@ -99,7 +98,7 @@ class EditorItems extends React.Component {
     }
 
     if (action === MenuSettings.ActionTypes.EDIT) {
-      this.handleChooseOption(this.props.createOptions.find(o => o.key === item.type), item);
+      this.handleChooseOption(MenuService.createOptions.find(o => o.key === item.type), item);
     }
 
     const items = MenuService.processAction({ action, id: item.id, items: this.state.items });
@@ -116,19 +115,20 @@ class EditorItems extends React.Component {
   };
 
   renderEditorItem = () => {
-    const { createItemInfo } = this.state;
+    const { editItemInfo } = this.state;
+    const { customIcons } = this.props;
 
-    if (!createItemInfo) {
+    if (!editItemInfo) {
       return null;
     }
 
     const handleHideModal = () => {
-      this.setState({ createItemInfo: null });
+      this.setState({ editItemInfo: null });
     };
 
     const handleSave = newItem => {
       const items = deepClone(this.state.items || []);
-      const path = treeGetPathItem({ items, value: get(createItemInfo, 'item.dndIdx'), key: 'dndIdx' });
+      const path = treeGetPathItem({ items, value: get(editItemInfo, 'item.dndIdx'), key: 'dndIdx' });
 
       if (path) {
         get(items, path, {}).items.push(newItem);
@@ -136,13 +136,13 @@ class EditorItems extends React.Component {
         items.push(newItem);
       }
 
-      this.setState({ createItemInfo: null, items });
+      this.setState({ editItemInfo: null, items });
     };
 
-    if (createItemInfo.several) {
+    if (editItemInfo.several) {
       return (
         <SelectJournal
-          journalId={createItemInfo.journalId}
+          journalId={editItemInfo.journalId}
           isSelectModalOpen
           multiple
           renderView={() => null}
@@ -152,12 +152,12 @@ class EditorItems extends React.Component {
       );
     }
 
-    return <EditorItemModal type={createItemInfo.type} onClose={handleHideModal} onSave={handleSave} />;
+    return <EditorItemModal customIcons={customIcons} type={editItemInfo.type} onClose={handleHideModal} onSave={handleSave} />;
   };
 
   renderButtonAddSection = ({ item, level, isOpen }) => {
     if (!item || (level < 3 && item.expandable && item.selected)) {
-      const createOptions = MenuService.getAvailableCreateOptions(this.props.createOptions, item);
+      const createOptions = MenuService.getAvailableCreateOptions(item);
 
       return createOptions && createOptions.length ? (
         <Dropdown

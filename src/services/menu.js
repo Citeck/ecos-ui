@@ -5,7 +5,6 @@ import { selectIdentificationForView } from '../selectors/dashboard';
 import { deepClone, t } from '../helpers/util';
 import { getSearchParams, SearchKeys } from '../helpers/urls';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
-import { toGeneratorTree } from '../helpers/dataGenerators';
 import { MenuSettings as ms } from '../constants/menu';
 
 export default class MenuService {
@@ -114,7 +113,7 @@ export default class MenuService {
     return items;
   }
 
-  static extraCreateOptions = [
+  static createOptions = [
     {
       key: ms.OptionKeys.SECTION,
       forbiddenTypes: [],
@@ -143,8 +142,8 @@ export default class MenuService {
     }
   ];
 
-  static getAvailableCreateOptions = (options, item) => {
-    const array = deepClone(options || []);
+  static getAvailableCreateOptions = item => {
+    const array = deepClone(MenuService.createOptions || []);
 
     array.forEach(item => {
       item.id = item.id || item.label;
@@ -154,5 +153,13 @@ export default class MenuService {
     return array.filter(opt => !item || !!opt.forbiddenAllTypes || !opt.forbiddenTypes.includes(item.type));
   };
 
-  static testItems = toGeneratorTree(3, 4);
+  static testIcons = [
+    { code: 'active-tasks' },
+    { code: 'completed-tasks' },
+    { code: 'controlled' },
+    { code: 'subordinate-tasks' },
+    { code: 'task-statistic' },
+    { code: 'initiator-tasks' },
+    { code: 'income-package-tasks' }
+  ];
 }

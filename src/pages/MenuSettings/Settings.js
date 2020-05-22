@@ -71,8 +71,7 @@ class Settings extends React.Component {
     this.handleHideModal(); //todo ref
     goToJournalsPage({
       journalId: 'workspace://SpacesStore/3700b0df-b8b6-440a-a399-dd30f127e404',
-      journalsListId: 'global-system',
-      nodeRef: 'workspace://SpacesStore/3700b0df-b8b6-440a-a399-dd30f127e404'
+      journalsListId: 'global-system'
     });
   };
 
@@ -108,7 +107,7 @@ class Settings extends React.Component {
   }
 
   render() {
-    const { isLoading, createOptions } = this.props;
+    const { isLoading, customIcons } = this.props;
     const { items } = this.state;
     const customButtons = [
       <IcoBtn
@@ -134,7 +133,7 @@ class Settings extends React.Component {
         classNameHeader="ecos-menu-settings__modal-header"
       >
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
-        <EditorItems setData={this.setData} items={items} createOptions={createOptions} />
+        <EditorItems setData={this.setData} items={items} customIcons={customIcons} />
         {this.renderButtons()}
       </EcosModal>
     );
@@ -146,7 +145,7 @@ const mapStateToProps = state => ({
   items: get(state, 'menu.items', []),
   links: get(state, 'menu.links', []),
   soloItems: get(state, 'menu.availableSoloItems', []),
-  createOptions: get(state, 'menu.createOptions', []),
+  customIcons: get(state, 'menu.customIcons', []),
   isLoading: get(state, 'menu.isLoading')
 });
 

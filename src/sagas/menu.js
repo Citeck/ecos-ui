@@ -2,12 +2,12 @@ import { call, put, takeLatest } from 'redux-saga/effects';
 import { setNotificationMessage } from '../actions/notification';
 import {
   getAvailableSoloItems,
-  getCreateOptionsMenu,
+  getCustomIcons,
   getMenuConfig,
   initMenuSettings,
   saveMenuConfig,
   setAvailableSoloItems,
-  setCreateOptionsMenu,
+  setCustomIcons,
   setMenuConfig,
   setRequestResultMenuConfig
 } from '../actions/menu';
@@ -20,7 +20,7 @@ function* doInitMenuSettings({ api, logger }, action) {
   try {
     yield put(getAvailableSoloItems());
     yield put(getMenuConfig());
-    yield put(getCreateOptionsMenu());
+    yield put(getCustomIcons());
   } catch (e) {
     yield put(setNotificationMessage(t('menu.error')));
     logger.error('[menu/ doInitMenuSettings saga] error', e.message);
@@ -68,11 +68,9 @@ function* doSaveMenuConfigRequest({ api, logger }, { payload }) {
   }
 }
 
-function* sagaGetCreateOptionsMenu({ api, logger }, { payload }) {
+function* sagaGetCustomIcons({ api, logger }, { payload }) {
   try {
-    const createOptions = [...MenuService.extraCreateOptions];
-
-    yield put(setCreateOptionsMenu(createOptions));
+    yield put(setCustomIcons(MenuService.testIcons));
   } catch (e) {
     yield put(setNotificationMessage(t('menu.error')));
     logger.error('[menu/ doSaveMenuConfigRequest saga] error', e.message);
@@ -84,7 +82,7 @@ function* saga(ea) {
   yield takeLatest(getMenuConfig().type, doGetMenuConfigRequest, ea);
   yield takeLatest(saveMenuConfig().type, doSaveMenuConfigRequest, ea);
   yield takeLatest(getAvailableSoloItems().type, doGetAvailableSoloItemsRequest, ea);
-  yield takeLatest(getCreateOptionsMenu().type, sagaGetCreateOptionsMenu, ea);
+  yield takeLatest(getCustomIcons().type, sagaGetCustomIcons, ea);
 }
 
 export default saga;

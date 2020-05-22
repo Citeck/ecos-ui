@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../helpers/util';
 import { MenuSettings as MS } from '../../constants/menu';
 import { EcosModal, Icon } from '../../components/common';
+import IconSelect from '../../components/IconSelect'; //todo
 import { Input } from '../../components/common/form';
 import { Btn } from '../../components/common/btns';
 import { Field } from './Field';
@@ -17,19 +18,28 @@ const Labels = {
   FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',
   FIELD_ICON_BTN_SELECT: 'menu-settings.editor-item.field.icon.btn.select',
-  FIELD_ICON_DESC: 'menu-settings.editor-item.field.icon.desc',
+  FIELD_ICON_DESC: 'icon-select.custom.tip',
   MODAL_TITLE_ADD: 'menu-settings.editor-item.title.add',
   MODAL_TITLE_EDIT: 'menu-settings.editor-item.title.edit',
-  MODAL_BTN_CANCEL: 'menu-settings.editor-item.button.cancel',
-  MODAL_BTN_ADD: 'menu-settings.editor-item.button.add',
-  MODAL_BTN_EDIT: 'menu-settings.editor-item.button.edit'
+  MODAL_BTN_CANCEL: 'menu-settings.editor-item.btn.cancel',
+  MODAL_BTN_ADD: 'menu-settings.editor-item.btn.add',
+  MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit'
 };
 
-function EditorItemModal({ item, type, onClose, onSave }) {
+function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
   const defaultIcon = { value: 'icon-empty-icon', type: 'icon' };
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [icon, setIcon] = useState(defaultIcon);
+  const [isOpenSelectIcon, setOpenSelectIcon] = useState(false);
+
+  useEffect(() => {
+    if (item) {
+      setName(item.name);
+      setUrl(item.url);
+      setIcon(item.icon);
+    }
+  }, [item]);
 
   const cancel = () => {
     onClose();
@@ -41,7 +51,7 @@ function EditorItemModal({ item, type, onClose, onSave }) {
 
     onSave({
       name,
-      icon,
+      icon: { ...icon, source: 'menu' },
       id,
       dndIdx,
       type: type.key,
@@ -72,7 +82,6 @@ function EditorItemModal({ item, type, onClose, onSave }) {
           <Input onChange={e => setUrl(e.target.value)} value={url} />
         </Field>
       )}
-      {/*todo select*/}
       {![MS.OptionKeys.HEADER_DIVIDER].includes(type.key) && (
         <Field label={t(Labels.FIELD_ICON_LABEL)} description={t(Labels.FIELD_ICON_DESC)}>
           <div className="ecos-menu-create-section__field-icon">
@@ -81,10 +90,21 @@ function EditorItemModal({ item, type, onClose, onSave }) {
             <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setIcon(defaultIcon)}>
               {t(Labels.FIELD_ICON_BTN_CANCEL)}
             </Btn>
-            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setIcon({ value: 'icon-exit', type: 'icon' })}>
+            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setOpenSelectIcon(true)}>
               {t(Labels.FIELD_ICON_BTN_SELECT)}
             </Btn>
           </div>
+          {/*todo prefix & customIcons & dictionary*/}
+          {isOpenSelectIcon && (
+            <IconSelect
+              customIcons={customIcons}
+              prefixIcon="icon-c"
+              source="menu"
+              useFontIcons
+              selectedIcon={icon}
+              onClose={() => setOpenSelectIcon(false)}
+            />
+          )}
         </Field>
       )}
 
@@ -100,9 +120,10 @@ function EditorItemModal({ item, type, onClose, onSave }) {
 
 EditorItemModal.propTypes = {
   className: PropTypes.string,
-  source: PropTypes.string,
   type: PropTypes.object,
-  onClick: PropTypes.func
+  item: PropTypes.object,
+  onClose: PropTypes.func,
+  onSave: PropTypes.func
 };
 
 EditorItemModal.defaultProps = {
