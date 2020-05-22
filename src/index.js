@@ -130,6 +130,16 @@ window.requirejs.config({
   }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+  import('./constants/alfresco/util').then(({ default: util }) => {
+    window.Alfresco.util = window.Alfresco.util || {};
+    window.Alfresco.util = {
+      ...window.Alfresco.util,
+      ...util
+    };
+  });
+});
+
 // TODO simplify
 store.dispatch(
   loadThemeRequest({
