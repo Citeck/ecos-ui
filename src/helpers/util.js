@@ -4,6 +4,7 @@ import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
 import lodashGet from 'lodash/get';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 
@@ -217,12 +218,6 @@ export function t(key, options, scope = 'global') {
 
   if (i18next.exists(key)) {
     return i18next.t(key, options);
-  }
-
-  // TODO remove in future
-  const Alfresco = window.Alfresco;
-  if (Alfresco && Alfresco.util && Alfresco.util.message) {
-    return Alfresco.util.message(key, scope, options);
   }
 
   return key;
@@ -776,4 +771,79 @@ export function getTimezoneValue() {
   }
 
   return { timezone, offset };
+}
+
+/**
+ * check self or closest parent on hiddens
+ *
+ * @param el
+ * @returns {null|boolean}
+ */
+export function isClosestHidden(el = null) {
+  let node = el;
+
+  if (typeof node === 'string') {
+    node = document.querySelector(el);
+  }
+
+  if (!node) {
+    return true;
+  }
+
+  const isHidden = el => {
+    return el.style.display === 'none' || el.style.visibility === 'hidden';
+  };
+
+  if (isHidden(node)) {
+    return true;
+  }
+
+  const parent = node.parentElement;
+
+  if (parent) {
+    if (isHidden(parent)) {
+      return true;
+    } else {
+      return isClosestHidden(parent);
+    }
+  }
+
+  return false;
+}
+
+export function trimFields(source) {
+  if (isEmpty(source)) {
+    return source;
+  }
+
+  if (Array.isArray(source)) {
+    return source.map(trimFields);
+  }
+
+  const keys = Object.keys(source);
+  const target = {};
+
+  if (!keys.length) {
+    return target;
+  }
+
+  keys.forEach(key => {
+    switch (typeof source[key]) {
+      case 'string': {
+        target[key] = source[key].trim();
+        break;
+      }
+      case 'object': {
+        target[key] = trimFields(source[key]);
+        break;
+      }
+      default:
+        target[key] = source[key];
+    }
+    if (typeof source[key] === 'string') {
+      target[key] = source[key].trim();
+    }
+  });
+
+  return target;
 }

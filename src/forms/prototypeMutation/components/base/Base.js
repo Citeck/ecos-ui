@@ -46,13 +46,6 @@ Base.prototype.applyActions = function(actions, result, data, newComponent) {
         this.setPristine(false);
         this.checkValidity(this.getValue(), false);
         return false;
-      case 'property':
-        const applyActionsResult = originalApplyActions.call(this, actions, result, data, newComponent);
-        // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3394
-        if (action.property.value === 'hidden') {
-          this.showElement(action.state.toString() !== 'true');
-        }
-        return applyActionsResult;
       default:
         return originalApplyActions.call(this, actions, result, data, newComponent);
     }
@@ -134,6 +127,7 @@ Base.prototype.createInlineEditButton = function(container) {
       this.options.readOnly = false;
       this.options.viewAsHtml = false;
       this._isInlineEditingMode = true;
+      this.emit('inlineEditingStart', currentValue);
 
       this.redraw();
       container.classList.add('inline-editing');
@@ -184,6 +178,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
     );
 
     const switchToViewOnlyMode = () => {
+      this.emit('inlineEditingFinish');
       this.options.readOnly = true;
       this.options.viewAsHtml = true;
       this._isInlineEditingMode = false;
@@ -219,6 +214,16 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
 
       if (!this.checkValidity(this.getValue(), true)) {
         return;
+      }
+
+      if (this._isInlineEditingMode) {
+        var changed = {
+          instance: this,
+          component: this.component,
+          value: this.dataValue,
+          flags: {}
+        };
+        this.emit('inlineSubmit', changed);
       }
 
       return form
@@ -263,6 +268,9 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
 
 Base.prototype.build = function(state) {
   originalBuild.call(this, state);
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-37
+  this.showElement(this.visible && !this.component.hidden);
 
   const { options = {} } = this;
   const { isDebugModeOn = false } = options;

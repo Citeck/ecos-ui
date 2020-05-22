@@ -1,9 +1,15 @@
-import React, { Fragment } from 'react';
-import connect from 'react-redux/es/connect/connect';
-import { Journals } from '../../components/Journals';
-import { JournalsUrlManager } from '../../components/Journals';
-import { getId } from '../../helpers/util';
+import React from 'react';
+import { connect } from 'react-redux';
+
+import { Journals, JournalsUrlManager } from '../../components/Journals';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
+import { getId, t } from '../../helpers/util';
 import { initState } from '../../actions/journals';
+
+const Labels = {
+  ERROR_BOUNDARY_TITLE: 'journal.page.error-boundary.title',
+  ERROR_BOUNDARY_MSG: 'journal.page.error-boundary.msg'
+};
 
 const mapDispatchToProps = dispatch => ({
   initState: stateId => dispatch(initState(stateId))
@@ -47,13 +53,13 @@ class JournalsPage extends React.Component {
     const stateId = this.state.stateId;
 
     return (
-      <Fragment>
+      <ErrorBoundary title={t(Labels.ERROR_BOUNDARY_TITLE)} message={t(Labels.ERROR_BOUNDARY_MSG)}>
         {stateId === this.getStateId() ? (
           <JournalsUrlManager stateId={stateId}>
             <Journals stateId={stateId} />
           </JournalsUrlManager>
         ) : null}
-      </Fragment>
+      </ErrorBoundary>
     );
   }
 }

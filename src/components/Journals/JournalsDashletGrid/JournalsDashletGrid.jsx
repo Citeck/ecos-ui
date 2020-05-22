@@ -41,7 +41,7 @@ const mapStateToProps = (state, props) => {
   return {
     loading: newState.loading,
     grid: newState.grid,
-    isMobile: state.view.isMobile,
+    isMobile: (state.view || {}).isMobile === true,
     predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
@@ -226,7 +226,8 @@ class JournalsDashletGrid extends Component {
       toolsClassName
     } = this.props;
 
-    const sourceGroupActions = groupActions.filter(g => (selectAllRecords && g.type === 'filtered') || g.type === 'selected');
+    const sourceGroupActions =
+      groupActions && groupActions.filter(g => (selectAllRecords && g.type === 'filtered') || g.type === 'selected');
     const tools = [
       <JournalsDownloadZip stateId={stateId} selected={selected} />,
       <IcoBtn
