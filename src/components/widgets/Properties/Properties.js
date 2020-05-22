@@ -16,7 +16,6 @@ class Properties extends React.Component {
     formId: PropTypes.string,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
-    isReady: PropTypes.bool,
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -27,8 +26,7 @@ class Properties extends React.Component {
   static defaultProps = {
     record: '',
     className: '',
-    isSmallMode: false,
-    isReady: true
+    isSmallMode: false
   };
 
   _ecosForm = React.createRef();
@@ -84,25 +82,14 @@ class Properties extends React.Component {
     this.props.getTitle && this.props.getTitle(title);
   };
 
-  renderLoader() {
-    const { loaded } = this.state;
-    if (!loaded) {
-      return <Loader className="ecos-properties__loader" blur />;
-    }
-
-    return null;
-  }
-
   renderForm() {
-    const { record, isSmallMode, isReady, onUpdate, formId, onInlineEditSave } = this.props;
-    const { isReadySubmit, hideForm } = this.state;
-    const formClassNames = classNames('ecos-properties__formio', {
-      'ecos-properties__formio_small': isSmallMode
-    });
+    const { record, isSmallMode, onUpdate, formId, onInlineEditSave } = this.props;
+    const { isReadySubmit, hideForm, loaded } = this.state;
+    const isShow = !hideForm && isReadySubmit;
 
-    return !hideForm && isReady && isReadySubmit ? (
+    return (
       <>
-        {this.renderLoader()}
+        {!loaded && <Loader className="ecos-properties__loader" blur />}
         <EcosForm
           ref={this._ecosForm}
           record={record}
@@ -119,24 +106,25 @@ class Properties extends React.Component {
           // onSubmit={this.onSubmitForm}
           onFormSubmitDone={onUpdate}
           onReady={this.onReady}
-          className={formClassNames}
+          className={classNames('ecos-properties__formio', {
+            'ecos-properties__formio_small': isSmallMode,
+            'd-none': !isShow
+          })}
           formId={formId}
           getTitle={this.getTitle}
         />
         {/* Cause: https://citeck.atlassian.net/browse/ECOSCOM-2654 */}
+
         <EcosForm
           ref={this._hiddenEcosForm}
           record={record}
-          options={{
-            formMode: FORM_MODE_EDIT
-          }}
+          options={{ formMode: FORM_MODE_EDIT }}
           onSubmit={this.onSubmitForm}
           onFormSubmitDone={onUpdate}
           className="d-none"
         />
+        {!isShow && <InfoText text={t('properties-widget.no-form.text')} />}
       </>
-    ) : (
-      <InfoText text={t('properties-widget.no-form.text')} />
     );
   }
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import { getStateId } from '../../../helpers/redux';
 import Dashlet, { BaseActions } from '../../Dashlet';
 import CurrentTasks from './CurrentTasks';
 import BaseWidget from '../BaseWidget';
@@ -36,15 +36,12 @@ class CurrentTasksDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
+    this.stateId = getStateId(props);
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
 
     this.state = {
+      ...this.state,
       isSmallMode: false,
-      fitHeights: {},
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
       totalCount: 0,
       isLoading: true
     };
@@ -55,7 +52,7 @@ class CurrentTasksDashlet extends BaseWidget {
   }
 
   onResize = width => {
-    this.setState({ isSmallMode: isSmallMode(width) });
+    !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   setInfo = data => {
@@ -96,7 +93,7 @@ class CurrentTasksDashlet extends BaseWidget {
           className={classNameTasks}
           record={record}
           isSmallMode={isSmallMode}
-          stateId={record}
+          stateId={this.stateId}
           height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}

@@ -7,6 +7,7 @@ import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJ
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
+import { hasInString } from './util';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';
@@ -310,4 +311,12 @@ export const getLinkWithout = params => {
   });
 
   return `${parsed.url}?${queryString.stringify(query)}`;
+};
+
+export const isDashboard = (url = window.location.href) => {
+  if (isNewVersionPage()) {
+    return hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
+  }
+
+  return false;
 };

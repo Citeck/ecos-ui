@@ -10,8 +10,8 @@ import { Btn } from '../../common/btns/index';
 
 import './style.scss';
 
-const mapStateToProps = (state, context) => {
-  const stateB = state.barcode[context.stateId] || {};
+const mapStateToProps = (state, { stateId }) => {
+  const stateB = state.barcode[stateId] || {};
 
   return {
     barcode: stateB.barcode,
@@ -20,9 +20,16 @@ const mapStateToProps = (state, context) => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  generateBase64Barcode: payload => dispatch(getBase64Barcode(payload))
+const mapDispatchToProps = (dispatch, { stateId, record }) => ({
+  generateBase64Barcode: () => dispatch(getBase64Barcode({ stateId, record }))
 });
+
+const Labels = {
+  MAKE: 'barcode-widget.btn.generate',
+  REMAKE: 'barcode-widget.btn.generate-new',
+  ALT: 'barcode-widget.dashlet.title',
+  PRINT: 'barcode-widget.btn.print'
+};
 
 class Barcode extends React.Component {
   static propTypes = {
@@ -36,15 +43,15 @@ class Barcode extends React.Component {
   };
 
   componentDidMount() {
-    const { generateBase64Barcode, record, stateId } = this.props;
+    const { generateBase64Barcode } = this.props;
 
-    generateBase64Barcode({ stateId, record });
+    generateBase64Barcode();
   }
 
   runGenerateBarcode = () => {
-    const { stateId, record, generateBase64Barcode } = this.props;
+    const { generateBase64Barcode } = this.props;
 
-    generateBase64Barcode({ stateId, record });
+    generateBase64Barcode();
   };
 
   runPrint = () => {
@@ -67,12 +74,12 @@ class Barcode extends React.Component {
             disabled={isLoading}
             onClick={this.runGenerateBarcode}
           >
-            {!barcode ? t('barcode-widget.btn.generate') : t('barcode-widget.btn.generate-new')}
+            {!barcode ? t(Labels.MAKE) : t(Labels.REMAKE)}
           </Btn>
-          {barcode && <img className="ecos-barcode__image" src={barcode} alt={t('barcode-widget.dashlet.title')} />}
+          {barcode && <img className="ecos-barcode__image" src={barcode} alt={t(Labels.ALT)} />}
         </div>
         <Btn className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no" onClick={this.runPrint} disabled={!!error}>
-          {t('barcode-widget.btn.print')}
+          {t(Labels.PRINT)}
         </Btn>
       </div>
     );

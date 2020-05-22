@@ -42,7 +42,7 @@ class PageTabList {
   }
 
   get activeTab() {
-    return this.#tabs.find(item => item.isActive);
+    return this.#tabs.find(item => item.isActive) || {};
   }
 
   get storageList() {
@@ -277,6 +277,28 @@ class PageTabList {
       return storage.getData(this.#keyStorage);
     }
   }
+
+  getTabById = id => {
+    return this.#tabs.find(tab => tab.id === id) || {};
+  };
+
+  getTabByLink = (link = '') => {
+    let url = link;
+
+    if (!link.length) {
+      url = window.location.pathname + window.location.search;
+    }
+
+    return this.#tabs.find(tab => tab.link === url) || {};
+  };
+
+  isActiveTab = tabId => {
+    if (!tabId) {
+      return false;
+    }
+
+    return get(this.#tabs.find(tab => tab.id === tabId), 'isActive', false);
+  };
 }
 
 const pageTabList = get(window, 'Citeck.PageTabList', new PageTabList());

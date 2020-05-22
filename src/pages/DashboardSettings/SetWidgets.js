@@ -23,7 +23,8 @@ const Labels = {
   SUBTITLE_M: 'dashboard-settings.widgets.subtitle-mobile',
   TIP_NO_AVAILABLE: 'dashboard-settings.widgets.placeholder',
   COLUMN: 'dashboard-settings.column',
-  TIP_DROP_HERE: 'dashboard-settings.column.placeholder'
+  TIP_DROP_HERE: 'dashboard-settings.column.placeholder',
+  WIDGET_WITH_CONFIG: 'dashboard-settings.widget.with-config'
 };
 
 class SetWidgets extends React.Component {
@@ -47,7 +48,8 @@ class SetWidgets extends React.Component {
   };
 
   state = {
-    draggableDestination: ''
+    draggableDestination: '',
+    removedWidgets: []
   };
 
   getWidgetLabel(widget) {
@@ -69,7 +71,7 @@ class SetWidgets extends React.Component {
 
   handleDropEndWidget = result => {
     const { source, destination } = result;
-    const { availableWidgets, activeWidgets, setData } = this.props;
+    const { availableWidgets, activeWidgets } = this.props;
 
     let selectedWidgets = deepClone(activeWidgets);
 
@@ -96,15 +98,35 @@ class SetWidgets extends React.Component {
     }
 
     this.setState({ draggableDestination: '' });
-    setData(selectedWidgets);
+    this.setData(selectedWidgets);
   };
 
   handleRemoveWidget = ({ item }, indexColumn, indexWidget) => {
-    const { activeWidgets, setData } = this.props;
+    const { activeWidgets } = this.props;
+    const { removedWidgets } = this.state;
     const newActiveWidgets = deepClone(activeWidgets);
 
+    if (item.id) {
+      removedWidgets.push(item.id);
+      this.setState({ removedWidgets });
+    }
+
     newActiveWidgets[indexColumn].splice(indexWidget, 1);
-    setData(newActiveWidgets);
+    this.setData(newActiveWidgets, removedWidgets);
+  };
+
+  setData = (activeWidgets, removedWidgets) => {
+    this.props.setData(activeWidgets, removedWidgets);
+  };
+
+  getMessage = widget => {
+    const hasSettings = !isEmpty(get(widget, 'props.config', {}));
+
+    if (!hasSettings) {
+      return '';
+    }
+
+    return t(Labels.WIDGET_WITH_CONFIG);
   };
 
   renderWidgetColumns() {
@@ -146,6 +168,7 @@ class SetWidgets extends React.Component {
                       className="ecos-dashboard-settings__column-widgets__items__cell"
                       title={this.getWidgetLabel(widget)}
                       selected={true}
+                      alertTooltip={this.getMessage(widget)}
                       canRemove={true}
                       removeItem={response => {
                         this.handleRemoveWidget(response, indexColumn, indexWidget);

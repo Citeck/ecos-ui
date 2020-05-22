@@ -238,13 +238,20 @@ export class JournalsApi extends RecordService {
     return this.getJson(`${PROXY_URI}api/journals/list?journalsList=${journalsListId}`).then(resp => {
       return journalsFromUiserv.then(uiservJournals => {
         let result = [...(resp.journals || [])];
+        let journalByType = {};
+        result.forEach(j => (journalByType[j.type] = j));
         for (let journal of uiservJournals) {
           let localId = journal.id.replace('uiserv/journal_v1@', '');
-          result.push({
-            nodeRef: localId,
-            title: journal.title,
-            type: localId
-          });
+          let existingJournal = journalByType[localId];
+          if (existingJournal != null) {
+            existingJournal.nodeRef = localId;
+          } else {
+            result.push({
+              nodeRef: localId,
+              title: journal.title,
+              type: localId
+            });
+          }
         }
         return result;
       });
