@@ -66,7 +66,7 @@ export default class extends React.Component {
     this.setState({ items });
   };
 
-  renderExtraComponents = item => {
+  renderExtraComponents = ({ item }) => {
     return (
       <IcoBtn icon="icon-question" className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => alert("It's " + item.name)}>
         Click Me
