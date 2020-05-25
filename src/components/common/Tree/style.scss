@@ -169,7 +169,7 @@
     &_parent {
       position: relative;
 
-      &#{item_not-selected} > #{$item}-element {
+      &#{item_locked} > #{$item}-element {
         box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 
         &:hover {
@@ -194,31 +194,27 @@
       }
     }
 
-    &_not-selected {
+    &_locked {
       & > #{$item} {
         &-element {
           background: $color-gray-25;
-        }
-      }
-    }
 
-    &_not-selected &_child {
-      & > #{$item} {
-        &-element {
-          &:after {
-            height: var(--e-tree-child-height);
+          #{$item}-element {
+            &-icon,
+            &-label {
+              color: $color-gray-5;
+            }
           }
         }
       }
     }
 
-    &_locked {
-      cursor: not-allowed;
-
-      #{$item} {
-        &-label,
-        &-icon {
-          color: $color-gray-5;
+    &_locked &_child {
+      & > #{$item} {
+        &-element {
+          &:after {
+            height: var(--e-tree-child-height);
+          }
         }
       }
     }
@@ -249,7 +245,11 @@
       & > #{$item}-element {
         border: none;
         box-shadow: $box-shadow-default;
+      }
+    }
 
+    &_major:not(&_locked) {
+      & > #{$item}-element {
         &:hover {
           box-shadow: $box-shadow-hover;
         }

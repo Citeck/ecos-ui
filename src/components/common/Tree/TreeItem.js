@@ -15,7 +15,7 @@ import './style.scss';
 
 //при отсутствии класса у нужного элемента не создавать новой prop,
 // а добавить > [`${prefixClassName}--item-[описание элемента]`]: !!prefixClassName
-
+// getActions может заменить или отфильтровать item.actionConfig, если действия не стандартные, зависимые от условий
 class TreeItem extends Component {
   static propTypes = {
     item: PropTypes.shape(ItemInterface),
@@ -25,9 +25,10 @@ class TreeItem extends Component {
     level: PropTypes.number,
     prefixClassName: PropTypes.string,
     onToggleSelect: PropTypes.func,
+    getActions: PropTypes.func,
     onClickAction: PropTypes.func,
     onClickIcon: PropTypes.func,
-    renderExtraItemComponents: PropTypes.func
+    renderExtraComponents: PropTypes.func
   };
 
   static defaultProps = {
@@ -51,15 +52,15 @@ class TreeItem extends Component {
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     const { item, isChild, openAll } = this.props;
     const { isOpen } = this.state;
+    const { items, ...self } = item;
+    const { items: _items, ..._self } = nextProps.item;
 
     return (
       nextState.isOpen !== isOpen ||
-      !arrayCompare(nextProps.item.items, item.items) ||
-      nextProps.item.id !== item.id ||
-      nextProps.item.selected !== item.selected ||
-      JSON.stringify(nextProps.item.actionConfig) !== JSON.stringify(item.actionConfig) ||
       nextProps.openAll !== openAll ||
-      nextProps.isChild !== isChild
+      nextProps.isChild !== isChild ||
+      !arrayCompare(self, _self) ||
+      !arrayCompare(items, _items)
     );
   }
 
@@ -94,17 +95,19 @@ class TreeItem extends Component {
   };
 
   handleToggleCheck = ({ checked }) => {
-    const { item, selectable } = this.props;
+    const { item, selectable, onToggleSelect } = this.props;
 
     if (checked === item.selected || item.locked || !selectable) {
       return;
     }
 
-    this.props.onToggleSelect({ id: this.props.item.id, checked });
+    onToggleSelect && onToggleSelect({ item, checked });
   };
 
   handleActionItem = action => {
-    this.props.onClickAction({ action, id: this.props.item.id });
+    const { item, onClickAction } = this.props;
+
+    onClickAction && onClickAction({ action, item });
   };
 
   renderArrow() {
@@ -138,7 +141,8 @@ class TreeItem extends Component {
       onClickIcon,
       moveInLevel,
       moveInParent,
-      renderExtraItemComponents
+      renderExtraComponents,
+      getActions
     } = this.props;
     const { isOpen } = this.state;
 
@@ -158,6 +162,7 @@ class TreeItem extends Component {
               prefixClassName={prefixClassName}
               level={level + STEP_LVL}
               onToggleSelect={onToggleSelect}
+              getActions={getActions}
               onClickAction={onClickAction}
               onClickIcon={onClickIcon}
               openAll={openAll}
@@ -166,7 +171,7 @@ class TreeItem extends Component {
               moveInLevel={moveInLevel}
               moveInParent={moveInParent}
               parentKey={item.id}
-              renderExtraItemComponents={renderExtraItemComponents}
+              renderExtraComponents={renderExtraComponents}
             />
           ))}
       </Collapse>
@@ -187,13 +192,15 @@ class TreeItem extends Component {
       moveInParent,
       parentKey = '',
       isMajor,
-      renderExtraItemComponents,
-      onClickIcon
+      renderExtraComponents,
+      onClickIcon,
+      getActions
     } = this.props;
     const { isOpen } = this.state;
     const { items, selected, locked, icon, name, actionConfig, badge } = item || {};
     const canDrag = draggable && item.draggable !== false && (dragLvlTo == null || dragLvlTo >= level);
     const key = `key_${level}_${index}_${item.id}`.replace(/[\s\-]*/g, '');
+    const filteredActions = getActions ? getActions(item) : actionConfig;
 
     const itemElement = (
       <div
@@ -201,7 +208,7 @@ class TreeItem extends Component {
           'ecos-tree__item_child': isChild,
           'ecos-tree__item_parent': items && items.length,
           'ecos-tree__item_open': isOpen,
-          'ecos-tree__item_not-selected': !selected,
+          'ecos-tree__item_not-selected': selectable && !selected,
           'ecos-tree__item_locked': locked,
           'ecos-tree__item_has-grandchildren': this.hasGrandchildren,
           'ecos-tree__item_major': isMajor,
@@ -240,11 +247,11 @@ class TreeItem extends Component {
               {t(name)}
             </div>
           </Tooltip>
-          {renderExtraItemComponents && <div className="ecos-tree__item-element-custom-components">{renderExtraItemComponents(item)}</div>}
+          {renderExtraComponents && <div className="ecos-tree__item-element-custom-components">{renderExtraComponents(item)}</div>}
           <div className="ecos-tree__item-element-space" />
-          {actionConfig && !!actionConfig.length && (
+          {filteredActions && !!filteredActions.length && (
             <div className="ecos-tree__item-element-actions">
-              <Actions actionConfig={actionConfig} onClick={this.handleActionItem} />
+              <Actions actionConfig={filteredActions} onClick={this.handleActionItem} />
             </div>
           )}
           {canDrag && (

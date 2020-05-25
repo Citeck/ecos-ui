@@ -24,10 +24,11 @@ class Tree extends Component {
     moveInParent: PropTypes.bool,
     moveInLevel: PropTypes.bool,
     onToggleSelect: PropTypes.func,
+    getActions: PropTypes.func,
     onClickAction: PropTypes.func,
     onClickIcon: PropTypes.func,
     onDragEnd: PropTypes.func,
-    renderExtraItemComponents: PropTypes.func
+    renderExtraComponents: PropTypes.func
   };
 
   static defaultProps = {
@@ -107,7 +108,8 @@ class Tree extends Component {
       onClickIcon,
       moveInLevel,
       moveInParent,
-      renderExtraItemComponents
+      renderExtraComponents,
+      getActions
     } = this.props;
     const data = this.formattedTree;
 
@@ -130,7 +132,8 @@ class Tree extends Component {
         onClickIcon={onClickIcon}
         moveInLevel={moveInLevel}
         moveInParent={moveInParent}
-        renderExtraItemComponents={renderExtraItemComponents}
+        renderExtraComponents={renderExtraComponents}
+        getActions={getActions}
         isMajor
       />
     ));

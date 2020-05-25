@@ -3,44 +3,27 @@ import { Tree } from '../../components/common';
 import { deepClone } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import { toGeneratorTree } from '../../helpers/dataGenerators';
-import { IcoBtn } from '../../components/common/btns';
+import { Btn, IcoBtn } from '../../components/common/btns';
 
 const _actions = [
   {
-    type: 'EDIT',
-    icon: 'icon-edit',
-    whenSelected: true
-  },
-  {
-    type: 'DELETE',
-    icon: 'icon-delete',
-    whenSelected: true
+    type: 'PRINT',
+    icon: 'icon-print',
+    visible: true
   },
   {
     type: 'ACTIVE',
     icon: 'icon-on',
-    whenSelected: true
+    visible: true
   },
   {
     type: 'NO_ACTIVE',
-    icon: 'icon-off'
+    icon: 'icon-off',
+    visible: false
   }
 ];
 
 const _items = toGeneratorTree(5, 2);
-
-const _createOptions = [
-  {
-    id: '1111',
-    forbiddenTypes: [],
-    label: 'Договоры'
-  },
-  {
-    id: '22222',
-    forbiddenTypes: [],
-    label: 'Журналы'
-  }
-];
 
 function findItem(items, id) {
   for (const item of items) {
@@ -56,33 +39,26 @@ function findItem(items, id) {
   }
 }
 
-function setActions(items) {
-  for (const item of items) {
-    item.actionConfig = item.allActions ? item.allActions.filter(act => !!act.whenSelected === item.selected) : [];
-    item.items && setActions(item.items);
-  }
-
-  return items;
-}
-
 export default class extends React.Component {
   state = {
-    items: setActions(_items)
+    items: _items
   };
 
-  onClickActionItem = ({ action, id }) => {
-    const items = deepClone(this.state.items);
-    const foundItem = findItem(items, id);
-
+  onClickActionItem = ({ action, item }) => {
     switch (action) {
       case 'ACTIVE':
       case 'NO_ACTIVE':
-        foundItem.selected = !foundItem.selected;
-        foundItem.actionConfig = foundItem.allActions.filter(act => !!act.whenSelected === foundItem.selected);
+        const items = deepClone(this.state.items);
+        const foundItem = findItem(items, item.id);
+
+        foundItem.visible = !foundItem.visible;
+        foundItem.locked = !foundItem.visible;
+        this.setState({ items });
+        break;
+      case 'PRINT':
+        window.print();
         break;
     }
-
-    this.setState({ items });
   };
 
   moveItemTo = (fromId, toId) => {
@@ -90,31 +66,42 @@ export default class extends React.Component {
     this.setState({ items });
   };
 
-  renderExtraItemComponents = item => {
+  renderExtraComponents = item => {
     return (
-      <IcoBtn icon="icon-plus" className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm">
-        Add
+      <IcoBtn icon="icon-question" className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => alert("It's " + item.name)}>
+        Click Me
       </IcoBtn>
     );
   };
 
+  getAvailableActions = item => {
+    return _actions.filter(act => act.visible === item.visible);
+  };
+
+  toggleOpenAll = () => {
+    this.setState(({ openAllMenuItems }) => ({ openAllMenuItems: !openAllMenuItems }));
+  };
+
   render() {
-    const { items } = this.state;
+    const { items, openAllMenuItems } = this.state;
 
     return (
-      <div
-        style={{ width: '50%', height: '500px', background: '#E8EDEF', padding: '10px', overflow: 'auto', border: '1px solid darkgray' }}
-      >
-        <Tree
-          data={items}
-          prefixClassName="ecos-menu-settings-editor"
-          openAll={false}
-          draggable
-          onClickAction={this.onClickActionItem}
-          moveInLevel
-          onDragEnd={this.moveItemTo}
-          renderExtraItemComponents={this.renderExtraItemComponents}
-        />
+      <div>
+        <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
+          {openAllMenuItems ? 'Свернуть все' : 'Развернуть все'}
+        </Btn>
+        <div
+          style={{ width: '50%', height: '500px', background: '#E8EDEF', padding: '10px', overflow: 'auto', border: '1px solid darkgray' }}
+        >
+          <Tree
+            data={items}
+            prefixClassName="ecos-menu-settings-editor"
+            openAll={openAllMenuItems}
+            onClickAction={this.onClickActionItem}
+            getActions={this.getAvailableActions}
+            renderExtraComponents={this.renderExtraComponents}
+          />
+        </div>
       </div>
     );
   }
