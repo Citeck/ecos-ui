@@ -7,6 +7,7 @@ import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { NotificationManager } from 'react-notifications';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet/Dashlet';
@@ -462,6 +463,8 @@ class Documents extends BaseWidget {
   };
 
   handleToggleUploadModalByType = (type = null) => {
+    const { availableTypes } = this.props;
+
     this.setState({ isLoadingUploadingModal: false });
 
     if (type === null) {
@@ -473,15 +476,25 @@ class Documents extends BaseWidget {
       return;
     }
 
-    const formId = get(type, 'formId', null);
+    const { formId = null, countDocuments = 0, multiple } = type;
+    let isFormOpens = false;
 
-    if (formId !== null) {
-      this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record }));
+    /**
+     * Ecos form may open if the following conditions are met:
+     * - have form id (formId !== null)
+     * - not have documents, when can load only one document (!countDocuments && !multiple)
+     */
+    if (formId !== null && !countDocuments && !multiple) {
+      isFormOpens = true;
+
+      const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {});
+
+      this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record, createVariants }));
     }
 
     this.setState({
       selectedTypeForLoading: type,
-      isOpenUploadModal: formId === null
+      isOpenUploadModal: !isFormOpens
     });
   };
 
@@ -627,6 +640,7 @@ class Documents extends BaseWidget {
 
     this.props.getDocuments(selectedTypeForLoading.type);
     this.uploadingComplete();
+    NotificationManager.success('', t('documents-widget.notification.add-one.success'));
   };
 
   handleMouseLeaveTable = () => {
@@ -884,7 +898,7 @@ class Documents extends BaseWidget {
           className={classNames('ecos-docs__panel-upload', {
             'ecos-docs__panel-upload_not-available': !dynamicTypes.length
           })}
-          onClick={this.handleToggleUploadModalByType.bind(this, type)}
+          onClick={() => this.handleToggleUploadModalByType(type)}
         >
           <Icon className="icon-load ecos-docs__panel-upload-icon" />
         </div>

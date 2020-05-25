@@ -873,6 +873,12 @@
   "documents-widget.table-fields.updated-at": "Обновлено",
   "documents-widget.table-fields.name": "Название",
   "documents-widget.untitled": "Без названия",
+  "documents-widget.notification.add-one.success": "Документ успешно загружен",
+  "documents-widget.notification.add-one.error": "Не удалось загрузить документ",
+  "documents-widget.notification.add-many.success": "Документы успешно загружены",
+  "documents-widget.notification.add-many.error": "Не удалось загрузить документы",
+  "documents-widget.notification.update.success": "Версия документа успешно обновлена",
+  "documents-widget.notification.update.error": "Не удалось обновить версию документа",
 
   "user-profile-widget.title": "Профиль",
   "user-profile-widget.label.admin": "Администратор",
