@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { t } from '../../../../helpers/util';
+import { isExistValue, t } from '../../../../helpers/util';
 import { Btn } from '../../btns';
 import EcosModal from '../../EcosModal';
 import { RemoveDialog } from '../index';
@@ -51,8 +51,8 @@ const dialogsById = {
     const { onDelete = () => {}, onCancel = () => {}, onClose = onCancel, title, text } = dialogProps;
     const dProps = {
       ...dialogProps,
-      title: t(title !== null && title !== undefined ? title : 'record-action.delete.dialog.title.remove-many'),
-      text: t(title !== null && title !== undefined ? text : 'record-action.delete.dialog.msg.remove-many'),
+      title: t(isExistValue(title) ? title : 'record-action.delete.dialog.title.remove-many'),
+      text: t(isExistValue(title) ? text : 'record-action.delete.dialog.msg.remove-many'),
       isOpen: props.isVisible
     };
 

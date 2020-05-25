@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { t } from '../../helpers/util';
 import { MenuSettings as MS } from '../../constants/menu';
+import MenuSettingsService from '../../services/MenuSettingsService';
 import { EcosModal, Icon } from '../../components/common';
 import IconSelect from '../../components/IconSelect'; //todo
 import { Input } from '../../components/common/form';
@@ -50,17 +51,12 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
     const id = `${type.key}-${dndIdx}`;
 
     onSave({
+      ...MenuSettingsService.defaultItemProps,
       name,
-      icon: { ...icon, source: 'menu' },
       id,
       dndIdx,
-      type: type.key,
-      selected: true,
-      editable: true,
-      removable: true,
-      draggable: true,
-      expandable: true,
-      items: []
+      icon: { ...icon, source: 'menu' },
+      type: type.key
     });
   };
 

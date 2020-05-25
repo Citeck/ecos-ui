@@ -22,7 +22,7 @@ import { makeSiteMenu, makeUserMenuItems } from '../helpers/menu';
 import { createThumbnailUrl } from '../helpers/urls';
 import { hasInString } from '../helpers/util';
 import { URL } from '../constants';
-import MenuService from '../services/menu';
+import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import MenuConverter from '../dto/menu';
 

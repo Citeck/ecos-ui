@@ -14,7 +14,7 @@ import {
 import { t } from '../helpers/util';
 import { RequestStatuses } from '../constants';
 import MenuConverter from '../dto/menu';
-import MenuService from '../services/menu';
+import MenuSettingsService from '../services/MenuSettingsService';
 
 function* doInitMenuSettings({ api, logger }, action) {
   try {
@@ -44,7 +44,6 @@ function* doGetMenuConfigRequest({ api, logger }) {
     const result = yield call(api.menu.getMenuConfig, true);
 
     result.items = []; //todo
-    MenuService.setAvailableActions(result.items);
 
     const menu = MenuConverter.parseGetResult(result);
 
@@ -70,7 +69,7 @@ function* doSaveMenuConfigRequest({ api, logger }, { payload }) {
 
 function* sagaGetCustomIcons({ api, logger }, { payload }) {
   try {
-    yield put(setCustomIcons(MenuService.testIcons));
+    yield put(setCustomIcons(MenuSettingsService.testIcons));
   } catch (e) {
     yield put(setNotificationMessage(t('menu.error')));
     logger.error('[menu/ doSaveMenuConfigRequest saga] error', e.message);

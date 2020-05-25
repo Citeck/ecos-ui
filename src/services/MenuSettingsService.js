@@ -1,46 +1,29 @@
-import { select } from 'redux-saga/effects';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { selectIdentificationForView } from '../selectors/dashboard';
-import { deepClone, t } from '../helpers/util';
-import { getSearchParams, SearchKeys } from '../helpers/urls';
+import { deepClone, isExistValue, t } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { MenuSettings as ms } from '../constants/menu';
 
-export default class MenuService {
-  static getSiteMenuLink = function*(menuItem) {
-    const dashboard = yield select(selectIdentificationForView);
-    const { recordRef, dashboardKey } = getSearchParams();
-    const params = [];
-    let link = menuItem.targetUrl;
-
-    if (menuItem.id === 'SETTINGS_DASHBOARD') {
-      params.push(`${SearchKeys.DASHBOARD_ID}=${dashboard.id}`);
-
-      if (recordRef) {
-        params.push(`${SearchKeys.RECORD_REF}=${recordRef}`);
-      }
-
-      if (dashboardKey) {
-        params.push(`${SearchKeys.DASHBOARD_KEY}=${dashboardKey}`);
-      }
-    }
-
-    link += `?${params.join('&')}`;
-
-    return link;
+export default class MenuSettingsService {
+  static defaultItemProps = {
+    icon: { value: 'icon-empty-icon', type: 'icon' },
+    visible: true,
+    editable: true,
+    removable: true,
+    draggable: true,
+    items: [],
+    actionConfig: []
   };
 
   static getAvailableActions = item => {
     const actions = [];
 
-    //if whenSelected == null it is both states
     if (item.editable) {
       actions.push({
         type: ms.ActionTypes.EDIT,
         icon: 'icon-edit',
         text: 'menu-settings.editor-items.action.edit',
-        whenSelected: true
+        when: { visible: true }
       });
     }
 
@@ -50,7 +33,7 @@ export default class MenuService {
         icon: 'icon-delete',
         text: 'menu-settings.editor-items.action.delete',
         className: 'ecos-menu-settings-editor-items__action_caution',
-        whenSelected: true
+        when: { visible: true }
       });
     }
 
@@ -59,26 +42,19 @@ export default class MenuService {
         type: ms.ActionTypes.ACTIVE,
         icon: 'icon-on',
         className: 'ecos-menu-settings-editor-items__action_no-hide',
-        whenSelected: true,
+        when: { visible: true },
         text: 'menu-settings.editor-items.action.hide'
       },
       {
         type: ms.ActionTypes.NO_ACTIVE,
         icon: 'icon-off',
         className: 'ecos-menu-settings-editor-items__action_no-hide',
-        whenSelected: false,
+        when: { visible: false },
         text: 'menu-settings.editor-items.action.show'
       }
     );
 
     return actions;
-  };
-
-  static setAvailableActions = items => {
-    items.forEach(item => {
-      item.availableActions = MenuService.getAvailableActions(item);
-      item.items && MenuService.setAvailableActions(item.items);
-    });
   };
 
   static processAction = ({ items: original, action, id }) => {
@@ -88,13 +64,11 @@ export default class MenuService {
     switch (action) {
       case ms.ActionTypes.ACTIVE:
       case ms.ActionTypes.NO_ACTIVE:
-        foundItem.selected = !foundItem.selected;
-        foundItem.actionConfig = foundItem.availableActions
-          ? foundItem.availableActions.filter(act => !!act.whenSelected === foundItem.selected)
-          : [];
+        foundItem.visible = !foundItem.visible;
+        foundItem.locked = !foundItem.visible;
         break;
+      case ms.ActionTypes.EDIT:
       case ms.ActionTypes.DELETE:
-        break;
       default:
         break;
     }
@@ -102,15 +76,10 @@ export default class MenuService {
     return items;
   };
 
-  static setActiveActions(items) {
-    for (const item of items) {
-      item.actionConfig = item.availableActions
-        ? item.availableActions.filter(act => act.whenSelected == null || act.whenSelected === item.selected)
-        : [];
-      item.items && MenuService.setActiveActions(item.items);
-    }
+  static getActiveActions(item) {
+    const availableActions = MenuSettingsService.getAvailableActions(item);
 
-    return items;
+    return availableActions.filter(act => !isExistValue(act.when.visible) || act.when.visible === item.visible);
   }
 
   static createOptions = [
@@ -143,7 +112,7 @@ export default class MenuService {
   ];
 
   static getAvailableCreateOptions = item => {
-    const array = deepClone(MenuService.createOptions || []);
+    const array = deepClone(MenuSettingsService.createOptions || []);
 
     array.forEach(item => {
       item.id = item.id || item.label;
@@ -151,6 +120,12 @@ export default class MenuService {
     });
 
     return array.filter(opt => !item || !!opt.forbiddenAllTypes || !opt.forbiddenTypes.includes(item.type));
+  };
+
+  static isChildless = item => {
+    console.log(item);
+    console.log([ms.OptionKeys.SECTION].includes(item.type));
+    return ![ms.OptionKeys.SECTION].includes(item.type);
   };
 
   static testIcons = [

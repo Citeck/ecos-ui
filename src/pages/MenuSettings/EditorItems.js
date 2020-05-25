@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import { deepClone, t } from '../../helpers/util';
 import { treeGetPathItem, treeMoveItem } from '../../helpers/arrayOfObjects';
 import { MenuSettings } from '../../constants/menu';
-import MenuService from '../../services/menu';
+import MenuSettingsService from '../../services/MenuSettingsService';
 import { Tree } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { Dropdown, SelectJournal } from '../../components/common/form';
@@ -50,6 +50,10 @@ class EditorItems extends React.Component {
 
     return newState;
   }
+
+  getAvailableActions = item => {
+    return MenuSettingsService.getActiveActions(item);
+  };
 
   toggleOpenAMI = () => {
     this.setState(({ openAllMenuItems }) => ({ openAllMenuItems: !openAllMenuItems }));
@@ -98,10 +102,11 @@ class EditorItems extends React.Component {
     }
 
     if (action === MenuSettings.ActionTypes.EDIT) {
-      this.handleChooseOption(MenuService.createOptions.find(o => o.key === item.type), item);
+      const type = MenuSettingsService.createOptions.find(o => o.key === item.type);
+      this.handleChooseOption(type, item);
     }
 
-    const items = MenuService.processAction({ action, id: item.id, items: this.state.items });
+    const items = MenuSettingsService.processAction({ action, id: item.id, items: this.state.items });
     this.setState({ items });
   };
 
@@ -128,6 +133,7 @@ class EditorItems extends React.Component {
 
     const handleSave = newItem => {
       const items = deepClone(this.state.items || []);
+      console.log(deepClone(editItemInfo));
       const path = treeGetPathItem({ items, value: get(editItemInfo, 'item.dndIdx'), key: 'dndIdx' });
 
       if (path) {
@@ -156,8 +162,8 @@ class EditorItems extends React.Component {
   };
 
   renderButtonAddSection = ({ item, level, isOpen }) => {
-    if (!item || (level < 3 && item.expandable && item.selected)) {
-      const createOptions = MenuService.getAvailableCreateOptions(item);
+    if (!item || (level < 3 && item.visible && !MenuSettingsService.isChildless(item))) {
+      const createOptions = MenuSettingsService.getAvailableCreateOptions(item);
 
       return createOptions && createOptions.length ? (
         <Dropdown
@@ -179,8 +185,7 @@ class EditorItems extends React.Component {
   };
 
   render() {
-    const { openAllMenuItems } = this.state;
-    const items = MenuService.setActiveActions(deepClone(this.state.items));
+    const { items, openAllMenuItems } = this.state;
 
     return (
       <div className="ecos-menu-settings-editor-items">
@@ -198,13 +203,14 @@ class EditorItems extends React.Component {
             data={items}
             prefixClassName="ecos-menu-settings-editor-items"
             openAll={openAllMenuItems}
-            onClickAction={this.handleActionItem}
-            onDragEnd={this.onDragEnd}
-            onClickIcon={this.handleClickIcon}
-            renderExtraItemComponents={this.renderButtonAddSection}
             draggable={false}
             moveInLevel
             moveInParent
+            onDragEnd={this.onDragEnd}
+            getActions={this.getAvailableActions}
+            onClickAction={this.handleActionItem}
+            onClickIcon={this.handleClickIcon}
+            renderExtraComponents={this.renderButtonAddSection}
           />
         </div>
         {this.renderEditorItem()}
