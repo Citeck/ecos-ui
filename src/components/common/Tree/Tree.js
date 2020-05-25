@@ -9,8 +9,12 @@ import TreeItem from './TreeItem';
 
 import './style.scss';
 
-//при отсутствии класса у нужного элемента не создавать новой prop,
-// а добавить > [`${prefixClassName}--item-[описание элемента]`]: !!prefixClassName
+// If you need css class for some element, don't create new prop, add to
+// classNames [`${prefixClassName}--item-[описание элемента]`]: !!prefixClassName, if there isn't it there
+
+// getActions can change or filter item.actionConfig, if actions are unusual or depend on item conditions.
+// If there isn't getActions, component returns item.actionConfig.
+// If there are both, you need to return something from getActions.
 
 class Tree extends Component {
   static propTypes = {
@@ -24,10 +28,11 @@ class Tree extends Component {
     moveInParent: PropTypes.bool,
     moveInLevel: PropTypes.bool,
     onToggleSelect: PropTypes.func,
+    getActions: PropTypes.func,
     onClickAction: PropTypes.func,
     onClickIcon: PropTypes.func,
     onDragEnd: PropTypes.func,
-    renderExtraItemComponents: PropTypes.func
+    renderExtraComponents: PropTypes.func
   };
 
   static defaultProps = {
@@ -107,7 +112,8 @@ class Tree extends Component {
       onClickIcon,
       moveInLevel,
       moveInParent,
-      renderExtraItemComponents
+      renderExtraComponents,
+      getActions
     } = this.props;
     const data = this.formattedTree;
 
@@ -130,7 +136,8 @@ class Tree extends Component {
         onClickIcon={onClickIcon}
         moveInLevel={moveInLevel}
         moveInParent={moveInParent}
-        renderExtraItemComponents={renderExtraItemComponents}
+        renderExtraComponents={renderExtraComponents}
+        getActions={getActions}
         isMajor
       />
     ));

@@ -7,12 +7,12 @@ import uniqueId from 'lodash/uniqueId';
 import { t } from '../../../helpers/util';
 import { IcoBtn } from '../btns';
 
-const BtnAction = ({ id, text, icon, onClick, component, className = '' }) => {
+const BtnAction = ({ type, text, icon, onClick, component, className = '' }) => {
   if (component) {
     return component;
   }
 
-  const targetId = id || uniqueId('menu-item-action-');
+  const targetId = uniqueId(`menu-item-action-${type}`);
 
   return (
     <>
@@ -39,9 +39,7 @@ const BtnAction = ({ id, text, icon, onClick, component, className = '' }) => {
 };
 
 const Actions = ({ actionConfig = [], onClick = () => null }) => {
-  return actionConfig.map((action, i) => (
-    <BtnAction key={`tree-action-${i}-${action.type || action.id || ''}`} {...action} onClick={() => onClick(action.type || action.id)} />
-  ));
+  return actionConfig.map((action, i) => <BtnAction key={`tree-action-${action.type}`} {...action} onClick={() => onClick(action.type)} />);
 };
 
 Actions.propTypes = {
