@@ -640,7 +640,7 @@ class Documents extends BaseWidget {
 
     this.props.getDocuments(selectedTypeForLoading.type);
     this.uploadingComplete();
-    NotificationManager.success('', t('documents-widget.notification.add-one.success'));
+    NotificationManager.success(t('documents-widget.notification.add-one.success'));
   };
 
   handleMouseLeaveTable = () => {
