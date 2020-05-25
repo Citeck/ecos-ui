@@ -70,6 +70,8 @@ export const selectTypeNames = createSelector(
   }
 );
 
+export const selectTypeById = (state, key, id) => get(selectState(state, key), 'availableTypes', []).find(type => type.id === id);
+
 export const selectDynamicTypes = createSelector(
   selectState,
   getDynamicTypes

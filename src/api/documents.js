@@ -9,7 +9,8 @@ export class DocumentsApi {
       {
         name: 'name',
         parent: 'parent?id',
-        formId: 'form?id'
+        formId: 'form?id',
+        createVariants: 'createVariants?json'
       }
     ).then(response => response);
   };

@@ -195,7 +195,7 @@ export default class DocumentsConverter {
 
     const target = {};
 
-    target._parentAtt = 'icase:documents';
+    target._parentAtt = get(source, 'createVariants.attributes._parentAtt', 'icase:documents');
 
     if (source.record) {
       target._parent = source.record;
@@ -218,8 +218,10 @@ export default class DocumentsConverter {
     }
 
     const target = {};
+    const createVariants = get(source, 'createVariants', {});
 
-    target._parentAtt = get(source, '_parentAtt', 'icase:documents');
+    target._parentAtt = get(createVariants, 'attributes._parentAtt', 'icase:documents');
+    target.record = get(createVariants, 'recordRef', source.record);
 
     if (source._parent || source.record) {
       target._parent = source._parent || source.record;
