@@ -17,7 +17,7 @@ export class DocAssociationsApi extends RecordService {
           return [];
         }
         return Records.get(type)
-          .load('assocsFull[]{id,name,direction}')
+          .load('assocsFull[]{id,attribute,name,direction}')
           .catch(e => {
             console.error(e);
             return [];

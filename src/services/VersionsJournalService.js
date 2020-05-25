@@ -11,7 +11,7 @@ export class VersionsJournalService {
     const onCloseModal = done => {
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
-      onClose(done);
+      onClose && onClose(done);
     };
 
     ReactDOM.render(<UploadNewVersion record={record} onClose={onCloseModal} />, container);

@@ -19,9 +19,19 @@ const originalCalculateValue = Base.prototype.calculateValue;
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
 
 Base.prototype.calculateValue = function(data, flags) {
+  const hasChanged = this.hasChanged(
+    this.evaluate(
+      this.component.calculateValue,
+      {
+        value: this.defaultValue,
+        data
+      },
+      'value'
+    )
+  );
   const changed = originalCalculateValue.call(this, data, flags);
 
-  if (changed && this.component.triggerChangeWhenCalculate) {
+  if (this.component.triggerChangeWhenCalculate && (changed || hasChanged)) {
     this.triggerChange(flags);
   }
 
@@ -117,6 +127,7 @@ Base.prototype.createInlineEditButton = function(container) {
       this.options.readOnly = false;
       this.options.viewAsHtml = false;
       this._isInlineEditingMode = true;
+      this.emit('inlineEditingStart', currentValue);
 
       this.redraw();
       container.classList.add('inline-editing');
@@ -167,6 +178,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
     );
 
     const switchToViewOnlyMode = () => {
+      this.emit('inlineEditingFinish');
       this.options.readOnly = true;
       this.options.viewAsHtml = true;
       this._isInlineEditingMode = false;
@@ -202,6 +214,16 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
 
       if (!this.checkValidity(this.getValue(), true)) {
         return;
+      }
+
+      if (this._isInlineEditingMode) {
+        var changed = {
+          instance: this,
+          component: this.component,
+          value: this.dataValue,
+          flags: {}
+        };
+        this.emit('inlineSubmit', changed);
       }
 
       return form
@@ -248,7 +270,7 @@ Base.prototype.build = function(state) {
   originalBuild.call(this, state);
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-37
-  this.showElement(!this.component.hidden);
+  this.showElement(this.visible && !this.component.hidden);
 
   const { options = {} } = this;
   const { isDebugModeOn = false } = options;

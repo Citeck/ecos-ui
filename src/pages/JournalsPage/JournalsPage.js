@@ -1,13 +1,21 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { getId } from '../../helpers/util';
+import { getId, t } from '../../helpers/util';
 import { getStateId } from '../../helpers/redux';
 import { initState } from '../../actions/journals';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { Journals, JournalsUrlManager } from '../../components/Journals';
 import pageTabList from '../../services/pageTabs/PageTabList';
 
+import './style.scss';
+
 const getKeys = ({ id, tabId, stateId }) => stateId || getStateId({ tabId, id: id || getId() });
+
+const Labels = {
+  ERROR_BOUNDARY_TITLE: 'journal.page.error-boundary.title',
+  ERROR_BOUNDARY_MSG: 'journal.page.error-boundary.msg'
+};
 
 const mapDispatchToProps = dispatch => ({
   initState: stateId => dispatch(initState(stateId))
@@ -33,9 +41,13 @@ class JournalsPage extends React.Component {
     const { isActivePage } = this.props;
 
     return (
-      <JournalsUrlManager stateId={this.stateId}>
-        <Journals stateId={this.stateId} isActivePage={isActivePage} />
-      </JournalsUrlManager>
+      <div className="ecos-journal-page">
+        <ErrorBoundary title={t(Labels.ERROR_BOUNDARY_TITLE)} message={t(Labels.ERROR_BOUNDARY_MSG)}>
+          <JournalsUrlManager stateId={this.stateId}>
+            <Journals stateId={this.stateId} isActivePage={isActivePage} />
+          </JournalsUrlManager>
+        </ErrorBoundary>
+      </div>
     );
   }
 }

@@ -9,7 +9,7 @@ import FormIOFileComponent from 'formiojs/components/file/File';
 import RecordActionExecutorsRegistry from '../../../../components/Records/actions/RecordActionExecutorsRegistry';
 import { DefaultActionTypes } from '../../../../components/Records/actions';
 import Records from '../../../../components/Records';
-import { createDocumentUrl, isNewVersionPage } from '../../../../helpers/urls';
+import { createDocumentUrl, getDownloadContentUrl, isNewVersionPage } from '../../../../helpers/urls';
 import { t } from '../../../../helpers/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
 import { FILE_CLICK_ACTION_DOWNLOAD, FILE_CLICK_ACTION_NOOP, FILE_CLICK_ACTION_OPEN_DASHBOARD } from './editForm/File.edit.file';
@@ -234,14 +234,12 @@ export default class FileComponent extends FormIOFileComponent {
     }
 
     if (onFileClickAction === FILE_CLICK_ACTION_DOWNLOAD) {
-      linkAttributes.onClick = e => {
-        e.stopPropagation();
-        e.preventDefault();
-        FileComponent.downloadFile(recordRef, originalFileName);
-      };
+      linkAttributes.href = getDownloadContentUrl(recordRef);
+      linkAttributes.download = true;
     } else if (onFileClickAction === FILE_CLICK_ACTION_OPEN_DASHBOARD && !this.viewOnly) {
       linkAttributes.onClick = e => {
         const confirmation = window.confirm(t('eform.file.on-click-confirmation'));
+
         if (!confirmation) {
           e.stopPropagation();
           e.preventDefault();

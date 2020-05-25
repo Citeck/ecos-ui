@@ -13,13 +13,19 @@ export const ALFRESCO = 'alfresco';
 
 window.Alfresco = window.Alfresco || {};
 window.Alfresco.constants = window.Alfresco.constants || {};
+
 window.Alfresco.constants = {
-  ...window.Alfresco.constants,
   URL_CONTEXT,
   PROXY_URI,
   PROXY_URI_SHORT,
   MICRO_URI,
   URL_RESCONTEXT,
   URL_PAGECONTEXT,
-  URL_SERVICECONTEXT
+  URL_SERVICECONTEXT,
+  ...window.Alfresco.constants
 };
+
+/**
+ * WARNING: This file imported in some files which are exported to the old UI (e.g. EcosForm)
+ * Be careful when you add new dependencies here!
+ */
