@@ -128,7 +128,7 @@ class TreeItem extends Component {
     );
   }
 
-  renderChildren() {
+  renderChildren = () => {
     const {
       item,
       openAll,
@@ -176,33 +176,15 @@ class TreeItem extends Component {
           ))}
       </Collapse>
     );
-  }
+  };
 
-  render() {
-    const {
-      isChild,
-      item,
-      selectable,
-      prefixClassName,
-      dragLvlTo,
-      draggable,
-      level,
-      index,
-      moveInLevel,
-      moveInParent,
-      parentKey = '',
-      isMajor,
-      renderExtraComponents,
-      onClickIcon,
-      getActions
-    } = this.props;
+  renderItem = (targetId, canDrag) => {
+    const { isChild, item, selectable, prefixClassName, level, isMajor, renderExtraComponents, onClickIcon, getActions } = this.props;
     const { isOpen } = this.state;
     const { items, selected, locked, icon, name, actionConfig, badge } = item || {};
-    const canDrag = draggable && item.draggable !== false && (dragLvlTo == null || dragLvlTo >= level);
-    const key = `key_${level}_${index}_${item.id}`.replace(/[\s\-]*/g, '');
     const filteredActions = getActions ? getActions(item) : actionConfig;
 
-    const itemElement = (
+    return (
       <div
         className={classNames('ecos-tree__item', {
           'ecos-tree__item_child': isChild,
@@ -237,12 +219,12 @@ class TreeItem extends Component {
             />
           )}
           {badge != null && <Badge text={String(badge)} className="ecos-tree__item-element-badge" />}
-          <Tooltip target={key} text={t(name)} showAsNeeded uncontrolled autohide>
+          <Tooltip target={targetId} text={t(name)} showAsNeeded uncontrolled autohide>
             <div
               className={classNames('ecos-tree__item-element-label', {
                 'ecos-tree__item-element-label_locked': item.locked
               })}
-              id={key}
+              id={targetId}
             >
               {t(name)}
             </div>
@@ -263,14 +245,21 @@ class TreeItem extends Component {
         {this.renderChildren()}
       </div>
     );
+  };
 
+  render() {
+    const { item, dragLvlTo, draggable, level, moveInLevel, moveInParent, parentKey = '' } = this.props;
+    const draggableLevel = dragLvlTo === undefined || dragLvlTo >= level;
+    const canDrag = draggable && item.draggable && draggableLevel;
+    const key = `key_${level}_${item.id}_${item.dndIdx || ''}`.replace(/[\s\-]*/g, '');
+    const itemElement = this.renderItem(key, canDrag);
     const dragProps = {};
 
     moveInLevel && (dragProps.collection = level);
     moveInParent && (dragProps.collection += parentKey);
 
     return canDrag ? (
-      <SortableElement key={key} index={item.dndIdx} disabled={locked} {...dragProps}>
+      <SortableElement key={key} index={item.dndIdx} disabled={item.locked} {...dragProps}>
         {itemElement}
       </SortableElement>
     ) : (
