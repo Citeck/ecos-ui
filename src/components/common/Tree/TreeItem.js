@@ -13,9 +13,6 @@ import Actions from './Actions';
 
 import './style.scss';
 
-//при отсутствии класса у нужного элемента не создавать новой prop,
-// а добавить > [`${prefixClassName}--item-[описание элемента]`]: !!prefixClassName
-// getActions может заменить или отфильтровать item.actionConfig, если действия не стандартные, зависимые от условий
 class TreeItem extends Component {
   static propTypes = {
     item: PropTypes.shape(ItemInterface),
@@ -215,7 +212,7 @@ class TreeItem extends Component {
               data={item.icon}
               source="menu"
               className="ecos-tree__item-element-icon"
-              onClick={() => onClickIcon(item)}
+              onClick={() => onClickIcon && onClickIcon(item)}
             />
           )}
           {badge != null && <Badge text={String(badge)} className="ecos-tree__item-element-badge" />}
