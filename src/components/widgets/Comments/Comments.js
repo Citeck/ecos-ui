@@ -4,8 +4,10 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { ContentState, convertFromRaw, convertToRaw, Editor, EditorState, RichUtils } from 'draft-js';
+import { ContentState, Editor, EditorState, convertToRaw, convertFromRaw, getDefaultKeyBinding, Modifier, RichUtils } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
+import debounce from 'lodash/debounce';
+import ReactResizeDetector from 'react-resize-detector';
 
 import BaseWidget from '../BaseWidget';
 import { deepClone, num2str, t } from '../../../helpers/util';
@@ -19,8 +21,6 @@ import Dashlet, { BaseActions } from '../../Dashlet';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
-import debounce from 'lodash/debounce';
-import ReactResizeDetector from 'react-resize-detector';
 
 const BASE_HEIGHT = 21;
 const BUTTONS_TYPE = {
@@ -28,6 +28,9 @@ const BUTTONS_TYPE = {
   ITALIC: 'ITALIC',
   UNDERLINE: 'UNDERLINE',
   LIST: 'unordered-list-item'
+};
+const KEY_COMMANDS = {
+  SEND: 'comment-send'
 };
 
 class Comments extends BaseWidget {
@@ -68,7 +71,7 @@ class Comments extends BaseWidget {
 
   static defaultProps = {
     comments: [],
-    maxLength: 350,
+    maxLength: 5000,
     errorMessage: '',
     saveIsLoading: false,
     fetchIsLoading: false,
@@ -161,6 +164,14 @@ class Comments extends BaseWidget {
     return t('comments-widget.now');
   }
 
+  get editorPlaceholder() {
+    const { maxLength } = this.props;
+    const start = t('comments-widget.editor.placeholder.part-1');
+    const end = t('comments-widget.editor.placeholder.part-2');
+
+    return `${start} ${maxLength} ${end}`;
+  }
+
   get countComments() {
     const { totalCount } = this.props;
 
@@ -223,14 +234,14 @@ class Comments extends BaseWidget {
     let height = this.props.commentListMaxHeight;
 
     if (!this.contentRef.current) {
-      return `${height}px`;
+      return height;
     }
 
     const { clientHeight } = this.contentRef.current;
 
     height = clientHeight > height ? height : clientHeight;
 
-    return `${height}px`;
+    return height;
   }
 
   get otherHeight() {
@@ -238,12 +249,19 @@ class Comments extends BaseWidget {
   }
 
   get scrollHeight() {
-    const { userHeight, contentHeight } = this.state;
-
+    const {
+      userHeight,
+      contentHeight = 0,
+      fitHeights: { max }
+    } = this.state;
     let height = 0;
 
     if (userHeight === undefined) {
-      return contentHeight - this.otherHeight;
+      if (contentHeight + this.otherHeight >= max) {
+        return max - this.otherHeight;
+      }
+
+      return contentHeight;
     }
 
     if (userHeight <= 0) {
@@ -253,6 +271,12 @@ class Comments extends BaseWidget {
     height = userHeight - this.otherHeight;
 
     return height < 0 ? 0 : height;
+  }
+
+  get canSendComment() {
+    const { maxLength, saveIsLoading } = this.props;
+
+    return this.commentLength && this.commentLength <= maxLength && !saveIsLoading;
   }
 
   updateEditorHeight = () => {
@@ -276,6 +300,14 @@ class Comments extends BaseWidget {
     if (JSON.stringify(fitHeightsState) !== JSON.stringify(fitHeights)) {
       this.setState({ fitHeights });
     }
+  };
+
+  handleCommentSend = event => {
+    if (this.canSendComment && event.ctrlKey && event.key === 'Enter') {
+      return KEY_COMMANDS.SEND;
+    }
+
+    return getDefaultKeyBinding(event);
   };
 
   handleShowEditor = () => {
@@ -345,6 +377,10 @@ class Comments extends BaseWidget {
   handleKeyCommand = (command, editorState) => {
     const newComment = RichUtils.handleKeyCommand(editorState, command);
 
+    if (command === KEY_COMMANDS.SEND) {
+      return this.handleSaveComment();
+    }
+
     if (newComment) {
       this.handleChangeComment(newComment);
 
@@ -355,12 +391,12 @@ class Comments extends BaseWidget {
   };
 
   handlePastedText = text => {
-    this.setState(
-      {
-        comment: EditorState.moveFocusToEnd(EditorState.createWithContent(ContentState.createFromText(text)))
-      },
-      this.updateEditorHeight
-    );
+    const { comment } = this.state;
+    const pastedBlocks = ContentState.createFromText(text).blockMap;
+    const newState = Modifier.replaceWithFragment(comment.getCurrentContent(), comment.getSelection(), pastedBlocks);
+    const newCommentState = EditorState.push(comment, newState, 'insert-fragment');
+
+    this.setState({ comment: newCommentState }, this.updateEditorHeight);
 
     return true;
   };
@@ -453,7 +489,7 @@ class Comments extends BaseWidget {
   }
 
   renderEditor() {
-    const { maxLength, errorMessage, saveIsLoading } = this.props;
+    const { errorMessage, saveIsLoading } = this.props;
     const { comment, editorHeight } = this.state;
     let minHeight = '1em';
 
@@ -501,10 +537,11 @@ class Comments extends BaseWidget {
               spellCheck
               ref={this.setEditor}
               editorState={comment}
+              keyBindingFn={this.handleCommentSend}
               onChange={this.handleChangeComment}
               handleKeyCommand={this.handleKeyCommand}
               handlePastedText={this.handlePastedText}
-              placeholder={t('comments-widget.editor.placeholder')}
+              placeholder={this.editorPlaceholder}
             />
           </Scrollbars>
         </div>
@@ -522,7 +559,7 @@ class Comments extends BaseWidget {
             <Btn
               className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__editor-footer-btn"
               onClick={this.handleSaveComment}
-              disabled={!this.commentLength || this.commentLength > maxLength || saveIsLoading}
+              disabled={!this.canSendComment}
               loading={saveIsLoading}
             >
               {t('comments-widget.editor.save')}

@@ -19,9 +19,19 @@ const originalCalculateValue = Base.prototype.calculateValue;
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
 
 Base.prototype.calculateValue = function(data, flags) {
+  const hasChanged = this.hasChanged(
+    this.evaluate(
+      this.component.calculateValue,
+      {
+        value: this.defaultValue,
+        data
+      },
+      'value'
+    )
+  );
   const changed = originalCalculateValue.call(this, data, flags);
 
-  if (changed && this.component.triggerChangeWhenCalculate) {
+  if (this.component.triggerChangeWhenCalculate && (changed || hasChanged)) {
     this.triggerChange(flags);
   }
 
