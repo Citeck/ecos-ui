@@ -329,8 +329,8 @@
 
   "record-action.name.save-as-case-template": "Сохранить как шаблон",
 
-  "grid.no-data-indication": "Нет элементов в списке",
   "grid.inline-tools.details": "Детальная информация",
+  "grid.no-data-indication": "Нет элементов в списке",
   "grid.tools.copy-to": "Копировать в...",
   "grid.tools.delete": "Удалить",
   "grid.tools.group-actions": "Ещё действия",
@@ -509,6 +509,7 @@
   "page-tabs.dashboard-settings": "Настройка",
   "page-tabs.home-page": "Домашняя страница",
   "page-tabs.journal": "Журнал",
+  "page-tabs.new-tab": "Новая вкладка",
   "page-tabs.loading": "Загрузка",
   "page-tabs.no-name": "Без имени",
   "page-tabs.tab-name-tip": "Название вкладки",
@@ -638,10 +639,6 @@
   "select-journal.select-modal.filter-button": "Фильтр",
   "select-journal.select-modal.ok-button": "OK",
   "select-journal.select-modal.title": "Выбрать",
-  "select-member-dialog.form-field.button": "Выбрать",
-  "select-member-dialog.form-field.label": "Сотрудники",
-  "select-member-dialog.listmem.title": "Выбранные сотрудники",
-  "select-member-dialog.title": "Выбрать",
   "select-orgstruct.button.add": "Добавить",
   "select-orgstruct.button.change": "Изменить",
   "select-orgstruct.button.select": "Выбрать",
