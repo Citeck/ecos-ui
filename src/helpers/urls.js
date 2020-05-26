@@ -87,6 +87,10 @@ export function createPrintUrl({ record, config }) {
   return `${PROXY_URI}citeck/print/metadata-printpdf?` + queryString.stringify(params);
 }
 
+export function createContentUrl({ value }) {
+  return `${PROXY_URI}api/node/workspace/SpacesStore/${value}/content;cm:content`;
+}
+
 const getPredicateFilterParam = options => {
   const filter = ParserPredicate.getRowPredicates(options);
   return filter ? JSON.stringify(filter) : '';

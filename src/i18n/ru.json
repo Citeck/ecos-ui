@@ -291,6 +291,9 @@
   "export-component.notice.buffer-link-err": "Не удалось создать ссылку на выборку",
   "export-component.notice.buffer-link-preparation": "Подождите, идет подготовка ссылки на выборку",
 
+  "tree-component.tooltip.cannot-be-changes": "Нельзя изменить состояние",
+  "tree-component.empty": "Элементов не найдено",
+
   "filter-list.add-criterion": "Добавить критерий",
   "filter-list.add-operator": "Добавить оператор",
   "filter-list.condition-group": "Группу условий",
