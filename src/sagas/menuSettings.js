@@ -37,10 +37,11 @@ function* fetchGetSettingsConfig({ api, logger }) {
 
 function* runSaveSettingsConfig({ api, logger }, { payload }) {
   try {
-    // const config = MenuConverter.getSettingsConfigForServer(payload);
-    //
-    // yield call(api.menu.saveMenuConfig, { config });
-    // yield put(setSettingsConfig(payload));
+    const id = yield select(state => state.menuSettings.id);
+    const subMenu = payload;
+    const result = yield call(api.menu.saveMenuSettingsConfig, { id, subMenu });
+    console.log(result);
+    yield put(setSettingsConfig(payload));
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.save-config'), t('error'));
     logger.error('[menu-settings / runSaveSettingsConfig]', e.message);

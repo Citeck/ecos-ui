@@ -179,4 +179,12 @@ export class MenuApi extends CommonApi {
         return {};
       });
   };
+
+  saveMenuSettingsConfig = ({ id, subMenu }) => {
+    const rec = Citeck.Records.get(`${SourcesId.MENU}@${id}`);
+
+    rec.att('subMenu', subMenu);
+
+    return rec.save();
+  };
 }
