@@ -1,13 +1,16 @@
 {
+  "error": "Ошибка",
   "actions.document.download": "Скачать",
   "aggregation.columns": "Колонка для агрегации",
   "aggregation.type": "Тип агрегации",
   "boolean.no": "Нет",
   "boolean.yes": "Да",
   "btn.cancel.label": "Отмена",
+
   "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",
   "page.error-loading.message": "Попробуйте перезагрузить страницу. Если ошибка повториться, обратитесь к администратору ",
   "page.error-loading.log": "Журнал ошибки",
+
   "bpmn-card.go-back-to-list-button.text": "Назад к списку",
   "bpmn-card.open-editor-button.text": "Визуальный редактор",
   "bpmn-designer.add-category": "Добавить категорию",
@@ -111,6 +114,7 @@
   "current-tasks-widget.no-tasks": "Текущих задач нет",
   "current-tasks-widget.saga.error1": "Ошибка получения данных",
   "current-tasks-widget.title": "Все задачи",
+
   "dashboard-settings.already-exists": "Дашборд для установленного типа и/или пользователя уже существует",
   "dashboard-settings.button.cancel": "Отмена",
   "dashboard-settings.button.save": "Применить",
@@ -165,6 +169,7 @@
   "dashboard-settings.widget.user-basic-info": "Профиль",
   "dashboard-settings.widget.with-config": "У данного виджета есть настройки. При удалении виджета, настройки будут утеряны",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
+
   "dashlet.error-boundary.msg": "При работе виджета произошла ошибка. Попробуйте обновить виджет или страницу. Если ошибка повторится, обратитесь к администратору",
   "dashlet.edit.title": "Редактировать данные",
   "dashlet.edit.tooltip": "Редактировать данные",
@@ -174,6 +179,7 @@
   "dashlet.resize.title": "Изменить размер",
   "dashlet.update.title": "Обновить данные",
   "dashlet.settings.title": "Настроить виджет",
+
   "doc-associations-widget.add-association": "Добавить связь",
   "doc-associations-widget.assoc-with-docs": "Связан с документами",
   "doc-associations-widget.basis-document": "Документ-основание",
@@ -274,20 +280,28 @@
   "events-history-widget.info.no-events": "Нет событий",
   "events-history-widget.info.no-data": "Нет данных",
   "events-history-widget.title": "История событий",
+
   "export-component.action.html-load": "HTML (скачивание)",
   "export-component.action.html-read": "HTML (просмотр)",
   "export-component.action.copy-link": "Копировать ссылку на выборку",
   "export-component.notice.buffer-link-done": "Ссылка на выборку скопирована в буфер обмена",
   "export-component.notice.buffer-link-err": "Не удалось создать ссылку на выборку",
   "export-component.notice.buffer-link-preparation": "Подождите, идет подготовка ссылки на выборку",
+
   "tree-component.tooltip.cannot-be-changes": "Нельзя изменить состояние",
   "tree-component.empty": "Элементов не найдено",
+
   "filter-list.add-criterion": "Добавить критерий",
   "filter-list.add-operator": "Добавить оператор",
   "filter-list.condition-group": "Группу условий",
   "filter-list.criterion": "Критерий",
   "filter-list.filter-group-add": "Добавить",
   "filter-list.panel-header": "Фильтрация",
+
+  "record-action.msg.confirm.title": "Предупреждение",
+  "record-action.msg.error.title": "Ошибка",
+  "record-action.msg.info.title": "Информация",
+
   "record-action.name.delete": "Удалить",
   "record-action.delete.dialog.title.remove-many": "Удаление записей",
   "record-action.delete.dialog.title.remove-one": "Удаление записи",
@@ -295,9 +309,7 @@
   "record-action.delete.dialog.msg.remove-one": "Вы действительно хотите удалить эту запись?",
   "record-action.delete.dialog.title.error": "Ошибка",
   "record-action.delete.dialog.msg.error": "Произошла ошибка при удалении",
-  "record-action.msg.confirm.title": "Предупреждение",
-  "record-action.msg.error.title": "Ошибка",
-  "record-action.msg.info.title": "Информация",
+
   "record-action.name.details": "Детальная информация",
   "record-action.name.download": "Скачать",
   "record-action.name.create": "Создать",
@@ -305,14 +317,18 @@
   "record-action.name.show": "Смотреть документ",
   "record-action.name.open-in-background": "Открыть в фоновой вкладке",
   "record-action.name.view-card-template-in-background": "Просмотреть в фоновом режиме",
+
   "record-action.name.assoc-action": "Ассоциативное действие",
   "record-action.assoc-action.not-found": "Связь не найдена",
+
   "record-action.name.upload-new-version": "Загрузить новую версию",
   "record-action.upload-new-version.title.upload-model": "Добавление новой версии документа",
   "record-action.upload-new-version.title.error-modal": "Ошибка",
   "record-action.upload-new-version.error.no-version": "Нет версий",
   "record-action.upload-new-version.error.no-record": "Запись не найдена",
+
   "record-action.name.save-as-case-template": "Сохранить как шаблон",
+
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.inline-tools.details": "Детальная информация",
   "grid.tools.copy-to": "Копировать в...",
@@ -351,6 +367,7 @@
   "header.site-menu.page-settings": "Настроить страницу",
   "hints.disabled": "Подсказки выключены",
   "hints.enabled": "Подсказки включены",
+
   "journal.page.error-boundary.title": "Ошибка",
   "journal.page.error-boundary.msg": "Попробуйте обновить страницу. Если ошибка повторится, обратитесь к администратору",
   "journal.add-filter-criterion": "Добавить критерий фильтрации",
@@ -479,8 +496,7 @@
   "journals.tpl.defaults": "Шаблоны настроек",
   "label.password": "Пароль",
   "label.username": "Имя пользователя",
-  "menu.error": "Ошибка получения меню",
-  "menu.error-detail": "Ошибка. Пункты меню не получены",
+
   "message.joining": "Пользователь {0} добавляется к сайту {1}...",
   "message.leave": "Покинуть сайт ''{0}''",
   "message.leave-failure": "Не удается удалить пользователя {0} из сайта {1}. У сайта должен быть хотя бы один менеджер сайта.",
@@ -657,6 +673,7 @@
   "tasks-widget.saga.error2": "Ошибка назначения",
   "tasks-widget.saga.error3": "При назначении возникла проблема. Пожалуйста, проверьте задачу",
   "tasks-widget.title": "Мои задачи",
+
   "timesheets.allForms.title": "Табели учёта времени",
   "timesheets.allForms.delegation": "Делегирование",
   "timesheets.tabs.myTimesheetTab": "Мой табель",
@@ -729,6 +746,7 @@
   "timesheets.delegatedForApprovalForm.descriptions.manageDeligatedTimesheets": "Вы можете управлять списком сотрудников, которые делегировали вам табели",
   "timesheets.delegatedForApprovalForm.button.setUpTimsheetList": "Настроить",
   "timesheets.allForms.timesheetsForVerification.title": "Табели учёта времени для проверки",
+
   "versions-journal-widget.add": "Добавить новую версию",
   "versions-journal-widget.add-version": "Добавить версию",
   "versions-journal-widget.current-version": "Актуальная версия",
@@ -880,12 +898,17 @@
   "user-profile-widget.modal-password.button.change": "Изменить пароль",
   "user-profile-widget.modal-password.msg.new-passwords-not-match": "Пароль не совпадает",
   "user-profile-widget.modal-password.msg.new-n-old-passwords-match": "Новый пароль такой же как старый",
+
   "password-field.rule.valid-characters": "Допустимы латинские, русские и другие символы",
   "password-field.rule.count-characters": "минимум 3 знака/символа",
   "password-field.rule.count-digits": "1 цифра",
   "password-field.rule.count-capitals": "1 заглавная",
   "password-field.rule.count-lowercase": "1 строчная",
   "password-field.rule.required": "Необходимо ввести пароль",
+
+  "menu.error.get-config": "Конфиг меню не получил",
+  "menu.error.save-config": "Конфигурация меню не сохранена",
+
   "menu-settings.header.title": "Настройки меню",
   "menu-settings.button.cancel": "Отмена",
   "menu-settings.button.apply": "Применить",
@@ -919,6 +942,10 @@
   "menu-settings.editor-item.btn.cancel": "Отмена",
   "menu-settings.editor-item.btn.add": "Добавить",
   "menu-settings.editor-item.btn.edit": "Сохранить",
+  "menu-settings.error.get-config": "Конфигурация настроек меню не получена",
+  "menu-settings.error.save-config": "Конфигурация настроек меню не сохранена",
+  "menu-settings.error.get-custom-icons": "Пользовательские иконки меню не получены",
+
   "menu-item.type.section": "Раздел",
   "menu-item.type.journal": "Журнал",
   "menu-item.type.arbitrary": "Произвольный пункт меню",

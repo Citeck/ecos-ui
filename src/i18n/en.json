@@ -1,10 +1,10 @@
 {
+  "error": "Error",
   "actions.document.download": "Download",
   "aggregation.columns": "Aggregation column",
   "aggregation.type": "Aggregation type",
   "boolean.no": "No",
   "boolean.yes": "Yes",
-
   "btn.cancel.label": "Cancel",
 
   "page.error-loading.title": "The error occurred while loading the page",
@@ -298,6 +298,10 @@
   "filter-list.filter-group-add": "Add",
   "filter-list.panel-header": "Filter",
 
+  "record-action.msg.confirm.title": "Confirmation",
+  "record-action.msg.error.title": "Action error",
+  "record-action.msg.info.title": "Information",
+
   "record-action.name.delete": "Delete",
   "record-action.delete.dialog.title.remove-many": "Delete records",
   "record-action.delete.dialog.title.remove-one": "Delete record",
@@ -305,10 +309,6 @@
   "record-action.delete.dialog.msg.remove-one": "Do you really want to delete the record?",
   "record-action.delete.dialog.title.error": "Error",
   "record-action.delete.dialog.msg.error": "An error occurred while deleting",
-
-  "record-action.msg.confirm.title": "Confirmation",
-  "record-action.msg.error.title": "Action error",
-  "record-action.msg.info.title": "Information",
 
   "record-action.name.details": "Details",
   "record-action.name.download": "Download",
@@ -496,8 +496,7 @@
   "journals.tpl.defaults": "Settings template",
   "label.password": "Password",
   "label.username": "User Name",
-  "menu.error": "Error getting menu",
-  "menu.error-detail": "Error. Menu items not received",
+
   "message.joining": "Adding user {0} to site {1}...",
   "message.leave": "Leave Site ''{0}''",
   "message.leave-failure": "We couldn't remove user {0} from site {1}. There must be at least one Site Manager for a site.",
@@ -671,6 +670,7 @@
   "tasks-widget.saga.error2": "Assignment error",
   "tasks-widget.saga.error3": "There was a problem while assign. Please, check task",
   "tasks-widget.title": "My tasks",
+
   "timesheets.allForms.title": "Timesheets",
   "timesheets.allForms.delegation": "Delegation",
   "timesheets.tabs.myTimesheetTab": "My Timesheet",
@@ -903,6 +903,9 @@
   "password-field.rule.count-lowercase": "1 lowercase",
   "password-field.rule.required": "Password is required",
 
+  "menu.error.get-config": "Error. Menu configuration hasn't received",
+  "menu.error.save-config": "Error. Menu configuration hasn't saved",
+
   "menu-settings.header.title": "Menu Settings",
   "menu-settings.button.cancel": "Cancel",
   "menu-settings.button.apply": "Apply",
@@ -936,6 +939,9 @@
   "menu-settings.editor-item.btn.cancel": "Cancel",
   "menu-settings.editor-item.btn.add": "Add",
   "menu-settings.editor-item.btn.edit": "Save",
+  "menu-settings.error.get-config": "Menu settings configuration hasn't received",
+  "menu-settings.error.save-config": "Menu settings configuration hasn't saved",
+  "menu-settings.error.get-custom-icons": "Customs menu icons haven't received",
 
   "menu-item.type.section": "Section",
   "menu-item.type.journal": "Journal",
@@ -943,5 +949,11 @@
   "menu-item.type.link-create-case": "Link to create a case",
   "menu-item.type.header-divider": "Header Divider",
 
+  "icon-select.title": "Select Icon",
+  "icon-select.btn.upload-custom": "Upload",
+  "icon-select.btn.delete-custom": "Delete selected",
+  "icon-select.btn.cancel": "Cancel",
+  "icon-select.btn.done": "Done",
+  "icon-select.custom.title": "Custom",
   "icon-select.custom.tip": "The icon looks better if format is png/svg, size is 20x20px and there are no small details"
 }
