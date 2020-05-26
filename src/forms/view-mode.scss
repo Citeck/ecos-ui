@@ -197,7 +197,9 @@
     }
   }
 
-  .panel-body {
-    margin-bottom: 10px;
+  .panel-body,
+  & .panel-body.card.card-body {
+    margin-bottom: 0;
+    padding-bottom: 0 !important;
   }
 }
