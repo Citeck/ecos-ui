@@ -1,25 +1,29 @@
-const Rules = {
+export const BaseRules = {
   min: 3,
   num: 1,
   capital: 1,
   lowercase: 1
 };
-const rulesMap = {
+const baseRulesMap = {
   min: hasMinCountCharacters,
   num: hasNumbers,
   capital: hasCapitalCharacters,
   lowercase: hasLowercaseCharacters
 };
 
+function isLetter(character) {
+  return character.toUpperCase() !== character.toLowerCase();
+}
+
 function isString(word) {
   return typeof word === 'string';
 }
 
-function hasMinCountCharacters(word = '', min = Rules.min) {
+function hasMinCountCharacters(word = '', min = BaseRules.min) {
   return isString(word) && word.length >= min;
 }
 
-function hasCapitalCharacters(word = '', count = Rules.capital) {
+function hasCapitalCharacters(word = '', count = BaseRules.capital) {
   if (!isString(word)) {
     return false;
   }
@@ -28,7 +32,7 @@ function hasCapitalCharacters(word = '', count = Rules.capital) {
   let counter = 0;
 
   characters.forEach(item => {
-    if (isNaN(+item) && item === item.toUpperCase()) {
+    if (isLetter(item) && item === item.toUpperCase()) {
       counter++;
     }
   });
@@ -36,7 +40,7 @@ function hasCapitalCharacters(word = '', count = Rules.capital) {
   return counter >= count;
 }
 
-function hasLowercaseCharacters(word = '', count = Rules.lowercase) {
+function hasLowercaseCharacters(word = '', count = BaseRules.lowercase) {
   if (!isString(word)) {
     return false;
   }
@@ -45,7 +49,7 @@ function hasLowercaseCharacters(word = '', count = Rules.lowercase) {
   let counter = 0;
 
   characters.forEach(item => {
-    if (isNaN(+item) && item === item.toLowerCase()) {
+    if (isLetter(item) && item === item.toLowerCase()) {
       counter++;
     }
   });
@@ -53,7 +57,7 @@ function hasLowercaseCharacters(word = '', count = Rules.lowercase) {
   return counter >= count;
 }
 
-function hasNumbers(word = '', count = Rules.num) {
+function hasNumbers(word = '', count = BaseRules.num) {
   if (!isString(word)) {
     return false;
   }
@@ -69,18 +73,18 @@ function hasNumbers(word = '', count = Rules.num) {
   return counter >= count;
 }
 
-export default function passwordValidator(password, rules = Rules) {
+export default function passwordValidator(password, rules = BaseRules) {
   return Object.keys(rules)
     .map(rule => {
       if (typeof rules[rule] === 'function') {
         return rules[rule](password, rules);
       }
 
-      if (!rulesMap[rule] || typeof rulesMap[rule] !== 'function') {
+      if (!baseRulesMap[rule] || typeof baseRulesMap[rule] !== 'function') {
         return false;
       }
 
-      return rulesMap[rule](password, rules[rule]);
+      return baseRulesMap[rule](password, rules[rule]);
     })
     .every(result => result === true);
 }
