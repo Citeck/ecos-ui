@@ -2,7 +2,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import moment from 'moment';
 
-import { getData, getSessionData, setData, setSessionData, transferData, removeItem, getFilteredKeys } from '../helpers/ls';
+import { getData, getSessionData, getFilteredKeys, setData, setSessionData, transferData, removeItem } from '../helpers/ls';
 import { getCurrentUserName } from '../helpers/util';
 
 export const Prefixes = {
