@@ -27,6 +27,7 @@ export const SourcesId = {
   EFORM: 'uiserv/eform',
   USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',
+  MENU: 'uiserv/menu',
   HISTORY: 'history',
   STATUS: 'status',
   COMMENT: 'comment',

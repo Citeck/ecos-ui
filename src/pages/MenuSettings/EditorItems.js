@@ -68,7 +68,7 @@ class EditorItems extends React.Component {
   };
 
   handleChooseOption = (type, item) => {
-    if ([MenuSettings.OptionKeys.JOURNAL, MenuSettings.OptionKeys.LINK_CREATE_CASE].includes(type.key)) {
+    if ([MenuSettings.ItemTypes.JOURNAL, MenuSettings.ItemTypes.LINK_CREATE_CASE].includes(type.key)) {
       //todo
       this.setState({
         editItemInfo: {
@@ -76,7 +76,7 @@ class EditorItems extends React.Component {
           item,
           several: true,
           journalId:
-            type.key === MenuSettings.OptionKeys.JOURNAL
+            type.key === MenuSettings.ItemTypes.JOURNAL
               ? 'workspace%3A%2F%2FSpacesStore%2F3700b0df-b8b6-440a-a399-dd30f127e404'
               : 'workspace%3A%2F%2FSpacesStore%2F564bbe41-c456-44b3-8ab2-1b3d82e15aaa'
         }
@@ -133,7 +133,6 @@ class EditorItems extends React.Component {
 
     const handleSave = newItem => {
       const items = deepClone(this.state.items || []);
-      console.log(deepClone(editItemInfo));
       const path = treeGetPathItem({ items, value: get(editItemInfo, 'item.dndIdx'), key: 'dndIdx' });
 
       if (path) {
@@ -162,7 +161,7 @@ class EditorItems extends React.Component {
   };
 
   renderButtonAddSection = ({ item, level, isOpen }) => {
-    if (!item || (level < 3 && item.visible && !MenuSettingsService.isChildless(item))) {
+    if (!item || (level < 3 && !item.hidden && !MenuSettingsService.isChildless(item))) {
       const createOptions = MenuSettingsService.getAvailableCreateOptions(item);
 
       return createOptions && createOptions.length ? (

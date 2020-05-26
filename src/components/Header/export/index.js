@@ -16,7 +16,7 @@ import { ViewApi } from '../../../api/view';
 import { fakeApi } from '../../../api/fakeApi';
 
 import { initAppRequest } from '../../../actions/app';
-import { initMenuSettings } from '../../../actions/menu';
+import { initMenuConfig } from '../../../actions/menu';
 import { fetchUserMenuData } from '../../../actions/header';
 import { loadThemeRequest } from '../../../actions/view';
 
@@ -45,7 +45,7 @@ const render = (elementId, props, callback) => {
         store.dispatch(
           loadThemeRequest({
             onSuccess: () => {
-              store.dispatch(initMenuSettings());
+              store.dispatch(initMenuConfig());
               store.dispatch(fetchUserMenuData());
 
               i18nInit({ debug: false }).then(() => {

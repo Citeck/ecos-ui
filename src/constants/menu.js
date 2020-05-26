@@ -35,7 +35,7 @@ export const MenuSettings = {
     EDIT: 'EDIT',
     DELETE: 'DELETE'
   },
-  OptionKeys: {
+  ItemTypes: {
     SECTION: 'SECTION',
     JOURNAL: 'JOURNAL',
     ARBITRARY: 'ARBITRARY',

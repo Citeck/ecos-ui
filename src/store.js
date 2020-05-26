@@ -15,8 +15,8 @@ let optionalMiddlewares = [];
 if (process.env.NODE_ENV === 'development') {
   const logger = createLogger({
     collapsed: true,
-    diff: true
-    //, predicate: (getState, action) => action.type.startsWith('dashboard-settings/')
+    diff: true,
+    predicate: (getState, action) => action.type.startsWith('menu-settings/')
   });
   optionalMiddlewares.push(logger);
 }

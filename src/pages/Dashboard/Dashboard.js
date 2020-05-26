@@ -102,7 +102,6 @@ class Dashboard extends Component {
         props.resetDashboardConfig();
       }
 
-      props.initMenuSettings();
       newState.urlParams = newUrlParams;
 
       if (isDashboard()) {

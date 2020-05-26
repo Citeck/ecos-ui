@@ -1,25 +1,23 @@
 import get from 'lodash/get';
+import isString from 'lodash/isString';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { MenuTypes } from '../constants/menu';
-import { CreateMenuTypes } from '../constants/menu';
+import { CreateMenuTypes, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
 import { extractLabel } from '../helpers/util';
+import MenuSettingsService from '../services/MenuSettingsService';
 
 const getId = unique => `HEADER_${unique.replace(/-/g, '_').toUpperCase()}`;
 
 export default class MenuConverter {
+  /* menu config */
   static parseGetResult(source) {
     const target = {
-      type: MenuTypes.LEFT,
-      links: [],
-      items: []
+      type: MenuTypes.LEFT
     };
 
     if (source) {
       target.type = source.type || MenuTypes.LEFT;
-      target.links = source.links;
-      target.items = source.items;
     }
 
     return target;
@@ -49,14 +47,14 @@ export default class MenuConverter {
   static getSettingsConfigForServer(source) {
     const target = {};
 
-    const { type, links } = source;
+    const { type } = source;
 
     target.type = type;
-    target.links = MenuConverter.getMenuItemsForServer(links);
 
     return target;
   }
 
+  /* menu create */
   static getCreateSiteItems(source = []) {
     const target = [];
 
@@ -121,5 +119,40 @@ export default class MenuConverter {
     const customs = _customs.filter(item => !exSiteId.includes(item.siteId));
 
     return { customs, sites };
+  }
+
+  /* menu settings */
+  static getSettingsConfigWeb(source, params) {
+    const { menu = {}, ...target } = source;
+    const { type = MenuTypes.LEFT } = params;
+    const sourceItems = get(menu, [type.toLowerCase(), 'items'], []);
+    const targetItems = [];
+
+    (function prepareTree(sItems, tItems) {
+      for (let i = 0; i < sItems.length; i++) {
+        const sItem = sItems[i];
+        const { id, label, type, icon: code } = sItem;
+
+        const tItem = {
+          ...MenuSettingsService.defaultItemProps,
+          id,
+          type,
+          name: extractLabel(label),
+          items: []
+        };
+
+        if (isString(code)) {
+          tItem.icon = { ...tItem.icon, code };
+        }
+
+        sItem.items && prepareTree(sItem.items, tItem.items);
+
+        tItems.push(tItem);
+      }
+    })(sourceItems, targetItems);
+
+    target.items = targetItems;
+
+    return target;
   }
 }

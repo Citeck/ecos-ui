@@ -6,9 +6,10 @@ import { MenuSettings as ms } from '../constants/menu';
 
 export default class MenuSettingsService {
   static defaultItemProps = {
-    icon: { value: 'icon-empty-icon', type: 'icon' },
-    visible: true,
-    editable: true,
+    icon: { value: 'icon-empty-icon', type: 'icon', source: 'menu' },
+    hidden: false,
+    displayCount: false,
+    editable: false,
     removable: true,
     draggable: true,
     items: [],
@@ -23,7 +24,7 @@ export default class MenuSettingsService {
         type: ms.ActionTypes.EDIT,
         icon: 'icon-edit',
         text: 'menu-settings.editor-items.action.edit',
-        when: { visible: true }
+        when: { hidden: false }
       });
     }
 
@@ -33,7 +34,7 @@ export default class MenuSettingsService {
         icon: 'icon-delete',
         text: 'menu-settings.editor-items.action.delete',
         className: 'ecos-menu-settings-editor-items__action_caution',
-        when: { visible: true }
+        when: { hidden: false }
       });
     }
 
@@ -42,14 +43,14 @@ export default class MenuSettingsService {
         type: ms.ActionTypes.ACTIVE,
         icon: 'icon-on',
         className: 'ecos-menu-settings-editor-items__action_no-hide',
-        when: { visible: true },
+        when: { hidden: false },
         text: 'menu-settings.editor-items.action.hide'
       },
       {
         type: ms.ActionTypes.NO_ACTIVE,
         icon: 'icon-off',
         className: 'ecos-menu-settings-editor-items__action_no-hide',
-        when: { visible: false },
+        when: { hidden: true },
         text: 'menu-settings.editor-items.action.show'
       }
     );
@@ -64,8 +65,8 @@ export default class MenuSettingsService {
     switch (action) {
       case ms.ActionTypes.ACTIVE:
       case ms.ActionTypes.NO_ACTIVE:
-        foundItem.visible = !foundItem.visible;
-        foundItem.locked = !foundItem.visible;
+        foundItem.hidden = !foundItem.hidden;
+        foundItem.locked = !foundItem.hidden;
         break;
       case ms.ActionTypes.EDIT:
       case ms.ActionTypes.DELETE:
@@ -79,33 +80,33 @@ export default class MenuSettingsService {
   static getActiveActions(item) {
     const availableActions = MenuSettingsService.getAvailableActions(item);
 
-    return availableActions.filter(act => !isExistValue(act.when.visible) || act.when.visible === item.visible);
+    return availableActions.filter(act => !isExistValue(act.when.hidden) || act.when.hidden === item.hidden);
   }
 
   static createOptions = [
     {
-      key: ms.OptionKeys.SECTION,
+      key: ms.ItemTypes.SECTION,
       forbiddenTypes: [],
       label: 'menu-item.type.section'
     },
     {
-      key: ms.OptionKeys.JOURNAL,
+      key: ms.ItemTypes.JOURNAL,
       forbiddenTypes: [],
       forbiddenAllTypes: true,
       label: 'menu-item.type.journal'
     },
     {
-      key: ms.OptionKeys.ARBITRARY,
+      key: ms.ItemTypes.ARBITRARY,
       forbiddenAllTypes: true,
       label: 'menu-item.type.arbitrary'
     },
     {
-      key: ms.OptionKeys.LINK_CREATE_CASE,
+      key: ms.ItemTypes.LINK_CREATE_CASE,
       forbiddenAllTypes: true,
       label: 'menu-item.type.link-create-case'
     },
     {
-      key: ms.OptionKeys.HEADER_DIVIDER,
+      key: ms.ItemTypes.HEADER_DIVIDER,
       forbiddenAllTypes: true,
       label: 'menu-item.type.header-divider'
     }
@@ -123,9 +124,11 @@ export default class MenuSettingsService {
   };
 
   static isChildless = item => {
-    console.log(item);
-    console.log([ms.OptionKeys.SECTION].includes(item.type));
-    return ![ms.OptionKeys.SECTION].includes(item.type);
+    return ![ms.ItemTypes.SECTION].includes(item.type);
+  };
+
+  static isEditable = item => {
+    return ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type);
   };
 
   static testIcons = [

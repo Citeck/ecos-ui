@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { initMenuSettings, saveMenuConfig, setOpenMenuSettings } from '../../actions/menu';
-import { arrayCompare, t } from '../../helpers/util';
+import { initSettings, saveSettingsConfig, setOpenMenuSettings } from '../../actions/menuSettings';
+import { arrayCompare, deepClone, t } from '../../helpers/util';
 import { getPositionAdjustment } from '../../helpers/menu';
 import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
@@ -28,9 +28,7 @@ class Settings extends React.Component {
 
     this.state = {
       selectedType: props.type,
-      items: DndUtils.setDndId(props.items),
-      selectedItems: DndUtils.setDndId(props.links),
-      soloItems: DndUtils.setDndId(props.soloItems)
+      items: deepClone(props.items)
     };
   }
 
@@ -39,16 +37,8 @@ class Settings extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { type, links, soloItems, items } = this.props;
+    const { type, items } = this.props;
     const state = {};
-
-    if (!arrayCompare(soloItems, prevProps.soloItems)) {
-      state.soloItems = DndUtils.setDndId(soloItems);
-    }
-
-    if (!arrayCompare(links, prevProps.links)) {
-      state.selectedItems = DndUtils.setDndId(links);
-    }
 
     if (!arrayCompare(items, prevProps.items)) {
       state.items = DndUtils.setDndId(items);
@@ -80,9 +70,9 @@ class Settings extends React.Component {
   };
 
   handleApply = () => {
-    const { selectedType: type, selectedItems: links } = this.state;
+    const { selectedType: type } = this.state;
 
-    this.props.saveSettings({ type, links });
+    this.props.saveSettings({ type });
   };
 
   draggablePositionAdjustment = () => {
@@ -141,17 +131,15 @@ class Settings extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  type: get(state, 'menu.type', MenuTypes.LEFT),
-  items: get(state, 'menu.items', []),
-  links: get(state, 'menu.links', []),
-  soloItems: get(state, 'menu.availableSoloItems', []),
-  customIcons: get(state, 'menu.customIcons', []),
-  isLoading: get(state, 'menu.isLoading')
+  type: get(state, 'menuSettings.type', MenuTypes.LEFT),
+  items: get(state, 'menuSettings.items', []),
+  customIcons: get(state, 'menuSettings.customIcons', []),
+  isLoading: get(state, 'menuSettings.isLoading')
 });
 
 const mapDispatchToProps = dispatch => ({
-  initSettings: () => dispatch(initMenuSettings()),
-  saveSettings: payload => dispatch(saveMenuConfig(payload)),
+  initSettings: () => dispatch(initSettings()),
+  saveSettings: payload => dispatch(saveSettingsConfig(payload)),
   setOpenMenuSettings: payload => dispatch(setOpenMenuSettings(payload))
 });
 

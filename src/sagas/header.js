@@ -14,7 +14,7 @@ import {
   setSiteMenuItems,
   setUserMenuItems
 } from '../actions/header';
-import { setOpenMenuSettings } from '../actions/menu';
+import { setOpenMenuSettings } from '../actions/menuSettings';
 import { setDashboardIdentification } from '../actions/dashboard';
 import { setUserThumbnail } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';

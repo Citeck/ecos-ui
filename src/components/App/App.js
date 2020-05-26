@@ -303,7 +303,7 @@ class App extends Component {
   renderMenuSettings = () => {
     const { isOpenMenuSettings } = this.props;
 
-    return isOpenMenuSettings || 1 ? (
+    return isOpenMenuSettings ? (
       <Suspense fallback={null}>
         <MenuSettingsPage />
       </Suspense>
@@ -365,7 +365,7 @@ const mapStateToProps = state => ({
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
   tabs: get(state, 'pageTabs.tabs', []),
   menuType: get(state, ['menu', 'type']),
-  isOpenMenuSettings: get(state, ['menu', 'isOpenMenuSettings'])
+  isOpenMenuSettings: get(state, ['menuSettings', 'isOpenMenuSettings'])
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -165,4 +165,18 @@ export class MenuApi extends CommonApi {
       .load('value?bool')
       .then(resp => resp);
   };
+
+  getMenuSettingsConfig = ({ id }) => {
+    return Records.get(`${SourcesId.MENU}@${id}`)
+      .load({
+        id: 'id',
+        authorities: 'authorities',
+        menu: 'subMenu?json'
+      })
+      .then(resp => resp)
+      .catch(err => {
+        console.error(err);
+        return {};
+      });
+  };
 }

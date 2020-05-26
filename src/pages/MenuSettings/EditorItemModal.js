@@ -73,12 +73,12 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
         <Input onChange={e => setName(e.target.value)} value={name} />
       </Field>
       {/*todo valid url*/}
-      {[MS.OptionKeys.ARBITRARY].includes(type.key) && (
+      {[MS.ItemTypes.ARBITRARY].includes(type.key) && (
         <Field label={t(Labels.FIELD_URL_LABEL)} required>
           <Input onChange={e => setUrl(e.target.value)} value={url} />
         </Field>
       )}
-      {![MS.OptionKeys.HEADER_DIVIDER].includes(type.key) && (
+      {![MS.ItemTypes.HEADER_DIVIDER].includes(type.key) && (
         <Field label={t(Labels.FIELD_ICON_LABEL)} description={t(Labels.FIELD_ICON_DESC)}>
           <div className="ecos-menu-create-section__field-icon">
             <Icon className={icon.value} />

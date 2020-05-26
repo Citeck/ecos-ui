@@ -2,19 +2,16 @@ import { handleActions } from 'redux-actions';
 import {
   getAvailableSoloItems,
   getMenuConfig,
-  initMenuSettings,
+  initMenuConfig,
   saveMenuConfig,
   setAvailableSoloItems,
-  setCustomIcons,
   setMenuConfig,
-  setOpenMenuSettings,
   setRequestResultMenuConfig
 } from '../actions/menu';
 
 const initialState = {
   type: '',
   items: [],
-  links: [],
   availableSoloItems: [],
   isLoading: false,
   requestResult: {
@@ -28,19 +25,17 @@ const startLoading = state => ({ ...state, isLoading: true });
 
 export default handleActions(
   {
-    [initMenuSettings]: startLoading,
+    [initMenuConfig]: startLoading,
     [getAvailableSoloItems]: startLoading,
     [getMenuConfig]: startLoading,
     [saveMenuConfig]: startLoading,
 
     [setMenuConfig]: (state, action) => {
-      const { type, links, items } = action.payload;
+      const { type } = action.payload;
 
       return {
         ...state,
         type,
-        links,
-        items,
         isLoading: false
       };
     },
@@ -59,14 +54,6 @@ export default handleActions(
       ...state,
       availableSoloItems: payload,
       isLoading: false
-    }),
-    [setOpenMenuSettings]: (state, { payload }) => ({
-      ...state,
-      isOpenMenuSettings: payload
-    }),
-    [setCustomIcons]: (state, { payload }) => ({
-      ...state,
-      customIcons: payload
     })
   },
   initialState

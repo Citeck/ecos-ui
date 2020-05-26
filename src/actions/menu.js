@@ -2,8 +2,7 @@ import { createAction } from 'redux-actions';
 
 const prefix = 'menu/';
 
-export const setOpenMenuSettings = createAction(prefix + 'SET_OPEN_MENU_SETTINGS');
-export const initMenuSettings = createAction(prefix + 'INIT_MENU_SETTINGS');
+export const initMenuConfig = createAction(prefix + 'INIT_MENU_SETTINGS');
 export const setMenuConfig = createAction(prefix + 'SET_MENU_CONFIG');
 export const setRequestResultMenuConfig = createAction(prefix + 'SET_REQUEST_RESULT_MENU_CONFIG');
 export const setAvailableSoloItems = createAction(prefix + 'SET_AVAILABLE_MENU_SOLO_ITEMS');
