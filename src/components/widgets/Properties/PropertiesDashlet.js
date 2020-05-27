@@ -55,6 +55,7 @@ class PropertiesDashlet extends BaseWidget {
     super(props);
 
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
+    this.permissionsWatcher = this.instanceRecord.watch('.att(n:"permissions"){has(n:"Write")}', this.checkPermissions);
 
     this.state = {
       ...this.state,
@@ -72,11 +73,7 @@ class PropertiesDashlet extends BaseWidget {
   componentDidMount() {
     super.componentDidMount();
 
-    EcosFormUtils.hasWritePermission(this.props.record)
-      .then(canEditRecord => {
-        this.setState({ canEditRecord });
-      })
-      .catch(console.error);
+    this.checkPermissions();
   }
 
   componentDidUpdate(prevProps) {
@@ -89,6 +86,7 @@ class PropertiesDashlet extends BaseWidget {
 
   componentWillUnmount() {
     this.instanceRecord.unwatch(this.watcher);
+    this.instanceRecord.unwatch(this.permissionsWatcher);
   }
 
   get dashletActions() {
@@ -125,6 +123,14 @@ class PropertiesDashlet extends BaseWidget {
 
     return actions;
   }
+
+  checkPermissions = () => {
+    EcosFormUtils.hasWritePermission(this.props.record)
+      .then(canEditRecord => {
+        this.setState({ canEditRecord });
+      })
+      .catch(console.error);
+  };
 
   checkEditRights = () => {
     const { record } = this.props;
