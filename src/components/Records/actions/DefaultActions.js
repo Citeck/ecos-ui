@@ -378,9 +378,10 @@ export const CreateNodeAction = {
       const params = {
         attributes: config.attributes || {},
         options: config.options || {},
-        onSubmit: () => {
+        onSubmit: record => {
           record.update();
           resolve(true);
+          goToCardDetailsPage(record.id);
         },
         onFormCancel: () => resolve(false)
       };
