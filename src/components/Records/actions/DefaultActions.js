@@ -381,7 +381,7 @@ export const CreateNodeAction = {
         onSubmit: record => {
           record.update();
           resolve(true);
-          goToCardDetailsPage(record.id);
+          record.id && goToCardDetailsPage(record.id);
         },
         onFormCancel: () => resolve(false)
       };
