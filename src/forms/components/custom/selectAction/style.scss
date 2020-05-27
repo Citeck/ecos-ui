@@ -45,6 +45,13 @@
         font-weight: 600;
         font-size: 12px;
         min-width: 100px;
+
+        .ecos-btn {
+          &__text,
+          &__i {
+            line-height: 100%;
+          }
+        }
       }
     }
   }

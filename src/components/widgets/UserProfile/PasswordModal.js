@@ -63,7 +63,8 @@ class PasswordModal extends React.Component {
       (isAdmin || !!oldWord.value) &&
       !!repeatWord.value &&
       !!newWord.value &&
-      newWord.valid
+      newWord.valid &&
+      newWord.value === repeatWord.value
     );
   };
 
@@ -110,7 +111,7 @@ class PasswordModal extends React.Component {
       newWordMsgs.push(Labels.Msgs.NEW_EQ_OLD);
     }
 
-    this.setState({ newWordMsgs });
+    this.setState({ newWordMsgs, repeatWordMsgs: [] });
   };
 
   checkRepeatWord = () => {

@@ -5,7 +5,8 @@ import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
 import { debounce, queryByCriteria, t } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
-import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
+import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
+import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
 import Records from '../components/Records';
 import RecordActions from '../components/Records/actions';
 import { DocPreviewApi } from './docPreview';
@@ -94,7 +95,7 @@ export class JournalsApi extends RecordService {
       bodyQuery.sourceId = sourceId;
     }
 
-    const dataSource = new dataSourceStore['GqlDataSource']({
+    const dataSource = new GqlDataSource({
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',
       ajax: {
@@ -119,7 +120,7 @@ export class JournalsApi extends RecordService {
   };
 
   getTreeGridData = () => {
-    const dataSource = new dataSourceStore['TreeDataSource']();
+    const dataSource = new TreeDataSource();
 
     return dataSource.load().then(function({ data, total }) {
       const columns = dataSource.getColumns();
@@ -154,7 +155,7 @@ export class JournalsApi extends RecordService {
       bodyQuery['sourceId'] = sourceId;
     }
 
-    const dataSource = new dataSourceStore['GqlDataSource']({
+    const dataSource = new GqlDataSource({
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',
       ajax: {

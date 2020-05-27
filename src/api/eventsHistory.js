@@ -1,5 +1,5 @@
 import { RecordService } from './recordService';
-import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
+import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
 import { PROXY_URI } from '../constants/alfresco';
 import { Permissions, SourcesId } from '../constants';
 
@@ -15,7 +15,7 @@ export class EventsHistoryApi extends RecordService {
       language: 'document'
     };
 
-    const dataSource = new dataSourceStore['GqlDataSource']({
+    const dataSource = new GqlDataSource({
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',
       ajax: { body: { query } },
