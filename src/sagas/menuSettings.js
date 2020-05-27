@@ -12,7 +12,6 @@ import {
   setSettingsConfig
 } from '../actions/menuSettings';
 import { t } from '../helpers/util';
-import MenuSettingsService from '../services/MenuSettingsService';
 import MenuConverter from '../dto/menu';
 
 function* runInitSettings({ api, logger }, action) {
@@ -60,7 +59,7 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
 
 function* fetchGetCustomIcons({ api, logger }, { payload }) {
   try {
-    yield put(setCustomIcons(MenuSettingsService.testIcons)); //todo wait api
+    yield put(setCustomIcons([])); //todo wait api
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.get-custom-icons'), t('error'));
     logger.error('[menu-settings / fetchGetCustomIcons]', e.message);

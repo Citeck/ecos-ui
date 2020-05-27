@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import set from 'lodash/set';
 import { connect } from 'react-redux';
 
-import { deepClone, packInLabel, t } from '../../helpers/util';
+import { deepClone, extractLabel, packInLabel, t } from '../../helpers/util';
 import { treeGetPathItem, treeMoveItem } from '../../helpers/arrayOfObjects';
-import { MenuSettings } from '../../constants/menu';
+import { MenuSettings as ms } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import { setMenuItems } from '../../actions/menuSettings';
 import IconSelect from '../../components/IconSelect';
@@ -60,7 +61,7 @@ class EditorItems extends React.Component {
   };
 
   handleChooseOption = (type, item) => {
-    if ([MenuSettings.ItemTypes.JOURNAL, MenuSettings.ItemTypes.LINK_CREATE_CASE].includes(type.key)) {
+    if ([ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(type.key)) {
       //todo journalId ???
       this.setState({
         editItemInfo: {
@@ -68,7 +69,7 @@ class EditorItems extends React.Component {
           item,
           several: true,
           journalId:
-            type.key === MenuSettings.ItemTypes.JOURNAL
+            type.key === ms.ItemTypes.JOURNAL
               ? 'workspace%3A%2F%2FSpacesStore%2F3700b0df-b8b6-440a-a399-dd30f127e404'
               : 'workspace%3A%2F%2FSpacesStore%2F564bbe41-c456-44b3-8ab2-1b3d82e15aaa'
         }
@@ -81,24 +82,23 @@ class EditorItems extends React.Component {
   handleActionItem = ({ action, item }) => {
     const { items, setMenuItems } = this.props;
 
-    if (action === MenuSettings.ActionTypes.DELETE) {
+    if (action === ms.ActionTypes.DELETE) {
       dialogManager.showRemoveDialog({
         title: '',
-        text: t('menu-settings.message.delete-item', { name: item.name }),
+        text: t('menu-settings.message.delete-item', { name: extractLabel(item.name) }),
         className: 'ecos-modal_width-xs',
         onDelete: () => {
-          console.log('onDelete');
-        },
-        onCancel: () => {
-          console.log('onCancel');
+          setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items }));
         }
       });
+      return;
     }
 
-    if (action === MenuSettings.ActionTypes.EDIT) {
+    if (action === ms.ActionTypes.EDIT) {
       const type = MenuSettingsService.createOptions.find(o => o.key === item.type);
 
       type && this.handleChooseOption(type, item);
+      return;
     }
 
     setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items }));
@@ -129,12 +129,20 @@ class EditorItems extends React.Component {
     const handleSave = data => {
       const newItem = MenuSettingsService.getItemParams({ ...data, label: packInLabel(data.name) });
       const items = deepClone(original || []);
-      const path = treeGetPathItem({ items, value: get(editItemInfo, 'item.dndIdx'), key: 'dndIdx' });
+      const path = treeGetPathItem({ items, value: get(editItemInfo, 'item.id'), key: 'id' });
 
-      if (path) {
-        get(items, path, {}).items.push(newItem);
+      if (data.edited) {
+        //todo all types & move srvice?
+        const updatedItem = {};
+        updatedItem.label = packInLabel(data.name);
+        updatedItem.icon = data.icon;
+        set(items, path, { ...editItemInfo.item, ...updatedItem });
       } else {
-        items.push(newItem);
+        if (path) {
+          get(items, path, {}).items.push(newItem);
+        } else {
+          items.push(newItem);
+        }
       }
 
       setMenuItems(items);
@@ -153,11 +161,11 @@ class EditorItems extends React.Component {
         />
       );
     }
-
+    //todo name https://citeck.atlassian.net/browse/ECOSCOM-3400
     return (
       <EditorItemModal
         customIcons={customIcons}
-        item={editItemInfo.item}
+        item={editItemInfo.item && { ...editItemInfo.item, name: extractLabel(editItemInfo.item.label) }}
         type={editItemInfo.type}
         onClose={handleHideModal}
         onSave={handleSave}

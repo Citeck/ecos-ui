@@ -45,7 +45,7 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
   };
 
   const handleApply = () => {
-    onSave({ name, icon, type: type.key });
+    onSave({ name, icon, type: type.key, edited: !!item });
   };
 
   const handleApplyIcon = newIcon => {

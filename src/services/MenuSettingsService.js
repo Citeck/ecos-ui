@@ -3,7 +3,7 @@ import uniqueId from 'lodash/uniqueId';
 import isString from 'lodash/isString';
 
 import { deepClone, isExistValue, t } from '../helpers/util';
-import { treeFindFirstItem } from '../helpers/arrayOfObjects';
+import { treeFindFirstItem, treeRemoveItem } from '../helpers/arrayOfObjects';
 import { MenuSettings as ms } from '../constants/menu';
 import { SourcesId } from '../constants';
 
@@ -103,7 +103,10 @@ export default class MenuSettingsService {
         foundItem.locked = foundItem.hidden;
         break;
       case ms.ActionTypes.EDIT:
+        break;
       case ms.ActionTypes.DELETE:
+        treeRemoveItem({ items, key: 'id', value: id });
+        break;
       default:
         break;
     }
@@ -165,14 +168,4 @@ export default class MenuSettingsService {
       hideable: ![].includes(item.type)
     };
   }
-
-  static testIcons = [
-    { code: 'active-tasks' },
-    { code: 'completed-tasks' },
-    { code: 'controlled' },
-    { code: 'subordinate-tasks' },
-    { code: 'task-statistic' },
-    { code: 'initiator-tasks' },
-    { code: 'income-package-tasks' }
-  ];
 }

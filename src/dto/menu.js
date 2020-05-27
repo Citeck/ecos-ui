@@ -132,10 +132,9 @@ export default class MenuConverter {
     (function prepareTree(sItems, tItems) {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
-        const tItem = MenuSettingsService.getItemParams({ ...sItem });
+        const tItem = MenuSettingsService.getItemParams(sItem);
 
         sItem.items && prepareTree(sItem.items, tItem.items);
-
         tItems.push(tItem);
       }
     })(sourceItems, targetItems);
