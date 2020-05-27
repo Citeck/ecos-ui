@@ -1,6 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
+import { t } from '../../../../../helpers/util';
 import Select from '../../../../common/form/Select';
+
 import './Filter.scss';
 
 const Filter = ({
@@ -16,8 +19,8 @@ const Filter = ({
   applyFilters
 }) => (
   <li className="select-journal-filter">
-    <div className="select-journal-filter__left" title={text}>
-      {text}
+    <div className="select-journal-filter__left" title={t(text)}>
+      {t(text)}
     </div>
     <div className="select-journal-filter__right">
       <div className="select-journal-filter__predicate">

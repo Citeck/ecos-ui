@@ -117,7 +117,7 @@ export function getPropByStringKey(obj, strKey) {
     res = res ? res[key] : obj[key];
   }
 
-  return res;
+  return t(res);
 }
 
 export function getSelectedValue(source, field, value) {
