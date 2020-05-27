@@ -10,8 +10,8 @@ import createSagaMiddleware from 'redux-saga';
 import { reducers } from './reducers';
 import sagas from './sagas';
 
-import { JournalsApi } from '../../../../api/index';
-import { RecordActionsApi } from '../../../../api/index';
+import { JournalsApi } from '../../../../api/journalsApi';
+import { RecordActionsApi } from '../../../../api/recordActions';
 import JournalsDashlet from '../JournalsDashlet';
 
 import Logger from 'logplease';
@@ -27,8 +27,8 @@ const store = createStore(rootReducer, {}, compose(applyMiddleware(sagaMiddlewar
 
 sagaMiddleware.run(sagas, { api, logger });
 
-api.journals = new JournalsApi(store);
-api.recordActions = new RecordActionsApi(store);
+api.journals = new JournalsApi();
+api.recordActions = new RecordActionsApi();
 
 let render = (elementId, props) => {
   ReactDOM.render(

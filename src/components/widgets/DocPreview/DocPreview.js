@@ -6,7 +6,7 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { DocPreviewApi } from '../../../api';
+import { DocPreviewApi } from '../../../api/docPreview';
 import { DocScaleOptions } from '../../../constants';
 import { getOptimalHeight } from '../../../helpers/layout';
 import { isPDFbyStr, t } from '../../../helpers/util';

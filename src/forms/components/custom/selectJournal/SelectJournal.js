@@ -7,7 +7,7 @@ import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import { Attributes } from '../../../../constants';
 import BaseReactComponent from '../base/BaseReactComponent';
 import { SortOrderOptions, TableTypes, DisplayModes } from './constants';
-import GqlDataSource from '../../../../components/common/grid/dataSource';
+import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import { trimFields } from '../../../../helpers/util';
 
 export default class SelectJournalComponent extends BaseReactComponent {
