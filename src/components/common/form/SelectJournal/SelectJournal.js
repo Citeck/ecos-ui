@@ -56,8 +56,7 @@ export default class SelectJournal extends Component {
     },
     selectedRows: [],
     error: null,
-    customPredicate: null,
-    needRefreshData: false
+    customPredicate: null
   };
 
   static getDerivedStateFromProps(props, state) {
