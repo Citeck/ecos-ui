@@ -2,25 +2,35 @@
 
 .ecos-resize {
   &__bottom {
+    position: relative;
+
     &:not(&_none) {
-      padding-top: 1px;
-      padding-bottom: 6px;
       height: 100%;
+
+      &:before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: 20px;
+        width: calc(100% - 40px);
+        height: 2px;
+        background: $color-gray-4;
+      }
     }
   }
 
   &__control {
-    height: 20px;
+    height: 30px;
     align-items: flex-end;
     display: flex;
     justify-content: center;
     color: $color-gray-6;
 
-    cursor: row-resize;
-
     .icon {
       font-size: $font-size-small;
+      align-self: center;
       line-height: 0;
+      cursor: row-resize;
 
       &::before {
         width: 4em;
