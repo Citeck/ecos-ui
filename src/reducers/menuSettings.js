@@ -4,6 +4,7 @@ import {
   initSettings,
   saveSettingsConfig,
   setCustomIcons,
+  setMenuItems,
   setOpenMenuSettings,
   setSettingsConfig
 } from '../actions/menuSettings';
@@ -13,7 +14,8 @@ const initialState = {
   type: null,
   items: [],
   authorities: [],
-  isLoading: false
+  isLoading: false,
+  isOpenMenuSettings: false
 };
 
 Object.freeze(initialState);
@@ -36,7 +38,12 @@ export default handleActions(
 
     [setOpenMenuSettings]: (state, { payload }) => ({
       ...state,
+      ...initialState,
       isOpenMenuSettings: payload
+    }),
+    [setMenuItems]: (state, { payload }) => ({
+      ...state,
+      items: payload
     }),
     [setCustomIcons]: (state, { payload }) => ({
       ...state,

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 export const ItemInterface = {
   id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   dndIdx: PropTypes.number,
-  name: PropTypes.string,
+  label: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
   icon: PropTypes.shape({
     type: PropTypes.string,
     value: PropTypes.string

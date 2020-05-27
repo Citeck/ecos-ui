@@ -1,5 +1,6 @@
 {
   "error": "Ошибка",
+  "success": "Успех",
   "actions.document.download": "Скачать",
   "aggregation.columns": "Колонка для агрегации",
   "aggregation.type": "Тип агрегации",
@@ -942,6 +943,7 @@
   "menu-settings.error.get-config": "Конфигурация настроек меню не получена",
   "menu-settings.error.save-config": "Конфигурация настроек меню не сохранена",
   "menu-settings.error.get-custom-icons": "Пользовательские иконки меню не получены",
+  "menu-settings.success.save-config": "Конфигурация настроек меню сохранена",
 
   "menu-item.type.section": "Раздел",
   "menu-item.type.journal": "Журнал",

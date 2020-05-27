@@ -1,7 +1,8 @@
 import get from 'lodash/get';
-import isString from 'lodash/isString';
+import isObject from 'lodash/isObject';
 import cloneDeep from 'lodash/cloneDeep';
 
+import { SourcesId } from '../constants';
 import { CreateMenuTypes, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
 import { extractLabel } from '../helpers/util';
@@ -131,19 +132,7 @@ export default class MenuConverter {
     (function prepareTree(sItems, tItems) {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
-        const { id, label, type, icon: code } = sItem;
-
-        const tItem = {
-          ...MenuSettingsService.defaultItemProps,
-          id,
-          type,
-          name: extractLabel(label),
-          items: []
-        };
-
-        if (isString(code)) {
-          tItem.icon = { ...tItem.icon, code };
-        }
+        const tItem = MenuSettingsService.getItemParams({ ...sItem });
 
         sItem.items && prepareTree(sItem.items, tItem.items);
 
@@ -152,6 +141,33 @@ export default class MenuConverter {
     })(sourceItems, targetItems);
 
     target.items = targetItems;
+
+    return target;
+  }
+
+  static getSettingsConfigServer(source) {
+    const target = {
+      items: []
+    };
+
+    (function prepareTree(sItems, tItems) {
+      for (let i = 0; i < sItems.length; i++) {
+        const sItem = sItems[i];
+        const { id, type, label, hidden, icon } = sItem;
+        const tItem = { id, type, label, hidden, icon, items: [] };
+
+        if (isObject(icon)) {
+          const source = icon.type === 'img' ? SourcesId.ICON : SourcesId.FONT_ICON;
+          const value = icon.value;
+
+          tItem.icon = `${source}@${value}`;
+        }
+
+        sItem.items && prepareTree(sItem.items, tItem.items);
+
+        tItems.push(tItem);
+      }
+    })(source.items, target.items);
 
     return target;
   }

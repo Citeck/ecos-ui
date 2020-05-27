@@ -1,25 +1,51 @@
 import cloneDeep from 'lodash/cloneDeep';
+import uniqueId from 'lodash/uniqueId';
+import isString from 'lodash/isString';
 
 import { deepClone, isExistValue, t } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { MenuSettings as ms } from '../constants/menu';
+import { SourcesId } from '../constants';
 
 export default class MenuSettingsService {
-  static defaultItemProps = {
-    icon: { value: 'icon-empty-icon', type: 'icon', source: 'menu' },
-    hidden: false,
-    displayCount: false,
-    editable: false,
-    removable: true,
-    draggable: true,
-    items: [],
-    actionConfig: []
+  static getItemParams = data => {
+    const dndIdx = parseInt(`${Date.now()}000${uniqueId()}`);
+    const permissions = MenuSettingsService.getActionPermissions(data);
+
+    let icon = { value: 'icon-empty-icon' };
+
+    if (isString(data.icon)) {
+      const [source, value] = data.icon.split('@');
+
+      if (value && source) {
+        icon.value = value;
+        icon.type = source === SourcesId.ICON ? 'img' : 'icon';
+      }
+    } else {
+      icon = { ...icon, ...data.icon };
+    }
+
+    return {
+      id: data.id || `${data.type}-${dndIdx}`,
+      label: data.label,
+      type: data.type,
+      hidden: !!data.hidden,
+      displayCount: false, //todo
+      items: [],
+      actionConfig: [],
+      icon,
+      //for ui, tree
+      dndIdx: data.dndIdx || dndIdx,
+      locked: !!data.hidden,
+      draggable: permissions.draggable
+    };
   };
 
   static getAvailableActions = item => {
     const actions = [];
+    const permissions = MenuSettingsService.getActionPermissions(item);
 
-    if (item.editable) {
+    if (permissions.editable) {
       actions.push({
         type: ms.ActionTypes.EDIT,
         icon: 'icon-edit',
@@ -28,7 +54,7 @@ export default class MenuSettingsService {
       });
     }
 
-    if (item.removable) {
+    if (permissions.removable) {
       actions.push({
         type: ms.ActionTypes.DELETE,
         icon: 'icon-delete',
@@ -38,25 +64,33 @@ export default class MenuSettingsService {
       });
     }
 
-    actions.push(
-      {
-        type: ms.ActionTypes.ACTIVE,
-        icon: 'icon-on',
-        className: 'ecos-menu-settings-editor-items__action_no-hide',
-        when: { hidden: false },
-        text: 'menu-settings.editor-items.action.hide'
-      },
-      {
-        type: ms.ActionTypes.NO_ACTIVE,
-        icon: 'icon-off',
-        className: 'ecos-menu-settings-editor-items__action_no-hide',
-        when: { hidden: true },
-        text: 'menu-settings.editor-items.action.show'
-      }
-    );
+    if (permissions.hideable) {
+      actions.push(
+        {
+          type: ms.ActionTypes.ACTIVE,
+          icon: 'icon-on',
+          className: 'ecos-menu-settings-editor-items__action_no-hide',
+          when: { hidden: false },
+          text: 'menu-settings.editor-items.action.hide'
+        },
+        {
+          type: ms.ActionTypes.NO_ACTIVE,
+          icon: 'icon-off',
+          className: 'ecos-menu-settings-editor-items__action_no-hide',
+          when: { hidden: true },
+          text: 'menu-settings.editor-items.action.show'
+        }
+      );
+    }
 
     return actions;
   };
+
+  static getActiveActions(item) {
+    const availableActions = MenuSettingsService.getAvailableActions(item);
+
+    return availableActions.filter(act => !isExistValue(act.when.hidden) || act.when.hidden === item.hidden);
+  }
 
   static processAction = ({ items: original, action, id }) => {
     const items = cloneDeep(original);
@@ -66,7 +100,7 @@ export default class MenuSettingsService {
       case ms.ActionTypes.ACTIVE:
       case ms.ActionTypes.NO_ACTIVE:
         foundItem.hidden = !foundItem.hidden;
-        foundItem.locked = !foundItem.hidden;
+        foundItem.locked = foundItem.hidden;
         break;
       case ms.ActionTypes.EDIT:
       case ms.ActionTypes.DELETE:
@@ -76,12 +110,6 @@ export default class MenuSettingsService {
 
     return items;
   };
-
-  static getActiveActions(item) {
-    const availableActions = MenuSettingsService.getAvailableActions(item);
-
-    return availableActions.filter(act => !isExistValue(act.when.hidden) || act.when.hidden === item.hidden);
-  }
 
   static createOptions = [
     {
@@ -127,9 +155,16 @@ export default class MenuSettingsService {
     return ![ms.ItemTypes.SECTION].includes(item.type);
   };
 
-  static isEditable = item => {
-    return ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type);
-  };
+  static getActionPermissions(item) {
+    const knownType = Object.keys(ms.ItemTypes).includes(item.type);
+
+    return {
+      editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
+      removable: ![].includes(item.type),
+      draggable: ![].includes(item.type),
+      hideable: ![].includes(item.type)
+    };
+  }
 
   static testIcons = [
     { code: 'active-tasks' },

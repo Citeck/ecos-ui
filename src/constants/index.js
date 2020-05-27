@@ -28,6 +28,8 @@ export const SourcesId = {
   USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',
   MENU: 'uiserv/menu',
+  ICON: 'uiserv/icon',
+  FONT_ICON: 'ui/icon',
   HISTORY: 'history',
   STATUS: 'status',
   COMMENT: 'comment',

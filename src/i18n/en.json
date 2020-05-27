@@ -1,5 +1,6 @@
 {
   "error": "Error",
+  "success": "Success",
   "actions.document.download": "Download",
   "aggregation.columns": "Aggregation column",
   "aggregation.type": "Aggregation type",
@@ -942,6 +943,7 @@
   "menu-settings.error.get-config": "Menu settings configuration hasn't received",
   "menu-settings.error.save-config": "Menu settings configuration hasn't saved",
   "menu-settings.error.get-custom-icons": "Customs menu icons haven't received",
+  "menu-settings.success.save-config": "Menu settings configuration saved",
 
   "menu-item.type.section": "Section",
   "menu-item.type.journal": "Journal",

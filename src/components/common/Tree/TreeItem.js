@@ -4,7 +4,7 @@ import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 
-import { arrayCompare, t } from '../../../helpers/util';
+import { arrayCompare, extractLabel, t } from '../../../helpers/util';
 import { EcosIcon, Icon, Tooltip } from '../../common';
 import { Badge, Checkbox } from '../../common/form';
 import { SortableElement, SortableHandle } from '../../Drag-n-Drop';
@@ -178,7 +178,7 @@ class TreeItem extends Component {
   renderItem = (targetId, canDrag) => {
     const { isChild, item, selectable, prefixClassName, level, isMajor, renderExtraComponents, onClickIcon, getActions } = this.props;
     const { isOpen } = this.state;
-    const { items, selected, locked, icon, name, actionConfig, badge } = item || {};
+    const { items, selected, locked, icon, label, actionConfig, badge } = item || {};
     const filteredActions = getActions ? getActions(item) : actionConfig;
 
     return (
@@ -207,23 +207,17 @@ class TreeItem extends Component {
             />
           )}
           {!!icon && (
-            <EcosIcon
-              code={item.icon.code}
-              data={item.icon}
-              source="menu"
-              className="ecos-tree__item-element-icon"
-              onClick={() => onClickIcon && onClickIcon(item)}
-            />
+            <EcosIcon data={item.icon} className="ecos-tree__item-element-icon" onClick={() => onClickIcon && onClickIcon(item)} />
           )}
           {badge != null && <Badge text={String(badge)} className="ecos-tree__item-element-badge" />}
-          <Tooltip target={targetId} text={t(name)} showAsNeeded uncontrolled autohide>
+          <Tooltip target={targetId} text={extractLabel(label)} showAsNeeded uncontrolled autohide>
             <div
               className={classNames('ecos-tree__item-element-label', {
                 'ecos-tree__item-element-label_locked': item.locked
               })}
               id={targetId}
             >
-              {t(name)}
+              {extractLabel(label)}
             </div>
           </Tooltip>
           {renderExtraComponents && (

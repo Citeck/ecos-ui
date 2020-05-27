@@ -1,11 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import { connect } from 'react-redux';
 
-import { deepClone, t } from '../../helpers/util';
+import { deepClone, packInLabel, t } from '../../helpers/util';
 import { treeGetPathItem, treeMoveItem } from '../../helpers/arrayOfObjects';
 import { MenuSettings } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
+import { setMenuItems } from '../../actions/menuSettings';
+import IconSelect from '../../components/IconSelect';
 import { Tree } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { Dropdown, SelectJournal } from '../../components/common/form';
@@ -26,9 +29,7 @@ const Labels = {
 
 class EditorItems extends React.Component {
   static propTypes = {
-    className: PropTypes.string,
-    items: PropTypes.array,
-    customIcons: PropTypes.array
+    className: PropTypes.string
   };
 
   static defaultProps = {
@@ -37,19 +38,10 @@ class EditorItems extends React.Component {
   };
 
   state = {
-    items: [],
-    openAllMenuItems: false
+    openAllMenuItems: false,
+    editItemInfo: null,
+    editIcon: null
   };
-
-  static getDerivedStateFromProps({ items = [] }, state) {
-    let newState = null;
-
-    if (!!items.length && !state.items.length) {
-      newState = { ...newState, items };
-    }
-
-    return newState;
-  }
 
   getAvailableActions = item => {
     return MenuSettingsService.getActiveActions(item);
@@ -69,7 +61,7 @@ class EditorItems extends React.Component {
 
   handleChooseOption = (type, item) => {
     if ([MenuSettings.ItemTypes.JOURNAL, MenuSettings.ItemTypes.LINK_CREATE_CASE].includes(type.key)) {
-      //todo
+      //todo journalId ???
       this.setState({
         editItemInfo: {
           type,
@@ -87,6 +79,8 @@ class EditorItems extends React.Component {
   };
 
   handleActionItem = ({ action, item }) => {
+    const { items, setMenuItems } = this.props;
+
     if (action === MenuSettings.ActionTypes.DELETE) {
       dialogManager.showRemoveDialog({
         title: '',
@@ -103,25 +97,26 @@ class EditorItems extends React.Component {
 
     if (action === MenuSettings.ActionTypes.EDIT) {
       const type = MenuSettingsService.createOptions.find(o => o.key === item.type);
-      this.handleChooseOption(type, item);
+
+      type && this.handleChooseOption(type, item);
     }
 
-    const items = MenuSettingsService.processAction({ action, id: item.id, items: this.state.items });
-    this.setState({ items });
+    setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items }));
   };
 
   handleClickIcon = item => {
-    console.log('handleClickIcon', item);
+    this.setState({ editIcon: item });
   };
 
-  onDragEnd = (fromId, toId) => {
-    const items = treeMoveItem({ fromId, toId, original: this.state.items, key: 'dndIdx' });
-    this.setState({ items });
+  handleDragEnd = (fromId, toId) => {
+    const { items: original, setMenuItems } = this.props;
+
+    setMenuItems(treeMoveItem({ fromId, toId, original, key: 'dndIdx' }));
   };
 
   renderEditorItem = () => {
     const { editItemInfo } = this.state;
-    const { customIcons } = this.props;
+    const { items: original, customIcons, setMenuItems } = this.props;
 
     if (!editItemInfo) {
       return null;
@@ -131,8 +126,9 @@ class EditorItems extends React.Component {
       this.setState({ editItemInfo: null });
     };
 
-    const handleSave = newItem => {
-      const items = deepClone(this.state.items || []);
+    const handleSave = data => {
+      const newItem = MenuSettingsService.getItemParams({ ...data, label: packInLabel(data.name) });
+      const items = deepClone(original || []);
       const path = treeGetPathItem({ items, value: get(editItemInfo, 'item.dndIdx'), key: 'dndIdx' });
 
       if (path) {
@@ -141,7 +137,8 @@ class EditorItems extends React.Component {
         items.push(newItem);
       }
 
-      this.setState({ editItemInfo: null, items });
+      setMenuItems(items);
+      this.setState({ editItemInfo: null });
     };
 
     if (editItemInfo.several) {
@@ -157,7 +154,30 @@ class EditorItems extends React.Component {
       );
     }
 
-    return <EditorItemModal customIcons={customIcons} type={editItemInfo.type} onClose={handleHideModal} onSave={handleSave} />;
+    return (
+      <EditorItemModal
+        customIcons={customIcons}
+        item={editItemInfo.item}
+        type={editItemInfo.type}
+        onClose={handleHideModal}
+        onSave={handleSave}
+      />
+    );
+  };
+
+  renderEditorIcon = () => {
+    const { editIcon } = this.state;
+    const { customIcons } = this.props;
+
+    return editIcon ? (
+      <IconSelect
+        customIcons={customIcons}
+        prefixIcon="icon-c"
+        useFontIcons
+        selectedIcon={editIcon.icon}
+        onClose={() => this.setState({ editIcon: null })}
+      />
+    ) : null;
   };
 
   renderButtonAddSection = ({ item, level, isOpen }) => {
@@ -184,7 +204,8 @@ class EditorItems extends React.Component {
   };
 
   render() {
-    const { items, openAllMenuItems } = this.state;
+    const { openAllMenuItems } = this.state;
+    const { items } = this.props;
 
     return (
       <div className="ecos-menu-settings-editor-items">
@@ -205,7 +226,7 @@ class EditorItems extends React.Component {
             draggable={false}
             moveInLevel
             moveInParent
-            onDragEnd={this.onDragEnd}
+            onDragEnd={this.handleDragEnd}
             getActions={this.getAvailableActions}
             onClickAction={this.handleActionItem}
             onClickIcon={this.handleClickIcon}
@@ -213,9 +234,22 @@ class EditorItems extends React.Component {
           />
         </div>
         {this.renderEditorItem()}
+        {this.renderEditorIcon()}
       </div>
     );
   }
 }
 
-export default EditorItems;
+const mapStateToProps = state => ({
+  items: get(state, 'menuSettings.items', []),
+  customIcons: get(state, 'menuSettings.customIcons', [])
+});
+
+const mapDispatchToProps = dispatch => ({
+  setMenuItems: items => dispatch(setMenuItems(items))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(EditorItems);

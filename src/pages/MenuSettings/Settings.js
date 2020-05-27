@@ -4,13 +4,12 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { initSettings, saveSettingsConfig, setOpenMenuSettings } from '../../actions/menuSettings';
-import { arrayCompare, deepClone, t } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { getPositionAdjustment } from '../../helpers/menu';
 import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
 import { EcosModal, Loader } from '../../components/common';
 import { Btn, IcoBtn } from '../../components/common/btns';
-import { DndUtils } from '../../components/Drag-n-Drop';
 import EditorItems from './EditorItems';
 
 import './style.scss';
@@ -27,8 +26,7 @@ class Settings extends React.Component {
     super(props);
 
     this.state = {
-      selectedType: props.type,
-      items: deepClone(props.items)
+      selectedType: props.type
     };
   }
 
@@ -37,12 +35,8 @@ class Settings extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { type, items } = this.props;
+    const { type } = this.props;
     const state = {};
-
-    if (!arrayCompare(items, prevProps.items)) {
-      state.items = DndUtils.setDndId(items);
-    }
 
     if (type !== prevProps.type) {
       state.selectedType = type;
@@ -70,9 +64,7 @@ class Settings extends React.Component {
   };
 
   handleApply = () => {
-    const { selectedType: type } = this.state;
-
-    this.props.saveSettings({ type });
+    this.props.saveSettings();
   };
 
   draggablePositionAdjustment = () => {
@@ -97,8 +89,7 @@ class Settings extends React.Component {
   }
 
   render() {
-    const { isLoading, customIcons } = this.props;
-    const { items } = this.state;
+    const { isLoading } = this.props;
     const customButtons = [
       <IcoBtn
         key="ecos-menu-settings-btn-goto"
@@ -123,7 +114,7 @@ class Settings extends React.Component {
         classNameHeader="ecos-menu-settings__modal-header"
       >
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
-        <EditorItems setData={this.setData} items={items} customIcons={customIcons} />
+        <EditorItems />
         {this.renderButtons()}
       </EcosModal>
     );
@@ -132,8 +123,6 @@ class Settings extends React.Component {
 
 const mapStateToProps = state => ({
   type: get(state, 'menuSettings.type', MenuTypes.LEFT),
-  items: get(state, 'menuSettings.items', []),
-  customIcons: get(state, 'menuSettings.customIcons', []),
   isLoading: get(state, 'menuSettings.isLoading')
 });
 

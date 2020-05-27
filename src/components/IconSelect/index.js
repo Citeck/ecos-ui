@@ -7,8 +7,6 @@ import { BtnUpload, EcosIcon, EcosModal } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import './style.scss';
 
-//import fontIcons from '../../fonts/citeck/config.json'
-
 const Labels = {
   TITLE: 'icon-select.title',
   BTN_DELETE_ICON: 'icon-select.btn.delete-custom',
@@ -19,7 +17,7 @@ const Labels = {
   ICON_CUSTOM_TIP: 'icon-select.custom.tip'
 };
 
-function IconSelect({ selectedIcon, onClose, onSave, prefixIcon, useFontIcons, source, customIcons: original }) {
+function IconSelect({ selectedIcon, onClose, onSave, prefixIcon, useFontIcons, customIcons: original }) {
   const defaultIcon = { value: 'icon-empty-icon', type: 'icon' };
   const [icon, setIcon] = useState(defaultIcon);
   const [fontIcons, setFontIcons] = useState([]);
@@ -75,10 +73,12 @@ function IconSelect({ selectedIcon, onClose, onSave, prefixIcon, useFontIcons, s
     }
   };
 
-  const onDelete = () => {};
+  const onDelete = () => {
+    //todo del icon
+  };
 
-  const selected = item => (!!item.value && item.value === icon.value) || (!!item.code && item.code === icon.code);
-  const prev = item => (!!item.value && item.value === selectedIcon.value) || (!!item.code && item.code === selectedIcon.code);
+  const selected = item => !!item.value && item.value === icon.value;
+  const prev = item => !!item.value && item.value === selectedIcon.value;
 
   const renderIcons = items => {
     return (
@@ -91,8 +91,6 @@ function IconSelect({ selectedIcon, onClose, onSave, prefixIcon, useFontIcons, s
               onClick={() => setIcon(item)}
             >
               <EcosIcon
-                code={item.code}
-                source={source}
                 data={item}
                 className={classNames('ecos-icon-select__option-value', {
                   'ecos-icon-select__option-value_selected': selected(item),

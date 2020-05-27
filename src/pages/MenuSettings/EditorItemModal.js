@@ -3,16 +3,14 @@ import PropTypes from 'prop-types';
 
 import { t } from '../../helpers/util';
 import { MenuSettings as MS } from '../../constants/menu';
-import MenuSettingsService from '../../services/MenuSettingsService';
-import { EcosModal, Icon } from '../../components/common';
-import IconSelect from '../../components/IconSelect'; //todo
+import IconSelect from '../../components/IconSelect';
+import { EcosIcon, EcosModal } from '../../components/common';
 import { Input } from '../../components/common/form';
 import { Btn } from '../../components/common/btns';
 import { Field } from './Field';
 
 import './style.scss';
 
-//todo consts, dictionary EN
 const Labels = {
   FIELD_NAME_LABEL: 'menu-settings.editor-item.field.name.label',
   FIELD_URL_LABEL: 'menu-settings.editor-item.field.url.label',
@@ -42,22 +40,17 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
     }
   }, [item]);
 
-  const cancel = () => {
+  const handleCancel = () => {
     onClose();
   };
 
-  const apply = () => {
-    const dndIdx = Date.now();
-    const id = `${type.key}-${dndIdx}`;
+  const handleApply = () => {
+    onSave({ name, icon, type: type.key });
+  };
 
-    onSave({
-      ...MenuSettingsService.defaultItemProps,
-      name,
-      id,
-      dndIdx,
-      icon: { ...icon, source: 'menu' },
-      type: type.key
-    });
+  const handleApplyIcon = newIcon => {
+    setIcon(newIcon);
+    setOpenSelectIcon(false);
   };
 
   const isValid = () => {
@@ -65,7 +58,7 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
   };
 
   const title =
-    (!item ? t(Labels.MODAL_TITLE_ADD) : type(Labels.MODAL_TITLE_EDIT)) + ': ' + t(type.label) + (!!item ? `\"${item.name}\"` : '');
+    (!item ? t(Labels.MODAL_TITLE_ADD) : t(Labels.MODAL_TITLE_EDIT)) + ': ' + t(type.label) + (!!item ? ` \"${item.name}\"` : '');
 
   return (
     <EcosModal className="ecos-menu-create-section__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={title}>
@@ -81,32 +74,32 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
       {![MS.ItemTypes.HEADER_DIVIDER].includes(type.key) && (
         <Field label={t(Labels.FIELD_ICON_LABEL)} description={t(Labels.FIELD_ICON_DESC)}>
           <div className="ecos-menu-create-section__field-icon">
-            <Icon className={icon.value} />
+            <EcosIcon data={icon} />
             <div className="ecos--flex-space" />
-            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setIcon(defaultIcon)}>
+            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setIcon(item.icon)}>
               {t(Labels.FIELD_ICON_BTN_CANCEL)}
             </Btn>
             <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setOpenSelectIcon(true)}>
               {t(Labels.FIELD_ICON_BTN_SELECT)}
             </Btn>
           </div>
-          {/*todo prefix & customIcons & dictionary*/}
+          {/*todo prefix */}
           {isOpenSelectIcon && (
             <IconSelect
               customIcons={customIcons}
               prefixIcon="icon-c"
-              source="menu"
               useFontIcons
               selectedIcon={icon}
               onClose={() => setOpenSelectIcon(false)}
+              onSave={handleApplyIcon}
             />
           )}
         </Field>
       )}
 
       <div className="ecos-menu-create-section__buttons">
-        <Btn onClick={cancel}>{t(Labels.MODAL_BTN_CANCEL)}</Btn>
-        <Btn onClick={apply} className="ecos-btn_blue ecos-btn_hover_light-blue" disabled={isValid()}>
+        <Btn onClick={handleCancel}>{t(Labels.MODAL_BTN_CANCEL)}</Btn>
+        <Btn onClick={handleApply} className="ecos-btn_blue ecos-btn_hover_light-blue" disabled={isValid()}>
           {!!item ? t(Labels.MODAL_BTN_EDIT) : t(Labels.MODAL_BTN_ADD)}
         </Btn>
       </div>

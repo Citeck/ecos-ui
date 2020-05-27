@@ -1,11 +1,14 @@
 import { NotificationManager } from 'react-notifications';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+import set from 'lodash/set';
+
 import {
   getCustomIcons,
   getSettingsConfig,
   initSettings,
   saveSettingsConfig,
   setCustomIcons,
+  setOpenMenuSettings,
   setSettingsConfig
 } from '../actions/menuSettings';
 import { t } from '../helpers/util';
@@ -24,10 +27,9 @@ function* runInitSettings({ api, logger }, action) {
 function* fetchGetSettingsConfig({ api, logger }) {
   try {
     const result = yield call(api.menu.getMenuSettingsConfig, { id: 'test-custom-menu' }); //todo id
-    console.log(result);
     const type = yield select(state => state.menu.type);
     const config = MenuConverter.getSettingsConfigWeb(result, { type });
-    console.log(config);
+
     yield put(setSettingsConfig(config));
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.get-config'), t('error'));
@@ -37,11 +39,19 @@ function* fetchGetSettingsConfig({ api, logger }) {
 
 function* runSaveSettingsConfig({ api, logger }, { payload }) {
   try {
+    const type = yield select(state => state.menu.type);
     const id = yield select(state => state.menuSettings.id);
-    const subMenu = payload;
-    const result = yield call(api.menu.saveMenuSettingsConfig, { id, subMenu });
-    console.log(result);
-    yield put(setSettingsConfig(payload));
+    const items = yield select(state => state.menuSettings.items);
+
+    const result = yield call(api.menu.getMenuSettingsConfig, { id });
+    const originalItems = set(result, ['subMenu', type.toLowerCase(), 'items'], []);
+    const serverData = MenuConverter.getSettingsConfigServer({ originalItems, items });
+
+    set(result, ['subMenu', type.toLowerCase()], serverData);
+
+    yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu });
+    yield put(setOpenMenuSettings(false));
+    NotificationManager.success(t('menu-settings.success.save-config'), t('success'));
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.save-config'), t('error'));
     logger.error('[menu-settings / runSaveSettingsConfig]', e.message);
@@ -50,7 +60,7 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
 
 function* fetchGetCustomIcons({ api, logger }, { payload }) {
   try {
-    yield put(setCustomIcons(MenuSettingsService.testIcons));
+    yield put(setCustomIcons(MenuSettingsService.testIcons)); //todo wait api
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.get-custom-icons'), t('error'));
     logger.error('[menu-settings / fetchGetCustomIcons]', e.message);
