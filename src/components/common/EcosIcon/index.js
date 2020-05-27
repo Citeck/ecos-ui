@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { createContentUrl } from '../../../helpers/urls';
-import { MenuApi } from '../../../api';
+import { MenuApi } from '../../../api/index';
 import { Icon } from '../index';
 
 import './style.scss';
