@@ -7,6 +7,11 @@
 
   .dashlet__header {
     overflow: unset;
+
+    &-actions {
+      display: flex;
+      align-items: center;
+    }
   }
 
   &__menu {

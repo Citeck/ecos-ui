@@ -13,11 +13,11 @@ import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
-const LOCALE_EN = 'en';
-
 const BYTES_KB = 1024;
 const BYTES_MB = 1048576;
 const BYTES_GB = 1073741824;
+
+const LOCALE_EN = 'en';
 
 export function getCookie(name) {
   // eslint-disable-next-line
@@ -196,6 +196,33 @@ export function getCurrentLocale() {
   const language = navigator.languages ? navigator.languages[0] : navigator.language || navigator.systemLanguage || navigator.userLanguage;
 
   return language.substr(0, 2).toLowerCase();
+}
+
+// TODO: need test
+export function getTextByLocale(data) {
+  const locale = getCurrentLocale();
+
+  if (typeof data === 'object') {
+    if (Array.isArray(data)) {
+      return data.map(item => getTextByLocale(item));
+    }
+
+    let text = data[locale];
+
+    // get 'en' translation, if for current locale not found
+    if (!text) {
+      text = data[LOCALE_EN];
+
+      // get first translation, if for 'en' locale not found
+      if (!text) {
+        text = data[Object.keys(data)[0]] || '';
+      }
+    }
+
+    return text;
+  }
+
+  return data;
 }
 
 export function loadScript(url, callback) {
