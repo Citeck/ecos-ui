@@ -199,12 +199,14 @@ export function getCurrentLocale() {
 }
 
 // TODO: need test
-export function getTextByLocale(data) {
-  const locale = getCurrentLocale();
+export function getTextByLocale(data, locale = getCurrentLocale()) {
+  if (isEmpty(data)) {
+    return '';
+  }
 
   if (typeof data === 'object') {
     if (Array.isArray(data)) {
-      return data.map(item => getTextByLocale(item));
+      return data.map(item => getTextByLocale(item, locale));
     }
 
     let text = data[locale];
