@@ -3,16 +3,20 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 import set from 'lodash/set';
 
 import {
+  addJournalMenuItems,
   getCustomIcons,
   getSettingsConfig,
   initSettings,
   saveSettingsConfig,
   setCustomIcons,
+  setMenuItems,
   setOpenMenuSettings,
   setSettingsConfig
 } from '../actions/menuSettings';
 import { t } from '../helpers/util';
 import MenuConverter from '../dto/menu';
+import MenuSettingsService from '../services/MenuSettingsService';
+import { MenuSettings as ms } from '../constants/menu';
 
 function* runInitSettings({ api, logger }, action) {
   try {
@@ -66,11 +70,27 @@ function* fetchGetCustomIcons({ api, logger }, { payload }) {
   }
 }
 
+function* runAddJournalMenuItems({ api, logger }, { payload }) {
+  try {
+    const { records, id, type } = payload;
+    const items = yield select(state => state.menuSettings.items);
+    const data = yield call(api.menu.getJournalItemInfo, records);
+
+    data.forEach(item => (item.type = type));
+
+    yield put(setMenuItems(MenuSettingsService.processAction({ action: ms.ActionTypes.EDIT, items, id, data })));
+  } catch (e) {
+    NotificationManager.warning('', t('error'));
+    logger.error('[menu-settings / fetchGetCustomIcons]', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initSettings().type, runInitSettings, ea);
   yield takeLatest(getSettingsConfig().type, fetchGetSettingsConfig, ea);
   yield takeLatest(saveSettingsConfig().type, runSaveSettingsConfig, ea);
   yield takeLatest(getCustomIcons().type, fetchGetCustomIcons, ea);
+  yield takeLatest(addJournalMenuItems().type, runAddJournalMenuItems, ea);
 }
 
 export default saga;

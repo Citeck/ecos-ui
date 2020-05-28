@@ -195,4 +195,14 @@ export class MenuApi extends CommonApi {
         .then(resp => resp);
     });
   };
+
+  getJournalItemInfo = records => {
+    return Promise.all(
+      records.map(recordRef =>
+        Records.get(recordRef)
+          .load({ label: '.disp' })
+          .then(attributes => ({ ...attributes, config: { recordRef } }))
+      )
+    );
+  };
 }

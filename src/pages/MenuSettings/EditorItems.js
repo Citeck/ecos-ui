@@ -7,7 +7,7 @@ import { extractLabel, t } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import { MenuSettings as ms } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
-import { setMenuItems } from '../../actions/menuSettings';
+import { addJournalMenuItems, setMenuItems } from '../../actions/menuSettings';
 import IconSelect from '../../components/IconSelect';
 import { Tree } from '../../components/common';
 import { Btn } from '../../components/common/btns';
@@ -110,7 +110,7 @@ class EditorItems extends React.Component {
 
   renderEditorItem = () => {
     const { editItemInfo } = this.state;
-    const { items, customIcons, setMenuItems } = this.props;
+    const { items, customIcons, setMenuItems, addJournalMenuItems } = this.props;
 
     if (!editItemInfo) {
       return null;
@@ -132,6 +132,14 @@ class EditorItems extends React.Component {
       handleHideModal();
     };
 
+    const handleSaveJournal = records => {
+      addJournalMenuItems({
+        records,
+        id: get(editItemInfo, 'item.id'),
+        type: get(editItemInfo, 'type.key')
+      });
+    };
+
     if (editItemInfo.several) {
       return (
         <SelectJournal
@@ -139,7 +147,7 @@ class EditorItems extends React.Component {
           isSelectModalOpen
           multiple
           renderView={() => null}
-          onChange={handleSave}
+          onChange={handleSaveJournal}
           onCancel={handleHideModal}
         />
       );
@@ -253,7 +261,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setMenuItems: items => dispatch(setMenuItems(items))
+  setMenuItems: items => dispatch(setMenuItems(items)),
+  addJournalMenuItems: data => dispatch(addJournalMenuItems(data))
 });
 
 export default connect(

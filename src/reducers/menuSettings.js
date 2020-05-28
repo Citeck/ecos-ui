@@ -1,5 +1,6 @@
 import { handleActions } from 'redux-actions';
 import {
+  addJournalMenuItems,
   getSettingsConfig,
   initSettings,
   saveSettingsConfig,
@@ -43,7 +44,12 @@ export default handleActions(
     }),
     [setMenuItems]: (state, { payload }) => ({
       ...state,
-      items: payload
+      items: payload,
+      isLoading: false
+    }),
+    [addJournalMenuItems]: (state, { payload }) => ({
+      ...state,
+      isLoading: true
     }),
     [setCustomIcons]: (state, { payload }) => ({
       ...state,

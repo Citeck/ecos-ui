@@ -1,5 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep';
-import uniqueId from 'lodash/uniqueId';
+import uuidV4 from 'uuid/v4';
 import isString from 'lodash/isString';
 import get from 'lodash/get';
 import set from 'lodash/set';
@@ -11,11 +11,10 @@ import { SourcesId } from '../constants';
 
 export default class MenuSettingsService {
   static getItemParams = data => {
-    const dndIdx = parseInt(`${Date.now()}000${uniqueId()}`);
     const permissions = MenuSettingsService.getActionPermissions(data);
 
     return {
-      id: data.id || `${data.type}-${dndIdx}`,
+      id: data.id || uuidV4(),
       label: data.label,
       type: data.type,
       hidden: !!data.hidden,
@@ -23,7 +22,7 @@ export default class MenuSettingsService {
       config: { ...data.config },
       items: [],
       //only for ui, tree
-      dndIdx: data.dndIdx || dndIdx,
+      dndIdx: data.dndIdx || Date.now(),
       locked: !!data.hidden,
       draggable: permissions.draggable
     };
@@ -126,14 +125,17 @@ export default class MenuSettingsService {
       case ms.ActionTypes.EDIT:
         const path = treeGetPathItem({ items, value: id, key: 'id' });
 
-        if (data.edited) {
+        if (data.edited && !Array.isArray(data)) {
           set(items, path, { ...get(items, path), ...data });
         } else {
-          const newItem = MenuSettingsService.getItemParams(data);
+          const newItems = Array.isArray(data)
+            ? data.map(d => MenuSettingsService.getItemParams(d))
+            : [MenuSettingsService.getItemParams(data)];
+
           if (path) {
-            get(items, path, {}).items.push(newItem);
+            Array.prototype.push.apply(get(items, path, {}).items, newItems);
           } else {
-            items.push(newItem);
+            Array.prototype.push.apply(items, newItems);
           }
         }
         break;
