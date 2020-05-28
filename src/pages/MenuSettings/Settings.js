@@ -16,6 +16,7 @@ import './style.scss';
 
 const Labels = {
   TITLE: 'menu-settings.header.title',
+  TITLE_ITEMS: 'menu-settings.editor-items.title',
   GOTO_JOURNAL: 'menu-settings.header.btn.journal-menu-template',
   BTN_CANCEL: 'menu-settings.button.cancel',
   BTN_APPLY: 'menu-settings.button.apply'
@@ -54,7 +55,7 @@ class Settings extends React.Component {
   handleGoJournal = () => {
     this.handleHideModal(); //todo ref
     goToJournalsPage({
-      journalId: 'workspace://SpacesStore/3700b0df-b8b6-440a-a399-dd30f127e404',
+      journalId: 'menu-configs',
       journalsListId: 'global-system'
     });
   };
@@ -114,6 +115,7 @@ class Settings extends React.Component {
         classNameHeader="ecos-menu-settings__modal-header"
       >
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
+        <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
         <EditorItems />
         {this.renderButtons()}
       </EcosModal>

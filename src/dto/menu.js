@@ -153,6 +153,7 @@ export default class MenuConverter {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
         const { id, type, label, hidden, icon } = sItem;
+        //todo merge old
         const tItem = { id, type, label, hidden, icon, items: [] };
 
         if (isObject(icon)) {

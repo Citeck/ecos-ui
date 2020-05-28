@@ -1,9 +1,11 @@
 import cloneDeep from 'lodash/cloneDeep';
 import uniqueId from 'lodash/uniqueId';
 import isString from 'lodash/isString';
+import get from 'lodash/get';
+import set from 'lodash/set';
 
 import { deepClone, isExistValue, t } from '../helpers/util';
-import { treeFindFirstItem, treeRemoveItem } from '../helpers/arrayOfObjects';
+import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
 import { MenuSettings as ms } from '../constants/menu';
 import { SourcesId } from '../constants';
 
@@ -12,6 +14,22 @@ export default class MenuSettingsService {
     const dndIdx = parseInt(`${Date.now()}000${uniqueId()}`);
     const permissions = MenuSettingsService.getActionPermissions(data);
 
+    return {
+      id: data.id || `${data.type}-${dndIdx}`,
+      label: data.label,
+      type: data.type,
+      hidden: !!data.hidden,
+      icon: permissions.hasIcon ? MenuSettingsService.parseIcon(data) : undefined,
+      config: { ...data.config },
+      items: [],
+      //only for ui, tree
+      dndIdx: data.dndIdx || dndIdx,
+      locked: !!data.hidden,
+      draggable: permissions.draggable
+    };
+  };
+
+  static parseIcon(data) {
     let icon = { value: 'icon-empty-icon' };
 
     if (isString(data.icon)) {
@@ -25,20 +43,11 @@ export default class MenuSettingsService {
       icon = { ...icon, ...data.icon };
     }
 
-    return {
-      id: data.id || `${data.type}-${dndIdx}`,
-      label: data.label,
-      type: data.type,
-      hidden: !!data.hidden,
-      displayCount: false, //todo
-      items: [],
-      actionConfig: [],
-      icon,
-      //for ui, tree
-      dndIdx: data.dndIdx || dndIdx,
-      locked: !!data.hidden,
-      draggable: permissions.draggable
-    };
+    return icon;
+  }
+
+  static isChildless = item => {
+    return ![ms.ItemTypes.SECTION].includes(item.type);
   };
 
   static getAvailableActions = item => {
@@ -86,13 +95,25 @@ export default class MenuSettingsService {
     return actions;
   };
 
+  static getActionPermissions(item) {
+    const knownType = Object.keys(ms.ItemTypes).includes(item.type);
+
+    return {
+      editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
+      removable: ![].includes(item.type),
+      draggable: ![].includes(item.type),
+      hideable: ![].includes(item.type),
+      hasIcon: ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type)
+    };
+  }
+
   static getActiveActions(item) {
     const availableActions = MenuSettingsService.getAvailableActions(item);
 
     return availableActions.filter(act => !isExistValue(act.when.hidden) || act.when.hidden === item.hidden);
   }
 
-  static processAction = ({ items: original, action, id }) => {
+  static processAction = ({ items: original, action, id, data }) => {
     const items = cloneDeep(original);
     const foundItem = treeFindFirstItem({ items, key: 'id', value: id });
 
@@ -103,6 +124,18 @@ export default class MenuSettingsService {
         foundItem.locked = foundItem.hidden;
         break;
       case ms.ActionTypes.EDIT:
+        const path = treeGetPathItem({ items, value: id, key: 'id' });
+
+        if (data.edited) {
+          set(items, path, { ...get(items, path), ...data });
+        } else {
+          const newItem = MenuSettingsService.getItemParams(data);
+          if (path) {
+            get(items, path, {}).items.push(newItem);
+          } else {
+            items.push(newItem);
+          }
+        }
         break;
       case ms.ActionTypes.DELETE:
         treeRemoveItem({ items, key: 'id', value: id });
@@ -153,19 +186,4 @@ export default class MenuSettingsService {
 
     return array.filter(opt => !item || !!opt.forbiddenAllTypes || !opt.forbiddenTypes.includes(item.type));
   };
-
-  static isChildless = item => {
-    return ![ms.ItemTypes.SECTION].includes(item.type);
-  };
-
-  static getActionPermissions(item) {
-    const knownType = Object.keys(ms.ItemTypes).includes(item.type);
-
-    return {
-      editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
-      removable: ![].includes(item.type),
-      draggable: ![].includes(item.type),
-      hideable: ![].includes(item.type)
-    };
-  }
 }

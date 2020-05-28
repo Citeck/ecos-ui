@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
+import set from 'lodash/set';
 
-import { t } from '../../helpers/util';
+import { extractLabel, packInLabel, t } from '../../helpers/util';
 import { MenuSettings as MS } from '../../constants/menu';
 import IconSelect from '../../components/IconSelect';
 import { EcosIcon, EcosModal } from '../../components/common';
@@ -25,18 +27,22 @@ const Labels = {
   MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit'
 };
 
+//todo https://citeck.atlassian.net/browse/ECOSCOM-3400 for extractLabel/packInLabel
+
 function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
   const defaultIcon = { value: 'icon-empty-icon', type: 'icon' };
-  const [name, setName] = useState('');
+  const [label, setLabel] = useState('');
   const [url, setUrl] = useState('');
   const [icon, setIcon] = useState(defaultIcon);
   const [isOpenSelectIcon, setOpenSelectIcon] = useState(false);
+  const hasUrl = [MS.ItemTypes.ARBITRARY].includes(type.key);
+  const hasIcon = ![MS.ItemTypes.HEADER_DIVIDER].includes(type.key);
 
   useEffect(() => {
     if (item) {
-      setName(item.name);
-      setUrl(item.url);
-      setIcon(item.icon);
+      setLabel(extractLabel(item.label));
+      hasUrl && setUrl(get(item, 'config.url'));
+      hasIcon && setIcon(item.icon);
     }
   }, [item]);
 
@@ -45,7 +51,15 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
   };
 
   const handleApply = () => {
-    onSave({ name, icon, type: type.key, edited: !!item });
+    const data = {};
+
+    data.edited = !!get(item, 'id');
+    data.label = packInLabel(label);
+    !get(item, 'type') && (data.type = type.key);
+    hasUrl && set(item, 'config.url', url);
+    hasIcon && (data.icon = icon);
+
+    onSave(data);
   };
 
   const handleApplyIcon = newIcon => {
@@ -54,24 +68,26 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
   };
 
   const isValid = () => {
-    return !name;
+    return !label;
   };
 
   const title =
-    (!item ? t(Labels.MODAL_TITLE_ADD) : t(Labels.MODAL_TITLE_EDIT)) + ': ' + t(type.label) + (!!item ? ` \"${item.name}\"` : '');
+    (!item ? t(Labels.MODAL_TITLE_ADD) : t(Labels.MODAL_TITLE_EDIT)) +
+    ': ' +
+    t(type.label) +
+    (!!item ? ` \"${extractLabel(item.label)}\"` : '');
 
   return (
     <EcosModal className="ecos-menu-create-section__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={title}>
       <Field label={t(Labels.FIELD_NAME_LABEL)} required>
-        <Input onChange={e => setName(e.target.value)} value={name} />
+        <Input onChange={e => setLabel(e.target.value)} value={label} />
       </Field>
-      {/*todo valid url*/}
-      {[MS.ItemTypes.ARBITRARY].includes(type.key) && (
+      {hasUrl && (
         <Field label={t(Labels.FIELD_URL_LABEL)} required>
           <Input onChange={e => setUrl(e.target.value)} value={url} />
         </Field>
       )}
-      {![MS.ItemTypes.HEADER_DIVIDER].includes(type.key) && (
+      {hasIcon && (
         <Field label={t(Labels.FIELD_ICON_LABEL)} description={t(Labels.FIELD_ICON_DESC)}>
           <div className="ecos-menu-create-section__field-icon">
             <EcosIcon data={icon} />

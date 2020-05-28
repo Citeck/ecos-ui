@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
-import set from 'lodash/set';
 import { connect } from 'react-redux';
 
-import { deepClone, extractLabel, packInLabel, t } from '../../helpers/util';
-import { treeGetPathItem, treeMoveItem } from '../../helpers/arrayOfObjects';
+import { extractLabel, t } from '../../helpers/util';
+import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import { MenuSettings as ms } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import { setMenuItems } from '../../actions/menuSettings';
@@ -19,7 +18,6 @@ import EditorItemModal from './EditorItemModal';
 import './style.scss';
 
 const Labels = {
-  TITLE: 'menu-settings.editor-items.title',
   SUBTITLE: 'menu-settings.editor-items.subtitle',
   BTN_ADD: 'menu-settings.editor-items.dropdown.add',
   TIP_NO_ITEMS: 'menu-settings.editor-items.none',
@@ -41,7 +39,7 @@ class EditorItems extends React.Component {
   state = {
     openAllMenuItems: false,
     editItemInfo: null,
-    editIcon: null
+    editItemIcon: null
   };
 
   getAvailableActions = item => {
@@ -62,16 +60,12 @@ class EditorItems extends React.Component {
 
   handleChooseOption = (type, item) => {
     if ([ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(type.key)) {
-      //todo journalId ???
       this.setState({
         editItemInfo: {
           type,
           item,
           several: true,
-          journalId:
-            type.key === ms.ItemTypes.JOURNAL
-              ? 'workspace%3A%2F%2FSpacesStore%2F3700b0df-b8b6-440a-a399-dd30f127e404'
-              : 'workspace%3A%2F%2FSpacesStore%2F564bbe41-c456-44b3-8ab2-1b3d82e15aaa'
+          journalId: type.key === ms.ItemTypes.JOURNAL ? 'ecos-journals' : 'ecos-types'
         }
       });
     } else {
@@ -85,7 +79,7 @@ class EditorItems extends React.Component {
     if (action === ms.ActionTypes.DELETE) {
       dialogManager.showRemoveDialog({
         title: '',
-        text: t('menu-settings.message.delete-item', { name: extractLabel(item.name) }),
+        text: t('menu-settings.message.delete-item', { name: extractLabel(item.label) }),
         className: 'ecos-modal_width-xs',
         onDelete: () => {
           setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items }));
@@ -105,7 +99,7 @@ class EditorItems extends React.Component {
   };
 
   handleClickIcon = item => {
-    this.setState({ editIcon: item });
+    this.setState({ editItemIcon: item });
   };
 
   handleDragEnd = (fromId, toId) => {
@@ -116,7 +110,7 @@ class EditorItems extends React.Component {
 
   renderEditorItem = () => {
     const { editItemInfo } = this.state;
-    const { items: original, customIcons, setMenuItems } = this.props;
+    const { items, customIcons, setMenuItems } = this.props;
 
     if (!editItemInfo) {
       return null;
@@ -127,26 +121,15 @@ class EditorItems extends React.Component {
     };
 
     const handleSave = data => {
-      const newItem = MenuSettingsService.getItemParams({ ...data, label: packInLabel(data.name) });
-      const items = deepClone(original || []);
-      const path = treeGetPathItem({ items, value: get(editItemInfo, 'item.id'), key: 'id' });
-
-      if (data.edited) {
-        //todo all types & move srvice?
-        const updatedItem = {};
-        updatedItem.label = packInLabel(data.name);
-        updatedItem.icon = data.icon;
-        set(items, path, { ...editItemInfo.item, ...updatedItem });
-      } else {
-        if (path) {
-          get(items, path, {}).items.push(newItem);
-        } else {
-          items.push(newItem);
-        }
-      }
-
-      setMenuItems(items);
-      this.setState({ editItemInfo: null });
+      setMenuItems(
+        MenuSettingsService.processAction({
+          action: ms.ActionTypes.EDIT,
+          items,
+          id: get(editItemInfo, 'item.id'),
+          data
+        })
+      );
+      handleHideModal();
     };
 
     if (editItemInfo.several) {
@@ -161,11 +144,11 @@ class EditorItems extends React.Component {
         />
       );
     }
-    //todo name https://citeck.atlassian.net/browse/ECOSCOM-3400
+
     return (
       <EditorItemModal
         customIcons={customIcons}
-        item={editItemInfo.item && { ...editItemInfo.item, name: extractLabel(editItemInfo.item.label) }}
+        item={editItemInfo.item}
         type={editItemInfo.type}
         onClose={handleHideModal}
         onSave={handleSave}
@@ -174,16 +157,33 @@ class EditorItems extends React.Component {
   };
 
   renderEditorIcon = () => {
-    const { editIcon } = this.state;
-    const { customIcons } = this.props;
+    const { editItemIcon } = this.state;
+    const { items, customIcons, setMenuItems } = this.props;
 
-    return editIcon ? (
+    const handleHideModal = () => {
+      this.setState({ editItemIcon: null });
+    };
+
+    const handleSave = icon => {
+      setMenuItems(
+        MenuSettingsService.processAction({
+          action: ms.ActionTypes.EDIT,
+          items,
+          id: editItemIcon.id,
+          data: { edited: true, icon }
+        })
+      );
+      handleHideModal();
+    };
+
+    return editItemIcon ? (
       <IconSelect
         customIcons={customIcons}
         prefixIcon="icon-c"
         useFontIcons
-        selectedIcon={editIcon.icon}
-        onClose={() => this.setState({ editIcon: null })}
+        selectedIcon={editItemIcon.icon}
+        onClose={handleHideModal}
+        onSave={handleSave}
       />
     ) : null;
   };
@@ -217,7 +217,6 @@ class EditorItems extends React.Component {
 
     return (
       <div className="ecos-menu-settings-editor-items">
-        <div className="ecos-menu-settings__title">{t(Labels.TITLE)}</div>
         <div className="ecos-menu-settings-editor-items__header">
           <div className="ecos-menu-settings__subtitle ecos-menu-settings-editor-items__subtitle">{t(Labels.SUBTITLE)}</div>
           {this.renderButtonAddSection({})}
