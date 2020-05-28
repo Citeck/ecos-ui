@@ -18,24 +18,20 @@ export class DocAssociationsApi extends RecordService {
         if (!type) {
           return [];
         }
-        return (
-          Records.get(type)
-            .load('assocsFull[]?json')
-            // .load('assocsFull[]{id,attribute,name,direction,target}')
-            .then(associations => {
-              return Promise.all(associations.map(association => this.getColumnConfiguration(association)));
-            })
-            .catch(e => {
-              console.error(e);
-              return [];
-            })
-        );
+        return Records.get(type)
+          .load('assocsFull[]?json')
+          .then(associations => {
+            return Promise.all(associations.map(association => this.getColumnConfiguration(association)));
+          })
+          .catch(e => {
+            console.error(e);
+            return [];
+          });
       });
   };
 
   getColumnConfiguration(association) {
     if (association.target === 'emodel/type@base') {
-      // return {...association, columnsConfig: null };
       return {
         ...association,
         columnsConfig: {

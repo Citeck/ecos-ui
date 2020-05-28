@@ -120,20 +120,10 @@ export default class DocAssociationsConverter {
 
     target.columns = get(config, 'columns', []).map(column => ({
       ...column,
-      // dataField: column.name,
       label: getTextByLocale(column.label || '')
-      // text: getTextByLocale(column.label || '')
     }));
     target.label = getTextByLocale(config.label);
     target.typeRef = config.typeRef;
-
-    return target;
-  }
-
-  static getColumn(source = {}) {
-    const target = {};
-
-    // target.keyField
 
     return target;
   }
