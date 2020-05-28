@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 
 import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, TAB_ALL_USERS, TAB_BY_LEVELS, TAB_ONLY_SELECTED } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
-import { usePrevious } from '../../../../helpers/reactHooks';
+import { usePrevious } from '../../../../hooks/usePrevious';
 
 export const SelectOrgstructContext = React.createContext();
 
