@@ -4,13 +4,16 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import isArray from 'lodash/isArray';
 
+import { NotificationManager } from 'react-notifications';
+
 import {
   selectAvailableTypes,
   selectConfigTypes,
   selectDynamicType,
   selectDynamicTypes,
   selectIsLoadChecklist,
-  selectTypeNames
+  selectTypeNames,
+  selectTypeById
 } from '../selectors/documents';
 import {
   execRecordsAction,
@@ -33,7 +36,7 @@ import {
   uploadFilesFinally
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
-import { deepClone } from '../helpers/util';
+import { deepClone, t } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
 import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
 import { documentActions } from '../constants/documents';
@@ -247,8 +250,11 @@ function* sagaUpdateVersion({ api, logger }, { payload }) {
       handleProgress: payload.callback
     });
     yield put(getDocumentsByType({ ...payload, delay: 0 }));
+
+    NotificationManager.success(t('documents-widget.notification.update.success'));
   } catch (e) {
     logger.error('[documents sagaUpdateVerion saga error]', e.message);
+    NotificationManager.error(t('documents-widget.notification.update.error'));
   }
 }
 
@@ -280,6 +286,7 @@ function* uploadFile({ api, file, callback }) {
 function* formManager({ api, payload, files }) {
   try {
     const createVariants = yield call(api.documents.getCreateVariants, payload.type);
+    const type = yield select(state => selectTypeById(state, payload.key, payload.type));
 
     if (createVariants === null) {
       payload.openForm(
@@ -294,7 +301,15 @@ function* formManager({ api, payload, files }) {
     }
 
     if (!createVariants.formRef) {
-      createVariants.formRef = payload.type.formId;
+      createVariants.formRef = payload.type;
+    }
+
+    if (!createVariants.formId && type.formId) {
+      createVariants.formId = type.formId;
+    }
+
+    if (!createVariants.recordRef) {
+      createVariants.recordRef = 'dict@cm:content';
     }
 
     createVariants.attributes = {
@@ -348,15 +363,22 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
           record: payload.record,
           type: payload.type,
           content: file,
-          ...get(createVariants, 'attributes', {})
+          createVariants
         })
       );
     });
 
     yield put(getDocumentsByType({ ...payload, delay: 0 }));
+
+    NotificationManager.success(
+      t(payload.files.length > 1 ? 'documents-widget.notification.add-many.success' : 'documents-widget.notification.add-one.success')
+    );
   } catch (e) {
     yield put(setUploadError({ ...payload, message: e.message }));
     logger.error('[documents sagaUploadFiles saga error', e.message);
+    NotificationManager.error(
+      t(payload.files.length > 1 ? 'documents-widget.notification.add-many.error' : 'documents-widget.notification.add-one.error')
+    );
   } finally {
     yield put(uploadFilesFinally(payload.key));
   }
