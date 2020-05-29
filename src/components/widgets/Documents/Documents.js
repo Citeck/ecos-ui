@@ -18,7 +18,7 @@ import { Grid, InlineTools } from '../../common/grid';
 import FormManager from '../../EcosForm/FormManager';
 import DropZone from './DropZone';
 import Settings from './Settings';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 import DocumentsConverter from '../../../dto/documents';
 import {
   execRecordsAction,
@@ -31,8 +31,8 @@ import {
 } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
 import { errorTypes, statusesKeys, tableFields, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
-import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
-import { deepClone, prepareTooltipId, t, closest, objectCompare } from '../../../helpers/util';
+import { closest, deepClone, objectCompare, prepareTooltipId, t } from '../../../helpers/util';
+import { getStateId } from '../../../helpers/redux';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
 
 import './style.scss';
@@ -95,18 +95,12 @@ class Documents extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
     this.state = {
+      ...this.state,
       leftColumnId: uniqueId('leftColumn_'),
       rightColumnId: uniqueId('rightColumn_'),
       selectedType: '',
       selectedTypeForLoading: '',
-      fitHeights: {},
-      contentHeight: null,
-      width: MIN_WIDTH_DASHLET_SMALL,
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
       isOpenSettings: false,
       isSentSettingsToSave: false,
       isOpenUploadModal: false,
@@ -527,7 +521,7 @@ class Documents extends BaseWidget {
       userHeight = 0;
     }
 
-    UserLocalSettingsService.setDashletHeight(this.props.id, userHeight);
+    UserLocalSettingsService.setDashletHeight(this.state.lsId, userHeight);
     this.setState({ userHeight });
   };
 
@@ -828,7 +822,7 @@ class Documents extends BaseWidget {
 
   renderType = item => {
     const { selectedType } = this.state;
-    const id = prepareTooltipId(`type-${item.type}`);
+    const id = prepareTooltipId(`type-${this.props.stateId}-${item.type}`);
 
     return (
       <div
@@ -850,12 +844,12 @@ class Documents extends BaseWidget {
   };
 
   renderCountStatus = (type, keyPostfix = '') => {
-    const { id } = this.props;
-    const target = prepareTooltipId(`${type.type}-${id}-${keyPostfix}`);
+    const { id, stateId } = this.props;
+    const target = prepareTooltipId(`${type.type}-${id}-${stateId}-${keyPostfix}`);
     const status = typesStatuses[this.getTypeStatus(type)];
 
     return (
-      <>
+      <Tooltip target={target} text={t(status)} uncontrolled showAsNeeded autohide>
         <div
           id={target}
           ref={this._counterRef}
@@ -872,17 +866,7 @@ class Documents extends BaseWidget {
           />
           <div className="ecos-docs__types-item-status-counter">{type.countDocuments}</div>
         </div>
-        <UncontrolledTooltip
-          placement="top"
-          boundariesElement="window"
-          className="ecos-base-tooltip"
-          innerClassName="ecos-base-tooltip-inner"
-          arrowClassName="ecos-base-tooltip-arrow"
-          target={target}
-        >
-          {t(status)}
-        </UncontrolledTooltip>
-      </>
+      </Tooltip>
     );
   };
 
@@ -1283,71 +1267,25 @@ class Documents extends BaseWidget {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByKey(state, ownProps.id),
+  ...selectStateByKey(state, getStateId(ownProps)),
   isMobile: state.view.isMobile
 });
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  initStore: () =>
-    dispatch(
-      initStore({
-        record: ownProps.record,
-        config: ownProps.config,
-        key: ownProps.id
-      })
-    ),
-  getDocuments: (type = '') =>
-    dispatch(
-      getDocumentsByType({
-        record: ownProps.record,
-        type,
-        key: ownProps.id
-      })
-    ),
-  onSaveSettings: (types, config) =>
-    dispatch(
-      saveSettings({
-        record: ownProps.record,
-        types,
-        config,
-        key: ownProps.id
-      })
-    ),
-  onUploadFiles: data =>
-    dispatch(
-      uploadFiles({
-        record: ownProps.record,
-        ...data,
-        key: ownProps.id
-      })
-    ),
-  setError: (type, message = '') =>
-    dispatch(
-      setError({
-        record: ownProps.record,
-        type,
-        message,
-        key: ownProps.id
-      })
-    ),
-  execRecordsAction: (records, action, callback) =>
-    dispatch(
-      execRecordsAction({
-        record: ownProps.record,
-        records,
-        action,
-        callback,
-        key: ownProps.id
-      })
-    ),
-  setInlineTools: tools =>
-    dispatch(
-      setInlineTools({
-        record: ownProps.record,
-        tools,
-        key: ownProps.id
-      })
-    )
-});
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const baseParams = {
+    record: ownProps.record,
+    key: getStateId(ownProps)
+  };
+
+  return {
+    initStore: () => dispatch(initStore({ ...baseParams, config: ownProps.config })),
+    getDocuments: (type = '') => dispatch(getDocumentsByType({ ...baseParams, type })),
+    onSaveSettings: (types, config) => dispatch(saveSettings({ ...baseParams, types, config })),
+    onUploadFiles: data => dispatch(uploadFiles({ ...baseParams, ...data })),
+    setError: (type, message = '') => dispatch(setError({ ...baseParams, type, message })),
+    execRecordsAction: (records, action, callback) => dispatch(execRecordsAction({ ...baseParams, records, action, callback })),
+    setInlineTools: tools => dispatch(setInlineTools({ ...baseParams, tools }))
+  };
+};
 
 export default connect(
   mapStateToProps,

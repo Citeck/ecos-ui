@@ -7,9 +7,9 @@ import { connect } from 'react-redux';
 import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
 import { t } from '../../helpers/util';
 import SidebarService from '../../services/sidebar';
-import { Icon } from '../common';
+import { EcosIcon, Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
-import { ItemBtn, ItemIcon, ItemLink } from './item-components';
+import { ItemBtn, ItemLink } from './item-components';
 
 class Item extends React.Component {
   static propTypes = {
@@ -88,7 +88,9 @@ class Item extends React.Component {
     const label = t(data.label);
     const content = (
       <>
-        {!noIcon && <ItemIcon iconName={data.icon} title={isOpen ? '' : get(data, 'label', '')} />}
+        {!noIcon && (
+          <EcosIcon source="menu" className="ecos-sidebar-item__icon" code={data.icon} title={isOpen ? '' : get(data, 'label', '')} />
+        )}
         <div className="ecos-sidebar-item__label" title={label}>
           {label}
         </div>

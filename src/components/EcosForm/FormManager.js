@@ -16,6 +16,7 @@ class FormManager {
       }
 
       let recordRef = variant.recordRef || (variant.type ? 'dict@' + variant.type : '');
+      let formId = variant.formId;
       let isNewFormShouldBeUsed = variant.formKey || !variant.type;
       let isNewFormCanBeUsed = isNewFormShouldBeUsed || !!recordRef;
 
@@ -31,7 +32,7 @@ class FormManager {
           isNewFormShouldBeUsed = Promise.all([isNewFormShouldBeUsed, shouldDisplayNewFormsForUser])
             .then(function(values) {
               if (values.includes(true)) {
-                return EcosFormUtils.hasForm(recordRef, variant.formKey);
+                return !!formId || EcosFormUtils.hasForm(recordRef, variant.formKey);
               }
               return false;
             })
@@ -51,7 +52,7 @@ class FormManager {
           if (value) {
             let attributes = variant.attributes || {};
 
-            if (variant.destination) {
+            if (variant.destination && !attributes['_parent']) {
               attributes['_parent'] = variant.destination;
             }
 

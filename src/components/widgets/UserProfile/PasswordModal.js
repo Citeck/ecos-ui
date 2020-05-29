@@ -75,7 +75,8 @@ class PasswordModal extends React.Component {
       (isAdmin || !!oldWord.value) &&
       !!repeatWord.value &&
       !!newWord.value &&
-      newWord.valid
+      newWord.valid &&
+      newWord.value === repeatWord.value
     );
   };
 
@@ -116,20 +117,20 @@ class PasswordModal extends React.Component {
 
   checkFields = () => {
     const { oldWord, newWord, repeatWord } = this.state;
-    const msg = {
+    const newState = {
       newWordMsgs: [],
       repeatWordMsgs: []
     };
 
     if (repeatWord.value && repeatWord.value !== newWord.value) {
-      msg.repeatWordMsgs.push(Labels.Msgs.REPEATED_NOT_MATCH);
+      newState.repeatWordMsgs.push(Labels.Msgs.REPEATED_NOT_MATCH);
     }
 
     if (newWord.value && oldWord.value === newWord.value) {
-      msg.newWordMsgs.push(Labels.Msgs.NEW_EQ_OLD);
+      newState.newWordMsgs.push(Labels.Msgs.NEW_EQ_OLD);
     }
 
-    this.setState({ ...msg });
+    this.setState({ ...newState });
   };
 
   debouncedCheckFields = debounce(this.checkFields, 500);

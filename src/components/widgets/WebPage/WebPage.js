@@ -11,8 +11,8 @@ import { Btn } from '../../common/btns/index';
 import { Caption, Input, Label } from '../../common/form/index';
 import Dashlet, { BaseActions } from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
+import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import { cancelPageLoading, changePageData, initPage, loadedPage, reloadPageData, setError } from '../../../actions/webPage';
 import { selectStateById } from '../../../selectors/webPage';
 import { t } from '../../../helpers/util';
@@ -67,16 +67,12 @@ class WebPage extends BaseWidget {
     super(props);
 
     this.state = {
-      width: MIN_WIDTH_DASHLET_SMALL,
-      fitHeights: {},
-      contentHeight: null,
+      ...this.state,
       settingsIsShow: false,
       resizable: false,
       pageIsLoaded: false,
       title: get(props, 'config.title', ''),
-      url: get(props, 'config.url', ''),
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
+      url: get(props, 'config.url', '')
     };
 
     props.initPage(props.config);
@@ -157,7 +153,7 @@ class WebPage extends BaseWidget {
   };
 
   handleChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.state.lsId, height);
     this.setState({ userHeight: height });
   };
 

@@ -15,7 +15,9 @@ import { fakeApi } from '../../../../src/api/fakeApi';
 import { initAppRequest } from '../../../../src/actions/app';
 import { setCreateCaseWidgetIsCascade } from '../../../../src/actions/header';
 
-import { AppApi, MenuApi, UserApi } from '../../../../src/api';
+import { AppApi } from '../../../../src/api/app';
+import { MenuApi } from '../../../../src/api/menu';
+import { UserApi } from '../../../../src/api/user';
 
 import Logger from 'logplease';
 
@@ -38,9 +40,9 @@ const store = createStore(rootReducer, {}, composeEnhancers(
 
 sagaMiddleware.run(sagas, { api, fakeApi, logger });
 
-api.app = new AppApi(store);
-api.menu = new MenuApi(store);
-api.user = new UserApi(store);
+api.app = new AppApi();
+api.menu = new MenuApi();
+api.user = new UserApi();
 
 export const render = (elementId, props) => {
   store.dispatch(initAppRequest());

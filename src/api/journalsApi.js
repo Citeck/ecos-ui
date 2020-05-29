@@ -5,7 +5,8 @@ import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
 import { debounce, queryByCriteria, t } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
-import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
+import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
+import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
 import Records from '../components/Records';
 import RecordActions from '../components/Records/actions';
 import { DocPreviewApi } from './docPreview';
@@ -94,7 +95,7 @@ export class JournalsApi extends RecordService {
       bodyQuery.sourceId = sourceId;
     }
 
-    const dataSource = new dataSourceStore['GqlDataSource']({
+    const dataSource = new GqlDataSource({
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',
       ajax: {
@@ -119,7 +120,7 @@ export class JournalsApi extends RecordService {
   };
 
   getTreeGridData = () => {
-    const dataSource = new dataSourceStore['TreeDataSource']();
+    const dataSource = new TreeDataSource();
 
     return dataSource.load().then(function({ data, total }) {
       const columns = dataSource.getColumns();
@@ -154,7 +155,7 @@ export class JournalsApi extends RecordService {
       bodyQuery['sourceId'] = sourceId;
     }
 
-    const dataSource = new dataSourceStore['GqlDataSource']({
+    const dataSource = new GqlDataSource({
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',
       ajax: {
@@ -238,13 +239,20 @@ export class JournalsApi extends RecordService {
     return this.getJson(`${PROXY_URI}api/journals/list?journalsList=${journalsListId}`).then(resp => {
       return journalsFromUiserv.then(uiservJournals => {
         let result = [...(resp.journals || [])];
+        let journalByType = {};
+        result.forEach(j => (journalByType[j.type] = j));
         for (let journal of uiservJournals) {
           let localId = journal.id.replace('uiserv/journal_v1@', '');
-          result.push({
-            nodeRef: localId,
-            title: journal.title,
-            type: localId
-          });
+          let existingJournal = journalByType[localId];
+          if (existingJournal != null) {
+            existingJournal.nodeRef = localId;
+          } else {
+            result.push({
+              nodeRef: localId,
+              title: journal.title,
+              type: localId
+            });
+          }
         }
         return result;
       });

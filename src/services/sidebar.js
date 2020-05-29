@@ -89,7 +89,7 @@ export default class SidebarService {
         case ATypes.FILTER_LINK:
         case ATypes.JOURNAL_LINK:
           {
-            let listId = 'tasks';
+            let listId = params.listId || 'tasks';
 
             if (params.siteName) {
               listId = params.listId || 'main';

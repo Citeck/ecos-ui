@@ -1,6 +1,6 @@
 import { createAction } from 'redux-actions';
 
-const prefix = 'dashboard/settings/';
+const prefix = 'dashboard-settings/';
 
 export const initDashboardSettings = createAction(prefix + 'INIT_DASHBOARD_SETTINGS');
 export const setAvailableWidgets = createAction(prefix + 'SET_AVAILABLE_WIDGETS');

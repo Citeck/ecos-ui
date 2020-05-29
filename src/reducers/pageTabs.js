@@ -12,7 +12,7 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
-    [initTabsComplete]: (state, { payload }) => ({
+    [initTabsComplete]: state => ({
       ...state,
       inited: true
     }),
@@ -22,7 +22,7 @@ export default handleActions(
     }),
     [setTabs]: (state, { payload }) => ({
       ...state,
-      tabs: payload
+      tabs: payload || []
     })
   },
   initialState

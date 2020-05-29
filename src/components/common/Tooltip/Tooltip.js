@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip as RTooltip } from 'reactstrap';
 import classNames from 'classnames';
+import { isClosestHidden } from '../../../helpers/util';
 
 import './style.scss';
 
@@ -19,6 +20,8 @@ class Tooltip extends Component {
     isOpen: PropTypes.bool,
     uncontrolled: PropTypes.bool,
     showAsNeeded: PropTypes.bool,
+    minWidthByContent: PropTypes.bool,
+    off: PropTypes.bool,
     text: PropTypes.string,
     placement: PropTypes.oneOf([
       'auto',
@@ -54,6 +57,7 @@ class Tooltip extends Component {
     hideArrow: false,
     uncontrolled: false,
     isOpen: false,
+    minWidthByContent: false,
     text: '',
     delay: 0,
     placement: 'top',
@@ -78,9 +82,26 @@ class Tooltip extends Component {
     super(props);
 
     this.state = {
-      isOpen: props.isOpen
+      isOpen: props.isOpen,
+      isHidden: true
     };
   }
+
+  componentDidMount() {
+    this.stealthCheck();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    this.stealthCheck();
+  }
+
+  stealthCheck = () => {
+    const isHidden = isClosestHidden(`#${this.props.target}`);
+
+    if (isHidden !== this.state.isHidden) {
+      this.setState({ isHidden });
+    }
+  };
 
   onToggle = () => {
     const { onToggle, uncontrolled } = this.props;
@@ -106,7 +127,8 @@ class Tooltip extends Component {
       delay,
       modifiers,
       offset,
-      innerRef
+      innerRef,
+      hideArrow
     } = this.props;
 
     return {
@@ -119,6 +141,7 @@ class Tooltip extends Component {
       delay,
       modifiers,
       offset,
+      hideArrow,
       className: classNames('ecos-base-tooltip', className),
       innerClassName: classNames('ecos-base-tooltip-inner', innerClassName),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),
@@ -127,10 +150,15 @@ class Tooltip extends Component {
   };
 
   renderTooltip = () => {
-    const { text, showAsNeeded, target } = this.props;
+    const { text, showAsNeeded, target, minWidthByContent } = this.props;
     const { isOpen } = this.state;
     const element = document.getElementById(target);
+    const styles = {};
     let needTooltip = !showAsNeeded;
+
+    if (isClosestHidden(`#${this.props.target}`)) {
+      return null;
+    }
 
     if (showAsNeeded && element) {
       const canvas = document.createElement('canvas');
@@ -143,8 +171,12 @@ class Tooltip extends Component {
       needTooltip = context.measureText(text).width > element.getBoundingClientRect().width - (paddingLeft + paddingRight);
     }
 
+    if (minWidthByContent) {
+      styles.minWidth = parseInt(window.getComputedStyle(element, null).getPropertyValue('width'), 10) || 0;
+    }
+
     return (
-      <RTooltip {...this.tooltipProps()} isOpen={needTooltip && isOpen}>
+      <RTooltip {...this.tooltipProps()} isOpen={needTooltip && isOpen} style={styles}>
         {text}
       </RTooltip>
     );
@@ -154,7 +186,7 @@ class Tooltip extends Component {
     return (
       <>
         {this.props.children}
-        {this.renderTooltip()}
+        {!this.props.off && this.renderTooltip()}
       </>
     );
   }

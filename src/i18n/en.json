@@ -170,6 +170,7 @@
   "dashboard-settings.widgets.title": "Widgets",
   "dashboard-settings.widget.documents": "Documents",
   "dashboard-settings.widget.user-basic-info": "Profile",
+  "dashboard-settings.widget.with-config": "This widget has settings. When you delete the widget, the settings will be lost",
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",
 
   "dashlet.error-boundary.msg": "The error occurred in the widget. Try updating the widget/page. If the error reappears, contact your administrator",
@@ -235,6 +236,7 @@
   "dochist.task.create": "Task created",
   "dochist.unknown-user": "Unknown user",
   "dochist.user.action": "User action",
+  "dochist.email.sent": "Email sent",
   "dochist.workflow.end": "Workflow ended",
   "dochist.workflow.end.cancelled": "Workflow cancelled",
   "dochist.workflow.start": "Workflow started",
@@ -288,6 +290,9 @@
   "export-component.notice.buffer-link-done": "Selection link was copied to clipboard",
   "export-component.notice.buffer-link-err": "Failed to create select link",
   "export-component.notice.buffer-link-preparation": "Wait while preparing a sample link",
+
+  "tree-component.tooltip.cannot-be-changes": "Cannot change state",
+  "tree-component.empty": "Nothing found",
 
   "filter-list.add-criterion": "Add criterion",
   "filter-list.add-operator": "Add operator",

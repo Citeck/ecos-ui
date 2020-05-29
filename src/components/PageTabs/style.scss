@@ -231,6 +231,12 @@
         }
       }
 
+      .tooltip &-tooltip {
+        text-align: left;
+        max-width: 260px;
+        min-width: 200px;
+      }
+
       &-title {
         font-style: normal;
         font-weight: 600;
@@ -269,7 +275,15 @@
     display: flex;
 
     &-content {
+      height: 100%;
       padding: 0 10px 10px;
     }
+  }
+
+  &__panel {
+    overflow: scroll;
+    display: block;
+    height: 100%;
+    width: 100%;
   }
 }

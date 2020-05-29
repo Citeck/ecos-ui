@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import connect from 'react-redux/es/connect/connect';
+import get from 'lodash/get';
 
 import { Well } from '../../common/form';
 import Columns from '../../common/templates/Columns/Columns';
@@ -8,8 +10,16 @@ import JournalsUrlManager from '../JournalsUrlManager';
 
 import './JournalsContent.scss';
 
+const mapStateToProps = (state, props) => {
+  const newState = state.journals[props.stateId] || {};
+
+  return {
+    journalId: get(newState, 'journalConfig.id', '')
+  };
+};
+
 const Grid = ({ stateId, showPreview, onRowClick, maxHeight }) => (
-  <Well className="ecos-journals-content__grid-well_overflow_hidden">
+  <Well className="ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden">
     <JournalsDashletGrid
       stateId={stateId}
       onRowClick={onRowClick}
@@ -31,6 +41,12 @@ const Pie = () => <div>{'showPie'}</div>;
 
 class JournalsContent extends Component {
   state = {};
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.journalId !== this.props.journalId && this.state.recordId) {
+      this.setState({ recordId: '' });
+    }
+  }
 
   onRowClick = row => {
     this.setState({ recordId: row.id });
@@ -65,4 +81,4 @@ class JournalsContent extends Component {
   }
 }
 
-export default JournalsContent;
+export default connect(mapStateToProps)(JournalsContent);

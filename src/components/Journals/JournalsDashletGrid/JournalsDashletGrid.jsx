@@ -320,7 +320,7 @@ class JournalsDashletGrid extends Component {
     this.onDelete = this.deleteRecords;
   };
 
-  renderPerformGroupActionResponse = performGroupActionResponse => {
+  renderPerformGroupActionResponse = (performGroupActionResponse = []) => {
     const { className } = this.props;
     const performGroupActionResponseUrl = (performGroupActionResponse[0] || {}).url;
 
@@ -394,9 +394,9 @@ class JournalsDashletGrid extends Component {
         data,
         columns,
         sortBy,
-        pagination: { maxItems },
+        pagination: { maxItems = 0 },
         groupBy,
-        total,
+        total = 0,
         editingRules
       },
       doInlineToolsOnRowClick = false,
@@ -436,7 +436,7 @@ class JournalsDashletGrid extends Component {
     return (
       <>
         <div className="ecos-journal-dashlet__grid">
-          <HeightCalculation maxItems={maxItems} minHeight={minHeight} total={total}>
+          <HeightCalculation>
             {loading ? (
               <Loader />
             ) : (
@@ -475,7 +475,7 @@ class JournalsDashletGrid extends Component {
 
         <EcosModal
           title={t('group-action.label.header')}
-          isOpen={Boolean(performGroupActionResponse.length)}
+          isOpen={!!(performGroupActionResponse && performGroupActionResponse.length)}
           hideModal={this.closePerformGroupActionDialog}
           className="journal__dialog"
         >
