@@ -220,6 +220,10 @@ export function t(key, options, scope = 'global') {
     return '';
   }
 
+  if (!isString(key)) {
+    return key;
+  }
+
   if (i18next.exists(key)) {
     return i18next.t(key, options);
   }

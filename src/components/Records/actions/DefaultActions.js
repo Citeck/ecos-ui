@@ -188,7 +188,24 @@ export const DownloadAction = {
   execute: ({ record, action }) => {
     const config = action.config || {};
 
-    if (config.downloadType === 'ecos_module') {
+    if (config.downloadType === 'base64') {
+      record.load(config.attribute || 'data').then(data => {
+        let filename = config.filename;
+        if (!filename) {
+          filename = record.id;
+          if (filename.indexOf('@') > 0) {
+            filename = filename.substring(filename.indexOf('@') + 1);
+          }
+          if (filename.indexOf('$') > 0) {
+            filename = filename.substring(filename.indexOf('$') + 1);
+          }
+          if (config.extension) {
+            filename += '.' + config.extension;
+          }
+        }
+        DownloadAction._downloadBase64(data, filename);
+      });
+    } else if (config.downloadType === 'ecos_module') {
       record
         .load(
           {
@@ -238,8 +255,17 @@ export const DownloadAction = {
     document.body.removeChild(a);
   },
 
+  _downloadBase64: (base64, filename) => {
+    const dataStr = 'data:application/octet-stream;charset=utf-8;base64,' + base64;
+    DownloadAction._downloadDataStr(dataStr, filename);
+  },
+
   _downloadText: (text, filename, mimetype) => {
     const dataStr = 'data:' + mimetype + ';charset=utf-8,' + encodeURIComponent(text);
+    DownloadAction._downloadDataStr(dataStr, filename);
+  },
+
+  _downloadDataStr: (dataStr, filename) => {
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute('href', dataStr);
     downloadAnchorNode.setAttribute('download', filename);
