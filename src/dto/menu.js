@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { SourcesId } from '../constants';
@@ -155,14 +156,9 @@ export default class MenuConverter {
         const sItem = sItems[i];
         const { dndIdx, locked, draggable, icon, ...newData } = sItem;
         const oldData = treeFindFirstItem({ items: source.originalItems, value: sItem.id, key: 'id' }) || {};
-        const tItem = { ...oldData, ...newData, icon, items: [] };
+        const tItem = { ...oldData, ...newData, items: [] };
 
-        if (isObject(icon)) {
-          const source = icon.type === 'img' ? SourcesId.ICON : SourcesId.FONT_ICON;
-          const value = icon.value;
-
-          tItem.icon = `${source}@${value}`;
-        }
+        tItem.icon = MenuConverter.getIconRef(icon);
 
         sItem.items && prepareTree(sItem.items, tItem.items);
 
@@ -171,5 +167,33 @@ export default class MenuConverter {
     })(source.items, target.items);
 
     return target;
+  }
+
+  static getIconObjectWeb(data) {
+    let icon = { value: 'icon-empty-icon' };
+
+    if (isString(data)) {
+      const [source, value] = data.split('@');
+
+      if (value && source) {
+        icon.value = value;
+        icon.type = source === SourcesId.ICON ? 'img' : 'icon';
+      }
+    } else {
+      icon = { ...icon, ...data };
+    }
+
+    return icon;
+  }
+
+  static getIconRef(icon) {
+    if (isObject(icon)) {
+      const source = icon.type === 'img' ? SourcesId.ICON : SourcesId.FONT_ICON;
+      const value = icon.value;
+
+      return `${source}@${value}`;
+    }
+
+    return icon;
   }
 }

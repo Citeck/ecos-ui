@@ -29,7 +29,7 @@ const Labels = {
 
 //todo https://citeck.atlassian.net/browse/ECOSCOM-3400 for extractLabel/packInLabel
 
-function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
+function EditorItemModal({ item, type, onClose, onSave }) {
   const defaultIcon = { value: 'icon-empty-icon', type: 'icon' };
   const [label, setLabel] = useState('');
   const [url, setUrl] = useState('');
@@ -102,7 +102,6 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
           {/*todo prefix */}
           {isOpenSelectIcon && (
             <IconSelect
-              customIcons={customIcons}
               prefixIcon="icon-c"
               useFontIcons
               selectedIcon={icon}

@@ -10,5 +10,4 @@ export const setMenuItems = createAction(prefix + 'SET_MENU_ITEMS');
 
 export const getSettingsConfig = createAction(prefix + 'GET_SETTINGS_CONFIG');
 export const saveSettingsConfig = createAction(prefix + 'SAVE_SETTINGS_CONFIG');
-export const getCustomIcons = createAction(prefix + 'GET_CUSTOM_ICONS');
 export const addJournalMenuItems = createAction(prefix + 'ADD_JOURNAL_MENU_ITEMS');

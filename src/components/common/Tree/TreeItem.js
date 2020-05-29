@@ -226,7 +226,7 @@ class TreeItem extends Component {
           <div className="ecos-tree__item-element-space" />
           {filteredActions && !!filteredActions.length && (
             <div className="ecos-tree__item-element-actions">
-              <Actions actionConfig={filteredActions} onClick={this.handleActionItem} />
+              <Actions actionConfig={filteredActions} onClick={this.handleActionItem} idItem={item.id} />
             </div>
           )}
           {canDrag && (

@@ -4,7 +4,6 @@ import {
   getSettingsConfig,
   initSettings,
   saveSettingsConfig,
-  setCustomIcons,
   setMenuItems,
   setOpenMenuSettings,
   setSettingsConfig
@@ -50,10 +49,6 @@ export default handleActions(
     [addJournalMenuItems]: (state, { payload }) => ({
       ...state,
       isLoading: true
-    }),
-    [setCustomIcons]: (state, { payload }) => ({
-      ...state,
-      customIcons: payload
     })
   },
   initialState

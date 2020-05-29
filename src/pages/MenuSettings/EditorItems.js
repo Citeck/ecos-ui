@@ -103,7 +103,7 @@ class EditorItems extends React.Component {
 
   renderEditorItem = () => {
     const { editItemInfo } = this.state;
-    const { items, customIcons, setMenuItems, addJournalMenuItems } = this.props;
+    const { items, setMenuItems, addJournalMenuItems } = this.props;
 
     if (!editItemInfo) {
       return null;
@@ -146,20 +146,12 @@ class EditorItems extends React.Component {
       );
     }
 
-    return (
-      <EditorItemModal
-        customIcons={customIcons}
-        item={editItemInfo.item}
-        type={editItemInfo.type}
-        onClose={handleHideModal}
-        onSave={handleSave}
-      />
-    );
+    return <EditorItemModal item={editItemInfo.item} type={editItemInfo.type} onClose={handleHideModal} onSave={handleSave} />;
   };
 
   renderEditorIcon = () => {
     const { editItemIcon } = this.state;
-    const { items, customIcons, setMenuItems } = this.props;
+    const { items, setMenuItems } = this.props;
 
     const handleHideModal = () => {
       this.setState({ editItemIcon: null });
@@ -178,14 +170,7 @@ class EditorItems extends React.Component {
     };
 
     return editItemIcon ? (
-      <IconSelect
-        customIcons={customIcons}
-        prefixIcon="icon-c"
-        useFontIcons
-        selectedIcon={editItemIcon.icon}
-        onClose={handleHideModal}
-        onSave={handleSave}
-      />
+      <IconSelect prefixIcon="icon-c" useFontIcons selectedIcon={editItemIcon.icon} onClose={handleHideModal} onSave={handleSave} />
     ) : null;
   };
 
@@ -273,8 +258,7 @@ class EditorItems extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  items: get(state, 'menuSettings.items', []),
-  customIcons: get(state, 'menuSettings.customIcons', [])
+  items: get(state, 'menuSettings.items', [])
 });
 
 const mapDispatchToProps = dispatch => ({

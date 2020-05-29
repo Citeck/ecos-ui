@@ -1,13 +1,12 @@
 import cloneDeep from 'lodash/cloneDeep';
 import uuidV4 from 'uuid/v4';
-import isString from 'lodash/isString';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
 import { deepClone, isExistValue, t } from '../helpers/util';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
 import { MenuSettings as ms } from '../constants/menu';
-import { SourcesId } from '../constants';
+import MenuConverter from '../dto/menu';
 
 export default class MenuSettingsService {
   static getItemParams = data => {
@@ -18,7 +17,7 @@ export default class MenuSettingsService {
       label: data.label,
       type: data.type,
       hidden: !!data.hidden,
-      icon: permissions.hasIcon ? MenuSettingsService.parseIcon(data) : undefined,
+      icon: permissions.hasIcon ? MenuConverter.getIconObjectWeb(data.icon) : undefined,
       config: { ...data.config },
       items: [],
       //only for ui, tree
@@ -27,23 +26,6 @@ export default class MenuSettingsService {
       draggable: permissions.draggable
     };
   };
-
-  static parseIcon(data) {
-    let icon = { value: 'icon-empty-icon' };
-
-    if (isString(data.icon)) {
-      const [source, value] = data.icon.split('@');
-
-      if (value && source) {
-        icon.value = value;
-        icon.type = source === SourcesId.ICON ? 'img' : 'icon';
-      }
-    } else {
-      icon = { ...icon, ...data.icon };
-    }
-
-    return icon;
-  }
 
   static isChildless = item => {
     return ![ms.ItemTypes.SECTION].includes(item.type);

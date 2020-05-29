@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
+import get from 'lodash/get';
 
+import { deleteCustomIcon, getCustomIcons, getFontIcons, uploadCustomIcon } from '../../actions/iconSelect';
 import { t } from '../../helpers/util';
-import { BtnUpload, EcosIcon, EcosModal } from '../../components/common';
+import { BtnUpload, EcosIcon, EcosModal, Loader } from '../../components/common';
 import { Btn } from '../../components/common/btns';
+
 import './style.scss';
 
 const Labels = {
@@ -17,84 +21,69 @@ const Labels = {
   ICON_CUSTOM_TIP: 'icon-select.custom.tip'
 };
 
-function IconSelect({ selectedIcon, onClose, onSave, prefixIcon, useFontIcons, customIcons: original }) {
-  const defaultIcon = { value: 'icon-empty-icon', type: 'icon' };
-  const [icon, setIcon] = useState(defaultIcon);
-  const [fontIcons, setFontIcons] = useState([]);
-  const [isLoadingIcon, setLoadingIcon] = useState(false);
-  const [customIcons, setCustomItems] = useState([]);
-
-  useEffect(() => {
-    setIcon(selectedIcon);
-  }, [selectedIcon]);
-
-  useEffect(() => {
-    setCustomItems(original);
-  }, [original]);
-
-  useEffect(() => {
-    if (useFontIcons) {
-      import('../../fonts/citeck/config.json')
-        .then(module => (module.glyphs || []).map(item => ({ value: `icon-${item.css}`, type: 'icon' })))
-        .then(icons => {
-          if (prefixIcon) {
-            setFontIcons(icons.filter(item => item.value.startsWith(prefixIcon)));
-          } else {
-            setFontIcons(icons);
-          }
-        });
-    }
-  }, [prefixIcon, useFontIcons]);
-
-  const onCancel = () => {
-    onClose();
+class IconSelect extends React.Component {
+  state = {
+    icon: {}
   };
 
-  const onApply = () => {
-    onSave(icon);
+  componentDidMount() {
+    const { getCustomIcons, getFontIcons, selectedIcon, prefixIcon, useFontIcons } = this.props;
+
+    getCustomIcons();
+    useFontIcons && getFontIcons(prefixIcon);
+
+    this.setState({ icon: selectedIcon });
+  }
+
+  onCancel = () => {
+    this.props.onClose();
   };
 
-  const onUpload = files => {
-    //todo result
+  onApply = () => {
+    this.props.onSave(this.state.icon);
+  };
+
+  onUpload = files => {
     if (files && files.length) {
-      setLoadingIcon(true);
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = { url: e.target.result, type: 'img' };
-        setCustomItems([...customIcons, img]);
-        setIcon(img);
-      };
-      reader.readAsDataURL(files[0]);
+      const { uploadCustomIcon } = this.props;
 
-      let p = new Promise(resolve => {
-        setTimeout(resolve, 3000);
-      });
-      p.then(r => setLoadingIcon(false));
+      uploadCustomIcon(files[0]);
+
+      //todo see after lastLoaded
     }
   };
 
-  const onDelete = () => {
-    //todo del icon
+  onDelete = () => {
+    const { deleteCustomIcon } = this.props;
+
+    this.setState({ icon: {} });
+    deleteCustomIcon(this.state.icon);
   };
 
-  const selected = item => !!item.value && item.value === icon.value;
-  const prev = item => !!item.value && item.value === selectedIcon.value;
+  selected = item => !!item.value && item.value === this.state.icon.value;
+  prevSelected = item => !!item.value && item.value === this.props.selectedIcon.value;
+  deleteSelected = () => {
+    const { customIcons } = this.props;
+    const { icon } = this.state;
 
-  const renderIcons = items => {
+    return !!customIcons && customIcons.find(i => i.value === icon.value);
+  };
+
+  renderIcons = items => {
     return (
       <div className="ecos-icon-select__option-list">
         {items &&
           items.map((item, i) => (
             <div
               key={`${item.value}-${i}`}
-              className={classNames('ecos-icon-select__option-block', { 'ecos-icon-select__option-block_selected': selected(item) })}
-              onClick={() => setIcon(item)}
+              className={classNames('ecos-icon-select__option-block', { 'ecos-icon-select__option-block_selected': this.selected(item) })}
+              onClick={() => this.setState({ icon: item })}
             >
               <EcosIcon
                 data={item}
                 className={classNames('ecos-icon-select__option-value', {
-                  'ecos-icon-select__option-value_selected': selected(item),
-                  'ecos-icon-select__option-value_prev': prev(item)
+                  'ecos-icon-select__option-value_selected': this.selected(item),
+                  'ecos-icon-select__option-value_prev': this.prevSelected(item)
                 })}
               />
             </div>
@@ -103,42 +92,46 @@ function IconSelect({ selectedIcon, onClose, onSave, prefixIcon, useFontIcons, c
     );
   };
 
-  return (
-    <EcosModal className="ecos-icon-select__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={t(Labels.TITLE)}>
-      {renderIcons(fontIcons)}
-      <div className="ecos-icon-select__custom-title">{t(Labels.ICON_CUSTOM_TITLE)}</div>
-      {renderIcons(customIcons)}
-      <div className="ecos-icon-select__custom-buttons">
-        <BtnUpload
-          label={t(Labels.BTN_UPLOAD_ICON)}
-          loading={isLoadingIcon}
-          onSelected={onUpload}
-          accept="image/*"
-          className="ecos-icon-select__custom-btn-upload"
-        />
-        <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={onDelete}>
-          {t(Labels.BTN_DELETE_ICON)}
-        </Btn>
-      </div>
-      <div className="ecos-icon-select__custom-tip">{t(Labels.ICON_CUSTOM_TIP)}</div>
-      <div className="ecos-menu-editor-item__buttons">
-        <Btn onClick={onCancel}>{t(Labels.BTN_CANCEL)}</Btn>
-        <Btn onClick={onApply} className="ecos-btn_blue ecos-btn_hover_light-blue">
-          {t(Labels.BTN_DONE)}
-        </Btn>
-      </div>
-    </EcosModal>
-  );
+  render() {
+    const { fontIcons, customIcons, isLoading } = this.props;
+
+    return (
+      <EcosModal className="ecos-icon-select__modal ecos-modal_width-xs" isOpen hideModal={this.onCancel} title={t(Labels.TITLE)}>
+        {isLoading && <Loader blur />}
+        {this.renderIcons(fontIcons)}
+        <div className="ecos-icon-select__custom-title">{t(Labels.ICON_CUSTOM_TITLE)}</div>
+        {this.renderIcons(customIcons)}
+        <div className="ecos-icon-select__custom-buttons">
+          <BtnUpload
+            label={t(Labels.BTN_UPLOAD_ICON)}
+            onSelected={this.onUpload}
+            accept="image/*"
+            className="ecos-icon-select__custom-btn-upload"
+          />
+          {this.deleteSelected() && (
+            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.onDelete}>
+              {t(Labels.BTN_DELETE_ICON)}
+            </Btn>
+          )}
+        </div>
+        <div className="ecos-icon-select__custom-tip">{t(Labels.ICON_CUSTOM_TIP)}</div>
+        <div className="ecos-menu-editor-item__buttons">
+          <Btn onClick={this.onCancel}>{t(Labels.BTN_CANCEL)}</Btn>
+          <Btn onClick={this.onApply} className="ecos-btn_blue ecos-btn_hover_light-blue">
+            {t(Labels.BTN_DONE)}
+          </Btn>
+        </div>
+      </EcosModal>
+    );
+  }
 }
 
 IconSelect.propTypes = {
   className: PropTypes.string,
-  source: PropTypes.string,
-  type: PropTypes.object,
-  onClick: PropTypes.func,
+  onClose: PropTypes.func,
+  onSave: PropTypes.func,
   useFontIcons: PropTypes.bool,
-  prefixIcon: PropTypes.string,
-  customIcons: PropTypes.array
+  prefixIcon: PropTypes.string
 };
 
 IconSelect.defaultProps = {
@@ -146,4 +139,20 @@ IconSelect.defaultProps = {
   customIcons: []
 };
 
-export default IconSelect;
+const mapStateToProps = state => ({
+  customIcons: get(state, 'iconSelect.customIcons', []),
+  fontIcons: get(state, 'iconSelect.fontIcons', []),
+  isLoading: get(state, 'iconSelect.isLoading', false)
+});
+
+const mapDispatchToProps = dispatch => ({
+  getCustomIcons: () => dispatch(getCustomIcons()),
+  getFontIcons: prefixIcon => dispatch(getFontIcons(prefixIcon)),
+  uploadCustomIcon: data => dispatch(uploadCustomIcon(data)),
+  deleteCustomIcon: data => dispatch(deleteCustomIcon(data))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(IconSelect);

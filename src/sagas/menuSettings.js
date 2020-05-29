@@ -5,11 +5,9 @@ import get from 'lodash/get';
 
 import {
   addJournalMenuItems,
-  getCustomIcons,
   getSettingsConfig,
   initSettings,
   saveSettingsConfig,
-  setCustomIcons,
   setMenuItems,
   setOpenMenuSettings,
   setSettingsConfig
@@ -22,7 +20,6 @@ import { MenuSettings as ms } from '../constants/menu';
 function* runInitSettings({ api, logger }, action) {
   try {
     yield put(getSettingsConfig());
-    yield put(getCustomIcons());
   } catch (e) {
     logger.error('[menu-settings / runInitSettings]', e.message);
   }
@@ -61,15 +58,6 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
   }
 }
 
-function* fetchGetCustomIcons({ api, logger }, { payload }) {
-  try {
-    yield put(setCustomIcons([])); //todo wait api
-  } catch (e) {
-    NotificationManager.error(t('menu-settings.error.get-custom-icons'), t('error'));
-    logger.error('[menu-settings / fetchGetCustomIcons]', e.message);
-  }
-}
-
 function* runAddJournalMenuItems({ api, logger }, { payload }) {
   try {
     const { records, id, type } = payload;
@@ -81,7 +69,7 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
     yield put(setMenuItems(MenuSettingsService.processAction({ action: ms.ActionTypes.EDIT, items, id, data })));
   } catch (e) {
     NotificationManager.warning('', t('error'));
-    logger.error('[menu-settings / fetchGetCustomIcons]', e.message);
+    logger.error('[menu-settings / runAddJournalMenuItems]', e.message);
   }
 }
 
@@ -89,7 +77,6 @@ function* saga(ea) {
   yield takeLatest(initSettings().type, runInitSettings, ea);
   yield takeLatest(getSettingsConfig().type, fetchGetSettingsConfig, ea);
   yield takeLatest(saveSettingsConfig().type, runSaveSettingsConfig, ea);
-  yield takeLatest(getCustomIcons().type, fetchGetCustomIcons, ea);
   yield takeLatest(addJournalMenuItems().type, runAddJournalMenuItems, ea);
 }
 

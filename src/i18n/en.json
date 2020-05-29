@@ -955,7 +955,7 @@
 
   "icon-select.title": "Select Icon",
   "icon-select.btn.upload-custom": "Upload",
-  "icon-select.btn.delete-custom": "Delete selected",
+  "icon-select.btn.delete-custom": "Delete",
   "icon-select.btn.cancel": "Cancel",
   "icon-select.btn.done": "Done",
   "icon-select.custom.title": "Custom",

@@ -955,7 +955,7 @@
 
   "icon-select.title": "Выбор иконки",
   "icon-select.btn.upload-custom": "Загрузить",
-  "icon-select.btn.delete-custom": "Удалить выбранную",
+  "icon-select.btn.delete-custom": "Удалить",
   "icon-select.btn.cancel": "Отмена",
   "icon-select.btn.done": "Готово",
   "icon-select.custom.title": "Пользовательские",
