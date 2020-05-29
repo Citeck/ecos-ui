@@ -6,6 +6,7 @@ import { SourcesId } from '../constants';
 import { CreateMenuTypes, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
 import { extractLabel } from '../helpers/util';
+import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import MenuSettingsService from '../services/MenuSettingsService';
 
 const getId = unique => `HEADER_${unique.replace(/-/g, '_').toUpperCase()}`;
@@ -133,7 +134,7 @@ export default class MenuConverter {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
         const tItem = MenuSettingsService.getItemParams(sItem);
-
+        tItem.items = [];
         sItem.items && prepareTree(sItem.items, tItem.items);
         tItems.push(tItem);
       }
@@ -152,9 +153,9 @@ export default class MenuConverter {
     (function prepareTree(sItems, tItems) {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
-        const { id, type, label, hidden, icon } = sItem;
-        //todo merge old
-        const tItem = { id, type, label, hidden, icon, items: [] };
+        const { dndIdx, locked, draggable, icon, ...newData } = sItem;
+        const oldData = treeFindFirstItem({ items: source.originalItems, value: sItem.id, key: 'id' }) || {};
+        const tItem = { ...oldData, ...newData, icon, items: [] };
 
         if (isObject(icon)) {
           const source = icon.type === 'img' ? SourcesId.ICON : SourcesId.FONT_ICON;

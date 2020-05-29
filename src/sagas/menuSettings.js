@@ -1,6 +1,7 @@
 import { NotificationManager } from 'react-notifications';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import set from 'lodash/set';
+import get from 'lodash/get';
 
 import {
   addJournalMenuItems,
@@ -47,9 +48,8 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
     const items = yield select(state => state.menuSettings.items);
 
     const result = yield call(api.menu.getMenuSettingsConfig, { id });
-    const originalItems = set(result, ['subMenu', type.toLowerCase(), 'items'], []);
+    const originalItems = get(result, ['menu', type.toLowerCase(), 'items'], []);
     const serverData = MenuConverter.getSettingsConfigServer({ originalItems, items });
-
     set(result, ['subMenu', type.toLowerCase()], serverData);
 
     yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu });
@@ -74,7 +74,7 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
   try {
     const { records, id, type } = payload;
     const items = yield select(state => state.menuSettings.items);
-    const data = yield call(api.menu.getJournalItemInfo, records);
+    const data = yield call(api.menu.getItemInfoByRef, records);
 
     data.forEach(item => (item.type = type));
 

@@ -56,7 +56,7 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
     data.edited = !!get(item, 'id');
     data.label = packInLabel(label);
     !get(item, 'type') && (data.type = type.key);
-    hasUrl && set(item, 'config.url', url);
+    hasUrl && set(data, 'config.url', url);
     hasIcon && (data.icon = icon);
 
     onSave(data);

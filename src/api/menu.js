@@ -1,4 +1,5 @@
 import lodashGet from 'lodash/get';
+import lodashSet from 'lodash/set';
 
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
@@ -173,6 +174,12 @@ export class MenuApi extends CommonApi {
         authorities: 'authorities',
         menu: 'subMenu?json'
       })
+      .then(resp => {
+        return fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || []).then(items => {
+          lodashSet(resp, 'menu.left.items', items);
+          return resp;
+        });
+      })
       .then(resp => resp)
       .catch(err => {
         console.error(err);
@@ -185,18 +192,10 @@ export class MenuApi extends CommonApi {
 
     rec.att('subMenu', subMenu);
 
-    return rec.save().then(rec => {
-      return rec
-        .load({
-          id: 'id',
-          authorities: 'authorities',
-          menu: 'subMenu?json'
-        })
-        .then(resp => resp);
-    });
+    return rec.save();
   };
 
-  getJournalItemInfo = records => {
+  getItemInfoByRef = records => {
     return Promise.all(
       records.map(recordRef =>
         Records.get(recordRef)
@@ -205,4 +204,28 @@ export class MenuApi extends CommonApi {
       )
     );
   };
+}
+
+async function fetchExtraItemInfo(data) {
+  return Promise.all(
+    data.map(async item => {
+      const ref = lodashGet(item, 'config.recordRef');
+      let target = { ...item };
+
+      if (ref) {
+        const result = await Records.get(ref).load({
+          label: '.disp'
+        });
+
+        target.label = result.label;
+        target.config = { ...target.config };
+      }
+
+      if (Array.isArray(item.items)) {
+        target.items = await fetchExtraItemInfo(item.items);
+      }
+
+      return target;
+    })
+  );
 }
