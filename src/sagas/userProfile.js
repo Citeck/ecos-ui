@@ -1,8 +1,18 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { changePassword, changePhoto, getUserData, setChangePassword, setMessage, setUserData, setUserPhoto } from '../actions/user';
+import { NotificationManager } from 'react-notifications';
+
+import {
+  changePassword,
+  changePhoto,
+  getUserData,
+  setChangePassword,
+  setUserData,
+  setUserPhoto,
+  togglePasswordModal
+} from '../actions/user';
 import { setNotificationMessage } from '../actions/notification';
-import { t } from '../helpers/util';
 import { createThumbnailUrl } from '../helpers/urls';
+import { t } from '../helpers/util';
 
 function* sagaGetUserData({ api, logger }, { payload }) {
   const { record, stateId } = payload;
@@ -41,19 +51,23 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
         data: { nodeRef }
       }
     });
+    let message = '';
 
     if (response.success) {
       const data = yield call(api.user.getUserDataByRef, record);
 
       yield put(setUserPhoto({ thumbnail: createThumbnailUrl(data.nodeRef, { t: Date.now() }), stateId }));
+      message = t('user-profile-widget.success.change-photo');
     } else {
-      yield put(
-        setMessage({ message: { text: t('user-profile-widget.error.upload-profile-photo'), error: true }, stateId, isLoadingPhoto: false })
-      );
+      message = t('user-profile-widget.error.upload-profile-photo');
     }
+
+    NotificationManager[response.success ? 'success' : 'error'](message);
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.upload-profile-photo')));
     logger.error('[userProfile/sagaChangePhoto saga] error', e.message);
+  } finally {
+    yield put(setUserData({ stateId, isLoadingPhoto: false }));
   }
 }
 
@@ -66,10 +80,14 @@ function* sagaChangePassword({ api, logger }, { payload }) {
       ? t('user-profile-widget.success.change-profile-password')
       : `${t('user-profile-widget.error.change-profile-password')}. ${response.message}`;
 
+    if (response.success) {
+      yield put(togglePasswordModal({ stateId, isOpen: false }));
+    }
+
     yield put(setChangePassword({ stateId }));
-    yield put(setMessage({ message: { text, error: !response.success }, stateId, isLoadingPassword: false }));
+    NotificationManager[response.success ? 'success' : 'error'](text);
   } catch (e) {
-    yield put(setNotificationMessage(t('user-profile-widget.error.change-profile-password')));
+    NotificationManager.error(t('user-profile-widget.error.change-profile-password'));
     logger.error('[userProfile/sagaChangePassword saga] error', e.message);
   }
 }

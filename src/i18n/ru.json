@@ -890,6 +890,8 @@
   "user-profile-widget.error.get-profile-data": "Ошибка получения данных профиля",
   "user-profile-widget.error.upload-profile-photo": "Ошибка загрузки фотографии. Попробуйте ещё раз",
   "user-profile-widget.error.change-profile-password": "Ошибка смены пароля",
+  "user-profile-widget.error.invalid-password": "Старый пароль введен неверно",
+  "user-profile-widget.error.server-error": "Произошла ошибка на сервере",
   "user-profile-widget.success.change-profile-password": "Пароль успешно изменен",
   "user-profile-widget.modal-password.label.old-password": "Старый пароль",
   "user-profile-widget.modal-password.label.new-password": "Придумайте новый пароль",
@@ -898,6 +900,7 @@
   "user-profile-widget.modal-password.button.change": "Изменить пароль",
   "user-profile-widget.modal-password.msg.new-passwords-not-match": "Пароль не совпадает",
   "user-profile-widget.modal-password.msg.new-n-old-passwords-match": "Новый пароль такой же как старый",
+  "user-profile-widget.success.change-photo": "Фотография профиля успешно изменена",
 
   "password-field.rule.valid-characters": "Допустимы латинские, русские и другие символы",
   "password-field.rule.count-characters": "минимум 3 знака/символа",
