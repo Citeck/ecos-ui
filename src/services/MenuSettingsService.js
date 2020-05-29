@@ -53,16 +53,15 @@ export default class MenuSettingsService {
     const actions = [];
     const permissions = MenuSettingsService.getActionPermissions(item);
 
-    if (permissions.editable) {
+    permissions.editable &&
       actions.push({
         type: ms.ActionTypes.EDIT,
         icon: 'icon-edit',
         text: 'menu-settings.editor-items.action.edit',
         when: { hidden: false }
       });
-    }
 
-    if (permissions.removable) {
+    permissions.removable &&
       actions.push({
         type: ms.ActionTypes.DELETE,
         icon: 'icon-delete',
@@ -70,26 +69,14 @@ export default class MenuSettingsService {
         className: 'ecos-menu-settings-editor-items__action_caution',
         when: { hidden: false }
       });
-    }
 
-    if (permissions.hideable) {
-      actions.push(
-        {
-          type: ms.ActionTypes.ACTIVE,
-          icon: 'icon-on',
-          className: 'ecos-menu-settings-editor-items__action_no-hide',
-          when: { hidden: false },
-          text: 'menu-settings.editor-items.action.hide'
-        },
-        {
-          type: ms.ActionTypes.NO_ACTIVE,
-          icon: 'icon-off',
-          className: 'ecos-menu-settings-editor-items__action_no-hide',
-          when: { hidden: true },
-          text: 'menu-settings.editor-items.action.show'
-        }
-      );
-    }
+    permissions.hideable &&
+      actions.push({
+        type: ms.ActionTypes.ACTIVE,
+        icon: item.hidden ? 'icon-off' : 'icon-on',
+        className: 'ecos-menu-settings-editor-items__action_no-hide',
+        text: item.hidden ? 'menu-settings.editor-items.action.show' : 'menu-settings.editor-items.action.hide'
+      });
 
     return actions;
   };
@@ -109,7 +96,7 @@ export default class MenuSettingsService {
   static getActiveActions(item) {
     const availableActions = MenuSettingsService.getAvailableActions(item);
 
-    return availableActions.filter(act => !isExistValue(act.when.hidden) || act.when.hidden === item.hidden);
+    return availableActions.filter(act => !isExistValue(get(act, 'when.hidden')) || act.when.hidden === item.hidden);
   }
 
   static processAction = ({ items: original, action, id, data }) => {
@@ -118,9 +105,11 @@ export default class MenuSettingsService {
 
     switch (action) {
       case ms.ActionTypes.ACTIVE:
-      case ms.ActionTypes.NO_ACTIVE:
         foundItem.hidden = !foundItem.hidden;
         foundItem.locked = foundItem.hidden;
+        break;
+      case ms.ActionTypes.DISPLAY_COUNT:
+        set(foundItem, 'config.displayCount', !get(foundItem, 'config.displayCount'));
         break;
       case ms.ActionTypes.EDIT:
         const path = treeGetPathItem({ items, value: id, key: 'id' });

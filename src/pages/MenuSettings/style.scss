@@ -108,6 +108,35 @@
       }
     }
 
+    &__action {
+      &-count {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $color-gray-5;
+        font-weight: $font-weight-bold;
+
+        &:hover {
+          cursor: pointer;
+          color: $color-blue-light;
+          .ecos-badge {
+            background-color: $color-blue-light;
+          }
+        }
+
+        .ecos-badge {
+          margin-right: 5px;
+        }
+
+        &_active {
+          color: $color-red-1;
+          .ecos-badge {
+            background-color: $color-red-1;
+          }
+        }
+      }
+    }
+
     &--item {
       &-container {
         //z-index: 999;
@@ -127,7 +156,7 @@
     }
   }
 
-  &__actions {
+  &__buttons {
     margin-top: 35px;
 
     & > :nth-child(even) {
@@ -136,7 +165,7 @@
   }
 }
 
-.ecos-menu-create-section {
+.ecos-menu-editor-item {
   &__field {
     &-icon {
       display: flex;

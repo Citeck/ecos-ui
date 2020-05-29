@@ -4,6 +4,7 @@ import lodashSet from 'lodash/set';
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
+import { MenuSettings as ms } from '../constants/menu';
 import Records from '../components/Records';
 import { getJournalUIType } from './export/journalsApi';
 import { CommonApi } from './common';
@@ -209,16 +210,18 @@ export class MenuApi extends CommonApi {
 async function fetchExtraItemInfo(data) {
   return Promise.all(
     data.map(async item => {
+      const target = { ...item };
       const ref = lodashGet(item, 'config.recordRef');
-      let target = { ...item };
 
-      if (ref) {
+      if (ref && [ms.ItemTypes.JOURNAL].includes(item.type)) {
         const result = await Records.get(ref).load({
           label: '.disp'
+          //id: 'id',
+          //count: 'count', //todo wait new api for actual
         });
 
         target.label = result.label;
-        target.config = { ...target.config };
+        target.config = { ...target.config, count: 0 };
       }
 
       if (Array.isArray(item.items)) {

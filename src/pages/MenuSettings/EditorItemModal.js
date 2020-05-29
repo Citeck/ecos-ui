@@ -78,7 +78,7 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
     (!!item ? ` \"${extractLabel(item.label)}\"` : '');
 
   return (
-    <EcosModal className="ecos-menu-create-section__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={title}>
+    <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={title}>
       <Field label={t(Labels.FIELD_NAME_LABEL)} required>
         <Input onChange={e => setLabel(e.target.value)} value={label} />
       </Field>
@@ -89,7 +89,7 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
       )}
       {hasIcon && (
         <Field label={t(Labels.FIELD_ICON_LABEL)} description={t(Labels.FIELD_ICON_DESC)}>
-          <div className="ecos-menu-create-section__field-icon">
+          <div className="ecos-menu-editor-item__field-icon">
             <EcosIcon data={icon} />
             <div className="ecos--flex-space" />
             <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setIcon(item.icon)}>
@@ -113,7 +113,7 @@ function EditorItemModal({ item, type, onClose, onSave, customIcons }) {
         </Field>
       )}
 
-      <div className="ecos-menu-create-section__buttons">
+      <div className="ecos-menu-editor-item__buttons">
         <Btn onClick={handleCancel}>{t(Labels.MODAL_BTN_CANCEL)}</Btn>
         <Btn onClick={handleApply} className="ecos-btn_blue ecos-btn_hover_light-blue" disabled={isValid()}>
           {!!item ? t(Labels.MODAL_BTN_EDIT) : t(Labels.MODAL_BTN_ADD)}

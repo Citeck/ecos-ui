@@ -80,7 +80,7 @@ class Settings extends React.Component {
 
   renderButtons() {
     return (
-      <div className="ecos-menu-settings__actions">
+      <div className="ecos-menu-settings__buttons">
         <Btn onClick={this.handleCancel}>{t(Labels.BTN_CANCEL)}</Btn>
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleApply}>
           {t(Labels.BTN_APPLY)}

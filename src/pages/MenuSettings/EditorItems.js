@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 
 import { extractLabel, t } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
@@ -11,7 +12,7 @@ import { addJournalMenuItems, setMenuItems } from '../../actions/menuSettings';
 import IconSelect from '../../components/IconSelect';
 import { Tree } from '../../components/common';
 import { Btn } from '../../components/common/btns';
-import { Dropdown, SelectJournal } from '../../components/common/form';
+import { Badge, Dropdown, SelectJournal } from '../../components/common/form';
 import dialogManager from '../../components/common/dialogs/Manager';
 import EditorItemModal from './EditorItemModal';
 
@@ -46,16 +47,8 @@ class EditorItems extends React.Component {
     return MenuSettingsService.getActiveActions(item);
   };
 
-  toggleOpenAMI = () => {
+  toggleOpenAll = () => {
     this.setState(({ openAllMenuItems }) => ({ openAllMenuItems: !openAllMenuItems }));
-  };
-
-  handleSelectOption = (a, b, c) => {
-    console.log(a, b, c);
-  };
-
-  handleOpenSettings = (a, b, c) => {
-    console.log(a, b, c);
   };
 
   handleChooseOption = (type, item) => {
@@ -196,27 +189,51 @@ class EditorItems extends React.Component {
     ) : null;
   };
 
-  renderButtonAddSection = ({ item, level, isOpen }) => {
+  renderExtraComponents = ({ item, level, isOpen }) => {
+    const components = [];
+    const id = get(item, 'id');
+
     if (!item || (level < 3 && !item.hidden && !MenuSettingsService.isChildless(item))) {
       const createOptions = MenuSettingsService.getAvailableCreateOptions(item);
 
-      return createOptions && createOptions.length ? (
-        <Dropdown
-          source={createOptions}
-          valueField={'id'}
-          titleField={'label'}
-          onChange={type => this.handleChooseOption(type, item)}
-          className=""
-          menuClassName="ecos-menu-settings-editor-items__menu-options"
-          isStatic
-          controlLabel={t(Labels.BTN_ADD)}
-          controlIcon="icon-plus"
-          controlClassName={'ecos-btn_hover_light-blue2 ecos-btn_sq_sm'}
-        />
-      ) : null;
+      createOptions &&
+        createOptions.length &&
+        components.push(
+          <Dropdown
+            key={`${id}--dropdown`}
+            source={createOptions}
+            valueField={'id'}
+            titleField={'label'}
+            onChange={type => this.handleChooseOption(type, item)}
+            className=""
+            menuClassName="ecos-menu-settings-editor-items__menu-options"
+            isStatic
+            controlLabel={t(Labels.BTN_ADD)}
+            controlIcon="icon-plus"
+            controlClassName={'ecos-btn_hover_light-blue2 ecos-btn_sq_sm'}
+          />
+        );
     }
 
-    return null;
+    if (item && [ms.ItemTypes.JOURNAL].includes(item.type)) {
+      const displayCount = get(item, 'config.displayCount');
+      const count = String(get(item, 'config.count', 0));
+
+      components.push(
+        <div
+          key={`${id}--counter`}
+          className={classNames('ecos-menu-settings-editor-items__action-count', {
+            'ecos-menu-settings-editor-items__action-count_active': displayCount
+          })}
+          onClick={() => this.handleActionItem({ action: ms.ActionTypes.DISPLAY_COUNT, item })}
+        >
+          <Badge text={count} />
+          <span>{displayCount ? t('menu-settings.editor-items.action.count-on') : t('menu-settings.editor-items.action.count-off')}</span>
+        </div>
+      );
+    }
+
+    return components;
   };
 
   render() {
@@ -227,9 +244,9 @@ class EditorItems extends React.Component {
       <div className="ecos-menu-settings-editor-items">
         <div className="ecos-menu-settings-editor-items__header">
           <div className="ecos-menu-settings__subtitle ecos-menu-settings-editor-items__subtitle">{t(Labels.SUBTITLE)}</div>
-          {this.renderButtonAddSection({})}
+          {this.renderExtraComponents({})}
           <div className="ecos--flex-space" />
-          <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAMI}>
+          <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
             {t(openAllMenuItems ? Labels.BTN_COLLAPSE_ALL : Labels.BTN_EXPAND_ALL)}
           </Btn>
         </div>
@@ -245,7 +262,7 @@ class EditorItems extends React.Component {
             getActions={this.getAvailableActions}
             onClickAction={this.handleActionItem}
             onClickIcon={this.handleClickIcon}
-            renderExtraComponents={this.renderButtonAddSection}
+            renderExtraComponents={this.renderExtraComponents}
           />
         </div>
         {this.renderEditorItem()}

@@ -121,7 +121,7 @@ function IconSelect({ selectedIcon, onClose, onSave, prefixIcon, useFontIcons, c
         </Btn>
       </div>
       <div className="ecos-icon-select__custom-tip">{t(Labels.ICON_CUSTOM_TIP)}</div>
-      <div className="ecos-menu-create-section__buttons">
+      <div className="ecos-menu-editor-item__buttons">
         <Btn onClick={onCancel}>{t(Labels.BTN_CANCEL)}</Btn>
         <Btn onClick={onApply} className="ecos-btn_blue ecos-btn_hover_light-blue">
           {t(Labels.BTN_DONE)}
