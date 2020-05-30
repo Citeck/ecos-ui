@@ -477,6 +477,7 @@ class Documents extends BaseWidget {
     }
 
     const { formId = null, countDocuments = 0, multiple } = type;
+    const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {});
     let isFormOpens = false;
 
     /**
@@ -484,10 +485,8 @@ class Documents extends BaseWidget {
      * - have form id (formId !== null)
      * - not have documents, when can load only one document (!countDocuments && !multiple)
      */
-    if (formId !== null && !countDocuments && !multiple) {
+    if ((formId !== null || createVariants.formRef !== null) && !countDocuments && !multiple) {
       isFormOpens = true;
-
-      const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {});
 
       this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record, createVariants }));
     }
