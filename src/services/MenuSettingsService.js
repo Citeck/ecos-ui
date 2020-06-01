@@ -4,9 +4,9 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 
 import { deepClone, isExistValue, t } from '../helpers/util';
+import { getIconObjectWeb } from '../helpers/icon';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
 import { MenuSettings as ms } from '../constants/menu';
-import MenuConverter from '../dto/menu';
 
 export default class MenuSettingsService {
   static getItemParams = data => {
@@ -17,7 +17,7 @@ export default class MenuSettingsService {
       label: data.label,
       type: data.type,
       hidden: !!data.hidden,
-      icon: permissions.hasIcon ? MenuConverter.getIconObjectWeb(data.icon) : undefined,
+      icon: permissions.hasIcon ? getIconObjectWeb(data.icon) : undefined,
       config: { ...data.config },
       items: [],
       //only for ui, tree

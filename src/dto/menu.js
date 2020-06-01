@@ -1,13 +1,11 @@
 import get from 'lodash/get';
-import isObject from 'lodash/isObject';
-import isString from 'lodash/isString';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { SourcesId } from '../constants';
 import { CreateMenuTypes, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
 import { extractLabel } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
+import { getIconRef } from '../helpers/icon';
 import MenuSettingsService from '../services/MenuSettingsService';
 
 const getId = unique => `HEADER_${unique.replace(/-/g, '_').toUpperCase()}`;
@@ -158,7 +156,7 @@ export default class MenuConverter {
         const oldData = treeFindFirstItem({ items: source.originalItems, value: sItem.id, key: 'id' }) || {};
         const tItem = { ...oldData, ...newData, items: [] };
 
-        tItem.icon = MenuConverter.getIconRef(icon);
+        tItem.icon = getIconRef(icon);
 
         sItem.items && prepareTree(sItem.items, tItem.items);
 
@@ -167,33 +165,5 @@ export default class MenuConverter {
     })(source.items, target.items);
 
     return target;
-  }
-
-  static getIconObjectWeb(data) {
-    let icon = { value: 'icon-empty-icon' };
-
-    if (isString(data)) {
-      const [source, value] = data.split('@');
-
-      if (value && source) {
-        icon.value = value;
-        icon.type = source === SourcesId.ICON ? 'img' : 'icon';
-      }
-    } else {
-      icon = { ...icon, ...data };
-    }
-
-    return icon;
-  }
-
-  static getIconRef(icon) {
-    if (isObject(icon)) {
-      const source = icon.type === 'img' ? SourcesId.ICON : SourcesId.FONT_ICON;
-      const value = icon.value;
-
-      return `${source}@${value}`;
-    }
-
-    return icon;
   }
 }

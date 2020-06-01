@@ -37,4 +37,18 @@ export class AppApi extends CommonApi {
       }
     );
   };
+
+  getBase64 = file => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    })
+      .then(result => result)
+      .catch(err => {
+        console.error(err);
+        return {};
+      });
+  };
 }
