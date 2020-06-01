@@ -59,6 +59,10 @@ class Settings extends Component {
       newState.isLoadChecklist = props.isLoadChecklist;
     }
 
+    if (!props.isOpen && state.filter) {
+      newState.filter = '';
+    }
+
     if (!Object.keys(newState).length) {
       return null;
     }
