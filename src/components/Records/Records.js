@@ -3,6 +3,7 @@ import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
 import { recordsDeleteFetch, recordsQueryFetch } from './recordsApi';
 import Record from './Record';
+import uuidV4 from 'uuid/v4';
 
 let Records;
 
@@ -40,6 +41,39 @@ class RecordsComponent {
       }
       record._owners[owner] = true;
     }
+
+    return record;
+  }
+
+  create(data, owner) {
+    if (!owner) {
+      throw new Error('Owner is mandatory for virtual records');
+    }
+
+    if (Array.isArray(data)) {
+      let result = [];
+      for (let v of data) {
+        let record = this.create(v, owner);
+        if (record) {
+          result.push(record);
+        }
+      }
+      return result;
+    }
+
+    let id = uuidV4();
+    let record = new Record(id, this);
+    record._virtual = true;
+    record._owners[owner] = true;
+
+    for (let att in data) {
+      if (data.hasOwnProperty(att)) {
+        let attKey = att === 'id' ? '_att_id' : att;
+        record.persistedAtt(attKey, data[att]);
+      }
+    }
+
+    this._records[id] = record;
 
     return record;
   }

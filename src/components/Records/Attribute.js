@@ -66,7 +66,9 @@ const PersistedValue = function(att, innerAtt) {
   };
 
   this.getValue = (multiple, withLoading, forceReload) => {
-    if (withLoading && (!this._isLoaded || forceReload || (multiple && !this._isArrayLoaded))) {
+    let isVirtualRec = this._att._record._virtual;
+
+    if (!isVirtualRec && withLoading && (!this._isLoaded || forceReload || (multiple && !this._isArrayLoaded))) {
       let attributeToLoad = convertToFullAttributeName(this._att.getName(), this._innerAtt, multiple);
 
       this._value = this._att._record._loadRecordAttImpl(attributeToLoad, forceReload);
