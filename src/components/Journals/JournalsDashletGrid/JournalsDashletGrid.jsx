@@ -300,6 +300,12 @@ class JournalsDashletGrid extends Component {
         onSubmit: rec => {
           let action = cloneDeep(groupAction);
           action.params = action.params || {};
+
+          action.params = {
+            ...action.params,
+            ...rec.getRawAttributes()
+          };
+
           action.params.attributes = rec.getAttributesToSave();
           performGroupAction({ groupAction: action, selected: selectedRecords });
         }
