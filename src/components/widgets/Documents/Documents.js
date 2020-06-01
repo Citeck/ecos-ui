@@ -481,10 +481,12 @@ class Documents extends BaseWidget {
     const hasForm = formId !== null || createVariants.formRef !== null;
     let isFormOpens = false;
 
-    if (hasForm && (hasForm && !multiple && !countDocuments)) {
-      isFormOpens = true;
+    if (hasForm) {
+      if ((!multiple && !countDocuments) || multiple) {
+        isFormOpens = true;
 
-      this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record, createVariants }));
+        this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record, createVariants }));
+      }
     }
 
     this.setState({
