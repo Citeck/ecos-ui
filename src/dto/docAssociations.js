@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
-import moment from 'moment';
 
+import { getTextByLocale } from '../helpers/util';
 import { DIRECTIONS } from '../constants/docAssociations';
 
 export default class DocAssociationsConverter {
@@ -30,10 +30,8 @@ export default class DocAssociationsConverter {
       return {};
     }
 
-    const target = {};
+    const target = { ...source };
 
-    target.name = source.displayName;
-    target.date = moment(source.created || moment()).format('DD.MM.YYYY h:mm');
     target.record = source.id;
     target.associationId = associationId;
     target.direction = direction;
@@ -48,7 +46,7 @@ export default class DocAssociationsConverter {
 
     const target = {};
 
-    target.label = get(source, ['title'], '');
+    target.label = getTextByLocale(get(source, ['title'], ''));
     target.id = get(source, ['type'], '');
     target.nodeRef = get(source, ['nodeRef'], '');
 
@@ -64,7 +62,7 @@ export default class DocAssociationsConverter {
       const target = {};
 
       target.id = item.name;
-      target.label = item.title;
+      target.label = getTextByLocale(item.title);
       target.nodeRef = item.id;
       target.associationId = associationId;
       target.items = (item.items || []).map(i => ({ ...i, associationId }));
@@ -76,7 +74,7 @@ export default class DocAssociationsConverter {
       const target = {};
 
       target.id = DocAssociationsConverter.getId(item);
-      target.label = item.name;
+      target.label = getTextByLocale(item.name);
       target.items = secondLvl.map(i => mappingNextLevel(i, target.id)).filter(i => i.items.length);
 
       return target;
@@ -105,14 +103,52 @@ export default class DocAssociationsConverter {
 
       target.name = DocAssociationsConverter.getId(source);
       target.attribute = source.attribute;
-      target.title = source.name;
+      target.title = getTextByLocale(source.name);
       target.direction = source.direction === DIRECTIONS.NULL ? DIRECTIONS.TARGET : source.direction;
+      target.columnsConfig = DocAssociationsConverter.getColumnsConfig(source.columnsConfig);
 
       return target;
     });
   }
 
+  static getColumnsConfig(config) {
+    if (config === null) {
+      return null;
+    }
+
+    const target = {};
+
+    target.columns = get(config, 'columns', []).map(column => ({
+      ...column,
+      label: getTextByLocale(column.label || '')
+    }));
+    target.label = getTextByLocale(config.label);
+    target.typeRef = config.typeRef;
+
+    return target;
+  }
+
   static getId(source = {}) {
     return source.id;
+  }
+
+  static getColumnsAttributes(source = []) {
+    if (isEmpty(source)) {
+      return '';
+    }
+
+    if (!Array.isArray(source)) {
+      return '';
+    }
+
+    return source
+      .map(column => {
+        if (!column.name || !column.attribute) {
+          return '';
+        }
+
+        return `${column.name}:${column.attribute}`;
+      })
+      .join(',');
   }
 }

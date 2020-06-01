@@ -15,7 +15,7 @@ import {
 } from '../actions/docAssociations';
 import DocAssociationsConverter from '../dto/docAssociations';
 import { DIRECTIONS } from '../constants/docAssociations';
-import { selectAllowedDirectionsByKey, selectAssocByAssocName } from '../selectors/docAssociations';
+import { selectAllowedDirectionsByKey, selectAssocByAssocName, selectAssociationColumnsConfig } from '../selectors/docAssociations';
 import Records from '../components/Records';
 
 function* sagaGetSectionList({ api, logger }, { payload }) {
@@ -35,25 +35,29 @@ function* sagaGetSectionList({ api, logger }, { payload }) {
 
 function* getAssociation({ api, logger }, { id, direction }, recordRef) {
   try {
+    const attributes = DocAssociationsConverter.getColumnsAttributes(
+      yield select(state => selectAssociationColumnsConfig(state, recordRef, id))
+    );
+
     if (direction === DIRECTIONS.TARGET) {
-      const data = yield call(api.docAssociations.getTargetAssociations, id, recordRef);
+      const data = yield call(api.docAssociations.getTargetAssociations, id, recordRef, attributes);
 
       return DocAssociationsConverter.getAssociationsWithDirection(data, DIRECTIONS.TARGET);
     }
 
     if (direction === DIRECTIONS.SOURCE) {
-      const data = yield call(api.docAssociations.getSourceAssociations, id, recordRef);
+      const data = yield call(api.docAssociations.getSourceAssociations, id, recordRef, attributes);
 
       return DocAssociationsConverter.getAssociationsWithDirection(data, DIRECTIONS.SOURCE);
     }
 
     if (direction === DIRECTIONS.BOTH) {
       const target = DocAssociationsConverter.getAssociationsWithDirection(
-        yield call(api.docAssociations.getTargetAssociations, id, recordRef),
+        yield call(api.docAssociations.getTargetAssociations, id, recordRef, attributes),
         DIRECTIONS.TARGET
       );
       const source = DocAssociationsConverter.getAssociationsWithDirection(
-        yield call(api.docAssociations.getSourceAssociations, id, recordRef),
+        yield call(api.docAssociations.getSourceAssociations, id, recordRef, attributes),
         DIRECTIONS.SOURCE
       );
 
