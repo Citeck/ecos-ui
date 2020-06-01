@@ -95,21 +95,21 @@ export default class MenuSettingsService {
         break;
       case ms.ActionTypes.EDIT:
         const path = treeGetPathItem({ items, value: id, key: 'id' });
+        let newItems;
 
         if (data.edited && !Array.isArray(data)) {
-          set(items, path, { ...get(items, path), ...data });
+          newItems = [{ ...get(items, path), ...data }];
+          set(items, path, newItems[0]);
         } else {
-          const newItems = Array.isArray(data)
-            ? data.map(d => MenuSettingsService.getItemParams(d))
-            : [MenuSettingsService.getItemParams(data)];
+          newItems = Array.isArray(data) ? data.map(d => MenuSettingsService.getItemParams(d)) : [MenuSettingsService.getItemParams(data)];
 
           if (path) {
-            Array.prototype.push.apply(get(items, path, {}).items, newItems);
+            get(items, path, {}).items.push(...newItems);
           } else {
-            Array.prototype.push.apply(items, newItems);
+            items.push(...newItems);
           }
         }
-        break;
+        return { items, newItems };
       case ms.ActionTypes.DELETE:
         treeRemoveItem({ items, key: 'id', value: id });
         break;
@@ -117,7 +117,7 @@ export default class MenuSettingsService {
         break;
     }
 
-    return items;
+    return { items };
   };
 
   static createOptions = [

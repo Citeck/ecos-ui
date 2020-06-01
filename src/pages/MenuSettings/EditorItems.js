@@ -4,11 +4,11 @@ import get from 'lodash/get';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-import { extractLabel, t } from '../../helpers/util';
+import { arrayCompare, extractLabel, t } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import { MenuSettings as ms } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
-import { addJournalMenuItems, setMenuItems } from '../../actions/menuSettings';
+import { addJournalMenuItems, setLastAddedItems, setMenuItems } from '../../actions/menuSettings';
 import IconSelect from '../../components/IconSelect';
 import { Tree } from '../../components/common';
 import { Btn } from '../../components/common/btns';
@@ -43,6 +43,16 @@ class EditorItems extends React.Component {
     editItemIcon: null
   };
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { lastAddedItems } = this.props;
+
+    if (!arrayCompare(lastAddedItems, prevProps.lastAddedItems)) {
+      const targetEl = document.querySelector(`#id${get(lastAddedItems, [0, 'id'])}`);
+
+      targetEl && targetEl.scrollIntoView();
+    }
+  }
+
   getAvailableActions = item => {
     return MenuSettingsService.getActiveActions(item);
   };
@@ -75,7 +85,7 @@ class EditorItems extends React.Component {
         text: t('menu-settings.message.delete-item', { name: extractLabel(item.label) }),
         className: 'ecos-modal_width-xs',
         onDelete: () => {
-          setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items }));
+          setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items }).items);
         }
       });
       return;
@@ -88,7 +98,7 @@ class EditorItems extends React.Component {
       return;
     }
 
-    setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items }));
+    setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items }).items);
   };
 
   handleClickIcon = item => {
@@ -103,7 +113,7 @@ class EditorItems extends React.Component {
 
   renderEditorItem = () => {
     const { editItemInfo } = this.state;
-    const { items, setMenuItems, addJournalMenuItems } = this.props;
+    const { items, setMenuItems, addJournalMenuItems, setLastAddedItems } = this.props;
 
     if (!editItemInfo) {
       return null;
@@ -114,14 +124,14 @@ class EditorItems extends React.Component {
     };
 
     const handleSave = data => {
-      setMenuItems(
-        MenuSettingsService.processAction({
-          action: ms.ActionTypes.EDIT,
-          items,
-          id: get(editItemInfo, 'item.id'),
-          data
-        })
-      );
+      const result = MenuSettingsService.processAction({
+        action: ms.ActionTypes.EDIT,
+        items,
+        id: get(editItemInfo, 'item.id'),
+        data
+      });
+      setMenuItems(result.items);
+      setLastAddedItems(result.newItems);
       handleHideModal();
     };
 
@@ -159,12 +169,14 @@ class EditorItems extends React.Component {
 
     const handleSave = icon => {
       setMenuItems(
-        MenuSettingsService.processAction({
-          action: ms.ActionTypes.EDIT,
-          items,
-          id: editItemIcon.id,
-          data: { edited: true, icon }
-        })
+        MenuSettingsService.processAction(
+          {
+            action: ms.ActionTypes.EDIT,
+            items,
+            id: editItemIcon.id,
+            data: { edited: true, icon }
+          }.items
+        )
       );
       handleHideModal();
     };
@@ -258,11 +270,13 @@ class EditorItems extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  items: get(state, 'menuSettings.items', [])
+  items: get(state, 'menuSettings.items', []),
+  lastAddedItems: get(state, 'menuSettings.lastAddedItems', [])
 });
 
 const mapDispatchToProps = dispatch => ({
   setMenuItems: items => dispatch(setMenuItems(items)),
+  setLastAddedItems: items => dispatch(setLastAddedItems(items)),
   addJournalMenuItems: data => dispatch(addJournalMenuItems(data))
 });
 

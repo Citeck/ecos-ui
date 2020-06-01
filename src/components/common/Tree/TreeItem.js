@@ -195,7 +195,10 @@ class TreeItem extends Component {
           [`${prefixClassName}--item-container`]: !!prefixClassName
         })}
       >
-        <div className={classNames('ecos-tree__item-element', { [`${prefixClassName}--item-element`]: !!prefixClassName })}>
+        <div
+          className={classNames('ecos-tree__item-element', { [`${prefixClassName}--item-element`]: !!prefixClassName })}
+          id={'id' + item.id}
+        >
           {this.renderArrow()}
           {selectable && (
             <Checkbox

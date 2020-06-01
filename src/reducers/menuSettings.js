@@ -4,6 +4,7 @@ import {
   getSettingsConfig,
   initSettings,
   saveSettingsConfig,
+  setLastAddedItems,
   setMenuItems,
   setOpenMenuSettings,
   setSettingsConfig
@@ -15,7 +16,8 @@ const initialState = {
   items: [],
   authorities: [],
   isLoading: false,
-  isOpenMenuSettings: false
+  isOpenMenuSettings: false,
+  lastAddedItems: []
 };
 
 Object.freeze(initialState);
@@ -45,6 +47,10 @@ export default handleActions(
       ...state,
       items: payload,
       isLoading: false
+    }),
+    [setLastAddedItems]: (state, { payload }) => ({
+      ...state,
+      lastAddedItems: payload
     }),
     [addJournalMenuItems]: (state, { payload }) => ({
       ...state,
