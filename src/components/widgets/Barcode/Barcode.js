@@ -10,6 +10,13 @@ import { Btn } from '../../common/btns/index';
 
 import './style.scss';
 
+const Labels = {
+  BTN_GENERATE: 'barcode-widget.btn.generate',
+  BTN_GENERATE_NEW: 'barcode-widget.btn.generate-new',
+  BTN_PRINT: 'barcode-widget.btn.print',
+  TITLE: 'barcode-widget.dashlet.title'
+};
+
 const mapStateToProps = (state, { stateId }) => {
   const stateB = state.barcode[stateId] || {};
 
@@ -24,13 +31,6 @@ const mapDispatchToProps = (dispatch, { stateId, record }) => ({
   generateBase64Barcode: () => dispatch(getBase64Barcode({ stateId, record }))
 });
 
-const Labels = {
-  MAKE: 'barcode-widget.btn.generate',
-  REMAKE: 'barcode-widget.btn.generate-new',
-  ALT: 'barcode-widget.dashlet.title',
-  PRINT: 'barcode-widget.btn.print'
-};
-
 class Barcode extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
@@ -43,15 +43,17 @@ class Barcode extends React.Component {
   };
 
   componentDidMount() {
-    const { generateBase64Barcode } = this.props;
+    this.runGenerateBarcode();
+  }
 
-    generateBase64Barcode();
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!prevProps.runUpdate && this.props.runUpdate) {
+      this.runGenerateBarcode();
+    }
   }
 
   runGenerateBarcode = () => {
-    const { generateBase64Barcode } = this.props;
-
-    generateBase64Barcode();
+    this.props.generateBase64Barcode();
   };
 
   runPrint = () => {
@@ -74,12 +76,12 @@ class Barcode extends React.Component {
             disabled={isLoading}
             onClick={this.runGenerateBarcode}
           >
-            {!barcode ? t(Labels.MAKE) : t(Labels.REMAKE)}
+            {!barcode ? t(Labels.BTN_GENERATE) : t(Labels.BTN_GENERATE_NEW)}
           </Btn>
-          {barcode && <img className="ecos-barcode__image" src={barcode} alt={t(Labels.ALT)} />}
+          {barcode && <img className="ecos-barcode__image" src={barcode} alt={t(Labels.TITLE)} />}
         </div>
         <Btn className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no" onClick={this.runPrint} disabled={!!error}>
-          {t(Labels.PRINT)}
+          {t(Labels.BTN_PRINT)}
         </Btn>
       </div>
     );
