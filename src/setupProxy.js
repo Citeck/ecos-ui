@@ -21,6 +21,7 @@ console.log('=============/Dev Server Proxy URL==============');
 const shareProxyOptions = {
   target: PROXY_URL.SHARE,
   changeOrigin: true,
+  secure: false,
   logLevel: 'warn', // ['debug', 'info', 'warn', 'error', 'silent']
   ws: true,
   onProxyRes: (proxyRes, req, res) => {
@@ -57,6 +58,7 @@ const bpmnEditorProxyOptions = {
 const gatewayRecordsProxyOptions = {
   target: PROXY_URL.GATEWAY_RECORDS,
   changeOrigin: true,
+  secure: false,
   logLevel: 'warn', // ['debug', 'info', 'warn', 'error', 'silent']
   ws: true
 };
