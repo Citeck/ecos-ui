@@ -66,9 +66,14 @@ const PersistedValue = function(att, innerAtt) {
   };
 
   this.getValue = (multiple, withLoading, forceReload) => {
-    let isVirtualRec = this._att._record._virtual;
+    let isVirtualRec = this._att._record.isVirtual();
 
-    if (!isVirtualRec && withLoading && (!this._isLoaded || forceReload || (multiple && !this._isArrayLoaded))) {
+    if (isVirtualRec) {
+      var baseRecord = this._att._record._baseRecord;
+      if (!this._value && baseRecord) {
+        this._value = baseRecord.att(this._att.getName() + '[]');
+      }
+    } else if (withLoading && (!this._isLoaded || forceReload || (multiple && !this._isArrayLoaded))) {
       let attributeToLoad = convertToFullAttributeName(this._att.getName(), this._innerAtt, multiple);
 
       this._value = this._att._record._loadRecordAttImpl(attributeToLoad, forceReload);
@@ -159,6 +164,11 @@ export default class Attribute {
             return v;
           }
         });
+      }
+    }
+    if (innerAtt === 'assoc') {
+      if (result === null) {
+        return this.getPersistedValue('str', multiple, false);
       }
     }
     return result;
