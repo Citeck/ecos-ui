@@ -2,6 +2,7 @@ import { CommonApi } from './common';
 import { PROXY_URI, URL_CONTEXT } from '../constants/alfresco';
 import { SourcesId } from '../constants';
 import Records from '../components/Records';
+import { t } from '../helpers/util';
 
 export class UserApi extends CommonApi {
   getPhotoSize = userNodeRef => {
@@ -78,8 +79,13 @@ export class UserApi extends CommonApi {
       .save()
       .then(response => ({ response, success: true }))
       .catch(response => {
-        console.error(response);
-        const message = response.message || (response.errors && response.errors.join('; ')) || '';
+        let message = response.message || (response.errors && response.errors.join('; ')) || '';
+
+        if (message.indexOf('BadCredentials') !== -1) {
+          message = t('user-profile-widget.error.invalid-password');
+        } else {
+          message = t('user-profile-widget.error.server-error');
+        }
 
         return { success: false, message };
       });
