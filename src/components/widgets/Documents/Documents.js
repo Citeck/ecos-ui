@@ -463,6 +463,13 @@ class Documents extends BaseWidget {
     this.setState({ typesFilter: filter.toLowerCase() });
   };
 
+  getformId = (type = {}) => {
+    const { availableTypes } = this.props;
+    const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {}) || {};
+
+    return type.formId || createVariants.formRef;
+  };
+
   handleToggleUploadModalByType = (type = null) => {
     const { availableTypes } = this.props;
 
@@ -558,7 +565,7 @@ class Documents extends BaseWidget {
   handleSelectUploadFiles = (files, callback) => {
     const { selectedTypeForLoading } = this.state;
 
-    if (selectedTypeForLoading.formId) {
+    if (this.getformId(selectedTypeForLoading)) {
       this.props.onUploadFiles({ files, type: selectedTypeForLoading.type, openForm: this.openForm, callback });
 
       return;
@@ -610,7 +617,7 @@ class Documents extends BaseWidget {
       return false;
     }
 
-    if (type.formId) {
+    if (this.getformId(type)) {
       this.props.onUploadFiles({ files, type: type.type, openForm: this.openForm });
     } else {
       this.props.onUploadFiles({ files, type: type.type });
