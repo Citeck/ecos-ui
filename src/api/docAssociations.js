@@ -1,5 +1,7 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
+import isEmpty from 'lodash/isEmpty';
+
 import ecosFetch from '../helpers/ecosFetch';
 
 export class DocAssociationsApi extends RecordService {
@@ -31,25 +33,27 @@ export class DocAssociationsApi extends RecordService {
   };
 
   getColumnConfiguration(association) {
+    const baseColumnsConfig = {
+      columns: [
+        {
+          attribute: '.disp',
+          label: { ru: 'Заголовок', en: 'Name' },
+          name: 'displayName',
+          type: 'text'
+        },
+        {
+          attribute: 'created',
+          label: { ru: 'Дата создания', en: 'Create time' },
+          name: 'created',
+          type: 'datetime'
+        }
+      ]
+    };
+
     if (association.target === 'emodel/type@base') {
       return {
         ...association,
-        columnsConfig: {
-          columns: [
-            {
-              attribute: '.disp',
-              label: { ru: 'Заголовок', en: 'Name' },
-              name: 'displayName',
-              type: 'text'
-            },
-            {
-              attribute: 'created',
-              label: { ru: 'Дата создания', en: 'Create time' },
-              name: 'created',
-              type: 'datetime'
-            }
-          ]
-        }
+        columnsConfig: baseColumnsConfig
       };
     }
 
@@ -61,7 +65,10 @@ export class DocAssociationsApi extends RecordService {
         }
       },
       '.json'
-    ).then(columnsConfig => ({ ...association, columnsConfig }));
+    ).then(columnsConfig => ({
+      ...association,
+      columnsConfig: isEmpty(columnsConfig) ? baseColumnsConfig : columnsConfig
+    }));
   }
 
   /**
