@@ -1,4 +1,5 @@
 import Records from '../components/Records';
+import { DEFAULT_REF } from '../constants/documents';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
@@ -37,8 +38,8 @@ export class DocumentsApi {
       .catch(() => null);
   };
 
-  uploadFilesWithNodes = (data = {}) => {
-    const record = Records.getRecordToEdit('dict@cm:content');
+  uploadFilesWithNodes = (data = {}, recordRef = DEFAULT_REF) => {
+    const record = Records.getRecordToEdit(recordRef);
 
     Object.keys(data).forEach(key => {
       record.att(key, data[key]);

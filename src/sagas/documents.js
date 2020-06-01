@@ -39,7 +39,7 @@ import DocumentsConverter from '../dto/documents';
 import { deepClone, t } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
 import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
-import { documentActions } from '../constants/documents';
+import { DEFAULT_REF, documentActions } from '../constants/documents';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
@@ -300,28 +300,15 @@ function* formManager({ api, payload, files }) {
       return;
     }
 
-    if (!createVariants.formRef) {
-      createVariants.formRef = payload.type;
-    }
-
-    if (!createVariants.formId && type.formId) {
-      createVariants.formId = type.formId;
-    }
-
-    if (!createVariants.recordRef) {
-      createVariants.recordRef = 'dict@cm:content';
-    }
-
-    createVariants.attributes = {
-      ...DocumentsConverter.getCreateAttributes({
+    payload.openForm(
+      DocumentsConverter.getDataToCreate({
         record: payload.record,
         type: payload.type,
-        files
-      }),
-      ...createVariants.attributes
-    };
-
-    payload.openForm(createVariants);
+        formId: type.formId,
+        files,
+        createVariants
+      })
+    );
   } catch (e) {
     console.error('[documents formManager error]', e.message);
 
@@ -350,7 +337,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     /**
      * open form manager
      */
-    if (type.formId && payload.openForm) {
+    if ((type.formId || createVariants.formRef) && payload.openForm) {
       yield* formManager({ api, payload, files });
 
       return;
@@ -364,7 +351,8 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
           type: payload.type,
           content: file,
           createVariants
-        })
+        }),
+        get(createVariants, 'recordRef', DEFAULT_REF)
       );
     });
 

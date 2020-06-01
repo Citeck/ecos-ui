@@ -75,3 +75,7 @@ export const documentActions = [
   'uiserv/action@edit',
   'uiserv/action@delete'
 ];
+
+export const NULL_FORM = 'uiserv/eform@null';
+export const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
+export const DEFAULT_REF = 'dict@cm:content';
