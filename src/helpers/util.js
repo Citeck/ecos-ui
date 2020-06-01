@@ -202,7 +202,6 @@ export function getCurrentLocale() {
   return language.substr(0, 2).toLowerCase();
 }
 
-// TODO: need test
 export function getTextByLocale(data, locale = getCurrentLocale()) {
   if (isEmpty(data)) {
     return '';
