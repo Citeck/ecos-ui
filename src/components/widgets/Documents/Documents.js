@@ -478,14 +478,10 @@ class Documents extends BaseWidget {
 
     const { formId = null, countDocuments = 0, multiple } = type;
     const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {});
+    const hasForm = formId !== null || createVariants.formRef !== null;
     let isFormOpens = false;
 
-    /**
-     * Ecos form may open if the following conditions are met:
-     * - have form id (formId !== null)
-     * - not have documents, when can load only one document (!countDocuments && !multiple)
-     */
-    if ((formId !== null || createVariants.formRef !== null) && !countDocuments && !multiple) {
+    if (hasForm && (hasForm && !multiple && !countDocuments)) {
       isFormOpens = true;
 
       this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record, createVariants }));
