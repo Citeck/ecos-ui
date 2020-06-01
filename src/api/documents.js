@@ -74,7 +74,7 @@ export class DocumentsApi {
   getCreateVariants = type => {
     return Records.get(type)
       .load('createVariants?json')
-      .then(response => response)
+      .then(response => response || {})
       .catch(() => null);
   };
 }

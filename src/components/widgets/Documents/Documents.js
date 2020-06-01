@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { NotificationManager } from 'react-notifications';
@@ -477,8 +478,8 @@ class Documents extends BaseWidget {
     }
 
     const { formId = null, countDocuments = 0, multiple } = type;
-    const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {});
-    const hasForm = formId !== null || createVariants.formRef !== null;
+    const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {}) || {};
+    const hasForm = formId !== null || !isEmpty(createVariants.formRef);
     let isFormOpens = false;
 
     if (hasForm && (multiple || !countDocuments)) {
