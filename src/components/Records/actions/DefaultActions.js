@@ -13,7 +13,7 @@ import {
 import { getTimezoneValue, t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
-import { VersionsJournalService } from '../../../services/VersionsJournalService';
+import WidgetService from '../../../services/WidgetService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
@@ -84,6 +84,9 @@ export const ViewAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
   execute: ({ record, action: { config = {}, context = {} } }) => {
+    //todo + close + config.preview
+    WidgetService.openPreviewModal({ recordId: record.id });
+    return false;
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
@@ -421,7 +424,7 @@ export const CreateNodeAction = {
 
 export const UploadNewVersion = {
   execute: ({ record, action }) => {
-    VersionsJournalService.addVersion({ record });
+    WidgetService.uploadNewVersion({ record });
   },
 
   getDefaultModel: () => {

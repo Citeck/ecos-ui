@@ -231,3 +231,17 @@ $border-base: #c1c1c1;
     }
   }
 }
+
+.ecos-modal-preview-doc {
+  height: 100%;
+
+  .modal-content {
+    height: 100%;
+  }
+
+  & &__content {
+    & .ecos-doc-preview__content {
+      padding: 0;
+    }
+  }
+}
