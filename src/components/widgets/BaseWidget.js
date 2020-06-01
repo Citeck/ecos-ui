@@ -120,7 +120,7 @@ class BaseWidget extends Component {
   };
 
   handleResize = width => {
-    this.setState({ width });
+    !!width && this.setState({ width });
   };
 
   reload = () => {
