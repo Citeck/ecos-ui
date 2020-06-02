@@ -24,6 +24,7 @@ $border-base: #c1c1c1;
 
   &__content {
     height: 100%;
+    width: 100%;
 
     &_indents {
       padding-top: 14px;
@@ -228,6 +229,20 @@ $border-base: #c1c1c1;
 
     .icon {
       font-size: $font-size-small;
+    }
+  }
+}
+
+.ecos-modal-preview-doc {
+  height: 95%;
+
+  .modal-content {
+    height: 100%;
+  }
+
+  & &__content {
+    & .ecos-doc-preview__content {
+      padding: 0;
     }
   }
 }

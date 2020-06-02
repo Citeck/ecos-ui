@@ -892,3 +892,30 @@ export function trimFields(source) {
 
   return target;
 }
+
+/**
+ * Returns the first non-empty value
+ * Empty values - match the docs lodash isEmpty
+ * https://github.com/lodash/lodash/blob/master/isEmpty.js#L45
+ * Exceptions are numbers; they are not empty values.
+ *
+ * @param values
+ * @param defaultValue
+ *
+ * @returns {*}
+ */
+export function getFirstNonEmpty(values = [], defaultValue) {
+  if (!Array.isArray(values) || !values.length) {
+    return defaultValue;
+  }
+
+  for (let i = 0; i < values.length; i++) {
+    const value = values[i];
+
+    if (typeof value === 'number' || !isEmpty(value)) {
+      return value;
+    }
+  }
+
+  return defaultValue;
+}

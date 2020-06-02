@@ -88,6 +88,12 @@ export const selectAvailableTypes = createSelector(
   getAvailableTypes
 );
 
+export const selectActionsByType = (state, key, type) => {
+  const availableTypes = getAvailableTypes(selectState(state, key)) || [];
+
+  return get(availableTypes.find(item => item.id === type), 'actions', []);
+};
+
 export const selectGrouppedAvailableTypes = createSelector(
   getAvailableTypes,
   getDynamicTypes,
