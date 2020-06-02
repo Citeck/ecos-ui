@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import uniqueId from 'lodash/uniqueId';
 
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
+import { Tooltip } from '../../../../common';
 import { Btn, IcoBtn } from '../../../../common/btns';
 import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDisconnected';
 import { Grid } from '../../../../common/grid';
@@ -104,16 +106,19 @@ class InputView extends Component {
   renderCompactList = () => {
     const { selectedRows, isCompact } = this.props;
 
-    if (!isCompact) {
+    if (!isCompact || selectedRows.length === 0) {
       return null;
     }
 
+    const compactValue = selectedRows.map(item => item.disp).join(', ');
+    const targetId = uniqueId('SelectJournalTooltip');
+
     return (
-      <>
-        {selectedRows.length > 0 && (
-          <div className="select-journal__values-list_compact">{selectedRows.map(item => item.disp).join(', ')}</div>
-        )}
-      </>
+      <Tooltip showAsNeeded target={targetId} uncontrolled text={compactValue} className="select-journal__values-list-tooltip">
+        <div id={targetId} className="select-journal__values-list_compact">
+          {compactValue}
+        </div>
+      </Tooltip>
     );
   };
 

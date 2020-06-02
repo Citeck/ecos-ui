@@ -1,13 +1,15 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import uniqueId from 'lodash/uniqueId';
 
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../constants';
 import { t } from '../../../../../../helpers/util';
 import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
+import { Tooltip } from '../../../../common';
 import { Btn } from '../../../../../common/btns';
 import { AssocLink } from '../../../AssocLink';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../constants';
 import ViewMode from '../ViewMode';
 
 import './InputView.scss';
@@ -73,12 +75,21 @@ const InputView = () => {
     return <AssocLink label={item.label} asText={isSelectedValueAsText} {...props} className="select-orgstruct__values-list-disp" />;
   };
 
+  const renderCompactList = () => {
+    const compactValue = !!selectedRows && selectedRows.map(item => item.label).join(', ');
+    const targetId = compactValue && uniqueId('SelectOrgstructTooltip');
+
+    return compactValue ? (
+      <Tooltip showAsNeeded target={targetId} uncontrolled text={compactValue} className="select-orgstruct__values-list-tooltip">
+        <div id={targetId} className="select-orgstruct__values-list_compact">
+          {compactValue}
+        </div>
+      </Tooltip>
+    ) : null;
+  };
+
   const valuesList = isCompact ? (
-    <>
-      {selectedRows.length > 0 ? (
-        <div className="select-orgstruct__values-list_compact">{selectedRows.map(item => item.label).join(', ')}</div>
-      ) : null}
-    </>
+    renderCompactList()
   ) : (
     <>
       {selectedRows.length > 0 ? (
