@@ -2,6 +2,7 @@ import { delay } from 'redux-saga';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
 
 import { NotificationManager } from 'react-notifications';
@@ -288,7 +289,7 @@ function* formManager({ api, payload, files }) {
     const createVariants = yield call(api.documents.getCreateVariants, payload.type);
     const type = yield select(state => selectTypeById(state, payload.key, payload.type));
 
-    if (createVariants === null) {
+    if (isEmpty(createVariants)) {
       payload.openForm(
         DocumentsConverter.getDataToCreate({
           ...payload.type,

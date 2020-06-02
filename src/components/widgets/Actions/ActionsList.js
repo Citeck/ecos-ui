@@ -12,8 +12,7 @@ class ActionsList extends React.Component {
     isMobile: PropTypes.bool,
     isLoading: PropTypes.bool,
     executeAction: PropTypes.func,
-    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
-    onActionsChanged: PropTypes.func
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
@@ -22,12 +21,6 @@ class ActionsList extends React.Component {
     isLoading: false,
     executeAction: () => null
   };
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (JSON.stringify(prevProps.list) !== JSON.stringify(this.props.list)) {
-      this.props.onActionsChanged();
-    }
-  }
 
   onClick = action => {
     const { executeAction, isLoading } = this.props;
