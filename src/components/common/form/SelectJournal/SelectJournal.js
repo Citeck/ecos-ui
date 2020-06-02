@@ -812,11 +812,15 @@ export default class SelectJournal extends Component {
           title={editModalTitle}
           isOpen={isEditModalOpen}
           hideModal={this.toggleEditModal}
-          options={{
-            formMode: FORM_MODE_EDIT
-          }}
         >
-          <EcosForm record={editRecordId} onSubmit={this.onEditFormSubmit} onFormCancel={this.toggleEditModal} />
+          <EcosForm
+            record={editRecordId}
+            onSubmit={this.onEditFormSubmit}
+            onFormCancel={this.toggleEditModal}
+            options={{
+              formMode: FORM_MODE_EDIT
+            }}
+          />
         </EcosModal>
       </div>
     );
