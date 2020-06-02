@@ -1,11 +1,28 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import { SourcesId } from '../constants';
+import Records from '../components/Records';
 
 import { URL } from '../constants';
 import { HandleControlTypes } from './handleControl';
 import { createProfileUrl } from './urls';
 
-export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAuthentication) => {
+const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
+const DEFAULT_REPORT_ISSUE_URL =
+  'mailto:support@citeck.ru?subject=Ошибка в работе Citeck ECOS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.';
+
+export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExternalAuthentication) => {
+  const customFeedbackUrlPromise = Records.get(`${SourcesId.CONFIG}@custom-feedback-url`)
+    .load('value?str')
+    .then(value => value || DEFAULT_FEEDBACK_URL)
+    .catch(() => DEFAULT_FEEDBACK_URL);
+  const customReportIssueUrlPromise = Records.get(`${SourcesId.CONFIG}@custom-report-issue-url`)
+    .load('value?str', true)
+    .then(value => value || DEFAULT_REPORT_ISSUE_URL)
+    .catch(() => DEFAULT_REPORT_ISSUE_URL);
+
+  const urls = await Promise.all([customFeedbackUrlPromise, customReportIssueUrlPromise]);
+
   const availability = 'make-' + (isAvailable === false ? '' : 'not') + 'available';
 
   let userMenuItems = [];
@@ -41,19 +58,21 @@ export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAu
   //   });
   // }
 
+  const customFeedbackUrl = urls[0] || DEFAULT_FEEDBACK_URL;
+  const customReportIssueUrl = urls[1] || DEFAULT_REPORT_ISSUE_URL;
+
   userMenuItems.push(
     {
       id: 'HEADER_USER_MENU_FEEDBACK',
       label: 'header.feedback.label',
-      targetUrl: 'https://www.citeck.ru/feedback',
+      targetUrl: customFeedbackUrl,
       targetUrlType: 'FULL_PATH',
       target: '_blank'
     },
     {
       id: 'HEADER_USER_MENU_REPORTISSUE',
       label: 'header.reportIssue.label',
-      targetUrl:
-        'mailto:support@citeck.ru?subject=Ошибка в работе Citeck EcoS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.',
+      targetUrl: customReportIssueUrl,
       targetUrlType: 'FULL_PATH',
       target: '_blank'
     }
