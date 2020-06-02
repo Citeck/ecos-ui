@@ -52,7 +52,7 @@ function* fetchUserMenu({ api, fakeApi, logger }) {
     // TODO use real api
     const isExternalAuthentication = yield call(fakeApi.getIsExternalAuthentication);
 
-    const menuItems = makeUserMenuItems(userName, isAvailable, isMutable, isExternalAuthentication);
+    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable, isExternalAuthentication));
     yield put(setUserMenuItems(menuItems));
 
     const userNodeRef = yield select(state => state.user.nodeRef);

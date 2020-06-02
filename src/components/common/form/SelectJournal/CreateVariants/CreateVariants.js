@@ -67,11 +67,16 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
       title={title}
       isOpen={isCreateModalOpen}
       hideModal={toggleCreateModal}
-      options={{
-        formMode: FORM_MODE_CREATE
-      }}
     >
-      <EcosForm record={record} formKey={formKey} onSubmit={onCreateFormSubmit} onFormCancel={toggleCreateModal} />
+      <EcosForm
+        record={record}
+        formKey={formKey}
+        onSubmit={onCreateFormSubmit}
+        onFormCancel={toggleCreateModal}
+        options={{
+          formMode: FORM_MODE_CREATE
+        }}
+      />
     </EcosModal>
   ) : null;
 
