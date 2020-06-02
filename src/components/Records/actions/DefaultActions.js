@@ -11,14 +11,14 @@ import {
   goToNodeEditPage
 } from '../../../helpers/urls';
 import { getTimezoneValue, t } from '../../../helpers/util';
+import ecosFetch from '../../../helpers/ecosFetch';
 import { ActionModes } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
-import { VersionsJournalService } from '../../../services/VersionsJournalService';
+import WidgetService from '../../../services/WidgetService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 import RecordActions from './RecordActions';
-import ecosFetch from '../../../helpers/ecosFetch';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
 
@@ -37,8 +37,8 @@ export const DefaultActionTypes = {
   OPEN_URL: 'open-url',
   UPLOAD_NEW_VERSION: 'upload-new-version',
   ASSOC_ACTION: 'assoc-action',
-  MODAL_DOC_PREVIEW: 'modal-doc-preview',
-  SAVE_AS_CASE_TEMPLATE: 'save-as-case-template'
+  SAVE_AS_CASE_TEMPLATE: 'save-as-case-template',
+  PREVIEW: 'preview'
 };
 
 export const EditAction = {
@@ -96,7 +96,6 @@ export const ViewAction = {
       window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
       return false;
     }
-
     goToCardDetailsPage(record.id);
     return false;
   },
@@ -140,7 +139,8 @@ export const OpenURL = {
 
   getDefaultModel: () => {
     return {
-      type: OpenURL.type
+      type: OpenURL.type,
+      icon: 'icon-newtab'
     };
   }
 };
@@ -447,7 +447,7 @@ export const CreateNodeAction = {
 
 export const UploadNewVersion = {
   execute: ({ record, action }) => {
-    VersionsJournalService.addVersion({ record });
+    WidgetService.uploadNewVersion({ record });
   },
 
   getDefaultModel: () => {
@@ -531,5 +531,16 @@ export const SaveAsCaseTemplate = {
   getDefaultModel: () => ({
     name: 'record-action.name.save-as-case-template',
     type: DefaultActionTypes.SAVE_AS_CASE_TEMPLATE
+  })
+};
+
+export const PreviewModal = {
+  type: DefaultActionTypes.PREVIEW,
+  execute: ({ record }) => {
+    WidgetService.openPreviewModal({ recordId: record.id });
+    return false;
+  },
+  getDefaultModel: () => ({
+    type: DefaultActionTypes.PREVIEW
   })
 };

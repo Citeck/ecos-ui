@@ -1,5 +1,6 @@
 import moment from 'moment';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { deepClone, t } from '../helpers/util';
 import { DATE_FORMAT, DEFAULT_REF, NULL_FORM } from '../constants/documents';
@@ -26,6 +27,8 @@ export default class DocumentsConverter {
   static getAvailableTypes = (types = []) => {
     return types.map(type => ({
       ...type,
+      createVariants: isEmpty(type.createVariants) ? {} : type.createVariants,
+      actions: isEmpty(type.actions) ? [] : type.actions.filter(action => !isEmpty(action)),
       formId: DocumentsConverter.formIdIsNull(type.formId) ? null : type.formId
     }));
   };

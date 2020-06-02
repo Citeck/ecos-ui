@@ -31,7 +31,6 @@ class DocPreviewDashlet extends BaseWidget {
   };
 
   static defaultProps = {
-    title: t('doc-preview.preview'),
     classNamePreview: '',
     fileName: '',
     classNameDashlet: '',
@@ -96,7 +95,7 @@ class DocPreviewDashlet extends BaseWidget {
 
     return (
       <Dashlet
-        title={title}
+        title={title || t('doc-preview.preview')}
         bodyClassName="ecos-doc-preview-dashlet__body"
         className={classesDashlet}
         noActions

@@ -11,7 +11,8 @@ export class DocumentsApi {
         name: 'name',
         parent: 'parent?id',
         formId: 'form?id',
-        createVariants: 'createVariants?json'
+        createVariants: 'createVariants?json',
+        actions: 'actions[]?id'
       }
     ).then(response => response);
   };
@@ -74,7 +75,7 @@ export class DocumentsApi {
   getCreateVariants = type => {
     return Records.get(type)
       .load('createVariants?json')
-      .then(response => response)
+      .then(response => response || {})
       .catch(() => null);
   };
 }
