@@ -6,7 +6,7 @@ import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND,
 import { getCurrentUserName, t } from '../helpers/util';
 import { decodeLink, getLinkWithout, isNewVersionPage, SearchKeys } from '../helpers/urls';
 import { getData, isExistLocalStorage, setData } from '../helpers/ls';
-import { PageApi } from '../api';
+import { PageApi } from '../api/page';
 
 const pageApi = new PageApi();
 

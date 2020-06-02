@@ -3,13 +3,13 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import uniqueId from 'lodash/uniqueId';
 
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../constants';
 import { t } from '../../../../../../helpers/util';
 import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
 import { Tooltip } from '../../../../../common';
 import { Btn } from '../../../../../common/btns';
 import { AssocLink } from '../../../AssocLink';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../constants';
 import ViewMode from '../ViewMode';
 
 import './InputView.scss';
