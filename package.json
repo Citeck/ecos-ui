@@ -59,7 +59,8 @@
     "redux-saga": "^0.16.2",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
-    "uuidv4": "^4.0.0"
+    "uuidv4": "^4.0.0",
+    "vanilla-text-mask": "^5.1.1"
   },
   "scripts": {
     "start": "npm-run-all clean export:dev start:react",
