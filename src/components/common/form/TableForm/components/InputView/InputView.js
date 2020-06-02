@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
@@ -20,6 +20,7 @@ const InputView = () => {
     error,
     deleteSelectedItem,
     showEditForm,
+    showPreview,
     inlineToolsOffsets,
     setInlineToolsOffsets,
     showViewOnlyForm,
@@ -61,6 +62,10 @@ const InputView = () => {
     showViewOnlyForm(inlineToolsOffsets.rowId);
   };
 
+  const onClickPreview = () => {
+    showPreview(inlineToolsOffsets.rowId);
+  };
+
   let valuesList = (
     <p
       className={classNames('ecos-table-form__value-not-selected', {
@@ -85,6 +90,18 @@ const InputView = () => {
             icon={'icon-on'}
             className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__on')}
             onClick={onClickView}
+          />
+        );
+      }
+
+      const shouldShowPreviewButton = isBoolean(get(displayElements, 'preview')) ? displayElements.preview : false;
+      if (shouldShowPreviewButton) {
+        iconButtons.push(
+          <IcoBtn
+            key={'preview'}
+            icon={'icon-history'}
+            className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__preview')}
+            onClick={onClickPreview}
           />
         );
       }

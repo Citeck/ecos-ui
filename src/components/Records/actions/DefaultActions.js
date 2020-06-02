@@ -37,8 +37,8 @@ export const DefaultActionTypes = {
   OPEN_URL: 'open-url',
   UPLOAD_NEW_VERSION: 'upload-new-version',
   ASSOC_ACTION: 'assoc-action',
-  MODAL_DOC_PREVIEW: 'modal-doc-preview',
-  SAVE_AS_CASE_TEMPLATE: 'save-as-case-template'
+  SAVE_AS_CASE_TEMPLATE: 'save-as-case-template',
+  PREVIEW: 'preview'
 };
 
 export const EditAction = {
@@ -96,12 +96,6 @@ export const ViewAction = {
       window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
       return false;
     }
-
-    if (!!config.preview) {
-      WidgetService.openPreviewModal({ recordId: record.id });
-      return false;
-    }
-
     goToCardDetailsPage(record.id);
     return false;
   },
@@ -510,5 +504,16 @@ export const SaveAsCaseTemplate = {
   getDefaultModel: () => ({
     name: 'record-action.name.save-as-case-template',
     type: DefaultActionTypes.SAVE_AS_CASE_TEMPLATE
+  })
+};
+
+export const PreviewModal = {
+  type: DefaultActionTypes.PREVIEW,
+  execute: ({ record }) => {
+    WidgetService.openPreviewModal({ recordId: record.id });
+    return false;
+  },
+  getDefaultModel: () => ({
+    type: DefaultActionTypes.PREVIEW
   })
 };
