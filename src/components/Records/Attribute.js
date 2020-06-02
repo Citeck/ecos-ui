@@ -91,7 +91,9 @@ const PersistedValue = function(att, innerAtt) {
       }
     }
 
-    return this._convertAttResult(this._value, multiple || this._innerAtt.indexOf('[]') !== -1);
+    const isMultiValueRes = multiple || this._innerAtt.indexOf('[]') !== -1 || this._innerAtt.indexOf('atts(') !== -1;
+
+    return this._convertAttResult(this._value, isMultiValueRes);
   };
 
   this.setValue = value => {
