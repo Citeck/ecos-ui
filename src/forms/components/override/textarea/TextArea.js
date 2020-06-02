@@ -34,7 +34,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     settings.base64Upload = true;
 
     return new Promise(resolve => {
-      window.requirejs(['/js/lib/ckeditor5-build-classic/v12.2.0-formio.2/ckeditor.js'], ckeditor => {
+      window.require(['/js/lib/ckeditor5-build-classic/v12.2.0-formio.2/ckeditor.js'], ckeditor => {
         if (!element.parentNode) {
           return NativePromise.reject();
         }
@@ -59,7 +59,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     );
 
     return new Promise(resolve => {
-      window.requirejs(['/js/lib/quill/1.3.6/quill.js'], Quill => {
+      window.require(['/js/lib/quill/1.3.6/quill.js'], Quill => {
         if (!element.parentNode) {
           return NativePromise.reject();
         }
@@ -102,7 +102,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   addAce(element) {
-    window.requirejs(['/js/lib/ace/1.4.1/ace.js'], () => {
+    window.require(['/js/lib/ace/1.4.1/ace.js'], () => {
       const mode = this.component.as || 'javascript';
       this.editor = window.ace.edit(element);
 
