@@ -2,6 +2,7 @@ import { delay } from 'redux-saga';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
 
 import { NotificationManager } from 'react-notifications';
@@ -13,7 +14,8 @@ import {
   selectDynamicTypes,
   selectIsLoadChecklist,
   selectTypeNames,
-  selectTypeById
+  selectTypeById,
+  selectActionsByType
 } from '../selectors/documents';
 import {
   execRecordsAction,
@@ -36,7 +38,7 @@ import {
   uploadFilesFinally
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
-import { deepClone, t } from '../helpers/util';
+import { deepClone, getFirstNonEmpty, t } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
 import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
 import { DEFAULT_REF, documentActions } from '../constants/documents';
@@ -187,8 +189,9 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes }));
 
     if (documents.length) {
+      const typeActions = yield select(state => selectActionsByType(state, payload.key, payload.type));
       const actions = yield RecordActions.getActions(documents.map(item => item.id), {
-        actions: documentActions
+        actions: getFirstNonEmpty([typeActions, documentActions], [])
       });
 
       yield put(setActions({ key: payload.key, actions }));
@@ -288,7 +291,7 @@ function* formManager({ api, payload, files }) {
     const createVariants = yield call(api.documents.getCreateVariants, payload.type);
     const type = yield select(state => selectTypeById(state, payload.key, payload.type));
 
-    if (createVariants === null) {
+    if (isEmpty(createVariants)) {
       payload.openForm(
         DocumentsConverter.getDataToCreate({
           ...payload.type,
