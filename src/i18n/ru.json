@@ -250,6 +250,8 @@
   "ecos-table-form.edit-modal.title": "Изменить свойства",
   "ecos-table-form.view-modal.title": "Просмотр",
   "ecos-table-form.placeholder": "Нет",
+  "ecos-table-form.view.btn": "Превью формы",
+  "ecos-table-form.preview.btn": "Превью документа",
   "ecos-ui.select.loading-message": "Загрузка...",
   "ecos-ui.select.no-options-message": "Не найдено",
   "ecos.forms.Drop files to attach, or": "Перетащите файлы для прикрепления, или",

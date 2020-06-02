@@ -250,6 +250,8 @@
   "ecos-table-form.edit-modal.title": "Edit metadata",
   "ecos-table-form.view-modal.title": "View metadata",
   "ecos-table-form.placeholder": "None",
+  "ecos-table-form.view.btn": "Form preview",
+  "ecos-table-form.preview.btn": "Document preview",
   "ecos-ui.select.loading-message": "Loading...",
   "ecos-ui.select.no-options-message": "No options",
   "ecos.forms.Drop files to attach, or": "Drop files to attach, or",
