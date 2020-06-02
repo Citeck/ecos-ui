@@ -14,7 +14,8 @@ import {
   selectDynamicTypes,
   selectIsLoadChecklist,
   selectTypeNames,
-  selectTypeById
+  selectTypeById,
+  selectActionsByType
 } from '../selectors/documents';
 import {
   execRecordsAction,
@@ -37,7 +38,7 @@ import {
   uploadFilesFinally
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
-import { deepClone, t } from '../helpers/util';
+import { deepClone, getFirstNonEmpty, t } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
 import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
 import { DEFAULT_REF, documentActions } from '../constants/documents';
@@ -188,8 +189,9 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes }));
 
     if (documents.length) {
+      const typeActions = yield select(state => selectActionsByType(state, payload.key, payload.type));
       const actions = yield RecordActions.getActions(documents.map(item => item.id), {
-        actions: documentActions
+        actions: getFirstNonEmpty([typeActions, documentActions], [])
       });
 
       yield put(setActions({ key: payload.key, actions }));

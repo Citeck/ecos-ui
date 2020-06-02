@@ -28,6 +28,7 @@ export default class DocumentsConverter {
     return types.map(type => ({
       ...type,
       createVariants: isEmpty(type.createVariants) ? {} : type.createVariants,
+      actions: isEmpty(type.actions) ? [] : type.actions.filter(action => !isEmpty(action)),
       formId: DocumentsConverter.formIdIsNull(type.formId) ? null : type.formId
     }));
   };

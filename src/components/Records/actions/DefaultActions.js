@@ -140,7 +140,8 @@ export const OpenURL = {
 
   getDefaultModel: () => {
     return {
-      type: OpenURL.type
+      type: OpenURL.type,
+      icon: 'icon-newtab'
     };
   }
 };
