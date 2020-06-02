@@ -1,8 +1,8 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
 
+import Modal from '../components/common/EcosModal/CiteckEcosModal';
 import { UploadNewVersion } from '../components/formAction';
-import { EcosModal } from '../components/common';
 import { DocPreview } from '../components/widgets/DocPreview';
 import { t } from '../helpers/util';
 
@@ -23,20 +23,11 @@ export default class WidgetService {
 
   static openPreviewModal(params = {}) {
     const { recordId, title = 'Предпросмотр документа' } = params;
-    const container = document.createElement('div');
-    //todo title
-    const onCloseModal = () => {
-      ReactDOM.unmountComponentAtNode(container);
-      document.body.removeChild(container);
-    };
+    const modal = new Modal();
 
-    const component = (
-      <EcosModal title={t(title)} isOpen hideModal={onCloseModal} className="ecos-modal-preview-doc">
-        <DocPreview height={'100%'} scale={1} recordId={recordId} className="ecos-modal-preview-doc__content" />
-      </EcosModal>
-    );
-
-    ReactDOM.render(component, container);
-    document.body.appendChild(container);
+    modal.open(<DocPreview height={'100%'} scale={1} recordId={recordId} className="ecos-modal-preview-doc__content" />, {
+      title: t('doc-preview.modal.title'),
+      class: 'ecos-modal-preview-doc'
+    });
   }
 }

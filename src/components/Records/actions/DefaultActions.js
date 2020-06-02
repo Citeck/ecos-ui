@@ -11,6 +11,7 @@ import {
   goToNodeEditPage
 } from '../../../helpers/urls';
 import { getTimezoneValue, t } from '../../../helpers/util';
+import ecosFetch from '../../../helpers/ecosFetch';
 import { ActionModes } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import WidgetService from '../../../services/WidgetService';
@@ -18,7 +19,6 @@ import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 import RecordActions from './RecordActions';
-import ecosFetch from '../../../helpers/ecosFetch';
 
 const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
 
@@ -84,9 +84,6 @@ export const ViewAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
   execute: ({ record, action: { config = {}, context = {} } }) => {
-    //todo + close + config.preview
-    WidgetService.openPreviewModal({ recordId: record.id });
-    return false;
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
@@ -97,6 +94,11 @@ export const ViewAction = {
     if (globalTasks.indexOf(context.scope) > -1) {
       const name = record.att('cm:name?disp') || '';
       window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
+      return false;
+    }
+
+    if (!!config.preview) {
+      WidgetService.openPreviewModal({ recordId: record.id });
       return false;
     }
 
