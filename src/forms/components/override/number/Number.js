@@ -40,9 +40,30 @@ export default class NumberComponent extends FormIONumberComponent {
       if (!isNaN(value)) {
         value = value.toLocaleString();
       }
+
+      value = this.getRoundValue(value);
     }
 
     element.innerHTML = value;
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3327
+  getRoundValue(value) {
+    if (this.component.decimalLimit === undefined) {
+      return value;
+    }
+
+    let newValue = this.getValue();
+
+    if (!isNaN(newValue)) {
+      newValue = newValue.toString();
+    }
+
+    newValue = newValue.replace(/,/g, '.');
+    newValue = parseFloat(parseFloat(newValue).toFixed(this.component.decimalLimit)).toString();
+    newValue = newValue.replace(/\./g, this.decimalSeparator);
+
+    return newValue;
   }
 
   getValueAt(index) {
@@ -64,14 +85,31 @@ export default class NumberComponent extends FormIONumberComponent {
 
     input.mask = maskInput({
       inputElement: input,
-      mask: this.recalculateMask
+      mask: (value, options) => this.recalculateMask(value, options, input)
     });
   }
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-109
-  recalculateMask = (value, options) => {
+  recalculateMask = (value, options, input) => {
     const updatedValue = value.replace(/\.|,/g, this.decimalSeparator);
+    const formattedValue = this.formatValue(updatedValue);
+    let position = options.currentCaretPosition;
+
+    if (formattedValue[0] === this.decimalSeparator) {
+      position = 2;
+    }
+
+    if (options.previousConformedValue === super.getMaskedValue(updatedValue)) {
+      position -= 1;
+    }
+
+    this.setCaretPosition(input, position);
 
     return this.numberMask(updatedValue, options);
   };
+
+  setCaretPosition = _.debounce((input, position) => {
+    input.selectionStart = position;
+    input.selectionEnd = position;
+  }, 10);
 }
