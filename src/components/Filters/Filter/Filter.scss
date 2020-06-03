@@ -6,6 +6,12 @@
   border-top: 1px solid $color-gray-4;
   border-bottom: 1px solid $color-gray-4;
   margin-bottom: -1px;
+
+  &__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .ecos-filter_step {
