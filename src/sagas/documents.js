@@ -340,7 +340,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     /**
      * open form manager
      */
-    if ((type.formId || createVariants.formRef) && payload.openForm) {
+    if ((type.formId || (createVariants != null && createVariants.formRef)) && payload.openForm) {
       yield* formManager({ api, payload, files });
 
       return;
