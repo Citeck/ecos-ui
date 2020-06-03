@@ -740,7 +740,7 @@ class Grid extends Component {
     return true;
   };
 
-  onDragEnter = (e, ...data) => {
+  onDragEnter = e => {
     const dataTypes = get(e, 'dataTransfer.types', []);
 
     if (!dataTypes.includes('Files')) {
