@@ -95,8 +95,8 @@ Base.prototype.addInputError = function(message, dirty) {
 Base.prototype.createInlineEditButton = function(container) {
   const isComponentDisabled = this.disabled || this.component.disabled;
 
-  const isInlineEditUnavailable = get(this, 'options.disableInlineEdit', false);
-  if (isInlineEditUnavailable) {
+  const isInlineEditDisabled = get(this, 'options.disableInlineEdit', false) || this.component.disableInlineEdit;
+  if (isInlineEditDisabled) {
     return;
   }
 
