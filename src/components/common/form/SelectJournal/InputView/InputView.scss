@@ -47,6 +47,12 @@
   margin-left: 10px;
 }
 
+.select-journal__values-list-tooltip {
+  .tooltip {
+    z-index: 9999;
+  }
+}
+
 .select-journal__input-view-button_compact {
   flex-shrink: 0;
 }

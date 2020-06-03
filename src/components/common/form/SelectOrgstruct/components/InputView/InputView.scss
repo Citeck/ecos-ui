@@ -32,6 +32,12 @@
   margin-left: 10px;
 }
 
+.select-orgstruct__values-list-tooltip {
+  .tooltip {
+    z-index: 9999;
+  }
+}
+
 .select-orgstruct__input-view-button_compact {
   flex-shrink: 0;
 }
