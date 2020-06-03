@@ -60,6 +60,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
   try {
     const isLoadChecklist = yield select(state => selectIsLoadChecklist(state, payload.key));
     const typeNames = yield select(state => selectTypeNames(state, payload.key));
+    const availableTypes = yield select(state => selectAvailableTypes(state, payload.key));
     let dynamicTypes = [];
 
     if (isLoadChecklist) {
@@ -69,7 +70,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
         throw new Error(dtErrors.join(' '));
       }
 
-      dynamicTypes = DocumentsConverter.getDynamicTypes({ types: records, typeNames }, true);
+      dynamicTypes = DocumentsConverter.getDynamicTypes({ types: records, typeNames, availableTypes }, true);
     }
 
     const configTypes = yield select(state => selectConfigTypes(state, payload.key));
@@ -111,7 +112,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     yield put(
       setDynamicTypes({
         key: payload.key,
-        dynamicTypes: DocumentsConverter.getDynamicTypes({ types: combinedTypes, typeNames, countByTypes: countDocuments })
+        dynamicTypes: DocumentsConverter.getDynamicTypes({ types: combinedTypes, typeNames, countByTypes: countDocuments, availableTypes })
       })
     );
 
@@ -223,11 +224,12 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
     const dynamicTypeKeys = payload.types.map(record => record.type);
     const { records } = yield call(api.documents.getDocumentsByTypes, payload.record, dynamicTypeKeys);
     const countDocuments = records.map(record => record.documents);
+    const availableTypes = yield select(state => selectAvailableTypes(state, payload.key));
 
     yield put(
       setDynamicTypes({
         key: payload.key,
-        dynamicTypes: DocumentsConverter.getDynamicTypes({ types: payload.types, countByTypes: countDocuments }), //
+        dynamicTypes: DocumentsConverter.getDynamicTypes({ types: payload.types, countByTypes: countDocuments, availableTypes }),
         countDocuments
       })
     );

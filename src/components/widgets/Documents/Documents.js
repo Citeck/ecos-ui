@@ -458,10 +458,16 @@ class Documents extends BaseWidget {
   };
 
   getformId = (type = {}) => {
-    const { availableTypes } = this.props;
-    const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {}) || {};
+    const createVariants = this.getFormCreateVariants(type);
 
     return type.formId || createVariants.formRef;
+  };
+
+  getFormCreateVariants = (type = {}) => {
+    const { availableTypes } = this.props;
+    const typeId = typeof type === 'string' ? type : type.type;
+
+    return get(availableTypes.find(item => item.id === typeId), 'createVariants', {}) || {};
   };
 
   handleToggleUploadModalByType = (type = null) => {
@@ -478,12 +484,12 @@ class Documents extends BaseWidget {
       return;
     }
 
-    const { formId = null, countDocuments = 0, multiple } = type;
+    const { formId = null } = type;
     const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {}) || {};
     const hasForm = formId !== null || !isEmpty(createVariants.formRef);
     let isFormOpens = false;
 
-    if (hasForm && (multiple || !countDocuments)) {
+    if (hasForm) {
       isFormOpens = true;
 
       this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record, createVariants }));
@@ -611,6 +617,10 @@ class Documents extends BaseWidget {
       return false;
     }
 
+    if (this.getFormCreateVariants(type).formRef) {
+      return false;
+    }
+
     if (this.getformId(type)) {
       this.props.onUploadFiles({ files, type: type.type, openForm: this.openForm });
     } else {
@@ -719,6 +729,8 @@ class Documents extends BaseWidget {
 
   handleTypeRowMouseLeave = () => this.setState({ isHoverLastRow: false });
 
+  handleCheckDropPermissions = type => type.canDropUpload;
+
   setToolsOptions = (options = {}) => {
     this.props.setInlineTools(options);
   };
@@ -732,13 +744,14 @@ class Documents extends BaseWidget {
   countFormatter = (...params) => {
     const { uploadError, countFilesError, id } = this.props;
     const { selectedTypeForLoading } = this.state;
-    const target = prepareTooltipId(`grid-label-${params[1].type}-${id}`);
+    const type = params[1];
+    const target = prepareTooltipId(`grid-label-${type.type}-${id}`);
     const style = {};
     let label = t(Labels.UPLOAD_MESSAGE);
     let hasTooltip = false;
     let hasError = false;
 
-    if (params[1].type === selectedTypeForLoading.type) {
+    if (type.type === selectedTypeForLoading.type) {
       if (uploadError) {
         label = t(Labels.ERROR_UPLOAD);
         hasTooltip = true;
@@ -749,6 +762,10 @@ class Documents extends BaseWidget {
         hasError = true;
         label = t(countFilesError);
       }
+    }
+
+    if (this.getFormCreateVariants(type).formRef) {
+      label = t('documents-widget.dnd.disabled');
     }
 
     if (this._counterRef.current) {
@@ -1006,12 +1023,13 @@ class Documents extends BaseWidget {
   renderDocumentsTable = () => {
     const { dynamicTypes, isUploadingFile } = this.props;
     const { selectedType, isDragFiles, autoHide, isHoverLastRow } = this.state;
+    const { formRef } = this.getFormCreateVariants(selectedType);
 
     if (!selectedType && dynamicTypes.length !== 1) {
       return null;
     }
 
-    const isShowDropZone = isDragFiles;
+    const isShowDropZone = isDragFiles && !formRef;
 
     return (
       <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
@@ -1102,6 +1120,7 @@ class Documents extends BaseWidget {
           onRowDragEnter={this.handleRowDragEnter}
           onMouseEnter={this.handleTypeRowMouseEnter}
           onRowMouseLeave={this.handleTypeRowMouseLeave}
+          onCheckDropPermission={this.handleCheckDropPermissions}
           scrollPosition={scrollPosition}
         />
       );

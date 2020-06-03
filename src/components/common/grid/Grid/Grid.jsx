@@ -726,7 +726,21 @@ class Grid extends Component {
     trigger.call(this, 'onDragOver', e);
   };
 
-  onDragEnter = e => {
+  checkDropPermission = tr => {
+    if (this.props.onCheckDropPermission && typeof this.props.onCheckDropPermission === 'function') {
+      const canDrop = this.props.onCheckDropPermission(this.props.data[tr.rowIndex - 1]);
+
+      if (!canDrop) {
+        this.setHover(tr, ECOS_GRID_HOVERED_CLASS, false, this._tr);
+
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  onDragEnter = (e, ...data) => {
     const dataTypes = get(e, 'dataTransfer.types', []);
 
     if (!dataTypes.includes('Files')) {
@@ -751,6 +765,10 @@ class Grid extends Component {
 
     if (this._dragTr) {
       this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
+    }
+
+    if (!this.checkDropPermission(tr)) {
+      return;
     }
 
     this.setHover(tr, ECOS_GRID_GRAG_CLASS, false, this._tr);
@@ -911,7 +929,8 @@ Grid.propTypes = {
   onRowDragEnter: PropTypes.func,
   onRowMouseLeave: PropTypes.func,
   onResizeColumn: PropTypes.func,
-  onGridMouseEnter: PropTypes.func
+  onGridMouseEnter: PropTypes.func,
+  onCheckDropPermission: PropTypes.func
 };
 
 Grid.defaultProps = {

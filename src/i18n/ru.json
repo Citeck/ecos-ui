@@ -850,6 +850,7 @@
   "documents-widget.settings.title": "Настройка типов документов",
   "documents-widget.upload.title": "Добавить файлы",
   "documents-widget.upload.message": "Перетяните сюда файл",
+  "documents-widget.dnd.disabled": "Drag'n'Drop отключен для этого типа документов",
   "documents-widget.label.not-configuration": "Виджет не настроен",
   "documents-widget.btn.settings": "Открыть настройки",
   "documents-widget.error.upload-filed": "Не удалось загрузить файл",
