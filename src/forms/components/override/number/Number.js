@@ -1,5 +1,7 @@
 import FormIONumberComponent from 'formiojs/components/number/Number';
 import _ from 'lodash';
+import { maskInput } from 'vanilla-text-mask';
+
 import { overrideTriggerChange } from '../misc';
 
 export default class NumberComponent extends FormIONumberComponent {
@@ -56,4 +58,20 @@ export default class NumberComponent extends FormIONumberComponent {
 
     return this.parseNumber(val);
   }
+
+  setInputMask(input) {
+    input.setAttribute('pattern', '\\d*');
+
+    input.mask = maskInput({
+      inputElement: input,
+      mask: this.recalculateMask
+    });
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-109
+  recalculateMask = (value, options) => {
+    const updatedValue = value.replace(/\.|,/g, this.decimalSeparator);
+
+    return this.numberMask(updatedValue, options);
+  };
 }
