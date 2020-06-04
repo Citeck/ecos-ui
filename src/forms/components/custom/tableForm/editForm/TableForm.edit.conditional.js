@@ -20,12 +20,13 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content:
-          '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. ' +
-          'The <strong>value</strong> variable can contain next boolean properties: ' +
-          '<strong>create</strong>, <strong>view</strong>, <strong>preview</strong>, <strong>edit</strong>, <strong>delete</strong>. ' +
-          'Default <em>preview</em> is <em>false</em>. ' +
-          'For example, value = {view: false, edit: true, delete: false, preview: false};</p>'
+        content: `<p>
+Enter custom javascript code. You must assign the <strong>value</strong> variable.
+The <strong>value</strong> variable can contain next boolean properties:
+<strong>create</strong>, <strong>view</strong>, <strong>preview</strong>, <strong>edit</strong>, <strong>delete</strong>.
+Default <em>preview</em> is <em>false</em>.
+For example, value = {view: false, edit: true, delete: false, preview: false};
+</p>`
       }
     ]
   }
