@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import uniqueId from 'lodash/uniqueId';
 
 import { t } from '../../../../../../helpers/util';
 import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
@@ -16,7 +15,7 @@ import './InputView.scss';
 
 const InputView = () => {
   const context = useContext(SelectOrgstructContext);
-  const { selectedRows, error, toggleSelectModal, deleteSelectedItem, controlProps } = context;
+  const { selectedRows, error, toggleSelectModal, deleteSelectedItem, controlProps, targetId } = context;
   const {
     isCompact,
     disabled,
@@ -77,7 +76,6 @@ const InputView = () => {
 
   const renderCompactList = () => {
     const compactValue = !!selectedRows && selectedRows.map(item => item.label).join(', ');
-    const targetId = compactValue && uniqueId('SelectOrgstructTooltip');
 
     return compactValue ? (
       <Tooltip showAsNeeded target={targetId} uncontrolled text={compactValue} className="select-orgstruct__values-list-tooltip">
