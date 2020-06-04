@@ -49,7 +49,8 @@ export default class NumberComponent extends FormIONumberComponent {
 
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3327
   getRoundValue(value) {
-    if (this.component.decimalLimit === undefined) {
+    const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
+    if (decimalLimit === undefined) {
       return value;
     }
 
@@ -60,10 +61,29 @@ export default class NumberComponent extends FormIONumberComponent {
     }
 
     newValue = newValue.replace(/,/g, '.');
-    newValue = parseFloat(parseFloat(newValue).toFixed(this.component.decimalLimit)).toString();
+    newValue = parseFloat(parseFloat(newValue).toFixed(decimalLimit)).toString();
     newValue = newValue.replace(/\./g, this.decimalSeparator);
+    newValue = this.fillZeros(newValue);
 
     return newValue;
+  }
+
+  fillZeros(value) {
+    const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
+    if (decimalLimit === undefined) {
+      return value;
+    }
+
+    const [, decimalPart] = value.split(this.decimalSeparator);
+    if (!decimalPart) {
+      return value;
+    }
+
+    if (decimalPart.length < decimalLimit) {
+      return `${value}${_.repeat('0', decimalLimit - decimalPart.length)}`;
+    }
+
+    return value;
   }
 
   getValueAt(index) {
