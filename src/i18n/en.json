@@ -848,6 +848,7 @@
   "documents-widget.settings.title": "Setting document types",
   "documents-widget.upload.title": "Add files",
   "documents-widget.upload.message": "Drag the file here",
+  "documents-widget.dnd.disabled": "Drag'n'Drop is disabled for this type of document",
   "documents-widget.label.not-configuration": "Widget not configured",
   "documents-widget.btn.settings": "Open Settings",
   "documents-widget.error.upload-filed": "Could not upload file",

@@ -33,13 +33,14 @@ export default class DocumentsConverter {
     }));
   };
 
-  static getDynamicTypes = ({ types = [], typeNames = {}, countByTypes = [] }, locked = false) => {
+  static getDynamicTypes = ({ types = [], typeNames = {}, countByTypes = [], availableTypes }, locked = false) => {
     if (!types.length) {
       return types;
     }
 
     return types.map((item, index) => {
       const documents = get(countByTypes, [index], []);
+      const createVariants = get(availableTypes.find(i => i.id === item.type), 'createVariants', {});
       let document = {};
 
       if (documents.length) {
@@ -57,6 +58,7 @@ export default class DocumentsConverter {
         countDocuments: documents.length,
         lastDocumentRef: get(document, 'id', ''),
         loadedBy: get(document, 'loadedBy', ''),
+        canDropUpload: !createVariants.formRef,
         modified: DocumentsConverter.getFormattedDate(get(document, 'modified', ''))
       };
     });
