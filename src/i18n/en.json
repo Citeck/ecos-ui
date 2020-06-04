@@ -113,6 +113,11 @@
   "current-tasks-widget.no-tasks": "No current tasks",
   "current-tasks-widget.saga.error1": "Error. Failure to fetch data",
   "current-tasks-widget.title": "All tasks",
+
+  "dashboard.error.get-config": "Dashboard config hasn't gotten",
+  "dashboard.error.get-title": "Dashboard title hasn't gotten",
+  "dashboard.error.save-config": "Dashboard config hasn't saved",
+
   "dashboard-settings.already-exists": "A dashboard for the installed type and / or user already exists",
   "dashboard-settings.button.cancel": "Cancel",
   "dashboard-settings.button.save": "Save",
