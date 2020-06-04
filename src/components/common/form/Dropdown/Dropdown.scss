@@ -22,7 +22,6 @@
       box-shadow: $box-shadow-default;
       border: none;
       padding: 0;
-      //overflow: hidden;
       margin-top: 5px;
       margin-bottom: 5px;
       width: auto;
@@ -81,6 +80,15 @@
         a {
           padding: 10px 15px;
         }
+      }
+    }
+  }
+
+  &-outer {
+    &__tooltip-inner {
+      &.ecos-base-tooltip-inner {
+        padding: 0;
+        max-width: none;
       }
     }
   }
