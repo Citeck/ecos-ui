@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 import debounce from 'lodash/debounce';
+import uniqueId from 'lodash/uniqueId';
 
 import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, TAB_ALL_USERS, TAB_BY_LEVELS, TAB_ONLY_SELECTED } from './constants';
@@ -36,6 +37,7 @@ export const SelectOrgstructProvider = props => {
   const [isRootGroupsFetched, setIsRootGroupsFetched] = useState(false);
   const [isAllUsersGroupsFetched, setIsAllUsersGroupFetched] = useState(false);
   const [isAllUsersGroupsExists, setIsAllUsersGroupsExists] = useState(undefined);
+  const [targetId, setTargetId] = useState(undefined);
   const [tabItems, setTabItems] = useState({
     [TAB_BY_LEVELS]: [],
     [TAB_ALL_USERS]: [],
@@ -161,6 +163,10 @@ export const SelectOrgstructProvider = props => {
     }
   }, [isSelectedFetched]);
 
+  useEffect(() => {
+    !targetId && setTargetId(uniqueId('SelectOrgstruct_'));
+  }, [targetId]);
+
   return (
     <SelectOrgstructContext.Provider
       value={{
@@ -179,6 +185,7 @@ export const SelectOrgstructProvider = props => {
         modalTitle,
         liveSearch,
         hideTabSwitcher,
+        targetId,
 
         renderListItem: item => {
           if (typeof renderListItem === 'function') {
