@@ -40,7 +40,7 @@ export default class DropdownOuter extends Dropdown {
           placement="bottom-start"
           modifiers={{ flip: { behavior: ['bottom', 'top', 'right', 'left'] } }}
         >
-          <div className={this.cssDropdownMenu}>{this.renderMenuItems()}</div>
+          <div className={this.dropdownMenuClassNames}>{this.renderMenuItems()}</div>
         </Tooltip>
       </ClickOutside>
     );

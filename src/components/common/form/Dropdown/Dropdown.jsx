@@ -78,7 +78,7 @@ export default class Dropdown extends Component {
     return !isEmpty(source) ? source.find(item => item[valueField] === value) || (!hasEmpty && source[0]) : {};
   }
 
-  get cssDropdownMenu() {
+  get dropdownMenuClassNames() {
     const { right, isLinks, cascade, menuClassName } = this.props;
 
     return classNames(
@@ -194,7 +194,7 @@ export default class Dropdown extends Component {
         <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} className={cssDropdownToggle} tag="span">
           {this.renderToggle()}
         </DropdownToggle>
-        <DropdownMenu className={this.cssDropdownMenu}>{this.renderMenuItems()}</DropdownMenu>
+        <DropdownMenu className={this.dropdownMenuClassNames}>{this.renderMenuItems()}</DropdownMenu>
       </Drd>
     );
   }

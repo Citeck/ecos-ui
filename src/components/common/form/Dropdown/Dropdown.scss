@@ -22,7 +22,6 @@
       box-shadow: $box-shadow-default;
       border: none;
       padding: 0;
-      //overflow: hidden;
       margin-top: 5px;
       margin-bottom: 5px;
       width: auto;
@@ -84,8 +83,6 @@
       }
     }
   }
-
-  //DropdownOuter
 
   &-outer {
     &__tooltip-inner {
