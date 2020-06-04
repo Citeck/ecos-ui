@@ -9,7 +9,7 @@ import uniqueId from 'lodash/uniqueId';
 
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 import { t } from '../../helpers/util';
-import { Panel, ResizableBox } from '../common';
+import { Panel, ResizableBox, Loader } from '../common';
 import { Btn } from '../common/btns';
 import Measurer from '../Measurer/Measurer';
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -47,7 +47,8 @@ class Dashlet extends Component {
     getFitHeights: PropTypes.func,
     actionConfig: PropTypes.object,
     actionRules: PropTypes.object,
-    noActions: PropTypes.bool
+    noActions: PropTypes.bool,
+    isLoading: PropTypes.bool
   };
 
   static defaultProps = {
@@ -195,6 +196,16 @@ class Dashlet extends Component {
     );
   }
 
+  renderLoader = () => {
+    const { isLoading } = this.props;
+
+    if (!isLoading) {
+      return null;
+    }
+
+    return <Loader blur rounded />;
+  };
+
   render() {
     const {
       title,
@@ -217,7 +228,7 @@ class Dashlet extends Component {
     const { isCollapsed } = this.state;
 
     return (
-      <div ref={this.refDashlet}>
+      <div ref={this.refDashlet} className="dashlet">
         <Panel
           {...this.props}
           className={classNames('dashlet', className, { dashlet_mobile: isMobile })}
@@ -259,6 +270,8 @@ class Dashlet extends Component {
           </ErrorBoundary>
         </Panel>
         <ReactResizeDetector handleWidth handleHeight onResize={debounce(onResize, 400)} />
+
+        {this.renderLoader()}
       </div>
     );
   }
