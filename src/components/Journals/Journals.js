@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
+import get from 'lodash/get';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
@@ -57,8 +58,24 @@ class Journals extends Component {
       settingsVisible: false,
       showPreview: props.urlParams.showPreview,
       showPie: false,
-      savedSetting: null
+      savedSetting: null,
+      journalId: get(props, 'urlParams.journalId')
     };
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const newState = {};
+    const journalId = get(props, 'urlParams.journalId');
+
+    if (props.isActivePage && journalId !== state.journalId) {
+      newState.journalId = journalId;
+    }
+
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    return newState;
   }
 
   componentDidMount() {
@@ -66,17 +83,22 @@ class Journals extends Component {
     trigger.call(this, 'onRender');
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const {
       isActivePage,
-      urlParams: { journalId }
+      urlParams: { journalId },
+      stateId
     } = this.props;
     const {
       isActivePage: _isActivePage,
       urlParams: { journalId: _journalId }
     } = prevProps;
 
-    if (_isActivePage && isActivePage && journalId && journalId !== _journalId) {
+    if (isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId)) {
+      this.getJournalsData();
+    }
+
+    if (prevProps.stateId !== stateId) {
       this.getJournalsData();
     }
   }
