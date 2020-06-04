@@ -78,6 +78,18 @@ export default class Dropdown extends Component {
     return !isEmpty(source) ? source.find(item => item[valueField] === value) || (!hasEmpty && source[0]) : {};
   }
 
+  get dropdownMenuClassNames() {
+    const { right, isLinks, cascade, menuClassName } = this.props;
+
+    return classNames(
+      'ecos-dropdown__menu',
+      menuClassName,
+      { 'ecos-dropdown__menu_right': right },
+      { 'ecos-dropdown__menu_links': isLinks },
+      { 'ecos-dropdown__menu_cascade': cascade }
+    );
+  }
+
   toggle = () => {
     this.setState(
       {
@@ -125,6 +137,12 @@ export default class Dropdown extends Component {
     }
   };
 
+  renderToggle() {
+    const { titleField, isStatic, children } = this.props;
+
+    return isStatic ? children : this.getControl(getPropByStringKey(this.selected, titleField));
+  }
+
   renderMenuItems() {
     const {
       valueField,
@@ -166,36 +184,17 @@ export default class Dropdown extends Component {
   }
 
   render() {
-    const {
-      titleField,
-      isStatic,
-      right,
-      full,
-      isLinks,
-      cascade,
-      className,
-      menuClassName,
-      toggleClassName,
-      children,
-      direction
-    } = this.props;
+    const { full, className, toggleClassName, direction } = this.props;
     const { dropdownOpen } = this.state;
     const cssClasses = classNames('ecos-dropdown', className, { 'ecos-dropdown_full-width': full });
-    const cssDropdownMenu = classNames(
-      'ecos-dropdown__menu',
-      menuClassName,
-      { 'ecos-dropdown__menu_right': right },
-      { 'ecos-dropdown__menu_links': isLinks },
-      { 'ecos-dropdown__menu_cascade': cascade }
-    );
     const cssDropdownToggle = classNames('ecos-dropdown__toggle', toggleClassName);
 
     return (
       <Drd className={cssClasses} isOpen={dropdownOpen} toggle={this.toggle} direction={direction}>
         <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} className={cssDropdownToggle} tag="span">
-          {isStatic ? children : this.getControl(getPropByStringKey(this.selected, titleField))}
+          {this.renderToggle()}
         </DropdownToggle>
-        <DropdownMenu className={cssDropdownMenu}>{this.renderMenuItems()}</DropdownMenu>
+        <DropdownMenu className={this.dropdownMenuClassNames}>{this.renderMenuItems()}</DropdownMenu>
       </Drd>
     );
   }
