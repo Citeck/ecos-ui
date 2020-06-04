@@ -910,11 +910,3 @@ export function getFirstNonEmpty(values = [], defaultValue) {
 
   return defaultValue;
 }
-
-export function getAllIndexes(string, char, delimiter = '') {
-  return string.split(delimiter).reduce((indices, letter, index) => {
-    letter === char && indices.push(index);
-
-    return indices;
-  }, []);
-}
