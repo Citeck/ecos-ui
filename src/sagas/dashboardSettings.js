@@ -1,4 +1,6 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
+import { NotificationManager } from 'react-notifications';
+
 import {
   getAvailableWidgets,
   getCheckUpdatedDashboardConfig,
@@ -10,9 +12,9 @@ import {
   setCheckUpdatedDashboardConfig,
   setDashboardConfig,
   setDashboardKeys,
+  setLoading,
   setRequestResultDashboard
 } from '../actions/dashboardSettings';
-import { setNotificationMessage } from '../actions/notification';
 import { selectIdentificationForSet } from '../selectors/dashboard';
 import { selectIsAdmin, selectUserName } from '../selectors/user';
 import { saveMenuConfig } from '../actions/menu';
@@ -26,15 +28,14 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
     yield put(getDashboardConfig(payload));
   } catch (e) {
-    yield put(setNotificationMessage(t('dashboard-settings.error1')));
-    logger.error('[dashboard/settings/ doInitDashboardSettingsRequest saga] error', e.message);
+    logger.error('[dashboard-settings/ doInitDashboardSettingsRequest saga] error', e.message);
   }
 }
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
-  try {
-    const { dashboardId, recordRef, key } = payload;
+  const { dashboardId, recordRef, key } = payload;
 
+  try {
     if (dashboardId) {
       const result = yield call(api.dashboard.getDashboardById, dashboardId, true);
       const data = DashboardService.checkDashboardResult(result);
@@ -44,11 +45,13 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
       yield put(getAvailableWidgets({ type: data.type, key }));
       yield put(getDashboardKeys({ recordRef, key }));
     } else {
-      yield put(setNotificationMessage(t('dashboard-settings.error2')));
+      throw new Error('No dashboard ID');
     }
   } catch (e) {
-    yield put(setNotificationMessage(t('dashboard-settings.error2')));
-    logger.error('[dashboard/settings/ doGetDashboardConfigRequest saga] error', e.message);
+    NotificationManager.error(t('dashboard-settings.error.get-config'), t('error'));
+    logger.error('[dashboard-settings/ doGetDashboardConfigRequest saga] error', e.message);
+  } finally {
+    yield put(setLoading({ key: payload.key, status: false }));
   }
 }
 
@@ -58,8 +61,8 @@ function* doGetWidgetsRequest({ api, logger }, { payload }) {
 
     yield put(setAvailableWidgets({ widgets, key: payload.key }));
   } catch (e) {
-    yield put(setNotificationMessage(t('dashboard-settings.error3')));
-    logger.error('[dashboard/settings/ doGetWidgetsRequest saga] error', e.message);
+    NotificationManager.error(t('dashboard-settings.error.get-widget-list'), t('error'));
+    logger.error('[dashboard-settings/ doGetWidgetsRequest saga] error', e.message);
   }
 }
 
@@ -69,7 +72,8 @@ function* doGetDashboardKeys({ api, logger }, { payload }) {
 
     yield put(setDashboardKeys({ keys, key: payload.key }));
   } catch (e) {
-    logger.error('[dashboard/settings/ doGetDashboardKeys saga] error', e.message);
+    NotificationManager.error(t('dashboard-settings.error.get-board-key'), t('error'));
+    logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e.message);
   }
 }
 
@@ -108,7 +112,8 @@ function* doCheckUpdatedSettings({ api, logger }, { payload }) {
 
     yield put(setCheckUpdatedDashboardConfig({ saveWay, dashboardId, key: payload.key }));
   } catch (e) {
-    logger.error('[dashboard/settings/ doCheckUpdatedSettings saga] error', e.message);
+    NotificationManager.error(t('dashboard-settings.error.check-updates'), t('error'));
+    logger.error('[dashboard-settings/ doCheckUpdatedSettings saga] error', e.message);
   }
 }
 
@@ -129,9 +134,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       const user = yield select(selectUserName);
 
       if (!user) {
-        yield put(setNotificationMessage(t('dashboard-settings.error4')));
-
-        return;
+        throw new Error(' No user name');
       }
 
       identificationData.user = user;
@@ -157,8 +160,9 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     yield put(saveMenuConfig(menu));
     yield put(setRequestResultDashboard({ request, key: payload.key }));
   } catch (e) {
-    yield put(setNotificationMessage(t('dashboard-settings.error4')));
-    logger.error('[dashboard/settings/ doSaveSettingsRequest saga] error', e.message);
+    yield put(setLoading({ key: payload.key, status: false }));
+    NotificationManager.error(t('dashboard-settings.error.save-config'), t('error'));
+    logger.error('[dashboard-settings/ doSaveSettingsRequest saga] error', e.message);
   }
 }
 
