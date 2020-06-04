@@ -15,7 +15,8 @@ import './InputView.scss';
 
 class InputView extends Component {
   state = {
-    inlineToolsOffsets: { height: 0, top: 0, row: {} }
+    inlineToolsOffsets: { height: 0, top: 0, row: {} },
+    targetId: uniqueId('SelectJournal')
   };
 
   gridWrapperRef = null;
@@ -105,13 +106,13 @@ class InputView extends Component {
 
   renderCompactList = () => {
     const { selectedRows, isCompact } = this.props;
+    const { targetId } = this.state;
 
     if (!isCompact || selectedRows.length === 0) {
       return null;
     }
 
     const compactValue = selectedRows.map(item => item.disp).join(', ');
-    const targetId = uniqueId('SelectJournalTooltip');
 
     return (
       <Tooltip showAsNeeded target={targetId} uncontrolled text={compactValue} className="select-journal__values-list-tooltip">
