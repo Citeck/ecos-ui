@@ -84,4 +84,15 @@
       }
     }
   }
+
+  //DropdownOuter
+
+  &-outer {
+    &__tooltip-inner {
+      &.ecos-base-tooltip-inner {
+        padding: 0;
+        max-width: none;
+      }
+    }
+  }
 }
