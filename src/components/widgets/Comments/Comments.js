@@ -15,7 +15,7 @@ import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
 
-import { Avatar, DefineHeight, Loader } from '../../common/index';
+import { Avatar, DefineHeight } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import Dashlet, { BaseActions } from '../../Dashlet';
 
@@ -703,18 +703,8 @@ class Comments extends BaseWidget {
     );
   }
 
-  renderLoader() {
-    const { fetchIsLoading } = this.props;
-
-    if (!fetchIsLoading) {
-      return null;
-    }
-
-    return <Loader blur />;
-  }
-
   render() {
-    const { dragHandleProps, canDragging } = this.props;
+    const { dragHandleProps, canDragging, fetchIsLoading } = this.props;
     const { isCollapsed } = this.state;
     const actions = {
       [BaseActions.RELOAD]: {
@@ -731,6 +721,7 @@ class Comments extends BaseWidget {
           canDragging={canDragging}
           dragHandleProps={dragHandleProps}
           resizable
+          isLoading={fetchIsLoading}
           onResize={this.handleResize}
           contentMaxHeight={this.clientHeight + this.otherHeight}
           onChangeHeight={this.handleChangeHeight}
@@ -741,7 +732,6 @@ class Comments extends BaseWidget {
           {this.renderHeader()}
           {this.renderComments()}
         </Dashlet>
-        {this.renderLoader()}
       </div>
     );
   }
