@@ -675,11 +675,12 @@ function* sagaSearch({ api, logger, stateId, w }, action) {
 
 function* sagaPerformGroupAction({ api, logger, stateId, w }, action) {
   try {
-    const { groupAction, selected } = action.payload;
+    const { groupAction, selected, resolved } = action.payload;
     const journalConfig = yield select(state => state.journals[stateId].journalConfig);
     const performGroupActionResponse = yield call(api.journals.performGroupAction, {
       groupAction,
       selected,
+      resolved,
       criteria: journalConfig.meta.criteria,
       journalId: journalConfig.id
     });

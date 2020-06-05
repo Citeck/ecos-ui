@@ -331,7 +331,7 @@ export class JournalsApi extends RecordService {
 
   getPreviewUrl = DocPreviewApi.getPreviewLinkByRecord;
 
-  performGroupAction = ({ groupAction, selected, criteria, journalId }) => {
+  performGroupAction = ({ groupAction, selected, resolved, criteria, journalId }) => {
     const { id, type, params } = groupAction;
 
     if (params.js_action) {
@@ -357,7 +357,21 @@ export class JournalsApi extends RecordService {
 
         titles = Array.isArray(titles) ? titles : [titles];
 
-        return actionResults.map((a, i) => ({ ...a, title: titles[i], status: t(`batch-edit.message.${a.status}`) }));
+        let result = actionResults.map((a, i) => ({
+          ...a,
+          title: titles[i],
+          status: t(`batch-edit.message.${a.status}`)
+        }));
+
+        if (resolved) {
+          for (let rec of resolved) {
+            result.push({
+              ...rec,
+              status: t(`batch-edit.message.${rec.status}`)
+            });
+          }
+        }
+        return result;
       })
       .catch(() => []);
   };
