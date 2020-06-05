@@ -5,6 +5,7 @@ import Formio from 'formiojs/Formio';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
+import isString from 'lodash/isString';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
@@ -66,6 +67,14 @@ class EcosForm extends React.Component {
     };
   }
 
+  _replaceOptionValuePlaceholder(value, options) {
+    let match = /\${options\['(.+)']}/.exec(value);
+    if (match != null) {
+      return options[match[1]];
+    }
+    return value;
+  }
+
   initForm(newFormDefinition = this.state.formDefinition) {
     const { record, formKey, options: propsOptions, formId, getTitle } = this.props;
     const { recordId, containerId } = this.state;
@@ -122,7 +131,38 @@ class EcosForm extends React.Component {
           resolve({});
         }
       });
-      const inputs = EcosFormUtils.getFormInputs(formData.definition);
+
+      const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
+      const formDefinition = cloneDeep(originalFormDefinition);
+
+      this.setState({ originalFormDefinition, formDefinition });
+
+      EcosFormUtils.forEachComponent(formDefinition, component => {
+        if (component.key) {
+          if (component.properties) {
+            for (let key in component.properties) {
+              if (!component.properties.hasOwnProperty(key)) {
+                continue;
+              }
+              let value = component.properties[key];
+              if (value[0] === '$') {
+                component.properties[key] = this._replaceOptionValuePlaceholder(value, options);
+              }
+            }
+          }
+          for (let key in component) {
+            if (!component.hasOwnProperty(key)) {
+              continue;
+            }
+            let value = component[key];
+            if (isString(value) && value[0] === '$') {
+              component[key] = this._replaceOptionValuePlaceholder(value, options);
+            }
+          }
+        }
+      });
+
+      const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(recordId, inputs, containerId);
       const isDebugModeOn = localStorage.getItem('enableLoggerForNewForms');
 
@@ -141,11 +181,7 @@ class EcosForm extends React.Component {
           options.canWrite = canWrite;
         }
 
-        const definition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
-        const formDefinition = cloneDeep(definition);
         const attributesTitles = {};
-
-        this.setState({ formDefinition });
 
         for (let input of recordData.inputs) {
           if (input.component && input.edge) {
@@ -243,9 +279,9 @@ class EcosForm extends React.Component {
 
   onShowFormBuilder = callback => {
     if (this._formBuilderModal.current) {
-      const { formDefinition, formId } = this.state;
+      const { originalFormDefinition, formId } = this.state;
 
-      this._formBuilderModal.current.show(formDefinition, form => {
+      this._formBuilderModal.current.show(originalFormDefinition, form => {
         EcosFormUtils.saveFormBuilder(form, formId).then(() => {
           this.initForm(form);
           this.props.onFormSubmitDone();

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import connect from 'react-redux/es/connect/connect';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
@@ -11,7 +12,7 @@ import { ParserPredicate } from '../../Filters/predicates';
 import { EcosModal, Loader } from '../../common';
 import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
 import { IcoBtn } from '../../common/btns';
-import { DropdownOuter } from '../../common/form';
+import { Dropdown } from '../../common/form';
 import { RemoveDialog } from '../../common/dialogs';
 import { goToNodeEditPage } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
@@ -212,6 +213,7 @@ class JournalsDashletGrid extends Component {
   };
 
   renderTools = selected => {
+    const toolsActionClassName = 'ecos-btn_i_sm ecos-btn_grey4';
     const {
       stateId,
       isMobile,
@@ -230,17 +232,17 @@ class JournalsDashletGrid extends Component {
       <JournalsDownloadZip stateId={stateId} selected={selected} />,
       <IcoBtn
         icon={'icon-copy'}
-        className="ecos-journal__tool ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t-dark-brown"
+        className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
         title={t('grid.tools.copy-to')}
       />,
       <IcoBtn
         icon={'icon-big-arrow'}
-        className="ecos-journal__tool ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t-dark-brown"
+        className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
         title={t('grid.tools.move-to')}
       />,
       <IcoBtn
         icon={'icon-delete'}
-        className="ecos-journal__tool ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t_red"
+        className={classNames(toolsActionClassName, 'ecos-btn_hover_t_red')}
         title={t('grid.tools.delete')}
         onClick={this.showDeleteRecordsDialog}
       />
@@ -248,26 +250,25 @@ class JournalsDashletGrid extends Component {
 
     if (sourceGroupActions && sourceGroupActions.length) {
       tools.push(
-        <DropdownOuter
-          className="ecos-journal__tool-group-dropdown grid-tools__item_left_5"
+        <Dropdown
+          className={'grid-tools__item_left_5'}
           source={sourceGroupActions}
           valueField={'id'}
           titleField={'title'}
-          isStatic
+          isButton={true}
           onChange={this.changeGroupAction}
         >
           <IcoBtn
             invert
             icon={'icon-down'}
-            className="ecos-journal__tool-group-btn dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn"
+            className={'dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn'}
             onClick={this.onGoTo}
           >
             {t(isMobile ? 'grid.tools.group-actions-mobile' : 'grid.tools.group-actions')}
           </IcoBtn>
-        </DropdownOuter>
+        </Dropdown>
       );
     }
-
     return (
       <Tools
         onSelectAll={this.setSelectAllRecords}
@@ -291,11 +292,22 @@ class JournalsDashletGrid extends Component {
   changeGroupAction = groupAction => {
     const { selectedRecords, performGroupAction } = this.props;
 
+    const formOptionPrefix = 'form_option_';
+
+    const formOptions = {};
+    const actionParams = groupAction.params || {};
+    for (let key in actionParams) {
+      if (actionParams.hasOwnProperty(key) && key.startsWith(formOptionPrefix)) {
+        formOptions[key.substring(formOptionPrefix.length)] = actionParams[key];
+      }
+    }
+
     if (groupAction.formKey) {
       FormManager.openFormModal({
         record: '@',
         formKey: groupAction.formKey,
         saveOnSubmit: false,
+        options: formOptions,
         onSubmit: rec => {
           let action = cloneDeep(groupAction);
           action.params = action.params || {};
