@@ -2,6 +2,8 @@ import lodash from 'lodash';
 
 import { deepClone, extractLabel, t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
+import DialogManager from '../../common/dialogs/Manager/DialogManager';
+import FormManager from '../../EcosForm/FormManager';
 import Records from '../Records';
 import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
 import { DefaultActionTypes } from './DefaultActions';
@@ -13,7 +15,8 @@ const DEFAULT_MODEL = {
   theme: '',
   icon: '',
   order: 0.0,
-  config: {}
+  config: {},
+  confirm: null
 };
 
 let RecordActions;
@@ -173,7 +176,50 @@ class RecordActionsService {
       });
   }
 
+  static _getConfirmData = action => {
+    //todo temp
+    action.confirm = {
+      title: 'Test_contract_form5557777',
+      message: 'Test_contract_form5555555555555555555',
+      formRef: 'uiserv/eform@Test_contract_form'
+    };
+    const title = extractLabel(lodash.get(action, 'confirm.title'));
+    const text = extractLabel(lodash.get(action, 'confirm.message'));
+    const record = lodash.get(action, 'confirm.formRef');
+    const needConfirm = !!record || !!title || !!text;
+
+    return needConfirm ? { record, title, text } : null;
+  };
+
+  static _confirmExecAction = (data, callback) => {
+    const { title, text, record } = data;
+
+    if (record) {
+      FormManager.openFormModal({
+        record,
+        title,
+        onSubmit: rec => {
+          callback('onSubmit');
+        }
+      });
+    } else {
+      DialogManager.confirmDialog({
+        title,
+        text,
+        onNo: () => callback('onNo'),
+        onYes: () => callback('onYes')
+      });
+    }
+  };
+
   execAction = async (recordsId, action) => {
+    const confirmData = RecordActionsService._getConfirmData(action);
+
+    if (confirmData) {
+      RecordActionsService._confirmExecAction(confirmData, console.log);
+      return Promise.resolve(false);
+    }
+
     const records = Records.get(recordsId);
     const executorPromise = (async () => {
       const executor = RecordActionExecutorsRegistry.get(action.type);
