@@ -20,11 +20,11 @@ import {
 } from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-
+import DAction from '../../../services/DashletActionService';
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
-import Dashlet, { BaseActions } from '../../Dashlet';
+import Dashlet from '../../Dashlet';
 
 import './style.scss';
 
@@ -398,11 +398,11 @@ class DocAssociations extends BaseWidget {
     const { canDragging, dragHandleProps, isCollapsed, associationsTotalCount, isLoading, isMobile } = this.props;
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const actions = {
-      [BaseActions.RELOAD]: {
+      [DAction.Actions.RELOAD]: {
         onClick: this.handleReloadData
       }
     };
-    const actionRules = { orderedVisible: [BaseActions.RELOAD, 'addLink'] };
+    const actionRules = { orderedVisible: [DAction.Actions.RELOAD, 'addLink'] };
 
     if (!isMobile) {
       actions.addLink = {

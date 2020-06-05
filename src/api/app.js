@@ -37,4 +37,11 @@ export class AppApi extends CommonApi {
       }
     );
   };
+
+  isDashboardEditable = ({ username }) => {
+    return Promise.all([
+      Records.get(`${SourcesId.CONFIG}@restrict-access-to-edit-dashboard`).load('value?bool'),
+      Records.get(`${SourcesId.PEOPLE}@${username}`).load('isAdmin?bool')
+    ]).then(([isRestrictionOn, isAdmin]) => !isRestrictionOn || isAdmin);
+  };
 }

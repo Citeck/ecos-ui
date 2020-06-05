@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import get from 'lodash/get';
 
 import { isSmallMode, objectCompare, t } from '../../../helpers/util';
+import DAction from '../../../services/DashletActionService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-import Dashlet, { BaseActions } from '../../Dashlet';
+import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
@@ -21,9 +21,7 @@ const Labels = {
   BTN_BUILD_TIP: 'properties-widget.action-constructor.title'
 };
 
-const mapStateToProps = state => ({
-  isAdmin: get(state, ['user', 'isAdmin'], false)
-});
+const mapStateToProps = state => ({});
 
 class PropertiesDashlet extends BaseWidget {
   static propTypes = {
@@ -36,7 +34,6 @@ class PropertiesDashlet extends BaseWidget {
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
     }),
     dragHandleProps: PropTypes.object,
-    isAdmin: PropTypes.bool,
     canDragging: PropTypes.bool,
     maxHeightByContent: PropTypes.bool
   };
@@ -90,7 +87,6 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   get dashletActions() {
-    const { isAdmin } = this.props;
     const { canEditRecord, isShowSetting } = this.state;
 
     if (isShowSetting) {
@@ -98,26 +94,23 @@ class PropertiesDashlet extends BaseWidget {
     }
 
     const actions = {
-      [BaseActions.RELOAD]: {
+      [DAction.Actions.RELOAD]: {
         onClick: this.reload
       },
-      [BaseActions.SETTINGS]: {
+      [DAction.Actions.SETTINGS]: {
         onClick: this.toggleDisplayFormSettings
+      },
+      [DAction.Actions.BUILDER]: {
+        icon: 'icon-forms',
+        text: t(Labels.BTN_BUILD_TIP),
+        onClick: this.onClickShowFormBuilder
       }
     };
 
     if (canEditRecord) {
-      actions.edit = {
+      actions[DAction.Actions.EDIT] = {
         text: t(Labels.BTN_EDIT_TIP),
         onClick: this.openModal
-      };
-    }
-
-    if (isAdmin) {
-      actions.builder = {
-        icon: 'icon-forms',
-        text: t(Labels.BTN_BUILD_TIP),
-        onClick: this.onClickShowFormBuilder
       };
     }
 

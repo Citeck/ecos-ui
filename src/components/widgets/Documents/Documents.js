@@ -11,7 +11,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { NotificationManager } from 'react-notifications';
 
 import BaseWidget from '../BaseWidget';
-import Dashlet from '../../Dashlet/Dashlet';
+import Dashlet from '../../Dashlet';
 import { DefineHeight, EcosModal, Icon, Loader, ResizeBoxes, Search, Tooltip } from '../../common';
 import { Dropdown } from '../../common/form';
 import { Btn } from '../../common/btns';
@@ -20,6 +20,7 @@ import FormManager from '../../EcosForm/FormManager';
 import DropZone from './DropZone';
 import Settings from './Settings';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
+import DAction from '../../../services/DashletActionService';
 import DocumentsConverter from '../../../dto/documents';
 import {
   execRecordsAction,
@@ -323,18 +324,15 @@ class Documents extends BaseWidget {
   }
 
   get dashletActionsConfig() {
-    const actions = {};
-
-    actions.reload = {
-      onClick: this.initWidget
+    return {
+      [DAction.Actions.RELOAD]: {
+        onClick: this.initWidget
+      },
+      [DAction.Actions.SETTINGS]: {
+        onClick: this.handleToggleTypesSettings,
+        text: t(tooltips.SETTINGS)
+      }
     };
-
-    actions.settings = {
-      onClick: this.handleToggleTypesSettings,
-      text: t(tooltips.SETTINGS)
-    };
-
-    return actions;
   }
 
   get uploadingSettings() {

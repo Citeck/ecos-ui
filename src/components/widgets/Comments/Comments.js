@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { ContentState, Editor, EditorState, convertToRaw, convertFromRaw, getDefaultKeyBinding, Modifier, RichUtils } from 'draft-js';
+import { ContentState, convertFromRaw, convertToRaw, Editor, EditorState, getDefaultKeyBinding, Modifier, RichUtils } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
@@ -12,12 +12,12 @@ import ReactResizeDetector from 'react-resize-detector';
 import BaseWidget from '../BaseWidget';
 import { deepClone, num2str, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
+import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
-
 import { Avatar, DefineHeight } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
-import Dashlet, { BaseActions } from '../../Dashlet';
+import Dashlet from '../../Dashlet';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
@@ -707,7 +707,7 @@ class Comments extends BaseWidget {
     const { dragHandleProps, canDragging, fetchIsLoading } = this.props;
     const { isCollapsed } = this.state;
     const actions = {
-      [BaseActions.RELOAD]: {
+      [DAction.Actions.RELOAD]: {
         onClick: this.handleReloadData
       }
     };
