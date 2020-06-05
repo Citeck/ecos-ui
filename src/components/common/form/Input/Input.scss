@@ -54,3 +54,19 @@
     }
   }
 }
+
+.symbol-input {
+  position: relative;
+
+  &__symbol {
+    position: absolute;
+
+    &_start {
+      left: 1px;
+    }
+
+    &_end {
+      right: 1px;
+    }
+  }
+}

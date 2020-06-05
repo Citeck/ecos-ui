@@ -4,8 +4,9 @@ import classNames from 'classnames';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
-import Dashlet from '../../Dashlet/Dashlet';
+import Dashlet, { BaseActions } from '../../Dashlet';
 import Barcode from './Barcode';
+import Settings from './Settings';
 import BaseWidget from '../BaseWidget';
 
 import './style.scss';
@@ -30,6 +31,11 @@ class BarcodeDashlet extends BaseWidget {
     super(props);
 
     this.stateId = getStateId(props);
+
+    this.state = {
+      ...this.state,
+      isOpenSettings: true
+    };
   }
 
   componentDidMount() {
@@ -40,21 +46,57 @@ class BarcodeDashlet extends BaseWidget {
     this.instanceRecord.unwatch(this.watcher);
   }
 
+  handleToggleSettings = () => {
+    this.setState(state => ({ isOpenSettings: !state.isOpenSettings }));
+  };
+
+  renderBarcode() {
+    const { config, classNameBarcode, record } = this.props;
+    const { runUpdate, isOpenSettings } = this.state;
+
+    return (
+      <Barcode
+        {...config}
+        className={classNames(classNameBarcode, {
+          'ecos-barcode_hidden': isOpenSettings
+        })}
+        record={record}
+        stateId={this.stateId}
+        runUpdate={runUpdate}
+      />
+    );
+  }
+
+  renderSettings() {
+    const { isOpenSettings } = this.state;
+
+    if (!isOpenSettings) {
+      return null;
+    }
+
+    return <Settings />;
+  }
+
   render() {
-    const { title, config, classNameBarcode, classNameDashlet, record } = this.props;
-    const { runUpdate } = this.state;
+    const { title, classNameDashlet } = this.props;
+    const actions = {
+      [BaseActions.SETTINGS]: {
+        onClick: this.handleToggleSettings
+      }
+    };
 
     return (
       <Dashlet
         title={title}
+        actionConfig={actions}
         bodyClassName="ecos-barcode-dashlet__body"
         className={classNames('ecos-barcode-dashlet', classNameDashlet)}
         resizable={false}
         needGoTo={false}
-        noActions
         actionDrag={isMobileDevice()}
       >
-        <Barcode {...config} className={classNameBarcode} record={record} stateId={this.stateId} runUpdate={runUpdate} />
+        {this.renderBarcode()}
+        {this.renderSettings()}
       </Dashlet>
     );
   }
