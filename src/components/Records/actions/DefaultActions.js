@@ -38,7 +38,7 @@ export const DefaultActionTypes = {
   UPLOAD_NEW_VERSION: 'upload-new-version',
   ASSOC_ACTION: 'assoc-action',
   SAVE_AS_CASE_TEMPLATE: 'save-as-case-template',
-  PREVIEW: 'preview'
+  PREVIEW_MODAL: 'content-preview-modal'
 };
 
 export const EditAction = {
@@ -504,17 +504,20 @@ export const SaveAsCaseTemplate = {
 
   getDefaultModel: () => ({
     name: 'record-action.name.save-as-case-template',
-    type: DefaultActionTypes.SAVE_AS_CASE_TEMPLATE
+    type: DefaultActionTypes.SAVE_AS_CASE_TEMPLATE,
+    icon: 'icon-filetype-none'
   })
 };
 
 export const PreviewModal = {
-  type: DefaultActionTypes.PREVIEW,
+  type: DefaultActionTypes.PREVIEW_MODAL,
   execute: ({ record }) => {
     WidgetService.openPreviewModal({ recordId: record.id });
     return false;
   },
   getDefaultModel: () => ({
-    type: DefaultActionTypes.PREVIEW
+    name: 'record-action.name.preview',
+    type: DefaultActionTypes.PREVIEW_MODAL,
+    icon: 'icon-preview'
   })
 };
