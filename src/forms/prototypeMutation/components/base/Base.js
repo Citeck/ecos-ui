@@ -327,7 +327,7 @@ Base.prototype.__t = function(content, params) {
 };
 
 Base.prototype.t = function(text, params) {
-  if (text.includes('__t(')) {
+  if (typeof text === 'string' && text.includes('__t(')) {
     return this.__t(text, params);
   }
 

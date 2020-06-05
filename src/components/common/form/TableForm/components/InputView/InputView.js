@@ -7,6 +7,7 @@ import Grid from '../../../../grid/Grid';
 import InlineToolsDisconnected from '../../../../grid/InlineTools/InlineToolsDisconnected';
 import { TableFormContext } from '../../TableFormContext';
 import CreateVariants from '../CreateVariants';
+import ImportButton from '../ImportButton';
 import { t } from '../../../../../../helpers/util';
 import './InputView.scss';
 
@@ -158,8 +159,13 @@ const InputView = () => {
   return (
     <div className={wrapperClasses}>
       {valuesList}
-
-      {error ? <p className={'ecos-table-form__error'}>{error.message}</p> : <CreateVariants />}
+      {!error && (
+        <div className={'ecos-table-form__buttons-wrapper'}>
+          <ImportButton />
+          <CreateVariants />
+        </div>
+      )}
+      {error && <p className={'ecos-table-form__error'}>{error.message}</p>}
     </div>
   );
 };
