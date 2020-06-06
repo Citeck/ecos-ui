@@ -8,14 +8,14 @@ import { Btn } from '../../common/btns';
 import { t, arrayCompare, objectCompare } from '../../../helpers/util';
 
 const Labels = {
-  SCALE: 'Масштаб печати',
-  CODE_TYPE: 'Тип кода',
-  MARGINS: 'Отступы на листе',
-  LEFT: 'Слева',
-  RIGHT: 'Справа',
-  TOP: 'Сверху',
-  BOTTOM: 'Снизу',
-  MM: 'мм',
+  SCALE: 'barcode-widget.settings.scale.label',
+  CODE_TYPE: 'barcode-widget.settings.code-type.label',
+  MARGINS: 'barcode-widget.settings.margins.label',
+  LEFT: 'barcode-widget.settings.margin-left.label',
+  RIGHT: 'barcode-widget.settings.margin-right.label',
+  TOP: 'barcode-widget.settings.margin-top.label',
+  BOTTOM: 'barcode-widget.settings.margin-bottom.label',
+  MM: 'barcode-widget.settings.mm.label',
   DONE_BUTTON: 'btn.done.label',
   CANCEL_BUTTON: 'btn.cancel.label'
 };
