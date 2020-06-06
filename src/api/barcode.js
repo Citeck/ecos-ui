@@ -7,4 +7,9 @@ export class BarcodeApi extends CommonApi {
 
     return this.getJson(`/share/proxy/alfresco/citeck/image/barcode?${props.join('&')}`);
   };
+
+  // TODO: get from server
+  getAllowedTypes = () => {
+    return [{ value: 'code-128', label: 'Code-128' }];
+  };
 }

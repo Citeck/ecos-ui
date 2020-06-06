@@ -53,20 +53,20 @@
       border-color: $color-blue-dark !important;
     }
   }
-}
 
-.symbol-input {
-  position: relative;
+  &_left {
+    text-align: left;
+    padding-left: 15px;
+  }
 
-  &__symbol {
-    position: absolute;
+  &_right {
+    text-align: right;
+    padding-right: 15px;
+  }
 
-    &_start {
-      left: 1px;
-    }
-
-    &_end {
-      right: 1px;
-    }
+  &_center {
+    text-align: center;
+    padding-right: 15px;
+    padding-left: 15px;
   }
 }

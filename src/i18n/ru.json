@@ -912,5 +912,6 @@
   "password-field.rule.count-lowercase": "1 строчная",
   "password-field.rule.required": "Необходимо ввести пароль",
 
-  "btn.cancel.label": "Отмена"
+  "btn.cancel.label": "Отмена",
+  "btn.done.label": "Готово"
 }

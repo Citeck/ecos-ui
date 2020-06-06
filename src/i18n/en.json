@@ -907,5 +907,6 @@
   "password-field.rule.count-lowercase": "1 lowercase",
   "password-field.rule.required": "Password is required",
 
-  "btn.cancel.label": "Cancel"
+  "btn.cancel.label": "Cancel",
+  "btn.done.label": "Done"
 }
