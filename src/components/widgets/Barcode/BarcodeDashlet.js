@@ -7,7 +7,8 @@ import get from 'lodash/get';
 import { isMobileDevice, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import { init, getBase64Barcode } from '../../../actions/barcode';
-import Dashlet, { BaseActions } from '../../Dashlet';
+import Dashlet from '../../Dashlet';
+import DAction from '../../../services/DashletActionService';
 import Barcode from './Barcode';
 import Settings from './Settings';
 import BaseWidget from '../BaseWidget';
@@ -133,7 +134,7 @@ class BarcodeDashlet extends BaseWidget {
   render() {
     const { title, classNameDashlet } = this.props;
     const actions = {
-      [BaseActions.SETTINGS]: {
+      [DAction.Actions.SETTINGS]: {
         onClick: this.handleToggleSettings
       }
     };
