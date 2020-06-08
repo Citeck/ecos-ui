@@ -12,6 +12,7 @@ import {
   setCheckUpdatedDashboardConfig,
   setDashboardConfig,
   setDashboardKeys,
+  setLoading,
   setRequestResultDashboard
 } from '../actions/dashboardSettings';
 
@@ -130,6 +131,17 @@ export default handleActions(
         ...state,
         [payload]: {
           ...initialState
+        }
+      };
+    },
+    [setLoading]: (state, { payload }) => {
+      const { key } = payload;
+
+      return {
+        ...state,
+        [key]: {
+          ...state[key],
+          isLoading: payload.status
         }
       };
     }

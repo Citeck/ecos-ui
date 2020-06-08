@@ -4,10 +4,12 @@ import classNames from 'classnames';
 import connect from 'react-redux/es/connect/connect';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import dialogManager from '../../common/dialogs/Manager';
 
 import JournalsDownloadZip from '../JournalsDownloadZip';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import FormManager from '../../EcosForm/FormManager';
+import Records from '../../Records';
 import { ParserPredicate } from '../../Filters/predicates';
 import { EcosModal, Loader } from '../../common';
 import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
@@ -318,13 +320,105 @@ class JournalsDashletGrid extends Component {
           };
 
           action.params.attributes = rec.getAttributesToSave();
-          performGroupAction({ groupAction: action, selected: selectedRecords });
+
+          if (action.params['form_option_batch-edit-attribute']) {
+            this._performBatchEditAction({
+              groupAction: action,
+              selected: selectedRecords,
+              performGroupAction
+            });
+          } else {
+            performGroupAction({ groupAction: action, selected: selectedRecords });
+          }
         }
       });
     } else {
       performGroupAction({ groupAction, selected: selectedRecords });
     }
   };
+
+  async _performBatchEditAction(groupActionData) {
+    const { groupAction, selected, performGroupAction } = groupActionData;
+    const attributeName = groupAction.params['form_option_batch-edit-attribute'];
+    const params = groupAction.params || {};
+
+    const records = await Promise.all(
+      selected.map(id =>
+        Records.get(id)
+          .load(
+            {
+              valueDisp: attributeName + '?disp',
+              value: attributeName + '?str',
+              disp: '.disp'
+            },
+            true
+          )
+          .then(atts => {
+            return { ...atts, id };
+          })
+      )
+    );
+
+    const resolvedRecords = [];
+    const recordsToChange = [];
+
+    const addResolved = (rec, status) => {
+      resolvedRecords.push({
+        title: rec.disp,
+        nodeRef: rec.id,
+        status: status,
+        message: ''
+      });
+    };
+
+    for (let rec of records) {
+      const value = rec.value;
+
+      let isEmptyValue = true;
+      if (value && value instanceof Array && value.length > 0) {
+        isEmptyValue = false;
+      } else if (value && !(value instanceof Array)) {
+        isEmptyValue = false;
+      }
+
+      if (!isEmptyValue) {
+        if (params.changeExistsValue !== 'true') {
+          addResolved(rec, 'SKIPPED');
+        } else {
+          if (params.confirmChange === 'true') {
+            let confirmRes = await new Promise(resolve => {
+              dialogManager.confirmDialog({
+                title: t('action.confirm.title'),
+                text: 'В документе "' + rec.disp + '" значение равно "' + rec.valueDisp + '". Желаете его заменить?',
+                onNo: () => resolve(false),
+                onYes: () => resolve(true)
+              });
+            });
+
+            if (confirmRes) {
+              recordsToChange.push(rec.id);
+            } else {
+              addResolved(rec, 'CANCELLED');
+            }
+          } else {
+            recordsToChange.push(rec.id);
+          }
+        }
+      } else {
+        if (params.skipEmptyValues === true) {
+          addResolved(rec, 'SKIPPED');
+        } else {
+          recordsToChange.push(rec.id);
+        }
+      }
+    }
+
+    performGroupAction({
+      groupAction,
+      selected: recordsToChange,
+      resolved: resolvedRecords
+    });
+  }
 
   onDelete = () => null;
 

@@ -71,7 +71,7 @@ export const errorTypes = Object.freeze({
 
 export const documentActions = [
   'uiserv/action@content-download',
-  'uiserv/action@view-dashboard',
+  'uiserv/action@content-preview-modal',
   'uiserv/action@edit',
   'uiserv/action@delete'
 ];
