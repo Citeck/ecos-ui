@@ -118,8 +118,8 @@ class DocAssociations extends BaseWidget {
     const { selectedDocument } = this.state;
     let label = t(LABELS.CONFIRM_REMOVE_MODAL_TEXT);
 
-    if (selectedDocument) {
-      label += ` "${selectedDocument.name}"`;
+    if (selectedDocument && selectedDocument.displayName) {
+      label += ` "${selectedDocument.displayName}"`;
     }
 
     return `${label}?`;
