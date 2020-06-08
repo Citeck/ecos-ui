@@ -11,7 +11,7 @@ import find from 'lodash/find';
 
 import { clearCache } from '../../components/ReactRouterCache';
 import { arrayCompare, deepClone, documentScrollTop, t } from '../../helpers/util';
-import { getSortedUrlParams, getSearchParams, SearchKeys } from '../../helpers/urls';
+import { getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
 import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
 import { DashboardTypes, DeviceTabs, MenuTypes } from '../../constants/dashboard';
 import { LAYOUT_TYPE, Layouts } from '../../constants/layout';
@@ -617,12 +617,14 @@ class DashboardSettings extends React.Component {
   };
 
   renderButtons() {
+    const { identification } = this.props;
+
     return (
       <div className="ecos-dashboard-settings__actions">
         <Btn className="ecos-btn_x-step_10" onClick={this.handleCloseSettings}>
           {t('dashboard-settings.button.cancel')}
         </Btn>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleCheckChanges}>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleCheckChanges} disabled={!get(identification, 'key')}>
           {t('dashboard-settings.button.save')}
         </Btn>
       </div>
@@ -666,7 +668,7 @@ class DashboardSettings extends React.Component {
     let { isLoading, isLoadingMenu } = this.props;
 
     if (isLoading || isLoadingMenu) {
-      return <Loader height={100} width={100} className="ecos-dashboard-settings__loader-wrapper" darkened />;
+      return <Loader height={100} width={100} className="ecos-dashboard-settings__loader-wrapper" blur />;
     }
 
     return null;

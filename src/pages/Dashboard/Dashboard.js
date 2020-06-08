@@ -473,7 +473,7 @@ class Dashboard extends Component {
 
   renderLoader() {
     if (this.props.isLoadingDashboard) {
-      return <Loader height={100} width={100} />;
+      return <Loader blur height={100} width={100} />;
     }
 
     return null;

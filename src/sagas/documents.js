@@ -8,14 +8,14 @@ import isArray from 'lodash/isArray';
 import { NotificationManager } from 'react-notifications';
 
 import {
+  selectActionsByType,
   selectAvailableTypes,
   selectConfigTypes,
   selectDynamicType,
   selectDynamicTypes,
   selectIsLoadChecklist,
-  selectTypeNames,
   selectTypeById,
-  selectActionsByType
+  selectTypeNames
 } from '../selectors/documents';
 import {
   execRecordsAction,
@@ -256,10 +256,10 @@ function* sagaUpdateVersion({ api, logger }, { payload }) {
     });
     yield put(getDocumentsByType({ ...payload, delay: 0 }));
 
-    NotificationManager.success(t('documents-widget.notification.update.success'));
+    NotificationManager.success(t('documents-widget.notification.update.success'), t('success'));
   } catch (e) {
     logger.error('[documents sagaUpdateVerion saga error]', e.message);
-    NotificationManager.error(t('documents-widget.notification.update.error'));
+    NotificationManager.error(t('documents-widget.notification.update.error'), t('error'));
   }
 }
 
@@ -370,7 +370,8 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     yield put(setUploadError({ ...payload, message: e.message }));
     logger.error('[documents sagaUploadFiles saga error', e.message);
     NotificationManager.error(
-      t(payload.files.length > 1 ? 'documents-widget.notification.add-many.error' : 'documents-widget.notification.add-one.error')
+      t(payload.files.length > 1 ? 'documents-widget.notification.add-many.error' : 'documents-widget.notification.add-one.error'),
+      t('error')
     );
   } finally {
     yield put(uploadFilesFinally(payload.key));
