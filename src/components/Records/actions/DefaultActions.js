@@ -472,7 +472,7 @@ export const AssocAction = {
       .load(assoc, true)
       .then(result => {
         if (!result) {
-          NotificationManager.error('', t('record-action.assoc-action.not-found'));
+          NotificationManager.error(t('record-action.assoc-action.not-found'), t('error'));
           return;
         }
 
