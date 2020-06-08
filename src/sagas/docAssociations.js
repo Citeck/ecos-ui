@@ -15,12 +15,7 @@ import {
 } from '../actions/docAssociations';
 import DocAssociationsConverter from '../dto/docAssociations';
 import { DIRECTIONS } from '../constants/docAssociations';
-import {
-  selectAllowedDirectionsByKey,
-  selectAssocByAssocName,
-  selectAssociationColumnsConfig,
-  selectStateByKey
-} from '../selectors/docAssociations';
+import { selectAllowedDirectionsByKey, selectAssocByAssocName, selectAssociationColumnsConfig } from '../selectors/docAssociations';
 import Records from '../components/Records';
 
 function* sagaGetSectionList({ api, logger }, { payload }) {
