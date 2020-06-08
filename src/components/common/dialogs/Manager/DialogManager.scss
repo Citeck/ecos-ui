@@ -6,4 +6,8 @@
     justify-content: end;
     grid-gap: 1em;
   }
+
+  &__body {
+    white-space: pre-wrap;
+  }
 }
