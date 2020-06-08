@@ -181,29 +181,34 @@ class RecordActionsService {
     action.confirm = {
       title: 'title',
       message: 'message',
-      formRef: 'uiserv/eform@test-form-confirm-from-action-11111'
+      formRef: 'uiserv/eform@journal-form'
     };
     const title = extractLabel(lodash.get(action, 'confirm.title'));
     const text = extractLabel(lodash.get(action, 'confirm.message'));
-    const record = lodash.get(action, 'confirm.formRef');
-    const needConfirm = !!record || !!title || !!text;
+    const formId = lodash.get(action, 'confirm.formRef');
+    const needConfirm = !!formId || !!title || !!text;
 
-    return needConfirm ? { record, title, text } : null;
+    return needConfirm ? { formId, title, text } : null;
   };
 
   static _confirmExecAction = (data, callback) => {
-    const { title, text, record } = data;
+    const { title, text, formId } = data;
 
-    if (record) {
+    if (formId) {
+      const ownerId = Date.now();
+      const record = Records.create({}, ownerId);
       const closeForm = answer => {
+        Records.release(record, ownerId);
         FormManager.destroyFormModal(container);
         callback(answer);
       };
 
       const container = FormManager.openFormModal({
-        record,
+        formId,
         title,
-        onSubmit: rec => closeForm(rec),
+        record: record.id,
+        saveOnSubmit: false,
+        onSubmit: () => closeForm(true),
         onFormCancel: () => closeForm(false),
         onHideModal: () => closeForm(false)
       });
@@ -218,53 +223,64 @@ class RecordActionsService {
   };
 
   execAction = async (recordsId, action) => {
+    const execute = () => {
+      const records = Records.get(recordsId);
+      const executorPromise = (async () => {
+        const executor = RecordActionExecutorsRegistry.get(action.type);
+
+        if (lodash.isArray(recordsId)) {
+          if (executor.groupExec) {
+            return Promise.resolve(executor.groupExec({ records, action }));
+          } else {
+            return Promise.all(
+              recordsId.map(async record => {
+                const config = await this.replaceAttributeValues(action.config, record);
+
+                return executor.execute({
+                  record: Records.get(record),
+                  action: { ...action, config }
+                });
+              })
+            );
+          }
+        }
+
+        if (executor.execute) {
+          const config = await this.replaceAttributeValues(action.config, recordsId);
+
+          return Promise.resolve(
+            executor.execute({
+              record: records,
+              action: { ...action, config }
+            })
+          );
+        } else {
+          return Promise.resolve(executor.groupExec({ records, action })).then(result => (lodash.isArray(result) ? result[0] : result));
+        }
+      })();
+
+      return executorPromise.then(result => {
+        lodash.isArray(records) ? records.forEach(record => record.update()) : records.update();
+        return result;
+      });
+    };
+
     const confirmData = RecordActionsService._getConfirmData(action);
 
     if (confirmData) {
       return new Promise(resolve => {
-        RecordActionsService._confirmExecAction(confirmData, resolve);
+        const confirm = answer => {
+          if (answer) {
+            resolve(execute());
+          } else {
+            resolve(false);
+          }
+        };
+        RecordActionsService._confirmExecAction(confirmData, confirm);
       });
     }
 
-    const records = Records.get(recordsId);
-    const executorPromise = (async () => {
-      const executor = RecordActionExecutorsRegistry.get(action.type);
-
-      if (lodash.isArray(recordsId)) {
-        if (executor.groupExec) {
-          return Promise.resolve(executor.groupExec({ records, action }));
-        } else {
-          return Promise.all(
-            recordsId.map(async record => {
-              const config = await this.replaceAttributeValues(action.config, record);
-
-              return executor.execute({
-                record: Records.get(record),
-                action: { ...action, config }
-              });
-            })
-          );
-        }
-      }
-
-      if (executor.execute) {
-        const config = await this.replaceAttributeValues(action.config, recordsId);
-
-        return Promise.resolve(
-          executor.execute({
-            record: records,
-            action: { ...action, config }
-          })
-        );
-      } else {
-        return Promise.resolve(executor.groupExec({ records, action })).then(result => (lodash.isArray(result) ? result[0] : result));
-      }
-    })();
-
-    return executorPromise.then(result => {
-      lodash.isArray(records) ? records.forEach(record => record.update()) : records.update();
-      return result;
-    });
+    return execute();
   };
 
   replaceAttributeValues = async (data = {}, record) => {
