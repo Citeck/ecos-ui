@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import { isSmallMode, objectCompare, t } from '../../../helpers/util';
@@ -20,8 +19,6 @@ const Labels = {
   BTN_SET_TIP: 'properties-widget.action-settings.title',
   BTN_BUILD_TIP: 'properties-widget.action-constructor.title'
 };
-
-const mapStateToProps = state => ({});
 
 class PropertiesDashlet extends BaseWidget {
   static propTypes = {
@@ -255,4 +252,4 @@ class PropertiesDashlet extends BaseWidget {
   }
 }
 
-export default connect(mapStateToProps)(PropertiesDashlet);
+export default PropertiesDashlet;

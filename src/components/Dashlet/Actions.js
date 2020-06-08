@@ -103,7 +103,7 @@ const DropdownActions = ({ list, dashletId }) => {
  * @returns Elements
  */
 const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable }) => {
-  const checkEditableFor = DashletActionService.checkEditableFor;
+  const isAvailable = key => dashboardEditable || !DashletActionService.uneditable.includes(key);
   const baseOrderActions = DashletActionService.baseOrder;
   const { orderedVisible, countShow = 4 } = actionRules || {};
   const outputActions = [];
@@ -152,8 +152,9 @@ const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable 
 
   updatedOrderActions.forEach((key, i) => {
     const action = actions[key];
+    const isComplete = action.component || action.onClick;
 
-    if (action && (action.component || action.onClick) && (dashboardEditable || !checkEditableFor.includes(key))) {
+    if (action && isComplete && isAvailable(key)) {
       outputActions.push({ ...action });
     }
   });

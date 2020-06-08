@@ -7,7 +7,7 @@ export default class DashletActionService {
     BUILDER: 'builder'
   };
 
-  static checkEditableFor = [DashletActionService.Actions.SETTINGS, DashletActionService.Actions.BUILDER];
+  static uneditable = [DashletActionService.Actions.SETTINGS, DashletActionService.Actions.BUILDER];
 
   static baseOrder = [
     DashletActionService.Actions.EDIT,
