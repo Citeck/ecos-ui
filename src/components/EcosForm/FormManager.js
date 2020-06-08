@@ -1,11 +1,13 @@
-import { goToCreateRecordPage } from '../../helpers/urls';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import debounce from 'lodash/debounce';
 
+import { goToCreateRecordPage } from '../../helpers/urls';
+import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
+import Modal from '../common/EcosModal/CiteckEcosModal';
 import EcosFormUtils from './EcosFormUtils';
 import EcosFormModal from './EcosFormModal';
-import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
+import EcosForm from './EcosForm';
 
 class FormManager {
   static createRecordByVariant = debounce(
@@ -123,10 +125,24 @@ class FormManager {
     return container;
   }
 
-  static destroyFormModal = container => {
-    ReactDOM.unmountComponentAtNode(container);
-    document.body.removeChild(container);
-  };
+  static openFormControlledModal(params) {
+    const { title, onSubmit, onFormCancel, ...props } = params;
+    const modal = new Modal();
+
+    const _onSubmit = () => {
+      modal.close();
+      onSubmit && onSubmit();
+    };
+
+    const _onFormCancel = () => {
+      modal.close();
+      onFormCancel && onFormCancel();
+    };
+
+    modal.open(<EcosForm {...props} onSubmit={_onSubmit} onFormCancel={_onFormCancel} />, { title });
+
+    return modal;
+  }
 }
 
 window.Citeck = window.Citeck || {};
