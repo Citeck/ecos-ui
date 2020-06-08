@@ -342,6 +342,8 @@
 
   "record-action.name.save-as-case-template": "Сохранить как шаблон",
 
+  "record-action.name.preview": "Предпросмотр",
+
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.inline-tools.details": "Детальная информация",
   "grid.tools.copy-to": "Копировать в...",
