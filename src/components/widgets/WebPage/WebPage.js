@@ -9,9 +9,10 @@ import classNames from 'classnames';
 import { DefineHeight, Loader } from '../../common/index';
 import { Btn } from '../../common/btns/index';
 import { Caption, Input, Label } from '../../common/form/index';
-import Dashlet, { BaseActions } from '../../Dashlet';
+import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
+import DAction from '../../../services/DashletActionService';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import { cancelPageLoading, changePageData, initPage, loadedPage, reloadPageData, setError } from '../../../actions/webPage';
 import { selectStateById } from '../../../selectors/webPage';
@@ -330,10 +331,10 @@ class WebPage extends BaseWidget {
     const actions = {};
 
     if (!settingsIsShow) {
-      actions[BaseActions.SETTINGS] = {
+      actions[DAction.Actions.SETTINGS] = {
         onClick: this.handleEdit
       };
-      actions[BaseActions.RELOAD] = {
+      actions[DAction.Actions.RELOAD] = {
         onClick: this.handleReload
       };
     }

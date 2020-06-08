@@ -16,14 +16,14 @@ import ReduxModal from '../ReduxModal';
 import PageTabs from '../PageTabs';
 import { ErrorBoundary } from '../ErrorBoundary';
 
-import { initMenuSettings } from '../../actions/menu';
+import { initAppSettings } from '../../actions/app';
 import { setTab, updateTab } from '../../actions/pageTabs';
 import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
-import PageService, { Events } from '../../services/PageService';
+import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';
+import PageService, { Events } from '../../services/PageService';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
-import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 
 import './App.scss';
 
@@ -58,9 +58,9 @@ const allowedLinks = [
 
 class App extends Component {
   componentDidMount() {
-    const { initMenuSettings } = this.props;
+    const { initAppSettings } = this.props;
 
-    initMenuSettings();
+    initAppSettings();
     document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
     UserLocalSettingsService.checkDasletsUpdatedDate();
   }
@@ -352,7 +352,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  initMenuSettings: () => dispatch(initMenuSettings()),
+  initAppSettings: () => dispatch(initAppSettings()),
+
   setTab: params => dispatch(setTab(params)),
   updateTab: params => dispatch(updateTab(params)),
   push: url => dispatch(push(url))

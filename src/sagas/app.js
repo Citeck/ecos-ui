@@ -2,11 +2,21 @@ import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import lodashSet from 'lodash/set';
 import lodashGet from 'lodash/get';
 
-import { backPageFromTransitionsHistory, initAppFailure, initAppRequest, initAppSuccess } from '../actions/app';
+import { URL } from '../constants';
+import { selectUserName } from '../selectors/user';
+import {
+  backPageFromTransitionsHistory,
+  getDashboardEditable,
+  initAppFailure,
+  initAppRequest,
+  initAppSettings,
+  initAppSuccess,
+  setDashboardEditable
+} from '../actions/app';
 import { validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
+import { initMenuSettings } from '../actions/menu';
 import PageService from '../services/PageService';
-import { URL } from '../constants';
 
 export function* initApp({ api, fakeApi, logger }, { payload }) {
   try {
@@ -44,6 +54,26 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
   }
 }
 
+export function* fetchAppSettings({ api, fakeApi, logger }, { payload }) {
+  try {
+    yield put(initMenuSettings());
+    yield put(getDashboardEditable());
+  } catch (e) {
+    logger.error('[fetchAppSettings saga] error', e.message);
+  }
+}
+
+export function* fetchDashboardEditable({ api, logger }) {
+  try {
+    const username = yield select(selectUserName);
+    const editable = yield call(api.app.isDashboardEditable, { username });
+
+    yield put(setDashboardEditable(editable));
+  } catch (e) {
+    logger.error('[fetchDashboardEditable saga] error', e.message);
+  }
+}
+
 function* sagaBackFromHistory({ api, logger }) {
   try {
     const isShowTabs = yield select(state => lodashGet(state, 'pageTabs.isShow', false));
@@ -71,6 +101,9 @@ function* sagaBackFromHistory({ api, logger }) {
 
 function* appSaga(ea) {
   yield takeLatest(initAppRequest().type, initApp, ea);
+
+  yield takeEvery(initAppSettings().type, fetchAppSettings, ea);
+  yield takeEvery(getDashboardEditable().type, fetchDashboardEditable, ea);
   yield takeEvery(backPageFromTransitionsHistory().type, sagaBackFromHistory, ea);
 }
 

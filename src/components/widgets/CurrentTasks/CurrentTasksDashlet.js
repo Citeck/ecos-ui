@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
+import DAction from '../../../services/DashletActionService';
 import { getStateId } from '../../../helpers/redux';
-import Dashlet, { BaseActions } from '../../Dashlet';
-import CurrentTasks from './CurrentTasks';
+import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
+import CurrentTasks from './CurrentTasks';
 
 import './style.scss';
 
@@ -63,7 +64,7 @@ class CurrentTasksDashlet extends BaseWidget {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, runUpdate, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
-      [BaseActions.RELOAD]: {
+      [DAction.Actions.RELOAD]: {
         onClick: () => this.reload()
       }
     };
