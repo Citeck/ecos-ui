@@ -29,4 +29,32 @@ export default class EsignConverter {
 
     return target;
   }
+
+  static getSignQueryParams(source = {}) {
+    const target = {};
+
+    if (!source || (source && !Object.keys(source))) {
+      return target;
+    }
+
+    const { document, signedMessage, user, isApprovementSignature } = source;
+
+    if (document) {
+      target.nodeRef = document;
+    }
+
+    if (signedMessage) {
+      target.sign = signedMessage;
+    }
+
+    if (user) {
+      target.signer = user;
+    }
+
+    if (isApprovementSignature === true) {
+      target.isApprovementSignature = true;
+    }
+
+    return target;
+  }
 }
