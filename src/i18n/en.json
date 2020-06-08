@@ -256,6 +256,8 @@
   "ecos-table-form.view.btn": "Form preview",
   "ecos-table-form.preview.btn": "Document preview",
   "ecos-table-form.error-dialog.title": "Error",
+  "ecos-table-form.error.failure-to-import": "Failure to import file",
+  "ecos-table-form.error.no-response-handler": "You must set \"Response handler\" setting",
   "ecos-ui.select.loading-message": "Loading...",
   "ecos-ui.select.no-options-message": "No options",
   "ecos.forms.Drop files to attach, or": "Drop files to attach, or",

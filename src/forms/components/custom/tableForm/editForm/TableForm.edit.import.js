@@ -21,21 +21,27 @@ export default [
         type: 'textfield',
         label: 'Upload URL',
         input: true,
-        key: 'import.uploadUrl'
+        key: 'import.uploadUrl',
+        validate: {
+          required: true
+        }
       },
       {
         type: 'textarea',
         label: 'Response handler',
+        input: true,
         key: 'import.responseHandler',
         placeholder: 'result = resp.success ? resp.result : new Error(resp.errorMessage)',
         rows: 5,
         editor: 'ace',
-        input: true
+        validate: {
+          required: true
+        }
       },
       {
         type: 'htmlelement',
         tag: 'div',
-        content: `<p>Enter custom javascript code. You must assign the <strong>result</strong> variable.</p>`
+        content: `<p>Enter custom javascript code. You must assign the <strong>result</strong> variable.</p> The <strong>resp</strong> (or <strong>response</strong>) variable is available here.`
       }
     ]
   }

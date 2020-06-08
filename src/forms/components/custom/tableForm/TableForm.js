@@ -456,6 +456,10 @@ export default class TableFormComponent extends BaseReactComponent {
     const importConfig = component.import;
     const { uploadUrl, responseHandler } = importConfig;
 
+    if (!responseHandler) {
+      return this.showErrorMessage(t('ecos-table-form.error.no-response-handler'));
+    }
+
     const formData = new FormData();
     formData.append(file.name, file);
 
@@ -481,7 +485,8 @@ export default class TableFormComponent extends BaseReactComponent {
 
       this.updateValue({}, newValue);
     } catch (e) {
-      this.showErrorMessage(e.message);
+      console.error('TableForm error. Failure to upload file: ', e.message);
+      this.showErrorMessage(t('ecos-table-form.error.failure-to-import'));
     }
   };
 

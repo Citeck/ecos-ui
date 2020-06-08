@@ -256,6 +256,8 @@
   "ecos-table-form.view.btn": "Превью формы",
   "ecos-table-form.preview.btn": "Превью документа",
   "ecos-table-form.error-dialog.title": "Ошибка",
+  "ecos-table-form.error.failure-to-import": "Не удалось загрузить файл",
+  "ecos-table-form.error.no-response-handler": "Необходимо указать настройку \"Response handler\"",
   "ecos-ui.select.loading-message": "Загрузка...",
   "ecos-ui.select.no-options-message": "Не найдено",
   "ecos.forms.Drop files to attach, or": "Перетащите файлы для прикрепления, или",
