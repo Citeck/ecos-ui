@@ -173,8 +173,8 @@ export const getTemplateUrl = nodeRef => {
   return `${PROXY_URI}citeck/case/template?nodeRef=${nodeRef}`;
 };
 
-export const getBarcodePrintUrl = record => {
-  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&barcodeType=code-128&scale=5.0&margins=20,200,20,500&print=true`;
+export const getBarcodePrintUrl = (record, settings = 'barcodeType=code-128&scale=5.0&margins=20,200,20,500') => {
+  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&${settings}&print=true`;
 };
 
 export const goToJournalsPage = options => {

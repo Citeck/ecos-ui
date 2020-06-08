@@ -149,6 +149,7 @@ export default class DocAssociationsConverter {
 
         return `${column.name}:${column.attribute}`;
       })
+      .filter(item => !!item)
       .join(',');
   }
 }

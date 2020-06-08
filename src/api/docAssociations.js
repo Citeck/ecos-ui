@@ -99,13 +99,13 @@ export class DocAssociationsApi extends RecordService {
   };
 
   getTargetAssociations = (id, recordRef, attributes = '') => {
-    const query = attributes || 'id:.assoc,displayName:.disp,created';
+    const query = attributes || 'displayName:.disp,created';
 
     return Records.get(recordRef).load(`${id}[]{${this.#baseAssociationAttributes},${query}}`, true);
   };
 
   getSourceAssociations = (id, recordRef, attributes = '') => {
-    const query = attributes || 'id:.assoc,displayName:.disp,created';
+    const query = attributes || 'displayName:.disp,created';
 
     return Records.get(recordRef).load(`assoc_src_${id}[]{${this.#baseAssociationAttributes},${query}}`, true);
   };

@@ -1,16 +1,52 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
+
+import Label from '../Label';
 
 import './Field.scss';
 
 export default class Field extends Component {
+  static propTypes = {
+    isSmall: PropTypes.bool,
+    className: PropTypes.string,
+    labelClassName: PropTypes.string,
+    label: PropTypes.string,
+    labelFor: PropTypes.string,
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
+  };
+
+  static defaultProps = {
+    className: '',
+    labelClassName: ''
+  };
+
   render() {
-    const props = this.props;
+    const { isSmall, className, labelClassName, label, children, labelFor } = this.props;
 
     return (
-      <div className={classNames('ecos-field', props.isSmall ? 'ecos-field_small' : '', props.className)}>
-        <div className={classNames('ecos-field__label', props.isSmall ? 'ecos-field__label_small' : '')}>{props.label}</div>
-        <div className={classNames('ecos-field__control', props.isSmall ? 'ecos-field__control_small' : '')}>{props.children}</div>
+      <div
+        className={classNames('ecos-field', className, {
+          'ecos-field_small': isSmall
+        })}
+      >
+        {label && (
+          <Label
+            htmlFor={labelFor}
+            className={classNames('ecos-field__label', labelClassName, {
+              'ecos-field__label_small': isSmall
+            })}
+          >
+            {label}
+          </Label>
+        )}
+        <div
+          className={classNames('ecos-field__control', {
+            'ecos-field__control_small': isSmall
+          })}
+        >
+          {children}
+        </div>
       </div>
     );
   }

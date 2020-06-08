@@ -4,6 +4,7 @@ import { UncontrolledTooltip } from 'reactstrap';
 
 import { t } from '../../helpers/util';
 import { IcoBtn } from '../common/btns';
+import DashletActionService from '../../services/DashletActionService';
 
 const BtnAction = ({ id, text, icon, onClick, component }) => {
   if (component) {
@@ -98,12 +99,14 @@ const DropdownActions = ({ list, dashletId }) => {
  *        orderedVisible: [array | отображаемые упорядоченные кнопки],
  *        countShow: [number | кол-во видимых кнопок]
  *    }
+ * @param dashboardEditable возможность редактирования дашборда - для проверки действий перечисленных DashletActionService.checkEditableFor
  * @returns Elements
  */
-const Actions = ({ actionConfig = {}, dashletId, actionRules }) => {
+const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable }) => {
+  const isAvailable = key => dashboardEditable || !DashletActionService.uneditable.includes(key);
+  const baseOrderActions = DashletActionService.baseOrder;
   const { orderedVisible, countShow = 4 } = actionRules || {};
-  const baseOrderActions = [BaseActions.EDIT, BaseActions.HELP, BaseActions.RELOAD, BaseActions.SETTINGS];
-  const orderedActions = [];
+  const outputActions = [];
   const actions = {
     edit: {
       icon: 'icon-edit',
@@ -149,24 +152,25 @@ const Actions = ({ actionConfig = {}, dashletId, actionRules }) => {
 
   updatedOrderActions.forEach((key, i) => {
     const action = actions[key];
+    const isComplete = action.component || action.onClick;
 
-    if (action && (action.component || action.onClick)) {
-      orderedActions.push({ ...action });
+    if (action && isComplete && isAvailable(key)) {
+      outputActions.push({ ...action });
     }
   });
 
   const renderIconActions = () => {
-    const count = orderedActions.length > countShow ? countShow - 1 : countShow;
+    const count = outputActions.length > countShow ? countShow - 1 : countShow;
 
-    return orderedActions.slice(0, count).map(action => <BtnAction key={action.id} {...action} />);
+    return outputActions.slice(0, count).map(action => <BtnAction key={action.id} {...action} />);
   };
 
   const renderDropActions = () => {
-    if (orderedActions.length <= countShow) {
+    if (outputActions.length <= countShow) {
       return null;
     }
 
-    const dropActions = orderedActions.slice(countShow - 1);
+    const dropActions = outputActions.slice(countShow - 1);
 
     if (!(dropActions && dropActions.length)) {
       return null;
@@ -184,6 +188,7 @@ const Actions = ({ actionConfig = {}, dashletId, actionRules }) => {
 };
 
 Actions.propTypes = {
+  dashboardEditable: PropTypes.bool,
   dashletId: PropTypes.string,
   actionConfig: PropTypes.objectOf(
     PropTypes.shape({
@@ -199,10 +204,3 @@ Actions.propTypes = {
 };
 
 export default Actions;
-
-export const BaseActions = {
-  EDIT: 'edit',
-  HELP: 'help',
-  RELOAD: 'reload',
-  SETTINGS: 'settings'
-};

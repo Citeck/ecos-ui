@@ -20,11 +20,11 @@ import {
 } from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-
+import DAction from '../../../services/DashletActionService';
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
-import Dashlet, { BaseActions } from '../../Dashlet';
+import Dashlet from '../../Dashlet';
 
 import './style.scss';
 
@@ -248,9 +248,7 @@ class DocAssociations extends BaseWidget {
 
     return (
       <React.Fragment key={column.name}>
-        <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">
-          <Wrapper>{data}</Wrapper>
-        </div>
+        <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">{data && <Wrapper>{data}</Wrapper>}</div>
 
         {!isMobile && (
           <span className="ecos-doc-associations__table-actions">
@@ -398,11 +396,11 @@ class DocAssociations extends BaseWidget {
     const { canDragging, dragHandleProps, isCollapsed, associationsTotalCount, isLoading, isMobile } = this.props;
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const actions = {
-      [BaseActions.RELOAD]: {
+      [DAction.Actions.RELOAD]: {
         onClick: this.handleReloadData
       }
     };
-    const actionRules = { orderedVisible: [BaseActions.RELOAD, 'addLink'] };
+    const actionRules = { orderedVisible: [DAction.Actions.RELOAD, 'addLink'] };
 
     if (!isMobile) {
       actions.addLink = {

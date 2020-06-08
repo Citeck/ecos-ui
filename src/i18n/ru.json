@@ -834,6 +834,14 @@
   "barcode-widget.btn.generate": "Сгенерировать",
   "barcode-widget.btn.generate-new": "Сгенерировать новый",
   "barcode-widget.dashlet.title": "Штрих-код документа",
+  "barcode-widget.settings.scale.label": "Масштаб печати",
+  "barcode-widget.settings.code-type.label": "Тип кода",
+  "barcode-widget.settings.margins.label": "Отступы на листе",
+  "barcode-widget.settings.margin-left.label": "Слева",
+  "barcode-widget.settings.margin-right.label": "Справа",
+  "barcode-widget.settings.margin-top.label": "Сверху",
+  "barcode-widget.settings.margin-bottom.label": "Снизу",
+  "barcode-widget.settings.mm.label": "мм",
   "esign.error": "Ошибка",
   "esign.add-plugin.title": "Установите расширение",
   "esign.message.add-plugin": "Чтобы продолжить, установите расширение Cryptopro для браузера с сайта cryptopro.ru",
@@ -930,5 +938,6 @@
   "password-field.rule.count-lowercase": "1 строчная",
   "password-field.rule.required": "Необходимо ввести пароль",
 
-  "btn.cancel.label": "Отмена"
+  "btn.cancel.label": "Отмена",
+  "btn.done.label": "Готово"
 }
