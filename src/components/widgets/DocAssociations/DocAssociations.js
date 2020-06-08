@@ -248,9 +248,7 @@ class DocAssociations extends BaseWidget {
 
     return (
       <React.Fragment key={column.name}>
-        <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">
-          <Wrapper>{data}</Wrapper>
-        </div>
+        <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">{data && <Wrapper>{data}</Wrapper>}</div>
 
         {!isMobile && (
           <span className="ecos-doc-associations__table-actions">
