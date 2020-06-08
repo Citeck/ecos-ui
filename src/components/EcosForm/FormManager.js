@@ -119,7 +119,14 @@ class FormManager {
     document.body.appendChild(container);
 
     ReactDOM.render(form, container);
+
+    return container;
   }
+
+  static destroyFormModal = container => {
+    ReactDOM.unmountComponentAtNode(container);
+    document.body.removeChild(container);
+  };
 }
 
 window.Citeck = window.Citeck || {};

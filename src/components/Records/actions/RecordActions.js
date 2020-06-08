@@ -179,9 +179,9 @@ class RecordActionsService {
   static _getConfirmData = action => {
     //todo temp
     action.confirm = {
-      title: 'Test_contract_form5557777',
-      message: 'Test_contract_form5555555555555555555',
-      formRef: 'uiserv/eform@Test_contract_form'
+      title: 'title',
+      message: 'message',
+      formRef: 'uiserv/eform@test-form-confirm-from-action-11111'
     };
     const title = extractLabel(lodash.get(action, 'confirm.title'));
     const text = extractLabel(lodash.get(action, 'confirm.message'));
@@ -195,19 +195,24 @@ class RecordActionsService {
     const { title, text, record } = data;
 
     if (record) {
-      FormManager.openFormModal({
+      const closeForm = answer => {
+        FormManager.destroyFormModal(container);
+        callback(answer);
+      };
+
+      const container = FormManager.openFormModal({
         record,
         title,
-        onSubmit: rec => {
-          callback('onSubmit');
-        }
+        onSubmit: rec => closeForm(rec),
+        onFormCancel: () => closeForm(false),
+        onHideModal: () => closeForm(false)
       });
     } else {
       DialogManager.confirmDialog({
         title,
         text,
-        onNo: () => callback('onNo'),
-        onYes: () => callback('onYes')
+        onNo: () => callback(false),
+        onYes: () => callback(true)
       });
     }
   };
@@ -216,8 +221,9 @@ class RecordActionsService {
     const confirmData = RecordActionsService._getConfirmData(action);
 
     if (confirmData) {
-      RecordActionsService._confirmExecAction(confirmData, console.log);
-      return Promise.resolve(false);
+      return new Promise(resolve => {
+        RecordActionsService._confirmExecAction(confirmData, resolve);
+      });
     }
 
     const records = Records.get(recordsId);

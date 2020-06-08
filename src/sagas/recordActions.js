@@ -25,8 +25,9 @@ function* sagaGetActions({ api, logger }, { payload }) {
 function* sagaExecuteAction({ api, logger }, { payload }) {
   try {
     const { record, action, stateId } = payload;
+    console.log('ku');
     const res = yield call(api.recordActions.executeAction, { records: record, action });
-
+    console.log(res);
     yield put(backExecuteAction({ stateId }));
 
     if (res === null) {
