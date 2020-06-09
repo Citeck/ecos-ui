@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import ecosFetch from '../helpers/ecosFetch';
 
 export class DocAssociationsApi extends RecordService {
-  #baseAssociationAttributes = 'id:.assoc,modifierId:cm:modifier';
+  #baseAssociationAttributes = 'id:.assoc,modifierId:cm:modifier,displayName:.disp';
 
   /**
    * List of available associations
