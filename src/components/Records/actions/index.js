@@ -8,6 +8,7 @@ import {
   DownloadAction,
   DownloadCardTemplate,
   EditAction,
+  FetchAction,
   MoveToLinesJournal,
   OpenURL,
   PreviewModal,
@@ -37,6 +38,7 @@ Registry.addExecutors({
   [DefaultActionTypes.ASSOC_ACTION]: AssocAction,
   [DefaultActionTypes.VIEW_CARD_TEMPLATE]: ViewCardTemplate,
   [DefaultActionTypes.PREVIEW_MODAL]: PreviewModal,
+  [DefaultActionTypes.FETCH]: FetchAction,
 
   //legacy case actions
 
