@@ -191,6 +191,11 @@ class RecordActionsService {
     if (formId) {
       const ownerId = Date.now();
       const record = Records.create({}, ownerId);
+      const closeForm = answer => {
+        Records.release(record, ownerId);
+        callback(!!answer);
+      };
+
       FormManager.openFormControlledModal({
         formId,
         title,
@@ -200,11 +205,6 @@ class RecordActionsService {
         onFormCancel: () => closeForm(),
         onHideModal: () => closeForm()
       });
-
-      function closeForm(answer) {
-        Records.release(record, ownerId);
-        callback(!!answer);
-      }
     } else {
       DialogManager.confirmDialog({
         title,
