@@ -16,6 +16,8 @@ export default class DropdownOuter extends Dropdown {
       ...this.state,
       targetId: uniqueId('EcosDropdownOuter_')
     };
+
+    this.dropdownOuterRef = React.createRef();
   }
 
   render() {
@@ -23,11 +25,7 @@ export default class DropdownOuter extends Dropdown {
     const { dropdownOpen, targetId } = this.state;
 
     return (
-      <ClickOutside
-        id={targetId}
-        className={classNames('ecos-dropdown-outer', className)}
-        handleClickOutside={() => dropdownOpen && this.toggle()}
-      >
+      <div id={targetId} className={classNames('ecos-dropdown-outer', className)} ref={this.dropdownOuterRef}>
         {this.renderToggle()}
         <Tooltip
           isOpen={dropdownOpen}
@@ -40,9 +38,15 @@ export default class DropdownOuter extends Dropdown {
           placement="bottom-start"
           modifiers={{ flip: { behavior: ['bottom', 'top', 'right', 'left'] } }}
         >
-          <div className={this.dropdownMenuClassNames}>{this.renderMenuItems()}</div>
+          <ClickOutside
+            className={this.cssDropdownMenu}
+            handleClickOutside={() => dropdownOpen && this.toggle()}
+            excludeElements={[this.dropdownOuterRef.current]}
+          >
+            {this.renderMenuItems()}
+          </ClickOutside>
         </Tooltip>
-      </ClickOutside>
+      </div>
     );
   }
 }

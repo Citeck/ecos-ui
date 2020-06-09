@@ -5,7 +5,8 @@ export default class ClickOutside extends React.Component {
   static propTypes = {
     handleClickOutside: PropTypes.func,
     className: PropTypes.string,
-    type: PropTypes.string
+    type: PropTypes.string,
+    excludeElements: PropTypes.array
   };
 
   static defaultProps = {
@@ -33,13 +34,20 @@ export default class ClickOutside extends React.Component {
   }
 
   handleClickOutside(event) {
-    if (typeof this.props.handleClickOutside === 'function' && this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-      this.props.handleClickOutside(event);
+    const { handleClickOutside, excludeElements } = this.props;
+
+    if (
+      typeof handleClickOutside === 'function' &&
+      this.wrapperRef &&
+      !this.wrapperRef.contains(event.target) &&
+      (!Array.isArray(excludeElements) || excludeElements.some(elm => !elm.contains(event.target)))
+    ) {
+      handleClickOutside(event);
     }
   }
 
   render() {
-    const { handleClickOutside, className, children, ...props } = this.props;
+    const { handleClickOutside, className, children, excludeElements, ...props } = this.props;
 
     return (
       <div className={className} ref={this.setWrapperRef} {...props}>
