@@ -79,19 +79,35 @@ function* doGetDashboardKeys({ api, logger }, { payload }) {
 }
 
 function* doResetConfigToDefault({ api, logger }, { payload }) {
+  const { key, recordRef } = payload;
+
   try {
-    const identification = yield select(selectIdentificationForSet);
-    console.log(identification);
-    NotificationManager.success(t('dashboard-settings.success.reset-config'), t('success'));
+    const identification = yield select(selectIdentificationForSet, key);
+
+    yield call(api.dashboard.deleteFromCache, [DashboardService.getCacheKey(identification.key, recordRef), identification.user]);
+
+    const isRemoved = yield call(api.dashboard.removeDashboard, { id: identification.id, recordRef });
+
+    if (isRemoved) {
+      const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
+      const data = DashboardService.checkDashboardResult(result);
+      const webConfigs = DashboardSettingsConverter.getSettingsForWeb(data);
+
+      yield put(setDashboardConfig({ ...webConfigs, key }));
+
+      NotificationManager.success(t('dashboard-settings.success.reset-config'), t('success'));
+    }
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.reset-config'), t('error'));
     logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e.message);
+  } finally {
+    yield put(setLoading({ key: payload.key, status: false }));
   }
 }
 
 function* doCheckUpdatedSettings({ api, logger }, { payload }) {
   try {
-    const identification = yield select(selectIdentificationForSet);
+    const identification = yield select(selectIdentificationForSet, payload.key);
     const user = payload.isForAllUsers ? null : identification.user;
     const eqKey = identification.key === payload.dashboardKey;
     const hasUser = !!identification.user;
@@ -137,7 +153,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       mobile: DashboardSettingsConverter.getSettingsMobileConfigForServer(payload)
     };
     const { layouts, menu, mobile } = serverConfig;
-    const identification = yield select(selectIdentificationForSet);
+    const identification = yield select(selectIdentificationForSet, payload.key);
     const newIdentification = payload.newIdentification || {};
     const isAdmin = yield select(selectIsAdmin);
     const identificationData = { ...identification, ...newIdentification };

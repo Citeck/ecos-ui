@@ -39,10 +39,10 @@ import SetLayouts from './SetLayouts';
 import SetWidgets from './SetWidgets';
 import SetMenu from './SetMenu';
 import UserLocalSettingsService from '../../services/userLocalSettings';
+import pageTabList from '../../services/pageTabs/PageTabList';
 import { selectStateByKey } from '../../selectors/dashboardSettings';
 
 import './style.scss';
-import pageTabList from '../../services/pageTabs/PageTabList';
 
 const getStateId = props => get(getSearchParams(), SearchKeys.DASHBOARD_ID, props.tabId || 'base');
 const mapStateToProps = (state, ownProps) => ({
@@ -424,13 +424,14 @@ class DashboardSettings extends React.Component {
   renderOwnershipBlock() {
     const { dashboardKeyItems, userData, resetConfigToDefault } = this.props;
     const { selectedDashboardKey, isForAllUsers } = this.state;
+    const { recordRef } = this.getPathInfo();
 
     const setData = data => {
       this.setState(data);
     };
 
     const reset = () => {
-      resetConfigToDefault({ dashboardKey: selectedDashboardKey, isForAllUsers });
+      resetConfigToDefault({ recordRef });
     };
 
     return (

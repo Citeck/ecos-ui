@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
-import { SourcesId } from '../constants';
+import { EmodelTypes, SourcesId } from '../constants';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';
 import Components from '../components/widgets/Components';
@@ -30,8 +30,8 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardKeysByRef = function*(recordRef) {
-    const baseTypeId = 'emodel/type@base';
-    const userDashboardId = 'emodel/type@user-dashboard';
+    const baseTypeId = EmodelTypes.BASE;
+    const userDashboardId = EmodelTypes.USER_DASHBOARD;
     const dashboardKeys = [];
 
     let typesToSelect;
@@ -125,7 +125,7 @@ export class DashboardApi extends RecordService {
     let { recType } = recordRef ? yield Records.get(recordRef).load({ recType: '_etype?id' }) : {};
 
     if (!recType) {
-      recType = recordRef ? 'emodel/type@base' : 'emodel/type@user-dashboard';
+      recType = recordRef ? EmodelTypes.BASE : EmodelTypes.USER_DASHBOARD;
     }
 
     const user = getCurrentUserName();
@@ -224,6 +224,15 @@ export class DashboardApi extends RecordService {
         id: ''
       };
     });
+  };
+
+  removeDashboard = ({ id, recordRef }) => {
+    // const _id = `${recordRef ? EmodelTypes.BASE : EmodelTypes.USER_DASHBOARD}@${id}`;
+    const _id = `${SourcesId.DASHBOARD}@${id}`; //todo ?????
+
+    return Records.remove([_id])
+      .then(() => true)
+      .catch(() => false);
   };
 
   deleteFromCache(arrKeys = []) {

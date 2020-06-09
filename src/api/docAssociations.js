@@ -1,8 +1,9 @@
-import { RecordService } from './recordService';
-import Records from '../components/Records';
 import isEmpty from 'lodash/isEmpty';
 
 import ecosFetch from '../helpers/ecosFetch';
+import Records from '../components/Records';
+import { RecordService } from './recordService';
+import { EmodelTypes } from '../constants';
 
 export class DocAssociationsApi extends RecordService {
   #baseAssociationAttributes = 'id:.assoc,modifierId:cm:modifier,displayName:.disp';
@@ -50,7 +51,7 @@ export class DocAssociationsApi extends RecordService {
       ]
     };
 
-    if (association.target === 'emodel/type@base') {
+    if (association.target === EmodelTypes.BASE) {
       return {
         ...association,
         columnsConfig: baseColumnsConfig
