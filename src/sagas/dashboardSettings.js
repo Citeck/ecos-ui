@@ -7,6 +7,7 @@ import {
   getDashboardConfig,
   getDashboardKeys,
   initDashboardSettings,
+  resetConfigToDefault,
   saveDashboardConfig,
   setAvailableWidgets,
   setCheckUpdatedDashboardConfig,
@@ -73,6 +74,17 @@ function* doGetDashboardKeys({ api, logger }, { payload }) {
     yield put(setDashboardKeys({ keys, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-board-key'), t('error'));
+    logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e.message);
+  }
+}
+
+function* doResetConfigToDefault({ api, logger }, { payload }) {
+  try {
+    const identification = yield select(selectIdentificationForSet);
+    console.log(identification);
+    NotificationManager.success(t('dashboard-settings.success.reset-config'), t('success'));
+  } catch (e) {
+    NotificationManager.error(t('dashboard-settings.error.reset-config'), t('error'));
     logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e.message);
   }
 }
@@ -173,6 +185,7 @@ function* saga(ea) {
   yield takeEvery(saveDashboardConfig().type, doSaveSettingsRequest, ea);
   yield takeEvery(getDashboardKeys().type, doGetDashboardKeys, ea);
   yield takeEvery(getCheckUpdatedDashboardConfig().type, doCheckUpdatedSettings, ea);
+  yield takeEvery(resetConfigToDefault().type, doResetConfigToDefault, ea);
 }
 
 export default saga;

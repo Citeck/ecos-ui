@@ -34,26 +34,35 @@
   }
 
   &__bindings {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    &-types {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
 
-    & > :nth-child(odd) {
-      margin-right: 23px;
+      & > :not(:last-child) {
+        margin-right: 15px;
+      }
     }
 
     &-dropdown {
       .ecos-btn {
-        width: 290px;
+        min-width: 250px;
       }
 
-      &__menu {
+      &-menu {
         min-width: 100%;
       }
     }
 
     &-owner {
-      padding-top: 5px;
+      margin-bottom: 25px;
+    }
+
+    &-description {
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-small;
+      color: $color-gray-5;
+      max-width: 350px;
     }
   }
 

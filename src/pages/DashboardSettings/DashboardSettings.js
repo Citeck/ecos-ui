@@ -21,6 +21,7 @@ import {
   getAwayFromPage,
   getCheckUpdatedDashboardConfig,
   initDashboardSettings,
+  resetConfigToDefault,
   resetDashboardConfig,
   saveDashboardConfig,
   setCheckUpdatedDashboardConfig
@@ -68,7 +69,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     saveSettings: payload => dispatch(saveDashboardConfig({ ...payload, key })),
     getAwayFromPage: () => dispatch(getAwayFromPage(key)),
     setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig({ ...payload, key })),
-    resetDashboardConfig: () => dispatch(resetDashboardConfig(key))
+    resetDashboardConfig: () => dispatch(resetDashboardConfig(key)),
+    resetConfigToDefault: payload => dispatch(resetConfigToDefault({ ...payload, key }))
   };
 };
 
@@ -419,12 +421,16 @@ class DashboardSettings extends React.Component {
     );
   }
 
-  renderDashboardKey() {
-    const { dashboardKeyItems, userData } = this.props;
+  renderOwnershipBlock() {
+    const { dashboardKeyItems, userData, resetConfigToDefault } = this.props;
     const { selectedDashboardKey, isForAllUsers } = this.state;
 
     const setData = data => {
       this.setState(data);
+    };
+
+    const reset = () => {
+      resetConfigToDefault({ dashboardKey: selectedDashboardKey, isForAllUsers });
     };
 
     return (
@@ -435,6 +441,7 @@ class DashboardSettings extends React.Component {
           isAdmin={userData.isAdmin}
           isForAllUsers={isForAllUsers}
           setData={setData}
+          resetConfig={reset}
         />
       </div>
     );
@@ -679,7 +686,7 @@ class DashboardSettings extends React.Component {
       <Container className="ecos-dashboard-settings">
         {this.renderLoader()}
         {this.renderHeader()}
-        {this.renderDashboardKey()}
+        {this.renderOwnershipBlock()}
         {this.renderDeviceTabsBlock()}
         {this.renderLayoutTabsBlock()}
         <div className="ecos-dashboard-settings__container">
