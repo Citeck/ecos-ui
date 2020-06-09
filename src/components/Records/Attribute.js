@@ -156,7 +156,7 @@ export default class Attribute {
 
     let result = value.getValue(multiple, withLoading, forceReload);
     if (innerAtt === 'disp') {
-      if (result === null) {
+      if (result === null || result === undefined) {
         return this.getPersistedValue('str', multiple, false);
       } else if (result.then) {
         return result.then(v => {
