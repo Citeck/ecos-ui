@@ -49,6 +49,7 @@ class DocPreview extends Component {
     resizable: PropTypes.bool,
     isCollapsed: PropTypes.bool,
     runUpdate: PropTypes.bool,
+    clear: PropTypes.bool, // call clear state method
     setUserScale: PropTypes.func
   };
 
@@ -95,7 +96,7 @@ class DocPreview extends Component {
 
   componentWillReceiveProps(nextProps) {
     const prevProps = this.props;
-    const { link, isLoading, byLink, isCollapsed, runUpdate } = nextProps;
+    const { link, isLoading, byLink, isCollapsed, runUpdate, clear } = nextProps;
     const { recordId } = this.state;
     const isPdf = isPDFbyStr(link);
     const newState = {};
@@ -127,6 +128,10 @@ class DocPreview extends Component {
       this.getUrlByRecord();
     }
 
+    if (!prevProps.clear && clear) {
+      this.clearState();
+    }
+
     if ((!prevProps.fileName && nextProps.fileName) || prevProps.fileName !== nextProps.fileName) {
       newState.fileName = nextProps.fileName;
     }
@@ -149,6 +154,21 @@ class DocPreview extends Component {
   componentWillUnmount() {
     this.exist = false;
   }
+
+  clearState = () => {
+    this.setState({
+      pdf: {},
+      settings: {},
+      isLoading: false,
+      scrollPage: 1,
+      recordId: '',
+      link: '',
+      contentHeight: 0,
+      error: '',
+      fileName: '',
+      downloadData: {}
+    });
+  };
 
   get isPDF() {
     const { link } = this.state;

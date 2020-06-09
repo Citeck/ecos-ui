@@ -1,9 +1,18 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import './Input.scss';
 
 export default class Input extends Component {
+  static propTypes = {
+    align: PropTypes.oneOf(['left', 'center', 'right'])
+  };
+
+  static defaultProps = {
+    align: 'left'
+  };
+
   constructor(props) {
     super(props);
     this.inputRef = props.forwardedRef || React.createRef();
@@ -30,9 +39,8 @@ export default class Input extends Component {
   }
 
   render() {
-    const { getInputRef, className, autoSelect, forwardedRef, ...props } = this.props;
-
-    const cssClasses = classNames('ecos-input', className);
+    const { getInputRef, className, autoSelect, forwardedRef, align, ...props } = this.props;
+    const cssClasses = classNames('ecos-input', className, `ecos-input_${align}`);
 
     return <input ref={forwardedRef || this.inputRef} {...props} className={cssClasses} />;
   }

@@ -9,8 +9,9 @@ import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
 import find from 'lodash/find';
 
-import { arrayCompare, documentScrollTop, t } from '../../helpers/util';
-import { getSortedUrlParams } from '../../helpers/urls';
+import { clearCache } from '../../components/ReactRouterCache';
+import { arrayCompare, deepClone, documentScrollTop, t } from '../../helpers/util';
+import { getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
 import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
 import { DashboardTypes, DeviceTabs, MenuTypes } from '../../constants/dashboard';
 import { LAYOUT_TYPE, Layouts } from '../../constants/layout';
@@ -29,16 +30,23 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { TunableDialog } from '../../components/common/dialogs';
+import { removeItems } from '../../helpers/ls';
 
 import SetBind from './SetBind';
 import SetTabs from './SetTabs';
 import SetLayouts from './SetLayouts';
 import SetWidgets from './SetWidgets';
 import SetMenu from './SetMenu';
+import UserLocalSettingsService from '../../services/userLocalSettings';
+import { selectStateByKey } from '../../selectors/dashboardSettings';
 
 import './style.scss';
+import pageTabList from '../../services/pageTabs/PageTabList';
 
-const mapStateToProps = state => ({
+const getStateId = props => get(getSearchParams(), SearchKeys.DASHBOARD_ID, props.tabId || 'base');
+const mapStateToProps = (state, ownProps) => ({
+  isActive: ownProps.tabId ? pageTabList.isActiveTab(ownProps.tabId) : true,
+
   userData: {
     userName: get(state, 'user.userName'),
     isAdmin: get(state, 'user.isAdmin', false)
@@ -47,24 +55,22 @@ const mapStateToProps = state => ({
   menuLinks: get(state, 'menu.links', []),
   availableMenuItems: get(state, ['menu', 'availableMenuItems'], []),
   isLoadingMenu: get(state, ['menu', 'isLoading']),
-  config: get(state, 'dashboardSettings.config.layouts', []),
-  mobileConfig: get(state, 'dashboardSettings.config.mobile', []),
-  availableWidgets: get(state, ['dashboardSettings', 'availableWidgets'], []),
-  isLoading: get(state, ['dashboardSettings', 'isLoading']),
-  requestResult: get(state, ['dashboardSettings', 'requestResult'], {}),
-  identification: get(state, ['dashboardSettings', 'identification'], {}),
-  dashboardKeyItems: get(state, ['dashboardSettings', 'dashboardKeys'], [])
+  ...selectStateByKey(state, getStateId(ownProps))
 });
 
-const mapDispatchToProps = dispatch => ({
-  initMenuSettings: () => dispatch(initMenuSettings()),
-  initDashboardSettings: payload => dispatch(initDashboardSettings(payload)),
-  checkUpdatedSettings: payload => dispatch(getCheckUpdatedDashboardConfig(payload)),
-  saveSettings: payload => dispatch(saveDashboardConfig(payload)),
-  getAwayFromPage: payload => dispatch(getAwayFromPage(payload)),
-  setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig(payload)),
-  resetDashboardConfig: () => dispatch(resetDashboardConfig())
-});
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const key = getStateId(ownProps);
+
+  return {
+    initMenuSettings: () => dispatch(initMenuSettings()),
+    initDashboardSettings: payload => dispatch(initDashboardSettings({ ...payload, key })),
+    checkUpdatedSettings: payload => dispatch(getCheckUpdatedDashboardConfig({ ...payload, key })),
+    saveSettings: payload => dispatch(saveDashboardConfig({ ...payload, key })),
+    getAwayFromPage: () => dispatch(getAwayFromPage(key)),
+    setCheckUpdatedDashboardConfig: payload => dispatch(setCheckUpdatedDashboardConfig({ ...payload, key })),
+    resetDashboardConfig: () => dispatch(resetDashboardConfig(key))
+  };
+};
 
 const DESK_VER = find(DeviceTabs, ['key', 'desktop']);
 
@@ -123,7 +129,9 @@ class DashboardSettings extends React.Component {
 
     selectedMenuItems: [],
     typeMenu: MenuTypes,
-    urlParams: getSortedUrlParams()
+    urlParams: getSortedUrlParams(),
+
+    removedWidgets: []
   };
 
   constructor(props) {
@@ -151,11 +159,23 @@ class DashboardSettings extends React.Component {
     this.props.resetDashboardConfig();
   }
 
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    if (nextProps.tabId && !pageTabList.isActiveTab(nextProps.tabId)) {
+      return false;
+    }
+
+    return true;
+  }
+
   componentWillReceiveProps(nextProps) {
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
     let { config, mobileConfig, menuType, availableMenuItems, availableWidgets } = this.props;
     let state = {};
+
+    if (!pageTabList.isActiveTab(nextProps.tabId)) {
+      return;
+    }
 
     if (urlParams !== newUrlParams) {
       this.setState({ urlParams: newUrlParams });
@@ -192,11 +212,19 @@ class DashboardSettings extends React.Component {
     }
 
     this.setState({ ...state });
-    this.checkRequestResult(nextProps);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    this.checkRequestResult(prevProps);
   }
 
   fetchData(props = this.props) {
     const { initDashboardSettings, initMenuSettings } = props;
+
+    if (!pageTabList.isActiveTab(props.tabId)) {
+      return;
+    }
+
     const { recordRef, dashboardId } = this.getPathInfo(props);
 
     initDashboardSettings({ recordRef, dashboardId });
@@ -285,19 +313,27 @@ class DashboardSettings extends React.Component {
     return newWidgets;
   }
 
-  checkRequestResult(nextProps) {
-    const oldRStatus = get(this.props, 'requestResult.status', null);
-    const newRStatus = get(nextProps, 'requestResult.status', null);
-    const oldSaveWay = get(this.props, 'requestResult.saveWay', null);
-    const checkResult = get(nextProps, 'requestResult', {});
+  checkRequestResult(prevProps) {
+    const oldRStatus = get(prevProps, 'requestResult.status', null);
+    const newRStatus = get(this.props, 'requestResult.status', null);
+    const oldSaveWay = get(prevProps, 'requestResult.saveWay', null);
+    const checkResult = get(this.props, 'requestResult', {});
     const newSaveWay = checkResult.saveWay;
 
     if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
-      this.closePage(nextProps);
+      clearCache();
+      this.clearLocalStorage();
+      this.closePage(this.props);
     } else if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
       this.acceptChanges(checkResult.dashboardId);
     }
   }
+
+  clearLocalStorage = () => {
+    const { removedWidgets } = this.state;
+
+    removeItems(removedWidgets.map(id => UserLocalSettingsService.getDashletKey(id)));
+  };
 
   getPathInfo(props = this.props) {
     const {
@@ -468,7 +504,7 @@ class DashboardSettings extends React.Component {
       identification: { type }
     } = this.props;
     const setData = layout => {
-      const { activeLayoutTabId, selectedWidgets, selectedLayout } = this.state;
+      const { activeLayoutTabId, selectedWidgets, selectedLayout } = deepClone(this.state);
 
       selectedLayout[activeLayoutTabId] = layout.type;
       selectedWidgets[activeLayoutTabId] = this.setSelectedWidgets(layout, selectedWidgets[activeLayoutTabId]);
@@ -483,13 +519,17 @@ class DashboardSettings extends React.Component {
     const { availableWidgets, activeLayoutTabId, selectedWidgets, mobileSelectedWidgets, mobileActiveLayoutTabId } = this.state;
     const isMob = this.isSelectedMobileVer;
 
-    const setData = data => {
+    const setData = (data, removedWidgets) => {
       if (isMob) {
         mobileSelectedWidgets[mobileActiveLayoutTabId] = data;
         this.setState({ mobileSelectedWidgets });
       } else {
         selectedWidgets[activeLayoutTabId] = data;
         this.setState({ selectedWidgets });
+      }
+
+      if (removedWidgets) {
+        this.setState({ removedWidgets });
       }
     };
 
@@ -577,12 +617,14 @@ class DashboardSettings extends React.Component {
   };
 
   renderButtons() {
+    const { identification } = this.props;
+
     return (
       <div className="ecos-dashboard-settings__actions">
         <Btn className="ecos-btn_x-step_10" onClick={this.handleCloseSettings}>
           {t('dashboard-settings.button.cancel')}
         </Btn>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleCheckChanges}>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleCheckChanges} disabled={!get(identification, 'key')}>
           {t('dashboard-settings.button.save')}
         </Btn>
       </div>
@@ -626,7 +668,7 @@ class DashboardSettings extends React.Component {
     let { isLoading, isLoadingMenu } = this.props;
 
     if (isLoading || isLoadingMenu) {
-      return <Loader height={100} width={100} className="ecos-dashboard-settings__loader-wrapper" darkened />;
+      return <Loader height={100} width={100} className="ecos-dashboard-settings__loader-wrapper" blur />;
     }
 
     return null;
@@ -654,5 +696,9 @@ class DashboardSettings extends React.Component {
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
+  null,
+  {
+    areStatePropsEqual: next => !next.isActive
+  }
 )(DashboardSettings);

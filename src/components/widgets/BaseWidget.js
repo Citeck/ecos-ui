@@ -17,6 +17,7 @@ class BaseWidget extends Component {
     UserLocalSettingsService.checkOldData(props.id, props.tabId);
 
     this.state = {
+      lsId,
       runUpdate: false,
       fitHeights: {},
       contentHeight: null,
@@ -109,14 +110,14 @@ class BaseWidget extends Component {
       userHeight = this.fullHeight;
     }
 
-    UserLocalSettingsService.setDashletHeight(this.props.id, userHeight);
+    UserLocalSettingsService.setDashletHeight(this.state.lsId, userHeight);
 
     this.setState({ userHeight });
   };
 
   handleToggleContent = (isCollapsed = false) => {
     this.setState({ isCollapsed });
-    UserLocalSettingsService.setDashletProperty(this.props.id, { isCollapsed });
+    UserLocalSettingsService.setDashletProperty(this.state.lsId, { isCollapsed });
   };
 
   handleResize = width => {

@@ -238,13 +238,20 @@ export class JournalsApi extends RecordService {
     return this.getJson(`${PROXY_URI}api/journals/list?journalsList=${journalsListId}`).then(resp => {
       return journalsFromUiserv.then(uiservJournals => {
         let result = [...(resp.journals || [])];
+        let journalByType = {};
+        result.forEach(j => (journalByType[j.type] = j));
         for (let journal of uiservJournals) {
           let localId = journal.id.replace('uiserv/journal_v1@', '');
-          result.push({
-            nodeRef: localId,
-            title: journal.title,
-            type: localId
-          });
+          let existingJournal = journalByType[localId];
+          if (existingJournal != null) {
+            existingJournal.nodeRef = localId;
+          } else {
+            result.push({
+              nodeRef: localId,
+              title: journal.title,
+              type: localId
+            });
+          }
         }
         return result;
       });
@@ -324,7 +331,7 @@ export class JournalsApi extends RecordService {
 
   getPreviewUrl = DocPreviewApi.getPreviewLinkByRecord;
 
-  performGroupAction = ({ groupAction, selected, criteria, journalId }) => {
+  performGroupAction = ({ groupAction, selected, resolved, criteria, journalId }) => {
     const { id, type, params } = groupAction;
 
     if (params.js_action) {
@@ -350,7 +357,21 @@ export class JournalsApi extends RecordService {
 
         titles = Array.isArray(titles) ? titles : [titles];
 
-        return actionResults.map((a, i) => ({ ...a, title: titles[i], status: t(`batch-edit.message.${a.status}`) }));
+        let result = actionResults.map((a, i) => ({
+          ...a,
+          title: titles[i],
+          status: t(`batch-edit.message.${a.status}`)
+        }));
+
+        if (resolved) {
+          for (let rec of resolved) {
+            result.push({
+              ...rec,
+              status: t(`batch-edit.message.${rec.status}`)
+            });
+          }
+        }
+        return result;
       })
       .catch(() => []);
   };

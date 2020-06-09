@@ -218,31 +218,33 @@ class Grid extends Component {
       ...props
     };
 
-    options.columns = extra.columns.map(column => {
-      if (column.width) {
-        column = this.setWidth(column);
-      }
+    if (Array.isArray(extra.columns)) {
+      options.columns = extra.columns.map(column => {
+        if (column.width) {
+          column = this.setWidth(column);
+        }
 
-      if (column.default !== undefined) {
-        column.hidden = !column.default;
-      }
+        if (column.default !== undefined) {
+          column.hidden = !column.default;
+        }
 
-      const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
+        const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
 
-      column = this.setHeaderFormatter(column, filterable, column.sortable);
+        column = this.setHeaderFormatter(column, filterable, column.sortable);
 
-      if (column.customFormatter === undefined) {
-        column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
-      } else {
-        column.formatter = column.customFormatter;
-      }
+        if (column.customFormatter === undefined) {
+          column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
+        } else {
+          column.formatter = column.customFormatter;
+        }
 
-      if (props.editable) {
-        column.editable = this.checkColumnEditable.bind(null, column);
-      }
+        if (props.editable) {
+          column.editable = this.checkColumnEditable.bind(null, column);
+        }
 
-      return column;
-    });
+        return column;
+      });
+    }
 
     if (props.editable) {
       options.cellEdit = this.setEditable(props.editable);
@@ -724,6 +726,20 @@ class Grid extends Component {
     trigger.call(this, 'onDragOver', e);
   };
 
+  checkDropPermission = tr => {
+    if (this.props.onCheckDropPermission && typeof this.props.onCheckDropPermission === 'function') {
+      const canDrop = this.props.onCheckDropPermission(this.props.data[tr.rowIndex - 1]);
+
+      if (!canDrop) {
+        this.setHover(tr, ECOS_GRID_HOVERED_CLASS, false, this._tr);
+
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   onDragEnter = e => {
     const dataTypes = get(e, 'dataTransfer.types', []);
 
@@ -749,6 +765,10 @@ class Grid extends Component {
 
     if (this._dragTr) {
       this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
+    }
+
+    if (!this.checkDropPermission(tr)) {
+      return;
     }
 
     this.setHover(tr, ECOS_GRID_GRAG_CLASS, false, this._tr);
@@ -909,7 +929,8 @@ Grid.propTypes = {
   onRowDragEnter: PropTypes.func,
   onRowMouseLeave: PropTypes.func,
   onResizeColumn: PropTypes.func,
-  onGridMouseEnter: PropTypes.func
+  onGridMouseEnter: PropTypes.func,
+  onCheckDropPermission: PropTypes.func
 };
 
 Grid.defaultProps = {

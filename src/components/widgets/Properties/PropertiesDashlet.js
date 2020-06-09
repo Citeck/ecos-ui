@@ -1,13 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
-import get from 'lodash/get';
 
-import { isSmallMode, t, objectCompare } from '../../../helpers/util';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import { isSmallMode, objectCompare, t } from '../../../helpers/util';
+import DAction from '../../../services/DashletActionService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-import Dashlet, { BaseActions } from '../../Dashlet';
+import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
@@ -22,10 +20,6 @@ const Labels = {
   BTN_BUILD_TIP: 'properties-widget.action-constructor.title'
 };
 
-const mapStateToProps = state => ({
-  isAdmin: get(state, ['user', 'isAdmin'], false)
-});
-
 class PropertiesDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string,
@@ -37,7 +31,6 @@ class PropertiesDashlet extends BaseWidget {
       height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
     }),
     dragHandleProps: PropTypes.object,
-    isAdmin: PropTypes.bool,
     canDragging: PropTypes.bool,
     maxHeightByContent: PropTypes.bool
   };
@@ -55,20 +48,15 @@ class PropertiesDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
     this.permissionsWatcher = this.instanceRecord.watch('.att(n:"permissions"){has(n:"Write")}', this.checkPermissions);
 
     this.state = {
+      ...this.state,
       isSmallMode: false,
-      isReady: true,
       isEditProps: false,
       formIsChanged: false,
       isSmall: false,
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      fitHeights: {},
       canEditRecord: false,
       isShowSetting: false,
       wasLastModifiedWithInlineEditor: false,
@@ -96,7 +84,6 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   get dashletActions() {
-    const { isAdmin } = this.props;
     const { canEditRecord, isShowSetting } = this.state;
 
     if (isShowSetting) {
@@ -104,26 +91,23 @@ class PropertiesDashlet extends BaseWidget {
     }
 
     const actions = {
-      [BaseActions.RELOAD]: {
+      [DAction.Actions.RELOAD]: {
         onClick: this.reload
       },
-      [BaseActions.SETTINGS]: {
+      [DAction.Actions.SETTINGS]: {
         onClick: this.toggleDisplayFormSettings
+      },
+      [DAction.Actions.BUILDER]: {
+        icon: 'icon-forms',
+        text: t(Labels.BTN_BUILD_TIP),
+        onClick: this.onClickShowFormBuilder
       }
     };
 
     if (canEditRecord) {
-      actions.edit = {
+      actions[DAction.Actions.EDIT] = {
         text: t(Labels.BTN_EDIT_TIP),
         onClick: this.openModal
-      };
-    }
-
-    if (isAdmin) {
-      actions.builder = {
-        icon: 'icon-forms',
-        text: t(Labels.BTN_BUILD_TIP),
-        onClick: this.onClickShowFormBuilder
       };
     }
 
@@ -154,12 +138,14 @@ class PropertiesDashlet extends BaseWidget {
     if (this.state.wasLastModifiedWithInlineEditor) {
       this.setState({ wasLastModifiedWithInlineEditor: false });
     } else {
-      this.setState({ isReady: false }, () => this.setState({ isReady: true }));
+      this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
     }
   };
 
   onResize = width => {
-    this.setState({ isSmallMode: isSmallMode(width) });
+    if (width > 0) {
+      this.setState({ isSmallMode: isSmallMode(width) });
+    }
   };
 
   openModal = () => {
@@ -186,7 +172,7 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   onPropertiesEditFormSubmit = () => {
-    this.setState({ isReady: false, isEditProps: false }, () => this.setState({ isReady: true }));
+    this.setState({ isEditProps: false });
   };
 
   onPropertiesUpdate = () => {
@@ -201,7 +187,7 @@ class PropertiesDashlet extends BaseWidget {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
     const {
       isSmallMode,
-      isReady,
+      runUpdate,
       isEditProps,
       userHeight,
       fitHeights,
@@ -235,13 +221,12 @@ class PropertiesDashlet extends BaseWidget {
           className={classNames(classNameProps, { 'ecos-properties_hidden': isShowSetting })}
           record={record}
           isSmallMode={isSmallMode}
-          isReady={isReady}
           stateId={id}
           height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onUpdate={this.onPropertiesUpdate}
-          formId={formId}
+          formId={!runUpdate && formId}
           onInlineEditSave={this.onInlineEditSave}
           getTitle={this.setTitle}
         />
@@ -267,4 +252,4 @@ class PropertiesDashlet extends BaseWidget {
   }
 }
 
-export default connect(mapStateToProps)(PropertiesDashlet);
+export default PropertiesDashlet;

@@ -1,6 +1,6 @@
 import { createAction } from 'redux-actions';
 
-const prefix = 'dashboard/settings/';
+const prefix = 'dashboard-settings/';
 
 export const initDashboardSettings = createAction(prefix + 'INIT_DASHBOARD_SETTINGS');
 export const setAvailableWidgets = createAction(prefix + 'SET_AVAILABLE_WIDGETS');
@@ -9,6 +9,7 @@ export const setDashboardConfig = createAction(prefix + 'SET_DASHBOARD_CONFIG');
 export const setRequestResultDashboard = createAction(prefix + 'SET_REQUEST_RESULT_DASHBOARD');
 export const setCheckUpdatedDashboardConfig = createAction(prefix + 'SET_CHECK_UPDATED_DASHBOARD_CONFIG');
 export const resetDashboardConfig = createAction(prefix + 'RESET_DASHBOARD_CONFIG');
+export const setLoading = createAction(prefix + 'SET_LOADING');
 
 export const getAwayFromPage = createAction(prefix + 'GET_AWAY_FROM_PAGE');
 

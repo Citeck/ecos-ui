@@ -262,6 +262,12 @@ export default class FileComponent extends FormIOFileComponent {
   }
 
   buildUpload() {
+    const displayElements = this.displayElementsValue || {};
+    const shouldShowUpload = isBoolean(get(displayElements, 'upload')) ? displayElements.upload : true;
+    if (!shouldShowUpload) {
+      return this.ce('div', {});
+    }
+
     const render = super.buildUpload();
     const allLinks = render.querySelectorAll('a');
 

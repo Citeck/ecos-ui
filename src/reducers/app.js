@@ -1,9 +1,11 @@
 import { handleActions } from 'redux-actions';
-import { initAppFailure, initAppSuccess } from '../actions/app';
+import { initAppFailure, initAppSuccess, setDashboardEditable } from '../actions/app';
 
 const initialState = {
   isInit: false,
-  isInitFailure: false
+  isInitFailure: false,
+  enableCache: true,
+  dashboardEditable: false
 };
 
 Object.freeze(initialState);
@@ -21,6 +23,12 @@ export default handleActions(
         ...state,
         isInit: true,
         isInitFailure: true
+      };
+    },
+    [setDashboardEditable]: (state, action) => {
+      return {
+        ...state,
+        dashboardEditable: action.payload
       };
     }
   },

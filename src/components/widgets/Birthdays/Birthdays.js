@@ -7,10 +7,11 @@ import get from 'lodash/get';
 
 import { selectStateByKey } from '../../../selectors/birthdays';
 import { getBirthdays, resetStore } from '../../../actions/birthdays';
-import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
+import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import { isNewVersionPage } from '../../../helpers/urls';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import { getStateId } from '../../../helpers/redux';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 import PageService from '../../../services/PageService';
 import { Avatar, DefineHeight, Loader } from '../../common';
 import { Btn } from '../../common/btns';
@@ -19,7 +20,7 @@ import BaseWidget from '../BaseWidget';
 
 import './style.scss';
 
-export const LABELS = {
+export const Labels = {
   TITLE: 'birthdays-widget.title',
   ERROR_DEFAULT_MESSAGE: 'birthdays-widget.error.default-message',
   BTN_TO_PROFILE: 'birthdays-widget.btn.go-to-profile',
@@ -51,13 +52,7 @@ class Birthdays extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.state = {
-      fitHeights: {},
-      contentHeight: null,
-      width: MIN_WIDTH_DASHLET_SMALL,
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED)
-    };
+    this.stateId = getStateId(props);
   }
 
   componentDidMount() {
@@ -93,13 +88,8 @@ class Birthdays extends BaseWidget {
   };
 
   handleChangeHeight = height => {
-    UserLocalSettingsService.setDashletHeight(this.props.id, height);
+    UserLocalSettingsService.setDashletHeight(this.state.lsId, height);
     this.setState({ userHeight: height });
-  };
-
-  handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
-    UserLocalSettingsService.setDashletProperty(this.props.id, { isCollapsed });
   };
 
   handleGoToProfile = url => {
@@ -124,7 +114,7 @@ class Birthdays extends BaseWidget {
             className={classNames('ecos-hb2u__list-item', {
               'ecos-hb2u__list-item_small': !this.isLargeSize
             })}
-            title={this.isLargeSize ? '' : t(LABELS.BTN_TO_PROFILE)}
+            title={this.isLargeSize ? '' : t(Labels.BTN_TO_PROFILE)}
             key={item.id}
             onClick={this.isLargeSize ? null : () => this.handleGoToProfile(item.url)}
           >
@@ -143,7 +133,7 @@ class Birthdays extends BaseWidget {
 
             {this.isLargeSize && (
               <Btn className="ecos-hb2u__list-item-btn" onClick={() => this.handleGoToProfile(item.url)}>
-                {t(LABELS.BTN_TO_PROFILE)}
+                {t(Labels.BTN_TO_PROFILE)}
               </Btn>
             )}
           </div>
@@ -173,7 +163,7 @@ class Birthdays extends BaseWidget {
       <div className="ecos-hb2u__error">
         <div className="ecos-hb2u__error-message">{error}</div>
         <Btn className="ecos-hb2u__error-reload-btn" onClick={this.handleReloadData}>
-          {t(LABELS.BTN_TRY_ONE_MORE_TIME)}
+          {t(Labels.BTN_TRY_ONE_MORE_TIME)}
         </Btn>
       </div>
     );
@@ -187,7 +177,7 @@ class Birthdays extends BaseWidget {
     return (
       <Dashlet
         className="ecos-hb2u"
-        title={t(LABELS.TITLE)}
+        title={t(Labels.TITLE)}
         needGoTo={false}
         noActions
         canDragging={canDragging}
@@ -220,13 +210,13 @@ class Birthdays extends BaseWidget {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByKey(state, ownProps.id),
+  ...selectStateByKey(state, getStateId(ownProps)),
   isMobile: get(state, 'view.isMobile', false)
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  resetStore: () => dispatch(resetStore(ownProps.id)),
-  getBirthdays: () => dispatch(getBirthdays(ownProps.id))
+  resetStore: () => dispatch(resetStore(getStateId(ownProps))),
+  getBirthdays: () => dispatch(getBirthdays(getStateId(ownProps)))
 });
 
 export default connect(

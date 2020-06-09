@@ -1,9 +1,16 @@
 @import '../../../../styles/constants';
 
-.select-orgstruct_view-only {
-  margin-bottom: 0;
-
-  > p {
+.select-orgstruct {
+  &_view-only {
     margin-bottom: 0;
+
+    > p {
+      margin-bottom: 0;
+    }
+  }
+
+  &_compact {
+    overflow: hidden;
+    width: 100%;
   }
 }

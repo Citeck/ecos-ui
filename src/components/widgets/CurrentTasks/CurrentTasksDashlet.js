@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
-import Dashlet, { BaseActions } from '../../Dashlet';
-import CurrentTasks from './CurrentTasks';
+import DAction from '../../../services/DashletActionService';
+import { getStateId } from '../../../helpers/redux';
+import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
+import CurrentTasks from './CurrentTasks';
 
 import './style.scss';
 
@@ -36,15 +37,12 @@ class CurrentTasksDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
-    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
+    this.stateId = getStateId(props);
+    this.watcher = this.instanceRecord.watch(['cm:modified', 'tasks.active-hash'], this.reload);
 
     this.state = {
+      ...this.state,
       isSmallMode: false,
-      fitHeights: {},
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
       totalCount: 0,
       isLoading: true
     };
@@ -55,7 +53,7 @@ class CurrentTasksDashlet extends BaseWidget {
   }
 
   onResize = width => {
-    this.setState({ isSmallMode: isSmallMode(width) });
+    !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   setInfo = data => {
@@ -66,7 +64,7 @@ class CurrentTasksDashlet extends BaseWidget {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, runUpdate, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
-      [BaseActions.RELOAD]: {
+      [DAction.Actions.RELOAD]: {
         onClick: () => this.reload()
       }
     };
@@ -96,7 +94,7 @@ class CurrentTasksDashlet extends BaseWidget {
           className={classNameTasks}
           record={record}
           isSmallMode={isSmallMode}
-          stateId={record}
+          stateId={this.stateId}
           height={userHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}

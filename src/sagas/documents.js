@@ -8,14 +8,14 @@ import isArray from 'lodash/isArray';
 import { NotificationManager } from 'react-notifications';
 
 import {
+  selectActionsByType,
   selectAvailableTypes,
   selectConfigTypes,
   selectDynamicType,
   selectDynamicTypes,
   selectIsLoadChecklist,
-  selectTypeNames,
   selectTypeById,
-  selectActionsByType
+  selectTypeNames
 } from '../selectors/documents';
 import {
   execRecordsAction,
@@ -60,6 +60,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
   try {
     const isLoadChecklist = yield select(state => selectIsLoadChecklist(state, payload.key));
     const typeNames = yield select(state => selectTypeNames(state, payload.key));
+    const availableTypes = yield select(state => selectAvailableTypes(state, payload.key));
     let dynamicTypes = [];
 
     if (isLoadChecklist) {
@@ -69,7 +70,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
         throw new Error(dtErrors.join(' '));
       }
 
-      dynamicTypes = DocumentsConverter.getDynamicTypes({ types: records, typeNames }, true);
+      dynamicTypes = DocumentsConverter.getDynamicTypes({ types: records, typeNames, availableTypes }, true);
     }
 
     const configTypes = yield select(state => selectConfigTypes(state, payload.key));
@@ -111,7 +112,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     yield put(
       setDynamicTypes({
         key: payload.key,
-        dynamicTypes: DocumentsConverter.getDynamicTypes({ types: combinedTypes, typeNames, countByTypes: countDocuments })
+        dynamicTypes: DocumentsConverter.getDynamicTypes({ types: combinedTypes, typeNames, countByTypes: countDocuments, availableTypes })
       })
     );
 
@@ -223,11 +224,12 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
     const dynamicTypeKeys = payload.types.map(record => record.type);
     const { records } = yield call(api.documents.getDocumentsByTypes, payload.record, dynamicTypeKeys);
     const countDocuments = records.map(record => record.documents);
+    const availableTypes = yield select(state => selectAvailableTypes(state, payload.key));
 
     yield put(
       setDynamicTypes({
         key: payload.key,
-        dynamicTypes: DocumentsConverter.getDynamicTypes({ types: payload.types, countByTypes: countDocuments }), //
+        dynamicTypes: DocumentsConverter.getDynamicTypes({ types: payload.types, countByTypes: countDocuments, availableTypes }),
         countDocuments
       })
     );
@@ -254,10 +256,10 @@ function* sagaUpdateVersion({ api, logger }, { payload }) {
     });
     yield put(getDocumentsByType({ ...payload, delay: 0 }));
 
-    NotificationManager.success(t('documents-widget.notification.update.success'));
+    NotificationManager.success(t('documents-widget.notification.update.success'), t('success'));
   } catch (e) {
     logger.error('[documents sagaUpdateVerion saga error]', e.message);
-    NotificationManager.error(t('documents-widget.notification.update.error'));
+    NotificationManager.error(t('documents-widget.notification.update.error'), t('error'));
   }
 }
 
@@ -368,7 +370,8 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     yield put(setUploadError({ ...payload, message: e.message }));
     logger.error('[documents sagaUploadFiles saga error', e.message);
     NotificationManager.error(
-      t(payload.files.length > 1 ? 'documents-widget.notification.add-many.error' : 'documents-widget.notification.add-one.error')
+      t(payload.files.length > 1 ? 'documents-widget.notification.add-many.error' : 'documents-widget.notification.add-one.error'),
+      t('error')
     );
   } finally {
     yield put(uploadFilesFinally(payload.key));

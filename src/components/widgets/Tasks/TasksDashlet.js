@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
-import Dashlet, { BaseActions } from '../../Dashlet';
-import Tasks from './Tasks';
+import DAction from '../../../services/DashletActionService';
+import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
+import Tasks from './Tasks';
 
 import './style.scss';
 
@@ -36,15 +36,11 @@ class TasksDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
 
     this.state = {
+      ...this.state,
       isSmallMode: false,
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
-      fitHeights: {},
       totalCount: 0,
       isLoading: true
     };
@@ -55,7 +51,7 @@ class TasksDashlet extends BaseWidget {
   }
 
   onResize = width => {
-    this.setState({ isSmallMode: isSmallMode(width) });
+    !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
 
   setInfo = data => {
@@ -66,7 +62,7 @@ class TasksDashlet extends BaseWidget {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { runUpdate, isSmallMode, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
-      [BaseActions.RELOAD]: {
+      [DAction.Actions.RELOAD]: {
         onClick: this.reload
       }
     };

@@ -7,6 +7,7 @@ import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/common/form/SelectJ
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
+import { hasInString } from './util';
 
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';
@@ -168,8 +169,8 @@ export const getTemplateUrl = nodeRef => {
   return `${PROXY_URI}citeck/case/template?nodeRef=${nodeRef}`;
 };
 
-export const getBarcodePrintUrl = record => {
-  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&barcodeType=code-128&scale=5.0&margins=20,200,20,500&print=true`;
+export const getBarcodePrintUrl = (record, settings = 'barcodeType=code-128&scale=5.0&margins=20,200,20,500') => {
+  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&${settings}&print=true`;
 };
 
 export const goToJournalsPage = options => {
@@ -310,4 +311,12 @@ export const getLinkWithout = params => {
   });
 
   return `${parsed.url}?${queryString.stringify(query)}`;
+};
+
+export const isDashboard = (url = window.location.href) => {
+  if (isNewVersionPage()) {
+    return hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
+  }
+
+  return false;
 };

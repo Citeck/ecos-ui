@@ -1,4 +1,9 @@
+import get from 'lodash/get';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { NotificationManager } from 'react-notifications';
+
+import { t } from '../helpers/util';
+import { RequestStatuses } from '../constants';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -10,12 +15,11 @@ import {
   setMobileDashboardConfig,
   setRequestResultDashboard
 } from '../actions/dashboard';
-import { setNotificationMessage } from '../actions/notification';
+import { setDashboardConfig as setDashboardSettingsConfig } from '../actions/dashboardSettings';
 import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
-import { t } from '../helpers/util';
 import DashboardConverter from '../dto/dashboard';
+import DashboardSettingsConverter from '../dto/dashboardSettings';
 import DashboardService from '../services/dashboard';
-import { RequestStatuses } from '../constants';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
@@ -31,17 +35,15 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     const isReset = yield select(selectResetStatus);
 
     if (isReset) {
-      console.info('[dashboard/ doGetDashboardRequest saga] info: Dashboard is unmounted');
-      yield put(setLoading({ key: payload.key, status: false }));
-      return;
+      throw new Error('info: Dashboard is unmounted');
     }
 
     yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key }));
     yield put(setDashboardConfig({ config: webConfig, key: payload.key }));
     yield put(setMobileDashboardConfig({ config: webConfigMobile, key: payload.key }));
   } catch (e) {
-    yield put(setNotificationMessage(t('dashboard-settings.error5')));
     yield put(setLoading({ key: payload.key, status: false }));
+    NotificationManager.error(t('dashboard.error.get-config'), t('error'));
     logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
   }
 }
@@ -54,7 +56,7 @@ function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
 
     yield put(setDashboardTitleInfo({ titleInfo, key: payload.key }));
   } catch (e) {
-    yield put(setNotificationMessage(t('dashboard-settings.error5')));
+    NotificationManager.error(t('dashboard.error.get-title'), t('error'));
     logger.error('[dashboard/ doGetDashboardTitleRequest saga] error', e.message);
   }
 }
@@ -78,6 +80,12 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
 
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification });
     const res = DashboardService.parseRequestResult(dashboardResult);
+    const isExistSettings = !!(yield select(state => get(state, ['dashboardSettings', res.dashboardId])));
+
+    if (isExistSettings) {
+      const settingsConfig = DashboardSettingsConverter.getSettingsForWeb({ config, ...identification });
+      yield put(setDashboardSettingsConfig({ ...settingsConfig, key: res.dashboardId }));
+    }
 
     yield put(
       setRequestResultDashboard({
@@ -87,7 +95,8 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
       })
     );
   } catch (e) {
-    yield put(setNotificationMessage(t('dashboard-settings.error6')));
+    yield put(setLoading({ key: payload.key, status: false }));
+    NotificationManager.error(t('dashboard.error.save-config'), t('error'));
     logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e.message);
   }
 }

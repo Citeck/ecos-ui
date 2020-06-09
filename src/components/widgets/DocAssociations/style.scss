@@ -39,21 +39,16 @@
     }
   }
 
+  &__button {
+    &-add {
+      display: inline-block;
+    }
+  }
+
   &__icon {
     $icon: &;
 
     background: $color-white;
-
-    &-plus {
-      cursor: pointer;
-      color: $color-gray-5;
-      line-height: inherit;
-      font-size: $font-size-extra-large;
-
-      &:hover {
-        color: $color-blue-light;
-      }
-    }
 
     &-delete {
       cursor: pointer;

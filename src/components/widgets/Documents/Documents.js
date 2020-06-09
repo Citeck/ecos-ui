@@ -11,7 +11,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { NotificationManager } from 'react-notifications';
 
 import BaseWidget from '../BaseWidget';
-import Dashlet from '../../Dashlet/Dashlet';
+import Dashlet from '../../Dashlet';
 import { DefineHeight, EcosModal, Icon, Loader, ResizeBoxes, Search, Tooltip } from '../../common';
 import { Dropdown } from '../../common/form';
 import { Btn } from '../../common/btns';
@@ -19,7 +19,8 @@ import { Grid, InlineTools } from '../../common/grid';
 import FormManager from '../../EcosForm/FormManager';
 import DropZone from './DropZone';
 import Settings from './Settings';
-import UserLocalSettingsService, { DashletProps } from '../../../services/userLocalSettings';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
+import DAction from '../../../services/DashletActionService';
 import DocumentsConverter from '../../../dto/documents';
 import {
   execRecordsAction,
@@ -32,8 +33,8 @@ import {
 } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
 import { errorTypes, statusesKeys, tableFields, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
-import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
-import { deepClone, prepareTooltipId, t, closest, objectCompare } from '../../../helpers/util';
+import { closest, deepClone, objectCompare, prepareTooltipId, t } from '../../../helpers/util';
+import { getStateId } from '../../../helpers/redux';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
 
 import './style.scss';
@@ -96,18 +97,12 @@ class Documents extends BaseWidget {
   constructor(props) {
     super(props);
 
-    UserLocalSettingsService.checkOldData(props.id);
-
     this.state = {
+      ...this.state,
       leftColumnId: uniqueId('leftColumn_'),
       rightColumnId: uniqueId('rightColumn_'),
       selectedType: '',
       selectedTypeForLoading: '',
-      fitHeights: {},
-      contentHeight: null,
-      width: MIN_WIDTH_DASHLET_SMALL,
-      userHeight: UserLocalSettingsService.getDashletHeight(props.id),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(props.id, DashletProps.IS_COLLAPSED),
       isOpenSettings: false,
       isSentSettingsToSave: false,
       isOpenUploadModal: false,
@@ -329,18 +324,15 @@ class Documents extends BaseWidget {
   }
 
   get dashletActionsConfig() {
-    const actions = {};
-
-    actions.reload = {
-      onClick: this.initWidget
+    return {
+      [DAction.Actions.RELOAD]: {
+        onClick: this.initWidget
+      },
+      [DAction.Actions.SETTINGS]: {
+        onClick: this.handleToggleTypesSettings,
+        text: t(tooltips.SETTINGS)
+      }
     };
-
-    actions.settings = {
-      onClick: this.handleToggleTypesSettings,
-      text: t(tooltips.SETTINGS)
-    };
-
-    return actions;
   }
 
   get uploadingSettings() {
@@ -464,10 +456,16 @@ class Documents extends BaseWidget {
   };
 
   getformId = (type = {}) => {
-    const { availableTypes } = this.props;
-    const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {}) || {};
+    const createVariants = this.getFormCreateVariants(type);
 
     return type.formId || createVariants.formRef;
+  };
+
+  getFormCreateVariants = (type = {}) => {
+    const { availableTypes } = this.props;
+    const typeId = typeof type === 'string' ? type : type.type;
+
+    return get(availableTypes.find(item => item.id === typeId), 'createVariants', {}) || {};
   };
 
   handleToggleUploadModalByType = (type = null) => {
@@ -484,12 +482,12 @@ class Documents extends BaseWidget {
       return;
     }
 
-    const { formId = null, countDocuments = 0, multiple } = type;
+    const { formId = null } = type;
     const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {}) || {};
     const hasForm = formId !== null || !isEmpty(createVariants.formRef);
     let isFormOpens = false;
 
-    if (hasForm && (multiple || !countDocuments)) {
+    if (hasForm) {
       isFormOpens = true;
 
       this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record, createVariants }));
@@ -530,7 +528,7 @@ class Documents extends BaseWidget {
       userHeight = 0;
     }
 
-    UserLocalSettingsService.setDashletHeight(this.props.id, userHeight);
+    UserLocalSettingsService.setDashletHeight(this.state.lsId, userHeight);
     this.setState({ userHeight });
   };
 
@@ -614,6 +612,10 @@ class Documents extends BaseWidget {
 
       this.props.setError(errorTypes.COUNT_FILES, t(Labels.ERROR_ONLY_ONE_FILE));
 
+      return false;
+    }
+
+    if (this.getFormCreateVariants(type).formRef) {
       return false;
     }
 
@@ -725,6 +727,8 @@ class Documents extends BaseWidget {
 
   handleTypeRowMouseLeave = () => this.setState({ isHoverLastRow: false });
 
+  handleCheckDropPermissions = type => type.canDropUpload;
+
   setToolsOptions = (options = {}) => {
     this.props.setInlineTools(options);
   };
@@ -738,13 +742,14 @@ class Documents extends BaseWidget {
   countFormatter = (...params) => {
     const { uploadError, countFilesError, id } = this.props;
     const { selectedTypeForLoading } = this.state;
-    const target = prepareTooltipId(`grid-label-${params[1].type}-${id}`);
+    const type = params[1];
+    const target = prepareTooltipId(`grid-label-${type.type}-${id}`);
     const style = {};
     let label = t(Labels.UPLOAD_MESSAGE);
     let hasTooltip = false;
     let hasError = false;
 
-    if (params[1].type === selectedTypeForLoading.type) {
+    if (type.type === selectedTypeForLoading.type) {
       if (uploadError) {
         label = t(Labels.ERROR_UPLOAD);
         hasTooltip = true;
@@ -755,6 +760,10 @@ class Documents extends BaseWidget {
         hasError = true;
         label = t(countFilesError);
       }
+    }
+
+    if (this.getFormCreateVariants(type).formRef) {
+      label = t('documents-widget.dnd.disabled');
     }
 
     if (this._counterRef.current) {
@@ -831,7 +840,7 @@ class Documents extends BaseWidget {
 
   renderType = item => {
     const { selectedType } = this.state;
-    const id = prepareTooltipId(`type-${item.type}`);
+    const id = prepareTooltipId(`type-${this.props.stateId}-${item.type}`);
 
     return (
       <div
@@ -853,12 +862,12 @@ class Documents extends BaseWidget {
   };
 
   renderCountStatus = (type, keyPostfix = '') => {
-    const { id } = this.props;
-    const target = prepareTooltipId(`${type.type}-${id}-${keyPostfix}`);
+    const { id, stateId } = this.props;
+    const target = prepareTooltipId(`${type.type}-${id}-${stateId}-${keyPostfix}`);
     const status = typesStatuses[this.getTypeStatus(type)];
 
     return (
-      <>
+      <Tooltip target={target} text={t(status)} uncontrolled showAsNeeded autohide>
         <div
           id={target}
           ref={this._counterRef}
@@ -875,17 +884,7 @@ class Documents extends BaseWidget {
           />
           <div className="ecos-docs__types-item-status-counter">{type.countDocuments}</div>
         </div>
-        <UncontrolledTooltip
-          placement="top"
-          boundariesElement="window"
-          className="ecos-base-tooltip"
-          innerClassName="ecos-base-tooltip-inner"
-          arrowClassName="ecos-base-tooltip-arrow"
-          target={target}
-        >
-          {t(status)}
-        </UncontrolledTooltip>
-      </>
+      </Tooltip>
     );
   };
 
@@ -1022,12 +1021,13 @@ class Documents extends BaseWidget {
   renderDocumentsTable = () => {
     const { dynamicTypes, isUploadingFile } = this.props;
     const { selectedType, isDragFiles, autoHide, isHoverLastRow } = this.state;
+    const { formRef } = this.getFormCreateVariants(selectedType);
 
     if (!selectedType && dynamicTypes.length !== 1) {
       return null;
     }
 
-    const isShowDropZone = isDragFiles;
+    const isShowDropZone = isDragFiles && !formRef;
 
     return (
       <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
@@ -1118,6 +1118,7 @@ class Documents extends BaseWidget {
           onRowDragEnter={this.handleRowDragEnter}
           onMouseEnter={this.handleTypeRowMouseEnter}
           onRowMouseLeave={this.handleTypeRowMouseLeave}
+          onCheckDropPermission={this.handleCheckDropPermissions}
           scrollPosition={scrollPosition}
         />
       );
@@ -1286,71 +1287,25 @@ class Documents extends BaseWidget {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByKey(state, ownProps.id),
+  ...selectStateByKey(state, getStateId(ownProps)),
   isMobile: state.view.isMobile
 });
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  initStore: () =>
-    dispatch(
-      initStore({
-        record: ownProps.record,
-        config: ownProps.config,
-        key: ownProps.id
-      })
-    ),
-  getDocuments: (type = '') =>
-    dispatch(
-      getDocumentsByType({
-        record: ownProps.record,
-        type,
-        key: ownProps.id
-      })
-    ),
-  onSaveSettings: (types, config) =>
-    dispatch(
-      saveSettings({
-        record: ownProps.record,
-        types,
-        config,
-        key: ownProps.id
-      })
-    ),
-  onUploadFiles: data =>
-    dispatch(
-      uploadFiles({
-        record: ownProps.record,
-        ...data,
-        key: ownProps.id
-      })
-    ),
-  setError: (type, message = '') =>
-    dispatch(
-      setError({
-        record: ownProps.record,
-        type,
-        message,
-        key: ownProps.id
-      })
-    ),
-  execRecordsAction: (records, action, callback) =>
-    dispatch(
-      execRecordsAction({
-        record: ownProps.record,
-        records,
-        action,
-        callback,
-        key: ownProps.id
-      })
-    ),
-  setInlineTools: tools =>
-    dispatch(
-      setInlineTools({
-        record: ownProps.record,
-        tools,
-        key: ownProps.id
-      })
-    )
-});
+const mapDispatchToProps = (dispatch, ownProps) => {
+  const baseParams = {
+    record: ownProps.record,
+    key: getStateId(ownProps)
+  };
+
+  return {
+    initStore: () => dispatch(initStore({ ...baseParams, config: ownProps.config })),
+    getDocuments: (type = '') => dispatch(getDocumentsByType({ ...baseParams, type })),
+    onSaveSettings: (types, config) => dispatch(saveSettings({ ...baseParams, types, config })),
+    onUploadFiles: data => dispatch(uploadFiles({ ...baseParams, ...data })),
+    setError: (type, message = '') => dispatch(setError({ ...baseParams, type, message })),
+    execRecordsAction: (records, action, callback) => dispatch(execRecordsAction({ ...baseParams, records, action, callback })),
+    setInlineTools: tools => dispatch(setInlineTools({ ...baseParams, tools }))
+  };
+};
 
 export default connect(
   mapStateToProps,

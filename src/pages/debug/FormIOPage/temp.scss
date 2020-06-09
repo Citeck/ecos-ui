@@ -1,4 +1,6 @@
 .white-container {
   padding: 15px;
   background-color: white;
+  height: calc(100vh - 120px);
+  overflow: auto;
 }

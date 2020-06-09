@@ -38,6 +38,14 @@ export function removeItem(key = '') {
   window.localStorage.removeItem(key);
 }
 
+export function removeItems(keys = []) {
+  if (!keys.length) {
+    return null;
+  }
+
+  keys.forEach(key => removeItem(key));
+}
+
 export function clearLS() {
   window.localStorage.clear();
 }

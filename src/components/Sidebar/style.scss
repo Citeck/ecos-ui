@@ -14,7 +14,8 @@ $transition-duration: 0.3s;
 
 .ecos-main-area {
   flex: auto;
-  overflow-x: hidden;
+  overflow: hidden;
+  position: relative;
 }
 
 %menu-item-separator {

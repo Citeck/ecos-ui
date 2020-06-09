@@ -269,12 +269,13 @@ export function loadTopMenuData(userName, isUserAvailable, isUserMutable, isExte
     Promise.all(promises)
       .then(([_sites, _customs]) => {
         const { sites, customs } = MenuConverter.mergeCustomsAndSites(_customs, _sites);
-
-        return {
-          createCaseMenu: [].concat(customs, sites),
-          siteMenu: processMenuItemsFromOldMenu(oldMenuSiteWidgetItems),
-          userMenu: makeUserMenuItems(userName, isUserAvailable, isUserMutable, isExternalAuthentication)
-        };
+        return makeUserMenuItems(userName, isUserAvailable, isUserMutable, isExternalAuthentication).then(items => {
+          return {
+            createCaseMenu: [].concat(customs, sites),
+            siteMenu: processMenuItemsFromOldMenu(oldMenuSiteWidgetItems),
+            userMenu: items
+          };
+        });
       })
       .then(result => {
         dispatch(setCreateCaseWidgetItems(result.createCaseMenu));

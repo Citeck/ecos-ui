@@ -1,21 +1,22 @@
-import { all, put, takeEvery, call, select } from 'redux-saga/effects';
+import { all, call, put, select, takeEvery } from 'redux-saga/effects';
 import concat from 'lodash/concat';
 
 import {
+  addAssociations,
   getAssociations,
   getMenu,
   getSectionList,
-  addAssociations,
   removeAssociations,
   setAllowedConnections,
   setAssociations,
+  setError,
   setMenu,
-  setSectionList,
-  setError
+  setSectionList
 } from '../actions/docAssociations';
 import DocAssociationsConverter from '../dto/docAssociations';
 import { DIRECTIONS } from '../constants/docAssociations';
 import { selectAllowedDirectionsByKey, selectAssocByAssocName, selectAssociationColumnsConfig } from '../selectors/docAssociations';
+import Records from '../components/Records';
 
 function* sagaGetSectionList({ api, logger }, { payload }) {
   try {
@@ -138,8 +139,7 @@ function* sagaAddAssociations({ api, logger }, { payload }) {
         return yield call(api.docAssociations.addAssociations, {
           recordRef,
           associations: [record],
-          associationId: association.attribute || associationId,
-          isSource: true
+          associationId: association.attribute || associationId
         });
       });
     } else {
@@ -151,6 +151,7 @@ function* sagaAddAssociations({ api, logger }, { payload }) {
     }
 
     yield put(getAssociations(record));
+    yield Records.get([record, ...associations]).forEach(r => r && r.update());
   } catch (e) {
     yield put(setError({ key: payload.record }));
     logger.error('[docAssociations sagaAddAssociations saga error', e.message);
@@ -176,6 +177,7 @@ function* sagaRemoveAssociations({ api, logger }, { payload }) {
       associationId: attribute || associationId
     });
     yield put(getAssociations(record));
+    yield Records.get([record, associationRef]).forEach(r => r && r.update());
   } catch (e) {
     yield put(setError({ key: payload.record }));
     logger.error('[docAssociations sagaRemoveAssociations saga error', e.message);

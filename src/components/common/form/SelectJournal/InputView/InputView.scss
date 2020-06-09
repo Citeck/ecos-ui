@@ -45,6 +45,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   margin-left: 10px;
+  flex: 1;
+}
+
+.select-journal__values-list-tooltip {
+  .tooltip {
+    z-index: 9999;
+  }
 }
 
 .select-journal__input-view-button_compact {

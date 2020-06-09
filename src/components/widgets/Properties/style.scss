@@ -3,6 +3,12 @@
 .ecos-properties {
   $root: &;
 
+  &-dashlet {
+    &__body {
+      width: 100%;
+    }
+  }
+
   &_hidden {
     display: none;
   }
@@ -14,6 +20,7 @@
   }
 
   &__formio {
+    width: 100%;
     padding: 20px 20px 0;
 
     &_small {
@@ -30,6 +37,10 @@
           margin-bottom: 0;
         }
       }
+    }
+
+    & .formio-form .card .card-body {
+      padding-top: 10px;
     }
   }
 
@@ -96,9 +107,5 @@
         margin-left: 10px;
       }
     }
-  }
-
-  &__loader {
-    margin-top: 7px;
   }
 }

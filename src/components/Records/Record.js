@@ -95,6 +95,8 @@ export default class Record {
     this._pendingUpdate = false;
     this._updatePromise = Promise.resolve();
     this._watchers = [];
+    this._owners = {};
+    this._virtual = false;
   }
 
   get id() {
@@ -133,13 +135,18 @@ export default class Record {
       }
     }
 
+    let recId = this.id;
     for (let att in this._attributes) {
       if (this._attributes.hasOwnProperty(att)) {
-        attributes[att] = this._attributes[att].getValue();
+        if (att === '_att_id') {
+          recId = this._attributes[att].getValue();
+        } else {
+          attributes[att] = this._attributes[att].getValue();
+        }
       }
     }
 
-    return { id: this.id, attributes };
+    return { id: recId, attributes };
   }
 
   isPersisted() {
@@ -157,6 +164,10 @@ export default class Record {
   }
 
   _innerUpdate(resolve, reject) {
+    if (this.isVirtual()) {
+      resolve();
+      return Promise.resolve();
+    }
     return this.load(
       {
         modified: 'cm:modified?str', //todo: change att to _modified?str
@@ -207,6 +218,10 @@ export default class Record {
   }
 
   update() {
+    if (this.isVirtual()) {
+      return Promise.resolve();
+    }
+
     this._pendingUpdate = true;
 
     let promise = null;
@@ -238,6 +253,10 @@ export default class Record {
   }
 
   watch(attributes, callback) {
+    if (this.isVirtual()) {
+      return;
+    }
+
     const watcher = new RecordWatcher(this, attributes, callback);
     const attsPromise = this.load(attributes);
 
@@ -354,8 +373,13 @@ export default class Record {
   }
 
   reset() {
-    this._attributes = {};
-    this._recordFields = {};
+    // if we reset virtual record,
+    // then data will be lost and
+    // we can't reload it from server
+    if (!this.isVirtual()) {
+      this._attributes = {};
+      this._recordFields = {};
+    }
   }
 
   getRawAttributes() {
@@ -420,6 +444,10 @@ export default class Record {
   }
 
   save() {
+    if (this.isVirtual()) {
+      return;
+    }
+
     let self = this;
 
     let requestRecords = [];
@@ -537,6 +565,14 @@ export default class Record {
     }
 
     delete this._attributes[parsedAtt.name];
+  }
+
+  isVirtual() {
+    if (this._virtual) {
+      return true;
+    }
+    let baseRecord = this.getBaseRecord();
+    return baseRecord.id !== this.id && baseRecord.isVirtual();
   }
 
   _processAttField(name, value, isRead, getter, setter) {
