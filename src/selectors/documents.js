@@ -70,6 +70,8 @@ export const selectTypeNames = createSelector(
   }
 );
 
+export const selectTypeById = (state, key, id) => get(selectState(state, key), 'availableTypes', []).find(type => type.id === id);
+
 export const selectDynamicTypes = createSelector(
   selectState,
   getDynamicTypes
@@ -85,6 +87,12 @@ export const selectAvailableTypes = createSelector(
   selectState,
   getAvailableTypes
 );
+
+export const selectActionsByType = (state, key, type) => {
+  const availableTypes = getAvailableTypes(selectState(state, key)) || [];
+
+  return get(availableTypes.find(item => item.id === type), 'actions', []);
+};
 
 export const selectGrouppedAvailableTypes = createSelector(
   getAvailableTypes,

@@ -41,8 +41,7 @@ class Actions extends React.Component {
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
-    onActionsChanged: PropTypes.func
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
@@ -106,7 +105,7 @@ class Actions extends React.Component {
   };
 
   renderActionsList = () => {
-    const { isLoading, className, list, isMobile, forwardedRef, onActionsChanged } = this.props;
+    const { isLoading, className, list, isMobile, forwardedRef } = this.props;
 
     return (
       <ActionsList
@@ -116,7 +115,6 @@ class Actions extends React.Component {
         isLoading={isLoading}
         isMobile={isMobile}
         executeAction={this.executeAction}
-        onActionsChanged={onActionsChanged}
       />
     );
   };

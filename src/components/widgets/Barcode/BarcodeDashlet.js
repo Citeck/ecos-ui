@@ -25,8 +25,17 @@ class BarcodeDashlet extends BaseWidget {
     classNameDashlet: ''
   };
 
+  componentDidMount() {
+    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
+  }
+
+  componentWillUnmount() {
+    this.instanceRecord.unwatch(this.watcher);
+  }
+
   render() {
     const { id, title, config, classNameBarcode, classNameDashlet, record } = this.props;
+    const { runUpdate } = this.state;
 
     return (
       <Dashlet
@@ -38,7 +47,7 @@ class BarcodeDashlet extends BaseWidget {
         noActions
         actionDrag={isMobileDevice()}
       >
-        <Barcode {...config} className={classNameBarcode} record={record} stateId={id} />
+        <Barcode {...config} className={classNameBarcode} record={record} stateId={id} runUpdate={runUpdate} />
       </Dashlet>
     );
   }

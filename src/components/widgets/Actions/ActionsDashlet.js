@@ -82,10 +82,9 @@ class ActionsDashlet extends BaseWidget {
           record={record}
           isSmallMode={isSmallMode}
           stateId={id}
-          height={userHeight}
+          height={userHeight || this.fullHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
-          onActionsChanged={this.checkHeight}
           runUpdate={runUpdate}
         />
       </Dashlet>

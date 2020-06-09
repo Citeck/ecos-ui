@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+
 import TableFormPropTypes from './TableFormPropTypes';
 import Records from '../../../Records/Records';
 import { parseAttribute } from '../../../Records/Record';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
+import WidgetService from '../../../../services/WidgetService';
 
 export const TableFormContext = React.createContext();
 
@@ -133,6 +135,10 @@ export const TableFormContextProvider = props => {
           setRecord(record);
           setFormMode(FORM_MODE_EDIT);
           setIsModalFormOpen(true);
+        },
+
+        showPreview: recordId => {
+          WidgetService.openPreviewModal({ recordId });
         },
 
         onCreateFormSubmit: (record, form) => {

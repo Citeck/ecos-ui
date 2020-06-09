@@ -50,7 +50,6 @@ export default [
     data: { custom: ' values = data.displayColumnsAsyncData' },
     template: '<span>{{ item.label }}</span>',
     refreshOn: 'displayColumnsAsyncData',
-    clearOnRefresh: true,
     dataSrc: 'custom'
   },
   {

@@ -60,13 +60,17 @@ export default class SelectJournal extends Component {
   };
 
   static getDerivedStateFromProps(props, state) {
+    const newState = {};
+
     if (state.value === undefined) {
-      return {
-        value: props.multiple ? [] : ''
-      };
+      newState.value = props.multiple ? [] : '';
     }
 
-    return null;
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    return newState;
   }
 
   constructor(props) {
@@ -101,6 +105,25 @@ export default class SelectJournal extends Component {
     if (initCustomPredicate) {
       this.setCustomPredicate(initCustomPredicate);
     }
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!isEqual(prevProps.defaultValue, this.props.defaultValue) && !isEqual(this.props.defaultValue, this.state.value)) {
+      this.updateSelectedValue();
+    }
+  }
+
+  updateSelectedValue(value = this.props.defaultValue, shouldTriggerOnChange = false) {
+    const { multiple } = this.props;
+    let newValue;
+
+    if (multiple && Array.isArray(value) && value.length > 0) {
+      newValue = [...value];
+    } else if (!multiple && !!value) {
+      newValue = [value];
+    }
+
+    this.setValue(newValue, shouldTriggerOnChange);
   }
 
   setCustomPredicate(customPredicate) {
@@ -789,11 +812,15 @@ export default class SelectJournal extends Component {
           title={editModalTitle}
           isOpen={isEditModalOpen}
           hideModal={this.toggleEditModal}
-          options={{
-            formMode: FORM_MODE_EDIT
-          }}
         >
-          <EcosForm record={editRecordId} onSubmit={this.onEditFormSubmit} onFormCancel={this.toggleEditModal} />
+          <EcosForm
+            record={editRecordId}
+            onSubmit={this.onEditFormSubmit}
+            onFormCancel={this.toggleEditModal}
+            options={{
+              formMode: FORM_MODE_EDIT
+            }}
+          />
         </EcosModal>
       </div>
     );

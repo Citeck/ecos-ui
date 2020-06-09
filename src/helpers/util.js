@@ -13,11 +13,11 @@ import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
-const LOCALE_EN = 'en';
-
 const BYTES_KB = 1024;
 const BYTES_MB = 1048576;
 const BYTES_GB = 1073741824;
+
+const LOCALE_EN = 'en';
 
 export function getCookie(name) {
   // eslint-disable-next-line
@@ -117,7 +117,11 @@ export function getPropByStringKey(obj, strKey) {
     res = res ? res[key] : obj[key];
   }
 
-  return t(res);
+  if (typeof res === 'string') {
+    return t(res);
+  }
+
+  return res;
 }
 
 export function getSelectedValue(source, field, value) {
@@ -196,6 +200,34 @@ export function getCurrentLocale() {
   const language = navigator.languages ? navigator.languages[0] : navigator.language || navigator.systemLanguage || navigator.userLanguage;
 
   return language.substr(0, 2).toLowerCase();
+}
+
+export function getTextByLocale(data, locale = getCurrentLocale()) {
+  if (isEmpty(data)) {
+    return '';
+  }
+
+  if (typeof data === 'object') {
+    if (Array.isArray(data)) {
+      return data.map(item => getTextByLocale(item, locale));
+    }
+
+    let text = data[locale];
+
+    // get 'en' translation, if for current locale not found
+    if (!text) {
+      text = data[LOCALE_EN];
+
+      // get first translation, if for 'en' locale not found
+      if (!text) {
+        text = data[Object.keys(data)[0]] || '';
+      }
+    }
+
+    return text;
+  }
+
+  return data;
 }
 
 export function loadScript(url, callback) {
@@ -850,4 +882,31 @@ export function trimFields(source) {
   });
 
   return target;
+}
+
+/**
+ * Returns the first non-empty value
+ * Empty values - match the docs lodash isEmpty
+ * https://github.com/lodash/lodash/blob/master/isEmpty.js#L45
+ * Exceptions are numbers; they are not empty values.
+ *
+ * @param values
+ * @param defaultValue
+ *
+ * @returns {*}
+ */
+export function getFirstNonEmpty(values = [], defaultValue) {
+  if (!Array.isArray(values) || !values.length) {
+    return defaultValue;
+  }
+
+  for (let i = 0; i < values.length; i++) {
+    const value = values[i];
+
+    if (typeof value === 'number' || !isEmpty(value)) {
+      return value;
+    }
+  }
+
+  return defaultValue;
 }

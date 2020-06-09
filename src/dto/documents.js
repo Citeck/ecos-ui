@@ -1,7 +1,9 @@
 import moment from 'moment';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { deepClone, t } from '../helpers/util';
+import { DATE_FORMAT, DEFAULT_REF, NULL_FORM } from '../constants/documents';
 
 export default class DocumentsConverter {
   static formIdIsNull = (id = '') => {
@@ -11,7 +13,7 @@ export default class DocumentsConverter {
       isNull = true;
     }
 
-    if (id === 'uiserv/eform@null') {
+    if (id === NULL_FORM) {
       isNull = true;
     }
 
@@ -25,6 +27,8 @@ export default class DocumentsConverter {
   static getAvailableTypes = (types = []) => {
     return types.map(type => ({
       ...type,
+      createVariants: isEmpty(type.createVariants) ? {} : type.createVariants,
+      actions: isEmpty(type.actions) ? [] : type.actions.filter(action => !isEmpty(action)),
       formId: DocumentsConverter.formIdIsNull(type.formId) ? null : type.formId
     }));
   };
@@ -113,7 +117,7 @@ export default class DocumentsConverter {
       return '';
     }
 
-    return moment(source).format('DD.MM.YYYY HH:mm');
+    return moment(source).format(DATE_FORMAT);
   };
 
   static getFormattedDynamicType = (source = {}) => {
@@ -183,34 +187,10 @@ export default class DocumentsConverter {
   };
 
   static getDataToCreate = data => ({
-    recordRef: 'dict@cm:content',
-    formId: get(data, 'formId', ''),
-    attributes: DocumentsConverter.getCreateAttributes(data)
+    recordRef: get(data, 'createVariants.recordRef') || DEFAULT_REF,
+    formId: get(data, 'createVariants.formRef') || data.formId || '',
+    attributes: DocumentsConverter.getUploadAttributes(data)
   });
-
-  static getCreateAttributes = (source = {}) => {
-    if (!Object.keys(source).length) {
-      return {};
-    }
-
-    const target = {};
-
-    target._parentAtt = 'icase:documents';
-
-    if (source.record) {
-      target._parent = source.record;
-    }
-
-    if (source.type) {
-      target._etype = source.type;
-    }
-
-    if (source.files) {
-      target._content = source.files;
-    }
-
-    return target;
-  };
 
   static getUploadAttributes = (source = {}) => {
     if (!Object.keys(source).length) {
@@ -218,12 +198,10 @@ export default class DocumentsConverter {
     }
 
     const target = {};
+    const createVariants = get(source, 'createVariants', {});
 
-    target._parentAtt = get(source, '_parentAtt', 'icase:documents');
-
-    if (source._parent || source.record) {
-      target._parent = source._parent || source.record;
-    }
+    target._parentAtt = get(createVariants, 'attributes._parentAtt', 'icase:documents');
+    target._parent = source.record;
 
     if (source._etype || source.type) {
       target._etype = source._etype || source.type;

@@ -10,6 +10,7 @@ import {
   EditAction,
   MoveToLinesJournal,
   OpenURL,
+  PreviewModal,
   SaveAsCaseTemplate,
   UploadNewVersion,
   ViewAction,
@@ -35,6 +36,7 @@ Registry.addExecutors({
   [DefaultActionTypes.UPLOAD_NEW_VERSION]: UploadNewVersion,
   [DefaultActionTypes.ASSOC_ACTION]: AssocAction,
   [DefaultActionTypes.VIEW_CARD_TEMPLATE]: ViewCardTemplate,
+  [DefaultActionTypes.PREVIEW]: PreviewModal,
 
   //legacy case actions
 

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import isEqual from 'lodash/isEqual';
 import debounce from 'lodash/debounce';
 
 import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, TAB_ALL_USERS, TAB_BY_LEVELS, TAB_ONLY_SELECTED } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
+import { usePrevious } from '../../../../hooks/usePrevious';
 
 export const SelectOrgstructContext = React.createContext();
 
@@ -39,6 +41,7 @@ export const SelectOrgstructProvider = props => {
     [TAB_ALL_USERS]: [],
     [TAB_ONLY_SELECTED]: []
   });
+  const prevDefaultValue = usePrevious(defaultValue);
 
   const onSubmitSearchForm = () => {
     setIsRootGroupsFetched(false);
@@ -106,6 +109,15 @@ export const SelectOrgstructProvider = props => {
     }
   }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab]);
 
+  // reset isSelectedFetched if new previewValue
+  useEffect(() => {
+    if (isEqual(prevDefaultValue, defaultValue)) {
+      return;
+    }
+
+    setIsSelectedFetched(false);
+  }, [defaultValue]);
+
   // set default value
   useEffect(() => {
     if (isSelectedFetched) {
@@ -123,6 +135,8 @@ export const SelectOrgstructProvider = props => {
       initValue = defaultValue.length > 0 ? [defaultValue[0]] : [];
     } else if (!multiple && !!defaultValue) {
       initValue = [defaultValue];
+    } else {
+      initValue = [];
     }
 
     if (Array.isArray(initValue)) {

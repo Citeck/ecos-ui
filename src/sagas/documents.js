@@ -2,7 +2,10 @@ import { delay } from 'redux-saga';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
+
+import { NotificationManager } from 'react-notifications';
 
 import {
   selectAvailableTypes,
@@ -10,7 +13,9 @@ import {
   selectDynamicType,
   selectDynamicTypes,
   selectIsLoadChecklist,
-  selectTypeNames
+  selectTypeNames,
+  selectTypeById,
+  selectActionsByType
 } from '../selectors/documents';
 import {
   execRecordsAction,
@@ -33,10 +38,10 @@ import {
   uploadFilesFinally
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
-import { deepClone } from '../helpers/util';
+import { deepClone, getFirstNonEmpty, t } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
 import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
-import { documentActions } from '../constants/documents';
+import { DEFAULT_REF, documentActions } from '../constants/documents';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
@@ -184,8 +189,9 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes }));
 
     if (documents.length) {
+      const typeActions = yield select(state => selectActionsByType(state, payload.key, payload.type));
       const actions = yield RecordActions.getActions(documents.map(item => item.id), {
-        actions: documentActions
+        actions: getFirstNonEmpty([typeActions, documentActions], [])
       });
 
       yield put(setActions({ key: payload.key, actions }));
@@ -247,8 +253,11 @@ function* sagaUpdateVersion({ api, logger }, { payload }) {
       handleProgress: payload.callback
     });
     yield put(getDocumentsByType({ ...payload, delay: 0 }));
+
+    NotificationManager.success(t('documents-widget.notification.update.success'));
   } catch (e) {
     logger.error('[documents sagaUpdateVerion saga error]', e.message);
+    NotificationManager.error(t('documents-widget.notification.update.error'));
   }
 }
 
@@ -280,8 +289,9 @@ function* uploadFile({ api, file, callback }) {
 function* formManager({ api, payload, files }) {
   try {
     const createVariants = yield call(api.documents.getCreateVariants, payload.type);
+    const type = yield select(state => selectTypeById(state, payload.key, payload.type));
 
-    if (createVariants === null) {
+    if (isEmpty(createVariants)) {
       payload.openForm(
         DocumentsConverter.getDataToCreate({
           ...payload.type,
@@ -293,20 +303,15 @@ function* formManager({ api, payload, files }) {
       return;
     }
 
-    if (!createVariants.formRef) {
-      createVariants.formRef = payload.type.formId;
-    }
-
-    createVariants.attributes = {
-      ...DocumentsConverter.getCreateAttributes({
+    payload.openForm(
+      DocumentsConverter.getDataToCreate({
         record: payload.record,
         type: payload.type,
-        files
-      }),
-      ...createVariants.attributes
-    };
-
-    payload.openForm(createVariants);
+        formId: type.formId,
+        files,
+        createVariants
+      })
+    );
   } catch (e) {
     console.error('[documents formManager error]', e.message);
 
@@ -335,7 +340,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     /**
      * open form manager
      */
-    if (type.formId && payload.openForm) {
+    if ((type.formId || (createVariants != null && createVariants.formRef)) && payload.openForm) {
       yield* formManager({ api, payload, files });
 
       return;
@@ -348,15 +353,23 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
           record: payload.record,
           type: payload.type,
           content: file,
-          ...get(createVariants, 'attributes', {})
-        })
+          createVariants
+        }),
+        get(createVariants, 'recordRef', DEFAULT_REF)
       );
     });
 
     yield put(getDocumentsByType({ ...payload, delay: 0 }));
+
+    NotificationManager.success(
+      t(payload.files.length > 1 ? 'documents-widget.notification.add-many.success' : 'documents-widget.notification.add-one.success')
+    );
   } catch (e) {
     yield put(setUploadError({ ...payload, message: e.message }));
     logger.error('[documents sagaUploadFiles saga error', e.message);
+    NotificationManager.error(
+      t(payload.files.length > 1 ? 'documents-widget.notification.add-many.error' : 'documents-widget.notification.add-one.error')
+    );
   } finally {
     yield put(uploadFilesFinally(payload.key));
   }
