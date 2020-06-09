@@ -1,6 +1,7 @@
 import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import * as queryString from 'query-string';
 
 import {
   createPrintUrl,
@@ -24,6 +25,14 @@ const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordina
 
 const globalTaskPatterns = [/active-tasks/, /completed-tasks/, /controlled/, /subordinate-tasks/, /task-statistic/, /initiator-tasks/];
 
+function notifySuccess(msg) {
+  NotificationManager.success(msg || t('record-action.msg.success.text'), t('record-action.msg.success.title'));
+}
+
+function notifyFailure(msg) {
+  NotificationManager.error(msg || t('record-action.msg.error.text'), t('record-action.msg.error.title'), 5000);
+}
+
 export const DefaultActionTypes = {
   CREATE: 'create',
   EDIT: 'edit',
@@ -38,7 +47,8 @@ export const DefaultActionTypes = {
   UPLOAD_NEW_VERSION: 'upload-new-version',
   ASSOC_ACTION: 'assoc-action',
   SAVE_AS_CASE_TEMPLATE: 'save-as-case-template',
-  PREVIEW_MODAL: 'content-preview-modal'
+  PREVIEW_MODAL: 'content-preview-modal',
+  FETCH: 'fetch'
 };
 
 export const EditAction = {
@@ -472,7 +482,7 @@ export const AssocAction = {
       .load(assoc, true)
       .then(result => {
         if (!result) {
-          NotificationManager.error(t('record-action.assoc-action.not-found'), t('error'));
+          notifyFailure(t('record-action.assoc-action.not-found'));
           return;
         }
 
@@ -545,5 +555,29 @@ export const PreviewModal = {
     name: 'record-action.name.preview',
     type: DefaultActionTypes.PREVIEW_MODAL,
     icon: 'icon-preview'
+  })
+};
+
+export const FetchAction = {
+  execute: ({ action: { config } }) => {
+    const { url, args, ...options } = config || {};
+    const fullUrl = `${url}?${queryString.stringify({ ...args })}`;
+
+    return ecosFetch(fullUrl, options)
+      .then(response => (response.ok ? response.json() : Promise.reject({ message: response.statusText })))
+      .then(result => {
+        notifySuccess();
+        return result;
+      })
+      .catch(e => {
+        notifyFailure();
+        dialogManager.showInfoDialog({ title: t('error'), text: e.message });
+      });
+  },
+
+  getDefaultModel: () => ({
+    name: 'record-action.name.fetch-action',
+    type: DefaultActionTypes.FETCH,
+    icon: 'icon-right'
   })
 };

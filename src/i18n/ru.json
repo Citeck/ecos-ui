@@ -320,6 +320,24 @@
   "filter-list.filter-group-add": "Добавить",
   "filter-list.panel-header": "Фильтрация",
 
+  "record-action.msg.confirm.title": "Подтверждение действия",
+  "record-action.msg.info.title": "Информация",
+  "record-action.msg.error.title": "Ошибка",
+  "record-action.msg.error.text": "Действие не выполнено",
+  "record-action.msg.success.title": "Успех",
+  "record-action.msg.success.text": "Действие выполнено",
+
+  "action.edit.label": "Редактировать",
+  "action.view.label": "Просмотреть",
+  "action.delete.label": "Удалить",
+  "action.download.label": "Скачать",
+  "action.move-to-lines.label": "Перейти к строкам",
+  "action.record-actions.label": "Серверные действия",
+
+  "userActions.contract.property.addApprover": "Добавить дополнительного согласующего",
+  "userActions.contract.property.approvalCancelation": "Отмена согласования",
+  "userActions.contract.property.delete": "Удалить",
+
   "record-action.name.delete": "Удалить",
   "record-action.delete.dialog.title.remove-many": "Удаление записей",
   "record-action.delete.dialog.title.remove-one": "Удаление записи",
@@ -327,10 +345,6 @@
   "record-action.delete.dialog.msg.remove-one": "Вы действительно хотите удалить эту запись?",
   "record-action.delete.dialog.title.error": "Ошибка",
   "record-action.delete.dialog.msg.error": "Произошла ошибка при удалении",
-
-  "record-action.msg.confirm.title": "Предупреждение",
-  "record-action.msg.error.title": "Ошибка",
-  "record-action.msg.info.title": "Информация",
 
   "record-action.name.details": "Детальная информация",
   "record-action.name.download": "Скачать",
@@ -350,8 +364,8 @@
   "record-action.upload-new-version.error.no-record": "Запись не найдена",
 
   "record-action.name.save-as-case-template": "Сохранить как шаблон",
-
   "record-action.name.preview": "Предпросмотр",
+  "record-action.name.fetch-action": "Выполнить действие",
 
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.inline-tools.details": "Детальная информация",
@@ -820,22 +834,12 @@
   "web-page-widget.btn.update": "Обновить",
   "web-page-widget.error": "Ошибка",
   "web-page-widget.error-server-not-found": "Сервер не найден.",
-  "action.confirm.title": "Подтверждение действия",
-  "action.result.success": "Действие успешно выполнено",
-  "action.result.error": "Во время выполнения действия произошла ошибка",
-  "userActions.contract.property.addApprover": "Добавить дополнительного согласующего",
-  "userActions.contract.property.approvalCancelation": "Отмена согласования",
-  "userActions.contract.property.delete": "Удалить",
+
   "birthdays-widget.title": "Дни рождения",
   "birthdays-widget.error.default-message": "Ошибка загрузки дней рождений",
   "birthdays-widget.btn.go-to-profile": "Перейти в профиль",
   "birthdays-widget.btn.try-one-more-time": "Попробовать еще раз",
-  "action.edit.label": "Редактировать",
-  "action.view.label": "Просмотреть",
-  "action.delete.label": "Удалить",
-  "action.download.label": "Скачать",
-  "action.move-to-lines.label": "Перейти к строкам",
-  "action.record-actions.label": "Серверные действия",
+
   "barcode-widget.saga.error1": "Ошибка получения штрих-кода",
   "barcode-widget.saga.error2": "Ошибка печати штрих-кода",
   "barcode-widget.btn.print": "Распечатать",

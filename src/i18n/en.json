@@ -320,6 +320,24 @@
   "filter-list.filter-group-add": "Add",
   "filter-list.panel-header": "Filter",
 
+  "record-action.msg.confirm.title": "Action confirmation",
+  "record-action.msg.info.title": "Information",
+  "record-action.msg.error.title": "Action error",
+  "record-action.msg.error.text": "Action's failed",
+  "record-action.msg.success.title": "Action success",
+  "record-action.msg.success.text": "Action's completed",
+
+  "action.edit.label": "Edit",
+  "action.view.label": "View",
+  "action.delete.label": "Delete",
+  "action.download.label": "Download",
+  "action.move-to-lines.label": "Go to lines",
+  "action.record-actions.label": "Server actions",
+
+  "userActions.contract.property.addApprover": "Add approver",
+  "userActions.contract.property.approvalCancelation": "Approval cancellation",
+  "userActions.contract.property.delete": "Delete",
+
   "record-action.name.delete": "Delete",
   "record-action.delete.dialog.title.remove-many": "Delete records",
   "record-action.delete.dialog.title.remove-one": "Delete record",
@@ -327,10 +345,6 @@
   "record-action.delete.dialog.msg.remove-one": "Do you really want to delete the record?",
   "record-action.delete.dialog.title.error": "Error",
   "record-action.delete.dialog.msg.error": "An error occurred while deleting",
-
-  "record-action.msg.confirm.title": "Confirmation",
-  "record-action.msg.error.title": "Action error",
-  "record-action.msg.info.title": "Information",
 
   "record-action.name.details": "Details",
   "record-action.name.download": "Download",
@@ -350,8 +364,8 @@
   "record-action.upload-new-version.error.no-record": "No record",
 
   "record-action.name.save-as-case-template": "Save as template",
-
   "record-action.name.preview": "Preview",
+  "record-action.name.fetch-action": "Perform the remote action",
 
   "grid.inline-tools.details": "Details",
   "grid.no-data-indication": "No items in the list",
@@ -816,22 +830,12 @@
   "web-page-widget.btn.update": "Update",
   "web-page-widget.error": "Error",
   "web-page-widget.error-server-not-found": "Server not found.",
-  "action.confirm.title": "Confirmation",
-  "action.result.success": "Action success",
-  "action.result.error": "Action error",
-  "userActions.contract.property.addApprover": "Add approver",
-  "userActions.contract.property.approvalCancelation": "Approval cancellation",
-  "userActions.contract.property.delete": "Delete",
+
   "birthdays-widget.title": "Birthdays",
   "birthdays-widget.error.default-message": "Error loading birthdays",
   "birthdays-widget.btn.go-to-profile": "Go to profile",
   "birthdays-widget.btn.try-one-more-time": "To try one more time",
-  "action.edit.label": "Edit",
-  "action.view.label": "View",
-  "action.delete.label": "Delete",
-  "action.download.label": "Download",
-  "action.move-to-lines.label": "Go to lines",
-  "action.record-actions.label": "Server actions",
+
   "barcode-widget.saga.error1": "Error. Failure to fetch data",
   "barcode-widget.saga.error2": "Error. Unable to print",
   "barcode-widget.btn.print": "Print",
