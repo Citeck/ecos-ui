@@ -46,14 +46,14 @@ export const CaseRequestAction = {
         })
         .then(() => {
           dialogManager.showInfoDialog({
-            title: t('action.result.success'),
-            text: t('action.result.success'),
+            title: t('record-action.msg.success.title'),
+            text: t('record-action.msg.success.text'),
             onClose: () => onRequestResult(true)
           });
         })
         .catch(e => {
           dialogManager.showInfoDialog({
-            title: t('action.result.error'),
+            title: t('record-action.msg.error.title'),
             text: e.message,
             onClose: () => onRequestResult(false)
           });
@@ -62,7 +62,7 @@ export const CaseRequestAction = {
 
     if (action.config.confirmationMessage) {
       dialogManager.confirmDialog({
-        title: t('action.confirm.title'),
+        title: t('record-action.msg.confirm.title'),
         text: t(action.config.confirmationMessage),
         onNo: () => onRequestResult(false),
         onYes: makeRequest
