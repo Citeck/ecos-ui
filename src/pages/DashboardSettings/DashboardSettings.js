@@ -223,12 +223,11 @@ class DashboardSettings extends React.Component {
 
   fetchData(props = this.props) {
     const { initDashboardSettings, initMenuSettings } = props;
+    const { recordRef, dashboardId } = this.getPathInfo();
 
     if (!dashboardId || !pageTabList.isActiveTab(props.tabId)) {
       return;
     }
-
-    const { recordRef, dashboardId } = this.getPathInfo();
 
     initDashboardSettings({ recordRef, dashboardId });
     initMenuSettings();
