@@ -56,8 +56,6 @@ export const RequestStatuses = {
   FAILURE: 'FAILURE'
 };
 
-export const DASHBOARD_DEFAULT_KEY = 'DEFAULT';
-
 export const MIN_WIDTH_DASHLET_SMALL = 290;
 export const MIN_WIDTH_DASHLET_LARGE = 593;
 

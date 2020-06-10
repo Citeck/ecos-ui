@@ -8,6 +8,7 @@ import { DashboardTypes } from '../constants/dashboard';
 import Components from '../components/widgets/Components';
 import Records from '../components/Records';
 import { RecordService } from './recordService';
+import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
   config: 'config?json',
@@ -121,26 +122,32 @@ export class DashboardApi extends RecordService {
     );
   };
 
-  getDashboardByRecordRef = function*(recordRef) {
-    let { recType } = recordRef ? yield Records.get(recordRef).load({ recType: '_etype?id' }) : {};
+  getDashboardByRecordRef = recordRef => {
+    const _getDashboardByUserAndType = this.getDashboardByUserAndType;
 
-    if (!recType) {
-      recType = recordRef ? EmodelTypes.BASE : EmodelTypes.USER_DASHBOARD;
+    function* getDashboard() {
+      let { recType } = recordRef ? yield Records.get(recordRef).load({ recType: '_etype?id' }) : {};
+
+      if (!recType) {
+        recType = recordRef ? EmodelTypes.BASE : EmodelTypes.USER_DASHBOARD;
+      }
+
+      const user = getCurrentUserName();
+      const cacheKey = DashboardService.getCacheKey({ type: recType, user });
+      const result = cache.get(cacheKey);
+
+      if (result) {
+        return result;
+      }
+
+      const dashboard = yield _getDashboardByUserAndType(user, recType);
+
+      cache.set(cacheKey, dashboard);
+
+      return dashboard;
     }
 
-    const user = getCurrentUserName();
-    const cacheKey = `${recType}|${user}`;
-    const result = cache.get(cacheKey);
-
-    if (result) {
-      return result;
-    }
-
-    const dashboard = yield this.getDashboardByUserAndType(user, recType);
-
-    cache.set(cacheKey, dashboard);
-
-    return dashboard;
+    return getDashboard();
   };
 
   getTitleInfo = function*(recordRef = '') {
@@ -226,9 +233,8 @@ export class DashboardApi extends RecordService {
     });
   };
 
-  removeDashboard = ({ id, recordRef }) => {
-    // const _id = `${recordRef ? EmodelTypes.BASE : EmodelTypes.USER_DASHBOARD}@${id}`;
-    const _id = `${SourcesId.DASHBOARD}@${id}`; //todo ?????
+  removeDashboard = ({ id }) => {
+    const _id = `${SourcesId.DASHBOARD}@${id}`;
 
     return Records.remove([_id])
       .then(() => true)

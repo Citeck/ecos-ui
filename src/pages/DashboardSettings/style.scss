@@ -34,6 +34,12 @@
   }
 
   &__bindings {
+    &-owner {
+      display: flex;
+      align-items: center;
+      margin-top: 25px;
+    }
+
     &-types {
       display: flex;
       align-items: center;
@@ -52,10 +58,6 @@
       &-menu {
         min-width: 100%;
       }
-    }
-
-    &-owner {
-      margin-bottom: 25px;
     }
 
     &-description {
@@ -117,7 +119,7 @@
       font-size: $font-size-large;
       line-height: 22px;
       color: $text-color-gray;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
 
     &-subtitle {

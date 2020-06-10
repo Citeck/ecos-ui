@@ -180,8 +180,9 @@ class DashboardSettings extends React.Component {
     }
 
     if (urlParams !== newUrlParams) {
-      this.setState({ urlParams: newUrlParams });
-      this.fetchData(nextProps);
+      this.setState({ urlParams: newUrlParams }, () => {
+        this.fetchData(nextProps);
+      });
     }
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
@@ -223,11 +224,11 @@ class DashboardSettings extends React.Component {
   fetchData(props = this.props) {
     const { initDashboardSettings, initMenuSettings } = props;
 
-    if (!pageTabList.isActiveTab(props.tabId)) {
+    if (!dashboardId || !pageTabList.isActiveTab(props.tabId)) {
       return;
     }
 
-    const { recordRef, dashboardId } = this.getPathInfo(props);
+    const { recordRef, dashboardId } = this.getPathInfo();
 
     initDashboardSettings({ recordRef, dashboardId });
     initMenuSettings();
@@ -337,12 +338,8 @@ class DashboardSettings extends React.Component {
     removeItems(removedWidgets.map(id => UserLocalSettingsService.getDashletKey(id)));
   };
 
-  getPathInfo(props = this.props) {
-    const {
-      location: { search }
-    } = props;
-
-    return queryString.parse(search);
+  getPathInfo() {
+    return queryString.parse(this.state.urlParams);
   }
 
   getUrlToDashboard() {
@@ -422,7 +419,7 @@ class DashboardSettings extends React.Component {
   }
 
   renderOwnershipBlock() {
-    const { dashboardKeyItems, userData, resetConfigToDefault } = this.props;
+    const { dashboardKeyItems, userData, resetConfigToDefault, isDefaultConfig } = this.props;
     const { selectedDashboardKey, isForAllUsers } = this.state;
     const { recordRef } = this.getPathInfo();
 
@@ -441,6 +438,7 @@ class DashboardSettings extends React.Component {
           selectedDashboardKey={selectedDashboardKey}
           isAdmin={userData.isAdmin}
           isForAllUsers={isForAllUsers}
+          isDefaultConfig={isDefaultConfig}
           setData={setData}
           resetConfig={reset}
         />
