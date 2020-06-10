@@ -7,6 +7,7 @@ import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import TasksConverter from '../dto/tasks';
 import TasksService from '../services/tasks';
+import Records from '../components/Records';
 
 function* sagaGetTasks({ api, logger }, { payload }) {
   try {
@@ -55,11 +56,13 @@ function* sagaChangeTaskAssigneeFromPanel({ api, logger }, { payload }) {
     const { taskId, ownerUserName, actionOfAssignment } = payload;
     const save = yield call(api.tasks.changeAssigneeTask, { taskId, action: actionOfAssignment, owner: ownerUserName });
 
-    console.warn({ save });
-
     if (!save) {
       NotificationManager.warning(t('tasks-widget.saga.error3'));
     }
+
+    const documentRef = yield call(api.tasks.getDocumentByTaskId, taskId);
+
+    yield Records.get([documentRef]).forEach(r => r.update());
   } catch (e) {
     NotificationManager.warning(t('tasks-widget.saga.error3'));
     logger.error('[tasks/sagaChangeTaskAssigneeFromPanel saga] error', e.message);

@@ -77,4 +77,10 @@ export class TasksApi extends RecordService {
       .then(() => true)
       .catch(console.error);
   };
+
+  getDocumentByTaskId = taskId => {
+    return Records.get(taskId)
+      .load('document?id')
+      .then(res => res);
+  };
 }
