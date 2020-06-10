@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import { t } from '../../helpers/util';
 import { Checkbox, Dropdown } from '../../components/common/form';
 import { Btn } from '../../components/common/btns';

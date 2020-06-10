@@ -237,7 +237,10 @@ export class DashboardApi extends RecordService {
     const _id = `${SourcesId.DASHBOARD}@${id}`;
 
     return Records.remove([_id])
-      .then(() => true)
+      .then(() => {
+        cache.clear();
+        return true;
+      })
       .catch(() => false);
   };
 

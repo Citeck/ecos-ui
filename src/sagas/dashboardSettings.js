@@ -172,8 +172,6 @@ function* doResetConfigToDefault({ api, logger }, { payload }) {
     const isRemoved = yield call(api.dashboard.removeDashboard, { id: identification.id, recordRef });
 
     if (isRemoved) {
-      yield call(api.dashboard.deleteFromCache, [DashboardService.getCacheKey({ type: identification.key, user: identification.user })]);
-
       const result = yield call(api.dashboard.getDashboardByRecordRef, recordRef);
       const dashboardId = result.id;
 

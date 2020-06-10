@@ -11,7 +11,8 @@ import find from 'lodash/find';
 
 import { clearCache } from '../../components/ReactRouterCache';
 import { arrayCompare, deepClone, documentScrollTop, t } from '../../helpers/util';
-import { getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
+import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
+import { removeItems } from '../../helpers/ls';
 import { MENU_TYPE, RequestStatuses, URL } from '../../constants';
 import { DashboardTypes, DeviceTabs, MenuTypes } from '../../constants/dashboard';
 import { LAYOUT_TYPE, Layouts } from '../../constants/layout';
@@ -31,7 +32,6 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { TunableDialog } from '../../components/common/dialogs';
-import { removeItems } from '../../helpers/ls';
 
 import SetBind from './SetBind';
 import SetTabs from './SetTabs';
@@ -179,7 +179,7 @@ class DashboardSettings extends React.Component {
       return;
     }
 
-    if (urlParams !== newUrlParams) {
+    if (decodeLink(urlParams) !== decodeLink(newUrlParams)) {
       this.setState({ urlParams: newUrlParams }, () => {
         this.fetchData(nextProps);
       });
@@ -338,7 +338,7 @@ class DashboardSettings extends React.Component {
   };
 
   getPathInfo() {
-    return queryString.parse(this.state.urlParams);
+    return queryString.parse(decodeLink(this.state.urlParams));
   }
 
   getUrlToDashboard() {
