@@ -153,7 +153,6 @@ export default class DocumentsConverter {
       const target = {};
 
       target.type = get(item, 'type', '');
-      target.formId = get(item, 'formId', '');
       target.multiple = get(item, 'multiple', false);
       target.mandatory = get(item, 'mandatory', false);
 
@@ -167,6 +166,8 @@ export default class DocumentsConverter {
 
     return user.reduce((result, current) => {
       const index = result.findIndex(item => item.type === current.type);
+
+      current.formId = null;
 
       if (~index) {
         if (result[index].multiple !== current.multiple) {
