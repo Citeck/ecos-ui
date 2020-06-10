@@ -20,7 +20,7 @@ const CreateVariants = () => {
   }
 
   const buttonClasses = classNames('ecos-btn_blue', {
-    'ecos-btn_narrow': true //isCompact
+    'ecos-btn_narrow': true
   });
 
   let createButton = null;
@@ -42,7 +42,7 @@ const CreateVariants = () => {
   }
 
   if (variantsToRender.length > 0) {
-    if (variantsToRender.length === 1) {
+    if (isButtonDisabled || variantsToRender.length === 1) {
       const onClick = () => {
         showCreateForm(variantsToRender[0]);
       };
@@ -59,12 +59,7 @@ const CreateVariants = () => {
 
       createButton = (
         <Dropdown source={variantsToRender} valueField={'createVariantKey'} titleField={'label'} isStatic onChange={onSelect}>
-          <IcoBtn
-            invert
-            icon="icon-down"
-            className={classNames('btn_drop-down btn_r_8 btn_blue', buttonClasses)}
-            disabled={isButtonDisabled}
-          >
+          <IcoBtn invert icon="icon-down" className={classNames('btn_drop-down btn_r_8 btn_blue', buttonClasses)}>
             {t('ecos-table-form.create-button')}
           </IcoBtn>
         </Dropdown>
