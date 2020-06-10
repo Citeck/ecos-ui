@@ -12,13 +12,15 @@ import {
   setAssociations,
   setError,
   setMenu,
-  setSectionList
+  setSectionList,
+  viewAssociation
 } from '../actions/docAssociations';
-import DocAssociationsConverter from '../dto/docAssociations';
-import { DIRECTIONS } from '../constants/docAssociations';
 import { selectAllowedDirectionsByKey, selectAssocByAssocName, selectAssociationColumnsConfig } from '../selectors/docAssociations';
-import Records from '../components/Records';
+import DocAssociationsConverter from '../dto/docAssociations';
 import { t } from '../helpers/util';
+import { DIRECTIONS } from '../constants/docAssociations';
+import Records from '../components/Records';
+import { DefaultActionTypes } from '../components/Records/actions';
 
 function* sagaGetSectionList({ api, logger }, { payload }) {
   try {
@@ -203,12 +205,25 @@ function* sagaRemoveAssociations({ api, logger }, { payload }) {
   }
 }
 
+function* sagaViewAssociation({ api, logger }, { payload }) {
+  try {
+    yield call(api.recordActions.executeAction, {
+      records: payload,
+      action: { type: DefaultActionTypes.VIEW }
+    });
+  } catch (e) {
+    NotificationManager.error(t('doc-associations-widget.view-association.error.message'), t('error'));
+    logger.error('[docAssociations sagaGetSectionList saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(getSectionList().type, sagaGetSectionList, ea);
   yield takeEvery(getAssociations().type, sagaGetAssociations, ea);
   yield takeEvery(getMenu().type, sagaGetMenu, ea);
   yield takeEvery(addAssociations().type, sagaAddAssociations, ea);
   yield takeEvery(removeAssociations().type, sagaRemoveAssociations, ea);
+  yield takeEvery(viewAssociation().type, sagaViewAssociation, ea);
 }
 
 export default saga;
