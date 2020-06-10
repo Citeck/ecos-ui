@@ -52,13 +52,27 @@ export const DefaultActionTypes = {
 };
 
 export const EditAction = {
-  disabledFor: [/task-statistic/, /completed-tasks/],
+  execute: ({ record, action: { config = {} } }) => {
+    if (config.mode === 'task') {
+      return record.load('cm:name?str').then(taskId => {
+        if (!taskId) {
+          console.error('Task ID is not found for record', record);
+          return false;
+        }
+        const taskRecordId = 'wftask@' + taskId;
 
-  execute: ({ record, action: { context } }) => {
-    if (globalTasks.indexOf(context.scope) > -1) {
-      const name = record.att('cm:name?disp') || '';
-      window.open(`${URL_PAGECONTEXT}task-edit?taskId=${name}&formMode=edit`, '_blank');
-      return false;
+        return new Promise(resolve => {
+          EcosFormUtils.editRecord({
+            recordRef: taskRecordId,
+            fallback: () => {
+              window.open(`${URL_PAGECONTEXT}task-edit?taskId=${taskId}&formMode=edit`, '_blank');
+              resolve(false);
+            },
+            onSubmit: () => resolve(true),
+            onCancel: () => resolve(false)
+          });
+        });
+      });
     }
 
     return new Promise(resolve => {
@@ -77,35 +91,50 @@ export const EditAction = {
       type: DefaultActionTypes.EDIT,
       icon: 'icon-edit'
     };
-  },
-
-  canBeExecuted: ({ context }) => {
-    const { scope = '' } = context;
-    for (let pattern of EditAction.disabledFor) {
-      if (pattern.test(scope)) {
-        return false;
-      }
-    }
-    return true;
   }
+};
+
+const goToTaskView = (task, inBackground) => {
+  let taskRecord = Records.get(task);
+
+  taskRecord.load('wfm:document?id').then(docId => {
+    if (docId) {
+      goToCardDetailsPage(docId, { openInBackground: inBackground });
+    } else {
+      taskRecord.load('cm:name?str').then(taskId => {
+        if (!taskId) {
+          console.error('Task Id is not found!');
+          return;
+        }
+        let taskRecordId = 'wftask@' + taskId;
+        Records.get(taskRecordId)
+          .load('workflow?id')
+          .then(workflowId => {
+            if (workflowId) {
+              goToCardDetailsPage(workflowId, { openInBackground: inBackground });
+            } else {
+              goToCardDetailsPage(taskRecordId, { openInBackground: inBackground });
+            }
+          });
+      });
+    }
+  });
 };
 
 export const ViewAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record, action: { config = {}, context = {} } }) => {
+  execute: ({ record, action: { config = {} } }) => {
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
         .then(docId => (docId ? goToCardDetailsPage(docId) : ''));
       return false;
-    }
-
-    if (globalTasks.indexOf(context.scope) > -1) {
-      const name = record.att('cm:name?disp') || '';
-      window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
+    } else if (config.viewType === 'view-task') {
+      goToTaskView(record.id, false);
       return false;
     }
+
     goToCardDetailsPage(record.id);
     return false;
   },
@@ -160,11 +189,9 @@ export const BackgroundOpenAction = {
 
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record, action: { context } }) => {
-    if (globalTasks.indexOf(context.scope) > -1) {
-      const name = record.att('cm:name?disp') || '';
-
-      window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
+  execute: ({ record, action: { context, config = {} } }) => {
+    if (config.viewType === 'view-task') {
+      goToTaskView(record.id, true);
       return false;
     }
 
@@ -286,7 +313,7 @@ export const DownloadAction = {
 };
 
 export const DeleteAction = {
-  disabledFor: [/^event-lines.*/, ...globalTaskPatterns],
+  disabledFor: [/^event-lines.*/],
 
   groupExec: ({ records }) => {
     return new Promise(resolve => {
