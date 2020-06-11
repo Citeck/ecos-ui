@@ -13,7 +13,7 @@ import {
 } from '../../../helpers/urls';
 import { getTimezoneValue, t } from '../../../helpers/util';
 import ecosFetch from '../../../helpers/ecosFetch';
-import { ActionModes } from '../../../constants';
+import { ActionModes, SourcesId } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import WidgetService from '../../../services/WidgetService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
@@ -21,7 +21,18 @@ import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 import RecordActions from './RecordActions';
 
-const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
+const globalTasks = [
+  'active-tasks',
+  'completed-tasks',
+  'controlled',
+  'subordinate-tasks',
+  'task-statistic',
+  'initiator-tasks',
+  'income-package-tasks',
+  'income-package-tasks-finance',
+  'income-package-tasks-inmarko',
+  'ptp-active-tasks'
+];
 
 const globalTaskPatterns = [/active-tasks/, /completed-tasks/, /controlled/, /subordinate-tasks/, /task-statistic/, /initiator-tasks/];
 
@@ -98,15 +109,17 @@ export const ViewAction = {
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
-        .then(docId => (docId ? goToCardDetailsPage(docId) : ''));
+        .then(docId => (docId ? goToCardDetailsPage(docId) : notifyFailure()));
+      return false;
+    }
+    //todo it is not needed in dev; https://citeck.atlassian.net/browse/ECOSUI-158
+    if (globalTasks.includes(context.scope)) {
+      Records.get(record.id)
+        .load('cm:name?str')
+        .then(taskId => (taskId ? goToCardDetailsPage(`${SourcesId.TASK}@${taskId}`) : notifyFailure()));
       return false;
     }
 
-    if (globalTasks.indexOf(context.scope) > -1) {
-      const name = record.att('cm:name?disp') || '';
-      window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
-      return false;
-    }
     goToCardDetailsPage(record.id);
     return false;
   },
@@ -162,10 +175,11 @@ export const BackgroundOpenAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
   execute: ({ record, action: { context } }) => {
-    if (globalTasks.indexOf(context.scope) > -1) {
-      const name = record.att('cm:name?disp') || '';
-
-      window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
+    //todo it is not needed in dev; https://citeck.atlassian.net/browse/ECOSUI-158
+    if (globalTasks.includes(context.scope)) {
+      Records.get(record.id)
+        .load('cm:name?str')
+        .then(taskId => (taskId ? goToCardDetailsPage(`${SourcesId.TASK}@${taskId}`, { openInBackground: true }) : notifyFailure()));
       return false;
     }
 
