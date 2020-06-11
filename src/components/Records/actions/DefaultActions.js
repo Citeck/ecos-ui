@@ -21,7 +21,18 @@ import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 import RecordActions from './RecordActions';
 
-const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
+const globalTasks = [
+  'active-tasks',
+  'completed-tasks',
+  'controlled',
+  'subordinate-tasks',
+  'task-statistic',
+  'initiator-tasks',
+  'income-package-tasks',
+  'income-package-tasks-finance',
+  'income-package-tasks-inmarko',
+  'ptp-active-tasks'
+];
 
 const globalTaskPatterns = [/active-tasks/, /completed-tasks/, /controlled/, /subordinate-tasks/, /task-statistic/, /initiator-tasks/];
 
@@ -129,7 +140,7 @@ export const ViewAction = {
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
-        .then(docId => (docId ? goToCardDetailsPage(docId) : ''));
+        .then(docId => (docId ? goToCardDetailsPage(docId) : notifyFailure()));
       return false;
     } else if (config.viewType === 'view-task') {
       goToTaskView(record.id, false);
