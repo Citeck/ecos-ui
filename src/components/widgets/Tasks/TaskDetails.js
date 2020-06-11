@@ -8,7 +8,6 @@ import EcosForm from '../../EcosForm/index';
 import { Headline } from '../../common/form/index';
 import { Grid } from '../../common/grid/index';
 import { DisplayedColumns, TaskPropTypes } from './utils';
-// import AssignmentPanel from './AssignmentPanel';
 import TaskAssignmentPanel from '../../TaskAssignmentPanel';
 
 import './style.scss';
@@ -75,15 +74,14 @@ class TaskDetails extends React.Component {
     return (
       <TaskAssignmentPanel
         narrow
-        wrapperClassName={classNames({
+        wrapperClassName={classNames('ecos-task__assign-btn__wrapper', {
           'ecos-task__assign-btn__wrapper_small-mode': isSmallMode
         })}
-        className={classNames({
+        className={classNames('ecos-task__assign-btn ecos-btn_brown2', {
           'ecos-task__assign-btn_small-mode': isSmallMode
         })}
         stateAssign={details.stateAssign}
         onClick={res => {
-          console.warn(res);
           onAssignClick({ taskId: details.id, ...res });
         }}
       />

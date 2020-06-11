@@ -43,8 +43,10 @@ function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
 
     const updatedFields = yield call(api.tasks.getTaskStateAssign, { taskId });
     const data = yield TasksService.updateList({ stateId, taskId, updatedFields, ownerUserName });
+    const documentRef = yield call(api.tasks.getDocumentByTaskId, taskId);
 
     yield put(setTaskAssignee({ stateId, ...data }));
+    yield Records.get(documentRef).update();
   } catch (e) {
     yield put(setNotificationMessage(t('tasks-widget.saga.error2')));
     logger.error('[tasks/sagaChangeAssigneeTask saga] error', e.message);
@@ -62,10 +64,14 @@ function* sagaChangeTaskAssigneeFromPanel({ api, logger }, { payload }) {
 
     const documentRef = yield call(api.tasks.getDocumentByTaskId, taskId);
 
-    yield Records.get([documentRef]).forEach(r => r.update());
+    yield Records.get(documentRef).update();
   } catch (e) {
     NotificationManager.warning(t('tasks-widget.saga.error3'));
     logger.error('[tasks/sagaChangeTaskAssigneeFromPanel saga] error', e.message);
+  } finally {
+    if (typeof payload.callback === 'function') {
+      payload.callback();
+    }
   }
 }
 

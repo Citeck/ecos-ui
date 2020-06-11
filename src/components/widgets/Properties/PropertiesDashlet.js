@@ -185,7 +185,7 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ title });
   };
 
-  renderAssignmentPanel = () => {
+  renderAssignmentPanel = (withIndents = false) => {
     const { record } = this.props;
 
     if (record && isTaskDashboard()) {
@@ -194,12 +194,8 @@ class PropertiesDashlet extends BaseWidget {
           narrow
           executeRequest
           taskId={record}
-          wrapperClassName={classNames({
-            'ecos-task__assign-btn__wrapper_small-mode': isSmallMode
-          })}
-          className={classNames({
-            'ecos-task__assign-btn_small-mode': isSmallMode
-          })}
+          wrapperClassName={classNames({ 'assign-panel_indented': withIndents })}
+          className={''}
         />
       );
     }
@@ -239,7 +235,7 @@ class PropertiesDashlet extends BaseWidget {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >
-        {this.renderAssignmentPanel()}
+        {!runUpdate && this.renderAssignmentPanel(true)}
 
         <Properties
           ref={this._propertiesRef}
@@ -272,6 +268,7 @@ class PropertiesDashlet extends BaseWidget {
           onFormCancel={this.closeModal}
           onFormSubmit={this.onPropertiesEditFormSubmit}
           formIsChanged={formIsChanged}
+          assignmentPanel={this.renderAssignmentPanel}
         />
       </Dashlet>
     );

@@ -7,9 +7,9 @@ import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 const SelectOrgstructRoot = () => {
   const context = useContext(SelectOrgstructContext);
   const { controlProps } = context;
-  const { isCompact, viewOnly } = controlProps;
+  const { isCompact, viewOnly, className } = controlProps;
 
-  const wrapperClasses = classNames('select-orgstruct', {
+  const wrapperClasses = classNames('select-orgstruct', className, {
     'select-orgstruct_compact': isCompact,
     'select-orgstruct_view-only': viewOnly
   });

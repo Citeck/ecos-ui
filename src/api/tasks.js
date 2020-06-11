@@ -62,7 +62,7 @@ export class TasksApi extends RecordService {
     });
   };
 
-  getTaskStateAssign = ({ taskId }) => TasksApi.getStaticTaskStateAssignee(taskId);
+  getTaskStateAssign = ({ taskId }) => TasksApi.getStaticTaskStateAssignee({ taskId });
 
   changeAssigneeTask = ({ taskId, action, owner }) => {
     const record = Records.get(taskId);
@@ -78,7 +78,9 @@ export class TasksApi extends RecordService {
       .catch(console.error);
   };
 
-  getDocumentByTaskId = taskId => {
+  getDocumentByTaskId = taskId => TasksApi.getDocument(taskId);
+
+  static getDocument = taskId => {
     return Records.get(taskId)
       .load('document?id')
       .then(res => res);

@@ -14,7 +14,9 @@ import { SelectOrgstruct } from '../common/form';
 import { AUTHORITY_TYPE_USER } from '../common/form/SelectOrgstruct/constants';
 import { TasksApi } from '../../api/tasks';
 import { changeTaskAssigneeFromPanel } from '../../actions/tasks';
-// import { changeTaskAssignee } from "../../actions/tasks";
+import Records from '../Records';
+
+import './style.scss';
 
 class TaskAssignmentPanel extends Component {
   static propTypes = {
@@ -37,7 +39,8 @@ class TaskAssignmentPanel extends Component {
   };
 
   state = {
-    stateAssign: {}
+    stateAssign: {},
+    isLoading: false
   };
 
   constructor(props) {
@@ -46,8 +49,13 @@ class TaskAssignmentPanel extends Component {
     if (isEmpty(props.stateAssign)) {
       this.getStateAssign(props.taskId);
     } else {
-      this.state = { stateAssign: props.stateAssign };
+      this.state = {
+        ...this.state,
+        stateAssign: props.stateAssign
+      };
     }
+
+    this.addWatcher();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -64,7 +72,20 @@ class TaskAssignmentPanel extends Component {
 
   componentWillUnmount() {
     this.getStateAssign.cancel();
+
+    if (this.documentRecord) {
+      this.documentRecord.unwatch(this.watcher);
+    }
   }
+
+  addWatcher = () => {
+    const { taskId } = this.props;
+
+    TasksApi.getDocument(taskId).then(documentRef => {
+      this.documentRecord = Records.get(documentRef);
+      this.watcher = this.documentRecord.watch('tasks.active-hash', () => this.getStateAssign(taskId));
+    });
+  };
 
   get infoButtons() {
     const {
@@ -78,33 +99,36 @@ class TaskAssignmentPanel extends Component {
 
     const btns = [
       {
-        isShow: claimable,
-        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: USER_CURRENT },
-        label: t('tasks-widget.assign.me')
-      },
-      {
-        isShow: assignable,
-        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: '' },
-        label: t('tasks-widget.assign.assign'),
-        hasSelector: true
+        isShow: releasable,
+        sentData: { actionOfAssignment: AssignActions.UNASSIGN, ownerUserName: '' },
+        label: t('tasks-widget.assign.return-to-group')
       },
       {
         isShow: reassignable,
         sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: '' },
         label: t('tasks-widget.assign.reassign'),
-        hasSelector: true
+        hasSelector: true,
+        className: 'ecos-btn_blue'
       },
       {
-        isShow: releasable,
-        sentData: { actionOfAssignment: AssignActions.UNASSIGN, ownerUserName: '' },
-        label: t('tasks-widget.assign.return-to-group')
+        isShow: assignable,
+        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: '' },
+        label: t('tasks-widget.assign.assign'),
+        hasSelector: true,
+        className: 'ecos-btn_blue'
+      },
+      {
+        isShow: claimable,
+        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: USER_CURRENT },
+        label: t('tasks-widget.assign.me'),
+        className: 'ecos-btn_blue'
       }
     ];
 
     return btns.filter(item => item.isShow);
   }
 
-  getStateAssign = debounce(taskId => {
+  getStateAssign = debounce((taskId = this.props.taskId) => {
     if (!taskId) {
       return;
     }
@@ -115,17 +139,48 @@ class TaskAssignmentPanel extends Component {
   }, 500);
 
   set stateAssign(stateAssign) {
-    this.setState({ stateAssign });
+    this.setState({ stateAssign, isLoading: false });
   }
 
+  toggleLoading = () => {
+    this.setState(state => ({ isLoading: !state.isLoading }));
+  };
+
+  handleClickButton = sentData => {
+    const { onClick, taskId, changeTaskAssignee, executeRequest } = this.props;
+
+    this.toggleLoading();
+
+    if (executeRequest) {
+      changeTaskAssignee({
+        ...sentData,
+        taskId,
+        callback: this.getStateAssign
+      });
+    }
+
+    if (typeof onClick === 'function') {
+      onClick(sentData);
+    }
+  };
+
   renderBtn(settings, index) {
-    const { onClick, narrow, className, changeTaskAssignee, executeRequest, taskId } = this.props;
-    const classBtn = classNames('ecos-task__assign-btn ecos-btn_brown2', className, { 'ecos-btn_narrow-t_standart': narrow });
+    const { narrow, className } = this.props;
+    const { isLoading } = this.state;
     const keyBtn = `assignment-panel-${index}-${new Date().getTime()}`;
-    const handleSelect = () => onClick && onClick(settings.sentData);
+    const handleSelect = () => this.handleClickButton(settings.sentData);
 
     const elmBtn = handleClick => (
-      <Btn key={keyBtn} className={classBtn} onClick={handleClick}>
+      <Btn
+        key={keyBtn}
+        loading={isLoading}
+        className={classNames(className, {
+          'ecos-btn_narrow-t_standart': narrow,
+          'assign-panel__item': !settings.hasSelector,
+          [settings.className]: !className
+        })}
+        onClick={handleClick}
+      >
         {settings.label}
       </Btn>
     );
@@ -134,11 +189,11 @@ class TaskAssignmentPanel extends Component {
       return (
         <SelectOrgstruct
           key={`select-orgstruct-${keyBtn}`}
+          className="assign-panel__item"
           allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
           renderView={props => elmBtn(props.toggleSelectModal)}
           onChange={value => {
             settings.sentData.ownerUserName = value;
-            executeRequest && changeTaskAssignee({ ...settings.sentData, taskId });
             handleSelect();
           }}
         />
@@ -151,25 +206,11 @@ class TaskAssignmentPanel extends Component {
   render() {
     const { wrapperClassName } = this.props;
 
-    return (
-      <div className={classNames('ecos-task__assign-btn__wrapper', wrapperClassName)}>
-        {this.infoButtons.map((btn, i) => this.renderBtn(btn, i))}
-      </div>
-    );
+    return <div className={classNames('assign-panel', wrapperClassName)}>{this.infoButtons.map((btn, i) => this.renderBtn(btn, i))}</div>;
   }
 }
 
-const mapDispatchToProps = (dispatch, props) => {
-  const { record, stateId } = props;
-
-  return {
-    changeTaskAssignee: payload => dispatch(changeTaskAssigneeFromPanel({ ...payload }))
-  };
-};
-
-// export default TaskAssignmentPanel;
-
 export default connect(
   null,
-  mapDispatchToProps
+  dispatch => ({ changeTaskAssignee: payload => dispatch(changeTaskAssigneeFromPanel({ ...payload })) })
 )(TaskAssignmentPanel);
