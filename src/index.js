@@ -63,7 +63,8 @@ window.requirejs.config({
   baseUrl: '/share/res',
   urlArgs: 'b=' + preval`module.exports = new Date().getTime()`,
   paths: {
-    ecosui: '/js/ecos/ecosui'
+    ecosui: '/js/ecos/ecosui',
+    css: '/js/lib/require-css'
   }
 });
 

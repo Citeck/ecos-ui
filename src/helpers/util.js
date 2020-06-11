@@ -1,5 +1,4 @@
 import moment from 'moment';
-import i18next from 'i18next';
 import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
 import lodashGet from 'lodash/get';
@@ -9,7 +8,9 @@ import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
-import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
+
+import { getCurrentLocale, t } from './export/util';
+export { getCookie, getCurrentLocale, t } from './export/util';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
 
@@ -18,12 +19,6 @@ const BYTES_MB = 1048576;
 const BYTES_GB = 1073741824;
 
 const LOCALE_EN = 'en';
-
-export function getCookie(name) {
-  // eslint-disable-next-line
-  let matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
-  return matches ? decodeURIComponent(matches[1]) : undefined;
-}
 
 export function setCookie(name, value, options = {}) {
   options = {
@@ -187,21 +182,6 @@ export function isMobileAppWebView() {
   return navigator.userAgent === MOBILE_APP_USER_AGENT;
 }
 
-export function getCurrentLocale() {
-  const cookiesLocale = getCookie(COOKIE_KEY_LOCALE);
-  if (cookiesLocale) {
-    return cookiesLocale.substr(0, 2).toLowerCase();
-  }
-
-  if (!window.navigator) {
-    return LOCALE_EN;
-  }
-
-  const language = navigator.languages ? navigator.languages[0] : navigator.language || navigator.systemLanguage || navigator.userLanguage;
-
-  return language.substr(0, 2).toLowerCase();
-}
-
 export function getTextByLocale(data, locale = getCurrentLocale()) {
   if (isEmpty(data)) {
     return '';
@@ -241,22 +221,6 @@ export function loadScript(url, callback) {
   if (typeof callback === 'function') {
     script.onload = callback;
   }
-}
-
-export function t(key, options, scope = 'global') {
-  if (!key) {
-    return '';
-  }
-
-  if (!isString(key)) {
-    return key;
-  }
-
-  if (i18next.exists(key)) {
-    return i18next.t(key, options);
-  }
-
-  return key;
 }
 
 export function cellMsg(prefix) {
