@@ -13,28 +13,13 @@ import {
 } from '../../../helpers/urls';
 import { getTimezoneValue, t } from '../../../helpers/util';
 import ecosFetch from '../../../helpers/ecosFetch';
-import { ActionModes } from '../../../constants';
+import { ActionModes, SourcesId } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import WidgetService from '../../../services/WidgetService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 import RecordActions from './RecordActions';
-
-const globalTasks = [
-  'active-tasks',
-  'completed-tasks',
-  'controlled',
-  'subordinate-tasks',
-  'task-statistic',
-  'initiator-tasks',
-  'income-package-tasks',
-  'income-package-tasks-finance',
-  'income-package-tasks-inmarko',
-  'ptp-active-tasks'
-];
-
-const globalTaskPatterns = [/active-tasks/, /completed-tasks/, /controlled/, /subordinate-tasks/, /task-statistic/, /initiator-tasks/];
 
 function notifySuccess(msg) {
   NotificationManager.success(msg || t('record-action.msg.success.text'), t('record-action.msg.success.title'));
@@ -69,9 +54,10 @@ export const EditAction = {
       return record.load('cm:name?str').then(taskId => {
         if (!taskId) {
           console.error('Task ID is not found for record', record);
+          notifyFailure();
           return false;
         }
-        const taskRecordId = 'wftask@' + taskId;
+        const taskRecordId = `${SourcesId.TASK}@${taskId}`;
 
         return new Promise(resolve => {
           EcosFormUtils.editRecord({
@@ -116,17 +102,14 @@ const goToTaskView = (task, inBackground) => {
       taskRecord.load('cm:name?str').then(taskId => {
         if (!taskId) {
           console.error('Task Id is not found!');
+          notifyFailure();
           return;
         }
-        let taskRecordId = 'wftask@' + taskId;
+        const taskRecordId = `${SourcesId.TASK}@${taskId}`;
         Records.get(taskRecordId)
           .load('workflow?id')
           .then(workflowId => {
-            if (workflowId) {
-              goToCardDetailsPage(workflowId, { openInBackground: inBackground });
-            } else {
-              goToCardDetailsPage(taskRecordId, { openInBackground: inBackground });
-            }
+            goToCardDetailsPage(workflowId || taskRecordId, { openInBackground: inBackground });
           });
       });
     }
