@@ -320,3 +320,13 @@ export const isDashboard = (url = window.location.href) => {
 
   return false;
 };
+
+if (!window.Citeck) {
+  window.Citeck = {};
+}
+
+window.Citeck.Navigator = {
+  goToDashboard: (recordRef, options) => {
+    goToCardDetailsPage(recordRef, options);
+  }
+};

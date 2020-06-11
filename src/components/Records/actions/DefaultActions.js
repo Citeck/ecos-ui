@@ -48,7 +48,8 @@ export const DefaultActionTypes = {
   ASSOC_ACTION: 'assoc-action',
   SAVE_AS_CASE_TEMPLATE: 'save-as-case-template',
   PREVIEW_MODAL: 'content-preview-modal',
-  FETCH: 'fetch'
+  FETCH: 'fetch',
+  SCRIPT: 'script'
 };
 
 export const EditAction = {
@@ -554,4 +555,50 @@ export const FetchAction = {
     type: DefaultActionTypes.FETCH,
     icon: 'icon-right'
   })
+};
+
+export const ScriptAction = {
+  execute: context => {
+    let config = get(context, 'action.config', {});
+
+    if (config.module) {
+      return new Promise(resolve => {
+        window.require(
+          [config.module],
+          module => {
+            const result = module.default.execute(context);
+            if (result) {
+              if (result.then) {
+                result
+                  .then(res => resolve(res))
+                  .catch(e => {
+                    console.error(e);
+                    resolve(true);
+                  });
+              } else {
+                resolve(result);
+              }
+            } else {
+              resolve(true);
+            }
+          },
+          error => {
+            console.error(error);
+            resolve(false);
+          }
+        );
+      });
+    } else {
+      console.error('Module is not specified!');
+      return false;
+    }
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.script-action',
+      type: DefaultActionTypes.SCRIPT,
+      icon: 'icon-check'
+    };
+  }
 };

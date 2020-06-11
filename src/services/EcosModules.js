@@ -6,6 +6,19 @@ import '../build-info';
 import reduxThunk from 'redux-thunk';
 import * as redux from 'redux';
 import * as reactRedux from 'react-redux';
+import * as util from '../helpers/export/util';
+
+const pageUtils = {
+  goToDashboard: (recordRef, config) => {
+    const navigator = window.Citeck.Navigator;
+
+    if (navigator && navigator.goToDashboard) {
+      return navigator.goToDashboard(recordRef, config);
+    } else {
+      window.open('/v2/dashboard?recordRef=' + recordRef);
+    }
+  }
+};
 
 export const modules = {
   react: { default: reactDefault, ...react },
@@ -22,7 +35,11 @@ export const modules = {
   'eform-locale-editor': () => import('../components/EcosForm/locale/FormLocaleEditorModal'),
   'eform-builder': () => import('../components/EcosForm/builder/EcosFormBuilderModal'),
   lodash: () => lodash,
-  'record-actions': () => import('../components/Records/actions/export/recordActions')
+  'record-actions': () => import('../components/Records/actions/export/recordActions'),
+  'dialog-manager': () => import('../components/common/dialogs/Manager'),
+  'ecos-fetch': () => import('../helpers/ecosFetch'),
+  'page-utils': pageUtils,
+  'ecos-utils': { default: util, __esModule: true }
 };
 
 /**
