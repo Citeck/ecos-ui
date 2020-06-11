@@ -296,7 +296,16 @@ export default class TableFormComponent extends BaseReactComponent {
             let columnsMap = {};
             let formatters = {};
             columns.forEach(item => {
-              const key = `.edge(n:"${item.name}"){title,type,multiple}`;
+              const hasBracket = item.name.includes('{');
+              const hasQChar = item.name.includes('?');
+              let colName = item.name;
+              if (hasBracket || hasQChar) {
+                let [origAtt] = item.name.split(hasBracket ? '{' : '?');
+                origAtt = origAtt.replace('[]', '');
+                colName = origAtt;
+              }
+
+              const key = `.edge(n:"${colName}"){title,type,multiple}`;
               columnsMap[key] = item;
               if (item.formatter) {
                 formatters[item.name] = item.formatter;
@@ -335,7 +344,7 @@ export default class TableFormComponent extends BaseReactComponent {
                     cols.push({
                       default: true,
                       type: isManualAttributes && originalColumn.type ? originalColumn.type : loadedAtt[i].type,
-                      text: isManualAttributes ? this.t(originalColumn.title) : loadedAtt[i].title,
+                      text: isManualAttributes && originalColumn.title ? this.t(originalColumn.title) : loadedAtt[i].title,
                       multiple: isManualAttributes ? originalColumn.multiple : loadedAtt[i].multiple,
                       attribute: originalColumn.name
                     });
