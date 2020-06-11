@@ -10,6 +10,7 @@ import isString from 'lodash/isString';
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 
 import { getCurrentLocale, t } from './export/util';
+
 export { getCookie, getCurrentLocale, t } from './export/util';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
@@ -882,4 +883,18 @@ export function getFirstNonEmpty(values = [], defaultValue) {
   }
 
   return defaultValue;
+}
+
+export function isInViewport(element) {
+  if (element) {
+    const rect = element.getBoundingClientRect();
+    const html = document.documentElement;
+
+    return (
+      rect.top >= 0 &&
+      rect.left >= 0 &&
+      rect.bottom <= (window.innerHeight || html.clientHeight) &&
+      rect.right <= (window.innerWidth || html.clientWidth)
+    );
+  }
 }
