@@ -11,6 +11,7 @@ import './DialogManager.scss';
 const REMOVE_DIALOG_ID = 'DialogManager-remove-dialog';
 const INFO_DIALOG_ID = 'DialogManager-info-dialog';
 const CONFIRM_DIALOG_ID = 'DialogManager-confirm-dialog';
+const CUSTOM_DIALOG_ID = 'DialogManager-custom-dialog';
 
 class DialogWrapper extends React.Component {
   constructor(props) {
@@ -126,6 +127,36 @@ const dialogsById = {
         </div>
       </EcosModal>
     );
+  },
+  [CUSTOM_DIALOG_ID]: props => {
+    const { isVisible, setVisible } = props;
+
+    const { title = '', onHide = () => {}, modalClass = 'ecos-dialog_info', body, buttons = [], handlers = {} } = props.dialogProps;
+
+    const hideModal = () => {
+      setVisible(false);
+      onHide();
+    };
+
+    handlers.hideModal = hideModal;
+
+    return (
+      <EcosModal title={title} isOpen={isVisible} hideModal={hideModal} className={`ecos-dialog ${modalClass}`}>
+        <div className="ecos-dialog__body">{body}</div>
+        <div className="ecos-dialog__buttons">
+          {buttons.map(b => (
+            <Btn
+              onClick={() => {
+                b.onClick();
+                hideModal();
+              }}
+            >
+              {t(b.label)}
+            </Btn>
+          ))}
+        </div>
+      </EcosModal>
+    );
   }
 };
 
@@ -168,6 +199,10 @@ export default class DialogManager {
 
   static confirmDialog(props) {
     return showDialog(CONFIRM_DIALOG_ID, props);
+  }
+
+  static showCustomDialog(props) {
+    return showDialog(CUSTOM_DIALOG_ID, props);
   }
 }
 

@@ -12,6 +12,7 @@ export const getAssociations = createAction(prefix + 'GET_ASSOCIATIONS');
 export const setAssociations = createAction(prefix + 'SET_ASSOCIATIONS');
 export const addAssociations = createAction(prefix + 'ADD_ASSOCIATIONS');
 export const removeAssociations = createAction(prefix + 'REMOVE_ASSOCIATIONS');
+export const viewAssociation = createAction(prefix + 'VIEW_ASSOCIATION');
 
 export const setAllowedConnections = createAction(prefix + 'SET_ALLOWED_CONNECTIONS');
 

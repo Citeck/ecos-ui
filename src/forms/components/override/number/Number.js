@@ -31,46 +31,45 @@ export default class NumberComponent extends FormIONumberComponent {
   }
 
   setupValueElement(element) {
+    const renderValue = val => {
+      element.innerHTML = val;
+    };
+
     let value = this.getValue();
 
     if (this.isEmpty(value)) {
-      value = this.defaultViewOnlyValue;
-    } else {
-      value = this.parseNumber(this.getView(value));
-      if (!isNaN(value)) {
-        value = value.toLocaleString();
-      }
-
-      value = this.getRoundValue(value);
+      renderValue(this.defaultViewOnlyValue);
+      return;
     }
 
-    element.innerHTML = value;
+    value = this.parseNumber(this.getView(value));
+    if (isNaN(value)) {
+      renderValue(this.defaultViewOnlyValue);
+      return;
+    }
+
+    const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
+
+    value = value.toString();
+    value = value.replace(/,/g, '.');
+    if (!!decimalLimit) {
+      value = parseFloat(parseFloat(value).toFixed(decimalLimit)).toString();
+    }
+    value = value.replace(/\./g, this.decimalSeparator);
+    if (!!decimalLimit) {
+      value = this._fillZeros(value);
+    }
+
+    if (this.component.delimiter) {
+      value = this._applyThousandsSeparator(value);
+    }
+
+    renderValue(value);
   }
 
-  // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3327
-  getRoundValue(value) {
+  _fillZeros(value) {
     const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
-    if (decimalLimit === undefined) {
-      return value;
-    }
-
-    let newValue = this.getValue();
-
-    if (!isNaN(newValue)) {
-      newValue = newValue.toString();
-    }
-
-    newValue = newValue.replace(/,/g, '.');
-    newValue = parseFloat(parseFloat(newValue).toFixed(decimalLimit)).toString();
-    newValue = newValue.replace(/\./g, this.decimalSeparator);
-    newValue = this.fillZeros(newValue);
-
-    return newValue;
-  }
-
-  fillZeros(value) {
-    const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
-    if (decimalLimit === undefined) {
+    if (!decimalLimit) {
       return value;
     }
 
@@ -85,6 +84,15 @@ export default class NumberComponent extends FormIONumberComponent {
 
     return value;
   }
+
+  _applyThousandsSeparator = value => {
+    const [mainPart, decimalPart] = value.split(this.decimalSeparator);
+    let newValue = parseInt(mainPart).toLocaleString();
+    if (decimalPart) {
+      newValue = `${newValue}${this.decimalSeparator}${decimalPart}`;
+    }
+    return newValue;
+  };
 
   getValueAt(index) {
     if (!this.inputs.length || !this.inputs[index]) {
