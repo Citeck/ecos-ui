@@ -32,6 +32,7 @@ export const SourcesId = {
   VERSION: 'version',
   PEOPLE: 'people',
   BIRTHDAYS: 'birthdays',
+  REPORT: 'reports-data',
   TASK: 'wftask'
 };
 
