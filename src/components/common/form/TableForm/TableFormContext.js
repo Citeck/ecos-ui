@@ -56,6 +56,12 @@ export const TableFormContextProvider = props => {
     if (initValue) {
       let atts = [];
       columns.forEach(item => {
+        const hasBracket = item.attribute.includes('{');
+        const hasQChar = item.attribute.includes('?');
+        if (hasBracket || hasQChar) {
+          atts.push(item.attribute);
+          return;
+        }
         const multiplePostfix = item.multiple ? 's' : '';
         const schema = `.att${multiplePostfix}(n:"${item.attribute}"){disp}`;
         atts.push(schema);
