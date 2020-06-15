@@ -6,6 +6,7 @@ import {
   getDashboardConfig,
   getDashboardKeys,
   initDashboardSettings,
+  resetConfigToDefault,
   resetDashboardConfig,
   saveDashboardConfig,
   setAvailableWidgets,
@@ -63,6 +64,7 @@ export default handleActions(
     [getDashboardKeys]: startLoading,
     [saveDashboardConfig]: startLoading,
     [getCheckUpdatedDashboardConfig]: startLoading,
+    [resetConfigToDefault]: startLoading,
 
     [setDashboardConfig]: (state, { payload }) => {
       const { identification, config, key } = payload;

@@ -2,12 +2,13 @@ import isEmpty from 'lodash/isEmpty';
 
 import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
-import { SourcesId } from '../constants';
+import { EmodelTypes, SourcesId } from '../constants';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';
 import Components from '../components/widgets/Components';
 import Records from '../components/Records';
 import { RecordService } from './recordService';
+import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
   config: 'config?json',
@@ -30,8 +31,8 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardKeysByRef = function*(recordRef) {
-    const baseTypeId = 'emodel/type@base';
-    const userDashboardId = 'emodel/type@user-dashboard';
+    const baseTypeId = EmodelTypes.BASE;
+    const userDashboardId = EmodelTypes.USER_DASHBOARD;
     const dashboardKeys = [];
 
     let typesToSelect;
@@ -121,26 +122,32 @@ export class DashboardApi extends RecordService {
     );
   };
 
-  getDashboardByRecordRef = function*(recordRef) {
-    let { recType } = recordRef ? yield Records.get(recordRef).load({ recType: '_etype?id' }) : {};
+  getDashboardByRecordRef = recordRef => {
+    const _getDashboardByUserAndType = this.getDashboardByUserAndType;
 
-    if (!recType) {
-      recType = recordRef ? 'emodel/type@base' : 'emodel/type@user-dashboard';
+    function* getDashboard() {
+      let { recType } = recordRef ? yield Records.get(recordRef).load({ recType: '_etype?id' }) : {};
+
+      if (!recType) {
+        recType = recordRef ? EmodelTypes.BASE : EmodelTypes.USER_DASHBOARD;
+      }
+
+      const user = getCurrentUserName();
+      const cacheKey = DashboardService.getCacheKey({ type: recType, user });
+      const result = cache.get(cacheKey);
+
+      if (result) {
+        return result;
+      }
+
+      const dashboard = yield _getDashboardByUserAndType(user, recType);
+
+      cache.set(cacheKey, dashboard);
+
+      return dashboard;
     }
 
-    const user = getCurrentUserName();
-    const cacheKey = `${recType}|${user}`;
-    const result = cache.get(cacheKey);
-
-    if (result) {
-      return result;
-    }
-
-    const dashboard = yield this.getDashboardByUserAndType(user, recType);
-
-    cache.set(cacheKey, dashboard);
-
-    return dashboard;
+    return getDashboard();
   };
 
   getTitleInfo = function*(recordRef = '') {
@@ -224,6 +231,17 @@ export class DashboardApi extends RecordService {
         id: ''
       };
     });
+  };
+
+  removeDashboard = ({ id }) => {
+    const _id = `${SourcesId.DASHBOARD}@${id}`;
+
+    return Records.remove([_id])
+      .then(() => {
+        cache.clear();
+        return true;
+      })
+      .catch(() => false);
   };
 
   deleteFromCache(arrKeys = []) {
