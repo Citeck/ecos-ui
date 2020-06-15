@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
-import * as queryString from 'query-string';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
@@ -26,7 +25,6 @@ import { getSearchParams, stringifySearchParams, goToCardDetailsPage } from '../
 import { wrapArgs } from '../../helpers/redux';
 
 import './Journals.scss';
-import { URL } from '../../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
