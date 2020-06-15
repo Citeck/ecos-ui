@@ -1,5 +1,6 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
+import queryString from 'query-string';
 
 import {
   getAvailableWidgets,
@@ -7,6 +8,7 @@ import {
   getDashboardConfig,
   getDashboardKeys,
   initDashboardSettings,
+  resetConfigToDefault,
   saveDashboardConfig,
   setAvailableWidgets,
   setCheckUpdatedDashboardConfig,
@@ -15,12 +17,13 @@ import {
   setLoading,
   setRequestResultDashboard
 } from '../actions/dashboardSettings';
+import { saveMenuConfig } from '../actions/menu';
 import { selectIdentificationForSet } from '../selectors/dashboard';
 import { selectIsAdmin, selectUserName } from '../selectors/user';
-import { saveMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
-import { DASHBOARD_DEFAULT_KEY, RequestStatuses } from '../constants';
+import { RequestStatuses } from '../constants';
 import DashboardService from '../services/dashboard';
+import PageService from '../services/PageService';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
 import MenuConverter from '../dto/menu';
 
@@ -79,15 +82,12 @@ function* doGetDashboardKeys({ api, logger }, { payload }) {
 
 function* doCheckUpdatedSettings({ api, logger }, { payload }) {
   try {
-    const identification = yield select(selectIdentificationForSet);
+    const identification = yield select(selectIdentificationForSet, payload.key);
     const user = payload.isForAllUsers ? null : identification.user;
     const eqKey = identification.key === payload.dashboardKey;
     const hasUser = !!identification.user;
 
-    let saveWay =
-      payload.dashboardKey === DASHBOARD_DEFAULT_KEY
-        ? DashboardService.SaveWays.UPDATE
-        : DashboardService.defineWaySavingDashboard(eqKey, payload.isForAllUsers, hasUser);
+    let saveWay = DashboardService.defineWaySavingDashboard(eqKey, payload.isForAllUsers, hasUser);
     let dashboardId = identification.id;
 
     if (saveWay === DashboardService.SaveWays.CONFIRM) {
@@ -125,7 +125,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       mobile: DashboardSettingsConverter.getSettingsMobileConfigForServer(payload)
     };
     const { layouts, menu, mobile } = serverConfig;
-    const identification = yield select(selectIdentificationForSet);
+    const identification = yield select(selectIdentificationForSet, payload.key);
     const newIdentification = payload.newIdentification || {};
     const isAdmin = yield select(selectIsAdmin);
     const identificationData = { ...identification, ...newIdentification };
@@ -152,10 +152,8 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     };
 
     yield call(api.dashboard.deleteFromCache, [
-      DashboardService.getCacheKey(identification.key, payload.recordRef),
-      identification.user,
-      DashboardService.getCacheKey(newIdentification.key, payload.recordRef),
-      newIdentification.user
+      DashboardService.getCacheKey({ type: identification.key, user: identification.user }),
+      DashboardService.getCacheKey({ type: newIdentification.key, user: newIdentification.user })
     ]);
     yield put(saveMenuConfig(menu));
     yield put(setRequestResultDashboard({ request, key: payload.key }));
@@ -166,6 +164,31 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
   }
 }
 
+function* doResetConfigToDefault({ api, logger }, { payload }) {
+  const { key, recordRef } = payload;
+
+  try {
+    const identification = yield select(selectIdentificationForSet, key);
+    const isRemoved = yield call(api.dashboard.removeDashboard, { id: identification.id, recordRef });
+
+    if (isRemoved) {
+      const result = yield call(api.dashboard.getDashboardByRecordRef, recordRef);
+      const dashboardId = result.id;
+
+      PageService.changeUrlLink(
+        queryString.stringifyUrl({ url: `${window.location.pathname}${window.location.search}`, query: { dashboardId } }),
+        { updateUrl: true }
+      );
+
+      NotificationManager.success(t('dashboard-settings.success.reset-config'), t('success'));
+    }
+  } catch (e) {
+    yield put(setLoading({ key, status: false }));
+    NotificationManager.error(t('dashboard-settings.error.reset-config'), t('error'));
+    logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(initDashboardSettings().type, doInitDashboardSettingsRequest, ea);
   yield takeEvery(getDashboardConfig().type, doGetDashboardConfigRequest, ea);
@@ -173,6 +196,7 @@ function* saga(ea) {
   yield takeEvery(saveDashboardConfig().type, doSaveSettingsRequest, ea);
   yield takeEvery(getDashboardKeys().type, doGetDashboardKeys, ea);
   yield takeEvery(getCheckUpdatedDashboardConfig().type, doCheckUpdatedSettings, ea);
+  yield takeEvery(resetConfigToDefault().type, doResetConfigToDefault, ea);
 }
 
 export default saga;

@@ -1,11 +1,12 @@
 import Records from '../components/Records';
 import { DEFAULT_REF } from '../constants/documents';
+import { SourcesId } from '../constants';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
     return Records.query(
       {
-        sourceId: 'emodel/type'
+        sourceId: SourcesId.TYPE
       },
       {
         name: 'name',

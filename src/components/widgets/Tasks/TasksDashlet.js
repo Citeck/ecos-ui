@@ -36,7 +36,7 @@ class TasksDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
+    this.watcher = this.instanceRecord.watch(['cm:modified', 'tasks.active-hash'], this.reload);
 
     this.state = {
       ...this.state,

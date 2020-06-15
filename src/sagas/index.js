@@ -24,6 +24,7 @@ import timesheetCommon from './timesheet/common';
 import view from './view';
 import webPage from './webPage';
 import birthdays from './birthdays';
+import report from './report';
 import barcode from './barcode';
 import properties from './properties';
 import documents from './documents';
@@ -56,6 +57,7 @@ export default function* rootSaga(extraArguments) {
     view(extraArguments),
     webPage(extraArguments),
     birthdays(extraArguments),
+    report(extraArguments),
     barcode(extraArguments),
     properties(extraArguments),
     documents(extraArguments),

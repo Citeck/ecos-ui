@@ -123,7 +123,7 @@ export const ViewAction = {
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
-        .then(docId => (docId ? goToCardDetailsPage(docId) : notifyFailure()));
+        .then(docId => (docId ? goToCardDetailsPage(docId) : ''));
       return false;
     } else if (config.viewType === 'view-task') {
       goToTaskView(record.id, false);
