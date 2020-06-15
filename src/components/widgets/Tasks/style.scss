@@ -99,6 +99,8 @@
     $btn: &;
 
     &__wrapper {
+      margin: 0;
+
       &_small-mode {
         margin: 13px 0;
       }

@@ -12,6 +12,8 @@ import PropertiesEditModal from './PropertiesEditModal';
 import PropertiesSettings from './PropertiesSettings';
 
 import './style.scss';
+import { isTaskDashboard } from '../../../helpers/urls';
+import TaskAssignmentPanel from '../../TaskAssignmentPanel';
 
 const Labels = {
   WIDGET_TITLE: 'properties-widget.title',
@@ -183,6 +185,24 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ title });
   };
 
+  renderAssignmentPanel = (withIndents = false) => {
+    const { record } = this.props;
+
+    if (record && isTaskDashboard()) {
+      return (
+        <TaskAssignmentPanel
+          narrow
+          executeRequest
+          taskId={record}
+          wrapperClassName={classNames({ 'assign-panel_indented': withIndents })}
+          className={''}
+        />
+      );
+    }
+
+    return null;
+  };
+
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
     const {
@@ -215,6 +235,8 @@ class PropertiesDashlet extends BaseWidget {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >
+        {!runUpdate && this.renderAssignmentPanel(true)}
+
         <Properties
           ref={this._propertiesRef}
           forwardedRef={this.contentRef}
@@ -246,6 +268,7 @@ class PropertiesDashlet extends BaseWidget {
           onFormCancel={this.closeModal}
           onFormSubmit={this.onPropertiesEditFormSubmit}
           formIsChanged={formIsChanged}
+          assignmentPanel={this.renderAssignmentPanel}
         />
       </Dashlet>
     );
