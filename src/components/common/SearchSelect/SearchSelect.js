@@ -94,8 +94,14 @@ export default class SearchSelect extends React.Component {
 
   openFullSearch = () => {
     const searchText = this.state.searchText;
+
     this.props.openFullSearch(searchText);
     this.resetSearch();
+
+    if (this.inputRef.current) {
+      this.inputRef.current.blur();
+    }
+    this.setFocused(false);
   };
 
   resetSearch = () => {
