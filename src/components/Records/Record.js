@@ -180,7 +180,7 @@ export default class Record {
           this._innerUpdate(resolve, reject);
         }, 2000);
       } else {
-        if (this._modified !== modified) {
+        if (this._modified !== modified || this._checkWatchersToLoad()) {
           this._modified = modified;
 
           Promise.all(
@@ -214,6 +214,34 @@ export default class Record {
           resolve();
         }
       }
+    });
+  }
+
+  /**
+   * Проверка аттрибутов на необходимость загрузки данных
+   *
+   * Условия:
+   * - содержится точка в названии атрибута
+   * @returns {boolean}
+   * @private
+   */
+  _checkWatchersToLoad() {
+    if (!this._watchers.length) {
+      return false;
+    }
+
+    return this._watchers.some(watcher => {
+      const attrs = watcher.getWatchedAttributes();
+
+      if (Array.isArray(attrs)) {
+        return attrs.some(attr => attr.includes('.'));
+      }
+
+      if (typeof attrs == 'string') {
+        return attrs.includes('.');
+      }
+
+      return false;
     });
   }
 
