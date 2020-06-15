@@ -4,11 +4,12 @@
   position: relative;
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow-y: hidden;
+  overflow-x: auto;
   display: flex;
 
   &_scroll {
-    overflow: scroll;
+    overflow-y: auto;
   }
 
   &_mobile {
