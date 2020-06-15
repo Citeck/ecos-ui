@@ -65,21 +65,21 @@ class InlineTools extends Component {
   render() {
     const {
       className,
-      inlineToolSettings: { top, height, left, actions = [], row = {} },
+      inlineToolSettings: { actions = [], row = {}, ...style },
       selectedRecords,
       selectAllRecords,
       actionsProps,
       withTooltip
     } = this.props;
 
-    if (!height) {
+    if (!style.height) {
       return null;
     }
 
     const selected = selectedRecords.includes(row.id) || selectAllRecords;
 
     return (
-      <div style={{ top, left, height }} className={classNames('ecos-inline-tools', className, { 'ecos-inline-tools_selected': selected })}>
+      <div style={style} className={classNames('ecos-inline-tools', className, { 'ecos-inline-tools_selected': selected })}>
         <div className="ecos-inline-tools-actions" {...actionsProps}>
           {actions.map((action, idx) => InlineTools.renderAction(action, idx, withTooltip))}
         </div>

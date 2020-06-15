@@ -515,7 +515,8 @@ class JournalsDashletGrid extends Component {
       maxHeight,
       autoHeight,
       predicate,
-      journalConfig: { params = {} }
+      journalConfig: { params = {} },
+      selectorContainer
     } = this.props;
 
     let editable = true;
@@ -578,6 +579,7 @@ class JournalsDashletGrid extends Component {
                 maxHeight={maxHeight}
                 autoHeight={autoHeight}
                 scrollPosition={this.scrollPosition}
+                selectorContainer={selectorContainer}
               />
             )}
           </HeightCalculation>
@@ -609,6 +611,7 @@ JournalsDashletGrid.propTypes = {
   stateId: PropTypes.string,
   className: PropTypes.string,
   toolsClassName: PropTypes.string,
+  selectorContainer: PropTypes.string,
   minHeight: PropTypes.any,
   maxHeight: PropTypes.any,
   autoHeight: PropTypes.bool,
