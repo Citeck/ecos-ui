@@ -885,16 +885,16 @@ export function getFirstNonEmpty(values = [], defaultValue) {
   return defaultValue;
 }
 
-export function isInViewport(element) {
+export function isInViewport(element, container) {
   if (element) {
     const rect = element.getBoundingClientRect();
-    const html = document.documentElement;
+    const rectCont = (container && container.getBoundingClientRect()) || {};
 
     return (
       rect.top >= 0 &&
       rect.left >= 0 &&
-      rect.bottom <= (window.innerHeight || html.clientHeight) &&
-      rect.right <= (window.innerWidth || html.clientWidth)
+      rect.bottom <= (rectCont.bottom || window.innerHeight) &&
+      rect.right <= (rectCont.right || window.innerWidth)
     );
   }
 }
