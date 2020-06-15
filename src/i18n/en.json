@@ -163,6 +163,7 @@
   "dashboard-settings.widget.doc-status": "Case status",
   "dashboard-settings.widget.events-history": "Events history",
   "dashboard-settings.widget.journal": "Journal",
+  "dashboard-settings.widget.report": "Tasks statistics",
   "dashboard-settings.widget.preview": "Preview",
   "dashboard-settings.widget.properties": "Properties",
   "dashboard-settings.widget.tasks": "My tasks",
@@ -854,6 +855,12 @@
   "barcode-widget.settings.margin-top.label": "Top",
   "barcode-widget.settings.margin-bottom.label": "Bottom",
   "barcode-widget.settings.mm.label": "mm",
+
+  "report-widget.title": "Tasks statistics",
+  "report-widget.urgent": "URGENT",
+  "report-widget.today": "TODAY",
+  "report-widget.later": "LATER",
+
   "esign.error": "Error",
   "esign.add-plugin.title": "Please, install extension",
   "esign.message.add-plugin": "To continue, install the Cryptopro browser extension from cryptopro.ru",

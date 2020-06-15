@@ -163,6 +163,7 @@
   "dashboard-settings.widget.doc-status": "Статус кейса",
   "dashboard-settings.widget.events-history": "История событий",
   "dashboard-settings.widget.journal": "Журнал",
+  "dashboard-settings.widget.report": "Статистика по задачам",
   "dashboard-settings.widget.preview": "Предпросмотр",
   "dashboard-settings.widget.properties": "Свойства",
   "dashboard-settings.widget.tasks": "Мои задачи",
@@ -858,6 +859,12 @@
   "barcode-widget.settings.margin-top.label": "Сверху",
   "barcode-widget.settings.margin-bottom.label": "Снизу",
   "barcode-widget.settings.mm.label": "мм",
+
+  "report-widget.title": "Статистика по задачам",
+  "report-widget.urgent": "СРОЧНО",
+  "report-widget.today": "СЕГОДНЯ",
+  "report-widget.later": "ПОЗЖЕ",
+
   "esign.error": "Ошибка",
   "esign.add-plugin.title": "Установите расширение",
   "esign.message.add-plugin": "Чтобы продолжить, установите расширение Cryptopro для браузера с сайта cryptopro.ru",
