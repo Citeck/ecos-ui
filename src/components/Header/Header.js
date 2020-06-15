@@ -6,7 +6,7 @@ import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import ReactResizeDetector from 'react-resize-detector';
 
-import { MENU_TYPE } from '../../constants';
+import { MENU_TYPE, URL } from '../../constants';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
 
 import SlideMenuBtn from './SlideMenuBtn';
@@ -69,7 +69,7 @@ class Header extends React.Component {
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className="ecos-header__side ecos-header__side_right">
-            <Search isMobile={widthHeader <= 600} />
+            <Search isMobile={widthHeader <= 600} searchPageUrl={`${URL.JOURNAL}?journalId=search`} />
             {!hiddenSiteMenu && <SiteMenu />}
             {!hiddenLanguageSwitcher && <LanguageSwitcher theme={theme} />}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />

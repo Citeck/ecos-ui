@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
+import * as queryString from 'query-string';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
@@ -21,10 +22,11 @@ import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
 import { t, trigger } from '../../helpers/util';
-import { goToCardDetailsPage } from '../../helpers/urls';
+import { getSearchParams, stringifySearchParams, goToCardDetailsPage } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
 import './Journals.scss';
+import { URL } from '../../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -87,12 +89,14 @@ class Journals extends Component {
     const {
       isActivePage,
       urlParams: { journalId },
-      stateId
+      stateId,
+      grid
     } = this.props;
     const {
       isActivePage: _isActivePage,
       urlParams: { journalId: _journalId }
     } = prevProps;
+    const search = this.getSearch();
 
     if (isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId)) {
       this.getJournalsData();
@@ -101,7 +105,15 @@ class Journals extends Component {
     if (prevProps.stateId !== stateId) {
       this.getJournalsData();
     }
+
+    if (search && !get(prevProps, 'grid.columns') && get(grid, 'columns')) {
+      this.search(search);
+    }
   }
+
+  getSearch = () => {
+    return get(getSearchParams(), 'search', '');
+  };
 
   refresh = () => {
     this.props.reloadGrid();
@@ -157,6 +169,12 @@ class Journals extends Component {
   };
 
   search = text => {
+    const searchParams = {
+      ...getSearchParams(),
+      search: text
+    };
+
+    this.props.setUrl(getSearchParams(stringifySearchParams(searchParams)));
     this.props.search(text);
   };
 
@@ -212,6 +230,7 @@ class Journals extends Component {
               onSearch={this.search}
               addRecord={this.addRecord}
               isMobile={isMobile}
+              searchText={this.getSearch()}
             />
 
             <EcosModal
