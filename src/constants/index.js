@@ -26,6 +26,7 @@ export const SourcesId = {
   EFORM: 'uiserv/eform',
   USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',
+  TYPE: 'emodel/type',
   HISTORY: 'history',
   STATUS: 'status',
   COMMENT: 'comment',
@@ -33,6 +34,11 @@ export const SourcesId = {
   PEOPLE: 'people',
   BIRTHDAYS: 'birthdays',
   TASK: 'wftask'
+};
+
+export const EmodelTypes = {
+  USER_DASHBOARD: 'emodel/type@user-dashboard',
+  BASE: 'emodel/type@base'
 };
 
 export const ActionModes = {
@@ -49,8 +55,6 @@ export const RequestStatuses = {
   SUCCESS: 'SUCCESS',
   FAILURE: 'FAILURE'
 };
-
-export const DASHBOARD_DEFAULT_KEY = 'DEFAULT';
 
 export const MIN_WIDTH_DASHLET_SMALL = 290;
 export const MIN_WIDTH_DASHLET_LARGE = 593;
