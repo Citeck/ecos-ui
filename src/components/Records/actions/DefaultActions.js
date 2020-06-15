@@ -551,7 +551,7 @@ export const FetchAction = {
     const fullUrl = `${url}?${queryString.stringify({ ...args })}`;
 
     return ecosFetch(fullUrl, options)
-      .then(response => (response.ok ? response.json() : Promise.reject({ message: response.statusText })))
+      .then(response => (response.ok ? response : Promise.reject({ message: response.statusText })))
       .then(result => {
         notifySuccess();
         return result;
