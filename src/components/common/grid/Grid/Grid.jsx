@@ -366,9 +366,10 @@ class Grid extends Component {
   };
 
   getTrOptions = tr => {
-    const row = this.props.data[tr.rowIndex - 1];
+    const { selectorContainer, data } = this.props;
+    const row = data[tr.rowIndex - 1];
     const elGrid = tr.closest('.ecos-grid');
-    const elJournal = tr.closest('.ecos-journal-page');
+    const elContainer = tr.closest(selectorContainer);
     const { scrollLeft = 0 } = this._scrollValues;
 
     const style = {
@@ -377,11 +378,11 @@ class Grid extends Component {
       left: scrollLeft
     };
 
-    if (elGrid && !isInViewport(elGrid, elJournal)) {
+    if (elContainer && !isInViewport(elGrid)) {
       const elSidebar = document.querySelector('.ecos-sidebar');
       const rectGrid = elGrid.getBoundingClientRect();
 
-      style.width = elJournal.clientWidth - rectGrid.left + elSidebar.clientWidth;
+      style.width = elContainer.clientWidth - rectGrid.left + elSidebar.clientWidth;
     }
 
     this._tr = tr;

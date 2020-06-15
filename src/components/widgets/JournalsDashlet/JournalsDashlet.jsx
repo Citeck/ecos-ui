@@ -169,7 +169,7 @@ class JournalsDashlet extends BaseWidget {
           <JournalsDashletToolbar stateId={stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
         </Measurer>
 
-        <JournalsDashletGrid stateId={stateId} isWidget maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - 100} />
+        <JournalsDashletGrid stateId={stateId} isWidget maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - 100} selectorContainer={'.ecos-layout'} />
 
         <JournalsDashletFooter stateId={stateId} isWidget />
       </>
