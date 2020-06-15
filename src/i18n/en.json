@@ -205,7 +205,9 @@
   "doc-associations-widget.add-association.error.message": "There was an error adding documents",
   "doc-associations-widget.remove-association.error.message": "Failed to delete document",
   "doc-associations-widget.remove-association.success.message": "Document deleted successfully",
+  "doc-associations-widget.view-association.error.message": "Failed to start document view",
   "doc-associations-widget.incorrect-type.error.message": "Documents cannot be added to the selected communication type",
+
   "doc-preview.download": "Download",
   "doc-preview.error.failure-to-fetch": "Failure to fetch the document",
   "doc-preview.error.loading-failure": "There was a problem loading the document. Try to download the document",
@@ -353,6 +355,8 @@
 
   "record-action.name.assoc-action": "Assoc action",
   "record-action.assoc-action.not-found": "Association is not found",
+
+  "record-action.name.script-action": "Script action",
 
   "record-action.name.upload-new-version": "Upload new version",
   "record-action.upload-new-version.title.upload-model": "Add new document version",

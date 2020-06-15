@@ -1,14 +1,11 @@
 import isString from 'lodash/isString';
 import isEmpty from 'lodash/isEmpty';
 
-import { getCurrentLocale } from '../helpers/util';
-//import Token from '../helpers/tokenData';
+import { getCurrentLocale } from './export/util';
 
 const acceptLanguage = getCurrentLocale();
 
 export default function(url, options = {}) {
-  // Token.check();
-
   const { method, headers = {}, body, noHeaders = false, mode } = options;
 
   const params = {};
@@ -21,7 +18,6 @@ export default function(url, options = {}) {
     params.headers = {
       ...headers,
       'Accept-Language': acceptLanguage
-      //'Authorization': `Bearer ${Token.get().access_token}`
     };
   }
 

@@ -15,7 +15,8 @@ import {
   SaveAsCaseTemplate,
   UploadNewVersion,
   ViewAction,
-  ViewCardTemplate
+  ViewCardTemplate,
+  ScriptAction
 } from './DefaultActions';
 
 import { CaseCreateNodeAction, CaseRedirectAction, CaseRequestAction } from './CaseActions';
@@ -39,6 +40,7 @@ Registry.addExecutors({
   [DefaultActionTypes.VIEW_CARD_TEMPLATE]: ViewCardTemplate,
   [DefaultActionTypes.PREVIEW_MODAL]: PreviewModal,
   [DefaultActionTypes.FETCH]: FetchAction,
+  [DefaultActionTypes.SCRIPT]: ScriptAction,
 
   //legacy case actions
 

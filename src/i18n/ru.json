@@ -205,7 +205,9 @@
   "doc-associations-widget.add-association.error.message": "При добавлении документов произошла ошибка",
   "doc-associations-widget.remove-association.error.message": "Не удалось удалить документ",
   "doc-associations-widget.remove-association.success.message": "Документ успешно удален",
+  "doc-associations-widget.view-association.error.message": "Не удалось запустить просмотр документа",
   "doc-associations-widget.incorrect-type.error.message": "К выбранному типу связи не могут быть добавлены документы",
+
   "doc-preview.download": "Скачать",
   "doc-preview.error.failure-to-fetch": "Документ не получен",
   "doc-preview.error.loading-failure": "Возникла проблема при загрузке документа. Попробуйте скачать документ",
@@ -353,6 +355,8 @@
 
   "record-action.name.assoc-action": "Ассоциативное действие",
   "record-action.assoc-action.not-found": "Связь не найдена",
+
+  "record-action.name.script-action": "Скриптовое действие",
 
   "record-action.name.upload-new-version": "Загрузить новую версию",
   "record-action.upload-new-version.title.upload-model": "Добавление новой версии документа",

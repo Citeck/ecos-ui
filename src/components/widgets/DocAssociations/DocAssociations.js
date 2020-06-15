@@ -16,7 +16,8 @@ import {
   getMenu,
   getSectionList,
   removeAssociations,
-  resetStore
+  resetStore,
+  viewAssociation
 } from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -170,6 +171,13 @@ class DocAssociations extends BaseWidget {
     this.setState({ isConfirmRemoveDialogOpen: true, selectedDocument });
   };
 
+  handleClickViewDocument = selectedDocument => {
+    const { viewAssociation } = this.props;
+    const { record } = selectedDocument;
+
+    viewAssociation(record);
+  };
+
   closeConfirmRemovingModal = () => {
     this.setState({ isConfirmRemoveDialogOpen: false, selectedDocument: null });
   };
@@ -252,6 +260,10 @@ class DocAssociations extends BaseWidget {
 
         {!isMobile && (
           <span className="ecos-doc-associations__table-actions">
+            <Icon
+              onClick={() => this.handleClickViewDocument(row)}
+              className="icon-on ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
+            />
             <Icon
               onClick={() => this.handleClickDeleteDocument(row)}
               className="icon-delete ecos-doc-associations__icon-delete ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
@@ -460,6 +472,7 @@ const mapDispatchToProps = (dispatch, { record }) => ({
   getSectionList: () => dispatch(getSectionList(record)),
   getAssociations: () => dispatch(getAssociations(record)),
   getMenu: () => dispatch(getMenu(record)),
+  viewAssociation: associationRef => dispatch(viewAssociation(associationRef)),
   addAssociations: (associationId, journalRef, associations) =>
     dispatch(
       addAssociations({
