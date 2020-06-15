@@ -129,8 +129,8 @@ export const TableFormContextProvider = props => {
 
         showEditForm: record => {
           setIsViewOnlyForm(false);
-          setCreateVariant(null);
           setRecord(record);
+          setCreateVariant(null);
           setFormMode(FORM_MODE_EDIT);
           setIsModalFormOpen(true);
         },
@@ -145,6 +145,14 @@ export const TableFormContextProvider = props => {
 
         showPreview: recordId => {
           WidgetService.openPreviewModal({ recordId });
+        },
+        //todo
+        showCloneForm: record => {
+          setIsViewOnlyForm(false);
+          setRecord(record);
+          setCreateVariant(null);
+          setFormMode(FORM_MODE_CREATE);
+          setIsModalFormOpen(true);
         },
 
         onCreateFormSubmit: (record, form) => {
