@@ -88,7 +88,7 @@ class BarcodeDashlet extends BaseWidget {
     const { id, onSave, config } = this.props;
 
     if (typeof onSave === 'function') {
-      onSave(id, { config: { ...config, settings } }, console.warn);
+      onSave(id, { config: { ...config, settings } });
     }
 
     this.handleToggleSettings();

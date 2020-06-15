@@ -325,6 +325,10 @@ export const stringifySearchParams = (params = {}, stringifyParams = { skipEmpty
   return queryString.stringify(params, stringifyParams);
 };
 
+export const isTaskDashboard = (url = window.location.href) => {
+  return isDashboard(url) && hasInString(url, `${SourcesId.TASK}@`);
+};
+
 if (!window.Citeck) {
   window.Citeck = {};
 }
