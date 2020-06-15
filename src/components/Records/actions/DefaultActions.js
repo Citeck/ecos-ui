@@ -29,8 +29,6 @@ const globalTasks = [
   'task-statistic',
   'initiator-tasks',
   'income-package-tasks',
-  'income-package-tasks-finance',
-  'income-package-tasks-inmarko',
   'ptp-active-tasks'
 ];
 
@@ -67,7 +65,7 @@ export const EditAction = {
   disabledFor: [/task-statistic/, /completed-tasks/],
 
   execute: ({ record, action: { context } }) => {
-    if (globalTasks.indexOf(context.scope) > -1) {
+    if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
       const name = record.att('cm:name?disp') || '';
       window.open(`${URL_PAGECONTEXT}task-edit?taskId=${name}&formMode=edit`, '_blank');
       return false;
@@ -113,7 +111,7 @@ export const ViewAction = {
       return false;
     }
     //todo it is not needed in dev; https://citeck.atlassian.net/browse/ECOSUI-158
-    if (globalTasks.includes(context.scope)) {
+    if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
       Records.get(record.id)
         .load('cm:name?str')
         .then(taskId => (taskId ? goToCardDetailsPage(`${SourcesId.TASK}@${taskId}`) : notifyFailure()));
@@ -176,7 +174,7 @@ export const BackgroundOpenAction = {
 
   execute: ({ record, action: { context } }) => {
     //todo it is not needed in dev; https://citeck.atlassian.net/browse/ECOSUI-158
-    if (globalTasks.includes(context.scope)) {
+    if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
       Records.get(record.id)
         .load('cm:name?str')
         .then(taskId => (taskId ? goToCardDetailsPage(`${SourcesId.TASK}@${taskId}`, { openInBackground: true }) : notifyFailure()));
