@@ -58,14 +58,27 @@ class Search extends React.Component {
 
   openFullSearch = searchText => {
     const { searchPageUrl, hiddenSearchTerms } = this.props;
-    const path = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
-    const url = URL_PAGECONTEXT + path;
+    let url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
+
+    if (!isNewVersionPage(url)) {
+      url = URL_PAGECONTEXT + url;
+    }
 
     if (!isNewVersionPage()) {
       return (window.location.href = url);
     }
 
-    PageService.changeUrlLink(url, { reopenBrowserTab: true });
+    const params = {};
+
+    url += `&search=${generateSearchTerm(searchText, hiddenSearchTerms)}`;
+
+    if (isNewVersionPage(url)) {
+      params.openNewTab = true;
+    } else {
+      params.reopenBrowserTab = true;
+    }
+
+    PageService.changeUrlLink(url, params);
   };
 
   goToResult = data => {

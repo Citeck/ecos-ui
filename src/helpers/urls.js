@@ -321,6 +321,10 @@ export const isDashboard = (url = window.location.href) => {
   return false;
 };
 
+export const stringifySearchParams = (params = {}, stringifyParams = { skipEmptyString: true }) => {
+  return queryString.stringify(params, stringifyParams);
+};
+
 if (!window.Citeck) {
   window.Citeck = {};
 }
