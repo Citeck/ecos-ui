@@ -14,12 +14,13 @@ export const AssocLink = ({ className, label, asText, link, paramsLink = {} }) =
     };
   }
 
+  if (asText) {
+    return <span className={classNames('assoc-value', className)}>{label}</span>;
+  }
+
   return (
-    <span
-      onClick={onClickHandler}
-      className={classNames('assoc-value', { 'assoc-value_link': !asText, 'assoc-value_text': asText }, className)}
-    >
+    <a href={link} onClick={onClickHandler} className={classNames('assoc-value', className)}>
       {label}
-    </span>
+    </a>
   );
 };
