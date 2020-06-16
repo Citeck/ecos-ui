@@ -6,17 +6,4 @@
   overflow: hidden;
   text-overflow: ellipsis;
   padding-right: 5px;
-
-  &_link {
-    cursor: pointer;
-    color: $text-link;
-
-    &:hover {
-      color: $text-link_hover;
-    }
-  }
-
-  &_text {
-    pointer-events: none;
-  }
 }
