@@ -867,6 +867,7 @@
   "report-widget.urgent": "URGENT",
   "report-widget.today": "TODAY",
   "report-widget.later": "LATER",
+  "report-widget.records.no-document-type": "No status",
 
   "esign.error": "Error",
   "esign.add-plugin.title": "Please, install extension",

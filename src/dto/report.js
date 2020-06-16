@@ -1,3 +1,5 @@
+import { t } from '../helpers/util';
+
 export function reportDataPrepare(data) {
   const isValidData = data.urgent && data.today && data.later;
   const clonedData = JSON.parse(JSON.stringify(data));
@@ -58,7 +60,7 @@ export function reportDataConvert(preparedReportData) {
       target[key].records = target[key].records.map(rec => ({
         id: rec.id,
         count: rec.count,
-        name: rec.atts['wfm:documentType'],
+        name: rec.atts['wfm:documentType'] || t('report-widget.records.no-document-type'),
         status: rec.atts['wfm:caseStatus']
       }));
     }
