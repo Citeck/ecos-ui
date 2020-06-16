@@ -182,7 +182,14 @@ class EditorItems extends React.Component {
     };
 
     return editItemIcon ? (
-      <IconSelect prefixIcon="icon-c" useFontIcons selectedIcon={editItemIcon.icon} onClose={handleHideModal} onSave={handleSave} />
+      <IconSelect
+        prefixIcon="icon-c"
+        family="menu-items"
+        useFontIcons
+        selectedIcon={editItemIcon.icon}
+        onClose={handleHideModal}
+        onSave={handleSave}
+      />
     ) : null;
   };
 

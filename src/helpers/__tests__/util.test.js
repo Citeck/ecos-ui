@@ -12,7 +12,7 @@ function check(data) {
 
 describe('Util helpers', () => {
   describe('Method getTextByLocale', () => {
-    describe('Object with needet locale', () => {
+    describe('Object with needed locale', () => {
       const data = [
         {
           title: '(ru) Заголовок',
@@ -29,7 +29,7 @@ describe('Util helpers', () => {
       check(data);
     });
 
-    describe('Object without needet locale, but with "en" locale', () => {
+    describe('Object without needed locale, but with "en" locale', () => {
       const data = [
         {
           title: '(fr) Title',
@@ -120,15 +120,15 @@ describe('Util helpers', () => {
 
       check(data);
     });
+  });
 
-    describe('function isExistValue', () => {
-      it('check value', () => {
-        expect(isExistValue(undefined)).toEqual(false);
-        expect(isExistValue(null)).toEqual(false);
-        expect(isExistValue(false)).toEqual(true);
-        expect(isExistValue(0)).toEqual(true);
-        expect(isExistValue('')).toEqual(true);
-      });
+  describe('function isExistValue', () => {
+    it('check value', () => {
+      expect(isExistValue(undefined)).toEqual(false);
+      expect(isExistValue(null)).toEqual(false);
+      expect(isExistValue(false)).toEqual(true);
+      expect(isExistValue(0)).toEqual(true);
+      expect(isExistValue('')).toEqual(true);
     });
   });
 });

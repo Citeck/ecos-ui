@@ -3,13 +3,13 @@ import { SourcesId } from '../constants';
 import Records from '../components/Records';
 
 export class CustomIconApi extends CommonApi {
-  getIcons = () => {
-    return Records.query(
-      {
-        sourceId: SourcesId.ICON
-      },
-      ['data', 'format', 'id']
-    );
+  getIcons = ({ family }) => {
+    return Records.query({
+      sourceId: SourcesId.ICON,
+      query: { family }
+    })
+      .then(res => res.records)
+      .catch(() => []);
   };
 
   getIconInfo = ref => {
@@ -19,12 +19,15 @@ export class CustomIconApi extends CommonApi {
     });
   };
 
-  uploadIcon = ({ format, type = 'img', data }) => {
+  uploadIcon = ({ type = 'img', data, family, config }) => {
     const icon = Records.get(SourcesId.ICON + '@');
+
+    icon.att('family', family);
+    icon.att('config', config);
     icon.att('type', type);
-    icon.att('format', format);
     icon.att('data', data);
-    icon.save();
+
+    return icon.save();
   };
 
   deleteIcon = refs => {

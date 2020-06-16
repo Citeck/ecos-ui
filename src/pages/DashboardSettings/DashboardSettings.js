@@ -10,7 +10,7 @@ import isNull from 'lodash/isNull';
 import find from 'lodash/find';
 
 import { clearCache } from '../../components/ReactRouterCache';
-import { arrayCompare, deepClone, documentScrollTop, t } from '../../helpers/util';
+import { arrayCompare, deepClone, t } from '../../helpers/util';
 import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
 import { removeItems } from '../../helpers/ls';
 import { RequestStatuses, URL } from '../../constants';

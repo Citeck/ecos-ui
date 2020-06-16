@@ -103,6 +103,7 @@ function EditorItemModal({ item, type, onClose, onSave }) {
           {isOpenSelectIcon && (
             <IconSelect
               prefixIcon="icon-c"
+              family="menu-items"
               useFontIcons
               selectedIcon={icon}
               onClose={() => setOpenSelectIcon(false)}

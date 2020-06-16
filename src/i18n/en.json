@@ -1007,7 +1007,6 @@
   "menu-settings.editor-item.btn.edit": "Save",
   "menu-settings.error.get-config": "Menu settings configuration hasn't received",
   "menu-settings.error.save-config": "Menu settings configuration hasn't saved",
-  "menu-settings.error.get-custom-icons": "Customs menu icons haven't received",
   "menu-settings.success.save-config": "Menu settings configuration saved",
 
   "menu-item.type.section": "Section",
@@ -1022,5 +1021,9 @@
   "icon-select.btn.cancel": "Cancel",
   "icon-select.btn.done": "Done",
   "icon-select.custom.title": "Custom",
-  "icon-select.custom.tip": "The icon looks better if format is png/svg, size is 20x20px and there are no small details"
+  "icon-select.custom.tip": "The icon looks better if format is png/svg, size is 20x20px and there are no small details",
+  "icon-select.error.get-custom-icons": "Customs menu icons haven't received",
+  "icon-select.error.get-font-icons": "Font menu icons haven't received",
+  "icon-select.error.upload-custom-icon": "Custom icon hasn't uploaded",
+  "icon-select.error.delete-custom-icon": "Custom icon hasn't deleted"
 }

@@ -6,8 +6,8 @@ import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import ReactResizeDetector from 'react-resize-detector';
 
-import { URL } from '../../constants';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
+import { URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import SlideMenuBtn from './SlideMenuBtn';
 import CreateMenu from './CreateMenu';

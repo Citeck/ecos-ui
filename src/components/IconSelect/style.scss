@@ -1,6 +1,10 @@
 @import '../../styles/constants';
 
 .ecos-icon-select {
+  &__loader {
+    border-radius: 10px;
+  }
+
   &__option {
     &-list {
       max-height: 150px;

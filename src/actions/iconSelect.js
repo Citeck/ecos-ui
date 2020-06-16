@@ -7,5 +7,5 @@ export const setFontIcons = createAction(prefix + 'SET_FONT_ICONS');
 
 export const getCustomIcons = createAction(prefix + 'GET_CUSTOM_ICONS');
 export const getFontIcons = createAction(prefix + 'GET_FONT_ICONS');
-export const uploadCustomIcon = createAction(prefix + 'GET_UPLOAD_ICONS');
-export const deleteCustomIcon = createAction(prefix + 'GET_DELETE_ICONS');
+export const uploadCustomIcon = createAction(prefix + 'RUN_UPLOAD_ICONS');
+export const deleteCustomIcon = createAction(prefix + 'RUN_DELETE_ICONS');

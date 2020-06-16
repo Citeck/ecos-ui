@@ -1008,7 +1008,6 @@
   "menu-settings.editor-item.btn.edit": "Сохранить",
   "menu-settings.error.get-config": "Конфигурация настроек меню не получена",
   "menu-settings.error.save-config": "Конфигурация настроек меню не сохранена",
-  "menu-settings.error.get-custom-icons": "Пользовательские иконки меню не получены",
   "menu-settings.success.save-config": "Конфигурация настроек меню сохранена",
 
   "menu-item.type.section": "Раздел",
@@ -1023,5 +1022,9 @@
   "icon-select.btn.cancel": "Отмена",
   "icon-select.btn.done": "Готово",
   "icon-select.custom.title": "Пользовательские",
-  "icon-select.custom.tip": "Иконка выглядит лучше, если используется формат png/svg, размер 20x20px и отсутствуют мелкие детали"
+  "icon-select.custom.tip": "Иконка выглядит лучше, если используется формат png/svg, размер 20x20px и отсутствуют мелкие детали",
+  "icon-select.error.get-custom-icons": "Пользовательские иконки меню не получены",
+  "icon-select.error.get-font-icons": "Шрифт-иконки не получены",
+  "icon-select.error.upload-custom-icon": "Загузка иконки не удалась",
+  "icon-select.error.delete-custom-icon": "Удаление иконки не удалось"
 }

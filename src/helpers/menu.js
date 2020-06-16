@@ -1,5 +1,4 @@
 import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 
 import Records from '../components/Records';
 import { SourcesId, URL } from '../constants';

@@ -27,9 +27,9 @@ class IconSelect extends React.Component {
   };
 
   componentDidMount() {
-    const { getCustomIcons, getFontIcons, selectedIcon, prefixIcon, useFontIcons } = this.props;
+    const { getCustomIcons, getFontIcons, selectedIcon, prefixIcon, useFontIcons, family } = this.props;
 
-    getCustomIcons();
+    getCustomIcons({ family });
     useFontIcons && getFontIcons(prefixIcon);
 
     this.setState({ icon: selectedIcon });
@@ -45,9 +45,9 @@ class IconSelect extends React.Component {
 
   onUpload = files => {
     if (files && files.length) {
-      const { uploadCustomIcon } = this.props;
+      const { uploadCustomIcon, family } = this.props;
 
-      uploadCustomIcon(files[0]);
+      uploadCustomIcon({ file: files[0], family });
 
       //todo see after lastLoaded
     }
@@ -97,7 +97,7 @@ class IconSelect extends React.Component {
 
     return (
       <EcosModal className="ecos-icon-select__modal ecos-modal_width-xs" isOpen hideModal={this.onCancel} title={t(Labels.TITLE)}>
-        {isLoading && <Loader blur />}
+        {isLoading && <Loader blur className="ecos-icon-select__loader" />}
         {this.renderIcons(fontIcons)}
         <div className="ecos-icon-select__custom-title">{t(Labels.ICON_CUSTOM_TITLE)}</div>
         {this.renderIcons(customIcons)}
@@ -128,6 +128,7 @@ class IconSelect extends React.Component {
 
 IconSelect.propTypes = {
   className: PropTypes.string,
+  family: PropTypes.string,
   onClose: PropTypes.func,
   onSave: PropTypes.func,
   useFontIcons: PropTypes.bool,
@@ -146,7 +147,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getCustomIcons: () => dispatch(getCustomIcons()),
+  getCustomIcons: data => dispatch(getCustomIcons(data)),
   getFontIcons: prefixIcon => dispatch(getFontIcons(prefixIcon)),
   uploadCustomIcon: data => dispatch(uploadCustomIcon(data)),
   deleteCustomIcon: data => dispatch(deleteCustomIcon(data))

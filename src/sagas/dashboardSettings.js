@@ -17,7 +17,6 @@ import {
   setLoading,
   setRequestResultDashboard
 } from '../actions/dashboardSettings';
-import { saveMenuConfig } from '../actions/menu';
 import { selectIdentificationForSet } from '../selectors/dashboard';
 import { selectIsAdmin, selectUserName } from '../selectors/user';
 import { t } from '../helpers/util';
