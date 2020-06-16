@@ -33,7 +33,7 @@ class EcosForm extends React.Component {
   constructor(props) {
     super(props);
 
-    let record = Records.getRecordToEdit(this.props.record);
+    const record = Records.getRecordToEdit(this.props.record);
 
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,

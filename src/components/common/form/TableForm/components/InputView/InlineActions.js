@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import classNames from 'classnames';
 import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../../../../helpers/export/util';
 import { IcoBtn } from '../../../../btns';
@@ -11,8 +12,6 @@ import { TableFormContext } from '../../TableFormContext';
 const InlineActions = () => {
   const iconButtons = [];
   const context = useContext(TableFormContext);
-
-  const { disabled, viewOnly, displayElements, selectedRows } = context.controlProps;
   const {
     deleteSelectedItem,
     showEditForm,
@@ -20,8 +19,11 @@ const InlineActions = () => {
     showPreview,
     showViewOnlyForm,
     inlineToolsOffsets,
-    setInlineToolsOffsets
+    setInlineToolsOffsets,
+    createVariants,
+    controlProps
   } = context;
+  const { disabled, viewOnly, displayElements, selectedRows } = controlProps;
 
   const onClickDelete = () => {
     setInlineToolsOffsets({ height: 0, top: 0, row: {} });
@@ -87,7 +89,7 @@ const InlineActions = () => {
     );
   }
 
-  if (!disabled && !viewOnly && shouldShowCloneButton) {
+  if (!disabled && !viewOnly && !isEmpty(createVariants) && shouldShowCloneButton) {
     iconButtons.push(
       <IcoBtn
         key={'clone'}

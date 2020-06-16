@@ -79,6 +79,18 @@ const ModalForm = () => {
     formOptions.disableInlineEdit = true;
   }
 
+  const getOnSubmit = () => {
+    switch (formMode) {
+      case FORM_MODE_CREATE:
+      case FORM_MODE_CLONE:
+        return onCreateFormSubmit;
+      case FORM_MODE_EDIT:
+        return onEditFormSubmit;
+      default:
+        return () => null;
+    }
+  };
+
   return (
     <div>
       {recordForForm ? (
@@ -96,7 +108,7 @@ const ModalForm = () => {
             record={recordForForm}
             formKey={formKey}
             attributes={attributes}
-            onSubmit={formMode === FORM_MODE_CREATE ? onCreateFormSubmit : onEditFormSubmit}
+            onSubmit={getOnSubmit()}
             onFormCancel={toggleModal}
             saveOnSubmit={false}
             options={formOptions}
