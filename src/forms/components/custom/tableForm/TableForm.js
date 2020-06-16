@@ -5,6 +5,9 @@ import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../../components/Records';
 import { JournalsApi } from '../../../../api/journalsApi';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
+import DialogManager from '../../../../components/common/dialogs/Manager';
+import { t } from '../../../../helpers/util';
+import ecosFetch from '../../../../helpers/ecosFetch';
 
 export default class TableFormComponent extends BaseReactComponent {
   _selectedRows = [];
@@ -39,7 +42,12 @@ export default class TableFormComponent extends BaseReactComponent {
         isSelectableRows: false,
         displayElementsJS: '',
         nonSelectableRowsJS: '',
-        selectedRowsJS: ''
+        selectedRowsJS: '',
+        import: {
+          enable: false,
+          uploadUrl: '',
+          responseHandler: ''
+        }
       },
       ...extend
     );
@@ -288,7 +296,16 @@ export default class TableFormComponent extends BaseReactComponent {
             let columnsMap = {};
             let formatters = {};
             columns.forEach(item => {
-              const key = `.edge(n:"${item.name}"){title,type,multiple}`;
+              const hasBracket = item.name.includes('{');
+              const hasQChar = item.name.includes('?');
+              let colName = item.name;
+              if (hasBracket || hasQChar) {
+                let [origAtt] = item.name.split(hasBracket ? '{' : '?');
+                origAtt = origAtt.replace('[]', '');
+                colName = origAtt;
+              }
+
+              const key = `.edge(n:"${colName}"){title,type,multiple}`;
               columnsMap[key] = item;
               if (item.formatter) {
                 formatters[item.name] = item.formatter;
@@ -327,7 +344,7 @@ export default class TableFormComponent extends BaseReactComponent {
                     cols.push({
                       default: true,
                       type: isManualAttributes && originalColumn.type ? originalColumn.type : loadedAtt[i].type,
-                      text: isManualAttributes ? this.t(originalColumn.title) : loadedAtt[i].title,
+                      text: isManualAttributes && originalColumn.title ? this.t(originalColumn.title) : loadedAtt[i].title,
                       multiple: isManualAttributes ? originalColumn.multiple : loadedAtt[i].multiple,
                       attribute: originalColumn.name
                     });
@@ -424,6 +441,10 @@ export default class TableFormComponent extends BaseReactComponent {
         displayElements: this._displayElementsValue,
         nonSelectableRows: this._nonSelectableRows,
         selectedRows: this._selectedRows,
+        importButton: {
+          enable: component.import.enable,
+          onChange: this.importFiles
+        },
         computed: {
           valueFormKey: value => this.getValueFormKey(value)
         }
@@ -432,4 +453,56 @@ export default class TableFormComponent extends BaseReactComponent {
 
     return this._fetchAsyncProperties(component.source).then(resolveProps);
   }
+
+  importFiles = fileList => {
+    for (let i = 0; i < fileList.length; i++) {
+      this.uploadFile(fileList.item(i));
+    }
+  };
+
+  uploadFile = async file => {
+    const component = this.component;
+    const importConfig = component.import;
+    const { uploadUrl, responseHandler } = importConfig;
+
+    if (!responseHandler) {
+      return this.showErrorMessage(t('ecos-table-form.error.no-response-handler'));
+    }
+
+    const formData = new FormData();
+    formData.append(file.name, file);
+
+    try {
+      const response = await ecosFetch(uploadUrl, {
+        method: 'POST',
+        body: formData
+      });
+      const result = await response.json();
+
+      const handledResult = this.evaluate(responseHandler, { response: result, resp: result }, 'result', true);
+      if (handledResult instanceof Error) {
+        return this.showErrorMessage(handledResult.message);
+      }
+
+      const currentValue = this.getValue();
+      let newValue;
+      if (Array.isArray(handledResult)) {
+        newValue = currentValue.concat(handledResult);
+      } else {
+        newValue = [...currentValue, handledResult];
+      }
+
+      this.updateValue({}, newValue);
+    } catch (e) {
+      console.error('TableForm error. Failure to upload file: ', e.message);
+      this.showErrorMessage(t('ecos-table-form.error.failure-to-import'));
+    }
+  };
+
+  showErrorMessage = text => {
+    DialogManager.showInfoDialog({
+      title: t('ecos-table-form.error-dialog.title'),
+      text
+    });
+  };
 }

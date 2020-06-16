@@ -2,6 +2,7 @@
 
 button {
   &.ecos-btn {
+    position: relative;
     display: inline-block;
     text-align: center;
     white-space: nowrap;
@@ -693,5 +694,23 @@ button {
     border-radius: 50%;
     padding: 0;
     text-align: center;
+  }
+
+  .ecos-btn__loader {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .ecos-btn__content {
+    &_hidden {
+      visibility: hidden;
+    }
   }
 }

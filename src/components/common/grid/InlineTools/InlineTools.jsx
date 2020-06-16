@@ -45,23 +45,19 @@ class InlineTools extends Component {
   };
 
   static renderAction(action, idx, withTooltip = false) {
-    let themeClass = '';
-
-    if (action.theme === 'danger') {
-      themeClass = 'ecos-btn_hover_t_red';
-    }
-
-    const classes = classNames('ecos-inline-tools-btn ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10', themeClass);
+    const icon = action.icon || 'icon-empty-icon';
+    const id = `tooltip-${action.order}-${action.type}-${idx}`;
+    const classes = classNames('ecos-inline-tools-btn ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10', {
+      'ecos-btn_hover_t_red': action.theme === 'danger'
+    });
 
     if (!withTooltip) {
-      return <IcoBtn key={idx} title={action.name} icon={action.icon} onClick={action.onClick} className={classes} />;
+      return <IcoBtn key={idx} title={action.name} icon={icon} onClick={action.onClick} className={classes} />;
     }
-
-    const id = `tooltip-${action.order}-${action.type}-${idx}`;
 
     return (
       <Tooltip key={idx} target={id} uncontrolled text={action.name}>
-        <IcoBtn id={id} icon={action.icon} onClick={action.onClick} className={classes} />
+        <IcoBtn id={id} icon={icon} onClick={action.onClick} className={classes} />
       </Tooltip>
     );
   }
@@ -69,21 +65,21 @@ class InlineTools extends Component {
   render() {
     const {
       className,
-      inlineToolSettings: { top, height, left, actions = [], row = {} },
+      inlineToolSettings: { actions = [], row = {}, ...style },
       selectedRecords,
       selectAllRecords,
       actionsProps,
       withTooltip
     } = this.props;
 
-    if (!height) {
+    if (!style.height) {
       return null;
     }
 
     const selected = selectedRecords.includes(row.id) || selectAllRecords;
 
     return (
-      <div style={{ top, left, height }} className={classNames('ecos-inline-tools', className, { 'ecos-inline-tools_selected': selected })}>
+      <div style={style} className={classNames('ecos-inline-tools', className, { 'ecos-inline-tools_selected': selected })}>
         <div className="ecos-inline-tools-actions" {...actionsProps}>
           {actions.map((action, idx) => InlineTools.renderAction(action, idx, withTooltip))}
         </div>

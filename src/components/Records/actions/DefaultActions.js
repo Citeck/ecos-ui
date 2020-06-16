@@ -1,6 +1,7 @@
 import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import * as queryString from 'query-string';
 
 import {
   createPrintUrl,
@@ -11,18 +12,22 @@ import {
   goToNodeEditPage
 } from '../../../helpers/urls';
 import { getTimezoneValue, t } from '../../../helpers/util';
-import { ActionModes } from '../../../constants';
+import ecosFetch from '../../../helpers/ecosFetch';
+import { ActionModes, SourcesId } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
-import { VersionsJournalService } from '../../../services/VersionsJournalService';
+import WidgetService from '../../../services/WidgetService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 import RecordActions from './RecordActions';
-import ecosFetch from '../../../helpers/ecosFetch';
 
-const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
+function notifySuccess(msg) {
+  NotificationManager.success(msg || t('record-action.msg.success.text'), t('record-action.msg.success.title'));
+}
 
-const globalTaskPatterns = [/active-tasks/, /completed-tasks/, /controlled/, /subordinate-tasks/, /task-statistic/, /initiator-tasks/];
+function notifyFailure(msg) {
+  NotificationManager.error(msg || t('record-action.msg.error.text'), t('record-action.msg.error.title'), 5000);
+}
 
 export const DefaultActionTypes = {
   CREATE: 'create',
@@ -37,18 +42,35 @@ export const DefaultActionTypes = {
   OPEN_URL: 'open-url',
   UPLOAD_NEW_VERSION: 'upload-new-version',
   ASSOC_ACTION: 'assoc-action',
-  MODAL_DOC_PREVIEW: 'modal-doc-preview',
-  SAVE_AS_CASE_TEMPLATE: 'save-as-case-template'
+  SAVE_AS_CASE_TEMPLATE: 'save-as-case-template',
+  PREVIEW_MODAL: 'content-preview-modal',
+  FETCH: 'fetch',
+  SCRIPT: 'script'
 };
 
 export const EditAction = {
-  disabledFor: [/task-statistic/, /completed-tasks/],
+  execute: ({ record, action: { config = {} } }) => {
+    if (config.mode === 'task') {
+      return record.load('cm:name?str').then(taskId => {
+        if (!taskId) {
+          console.error('Task ID is not found for record', record);
+          notifyFailure();
+          return false;
+        }
+        const taskRecordId = `${SourcesId.TASK}@${taskId}`;
 
-  execute: ({ record, action: { context } }) => {
-    if (globalTasks.indexOf(context.scope) > -1) {
-      const name = record.att('cm:name?disp') || '';
-      window.open(`${URL_PAGECONTEXT}task-edit?taskId=${name}&formMode=edit`, '_blank');
-      return false;
+        return new Promise(resolve => {
+          EcosFormUtils.editRecord({
+            recordRef: taskRecordId,
+            fallback: () => {
+              window.open(`${URL_PAGECONTEXT}task-edit?taskId=${taskId}&formMode=edit`, '_blank');
+              resolve(false);
+            },
+            onSubmit: () => resolve(true),
+            onCancel: () => resolve(false)
+          });
+        });
+      });
     }
 
     return new Promise(resolve => {
@@ -67,33 +89,44 @@ export const EditAction = {
       type: DefaultActionTypes.EDIT,
       icon: 'icon-edit'
     };
-  },
-
-  canBeExecuted: ({ context }) => {
-    const { scope = '' } = context;
-    for (let pattern of EditAction.disabledFor) {
-      if (pattern.test(scope)) {
-        return false;
-      }
-    }
-    return true;
   }
+};
+
+const goToTaskView = (task, inBackground) => {
+  let taskRecord = Records.get(task);
+
+  taskRecord.load('wfm:document?id').then(docId => {
+    if (docId) {
+      goToCardDetailsPage(docId, { openInBackground: inBackground });
+    } else {
+      taskRecord.load('cm:name?str').then(taskId => {
+        if (!taskId) {
+          console.error('Task Id is not found!');
+          notifyFailure();
+          return;
+        }
+        const taskRecordId = `${SourcesId.TASK}@${taskId}`;
+        Records.get(taskRecordId)
+          .load('workflow?id')
+          .then(workflowId => {
+            goToCardDetailsPage(workflowId || taskRecordId, { openInBackground: inBackground });
+          });
+      });
+    }
+  });
 };
 
 export const ViewAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record, action: { config = {}, context = {} } }) => {
+  execute: ({ record, action: { config = {} } }) => {
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
         .then(docId => (docId ? goToCardDetailsPage(docId) : ''));
       return false;
-    }
-
-    if (globalTasks.indexOf(context.scope) > -1) {
-      const name = record.att('cm:name?disp') || '';
-      window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
+    } else if (config.viewType === 'view-task') {
+      goToTaskView(record.id, false);
       return false;
     }
 
@@ -140,7 +173,8 @@ export const OpenURL = {
 
   getDefaultModel: () => {
     return {
-      type: OpenURL.type
+      type: OpenURL.type,
+      icon: 'icon-newtab'
     };
   }
 };
@@ -150,11 +184,9 @@ export const BackgroundOpenAction = {
 
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record, action: { context } }) => {
-    if (globalTasks.indexOf(context.scope) > -1) {
-      const name = record.att('cm:name?disp') || '';
-
-      window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
+  execute: ({ record, action: { context, config = {} } }) => {
+    if (config.viewType === 'view-task') {
+      goToTaskView(record.id, true);
       return false;
     }
 
@@ -276,7 +308,7 @@ export const DownloadAction = {
 };
 
 export const DeleteAction = {
-  disabledFor: [/^event-lines.*/, ...globalTaskPatterns],
+  disabledFor: [/^event-lines.*/],
 
   groupExec: ({ records }) => {
     return new Promise(resolve => {
@@ -447,7 +479,7 @@ export const CreateNodeAction = {
 
 export const UploadNewVersion = {
   execute: ({ record, action }) => {
-    VersionsJournalService.addVersion({ record });
+    WidgetService.uploadNewVersion({ record });
   },
 
   getDefaultModel: () => {
@@ -472,7 +504,7 @@ export const AssocAction = {
       .load(assoc, true)
       .then(result => {
         if (!result) {
-          NotificationManager.error('', t('record-action.assoc-action.not-found'));
+          notifyFailure(t('record-action.assoc-action.not-found'));
           return;
         }
 
@@ -530,6 +562,90 @@ export const SaveAsCaseTemplate = {
 
   getDefaultModel: () => ({
     name: 'record-action.name.save-as-case-template',
-    type: DefaultActionTypes.SAVE_AS_CASE_TEMPLATE
+    type: DefaultActionTypes.SAVE_AS_CASE_TEMPLATE,
+    icon: 'icon-filetype-none'
   })
+};
+
+export const PreviewModal = {
+  type: DefaultActionTypes.PREVIEW_MODAL,
+  execute: ({ record }) => {
+    WidgetService.openPreviewModal({ recordId: record.id });
+    return false;
+  },
+  getDefaultModel: () => ({
+    name: 'record-action.name.preview',
+    type: DefaultActionTypes.PREVIEW_MODAL,
+    icon: 'icon-preview'
+  })
+};
+
+export const FetchAction = {
+  execute: ({ action: { config } }) => {
+    const { url, args, ...options } = config || {};
+    const fullUrl = `${url}?${queryString.stringify({ ...args })}`;
+
+    return ecosFetch(fullUrl, options)
+      .then(response => (response.ok ? response : Promise.reject({ message: response.statusText })))
+      .then(result => {
+        notifySuccess();
+        return result;
+      })
+      .catch(e => {
+        notifyFailure();
+        dialogManager.showInfoDialog({ title: t('error'), text: e.message });
+      });
+  },
+
+  getDefaultModel: () => ({
+    name: 'record-action.name.fetch-action',
+    type: DefaultActionTypes.FETCH,
+    icon: 'icon-right'
+  })
+};
+
+export const ScriptAction = {
+  execute: context => {
+    let config = get(context, 'action.config', {});
+
+    if (config.module) {
+      return new Promise(resolve => {
+        window.require(
+          [config.module],
+          module => {
+            const result = module.default.execute(context);
+            if (result) {
+              if (result.then) {
+                result
+                  .then(res => resolve(res))
+                  .catch(e => {
+                    console.error(e);
+                    resolve(true);
+                  });
+              } else {
+                resolve(result);
+              }
+            } else {
+              resolve(true);
+            }
+          },
+          error => {
+            console.error(error);
+            resolve(false);
+          }
+        );
+      });
+    } else {
+      console.error('Module is not specified!');
+      return false;
+    }
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.script-action',
+      type: DefaultActionTypes.SCRIPT,
+      icon: 'icon-check'
+    };
+  }
 };

@@ -1,16 +1,19 @@
 import Records from '../components/Records';
+import { DEFAULT_REF } from '../constants/documents';
+import { SourcesId } from '../constants';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
     return Records.query(
       {
-        sourceId: 'emodel/type'
+        sourceId: SourcesId.TYPE
       },
       {
         name: 'name',
         parent: 'parent?id',
         formId: 'form?id',
-        createVariants: 'createVariants?json'
+        createVariants: 'createVariants?json',
+        actions: 'actions[]?id'
       }
     ).then(response => response);
   };
@@ -37,8 +40,8 @@ export class DocumentsApi {
       .catch(() => null);
   };
 
-  uploadFilesWithNodes = (data = {}) => {
-    const record = Records.getRecordToEdit('dict@cm:content');
+  uploadFilesWithNodes = (data = {}, recordRef = DEFAULT_REF) => {
+    const record = Records.getRecordToEdit(recordRef);
 
     Object.keys(data).forEach(key => {
       record.att(key, data[key]);
@@ -73,7 +76,7 @@ export class DocumentsApi {
   getCreateVariants = type => {
     return Records.get(type)
       .load('createVariants?json')
-      .then(response => response)
+      .then(response => response || {})
       .catch(() => null);
   };
 }

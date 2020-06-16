@@ -138,7 +138,7 @@ export default class EcosFormModal extends React.Component {
   }
 
   render() {
-    const { title, isBigHeader } = this.props;
+    const { title, isBigHeader, contentBefore, contentAfter } = this.props;
     const { recordData, isModalOpen } = this.state;
 
     if (!isModalOpen || !recordData) {
@@ -187,7 +187,9 @@ export default class EcosFormModal extends React.Component {
           customButtons={[this.renderConstructorButton()]}
           zIndex={9000}
         >
+          {contentBefore}
           <EcosForm ref={this._formRef} onFormSubmitDone={this.onUpdateForm} {...formProps} />
+          {contentAfter}
         </EcosModal>
       </div>
     );
@@ -205,9 +207,13 @@ EcosFormModal.propTypes = {
   onSubmit: PropTypes.func,
   onReady: PropTypes.func,
   onHideModal: PropTypes.func,
-  title: PropTypes.string
+  title: PropTypes.string,
+  contentBefore: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+  contentAfter: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
 };
 
 EcosFormModal.defaultProps = {
-  isBigHeader: true
+  isBigHeader: true,
+  contentBefore: null,
+  contentAfter: null
 };

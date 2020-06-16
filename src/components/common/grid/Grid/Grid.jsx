@@ -8,7 +8,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { closest, getId, t, trigger } from '../../../../helpers/util';
+import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
@@ -366,14 +366,28 @@ class Grid extends Component {
   };
 
   getTrOptions = tr => {
+    const { selectorContainer, data } = this.props;
+    const row = data[tr.rowIndex - 1];
+    const elGrid = tr.closest('.ecos-grid');
+    const elContainer = tr.closest(selectorContainer);
     const { scrollLeft = 0 } = this._scrollValues;
-    const height = tr.offsetHeight;
-    const top = tr.offsetTop;
-    const row = this.props.data[tr.rowIndex - 1];
+
+    const style = {
+      height: tr.offsetHeight,
+      top: tr.offsetTop,
+      left: scrollLeft
+    };
+
+    if (elContainer && !isInViewport(elGrid)) {
+      const elSidebar = document.querySelector('.ecos-sidebar');
+      const rectGrid = elGrid.getBoundingClientRect();
+
+      style.width = elContainer.clientWidth - rectGrid.left + elSidebar.clientWidth;
+    }
 
     this._tr = tr;
 
-    trigger.call(this, 'onChangeTrOptions', { height, top, row, left: scrollLeft });
+    trigger.call(this, 'onChangeTrOptions', { row, ...style });
   };
 
   setEditable = () => {
@@ -726,6 +740,20 @@ class Grid extends Component {
     trigger.call(this, 'onDragOver', e);
   };
 
+  checkDropPermission = tr => {
+    if (this.props.onCheckDropPermission && typeof this.props.onCheckDropPermission === 'function') {
+      const canDrop = this.props.onCheckDropPermission(this.props.data[tr.rowIndex - 1]);
+
+      if (!canDrop) {
+        this.setHover(tr, ECOS_GRID_HOVERED_CLASS, false, this._tr);
+
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   onDragEnter = e => {
     const dataTypes = get(e, 'dataTransfer.types', []);
 
@@ -751,6 +779,10 @@ class Grid extends Component {
 
     if (this._dragTr) {
       this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
+    }
+
+    if (!this.checkDropPermission(tr)) {
+      return;
     }
 
     this.setHover(tr, ECOS_GRID_GRAG_CLASS, false, this._tr);
@@ -911,7 +943,9 @@ Grid.propTypes = {
   onRowDragEnter: PropTypes.func,
   onRowMouseLeave: PropTypes.func,
   onResizeColumn: PropTypes.func,
-  onGridMouseEnter: PropTypes.func
+  onGridMouseEnter: PropTypes.func,
+  onCheckDropPermission: PropTypes.func,
+  onChangeTrOptions: PropTypes.func
 };
 
 Grid.defaultProps = {

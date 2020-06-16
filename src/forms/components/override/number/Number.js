@@ -1,5 +1,7 @@
 import FormIONumberComponent from 'formiojs/components/number/Number';
 import _ from 'lodash';
+import { maskInput } from 'vanilla-text-mask';
+
 import { overrideTriggerChange } from '../misc';
 
 export default class NumberComponent extends FormIONumberComponent {
@@ -29,19 +31,68 @@ export default class NumberComponent extends FormIONumberComponent {
   }
 
   setupValueElement(element) {
+    const renderValue = val => {
+      element.innerHTML = val;
+    };
+
     let value = this.getValue();
 
     if (this.isEmpty(value)) {
-      value = this.defaultViewOnlyValue;
-    } else {
-      value = this.parseNumber(this.getView(value));
-      if (!isNaN(value)) {
-        value = value.toLocaleString();
-      }
+      renderValue(this.defaultViewOnlyValue);
+      return;
     }
 
-    element.innerHTML = value;
+    value = this.parseNumber(this.getView(value));
+    if (isNaN(value)) {
+      renderValue(this.defaultViewOnlyValue);
+      return;
+    }
+
+    const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
+
+    value = value.toString();
+    value = value.replace(/,/g, '.');
+    if (!!decimalLimit) {
+      value = parseFloat(parseFloat(value).toFixed(decimalLimit)).toString();
+    }
+    value = value.replace(/\./g, this.decimalSeparator);
+    if (!!decimalLimit) {
+      value = this._fillZeros(value);
+    }
+
+    if (this.component.delimiter) {
+      value = this._applyThousandsSeparator(value);
+    }
+
+    renderValue(value);
   }
+
+  _fillZeros(value) {
+    const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
+    if (!decimalLimit) {
+      return value;
+    }
+
+    const [, decimalPart] = value.split(this.decimalSeparator);
+    if (!decimalPart) {
+      return value;
+    }
+
+    if (decimalPart.length < decimalLimit) {
+      return `${value}${_.repeat('0', decimalLimit - decimalPart.length)}`;
+    }
+
+    return value;
+  }
+
+  _applyThousandsSeparator = value => {
+    const [mainPart, decimalPart] = value.split(this.decimalSeparator);
+    let newValue = parseInt(mainPart).toLocaleString();
+    if (decimalPart) {
+      newValue = `${newValue}${this.decimalSeparator}${decimalPart}`;
+    }
+    return newValue;
+  };
 
   getValueAt(index) {
     if (!this.inputs.length || !this.inputs[index]) {
@@ -56,4 +107,37 @@ export default class NumberComponent extends FormIONumberComponent {
 
     return this.parseNumber(val);
   }
+
+  setInputMask(input) {
+    input.setAttribute('pattern', '\\d*');
+
+    input.mask = maskInput({
+      inputElement: input,
+      mask: (value, options) => this.recalculateMask(value, options, input)
+    });
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-109
+  recalculateMask = (value, options, input) => {
+    const updatedValue = value.replace(/\.|,/g, this.decimalSeparator);
+    const formattedValue = this.formatValue(updatedValue);
+    let position = options.currentCaretPosition;
+
+    if (formattedValue[0] === this.decimalSeparator) {
+      position = 2;
+    }
+
+    if (options.previousConformedValue === super.getMaskedValue(updatedValue)) {
+      position -= 1;
+    }
+
+    this.setCaretPosition(input, position);
+
+    return this.numberMask(updatedValue, options);
+  };
+
+  setCaretPosition = _.debounce((input, position) => {
+    input.selectionStart = position;
+    input.selectionEnd = position;
+  }, 10);
 }

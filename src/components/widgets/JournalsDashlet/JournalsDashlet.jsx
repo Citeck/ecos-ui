@@ -10,10 +10,11 @@ import { goToJournalsPage } from '../../../helpers/urls';
 import { getStateId, wrapArgs } from '../../../helpers/redux';
 import { arrayCompare, t } from '../../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
+import DAction from '../../../services/DashletActionService';
 import { getDashletConfig, initState, reloadGrid, setDashletConfigByParams, setEditorMode, setRecordRef } from '../../../actions/journals';
 
 import Measurer from '../../Measurer/Measurer';
-import Dashlet, { BaseActions } from '../../Dashlet';
+import Dashlet from '../../Dashlet';
 import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
 import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
 import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
@@ -168,7 +169,7 @@ class JournalsDashlet extends BaseWidget {
           <JournalsDashletToolbar stateId={stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
         </Measurer>
 
-        <JournalsDashletGrid stateId={stateId} isWidget maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - 100} />
+        <JournalsDashletGrid stateId={stateId} isWidget maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - 100} selectorContainer={'.ecos-layout'} />
 
         <JournalsDashletFooter stateId={stateId} isWidget />
       </>
@@ -184,16 +185,16 @@ class JournalsDashlet extends BaseWidget {
     }
 
     const actions = {
-      [BaseActions.HELP]: {
+      [DAction.Actions.HELP]: {
         onClick: () => null
       }
     };
 
     if (!editorMode) {
-      actions[BaseActions.SETTINGS] = {
+      actions[DAction.Actions.SETTINGS] = {
         onClick: this.showEditor
       };
-      actions[BaseActions.RELOAD] = {
+      actions[DAction.Actions.RELOAD] = {
         onClick: this.handleReload
       };
     }

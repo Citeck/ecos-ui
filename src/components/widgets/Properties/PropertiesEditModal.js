@@ -14,9 +14,10 @@ function usePrevious(value = false) {
 }
 
 function PropertiesEditModal(props) {
-  const { record, isOpen, onFormSubmit, onFormCancel, formIsChanged, formId } = props;
+  const { record, isOpen, onFormSubmit, onFormCancel, formIsChanged, formId, assignmentPanel } = props;
   const prev = usePrevious({ formIsChanged });
   const formRef = useRef();
+  const contentBefore = typeof assignmentPanel === 'function' ? assignmentPanel() : null;
 
   useEffect(() => {
     if (formRef.current && prev && prev.formIsChanged !== formIsChanged && formIsChanged) {
@@ -35,6 +36,7 @@ function PropertiesEditModal(props) {
       options={{
         formMode: FORM_MODE_EDIT
       }}
+      contentBefore={contentBefore}
     />
   );
 }

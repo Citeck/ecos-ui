@@ -20,8 +20,10 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content:
-          '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. The <strong>value</strong> variable can contain next boolean properties: <strong>delete</strong>. For example, value = {delete: false};</p>'
+        content: `<p>Enter custom javascript code. 
+You must assign the <strong>value</strong> variable. 
+The <strong>value</strong> variable can contain next boolean properties: <strong>upload, delete</strong>. 
+For example, value = {upload: false, delete: false};</p>`
       }
     ]
   }

@@ -4,6 +4,8 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
+import get from 'lodash/get';
+import moment from 'moment';
 
 import BaseWidget from '../BaseWidget';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
@@ -14,15 +16,16 @@ import {
   getMenu,
   getSectionList,
   removeAssociations,
-  resetStore
+  resetStore,
+  viewAssociation
 } from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
-
+import DAction from '../../../services/DashletActionService';
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
-import Dashlet, { BaseActions } from '../../Dashlet';
+import Dashlet from '../../Dashlet';
 
 import './style.scss';
 
@@ -116,8 +119,8 @@ class DocAssociations extends BaseWidget {
     const { selectedDocument } = this.state;
     let label = t(LABELS.CONFIRM_REMOVE_MODAL_TEXT);
 
-    if (selectedDocument) {
-      label += ` "${selectedDocument.name}"`;
+    if (selectedDocument && selectedDocument.displayName) {
+      label += ` "${selectedDocument.displayName}"`;
     }
 
     return `${label}?`;
@@ -160,8 +163,19 @@ class DocAssociations extends BaseWidget {
     this.setState({ journalId: '' });
   };
 
+  handleReloadData = () => {
+    this.props.getAssociations();
+  };
+
   handleClickDeleteDocument = selectedDocument => {
     this.setState({ isConfirmRemoveDialogOpen: true, selectedDocument });
+  };
+
+  handleClickViewDocument = selectedDocument => {
+    const { viewAssociation } = this.props;
+    const { record } = selectedDocument;
+
+    viewAssociation(record);
   };
 
   closeConfirmRemovingModal = () => {
@@ -182,12 +196,91 @@ class DocAssociations extends BaseWidget {
     this.closeConfirmRemovingModal();
   };
 
-  renderTable(data = [], key) {
-    const { isMobile } = this.props;
+  renderHeader = columns => {
+    return (
+      <div className="ecos-doc-associations__table-header">
+        {columns.map(column => (
+          <div key={column.name} className="ecos-doc-associations__table-cell ecos-doc-associations__table-header-cell">
+            {t(column.label)}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
+  renderRow = (item, columns, key) => (
+    <div className="ecos-doc-associations__table-row surfbug_highlight" key={`${key}-${item.record}`}>
+      {columns.map(column => this.renderCell(column, item))}
+    </div>
+  );
+
+  renderCell = (column, row) => {
+    const { isMobile } = this.props;
+    let data = row[column.name];
+    let Wrapper;
+
+    if (column.type === 'datetime') {
+      data = moment(data || moment()).format('DD.MM.YYYY h:mm');
+    }
+
+    switch (column.name) {
+      case 'displayName': {
+        Wrapper = ({ children }) => (
+          <a
+            href={`${URL.DASHBOARD}?recordRef=${row.record}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ecos-doc-associations__link"
+          >
+            {children}
+          </a>
+        );
+        break;
+      }
+      case 'modifier': {
+        Wrapper = ({ children }) => (
+          <a
+            href={`${URL.DASHBOARD}?recordRef=people@${row.modifierId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ecos-doc-associations__link"
+          >
+            {children}
+          </a>
+        );
+        break;
+      }
+      default:
+        Wrapper = ({ children }) => children;
+    }
+
+    return (
+      <React.Fragment key={column.name}>
+        <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">{data && <Wrapper>{data}</Wrapper>}</div>
+
+        {!isMobile && (
+          <span className="ecos-doc-associations__table-actions">
+            <Icon
+              onClick={() => this.handleClickViewDocument(row)}
+              className="icon-on ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
+            />
+            <Icon
+              onClick={() => this.handleClickDeleteDocument(row)}
+              className="icon-delete ecos-doc-associations__icon-delete ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
+            />
+          </span>
+        )}
+      </React.Fragment>
+    );
+  };
+
+  renderTable(data = [], key) {
     if (!data.length) {
       return this.renderEmptyMessage();
     }
+
+    const { allowedAssociations } = this.props;
+    const columns = get(allowedAssociations.find(item => item.name === key), 'columnsConfig.columns', []);
 
     return (
       <div
@@ -195,39 +288,9 @@ class DocAssociations extends BaseWidget {
           'ecos-doc-associations__table_small': this.isSmallWidget
         })}
       >
-        <div className="ecos-doc-associations__table-header">
-          <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-header-cell">{t(LABELS.TABLE_CELL_HEADLINE)}</div>
-          <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-header-cell">
-            {t(LABELS.TABLE_CELL_DATE_OF_CREATION)}
-          </div>
-        </div>
+        {this.renderHeader(columns)}
 
-        <div className="ecos-doc-associations__table-body">
-          {data.map((item, position) => (
-            <div className="ecos-doc-associations__table-row surfbug_highlight" key={`${key}-${item.record}-${position}`}>
-              <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">
-                <a
-                  href={`${URL.DASHBOARD}?recordRef=${item.record}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ecos-doc-associations__link"
-                >
-                  {item.name}
-                </a>
-              </div>
-              <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">{item.date}</div>
-
-              {!isMobile && (
-                <span className="ecos-doc-associations__table-actions">
-                  <Icon
-                    onClick={() => this.handleClickDeleteDocument(item)}
-                    className="icon-delete ecos-doc-associations__icon-delete ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
-                  />
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
+        <div className="ecos-doc-associations__table-body">{data.map(item => this.renderRow(item, columns, key))}</div>
       </div>
     );
   }
@@ -345,11 +408,11 @@ class DocAssociations extends BaseWidget {
     const { canDragging, dragHandleProps, isCollapsed, associationsTotalCount, isLoading, isMobile } = this.props;
     const { userHeight = 0, fitHeights, contentHeight } = this.state;
     const actions = {
-      [BaseActions.RELOAD]: {
-        onClick: () => this.reload()
+      [DAction.Actions.RELOAD]: {
+        onClick: this.handleReloadData
       }
     };
-    const actionRules = { orderedVisible: [BaseActions.RELOAD, 'addLink'] };
+    const actionRules = { orderedVisible: [DAction.Actions.RELOAD, 'addLink'] };
 
     if (!isMobile) {
       actions.addLink = {
@@ -409,6 +472,7 @@ const mapDispatchToProps = (dispatch, { record }) => ({
   getSectionList: () => dispatch(getSectionList(record)),
   getAssociations: () => dispatch(getAssociations(record)),
   getMenu: () => dispatch(getMenu(record)),
+  viewAssociation: associationRef => dispatch(viewAssociation(associationRef)),
   addAssociations: (associationId, journalRef, associations) =>
     dispatch(
       addAssociations({

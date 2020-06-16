@@ -28,6 +28,16 @@ export class TasksApi extends RecordService {
     return { records: [] };
   };
 
+  static getStaticTaskStateAssignee = ({ taskId }) => {
+    return TasksApi.getTask(taskId, {
+      actors: 'actors[]?json',
+      reassignable: 'reassignable?bool',
+      releasable: 'releasable?bool',
+      claimable: 'claimable?bool',
+      assignable: 'assignable?bool'
+    });
+  };
+
   getTasksForUser = ({ document }) => {
     return TasksApi.getTasks(SourcesId.TASK, document, USER_CURRENT, {
       formKey: '_formKey?str',
@@ -52,15 +62,7 @@ export class TasksApi extends RecordService {
     });
   };
 
-  getTaskStateAssign = ({ taskId }) => {
-    return TasksApi.getTask(taskId, {
-      actors: 'actors[]?json',
-      reassignable: 'reassignable?bool',
-      releasable: 'releasable?bool',
-      claimable: 'claimable?bool',
-      assignable: 'assignable?bool'
-    });
-  };
+  getTaskStateAssign = ({ taskId }) => TasksApi.getStaticTaskStateAssignee({ taskId });
 
   changeAssigneeTask = ({ taskId, action, owner }) => {
     const record = Records.get(taskId);
@@ -74,5 +76,13 @@ export class TasksApi extends RecordService {
       .save()
       .then(() => true)
       .catch(console.error);
+  };
+
+  getDocumentByTaskId = taskId => TasksApi.getDocument(taskId);
+
+  static getDocument = taskId => {
+    return Records.get(taskId)
+      .load('document?id')
+      .then(res => res);
   };
 }

@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 import ReactResizeDetector from 'react-resize-detector';
 
+import { URL } from '../../constants';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
 import { MenuTypes } from '../../constants/menu';
 import SlideMenuBtn from './SlideMenuBtn';
@@ -23,9 +25,10 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = state => ({
-  isMobile: state.view.isMobile,
-  theme: state.view.theme,
-  menuType: state.menu ? state.menu.type : ''
+  isMobile: get(state, 'view.isMobile'),
+  theme: get(state, 'view.theme'),
+  menuType: get(state, 'menu.type', ''),
+  dashboardEditable: get(state, 'app.dashboardEditable')
 });
 
 class Header extends React.Component {
@@ -53,7 +56,9 @@ class Header extends React.Component {
 
   render() {
     const { widthHeader } = this.state;
-    const { isMobile, hideSiteMenu, theme } = this.props;
+    const { isMobile, hideSiteMenu, theme, dashboardEditable } = this.props;
+    const hiddenSiteMenu = hideSiteMenu || isMobile || !dashboardEditable || widthHeader < 600;
+    const hiddenLanguageSwitcher = isMobile || widthHeader < 600;
 
     return (
       <React.Fragment>
@@ -64,9 +69,9 @@ class Header extends React.Component {
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className="ecos-header__side ecos-header__side_right">
-            <Search isMobile={widthHeader <= 600} />
-            {hideSiteMenu || isMobile || (widthHeader > 600 && <SiteMenu />)}
-            {isMobile || (widthHeader > 600 && <LanguageSwitcher theme={theme} />)}
+            <Search isMobile={widthHeader <= 600} searchPageUrl={`${URL.JOURNAL}?journalId=search`} />
+            {!hiddenSiteMenu && <SiteMenu />}
+            {!hiddenLanguageSwitcher && <LanguageSwitcher theme={theme} />}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
           </div>
         </div>

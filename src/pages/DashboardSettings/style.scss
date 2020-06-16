@@ -22,26 +22,38 @@
   }
 
   &__bindings {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    &-owner {
+      display: flex;
+      align-items: center;
+      margin-top: 25px;
+    }
 
-    & > :nth-child(odd) {
-      margin-right: 23px;
+    &-types {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+
+      & > :not(:last-child) {
+        margin-right: 15px;
+      }
     }
 
     &-dropdown {
       .ecos-btn {
-        width: 290px;
+        min-width: 250px;
+        justify-content: flex-end;
       }
 
-      &__menu {
+      &-menu {
         min-width: 100%;
       }
     }
 
-    &-owner {
-      padding-top: 5px;
+    &-description {
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-small;
+      color: $color-gray-5;
+      max-width: 350px;
     }
   }
 
@@ -86,7 +98,7 @@
 
     &-title {
       @extend %title-block--1;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
 
     &-subtitle {

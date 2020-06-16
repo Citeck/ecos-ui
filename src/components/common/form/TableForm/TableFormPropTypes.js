@@ -23,5 +23,9 @@ export default {
     edit: PropTypes.bool,
     delete: PropTypes.bool
   }),
-  nonSelectableRows: PropTypes.array
+  nonSelectableRows: PropTypes.array,
+  importButton: PropTypes.shape({
+    enable: PropTypes.bool,
+    onChange: PropTypes.func
+  })
 };

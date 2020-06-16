@@ -6,12 +6,14 @@ import {
   getDashboardConfig,
   getDashboardKeys,
   initDashboardSettings,
+  resetConfigToDefault,
   resetDashboardConfig,
   saveDashboardConfig,
   setAvailableWidgets,
   setCheckUpdatedDashboardConfig,
   setDashboardConfig,
   setDashboardKeys,
+  setLoading,
   setRequestResultDashboard
 } from '../actions/dashboardSettings';
 
@@ -62,6 +64,7 @@ export default handleActions(
     [getDashboardKeys]: startLoading,
     [saveDashboardConfig]: startLoading,
     [getCheckUpdatedDashboardConfig]: startLoading,
+    [resetConfigToDefault]: startLoading,
 
     [setDashboardConfig]: (state, { payload }) => {
       const { identification, config, key } = payload;
@@ -130,6 +133,17 @@ export default handleActions(
         ...state,
         [payload]: {
           ...initialState
+        }
+      };
+    },
+    [setLoading]: (state, { payload }) => {
+      const { key } = payload;
+
+      return {
+        ...state,
+        [key]: {
+          ...state[key],
+          isLoading: payload.status
         }
       };
     }

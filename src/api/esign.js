@@ -65,11 +65,11 @@ class EsignApi {
     return await this.cadespluginApi.verifyBase64(signedMessage, signedDocument);
   };
 
-  sendSignedDocument = (nodeRef, sign, signer) => {
+  sendSignedDocument = (body = {}) => {
     return fetch(`${PROXY_URI}acm/digitalSignaturePut`, {
       method: 'POST',
       credentials: 'include',
-      body: JSON.stringify({ nodeRef, sign, signer })
+      body: JSON.stringify(body)
     }).then(response => response.json());
   };
 }

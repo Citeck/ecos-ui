@@ -7,6 +7,7 @@ export const selectStateByKey = (state, key) => {
   return {
     sectionList: get(ownState, ['sectionList'], []),
     associations: get(ownState, ['associations'], []),
+    allowedAssociations: get(ownState, ['allowedAssociations'], []),
     isLoading: get(ownState, ['isLoading'], false),
     isLoadingMenu: get(ownState, ['isLoadingMenu'], false),
     menu: get(ownState, ['menu'], []),
@@ -35,4 +36,10 @@ export const selectDirectionByAssocName = (state, key, assocName) => {
   const association = selectAssocByAssocName(state, key, assocName);
 
   return get(association, 'direction', 'BOTH');
+};
+
+export const selectAssociationColumnsConfig = (state, key, attribute) => {
+  const association = get(state, ['docAssociations', key, 'allowedAssociations'], []).find(item => item.attribute === attribute) || {};
+
+  return get(association, 'columnsConfig.columns', []);
 };

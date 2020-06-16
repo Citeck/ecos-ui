@@ -95,8 +95,8 @@ Base.prototype.addInputError = function(message, dirty) {
 Base.prototype.createInlineEditButton = function(container) {
   const isComponentDisabled = this.disabled || this.component.disabled;
 
-  const isInlineEditUnavailable = get(this, 'options.disableInlineEdit', false);
-  if (isInlineEditUnavailable) {
+  const isInlineEditDisabled = get(this, 'options.disableInlineEdit', false) || this.component.disableInlineEdit;
+  if (isInlineEditDisabled) {
     return;
   }
 
@@ -327,7 +327,7 @@ Base.prototype.__t = function(content, params) {
 };
 
 Base.prototype.t = function(text, params) {
-  if (text.includes('__t(')) {
+  if (typeof text === 'string' && text.includes('__t(')) {
     return this.__t(text, params);
   }
 

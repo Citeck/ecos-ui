@@ -173,8 +173,8 @@ export const getTemplateUrl = nodeRef => {
   return `${PROXY_URI}citeck/case/template?nodeRef=${nodeRef}`;
 };
 
-export const getBarcodePrintUrl = record => {
-  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&barcodeType=code-128&scale=5.0&margins=20,200,20,500&print=true`;
+export const getBarcodePrintUrl = (record, settings = 'barcodeType=code-128&scale=5.0&margins=20,200,20,500') => {
+  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&${settings}&print=true`;
 };
 
 export const goToJournalsPage = options => {
@@ -323,4 +323,22 @@ export const isDashboard = (url = window.location.href) => {
   }
 
   return false;
+};
+
+export const stringifySearchParams = (params = {}, stringifyParams = { skipEmptyString: true }) => {
+  return queryString.stringify(params, stringifyParams);
+};
+
+export const isTaskDashboard = (url = window.location.href) => {
+  return isDashboard(url) && hasInString(url, `${SourcesId.TASK}@`);
+};
+
+if (!window.Citeck) {
+  window.Citeck = {};
+}
+
+window.Citeck.Navigator = {
+  goToDashboard: (recordRef, options) => {
+    goToCardDetailsPage(recordRef, options);
+  }
 };

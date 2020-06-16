@@ -1,18 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import connect from 'react-redux/es/connect/connect';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import dialogManager from '../../common/dialogs/Manager';
 
 import JournalsDownloadZip from '../JournalsDownloadZip';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import FormManager from '../../EcosForm/FormManager';
+import Records from '../../Records';
 import { ParserPredicate } from '../../Filters/predicates';
 import { EcosModal, Loader } from '../../common';
 import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
 import { IcoBtn } from '../../common/btns';
-import { Dropdown } from '../../common/form';
+import { DropdownOuter } from '../../common/form';
 import { RemoveDialog } from '../../common/dialogs';
 import { goToNodeEditPage } from '../../../helpers/urls';
 import { t, trigger } from '../../../helpers/util';
@@ -213,7 +214,6 @@ class JournalsDashletGrid extends Component {
   };
 
   renderTools = selected => {
-    const toolsActionClassName = 'ecos-btn_i_sm ecos-btn_grey4';
     const {
       stateId,
       isMobile,
@@ -232,17 +232,17 @@ class JournalsDashletGrid extends Component {
       <JournalsDownloadZip stateId={stateId} selected={selected} />,
       <IcoBtn
         icon={'icon-copy'}
-        className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+        className="ecos-journal__tool ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t-dark-brown"
         title={t('grid.tools.copy-to')}
       />,
       <IcoBtn
         icon={'icon-big-arrow'}
-        className={classNames(toolsActionClassName, 'ecos-btn_hover_t-dark-brown')}
+        className="ecos-journal__tool ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t-dark-brown"
         title={t('grid.tools.move-to')}
       />,
       <IcoBtn
         icon={'icon-delete'}
-        className={classNames(toolsActionClassName, 'ecos-btn_hover_t_red')}
+        className="ecos-journal__tool ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t_red"
         title={t('grid.tools.delete')}
         onClick={this.showDeleteRecordsDialog}
       />
@@ -250,25 +250,26 @@ class JournalsDashletGrid extends Component {
 
     if (sourceGroupActions && sourceGroupActions.length) {
       tools.push(
-        <Dropdown
-          className={'grid-tools__item_left_5'}
+        <DropdownOuter
+          className="ecos-journal__tool-group-dropdown grid-tools__item_left_5"
           source={sourceGroupActions}
           valueField={'id'}
           titleField={'title'}
-          isButton={true}
+          isStatic
           onChange={this.changeGroupAction}
         >
           <IcoBtn
             invert
             icon={'icon-down'}
-            className={'dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn'}
+            className="ecos-journal__tool-group-btn dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn"
             onClick={this.onGoTo}
           >
             {t(isMobile ? 'grid.tools.group-actions-mobile' : 'grid.tools.group-actions')}
           </IcoBtn>
-        </Dropdown>
+        </DropdownOuter>
       );
     }
+
     return (
       <Tools
         onSelectAll={this.setSelectAllRecords}
@@ -292,22 +293,131 @@ class JournalsDashletGrid extends Component {
   changeGroupAction = groupAction => {
     const { selectedRecords, performGroupAction } = this.props;
 
+    const formOptionPrefix = 'form_option_';
+
+    const formOptions = {};
+    const actionParams = groupAction.params || {};
+    for (let key in actionParams) {
+      if (actionParams.hasOwnProperty(key) && key.startsWith(formOptionPrefix)) {
+        formOptions[key.substring(formOptionPrefix.length)] = actionParams[key];
+      }
+    }
+
     if (groupAction.formKey) {
       FormManager.openFormModal({
         record: '@',
         formKey: groupAction.formKey,
         saveOnSubmit: false,
+        options: formOptions,
         onSubmit: rec => {
           let action = cloneDeep(groupAction);
           action.params = action.params || {};
+
+          action.params = {
+            ...action.params,
+            ...rec.getRawAttributes()
+          };
+
           action.params.attributes = rec.getAttributesToSave();
-          performGroupAction({ groupAction: action, selected: selectedRecords });
+
+          if (action.params['form_option_batch-edit-attribute']) {
+            this._performBatchEditAction({
+              groupAction: action,
+              selected: selectedRecords,
+              performGroupAction
+            });
+          } else {
+            performGroupAction({ groupAction: action, selected: selectedRecords });
+          }
         }
       });
     } else {
       performGroupAction({ groupAction, selected: selectedRecords });
     }
   };
+
+  async _performBatchEditAction(groupActionData) {
+    const { groupAction, selected, performGroupAction } = groupActionData;
+    const attributeName = groupAction.params['form_option_batch-edit-attribute'];
+    const params = groupAction.params || {};
+
+    const records = await Promise.all(
+      selected.map(id =>
+        Records.get(id)
+          .load(
+            {
+              valueDisp: attributeName + '?disp',
+              value: attributeName + '?str',
+              disp: '.disp'
+            },
+            true
+          )
+          .then(atts => {
+            return { ...atts, id };
+          })
+      )
+    );
+
+    const resolvedRecords = [];
+    const recordsToChange = [];
+
+    const addResolved = (rec, status) => {
+      resolvedRecords.push({
+        title: rec.disp,
+        nodeRef: rec.id,
+        status: status,
+        message: ''
+      });
+    };
+
+    for (let rec of records) {
+      const value = rec.value;
+
+      let isEmptyValue = true;
+      if (value && value instanceof Array && value.length > 0) {
+        isEmptyValue = false;
+      } else if (value && !(value instanceof Array)) {
+        isEmptyValue = false;
+      }
+
+      if (!isEmptyValue) {
+        if (params.changeExistsValue !== 'true') {
+          addResolved(rec, 'SKIPPED');
+        } else {
+          if (params.confirmChange === 'true') {
+            let confirmRes = await new Promise(resolve => {
+              dialogManager.confirmDialog({
+                title: t('journals.action.confirm.title'),
+                text: t('journals.action.change-value.message', { name: rec.disp, value: rec.valueDisp }),
+                onNo: () => resolve(false),
+                onYes: () => resolve(true)
+              });
+            });
+
+            if (confirmRes) {
+              recordsToChange.push(rec.id);
+            } else {
+              addResolved(rec, 'CANCELLED');
+            }
+          } else {
+            recordsToChange.push(rec.id);
+          }
+        }
+      } else {
+        if (params.skipEmptyValues === true) {
+          addResolved(rec, 'SKIPPED');
+        } else {
+          recordsToChange.push(rec.id);
+        }
+      }
+    }
+
+    performGroupAction({
+      groupAction,
+      selected: recordsToChange,
+      resolved: resolvedRecords
+    });
+  }
 
   onDelete = () => null;
 
@@ -405,7 +515,8 @@ class JournalsDashletGrid extends Component {
       maxHeight,
       autoHeight,
       predicate,
-      journalConfig: { params = {} }
+      journalConfig: { params = {} },
+      selectorContainer
     } = this.props;
 
     let editable = true;
@@ -468,6 +579,7 @@ class JournalsDashletGrid extends Component {
                 maxHeight={maxHeight}
                 autoHeight={autoHeight}
                 scrollPosition={this.scrollPosition}
+                selectorContainer={selectorContainer}
               />
             )}
           </HeightCalculation>
@@ -499,6 +611,7 @@ JournalsDashletGrid.propTypes = {
   stateId: PropTypes.string,
   className: PropTypes.string,
   toolsClassName: PropTypes.string,
+  selectorContainer: PropTypes.string,
   minHeight: PropTypes.any,
   maxHeight: PropTypes.any,
   autoHeight: PropTypes.bool,

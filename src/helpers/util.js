@@ -1,5 +1,4 @@
 import moment from 'moment';
-import i18next from 'i18next';
 import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
 import lodashGet from 'lodash/get';
@@ -9,21 +8,18 @@ import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
-import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
+
+import { getCurrentLocale, t } from './export/util';
+
+export { getCookie, getCurrentLocale, t } from './export/util';
 
 const UTC_AS_LOCAL_FORMAT = 'YYYY-MM-DDTHH:mm:ss';
-
-const LOCALE_EN = 'en';
 
 const BYTES_KB = 1024;
 const BYTES_MB = 1048576;
 const BYTES_GB = 1073741824;
 
-export function getCookie(name) {
-  // eslint-disable-next-line
-  let matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
-  return matches ? decodeURIComponent(matches[1]) : undefined;
-}
+const LOCALE_EN = 'en';
 
 export function setCookie(name, value, options = {}) {
   options = {
@@ -187,19 +183,32 @@ export function isMobileAppWebView() {
   return navigator.userAgent === MOBILE_APP_USER_AGENT;
 }
 
-export function getCurrentLocale() {
-  const cookiesLocale = getCookie(COOKIE_KEY_LOCALE);
-  if (cookiesLocale) {
-    return cookiesLocale.substr(0, 2).toLowerCase();
+export function getTextByLocale(data, locale = getCurrentLocale()) {
+  if (isEmpty(data)) {
+    return '';
   }
 
-  if (!window.navigator) {
-    return LOCALE_EN;
+  if (typeof data === 'object') {
+    if (Array.isArray(data)) {
+      return data.map(item => getTextByLocale(item, locale));
+    }
+
+    let text = data[locale];
+
+    // get 'en' translation, if for current locale not found
+    if (!text) {
+      text = data[LOCALE_EN];
+
+      // get first translation, if for 'en' locale not found
+      if (!text) {
+        text = data[Object.keys(data)[0]] || '';
+      }
+    }
+
+    return text;
   }
 
-  const language = navigator.languages ? navigator.languages[0] : navigator.language || navigator.systemLanguage || navigator.userLanguage;
-
-  return language.substr(0, 2).toLowerCase();
+  return data;
 }
 
 export function loadScript(url, callback) {
@@ -213,22 +222,6 @@ export function loadScript(url, callback) {
   if (typeof callback === 'function') {
     script.onload = callback;
   }
-}
-
-export function t(key, options, scope = 'global') {
-  if (!key) {
-    return '';
-  }
-
-  if (!isString(key)) {
-    return key;
-  }
-
-  if (i18next.exists(key)) {
-    return i18next.t(key, options);
-  }
-
-  return key;
 }
 
 export function cellMsg(prefix) {
@@ -878,4 +871,45 @@ export function trimFields(source) {
   });
 
   return target;
+}
+
+/**
+ * Returns the first non-empty value
+ * Empty values - match the docs lodash isEmpty
+ * https://github.com/lodash/lodash/blob/master/isEmpty.js#L45
+ * Exceptions are numbers; they are not empty values.
+ *
+ * @param values
+ * @param defaultValue
+ *
+ * @returns {*}
+ */
+export function getFirstNonEmpty(values = [], defaultValue) {
+  if (!Array.isArray(values) || !values.length) {
+    return defaultValue;
+  }
+
+  for (let i = 0; i < values.length; i++) {
+    const value = values[i];
+
+    if (typeof value === 'number' || !isEmpty(value)) {
+      return value;
+    }
+  }
+
+  return defaultValue;
+}
+
+export function isInViewport(element, container) {
+  if (element) {
+    const rect = element.getBoundingClientRect();
+    const rectCont = (container && container.getBoundingClientRect()) || {};
+
+    return (
+      rect.top >= 0 &&
+      rect.left >= 0 &&
+      rect.bottom <= (rectCont.bottom || window.innerHeight) &&
+      rect.right <= (rectCont.right || window.innerWidth)
+    );
+  }
 }

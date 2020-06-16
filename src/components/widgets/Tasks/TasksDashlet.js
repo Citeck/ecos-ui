@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
-import Dashlet, { BaseActions } from '../../Dashlet';
-import Tasks from './Tasks';
+import DAction from '../../../services/DashletActionService';
+import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
+import Tasks from './Tasks';
 
 import './style.scss';
 
@@ -35,7 +36,7 @@ class TasksDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
+    this.watcher = this.instanceRecord.watch(['cm:modified', 'tasks.active-hash'], this.reload);
 
     this.state = {
       ...this.state,
@@ -61,7 +62,7 @@ class TasksDashlet extends BaseWidget {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { runUpdate, isSmallMode, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
-      [BaseActions.RELOAD]: {
+      [DAction.Actions.RELOAD]: {
         onClick: this.reload
       }
     };

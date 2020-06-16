@@ -5,12 +5,13 @@ import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { NotificationManager } from 'react-notifications';
 
 import BaseWidget from '../BaseWidget';
-import Dashlet from '../../Dashlet/Dashlet';
+import Dashlet from '../../Dashlet';
 import { DefineHeight, EcosModal, Icon, Loader, ResizeBoxes, Search, Tooltip } from '../../common';
 import { Dropdown } from '../../common/form';
 import { Btn } from '../../common/btns';
@@ -19,6 +20,7 @@ import FormManager from '../../EcosForm/FormManager';
 import DropZone from './DropZone';
 import Settings from './Settings';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
+import DAction from '../../../services/DashletActionService';
 import DocumentsConverter from '../../../dto/documents';
 import {
   execRecordsAction,
@@ -322,18 +324,15 @@ class Documents extends BaseWidget {
   }
 
   get dashletActionsConfig() {
-    const actions = {};
-
-    actions.reload = {
-      onClick: this.initWidget
+    return {
+      [DAction.Actions.RELOAD]: {
+        onClick: this.initWidget
+      },
+      [DAction.Actions.SETTINGS]: {
+        onClick: this.handleToggleTypesSettings,
+        text: t(tooltips.SETTINGS)
+      }
     };
-
-    actions.settings = {
-      onClick: this.handleToggleTypesSettings,
-      text: t(tooltips.SETTINGS)
-    };
-
-    return actions;
   }
 
   get uploadingSettings() {
@@ -456,6 +455,19 @@ class Documents extends BaseWidget {
     this.setState({ typesFilter: filter.toLowerCase() });
   };
 
+  getformId = (type = {}) => {
+    const createVariants = this.getFormCreateVariants(type);
+
+    return type.formId || createVariants.formRef;
+  };
+
+  getFormCreateVariants = (type = {}) => {
+    const { availableTypes } = this.props;
+    const typeId = typeof type === 'string' ? type : type.type;
+
+    return get(availableTypes.find(item => item.id === typeId), 'createVariants', {}) || {};
+  };
+
   handleToggleUploadModalByType = (type = null) => {
     const { availableTypes } = this.props;
 
@@ -470,18 +482,13 @@ class Documents extends BaseWidget {
       return;
     }
 
-    const { formId = null, countDocuments = 0, multiple } = type;
+    const { formId = null } = type;
+    const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {}) || {};
+    const hasForm = formId !== null || !isEmpty(createVariants.formRef);
     let isFormOpens = false;
 
-    /**
-     * Ecos form may open if the following conditions are met:
-     * - have form id (formId !== null)
-     * - not have documents, when can load only one document (!countDocuments && !multiple)
-     */
-    if (formId !== null && !countDocuments && !multiple) {
+    if (hasForm) {
       isFormOpens = true;
-
-      const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {});
 
       this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record, createVariants }));
     }
@@ -556,7 +563,7 @@ class Documents extends BaseWidget {
   handleSelectUploadFiles = (files, callback) => {
     const { selectedTypeForLoading } = this.state;
 
-    if (selectedTypeForLoading.formId) {
+    if (this.getformId(selectedTypeForLoading)) {
       this.props.onUploadFiles({ files, type: selectedTypeForLoading.type, openForm: this.openForm, callback });
 
       return;
@@ -608,7 +615,11 @@ class Documents extends BaseWidget {
       return false;
     }
 
-    if (type.formId) {
+    if (this.getFormCreateVariants(type).formRef) {
+      return false;
+    }
+
+    if (this.getformId(type)) {
       this.props.onUploadFiles({ files, type: type.type, openForm: this.openForm });
     } else {
       this.props.onUploadFiles({ files, type: type.type });
@@ -716,6 +727,8 @@ class Documents extends BaseWidget {
 
   handleTypeRowMouseLeave = () => this.setState({ isHoverLastRow: false });
 
+  handleCheckDropPermissions = type => type.canDropUpload;
+
   setToolsOptions = (options = {}) => {
     this.props.setInlineTools(options);
   };
@@ -729,13 +742,14 @@ class Documents extends BaseWidget {
   countFormatter = (...params) => {
     const { uploadError, countFilesError, id } = this.props;
     const { selectedTypeForLoading } = this.state;
-    const target = prepareTooltipId(`grid-label-${params[1].type}-${id}`);
+    const type = params[1];
+    const target = prepareTooltipId(`grid-label-${type.type}-${id}`);
     const style = {};
     let label = t(Labels.UPLOAD_MESSAGE);
     let hasTooltip = false;
     let hasError = false;
 
-    if (params[1].type === selectedTypeForLoading.type) {
+    if (type.type === selectedTypeForLoading.type) {
       if (uploadError) {
         label = t(Labels.ERROR_UPLOAD);
         hasTooltip = true;
@@ -746,6 +760,10 @@ class Documents extends BaseWidget {
         hasError = true;
         label = t(countFilesError);
       }
+    }
+
+    if (this.getFormCreateVariants(type).formRef) {
+      label = t('documents-widget.dnd.disabled');
     }
 
     if (this._counterRef.current) {
@@ -1003,12 +1021,13 @@ class Documents extends BaseWidget {
   renderDocumentsTable = () => {
     const { dynamicTypes, isUploadingFile } = this.props;
     const { selectedType, isDragFiles, autoHide, isHoverLastRow } = this.state;
+    const { formRef } = this.getFormCreateVariants(selectedType);
 
     if (!selectedType && dynamicTypes.length !== 1) {
       return null;
     }
 
-    const isShowDropZone = isDragFiles;
+    const isShowDropZone = isDragFiles && !formRef;
 
     return (
       <div style={{ height: '100%' }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
@@ -1099,6 +1118,7 @@ class Documents extends BaseWidget {
           onRowDragEnter={this.handleRowDragEnter}
           onMouseEnter={this.handleTypeRowMouseEnter}
           onRowMouseLeave={this.handleTypeRowMouseLeave}
+          onCheckDropPermission={this.handleCheckDropPermissions}
           scrollPosition={scrollPosition}
         />
       );

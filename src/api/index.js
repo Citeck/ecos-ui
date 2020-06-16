@@ -1,6 +1,7 @@
 import { AppApi } from './app';
 import { BarcodeApi } from './barcode';
 import { BirthdaysApi } from './birthdays';
+import { ReportApi } from './report';
 import { BpmnApi } from './bpmn';
 import { CommentsApi } from './comments';
 import { DashboardApi } from './dashboard';
@@ -47,6 +48,7 @@ export function configureAPI() {
   api.docAssociations = new DocAssociationsApi();
   api.view = new ViewApi();
   api.birthdays = new BirthdaysApi();
+  api.report = new ReportApi();
   api.barcode = new BarcodeApi();
   api.timesheetCommon = new TimesheetCommonApi();
   api.timesheetSubordinates = new TimesheetSubordinatesApi();

@@ -197,6 +197,12 @@ export default class PageService {
       return;
     }
 
+    const modalParent = elem.closest('.ecos-modal');
+    if (modalParent) {
+      elem.setAttribute('target', '_blank');
+      return;
+    }
+
     const link = decodeLink(elem.getAttribute(LINK_HREF));
 
     if (!link || !isNewVersionPage(link)) {

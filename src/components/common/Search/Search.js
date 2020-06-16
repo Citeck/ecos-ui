@@ -42,6 +42,13 @@ export default class Search extends Component {
     this.state.text = props.text;
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if ((this.props.text && !prevProps.text && !this.state.text) || (this.props.text && this.props.text !== prevProps.text)) {
+      this.setState({ text: this.props.text });
+      this.triggerSearch(this.props.text);
+    }
+  }
+
   onPressBtn = () => {
     if (this.state.collapsed) {
       this.setState({ collapsed: false });
@@ -89,8 +96,8 @@ export default class Search extends Component {
     }, this.triggerClean);
   };
 
-  triggerSearch = () => {
-    trigger.call(this, 'onSearch', this.state.text);
+  triggerSearch = (text = this.state.text) => {
+    trigger.call(this, 'onSearch', text);
   };
 
   triggerClean = () => {

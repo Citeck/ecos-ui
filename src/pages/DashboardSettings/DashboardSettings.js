@@ -10,8 +10,9 @@ import isNull from 'lodash/isNull';
 import find from 'lodash/find';
 
 import { clearCache } from '../../components/ReactRouterCache';
-import { arrayCompare, deepClone, t } from '../../helpers/util';
-import { getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
+import { arrayCompare, deepClone, documentScrollTop, t } from '../../helpers/util';
+import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
+import { removeItems } from '../../helpers/ls';
 import { RequestStatuses, URL } from '../../constants';
 import { DashboardTypes, DeviceTabs } from '../../constants/dashboard';
 import { Layouts, LayoutTypes } from '../../constants/layout';
@@ -24,6 +25,7 @@ import {
   getAwayFromPage,
   getCheckUpdatedDashboardConfig,
   initDashboardSettings,
+  resetConfigToDefault,
   resetDashboardConfig,
   saveDashboardConfig,
   setCheckUpdatedDashboardConfig
@@ -32,7 +34,6 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { TunableDialog } from '../../components/common/dialogs';
-import { removeItems } from '../../helpers/ls';
 
 import SetBind from './SetBind';
 import SetTabs from './SetTabs';
@@ -62,7 +63,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     saveSettings: payload => dispatch(saveDashboardConfig({ ...payload, key })),
     getAwayFromPage: () => dispatch(getAwayFromPage(key)),
     setCheckUpdatedConfig: payload => dispatch(setCheckUpdatedDashboardConfig({ ...payload, key })),
-    resetConfig: () => dispatch(resetDashboardConfig(key))
+    resetConfig: () => dispatch(resetDashboardConfig(key)),
+    resetConfigToDefault: payload => dispatch(resetConfigToDefault({ ...payload, key }))
   };
 };
 
@@ -161,9 +163,10 @@ class DashboardSettings extends React.Component {
       return;
     }
 
-    if (urlParams !== newUrlParams) {
-      this.setState({ urlParams: newUrlParams });
-      this.fetchData(nextProps);
+    if (decodeLink(urlParams) !== decodeLink(newUrlParams)) {
+      this.setState({ urlParams: newUrlParams }, () => {
+        this.fetchData(nextProps);
+      });
     }
 
     if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
@@ -194,12 +197,11 @@ class DashboardSettings extends React.Component {
 
   fetchData(props = this.props) {
     const { initSettings } = props;
+    const { recordRef, dashboardId } = this.getPathInfo();
 
-    if (!pageTabList.isActiveTab(props.tabId)) {
+    if (!dashboardId || !pageTabList.isActiveTab(props.tabId)) {
       return;
     }
-
-    const { recordRef, dashboardId } = this.getPathInfo(props);
 
     initSettings({ recordRef, dashboardId });
   }
@@ -295,12 +297,8 @@ class DashboardSettings extends React.Component {
     removeItems(removedWidgets.map(id => UserLocalSettingsService.getDashletKey(id)));
   };
 
-  getPathInfo(props = this.props) {
-    const {
-      location: { search }
-    } = props;
-
-    return queryString.parse(search);
+  getPathInfo() {
+    return queryString.parse(decodeLink(this.state.urlParams));
   }
 
   getUrlToDashboard() {
@@ -360,12 +358,17 @@ class DashboardSettings extends React.Component {
     );
   }
 
-  renderDashboardKey() {
-    const { dashboardKeyItems, userData } = this.props;
+  renderOwnershipBlock() {
+    const { dashboardKeyItems, userData, resetConfigToDefault, isDefaultConfig } = this.props;
     const { selectedDashboardKey, isForAllUsers } = this.state;
+    const { recordRef } = this.getPathInfo();
 
     const setData = data => {
       this.setState(data);
+    };
+
+    const reset = () => {
+      resetConfigToDefault({ recordRef });
     };
 
     return (
@@ -375,7 +378,9 @@ class DashboardSettings extends React.Component {
           selectedDashboardKey={selectedDashboardKey}
           isAdmin={userData.isAdmin}
           isForAllUsers={isForAllUsers}
+          isDefaultConfig={isDefaultConfig}
           setData={setData}
+          resetConfig={reset}
         />
       </div>
     );
@@ -533,12 +538,14 @@ class DashboardSettings extends React.Component {
   };
 
   renderButtons() {
+    const { identification } = this.props;
+
     return (
       <div className="ecos-dashboard-settings__actions">
         <Btn className="ecos-btn_x-step_10" onClick={this.handleCloseSettings}>
           {t('dashboard-settings.button.cancel')}
         </Btn>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleCheckChanges}>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleCheckChanges} disabled={!get(identification, 'key')}>
           {t('dashboard-settings.button.save')}
         </Btn>
       </div>
@@ -582,7 +589,7 @@ class DashboardSettings extends React.Component {
     let { isLoading } = this.props;
 
     if (isLoading) {
-      return <Loader height={100} width={100} className="ecos-dashboard-settings__loader-wrapper" darkened />;
+      return <Loader height={100} width={100} className="ecos-dashboard-settings__loader-wrapper" blur />;
     }
 
     return null;
@@ -593,7 +600,7 @@ class DashboardSettings extends React.Component {
       <Container className="ecos-dashboard-settings">
         {this.renderLoader()}
         {this.renderHeader()}
-        {this.renderDashboardKey()}
+        {this.renderOwnershipBlock()}
         {this.renderDeviceTabsBlock()}
         {this.renderLayoutTabsBlock()}
         <div className="ecos-dashboard-settings__container">

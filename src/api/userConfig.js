@@ -47,14 +47,14 @@ export class UserConfigApi extends CommonApi {
         const shortId = fullId && get(fullId.split(context), '[1]');
 
         if (shortId && copy(`${url}&userConfigId=${shortId}`)) {
-          NotificationManager.success('', t('export-component.notice.buffer-link-done'), 3000);
+          NotificationManager.success(t('export-component.notice.buffer-link-done'), t('success'), 3000);
         } else {
-          NotificationManager.warning('', t('export-component.notice.buffer-link-err'));
+          NotificationManager.warning(t('export-component.notice.buffer-link-err'));
         }
       })
       .catch(e => {
         console.error(e);
-        NotificationManager.error('', t('export-component.notice.buffer-link-err'));
+        NotificationManager.error(t('export-component.notice.buffer-link-err'), t('error'));
       });
   };
 }

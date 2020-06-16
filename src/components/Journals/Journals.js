@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
+import get from 'lodash/get';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
@@ -20,7 +21,7 @@ import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
 import { t, trigger } from '../../helpers/util';
-import { goToCardDetailsPage } from '../../helpers/urls';
+import { getSearchParams, stringifySearchParams, goToCardDetailsPage } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
 import './Journals.scss';
@@ -57,8 +58,24 @@ class Journals extends Component {
       settingsVisible: false,
       showPreview: props.urlParams.showPreview,
       showPie: false,
-      savedSetting: null
+      savedSetting: null,
+      journalId: get(props, 'urlParams.journalId')
     };
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const newState = {};
+    const journalId = get(props, 'urlParams.journalId');
+
+    if (props.isActivePage && journalId !== state.journalId) {
+      newState.journalId = journalId;
+    }
+
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    return newState;
   }
 
   componentDidMount() {
@@ -66,20 +83,35 @@ class Journals extends Component {
     trigger.call(this, 'onRender');
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const {
       isActivePage,
-      urlParams: { journalId }
+      urlParams: { journalId },
+      stateId,
+      grid
     } = this.props;
     const {
       isActivePage: _isActivePage,
       urlParams: { journalId: _journalId }
     } = prevProps;
+    const search = this.getSearch();
 
-    if (_isActivePage && isActivePage && journalId && journalId !== _journalId) {
+    if (isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId)) {
       this.getJournalsData();
     }
+
+    if (prevProps.stateId !== stateId) {
+      this.getJournalsData();
+    }
+
+    if (search && !get(prevProps, 'grid.columns') && get(grid, 'columns')) {
+      this.search(search);
+    }
   }
+
+  getSearch = () => {
+    return get(getSearchParams(), 'search', '');
+  };
 
   refresh = () => {
     this.props.reloadGrid();
@@ -135,6 +167,12 @@ class Journals extends Component {
   };
 
   search = text => {
+    const searchParams = {
+      ...getSearchParams(),
+      search: text
+    };
+
+    this.props.setUrl(getSearchParams(stringifySearchParams(searchParams)));
     this.props.search(text);
   };
 
@@ -190,6 +228,7 @@ class Journals extends Component {
               onSearch={this.search}
               addRecord={this.addRecord}
               isMobile={isMobile}
+              searchText={this.getSearch()}
             />
 
             <EcosModal

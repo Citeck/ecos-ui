@@ -1,10 +1,11 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
+
+import { t, trigger } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns/index';
 import { Label, Select } from '../../common/form';
-import { t, trigger } from '../../../helpers/util';
-import { getPredicates, getPredicateInput } from '../../common/form/SelectJournal/predicates';
+import { getPredicateInput, getPredicates } from '../../common/form/SelectJournal/predicates';
 
 import './Filter.scss';
 
@@ -56,8 +57,9 @@ export default class Filter extends Component {
           classNamesColumn={'columns_height_full columns-setup__column_align'}
           cfgs={[{ xl: 3 }, { xl: 4 }, { xl: 4 }, { xl: 1 }]}
           cols={[
-            <Label className={'ecos-filter_step label_clear label_nowrap label_bold label_middle-grey'}>{column.text}</Label>,
-
+            <Label title={column.text} className={'ecos-filter__label ecos-filter_step label_clear label_bold label_middle-grey'}>
+              {column.text}
+            </Label>,
             <Select
               className={'ecos-filter_step ecos-filter_font_12 select_narrow select_width_full'}
               placeholder={t('journals.default')}
@@ -67,20 +69,17 @@ export default class Filter extends Component {
               value={selectedPredicate}
               onChange={this.changePredicate}
             />,
-
             <div className={'ecos-filter__value-wrapper'}>
               <FilterValueComponent {...predicateProps} />
             </div>,
-
-            <Fragment>
+            <>
               <IcoBtn
                 icon={'icon-delete'}
                 className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
                 onClick={this.delete}
               />
-
               <i className={classNames('ecos-btn__i', 'ecos-btn__i_right icon-drag ecos-filter__drag-ico')} />
-            </Fragment>
+            </>
           ]}
         />
       </div>
