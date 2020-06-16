@@ -272,6 +272,7 @@
   "ecos-table-form.create-button": "Создать",
   "ecos-table-form.import-button": "Импорт",
   "ecos-table-form.create-modal.title": "Создать",
+  "ecos-table-form.clone-modal.title": "Клонировать",
   "ecos-table-form.edit-modal.title": "Изменить свойства",
   "ecos-table-form.view-modal.title": "Просмотр",
   "ecos-table-form.placeholder": "Нет",

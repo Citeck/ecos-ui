@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
 
-import TableFormPropTypes from './TableFormPropTypes';
+import WidgetService from '../../../../services/WidgetService';
 import Records from '../../../Records/Records';
 import { parseAttribute } from '../../../Records/Record';
-import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
-import WidgetService from '../../../../services/WidgetService';
+import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
+import TableFormPropTypes from './TableFormPropTypes';
 
 export const TableFormContext = React.createContext();
 
@@ -20,7 +22,8 @@ export const TableFormContextProvider = props => {
     triggerEventOnTableChange,
     computed,
     onSelectRows,
-    selectedRows
+    selectedRows,
+    settingElements
   } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
@@ -146,13 +149,20 @@ export const TableFormContextProvider = props => {
         showPreview: recordId => {
           WidgetService.openPreviewModal({ recordId });
         },
-        //todo
-        showCloneForm: record => {
-          setIsViewOnlyForm(false);
-          setRecord(record);
-          setCreateVariant(null);
-          setFormMode(FORM_MODE_CREATE);
-          setIsModalFormOpen(true);
+
+        runCloneRecord: record => {
+          const isInstantClone = isBoolean(get(settingElements, 'isInstantClone')) ? settingElements.isInstantClone : false;
+
+          if (isInstantClone) {
+            //todo new impl
+          } else {
+            //todo change
+            setIsViewOnlyForm(false);
+            setRecord(record);
+            setCreateVariant(null);
+            setFormMode(FORM_MODE_CLONE);
+            setIsModalFormOpen(true);
+          }
         },
 
         onCreateFormSubmit: (record, form) => {

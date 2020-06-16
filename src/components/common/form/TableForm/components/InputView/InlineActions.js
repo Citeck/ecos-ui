@@ -16,7 +16,7 @@ const InlineActions = () => {
   const {
     deleteSelectedItem,
     showEditForm,
-    showCloneForm,
+    runCloneRecord,
     showPreview,
     showViewOnlyForm,
     inlineToolsOffsets,
@@ -33,7 +33,7 @@ const InlineActions = () => {
   };
 
   const onClickClone = () => {
-    showCloneForm(inlineToolsOffsets.rowId);
+    runCloneRecord(inlineToolsOffsets.rowId);
   };
 
   const onClickView = () => {
@@ -44,10 +44,14 @@ const InlineActions = () => {
     showPreview(inlineToolsOffsets.rowId);
   };
 
-  const inlineToolsActionClassName =
-    'ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_hover_t-dark-brown ecos-btn_x-step_10 ecos-inline-tools-btn';
-
   const shouldShowViewButton = isBoolean(get(displayElements, 'view')) ? displayElements.view : true;
+  const shouldShowPreviewButton = isBoolean(get(displayElements, 'preview')) ? displayElements.preview : false;
+  const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : true;
+  const shouldShowCloneButton = isBoolean(get(displayElements, 'clone')) ? displayElements.clone : false;
+  const shouldShowDeleteButton = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
+
+  const inlineToolsActionClassName = classNames('ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10 ecos-inline-tools-btn');
+
   if (shouldShowViewButton) {
     iconButtons.push(
       <IcoBtn
@@ -60,7 +64,6 @@ const InlineActions = () => {
     );
   }
 
-  const shouldShowPreviewButton = isBoolean(get(displayElements, 'preview')) ? displayElements.preview : false;
   if (shouldShowPreviewButton) {
     iconButtons.push(
       <IcoBtn
@@ -73,37 +76,34 @@ const InlineActions = () => {
     );
   }
 
-  const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : true;
   if (!disabled && !viewOnly && shouldShowEditButton) {
     iconButtons.push(
       <IcoBtn
         key={'edit'}
         icon={'icon-edit'}
-        className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__edit')}
+        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown fitnesse-inline-tools-actions-btn__edit')}
         onClick={onClickEdit}
       />
     );
   }
 
-  const shouldShowCloneButton = isBoolean(get(displayElements, 'clone')) ? displayElements.clone : false;
   if (!disabled && !viewOnly && shouldShowCloneButton) {
     iconButtons.push(
       <IcoBtn
         key={'clone'}
         icon={'icon-copy'}
-        className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__clone')}
+        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t-dark-brown fitnesse-inline-tools-actions-btn__clone')}
         onClick={onClickClone}
       />
     );
   }
 
-  const shouldShowDeleteButton = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
   if (!disabled && !viewOnly && shouldShowDeleteButton) {
     iconButtons.push(
       <IcoBtn
         key={'delete'}
         icon={'icon-delete'}
-        className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__delete')}
+        className={classNames(inlineToolsActionClassName, 'ecos-btn_hover_t_red fitnesse-inline-tools-actions-btn__delete')}
         onClick={onClickDelete}
       />
     );
