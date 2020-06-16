@@ -23,9 +23,11 @@ import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import DAction from '../../../services/DashletActionService';
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
+import { Grid } from '../../common/grid';
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
 import Dashlet from '../../Dashlet';
+import DocAssociationsConverter from '../../../dto/docAssociations';
 
 import './style.scss';
 
@@ -302,8 +304,9 @@ class DocAssociations extends BaseWidget {
   );
 
   renderAssociationsItem = (data = {}, position) => {
-    const { id } = this.props;
+    const { id, allowedAssociations } = this.props;
     const { associations, title, key } = data;
+    const columns = get(allowedAssociations.find(i => i.name === key), 'columnsConfig.columns', []);
 
     if (!associations || !associations.length) {
       return null;
@@ -315,7 +318,22 @@ class DocAssociations extends BaseWidget {
           <div className="ecos-doc-associations__headline-text">{t(title)}</div>
         </div>
 
-        {this.renderTable(associations, key)}
+        <Grid
+          key={key}
+          className="ecos-doc-associations__table"
+          scrollable
+          fixedHeader
+          autoHeight
+          data={associations}
+          columns={DocAssociationsConverter.getColumnForWeb(columns)}
+          // keyField="attribute"
+          // valueField=""
+        />
+        {/*<div className="ecos-doc-associations__headline">*/}
+        {/*  <div className="ecos-doc-associations__headline-text">{t(title)}</div>*/}
+        {/*</div>*/}
+
+        {/*{this.renderTable(associations, key)}*/}
       </React.Fragment>
     );
   };
@@ -324,6 +342,37 @@ class DocAssociations extends BaseWidget {
     const { associations } = this.props;
 
     return <div ref={this.contentRef}>{associations.map(this.renderAssociationsItem)}</div>;
+  }
+
+  renderGrid() {
+    const { associations, allowedAssociations } = this.props;
+
+    return associations
+      .filter(i => i.associations.length)
+      .map(association => {
+        const columns = get(allowedAssociations.find(i => i.name === association.key), 'columnsConfig.columns', []);
+        // console.warn(association, allowedAssociations, columns);
+
+        return (
+          <Grid
+            key={association.key}
+            scrollable
+            fixedHeader
+            autoHeight
+            data={association.associations}
+            columns={DocAssociationsConverter.getColumnForWeb(columns)}
+            // keyField="attribute"
+            // valueField=""
+          />
+        );
+      });
+
+    // return (
+    //   <Grid
+    //     data={[]}
+    //     columns={[]}
+    //   />
+    // );
   }
 
   renderAddButton = () => {
@@ -443,7 +492,10 @@ class DocAssociations extends BaseWidget {
         {isMobile ? (
           this.renderAssociations()
         ) : (
-          <Scrollbars style={{ height: contentHeight || '100%' }}>
+          <Scrollbars
+            style={{ height: contentHeight || '100%' }}
+            renderTrackVertical={props => <div {...props} className="ecos-doc-associations__scroll ecos-doc-associations__scroll_v" />}
+          >
             <DefineHeight
               fixHeight={userHeight || null}
               maxHeight={fitHeights.max}
@@ -451,6 +503,8 @@ class DocAssociations extends BaseWidget {
               getOptimalHeight={this.setContentHeight}
             >
               {this.renderAssociations()}
+
+              {/*{this.renderGrid()}*/}
             </DefineHeight>
           </Scrollbars>
         )}

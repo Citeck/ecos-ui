@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import { getTextByLocale } from '../helpers/util';
+import { getTextByLocale, t } from '../helpers/util';
 import { DIRECTIONS } from '../constants/docAssociations';
 
 export default class DocAssociationsConverter {
@@ -116,20 +116,54 @@ export default class DocAssociationsConverter {
       return null;
     }
 
-    const target = {};
+    const target = { ...config };
 
     target.columns = get(config, 'columns', []).map(column => ({
       ...column,
-      label: getTextByLocale(column.label || '')
+      // attribute: column.attribute || column.name,
+      // attribute: DocAssociationsConverter.getAttribute(column.attribute, column.name),
+      label: t(getTextByLocale(column.label || ''))
     }));
     target.label = getTextByLocale(config.label);
-    target.typeRef = config.typeRef;
+    // target.typeRef = config.typeRef;
 
     return target;
   }
 
   static getId(source = {}) {
     return source.id;
+  }
+
+  static getAttribute(attr = '', name = '') {
+    if (!name) {
+      return attr;
+    }
+
+    if (attr.charAt(0) === '.') {
+      return name;
+    }
+
+    if (attr.includes(':')) {
+      return name;
+      // return `${name}:${attr}`;
+      // return attr.split(':')[0];
+    }
+
+    if (attr.includes('-')) {
+      return attr.toLowerCase().replace(/\-/g, '_');
+    }
+
+    // if (name && (
+    //   attr.charAt(0) === '.' ||
+    //   attr.includes(':') ||
+    //   attr.includes('-')
+    // )) {
+    //   return name;
+    //   // return name;
+    //   // return `_${source.slice(1)}`;
+    // }
+
+    return attr || name;
   }
 
   static getColumnsAttributes(source = []) {
@@ -143,13 +177,63 @@ export default class DocAssociationsConverter {
 
     return source
       .map(column => {
-        if (!column.name || !column.attribute) {
+        let attribute = column.attribute || ''; //  || column.name || '';
+
+        if (!attribute) {
           return '';
         }
 
-        return `${column.name}:${column.attribute}`;
+        if (!column.name) {
+          return attribute;
+        }
+
+        if (attribute.charAt(0) === '.') {
+          return `${column.name}:${column.attribute}`;
+          // return `_${attribute.slice(1)}:${attribute}`;
+        }
+
+        if (attribute.includes(':')) {
+          return `${column.name}:${column.attribute}`;
+        }
+
+        // if (attribute.includes('-')) {
+        //   return column.name;
+        // }
+
+        // if ((
+        //   attribute.includes(':') ||
+        //   attribute.includes('-')
+        // )) {
+        //   return column.name;
+        // }
+
+        return attribute || column.name;
+
+        // if (!column.name || !column.attribute) {
+        //   return '';
+        // }
+        //
+        // return `${column.name}:${column.attribute}`;
       })
       .filter(item => !!item)
       .join(',');
+  }
+
+  static getColumnForWeb(source = []) {
+    if (isEmpty(source)) {
+      return [];
+    }
+
+    if (!Array.isArray(source)) {
+      return [];
+    }
+
+    return source.map(item => {
+      return {
+        ...item,
+        dataField: DocAssociationsConverter.getAttribute(item.attribute, item.name),
+        text: item.label
+      };
+    });
   }
 }

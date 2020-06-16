@@ -217,6 +217,8 @@ export default class SelectJournal extends Component {
       this.api.getJournalConfig(journalId).then(journalConfig => {
         journalConfig = journalConfig || { meta: {} };
 
+        console.warn({ journalConfig });
+
         let columns = (journalConfig.columns || []).map(item => {
           const column = { ...item };
           if (matchCardDetailsLinkFormatterColumn(item)) {
@@ -235,6 +237,8 @@ export default class SelectJournal extends Component {
         }
 
         const predicate = journalConfig.meta.predicate;
+
+        console.warn({ columns });
 
         this.setState(prevState => {
           return {
@@ -308,6 +312,8 @@ export default class SelectJournal extends Component {
               ...prevGridData,
               ...gridData
             };
+
+            console.warn({ gridData, fetchedGridData });
 
             this.setState({
               gridData: { ...newGridData },

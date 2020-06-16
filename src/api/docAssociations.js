@@ -1,9 +1,12 @@
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import ecosFetch from '../helpers/ecosFetch';
 import Records from '../components/Records';
 import { RecordService } from './recordService';
-import { EmodelTypes } from '../constants';
+import { Attributes, EmodelTypes, Permissions } from '../constants';
+import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
+import { PROXY_URI } from '../constants/alfresco';
 
 export class DocAssociationsApi extends RecordService {
   #baseAssociationAttributes = 'id:.assoc,modifierId:cm:modifier,displayName:.disp';
@@ -66,10 +69,51 @@ export class DocAssociationsApi extends RecordService {
         }
       },
       '.json'
-    ).then(columnsConfig => ({
-      ...association,
-      columnsConfig: isEmpty(columnsConfig) ? baseColumnsConfig : columnsConfig
-    }));
+    ).then(async columnsConfig => {
+      const config = isEmpty(columnsConfig) ? baseColumnsConfig : columnsConfig;
+      const { predicate = {}, columns = [] } = config;
+      const queryPredicates = predicate.val || [];
+      const bodyQuery = {
+        query: {
+          t: 'and',
+          val: queryPredicates.concat(
+            (predicate.val || []).filter(item => {
+              return item.val !== '' && item.val !== null;
+            })
+          )
+        },
+        language: 'predicate',
+        consistency: 'EVENTUAL'
+      };
+
+      if (columnsConfig.sourceId) {
+        bodyQuery['sourceId'] = columnsConfig.sourceId;
+      }
+
+      const dataSource = new dataSourceStore['GqlDataSource']({
+        url: `${PROXY_URI}citeck/ecos/records`,
+        dataSourceName: 'GqlDataSource',
+        ajax: {
+          body: {
+            query: bodyQuery
+          }
+        },
+        columns: columns || [],
+        permissions: [Permissions.Write]
+      });
+
+      await dataSource.load();
+
+      const formattedColums = dataSource.getColumns();
+
+      return {
+        ...association,
+        columnsConfig: {
+          ...config,
+          columns: formattedColums
+        }
+      };
+    });
   }
 
   /**
@@ -102,11 +146,15 @@ export class DocAssociationsApi extends RecordService {
   getTargetAssociations = (id, recordRef, attributes = '') => {
     const query = attributes || 'displayName:.disp,created';
 
+    console.warn('getTargetAssociations', query, id);
+
     return Records.get(recordRef).load(`${id}[]{${this.#baseAssociationAttributes},${query}}`, true);
   };
 
   getSourceAssociations = (id, recordRef, attributes = '') => {
     const query = attributes || 'displayName:.disp,created';
+
+    console.warn('getSourceAssociations', query, id);
 
     return Records.get(recordRef).load(`assoc_src_${id}[]{${this.#baseAssociationAttributes},${query}}`, true);
   };
