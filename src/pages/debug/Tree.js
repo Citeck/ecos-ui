@@ -58,6 +58,8 @@ export default class extends React.Component {
       case 'PRINT':
         window.print();
         break;
+      default:
+        break;
     }
   };
 

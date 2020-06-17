@@ -70,24 +70,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return result;
   }
 
-  setValue(value, flags) {
-    const { source } = this.component;
-
-    super.setValue(value, flags);
-
-    if (!source.viewMode || source.viewMode === DisplayModes.DEFAULT) {
-      source.type = TableTypes.JOURNAL;
-    }
-  }
-
   getComponentToRender() {
     return SelectJournal;
   }
 
   fetchAsyncProperties = source => {
     return new Promise(async resolve => {
-      if (!source) {
-        return resolve({ error: new Error('Empty source') });
+      if (!source || source.viewMode !== DisplayModes.TABLE) {
+        return resolve([]);
       }
 
       if (source.type === 'custom') {
@@ -247,10 +237,11 @@ export default class SelectJournalComponent extends BaseReactComponent {
               });
             });
         } catch (e) {
-          return resolve({ error: new Error(`Can't fetch create variants: ${e.message}`) });
+          console.warn(`[SelectJournal fetchAsyncProperties] Can't fetch create variants: ${e.message}`);
+          return resolve([]);
         }
       } else {
-        resolve();
+        resolve([]);
       }
     });
   };
@@ -303,19 +294,23 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
     let journalId = this.component.journalId;
 
+    const fetchPropertiesAndResolve = journalId => {
+      return this.fetchAsyncProperties(this.component.source).then(columns => resolveProps(journalId, columns));
+    };
+
     if (!journalId) {
       let attribute = this.getAttributeToEdit();
 
       return this.getRecord()
         .loadEditorKey(attribute)
         .then(editorKey => {
-          return resolveProps(editorKey);
+          return fetchPropertiesAndResolve(editorKey);
         })
         .catch(() => {
-          return resolveProps(null);
+          return fetchPropertiesAndResolve(null);
         });
     } else {
-      return this.fetchAsyncProperties(this.component.source).then(columns => resolveProps(journalId, columns));
+      return fetchPropertiesAndResolve(journalId);
     }
   }
 
