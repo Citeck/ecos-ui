@@ -110,7 +110,7 @@ export const TableFormContextProvider = props => {
           const createVariant = createVariants.find(item => item.formKey === formKey);
 
           if (isInstantClone) {
-            return EcosFormUtils.cloneRecord({ clonedRecord, createVariant });
+            return EcosFormUtils.cloneRecord({ clonedRecord, createVariant, saveOnSubmit: false });
           } else {
             showCloneForm({ createVariant });
           }
@@ -169,6 +169,7 @@ export const TableFormContextProvider = props => {
 
         toggleModal: () => {
           setIsModalFormOpen(!isModalFormOpen);
+          setClonedRecord(null);
         },
 
         showCreateForm: createVariant => {

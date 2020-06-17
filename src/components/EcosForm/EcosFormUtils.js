@@ -230,7 +230,7 @@ export default class EcosFormUtils {
       });
   }
 
-  static cloneRecord({ clonedRecord, createVariant, callback }) {
+  static cloneRecord({ clonedRecord, createVariant, saveOnSubmit }) {
     return new Promise((resolve, reject) => {
       let { recordRef, formKey } = createVariant || {};
       const newRecord = Records.getRecordToEdit(recordRef);
@@ -246,6 +246,10 @@ export default class EcosFormUtils {
         const formDefinition = cloneDeep(formData.definition);
         const inputs = EcosFormUtils.getFormInputs(formDefinition);
         const recordDataPromise = EcosFormUtils.getClonedData(clonedRecord, inputs);
+        const onSuccess = result => {
+          NotificationManager.success(t('ecos-form.success.clone-record'), t('success'));
+          resolve(result);
+        };
 
         recordDataPromise
           .then(data => {
@@ -255,13 +259,14 @@ export default class EcosFormUtils {
               }
             }
 
-            newRecord
-              .save()
-              .then(result => {
-                NotificationManager.success(t('ecos-form.success.clone-record'), t('success'));
-                resolve(result);
-              })
-              .catch(e => Promise.reject(e));
+            if (saveOnSubmit === false) {
+              onSuccess(newRecord);
+            } else {
+              newRecord
+                .save()
+                .then(onSuccess)
+                .catch(e => Promise.reject(e));
+            }
           })
           .catch(e => {
             console.error(e);
