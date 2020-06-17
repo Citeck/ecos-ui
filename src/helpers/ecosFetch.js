@@ -5,7 +5,7 @@ import { getCurrentLocale } from './export/util';
 
 const acceptLanguage = getCurrentLocale();
 
-export default function(url, options = {}) {
+const ecosFetch = function(url, options = {}) {
   const { method, headers = {}, body, noHeaders = false, mode } = options;
 
   const params = {};
@@ -29,6 +29,9 @@ export default function(url, options = {}) {
     params.body = body;
   } else if (!isEmpty(body)) {
     params.body = JSON.stringify(body);
+    if (!params.headers['Content-type'] && !params.headers['Content-Type'] && !params.headers['content-type']) {
+      params.headers['Content-type'] = 'application/json;charset=UTF-8';
+    }
   }
 
   if (mode) {
@@ -36,4 +39,10 @@ export default function(url, options = {}) {
   }
 
   return fetch(url, params);
+};
+
+export default ecosFetch;
+
+if (window && !window.ecosFetch) {
+  window.ecosFetch = ecosFetch;
 }
