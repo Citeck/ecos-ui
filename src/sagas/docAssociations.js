@@ -46,15 +46,11 @@ function* getAssociation({ api, logger }, { id, direction }, recordRef) {
     if (direction === DIRECTIONS.TARGET) {
       const data = yield call(api.docAssociations.getTargetAssociations, id, recordRef, attributes);
 
-      console.warn(direction, { data, attributes, id });
-
       return DocAssociationsConverter.getAssociationsWithDirection(data, DIRECTIONS.TARGET);
     }
 
     if (direction === DIRECTIONS.SOURCE) {
       const data = yield call(api.docAssociations.getSourceAssociations, id, recordRef, attributes);
-
-      console.warn(direction, { data, attributes, id });
 
       return DocAssociationsConverter.getAssociationsWithDirection(data, DIRECTIONS.SOURCE);
     }
@@ -68,8 +64,6 @@ function* getAssociation({ api, logger }, { id, direction }, recordRef) {
         yield call(api.docAssociations.getSourceAssociations, id, recordRef, attributes),
         DIRECTIONS.SOURCE
       );
-
-      console.warn(direction, { target, source, attributes, id });
 
       return concat(target, source);
     }

@@ -154,8 +154,6 @@ export class JournalsApi extends RecordService {
       bodyQuery['sourceId'] = sourceId;
     }
 
-    console.warn({ bodyQuery });
-
     const dataSource = new dataSourceStore['GqlDataSource']({
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',

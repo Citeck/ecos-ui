@@ -30,6 +30,8 @@ import Dashlet from '../../Dashlet';
 import DocAssociationsConverter from '../../../dto/docAssociations';
 
 import './style.scss';
+import InlineToolsDisconnected from '../../common/grid/InlineTools/InlineToolsDisconnected';
+import AssociationGrid from './AssociationGrid';
 
 const LABELS = {
   TITLE: 'doc-associations-widget.title',
@@ -80,7 +82,8 @@ class DocAssociations extends BaseWidget {
       journalId: '',
       journalRef: '',
       associationId: '',
-      selectedDocument: null
+      selectedDocument: null,
+      inlineToolsOffsets: { height: 0, top: 0, row: {} }
     };
 
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
@@ -126,6 +129,21 @@ class DocAssociations extends BaseWidget {
     }
 
     return `${label}?`;
+  }
+
+  get actions() {
+    return [
+      {
+        name: 'view',
+        onClick: this.handleClickViewDocument,
+        className: 'icon-on'
+      },
+      {
+        name: 'delete',
+        onClick: this.handleClickDeleteDocument,
+        className: 'icon-delete ecos-doc-associations__icon-delete'
+      }
+    ];
   }
 
   handleToggleMenu = () => {
@@ -196,6 +214,46 @@ class DocAssociations extends BaseWidget {
 
     removeAssociations(associationId, record);
     this.closeConfirmRemovingModal();
+  };
+
+  isNewOffsets = offsets => {
+    const { inlineToolsOffsets } = this.state;
+
+    if (!offsets || !inlineToolsOffsets) {
+      return false;
+    }
+
+    let isDifferentData = false;
+
+    if (offsets.height !== inlineToolsOffsets.height) {
+      isDifferentData = true;
+    }
+
+    if (offsets.top !== inlineToolsOffsets.top) {
+      isDifferentData = true;
+    }
+
+    if (offsets.row.id !== inlineToolsOffsets.rowId) {
+      isDifferentData = true;
+    }
+
+    return isDifferentData;
+  };
+
+  setInlineToolsOffsets = offsets => {
+    if (this.isNewOffsets(offsets)) {
+      this.setState({
+        inlineToolsOffsets: {
+          height: offsets.height,
+          top: offsets.top,
+          rowId: offsets.row.id || null
+        }
+      });
+    }
+  };
+
+  resetInlineTools = () => {
+    this.setInlineToolsOffsets({ height: 0, top: 0, row: {} });
   };
 
   renderHeader = columns => {
@@ -312,6 +370,8 @@ class DocAssociations extends BaseWidget {
       return null;
     }
 
+    return <AssociationGrid key={key} title={title} columns={columns} associations={associations} actions={this.actions} />;
+
     return (
       <React.Fragment key={`document-list-${position}-${title}-${id}`}>
         <div className="ecos-doc-associations__headline">
@@ -326,53 +386,34 @@ class DocAssociations extends BaseWidget {
           autoHeight
           data={associations}
           columns={DocAssociationsConverter.getColumnForWeb(columns)}
-          // keyField="attribute"
-          // valueField=""
+          inlineTools={() => this.renderInlineTools(associations)}
+          onChangeTrOptions={this.setInlineToolsOffsets}
         />
-        {/*<div className="ecos-doc-associations__headline">*/}
-        {/*  <div className="ecos-doc-associations__headline-text">{t(title)}</div>*/}
-        {/*</div>*/}
-
-        {/*{this.renderTable(associations, key)}*/}
       </React.Fragment>
     );
+  };
+
+  renderInlineTools = associations => {
+    const { inlineToolsOffsets } = this.state;
+    const row = associations.find(row => row.id === inlineToolsOffsets.rowId);
+    const buttons = [
+      <Icon
+        onClick={() => this.handleClickViewDocument(row)}
+        className="icon-on ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
+      />,
+      <Icon
+        onClick={() => this.handleClickDeleteDocument(row)}
+        className="icon-delete ecos-doc-associations__icon-delete ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
+      />
+    ];
+
+    return <InlineToolsDisconnected tools={buttons} selectedRecords={[]} />;
   };
 
   renderAssociations() {
     const { associations } = this.props;
 
     return <div ref={this.contentRef}>{associations.map(this.renderAssociationsItem)}</div>;
-  }
-
-  renderGrid() {
-    const { associations, allowedAssociations } = this.props;
-
-    return associations
-      .filter(i => i.associations.length)
-      .map(association => {
-        const columns = get(allowedAssociations.find(i => i.name === association.key), 'columnsConfig.columns', []);
-        // console.warn(association, allowedAssociations, columns);
-
-        return (
-          <Grid
-            key={association.key}
-            scrollable
-            fixedHeader
-            autoHeight
-            data={association.associations}
-            columns={DocAssociationsConverter.getColumnForWeb(columns)}
-            // keyField="attribute"
-            // valueField=""
-          />
-        );
-      });
-
-    // return (
-    //   <Grid
-    //     data={[]}
-    //     columns={[]}
-    //   />
-    // );
   }
 
   renderAddButton = () => {
@@ -503,8 +544,6 @@ class DocAssociations extends BaseWidget {
               getOptimalHeight={this.setContentHeight}
             >
               {this.renderAssociations()}
-
-              {/*{this.renderGrid()}*/}
             </DefineHeight>
           </Scrollbars>
         )}

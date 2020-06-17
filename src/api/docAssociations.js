@@ -146,15 +146,11 @@ export class DocAssociationsApi extends RecordService {
   getTargetAssociations = (id, recordRef, attributes = '') => {
     const query = attributes || 'displayName:.disp,created';
 
-    console.warn('getTargetAssociations', query, id);
-
     return Records.get(recordRef).load(`${id}[]{${this.#baseAssociationAttributes},${query}}`, true);
   };
 
   getSourceAssociations = (id, recordRef, attributes = '') => {
     const query = attributes || 'displayName:.disp,created';
-
-    console.warn('getSourceAssociations', query, id);
 
     return Records.get(recordRef).load(`assoc_src_${id}[]{${this.#baseAssociationAttributes},${query}}`, true);
   };
