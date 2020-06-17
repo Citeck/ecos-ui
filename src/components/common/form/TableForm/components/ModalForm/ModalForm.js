@@ -9,6 +9,7 @@ const ModalForm = () => {
   const context = useContext(TableFormContext);
   const {
     record,
+    clonedRecord,
     createVariant,
     formMode,
     isViewOnlyForm,
@@ -106,6 +107,7 @@ const ModalForm = () => {
         >
           <EcosForm
             record={recordForForm}
+            clonedRecord={clonedRecord}
             formKey={formKey}
             attributes={attributes}
             onSubmit={getOnSubmit()}

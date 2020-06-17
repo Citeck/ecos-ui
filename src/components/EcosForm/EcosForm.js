@@ -77,7 +77,7 @@ class EcosForm extends React.Component {
   }
 
   initForm(newFormDefinition = this.state.formDefinition) {
-    const { record, formKey, options: propsOptions, formId, getTitle } = this.props;
+    const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord } = this.props;
     const { recordId, containerId } = this.state;
     const self = this;
     const options = cloneDeep(propsOptions);
@@ -164,7 +164,7 @@ class EcosForm extends React.Component {
       });
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
-      const recordDataPromise = EcosFormUtils.getData(recordId, inputs, containerId);
+      const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
       const isDebugModeOn = localStorage.getItem('enableLoggerForNewForms');
 
       let canWritePromise = false;
@@ -302,10 +302,10 @@ class EcosForm extends React.Component {
       const allComponents = form.getAllComponents();
       const keysMapping = EcosFormUtils.getKeysMapping(inputs);
       const inputByKey = EcosFormUtils.getInputByKey(inputs);
-      const record = Records.get(recordId);
+      const sRecord = Records.get(recordId);
 
       if (submission.state) {
-        record.att('_state', submission.state);
+        sRecord.att('_state', submission.state);
       }
 
       for (const key in submission.data) {
@@ -325,18 +325,18 @@ class EcosForm extends React.Component {
 
           const currentComponent = allComponents.find(item => get(item, 'component.key', '') === key);
           if (!currentComponent || EcosFormUtils.isOutcomeButton(currentComponent.component)) {
-            record.att(attName, value);
+            sRecord.att(attName, value);
           } else {
             const isPersistent = get(currentComponent, 'component.persistent', true);
             switch (isPersistent) {
               case true:
-                record.att(attName, value);
+                sRecord.att(attName, value);
                 break;
               case 'client-only':
-                record.persistedAtt(attName, value);
+                sRecord.persistedAtt(attName, value);
                 break;
               default:
-                record.removeAtt(attName);
+                sRecord.removeAtt(attName);
             }
           }
         }
@@ -372,10 +372,10 @@ class EcosForm extends React.Component {
       };
 
       if (this.props.saveOnSubmit !== false) {
-        record
+        sRecord
           .save()
           .then(persistedRecord => {
-            onSubmit(persistedRecord, form, record);
+            onSubmit(persistedRecord, form, sRecord);
           })
           .catch(e => {
             form.showErrors(e, true);
@@ -385,10 +385,10 @@ class EcosForm extends React.Component {
             // TODO This may not be the best solution.
             //  But at the moment it works for
             //  https://citeck.atlassian.net/browse/ECOSUI-64
-            record.reset();
+            sRecord.reset();
           });
       } else {
-        onSubmit(record, form);
+        onSubmit(sRecord, form);
       }
     },
     3000,
@@ -421,6 +421,7 @@ class EcosForm extends React.Component {
 
 EcosForm.propTypes = {
   record: PropTypes.string,
+  clonedRecord: PropTypes.string,
   attributes: PropTypes.object,
   options: PropTypes.object,
   formKey: PropTypes.string,

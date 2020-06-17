@@ -66,13 +66,13 @@ export default handleActions(
       };
     },
     [setDashboardConfig]: (state, { payload: { key, config } }) => {
-      const { id: _id, key: _key } = state[key].identification;
+      const { id: _id, key: _key } = state[key].identification || {};
       const boards = {};
       const keys = Object.keys(state);
 
       for (const k of keys) {
         const bState = state[k] || {};
-        const { identification } = bState;
+        const identification = bState.identification || {};
 
         if (identification.id === _id && identification.key === _key) {
           boards[k] = { ...bState, config, isLoading: false };

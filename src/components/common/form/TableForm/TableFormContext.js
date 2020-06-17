@@ -5,8 +5,9 @@ import isBoolean from 'lodash/isBoolean';
 
 import WidgetService from '../../../../services/WidgetService';
 import Records from '../../../Records/Records';
-import { parseAttribute } from '../../../Records/Record';
+import Record, { parseAttribute } from '../../../Records/Record';
 import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
+import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import TableFormPropTypes from './TableFormPropTypes';
 
 export const TableFormContext = React.createContext();
@@ -31,18 +32,20 @@ export const TableFormContextProvider = props => {
   const [isModalFormOpen, setIsModalFormOpen] = useState(false);
   const [createVariant, setCreateVariant] = useState(null);
   const [record, setRecord] = useState(null);
+  const [clonedRecord, setClonedRecord] = useState(null);
   const [gridRows, setGridRows] = useState([]);
-
-  const onChangeHandler = rows => {
-    typeof onChange === 'function' && onChange(rows.map(item => item.id));
-    typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
-  };
-
   const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
     height: 0,
     top: 0,
     rowId: null
   });
+
+  const isInstantClone = isBoolean(get(settingElements, 'isInstantClone')) ? settingElements.isInstantClone : false;
+
+  const onChangeHandler = rows => {
+    typeof onChange === 'function' && onChange(rows.map(item => item.id));
+    typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
+  };
 
   useEffect(() => {
     if (!defaultValue || columns.length < 1) {
@@ -99,6 +102,51 @@ export const TableFormContextProvider = props => {
     }
   }, [defaultValue, columns, setGridRows]);
 
+  useEffect(() => {
+    if (clonedRecord) {
+      Records.get(clonedRecord)
+        .load('_formKey?str')
+        .then(formKey => {
+          const createVariant = createVariants.find(item => item.formKey === formKey);
+
+          if (isInstantClone) {
+            return EcosFormUtils.cloneRecord({ clonedRecord, createVariant });
+          } else {
+            showCloneForm({ createVariant });
+          }
+        })
+        .then(record => {
+          if (record instanceof Record) {
+            onCreateFormSubmit(record);
+          }
+        });
+    }
+  }, [clonedRecord]);
+
+  const showCloneForm = ({ createVariant }) => {
+    setIsViewOnlyForm(false);
+    setRecord(null);
+    setCreateVariant(createVariant);
+    setFormMode(FORM_MODE_CLONE);
+    setIsModalFormOpen(true);
+  };
+
+  const onCreateFormSubmit = record => {
+    setIsModalFormOpen(false);
+    setClonedRecord(null);
+
+    const newGridRows = [
+      ...gridRows,
+      {
+        id: record.id,
+        ...record.toJson()['attributes']
+      }
+    ];
+
+    setGridRows(newGridRows);
+    onChangeHandler(newGridRows);
+  };
+
   return (
     <TableFormContext.Provider
       value={{
@@ -109,6 +157,7 @@ export const TableFormContextProvider = props => {
         formMode,
         isViewOnlyForm,
         record,
+        clonedRecord,
         createVariant,
         isModalFormOpen,
         gridRows,
@@ -125,6 +174,7 @@ export const TableFormContextProvider = props => {
         showCreateForm: createVariant => {
           setIsViewOnlyForm(false);
           setRecord(null);
+          setClonedRecord(null);
           setCreateVariant(createVariant);
           setFormMode(FORM_MODE_CREATE);
           setIsModalFormOpen(true);
@@ -133,9 +183,14 @@ export const TableFormContextProvider = props => {
         showEditForm: record => {
           setIsViewOnlyForm(false);
           setRecord(record);
+          setClonedRecord(null);
           setCreateVariant(null);
           setFormMode(FORM_MODE_EDIT);
           setIsModalFormOpen(true);
+        },
+
+        runCloneRecord: record => {
+          setClonedRecord(record);
         },
 
         showViewOnlyForm: record => {
@@ -150,40 +205,11 @@ export const TableFormContextProvider = props => {
           WidgetService.openPreviewModal({ recordId });
         },
 
-        runCloneRecord: record => {
-          const isInstantClone = isBoolean(get(settingElements, 'isInstantClone')) ? settingElements.isInstantClone : false;
-
-          if (isInstantClone) {
-            //todo new impl
-          } else {
-            //todo change
-            setIsViewOnlyForm(false);
-            setRecord(record);
-            setCreateVariant(null);
-            setFormMode(FORM_MODE_CLONE);
-            setIsModalFormOpen(true);
-          }
-        },
-
-        onCreateFormSubmit: (record, form) => {
-          setIsModalFormOpen(false);
-
-          const newGridRows = [
-            ...gridRows,
-            {
-              id: record.id,
-              ...record.toJson()['attributes']
-            }
-          ];
-
-          setGridRows(newGridRows);
-          onChangeHandler(newGridRows);
-        },
+        onCreateFormSubmit,
 
         onEditFormSubmit: (record, form) => {
           let editRecordId = record.id;
           let isAlias = editRecordId.indexOf('-alias') !== -1;
-
           let newGridRows = [...gridRows];
 
           const newRow = { ...record.toJson()['attributes'], id: editRecordId };
@@ -209,9 +235,7 @@ export const TableFormContextProvider = props => {
           }
 
           setGridRows(newGridRows);
-
           onChangeHandler(newGridRows);
-
           setIsModalFormOpen(false);
         },
 
