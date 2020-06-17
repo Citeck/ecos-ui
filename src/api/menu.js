@@ -188,10 +188,11 @@ export class MenuApi extends CommonApi {
       });
   };
 
-  saveMenuSettingsConfig = ({ id, subMenu }) => {
+  saveMenuSettingsConfig = ({ id, subMenu, authorities }) => {
     const rec = Records.get(`${SourcesId.MENU}@${id}`);
 
     rec.att('subMenu', subMenu);
+    rec.att('authorities', authorities);
 
     return rec.save();
   };
