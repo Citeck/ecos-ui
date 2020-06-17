@@ -15,12 +15,14 @@ import { Grid } from '../../../common/grid';
 import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/Mapper';
 import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
 import Records from '../../../Records';
+import { parseAttribute } from '../../../Records/Record';
 import InputView from './InputView';
 import ViewMode from './ViewMode';
 import Filters from './Filters';
 import Search from './Search';
 import CreateVariants from './CreateVariants';
 import FiltersProvider from './Filters/FiltersProvider';
+import { DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
 
 import './SelectJournal.scss';
 
@@ -303,16 +305,14 @@ export default class SelectJournal extends Component {
           })
           .then(fetchedGridData => {
             const gridData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
-            const { gridData: prevGridData } = this.state;
-            const newGridData = {
-              ...prevGridData,
-              ...gridData
-            };
 
-            this.setState({
-              gridData: { ...newGridData },
+            this.setState(prevState => ({
+              gridData: {
+                ...prevState.gridData,
+                ...gridData
+              },
               isGridDataReady: true
-            });
+            }));
 
             resolve(gridData);
           });
@@ -411,9 +411,65 @@ export default class SelectJournal extends Component {
       });
   };
 
+  fetchTableAttributes = rows => {
+    const { viewMode } = this.props;
+    const { isJournalConfigFetched, isGridDataReady } = this.state;
+
+    if (viewMode !== DisplayModes.TABLE) {
+      return rows;
+    }
+
+    let readyPromise = Promise.resolve();
+    if (!isJournalConfigFetched) {
+      readyPromise = this.getJournalConfig().then(this.refreshGridData);
+    } else if (!isGridDataReady) {
+      readyPromise = this.refreshGridData();
+    }
+
+    return readyPromise.then(() => {
+      const atts = [];
+      const tableColumns = this.getColumns();
+
+      tableColumns.forEach(item => {
+        const hasBracket = item.attribute.includes('{');
+        const hasQChar = item.attribute.includes('?');
+        if (hasBracket || hasQChar) {
+          atts.push(item.attribute);
+          return;
+        }
+        const multiplePostfix = item.multiple ? 's' : '';
+        const schema = `.att${multiplePostfix}(n:"${item.attribute}"){disp}`;
+        atts.push(schema);
+      });
+
+      return Promise.all(
+        rows.map(r => {
+          return Records.get(r.id)
+            .load(atts)
+            .then(result => {
+              const fetchedAtts = {};
+              for (let attSchema in result) {
+                if (!result.hasOwnProperty(attSchema)) {
+                  continue;
+                }
+
+                const attData = parseAttribute(attSchema);
+                if (!attData) {
+                  continue;
+                }
+
+                fetchedAtts[attData.name] = result[attSchema];
+              }
+
+              return { ...fetchedAtts, ...r };
+            });
+        })
+      );
+    });
+  };
+
   fetchDisplayNames = selectedRows => {
     let computedDispName = lodashGet(this.props, 'computed.valueDisplayName', null);
-
     return Promise.all(
       selectedRows.map(r => {
         if (r.disp) {
@@ -447,6 +503,7 @@ export default class SelectJournal extends Component {
 
     return this.fetchDisplayNames(selected)
       .then(this.fillCanEdit)
+      .then(this.fetchTableAttributes)
       .then(selected => {
         let newValue;
         if (multiple) {
@@ -620,17 +677,13 @@ export default class SelectJournal extends Component {
     }
 
     return columns.map(item => {
-      try {
-        const { dataField, ...otherData } = baseColumns.find(column => column.dataField === item.dataField) || {};
+      const { dataField, ...otherData } = baseColumns.find(column => column.dataField === item.dataField) || {};
 
-        return {
-          ...otherData,
-          ...item,
-          dataField
-        };
-      } catch (e) {
-        return item;
-      }
+      return {
+        ...otherData,
+        ...item,
+        dataField: dataField || item.attribute
+      };
     });
   };
 
@@ -688,18 +741,15 @@ export default class SelectJournal extends Component {
       isInlineEditingMode,
       viewMode,
       gridData: {
-        ...this.state.gridData,
         columns: this.getColumns(),
-        data: this.state.gridData.data.filter(item => this.state.gridData.selected.includes(item.id)),
+        data: this.state.selectedRows,
+        total: this.state.selectedRows.length,
         editable: false,
         singleSelectable: false,
         multiSelectable: false,
-        onSelect: () => {},
         selectAllRecords: null,
         selectAllRecordsVisible: null,
-        className: classNames('select-journal__grid', {
-          'select-journal__grid_transparent': !isGridDataReady
-        }),
+        className: 'select-journal__grid',
         scrollable: false
       }
     };

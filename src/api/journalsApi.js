@@ -132,7 +132,7 @@ export class JournalsApi extends RecordService {
     const query = {
       t: 'and',
       val: queryPredicates.concat(
-        (predicates || []).filter(item => {
+        ((Array.isArray(predicates) && predicates) || []).filter(item => {
           return item.val !== '' && item.val !== null;
         })
       )
