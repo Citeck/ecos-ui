@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { deleteCustomIcon, getCustomIcons, setCustomIcons, setFontIcons, uploadCustomIcon } from '../actions/iconSelect';
+import { deleteCustomIcon, getCustomIcons, setCustomIcons, setFontIcons, setLoading, uploadCustomIcon } from '../actions/iconSelect';
 
 const initialState = {
   customIcons: [],
@@ -24,6 +24,10 @@ export default handleActions(
     [setFontIcons]: (state, { payload }) => ({
       ...state,
       fontIcons: payload
+    }),
+    [setLoading]: (state, { payload }) => ({
+      ...state,
+      isLoading: payload
     })
   },
   initialState

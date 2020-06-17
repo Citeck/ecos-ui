@@ -10,7 +10,7 @@ import './style.scss';
 
 const menuApi = new MenuApi();
 
-function EcosIcon({ code, className, data, title, source, onClick }) {
+function EcosIcon({ code, className, data, title, family, onClick }) {
   const [remoteData, setRemoteData] = useState({});
   const { type, value, url } = remoteData || {};
   const commonClass = classNames('ecos-icon', className, { 'ecos-icon_button': onClick });
@@ -21,7 +21,7 @@ function EcosIcon({ code, className, data, title, source, onClick }) {
   }
 
   useEffect(() => {
-    if (source === 'menu' && code) {
+    if (family === 'menu-items' && code) {
       menuApi.getMenuItemIconUrl(code).then(data => setRemoteData(data));
     } else {
       setRemoteData(data);
@@ -45,7 +45,7 @@ EcosIcon.propTypes = {
   className: PropTypes.string,
   code: PropTypes.string,
   title: PropTypes.string,
-  source: PropTypes.string,
+  family: PropTypes.string,
   data: PropTypes.shape({
     type: PropTypes.string,
     value: PropTypes.string

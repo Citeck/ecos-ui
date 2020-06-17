@@ -89,7 +89,7 @@ class Item extends React.Component {
     const content = (
       <>
         {!noIcon && (
-          <EcosIcon source="menu" className="ecos-sidebar-item__icon" code={data.icon} title={isOpen ? '' : get(data, 'label', '')} />
+          <EcosIcon family="menu-items" className="ecos-sidebar-item__icon" code={data.icon} title={isOpen ? '' : get(data, 'label', '')} />
         )}
         <div className="ecos-sidebar-item__label" title={label}>
           {label}

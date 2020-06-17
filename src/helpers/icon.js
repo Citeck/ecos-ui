@@ -7,11 +7,11 @@ export function getIconObjectWeb(data) {
   let icon = { value: 'icon-empty-icon' };
 
   if (isString(data)) {
-    const [source, value] = data.split('@');
+    const [_source, _value] = data.split('@');
 
-    if (value && source) {
-      icon.value = value;
-      icon.type = source === SourcesId.ICON ? 'img' : 'icon';
+    if (_value && _source) {
+      icon.value = _value;
+      icon.type = _source === SourcesId.ICON ? 'img' : 'icon';
     }
   } else {
     icon = { ...icon, ...data };

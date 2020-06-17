@@ -61,7 +61,7 @@ class IconSelect extends React.Component {
   };
 
   selected = item => !!item.value && item.value === this.state.icon.value;
-  prevSelected = item => !!item.value && item.value === this.props.selectedIcon.value;
+  prevSelected = item => !!item.value && item.value === get(this.props, 'selectedIcon.value');
   deleteSelected = () => {
     const { customIcons } = this.props;
     const { icon } = this.state;
@@ -81,6 +81,7 @@ class IconSelect extends React.Component {
             >
               <EcosIcon
                 data={item}
+                family={item.family}
                 className={classNames('ecos-icon-select__option-value', {
                   'ecos-icon-select__option-value_selected': this.selected(item),
                   'ecos-icon-select__option-value_prev': this.prevSelected(item)

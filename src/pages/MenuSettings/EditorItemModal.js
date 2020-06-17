@@ -75,7 +75,7 @@ function EditorItemModal({ item, type, onClose, onSave }) {
     (!item ? t(Labels.MODAL_TITLE_ADD) : t(Labels.MODAL_TITLE_EDIT)) +
     ': ' +
     t(type.label) +
-    (!!item ? ` \"${extractLabel(item.label)}\"` : '');
+    (!!item ? ` "${extractLabel(item.label)}"` : '');
 
   return (
     <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={title}>

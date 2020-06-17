@@ -232,7 +232,7 @@ class EditorItems extends React.Component {
           onClick={() => this.handleActionItem({ action: ms.ActionTypes.DISPLAY_COUNT, item })}
         >
           <Badge text={count} />
-          <span>{displayCount ? t('menu-settings.editor-items.action.count-on') : t('menu-settings.editor-items.action.count-off')}</span>
+          <span>{displayCount ? t('menu-settings.editor-items.action.count-off') : t('menu-settings.editor-items.action.count-on')}</span>
         </div>
       );
     }

@@ -1,17 +1,25 @@
 import { NotificationManager } from 'react-notifications';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 
-import { deleteCustomIcon, getCustomIcons, getFontIcons, setCustomIcons, setFontIcons, uploadCustomIcon } from '../actions/iconSelect';
+import {
+  deleteCustomIcon,
+  getCustomIcons,
+  getFontIcons,
+  setCustomIcons,
+  setFontIcons,
+  setLoading,
+  uploadCustomIcon
+} from '../actions/iconSelect';
 import { t } from '../helpers/util';
 import { getIconObjectWeb, getIconRef } from '../helpers/icon';
 
 function* fetchGetCustomIcons({ api, logger }, { payload: { family } }) {
   try {
-    //todo check api
     const icons = yield call(api.customIcon.getIcons, { family });
 
     yield put(setCustomIcons(icons.map(icon => getIconObjectWeb(icon))));
   } catch (e) {
+    yield put(setLoading(false));
     NotificationManager.error(t('icon-select.error.get-custom-icons'), t('error'));
     logger.error('[menu-settings / fetchGetCustomIcons]', e.message);
   }
@@ -41,15 +49,15 @@ function* runUploadCustomIcon({ api, logger }, { payload: { file, family } }) {
     const format = nameArr.pop();
     const filename = nameArr.join('.');
 
-    //todo api upload
     const data = yield call(api.app.getBase64, file);
-
+    //todo api upload
     yield call(api.customIcon.uploadIcon, { data, type, family, config: { filename, format } });
 
     const newIcon = { url: data, type, lastLoaded: true };
 
     yield put(setCustomIcons([...customIcons, newIcon]));
   } catch (e) {
+    yield put(setLoading(false));
     NotificationManager.error(t('icon-select.error.upload-custom-icon'), t('error'));
     logger.error('[menu-settings / runUploadCustomIcon]', e.message);
   }
@@ -66,6 +74,7 @@ function* runDeleteCustomIcon({ api, logger }, { payload: deleted }) {
 
     yield put(setCustomIcons([...filtered]));
   } catch (e) {
+    yield put(setLoading(false));
     NotificationManager.error(t('icon-select.error.delete-custom-icon'), t('error'));
     logger.error('[menu-settings / runDeleteCustomIcon]', e.message);
   }
