@@ -178,9 +178,6 @@ class RecordActionsService {
   }
 
   static _getConfirmData = action => {
-    action.confirm.attributesMapping = {
-      url: 'url'
-    };
     const title = extractLabel(lodash.get(action, 'confirm.title'));
     const text = extractLabel(lodash.get(action, 'confirm.message'));
     const formId = lodash.get(action, 'confirm.formRef');
