@@ -5,11 +5,10 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
 import get from 'lodash/get';
-import moment from 'moment';
 
 import BaseWidget from '../BaseWidget';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
-import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../../constants/index';
+import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import {
   addAssociations,
   getAssociations,
@@ -26,7 +25,6 @@ import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/i
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
 import Dashlet from '../../Dashlet';
-import InlineToolsDisconnected from '../../common/grid/InlineTools/InlineToolsDisconnected';
 import AssociationGrid from './AssociationGrid';
 
 import './style.scss';

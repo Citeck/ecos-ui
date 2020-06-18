@@ -145,7 +145,7 @@ export default class DocAssociationsConverter {
     }
 
     if (attr.includes('-')) {
-      return attr.toLowerCase().replace(/\-/g, '_');
+      return attr.toLowerCase().replace(/-/g, '_');
     }
 
     return attr || name;
