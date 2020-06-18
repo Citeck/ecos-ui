@@ -87,7 +87,7 @@ export class ReportApi extends RecordService {
           ]
         },
         language: 'predicate',
-        groupBy: ['wfm:documentType', 'wfm:caseStatus']
+        groupBy: ['wfm:documentEcosType', 'wfm:caseStatus']
       },
       {
         count: 'count',
