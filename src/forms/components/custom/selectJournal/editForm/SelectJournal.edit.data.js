@@ -43,7 +43,7 @@ export default [
     type: 'ecosSelect',
     input: true,
     key: 'displayColumns',
-    label: 'Columns for display',
+    label: 'Select modal columns',
     weight: 22,
     defaultValue: [],
     multiple: true,
@@ -54,7 +54,7 @@ export default [
   },
   {
     type: 'select',
-    label: 'View mode',
+    label: 'Display mode',
     key: 'source.viewMode',
     weight: 23,
     tooltip: 'Select a data display mode',
@@ -72,6 +72,8 @@ export default [
         }
       ]
     },
+    removeItemButton: false,
+    searchEnabled: false,
     defaultValue: DisplayModes.DEFAULT,
     input: true
   },
@@ -92,6 +94,8 @@ export default [
         key: 'source.type',
         dataSrc: 'values',
         clearOnHide: false,
+        removeItemButton: false,
+        searchEnabled: false,
         defaultValue: TableTypes.JOURNAL,
         data: {
           values: [{ label: 'Journal', value: TableTypes.JOURNAL }, { label: 'Custom', value: TableTypes.CUSTOM }]
