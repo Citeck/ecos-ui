@@ -14,7 +14,6 @@ import {
 import { getTimezoneValue, t } from '../../../helpers/util';
 import ecosFetch from '../../../helpers/ecosFetch';
 import { ActionModes, SourcesId } from '../../../constants';
-import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import WidgetService from '../../../services/WidgetService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
@@ -65,19 +64,37 @@ export const EditAction = {
   disabledFor: [/task-statistic/, /completed-tasks/],
 
   execute: ({ record, action: { context } }) => {
-    if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
-      const name = record.att('cm:name?disp') || '';
-      window.open(`${URL_PAGECONTEXT}task-edit?taskId=${name}&formMode=edit`, '_blank');
-      return false;
-    }
-
     return new Promise(resolve => {
-      EcosFormUtils.editRecord({
-        recordRef: record.id,
-        fallback: () => goToNodeEditPage(record.id),
-        onSubmit: () => resolve(true),
-        onCancel: () => resolve(false)
-      });
+      const openEditRecordModal = recordRef => {
+        EcosFormUtils.editRecord({
+          recordRef,
+          fallback: () => goToNodeEditPage(recordRef),
+          onSubmit: () => resolve(true),
+          onCancel: () => resolve(false)
+        });
+      };
+
+      const resolveFailure = () => {
+        notifyFailure();
+        resolve(false);
+      };
+
+      //todo it is not needed in dev; https://citeck.atlassian.net/browse/ECOSUI-158
+      if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
+        Records.get(record.id)
+          .load('cm:name?str')
+          .then(taskId => {
+            if (!taskId) {
+              resolveFailure();
+            }
+
+            openEditRecordModal(`${SourcesId.TASK}@${taskId}`);
+          })
+          .catch(resolveFailure);
+        return;
+      }
+
+      openEditRecordModal(record.id);
     });
   },
 
