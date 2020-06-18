@@ -65,19 +65,40 @@ export const EditAction = {
   disabledFor: [/task-statistic/, /completed-tasks/],
 
   execute: ({ record, action: { context } }) => {
-    if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
-      const name = record.att('cm:name?disp') || '';
-      window.open(`${URL_PAGECONTEXT}task-edit?taskId=${name}&formMode=edit`, '_blank');
-      return false;
-    }
-
     return new Promise(resolve => {
-      EcosFormUtils.editRecord({
-        recordRef: record.id,
-        fallback: () => goToNodeEditPage(record.id),
-        onSubmit: () => resolve(true),
-        onCancel: () => resolve(false)
-      });
+      const openEditRecordModal = (recordRef, fallback) => {
+        EcosFormUtils.editRecord({
+          recordRef,
+          fallback: typeof fallback === 'function' ? fallback : () => goToNodeEditPage(recordRef),
+          onSubmit: () => resolve(true),
+          onCancel: () => resolve(false)
+        });
+      };
+
+      const resolveFailure = () => {
+        notifyFailure();
+        resolve(false);
+      };
+
+      //todo it is not needed in dev; https://citeck.atlassian.net/browse/ECOSUI-158
+      if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
+        Records.get(record.id)
+          .load('cm:name?str')
+          .then(taskId => {
+            if (!taskId) {
+              resolveFailure();
+            }
+
+            openEditRecordModal(`${SourcesId.TASK}@${taskId}`, () => {
+              window.open(`${URL_PAGECONTEXT}task-edit?taskId=${taskId}&formMode=edit`, '_blank');
+              resolve(false);
+            });
+          })
+          .catch(resolveFailure);
+        return;
+      }
+
+      openEditRecordModal(record.id);
     });
   },
 
