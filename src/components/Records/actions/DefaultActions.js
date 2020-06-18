@@ -14,6 +14,7 @@ import {
 import { getTimezoneValue, t } from '../../../helpers/util';
 import ecosFetch from '../../../helpers/ecosFetch';
 import { ActionModes, SourcesId } from '../../../constants';
+import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import WidgetService from '../../../services/WidgetService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
@@ -65,10 +66,10 @@ export const EditAction = {
 
   execute: ({ record, action: { context } }) => {
     return new Promise(resolve => {
-      const openEditRecordModal = recordRef => {
+      const openEditRecordModal = (recordRef, fallback) => {
         EcosFormUtils.editRecord({
           recordRef,
-          fallback: () => goToNodeEditPage(recordRef),
+          fallback: typeof fallback === 'function' ? fallback : () => goToNodeEditPage(recordRef),
           onSubmit: () => resolve(true),
           onCancel: () => resolve(false)
         });
@@ -88,7 +89,10 @@ export const EditAction = {
               resolveFailure();
             }
 
-            openEditRecordModal(`${SourcesId.TASK}@${taskId}`);
+            openEditRecordModal(`${SourcesId.TASK}@${taskId}`, () => {
+              window.open(`${URL_PAGECONTEXT}task-edit?taskId=${taskId}&formMode=edit`, '_blank');
+              resolve(false);
+            });
           })
           .catch(resolveFailure);
         return;
