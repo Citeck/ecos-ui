@@ -1,5 +1,3 @@
-import { t } from '../helpers/util';
-
 export function reportDataPrepare(data) {
   const isValidData = data.urgent && data.today && data.later;
   const clonedData = JSON.parse(JSON.stringify(data));
