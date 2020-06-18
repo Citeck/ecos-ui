@@ -32,6 +32,7 @@ class AssociationGrid extends Component {
 
   #wrapperRef = React.createRef();
   #toolsRef = React.createRef();
+
   #scrollPosition = {};
 
   componentDidMount() {
@@ -138,6 +139,7 @@ class AssociationGrid extends Component {
           scrollable
           fixedHeader
           autoHeight
+          byContentHeight
           data={associations}
           columns={DocAssociationsConverter.getColumnForWeb(columns)}
           inlineTools={this.renderInlineTools}
