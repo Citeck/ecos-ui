@@ -47,6 +47,9 @@ const MAP = [
         case 'percent':
           name = 'PercentFormatter';
           break;
+        case 'сardDetailsLink':
+          name = 'CardDetailsLinkFormatter';
+          break;
         default:
           if (formatter.includes('dateFormatter')) {
             name = 'DateTimeFormatter';
