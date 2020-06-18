@@ -4,7 +4,7 @@ import ecosFetch from '../helpers/ecosFetch';
 import Records from '../components/Records';
 import { RecordService } from './recordService';
 import { EmodelTypes, Permissions } from '../constants';
-import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
+import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
 import { PROXY_URI } from '../constants/alfresco';
 
 export class DocAssociationsApi extends RecordService {
@@ -109,7 +109,7 @@ export class DocAssociationsApi extends RecordService {
       bodyQuery['sourceId'] = sourceId;
     }
 
-    const dataSource = new dataSourceStore['GqlDataSource']({
+    const dataSource = new GqlDataSource({
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',
       ajax: {
