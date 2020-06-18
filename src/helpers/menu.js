@@ -1,9 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
-import { SourcesId } from '../constants';
+import { SourcesId, URL } from '../constants';
 import Records from '../components/Records';
-
-import { URL } from '../constants';
 import { HandleControlTypes } from './handleControl';
 import { createProfileUrl } from './urls';
 
@@ -132,7 +130,8 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
 }
 
 export function makeSiteMenu(params = {}) {
-  const isDashboardPage = get(params, ['isDashboardPage'], false);
+  const isDashboardPage = get(params, 'isDashboardPage', false);
+  const isAdmin = get(params, 'isAdmin', false);
   const menu = [
     // {
     //   id: 'HOME_PAGE',
@@ -154,11 +153,19 @@ export function makeSiteMenu(params = {}) {
     }
   ];
 
+  if (!params) {
+    return menu;
+  }
+
   return menu.filter(item => {
     let status = true;
 
     if (!isDashboardPage) {
       status = item.id !== 'SETTINGS_HOME_PAGE';
+    }
+
+    if (item.id === 'GO_ADMIN_PAGE') {
+      status = isAdmin;
     }
 
     return status;
