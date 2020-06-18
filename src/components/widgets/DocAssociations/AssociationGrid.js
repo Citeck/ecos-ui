@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import uuid from 'uuidv4';
 
-import { t } from '../../../helpers/export/util';
-import { Grid } from '../../common/grid';
-import DocAssociationsConverter from '../../../dto/docAssociations';
 import { Icon } from '../../common';
+import { Grid } from '../../common/grid';
 import InlineToolsDisconnected from '../../common/grid/InlineTools/InlineToolsDisconnected';
+import DocAssociationsConverter from '../../../dto/docAssociations';
+import { t } from '../../../helpers/export/util';
+import { objectCompare } from '../../../helpers/util';
 
 class AssociationGrid extends Component {
   static propTypes = {
@@ -58,21 +59,7 @@ class AssociationGrid extends Component {
       return false;
     }
 
-    let isDifferentData = false;
-
-    if (offsets.height !== inlineToolsOffsets.height) {
-      isDifferentData = true;
-    }
-
-    if (offsets.top !== inlineToolsOffsets.top) {
-      isDifferentData = true;
-    }
-
-    if (offsets.row.id !== inlineToolsOffsets.rowId) {
-      isDifferentData = true;
-    }
-
-    return isDifferentData;
+    return !objectCompare(offsets, inlineToolsOffsets);
   };
 
   handleSetInlineToolsOffsets = offsets => {
@@ -100,13 +87,24 @@ class AssociationGrid extends Component {
     }
   };
 
+  handleClickAction = (callback, data) => {
+    callback(data);
+    this.handleResetInlineTools();
+  };
+
   renderButton = button => {
     const { associations } = this.props;
     const { inlineToolsOffsets } = this.state;
     const row = associations.find(row => row.id === inlineToolsOffsets.rowId);
     const { name = uuid(), onClick = () => null, className = '' } = button;
 
-    return <Icon key={name} onClick={() => onClick(row)} className={classNames(className, 'ecos-doc-associations__icon')} />;
+    return (
+      <Icon
+        key={name}
+        onClick={() => this.handleClickAction(onClick, row)}
+        className={classNames(className, 'ecos-doc-associations__icon')}
+      />
+    );
   };
 
   renderInlineTools = () => {

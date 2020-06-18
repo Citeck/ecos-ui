@@ -120,12 +120,9 @@ export default class DocAssociationsConverter {
 
     target.columns = get(config, 'columns', []).map(column => ({
       ...column,
-      // attribute: column.attribute || column.name,
-      // attribute: DocAssociationsConverter.getAttribute(column.attribute, column.name),
       label: t(getTextByLocale(column.label || ''))
     }));
     target.label = getTextByLocale(config.label);
-    // target.typeRef = config.typeRef;
 
     return target;
   }
@@ -139,33 +136,17 @@ export default class DocAssociationsConverter {
       return name;
     }
 
-    // if (!name) {
-    //   return attr;
-    // }
-
     if (attr.charAt(0) === '.') {
       return name;
     }
 
     if (attr.includes(':')) {
       return name;
-      // return `${name}:${attr}`;
-      // return attr.split(':')[0];
     }
 
     if (attr.includes('-')) {
       return attr.toLowerCase().replace(/\-/g, '_');
     }
-
-    // if (name && (
-    //   attr.charAt(0) === '.' ||
-    //   attr.includes(':') ||
-    //   attr.includes('-')
-    // )) {
-    //   return name;
-    //   // return name;
-    //   // return `_${source.slice(1)}`;
-    // }
 
     return attr || name;
   }
@@ -181,51 +162,25 @@ export default class DocAssociationsConverter {
 
     return source
       .map(column => {
-        let attribute = column.attribute || ''; //  || column.name || '';
+        let attribute = column.attribute || '';
 
         if (!attribute) {
           return '';
         }
 
+        if (attribute.charAt(0) === '.') {
+          return `${column.name}:${attribute.slice(1)}`;
+        }
+
         if (column.name) {
+          if (attribute.includes('att(n:')) {
+            return `${column.name}:${attribute}`;
+          }
+
           return `${column.name}:att(n:"${attribute}"){disp}`;
         }
 
-        // if (!attribute) {
-        //   return '';
-        // }
-
-        // if (!column.name) {
-        //   return attribute;
-        // }
-
-        // if (attribute.charAt(0) === '.') {
-        //   return `${column.name}:${column.attribute}`;
-        //   // return `_${attribute.slice(1)}:${attribute}`;
-        // }
-        //
-        // if (attribute.includes(':')) {
-        //   return `${column.name}:${column.attribute}`;
-        // }
-
-        // if (attribute.includes('-')) {
-        //   return column.name;
-        // }
-
-        // if ((
-        //   attribute.includes(':') ||
-        //   attribute.includes('-')
-        // )) {
-        //   return column.name;
-        // }
-
         return attribute || column.name;
-
-        // if (!column.name || !column.attribute) {
-        //   return '';
-        // }
-        //
-        // return `${column.name}:${column.attribute}`;
       })
       .filter(item => !!item)
       .join(',');

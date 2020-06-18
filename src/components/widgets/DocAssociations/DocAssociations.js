@@ -23,15 +23,13 @@ import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import DAction from '../../../services/DashletActionService';
 import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
-import { Grid } from '../../common/grid';
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
 import Dashlet from '../../Dashlet';
-import DocAssociationsConverter from '../../../dto/docAssociations';
-
-import './style.scss';
 import InlineToolsDisconnected from '../../common/grid/InlineTools/InlineToolsDisconnected';
 import AssociationGrid from './AssociationGrid';
+
+import './style.scss';
 
 const LABELS = {
   TITLE: 'doc-associations-widget.title',
@@ -82,8 +80,7 @@ class DocAssociations extends BaseWidget {
       journalId: '',
       journalRef: '',
       associationId: '',
-      selectedDocument: null,
-      inlineToolsOffsets: { height: 0, top: 0, row: {} }
+      selectedDocument: null
     };
 
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
@@ -216,46 +213,6 @@ class DocAssociations extends BaseWidget {
     this.closeConfirmRemovingModal();
   };
 
-  isNewOffsets = offsets => {
-    const { inlineToolsOffsets } = this.state;
-
-    if (!offsets || !inlineToolsOffsets) {
-      return false;
-    }
-
-    let isDifferentData = false;
-
-    if (offsets.height !== inlineToolsOffsets.height) {
-      isDifferentData = true;
-    }
-
-    if (offsets.top !== inlineToolsOffsets.top) {
-      isDifferentData = true;
-    }
-
-    if (offsets.row.id !== inlineToolsOffsets.rowId) {
-      isDifferentData = true;
-    }
-
-    return isDifferentData;
-  };
-
-  setInlineToolsOffsets = offsets => {
-    if (this.isNewOffsets(offsets)) {
-      this.setState({
-        inlineToolsOffsets: {
-          height: offsets.height,
-          top: offsets.top,
-          rowId: offsets.row.id || null
-        }
-      });
-    }
-  };
-
-  resetInlineTools = () => {
-    this.setInlineToolsOffsets({ height: 0, top: 0, row: {} });
-  };
-
   renderHeader = columns => {
     return (
       <div className="ecos-doc-associations__table-header">
@@ -268,101 +225,14 @@ class DocAssociations extends BaseWidget {
     );
   };
 
-  renderRow = (item, columns, key) => (
-    <div className="ecos-doc-associations__table-row surfbug_highlight" key={`${key}-${item.record}`}>
-      {columns.map(column => this.renderCell(column, item))}
-    </div>
-  );
-
-  renderCell = (column, row) => {
-    const { isMobile } = this.props;
-    let data = row[column.name];
-    let Wrapper;
-
-    if (column.type === 'datetime') {
-      data = moment(data || moment()).format('DD.MM.YYYY h:mm');
-    }
-
-    switch (column.name) {
-      case 'displayName': {
-        Wrapper = ({ children }) => (
-          <a
-            href={`${URL.DASHBOARD}?recordRef=${row.record}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ecos-doc-associations__link"
-          >
-            {children}
-          </a>
-        );
-        break;
-      }
-      case 'modifier': {
-        Wrapper = ({ children }) => (
-          <a
-            href={`${URL.DASHBOARD}?recordRef=people@${row.modifierId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ecos-doc-associations__link"
-          >
-            {children}
-          </a>
-        );
-        break;
-      }
-      default:
-        Wrapper = ({ children }) => children;
-    }
-
-    return (
-      <React.Fragment key={column.name}>
-        <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">{data && <Wrapper>{data}</Wrapper>}</div>
-
-        {!isMobile && (
-          <span className="ecos-doc-associations__table-actions">
-            <Icon
-              onClick={() => this.handleClickViewDocument(row)}
-              className="icon-on ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
-            />
-            <Icon
-              onClick={() => this.handleClickDeleteDocument(row)}
-              className="icon-delete ecos-doc-associations__icon-delete ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
-            />
-          </span>
-        )}
-      </React.Fragment>
-    );
-  };
-
-  renderTable(data = [], key) {
-    if (!data.length) {
-      return this.renderEmptyMessage();
-    }
-
-    const { allowedAssociations } = this.props;
-    const columns = get(allowedAssociations.find(item => item.name === key), 'columnsConfig.columns', []);
-
-    return (
-      <div
-        className={classNames('ecos-doc-associations__table', {
-          'ecos-doc-associations__table_small': this.isSmallWidget
-        })}
-      >
-        {this.renderHeader(columns)}
-
-        <div className="ecos-doc-associations__table-body">{data.map(item => this.renderRow(item, columns, key))}</div>
-      </div>
-    );
-  }
-
   renderEmptyMessage = (message = LABELS.MESSAGE_NOT_ADDED) => (
     <div className="ecos-doc-associations__empty">
       <span className="ecos-doc-associations__empty-message">{t(message)}</span>
     </div>
   );
 
-  renderAssociationsItem = (data = {}, position) => {
-    const { id, allowedAssociations } = this.props;
+  renderAssociationsItem = (data = {}) => {
+    const { allowedAssociations } = this.props;
     const { associations, title, key } = data;
     const columns = get(allowedAssociations.find(i => i.name === key), 'columnsConfig.columns', []);
 
@@ -371,43 +241,6 @@ class DocAssociations extends BaseWidget {
     }
 
     return <AssociationGrid key={key} title={title} columns={columns} associations={associations} actions={this.actions} />;
-
-    return (
-      <React.Fragment key={`document-list-${position}-${title}-${id}`}>
-        <div className="ecos-doc-associations__headline">
-          <div className="ecos-doc-associations__headline-text">{t(title)}</div>
-        </div>
-
-        <Grid
-          key={key}
-          className="ecos-doc-associations__table"
-          scrollable
-          fixedHeader
-          autoHeight
-          data={associations}
-          columns={DocAssociationsConverter.getColumnForWeb(columns)}
-          inlineTools={() => this.renderInlineTools(associations)}
-          onChangeTrOptions={this.setInlineToolsOffsets}
-        />
-      </React.Fragment>
-    );
-  };
-
-  renderInlineTools = associations => {
-    const { inlineToolsOffsets } = this.state;
-    const row = associations.find(row => row.id === inlineToolsOffsets.rowId);
-    const buttons = [
-      <Icon
-        onClick={() => this.handleClickViewDocument(row)}
-        className="icon-on ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
-      />,
-      <Icon
-        onClick={() => this.handleClickDeleteDocument(row)}
-        className="icon-delete ecos-doc-associations__icon-delete ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
-      />
-    ];
-
-    return <InlineToolsDisconnected tools={buttons} selectedRecords={[]} />;
   };
 
   renderAssociations() {
