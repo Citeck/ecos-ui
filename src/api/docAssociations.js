@@ -9,7 +9,8 @@ import dataSourceStore from '../components/common/grid/dataSource/DataSourceStor
 import { PROXY_URI } from '../constants/alfresco';
 
 export class DocAssociationsApi extends RecordService {
-  #baseAssociationAttributes = 'id:.assoc,modifierId:cm:modifier,displayName:.disp';
+  #baseAssociationAttributes = 'id:assoc,modifierId:att(n:"cm:modifier"){disp},displayName:disp';
+  #defaultAttributes = 'displayName:disp,att(n:"created"){disp}';
 
   /**
    * List of available associations
@@ -144,15 +145,15 @@ export class DocAssociationsApi extends RecordService {
   };
 
   getTargetAssociations = (id, recordRef, attributes = '') => {
-    const query = attributes || 'displayName:.disp,created';
+    const query = attributes || this.#defaultAttributes;
 
-    return Records.get(recordRef).load(`${id}[]{${this.#baseAssociationAttributes},${query}}`, true);
+    return Records.get(recordRef).load(`.atts(n:"${id}"){${this.#baseAssociationAttributes},${query}}`, true);
   };
 
   getSourceAssociations = (id, recordRef, attributes = '') => {
-    const query = attributes || 'displayName:.disp,created';
+    const query = attributes || this.#defaultAttributes;
 
-    return Records.get(recordRef).load(`assoc_src_${id}[]{${this.#baseAssociationAttributes},${query}}`, true);
+    return Records.get(recordRef).load(`.atts(n:"assoc_src_${id}"){${this.#baseAssociationAttributes},${query}}`, true);
   };
 
   addAssociations = ({ associationId, associations, recordRef }) => {

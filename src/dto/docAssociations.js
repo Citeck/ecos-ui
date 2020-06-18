@@ -135,9 +135,13 @@ export default class DocAssociationsConverter {
   }
 
   static getAttribute(attr = '', name = '') {
-    if (!name) {
-      return attr;
+    if (name) {
+      return name;
     }
+
+    // if (!name) {
+    //   return attr;
+    // }
 
     if (attr.charAt(0) === '.') {
       return name;
@@ -183,18 +187,26 @@ export default class DocAssociationsConverter {
           return '';
         }
 
-        if (!column.name) {
-          return attribute;
+        if (column.name) {
+          return `${column.name}:att(n:"${attribute}"){disp}`;
         }
 
-        if (attribute.charAt(0) === '.') {
-          return `${column.name}:${column.attribute}`;
-          // return `_${attribute.slice(1)}:${attribute}`;
-        }
+        // if (!attribute) {
+        //   return '';
+        // }
 
-        if (attribute.includes(':')) {
-          return `${column.name}:${column.attribute}`;
-        }
+        // if (!column.name) {
+        //   return attribute;
+        // }
+
+        // if (attribute.charAt(0) === '.') {
+        //   return `${column.name}:${column.attribute}`;
+        //   // return `_${attribute.slice(1)}:${attribute}`;
+        // }
+        //
+        // if (attribute.includes(':')) {
+        //   return `${column.name}:${column.attribute}`;
+        // }
 
         // if (attribute.includes('-')) {
         //   return column.name;

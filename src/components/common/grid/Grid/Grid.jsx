@@ -824,7 +824,6 @@ class Grid extends Component {
   render() {
     const {
       minHeight,
-      // maxHeight,
       autoHeight,
       scrollAutoHide,
       className,
