@@ -26,15 +26,13 @@ class AssociationGrid extends Component {
 
   state = {
     key: uuid(),
-    // inlineToolsOffsets: { height: 0, top: 0, rowId: null }
-    inlineToolsOffsets: {
-      height: 40,
-      top: 133,
-      rowId: 'workspace://SpacesStore/b955e372-275b-4352-8b39-6dc1ea49611a'
-    }
+    scrollLeft: 0,
+    inlineToolsOffsets: { height: 0, top: 0, rowId: null }
   };
 
   #wrapperRef = React.createRef();
+  #toolsRef = React.createRef();
+  #scrollPosition = {};
 
   componentDidMount() {
     const wrapper = this.#wrapperRef.current;
@@ -78,18 +76,27 @@ class AssociationGrid extends Component {
 
   handleSetInlineToolsOffsets = offsets => {
     if (this.isNewOffsets(offsets)) {
-      this.setState({
+      this.setState(state => ({
         inlineToolsOffsets: {
+          ...state.inlineToolsOffsets,
           height: offsets.height,
           top: offsets.top,
           rowId: offsets.row.id || null
         }
-      });
+      }));
     }
   };
 
   handleResetInlineTools = () => {
-    // this.handleSetInlineToolsOffsets({ height: 0, top: 0, row: {} });
+    this.handleSetInlineToolsOffsets({ height: 0, top: 0, row: {} });
+  };
+
+  handleScollingTable = event => {
+    this.#scrollPosition = event;
+
+    if (this.#toolsRef.current) {
+      this.#toolsRef.current.style.left = `${event.scrollLeft}px`;
+    }
   };
 
   renderButton = button => {
@@ -102,16 +109,16 @@ class AssociationGrid extends Component {
   };
 
   renderInlineTools = () => {
-    const { associations, actions } = this.props;
+    const { actions } = this.props;
     const { inlineToolsOffsets } = this.state;
     const buttons = actions.map(this.renderButton);
 
     return (
       <InlineToolsDisconnected
+        forwardedRef={this.#toolsRef}
         tools={buttons}
-        // className="ecos-doc-associations__table-actions"
-        // selectedRecords={[]}
         {...inlineToolsOffsets}
+        left={this.#scrollPosition.scrollLeft}
       />
     );
   };
@@ -135,6 +142,8 @@ class AssociationGrid extends Component {
           columns={DocAssociationsConverter.getColumnForWeb(columns)}
           inlineTools={this.renderInlineTools}
           onChangeTrOptions={this.handleSetInlineToolsOffsets}
+          onScrolling={this.handleScollingTable}
+          scrollPosition={this.#scrollPosition}
         />
       </div>
     );

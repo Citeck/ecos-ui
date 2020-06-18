@@ -10,14 +10,15 @@ class InlineToolsDisconnected extends Component {
   };
 
   render() {
-    const { top, height, tools, selectedRecords, rowId, className } = this.props;
+    const { top, height, left, right, tools, selectedRecords, rowId, className, forwardedRef } = this.props;
 
     const selected = selectedRecords.includes(rowId);
 
     if (height) {
       return (
         <div
-          style={{ top, height }}
+          ref={forwardedRef}
+          style={{ top, height, left, right }}
           className={classNames('ecos-inline-tools', className, {
             'ecos-inline-tools_selected': selected
           })}
@@ -31,7 +32,7 @@ class InlineToolsDisconnected extends Component {
   }
 }
 
-const numberOrStringType = PropTypes.oneOfType(PropTypes.number, PropTypes.string);
+const numberOrStringType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
 InlineToolsDisconnected.propTypes = {
   rowId: numberOrStringType,
@@ -39,7 +40,8 @@ InlineToolsDisconnected.propTypes = {
   height: numberOrStringType,
   tools: PropTypes.arrayOf(PropTypes.node),
   selectedRecords: PropTypes.arrayOf(numberOrStringType),
-  className: PropTypes.string
+  className: PropTypes.string,
+  forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
 };
 
 InlineToolsDisconnected.defaultProps = {
