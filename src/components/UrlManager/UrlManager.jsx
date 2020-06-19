@@ -55,7 +55,11 @@ class UrlManager extends Component {
     return fromUrlParams;
   }
 
-  triggerParse = params => {
+  triggerParse = (params, pathname = window.location.pathname) => {
+    this.props.history.push({
+      pathname,
+      search: queryString.stringify(params)
+    });
     trigger.call(this, 'onParse', params);
   };
 
@@ -77,7 +81,11 @@ class UrlManager extends Component {
     this._prevUrlParams = this.updateUrl(params, this._prevUrlParams);
 
     return typeof children.type === 'function'
-      ? React.cloneElement(children, { urlParams: this._prevUrlParams, onRender: this.onChildrenRender })
+      ? React.cloneElement(children, {
+          urlParams: this._prevUrlParams,
+          onRender: this.onChildrenRender,
+          setUrl: this.triggerParse
+        })
       : children;
   }
 }

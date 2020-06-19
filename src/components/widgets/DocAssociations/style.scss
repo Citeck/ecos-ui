@@ -49,11 +49,12 @@
     $icon: &;
 
     background: $color-white;
+    cursor: pointer;
+    color: $color-brown-2;
+    //padding-right: 11px;
+    margin-right: 11px;
 
     &-delete {
-      cursor: pointer;
-      color: $color-gray-1;
-
       &:hover {
         &,
         #{$root}__table-row:hover & {
@@ -138,6 +139,7 @@
 
       #{$table}:not(#{$table}_small) &:hover {
         border-color: $color-brown-2;
+        z-index: 1;
 
         &:first-child {
           padding-top: 2px;
@@ -165,6 +167,10 @@
       top: 0;
       display: flex;
       align-items: center;
+
+      & > :not(:last-child) {
+        margin-right: 10px;
+      }
     }
 
     &_small {
@@ -201,5 +207,11 @@
   &__link {
     color: $color-blue-dark;
     @extend %ellipsis;
+  }
+
+  &__scroll {
+    &_v {
+      @extend %v-scroll;
+    }
   }
 }

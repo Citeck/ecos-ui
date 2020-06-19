@@ -201,12 +201,12 @@ $header-height: 52px;
 
       &:nth-child(n) {
         position: sticky;
-        z-index: 10;
+        z-index: 25;
         background: $color-white;
       }
 
       &:nth-child(1) {
-        z-index: 15;
+        z-index: 26;
         background: $color-white;
       }
     }

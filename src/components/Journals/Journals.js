@@ -21,7 +21,7 @@ import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
 import { t, trigger } from '../../helpers/util';
-import { goToCardDetailsPage } from '../../helpers/urls';
+import { getSearchParams, stringifySearchParams, goToCardDetailsPage } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
 import './Journals.scss';
@@ -87,12 +87,14 @@ class Journals extends Component {
     const {
       isActivePage,
       urlParams: { journalId },
-      stateId
+      stateId,
+      grid
     } = this.props;
     const {
       isActivePage: _isActivePage,
       urlParams: { journalId: _journalId }
     } = prevProps;
+    const search = this.getSearch();
 
     if (isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId)) {
       this.getJournalsData();
@@ -101,7 +103,15 @@ class Journals extends Component {
     if (prevProps.stateId !== stateId) {
       this.getJournalsData();
     }
+
+    if (search && !get(prevProps, 'grid.columns') && get(grid, 'columns')) {
+      this.search(search);
+    }
   }
+
+  getSearch = () => {
+    return get(getSearchParams(), 'search', '');
+  };
 
   refresh = () => {
     this.props.reloadGrid();
@@ -157,6 +167,12 @@ class Journals extends Component {
   };
 
   search = text => {
+    const searchParams = {
+      ...getSearchParams(),
+      search: text
+    };
+
+    this.props.setUrl(getSearchParams(stringifySearchParams(searchParams)));
     this.props.search(text);
   };
 
@@ -212,6 +228,7 @@ class Journals extends Component {
               onSearch={this.search}
               addRecord={this.addRecord}
               isMobile={isMobile}
+              searchText={this.getSearch()}
             />
 
             <EcosModal

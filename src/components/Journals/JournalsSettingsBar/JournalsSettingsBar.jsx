@@ -17,14 +17,14 @@ const JournalsSettingsBar = ({
   showPie,
   toggleSettings,
   togglePreview,
-  togglePie,
   showGrid,
   refresh,
   onSearch,
   journalConfig,
   addRecord,
   grid,
-  isMobile
+  isMobile,
+  searchText
 }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
@@ -75,6 +75,7 @@ const JournalsSettingsBar = ({
         onSearch={onSearch}
         className={`ecos-journal__settings-bar-search search_border-white ${step}`}
         collapsed={isMobile}
+        text={searchText}
         cleaner
       />
 
@@ -122,7 +123,6 @@ const JournalsSettingsBar = ({
               className={`${showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
               onClick={togglePreview}
             />
-            {/*<IcoBtn icon={'icon-pie'} className={showPie ? blue : grey} onClick={togglePie} />*/}
           </>
         )}
       </div>

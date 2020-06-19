@@ -2,7 +2,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import uuid from 'uuidv4';
 
-import { DASHBOARD_DEFAULT_KEY, SourcesId } from '../constants';
+import { SourcesId } from '../constants';
 import { LAYOUT_TYPE } from '../constants/layout';
 import { t } from '../helpers/util';
 import pageTabList from './pageTabs/PageTabList';
@@ -24,7 +24,7 @@ export default class DashboardService {
     return `layout_${uuid()}`;
   }
 
-  static defaultDashboardTab = idLayout => ({ label: t('Вкладка'), idLayout });
+  static defaultDashboardTab = idLayout => ({ label: t('page-tabs.tab-name-default'), idLayout });
 
   static defaultDashboardConfig = idLayout => ({
     layout: {
@@ -68,13 +68,8 @@ export default class DashboardService {
     };
   }
 
-  static getCacheKey(key, part) {
-    switch (key) {
-      case DASHBOARD_DEFAULT_KEY:
-        return `${DASHBOARD_DEFAULT_KEY}/${part}`;
-      default:
-        return key;
-    }
+  static getCacheKey({ type, user }) {
+    return `${type}|${user}`;
   }
 
   static defineWaySavingDashboard(eqKey, allUser, hasUser) {

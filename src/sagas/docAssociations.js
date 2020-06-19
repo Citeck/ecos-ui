@@ -1,5 +1,6 @@
 import { all, call, put, select, takeEvery } from 'redux-saga/effects';
 import concat from 'lodash/concat';
+import { NotificationManager } from 'react-notifications';
 
 import {
   addAssociations,
@@ -11,12 +12,15 @@ import {
   setAssociations,
   setError,
   setMenu,
-  setSectionList
+  setSectionList,
+  viewAssociation
 } from '../actions/docAssociations';
-import DocAssociationsConverter from '../dto/docAssociations';
-import { DIRECTIONS } from '../constants/docAssociations';
 import { selectAllowedDirectionsByKey, selectAssocByAssocName, selectAssociationColumnsConfig } from '../selectors/docAssociations';
+import DocAssociationsConverter from '../dto/docAssociations';
+import { t } from '../helpers/util';
+import { DIRECTIONS } from '../constants/docAssociations';
 import Records from '../components/Records';
+import { DefaultActionTypes } from '../components/Records/actions';
 
 function* sagaGetSectionList({ api, logger }, { payload }) {
   try {
@@ -152,8 +156,21 @@ function* sagaAddAssociations({ api, logger }, { payload }) {
 
     yield put(getAssociations(record));
     yield Records.get([record, ...associations]).forEach(r => r && r.update());
+
+    NotificationManager.success(
+      associations.length > 1
+        ? t('doc-associations-widget.add-association-many.success.message')
+        : t('doc-associations-widget.add-association-one.success.message')
+    );
   } catch (e) {
+    let message = t('doc-associations-widget.add-association.error.message');
+
     yield put(setError({ key: payload.record }));
+    if (e.message.includes('type is incorrect')) {
+      message = t('doc-associations-widget.incorrect-type.error.message');
+    }
+
+    NotificationManager.error(message);
     logger.error('[docAssociations sagaAddAssociations saga error', e.message);
   }
 }
@@ -178,9 +195,25 @@ function* sagaRemoveAssociations({ api, logger }, { payload }) {
     });
     yield put(getAssociations(record));
     yield Records.get([record, associationRef]).forEach(r => r && r.update());
+
+    NotificationManager.success(t('doc-associations-widget.remove-association.success.message'));
   } catch (e) {
     yield put(setError({ key: payload.record }));
+
+    NotificationManager.error(t('doc-associations-widget.incorrect-type.error.message'));
     logger.error('[docAssociations sagaRemoveAssociations saga error', e.message);
+  }
+}
+
+function* sagaViewAssociation({ api, logger }, { payload }) {
+  try {
+    yield call(api.recordActions.executeAction, {
+      records: payload,
+      action: { type: DefaultActionTypes.VIEW }
+    });
+  } catch (e) {
+    NotificationManager.error(t('doc-associations-widget.view-association.error.message'), t('error'));
+    logger.error('[docAssociations sagaGetSectionList saga error', e.message);
   }
 }
 
@@ -190,6 +223,7 @@ function* saga(ea) {
   yield takeEvery(getMenu().type, sagaGetMenu, ea);
   yield takeEvery(addAssociations().type, sagaAddAssociations, ea);
   yield takeEvery(removeAssociations().type, sagaRemoveAssociations, ea);
+  yield takeEvery(viewAssociation().type, sagaViewAssociation, ea);
 }
 
 export default saga;

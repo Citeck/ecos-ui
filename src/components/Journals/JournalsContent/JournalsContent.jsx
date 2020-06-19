@@ -27,6 +27,7 @@ const Grid = ({ stateId, showPreview, onRowClick, maxHeight }) => (
       noTopBorder
       maxHeight={maxHeight}
       toolsClassName={'grid-tools_r_12'}
+      selectorContainer={'.ecos-journal-page'}
     />
   </Well>
 );

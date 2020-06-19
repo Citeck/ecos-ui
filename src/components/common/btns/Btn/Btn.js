@@ -28,8 +28,15 @@ export default class Btn extends Component {
     );
 
     return (
-      <button ref={this._ref} disabled={disabled} {...htmlAttr} className={cssClasses}>
-        {loading ? <PointsLoader /> : children}
+      <button ref={this._ref} disabled={disabled || loading} {...htmlAttr} className={cssClasses}>
+        {loading && <PointsLoader className="ecos-btn__loader" />}
+        <div
+          className={classNames('ecos-btn__content', {
+            'ecos-btn__content_hidden': loading
+          })}
+        >
+          {children}
+        </div>
       </button>
     );
   }

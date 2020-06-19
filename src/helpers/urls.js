@@ -320,3 +320,21 @@ export const isDashboard = (url = window.location.href) => {
 
   return false;
 };
+
+export const stringifySearchParams = (params = {}, stringifyParams = { skipEmptyString: true }) => {
+  return queryString.stringify(params, stringifyParams);
+};
+
+export const isTaskDashboard = (url = window.location.href) => {
+  return isDashboard(url) && hasInString(url, `${SourcesId.TASK}@`);
+};
+
+if (!window.Citeck) {
+  window.Citeck = {};
+}
+
+window.Citeck.Navigator = {
+  goToDashboard: (recordRef, options) => {
+    goToCardDetailsPage(recordRef, options);
+  }
+};

@@ -6,25 +6,43 @@ import api from '../api/esign';
 import EsignComponent from '../components/Esign';
 import EsignConverter from '../dto/esign';
 import { ErrorTypes, Labels } from '../constants/esign';
-import { t } from '../helpers/util';
+import { deepClone, t } from '../helpers/util';
 
 class Esign {
-  sign(recordRefs, params = {}) {
+  static #queryParams = {};
+
+  sign(recordRefs, componentProps = {}, queryParams = false) {
     if (!recordRefs) {
       return new Error(`The "recordRefs" argument is required`);
     }
+
+    let params;
+
+    switch (typeof queryParams) {
+      case 'boolean':
+        params = { isApprovementSignature: queryParams };
+        break;
+      case 'object':
+        params = queryParams instanceof Array ? {} : queryParams;
+        break;
+      default:
+        params = '';
+    }
+
+    Esign.#queryParams = deepClone(params, {});
 
     if (!Array.isArray(recordRefs)) {
       recordRefs = [recordRefs];
     }
 
     const container = document.createElement('div');
+
     ReactDOM.render(
       <EsignComponent
         recordRefs={recordRefs}
-        {...params}
+        {...componentProps}
         onClose={() => {
-          this._onClose(container);
+          this.#onClose(container);
         }}
       />,
       container
@@ -33,10 +51,10 @@ class Esign {
     document.body.appendChild(container);
   }
 
-  _onClose(container) {
+  #onClose = container => {
     ReactDOM.unmountComponentAtNode(container);
     document.body.removeChild(container);
-  }
+  };
 
   get isApiReady() {
     return api.hasCadesplugin;
@@ -136,7 +154,9 @@ class Esign {
       }
 
       const user = await get(window, 'Alfresco.constants.USERNAME', '');
-      const signResponse = await api.sendSignedDocument(document, signedMessage, user);
+      const signResponse = await api.sendSignedDocument(
+        EsignConverter.getSignQueryParams({ ...Esign.#queryParams, document, signedMessage, user })
+      );
 
       return get(signResponse, 'data', false);
     } catch (e) {

@@ -1,11 +1,15 @@
-import { RecordService } from './recordService';
-import Records from '../components/Records';
 import isEmpty from 'lodash/isEmpty';
 
 import ecosFetch from '../helpers/ecosFetch';
+import Records from '../components/Records';
+import { RecordService } from './recordService';
+import { EmodelTypes, Permissions } from '../constants';
+import dataSourceStore from '../components/common/grid/dataSource/DataSourceStore';
+import { PROXY_URI } from '../constants/alfresco';
 
 export class DocAssociationsApi extends RecordService {
-  #baseAssociationAttributes = 'id:.assoc,modifierId:cm:modifier';
+  #baseAssociationAttributes = 'id:assoc,modifierId:att(n:"cm:modifier"){disp},displayName:disp';
+  #defaultAttributes = 'displayName:disp,att(n:"created"){disp}';
 
   /**
    * List of available associations
@@ -39,22 +43,31 @@ export class DocAssociationsApi extends RecordService {
           attribute: '.disp',
           label: { ru: 'Заголовок', en: 'Name' },
           name: 'displayName',
-          type: 'text'
+          type: 'text',
+          attributes: {},
+          params: {
+            formatter: 'сardDetailsLink'
+          }
         },
         {
           attribute: 'created',
           label: { ru: 'Дата создания', en: 'Create time' },
           name: 'created',
-          type: 'datetime'
+          type: 'datetime',
+          attributes: {}
         }
       ]
     };
 
-    if (association.target === 'emodel/type@base') {
-      return {
-        ...association,
-        columnsConfig: baseColumnsConfig
-      };
+    if (association.target === EmodelTypes.BASE) {
+      return new Promise(async resolve => {
+        const columns = await this.getFormattedColumns(baseColumnsConfig);
+
+        resolve({
+          ...association,
+          columnsConfig: { ...baseColumnsConfig, columns }
+        });
+      });
     }
 
     return Records.queryOne(
@@ -65,11 +78,53 @@ export class DocAssociationsApi extends RecordService {
         }
       },
       '.json'
-    ).then(columnsConfig => ({
-      ...association,
-      columnsConfig: isEmpty(columnsConfig) ? baseColumnsConfig : columnsConfig
-    }));
+    ).then(async columnsConfig => {
+      const config = isEmpty(columnsConfig) ? baseColumnsConfig : columnsConfig;
+      const columns = await this.getFormattedColumns(config);
+
+      return {
+        ...association,
+        columnsConfig: { ...config, columns }
+      };
+    });
   }
+
+  getFormattedColumns = async config => {
+    const { predicate = {}, columns = [], sourceId } = config;
+    const queryPredicates = predicate.val || [];
+    const bodyQuery = {
+      query: {
+        t: 'and',
+        val: queryPredicates.concat(
+          (predicate.val || []).filter(item => {
+            return item.val !== '' && item.val !== null;
+          })
+        )
+      },
+      language: 'predicate',
+      consistency: 'EVENTUAL'
+    };
+
+    if (sourceId) {
+      bodyQuery['sourceId'] = sourceId;
+    }
+
+    const dataSource = new dataSourceStore['GqlDataSource']({
+      url: `${PROXY_URI}citeck/ecos/records`,
+      dataSourceName: 'GqlDataSource',
+      ajax: {
+        body: {
+          query: bodyQuery
+        }
+      },
+      columns: columns || [],
+      permissions: [Permissions.Write]
+    });
+
+    await dataSource.load();
+
+    return dataSource.getColumns();
+  };
 
   /**
    * Partition List - Second Level Menu
@@ -99,15 +154,32 @@ export class DocAssociationsApi extends RecordService {
   };
 
   getTargetAssociations = (id, recordRef, attributes = '') => {
-    const query = attributes || 'displayName:.disp,created';
+    const query = attributes || this.#defaultAttributes;
 
-    return Records.get(recordRef).load(`${id}[]{${this.#baseAssociationAttributes},${query}}`, true);
+    return Records.get(recordRef)
+      .load(`.atts(n:"${id}"){${this.#baseAssociationAttributes},${query}}`, true)
+      .then(res => res)
+      .then(res => {
+        if (!Array.isArray(res)) {
+          return [];
+        }
+
+        return res.filter(item => !isEmpty(item));
+      });
   };
 
   getSourceAssociations = (id, recordRef, attributes = '') => {
-    const query = attributes || 'displayName:.disp,created';
+    const query = attributes || this.#defaultAttributes;
 
-    return Records.get(recordRef).load(`assoc_src_${id}[]{${this.#baseAssociationAttributes},${query}}`, true);
+    return Records.get(recordRef)
+      .load(`.atts(n:"assoc_src_${id}"){${this.#baseAssociationAttributes},${query}}`, true)
+      .then(res => {
+        if (!Array.isArray(res)) {
+          return [];
+        }
+
+        return res.filter(item => !isEmpty(item));
+      });
   };
 
   addAssociations = ({ associationId, associations, recordRef }) => {

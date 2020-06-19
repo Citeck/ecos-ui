@@ -8,16 +8,19 @@ import {
   DownloadAction,
   DownloadCardTemplate,
   EditAction,
+  FetchAction,
   MoveToLinesJournal,
   OpenURL,
   PreviewModal,
   SaveAsCaseTemplate,
   UploadNewVersion,
   ViewAction,
-  ViewCardTemplate
+  ViewCardTemplate,
+  ScriptAction
 } from './DefaultActions';
 
 import { CaseCreateNodeAction, CaseRedirectAction, CaseRequestAction } from './CaseActions';
+import { ModuleActionTypes, ModuleCopyAction } from './ModuleActions';
 
 export { default } from './RecordActions';
 export { DefaultActionTypes } from './DefaultActions';
@@ -37,6 +40,10 @@ Registry.addExecutors({
   [DefaultActionTypes.ASSOC_ACTION]: AssocAction,
   [DefaultActionTypes.VIEW_CARD_TEMPLATE]: ViewCardTemplate,
   [DefaultActionTypes.PREVIEW_MODAL]: PreviewModal,
+  [DefaultActionTypes.FETCH]: FetchAction,
+  [DefaultActionTypes.SCRIPT]: ScriptAction,
+
+  [ModuleActionTypes.MODULE_COPY]: ModuleCopyAction,
 
   //legacy case actions
 

@@ -1,6 +1,7 @@
 import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import * as queryString from 'query-string';
 
 import {
   createPrintUrl,
@@ -12,7 +13,7 @@ import {
 } from '../../../helpers/urls';
 import { getTimezoneValue, t } from '../../../helpers/util';
 import ecosFetch from '../../../helpers/ecosFetch';
-import { ActionModes } from '../../../constants';
+import { ActionModes, SourcesId } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
 import WidgetService from '../../../services/WidgetService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
@@ -20,9 +21,26 @@ import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 import RecordActions from './RecordActions';
 
-const globalTasks = ['active-tasks', 'completed-tasks', 'controlled', 'subordinate-tasks', 'task-statistic', 'initiator-tasks'];
+const globalTasks = [
+  'active-tasks',
+  'completed-tasks',
+  'controlled',
+  'subordinate-tasks',
+  'task-statistic',
+  'initiator-tasks',
+  'income-package-tasks',
+  'ptp-active-tasks'
+];
 
 const globalTaskPatterns = [/active-tasks/, /completed-tasks/, /controlled/, /subordinate-tasks/, /task-statistic/, /initiator-tasks/];
+
+function notifySuccess(msg) {
+  NotificationManager.success(msg || t('record-action.msg.success.text'), t('record-action.msg.success.title'));
+}
+
+function notifyFailure(msg) {
+  NotificationManager.error(msg || t('record-action.msg.error.text'), t('record-action.msg.error.title'), 5000);
+}
 
 export const DefaultActionTypes = {
   CREATE: 'create',
@@ -38,26 +56,49 @@ export const DefaultActionTypes = {
   UPLOAD_NEW_VERSION: 'upload-new-version',
   ASSOC_ACTION: 'assoc-action',
   SAVE_AS_CASE_TEMPLATE: 'save-as-case-template',
-  PREVIEW_MODAL: 'content-preview-modal'
+  PREVIEW_MODAL: 'content-preview-modal',
+  FETCH: 'fetch',
+  SCRIPT: 'script'
 };
 
 export const EditAction = {
   disabledFor: [/task-statistic/, /completed-tasks/],
 
   execute: ({ record, action: { context } }) => {
-    if (globalTasks.indexOf(context.scope) > -1) {
-      const name = record.att('cm:name?disp') || '';
-      window.open(`${URL_PAGECONTEXT}task-edit?taskId=${name}&formMode=edit`, '_blank');
-      return false;
-    }
-
     return new Promise(resolve => {
-      EcosFormUtils.editRecord({
-        recordRef: record.id,
-        fallback: () => goToNodeEditPage(record.id),
-        onSubmit: () => resolve(true),
-        onCancel: () => resolve(false)
-      });
+      const openEditRecordModal = (recordRef, fallback) => {
+        EcosFormUtils.editRecord({
+          recordRef,
+          fallback: typeof fallback === 'function' ? fallback : () => goToNodeEditPage(recordRef),
+          onSubmit: () => resolve(true),
+          onCancel: () => resolve(false)
+        });
+      };
+
+      const resolveFailure = () => {
+        notifyFailure();
+        resolve(false);
+      };
+
+      //todo it is not needed in dev; https://citeck.atlassian.net/browse/ECOSUI-158
+      if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
+        Records.get(record.id)
+          .load('cm:name?str')
+          .then(taskId => {
+            if (!taskId) {
+              resolveFailure();
+            }
+
+            openEditRecordModal(`${SourcesId.TASK}@${taskId}`, () => {
+              window.open(`${URL_PAGECONTEXT}task-edit?taskId=${taskId}&formMode=edit`, '_blank');
+              resolve(false);
+            });
+          })
+          .catch(resolveFailure);
+        return;
+      }
+
+      openEditRecordModal(record.id);
     });
   },
 
@@ -87,15 +128,17 @@ export const ViewAction = {
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
-        .then(docId => (docId ? goToCardDetailsPage(docId) : ''));
+        .then(docId => (docId ? goToCardDetailsPage(docId) : notifyFailure()));
+      return false;
+    }
+    //todo it is not needed in dev; https://citeck.atlassian.net/browse/ECOSUI-158
+    if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
+      Records.get(record.id)
+        .load('cm:name?str')
+        .then(taskId => (taskId ? goToCardDetailsPage(`${SourcesId.TASK}@${taskId}`) : notifyFailure()));
       return false;
     }
 
-    if (globalTasks.indexOf(context.scope) > -1) {
-      const name = record.att('cm:name?disp') || '';
-      window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
-      return false;
-    }
     goToCardDetailsPage(record.id);
     return false;
   },
@@ -151,10 +194,11 @@ export const BackgroundOpenAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
   execute: ({ record, action: { context } }) => {
-    if (globalTasks.indexOf(context.scope) > -1) {
-      const name = record.att('cm:name?disp') || '';
-
-      window.open(`${URL_PAGECONTEXT}task-details?taskId=${name}&formMode=view`, '_blank');
+    //todo it is not needed in dev; https://citeck.atlassian.net/browse/ECOSUI-158
+    if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
+      Records.get(record.id)
+        .load('cm:name?str')
+        .then(taskId => (taskId ? goToCardDetailsPage(`${SourcesId.TASK}@${taskId}`, { openInBackground: true }) : notifyFailure()));
       return false;
     }
 
@@ -446,7 +490,7 @@ export const AssocAction = {
       .load(assoc, true)
       .then(result => {
         if (!result) {
-          NotificationManager.error(t('record-action.assoc-action.not-found'), t('error'));
+          notifyFailure(t('record-action.assoc-action.not-found'));
           return;
         }
 
@@ -520,4 +564,74 @@ export const PreviewModal = {
     type: DefaultActionTypes.PREVIEW_MODAL,
     icon: 'icon-preview'
   })
+};
+
+export const FetchAction = {
+  execute: ({ action: { config } }) => {
+    const { url, args, ...options } = config || {};
+    const fullUrl = `${url}?${queryString.stringify({ ...args })}`;
+
+    return ecosFetch(fullUrl, options)
+      .then(response => (response.ok ? response : Promise.reject({ message: response.statusText })))
+      .then(result => {
+        notifySuccess();
+        return result;
+      })
+      .catch(e => {
+        notifyFailure();
+        dialogManager.showInfoDialog({ title: t('error'), text: e.message });
+      });
+  },
+
+  getDefaultModel: () => ({
+    name: 'record-action.name.fetch-action',
+    type: DefaultActionTypes.FETCH,
+    icon: 'icon-right'
+  })
+};
+
+export const ScriptAction = {
+  execute: context => {
+    let config = get(context, 'action.config', {});
+
+    if (config.module) {
+      return new Promise(resolve => {
+        window.require(
+          [config.module],
+          module => {
+            const result = module.default.execute(context);
+            if (result) {
+              if (result.then) {
+                result
+                  .then(res => resolve(res))
+                  .catch(e => {
+                    console.error(e);
+                    resolve(true);
+                  });
+              } else {
+                resolve(result);
+              }
+            } else {
+              resolve(true);
+            }
+          },
+          error => {
+            console.error(error);
+            resolve(false);
+          }
+        );
+      });
+    } else {
+      console.error('Module is not specified!');
+      return false;
+    }
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.script-action',
+      type: DefaultActionTypes.SCRIPT,
+      icon: 'icon-check'
+    };
+  }
 };

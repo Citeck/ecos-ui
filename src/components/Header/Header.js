@@ -6,7 +6,7 @@ import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import ReactResizeDetector from 'react-resize-detector';
 
-import { MENU_TYPE } from '../../constants';
+import { MENU_TYPE, URL } from '../../constants';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
 
 import SlideMenuBtn from './SlideMenuBtn';
@@ -27,8 +27,7 @@ const mapDispatchToProps = dispatch => ({
 const mapStateToProps = state => ({
   isMobile: get(state, 'view.isMobile'),
   theme: get(state, 'view.theme'),
-  menuType: get(state, 'menu.type', ''),
-  dashboardEditable: get(state, 'app.dashboardEditable')
+  menuType: get(state, 'menu.type', '')
 });
 
 class Header extends React.Component {
@@ -56,8 +55,8 @@ class Header extends React.Component {
 
   render() {
     const { widthHeader } = this.state;
-    const { isMobile, hideSiteMenu, theme, dashboardEditable } = this.props;
-    const hiddenSiteMenu = hideSiteMenu || isMobile || !dashboardEditable || widthHeader < 600;
+    const { isMobile, hideSiteMenu, theme } = this.props;
+    const hiddenSiteMenu = hideSiteMenu || isMobile || widthHeader < 600;
     const hiddenLanguageSwitcher = isMobile || widthHeader < 600;
 
     return (
@@ -69,7 +68,7 @@ class Header extends React.Component {
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className="ecos-header__side ecos-header__side_right">
-            <Search isMobile={widthHeader <= 600} />
+            <Search isMobile={widthHeader <= 600} searchPageUrl={`${URL.JOURNAL}?journalId=search`} />
             {!hiddenSiteMenu && <SiteMenu />}
             {!hiddenLanguageSwitcher && <LanguageSwitcher theme={theme} />}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />

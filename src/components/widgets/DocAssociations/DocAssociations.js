@@ -5,18 +5,18 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
 import get from 'lodash/get';
-import moment from 'moment';
 
 import BaseWidget from '../BaseWidget';
 import { getAdaptiveNumberStr, t } from '../../../helpers/util';
-import { MIN_WIDTH_DASHLET_SMALL, URL } from '../../../constants/index';
+import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import {
   addAssociations,
   getAssociations,
   getMenu,
   getSectionList,
   removeAssociations,
-  resetStore
+  resetStore,
+  viewAssociation
 } from '../../../actions/docAssociations';
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -25,6 +25,7 @@ import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/i
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
 import Dashlet from '../../Dashlet';
+import AssociationGrid from './AssociationGrid';
 
 import './style.scss';
 
@@ -118,11 +119,26 @@ class DocAssociations extends BaseWidget {
     const { selectedDocument } = this.state;
     let label = t(LABELS.CONFIRM_REMOVE_MODAL_TEXT);
 
-    if (selectedDocument) {
-      label += ` "${selectedDocument.name}"`;
+    if (selectedDocument && selectedDocument.displayName) {
+      label += ` "${selectedDocument.displayName}"`;
     }
 
     return `${label}?`;
+  }
+
+  get actions() {
+    return [
+      {
+        name: 'view',
+        onClick: this.handleClickViewDocument,
+        className: 'icon-on'
+      },
+      {
+        name: 'delete',
+        onClick: this.handleClickDeleteDocument,
+        className: 'icon-delete ecos-doc-associations__icon-delete'
+      }
+    ];
   }
 
   handleToggleMenu = () => {
@@ -170,6 +186,13 @@ class DocAssociations extends BaseWidget {
     this.setState({ isConfirmRemoveDialogOpen: true, selectedDocument });
   };
 
+  handleClickViewDocument = selectedDocument => {
+    const { viewAssociation } = this.props;
+    const { record } = selectedDocument;
+
+    viewAssociation(record);
+  };
+
   closeConfirmRemovingModal = () => {
     this.setState({ isConfirmRemoveDialogOpen: false, selectedDocument: null });
   };
@@ -200,112 +223,22 @@ class DocAssociations extends BaseWidget {
     );
   };
 
-  renderRow = (item, columns, key) => (
-    <div className="ecos-doc-associations__table-row surfbug_highlight" key={`${key}-${item.record}`}>
-      {columns.map(column => this.renderCell(column, item))}
-    </div>
-  );
-
-  renderCell = (column, row) => {
-    const { isMobile } = this.props;
-    let data = row[column.name];
-    let Wrapper;
-
-    if (column.type === 'datetime') {
-      data = moment(data || moment()).format('DD.MM.YYYY h:mm');
-    }
-
-    switch (column.name) {
-      case 'displayName': {
-        Wrapper = ({ children }) => (
-          <a
-            href={`${URL.DASHBOARD}?recordRef=${row.record}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ecos-doc-associations__link"
-          >
-            {children}
-          </a>
-        );
-        break;
-      }
-      case 'modifier': {
-        Wrapper = ({ children }) => (
-          <a
-            href={`${URL.DASHBOARD}?recordRef=people@${row.modifierId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ecos-doc-associations__link"
-          >
-            {children}
-          </a>
-        );
-        break;
-      }
-      default:
-        Wrapper = ({ children }) => children;
-    }
-
-    return (
-      <React.Fragment key={column.name}>
-        <div className="ecos-doc-associations__table-cell ecos-doc-associations__table-body-cell">{data && <Wrapper>{data}</Wrapper>}</div>
-
-        {!isMobile && (
-          <span className="ecos-doc-associations__table-actions">
-            <Icon
-              onClick={() => this.handleClickDeleteDocument(row)}
-              className="icon-delete ecos-doc-associations__icon-delete ecos-doc-associations__icon ecos-doc-associations__icon_hidden"
-            />
-          </span>
-        )}
-      </React.Fragment>
-    );
-  };
-
-  renderTable(data = [], key) {
-    if (!data.length) {
-      return this.renderEmptyMessage();
-    }
-
-    const { allowedAssociations } = this.props;
-    const columns = get(allowedAssociations.find(item => item.name === key), 'columnsConfig.columns', []);
-
-    return (
-      <div
-        className={classNames('ecos-doc-associations__table', {
-          'ecos-doc-associations__table_small': this.isSmallWidget
-        })}
-      >
-        {this.renderHeader(columns)}
-
-        <div className="ecos-doc-associations__table-body">{data.map(item => this.renderRow(item, columns, key))}</div>
-      </div>
-    );
-  }
-
   renderEmptyMessage = (message = LABELS.MESSAGE_NOT_ADDED) => (
     <div className="ecos-doc-associations__empty">
       <span className="ecos-doc-associations__empty-message">{t(message)}</span>
     </div>
   );
 
-  renderAssociationsItem = (data = {}, position) => {
-    const { id } = this.props;
+  renderAssociationsItem = (data = {}) => {
+    const { allowedAssociations } = this.props;
     const { associations, title, key } = data;
+    const columns = get(allowedAssociations.find(i => i.name === key), 'columnsConfig.columns', []);
 
     if (!associations || !associations.length) {
       return null;
     }
 
-    return (
-      <React.Fragment key={`document-list-${position}-${title}-${id}`}>
-        <div className="ecos-doc-associations__headline">
-          <div className="ecos-doc-associations__headline-text">{t(title)}</div>
-        </div>
-
-        {this.renderTable(associations, key)}
-      </React.Fragment>
-    );
+    return <AssociationGrid key={key} title={title} columns={columns} associations={associations} actions={this.actions} />;
   };
 
   renderAssociations() {
@@ -431,7 +364,10 @@ class DocAssociations extends BaseWidget {
         {isMobile ? (
           this.renderAssociations()
         ) : (
-          <Scrollbars style={{ height: contentHeight || '100%' }}>
+          <Scrollbars
+            style={{ height: contentHeight || '100%' }}
+            renderTrackVertical={props => <div {...props} className="ecos-doc-associations__scroll ecos-doc-associations__scroll_v" />}
+          >
             <DefineHeight
               fixHeight={userHeight || null}
               maxHeight={fitHeights.max}
@@ -460,6 +396,7 @@ const mapDispatchToProps = (dispatch, { record }) => ({
   getSectionList: () => dispatch(getSectionList(record)),
   getAssociations: () => dispatch(getAssociations(record)),
   getMenu: () => dispatch(getMenu(record)),
+  viewAssociation: associationRef => dispatch(viewAssociation(associationRef)),
   addAssociations: (associationId, journalRef, associations) =>
     dispatch(
       addAssociations({
