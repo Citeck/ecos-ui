@@ -1,8 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
-import Records from '../components/Records';
 import { SourcesId, URL } from '../constants';
 import { MenuTypes } from '../constants/menu';
+import Records from '../components/Records';
 import { HandleControlTypes } from './handleControl';
 import { createProfileUrl } from './urls';
 import { documentScrollTop } from './util';
@@ -132,7 +133,8 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
 }
 
 export function makeSiteMenu(params = {}) {
-  const { isDashboardPage, isAdmin } = params || {};
+  const isDashboardPage = get(params, 'isDashboardPage', false);
+  const isAdmin = get(params, 'isAdmin', false);
   const menu = [
     // {
     //   id: 'HOME_PAGE',
@@ -159,11 +161,16 @@ export function makeSiteMenu(params = {}) {
     }
   ];
 
+  if (!params) {
+    return menu;
+  }
+
   return menu.filter(item => {
     switch (item.id) {
       case 'SETTINGS_DASHBOARD':
         return isDashboardPage;
       case 'SETTINGS_MENU':
+      case 'GO_ADMIN_PAGE':
         return isAdmin;
       default:
         return true;

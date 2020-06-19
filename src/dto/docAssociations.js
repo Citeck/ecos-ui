@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import { getTextByLocale } from '../helpers/util';
+import { getTextByLocale, t } from '../helpers/util';
 import { DIRECTIONS } from '../constants/docAssociations';
 
 export default class DocAssociationsConverter {
@@ -116,20 +116,39 @@ export default class DocAssociationsConverter {
       return null;
     }
 
-    const target = {};
+    const target = { ...config };
 
     target.columns = get(config, 'columns', []).map(column => ({
       ...column,
-      label: getTextByLocale(column.label || '')
+      label: t(getTextByLocale(column.label || ''))
     }));
     target.label = getTextByLocale(config.label);
-    target.typeRef = config.typeRef;
 
     return target;
   }
 
   static getId(source = {}) {
     return source.id;
+  }
+
+  static getAttribute(attr = '', name = '') {
+    if (name) {
+      return name;
+    }
+
+    if (attr.charAt(0) === '.') {
+      return name;
+    }
+
+    if (attr.includes(':')) {
+      return name;
+    }
+
+    if (attr.includes('-')) {
+      return attr.toLowerCase().replace(/-/g, '_');
+    }
+
+    return attr || name;
   }
 
   static getColumnsAttributes(source = []) {
@@ -143,13 +162,45 @@ export default class DocAssociationsConverter {
 
     return source
       .map(column => {
-        if (!column.name || !column.attribute) {
+        let attribute = column.attribute || '';
+
+        if (!attribute) {
           return '';
         }
 
-        return `${column.name}:${column.attribute}`;
+        if (attribute.charAt(0) === '.') {
+          return `${column.name}:${attribute.slice(1)}`;
+        }
+
+        if (column.name) {
+          if (attribute.includes('att(n:')) {
+            return `${column.name}:${attribute}`;
+          }
+
+          return `${column.name}:att(n:"${attribute}"){disp}`;
+        }
+
+        return attribute || column.name;
       })
       .filter(item => !!item)
       .join(',');
+  }
+
+  static getColumnForWeb(source = []) {
+    if (isEmpty(source)) {
+      return [];
+    }
+
+    if (!Array.isArray(source)) {
+      return [];
+    }
+
+    return source.map(item => {
+      return {
+        ...item,
+        dataField: DocAssociationsConverter.getAttribute(item.attribute, item.name),
+        text: item.label
+      };
+    });
   }
 }

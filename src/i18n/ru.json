@@ -872,6 +872,7 @@
   "report-widget.today": "СЕГОДНЯ",
   "report-widget.later": "ПОЗЖЕ",
   "report-widget.records.no-document-type": "Без статуса",
+  "report-widget.records.no-status": "Без статуса",
 
   "esign.error": "Ошибка",
   "esign.add-plugin.title": "Установите расширение",

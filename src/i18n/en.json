@@ -871,6 +871,7 @@
   "report-widget.today": "TODAY",
   "report-widget.later": "LATER",
   "report-widget.records.no-document-type": "No status",
+  "report-widget.records.no-status": "No status",
 
   "esign.error": "Error",
   "esign.add-plugin.title": "Please, install extension",
