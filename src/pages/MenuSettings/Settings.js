@@ -18,7 +18,7 @@ import './style.scss';
 const Labels = {
   TITLE: 'menu-settings.header.title',
   TITLE_ITEMS: 'menu-settings.editor-items.title',
-  TITLE_OWNERSHIP: 'Ownership settings',
+  TITLE_OWNERSHIP: 'menu-settings.editor-ownership.title',
   GOTO_JOURNAL: 'menu-settings.header.btn.journal-menu-template',
   BTN_CANCEL: 'menu-settings.button.cancel',
   BTN_APPLY: 'menu-settings.button.apply'

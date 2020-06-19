@@ -170,11 +170,14 @@ export class MenuApi extends CommonApi {
 
   getMenuSettingsConfig = ({ id }) => {
     return Records.get(`${SourcesId.MENU}@${id}`)
-      .load({
-        id: 'id',
-        authorities: 'authorities',
-        menu: 'subMenu?json'
-      })
+      .load(
+        {
+          id: 'id',
+          authorities: 'authorities',
+          menu: 'subMenu?json'
+        },
+        true
+      )
       .then(resp => {
         return fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || []).then(items => {
           lodashSet(resp, 'menu.left.items', items);
