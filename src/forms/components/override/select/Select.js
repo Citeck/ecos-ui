@@ -10,7 +10,7 @@ export default class SelectComponent extends FormIOSelectComponent {
     }
 
     // Clear absent values (Cause: https://citeck.atlassian.net/browse/ECOSUI-169)
-    const findValueIndex = () => this.currentItems.findIndex(item => item[this.component.valueProperty] === value);
+    const findValueIndex = valueItem => this.currentItems.findIndex(item => item[this.component.valueProperty] === valueItem);
     if (this.component.multiple) {
       value = value.filter(valueItem => findValueIndex(valueItem) !== -1);
     } else {
