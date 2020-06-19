@@ -664,8 +664,16 @@ function* sagaSearch({ api, logger, stateId, w }, action) {
   try {
     const text = action.payload;
     const grid = yield select(state => state.journals[stateId].grid);
+    const fullSearch = yield select(state => get(state, ['journals', stateId, 'journalConfig', 'params', 'full-search-predicate']));
     const { columns, groupBy = [] } = grid;
-    const predicates = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
+    let predicates;
+
+    if (fullSearch) {
+      predicates = JSON.parse(fullSearch);
+      predicates.val = text;
+    } else {
+      predicates = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
+    }
 
     yield put(reloadGrid(w({ predicates: predicates ? [predicates] : null })));
   } catch (e) {
