@@ -45,7 +45,7 @@ export const ModuleCopyAction = {
           const existingId = await Records.get(newRecId).load('moduleId', true);
 
           if (existingId) {
-            throw 'Модуль с таким ID уже существует';
+            throw new Error('Модуль с таким ID уже существует');
           }
 
           record.att('moduleId', submission.data.moduleId);
