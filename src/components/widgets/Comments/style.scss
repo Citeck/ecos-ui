@@ -24,6 +24,11 @@
       &-footer {
         flex-direction: column;
 
+        &-error {
+          margin-right: 0;
+          margin-bottom: 10px;
+        }
+
         &-btn {
           width: 50%;
           //min-width: 141px;
@@ -224,6 +229,11 @@
       flex-direction: column;
       justify-content: center;
 
+      &-group {
+        position: absolute;
+        top: 15px;
+      }
+
       &-title {
         font-style: normal;
         font-weight: bold;
@@ -282,6 +292,10 @@
         &:not(:last-child) {
           margin-right: 10px;
         }
+
+        &-wrapper {
+          display: flex;
+        }
       }
 
       &-error {
@@ -290,7 +304,7 @@
         font-size: 12px;
         line-height: 16px;
         color: $color-red-1;
-        max-width: 134px;
+        margin-right: 10px;
       }
     }
 
