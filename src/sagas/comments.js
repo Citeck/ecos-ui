@@ -108,24 +108,27 @@ function* sagaUpdateComment({ api, logger }, action) {
   }
 }
 
-function* sagaDeleteComment({ api, logger }, action) {
+function* sagaDeleteComment({ api, logger }, { payload }) {
   try {
-    yield api.comments.delete(action.payload.id);
+    yield put(sendingStart(payload.nodeRef));
+    yield api.comments.delete(payload.id);
 
-    const comments = yield select(state => selectAllComments(state, action.payload.nodeRef));
-    const index = comments.findIndex(comment => comment.id === action.payload.id);
+    const comments = yield select(state => selectAllComments(state, payload.nodeRef));
+    const index = comments.findIndex(comment => comment.id === payload.id);
 
     if (index !== -1) {
       comments.splice(index, 1);
     }
 
-    yield put(deleteCommentSuccess({ comments, nodeRef: action.payload.nodeRef }));
+    yield put(deleteCommentSuccess({ comments, nodeRef: payload.nodeRef }));
   } catch (e) {
     const originMessage = getPureMessage(e.message);
 
     NotificationManager.error(originMessage || t('comments-widget.error'), t('error'));
 
     logger.error('[comments sagaDeleteComment saga error', e.message);
+  } finally {
+    yield put(sendingEnd(payload.nodeRef));
   }
 }
 

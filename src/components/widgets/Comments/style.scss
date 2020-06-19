@@ -229,6 +229,11 @@
       flex-direction: column;
       justify-content: center;
 
+      &-group {
+        position: absolute;
+        top: 15px;
+      }
+
       &-title {
         font-style: normal;
         font-weight: bold;
