@@ -129,6 +129,10 @@ function* sagaDeleteComment({ api, logger }, { payload }) {
     logger.error('[comments sagaDeleteComment saga error', e.message);
   } finally {
     yield put(sendingEnd(payload.nodeRef));
+
+    if (payload.callback && typeof payload.callback === 'function') {
+      payload.callback();
+    }
   }
 }
 
