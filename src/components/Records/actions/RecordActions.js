@@ -3,9 +3,7 @@ import lodash from 'lodash';
 import { deepClone, extractLabel, t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
 import DialogManager from '../../common/dialogs/Manager/DialogManager';
-import FormManager from '../../EcosForm/FormManager';
 import Records from '../Records';
-import Record from '../Record';
 import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
 import { DefaultActionTypes } from './DefaultActions';
 
@@ -191,41 +189,35 @@ class RecordActionsService {
     const { title, text, formId, attributesMapping } = data;
 
     if (formId) {
-      const ownerId = Date.now();
-      const record = Records.create({}, ownerId);
-      const closeForm = result => {
-        Records.release(record, ownerId);
+      Records.get(formId)
+        .load('definition?json')
+        .then(formDefinition => {
+          DialogManager.showFormDialog({
+            title,
+            formDefinition: {
+              display: 'form',
+              ...formDefinition
+            },
+            onSubmit: submission => {
+              const source = submission.data;
+              const target = {};
 
-        if (result instanceof Record && !lodash.isEmpty(attributesMapping)) {
-          result
-            .load(attributesMapping)
-            .then(result => callback(result))
-            .catch(e => {
-              console.error(e);
-              callback(false);
-              DialogManager.showInfoDialog({ title: t('error'), text: e.message });
-            });
-        } else {
-          callback(!!result);
-        }
-      };
-
-      FormManager.openFormControlledModal({
-        formId,
-        title,
-        record: record.id,
-        saveOnSubmit: false,
-        onSubmit: closeForm,
-        onFormCancel: () => closeForm(false),
-        onHideModal: () => closeForm(false)
-      });
+              for (let path in attributesMapping) {
+                if (attributesMapping.hasOwnProperty(path)) {
+                  lodash.set(target, path, lodash.get(source, attributesMapping[path]));
+                }
+              }
+              callback(target);
+            }
+          });
+        })
+        .catch(e => {
+          console.error(e);
+          callback(false);
+          DialogManager.showInfoDialog({ title: t('error'), text: e.message });
+        });
     } else {
-      DialogManager.confirmDialog({
-        title,
-        text,
-        onNo: () => callback(false),
-        onYes: () => callback(true)
-      });
+      DialogManager.confirmDialog({ title, text, onNo: () => callback(false), onYes: () => callback(true) });
     }
   };
 
