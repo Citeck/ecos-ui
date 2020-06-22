@@ -14,7 +14,11 @@ jest.spyOn(global, 'fetch').mockImplementation(() => {
           'idocs:note?disp': 'Тестовый договор',
           'idocs:signatory?disp': 'Бухгалтер Горбункова',
           'contracts:VAT?disp': '120000',
-          'contracts:agreementAmount?disp': '980000'
+          'contracts:agreementAmount?disp': '980000',
+          'nullableField?disp': null,
+          'booleanField?bool': false,
+          'booleanField2?bool': true,
+          'numericField?num': 125
         }
       })
   });

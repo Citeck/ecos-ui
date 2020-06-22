@@ -15,6 +15,15 @@ describe('RecordActions service', () => {
         }
       },
       {
+        title: 'with multiple fields',
+        input: {
+          someField: 'prefix-${idocs:performer}-${cm:name}'
+        },
+        output: {
+          someField: 'prefix-Admin Adminov2-Договор №1244 (1).txt'
+        }
+      },
+      {
         title: 'with inner objects',
         input: {
           someField: 'prefix-${cm:name}',
@@ -89,6 +98,46 @@ describe('RecordActions service', () => {
           totalCount: 300,
           sum: 100000,
           page: 12
+        }
+      },
+      {
+        title: 'with nullable fields',
+        input: {
+          nullableField: '${nullableField}'
+        },
+        output: {
+          nullableField: null
+        }
+      },
+      {
+        title: 'with boolean fields',
+        input: {
+          booleanField: '${booleanField?bool}',
+          booleanField2: '${booleanField2?bool}'
+        },
+        output: {
+          booleanField: false,
+          booleanField2: true
+        }
+      },
+      {
+        title: 'with numeric fields',
+        input: {
+          numericField: '${numericField?num}'
+        },
+        output: {
+          numericField: 125
+        }
+      },
+      {
+        title: 'string mask with numeric and boolean fields',
+        input: {
+          numericField: 'Total: ${numericField?num}',
+          booleanField: 'Result: ${booleanField?bool}'
+        },
+        output: {
+          numericField: 'Total: 125',
+          booleanField: 'Result: false'
         }
       }
     ];
