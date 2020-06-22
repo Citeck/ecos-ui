@@ -7,7 +7,7 @@ import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'rea
 import get from 'lodash/get';
 
 import BaseWidget from '../BaseWidget';
-import { getAdaptiveNumberStr, t } from '../../../helpers/util';
+import { arrayCompare, getAdaptiveNumberStr, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import {
   addAssociations,
@@ -82,6 +82,7 @@ class DocAssociations extends BaseWidget {
     };
 
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
+    this.watcherAssoc = null;
   }
 
   componentDidMount() {
@@ -95,12 +96,29 @@ class DocAssociations extends BaseWidget {
     if (this.state.runUpdate && !prevState.runUpdate) {
       this.props.getAssociations();
     }
+
+    const prevTrackedAssoc = this.getTrackedAssoc(prevProps.allowedAssociations);
+    const newTrackedAssoc = this.getTrackedAssoc();
+
+    if (!arrayCompare(prevTrackedAssoc, newTrackedAssoc)) {
+      this.watcherAssoc && this.instanceRecord.unwatch(prevTrackedAssoc);
+      newTrackedAssoc &&
+        (this.watcherAssoc = this.instanceRecord.watch(newTrackedAssoc, () => {
+          console.log(this.props.record);
+          this.reload();
+        }));
+    }
   }
 
   componentWillUnmount() {
     this.props.resetStore();
     this.instanceRecord.unwatch(this.watcher);
+    this.watcherAssoc && this.instanceRecord.unwatch(this.watcherAssoc);
   }
+
+  getTrackedAssoc = (associations = this.props.allowedAssociations) => {
+    return (associations || []).map(item => `assoc_src_${item.attribute || item.name}`);
+  };
 
   checkHeight = () => {
     if (UserLocalSettingsService.getDashletHeight(this.state.lsId) > this.clientHeight && this.clientHeight) {

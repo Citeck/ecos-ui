@@ -222,6 +222,7 @@ export default class Record {
    *
    * Условия:
    * - содержится точка в названии атрибута
+   * - содержится префикс assoc_src
    * @returns {boolean}
    * @private
    */
@@ -230,15 +231,17 @@ export default class Record {
       return false;
     }
 
+    const checkConditions = attr => attr.includes('.') || attr.includes('assoc_src');
+
     return this._watchers.some(watcher => {
       const attrs = watcher.getWatchedAttributes();
 
       if (Array.isArray(attrs)) {
-        return attrs.some(attr => attr.includes('.'));
+        return attrs.some(checkConditions);
       }
 
       if (typeof attrs == 'string') {
-        return attrs.includes('.');
+        return checkConditions(attrs);
       }
 
       return false;
