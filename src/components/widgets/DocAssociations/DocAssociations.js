@@ -291,6 +291,7 @@ class DocAssociations extends BaseWidget {
         journalId={journalId}
         isSelectModalOpen
         multiple
+        hideCreateButton
         renderView={() => null}
         onChange={this.handleSelectJournal}
         onCancel={() => {
