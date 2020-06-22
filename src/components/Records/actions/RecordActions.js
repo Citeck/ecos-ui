@@ -328,7 +328,13 @@ class RecordActionsService {
         );
 
         fields.forEach(field => {
-          mutableData[key] = mutableData[key].replace('${' + field + '}', results.get(field));
+          const fieldValue = results.get(field);
+          const fieldMask = '${' + field + '}';
+          if (mutableData[key] === fieldMask) {
+            mutableData[key] = fieldValue;
+          } else {
+            mutableData[key] = mutableData[key].replace(fieldMask, fieldValue);
+          }
         });
       })
     );
