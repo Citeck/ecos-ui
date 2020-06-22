@@ -70,3 +70,21 @@
     padding-left: 15px;
   }
 }
+
+.ecos-ml-input {
+  position: relative;
+
+  &__image {
+    position: absolute;
+    right: 13px;
+    top: 0;
+    bottom: 0;
+    margin: auto 0;
+    width: 20px;
+    height: 20px;
+  }
+
+  &__input {
+    padding-right: 35px;
+  }
+}

@@ -108,13 +108,7 @@ export default class extends React.Component {
         </div>
 
         <MLInput
-          style={{
-            width: '200px',
-            position: 'absolute',
-            right: '100px',
-            top: '100px'
-          }}
-          multilanguage
+          style={{ width: '200px' }}
           value={{
             ru: 'Удалить',
             en: 'Delete'
