@@ -414,8 +414,6 @@ export const CreateNodeAction = {
       });
     };
 
-    config.redirectToPage = false;
-
     Object.entries(config.attributes || {})
       .filter(entry => fromRecordRegexp.test(entry[1]))
       .forEach(entry => {

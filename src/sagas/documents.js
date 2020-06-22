@@ -195,8 +195,6 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
         actions: getFirstNonEmpty([typeActions, documentActions], [])
       });
 
-      console.warn({ actions, typeActions });
-
       yield put(setActions({ key: payload.key, actions }));
     }
   } catch (e) {
