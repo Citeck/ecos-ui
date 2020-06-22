@@ -1,9 +1,11 @@
 import React from 'react';
+
 import { Tree } from '../../components/common';
 import { deepClone } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import { toGeneratorTree } from '../../helpers/dataGenerators';
 import { Btn, IcoBtn } from '../../components/common/btns';
+import { MLInput } from '../../components/common/form';
 
 const _actions = [
   {
@@ -104,6 +106,20 @@ export default class extends React.Component {
             renderExtraComponents={this.renderExtraComponents}
           />
         </div>
+
+        <MLInput
+          style={{
+            width: '200px',
+            position: 'absolute',
+            right: '100px',
+            top: '100px'
+          }}
+          multilanguage
+          value={{
+            ru: 'Удалить',
+            en: 'Delete'
+          }}
+        />
       </div>
     );
   }
