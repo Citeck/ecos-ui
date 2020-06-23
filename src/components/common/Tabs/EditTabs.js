@@ -1,15 +1,13 @@
 import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { sortableContainer, sortableElement } from 'react-sortable-hoc';
 
-import Tab from './Tab';
-import { deepClone, arrayCompare } from '../../../helpers/util';
+import { arrayCompare, arrayMove } from '../../../helpers/util';
+import { SortableContainer, SortableElement } from '../../Drag-n-Drop';
 import { commonTabsDefaultProps, commonTabsPropTypes } from './utils';
-import './Tabs.scss';
+import Tab from './Tab';
 
-const SortableContainer = sortableContainer(({ children }) => children);
-const SortableElement = sortableElement(({ children }) => children);
+import './Tabs.scss';
 
 class EditTabs extends React.Component {
   static propTypes = {
@@ -56,12 +54,9 @@ class EditTabs extends React.Component {
   };
 
   handleSortEnd = ({ oldIndex, newIndex }) => {
-    const { items = [], onSort = () => null } = this.props;
-    const arr = deepClone(items);
+    const { items = [], onSort } = this.props;
 
-    arr[newIndex] = items[oldIndex];
-    arr[oldIndex] = items[newIndex];
-    onSort(arr);
+    onSort && onSort(arrayMove(items, oldIndex, newIndex));
   };
 
   render() {
