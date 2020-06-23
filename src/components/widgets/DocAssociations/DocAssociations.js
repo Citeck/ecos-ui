@@ -104,7 +104,6 @@ class DocAssociations extends BaseWidget {
       this.watcherAssoc && this.instanceRecord.unwatch(prevTrackedAssoc);
       newTrackedAssoc &&
         (this.watcherAssoc = this.instanceRecord.watch(newTrackedAssoc, () => {
-          console.log(this.props.record);
           this.reload();
         }));
     }

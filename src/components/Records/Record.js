@@ -222,7 +222,7 @@ export default class Record {
    *
    * Условия:
    * - содержится точка в названии атрибута
-   * - содержится префикс assoc_src
+   * - содержится префикс assoc_src_
    * @returns {boolean}
    * @private
    */
@@ -231,7 +231,7 @@ export default class Record {
       return false;
     }
 
-    const checkConditions = attr => attr.includes('.') || attr.includes('assoc_src');
+    const checkConditions = attr => attr.includes('.') || attr.includes('assoc_src_');
 
     return this._watchers.some(watcher => {
       const attrs = watcher.getWatchedAttributes();
