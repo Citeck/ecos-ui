@@ -5,7 +5,6 @@ import { deepClone } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import { toGeneratorTree } from '../../helpers/dataGenerators';
 import { Btn, IcoBtn } from '../../components/common/btns';
-import { MLInput } from '../../components/common/form';
 
 const _actions = [
   {
@@ -106,14 +105,6 @@ export default class extends React.Component {
             renderExtraComponents={this.renderExtraComponents}
           />
         </div>
-
-        <MLInput
-          style={{ width: '200px' }}
-          value={{
-            ru: 'Удалить',
-            en: 'Delete'
-          }}
-        />
       </div>
     );
   }

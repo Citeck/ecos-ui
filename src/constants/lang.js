@@ -2,7 +2,7 @@ const LANGUAGE_RU = 'ru';
 const LANGUAGE_EN = 'en';
 const IMG_V = '2';
 
-export const defaultLanguages = [
+export const allowedLanguages = [
   {
     id: LANGUAGE_EN,
     label: 'Eng',
