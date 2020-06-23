@@ -261,22 +261,33 @@ const polyfills = () => {
   if (!window.WeakSet) {
     (function() {
       window.WeakSet = b;
-      var c = Date.now() % 1e9;
+      let c = Date.now() % 1e9;
+
       function b(a) {
         this.name = '__st' + ((1e9 * Math.random()) >>> 0) + (c++ + '__');
         a && a.forEach && a.forEach(this.add, this);
       }
-      var e = b.prototype;
+
+      const e = b.prototype;
+
       e.add = function(a) {
-        var d = this.name;
+        const d = this.name;
+
         a[d] || Object.defineProperty(a, d, { value: !0, writable: !0 });
+
         return this;
       };
+
       e['delete'] = function(a) {
-        if (!a[this.name]) return !1;
+        if (!a[this.name]) {
+          return !1;
+        }
+
         a[this.name] = void 0;
+
         return !0;
       };
+
       e.has = function(a) {
         return !!a[this.name];
       };
