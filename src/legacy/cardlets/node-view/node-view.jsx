@@ -5,6 +5,7 @@ import RemoteCardlet from '../remote/remote';
 import EcosForm from '../../../components/EcosForm/export';
 import { t } from '../../../helpers/util';
 import { FORM_MODE_EDIT } from '../../../components/EcosForm';
+import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../components/Records';
 import { checkFunctionalAvailabilityForUser } from '../../../helpers/export/userInGroupsHelper';
 
@@ -15,21 +16,19 @@ export default class NodeViewFormCardlet extends NodeCardlet {
 
   static fetchData(ownProps, onSuccess, onFailure) {
     const openEcosFormIfExists = () => {
-      window.require(['ecosui!ecos-form-utils'], function(utils) {
-        utils.default.hasForm(ownProps.nodeRef, ownProps.formKey).then(function(result) {
-          if (result) {
-            onSuccess({
-              htmlId: `card-details-cardlet_${ownProps.id}`,
-              eformExists: true,
-              nodeRef: ownProps.nodeRef,
-              column: ownProps.column,
-              hideTwister: ownProps.controlProps.hideTwister,
-              header: t(ownProps.controlProps.header || t('cardlets.node-view.twister-header'))
-            });
-          } else {
-            onFailure();
-          }
-        });
+      EcosFormUtils.hasForm(ownProps.nodeRef, ownProps.formKey).then(function(result) {
+        if (result) {
+          onSuccess({
+            htmlId: `card-details-cardlet_${ownProps.id}`,
+            eformExists: true,
+            nodeRef: ownProps.nodeRef,
+            column: ownProps.column,
+            hideTwister: ownProps.controlProps.hideTwister,
+            header: t(ownProps.controlProps.header) || t('cardlets.node-view.twister-header')
+          });
+        } else {
+          RemoteCardlet.fetchData(ownProps, onSuccess, onFailure);
+        }
       });
     };
 
