@@ -17,18 +17,18 @@ export default class NodeViewFormCardlet extends NodeCardlet {
   static fetchData(ownProps, onSuccess, onFailure) {
     const openEcosFormIfExists = () => {
       EcosFormUtils.hasForm(ownProps.nodeRef, ownProps.formKey).then(function(result) {
-        if (result) {
-          onSuccess({
-            htmlId: `card-details-cardlet_${ownProps.id}`,
-            eformExists: true,
-            nodeRef: ownProps.nodeRef,
-            column: ownProps.column,
-            hideTwister: ownProps.controlProps.hideTwister,
-            header: t(ownProps.controlProps.header) || t('cardlets.node-view.twister-header')
-          });
-        } else {
-          RemoteCardlet.fetchData(ownProps, onSuccess, onFailure);
+        if (!result) {
+          return RemoteCardlet.fetchData(ownProps, onSuccess, onFailure);
         }
+
+        onSuccess({
+          htmlId: `card-details-cardlet_${ownProps.id}`,
+          eformExists: true,
+          nodeRef: ownProps.nodeRef,
+          column: ownProps.column,
+          hideTwister: ownProps.controlProps.hideTwister,
+          header: t(ownProps.controlProps.header) || t('cardlets.node-view.twister-header')
+        });
       });
     };
 
