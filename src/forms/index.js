@@ -13,6 +13,7 @@ import Number from './components/override/number';
 import Panel from './components/override/panel';
 import PhoneNumber from './components/override/phonenumber';
 import Radio from './components/override/radio';
+import Select from './components/override/select';
 import Tabs from './components/override/tabs';
 import TextArea from './components/override/textarea';
 import TextField from './components/override/textfield';
@@ -49,6 +50,7 @@ Components.setComponents({
   panel: Panel,
   phoneNumber: PhoneNumber,
   radio: Radio,
+  select: Select,
   selectJournal: SelectJournal,
   selectAction: SelectAction,
   selectOrgstruct: SelectOrgstruct,
