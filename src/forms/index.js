@@ -27,6 +27,7 @@ import SelectAction from './components/custom/selectAction';
 import SelectOrgstruct from './components/custom/selectOrgstruct';
 import TableForm from './components/custom/tableForm';
 import TaskOutcome from './components/custom/taskOutcome/index';
+import MLInput from './components/custom/multiLangInput';
 
 import './prototypeMutation';
 
@@ -57,5 +58,6 @@ Components.setComponents({
   textarea: TextArea,
   textfield: TextField,
   url: Url,
-  taskOutcome: TaskOutcome
+  taskOutcome: TaskOutcome,
+  multiLangInput: MLInput
 });

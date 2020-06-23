@@ -27,7 +27,8 @@ class MLInput extends Component {
     value: PropTypes.object,
     style: PropTypes.object,
     inputStyle: PropTypes.object,
-    lang: PropTypes.string
+    lang: PropTypes.string,
+    onChange: PropTypes.func
   };
 
   static defaultProps = {
@@ -62,7 +63,7 @@ class MLInput extends Component {
   }
 
   handleChangeText = event => {
-    const { value: oldValue } = this.props;
+    const { value: oldValue, onChange } = this.props;
     const { selectedLang } = this.state;
     const { value } = event.target;
     const newValue = {
@@ -70,7 +71,9 @@ class MLInput extends Component {
       [selectedLang]: value
     };
 
-    this.props.onChange(newValue);
+    if (typeof onChange === 'function') {
+      onChange(newValue);
+    }
   };
 
   handleClickLang = selectedLang => {
