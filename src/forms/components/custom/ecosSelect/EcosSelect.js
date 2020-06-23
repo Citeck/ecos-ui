@@ -909,17 +909,17 @@ export default class SelectComponent extends BaseComponent {
       return found || defaultAdded;
     }, false);
 
-    if (notFoundValuesToAdd.length) {
-      if (this.choices) {
-        this.choices.setChoices(notFoundValuesToAdd, 'value', 'label');
-      } else {
-        notFoundValuesToAdd.map(notFoundValue => {
-          this.addOption(notFoundValue.value, notFoundValue.label);
-          return notFoundValue;
-        });
-      }
-    }
-
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-169
+    // if (notFoundValuesToAdd.length) {
+    //   if (this.choices) {
+    //     this.choices.setChoices(notFoundValuesToAdd, 'value', 'label');
+    //   } else {
+    //     notFoundValuesToAdd.map(notFoundValue => {
+    //       this.addOption(notFoundValue.value, notFoundValue.label);
+    //       return notFoundValue;
+    //     });
+    //   }
+    // }
     return added;
   }
 
@@ -966,17 +966,6 @@ export default class SelectComponent extends BaseComponent {
     if (this.component.multiple && !Array.isArray(value)) {
       value = value ? [value] : [];
     }
-
-    // Clear absent values (Cause: https://citeck.atlassian.net/browse/ECOSUI-169)
-    const findValueIndex = valueItem => this.currentItems.findIndex(item => item[this.component.valueProperty] === valueItem);
-    if (this.component.multiple) {
-      value = value.filter(valueItem => findValueIndex(valueItem) !== -1);
-    } else {
-      if (findValueIndex(value) === -1) {
-        value = this.emptyValue;
-      }
-    }
-
     const hasPreviousValue = Array.isArray(previousValue) ? previousValue.length : previousValue;
     const hasValue = Array.isArray(value) ? value.length : value;
     const changed = this.hasChanged(value, previousValue);

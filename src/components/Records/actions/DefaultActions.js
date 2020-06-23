@@ -414,6 +414,8 @@ export const DownloadCardTemplate = {
 };
 
 export const CreateNodeAction = {
+  type: DefaultActionTypes.CREATE,
+
   execute: ({ record, action }) => {
     const fromRecordRegexp = /^\$/;
     const { config = {} } = action;
@@ -437,9 +439,14 @@ export const CreateNodeAction = {
         attributes: config.attributes || {},
         options: config.options || {},
         onSubmit: record => {
+          const { redirectToPage = true } = config;
+
           record.update();
           resolve(true);
-          record.id && goToCardDetailsPage(record.id);
+
+          if (redirectToPage) {
+            record.id && goToCardDetailsPage(record.id);
+          }
         },
         onFormCancel: () => resolve(false)
       };
