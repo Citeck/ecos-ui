@@ -5,9 +5,9 @@ import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
 
 export default class BaseReactComponent extends BaseComponent {
   build() {
-    this.onReactValueChanged = value => {
+    this.onReactValueChanged = (value, flags = { skipReactWrapperUpdating: true }) => {
       this.setPristine(false);
-      this.setValue(value, { skipReactWrapperUpdating: true });
+      this.setValue(value, flags);
     };
 
     this.react = {};
