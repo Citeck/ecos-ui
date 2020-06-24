@@ -129,9 +129,9 @@ class FormManager {
     const { title, onSubmit, onFormCancel, ...props } = params;
     const modal = new Modal();
 
-    const _onSubmit = () => {
+    const _onSubmit = record => {
       modal.close();
-      onSubmit && onSubmit();
+      onSubmit && onSubmit(record);
     };
 
     const _onFormCancel = () => {

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { t } from '../../../helpers/util';
 
 import EcosProgressBar from '../EcosProgressBar';
 
@@ -39,8 +40,7 @@ export default class AnalyticsBlock extends Component {
             {data.map(el => (
               <tr key={el.id} className="analytics-block__data-row">
                 <td style={{ verticalAlign: 'middle', minWidth: 178 }}>
-                  {el.name + (el.status && el.status.length ? ': ' : '')}
-                  {el.status}
+                  {(el.name ? el.name + ': ' : '') + (el.status ? el.status : t('report-widget.records.no-status'))}
                 </td>
                 <td align="center" style={{ verticalAlign: 'middle' }}>
                   {el.count}

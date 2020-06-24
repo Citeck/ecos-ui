@@ -38,8 +38,9 @@ export const selectDirectionByAssocName = (state, key, assocName) => {
   return get(association, 'direction', 'BOTH');
 };
 
-export const selectAssociationColumnsConfig = (state, key, attribute) => {
-  const association = get(state, ['docAssociations', key, 'allowedAssociations'], []).find(item => item.attribute === attribute) || {};
+export const selectAssociationColumnsConfig = (state, key, name) => {
+  const association =
+    get(state, ['docAssociations', key, 'allowedAssociations'], []).find(item => item.name === name || item.attribute === name) || {};
 
   return get(association, 'columnsConfig.columns', []);
 };

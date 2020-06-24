@@ -1,5 +1,3 @@
-import { t } from '../helpers/util';
-
 export function reportDataPrepare(data) {
   const isValidData = data.urgent && data.today && data.later;
   const clonedData = JSON.parse(JSON.stringify(data));
@@ -19,10 +17,10 @@ export function reportDataPrepare(data) {
       };
 
       const recNamesEquals = (first, sec) => {
-        const firstRecName = first.atts['wfm:documentType'];
+        const firstRecName = first.atts['wfm:documentEcosType'];
         const firstRecStatus = first.atts['wfm:caseStatus'];
 
-        const secRecName = sec.atts['wfm:documentType'];
+        const secRecName = sec.atts['wfm:documentEcosType'];
         const secRecStatus = sec.atts['wfm:caseStatus'];
 
         return firstRecName === secRecName && firstRecStatus === secRecStatus;
@@ -60,7 +58,7 @@ export function reportDataConvert(preparedReportData) {
       target[key].records = target[key].records.map(rec => ({
         id: rec.id,
         count: rec.count,
-        name: rec.atts['wfm:documentType'] || t('report-widget.records.no-document-type'),
+        name: rec.atts['wfm:documentEcosType'] || '',
         status: rec.atts['wfm:caseStatus']
       }));
     }

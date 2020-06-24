@@ -27,8 +27,7 @@ const mapDispatchToProps = dispatch => ({
 const mapStateToProps = state => ({
   isMobile: get(state, 'view.isMobile'),
   theme: get(state, 'view.theme'),
-  menuType: get(state, 'menu.type', ''),
-  dashboardEditable: get(state, 'app.dashboardEditable')
+  menuType: get(state, 'menu.type', '')
 });
 
 class Header extends React.Component {
@@ -56,8 +55,8 @@ class Header extends React.Component {
 
   render() {
     const { widthHeader } = this.state;
-    const { isMobile, hideSiteMenu, theme, dashboardEditable } = this.props;
-    const hiddenSiteMenu = hideSiteMenu || isMobile || !dashboardEditable || widthHeader < 600;
+    const { isMobile, hideSiteMenu, theme } = this.props;
+    const hiddenSiteMenu = hideSiteMenu || isMobile || widthHeader < 600;
     const hiddenLanguageSwitcher = isMobile || widthHeader < 600;
 
     return (

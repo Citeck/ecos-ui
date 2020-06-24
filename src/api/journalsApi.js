@@ -2,7 +2,7 @@ import get from 'lodash/get';
 
 import { ActionModes, Attributes, Permissions } from '../constants';
 import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
-import { debounce, queryByCriteria, t } from '../helpers/util';
+import { debounce, isExistValue, queryByCriteria, t } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
 import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
@@ -56,35 +56,30 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId, recordRef, journalId, journalActions }) => {
-    const query = {
-      t: 'and',
-      val: [
-        predicate,
-        ...predicates.filter(item => {
-          return item.val !== '' && item.val !== null;
-        })
-      ]
-    };
+  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates, sourceId, recordRef, journalId, journalActions }) => {
+    const val = [predicate];
 
-    if (recordRef) {
-      query.val.push({
+    !!Array.isArray(predicates) && val.push(...predicates);
+
+    !!recordRef &&
+      val.push({
         t: PREDICATE_OR,
         val: columns
           .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC)
-          .map(a => {
-            return {
-              t: PREDICATE_CONTAINS,
-              val: recordRef,
-              att: a.attribute
-            };
-          })
+          .map(a => ({
+            t: PREDICATE_CONTAINS,
+            val: recordRef,
+            att: a.attribute
+          }))
       });
-    }
 
-    let bodyQuery = {
+    const query = {
+      t: 'and',
+      val: val.filter(item => item && isExistValue(item.t) && isExistValue(item.val) && item.val !== '')
+    };
+    const bodyQuery = {
       consistency: 'EVENTUAL',
-      query: query,
+      query,
       language: 'predicate',
       page: pagination,
       groupBy,

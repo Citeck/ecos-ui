@@ -115,11 +115,20 @@ export class MenuApi extends CommonApi {
 
   getSlideMenuItems = () => {
     const username = getCurrentUserName();
-    return this.getJsonWithSessionCache({
-      url: `${PROXY_URI}citeck/menu/menu?username=${username}`,
-      timeout: 14400000, //4h
-      postProcess: menu => postProcessMenuConfig(menu)
-    }).catch(() => ({}));
+    const cacheKey = Records.get('uiserv/meta@')
+      .load('attributes.menu-cache-key')
+      .catch(() => '0');
+
+    return cacheKey
+      .then(key =>
+        this.getJsonWithSessionCache({
+          url: `${PROXY_URI}citeck/menu/menu?username=${username}`,
+          cacheKey: key,
+          timeout: 14400000, //4h
+          postProcess: menu => postProcessMenuConfig(menu)
+        })
+      )
+      .catch(() => ({}));
   };
 
   getMenuItemIconUrl = iconName => {

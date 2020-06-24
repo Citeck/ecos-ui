@@ -824,7 +824,6 @@ class Grid extends Component {
   render() {
     const {
       minHeight,
-      maxHeight,
       autoHeight,
       scrollAutoHide,
       className,
@@ -834,13 +833,19 @@ class Grid extends Component {
       noTopBorder,
       columns,
       rowEvents,
+      byContentHeight,
       ...otherProps
     } = this.props;
     const bootProps = this.setBootstrapTableProps(otherProps, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
     const toolsVisible = this.toolsVisible();
 
+    let { maxHeight } = this.props;
     let scrollStyle = {};
     let scrollProps = {};
+
+    if (byContentHeight && this._scrollRef) {
+      maxHeight = this._scrollRef.getScrollHeight();
+    }
 
     if (autoHeight) {
       scrollProps = { ...scrollProps, autoHeight, autoHeightMax: maxHeight, autoHeightMin: minHeight };
@@ -929,6 +934,7 @@ Grid.propTypes = {
   scrollable: PropTypes.bool,
   scrollAutoHide: PropTypes.bool,
   autoHeight: PropTypes.bool,
+  byContentHeight: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,

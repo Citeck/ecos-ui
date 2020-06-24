@@ -16,7 +16,7 @@ import {
 } from '../actions/header';
 import { setOpenMenuSettings } from '../actions/menuSettings';
 import { setDashboardIdentification } from '../actions/dashboard';
-import { setUserThumbnail } from '../actions/user';
+import { setUserThumbnail, validateUserSuccess } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
 import { makeSiteMenu, makeUserMenuItems } from '../helpers/menu';
 import { createThumbnailUrl } from '../helpers/urls';
@@ -147,7 +147,7 @@ function* headerSaga(ea) {
   yield takeLatest(fetchCreateCaseWidgetData().type, fetchCreateCaseWidget, ea);
   yield takeLatest(fetchUserMenuData().type, fetchUserMenu, ea);
   yield takeLatest(fetchSiteMenuData().type, fetchSiteMenu, ea);
-  yield takeLatest([setDashboardIdentification().type, changeTab().type], filterSiteMenu, ea);
+  yield takeLatest([setDashboardIdentification().type, changeTab().type, validateUserSuccess().type], filterSiteMenu, ea);
   yield takeLatest(goToPageFromSiteMenu().type, goToPageSiteMenu, ea);
   yield takeLatest(runActionFromSiteMenu().type, runActionSiteMenu, ea);
   yield takeLatest(runSearchAutocompleteItems().type, sagaRunSearchAutocomplete, ea);
