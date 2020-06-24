@@ -163,6 +163,7 @@ export default class EcosFormUtils {
               }
             };
           }
+
           modal.open(formInstance, config);
         }
       });
@@ -184,11 +185,21 @@ export default class EcosFormUtils {
         if (formKey) {
           params.formKey = config.formKey;
         }
+
         if (config.onCancel) {
           params.onCancel = config.onCancel;
         }
+
         if (config.onFormCancel) {
           params.onFormCancel = config.onFormCancel;
+        }
+
+        if (config.contentBefore) {
+          params.contentBefore = config.contentBefore;
+        }
+
+        if (config.contentAfter) {
+          params.contentAfter = config.contentAfter;
         }
 
         EcosFormUtils.eform(recordRef, {

@@ -2,7 +2,7 @@ import { call, put, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
 import { NotificationManager } from 'react-notifications';
 
-import { changeTaskAssignee, changeTaskAssigneeFromPanel, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
+import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import TasksConverter from '../dto/tasks';
@@ -53,32 +53,9 @@ function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
   }
 }
 
-function* sagaChangeTaskAssigneeFromPanel({ api, logger }, { payload }) {
-  try {
-    const { taskId, ownerUserName, actionOfAssignment } = payload;
-    const save = yield call(api.tasks.changeAssigneeTask, { taskId, action: actionOfAssignment, owner: ownerUserName });
-
-    if (!save) {
-      NotificationManager.warning(t('tasks-widget.saga.error3'));
-    }
-
-    const documentRef = yield call(api.tasks.getDocumentByTaskId, taskId);
-
-    yield Records.get(documentRef).update();
-  } catch (e) {
-    NotificationManager.warning(t('tasks-widget.saga.error3'));
-    logger.error('[tasks/sagaChangeTaskAssigneeFromPanel saga] error', e.message);
-  } finally {
-    if (typeof payload.callback === 'function') {
-      payload.callback();
-    }
-  }
-}
-
 function* tasksSaga(ea) {
   yield takeEvery(getTaskList().type, sagaGetTasks, ea);
   yield takeEvery(changeTaskAssignee().type, sagaChangeTaskAssignee, ea);
-  yield takeEvery(changeTaskAssigneeFromPanel().type, sagaChangeTaskAssigneeFromPanel, ea);
 }
 
 export default tasksSaga;

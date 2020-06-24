@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
+
 import EcosModal from './EcosModal';
 
 const EMPTY_HEADER_TITLE = ' ';
@@ -93,7 +95,9 @@ class Modal {
         getInstance={el => (this.modal = el)}
         reactstrapProps={config.reactstrapProps}
       >
+        {config.params.contentBefore}
         {node}
+        {config.params.contentAfter}
       </ModalWrapper>,
       this.el,
       callback

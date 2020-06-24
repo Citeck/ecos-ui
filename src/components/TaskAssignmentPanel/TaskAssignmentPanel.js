@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
+import { NotificationManager } from 'react-notifications';
 
 import { StateAssignPropTypes } from '../widgets/Tasks/utils';
 import { AssignActions } from '../../constants/tasks';
@@ -13,7 +13,6 @@ import { Btn } from '../common/btns';
 import { SelectOrgstruct } from '../common/form';
 import { AUTHORITY_TYPE_USER } from '../common/form/SelectOrgstruct/constants';
 import { TasksApi } from '../../api/tasks';
-import { changeTaskAssigneeFromPanel } from '../../actions/tasks';
 import Records from '../Records';
 
 import './style.scss';
@@ -25,6 +24,7 @@ class TaskAssignmentPanel extends Component {
     wrapperClassName: PropTypes.string,
     className: PropTypes.string,
     onClick: PropTypes.func,
+    changeTaskAssignee: PropTypes.func,
     narrow: PropTypes.bool,
     executeRequest: PropTypes.bool
   };
@@ -146,17 +146,43 @@ class TaskAssignmentPanel extends Component {
     this.setState(state => ({ isLoading: !state.isLoading }));
   };
 
+  handleChangeTaskAssignee = async sentData => {
+    const { taskId } = this.props;
+    const { actionOfAssignment, ownerUserName } = sentData;
+    const save = await TasksApi.staticChangeAssigneeTask({
+      taskId,
+      action: actionOfAssignment,
+      owner: ownerUserName
+    });
+
+    if (!save) {
+      NotificationManager.warning(t('tasks-widget.saga.error3'));
+    }
+
+    const documentRef = await TasksApi.getDocument(taskId);
+
+    if (!documentRef) {
+      return;
+    }
+
+    await Records.get(documentRef).update();
+  };
+
   handleClickButton = sentData => {
     const { onClick, taskId, changeTaskAssignee, executeRequest } = this.props;
 
     this.toggleLoading();
 
     if (executeRequest) {
-      changeTaskAssignee({
-        ...sentData,
-        taskId,
-        callback: this.getStateAssign
-      });
+      if (typeof changeTaskAssignee === 'function') {
+        changeTaskAssignee({
+          ...sentData,
+          taskId,
+          callback: this.getStateAssign
+        });
+      } else {
+        this.handleChangeTaskAssignee(sentData).finally(this.getStateAssign);
+      }
     }
 
     if (typeof onClick === 'function') {
@@ -210,7 +236,4 @@ class TaskAssignmentPanel extends Component {
   }
 }
 
-export default connect(
-  null,
-  dispatch => ({ changeTaskAssignee: payload => dispatch(changeTaskAssigneeFromPanel({ ...payload })) })
-)(TaskAssignmentPanel);
+export default TaskAssignmentPanel;
