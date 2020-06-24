@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import omit from 'lodash/omit';
 import classNames from 'classnames';
 import uuidV4 from 'uuidv4';
 
@@ -12,7 +13,7 @@ import Tooltip from '../../Tooltip';
 
 import './Input.scss';
 
-class MLInput extends Component {
+class MLText extends Component {
   static propTypes = {
     className: PropTypes.string,
     imgClassName: PropTypes.string,
@@ -26,7 +27,6 @@ class MLInput extends Component {
     ),
     value: PropTypes.object,
     style: PropTypes.object,
-    inputStyle: PropTypes.object,
     lang: PropTypes.string,
     onChange: PropTypes.func
   };
@@ -54,11 +54,12 @@ class MLInput extends Component {
   }
 
   get inputProps() {
-    const { inputStyle, ...props } = this.props;
+    const { inputClassName, ...props } = this.props;
+    const inputProps = omit(props, ['onChange', 'style', 'lang', 'languages', 'className', 'setWrapperProps']);
 
     return {
-      ...props,
-      style: inputStyle
+      ...inputProps,
+      className: classNames('ecos-ml-text__input', inputClassName)
     };
   }
 
@@ -87,9 +88,9 @@ class MLInput extends Component {
     return languages
       .filter(lang => lang.id !== selectedLang)
       .map(lang => (
-        <div key={lang.id} className="ecos-ml-input__tooltip-lang" onClick={() => this.handleClickLang(lang.id)}>
-          <span className="ecos-ml-input__tooltip-lang-label">{lang.label}</span>
-          <img className="ecos-ml-input__tooltip-lang-image" src={lang.img} alt={lang.label} />
+        <div key={lang.id} className="ecos-ml-text__tooltip-lang" onClick={() => this.handleClickLang(lang.id)}>
+          <span className="ecos-ml-text__tooltip-lang-label">{lang.label}</span>
+          <img className="ecos-ml-text__tooltip-lang-image" src={lang.img} alt={lang.label} />
         </div>
       ));
   }
@@ -114,14 +115,14 @@ class MLInput extends Component {
       <Tooltip
         target={this.#key}
         uncontrolled
-        className="ecos-ml-input__tooltip"
-        arrowClassName="ecos-ml-input__tooltip-arrow"
+        className="ecos-ml-text__tooltip"
+        arrowClassName="ecos-ml-text__tooltip-arrow"
         delay={{ show: 0, hide: 200 }}
         contentComponent={this.renderTooltip()}
       >
         <img
           id={this.#key}
-          className={classNames('ecos-ml-input__image', imgClassName)}
+          className={classNames('ecos-ml-text__image', imgClassName)}
           src={lang.img}
           alt={lang.label}
           {...extraImageProps}
@@ -131,20 +132,15 @@ class MLInput extends Component {
   }
 
   render() {
-    const { className, inputClassName, style } = this.props;
+    const { className, style } = this.props;
 
     return (
-      <div style={style} className={classNames('ecos-ml-input', className)}>
-        <Input
-          {...this.inputProps}
-          value={this.value}
-          className={classNames('ecos-ml-input__input', inputClassName)}
-          onChange={this.handleChangeText}
-        />
+      <div style={style} className={classNames('ecos-ml-text', className)}>
+        <Input {...this.inputProps} value={this.value} onChange={this.handleChangeText} />
         {this.renderLang()}
       </div>
     );
   }
 }
 
-export default MLInput;
+export default MLText;

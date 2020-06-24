@@ -1,13 +1,13 @@
 import BaseReactComponent from '../base/BaseReactComponent';
-import MLInput from '../../../../components/common/form/Input/MLInput';
+import MLText from '../../../../components/common/form/Input/MLText';
 
-export default class MLInputComponent extends BaseReactComponent {
+export default class MLTextComponent extends BaseReactComponent {
   static schema(...extend) {
     return BaseReactComponent.schema(
       {
-        label: 'Multilang Input',
-        key: 'multiLangInput',
-        type: 'multiLangInput'
+        label: 'ML Text',
+        key: 'mlText',
+        type: 'mlText'
       },
       ...extend
     );
@@ -15,16 +15,16 @@ export default class MLInputComponent extends BaseReactComponent {
 
   static get builderInfo() {
     return {
-      title: 'Multilang Input',
+      title: 'ML Text',
       icon: 'fa fa-language',
       group: 'basic',
       weight: 0,
-      schema: MLInputComponent.schema()
+      schema: MLTextComponent.schema()
     };
   }
 
   get defaultSchema() {
-    return MLInputComponent.schema();
+    return MLTextComponent.schema();
   }
 
   get emptyValue() {
@@ -39,15 +39,14 @@ export default class MLInputComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
-    return MLInput;
+    return MLText;
   }
 
   getInitialReactProps() {
     return {
-      value: this.dataValue || {},
+      value: this.dataValue || this.emptyValue,
       onChange: value => {
-        this.setValue(value, {});
-        // this.onReactValueChanged(value, { skipReactWrapperUpdating: false });
+        this.onReactValueChanged(value, { skipReactWrapperUpdating: false });
       }
     };
   }

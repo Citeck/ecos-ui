@@ -8,7 +8,6 @@ import FormBuilder from 'formiojs/FormBuilder';
 import '../../../forms';
 // import Formio from 'formiojs/Formio';
 import './temp.scss';
-import MLInput from '../../../components/common/form/Input/MLInput';
 
 class FormIOPage extends React.Component {
   componentDidMount() {
@@ -81,11 +80,6 @@ class FormIOPage extends React.Component {
   render() {
     return (
       <Container>
-        <Row>
-          <Col>
-            <MLInput />
-          </Col>
-        </Row>
         <Row>
           <Col md={12}>
             <div className={'white-container'}>
