@@ -49,8 +49,6 @@ class IconSelect extends React.Component {
       const { uploadCustomIcon, family } = this.props;
 
       uploadCustomIcon({ file: files[0], family });
-
-      //todo see after lastLoaded
     }
   };
 
