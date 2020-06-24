@@ -70,6 +70,9 @@ ModalWrapper.propTypes = {
 
 class Modal {
   open = (node, config = {}, callback) => {
+    const contentBefore = get(config, 'params.contentBefore', null);
+    const contentAfter = get(config, 'params.contentAfter', null);
+
     this.el = document.createElement('div');
 
     document.body.appendChild(this.el);
@@ -95,9 +98,9 @@ class Modal {
         getInstance={el => (this.modal = el)}
         reactstrapProps={config.reactstrapProps}
       >
-        {config.params.contentBefore}
+        {typeof contentBefore === 'function' ? contentBefore() : contentBefore}
         {node}
-        {config.params.contentAfter}
+        {typeof contentAfter === 'function' ? contentAfter() : contentAfter}
       </ModalWrapper>,
       this.el,
       callback
