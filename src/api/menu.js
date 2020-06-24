@@ -182,7 +182,7 @@ export class MenuApi extends CommonApi {
       .load(
         {
           id: 'id',
-          authorities: 'authorities',
+          authorities: 'authorities[]?str',
           menu: 'subMenu?json'
         },
         true
@@ -204,7 +204,7 @@ export class MenuApi extends CommonApi {
     const rec = Records.get(`${SourcesId.MENU}@${id}`);
 
     rec.att('subMenu', subMenu);
-    rec.att('authorities', authorities);
+    rec.att('authorities[]?str', authorities);
 
     return rec.save();
   };
