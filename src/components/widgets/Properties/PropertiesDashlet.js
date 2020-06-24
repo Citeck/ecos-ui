@@ -189,7 +189,7 @@ class PropertiesDashlet extends BaseWidget {
     const { record } = this.props;
 
     if (record && isTaskDashboard()) {
-      return <TaskAssignmentPanel narrow executeRequest taskId={record} className={''} />;
+      return <TaskAssignmentPanel narrow executeRequest taskId={record} />;
     }
 
     return null;
