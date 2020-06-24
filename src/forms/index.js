@@ -23,6 +23,7 @@ import AsyncData from './components/custom/asyncData';
 import DataGridAssoc from './components/custom/datagridAssoc';
 import EcosSelect from './components/custom/ecosSelect';
 import HorizontalLine from './components/custom/horizontalLine';
+import MLText from './components/custom/mlText';
 import SelectJournal from './components/custom/selectJournal';
 import SelectAction from './components/custom/selectAction';
 import SelectOrgstruct from './components/custom/selectOrgstruct';
@@ -46,6 +47,7 @@ Components.setComponents({
   file: File,
   horizontalLine: HorizontalLine,
   htmlelement: HTML,
+  mlText: MLText,
   number: Number,
   panel: Panel,
   phoneNumber: PhoneNumber,
@@ -56,8 +58,8 @@ Components.setComponents({
   selectOrgstruct: SelectOrgstruct,
   tableForm: TableForm,
   tabs: Tabs,
+  taskOutcome: TaskOutcome,
   textarea: TextArea,
   textfield: TextField,
-  url: Url,
-  taskOutcome: TaskOutcome
+  url: Url
 });
