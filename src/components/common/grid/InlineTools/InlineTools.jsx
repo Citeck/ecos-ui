@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
+import { TMP_ICON_EMPTY } from '../../../../constants';
 import { Tooltip } from '../../../common';
 import { IcoBtn } from '../../../common/btns';
 
@@ -45,7 +46,7 @@ class InlineTools extends Component {
   };
 
   static renderAction(action, idx, withTooltip = false) {
-    const icon = action.icon || 'icon-empty-icon';
+    const icon = action.icon || TMP_ICON_EMPTY;
     const id = `tooltip-${action.order}-${action.type}-${idx}`;
     const classes = classNames('ecos-inline-tools-btn ecos-btn_i ecos-btn_brown ecos-btn_width_auto ecos-btn_x-step_10', {
       'ecos-btn_hover_t_red': action.theme === 'danger'

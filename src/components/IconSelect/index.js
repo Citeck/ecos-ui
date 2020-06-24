@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 
 import { deleteCustomIcon, getCustomIcons, getFontIcons, uploadCustomIcon } from '../../actions/iconSelect';
+import { TMP_ICON_EMPTY } from '../../constants';
 import { t } from '../../helpers/util';
 import { BtnUpload, EcosIcon, EcosModal, Loader } from '../../components/common';
 import { Btn } from '../../components/common/btns';
@@ -66,7 +67,7 @@ class IconSelect extends React.Component {
     const { customIcons } = this.props;
     const { icon } = this.state;
 
-    return !!customIcons && customIcons.find(i => i.value === icon.value);
+    return !!customIcons && icon.value !== TMP_ICON_EMPTY && customIcons.find(i => i.value === icon.value);
   };
 
   renderIcons = items => {
@@ -110,7 +111,7 @@ class IconSelect extends React.Component {
             className="ecos-icon-select__custom-btn-upload"
           />
           {this.deleteSelected() && (
-            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.onDelete}>
+            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_narrow" onClick={this.onDelete}>
               {t(Labels.BTN_DELETE_ICON)}
             </Btn>
           )}

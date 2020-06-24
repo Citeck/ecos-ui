@@ -4,6 +4,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 
 import { extractLabel, packInLabel, t } from '../../helpers/util';
+import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings as MS } from '../../constants/menu';
 import IconSelect from '../../components/IconSelect';
 import { EcosIcon, EcosModal } from '../../components/common';
@@ -30,7 +31,7 @@ const Labels = {
 //todo https://citeck.atlassian.net/browse/ECOSCOM-3400 for extractLabel/packInLabel
 
 function EditorItemModal({ item, type, onClose, onSave }) {
-  const defaultIcon = { value: 'icon-empty-icon', type: 'icon' };
+  const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
   const [label, setLabel] = useState('');
   const [url, setUrl] = useState('');
   const [icon, setIcon] = useState(defaultIcon);

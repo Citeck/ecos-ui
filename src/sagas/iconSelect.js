@@ -50,10 +50,9 @@ function* runUploadCustomIcon({ api, logger }, { payload: { file, family } }) {
     const filename = nameArr.join('.');
 
     const data = yield call(api.app.getBase64, file);
-    //todo api upload
-    yield call(api.customIcon.uploadIcon, { data, type, family, config: { filename, format } });
-
-    const newIcon = { url: data, type, lastLoaded: true };
+    const recordIcon = yield call(api.customIcon.uploadIcon, { data, type, family, config: { filename, format } });
+    const uploadedIcon = yield call(api.customIcon.getIconInfo, recordIcon.id);
+    const newIcon = { ...uploadedIcon, url: data, lastLoaded: true };
 
     yield put(setCustomIcons([...customIcons, newIcon]));
   } catch (e) {

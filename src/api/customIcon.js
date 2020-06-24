@@ -4,18 +4,26 @@ import Records from '../components/Records';
 
 export class CustomIconApi extends CommonApi {
   getIcons = ({ family }) => {
-    return Records.query({
-      sourceId: SourcesId.ICON,
-      query: { family }
-    })
+    return Records.query(
+      {
+        sourceId: SourcesId.ICON,
+        query: { family }
+      },
+      {
+        url: 'data?str',
+        type: 'type',
+        value: 'id'
+      }
+    )
       .then(res => res.records)
       .catch(() => []);
   };
 
   getIconInfo = ref => {
     return Records.get(ref).load({
-      data: 'data',
-      format: 'format'
+      url: 'data?str',
+      type: 'type',
+      value: 'id'
     });
   };
 
