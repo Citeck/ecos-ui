@@ -8,7 +8,7 @@ import DefaultGqlFormatter from './DefaultGqlFormatter';
 export default class TaskLinkFormatter extends DefaultGqlFormatter {
   render() {
     const { row = {}, cell } = this.props;
-    const taskId = get(row, 'cm:name', '');
+    const taskId = get(row, 'wfm:workflowId', '');
 
     if (!taskId) {
       return this.value(cell);
