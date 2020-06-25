@@ -38,6 +38,7 @@ const getComponentInnerAttSchema = component => {
     case 'selectJournal':
       return 'assoc';
     case 'datamap':
+    case 'mlText':
       return 'json';
     case 'file':
       return 'as(n:"content-data"){json}';

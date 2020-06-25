@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import omit from 'lodash/omit';
+import isEqual from 'lodash/isEqual';
 import classNames from 'classnames';
 import uuidV4 from 'uuidv4';
 
@@ -32,8 +33,7 @@ class MLText extends Component {
   };
 
   static defaultProps = {
-    languages: allowedLanguages,
-    lang: getCurrentLocale()
+    languages: allowedLanguages
   };
 
   #key = prepareTooltipId(uuidV4());
@@ -41,9 +41,34 @@ class MLText extends Component {
   constructor(props) {
     super(props);
 
+    let selectedLang = props.lang;
+    if (!selectedLang) {
+      selectedLang = this.getLocaleWithValue(props.value);
+    }
+
     this.state = {
-      selectedLang: props.lang
+      selectedLang
     };
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!this.value && !isEqual(this.props.value, prevProps.value)) {
+      let selectedLang = this.getLocaleWithValue(this.props.value);
+      if (this.state.selectedLang !== selectedLang) {
+        this.setState({ selectedLang });
+      }
+    }
+  }
+
+  getLocaleWithValue(values) {
+    if (values) {
+      for (let lang in values) {
+        if (values.hasOwnProperty(lang) && values[lang]) {
+          return lang;
+        }
+      }
+    }
+    return getCurrentLocale();
   }
 
   get value() {
