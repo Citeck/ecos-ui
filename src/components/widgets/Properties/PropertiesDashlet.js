@@ -238,7 +238,7 @@ class PropertiesDashlet extends BaseWidget {
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onUpdate={this.onPropertiesUpdate}
-          formId={!runUpdate && formId}
+          formId={runUpdate ? null : formId}
           onInlineEditSave={this.onInlineEditSave}
           getTitle={this.setTitle}
         />
