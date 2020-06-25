@@ -218,34 +218,33 @@ export class MenuApi extends CommonApi {
   getGroupPriority = ({ authorities }) => {
     return Promise.resolve([
       {
-        id: '48888',
+        id: 'workspace://SpacesStore/c7a6339c-0f42-4790-93da-472222a21cb3',
         items: [
           {
-            id: '148888'
+            id: 'workspace://SpacesStore/c7a6339c-0f42-4790-93da-472222a21cb3'
           },
           {
-            id: '1666666'
-          },
-          {
-            id: '188888'
+            id: 'workspace://SpacesStore/1a47a420-21fe-43c0-b08a-ffe1081692ca',
+            items: [
+              {
+                id: 'workspace://SpacesStore/1a47a420-21fe-43c0-b08a-ffe1081692ca'
+              }
+            ]
           }
         ]
       },
       {
-        id: '666666',
+        id: 'workspace://SpacesStore/94bdca49-ec2c-4e35-9f5b-02437559f5d6',
         items: [
           {
-            id: '248888'
-          },
-          {
-            id: '2666666'
+            id: 'workspace://SpacesStore/94bdca49-ec2c-4e35-9f5b-02437559f5d6'
           }
         ]
       },
       {
-        id: '88888'
+        id: 'workspace://SpacesStore/f8b03bfe-7000-4c92-8e10-543d37846a07'
       }
-    ]);
+    ]).then(fetchExtraGroupItemInfo);
   };
 }
 
@@ -268,6 +267,28 @@ async function fetchExtraItemInfo(data) {
 
       if (Array.isArray(item.items)) {
         target.items = await fetchExtraItemInfo(item.items);
+      }
+
+      return target;
+    })
+  );
+}
+
+async function fetchExtraGroupItemInfo(data) {
+  return Promise.all(
+    data.map(async item => {
+      const target = { ...item };
+
+      if (item.id) {
+        const result = await Records.get(item.id).load({
+          label: '.disp'
+        });
+
+        target.label = result.label;
+      }
+
+      if (Array.isArray(item.items)) {
+        target.items = await fetchExtraGroupItemInfo(item.items);
       }
 
       return target;

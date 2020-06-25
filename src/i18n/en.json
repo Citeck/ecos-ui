@@ -1010,7 +1010,7 @@
   "menu-settings.editor-group-priority.btn.manage": "Manage",
   "menu-settings.editor-group-priority.title": "Group priority",
   "menu-settings.editor-group-priority.btn.cancel": "Cancel",
-  "menu-settings.editor-group-priority.btn.apply": "Apply",
+  "menu-settings.editor-group-priority.btn.apply": "Done",
   "menu-settings.editor-group-priority.btn.expand-all": "Expand all",
   "menu-settings.editor-group-priority.btn.collapse-all": "Collapse all",
   "menu-settings.error.get-config": "Menu settings configuration hasn't received",

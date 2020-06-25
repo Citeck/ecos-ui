@@ -84,7 +84,7 @@ function* fetchGetGroupPriority({ api, logger }, { payload }) {
     const authorities = yield select(state => state.menuSettings.authorities);
     const data = yield call(api.menu.getGroupPriority, { authorities });
 
-    yield put(setGroupPriority(data));
+    yield put(setGroupPriority(MenuConverter.getGroupPriorityConfigWeb(data)));
   } catch (e) {
     NotificationManager.error('menu-settings.error.get-group-priority', t('error'));
     logger.error('[menu-settings / runAddJournalMenuItems]', e.message);

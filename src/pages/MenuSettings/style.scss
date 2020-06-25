@@ -148,7 +148,7 @@
 
     &--item {
       &-container {
-        //z-index: 999;
+        z-index: 9999;
 
         & .ecos-tree__action#{$editor}__action_no-hide {
           display: inline-block;
@@ -184,6 +184,12 @@
         min-height: 420px;
         max-height: 420px;
         overflow-x: hidden;
+      }
+    }
+
+    &--item {
+      &-container {
+        z-index: 9999;
       }
     }
   }

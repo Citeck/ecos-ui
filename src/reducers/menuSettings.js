@@ -36,10 +36,11 @@ export default handleActions(
     [getSettingsConfig]: startLoading,
     [saveSettingsConfig]: startLoading,
 
-    [setSettingsConfig]: (state, action) => {
+    [setSettingsConfig]: (state, { payload }) => {
       return {
         ...state,
-        ...action.payload,
+        ...payload,
+        items: treeSetDndIndex(payload.items || []),
         isLoading: false
       };
     },
