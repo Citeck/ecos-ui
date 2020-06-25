@@ -90,7 +90,10 @@ export default class BaseReactComponent extends BaseComponent {
         this.react.waitingProps = {};
       });
     } else {
-      this.react.wrapper.setProps(props);
+      // is this checking required?
+      if (this.react.wrapper) {
+        this.react.wrapper.setProps(props);
+      }
     }
   }
 

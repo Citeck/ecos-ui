@@ -163,7 +163,13 @@ const dialogsById = {
   [FORM_DIALOG_ID]: props => {
     const { isVisible, setVisible } = props;
 
-    const { title = '', onCancel = () => {}, onSubmit = () => {}, modalClass = 'ecos-dialog_info' } = props.dialogProps;
+    const {
+      title = '',
+      onCancel = () => {},
+      onSubmit = () => {},
+      modalClass = 'ecos-dialog_info',
+      showDefaultButtons = false
+    } = props.dialogProps;
 
     const hideModal = () => {
       setVisible(false);
@@ -179,11 +185,71 @@ const dialogsById = {
         } else {
           setVisible(false);
         }
-      }
+      },
+      onFormCancel: hideModal
     };
 
+    if (showDefaultButtons && formProps.formDefinition) {
+      let definition = formProps.formDefinition;
+      if (definition.components) {
+        formProps.formDefinition = {
+          ...formProps.formDefinition,
+          components: [
+            ...definition.components,
+            {
+              label: 'Columns',
+              columns: [
+                { xs: 0, sm: 12, md: 4, lg: 0, xl: 0, index: 0 },
+                {
+                  xs: 0,
+                  sm: 12,
+                  md: 4,
+                  lg: 0,
+                  xl: 0,
+                  index: 1,
+                  components: [
+                    {
+                      label: 'Отмена',
+                      type: 'button',
+                      action: 'event',
+                      block: true,
+                      event: 'cancel'
+                    }
+                  ]
+                },
+                {
+                  xs: 0,
+                  sm: 12,
+                  md: 4,
+                  lg: 0,
+                  xl: 0,
+                  index: 2,
+                  components: [
+                    {
+                      label: 'Подтвердить',
+                      type: 'button',
+                      theme: 'primary',
+                      action: 'submit',
+                      block: true
+                    }
+                  ]
+                }
+              ],
+              type: 'columns'
+            }
+          ]
+        };
+      }
+    }
+
     return (
-      <EcosModal title={title} isOpen={isVisible} hideModal={hideModal} className={`ecos-dialog ${modalClass}`}>
+      <EcosModal
+        title={title}
+        isOpen={isVisible}
+        hideModal={hideModal}
+        className={`ecos-dialog ${modalClass}`}
+        reactstrapProps={{ backdrop: false }}
+      >
         <div className="ecos-dialog__body">
           <FormWrapper isVisible {...formProps} />
         </div>

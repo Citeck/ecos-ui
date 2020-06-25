@@ -1,3 +1,4 @@
+import React from 'react';
 import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
@@ -20,6 +21,7 @@ import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 import RecordActions from './RecordActions';
+import TaskAssignmentPanel from '../../TaskAssignmentPanel/TaskAssignmentPanel';
 
 function notifySuccess(msg) {
   NotificationManager.success(msg || t('record-action.msg.success.text'), t('record-action.msg.success.title'));
@@ -57,7 +59,9 @@ export const EditAction = {
           notifyFailure();
           return false;
         }
+
         const taskRecordId = `${SourcesId.TASK}@${taskId}`;
+        const contentBefore = () => <TaskAssignmentPanel narrow executeRequest taskId={taskRecordId} />;
 
         return new Promise(resolve => {
           EcosFormUtils.editRecord({
@@ -66,6 +70,7 @@ export const EditAction = {
               window.open(`${URL_PAGECONTEXT}task-edit?taskId=${taskId}&formMode=edit`, '_blank');
               resolve(false);
             },
+            contentBefore: contentBefore(),
             onSubmit: () => resolve(true),
             onCancel: () => resolve(false)
           });

@@ -69,9 +69,11 @@ export const createDocumentUrl = recordRef => {
 };
 
 export const createTaskUrl = (taskId, recordRef) => {
+  const taskPrefix = `${SourcesId.WORKFLOW}@`;
+
   if (isNewVersionPage()) {
-    if (!taskId.includes('wftask@')) {
-      taskId = `wftask@${taskId}`;
+    if (!taskId.includes(taskPrefix)) {
+      taskId = `${taskPrefix}${taskId}`;
     }
 
     return `${URL.DASHBOARD}?recordRef=${taskId}`;

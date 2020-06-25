@@ -10,10 +10,10 @@ import BaseWidget from '../BaseWidget';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
 import PropertiesSettings from './PropertiesSettings';
-
-import './style.scss';
 import { isTaskDashboard } from '../../../helpers/urls';
 import TaskAssignmentPanel from '../../TaskAssignmentPanel';
+
+import './style.scss';
 
 const Labels = {
   WIDGET_TITLE: 'properties-widget.title',
@@ -185,19 +185,11 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ title });
   };
 
-  renderAssignmentPanel = (withIndents = false) => {
+  renderAssignmentPanel = () => {
     const { record } = this.props;
 
     if (record && isTaskDashboard()) {
-      return (
-        <TaskAssignmentPanel
-          narrow
-          executeRequest
-          taskId={record}
-          wrapperClassName={classNames({ 'assign-panel_indented': withIndents })}
-          className={''}
-        />
-      );
+      return <TaskAssignmentPanel narrow executeRequest taskId={record} />;
     }
 
     return null;
@@ -235,8 +227,6 @@ class PropertiesDashlet extends BaseWidget {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >
-        {!runUpdate && this.renderAssignmentPanel(true)}
-
         <Properties
           ref={this._propertiesRef}
           forwardedRef={this.contentRef}

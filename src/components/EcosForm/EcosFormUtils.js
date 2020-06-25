@@ -38,6 +38,7 @@ const getComponentInnerAttSchema = component => {
     case 'selectJournal':
       return 'assoc';
     case 'datamap':
+    case 'mlText':
       return 'json';
     case 'file':
       return 'as(n:"content-data"){json}';
@@ -163,6 +164,7 @@ export default class EcosFormUtils {
               }
             };
           }
+
           modal.open(formInstance, config);
         }
       });
@@ -184,11 +186,21 @@ export default class EcosFormUtils {
         if (formKey) {
           params.formKey = config.formKey;
         }
+
         if (config.onCancel) {
           params.onCancel = config.onCancel;
         }
+
         if (config.onFormCancel) {
           params.onFormCancel = config.onFormCancel;
+        }
+
+        if (config.contentBefore) {
+          params.contentBefore = config.contentBefore;
+        }
+
+        if (config.contentAfter) {
+          params.contentAfter = config.contentAfter;
         }
 
         EcosFormUtils.eform(recordRef, {
@@ -339,6 +351,45 @@ export default class EcosFormUtils {
         });
       });
     });
+  }
+
+  static preProcessFormDefinition(formDefinition, formOptions) {
+    const newFormDefinition = cloneDeep(formDefinition);
+
+    EcosFormUtils.forEachComponent(newFormDefinition, component => {
+      if (component.key) {
+        if (component.properties) {
+          for (let key in component.properties) {
+            if (!component.properties.hasOwnProperty(key)) {
+              continue;
+            }
+            let value = component.properties[key];
+            if (value[0] === '$') {
+              component.properties[key] = EcosFormUtils._replaceOptionValuePlaceholder(value, formOptions);
+            }
+          }
+        }
+        for (let key in component) {
+          if (!component.hasOwnProperty(key)) {
+            continue;
+          }
+          let value = component[key];
+          if (isString(value) && value[0] === '$') {
+            component[key] = EcosFormUtils._replaceOptionValuePlaceholder(value, formOptions);
+          }
+        }
+      }
+    });
+
+    return newFormDefinition;
+  }
+
+  static _replaceOptionValuePlaceholder(value, options) {
+    let match = /\${options\['(.+)']}/.exec(value);
+    if (match != null) {
+      return options[match[1]];
+    }
+    return value;
   }
 
   static forEachComponent(root, action, scope = null) {
