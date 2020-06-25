@@ -168,16 +168,14 @@ class EditorItems extends React.Component {
     };
 
     const handleSave = icon => {
-      setMenuItems(
-        MenuSettingsService.processAction(
-          {
-            action: ms.ActionTypes.EDIT,
-            items,
-            id: editItemIcon.id,
-            data: { edited: true, icon }
-          }.items
-        )
-      );
+      const result = MenuSettingsService.processAction({
+        action: ms.ActionTypes.EDIT,
+        items,
+        id: editItemIcon.id,
+        data: { edited: true, icon }
+      });
+
+      setMenuItems(result.items);
       handleHideModal();
     };
 

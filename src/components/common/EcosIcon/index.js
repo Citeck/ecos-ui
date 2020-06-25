@@ -17,6 +17,10 @@ function EcosIcon({ code, className, data, title, family, onClick }) {
   const commonClass = classNames('ecos-icon', className, { 'ecos-icon_button': onClick });
   const commonProps = { title };
 
+  const onError = () => {
+    setRemoteData({});
+  };
+
   if (onClick) {
     commonProps.onClick = onClick;
   }
@@ -34,7 +38,7 @@ function EcosIcon({ code, className, data, title, family, onClick }) {
 
     return (
       <div className={classNames(commonClass, 'ecos-icon-img')} {...commonProps}>
-        <img src={src} alt={title} className="ecos-icon-img__content" />
+        <img src={src} alt={title} className="ecos-icon-img__content" onError={onError} />
       </div>
     );
   }
