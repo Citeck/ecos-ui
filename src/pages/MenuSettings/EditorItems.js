@@ -29,11 +29,10 @@ const Labels = {
 
 class EditorItems extends React.Component {
   static propTypes = {
-    className: PropTypes.string
+    items: PropTypes.array
   };
 
   static defaultProps = {
-    className: '',
     items: []
   };
 
@@ -210,7 +209,7 @@ class EditorItems extends React.Component {
             isStatic
             controlLabel={t(Labels.BTN_ADD)}
             controlIcon="icon-plus"
-            controlClassName={'ecos-btn_hover_light-blue2 ecos-btn_sq_sm'}
+            controlClassName="ecos-btn_hover_light-blue2 ecos-btn_sq_sm"
             outClassName="ecos-menu-settings-editor-items__menu-dropdown"
             menuClassName="ecos-menu-settings-editor-items__menu-options"
           />
@@ -257,8 +256,7 @@ class EditorItems extends React.Component {
             data={items}
             prefixClassName="ecos-menu-settings-editor-items"
             openAll={openAllMenuItems}
-            draggable={false}
-            moveInLevel
+            draggable
             moveInParent
             onDragEnd={this.handleDragEnd}
             getActions={this.getAvailableActions}

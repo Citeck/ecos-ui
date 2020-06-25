@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
-import { extractLabel, packInLabel, t } from '../../helpers/util';
+import { extractLabel, t } from '../../helpers/util';
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings as MS } from '../../constants/menu';
 import IconSelect from '../../components/IconSelect';
 import { EcosIcon, EcosModal } from '../../components/common';
-import { Input } from '../../components/common/form';
+import { Input, MLText } from '../../components/common/form';
 import { Btn } from '../../components/common/btns';
 import { Field } from './Field';
 
@@ -28,11 +28,9 @@ const Labels = {
   MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit'
 };
 
-//todo https://citeck.atlassian.net/browse/ECOSCOM-3400 for extractLabel/packInLabel
-
 function EditorItemModal({ item, type, onClose, onSave }) {
   const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
-  const [label, setLabel] = useState('');
+  const [label, setLabel] = useState({});
   const [url, setUrl] = useState('');
   const [icon, setIcon] = useState(defaultIcon);
   const [isOpenSelectIcon, setOpenSelectIcon] = useState(false);
@@ -41,7 +39,7 @@ function EditorItemModal({ item, type, onClose, onSave }) {
 
   useEffect(() => {
     if (item) {
-      setLabel(extractLabel(item.label));
+      setLabel(item.label);
       hasUrl && setUrl(get(item, 'config.url'));
       hasIcon && setIcon(item.icon);
     }
@@ -55,7 +53,7 @@ function EditorItemModal({ item, type, onClose, onSave }) {
     const data = {};
 
     data.edited = !!get(item, 'id');
-    data.label = packInLabel(label);
+    data.label = label;
     !get(item, 'type') && (data.type = type.key);
     hasUrl && set(data, 'config.url', url);
     hasIcon && (data.icon = icon);
@@ -81,7 +79,7 @@ function EditorItemModal({ item, type, onClose, onSave }) {
   return (
     <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={title}>
       <Field label={t(Labels.FIELD_NAME_LABEL)} required>
-        <Input onChange={e => setLabel(e.target.value)} value={label} />
+        <MLText onChange={setLabel} value={label} />
       </Field>
       {hasUrl && (
         <Field label={t(Labels.FIELD_URL_LABEL)} required>
@@ -125,15 +123,10 @@ function EditorItemModal({ item, type, onClose, onSave }) {
 }
 
 EditorItemModal.propTypes = {
-  className: PropTypes.string,
   type: PropTypes.object,
   item: PropTypes.object,
   onClose: PropTypes.func,
   onSave: PropTypes.func
-};
-
-EditorItemModal.defaultProps = {
-  className: ''
 };
 
 export default EditorItemModal;
