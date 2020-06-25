@@ -1,10 +1,10 @@
 import isString from 'lodash/isString';
 import isObject from 'lodash/isObject';
 
-import { SourcesId } from '../constants';
+import { SourcesId, TMP_ICON_EMPTY } from '../constants';
 
 export function getIconObjectWeb(data) {
-  let icon = { value: 'icon-empty-icon' };
+  let icon = { value: TMP_ICON_EMPTY };
 
   if (isString(data)) {
     const [_source, _value] = data.split('@');

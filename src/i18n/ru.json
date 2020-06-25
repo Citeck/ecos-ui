@@ -1024,6 +1024,7 @@
   "icon-select.btn.cancel": "Отмена",
   "icon-select.btn.done": "Готово",
   "icon-select.custom.title": "Пользовательские",
+  "icon-select.custom.no-icons": "Еще не загружено ни одной иконки",
   "icon-select.custom.tip": "Иконка выглядит лучше, если используется формат png/svg, размер 20x20px и отсутствуют мелкие детали",
   "icon-select.error.get-custom-icons": "Пользовательские иконки меню не получены",
   "icon-select.error.get-font-icons": "Шрифт-иконки не получены",

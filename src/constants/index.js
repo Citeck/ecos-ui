@@ -38,7 +38,8 @@ export const SourcesId = {
   PEOPLE: 'people',
   BIRTHDAYS: 'birthdays',
   REPORT: 'reports-data',
-  TASK: 'wftask'
+  TASK: 'wftask',
+  WORKFLOW: 'workflow'
 };
 
 export const EmodelTypes = {
@@ -97,6 +98,8 @@ export const MOBILE_APP_USER_AGENT = 'ecos-mobile-app';
 export const Attributes = {
   DBID: 'sys:node-dbid'
 };
+
+export const TMP_ICON_EMPTY = 'icon-empty-icon';
 
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};

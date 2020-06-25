@@ -15,7 +15,6 @@ export function toGeneratorTree(len = 0, lvl = 0) {
         editable: true,
         removable: true,
         draggable: true,
-        dndIdx: parseInt(`${d}${parentI || 0}${i}`, 10),
         items: f(l - 1, d + 1, i)
       }));
   }

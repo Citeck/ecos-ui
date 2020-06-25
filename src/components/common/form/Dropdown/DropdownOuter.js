@@ -21,7 +21,7 @@ export default class DropdownOuter extends Dropdown {
   }
 
   render() {
-    const { className } = this.props;
+    const { className, outClassName = '' } = this.props;
     const { dropdownOpen, targetId } = this.state;
 
     return (
@@ -33,7 +33,7 @@ export default class DropdownOuter extends Dropdown {
           target={targetId}
           trigger="click"
           hideArrow
-          className="ecos-base-tooltip ecos-base-tooltip_opaque"
+          className={classNames('ecos-base-tooltip ecos-base-tooltip_opaque', outClassName)}
           innerClassName="ecos-base-tooltip-inner ecos-dropdown-outer__tooltip-inner"
           placement="bottom-start"
           modifiers={{ flip: { behavior: ['bottom', 'top', 'right', 'left'] } }}

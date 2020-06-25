@@ -1,7 +1,8 @@
 import React from 'react';
+
 import { Tree } from '../../components/common';
 import { deepClone } from '../../helpers/util';
-import { treeMoveItem } from '../../helpers/arrayOfObjects';
+import { treeMoveItem, treeSetDndIndex } from '../../helpers/arrayOfObjects';
 import { toGeneratorTree } from '../../helpers/dataGenerators';
 import { Btn, IcoBtn } from '../../components/common/btns';
 
@@ -23,7 +24,7 @@ const _actions = [
   }
 ];
 
-const _items = toGeneratorTree(5, 2);
+const _items = toGeneratorTree(5, 3);
 
 function findItem(items, id) {
   for (const item of items) {
@@ -41,7 +42,7 @@ function findItem(items, id) {
 
 export default class extends React.Component {
   state = {
-    items: _items
+    items: treeSetDndIndex(_items)
   };
 
   onClickActionItem = ({ action, item }) => {
@@ -64,7 +65,10 @@ export default class extends React.Component {
   };
 
   moveItemTo = (fromId, toId) => {
-    const items = treeMoveItem({ fromId, toId, original: this.state.items, key: 'dndIdx' });
+    const original = this.state.items;
+    const _items = treeMoveItem({ fromId, toId, original, key: 'dndIdx' });
+    const items = treeSetDndIndex(_items);
+
     this.setState({ items });
   };
 
@@ -102,6 +106,8 @@ export default class extends React.Component {
             onClickAction={this.onClickActionItem}
             getActions={this.getAvailableActions}
             renderExtraComponents={this.renderExtraComponents}
+            draggable
+            onDragEnd={this.moveItemTo}
           />
         </div>
       </div>

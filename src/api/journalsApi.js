@@ -56,7 +56,19 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates, sourceId, recordRef, journalId, journalActions }) => {
+  getGridData = ({
+    columns,
+    pagination,
+    predicate,
+    groupBy,
+    sortBy,
+    predicates,
+    sourceId,
+    recordRef,
+    journalId,
+    journalActions,
+    queryData
+  }) => {
     const val = [predicate];
 
     !!Array.isArray(predicates) && val.push(...predicates);
@@ -73,14 +85,23 @@ export class JournalsApi extends RecordService {
           }))
       });
 
-    const query = {
+    let query = {
       t: 'and',
       val: val.filter(item => item && isExistValue(item.t) && isExistValue(item.val) && item.val !== '')
     };
+    let language = 'predicate';
+    if (queryData) {
+      query = {
+        data: queryData,
+        predicate: query
+      };
+      language = 'predicate-with-data';
+    }
+
     const bodyQuery = {
       consistency: 'EVENTUAL',
       query,
-      language: 'predicate',
+      language,
       page: pagination,
       groupBy,
       sortBy
@@ -123,9 +144,9 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy }) => {
+  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy, queryData }) => {
     const queryPredicates = journalPredicate ? [journalPredicate] : [];
-    const query = {
+    let query = {
       t: 'and',
       val: queryPredicates.concat(
         ((Array.isArray(predicates) && predicates) || []).filter(item => {
@@ -133,9 +154,17 @@ export class JournalsApi extends RecordService {
         })
       )
     };
+    let language = 'predicate';
+    if (queryData) {
+      query = {
+        data: queryData,
+        predicate: query
+      };
+      language = 'predicate-with-data';
+    }
     const bodyQuery = {
       query,
-      language: 'predicate',
+      language,
       page: pagination,
       consistency: 'EVENTUAL',
       sortBy: [

@@ -93,6 +93,12 @@
       margin-bottom: 0;
     }
 
+    &__menu-dropdown {
+      .tooltip {
+        z-index: 9999;
+      }
+    }
+
     &__menu-options {
       li {
         font-size: $font-size-small;
@@ -120,6 +126,7 @@
         &:hover {
           cursor: pointer;
           color: $color-blue-light;
+
           .ecos-badge {
             background-color: $color-blue-light;
           }
@@ -131,6 +138,7 @@
 
         &_active {
           color: $color-red-1;
+
           .ecos-badge {
             background-color: $color-red-1;
           }

@@ -1023,6 +1023,7 @@
   "icon-select.btn.cancel": "Cancel",
   "icon-select.btn.done": "Done",
   "icon-select.custom.title": "Custom",
+  "icon-select.custom.no-icons": "No icon has been loaded yet",
   "icon-select.custom.tip": "The icon looks better if format is png/svg, size is 20x20px and there are no small details",
   "icon-select.error.get-custom-icons": "Customs menu icons haven't received",
   "icon-select.error.get-font-icons": "Font menu icons haven't received",

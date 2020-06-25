@@ -41,7 +41,6 @@ function* fetchGetFontIcons({ api, logger }, { payload: prefix }) {
 function* runUploadCustomIcon({ api, logger }, { payload: { file, family } }) {
   try {
     const customIcons = yield select(state => state.iconSelect.customIcons);
-    customIcons.forEach(icon => (icon.lastLoaded = false));
 
     const type = 'img';
     const { name } = file;
@@ -50,10 +49,9 @@ function* runUploadCustomIcon({ api, logger }, { payload: { file, family } }) {
     const filename = nameArr.join('.');
 
     const data = yield call(api.app.getBase64, file);
-    //todo api upload
-    yield call(api.customIcon.uploadIcon, { data, type, family, config: { filename, format } });
-
-    const newIcon = { url: data, type, lastLoaded: true };
+    const recordIcon = yield call(api.customIcon.uploadIcon, { data, type, family, config: { filename, format } });
+    const uploadedIcon = yield call(api.customIcon.getIconInfo, recordIcon.id);
+    const newIcon = { ...uploadedIcon, url: data };
 
     yield put(setCustomIcons([...customIcons, newIcon]));
   } catch (e) {
@@ -67,7 +65,6 @@ function* runDeleteCustomIcon({ api, logger }, { payload: deleted }) {
   try {
     const customIcons = yield select(state => state.iconSelect.customIcons);
 
-    //todo check api delete
     yield call(api.customIcon.deleteIcon, [getIconRef(deleted)]);
 
     const filtered = customIcons.filter(icon => icon.value !== deleted.value);

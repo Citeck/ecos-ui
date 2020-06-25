@@ -1,9 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import Records from '../components/Records';
 import { SourcesId, URL } from '../constants';
 import { MenuTypes } from '../constants/menu';
+import Records from '../components/Records';
 import { HandleControlTypes } from './handleControl';
 import { createProfileUrl } from './urls';
 import { documentScrollTop } from './util';

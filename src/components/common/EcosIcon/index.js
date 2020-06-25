@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
+import { TMP_ICON_EMPTY } from '../../../constants';
 import { createContentUrl } from '../../../helpers/urls';
 import { MenuApi } from '../../../api/menu';
 import { Icon } from '../index';
@@ -15,6 +16,10 @@ function EcosIcon({ code, className, data, title, family, onClick }) {
   const { type, value, url } = remoteData || {};
   const commonClass = classNames('ecos-icon', className, { 'ecos-icon_button': onClick });
   const commonProps = { title };
+
+  const onError = () => {
+    setRemoteData({});
+  };
 
   if (onClick) {
     commonProps.onClick = onClick;
@@ -33,12 +38,12 @@ function EcosIcon({ code, className, data, title, family, onClick }) {
 
     return (
       <div className={classNames(commonClass, 'ecos-icon-img')} {...commonProps}>
-        <img src={src} alt={title} />
+        <img src={src} alt={title} className="ecos-icon-img__content" onError={onError} />
       </div>
     );
   }
 
-  return <Icon className={classNames(commonClass, { 'icon-empty-icon': !value, fa: type === 'fa', [value]: !!value })} {...commonProps} />;
+  return <Icon className={classNames(commonClass, { [TMP_ICON_EMPTY]: !value, fa: type === 'fa', [value]: !!value })} {...commonProps} />;
 }
 
 EcosIcon.propTypes = {

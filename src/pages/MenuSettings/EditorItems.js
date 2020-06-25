@@ -12,7 +12,7 @@ import { addJournalMenuItems, setLastAddedItems, setMenuItems } from '../../acti
 import IconSelect from '../../components/IconSelect';
 import { Tree } from '../../components/common';
 import { Btn } from '../../components/common/btns';
-import { Badge, Dropdown, SelectJournal } from '../../components/common/form';
+import { Badge, DropdownOuter, SelectJournal } from '../../components/common/form';
 import dialogManager from '../../components/common/dialogs/Manager';
 import EditorItemModal from './EditorItemModal';
 
@@ -29,11 +29,10 @@ const Labels = {
 
 class EditorItems extends React.Component {
   static propTypes = {
-    className: PropTypes.string
+    items: PropTypes.array
   };
 
   static defaultProps = {
-    className: '',
     items: []
   };
 
@@ -168,16 +167,14 @@ class EditorItems extends React.Component {
     };
 
     const handleSave = icon => {
-      setMenuItems(
-        MenuSettingsService.processAction(
-          {
-            action: ms.ActionTypes.EDIT,
-            items,
-            id: editItemIcon.id,
-            data: { edited: true, icon }
-          }.items
-        )
-      );
+      const result = MenuSettingsService.processAction({
+        action: ms.ActionTypes.EDIT,
+        items,
+        id: editItemIcon.id,
+        data: { edited: true, icon }
+      });
+
+      setMenuItems(result.items);
       handleHideModal();
     };
 
@@ -203,18 +200,18 @@ class EditorItems extends React.Component {
       createOptions &&
         createOptions.length &&
         components.push(
-          <Dropdown
+          <DropdownOuter
             key={`${id}--dropdown`}
             source={createOptions}
             valueField={'id'}
             titleField={'label'}
             onChange={type => this.handleChooseOption(type, item)}
-            className=""
-            menuClassName="ecos-menu-settings-editor-items__menu-options"
             isStatic
             controlLabel={t(Labels.BTN_ADD)}
             controlIcon="icon-plus"
-            controlClassName={'ecos-btn_hover_light-blue2 ecos-btn_sq_sm'}
+            controlClassName="ecos-btn_hover_light-blue2 ecos-btn_sq_sm"
+            outClassName="ecos-menu-settings-editor-items__menu-dropdown"
+            menuClassName="ecos-menu-settings-editor-items__menu-options"
           />
         );
     }
@@ -259,8 +256,7 @@ class EditorItems extends React.Component {
             data={items}
             prefixClassName="ecos-menu-settings-editor-items"
             openAll={openAllMenuItems}
-            draggable={false}
-            moveInLevel
+            draggable
             moveInParent
             onDragEnd={this.handleDragEnd}
             getActions={this.getAvailableActions}

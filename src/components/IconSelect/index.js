@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { deleteCustomIcon, getCustomIcons, getFontIcons, uploadCustomIcon } from '../../actions/iconSelect';
+import { TMP_ICON_EMPTY } from '../../constants';
 import { t } from '../../helpers/util';
 import { BtnUpload, EcosIcon, EcosModal, Loader } from '../../components/common';
 import { Btn } from '../../components/common/btns';
@@ -18,7 +20,8 @@ const Labels = {
   BTN_CANCEL: 'icon-select.btn.cancel',
   BTN_DONE: 'icon-select.btn.done',
   ICON_CUSTOM_TITLE: 'icon-select.custom.title',
-  ICON_CUSTOM_TIP: 'icon-select.custom.tip'
+  ICON_CUSTOM_TIP: 'icon-select.custom.tip',
+  ICON_CUSTOM_NONE: 'icon-select.custom.no-icons'
 };
 
 class IconSelect extends React.Component {
@@ -48,8 +51,6 @@ class IconSelect extends React.Component {
       const { uploadCustomIcon, family } = this.props;
 
       uploadCustomIcon({ file: files[0], family });
-
-      //todo see after lastLoaded
     }
   };
 
@@ -62,18 +63,27 @@ class IconSelect extends React.Component {
 
   selected = item => !!item.value && item.value === this.state.icon.value;
   prevSelected = item => !!item.value && item.value === get(this.props, 'selectedIcon.value');
-  deleteSelected = () => {
+
+  get disabledDelete() {
     const { customIcons } = this.props;
     const { icon } = this.state;
 
-    return !!customIcons && customIcons.find(i => i.value === icon.value);
-  };
+    return !customIcons || icon.value === TMP_ICON_EMPTY || !customIcons.find(i => i.value === icon.value);
+  }
+
+  get disabledApply() {
+    const prev = get(this.props, 'selectedIcon.value');
+    const next = get(this.state, 'icon.value');
+
+    return next === TMP_ICON_EMPTY || next === prev;
+  }
 
   renderIcons = items => {
-    return (
+    return isEmpty(items) ? null : (
       <div className="ecos-icon-select__option-list">
-        {items &&
-          items.map((item, i) => (
+        {items
+          .sort((a, b) => this.prevSelected(b) - this.prevSelected(a))
+          .map((item, i) => (
             <div
               key={`${item.value}-${i}`}
               className={classNames('ecos-icon-select__option-block', { 'ecos-icon-select__option-block_selected': this.selected(item) })}
@@ -109,8 +119,8 @@ class IconSelect extends React.Component {
             accept="image/*"
             className="ecos-icon-select__custom-btn-upload"
           />
-          {this.deleteSelected() && (
-            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.onDelete}>
+          {!this.disabledDelete && (
+            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_narrow" onClick={this.onDelete}>
               {t(Labels.BTN_DELETE_ICON)}
             </Btn>
           )}
@@ -118,7 +128,7 @@ class IconSelect extends React.Component {
         <div className="ecos-icon-select__custom-tip">{t(Labels.ICON_CUSTOM_TIP)}</div>
         <div className="ecos-menu-editor-item__buttons">
           <Btn onClick={this.onCancel}>{t(Labels.BTN_CANCEL)}</Btn>
-          <Btn onClick={this.onApply} className="ecos-btn_blue ecos-btn_hover_light-blue">
+          <Btn onClick={this.onApply} disabled={this.disabledApply} className="ecos-btn_blue ecos-btn_hover_light-blue">
             {t(Labels.BTN_DONE)}
           </Btn>
         </div>
