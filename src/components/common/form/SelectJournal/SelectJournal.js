@@ -258,9 +258,9 @@ export default class SelectJournal extends Component {
   refreshGridData = info => {
     return new Promise(resolve => {
       this.setState({ isGridDataReady: false }, () => {
-        const { sortBy, queryData } = this.props;
+        const { sortBy, queryData, customSourceId } = this.props;
         let { requestParams, customPredicate, journalConfig } = this.state;
-        const sourceId = lodashGet(journalConfig, 'sourceId', '');
+        const sourceId = customSourceId || lodashGet(journalConfig, 'sourceId', '');
 
         if (customPredicate) {
           if (requestParams.journalPredicate) {
@@ -889,6 +889,7 @@ const predicateShape = PropTypes.shape({
 SelectJournal.propTypes = {
   journalId: PropTypes.string,
   queryData: PropTypes.object,
+  customSourceId: PropTypes.string,
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
   onChange: PropTypes.func,
   onError: PropTypes.func,

@@ -286,6 +286,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
         onError: () => {}
       };
 
+      if (component.customSourceId) {
+        reactComponentProps.customSourceId = component.customSourceId;
+      }
       if (this.customPredicateValue) {
         reactComponentProps.initCustomPredicate = this.customPredicateValue;
       }
