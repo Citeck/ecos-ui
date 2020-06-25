@@ -126,7 +126,7 @@ class EcosForm extends React.Component {
       const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
       const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
-      this.setState({ originalFormDefinition, formDefinition });
+      self.setState({ originalFormDefinition, formDefinition });
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(recordId, inputs, containerId);
