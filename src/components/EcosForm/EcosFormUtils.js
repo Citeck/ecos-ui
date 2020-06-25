@@ -352,6 +352,45 @@ export default class EcosFormUtils {
     });
   }
 
+  static preProcessFormDefinition(formDefinition, formOptions) {
+    const newFormDefinition = cloneDeep(formDefinition);
+
+    EcosFormUtils.forEachComponent(newFormDefinition, component => {
+      if (component.key) {
+        if (component.properties) {
+          for (let key in component.properties) {
+            if (!component.properties.hasOwnProperty(key)) {
+              continue;
+            }
+            let value = component.properties[key];
+            if (value[0] === '$') {
+              component.properties[key] = EcosFormUtils._replaceOptionValuePlaceholder(value, formOptions);
+            }
+          }
+        }
+        for (let key in component) {
+          if (!component.hasOwnProperty(key)) {
+            continue;
+          }
+          let value = component[key];
+          if (isString(value) && value[0] === '$') {
+            component[key] = EcosFormUtils._replaceOptionValuePlaceholder(value, formOptions);
+          }
+        }
+      }
+    });
+
+    return newFormDefinition;
+  }
+
+  static _replaceOptionValuePlaceholder(value, options) {
+    let match = /\${options\['(.+)']}/.exec(value);
+    if (match != null) {
+      return options[match[1]];
+    }
+    return value;
+  }
+
   static forEachComponent(root, action, scope = null) {
     let components = [];
 
