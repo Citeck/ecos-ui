@@ -46,7 +46,7 @@ export default class MLTextComponent extends BaseReactComponent {
     return {
       value: this.dataValue || this.emptyValue,
       onChange: value => {
-        this.onReactValueChanged(value, { skipReactWrapperUpdating: false });
+        this.onReactValueChanged(value, { formFlags: { skipReactWrapperUpdating: false } });
       }
     };
   }

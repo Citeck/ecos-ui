@@ -135,7 +135,7 @@ class EcosForm extends React.Component {
       const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
       const formDefinition = cloneDeep(originalFormDefinition);
 
-      this.setState({ originalFormDefinition, formDefinition });
+      self.setState({ originalFormDefinition, formDefinition });
 
       EcosFormUtils.forEachComponent(formDefinition, component => {
         if (component.key) {

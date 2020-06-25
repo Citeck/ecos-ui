@@ -1,11 +1,15 @@
-import BaseComponent from './BaseComponent';
-import ReactDOM from 'react-dom';
 import React from 'react';
+import ReactDOM from 'react-dom';
+import get from 'lodash/get';
+
+import BaseComponent from './BaseComponent';
 import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
 
 export default class BaseReactComponent extends BaseComponent {
   build() {
-    this.onReactValueChanged = (value, flags = { skipReactWrapperUpdating: true }) => {
+    this.onReactValueChanged = (value, extra) => {
+      const flags = get(extra, 'formFlags', { skipReactWrapperUpdating: true });
+
       this.setPristine(false);
       this.setValue(value, flags);
     };
