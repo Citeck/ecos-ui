@@ -61,14 +61,15 @@ class MLText extends Component {
   }
 
   getLocaleWithValue(values) {
-    if (values) {
+    const currentLocale = getCurrentLocale();
+    if (values && !values[currentLocale]) {
       for (let lang in values) {
         if (values.hasOwnProperty(lang) && values[lang]) {
           return lang;
         }
       }
     }
-    return getCurrentLocale();
+    return currentLocale;
   }
 
   get value() {
