@@ -51,7 +51,7 @@ export default handleActions(
     }),
     [setMenuItems]: (state, { payload }) => ({
       ...state,
-      items: payload,
+      items: treeSetDndIndex(payload),
       isLoading: false
     }),
     [setLastAddedItems]: (state, { payload }) => ({

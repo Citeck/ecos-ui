@@ -84,7 +84,7 @@ class TreeItem extends Component {
   get hasGrandchildren() {
     const { item } = this.props;
 
-    return !!item && !isEmpty(item.items) && item.items.some(child => !!child.items.length);
+    return !!item && !isEmpty(item.items) && item.items.some(child => !isEmpty(child.items));
   }
 
   handleToggleOpen = () => {
