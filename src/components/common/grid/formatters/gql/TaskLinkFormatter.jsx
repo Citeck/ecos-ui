@@ -1,20 +1,38 @@
 import React from 'react';
-import get from 'lodash/get';
 
+import Records from '../../../../Records';
 import { createTaskUrl, isNewVersionPage } from '../../../../../helpers/urls';
 import { REMOTE_TITLE_ATTR_NAME } from '../../../../../constants/pageTabs';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class TaskLinkFormatter extends DefaultGqlFormatter {
-  render() {
-    const { row = {}, cell } = this.props;
-    const taskId = get(row, 'wfm:workflowId', '');
+  state = {
+    workflow: null
+  };
 
-    if (!taskId) {
+  componentDidMount() {
+    const { row = {} } = this.props;
+
+    if (!row.id) {
+      return;
+    }
+
+    Records.get(row.id)
+      .load('wfm:workflowId')
+      .then(workflow => {
+        this.setState({ workflow });
+      });
+  }
+
+  render() {
+    const { cell } = this.props;
+    const { workflow } = this.state;
+
+    if (!workflow) {
       return this.value(cell);
     }
 
-    const url = createTaskUrl(taskId);
+    const url = createTaskUrl(workflow);
     let linkProps = {};
 
     if (isNewVersionPage()) {

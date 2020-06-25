@@ -43,6 +43,8 @@ class TaskAssignmentPanel extends Component {
     isLoading: false
   };
 
+  #unmounted = false;
+
   constructor(props) {
     super(props);
 
@@ -71,6 +73,8 @@ class TaskAssignmentPanel extends Component {
   }
 
   componentWillUnmount() {
+    this.#unmounted = true;
+
     this.getStateAssign.cancel();
 
     if (this.documentRecord) {
@@ -139,6 +143,10 @@ class TaskAssignmentPanel extends Component {
   }, 500);
 
   set stateAssign(stateAssign) {
+    if (this.#unmounted) {
+      return;
+    }
+
     this.setState({ stateAssign, isLoading: false });
   }
 
