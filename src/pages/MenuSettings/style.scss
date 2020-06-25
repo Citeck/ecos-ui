@@ -77,6 +77,7 @@
 
   &-editor-items {
     $editor: &;
+    margin-bottom: 30px;
 
     &__header {
       display: flex;
@@ -160,6 +161,29 @@
         &:hover {
           color: $color-red-1;
         }
+      }
+    }
+  }
+
+  &-group-priority {
+    &__wrapper {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    &__desc {
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-small;
+      color: $text-color-gray;
+    }
+
+    &__tree {
+      &-field {
+        @extend %block--2;
+        min-height: 420px;
+        max-height: 420px;
+        overflow-x: hidden;
       }
     }
   }

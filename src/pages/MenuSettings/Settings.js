@@ -11,12 +11,14 @@ import { MenuTypes } from '../../constants/menu';
 import { EcosModal, Loader } from '../../components/common';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import EditorItems from './EditorItems';
+import EditorGroupPriority from './EditorGroupPriority';
 
 import './style.scss';
 
 const Labels = {
   TITLE: 'menu-settings.header.title',
   TITLE_ITEMS: 'menu-settings.editor-items.title',
+  TITLE_GROUP_PRIORITY: 'menu-settings.editor-group-priority.title',
   GOTO_JOURNAL: 'menu-settings.header.btn.journal-menu-template',
   BTN_CANCEL: 'menu-settings.button.cancel',
   BTN_APPLY: 'menu-settings.button.apply'
@@ -115,8 +117,13 @@ class Settings extends React.Component {
         classNameHeader="ecos-menu-settings__modal-header"
       >
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
+
         <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
         <EditorItems />
+
+        <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
+        <EditorGroupPriority />
+
         {this.renderButtons()}
       </EcosModal>
     );
