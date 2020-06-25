@@ -68,6 +68,20 @@ export const createDocumentUrl = recordRef => {
   return _createOldVersionUrlDocument(recordRef);
 };
 
+export const createTaskUrl = (taskId, recordRef) => {
+  const taskPrefix = `${SourcesId.WORKFLOW}@`;
+
+  if (isNewVersionPage()) {
+    if (!taskId.includes(taskPrefix)) {
+      taskId = `${taskPrefix}${taskId}`;
+    }
+
+    return `${URL.DASHBOARD}?recordRef=${taskId}`;
+  }
+
+  return `/citeck/components/redirect-to-task?nodeRef=${recordRef}`;
+};
+
 export const createThumbnailUrl = (nodeRef, extra) => {
   const params = { property: 'ecos:photo', width: 150, ...extra, nodeRef };
 

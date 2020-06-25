@@ -179,14 +179,13 @@ class RecordActionsService {
     const title = extractLabel(lodash.get(action, 'confirm.title'));
     const text = extractLabel(lodash.get(action, 'confirm.message'));
     const formId = lodash.get(action, 'confirm.formRef');
-    const attributesMapping = lodash.get(action, 'confirm.attributesMapping');
     const needConfirm = !!formId || !!title || !!text;
 
-    return needConfirm ? { formId, title, text, attributesMapping } : null;
+    return needConfirm ? { formId, title, text } : null;
   };
 
   static _confirmExecAction = (data, callback) => {
-    const { title, text, formId, attributesMapping } = data;
+    const { title, text, formId } = data;
 
     if (formId) {
       Records.get(formId)
@@ -198,17 +197,7 @@ class RecordActionsService {
               display: 'form',
               ...formDefinition
             },
-            onSubmit: submission => {
-              const source = submission.data;
-              const target = {};
-
-              for (let path in attributesMapping) {
-                if (attributesMapping.hasOwnProperty(path)) {
-                  lodash.set(target, path, lodash.get(source, attributesMapping[path]));
-                }
-              }
-              callback(target);
-            }
+            onSubmit: submission => callback(submission.data)
           });
         })
         .catch(e => {
@@ -221,10 +210,20 @@ class RecordActionsService {
     }
   };
 
+  static _setDataByMap = (action, data) => {
+    const attributesMapping = lodash.get(action, 'confirm.attributesMapping') || {};
+
+    for (let path in attributesMapping) {
+      if (attributesMapping.hasOwnProperty(path)) {
+        lodash.set(action, `config.${path}`, lodash.get(data, attributesMapping[path]));
+      }
+    }
+  };
+
   execAction = async (recordsId, action) => {
     const execute = data => {
-      if (lodash.isObject(data)) {
-        lodash.set(action, 'config', { ...action.config, ...data });
+      if (!lodash.isEmpty(data)) {
+        RecordActionsService._setDataByMap(action, data);
       }
 
       const records = Records.get(recordsId);
@@ -328,7 +327,13 @@ class RecordActionsService {
         );
 
         fields.forEach(field => {
-          mutableData[key] = mutableData[key].replace('${' + field + '}', results.get(field));
+          const fieldValue = results.get(field);
+          const fieldMask = '${' + field + '}';
+          if (mutableData[key] === fieldMask) {
+            mutableData[key] = fieldValue;
+          } else {
+            mutableData[key] = mutableData[key].replace(fieldMask, fieldValue);
+          }
         });
       })
     );

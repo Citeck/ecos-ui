@@ -2,7 +2,7 @@ import get from 'lodash/get';
 
 import { ActionModes, Attributes, Permissions } from '../constants';
 import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
-import { debounce, queryByCriteria, t } from '../helpers/util';
+import { debounce, isExistValue, queryByCriteria, t } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
 import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
@@ -56,36 +56,52 @@ export class JournalsApi extends RecordService {
     return this.delete({ records: records });
   };
 
-  getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates = [], sourceId, recordRef, journalId, journalActions }) => {
-    const query = {
-      t: 'and',
-      val: [
-        predicate,
-        ...predicates.filter(item => {
-          return item.val !== '' && item.val !== null;
-        })
-      ]
-    };
+  getGridData = ({
+    columns,
+    pagination,
+    predicate,
+    groupBy,
+    sortBy,
+    predicates,
+    sourceId,
+    recordRef,
+    journalId,
+    journalActions,
+    queryData
+  }) => {
+    const val = [predicate];
 
-    if (recordRef) {
-      query.val.push({
+    !!Array.isArray(predicates) && val.push(...predicates);
+
+    !!recordRef &&
+      val.push({
         t: PREDICATE_OR,
         val: columns
           .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC)
-          .map(a => {
-            return {
-              t: PREDICATE_CONTAINS,
-              val: recordRef,
-              att: a.attribute
-            };
-          })
+          .map(a => ({
+            t: PREDICATE_CONTAINS,
+            val: recordRef,
+            att: a.attribute
+          }))
       });
+
+    let query = {
+      t: 'and',
+      val: val.filter(item => item && isExistValue(item.t) && isExistValue(item.val) && item.val !== '')
+    };
+    let language = 'predicate';
+    if (queryData) {
+      query = {
+        data: queryData,
+        predicate: query
+      };
+      language = 'predicate-with-data';
     }
 
-    let bodyQuery = {
+    const bodyQuery = {
       consistency: 'EVENTUAL',
-      query: query,
-      language: 'predicate',
+      query,
+      language,
       page: pagination,
       groupBy,
       sortBy
@@ -128,9 +144,9 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy }) => {
+  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy, queryData }) => {
     const queryPredicates = journalPredicate ? [journalPredicate] : [];
-    const query = {
+    let query = {
       t: 'and',
       val: queryPredicates.concat(
         ((Array.isArray(predicates) && predicates) || []).filter(item => {
@@ -138,9 +154,17 @@ export class JournalsApi extends RecordService {
         })
       )
     };
+    let language = 'predicate';
+    if (queryData) {
+      query = {
+        data: queryData,
+        predicate: query
+      };
+      language = 'predicate-with-data';
+    }
     const bodyQuery = {
       query,
-      language: 'predicate',
+      language,
       page: pagination,
       consistency: 'EVENTUAL',
       sortBy: [

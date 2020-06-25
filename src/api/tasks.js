@@ -64,7 +64,17 @@ export class TasksApi extends RecordService {
 
   getTaskStateAssign = ({ taskId }) => TasksApi.getStaticTaskStateAssignee({ taskId });
 
-  changeAssigneeTask = ({ taskId, action, owner }) => {
+  changeAssigneeTask = data => TasksApi.staticChangeAssigneeTask(data);
+
+  getDocumentByTaskId = taskId => TasksApi.getDocument(taskId);
+
+  static getDocument = taskId => {
+    return Records.get(taskId)
+      .load('document?id')
+      .then(res => res);
+  };
+
+  static staticChangeAssigneeTask = ({ taskId, action, owner }) => {
     const record = Records.get(taskId);
 
     record.att('changeOwner', {
@@ -76,13 +86,5 @@ export class TasksApi extends RecordService {
       .save()
       .then(() => true)
       .catch(console.error);
-  };
-
-  getDocumentByTaskId = taskId => TasksApi.getDocument(taskId);
-
-  static getDocument = taskId => {
-    return Records.get(taskId)
-      .load('document?id')
-      .then(res => res);
   };
 }

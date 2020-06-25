@@ -10,6 +10,7 @@ import IcoBtn from '../common/btns/IcoBtn';
 import EcosModal from '../common/EcosModal';
 import EcosFormUtils from './EcosFormUtils';
 import EcosForm, { FORM_MODE_EDIT } from './';
+import TaskAssignmentPanel from '../TaskAssignmentPanel';
 
 import './EcosFormModal.scss';
 
@@ -137,8 +138,18 @@ export default class EcosFormModal extends React.Component {
     );
   }
 
+  renderContentBefore() {
+    const { record, contentBefore } = this.props;
+
+    if (!contentBefore && record.includes(SourcesId.TASK)) {
+      return <TaskAssignmentPanel narrow executeRequest taskId={record} />;
+    }
+
+    return contentBefore;
+  }
+
   render() {
-    const { title, isBigHeader, contentBefore, contentAfter } = this.props;
+    const { title, isBigHeader, contentAfter } = this.props;
     const { recordData, isModalOpen } = this.state;
 
     if (!isModalOpen || !recordData) {
@@ -187,7 +198,7 @@ export default class EcosFormModal extends React.Component {
           customButtons={[this.renderConstructorButton()]}
           zIndex={9000}
         >
-          {contentBefore}
+          {this.renderContentBefore()}
           <EcosForm ref={this._formRef} onFormSubmitDone={this.onUpdateForm} {...formProps} />
           {contentAfter}
         </EcosModal>

@@ -5,9 +5,9 @@ import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
 
 export default class BaseReactComponent extends BaseComponent {
   build() {
-    this.onReactValueChanged = value => {
+    this.onReactValueChanged = (value, flags = { skipReactWrapperUpdating: true }) => {
       this.setPristine(false);
-      this.setValue(value, { skipReactWrapperUpdating: true });
+      this.setValue(value, flags);
     };
 
     this.react = {};
@@ -90,7 +90,10 @@ export default class BaseReactComponent extends BaseComponent {
         this.react.waitingProps = {};
       });
     } else {
-      this.react.wrapper.setProps(props);
+      // is this checking required?
+      if (this.react.wrapper) {
+        this.react.wrapper.setProps(props);
+      }
     }
   }
 

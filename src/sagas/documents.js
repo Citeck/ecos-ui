@@ -40,7 +40,7 @@ import {
 import DocumentsConverter from '../dto/documents';
 import { deepClone, getFirstNonEmpty, t } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
-import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
+import { BackgroundOpenAction, CreateNodeAction } from '../components/Records/actions/DefaultActions';
 import { DEFAULT_REF, documentActions } from '../constants/documents';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
@@ -206,12 +206,19 @@ function* sagaExecRecordsAction({ api, logger }, { payload }) {
   try {
     const actionResult = yield call(api.recordActions.executeAction, payload);
     const check = isArray(actionResult) ? actionResult.some(res => res !== false) : actionResult !== false;
+    const actionType = get(payload, 'action.type', '');
 
     if (check) {
-      if (get(payload, 'action.type', '') !== BackgroundOpenAction.type) {
+      if (actionType !== BackgroundOpenAction.type) {
         if (typeof payload.callback === 'function') {
-          payload.callback(get(payload, 'action.type', ''));
+          payload.callback(actionType);
         }
+      }
+    }
+
+    if (actionType === CreateNodeAction.type) {
+      if (typeof payload.callback === 'function') {
+        payload.callback(actionType);
       }
     }
   } catch (e) {

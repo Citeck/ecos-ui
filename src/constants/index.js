@@ -34,7 +34,8 @@ export const SourcesId = {
   PEOPLE: 'people',
   BIRTHDAYS: 'birthdays',
   REPORT: 'reports-data',
-  TASK: 'wftask'
+  TASK: 'wftask',
+  WORKFLOW: 'workflow'
 };
 
 export const EmodelTypes = {

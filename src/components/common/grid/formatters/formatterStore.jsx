@@ -17,6 +17,7 @@ import StrAndDispFormatter from './gql/StrAndDispFormatter';
 import ColoredFormatter from './gql/ColoredFormatter/ColoredFormatter';
 import NumberFormatter from './gql/NumberFormatter';
 import RejectionSignTaskFormatter from './gql/RejectionSignTaskFormatter';
+import TaskLinkFormatter from './gql/TaskLinkFormatter';
 
 const formatterStore = {
   UserNameLinkFormatter,
@@ -37,7 +38,8 @@ const formatterStore = {
   StrAndDispFormatter,
   ColoredFormatter,
   NumberFormatter,
-  RejectionSignTaskFormatter
+  RejectionSignTaskFormatter,
+  TaskLinkFormatter
 };
 
 export default formatterStore;
