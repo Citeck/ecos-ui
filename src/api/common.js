@@ -118,11 +118,9 @@ export class CommonApi {
       cacheKey
     };
 
-    resultPromise.finally(() => {
+    return resultPromise.finally(() => {
       delete loadingCacheByKey[key];
     });
-
-    return resultPromise;
   };
 
   getCommonHeaders = () => {
