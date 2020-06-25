@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
@@ -28,14 +27,6 @@ const Labels = {
 };
 
 class EditorItems extends React.Component {
-  static propTypes = {
-    items: PropTypes.array
-  };
-
-  static defaultProps = {
-    items: []
-  };
-
   state = {
     openAllMenuItems: false,
     editItemInfo: null,
@@ -106,8 +97,9 @@ class EditorItems extends React.Component {
 
   handleDragEnd = (fromId, toId) => {
     const { items: original, setMenuItems } = this.props;
+    const sorted = treeMoveItem({ fromId, toId, original, key: 'dndIdx' });
 
-    setMenuItems(treeMoveItem({ fromId, toId, original, key: 'dndIdx' }));
+    setMenuItems(sorted);
   };
 
   renderEditorItem = () => {
