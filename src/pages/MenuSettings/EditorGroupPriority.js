@@ -1,12 +1,11 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 
 import { getGroupPriority, setGroupPriority } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
-import { EcosModal, Tree } from '../../components/common';
+import { EcosModal, Loader, Tree } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 
 import './style.scss';
@@ -22,14 +21,6 @@ const Labels = {
 };
 
 class EditorGroupPriority extends React.Component {
-  static propTypes = {
-    items: PropTypes.array
-  };
-
-  static defaultProps = {
-    items: []
-  };
-
   state = {
     isOpenAllGroup: false,
     isOpenManager: false
@@ -61,7 +52,7 @@ class EditorGroupPriority extends React.Component {
 
   render() {
     const { isOpenManager, isOpenAllGroup } = this.state;
-    const { groupPriority } = this.props;
+    const { groupPriority, isLoadingPriority } = this.props;
 
     return (
       <>
@@ -75,6 +66,7 @@ class EditorGroupPriority extends React.Component {
           hideModal={this.handleCancel}
           title={t(Labels.MODAL_TITLE)}
         >
+          {isLoadingPriority && <Loader blur className="ecos-menu-settings__loader" />}
           <div className="ecos-menu-settings-group-priority__wrapper">
             <div className="ecos--flex-space" />
             <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
@@ -86,6 +78,7 @@ class EditorGroupPriority extends React.Component {
               data={groupPriority}
               prefixClassName="ecos-menu-settings-group-priority"
               openAll={isOpenAllGroup}
+              draggable
               moveInParent
               onDragEnd={this.handleDragEnd}
             />
@@ -104,7 +97,8 @@ class EditorGroupPriority extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  groupPriority: get(state, 'menuSettings.groupPriority', [])
+  groupPriority: get(state, 'menuSettings.groupPriority', []),
+  isLoadingPriority: get(state, 'menuSettings.isLoadingPriority')
 });
 
 const mapDispatchToProps = dispatch => ({

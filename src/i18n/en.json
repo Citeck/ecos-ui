@@ -1015,6 +1015,8 @@
   "menu-settings.editor-group-priority.btn.collapse-all": "Collapse all",
   "menu-settings.error.get-config": "Menu settings configuration hasn't received",
   "menu-settings.error.save-config": "Menu settings configuration hasn't saved",
+  "menu-settings.error.set-items-from-journal": "Items haven't set in configuration. Try again",
+  "menu-settings.error.get-group-priority": "Group priority hasn't received",
   "menu-settings.success.save-config": "Menu settings configuration saved",
 
   "menu-item.type.section": "Section",

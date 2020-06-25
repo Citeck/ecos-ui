@@ -5,9 +5,11 @@ import get from 'lodash/get';
 
 import {
   addJournalMenuItems,
+  getGroupPriority,
   getSettingsConfig,
   initSettings,
   saveSettingsConfig,
+  setGroupPriority,
   setLastAddedItems,
   setMenuItems,
   setOpenMenuSettings,
@@ -72,7 +74,19 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
     yield put(setMenuItems(result.items));
     yield put(setLastAddedItems(result.newItems));
   } catch (e) {
-    NotificationManager.warning('', t('error'));
+    NotificationManager.error('menu-settings.error.set-items-from-journal', t('error'));
+    logger.error('[menu-settings / runAddJournalMenuItems]', e.message);
+  }
+}
+
+function* fetchGetGroupPriority({ api, logger }, { payload }) {
+  try {
+    const authorities = yield select(state => state.menuSettings.authorities);
+    const data = yield call(api.menu.getGroupPriority, { authorities });
+
+    yield put(setGroupPriority(data));
+  } catch (e) {
+    NotificationManager.error('menu-settings.error.get-group-priority', t('error'));
     logger.error('[menu-settings / runAddJournalMenuItems]', e.message);
   }
 }
@@ -82,6 +96,7 @@ function* saga(ea) {
   yield takeLatest(getSettingsConfig().type, fetchGetSettingsConfig, ea);
   yield takeLatest(saveSettingsConfig().type, runSaveSettingsConfig, ea);
   yield takeLatest(addJournalMenuItems().type, runAddJournalMenuItems, ea);
+  yield takeLatest(getGroupPriority().type, fetchGetGroupPriority, ea);
 }
 
 export default saga;

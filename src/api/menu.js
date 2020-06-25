@@ -214,6 +214,39 @@ export class MenuApi extends CommonApi {
       )
     );
   };
+
+  getGroupPriority = ({ authorities }) => {
+    return Promise.resolve([
+      {
+        id: '48888',
+        items: [
+          {
+            id: '148888'
+          },
+          {
+            id: '1666666'
+          },
+          {
+            id: '188888'
+          }
+        ]
+      },
+      {
+        id: '666666',
+        items: [
+          {
+            id: '248888'
+          },
+          {
+            id: '2666666'
+          }
+        ]
+      },
+      {
+        id: '88888'
+      }
+    ]);
+  };
 }
 
 async function fetchExtraItemInfo(data) {
