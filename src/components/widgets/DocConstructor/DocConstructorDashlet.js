@@ -4,7 +4,8 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 
-import { t } from '../../../helpers/util';
+import { createDocument, deleteDocument, editDocument, getDocument, getSettings } from '../../../actions/docConstructor';
+import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import { Loader } from '../../common';
 import { SelectJournal } from '../../common/form';
@@ -35,17 +36,43 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   state = {
-    templates: null
+    template: null,
+    isSmallMode: false
   };
 
-  componentDidMount() {}
+  get disabledAction() {
+    return !this.props.documentId;
+  }
 
-  onChangeTemplates = templates => {
-    this.setState({ templates });
+  componentDidMount() {
+    this.props.getSettings();
+  }
+
+  onChangeTemplate = template => {
+    this.setState({ template });
+  };
+
+  onClickEdit = () => {
+    this.props.editDocument();
+  };
+
+  onClickDelete = () => {
+    this.props.deleteDocument();
+  };
+
+  onClickSync = () => {
+    this.props.createDocument();
+  };
+
+  onResize = width => {
+    if (width > 0) {
+      this.setState({ isSmallMode: isSmallMode(width) });
+    }
   };
 
   render() {
-    const { title, classNameDashlet, isLoading } = this.props;
+    const { isSmallMode, template } = this.state;
+    const { title, classNameDashlet, isLoading, isLoadingSync, documentId } = this.props;
 
     return (
       <Dashlet
@@ -54,8 +81,9 @@ class DocConstructorDashlet extends BaseWidget {
         title={t(title || Labels.TITLE)}
         needGoTo={false}
         noActions
+        onResize={this.onResize}
       >
-        {isLoading && <Loader />}
+        {!isLoading && <Loader blur />}
         <div className="ecos-doc-constructor__description">
           <div className="ecos-doc-constructor__description-title">{t(Labels.DESC_TITLE)}</div>
           <div className="ecos-doc-constructor__description-text">{t(Labels.DESC_TEXT)}</div>
@@ -65,15 +93,29 @@ class DocConstructorDashlet extends BaseWidget {
           className="ecos-doc-constructor__journal"
           journalId={'ui-actions'}
           isSelectedValueAsText
-          onChange={this.onChangeTemplates}
+          onChange={this.onChangeTemplate}
+          defaultValue={template}
         />
-        <div className="ecos-doc-constructor__buttons">
-          <Btn className="ecos-btn_tight">{t(Labels.BTN_EDIT)}</Btn>
-          <Btn className="ecos-btn_tight">{t(Labels.BTN_DELETE)}</Btn>
-          <div className="ecos-btn_tight ecos-doc-constructor__space" />
-          <IcoBtn icon="icon-reload" className="ecos-btn_blue">
-            {t(Labels.BTN_SYNC)}
-          </IcoBtn>
+        <div className={classNames('ecos-doc-constructor__buttons', { 'ecos-doc-constructor__buttons_small': isSmallMode })}>
+          <div className="ecos-doc-constructor__buttons-left">
+            <Btn className="ecos-btn_tight" onClick={this.onClickEdit} disabled={this.disabledAction}>
+              {t(Labels.BTN_EDIT)}
+            </Btn>
+            <Btn className="ecos-btn_disabled" onClick={this.onClickDelete} disabled={this.disabledAction}>
+              {t(Labels.BTN_DELETE)}
+            </Btn>
+          </div>
+          <div className="ecos-doc-constructor__buttons-right">
+            <IcoBtn
+              icon="icon-reload"
+              className="ecos-btn_blue"
+              onClick={this.onClickSync}
+              loading={isLoadingSync}
+              disabled={this.disabledAction}
+            >
+              {t(Labels.BTN_SYNC)}
+            </IcoBtn>
+          </div>
         </div>
       </Dashlet>
     );
@@ -83,11 +125,15 @@ class DocConstructorDashlet extends BaseWidget {
 const mapStateToProps = (state, context) => {
   const { record, tabId } = context;
   const stateId = getStateId({ tabId, id: record });
-  const data = get(state, ['docOne', stateId]) || {};
+  const data = get(state, ['docConstructor', stateId]) || {};
 
   return {
+    isMobile: state.view.isMobile,
     isLoading: data.isLoading,
-    isMobile: state.view.isMobile
+    isLoadingSync: data.isLoadingSync,
+    settings: data.settings,
+    documentId: data.documentId,
+    documentType: data.documentType
   };
 };
 
@@ -95,7 +141,13 @@ const mapDispatchToProps = (dispatch, context) => {
   const { record, tabId } = context;
   const stateId = getStateId({ tabId, id: record });
 
-  return {};
+  return {
+    getSettings: () => dispatch(getSettings({ stateId, record })),
+    createDocument: () => dispatch(createDocument({ stateId, record })),
+    deleteDocument: () => dispatch(deleteDocument({ stateId, record })),
+    editDocument: () => dispatch(editDocument({ stateId, record })),
+    getDocument: () => dispatch(getDocument({ stateId, record }))
+  };
 };
 
 export default connect(
