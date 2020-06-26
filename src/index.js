@@ -1,4 +1,5 @@
 import 'react-app-polyfill/ie9';
+import 'regenerator-runtime/runtime.js';
 import './helpers/polyfills';
 
 import React from 'react';
