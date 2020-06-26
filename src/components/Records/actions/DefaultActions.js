@@ -643,12 +643,14 @@ export const ScriptAction = {
           },
           error => {
             console.error(error);
+            notifyFailure();
             resolve(false);
           }
         );
       });
     } else {
       console.error('Module is not specified!');
+      notifyFailure('record-action.script-action.error.text');
       return false;
     }
   },

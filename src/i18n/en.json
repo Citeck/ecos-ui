@@ -368,6 +368,7 @@
   "record-action.assoc-action.not-found": "Association is not found",
 
   "record-action.name.script-action": "Script action",
+  "record-action.script-action.error.text": "Undefined action",
 
   "record-action.name.upload-new-version": "Upload new version",
   "record-action.upload-new-version.title.upload-model": "Add new document version",
