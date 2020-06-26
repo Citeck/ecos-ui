@@ -58,6 +58,7 @@
     "redux-logger": "^3.0.6",
     "redux-saga": "^0.16.2",
     "redux-thunk": "^2.3.0",
+    "regenerator-runtime": "^0.13.5",
     "reselect": "^4.0.0",
     "uuidv4": "^4.0.0",
     "vanilla-text-mask": "^5.1.1"
