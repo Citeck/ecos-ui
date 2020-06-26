@@ -8,6 +8,7 @@ import {
   getGroupPriority,
   getSettingsConfig,
   initSettings,
+  saveGroupPriority,
   saveSettingsConfig,
   setGroupPriority,
   setLastAddedItems,
@@ -53,6 +54,7 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
     set(result, ['subMenu', type.toLowerCase()], serverData);
 
     yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu });
+    yield put(saveGroupPriority(payload));
     yield put(setOpenMenuSettings(false));
     NotificationManager.success(t('menu-settings.success.save-config'), t('success'));
   } catch (e) {
@@ -82,7 +84,7 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
 function* fetchGetGroupPriority({ api, logger }, { payload }) {
   try {
     const authorities = yield select(state => state.menuSettings.authorities);
-    const data = yield call(api.menu.getGroupPriority, { authorities });
+    const data = yield call(api.menu.getGroupPriority, { authorities }); //todo api
 
     yield put(setGroupPriority(MenuConverter.getGroupPriorityConfigWeb(data)));
   } catch (e) {
@@ -91,10 +93,25 @@ function* fetchGetGroupPriority({ api, logger }, { payload }) {
   }
 }
 
+function* runSaveGroupPriority({ api, logger }, { payload }) {
+  try {
+    const authorities = yield select(state => state.menuSettings.authorities);
+    const _groupPriority = yield select(state => state.menuSettings.groupPriority);
+    const groupPriority = MenuConverter.getGroupPriorityConfigServer(_groupPriority);
+
+    yield call(api.menu.saveGroupPriority, { authorities, groupPriority }); //todo api
+    NotificationManager.success('menu-settings.success.save-group-priority', t('success'));
+  } catch (e) {
+    NotificationManager.error('menu-settings.error.save-group-priority', t('error'));
+    logger.error('[menu-settings / runAddJournalMenuItems]', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initSettings().type, runInitSettings, ea);
   yield takeLatest(getSettingsConfig().type, fetchGetSettingsConfig, ea);
   yield takeLatest(saveSettingsConfig().type, runSaveSettingsConfig, ea);
+  yield takeLatest(saveGroupPriority().type, runSaveGroupPriority, ea);
   yield takeLatest(addJournalMenuItems().type, runAddJournalMenuItems, ea);
   yield takeLatest(getGroupPriority().type, fetchGetGroupPriority, ea);
 }

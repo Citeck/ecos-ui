@@ -1017,8 +1017,10 @@
   "menu-settings.error.get-config": "Конфигурация настроек меню не получена",
   "menu-settings.error.save-config": "Конфигурация настроек меню не сохранена",
   "menu-settings.error.set-items-from-journal": "Элементы не установлены в конфигурации. Попробуй еще раз",
-  "menu-settings.error.get-group-priority": "Приоритеты групп не получены",
   "menu-settings.success.save-config": "Конфигурация настроек меню сохранена",
+  "menu-settings.error.get-group-priority": "Приоритеты групп не получены",
+  "menu-settings.error.save-group-priority": "Приоритеты групп не сохранены",
+  "menu-settings.success.save-group-priority": "Приоритеты групп сохранены",
 
   "menu-item.type.section": "Раздел",
   "menu-item.type.journal": "Журнал",

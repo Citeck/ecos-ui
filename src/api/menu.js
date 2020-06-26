@@ -246,6 +246,10 @@ export class MenuApi extends CommonApi {
       }
     ]).then(fetchExtraGroupItemInfo);
   };
+
+  saveGroupPriority = ({ authorities, groupPriority }) => {
+    return Promise.resolve(true);
+  };
 }
 
 async function fetchExtraItemInfo(data) {

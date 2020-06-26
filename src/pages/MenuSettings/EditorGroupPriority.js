@@ -53,6 +53,7 @@ class EditorGroupPriority extends React.Component {
     const { updatedList } = this.state;
 
     updatedList && setGroupPriority(updatedList);
+    this.handleCancel();
   };
 
   render() {

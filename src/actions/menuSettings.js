@@ -13,3 +13,4 @@ export const getSettingsConfig = createAction(prefix + 'GET_SETTINGS_CONFIG');
 export const saveSettingsConfig = createAction(prefix + 'SAVE_SETTINGS_CONFIG');
 export const addJournalMenuItems = createAction(prefix + 'ADD_JOURNAL_MENU_ITEMS');
 export const getGroupPriority = createAction(prefix + 'GET_GROUP_PRIORITY');
+export const saveGroupPriority = createAction(prefix + 'SAVE_GROUP_PRIORITY');
