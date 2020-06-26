@@ -17,6 +17,8 @@ import {
   setJournalsList,
   setJournalsListItem,
   setOnlyLinked,
+  setCustomJournalMode,
+  setCustomJournal,
   setPerformGroupActionResponse,
   setPredicate,
   setPreviewFileName,
@@ -303,6 +305,29 @@ export default handleActions(
             }
           };
     },
+    [setCustomJournal]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              config: {
+                ...state[stateId].config,
+                customJournal: action.payload
+              }
+            }
+          }
+        : {
+            ...state,
+            config: {
+              ...state.config,
+              customJournal: action.payload
+            }
+          };
+    },
     [setOnlyLinked]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
@@ -323,6 +348,29 @@ export default handleActions(
             config: {
               ...state.config,
               onlyLinked: action.payload
+            }
+          };
+    },
+    [setCustomJournalMode]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              config: {
+                ...state[stateId].config,
+                customJournalMode: action.payload
+              }
+            }
+          }
+        : {
+            ...state,
+            config: {
+              ...state.config,
+              customJournalMode: action.payload
             }
           };
     },

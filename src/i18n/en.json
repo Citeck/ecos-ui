@@ -522,6 +522,7 @@
   "journals.action.hide-menu": "Hide menu",
   "journals.action.hide-menu_sm": "Hide menu",
   "journals.action.only-linked": "Display only linked records",
+  "journals.action.custom-journal": "Custom journal",
   "journals.action.remove-filter-group-msg": "Remove filter group?",
   "journals.action.remove-filter-msg": "Remove filter?",
   "journals.action.remove-records-msg": "Do you really want to delete records?",

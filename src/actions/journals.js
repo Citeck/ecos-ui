@@ -14,6 +14,8 @@ export const setJournalsListItem = createAction(prefix + 'SET_JOURNALS_LIST_ITEM
 export const setJournalsItem = createAction(prefix + 'SET_JOURNALS_ITEM');
 export const setSettingItem = createAction(prefix + 'SET_SETTING_ITEM');
 export const setOnlyLinked = createAction(prefix + 'SET_ONLY_LINKED');
+export const setCustomJournalMode = createAction(prefix + 'SET_CUSTOM_JOURNAL_MODE');
+export const setCustomJournal = createAction(prefix + 'SET_CUSTOM_JOURNAL');
 export const setJournalsList = createAction(prefix + 'SET_JOURNALS_LIST');
 export const setJournals = createAction(prefix + 'SET_JOURNALS');
 

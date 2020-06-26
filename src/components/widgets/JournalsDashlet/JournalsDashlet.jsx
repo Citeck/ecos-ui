@@ -46,7 +46,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    setDashletConfigByParams: (id, config) => dispatch(setDashletConfigByParams(w({ id, config })))
+    setDashletConfigByParams: (id, config, recordRef) => dispatch(setDashletConfigByParams(w({ id, config, recordRef })))
   };
 };
 
@@ -93,7 +93,7 @@ class JournalsDashlet extends BaseWidget {
     setRecordRef(this.recordRef);
 
     if (onSave) {
-      setDashletConfigByParams(id, config);
+      setDashletConfigByParams(id, config, this.recordRef);
     } else {
       getDashletConfig(id);
     }
