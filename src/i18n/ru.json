@@ -6,6 +6,9 @@
   "aggregation.type": "Тип агрегации",
   "boolean.no": "Нет",
   "boolean.yes": "Да",
+  "btn.cancel.label": "Отмена",
+  "btn.done.label": "Готово",
+
   "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",
   "page.error-loading.message": "Попробуйте перезагрузить страницу. Если ошибка повториться, обратитесь к администратору ",
   "page.error-loading.log": "Журнал ошибки",
@@ -185,6 +188,7 @@
   "dashboard-settings.widgets.title": "Виджеты",
   "dashboard-settings.widget.documents": "Документы",
   "dashboard-settings.widget.user-basic-info": "Профиль",
+  "dashboard-settings.widget.doc-constructor": "Doc.One",
   "dashboard-settings.widget.with-config": "У данного виджета есть настройки. При удалении виджета, настройки будут утеряны",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
 
@@ -972,6 +976,11 @@
   "password-field.rule.count-lowercase": "1 строчная",
   "password-field.rule.required": "Необходимо ввести пароль",
 
-  "btn.cancel.label": "Отмена",
-  "btn.done.label": "Готово"
+  "doc-constructor-widget.title": "Doc.One",
+  "doc-constructor-widget.description.title": "Работа с основным документом в конструкторе Doc.One",
+  "doc-constructor-widget.description.text": "1. Выберите шаблон документа\n2. Отредактируйте\n3. Синхронизируйте, чтобы применить изменения",
+  "doc-constructor-widget.template.label": "Шаблон документа",
+  "doc-constructor-widget.buttons.edit": "Редактировать",
+  "doc-constructor-widget.buttons.delete": "Удалить",
+  "doc-constructor-widget.buttons.sync": "Синхронизировать"
 }

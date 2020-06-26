@@ -1,0 +1,53 @@
+@import '../../../styles/constants';
+
+.ecos-doc-constructor {
+  &__space {
+    flex: auto;
+  }
+
+  &__dashlet-body {
+    padding: 20px;
+    position: relative;
+    min-height: 50px;
+
+    .dashlet__body-actions {
+      padding: 0;
+    }
+  }
+
+  &__description {
+    &-title {
+      font-weight: $font-weight-bold;
+      font-size: $font-size-large;
+      color: $text-color-dark;
+      margin-bottom: 15px;
+    }
+
+    &-text {
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-small;
+      color: $text-color-dark;
+      white-space: pre-wrap;
+      margin-bottom: 20px;
+    }
+  }
+
+  &__label {
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-small;
+    color: $text-color-dark;
+    background: $color-gray-25;
+    border-radius: $border-radius-standard;
+    padding: 4px 10px;
+    margin-bottom: 5px;
+  }
+
+  &__buttons {
+    margin-top: 30px;
+    display: flex;
+
+    .ecos-btn:not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+}
