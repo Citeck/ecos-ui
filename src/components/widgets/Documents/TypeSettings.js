@@ -137,7 +137,7 @@ class TypeSettings extends Component {
         hideModal={this.handleCloseModal}
       >
         {this.renderCountFiles()}
-        {/*{this.renderColumns()}*/}
+        {this.renderColumns()}
         <div className="ecos-docs__modal-type-settings-footer">
           <Btn onClick={this.handleCloseModal} className="ecos-docs__modal-settings-footer-item">
             {t(Labels.CANCEL_BUTTON)}

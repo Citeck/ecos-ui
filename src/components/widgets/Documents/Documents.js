@@ -38,6 +38,7 @@ import { getStateId } from '../../../helpers/redux';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
 
 import './style.scss';
+import DocAssociationsConverter from '../../../dto/docAssociations';
 
 const Labels = {
   TITLE: 'documents-widget.title',
@@ -357,6 +358,19 @@ class Documents extends BaseWidget {
       ...defaultSettings,
       multiple: get(selectedTypeForLoading, 'multiple', false)
     };
+  }
+
+  get documentTableColumns() {
+    const { dynamicTypes } = this.props;
+    const { selectedType } = this.state;
+    const type = dynamicTypes.find(item => item.type === selectedType);
+    const columns = get(type, 'columnsConfig.columns', []);
+
+    if (isEmpty(columns)) {
+      return this.#documentsColumns;
+    }
+
+    return DocAssociationsConverter.getColumnForWeb(columns);
   }
 
   getTypeStatus = type => {
@@ -1044,7 +1058,7 @@ class Documents extends BaseWidget {
             'ecos-docs__table_without-after-element': isHoverLastRow
           })}
           data={this.tableData}
-          columns={this.#documentsColumns}
+          columns={this.documentTableColumns}
           onChangeTrOptions={this.handleHoverRow}
           onScrolling={this.handleScollingTable}
           inlineTools={this.renderInlineTools}

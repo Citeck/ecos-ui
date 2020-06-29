@@ -3,6 +3,7 @@ import { handleActions } from 'redux-actions';
 import {
   getAvailableTypes,
   getDocumentsByType,
+  getDocumentsFinally,
   initFinally,
   initStore,
   initSuccess,
@@ -121,6 +122,13 @@ export default handleActions(
         isLoadingTableData: false,
         uploadError: '',
         countFilesError: ''
+      }
+    }),
+    [getDocumentsFinally]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        isLoadingTableData: false
       }
     }),
 

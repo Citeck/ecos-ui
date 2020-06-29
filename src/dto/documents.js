@@ -84,18 +84,14 @@ export default class DocumentsConverter {
 
   static getDocuments = ({ documents, type, typeName }) => {
     return documents.map(document => {
-      const target = {};
+      const target = { ...document };
 
       if (!document || !Object.keys(document)) {
         return target;
       }
 
-      target.id = get(document, 'id', '');
       target.type = type;
-      target.name = get(document, 'name', t('documents-widget.untitled'));
       target.typeName = typeName;
-      target.loadedBy = get(document, 'loadedBy', '');
-      target.modified = DocumentsConverter.getFormattedDate(get(document, 'modified', ''));
 
       return target;
     });
@@ -232,5 +228,95 @@ export default class DocumentsConverter {
     target.append('overwrite', 'true');
 
     return target;
+  }
+
+  static getColumnsAttributes(source = []) {
+    if (isEmpty(source)) {
+      return '';
+    }
+
+    if (!Array.isArray(source)) {
+      return '';
+    }
+
+    return source
+      .map(column => {
+        const { name } = column;
+        let attribute = column.attribute || '';
+
+        if (!attribute && !name) {
+          return '';
+        }
+
+        if (!attribute) {
+          return `${name}:att(n:"${name}"){disp}`;
+        }
+
+        // if (!attribute) {
+        //   if (name.includes('att(n:')) {
+        //     return name;
+        //   }
+        //
+        //   if (name.charAt(0) === '.') {
+        //     return `${name}:${name.slice(1)}`;
+        //   }
+        //
+        //   return `${name}:att(n:"${name}"){disp}`;
+        // }
+
+        if (attribute.charAt(0) === '.') {
+          return `${name}:${attribute.slice(1)}`;
+        }
+
+        if (name) {
+          if (attribute.includes('att(n:')) {
+            return `${name}:${attribute}`;
+          }
+
+          return `${name}:att(n:"${attribute}"){disp}`;
+        }
+
+        return attribute || name;
+      })
+      .filter(item => !!item)
+      .join(',');
+  }
+
+  static getColumnForWeb(source = []) {
+    if (isEmpty(source)) {
+      return [];
+    }
+
+    if (!Array.isArray(source)) {
+      return [];
+    }
+
+    return source.map(item => {
+      return {
+        ...item,
+        dataField: DocumentsConverter.getAttribute(item.attribute, item.name),
+        text: item.label
+      };
+    });
+  }
+
+  static getAttribute(attr = '', name = '') {
+    if (name) {
+      return name;
+    }
+
+    if (attr.charAt(0) === '.') {
+      return name;
+    }
+
+    if (attr.includes(':')) {
+      return name;
+    }
+
+    if (attr.includes('-')) {
+      return attr.toLowerCase().replace(/-/g, '_');
+    }
+
+    return attr || name;
   }
 }

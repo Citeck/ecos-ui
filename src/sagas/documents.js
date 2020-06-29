@@ -1,5 +1,5 @@
 import { delay } from 'redux-saga';
-import { call, put, select, takeEvery } from 'redux-saga/effects';
+import { call, put, select, takeEvery, all } from 'redux-saga/effects';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
@@ -10,6 +10,7 @@ import { NotificationManager } from 'react-notifications';
 import {
   selectActionsByType,
   selectAvailableTypes,
+  selectColumnsConfig,
   selectConfigTypes,
   selectDynamicType,
   selectDynamicTypes,
@@ -21,6 +22,7 @@ import {
   execRecordsAction,
   getAvailableTypes,
   getDocumentsByType,
+  getDocumentsFinally,
   getDynamicTypes,
   initFinally,
   initStore,
@@ -42,6 +44,7 @@ import { deepClone, getFirstNonEmpty, t } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
 import { BackgroundOpenAction, CreateNodeAction } from '../components/Records/actions/DefaultActions';
 import { DEFAULT_REF, documentActions } from '../constants/documents';
+import DocAssociationsConverter from '../dto/docAssociations';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
@@ -105,6 +108,17 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
 
     combinedTypes = combinedTypes.filter(item => item !== null);
 
+    yield all(
+      combinedTypes.map(function*(item) {
+        const columnsConfig = yield call(api.documents.getColumnsConfigByType, item.type);
+        const formattedColumns = yield call(api.docAssociations.getFormattedColumns, columnsConfig);
+
+        item.columnsConfig = DocAssociationsConverter.getColumnsConfig({ ...columnsConfig, columns: formattedColumns });
+
+        return item;
+      })
+    );
+
     if (combinedTypes.length === 1) {
       yield put(getDocumentsByType({ ...payload, type: combinedTypes[0].type }));
     }
@@ -152,7 +166,14 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
   try {
     yield delay(payload.delay || 1000);
 
-    const { records, errors } = yield call(api.documents.getDocumentsByTypes, payload.record, payload.type);
+    const columns = yield select(state => selectColumnsConfig(state, payload.key, payload.type));
+    const attributes = DocumentsConverter.getColumnsAttributes(
+      yield select(state => selectColumnsConfig(state, payload.key, payload.type))
+    );
+
+    console.warn({ attributes, columns });
+
+    const { records, errors } = yield call(api.documents.getDocumentsByTypes, payload.record, payload.type, attributes);
 
     if (errors.length) {
       throw new Error(errors.join(' '));
@@ -199,6 +220,8 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     }
   } catch (e) {
     logger.error('[documents sagaGetDocumentsByType saga error', e.message);
+  } finally {
+    yield put(getDocumentsFinally({ key: payload.key }));
   }
 }
 

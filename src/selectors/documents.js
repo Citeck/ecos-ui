@@ -144,3 +144,9 @@ export const selectGrouppedAvailableTypes = createSelector(
       });
   }
 );
+
+export const selectColumnsConfig = (state, key, name) => {
+  const type = get(state, ['documents', key, 'dynamicTypes'], []).find(item => item.type === name) || {};
+
+  return get(type, 'columnsConfig.columns', []);
+};

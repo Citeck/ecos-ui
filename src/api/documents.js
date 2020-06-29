@@ -33,6 +33,16 @@ export class DocumentsApi {
     ).then(response => response);
   };
 
+  getColumnsConfigByType = typeRef => {
+    return Records.queryOne(
+      {
+        sourceId: 'uiserv/journal',
+        query: { typeRef }
+      },
+      '.json'
+    ).then(response => response);
+  };
+
   getFormIdByType = type => {
     return Records.get(type)
       .load('form?id')
@@ -50,8 +60,11 @@ export class DocumentsApi {
     return record.save().then(response => response);
   };
 
-  getDocumentsByTypes = (recordRef = '', data = []) => {
+  getDocumentsByTypes = (recordRef = '', data = [], attributes = '') => {
+    const baseAttrs = `__id:id,__name:att(n:"name"){disp},__modified:att(n:"_modified"){disp},__loadedBy:att(n:"_modifier"){disp}`;
+
     let types = data;
+    // let query = 'documents[]{id:.id, name:.disp, modified:_modified, loadedBy:_modifier.fullName}';
 
     if (typeof types === 'string') {
       types = [types];
@@ -67,7 +80,7 @@ export class DocumentsApi {
         language: 'types-documents'
       },
       {
-        documents: 'documents[]{id:.id, name:.disp, modified:_modified, loadedBy:_modifier.fullName}',
+        documents: `.atts(n:"documents"){${[baseAttrs, attributes].join(',')}}`,
         type: 'type'
       }
     ).then(response => response);
