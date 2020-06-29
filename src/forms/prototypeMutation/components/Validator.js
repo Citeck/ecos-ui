@@ -9,6 +9,6 @@ FormioValidator.validators.required = {
     }
 
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-192
-    return component.disabled || !component.isEmpty(value);
+    return component._disabled || !component.isEmpty(value);
   }
 };
