@@ -15,6 +15,11 @@ import BaseWidget from '../BaseWidget';
 
 import './style.scss';
 
+const DocumentTypes = {
+  CONTRACT: 'contract',
+  ATTORNEY: 'attorney'
+};
+
 const Labels = {
   TITLE: 'doc-constructor-widget.title',
   DESC_TITLE: 'doc-constructor-widget.description.title',
@@ -61,7 +66,13 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   onClickSync = () => {
-    this.props.createDocument();
+    const { documentId } = this.props;
+    const { template } = this.state;
+
+    if (documentId) {
+    } else {
+      this.props.createDocument(template);
+    }
   };
 
   onResize = width => {
@@ -72,7 +83,7 @@ class DocConstructorDashlet extends BaseWidget {
 
   render() {
     const { isSmallMode, template } = this.state;
-    const { title, classNameDashlet, isLoading, isLoadingSync, documentId } = this.props;
+    const { title, classNameDashlet, isLoading, isLoadingSync, documentType, error } = this.props;
 
     return (
       <Dashlet
@@ -83,19 +94,24 @@ class DocConstructorDashlet extends BaseWidget {
         noActions
         onResize={this.onResize}
       >
-        {!isLoading && <Loader blur />}
+        {isLoading && <Loader blur />}
         <div className="ecos-doc-constructor__description">
           <div className="ecos-doc-constructor__description-title">{t(Labels.DESC_TITLE)}</div>
           <div className="ecos-doc-constructor__description-text">{t(Labels.DESC_TEXT)}</div>
         </div>
-        <div className="ecos-doc-constructor__label field-required">{t(Labels.LABEL_JOURNAL)}</div>
-        <SelectJournal
-          className="ecos-doc-constructor__journal"
-          journalId={'ui-actions'}
-          isSelectedValueAsText
-          onChange={this.onChangeTemplate}
-          defaultValue={template}
-        />
+        {error && <div className="ecos-doc-constructor__error">{error}</div>}
+        {documentType === DocumentTypes.CONTRACT && (
+          <>
+            <div className="ecos-doc-constructor__label field-required">{t(Labels.LABEL_JOURNAL)}</div>
+            <SelectJournal
+              className="ecos-doc-constructor__journal"
+              journalId={'doc-one-templates'}
+              isSelectedValueAsText
+              onChange={this.onChangeTemplate}
+              defaultValue={template}
+            />
+          </>
+        )}
         <div className={classNames('ecos-doc-constructor__buttons', { 'ecos-doc-constructor__buttons_small': isSmallMode })}>
           <div className="ecos-doc-constructor__buttons-left">
             <Btn className="ecos-btn_tight" onClick={this.onClickEdit} disabled={this.disabledAction}>
@@ -106,13 +122,8 @@ class DocConstructorDashlet extends BaseWidget {
             </Btn>
           </div>
           <div className="ecos-doc-constructor__buttons-right">
-            <IcoBtn
-              icon="icon-reload"
-              className="ecos-btn_blue"
-              onClick={this.onClickSync}
-              loading={isLoadingSync}
-              disabled={this.disabledAction}
-            >
+            {/*disabled={} todo*/}
+            <IcoBtn icon="icon-reload" className="ecos-btn_blue" onClick={this.onClickSync} loading={isLoadingSync}>
               {t(Labels.BTN_SYNC)}
             </IcoBtn>
           </div>
@@ -131,7 +142,8 @@ const mapStateToProps = (state, context) => {
     isMobile: state.view.isMobile,
     isLoading: data.isLoading,
     isLoadingSync: data.isLoadingSync,
-    settings: data.settings,
+    error: data.error,
+    url: data.url,
     documentId: data.documentId,
     documentType: data.documentType
   };
@@ -143,7 +155,7 @@ const mapDispatchToProps = (dispatch, context) => {
 
   return {
     getSettings: () => dispatch(getSettings({ stateId, record })),
-    createDocument: () => dispatch(createDocument({ stateId, record })),
+    createDocument: templateRef => dispatch(createDocument({ stateId, record, templateRef })),
     deleteDocument: () => dispatch(deleteDocument({ stateId, record })),
     editDocument: () => dispatch(editDocument({ stateId, record })),
     getDocument: () => dispatch(getDocument({ stateId, record }))

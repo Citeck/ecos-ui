@@ -29,6 +29,7 @@ import barcode from './barcode';
 import properties from './properties';
 import documents from './documents';
 import userProfile from './userProfile';
+import docConstructor from './docConstructor';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -61,6 +62,7 @@ export default function* rootSaga(extraArguments) {
     barcode(extraArguments),
     properties(extraArguments),
     documents(extraArguments),
-    userProfile(extraArguments)
+    userProfile(extraArguments),
+    docConstructor(extraArguments)
   ]);
 }

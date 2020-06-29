@@ -976,5 +976,9 @@
   "doc-constructor-widget.template.label": "Document Template",
   "doc-constructor-widget.buttns.edit": "Edit",
   "doc-constructor-widget.buttns.delete": "Delete",
-  "doc-constructor-widget.buttns.sync": "Sync"
+  "doc-constructor-widget.buttns.sync": "Sync",
+  "doc-constructor-widget.error.get-settings": "Doc.one settings not found. Contact your system administrator",
+  "doc-constructor-widget.error.no-settings-url": "Doc.one settings not found. Contact your system administrator",
+  "doc-constructor-widget.error.create-doc-one-file-by-node-with-template": "Error while creating file",
+  "doc-constructor-widget.error.set-permission-for-role": "Error while changing permissions"
 }

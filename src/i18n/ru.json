@@ -982,5 +982,9 @@
   "doc-constructor-widget.template.label": "Шаблон документа",
   "doc-constructor-widget.buttons.edit": "Редактировать",
   "doc-constructor-widget.buttons.delete": "Удалить",
-  "doc-constructor-widget.buttons.sync": "Синхронизировать"
+  "doc-constructor-widget.buttons.sync": "Синхронизировать",
+  "doc-constructor-widget.error.get-settings": "Настройки виджета не найдены. Свяжитесь с администратором",
+  "doc-constructor-widget.error.no-doc.one.base.url": "Отсутствует 'doc.one.base.url' в настройках. Свяжитесь с администратором",
+  "doc-constructor-widget.error.create-doc-one-file-by-node-with-template": "Ошибка при создании файла",
+  "doc-constructor-widget.error.set-permission-for-role": "Ошибка во время изменения прав"
 }

@@ -32,6 +32,15 @@
     }
   }
 
+  &__error {
+    background: rgba($color-red-1, 0.2);
+    border-radius: $border-radius-standard;
+    border: 1px solid $color-red-1;
+    color: $color-red-1;
+    padding: 7px;
+    margin-bottom: 15px;
+  }
+
   &__label {
     font-weight: $font-weight-semi-bold;
     font-size: $font-size-small;
@@ -52,6 +61,7 @@
     &-left,
     &-right {
       display: flex;
+      min-width: 200px;
 
       .ecos-btn:not(:last-child) {
         margin-right: 10px;

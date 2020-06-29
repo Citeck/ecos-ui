@@ -8,6 +8,9 @@ import {
   getDocument,
   getSettings,
   setDocument,
+  setError,
+  setLoading,
+  setLoadingSync,
   setSettings
 } from '../actions/docConstructor';
 import { getCurrentStateById } from '../helpers/redux';
@@ -17,7 +20,8 @@ const initialState = {
   isLoadingSync: false,
   settings: {},
   documentId: null,
-  documentType: null
+  documentType: null,
+  error: ''
 };
 
 const setData = (state, { payload: { stateId } }, data) => ({
@@ -36,8 +40,11 @@ export default handleActions(
     [deleteDocument]: (state, action) => setData(state, action, { isLoading: true }),
     [createDocument]: (state, action) => setData(state, action, { isLoadingSync: true }),
 
-    [setSettings]: (state, action) => setData(state, action, { isLoading: false, settings: get(action, 'payload.settings') }),
-    [setDocument]: (state, action) => setData(state, action, { isLoading: false, ...get(action, 'payload.document', {}) })
+    [setSettings]: (state, action) => setData(state, action, { isLoading: false, ...get(action, 'payload.data', {}) }),
+    [setDocument]: (state, action) => setData(state, action, { isLoading: false, ...get(action, 'payload.document', {}) }),
+    [setError]: (state, action) => setData(state, action, { isLoading: false, error: get(action, 'payload.error'), isLoadingSync: false }),
+    [setLoading]: (state, action) => setData(state, action, { isLoading: get(action, 'payload.isLoading') }),
+    [setLoadingSync]: (state, action) => setData(state, action, { isLoadingSync: get(action, 'payload.isLoadingSync') })
   },
   {}
 );
