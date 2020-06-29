@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-const DynamicTypeInterface = {
+export const DynamicTypeInterface = {
   type: PropTypes.string.isRequired,
   name: PropTypes.string,
   multiple: PropTypes.bool,
@@ -11,14 +11,27 @@ const DynamicTypeInterface = {
   formId: PropTypes.oneOfType([() => null, PropTypes.string])
 };
 
-const AvailableTypeInterface = {
+export const TypeSettingsInterface = {
+  multiple: PropTypes.bool,
+  columns: PropTypes.arrayOf(
+    PropTypes.shape({
+      attribute: PropTypes.string,
+      label: PropTypes.string,
+      name: PropTypes.string,
+      position: PropTypes.number,
+      visible: PropTypes.bool
+    })
+  )
+};
+
+export const AvailableTypeInterface = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   formId: PropTypes.oneOfType([() => null, PropTypes.string]),
   parent: PropTypes.oneOfType([() => null, PropTypes.string])
 };
 
-let GrouppedTypeInterface = {};
+export let GrouppedTypeInterface = {};
 
 GrouppedTypeInterface = {
   ...AvailableTypeInterface,
@@ -30,7 +43,7 @@ GrouppedTypeInterface = {
   items: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface))
 };
 
-const DocumentInterface = {
+export const DocumentInterface = {
   id: PropTypes.string.isRequired,
   loadedBy: PropTypes.string,
   modified: PropTypes.string,
@@ -38,5 +51,3 @@ const DocumentInterface = {
   type: PropTypes.string,
   typeName: PropTypes.string
 };
-
-export { GrouppedTypeInterface, DynamicTypeInterface, AvailableTypeInterface, DocumentInterface };

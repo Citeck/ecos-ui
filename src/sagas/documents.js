@@ -9,6 +9,7 @@ import { NotificationManager } from 'react-notifications';
 
 import {
   selectActionsByType,
+  selectAvailableType,
   selectAvailableTypes,
   selectColumnsConfig,
   selectConfigTypes,
@@ -24,6 +25,7 @@ import {
   getDocumentsByType,
   getDocumentsFinally,
   getDynamicTypes,
+  getTypeSettings,
   initFinally,
   initStore,
   initSuccess,
@@ -34,6 +36,8 @@ import {
   setConfig,
   setDocuments,
   setDynamicTypes,
+  setTypeSettings,
+  setTypeSettingsFinally,
   setUploadError,
   updateVersion,
   uploadFiles,
@@ -408,6 +412,40 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
   }
 }
 
+function* sagaGetTypeSettings({ api, logger }, { payload }) {
+  try {
+    let type = yield select(state => selectDynamicType(state, payload.key, payload.type));
+    const configTypes = yield select(state => selectConfigTypes(state, payload.key));
+
+    if (!type) {
+      type = DocumentsConverter.getFormattedDynamicType(yield select(state => selectAvailableType(state, payload.key, payload.type)));
+    }
+
+    if (!type) {
+      return Promise.reject('Error: Type not found');
+    }
+
+    const configType = configTypes.find(item => item.type === payload.type);
+
+    const config = yield call(api.documents.getColumnsConfigByType, payload.type);
+    const columns = DocumentsConverter.getColumnsForSettings(config.columns, configType.columns);
+
+    yield put(
+      setTypeSettings({
+        ...payload,
+        settings: {
+          multiple: type.multiple,
+          columns
+        }
+      })
+    );
+  } catch (e) {
+    logger.error('[documents sagaGetTypeSettings saga error', e.message);
+  } finally {
+    yield put(setTypeSettingsFinally(payload.key));
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(initStore().type, sagaInitWidget, ea);
   yield takeEvery(getAvailableTypes().type, sagaGetAvailableTypes, ea);
@@ -417,6 +455,7 @@ function* saga(ea) {
   yield takeEvery(uploadFiles().type, sagaUploadFiles, ea);
   yield takeEvery(updateVersion().type, sagaUpdateVersion, ea);
   yield takeEvery(execRecordsAction().type, sagaExecRecordsAction, ea);
+  yield takeEvery(getTypeSettings().type, sagaGetTypeSettings, ea);
 }
 
 export default saga;

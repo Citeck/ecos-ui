@@ -25,6 +25,7 @@ import DocumentsConverter from '../../../dto/documents';
 import {
   execRecordsAction,
   getDocumentsByType,
+  getTypeSettings,
   initStore,
   saveSettings,
   setError,
@@ -569,9 +570,15 @@ class Documents extends BaseWidget {
       isLoadChecklist
     };
 
+    console.warn({ types, selectedTypes, newConfig });
+
     onSave(id, { config: newConfig });
     onSaveSettings(selectedTypes, newConfig);
     this.setState({ isSentSettingsToSave: true });
+  };
+
+  handleOpenTypeSettings = type => {
+    this.props.getTypeSettings(type);
   };
 
   handleSelectUploadFiles = (files, callback) => {
@@ -1182,18 +1189,21 @@ class Documents extends BaseWidget {
   }
 
   renderSettings() {
-    const { isLoadingSettings, isLoadChecklist } = this.props;
+    const { isLoadingSettings, isLoadChecklist, typeSettings, isLoadingTypeSettings } = this.props;
     const { isOpenSettings } = this.state;
 
     return (
       <Settings
         isOpen={isOpenSettings}
         title={t(Labels.SETTINGS)}
-        isLoading={isLoadingSettings}
         types={this.availableTypes}
+        typeSettings={typeSettings}
+        isLoading={isLoadingSettings}
         isLoadChecklist={isLoadChecklist}
+        isLoadingTypeSettings={isLoadingTypeSettings}
         onCancel={this.handleCancelSettings}
         onSave={this.handleSaveSettings}
+        onEditType={this.handleOpenTypeSettings}
       />
     );
   }
@@ -1317,7 +1327,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     onUploadFiles: data => dispatch(uploadFiles({ ...baseParams, ...data })),
     setError: (type, message = '') => dispatch(setError({ ...baseParams, type, message })),
     execRecordsAction: (records, action, callback) => dispatch(execRecordsAction({ ...baseParams, records, action, callback })),
-    setInlineTools: tools => dispatch(setInlineTools({ ...baseParams, tools }))
+    setInlineTools: tools => dispatch(setInlineTools({ ...baseParams, tools })),
+    getTypeSettings: type => dispatch(getTypeSettings({ ...baseParams, type }))
   };
 };
 

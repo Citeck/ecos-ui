@@ -4,6 +4,7 @@ import {
   getAvailableTypes,
   getDocumentsByType,
   getDocumentsFinally,
+  getTypeSettings,
   initFinally,
   initStore,
   initSuccess,
@@ -16,6 +17,8 @@ import {
   setDynamicTypes,
   setError,
   setInlineTools,
+  setTypeSettings,
+  setTypeSettingsFinally,
   setUploadError,
   uploadFiles,
   uploadFilesFinally
@@ -28,6 +31,10 @@ const emptyTools = Object.freeze({
   row: {},
   actions: []
 });
+const emptyTypeSettings = Object.freeze({
+  multiple: false,
+  columns: []
+});
 export const initialState = {
   stateId: '',
   config: {},
@@ -39,9 +46,11 @@ export const initialState = {
   isLoadingTableData: false,
   isUploadingFile: false,
   isLoadingSettings: false,
+  isLoadingTypeSettings: false,
   countFilesError: '',
   uploadError: '',
-  tools: { ...emptyTools }
+  tools: { ...emptyTools },
+  typeSettings: { ...emptyTypeSettings }
 };
 
 Object.freeze(initialState);
@@ -146,6 +155,29 @@ export default handleActions(
       [payload]: {
         ...state[payload],
         isLoadingSettings: false
+      }
+    }),
+
+    [getTypeSettings]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        isLoadingTypeSettings: true
+      }
+    }),
+    [setTypeSettings]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        isLoadingTypeSettings: false,
+        typeSettings: payload.settings
+      }
+    }),
+    [setTypeSettingsFinally]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...state[payload],
+        isLoadingTypeSettings: false
       }
     }),
 

@@ -2,7 +2,7 @@ import moment from 'moment';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { deepClone, t } from '../helpers/util';
+import { deepClone, getTextByLocale, t } from '../helpers/util';
 import { DATE_FORMAT, DEFAULT_REF, NULL_FORM } from '../constants/documents';
 
 export default class DocumentsConverter {
@@ -125,6 +125,10 @@ export default class DocumentsConverter {
       return target;
     }
 
+    if (!isEmpty(source.columns)) {
+      target.customizedColumns = source.columns;
+    }
+
     target.type = get(source, 'id', '');
     target.name = get(source, 'name', t('documents-widget.untitled'));
     target.formId = get(source, 'formId', '');
@@ -147,6 +151,14 @@ export default class DocumentsConverter {
       }
 
       const target = {};
+
+      if (!isEmpty(item.customizedColumns)) {
+        target.columns = item.customizedColumns.map(column => ({
+          attribute: get(column, 'attribute', ''),
+          visible: get(column, 'visible'),
+          name: get(column, 'name', '')
+        }));
+      }
 
       target.type = get(item, 'type', '');
       target.multiple = get(item, 'multiple', false);
@@ -318,5 +330,26 @@ export default class DocumentsConverter {
     }
 
     return attr || name;
+  }
+
+  static getColumnsForSettings(columns = [], configColumns = []) {
+    if (isEmpty(columns)) {
+      return [];
+    }
+
+    let target = columns.map(column => ({
+      attribute: column.attribute,
+      name: column.name,
+      label: getTextByLocale(column.label),
+      visible: column.visible === undefined ? true : column.visible
+    }));
+
+    if (!isEmpty(configColumns)) {
+      // TODO: sort and union two arrays
+    }
+
+    console.warn({ columns, configColumns });
+
+    return target;
   }
 }

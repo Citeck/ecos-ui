@@ -24,7 +24,8 @@ class Settings extends Component {
     title: PropTypes.string,
     types: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     onCancel: PropTypes.func,
-    onSave: PropTypes.func
+    onSave: PropTypes.func,
+    onEditType: PropTypes.func
   };
 
   static defaultProps = {
@@ -34,7 +35,8 @@ class Settings extends Component {
     title: '',
     types: [],
     onCancel: () => {},
-    onSave: () => {}
+    onSave: () => {},
+    onEditType: () => {}
   };
 
   constructor(props) {
@@ -198,9 +200,15 @@ class Settings extends Component {
 
   handleToggleTypeSettings = (type = null) => {
     this.setState({ editableType: type });
+
+    if (type) {
+      this.props.onEditType(type);
+    }
   };
 
   handleSaveTypeSettings = (settings = {}) => {
+    console.warn({ settings });
+
     this.setTypeData(this.state.editableType, settings);
     this.setState({ editableType: null });
   };
@@ -210,7 +218,7 @@ class Settings extends Component {
   };
 
   render() {
-    const { isOpen, title, isLoading } = this.props;
+    const { isOpen, title, isLoading, isLoadingTypeSettings, typeSettings } = this.props;
     const { editableType, isLoadChecklist } = this.state;
 
     return (
@@ -240,7 +248,9 @@ class Settings extends Component {
           </div>
         </EcosModal>
         <TypeSettings
+          isLoading={isLoadingTypeSettings}
           type={this.editableType}
+          settings={typeSettings}
           isOpen={editableType !== null}
           onCancel={this.handleToggleTypeSettings}
           onSave={this.handleSaveTypeSettings}
