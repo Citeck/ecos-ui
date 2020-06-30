@@ -48,7 +48,6 @@ import { deepClone, getFirstNonEmpty, t } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
 import { BackgroundOpenAction, CreateNodeAction } from '../components/Records/actions/DefaultActions';
 import { DEFAULT_REF, documentActions, documentFields } from '../constants/documents';
-import DocAssociationsConverter from '../dto/docAssociations';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
@@ -115,9 +114,9 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     yield all(
       combinedTypes.map(function*(item) {
         const columnsConfig = yield call(api.documents.getColumnsConfigByType, item.type);
-        const formattedColumns = yield call(api.docAssociations.getFormattedColumns, columnsConfig);
+        const formattedColumns = yield call(api.documents.getFormattedColumns, columnsConfig);
 
-        item.columnsConfig = DocAssociationsConverter.getColumnsConfig({ ...columnsConfig, columns: formattedColumns });
+        item.columnsConfig = DocumentsConverter.getColumnsConfig({ ...columnsConfig, columns: formattedColumns });
 
         return item;
       })

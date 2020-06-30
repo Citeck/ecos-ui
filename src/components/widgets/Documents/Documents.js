@@ -45,7 +45,6 @@ import {
 import { closest, deepClone, objectCompare, prepareTooltipId, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
-import DocAssociationsConverter from '../../../dto/docAssociations';
 
 import './style.scss';
 
@@ -61,10 +60,6 @@ const Labels = {
 };
 
 class Documents extends BaseWidget {
-  #documentsColumns = tableFields.DEFAULT.map(item => ({
-    dataField: item.name,
-    text: t(item.label)
-  }));
   scrollPosition = {};
 
   static propTypes = {
@@ -181,7 +176,7 @@ class Documents extends BaseWidget {
     }
 
     if (prevState.selectedType !== this.state.selectedType) {
-      this.setState({ needRefreshGrid: true }, () => this.setState({ needRefreshGrid: false }));
+      this.refreshGrid();
     }
   }
 
@@ -386,10 +381,10 @@ class Documents extends BaseWidget {
     const columns = get(type, 'columnsConfig.columns', []);
 
     if (isEmpty(columns)) {
-      return DocumentsConverter.getColumnsForGrid(this.#documentsColumns, cType.columns);
+      return [];
     }
 
-    return DocumentsConverter.getColumnsForGrid(DocAssociationsConverter.getColumnForWeb(columns), cType.columns);
+    return DocumentsConverter.getColumnsForGrid(DocumentsConverter.getColumnForWeb(columns), cType.columns);
   }
 
   getTypeStatus = type => {
@@ -442,6 +437,10 @@ class Documents extends BaseWidget {
       isDragFiles: false
     });
   };
+
+  refreshGrid() {
+    this.setState({ needRefreshGrid: true }, () => this.setState({ needRefreshGrid: false }));
+  }
 
   uploadingComplete() {
     this.setState({
@@ -1065,11 +1064,15 @@ class Documents extends BaseWidget {
   };
 
   renderDocumentsTable = () => {
-    const { dynamicTypes, isUploadingFile } = this.props;
+    const { dynamicTypes, isUploadingFile, isLoadingTableData } = this.props;
     const { selectedType, isDragFiles, autoHide, isHoverLastRow, needRefreshGrid } = this.state;
     const { formRef } = this.getFormCreateVariants(selectedType);
 
-    if ((!selectedType && dynamicTypes.length !== 1) || needRefreshGrid) {
+    if (
+      (!selectedType && dynamicTypes.length !== 1) ||
+      needRefreshGrid ||
+      isLoadingTableData // This is necessary to remove twitching and artifacts of old data when switching type
+    ) {
       return null;
     }
 

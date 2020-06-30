@@ -412,4 +412,20 @@ export default class DocumentsConverter {
 
     return [...result, ...originColumns.filter(item => !isEmpty(item))].map(item => ({ ...item, hidden: !item.visible }));
   }
+
+  static getColumnsConfig(config) {
+    if (config === null) {
+      return null;
+    }
+
+    const target = { ...config };
+
+    target.columns = get(config, 'columns', []).map(column => ({
+      ...column,
+      label: t(getTextByLocale(column.label || ''))
+    }));
+    target.label = getTextByLocale(config.label);
+
+    return target;
+  }
 }
