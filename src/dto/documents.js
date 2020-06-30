@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { deepClone, getTextByLocale, t } from '../helpers/util';
-import { DATE_FORMAT, DEFAULT_REF, documentIdField, NULL_FORM } from '../constants/documents';
+import { DATE_FORMAT, DEFAULT_REF, documentFields, NULL_FORM } from '../constants/documents';
 
 export default class DocumentsConverter {
   static formIdIsNull = (id = '') => {
@@ -56,10 +56,11 @@ export default class DocumentsConverter {
         formId: DocumentsConverter.formIdIsNull(item.formId) ? null : item.formId,
         name: item.name || get(typeNames, [item.type], t('documents-widget.untitled')),
         countDocuments: documents.length,
-        lastDocumentRef: get(document, documentIdField, ''),
-        loadedBy: get(document, 'loadedBy', ''),
+        lastDocumentRef: get(document, documentFields.id, ''),
+        [documentFields.loadedBy]: get(document, documentFields.loadedBy, ''),
+        // loadedBy: get(document, 'loadedBy', ''),
         canDropUpload: !createVariants.formRef,
-        modified: DocumentsConverter.getFormattedDate(get(document, 'modified', ''))
+        [documentFields.modified]: DocumentsConverter.getFormattedDate(get(document, documentFields.modified, ''))
       };
     });
   };
@@ -140,7 +141,7 @@ export default class DocumentsConverter {
     return target;
   };
 
-  static getTypesForConfig = (source = []) => {
+  static getTypesForConfig = (source = [], configTypes = []) => {
     if (!source.length) {
       return [];
     }
@@ -150,7 +151,8 @@ export default class DocumentsConverter {
         return {};
       }
 
-      const target = {};
+      const type = configTypes.find(type => type.type === item.type);
+      const target = { ...type };
 
       if (!isEmpty(item.customizedColumns)) {
         target.columns = item.customizedColumns.map(column => ({
@@ -340,7 +342,7 @@ export default class DocumentsConverter {
     }
 
     const result = customizedColumns.map(item => {
-      const index = originColumns.findIndex(i => i.attribute === item.attribute && i.name === item.name);
+      const index = originColumns.findIndex(origin => DocumentsConverter.filterColumn(origin, item));
 
       if (!~index) {
         return item;
@@ -366,5 +368,48 @@ export default class DocumentsConverter {
           label: getTextByLocale(i.label)
         }))
     ];
+  }
+
+  static filterColumn = (origin, custom) => {
+    if (origin.attribute) {
+      if (origin.name) {
+        return origin.attribute === custom.attribute && origin.name === custom.name;
+      }
+
+      return origin.attribute === custom.attribute;
+    }
+
+    return origin.name === custom.name;
+  };
+
+  static getColumnsForGrid(columns = [], configColumns = []) {
+    if (isEmpty(columns)) {
+      return [];
+    }
+
+    const customizedColumns = deepClone(configColumns);
+    const originColumns = deepClone(columns);
+
+    if (isEmpty(customizedColumns)) {
+      return originColumns;
+    }
+
+    const result = customizedColumns.map(item => {
+      const index = originColumns.findIndex(origin => DocumentsConverter.filterColumn(origin, item));
+
+      if (!~index) {
+        return item;
+      }
+
+      const [deleted] = originColumns.splice(index, 1, {});
+
+      return {
+        ...deleted,
+        ...item,
+        label: getTextByLocale(deleted.label)
+      };
+    });
+
+    return [...result, ...originColumns.filter(item => !isEmpty(item))].map(item => ({ ...item, hidden: !item.visible }));
   }
 }

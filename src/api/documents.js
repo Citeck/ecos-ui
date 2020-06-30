@@ -1,5 +1,5 @@
 import Records from '../components/Records';
-import { DEFAULT_REF, documentIdField } from '../constants/documents';
+import { DEFAULT_REF, documentFields } from '../constants/documents';
 import { SourcesId } from '../constants';
 
 export class DocumentsApi {
@@ -61,10 +61,11 @@ export class DocumentsApi {
   };
 
   getDocumentsByTypes = (recordRef = '', data = [], attributes = '') => {
-    const baseAttrs = `${documentIdField}:id,__name:att(n:"name"){disp},__modified:att(n:"_modified"){disp},__loadedBy:att(n:"_modifier"){disp}`;
+    const baseAttrs = `${documentFields.id}:id,${documentFields.name}:att(n:"name"){disp},${
+      documentFields.modified
+    }:att(n:"_modified"){disp},${documentFields.loadedBy}:att(n:"_modifier"){disp}`;
 
     let types = data;
-    // let query = 'documents[]{id:.id, name:.disp, modified:_modified, loadedBy:_modifier.fullName}';
 
     if (typeof types === 'string') {
       types = [types];

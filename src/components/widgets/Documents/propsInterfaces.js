@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { documentIdField } from '../../../constants/documents';
+import { documentFields } from '../../../constants/documents';
 
 export const DynamicTypeInterface = {
   type: PropTypes.string.isRequired,
@@ -45,7 +45,7 @@ GrouppedTypeInterface = {
 };
 
 export const DocumentInterface = {
-  [documentIdField]: PropTypes.string.isRequired,
+  [documentFields.id]: PropTypes.string.isRequired,
   loadedBy: PropTypes.string,
   modified: PropTypes.string,
   name: PropTypes.string,

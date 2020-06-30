@@ -47,7 +47,7 @@ import DocumentsConverter from '../dto/documents';
 import { deepClone, getFirstNonEmpty, t } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
 import { BackgroundOpenAction, CreateNodeAction } from '../components/Records/actions/DefaultActions';
-import { DEFAULT_REF, documentActions, documentIdField } from '../constants/documents';
+import { DEFAULT_REF, documentActions, documentFields } from '../constants/documents';
 import DocAssociationsConverter from '../dto/docAssociations';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
@@ -175,8 +175,6 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
       yield select(state => selectColumnsConfig(state, payload.key, payload.type))
     );
 
-    console.warn({ attributes, columns });
-
     const { records, errors } = yield call(api.documents.getDocumentsByTypes, payload.record, payload.type, attributes);
 
     if (errors.length) {
@@ -185,8 +183,6 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
 
     const documents = get(records, '[0].documents', []);
     const typeNames = yield select(state => selectTypeNames(state, payload.key));
-
-    console.warn({ documents });
 
     yield put(
       setDocuments({
@@ -210,7 +206,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
 
       set(type, 'countDocuments', documents.length);
       set(type, 'loadedBy', get(document, 'loadedBy', ''));
-      set(type, 'lastDocumentRef', get(document, documentIdField, ''));
+      set(type, 'lastDocumentRef', get(document, documentFields.id, ''));
       set(type, 'modified', DocumentsConverter.getFormattedDate(get(document, 'modified', '')));
     }
 
@@ -218,7 +214,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
 
     if (documents.length) {
       const typeActions = yield select(state => selectActionsByType(state, payload.key, payload.type));
-      const actions = yield RecordActions.getActions(documents.map(item => item[documentIdField]), {
+      const actions = yield RecordActions.getActions(documents.map(item => item[documentFields.id]), {
         actions: getFirstNonEmpty([typeActions, documentActions], [])
       });
 
