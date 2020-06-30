@@ -415,6 +415,12 @@
         }
       }
     }
+
+    &-container {
+      height: 100%;
+      display: grid;
+      max-width: 100%;
+    }
   }
 
   &__modal {

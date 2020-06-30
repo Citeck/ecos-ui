@@ -127,7 +127,7 @@ class Documents extends BaseWidget {
       })),
       isLoadingUploadingModal: true,
       isHoverLastRow: false,
-      clearColumnSize: false
+      needRefreshGrid: false
     };
 
     this._tablePanel = React.createRef();
@@ -181,7 +181,7 @@ class Documents extends BaseWidget {
     }
 
     if (prevState.selectedType !== this.state.selectedType) {
-      this.setState({ clearColumnSize: true }, () => this.setState({ clearColumnSize: false }));
+      this.setState({ needRefreshGrid: true }, () => this.setState({ needRefreshGrid: false }));
     }
   }
 
@@ -1066,21 +1066,25 @@ class Documents extends BaseWidget {
 
   renderDocumentsTable = () => {
     const { dynamicTypes, isUploadingFile } = this.props;
-    const { selectedType, isDragFiles, autoHide, isHoverLastRow, clearColumnSize } = this.state;
+    const { selectedType, isDragFiles, autoHide, isHoverLastRow, needRefreshGrid } = this.state;
     const { formRef } = this.getFormCreateVariants(selectedType);
 
-    if ((!selectedType && dynamicTypes.length !== 1) || clearColumnSize) {
+    if ((!selectedType && dynamicTypes.length !== 1) || needRefreshGrid) {
       return null;
     }
 
     const isShowDropZone = isDragFiles && !formRef;
 
     return (
-      <div style={{ height: '100%', maxWidth: this.tableWidth }} onDragEnter={this.handleDragIn} onDragLeave={this.handleDragOut}>
+      <div
+        className="ecos-docs__table-container"
+        style={{ maxWidth: this.tableWidth }}
+        onDragEnter={this.handleDragIn}
+        onDragLeave={this.handleDragOut}
+      >
         <Grid
           scrollable
           fixedHeader
-          clearColumnSize={clearColumnSize}
           scrollAutoHide={autoHide}
           forwardedRef={this._tableRef}
           autoHeight
@@ -1145,9 +1149,9 @@ class Documents extends BaseWidget {
       });
 
       return (
-        <div style={{ height: '100%', maxWidth: this.tableWidth }}>
+        <div className="ecos-docs__table-container" style={{ maxWidth: this.tableWidth }}>
           <Grid
-            className={classNames('ecos-docs__table ecos-docs__table_documents', {
+            className={classNames('ecos-docs__table ecos-docs__table_types', {
               'ecos-docs__table_without-after-element': isHoverLastRow
             })}
             rowClassName="ecos-docs__table-row"
