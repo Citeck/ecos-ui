@@ -1,6 +1,7 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
+import { NotificationManager } from 'react-notifications';
 
-import { createDocument, getSettings, setError, setLoadingSync, setSettings } from '../actions/docConstructor';
+import { createDocument, getSettings, setError, setLoading, setSettings } from '../actions/docConstructor';
 import { t } from '../helpers/util';
 import PageService from '../services/PageService';
 import Records from '../components/Records';
@@ -11,10 +12,9 @@ const DocumentTypes = {
 };
 
 function* fetchGetSettings({ api, logger }, { payload: { stateId, record } }) {
-  const settings = {};
-  let docProps = {};
-
   try {
+    const settings = {};
+    let docProps = {};
     const name = 'doc.one.base.url';
     const response = yield call(api.docConstructor.getSettings, { name });
     //todo wait normal json
@@ -23,11 +23,10 @@ function* fetchGetSettings({ api, logger }, { payload: { stateId, record } }) {
     if (data && data[name]) {
       settings.url = data[name] + '/document/';
       docProps = yield call(api.docConstructor.getRecordInfo, record);
+      yield put(setSettings({ stateId, settings: { ...settings, ...docProps } }));
     } else {
-      setError({ stateId, error: t('doc-constructor-widget.error.no-doc.one.base.url') });
+      yield put(setError({ stateId, error: t('doc-constructor-widget.error.no-doc.one.base.url') }));
     }
-
-    yield put(setSettings({ stateId, data: { ...settings, ...docProps } }));
   } catch (e) {
     yield put(setError({ stateId, error: t('doc-constructor-widget.error.get-settings') }));
     logger.error('[docConstructor/fetchGetSettings saga] error', e.message);
@@ -43,8 +42,9 @@ function* runCreateDocument({ api, logger }, { payload: { stateId, record, templ
     });
 
     Records.get(record).update();
-    PageService.changeUrlLink(data.url + result, { openInBackground: true });
-    yield put(setLoadingSync({ stateId, isLoadingSync: false }));
+    NotificationManager.success('doc-constructor-widget.success.create-doc-one-file-by-node-with-template', 'success');
+    PageService.changeUrlLink(data.url + result, { openNewBrowserTab: true });
+    yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
     yield put(setError({ stateId, error: t(e.message) }));
     logger.error('[docConstructor/runCreateDocument saga] error', e.message);

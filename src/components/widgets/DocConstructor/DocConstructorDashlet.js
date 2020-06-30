@@ -46,7 +46,16 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   get disabledAction() {
-    return !this.props.documentId;
+    const { documentId, url } = this.props;
+    return !documentId || !url;
+  }
+
+  get disabledSync() {
+    const { documentId, url, documentType } = this.props;
+    const { template } = this.state;
+    const doc = !documentId && documentType === DocumentTypes.CONTRACT && !template;
+
+    return !url || doc;
   }
 
   componentDidMount() {
@@ -83,7 +92,7 @@ class DocConstructorDashlet extends BaseWidget {
 
   render() {
     const { isSmallMode, template } = this.state;
-    const { title, classNameDashlet, isLoading, isLoadingSync, documentType, error } = this.props;
+    const { title, classNameDashlet, isLoading, documentType, error } = this.props;
 
     return (
       <Dashlet
@@ -122,8 +131,7 @@ class DocConstructorDashlet extends BaseWidget {
             </Btn>
           </div>
           <div className="ecos-doc-constructor__buttons-right">
-            {/*disabled={} todo*/}
-            <IcoBtn icon="icon-reload" className="ecos-btn_blue" onClick={this.onClickSync} loading={isLoadingSync}>
+            <IcoBtn icon="icon-reload" className="ecos-btn_blue" onClick={this.onClickSync} disabled={this.disabledSync}>
               {t(Labels.BTN_SYNC)}
             </IcoBtn>
           </div>
@@ -141,7 +149,6 @@ const mapStateToProps = (state, context) => {
   return {
     isMobile: state.view.isMobile,
     isLoading: data.isLoading,
-    isLoadingSync: data.isLoadingSync,
     error: data.error,
     url: data.url,
     documentId: data.documentId,
