@@ -46,7 +46,8 @@ class Settings extends Component {
       types: props.types,
       filter: '',
       isLoadChecklist: props.isLoadChecklist,
-      editableType: null
+      editableType: null,
+      customizedTypeSettings: new Map()
     };
   }
 
@@ -63,6 +64,10 @@ class Settings extends Component {
 
     if (!props.isOpen && state.filter) {
       newState.filter = '';
+    }
+
+    if (!props.isOpen && state.customizedTypeSettings.size) {
+      newState.customizedTypeSettings = new Map();
     }
 
     if (!Object.keys(newState).length) {
@@ -122,6 +127,17 @@ class Settings extends Component {
     return this.getType(editableType);
   }
 
+  get typeSettings() {
+    const { typeSettings } = this.props;
+    const { customizedTypeSettings, editableType } = this.state;
+
+    if (customizedTypeSettings.has(editableType)) {
+      return customizedTypeSettings.get(editableType);
+    }
+
+    return typeSettings;
+  }
+
   getType = (id, types = this.state.types) => {
     let type = {};
     const searchItem = item => {
@@ -166,7 +182,10 @@ class Settings extends Component {
   };
 
   handleCloseModal = () => {
-    this.setState({ filter: '' });
+    this.setState({
+      filter: '',
+      customizedTypeSettings: new Map()
+    });
 
     this.props.onCancel();
   };
@@ -201,16 +220,17 @@ class Settings extends Component {
   handleToggleTypeSettings = (type = null) => {
     this.setState({ editableType: type });
 
-    if (type) {
+    if (type && !this.state.customizedTypeSettings.has(type)) {
       this.props.onEditType(type);
     }
   };
 
   handleSaveTypeSettings = (settings = {}) => {
-    console.warn({ settings });
-
     this.setTypeData(this.state.editableType, settings);
-    this.setState({ editableType: null });
+    this.setState(state => ({
+      customizedTypeSettings: state.customizedTypeSettings.set(state.editableType, settings),
+      editableType: null
+    }));
   };
 
   handleToggleLoadChecklist = ({ checked }) => {
@@ -250,7 +270,7 @@ class Settings extends Component {
         <TypeSettings
           isLoading={isLoadingTypeSettings}
           type={this.editableType}
-          settings={typeSettings}
+          settings={this.typeSettings}
           isOpen={editableType !== null}
           onCancel={this.handleToggleTypeSettings}
           onSave={this.handleSaveTypeSettings}

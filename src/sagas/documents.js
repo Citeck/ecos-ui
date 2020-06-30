@@ -47,7 +47,7 @@ import DocumentsConverter from '../dto/documents';
 import { deepClone, getFirstNonEmpty, t } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
 import { BackgroundOpenAction, CreateNodeAction } from '../components/Records/actions/DefaultActions';
-import { DEFAULT_REF, documentActions } from '../constants/documents';
+import { DEFAULT_REF, documentActions, documentIdField } from '../constants/documents';
 import DocAssociationsConverter from '../dto/docAssociations';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
@@ -186,6 +186,8 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     const documents = get(records, '[0].documents', []);
     const typeNames = yield select(state => selectTypeNames(state, payload.key));
 
+    console.warn({ documents });
+
     yield put(
       setDocuments({
         key: payload.key,
@@ -208,7 +210,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
 
       set(type, 'countDocuments', documents.length);
       set(type, 'loadedBy', get(document, 'loadedBy', ''));
-      set(type, 'lastDocumentRef', get(document, 'id', ''));
+      set(type, 'lastDocumentRef', get(document, documentIdField, ''));
       set(type, 'modified', DocumentsConverter.getFormattedDate(get(document, 'modified', '')));
     }
 
@@ -216,7 +218,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
 
     if (documents.length) {
       const typeActions = yield select(state => selectActionsByType(state, payload.key, payload.type));
-      const actions = yield RecordActions.getActions(documents.map(item => item.id), {
+      const actions = yield RecordActions.getActions(documents.map(item => item[documentIdField]), {
         actions: getFirstNonEmpty([typeActions, documentActions], [])
       });
 
@@ -426,9 +428,8 @@ function* sagaGetTypeSettings({ api, logger }, { payload }) {
     }
 
     const configType = configTypes.find(item => item.type === payload.type);
-
     const config = yield call(api.documents.getColumnsConfigByType, payload.type);
-    const columns = DocumentsConverter.getColumnsForSettings(config.columns, configType.columns);
+    const columns = DocumentsConverter.getColumnsForSettings(get(config, 'columns', []), get(configType, 'columns', []));
 
     yield put(
       setTypeSettings({

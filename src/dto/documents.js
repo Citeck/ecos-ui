@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { deepClone, getTextByLocale, t } from '../helpers/util';
-import { DATE_FORMAT, DEFAULT_REF, NULL_FORM } from '../constants/documents';
+import { DATE_FORMAT, DEFAULT_REF, documentIdField, NULL_FORM } from '../constants/documents';
 
 export default class DocumentsConverter {
   static formIdIsNull = (id = '') => {
@@ -56,7 +56,7 @@ export default class DocumentsConverter {
         formId: DocumentsConverter.formIdIsNull(item.formId) ? null : item.formId,
         name: item.name || get(typeNames, [item.type], t('documents-widget.untitled')),
         countDocuments: documents.length,
-        lastDocumentRef: get(document, 'id', ''),
+        lastDocumentRef: get(document, documentIdField, ''),
         loadedBy: get(document, 'loadedBy', ''),
         canDropUpload: !createVariants.formRef,
         modified: DocumentsConverter.getFormattedDate(get(document, 'modified', ''))
@@ -264,18 +264,6 @@ export default class DocumentsConverter {
           return `${name}:att(n:"${name}"){disp}`;
         }
 
-        // if (!attribute) {
-        //   if (name.includes('att(n:')) {
-        //     return name;
-        //   }
-        //
-        //   if (name.charAt(0) === '.') {
-        //     return `${name}:${name.slice(1)}`;
-        //   }
-        //
-        //   return `${name}:att(n:"${name}"){disp}`;
-        // }
-
         if (attribute.charAt(0) === '.') {
           return `${name}:${attribute.slice(1)}`;
         }
@@ -337,19 +325,46 @@ export default class DocumentsConverter {
       return [];
     }
 
-    let target = columns.map(column => ({
+    const customizedColumns = deepClone(configColumns);
+    let originColumns = deepClone(columns);
+
+    originColumns = originColumns.map(column => ({
       attribute: column.attribute,
       name: column.name,
       label: getTextByLocale(column.label),
       visible: column.visible === undefined ? true : column.visible
     }));
 
-    if (!isEmpty(configColumns)) {
-      // TODO: sort and union two arrays
+    if (isEmpty(customizedColumns)) {
+      return originColumns;
     }
 
-    console.warn({ columns, configColumns });
+    const result = customizedColumns.map(item => {
+      const index = originColumns.findIndex(i => i.attribute === item.attribute && i.name === item.name);
 
-    return target;
+      if (!~index) {
+        return item;
+      }
+
+      const [deleted] = originColumns.splice(index, 1, {});
+
+      return {
+        visible: deleted.visible,
+        ...item,
+        label: getTextByLocale(deleted.label)
+      };
+    });
+
+    return [
+      ...result,
+      ...originColumns
+        .filter(i => !isEmpty(i))
+        .map(i => ({
+          attribute: i.attribute,
+          visible: i.visible,
+          name: i.name,
+          label: getTextByLocale(i.label)
+        }))
+    ];
   }
 }

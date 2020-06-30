@@ -33,7 +33,15 @@ import {
   uploadFiles
 } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
-import { errorTypes, statusesKeys, tableFields, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
+import {
+  documentIdField,
+  errorTypes,
+  statusesKeys,
+  tableFields,
+  tooltips,
+  typesStatuses,
+  typeStatusesByFields
+} from '../../../constants/documents';
 import { closest, deepClone, objectCompare, prepareTooltipId, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
@@ -677,7 +685,7 @@ class Documents extends BaseWidget {
   handleHoverRow = data => {
     const options = deepClone(data);
     let actions = deepClone(this.props.actions);
-    const id = options.row.id;
+    const id = options.row[documentIdField];
 
     delete options.row;
 
@@ -724,7 +732,7 @@ class Documents extends BaseWidget {
   handleRowMouseLeave = debounce(() => {
     this.setState({ isHoverLastRow: false });
     this.setToolsOptions();
-  }, 300);
+  }, 0);
 
   handleTypeRowMouseEnter = (event, rowSelector = 'ecos-docs__table-row') => {
     const row = closest(event.target, rowSelector);
@@ -1059,7 +1067,7 @@ class Documents extends BaseWidget {
           forwardedRef={this._tableRef}
           autoHeight
           minHeight={this.calculatedTableMinHeight}
-          keyField="id"
+          keyField={documentIdField}
           className={classNames('ecos-docs__table ecos-docs__table_documents', {
             'ecos-docs__table_hidden': isShowDropZone || isUploadingFile,
             'ecos-docs__table_without-after-element': isHoverLastRow

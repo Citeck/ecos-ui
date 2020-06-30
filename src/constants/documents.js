@@ -79,3 +79,5 @@ export const documentActions = [
 export const NULL_FORM = 'uiserv/eform@null';
 export const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
 export const DEFAULT_REF = 'dict@cm:content';
+
+export const documentIdField = '__id';
