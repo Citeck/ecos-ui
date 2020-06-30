@@ -6,7 +6,7 @@ import { EcosModal, Search } from '../../common';
 import { Btn } from '../../common/btns';
 import Tree from './Tree';
 import TypeSettings from './TypeSettings';
-import { GrouppedTypeInterface } from './propsInterfaces';
+import { GrouppedTypeInterface, TypeSettingsInterface } from './propsInterfaces';
 import { deepClone, t, arrayCompare } from '../../../helpers/util';
 import { Checkbox } from '../../common/form';
 
@@ -21,7 +21,9 @@ class Settings extends Component {
     isOpen: PropTypes.bool,
     isLoading: PropTypes.bool,
     isLoadChecklist: PropTypes.bool,
+    isLoadingTypeSettings: PropTypes.bool,
     title: PropTypes.string,
+    typeSettings: PropTypes.shape(TypeSettingsInterface),
     types: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     onCancel: PropTypes.func,
     onSave: PropTypes.func,
@@ -32,6 +34,7 @@ class Settings extends Component {
     isOpen: false,
     isLoading: false,
     isLoadChecklist: false,
+    isLoadingTypeSettings: false,
     title: '',
     types: [],
     onCancel: () => {},

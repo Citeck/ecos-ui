@@ -193,7 +193,9 @@ class Documents extends BaseWidget {
   }
 
   get tableWidth() {
-    return get(this._tableRef, 'current.offsetWidth', '100%');
+    const width = get(this._tableRef, 'current.offsetWidth', '100%');
+
+    return width || '100%';
   }
 
   get typesListHeight() {
@@ -748,7 +750,7 @@ class Documents extends BaseWidget {
   handleRowMouseLeave = debounce(() => {
     this.setState({ isHoverLastRow: false });
     this.setToolsOptions();
-  }, 0);
+  }, 100);
 
   handleTypeRowMouseEnter = (event, rowSelector = 'ecos-docs__table-row') => {
     const row = closest(event.target, rowSelector);
