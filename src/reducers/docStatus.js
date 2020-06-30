@@ -8,7 +8,7 @@ import {
   setAvailableToChangeStatuses,
   setDocStatus
 } from '../actions/docStatus';
-import { deleteStateById, getCurrentStateById } from '../helpers/redux';
+import { deleteStateById, getCurrentStateById, startLoading } from '../helpers/redux';
 
 const commonInitialState = {};
 
@@ -18,14 +18,6 @@ const initialState = {
   availableToChangeStatuses: []
 };
 
-const startLoading = (state, { payload: { stateId } }) => ({
-  ...state,
-  [stateId]: {
-    ...getCurrentStateById(state, stateId, initialState),
-    isLoading: true
-  }
-});
-
 export default handleActions(
   {
     [initDocStatus]: (state, { payload: { stateId } }) => ({
@@ -34,7 +26,7 @@ export default handleActions(
         ...initialState
       }
     }),
-    [getDocStatus]: startLoading,
+    [getDocStatus]: startLoading(initialState),
     [setDocStatus]: (state, { payload: { stateId, status } }) => ({
       ...state,
       [stateId]: {
@@ -43,7 +35,7 @@ export default handleActions(
         isLoading: false
       }
     }),
-    [getAvailableToChangeStatuses]: startLoading,
+    [getAvailableToChangeStatuses]: startLoading(initialState),
     [setAvailableToChangeStatuses]: (state, { payload: { stateId, availableToChangeStatuses } }) => ({
       ...state,
       [stateId]: {

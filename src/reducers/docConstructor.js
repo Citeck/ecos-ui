@@ -10,10 +10,9 @@ import {
   setDocument,
   setError,
   setLoading,
-  setLoadingSync,
   setSettings
 } from '../actions/docConstructor';
-import { getCurrentStateById } from '../helpers/redux';
+import { getCurrentStateById, startLoading } from '../helpers/redux';
 
 const initialState = {
   isLoading: false,
@@ -34,11 +33,11 @@ const setData = (state, { payload: { stateId } }, data) => ({
 
 export default handleActions(
   {
-    [getSettings]: (state, action) => setData(state, action, { isLoading: true }),
-    [getDocument]: (state, action) => setData(state, action, { isLoading: true }),
-    [editDocument]: (state, action) => setData(state, action, { isLoading: true }),
-    [deleteDocument]: (state, action) => setData(state, action, { isLoading: true }),
-    [createDocument]: (state, action) => setData(state, action, { isLoadingSync: true }),
+    [getSettings]: startLoading(initialState),
+    [getDocument]: startLoading(initialState),
+    [editDocument]: startLoading(initialState),
+    [deleteDocument]: startLoading(initialState),
+    [createDocument]: startLoading(initialState),
 
     [setSettings]: (state, action) => setData(state, action, { isLoading: false, ...get(action, 'payload.data', {}) }),
     [setDocument]: (state, action) => setData(state, action, { isLoading: false, ...get(action, 'payload.document', {}) }),
