@@ -979,7 +979,15 @@
   "doc-constructor-widget.buttns.sync": "Sync",
   "doc-constructor-widget.error.get-settings": "Doc.one settings not found. Contact your system administrator",
   "doc-constructor-widget.error.no-settings-url": "Doc.one settings not found. Contact your system administrator",
+  "doc-constructor-widget.error.no-doc-one-base-url": "Missing 'doc.one.base.url' in global properties. Contact your system administrator",
   "doc-constructor-widget.error.create-doc-one-file-by-node-with-template": "Error while creating file",
   "doc-constructor-widget.success.create-doc-one-file-by-node-with-template": "Document in DocOne has created",
-  "doc-constructor-widget.error.set-permission-for-role": "Error while changing permissions"
+  "doc-constructor-widget.error.set-permission-for-role": "Error while changing permissions",
+  "doc-constructor-widget.error.delete-content-and-doc-one-id": "Content was deleted successfully",
+  "doc-constructor-widget.success.delete-content-and-doc-one-id": "Content was deleted successfully",
+  "doc-constructor-widget.error.invalid-doc-one-id": "The attachment does not specify the document identifier in Doc.One",
+  "doc-constructor-widget.error.content-not-changed": "The content has not been updated. Probably there are no changes in Doc.One",
+  "doc-constructor-widget.error.write-doc-one-content-to-node": "Error while receiving document",
+  "doc-constructor-widget.success.edit-document": "Document editing has launched",
+  "doc-constructor-widget.error.edit-document": "Document editing has failed"
 }

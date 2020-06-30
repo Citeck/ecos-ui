@@ -7,7 +7,7 @@ import get from 'lodash/get';
 import { createDocument, deleteDocument, editDocument, getDocument, getSettings, recreateDocument } from '../../../actions/docConstructor';
 import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
-import { Loader } from '../../common';
+import { Icon, Loader } from '../../common';
 import { SelectJournal } from '../../common/form';
 import { Btn, IcoBtn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
@@ -41,6 +41,7 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   state = {
+    delayedUpdate: false,
     isSmallMode: false
   };
 
@@ -50,13 +51,29 @@ class DocConstructorDashlet extends BaseWidget {
   }
 
   componentDidMount() {
+    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
     this.props.getSettings();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { getSettings, isLoading } = this.props;
+    const { delayedUpdate, runUpdate } = this.state;
+
+    if (!prevState.runUpdate && runUpdate && !delayedUpdate) {
+      isLoading ? this.setState({ delayedUpdate: true }) : getSettings();
+    }
+
+    if (!runUpdate && !isLoading && delayedUpdate) {
+      this.setState({ delayedUpdate: false });
+      getSettings();
+    }
   }
 
   onChangeTemplate = template => {
     const { docOneDocumentId } = this.props;
 
     if (docOneDocumentId) {
+      this.props.recreateDocument(template);
     } else {
       this.props.createDocument(template);
     }
@@ -71,7 +88,7 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   onClickSync = () => {
-    const { docOneDocumentId } = this.props;
+    this.props.getDocument();
   };
 
   onResize = width => {
@@ -82,7 +99,7 @@ class DocConstructorDashlet extends BaseWidget {
 
   render() {
     const { isSmallMode } = this.state;
-    const { title, classNameDashlet, isLoading, documentType, error, attorneyTemplate, contractTemplate } = this.props;
+    const { title, classNameDashlet, isLoading, documentType, error, contractTemplate } = this.props;
 
     return (
       <Dashlet
@@ -98,20 +115,25 @@ class DocConstructorDashlet extends BaseWidget {
           <div className="ecos-doc-constructor__description-title">{t(Labels.DESC_TITLE)}</div>
           <div className="ecos-doc-constructor__description-text">{t(Labels.DESC_TEXT)}</div>
         </div>
-        {error && <div className="ecos-doc-constructor__error">{error}</div>}
-        {(documentType === DocumentTypes.CONTRACT || attorneyTemplate) && (
+        {documentType === DocumentTypes.CONTRACT && (
           <>
             <div className="ecos-doc-constructor__label field-required">{t(Labels.LABEL_JOURNAL)}</div>
             <SelectJournal
               className="ecos-doc-constructor__journal"
               journalId={'doc-one-templates'}
               onChange={this.onChangeTemplate}
-              defaultValue={contractTemplate || attorneyTemplate}
+              defaultValue={contractTemplate}
               isSelectedValueAsText
               hideDeleteRowButton
               hideEditRowButton
             />
           </>
+        )}
+        {error && (
+          <div className="ecos-doc-constructor__error">
+            <Icon className="icon-big_alert" />
+            {error}
+          </div>
         )}
         <div className={classNames('ecos-doc-constructor__buttons', { 'ecos-doc-constructor__buttons_small': isSmallMode })}>
           <div className="ecos-doc-constructor__buttons-left">
@@ -145,8 +167,7 @@ const mapStateToProps = (state, context) => {
     docOneUrl: data.docOneUrl,
     docOneDocumentId: data.docOneDocumentId,
     documentType: data.documentType,
-    contractTemplate: data.contractTemplate,
-    attorneyTemplate: data.attorneyTemplate
+    contractTemplate: data.contractTemplate
   };
 };
 

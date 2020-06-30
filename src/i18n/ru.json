@@ -984,8 +984,15 @@
   "doc-constructor-widget.buttons.delete": "Удалить",
   "doc-constructor-widget.buttons.sync": "Синхронизировать",
   "doc-constructor-widget.error.get-settings": "Настройки виджета не найдены. Свяжитесь с администратором",
-  "doc-constructor-widget.error.no-doc.one.base.url": "Отсутствует 'doc.one.base.url' в настройках. Свяжитесь с администратором",
+  "doc-constructor-widget.error.no-doc-one-base-url": "Отсутствует 'doc.one.base.url' в настройках. Свяжитесь с администратором",
   "doc-constructor-widget.error.create-doc-one-file-by-node-with-template": "Ошибка при создании файла",
   "doc-constructor-widget.success.create-doc-one-file-by-node-with-template": "Документ в DocOne создан",
-  "doc-constructor-widget.error.set-permission-for-role": "Ошибка во время изменения прав"
+  "doc-constructor-widget.error.set-permission-for-role": "Ошибка во время изменения прав",
+  "doc-constructor-widget.error.delete-content-and-doc-one-id": "Не удалось удалить контент",
+  "doc-constructor-widget.success.delete-content-and-doc-one-id": "Контент успешно удален",
+  "doc-constructor-widget.error.invalid-doc-one-id": "Во вложении не задан идентификатор документа в Doc.One",
+  "doc-constructor-widget.error.content-not-changed": "Контент не обновлен. Вероятно отсутствуют изменения в Doc.One",
+  "doc-constructor-widget.error.write-doc-one-content-to-node": "Ошибка во время получения документа",
+  "doc-constructor-widget.success.edit-document": "Редактирование документа запущено",
+  "doc-constructor-widget.error.edit-document": "Редактирование документа запустить не удалось"
 }

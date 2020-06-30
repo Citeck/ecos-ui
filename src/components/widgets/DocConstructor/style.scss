@@ -33,12 +33,17 @@
   }
 
   &__error {
-    background: rgba($color-red-1, 0.2);
-    border-radius: $border-radius-standard;
-    border: 1px solid $color-red-1;
-    color: $color-red-1;
+    background: rgba($color-red-1, 0.1);
+    color: $text-color-gray;
     padding: 7px;
-    margin-bottom: 15px;
+    margin-top: 15px;
+    font-weight: $font-weight-semi-bold;
+    word-break: break-all;
+
+    .icon {
+      font-size: $font-size-standard;
+      padding-right: 10px;
+    }
   }
 
   &__label {
@@ -69,7 +74,7 @@
 
       .ecos-btn:nth-child(n) {
         display: flex;
-        flex: auto;
+        flex: 1;
         justify-content: center;
       }
     }
