@@ -16,8 +16,8 @@ import { getCurrentStateById, startLoading } from '../helpers/redux';
 
 const initialState = {
   isLoading: false,
-  url: null,
-  documentId: null,
+  docOneUrl: null,
+  docOneDocumentId: null,
   documentType: null,
   error: ''
 };
@@ -38,8 +38,8 @@ export default handleActions(
     [deleteDocument]: startLoading(initialState),
     [createDocument]: startLoading(initialState),
 
-    [setSettings]: (state, action) => setData(state, action, { isLoading: false, ...get(action, 'payload.settings', {}) }),
-    [setDocument]: (state, action) => setData(state, action, { isLoading: false, ...get(action, 'payload.document', {}) }),
+    [setSettings]: (state, action) => setData(state, action, { isLoading: false, error: '', ...get(action, 'payload.settings', {}) }),
+    [setDocument]: (state, action) => setData(state, action, { isLoading: false, error: '', ...get(action, 'payload.document', {}) }),
     [setError]: (state, action) => setData(state, action, { isLoading: false, error: get(action, 'payload.error'), isLoadingSync: false }),
     [setLoading]: (state, action) => setData(state, action, { isLoading: get(action, 'payload.isLoading') })
   },

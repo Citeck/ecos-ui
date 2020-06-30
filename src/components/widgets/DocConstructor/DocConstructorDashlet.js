@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 
-import { createDocument, deleteDocument, editDocument, getDocument, getSettings } from '../../../actions/docConstructor';
+import { createDocument, deleteDocument, editDocument, getDocument, getSettings, recreateDocument } from '../../../actions/docConstructor';
 import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import { Loader } from '../../common';
@@ -41,21 +41,12 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   state = {
-    template: null,
     isSmallMode: false
   };
 
   get disabledAction() {
-    const { documentId, url } = this.props;
-    return !documentId || !url;
-  }
-
-  get disabledSync() {
-    const { documentId, url, documentType } = this.props;
-    const { template } = this.state;
-    const doc = !documentId && documentType === DocumentTypes.CONTRACT && !template;
-
-    return !url || doc;
+    const { docOneDocumentId, docOneUrl } = this.props;
+    return !docOneDocumentId || !docOneUrl;
   }
 
   componentDidMount() {
@@ -63,7 +54,12 @@ class DocConstructorDashlet extends BaseWidget {
   }
 
   onChangeTemplate = template => {
-    this.setState({ template });
+    const { docOneDocumentId } = this.props;
+
+    if (docOneDocumentId) {
+    } else {
+      this.props.createDocument(template);
+    }
   };
 
   onClickEdit = () => {
@@ -75,13 +71,7 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   onClickSync = () => {
-    const { documentId } = this.props;
-    const { template } = this.state;
-
-    if (documentId) {
-    } else {
-      this.props.createDocument(template);
-    }
+    const { docOneDocumentId } = this.props;
   };
 
   onResize = width => {
@@ -91,8 +81,8 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   render() {
-    const { isSmallMode, template } = this.state;
-    const { title, classNameDashlet, isLoading, documentType, error } = this.props;
+    const { isSmallMode } = this.state;
+    const { title, classNameDashlet, isLoading, documentType, error, attorneyTemplate, contractTemplate } = this.props;
 
     return (
       <Dashlet
@@ -109,15 +99,17 @@ class DocConstructorDashlet extends BaseWidget {
           <div className="ecos-doc-constructor__description-text">{t(Labels.DESC_TEXT)}</div>
         </div>
         {error && <div className="ecos-doc-constructor__error">{error}</div>}
-        {documentType === DocumentTypes.CONTRACT && (
+        {(documentType === DocumentTypes.CONTRACT || attorneyTemplate) && (
           <>
             <div className="ecos-doc-constructor__label field-required">{t(Labels.LABEL_JOURNAL)}</div>
             <SelectJournal
               className="ecos-doc-constructor__journal"
               journalId={'doc-one-templates'}
-              isSelectedValueAsText
               onChange={this.onChangeTemplate}
-              defaultValue={template}
+              defaultValue={contractTemplate || attorneyTemplate}
+              isSelectedValueAsText
+              hideDeleteRowButton
+              hideEditRowButton
             />
           </>
         )}
@@ -126,12 +118,12 @@ class DocConstructorDashlet extends BaseWidget {
             <Btn className="ecos-btn_tight" onClick={this.onClickEdit} disabled={this.disabledAction}>
               {t(Labels.BTN_EDIT)}
             </Btn>
-            <Btn className="ecos-btn_disabled" onClick={this.onClickDelete} disabled={this.disabledAction}>
+            <Btn className="ecos-btn_tight" onClick={this.onClickDelete} disabled={this.disabledAction}>
               {t(Labels.BTN_DELETE)}
             </Btn>
           </div>
           <div className="ecos-doc-constructor__buttons-right">
-            <IcoBtn icon="icon-reload" className="ecos-btn_blue" onClick={this.onClickSync} disabled={this.disabledSync}>
+            <IcoBtn icon="icon-reload" className="ecos-btn_tight ecos-btn_blue" onClick={this.onClickSync} disabled={this.disabledAction}>
               {t(Labels.BTN_SYNC)}
             </IcoBtn>
           </div>
@@ -150,9 +142,11 @@ const mapStateToProps = (state, context) => {
     isMobile: state.view.isMobile,
     isLoading: data.isLoading,
     error: data.error,
-    url: data.url,
-    documentId: data.documentId,
-    documentType: data.documentType
+    docOneUrl: data.docOneUrl,
+    docOneDocumentId: data.docOneDocumentId,
+    documentType: data.documentType,
+    contractTemplate: data.contractTemplate,
+    attorneyTemplate: data.attorneyTemplate
   };
 };
 
@@ -165,7 +159,8 @@ const mapDispatchToProps = (dispatch, context) => {
     createDocument: templateRef => dispatch(createDocument({ stateId, record, templateRef })),
     deleteDocument: () => dispatch(deleteDocument({ stateId, record })),
     editDocument: () => dispatch(editDocument({ stateId, record })),
-    getDocument: () => dispatch(getDocument({ stateId, record }))
+    getDocument: () => dispatch(getDocument({ stateId, record })),
+    recreateDocument: templateRef => dispatch(recreateDocument({ stateId, record, templateRef }))
   };
 };
 

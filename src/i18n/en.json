@@ -980,6 +980,6 @@
   "doc-constructor-widget.error.get-settings": "Doc.one settings not found. Contact your system administrator",
   "doc-constructor-widget.error.no-settings-url": "Doc.one settings not found. Contact your system administrator",
   "doc-constructor-widget.error.create-doc-one-file-by-node-with-template": "Error while creating file",
-  "doc-constructor-widget.success.create-doc-one-file-by-node-with-template": "Document has created",
+  "doc-constructor-widget.success.create-doc-one-file-by-node-with-template": "Document in DocOne has created",
   "doc-constructor-widget.error.set-permission-for-role": "Error while changing permissions"
 }
