@@ -155,7 +155,13 @@ export default function handleControl(type, payload, dispatch) {
     case HCT.ECOS_CREATE_VARIANT:
       FormManager.createRecordByVariant(payload, {
         onSubmit: record => {
-          goToCardDetailsPage(record.id);
+          if (payload.afterSubmit === 'reload') {
+            window.location.reload();
+          } else if (payload.afterSubmit === 'none') {
+            //none
+          } else {
+            goToCardDetailsPage(record.id);
+          }
         }
       });
       break;
