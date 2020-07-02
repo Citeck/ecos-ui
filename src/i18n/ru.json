@@ -369,6 +369,7 @@
   "record-action.assoc-action.not-found": "Связь не найдена",
 
   "record-action.name.script-action": "Скриптовое действие",
+  "record-action.script-action.error.text": "Действие не определено",
 
   "record-action.name.upload-new-version": "Загрузить новую версию",
   "record-action.upload-new-version.title.upload-model": "Добавление новой версии документа",
