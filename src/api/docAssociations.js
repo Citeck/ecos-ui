@@ -2,12 +2,10 @@ import isEmpty from 'lodash/isEmpty';
 
 import ecosFetch from '../helpers/ecosFetch';
 import Records from '../components/Records';
-import { RecordService } from './recordService';
-import { EmodelTypes, Permissions } from '../constants';
-import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
-import { PROXY_URI } from '../constants/alfresco';
+import { EmodelTypes } from '../constants';
+import { DocumentsApi } from './documents';
 
-export class DocAssociationsApi extends RecordService {
+export class DocAssociationsApi extends DocumentsApi {
   #baseAssociationAttributes = 'id:assoc,modifierId:att(n:"cm:modifier"){disp},displayName:disp';
   #defaultAttributes = 'displayName:disp,att(n:"created"){disp}';
 
@@ -88,43 +86,6 @@ export class DocAssociationsApi extends RecordService {
       };
     });
   }
-
-  getFormattedColumns = async config => {
-    const { predicate = {}, columns = [], sourceId } = config;
-    const queryPredicates = predicate.val || [];
-    const bodyQuery = {
-      query: {
-        t: 'and',
-        val: queryPredicates.concat(
-          (predicate.val || []).filter(item => {
-            return item.val !== '' && item.val !== null;
-          })
-        )
-      },
-      language: 'predicate',
-      consistency: 'EVENTUAL'
-    };
-
-    if (sourceId) {
-      bodyQuery['sourceId'] = sourceId;
-    }
-
-    const dataSource = new GqlDataSource({
-      url: `${PROXY_URI}citeck/ecos/records`,
-      dataSourceName: 'GqlDataSource',
-      ajax: {
-        body: {
-          query: bodyQuery
-        }
-      },
-      columns: columns || [],
-      permissions: [Permissions.Write]
-    });
-
-    await dataSource.load();
-
-    return dataSource.getColumns();
-  };
 
   /**
    * Partition List - Second Level Menu
