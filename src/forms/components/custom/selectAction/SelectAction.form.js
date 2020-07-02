@@ -1,14 +1,14 @@
 import baseEditForm from 'formiojs/components/base/Base.form';
 
 import SelectActionEditData from './editForm/SelectAction.edit.data';
-import SelectActionDisplayData from './editForm/SelectAction.edit.display';
+import SelectActionEditDisplay from './editForm/SelectAction.edit.display';
 
 export default function(...extend) {
   const editForm = baseEditForm(
     [
       {
         key: 'display',
-        components: SelectActionDisplayData
+        components: SelectActionEditDisplay
       },
       {
         key: 'data',
