@@ -118,6 +118,12 @@ class BaseWidget extends Component {
   handleToggleContent = (isCollapsed = false) => {
     this.setState({ isCollapsed });
     UserLocalSettingsService.setDashletProperty(this.state.lsId, { isCollapsed });
+
+    // TODO: какие-то доп.действия (при необходимости)
+    //  JournalDashlet сейчас (при разворачивании) контент не подстраивает по высоте
+    // if (this.state.isCollapsed && !isCollapsed) {
+    //   this.reload();
+    // }
   };
 
   handleResize = width => {

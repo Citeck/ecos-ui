@@ -39,8 +39,18 @@
     }
 
     &-collapser {
-      font-size: 14px;
-      padding-right: 10px;
+      &.icon {
+        font-size: 14px;
+        background: $color-gray-4;
+        border-radius: 50%;
+        width: 26px;
+        height: 26px;
+        margin-right: 10px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+      }
     }
 
     &-actions {
@@ -82,6 +92,7 @@
 
   &__body {
     min-height: 20px;
+    padding-bottom: 20px;
 
     &_relative {
       position: relative;
@@ -121,6 +132,14 @@
 
       &-wrapper {
         display: inline-block;
+      }
+    }
+
+    &_goto {
+      .ecos-btn__text {
+        font-style: normal;
+        font-weight: bold;
+        font-size: $font-size-standard;
       }
     }
   }

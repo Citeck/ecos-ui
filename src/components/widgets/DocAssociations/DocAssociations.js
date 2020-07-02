@@ -344,8 +344,8 @@ class DocAssociations extends BaseWidget {
   }
 
   render() {
-    const { canDragging, dragHandleProps, isCollapsed, associationsTotalCount, isLoading, isMobile } = this.props;
-    const { userHeight = 0, fitHeights, contentHeight } = this.state;
+    const { canDragging, dragHandleProps, associationsTotalCount, isLoading, isMobile } = this.props;
+    const { userHeight = 0, fitHeights, contentHeight, isCollapsed } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: this.handleReloadData

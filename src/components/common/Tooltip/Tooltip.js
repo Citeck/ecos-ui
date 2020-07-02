@@ -167,9 +167,13 @@ class Tooltip extends Component {
       const styles = window.getComputedStyle(element, null);
       const paddingLeft = parseInt(styles.getPropertyValue('padding-left'), 10) || 0;
       const paddingRight = parseInt(styles.getPropertyValue('padding-right'), 10) || 0;
+      const { width, height } = element.getBoundingClientRect();
 
       context.font = styles.getPropertyValue('font');
-      needTooltip = context.measureText(text).width > element.getBoundingClientRect().width - (paddingLeft + paddingRight);
+
+      if (width && height) {
+        needTooltip = context.measureText(text).width > width - (paddingLeft + paddingRight);
+      }
     }
 
     if (minWidthByContent) {

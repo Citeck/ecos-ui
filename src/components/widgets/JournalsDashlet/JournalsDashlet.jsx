@@ -137,6 +137,7 @@ class JournalsDashlet extends BaseWidget {
 
   renderEditor() {
     const { editorMode, id, config, onSave, stateId } = this.props;
+    const { isCollapsed } = this.state;
 
     let addProps = {};
 
@@ -144,7 +145,7 @@ class JournalsDashlet extends BaseWidget {
       addProps = { onSave, config };
     }
 
-    if (!editorMode) {
+    if (!editorMode || isCollapsed) {
       return null;
     }
 
@@ -157,9 +158,9 @@ class JournalsDashlet extends BaseWidget {
 
   renderJournal() {
     const { editorMode, stateId } = this.props;
-    const { width } = this.state;
+    const { width, isCollapsed } = this.state;
 
-    if (editorMode) {
+    if (editorMode || isCollapsed) {
       return null;
     }
 

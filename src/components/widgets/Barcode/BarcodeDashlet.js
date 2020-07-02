@@ -133,6 +133,7 @@ class BarcodeDashlet extends BaseWidget {
 
   render() {
     const { title, classNameDashlet } = this.props;
+    const { isCollapsed } = this.state;
     const actions = {
       [DAction.Actions.SETTINGS]: {
         onClick: this.handleToggleSettings
@@ -147,6 +148,8 @@ class BarcodeDashlet extends BaseWidget {
         className={classNames('ecos-barcode-dashlet', classNameDashlet)}
         resizable={false}
         needGoTo={false}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={this.handleToggleContent}
         actionDrag={isMobileDevice()}
       >
         {this.renderBarcode()}

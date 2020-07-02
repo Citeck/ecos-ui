@@ -151,12 +151,8 @@ class Dashlet extends Component {
   };
 
   onToggle = () => {
-    const { onToggleCollapse, isMobile } = this.props;
+    const { onToggleCollapse } = this.props;
     const { isCollapsed } = this.state;
-
-    if (!isMobile) {
-      return;
-    }
 
     this.setState({ isCollapsed: !isCollapsed });
     onToggleCollapse(!isCollapsed);
@@ -224,7 +220,8 @@ class Dashlet extends Component {
       actionConfig,
       actionRules,
       noActions,
-      dashboardEditable
+      dashboardEditable,
+      children
     } = this.props;
     const { isCollapsed } = this.state;
 
@@ -234,10 +231,10 @@ class Dashlet extends Component {
           {...this.props}
           className={classNames('dashlet', className, { dashlet_mobile: isMobile })}
           headClassName={classNames('dashlet__header-wrapper', {
-            'dashlet__header-wrapper_collapsed': noBody || (isMobile && isCollapsed)
+            'dashlet__header-wrapper_collapsed': noBody || isCollapsed
           })}
           bodyClassName={classNames('dashlet__body', bodyClassName, {
-            dashlet__body_collapsed: noBody || (isMobile && isCollapsed)
+            dashlet__body_collapsed: noBody || isCollapsed
           })}
           noHeader={noHeader}
           header={
@@ -266,7 +263,7 @@ class Dashlet extends Component {
         >
           <ErrorBoundary message={t(Labels.ERROR_BOUNDARY_MSG)} className="dashlet__error-boundary">
             <div className={classNames('dashlet__body-content', { 'dashlet__body-content_hidden': noBody || (isMobile && isCollapsed) })}>
-              {this.renderContent()}
+              {children}
               {this.renderHideButton()}
             </div>
           </ErrorBoundary>

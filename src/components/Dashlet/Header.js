@@ -30,12 +30,25 @@ const Header = React.forwardRef(
     ref
   ) => {
     const btnGoTo = isMobile ? null : (
-      <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
+      <IcoBtn
+        title={t('dashlet.goto')}
+        invert
+        icon={'icon-big-arrow'}
+        className="dashlet__btn dashlet__btn_goto ecos-btn_narrow"
+        onClick={onGoTo}
+      >
         {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
       </IcoBtn>
     );
 
-    let toggleIcon = null;
+    const toggleIcon = (
+      <Icon
+        className={classNames('dashlet__header-collapser', {
+          'icon-down': isCollapsed,
+          'icon-up': !isCollapsed
+        })}
+      />
+    );
     let dragBtn = null;
 
     if (actionDrag) {
@@ -51,20 +64,9 @@ const Header = React.forwardRef(
       );
     }
 
-    if (isMobile) {
-      toggleIcon = (
-        <Icon
-          className={classNames('dashlet__header-collapser', {
-            'icon-down': isCollapsed,
-            'icon-up': !isCollapsed
-          })}
-        />
-      );
-    }
-
     return (
-      <div className="dashlet__header" onClick={onToggleCollapse} ref={ref}>
-        <span className={classNames('dashlet__caption', titleClassName)}>
+      <div className="dashlet__header" ref={ref}>
+        <span onClick={onToggleCollapse} className={classNames('dashlet__caption', titleClassName)}>
           {toggleIcon}
           {title}
         </span>
