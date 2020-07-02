@@ -146,6 +146,7 @@ class DocConstructorDashlet extends BaseWidget {
               isSelectedValueAsText
               hideDeleteRowButton={!!contractTemplate}
               hideEditRowButton
+              disabled={this.disabledAction}
             />
           </>
         )}
