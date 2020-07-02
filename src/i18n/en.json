@@ -978,6 +978,7 @@
   "doc-constructor-widget.buttns.delete": "Delete",
   "doc-constructor-widget.buttns.sync": "Sync",
   "doc-constructor-widget.error.get-settings": "Doc.one settings not found. Contact your system administrator",
+  "doc-constructor-widget.error.get-doc-props": "Document's parameters haven't got ",
   "doc-constructor-widget.error.no-settings-url": "Doc.one settings not found. Contact your system administrator",
   "doc-constructor-widget.error.no-doc-one-base-url": "Missing 'doc.one.base.url' in global properties. Contact your system administrator",
   "doc-constructor-widget.error.create-doc-one-file-by-node-with-template": "Error while creating file",

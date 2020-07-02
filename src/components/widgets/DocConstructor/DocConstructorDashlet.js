@@ -4,7 +4,15 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 
-import { createDocument, deleteDocument, editDocument, getDocument, getSettings, recreateDocument } from '../../../actions/docConstructor';
+import {
+  createDocument,
+  deleteDocument,
+  editDocument,
+  getDocument,
+  getDocumentParams,
+  getFullSettings,
+  recreateDocument
+} from '../../../actions/docConstructor';
 import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import DAction from '../../../services/DashletActionService';
@@ -53,38 +61,41 @@ class DocConstructorDashlet extends BaseWidget {
   }
 
   get actionConfig() {
-    return { [DAction.Actions.RELOAD]: { onClick: this.initData } };
+    return {
+      [DAction.Actions.RELOAD]: {
+        onClick: () => {
+          this.props.getFullSettings();
+        }
+      }
+    };
   }
 
   componentDidMount() {
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
-    this.initData();
+    this.props.getFullSettings();
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { isLoading } = this.props;
+    const { isLoading, getDocumentParams } = this.props;
     const { delayedUpdate, runUpdate } = this.state;
 
     if (!prevState.runUpdate && runUpdate && !delayedUpdate) {
-      isLoading ? this.setState({ delayedUpdate: true }) : this.initData();
+      isLoading ? this.setState({ delayedUpdate: true }) : getDocumentParams();
     }
 
     if (!isLoading && delayedUpdate) {
-      this.setState({ delayedUpdate: false }, this.initData);
+      this.setState({ delayedUpdate: false }, getDocumentParams);
     }
   }
 
-  initData = () => {
-    this.props.getSettings();
-  };
-
   onChangeTemplate = template => {
     const { docOneDocumentId } = this.props;
-
-    if (docOneDocumentId) {
-      this.props.recreateDocument(template);
-    } else {
-      this.props.createDocument(template);
+    if (template) {
+      if (docOneDocumentId) {
+        this.props.recreateDocument(template);
+      } else {
+        this.props.createDocument(template);
+      }
     }
   };
 
@@ -133,7 +144,7 @@ class DocConstructorDashlet extends BaseWidget {
               onChange={this.onChangeTemplate}
               defaultValue={contractTemplate}
               isSelectedValueAsText
-              hideDeleteRowButton
+              hideDeleteRowButton={!!contractTemplate}
               hideEditRowButton
             />
           </>
@@ -185,12 +196,14 @@ const mapDispatchToProps = (dispatch, context) => {
   const stateId = getStateId({ tabId, id: record });
 
   return {
-    getSettings: () => dispatch(getSettings({ stateId, record })),
+    getFullSettings: () => dispatch(getFullSettings({ stateId, record })),
+    getDocumentParams: () => dispatch(getDocumentParams({ stateId, record })),
     createDocument: templateRef => dispatch(createDocument({ stateId, record, templateRef })),
     deleteDocument: () => dispatch(deleteDocument({ stateId, record })),
     editDocument: () => dispatch(editDocument({ stateId, record })),
     getDocument: () => dispatch(getDocument({ stateId, record })),
-    recreateDocument: templateRef => dispatch(recreateDocument({ stateId, record, templateRef }))
+    recreateDocument: templateRef => dispatch(recreateDocument({ stateId, record, templateRef })),
+    setError: error => dispatch(getFullSettings({ stateId, record, error }))
   };
 };
 

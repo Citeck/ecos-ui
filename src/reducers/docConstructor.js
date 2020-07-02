@@ -6,11 +6,12 @@ import {
   deleteDocument,
   editDocument,
   getDocument,
-  getSettings,
+  getDocumentParams,
+  getFullSettings,
   setDocument,
   setError,
-  setLoading,
-  setSettings
+  setFullSettings,
+  setLoading
 } from '../actions/docConstructor';
 import { getCurrentStateById, startLoading } from '../helpers/redux';
 
@@ -32,15 +33,16 @@ const setData = (state, { payload: { stateId } }, data) => ({
 
 export default handleActions(
   {
-    [getSettings]: startLoading(initialState),
+    [getFullSettings]: startLoading(initialState),
+    [getDocumentParams]: startLoading(initialState),
     [getDocument]: startLoading(initialState),
     [editDocument]: startLoading(initialState),
     [deleteDocument]: startLoading(initialState),
     [createDocument]: startLoading(initialState),
 
-    [setSettings]: (state, action) => setData(state, action, { isLoading: false, error: '', ...get(action, 'payload.settings', {}) }),
-    [setDocument]: (state, action) => setData(state, action, { isLoading: false, error: '', ...get(action, 'payload.document', {}) }),
-    [setError]: (state, action) => setData(state, action, { isLoading: false, error: get(action, 'payload.error'), isLoadingSync: false }),
+    [setFullSettings]: (state, action) => setData(state, action, { isLoading: false, ...get(action, 'payload.settings', {}) }),
+    [setDocument]: (state, action) => setData(state, action, { isLoading: false, ...get(action, 'payload.document', {}) }),
+    [setError]: (state, action) => setData(state, action, { isLoading: false, error: get(action, 'payload.error') }),
     [setLoading]: (state, action) => setData(state, action, { isLoading: get(action, 'payload.isLoading') })
   },
   {}
