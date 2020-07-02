@@ -114,7 +114,7 @@ class VersionsJournal extends BaseWidget {
     changeVersionModalIsLoading: false,
     changeVersionModalErrorMessage: '',
 
-    maxHeightByContent: true
+    maxHeightByContent: false
   };
 
   constructor(props) {

@@ -27,7 +27,8 @@ class DocPreviewDashlet extends BaseWidget {
     }),
     dragHandleProps: PropTypes.object,
     canDragging: PropTypes.bool,
-    maxHeightByContent: PropTypes.bool
+    maxHeightByContent: PropTypes.bool,
+    fixedHeight: PropTypes.bool
   };
 
   static defaultProps = {
@@ -35,7 +36,7 @@ class DocPreviewDashlet extends BaseWidget {
     fileName: '',
     classNameDashlet: '',
     dragHandleProps: {},
-    maxHeightByContent: true
+    maxHeightByContent: false
   };
 
   docPreviewRef = React.createRef();

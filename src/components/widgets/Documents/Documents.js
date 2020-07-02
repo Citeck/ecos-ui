@@ -90,7 +90,7 @@ class Documents extends BaseWidget {
 
   static defaultProps = {
     canDragging: false,
-    maxHeightByContent: true,
+    maxHeightByContent: false,
     dragHandleProps: {}
   };
 

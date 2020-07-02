@@ -82,9 +82,14 @@ class BaseWidget extends Component {
   };
 
   setFitHeights = fitHeights => {
+    const { fixedHeight } = this.props;
     const fitHeightsState = this.state.fitHeights;
 
     if (JSON.stringify(fitHeightsState) !== JSON.stringify(fitHeights)) {
+      if (fixedHeight) {
+        fitHeights.min = fitHeights.max;
+      }
+
       this.setState({ fitHeights });
     }
   };

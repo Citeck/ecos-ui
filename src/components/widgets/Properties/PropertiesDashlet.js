@@ -42,7 +42,7 @@ class PropertiesDashlet extends BaseWidget {
     classNameDashlet: '',
     dragHandleProps: {},
     canDragging: false,
-    maxHeightByContent: true
+    maxHeightByContent: false
   };
 
   _propertiesRef = React.createRef();
@@ -196,7 +196,7 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   render() {
-    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
+    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config, fixedHeight } = this.props;
     const {
       isSmallMode,
       runUpdate,
@@ -234,7 +234,7 @@ class PropertiesDashlet extends BaseWidget {
           record={record}
           isSmallMode={isSmallMode}
           stateId={id}
-          height={userHeight}
+          height={fixedHeight ? fitHeights.min : undefined}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onUpdate={this.onPropertiesUpdate}

@@ -63,6 +63,13 @@ class TaskList extends React.Component {
           className={className}
           isSmallMode={isSmallMode}
         />
+        <TaskDetails
+          details={item}
+          onAssignClick={onAssignClick}
+          onSubmitForm={onSubmitForm}
+          className={className}
+          isSmallMode={isSmallMode}
+        />
       </React.Fragment>
     ));
   }

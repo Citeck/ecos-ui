@@ -107,29 +107,32 @@ class Dashlet extends Component {
   checkBusyHeights = () => {
     const elDashlet = this.refDashlet.current || {};
     const headerH = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
-    const resizerH = get(this.resizableRef, 'current.resizeBtnHeight', 0);
 
-    if (resizerH && headerH) {
+    if (headerH) {
       this.setState({ busyHeightsCalculated: true });
     }
   };
 
   get fitHeightChildren() {
-    const { headerHeight, resizerHeight } = this.busyDashletHeight;
-    const busyArea = headerHeight + resizerHeight;
+    const { headerHeight } = this.busyDashletHeight;
+    const busyArea = headerHeight;
 
     const max = MAX_DEFAULT_HEIGHT_DASHLET - busyArea;
     const min = MIN_DEFAULT_HEIGHT_DASHLET - busyArea;
 
-    return { min, max, headerHeight, resizerHeight };
+    return { min, max, headerHeight };
   }
 
   get busyDashletHeight() {
     const elDashlet = this.refDashlet.current || {};
-    const headerHeight = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
-    const resizerHeight = get(this.resizableRef, 'current.resizeBtnHeight', 0);
 
-    return { headerHeight, resizerHeight };
+    const content = elDashlet.querySelector('.dashlet__body-content');
+    const contentStyle = window.getComputedStyle(content);
+    const paddingTop = parseInt(contentStyle.paddingTop, 10) || 0;
+    const paddingBottom = parseInt(contentStyle.paddingBottom, 10) || 0;
+    const headerHeight = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
+
+    return { headerHeight: headerHeight + paddingBottom + paddingTop };
   }
 
   onGoTo = () => {
@@ -166,7 +169,7 @@ class Dashlet extends Component {
     }
 
     return (
-      <ResizableBox ref={this.resizableRef} resizable={resizable} classNameResizer="dashlet__resizer" getHeight={this.onChangeHeight}>
+      <ResizableBox ref={this.resizableRef} classNameResizer="dashlet__resizer" getHeight={this.onChangeHeight}>
         {children}
       </ResizableBox>
     );
@@ -262,10 +265,15 @@ class Dashlet extends Component {
           }
         >
           <ErrorBoundary message={t(Labels.ERROR_BOUNDARY_MSG)} className="dashlet__error-boundary">
-            <div className={classNames('dashlet__body-content', { 'dashlet__body-content_hidden': noBody || (isMobile && isCollapsed) })}>
+            <div
+              className={classNames('dashlet__body-content', {
+                'dashlet__body-content_hidden': noBody || (isMobile && isCollapsed)
+              })}
+            >
               {children}
               {this.renderHideButton()}
             </div>
+            <div className="dashlet__body-indent dashlet__body-indent_bottom" />
           </ErrorBoundary>
         </Panel>
         <ReactResizeDetector handleWidth handleHeight onResize={debounce(onResize, 400)} />

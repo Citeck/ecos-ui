@@ -76,7 +76,7 @@ class Comments extends BaseWidget {
     saveIsLoading: false,
     fetchIsLoading: false,
     canDragging: false,
-    maxHeightByContent: true,
+    maxHeightByContent: false,
     commentListMaxHeight: 217,
     onSave: () => {},
     onDelete: () => {},

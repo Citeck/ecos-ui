@@ -211,6 +211,7 @@ class Layout extends Component {
         onLoad: this.checkWidgets,
         onUpdate: this.checkWidgets
       };
+      const baseProps = Components.getProps(widget.name);
       let Widget = this.#loadedWidgets[widget.name];
 
       if (!Widget) {
@@ -221,13 +222,13 @@ class Layout extends Component {
       if (canDragging) {
         components.push(
           <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjustment}>
-            <Widget {...widget.props} {...commonProps} id={widget.props.id} />
+            <Widget {...baseProps} {...widget.props} {...commonProps} id={widget.props.id} />
           </DragItem>
         );
       } else {
         components.push(
           <div key={key} className="ecos-layout__element">
-            <Widget {...widget.props} {...commonProps} />
+            <Widget {...baseProps} {...widget.props} {...commonProps} />
           </div>
         );
       }

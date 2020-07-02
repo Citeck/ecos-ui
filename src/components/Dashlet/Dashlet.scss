@@ -92,7 +92,6 @@
 
   &__body {
     min-height: 20px;
-    padding-bottom: 20px;
 
     &_relative {
       position: relative;
@@ -104,6 +103,7 @@
 
     &-content {
       display: block;
+      padding-bottom: 20px;
 
       &_hidden {
         display: none;

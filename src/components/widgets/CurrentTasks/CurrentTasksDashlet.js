@@ -31,7 +31,7 @@ class CurrentTasksDashlet extends BaseWidget {
     classNameDashlet: '',
     dragHandleProps: {},
     canDragging: false,
-    maxHeightByContent: true
+    maxHeightByContent: false
   };
 
   constructor(props) {
