@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { IcoBtn, TwoIcoBtn } from '../../btns';
@@ -24,6 +24,7 @@ export default class Dropdown extends Component {
   static propTypes = {
     valueField: PropTypes.any,
     titleField: PropTypes.string,
+    keyFields: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
     className: PropTypes.string,
     menuClassName: PropTypes.string,
     toggleClassName: PropTypes.string,
@@ -150,6 +151,24 @@ export default class Dropdown extends Component {
     );
   };
 
+  getKey = (item, index) => {
+    const { keyFields, valueField } = this.props;
+
+    if (isEmpty(keyFields)) {
+      return item[valueField] || index;
+    }
+
+    if (typeof keyFields === 'string') {
+      return item[keyFields] || index;
+    }
+
+    if (Array.isArray(keyFields)) {
+      return keyFields.map(key => `${item[key]}`).join('-');
+    }
+
+    return index;
+  };
+
   onChange = selected => {
     const { onChange } = this.props;
 
@@ -194,9 +213,9 @@ export default class Dropdown extends Component {
         <ul>
           {filteredSource.map((item, i) =>
             CustomItem ? (
-              <CustomItem key={item[valueField] || i} onClick={this.onChange} item={item} />
+              <CustomItem key={this.getKey(item, i)} onClick={this.onChange} item={item} />
             ) : (
-              <MenuItem key={item[valueField] || i} onClick={this.onChange} item={item}>
+              <MenuItem key={this.getKey(item, i)} onClick={this.onChange} item={item}>
                 {getPropByStringKey(item, titleField)}
               </MenuItem>
             )
