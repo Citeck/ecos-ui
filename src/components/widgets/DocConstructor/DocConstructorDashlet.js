@@ -7,6 +7,7 @@ import get from 'lodash/get';
 import { createDocument, deleteDocument, editDocument, getDocument, getSettings, recreateDocument } from '../../../actions/docConstructor';
 import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
+import DAction from '../../../services/DashletActionService';
 import { Icon, Loader } from '../../common';
 import { SelectJournal } from '../../common/form';
 import { Btn, IcoBtn } from '../../common/btns';
@@ -41,6 +42,7 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   state = {
+    ...super.state,
     delayedUpdate: false,
     isSmallMode: false
   };
@@ -50,24 +52,31 @@ class DocConstructorDashlet extends BaseWidget {
     return !docOneDocumentId || !docOneUrl;
   }
 
+  get actionConfig() {
+    return { [DAction.Actions.RELOAD]: { onClick: this.initData } };
+  }
+
   componentDidMount() {
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
-    this.props.getSettings();
+    this.initData();
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { getSettings, isLoading } = this.props;
+    const { isLoading } = this.props;
     const { delayedUpdate, runUpdate } = this.state;
 
     if (!prevState.runUpdate && runUpdate && !delayedUpdate) {
-      isLoading ? this.setState({ delayedUpdate: true }) : getSettings();
+      isLoading ? this.setState({ delayedUpdate: true }) : this.initData();
     }
 
-    if (!runUpdate && !isLoading && delayedUpdate) {
-      this.setState({ delayedUpdate: false });
-      getSettings();
+    if (!isLoading && delayedUpdate) {
+      this.setState({ delayedUpdate: false }, this.initData);
     }
   }
+
+  initData = () => {
+    this.props.getSettings();
+  };
 
   onChangeTemplate = template => {
     const { docOneDocumentId } = this.props;
@@ -107,10 +116,10 @@ class DocConstructorDashlet extends BaseWidget {
         bodyClassName="ecos-doc-constructor__dashlet-body"
         title={t(title || Labels.TITLE)}
         needGoTo={false}
-        noActions
+        actionConfig={this.actionConfig}
         onResize={this.onResize}
       >
-        {isLoading && <Loader blur />}
+        {isLoading && <Loader blur className="ecos-doc-constructor__loader" />}
         <div className="ecos-doc-constructor__description">
           <div className="ecos-doc-constructor__description-title">{t(Labels.DESC_TITLE)}</div>
           <div className="ecos-doc-constructor__description-text">{t(Labels.DESC_TEXT)}</div>

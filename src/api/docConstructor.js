@@ -6,7 +6,8 @@ import Records from '../components/Records/Records';
 export class DocConstructorApi {
   getSettings = ({ name }) => {
     return ecosFetch(`${PROXY_URI}citeck/global-properties?name=${name}&format=json`)
-      .then(response => (response.ok ? response.text() : Promise.reject(response)))
+      .then(response => (response.ok ? response.json() : Promise.reject(response)))
+      .then(result => (result && result.data ? result.data : Promise.reject(result)))
       .catch(e => {
         console.error(e);
         return Promise.reject(new Error(t('doc-constructor-widget.error.get-settings')));
@@ -44,7 +45,7 @@ export class DocConstructorApi {
 
     return ecosFetch(`${PROXY_URI}citeck/write-doc-one-content-to-node?nodeRef=${record}&id=${docOneDocumentId}`)
       .then(response => (response.ok ? response.json() : Promise.reject(response)))
-      .then(response => response.result)
+      .then(response => !!(response && response.result))
       .catch(e => {
         console.error(e);
         return Promise.reject(new Error(t('doc-constructor-widget.error.write-doc-one-content-to-node')));

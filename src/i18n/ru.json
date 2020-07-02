@@ -978,7 +978,7 @@
 
   "doc-constructor-widget.title": "Doc.One",
   "doc-constructor-widget.description.title": "Работа с основным документом в конструкторе Doc.One",
-  "doc-constructor-widget.description.text": "1. Выберите шаблон документа\n2. Отредактируйте\n3. Синхронизируйте, чтобы применить изменения",
+  "doc-constructor-widget.description.text": "1. Выберите шаблон для создания документа\n2. Отредактируйте и сохраните\n3. Синхронизируйте, чтобы увидеть изменения",
   "doc-constructor-widget.template.label": "Шаблон документа",
   "doc-constructor-widget.buttons.edit": "Редактировать",
   "doc-constructor-widget.buttons.delete": "Удалить",
