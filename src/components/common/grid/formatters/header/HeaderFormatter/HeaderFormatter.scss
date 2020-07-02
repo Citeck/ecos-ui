@@ -24,14 +24,21 @@
 
   &_filtered {
     padding: 1px 7px;
+
+    .ecos-th__content-text {
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: $color-gray-4;
+    }
   }
 
   &__content {
     display: flex;
     position: relative;
+    align-items: center;
     @extend %ellipsis;
 
-    & > :first-child {
+    &-text {
       min-width: 0;
     }
   }
@@ -52,20 +59,13 @@
     bottom: 0;
     cursor: col-resize;
   }
-
-  &__filter {
-    &_active {
-      padding: 6px 10px;
-      border-radius: 6px;
-      background: $color-gray-4;
-    }
-  }
 }
 
 .ecos-th__action-icon {
   color: $color-gray-5;
   font-size: $font-size-standard;
   margin: 0 4px;
+  cursor: pointer;
 
   &:hover {
     color: $color-blue-light;
@@ -80,13 +80,7 @@
   }
 }
 
-.ecos-th__filter-icon {
-  cursor: pointer;
-}
-
 .ecos-th__filter-tooltip {
-  //padding: 0.7rem 0;
-
   .ecos-th__filter-tooltip-body {
     background-color: $color-white;
     color: $color-gray-6;
@@ -124,15 +118,12 @@
       color: $color-blue-dark;
     }
   }
-}
 
-.ecos-th__filter-tooltip-input {
-  height: 26px;
-  border: 2px solid $color-gray-4;
-  padding-left: 5px;
-  width: 100%;
-  font-size: $font-size-small;
-}
-
-.ecos-th__order {
+  &-input {
+    height: 26px;
+    border: 2px solid $color-gray-4;
+    padding-left: 5px;
+    width: 100%;
+    font-size: $font-size-small;
+  }
 }

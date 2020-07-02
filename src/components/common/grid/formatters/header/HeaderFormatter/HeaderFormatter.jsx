@@ -55,7 +55,7 @@ export default class HeaderFormatter extends Component {
     const { filterable, sortable } = this.props;
     const actions = [filterable, sortable].filter(act => act);
 
-    return actions.length * 29;
+    return actions.length * 30;
   }
 
   onToggle = e => {
@@ -187,17 +187,16 @@ export default class HeaderFormatter extends Component {
   render() {
     const { column = {}, filterable, sortable } = this.props;
     const { text, open } = this.state;
-    const active = text || open;
 
     this.id = `filter-${replace(column.dataField, /[\W]*/g, '_')}-${this._id}`;
     this.tooltipId = `tooltip-${this.id}`;
     this.tooltipTextId = `tooltip-text-${this.id}`;
 
     return (
-      <div ref={this.thRef} className={classNames('ecos-th', { 'ecos-th_filtered': active })}>
-        <EcosTooltip target={this.tooltipTextId} text={column.text} placement="top" trigger="hover" uncontrolled autohide showAsNeeded>
+      <div ref={this.thRef} className={classNames('ecos-th', { 'ecos-th_filtered': this.activeFilter })}>
+        <EcosTooltip target={this.tooltipTextId} text={column.text} placement="bottom" trigger="hover" uncontrolled autohide showAsNeeded>
           <div id={this.tooltipTextId} className="ecos-th__content" onClick={this.onSort} style={{ paddingRight: this.indentation }}>
-            <span>{column.text}</span>
+            <div className="ecos-th__content-text">{column.text}</div>
             {this.renderActions()}
           </div>
         </EcosTooltip>
