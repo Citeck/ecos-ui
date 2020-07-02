@@ -119,7 +119,7 @@ class DocConstructorDashlet extends BaseWidget {
 
   render() {
     const { isSmallMode } = this.state;
-    const { title, classNameDashlet, isLoading, documentType, error, contractTemplate } = this.props;
+    const { title, classNameDashlet, isLoading, documentType, error, contractTemplate, docOneUrl } = this.props;
 
     return (
       <Dashlet
@@ -146,7 +146,7 @@ class DocConstructorDashlet extends BaseWidget {
               isSelectedValueAsText
               hideDeleteRowButton={!!contractTemplate}
               hideEditRowButton
-              disabled={this.disabledAction}
+              disabled={!docOneUrl}
             />
           </>
         )}
