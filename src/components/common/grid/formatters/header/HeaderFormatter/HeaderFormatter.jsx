@@ -6,9 +6,9 @@ import replace from 'lodash/replace';
 import get from 'lodash/get';
 import { Tooltip } from 'reactstrap';
 
-import { getId, trigger } from '../../../../../../helpers/util';
+import { getId, isExistValue, trigger } from '../../../../../../helpers/util';
+import { Icon, Tooltip as EcosTooltip } from '../../../../';
 import { Input } from '../../../../form';
-import { Icon } from '../../../../';
 
 import './HeaderFormatter.scss';
 
@@ -46,7 +46,19 @@ export default class HeaderFormatter extends Component {
     this.fetchValue = false;
   }
 
-  onToggle = () => {
+  get activeFilter() {
+    const { text, open } = this.state;
+    return text || open;
+  }
+
+  get indentation() {
+    const { filterable, sortable } = this.props;
+    const actions = [filterable, sortable].filter(act => act);
+
+    return actions.length * 29;
+  }
+
+  onToggle = e => {
     const open = !this.state.open;
 
     open
@@ -54,6 +66,7 @@ export default class HeaderFormatter extends Component {
       : document.removeEventListener(this.props.closeFilterEvent, this.onCloseFilter);
 
     this.setState({ open });
+    e && e.stopPropagation();
   };
 
   onChange = e => {
@@ -103,7 +116,8 @@ export default class HeaderFormatter extends Component {
     trigger.call(this, 'onDividerMouseDown', {
       e: e,
       th: current.parentElement,
-      colIndex
+      colIndex,
+      minW: this.indentation ? this.indentation + 20 : undefined
     });
   };
 
@@ -115,72 +129,80 @@ export default class HeaderFormatter extends Component {
     }
   };
 
-  renderFilter = columnText => {
+  renderFilter = () => {
     const { text, open } = this.state;
-    const active = text || open;
-
     return (
-      <div className={classNames('ecos-th__filter', { 'ecos-th__filter_active': active })}>
-        {columnText}
-        <Icon
-          id={this.id}
-          className={classNames('ecos-th__filter-icon ecos-th__action-icon icon-filter', { 'ecos-th__action-icon_active': active })}
-          onClick={this.onToggle}
+      <Tooltip
+        id={this.tooltipId}
+        target={this.id}
+        isOpen={open}
+        trigger={'click'}
+        placement="top"
+        boundariesElement={'window'}
+        className="ecos-th__filter-tooltip"
+        innerClassName="ecos-th__filter-tooltip-body"
+        arrowClassName="ecos-th__filter-tooltip-marker"
+      >
+        <Input
+          autoFocus
+          type="text"
+          className="ecos-th__filter-tooltip-input"
+          onChange={this.onChange}
+          onKeyDown={this.onKeyDown}
+          value={text}
         />
 
-        <Tooltip
-          id={this.tooltipId}
-          target={this.id}
-          isOpen={open}
-          trigger={'click'}
-          placement="top"
-          boundariesElement={'window'}
-          className="ecos-th__filter-tooltip"
-          innerClassName="ecos-th__filter-tooltip-body"
-          arrowClassName="ecos-th__filter-tooltip-marker"
-        >
-          <Input
-            autoFocus
-            type="text"
-            className="ecos-th__filter-tooltip-input"
-            onChange={this.onChange}
-            onKeyDown={this.onKeyDown}
-            value={text}
-          />
-
-          <Icon className="ecos-th__filter-tooltip-close icon-close icon_small" onClick={this.onClear} />
-        </Tooltip>
-      </div>
+        <Icon className="ecos-th__filter-tooltip-close icon-close icon_small" onClick={this.onClear} />
+      </Tooltip>
     );
   };
 
-  render() {
-    const { column = {}, filterable, ascending, sortable } = this.props;
-    const { text, open } = this.state;
-    const active = text || open;
+  renderActions = () => {
+    const { filterable, ascending, sortable } = this.props;
 
-    this.id = `filter-${replace(column.dataField, ':', '_')}-${this._id}`;
-    this.tooltipId = `tooltip-${this.id}`;
-
-    const content = (
-      <span className={classNames({ 'ecos-th__pointer': sortable })} onClick={this.onSort}>
-        {column.text}
-        {ascending !== undefined && (
+    return (
+      <div className="ecos-th__actions">
+        {filterable && (
+          <Icon
+            id={this.id}
+            className={classNames('ecos-th__filter-icon ecos-th__action-icon icon-filter', {
+              'ecos-th__action-icon_active': this.activeFilter
+            })}
+            onClick={this.onToggle}
+          />
+        )}
+        {sortable && (
           <Icon
             className={classNames('ecos-th__order ecos-th__action-icon', {
-              'ecos-th__action-icon_active': ascending !== undefined,
+              'ecos-th__action-icon_active': isExistValue(ascending),
               'icon-up': ascending,
               'icon-down': !ascending
             })}
           />
         )}
-      </span>
+      </div>
     );
+  };
+
+  render() {
+    const { column = {}, filterable, sortable } = this.props;
+    const { text, open } = this.state;
+    const active = text || open;
+
+    this.id = `filter-${replace(column.dataField, /[\W]*/g, '_')}-${this._id}`;
+    this.tooltipId = `tooltip-${this.id}`;
+    this.tooltipTextId = `tooltip-text-${this.id}`;
 
     return (
       <div ref={this.thRef} className={classNames('ecos-th', { 'ecos-th_filtered': active })}>
-        {filterable ? this.renderFilter(content) : content}
-        <div className="ecos-th__devider" onMouseDown={this.onDividerMouseDown} />
+        <EcosTooltip target={this.tooltipTextId} text={column.text} placement="top" trigger="hover" uncontrolled autohide showAsNeeded>
+          <div id={this.tooltipTextId} className="ecos-th__content" onClick={this.onSort} style={{ paddingRight: this.indentation }}>
+            <span>{column.text}</span>
+            {this.renderActions()}
+          </div>
+        </EcosTooltip>
+        {filterable && this.renderFilter()}
+        <div className="ecos-th__divider" onMouseDown={this.onDividerMouseDown} />
       </div>
     );
   }

@@ -593,6 +593,7 @@ class Grid extends Component {
     this.fixAllThWidth(); // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3196
 
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
+    this._optionMinWidth = options.minW;
   };
 
   resizeColumn = e => {
@@ -604,6 +605,10 @@ class Grid extends Component {
 
       if (width < MIN_TH_WIDTH) {
         width = MIN_TH_WIDTH; //  - left - right;
+      }
+
+      if (this._optionMinWidth && width < this._optionMinWidth) {
+        width = this._optionMinWidth;
       }
 
       const rows = this._tableDom.rows;

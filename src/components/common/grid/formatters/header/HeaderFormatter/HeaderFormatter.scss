@@ -4,7 +4,7 @@
   width: 100%;
 
   th:last-child {
-    .ecos-th__devider {
+    .ecos-th__divider {
       display: none;
     }
   }
@@ -25,32 +25,47 @@
   &_filtered {
     padding: 1px 7px;
   }
-}
 
-.ecos-th__devider {
-  position: absolute;
-  width: 2px;
-  background: $color-gray-4;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  cursor: col-resize;
-}
+  &__content {
+    display: flex;
+    position: relative;
+    @extend %ellipsis;
 
-.ecos-th__filter {
-  @extend %ellipsis;
+    & > :first-child {
+      min-width: 0;
+    }
+  }
 
-  &_active {
-    padding: 6px 10px;
-    border-radius: 6px;
+  &__actions {
+    display: inline-flex;
+    position: absolute;
+    right: 0;
+    background: $color-white;
+  }
+
+  &__divider {
+    position: absolute;
+    width: 2px;
     background: $color-gray-4;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    cursor: col-resize;
+  }
+
+  &__filter {
+    &_active {
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: $color-gray-4;
+    }
   }
 }
 
 .ecos-th__action-icon {
   color: $color-gray-5;
   font-size: $font-size-standard;
-  margin-left: 10px;
+  margin: 0 4px;
 
   &:hover {
     color: $color-blue-light;
@@ -120,9 +135,4 @@
 }
 
 .ecos-th__order {
-}
-
-.ecos-th__pointer {
-  cursor: pointer;
-  @extend %ellipsis;
 }
