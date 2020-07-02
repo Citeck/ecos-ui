@@ -60,6 +60,11 @@ class DocConstructorDashlet extends BaseWidget {
     return !docOneDocumentId || !docOneUrl;
   }
 
+  get disabledCreate() {
+    const { documentType, docOneUrl } = this.props;
+    return documentType !== DocumentTypes.CONTRACT || !docOneUrl;
+  }
+
   get actionConfig() {
     return {
       [DAction.Actions.RELOAD]: {
@@ -135,21 +140,17 @@ class DocConstructorDashlet extends BaseWidget {
           <div className="ecos-doc-constructor__description-title">{t(Labels.DESC_TITLE)}</div>
           <div className="ecos-doc-constructor__description-text">{t(Labels.DESC_TEXT)}</div>
         </div>
-        {documentType === DocumentTypes.CONTRACT && (
-          <>
-            <div className="ecos-doc-constructor__label field-required">{t(Labels.LABEL_JOURNAL)}</div>
-            <SelectJournal
-              className="ecos-doc-constructor__journal"
-              journalId={'doc-one-templates'}
-              onChange={this.onChangeTemplate}
-              defaultValue={contractTemplate}
-              isSelectedValueAsText
-              hideDeleteRowButton={!!contractTemplate}
-              hideEditRowButton
-              disabled={!docOneUrl}
-            />
-          </>
-        )}
+        <div className="ecos-doc-constructor__label field-required">{t(Labels.LABEL_JOURNAL)}</div>
+        <SelectJournal
+          className="ecos-doc-constructor__journal"
+          journalId={'doc-one-templates'}
+          onChange={this.onChangeTemplate}
+          defaultValue={contractTemplate}
+          isSelectedValueAsText
+          hideDeleteRowButton={!!contractTemplate}
+          hideEditRowButton
+          disabled={this.disabledCreate}
+        />
         {error && (
           <div className="ecos-doc-constructor__error">
             <Icon className="icon-big_alert" />
