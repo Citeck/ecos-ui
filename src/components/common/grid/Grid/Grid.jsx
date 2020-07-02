@@ -951,7 +951,8 @@ Grid.propTypes = {
   onResizeColumn: PropTypes.func,
   onGridMouseEnter: PropTypes.func,
   onCheckDropPermission: PropTypes.func,
-  onChangeTrOptions: PropTypes.func
+  onChangeTrOptions: PropTypes.func,
+  onScrolling: PropTypes.func
 };
 
 Grid.defaultProps = {

@@ -1,10 +1,11 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import { getTextByLocale, t } from '../helpers/util';
+import { getTextByLocale } from '../helpers/util';
 import { DIRECTIONS } from '../constants/docAssociations';
+import DocumentsConverter from './documents';
 
-export default class DocAssociationsConverter {
+export default class DocAssociationsConverter extends DocumentsConverter {
   static getAssociationsForWeb(source, allowedAssociations) {
     const keys = Object.keys(source);
     const target = [];
@@ -111,44 +112,8 @@ export default class DocAssociationsConverter {
     });
   }
 
-  static getColumnsConfig(config) {
-    if (config === null) {
-      return null;
-    }
-
-    const target = { ...config };
-
-    target.columns = get(config, 'columns', []).map(column => ({
-      ...column,
-      label: t(getTextByLocale(column.label || ''))
-    }));
-    target.label = getTextByLocale(config.label);
-
-    return target;
-  }
-
   static getId(source = {}) {
     return source.id;
-  }
-
-  static getAttribute(attr = '', name = '') {
-    if (name) {
-      return name;
-    }
-
-    if (attr.charAt(0) === '.') {
-      return name;
-    }
-
-    if (attr.includes(':')) {
-      return name;
-    }
-
-    if (attr.includes('-')) {
-      return attr.toLowerCase().replace(/-/g, '_');
-    }
-
-    return attr || name;
   }
 
   static getColumnsAttributes(source = []) {
@@ -184,23 +149,5 @@ export default class DocAssociationsConverter {
       })
       .filter(item => !!item)
       .join(',');
-  }
-
-  static getColumnForWeb(source = []) {
-    if (isEmpty(source)) {
-      return [];
-    }
-
-    if (!Array.isArray(source)) {
-      return [];
-    }
-
-    return source.map(item => {
-      return {
-        ...item,
-        dataField: DocAssociationsConverter.getAttribute(item.attribute, item.name),
-        text: item.label
-      };
-    });
   }
 }

@@ -20,6 +20,7 @@ import {
   setCustomJournalMode,
   setCustomJournal,
   setPerformGroupActionResponse,
+  setPerformGroupActionLoader,
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
@@ -103,6 +104,7 @@ const defaultState = {
   previewFileName: '',
   zipNodeRef: null,
 
+  isLoadingPerformGroupActions: false,
   performGroupActionResponse: []
 };
 
@@ -162,6 +164,18 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { performGroupActionResponse: action.payload });
+    },
+    [setPerformGroupActionResponse]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { performGroupActionResponse: action.payload });
+    },
+    [setPerformGroupActionLoader]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { isLoadingPerformGroupActions: action.payload });
     },
     [setPreviewUrl]: (state, action) => {
       const stateId = action.payload.stateId;

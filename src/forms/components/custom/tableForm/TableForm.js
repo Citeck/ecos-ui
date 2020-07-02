@@ -167,7 +167,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
     const isMultiple = this.component.multiple;
 
-    const viewOnlyHasValueClassName = 'formio-component-tableForm_viewOnly-hasValue';
+    const viewOnlyHasValueClassName = 'formio-component__view-only-table-has-rows';
     const hasValue = isMultiple ? Array.isArray(this.dataValue) && this.dataValue.length > 0 : !!this.dataValue;
     const elementHasClass = this.element.classList.contains(viewOnlyHasValueClassName);
 

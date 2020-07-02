@@ -42,6 +42,7 @@ import {
   setJournalSetting,
   setJournalSettings,
   setJournalsList,
+  setPerformGroupActionLoader,
   setPerformGroupActionResponse,
   setPredicate,
   setPreviewFileName,
@@ -725,6 +726,8 @@ function* sagaSearch({ api, logger, stateId, w }, action) {
 
 function* sagaPerformGroupAction({ api, logger, stateId, w }, action) {
   try {
+    yield put(setPerformGroupActionLoader(w(true)));
+
     const { groupAction, selected, resolved } = action.payload;
     const journalConfig = yield select(state => state.journals[stateId].journalConfig);
     const performGroupActionResponse = yield call(api.journals.performGroupAction, {
@@ -742,6 +745,8 @@ function* sagaPerformGroupAction({ api, logger, stateId, w }, action) {
     }
   } catch (e) {
     logger.error('[journals sagaPerformGroupAction saga error', e.message);
+  } finally {
+    yield put(setPerformGroupActionLoader(w(false)));
   }
 }
 

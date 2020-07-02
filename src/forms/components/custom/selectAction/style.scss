@@ -16,8 +16,7 @@
         .ecos-btn {
           color: $color-white;
           background: $color-blue-dark;
-          border: none;
-          padding: 5px 17px;
+          border-color: $color-blue-dark;
         }
       }
     }
@@ -50,6 +49,51 @@
           &__text,
           &__i {
             line-height: 100%;
+          }
+        }
+      }
+    }
+
+    &_theme {
+      &-primary {
+        .ecos-btn {
+          background: $color-blue-dark;
+          border-color: $color-blue-dark;
+          color: $color-white;
+
+          &:active,
+          &:focus,
+          &:hover {
+            border-color: $color-blue-light;
+            background-color: $color-blue-light;
+            color: $color-white;
+          }
+        }
+      }
+
+      &-default {
+      }
+    }
+
+    &_size {
+      &-normal {
+      }
+
+      &-big {
+        .ecos-btn {
+          height: 40px;
+          padding: 10px 15px;
+          font-weight: bold;
+          font-size: 14px;
+          line-height: 23px;
+        }
+
+        #{$dropdown}-menu {
+          li {
+            font-style: normal;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 24px;
           }
         }
       }
