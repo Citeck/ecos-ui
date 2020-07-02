@@ -6,6 +6,7 @@ import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records';
 import { getJournalUIType } from './export/journalsApi';
 import { CommonApi } from './common';
+import { HandleControlTypes } from '../helpers/handleControl';
 
 const postProcessMenuItemChildren = items => {
   if (items && items.length) {
@@ -71,7 +72,13 @@ export class MenuApi extends CommonApi {
           {
             id: 'HEADER_CREATE_WORKFLOW_ADHOC',
             label: 'header.create-workflow-adhoc.label',
-            targetUrl: '/share/page/workflow-start-page?formType=workflowId&formKey=activiti$perform'
+            control: {
+              type: HandleControlTypes.ECOS_CREATE_VARIANT,
+              payload: {
+                recordRef: 'workflow@def_activiti$perform',
+                afterSubmit: 'reload'
+              }
+            }
           },
           {
             id: 'HEADER_CREATE_WORKFLOW_CONFIRM',
