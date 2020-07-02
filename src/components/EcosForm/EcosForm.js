@@ -135,7 +135,7 @@ class EcosForm extends React.Component {
       const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
       const formDefinition = cloneDeep(originalFormDefinition);
 
-      this.setState({ originalFormDefinition, formDefinition });
+      self.setState({ originalFormDefinition, formDefinition });
 
       EcosFormUtils.forEachComponent(formDefinition, component => {
         if (component.key) {
@@ -183,18 +183,16 @@ class EcosForm extends React.Component {
 
         const attributesTitles = {};
 
-        EcosFormUtils.forEachComponent(formDefinition, component => {
-          const edgeData = recordData.edges[component.key] || {};
-
-          if (component.key) {
-            if (edgeData.protected) {
-              component.disabled = true;
+        for (let input of recordData.inputs) {
+          if (input.component && input.edge) {
+            if (input.edge.protected) {
+              input.component.disabled = true;
             }
-            if (edgeData.title) {
-              attributesTitles[component.label] = edgeData.title;
+            if (input.edge.title) {
+              attributesTitles[input.component.label] = input.edge.title;
             }
           }
-        });
+        }
 
         const i18n = options.i18n || {};
         const language = options.language || getCurrentLocale();

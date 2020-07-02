@@ -1,0 +1,74 @@
+@import '../../../styles/constants';
+
+.analytics-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  width: 100%;
+
+  &__row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 10px;
+
+    width: 100%;
+  }
+
+  &__indicator {
+    width: 19px;
+    height: 19px;
+
+    margin-right: 7px;
+    border-radius: 50%;
+
+    background-color: $color-blue-dark;
+  }
+
+  &__title {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 18px;
+
+    margin: 0;
+    padding: 0;
+
+    color: $color-black;
+  }
+
+  &__data {
+    width: 100%;
+
+    &-progress {
+      width: 62px;
+      padding: 0 10px;
+      vertical-align: middle;
+    }
+
+    &-row {
+      &:nth-child(odd) {
+        background-color: $color-gray-25;
+      }
+
+      & > td {
+        font-style: normal;
+        font-weight: 600;
+        font-size: 12px;
+        line-height: 15px;
+
+        color: $color-black;
+
+        padding: 8px 15px;
+
+        &:first-child {
+          color: $text-color-gray;
+        }
+      }
+    }
+  }
+}

@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import * as ArrayOfObjects from '../../../helpers/arrayOfObjects';
-import { deepClone, getOutputFormat } from '../../../helpers/util';
+import { deepClone, getOutputFormat, t } from '../../../helpers/util';
+import { DataFormatTypes } from '../../../constants';
 import EcosForm from '../../EcosForm/index';
 import { Headline } from '../../common/form/index';
 import { Grid } from '../../common/grid/index';
-import { DisplayedColumns, TaskPropTypes } from './utils';
 import TaskAssignmentPanel from '../../TaskAssignmentPanel';
+import { TaskPropTypes } from './utils';
 
 import './style.scss';
 
@@ -28,6 +29,36 @@ class TaskDetails extends React.Component {
     onSubmitForm: () => {}
   };
 
+  static gridColumns = [
+    {
+      key: 'started',
+      label: t('tasks-widget.column.started'),
+      order: 0,
+      format: DataFormatTypes.DATE
+    },
+    {
+      key: 'deadline',
+      label: t('tasks-widget.column.deadline'),
+      order: 1,
+      format: DataFormatTypes.DATE
+    },
+    {
+      key: 'sender',
+      label: t('tasks-widget.column.sender'),
+      order: 2
+    },
+    {
+      key: 'actors',
+      label: t('tasks-widget.column.actors'),
+      order: 3
+    },
+    {
+      key: 'lastcomment',
+      label: t('tasks-widget.column.lastcomment'),
+      order: 4
+    }
+  ];
+
   onSubmitForm = () => {
     this.props.onSubmitForm();
   };
@@ -37,7 +68,7 @@ class TaskDetails extends React.Component {
 
     for (const key in details) {
       if (details.hasOwnProperty(key)) {
-        const desc = ArrayOfObjects.getObjectByKV(DisplayedColumns, 'key', key);
+        const desc = ArrayOfObjects.getObjectByKV(TaskDetails.gridColumns, 'key', key);
 
         if (Object.keys(desc).length) {
           details[key] = getOutputFormat(desc.format, details[key]);
@@ -46,7 +77,7 @@ class TaskDetails extends React.Component {
     }
 
     const arr = [details];
-    const updCols = ArrayOfObjects.replaceKeys(DisplayedColumns, { key: 'dataField', label: 'text' });
+    const updCols = ArrayOfObjects.replaceKeys(TaskDetails.gridColumns, { key: 'dataField', label: 'text' });
     const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
 
     return <Grid data={arr} columns={gridCols} scrollable={true} className="ecos-task-ins_view-table" />;
@@ -54,7 +85,7 @@ class TaskDetails extends React.Component {
 
   renderDetailsEnum() {
     const { details } = this.props;
-    const columns = ArrayOfObjects.sort(DisplayedColumns, 'order');
+    const columns = ArrayOfObjects.sort(TaskDetails.gridColumns, 'order');
 
     return (
       <>

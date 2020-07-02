@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import isArray from 'lodash/isArray';
 
 import { t } from '../../../helpers/util';
+import { passwordValidator } from '../../../helpers/validators';
 import { Input } from '../form';
 import { Icon } from '../';
 
@@ -56,14 +57,16 @@ export default class Password extends React.Component {
     onChange: PropTypes.func,
     errMsgs: PropTypes.array,
     autocomplete: PropTypes.bool,
-    verifiable: PropTypes.bool
+    verifiable: PropTypes.bool,
+    validator: PropTypes.func
   };
 
   static defaultProps = {
     className: '',
     autocomplete: false,
     verifiable: false,
-    type: 'text'
+    type: 'text',
+    validator: passwordValidator
   };
 
   state = {
@@ -98,10 +101,10 @@ export default class Password extends React.Component {
   }
 
   onChange = e => {
-    const { onChange, keyValue: key } = this.props;
+    const { onChange, keyValue: key, validator } = this.props;
     const value = e.target.value;
 
-    onChange && onChange({ value, key, valid: BASE_RULE.test(String(value)) });
+    onChange && onChange({ value, key, valid: validator(String(value)) });
   };
 
   onFocus = () => {
@@ -163,7 +166,7 @@ export default class Password extends React.Component {
   }
 
   render() {
-    const { className, keyValue, autocomplete, verifiable, value, valid, errMsgs, forwardedRef, name, ...addProps } = this.props;
+    const { className, keyValue, autocomplete, verifiable, value, valid, errMsgs, forwardedRef, name, validator, ...addProps } = this.props;
     const { isShowWord, touched } = this.state;
     const check = BASE_RULE.test(String(value || ''));
 

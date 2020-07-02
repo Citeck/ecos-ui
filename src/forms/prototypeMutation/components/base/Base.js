@@ -16,7 +16,22 @@ const originalT = Base.prototype.t;
 const originalApplyActions = Base.prototype.applyActions;
 const originalCalculateValue = Base.prototype.calculateValue;
 
+const INLINE_EDITING_CLASSNAME = 'inline-editing';
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-166
+const originalGetClassName = Object.getOwnPropertyDescriptor(Base.prototype, 'className');
+Object.defineProperty(Base.prototype, 'className', {
+  get: function() {
+    let className = originalGetClassName.get.call(this);
+
+    if (this._isInlineEditingMode) {
+      className += ` ${INLINE_EDITING_CLASSNAME}`;
+    }
+
+    return className;
+  }
+});
 
 Base.prototype.calculateValue = function(data, flags) {
   const hasChanged = this.hasChanged(
@@ -130,7 +145,7 @@ Base.prototype.createInlineEditButton = function(container) {
       this.emit('inlineEditingStart', currentValue);
 
       this.redraw();
-      container.classList.add('inline-editing');
+      container.classList.add(INLINE_EDITING_CLASSNAME);
       editButton.removeEventListener('click', onEditClick);
 
       this.focus();
@@ -182,7 +197,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       this.options.readOnly = true;
       this.options.viewAsHtml = true;
       this._isInlineEditingMode = false;
-      this.element.classList.remove('inline-editing');
+      this.element.classList.remove(INLINE_EDITING_CLASSNAME);
 
       this.redraw();
       this._removeEventListeners();

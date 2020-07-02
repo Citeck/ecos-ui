@@ -54,8 +54,8 @@ const dialogsById = {
     const { onDelete = () => {}, onCancel = () => {}, onClose = onCancel, title, text } = dialogProps;
     const dProps = {
       ...dialogProps,
-      title: t(title || 'record-action.delete.dialog.title.remove-many'),
-      text: t(text || 'record-action.delete.dialog.msg.remove-many'),
+      title: t(title !== null && title !== undefined ? title : 'record-action.delete.dialog.title.remove-many'),
+      text: t(title !== null && title !== undefined ? text : 'record-action.delete.dialog.msg.remove-many'),
       isOpen: props.isVisible
     };
 

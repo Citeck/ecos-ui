@@ -909,17 +909,17 @@ export default class SelectComponent extends BaseComponent {
       return found || defaultAdded;
     }, false);
 
-    if (notFoundValuesToAdd.length) {
-      if (this.choices) {
-        this.choices.setChoices(notFoundValuesToAdd, 'value', 'label');
-      } else {
-        notFoundValuesToAdd.map(notFoundValue => {
-          this.addOption(notFoundValue.value, notFoundValue.label);
-          return notFoundValue;
-        });
-      }
-    }
-
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-169
+    // if (notFoundValuesToAdd.length) {
+    //   if (this.choices) {
+    //     this.choices.setChoices(notFoundValuesToAdd, 'value', 'label');
+    //   } else {
+    //     notFoundValuesToAdd.map(notFoundValue => {
+    //       this.addOption(notFoundValue.value, notFoundValue.label);
+    //       return notFoundValue;
+    //     });
+    //   }
+    // }
     return added;
   }
 

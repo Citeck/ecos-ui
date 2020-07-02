@@ -1,11 +1,21 @@
 import { handleActions } from 'redux-actions';
-import { changePassword, changePhoto, getUserData, setChangePassword, setMessage, setUserData, setUserPhoto } from '../actions/user';
+import {
+  changePassword,
+  changePhoto,
+  getUserData,
+  setChangePassword,
+  setMessage,
+  setUserData,
+  setUserPhoto,
+  togglePasswordModal
+} from '../actions/user';
 import { getCurrentStateById } from '../helpers/redux';
 
 const initialState = {
   isLoading: false,
   isLoadingPhoto: false,
   isLoadingPassword: false,
+  isOpenPasswordModal: false,
   data: {},
   message: null
 };
@@ -91,6 +101,19 @@ export default handleActions(
           ...getCurrentStateById(state, stateId, initialState),
           message,
           ...extra
+        }
+      };
+    },
+    [togglePasswordModal]: (state, { payload }) => {
+      const { stateId, isOpen } = payload;
+      const currentState = getCurrentStateById(state, stateId, initialState);
+      const isOpenPasswordModal = isOpen === undefined ? !currentState.isOpenPasswordModal : isOpen;
+
+      return {
+        ...state,
+        [stateId]: {
+          ...currentState,
+          isOpenPasswordModal
         }
       };
     }

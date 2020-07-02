@@ -29,8 +29,8 @@ const store = configureStore({
   logger
 });
 
-api.menu = new MenuApi(store);
-api.view = new ViewApi(store);
+api.menu = new MenuApi();
+api.view = new ViewApi();
 
 const render = (elementId, props, callback) => {
   store.dispatch(

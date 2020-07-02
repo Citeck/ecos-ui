@@ -4,7 +4,6 @@ const prefix = 'tasks/';
 
 export const getTaskList = createAction(prefix + 'GET_TASK_LIST');
 export const changeTaskAssignee = createAction(prefix + 'CHANGE_TASK_ASSIGNEE');
-export const changeTaskAssigneeFromPanel = createAction(prefix + 'CHANGE_TASK_ASSIGNEE_FROM_PANEL');
 
 export const setTaskList = createAction(prefix + 'SET_TASK_LIST');
 export const setTaskAssignee = createAction(prefix + 'SET_TASK_ASSIGNEE');

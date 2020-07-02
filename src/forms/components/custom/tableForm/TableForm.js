@@ -3,7 +3,7 @@ import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../../components/Records';
-import { JournalsApi } from '../../../../api';
+import { JournalsApi } from '../../../../api/journalsApi';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import DialogManager from '../../../../components/common/dialogs/Manager';
 import { t } from '../../../../helpers/util';

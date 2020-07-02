@@ -1,6 +1,7 @@
-import BaseComponent from './BaseComponent';
-import ReactDOM from 'react-dom';
 import React from 'react';
+import ReactDOM from 'react-dom';
+
+import BaseComponent from './BaseComponent';
 import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
 
 export default class BaseReactComponent extends BaseComponent {
@@ -90,7 +91,10 @@ export default class BaseReactComponent extends BaseComponent {
         this.react.waitingProps = {};
       });
     } else {
-      this.react.wrapper.setProps(props);
+      // is this checking required?
+      if (this.react.wrapper) {
+        this.react.wrapper.setProps(props);
+      }
     }
   }
 

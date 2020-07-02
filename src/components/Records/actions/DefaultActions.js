@@ -1,3 +1,4 @@
+import React from 'react';
 import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
@@ -20,19 +21,7 @@ import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
 import Records from '../Records';
 import RecordActions from './RecordActions';
-
-const globalTasks = [
-  'active-tasks',
-  'completed-tasks',
-  'controlled',
-  'subordinate-tasks',
-  'task-statistic',
-  'initiator-tasks',
-  'income-package-tasks',
-  'ptp-active-tasks'
-];
-
-const globalTaskPatterns = [/active-tasks/, /completed-tasks/, /controlled/, /subordinate-tasks/, /task-statistic/, /initiator-tasks/];
+import TaskAssignmentPanel from '../../TaskAssignmentPanel/TaskAssignmentPanel';
 
 function notifySuccess(msg) {
   NotificationManager.success(msg || t('record-action.msg.success.text'), t('record-action.msg.success.title'));
@@ -62,43 +51,40 @@ export const DefaultActionTypes = {
 };
 
 export const EditAction = {
-  disabledFor: [/task-statistic/, /completed-tasks/],
+  execute: ({ record, action: { config = {} } }) => {
+    if (config.mode === 'task') {
+      return record.load('cm:name?str').then(taskId => {
+        if (!taskId) {
+          console.error('Task ID is not found for record', record);
+          notifyFailure();
+          return false;
+        }
 
-  execute: ({ record, action: { context } }) => {
-    return new Promise(resolve => {
-      const openEditRecordModal = (recordRef, fallback) => {
-        EcosFormUtils.editRecord({
-          recordRef,
-          fallback: typeof fallback === 'function' ? fallback : () => goToNodeEditPage(recordRef),
-          onSubmit: () => resolve(true),
-          onCancel: () => resolve(false)
-        });
-      };
+        const taskRecordId = `${SourcesId.TASK}@${taskId}`;
+        const contentBefore = () => <TaskAssignmentPanel narrow executeRequest taskId={taskRecordId} />;
 
-      const resolveFailure = () => {
-        notifyFailure();
-        resolve(false);
-      };
-
-      //todo it is not needed in dev; https://citeck.atlassian.net/browse/ECOSUI-158
-      if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
-        Records.get(record.id)
-          .load('cm:name?str')
-          .then(taskId => {
-            if (!taskId) {
-              resolveFailure();
-            }
-
-            openEditRecordModal(`${SourcesId.TASK}@${taskId}`, () => {
+        return new Promise(resolve => {
+          EcosFormUtils.editRecord({
+            recordRef: taskRecordId,
+            fallback: () => {
               window.open(`${URL_PAGECONTEXT}task-edit?taskId=${taskId}&formMode=edit`, '_blank');
               resolve(false);
-            });
-          })
-          .catch(resolveFailure);
-        return;
-      }
+            },
+            contentBefore: contentBefore(),
+            onSubmit: () => resolve(true),
+            onCancel: () => resolve(false)
+          });
+        });
+      });
+    }
 
-      openEditRecordModal(record.id);
+    return new Promise(resolve => {
+      EcosFormUtils.editRecord({
+        recordRef: record.id,
+        fallback: () => goToNodeEditPage(record.id),
+        onSubmit: () => resolve(true),
+        onCancel: () => resolve(false)
+      });
     });
   },
 
@@ -108,34 +94,44 @@ export const EditAction = {
       type: DefaultActionTypes.EDIT,
       icon: 'icon-edit'
     };
-  },
-
-  canBeExecuted: ({ context }) => {
-    const { scope = '' } = context;
-    for (let pattern of EditAction.disabledFor) {
-      if (pattern.test(scope)) {
-        return false;
-      }
-    }
-    return true;
   }
+};
+
+const goToTaskView = (task, inBackground) => {
+  let taskRecord = Records.get(task);
+
+  taskRecord.load('wfm:document?id').then(docId => {
+    if (docId) {
+      goToCardDetailsPage(docId, { openInBackground: inBackground });
+    } else {
+      taskRecord.load('cm:name?str').then(taskId => {
+        if (!taskId) {
+          console.error('Task Id is not found!');
+          notifyFailure();
+          return;
+        }
+        const taskRecordId = `${SourcesId.TASK}@${taskId}`;
+        Records.get(taskRecordId)
+          .load('workflow?id')
+          .then(workflowId => {
+            goToCardDetailsPage(workflowId || taskRecordId, { openInBackground: inBackground });
+          });
+      });
+    }
+  });
 };
 
 export const ViewAction = {
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record, action: { config = {}, context = {} } }) => {
+  execute: ({ record, action: { config = {} } }) => {
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
-        .then(docId => (docId ? goToCardDetailsPage(docId) : notifyFailure()));
+        .then(docId => (docId ? goToCardDetailsPage(docId) : ''));
       return false;
-    }
-    //todo it is not needed in dev; https://citeck.atlassian.net/browse/ECOSUI-158
-    if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
-      Records.get(record.id)
-        .load('cm:name?str')
-        .then(taskId => (taskId ? goToCardDetailsPage(`${SourcesId.TASK}@${taskId}`) : notifyFailure()));
+    } else if (config.viewType === 'view-task') {
+      goToTaskView(record.id, false);
       return false;
     }
 
@@ -193,12 +189,9 @@ export const BackgroundOpenAction = {
 
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record, action: { context } }) => {
-    //todo it is not needed in dev; https://citeck.atlassian.net/browse/ECOSUI-158
-    if (globalTasks.some(key => (context.scope || '').startsWith(key))) {
-      Records.get(record.id)
-        .load('cm:name?str')
-        .then(taskId => (taskId ? goToCardDetailsPage(`${SourcesId.TASK}@${taskId}`, { openInBackground: true }) : notifyFailure()));
+  execute: ({ record, action: { context, config = {} } }) => {
+    if (config.viewType === 'view-task') {
+      goToTaskView(record.id, true);
       return false;
     }
 
@@ -232,7 +225,24 @@ export const DownloadAction = {
   execute: ({ record, action }) => {
     const config = action.config || {};
 
-    if (config.downloadType === 'ecos_module') {
+    if (config.downloadType === 'base64') {
+      record.load(config.attribute || 'data').then(data => {
+        let filename = config.filename;
+        if (!filename) {
+          filename = record.id;
+          if (filename.indexOf('@') > 0) {
+            filename = filename.substring(filename.indexOf('@') + 1);
+          }
+          if (filename.indexOf('$') > 0) {
+            filename = filename.substring(filename.indexOf('$') + 1);
+          }
+          if (config.extension) {
+            filename += '.' + config.extension;
+          }
+        }
+        DownloadAction._downloadBase64(data, filename);
+      });
+    } else if (config.downloadType === 'ecos_module') {
       record
         .load(
           {
@@ -282,8 +292,17 @@ export const DownloadAction = {
     document.body.removeChild(a);
   },
 
+  _downloadBase64: (base64, filename) => {
+    const dataStr = 'data:application/octet-stream;charset=utf-8;base64,' + base64;
+    DownloadAction._downloadDataStr(dataStr, filename);
+  },
+
   _downloadText: (text, filename, mimetype) => {
     const dataStr = 'data:' + mimetype + ';charset=utf-8,' + encodeURIComponent(text);
+    DownloadAction._downloadDataStr(dataStr, filename);
+  },
+
+  _downloadDataStr: (dataStr, filename) => {
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute('href', dataStr);
     downloadAnchorNode.setAttribute('download', filename);
@@ -294,7 +313,7 @@ export const DownloadAction = {
 };
 
 export const DeleteAction = {
-  disabledFor: [/^event-lines.*/, ...globalTaskPatterns],
+  disabledFor: [/^event-lines.*/],
 
   groupExec: ({ records }) => {
     return new Promise(resolve => {
@@ -400,6 +419,8 @@ export const DownloadCardTemplate = {
 };
 
 export const CreateNodeAction = {
+  type: DefaultActionTypes.CREATE,
+
   execute: ({ record, action }) => {
     const fromRecordRegexp = /^\$/;
     const { config = {} } = action;
@@ -423,9 +444,14 @@ export const CreateNodeAction = {
         attributes: config.attributes || {},
         options: config.options || {},
         onSubmit: record => {
+          const { redirectToPage = true } = config;
+
           record.update();
           resolve(true);
-          record.id && goToCardDetailsPage(record.id);
+
+          if (redirectToPage) {
+            record.id && goToCardDetailsPage(record.id);
+          }
         },
         onFormCancel: () => resolve(false)
       };
@@ -617,12 +643,14 @@ export const ScriptAction = {
           },
           error => {
             console.error(error);
+            notifyFailure();
             resolve(false);
           }
         );
       });
     } else {
       console.error('Module is not specified!');
+      notifyFailure('record-action.script-action.error.text');
       return false;
     }
   },

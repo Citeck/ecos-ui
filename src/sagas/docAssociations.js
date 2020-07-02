@@ -154,7 +154,6 @@ function* sagaAddAssociations({ api, logger }, { payload }) {
       });
     }
 
-    yield put(getAssociations(record));
     yield Records.get([record, ...associations]).forEach(r => r && r.update());
 
     NotificationManager.success(
@@ -193,7 +192,7 @@ function* sagaRemoveAssociations({ api, logger }, { payload }) {
       association,
       associationId: attribute || associationId
     });
-    yield put(getAssociations(record));
+
     yield Records.get([record, associationRef]).forEach(r => r && r.update());
 
     NotificationManager.success(t('doc-associations-widget.remove-association.success.message'));

@@ -1,5 +1,4 @@
 import { getCurrentLocale } from '../helpers/util';
-import { setIsAuthenticated } from '../actions/user';
 import ecosFetch from '../helpers/ecosFetch';
 
 const getOptions = {
@@ -28,22 +27,20 @@ const deleteOptions = {
   method: 'delete'
 };
 
+const loadingCacheByKey = {};
+
 export class CommonApi {
-  constructor(store) {
-    if (store) {
-      this.store = store;
-    }
-  }
+  setNotAuthCallback = cb => {
+    this.notAuthCallback = cb;
+  };
 
   checkStatus = response => {
     if (response.status >= 200 && response.status < 300) {
       return response;
     }
 
-    if (response.status === 401) {
-      if (this.store && typeof this.store.dispatch === 'function') {
-        this.store.dispatch(setIsAuthenticated(false));
-      }
+    if (response.status === 401 && typeof this.notAuthCallback === 'function') {
+      this.notAuthCallback();
     }
 
     const error = new Error(response.statusText);
@@ -56,7 +53,7 @@ export class CommonApi {
       return this.getJson(config.url);
     }
 
-    let { timeout, onError, url, postProcess } = config;
+    let { timeout, onError, url, postProcess, cacheKey } = config;
 
     let shareProxyUrl = '';
     if (process.env.NODE_ENV === 'development') {
@@ -66,16 +63,23 @@ export class CommonApi {
     const locale = getCurrentLocale();
     const key = `CommonApi_${locale}_${shareProxyUrl}${url}`;
 
+    let fromLoadingCache = loadingCacheByKey[key];
+    if (fromLoadingCache && fromLoadingCache.cacheKey === cacheKey) {
+      return fromLoadingCache.promise;
+    }
+
     let result = sessionStorage.getItem(key);
     if (result) {
       let parsedResult = JSON.parse(result);
 
-      if (timeout) {
-        if (new Date().getTime() - parsedResult.time < timeout) {
+      if (!cacheKey || parsedResult.cacheKey === cacheKey) {
+        if (timeout) {
+          if (new Date().getTime() - parsedResult.time < timeout) {
+            return Promise.resolve(parsedResult.response);
+          }
+        } else {
           return Promise.resolve(parsedResult.response);
         }
-      } else {
-        return Promise.resolve(parsedResult.response);
       }
     }
     const addToStorage = response => {
@@ -83,6 +87,7 @@ export class CommonApi {
         key,
         JSON.stringify({
           time: new Date().getTime(),
+          cacheKey: cacheKey,
           response
         })
       );
@@ -108,7 +113,14 @@ export class CommonApi {
       });
     }
 
-    return resultPromise;
+    loadingCacheByKey[key] = {
+      promise: resultPromise,
+      cacheKey
+    };
+
+    return resultPromise.finally(() => {
+      delete loadingCacheByKey[key];
+    });
   };
 
   getCommonHeaders = () => {
