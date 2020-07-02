@@ -185,8 +185,7 @@ export default class HeaderFormatter extends Component {
   };
 
   render() {
-    const { column = {}, filterable, sortable } = this.props;
-    const { text, open } = this.state;
+    const { column = {}, filterable } = this.props;
 
     this.id = `filter-${replace(column.dataField, /[\W]*/g, '_')}-${this._id}`;
     this.tooltipId = `tooltip-${this.id}`;
@@ -196,7 +195,7 @@ export default class HeaderFormatter extends Component {
       <div ref={this.thRef} className={classNames('ecos-th', { 'ecos-th_filtered': this.activeFilter })}>
         <EcosTooltip target={this.tooltipTextId} text={column.text} placement="bottom" trigger="hover" uncontrolled autohide showAsNeeded>
           <div id={this.tooltipTextId} className="ecos-th__content" onClick={this.onSort} style={{ paddingRight: this.indentation }}>
-            <div className="ecos-th__content-text">{column.text}</div>
+            <span className="ecos-th__content-text">{column.text}</span>
             {this.renderActions()}
           </div>
         </EcosTooltip>
