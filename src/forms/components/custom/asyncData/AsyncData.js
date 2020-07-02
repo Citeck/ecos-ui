@@ -434,6 +434,7 @@ export default class AsyncDataComponent extends BaseComponent {
   _inlineInitialValue = null;
   _isInlineEditingMode = false;
   _changeValue = ({ refreshOn, saveInline = false }) => event => {
+    // console.log(`changed event${event.fromBase ? ' from Base' : ''}`, event);
     const validEvent = event && event.component && refreshOn.findIndex(item => item.value === event.component.key) !== -1;
     const shouldUpdate =
       validEvent &&
