@@ -28,12 +28,13 @@
       border-bottom: none;
     }
 
-    &.formio-component-tableForm_viewOnly-hasValue {
+    &.formio-component__view-only-table-has-rows {
       display: grid;
       grid-template-columns: 100%;
       grid-gap: 10px;
       border-bottom: none;
 
+      .select-journal__value-not-selected,
       .ecos-table-form__value-not-selected {
         display: none;
       }
