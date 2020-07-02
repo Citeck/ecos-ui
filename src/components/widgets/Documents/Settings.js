@@ -241,7 +241,7 @@ class Settings extends Component {
   };
 
   render() {
-    const { isOpen, title, isLoading, isLoadingTypeSettings, typeSettings } = this.props;
+    const { isOpen, title, isLoading, isLoadingTypeSettings } = this.props;
     const { editableType, isLoadChecklist } = this.state;
 
     return (

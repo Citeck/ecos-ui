@@ -2,7 +2,6 @@ import isEmpty from 'lodash/isEmpty';
 
 import ecosFetch from '../helpers/ecosFetch';
 import Records from '../components/Records';
-import { RecordService } from './recordService';
 import { EmodelTypes } from '../constants';
 import { DocumentsApi } from './documents';
 

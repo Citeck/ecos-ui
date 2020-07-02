@@ -169,7 +169,6 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
   try {
     yield delay(payload.delay || 1000);
 
-    const columns = yield select(state => selectColumnsConfig(state, payload.key, payload.type));
     const attributes = DocumentsConverter.getColumnsAttributes(
       yield select(state => selectColumnsConfig(state, payload.key, payload.type))
     );

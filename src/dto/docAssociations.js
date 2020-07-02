@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import { getTextByLocale, t } from '../helpers/util';
+import { getTextByLocale } from '../helpers/util';
 import { DIRECTIONS } from '../constants/docAssociations';
 import DocumentsConverter from './documents';
 
