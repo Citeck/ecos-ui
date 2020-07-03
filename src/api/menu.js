@@ -74,8 +74,7 @@ export class MenuApi extends CommonApi {
             control: {
               type: 'ECOS_CREATE_VARIANT',
               payload: {
-                recordRef: 'workflow@def_activiti$perform',
-                afterSubmit: 'reload'
+                recordRef: 'workflow@def_activiti$perform'
               }
             }
           },
