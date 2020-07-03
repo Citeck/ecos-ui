@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
 import Records from '../Records/Records';
-import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { MIN_WIDTH_DASHLET_SMALL, MAX_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 
 class BaseWidget extends Component {
   contentRef = React.createRef();
@@ -63,6 +63,21 @@ class BaseWidget extends Component {
 
   get fullHeight() {
     return this.clientHeight + this.otherHeight;
+  }
+
+  get contentHeight() {
+    const { maxHeightByContent, fixedHeight } = this.props;
+    const { fitHeights } = this.state;
+
+    if (fixedHeight) {
+      return MAX_DEFAULT_HEIGHT_DASHLET - fitHeights.headerHeight;
+    }
+
+    if (maxHeightByContent) {
+      return this.clientHeight; // - fitHeights.headerHeight;
+    }
+
+    return undefined;
   }
 
   setContentHeight = contentHeight => {

@@ -108,6 +108,7 @@ class Tasks extends React.Component {
   };
 
   setHeight = contentHeight => {
+    console.warn({ contentHeight });
     this.setState({ contentHeight });
   };
 
@@ -136,7 +137,9 @@ class Tasks extends React.Component {
 
     return (
       <Scrollbars
-        style={{ height: contentHeight || '100%' }}
+        // style={{ height: contentHeight || '100%' }}
+        autoHeight
+        autoHeightMax={height}
         className="ecos-task-list"
         renderTrackVertical={props => <div {...props} className="ecos-task-list__v-scroll" />}
       >

@@ -50,7 +50,7 @@ class TasksDashlet extends BaseWidget {
     this.instanceRecord.unwatch(this.watcher);
   }
 
-  onResize = width => {
+  onResize = (width, height) => {
     !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
 
@@ -94,7 +94,8 @@ class TasksDashlet extends BaseWidget {
           stateId={record}
           runUpdate={runUpdate}
           isSmallMode={isSmallMode}
-          height={userHeight}
+          // height={userHeight}
+          height={this.contentHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           setInfo={this.setInfo}
