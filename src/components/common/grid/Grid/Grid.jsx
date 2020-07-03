@@ -39,6 +39,7 @@ const SelectorHeader = ({ indeterminate, ...rest }) => (
 );
 
 const MIN_TH_WIDTH = 60;
+const MAX_START_TH_WIDTH = 500;
 
 class Grid extends Component {
   #columnsSizes = {};
@@ -60,6 +61,7 @@ class Grid extends Component {
     this._shadowLeftNode = null;
     this._firstHeaderCellNode = null;
     this._inlineActionsNode = null;
+    this._optionMinWidth = null;
 
     this.state = {
       tableHeight: 0
@@ -67,6 +69,16 @@ class Grid extends Component {
   }
 
   componentDidMount() {
+    const grid = get(this, '_ref.current');
+
+    grid &&
+      !this._startResizingThOffset &&
+      grid.querySelectorAll('table tr td').forEach(th => {
+        if (!th.querySelector('.ecos-grid__checkbox') && th.clientWidth > MAX_START_TH_WIDTH) {
+          th.querySelector('div').style.width = MAX_START_TH_WIDTH + 'px';
+        }
+      });
+
     this.createCloseFilterEvent();
     this.createColumnResizeEvents();
     this.createKeydownEvents();

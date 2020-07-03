@@ -184,12 +184,14 @@ export default class HeaderFormatter extends Component {
 
     return (
       <div ref={this.thRef} className={classNames('ecos-th', { 'ecos-th_filtered': this.activeFilter, 'ecos-th_sortable': sortable })}>
-        <EcosTooltip target={this.tooltipTextId} text={column.text} placement="bottom" trigger="hover" uncontrolled autohide showAsNeeded>
-          <div id={this.tooltipTextId} className="ecos-th__content" onClick={this.onSort} style={{ paddingRight: this.indentation }}>
-            <span className="ecos-th__content-text">{column.text}</span>
-            {this.renderActions()}
-          </div>
-        </EcosTooltip>
+        <div className="ecos-th__content" onClick={this.onSort} style={{ paddingRight: this.indentation }}>
+          <EcosTooltip target={this.tooltipTextId} text={column.text} placement="bottom" trigger="hover" uncontrolled autohide showAsNeeded>
+            <span id={this.tooltipTextId} className="ecos-th__content-text">
+              {column.text}
+            </span>
+          </EcosTooltip>
+          {this.renderActions()}
+        </div>
         {filterable && this.renderFilter()}
         <div className="ecos-th__divider" onMouseDown={this.onDividerMouseDown} />
       </div>
