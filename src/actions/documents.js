@@ -17,6 +17,11 @@ export const setDynamicTypes = createAction(prefix + 'SET_DYNAMIC_TYPES');
 
 export const setDocuments = createAction(prefix + 'SET_DOCUMENTS');
 export const getDocumentsByType = createAction(prefix + 'SET_DOCUMENTS_BY_TYPE');
+export const getDocumentsFinally = createAction(prefix + 'GET_DOCUMENTS_FINALLY');
+
+export const getTypeSettings = createAction(prefix + 'GET_TYPE_SETTINGS');
+export const setTypeSettings = createAction(prefix + 'SET_TYPE_SETTINGS');
+export const setTypeSettingsFinally = createAction(prefix + 'SET_TYPE_SETTINGS_FINALLY');
 
 export const saveSettings = createAction(prefix + 'SAVE_SETTINGS');
 export const saveSettingsFinally = createAction(prefix + 'SAVE_SETTINGS_FINALLY');
