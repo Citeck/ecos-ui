@@ -11,6 +11,8 @@
 }
 
 .ecos-th {
+  $th: &;
+
   display: flex;
   align-items: center;
   position: relative;
@@ -23,13 +25,26 @@
   box-sizing: border-box;
 
   &_filtered {
-    padding: 1px 7px;
+    padding: 1px 10px;
 
-    .ecos-th__content-text {
-      padding: 6px 10px;
+    #{$th}__content {
+      padding: 6px 7px;
       border-radius: 6px;
       background: $color-gray-4;
+
+      &-text {
+        padding-right: 7px;
+      }
+
+      #{$th}__actions {
+        background: $color-gray-4;
+        right: 7px;
+      }
     }
+  }
+
+  &_sortable {
+    cursor: pointer;
   }
 
   &__content {
