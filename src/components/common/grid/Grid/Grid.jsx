@@ -69,16 +69,6 @@ class Grid extends Component {
   }
 
   componentDidMount() {
-    const grid = get(this, '_ref.current');
-
-    grid &&
-      !this._startResizingThOffset &&
-      grid.querySelectorAll('table tr td').forEach(th => {
-        if (!th.querySelector('.ecos-grid__checkbox') && th.clientWidth > MAX_START_TH_WIDTH) {
-          th.querySelector('div').style.width = MAX_START_TH_WIDTH + 'px';
-        }
-      });
-
     this.createCloseFilterEvent();
     this.createColumnResizeEvents();
     this.createKeydownEvents();
@@ -91,6 +81,8 @@ class Grid extends Component {
       this._shadowLeftNode = current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW)[0];
       this._firstHeaderCellNode = current.querySelector(`thead > tr > th:first-child .${ECOS_GRID_CHECKBOX_DIVIDER_CLASS}`);
       this._inlineActionsNode = current.querySelector('.ecos-inline-tools-actions');
+
+      setTimeout(this.setDefaultWidth, 400);
     }
 
     this.checkScrollPosition();
@@ -161,6 +153,16 @@ class Grid extends Component {
         }
       }
     }
+  };
+
+  setDefaultWidth = () => {
+    !this._startResizingThOffset &&
+      this._ref.current &&
+      this._ref.current.querySelectorAll('.ecos-grid__td').forEach(cellEl => {
+        if (cellEl && cellEl.clientWidth > MAX_START_TH_WIDTH) {
+          cellEl.style.width = MAX_START_TH_WIDTH + 'px';
+        }
+      });
   };
 
   checkScrollPosition() {
