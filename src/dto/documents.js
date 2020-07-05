@@ -58,7 +58,6 @@ export default class DocumentsConverter {
         countDocuments: documents.length,
         lastDocumentRef: get(document, documentFields.id, ''),
         [documentFields.loadedBy]: get(document, documentFields.loadedBy, ''),
-        // loadedBy: get(document, 'loadedBy', ''),
         canDropUpload: !createVariants.formRef,
         [documentFields.modified]: DocumentsConverter.getFormattedDate(get(document, documentFields.modified, ''))
       };
@@ -126,7 +125,7 @@ export default class DocumentsConverter {
       return target;
     }
 
-    if (!isEmpty(source.columns)) {
+    if (!isEmpty(get(source, 'columns'))) {
       target.customizedColumns = source.columns;
     }
 
@@ -171,8 +170,8 @@ export default class DocumentsConverter {
   };
 
   static combineTypes = (baseTypes = [], userTypes = []) => {
-    const base = deepClone(baseTypes);
-    const user = deepClone(userTypes);
+    const base = deepClone(baseTypes, []);
+    const user = deepClone(userTypes, []);
 
     return user.reduce((result, current) => {
       const index = result.findIndex(item => item.type === current.type);
@@ -297,7 +296,7 @@ export default class DocumentsConverter {
       return {
         ...item,
         dataField: DocumentsConverter.getAttribute(item.attribute, item.name),
-        text: item.label
+        text: getTextByLocale(item.label)
       };
     });
   }
@@ -387,8 +386,8 @@ export default class DocumentsConverter {
       return [];
     }
 
-    const customizedColumns = deepClone(configColumns);
-    const originColumns = deepClone(columns);
+    const customizedColumns = configColumns; // deepClone(configColumns);
+    const originColumns = columns; // deepClone(columns);
 
     if (isEmpty(customizedColumns)) {
       return originColumns;
@@ -409,6 +408,8 @@ export default class DocumentsConverter {
         label: getTextByLocale(deleted.label)
       };
     });
+
+    // console.warn(originColumns, columns)
 
     return [...result, ...originColumns.filter(item => !isEmpty(item))].map(item => ({ ...item, hidden: !item.visible }));
   }

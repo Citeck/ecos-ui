@@ -4,6 +4,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { NotificationManager } from 'react-notifications';
 
@@ -12,6 +13,7 @@ import {
   selectAvailableType,
   selectAvailableTypes,
   selectColumnsConfig,
+  selectColumnsFromConfigByType,
   selectConfigTypes,
   selectDynamicType,
   selectDynamicTypes,
@@ -44,7 +46,7 @@ import {
   uploadFilesFinally
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
-import { deepClone, getFirstNonEmpty, t } from '../helpers/util';
+import { getFirstNonEmpty, t } from '../helpers/util';
 import RecordActions from '../components/Records/actions/RecordActions';
 import { BackgroundOpenAction, CreateNodeAction } from '../components/Records/actions/DefaultActions';
 import { DEFAULT_REF, documentActions, documentFields } from '../constants/documents';
@@ -113,10 +115,14 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
 
     yield all(
       combinedTypes.map(function*(item) {
-        const columnsConfig = yield call(api.documents.getColumnsConfigByType, item.type);
-        const formattedColumns = yield call(api.documents.getFormattedColumns, columnsConfig);
+        const columnsConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
+        const columnsFromDashletConfig = yield select(state => selectColumnsFromConfigByType(state, payload.key, item.type));
+        const columns = yield call(api.documents.getFormattedColumns, {
+          ...columnsConfig,
+          columns: DocumentsConverter.getColumnsForGrid(columnsConfig.columns, columnsFromDashletConfig)
+        });
 
-        item.columnsConfig = DocumentsConverter.getColumnsConfig({ ...columnsConfig, columns: formattedColumns });
+        item.columns = DocumentsConverter.getColumnForWeb(columns);
 
         return item;
       })
@@ -181,6 +187,20 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
 
     const documents = get(records, '[0].documents', []);
     const typeNames = yield select(state => selectTypeNames(state, payload.key));
+    let dynamicTypes = yield select(state => selectDynamicTypes(state, payload.key));
+    const type = dynamicTypes.find(item => item.type === payload.type);
+
+    if (type) {
+      const document = DocumentsConverter.sortByDate({
+        data: documents,
+        type: 'desc'
+      })[0];
+
+      type[documentFields.loadedBy] = get(document, documentFields.loadedBy, '');
+      type[documentFields.modified] = DocumentsConverter.getFormattedDate(get(document, documentFields.modified, ''));
+
+      yield put(setDynamicTypes({ key: payload.key, dynamicTypes }));
+    }
 
     yield put(
       setDocuments({
@@ -193,7 +213,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
       })
     );
 
-    const dynamicTypes = deepClone(yield select(state => selectDynamicTypes(state, payload.key)));
+    dynamicTypes = cloneDeep(yield select(state => selectDynamicTypes(state, payload.key)));
 
     if (dynamicTypes.length) {
       const type = dynamicTypes.find(item => item.type === payload.type);

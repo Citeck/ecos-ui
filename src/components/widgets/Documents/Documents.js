@@ -69,6 +69,7 @@ class Documents extends BaseWidget {
     dragHandleProps: PropTypes.object,
     grouppedAvailableTypes: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     availableTypes: PropTypes.arrayOf(PropTypes.shape(AvailableTypeInterface)),
+    selectedAvailableTypes: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     dynamicTypes: PropTypes.arrayOf(PropTypes.shape(DynamicTypeInterface)),
     documents: PropTypes.arrayOf(PropTypes.shape(DocumentInterface)),
     actions: PropTypes.object,
@@ -376,17 +377,16 @@ class Documents extends BaseWidget {
   }
 
   get documentTableColumns() {
-    const { dynamicTypes, config } = this.props;
+    const { dynamicTypes } = this.props;
     const { selectedType } = this.state;
     const type = dynamicTypes.find(item => item.type === selectedType);
-    const cType = get(config, 'types', []).find(item => item.type === selectedType);
-    const columns = get(type, 'columnsConfig.columns', []);
+    const columns = get(type, 'columns', []);
 
     if (isEmpty(columns)) {
       return [];
     }
 
-    return DocumentsConverter.getColumnsForGrid(DocumentsConverter.getColumnForWeb(columns), cType.columns);
+    return columns;
   }
 
   getTypeStatus = type => {
@@ -1226,7 +1226,7 @@ class Documents extends BaseWidget {
   }
 
   renderSettings() {
-    const { isLoadingSettings, isLoadChecklist, typeSettings, isLoadingTypeSettings } = this.props;
+    const { isLoadingSettings, isLoadChecklist, typeSettings, isLoadingTypeSettings, selectedAvailableTypes } = this.props;
     const { isOpenSettings } = this.state;
 
     return (
@@ -1234,6 +1234,7 @@ class Documents extends BaseWidget {
         isOpen={isOpenSettings}
         title={t(Labels.SETTINGS)}
         types={this.availableTypes}
+        selectedTypes={selectedAvailableTypes}
         typeSettings={typeSettings}
         isLoading={isLoadingSettings}
         isLoadChecklist={isLoadChecklist}
