@@ -50,7 +50,6 @@ class Settings extends Component {
       filter: '',
       isLoadChecklist: props.isLoadChecklist,
       editableType: null,
-      isOnlySelected: false,
       customizedTypeSettings: new Map()
     };
   }
@@ -192,10 +191,6 @@ class Settings extends Component {
     });
 
     this.props.onCancel();
-  };
-
-  handleToggleOnlySelected = () => {
-    this.setState(state => ({ isOnlySelected: !state.isOnlySelected }));
   };
 
   handleClickSave = () => {

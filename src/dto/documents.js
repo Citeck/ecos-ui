@@ -1,6 +1,7 @@
 import moment from 'moment';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import lodashClone from 'lodash/cloneDeep';
 
 import { deepClone, getTextByLocale, t } from '../helpers/util';
 import { DATE_FORMAT, DEFAULT_REF, documentFields, NULL_FORM } from '../constants/documents';
@@ -145,7 +146,7 @@ export default class DocumentsConverter {
       return [];
     }
 
-    return deepClone(source).map((item = {}) => {
+    return lodashClone(source).map((item = {}) => {
       if (!Object.keys(item).length) {
         return {};
       }
@@ -386,8 +387,8 @@ export default class DocumentsConverter {
       return [];
     }
 
-    const customizedColumns = configColumns; // deepClone(configColumns);
-    const originColumns = columns; // deepClone(columns);
+    const customizedColumns = lodashClone(configColumns);
+    const originColumns = lodashClone(columns);
 
     if (isEmpty(customizedColumns)) {
       return originColumns;
@@ -408,8 +409,6 @@ export default class DocumentsConverter {
         label: getTextByLocale(deleted.label)
       };
     });
-
-    // console.warn(originColumns, columns)
 
     return [...result, ...originColumns.filter(item => !isEmpty(item))].map(item => ({ ...item, hidden: !item.visible }));
   }

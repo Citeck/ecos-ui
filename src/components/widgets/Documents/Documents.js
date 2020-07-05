@@ -69,7 +69,6 @@ class Documents extends BaseWidget {
     dragHandleProps: PropTypes.object,
     grouppedAvailableTypes: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     availableTypes: PropTypes.arrayOf(PropTypes.shape(AvailableTypeInterface)),
-    selectedAvailableTypes: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     dynamicTypes: PropTypes.arrayOf(PropTypes.shape(DynamicTypeInterface)),
     documents: PropTypes.arrayOf(PropTypes.shape(DocumentInterface)),
     actions: PropTypes.object,
@@ -1226,7 +1225,7 @@ class Documents extends BaseWidget {
   }
 
   renderSettings() {
-    const { isLoadingSettings, isLoadChecklist, typeSettings, isLoadingTypeSettings, selectedAvailableTypes } = this.props;
+    const { isLoadingSettings, isLoadChecklist, typeSettings, isLoadingTypeSettings } = this.props;
     const { isOpenSettings } = this.state;
 
     return (
@@ -1234,7 +1233,6 @@ class Documents extends BaseWidget {
         isOpen={isOpenSettings}
         title={t(Labels.SETTINGS)}
         types={this.availableTypes}
-        selectedTypes={selectedAvailableTypes}
         typeSettings={typeSettings}
         isLoading={isLoadingSettings}
         isLoadChecklist={isLoadChecklist}
