@@ -32,8 +32,8 @@ function* runInitSettings({ api, logger }, action) {
 
 function* fetchGetSettingsConfig({ api, logger }) {
   try {
-    const result = yield call(api.menu.getMenuSettingsConfig, { id: 'test-custom-menu' }); //todo id
-    const type = yield select(state => state.menu.type);
+    const { id, type } = yield select(state => state.menu);
+    const result = yield call(api.menu.getMenuSettingsConfig, { id: id || 'test-custom-menu' }); //todo id
     const config = MenuConverter.getSettingsConfigWeb(result, { type });
 
     yield put(setSettingsConfig(config));

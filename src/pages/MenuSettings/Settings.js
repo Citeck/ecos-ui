@@ -57,7 +57,7 @@ class Settings extends React.Component {
   };
 
   handleGoJournal = () => {
-    this.handleHideModal(); //todo ref
+    this.handleHideModal();
     goToJournalsPage({
       journalId: 'menu-configs',
       journalsListId: 'global-system'

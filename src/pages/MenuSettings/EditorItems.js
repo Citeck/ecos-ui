@@ -216,7 +216,8 @@ class EditorItems extends React.Component {
         <div
           key={`${id}--counter`}
           className={classNames('ecos-menu-settings-editor-items__action-count', {
-            'ecos-menu-settings-editor-items__action-count_active': displayCount
+            'ecos-menu-settings-editor-items__action-count_active': displayCount,
+            'ecos-menu-settings-editor-items__action-count_disabled': item.hidden
           })}
           onClick={() => this.handleActionItem({ action: ms.ActionTypes.DISPLAY_COUNT, item })}
         >

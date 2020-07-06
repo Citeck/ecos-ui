@@ -144,6 +144,11 @@
             background-color: $color-red-1;
           }
         }
+
+        &_disabled {
+          pointer-events: none;
+          cursor: none;
+        }
       }
     }
 

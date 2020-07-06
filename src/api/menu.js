@@ -182,6 +182,22 @@ export class MenuApi extends CommonApi {
       .then(resp => resp);
   };
 
+  getUserMenu = () => {
+    const user = getCurrentUserName();
+
+    return Records.queryOne(
+      {
+        sourceId: SourcesId.MENU,
+        query: { user }
+      },
+      {
+        id: 'id',
+        type: 'type'
+      },
+      {}
+    );
+  };
+
   getMenuSettingsConfig = ({ id }) => {
     return Records.get(`${SourcesId.MENU}@${id}`)
       .load(
