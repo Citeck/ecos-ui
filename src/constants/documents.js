@@ -39,7 +39,7 @@ export const documentFields = {
 export const tableFields = {
   ALL: [
     {
-      name: 'type',
+      name: 'name',
       label: 'documents-widget.table-fields.settings'
     },
     {

@@ -98,15 +98,18 @@ export class DocumentsApi {
 
   getFormattedColumns = async config => {
     const { predicate = {}, columns = [], sourceId } = config;
-    const queryPredicates = predicate.val || [];
+    let queryPredicates = predicate.val || [];
+
+    if (!Array.isArray(queryPredicates)) {
+      queryPredicates = [queryPredicates];
+    }
+
     const bodyQuery = {
       query: {
         t: 'and',
-        val: queryPredicates.concat(
-          (predicate.val || []).filter(item => {
-            return item.val !== '' && item.val !== null;
-          })
-        )
+        val: queryPredicates.filter(item => {
+          return item.val !== '' && item.val !== null;
+        })
       },
       language: 'predicate',
       consistency: 'EVENTUAL'
