@@ -8,6 +8,7 @@
 .ecos-menu-settings {
   &__loader {
     border-radius: $border-radius-large;
+    z-index: 10000;
   }
 
   &__title {

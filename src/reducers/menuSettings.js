@@ -9,6 +9,7 @@ import {
   setAuthorities,
   setGroupPriority,
   setLastAddedItems,
+  setLoading,
   setMenuItems,
   setOpenMenuSettings,
   setSettingsConfig
@@ -79,6 +80,10 @@ export default handleActions(
       ...state,
       groupPriority: treeSetDndIndex(payload),
       isLoadingPriority: false
+    }),
+    [setLoading]: state => ({
+      ...state,
+      isLoading: false
     })
   },
   initialState
