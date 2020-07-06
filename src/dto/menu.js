@@ -167,4 +167,36 @@ export default class MenuConverter {
 
     return target;
   }
+
+  static getGroupPriorityConfigWeb(source) {
+    const target = [];
+
+    (function prepareTree(sItems, tItems) {
+      for (let i = 0; i < sItems.length; i++) {
+        const sItem = sItems[i];
+        const tItem = { ...sItem, items: [], draggable: true, badge: i + 1 };
+
+        sItem.items && prepareTree(sItem.items, tItem.items);
+        tItems.push(tItem);
+      }
+    })(source, target);
+
+    return target;
+  }
+
+  static getGroupPriorityConfigServer(source) {
+    const target = [];
+
+    (function prepareTree(sItems, tItems) {
+      for (let i = 0; i < sItems.length; i++) {
+        const sItem = sItems[i];
+        const tItem = { id: sItem.id, items: [] };
+
+        sItem.items && prepareTree(sItem.items, tItem.items);
+        tItems.push(tItem);
+      }
+    })(source, target);
+
+    return target;
+  }
 }

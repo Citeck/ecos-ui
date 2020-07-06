@@ -148,7 +148,7 @@
 
     &--item {
       &-container {
-        //z-index: 999;
+        z-index: 9999;
 
         & .ecos-tree__action#{$editor}__action_no-hide {
           display: inline-block;
@@ -167,6 +167,35 @@
 
   &-ownership {
     margin-bottom: 30px;
+  }
+
+  &-group-priority {
+    &__wrapper {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    &__desc {
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-small;
+      color: $text-color-gray;
+    }
+
+    &__tree {
+      &-field {
+        @extend %block--2;
+        min-height: 420px;
+        max-height: 420px;
+        overflow-x: hidden;
+      }
+    }
+
+    &--item {
+      &-container {
+        z-index: 9999;
+      }
+    }
   }
 
   &__buttons {

@@ -247,7 +247,7 @@ class TreeItem extends Component {
     const { item, dragLvlTo, draggable, level, moveInLevel, moveInParent, parentKey = '' } = this.props;
     const draggableLevel = dragLvlTo === undefined || dragLvlTo >= level;
     const canDrag = draggable && item.draggable && draggableLevel;
-    const key = `key_${level}_${item.id}_${item.dndIdx || ''}`.replace(/[\s-]*/g, '');
+    const key = `key_${level}_${item.id}_${item.dndIdx || ''}`.replace(/\W/g, '');
     const itemElement = this.renderItem(key, canDrag);
     const dragProps = {};
 

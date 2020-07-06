@@ -11,7 +11,7 @@ const BtnAction = ({ type, text, icon, onClick, component, className = '', idIte
     return component;
   }
 
-  const targetId = `menuItemAction_${idItem}_${type}`.replace(/[\s-]*/g, '');
+  const targetId = `menuItemAction_${idItem}_${type}`.replace(/\W/g, '');
 
   return (
     <>

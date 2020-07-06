@@ -2,10 +2,12 @@ import { handleActions } from 'redux-actions';
 
 import {
   addJournalMenuItems,
+  getGroupPriority,
   getSettingsConfig,
   initSettings,
   saveSettingsConfig,
   setAuthorities,
+  setGroupPriority,
   setLastAddedItems,
   setMenuItems,
   setOpenMenuSettings,
@@ -18,7 +20,9 @@ const initialState = {
   type: null,
   items: [],
   authorities: [],
+  groupPriority: [],
   isLoading: false,
+  isLoadingPriority: false,
   isOpenMenuSettings: false,
   lastAddedItems: []
 };
@@ -39,7 +43,7 @@ export default handleActions(
       return {
         ...state,
         ...data,
-        items: treeSetDndIndex(items),
+        items: treeSetDndIndex(items || []),
         isLoading: false
       };
     },
@@ -58,13 +62,23 @@ export default handleActions(
       ...state,
       lastAddedItems: payload
     }),
-    [addJournalMenuItems]: (state, { payload }) => ({
+    [addJournalMenuItems]: state => ({
       ...state,
       isLoading: true
     }),
     [setAuthorities]: (state, { payload }) => ({
       ...state,
       authorities: payload
+    }),
+    [getGroupPriority]: state => ({
+      ...state,
+      groupPriority: [],
+      isLoadingPriority: true
+    }),
+    [setGroupPriority]: (state, { payload }) => ({
+      ...state,
+      groupPriority: treeSetDndIndex(payload),
+      isLoadingPriority: false
     })
   },
   initialState

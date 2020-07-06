@@ -231,11 +231,12 @@ export function treeMoveItem({ fromId, toId, original, key = 'id' }) {
   return items;
 }
 
-export function treeSetDndIndex(items) {
+export function treeSetDndIndex(items, callback) {
   const _items = deepClone(items);
 
   const _set = (list, level, parent) => {
     list.forEach((item, index) => {
+      callback && callback(item, index);
       item.dndIdx = parseInt(`${level}${parent}${index}`, 10);
       item.items && _set(item.items, level + 1, parseInt(`${parent}${index}`));
     });
