@@ -2,6 +2,36 @@ import SelectEditData from 'formiojs/components/select/editForm/Select.edit.data
 
 SelectEditData.push(
   {
+    type: 'panel',
+    title: 'Data pre-processing',
+    tooltip: 'Data pre-processing after receiving the specified URL',
+    collapsible: true,
+    collapsed: true,
+    key: 'dataPreProcessing.code-js',
+    weight: 10,
+    customClass: 'mb-3',
+    components: [
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content: 'Data pre-processing after receiving the specified URL. Example: <pre>values = _.sortBy(queryResult, "label")</pre>'
+      },
+      {
+        type: 'textarea',
+        key: 'dataPreProcessing.code',
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      }
+    ],
+    conditional: {
+      json: {
+        and: [{ '===': [{ var: 'data.dataSrc' }, 'url'] }]
+      }
+    }
+  },
+  {
     type: 'checkbox',
     input: true,
     key: 'unavailableItems.isActive',
