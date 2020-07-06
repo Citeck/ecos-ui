@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'development') {
   const logger = createLogger({
     collapsed: true,
     diff: true,
-    predicate: (getState, action) => action.type.startsWith('menu-s')
+    predicate: (getState, action) => action.type.startsWith('menu-')
   });
   optionalMiddlewares.push(logger);
 }
