@@ -82,7 +82,7 @@ class Grid extends Component {
       this._firstHeaderCellNode = current.querySelector(`thead > tr > th:first-child .${ECOS_GRID_CHECKBOX_DIVIDER_CLASS}`);
       this._inlineActionsNode = current.querySelector('.ecos-inline-tools-actions');
 
-      this._timeoutDefaultWidth = setTimeout(this.setDefaultWidth, 400);
+      this._timeoutDefaultWidth = setTimeout(this.setDefaultWidth, 1);
     }
 
     this.checkScrollPosition();
