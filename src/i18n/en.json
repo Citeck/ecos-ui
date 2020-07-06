@@ -1008,6 +1008,7 @@
   "menu-settings.editor-item.btn.cancel": "Cancel",
   "menu-settings.editor-item.btn.add": "Add",
   "menu-settings.editor-item.btn.edit": "Save",
+  "menu-settings.editor-ownership.title": "Editor ownership",
   "menu-settings.error.get-config": "Menu settings configuration hasn't received",
   "menu-settings.error.save-config": "Menu settings configuration hasn't saved",
   "menu-settings.success.save-config": "Menu settings configuration saved",

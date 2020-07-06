@@ -1009,6 +1009,7 @@
   "menu-settings.editor-item.btn.cancel": "Отмена",
   "menu-settings.editor-item.btn.add": "Добавить",
   "menu-settings.editor-item.btn.edit": "Сохранить",
+  "menu-settings.editor-ownership.title": "Редактор принадлежности настроек",
   "menu-settings.error.get-config": "Конфигурация настроек меню не получена",
   "menu-settings.error.save-config": "Конфигурация настроек меню не сохранена",
   "menu-settings.success.save-config": "Конфигурация настроек меню сохранена",

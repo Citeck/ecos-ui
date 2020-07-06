@@ -5,6 +5,7 @@ import {
   getSettingsConfig,
   initSettings,
   saveSettingsConfig,
+  setAuthorities,
   setLastAddedItems,
   setMenuItems,
   setOpenMenuSettings,
@@ -60,6 +61,10 @@ export default handleActions(
     [addJournalMenuItems]: (state, { payload }) => ({
       ...state,
       isLoading: true
+    }),
+    [setAuthorities]: (state, { payload }) => ({
+      ...state,
+      authorities: payload
     })
   },
   initialState

@@ -3,13 +3,14 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { initSettings, saveSettingsConfig, setOpenMenuSettings } from '../../actions/menuSettings';
+import { initSettings, saveSettingsConfig, setAuthorities, setOpenMenuSettings } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
 import { getPositionAdjustment } from '../../helpers/menu';
 import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
 import { EcosModal, Loader } from '../../components/common';
 import { Btn, IcoBtn } from '../../components/common/btns';
+import { SelectOrgstruct } from '../../components/common/form';
 import EditorItems from './EditorItems';
 
 import './style.scss';
@@ -17,6 +18,7 @@ import './style.scss';
 const Labels = {
   TITLE: 'menu-settings.header.title',
   TITLE_ITEMS: 'menu-settings.editor-items.title',
+  TITLE_OWNERSHIP: 'menu-settings.editor-ownership.title',
   GOTO_JOURNAL: 'menu-settings.header.btn.journal-menu-template',
   BTN_CANCEL: 'menu-settings.button.cancel',
   BTN_APPLY: 'menu-settings.button.apply'
@@ -78,6 +80,10 @@ class Settings extends React.Component {
     this.setState(data);
   };
 
+  handleSelectOrg = data => {
+    this.props.setAuthorities(data);
+  };
+
   renderButtons() {
     return (
       <div className="ecos-menu-settings__buttons">
@@ -90,7 +96,7 @@ class Settings extends React.Component {
   }
 
   render() {
-    const { isLoading } = this.props;
+    const { isLoading, authorities } = this.props;
     const customButtons = [
       <IcoBtn
         key="ecos-menu-settings-btn-goto"
@@ -118,6 +124,10 @@ class Settings extends React.Component {
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
         <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
         <EditorItems />
+        <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
+        <div className="ecos-menu-settings-ownership">
+          <SelectOrgstruct defaultValue={authorities} multiple onChange={this.handleSelectOrg} />
+        </div>
         {this.renderButtons()}
       </EcosModal>
     );
@@ -125,14 +135,16 @@ class Settings extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  type: get(state, 'menuSettings.type', MenuTypes.LEFT),
+  type: get(state, 'menuSettings.type') || MenuTypes.LEFT,
+  authorities: get(state, 'menuSettings.authorities'),
   isLoading: get(state, 'menuSettings.isLoading')
 });
 
 const mapDispatchToProps = dispatch => ({
   initSettings: () => dispatch(initSettings()),
   saveSettings: payload => dispatch(saveSettingsConfig(payload)),
-  setOpenMenuSettings: payload => dispatch(setOpenMenuSettings(payload))
+  setOpenMenuSettings: payload => dispatch(setOpenMenuSettings(payload)),
+  setAuthorities: payload => dispatch(setAuthorities(payload))
 });
 
 export default connect(

@@ -146,7 +146,8 @@ export default class MenuConverter {
 
   static getSettingsConfigServer(source) {
     const target = {
-      items: []
+      items: [],
+      authorities: source.authorities
     };
 
     (function prepareTree(sItems, tItems) {

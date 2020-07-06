@@ -184,11 +184,14 @@ export class MenuApi extends CommonApi {
 
   getMenuSettingsConfig = ({ id }) => {
     return Records.get(`${SourcesId.MENU}@${id}`)
-      .load({
-        id: 'id',
-        authorities: 'authorities',
-        menu: 'subMenu?json'
-      })
+      .load(
+        {
+          id: 'id',
+          authorities: 'authorities[]?str',
+          menu: 'subMenu?json'
+        },
+        true
+      )
       .then(resp => {
         return fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || []).then(items => {
           lodashSet(resp, 'menu.left.items', items);
@@ -202,10 +205,11 @@ export class MenuApi extends CommonApi {
       });
   };
 
-  saveMenuSettingsConfig = ({ id, subMenu }) => {
+  saveMenuSettingsConfig = ({ id, subMenu, authorities }) => {
     const rec = Records.get(`${SourcesId.MENU}@${id}`);
 
     rec.att('subMenu', subMenu);
+    rec.att('authorities[]?str', authorities);
 
     return rec.save();
   };
