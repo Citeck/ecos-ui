@@ -372,6 +372,7 @@
   "record-action.assoc-action.not-found": "Связь не найдена",
 
   "record-action.name.script-action": "Скриптовое действие",
+  "record-action.script-action.error.text": "Действие не определено",
 
   "record-action.name.upload-new-version": "Загрузить новую версию",
   "record-action.upload-new-version.title.upload-model": "Добавление новой версии документа",
@@ -526,6 +527,7 @@
   "journals.action.hide-menu": "Скрыть меню",
   "journals.action.hide-menu_sm": "Скрыть",
   "journals.action.only-linked": "Отображать только связанные записи",
+  "journals.action.custom-journal": "Произвольный журнал",
   "journals.action.remove-filter-group-msg": "Удалить группу фильтров?",
   "journals.action.remove-filter-msg": "Удалить фильтр?",
   "journals.action.remove-records-msg": "Вы действительно хотите удалить записи?",

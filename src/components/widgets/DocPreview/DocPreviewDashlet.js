@@ -44,7 +44,7 @@ class DocPreviewDashlet extends BaseWidget {
     super(props);
 
     this.stateId = getStateId(props);
-    this.watcher = this.instanceRecord.watch('version', this.reload);
+    this.watcher = this.instanceRecord.watch(['version', 'preview-hash'], this.reload);
 
     this.state = {
       ...this.state,

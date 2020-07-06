@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+
 import BaseReactComponent from '../base/BaseReactComponent';
 import Dropdown from '../../../../components/common/form/Dropdown';
 import { Types } from './constants';
@@ -11,6 +12,8 @@ export default class SelectActionComponent extends BaseReactComponent {
         placeholder: 'Select action',
         key: 'selectAction',
         type: 'selectAction',
+        theme: 'default',
+        size: 'normal',
         source: {
           items: []
         }
@@ -66,13 +69,20 @@ export default class SelectActionComponent extends BaseReactComponent {
 
   getInitialReactProps() {
     const component = this.component;
+    const theme = get(component, 'theme', 'default');
+    const size = get(component, 'size', 'normal');
+    const classNames = [
+      'formio-select-action__dropdown',
+      `formio-select-action__dropdown_theme-${theme}`,
+      `formio-select-action__dropdown_size-${size}`
+    ];
     const resolveProps = () => ({
       source: get(component, 'source.items', []),
       valueField: 'name',
       titleField: 'name',
       hasEmpty: true,
       placeholder: component.placeholder,
-      className: 'formio-select-action__dropdown',
+      className: classNames.join(' '),
       toggleClassName: 'formio-select-action__dropdown-toggle',
       menuClassName: 'formio-select-action__dropdown-menu',
       controlClassName: 'formio-select-action__dropdown-control',

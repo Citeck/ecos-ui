@@ -318,6 +318,42 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
   }
 
+  viewOnlyBuild() {
+    super.viewOnlyBuild();
+    this.refreshElementHasValueClasses();
+  }
+
+  updateValue(flags, value) {
+    const changed = super.updateValue(flags, value);
+
+    this.refreshElementHasValueClasses();
+
+    return changed;
+  }
+
+  refreshElementHasValueClasses() {
+    if (!this.element) {
+      return;
+    }
+
+    const component = this.component;
+    const { multiple, source } = component;
+
+    if (source.viewMode !== DisplayModes.TABLE) {
+      return;
+    }
+
+    const viewOnlyHasValueClassName = 'formio-component__view-only-table-has-rows';
+    const hasValue = multiple ? Array.isArray(this.dataValue) && this.dataValue.length > 0 : !!this.dataValue;
+    const elementHasClass = this.element.classList.contains(viewOnlyHasValueClassName);
+
+    if (!hasValue && elementHasClass) {
+      this.element.classList.remove(viewOnlyHasValueClassName);
+    } else if (hasValue && !elementHasClass) {
+      this.element.classList.add(viewOnlyHasValueClassName);
+    }
+  }
+
   static getValueDisplayName = (component, value) => {
     let dispNameJs = _.get(component, 'computed.valueDisplayName', null);
     let result = null;

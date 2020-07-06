@@ -73,7 +73,12 @@ export class MenuApi extends CommonApi {
           {
             id: 'HEADER_CREATE_WORKFLOW_ADHOC',
             label: 'header.create-workflow-adhoc.label',
-            targetUrl: '/share/page/workflow-start-page?formType=workflowId&formKey=activiti$perform'
+            control: {
+              type: 'ECOS_CREATE_VARIANT',
+              payload: {
+                recordRef: 'workflow@def_activiti$perform'
+              }
+            }
           },
           {
             id: 'HEADER_CREATE_WORKFLOW_CONFIRM',

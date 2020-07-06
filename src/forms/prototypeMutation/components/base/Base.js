@@ -142,7 +142,6 @@ Base.prototype.createInlineEditButton = function(container) {
       this.options.readOnly = false;
       this.options.viewAsHtml = false;
       this._isInlineEditingMode = true;
-      this.emit('inlineEditingStart', currentValue);
 
       this.redraw();
       container.classList.add(INLINE_EDITING_CLASSNAME);
@@ -193,7 +192,6 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
     );
 
     const switchToViewOnlyMode = () => {
-      this.emit('inlineEditingFinish');
       this.options.readOnly = true;
       this.options.viewAsHtml = true;
       this._isInlineEditingMode = false;
@@ -229,16 +227,6 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
 
       if (!this.checkValidity(this.getValue(), true)) {
         return;
-      }
-
-      if (this._isInlineEditingMode) {
-        var changed = {
-          instance: this,
-          component: this.component,
-          value: this.dataValue,
-          flags: {}
-        };
-        this.emit('inlineSubmit', changed);
       }
 
       return form
