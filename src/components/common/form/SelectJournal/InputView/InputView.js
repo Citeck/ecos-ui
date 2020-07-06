@@ -14,6 +14,10 @@ import { AssocLink } from '../../AssocLink';
 import './InputView.scss';
 
 class InputView extends Component {
+  #toolsRef = React.createRef();
+
+  #scrollPosition = {};
+
   state = {
     inlineToolsOffsets: { height: 0, top: 0, row: {} },
     targetId: uniqueId('SelectJournal')
@@ -26,6 +30,8 @@ class InputView extends Component {
     if (this.gridWrapperRef) {
       this.gridWrapperRef.removeEventListener('mouseleave', this.resetInlineToolsOffsets);
     }
+
+    this.#scrollPosition = {};
   }
 
   setRef = ref => {
@@ -37,6 +43,14 @@ class InputView extends Component {
 
   resetInlineToolsOffsets = () => {
     this.setState({ inlineToolsOffsets: { height: 0, top: 0, row: {} } });
+  };
+
+  onScollingTable = event => {
+    this.#scrollPosition = event;
+
+    if (this.#toolsRef.current) {
+      this.#toolsRef.current.style.left = `${event.scrollLeft}px`;
+    }
   };
 
   onBlur = () => {
@@ -153,7 +167,15 @@ class InputView extends Component {
       );
     }
 
-    return <InlineToolsDisconnected selectedRecords={selectedRows} {...inlineToolsOffsets} tools={iconButtons} />;
+    return (
+      <InlineToolsDisconnected
+        forwardedRef={this.#toolsRef}
+        selectedRecords={selectedRows}
+        {...inlineToolsOffsets}
+        tools={iconButtons}
+        left={this.#scrollPosition.scrollLeft}
+      />
+    );
   };
 
   renderList = () => {
@@ -181,7 +203,16 @@ class InputView extends Component {
     if (viewMode === 'table') {
       return (
         <div ref={this.setRef} className="mb-3">
-          <Grid {...gridData} inlineTools={this.renderInlineTools} onChangeTrOptions={this.setInlineToolsOffsets} />
+          <Grid
+            {...gridData}
+            autoHeight
+            byContentHeight
+            scrollable
+            inlineTools={this.renderInlineTools}
+            onChangeTrOptions={this.setInlineToolsOffsets}
+            onScrolling={this.onScollingTable}
+            scrollPosition={this.#scrollPosition}
+          />
         </div>
       );
     }
@@ -205,28 +236,43 @@ class InputView extends Component {
     );
   };
 
+  renderActionButton() {
+    const { selectedRows, error, disabled, multiple, isCompact, autoFocus, hideActionButton } = this.props;
+
+    if (error || hideActionButton) {
+      return null;
+    }
+
+    return (
+      <Btn
+        className={classNames('ecos-btn_blue ecos-btn_narrow', {
+          'select-journal__input-view-button_compact': isCompact
+        })}
+        onClick={this.onClick}
+        disabled={disabled}
+        autoFocus={autoFocus}
+        onBlur={this.onBlur}
+      >
+        {selectedRows.length > 0
+          ? multiple
+            ? t('select-journal.button.add')
+            : t('select-journal.button.change')
+          : t('select-journal.button.select')}
+      </Btn>
+    );
+  }
+
   render() {
-    const { selectedRows, error, disabled, multiple, isCompact, className, autoFocus } = this.props;
+    const { error, isCompact, className } = this.props;
     const wrapperClasses = classNames('select-journal__input-view', { 'select-journal__input-view_compact': isCompact }, className);
-    const buttonClasses = classNames('ecos-btn_blue ecos-btn_narrow', {
-      'select-journal__input-view-button_compact': isCompact
-    });
 
     return (
       <div className={wrapperClasses}>
         {this.renderList()}
 
-        {error ? (
-          <p className="select-journal__error">{error.message}</p>
-        ) : (
-          <Btn className={buttonClasses} onClick={this.onClick} disabled={disabled} autoFocus={autoFocus} onBlur={this.onBlur}>
-            {selectedRows.length > 0
-              ? multiple
-                ? t('select-journal.button.add')
-                : t('select-journal.button.change')
-              : t('select-journal.button.select')}
-          </Btn>
-        )}
+        {error && <p className="select-journal__error">{error.message}</p>}
+
+        {this.renderActionButton()}
 
         {this.renderCompactList()}
       </div>
@@ -247,8 +293,10 @@ InputView.propTypes = {
   openSelectModal: PropTypes.func,
   hideEditRowButton: PropTypes.bool,
   hideDeleteRowButton: PropTypes.bool,
+  hideActionButton: PropTypes.bool,
   isSelectedValueAsText: PropTypes.bool,
-  isInlineEditingMode: PropTypes.bool
+  isInlineEditingMode: PropTypes.bool,
+  gridData: PropTypes.object
 };
 
 export default InputView;

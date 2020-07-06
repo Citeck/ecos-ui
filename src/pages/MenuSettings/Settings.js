@@ -119,6 +119,7 @@ class Settings extends React.Component {
         title={t(Labels.TITLE)}
         customButtons={customButtons}
         classNameHeader="ecos-menu-settings__modal-header"
+        reactstrapProps={{ backdrop: 'static' }}
       >
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
         <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>

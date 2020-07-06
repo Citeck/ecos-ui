@@ -21,7 +21,6 @@ export default class MenuSettingsService {
       config: { ...data.config },
       items: [],
       //only for ui, tree
-      dndIdx: data.dndIdx || Date.now(),
       locked: !!data.hidden,
       draggable: permissions.draggable
     };

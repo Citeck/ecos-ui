@@ -1,4 +1,5 @@
 import { handleActions } from 'redux-actions';
+
 import {
   addJournalMenuItems,
   getSettingsConfig,
@@ -10,6 +11,7 @@ import {
   setOpenMenuSettings,
   setSettingsConfig
 } from '../actions/menuSettings';
+import { treeSetDndIndex } from '../helpers/arrayOfObjects';
 
 const initialState = {
   id: null,
@@ -32,9 +34,12 @@ export default handleActions(
     [saveSettingsConfig]: startLoading,
 
     [setSettingsConfig]: (state, action) => {
+      const { items, ...data } = action.payload;
+
       return {
         ...state,
-        ...action.payload,
+        ...data,
+        items: treeSetDndIndex(items),
         isLoading: false
       };
     },
@@ -46,7 +51,7 @@ export default handleActions(
     }),
     [setMenuItems]: (state, { payload }) => ({
       ...state,
-      items: payload,
+      items: treeSetDndIndex(payload),
       isLoading: false
     }),
     [setLastAddedItems]: (state, { payload }) => ({

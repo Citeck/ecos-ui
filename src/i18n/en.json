@@ -371,6 +371,7 @@
   "record-action.assoc-action.not-found": "Association is not found",
 
   "record-action.name.script-action": "Script action",
+  "record-action.script-action.error.text": "Undefined action",
 
   "record-action.name.upload-new-version": "Upload new version",
   "record-action.upload-new-version.title.upload-model": "Add new document version",
@@ -525,6 +526,7 @@
   "journals.action.hide-menu": "Hide menu",
   "journals.action.hide-menu_sm": "Hide menu",
   "journals.action.only-linked": "Display only linked records",
+  "journals.action.custom-journal": "Custom journal",
   "journals.action.remove-filter-group-msg": "Remove filter group?",
   "journals.action.remove-filter-msg": "Remove filter?",
   "journals.action.remove-records-msg": "Do you really want to delete records?",

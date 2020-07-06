@@ -135,8 +135,8 @@ export default class SelectJournal extends Component {
       state.isGridDataReady = false;
       // }
       this.setState(state, () => {
-        this.shouldResetValue().then(shouldReset => {
-          shouldReset && this.setValue(null);
+        this.shouldResetValue().then(({ shouldReset, matchedRows }) => {
+          shouldReset && this.setValue(matchedRows);
         });
       });
     }
@@ -148,7 +148,7 @@ export default class SelectJournal extends Component {
       const { sortBy } = this.props;
 
       if (selectedRows.length < 1) {
-        return resolve(false);
+        return resolve({ shouldReset: false });
       }
 
       const dbIDs = {};
@@ -199,10 +199,15 @@ export default class SelectJournal extends Component {
 
         return this.api.getGridDataUsePredicates(requestParams).then(gridData => {
           if (gridData.total && gridData.total === selectedRows.length) {
-            return resolve(false);
+            return resolve({ shouldReset: false });
           }
 
-          resolve(true);
+          let matchedRows = null;
+          if (Array.isArray(gridData.data)) {
+            matchedRows = selectedRows.filter(row => gridData.data.findIndex(item => item.id === row.id) !== -1);
+          }
+
+          resolve({ shouldReset: true, matchedRows });
         });
       });
     });

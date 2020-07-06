@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
-import dialogManager from '../../common/dialogs/Manager';
+import isEmpty from 'lodash/isEmpty';
 
+import dialogManager from '../../common/dialogs/Manager';
 import JournalsDownloadZip from '../JournalsDownloadZip';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import FormManager from '../../EcosForm/FormManager';
@@ -48,7 +49,8 @@ const mapStateToProps = (state, props) => {
     selectedRecords: newState.selectedRecords,
     selectAllRecords: newState.selectAllRecords,
     selectAllRecordsVisible: newState.selectAllRecordsVisible,
-    performGroupActionResponse: newState.performGroupActionResponse
+    performGroupActionResponse: newState.performGroupActionResponse,
+    isLoadingPerformGroupActions: newState.isLoadingPerformGroupActions
   };
 };
 
@@ -255,6 +257,7 @@ class JournalsDashletGrid extends Component {
           source={sourceGroupActions}
           valueField={'id'}
           titleField={'title'}
+          keyFields={['id', 'formKey', 'title']}
           isStatic
           onChange={this.changeGroupAction}
         >
@@ -431,8 +434,12 @@ class JournalsDashletGrid extends Component {
   };
 
   renderPerformGroupActionResponse = (performGroupActionResponse = []) => {
-    const { className } = this.props;
+    const { className, isLoadingPerformGroupActions } = this.props;
     const performGroupActionResponseUrl = (performGroupActionResponse[0] || {}).url;
+
+    if (isEmpty(performGroupActionResponse) || isLoadingPerformGroupActions) {
+      return null;
+    }
 
     return (
       <EmptyGrid maxItems={performGroupActionResponse.length}>
@@ -516,7 +523,8 @@ class JournalsDashletGrid extends Component {
       autoHeight,
       predicate,
       journalConfig: { params = {} },
-      selectorContainer
+      selectorContainer,
+      isLoadingPerformGroupActions
     } = this.props;
 
     let editable = true;
@@ -586,8 +594,9 @@ class JournalsDashletGrid extends Component {
         </div>
 
         <EcosModal
+          isLoading={isLoadingPerformGroupActions}
           title={t('group-action.label.header')}
-          isOpen={!!(performGroupActionResponse && performGroupActionResponse.length)}
+          isOpen={!!((performGroupActionResponse && performGroupActionResponse.length) || isLoadingPerformGroupActions)}
           hideModal={this.closePerformGroupActionDialog}
           className="journal__dialog"
         >

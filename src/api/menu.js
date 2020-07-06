@@ -73,7 +73,12 @@ export class MenuApi extends CommonApi {
           {
             id: 'HEADER_CREATE_WORKFLOW_ADHOC',
             label: 'header.create-workflow-adhoc.label',
-            targetUrl: '/share/page/workflow-start-page?formType=workflowId&formKey=activiti$perform'
+            control: {
+              type: 'ECOS_CREATE_VARIANT',
+              payload: {
+                recordRef: 'workflow@def_activiti$perform'
+              }
+            }
           },
           {
             id: 'HEADER_CREATE_WORKFLOW_CONFIRM',
@@ -224,10 +229,11 @@ async function fetchExtraItemInfo(data) {
   return Promise.all(
     data.map(async item => {
       const target = { ...item };
-      const ref = lodashGet(item, 'config.recordRef');
+      const journalRef = lodashGet(item, 'config.recordRef');
+      const iconRef = lodashGet(item, 'icon');
 
-      if (ref && [ms.ItemTypes.JOURNAL].includes(item.type)) {
-        const result = await Records.get(ref).load({
+      if (journalRef && [ms.ItemTypes.JOURNAL].includes(item.type)) {
+        const result = await Records.get(journalRef).load({
           label: '.disp'
           //id: 'id',
           //count: 'count', //todo wait new api for actual
@@ -235,6 +241,16 @@ async function fetchExtraItemInfo(data) {
 
         target.label = result.label;
         target.config = { ...target.config, count: 0 };
+      }
+
+      if (iconRef && iconRef.includes(SourcesId.ICON)) {
+        const icon = await Records.get(iconRef).load({
+          url: 'data?str',
+          type: 'type',
+          value: 'id'
+        });
+
+        target.icon = { ...target.icon, ...icon };
       }
 
       if (Array.isArray(item.items)) {
