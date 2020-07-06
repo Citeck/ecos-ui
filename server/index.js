@@ -22,6 +22,7 @@ const mainRoute = createMainRoute();
 const bpmnEditorRoute = createBpmnEditorRoute();
 
 router.get(['/', '/share/page/(**/)?card-details', '/share/page/bpmn-designer(/**)?'], mainRoute);
+router.get(['/v2/*'], mainRoute);
 router.get(['/share/page/bpmn-editor'], bpmnEditorRoute);
 
 app.use('/', router);
@@ -36,6 +37,7 @@ if (!SHARE_PROXY_URL) {
 const proxyOptions = {
   target: SHARE_PROXY_URL,
   changeOrigin: true,
+  secure: false,
   logLevel: 'warn', // ['debug', 'info', 'warn', 'error', 'silent']
   ws: true,
   onProxyRes: (proxyRes, req, res) => {

@@ -17,7 +17,10 @@ import {
   setJournalsList,
   setJournalsListItem,
   setOnlyLinked,
+  setCustomJournalMode,
+  setCustomJournal,
   setPerformGroupActionResponse,
+  setPerformGroupActionLoader,
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
@@ -101,6 +104,7 @@ const defaultState = {
   previewFileName: '',
   zipNodeRef: null,
 
+  isLoadingPerformGroupActions: false,
   performGroupActionResponse: []
 };
 
@@ -160,6 +164,18 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { performGroupActionResponse: action.payload });
+    },
+    [setPerformGroupActionResponse]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { performGroupActionResponse: action.payload });
+    },
+    [setPerformGroupActionLoader]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { isLoadingPerformGroupActions: action.payload });
     },
     [setPreviewUrl]: (state, action) => {
       const stateId = action.payload.stateId;
@@ -303,6 +319,29 @@ export default handleActions(
             }
           };
     },
+    [setCustomJournal]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              config: {
+                ...state[stateId].config,
+                customJournal: action.payload
+              }
+            }
+          }
+        : {
+            ...state,
+            config: {
+              ...state.config,
+              customJournal: action.payload
+            }
+          };
+    },
     [setOnlyLinked]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
@@ -323,6 +362,29 @@ export default handleActions(
             config: {
               ...state.config,
               onlyLinked: action.payload
+            }
+          };
+    },
+    [setCustomJournalMode]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              config: {
+                ...state[stateId].config,
+                customJournalMode: action.payload
+              }
+            }
+          }
+        : {
+            ...state,
+            config: {
+              ...state.config,
+              customJournalMode: action.payload
             }
           };
     },

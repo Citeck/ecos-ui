@@ -6,6 +6,7 @@ import {
   getSettingsConfig,
   initSettings,
   saveSettingsConfig,
+  setAuthorities,
   setGroupPriority,
   setLastAddedItems,
   setMenuItems,
@@ -36,11 +37,13 @@ export default handleActions(
     [getSettingsConfig]: startLoading,
     [saveSettingsConfig]: startLoading,
 
-    [setSettingsConfig]: (state, { payload }) => {
+    [setSettingsConfig]: (state, action) => {
+      const { items, ...data } = action.payload;
+
       return {
         ...state,
-        ...payload,
-        items: treeSetDndIndex(payload.items || []),
+        ...data,
+        items: treeSetDndIndex(items || []),
         isLoading: false
       };
     },
@@ -62,6 +65,10 @@ export default handleActions(
     [addJournalMenuItems]: state => ({
       ...state,
       isLoading: true
+    }),
+    [setAuthorities]: (state, { payload }) => ({
+      ...state,
+      authorities: payload
     }),
     [getGroupPriority]: state => ({
       ...state,

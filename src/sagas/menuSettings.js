@@ -47,13 +47,15 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
     const type = yield select(state => state.menu.type);
     const id = yield select(state => state.menuSettings.id);
     const items = yield select(state => state.menuSettings.items);
+    const authorities = yield select(state => state.menuSettings.authorities);
 
     const result = yield call(api.menu.getMenuSettingsConfig, { id });
     const originalItems = get(result, ['menu', type.toLowerCase(), 'items'], []);
     const serverData = MenuConverter.getSettingsConfigServer({ originalItems, items });
+
     set(result, ['subMenu', type.toLowerCase()], serverData);
 
-    yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu });
+    yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities });
     yield put(saveGroupPriority(payload));
     yield put(setOpenMenuSettings(false));
     NotificationManager.success(t('menu-settings.success.save-config'), t('success'));

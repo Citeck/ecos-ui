@@ -4,11 +4,21 @@ import PropTypes from 'prop-types';
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
 import { AssocLink } from '../../AssocLink';
+import { DisplayModes } from '../../../../../forms/components/custom/selectJournal/constants';
+import InputView from '../InputView';
 
 import './ViewMode.scss';
 
 class ViewMode extends Component {
+  renderTableView() {
+    return <InputView {...this.props} hideActionButton />;
+  }
+
   render() {
+    if (this.props.viewMode === DisplayModes.TABLE) {
+      return this.renderTableView();
+    }
+
     const { selectedRows, placeholder, isSelectedValueAsText } = this.props;
 
     const placeholderText = placeholder ? placeholder : t('select-journal.placeholder');

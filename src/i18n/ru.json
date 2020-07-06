@@ -372,6 +372,7 @@
   "record-action.assoc-action.not-found": "Связь не найдена",
 
   "record-action.name.script-action": "Скриптовое действие",
+  "record-action.script-action.error.text": "Действие не определено",
 
   "record-action.name.upload-new-version": "Загрузить новую версию",
   "record-action.upload-new-version.title.upload-model": "Добавление новой версии документа",
@@ -526,6 +527,7 @@
   "journals.action.hide-menu": "Скрыть меню",
   "journals.action.hide-menu_sm": "Скрыть",
   "journals.action.only-linked": "Отображать только связанные записи",
+  "journals.action.custom-journal": "Произвольный журнал",
   "journals.action.remove-filter-group-msg": "Удалить группу фильтров?",
   "journals.action.remove-filter-msg": "Удалить фильтр?",
   "journals.action.remove-records-msg": "Вы действительно хотите удалить записи?",
@@ -1007,6 +1009,7 @@
   "menu-settings.editor-item.btn.cancel": "Отмена",
   "menu-settings.editor-item.btn.add": "Добавить",
   "menu-settings.editor-item.btn.edit": "Сохранить",
+  "menu-settings.editor-ownership.title": "Редактор принадлежности настроек",
   "menu-settings.editor-group-priority.desc": "Настройка приотрита используемой конфигурации меню для пользователей состоящих в нескольких группах. Перетаскивайте группы для изменения приоритета.",
   "menu-settings.editor-group-priority.btn.manage": "Управление",
   "menu-settings.editor-group-priority.title": "Приоритет групп",
