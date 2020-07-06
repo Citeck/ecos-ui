@@ -33,9 +33,12 @@ export default handleActions(
     [saveSettingsConfig]: startLoading,
 
     [setSettingsConfig]: (state, action) => {
+      const { items, ...data } = action.payload;
+
       return {
         ...state,
-        ...action.payload,
+        ...data,
+        items: treeSetDndIndex(items),
         isLoading: false
       };
     },
