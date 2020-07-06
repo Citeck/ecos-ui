@@ -40,7 +40,7 @@ export default class ClickOutside extends React.Component {
       typeof handleClickOutside === 'function' &&
       this.wrapperRef &&
       !this.wrapperRef.contains(event.target) &&
-      (!Array.isArray(excludeElements) || excludeElements.some(elm => !elm.contains(event.target)))
+      (!Array.isArray(excludeElements) || excludeElements.some(elm => !(elm && elm.contains(event.target))))
     ) {
       handleClickOutside(event);
     }
