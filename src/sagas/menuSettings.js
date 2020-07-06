@@ -82,7 +82,7 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
     yield put(setLastAddedItems(result.newItems));
   } catch (e) {
     yield put(setLoading(false));
-    NotificationManager.error('menu-settings.error.set-items-from-journal', t('error'));
+    NotificationManager.error(t('menu-settings.error.set-items-from-journal'), t('error'));
     logger.error('[menu-settings / runAddJournalMenuItems]', e.message);
   }
 }
@@ -94,7 +94,7 @@ function* fetchGetGroupPriority({ api, logger }, { payload }) {
 
     yield put(setGroupPriority(MenuConverter.getGroupPriorityConfigWeb(data)));
   } catch (e) {
-    NotificationManager.error('menu-settings.error.get-group-priority', t('error'));
+    NotificationManager.error(t('menu-settings.error.get-group-priority'), t('error'));
     logger.error('[menu-settings / runAddJournalMenuItems]', e.message);
   }
 }
@@ -106,9 +106,8 @@ function* runSaveGroupPriority({ api, logger }, { payload }) {
     const groupPriority = MenuConverter.getGroupPriorityConfigServer(_groupPriority);
 
     yield call(api.menu.saveGroupPriority, { authorities, groupPriority }); //todo api
-    NotificationManager.success(t('menu-settings.success.save-group-priority'), t('success'));
   } catch (e) {
-    NotificationManager.error('menu-settings.error.save-group-priority', t('error'));
+    NotificationManager.error(t('menu-settings.error.save-group-priority'), t('error'));
     logger.error('[menu-settings / runAddJournalMenuItems]', e.message);
   }
 }
