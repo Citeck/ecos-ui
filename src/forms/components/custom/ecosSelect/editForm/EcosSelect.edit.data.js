@@ -2,29 +2,18 @@ import SelectEditData from 'formiojs/components/select/editForm/Select.edit.data
 
 SelectEditData.push(
   {
-    type: 'panel',
-    title: 'Data pre-processing',
-    tooltip: 'Data pre-processing after receiving the specified URL',
-    collapsible: true,
-    collapsed: true,
-    key: 'dataPreProcessing.code-js',
+    type: 'textarea',
+    input: true,
+    key: 'dataPreProcessingCode',
+    label: 'Data pre-processing',
+    editor: 'ace',
+    rows: 5,
     weight: 10,
-    customClass: 'mb-3',
-    components: [
-      {
-        type: 'htmlelement',
-        tag: 'div',
-        content: 'Data pre-processing after receiving the specified URL. Example: <pre>values = _.sortBy(queryResult, "label")</pre>'
-      },
-      {
-        type: 'textarea',
-        key: 'dataPreProcessing.code',
-        rows: 5,
-        editor: 'ace',
-        hideLabel: true,
-        input: true
-      }
-    ],
+    placeholder: 'Ex: _.sortBy(queryResult, "label")',
+    tooltip: `Data pre-processing after receiving the specified URL.
+Enter custom JavaScript code.
+<strong>queryResult</strong> - list received by specified api; <strong>_</strong> - instance of Lodash.
+`,
     conditional: {
       json: {
         and: [{ '===': [{ var: 'data.dataSrc' }, 'url'] }]
