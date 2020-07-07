@@ -145,9 +145,9 @@ export default class SelectJournal extends Component {
   shouldResetValue = () => {
     return new Promise(resolve => {
       const { selectedRows } = this.state;
-      const { sortBy } = this.props;
+      const { sortBy, disableResetOnApplyCustomPredicate } = this.props;
 
-      if (selectedRows.length < 1) {
+      if (disableResetOnApplyCustomPredicate || selectedRows.length < 1) {
         return resolve({ shouldReset: false });
       }
 
@@ -907,6 +907,7 @@ SelectJournal.propTypes = {
   displayColumns: PropTypes.array,
   presetFilterPredicates: PropTypes.arrayOf(predicateShape),
   initCustomPredicate: PropTypes.oneOfType([PropTypes.arrayOf(predicateShape), predicateShape]),
+  disableResetOnApplyCustomPredicate: PropTypes.bool,
   viewOnly: PropTypes.bool,
   renderView: PropTypes.func,
   searchField: PropTypes.string,
