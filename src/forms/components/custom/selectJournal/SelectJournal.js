@@ -282,7 +282,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },
-        onError: () => {}
+        onError: () => {},
+        // Cause https://citeck.atlassian.net/browse/ECOSUI-208
+        // If component has calculateValue, disable value reset when apply custom predicate
+        disableResetOnApplyCustomPredicate: !!component.calculateValue
       };
 
       if (this.customPredicateValue) {
