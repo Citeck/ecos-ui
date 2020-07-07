@@ -3,7 +3,6 @@ import lodash from 'lodash';
 import { deepClone, extractLabel, t } from '../../../helpers/util';
 import { ActionModes } from '../../../constants';
 import DialogManager from '../../common/dialogs/Manager/DialogManager';
-import FormManager from '../../EcosForm/FormManager';
 import Records from '../Records';
 import RecordActionExecutorsRegistry from './RecordActionExecutorsRegistry';
 import { DefaultActionTypes } from './DefaultActions';
@@ -189,34 +188,44 @@ class RecordActionsService {
     const { title, text, formId } = data;
 
     if (formId) {
-      const ownerId = Date.now();
-      const record = Records.create({}, ownerId);
-      const closeForm = answer => {
-        Records.release(record, ownerId);
-        callback(!!answer);
-      };
-
-      FormManager.openFormControlledModal({
-        formId,
-        title,
-        record: record.id,
-        saveOnSubmit: false,
-        onSubmit: () => closeForm(true),
-        onFormCancel: () => closeForm(),
-        onHideModal: () => closeForm()
-      });
+      Records.get(formId)
+        .load('definition?json')
+        .then(formDefinition => {
+          DialogManager.showFormDialog({
+            title,
+            formDefinition: {
+              display: 'form',
+              ...formDefinition
+            },
+            onSubmit: submission => callback(submission.data)
+          });
+        })
+        .catch(e => {
+          console.error(e);
+          callback(false);
+          DialogManager.showInfoDialog({ title: t('error'), text: e.message });
+        });
     } else {
-      DialogManager.confirmDialog({
-        title,
-        text,
-        onNo: () => callback(false),
-        onYes: () => callback(true)
-      });
+      DialogManager.confirmDialog({ title, text, onNo: () => callback(false), onYes: () => callback(true) });
+    }
+  };
+
+  static _setDataByMap = (action, data) => {
+    const attributesMapping = lodash.get(action, 'confirm.attributesMapping') || {};
+
+    for (let path in attributesMapping) {
+      if (attributesMapping.hasOwnProperty(path)) {
+        lodash.set(action, `config.${path}`, lodash.get(data, attributesMapping[path]));
+      }
     }
   };
 
   execAction = async (recordsId, action) => {
-    const execute = () => {
+    const execute = data => {
+      if (!lodash.isEmpty(data)) {
+        RecordActionsService._setDataByMap(action, data);
+      }
+
       const records = Records.get(recordsId);
       const executorPromise = (async () => {
         const executor = RecordActionExecutorsRegistry.get(action.type);
@@ -262,7 +271,7 @@ class RecordActionsService {
 
     if (confirmData) {
       return new Promise(resolve => {
-        RecordActionsService._confirmExecAction(confirmData, answer => (answer ? resolve(execute()) : resolve(false)));
+        RecordActionsService._confirmExecAction(confirmData, result => (!!result ? resolve(execute(result)) : resolve(false)));
       });
     }
 
@@ -318,7 +327,13 @@ class RecordActionsService {
         );
 
         fields.forEach(field => {
-          mutableData[key] = mutableData[key].replace('${' + field + '}', results.get(field));
+          const fieldValue = results.get(field);
+          const fieldMask = '${' + field + '}';
+          if (mutableData[key] === fieldMask) {
+            mutableData[key] = fieldValue;
+          } else {
+            mutableData[key] = mutableData[key].replace(fieldMask, fieldValue);
+          }
         });
       })
     );

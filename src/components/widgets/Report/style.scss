@@ -1,0 +1,29 @@
+@import '../../../styles/constants';
+
+%hover {
+  background: $color-blue-light;
+  cursor: pointer;
+  border-radius: $border-radius-standard;
+  color: $color-white;
+}
+
+.ecos-report {
+  &__v-scroll {
+    @extend %v-scroll;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(277px, 1fr));
+    grid-gap: 20px;
+
+    padding: 20px 25px;
+
+    &-small {
+      grid-template-columns: repeat(1, minmax(277px, 1fr)) !important;
+      grid-gap: 30px !important;
+
+      padding: 20px 15px;
+    }
+  }
+}

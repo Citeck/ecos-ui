@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import { MenuApi } from '../../api';
+import { MenuApi } from '../../api/menu';
 import { Badge } from '../common/form';
 
 import './style.scss';

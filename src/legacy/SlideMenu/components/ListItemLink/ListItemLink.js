@@ -70,7 +70,7 @@ const ListItemLink = ({
     switch (item.action.type) {
       case 'FILTER_LINK':
       case 'JOURNAL_LINK':
-        let listId = 'tasks';
+        let listId = params.listId || 'tasks';
 
         if (params.siteName) {
           listId = params.listId || 'main';

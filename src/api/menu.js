@@ -71,7 +71,12 @@ export class MenuApi extends CommonApi {
           {
             id: 'HEADER_CREATE_WORKFLOW_ADHOC',
             label: 'header.create-workflow-adhoc.label',
-            targetUrl: '/share/page/workflow-start-page?formType=workflowId&formKey=activiti$perform'
+            control: {
+              type: 'ECOS_CREATE_VARIANT',
+              payload: {
+                recordRef: 'workflow@def_activiti$perform'
+              }
+            }
           },
           {
             id: 'HEADER_CREATE_WORKFLOW_CONFIRM',
@@ -113,11 +118,20 @@ export class MenuApi extends CommonApi {
 
   getSlideMenuItems = () => {
     const username = getCurrentUserName();
-    return this.getJsonWithSessionCache({
-      url: `${PROXY_URI}citeck/menu/menu?username=${username}`,
-      timeout: 14400000, //4h
-      postProcess: menu => postProcessMenuConfig(menu)
-    }).catch(() => ({}));
+    const cacheKey = Records.get('uiserv/meta@')
+      .load('attributes.menu-cache-key')
+      .catch(() => '0');
+
+    return cacheKey
+      .then(key =>
+        this.getJsonWithSessionCache({
+          url: `${PROXY_URI}citeck/menu/menu?username=${username}`,
+          cacheKey: key,
+          timeout: 14400000, //4h
+          postProcess: menu => postProcessMenuConfig(menu)
+        })
+      )
+      .catch(() => ({}));
   };
 
   getMenuItemIconUrl = iconName => {

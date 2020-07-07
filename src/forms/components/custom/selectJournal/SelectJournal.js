@@ -7,7 +7,7 @@ import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import { Attributes } from '../../../../constants';
 import BaseReactComponent from '../base/BaseReactComponent';
 import { SortOrderOptions, TableTypes, DisplayModes } from './constants';
-import GqlDataSource from '../../../../components/common/grid/dataSource';
+import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import { trimFields } from '../../../../helpers/util';
 
 export default class SelectJournalComponent extends BaseReactComponent {
@@ -311,6 +311,42 @@ export default class SelectJournalComponent extends BaseReactComponent {
         });
     } else {
       return fetchPropertiesAndResolve(journalId);
+    }
+  }
+
+  viewOnlyBuild() {
+    super.viewOnlyBuild();
+    this.refreshElementHasValueClasses();
+  }
+
+  updateValue(flags, value) {
+    const changed = super.updateValue(flags, value);
+
+    this.refreshElementHasValueClasses();
+
+    return changed;
+  }
+
+  refreshElementHasValueClasses() {
+    if (!this.element) {
+      return;
+    }
+
+    const component = this.component;
+    const { multiple, source } = component;
+
+    if (source.viewMode !== DisplayModes.TABLE) {
+      return;
+    }
+
+    const viewOnlyHasValueClassName = 'formio-component__view-only-table-has-rows';
+    const hasValue = multiple ? Array.isArray(this.dataValue) && this.dataValue.length > 0 : !!this.dataValue;
+    const elementHasClass = this.element.classList.contains(viewOnlyHasValueClassName);
+
+    if (!hasValue && elementHasClass) {
+      this.element.classList.remove(viewOnlyHasValueClassName);
+    } else if (hasValue && !elementHasClass) {
+      this.element.classList.add(viewOnlyHasValueClassName);
     }
   }
 

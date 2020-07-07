@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 
-import { changePassword, changePhoto, getUserData } from '../../../actions/user';
+import { changePassword, changePhoto, getUserData, togglePasswordModal } from '../../../actions/user';
 import { t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import { Avatar, BtnUpload, Loader } from '../../common';
@@ -35,15 +35,6 @@ class UserProfileDashlet extends BaseWidget {
     classNameDashlet: ''
   };
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      ...this.state,
-      isShowPasswordModal: false
-    };
-  }
-
   componentDidMount() {
     const { getUserData } = this.props;
 
@@ -57,12 +48,11 @@ class UserProfileDashlet extends BaseWidget {
   };
 
   onTogglePasswordModal = flag => {
-    this.setState({ isShowPasswordModal: flag });
+    this.props.togglePasswordModal(flag);
   };
 
   onChangePassword = data => {
     this.props.changePassword(data);
-    this.onTogglePasswordModal(false);
   };
 
   render() {
@@ -76,9 +66,9 @@ class UserProfileDashlet extends BaseWidget {
       isLoadingPassword,
       isMobile,
       message,
-      isCurrentAdmin
+      isCurrentAdmin,
+      isOpenPasswordModal
     } = this.props;
-    const { isShowPasswordModal } = this.state;
 
     return (
       <Dashlet
@@ -91,11 +81,12 @@ class UserProfileDashlet extends BaseWidget {
         {isLoading && <Loader />}
         {
           <PasswordModal
+            isLoading={isLoadingPassword}
             userName={userName}
             isCurrentUser={isCurrentUser}
             isAdmin={isCurrentAdmin}
             isMobile={isMobile}
-            isShow={isShowPasswordModal}
+            isShow={isOpenPasswordModal}
             onCancel={() => this.onTogglePasswordModal(false)}
             onChange={this.onChangePassword}
           />
@@ -139,6 +130,7 @@ const mapStateToProps = (state, context) => {
     isLoading: profile.isLoading,
     isLoadingPhoto: profile.isLoadingPhoto,
     isLoadingPassword: profile.isLoadingPassword,
+    isOpenPasswordModal: profile.isOpenPasswordModal,
     profile: profile.data || {},
     message: profile.message,
     isCurrentUser,
@@ -154,7 +146,8 @@ const mapDispatchToProps = (dispatch, context) => {
   return {
     getUserData: () => dispatch(getUserData({ record, stateId })),
     changePassword: data => dispatch(changePassword({ data, record, stateId })),
-    changePhoto: data => dispatch(changePhoto({ data, record, stateId }))
+    changePhoto: data => dispatch(changePhoto({ data, record, stateId })),
+    togglePasswordModal: isOpen => dispatch(togglePasswordModal({ isOpen, record, stateId }))
   };
 };
 

@@ -153,17 +153,7 @@ $transition-duration: 0.3s;
 
     &__icon {
       color: $text-color-gray;
-      font-size: $font-size-extra-large !important;
-      min-width: 25px;
       text-align: center;
-    }
-
-    &__icon-img {
-      background-repeat: no-repeat;
-      background-size: cover;
-      height: 20px;
-      width: 25px;
-      flex-shrink: 0;
     }
 
     &__label {
@@ -175,8 +165,7 @@ $transition-duration: 0.3s;
       opacity: 1;
     }
 
-    &__icon + &__label,
-    &__icon-img + &__label {
+    &__icon + &__label {
       margin-left: 9px;
     }
 

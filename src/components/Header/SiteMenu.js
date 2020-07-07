@@ -2,12 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import { isArray, isEmpty } from 'lodash';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
+
 import { goToPageFromSiteMenu } from '../../actions/header';
+import { DropdownMenu as Menu } from '../common';
 import IcoBtn from '../common/btns/IcoBtn';
 import Icon from '../common/icons/Icon/Icon';
-import { DropdownMenu as Menu } from '../common';
 
 const mapStateToProps = state => ({
   items: state.header.siteMenu.items,
@@ -47,6 +49,10 @@ class SiteMenu extends React.Component {
     const { items, theme } = this.props;
     const disabled = isEmpty(items) || !isArray(items);
     const classNameIcoBtn = classNames(`ecos-header-site__btn ecos-btn_theme_${theme} ecos-btn_padding_small ecos-btn_r_6`);
+
+    if (isEmpty(items)) {
+      return null;
+    }
 
     return (
       <Dropdown className="ecos-header-site ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>

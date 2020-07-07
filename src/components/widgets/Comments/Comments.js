@@ -15,7 +15,7 @@ import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
-import { Avatar, DefineHeight } from '../../common/index';
+import { Avatar, DefineHeight, Loader } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
 
@@ -437,8 +437,7 @@ class Comments extends BaseWidget {
   };
 
   handleConfirmDeletion = () => {
-    this.props.deleteComment(this.state.commentForDeletion);
-    this.setState({ commentForDeletion: null });
+    this.props.deleteComment(this.state.commentForDeletion, () => this.setState({ commentForDeletion: null }));
   };
 
   handleReloadData = () => {
@@ -583,6 +582,7 @@ class Comments extends BaseWidget {
   }
 
   renderConfirmDelete(id) {
+    const { saveIsLoading } = this.props;
     const { commentForDeletion } = this.state;
 
     if (!commentForDeletion || commentForDeletion !== id) {
@@ -591,16 +591,20 @@ class Comments extends BaseWidget {
 
     return (
       <div className="ecos-comments__comment-confirm">
-        <div className="ecos-comments__comment-confirm-title">{t('comments-widget.confirm.title')}?</div>
+        <div className="ecos-comments__comment-confirm-group">
+          <div className="ecos-comments__comment-confirm-title">{t('comments-widget.confirm.title')}?</div>
 
-        <div className="ecos-comments__comment-confirm-btns">
-          <Btn className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-comments__comment-confirm-btn" onClick={this.handleCancelDeletion}>
-            {t('comments-widget.confirm.cancel')}
-          </Btn>
-          <Btn className="ecos-btn_red ecos-comments__comment-confirm-btn" onClick={this.handleConfirmDeletion}>
-            {t('comments-widget.confirm.delete')}
-          </Btn>
+          <div className="ecos-comments__comment-confirm-btns">
+            <Btn className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-comments__comment-confirm-btn" onClick={this.handleCancelDeletion}>
+              {t('comments-widget.confirm.cancel')}
+            </Btn>
+            <Btn className="ecos-btn_red ecos-comments__comment-confirm-btn" onClick={this.handleConfirmDeletion}>
+              {t('comments-widget.confirm.delete')}
+            </Btn>
+          </div>
         </div>
+
+        {saveIsLoading && <Loader blur />}
       </div>
     );
   }
@@ -746,7 +750,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   getComments: () => dispatch(getComments(ownProps.record)),
   createComment: comment => dispatch(createCommentRequest({ comment, nodeRef: ownProps.record })),
   updateComment: comment => dispatch(updateCommentRequest({ comment, nodeRef: ownProps.record })),
-  deleteComment: id => dispatch(deleteCommentRequest({ id, nodeRef: ownProps.record })),
+  deleteComment: (id, callback) => dispatch(deleteCommentRequest({ id, nodeRef: ownProps.record, callback })),
   setErrorMessage: message => dispatch(setError({ message, nodeRef: ownProps.record }))
 });
 

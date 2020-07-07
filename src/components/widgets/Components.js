@@ -10,6 +10,7 @@ export const ComponentKeys = {
   PAGINATION: 'pagination',
   DOC_PREVIEW: 'doc-preview',
   JOURNAL: 'journal',
+  REPORT: 'report',
   COMMENTS: 'comments',
   PROPERTIES: 'properties',
   TASKS: 'tasks',
@@ -51,6 +52,11 @@ export default class Components {
       load: () => lazy(() => import('./JournalsDashlet/JournalsDashlet')),
       label: 'dashboard-settings.widget.journal',
       supportedDashboardTypes: []
+    },
+    [ComponentKeys.REPORT]: {
+      load: () => lazy(() => import('./Report')),
+      label: 'dashboard-settings.widget.report',
+      supportedDashboardTypes: [DashboardTypes.USER]
     },
     [ComponentKeys.COMMENTS]: {
       load: () => lazy(() => import('./Comments')),

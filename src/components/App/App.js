@@ -38,11 +38,13 @@ const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/Verif
 const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/DelegatedTimesheetsPage'));
 
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
+const TreePage = lazy(() => import('../../pages/debug/Tree'));
 
 const allowedLinks = [
   URL.DASHBOARD,
   '/share/page/bpmn-designer',
   '/v2/debug/formio-develop',
+  '/v2/debug/tree',
   URL.DASHBOARD_SETTINGS,
   URL.BPMN_DESIGNER,
   URL.JOURNAL,
@@ -258,6 +260,7 @@ class App extends Component {
 
             {/*temporary routes */}
             <Route path="/v2/debug/formio-develop" render={props => <FormIOPage {...props} {...basePageProps} />} />
+            <Route path="/v2/debug/tree" render={props => <TreePage {...props} {...basePageProps} />} />
 
             {/* Redirect not working: https://github.com/CJY0208/react-router-cache-route/issues/72 */}
             <Redirect to={URL.DASHBOARD} />
@@ -287,6 +290,7 @@ class App extends Component {
 
           {/* temporary routes */}
           <Route path="/v2/debug/formio-develop" component={FormIOPage} />
+          <Route path="/v2/debug/tree" component={TreePage} />
 
           <Redirect to={URL.DASHBOARD} />
         </Switch>

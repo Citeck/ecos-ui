@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
+
 import EcosModal from './EcosModal';
 
 const EMPTY_HEADER_TITLE = ' ';
@@ -68,6 +70,9 @@ ModalWrapper.propTypes = {
 
 class Modal {
   open = (node, config = {}, callback) => {
+    const contentBefore = get(config, 'params.contentBefore', null);
+    const contentAfter = get(config, 'params.contentAfter', null);
+
     this.el = document.createElement('div');
 
     document.body.appendChild(this.el);
@@ -93,7 +98,9 @@ class Modal {
         getInstance={el => (this.modal = el)}
         reactstrapProps={config.reactstrapProps}
       >
+        {typeof contentBefore === 'function' ? contentBefore() : contentBefore}
         {node}
+        {typeof contentAfter === 'function' ? contentAfter() : contentAfter}
       </ModalWrapper>,
       this.el,
       callback

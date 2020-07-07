@@ -6,25 +6,11 @@ import { DropdownMenu as Menu } from '../common';
 import IcoBtn from '../common/btns/IcoBtn';
 import { getCurrentLocale, setCookie } from '../../helpers/util';
 import { COOKIE_KEY_LOCALE, COOKIE_KEY_LOCALE_MAX_AGE } from '../../constants/alfresco';
-
-const LANGUAGE_RU = 'ru';
-const LANGUAGE_EN = 'en';
-const IMG_V = '2';
+import { allowedLanguages } from '../../constants/lang';
 
 export default class LanguageSwitcher extends React.Component {
   static defaultProps = {
-    items: [
-      {
-        id: LANGUAGE_EN,
-        label: 'Eng',
-        img: `${process.env.PUBLIC_URL}/img/language-flags/${LANGUAGE_EN}.png?v=${IMG_V}`
-      },
-      {
-        id: LANGUAGE_RU,
-        label: 'Рус',
-        img: `${process.env.PUBLIC_URL}/img/language-flags/${LANGUAGE_RU}.png?v=${IMG_V}`
-      }
-    ]
+    items: allowedLanguages
   };
 
   state = {

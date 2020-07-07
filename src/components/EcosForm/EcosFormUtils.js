@@ -4,8 +4,10 @@ import moment from 'moment';
 import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
+import lodashSet from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
+import isArray from 'lodash/isArray';
 import uuidV4 from 'uuid/v4';
 
 import { getCurrentUserName, t } from '../../helpers/util';
@@ -17,6 +19,8 @@ import Records from '../Records';
 import EcosForm, { FORM_MODE_CREATE, FORM_MODE_EDIT } from './';
 
 const EDGE_PREFIX = 'edge__';
+
+const NOT_INPUT_TYPES = ['container', 'datagrid', 'button', 'horizontalLine'];
 
 const getComponentInnerAttSchema = component => {
   let dataType = lodashGet(component, 'ecos.dataType', '');
@@ -35,7 +39,7 @@ const getComponentInnerAttSchema = component => {
     case 'selectJournal':
       return 'assoc';
     case 'datamap':
-    case 'container':
+    case 'mlText':
       return 'json';
     case 'file':
       return 'as(n:"content-data"){json}';
@@ -161,6 +165,7 @@ export default class EcosFormUtils {
               }
             };
           }
+
           modal.open(formInstance, config);
         }
       });
@@ -182,11 +187,21 @@ export default class EcosFormUtils {
         if (formKey) {
           params.formKey = config.formKey;
         }
+
         if (config.onCancel) {
           params.onCancel = config.onCancel;
         }
+
         if (config.onFormCancel) {
           params.onFormCancel = config.onFormCancel;
+        }
+
+        if (config.contentBefore) {
+          params.contentBefore = config.contentBefore;
+        }
+
+        if (config.contentAfter) {
+          params.contentAfter = config.contentAfter;
         }
 
         EcosFormUtils.eform(recordRef, {
@@ -386,7 +401,7 @@ export default class EcosFormUtils {
     });
   }
 
-  static forEachComponent(root, action) {
+  static forEachComponent(root, action, scope = null) {
     let components = [];
 
     if (root) {
@@ -397,10 +412,32 @@ export default class EcosFormUtils {
       }
     }
 
+    let currentScope = scope;
+    if (root.type === 'container' || root.type === 'datagrid') {
+      currentScope = {
+        parent: scope,
+        component: root
+      };
+      if (scope) {
+        currentScope.root = scope.root;
+        currentScope.path = scope.path + '.' + root.key;
+        if (!scope.children) {
+          scope.children = [];
+        }
+        scope.children.push(currentScope);
+      } else {
+        currentScope.root = currentScope;
+        currentScope.path = root.key;
+      }
+      if (root.multiple) {
+        currentScope.path = currentScope.path + '[]';
+      }
+    }
+
     for (let i = 0; i < components.length; i++) {
       let component = components[i];
-      action(component);
-      this.forEachComponent(component, action);
+      action(component, currentScope);
+      this.forEachComponent(component, action, currentScope);
     }
   }
 
@@ -427,15 +464,33 @@ export default class EcosFormUtils {
       });
   }
 
+  static getSchemaForScopedAttribute(innerSchema, scope) {
+    if (!scope) {
+      return innerSchema;
+    }
+
+    if (innerSchema[0] === '.') {
+      innerSchema = innerSchema.substring(1);
+    }
+
+    const component = scope.component;
+    const attribute = EcosFormUtils.getComponentAttribute(component);
+
+    let multiplePostfix = component.multiple ? 's' : '';
+    let schema = '.att' + multiplePostfix + '(n:"' + attribute + '"){' + innerSchema + '}';
+
+    return this.getSchemaForScopedAttribute(schema, scope.parent);
+  }
+
   static getFormInputs(root, inputs) {
     if (!inputs) {
       inputs = [];
     }
 
-    this.forEachComponent(root, component => {
+    this.forEachComponent(root, (component, scope) => {
       let attribute = EcosFormUtils.getComponentAttribute(component);
 
-      if (!attribute || component.input !== true || component.type === 'button' || component.type === 'horizontalLine') {
+      if (!attribute || component.input !== true || NOT_INPUT_TYPES.indexOf(component.type) >= 0) {
         return;
       }
 
@@ -445,9 +500,14 @@ export default class EcosFormUtils {
         attribute = attribute.substring(0, questionIdx);
       }
 
+      let currentScope = {
+        parent: scope,
+        component
+      };
+
       let innerAttSchema = getComponentInnerAttSchema(component);
-      let multiplePostfix = component.multiple ? 's' : '';
-      let schema = '.att' + multiplePostfix + '(n:"' + attribute + '"){' + innerAttSchema + '}';
+      let schema = this.getSchemaForScopedAttribute(innerAttSchema, currentScope);
+
       let edgeSchema = '.edge(n:"' + attribute + '"){protected,';
 
       if (component.label === attribute) {
@@ -458,7 +518,10 @@ export default class EcosFormUtils {
         edgeSchema += 'type}';
       }
 
+      edgeSchema = this.getSchemaForScopedAttribute(edgeSchema, scope);
+
       inputs.push({
+        scope: scope,
         attribute: attribute,
         component: component,
         schema: schema,
@@ -474,8 +537,13 @@ export default class EcosFormUtils {
     let keysMapping = {};
 
     for (let i = 0; i < inputs.length; i++) {
-      let key = inputs[i].component.key;
-      keysMapping[key] = inputs[i].schema;
+      let input = inputs[i];
+      let key = input.component.key;
+      if (input.scope) {
+        keysMapping[input.scope.path + '.' + key] = input.schema;
+      } else {
+        keysMapping[key] = input.schema;
+      }
     }
 
     return keysMapping;
@@ -485,10 +553,14 @@ export default class EcosFormUtils {
     let inputByKey = {};
 
     for (let i = 0; i < inputs.length; i++) {
-      let key = inputs[i].component.key;
-      inputByKey[key] = inputs[i];
+      let input = inputs[i];
+      let key = input.component.key;
+      if (input.scope) {
+        inputByKey[input.scope.path + '.' + key] = input;
+      } else {
+        inputByKey[key] = input;
+      }
     }
-
     return inputByKey;
   }
 
@@ -524,30 +596,36 @@ export default class EcosFormUtils {
       value = mapEachValue(value, v => JSON.stringify(Records.get(v).toJson()));
     }
     if (value && input && input.dataType === 'json') {
-      value = mapEachValue(value, v => {
-        let recData = (Records.get(v).toJson() || {}).attributes || {};
-        let result = {};
+      const type = (input.component || {}).type;
 
-        for (let att in recData) {
-          if (
-            recData.hasOwnProperty(att) &&
-            att.charAt(0) !== '.' &&
-            att !== '_alias' &&
-            att !== '_state' &&
-            att !== 'submit' &&
-            //id should be in att_id
-            att !== 'id'
-          ) {
-            if (att === 'att_id') {
-              result['id'] = recData[att];
-            } else {
-              result[att] = recData[att];
+      if (type === 'textarea') {
+        value = JSON.parse(value);
+      } else {
+        value = mapEachValue(value, v => {
+          let recData = (Records.get(v).toJson() || {}).attributes || {};
+          let result = {};
+
+          for (let att in recData) {
+            if (
+              recData.hasOwnProperty(att) &&
+              att.charAt(0) !== '.' &&
+              att !== '_alias' &&
+              att !== '_state' &&
+              att !== 'submit' &&
+              //id should be in att_id
+              att !== 'id'
+            ) {
+              if (att === 'att_id') {
+                result['id'] = recData[att];
+              } else {
+                result[att] = recData[att];
+              }
             }
           }
-        }
 
-        return result;
-      });
+          return result;
+        });
+      }
     }
 
     if (value && input && input.component.type === 'datagridAssoc') {
@@ -576,53 +654,97 @@ export default class EcosFormUtils {
     let attributes = {};
     for (let input of inputs) {
       let key = input.component.key;
-      if (key) {
-        inputByKey[key] = input;
-        attributes[key] = input.schema;
-        attributes[EDGE_PREFIX + key] = input.edgeSchema;
+      if (!key) {
+        continue;
       }
+      let path = (input.scope || {}).path || '';
+      path = path ? path + '.' + key : key;
+      if (input.component.multiple) {
+        path = path + '[]';
+      }
+      inputByKey[path] = input;
+      attributes[path] = input.schema;
+      attributes[EDGE_PREFIX + path] = input.edgeSchema;
     }
 
     return Records.get(recordId)
       .load(attributes, true)
       .then(recordData => {
-        let edges = {};
-        let submission = {};
+        let rootScope = {};
 
-        for (let att in recordData) {
-          if (recordData.hasOwnProperty(att)) {
-            if (att.indexOf(EDGE_PREFIX) === 0) {
-              edges[att.substring(EDGE_PREFIX.length)] = recordData[att];
-            } else if (recordData[att] !== null) {
-              let input = inputByKey[att];
-              if (input && input.dataType === 'json-record') {
-                submission[att] = EcosFormUtils.initJsonRecord(recordData[att], ownerId);
-              } else if (input && input.dataType === 'json' && input.component && input.component.type === 'tableForm') {
-                submission[att] = EcosFormUtils.initJsonRecord(recordData[att], ownerId);
-              } else if (input && input.component && input.component.type === 'file') {
-                submission[att] = EcosFormUtils.removeEmptyValuesFromArray(recordData[att]);
-              } else if (
-                input &&
-                input.component &&
-                input.component.type === 'datetime' &&
-                input.component.enableDate &&
-                !input.component.enableTime
-              ) {
-                const serverDate = new Date(recordData[att]);
-                serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
-                submission[att] = serverDate.toISOString();
-              } else {
-                submission[att] = recordData[att];
-              }
+        for (let attPath in recordData) {
+          if (!recordData.hasOwnProperty(attPath)) {
+            continue;
+          }
+          if (attPath.indexOf(EDGE_PREFIX) === 0) {
+            let input = inputByKey[attPath.substring(EDGE_PREFIX.length)];
+            input.edge = recordData[attPath];
+            continue;
+          }
+          let data = recordData[attPath];
+          if (data == null) {
+            continue;
+          }
+          let input = inputByKey[attPath];
+          let inputValue;
+
+          if (input && input.dataType === 'json-record') {
+            inputValue = EcosFormUtils.initJsonRecord(recordData[attPath], ownerId);
+          } else if (input && input.dataType === 'json' && input.component && input.component.type === 'tableForm') {
+            inputValue = EcosFormUtils.initJsonRecord(recordData[attPath], ownerId);
+          } else if (input && input.dataType === 'json' && input.component && input.component.type === 'textarea') {
+            let value = recordData[attPath];
+            inputValue = JSON.stringify(value || {}, null, 2);
+          } else if (input && input.component && input.component.type === 'file') {
+            inputValue = EcosFormUtils.removeEmptyValuesFromArray(recordData[attPath]);
+          } else if (
+            input &&
+            input.component &&
+            input.component.type === 'datetime' &&
+            input.component.enableDate &&
+            !input.component.enableTime
+          ) {
+            const serverDate = new Date(recordData[attPath]);
+            serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
+            inputValue = serverDate.toISOString();
+          } else {
+            inputValue = recordData[attPath];
+          }
+
+          let atts = this.expandArrAttributePath(attPath, inputValue);
+
+          for (let att in atts) {
+            if (atts.hasOwnProperty(att)) {
+              lodashSet(rootScope, att, atts[att]);
             }
           }
         }
 
         return {
-          edges,
-          submission
+          inputs,
+          submission: rootScope
         };
       });
+  }
+
+  static expandArrAttributePath(path, value) {
+    let bracketIdx = path.indexOf('[]');
+    if (bracketIdx === -1 || !value || !isArray(value)) {
+      return { [path]: value };
+    }
+    let beforeBracket = path.substring(0, bracketIdx);
+    let afterBracket = path.substring(bracketIdx + 2);
+    let result = {};
+    for (let i = 0; i < value.length; i++) {
+      let idxPath = beforeBracket + '[' + i + ']' + afterBracket;
+      let atts = this.expandArrAttributePath(idxPath, value[i]);
+      for (let att in atts) {
+        if (atts.hasOwnProperty(att)) {
+          result[att] = atts[att];
+        }
+      }
+    }
+    return result;
   }
 
   static getClonedData(recordId, inputs) {

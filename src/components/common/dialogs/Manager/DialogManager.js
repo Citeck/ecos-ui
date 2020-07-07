@@ -7,11 +7,13 @@ import EcosModal from '../../EcosModal';
 import { RemoveDialog } from '../index';
 
 import './DialogManager.scss';
+import FormWrapper from './FormWrapper';
 
 const REMOVE_DIALOG_ID = 'DialogManager-remove-dialog';
 const INFO_DIALOG_ID = 'DialogManager-info-dialog';
 const CONFIRM_DIALOG_ID = 'DialogManager-confirm-dialog';
 const CUSTOM_DIALOG_ID = 'DialogManager-custom-dialog';
+const FORM_DIALOG_ID = 'DialogManager-form-dialog';
 
 class DialogWrapper extends React.Component {
   constructor(props) {
@@ -52,8 +54,8 @@ const dialogsById = {
     const { onDelete = () => {}, onCancel = () => {}, onClose = onCancel, title, text } = dialogProps;
     const dProps = {
       ...dialogProps,
-      title: t(title || 'record-action.delete.dialog.title.remove-many'),
-      text: t(text || 'record-action.delete.dialog.msg.remove-many'),
+      title: t(title !== null && title !== undefined ? title : 'record-action.delete.dialog.title.remove-many'),
+      text: t(title !== null && title !== undefined ? text : 'record-action.delete.dialog.msg.remove-many'),
       isOpen: props.isVisible
     };
 
@@ -157,6 +159,36 @@ const dialogsById = {
         </div>
       </EcosModal>
     );
+  },
+  [FORM_DIALOG_ID]: props => {
+    const { isVisible, setVisible } = props;
+
+    const { title = '', onCancel = () => {}, onSubmit = () => {}, modalClass = 'ecos-dialog_info' } = props.dialogProps;
+
+    const hideModal = () => {
+      setVisible(false);
+      onCancel();
+    };
+
+    const formProps = {
+      ...props.dialogProps,
+      onSubmit: submission => {
+        const res = onSubmit(submission);
+        if (res && res.then) {
+          return res.then(() => setVisible(false));
+        } else {
+          setVisible(false);
+        }
+      }
+    };
+
+    return (
+      <EcosModal title={title} isOpen={isVisible} hideModal={hideModal} className={`ecos-dialog ${modalClass}`}>
+        <div className="ecos-dialog__body">
+          <FormWrapper isVisible {...formProps} />
+        </div>
+      </EcosModal>
+    );
   }
 };
 
@@ -203,6 +235,10 @@ export default class DialogManager {
 
   static showCustomDialog(props) {
     return showDialog(CUSTOM_DIALOG_ID, props);
+  }
+
+  static showFormDialog(props) {
+    return showDialog(FORM_DIALOG_ID, props);
   }
 }
 

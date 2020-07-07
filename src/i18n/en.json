@@ -170,6 +170,7 @@
   "dashboard-settings.widget.doc-status": "Case status",
   "dashboard-settings.widget.events-history": "Events history",
   "dashboard-settings.widget.journal": "Journal",
+  "dashboard-settings.widget.report": "Tasks statistics",
   "dashboard-settings.widget.preview": "Preview",
   "dashboard-settings.widget.properties": "Properties",
   "dashboard-settings.widget.tasks": "My tasks",
@@ -325,6 +326,9 @@
   "export-component.notice.buffer-link-err": "Failed to create select link",
   "export-component.notice.buffer-link-preparation": "Wait while preparing a sample link",
 
+  "tree-component.tooltip.cannot-be-changes": "Cannot change state",
+  "tree-component.empty": "Nothing found",
+
   "filter-list.add-criterion": "Add criterion",
   "filter-list.add-operator": "Add operator",
   "filter-list.condition-group": "Condition group",
@@ -370,6 +374,7 @@
   "record-action.assoc-action.not-found": "Association is not found",
 
   "record-action.name.script-action": "Script action",
+  "record-action.script-action.error.text": "Undefined action",
 
   "record-action.name.upload-new-version": "Upload new version",
   "record-action.upload-new-version.title.upload-model": "Add new document version",
@@ -864,6 +869,14 @@
   "barcode-widget.settings.margin-top.label": "Top",
   "barcode-widget.settings.margin-bottom.label": "Bottom",
   "barcode-widget.settings.mm.label": "mm",
+
+  "report-widget.title": "Tasks statistics",
+  "report-widget.urgent": "URGENT",
+  "report-widget.today": "TODAY",
+  "report-widget.later": "LATER",
+  "report-widget.records.no-document-type": "No status",
+  "report-widget.records.no-status": "No status",
+
   "esign.error": "Error",
   "esign.add-plugin.title": "Please, install extension",
   "esign.message.add-plugin": "To continue, install the Cryptopro browser extension from cryptopro.ru",
@@ -940,6 +953,8 @@
   "user-profile-widget.error.get-profile-data": "Failure to fetch profile data",
   "user-profile-widget.error.upload-profile-photo": "Failure to upload profile photo. Try again",
   "user-profile-widget.error.change-profile-password": "Failure to change password",
+  "user-profile-widget.error.invalid-password": "The old password is incorrect",
+  "user-profile-widget.error.server-error": "Server error occurred",
   "user-profile-widget.success.change-profile-password": "Password changed successfully",
   "user-profile-widget.modal-password.label.old-password": "Old password",
   "user-profile-widget.modal-password.label.new-password": "New password",
@@ -948,6 +963,7 @@
   "user-profile-widget.modal-password.button.change": "Change password",
   "user-profile-widget.modal-password.msg.new-passwords-not-match": "Passwords do not match",
   "user-profile-widget.modal-password.msg.new-n-old-passwords-match": "New and old passwords match",
+  "user-profile-widget.success.change-photo": "Profile photo successfully changed",
 
   "password-field.rule.valid-characters": "Any characters except whitespaces are available",
   "password-field.rule.count-characters": "minimum 3 characters",

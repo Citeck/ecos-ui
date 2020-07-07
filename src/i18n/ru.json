@@ -171,6 +171,7 @@
   "dashboard-settings.widget.doc-status": "Статус кейса",
   "dashboard-settings.widget.events-history": "История событий",
   "dashboard-settings.widget.journal": "Журнал",
+  "dashboard-settings.widget.report": "Статистика по задачам",
   "dashboard-settings.widget.preview": "Предпросмотр",
   "dashboard-settings.widget.properties": "Свойства",
   "dashboard-settings.widget.tasks": "Мои задачи",
@@ -326,6 +327,9 @@
   "export-component.notice.buffer-link-err": "Не удалось создать ссылку на выборку",
   "export-component.notice.buffer-link-preparation": "Подождите, идет подготовка ссылки на выборку",
 
+  "tree-component.tooltip.cannot-be-changes": "Нельзя изменить состояние",
+  "tree-component.empty": "Элементов не найдено",
+
   "filter-list.add-criterion": "Добавить критерий",
   "filter-list.add-operator": "Добавить оператор",
   "filter-list.condition-group": "Группу условий",
@@ -371,6 +375,7 @@
   "record-action.assoc-action.not-found": "Связь не найдена",
 
   "record-action.name.script-action": "Скриптовое действие",
+  "record-action.script-action.error.text": "Действие не определено",
 
   "record-action.name.upload-new-version": "Загрузить новую версию",
   "record-action.upload-new-version.title.upload-model": "Добавление новой версии документа",
@@ -869,6 +874,14 @@
   "barcode-widget.settings.margin-top.label": "Сверху",
   "barcode-widget.settings.margin-bottom.label": "Снизу",
   "barcode-widget.settings.mm.label": "мм",
+
+  "report-widget.title": "Статистика по задачам",
+  "report-widget.urgent": "СРОЧНО",
+  "report-widget.today": "СЕГОДНЯ",
+  "report-widget.later": "ПОЗЖЕ",
+  "report-widget.records.no-document-type": "Без статуса",
+  "report-widget.records.no-status": "Без статуса",
+
   "esign.error": "Ошибка",
   "esign.add-plugin.title": "Установите расширение",
   "esign.message.add-plugin": "Чтобы продолжить, установите расширение Cryptopro для браузера с сайта cryptopro.ru",
@@ -946,6 +959,8 @@
   "user-profile-widget.error.get-profile-data": "Ошибка получения данных профиля",
   "user-profile-widget.error.upload-profile-photo": "Ошибка загрузки фотографии. Попробуйте ещё раз",
   "user-profile-widget.error.change-profile-password": "Ошибка смены пароля",
+  "user-profile-widget.error.invalid-password": "Старый пароль введен неверно",
+  "user-profile-widget.error.server-error": "Произошла ошибка на сервере",
   "user-profile-widget.success.change-profile-password": "Пароль успешно изменен",
   "user-profile-widget.modal-password.label.old-password": "Старый пароль",
   "user-profile-widget.modal-password.label.new-password": "Придумайте новый пароль",
@@ -954,6 +969,7 @@
   "user-profile-widget.modal-password.button.change": "Изменить пароль",
   "user-profile-widget.modal-password.msg.new-passwords-not-match": "Пароль не совпадает",
   "user-profile-widget.modal-password.msg.new-n-old-passwords-match": "Новый пароль такой же как старый",
+  "user-profile-widget.success.change-photo": "Фотография профиля успешно изменена",
 
   "password-field.rule.valid-characters": "Допустимы латинские, русские и другие символы",
   "password-field.rule.count-characters": "минимум 3 знака/символа",

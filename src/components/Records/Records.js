@@ -145,6 +145,10 @@ class RecordsComponent {
   }
 
   remove(records) {
+    if (!Array.isArray(records)) {
+      records = [records];
+    }
+
     records = records.map(r => (r.id ? r.id : r));
     return recordsDeleteFetch({ records }).then(() => this.forget(records));
   }

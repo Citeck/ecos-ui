@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
 
 import { t } from '../../../helpers/util';
 import { EcosModal, Password } from '../../common';
@@ -25,6 +26,7 @@ const Labels = {
 
 class PasswordModal extends React.Component {
   static propTypes = {
+    isLoading: PropTypes.bool,
     isAdmin: PropTypes.bool,
     isShow: PropTypes.bool,
     isMobile: PropTypes.bool,
@@ -48,6 +50,16 @@ class PasswordModal extends React.Component {
     passwordType: window.PasswordCredential ? 'text' : 'password'
   };
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.isShow && !this.props.isShow) {
+      this.clearData();
+    }
+  }
+
+  componentWillUnmount() {
+    this.debouncedCheckFields.cancel();
+  }
+
   hideModal = () => {
     this.props.onCancel && this.props.onCancel();
     this.clearData();
@@ -63,18 +75,21 @@ class PasswordModal extends React.Component {
       (isAdmin || !!oldWord.value) &&
       !!repeatWord.value &&
       !!newWord.value &&
-      newWord.valid
+      newWord.valid &&
+      newWord.value === repeatWord.value
     );
   };
 
   clearData = () => {
     this.setState({
+      oldWord: {},
       newWord: {},
       repeatWord: {},
       newWordMsgs: [],
       repeatWordMsgs: [],
       passwordType: window.PasswordCredential ? 'text' : 'password'
     });
+    this.debouncedCheckFields.cancel();
   };
 
   onConfirmChangePassword = () => {
@@ -83,7 +98,6 @@ class PasswordModal extends React.Component {
 
     if (!window.PasswordCredential || !isCurrentUser) {
       this.props.onChange && this.props.onChange({ oldPass: oldWord.value, pass: newWord.value, passVerify: repeatWord.value });
-      this.clearData();
 
       return;
     }
@@ -95,43 +109,46 @@ class PasswordModal extends React.Component {
 
     navigator.credentials.store(passwordCredential);
     this.props.onChange && this.props.onChange({ oldPass: oldWord.value, pass: newWord.value, passVerify: repeatWord.value });
-    this.clearData();
   };
 
   onChangeWord = ({ value, key, valid }) => {
-    this.setState({ [key]: { value, valid } });
+    this.setState({ [key]: { value, valid } }, this.debouncedCheckFields);
   };
 
-  checkNewWord = () => {
-    const { oldWord, newWord } = this.state;
-    const newWordMsgs = [];
-
-    if (newWord.value && oldWord.value === newWord.value) {
-      newWordMsgs.push(Labels.Msgs.NEW_EQ_OLD);
-    }
-
-    this.setState({ newWordMsgs });
-  };
-
-  checkRepeatWord = () => {
-    const { repeatWord, newWord } = this.state;
-    const repeatWordMsgs = [];
+  checkFields = () => {
+    const { oldWord, newWord, repeatWord } = this.state;
+    const newState = {
+      newWordMsgs: [],
+      repeatWordMsgs: []
+    };
 
     if (repeatWord.value && repeatWord.value !== newWord.value) {
-      repeatWordMsgs.push(Labels.Msgs.REPEATED_NOT_MATCH);
+      newState.repeatWordMsgs.push(Labels.Msgs.REPEATED_NOT_MATCH);
     }
 
-    this.setState({ repeatWordMsgs });
+    if (newWord.value && oldWord.value === newWord.value) {
+      newState.newWordMsgs.push(Labels.Msgs.NEW_EQ_OLD);
+    }
+
+    this.setState({ ...newState });
   };
 
+  debouncedCheckFields = debounce(this.checkFields, 500);
+
   render() {
-    const { isShow, isAdmin } = this.props;
+    const { isShow, isCurrentUser, isLoading } = this.props;
     const { oldWord, newWord, repeatWord, repeatWordMsgs, newWordMsgs, passwordType } = this.state;
 
     return (
-      <EcosModal noHeader isOpen={isShow} hideModal={this.hideModal} className="ecos-user-profile-password-modal ecos-modal_width-xs">
+      <EcosModal
+        noHeader
+        isOpen={isShow}
+        isLoading={isLoading}
+        hideModal={this.hideModal}
+        className="ecos-user-profile-password-modal ecos-modal_width-xs"
+      >
         <form autoComplete="off">
-          {!isAdmin && (
+          {isCurrentUser && (
             <>
               <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.OLD)}</div>
               <Password
@@ -140,6 +157,7 @@ class PasswordModal extends React.Component {
                 keyValue="oldWord"
                 value={oldWord.value}
                 onChange={this.onChangeWord}
+                onBlur={this.checkFields}
               />
             </>
           )}
@@ -151,7 +169,7 @@ class PasswordModal extends React.Component {
             keyValue="newWord"
             value={newWord.value}
             onChange={this.onChangeWord}
-            onBlur={this.checkNewWord}
+            onBlur={this.checkFields}
             errMsgs={newWordMsgs}
           />
           <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.REPEAT)}</div>
@@ -161,7 +179,7 @@ class PasswordModal extends React.Component {
             keyValue="repeatWord"
             value={repeatWord.value}
             onChange={this.onChangeWord}
-            onBlur={this.checkRepeatWord}
+            onBlur={this.checkFields}
             errMsgs={repeatWordMsgs}
           />
         </form>

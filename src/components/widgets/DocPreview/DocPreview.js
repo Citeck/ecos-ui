@@ -6,7 +6,7 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { DocPreviewApi } from '../../../api';
+import { DocPreviewApi } from '../../../api/docPreview';
 import { DocScaleOptions } from '../../../constants';
 import { getOptimalHeight } from '../../../helpers/layout';
 import { isPDFbyStr, t } from '../../../helpers/util';
@@ -19,9 +19,9 @@ import getViewer from './Viewer';
 
 import './style.scss';
 
-// 2.2.228 version of worker for 2.2.228 version of pdfjs-dist:
-// pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.2.228/build/pdf.worker.min.js';
-pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/js/lib/pdf.worker.min.js`;
+// 2.4.456 version of worker for 2.4.456 version of pdfjs-dist:
+// pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.4.456/build/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/js/lib/pdf.worker.min.js?v=2.4.456`;
 
 const Labels = {
   Errors: {

@@ -50,7 +50,9 @@
 
     background: $color-white;
     cursor: pointer;
-    color: $color-gray-1;
+    color: $color-brown-2;
+    //padding-right: 11px;
+    margin-right: 11px;
 
     &-delete {
       &:hover {
@@ -205,5 +207,11 @@
   &__link {
     color: $color-blue-dark;
     @extend %ellipsis;
+  }
+
+  &__scroll {
+    &_v {
+      @extend %v-scroll;
+    }
   }
 }

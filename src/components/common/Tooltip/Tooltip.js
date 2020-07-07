@@ -15,6 +15,7 @@ class Tooltip extends Component {
   static propTypes = {
     target: PropTypes.string.isRequired,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
+    contentComponent: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     autohide: PropTypes.bool,
     hideArrow: PropTypes.bool,
     isOpen: PropTypes.bool,
@@ -150,7 +151,7 @@ class Tooltip extends Component {
   };
 
   renderTooltip = () => {
-    const { text, showAsNeeded, target, minWidthByContent } = this.props;
+    const { text, showAsNeeded, target, minWidthByContent, contentComponent } = this.props;
     const { isOpen } = this.state;
     const element = document.getElementById(target);
     const styles = {};
@@ -177,7 +178,7 @@ class Tooltip extends Component {
 
     return (
       <RTooltip {...this.tooltipProps()} isOpen={needTooltip && isOpen} style={styles}>
-        {text}
+        {contentComponent || text}
       </RTooltip>
     );
   };

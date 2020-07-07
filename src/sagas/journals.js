@@ -41,6 +41,7 @@ import {
   setJournalSetting,
   setJournalSettings,
   setJournalsList,
+  setPerformGroupActionLoader,
   setPerformGroupActionResponse,
   setPredicate,
   setPreviewFileName,
@@ -664,8 +665,16 @@ function* sagaSearch({ api, logger, stateId, w }, action) {
   try {
     const text = action.payload;
     const grid = yield select(state => state.journals[stateId].grid);
+    const fullSearch = yield select(state => get(state, ['journals', stateId, 'journalConfig', 'params', 'full-search-predicate']));
     const { columns, groupBy = [] } = grid;
-    const predicates = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
+    let predicates;
+
+    if (fullSearch) {
+      predicates = JSON.parse(fullSearch);
+      predicates.val = text;
+    } else {
+      predicates = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
+    }
 
     yield put(reloadGrid(w({ predicates: predicates ? [predicates] : null })));
   } catch (e) {
@@ -675,6 +684,8 @@ function* sagaSearch({ api, logger, stateId, w }, action) {
 
 function* sagaPerformGroupAction({ api, logger, stateId, w }, action) {
   try {
+    yield put(setPerformGroupActionLoader(w(true)));
+
     const { groupAction, selected, resolved } = action.payload;
     const journalConfig = yield select(state => state.journals[stateId].journalConfig);
     const performGroupActionResponse = yield call(api.journals.performGroupAction, {
@@ -692,6 +703,8 @@ function* sagaPerformGroupAction({ api, logger, stateId, w }, action) {
     }
   } catch (e) {
     logger.error('[journals sagaPerformGroupAction saga error', e.message);
+  } finally {
+    yield put(setPerformGroupActionLoader(w(false)));
   }
 }
 

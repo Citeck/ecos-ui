@@ -1,4 +1,5 @@
 import 'react-app-polyfill/ie9';
+import 'regenerator-runtime/runtime.js';
 import './helpers/polyfills';
 
 import React from 'react';
@@ -20,36 +21,10 @@ import { getCurrentLocale } from './helpers/util';
 
 import configureStore, { getHistory } from './store';
 import { initAppRequest } from './actions/app';
+import { setIsAuthenticated } from './actions/user';
 import { loadThemeRequest } from './actions/view';
-import {
-  AppApi,
-  BarcodeApi,
-  BirthdaysApi,
-  BpmnApi,
-  CommentsApi,
-  DashboardApi,
-  DocAssociationsApi,
-  DocStatusApi,
-  DocumentsApi,
-  EventsHistoryApi,
-  JournalsApi,
-  MenuApi,
-  MyTimesheetApi,
-  OrgStructApi,
-  PageApi,
-  PageTabsApi,
-  PropertiesApi,
-  RecordActionsApi,
-  TasksApi,
-  TimesheetCommonApi,
-  TimesheetDelegatedApi,
-  TimesheetSubordinatesApi,
-  TimesheetVerificationApi,
-  UserApi,
-  UserConfigApi,
-  VersionsJournalApi,
-  ViewApi
-} from './api';
+
+import { configureAPI } from './api';
 import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
@@ -73,54 +48,17 @@ registerLocale('en', datePickerLocaleEn);
 registerLocale('ru', datePickerLocaleRu);
 setDefaultLocale(currentLocale);
 
-const api = {};
+const { api, setNotAuthCallback } = configureAPI();
 const store = configureStore({
   api,
   fakeApi,
   logger
 });
-
-api.app = new AppApi(store);
-api.bpmn = new BpmnApi(store);
-api.menu = new MenuApi(store);
-api.orgStruct = new OrgStructApi(store);
-api.user = new UserApi(store);
-api.journals = new JournalsApi(store);
-api.tasks = new TasksApi(store);
-api.comments = new CommentsApi(store);
-api.dashboard = new DashboardApi(store);
-api.pageTabs = new PageTabsApi(store);
-api.docStatus = new DocStatusApi(store);
-api.eventsHistory = new EventsHistoryApi(store);
-api.versionsJournal = new VersionsJournalApi(store);
-api.recordActions = new RecordActionsApi(store);
-api.docAssociations = new DocAssociationsApi(store);
-api.view = new ViewApi(store);
-api.birthdays = new BirthdaysApi(store);
-api.barcode = new BarcodeApi(store);
-api.timesheetCommon = new TimesheetCommonApi(store);
-api.timesheetSubordinates = new TimesheetSubordinatesApi(store);
-api.timesheetMine = new MyTimesheetApi(store);
-api.timesheetVerification = new TimesheetVerificationApi(store);
-api.timesheetDelegated = new TimesheetDelegatedApi(store);
-api.properties = new PropertiesApi(store);
-api.documents = new DocumentsApi(store);
-api.page = new PageApi(store);
-api.userConfig = new UserConfigApi(store);
-
-/**
- * todo: Maybe need such union all api?
- */
-// Object
-//   .keys(API)
-//   .forEach((key => {
-//   let name = key.replace('Api', '');
-//
-//   name = name[0].toLowerCase() + name.slice(1);
-//   api[name] = new API[key](store);
-// }));
-
 const history = getHistory();
+
+setNotAuthCallback(() => {
+  store.dispatch(setIsAuthenticated(false));
+});
 
 window.requirejs.config({
   baseUrl: '/share/res',

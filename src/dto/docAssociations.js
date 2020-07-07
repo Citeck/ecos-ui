@@ -3,8 +3,9 @@ import get from 'lodash/get';
 
 import { getTextByLocale } from '../helpers/util';
 import { DIRECTIONS } from '../constants/docAssociations';
+import DocumentsConverter from './documents';
 
-export default class DocAssociationsConverter {
+export default class DocAssociationsConverter extends DocumentsConverter {
   static getAssociationsForWeb(source, allowedAssociations) {
     const keys = Object.keys(source);
     const target = [];
@@ -111,23 +112,6 @@ export default class DocAssociationsConverter {
     });
   }
 
-  static getColumnsConfig(config) {
-    if (config === null) {
-      return null;
-    }
-
-    const target = {};
-
-    target.columns = get(config, 'columns', []).map(column => ({
-      ...column,
-      label: getTextByLocale(column.label || '')
-    }));
-    target.label = getTextByLocale(config.label);
-    target.typeRef = config.typeRef;
-
-    return target;
-  }
-
   static getId(source = {}) {
     return source.id;
   }
@@ -143,11 +127,25 @@ export default class DocAssociationsConverter {
 
     return source
       .map(column => {
-        if (!column.name || !column.attribute) {
+        let attribute = column.attribute || '';
+
+        if (!attribute) {
           return '';
         }
 
-        return `${column.name}:${column.attribute}`;
+        if (attribute.charAt(0) === '.') {
+          return `${column.name}:${attribute.slice(1)}`;
+        }
+
+        if (column.name) {
+          if (attribute.includes('att(n:')) {
+            return `${column.name}:${attribute}`;
+          }
+
+          return `${column.name}:att(n:"${attribute}"){disp}`;
+        }
+
+        return attribute || column.name;
       })
       .filter(item => !!item)
       .join(',');
