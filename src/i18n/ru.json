@@ -1017,6 +1017,7 @@
   "menu-settings.editor-group-priority.btn.done": "Готово",
   "menu-settings.editor-group-priority.btn.expand-all": "Развернуть все",
   "menu-settings.editor-group-priority.btn.collapse-all": "Свернуть все",
+  "menu-settings.error.no-id-config": "Идентификатор пользовательского меню отсутствует",
   "menu-settings.error.get-config": "Конфигурация настроек меню не получена",
   "menu-settings.error.save-config": "Конфигурация настроек меню не сохранена",
   "menu-settings.error.set-items-from-journal": "Элементы не установлены в конфигурации. Попробуй еще раз",

@@ -6,9 +6,18 @@ import set from 'lodash/set';
 import { deepClone, isExistValue, t } from '../helpers/util';
 import { getIconObjectWeb } from '../helpers/icon';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
-import { MenuSettings as ms } from '../constants/menu';
+import { MenuSettings as ms, MenuTypes } from '../constants/menu';
 
 export default class MenuSettingsService {
+  static getConfigKeyByType(type) {
+    switch (type) {
+      case MenuTypes.LEFT:
+        return 'left';
+      case MenuTypes.TOP:
+        return 'top';
+    }
+  }
+
   static getItemParams = data => {
     const permissions = MenuSettingsService.getActionPermissions(data);
 

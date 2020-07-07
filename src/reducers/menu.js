@@ -31,10 +31,11 @@ export default handleActions(
     [saveMenuConfig]: startLoading,
 
     [setMenuConfig]: (state, action) => {
-      const { type } = action.payload;
+      const { id, type } = action.payload;
 
       return {
         ...state,
+        id,
         type,
         isLoading: false
       };

@@ -18,7 +18,6 @@ import { treeSetDndIndex } from '../helpers/arrayOfObjects';
 
 const initialState = {
   id: null,
-  type: null,
   items: [],
   authorities: [],
   groupPriority: [],

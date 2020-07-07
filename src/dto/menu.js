@@ -127,7 +127,8 @@ export default class MenuConverter {
   static getSettingsConfigWeb(source, params) {
     const { menu = {}, ...target } = source;
     const { type = MenuTypes.LEFT } = params;
-    const sourceItems = get(menu, [type.toLowerCase(), 'items'], []);
+    const keyType = MenuSettingsService.getConfigKeyByType(type);
+    const sourceItems = get(menu, [keyType, 'items'], []);
     const targetItems = [];
 
     (function prepareTree(sItems, tItems) {

@@ -17,8 +17,8 @@ function* doInitMenu({ api, logger }, action) {
 function* doGetMenuConfigRequest({ api, logger }) {
   try {
     const result1 = yield call(api.menu.getMenuConfig, true);
-    const result2 = yield call(api.menu.getUserMenu);
-    const menu = MenuConverter.parseGetResult({ ...result1, result2 });
+    const result2 = yield call(api.menu.getUserMenuConfig);
+    const menu = MenuConverter.parseGetResult({ ...result1, ...result2, id: 'test-custom-menu' }); //todo del id
 
     yield put(setMenuConfig(menu));
   } catch (e) {

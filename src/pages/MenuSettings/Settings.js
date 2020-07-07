@@ -90,7 +90,7 @@ class Settings extends React.Component {
     return (
       <div className="ecos-menu-settings__buttons">
         <Btn onClick={this.handleCancel}>{t(Labels.BTN_CANCEL)}</Btn>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleApply}>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleApply} disabled={!this.props.id}>
           {t(Labels.BTN_APPLY)}
         </Btn>
       </div>
@@ -143,7 +143,8 @@ class Settings extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  type: get(state, 'menuSettings.type') || MenuTypes.LEFT,
+  id: get(state, 'menu.id'),
+  type: get(state, 'menu.type') || MenuTypes.LEFT,
   authorities: get(state, 'menuSettings.authorities'),
   isLoading: get(state, 'menuSettings.isLoading')
 });

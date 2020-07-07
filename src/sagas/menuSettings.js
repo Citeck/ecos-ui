@@ -33,7 +33,13 @@ function* runInitSettings({ api, logger }, action) {
 function* fetchGetSettingsConfig({ api, logger }) {
   try {
     const { id, type } = yield select(state => state.menu);
-    const result = yield call(api.menu.getMenuSettingsConfig, { id: id || 'test-custom-menu' }); //todo id
+
+    if (!id) {
+      NotificationManager.error(t('menu-settings.error.no-id-config'), t('error'));
+      throw new Error('User Menu Ref has not received');
+    }
+
+    const result = yield call(api.menu.getMenuSettingsConfig, { id });
     const config = MenuConverter.getSettingsConfigWeb(result, { type });
 
     yield put(setSettingsConfig(config));
@@ -46,16 +52,16 @@ function* fetchGetSettingsConfig({ api, logger }) {
 
 function* runSaveSettingsConfig({ api, logger }, { payload }) {
   try {
-    const type = yield select(state => state.menu.type);
-    const id = yield select(state => state.menuSettings.id);
+    const { id, type } = yield select(state => state.menu);
     const items = yield select(state => state.menuSettings.items);
     const authorities = yield select(state => state.menuSettings.authorities);
+    const keyType = MenuSettingsService.getConfigKeyByType(type);
 
     const result = yield call(api.menu.getMenuSettingsConfig, { id });
-    const originalItems = get(result, ['menu', type.toLowerCase(), 'items'], []);
+    const originalItems = get(result, ['menu', keyType, 'items'], []);
     const serverData = MenuConverter.getSettingsConfigServer({ originalItems, items });
 
-    set(result, ['subMenu', type.toLowerCase()], serverData);
+    set(result, ['subMenu', keyType], serverData);
 
     yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities });
     yield put(saveGroupPriority(payload));

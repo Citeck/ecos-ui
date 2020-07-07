@@ -1016,6 +1016,7 @@
   "menu-settings.editor-group-priority.btn.apply": "Done",
   "menu-settings.editor-group-priority.btn.expand-all": "Expand all",
   "menu-settings.editor-group-priority.btn.collapse-all": "Collapse all",
+  "menu-settings.error.no-id-config": "User menu ID is absent",
   "menu-settings.error.get-config": "Menu settings configuration hasn't received",
   "menu-settings.error.save-config": "Menu settings configuration hasn't saved",
   "menu-settings.error.set-items-from-journal": "Items haven't set in configuration. Try again",
