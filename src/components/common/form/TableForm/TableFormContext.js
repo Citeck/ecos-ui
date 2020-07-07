@@ -135,16 +135,18 @@ export const TableFormContextProvider = props => {
     setIsModalFormOpen(false);
     setClonedRecord(null);
 
-    const newGridRows = [
-      ...gridRows,
-      {
-        id: record.id,
-        ...record.toJson()['attributes']
-      }
-    ];
+    record.toJsonAsync().then(res => {
+      const newGridRows = [
+        ...gridRows,
+        {
+          id: record.id,
+          ...res.attributes
+        }
+      ];
 
-    setGridRows(newGridRows);
-    onChangeHandler(newGridRows);
+      setGridRows(newGridRows);
+      onChangeHandler(newGridRows);
+    });
   };
 
   return (
