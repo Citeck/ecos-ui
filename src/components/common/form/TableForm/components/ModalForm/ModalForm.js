@@ -71,7 +71,7 @@ const ModalForm = () => {
 
   const formOptions = {
     parentForm,
-    formMode
+    formMode: formMode === FORM_MODE_EDIT ? FORM_MODE_EDIT : FORM_MODE_CREATE
   };
 
   if (isViewOnlyForm) {

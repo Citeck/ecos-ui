@@ -107,7 +107,7 @@ export const TableFormContextProvider = props => {
       Records.get(clonedRecord)
         .load('_formKey?str')
         .then(formKey => {
-          const createVariant = createVariants.find(item => item.formKey === formKey);
+          const createVariant = createVariants.find(item => (item.formKey || `alf_${item.type}`) === formKey);
 
           if (isInstantClone) {
             return EcosFormUtils.cloneRecord({ clonedRecord, createVariant, saveOnSubmit: false });
