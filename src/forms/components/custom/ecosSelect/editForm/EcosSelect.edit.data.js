@@ -1,6 +1,43 @@
 import SelectEditData from 'formiojs/components/select/editForm/Select.edit.data';
+import EditFormUtils from 'formiojs/components/base/editForm/utils';
 
 SelectEditData.push(
+  {
+    type: 'panel',
+    title: 'Data pre-processing',
+    collapsible: true,
+    collapsed: true,
+    customClass: 'form-builder__panel-js',
+    key: 'dataPreProcessingCode-panel',
+    weight: 10,
+    components: [
+      EditFormUtils.logicVariablesTable('<tr><th>queryResult</th><td>fetch request result</td></tr>'),
+      {
+        type: 'textarea',
+        key: 'dataPreProcessingCode',
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content: `
+          <small>
+            <p>Data pre-processing after receiving the specified URL. Enter custom JavaScript code.</p>
+            <p>You must assign the <strong>values</strong> variable.</p>
+            <h5>Example:</h5>
+            <pre>values = _.sortBy(queryResult, "label");</pre>
+          </small>`
+      }
+    ],
+    conditional: {
+      json: {
+        and: [{ '===': [{ var: 'data.dataSrc' }, 'url'] }]
+      }
+    }
+  },
   {
     type: 'checkbox',
     input: true,
