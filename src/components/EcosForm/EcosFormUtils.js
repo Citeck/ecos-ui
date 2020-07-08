@@ -693,7 +693,8 @@ export default class EcosFormUtils {
             input.component &&
             input.component.type === 'datetime' &&
             input.component.enableDate &&
-            !input.component.enableTime
+            !input.component.enableTime &&
+            recordData[attPath]
           ) {
             const serverDate = new Date(recordData[attPath]);
             serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
