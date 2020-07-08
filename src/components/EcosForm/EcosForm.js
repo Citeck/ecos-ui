@@ -20,7 +20,6 @@ import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
 import '../../forms/style.scss';
 
-export const FORM_MODE_CLONE = 'CLONE';
 export const FORM_MODE_CREATE = 'CREATE';
 export const FORM_MODE_EDIT = 'EDIT';
 

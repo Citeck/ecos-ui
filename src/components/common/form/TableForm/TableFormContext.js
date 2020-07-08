@@ -6,9 +6,11 @@ import isBoolean from 'lodash/isBoolean';
 import WidgetService from '../../../../services/WidgetService';
 import Records from '../../../Records/Records';
 import Record, { parseAttribute } from '../../../Records/Record';
-import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
+import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import TableFormPropTypes from './TableFormPropTypes';
+
+export const MODE_CLONE = 'CLONE';
 
 export const TableFormContext = React.createContext();
 
@@ -107,7 +109,7 @@ export const TableFormContextProvider = props => {
       Records.get(clonedRecord)
         .load('_formKey?str')
         .then(formKey => {
-          const createVariant = createVariants.find(item => item.formKey === formKey);
+          const createVariant = createVariants.find(item => (item.formKey || `alf_${item.type}`) === formKey);
 
           if (isInstantClone) {
             return EcosFormUtils.cloneRecord({ clonedRecord, createVariant, saveOnSubmit: false });
@@ -127,7 +129,7 @@ export const TableFormContextProvider = props => {
     setIsViewOnlyForm(false);
     setRecord(null);
     setCreateVariant(createVariant);
-    setFormMode(FORM_MODE_CLONE);
+    setFormMode(MODE_CLONE);
     setIsModalFormOpen(true);
   };
 

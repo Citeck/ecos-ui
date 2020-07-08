@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { TableFormContext } from '../../TableFormContext';
-import EcosForm, { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../../../EcosForm/EcosForm';
+import { MODE_CLONE, TableFormContext } from '../../TableFormContext';
+import EcosForm, { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../../../EcosForm/EcosForm';
 import EcosModal from '../../../../EcosModal';
 import { t } from '../../../../../../helpers/util';
 import Records from '../../../../../Records';
@@ -23,6 +23,7 @@ const ModalForm = () => {
   const { parentForm, isStaticModalTitle, customStringForConcatWithStaticTitle } = controlProps;
 
   const [displayName, setDisplayName] = useState('');
+
   useEffect(() => {
     if (isStaticModalTitle) {
       if (!!customStringForConcatWithStaticTitle) {
@@ -40,7 +41,7 @@ const ModalForm = () => {
     case FORM_MODE_CREATE:
       title = t('ecos-table-form.create-modal.title');
       break;
-    case FORM_MODE_CLONE:
+    case MODE_CLONE:
       title = t('ecos-table-form.clone-modal.title');
       break;
     case FORM_MODE_EDIT:
@@ -83,7 +84,7 @@ const ModalForm = () => {
   const getOnSubmit = () => {
     switch (formMode) {
       case FORM_MODE_CREATE:
-      case FORM_MODE_CLONE:
+      case MODE_CLONE:
         return onCreateFormSubmit;
       case FORM_MODE_EDIT:
         return onEditFormSubmit;
