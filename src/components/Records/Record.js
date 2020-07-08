@@ -149,6 +149,30 @@ export default class Record {
     return { id: recId, attributes };
   }
 
+  async toJsonAsync() {
+    await this._getWhenReadyToSave();
+
+    const json = this.toJson();
+
+    const keys = Object.keys(json.attributes);
+    const promises = [];
+    for (let key of keys) {
+      const att = json.attributes[key];
+      if (att && att.then) {
+        const promise = att.then(res => (json.attributes[key] = res)).catch(() => (json.attributes[key] = null));
+        promises.push(promise);
+      }
+    }
+
+    if (promises.length === 0) {
+      return json;
+    } else {
+      return Promise.all(promises)
+        .then(() => json)
+        .catch(() => json);
+    }
+  }
+
   isPersisted() {
     const atts = this._attributes;
 
