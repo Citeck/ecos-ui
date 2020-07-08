@@ -305,6 +305,44 @@ class Grid extends Component {
       options.selectRow = this.createSingleSelectionCheckboxs(props);
     }
 
+    const CUSTOM_NESTED_DELIMITER = '|';
+    const replaceDefaultNestedDelimiterForData = items => {
+      if (!Array.isArray(items)) {
+        return items;
+      }
+      return items.map(item => {
+        const newItem = {};
+        const fields = Object.keys(item);
+        fields.forEach(field => {
+          const hasDot = field.includes('.');
+          if (hasDot) {
+            newItem[field.replace('.', CUSTOM_NESTED_DELIMITER)] = item[field];
+          } else {
+            newItem[field] = item[field];
+          }
+        });
+        return newItem;
+      });
+    };
+
+    const replaceDefaultNestedDelimiterForColumns = items => {
+      if (!Array.isArray(items)) {
+        return items;
+      }
+      return items.map(item => {
+        if (typeof item.dataField === 'string' && item.dataField.includes('.')) {
+          return {
+            ...item,
+            dataField: item.dataField.replace('.', CUSTOM_NESTED_DELIMITER)
+          };
+        }
+        return item;
+      });
+    };
+
+    options.data = replaceDefaultNestedDelimiterForData(options.data);
+    options.columns = replaceDefaultNestedDelimiterForColumns(options.columns);
+
     return options;
   }
 
