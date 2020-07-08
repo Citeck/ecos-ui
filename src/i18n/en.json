@@ -266,12 +266,18 @@
   "dropdown-filter.all-fields": "All fields",
   "dropdown-filter.icon-button.label": "Filter",
   "dropdown-filter.item.placeholder": "Filter",
+
   "ecos-form.empty-form-data": "Error: form is not defined",
   "ecos-form.error-get-form": "Error: form is not loaded. Try to configure form",
+  "ecos-form.error.clone-get-fields": "Cloned record hasn't received",
+  "ecos-form.error.clone-record": "Record hasn't cloned",
+  "ecos-form.success.clone-record": "Record has cloned",
+
   "ecos-forms.datepicker.time-input-label": "Time",
   "ecos-table-form.create-button": "Create",
   "ecos-table-form.import-button": "Import",
   "ecos-table-form.create-modal.title": "Create",
+  "ecos-table-form.clone-modal.title": "Clone",
   "ecos-table-form.edit-modal.title": "Edit metadata",
   "ecos-table-form.view-modal.title": "View metadata",
   "ecos-table-form.placeholder": "None",

@@ -267,12 +267,18 @@
   "dropdown-filter.all-fields": "По всем полям",
   "dropdown-filter.icon-button.label": "Фильтровать",
   "dropdown-filter.item.placeholder": "Фильтровать",
+
   "ecos-form.empty-form-data": "Ошибка: форма не определена",
   "ecos-form.error-get-form": "Ошибка: форма не загружена. Попробуйте настроить ее",
+  "ecos-form.error.clone-get-fields": "Копия записи не получена",
+  "ecos-form.error.clone-record": "Клонирование записи не удалось",
+  "ecos-form.success.clone-record": "Запись склонирована",
+
   "ecos-forms.datepicker.time-input-label": "Время",
   "ecos-table-form.create-button": "Создать",
   "ecos-table-form.import-button": "Импорт",
   "ecos-table-form.create-modal.title": "Создать",
+  "ecos-table-form.clone-modal.title": "Клонировать",
   "ecos-table-form.edit-modal.title": "Изменить свойства",
   "ecos-table-form.view-modal.title": "Просмотр",
   "ecos-table-form.placeholder": "Нет",

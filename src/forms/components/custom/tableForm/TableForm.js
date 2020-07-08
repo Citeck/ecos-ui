@@ -41,6 +41,9 @@ export default class TableFormComponent extends BaseReactComponent {
         customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
         displayElementsJS: '',
+        settingElements: {
+          isInstantClone: false
+        },
         nonSelectableRowsJS: '',
         selectedRowsJS: '',
         import: {
@@ -439,6 +442,9 @@ export default class TableFormComponent extends BaseReactComponent {
         parentForm: this.root,
         triggerEventOnTableChange,
         displayElements: this._displayElementsValue,
+        settingElements: {
+          isInstantClone: component.isInstantClone
+        },
         nonSelectableRows: this._nonSelectableRows,
         selectedRows: this._selectedRows,
         importButton: {
