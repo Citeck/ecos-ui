@@ -287,7 +287,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
         return;
       }
 
-      if (!this.checkValidity(this.getValue(), true)) {
+      if (!this.checkValidity(this.data, true)) {
         return;
       }
 
