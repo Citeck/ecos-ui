@@ -1,5 +1,5 @@
 import { delay } from 'redux-saga';
-import { call, put, select, takeEvery, all } from 'redux-saga/effects';
+import { all, call, put, select, takeEvery } from 'redux-saga/effects';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
@@ -13,7 +13,6 @@ import {
   selectAvailableType,
   selectAvailableTypes,
   selectColumnsConfig,
-  selectColumnsFromConfigByType,
   selectConfigTypes,
   selectDynamicType,
   selectDynamicTypes,
@@ -116,10 +115,9 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     yield all(
       combinedTypes.map(function*(item) {
         const columnsConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
-        const columnsFromDashletConfig = yield select(state => selectColumnsFromConfigByType(state, payload.key, item.type));
         const columns = yield call(api.documents.getFormattedColumns, {
           ...columnsConfig,
-          columns: DocumentsConverter.getColumnsForGrid(columnsConfig.columns, columnsFromDashletConfig)
+          columns: DocumentsConverter.getColumnsForGrid(columnsConfig.columns)
         });
 
         item.columns = DocumentsConverter.getColumnForWeb(columns);
@@ -431,7 +429,6 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
 function* sagaGetTypeSettings({ api, logger }, { payload }) {
   try {
     let type = yield select(state => selectDynamicType(state, payload.key, payload.type));
-    const configTypes = yield select(state => selectConfigTypes(state, payload.key));
 
     if (!type) {
       type = DocumentsConverter.getFormattedDynamicType(yield select(state => selectAvailableType(state, payload.key, payload.type)));
@@ -441,9 +438,8 @@ function* sagaGetTypeSettings({ api, logger }, { payload }) {
       return Promise.reject('Error: Type not found');
     }
 
-    const configType = configTypes.find(item => item.type === payload.type);
     const config = yield call(api.documents.getColumnsConfigByType, payload.type);
-    const columns = DocumentsConverter.getColumnsForSettings(get(config, 'columns', []), get(configType, 'columns', []));
+    const columns = DocumentsConverter.getColumnsForSettings(get(config, 'columns', []));
 
     yield put(
       setTypeSettings({
