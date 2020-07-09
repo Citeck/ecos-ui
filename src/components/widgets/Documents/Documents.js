@@ -355,7 +355,7 @@ class Documents extends BaseWidget {
     const { dynamicTypes } = this.props;
     const { selectedTypeForLoading } = this.state;
     const defaultSettings = {
-      miltiple: false
+      multiple: false
     };
 
     if (dynamicTypes.length === 1) {
@@ -593,7 +593,7 @@ class Documents extends BaseWidget {
 
     const newConfig = {
       ...config,
-      types: DocumentsConverter.getTypesForConfig(selectedTypes, config.types),
+      types: DocumentsConverter.getTypesForConfig(selectedTypes),
       isLoadChecklist
     };
 
