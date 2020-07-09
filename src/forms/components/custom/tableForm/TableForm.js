@@ -299,16 +299,7 @@ export default class TableFormComponent extends BaseReactComponent {
             let columnsMap = {};
             let formatters = {};
             columns.forEach(item => {
-              const hasBracket = item.name.includes('{');
-              const hasQChar = item.name.includes('?');
-              let colName = item.name;
-              if (hasBracket || hasQChar) {
-                let [origAtt] = item.name.split(hasBracket ? '{' : '?');
-                origAtt = origAtt.replace('[]', '');
-                colName = origAtt;
-              }
-
-              const key = `.edge(n:"${colName}"){title,type,multiple}`;
+              const key = `.edge(n:"${item.name}"){title,type,multiple}`;
               columnsMap[key] = item;
               if (item.formatter) {
                 formatters[item.name] = item.formatter;
