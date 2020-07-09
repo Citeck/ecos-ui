@@ -316,7 +316,7 @@ class Grid extends Component {
         fields.forEach(field => {
           const hasDot = field.includes('.');
           if (hasDot) {
-            newItem[field.replace('.', CUSTOM_NESTED_DELIMITER)] = item[field];
+            newItem[field.replace(/\./g, CUSTOM_NESTED_DELIMITER)] = item[field];
           } else {
             newItem[field] = item[field];
           }
@@ -333,7 +333,7 @@ class Grid extends Component {
         if (typeof item.dataField === 'string' && item.dataField.includes('.')) {
           return {
             ...item,
-            dataField: item.dataField.replace('.', CUSTOM_NESTED_DELIMITER)
+            dataField: item.dataField.replace(/\./g, CUSTOM_NESTED_DELIMITER)
           };
         }
         return item;

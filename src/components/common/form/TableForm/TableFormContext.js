@@ -60,14 +60,18 @@ export const TableFormContextProvider = props => {
     }
 
     if (initValue) {
-      let atts = [];
-      columns.forEach(item => {
+      const atts = [];
+      const noNeedParseIndices = [];
+      columns.forEach((item, idx) => {
+        const isFullName = item.attribute.startsWith('.att');
         const hasBracket = item.attribute.includes('{');
         const hasQChar = item.attribute.includes('?');
-        if (hasBracket || hasQChar) {
+        if (isFullName || hasBracket || hasQChar) {
           atts.push(item.attribute);
+          noNeedParseIndices.push(idx);
           return;
         }
+
         const multiplePostfix = item.multiple ? 's' : '';
         const schema = `.att${multiplePostfix}(n:"${item.attribute}"){disp}`;
         atts.push(schema);
@@ -79,17 +83,24 @@ export const TableFormContextProvider = props => {
             .load(atts)
             .then(result => {
               const fetchedAtts = {};
+              let currentAttIndex = 0;
               for (let attSchema in result) {
                 if (!result.hasOwnProperty(attSchema)) {
                   continue;
                 }
 
-                const attData = parseAttribute(attSchema);
-                if (!attData) {
-                  continue;
-                }
+                if (noNeedParseIndices.includes(currentAttIndex)) {
+                  fetchedAtts[attSchema] = result[attSchema];
+                } else {
+                  const attData = parseAttribute(attSchema);
+                  if (!attData) {
+                    currentAttIndex++;
+                    continue;
+                  }
 
-                fetchedAtts[attData.name] = result[attSchema];
+                  fetchedAtts[attData.name] = result[attSchema];
+                }
+                currentAttIndex++;
               }
 
               return { ...fetchedAtts, id: r };
