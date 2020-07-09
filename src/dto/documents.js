@@ -126,10 +126,6 @@ export default class DocumentsConverter {
       return target;
     }
 
-    if (!isEmpty(get(source, 'columns'))) {
-      target.customizedColumns = source.columns;
-    }
-
     target.type = get(source, 'id', '');
     target.name = get(source, 'name', t('documents-widget.untitled'));
     target.formId = get(source, 'formId', '');
