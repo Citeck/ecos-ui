@@ -1,14 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
 
-import { SortableContainer, SortableElement, SortableHandle } from '../../Drag-n-Drop';
-import { EcosModal, Tabs, Icon } from '../../common';
+import { EcosModal, Tabs } from '../../common';
 import { Btn } from '../../common/btns';
-import { Checkbox } from '../../common/form';
-import { t, objectCompare, deepClone, arrayMove } from '../../../helpers/util';
+import { objectCompare, t } from '../../../helpers/util';
 import { DynamicTypeInterface, TypeSettingsInterface } from './propsInterfaces';
 
 const Labels = {
@@ -93,38 +89,6 @@ class TypeSettings extends Component {
     }));
   };
 
-  handleToggleColumnVisibility = (position, checked) => {
-    const { settings } = this.state;
-    const columns = deepClone(settings.columns);
-
-    columns[position].visible = checked;
-
-    this.setState(state => ({
-      ...state,
-      settings: {
-        ...state.settings,
-        columns
-      }
-    }));
-  };
-
-  handleBeforeSortStart = ({ node }) => {
-    node.classList.toggle('ecos-docs__columns-item_sorting');
-
-    this.setState({ draggableNode: node });
-  };
-
-  handleSortEnd = ({ oldIndex, newIndex }, event) => {
-    const { draggableNode, settings } = this.state;
-
-    event.stopPropagation();
-    draggableNode.classList.toggle('ecos-docs__columns-item_sorting');
-
-    const columns = arrayMove(settings.columns, oldIndex, newIndex);
-
-    this.setState({ draggableNode: null, settings: { ...settings, columns } });
-  };
-
   renderCountFiles() {
     const { settings, countTabs } = this.state;
 
@@ -148,49 +112,6 @@ class TypeSettings extends Component {
     );
   }
 
-  renderColumns() {
-    const {
-      settings: { columns = [] }
-    } = this.state;
-
-    return (
-      <section className="ecos-docs__modal-type-settings-group">
-        <div className="ecos-docs__modal-type-settings-label">{t(Labels.SORT_LABEL)}</div>
-
-        <SortableContainer
-          axis="y"
-          lockAxis="y"
-          lockOffset="50%"
-          transitionDuration={300}
-          useDragHandle
-          updateBeforeSortStart={this.handleBeforeSortStart}
-          onSortEnd={this.handleSortEnd}
-        >
-          <div className="ecos-docs__columns">
-            <Scrollbars autoHeight autoHeightMin={0} autoHeightMax={'284px'}>
-              {columns.map((column, position) => (
-                <SortableElement key={column.label} index={position}>
-                  <div className="ecos-docs__columns-item">
-                    <SortableHandle>
-                      <Icon className={classNames('icon-drag', 'ecos-docs__columns-item-dnd')} />
-                    </SortableHandle>
-
-                    <Checkbox
-                      className="ecos-docs__columns-item-checkbox"
-                      checked={column.visible}
-                      onClick={checked => this.handleToggleColumnVisibility(position, checked)}
-                    />
-                    <div className="ecos-docs__columns-item-label">{column.label}</div>
-                  </div>
-                </SortableElement>
-              ))}
-            </Scrollbars>
-          </div>
-        </SortableContainer>
-      </section>
-    );
-  }
-
   render() {
     const { isOpen, isLoading } = this.props;
 
@@ -203,7 +124,6 @@ class TypeSettings extends Component {
         hideModal={this.handleCloseModal}
       >
         {this.renderCountFiles()}
-        {this.renderColumns()}
         <div className="ecos-docs__modal-type-settings-footer">
           <Btn onClick={this.handleCloseModal} className="ecos-docs__modal-settings-footer-item">
             {t(Labels.CANCEL_BUTTON)}
