@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
 
-import { getCurrentTaskList, resetCurrentTaskList } from '../../../actions/currentTasks';
+import { getCurrentTaskList, resetCurrentTaskList, setActions } from '../../../actions/currentTasks';
 import { selectStateCurrentTasksById } from '../../../selectors/tasks';
 import { DefineHeight } from '../../common/index';
 import CurrentTaskList from './CurrentTaskList';
@@ -22,9 +22,10 @@ const mapStateToProps = (state, context) => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch, { stateId }) => ({
   getCurrentTaskList: payload => dispatch(getCurrentTaskList(payload)),
-  resetCurrentTaskList: payload => dispatch(resetCurrentTaskList(payload))
+  resetCurrentTaskList: payload => dispatch(resetCurrentTaskList(payload)),
+  setActions: inlineTools => dispatch(setActions({ stateId, inlineTools }))
 });
 
 class CurrentTasks extends React.Component {
@@ -91,14 +92,16 @@ class CurrentTasks extends React.Component {
   };
 
   renderCurrentTaskList = () => {
-    const { currentTasks, isLoading, isMobile, isSmallMode, className, forwardedRef } = this.props;
+    const { currentTasks, isLoading, isMobile, isSmallMode, className, forwardedRef, setActions, stateId } = this.props;
 
     const childProps = {
       currentTasks,
       className,
       isLoading,
       isMobile,
-      isSmallMode
+      isSmallMode,
+      setActions,
+      stateId
     };
 
     return <CurrentTaskList forwardedRef={forwardedRef} {...childProps} />;

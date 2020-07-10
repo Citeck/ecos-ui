@@ -2,14 +2,28 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
+import debounce from 'lodash/debounce';
 
 import { getOutputFormat, isLastItem, t } from '../../../helpers/util';
 import * as ArrayOfObjects from '../../../helpers/arrayOfObjects';
-import { Grid } from '../../common/grid/index';
+import { Grid, InlineTools } from '../../common/grid/index';
 import { InfoText, Loader, Separator } from '../../common/index';
 import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
 import CurrentTaskInfo from './CurrentTaskInfo';
 import BtnTooltipInfo from './BtnTooltipInfo';
+
+const Actions = [
+  {
+    icon: 'icon-edit',
+    name: t('grid.inline-tools.details'),
+    onClick: () => console.log('edit')
+  },
+  {
+    icon: 'icon-models',
+    name: t('grid.inline-tools.details'),
+    onClick: () => console.log('models')
+  }
+];
 
 class CurrentTaskList extends React.Component {
   static propTypes = {
@@ -31,6 +45,16 @@ class CurrentTaskList extends React.Component {
     isLoading: false
   };
 
+  handleHoverRow = data => {
+    const { row, ...options } = data;
+
+    this.props.setActions({ actions: Actions, ...options });
+  };
+
+  handleBlurRow = debounce(() => {
+    this.props.setActions({});
+  }, 100);
+
   renderEnum() {
     const { currentTasks, isMobile, forwardedRef } = this.props;
 
@@ -45,6 +69,20 @@ class CurrentTaskList extends React.Component {
       </div>
     );
   }
+
+  renderInlineTools = () => {
+    const { stateId } = this.props;
+
+    return (
+      <InlineTools
+        className="ecos-current-task__table-inline-tools"
+        stateId={stateId}
+        reduxKey="currentTasks"
+        toolsKey="inlineTools"
+        withTooltip
+      />
+    );
+  };
 
   renderTable() {
     const { currentTasks } = this.props;
@@ -73,7 +111,18 @@ class CurrentTaskList extends React.Component {
     const updCols = ArrayOfObjects.replaceKeys(cols, { key: 'dataField', label: 'text' });
     const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
 
-    return <Grid data={formatTasks} columns={gridCols} scrollable={false} className="ecos-current-task-list_view-table" noTopBorder />;
+    return (
+      <Grid
+        data={formatTasks}
+        columns={gridCols}
+        scrollable={false}
+        className="ecos-current-task-list_view-table"
+        noTopBorder
+        onMouseLeave={this.handleBlurRow}
+        onChangeTrOptions={this.handleHoverRow}
+        inlineTools={this.renderInlineTools}
+      />
+    );
   }
 
   renderContent() {
