@@ -3,7 +3,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 
 import * as storage from '../../helpers/ls';
-import { equalsQueryUrls, SearchKeys } from '../../helpers/urls';
+import { equalsQueryUrls, IgnoredUrlParams } from '../../helpers/urls';
 import { t } from '../../helpers/util';
 import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
@@ -241,7 +241,7 @@ class PageTabList {
   equalsLink(tab1, tab2) {
     return equalsQueryUrls({
       urls: [tab1.link, tab2.link],
-      ignored: [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW]
+      ignored: IgnoredUrlParams
     });
   }
 
