@@ -48,8 +48,16 @@
   &-info {
     $info: &;
 
-    &__title {
+    &__head {
       margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+
+      &-title {
+        @extend %ellipsis;
+        flex: auto;
+        min-width: 0;
+      }
     }
 
     &__separator {
@@ -195,6 +203,15 @@
 
     .tooltip.show {
       opacity: 1;
+    }
+  }
+
+  &__action {
+    text-align: left;
+    white-space: nowrap;
+
+    & .icon {
+      margin-right: 10px;
     }
   }
 }

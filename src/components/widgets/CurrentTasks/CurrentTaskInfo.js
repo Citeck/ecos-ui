@@ -4,8 +4,8 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 
 import { getOutputFormat, prepareTooltipId } from '../../../helpers/util';
-import { Tooltip } from '../../common';
-import { Headline } from '../../common/form';
+import { Icon, Tooltip } from '../../common';
+import { DropdownOuter, Headline } from '../../common/form';
 import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
 import BtnTooltipInfo from './BtnTooltipInfo';
 
@@ -20,8 +20,18 @@ class CurrentTaskInfo extends React.Component {
   };
 
   state = {
-    isOpen: false
+    isOpenUsers: false,
+    isOpenActions: false
   };
+
+  constructor(props) {
+    super(props);
+
+    const id = props.task.id;
+
+    this.tooltipTitleId = prepareTooltipId(`tooltip-title-${id}`);
+    this.tooltipUsersId = prepareTooltipId(`tooltip-users-${id}`);
+  }
 
   renderLabel = key => <div className="ecos-current-task-info-label">{DC[key].label}</div>;
 
@@ -42,13 +52,34 @@ class CurrentTaskInfo extends React.Component {
   }
 
   render() {
-    const { task, isMobile } = this.props;
-    const { isOpen } = this.state;
-    const id = prepareTooltipId(`tooltip-${task.id}`);
+    const { task, isMobile, actions } = this.props;
+    const { isOpenUsers, isOpenActions } = this.state;
 
     return (
       <div className="ecos-current-task-info">
-        <Headline className="ecos-current-task-info__title" title={task[DC.title.key]} text={task[DC.title.key]} />
+        <Headline className="ecos-current-task-info__head">
+          <Tooltip uncontrolled showAsNeeded target={this.tooltipTitleId} text={task[DC.title.key]}>
+            <span className="ecos-current-task-info__head-title" id={this.tooltipTitleId}>
+              {task[DC.title.key]}
+            </span>
+          </Tooltip>
+          {actions && actions.length && (
+            <>
+              <DropdownOuter
+                className="ecos-current-task__action-dropdown"
+                source={actions}
+                valueField={'icon'}
+                titleField={'name'}
+                keyFields={['icon', 'name']}
+                isStatic
+                onChange={console.log}
+                getStateOpen={isOpenActions => this.setState({ isOpenActions })}
+              >
+                <Icon className={isOpenActions ? 'icon-menu-small-press' : 'icon-menu-small'} />
+              </DropdownOuter>
+            </>
+          )}
+        </Headline>
         <div className="ecos-current-task-info__fields">
           <div className="ecos-current-task-info__fields-item">
             {this.renderLabel('actors')}
@@ -58,8 +89,8 @@ class CurrentTaskInfo extends React.Component {
                 'ecos-current-task-info-value_mobile': isMobile
               })}
             >
-              <Tooltip showAsNeeded target={id} uncontrolled text={task[DC.actors.key] || noData}>
-                <div id={id} className="ecos-current-task-info-value__text">
+              <Tooltip showAsNeeded uncontrolled target={this.tooltipUsersId} text={task[DC.actors.key] || noData}>
+                <div id={this.tooltipUsersId} className="ecos-current-task-info-value__text">
                   {task[DC.actors.key] || noData}
                 </div>
               </Tooltip>
@@ -70,8 +101,8 @@ class CurrentTaskInfo extends React.Component {
                   id={uniqueId(cleanTaskId(task.id))}
                   isShow={task.isGroup}
                   noTooltip={isMobile}
-                  handleClick={isOpen => this.setState({ isOpen })}
-                  isActive={isOpen}
+                  handleClick={isOpenUsers => this.setState({ isOpenUsers })}
+                  isActive={isOpenUsers}
                   count={task.count}
                 >
                   {this.renderUsersGroup(task.usersGroup)}
@@ -80,7 +111,7 @@ class CurrentTaskInfo extends React.Component {
             </div>
           </div>
 
-          {isMobile && isOpen && (
+          {isMobile && isOpenUsers && (
             <div className="ecos-current-task-info-value ecos-current-task-info-value_add">{this.renderUsersGroup(task.usersGroup)}</div>
           )}
 
