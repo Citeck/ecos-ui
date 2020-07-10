@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
 import { getCurrentUserName, t } from '../helpers/util';
-import { decodeLink, getLinkWithout, isNewVersionPage, SearchKeys } from '../helpers/urls';
+import { decodeLink, getLinkWithout, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
 import { getData, isExistLocalStorage, setData } from '../helpers/ls';
 import { PageApi } from '../api/page';
 
@@ -228,7 +228,7 @@ export default class PageService {
       const keyLink = PageService.keyId({ link: decodeLink(subsidiaryLink) });
       const parent = getLinkWithout({
         url: decodeLink(parentLink),
-        ignored: [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW]
+        ignored: IgnoredUrlParams
       });
 
       if (!history[parent]) {
@@ -257,7 +257,7 @@ export default class PageService {
         if (history.hasOwnProperty(parentLink)) {
           const parent = getLinkWithout({
             url: parentLink,
-            ignored: [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW]
+            ignored: IgnoredUrlParams
           });
           const foundI = history[parent].findIndex(item => keyLink === item);
 
