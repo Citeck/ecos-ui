@@ -13,6 +13,7 @@ export default class Record {
     this._id = id;
     this._attributes = {};
     this._recordFields = {};
+    this._recordFieldsToSave = {};
     this._records = records;
     if (baseRecord) {
       this._baseRecord = baseRecord;
@@ -288,7 +289,10 @@ export default class Record {
       attsToLoad.map(att => {
         let parsedAtt = parseAttribute(att);
         if (parsedAtt === null) {
-          let value = this._recordFields[att];
+          let value = this._recordFieldsToSave[att];
+          if (value === undefined) {
+            value = this._recordFields[att];
+          }
           if (!force && value !== undefined) {
             return value;
           } else {
@@ -364,6 +368,7 @@ export default class Record {
     if (!this.isVirtual()) {
       this._attributes = {};
       this._recordFields = {};
+      this._recordFieldsToSave = {};
     }
   }
 
@@ -382,7 +387,13 @@ export default class Record {
   }
 
   getAttributesToSave() {
-    let attributesToPersist = {};
+    let attributesToSave = {};
+
+    for (let att in this._recordFieldsToSave) {
+      if (this._recordFieldsToSave.hasOwnProperty(att)) {
+        attributesToSave[att] = this._recordFieldsToSave[att];
+      }
+    }
 
     for (let attName in this._attributes) {
       if (!this._attributes.hasOwnProperty(attName)) {
@@ -392,11 +403,11 @@ export default class Record {
       let attribute = this._attributes[attName];
 
       if (!attribute.isPersisted()) {
-        attributesToPersist[attribute.getNewValueAttName()] = attribute.getValue();
+        attributesToSave[attribute.getNewValueAttName()] = attribute.getValue();
       }
     }
 
-    return attributesToPersist;
+    return attributesToSave;
   }
 
   _getAssocAttributes() {
@@ -564,10 +575,15 @@ export default class Record {
     let parsedAtt = parseAttribute(name, mapValueToScalar(value));
     if (parsedAtt === null) {
       if (isRead) {
-        let attValue = this._recordFields[name];
+        let attValue = this._recordFieldsToSave[name];
+        if (attValue === undefined) {
+          attValue = this._recordFields[name];
+        }
         if (attValue !== undefined) {
           return attValue;
         }
+      } else {
+        this._recordFieldsToSave[name] = value;
       }
       return null;
     }
