@@ -310,11 +310,10 @@ export default class Record {
             return this._recordFields[att];
           }
         } else {
-          let attKey = this._getAttKey(att, parsedAtt);
-          let attribute = this._attributes[attKey];
+          let attribute = this._attributes[parsedAtt.name];
           if (!attribute) {
-            attribute = new Attribute(this, parsedAtt.name, parsedAtt.modifier);
-            this._attributes[attKey] = attribute;
+            attribute = new Attribute(this, parsedAtt.name);
+            this._attributes[parsedAtt.name] = attribute;
           }
           return attribute.getValue(parsedAtt.scalar, parsedAtt.isMultiple, true, force);
         }
@@ -545,7 +544,7 @@ export default class Record {
 
   removeAtt(name) {
     let parsedAtt = parseAttribute(name);
-    let key = this._getAttKey(name, parsedAtt);
+    let key = (parsedAtt ? parsedAtt.name : null) || name;
     delete this._attributes[key];
   }
 
@@ -555,13 +554,6 @@ export default class Record {
     }
     let baseRecord = this.getBaseRecord();
     return baseRecord.id !== this.id && baseRecord.isVirtual();
-  }
-
-  _getAttKey(name, parsedAtt) {
-    if (!parsedAtt) {
-      return name;
-    }
-    return parsedAtt.name + (parsedAtt.modifier || '');
   }
 
   _processAttField(name, value, isRead, getter, setter) {
@@ -580,32 +572,30 @@ export default class Record {
       return null;
     }
 
-    let attKey = this._getAttKey(name, parsedAtt);
-
-    let att = this._attributes[attKey];
+    let att = this._attributes[parsedAtt.name];
     if (!att) {
       if (isRead) {
         if (this._baseRecord) {
-          att = this._baseRecord._attributes[attKey];
+          att = this._baseRecord._attributes[parsedAtt.name];
         }
         if (!att) {
           return parsedAtt.isMultiple ? [] : null;
         }
-      } else if (!parsedAtt.modifier) {
-        att = new Attribute(this, parsedAtt.name, parsedAtt.modifier);
-        this._attributes[attKey] = att;
+      } else {
+        att = new Attribute(this, parsedAtt.name);
+        this._attributes[parsedAtt.name] = att;
       }
     }
 
     if (isRead) {
-      let innerAtt = parsedAtt.inner;
+      let scalar = parsedAtt.scalar;
       if (value === undefined && name.indexOf('?') === -1 && name[0] !== '.') {
-        innerAtt = null;
+        scalar = null;
       }
-      return getter.call(att, innerAtt, parsedAtt.isMultiple, false);
+      return getter.call(att, scalar, parsedAtt.isMultiple, false);
     } else {
       if (att) {
-        return setter.call(att, parsedAtt.inner, value);
+        return setter.call(att, parsedAtt.scalar, value);
       } else {
         console.warn("Attribute can't be changed: '" + name + "'");
       }

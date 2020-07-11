@@ -1,20 +1,19 @@
 import _ from 'lodash';
 import { mapValueToScalar } from './utils/attStrUtils';
 
-const convertToFullAttributeName = (name, scalar, multiple, modifier) => {
+const convertToFullAttributeName = (name, scalar, multiple) => {
   if (multiple) {
     name += '[]';
   }
-  return name + '?' + scalar + modifier;
+  return name + '?' + scalar;
 };
 
-const PersistedValue = function(att, scalar, modifier) {
+const PersistedValue = function(att, scalar) {
   this._att = att;
   this._value = null;
   this._isLoaded = false;
   this._isArrayLoaded = false;
   this._scalar = scalar;
-  this._modifier = modifier;
 
   this._convertAttResult = (value, multiple) => {
     if (value && value.then) {
@@ -47,7 +46,7 @@ const PersistedValue = function(att, scalar, modifier) {
         this._value = baseRecord.att(this._att.getName() + '[]');
       }
     } else if (withLoading && (!this._isLoaded || forceReload || (multiple && !this._isArrayLoaded))) {
-      let attributeToLoad = convertToFullAttributeName(this._att.getName(), this._scalar, multiple, this._modifier);
+      let attributeToLoad = convertToFullAttributeName(this._att.getName(), this._scalar, multiple);
 
       this._value = this._att._record._loadRecordAttImpl(attributeToLoad, forceReload);
       this._isLoaded = true;
@@ -75,7 +74,7 @@ const PersistedValue = function(att, scalar, modifier) {
 };
 
 export default class Attribute {
-  constructor(record, name, modifier) {
+  constructor(record, name) {
     this._record = record;
     this._name = name;
     this._persisted = {};
@@ -83,7 +82,6 @@ export default class Attribute {
     this._newValueScalar = null;
     this._wasChanged = false;
     this._readyToSave = true;
-    this._modifier = modifier || '';
   }
 
   getName() {
@@ -117,7 +115,7 @@ export default class Attribute {
     }
     let value = this._persisted[scalar];
     if (!value) {
-      value = new PersistedValue(this, scalar, this._modifier);
+      value = new PersistedValue(this, scalar);
       this._persisted[scalar] = value;
     }
 
@@ -147,7 +145,7 @@ export default class Attribute {
     scalar = scalar || mapValueToScalar(value);
     let persistedValue = this._persisted[scalar];
     if (!persistedValue) {
-      persistedValue = new PersistedValue(this, scalar, this._modifier);
+      persistedValue = new PersistedValue(this, scalar);
       this._persisted[scalar] = persistedValue;
     }
     persistedValue.setValue(_.cloneDeep(value));

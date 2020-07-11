@@ -13,10 +13,8 @@ export const parseAttribute = (path, defaultScalar = 'disp') => {
   if (modifierIdx === -1) {
     modifierIdx = indexOf(path, '|');
   }
-  let modifier = '';
   if (modifierIdx !== -1) {
-    modifier = path.substring(modifierIdx);
-    path = path.substring(0, modifierIdx);
+    return null;
   }
 
   if (path[0] === '.') {
@@ -30,8 +28,7 @@ export const parseAttribute = (path, defaultScalar = 'disp') => {
     return {
       name: attMatch[2],
       scalar: attMatch[3],
-      isMultiple: path.indexOf('.atts') === 0,
-      modifier
+      isMultiple: path.indexOf('.atts') === 0
     };
   } else {
     if (path.indexOf('.') !== -1 || path.indexOf('{') !== -1 || path.indexOf('(') !== -1) {
@@ -55,8 +52,7 @@ export const parseAttribute = (path, defaultScalar = 'disp') => {
     return {
       name,
       scalar,
-      isMultiple,
-      modifier
+      isMultiple
     };
   }
 };
