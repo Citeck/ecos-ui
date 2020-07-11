@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import Attribute from './Attribute';
 import { EventEmitter2 } from 'eventemitter2';
-import { mapValueToInnerAtt } from './recordUtils';
+import { mapValueToScalar } from './utils/attStrUtils';
 import RecordWatcher from './RecordWatcher';
 import { parseAttribute } from './utils/attStrUtils';
 
@@ -316,7 +316,7 @@ export default class Record {
             attribute = new Attribute(this, parsedAtt.name, parsedAtt.modifier);
             this._attributes[attKey] = attribute;
           }
-          return attribute.getValue(parsedAtt.inner, parsedAtt.isMultiple, true, force);
+          return attribute.getValue(parsedAtt.scalar, parsedAtt.isMultiple, true, force);
         }
       })
     ).then(loadedAtts => {
@@ -569,8 +569,14 @@ export default class Record {
       return null;
     }
 
-    let parsedAtt = parseAttribute(name, mapValueToInnerAtt(value));
+    let parsedAtt = parseAttribute(name, mapValueToScalar(value));
     if (parsedAtt === null) {
+      if (isRead) {
+        let attValue = this._recordFields[name];
+        if (attValue !== undefined) {
+          return attValue;
+        }
+      }
       return null;
     }
 

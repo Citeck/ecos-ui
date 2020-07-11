@@ -1,47 +1,19 @@
 import _ from 'lodash';
-import { mapValueToInnerAtt } from './recordUtils';
+import { mapValueToScalar } from './utils/attStrUtils';
 
-const scalarFields = ['disp', 'json', 'str', 'num', 'bool', 'id', 'assoc'];
-
-const innerAttsMapping = {};
-for (let field of scalarFields) {
-  innerAttsMapping['.' + field] = field;
-}
-
-const convertInnerAtt = innerAtt => {
-  if (!innerAtt) {
-    return innerAtt;
+const convertToFullAttributeName = (name, scalar, multiple, modifier) => {
+  if (multiple) {
+    name += '[]';
   }
-  return innerAttsMapping[innerAtt] || innerAtt;
+  return name + '?' + scalar + modifier;
 };
 
-const convertToFullAttributeName = (name, inner, multiple, modifier) => {
-  let fullAttName;
-
-  if (inner.charAt(0) === '.') {
-    fullAttName = '.att' + (multiple ? 's' : '') + '(n:"' + name + '"){' + inner.substring(1) + '}';
-  } else {
-    fullAttName = name + (multiple ? '[]' : '');
-    const hasBracket = inner.indexOf('{') > -1;
-    const hasQChar = inner.indexOf('?') > -1;
-
-    if (hasBracket || hasQChar) {
-      fullAttName += '.' + inner;
-    } else {
-      const isScalar = scalarFields.indexOf(inner) > -1;
-      fullAttName += isScalar ? '?' + inner : '{' + inner + '}';
-    }
-  }
-
-  return fullAttName + modifier;
-};
-
-const PersistedValue = function(att, innerAtt, modifier) {
+const PersistedValue = function(att, scalar, modifier) {
   this._att = att;
   this._value = null;
   this._isLoaded = false;
   this._isArrayLoaded = false;
-  this._innerAtt = innerAtt;
+  this._scalar = scalar;
   this._modifier = modifier;
 
   this._convertAttResult = (value, multiple) => {
@@ -75,7 +47,7 @@ const PersistedValue = function(att, innerAtt, modifier) {
         this._value = baseRecord.att(this._att.getName() + '[]');
       }
     } else if (withLoading && (!this._isLoaded || forceReload || (multiple && !this._isArrayLoaded))) {
-      let attributeToLoad = convertToFullAttributeName(this._att.getName(), this._innerAtt, multiple, this._modifier);
+      let attributeToLoad = convertToFullAttributeName(this._att.getName(), this._scalar, multiple, this._modifier);
 
       this._value = this._att._record._loadRecordAttImpl(attributeToLoad, forceReload);
       this._isLoaded = true;
@@ -92,9 +64,7 @@ const PersistedValue = function(att, innerAtt, modifier) {
       }
     }
 
-    const isMultiValueRes = multiple || this._innerAtt.indexOf('[]') !== -1 || this._innerAtt.indexOf('atts(') !== -1;
-
-    return this._convertAttResult(this._value, isMultiValueRes);
+    return this._convertAttResult(this._value, multiple);
   };
 
   this.setValue = value => {
@@ -110,7 +80,7 @@ export default class Attribute {
     this._name = name;
     this._persisted = {};
     this._newValue = null;
-    this._newValueInnerAtt = null;
+    this._newValueScalar = null;
     this._wasChanged = false;
     this._readyToSave = true;
     this._modifier = modifier || '';
@@ -133,13 +103,11 @@ export default class Attribute {
   }
 
   getNewValueInnerAtt() {
-    return this._newValueInnerAtt;
+    return this._newValueScalar;
   }
 
-  getPersistedValue(innerAtt, multiple, withLoading, forceReload) {
-    innerAtt = convertInnerAtt(innerAtt);
-
-    if (!innerAtt) {
+  getPersistedValue(scalar, multiple, withLoading, forceReload) {
+    if (!scalar) {
       if (Object.keys(this._persisted).length === 0) {
         return multiple ? [] : null;
       } else {
@@ -147,17 +115,14 @@ export default class Attribute {
         return value.getValue(multiple, false);
       }
     }
-    if (_.isArray(innerAtt)) {
-      innerAtt = innerAtt.join(',');
-    }
-    let value = this._persisted[innerAtt];
+    let value = this._persisted[scalar];
     if (!value) {
-      value = new PersistedValue(this, innerAtt, this._modifier);
-      this._persisted[innerAtt] = value;
+      value = new PersistedValue(this, scalar, this._modifier);
+      this._persisted[scalar] = value;
     }
 
     let result = value.getValue(multiple, withLoading, forceReload);
-    if (innerAtt === 'disp') {
+    if (scalar === 'disp') {
       if (result === null || result === undefined) {
         return this.getPersistedValue('str', multiple, false);
       } else if (result.then) {
@@ -170,7 +135,7 @@ export default class Attribute {
         });
       }
     }
-    if (innerAtt === 'assoc') {
+    if (scalar === 'assoc') {
       if (result === null) {
         return this.getPersistedValue('str', multiple, false);
       }
@@ -178,44 +143,43 @@ export default class Attribute {
     return result;
   }
 
-  setPersistedValue(innerAtt, value) {
-    innerAtt = convertInnerAtt(innerAtt) || mapValueToInnerAtt(value);
-    let persistedValue = this._persisted[innerAtt];
+  setPersistedValue(scalar, value) {
+    scalar = scalar || mapValueToScalar(value);
+    let persistedValue = this._persisted[scalar];
     if (!persistedValue) {
-      persistedValue = new PersistedValue(this, innerAtt, this._modifier);
-      this._persisted[innerAtt] = persistedValue;
+      persistedValue = new PersistedValue(this, scalar, this._modifier);
+      this._persisted[scalar] = persistedValue;
     }
     persistedValue.setValue(_.cloneDeep(value));
 
     this._newValue = null;
-    this._newValueInnerAtt = null;
+    this._newValueScalar = null;
     this._wasChanged = false;
   }
 
-  getValue(innerAtt, multiple, withLoading, forceReload) {
+  getValue(scalar, multiple, withLoading, forceReload) {
     if (this._wasChanged) {
       return this._newValue;
     } else {
-      innerAtt = convertInnerAtt(innerAtt);
-      return this.getPersistedValue(innerAtt, multiple, withLoading, forceReload);
+      return this.getPersistedValue(scalar, multiple, withLoading, forceReload);
     }
   }
 
-  setValue(innerAtt, value) {
-    innerAtt = convertInnerAtt(innerAtt) || mapValueToInnerAtt(value);
+  setValue(scalar, value) {
+    scalar = scalar || mapValueToScalar(value);
 
-    let persisted = this.getPersistedValue(innerAtt, _.isArray(value), true);
+    let persisted = this.getPersistedValue(scalar, _.isArray(value), true);
 
     const updateValue = currentValue => {
       this._readyToSave = true;
 
       if (!_.isEqual(currentValue, value)) {
         this._newValue = _.cloneDeep(value);
-        this._newValueInnerAtt = innerAtt;
+        this._newValueScalar = scalar;
         this._wasChanged = true;
       } else {
         this._newValue = null;
-        this._newValueInnerAtt = null;
+        this._newValueScalar = null;
         this._wasChanged = false;
       }
       return value;

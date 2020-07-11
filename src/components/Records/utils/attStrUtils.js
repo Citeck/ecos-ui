@@ -1,7 +1,10 @@
-const ATT_NAME_REGEXP = /\.atts?\((n:)?['"](.+?)['"]\)\s*{(.+)}/;
-const SIMPLE_ATT_NAME_REGEXP = /(.+?){(.+)}/;
+import _ from 'lodash';
 
-export const parseAttribute = (path, innerDefault = 'disp') => {
+const ATT_NAME_REGEXP = /\.atts?\((n:)?['"](.+?)['"]\)\s*{(.+)}/;
+
+export const SCALAR_FIELDS = ['disp', 'json', 'str', 'num', 'bool', 'id', 'assoc'];
+
+export const parseAttribute = (path, defaultScalar = 'disp') => {
   if (path[0] === '#') {
     return null;
   }
@@ -21,49 +24,26 @@ export const parseAttribute = (path, innerDefault = 'disp') => {
     if (!attMatch) {
       return null;
     }
+    if (SCALAR_FIELDS.indexOf(attMatch[3]) === -1) {
+      return null;
+    }
     return {
       name: attMatch[2],
-      inner:
-        '.' +
-        attMatch[3]
-          .split(',')
-          .map(s => s.trim())
-          .join(','),
+      scalar: attMatch[3],
       isMultiple: path.indexOf('.atts') === 0,
       modifier
     };
   } else {
+    if (path.indexOf('.') !== -1 || path.indexOf('{') !== -1 || path.indexOf('(') !== -1) {
+      return null;
+    }
+
     let name = path;
-    let inner;
-
-    let dotIdx = path.indexOf('.');
-    let braceIdx = path.indexOf('{');
-
-    if (dotIdx > 0 && (braceIdx === -1 || dotIdx < braceIdx - 1)) {
-      inner = name.substring(dotIdx + 1);
-      let qIdx = inner.indexOf('?');
-      if (qIdx === -1 && braceIdx === -1) {
-        inner += '?disp';
-      }
-      name = name.substring(0, dotIdx);
-    } else {
-      let match = name.match(SIMPLE_ATT_NAME_REGEXP);
-
-      if (match == null) {
-        let qIdx = path.indexOf('?');
-        if (qIdx >= 0) {
-          inner = name.substring(qIdx + 1);
-          name = name.substring(0, qIdx);
-        } else {
-          inner = innerDefault;
-        }
-      } else {
-        name = match[1];
-        inner = match[2]
-          .split(',')
-          .map(s => s.trim())
-          .join(',');
-      }
+    let scalar = defaultScalar;
+    let qIdx = path.indexOf('?');
+    if (qIdx !== -1) {
+      name = path.substring(0, qIdx);
+      scalar = path.substring(qIdx + 1);
     }
 
     let isMultiple = false;
@@ -74,10 +54,26 @@ export const parseAttribute = (path, innerDefault = 'disp') => {
 
     return {
       name,
-      inner,
+      scalar,
       isMultiple,
       modifier
     };
+  }
+};
+
+export const mapValueToScalar = value => {
+  if (value === null || value === undefined || _.isString(value) || _.isDate(value)) {
+    return 'str';
+  } else if (_.isNumber(value)) {
+    return 'num';
+  } else if (_.isArray(value)) {
+    return value.length ? mapValueToScalar(value[0]) : 'str';
+  } else if (_.isObject(value)) {
+    return 'json';
+  } else if (_.isBoolean(value)) {
+    return 'bool';
+  } else {
+    return 'str';
   }
 };
 
