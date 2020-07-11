@@ -527,6 +527,16 @@ export default class Record {
         notReadyAtts.push(attName);
       }
     }
+    for (let attName in this._recordFieldsToSave) {
+      if (!this._recordFieldsToSave.hasOwnProperty(attName)) {
+        continue;
+      }
+      let value = this._recordFieldsToSave[attName];
+      if (value && value.then) {
+        notReadyAtts.push(attName);
+      }
+    }
+
     if (notReadyAtts.length > 0) {
       if (tryCounter > 100) {
         console.error('Not ready attributes:', notReadyAtts);
@@ -583,7 +593,26 @@ export default class Record {
           return attValue;
         }
       } else {
-        this._recordFieldsToSave[name] = value;
+        let currentValue = this._recordFields[name];
+        if (currentValue === undefined) {
+          this._recordFieldsToSave[name] = this.load(name)
+            .then(loadedValue => {
+              if (!_.isEqual(loadedValue, value)) {
+                this._recordFieldsToSave[name] = value;
+                return value;
+              } else {
+                delete this._recordFieldsToSave[name];
+                return null;
+              }
+            })
+            .catch(e => {
+              console.error(e);
+              delete this._recordFieldsToSave[name];
+              return null;
+            });
+        } else if (!_.isEqual(currentValue, value)) {
+          this._recordFieldsToSave[name] = value;
+        }
       }
       return null;
     }
