@@ -5,7 +5,8 @@ import isBoolean from 'lodash/isBoolean';
 
 import WidgetService from '../../../../services/WidgetService';
 import Records from '../../../Records/Records';
-import Record, { parseAttribute } from '../../../Records/Record';
+import Record from '../../../Records/Record';
+import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import TableFormPropTypes from './TableFormPropTypes';

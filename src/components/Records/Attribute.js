@@ -15,7 +15,7 @@ const convertInnerAtt = innerAtt => {
   return innerAttsMapping[innerAtt] || innerAtt;
 };
 
-const convertToFullAttributeName = (name, inner, multiple) => {
+const convertToFullAttributeName = (name, inner, multiple, modifier) => {
   let fullAttName;
 
   if (inner.charAt(0) === '.') {
@@ -33,15 +33,16 @@ const convertToFullAttributeName = (name, inner, multiple) => {
     }
   }
 
-  return fullAttName;
+  return fullAttName + modifier;
 };
 
-const PersistedValue = function(att, innerAtt) {
+const PersistedValue = function(att, innerAtt, modifier) {
   this._att = att;
   this._value = null;
   this._isLoaded = false;
   this._isArrayLoaded = false;
   this._innerAtt = innerAtt;
+  this._modifier = modifier;
 
   this._convertAttResult = (value, multiple) => {
     if (value && value.then) {
@@ -74,7 +75,7 @@ const PersistedValue = function(att, innerAtt) {
         this._value = baseRecord.att(this._att.getName() + '[]');
       }
     } else if (withLoading && (!this._isLoaded || forceReload || (multiple && !this._isArrayLoaded))) {
-      let attributeToLoad = convertToFullAttributeName(this._att.getName(), this._innerAtt, multiple);
+      let attributeToLoad = convertToFullAttributeName(this._att.getName(), this._innerAtt, multiple, this._modifier);
 
       this._value = this._att._record._loadRecordAttImpl(attributeToLoad, forceReload);
       this._isLoaded = true;
@@ -104,7 +105,7 @@ const PersistedValue = function(att, innerAtt) {
 };
 
 export default class Attribute {
-  constructor(record, name) {
+  constructor(record, name, modifier) {
     this._record = record;
     this._name = name;
     this._persisted = {};
@@ -112,6 +113,7 @@ export default class Attribute {
     this._newValueInnerAtt = null;
     this._wasChanged = false;
     this._readyToSave = true;
+    this._modifier = modifier || '';
   }
 
   getName() {
@@ -150,7 +152,7 @@ export default class Attribute {
     }
     let value = this._persisted[innerAtt];
     if (!value) {
-      value = new PersistedValue(this, innerAtt);
+      value = new PersistedValue(this, innerAtt, this._modifier);
       this._persisted[innerAtt] = value;
     }
 
@@ -180,7 +182,7 @@ export default class Attribute {
     innerAtt = convertInnerAtt(innerAtt) || mapValueToInnerAtt(value);
     let persistedValue = this._persisted[innerAtt];
     if (!persistedValue) {
-      persistedValue = new PersistedValue(this, innerAtt);
+      persistedValue = new PersistedValue(this, innerAtt, this._modifier);
       this._persisted[innerAtt] = persistedValue;
     }
     persistedValue.setValue(_.cloneDeep(value));

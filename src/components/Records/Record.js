@@ -4,79 +4,9 @@ import Attribute from './Attribute';
 import { EventEmitter2 } from 'eventemitter2';
 import { mapValueToInnerAtt } from './recordUtils';
 import RecordWatcher from './RecordWatcher';
+import { parseAttribute } from './utils/attStrUtils';
 
 export const EVENT_CHANGE = 'change';
-
-const ATT_NAME_REGEXP = /\.atts?\(n:"(.+?)"\)\s*{(.+)}/;
-const SIMPLE_ATT_NAME_REGEXP = /(.+?){(.+)}/;
-
-export const parseAttribute = (path, innerDefault = 'disp') => {
-  if (path[0] === '#') {
-    return null;
-  }
-
-  if (path[0] === '.') {
-    let attMatch = path.match(ATT_NAME_REGEXP);
-    if (!attMatch) {
-      return null;
-    }
-    return {
-      name: attMatch[1],
-      inner:
-        '.' +
-        attMatch[2]
-          .split(',')
-          .map(s => s.trim())
-          .join(','),
-      isMultiple: path.indexOf('.atts') === 0
-    };
-  } else {
-    let name = path;
-    let inner;
-
-    let dotIdx = path.indexOf('.');
-    let braceIdx = path.indexOf('{');
-
-    if (dotIdx > 0 && (braceIdx === -1 || dotIdx < braceIdx - 1)) {
-      inner = name.substring(dotIdx + 1);
-      let qIdx = inner.indexOf('?');
-      if (qIdx === -1 && braceIdx === -1) {
-        inner += '?disp';
-      }
-      name = name.substring(0, dotIdx);
-    } else {
-      let match = name.match(SIMPLE_ATT_NAME_REGEXP);
-
-      if (match == null) {
-        let qIdx = path.indexOf('?');
-        if (qIdx >= 0) {
-          inner = name.substring(qIdx + 1);
-          name = name.substring(0, qIdx);
-        } else {
-          inner = innerDefault;
-        }
-      } else {
-        name = match[1];
-        inner = match[2]
-          .split(',')
-          .map(s => s.trim())
-          .join(',');
-      }
-    }
-
-    let isMultiple = false;
-    if (name.indexOf('[]') === name.length - 2) {
-      name = name.substring(0, name.length - 2);
-      isMultiple = true;
-    }
-
-    return {
-      name,
-      inner,
-      isMultiple
-    };
-  }
-};
 
 export default class Record {
   constructor(id, records, baseRecord) {
@@ -380,10 +310,11 @@ export default class Record {
             return this._recordFields[att];
           }
         } else {
-          let attribute = this._attributes[parsedAtt.name];
+          let attKey = this._getAttKey(att, parsedAtt);
+          let attribute = this._attributes[attKey];
           if (!attribute) {
-            attribute = new Attribute(this, parsedAtt.name);
-            this._attributes[parsedAtt.name] = attribute;
+            attribute = new Attribute(this, parsedAtt.name, parsedAtt.modifier);
+            this._attributes[attKey] = attribute;
           }
           return attribute.getValue(parsedAtt.inner, parsedAtt.isMultiple, true, force);
         }
@@ -614,12 +545,8 @@ export default class Record {
 
   removeAtt(name) {
     let parsedAtt = parseAttribute(name);
-    if (!parsedAtt) {
-      delete this._attributes[name];
-      return;
-    }
-
-    delete this._attributes[parsedAtt.name];
+    let key = this._getAttKey(name, parsedAtt);
+    delete this._attributes[key];
   }
 
   isVirtual() {
@@ -628,6 +555,13 @@ export default class Record {
     }
     let baseRecord = this.getBaseRecord();
     return baseRecord.id !== this.id && baseRecord.isVirtual();
+  }
+
+  _getAttKey(name, parsedAtt) {
+    if (!parsedAtt) {
+      return name;
+    }
+    return parsedAtt.name + (parsedAtt.modifier || '');
   }
 
   _processAttField(name, value, isRead, getter, setter) {
@@ -640,18 +574,20 @@ export default class Record {
       return null;
     }
 
-    let att = this._attributes[parsedAtt.name];
+    let attKey = this._getAttKey(name, parsedAtt);
+
+    let att = this._attributes[attKey];
     if (!att) {
       if (isRead) {
         if (this._baseRecord) {
-          att = this._baseRecord._attributes[parsedAtt.name];
+          att = this._baseRecord._attributes[attKey];
         }
         if (!att) {
           return parsedAtt.isMultiple ? [] : null;
         }
-      } else {
-        att = new Attribute(this, parsedAtt.name);
-        this._attributes[parsedAtt.name] = att;
+      } else if (!parsedAtt.modifier) {
+        att = new Attribute(this, parsedAtt.name, parsedAtt.modifier);
+        this._attributes[attKey] = att;
       }
     }
 
@@ -662,7 +598,11 @@ export default class Record {
       }
       return getter.call(att, innerAtt, parsedAtt.isMultiple, false);
     } else {
-      return setter.call(att, parsedAtt.inner, value);
+      if (att) {
+        return setter.call(att, parsedAtt.inner, value);
+      } else {
+        console.warn("Attribute can't be changed: '" + name + "'");
+      }
     }
   }
 }
