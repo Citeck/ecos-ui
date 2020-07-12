@@ -10,7 +10,7 @@ const convertToFullAttributeName = (name, scalar, multiple) => {
 
 const PersistedValue = function(att, scalar) {
   this._att = att;
-  this._value = null;
+  this._value = [];
   this._isLoaded = false;
   this._isArrayLoaded = false;
   this._scalar = scalar;
@@ -41,7 +41,7 @@ const PersistedValue = function(att, scalar) {
     let isVirtualRec = this._att._record.isVirtual();
 
     if (isVirtualRec) {
-      var baseRecord = this._att._record._baseRecord;
+      let baseRecord = this._att._record._baseRecord;
       if (!this._value && baseRecord) {
         this._value = baseRecord.att(this._att.getName() + '[]');
       }
@@ -52,13 +52,21 @@ const PersistedValue = function(att, scalar) {
       this._isLoaded = true;
       this._isArrayLoaded = multiple;
       if (this._value != null && this._value.then) {
-        this._value
+        this._value = this._value
           .then(res => {
-            this._value = res;
+            if (res === null || res === undefined) {
+              this._value = [];
+            } else if (!multiple) {
+              this._value = [res];
+            } else {
+              this._value = res;
+            }
+            return this._value;
           })
           .catch(e => {
             console.error(e);
-            this._value = null;
+            this._value = [];
+            return this._value;
           });
       }
     }
@@ -67,7 +75,11 @@ const PersistedValue = function(att, scalar) {
   };
 
   this.setValue = value => {
-    this._value = value;
+    if (_.isArray(value)) {
+      this._value = value;
+    } else {
+      this._value = [value];
+    }
     this._isLoaded = true;
     this._isArrayLoaded = true;
   };
