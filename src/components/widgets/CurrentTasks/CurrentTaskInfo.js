@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
+import isEmpty from 'lodash/isEmpty';
 
 import { getOutputFormat, prepareTooltipId } from '../../../helpers/util';
 import { Icon, Tooltip } from '../../common';
@@ -63,7 +64,7 @@ class CurrentTaskInfo extends React.Component {
               {task[DC.title.key]}
             </span>
           </Tooltip>
-          {actions && actions.length && (
+          {!isEmpty(actions) && (
             <>
               <DropdownOuter
                 className="ecos-current-task__action-dropdown"
@@ -72,8 +73,8 @@ class CurrentTaskInfo extends React.Component {
                 titleField={'name'}
                 keyFields={['icon', 'name']}
                 isStatic
-                onChange={console.log}
                 getStateOpen={isOpenActions => this.setState({ isOpenActions })}
+                CustomItem={MenuItem}
               >
                 <Icon className={isOpenActions ? 'icon-menu-small-press' : 'icon-menu-small'} />
               </DropdownOuter>
@@ -121,6 +122,19 @@ class CurrentTaskInfo extends React.Component {
           </div>
         </div>
       </div>
+    );
+  }
+}
+
+class MenuItem extends React.PureComponent {
+  render() {
+    const { icon, onClick, name } = this.props.item;
+
+    return (
+      <li onClick={onClick} className="ecos-current-task__action-menu-item">
+        <Icon className={icon} />
+        <span>{name}</span>
+      </li>
     );
   }
 }

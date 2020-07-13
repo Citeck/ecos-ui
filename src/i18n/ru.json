@@ -106,13 +106,16 @@
   "comments-widget.time-ago": "назад",
   "comments-widget.title": "Комментарии",
   "create_case.label": "Создать",
+
+  "current-tasks-widget.title": "Все задачи",
   "current-tasks-widget.column.actors": "Исполнитель",
   "current-tasks-widget.column.deadline": "Срок до",
   "current-tasks-widget.column.title": "Задача",
   "current-tasks-widget.no-data": "Нет данных",
   "current-tasks-widget.no-tasks": "Текущих задач нет",
-  "current-tasks-widget.saga.error1": "Ошибка получения данных",
-  "current-tasks-widget.title": "Все задачи",
+  "current-tasks-widget.error.get-tasks": "Ошибка получения списка всех задач",
+  "current-tasks-widget.error.get-actions": "Ошибка получения действий задач",
+  "current-tasks-widget.error.execute-action": "Не удалось выполнить действие",
 
   "dashboard.error.get-config": "Конфигурация дашборда не получена",
   "dashboard.error.get-title": "Заголовок дашборда не получен",

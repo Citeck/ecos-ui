@@ -213,5 +213,15 @@
     & .icon {
       margin-right: 10px;
     }
+
+    &-menu-item {
+      display: flex;
+      align-items: center;
+
+      & .icon {
+        margin-right: 10px;
+        color: $color-gray-5;
+      }
+    }
   }
 }

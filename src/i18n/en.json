@@ -106,13 +106,16 @@
   "comments-widget.time-ago": "ago",
   "comments-widget.title": "Comments",
   "create_case.label": "Create",
+
+  "current-tasks-widget.title": "All tasks",
   "current-tasks-widget.column.actors": "Performer",
   "current-tasks-widget.column.deadline": "Due Date",
   "current-tasks-widget.column.title": "Task",
   "current-tasks-widget.no-data": "No data",
   "current-tasks-widget.no-tasks": "No current tasks",
-  "current-tasks-widget.saga.error1": "Error. Failure to fetch data",
-  "current-tasks-widget.title": "All tasks",
+  "current-tasks-widget.error.get-tasks": "Failure to fetch all tasks",
+  "current-tasks-widget.error.get-actions": "Failure to fetch tasks actions",
+  "current-tasks-widget.error.execute-action": "Failure to execute action",
 
   "dashboard.error.get-config": "Dashboard config hasn't gotten",
   "dashboard.error.get-title": "Dashboard title hasn't gotten",
