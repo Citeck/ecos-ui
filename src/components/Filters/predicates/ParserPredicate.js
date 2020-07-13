@@ -267,13 +267,14 @@ export default class ParserPredicate {
     predicates = isArray(predicates) ? predicates : predicates.val || [];
 
     const flat = arr => {
-      arr.forEach(item => {
-        if (!isArray(item.val) && (!!item.val || item.val === 0)) {
-          out.push(item);
-        } else if (isArray(item.val)) {
-          flat(item.val);
-        }
-      });
+      isArray(arr) &&
+        arr.forEach(item => {
+          if (!isArray(item.val) && (!!item.val || item.val === 0)) {
+            out.push(item);
+          } else if (isArray(item.val)) {
+            flat(item.val);
+          }
+        });
     };
 
     flat(predicates);
