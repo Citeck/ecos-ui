@@ -9,6 +9,7 @@ import { getData, isExistLocalStorage, setData } from '../helpers/ls';
 import { PageApi } from '../api/page';
 
 const pageApi = new PageApi();
+const exist = index => !!~index;
 
 export const PageTypes = {
   DASHBOARD: 'dashboard',
@@ -255,21 +256,19 @@ export default class PageService {
 
       for (const parentLink in history) {
         if (history.hasOwnProperty(parentLink)) {
-          const parent = getLinkWithout({
-            url: parentLink,
-            ignored: IgnoredUrlParams
-          });
-          const foundI = history[parent].findIndex(item => keyLink === item);
+          const source = history[parentLink];
+          const index = source && source.findIndex(item => keyLink === item);
+          const isFound = !!source && exist(index);
 
-          if (!!~foundI) {
-            history[parent].splice(foundI, 1);
+          isFound && source.splice(index, 1);
 
-            if (!history[parent].length) {
-              delete history[parent];
-            }
-
+          if (!source || !source.length) {
+            delete history[parentLink];
             setData(key, history);
-            return parent;
+          }
+
+          if (isFound) {
+            return getLinkWithout({ url: parentLink, ignored: IgnoredUrlParams });
           }
         }
       }

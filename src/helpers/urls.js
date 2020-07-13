@@ -38,7 +38,7 @@ export const SearchKeys = {
   JOURNAL_SETTING_ID: [JOURNAL_SETTING_ID_KEY]
 };
 
-export const IgnoredUrlParams = [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW, SearchKeys.SEARCH];
+export const IgnoredUrlParams = [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW];
 
 export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
