@@ -677,6 +677,7 @@ function* sagaSearch({ api, logger, stateId, w }, action) {
       predicates = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
     }
 
+    yield put(setPredicate(w(predicates)));
     yield put(reloadGrid(w({ predicates: predicates ? [predicates] : null })));
     PageService.changeUrlLink(decodeLink(window.location.pathname + window.location.search), { updateUrl: true });
   } catch (e) {
