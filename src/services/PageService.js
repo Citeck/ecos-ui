@@ -255,13 +255,13 @@ export default class PageService {
 
       for (const parentLink in history) {
         if (history.hasOwnProperty(parentLink)) {
-          const source = history[parentLink];
-          const index = source && source.findIndex(item => keyLink === item);
-          const isFound = !!source && index >= 0;
+          const source = history[parentLink] || [];
+          const index = source.findIndex(item => keyLink === item);
+          const isFound = index >= 0;
 
           isFound && source.splice(index, 1);
 
-          if (!source || !source.length) {
+          if (!source.length) {
             delete history[parentLink];
             setData(key, history);
           }
