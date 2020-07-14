@@ -9,7 +9,6 @@ import { getData, isExistLocalStorage, setData } from '../helpers/ls';
 import { PageApi } from '../api/page';
 
 const pageApi = new PageApi();
-const exist = index => !!~index;
 
 export const PageTypes = {
   DASHBOARD: 'dashboard',
@@ -258,7 +257,7 @@ export default class PageService {
         if (history.hasOwnProperty(parentLink)) {
           const source = history[parentLink];
           const index = source && source.findIndex(item => keyLink === item);
-          const isFound = !!source && exist(index);
+          const isFound = !!source && index >= 0;
 
           isFound && source.splice(index, 1);
 
