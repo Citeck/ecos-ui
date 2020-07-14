@@ -250,7 +250,7 @@ export class DashboardApi extends RecordService {
     unique.forEach(key => cache.remove(key));
   }
 
-  isNeededRedirect(recordRef) {
+  isRedirectOld(recordRef) {
     return Records.get(recordRef)
       .load('_etype?id')
       .then(type => Records.get(type).load('inhAttributes.uiType?str'))

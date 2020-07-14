@@ -26,7 +26,7 @@ import PageService from '../services/PageService';
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
     const { recordRef } = payload;
-    const redirect = yield call(api.dashboard.isNeededRedirect, recordRef);
+    const redirect = yield call(api.dashboard.isRedirectOld, recordRef);
 
     if (redirect) {
       PageService.changeUrlLink(createOldVersionUrlDocument(recordRef), { reopenBrowserTab: true });
