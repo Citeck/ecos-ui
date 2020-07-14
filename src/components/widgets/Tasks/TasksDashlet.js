@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
+import { getStateId } from '../../../helpers/redux';
 import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
@@ -59,7 +60,8 @@ class TasksDashlet extends BaseWidget {
   };
 
   render() {
-    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
+    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging, tabId, id } = this.props;
+    const stateId = getStateId({ tabId, id });
     const { runUpdate, isSmallMode, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
@@ -91,7 +93,7 @@ class TasksDashlet extends BaseWidget {
           forwardedRef={this.contentRef}
           className={classNameTasks}
           record={record}
-          stateId={record}
+          stateId={stateId}
           runUpdate={runUpdate}
           isSmallMode={isSmallMode}
           height={userHeight}
