@@ -82,6 +82,7 @@ export const EditAction = {
     return new Promise(resolve => {
       EcosFormUtils.editRecord({
         recordRef: record.id,
+        attributes: config.attributes || {},
         fallback: () => goToNodeEditPage(record.id),
         onSubmit: () => resolve(true),
         onCancel: () => resolve(false)
