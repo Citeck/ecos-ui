@@ -29,7 +29,7 @@ export class DocConstructorApi {
   };
 
   createDocumentDocOne = ({ record }) => {
-    return ecosFetch(`${PROXY_URI}citeck/unilever/create-doc-one-file-by-node-with-template?nodeRef=${record}`, { method: 'POST' })
+    return ecosFetch(`${PROXY_URI}citeck/ecos/create-doc-one-file-by-node-with-template?nodeRef=${record}`, { method: 'POST' })
       .then(response => (response.ok ? response.json() : Promise.reject({ message: response.statusText })))
       .then(response => (response && response.result ? response.result : Promise.reject(response)))
       .catch(e => {
@@ -53,7 +53,7 @@ export class DocConstructorApi {
   };
 
   deleteDocumentDocOne = ({ record }) => {
-    return ecosFetch(`${PROXY_URI}citeck/unilever/delete-content-and-doc-one-id?nodeRef=${record}`, { method: 'DELETE' })
+    return ecosFetch(`${PROXY_URI}citeck/ecos/delete-content-and-doc-one-id?nodeRef=${record}`, { method: 'DELETE' })
       .then(response => (response.ok ? response.json() : Promise.reject(response)))
       .then(response => (response && response.result ? response.result : Promise.reject(response)))
       .catch(e => {
@@ -68,7 +68,7 @@ export class DocConstructorApi {
     }
 
     return ecosFetch(
-      `${PROXY_URI}citeck/unilever/set-permission-for-role?nodeRef=${record}&role=${options.role}&permission=${options.permission}`,
+      `${PROXY_URI}citeck/ecos/set-permission-for-role?nodeRef=${record}&role=${options.role}&permission=${options.permission}`,
       { method: 'POST' }
     )
       .then(response => (response.ok ? response : Promise.reject(response)))

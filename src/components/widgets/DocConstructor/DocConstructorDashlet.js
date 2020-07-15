@@ -124,7 +124,7 @@ class DocConstructorDashlet extends BaseWidget {
 
   render() {
     const { isSmallMode } = this.state;
-    const { title, classNameDashlet, isLoading, documentType, error, contractTemplate, docOneUrl } = this.props;
+    const { title, classNameDashlet, isLoading, error, contractTemplate } = this.props;
 
     return (
       <Dashlet
