@@ -2,87 +2,18 @@ import _ from 'lodash';
 import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import Attribute from './Attribute';
 import { EventEmitter2 } from 'eventemitter2';
-import { mapValueToInnerAtt } from './recordUtils';
+import { mapValueToScalar } from './utils/attStrUtils';
 import RecordWatcher from './RecordWatcher';
+import { parseAttribute } from './utils/attStrUtils';
 
 export const EVENT_CHANGE = 'change';
-
-const ATT_NAME_REGEXP = /\.atts?\(n:"(.+?)"\)\s*{(.+)}/;
-const SIMPLE_ATT_NAME_REGEXP = /(.+?){(.+)}/;
-
-export const parseAttribute = (path, innerDefault = 'disp') => {
-  if (path[0] === '#') {
-    return null;
-  }
-
-  if (path[0] === '.') {
-    let attMatch = path.match(ATT_NAME_REGEXP);
-    if (!attMatch) {
-      return null;
-    }
-    return {
-      name: attMatch[1],
-      inner:
-        '.' +
-        attMatch[2]
-          .split(',')
-          .map(s => s.trim())
-          .join(','),
-      isMultiple: path.indexOf('.atts') === 0
-    };
-  } else {
-    let name = path;
-    let inner;
-
-    let dotIdx = path.indexOf('.');
-    let braceIdx = path.indexOf('{');
-
-    if (dotIdx > 0 && (braceIdx === -1 || dotIdx < braceIdx - 1)) {
-      inner = name.substring(dotIdx + 1);
-      let qIdx = inner.indexOf('?');
-      if (qIdx === -1 && braceIdx === -1) {
-        inner += '?disp';
-      }
-      name = name.substring(0, dotIdx);
-    } else {
-      let match = name.match(SIMPLE_ATT_NAME_REGEXP);
-
-      if (match == null) {
-        let qIdx = path.indexOf('?');
-        if (qIdx >= 0) {
-          inner = name.substring(qIdx + 1);
-          name = name.substring(0, qIdx);
-        } else {
-          inner = innerDefault;
-        }
-      } else {
-        name = match[1];
-        inner = match[2]
-          .split(',')
-          .map(s => s.trim())
-          .join(',');
-      }
-    }
-
-    let isMultiple = false;
-    if (name.indexOf('[]') === name.length - 2) {
-      name = name.substring(0, name.length - 2);
-      isMultiple = true;
-    }
-
-    return {
-      name,
-      inner,
-      isMultiple
-    };
-  }
-};
 
 export default class Record {
   constructor(id, records, baseRecord) {
     this._id = id;
     this._attributes = {};
     this._recordFields = {};
+    this._recordFieldsToSave = {};
     this._records = records;
     if (baseRecord) {
       this._baseRecord = baseRecord;
@@ -147,6 +78,30 @@ export default class Record {
     }
 
     return { id: recId, attributes };
+  }
+
+  async toJsonAsync() {
+    await this._getWhenReadyToSave();
+
+    const json = this.toJson();
+
+    const keys = Object.keys(json.attributes);
+    const promises = [];
+    for (let key of keys) {
+      const att = json.attributes[key];
+      if (att && att.then) {
+        const promise = att.then(res => (json.attributes[key] = res)).catch(() => (json.attributes[key] = null));
+        promises.push(promise);
+      }
+    }
+
+    if (promises.length === 0) {
+      return json;
+    } else {
+      return Promise.all(promises)
+        .then(() => json)
+        .catch(() => json);
+    }
   }
 
   isPersisted() {
@@ -334,7 +289,10 @@ export default class Record {
       attsToLoad.map(att => {
         let parsedAtt = parseAttribute(att);
         if (parsedAtt === null) {
-          let value = this._recordFields[att];
+          let value = this._recordFieldsToSave[att];
+          if (value === undefined) {
+            value = this._recordFields[att];
+          }
           if (!force && value !== undefined) {
             return value;
           } else {
@@ -361,7 +319,7 @@ export default class Record {
             attribute = new Attribute(this, parsedAtt.name);
             this._attributes[parsedAtt.name] = attribute;
           }
-          return attribute.getValue(parsedAtt.inner, parsedAtt.isMultiple, true, force);
+          return attribute.getValue(parsedAtt.scalar, parsedAtt.isMultiple, true, force);
         }
       })
     ).then(loadedAtts => {
@@ -410,6 +368,7 @@ export default class Record {
     if (!this.isVirtual()) {
       this._attributes = {};
       this._recordFields = {};
+      this._recordFieldsToSave = {};
     }
   }
 
@@ -428,7 +387,13 @@ export default class Record {
   }
 
   getAttributesToSave() {
-    let attributesToPersist = {};
+    let attributesToSave = {};
+
+    for (let att in this._recordFieldsToSave) {
+      if (this._recordFieldsToSave.hasOwnProperty(att)) {
+        attributesToSave[att] = this._recordFieldsToSave[att];
+      }
+    }
 
     for (let attName in this._attributes) {
       if (!this._attributes.hasOwnProperty(attName)) {
@@ -438,11 +403,11 @@ export default class Record {
       let attribute = this._attributes[attName];
 
       if (!attribute.isPersisted()) {
-        attributesToPersist[attribute.getNewValueAttName()] = attribute.getValue();
+        attributesToSave[attribute.getNewValueAttName()] = attribute.getValue();
       }
     }
 
-    return attributesToPersist;
+    return attributesToSave;
   }
 
   _getAssocAttributes() {
@@ -562,6 +527,16 @@ export default class Record {
         notReadyAtts.push(attName);
       }
     }
+    for (let attName in this._recordFieldsToSave) {
+      if (!this._recordFieldsToSave.hasOwnProperty(attName)) {
+        continue;
+      }
+      let value = this._recordFieldsToSave[attName];
+      if (value && value.then) {
+        notReadyAtts.push(attName);
+      }
+    }
+
     if (notReadyAtts.length > 0) {
       if (tryCounter > 100) {
         console.error('Not ready attributes:', notReadyAtts);
@@ -590,12 +565,8 @@ export default class Record {
 
   removeAtt(name) {
     let parsedAtt = parseAttribute(name);
-    if (!parsedAtt) {
-      delete this._attributes[name];
-      return;
-    }
-
-    delete this._attributes[parsedAtt.name];
+    let key = (parsedAtt ? parsedAtt.name : null) || name;
+    delete this._attributes[key];
   }
 
   isVirtual() {
@@ -611,8 +582,38 @@ export default class Record {
       return null;
     }
 
-    let parsedAtt = parseAttribute(name, mapValueToInnerAtt(value));
+    let parsedAtt = parseAttribute(name, mapValueToScalar(value));
     if (parsedAtt === null) {
+      if (isRead) {
+        let attValue = this._recordFieldsToSave[name];
+        if (attValue === undefined) {
+          attValue = this._recordFields[name];
+        }
+        if (attValue !== undefined) {
+          return attValue;
+        }
+      } else {
+        let currentValue = this._recordFields[name];
+        if (currentValue === undefined) {
+          this._recordFieldsToSave[name] = this.load(name)
+            .then(loadedValue => {
+              if (!_.isEqual(loadedValue, value)) {
+                this._recordFieldsToSave[name] = value;
+                return value;
+              } else {
+                delete this._recordFieldsToSave[name];
+                return null;
+              }
+            })
+            .catch(e => {
+              console.error(e);
+              delete this._recordFieldsToSave[name];
+              return null;
+            });
+        } else if (!_.isEqual(currentValue, value)) {
+          this._recordFieldsToSave[name] = value;
+        }
+      }
       return null;
     }
 
@@ -632,13 +633,17 @@ export default class Record {
     }
 
     if (isRead) {
-      let innerAtt = parsedAtt.inner;
+      let scalar = parsedAtt.scalar;
       if (value === undefined && name.indexOf('?') === -1 && name[0] !== '.') {
-        innerAtt = null;
+        scalar = null;
       }
-      return getter.call(att, innerAtt, parsedAtt.isMultiple, false);
+      return getter.call(att, scalar, parsedAtt.isMultiple, false);
     } else {
-      return setter.call(att, parsedAtt.inner, value);
+      if (att) {
+        return setter.call(att, parsedAtt.scalar, value);
+      } else {
+        console.warn("Attribute can't be changed: '" + name + "'");
+      }
     }
   }
 }

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
-import { Caption, Checkbox, Field, Select } from '../../common/form';
+import { Caption, Checkbox, Field, Input, Select } from '../../common/form';
 import { Btn } from '../../common/btns';
 
 import {
@@ -16,6 +16,8 @@ import {
   setJournalsItem,
   setJournalsListItem,
   setOnlyLinked,
+  setCustomJournalMode,
+  setCustomJournal,
   setSettingItem
 } from '../../../actions/journals';
 
@@ -51,6 +53,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     setJournalsItem: item => dispatch(setJournalsItem(w(item))),
     setSettingItem: id => dispatch(setSettingItem(w(id))),
     setOnlyLinked: onlyLinked => dispatch(setOnlyLinked(w(onlyLinked))),
+    setCustomJournal: text => dispatch(setCustomJournal(w(text))),
+    setCustomJournalMode: onlyLinked => dispatch(setCustomJournalMode(w(onlyLinked))),
     setDashletConfig: config => dispatch(setDashletConfig(w(config))),
     saveDashlet: (config, id) => dispatch(saveDashlet(w({ config: config, id: id })))
   };
@@ -113,6 +117,9 @@ class JournalsDashletEditor extends Component {
     if (recordRef) {
       config = config && config.onlyLinked === undefined ? { ...config, onlyLinked: true } : config;
     }
+    if (config.customJournalMode === undefined) {
+      config.customJournalMode = false;
+    }
 
     if (onSave) {
       onSave(id, { config });
@@ -133,6 +140,14 @@ class JournalsDashletEditor extends Component {
 
   setOnlyLinked = ({ checked }) => {
     this.props.setOnlyLinked(checked);
+  };
+
+  setCustomJournal = ({ target: { value = '' } }) => {
+    this.props.setCustomJournal(value);
+  };
+
+  setCustomJournalMode = ({ checked }) => {
+    this.props.setCustomJournalMode(checked);
   };
 
   render() {
@@ -161,30 +176,43 @@ class JournalsDashletEditor extends Component {
             />
           </Field>
 
-          <Field label={t('journals.name')} isSmall={isSmall}>
-            <Select
-              className={'ecos-journal-dashlet-editor__select'}
-              placeholder={t('journals.action.select-journal')}
-              options={journals}
-              getOptionLabel={option => option.title}
-              getOptionValue={option => option.nodeRef}
-              onChange={setJournalsItem}
-              value={getSelectedValue(journals, 'nodeRef', config.journalId)}
+          {config.customJournalMode ? (
+            <Field label={t('journals.action.custom-journal')} isSmall={isSmall}>
+              <Input value={config.customJournal || ''} onChange={this.setCustomJournal} type="text" />
+            </Field>
+          ) : (
+            <>
+              <Field label={t('journals.name')} isSmall={isSmall}>
+                <Select
+                  className={'ecos-journal-dashlet-editor__select'}
+                  placeholder={t('journals.action.select-journal')}
+                  options={journals}
+                  getOptionLabel={option => option.title}
+                  getOptionValue={option => option.nodeRef}
+                  onChange={setJournalsItem}
+                  value={getSelectedValue(journals, 'nodeRef', config.journalId)}
+                />
+              </Field>
+
+              <Field label={t('journals.settings')} isSmall={isSmall}>
+                <Select
+                  className={'ecos-journal-dashlet-editor__select'}
+                  placeholder={t('journals.default')}
+                  options={journalSettings}
+                  getOptionLabel={option => option[JOURNAL_SETTING_DATA_FIELD].title}
+                  getOptionValue={option => option[JOURNAL_SETTING_ID_FIELD]}
+                  onChange={this.setSettingItem}
+                  value={getSelectedValue(journalSettings, JOURNAL_SETTING_ID_FIELD, config.journalSettingId)}
+                />
+              </Field>
+            </>
+          )}
+          <Field label={t('journals.action.custom-journal')} isSmall={isSmall}>
+            <Checkbox
+              checked={config.customJournalMode === undefined ? false : config.customJournalMode}
+              onChange={this.setCustomJournalMode}
             />
           </Field>
-
-          <Field label={t('journals.settings')} isSmall={isSmall}>
-            <Select
-              className={'ecos-journal-dashlet-editor__select'}
-              placeholder={t('journals.default')}
-              options={journalSettings}
-              getOptionLabel={option => option[JOURNAL_SETTING_DATA_FIELD].title}
-              getOptionValue={option => option[JOURNAL_SETTING_ID_FIELD]}
-              onChange={this.setSettingItem}
-              value={getSelectedValue(journalSettings, JOURNAL_SETTING_ID_FIELD, config.journalSettingId)}
-            />
-          </Field>
-
           {recordRef ? (
             <Field label={t('journals.action.only-linked')} isSmall={isSmall}>
               <Checkbox checked={config.onlyLinked === undefined ? true : config.onlyLinked} onChange={this.setOnlyLinked} />

@@ -39,6 +39,7 @@ const SelectorHeader = ({ indeterminate, ...rest }) => (
 );
 
 const MIN_TH_WIDTH = 60;
+const MAX_START_TH_WIDTH = 500;
 
 class Grid extends Component {
   #columnsSizes = {};
@@ -60,6 +61,7 @@ class Grid extends Component {
     this._shadowLeftNode = null;
     this._firstHeaderCellNode = null;
     this._inlineActionsNode = null;
+    this._optionMinWidth = null;
 
     this.state = {
       tableHeight: 0
@@ -79,6 +81,8 @@ class Grid extends Component {
       this._shadowLeftNode = current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW)[0];
       this._firstHeaderCellNode = current.querySelector(`thead > tr > th:first-child .${ECOS_GRID_CHECKBOX_DIVIDER_CLASS}`);
       this._inlineActionsNode = current.querySelector('.ecos-inline-tools-actions');
+
+      this._timeoutDefaultWidth = setTimeout(this.setDefaultWidth, 1);
     }
 
     this.checkScrollPosition();
@@ -100,6 +104,7 @@ class Grid extends Component {
     this.removeColumnResizeEvents();
     this.removeKeydownEvents();
     this.removeDragEvents();
+    clearTimeout(this._timeoutDefaultWidth);
   }
 
   get hasCheckboxes() {
@@ -149,6 +154,16 @@ class Grid extends Component {
         }
       }
     }
+  };
+
+  setDefaultWidth = () => {
+    !this._startResizingThOffset &&
+      this._ref.current &&
+      this._ref.current.querySelectorAll('.ecos-grid__td').forEach(cellEl => {
+        if (cellEl && cellEl.clientWidth > MAX_START_TH_WIDTH) {
+          cellEl.style.width = MAX_START_TH_WIDTH + 'px';
+        }
+      });
   };
 
   checkScrollPosition() {
@@ -289,6 +304,44 @@ class Grid extends Component {
     if (props.singleSelectable) {
       options.selectRow = this.createSingleSelectionCheckboxs(props);
     }
+
+    const CUSTOM_NESTED_DELIMITER = '|';
+    const replaceDefaultNestedDelimiterForData = items => {
+      if (!Array.isArray(items)) {
+        return items;
+      }
+      return items.map(item => {
+        const newItem = {};
+        const fields = Object.keys(item);
+        fields.forEach(field => {
+          const hasDot = field.includes('.');
+          if (hasDot) {
+            newItem[field.replace(/\./g, CUSTOM_NESTED_DELIMITER)] = item[field];
+          } else {
+            newItem[field] = item[field];
+          }
+        });
+        return newItem;
+      });
+    };
+
+    const replaceDefaultNestedDelimiterForColumns = items => {
+      if (!Array.isArray(items)) {
+        return items;
+      }
+      return items.map(item => {
+        if (typeof item.dataField === 'string' && item.dataField.includes('.')) {
+          return {
+            ...item,
+            dataField: item.dataField.replace(/\./g, CUSTOM_NESTED_DELIMITER)
+          };
+        }
+        return item;
+      });
+    };
+
+    options.data = replaceDefaultNestedDelimiterForData(options.data);
+    options.columns = replaceDefaultNestedDelimiterForColumns(options.columns);
 
     return options;
   }
@@ -593,6 +646,7 @@ class Grid extends Component {
     this.fixAllThWidth(); // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3196
 
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
+    this._optionMinWidth = options.minW;
   };
 
   resizeColumn = e => {
@@ -604,6 +658,10 @@ class Grid extends Component {
 
       if (width < MIN_TH_WIDTH) {
         width = MIN_TH_WIDTH; //  - left - right;
+      }
+
+      if (this._optionMinWidth && width < this._optionMinWidth) {
+        width = this._optionMinWidth;
       }
 
       const rows = this._tableDom.rows;
@@ -951,7 +1009,8 @@ Grid.propTypes = {
   onResizeColumn: PropTypes.func,
   onGridMouseEnter: PropTypes.func,
   onCheckDropPermission: PropTypes.func,
-  onChangeTrOptions: PropTypes.func
+  onChangeTrOptions: PropTypes.func,
+  onScrolling: PropTypes.func
 };
 
 Grid.defaultProps = {

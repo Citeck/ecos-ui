@@ -1,9 +1,10 @@
 import moment from 'moment';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import lodashClone from 'lodash/cloneDeep';
 
-import { deepClone, t } from '../helpers/util';
-import { DATE_FORMAT, DEFAULT_REF, NULL_FORM } from '../constants/documents';
+import { deepClone, getTextByLocale, t } from '../helpers/util';
+import { DATE_FORMAT, DEFAULT_REF, documentFields, NULL_FORM } from '../constants/documents';
 
 export default class DocumentsConverter {
   static formIdIsNull = (id = '') => {
@@ -56,10 +57,10 @@ export default class DocumentsConverter {
         formId: DocumentsConverter.formIdIsNull(item.formId) ? null : item.formId,
         name: item.name || get(typeNames, [item.type], t('documents-widget.untitled')),
         countDocuments: documents.length,
-        lastDocumentRef: get(document, 'id', ''),
-        loadedBy: get(document, 'loadedBy', ''),
+        lastDocumentRef: get(document, documentFields.id, ''),
+        [documentFields.loadedBy]: get(document, documentFields.loadedBy, ''),
         canDropUpload: !createVariants.formRef,
-        modified: DocumentsConverter.getFormattedDate(get(document, 'modified', ''))
+        [documentFields.modified]: DocumentsConverter.getFormattedDate(get(document, documentFields.modified, ''))
       };
     });
   };
@@ -84,18 +85,14 @@ export default class DocumentsConverter {
 
   static getDocuments = ({ documents, type, typeName }) => {
     return documents.map(document => {
-      const target = {};
+      const target = { ...document };
 
       if (!document || !Object.keys(document)) {
         return target;
       }
 
-      target.id = get(document, 'id', '');
       target.type = type;
-      target.name = get(document, 'name', t('documents-widget.untitled'));
       target.typeName = typeName;
-      target.loadedBy = get(document, 'loadedBy', '');
-      target.modified = DocumentsConverter.getFormattedDate(get(document, 'modified', ''));
 
       return target;
     });
@@ -140,17 +137,26 @@ export default class DocumentsConverter {
     return target;
   };
 
-  static getTypesForConfig = (source = []) => {
+  static getTypesForConfig = (source = [], configTypes = []) => {
     if (!source.length) {
       return [];
     }
 
-    return deepClone(source).map((item = {}) => {
+    return lodashClone(source).map((item = {}) => {
       if (!Object.keys(item).length) {
         return {};
       }
 
-      const target = {};
+      const type = configTypes.find(type => type.type === item.type);
+      const target = { ...type };
+
+      if (!isEmpty(item.customizedColumns)) {
+        target.columns = item.customizedColumns.map(column => ({
+          attribute: get(column, 'attribute', ''),
+          visible: get(column, 'visible'),
+          name: get(column, 'name', '')
+        }));
+      }
 
       target.type = get(item, 'type', '');
       target.multiple = get(item, 'multiple', false);
@@ -161,8 +167,8 @@ export default class DocumentsConverter {
   };
 
   static combineTypes = (baseTypes = [], userTypes = []) => {
-    const base = deepClone(baseTypes);
-    const user = deepClone(userTypes);
+    const base = deepClone(baseTypes, []);
+    const user = deepClone(userTypes, []);
 
     return user.reduce((result, current) => {
       const index = result.findIndex(item => item.type === current.type);
@@ -230,6 +236,191 @@ export default class DocumentsConverter {
     target.append('description', get(source, 'comment', ''));
     target.append('majorversion', get(source, 'isMajor', true));
     target.append('overwrite', 'true');
+
+    return target;
+  }
+
+  static getColumnsAttributes(source = []) {
+    if (isEmpty(source)) {
+      return '';
+    }
+
+    if (!Array.isArray(source)) {
+      return '';
+    }
+
+    return source
+      .map(column => {
+        const { name } = column;
+        let attribute = column.attribute || '';
+
+        if (!attribute && !name) {
+          return '';
+        }
+
+        if (!attribute) {
+          return `${name}:att(n:"${name}"){disp}`;
+        }
+
+        if (attribute.charAt(0) === '.') {
+          return `${name}:${attribute.slice(1)}`;
+        }
+
+        if (name) {
+          if (attribute.includes('att(n:')) {
+            return `${name}:${attribute}`;
+          }
+
+          return `${name}:att(n:"${attribute}"){disp}`;
+        }
+
+        return attribute || name;
+      })
+      .filter(item => !!item)
+      .join(',');
+  }
+
+  static getColumnForWeb(source = []) {
+    if (isEmpty(source)) {
+      return [];
+    }
+
+    if (!Array.isArray(source)) {
+      return [];
+    }
+
+    return source.map(item => {
+      return {
+        ...item,
+        dataField: DocumentsConverter.getAttribute(item.attribute, item.name),
+        text: getTextByLocale(item.label)
+      };
+    });
+  }
+
+  static getAttribute(attr = '', name = '') {
+    if (name) {
+      return name;
+    }
+
+    if (attr.charAt(0) === '.') {
+      return name;
+    }
+
+    if (attr.includes(':')) {
+      return name;
+    }
+
+    if (attr.includes('-')) {
+      return attr.toLowerCase().replace(/-/g, '_');
+    }
+
+    return attr || name;
+  }
+
+  static getColumnsForSettings(columns = [], configColumns = []) {
+    if (isEmpty(columns)) {
+      return [];
+    }
+
+    const customizedColumns = deepClone(configColumns);
+    let originColumns = deepClone(columns);
+
+    originColumns = originColumns.map(column => ({
+      attribute: column.attribute,
+      name: column.name,
+      label: getTextByLocale(column.label),
+      visible: column.visible === undefined ? true : column.visible
+    }));
+
+    if (isEmpty(customizedColumns)) {
+      return originColumns;
+    }
+
+    const result = customizedColumns.map(item => {
+      const index = originColumns.findIndex(origin => DocumentsConverter.filterColumn(origin, item));
+
+      if (!~index) {
+        return item;
+      }
+
+      const [deleted] = originColumns.splice(index, 1, {});
+
+      return {
+        visible: deleted.visible,
+        ...item,
+        label: getTextByLocale(deleted.label)
+      };
+    });
+
+    return [
+      ...result,
+      ...originColumns
+        .filter(i => !isEmpty(i))
+        .map(i => ({
+          attribute: i.attribute,
+          visible: i.visible,
+          name: i.name,
+          label: getTextByLocale(i.label)
+        }))
+    ];
+  }
+
+  static filterColumn = (origin, custom) => {
+    if (origin.attribute) {
+      if (origin.name) {
+        return origin.attribute === custom.attribute && origin.name === custom.name;
+      }
+
+      return origin.attribute === custom.attribute;
+    }
+
+    return origin.name === custom.name;
+  };
+
+  static getColumnsForGrid(columns = [], configColumns = []) {
+    if (isEmpty(columns)) {
+      return [];
+    }
+
+    const customizedColumns = lodashClone(configColumns);
+    const originColumns = lodashClone(columns);
+
+    if (isEmpty(customizedColumns)) {
+      return originColumns;
+    }
+
+    const result = customizedColumns.map(item => {
+      const index = originColumns.findIndex(origin => DocumentsConverter.filterColumn(origin, item));
+
+      if (!~index) {
+        return item;
+      }
+
+      const [deleted] = originColumns.splice(index, 1, {});
+
+      return {
+        ...deleted,
+        ...item,
+        label: getTextByLocale(deleted.label)
+      };
+    });
+
+    return [...result, ...originColumns.filter(item => !isEmpty(item))].map(item => ({ ...item, hidden: !item.visible }));
+  }
+
+  static getColumnsConfig(config) {
+    if (config === null) {
+      return null;
+    }
+
+    const target = { ...config };
+
+    target.columns = get(config, 'columns', []).map(column => ({
+      ...column,
+      label: t(getTextByLocale(column.label || ''))
+    }));
+    target.label = getTextByLocale(config.label);
 
     return target;
   }

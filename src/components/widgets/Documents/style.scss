@@ -410,10 +410,16 @@
 
     &_types {
       th:nth-last-child(2) {
-        .ecos-th__devider {
+        .ecos-th__divider {
           display: none;
         }
       }
+    }
+
+    &-container {
+      height: 100%;
+      display: grid;
+      max-width: 100%;
     }
   }
 
@@ -597,9 +603,52 @@
       margin-bottom: 15px;
     }
   }
+
+  &__columns {
+    display: flex;
+    flex-direction: column;
+    border: $border-width-standard solid $color-gray-6;
+    border-radius: $border-radius-standard;
+    max-height: 284px;
+
+    &-item {
+      display: flex;
+      vertical-align: inherit;
+      padding: 11px 15px;
+
+      &_sorting {
+        z-index: 100000 !important;
+        background: $color-white;
+        border-radius: 6px;
+        box-shadow: $box-shadow-hover;
+      }
+
+      &:not(:last-child) {
+        border-bottom: 1px $color-gray-4 solid;
+      }
+
+      &-dnd {
+        font-size: 19px;
+        color: $color-gray-6;
+        margin-right: 15px;
+        cursor: grab;
+      }
+
+      &-checkbox {
+        margin-right: 12px;
+      }
+
+      &-label {
+        font-weight: bold;
+        font-size: $font-size-standard;
+        line-height: 23px;
+        color: $text-color-gray;
+      }
+    }
+  }
 }
 
-.ecos-tree {
+.ecos-docs-tree {
   --e-tree-parent-height: 60px;
   --e-tree-child-height: 40px;
   --e-tree-left-indent: 42px;

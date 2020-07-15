@@ -1,6 +1,8 @@
 import Records from '../components/Records';
-import { DEFAULT_REF } from '../constants/documents';
-import { SourcesId } from '../constants';
+import { DEFAULT_REF, documentFields } from '../constants/documents';
+import { Permissions, SourcesId } from '../constants';
+import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
+import { PROXY_URI } from '../constants/alfresco';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
@@ -33,6 +35,16 @@ export class DocumentsApi {
     ).then(response => response);
   };
 
+  getColumnsConfigByType = typeRef => {
+    return Records.queryOne(
+      {
+        sourceId: 'uiserv/journal',
+        query: { typeRef }
+      },
+      '.json'
+    ).then(response => response);
+  };
+
   getFormIdByType = type => {
     return Records.get(type)
       .load('form?id')
@@ -50,7 +62,11 @@ export class DocumentsApi {
     return record.save().then(response => response);
   };
 
-  getDocumentsByTypes = (recordRef = '', data = []) => {
+  getDocumentsByTypes = (recordRef = '', data = [], attributes = '') => {
+    const baseAttrs = `${documentFields.id}:id,${documentFields.name}:att(n:"name"){disp},${
+      documentFields.modified
+    }:att(n:"_modified"){disp},${documentFields.loadedBy}:att(n:"_modifier"){disp}`;
+
     let types = data;
 
     if (typeof types === 'string') {
@@ -67,7 +83,7 @@ export class DocumentsApi {
         language: 'types-documents'
       },
       {
-        documents: 'documents[]{id:.id, name:.disp, modified:_modified, loadedBy:_modifier.fullName}',
+        documents: `.atts(n:"documents"){${[baseAttrs, attributes].join(',')}}`,
         type: 'type'
       }
     ).then(response => response);
@@ -78,5 +94,45 @@ export class DocumentsApi {
       .load('createVariants?json')
       .then(response => response || {})
       .catch(() => null);
+  };
+
+  getFormattedColumns = async config => {
+    const { predicate = {}, columns = [], sourceId } = config;
+    let queryPredicates = predicate.val || [];
+
+    if (!Array.isArray(queryPredicates)) {
+      queryPredicates = [queryPredicates];
+    }
+
+    const bodyQuery = {
+      query: {
+        t: 'and',
+        val: queryPredicates.filter(item => {
+          return item.val !== '' && item.val !== null;
+        })
+      },
+      language: 'predicate',
+      consistency: 'EVENTUAL'
+    };
+
+    if (sourceId) {
+      bodyQuery['sourceId'] = sourceId;
+    }
+
+    const dataSource = new GqlDataSource({
+      url: `${PROXY_URI}citeck/ecos/records`,
+      dataSourceName: 'GqlDataSource',
+      ajax: {
+        body: {
+          query: bodyQuery
+        }
+      },
+      columns: columns || [],
+      permissions: [Permissions.Write]
+    });
+
+    await dataSource.load();
+
+    return dataSource.getColumns();
   };
 }

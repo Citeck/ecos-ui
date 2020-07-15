@@ -3,6 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import Records from '../components/Records';
 
 import {
   createJournalSetting,
@@ -41,6 +42,7 @@ import {
   setJournalSetting,
   setJournalSettings,
   setJournalsList,
+  setPerformGroupActionLoader,
   setPerformGroupActionResponse,
   setPredicate,
   setPreviewFileName,
@@ -54,9 +56,10 @@ import { setLoading } from '../actions/loader';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
-import { getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
+import { decodeLink, getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
 import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
+import PageService from '../services/PageService';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -125,13 +128,13 @@ function* sagaGetDashletEditorData({ api, logger, stateId, w }, action) {
 function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
   try {
     const config = yield call(api.journals.getDashletConfig, action.payload);
-    const { journalsListId, journalId, journalSettingId = '' } = config;
+    const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode } = config;
 
     if (config) {
       yield put(setEditorMode(w(false)));
       yield put(setDashletConfig(w(config)));
       yield getJournals(api, journalsListId, w);
-      yield put(initJournal(w({ journalId, journalSettingId })));
+      yield put(initJournal(w({ journalId, journalSettingId, customJournal, customJournalMode })));
     } else {
       yield put(setEditorMode(w(true)));
     }
@@ -143,19 +146,54 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
 function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
   try {
     const config = action.payload.config || {};
-    const { journalsListId, journalId, journalSettingId = '' } = config;
+    const recordRef = action.payload.recordRef;
+    const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode } = config;
 
     if (journalsListId) {
       yield put(setEditorMode(w(false)));
       yield put(setDashletConfig(w(config)));
       yield getJournals(api, journalsListId, w);
-      yield put(initJournal(w({ journalId, journalSettingId })));
+      if (customJournalMode && customJournal) {
+        let resolvedCustomJournal = yield _resolveTemplate(recordRef, customJournal);
+        yield put(initJournal(w({ journalId: resolvedCustomJournal })));
+      } else {
+        yield put(initJournal(w({ journalId, journalSettingId })));
+      }
     } else {
       yield put(setEditorMode(w(true)));
     }
   } catch (e) {
     logger.error('[journals sagaSetDashletConfigFromParams saga error', e.message);
   }
+}
+
+function* _resolveTemplate(recordRef, template) {
+  if (!recordRef || template.indexOf('$') === -1) {
+    return template;
+  }
+  let keyExp = /\${(.+?)}/g;
+  let attributesMap = {};
+
+  let it = keyExp.exec(template);
+  while (it) {
+    attributesMap[it[1]] = true;
+    it = keyExp.exec(template);
+  }
+  let attributes = Object.keys(attributesMap);
+
+  if (!attributes.length) {
+    return template;
+  }
+
+  let attsValues = yield Records.get(recordRef).load(attributes);
+  for (let att in attsValues) {
+    if (attsValues.hasOwnProperty(att)) {
+      let value = attsValues[att] || '';
+      template = template.split('${' + att + '}').join(value);
+    }
+  }
+
+  return template;
 }
 
 function* sagaGetJournalsData({ api, logger, stateId, w }) {
@@ -408,8 +446,14 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
   try {
     yield put(setLoading(w(true)));
 
-    const { journalId, journalSettingId, userConfigId } = action.payload;
-    const journalConfig = yield getJournalConfig(api, journalId, w);
+    const { journalId, journalSettingId, userConfigId, customJournal, customJournalMode } = action.payload;
+
+    let journalConfig;
+    if (!customJournalMode || !customJournal) {
+      journalConfig = yield getJournalConfig(api, journalId, w);
+    } else {
+      journalConfig = yield getJournalConfig(api, customJournal, w);
+    }
 
     yield getJournalSettings(api, journalConfig.id, w);
     yield loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w);
@@ -676,6 +720,7 @@ function* sagaSearch({ api, logger, stateId, w }, action) {
     }
 
     yield put(reloadGrid(w({ predicates: predicates ? [predicates] : null })));
+    PageService.changeUrlLink(decodeLink(window.location.pathname + window.location.search), { updateUrl: true });
   } catch (e) {
     logger.error('[journals sagaSearch saga error', e.message);
   }
@@ -683,6 +728,8 @@ function* sagaSearch({ api, logger, stateId, w }, action) {
 
 function* sagaPerformGroupAction({ api, logger, stateId, w }, action) {
   try {
+    yield put(setPerformGroupActionLoader(w(true)));
+
     const { groupAction, selected, resolved } = action.payload;
     const journalConfig = yield select(state => state.journals[stateId].journalConfig);
     const performGroupActionResponse = yield call(api.journals.performGroupAction, {
@@ -700,6 +747,8 @@ function* sagaPerformGroupAction({ api, logger, stateId, w }, action) {
     }
   } catch (e) {
     logger.error('[journals sagaPerformGroupAction saga error', e.message);
+  } finally {
+    yield put(setPerformGroupActionLoader(w(false)));
   }
 }
 

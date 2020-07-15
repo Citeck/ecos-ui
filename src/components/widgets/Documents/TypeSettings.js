@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import isEmpty from 'lodash/isEmpty';
 
 import { EcosModal, Tabs } from '../../common';
-import { t } from '../../../helpers/util';
 import { Btn } from '../../common/btns';
-import { DynamicTypeInterface } from './propsInterfaces';
+import { objectCompare, t } from '../../../helpers/util';
+import { DynamicTypeInterface, TypeSettingsInterface } from './propsInterfaces';
 
 const Labels = {
   TITLE: 'documents-widget.type-settings.title',
@@ -24,6 +25,7 @@ class TypeSettings extends Component {
   static propTypes = {
     isOpen: PropTypes.bool,
     isLoading: PropTypes.bool,
+    settings: PropTypes.shape(TypeSettingsInterface),
     type: PropTypes.oneOfType([() => null, PropTypes.shape(DynamicTypeInterface)]),
     onCancel: PropTypes.func,
     onSave: PropTypes.func
@@ -47,27 +49,20 @@ class TypeSettings extends Component {
         key: FileCount.MULTIPLE,
         value: t(Labels.MULTIPLE_FILES)
       }
-    ]
+    ],
+    draggableNode: null
   };
 
-  static getDerivedStateFromProps(props, state) {
-    const newState = {};
-
-    if (props.isOpen && !Object.keys(state.settings).length && Object.keys(props.type).length) {
-      newState.settings = props.type;
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!objectCompare(prevProps.settings, this.props.settings) || isEmpty(this.state.settings)) {
+      this.setState({ settings: this.props.settings });
     }
-
-    if (!Object.keys(newState).length) {
-      return null;
-    }
-
-    return newState;
   }
 
   get title() {
     const { type } = this.props;
 
-    if (type === null) {
+    if (type === null || !type.name) {
       return t(Labels.TITLE);
     }
 
@@ -117,14 +112,6 @@ class TypeSettings extends Component {
     );
   }
 
-  renderColumns() {
-    return (
-      <section className="ecos-docs__modal-type-settings-group">
-        <div className="ecos-docs__modal-type-settings-label">{t(Labels.SORT_LABEL)}</div>
-      </section>
-    );
-  }
-
   render() {
     const { isOpen, isLoading } = this.props;
 
@@ -137,7 +124,6 @@ class TypeSettings extends Component {
         hideModal={this.handleCloseModal}
       >
         {this.renderCountFiles()}
-        {/*{this.renderColumns()}*/}
         <div className="ecos-docs__modal-type-settings-footer">
           <Btn onClick={this.handleCloseModal} className="ecos-docs__modal-settings-footer-item">
             {t(Labels.CANCEL_BUTTON)}

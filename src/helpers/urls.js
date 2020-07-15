@@ -21,12 +21,14 @@ const FILTER_KEY = 'filter';
 const SORT_KEY = 'sortBy';
 const PAGINATION_KEY = 'pagination';
 const SHOW_PREVIEW_KEY = 'showPreview';
+const SEARCH_KEY = 'search';
 
 export const SearchKeys = {
   TYPE: [TYPE_KEY],
   DESTINATION: [DESTINATION_KEY],
   FILTER: [FILTER_KEY],
   SORT: [SORT_KEY],
+  SEARCH: [SEARCH_KEY],
   PAGINATION: [PAGINATION_KEY],
   RECORD_REF: [RECORD_REF_KEY],
   JOURNAL_ID: [JOURNAL_ID_KEY],
@@ -35,6 +37,8 @@ export const SearchKeys = {
   SHOW_PREVIEW: [SHOW_PREVIEW_KEY],
   JOURNAL_SETTING_ID: [JOURNAL_SETTING_ID_KEY]
 };
+
+export const IgnoredUrlParams = [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW, SearchKeys.SEARCH];
 
 export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';
 

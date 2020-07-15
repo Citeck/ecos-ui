@@ -54,7 +54,7 @@ class JournalsContent extends Component {
   };
 
   render() {
-    const { stateId, showPreview, showPie, maxHeight } = this.props;
+    const { stateId, showPreview, showPie, maxHeight, isActivePage } = this.props;
     const { recordId } = this.state;
 
     let cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />];
@@ -71,7 +71,7 @@ class JournalsContent extends Component {
     }
 
     return (
-      <JournalsUrlManager stateId={stateId} params={{ showPreview }}>
+      <JournalsUrlManager stateId={stateId} params={{ showPreview }} isActivePage={isActivePage}>
         <Columns
           classNamesColumn="columns_height_full columns__column_margin_0"
           cols={cols}

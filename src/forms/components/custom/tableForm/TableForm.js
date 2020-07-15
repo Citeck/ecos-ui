@@ -41,6 +41,9 @@ export default class TableFormComponent extends BaseReactComponent {
         customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
         displayElementsJS: '',
+        settingElements: {
+          isInstantClone: false
+        },
         nonSelectableRowsJS: '',
         selectedRowsJS: '',
         import: {
@@ -167,7 +170,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
     const isMultiple = this.component.multiple;
 
-    const viewOnlyHasValueClassName = 'formio-component-tableForm_viewOnly-hasValue';
+    const viewOnlyHasValueClassName = 'formio-component__view-only-table-has-rows';
     const hasValue = isMultiple ? Array.isArray(this.dataValue) && this.dataValue.length > 0 : !!this.dataValue;
     const elementHasClass = this.element.classList.contains(viewOnlyHasValueClassName);
 
@@ -296,16 +299,7 @@ export default class TableFormComponent extends BaseReactComponent {
             let columnsMap = {};
             let formatters = {};
             columns.forEach(item => {
-              const hasBracket = item.name.includes('{');
-              const hasQChar = item.name.includes('?');
-              let colName = item.name;
-              if (hasBracket || hasQChar) {
-                let [origAtt] = item.name.split(hasBracket ? '{' : '?');
-                origAtt = origAtt.replace('[]', '');
-                colName = origAtt;
-              }
-
-              const key = `.edge(n:"${colName}"){title,type,multiple}`;
+              const key = `.edge(n:"${item.name}"){title,type,multiple}`;
               columnsMap[key] = item;
               if (item.formatter) {
                 formatters[item.name] = item.formatter;
@@ -439,6 +433,9 @@ export default class TableFormComponent extends BaseReactComponent {
         parentForm: this.root,
         triggerEventOnTableChange,
         displayElements: this._displayElementsValue,
+        settingElements: {
+          isInstantClone: component.isInstantClone
+        },
         nonSelectableRows: this._nonSelectableRows,
         selectedRows: this._selectedRows,
         importButton: {
