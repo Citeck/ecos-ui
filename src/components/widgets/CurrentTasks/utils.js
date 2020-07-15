@@ -28,9 +28,6 @@ export const DisplayedColumns = {
     label: t('current-tasks-widget.column.deadline'),
     order: 2,
     format: DataFormatTypes.DATE
-  },
-  id: {
-    key: 'id'
   }
 };
 

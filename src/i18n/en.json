@@ -389,6 +389,7 @@
   "record-action.name.preview": "Preview",
   "record-action.name.fetch-action": "Perform the remote action",
   "record-action.name.edit-task-assignee": "Change employee",
+  "record-action.name.view-business-process": "Business-process scheme",
 
   "grid.inline-tools.details": "Details",
   "grid.no-data-indication": "No items in the list",

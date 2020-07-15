@@ -49,7 +49,8 @@ export const DefaultActionTypes = {
   PREVIEW_MODAL: 'content-preview-modal',
   FETCH: 'fetch',
   SCRIPT: 'script',
-  EDIT_TASK_ASSIGNEE: 'edit-task-assignee'
+  EDIT_TASK_ASSIGNEE: 'edit-task-assignee',
+  VIEW_BUSINESS_PROCESS: 'view-business-process'
 };
 
 export const EditAction = {
@@ -697,6 +698,22 @@ export const EditTaskAssignee = {
       name: 'record-action.name.edit-task-assignee',
       type: DefaultActionTypes.EDIT_TASK_ASSIGNEE,
       icon: 'icon-edit'
+    };
+  }
+};
+
+export const ViewBusinessProcess = {
+  execute: ({ record }) => {
+    console.log('ku');
+
+    return new Promise(resolve => {});
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.edit-task-assignee',
+      type: DefaultActionTypes.VIEW_BUSINESS_PROCESS,
+      icon: 'icon-models'
     };
   }
 };

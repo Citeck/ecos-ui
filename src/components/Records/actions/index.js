@@ -17,6 +17,7 @@ import {
   ScriptAction,
   UploadNewVersion,
   ViewAction,
+  ViewBusinessProcess,
   ViewCardTemplate
 } from './DefaultActions';
 
@@ -44,6 +45,7 @@ Registry.addExecutors({
   [DefaultActionTypes.FETCH]: FetchAction,
   [DefaultActionTypes.SCRIPT]: ScriptAction,
   [DefaultActionTypes.EDIT_TASK_ASSIGNEE]: EditTaskAssignee,
+  [DefaultActionTypes.VIEW_BUSINESS_PROCESS]: ViewBusinessProcess,
 
   [ModuleActionTypes.MODULE_COPY]: ModuleCopyAction,
 
