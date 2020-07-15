@@ -6,7 +6,7 @@ import get from 'lodash/get';
 
 import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
-import { getScaleModes, t } from '../../../helpers/util';
+import { getScaleModes, isExistValue, t } from '../../../helpers/util';
 
 const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
@@ -60,11 +60,11 @@ class Toolbar extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { scrollPage: currentPage, calcScale: scale } = this.props;
 
-    if (currentPage !== prevState.currentPage && !Object.is(currentPage, prevState.currentPage)) {
+    if (isExistValue(currentPage) && currentPage !== prevState.currentPage) {
       this.setState({ currentPage });
     }
 
-    if (scale !== prevState.scale && !Object.is(scale, prevState.scale)) {
+    if (isExistValue(scale) && scale !== prevProps.calcScale && scale !== prevState.scale) {
       this.setState({ scale });
     }
   }
@@ -123,18 +123,19 @@ class Toolbar extends Component {
   };
 
   setScale = direction => {
-    const { scale } = this.state;
+    const _scale = this.state.scale;
     const selectedZoom = CUSTOM;
-    let currentScale = parseFloat(scale);
+    let scale = parseFloat(_scale);
 
-    if (Number.isNaN(currentScale)) {
-      currentScale = 1;
+    if (Number.isNaN(scale)) {
+      scale = 1;
     }
 
-    currentScale += direction * ZOOM_STEP;
-    currentScale = +Number(currentScale).toFixed(2);
+    scale += direction * ZOOM_STEP;
+    scale = scale < ZOOM_STEP ? ZOOM_STEP : scale;
+    scale = +Number(scale).toFixed(2);
 
-    let newState = { ...this.state, selectedZoom, scale: currentScale };
+    let newState = { ...this.state, selectedZoom, scale };
 
     this.setState(newState);
     this.triggerScaleChange(newState);
@@ -194,7 +195,7 @@ class Toolbar extends Component {
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom" ref={this.toolbarZoom}>
         <IcoBtn
           icon={'icon-minus'}
-          className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= ZOOM_STEP })}
+          className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= 0 })}
           onClick={() => this.setScale(-1)}
         />
         <IcoBtn icon={'icon-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={() => this.setScale(1)} />
