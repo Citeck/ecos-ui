@@ -6,7 +6,6 @@ import Modal from '../components/common/EcosModal/CiteckEcosModal';
 import { UploadNewVersion } from '../components/formAction';
 import { DocPreview } from '../components/widgets/DocPreview';
 import { SelectOrgstruct } from '../components/common/form';
-import { TAB_ONLY_SELECTED } from '../components/common/form/SelectOrgstruct/constants';
 
 export default class WidgetService {
   static uploadNewVersion(params = {}) {
@@ -57,7 +56,6 @@ export default class WidgetService {
       <SelectOrgstruct
         openByDefault
         hideInputView
-        defaultTab={TAB_ONLY_SELECTED}
         defaultValue={defaultValue}
         onChange={handleSelect}
         onCancelSelect={handleCancel}

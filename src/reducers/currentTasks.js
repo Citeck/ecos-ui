@@ -22,7 +22,7 @@ const updateState = (state, stateId, newData = {}) => ({
 
 export default handleActions(
   {
-    [getCurrentTaskList]: (state, { payload: { stateId } }) => updateState(state, stateId, { ...initialState, isLoading: true }),
+    [getCurrentTaskList]: (state, { payload: { stateId } }) => updateState(state, stateId, { list: [], totalCount: 0, isLoading: true }),
     [setCurrentTaskList]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, { ...data, isLoading: false }),
     [setActions]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, data),
     [setInlineTools]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, data),

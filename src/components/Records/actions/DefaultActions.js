@@ -677,10 +677,17 @@ export const EditTaskAssignee = {
     return actorsPromise
       .then(actors => selectPromise(actors))
       .then(selected => assignPromise(selected))
-      .then(success => (success ? notifySuccess('uuu') : Promise.reject()))
+      .then(success => {
+        if (success) {
+          notifySuccess();
+          return success;
+        }
+
+        return Promise.reject();
+      })
       .catch(e => {
         console.error(e);
-        notifyFailure('pii');
+        notifyFailure();
         return false;
       });
   },

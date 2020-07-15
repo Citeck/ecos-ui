@@ -154,7 +154,7 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = (dispatch, { stateId, record }) => ({
   setInlineTools: inlineTools => dispatch(setInlineTools({ stateId, inlineTools })),
-  executeAction: (action, taskId) => dispatch(executeAction({ stateId, taskId, action }))
+  executeAction: (action, taskId) => dispatch(executeAction({ stateId, taskId, action, record }))
 });
 
 export default connect(

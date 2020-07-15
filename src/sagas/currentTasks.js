@@ -53,7 +53,10 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
       records,
       action: { ...action, actionOfAssignment: AssignActions.ASSIGN_SMB }
     });
-    console.log(actionResult); //todo
+
+    if (actionResult) {
+      yield put(getCurrentTaskList(payload));
+    }
   } catch (e) {
     NotificationManager.error(t('current-tasks-widget.error.execute-action'), t('error'));
     logger.error('[tasks/sagaGetActions saga] error', e.message);
