@@ -15,7 +15,7 @@ import { Grid } from '../../../common/grid';
 import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/Mapper';
 import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
 import Records from '../../../Records';
-import { parseAttribute } from '../../../Records/Record';
+import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import InputView from './InputView';
 import ViewMode from './ViewMode';
 import Filters from './Filters';
