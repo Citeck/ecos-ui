@@ -16,12 +16,13 @@ import { getTimezoneValue, t } from '../../../helpers/util';
 import ecosFetch from '../../../helpers/ecosFetch';
 import { ActionModes, SourcesId } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { TasksApi } from '../../../api/tasks';
 import WidgetService from '../../../services/WidgetService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
+import TaskAssignmentPanel from '../../TaskAssignmentPanel/TaskAssignmentPanel';
 import Records from '../Records';
 import RecordActions from './RecordActions';
-import TaskAssignmentPanel from '../../TaskAssignmentPanel/TaskAssignmentPanel';
 
 function notifySuccess(msg) {
   NotificationManager.success(msg || t('record-action.msg.success.text'), t('record-action.msg.success.title'));
@@ -666,15 +667,22 @@ export const ScriptAction = {
 };
 
 export const EditTaskAssignee = {
-  execute: ({ record }) => {
-    const actorsPromise = TasksApi.getTask(record.id, 'actors[]?id');
+  execute: ({ record, action: { actionOfAssignment } }) => {
+    const taskId = record.id;
+    const actorsPromise = TasksApi.getTask(taskId, 'actors[]?id');
     const selectPromise = defaultValue =>
-      new Promise(resolve => {
-        console.log(defaultValue);
-        WidgetService.openSelectOrgstructModal({ defaultValue, onSelect: resolve });
-      });
+      new Promise(resolve => WidgetService.openSelectOrgstructModal({ defaultValue, onSelect: resolve }));
+    const assignPromise = owner => TasksApi.staticChangeAssigneeTask({ taskId, owner, action: actionOfAssignment });
 
-    return actorsPromise.then(actors => selectPromise()).then(selected => {});
+    return actorsPromise
+      .then(actors => selectPromise(actors))
+      .then(selected => assignPromise(selected))
+      .then(success => (success ? notifySuccess('uuu') : Promise.reject()))
+      .catch(e => {
+        console.error(e);
+        notifyFailure('pii');
+        return false;
+      });
   },
 
   getDefaultModel: () => {

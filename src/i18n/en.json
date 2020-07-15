@@ -709,6 +709,7 @@
   "select-orgstruct.button.change": "Change",
   "select-orgstruct.button.select": "Select",
   "select-orgstruct.placeholder": "None",
+  "select-orgstruct.empty-list": "No options",
   "select-orgstruct.search.placeholder": "Search",
   "select-orgstruct.select-modal.cancel-button": "Cancel",
   "select-orgstruct.select-modal.ok-button": "OK",
@@ -716,7 +717,7 @@
   "select-orgstruct.tab.all-users": "All users",
   "select-orgstruct.tab.by-levels": "By levels",
   "select-orgstruct.tab.only-selected": "Only selected",
-  "select-orgstruct.modal.title.edit-employee": "Only selected",
+  "select-orgstruct.modal.title.edit-task-assignee": "Edit assignee",
 
   "size.bytes": "bytes",
   "size.gigabytes": "GB",

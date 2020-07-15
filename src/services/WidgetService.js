@@ -6,7 +6,7 @@ import Modal from '../components/common/EcosModal/CiteckEcosModal';
 import { UploadNewVersion } from '../components/formAction';
 import { DocPreview } from '../components/widgets/DocPreview';
 import { SelectOrgstruct } from '../components/common/form';
-import { AUTHORITY_TYPE_USER, TAB_ALL_USERS } from '../components/common/form/SelectOrgstruct/constants';
+import { TAB_ONLY_SELECTED } from '../components/common/form/SelectOrgstruct/constants';
 
 export default class WidgetService {
   static uploadNewVersion(params = {}) {
@@ -57,13 +57,11 @@ export default class WidgetService {
       <SelectOrgstruct
         openByDefault
         hideInputView
-        hideTabSwitcher
-        defaultTab={TAB_ALL_USERS}
+        defaultTab={TAB_ONLY_SELECTED}
         defaultValue={defaultValue}
         onChange={handleSelect}
         onCancelSelect={handleCancel}
         className="select-orgstruct-modal"
-        allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
         modalTitle={t('select-orgstruct.modal.title.edit-task-assignee')}
       />,
       container

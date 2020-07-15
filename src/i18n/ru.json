@@ -708,10 +708,12 @@
   "select-member-dialog.form-field.label": "Сотрудники",
   "select-member-dialog.listmem.title": "Выбранные сотрудники",
   "select-member-dialog.title": "Выбрать",
+
   "select-orgstruct.button.add": "Добавить",
   "select-orgstruct.button.change": "Изменить",
   "select-orgstruct.button.select": "Выбрать",
   "select-orgstruct.placeholder": "Нет",
+  "select-orgstruct.empty-list": "Нет вариантов",
   "select-orgstruct.search.placeholder": "Найти",
   "select-orgstruct.select-modal.cancel-button": "Отмена",
   "select-orgstruct.select-modal.ok-button": "OK",
@@ -719,6 +721,8 @@
   "select-orgstruct.tab.all-users": "Все пользователи",
   "select-orgstruct.tab.by-levels": "По уровням",
   "select-orgstruct.tab.only-selected": "Только выбранные",
+  "select-orgstruct.modal.title.edit-task-assignee": "Изменить исполнителя",
+
   "size.bytes": "б",
   "size.gigabytes": "ГБ",
   "size.kilobytes": "КБ",

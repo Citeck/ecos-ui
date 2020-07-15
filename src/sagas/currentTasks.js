@@ -5,7 +5,7 @@ import { NotificationManager } from 'react-notifications';
 import RecordActions from '../components/Records/actions/RecordActions';
 import { executeAction, getActions, getCurrentTaskList, setActions, setCurrentTaskList } from '../actions/currentTasks';
 import { t } from '../helpers/util';
-import { TaskActions } from '../constants/tasks';
+import { AssignActions, TaskActions } from '../constants/tasks';
 import TasksConverter from '../dto/tasks';
 
 function* sagaGetCurrentTasks({ api, logger }, { payload }) {
@@ -48,8 +48,11 @@ function* sagaGetActions({ api, logger }, { payload }) {
 
 function* sagaExecuteAction({ api, logger }, { payload }) {
   try {
-    const { taskId, action } = payload;
-    const actionResult = yield call(api.recordActions.executeAction, { records: [taskId], action });
+    const { taskId: records, action } = payload;
+    const actionResult = yield call(api.recordActions.executeAction, {
+      records,
+      action: { ...action, actionOfAssignment: AssignActions.ASSIGN_SMB }
+    });
     console.log(actionResult); //todo
   } catch (e) {
     NotificationManager.error(t('current-tasks-widget.error.execute-action'), t('error'));
