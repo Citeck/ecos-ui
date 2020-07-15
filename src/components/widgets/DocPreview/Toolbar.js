@@ -60,11 +60,11 @@ class Toolbar extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { scrollPage: currentPage, calcScale: scale } = this.props;
 
-    if (!Object.is(currentPage, prevState.currentPage)) {
+    if (isExistValue(currentPage) && currentPage !== prevState.currentPage) {
       this.setState({ currentPage });
     }
 
-    if (isExistValue(scale) && !Object.is(scale, prevProps.calcScale) && !Object.is(scale, prevState.scale)) {
+    if (isExistValue(scale) && scale !== prevProps.calcScale && scale !== prevState.scale) {
       this.setState({ scale });
     }
   }
