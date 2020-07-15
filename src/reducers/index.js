@@ -34,6 +34,7 @@ import barcode from './barcode';
 import properties from './properties';
 import documents from './documents';
 import userProfile from './userProfile';
+import docConstructor from './docConstructor';
 
 const reducers = {
   app,
@@ -68,7 +69,8 @@ const reducers = {
   barcode,
   properties,
   documents,
-  userProfile
+  userProfile,
+  docConstructor
 };
 
 export default history =>
