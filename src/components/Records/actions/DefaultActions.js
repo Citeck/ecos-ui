@@ -66,6 +66,7 @@ export const EditAction = {
         return new Promise(resolve => {
           EcosFormUtils.editRecord({
             recordRef: taskRecordId,
+            attributes: config.attributes || {},
             fallback: () => {
               window.open(`${URL_PAGECONTEXT}task-edit?taskId=${taskId}&formMode=edit`, '_blank');
               resolve(false);
