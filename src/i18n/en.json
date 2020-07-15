@@ -388,6 +388,7 @@
   "record-action.name.save-as-case-template": "Save as template",
   "record-action.name.preview": "Preview",
   "record-action.name.fetch-action": "Perform the remote action",
+  "record-action.name.edit-task-assignee": "Change employee",
 
   "grid.inline-tools.details": "Details",
   "grid.no-data-indication": "No items in the list",
@@ -703,6 +704,7 @@
   "select-journal.select-modal.filter-button": "Filter",
   "select-journal.select-modal.ok-button": "OK",
   "select-journal.select-modal.title": "Select",
+
   "select-orgstruct.button.add": "Add",
   "select-orgstruct.button.change": "Change",
   "select-orgstruct.button.select": "Select",
@@ -714,6 +716,8 @@
   "select-orgstruct.tab.all-users": "All users",
   "select-orgstruct.tab.by-levels": "By levels",
   "select-orgstruct.tab.only-selected": "Only selected",
+  "select-orgstruct.modal.title.edit-employee": "Only selected",
+
   "size.bytes": "bytes",
   "size.gigabytes": "GB",
   "size.kilobytes": "KB",

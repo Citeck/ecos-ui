@@ -389,6 +389,7 @@
   "record-action.name.save-as-case-template": "Сохранить как шаблон",
   "record-action.name.preview": "Предпросмотр",
   "record-action.name.fetch-action": "Выполнить действие",
+  "record-action.name.edit-task-assignee": "Изменить исполнителя",
 
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.inline-tools.details": "Детальная информация",

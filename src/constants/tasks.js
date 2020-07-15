@@ -3,8 +3,4 @@ export const AssignActions = {
   ASSIGN_SMB: 'claim'
 };
 
-export const TaskActions = [
-  //todo others
-  'uiserv/action@edit',
-  'uiserv/action@delete'
-];
+export const TaskActions = ['uiserv/action@edit-task-assignee'];

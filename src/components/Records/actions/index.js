@@ -8,15 +8,16 @@ import {
   DownloadAction,
   DownloadCardTemplate,
   EditAction,
+  EditTaskAssignee,
   FetchAction,
   MoveToLinesJournal,
   OpenURL,
   PreviewModal,
   SaveAsCaseTemplate,
+  ScriptAction,
   UploadNewVersion,
   ViewAction,
-  ViewCardTemplate,
-  ScriptAction
+  ViewCardTemplate
 } from './DefaultActions';
 
 import { CaseCreateNodeAction, CaseRedirectAction, CaseRequestAction } from './CaseActions';
@@ -42,6 +43,7 @@ Registry.addExecutors({
   [DefaultActionTypes.PREVIEW_MODAL]: PreviewModal,
   [DefaultActionTypes.FETCH]: FetchAction,
   [DefaultActionTypes.SCRIPT]: ScriptAction,
+  [DefaultActionTypes.EDIT_TASK_ASSIGNEE]: EditTaskAssignee,
 
   [ModuleActionTypes.MODULE_COPY]: ModuleCopyAction,
 

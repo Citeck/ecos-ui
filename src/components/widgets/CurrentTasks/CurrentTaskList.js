@@ -28,21 +28,16 @@ class CurrentTaskList extends React.Component {
     height: '100%'
   };
 
-  get actions() {
+  getActions(taskId) {
     const { actions, executeAction } = this.props;
 
-    return isEmpty(actions)
-      ? []
-      : actions.map(act => ({
-          ...act,
-          onClick: () => executeAction(act)
-        }));
+    return isEmpty(actions) ? [] : actions.map(act => ({ ...act, onClick: () => executeAction(act, taskId) }));
   }
 
   handleHoverRow = data => {
     const { row, ...options } = data;
 
-    this.props.setInlineTools({ actions: this.actions, ...options });
+    this.props.setInlineTools({ actions: this.getActions(row.id), ...options });
   };
 
   handleBlurRow = debounce(() => {
@@ -55,8 +50,8 @@ class CurrentTaskList extends React.Component {
     return (
       <div className="ecos-current-task-list_view-enum" ref={forwardedRef}>
         {currentTasks.map((item, i) => (
-          <React.Fragment key={item.id + i}>
-            <CurrentTaskInfo task={item} isMobile={isMobile} actions={this.actions} />
+          <React.Fragment key={item.id}>
+            <CurrentTaskInfo task={item} isMobile={isMobile} actions={this.getActions(item.id)} />
             {!isLastItem(currentTasks, i) && <Separator noIndents />}
           </React.Fragment>
         ))}
@@ -81,6 +76,7 @@ class CurrentTaskList extends React.Component {
   renderTable() {
     const { currentTasks } = this.props;
     const formatTasks = currentTasks.map((task, i) => ({
+      [DC.id.key]: task[DC.id.key],
       [DC.title.key]: task[DC.title.key] || noData,
       [DC.actors.key]: (
         <React.Fragment key={uniqueId(cleanTaskId(task.id))}>
@@ -158,7 +154,7 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = (dispatch, { stateId, record }) => ({
   setInlineTools: inlineTools => dispatch(setInlineTools({ stateId, inlineTools })),
-  executeAction: action => dispatch(executeAction({ stateId, records: [record], action }))
+  executeAction: (action, taskId) => dispatch(executeAction({ stateId, taskId, action }))
 });
 
 export default connect(

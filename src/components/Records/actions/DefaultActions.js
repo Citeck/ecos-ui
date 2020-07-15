@@ -47,7 +47,8 @@ export const DefaultActionTypes = {
   SAVE_AS_CASE_TEMPLATE: 'save-as-case-template',
   PREVIEW_MODAL: 'content-preview-modal',
   FETCH: 'fetch',
-  SCRIPT: 'script'
+  SCRIPT: 'script',
+  EDIT_TASK_ASSIGNEE: 'edit-task-assignee'
 };
 
 export const EditAction = {
@@ -660,6 +661,27 @@ export const ScriptAction = {
       name: 'record-action.name.script-action',
       type: DefaultActionTypes.SCRIPT,
       icon: 'icon-check'
+    };
+  }
+};
+
+export const EditTaskAssignee = {
+  execute: ({ record }) => {
+    const actorsPromise = TasksApi.getTask(record.id, 'actors[]?id');
+    const selectPromise = defaultValue =>
+      new Promise(resolve => {
+        console.log(defaultValue);
+        WidgetService.openSelectOrgstructModal({ defaultValue, onSelect: resolve });
+      });
+
+    return actorsPromise.then(actors => selectPromise()).then(selected => {});
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.edit-task-assignee',
+      type: DefaultActionTypes.EDIT_TASK_ASSIGNEE,
+      icon: 'icon-edit'
     };
   }
 };

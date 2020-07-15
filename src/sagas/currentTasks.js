@@ -48,7 +48,8 @@ function* sagaGetActions({ api, logger }, { payload }) {
 
 function* sagaExecuteAction({ api, logger }, { payload }) {
   try {
-    const actionResult = yield call(api.recordActions.executeAction, payload);
+    const { taskId, action } = payload;
+    const actionResult = yield call(api.recordActions.executeAction, { records: [taskId], action });
     console.log(actionResult); //todo
   } catch (e) {
     NotificationManager.error(t('current-tasks-widget.error.execute-action'), t('error'));
