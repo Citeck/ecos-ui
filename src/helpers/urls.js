@@ -52,7 +52,7 @@ const changeUrl = (url, opts = {}) => {
   }
 };
 
-export const _createOldVersionUrlDocument = recordRef => {
+export const createOldVersionUrlDocument = recordRef => {
   return `/share/page/card-details?nodeRef=${recordRef}`;
 };
 
@@ -69,7 +69,7 @@ export const createDocumentUrl = recordRef => {
     return `${URL.DASHBOARD}?recordRef=${recordRef}`;
   }
 
-  return _createOldVersionUrlDocument(recordRef);
+  return createOldVersionUrlDocument(recordRef);
 };
 
 export const createTaskUrl = (taskId, recordRef) => {
