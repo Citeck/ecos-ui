@@ -6,6 +6,9 @@
   "aggregation.type": "Aggregation type",
   "boolean.no": "No",
   "boolean.yes": "Yes",
+  "btn.cancel.label": "Cancel",
+  "btn.done.label": "Done",
+
   "page.error-loading.title": "The error occurred while loading the page",
   "page.error-loading.message": "Try reloading the page. If the error persists, contact your administrator",
   "page.error-loading.log": "Error log",
@@ -187,6 +190,7 @@
   "dashboard-settings.widgets.title": "Widgets",
   "dashboard-settings.widget.documents": "Documents",
   "dashboard-settings.widget.user-basic-info": "Profile",
+  "dashboard-settings.widget.doc-constructor": "Doc.One",
   "dashboard-settings.widget.with-config": "This widget has settings. When you delete the widget, the settings will be lost",
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",
 
@@ -982,6 +986,25 @@
   "password-field.rule.count-lowercase": "1 lowercase",
   "password-field.rule.required": "Password is required",
 
-  "btn.cancel.label": "Cancel",
-  "btn.done.label": "Done"
+  "doc-constructor-widget.title": "Doc.One",
+  "doc-constructor-widget.desc.title": "Working with the main document in the designer Doc.One",
+  "doc-constructor-widget.desc.text": "1. Select a template to create a document\n2. Edit and save\n3. Sync to see the changes",
+  "doc-constructor-widget.template.label": "Document Template",
+  "doc-constructor-widget.buttns.edit": "Edit",
+  "doc-constructor-widget.buttns.delete": "Delete",
+  "doc-constructor-widget.buttns.sync": "Sync",
+  "doc-constructor-widget.error.get-settings": "Doc.one settings not found. Contact your system administrator",
+  "doc-constructor-widget.error.get-doc-props": "Document's parameters haven't got ",
+  "doc-constructor-widget.error.no-settings-url": "Doc.one settings not found. Contact your system administrator",
+  "doc-constructor-widget.error.no-doc-one-base-url": "Missing 'doc.one.base.url' in global properties. Contact your system administrator",
+  "doc-constructor-widget.error.create-doc-one-file-by-node-with-template": "Error while creating file",
+  "doc-constructor-widget.success.create-doc-one-file-by-node-with-template": "Document in DocOne has created",
+  "doc-constructor-widget.error.set-permission-for-role": "Error while changing permissions",
+  "doc-constructor-widget.error.delete-content-and-doc-one-id": "Content was deleted successfully",
+  "doc-constructor-widget.success.delete-content-and-doc-one-id": "Content was deleted successfully",
+  "doc-constructor-widget.error.invalid-doc-one-id": "The attachment does not specify the document identifier in Doc.One",
+  "doc-constructor-widget.error.content-not-changed": "The content has not been updated. Probably there are no changes in Doc.One",
+  "doc-constructor-widget.error.write-doc-one-content-to-node": "Error while receiving document",
+  "doc-constructor-widget.success.edit-document": "Document editing has launched",
+  "doc-constructor-widget.error.edit-document": "Document editing has failed"
 }

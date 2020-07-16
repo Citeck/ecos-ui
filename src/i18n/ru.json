@@ -6,6 +6,9 @@
   "aggregation.type": "Тип агрегации",
   "boolean.no": "Нет",
   "boolean.yes": "Да",
+  "btn.cancel.label": "Отмена",
+  "btn.done.label": "Готово",
+
   "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",
   "page.error-loading.message": "Попробуйте перезагрузить страницу. Если ошибка повториться, обратитесь к администратору ",
   "page.error-loading.log": "Журнал ошибки",
@@ -188,6 +191,7 @@
   "dashboard-settings.widgets.title": "Виджеты",
   "dashboard-settings.widget.documents": "Документы",
   "dashboard-settings.widget.user-basic-info": "Профиль",
+  "dashboard-settings.widget.doc-constructor": "Doc.One",
   "dashboard-settings.widget.with-config": "У данного виджета есть настройки. При удалении виджета, настройки будут утеряны",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
 
@@ -988,6 +992,24 @@
   "password-field.rule.count-lowercase": "1 строчная",
   "password-field.rule.required": "Необходимо ввести пароль",
 
-  "btn.cancel.label": "Отмена",
-  "btn.done.label": "Готово"
+  "doc-constructor-widget.title": "Doc.One",
+  "doc-constructor-widget.description.title": "Работа с основным документом в конструкторе Doc.One",
+  "doc-constructor-widget.description.text": "1. Выберите шаблон для создания документа\n2. Отредактируйте и сохраните\n3. Синхронизируйте, чтобы увидеть изменения",
+  "doc-constructor-widget.template.label": "Шаблон документа",
+  "doc-constructor-widget.buttons.edit": "Редактировать",
+  "doc-constructor-widget.buttons.delete": "Удалить",
+  "doc-constructor-widget.buttons.sync": "Синхронизировать",
+  "doc-constructor-widget.error.get-settings": "Настройки виджета не найдены. Свяжитесь с администратором",
+  "doc-constructor-widget.error.get-doc-props": "Параметры документа не получены",
+  "doc-constructor-widget.error.no-doc-one-base-url": "Отсутствует 'doc.one.base.url' в настройках. Свяжитесь с администратором",
+  "doc-constructor-widget.error.create-doc-one-file-by-node-with-template": "Ошибка при создании файла",
+  "doc-constructor-widget.success.create-doc-one-file-by-node-with-template": "Документ в DocOne создан",
+  "doc-constructor-widget.error.set-permission-for-role": "Ошибка во время изменения прав",
+  "doc-constructor-widget.error.delete-content-and-doc-one-id": "Не удалось удалить контент",
+  "doc-constructor-widget.success.delete-content-and-doc-one-id": "Контент успешно удален",
+  "doc-constructor-widget.error.invalid-doc-one-id": "Во вложении не задан идентификатор документа в Doc.One",
+  "doc-constructor-widget.error.content-not-changed": "Контент не обновлен. Вероятно отсутствуют изменения в Doc.One",
+  "doc-constructor-widget.error.write-doc-one-content-to-node": "Ошибка во время получения документа",
+  "doc-constructor-widget.success.edit-document": "Редактирование документа запущено",
+  "doc-constructor-widget.error.edit-document": "Редактирование документа запустить не удалось"
 }
