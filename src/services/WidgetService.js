@@ -6,6 +6,7 @@ import Modal from '../components/common/EcosModal/CiteckEcosModal';
 import { UploadNewVersion } from '../components/formAction';
 import { DocPreview } from '../components/widgets/DocPreview';
 import { SelectOrgstruct } from '../components/common/form';
+import BusinessProcessViewer from '../components/BusinessProcessViewer';
 
 export default class WidgetService {
   static uploadNewVersion(params = {}) {
@@ -65,5 +66,16 @@ export default class WidgetService {
       container
     );
     document.body.appendChild(container);
+  }
+
+  static openBusinessProcessModal(params = {}) {
+    const { name, version, onClose, ...props } = params;
+    const modal = new Modal();
+
+    modal.open(<BusinessProcessViewer {...props} />, {
+      title: [name, version].filter(val => !!val).join(' / '),
+      modalClass: 'ecos-modal-business-process',
+      onHideModal: onClose
+    });
   }
 }

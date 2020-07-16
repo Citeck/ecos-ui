@@ -12,7 +12,7 @@ import {
   goToJournalsPage,
   goToNodeEditPage
 } from '../../../helpers/urls';
-import { getTimezoneValue, t } from '../../../helpers/util';
+import { getTimezoneValue, isExistValue, t } from '../../../helpers/util';
 import ecosFetch from '../../../helpers/ecosFetch';
 import { ActionModes, SourcesId } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
@@ -50,7 +50,8 @@ export const DefaultActionTypes = {
   FETCH: 'fetch',
   SCRIPT: 'script',
   EDIT_TASK_ASSIGNEE: 'edit-task-assignee',
-  VIEW_BUSINESS_PROCESS: 'view-business-process'
+  VIEW_BUSINESS_PROCESS: 'view-business-process',
+  CANCEL_BUSINESS_PROCESS: 'cancel-business-process'
 };
 
 export const EditAction = {
@@ -670,14 +671,17 @@ export const ScriptAction = {
 export const EditTaskAssignee = {
   execute: ({ record, action: { actionOfAssignment } }) => {
     const taskId = record.id;
+
     const actorsPromise = TasksApi.getTask(taskId, 'actors[]?id');
+
     const selectPromise = defaultValue =>
       new Promise(resolve => WidgetService.openSelectOrgstructModal({ defaultValue, onSelect: resolve }));
+
     const assignPromise = owner => TasksApi.staticChangeAssigneeTask({ taskId, owner, action: actionOfAssignment });
 
     return actorsPromise
-      .then(actors => selectPromise(actors))
-      .then(selected => assignPromise(selected))
+      .then(selectPromise)
+      .then(assignPromise)
       .then(success => {
         if (success) {
           notifySuccess();
@@ -703,17 +707,87 @@ export const EditTaskAssignee = {
 };
 
 export const ViewBusinessProcess = {
-  execute: ({ record }) => {
-    console.log('ku');
+  execute: ({ record, action = {} }) => {
+    const workflowIdPromise = action.workflowFromRecord ? Records.get(record).load('workflow?id') : Promise.resolve(record);
 
-    return new Promise(resolve => {});
+    const workflowInfoPromise = recordId =>
+      Records.get(recordId)
+        .load({ name: '.disp', version: 'version' })
+        .then(info => ({ ...info, recordId }));
+
+    const cancellationPromise = (recordId, resolve) => {
+      resolve(CancelBusinessProcess.execute({ record, action }));
+    };
+
+    const viewPromise = info =>
+      new Promise(resolve => {
+        WidgetService.openBusinessProcessModal({
+          ...info,
+          onCancel: recordId => cancellationPromise(recordId, resolve),
+          onClose: resolve
+        });
+      });
+
+    return workflowIdPromise
+      .then(workflowInfoPromise)
+      .then(viewPromise)
+      .catch(() => false);
   },
 
   getDefaultModel: () => {
     return {
-      name: 'record-action.name.edit-task-assignee',
+      name: 'record-action.name.view-business-process',
       type: DefaultActionTypes.VIEW_BUSINESS_PROCESS,
       icon: 'icon-models'
+    };
+  }
+};
+
+export const CancelBusinessProcess = {
+  execute: ({ record }) => {
+    //todo -
+    const confirmPromise = new Promise(resolve => {
+      dialogManager.confirmDialog({
+        modalClass: 'ecos-modal_width-xs',
+        text: t('record-action.cancel-business-process.dialog.msg'),
+        onYes: () => resolve(true),
+        onNo: () => resolve(false)
+      });
+    });
+    //---
+
+    const cancelPromise = yes => {
+      if (yes) {
+        const rec = Records.get(record);
+        // rec.att('cancel', true);
+        return rec.save();
+      }
+
+      return Promise.resolve();
+    };
+
+    return confirmPromise
+      .then(cancelPromise)
+      .then(record => {
+        if (isExistValue(record) && record.id) {
+          notifySuccess();
+          return true;
+        }
+
+        return Promise.reject();
+      })
+      .catch(e => {
+        console.error(e);
+        notifyFailure();
+        return false;
+      });
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.cancel-business-process',
+      type: DefaultActionTypes.CANCEL_BUSINESS_PROCESS,
+      icon: 'icon-close'
     };
   }
 };

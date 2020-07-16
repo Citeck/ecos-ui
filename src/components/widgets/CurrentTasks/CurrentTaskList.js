@@ -28,16 +28,19 @@ class CurrentTaskList extends React.Component {
     height: '100%'
   };
 
-  getActions(taskId) {
+  getActions({ id: taskId }) {
     const { actions, executeAction } = this.props;
 
-    return isEmpty(actions) ? [] : actions.map(act => ({ ...act, onClick: () => executeAction(act, taskId) }));
+    return isEmpty(actions) ? [] : actions.map(act => ({ ...act, onClick: () => executeAction(act, { taskId }) }));
   }
 
   handleHoverRow = data => {
-    const { row, ...options } = data;
+    const {
+      row: { id },
+      ...options
+    } = data;
 
-    this.props.setInlineTools({ actions: this.getActions(row.id), ...options });
+    this.props.setInlineTools({ actions: this.getActions({ id }), ...options });
   };
 
   handleBlurRow = debounce(() => {
@@ -51,7 +54,7 @@ class CurrentTaskList extends React.Component {
       <div className="ecos-current-task-list_view-enum" ref={forwardedRef}>
         {currentTasks.map((item, i) => (
           <React.Fragment key={item.id}>
-            <CurrentTaskInfo task={item} isMobile={isMobile} actions={this.getActions(item.id)} />
+            <CurrentTaskInfo task={item} isMobile={isMobile} actions={this.getActions(item)} />
             {!isLastItem(currentTasks, i) && <Separator noIndents />}
           </React.Fragment>
         ))}
@@ -154,7 +157,7 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = (dispatch, { stateId, record }) => ({
   setInlineTools: inlineTools => dispatch(setInlineTools({ stateId, inlineTools })),
-  executeAction: (action, taskId) => dispatch(executeAction({ stateId, taskId, action, record }))
+  executeAction: (action, data) => dispatch(executeAction({ stateId, action, record, ...data }))
 });
 
 export default connect(

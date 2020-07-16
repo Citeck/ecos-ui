@@ -2,6 +2,7 @@ import Registry from './RecordActionExecutorsRegistry';
 import {
   AssocAction,
   BackgroundOpenAction,
+  CancelBusinessProcess,
   CreateNodeAction,
   DefaultActionTypes,
   DeleteAction,
@@ -46,6 +47,7 @@ Registry.addExecutors({
   [DefaultActionTypes.SCRIPT]: ScriptAction,
   [DefaultActionTypes.EDIT_TASK_ASSIGNEE]: EditTaskAssignee,
   [DefaultActionTypes.VIEW_BUSINESS_PROCESS]: ViewBusinessProcess,
+  [DefaultActionTypes.CANCEL_BUSINESS_PROCESS]: CancelBusinessProcess,
 
   [ModuleActionTypes.MODULE_COPY]: ModuleCopyAction,
 

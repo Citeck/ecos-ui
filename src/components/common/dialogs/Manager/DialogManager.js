@@ -54,8 +54,8 @@ const dialogsById = {
     const { onDelete = () => {}, onCancel = () => {}, onClose = onCancel, title, text } = dialogProps;
     const dProps = {
       ...dialogProps,
-      title: t(title !== null && title !== undefined ? title : 'record-action.delete.dialog.title.remove-many'),
-      text: t(title !== null && title !== undefined ? text : 'record-action.delete.dialog.msg.remove-many'),
+      title: t(isExistValue(title) ? title : 'record-action.delete.dialog.title.remove-many'),
+      text: t(isExistValue(text) ? text : 'record-action.delete.dialog.msg.remove-many'),
       isOpen: props.isVisible
     };
 
@@ -102,7 +102,7 @@ const dialogsById = {
   },
   [CONFIRM_DIALOG_ID]: props => {
     const dialogProps = props.dialogProps || {};
-    const { onNo = () => {}, onYes = () => {}, title, text } = dialogProps;
+    const { onNo = () => {}, onYes = () => {}, title, text, modalClass = '' } = dialogProps;
     const dProps = {
       ...dialogProps,
       title: t(title || ''),
@@ -121,7 +121,12 @@ const dialogsById = {
     };
 
     return (
-      <EcosModal title={dProps.title} isOpen={dProps.isOpen} hideModal={dProps.onNo} className="ecos-dialog ecos-dialog_confirm">
+      <EcosModal
+        title={dProps.title}
+        isOpen={dProps.isOpen}
+        hideModal={dProps.onNo}
+        className={`ecos-dialog ecos-dialog_confirm ${modalClass}`}
+      >
         <div className="ecos-dialog__body">{dProps.text}</div>
         <div className="ecos-dialog__buttons">
           <Btn onClick={dProps.onYes}>{t('boolean.yes')}</Btn>

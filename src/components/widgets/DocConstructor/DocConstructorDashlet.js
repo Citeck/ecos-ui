@@ -34,9 +34,9 @@ const Labels = {
   DESC_TITLE: 'doc-constructor-widget.description.title',
   DESC_TEXT: 'doc-constructor-widget.description.text',
   LABEL_JOURNAL: 'doc-constructor-widget.template.label',
-  BTN_EDIT: 'doc-constructor-widget.buttons.edit',
-  BTN_DELETE: 'doc-constructor-widget.buttons.delete',
-  BTN_SYNC: 'doc-constructor-widget.buttons.sync'
+  BTN_EDIT: 'doc-constructor-widget.button.edit',
+  BTN_DELETE: 'doc-constructor-widget.button.delete',
+  BTN_SYNC: 'doc-constructor-widget.button.sync'
 };
 
 class DocConstructorDashlet extends BaseWidget {

@@ -394,7 +394,10 @@
   "record-action.name.preview": "Предпросмотр",
   "record-action.name.fetch-action": "Выполнить действие",
   "record-action.name.edit-task-assignee": "Изменить исполнителя",
+
   "record-action.name.view-business-process": "Схема бизнес-процесса",
+  "record-action.name.cancel-business-process": "Отменить бизнес-процесс",
+  "record-action.cancel-business-process.dialog.msg": "Отменить бизнес-процесс?",
 
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.inline-tools.details": "Детальная информация",
@@ -996,9 +999,9 @@
   "doc-constructor-widget.description.title": "Работа с основным документом в конструкторе Doc.One",
   "doc-constructor-widget.description.text": "1. Выберите шаблон для создания документа\n2. Отредактируйте и сохраните\n3. Синхронизируйте, чтобы увидеть изменения",
   "doc-constructor-widget.template.label": "Шаблон документа",
-  "doc-constructor-widget.buttons.edit": "Редактировать",
-  "doc-constructor-widget.buttons.delete": "Удалить",
-  "doc-constructor-widget.buttons.sync": "Синхронизировать",
+  "doc-constructor-widget.button.edit": "Редактировать",
+  "doc-constructor-widget.button.delete": "Удалить",
+  "doc-constructor-widget.button.sync": "Синхронизировать",
   "doc-constructor-widget.error.get-settings": "Настройки виджета не найдены. Свяжитесь с администратором",
   "doc-constructor-widget.error.get-doc-props": "Параметры документа не получены",
   "doc-constructor-widget.error.no-doc-one-base-url": "Отсутствует 'doc.one.base.url' в настройках. Свяжитесь с администратором",
@@ -1011,5 +1014,7 @@
   "doc-constructor-widget.error.content-not-changed": "Контент не обновлен. Вероятно отсутствуют изменения в Doc.One",
   "doc-constructor-widget.error.write-doc-one-content-to-node": "Ошибка во время получения документа",
   "doc-constructor-widget.success.edit-document": "Редактирование документа запущено",
-  "doc-constructor-widget.error.edit-document": "Редактирование документа запустить не удалось"
+  "doc-constructor-widget.error.edit-document": "Редактирование документа запустить не удалось",
+
+  "business-process-viewer.button.cancel-bp": "Отменить бизнес-процесс"
 }

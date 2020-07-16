@@ -51,7 +51,7 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
     const { taskId: records, action } = payload;
     const actionResult = yield call(api.recordActions.executeAction, {
       records,
-      action: { ...action, actionOfAssignment: AssignActions.ASSIGN_SMB }
+      action: { ...action, actionOfAssignment: AssignActions.ASSIGN_SMB, workflowFromRecord: true }
     });
 
     if (actionResult) {

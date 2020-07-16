@@ -393,7 +393,10 @@
   "record-action.name.preview": "Preview",
   "record-action.name.fetch-action": "Perform the remote action",
   "record-action.name.edit-task-assignee": "Change employee",
+
   "record-action.name.view-business-process": "Business-process scheme",
+  "record-action.name.cancel-business-process": "Cancel business-process",
+  "record-action.cancel-business-process.dialog.msg": "Cancel the business-process?",
 
   "grid.inline-tools.details": "Details",
   "grid.no-data-indication": "No items in the list",
@@ -990,9 +993,9 @@
   "doc-constructor-widget.desc.title": "Working with the main document in the designer Doc.One",
   "doc-constructor-widget.desc.text": "1. Select a template to create a document\n2. Edit and save\n3. Sync to see the changes",
   "doc-constructor-widget.template.label": "Document Template",
-  "doc-constructor-widget.buttns.edit": "Edit",
-  "doc-constructor-widget.buttns.delete": "Delete",
-  "doc-constructor-widget.buttns.sync": "Sync",
+  "doc-constructor-widget.button.edit": "Edit",
+  "doc-constructor-widget.button.delete": "Delete",
+  "doc-constructor-widget.button.sync": "Sync",
   "doc-constructor-widget.error.get-settings": "Doc.one settings not found. Contact your system administrator",
   "doc-constructor-widget.error.get-doc-props": "Document's parameters haven't got ",
   "doc-constructor-widget.error.no-settings-url": "Doc.one settings not found. Contact your system administrator",
@@ -1006,5 +1009,7 @@
   "doc-constructor-widget.error.content-not-changed": "The content has not been updated. Probably there are no changes in Doc.One",
   "doc-constructor-widget.error.write-doc-one-content-to-node": "Error while receiving document",
   "doc-constructor-widget.success.edit-document": "Document editing has launched",
-  "doc-constructor-widget.error.edit-document": "Document editing has failed"
+  "doc-constructor-widget.error.edit-document": "Document editing has failed",
+
+  "business-process-viewer.button.cancel-bp": "Cancel the business-process"
 }
