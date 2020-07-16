@@ -397,7 +397,6 @@
 
   "record-action.name.view-business-process": "Схема бизнес-процесса",
   "record-action.name.cancel-business-process": "Отменить бизнес-процесс",
-  "record-action.cancel-business-process.dialog.msg": "Отменить бизнес-процесс?",
 
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.inline-tools.details": "Детальная информация",
@@ -1016,5 +1015,6 @@
   "doc-constructor-widget.success.edit-document": "Редактирование документа запущено",
   "doc-constructor-widget.error.edit-document": "Редактирование документа запустить не удалось",
 
-  "business-process-viewer.button.cancel-bp": "Отменить бизнес-процесс"
+  "business-process-viewer.button.cancel-bp": "Отменить бизнес-процесс",
+  "business-process-viewer.dialog.msg": "Отменить бизнес-процесс?"
 }

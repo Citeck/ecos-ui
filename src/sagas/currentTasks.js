@@ -3,10 +3,20 @@ import isEmpty from 'lodash/isEmpty';
 import { NotificationManager } from 'react-notifications';
 
 import RecordActions from '../components/Records/actions/RecordActions';
-import { executeAction, getActions, getCurrentTaskList, setActions, setCurrentTaskList } from '../actions/currentTasks';
+import Records from '../components/Records/Records';
+import { executeAction, getActions, getCurrentTaskList, initCurrentTasks, setActions, setCurrentTaskList } from '../actions/currentTasks';
 import { t } from '../helpers/util';
 import { AssignActions, TaskActions } from '../constants/tasks';
 import TasksConverter from '../dto/tasks';
+
+function* runInit({ api, logger }, { payload }) {
+  try {
+    yield* sagaGetCurrentTasks({ api, logger }, { payload });
+    yield* sagaGetActions({ api, logger }, { payload });
+  } catch (e) {
+    logger.error('[current-tasks/runInit saga] error', e.message);
+  }
+}
 
 function* sagaGetCurrentTasks({ api, logger }, { payload }) {
   try {
@@ -26,7 +36,7 @@ function* sagaGetCurrentTasks({ api, logger }, { payload }) {
     }
   } catch (e) {
     NotificationManager.error(t('current-tasks-widget.error.get-tasks'), t('error'));
-    logger.error('[tasks/sagaGetCurrentTasks saga] error', e.message);
+    logger.error('[current-tasks/sagaGetCurrentTasks saga] error', e.message);
   }
 }
 
@@ -42,28 +52,28 @@ function* sagaGetActions({ api, logger }, { payload }) {
     }
   } catch (e) {
     NotificationManager.error(t('current-tasks-widget.error.get-actions'), t('error'));
-    logger.error('[tasks/sagaGetActions saga] error', e.message);
+    logger.error('[current-tasks/sagaGetActions saga] error', e.message);
   }
 }
 
 function* sagaExecuteAction({ api, logger }, { payload }) {
   try {
-    const { taskId: records, action } = payload;
-    const actionResult = yield call(api.recordActions.executeAction, {
+    const { taskId: records, action, record } = payload;
+
+    yield call(api.recordActions.executeAction, {
       records,
       action: { ...action, actionOfAssignment: AssignActions.ASSIGN_SMB, workflowFromRecord: true }
     });
 
-    if (actionResult) {
-      yield put(getCurrentTaskList(payload));
-    }
+    Records.get(record).update();
   } catch (e) {
     NotificationManager.error(t('current-tasks-widget.error.execute-action'), t('error'));
-    logger.error('[tasks/sagaGetActions saga] error', e.message);
+    logger.error('[current-tasks/sagaExecuteAction saga] error', e.message);
   }
 }
 
 function* tasksSaga(ea) {
+  yield takeEvery(initCurrentTasks().type, runInit, ea);
   yield takeEvery(getCurrentTaskList().type, sagaGetCurrentTasks, ea);
   yield takeEvery(getActions().type, sagaGetActions, ea);
   yield takeEvery(executeAction().type, sagaExecuteAction, ea);

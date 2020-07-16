@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
 
-import { getActions, getCurrentTaskList, resetCurrentTaskList, setInlineTools } from '../../../actions/currentTasks';
+import { getCurrentTaskList, initCurrentTasks, resetCurrentTaskList, setInlineTools } from '../../../actions/currentTasks';
 import { selectStateCurrentTasksById } from '../../../selectors/tasks';
 import { DefineHeight } from '../../common/index';
 import CurrentTaskList from './CurrentTaskList';
@@ -23,8 +23,8 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = (dispatch, { stateId, record }) => ({
+  initCurrentTasks: () => dispatch(initCurrentTasks({ stateId, record })),
   getCurrentTaskList: () => dispatch(getCurrentTaskList({ stateId, record })),
-  getActions: () => dispatch(getActions({ stateId, record })),
   resetCurrentTaskList: () => dispatch(resetCurrentTaskList({ stateId })),
   setInlineTools: inlineTools => dispatch(setInlineTools({ stateId, inlineTools }))
 });
@@ -57,8 +57,7 @@ class CurrentTasks extends React.Component {
   };
 
   componentDidMount() {
-    this.props.getCurrentTaskList();
-    this.props.getActions();
+    this.props.initCurrentTasks();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {

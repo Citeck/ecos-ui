@@ -74,7 +74,7 @@ export default class WidgetService {
 
     modal.open(<BusinessProcessViewer {...props} />, {
       title: [name, version].filter(val => !!val).join(' / '),
-      modalClass: 'ecos-modal-business-process',
+      class: 'ecos-modal-business-process',
       onHideModal: onClose
     });
   }

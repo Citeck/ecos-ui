@@ -1,5 +1,12 @@
 import { handleActions } from 'redux-actions';
-import { getCurrentTaskList, resetCurrentTaskList, setActions, setCurrentTaskList, setInlineTools } from '../actions/currentTasks';
+import {
+  getCurrentTaskList,
+  initCurrentTasks,
+  resetCurrentTaskList,
+  setActions,
+  setCurrentTaskList,
+  setInlineTools
+} from '../actions/currentTasks';
 import { deleteStateById, getCurrentStateById } from '../helpers/redux';
 
 const commonInitialState = {};
@@ -22,6 +29,7 @@ const updateState = (state, stateId, newData = {}) => ({
 
 export default handleActions(
   {
+    [initCurrentTasks]: (state, { payload: { stateId } }) => updateState(state, stateId, { ...initialState, isLoading: true }),
     [getCurrentTaskList]: (state, { payload: { stateId } }) => updateState(state, stateId, { list: [], totalCount: 0, isLoading: true }),
     [setCurrentTaskList]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, { ...data, isLoading: false }),
     [setActions]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, data),

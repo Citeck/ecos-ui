@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { t } from '../../../../helpers/util';
+import { isExistValue, t } from '../../../../helpers/util';
 import { Btn } from '../../btns';
 import EcosModal from '../../EcosModal';
 import { RemoveDialog } from '../index';
+import FormWrapper from './FormWrapper';
 
 import './DialogManager.scss';
-import FormWrapper from './FormWrapper';
 
 const REMOVE_DIALOG_ID = 'DialogManager-remove-dialog';
 const INFO_DIALOG_ID = 'DialogManager-info-dialog';
@@ -127,7 +127,7 @@ const dialogsById = {
         hideModal={dProps.onNo}
         className={`ecos-dialog ecos-dialog_confirm ${modalClass}`}
       >
-        <div className="ecos-dialog__body">{dProps.text}</div>
+        {isExistValue(dProps.text) && <div className="ecos-dialog__body">{dProps.text}</div>}
         <div className="ecos-dialog__buttons">
           <Btn onClick={dProps.onYes}>{t('boolean.yes')}</Btn>
           <Btn onClick={dProps.onNo}>{t('boolean.no')}</Btn>

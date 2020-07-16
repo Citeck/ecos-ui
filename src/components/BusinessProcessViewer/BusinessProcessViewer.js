@@ -1,20 +1,35 @@
 import React from 'react';
 
 import { t } from '../../helpers/util';
-import { DocPreview } from '../widgets/DocPreview';
+import { CancelBusinessProcess } from '../Records/actions/DefaultActions';
 import { Btn } from '../common/btns';
+import dialogManager from '../common/dialogs/Manager/DialogManager';
+import { DocPreview } from '../widgets/DocPreview';
 
 import './style.scss';
 
 const Labels = {
-  BTN_CANCEL: 'business-process-viewer.button.cancel-bp'
+  BTN_CANCEL_BP: 'business-process-viewer.button.cancel-bp',
+  MSG_CANCEL_BP: 'business-process-viewer.dialog.msg'
 };
 
 export default class BusinessProcessViewer extends React.Component {
-  handleCancelBP = () => {
-    const { recordId, onCancel } = this.props;
+  state = {
+    disabledCancelBP: false
+  };
 
-    onCancel && onCancel(recordId);
+  handleCancelBP = () => {
+    const { recordId } = this.props;
+
+    this.setState({ disabledCancelBP: true });
+
+    dialogManager.confirmDialog({
+      modalClass: 'ecos-modal_width-xs',
+      title: t(Labels.MSG_CANCEL_BP),
+      onYes: () => {
+        CancelBusinessProcess.execute({ record: recordId }).then(success => !success && this.setState({ disabledCancelBP: false }));
+      }
+    });
   };
 
   render() {
@@ -26,7 +41,9 @@ export default class BusinessProcessViewer extends React.Component {
           <DocPreview height={'100%'} scale={1} recordId={recordId} noIndents />
         </div>
         <div className="ecos-business-process__actions">
-          <Btn onClick={this.handleCancelBP}>{t(Labels.BTN_CANCEL)}</Btn>
+          <Btn onClick={this.handleCancelBP} disabled={this.state.disabledCancelBP}>
+            {t(Labels.BTN_CANCEL_BP)}
+          </Btn>
         </div>
       </div>
     );

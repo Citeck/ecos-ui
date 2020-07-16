@@ -2,6 +2,7 @@ import { createAction } from 'redux-actions';
 
 const prefix = 'currentTasks/';
 
+export const initCurrentTasks = createAction(prefix + 'INIT_CURRENT_TASKS');
 export const getCurrentTaskList = createAction(prefix + 'GET_CURRENT_TASK_LIST');
 export const getActions = createAction(prefix + 'GET_ACTIONS');
 export const executeAction = createAction(prefix + 'EXECUTE_ACTION');

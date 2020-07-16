@@ -674,14 +674,14 @@ export const EditTaskAssignee = {
 
     const actorsPromise = TasksApi.getTask(taskId, 'actors[]?id');
 
-    const selectPromise = defaultValue =>
+    const _selectPromise = defaultValue =>
       new Promise(resolve => WidgetService.openSelectOrgstructModal({ defaultValue, onSelect: resolve }));
 
-    const assignPromise = owner => TasksApi.staticChangeAssigneeTask({ taskId, owner, action: actionOfAssignment });
+    const _assignPromise = owner => TasksApi.staticChangeAssigneeTask({ taskId, owner, action: actionOfAssignment });
 
     return actorsPromise
-      .then(selectPromise)
-      .then(assignPromise)
+      .then(_selectPromise)
+      .then(_assignPromise)
       .then(success => {
         if (success) {
           notifySuccess();
@@ -710,28 +710,24 @@ export const ViewBusinessProcess = {
   execute: ({ record, action = {} }) => {
     const workflowIdPromise = action.workflowFromRecord ? Records.get(record).load('workflow?id') : Promise.resolve(record);
 
-    const workflowInfoPromise = recordId =>
+    const _workflowInfoPromise = recordId =>
       Records.get(recordId)
         .load({ name: '.disp', version: 'version' })
         .then(info => ({ ...info, recordId }));
 
-    const cancellationPromise = (recordId, resolve) => {
-      resolve(CancelBusinessProcess.execute({ record, action }));
-    };
-
-    const viewPromise = info =>
+    const _viewPromise = info =>
       new Promise(resolve => {
-        WidgetService.openBusinessProcessModal({
-          ...info,
-          onCancel: recordId => cancellationPromise(recordId, resolve),
-          onClose: resolve
-        });
+        WidgetService.openBusinessProcessModal({ ...info, onClose: resolve });
       });
 
     return workflowIdPromise
-      .then(workflowInfoPromise)
-      .then(viewPromise)
-      .catch(() => false);
+      .then(_workflowInfoPromise)
+      .then(_viewPromise)
+      .catch(e => {
+        console.error(e);
+        notifyFailure();
+        return false;
+      });
   },
 
   getDefaultModel: () => {
@@ -745,31 +741,17 @@ export const ViewBusinessProcess = {
 
 export const CancelBusinessProcess = {
   execute: ({ record }) => {
-    //todo -
-    const confirmPromise = new Promise(resolve => {
-      dialogManager.confirmDialog({
-        modalClass: 'ecos-modal_width-xs',
-        text: t('record-action.cancel-business-process.dialog.msg'),
-        onYes: () => resolve(true),
-        onNo: () => resolve(false)
-      });
-    });
-    //---
+    const rec = Records.get(record);
+    rec.att('cancel', true);
 
-    const cancelPromise = yes => {
-      if (yes) {
-        const rec = Records.get(record);
-        // rec.att('cancel', true);
-        return rec.save();
-      }
-
-      return Promise.resolve();
-    };
-
-    return confirmPromise
-      .then(cancelPromise)
+    return rec
+      .save()
       .then(record => {
-        if (isExistValue(record) && record.id) {
+        if (!isExistValue(record)) {
+          return;
+        }
+
+        if (record.id) {
           notifySuccess();
           return true;
         }
@@ -779,6 +761,7 @@ export const CancelBusinessProcess = {
       .catch(e => {
         console.error(e);
         notifyFailure();
+        e && e.message && dialogManager.showInfoDialog({ title: t('error'), text: e.message });
         return false;
       });
   },

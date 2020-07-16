@@ -396,7 +396,6 @@
 
   "record-action.name.view-business-process": "Business-process scheme",
   "record-action.name.cancel-business-process": "Cancel business-process",
-  "record-action.cancel-business-process.dialog.msg": "Cancel the business-process?",
 
   "grid.inline-tools.details": "Details",
   "grid.no-data-indication": "No items in the list",
@@ -1011,5 +1010,6 @@
   "doc-constructor-widget.success.edit-document": "Document editing has launched",
   "doc-constructor-widget.error.edit-document": "Document editing has failed",
 
-  "business-process-viewer.button.cancel-bp": "Cancel the business-process"
+  "business-process-viewer.button.cancel-bp": "Cancel the business-process",
+  "business-process-viewer.dialog.msg": "Cancel the business-process?"
 }
