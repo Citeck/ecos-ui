@@ -64,7 +64,7 @@ class Toolbar extends Component {
       this.setState({ currentPage });
     }
 
-    if (isExistValue(scale) && scale !== prevProps.calcScale && scale !== prevState.scale) {
+    if (!Number.isNaN(scale) && isExistValue(scale) && scale !== prevProps.calcScale && scale !== prevState.scale) {
       this.setState({ scale });
     }
   }
