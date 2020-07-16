@@ -255,21 +255,19 @@ export default class PageService {
 
       for (const parentLink in history) {
         if (history.hasOwnProperty(parentLink)) {
-          const parent = getLinkWithout({
-            url: parentLink,
-            ignored: IgnoredUrlParams
-          });
-          const foundI = history[parent].findIndex(item => keyLink === item);
+          const source = history[parentLink] || [];
+          const index = source.findIndex(item => keyLink === item);
+          const isFound = index >= 0;
 
-          if (!!~foundI) {
-            history[parent].splice(foundI, 1);
+          isFound && source.splice(index, 1);
 
-            if (!history[parent].length) {
-              delete history[parent];
-            }
-
+          if (!source.length) {
+            delete history[parentLink];
             setData(key, history);
-            return parent;
+          }
+
+          if (isFound) {
+            return getLinkWithout({ url: parentLink, ignored: IgnoredUrlParams });
           }
         }
       }

@@ -38,7 +38,7 @@ export const SearchKeys = {
   JOURNAL_SETTING_ID: [JOURNAL_SETTING_ID_KEY]
 };
 
-export const IgnoredUrlParams = [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW, SearchKeys.SEARCH];
+export const IgnoredUrlParams = [SearchKeys.PAGINATION, SearchKeys.FILTER, SearchKeys.SORT, SearchKeys.SHOW_PREVIEW];
 
 export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
@@ -52,7 +52,7 @@ const changeUrl = (url, opts = {}) => {
   }
 };
 
-export const _createOldVersionUrlDocument = recordRef => {
+export const createOldVersionUrlDocument = recordRef => {
   return `/share/page/card-details?nodeRef=${recordRef}`;
 };
 
@@ -69,7 +69,7 @@ export const createDocumentUrl = recordRef => {
     return `${URL.DASHBOARD}?recordRef=${recordRef}`;
   }
 
-  return _createOldVersionUrlDocument(recordRef);
+  return createOldVersionUrlDocument(recordRef);
 };
 
 export const createTaskUrl = (taskId, recordRef) => {
