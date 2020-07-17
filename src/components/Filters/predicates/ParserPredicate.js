@@ -303,4 +303,14 @@ export default class ParserPredicate {
 
     return predicates;
   }
+
+  static getPredicateForExport(predicates) {
+    const flatPredicates = ParserPredicate.getFlatFilters(predicates);
+
+    return (flatPredicates || []).map(predicate => ({
+      field: predicate.att,
+      predicate: predicate.t,
+      value: predicate.val
+    }));
+  }
 }

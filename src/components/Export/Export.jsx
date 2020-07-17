@@ -10,6 +10,7 @@ import { URL } from '../../constants';
 import { ALFRESCO, PROXY_URI } from '../../constants/alfresco';
 import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
+import { ParserPredicate } from '../Filters/predicates';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
 
@@ -17,7 +18,7 @@ import './Export.scss';
 
 const api = new UserConfigApi();
 
-export default class extends Component {
+export default class Export extends Component {
   static propTypes = {
     className: PropTypes.string,
     dashletConfig: PropTypes.object,
@@ -83,24 +84,23 @@ export default class extends Component {
       .map(column => ({ attribute: column.attribute, title: column.text }));
 
     const query = {
-      sortBy: [
-        {
-          attribute: 'cm:created',
-          order: 'desc'
-        }
-      ],
+      sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
       reportType: type,
       reportTitle: name,
       reportColumns: reportColumns,
       reportFilename: `${name}.${type}`
     };
 
-    (config.meta.criteria || []).forEach((criterion, idx) => {
-      query['field_' + idx] = criterion.field;
-      query['predicate_' + idx] = criterion.predicate;
-      query['value_' + idx] = criterion.value;
-    });
+    const criteria = ParserPredicate.getPredicateForExport(grid.predicates);
 
+    criteria.forEach((criterion, idx) => {
+      for (let key in criterion) {
+        if (criterion.hasOwnProperty(key)) {
+          query[`${key}_${idx}`] = criterion[key];
+        }
+      }
+    });
+    console.log(query);
     return query;
   };
 
