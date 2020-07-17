@@ -475,7 +475,6 @@ function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
     if (check) {
       if (get(action, 'payload.action.type', '') !== BackgroundOpenAction.type) {
         yield put(reloadGrid(w()));
-        yield put(setSelectedRecords(w([])));
       }
     }
   } catch (e) {
@@ -700,7 +699,6 @@ function* sagaPerformGroupAction({ api, logger, stateId, w }, action) {
     });
 
     if (performGroupActionResponse.length) {
-      yield put(setSelectedRecords(w([])));
       yield put(reloadGrid(w()));
       yield put(setPerformGroupActionResponse(w(performGroupActionResponse)));
     }
