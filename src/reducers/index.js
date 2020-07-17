@@ -35,6 +35,7 @@ import barcode from './barcode';
 import properties from './properties';
 import documents from './documents';
 import userProfile from './userProfile';
+import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
 
 const reducers = {
@@ -72,6 +73,7 @@ const reducers = {
   properties,
   documents,
   userProfile,
+  docConstructor,
   iconSelect
 };
 

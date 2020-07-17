@@ -1,6 +1,7 @@
 import moment from 'moment';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import lodashClone from 'lodash/cloneDeep';
 
 import { deepClone, getTextByLocale, t } from '../helpers/util';
 import { DATE_FORMAT, DEFAULT_REF, documentFields, NULL_FORM } from '../constants/documents';
@@ -58,7 +59,6 @@ export default class DocumentsConverter {
         countDocuments: documents.length,
         lastDocumentRef: get(document, documentFields.id, ''),
         [documentFields.loadedBy]: get(document, documentFields.loadedBy, ''),
-        // loadedBy: get(document, 'loadedBy', ''),
         canDropUpload: !createVariants.formRef,
         [documentFields.modified]: DocumentsConverter.getFormattedDate(get(document, documentFields.modified, ''))
       };
@@ -126,10 +126,6 @@ export default class DocumentsConverter {
       return target;
     }
 
-    if (!isEmpty(source.columns)) {
-      target.customizedColumns = source.columns;
-    }
-
     target.type = get(source, 'id', '');
     target.name = get(source, 'name', t('documents-widget.untitled'));
     target.formId = get(source, 'formId', '');
@@ -146,7 +142,7 @@ export default class DocumentsConverter {
       return [];
     }
 
-    return deepClone(source).map((item = {}) => {
+    return lodashClone(source).map((item = {}) => {
       if (!Object.keys(item).length) {
         return {};
       }
@@ -171,8 +167,8 @@ export default class DocumentsConverter {
   };
 
   static combineTypes = (baseTypes = [], userTypes = []) => {
-    const base = deepClone(baseTypes);
-    const user = deepClone(userTypes);
+    const base = deepClone(baseTypes, []);
+    const user = deepClone(userTypes, []);
 
     return user.reduce((result, current) => {
       const index = result.findIndex(item => item.type === current.type);
@@ -297,7 +293,7 @@ export default class DocumentsConverter {
       return {
         ...item,
         dataField: DocumentsConverter.getAttribute(item.attribute, item.name),
-        text: item.label
+        text: getTextByLocale(item.label)
       };
     });
   }
@@ -387,8 +383,8 @@ export default class DocumentsConverter {
       return [];
     }
 
-    const customizedColumns = deepClone(configColumns);
-    const originColumns = deepClone(columns);
+    const customizedColumns = lodashClone(configColumns);
+    const originColumns = lodashClone(columns);
 
     if (isEmpty(customizedColumns)) {
       return originColumns;

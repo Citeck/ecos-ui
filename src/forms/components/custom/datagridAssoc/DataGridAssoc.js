@@ -70,12 +70,13 @@ export default class DataGridComponent extends FormIODataGridComponent {
             new Promise(resolve => {
               const rec = Records.get(value[i]);
               rec.load(Object.values(keysMapping)).then(() => {
-                const recordJson = rec.toJson();
-                const dataGridValue = { id: recordJson.id };
-                for (let a in recordJson.attributes) {
-                  dataGridValue[inputByAtt[a].key] = recordJson.attributes[a];
-                }
-                resolve(dataGridValue);
+                rec.toJsonAsync().then(recordJson => {
+                  const dataGridValue = { id: recordJson.id };
+                  for (let a in recordJson.attributes) {
+                    dataGridValue[inputByAtt[a].key] = recordJson.attributes[a];
+                  }
+                  resolve(dataGridValue);
+                });
               });
             })
           );

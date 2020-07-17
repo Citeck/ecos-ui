@@ -2,8 +2,9 @@ import get from 'lodash/get';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 
-import { t } from '../helpers/util';
 import { RequestStatuses } from '../constants';
+import { t } from '../helpers/util';
+import { createOldVersionUrlDocument } from '../helpers/urls';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -20,10 +21,17 @@ import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus 
 import DashboardConverter from '../dto/dashboard';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
 import DashboardService from '../services/dashboard';
+import PageService from '../services/PageService';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
     const { recordRef } = payload;
+    const redirect = yield call(api.dashboard.isRedirectOld, recordRef);
+
+    if (redirect) {
+      PageService.changeUrlLink(createOldVersionUrlDocument(recordRef), { reopenBrowserTab: true });
+      return;
+    }
 
     const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
 

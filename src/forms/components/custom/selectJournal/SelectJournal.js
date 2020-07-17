@@ -6,7 +6,7 @@ import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import { Attributes } from '../../../../constants';
 import BaseReactComponent from '../base/BaseReactComponent';
-import { SortOrderOptions, TableTypes, DisplayModes } from './constants';
+import { DisplayModes, SortOrderOptions, TableTypes } from './constants';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import { trimFields } from '../../../../helpers/util';
 
@@ -283,7 +283,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },
-        onError: () => {}
+        onError: () => {},
+        // Cause https://citeck.atlassian.net/browse/ECOSUI-208
+        // If component has calculateValue, disable value reset when apply custom predicate
+        disableResetOnApplyCustomPredicate: !!component.calculateValue
       };
 
       if (component.customSourceId) {

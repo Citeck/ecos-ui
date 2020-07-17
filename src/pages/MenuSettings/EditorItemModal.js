@@ -98,10 +98,9 @@ function EditorItemModal({ item, type, onClose, onSave }) {
               {t(Labels.FIELD_ICON_BTN_SELECT)}
             </Btn>
           </div>
-          {/*todo prefix */}
           {isOpenSelectIcon && (
             <IconSelect
-              prefixIcon="icon-c"
+              prefixIcon="leftmenu"
               family="menu-items"
               useFontIcons
               selectedIcon={icon}

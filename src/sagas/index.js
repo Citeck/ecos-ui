@@ -30,6 +30,7 @@ import barcode from './barcode';
 import properties from './properties';
 import documents from './documents';
 import userProfile from './userProfile';
+import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
 
 export default function* rootSaga(extraArguments) {
@@ -65,6 +66,7 @@ export default function* rootSaga(extraArguments) {
     properties(extraArguments),
     documents(extraArguments),
     userProfile(extraArguments),
+    docConstructor(extraArguments),
     iconSelect(extraArguments)
   ]);
 }

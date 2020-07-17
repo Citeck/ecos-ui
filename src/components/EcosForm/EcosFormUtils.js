@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
+import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
@@ -242,6 +243,53 @@ export default class EcosFormUtils {
         console.error(e);
         showForm(null);
       });
+  }
+
+  static cloneRecord({ clonedRecord, createVariant, saveOnSubmit }) {
+    return new Promise((resolve, reject) => {
+      let { recordRef, formKey } = createVariant || {};
+      const newRecord = Records.getRecordToEdit(recordRef);
+      const formAttributes = { definition: 'definition?json' };
+      const formPromise = EcosFormUtils.getForm(newRecord, formKey, formAttributes);
+
+      formPromise.then(formData => {
+        if (!formData || !formData.definition) {
+          NotificationManager.error(t('ecos-form.error.clone-get-fields'), t('error'));
+          reject(null);
+        }
+
+        const formDefinition = cloneDeep(formData.definition);
+        const inputs = EcosFormUtils.getFormInputs(formDefinition);
+        const recordDataPromise = EcosFormUtils.getClonedData(clonedRecord, inputs);
+        const onSuccess = result => {
+          NotificationManager.success(t('ecos-form.success.clone-record'), t('success'));
+          resolve(result);
+        };
+
+        recordDataPromise
+          .then(data => {
+            for (let att in data) {
+              if (data.hasOwnProperty(att)) {
+                newRecord.att(att, data[att]);
+              }
+            }
+
+            if (saveOnSubmit === false) {
+              onSuccess(newRecord);
+            } else {
+              newRecord
+                .save()
+                .then(onSuccess)
+                .catch(e => Promise.reject(e));
+            }
+          })
+          .catch(e => {
+            console.error(e);
+            reject(null);
+            NotificationManager.error(t('ecos-form.error.clone-record'), t('error'));
+          });
+      });
+    });
   }
 
   static isNewFormsEnabled() {
@@ -693,7 +741,8 @@ export default class EcosFormUtils {
             input.component &&
             input.component.type === 'datetime' &&
             input.component.enableDate &&
-            !input.component.enableTime
+            !input.component.enableTime &&
+            recordData[attPath]
           ) {
             const serverDate = new Date(recordData[attPath]);
             serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
@@ -736,6 +785,19 @@ export default class EcosFormUtils {
       }
     }
     return result;
+  }
+
+  static getClonedData(recordId, inputs) {
+    if (!recordId) {
+      return Promise.resolve({});
+    }
+
+    let attributes = [];
+    for (let input of inputs) {
+      attributes.push(input.schema);
+    }
+
+    return Records.get(recordId).load(attributes, true);
   }
 
   static removeEmptyValuesFromArray(data) {

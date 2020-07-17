@@ -68,14 +68,6 @@ export default class GqlDataSource extends BaseDataSource {
       const formatterOptions = column.formatter || Mapper.getFormatterOptions(newColumn, idx);
       const { formatter, params } = GqlDataSource.getFormatterStatic(formatterOptions);
 
-      const hasBracket = newColumn.attribute.includes('{');
-      const hasQChar = newColumn.attribute.includes('?');
-      if (hasBracket || hasQChar) {
-        let [origAtt] = newColumn.attribute.split(hasBracket ? '{' : '?');
-        origAtt = origAtt.replace('[]', '');
-        newColumn.dataField = origAtt;
-      }
-
       newColumn.dataField = newColumn.dataField || newColumn.attribute;
       newColumn.text = t(newColumn.text || newColumn.dataField);
       newColumn.formatExtraData = { formatter, params };

@@ -287,7 +287,8 @@ class JournalsMenu extends Component {
         meta: { nodeRef }
       },
       pageTabsIsShow,
-      isMobile
+      isMobile,
+      isActivePage
     } = this.props;
 
     if (!open) {
@@ -305,7 +306,7 @@ class JournalsMenu extends Component {
     }
 
     return (
-      <JournalsUrlManager stateId={stateId} params={urlParams}>
+      <JournalsUrlManager stateId={stateId} params={urlParams} isActivePage={isActivePage}>
         <div
           className={classNames('ecos-journal-menu', {
             'ecos-journal-menu_open': open,

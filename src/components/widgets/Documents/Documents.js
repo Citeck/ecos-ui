@@ -355,7 +355,7 @@ class Documents extends BaseWidget {
     const { dynamicTypes } = this.props;
     const { selectedTypeForLoading } = this.state;
     const defaultSettings = {
-      miltiple: false
+      multiple: false
     };
 
     if (dynamicTypes.length === 1) {
@@ -376,17 +376,16 @@ class Documents extends BaseWidget {
   }
 
   get documentTableColumns() {
-    const { dynamicTypes, config } = this.props;
+    const { dynamicTypes } = this.props;
     const { selectedType } = this.state;
     const type = dynamicTypes.find(item => item.type === selectedType);
-    const cType = get(config, 'types', []).find(item => item.type === selectedType);
-    const columns = get(type, 'columnsConfig.columns', []);
+    const columns = get(type, 'columns', []);
 
     if (isEmpty(columns)) {
       return [];
     }
 
-    return DocumentsConverter.getColumnsForGrid(DocumentsConverter.getColumnForWeb(columns), cType.columns);
+    return columns;
   }
 
   getTypeStatus = type => {
@@ -594,7 +593,7 @@ class Documents extends BaseWidget {
 
     const newConfig = {
       ...config,
-      types: DocumentsConverter.getTypesForConfig(selectedTypes, config.types),
+      types: DocumentsConverter.getTypesForConfig(selectedTypes),
       isLoadChecklist
     };
 

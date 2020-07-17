@@ -21,7 +21,7 @@ import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
 import { t, trigger } from '../../helpers/util';
-import { getSearchParams, stringifySearchParams, goToCardDetailsPage } from '../../helpers/urls';
+import { getSearchParams, goToCardDetailsPage, stringifySearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
 import './Journals.scss';
@@ -110,7 +110,7 @@ class Journals extends Component {
   }
 
   getSearch = () => {
-    return get(getSearchParams(), 'search', '');
+    return this.props.isActivePage ? get(getSearchParams(), 'search', '') : '';
   };
 
   refresh = () => {
@@ -182,7 +182,7 @@ class Journals extends Component {
 
   render() {
     const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height } = this.state;
-    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage } = this.props;
 
     if (!journalConfig) {
       return null;
@@ -260,7 +260,13 @@ class Journals extends Component {
               </Well>
             </EcosModal>
 
-            <JournalsContent stateId={stateId} showPreview={showPreview} showPie={showPie} maxHeight={availableHeight(height) - 165} />
+            <JournalsContent
+              stateId={stateId}
+              showPreview={showPreview}
+              showPie={showPie}
+              maxHeight={availableHeight(height) - 165}
+              isActivePage={isActivePage}
+            />
 
             <div className={'ecos-journal__footer'}>
               <JournalsDashletPagination
@@ -280,7 +286,13 @@ class Journals extends Component {
               'ecos-journal__menu_expanded': menuOpenAnimate
             })}
           >
-            <JournalsMenu stateId={stateId} open={menuOpen} onClose={this.toggleMenu} height={availableHeight(height)} />
+            <JournalsMenu
+              stateId={stateId}
+              open={menuOpen}
+              onClose={this.toggleMenu}
+              height={availableHeight(height)}
+              isActivePage={isActivePage}
+            />
           </div>
         </div>
       </ReactResizeDetector>

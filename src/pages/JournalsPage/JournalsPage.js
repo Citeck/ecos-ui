@@ -43,7 +43,7 @@ class JournalsPage extends React.Component {
     return (
       <div className="ecos-journal-page">
         <ErrorBoundary title={t(Labels.ERROR_BOUNDARY_TITLE)} message={t(Labels.ERROR_BOUNDARY_MSG)}>
-          <JournalsUrlManager stateId={this.stateId}>
+          <JournalsUrlManager stateId={this.stateId} isActivePage={isActivePage}>
             <Journals stateId={this.stateId} isActivePage={isActivePage} />
           </JournalsUrlManager>
         </ErrorBoundary>

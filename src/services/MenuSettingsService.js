@@ -11,10 +11,11 @@ import { MenuSettings as ms, MenuTypes } from '../constants/menu';
 export default class MenuSettingsService {
   static getConfigKeyByType(type) {
     switch (type) {
-      case MenuTypes.LEFT:
-        return 'left';
       case MenuTypes.TOP:
         return 'top';
+      case MenuTypes.LEFT:
+      default:
+        return 'left';
     }
   }
 

@@ -56,9 +56,10 @@ import { setLoading } from '../actions/loader';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
-import { getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
+import { decodeLink, getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
 import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
+import PageService from '../services/PageService';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -718,7 +719,9 @@ function* sagaSearch({ api, logger, stateId, w }, action) {
       predicates = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
     }
 
+    yield put(setPredicate(w(predicates)));
     yield put(reloadGrid(w({ predicates: predicates ? [predicates] : null })));
+    PageService.changeUrlLink(decodeLink(window.location.pathname + window.location.search), { updateUrl: true });
   } catch (e) {
     logger.error('[journals sagaSearch saga error', e.message);
   }

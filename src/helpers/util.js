@@ -348,6 +348,10 @@ export function getScrollbarWidth() {
 }
 
 export function deepClone(data, defaultValue = '') {
+  if (isEmpty(data)) {
+    return defaultValue;
+  }
+
   return JSON.parse(JSON.stringify(data || defaultValue));
 }
 

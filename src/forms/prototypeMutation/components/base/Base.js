@@ -1,5 +1,6 @@
 import Base from 'formiojs/components/base/Base';
 import isObject from 'lodash/isObject';
+import isBoolean from 'lodash/isBoolean';
 import clone from 'lodash/clone';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
@@ -14,7 +15,6 @@ const originalCheckConditions = Base.prototype.checkConditions;
 const originalSetValue = Base.prototype.setValue;
 const originalT = Base.prototype.t;
 const originalApplyActions = Base.prototype.applyActions;
-const originalCalculateValue = Base.prototype.calculateValue;
 
 const INLINE_EDITING_CLASSNAME = 'inline-editing';
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
@@ -33,7 +33,68 @@ Object.defineProperty(Base.prototype, 'className', {
   }
 });
 
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-208
+const emptyCalculateValue = Symbol('empty calculate value');
+const customIsEqual = (val1, val2) => {
+  if (typeof val1 === 'number' || typeof val2 === 'number') {
+    return parseFloat(val1) === parseFloat(val2);
+  }
+  return isEqual(val1, val2);
+};
+
+const modifiedOriginalCalculateValue = function(data, flags) {
+  // If no calculated value or
+  // hidden and set to clearOnHide (Don't calculate a value for a hidden field set to clear when hidden)
+  if (!this.component.calculateValue || ((!this.visible || this.component.hidden) && this.component.clearOnHide)) {
+    return false;
+  }
+
+  // Get the dataValue.
+  let firstPass = false;
+  let dataValue = null;
+  const allowOverride = this.component.allowCalculateOverride;
+  if (allowOverride) {
+    dataValue = this.dataValue;
+  }
+
+  // First pass, the calculatedValue is undefined.
+  if (this.calculatedValue === undefined) {
+    firstPass = true;
+    this.calculatedValue = emptyCalculateValue;
+  }
+
+  // Check to ensure that the calculated value is different than the previously calculated value.
+  if (allowOverride && this.calculatedValue !== emptyCalculateValue && !customIsEqual(dataValue, this.calculatedValue)) {
+    return false;
+  }
+
+  // Calculate the new value.
+  const calculatedValue = this.evaluate(
+    this.component.calculateValue,
+    {
+      value: this.defaultValue,
+      data
+    },
+    'value'
+  );
+
+  // If this is the firstPass, and the dataValue is different than to the calculatedValue.
+  if (allowOverride && firstPass && (isBoolean(dataValue) || !this.isEmpty(dataValue)) && !customIsEqual(dataValue, calculatedValue)) {
+    // Return that we have a change so it will perform another pass.
+    this.calculatedValue = calculatedValue;
+    return true;
+  }
+
+  flags = flags || {};
+  flags.noCheck = true;
+  const changed = this.setValue(calculatedValue, flags);
+  this.calculatedValue = this.dataValue;
+
+  return changed;
+};
+
 Base.prototype.calculateValue = function(data, flags) {
+  // TODO: check, it seems redundant
   const hasChanged = this.hasChanged(
     this.evaluate(
       this.component.calculateValue,
@@ -44,7 +105,8 @@ Base.prototype.calculateValue = function(data, flags) {
       'value'
     )
   );
-  const changed = originalCalculateValue.call(this, data, flags);
+
+  const changed = modifiedOriginalCalculateValue.call(this, data, flags);
 
   if (this.component.triggerChangeWhenCalculate && (changed || hasChanged)) {
     this.triggerChange(flags);
@@ -225,7 +287,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
         return;
       }
 
-      if (!this.checkValidity(this.getValue(), true)) {
+      if (!this.checkValidity(this.data, true)) {
         return;
       }
 
