@@ -50,7 +50,7 @@ class ImgViewer extends Component {
 
       this.setState({ calcScale });
 
-      if (Number.isNaN(parseFloat(newScale))) {
+      if (!Number.isNaN(parseFloat(newScale))) {
         this.props.calcScale(calcScale);
       }
     }
