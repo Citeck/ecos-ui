@@ -195,7 +195,7 @@ export class MenuApi extends CommonApi {
     );
   };
 
-  getMenuSettingsConfig = ({ id }) => {
+  getMenuSettingsConfig = ({ id = '' }) => {
     return Records.get(`${SourcesId.MENU}@${id}`)
       .load(
         {

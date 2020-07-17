@@ -128,7 +128,7 @@ export default class MenuConverter {
     const { menu = {}, ...target } = source;
     const { type = MenuTypes.LEFT } = params;
     const keyType = MenuSettingsService.getConfigKeyByType(type);
-    const sourceItems = get(menu, [keyType, 'items'], []);
+    const sourceItems = get(menu, [keyType, 'items']) || [];
     const targetItems = [];
 
     (function prepareTree(sItems, tItems) {
