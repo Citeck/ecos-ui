@@ -34,8 +34,6 @@ class TasksDashlet extends BaseWidget {
     maxHeightByContent: true
   };
 
-  _observableFieldsToUpdate = [];
-
   constructor(props) {
     super(props);
 
