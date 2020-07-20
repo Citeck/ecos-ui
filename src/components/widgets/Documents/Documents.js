@@ -134,7 +134,6 @@ class Documents extends BaseWidget {
 
   componentDidMount() {
     super.componentDidMount();
-
     this.initWidget();
   }
 
@@ -166,6 +165,8 @@ class Documents extends BaseWidget {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    super.componentDidUpdate(prevProps, prevState);
+
     if (prevProps.isUploadingFile && !this.props.isUploadingFile && (prevState.isOpenUploadModal || prevState.isDragFiles)) {
       this.uploadingComplete();
     }
@@ -181,6 +182,7 @@ class Documents extends BaseWidget {
   }
 
   componentWillUnmount() {
+    super.componentWillUnmount();
     this.handleRowMouseLeave.cancel();
   }
 
@@ -434,9 +436,7 @@ class Documents extends BaseWidget {
 
   initWidget = () => {
     this.props.initStore();
-    this.setState({
-      isDragFiles: false
-    });
+    this.setState({ isDragFiles: false });
   };
 
   refreshGrid() {
@@ -774,6 +774,11 @@ class Documents extends BaseWidget {
   handleTypeRowMouseLeave = () => this.setState({ isHoverLastRow: false });
 
   handleCheckDropPermissions = type => type.canDropUpload;
+
+  handleUpdate() {
+    super.handleUpdate();
+    this.initWidget();
+  }
 
   setToolsOptions = (options = {}) => {
     this.props.setInlineTools(options);

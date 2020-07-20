@@ -7,7 +7,7 @@ import get from 'lodash/get';
 import { changePassword, changePhoto, getUserData, togglePasswordModal } from '../../../actions/user';
 import { t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
-import { Avatar, BtnUpload, Loader } from '../../common';
+import { Avatar, BtnUpload } from '../../common';
 import { Btn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
@@ -36,6 +36,8 @@ class UserProfileDashlet extends BaseWidget {
   };
 
   componentDidMount() {
+    super.componentDidMount();
+
     const { getUserData } = this.props;
 
     getUserData();
@@ -54,6 +56,11 @@ class UserProfileDashlet extends BaseWidget {
   onChangePassword = data => {
     this.props.changePassword(data);
   };
+
+  handleUpdate() {
+    super.handleUpdate();
+    this.props.getUserData();
+  }
 
   render() {
     const {
@@ -77,8 +84,8 @@ class UserProfileDashlet extends BaseWidget {
         title={t(title || Labels.TITLE)}
         needGoTo={false}
         noActions
+        isLoading={isLoading}
       >
-        {isLoading && <Loader />}
         {
           <PasswordModal
             isLoading={isLoadingPassword}

@@ -99,8 +99,10 @@ class JournalsDashlet extends BaseWidget {
     }
   }
 
-  componentDidUpdate({ config: prevConfig }, prevState, snapshot) {
-    super.componentDidUpdate();
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    super.componentDidUpdate(prevProps, prevState, snapshot);
+
+    const { config: prevConfig } = prevProps;
     const { id, config, setDashletConfigByParams, onSave, reloadGrid, isActiveLayout } = this.props;
 
     if (!arrayCompare(config, prevConfig) && !!onSave) {
@@ -123,6 +125,11 @@ class JournalsDashlet extends BaseWidget {
   handleReload = () => {
     this.props.reloadGrid();
   };
+
+  handleUpdate() {
+    super.handleUpdate();
+    this.handleReload();
+  }
 
   goToJournalsPage = () => {
     const {

@@ -38,7 +38,6 @@ class CurrentTasksDashlet extends BaseWidget {
     super(props);
 
     this.stateId = getStateId(props);
-    this.watcher = this.instanceRecord.watch(['cm:modified', 'tasks.active-hash'], this.reload);
 
     this.state = {
       ...this.state,
@@ -46,10 +45,7 @@ class CurrentTasksDashlet extends BaseWidget {
       totalCount: 0,
       isLoading: true
     };
-  }
-
-  componentWillUnmount() {
-    this.instanceRecord.unwatch(this.watcher);
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'tasks.active-hash'])];
   }
 
   onResize = width => {
