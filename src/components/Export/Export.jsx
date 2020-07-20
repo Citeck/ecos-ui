@@ -10,7 +10,6 @@ import { URL } from '../../constants';
 import { ALFRESCO, PROXY_URI } from '../../constants/alfresco';
 import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
-import { ParserPredicate } from '../Filters/predicates';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
 
@@ -60,8 +59,9 @@ export default class Export extends Component {
   export = item => {
     if (item.target) {
       const { journalConfig, grid } = this.props;
+      const query = this.getQuery(journalConfig, item.type, grid);
 
-      this.textInput.current.value = JSON.stringify(this.getQuery(journalConfig, item.type, grid));
+      this.textInput.current.value = JSON.stringify(query);
 
       const form = this.form.current;
 
@@ -83,25 +83,14 @@ export default class Export extends Component {
       .filter(c => c.default)
       .map(column => ({ attribute: column.attribute, title: column.text }));
 
-    const query = {
+    return {
       sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
+      predicate: get(grid, ['predicates', 0], {}),
       reportType: type,
       reportTitle: name,
       reportColumns: reportColumns,
       reportFilename: `${name}.${type}`
     };
-
-    const criteria = ParserPredicate.getPredicateForExport(grid.predicates);
-
-    criteria.forEach((criterion, idx) => {
-      for (let key in criterion) {
-        if (criterion.hasOwnProperty(key)) {
-          query[`${key}_${idx}`] = criterion[key];
-        }
-      }
-    });
-    console.log(query);
-    return query;
   };
 
   getSelectionFilter = () => {
