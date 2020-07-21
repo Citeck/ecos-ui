@@ -109,13 +109,16 @@
   "comments-widget.time-ago": "назад",
   "comments-widget.title": "Комментарии",
   "create_case.label": "Создать",
+
+  "current-tasks-widget.title": "Все задачи",
   "current-tasks-widget.column.actors": "Исполнитель",
   "current-tasks-widget.column.deadline": "Срок до",
   "current-tasks-widget.column.title": "Задача",
   "current-tasks-widget.no-data": "Нет данных",
   "current-tasks-widget.no-tasks": "Текущих задач нет",
-  "current-tasks-widget.saga.error1": "Ошибка получения данных",
-  "current-tasks-widget.title": "Все задачи",
+  "current-tasks-widget.error.get-tasks": "Ошибка получения списка всех задач",
+  "current-tasks-widget.error.get-actions": "Ошибка получения действий задач",
+  "current-tasks-widget.error.execute-action": "Не удалось выполнить действие",
 
   "dashboard.error.get-config": "Конфигурация дашборда не получена",
   "dashboard.error.get-title": "Заголовок дашборда не получен",
@@ -390,6 +393,10 @@
   "record-action.name.save-as-case-template": "Сохранить как шаблон",
   "record-action.name.preview": "Предпросмотр",
   "record-action.name.fetch-action": "Выполнить действие",
+  "record-action.name.edit-task-assignee": "Изменить исполнителя",
+
+  "record-action.name.view-business-process": "Схема бизнес-процесса",
+  "record-action.name.cancel-business-process": "Отменить бизнес-процесс",
 
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.inline-tools.details": "Детальная информация",
@@ -708,10 +715,12 @@
   "select-member-dialog.form-field.label": "Сотрудники",
   "select-member-dialog.listmem.title": "Выбранные сотрудники",
   "select-member-dialog.title": "Выбрать",
+
   "select-orgstruct.button.add": "Добавить",
   "select-orgstruct.button.change": "Изменить",
   "select-orgstruct.button.select": "Выбрать",
   "select-orgstruct.placeholder": "Нет",
+  "select-orgstruct.empty-list": "Нет вариантов",
   "select-orgstruct.search.placeholder": "Найти",
   "select-orgstruct.select-modal.cancel-button": "Отмена",
   "select-orgstruct.select-modal.ok-button": "OK",
@@ -719,6 +728,8 @@
   "select-orgstruct.tab.all-users": "Все пользователи",
   "select-orgstruct.tab.by-levels": "По уровням",
   "select-orgstruct.tab.only-selected": "Только выбранные",
+  "select-orgstruct.modal.title.edit-task-assignee": "Изменить исполнителя",
+
   "size.bytes": "б",
   "size.gigabytes": "ГБ",
   "size.kilobytes": "КБ",
@@ -987,9 +998,9 @@
   "doc-constructor-widget.description.title": "Работа с основным документом в конструкторе Doc.One",
   "doc-constructor-widget.description.text": "1. Выберите шаблон для создания документа\n2. Отредактируйте и сохраните\n3. Синхронизируйте, чтобы увидеть изменения",
   "doc-constructor-widget.template.label": "Шаблон документа",
-  "doc-constructor-widget.buttons.edit": "Редактировать",
-  "doc-constructor-widget.buttons.delete": "Удалить",
-  "doc-constructor-widget.buttons.sync": "Синхронизировать",
+  "doc-constructor-widget.button.edit": "Редактировать",
+  "doc-constructor-widget.button.delete": "Удалить",
+  "doc-constructor-widget.button.sync": "Синхронизировать",
   "doc-constructor-widget.error.get-settings": "Настройки виджета не найдены. Свяжитесь с администратором",
   "doc-constructor-widget.error.get-doc-props": "Параметры документа не получены",
   "doc-constructor-widget.error.no-doc-one-base-url": "Отсутствует 'doc.one.base.url' в настройках. Свяжитесь с администратором",
@@ -1002,5 +1013,8 @@
   "doc-constructor-widget.error.content-not-changed": "Контент не обновлен. Вероятно отсутствуют изменения в Doc.One",
   "doc-constructor-widget.error.write-doc-one-content-to-node": "Ошибка во время получения документа",
   "doc-constructor-widget.success.edit-document": "Редактирование документа запущено",
-  "doc-constructor-widget.error.edit-document": "Редактирование документа запустить не удалось"
+  "doc-constructor-widget.error.edit-document": "Редактирование документа запустить не удалось",
+
+  "business-process-viewer.button.cancel-bp": "Отменить бизнес-процесс",
+  "business-process-viewer.dialog.msg": "Отменить бизнес-процесс?"
 }

@@ -12,16 +12,17 @@ import {
   goToJournalsPage,
   goToNodeEditPage
 } from '../../../helpers/urls';
-import { getTimezoneValue, t } from '../../../helpers/util';
+import { getTimezoneValue, isExistValue, t } from '../../../helpers/util';
 import ecosFetch from '../../../helpers/ecosFetch';
 import { ActionModes, SourcesId } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { TasksApi } from '../../../api/tasks';
 import WidgetService from '../../../services/WidgetService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
+import TaskAssignmentPanel from '../../TaskAssignmentPanel/TaskAssignmentPanel';
 import Records from '../Records';
 import RecordActions from './RecordActions';
-import TaskAssignmentPanel from '../../TaskAssignmentPanel/TaskAssignmentPanel';
 
 function notifySuccess(msg) {
   NotificationManager.success(msg || t('record-action.msg.success.text'), t('record-action.msg.success.title'));
@@ -47,7 +48,10 @@ export const DefaultActionTypes = {
   SAVE_AS_CASE_TEMPLATE: 'save-as-case-template',
   PREVIEW_MODAL: 'content-preview-modal',
   FETCH: 'fetch',
-  SCRIPT: 'script'
+  SCRIPT: 'script',
+  EDIT_TASK_ASSIGNEE: 'edit-task-assignee',
+  VIEW_BUSINESS_PROCESS: 'view-business-process',
+  CANCEL_BUSINESS_PROCESS: 'cancel-business-process'
 };
 
 export const EditAction = {
@@ -662,6 +666,113 @@ export const ScriptAction = {
       name: 'record-action.name.script-action',
       type: DefaultActionTypes.SCRIPT,
       icon: 'icon-check'
+    };
+  }
+};
+
+export const EditTaskAssignee = {
+  execute: ({ record, action: { actionOfAssignment } }) => {
+    const taskId = record.id;
+
+    const actorsPromise = TasksApi.getTask(taskId, 'actors[]?id');
+
+    const _selectPromise = defaultValue =>
+      new Promise(resolve => WidgetService.openSelectOrgstructModal({ defaultValue, onSelect: resolve }));
+
+    const _assignPromise = owner => TasksApi.staticChangeAssigneeTask({ taskId, owner, action: actionOfAssignment });
+
+    return actorsPromise
+      .then(_selectPromise)
+      .then(_assignPromise)
+      .then(success => {
+        if (success) {
+          notifySuccess();
+          return success;
+        }
+
+        return Promise.reject();
+      })
+      .catch(e => {
+        console.error(e);
+        notifyFailure();
+        return false;
+      });
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.edit-task-assignee',
+      type: DefaultActionTypes.EDIT_TASK_ASSIGNEE,
+      icon: 'icon-edit'
+    };
+  }
+};
+
+export const ViewBusinessProcess = {
+  execute: ({ record, action = {} }) => {
+    const workflowIdPromise = action.workflowFromRecord ? Records.get(record).load('workflow?id') : Promise.resolve(record);
+
+    const _workflowInfoPromise = recordId =>
+      Records.get(recordId)
+        .load({ name: '.disp', version: 'version' })
+        .then(info => ({ ...info, recordId }));
+
+    const _viewPromise = info =>
+      new Promise(resolve => {
+        WidgetService.openBusinessProcessModal({ ...info, onClose: resolve });
+      });
+
+    return workflowIdPromise
+      .then(_workflowInfoPromise)
+      .then(_viewPromise)
+      .catch(e => {
+        console.error(e);
+        notifyFailure();
+        return false;
+      });
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.view-business-process',
+      type: DefaultActionTypes.VIEW_BUSINESS_PROCESS,
+      icon: 'icon-models'
+    };
+  }
+};
+
+export const CancelBusinessProcess = {
+  execute: ({ record }) => {
+    const rec = Records.get(record);
+    rec.att('cancel', true);
+
+    return rec
+      .save()
+      .then(record => {
+        if (!isExistValue(record)) {
+          return;
+        }
+
+        if (record.id) {
+          notifySuccess();
+          return true;
+        }
+
+        return Promise.reject();
+      })
+      .catch(e => {
+        console.error(e);
+        notifyFailure();
+        e && e.message && dialogManager.showInfoDialog({ title: t('error'), text: e.message });
+        return false;
+      });
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.cancel-business-process',
+      type: DefaultActionTypes.CANCEL_BUSINESS_PROCESS,
+      icon: 'icon-close'
     };
   }
 };

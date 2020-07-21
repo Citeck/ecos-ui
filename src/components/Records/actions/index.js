@@ -2,21 +2,24 @@ import Registry from './RecordActionExecutorsRegistry';
 import {
   AssocAction,
   BackgroundOpenAction,
+  CancelBusinessProcess,
   CreateNodeAction,
   DefaultActionTypes,
   DeleteAction,
   DownloadAction,
   DownloadCardTemplate,
   EditAction,
+  EditTaskAssignee,
   FetchAction,
   MoveToLinesJournal,
   OpenURL,
   PreviewModal,
   SaveAsCaseTemplate,
+  ScriptAction,
   UploadNewVersion,
   ViewAction,
-  ViewCardTemplate,
-  ScriptAction
+  ViewBusinessProcess,
+  ViewCardTemplate
 } from './DefaultActions';
 
 import { CaseCreateNodeAction, CaseRedirectAction, CaseRequestAction } from './CaseActions';
@@ -42,6 +45,9 @@ Registry.addExecutors({
   [DefaultActionTypes.PREVIEW_MODAL]: PreviewModal,
   [DefaultActionTypes.FETCH]: FetchAction,
   [DefaultActionTypes.SCRIPT]: ScriptAction,
+  [DefaultActionTypes.EDIT_TASK_ASSIGNEE]: EditTaskAssignee,
+  [DefaultActionTypes.VIEW_BUSINESS_PROCESS]: ViewBusinessProcess,
+  [DefaultActionTypes.CANCEL_BUSINESS_PROCESS]: CancelBusinessProcess,
 
   [ModuleActionTypes.MODULE_COPY]: ModuleCopyAction,
 
