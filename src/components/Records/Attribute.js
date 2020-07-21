@@ -10,7 +10,7 @@ const convertToFullAttributeName = (name, scalar, multiple) => {
 
 const PersistedValue = function(att, scalar) {
   this._att = att;
-  this._value = null;
+  this._value = [];
   this._isLoaded = false;
   this._isArrayLoaded = false;
   this._scalar = scalar;
@@ -42,7 +42,7 @@ const PersistedValue = function(att, scalar) {
 
     if (isVirtualRec) {
       let baseRecord = this._att._record._baseRecord;
-      if (!this._value && baseRecord) {
+      if ((!this._value || !this._value.length) && baseRecord) {
         this._value = baseRecord.att(this._att.getName() + '[]');
       }
     } else if (withLoading && (!this._isLoaded || forceReload || (multiple && !this._isArrayLoaded))) {
