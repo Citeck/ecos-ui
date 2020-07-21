@@ -10,8 +10,9 @@ import {
   editDocument,
   getDocument,
   getDocumentParams,
-  getFullSettings,
-  recreateDocument
+  initConstructor,
+  recreateDocument,
+  setError
 } from '../../../actions/docConstructor';
 import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
@@ -69,7 +70,7 @@ class DocConstructorDashlet extends BaseWidget {
     return {
       [DAction.Actions.RELOAD]: {
         onClick: () => {
-          this.props.getFullSettings();
+          this.props.initConstructor();
         }
       }
     };
@@ -77,7 +78,7 @@ class DocConstructorDashlet extends BaseWidget {
 
   componentDidMount() {
     this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
-    this.props.getFullSettings();
+    this.props.initConstructor();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -124,9 +125,9 @@ class DocConstructorDashlet extends BaseWidget {
 
   render() {
     const { isSmallMode } = this.state;
-    const { title, classNameDashlet, isLoading, error, contractTemplate } = this.props;
+    const { title, classNameDashlet, isLoading, error, contractTemplate, isAvailable } = this.props;
 
-    return (
+    return isAvailable ? (
       <Dashlet
         className={classNames('ecos-doc-constructor__dashlet', classNameDashlet)}
         bodyClassName="ecos-doc-constructor__dashlet-body"
@@ -173,7 +174,7 @@ class DocConstructorDashlet extends BaseWidget {
           </div>
         </div>
       </Dashlet>
-    );
+    ) : null;
   }
 }
 
@@ -189,7 +190,8 @@ const mapStateToProps = (state, context) => {
     docOneUrl: data.docOneUrl,
     docOneDocumentId: data.docOneDocumentId,
     documentType: data.documentType,
-    contractTemplate: data.contractTemplate
+    contractTemplate: data.contractTemplate,
+    isAvailable: data.isAvailable
   };
 };
 
@@ -198,14 +200,14 @@ const mapDispatchToProps = (dispatch, context) => {
   const stateId = getStateId({ tabId, id: record });
 
   return {
-    getFullSettings: () => dispatch(getFullSettings({ stateId, record })),
+    initConstructor: () => dispatch(initConstructor({ stateId, record })),
     getDocumentParams: () => dispatch(getDocumentParams({ stateId, record })),
     createDocument: templateRef => dispatch(createDocument({ stateId, record, templateRef })),
     deleteDocument: () => dispatch(deleteDocument({ stateId, record })),
     editDocument: () => dispatch(editDocument({ stateId, record })),
     getDocument: () => dispatch(getDocument({ stateId, record })),
     recreateDocument: templateRef => dispatch(recreateDocument({ stateId, record, templateRef })),
-    setError: error => dispatch(getFullSettings({ stateId, record, error }))
+    setError: error => dispatch(setError({ stateId, record, error }))
   };
 };
 

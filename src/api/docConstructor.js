@@ -4,6 +4,13 @@ import { t } from '../helpers/util';
 import Records from '../components/Records/Records';
 
 export class DocConstructorApi {
+  getVerificationInfo = record => {
+    return Records.get(record).load({
+      caseStatusAssoc: 'icase:caseStatusAssoc?id',
+      initiatorRef: 'att:initiator_added?str'
+    });
+  };
+
   getSettings = ({ name }) => {
     return ecosFetch(`${PROXY_URI}citeck/global-properties?name=${name}&format=json`)
       .then(response => (response.ok ? response.json() : Promise.reject(response)))
@@ -14,7 +21,7 @@ export class DocConstructorApi {
       });
   };
 
-  getRecordInfo = record => {
+  getDocumentInfo = record => {
     return Records.get(record).load({
       docOneDocumentId: 'urkk:docOneDocumentId?str',
       documentType: 'urkk:documentType?str',

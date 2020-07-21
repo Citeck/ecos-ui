@@ -7,11 +7,11 @@ import {
   editDocument,
   getDocument,
   getDocumentParams,
-  getFullSettings,
+  initConstructor,
   recreateDocument,
   setError,
-  setFullSettings,
-  setLoading
+  setLoading,
+  setSettings
 } from '../actions/docConstructor';
 import { t } from '../helpers/util';
 import PageService from '../services/PageService';
@@ -21,34 +21,41 @@ const KEY_URL = 'doc.one.base.url';
 const POSTFIX_URL = '/document/';
 const OPTIONS = { role: 'initiator', permission: 'Consumer' };
 
-function* fetchGetSettings({ api, logger }, { payload: { stateId, record } }) {
+function* runInitConstructor({ api, logger }, { payload, payload: { stateId, record } }) {
   try {
+    const userRef = yield select(state => state.user.nodeRef);
+    const { initiatorRef, caseStatusAssoc } = yield call(api.docConstructor.getVerificationInfo, record);
     const settings = {};
-    let docProps = {};
-    const data = yield call(api.docConstructor.getSettings, { name: KEY_URL });
-    const isRight = data && data[KEY_URL];
 
-    if (isRight) {
-      settings.docOneUrl = data[KEY_URL] + POSTFIX_URL;
-      docProps = yield call(api.docConstructor.getRecordInfo, record);
-      yield put(setFullSettings({ stateId, settings: { ...settings, ...docProps } }));
+    settings.isAvailable = userRef === initiatorRef; //+caseStatusAssoc
+
+    if (settings.isAvailable) {
+      const data = yield call(api.docConstructor.getSettings, { name: KEY_URL });
+      const isRight = data && data[KEY_URL];
+
+      if (isRight) {
+        settings.docOneUrl = data[KEY_URL] + POSTFIX_URL;
+        yield* fetchDocumentParams({ api, logger }, { payload });
+      }
+
+      yield put(setError({ stateId, error: isRight ? '' : t('doc-constructor-widget.error.no-doc-one-base-url') }));
     }
 
-    yield put(setError({ stateId, error: isRight ? '' : t('doc-constructor-widget.error.no-doc-one-base-url') }));
+    yield put(setSettings({ stateId, settings }));
   } catch (e) {
     yield put(setError({ stateId, error: e.message }));
     NotificationManager.error(t('doc-constructor-widget.error.get-settings'), t('error'));
-    logger.error('[docConstructor/fetchGetSettings saga] error', e.message);
+    logger.error('[docConstructor/runInitConstructor saga] error', e.message);
   }
 }
 
 function* fetchDocumentParams({ api, logger }, { payload: { stateId, record } }) {
   try {
-    const settings = yield call(api.docConstructor.getRecordInfo, record);
-    yield put(setFullSettings({ stateId, settings }));
+    const settings = yield call(api.docConstructor.getDocumentInfo, record);
+    yield put(setSettings({ stateId, settings }));
   } catch (e) {
     NotificationManager.error(t('doc-constructor-widget.error.get-settings'), t('error'));
-    logger.error('[docConstructor/fetchGetSettings saga] error', e.message);
+    logger.error('[docConstructor/fetchDocumentParams saga] error', e.message);
   }
 }
 
@@ -134,7 +141,7 @@ function* runDeleteDocument({ api, logger }, { payload: { stateId, record } }) {
 }
 
 function* saga(ea) {
-  yield takeEvery(getFullSettings().type, fetchGetSettings, ea);
+  yield takeEvery(initConstructor().type, runInitConstructor, ea);
   yield takeEvery(createDocument().type, runCreateDocument, ea);
   yield takeEvery(recreateDocument().type, runRecreateDocument, ea);
   yield takeEvery(editDocument().type, runEditDocument, ea);
