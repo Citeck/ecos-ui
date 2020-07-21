@@ -665,4 +665,10 @@ export default class Record {
       return setter.call(att, parsedAtt.inner, value);
     }
   }
+
+  forceUpdate() {
+    this._watchers.forEach(watcher => {
+      watcher.callCallback();
+    });
+  }
 }

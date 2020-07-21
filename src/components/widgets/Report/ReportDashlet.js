@@ -65,8 +65,6 @@ class ReportDashlet extends BaseWidget {
     };
   }
 
-  dashletRef = null;
-
   onResize = width => {
     !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
@@ -90,7 +88,7 @@ class ReportDashlet extends BaseWidget {
     const { isSmallMode, userHeight, fitHeights, isCollapsed, runUpdate } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
-        onClick: this.reload
+        onClick: this.reload.bind(this)
       }
     };
     return (

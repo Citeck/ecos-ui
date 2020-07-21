@@ -37,18 +37,14 @@ class TasksDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.watcher = this.instanceRecord.watch(['cm:modified', 'tasks.active-hash'], this.reload);
-
     this.state = {
       ...this.state,
       isSmallMode: false,
       totalCount: 0,
       isLoading: true
     };
-  }
 
-  componentWillUnmount() {
-    this.instanceRecord.unwatch(this.watcher);
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'tasks.active-hash'])];
   }
 
   onResize = width => {
@@ -65,7 +61,7 @@ class TasksDashlet extends BaseWidget {
     const { runUpdate, isSmallMode, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
-        onClick: this.reload
+        onClick: this.reload.bind(this)
       }
     };
 

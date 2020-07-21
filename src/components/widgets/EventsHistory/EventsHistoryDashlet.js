@@ -37,16 +37,11 @@ class EventsHistoryDashlet extends BaseWidget {
     super(props);
 
     this.stateId = getStateId(props);
-    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
 
     this.state = {
       ...this.state,
       isSmallMode: false
     };
-  }
-
-  componentWillUnmount() {
-    this.instanceRecord.unwatch(this.watcher);
   }
 
   get fullHeight() {

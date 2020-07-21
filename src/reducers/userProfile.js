@@ -20,17 +20,15 @@ const initialState = {
   message: null
 };
 
-const startLoading = (state, { payload: { stateId } }) => ({
-  ...state,
-  [stateId]: {
-    ...getCurrentStateById(state, stateId, initialState),
-    isLoading: true
-  }
-});
-
 export default handleActions(
   {
-    [getUserData]: startLoading,
+    [getUserData]: (state, { payload: { stateId } }) => ({
+      ...state,
+      [stateId]: {
+        ...getCurrentStateById(state, stateId, initialState),
+        isLoading: true
+      }
+    }),
     [setUserData]: (state, { payload }) => {
       const { stateId, ...res } = payload;
 

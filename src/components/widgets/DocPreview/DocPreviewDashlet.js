@@ -44,16 +44,11 @@ class DocPreviewDashlet extends BaseWidget {
     super(props);
 
     this.stateId = getStateId(props);
-    this.watcher = this.instanceRecord.watch(['version', 'preview-hash'], this.reload);
-
     this.state = {
       ...this.state,
       scale: isMobile ? DocScaleOptions.PAGE_WHOLE : UserLocalSettingsService.getDashletScale(this.state.lsId) || DocScaleOptions.AUTO
     };
-  }
-
-  componentWillUnmount() {
-    this.instanceRecord.unwatch(this.watcher);
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'version', 'preview-hash'])];
   }
 
   get otherHeight() {
