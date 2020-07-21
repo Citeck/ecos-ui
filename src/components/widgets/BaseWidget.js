@@ -12,7 +12,7 @@ class BaseWidget extends Component {
 
   updateWatcher = null;
 
-  _observableFieldsToUpdate = ['cm:modified', '_modified'];
+  _observableFieldsToUpdate = ['_modified'];
 
   constructor(props) {
     super(props);
