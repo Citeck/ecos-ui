@@ -21,7 +21,7 @@ const DEFAULT_MODEL = {
 let RecordActions;
 
 class RecordActionsService {
-  getActions(records, context) {
+  getActions(records, context = {}) {
     let isSingleRecord = false;
 
     if (records && !lodash.isArray(records)) {
@@ -59,7 +59,7 @@ class RecordActionsService {
       });
   }
 
-  __filterAndConvertRecordActions(recordId, actions, context) {
+  __filterAndConvertRecordActions(recordId, actions, context = {}) {
     if (!actions || !actions.length) {
       return [];
     }
@@ -98,7 +98,7 @@ class RecordActionsService {
       });
   }
 
-  __getRecordsActionsWithContext(recordIds, context) {
+  __getRecordsActionsWithContext(recordIds, context = {}) {
     let actions;
 
     if (context.actions) {
