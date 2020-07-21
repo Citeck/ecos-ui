@@ -10,7 +10,7 @@ const convertToFullAttributeName = (name, scalar, multiple) => {
 
 const PersistedValue = function(att, scalar) {
   this._att = att;
-  this._value = [];
+  this._value = null;
   this._isLoaded = false;
   this._isArrayLoaded = false;
   this._scalar = scalar;
