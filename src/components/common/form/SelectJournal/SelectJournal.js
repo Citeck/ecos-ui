@@ -8,6 +8,7 @@ import lodashGet from 'lodash/get';
 
 import { Attributes } from '../../../../constants';
 import { t } from '../../../../helpers/util';
+import { DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
 import { JournalsApi } from '../../../../api/journalsApi';
 import { EcosModal, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
@@ -22,7 +23,6 @@ import Filters from './Filters';
 import Search from './Search';
 import CreateVariants from './CreateVariants';
 import FiltersProvider from './Filters/FiltersProvider';
-import { DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
 
 import './SelectJournal.scss';
 
@@ -84,9 +84,9 @@ export default class SelectJournal extends Component {
     const { defaultValue, multiple, journalId, onError, isSelectModalOpen, initCustomPredicate } = this.props;
 
     if (!journalId) {
-      const err = new Error('The "journalId" config is required!');
-      typeof onError === 'function' && onError(err);
-      this.setState({ error: err });
+      const error = new Error('The "journalId" config is required!');
+      typeof onError === 'function' && onError(error);
+      this.setState({ error });
     }
 
     let initValue;
@@ -221,8 +221,9 @@ export default class SelectJournal extends Component {
         reject();
       }
 
-      this.api.getJournalConfig(journalId).then(journalConfig => {
-        journalConfig = journalConfig || { meta: {} };
+      this.api.getJournalConfig(journalId).then(_journalConfig => {
+        const journalConfig = _journalConfig || { meta: {} };
+        const journalPredicate = journalConfig.meta.predicate;
 
         let columns = (journalConfig.columns || []).map(item => {
           const column = { ...item };
@@ -233,22 +234,15 @@ export default class SelectJournal extends Component {
         });
 
         if (Array.isArray(displayColumns) && displayColumns.length > 0) {
-          columns = columns.map(item => {
-            return {
-              ...item,
-              default: displayColumns.indexOf(item.attribute) !== -1
-            };
-          });
+          columns = columns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
         }
-
-        const predicate = journalConfig.meta.predicate;
 
         this.setState(prevState => {
           return {
             requestParams: {
               ...prevState.requestParams,
               columns,
-              journalPredicate: predicate,
+              journalPredicate,
               predicates: presetFilterPredicates || []
             },
             journalConfig,
