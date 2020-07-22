@@ -63,7 +63,7 @@ class EditorGroupPriority extends React.Component {
     return (
       <>
         <div className="ecos-menu-settings-group-priority__wrapper">
-          <div className="ecos-menu-settings-group-priority__desc">{t(Labels.DESC)}</div>
+          <div className="ecos-menu-settings__explanation">{t(Labels.DESC)}</div>
           <Btn onClick={this.openManagerPriority}>{t(Labels.BTN_MANAGE)}</Btn>
         </div>
         {isOpenManager && (

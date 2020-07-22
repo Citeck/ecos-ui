@@ -12,7 +12,7 @@ import IconSelect from '../../components/IconSelect';
 import { Tree } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { Badge, DropdownOuter, SelectJournal } from '../../components/common/form';
-import dialogManager from '../../components/common/dialogs/Manager';
+import DialogManager from '../../components/common/dialogs/Manager';
 import EditorItemModal from './EditorItemModal';
 
 import './style.scss';
@@ -70,7 +70,7 @@ class EditorItems extends React.Component {
     const { items, setMenuItems } = this.props;
 
     if (action === ms.ActionTypes.DELETE) {
-      dialogManager.showRemoveDialog({
+      DialogManager.showRemoveDialog({
         title: '',
         text: t('menu-settings.message.delete-item', { name: extractLabel(item.label) }),
         className: 'ecos-modal_width-xs',

@@ -3,12 +3,13 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { initSettings, saveSettingsConfig, setAuthorities, setOpenMenuSettings } from '../../actions/menuSettings';
+import { initSettings, removeSettings, saveSettingsConfig, setAuthorities, setOpenMenuSettings } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
 import { getPositionAdjustment } from '../../helpers/menu';
 import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
 import { EcosModal, Loader } from '../../components/common';
+import DialogManager from '../../components/common/dialogs/Manager';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import { SelectOrgstruct } from '../../components/common/form';
 import EditorItems from './EditorItems';
@@ -86,6 +87,17 @@ class Settings extends React.Component {
     this.props.setAuthorities(data);
   };
 
+  handleReset = () => {
+    DialogManager.showRemoveDialog({
+      title: '',
+      text: 'Вы действительно хотите сбросить конфигурацию?',
+      className: 'ecos-modal_width-xs',
+      onDelete: () => {
+        this.props.removeSettings();
+      }
+    });
+  };
+
   renderButtons() {
     return (
       <div className="ecos-menu-settings__buttons">
@@ -136,6 +148,10 @@ class Settings extends React.Component {
         <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
         <EditorGroupPriority />
 
+        <div className="ecos-menu-settings-reset">
+          <div className="ecos-menu-settings__explanation">Вы можете сбросить пользовательские настройки до базовых настроек</div>
+          <Btn onClick={this.handleReset}>Сбросить</Btn>
+        </div>
         {this.renderButtons()}
       </EcosModal>
     );
@@ -151,6 +167,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   initSettings: () => dispatch(initSettings()),
+  removeSettings: () => dispatch(removeSettings()),
   saveSettings: payload => dispatch(saveSettingsConfig(payload)),
   setOpenMenuSettings: payload => dispatch(setOpenMenuSettings(payload)),
   setAuthorities: payload => dispatch(setAuthorities(payload))

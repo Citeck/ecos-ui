@@ -182,12 +182,6 @@
       margin-bottom: 5px;
     }
 
-    &__desc {
-      font-weight: $font-weight-semi-bold;
-      font-size: $font-size-small;
-      color: $text-color-gray;
-    }
-
     &__tree {
       &-field {
         @extend %block--2;
@@ -204,12 +198,26 @@
     }
   }
 
+  &-reset {
+    display: flex;
+    justify-content: space-between;
+    margin: 30px 0;
+    padding-top: 10px;
+    border-top: $border-width-standard solid $color-gray-4;
+  }
+
   &__buttons {
     margin-top: 35px;
 
     & > :nth-child(even) {
       margin-left: 10px;
     }
+  }
+
+  &__explanation {
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-small;
+    color: $text-color-gray;
   }
 }
 

@@ -8,6 +8,7 @@ import {
   getGroupPriority,
   getSettingsConfig,
   initSettings,
+  removeSettings,
   saveGroupPriority,
   saveSettingsConfig,
   setGroupPriority,
@@ -30,7 +31,18 @@ function* runInitSettings({ api, logger }, action) {
   }
 }
 
-function* fetchGetSettingsConfig({ api, logger }) {
+function* runRemoveSettings({ api, logger }, action) {
+  try {
+    const { id } = yield select(state => state.menu);
+    yield call(api.menu.removeSettings, { id });
+  } catch (e) {
+    yield put(setLoading(false));
+    NotificationManager.error(t('menu-settings.error.remove-config'), t('error'));
+    logger.error('[menu-settings / runRemoveSettings]', e.message);
+  }
+}
+
+function* fetchSettingsConfig({ api, logger }) {
   try {
     const { id, type } = yield select(state => state.menu);
 
@@ -46,7 +58,7 @@ function* fetchGetSettingsConfig({ api, logger }) {
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.get-config'), t('error'));
-    logger.error('[menu-settings / fetchGetSettingsConfig]', e.message);
+    logger.error('[menu-settings / fetchSettingsConfig]', e.message);
   }
 }
 
@@ -93,15 +105,16 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
   }
 }
 
-function* fetchGetGroupPriority({ api, logger }, { payload }) {
+function* fetchGroupPriority({ api, logger }, { payload }) {
   try {
     const authorities = yield select(state => state.menuSettings.authorities);
     const data = yield call(api.menu.getGroupPriority, { authorities }); //todo api
-
+    console.log(data);
     yield put(setGroupPriority(MenuConverter.getGroupPriorityConfigWeb(data)));
   } catch (e) {
+    yield put(setGroupPriority(MenuConverter.getGroupPriorityConfigWeb([])));
     NotificationManager.error(t('menu-settings.error.get-group-priority'), t('error'));
-    logger.error('[menu-settings / runAddJournalMenuItems]', e.message);
+    logger.error('[menu-settings / fetchGroupPriority]', e.message);
   }
 }
 
@@ -114,17 +127,18 @@ function* runSaveGroupPriority({ api, logger }, { payload }) {
     yield call(api.menu.saveGroupPriority, { authorities, groupPriority }); //todo api
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.save-group-priority'), t('error'));
-    logger.error('[menu-settings / runAddJournalMenuItems]', e.message);
+    logger.error('[menu-settings / runSaveGroupPriority]', e.message);
   }
 }
 
 function* saga(ea) {
   yield takeLatest(initSettings().type, runInitSettings, ea);
-  yield takeLatest(getSettingsConfig().type, fetchGetSettingsConfig, ea);
+  yield takeLatest(removeSettings().type, runRemoveSettings, ea);
+  yield takeLatest(getSettingsConfig().type, fetchSettingsConfig, ea);
   yield takeLatest(saveSettingsConfig().type, runSaveSettingsConfig, ea);
   yield takeLatest(saveGroupPriority().type, runSaveGroupPriority, ea);
   yield takeLatest(addJournalMenuItems().type, runAddJournalMenuItems, ea);
-  yield takeLatest(getGroupPriority().type, fetchGetGroupPriority, ea);
+  yield takeLatest(getGroupPriority().type, fetchGroupPriority, ea);
 }
 
 export default saga;

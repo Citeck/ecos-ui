@@ -5,6 +5,7 @@ import {
   getGroupPriority,
   getSettingsConfig,
   initSettings,
+  removeSettings,
   saveSettingsConfig,
   setAuthorities,
   setGroupPriority,
@@ -34,6 +35,7 @@ const startLoading = state => ({ ...state, isLoading: true });
 export default handleActions(
   {
     [initSettings]: startLoading,
+    [removeSettings]: startLoading,
     [getSettingsConfig]: startLoading,
     [saveSettingsConfig]: startLoading,
 

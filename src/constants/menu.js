@@ -1,3 +1,5 @@
+export const LOWEST_PRIORITY = 'GROUP_EVERYONE';
+
 export const MenuTypes = {
   LEFT: 'LEFT',
   TOP: 'TOP',

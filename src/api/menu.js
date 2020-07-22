@@ -4,7 +4,7 @@ import lodashSet from 'lodash/set';
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
-import { MenuSettings as ms } from '../constants/menu';
+import { LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
 import Records from '../components/Records';
 import { getJournalUIType } from './export/journalsApi';
 import { CommonApi } from './common';
@@ -238,39 +238,40 @@ export class MenuApi extends CommonApi {
   };
 
   getGroupPriority = ({ authorities }) => {
-    return Promise.resolve([
+    const localAuthorities = authorities.filter(auth => ![LOWEST_PRIORITY].includes(auth));
+    console.log(localAuthorities);
+    const promiseAuthorities = Records.query(
       {
-        id: 'workspace://SpacesStore/c7a6339c-0f42-4790-93da-472222a21cb3',
-        items: [
-          {
-            id: 'workspace://SpacesStore/c7a6339c-0f42-4790-93da-472222a21cb3'
-          },
-          {
-            id: 'workspace://SpacesStore/1a47a420-21fe-43c0-b08a-ffe1081692ca',
-            items: [
-              {
-                id: 'workspace://SpacesStore/1a47a420-21fe-43c0-b08a-ffe1081692ca'
-              }
-            ]
-          }
-        ]
+        sourceId: SourcesId.MENU,
+        language: 'authorities'
       },
-      {
-        id: 'workspace://SpacesStore/94bdca49-ec2c-4e35-9f5b-02437559f5d6',
-        items: [
-          {
-            id: 'workspace://SpacesStore/94bdca49-ec2c-4e35-9f5b-02437559f5d6'
-          }
-        ]
-      },
-      {
-        id: 'workspace://SpacesStore/f8b03bfe-7000-4c92-8e10-543d37846a07'
-      }
-    ]).then(fetchExtraGroupItemInfo);
+      { auth: '.str' }
+    )
+      .then(res => res.records.map(r => r.auth).filter(auth => ![LOWEST_PRIORITY, ...localAuthorities].includes(auth)))
+      .then(serverAuthorities => serverAuthorities.concat(...localAuthorities));
+
+    const promiseConfig = Records.get(`${SourcesId.CONFIG}@menu-group-priority`)
+      .load('value?json')
+      .then(res => res || []);
+
+    return Promise.all([promiseAuthorities, promiseConfig])
+      .then(([availableAuthorities, config]) => {
+        const setAuthoritiesId = config.map(item => item.id);
+        console.log(availableAuthorities, config);
+
+        const filteredAvailableAuthorities = availableAuthorities.filter(id => setAuthoritiesId.includes(id)).map(id => ({ id }));
+
+        return config.concat(...filteredAvailableAuthorities);
+      })
+      .then(fetchExtraGroupItemInfo);
   };
 
   saveGroupPriority = ({ authorities, groupPriority }) => {
     return Promise.resolve(true);
+  };
+
+  removeSettings = ({ id }) => {
+    return Records.remove([`${SourcesId.MENU}@${id}`]);
   };
 }
 
@@ -317,15 +318,7 @@ async function fetchExtraGroupItemInfo(data) {
       const target = { ...item };
 
       if (item.id) {
-        const result = await Records.get(item.id).load({
-          label: '.disp'
-        });
-
-        target.label = result.label;
-      }
-
-      if (Array.isArray(item.items)) {
-        target.items = await fetchExtraGroupItemInfo(item.items);
+        target.label = await Records.get(item.id).load('.disp');
       }
 
       return target;

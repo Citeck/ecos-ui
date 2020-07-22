@@ -41,7 +41,7 @@ export default class DndUtils {
   };
 
   static setDndId = items => {
-    const arr = deepClone(items || []);
+    const arr = deepClone(items, []);
 
     arr.forEach(value => {
       if (!value.dndId) {
