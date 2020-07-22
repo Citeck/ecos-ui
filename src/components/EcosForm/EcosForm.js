@@ -14,6 +14,7 @@ import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
+import { Loader } from '../common';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -63,7 +64,8 @@ class EcosForm extends React.Component {
     return {
       formId: 'eform@',
       error: null,
-      formDefinition: {}
+      formDefinition: {},
+      isLoading: false
     };
   }
 
@@ -335,6 +337,8 @@ class EcosForm extends React.Component {
         }
       };
 
+      self.setState({ isLoading: true });
+
       if (this.props.saveOnSubmit !== false) {
         sRecord
           .save()
@@ -350,9 +354,11 @@ class EcosForm extends React.Component {
             //  But at the moment it works for
             //  https://citeck.atlassian.net/browse/ECOSUI-64
             sRecord.reset();
+            self.setState({ isLoading: false });
           });
       } else {
         onSubmit(sRecord, form);
+        self.setState({ isLoading: false });
       }
     },
     3000,
@@ -368,7 +374,7 @@ class EcosForm extends React.Component {
 
   render() {
     const { className } = this.props;
-    const { error, containerId } = this.state;
+    const { error, containerId, isLoading } = this.state;
 
     if (error) {
       return <div className={classNames('ecos-ui-form__error', className)}>{error.message}</div>;
@@ -376,6 +382,7 @@ class EcosForm extends React.Component {
 
     return (
       <div className={className}>
+        {isLoading && <Loader blur rounded />}
         <div id={containerId} />
         <EcosFormBuilderModal ref={this._formBuilderModal} />
       </div>
