@@ -90,14 +90,14 @@ export default class AssocFormatter extends DefaultGqlFormatter {
 
     return (
       <>
-        <div className="ecos-formatter-assoc__value" id={'value' - this.domId}>
+        <div className="ecos-formatter-assoc__value" id={'value' + this.domId}>
           {displayName}
         </div>
         {this.renderTooltip({
           domId: this.domId,
           text: displayName,
           contentComponent: this.renderTooltipContent(),
-          elementId: 'value' - this.domId
+          elementId: 'value' + this.domId
         })}
       </>
     );
