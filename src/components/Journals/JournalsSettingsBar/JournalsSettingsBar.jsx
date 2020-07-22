@@ -79,7 +79,7 @@ const JournalsSettingsBar = ({
         cleaner
       />
 
-      <Export journalConfig={journalConfig} grid={grid} className={classNames('ecos-journal__settings-bar-download', step)}>
+      <Export journalConfig={journalConfig} grid={grid} className={classNames('ecos-journal__settings-bar-export', step)}>
         <IcoBtn
           invert
           icon={isMobile ? 'icon-download' : 'icon-down'}
