@@ -108,8 +108,8 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
 function* fetchGroupPriority({ api, logger }, { payload }) {
   try {
     const authorities = yield select(state => state.menuSettings.authorities);
-    const data = yield call(api.menu.getGroupPriority, { authorities }); //todo api
-    console.log(data);
+    const data = yield call(api.menu.getGroupPriority, { authorities });
+
     yield put(setGroupPriority(MenuConverter.getGroupPriorityConfigWeb(data)));
   } catch (e) {
     yield put(setGroupPriority(MenuConverter.getGroupPriorityConfigWeb([])));

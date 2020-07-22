@@ -239,7 +239,7 @@ export class MenuApi extends CommonApi {
 
   getGroupPriority = ({ authorities }) => {
     const localAuthorities = authorities.filter(auth => ![LOWEST_PRIORITY].includes(auth));
-    console.log(localAuthorities);
+
     const promiseAuthorities = Records.query(
       {
         sourceId: SourcesId.MENU,
@@ -257,9 +257,7 @@ export class MenuApi extends CommonApi {
     return Promise.all([promiseAuthorities, promiseConfig])
       .then(([availableAuthorities, config]) => {
         const setAuthoritiesId = config.map(item => item.id);
-        console.log(availableAuthorities, config);
-
-        const filteredAvailableAuthorities = availableAuthorities.filter(id => setAuthoritiesId.includes(id)).map(id => ({ id }));
+        const filteredAvailableAuthorities = availableAuthorities.filter(id => !setAuthoritiesId.includes(id)).map(id => ({ id }));
 
         return config.concat(...filteredAvailableAuthorities);
       })
@@ -313,6 +311,7 @@ async function fetchExtraItemInfo(data) {
 }
 
 async function fetchExtraGroupItemInfo(data) {
+  console.log(data);
   return Promise.all(
     data.map(async item => {
       const target = { ...item };
