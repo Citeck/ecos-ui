@@ -26,7 +26,6 @@
 
     #{$root}__side {
       display: flex;
-      //justify-content: space-between;
 
       &_right {
         flex: 1;
@@ -35,7 +34,6 @@
       .ecos-input-search {
         &_open {
           width: 210px;
-          //width: 100%;
 
           & + .ecos-header-user {
             display: none;
@@ -135,24 +133,18 @@
           }
 
           &-data {
-            //width: 0;
-            //flex: 1;
           }
 
           &-title {
-            //@extend %ellipsis;
             color: $color-blue-dark;
             font-weight: $font-weight-semi-bold;
             font-size: $font-size-standard;
-            //white-space: pre-wrap;
           }
 
           &-desc {
-            @extend %ellipsis;
             color: $text-color-gray;
             font-weight: $font-weight-semi-bold;
             font-size: $font-size-small;
-            white-space: pre-wrap;
           }
         }
 
