@@ -2,6 +2,9 @@
 
 .ecos-header {
   $root: &;
+  $dropdown-max-width: 815px;
+  $search-base-width: 300px;
+  $search-focused-width: 440px;
 
   background: $color-blue-light;
   padding: 10px 26px;
@@ -88,11 +91,20 @@
 
   &-search {
     $search: &;
-    width: 315px;
+    width: $search-base-width;
+    transition: width 0.3s;
+
+    &_focused {
+      width: $search-focused-width;
+    }
 
     .ecos-dropdown__menu {
       #{$search}-result {
-        padding: 0 15px;
+        padding: 11px 15px 0;
+
+        &[data-separator='false'] {
+          padding-bottom: 15px;
+        }
 
         &__group-name {
           @extend %ellipsis;
@@ -101,11 +113,11 @@
           font-weight: $font-weight-bold;
           font-size: $font-size-large;
           padding: 15px;
+          max-width: $dropdown-max-width;
         }
 
         &__content {
           display: flex;
-          padding: 11px 0;
 
           &-icon {
             color: $color-blue-light2;
@@ -123,15 +135,16 @@
           }
 
           &-data {
-            width: 0;
-            flex: 1;
+            //width: 0;
+            //flex: 1;
           }
 
           &-title {
-            @extend %ellipsis;
+            //@extend %ellipsis;
             color: $color-blue-dark;
             font-weight: $font-weight-semi-bold;
             font-size: $font-size-standard;
+            //white-space: pre-wrap;
           }
 
           &-desc {
@@ -139,16 +152,14 @@
             color: $text-color-gray;
             font-weight: $font-weight-semi-bold;
             font-size: $font-size-small;
+            white-space: pre-wrap;
           }
         }
-      }
 
-      //
-      //#{$search}-result:not(:last-of-type) {
-      //  #{$search}-result__content {
-      //    border-bottom: 2px solid $color-gray-4;
-      //  }
-      //}
+        .ecos-separator {
+          margin-top: 15px;
+        }
+      }
     }
 
     &_theme_uedmsTheme {
@@ -175,19 +186,28 @@
 
     &-result {
       $result: &;
+      max-width: $dropdown-max-width;
 
       &:hover {
-        margin-top: -2px;
-        padding: 2px 15px 0 !important;
-
-        &[data-separator='true'] {
-          padding: 2px 15px !important;
-        }
-
         #{$result}__separator {
           display: none;
         }
       }
+
+      &[data-separator='false'] {
+        padding-bottom: 15px;
+      }
+
+      &__content-data {
+        display: flex;
+        flex-direction: column;
+        white-space: nowrap;
+      }
+    }
+
+    .ecos-dropdown__menu.ecos-input-search__results {
+      width: unset;
+      max-width: $dropdown-max-width;
     }
   }
 
