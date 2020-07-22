@@ -26,16 +26,16 @@ export default class BaseFormatter extends Component {
     return cell || '';
   }
 
-  getIsNeededTooltip = isNeededTooltip => {
+  getIsNeededTooltip = withTooltip => {
     this.setState(prevState => {
-      if (prevState.isNeededTooltip !== isNeededTooltip) {
-        return { isNeededTooltip };
+      if (prevState.withTooltip !== withTooltip) {
+        return { withTooltip };
       }
     });
   };
 
   renderTooltip = ({ domId, text, contentComponent, elementId }) => {
-    const { isNeededTooltip } = this.state || {};
+    const { withTooltip } = this.state || {};
 
     return (
       <Tooltip
@@ -49,7 +49,7 @@ export default class BaseFormatter extends Component {
         innerClassName="ecos-formatter__tooltip-inner"
         placement={'right'}
       >
-        <Icon id={domId} className="icon-question ecos-formatter__tooltip-icon" hidden={!isNeededTooltip} />
+        <Icon id={domId} className="icon-question ecos-formatter__tooltip-icon" hidden={!withTooltip} />
       </Tooltip>
     );
   };

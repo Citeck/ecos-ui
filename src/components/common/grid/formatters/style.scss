@@ -26,6 +26,11 @@
       width: calc(100% - 22px);
       padding-right: 10px;
 
+      &_no-tooltip {
+        width: 100%;
+        padding-right: 0px;
+      }
+
       &:empty {
         display: none;
 

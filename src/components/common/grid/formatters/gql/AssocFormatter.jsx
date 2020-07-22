@@ -1,5 +1,6 @@
 import React from 'react';
 import uuidV4 from 'uuid/v4';
+import classNames from 'classnames';
 
 import { isNodeRef } from '../../../../../helpers/util';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
@@ -74,30 +75,34 @@ export default class AssocFormatter extends DefaultGqlFormatter {
 
   renderTooltipContent = () => {
     const { displayName } = this.state;
+    const { cell } = this.props;
     const displayNameArray = displayName.split(', ');
 
     return (
       <div className="ecos-formatter-assoc__tooltip-content">
-        {displayNameArray.map(name => (
-          <div>{name}</div>
+        {displayNameArray.map((name, i) => (
+          <div key={cell.assoc + i}>{name}</div>
         ))}
       </div>
     );
   };
 
   render() {
-    const { displayName } = this.state;
+    const { displayName, withTooltip } = this.state;
 
     return (
       <>
-        <div className="ecos-formatter-assoc__value" id={'value' + this.domId}>
+        <div
+          className={classNames('ecos-formatter-assoc__value', { 'ecos-formatter-assoc__value_no-tooltip': !withTooltip })}
+          id={'value_' + this.domId}
+        >
           {displayName}
         </div>
         {this.renderTooltip({
           domId: this.domId,
           text: displayName,
           contentComponent: this.renderTooltipContent(),
-          elementId: 'value' + this.domId
+          elementId: 'value_' + this.domId
         })}
       </>
     );
