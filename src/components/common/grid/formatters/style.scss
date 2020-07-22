@@ -1,0 +1,48 @@
+@import '../../../../styles/constants';
+
+.ecos-formatter {
+  $f: &;
+
+  &__tooltip {
+    .ecos-base-tooltip &-inner {
+      text-align: left;
+      font-size: $font-size-small;
+    }
+
+    &-icon {
+      cursor: pointer;
+      color: $color-gray-5;
+
+      &:hover {
+        color: $color-blue-light;
+      }
+    }
+  }
+
+  &-assoc {
+    &__value {
+      @extend %ellipsis;
+      display: inline-block;
+      width: calc(100% - 22px);
+      padding-right: 10px;
+
+      &:empty {
+        display: none;
+
+        & + #{$f}__tooltip-icon {
+          display: none;
+        }
+      }
+    }
+
+    &__tooltip-content {
+      & :nth-child(n) {
+        padding: 7px 0;
+      }
+
+      & :not(:last-child) {
+        border-bottom: $border-width-standard solid $color-gray-4;
+      }
+    }
+  }
+}

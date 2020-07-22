@@ -1,4 +1,6 @@
-import React, { Fragment } from 'react';
+import React from 'react';
+import uuidV4 from 'uuid/v4';
+
 import { isNodeRef } from '../../../../../helpers/util';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import Records from '../../../../../components/Records';
@@ -37,15 +39,22 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     return AssocFormatter.getDisplayName(value);
   }
 
+  constructor(props) {
+    super(props);
+    this.domId = '_' + uuidV4();
+  }
+
   getId(cell) {
     return cell.assoc || '';
   }
 
   state = {
-    displayName: ''
+    displayName: '',
+    isNeededTooltip: false
   };
 
   fetchName = false;
+  domId;
 
   componentDidMount() {
     const { cell } = this.props;
@@ -63,7 +72,34 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     this.fetchName = false;
   }
 
+  renderTooltipContent = () => {
+    const { displayName } = this.state;
+    const displayNameArray = displayName.split(', ');
+
+    return (
+      <div className="ecos-formatter-assoc__tooltip-content">
+        {displayNameArray.map(name => (
+          <div>{name}</div>
+        ))}
+      </div>
+    );
+  };
+
   render() {
-    return <Fragment>{this.state.displayName}</Fragment>;
+    const { displayName } = this.state;
+
+    return (
+      <>
+        <div className="ecos-formatter-assoc__value" id={'value' - this.domId}>
+          {displayName}
+        </div>
+        {this.renderTooltip({
+          domId: this.domId,
+          text: displayName,
+          contentComponent: this.renderTooltipContent(),
+          elementId: 'value' - this.domId
+        })}
+      </>
+    );
   }
 }
