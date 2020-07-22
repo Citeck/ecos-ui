@@ -115,6 +115,10 @@ export default class SearchSelect extends React.Component {
       this.setState({
         focused: isFocused
       });
+
+      if (typeof this.props.onToggleFocus === 'function') {
+        this.props.onToggleFocus(isFocused);
+      }
     }
   };
 

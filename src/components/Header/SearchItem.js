@@ -1,6 +1,8 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
+
 import { Avatar, Icon, Separator } from '../common';
 
 export default class SearchItem extends React.PureComponent {
@@ -11,12 +13,35 @@ export default class SearchItem extends React.PureComponent {
       description: PropTypes.string,
       groupName: PropTypes.string
     }),
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
+    maxWidth: PropTypes.number
   };
 
   static defaultProps = {
     data: {},
     onClick: () => {}
+  };
+
+  checkStyle = current => {
+    const { maxWidth } = this.props;
+
+    if (!current || !maxWidth) {
+      return;
+    }
+
+    const leftBlock = current.querySelector('.ecos-header-search-result__content-left');
+    const data = current.querySelector('.ecos-header-search-result__content-data');
+    let indent = parseInt(window.getComputedStyle(current, null).getPropertyValue('padding-left'), 10);
+
+    indent += parseInt(window.getComputedStyle(current, null).getPropertyValue('padding-right'), 10);
+    indent += get(leftBlock, 'offsetWidth', 0);
+
+    if (data.offsetWidth > maxWidth - indent) {
+      data.style.whiteSpace = 'pre-wrap';
+      data.style.width = `${maxWidth - indent}px`;
+    } else {
+      data.style.whiteSpace = 'nowrap';
+    }
   };
 
   onClick = () => {
@@ -32,10 +57,12 @@ export default class SearchItem extends React.PureComponent {
     return groupName ? (
       <li className="ecos-header-search-result__group-name">{groupName}</li>
     ) : (
-      <li onClick={this.onClick} className="ecos-header-search-result" data-separator={!isLast}>
+      <li onClick={this.onClick} className="ecos-header-search-result" data-separator={!isLast} ref={this.checkStyle}>
         <div className={classNames('ecos-header-search-result__content', { 'ecos-header-search-result__content_last': isLast })}>
-          {icon && <Icon className={`${icon} ecos-header-search-result__content-icon`} />}
-          {isAvatar && <Avatar url={avatarUrl} className="ecos-header-search-result__content-avatar" />}
+          <div className="ecos-header-search-result__content-left">
+            {icon && <Icon className={`${icon} ecos-header-search-result__content-icon`} />}
+            {isAvatar && <Avatar url={avatarUrl} className="ecos-header-search-result__content-avatar" />}
+          </div>
           <div className="ecos-header-search-result__content-data">
             <div className="ecos-header-search-result__content-title">{title}</div>
             <div className="ecos-header-search-result__content-desc">{description}</div>
