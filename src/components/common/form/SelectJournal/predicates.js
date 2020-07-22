@@ -324,7 +324,7 @@ export function getPredicateInput(field, sourceId, metaRecord) {
         defaultValue: null,
         getProps: ({ predicateValue, changePredicateValue }) => ({
           isCompact: true,
-          journalId: field.editorKey,
+          journalId: get(field, 'params.journalTypeId') || field.editorKey,
           defaultValue: predicateValue,
           onChange: function(value) {
             changePredicateValue(value);

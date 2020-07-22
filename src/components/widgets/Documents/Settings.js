@@ -7,13 +7,14 @@ import { Btn } from '../../common/btns';
 import Tree from './Tree';
 import TypeSettings from './TypeSettings';
 import { GrouppedTypeInterface, TypeSettingsInterface } from './propsInterfaces';
-import { deepClone, t, arrayCompare } from '../../../helpers/util';
+import { arrayCompare, deepClone, t } from '../../../helpers/util';
 import { Checkbox } from '../../common/form';
 
 const Labels = {
   CANCEL_BUTTON: 'documents-widget.settings-modal.button.cancel',
   OK_BUTTON: 'documents-widget.settings-modal.button.ok',
-  CHECKLIST: 'documents-widget.settings-modal.checklist'
+  CHECKLIST: 'documents-widget.settings-modal.checklist',
+  POSSIBLE_UPLOAD_FILE: 'documents-widget.settings-modal.possible-upload-file'
 };
 
 class Settings extends Component {
@@ -21,6 +22,7 @@ class Settings extends Component {
     isOpen: PropTypes.bool,
     isLoading: PropTypes.bool,
     isLoadChecklist: PropTypes.bool,
+    isPossibleUploadFile: PropTypes.bool,
     isLoadingTypeSettings: PropTypes.bool,
     title: PropTypes.string,
     typeSettings: PropTypes.shape(TypeSettingsInterface),
@@ -34,6 +36,7 @@ class Settings extends Component {
     isOpen: false,
     isLoading: false,
     isLoadChecklist: false,
+    isPossibleUploadFile: false,
     isLoadingTypeSettings: false,
     title: '',
     types: [],
@@ -49,6 +52,7 @@ class Settings extends Component {
       types: props.types,
       filter: '',
       isLoadChecklist: props.isLoadChecklist,
+      isPossibleUploadFile: props.isPossibleUploadFile,
       editableType: null,
       customizedTypeSettings: new Map()
     };
@@ -63,6 +67,10 @@ class Settings extends Component {
 
     if (!props.isOpen && props.isLoadChecklist !== state.isLoadChecklist) {
       newState.isLoadChecklist = props.isLoadChecklist;
+    }
+
+    if (!props.isOpen && props.isPossibleUploadFile !== state.isPossibleUploadFile) {
+      newState.isPossibleUploadFile = props.isPossibleUploadFile;
     }
 
     if (!props.isOpen && state.filter) {
@@ -194,7 +202,7 @@ class Settings extends Component {
   };
 
   handleClickSave = () => {
-    const { isLoadChecklist } = this.state;
+    const { isLoadChecklist, isPossibleUploadFile } = this.state;
     const types = deepClone(this.state.types);
     const selected = [];
 
@@ -209,7 +217,7 @@ class Settings extends Component {
     };
 
     types.forEach(checkStatus);
-    this.props.onSave({ types: selected, isLoadChecklist });
+    this.props.onSave({ types: selected, isLoadChecklist, isPossibleUploadFile });
   };
 
   handleToggleSelectType = ({ id, checked }) => {
@@ -240,9 +248,13 @@ class Settings extends Component {
     this.setState({ isLoadChecklist: checked });
   };
 
+  handleTogglePossibleUploadFile = ({ checked }) => {
+    this.setState({ isPossibleUploadFile: checked });
+  };
+
   render() {
     const { isOpen, title, isLoading, isLoadingTypeSettings } = this.props;
-    const { editableType, isLoadChecklist } = this.state;
+    const { editableType, isLoadChecklist, isPossibleUploadFile } = this.state;
 
     return (
       <>
@@ -253,9 +265,13 @@ class Settings extends Component {
           className="ecos-docs__modal-settings"
           hideModal={this.handleCloseModal}
         >
-          <Checkbox className="ecos-docs__modal-checklist" onChange={this.handleToggleLoadChecklist} checked={isLoadChecklist}>
+          <Checkbox className="ecos-docs__modal-checkbox" onChange={this.handleToggleLoadChecklist} checked={isLoadChecklist}>
             {t(Labels.CHECKLIST)}
           </Checkbox>
+          <Checkbox className="ecos-docs__modal-checkbox" onChange={this.handleTogglePossibleUploadFile} checked={isPossibleUploadFile}>
+            {t(Labels.POSSIBLE_UPLOAD_FILE)}
+          </Checkbox>
+
           <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__modal-settings-search" />
           <div className="ecos-docs__modal-settings-field">
             <Tree data={this.availableTypes} onToggleSelect={this.handleToggleSelectType} onOpenSettings={this.handleToggleTypeSettings} />

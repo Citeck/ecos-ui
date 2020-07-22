@@ -131,7 +131,7 @@ class VersionsJournal extends BaseWidget {
     this.state = { ...state, ...VersionsJournal.getDefaultSelectedVersions(props) };
 
     this.topPanel = React.createRef();
-    this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateData);
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'version', 'name'])];
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -165,22 +165,17 @@ class VersionsJournal extends BaseWidget {
 
   componentDidMount() {
     super.componentDidMount();
-
     this.props.getVersionsList();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    super.componentDidUpdate();
+    super.componentDidUpdate(prevProps, prevState);
 
     if (!arrayCompare(prevProps.versionsLabels, this.props.versionsLabels)) {
       this.setState({
         ...VersionsJournal.getDefaultSelectedVersions(this.props)
       });
     }
-  }
-
-  componentWillUnmount() {
-    this.instanceRecord.unwatch(this.watcher);
   }
 
   updateData = () => {
@@ -232,6 +227,11 @@ class VersionsJournal extends BaseWidget {
   handleClickHideComparisonModal = () => {
     this.props.toggleModal(MODAL.COMPARISON);
   };
+
+  handleUpdate() {
+    super.handleUpdate();
+    this.updateData();
+  }
 
   get scrollableHeight() {
     let scrollableHeight = this.state.contentHeight;

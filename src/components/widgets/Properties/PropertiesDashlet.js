@@ -50,7 +50,6 @@ class PropertiesDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
     this.permissionsWatcher = this.instanceRecord.watch('.att(n:"permissions"){has(n:"Write")}', this.checkPermissions);
 
     this.state = {
@@ -68,12 +67,11 @@ class PropertiesDashlet extends BaseWidget {
 
   componentDidMount() {
     super.componentDidMount();
-
     this.checkPermissions();
   }
 
-  componentDidUpdate(prevProps) {
-    super.componentDidUpdate(prevProps);
+  componentDidUpdate(prevProps, prevState) {
+    super.componentDidUpdate(prevProps, prevState);
 
     if (!objectCompare(prevProps.config, this.props.config)) {
       this.reload();
@@ -81,7 +79,7 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   componentWillUnmount() {
-    this.instanceRecord.unwatch(this.watcher);
+    super.componentWillUnmount();
     this.instanceRecord.unwatch(this.permissionsWatcher);
   }
 
@@ -94,7 +92,7 @@ class PropertiesDashlet extends BaseWidget {
 
     const actions = {
       [DAction.Actions.RELOAD]: {
-        onClick: this.reload
+        onClick: this.reload.bind(this)
       },
       [DAction.Actions.SETTINGS]: {
         onClick: this.toggleDisplayFormSettings

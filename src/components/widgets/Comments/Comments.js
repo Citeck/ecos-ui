@@ -452,6 +452,11 @@ class Comments extends BaseWidget {
     }
   }, 400);
 
+  handleUpdate() {
+    super.handleUpdate();
+    this.handleReloadData();
+  }
+
   renderHeader() {
     const { isEdit } = this.state;
 

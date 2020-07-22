@@ -55,7 +55,7 @@ export default class Filter extends Component {
 
         <Columns
           classNamesColumn={'columns_height_full columns-setup__column_align'}
-          cfgs={[{ xl: 3 }, { xl: 4 }, { xl: 4 }, { xl: 1 }]}
+          cfgs={[{ sm: 3 }, { sm: 4 }, { sm: 4 }, { sm: 1 }]}
           cols={[
             <Label title={column.text} className={'ecos-filter__label ecos-filter_step label_clear label_bold label_middle-grey'}>
               {column.text}
