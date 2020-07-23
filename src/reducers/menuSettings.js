@@ -12,8 +12,7 @@ import {
   setLastAddedItems,
   setLoading,
   setMenuItems,
-  setOpenMenuSettings,
-  setSettingsConfig
+  setOpenMenuSettings
 } from '../actions/menuSettings';
 import { treeSetDndIndex } from '../helpers/arrayOfObjects';
 
@@ -38,17 +37,6 @@ export default handleActions(
     [removeSettings]: startLoading,
     [getSettingsConfig]: startLoading,
     [saveSettingsConfig]: startLoading,
-
-    [setSettingsConfig]: (state, action) => {
-      const { items, ...data } = action.payload;
-
-      return {
-        ...state,
-        ...data,
-        items: treeSetDndIndex(items || []),
-        isLoading: false
-      };
-    },
 
     [setOpenMenuSettings]: (state, { payload }) => ({
       ...state,

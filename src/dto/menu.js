@@ -124,12 +124,8 @@ export default class MenuConverter {
   }
 
   /* menu settings */
-  static getSettingsConfigWeb(source, params) {
-    const { menu = {}, ...target } = source;
-    const { type = MenuTypes.LEFT } = params;
-    const keyType = MenuSettingsService.getConfigKeyByType(type);
-    const sourceItems = get(menu, [keyType, 'items']) || [];
-    const targetItems = [];
+  static getMenuItemsWeb(source) {
+    const target = [];
 
     (function prepareTree(sItems, tItems) {
       for (let i = 0; i < sItems.length; i++) {
@@ -139,9 +135,7 @@ export default class MenuConverter {
         sItem.items && prepareTree(sItem.items, tItem.items);
         tItems.push(tItem);
       }
-    })(sourceItems, targetItems);
-
-    target.items = targetItems;
+    })(source, target);
 
     return target;
   }

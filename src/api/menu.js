@@ -6,6 +6,7 @@ import { SourcesId, URL } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
 import Records from '../components/Records';
+import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
 import { getJournalUIType } from './export/journalsApi';
 import { CommonApi } from './common';
 
@@ -211,20 +212,11 @@ export class MenuApi extends CommonApi {
           return resp;
         });
       })
-      .then(resp => resp)
+      .then(resp => resp || {})
       .catch(err => {
         console.error(err);
         return {};
       });
-  };
-
-  saveMenuSettingsConfig = ({ id, subMenu, authorities }) => {
-    const rec = Records.get(`${SourcesId.MENU}@${id}`);
-
-    rec.att('subMenu', subMenu);
-    rec.att('authorities[]?str', authorities);
-
-    return rec.save();
   };
 
   getItemInfoByRef = records => {
@@ -237,31 +229,58 @@ export class MenuApi extends CommonApi {
     );
   };
 
+  getAuthoritiesInfoByName = authorities => {
+    const _authorities = authorities.map(auth => `${SourcesId.AUTHORITY}@${auth}`);
+
+    return Records.get(_authorities).load({ name: '.str', ref: 'nodeRef' });
+  };
+
+  getAuthoritiesInfoByRef = refs => {
+    return Records.get(refs).load({ ref: '.str', name: 'cm:userName!cm:authorityName', label: '.disp' });
+  };
+
   getGroupPriority = ({ authorities }) => {
-    const localAuthorities = authorities.filter(auth => ![LOWEST_PRIORITY].includes(auth));
+    const localAuthorities = authorities.map(item => item.name);
 
     const promiseAuthorities = Records.query(
       {
         sourceId: SourcesId.MENU,
         language: 'authorities'
       },
-      { auth: '.str' }
+      { name: '.str' }
     )
-      .then(res => res.records.map(r => r.auth).filter(auth => ![LOWEST_PRIORITY, ...localAuthorities].includes(auth)))
-      .then(serverAuthorities => serverAuthorities.concat(...localAuthorities));
+      .then(res => res.records.map(r => r.name))
+      .then(server => {
+        const local = localAuthorities.filter(name => !server.includes(name));
+        return server.concat(...local);
+      });
 
     const promiseConfig = Records.get(`${SourcesId.CONFIG}@menu-group-priority`)
       .load('value?json')
       .then(res => res || []);
 
     return Promise.all([promiseAuthorities, promiseConfig])
-      .then(([availableAuthorities, config]) => {
+      .then(([serverAuthorities, config]) => {
         const setAuthoritiesId = config.map(item => item.id);
-        const filteredAvailableAuthorities = availableAuthorities.filter(id => !setAuthoritiesId.includes(id)).map(id => ({ id }));
+        const filteredAvailableAuthorities = serverAuthorities.filter(id => !setAuthoritiesId.includes(id)).map(id => ({ id }));
 
-        return config.concat(...filteredAvailableAuthorities);
+        return setAuthoritiesId.concat(...filteredAvailableAuthorities);
       })
+      .then(res => {
+        console.log(res);
+        return res;
+      })
+      .then(authorities => authorities.filter(item => item.id !== LOWEST_PRIORITY && item.id.includes(AUTHORITY_TYPE_GROUP)))
       .then(fetchExtraGroupItemInfo);
+  };
+
+  saveMenuSettingsConfig = ({ id, subMenu, authorities }) => {
+    const rec = Records.get(`${SourcesId.MENU}@${id}`);
+
+    rec.att('subMenu', subMenu);
+    rec.att('authorities[]?str', authorities);
+
+    return rec.save();
   };
 
   saveGroupPriority = ({ authorities, groupPriority }) => {
@@ -311,7 +330,6 @@ async function fetchExtraItemInfo(data) {
 }
 
 async function fetchExtraGroupItemInfo(data) {
-  console.log(data);
   return Promise.all(
     data.map(async item => {
       const target = { ...item };

@@ -11,17 +11,17 @@ import {
   removeSettings,
   saveGroupPriority,
   saveSettingsConfig,
+  setAuthorities,
   setGroupPriority,
   setLastAddedItems,
   setLoading,
   setMenuItems,
-  setOpenMenuSettings,
-  setSettingsConfig
+  setOpenMenuSettings
 } from '../actions/menuSettings';
 import { t } from '../helpers/util';
 import MenuConverter from '../dto/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
-import { MenuSettings as ms } from '../constants/menu';
+import { LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
 
 function* runInitSettings({ api, logger }, action) {
   try {
@@ -45,16 +45,19 @@ function* runRemoveSettings({ api, logger }, action) {
 function* fetchSettingsConfig({ api, logger }) {
   try {
     const { id, type } = yield select(state => state.menu);
+    const keyType = MenuSettingsService.getConfigKeyByType(type);
 
     if (!id) {
       NotificationManager.error(t('menu-settings.error.no-id-config'), t('error'));
       throw new Error('User Menu Ref has not received');
     }
 
-    const result = yield call(api.menu.getMenuSettingsConfig, { id });
-    const config = MenuConverter.getSettingsConfigWeb(result, { type });
+    const { menu, authorities } = yield call(api.menu.getMenuSettingsConfig, { id });
+    const authoritiesInfo = yield call(api.menu.getAuthoritiesInfoByName, authorities);
+    const items = MenuConverter.getMenuItemsWeb(get(menu, [keyType, 'items']) || []);
 
-    yield put(setSettingsConfig(config));
+    yield put(setMenuItems(items));
+    yield put(setAuthorities(authoritiesInfo));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.get-config'), t('error'));
@@ -65,15 +68,17 @@ function* fetchSettingsConfig({ api, logger }) {
 function* runSaveSettingsConfig({ api, logger }, { payload }) {
   try {
     const { id, type } = yield select(state => state.menu);
-    const items = yield select(state => state.menuSettings.items);
-    const authorities = yield select(state => state.menuSettings.authorities);
     const keyType = MenuSettingsService.getConfigKeyByType(type);
+    const items = yield select(state => state.menuSettings.items);
+    const authoritiesInfo = yield select(state => state.menuSettings.authorities);
+    const authorities = authoritiesInfo.map(item => item.name);
 
     const result = yield call(api.menu.getMenuSettingsConfig, { id });
     const originalItems = get(result, ['menu', keyType, 'items'], []);
     const serverData = MenuConverter.getSettingsConfigServer({ originalItems, items });
 
     set(result, ['subMenu', keyType], serverData);
+    !authorities.length && authorities.push(LOWEST_PRIORITY);
 
     yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities });
     yield put(saveGroupPriority(payload));

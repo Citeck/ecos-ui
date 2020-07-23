@@ -9,6 +9,7 @@ import { getPositionAdjustment } from '../../helpers/menu';
 import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
 import { EcosModal, Loader } from '../../components/common';
+import { AUTHORITY_TYPE_GROUP } from '../../components/common/form/SelectOrgstruct/constants';
 import DialogManager from '../../components/common/dialogs/Manager';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import { SelectOrgstruct } from '../../components/common/form';
@@ -84,13 +85,18 @@ class Settings extends React.Component {
   };
 
   handleSelectOrg = data => {
-    this.props.setAuthorities(data);
+    const authorities = data.map(({ attributes }) => {
+      if (attributes.authorityType === AUTHORITY_TYPE_GROUP) {
+        return { name: attributes.fullName, ref: attributes.nodeRef };
+      }
+      return { name: attributes.userName, ref: attributes.id };
+    });
+
+    this.props.setAuthorities(authorities);
   };
 
   handleReset = () => {
     DialogManager.showRemoveDialog({
-      title: '',
-      text: 'Вы действительно хотите сбросить конфигурацию?',
       className: 'ecos-modal_width-xs',
       onDelete: () => {
         this.props.removeSettings();
@@ -110,7 +116,7 @@ class Settings extends React.Component {
   }
 
   render() {
-    const { isLoading, authorities } = this.props;
+    const { isLoading, authorityRefs } = this.props;
     const customButtons = [
       <IcoBtn
         key="ecos-menu-settings-btn-goto"
@@ -142,16 +148,18 @@ class Settings extends React.Component {
 
         <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
         <div className="ecos-menu-settings-ownership">
-          <SelectOrgstruct defaultValue={authorities} multiple onChange={this.handleSelectOrg} />
+          <SelectOrgstruct defaultValue={authorityRefs} multiple onChange={this.handleSelectOrg} getFullData />
         </div>
 
         <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
         <EditorGroupPriority />
 
-        <div className="ecos-menu-settings-reset">
-          <div className="ecos-menu-settings__explanation">Вы можете сбросить пользовательские настройки до базовых настроек</div>
-          <Btn onClick={this.handleReset}>Сбросить</Btn>
-        </div>
+        {false && (
+          <div className="ecos-menu-settings-reset">
+            <div className="ecos-menu-settings__explanation">Вы можете сбросить пользовательские настройки до базовых настроек</div>
+            <Btn onClick={this.handleReset}>Сбросить</Btn>
+          </div>
+        )}
         {this.renderButtons()}
       </EcosModal>
     );
@@ -161,7 +169,7 @@ class Settings extends React.Component {
 const mapStateToProps = state => ({
   id: get(state, 'menu.id'),
   type: get(state, 'menu.type') || MenuTypes.LEFT,
-  authorities: get(state, 'menuSettings.authorities'),
+  authorityRefs: (get(state, 'menuSettings.authorities') || []).map(item => item.ref),
   isLoading: get(state, 'menuSettings.isLoading')
 });
 
