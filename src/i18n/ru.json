@@ -1015,6 +1015,7 @@
   "doc-constructor-widget.success.edit-document": "Редактирование документа запущено",
   "doc-constructor-widget.error.edit-document": "Редактирование документа запустить не удалось",
   "doc-constructor-widget.settings.title": "Настройки виджета",
+  "doc-constructor-widget.settings.prop.journal-templates-id": "ID журнала шаблонов",
   "doc-constructor-widget.settings.prop.widget-display-condition": "Условие отображения виджета",
   "doc-constructor-widget.settings.button.cancel": "Отменить",
   "doc-constructor-widget.settings.button.save": "Сохранить",

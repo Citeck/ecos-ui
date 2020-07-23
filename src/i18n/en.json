@@ -1010,6 +1010,7 @@
   "doc-constructor-widget.success.edit-document": "Document editing has launched",
   "doc-constructor-widget.error.edit-document": "Document editing has failed",
   "doc-constructor-widget.settings.title": "Settings widget",
+  "doc-constructor-widget.settings.prop.journal-templates-id": "Journal templates ID",
   "doc-constructor-widget.settings.prop.widget-display-condition": "Widget display condition",
   "doc-constructor-widget.settings.button.cancel": "Cancel",
   "doc-constructor-widget.settings.button.save": "Save",

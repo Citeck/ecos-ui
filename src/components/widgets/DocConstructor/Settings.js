@@ -2,13 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../helpers/export/util';
-import { Caption, Textarea } from '../../common/form';
+import { Caption, Input, Textarea } from '../../common/form';
 import { Btn } from '../../common/btns';
 
 import './style.scss';
 
 const Labels = {
   TITLE: 'doc-constructor-widget.settings.title',
+  JOURNAL_TEMPLATES_ID: 'doc-constructor-widget.settings.prop.journal-templates-id',
   WIDGET_DISPLAY_CONDITION: 'doc-constructor-widget.settings.prop.widget-display-condition',
   BTN_CANCEL: 'doc-constructor-widget.settings.button.cancel',
   BTN_SAVE: 'doc-constructor-widget.settings.button.save'
@@ -26,19 +27,18 @@ class Settings extends React.Component {
   };
 
   state = {
-    widgetDisplayCondition: ''
+    widgetDisplayCondition: '',
+    journalTemplatesId: ''
   };
 
   componentDidMount() {
-    const { widgetDisplayCondition } = this.props.config;
+    const { widgetDisplayCondition, journalTemplatesId } = this.props.config;
 
-    this.setState({ widgetDisplayCondition });
+    this.setState({ widgetDisplayCondition, journalTemplatesId });
   }
 
   onSave = () => {
-    const { widgetDisplayCondition } = this.state;
-
-    this.props.onSave({ widgetDisplayCondition });
+    this.props.onSave({ ...this.state });
   };
 
   onCancel = () => {
@@ -49,12 +49,20 @@ class Settings extends React.Component {
     this.setState({ widgetDisplayCondition: event.target.value });
   };
 
+  onChangeJournalTemplates = event => {
+    this.setState({ journalTemplatesId: event.target.value });
+  };
+
   render() {
     return (
       <div className="ecos-doc-constructor-settings">
         <Caption middle className="ecos-doc-constructor-settings__title">
           {t(Labels.TITLE)}
         </Caption>
+        <div className="ecos-doc-constructor-settings__block">
+          <div className="ecos-doc-constructor-settings__subtitle">{t(Labels.JOURNAL_TEMPLATES_ID)}</div>
+          <Input defaultValue={this.state.journalTemplatesId} onChange={this.onChangeJournalTemplates} />
+        </div>
         <div className="ecos-doc-constructor-settings__block">
           <div className="ecos-doc-constructor-settings__subtitle">{t(Labels.WIDGET_DISPLAY_CONDITION)}</div>
           <Textarea value={this.state.widgetDisplayCondition} onChange={this.onChangeCondition} />

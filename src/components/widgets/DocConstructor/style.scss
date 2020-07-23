@@ -102,6 +102,10 @@
   &-settings {
     &__block {
       max-width: 434px;
+
+      &:not(:last-child) {
+        margin-bottom: 15px;
+      }
     }
 
     &__title {

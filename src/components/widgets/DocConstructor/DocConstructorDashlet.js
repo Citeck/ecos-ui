@@ -112,6 +112,7 @@ class DocConstructorDashlet extends BaseWidget {
 
     this.props.onSave && this.props.onSave(this.props.id, { config });
     this.onToggleSettings();
+    this.props.initConstructor();
   };
 
   onChangeTemplate = template => {
@@ -165,7 +166,7 @@ class DocConstructorDashlet extends BaseWidget {
           <div className="ecos-doc-constructor__label field-required">{t(Labels.LABEL_JOURNAL)}</div>
           <SelectJournal
             className="ecos-doc-constructor__journal"
-            journalId={'doc-one-templates'}
+            journalId={config.journalTemplatesId}
             onChange={this.onChangeTemplate}
             defaultValue={contractTemplate}
             isSelectedValueAsText
