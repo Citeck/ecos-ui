@@ -1,6 +1,8 @@
 import React from 'react';
 import uuidV4 from 'uuid/v4';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
+import ReactResizeDetector from 'react-resize-detector';
 
 import { isNodeRef } from '../../../../../helpers/util';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
@@ -81,20 +83,28 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     return (
       <div className="ecos-formatter-assoc__tooltip-content">
         {displayNameArray.map((name, i) => (
-          <div key={cell.assoc + i}>{name}</div>
+          <div key={`${cell.assoc}_${i}`}>{name}</div>
         ))}
       </div>
     );
   };
 
+  onResize = () => {
+    const tool = this.tooltipRef.current;
+
+    tool && tool.runUpdate();
+  };
+
   render() {
     const { displayName, withTooltip } = this.state;
+    const elementId = `value_${this.domId}`;
 
     return (
       <>
+        <ReactResizeDetector handleWidth onResize={debounce(this.onResize, 250)} />
         <div
           className={classNames('ecos-formatter-assoc__value', { 'ecos-formatter-assoc__value_no-tooltip': !withTooltip })}
-          id={'value_' + this.domId}
+          id={elementId}
         >
           {displayName}
         </div>
@@ -102,7 +112,7 @@ export default class AssocFormatter extends DefaultGqlFormatter {
           domId: this.domId,
           text: displayName,
           contentComponent: this.renderTooltipContent(),
-          elementId: 'value_' + this.domId
+          elementId
         })}
       </>
     );

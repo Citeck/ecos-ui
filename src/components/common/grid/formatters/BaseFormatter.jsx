@@ -18,6 +18,8 @@ export default class BaseFormatter extends Component {
     return this.prototype.getId(cell);
   }
 
+  tooltipRef = React.createRef();
+
   value(cell) {
     return cell || '';
   }
@@ -39,6 +41,7 @@ export default class BaseFormatter extends Component {
 
     return (
       <Tooltip
+        ref={this.tooltipRef}
         showAsNeeded
         target={domId}
         elementId={elementId}
@@ -47,7 +50,6 @@ export default class BaseFormatter extends Component {
         getIsNeeded={this.getIsNeededTooltip}
         contentComponent={contentComponent}
         innerClassName="ecos-formatter__tooltip-inner"
-        placement={'right'}
       >
         <Icon id={domId} className="icon-question ecos-formatter__tooltip-icon" hidden={!withTooltip} />
       </Tooltip>

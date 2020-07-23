@@ -115,6 +115,10 @@ class Tooltip extends Component {
     }
   };
 
+  runUpdate = () => {
+    this.forceUpdate();
+  };
+
   tooltipProps = () => {
     const {
       target,
