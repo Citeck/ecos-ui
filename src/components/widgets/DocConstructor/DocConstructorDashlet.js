@@ -22,6 +22,7 @@ import { SelectJournal } from '../../common/form';
 import { Btn, IcoBtn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
+import Settings from './Settings';
 
 import './style.scss';
 
@@ -53,7 +54,8 @@ class DocConstructorDashlet extends BaseWidget {
   state = {
     ...super.state,
     delayedUpdate: false,
-    isSmallMode: false
+    isSmallMode: false,
+    isOpenSettings: false
   };
 
   get disabledAction() {
@@ -67,13 +69,20 @@ class DocConstructorDashlet extends BaseWidget {
   }
 
   get actionConfig() {
-    return {
+    const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: () => {
           this.props.initConstructor();
         }
       }
     };
+
+    this.props.isAdmin &&
+      (actions[DAction.Actions.SETTINGS] = {
+        onClick: this.onToggleSettings
+      });
+
+    return actions;
   }
 
   componentDidMount() {
@@ -92,6 +101,16 @@ class DocConstructorDashlet extends BaseWidget {
     if (!isLoading && delayedUpdate) {
       this.setState({ delayedUpdate: false }, getDocumentParams);
     }
+  }
+
+  onToggleSettings = () => {
+    this.setState(({ isOpenSettings }) => ({ isOpenSettings: !isOpenSettings }));
+  };
+
+  onSaveSettings() {
+    console.log(this.props);
+    // this.props.onSave && this.props.onSave(this.props.id, { config });
+    this.onToggleSettings();
   }
 
   onChangeTemplate = template => {
@@ -124,10 +143,10 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   render() {
-    const { isSmallMode } = this.state;
-    const { title, classNameDashlet, isLoading, error, contractTemplate, isAvailable } = this.props;
+    const { isSmallMode, isOpenSettings } = this.state;
+    const { title, classNameDashlet, isLoading, error, contractTemplate, isAvailable, isAdmin } = this.props;
 
-    return isAvailable ? (
+    return isAdmin || isAvailable ? (
       <Dashlet
         className={classNames('ecos-doc-constructor__dashlet', classNameDashlet)}
         bodyClassName="ecos-doc-constructor__dashlet-body"
@@ -136,43 +155,46 @@ class DocConstructorDashlet extends BaseWidget {
         actionConfig={this.actionConfig}
         onResize={this.onResize}
       >
-        {isLoading && <Loader blur className="ecos-doc-constructor__loader" />}
-        <div className="ecos-doc-constructor__description">
-          <div className="ecos-doc-constructor__description-title">{t(Labels.DESC_TITLE)}</div>
-          <div className="ecos-doc-constructor__description-text">{t(Labels.DESC_TEXT)}</div>
+        <div hidden={isOpenSettings}>
+          {isLoading && <Loader blur className="ecos-doc-constructor__loader" />}
+          <div className="ecos-doc-constructor__description">
+            <div className="ecos-doc-constructor__description-title">{t(Labels.DESC_TITLE)}</div>
+            <div className="ecos-doc-constructor__description-text">{t(Labels.DESC_TEXT)}</div>
+          </div>
+          <div className="ecos-doc-constructor__label field-required">{t(Labels.LABEL_JOURNAL)}</div>
+          <SelectJournal
+            className="ecos-doc-constructor__journal"
+            journalId={'doc-one-templates'}
+            onChange={this.onChangeTemplate}
+            defaultValue={contractTemplate}
+            isSelectedValueAsText
+            hideDeleteRowButton={!!contractTemplate}
+            hideEditRowButton
+            disabled={this.disabledCreate}
+          />
+          {error && (
+            <div className="ecos-doc-constructor__error">
+              <Icon className="icon-big_alert" />
+              {error}
+            </div>
+          )}
+          <div className={classNames('ecos-doc-constructor__buttons', { 'ecos-doc-constructor__buttons_small': isSmallMode })}>
+            <div className="ecos-doc-constructor__buttons-left">
+              <Btn className="ecos-btn_tight" onClick={this.onClickEdit} disabled={this.disabledAction}>
+                {t(Labels.BTN_EDIT)}
+              </Btn>
+              <Btn className="ecos-btn_tight" onClick={this.onClickDelete} disabled={this.disabledAction}>
+                {t(Labels.BTN_DELETE)}
+              </Btn>
+            </div>
+            <div className="ecos-doc-constructor__buttons-right">
+              <IcoBtn icon="icon-reload" className="ecos-btn_tight ecos-btn_blue" onClick={this.onClickSync} disabled={this.disabledAction}>
+                {t(Labels.BTN_SYNC)}
+              </IcoBtn>
+            </div>
+          </div>
         </div>
-        <div className="ecos-doc-constructor__label field-required">{t(Labels.LABEL_JOURNAL)}</div>
-        <SelectJournal
-          className="ecos-doc-constructor__journal"
-          journalId={'doc-one-templates'}
-          onChange={this.onChangeTemplate}
-          defaultValue={contractTemplate}
-          isSelectedValueAsText
-          hideDeleteRowButton={!!contractTemplate}
-          hideEditRowButton
-          disabled={this.disabledCreate}
-        />
-        {error && (
-          <div className="ecos-doc-constructor__error">
-            <Icon className="icon-big_alert" />
-            {error}
-          </div>
-        )}
-        <div className={classNames('ecos-doc-constructor__buttons', { 'ecos-doc-constructor__buttons_small': isSmallMode })}>
-          <div className="ecos-doc-constructor__buttons-left">
-            <Btn className="ecos-btn_tight" onClick={this.onClickEdit} disabled={this.disabledAction}>
-              {t(Labels.BTN_EDIT)}
-            </Btn>
-            <Btn className="ecos-btn_tight" onClick={this.onClickDelete} disabled={this.disabledAction}>
-              {t(Labels.BTN_DELETE)}
-            </Btn>
-          </div>
-          <div className="ecos-doc-constructor__buttons-right">
-            <IcoBtn icon="icon-reload" className="ecos-btn_tight ecos-btn_blue" onClick={this.onClickSync} disabled={this.disabledAction}>
-              {t(Labels.BTN_SYNC)}
-            </IcoBtn>
-          </div>
-        </div>
+        {isOpenSettings && <Settings settings={{}} onSave={this.onSaveSettings} onCancel={this.onToggleSettings} />}
       </Dashlet>
     ) : null;
   }
@@ -184,6 +206,7 @@ const mapStateToProps = (state, context) => {
   const data = get(state, ['docConstructor', stateId]) || {};
 
   return {
+    isAdmin: state.user.isAdmin,
     isMobile: state.view.isMobile,
     isLoading: data.isLoading,
     error: data.error,

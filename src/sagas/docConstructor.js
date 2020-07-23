@@ -23,11 +23,9 @@ const OPTIONS = { role: 'initiator', permission: 'Consumer' };
 
 function* runInitConstructor({ api, logger }, { payload, payload: { stateId, record } }) {
   try {
-    const userRef = yield select(state => state.user.nodeRef);
-    const { initiatorRef, caseStatusAssoc } = yield call(api.docConstructor.getVerificationInfo, record);
     const settings = {};
 
-    settings.isAvailable = userRef === initiatorRef; //+caseStatusAssoc
+    settings.isAvailable = false; //todo get by config condition
 
     if (settings.isAvailable) {
       const data = yield call(api.docConstructor.getSettings, { name: KEY_URL });
