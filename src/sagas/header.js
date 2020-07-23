@@ -70,7 +70,10 @@ function* fetchUserMenu({ api, fakeApi, logger }) {
 
 function* fetchSiteMenu({ api, fakeApi, logger }) {
   try {
-    const menuItems = makeSiteMenu();
+    const isAdmin = yield select(state => state.user.isAdmin);
+    const url = document.location.href;
+    const isDashboardPage = hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
+    const menuItems = makeSiteMenu({ isDashboardPage, isAdmin });
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
     logger.error('[fetchSiteMenu saga] error', e.message);

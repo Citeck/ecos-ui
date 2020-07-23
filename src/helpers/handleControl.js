@@ -1,9 +1,8 @@
-import { URL_RESCONTEXT, URL_SERVICECONTEXT, URL_EIS_CONFIG } from '../constants/alfresco';
-import { loadScript, t } from '../helpers/util';
+import { URL_RESCONTEXT, URL_SERVICECONTEXT, URL_EIS_CONFIG, PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
+import { getCurrentUserName, loadScript, t } from '../helpers/util';
 import { goToCardDetailsPage } from '../helpers/urls';
-import { hideModal, showModal } from '../actions/modal';
 import FormManager from '../components/EcosForm/FormManager';
-import { becomeSiteManagerRequest, joinSiteRequest, leaveSiteRequest, requestSiteMembership } from '../actions/handleControl';
+import dialogManager from '../components/common/dialogs/Manager';
 import { requireShareAssets } from '../legacy/share';
 import ecosFetch from './ecosFetch';
 
@@ -24,7 +23,7 @@ const HCT = HandleControlTypes;
 
 const LOGOUT_URL_DEFAULT = `${URL_SERVICECONTEXT}dologout`;
 
-export default function handleControl(type, payload, dispatch) {
+export default function handleControl(type, payload) {
   switch (type) {
     case HCT.ALF_DOLOGOUT:
       const logoutHandler = (logoutURL = LOGOUT_URL_DEFAULT) => {
@@ -118,39 +117,133 @@ export default function handleControl(type, payload, dispatch) {
       break;
 
     case HCT.ALF_LEAVE_SITE:
-      dispatch(
-        showModal({
-          title: t('message.leave', { '0': payload.siteTitle }),
-          content: t('message.leave-site-prompt', { '0': payload.siteTitle }),
-          buttons: [
-            {
-              label: t('button.leave-site.cancel-label'),
-              isCloseButton: true
-            },
-            {
-              label: t('button.leave-site.confirm-label'),
-              onClick: () => {
-                dispatch(leaveSiteRequest(payload));
-                dispatch(hideModal());
-              },
-              className: 'button_blue'
-            }
-          ]
-        })
-      );
-      break;
+      return (() => {
+        const { site, siteTitle, user, userFullName } = payload;
+        dialogManager.confirmDialog({
+          title: t('message.leave', { name: siteTitle }),
+          text: t('message.leave-site-prompt', { name: siteTitle }),
+          onNo: () => {},
+          onYes: () => {
+            const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/memberships/${encodeURIComponent(user)}`;
+            return ecosFetch(url, { method: 'DELETE' })
+              .then(resp => {
+                if (resp.status !== 200) {
+                  return dialogManager.showInfoDialog({
+                    title: t('error'),
+                    text: t('message.leave-failure', { userFullName, siteTitle })
+                  });
+                }
+
+                dialogManager.showInfoDialog({
+                  text: t('message.leaving', { userFullName, siteTitle })
+                });
+
+                window.location.href = URL_PAGECONTEXT + 'user/' + encodeURIComponent(user) + '/dashboard';
+              })
+              .catch(err => {
+                console.log('error', err);
+              });
+          }
+        });
+      })();
 
     case HCT.ALF_JOIN_SITE:
-      dispatch(joinSiteRequest(payload));
-      break;
+      return (() => {
+        const { site, user } = payload;
+        const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/memberships`;
+        const data = {
+          role: 'SiteConsumer',
+          person: {
+            userName: user
+          }
+        };
+
+        ecosFetch(url, { method: 'PUT', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: data })
+          .then(resp => {
+            if (resp.status !== 200) {
+              console.log('joinSiteRequest err', resp);
+              return;
+            }
+
+            dialogManager.showInfoDialog({
+              text: t('message.joining', { user, site })
+            });
+
+            window.location.reload();
+          })
+          .catch(err => {
+            console.log('error', err);
+          });
+      })();
 
     case HCT.ALF_BECOME_SITE_MANAGER:
-      dispatch(becomeSiteManagerRequest(payload));
-      break;
+      return (() => {
+        const { site, user } = payload;
+        const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/memberships`;
+        const data = {
+          role: 'SiteManager',
+          person: {
+            userName: user ? user : getCurrentUserName()
+          }
+        };
+
+        return ecosFetch(url, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: data })
+          .then(resp => {
+            if (resp.status !== 200) {
+              console.log('becomeSiteManagerRequest err', resp);
+              return;
+            }
+
+            window.location.reload();
+          })
+          .catch(err => {
+            console.log('error', err);
+          });
+      })();
 
     case HCT.ALF_REQUEST_SITE_MEMBERSHIP:
-      dispatch(requestSiteMembership(payload));
-      break;
+      return (() => {
+        const { site, siteTitle, user } = payload;
+        const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/invitations`;
+        const data = {
+          invitationType: 'MODERATED',
+          inviteeRoleName: 'SiteConsumer',
+          inviteeUserName: user,
+          inviteeComments: ''
+        };
+
+        return ecosFetch(url, {
+          method: 'POST',
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+          body: data
+        })
+          .then(resp => {
+            if (resp.status !== 200) {
+              const responseMessage = resp.message;
+              const requestPendingMessage = 'A request to join this site is in pending'; // NOTE: This is a string-literal in Share's "Site.java" file
+              const failedBecausePending = responseMessage && responseMessage.indexOf(requestPendingMessage) !== -1;
+              const failureMessage = failedBecausePending
+                ? 'message.request-join-site-pending-failure'
+                : 'message.request-join-site-failure';
+
+              return dialogManager.showInfoDialog({
+                title: t('error'),
+                text: t(failureMessage)
+              });
+            }
+
+            return dialogManager.showInfoDialog({
+              title: t('message.request-join-success-title'),
+              text: t('message.request-join-success', { site: siteTitle || site }),
+              onClose: () => {
+                window.location.href = URL_PAGECONTEXT + 'user/' + encodeURIComponent(user) + '/dashboard';
+              }
+            });
+          })
+          .catch(err => {
+            console.log('error', err);
+          });
+      })();
 
     case HCT.ECOS_CREATE_VARIANT:
       FormManager.createRecordByVariant(payload, {
