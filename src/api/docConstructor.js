@@ -4,11 +4,15 @@ import { t } from '../helpers/util';
 import Records from '../components/Records/Records';
 
 export class DocConstructorApi {
-  getVerificationInfo = record => {
-    return Records.get(record).load({
-      caseStatusAssoc: 'icase:caseStatusAssoc?id',
-      initiatorRef: 'att:initiator_added?str'
-    });
+  getIsAvailable = ({ record, condition }) => {
+    return Promise.resolve(true);
+    return Records.queryOne(
+      {
+        query: '',
+        language: ''
+      },
+      { record, condition }
+    );
   };
 
   getSettings = ({ name }) => {

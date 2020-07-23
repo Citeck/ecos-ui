@@ -107,11 +107,12 @@ class DocConstructorDashlet extends BaseWidget {
     this.setState(({ isOpenSettings }) => ({ isOpenSettings: !isOpenSettings }));
   };
 
-  onSaveSettings() {
-    console.log(this.props);
-    // this.props.onSave && this.props.onSave(this.props.id, { config });
+  onSaveSettings = _config => {
+    const config = { ...this.props.config, ..._config };
+
+    this.props.onSave && this.props.onSave(this.props.id, { config });
     this.onToggleSettings();
-  }
+  };
 
   onChangeTemplate = template => {
     const { docOneDocumentId } = this.props;
@@ -144,7 +145,7 @@ class DocConstructorDashlet extends BaseWidget {
 
   render() {
     const { isSmallMode, isOpenSettings } = this.state;
-    const { title, classNameDashlet, isLoading, error, contractTemplate, isAvailable, isAdmin } = this.props;
+    const { title, classNameDashlet, isLoading, error, contractTemplate, isAvailable, isAdmin, config } = this.props;
 
     return isAdmin || isAvailable ? (
       <Dashlet
@@ -194,7 +195,7 @@ class DocConstructorDashlet extends BaseWidget {
             </div>
           </div>
         </div>
-        {isOpenSettings && <Settings settings={{}} onSave={this.onSaveSettings} onCancel={this.onToggleSettings} />}
+        {isOpenSettings && <Settings config={config} onSave={this.onSaveSettings} onCancel={this.onToggleSettings} />}
       </Dashlet>
     ) : null;
   }
@@ -219,11 +220,11 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = (dispatch, context) => {
-  const { record, tabId } = context;
+  const { record, tabId, config } = context;
   const stateId = getStateId({ tabId, id: record });
 
   return {
-    initConstructor: () => dispatch(initConstructor({ stateId, record })),
+    initConstructor: () => dispatch(initConstructor({ stateId, record, config })),
     getDocumentParams: () => dispatch(getDocumentParams({ stateId, record })),
     createDocument: templateRef => dispatch(createDocument({ stateId, record, templateRef })),
     deleteDocument: () => dispatch(deleteDocument({ stateId, record })),

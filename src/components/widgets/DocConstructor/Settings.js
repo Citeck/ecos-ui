@@ -18,11 +18,11 @@ class Settings extends React.Component {
   static propTypes = {
     onSave: PropTypes.func,
     onCancel: PropTypes.func,
-    settings: PropTypes.object
+    config: PropTypes.object
   };
 
   static defaultProps = {
-    settings: {}
+    config: {}
   };
 
   state = {
@@ -30,7 +30,7 @@ class Settings extends React.Component {
   };
 
   componentDidMount() {
-    const { widgetDisplayCondition } = this.props.settings;
+    const { widgetDisplayCondition } = this.props.config;
 
     this.setState({ widgetDisplayCondition });
   }

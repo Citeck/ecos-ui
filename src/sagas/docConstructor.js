@@ -21,11 +21,12 @@ const KEY_URL = 'doc.one.base.url';
 const POSTFIX_URL = '/document/';
 const OPTIONS = { role: 'initiator', permission: 'Consumer' };
 
-function* runInitConstructor({ api, logger }, { payload, payload: { stateId, record } }) {
+function* runInitConstructor({ api, logger }, { payload, payload: { stateId, record, config } }) {
   try {
+    const { widgetDisplayCondition: condition } = config;
     const settings = {};
 
-    settings.isAvailable = false; //todo get by config condition
+    settings.isAvailable = yield call(api.docConstructor.getIsAvailable, { condition, record });
 
     if (settings.isAvailable) {
       const data = yield call(api.docConstructor.getSettings, { name: KEY_URL });
