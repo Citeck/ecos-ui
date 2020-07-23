@@ -707,6 +707,7 @@
   "select-orgstruct.button.change": "Change",
   "select-orgstruct.button.select": "Select",
   "select-orgstruct.placeholder": "None",
+  "select-orgstruct.no-label": "No name",
   "select-orgstruct.search.placeholder": "Search",
   "select-orgstruct.select-modal.cancel-button": "Cancel",
   "select-orgstruct.select-modal.ok-button": "OK",

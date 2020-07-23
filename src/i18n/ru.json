@@ -708,6 +708,7 @@
   "select-orgstruct.button.change": "Изменить",
   "select-orgstruct.button.select": "Выбрать",
   "select-orgstruct.placeholder": "Нет",
+  "select-orgstruct.no-label": "Нет наименования",
   "select-orgstruct.search.placeholder": "Найти",
   "select-orgstruct.select-modal.cancel-button": "Отмена",
   "select-orgstruct.select-modal.ok-button": "OK",

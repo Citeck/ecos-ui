@@ -71,7 +71,14 @@ const InputView = () => {
       props.paramsLink = { openNewBrowserTab: !isInlineEditingMode || !isNewVersionPage(props.link) };
     }
 
-    return <AssocLink label={item.label} asText={isSelectedValueAsText} {...props} className="select-orgstruct__values-list-disp" />;
+    return (
+      <AssocLink
+        label={item.label || t('select-orgstruct.no-label')}
+        asText={isSelectedValueAsText}
+        {...props}
+        className={classNames('select-orgstruct__values-list-disp', { 'select-orgstruct__values-list-disp_no-label': !item.label })}
+      />
+    );
   };
 
   const renderCompactList = () => {
