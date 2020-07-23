@@ -83,7 +83,7 @@ export default class Export extends Component {
       .filter(c => c.default)
       .map(column => ({ attribute: column.attribute, title: column.text }));
 
-    return {
+    const query = {
       sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
       predicate: get(grid, ['predicates', 0], {}),
       reportType: type,
@@ -91,6 +91,13 @@ export default class Export extends Component {
       reportColumns: reportColumns,
       reportFilename: `${name}.${type}`
     };
+    (config.meta.criteria || []).forEach((criterion, idx) => {
+      query['field_' + idx] = criterion.field;
+      query['predicate_' + idx] = criterion.predicate;
+      query['value_' + idx] = criterion.value;
+    });
+
+    return query;
   };
 
   getSelectionFilter = () => {
