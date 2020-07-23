@@ -22,8 +22,10 @@ export default class SearchSelect extends React.Component {
     isLoading: PropTypes.bool,
     collapsed: PropTypes.bool,
     collapsible: PropTypes.bool,
+    focused: PropTypes.bool,
     onSearch: PropTypes.func,
-    openFullSearch: PropTypes.func
+    openFullSearch: PropTypes.func,
+    onToggleFocus: PropTypes.func
   };
 
   static defaultProps = {
@@ -33,6 +35,7 @@ export default class SearchSelect extends React.Component {
     isMobile: false,
     isLoading: false,
     collapsed: false,
+    focused: false,
     collapsible: false,
     onSearch: () => {},
     openFullSearch: () => {}
@@ -49,6 +52,20 @@ export default class SearchSelect extends React.Component {
       focused: false,
       hiddenPlaceholder: false
     };
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const newState = {};
+
+    if (state.focused && props.focused !== state.focused) {
+      newState.focused = false;
+    }
+
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    return newState;
   }
 
   runSearch = debounce(() => {

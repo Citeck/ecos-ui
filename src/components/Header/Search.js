@@ -90,6 +90,8 @@ class Search extends React.Component {
   };
 
   goToResult = data => {
+    this.toggleFocus(false);
+
     if (!isNewVersionPage()) {
       return (window.location.href = data.url);
     }
@@ -148,6 +150,7 @@ class Search extends React.Component {
         theme={theme}
         formattedSearchResult={this.formattedSearchResult}
         autocomplete
+        focused={isFocused}
         isMobile={isMobile}
         collapsed={isMobile}
         collapsible={isMobile}
