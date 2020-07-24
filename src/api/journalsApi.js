@@ -328,7 +328,7 @@ export class JournalsApi extends RecordService {
   getPreviewUrl = DocPreviewApi.getPreviewLinkByRecord;
 
   performGroupAction = ({ groupAction, selected, resolved, criteria, journalId }) => {
-    const { id, type, params } = groupAction;
+    const { type, params } = groupAction;
 
     if (params.js_action) {
       var actionFunction = new Function('records', 'parameters', params.js_action); //eslint-disable-line
@@ -338,7 +338,7 @@ export class JournalsApi extends RecordService {
 
     return Promise.all([
       this.postJson(`${PROXY_URI}api/journals/group-action`, {
-        actionId: id,
+        actionId: params.actionId,
         groupType: type,
         journalId: journalId,
         nodes: selected,
