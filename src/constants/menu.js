@@ -33,6 +33,7 @@ export const CreateMenuTypes = {
 export const MenuSettings = {
   ActionTypes: {
     ACTIVE: 'ACTIVE',
+    CREATE: 'CREATE',
     EDIT: 'EDIT',
     DELETE: 'DELETE',
     DISPLAY_COUNT: 'DISPLAY_COUNT'

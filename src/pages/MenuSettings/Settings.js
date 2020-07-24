@@ -5,7 +5,6 @@ import isEmpty from 'lodash/isEmpty';
 
 import { getAuthorityInfoByRefs, initSettings, removeSettings, saveSettingsConfig, setOpenMenuSettings } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
-import { getPositionAdjustment } from '../../helpers/menu';
 import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
 import { EcosModal, Loader } from '../../components/common';
@@ -73,12 +72,6 @@ class Settings extends React.Component {
     this.props.saveSettings();
   };
 
-  draggablePositionAdjustment = () => {
-    const { menuType } = this.props;
-
-    return getPositionAdjustment(menuType);
-  };
-
   setData = data => {
     this.setState(data);
   };
@@ -99,9 +92,7 @@ class Settings extends React.Component {
   renderButtons() {
     return (
       <div className="ecos-menu-settings__buttons">
-        <Btn className="ecos-btn_red" onClick={this.handleReset}>
-          Delete
-        </Btn>
+        {/*<Btn className="ecos-btn_red" onClick={this.handleReset}>Delete</Btn>*/}
         <Btn onClick={this.handleCancel}>{t(Labels.BTN_CANCEL)}</Btn>
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleApply} disabled={!this.props.id}>
           {t(Labels.BTN_APPLY)}

@@ -67,14 +67,21 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
 
     const result = yield call(api.menu.getMenuSettingsConfig, { id });
     const originalItems = get(result, ['menu', keyType, 'items'], []);
-    const serverData = MenuConverter.getSettingsConfigServer({ originalItems, items });
+    const newItems = MenuConverter.getMenuItemsServer({ originalItems, items });
 
-    set(result, ['subMenu', keyType], serverData);
+    set(result, ['subMenu', keyType, 'items'], newItems);
     !authorities.length && authorities.push(LOWEST_PRIORITY);
 
-    yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities });
+    const resultSave = yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities });
+
     yield put(saveGroupPriority(payload));
     yield put(setOpenMenuSettings(false));
+
+    if (!resultSave.id.includes(id)) {
+      yield put(initMenuConfig());
+      yield put(fetchSlideMenuItems());
+    }
+
     NotificationManager.success(t('menu-settings.success.save-config'), t('success'));
   } catch (e) {
     yield put(setLoading(false));
@@ -117,11 +124,10 @@ function* fetchGroupPriority({ api, logger }, { payload }) {
 
 function* runSaveGroupPriority({ api, logger }) {
   try {
-    const authorities = yield select(state => state.menuSettings.authorities);
     const _groupPriority = yield select(state => state.menuSettings.groupPriority);
     const groupPriority = MenuConverter.getGroupPriorityConfigServer(_groupPriority);
 
-    yield call(api.menu.saveGroupPriority, { authorities, groupPriority }); //todo api
+    yield call(api.menu.saveGroupPriority, { groupPriority });
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.save-group-priority'), t('error'));
     logger.error('[menu-settings / runSaveGroupPriority]', e.message);
@@ -145,10 +151,17 @@ function* fetchAuthorityInfoByRefs({ api, logger }, { payload = [] }) {
 function* runRemoveSettings({ api, logger }) {
   try {
     const { id } = yield select(state => state.menu);
-    yield call(api.menu.removeSettings, { id });
-    yield put(setOpenMenuSettings(false));
-    yield put(initMenuConfig());
-    yield put(fetchSlideMenuItems());
+
+    if (id.includes('default-menu')) {
+      console.warn(id);
+      NotificationManager.warning('Default menu is not deleted');
+    } else {
+      yield call(api.menu.removeSettings, { id });
+      yield put(setOpenMenuSettings(false));
+      yield put(initMenuConfig());
+      yield put(fetchSlideMenuItems());
+    }
+    yield put(setLoading(false));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.remove-config'), t('error'));

@@ -76,9 +76,9 @@ class EditorGroupPriority extends React.Component {
             {isLoadingPriority && <Loader blur className="ecos-menu-settings__loader" />}
             <div className="ecos-menu-settings-group-priority__wrapper">
               <div className="ecos--flex-space" />
-              <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
-                {t(isOpenAllGroup ? Labels.MODAL_BTN_COLLAPSE_ALL : Labels.MODAL_BTN_EXPAND_ALL)}
-              </Btn>
+              {/*<Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>*/}
+              {/*  {t(isOpenAllGroup ? Labels.MODAL_BTN_COLLAPSE_ALL : Labels.MODAL_BTN_EXPAND_ALL)}*/}
+              {/*</Btn>*/}
             </div>
             <div className="ecos-menu-settings-group-priority__tree-field">
               <Tree

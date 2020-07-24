@@ -140,11 +140,8 @@ export default class MenuConverter {
     return target;
   }
 
-  static getSettingsConfigServer(source) {
-    const target = {
-      items: [],
-      authorities: source.authorities
-    };
+  static getMenuItemsServer(source) {
+    const target = [];
 
     (function prepareTree(sItems, tItems) {
       for (let i = 0; i < sItems.length; i++) {
@@ -159,7 +156,7 @@ export default class MenuConverter {
 
         tItems.push(tItem);
       }
-    })(source.items, target.items);
+    })(source.items, target);
 
     return target;
   }

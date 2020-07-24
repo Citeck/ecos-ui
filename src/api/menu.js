@@ -264,11 +264,7 @@ export class MenuApi extends CommonApi {
         const setAuthoritiesId = config.map(item => item.id);
         const filteredAvailableAuthorities = serverAuthorities.filter(id => !setAuthoritiesId.includes(id)).map(id => ({ id }));
 
-        return setAuthoritiesId.concat(...filteredAvailableAuthorities);
-      })
-      .then(res => {
-        console.log(res);
-        return res;
+        return config.concat(...filteredAvailableAuthorities);
       })
       .then(authorities => authorities.filter(item => item.id !== LOWEST_PRIORITY && item.id.includes(AUTHORITY_TYPE_GROUP)))
       .then(fetchExtraGroupItemInfo);
@@ -283,8 +279,10 @@ export class MenuApi extends CommonApi {
     return rec.save();
   };
 
-  saveGroupPriority = ({ authorities, groupPriority }) => {
-    return Promise.resolve(true);
+  saveGroupPriority = ({ groupPriority }) => {
+    const rec = Records.get(`${SourcesId.CONFIG}@menu-group-priority`);
+    rec.att('value', groupPriority);
+    return rec.save();
   };
 
   removeSettings = ({ id }) => {
@@ -300,14 +298,10 @@ async function fetchExtraItemInfo(data) {
       const iconRef = lodashGet(item, 'icon');
 
       if (journalRef && [ms.ItemTypes.JOURNAL].includes(item.type)) {
-        const result = await Records.get(journalRef).load({
-          label: '.disp'
-          //id: 'id',
-          //count: 'count', //todo wait new api for actual
-        });
+        const result = await Records.get(journalRef).load({ label: '.disp' });
 
         target.label = result.label;
-        target.config = { ...target.config, count: 0 };
+        target.config = { ...target.config, count: 999 };
       }
 
       if (iconRef && iconRef.includes(SourcesId.ICON)) {
@@ -335,7 +329,9 @@ async function fetchExtraGroupItemInfo(data) {
       const target = { ...item };
 
       if (item.id) {
-        target.label = await Records.get(item.id).load('.disp');
+        target.label = await Records.get(`${SourcesId.AUTHORITY}@${item.id}`)
+          .load('.disp')
+          .catch(_ => '');
       }
 
       return target;
