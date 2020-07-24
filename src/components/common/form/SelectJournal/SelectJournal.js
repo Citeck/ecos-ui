@@ -81,13 +81,9 @@ export default class SelectJournal extends Component {
   }
 
   componentDidMount() {
-    const { defaultValue, multiple, journalId, onError, isSelectModalOpen, initCustomPredicate } = this.props;
+    const { defaultValue, multiple, isSelectModalOpen, initCustomPredicate } = this.props;
 
-    if (!journalId) {
-      const err = new Error('The "journalId" config is required!');
-      typeof onError === 'function' && onError(err);
-      this.setState({ error: err });
-    }
+    this.checkJournalId();
 
     let initValue;
     if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
@@ -112,6 +108,10 @@ export default class SelectJournal extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (!isEqual(prevProps.defaultValue, this.props.defaultValue) && !isEqual(this.props.defaultValue, this.state.value)) {
       this.updateSelectedValue();
+    }
+
+    if (this.props.journalId !== prevProps.journalId) {
+      this.checkJournalId();
     }
   }
 
@@ -141,6 +141,18 @@ export default class SelectJournal extends Component {
       });
     }
   }
+
+  checkJournalId = () => {
+    const { journalId, onError } = this.props;
+
+    if (!journalId) {
+      const error = new Error(t('select-journal.error.no-journal-id'));
+      typeof onError === 'function' && onError(error);
+      this.setState({ error });
+    } else {
+      this.setState({ error: null });
+    }
+  };
 
   shouldResetValue = () => {
     return new Promise(resolve => {

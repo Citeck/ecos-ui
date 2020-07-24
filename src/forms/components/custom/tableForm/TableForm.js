@@ -219,7 +219,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
           const journalId = await fetchJournalIdPromise;
           if (!journalId) {
-            return resolve({ error: new Error('The "journalId" config is required!') });
+            return resolve({ error: new Error(t('ecos-table-form.error.no-journal-id')) });
           }
 
           const journalsApi = new JournalsApi();

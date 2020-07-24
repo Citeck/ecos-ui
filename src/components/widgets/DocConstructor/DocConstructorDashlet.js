@@ -91,7 +91,7 @@ class DocConstructorDashlet extends BaseWidget {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { isLoading, getDocumentParams } = this.props;
+    const { isLoading, getDocumentParams, config } = this.props;
     const { delayedUpdate, runUpdate } = this.state;
 
     if (!prevState.runUpdate && runUpdate && !delayedUpdate) {
@@ -101,6 +101,14 @@ class DocConstructorDashlet extends BaseWidget {
     if (!isLoading && delayedUpdate) {
       this.setState({ delayedUpdate: false }, getDocumentParams);
     }
+
+    if (JSON.stringify(config) !== JSON.stringify(prevProps.config)) {
+      this.props.initConstructor();
+    }
+  }
+
+  componentWillUnmount() {
+    this.instanceRecord.unwatch(this.watcher);
   }
 
   onToggleSettings = () => {
@@ -112,7 +120,6 @@ class DocConstructorDashlet extends BaseWidget {
 
     this.props.onSave && this.props.onSave(this.props.id, { config });
     this.onToggleSettings();
-    this.props.initConstructor();
   };
 
   onChangeTemplate = template => {
@@ -196,7 +203,9 @@ class DocConstructorDashlet extends BaseWidget {
             </div>
           </div>
         </div>
-        {isOpenSettings && <Settings config={config} onSave={this.onSaveSettings} onCancel={this.onToggleSettings} />}
+        {isOpenSettings && (
+          <Settings config={config} onSave={this.onSaveSettings} onCancel={this.onToggleSettings} isAvailable={isAvailable} />
+        )}
       </Dashlet>
     ) : null;
   }

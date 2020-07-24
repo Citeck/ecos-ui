@@ -1,17 +1,30 @@
+import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import ecosFetch from '../helpers/ecosFetch';
 import { t } from '../helpers/util';
 import Records from '../components/Records/Records';
 
 export class DocConstructorApi {
-  getIsAvailable = ({ record, condition }) => {
-    return Promise.resolve(true);
-    return Records.queryOne(
-      {
-        query: '',
-        language: ''
-      },
-      { record, condition }
+  getIsAvailableWidget = ({ record, condition }) => {
+    if (!condition) {
+      return Promise.resolve(true);
+    }
+
+    const jsonCondition = JSON.parse(condition);
+    const query = {
+      record: record.includes('workspace://') ? `alfresco/@${record}` : record
+    };
+
+    if (Array.isArray(jsonCondition)) {
+      query.predicates = jsonCondition;
+    } else if (typeof jsonCondition === 'object') {
+      query.predicate = jsonCondition;
+    } else {
+      return Promise.resolve(false);
+    }
+
+    return Records.queryOne({ sourceId: SourcesId.PREDICATE, query }, 'result?bool').then(response =>
+      Array.isArray(response) ? response.every(flag => !!flag) : response
     );
   };
 

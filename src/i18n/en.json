@@ -293,6 +293,7 @@
   "ecos-table-form.error-dialog.title": "Error",
   "ecos-table-form.error.failure-to-import": "Failure to import file",
   "ecos-table-form.error.no-response-handler": "You must set \"Response handler\" setting",
+  "ecos-table-form.error.no-journal-id": "The \"journal ID\" config is required!",
   "ecos-ui.select.loading-message": "Loading...",
   "ecos-ui.select.no-options-message": "No options",
   "ecos.forms.Drop files to attach, or": "Drop files to attach, or",
@@ -711,6 +712,7 @@
   "select-journal.select-modal.filter-button": "Filter",
   "select-journal.select-modal.ok-button": "OK",
   "select-journal.select-modal.title": "Select",
+  "select-journal.error.no-journal-id": "The \"journal ID\" config is required!",
 
   "select-orgstruct.button.add": "Add",
   "select-orgstruct.button.change": "Change",
@@ -1012,6 +1014,9 @@
   "doc-constructor-widget.settings.title": "Settings widget",
   "doc-constructor-widget.settings.prop.journal-templates-id": "Journal templates ID",
   "doc-constructor-widget.settings.prop.widget-display-condition": "Widget display condition",
+  "doc-constructor-widget.settings.error.widget-display-condition": "Condition is invalid",
+  "doc-constructor-widget.settings.info.widget-display-condition-result--true": "Result of saved condition: Available",
+  "doc-constructor-widget.settings.info.widget-display-condition-result--false": "Result of saved condition: Unavailable",
   "doc-constructor-widget.settings.button.cancel": "Cancel",
   "doc-constructor-widget.settings.button.save": "Save",
 

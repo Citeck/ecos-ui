@@ -26,7 +26,7 @@ function* runInitConstructor({ api, logger }, { payload, payload: { stateId, rec
     const { widgetDisplayCondition: condition } = config;
     const settings = {};
 
-    settings.isAvailable = yield call(api.docConstructor.getIsAvailable, { condition, record });
+    settings.isAvailable = yield call(api.docConstructor.getIsAvailableWidget, { condition, record });
 
     if (settings.isAvailable) {
       const data = yield call(api.docConstructor.getSettings, { name: KEY_URL });
