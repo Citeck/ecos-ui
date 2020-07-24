@@ -124,6 +124,8 @@
   "dashboard.error.get-title": "Dashboard title hasn't gotten",
   "dashboard.error.save-config": "Dashboard config hasn't saved",
 
+  "dashboard-settings.config.default": "Default",
+  "dashboard-settings.config.custom": "Custom",
   "dashboard-settings.already-exists": "A dashboard for the installed type and / or user already exists",
   "dashboard-settings.button.cancel": "Cancel",
   "dashboard-settings.button.save": "Save",
@@ -141,7 +143,6 @@
   "dashboard-settings.confirm-changes": "Confirm changes",
   "dashboard-settings.confirm-reset.title": "Confirm reset",
   "dashboard-settings.confirm-reset.msg": "All settings of selected type will be reset to default",
-
   "dashboard-settings.edit-number-contents": "Edit the number and contents of tabs for the appropriate type of dashboard",
   "dashboard-settings.error.get-config": "Dashboard config hasn't gotten",
   "dashboard-settings.error.get-widget-list": "Widget list hasn't gotten",
@@ -696,6 +697,7 @@
   "search.show-more-results": "Show more results",
   "search.sites": "Sites",
   "search.size": "Size",
+
   "select-journal.button.add": "Add",
   "select-journal.button.change": "Change",
   "select-journal.button.select": "Select",
@@ -710,6 +712,10 @@
   "select-journal.select-modal.filter-button": "Filter",
   "select-journal.select-modal.ok-button": "OK",
   "select-journal.select-modal.title": "Select",
+  "select-member-dialog.form-field.button": "Select",
+  "select-member-dialog.form-field.label": "Employees",
+  "select-member-dialog.listmem.title": "Selected employees",
+  "select-member-dialog.title": "Select",
 
   "select-orgstruct.button.add": "Add",
   "select-orgstruct.button.change": "Change",
