@@ -47,8 +47,9 @@ class Settings extends React.Component {
     try {
       const jsonCondition = !widgetDisplayCondition || JSON.parse(widgetDisplayCondition);
 
-      if (!(Array.isArray(jsonCondition) || typeof jsonCondition === 'object')) {
-        throw 'condition is not array or object';
+      if (!(!widgetDisplayCondition || Array.isArray(jsonCondition) || typeof jsonCondition === 'object')) {
+        this.setState({ errorCondition: true });
+        return;
       }
 
       this.setState({ errorCondition: false });
