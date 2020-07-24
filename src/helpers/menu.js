@@ -102,7 +102,8 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
 
     let newItem = {
       id: item.id,
-      label: item.config.label
+      label: item.config.label,
+      isLegacy: true
     };
 
     if (item.config.targetUrl) {

@@ -100,6 +100,7 @@ class WebPage extends BaseWidget {
   }
 
   componentWillUnmount() {
+    super.componentWillUnmount();
     this.handleCancelResizable.cancel();
   }
 
@@ -201,6 +202,11 @@ class WebPage extends BaseWidget {
 
     this.setState({ pageIsLoaded: true });
   };
+
+  handleUpdate() {
+    super.handleUpdate();
+    this.handleReload();
+  }
 
   renderEmptyData() {
     const { url, fetchIsLoading, pageIsLoading } = this.props;

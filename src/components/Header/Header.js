@@ -55,7 +55,7 @@ class Header extends React.Component {
 
   render() {
     const { widthHeader } = this.state;
-    const { isMobile, hideSiteMenu, theme } = this.props;
+    const { isMobile, hideSiteMenu, legacySiteMenuItems, theme } = this.props;
     const hiddenSiteMenu = hideSiteMenu || isMobile || widthHeader < 600;
     const hiddenLanguageSwitcher = isMobile || widthHeader < 600;
 
@@ -69,7 +69,7 @@ class Header extends React.Component {
           </div>
           <div className="ecos-header__side ecos-header__side_right">
             <Search isMobile={widthHeader <= 600} searchPageUrl={`${URL.JOURNAL}?journalId=search`} />
-            {!hiddenSiteMenu && <SiteMenu />}
+            {!hiddenSiteMenu && <SiteMenu legacyItems={legacySiteMenuItems} />}
             {!hiddenLanguageSwitcher && <LanguageSwitcher theme={theme} />}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
           </div>
@@ -80,7 +80,8 @@ class Header extends React.Component {
 }
 
 Header.propTypes = {
-  hideSiteMenu: PropTypes.bool
+  hideSiteMenu: PropTypes.bool,
+  legacySiteMenuItems: PropTypes.array
 };
 
 export default connect(

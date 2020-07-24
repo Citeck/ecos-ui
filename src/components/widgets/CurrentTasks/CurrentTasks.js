@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import isEmpty from 'lodash/isEmpty';
 
-import { getCurrentTaskList, resetCurrentTaskList } from '../../../actions/currentTasks';
+import { getCurrentTaskList, initCurrentTasks, resetCurrentTaskList, setInlineTools } from '../../../actions/currentTasks';
 import { selectStateCurrentTasksById } from '../../../selectors/tasks';
 import { DefineHeight } from '../../common/index';
 import CurrentTaskList from './CurrentTaskList';
@@ -22,9 +22,11 @@ const mapStateToProps = (state, context) => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  getCurrentTaskList: payload => dispatch(getCurrentTaskList(payload)),
-  resetCurrentTaskList: payload => dispatch(resetCurrentTaskList(payload))
+const mapDispatchToProps = (dispatch, { stateId, record }) => ({
+  initCurrentTasks: () => dispatch(initCurrentTasks({ stateId, record })),
+  getCurrentTaskList: () => dispatch(getCurrentTaskList({ stateId, record })),
+  resetCurrentTaskList: () => dispatch(resetCurrentTaskList({ stateId })),
+  setInlineTools: inlineTools => dispatch(setInlineTools({ stateId, inlineTools }))
 });
 
 class CurrentTasks extends React.Component {
@@ -55,7 +57,7 @@ class CurrentTasks extends React.Component {
   };
 
   componentDidMount() {
-    this.getCurrentTaskList();
+    this.props.initCurrentTasks();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -70,38 +72,24 @@ class CurrentTasks extends React.Component {
     }
 
     if (runUpdate && !prevProps.runUpdate) {
-      this.getCurrentTaskList();
+      this.props.getCurrentTaskList();
     }
   }
 
   componentWillUnmount() {
-    const { resetCurrentTaskList, stateId } = this.props;
-
-    resetCurrentTaskList({ stateId });
+    this.props.resetCurrentTaskList();
   }
-
-  getCurrentTaskList = () => {
-    const { getCurrentTaskList, stateId, record: document } = this.props;
-
-    getCurrentTaskList({ stateId, document });
-  };
 
   setHeight = contentHeight => {
     this.setState({ contentHeight });
   };
 
   renderCurrentTaskList = () => {
-    const { currentTasks, isLoading, isMobile, isSmallMode, className, forwardedRef } = this.props;
+    const { className, forwardedRef, isSmallMode, stateId, record } = this.props;
 
-    const childProps = {
-      currentTasks,
-      className,
-      isLoading,
-      isMobile,
-      isSmallMode
-    };
-
-    return <CurrentTaskList forwardedRef={forwardedRef} {...childProps} />;
+    return (
+      <CurrentTaskList forwardedRef={forwardedRef} className={className} isSmallMode={isSmallMode} stateId={stateId} record={record} />
+    );
   };
 
   render() {

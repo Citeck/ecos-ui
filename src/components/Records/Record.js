@@ -645,4 +645,10 @@ export default class Record {
       }
     }
   }
+
+  forceUpdate() {
+    this._watchers.forEach(watcher => {
+      watcher.callCallback();
+    });
+  }
 }

@@ -48,12 +48,20 @@ class Search extends React.Component {
     isMobile: false
   };
 
+  state = {
+    isFocused: false
+  };
+
   onSearch = searchText => {
     this.props.resetSearchAutocomplete();
 
     if (searchText) {
       this.props.runSearchAutocomplete(searchText);
     }
+  };
+
+  toggleFocus = isFocused => {
+    this.setState({ isFocused });
   };
 
   openFullSearch = searchText => {
@@ -82,6 +90,8 @@ class Search extends React.Component {
   };
 
   goToResult = data => {
+    this.toggleFocus(false);
+
     if (!isNewVersionPage()) {
       return (window.location.href = data.url);
     }
@@ -118,14 +128,19 @@ class Search extends React.Component {
     const searchResult = this.searchResult;
 
     return !noResults && !isEmpty(searchResult)
-      ? searchResult.map((item, i, arr) => <SearchItem key={`ecos-header-search-${i}`} data={item} onClick={this.goToResult} />)
+      ? searchResult.map((item, i, arr) => (
+          <SearchItem key={`ecos-header-search-${i}`} data={item} onClick={this.goToResult} maxWidth={815} />
+        ))
       : null;
   }
 
   render() {
     const { noResults, isMobile, theme } = this.props;
+    const { isFocused } = this.state;
 
-    const classes = classNames('ecos-header-search', `ecos-header-search_theme_${theme}`);
+    const classes = classNames('ecos-header-search', `ecos-header-search_theme_${theme}`, {
+      'ecos-header-search_focused': isFocused
+    });
 
     return (
       <SearchSelect
@@ -135,10 +150,12 @@ class Search extends React.Component {
         theme={theme}
         formattedSearchResult={this.formattedSearchResult}
         autocomplete
+        focused={isFocused}
         isMobile={isMobile}
         collapsed={isMobile}
         collapsible={isMobile}
         noResults={noResults}
+        onToggleFocus={this.toggleFocus}
       />
     );
   }

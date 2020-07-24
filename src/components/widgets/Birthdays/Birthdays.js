@@ -56,12 +56,13 @@ class Birthdays extends BaseWidget {
   }
 
   componentDidMount() {
-    super.componentDidUpdate();
+    super.componentDidMount();
 
     this.props.getBirthdays();
   }
 
   componentWillUnmount() {
+    super.componentWillUnmount();
     this.props.resetStore();
   }
 
@@ -98,6 +99,10 @@ class Birthdays extends BaseWidget {
 
   handleReloadData = () => {
     this.props.getBirthdays();
+  };
+
+  handleUpdate = () => {
+    this.handleReloadData();
   };
 
   renderList() {
