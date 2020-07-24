@@ -81,7 +81,7 @@ class Properties extends React.Component {
   };
 
   onUpdateForm = () => {
-    const onUpdate = get(this._ecosForm, 'current.initForm');
+    const onUpdate = get(this._ecosForm, 'current.onReload');
 
     if (typeof onUpdate !== 'function') {
       return;

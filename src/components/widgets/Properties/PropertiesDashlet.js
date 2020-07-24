@@ -140,6 +140,7 @@ class PropertiesDashlet extends BaseWidget {
       this.setState({ wasLastModifiedWithInlineEditor: false });
     } else {
       this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
+      this.onReloadDashlet();
     }
   };
 
@@ -206,17 +207,7 @@ class PropertiesDashlet extends BaseWidget {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
-    const {
-      isSmallMode,
-      runUpdate,
-      isEditProps,
-      userHeight,
-      fitHeights,
-      formIsChanged,
-      isCollapsed,
-      isShowSetting,
-      title: titleForm
-    } = this.state;
+    const { isSmallMode, isEditProps, userHeight, fitHeights, formIsChanged, isCollapsed, isShowSetting, title: titleForm } = this.state;
     const { formId = '', titleAsFormName } = config || {};
 
     return (
@@ -247,7 +238,6 @@ class PropertiesDashlet extends BaseWidget {
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onUpdate={this.onPropertiesUpdate}
-          // formId={runUpdate ? null : formId}
           formId={formId}
           onInlineEditSave={this.onInlineEditSave}
           getTitle={this.setTitle}
