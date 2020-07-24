@@ -3,13 +3,12 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { initSettings, removeSettings, saveSettingsConfig, setAuthorities, setOpenMenuSettings } from '../../actions/menuSettings';
+import { getAuthorityInfoByRefs, initSettings, removeSettings, saveSettingsConfig, setOpenMenuSettings } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
 import { getPositionAdjustment } from '../../helpers/menu';
 import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
 import { EcosModal, Loader } from '../../components/common';
-import { AUTHORITY_TYPE_GROUP } from '../../components/common/form/SelectOrgstruct/constants';
 import DialogManager from '../../components/common/dialogs/Manager';
 import { Btn, IcoBtn } from '../../components/common/btns';
 import { SelectOrgstruct } from '../../components/common/form';
@@ -85,14 +84,7 @@ class Settings extends React.Component {
   };
 
   handleSelectOrg = data => {
-    const authorities = data.map(({ attributes }) => {
-      if (attributes.authorityType === AUTHORITY_TYPE_GROUP) {
-        return { name: attributes.fullName, ref: attributes.nodeRef };
-      }
-      return { name: attributes.userName, ref: attributes.id };
-    });
-
-    this.props.setAuthorities(authorities);
+    this.props.getAuthorityInfoByRefs(data);
   };
 
   handleReset = () => {
@@ -107,6 +99,9 @@ class Settings extends React.Component {
   renderButtons() {
     return (
       <div className="ecos-menu-settings__buttons">
+        <Btn className="ecos-btn_red" onClick={this.handleReset}>
+          Delete
+        </Btn>
         <Btn onClick={this.handleCancel}>{t(Labels.BTN_CANCEL)}</Btn>
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleApply} disabled={!this.props.id}>
           {t(Labels.BTN_APPLY)}
@@ -148,18 +143,12 @@ class Settings extends React.Component {
 
         <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
         <div className="ecos-menu-settings-ownership">
-          <SelectOrgstruct defaultValue={authorityRefs} multiple onChange={this.handleSelectOrg} getFullData />
+          <SelectOrgstruct defaultValue={authorityRefs} multiple onChange={this.handleSelectOrg} isSelectedValueAsText />
         </div>
 
         <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
         <EditorGroupPriority />
 
-        {false && (
-          <div className="ecos-menu-settings-reset">
-            <div className="ecos-menu-settings__explanation">Вы можете сбросить пользовательские настройки до базовых настроек</div>
-            <Btn onClick={this.handleReset}>Сбросить</Btn>
-          </div>
-        )}
         {this.renderButtons()}
       </EcosModal>
     );
@@ -178,7 +167,7 @@ const mapDispatchToProps = dispatch => ({
   removeSettings: () => dispatch(removeSettings()),
   saveSettings: payload => dispatch(saveSettingsConfig(payload)),
   setOpenMenuSettings: payload => dispatch(setOpenMenuSettings(payload)),
-  setAuthorities: payload => dispatch(setAuthorities(payload))
+  getAuthorityInfoByRefs: payload => dispatch(getAuthorityInfoByRefs(payload))
 });
 
 export default connect(

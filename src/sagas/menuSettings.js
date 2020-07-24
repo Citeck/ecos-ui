@@ -5,6 +5,7 @@ import get from 'lodash/get';
 
 import {
   addJournalMenuItems,
+  getAuthorityInfoByRefs,
   getGroupPriority,
   getSettingsConfig,
   initSettings,
@@ -18,27 +19,18 @@ import {
   setMenuItems,
   setOpenMenuSettings
 } from '../actions/menuSettings';
+import { initMenuConfig } from '../actions/menu';
+import { fetchSlideMenuItems } from '../actions/slideMenu';
 import { t } from '../helpers/util';
 import MenuConverter from '../dto/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import { LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
 
-function* runInitSettings({ api, logger }, action) {
+function* runInitSettings({ api, logger }) {
   try {
     yield put(getSettingsConfig());
   } catch (e) {
     logger.error('[menu-settings / runInitSettings]', e.message);
-  }
-}
-
-function* runRemoveSettings({ api, logger }, action) {
-  try {
-    const { id } = yield select(state => state.menu);
-    yield call(api.menu.removeSettings, { id });
-  } catch (e) {
-    yield put(setLoading(false));
-    NotificationManager.error(t('menu-settings.error.remove-config'), t('error'));
-    logger.error('[menu-settings / runRemoveSettings]', e.message);
   }
 }
 
@@ -123,7 +115,7 @@ function* fetchGroupPriority({ api, logger }, { payload }) {
   }
 }
 
-function* runSaveGroupPriority({ api, logger }, { payload }) {
+function* runSaveGroupPriority({ api, logger }) {
   try {
     const authorities = yield select(state => state.menuSettings.authorities);
     const _groupPriority = yield select(state => state.menuSettings.groupPriority);
@@ -136,6 +128,34 @@ function* runSaveGroupPriority({ api, logger }, { payload }) {
   }
 }
 
+function* fetchAuthorityInfoByRefs({ api, logger }, { payload = [] }) {
+  try {
+    yield put(setAuthorities(payload.map(ref => ({ ref }))));
+
+    if (payload && payload.length) {
+      const authorities = yield call(api.menu.getAuthoritiesInfoByRef, payload);
+
+      yield put(setAuthorities(authorities));
+    }
+  } catch (e) {
+    logger.error('[menu-settings / fetchAuthorityInfoByRefs]', e.message);
+  }
+}
+
+function* runRemoveSettings({ api, logger }) {
+  try {
+    const { id } = yield select(state => state.menu);
+    yield call(api.menu.removeSettings, { id });
+    yield put(setOpenMenuSettings(false));
+    yield put(initMenuConfig());
+    yield put(fetchSlideMenuItems());
+  } catch (e) {
+    yield put(setLoading(false));
+    NotificationManager.error(t('menu-settings.error.remove-config'), t('error'));
+    logger.error('[menu-settings / runRemoveSettings]', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initSettings().type, runInitSettings, ea);
   yield takeLatest(removeSettings().type, runRemoveSettings, ea);
@@ -144,6 +164,7 @@ function* saga(ea) {
   yield takeLatest(saveGroupPriority().type, runSaveGroupPriority, ea);
   yield takeLatest(addJournalMenuItems().type, runAddJournalMenuItems, ea);
   yield takeLatest(getGroupPriority().type, fetchGroupPriority, ea);
+  yield takeLatest(getAuthorityInfoByRefs().type, fetchAuthorityInfoByRefs, ea);
 }
 
 export default saga;

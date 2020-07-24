@@ -209,8 +209,8 @@
   &__buttons {
     margin-top: 35px;
 
-    & > :nth-child(even) {
-      margin-left: 10px;
+    & > :not(:last-child) {
+      margin-right: 10px;
     }
   }
 
