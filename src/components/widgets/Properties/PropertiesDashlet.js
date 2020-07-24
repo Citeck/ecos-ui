@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
 import { isSmallMode, objectCompare, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
@@ -92,7 +93,7 @@ class PropertiesDashlet extends BaseWidget {
 
     const actions = {
       [DAction.Actions.RELOAD]: {
-        onClick: this.reload.bind(this)
+        onClick: this.onReloadDashlet
       },
       [DAction.Actions.SETTINGS]: {
         onClick: this.toggleDisplayFormSettings
@@ -140,6 +141,16 @@ class PropertiesDashlet extends BaseWidget {
     } else {
       this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
     }
+  };
+
+  onReloadDashlet = () => {
+    const onUpdate = get(this._propertiesRef, 'current.onUpdateForm');
+
+    if (typeof onUpdate !== 'function') {
+      return;
+    }
+
+    onUpdate();
   };
 
   onResize = width => {
@@ -236,7 +247,8 @@ class PropertiesDashlet extends BaseWidget {
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onUpdate={this.onPropertiesUpdate}
-          formId={runUpdate ? null : formId}
+          // formId={runUpdate ? null : formId}
+          formId={formId}
           onInlineEditSave={this.onInlineEditSave}
           getTitle={this.setTitle}
         />

@@ -65,8 +65,7 @@ class EcosForm extends React.Component {
     return {
       formId: 'eform@',
       error: null,
-      formDefinition: {},
-      isLoading: false
+      formDefinition: {}
     };
   }
 
@@ -280,6 +279,16 @@ class EcosForm extends React.Component {
     }
   }
 
+  toggleLoader = state => {
+    const { onToggleLoader } = this.props;
+
+    if (typeof onToggleLoader !== 'function') {
+      return;
+    }
+
+    onToggleLoader(state);
+  };
+
   onShowFormBuilder = callback => {
     if (this._formBuilderModal.current) {
       const { originalFormDefinition, formId } = this.state;
@@ -371,7 +380,7 @@ class EcosForm extends React.Component {
         }
       };
 
-      self.setState({ isLoading: true });
+      self.toggleLoader(true);
 
       if (this.props.saveOnSubmit !== false) {
         sRecord
@@ -388,11 +397,11 @@ class EcosForm extends React.Component {
             //  But at the moment it works for
             //  https://citeck.atlassian.net/browse/ECOSUI-64
             sRecord.reset();
-            self.setState({ isLoading: false });
+            self.toggleLoader(false);
           });
       } else {
         onSubmit(sRecord, form);
-        self.setState({ isLoading: false });
+        self.toggleLoader(false);
       }
     },
     3000,
@@ -408,7 +417,7 @@ class EcosForm extends React.Component {
 
   render() {
     const { className } = this.props;
-    const { error, containerId, isLoading } = this.state;
+    const { error, containerId } = this.state;
 
     if (error) {
       return <div className={classNames('ecos-ui-form__error', className)}>{error.message}</div>;
@@ -416,7 +425,6 @@ class EcosForm extends React.Component {
 
     return (
       <div className={className}>
-        {isLoading && <Loader blur rounded />}
         <div id={containerId} />
         <EcosFormBuilderModal ref={this._formBuilderModal} />
       </div>
@@ -440,6 +448,7 @@ EcosForm.propTypes = {
   onFormRender: PropTypes.func,
   onFormPrevPage: PropTypes.func,
   onFormNextPage: PropTypes.func,
+  onToggleLoader: PropTypes.func,
   // -----
   saveOnSubmit: PropTypes.bool,
   className: PropTypes.string
