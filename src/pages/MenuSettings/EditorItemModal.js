@@ -28,7 +28,7 @@ const Labels = {
   MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit'
 };
 
-function EditorItemModal({ item, type, onClose, onSave }) {
+function EditorItemModal({ item, type, onClose, onSave, action }) {
   const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
   const [label, setLabel] = useState({});
   const [url, setUrl] = useState('');
@@ -38,7 +38,7 @@ function EditorItemModal({ item, type, onClose, onSave }) {
   const hasIcon = ![MS.ItemTypes.HEADER_DIVIDER].includes(type.key);
 
   useEffect(() => {
-    if (item) {
+    if (action === MS.ActionTypes.EDIT) {
       setLabel(item.label);
       hasUrl && setUrl(get(item, 'config.url'));
       hasIcon && setIcon(item.icon);
@@ -52,7 +52,6 @@ function EditorItemModal({ item, type, onClose, onSave }) {
   const handleApply = () => {
     const data = {};
 
-    data.edited = !!get(item, 'id');
     data.label = label;
     !get(item, 'type') && (data.type = type.key);
     hasUrl && set(data, 'config.url', url);
@@ -71,7 +70,7 @@ function EditorItemModal({ item, type, onClose, onSave }) {
   };
 
   const title =
-    (!item ? t(Labels.MODAL_TITLE_ADD) : t(Labels.MODAL_TITLE_EDIT)) +
+    (action === MS.ActionTypes.CREATE ? t(Labels.MODAL_TITLE_ADD) : t(Labels.MODAL_TITLE_EDIT)) +
     ': ' +
     t(type.label) +
     (!!item ? ` "${extractLabel(item.label)}"` : '');

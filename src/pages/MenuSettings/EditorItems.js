@@ -51,18 +51,17 @@ class EditorItems extends React.Component {
     this.setState(({ openAllMenuItems }) => ({ openAllMenuItems: !openAllMenuItems }));
   };
 
-  handleChooseOption = (type, item) => {
-    if ([ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(type.key)) {
+  handleChooseOption = (editItemInfo = {}) => {
+    if ([ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(get(editItemInfo, 'type.key'))) {
       this.setState({
         editItemInfo: {
-          type,
-          item,
+          ...editItemInfo,
           several: true,
-          journalId: type.key === ms.ItemTypes.JOURNAL ? 'ecos-journals' : 'ecos-types'
+          journalId: get(editItemInfo, 'type.key') === ms.ItemTypes.JOURNAL ? 'ecos-journals' : 'ecos-types'
         }
       });
     } else {
-      this.setState({ editItemInfo: { type, item } });
+      this.setState({ editItemInfo });
     }
   };
 
@@ -84,7 +83,7 @@ class EditorItems extends React.Component {
     if (action === ms.ActionTypes.EDIT) {
       const type = MenuSettingsService.createOptions.find(o => o.key === item.type);
 
-      type && this.handleChooseOption(type, item);
+      type && this.handleChooseOption({ type, item, action });
       return;
     }
 
@@ -116,10 +115,10 @@ class EditorItems extends React.Component {
 
     const handleSave = data => {
       const result = MenuSettingsService.processAction({
-        action: ms.ActionTypes.EDIT,
+        action: editItemInfo.action,
         items,
         id: get(editItemInfo, 'item.id'),
-        data
+        data: { ...data, type: get(editItemInfo, 'type.key') }
       });
       setMenuItems(result.items);
       setLastAddedItems(result.newItems);
@@ -132,6 +131,7 @@ class EditorItems extends React.Component {
         id: get(editItemInfo, 'item.id'),
         type: get(editItemInfo, 'type.key')
       });
+      handleHideModal();
     };
 
     if (editItemInfo.several) {
@@ -147,7 +147,15 @@ class EditorItems extends React.Component {
       );
     }
 
-    return <EditorItemModal item={editItemInfo.item} type={editItemInfo.type} onClose={handleHideModal} onSave={handleSave} />;
+    return (
+      <EditorItemModal
+        item={editItemInfo.item}
+        type={editItemInfo.type}
+        onClose={handleHideModal}
+        onSave={handleSave}
+        action={editItemInfo.action}
+      />
+    );
   };
 
   renderEditorIcon = () => {
@@ -163,7 +171,7 @@ class EditorItems extends React.Component {
         action: ms.ActionTypes.EDIT,
         items,
         id: editItemIcon.id,
-        data: { edited: true, icon }
+        data: { icon }
       });
 
       setMenuItems(result.items);
@@ -172,7 +180,7 @@ class EditorItems extends React.Component {
 
     return editItemIcon ? (
       <IconSelect
-        prefixIcon="icon-c"
+        prefixIcon="leftmenu"
         family="menu-items"
         useFontIcons
         selectedIcon={editItemIcon.icon}
@@ -197,7 +205,7 @@ class EditorItems extends React.Component {
             source={createOptions}
             valueField={'id'}
             titleField={'label'}
-            onChange={type => this.handleChooseOption(type, item)}
+            onChange={type => this.handleChooseOption({ type, item, action: ms.ActionTypes.CREATE })}
             isStatic
             controlLabel={t(Labels.BTN_ADD)}
             controlIcon="icon-plus"

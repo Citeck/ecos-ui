@@ -91,7 +91,7 @@ export default class MenuSettingsService {
   }
 
   static processAction = ({ items: original, action, id, data }) => {
-    const items = cloneDeep(original);
+    const items = cloneDeep(original) || [];
     const foundItem = treeFindFirstItem({ items, key: 'id', value: id });
 
     switch (action) {
@@ -102,23 +102,32 @@ export default class MenuSettingsService {
       case ms.ActionTypes.DISPLAY_COUNT:
         set(foundItem, 'config.displayCount', !get(foundItem, 'config.displayCount'));
         break;
-      case ms.ActionTypes.EDIT:
+      case ms.ActionTypes.CREATE: {
         const path = treeGetPathItem({ items, value: id, key: 'id' });
         let newItems;
 
-        if (data.edited && !Array.isArray(data)) {
-          newItems = [{ ...get(items, path), ...data }];
-          set(items, path, newItems[0]);
+        if (Array.isArray(data)) {
+          newItems = data.map(d => MenuSettingsService.getItemParams(d));
         } else {
-          newItems = Array.isArray(data) ? data.map(d => MenuSettingsService.getItemParams(d)) : [MenuSettingsService.getItemParams(data)];
-
-          if (path) {
-            get(items, path, {}).items.push(...newItems);
-          } else {
-            items.push(...newItems);
-          }
+          newItems = [MenuSettingsService.getItemParams(data)];
         }
+
+        if (path) {
+          get(items, path, {}).items.push(...newItems);
+        } else {
+          items.push(...newItems);
+        }
+
         return { items, newItems };
+      }
+      case ms.ActionTypes.EDIT: {
+        const path = treeGetPathItem({ items, value: id, key: 'id' });
+        const newItems = [{ ...get(items, path), ...data }];
+
+        set(items, path, newItems[0]);
+
+        return { items, newItems };
+      }
       case ms.ActionTypes.DELETE:
         treeRemoveItem({ items, key: 'id', value: id });
         break;

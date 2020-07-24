@@ -98,7 +98,7 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
 
     data.forEach(item => (item.type = type));
 
-    const result = MenuSettingsService.processAction({ action: ms.ActionTypes.EDIT, items, id, data });
+    const result = MenuSettingsService.processAction({ action: ms.ActionTypes.CREATE, items, id, data });
 
     yield put(setMenuItems(result.items));
     yield put(setLastAddedItems(result.newItems));
