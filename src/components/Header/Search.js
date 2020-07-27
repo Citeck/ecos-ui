@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import { connect } from 'react-redux';
+
 import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../actions/header';
 import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/urls';
@@ -52,6 +54,8 @@ class Search extends React.Component {
     isFocused: false
   };
 
+  _searchSelectRef = React.createRef();
+
   onSearch = searchText => {
     this.props.resetSearchAutocomplete();
 
@@ -98,9 +102,14 @@ class Search extends React.Component {
 
     const reopenBrowserTab = !isNewVersionPage(data.url);
     const openNewTab = [Types.DOCUMENTS, Types.SITES, Types.PEOPLE].includes(data.type) && !reopenBrowserTab;
+    const onResetSearch = get(this._searchSelectRef, 'current.resetSearch');
 
     PageService.changeUrlLink(data.url, { openNewTab, reopenBrowserTab });
     this.props.resetSearchAutocomplete();
+
+    if (typeof onResetSearch === 'function') {
+      onResetSearch();
+    }
   };
 
   get searchResult() {
@@ -135,7 +144,7 @@ class Search extends React.Component {
   }
 
   render() {
-    const { noResults, isMobile, theme } = this.props;
+    const { noResults, isMobile, theme, isLoading } = this.props;
     const { isFocused } = this.state;
 
     const classes = classNames('ecos-header-search', `ecos-header-search_theme_${theme}`, {
@@ -144,6 +153,8 @@ class Search extends React.Component {
 
     return (
       <SearchSelect
+        ref={this._searchSelectRef}
+        isLoading={isLoading}
         className={classes}
         onSearch={this.onSearch}
         openFullSearch={this.openFullSearch}
