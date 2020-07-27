@@ -8,8 +8,11 @@ import lodashSet from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
+import omitBy from 'lodash/omitBy';
+import isEqual from 'lodash/isEqual';
 import uuidV4 from 'uuid/v4';
 
+import { Components } from '../../forms';
 import { getCurrentUserName, t } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
@@ -473,11 +476,85 @@ export default class EcosFormUtils {
       }
     }
 
+    const children = [];
     for (let i = 0; i < components.length; i++) {
       let component = components[i];
-      action(component, currentScope);
-      this.forEachComponent(component, action, currentScope);
+      const modifiedComponent = action(component, currentScope);
+      if (modifiedComponent) {
+        component = modifiedComponent;
+      }
+
+      component = this.forEachComponent(component, action, currentScope);
+      children.push(component);
     }
+
+    const modifiedRoot = {
+      ...root
+    };
+
+    if (children.length) {
+      modifiedRoot[root.type === 'columns' ? 'columns' : 'components'] = children;
+    }
+
+    return modifiedRoot;
+  }
+
+  static optimizeFormSchema(form) {
+    return EcosFormUtils.forEachComponent(form, function(comp) {
+      const defaultSchema = Components.components[comp.type] ? Components.components[comp.type].schema() : {};
+
+      switch (comp.type) {
+        case 'datetime':
+          comp.datePicker = omitBy(comp.datePicker, (value, key) => isEqual(defaultSchema.datePicker[key], value));
+          if (comp.timePicker) {
+            comp.timePicker = omitBy(comp.timePicker, (value, key) => isEqual(defaultSchema.timePicker[key], value));
+          }
+          comp = omitBy(comp, (value, key) => key === 'widget');
+          break;
+        case 'select':
+        case 'ecosSelect':
+          comp.data = omitBy(comp.data, (value, key) => key !== comp.dataSrc);
+          break;
+        case 'tableForm':
+        case 'asyncData':
+          comp.source = omitBy(comp.source, (value, key) => {
+            const saveAtts = ['type', 'forceLoad'];
+            if (saveAtts.includes(key)) {
+              return false;
+            }
+            return key !== comp.source.type;
+          });
+          comp.update = omitBy(comp.update, (value, key) => isEqual(defaultSchema.update[key], value));
+          break;
+        default:
+          break;
+      }
+
+      const objectAtts = ['conditional', 'validate', 'widget'];
+      objectAtts.forEach(att => {
+        if (comp[att]) {
+          comp[att] = omitBy(comp[att], (value, key) => isEqual(defaultSchema[att][key], value));
+        }
+      });
+
+      return omitBy(comp, (attValue, attName) => {
+        const saveAlwaysAtts = ['id', 'key', 'type'];
+        if (saveAlwaysAtts.includes(attName)) {
+          return false;
+        }
+
+        const removeAtts = ['displayColumnsAsyncData'];
+        if (removeAtts.includes(attName)) {
+          return true;
+        }
+
+        if ([...objectAtts, ['attributes', 'properties']].includes(attName) && isEmpty(attValue)) {
+          return true;
+        }
+
+        return isEqual(defaultSchema[attName], attValue);
+      });
+    });
   }
 
   static getComponentAttribute(component) {

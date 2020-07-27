@@ -2,6 +2,15 @@ import FormIOCheckBoxComponent from 'formiojs/components/checkbox/Checkbox';
 import { t } from '../../../../helpers/util';
 
 export default class CheckBoxComponent extends FormIOCheckBoxComponent {
+  static schema(...extend) {
+    return FormIOCheckBoxComponent.schema(
+      {
+        defaultValue: false
+      },
+      ...extend
+    );
+  }
+
   get defaultValue() {
     if (this.isRadioCheckbox) {
       return '';

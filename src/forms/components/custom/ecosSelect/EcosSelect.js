@@ -36,7 +36,14 @@ export default class SelectComponent extends BaseComponent {
         unavailableItems: {
           isActive: false,
           code: ''
-        }
+        },
+        lazyLoad: false,
+        selectValues: '',
+        disableLimit: false,
+        sort: '',
+        refreshOnEvent: false,
+        selectThreshold: 0.3,
+        refreshOn: []
       },
       ...extend
     );

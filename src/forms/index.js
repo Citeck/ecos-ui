@@ -63,3 +63,5 @@ Components.setComponents({
   textfield: TextField,
   url: Url
 });
+
+export { Components };

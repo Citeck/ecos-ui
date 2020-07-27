@@ -41,16 +41,15 @@ export default class TableFormComponent extends BaseReactComponent {
         customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
         displayElementsJS: '',
-        settingElements: {
-          isInstantClone: false
-        },
         nonSelectableRowsJS: '',
         selectedRowsJS: '',
         import: {
           enable: false,
           uploadUrl: '',
           responseHandler: ''
-        }
+        },
+        triggerEventOnChange: false,
+        isInstantClone: false
       },
       ...extend
     );
