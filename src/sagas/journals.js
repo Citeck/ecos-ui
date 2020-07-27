@@ -363,7 +363,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
 
     const { columns } = yield select(state => state.journals[stateId].journalSetting);
     const grid = yield select(state => state.journals[stateId].grid);
-    // const search = yield select(state => state.journals[stateId].search);
+    const searchPredicate = yield getSearchPredicate({ logger, stateId });
 
     grid.columns = columns;
 
@@ -371,21 +371,13 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
       ...grid,
       ...(action.payload || {})
     };
-    // const searchPredicates = ParserPredicate.getSearchPredicates({
-    //   text: search,
-    //   columns: grid.columns,
-    //   groupBy: grid.groupBy
-    // });
-
-    console.warn({ params /*, searchPredicates*/ });
 
     const gridData = yield getGridData(
       api,
-      params,
-      //   {
-      //   ...params,
-      //   predicates: [...searchPredicates, ...params.predicates]
-      // },
+      {
+        ...params,
+        predicates: [...searchPredicate, ...get(params, 'predicates', [])]
+      },
       stateId
     );
     const editingRules = yield getGridEditingRules(api, gridData);
@@ -678,13 +670,12 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaSearch({ api, logger, stateId, w }, action) {
+function* getSearchPredicate({ logger, stateId }) {
   try {
-    console.warn(yield select(state => state.journals[stateId]), stateId);
-    const text = action.payload;
+    const text = yield select(state => state.journals[stateId].search);
     const grid = yield select(state => state.journals[stateId].grid);
     const fullSearch = yield select(state => get(state, ['journals', stateId, 'journalConfig', 'params', 'full-search-predicate']));
-    const { columns, groupBy = [], predicates } = grid;
+    const { columns, groupBy = [], predicates: oldPredicates } = grid;
     let predicate;
 
     if (fullSearch) {
@@ -694,8 +685,23 @@ function* sagaSearch({ api, logger, stateId, w }, action) {
       predicate = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
     }
 
-    // yield put(setPredicate(w(predicates)));
-    yield put(reloadGrid(w({ predicates: predicate ? [predicate, ...predicates] : null })));
+    if (predicate) {
+      predicate = [predicate];
+    }
+
+    if (isEmpty(text)) {
+      predicate = [];
+    }
+
+    return predicate;
+  } catch (e) {
+    logger.error('[journals getSearchPredicate function* error', e.message);
+  }
+}
+
+function* sagaSearch({ api, logger, stateId, w, ...other }, action) {
+  try {
+    yield put(reloadGrid(w()));
     PageService.changeUrlLink(decodeLink(window.location.pathname + window.location.search), { updateUrl: true });
   } catch (e) {
     logger.error('[journals sagaSearch saga error', e.message);

@@ -428,9 +428,8 @@ export default handleActions(
     },
     [search]: (state, action) => {
       const stateId = action.payload.stateId;
-      action = handleAction(action);
 
-      return handleState(state, stateId, { search: action.payload });
+      return handleState(state, stateId, { search: action.payload.text });
     }
   },
   initialState
