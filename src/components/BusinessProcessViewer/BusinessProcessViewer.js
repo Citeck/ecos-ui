@@ -28,12 +28,14 @@ export default class BusinessProcessViewer extends React.Component {
       title: t(Labels.MSG_CANCEL_BP),
       onYes: () => {
         CancelBusinessProcess.execute({ record: recordId }).then(success => !success && this.setState({ disabledCancelBP: false }));
-      }
+      },
+      onNo: () => this.setState({ disabledCancelBP: false })
     });
   };
 
   render() {
     const { recordId } = this.props;
+    const { disabledCancelBP } = this.state;
 
     return (
       <div className="ecos-business-process">
@@ -41,7 +43,7 @@ export default class BusinessProcessViewer extends React.Component {
           <DocPreview height={'100%'} scale={1} recordId={recordId} noIndents />
         </div>
         <div className="ecos-business-process__actions">
-          <Btn onClick={this.handleCancelBP} disabled={this.state.disabledCancelBP}>
+          <Btn onClick={this.handleCancelBP} disabled={disabledCancelBP}>
             {t(Labels.BTN_CANCEL_BP)}
           </Btn>
         </div>

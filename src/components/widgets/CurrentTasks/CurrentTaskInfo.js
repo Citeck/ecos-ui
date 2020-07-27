@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 
 import { getOutputFormat, prepareTooltipId } from '../../../helpers/util';
 import { Icon, Tooltip } from '../../common';
@@ -127,11 +129,23 @@ class CurrentTaskInfo extends React.Component {
 }
 
 class MenuItem extends React.PureComponent {
+  componentWillUnmount() {
+    this.handleClick.cancel();
+  }
+
+  handleClick = debounce((...data) => {
+    const onClick = get(this.props, 'item.onClick');
+
+    if (typeof onClick === 'function') {
+      onClick(...data);
+    }
+  }, 350);
+
   render() {
-    const { icon, onClick, name } = this.props.item;
+    const { icon, name } = this.props.item;
 
     return (
-      <li onClick={onClick} className="ecos-current-task__action-menu-item">
+      <li onClick={this.handleClick} className="ecos-current-task__action-menu-item">
         <Icon className={icon} />
         <span>{name}</span>
       </li>
