@@ -290,6 +290,12 @@ export default class FileComponent extends FormIOFileComponent {
     this.createInlineEditSaveAndCancelButtons();
   }
 
+  createUploadStatus(fileUpload) {
+    this.toggleDisableSaveButton(true);
+
+    return super.createUploadStatus(fileUpload);
+  }
+
   setupValueElement(element) {
     const value = this.getValue();
     const valueView = this.getView(value);
@@ -337,5 +343,9 @@ export default class FileComponent extends FormIOFileComponent {
       value = [value];
     }
     super.setValue(value);
+
+    if (!isEmpty(value) && this.isDisabledSaveButton) {
+      this.toggleDisableSaveButton(false);
+    }
   }
 }
