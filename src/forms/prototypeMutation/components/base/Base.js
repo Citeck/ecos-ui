@@ -278,6 +278,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
 
     const onSaveButtonClick = () => {
       const saveButtonClassList = this._inlineEditSaveButton.classList;
+
       if (saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME)) {
         return;
       }
@@ -364,6 +365,29 @@ Base.prototype.checkValidity = function(data, dirty, rowData) {
   }
 
   return validity;
+};
+
+Base.prototype.toggleDisableSaveButton = function(disabled) {
+  if (this._inlineEditSaveButton) {
+    const saveButtonClassList = this._inlineEditSaveButton.classList;
+
+    if (disabled !== undefined) {
+      disabled ? saveButtonClassList.add(DISABLED_SAVE_BUTTON_CLASSNAME) : saveButtonClassList.remove(DISABLED_SAVE_BUTTON_CLASSNAME);
+      return;
+    }
+
+    saveButtonClassList.toggle(DISABLED_SAVE_BUTTON_CLASSNAME);
+  }
+};
+
+Base.prototype.isDisabledSaveButton = function() {
+  if (this._inlineEditSaveButton) {
+    const saveButtonClassList = this._inlineEditSaveButton.classList;
+
+    return saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME);
+  }
+
+  return false;
 };
 
 Base.prototype.checkConditions = function(data) {

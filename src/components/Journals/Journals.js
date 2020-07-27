@@ -20,7 +20,7 @@ import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
-import { t, trigger } from '../../helpers/util';
+import { t, trigger, objectCompare } from '../../helpers/util';
 import { getSearchParams, goToCardDetailsPage, stringifySearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
@@ -33,6 +33,7 @@ const mapStateToProps = (state, props) => {
     isMobile: state.view.isMobile,
     pageTabsIsShow: state.pageTabs.isShow,
     journalConfig: newState.journalConfig,
+    predicate: newState.predicate,
     grid: newState.grid
   };
 };
@@ -69,6 +70,13 @@ class Journals extends Component {
 
     if (props.isActivePage && journalId !== state.journalId) {
       newState.journalId = journalId;
+    }
+
+    if (state.settingsVisible && state.savedSetting && !objectCompare(props.predicate, get(state, 'savedSetting.predicate', {}))) {
+      newState.savedSetting = {
+        ...state.savedSetting,
+        predicate: props.predicate
+      };
     }
 
     if (!Object.keys(newState).length) {
