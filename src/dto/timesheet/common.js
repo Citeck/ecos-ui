@@ -21,13 +21,15 @@ export default class CommonTimesheetConverter {
   static setParamsEventTypes({ eventTypes, timesheetType }) {
     const target = deepClone(eventTypes);
 
-    if (timesheetType) {
-      target.forEach(item => {
-        if (timesheetType === TimesheetTypes.VERIFICATION) {
-          set(item, 'hours.editable', true);
-        }
-      });
-    }
+    target.forEach(item => {
+      if (!Array.isArray(item.days)) {
+        item.days = [];
+      }
+
+      if (timesheetType && timesheetType === TimesheetTypes.VERIFICATION) {
+        set(item, 'hours.editable', true);
+      }
+    });
 
     return target;
   }
