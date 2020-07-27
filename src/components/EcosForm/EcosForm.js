@@ -15,7 +15,6 @@ import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
-import { Loader } from '../common';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
