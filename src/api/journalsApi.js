@@ -57,7 +57,6 @@ export class JournalsApi extends RecordService {
   };
 
   getGridData = ({ columns, pagination, predicate, groupBy, sortBy, predicates, sourceId, recordRef, journalId, journalActions }) => {
-    // const val = [predicate];
     const val = [];
 
     !!Array.isArray(predicates) && val.push(...predicates);
