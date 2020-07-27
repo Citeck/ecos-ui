@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
 import { isSmallMode, objectCompare, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
@@ -92,7 +93,7 @@ class PropertiesDashlet extends BaseWidget {
 
     const actions = {
       [DAction.Actions.RELOAD]: {
-        onClick: this.reload.bind(this)
+        onClick: this.onReloadDashlet
       },
       [DAction.Actions.SETTINGS]: {
         onClick: this.toggleDisplayFormSettings
@@ -139,7 +140,18 @@ class PropertiesDashlet extends BaseWidget {
       this.setState({ wasLastModifiedWithInlineEditor: false });
     } else {
       this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
+      this.onReloadDashlet();
     }
+  };
+
+  onReloadDashlet = () => {
+    const onUpdate = get(this._propertiesRef, 'current.onUpdateForm');
+
+    if (typeof onUpdate !== 'function') {
+      return;
+    }
+
+    onUpdate();
   };
 
   onResize = width => {
@@ -195,17 +207,7 @@ class PropertiesDashlet extends BaseWidget {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
-    const {
-      isSmallMode,
-      runUpdate,
-      isEditProps,
-      userHeight,
-      fitHeights,
-      formIsChanged,
-      isCollapsed,
-      isShowSetting,
-      title: titleForm
-    } = this.state;
+    const { isSmallMode, isEditProps, userHeight, fitHeights, formIsChanged, isCollapsed, isShowSetting, title: titleForm } = this.state;
     const { formId = '', titleAsFormName } = config || {};
 
     return (
@@ -236,7 +238,7 @@ class PropertiesDashlet extends BaseWidget {
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onUpdate={this.onPropertiesUpdate}
-          formId={runUpdate ? null : formId}
+          formId={formId}
           onInlineEditSave={this.onInlineEditSave}
           getTitle={this.setTitle}
         />
