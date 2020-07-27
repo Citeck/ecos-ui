@@ -45,6 +45,7 @@ export default class DelegatedTimesheetConverter {
       displayName: ''
     };
     const name = get(source, 'attributes.fullName', '');
+    const userName = get(source, 'attributes.userName', '');
     let displayName = get(source, 'attributes.displayName', '');
 
     if (!displayName.includes(name)) {
@@ -54,6 +55,7 @@ export default class DelegatedTimesheetConverter {
     target.name = name;
     target.ref = get(source, 'id', '');
     target.displayName = displayName;
+    target.userName = userName;
 
     return target;
   }
