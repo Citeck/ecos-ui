@@ -44,7 +44,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    search: text => dispatch(search(w(text))),
+    search: text => dispatch(search({ text, stateId: props.stateId })),
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting)))
   };
 };
