@@ -538,12 +538,12 @@ export default class EcosFormUtils {
       });
 
       return omitBy(comp, (attValue, attName) => {
-        const saveAlwaysAtts = ['id', 'key', 'type', 'input'];
+        const saveAlwaysAtts = ['key', 'type', 'input'];
         if (saveAlwaysAtts.includes(attName)) {
           return false;
         }
 
-        const removeAtts = ['displayColumnsAsyncData'];
+        const removeAtts = ['id', 'displayColumnsAsyncData'];
         if (removeAtts.includes(attName)) {
           return true;
         }
