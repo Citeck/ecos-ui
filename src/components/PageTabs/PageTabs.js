@@ -463,10 +463,9 @@ class PageTabs extends React.Component {
     return (
       <>
         {this.renderTabWrapper()}
-        <this.renderTabPanes url={location.pathname + location.search} tabs={tabs} ContentComponent={ContentComponent} />
-
-        {/*{ContentComponent && (*/}
-        {/*)}*/}
+        {ContentComponent && (
+          <this.renderTabPanes url={location.pathname + location.search} tabs={tabs} ContentComponent={ContentComponent} />
+        )}
       </>
     );
   }

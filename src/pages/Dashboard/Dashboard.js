@@ -318,17 +318,9 @@ class Dashboard extends Component {
       search: queryString.stringify(searchParams)
     });
 
-    this.setState(
-      state => ({
-        openedTabs: state.openedTabs.add(tab.idLayout),
-        activeLayoutId: tab.idLayout
-      }),
-      () => {
-        Dashboard.updateTabLink();
-      }
-    );
+    this.setState(state => ({ openedTabs: state.openedTabs.add(tab.idLayout) }));
 
-    // Dashboard.updateTabLink();
+    Dashboard.updateTabLink();
   };
 
   toggleTabLayoutFromUrl = () => {
