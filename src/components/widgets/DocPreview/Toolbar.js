@@ -46,7 +46,8 @@ class Toolbar extends Component {
     };
   }
 
-  toolbarZoom = React.createRef();
+  toolbarWrapperRef = React.createRef();
+  toolbarZoomRef = React.createRef();
 
   componentDidMount() {
     const { scale } = this.state;
@@ -78,6 +79,23 @@ class Toolbar extends Component {
     }
 
     return zooms;
+  }
+
+  get zoomDropdownStyle() {
+    const wrapper = get(this.toolbarWrapperRef, 'current');
+    const styles = {
+      maxWidth: '145px'
+    };
+
+    if (!wrapper) {
+      return styles;
+    }
+
+    const currentStyles = window.getComputedStyle(wrapper);
+
+    styles.maxWidth = `calc(${styles.maxWidth} + ${currentStyles.marginLeft} + ${currentStyles.marginRight})`;
+
+    return styles;
   }
 
   handlePrev = () => {
@@ -169,10 +187,10 @@ class Toolbar extends Component {
           onClick={this.handlePrev}
         />
         {!!totalPages && (
-          <>
+          <div className="ecos-doc-preview__toolbar-pager-text-wrapper">
             <Input type="text" onChange={this.goToPage} value={currentPage} className="ecos-doc-preview__toolbar-pager-input" />
             <span className="ecos-doc-preview__toolbar-pager-text"> {`${t(Labels.OUT_OF)} ${totalPages}`} </span>
-          </>
+          </div>
         )}
         <IcoBtn
           icon={'icon-right'}
@@ -188,11 +206,11 @@ class Toolbar extends Component {
   renderZoom() {
     const { scale, selectedZoom } = this.state;
     const bodyH = get(window, 'document.body.offsetHeight', 400);
-    const bottom = this.toolbarZoom.current ? this.toolbarZoom.current.getBoundingClientRect().bottom : 0;
+    const bottom = this.toolbarZoomRef.current ? this.toolbarZoomRef.current.getBoundingClientRect().bottom : 0;
     const maxH = bodyH - bottom - 10;
 
     return (
-      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom" ref={this.toolbarZoom}>
+      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom" ref={this.toolbarZoomRef}>
         <IcoBtn
           icon={'icon-minus'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= 0 })}
@@ -207,11 +225,13 @@ class Toolbar extends Component {
           onChange={this.onChangeZoomOption}
           hideSelected={selectedZoom === CUSTOM}
           className="ecos-doc-preview__toolbar-zoom-dropdown"
+          controlClassName="ecos-doc-preview__toolbar-zoom-dropdown-control"
           withScrollbar
           scrollbarHeightMax={`${maxH}px`}
         >
           <IcoBtn
             invert
+            style={this.zoomDropdownStyle}
             icon={'icon-down'}
             className="ecos-btn_sq_sm ecos-btn_tight ecos-btn_drop-down ecos-doc-preview__toolbar-zoom-selector"
           />
@@ -242,9 +262,11 @@ class Toolbar extends Component {
 
     return (
       <div ref={inputRef} className={classNames('ecos-doc-preview__toolbar', className)}>
-        {isPDF && this.renderPager()}
-        {this.renderZoom()}
-        {this.renderExtraBtns()}
+        <div ref={this.toolbarWrapperRef} className="ecos-doc-preview__toolbar-wrapper">
+          {isPDF && this.renderPager()}
+          {this.renderZoom()}
+          {this.renderExtraBtns()}
+        </div>
       </div>
     );
   }
