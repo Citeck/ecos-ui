@@ -69,9 +69,11 @@ export class JournalsApi extends RecordService {
     journalActions,
     queryData
   }) => {
-    const val = [predicate];
+    const val = [];
 
     !!Array.isArray(predicates) && val.push(...predicates);
+
+    val.push(predicate);
 
     !!recordRef &&
       val.push({
