@@ -675,7 +675,7 @@ function* getSearchPredicate({ logger, stateId }) {
     const text = yield select(state => state.journals[stateId].search);
     const grid = yield select(state => state.journals[stateId].grid);
     const fullSearch = yield select(state => get(state, ['journals', stateId, 'journalConfig', 'params', 'full-search-predicate']));
-    const { columns, groupBy = [], predicates: oldPredicates } = grid;
+    const { columns, groupBy = [] } = grid;
     let predicate;
 
     if (fullSearch) {
