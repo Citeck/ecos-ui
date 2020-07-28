@@ -502,8 +502,23 @@ export default class EcosFormUtils {
   static optimizeFormSchema(form) {
     return EcosFormUtils.forEachComponent(form, function(comp) {
       const defaultSchema = Components.components[comp.type] ? Components.components[comp.type].schema() : {};
+      const leaveAtts = ['key', 'type', 'input'];
+      const removeAtts = ['id', 'displayColumnsAsyncData'];
 
       switch (comp.type) {
+        case 'datamap':
+          const valueComponent = Components.components[comp.valueComponent.type];
+          const valueComponentSchema = valueComponent ? valueComponent.schema() : {};
+          comp.valueComponent = omitBy(comp.valueComponent, (value, key) => {
+            if (leaveAtts.includes(key)) {
+              return false;
+            }
+            if (removeAtts.includes(key)) {
+              return true;
+            }
+            return isEqual(valueComponentSchema[key], value);
+          });
+          break;
         case 'datetime':
           comp.datePicker = omitBy(comp.datePicker, (value, key) => isEqual(defaultSchema.datePicker[key], value));
           if (comp.timePicker) {
@@ -538,12 +553,10 @@ export default class EcosFormUtils {
       });
 
       return omitBy(comp, (attValue, attName) => {
-        const saveAlwaysAtts = ['key', 'type', 'input'];
-        if (saveAlwaysAtts.includes(attName)) {
+        if (leaveAtts.includes(attName)) {
           return false;
         }
 
-        const removeAtts = ['id', 'displayColumnsAsyncData'];
         if (removeAtts.includes(attName)) {
           return true;
         }
