@@ -525,7 +525,7 @@ export default class AsyncDataComponent extends BaseComponent {
     }
   };
 
-  static optimizeFormSchema(comp) {
+  static optimizeSchema(comp) {
     const defaultSchema = AsyncDataComponent.schema();
     return {
       ...comp,

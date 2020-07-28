@@ -3,7 +3,7 @@ import omitBy from 'lodash/omitBy';
 import FormIODataMapComponent from 'formiojs/components/datamap/DataMap';
 
 export default class DataMapComponent extends FormIODataMapComponent {
-  static optimizeFormSchema(comp) {
+  static optimizeSchema(comp) {
     const defaultSchema = DataMapComponent.schema();
     const leaveAtts = ['key', 'type', 'input'];
     const removeAtts = ['id'];

@@ -508,8 +508,8 @@ export default class EcosFormUtils {
       const currentComponent = Components.components[comp.type];
       const currentComponentDefaultSchema = currentComponent ? currentComponent.schema() : {};
 
-      if (typeof currentComponent.optimizeFormSchema === 'function') {
-        comp = currentComponent.optimizeFormSchema(comp);
+      if (typeof currentComponent.optimizeSchema === 'function') {
+        comp = currentComponent.optimizeSchema(comp);
       }
 
       objectAtts.forEach(att => {

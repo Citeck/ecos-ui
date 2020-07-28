@@ -72,7 +72,7 @@ export default class SelectComponent extends FormIOSelectComponent {
     return added;
   }
 
-  static optimizeFormSchema(comp) {
+  static optimizeSchema(comp) {
     return {
       ...comp,
       data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc)

@@ -502,7 +502,7 @@ export default class TableFormComponent extends BaseReactComponent {
     });
   };
 
-  static optimizeFormSchema(comp) {
+  static optimizeSchema(comp) {
     return _.omit(
       {
         ...comp,

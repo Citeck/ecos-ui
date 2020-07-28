@@ -13,7 +13,7 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
     });
   }
 
-  static optimizeFormSchema(comp) {
+  static optimizeSchema(comp) {
     const defaultSchema = DateTimeComponent.schema();
 
     comp.datePicker = omitBy(comp.datePicker, (value, key) => isEqual(defaultSchema.datePicker[key], value));
