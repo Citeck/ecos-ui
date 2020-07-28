@@ -500,55 +500,21 @@ export default class EcosFormUtils {
   }
 
   static optimizeFormSchema(form) {
-    return EcosFormUtils.forEachComponent(form, function(comp) {
-      const defaultSchema = Components.components[comp.type] ? Components.components[comp.type].schema() : {};
-      const leaveAtts = ['key', 'type', 'input'];
-      const removeAtts = ['id', 'displayColumnsAsyncData'];
+    const objectAtts = ['conditional', 'validate', 'widget'];
+    const leaveAtts = ['key', 'type', 'input'];
+    const removeAtts = ['id'];
 
-      switch (comp.type) {
-        case 'datamap':
-          const valueComponent = Components.components[comp.valueComponent.type];
-          const valueComponentSchema = valueComponent ? valueComponent.schema() : {};
-          comp.valueComponent = omitBy(comp.valueComponent, (value, key) => {
-            if (leaveAtts.includes(key)) {
-              return false;
-            }
-            if (removeAtts.includes(key)) {
-              return true;
-            }
-            return isEqual(valueComponentSchema[key], value);
-          });
-          break;
-        case 'datetime':
-          comp.datePicker = omitBy(comp.datePicker, (value, key) => isEqual(defaultSchema.datePicker[key], value));
-          if (comp.timePicker) {
-            comp.timePicker = omitBy(comp.timePicker, (value, key) => isEqual(defaultSchema.timePicker[key], value));
-          }
-          comp = omitBy(comp, (value, key) => key === 'widget');
-          break;
-        case 'select':
-        case 'ecosSelect':
-          comp.data = omitBy(comp.data, (value, key) => key !== comp.dataSrc);
-          break;
-        case 'tableForm':
-        case 'asyncData':
-          comp.source = omitBy(comp.source, (value, key) => {
-            const saveAtts = ['type', 'forceLoad'];
-            if (saveAtts.includes(key)) {
-              return false;
-            }
-            return key !== comp.source.type;
-          });
-          comp.update = omitBy(comp.update, (value, key) => isEqual(defaultSchema.update[key], value));
-          break;
-        default:
-          break;
+    return EcosFormUtils.forEachComponent(form, function(comp) {
+      const currentComponent = Components.components[comp.type];
+      const currentComponentSchema = currentComponent ? currentComponent.schema() : {};
+
+      if (typeof currentComponent.optimizeFormSchema === 'function') {
+        comp = currentComponent.optimizeFormSchema(comp);
       }
 
-      const objectAtts = ['conditional', 'validate', 'widget'];
       objectAtts.forEach(att => {
         if (comp[att]) {
-          comp[att] = omitBy(comp[att], (value, key) => isEqual(defaultSchema[att][key], value));
+          comp[att] = omitBy(comp[att], (value, key) => isEqual(currentComponentSchema[att][key], value));
         }
       });
 
@@ -561,11 +527,11 @@ export default class EcosFormUtils {
           return true;
         }
 
-        if ([...objectAtts, ['attributes', 'properties']].includes(attName) && isEmpty(attValue)) {
+        if ([...objectAtts, 'attributes', 'properties'].includes(attName) && isEmpty(attValue)) {
           return true;
         }
 
-        return isEqual(defaultSchema[attName], attValue);
+        return isEqual(currentComponentSchema[attName], attValue);
       });
     });
   }

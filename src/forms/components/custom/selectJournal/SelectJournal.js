@@ -385,4 +385,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
     return result ? result : value;
   };
+
+  static optimizeFormSchema(comp) {
+    return _.omit(comp, ['displayColumnsAsyncData']);
+  }
 }

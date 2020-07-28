@@ -501,4 +501,20 @@ export default class TableFormComponent extends BaseReactComponent {
       text
     });
   };
+
+  static optimizeFormSchema(comp) {
+    return _.omit(
+      {
+        ...comp,
+        source: _.omitBy(comp.source, (value, key) => {
+          const saveAtts = ['type'];
+          if (saveAtts.includes(key)) {
+            return false;
+          }
+          return key !== comp.source.type;
+        })
+      },
+      ['displayColumnsAsyncData']
+    );
+  }
 }

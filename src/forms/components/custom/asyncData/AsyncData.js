@@ -524,4 +524,19 @@ export default class AsyncDataComponent extends BaseComponent {
       });
     }
   };
+
+  static optimizeFormSchema(comp) {
+    const defaultSchema = AsyncDataComponent.schema();
+    return {
+      ...comp,
+      source: _.omitBy(comp.source, (value, key) => {
+        const saveAtts = ['type', 'forceLoad'];
+        if (saveAtts.includes(key)) {
+          return false;
+        }
+        return key !== comp.source.type;
+      }),
+      update: _.omitBy(comp.update, (value, key) => _.isEqual(defaultSchema.update[key], value))
+    };
+  }
 }
