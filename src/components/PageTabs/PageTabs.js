@@ -28,7 +28,7 @@ const Labels = {
 class PageTabs extends React.Component {
   static propTypes = {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
-    ContentComponent: PropTypes.oneOf([PropTypes.node, PropTypes.instanceOf(React.memo)]),
+    ContentComponent: PropTypes.elementType,
     homepageLink: PropTypes.string.isRequired,
     allowedLinks: PropTypes.array,
     isShow: PropTypes.bool,
@@ -463,9 +463,10 @@ class PageTabs extends React.Component {
     return (
       <>
         {this.renderTabWrapper()}
-        {ContentComponent && (
-          <this.renderTabPanes url={location.pathname + location.search} tabs={tabs} ContentComponent={ContentComponent} />
-        )}
+        <this.renderTabPanes url={location.pathname + location.search} tabs={tabs} ContentComponent={ContentComponent} />
+
+        {/*{ContentComponent && (*/}
+        {/*)}*/}
       </>
     );
   }

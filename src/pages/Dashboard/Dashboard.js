@@ -311,8 +311,6 @@ class Dashboard extends Component {
     const tab = get(this.tabList, [index], {});
     const searchParams = queryString.parse(window.location.search);
 
-    this.setState(state => ({ openedTabs: state.openedTabs.add(tab.idLayout) }));
-
     searchParams.activeLayoutId = tab.idLayout;
 
     this.props.history.push({
@@ -320,7 +318,17 @@ class Dashboard extends Component {
       search: queryString.stringify(searchParams)
     });
 
-    Dashboard.updateTabLink();
+    this.setState(
+      state => ({
+        openedTabs: state.openedTabs.add(tab.idLayout),
+        activeLayoutId: tab.idLayout
+      }),
+      () => {
+        Dashboard.updateTabLink();
+      }
+    );
+
+    // Dashboard.updateTabLink();
   };
 
   toggleTabLayoutFromUrl = () => {
@@ -383,14 +391,7 @@ class Dashboard extends Component {
   }
 
   renderLayout = React.memo(props => {
-    return (
-      <Layout
-        className={classNames({ 'ecos-layout_mobile': props.isMobile })}
-        onSaveWidget={this.prepareWidgetsConfig}
-        onSaveWidgetProps={this.handleSaveWidgetProps}
-        {...props}
-      />
-    );
+    return <Layout className={classNames({ 'ecos-layout_mobile': props.isMobile })} {...props} />;
   });
 
   renderTopMenu() {
@@ -506,6 +507,8 @@ class Dashboard extends Component {
             type={type}
             tabId={tabId}
             isActiveLayout={pageTabList.isActiveTab(tabId)}
+            onSaveWidget={this.prepareWidgetsConfig}
+            onSaveWidgetProps={this.handleSaveWidgetProps}
           />
         </div>
       );
