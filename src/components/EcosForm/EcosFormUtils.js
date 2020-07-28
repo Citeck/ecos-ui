@@ -506,7 +506,7 @@ export default class EcosFormUtils {
 
     return EcosFormUtils.forEachComponent(form, function(comp) {
       const currentComponent = Components.components[comp.type];
-      const currentComponentSchema = currentComponent ? currentComponent.schema() : {};
+      const currentComponentDefaultSchema = currentComponent ? currentComponent.schema() : {};
 
       if (typeof currentComponent.optimizeFormSchema === 'function') {
         comp = currentComponent.optimizeFormSchema(comp);
@@ -514,7 +514,7 @@ export default class EcosFormUtils {
 
       objectAtts.forEach(att => {
         if (comp[att]) {
-          comp[att] = omitBy(comp[att], (value, key) => isEqual(currentComponentSchema[att][key], value));
+          comp[att] = omitBy(comp[att], (value, key) => isEqual(currentComponentDefaultSchema[att][key], value));
         }
       });
 
@@ -531,7 +531,7 @@ export default class EcosFormUtils {
           return true;
         }
 
-        return isEqual(currentComponentSchema[attName], attValue);
+        return isEqual(currentComponentDefaultSchema[attName], attValue);
       });
     });
   }
