@@ -538,7 +538,7 @@ export default class EcosFormUtils {
       });
 
       return omitBy(comp, (attValue, attName) => {
-        const saveAlwaysAtts = ['id', 'key', 'type'];
+        const saveAlwaysAtts = ['id', 'key', 'type', 'input'];
         if (saveAlwaysAtts.includes(attName)) {
           return false;
         }
