@@ -311,14 +311,14 @@ class Dashboard extends Component {
     const tab = get(this.tabList, [index], {});
     const searchParams = queryString.parse(window.location.search);
 
-    this.setState(state => ({ openedTabs: state.openedTabs.add(tab.idLayout) }));
-
     searchParams.activeLayoutId = tab.idLayout;
 
     this.props.history.push({
       pathname: URL.DASHBOARD,
       search: queryString.stringify(searchParams)
     });
+
+    this.setState(state => ({ openedTabs: state.openedTabs.add(tab.idLayout) }));
 
     Dashboard.updateTabLink();
   };
@@ -383,14 +383,7 @@ class Dashboard extends Component {
   }
 
   renderLayout = React.memo(props => {
-    return (
-      <Layout
-        className={classNames({ 'ecos-layout_mobile': props.isMobile })}
-        onSaveWidget={this.prepareWidgetsConfig}
-        onSaveWidgetProps={this.handleSaveWidgetProps}
-        {...props}
-      />
-    );
+    return <Layout className={classNames({ 'ecos-layout_mobile': props.isMobile })} {...props} />;
   });
 
   renderTopMenu() {
@@ -506,6 +499,8 @@ class Dashboard extends Component {
             type={type}
             tabId={tabId}
             isActiveLayout={pageTabList.isActiveTab(tabId)}
+            onSaveWidget={this.prepareWidgetsConfig}
+            onSaveWidgetProps={this.handleSaveWidgetProps}
           />
         </div>
       );
