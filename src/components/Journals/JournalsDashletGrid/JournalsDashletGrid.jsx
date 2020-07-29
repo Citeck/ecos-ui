@@ -82,6 +82,12 @@ class JournalsDashletGrid extends Component {
     isDialogShow: false
   };
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (get(prevProps, 'grid.pagination.page') !== get(this.rops, 'grid.pagination.page')) {
+      this.scrollPosition.scrollTop = 0;
+    }
+  }
+
   setSelectedRecords = e => {
     const props = this.props;
     props.setSelectedRecords(e.selected);
