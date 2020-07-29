@@ -46,7 +46,7 @@ class CreateMenu extends React.Component {
     return (
       <Dropdown className="ecos-header-create ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
         <DropdownToggle tag="div">
-          <IcoBtn icon={'icon-plus'} className={classNameIcoBtn} disabled={disabled}>
+          <IcoBtn icon={'icon-small-plus'} className={classNameIcoBtn} disabled={disabled}>
             {!isMobile && t('create_case.label')}
           </IcoBtn>
         </DropdownToggle>

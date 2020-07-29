@@ -57,7 +57,7 @@ export default class FilterItem extends React.PureComponent {
               placeholder={t('dropdown-filter.item.placeholder')}
             />
 
-            <Icon className={classNames(`${_field}__close`, 'icon-close icon_small')} onClick={this.onClean} />
+            <Icon className={classNames(`${_field}__close`, 'icon-small-close icon_small')} onClick={this.onClean} />
           </div>
         )}
         <li className={classNames(this.className, { [`${this.className}_all`]: isAll })}>

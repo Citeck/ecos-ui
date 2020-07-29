@@ -100,7 +100,7 @@ class ResizableBox extends React.Component {
         >
           {resizable && (
             <div ref={this.resizeButtonRef} className="ecos-resize__control">
-              <Icon className="icon-resize" title={t('dashlet.resize.title')} onMouseDown={this.startResize} />
+              <Icon className="icon-custom-resize-widget" title={t('dashlet.resize.title')} onMouseDown={this.startResize} />
             </div>
           )}
         </div>

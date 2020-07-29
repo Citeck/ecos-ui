@@ -804,7 +804,7 @@ export default class SelectJournal extends Component {
                 <div className={'select-journal-collapse-panel__controls-left'}>
                   <IcoBtn
                     invert
-                    icon={isCollapsePanelOpen ? 'icon-up' : 'icon-down'}
+                    icon={isCollapsePanelOpen ? 'icon-small-up' : 'icon-small-down'}
                     className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
                     onClick={this.toggleCollapsePanel}
                   >

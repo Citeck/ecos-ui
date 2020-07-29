@@ -53,7 +53,12 @@ class UserMenu extends React.Component {
           <DropdownToggle tag="div" className="ecos-header-dropdown__toggle" id="ecos-header-dropdown--user-name">
             <Tooltip target="ecos-header-dropdown--user-name" text={userFullName} placement={'left'} uncontrolled showAsNeeded>
               {mob ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
-              <IcoBtn invert={true} icon={dropdownOpen ? 'icon-up' : 'icon-down'} className={classNameIcoBtn} disabled={disabled}>
+              <IcoBtn
+                invert={true}
+                icon={dropdownOpen ? 'icon-small-up' : 'icon-small-down'}
+                className={classNameIcoBtn}
+                disabled={disabled}
+              >
                 {!mob && userFullName}
               </IcoBtn>
             </Tooltip>

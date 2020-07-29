@@ -175,7 +175,7 @@ class Toolbar extends Component {
           </>
         )}
         <IcoBtn
-          icon={'icon-right'}
+          icon={'icon-small-right'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-next', {
             'ecos-btn_disabled': currentPage === totalPages
           })}
@@ -198,7 +198,7 @@ class Toolbar extends Component {
           className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= 0 })}
           onClick={() => this.setScale(-1)}
         />
-        <IcoBtn icon={'icon-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={() => this.setScale(1)} />
+        <IcoBtn icon={'icon-small-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={() => this.setScale(1)} />
         <Dropdown
           source={this.zoomOptions}
           value={selectedZoom}
@@ -212,7 +212,7 @@ class Toolbar extends Component {
         >
           <IcoBtn
             invert
-            icon={'icon-down'}
+            icon={'icon-small-down'}
             className="ecos-btn_sq_sm ecos-btn_tight ecos-btn_drop-down ecos-doc-preview__toolbar-zoom-selector"
           />
         </Dropdown>

@@ -70,7 +70,7 @@ class DragItem extends React.Component {
 
     return (
       <Tooltip target={tooltipId} text={alertTooltip} placement="top" trigger="hover" uncontrolled autohide>
-        <Icon id={tooltipId} className={classNames('icon-big_alert ecos-drag-item__actions-item ecos-drag-item__actions-item-alert')} />
+        <Icon id={tooltipId} className={classNames('icon-alert ecos-drag-item__actions-item ecos-drag-item__actions-item-alert')} />
       </Tooltip>
     );
   };
@@ -85,7 +85,7 @@ class DragItem extends React.Component {
         {this.renderAlert()}
         {canRemove && (
           <IcoBtn
-            icon={'icon-close'}
+            icon={'icon-small-close'}
             className={classNames(_btn, `${_actions}__btn-remove`, { 'ecos-btn_grey5': selected })}
             onClick={this.removeItem}
           />

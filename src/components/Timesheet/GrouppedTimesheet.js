@@ -223,7 +223,9 @@ class GrouppedTimesheet extends BaseTimesheet {
             value={typeFilter}
             onChange={this.handleFilterTypes}
           />
-          {typeFilter && <Icon className="icon-close ecos-timesheet__table-search-input-clear" onClick={this.handleClearFilterTypes} />}
+          {typeFilter && (
+            <Icon className="icon-small-close ecos-timesheet__table-search-input-clear" onClick={this.handleClearFilterTypes} />
+          )}
         </div>
       </div>
     );
@@ -320,7 +322,7 @@ class GrouppedTimesheet extends BaseTimesheet {
                       </SortableHandle>
 
                       <Icon
-                        className={classNames('icon-down ecos-timesheet__table-group-collapse', {
+                        className={classNames('icon-small-down ecos-timesheet__table-group-collapse', {
                           'ecos-timesheet__table-group-collapse_open': this.getGroupStatus(item.user)
                         })}
                         data-key={item.user}

@@ -167,7 +167,7 @@ class DocStatus extends BaseWidget {
     return (
       <div className="ecos-doc-status__data ecos-doc-status__data_manual">
         <Dropdown source={source} value={status.id} valueField={'id'} titleField={'name'} onChange={this.handleChangeStatus} hideSelected>
-          <IcoBtn invert icon={'icon-down'} className={classStatus} loading={this.isShowLoader} />
+          <IcoBtn invert icon={'icon-small-down'} className={classStatus} loading={this.isShowLoader} />
         </Dropdown>
       </div>
     );

@@ -120,7 +120,7 @@ export default class Pagination extends Component {
           onClick={this.handleClickPrev}
         />
         <IcoBtn
-          icon={'icon-right'}
+          icon={'icon-small-right'}
           className="ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue"
           disabled={page >= this.maxPage}
           onClick={this.handleClickNext}

@@ -106,7 +106,7 @@ class PropertiesSettings extends React.Component {
             >
               <IcoBtn
                 invert
-                icon="icon-down"
+                icon="icon-small-down"
                 className="ecos-properties-settings__form-list-btn"
                 loading={isLoading}
                 colorLoader="light-blue"

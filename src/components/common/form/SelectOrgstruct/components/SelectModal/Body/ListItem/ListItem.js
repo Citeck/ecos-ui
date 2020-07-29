@@ -31,8 +31,8 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
   const renderCollapseHandler = () => {
     if (item.hasChildren) {
       const collapseHandlerClassNames = classNames('icon', 'select-orgstruct__collapse-handler', {
-        'icon-right': !item.isOpen,
-        'icon-down': item.isOpen
+        'icon-small-right': !item.isOpen,
+        'icon-small-down': item.isOpen
       });
 
       return <span className={collapseHandlerClassNames} />;
@@ -42,9 +42,9 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
   const renderSelectHandler = () => {
     if (isAllUsers || isAllowedSelect) {
       const selectHandlerClassNames = classNames('icon', 'select-orgstruct__select-handler', {
-        'icon-plus': !item.isSelected,
+        'icon-small-plus': !item.isSelected,
         'select-orgstruct__select-handler_not-selected': !item.isSelected,
-        'icon-close': item.isSelected,
+        'icon-small-close': item.isSelected,
         'select-orgstruct__select-handler_selected': item.isSelected
       });
 

@@ -138,14 +138,14 @@ class ListItem extends Component {
 
             <IcoBtn
               title={t('journals.action.cancel-rename-tpl-msg')}
-              icon={'icon-close'}
+              icon={'icon-small-close'}
               className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_red ecos-btn_hover_t_light-red ecos-btn_transparent ecos-journal-menu__cancel-btn`}
               onClick={this.cancelRenameMode}
             />
 
             <IcoBtn
               title={t('journals.action.rename-tpl-msg')}
-              icon={'icon-check'}
+              icon={'icon-small-check'}
               className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_green ecos-btn_hover_t_light-green ecos-btn_transparent ecos-journal-menu__apply-btn`}
               onClick={this.apply}
             />
@@ -317,7 +317,7 @@ class JournalsMenu extends Component {
           <div className={'ecos-journal-menu__hide-menu-btn'}>
             <IcoBtn
               onClick={this.onClose}
-              icon={'icon-arrow'}
+              icon={'icon-small-arrow-right'}
               invert
               className={'ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
             >

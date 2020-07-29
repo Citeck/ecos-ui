@@ -152,7 +152,9 @@ class BaseTimesheet extends Component {
             onChange={this.handleFilterTypes}
           />
 
-          {typeFilter && <Icon className="icon-close ecos-timesheet__table-search-input-clear" onClick={this.handleClearFilterTypes} />}
+          {typeFilter && (
+            <Icon className="icon-small-close ecos-timesheet__table-search-input-clear" onClick={this.handleClearFilterTypes} />
+          )}
         </div>
       </div>
     );
@@ -184,7 +186,7 @@ class BaseTimesheet extends Component {
         <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />
         <div className="ecos-timesheet__table-events-item-title">{item.title}</div>
 
-        {/*<Icon className="icon-plus ecos-timesheet__table-events-item-add-btn" id={`event-type-${position}-group-${groupPosition}`} />*/}
+        {/*<Icon className="icon-small-plus ecos-timesheet__table-events-item-add-btn" id={`event-type-${position}-group-${groupPosition}`} />*/}
         {/*<Tooltip target={`event-type-${position}-group-${groupPosition}`} content={t(CommonLabels.ADD_DAYS)} />*/}
       </div>
     </SortableElement>
@@ -284,7 +286,7 @@ class BaseTimesheet extends Component {
     return (
       <div className="ecos-timesheet__table-lock">
         <div id="timesheet-locked-tooltip">
-          <Icon className="icon-lock ecos-timesheet__table-lock-icon" />
+          <Icon className="icon-custom-lock ecos-timesheet__table-lock-icon" />
           <span>{t('Редактирование заблокировано')}</span>
         </div>
 

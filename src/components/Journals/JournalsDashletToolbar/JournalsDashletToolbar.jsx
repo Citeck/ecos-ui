@@ -59,7 +59,7 @@ class JournalsDashletToolbar extends Component {
     if (createVariants.length === 1) {
       return (
         <IcoBtn
-          icon={'icon-plus'}
+          icon={'icon-small-plus'}
           className="ecos-btn_i ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10 ecos-journal-dashlet__create-btn"
           onClick={() => this.addRecord(createVariants[0])}
         />
@@ -69,7 +69,7 @@ class JournalsDashletToolbar extends Component {
     return (
       <Dropdown hasEmpty isButton source={createVariants} valueField="destination" titleField="title" onChange={this.addRecord}>
         <TwoIcoBtn
-          icons={['icon-plus', 'icon-down']}
+          icons={['icon-small-plus', 'icon-small-down']}
           className="ecos-btn_settings-down ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10 ecos-journal-dashlet__create-btn"
         />
       </Dropdown>
@@ -106,7 +106,7 @@ class JournalsDashletToolbar extends Component {
           })}
           onChange={this.onChangeJournal}
         >
-          <IcoBtn invert icon={'icon-down'} className="ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10" />
+          <IcoBtn invert icon={'icon-small-down'} className="ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10" />
         </Dropdown>
 
         {!isSmall && (
@@ -118,7 +118,7 @@ class JournalsDashletToolbar extends Component {
             isButton
             onChange={this.onChangeJournalSetting}
           >
-            <TwoIcoBtn icons={['icon-settings', 'icon-down']} className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10" />
+            <TwoIcoBtn icons={['icon-settings', 'icon-small-down']} className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10" />
           </Dropdown>
         )}
 

@@ -183,7 +183,7 @@ export function getIconClassMenu(id, specialClass) {
     case 'HEADER_USER_MENU_FEEDBACK':
       return 'icon-notify';
     case 'HEADER_USER_MENU_REPORTISSUE':
-      return 'icon-big_alert';
+      return 'icon-alert';
     case 'HEADER_USER_MENU_LOGOUT':
       return 'icon-exit';
     case 'HEADER_SITE_INVITE':

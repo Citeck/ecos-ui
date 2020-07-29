@@ -930,8 +930,8 @@ class Documents extends BaseWidget {
         >
           <Icon
             className={classNames('ecos-docs__types-item-status-icon', {
-              'icon-check': type.countDocuments,
-              'icon-close': !type.countDocuments
+              'icon-small-check': type.countDocuments,
+              'icon-small-close': !type.countDocuments
             })}
           />
           <div className="ecos-docs__types-item-status-counter">{type.countDocuments}</div>

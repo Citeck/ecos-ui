@@ -30,7 +30,7 @@ const Header = React.forwardRef(
     ref
   ) => {
     const btnGoTo = isMobile ? null : (
-      <IcoBtn title={t('dashlet.goto')} invert icon={'icon-arrow'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
+      <IcoBtn title={t('dashlet.goto')} invert icon={'icon-small-arrow-right'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
         {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
       </IcoBtn>
     );
@@ -55,8 +55,8 @@ const Header = React.forwardRef(
       toggleIcon = (
         <Icon
           className={classNames('dashlet__header-collapser', {
-            'icon-down': isCollapsed,
-            'icon-up': !isCollapsed
+            'icon-small-down': isCollapsed,
+            'icon-small-up': !isCollapsed
           })}
         />
       );

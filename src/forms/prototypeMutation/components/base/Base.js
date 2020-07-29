@@ -242,7 +242,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       {
         class: 'ecos-btn inline-editing__button inline-editing__save-button'
       },
-      this.ce('span', { class: 'icon icon-check' })
+      this.ce('span', { class: 'icon icon-small-check' })
     );
 
     const cancelButton = this.ce(
@@ -250,7 +250,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       {
         class: 'ecos-btn inline-editing__button inline-editing__cancel-button'
       },
-      this.ce('span', { class: 'icon icon-close' })
+      this.ce('span', { class: 'icon icon-small-close' })
     );
 
     const switchToViewOnlyMode = () => {

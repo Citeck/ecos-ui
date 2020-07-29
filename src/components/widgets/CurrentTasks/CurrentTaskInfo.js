@@ -66,7 +66,7 @@ class CurrentTaskInfo extends React.Component {
 
               {task.usersGroup && (
                 <BtnTooltipInfo
-                  iconClass="icon-usergroup"
+                  iconClass="icon-users"
                   id={uniqueId(cleanTaskId(task.id))}
                   isShow={task.isGroup}
                   noTooltip={isMobile}

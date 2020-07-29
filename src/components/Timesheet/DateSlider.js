@@ -91,7 +91,7 @@ class DateSlider extends Component {
 
     return (
       <Icon
-        className={classNames('icon-right ecos-date-slider__btn', {
+        className={classNames('icon-small-right ecos-date-slider__btn', {
           'ecos-date-slider__btn_disabled': !canIncrement
         })}
         onClick={this.handleClick.bind(null, [DATE_ACTIONS.ADD])}

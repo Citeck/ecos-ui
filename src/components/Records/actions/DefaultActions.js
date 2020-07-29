@@ -145,7 +145,7 @@ export const ViewAction = {
     return {
       name: 'record-action.name.show',
       type: DefaultActionTypes.VIEW,
-      icon: 'icon-on'
+      icon: 'icon-small-eye-show'
     };
   },
 
@@ -399,7 +399,7 @@ export const MoveToLinesJournal = {
     return {
       name: 'record-action.name.details',
       type: DefaultActionTypes.MOVE_TO_LINES,
-      icon: 'icon-arrow'
+      icon: 'icon-small-arrow-right'
     };
   },
 
@@ -495,7 +495,7 @@ export const CreateNodeAction = {
     return {
       name: 'record-action.name.create',
       type: DefaultActionTypes.CREATE,
-      icon: 'icon-plus'
+      icon: 'icon-small-plus'
     };
   }
 };
@@ -586,7 +586,7 @@ export const SaveAsCaseTemplate = {
   getDefaultModel: () => ({
     name: 'record-action.name.save-as-case-template',
     type: DefaultActionTypes.SAVE_AS_CASE_TEMPLATE,
-    icon: 'icon-filetype-none'
+    icon: 'icon-custom-file-empty'
   })
 };
 
@@ -599,7 +599,7 @@ export const PreviewModal = {
   getDefaultModel: () => ({
     name: 'record-action.name.preview',
     type: DefaultActionTypes.PREVIEW_MODAL,
-    icon: 'icon-preview'
+    icon: 'icon-eye-show'
   })
 };
 
@@ -623,7 +623,7 @@ export const FetchAction = {
   getDefaultModel: () => ({
     name: 'record-action.name.fetch-action',
     type: DefaultActionTypes.FETCH,
-    icon: 'icon-right'
+    icon: 'icon-small-right'
   })
 };
 
@@ -671,7 +671,7 @@ export const ScriptAction = {
     return {
       name: 'record-action.name.script-action',
       type: DefaultActionTypes.SCRIPT,
-      icon: 'icon-check'
+      icon: 'icon-small-check'
     };
   }
 };
