@@ -98,4 +98,40 @@
       }
     }
   }
+
+  &-settings {
+    &__block {
+      max-width: 434px;
+
+      &:not(:last-child) {
+        margin-bottom: 15px;
+      }
+    }
+
+    &__title {
+      margin-bottom: 20px;
+    }
+
+    &__subtitle {
+      background: $color-gray-25;
+      border-radius: $border-radius-standard;
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-small;
+      padding: 5px 10px;
+      margin-bottom: 10px;
+    }
+
+    &__info {
+      padding: 5px 0;
+      justify-content: left;
+    }
+
+    &__buttons {
+      margin-top: 22px;
+
+      & > :nth-child(even) {
+        margin-left: 10px;
+      }
+    }
+  }
 }
