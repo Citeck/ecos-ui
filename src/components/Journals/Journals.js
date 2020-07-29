@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
@@ -60,7 +61,8 @@ class Journals extends Component {
       showPreview: props.urlParams.showPreview,
       showPie: false,
       savedSetting: null,
-      journalId: get(props, 'urlParams.journalId')
+      journalId: get(props, 'urlParams.journalId'),
+      isForceUpdate: false
     };
   }
 
@@ -115,7 +117,19 @@ class Journals extends Component {
     if (search && !get(prevProps, 'grid.columns') && get(grid, 'columns')) {
       this.search(search);
     }
+
+    if (!_isActivePage && isActivePage) {
+      this.onForceUpdate();
+    }
   }
+
+  componentWillUnmount() {
+    this.onForceUpdate.cancel();
+  }
+
+  onForceUpdate = debounce(() => {
+    this.setState({ isForceUpdate: true }, () => this.setState({ isForceUpdate: false }));
+  }, 250);
 
   getSearch = () => {
     return this.props.isActivePage ? get(getSearchParams(), 'search', '') : '';
@@ -189,10 +203,10 @@ class Journals extends Component {
   };
 
   render() {
-    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height } = this.state;
     const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage } = this.props;
+    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height, isForceUpdate } = this.state;
 
-    if (!journalConfig) {
+    if (!journalConfig || isForceUpdate) {
       return null;
     }
 
