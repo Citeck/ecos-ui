@@ -1,19 +1,19 @@
-.icon-big-arrow {
+.icon-arrow {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe800;&nbsp;');
 }
-.icon-big-plus {
+.icon-plus {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe801;&nbsp;');
 }
-.icon-plus {
+.icon-small-plus {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe802;&nbsp;');
 }
 .icon-calendar {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe803;&nbsp;');
 }
-.icon-load {
+.icon-upload {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe804;&nbsp;');
 }
-.icon-on {
+.icon-small-eye-show {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe805;&nbsp;');
 }
 .icon-copy {
@@ -22,25 +22,25 @@
 .icon-group {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe807;&nbsp;');
 }
-.icon-left {
+.icon-small-left {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe808;&nbsp;');
 }
-.icon-right {
+.icon-small-right {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe809;&nbsp;');
 }
-.icon-menu-normal {
+.icon-custom-more-big-normal {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe80a;&nbsp;');
 }
 .icon-reload {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe80b;&nbsp;');
 }
-.icon-list3 {
+.icon-items {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe80c;&nbsp;');
 }
-.icon-menu-small-press {
+.icon-custom-more-small-pressed {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe80d;&nbsp;');
 }
-.icon-menu-small {
+.icon-custom-more-small-normal {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe80e;&nbsp;');
 }
 .icon-download {
@@ -52,25 +52,25 @@
 .icon-pie {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe811;&nbsp;');
 }
-.icon-preview {
+.icon-eye-show {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe812;&nbsp;');
 }
-.icon-filter {
+.icon-small-filter {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe813;&nbsp;');
 }
-.icon-down {
+.icon-small-down {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe814;&nbsp;');
 }
-.icon-drag {
+.icon-custom-drag-big {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe815;&nbsp;');
 }
 .icon-edit {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe816;&nbsp;');
 }
-.icon-big-filter {
+.icon-filter {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe817;&nbsp;');
 }
-.icon-up {
+.icon-small-up {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe818;&nbsp;');
 }
 .icon-apps {
@@ -79,19 +79,19 @@
 .icon-question {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe81a;&nbsp;');
 }
-.icon-off {
+.icon-small-eye-hide {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe81b;&nbsp;');
 }
-.icon-minus {
+.icon-small-minus {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe81c;&nbsp;');
 }
-.icon-list-1 {
+.icon-list {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe81d;&nbsp;');
 }
-.icon-arrow {
+.icon-small-arrow-right {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe81e;&nbsp;');
 }
-.icon-warning {
+.icon-small-warning {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe81f;&nbsp;');
 }
 .icon-forms {
@@ -103,7 +103,7 @@
 .icon-tiles {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe822;&nbsp;');
 }
-.icon-close {
+.icon-small-close {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe823;&nbsp;');
 }
 .icon-settings {
@@ -115,55 +115,55 @@
 .icon-search {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe826;&nbsp;');
 }
-.icon-menu-normal-press {
+.icon-custom-more-big-pressed {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe827;&nbsp;');
 }
 .icon-decision-tables {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe828;&nbsp;');
 }
-.icon-checked {
+.icon-custom-checkbox-outline-checked {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe829;&nbsp;');
 }
-.icon-checked2 {
+.icon-custom-checkbox-outline-indeterminate {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82a;&nbsp;');
 }
-.icon-unchecked {
+.icon-custom-checkbox-outline-unchecked {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82b;&nbsp;');
 }
-.icon-checkbox-dark {
+.icon-custom-checkbox-filled-unchecked {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82c;&nbsp;');
 }
-.icon-checkbox-minus-icon {
+.icon-custom-checkbox-minus {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82d;&nbsp;');
 }
-.icon-checkbox-check-icon {
+.icon-custom-checkbox-check {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82e;&nbsp;');
 }
-.icon-checkbox-check {
+.icon-custom-checkbox-filled-checked {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82f;&nbsp;');
 }
-.icon-arrow-left {
+.icon-small-arrow-left {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe830;&nbsp;');
 }
 .icon-columns {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe831;&nbsp;');
 }
-.icon-check {
+.icon-small-check {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe832;&nbsp;');
 }
-.icon-circle-rb {
+.icon-custom-radiobutton-dot {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe833;&nbsp;');
 }
-.icon-radiobutton-dark {
+.icon-custom-radiobutton-filled-unselect {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe834;&nbsp;');
 }
-.icon-radiobutton-select {
+.icon-custom-radiobutton-filled-select {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe835;&nbsp;');
 }
-.icon-r-unchecked {
+.icon-custom-radiobutton-outline-unselect {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe836;&nbsp;');
 }
-.icon-resize {
+.icon-custom-resize-widget {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe837;&nbsp;');
 }
 .icon-underline {
@@ -175,58 +175,61 @@
 .icon-bold {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83a;&nbsp;');
 }
-.icon-clock {
+.icon-small-clock {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83b;&nbsp;');
 }
-.icon-usergroup {
+.icon-users {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83c;&nbsp;');
 }
-.icon-lock {
+.icon-custom-lock {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83d;&nbsp;');
 }
 .icon-history {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83e;&nbsp;');
 }
-.icon-v_resize {
+.icon-custom-resize-vertical {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83f;&nbsp;');
 }
-.icon-drag-small {
+.icon-custom-drag-small {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe840;&nbsp;');
 }
 .icon-print {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe843;&nbsp;');
 }
-.icon-User_avatar_off {
+.icon-user-away {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe844;&nbsp;');
 }
-.icon-User_avatar_on {
+.icon-user-online {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe845;&nbsp;');
 }
-.icon-User_avatar {
+.icon-user-normal {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe846;&nbsp;');
 }
 .icon-exit {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe847;&nbsp;');
 }
-.icon-notify-dialogue {
+.icon-notify {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe849;&nbsp;');
 }
-.icon-filetype-doc {
+.icon-custom-file-doc {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84a;&nbsp;');
 }
-.icon-filetype-none {
+.icon-custom-file-empty {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84b;&nbsp;');
 }
-.icon-big_alert {
+.icon-alert {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84c;&nbsp;');
 }
-.icon-newtab {
+.icon-new-tab {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84d;&nbsp;');
+}
+.icon-eye-hide {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84e;&nbsp;');
 }
 .icon-actual {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85a;&nbsp;');
 }
-.icon-empty-icon {
+.icon-empty {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe88d;&nbsp;');
 }
 .icon-hamburger-menu {

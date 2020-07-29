@@ -165,12 +165,12 @@ class Category extends React.Component {
     const dropdownActionsIconClasses = cn(styles.categoryActionIcon, styles.categoryActionIcon2, {
       [styles.categoryActionIconPressed]: this.state.dropdownOpen,
       'icon-menu-normal': level === 0 && !this.state.dropdownOpen,
-      'icon-menu-normal-press': level === 0 && this.state.dropdownOpen,
-      'icon-menu-small': level !== 0 && !this.state.dropdownOpen,
+      'icon-custom-more-big-pressed': level === 0 && this.state.dropdownOpen,
+      'icon-custom-more-small-normal': level !== 0 && !this.state.dropdownOpen,
       'icon-menu-small-press': level !== 0 && this.state.dropdownOpen
     });
 
-    const dragNDropIconClasses = cn('icon-drag', styles.categoryActionIcon, styles.hiddenIcon);
+    const dragNDropIconClasses = cn('icon-custom-drag-big', styles.categoryActionIcon, styles.hiddenIcon);
     const saveIconClasses = cn('icon-check', styles.categoryActionIcon);
     const cancelIconClasses = cn('icon-close', styles.categoryActionIcon);
 

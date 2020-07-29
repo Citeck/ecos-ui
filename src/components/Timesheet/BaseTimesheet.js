@@ -178,7 +178,7 @@ class BaseTimesheet extends Component {
     <SortableElement key={item.title} index={position}>
       <div className="ecos-timesheet__table-events-item">
         <SortableHandle>
-          <Icon className="icon-drag ecos-timesheet__table-events-item-dnd" />
+          <Icon className="icon-custom-drag-big ecos-timesheet__table-events-item-dnd" />
         </SortableHandle>
 
         <div className="ecos-timesheet__table-events-item-filter" style={{ backgroundColor: item.color || '#D0D0D0' }} />

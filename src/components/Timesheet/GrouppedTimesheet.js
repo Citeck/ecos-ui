@@ -252,7 +252,7 @@ class GrouppedTimesheet extends BaseTimesheet {
           id={`timesheet-group-${index}-history`}
           className={classNames({
             'icon-history ecos-timesheet__table-group-header-history': !hasComment,
-            'icon-notify-dialogue ecos-timesheet__table-group-header-message': hasComment
+            'icon-notify ecos-timesheet__table-group-header-message': hasComment
           })}
           onClick={() => this.handleOpenEventHistory(item)}
         />
@@ -316,7 +316,7 @@ class GrouppedTimesheet extends BaseTimesheet {
                   <div className="ecos-timesheet__table-group-line">
                     <div className="ecos-timesheet__table-group-name">
                       <SortableHandle>
-                        <Icon className="icon-drag ecos-timesheet__table-group-header-dnd" />
+                        <Icon className="icon-custom-drag-big ecos-timesheet__table-group-header-dnd" />
                       </SortableHandle>
 
                       <Icon

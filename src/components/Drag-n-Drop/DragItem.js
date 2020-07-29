@@ -91,7 +91,7 @@ class DragItem extends React.Component {
           />
         )}
         <IcoBtn
-          icon={'icon-drag'}
+          icon={'icon-custom-drag-big'}
           className={classNames(
             _btn,
             `${_actions}__btn-move`,

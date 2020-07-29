@@ -184,7 +184,7 @@ export const OpenURL = {
   getDefaultModel: () => {
     return {
       type: OpenURL.type,
-      icon: 'icon-newtab'
+      icon: 'icon-new-tab'
     };
   }
 };
@@ -208,7 +208,7 @@ export const BackgroundOpenAction = {
     return {
       name: 'record-action.name.open-in-background',
       type: BackgroundOpenAction.type,
-      icon: 'icon-newtab'
+      icon: 'icon-new-tab'
     };
   },
 
@@ -399,7 +399,7 @@ export const MoveToLinesJournal = {
     return {
       name: 'record-action.name.details',
       type: DefaultActionTypes.MOVE_TO_LINES,
-      icon: 'icon-big-arrow'
+      icon: 'icon-arrow'
     };
   },
 
@@ -509,7 +509,7 @@ export const UploadNewVersion = {
     return {
       name: 'record-action.name.upload-new-version',
       type: DefaultActionTypes.UPLOAD_NEW_VERSION,
-      icon: 'icon-load'
+      icon: 'icon-upload'
     };
   }
 };
@@ -556,7 +556,7 @@ export const ViewCardTemplate = {
   getDefaultModel: () => ({
     name: 'record-action.name.view-card-template-in-background',
     type: DefaultActionTypes.VIEW_CARD_TEMPLATE,
-    icon: 'icon-newtab'
+    icon: 'icon-new-tab'
   })
 };
 

@@ -958,7 +958,7 @@ class Documents extends BaseWidget {
           })}
           onClick={() => this.handleToggleUploadModalByType(type)}
         >
-          <Icon className="icon-load ecos-docs__panel-upload-icon" />
+          <Icon className="icon-upload ecos-docs__panel-upload-icon" />
         </div>
       );
     }
@@ -976,7 +976,7 @@ class Documents extends BaseWidget {
         onChange={this.handleToggleUploadModalByType}
         scrollbarHeightMax={contentHeight - this.tablePanelHeight}
       >
-        <Icon className="icon-load ecos-docs__panel-upload-icon" />
+        <Icon className="icon-upload ecos-docs__panel-upload-icon" />
       </Dropdown>
     );
   }

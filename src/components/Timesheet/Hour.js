@@ -257,7 +257,7 @@ class Hour extends Component {
       return null;
     }
 
-    return <Icon className="icon-big-plus ecos-ts-hour__empty" onClick={this.handleToggleInput} />;
+    return <Icon className="icon-plus ecos-ts-hour__empty" onClick={this.handleToggleInput} />;
   }
 
   renderFullTime() {

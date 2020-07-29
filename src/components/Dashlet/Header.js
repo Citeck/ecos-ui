@@ -30,7 +30,7 @@ const Header = React.forwardRef(
     ref
   ) => {
     const btnGoTo = isMobile ? null : (
-      <IcoBtn title={t('dashlet.goto')} invert icon={'icon-big-arrow'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
+      <IcoBtn title={t('dashlet.goto')} invert icon={'icon-arrow'} className="dashlet__btn ecos-btn_narrow" onClick={onGoTo}>
         {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
       </IcoBtn>
     );
@@ -43,7 +43,7 @@ const Header = React.forwardRef(
         <span className="dashlet__btn_move-wrapper" {...dragHandleProps}>
           <IcoBtn
             key="action-drag"
-            icon={'icon-drag'}
+            icon={'icon-custom-drag-big'}
             className="ecos-btn_i dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1"
             title={t('dashlet.move.title')}
           />

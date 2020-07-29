@@ -90,7 +90,7 @@ export default class Checkbox extends Component {
       <i
         key="check-status"
         className={classNames('ecos-checkbox__icon ecos-checkbox__icon_checked ecos-checkbox__icon_white', {
-          'icon-checkbox-minus-icon': indeterminate,
+          'icon-custom-checkbox-minus': indeterminate,
           'icon-checkbox-check-icon': !indeterminate && checked
         })}
       />

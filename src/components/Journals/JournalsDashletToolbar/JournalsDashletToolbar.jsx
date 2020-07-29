@@ -59,7 +59,7 @@ class JournalsDashletToolbar extends Component {
     if (createVariants.length === 1) {
       return (
         <IcoBtn
-          icon={'icon-big-plus'}
+          icon={'icon-plus'}
           className="ecos-btn_i ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10 ecos-journal-dashlet__create-btn"
           onClick={() => this.addRecord(createVariants[0])}
         />
@@ -69,7 +69,7 @@ class JournalsDashletToolbar extends Component {
     return (
       <Dropdown hasEmpty isButton source={createVariants} valueField="destination" titleField="title" onChange={this.addRecord}>
         <TwoIcoBtn
-          icons={['icon-big-plus', 'icon-down']}
+          icons={['icon-plus', 'icon-down']}
           className="ecos-btn_settings-down ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10 ecos-journal-dashlet__create-btn"
         />
       </Dropdown>

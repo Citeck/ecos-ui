@@ -81,7 +81,7 @@ export const CaseRequestAction = {
 
   getDefaultModel: () => {
     return {
-      icon: 'icon-big-arrow'
+      icon: 'icon-arrow'
     };
   }
 };

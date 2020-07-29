@@ -81,7 +81,7 @@ class TopMenu extends Component {
         <i className="ecos-btn__i ecos-layout__menu-item-i-next" />
 
         <SortableHandle>
-          <i className="ecos-btn__i icon-drag ecos-layout__menu-item-i-drag" />
+          <i className="ecos-btn__i icon-custom-drag-big ecos-layout__menu-item-i-drag" />
         </SortableHandle>
       </Link>
     </SortableElement>

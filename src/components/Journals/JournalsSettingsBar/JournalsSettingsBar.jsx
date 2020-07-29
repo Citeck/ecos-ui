@@ -40,7 +40,7 @@ const JournalsSettingsBar = ({
     if (createVariants.length === 1) {
       return (
         <IcoBtn
-          icon={'icon-big-plus'}
+          icon={'icon-plus'}
           className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
           onClick={() => addRecord(createVariants[0])}
         />

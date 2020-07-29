@@ -194,7 +194,7 @@ class Toolbar extends Component {
     return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom" ref={this.toolbarZoom}>
         <IcoBtn
-          icon={'icon-minus'}
+          icon={'icon-small-minus'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= 0 })}
           onClick={() => this.setScale(-1)}
         />

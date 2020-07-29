@@ -17,7 +17,7 @@ const Labels = {
   BUTTON_DELETE: 'dashboard-settings.tabs.button.delete',
   LABEL_OPEN_MENU: 'dashboard-settings.tabs.label.menu'
 };
-const DragHandle = sortableHandle(() => <Icon className="icon-drag ecos-tab-actions__icon ecos-tab-actions__icon_paler" />);
+const DragHandle = sortableHandle(() => <Icon className="icon-custom-drag-big ecos-tab-actions__icon ecos-tab-actions__icon_paler" />);
 
 class Tab extends React.Component {
   static propTypes = {
@@ -236,7 +236,7 @@ class Tab extends React.Component {
           onClick={this.onToggleMenu}
           title={t(Labels.LABEL_OPEN_MENU)}
           className={classNames('ecos-tab-actions__icon ecos-tab-actions__icon_menu', {
-            'icon-menu-small': !isOpenMenu,
+            'icon-custom-more-small-normal': !isOpenMenu,
             'icon-menu-small-press ecos-tab-actions__icon_menu-opened': isOpenMenu,
             'ecos-tab-actions__icon_menu-active-tab': isActive
           })}

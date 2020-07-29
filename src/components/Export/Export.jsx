@@ -147,7 +147,9 @@ export default class Export extends Component {
           onChange={this.export}
           right={right}
         >
-          {children || <TwoIcoBtn icons={['icon-load', 'icon-down']} className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10" />}
+          {children || (
+            <TwoIcoBtn icons={['icon-upload', 'icon-down']} className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10" />
+          )}
         </Dropdown>
 
         <form ref={this.form} method="post" encType="multipart/form-data">

@@ -178,7 +178,7 @@ class JournalsDashletGrid extends Component {
         {
           title: t('grid.inline-tools.details'),
           onClick: () => this.goToJournalPageWithFilter(),
-          icon: 'icon-big-arrow'
+          icon: 'icon-arrow'
         }
       ];
     }
@@ -244,7 +244,7 @@ class JournalsDashletGrid extends Component {
         title={t('grid.tools.copy-to')}
       />,
       <IcoBtn
-        icon={'icon-big-arrow'}
+        icon={'icon-arrow'}
         className="ecos-journal__tool ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t-dark-brown"
         title={t('grid.tools.move-to')}
       />,

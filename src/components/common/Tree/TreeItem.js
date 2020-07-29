@@ -237,7 +237,7 @@ class TreeItem extends Component {
           )}
           {canDrag && (
             <SortableHandle>
-              <i className="icon-drag ecos-tree__item-element-drag" />
+              <i className="icon-custom-drag-big ecos-tree__item-element-drag" />
             </SortableHandle>
           )}
         </div>
