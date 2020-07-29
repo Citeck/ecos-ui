@@ -185,6 +185,7 @@ class PropertiesDashlet extends BaseWidget {
 
   onPropertiesEditFormSubmit = () => {
     this.setState({ isEditProps: false });
+    this.onReloadDashlet();
   };
 
   onPropertiesUpdate = () => {
