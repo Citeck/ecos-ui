@@ -42,7 +42,7 @@ const PersistedValue = function(att, scalar) {
 
     if (isVirtualRec) {
       let baseRecord = this._att._record._baseRecord;
-      if (!this._value && baseRecord) {
+      if ((!this._value || !this._value.length) && baseRecord) {
         this._value = baseRecord.att(this._att.getName() + '[]');
       }
     } else if (withLoading && (!this._isLoaded || forceReload || (multiple && !this._isArrayLoaded))) {

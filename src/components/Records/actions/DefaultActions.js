@@ -153,16 +153,19 @@ export const ViewAction = {
     };
   },
 
-  canBeExecuted: ({ context }) => {
+  canBeExecuted: ({ context = {} }) => {
     const { scope = '', mode = '' } = context;
+
     if (mode === ActionModes.DASHBOARD) {
       return false;
     }
+
     for (let pattern of ViewAction.disabledFor) {
       if (pattern.test(scope)) {
         return false;
       }
     }
+
     return true;
   }
 };
@@ -195,7 +198,7 @@ export const BackgroundOpenAction = {
 
   disabledFor: [/^event-lines.*/, /task-statistic/],
 
-  execute: ({ record, action: { context, config = {} } }) => {
+  execute: ({ record, action: { context = {}, config = {} } }) => {
     if (config.viewType === 'view-task') {
       goToTaskView(record.id, true);
       return false;
@@ -213,16 +216,19 @@ export const BackgroundOpenAction = {
     };
   },
 
-  canBeExecuted: ({ context }) => {
+  canBeExecuted: ({ context = {} }) => {
     const { scope = '', mode = '' } = context;
+
     if (mode === ActionModes.DASHBOARD) {
       return false;
     }
+
     for (let pattern of ViewAction.disabledFor) {
       if (pattern.test(scope)) {
         return false;
       }
     }
+
     return true;
   }
 };
@@ -358,13 +364,15 @@ export const DeleteAction = {
     };
   },
 
-  canBeExecuted: ({ context }) => {
+  canBeExecuted: ({ context = {} }) => {
     const { scope = '' } = context;
+
     for (let pattern of DeleteAction.disabledFor) {
       if (pattern.test(scope)) {
         return false;
       }
     }
+
     return true;
   }
 };
@@ -399,8 +407,9 @@ export const MoveToLinesJournal = {
     };
   },
 
-  canBeExecuted: ({ context }) => {
+  canBeExecuted: ({ context = {} }) => {
     const { scope = '' } = context;
+
     return MoveToLinesJournal.enabledFor.indexOf(scope) > -1;
   }
 };
@@ -496,7 +505,7 @@ export const CreateNodeAction = {
 };
 
 export const UploadNewVersion = {
-  execute: ({ record, action }) => {
+  execute: ({ record }) => {
     WidgetService.uploadNewVersion({ record });
   },
 
@@ -623,7 +632,7 @@ export const FetchAction = {
 };
 
 export const ScriptAction = {
-  execute: context => {
+  execute: (context = {}) => {
     let config = get(context, 'action.config', {});
 
     if (config.module) {
@@ -632,6 +641,7 @@ export const ScriptAction = {
           [config.module],
           module => {
             const result = module.default.execute(context);
+
             if (result) {
               if (result.then) {
                 result

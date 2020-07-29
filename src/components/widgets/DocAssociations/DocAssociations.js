@@ -81,7 +81,6 @@ class DocAssociations extends BaseWidget {
       selectedDocument: null
     };
 
-    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
     this.watcherAssoc = null;
   }
 
@@ -93,9 +92,7 @@ class DocAssociations extends BaseWidget {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.state.runUpdate && !prevState.runUpdate) {
-      this.props.getAssociations();
-    }
+    super.componentDidUpdate(prevProps, prevState, snapshot);
 
     const prevTrackedAssoc = this.getTrackedAssoc(prevProps.allowedAssociations);
     const newTrackedAssoc = this.getTrackedAssoc();
@@ -110,8 +107,8 @@ class DocAssociations extends BaseWidget {
   }
 
   componentWillUnmount() {
+    super.componentWillUnmount();
     this.props.resetStore();
-    this.instanceRecord.unwatch(this.watcher);
     this.watcherAssoc && this.instanceRecord.unwatch(this.watcherAssoc);
   }
 
@@ -227,6 +224,11 @@ class DocAssociations extends BaseWidget {
     removeAssociations(associationId, record);
     this.closeConfirmRemovingModal();
   };
+
+  handleUpdate() {
+    super.handleUpdate();
+    this.props.getAssociations();
+  }
 
   renderHeader = columns => {
     return (

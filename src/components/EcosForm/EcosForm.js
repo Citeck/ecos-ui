@@ -244,6 +244,16 @@ class EcosForm extends React.Component {
     }
   }
 
+  toggleLoader = state => {
+    const { onToggleLoader } = this.props;
+
+    if (typeof onToggleLoader !== 'function') {
+      return;
+    }
+
+    onToggleLoader(state);
+  };
+
   onShowFormBuilder = callback => {
     if (this._formBuilderModal.current) {
       const { originalFormDefinition, formId } = this.state;
@@ -335,6 +345,8 @@ class EcosForm extends React.Component {
         }
       };
 
+      self.toggleLoader(true);
+
       if (this.props.saveOnSubmit !== false) {
         sRecord
           .save()
@@ -350,9 +362,11 @@ class EcosForm extends React.Component {
             //  But at the moment it works for
             //  https://citeck.atlassian.net/browse/ECOSUI-64
             sRecord.reset();
+            self.toggleLoader(false);
           });
       } else {
         onSubmit(sRecord, form);
+        self.toggleLoader(false);
       }
     },
     3000,
@@ -399,6 +413,7 @@ EcosForm.propTypes = {
   onFormRender: PropTypes.func,
   onFormPrevPage: PropTypes.func,
   onFormNextPage: PropTypes.func,
+  onToggleLoader: PropTypes.func,
   // -----
   saveOnSubmit: PropTypes.bool,
   className: PropTypes.string

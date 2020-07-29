@@ -17,7 +17,7 @@ import './Export.scss';
 
 const api = new UserConfigApi();
 
-export default class extends Component {
+export default class Export extends Component {
   static propTypes = {
     className: PropTypes.string,
     dashletConfig: PropTypes.object,
@@ -59,8 +59,9 @@ export default class extends Component {
   export = item => {
     if (item.target) {
       const { journalConfig, grid } = this.props;
+      const query = this.getQuery(journalConfig, item.type, grid);
 
-      this.textInput.current.value = JSON.stringify(this.getQuery(journalConfig, item.type, grid));
+      this.textInput.current.value = JSON.stringify(query);
 
       const form = this.form.current;
 
@@ -83,18 +84,13 @@ export default class extends Component {
       .map(column => ({ attribute: column.attribute, title: column.text }));
 
     const query = {
-      sortBy: [
-        {
-          attribute: 'cm:created',
-          order: 'desc'
-        }
-      ],
+      sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
+      predicate: get(grid, ['predicates', 0], {}),
       reportType: type,
       reportTitle: name,
       reportColumns: reportColumns,
       reportFilename: `${name}.${type}`
     };
-
     (config.meta.criteria || []).forEach((criterion, idx) => {
       query['field_' + idx] = criterion.field;
       query['predicate_' + idx] = criterion.predicate;

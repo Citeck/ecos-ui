@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
+import get from 'lodash/get';
 
 import { t } from '../../../helpers/util';
 import EcosForm, { FORM_MODE_EDIT } from '../../EcosForm/index';
@@ -34,6 +35,7 @@ class Properties extends React.Component {
 
   state = {
     loaded: false,
+    isLoading: false,
     isReadySubmit: true,
     hideForm: false,
     contentHeight: 0
@@ -66,12 +68,27 @@ class Properties extends React.Component {
     this.setState({ loaded: true });
   };
 
+  onToggleLoader = (isLoading = !this.state.isLoading) => {
+    this.setState({ isLoading });
+  };
+
   onShowBuilder = () => {
     if (this._hiddenEcosForm.current) {
       this._hiddenEcosForm.current.onShowFormBuilder(() => {
         this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
       });
     }
+  };
+
+  onUpdateForm = () => {
+    const onUpdate = get(this._ecosForm, 'current.onReload');
+
+    if (typeof onUpdate !== 'function') {
+      return;
+    }
+
+    onUpdate.call(this._ecosForm.current);
+    this.setState({ loaded: false });
   };
 
   setHeight = contentHeight => {
@@ -84,12 +101,12 @@ class Properties extends React.Component {
 
   renderForm() {
     const { record, isSmallMode, onUpdate, formId, onInlineEditSave } = this.props;
-    const { isReadySubmit, hideForm, loaded } = this.state;
+    const { isReadySubmit, hideForm, loaded, isLoading } = this.state;
     const isShow = !hideForm && isReadySubmit;
 
     return (
       <>
-        {!loaded && <Loader className="ecos-properties__loader" blur />}
+        {(!loaded || isLoading) && <Loader className="ecos-properties__loader" blur />}
         <EcosForm
           ref={this._ecosForm}
           record={record}
@@ -103,9 +120,9 @@ class Properties extends React.Component {
             formMode: FORM_MODE_EDIT,
             onInlineEditSave
           }}
-          // onSubmit={this.onSubmitForm}
           onFormSubmitDone={onUpdate}
           onReady={this.onReady}
+          onToggleLoader={this.onToggleLoader}
           className={classNames('ecos-properties__formio', {
             'ecos-properties__formio_small': isSmallMode,
             'd-none': !isShow

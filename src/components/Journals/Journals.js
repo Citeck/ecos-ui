@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
@@ -20,7 +21,7 @@ import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
-import { t, trigger } from '../../helpers/util';
+import { t, trigger, objectCompare } from '../../helpers/util';
 import { getSearchParams, goToCardDetailsPage, stringifySearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
@@ -33,6 +34,7 @@ const mapStateToProps = (state, props) => {
     isMobile: state.view.isMobile,
     pageTabsIsShow: state.pageTabs.isShow,
     journalConfig: newState.journalConfig,
+    predicate: newState.predicate,
     grid: newState.grid
   };
 };
@@ -43,7 +45,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    search: text => dispatch(search(w(text))),
+    search: text => dispatch(search({ text, stateId: props.stateId })),
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting)))
   };
 };
@@ -59,7 +61,8 @@ class Journals extends Component {
       showPreview: props.urlParams.showPreview,
       showPie: false,
       savedSetting: null,
-      journalId: get(props, 'urlParams.journalId')
+      journalId: get(props, 'urlParams.journalId'),
+      isForceUpdate: false
     };
   }
 
@@ -69,6 +72,13 @@ class Journals extends Component {
 
     if (props.isActivePage && journalId !== state.journalId) {
       newState.journalId = journalId;
+    }
+
+    if (state.settingsVisible && state.savedSetting && !objectCompare(props.predicate, get(state, 'savedSetting.predicate', {}))) {
+      newState.savedSetting = {
+        ...state.savedSetting,
+        predicate: props.predicate
+      };
     }
 
     if (!Object.keys(newState).length) {
@@ -107,7 +117,19 @@ class Journals extends Component {
     if (search && !get(prevProps, 'grid.columns') && get(grid, 'columns')) {
       this.search(search);
     }
+
+    if (!_isActivePage && isActivePage) {
+      this.onForceUpdate();
+    }
   }
+
+  componentWillUnmount() {
+    this.onForceUpdate.cancel();
+  }
+
+  onForceUpdate = debounce(() => {
+    this.setState({ isForceUpdate: true }, () => this.setState({ isForceUpdate: false }));
+  }, 250);
 
   getSearch = () => {
     return this.props.isActivePage ? get(getSearchParams(), 'search', '') : '';
@@ -181,10 +203,10 @@ class Journals extends Component {
   };
 
   render() {
-    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height } = this.state;
     const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage } = this.props;
+    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height, isForceUpdate } = this.state;
 
-    if (!journalConfig) {
+    if (!journalConfig || isForceUpdate) {
       return null;
     }
 

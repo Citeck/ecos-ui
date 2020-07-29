@@ -31,4 +31,8 @@ export default class RecordWatcher {
   unwatch() {
     this._record.unwatch(this);
   }
+
+  callCallback() {
+    this._callback(this._attributes);
+  }
 }

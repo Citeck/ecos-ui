@@ -30,7 +30,8 @@ import {
   setSelectedRecords,
   setSettingItem,
   setUrl,
-  setZipNodeRef
+  setZipNodeRef,
+  search
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { deepClone, t } from '../helpers/util';
@@ -105,7 +106,9 @@ const defaultState = {
   zipNodeRef: null,
 
   isLoadingPerformGroupActions: false,
-  performGroupActionResponse: []
+  performGroupActionResponse: [],
+
+  search: ''
 };
 
 const initialState = {};
@@ -470,6 +473,11 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { recordRef: action.payload });
+    },
+    [search]: (state, action) => {
+      const stateId = action.payload.stateId;
+
+      return handleState(state, stateId, { search: action.payload.text });
     }
   },
   initialState

@@ -2,6 +2,16 @@ import FormIOPanelComponent from 'formiojs/components/panel/Panel';
 import throttle from 'lodash/throttle';
 
 export default class PanelComponent extends FormIOPanelComponent {
+  static schema(...extend) {
+    return FormIOPanelComponent.schema(
+      {
+        collapsible: false,
+        scrollableContent: false
+      },
+      ...extend
+    );
+  }
+
   build(state) {
     const hidePanels = this.options.viewAsHtmlConfig && this.options.viewAsHtmlConfig.hidePanels;
 

@@ -41,16 +41,15 @@ export default class TableFormComponent extends BaseReactComponent {
         customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
         displayElementsJS: '',
-        settingElements: {
-          isInstantClone: false
-        },
         nonSelectableRowsJS: '',
         selectedRowsJS: '',
         import: {
           enable: false,
           uploadUrl: '',
           responseHandler: ''
-        }
+        },
+        triggerEventOnChange: false,
+        isInstantClone: false
       },
       ...extend
     );
@@ -502,4 +501,20 @@ export default class TableFormComponent extends BaseReactComponent {
       text
     });
   };
+
+  static optimizeSchema(comp) {
+    return _.omit(
+      {
+        ...comp,
+        source: _.omitBy(comp.source, (value, key) => {
+          const saveAtts = ['type'];
+          if (saveAtts.includes(key)) {
+            return false;
+          }
+          return key !== comp.source.type;
+        })
+      },
+      ['displayColumnsAsyncData']
+    );
+  }
 }

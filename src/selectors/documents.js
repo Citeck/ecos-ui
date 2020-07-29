@@ -2,16 +2,22 @@ import get from 'lodash/get';
 import { createSelector } from 'reselect';
 
 import { initialState } from '../reducers/documents';
+import { isExistValue } from '../helpers/util';
 
 const selectState = (state, key) => get(state, ['documents', key], { ...initialState });
 
 export const selectStateByKey = createSelector(
   selectState,
   ownState => {
-    let isLoadChecklist = get(ownState, 'config.isLoadChecklist', undefined);
+    let isLoadChecklist = get(ownState, 'config.isLoadChecklist');
+    let isPossibleUploadFile = get(ownState, 'config.isPossibleUploadFile');
 
     if (isLoadChecklist === undefined) {
       isLoadChecklist = true;
+    }
+
+    if (!isExistValue(isPossibleUploadFile)) {
+      isPossibleUploadFile = true;
     }
 
     return {
@@ -29,6 +35,7 @@ export const selectStateByKey = createSelector(
       isLoadingTableData: ownState.isLoadingTableData,
       isLoadingTypeSettings: ownState.isLoadingTypeSettings,
       isLoadChecklist,
+      isPossibleUploadFile,
 
       uploadError: ownState.uploadError,
       countFilesError: ownState.countFilesError

@@ -20,7 +20,17 @@ export default class FileComponent extends FormIOFileComponent {
       {
         onFileClick: FILE_CLICK_ACTION_OPEN_DASHBOARD,
         displayElementsJS: {},
-        valueDisplayName: {}
+        valueDisplayName: {},
+        storage: '',
+        dir: '',
+        fileNameTemplate: '',
+        webcam: false,
+        fileTypes: [
+          {
+            label: '',
+            value: ''
+          }
+        ]
       },
       ...extend
     );
@@ -290,6 +300,12 @@ export default class FileComponent extends FormIOFileComponent {
     this.createInlineEditSaveAndCancelButtons();
   }
 
+  createUploadStatus(fileUpload) {
+    this.toggleDisableSaveButton(true);
+
+    return super.createUploadStatus(fileUpload);
+  }
+
   setupValueElement(element) {
     const value = this.getValue();
     const valueView = this.getView(value);
@@ -337,5 +353,9 @@ export default class FileComponent extends FormIOFileComponent {
       value = [value];
     }
     super.setValue(value);
+
+    if (!isEmpty(value) && this.isDisabledSaveButton) {
+      this.toggleDisableSaveButton(false);
+    }
   }
 }

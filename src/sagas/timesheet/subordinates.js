@@ -181,7 +181,7 @@ function* sagaDelegateTo({ api, logger }, { payload }) {
   try {
     yield call(api.timesheetDelegated.setRecord, {
       userName,
-      deputyName: deputy.name,
+      deputyName: deputy.userName,
       delegationType: payload.delegationType
     });
 
