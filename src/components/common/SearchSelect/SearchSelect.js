@@ -192,9 +192,9 @@ export default class SearchSelect extends React.Component {
     const { isLoading } = this.props;
 
     return isLoading ? (
-      <li className="ecos-input-search__loader">
+      <div className="ecos-input-search__loader">
         <Loader height={30} width={30} />
-      </li>
+      </div>
     ) : null;
   }
 

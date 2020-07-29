@@ -28,7 +28,7 @@ const Labels = {
 class PageTabs extends React.Component {
   static propTypes = {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
-    ContentComponent: PropTypes.oneOfType([PropTypes.node, PropTypes.instanceOf(React.memo)]),
+    ContentComponent: PropTypes.elementType,
     homepageLink: PropTypes.string.isRequired,
     allowedLinks: PropTypes.array,
     isShow: PropTypes.bool,

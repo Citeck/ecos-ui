@@ -36,7 +36,14 @@ export default class SelectComponent extends BaseComponent {
         unavailableItems: {
           isActive: false,
           code: ''
-        }
+        },
+        lazyLoad: false,
+        selectValues: '',
+        disableLimit: false,
+        sort: '',
+        refreshOnEvent: false,
+        selectThreshold: 0.3,
+        refreshOn: []
       },
       ...extend
     );
@@ -1173,5 +1180,12 @@ export default class SelectComponent extends BaseComponent {
 
       this.triggerRedraw();
     }
+  }
+
+  static optimizeSchema(comp) {
+    return {
+      ...comp,
+      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc)
+    };
   }
 }

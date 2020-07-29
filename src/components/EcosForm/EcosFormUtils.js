@@ -8,8 +8,11 @@ import lodashSet from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
+import omitBy from 'lodash/omitBy';
+import isEqual from 'lodash/isEqual';
 import uuidV4 from 'uuid/v4';
 
+import { Components } from '../../forms';
 import { getCurrentUserName, t } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
@@ -473,11 +476,64 @@ export default class EcosFormUtils {
       }
     }
 
+    const children = [];
     for (let i = 0; i < components.length; i++) {
       let component = components[i];
-      action(component, currentScope);
-      this.forEachComponent(component, action, currentScope);
+      const modifiedComponent = action(component, currentScope);
+      if (modifiedComponent) {
+        component = modifiedComponent;
+      }
+
+      component = this.forEachComponent(component, action, currentScope);
+      children.push(component);
     }
+
+    const modifiedRoot = {
+      ...root
+    };
+
+    if (children.length) {
+      modifiedRoot[root.type === 'columns' ? 'columns' : 'components'] = children;
+    }
+
+    return modifiedRoot;
+  }
+
+  static optimizeFormSchema(form) {
+    const objectAtts = ['conditional', 'validate', 'widget'];
+    const leaveAtts = ['key', 'type', 'input'];
+    const removeAtts = ['id'];
+
+    return EcosFormUtils.forEachComponent(form, function(comp) {
+      const currentComponent = Components.components[comp.type];
+      const currentComponentDefaultSchema = currentComponent ? currentComponent.schema() : {};
+
+      if (typeof currentComponent.optimizeSchema === 'function') {
+        comp = currentComponent.optimizeSchema(comp);
+      }
+
+      objectAtts.forEach(att => {
+        if (comp[att]) {
+          comp[att] = omitBy(comp[att], (value, key) => isEqual(currentComponentDefaultSchema[att][key], value));
+        }
+      });
+
+      return omitBy(comp, (attValue, attName) => {
+        if (leaveAtts.includes(attName)) {
+          return false;
+        }
+
+        if (removeAtts.includes(attName)) {
+          return true;
+        }
+
+        if ([...objectAtts, 'attributes', 'properties'].includes(attName) && isEmpty(attValue)) {
+          return true;
+        }
+
+        return isEqual(currentComponentDefaultSchema[attName], attValue);
+      });
+    });
   }
 
   static getComponentAttribute(component) {

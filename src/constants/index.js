@@ -29,6 +29,7 @@ export const SourcesId = {
   CONFIG: 'uiserv/config',
   MENU: 'uiserv/menu',
   ICON: 'uiserv/icon',
+  PREDICATE: 'uiserv/predicate',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
   AUTHORITY: 'alfresco/authority',

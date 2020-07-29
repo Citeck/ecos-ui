@@ -189,6 +189,7 @@ export default class Components {
       ...props,
       id: props.id || defWidget.id,
       config: {
+        widgetDisplayCondition: '',
         ...config
       }
     };

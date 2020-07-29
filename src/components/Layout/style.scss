@@ -333,6 +333,8 @@ $adaptive-columns-size: 68%;
       grid-gap: 10px;
 
       #{$root}__element {
+        position: relative;
+
         &:not(:last-child):not(:empty) {
           margin-bottom: 0;
         }

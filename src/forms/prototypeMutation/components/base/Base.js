@@ -19,6 +19,39 @@ const originalApplyActions = Base.prototype.applyActions;
 const INLINE_EDITING_CLASSNAME = 'inline-editing';
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
 
+const originalBaseSchema = Base.schema;
+Base.schema = (...extend) => {
+  return originalBaseSchema(
+    {
+      alwaysEnabled: false,
+      attributes: {},
+      conditional: {
+        json: '',
+        show: '',
+        when: '',
+        eq: ''
+      },
+      customConditional: '',
+      disableInlineEdit: false,
+      encrypted: false,
+      logic: [],
+      mask: false,
+      properties: {},
+      shortcut: '',
+      tags: [],
+      triggerChangeWhenCalculate: false,
+      validate: {
+        customMessage: '',
+        json: '',
+        required: false,
+        custom: '',
+        customPrivate: false
+      }
+    },
+    ...extend
+  );
+};
+
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-166
 const originalGetClassName = Object.getOwnPropertyDescriptor(Base.prototype, 'className');
 Object.defineProperty(Base.prototype, 'className', {
@@ -278,6 +311,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
 
     const onSaveButtonClick = () => {
       const saveButtonClassList = this._inlineEditSaveButton.classList;
+
       if (saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME)) {
         return;
       }
@@ -364,6 +398,29 @@ Base.prototype.checkValidity = function(data, dirty, rowData) {
   }
 
   return validity;
+};
+
+Base.prototype.toggleDisableSaveButton = function(disabled) {
+  if (this._inlineEditSaveButton) {
+    const saveButtonClassList = this._inlineEditSaveButton.classList;
+
+    if (disabled !== undefined) {
+      disabled ? saveButtonClassList.add(DISABLED_SAVE_BUTTON_CLASSNAME) : saveButtonClassList.remove(DISABLED_SAVE_BUTTON_CLASSNAME);
+      return;
+    }
+
+    saveButtonClassList.toggle(DISABLED_SAVE_BUTTON_CLASSNAME);
+  }
+};
+
+Base.prototype.isDisabledSaveButton = function() {
+  if (this._inlineEditSaveButton) {
+    const saveButtonClassList = this._inlineEditSaveButton.classList;
+
+    return saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME);
+  }
+
+  return false;
 };
 
 Base.prototype.checkConditions = function(data) {

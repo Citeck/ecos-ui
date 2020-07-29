@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { DragDropContext } from 'react-beautiful-dnd';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { LayoutTypes } from '../../constants/layout';
 import { getMinWidthColumn } from '../../helpers/layout';
@@ -11,6 +12,7 @@ import { getSearchParams } from '../../helpers/util';
 import { getPositionAdjustment } from '../../helpers/menu';
 import Components from '../widgets/Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
+import { Loader } from '../../components/common';
 
 import './style.scss';
 
@@ -111,7 +113,7 @@ class Layout extends Component {
         return;
       }
 
-      adaptiveColumns.forEach((adaptiveColumn, columnIndex) => {
+      adaptiveColumns.forEach(adaptiveColumn => {
         const columnWidth = adaptiveColumn.offsetWidth;
         const items = [...adaptiveColumn.querySelectorAll('.ecos-layout__element')];
         const countInnerColumns = Math.floor(columnWidth / get(items, '[0].offsetWidth', 1));
@@ -218,13 +220,17 @@ class Layout extends Component {
       if (canDragging) {
         components.push(
           <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjustment}>
-            <Widget {...widget.props} {...commonProps} id={widget.props.id} />
+            <Suspense fallback={<Loader type="points" />}>
+              <Widget {...widget.props} {...commonProps} id={widget.props.id} />
+            </Suspense>
           </DragItem>
         );
       } else {
         components.push(
           <div key={key} className="ecos-layout__element">
-            <Widget {...widget.props} {...commonProps} />
+            <Suspense fallback={<Loader type="points" />}>
+              <Widget {...widget.props} {...commonProps} />
+            </Suspense>
           </div>
         );
       }
@@ -239,7 +245,7 @@ class Layout extends Component {
 
       return (
         <div className="ecos-layout__row" key={index}>
-          {column.map(this.renderColumn.bind(this, column))}
+          {column.map((...data) => this.renderColumn(column, ...data))}
         </div>
       );
     }
@@ -288,13 +294,13 @@ class Layout extends Component {
   renderLayout() {
     const { columns } = this.props;
 
-    if (!columns) {
+    if (isEmpty(columns)) {
       return null;
     }
 
     return (
       <div className="ecos-layout__wrapper" ref={this._wrapperRef}>
-        {columns && columns.map(this.renderColumn.bind(this, columns))}
+        {columns.map((...data) => this.renderColumn(columns, ...data))}
         <ReactResizeDetector handleWidth onResize={this.checkWidgets} />
       </div>
     );
