@@ -6,6 +6,7 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 
@@ -347,7 +348,11 @@ export function getScrollbarWidth() {
   return scrollbarWidth;
 }
 
-export function deepClone(data, defaultValue = '') {
+export function deepClone(data, defaultValue) {
+  if (defaultValue === undefined) {
+    defaultValue = cloneDeep(data);
+  }
+
   if (isEmpty(data)) {
     return defaultValue;
   }

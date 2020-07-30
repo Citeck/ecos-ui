@@ -1002,6 +1002,8 @@ Grid.propTypes = {
   nonSelectable: PropTypes.array,
   editingRules: PropTypes.object,
 
+  onMouseEnter: PropTypes.func,
+  onMouseLeave: PropTypes.func,
   onRowDrop: PropTypes.func,
   onDragOver: PropTypes.func,
   onRowDragEnter: PropTypes.func,
@@ -1010,7 +1012,8 @@ Grid.propTypes = {
   onGridMouseEnter: PropTypes.func,
   onCheckDropPermission: PropTypes.func,
   onChangeTrOptions: PropTypes.func,
-  onScrolling: PropTypes.func
+  onScrolling: PropTypes.func,
+  inlineTools: PropTypes.func
 };
 
 Grid.defaultProps = {

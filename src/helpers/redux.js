@@ -50,3 +50,15 @@ export function deleteStateById(state, stateId) {
 
   return newState;
 }
+
+export function startLoading(initialState) {
+  return function(state, { payload: { stateId } }) {
+    return {
+      ...state,
+      [stateId]: {
+        ...getCurrentStateById(state, stateId, initialState),
+        isLoading: true
+      }
+    };
+  };
+}

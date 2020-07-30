@@ -16,7 +16,7 @@ import { Grid } from '../../../common/grid';
 import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/Mapper';
 import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
 import Records from '../../../Records';
-import { parseAttribute } from '../../../Records/Record';
+import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import InputView from './InputView';
 import ViewMode from './ViewMode';
 import Filters from './Filters';
@@ -81,13 +81,9 @@ export default class SelectJournal extends Component {
   }
 
   componentDidMount() {
-    const { defaultValue, multiple, journalId, onError, isSelectModalOpen, initCustomPredicate } = this.props;
+    const { defaultValue, multiple, isSelectModalOpen, initCustomPredicate } = this.props;
 
-    if (!journalId) {
-      const error = new Error('The "journalId" config is required!');
-      typeof onError === 'function' && onError(error);
-      this.setState({ error });
-    }
+    this.checkJournalId();
 
     let initValue;
     if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
@@ -112,6 +108,10 @@ export default class SelectJournal extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (!isEqual(prevProps.defaultValue, this.props.defaultValue) && !isEqual(this.props.defaultValue, this.state.value)) {
       this.updateSelectedValue();
+    }
+
+    if (this.props.journalId !== prevProps.journalId) {
+      this.checkJournalId();
     }
   }
 
@@ -141,6 +141,18 @@ export default class SelectJournal extends Component {
       });
     }
   }
+
+  checkJournalId = () => {
+    const { journalId, onError } = this.props;
+
+    if (!journalId) {
+      const error = new Error(t('select-journal.error.no-journal-id'));
+      typeof onError === 'function' && onError(error);
+      this.setState({ error });
+    } else {
+      this.setState({ error: null });
+    }
+  };
 
   shouldResetValue = () => {
     return new Promise(resolve => {
@@ -257,9 +269,9 @@ export default class SelectJournal extends Component {
   refreshGridData = info => {
     return new Promise(resolve => {
       this.setState({ isGridDataReady: false }, () => {
-        const { sortBy } = this.props;
+        const { sortBy, queryData, customSourceId } = this.props;
         let { requestParams, customPredicate, journalConfig } = this.state;
-        const sourceId = lodashGet(journalConfig, 'sourceId', '');
+        const sourceId = customSourceId || lodashGet(journalConfig, 'sourceId', '');
 
         if (customPredicate) {
           if (requestParams.journalPredicate) {
@@ -280,6 +292,9 @@ export default class SelectJournal extends Component {
 
         if (sourceId) {
           requestParams.sourceId = sourceId;
+        }
+        if (queryData) {
+          requestParams.queryData = queryData;
         }
 
         requestParams.sortBy = sortBy;
@@ -895,6 +910,8 @@ const predicateShape = PropTypes.shape({
 
 SelectJournal.propTypes = {
   journalId: PropTypes.string,
+  queryData: PropTypes.object,
+  customSourceId: PropTypes.string,
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
   onChange: PropTypes.func,
   onError: PropTypes.func,

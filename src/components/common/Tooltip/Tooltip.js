@@ -21,6 +21,7 @@ class Tooltip extends Component {
     isOpen: PropTypes.bool,
     uncontrolled: PropTypes.bool,
     showAsNeeded: PropTypes.bool,
+    getIsNeeded: PropTypes.func,
     minWidthByContent: PropTypes.bool,
     off: PropTypes.bool,
     text: PropTypes.string,
@@ -114,6 +115,10 @@ class Tooltip extends Component {
     }
   };
 
+  runUpdate = () => {
+    this.forceUpdate();
+  };
+
   tooltipProps = () => {
     const {
       target,
@@ -151,9 +156,9 @@ class Tooltip extends Component {
   };
 
   renderTooltip = () => {
-    const { text, showAsNeeded, target, minWidthByContent, contentComponent } = this.props;
+    const { text, showAsNeeded, target, elementId, minWidthByContent, contentComponent, getIsNeeded } = this.props;
     const { isOpen } = this.state;
-    const element = document.getElementById(target);
+    const element = document.getElementById(elementId || target);
     const styles = {};
     let needTooltip = !showAsNeeded;
 
@@ -170,6 +175,8 @@ class Tooltip extends Component {
 
       context.font = styles.getPropertyValue('font');
       needTooltip = context.measureText(text).width > element.getBoundingClientRect().width - (paddingLeft + paddingRight);
+
+      getIsNeeded && getIsNeeded(needTooltip);
     }
 
     if (minWidthByContent) {

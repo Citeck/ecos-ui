@@ -83,7 +83,7 @@ class JournalsDashletGrid extends Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (get(prevProps, 'grid.pagination.page') !== get(this.rops, 'grid.pagination.page')) {
+    if (get(prevProps, 'grid.pagination.page') !== get(this.props, 'grid.pagination.page')) {
       this.scrollPosition.scrollTop = 0;
     }
   }
@@ -123,10 +123,14 @@ class JournalsDashletGrid extends Component {
   onFilter = ([filter]) => {
     const {
       setPredicate,
-      grid: { columns, pagination: pager }
+      grid: { columns, pagination: pager, predicates }
     } = this.props;
-    const predicate = ParserPredicate.getDefaultPredicates(columns, [filter.att]);
-    const newPredicate = ParserPredicate.setPredicateValue(predicate, filter, true);
+    const currentFilters = ParserPredicate.getFlatFilters(predicates) || [];
+
+    currentFilters.push(filter);
+
+    const predicate = ParserPredicate.getDefaultPredicates(columns, currentFilters.map(filter => filter.att));
+    const newPredicate = ParserPredicate.setPredicateValue(predicate, currentFilters, true);
     const { maxItems } = pager || DEFAULT_JOURNALS_PAGINATION;
     const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../helpers/util';
 import { SortableContainer } from '../../Drag-n-Drop';
@@ -91,16 +92,10 @@ class Tree extends Component {
   };
 
   renderEmpty() {
-    const { data } = this.props;
-
-    if (data.length) {
-      return null;
-    }
-
     return <div className="ecos-tree__empty">{t(Labels.EMPTY)}</div>;
   }
 
-  renderTree() {
+  renderTree(data) {
     const {
       onToggleSelect,
       selectable,
@@ -115,11 +110,6 @@ class Tree extends Component {
       renderExtraComponents,
       getActions
     } = this.props;
-    const data = this.formattedTree;
-
-    if (!data.length) {
-      return null;
-    }
 
     return data.map((item, index) => (
       <TreeItem
@@ -145,11 +135,11 @@ class Tree extends Component {
 
   render() {
     const { prefixClassName, draggable } = this.props;
+    const data = this.formattedTree;
 
     const treeElement = (
       <div className={classNames('ecos-tree', { [`${prefixClassName}--tree`]: !!prefixClassName })}>
-        {this.renderTree()}
-        {this.renderEmpty()}
+        {isEmpty(data) ? this.renderEmpty() : this.renderTree(data)}
       </div>
     );
 
@@ -157,7 +147,6 @@ class Tree extends Component {
       <SortableContainer
         axis="y"
         lockAxis="y"
-        distance={3}
         onSortEnd={this.handleSortEnd}
         updateBeforeSortStart={this.handleBeforeSortStart}
         useDragHandle

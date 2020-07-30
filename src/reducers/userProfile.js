@@ -9,7 +9,7 @@ import {
   setUserPhoto,
   togglePasswordModal
 } from '../actions/user';
-import { getCurrentStateById } from '../helpers/redux';
+import { getCurrentStateById, startLoading } from '../helpers/redux';
 
 const initialState = {
   isLoading: false,
@@ -22,13 +22,7 @@ const initialState = {
 
 export default handleActions(
   {
-    [getUserData]: (state, { payload: { stateId } }) => ({
-      ...state,
-      [stateId]: {
-        ...getCurrentStateById(state, stateId, initialState),
-        isLoading: true
-      }
-    }),
+    [getUserData]: startLoading(initialState),
     [setUserData]: (state, { payload }) => {
       const { stateId, ...res } = payload;
 

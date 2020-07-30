@@ -29,7 +29,6 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
     {
       id: 'HEADER_USER_MENU_MY_PROFILE',
       label: 'header.my-profile.label',
-      target: '_blank',
       targetUrl: createProfileUrl(encodeURIComponent(userName))
     },
     {
@@ -99,7 +98,8 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
 
     let newItem = {
       id: item.id,
-      label: item.config.label
+      label: item.config.label,
+      isLegacy: true
     };
 
     if (item.config.targetUrl) {

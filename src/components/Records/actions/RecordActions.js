@@ -101,7 +101,9 @@ class RecordActionsService {
   __getRecordsActionsWithContext(recordIds, context = {}) {
     let actions;
 
-    if (context.actions) {
+    if (!context) {
+      actions = Promise.resolve({});
+    } else if (context.actions) {
       if (!context.actions.length) {
         return Promise.resolve({});
       }

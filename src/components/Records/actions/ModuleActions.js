@@ -23,6 +23,7 @@ export const ModuleCopyAction = {
         formData: {
           moduleId: currentModuleId
         },
+        showDefaultButtons: true,
         formDefinition: {
           display: 'form',
           components: [
@@ -30,12 +31,6 @@ export const ModuleCopyAction = {
               label: 'Новый идентификатор',
               type: 'textfield',
               key: 'moduleId'
-            },
-            {
-              label: 'Подтвердить',
-              type: 'button',
-              theme: 'primary',
-              action: 'submit'
             }
           ]
         },

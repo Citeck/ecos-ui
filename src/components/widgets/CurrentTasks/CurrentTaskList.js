@@ -1,35 +1,51 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
+import debounce from 'lodash/debounce';
 
+import { selectStateCurrentTasksById } from '../../../selectors/tasks';
+import { executeAction, setInlineTools } from '../../../actions/currentTasks';
 import { getOutputFormat, isLastItem, t } from '../../../helpers/util';
 import * as ArrayOfObjects from '../../../helpers/arrayOfObjects';
-import { Grid } from '../../common/grid/index';
+import { Grid, InlineTools } from '../../common/grid/index';
 import { InfoText, Loader, Separator } from '../../common/index';
-import { cleanTaskId, CurrentTaskPropTypes, DisplayedColumns as DC, noData } from './utils';
+import { cleanTaskId, DisplayedColumns as DC, noData } from './utils';
 import CurrentTaskInfo from './CurrentTaskInfo';
 import BtnTooltipInfo from './BtnTooltipInfo';
 
 class CurrentTaskList extends React.Component {
   static propTypes = {
-    currentTasks: PropTypes.arrayOf(PropTypes.shape(CurrentTaskPropTypes)).isRequired,
     className: PropTypes.string,
     height: PropTypes.string,
     isSmallMode: PropTypes.bool,
-    isMobile: PropTypes.bool,
-    isLoading: PropTypes.bool,
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
-    currentTasks: [],
     className: '',
-    height: '100%',
-    isSmallMode: false,
-    isMobile: false,
-    isLoading: false
+    height: '100%'
   };
+
+  getActions({ id: taskId }) {
+    const { actions, executeAction } = this.props;
+
+    return isEmpty(actions) ? [] : actions.map(act => ({ ...act, onClick: () => executeAction(act, { taskId }) }));
+  }
+
+  handleHoverRow = data => {
+    const {
+      row: { id },
+      ...options
+    } = data;
+
+    this.props.setInlineTools({ actions: this.getActions({ id }), ...options });
+  };
+
+  handleBlurRow = debounce(() => {
+    this.props.setInlineTools({});
+  }, 100);
 
   renderEnum() {
     const { currentTasks, isMobile, forwardedRef } = this.props;
@@ -37,8 +53,8 @@ class CurrentTaskList extends React.Component {
     return (
       <div className="ecos-current-task-list_view-enum" ref={forwardedRef}>
         {currentTasks.map((item, i) => (
-          <React.Fragment key={item.id + i}>
-            <CurrentTaskInfo task={item} isMobile={isMobile} />
+          <React.Fragment key={item.id}>
+            <CurrentTaskInfo task={item} isMobile={isMobile} actions={this.getActions(item)} />
             {!isLastItem(currentTasks, i) && <Separator noIndents />}
           </React.Fragment>
         ))}
@@ -46,9 +62,24 @@ class CurrentTaskList extends React.Component {
     );
   }
 
+  renderInlineTools = () => {
+    const { stateId } = this.props;
+
+    return (
+      <InlineTools
+        className="ecos-current-task__table-inline-tools"
+        stateId={stateId}
+        reduxKey="currentTasks"
+        toolsKey="inlineTools"
+        withTooltip
+      />
+    );
+  };
+
   renderTable() {
     const { currentTasks } = this.props;
     const formatTasks = currentTasks.map((task, i) => ({
+      id: task.id,
       [DC.title.key]: task[DC.title.key] || noData,
       [DC.actors.key]: (
         <React.Fragment key={uniqueId(cleanTaskId(task.id))}>
@@ -73,7 +104,18 @@ class CurrentTaskList extends React.Component {
     const updCols = ArrayOfObjects.replaceKeys(cols, { key: 'dataField', label: 'text' });
     const gridCols = ArrayOfObjects.filterKeys(updCols, ['dataField', 'text']);
 
-    return <Grid data={formatTasks} columns={gridCols} scrollable={false} className="ecos-current-task-list_view-table" noTopBorder />;
+    return (
+      <Grid
+        data={formatTasks}
+        columns={gridCols}
+        scrollable={false}
+        className="ecos-current-task-list_view-table"
+        noTopBorder
+        onMouseLeave={this.handleBlurRow}
+        onChangeTrOptions={this.handleHoverRow}
+        inlineTools={this.renderInlineTools}
+      />
+    );
   }
 
   renderContent() {
@@ -102,4 +144,23 @@ class CurrentTaskList extends React.Component {
   }
 }
 
-export default CurrentTaskList;
+const mapStateToProps = (state, context) => {
+  const currentTasksState = selectStateCurrentTasksById(state, context.stateId) || {};
+
+  return {
+    isLoading: currentTasksState.isLoading,
+    isMobile: state.view.isMobile,
+    currentTasks: currentTasksState.list || [],
+    actions: currentTasksState.actions || []
+  };
+};
+
+const mapDispatchToProps = (dispatch, { stateId, record }) => ({
+  setInlineTools: inlineTools => dispatch(setInlineTools({ stateId, inlineTools })),
+  executeAction: (action, data) => dispatch(executeAction({ stateId, action, record, ...data }))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CurrentTaskList);
