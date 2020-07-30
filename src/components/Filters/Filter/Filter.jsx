@@ -10,11 +10,17 @@ import { getPredicateInput, getPredicates } from '../../common/form/SelectJourna
 import './Filter.scss';
 
 export default class Filter extends Component {
+  predicatesWithoutValue = ['empty', 'not-empty'];
+
   changeValue = val => {
     trigger.call(this, 'onChangeValue', { val: val, index: this.props.index });
   };
 
   changePredicate = predicate => {
+    if (this.predicatesWithoutValue.includes(predicate.value)) {
+      this.changeValue('');
+    }
+
     trigger.call(this, 'onChangePredicate', { predicate: predicate.value, index: this.props.index });
   };
 
@@ -48,6 +54,7 @@ export default class Filter extends Component {
       selectClassName: 'select_width_full'
     });
     const FilterValueComponent = predicateInput.component;
+    const isShow = !this.predicatesWithoutValue.includes(predicate.t);
 
     return (
       <div className={classNames('ecos-filter', className)}>
@@ -69,9 +76,7 @@ export default class Filter extends Component {
               value={selectedPredicate}
               onChange={this.changePredicate}
             />,
-            <div className={'ecos-filter__value-wrapper'}>
-              <FilterValueComponent {...predicateProps} />
-            </div>,
+            <div className={'ecos-filter__value-wrapper'}>{isShow && <FilterValueComponent {...predicateProps} />}</div>,
             <>
               <IcoBtn
                 icon={'icon-delete'}
