@@ -335,5 +335,3 @@ export default class ParserPredicate {
     return predicates;
   }
 }
-
-window.ParserPredicate = ParserPredicate;
