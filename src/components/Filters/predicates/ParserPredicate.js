@@ -287,6 +287,16 @@ export default class ParserPredicate {
       return [];
     }
 
+    if (Array.isArray(newPredicate)) {
+      let newPredicates = predicates;
+
+      newPredicate.forEach(item => {
+        newPredicates = ParserPredicate.setPredicateValue(newPredicates, item);
+      });
+
+      return newPredicates;
+    }
+
     predicates = deepClone(predicates);
 
     const foreach = arr => {
