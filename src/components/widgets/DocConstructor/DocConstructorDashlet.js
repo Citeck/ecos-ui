@@ -183,7 +183,7 @@ class DocConstructorDashlet extends BaseWidget {
           />
           {error && (
             <div className="ecos-doc-constructor__error">
-              <Icon className="icon-big_alert" />
+              <Icon className="icon-alert" />
               {error}
             </div>
           )}

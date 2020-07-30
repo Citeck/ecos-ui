@@ -782,7 +782,7 @@ export const CancelBusinessProcess = {
     return {
       name: 'record-action.name.cancel-business-process',
       type: DefaultActionTypes.CANCEL_BUSINESS_PROCESS,
-      icon: 'icon-close'
+      icon: 'icon-small-close'
     };
   }
 };

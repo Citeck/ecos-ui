@@ -344,7 +344,7 @@ class PageTabs extends React.Component {
           })}
           onClick={this.handleScrollLeft}
         >
-          <div className="page-tab__nav-btn-icon icon-left" />
+          <div className="page-tab__nav-btn-icon icon-small-left" />
         </div>
       </div>
     );

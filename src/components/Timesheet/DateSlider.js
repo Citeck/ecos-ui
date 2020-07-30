@@ -78,7 +78,7 @@ class DateSlider extends Component {
 
     return (
       <Icon
-        className={classNames('icon-left ecos-date-slider__btn', {
+        className={classNames('icon-small-left ecos-date-slider__btn', {
           'ecos-date-slider__btn_disabled': !canDecrement
         })}
         onClick={this.handleClick.bind(null, [DATE_ACTIONS.SUBTRACT])}

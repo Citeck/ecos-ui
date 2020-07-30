@@ -170,7 +170,7 @@ export default class ScrollArrow extends React.Component {
               'ecos-scrollbar-arrow__btn_medium': medium,
               'ecos-scrollbar-arrow__btn_small': small
             })}
-            icon="icon-left"
+            icon="icon-small-left"
             onClick={() => this.doScrollBySide(-1)}
           />
         )}

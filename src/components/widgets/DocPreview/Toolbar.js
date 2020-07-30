@@ -180,7 +180,7 @@ class Toolbar extends Component {
     return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-pager">
         <IcoBtn
-          icon={'icon-left'}
+          icon={'icon-small-left'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-prev', {
             'ecos-btn_disabled': currentPage === 1
           })}
