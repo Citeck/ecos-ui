@@ -85,7 +85,7 @@ class CurrentTaskList extends React.Component {
         <React.Fragment key={uniqueId(cleanTaskId(task.id))}>
           {task[DC.actors.key] || noData}
           {task.usersGroup && (
-            <BtnTooltipInfo iconClass="icon-usergroup" id={uniqueId(cleanTaskId(task.id))} isShow={task.isGroup} count={task.count}>
+            <BtnTooltipInfo iconClass="icon-users" id={uniqueId(cleanTaskId(task.id))} isShow={task.isGroup} count={task.count}>
               {!task.usersGroup.length
                 ? noData
                 : task.usersGroup.map((user, position) => (

@@ -83,7 +83,7 @@ class ResizeBoxes extends React.Component {
 
     return (
       <div className={classes} onMouseDown={this.startResize}>
-        <Icon className="ecos-resizer-x__icon icon-v_resize" />
+        <Icon className="ecos-resizer-x__icon icon-custom-resize-vertical" />
       </div>
     );
   }

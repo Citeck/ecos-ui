@@ -56,7 +56,7 @@ export default class LanguageSwitcher extends React.Component {
     return (
       <Dropdown className="ecos-header-lang ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
         <DropdownToggle tag="div">
-          <IcoBtn invert className={classNameIcoBtn} icon={dropdownOpen ? 'icon-up' : 'icon-down'}>
+          <IcoBtn invert className={classNameIcoBtn} icon={dropdownOpen ? 'icon-small-up' : 'icon-small-down'}>
             <img className="ecos-header-lang__img" src={currentLanguage.img} alt={language} />
             {currentLanguage.label}
           </IcoBtn>

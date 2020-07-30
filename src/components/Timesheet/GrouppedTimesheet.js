@@ -223,7 +223,9 @@ class GrouppedTimesheet extends BaseTimesheet {
             value={typeFilter}
             onChange={this.handleFilterTypes}
           />
-          {typeFilter && <Icon className="icon-close ecos-timesheet__table-search-input-clear" onClick={this.handleClearFilterTypes} />}
+          {typeFilter && (
+            <Icon className="icon-small-close ecos-timesheet__table-search-input-clear" onClick={this.handleClearFilterTypes} />
+          )}
         </div>
       </div>
     );
@@ -252,7 +254,7 @@ class GrouppedTimesheet extends BaseTimesheet {
           id={`timesheet-group-${index}-history`}
           className={classNames({
             'icon-history ecos-timesheet__table-group-header-history': !hasComment,
-            'icon-notify-dialogue ecos-timesheet__table-group-header-message': hasComment
+            'icon-notify ecos-timesheet__table-group-header-message': hasComment
           })}
           onClick={() => this.handleOpenEventHistory(item)}
         />
@@ -316,11 +318,11 @@ class GrouppedTimesheet extends BaseTimesheet {
                   <div className="ecos-timesheet__table-group-line">
                     <div className="ecos-timesheet__table-group-name">
                       <SortableHandle>
-                        <Icon className="icon-drag ecos-timesheet__table-group-header-dnd" />
+                        <Icon className="icon-custom-drag-big ecos-timesheet__table-group-header-dnd" />
                       </SortableHandle>
 
                       <Icon
-                        className={classNames('icon-down ecos-timesheet__table-group-collapse', {
+                        className={classNames('icon-small-down ecos-timesheet__table-group-collapse', {
                           'ecos-timesheet__table-group-collapse_open': this.getGroupStatus(item.user)
                         })}
                         data-key={item.user}

@@ -67,7 +67,7 @@ export default class Checkbox extends Component {
     const icons = [
       <i
         key="unchecked"
-        className={classNames('ecos-checkbox__icon ecos-checkbox__icon_unchecked icon-unchecked', {
+        className={classNames('ecos-checkbox__icon ecos-checkbox__icon_unchecked icon-custom-checkbox-outline-unchecked', {
           'ecos-checkbox__icon_hover_blue': !disabled
         })}
       />
@@ -80,7 +80,7 @@ export default class Checkbox extends Component {
     icons.push(
       <i
         key="dark"
-        className={classNames('ecos-checkbox__icon ecos-checkbox__icon_checked icon-checkbox-dark', {
+        className={classNames('ecos-checkbox__icon ecos-checkbox__icon_checked icon-custom-checkbox-filled-unchecked', {
           'ecos-checkbox__icon_blue': !disabled,
           'ecos-checkbox__icon_disabled': disabled
         })}
@@ -90,8 +90,8 @@ export default class Checkbox extends Component {
       <i
         key="check-status"
         className={classNames('ecos-checkbox__icon ecos-checkbox__icon_checked ecos-checkbox__icon_white', {
-          'icon-checkbox-minus-icon': indeterminate,
-          'icon-checkbox-check-icon': !indeterminate && checked
+          'icon-custom-checkbox-minus': indeterminate,
+          'icon-custom-checkbox-check': !indeterminate && checked
         })}
       />
     );

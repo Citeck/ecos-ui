@@ -38,7 +38,7 @@ export default class DropdownMenuCascade extends React.Component {
     return groups.map((item, i) => {
       const { id, items } = item;
       const key = `key-${i}-${id}`;
-      const iconRight = classNames({ 'icon-right ecos-dropdown-menu__cascade-arrow': !isEmpty(items) });
+      const iconRight = classNames({ 'icon-small-right ecos-dropdown-menu__cascade-arrow': !isEmpty(items) });
 
       return (
         <Dropdown

@@ -14,12 +14,12 @@ const _actions = [
   },
   {
     type: 'ACTIVE',
-    icon: 'icon-on',
+    icon: 'icon-small-eye-show',
     visible: true
   },
   {
     type: 'NO_ACTIVE',
-    icon: 'icon-off',
+    icon: 'icon-small-eye-hide',
     visible: false
   }
 ];

@@ -535,10 +535,10 @@ export function getIconFileByMimetype(mimetype) {
   switch (mimetype) {
     case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
     case 'application/msword':
-      return 'icon-filetype-doc';
+      return 'icon-custom-file-doc';
     case 'application/pdf':
     default:
-      return 'icon-filetype-none';
+      return 'icon-custom-file-empty';
   }
 }
 

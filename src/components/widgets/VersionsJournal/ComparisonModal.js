@@ -74,7 +74,7 @@ class ComparisonModal extends Component {
         <div className="vj-modal-comparison__header vj-modal-comparison__header_small">
           <div className="vj-modal-comparison__header-date">{item.date}</div>
           <div className="vj-modal-comparison__header-author">
-            <Icon className="icon-User_avatar vj-modal-comparison__header-author-icon" />
+            <Icon className="icon-user-normal vj-modal-comparison__header-author-icon" />
             <div className="vj-modal-comparison__header-author-name">{item.userName}</div>
           </div>
         </div>
@@ -88,7 +88,7 @@ class ComparisonModal extends Component {
             <div className="vj-modal-comparison__header-version">{item.version}</div>
             <div className="vj-modal-comparison__header-date">{item.date}</div>
             <div className="vj-modal-comparison__header-author">
-              <Icon className="icon-User_avatar vj-modal-comparison__header-author-icon" />
+              <Icon className="icon-user-normal vj-modal-comparison__header-author-icon" />
               <div className="vj-modal-comparison__header-author-name">{item.userName}</div>
             </div>
           </div>

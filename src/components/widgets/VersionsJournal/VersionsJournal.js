@@ -262,7 +262,7 @@ class VersionsJournal extends BaseWidget {
   renderAddButton() {
     return (
       <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-vj__btn-add" onClick={this.handleToggleAddModal}>
-        <Icon className="icon-plus ecos-vj__btn-add-icon" />
+        <Icon className="icon-small-plus ecos-vj__btn-add-icon" />
         <span className="ecos-vj__btn-add-title">{t('versions-journal-widget.add-version')}</span>
       </Btn>
     );
@@ -346,7 +346,7 @@ class VersionsJournal extends BaseWidget {
               )}
 
               <div className="ecos-vj__version-date">
-                <Icon className="icon-clock ecos-vj__version-date-icon" />
+                <Icon className="icon-small-clock ecos-vj__version-date-icon" />
                 {version.date}
               </div>
             </div>
@@ -510,7 +510,7 @@ class VersionsJournal extends BaseWidget {
         >
           <IcoBtn
             invert
-            icon="icon-down ecos-vj__comparison-dropdown-toggle-icon"
+            icon="icon-small-down ecos-vj__comparison-dropdown-toggle-icon"
             className="ecos-vj__comparison-dropdown-toggle ecos-btn_transparent"
           />
         </Dropdown>
@@ -529,7 +529,7 @@ class VersionsJournal extends BaseWidget {
         >
           <IcoBtn
             invert
-            icon="icon-down ecos-vj__comparison-dropdown-toggle-icon"
+            icon="icon-small-down ecos-vj__comparison-dropdown-toggle-icon"
             className="ecos-vj__comparison-dropdown-toggle ecos-btn_transparent"
           />
         </Dropdown>
@@ -581,7 +581,7 @@ class VersionsJournal extends BaseWidget {
 
     if (!isMobile && record) {
       actions.addVersion = {
-        icon: 'icon-plus',
+        icon: 'icon-small-plus',
         text: t('versions-journal-widget.add-version'),
         onClick: this.handleToggleAddModal
       };

@@ -78,7 +78,7 @@ class CurrentTaskInfo extends React.Component {
                 getStateOpen={isOpenActions => this.setState({ isOpenActions })}
                 CustomItem={MenuItem}
               >
-                <Icon className={isOpenActions ? 'icon-menu-small-press' : 'icon-menu-small'} />
+                <Icon className={isOpenActions ? 'icon-custom-more-small-pressed' : 'custom-more-small-normal'} />
               </DropdownOuter>
             </>
           )}
@@ -100,7 +100,7 @@ class CurrentTaskInfo extends React.Component {
 
               {task.usersGroup && (
                 <BtnTooltipInfo
-                  iconClass="icon-usergroup"
+                  iconClass="icon-users"
                   id={uniqueId(cleanTaskId(task.id))}
                   isShow={task.isGroup}
                   noTooltip={isMobile}
