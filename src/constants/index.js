@@ -101,7 +101,7 @@ export const Attributes = {
   DBID: 'sys:node-dbid'
 };
 
-export const TMP_ICON_EMPTY = 'icon-empty-icon';
+export const TMP_ICON_EMPTY = 'icon-empty';
 
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};

@@ -58,7 +58,7 @@ const InlineActions = () => {
     iconButtons.push(
       <IcoBtn
         key={'view'}
-        icon={'icon-preview'}
+        icon={'icon-eye-show'}
         title={t('ecos-table-form.view.btn')}
         className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__on')}
         onClick={onClickView}
@@ -70,7 +70,7 @@ const InlineActions = () => {
     iconButtons.push(
       <IcoBtn
         key={'preview'}
-        icon={'icon-preview'}
+        icon={'icon-eye-show'}
         title={t('ecos-table-form.preview.btn')}
         className={classNames(inlineToolsActionClassName, 'fitnesse-inline-tools-actions-btn__preview')}
         onClick={onClickPreview}

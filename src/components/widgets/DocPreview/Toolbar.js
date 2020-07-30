@@ -180,7 +180,7 @@ class Toolbar extends Component {
     return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-pager">
         <IcoBtn
-          icon={'icon-left'}
+          icon={'icon-small-left'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-prev', {
             'ecos-btn_disabled': currentPage === 1
           })}
@@ -193,7 +193,7 @@ class Toolbar extends Component {
           </div>
         )}
         <IcoBtn
-          icon={'icon-right'}
+          icon={'icon-small-right'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-next', {
             'ecos-btn_disabled': currentPage === totalPages
           })}
@@ -212,11 +212,11 @@ class Toolbar extends Component {
     return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom" ref={this.toolbarZoomRef}>
         <IcoBtn
-          icon={'icon-minus'}
+          icon={'icon-small-minus'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= 0 })}
           onClick={() => this.setScale(-1)}
         />
-        <IcoBtn icon={'icon-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={() => this.setScale(1)} />
+        <IcoBtn icon={'icon-small-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={() => this.setScale(1)} />
         <Dropdown
           source={this.zoomOptions}
           value={selectedZoom}
@@ -232,7 +232,7 @@ class Toolbar extends Component {
           <IcoBtn
             invert
             style={this.zoomDropdownStyle}
-            icon={'icon-down'}
+            icon={'icon-small-down'}
             className="ecos-btn_sq_sm ecos-btn_tight ecos-btn_drop-down ecos-doc-preview__toolbar-zoom-selector"
           />
         </Dropdown>

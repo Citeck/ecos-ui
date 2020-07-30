@@ -181,15 +181,15 @@ export function makeSiteMenu(params = {}) {
 export function getIconClassMenu(id, specialClass) {
   switch (id) {
     case 'HEADER_USER_MENU_MY_PROFILE':
-      return 'icon-User_avatar';
+      return 'icon-user-normal';
     case 'HEADER_USER_MENU_AVAILABILITY':
       return specialClass;
     case 'HEADER_USER_MENU_PASSWORD':
       return '';
     case 'HEADER_USER_MENU_FEEDBACK':
-      return 'icon-notify-dialogue';
+      return 'icon-notify';
     case 'HEADER_USER_MENU_REPORTISSUE':
-      return 'icon-big_alert';
+      return 'icon-alert';
     case 'HEADER_USER_MENU_LOGOUT':
       return 'icon-exit';
     case 'HEADER_SITE_INVITE':
@@ -216,7 +216,7 @@ export function getSpecialClassByState(id, params = {}) {
 
     switch (id) {
       case 'HEADER_USER_MENU_AVAILABILITY':
-        return params.available ? `icon-User_avatar_on ${colorOn}` : `icon-User_avatar_off ${colorOff}`;
+        return params.available ? `icon-user-online ${colorOn}` : `icon-user-away ${colorOff}`;
       default:
         return false;
     }

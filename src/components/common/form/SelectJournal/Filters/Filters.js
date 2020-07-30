@@ -69,7 +69,7 @@ class Filters extends Component {
         <Row>
           <Col md={6} xs={12}>
             <Dropdown source={columns} valueField={'attribute'} titleField={'text'} isStatic onChange={addField}>
-              <IcoBtn invert icon="icon-down" className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_grey6">
+              <IcoBtn invert icon="icon-small-down" className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_grey6">
                 {t('select-journal.filters.add-criteria')}
               </IcoBtn>
             </Dropdown>

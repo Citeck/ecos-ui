@@ -117,7 +117,7 @@ class TreeItem extends Component {
 
     return (
       <Icon
-        className={classNames('ecos-tree__item-element-arrow icon-right', {
+        className={classNames('ecos-tree__item-element-arrow icon-small-right', {
           'ecos-tree__item-element-arrow_open': isOpen
         })}
         onClick={this.handleToggleOpen}
@@ -234,7 +234,7 @@ class TreeItem extends Component {
           )}
           {canDrag && (
             <SortableHandle>
-              <i className="icon-drag ecos-tree__item-element-drag" />
+              <i className="icon-custom-drag-big ecos-tree__item-element-drag" />
             </SortableHandle>
           )}
         </div>

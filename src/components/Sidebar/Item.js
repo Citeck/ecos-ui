@@ -133,9 +133,9 @@ class Item extends React.Component {
       <Icon
         className={classNames('ecos-sidebar-item__toggle', {
           'ecos-sidebar-item__toggle_v': isOpen,
-          'ecos-sidebar-item__toggle_h icon-right': !isOpen,
-          'icon-down': !isExpanded && (isOpen || inDropdown),
-          'icon-up': isExpanded && (isOpen || inDropdown)
+          'ecos-sidebar-item__toggle_h icon-small-right': !isOpen,
+          'icon-small-down': !isExpanded && (isOpen || inDropdown),
+          'icon-small-up': isExpanded && (isOpen || inDropdown)
         })}
       />
     ) : null;

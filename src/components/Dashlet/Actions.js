@@ -42,7 +42,7 @@ const DropdownActions = ({ list, dashletId }) => {
     <>
       <IcoBtn
         id={id}
-        icon="icon-menu-normal-press"
+        icon="icon-custom-more-big-pressed"
         className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
       />
       <UncontrolledTooltip

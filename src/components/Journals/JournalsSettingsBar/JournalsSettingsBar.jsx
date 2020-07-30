@@ -40,7 +40,7 @@ const JournalsSettingsBar = ({
     if (createVariants.length === 1) {
       return (
         <IcoBtn
-          icon={'icon-big-plus'}
+          icon={'icon-small-plus'}
           className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
           onClick={() => addRecord(createVariants[0])}
         />
@@ -50,7 +50,7 @@ const JournalsSettingsBar = ({
     return (
       <Dropdown hasEmpty isButton source={createVariants} valueField="destination" titleField="title" onChange={addRecord} className={step}>
         <TwoIcoBtn
-          icons={['icon-plus', 'icon-down']}
+          icons={['icon-small-plus', 'icon-small-down']}
           className="ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
           title={t('journals.create-record-btn')}
         />
@@ -82,7 +82,7 @@ const JournalsSettingsBar = ({
       <Export journalConfig={journalConfig} grid={grid} className={classNames('ecos-journal__settings-bar-export', step)}>
         <IcoBtn
           invert
-          icon={isMobile ? 'icon-download' : 'icon-down'}
+          icon={isMobile ? 'icon-download' : 'icon-small-down'}
           className={classNames('ecos-btn_hover_blue2 ecos-btn_r_6', {
             'ecos-btn_drop-down ecos-btn_grey3': !isMobile,
             'ecos-btn_i ecos-btn_white': isMobile
@@ -113,7 +113,7 @@ const JournalsSettingsBar = ({
           <>
             <IcoBtn
               title={t('journal.title')}
-              icon={'icon-list-1'}
+              icon={'icon-list'}
               className={`${!showPie && !showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
               onClick={showGrid}
             />

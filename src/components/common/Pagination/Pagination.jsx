@@ -114,13 +114,13 @@ export default class Pagination extends Component {
         <span className="ecos-pagination__text ecos-pagination__text-total">{total}</span>
 
         <IcoBtn
-          icon={'icon-left'}
+          icon={'icon-small-left'}
           className="ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue"
           disabled={page <= 1}
           onClick={this.handleClickPrev}
         />
         <IcoBtn
-          icon={'icon-right'}
+          icon={'icon-small-right'}
           className="ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue"
           disabled={page >= this.maxPage}
           onClick={this.handleClickNext}

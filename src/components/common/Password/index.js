@@ -131,7 +131,7 @@ export default class Password extends React.Component {
               'ecos-password-rules__item_valid': touched && item.rule.test(String(value || ''))
             })}
           >
-            <Icon className="ecos-password-rules__item-icon icon-check" />
+            <Icon className="ecos-password-rules__item-icon icon-small-check" />
             {t(item.name)}
           </div>
         ))}
@@ -192,8 +192,8 @@ export default class Password extends React.Component {
           />
           <Icon
             className={classNames('ecos-password-field__icon-btn ecos-password-field__opener', {
-              'icon-on': isShowWord,
-              'icon-off': !isShowWord
+              'icon-small-eye-show': isShowWord,
+              'icon-small-eye-hide': !isShowWord
             })}
             onClick={this.toggleEye}
           />

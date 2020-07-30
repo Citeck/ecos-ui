@@ -41,7 +41,7 @@ class ListItem extends Component {
         classNamesColumn={'columns_height_full columns-setup__column_align'}
         cols={[
           <div className={'two-columns__left columns-setup__column_align '}>
-            <i className="icon-drag columns-setup__icon-drag" />
+            <i className="icon-custom-drag-big columns-setup__icon-drag" />
             <Checkbox className={'columns-setup__next'} checked={column.default} onChange={this.changeVisible} />
             <Label className={'label_clear label_middle-grey columns-setup__next'}>{column[titleField]}</Label>
           </div>,

@@ -149,7 +149,7 @@ export const ViewAction = {
     return {
       name: 'record-action.name.show',
       type: DefaultActionTypes.VIEW,
-      icon: 'icon-on'
+      icon: 'icon-small-eye-show'
     };
   },
 
@@ -188,7 +188,7 @@ export const OpenURL = {
   getDefaultModel: () => {
     return {
       type: OpenURL.type,
-      icon: 'icon-newtab'
+      icon: 'icon-new-tab'
     };
   }
 };
@@ -212,7 +212,7 @@ export const BackgroundOpenAction = {
     return {
       name: 'record-action.name.open-in-background',
       type: BackgroundOpenAction.type,
-      icon: 'icon-newtab'
+      icon: 'icon-new-tab'
     };
   },
 
@@ -403,7 +403,7 @@ export const MoveToLinesJournal = {
     return {
       name: 'record-action.name.details',
       type: DefaultActionTypes.MOVE_TO_LINES,
-      icon: 'icon-big-arrow'
+      icon: 'icon-small-arrow-right'
     };
   },
 
@@ -499,7 +499,7 @@ export const CreateNodeAction = {
     return {
       name: 'record-action.name.create',
       type: DefaultActionTypes.CREATE,
-      icon: 'icon-plus'
+      icon: 'icon-small-plus'
     };
   }
 };
@@ -513,7 +513,7 @@ export const UploadNewVersion = {
     return {
       name: 'record-action.name.upload-new-version',
       type: DefaultActionTypes.UPLOAD_NEW_VERSION,
-      icon: 'icon-load'
+      icon: 'icon-upload'
     };
   }
 };
@@ -560,7 +560,7 @@ export const ViewCardTemplate = {
   getDefaultModel: () => ({
     name: 'record-action.name.view-card-template-in-background',
     type: DefaultActionTypes.VIEW_CARD_TEMPLATE,
-    icon: 'icon-newtab'
+    icon: 'icon-new-tab'
   })
 };
 
@@ -590,7 +590,7 @@ export const SaveAsCaseTemplate = {
   getDefaultModel: () => ({
     name: 'record-action.name.save-as-case-template',
     type: DefaultActionTypes.SAVE_AS_CASE_TEMPLATE,
-    icon: 'icon-filetype-none'
+    icon: 'icon-custom-file-empty'
   })
 };
 
@@ -603,7 +603,7 @@ export const PreviewModal = {
   getDefaultModel: () => ({
     name: 'record-action.name.preview',
     type: DefaultActionTypes.PREVIEW_MODAL,
-    icon: 'icon-preview'
+    icon: 'icon-eye-show'
   })
 };
 
@@ -627,7 +627,7 @@ export const FetchAction = {
   getDefaultModel: () => ({
     name: 'record-action.name.fetch-action',
     type: DefaultActionTypes.FETCH,
-    icon: 'icon-right'
+    icon: 'icon-small-right'
   })
 };
 
@@ -675,7 +675,7 @@ export const ScriptAction = {
     return {
       name: 'record-action.name.script-action',
       type: DefaultActionTypes.SCRIPT,
-      icon: 'icon-check'
+      icon: 'icon-small-check'
     };
   }
 };
@@ -782,7 +782,7 @@ export const CancelBusinessProcess = {
     return {
       name: 'record-action.name.cancel-business-process',
       type: DefaultActionTypes.CANCEL_BUSINESS_PROCESS,
-      icon: 'icon-close'
+      icon: 'icon-small-close'
     };
   }
 };

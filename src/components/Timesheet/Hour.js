@@ -257,7 +257,7 @@ class Hour extends Component {
       return null;
     }
 
-    return <Icon className="icon-big-plus ecos-ts-hour__empty" onClick={this.handleToggleInput} />;
+    return <Icon className="icon-small-plus ecos-ts-hour__empty" onClick={this.handleToggleInput} />;
   }
 
   renderFullTime() {
@@ -276,7 +276,7 @@ class Hour extends Component {
         style={{ backgroundColor: color }}
         onClick={this.handleToggleInput}
       >
-        {editable && <Icon className="icon-close ecos-ts-hour__box-delete" onClick={this.handleDelete} />}
+        {editable && <Icon className="icon-small-close ecos-ts-hour__box-delete" onClick={this.handleDelete} />}
         {this.value}
       </div>
     );

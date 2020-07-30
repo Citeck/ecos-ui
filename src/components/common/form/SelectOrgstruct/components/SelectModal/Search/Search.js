@@ -45,7 +45,9 @@ const Search = () => {
           onChange={updateSearchText}
         />
         <Icon
-          className={classNames('icon-close select-orgstruct__search-cleaner', { 'select-orgstruct__search-cleaner_show': !!searchText })}
+          className={classNames('icon-small-close select-orgstruct__search-cleaner', {
+            'select-orgstruct__search-cleaner_show': !!searchText
+          })}
           onClick={onClean}
         />
       </div>

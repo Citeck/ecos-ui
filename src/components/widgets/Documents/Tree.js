@@ -107,7 +107,7 @@ class TreeItem extends Component {
 
     return (
       <Icon
-        className={classNames('ecos-docs-tree__item-element-arrow icon-right', {
+        className={classNames('ecos-docs-tree__item-element-arrow icon-small-right', {
           'ecos-docs-tree__item-element-arrow_open': isOpen
         })}
         onClick={this.handleToggleOpen}

@@ -87,7 +87,7 @@ export default class EcosModal extends Component {
       <button type="button" className="close" aria-label="Close" onClick={hideModal}>
         <span aria-hidden="true">
           {isBigHeader && <span className="ecos-modal-close__text">{t('close-button.label')}</span>}
-          <Icon className="icon-close ecos-modal-close__icon" />
+          <Icon className="icon-small-close ecos-modal-close__icon" />
         </span>
       </button>
     );

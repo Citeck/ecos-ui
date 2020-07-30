@@ -119,15 +119,15 @@ button {
     font-size: 32px;
     padding: 0;
 
-    .icon-big-plus {
+    .icon-small-plus {
       display: inline-block;
       height: 35px;
     }
   }
 
   &.ecos-btn_settings-down {
-    .icon-up,
-    .icon-down {
+    .icon-small-up,
+    .icon-small-down {
       font-size: 14px;
       display: inline-block;
       position: relative;
@@ -142,8 +142,8 @@ button {
     text-align: left;
     display: inline-flex;
 
-    .icon-up,
-    .icon-down {
+    .icon-small-up,
+    .icon-small-down {
       float: right;
     }
 
