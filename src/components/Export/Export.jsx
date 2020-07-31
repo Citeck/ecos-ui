@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import omit from 'lodash/omit';
 import get from 'lodash/get';
 import queryString from 'query-string';
+import isEmpty from 'lodash/isEmpty';
 
 import { UserConfigApi } from '../../api/userConfig';
 import { URL } from '../../constants';
@@ -16,7 +17,6 @@ import { PREDICATE_AND } from '../common/form/SelectJournal/predicates';
 import ParserPredicate from '../Filters/predicates/ParserPredicate';
 
 import './Export.scss';
-import isEmpty from 'lodash/isEmpty';
 
 const api = new UserConfigApi();
 
