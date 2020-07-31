@@ -1,4 +1,5 @@
 @import '../../../styles/constants';
+@import '../../../styles/content';
 
 :root {
   --column-size: 100%;
@@ -438,13 +439,8 @@
       }
 
       &-field {
-        width: 100%;
+        @extend %block--2;
         height: 600px;
-        background: $color-gray-4;
-        border: 2px solid $color-gray-1;
-        box-sizing: border-box;
-        border-radius: 12px;
-        padding: 15px;
         overflow-x: scroll;
       }
 

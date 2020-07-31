@@ -1,0 +1,96 @@
+@import '../../styles/constants';
+
+.ecos-icon-select {
+  &__loader {
+    border-radius: 10px;
+  }
+
+  &__option {
+    &-list {
+      max-height: 150px;
+      overflow: auto;
+      margin-bottom: 20px;
+    }
+
+    &-block {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: 36px;
+      width: 36px;
+      border-radius: 100%;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      overflow: hidden;
+
+      &_selected {
+        background: $color-gray-4;
+      }
+    }
+
+    &-value {
+      color: $color-gray-6;
+      font-size: 20px;
+      cursor: pointer;
+
+      &_prev {
+        color: $color-gray-11;
+      }
+
+      &_selected,
+      &:hover {
+        color: $color-blue-dark;
+      }
+    }
+  }
+
+  &__custom {
+    &-title {
+      display: flex;
+      align-items: center;
+      color: $color-gray-5;
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-small;
+      margin-bottom: 15px;
+
+      &::after {
+        content: '';
+        display: block;
+        height: 2px;
+        flex: 1;
+        margin-left: 10px;
+        background: $color-gray-25;
+      }
+    }
+
+    &-buttons {
+      display: flex;
+    }
+
+    &-btn-upload {
+      margin-right: 15px;
+      min-width: 100px;
+
+      .ecos-btn-upload-label {
+        height: 26px;
+        padding: 0 7px;
+        border-radius: $border-radius-standard;
+        font-size: $font-size-small;
+        line-height: 2;
+
+        &:hover {
+          background-color: $color-blue-light;
+          color: $color-white;
+        }
+      }
+    }
+
+    &-tip {
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-small;
+      color: $color-gray-5;
+      margin: 15px 0;
+    }
+  }
+}

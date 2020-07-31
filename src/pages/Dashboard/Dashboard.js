@@ -8,12 +8,13 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
-import { LoaderTypes, MENU_TYPE, URL } from '../../constants';
+import { LoaderTypes, URL } from '../../constants';
+import { MenuTypes } from '../../constants/menu';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, isMobileAppWebView, t } from '../../helpers/util';
 import { getSortedUrlParams, isDashboard } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
-import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
+import { saveMenuConfig } from '../../actions/menu';
 import { Loader, ScrollArrow, Tabs } from '../../components/common';
 import { Badge } from '../../components/common/form';
 import { DocStatus } from '../../components/widgets/DocStatus';
@@ -59,7 +60,6 @@ const mapDispatchToProps = (dispatch, state) => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key: getStateId(state) })),
   getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: getStateId(state) })),
   saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: getStateId(state) })),
-  initMenuSettings: payload => dispatch(getMenuConfig({ ...payload, key: getStateId(state) })),
   saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: getStateId(state) })),
   setLoading: status => dispatch(setLoading({ status, key: getStateId(state) })),
   resetDashboardConfig: () => dispatch(resetDashboardConfig(getStateId(state)))
@@ -102,7 +102,6 @@ class Dashboard extends Component {
         props.resetDashboardConfig();
       }
 
-      props.initMenuSettings();
       newState.urlParams = newUrlParams;
 
       if (isDashboard()) {
@@ -389,7 +388,7 @@ class Dashboard extends Component {
   renderTopMenu() {
     const { menuType, isLoadingMenu, links } = this.props;
 
-    if (menuType !== MENU_TYPE.TOP) {
+    if (menuType !== MenuTypes.TOP) {
       return null;
     }
 

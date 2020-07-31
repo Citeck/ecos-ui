@@ -15,7 +15,7 @@ import {
 } from '../actions/app';
 import { validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
-import { initMenuSettings } from '../actions/menu';
+import { getMenuConfig } from '../actions/menu';
 import PageService from '../services/PageService';
 
 export function* initApp({ api, fakeApi, logger }, { payload }) {
@@ -56,7 +56,7 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
 
 export function* fetchAppSettings({ api, fakeApi, logger }, { payload }) {
   try {
-    yield put(initMenuSettings());
+    yield put(getMenuConfig());
     yield put(getDashboardEditable());
   } catch (e) {
     logger.error('[fetchAppSettings saga] error', e.message);

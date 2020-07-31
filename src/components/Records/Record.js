@@ -2,9 +2,8 @@ import _ from 'lodash';
 import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import Attribute from './Attribute';
 import { EventEmitter2 } from 'eventemitter2';
-import { mapValueToScalar } from './utils/attStrUtils';
+import { mapValueToScalar, parseAttribute } from './utils/attStrUtils';
 import RecordWatcher from './RecordWatcher';
-import { parseAttribute } from './utils/attStrUtils';
 
 export const EVENT_CHANGE = 'change';
 

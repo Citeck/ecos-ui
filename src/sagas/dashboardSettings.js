@@ -17,7 +17,6 @@ import {
   setLoading,
   setRequestResultDashboard
 } from '../actions/dashboardSettings';
-import { saveMenuConfig } from '../actions/menu';
 import { selectIdentificationForSet } from '../selectors/dashboard';
 import { selectIsAdmin, selectUserName } from '../selectors/user';
 import { t } from '../helpers/util';
@@ -25,7 +24,6 @@ import { RequestStatuses } from '../constants';
 import DashboardService from '../services/dashboard';
 import PageService from '../services/PageService';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
-import MenuConverter from '../dto/menu';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
@@ -121,10 +119,9 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
     const serverConfig = {
       layouts: DashboardSettingsConverter.getSettingsConfigForServer(payload),
-      menu: MenuConverter.getSettingsConfigForServer(payload),
       mobile: DashboardSettingsConverter.getSettingsMobileConfigForServer(payload)
     };
-    const { layouts, menu, mobile } = serverConfig;
+    const { layouts, mobile } = serverConfig;
     const identification = yield select(selectIdentificationForSet, payload.key);
     const newIdentification = payload.newIdentification || {};
     const isAdmin = yield select(selectIsAdmin);
@@ -155,7 +152,6 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       DashboardService.getCacheKey({ type: identification.key, user: identification.user }),
       DashboardService.getCacheKey({ type: newIdentification.key, user: newIdentification.user })
     ]);
-    yield put(saveMenuConfig(menu));
     yield put(setRequestResultDashboard({ request, key: payload.key }));
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));

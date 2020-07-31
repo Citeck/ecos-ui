@@ -1,10 +1,10 @@
 import React from 'react';
 import get from 'lodash/get';
 
+import { LayoutTypes } from '../../../constants/layout';
 import Adaptive from './Adaptive';
 import Columns from './Columns';
 import Menu from './Menu';
-import { LAYOUT_TYPE } from '../../../constants/layout';
 
 export default props => {
   const menuType = get(props, 'config.menu.type', null);
@@ -13,7 +13,7 @@ export default props => {
     return <Menu {...props} />;
   }
 
-  if (props.type === LAYOUT_TYPE.ADAPTIVE) {
+  if (props.type === LayoutTypes.ADAPTIVE) {
     return <Adaptive {...props} />;
   }
 

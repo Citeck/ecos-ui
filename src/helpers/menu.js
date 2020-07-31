@@ -1,9 +1,12 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+
 import { SourcesId, URL } from '../constants';
+import { MenuTypes } from '../constants/menu';
 import Records from '../components/Records';
 import { HandleControlTypes } from './handleControl';
 import { createProfileUrl } from './urls';
+import { documentScrollTop } from './util';
 
 const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
 const DEFAULT_REPORT_ISSUE_URL =
@@ -140,10 +143,15 @@ export function makeSiteMenu(params = {}) {
     //   targetUrlType: 'FULL_PATH'
     // },
     {
-      id: 'SETTINGS_HOME_PAGE',
+      id: 'SETTINGS_DASHBOARD',
       label: 'header.site-menu.page-settings',
       targetUrl: URL.DASHBOARD_SETTINGS,
       targetUrlType: 'FULL_PATH'
+    },
+    {
+      id: 'SETTINGS_MENU',
+      label: 'header.site-menu.menu-settings',
+      isAction: true
     },
     {
       id: 'GO_ADMIN_PAGE',
@@ -158,17 +166,15 @@ export function makeSiteMenu(params = {}) {
   }
 
   return menu.filter(item => {
-    let status = true;
-
-    if (!isDashboardPage) {
-      status = item.id !== 'SETTINGS_HOME_PAGE';
+    switch (item.id) {
+      case 'SETTINGS_DASHBOARD':
+        return isDashboardPage;
+      case 'SETTINGS_MENU':
+      case 'GO_ADMIN_PAGE':
+        return isAdmin;
+      default:
+        return true;
     }
-
-    if (item.id === 'GO_ADMIN_PAGE') {
-      status = isAdmin;
-    }
-
-    return status;
   });
 }
 
@@ -217,4 +223,21 @@ export function getSpecialClassByState(id, params = {}) {
   }
 
   return false;
+}
+
+export function getMenuWidth() {
+  const menu = document.querySelector('.slide-menu');
+
+  if (!menu) {
+    return 0;
+  }
+
+  return -menu.clientWidth;
+}
+
+export function getPositionAdjustment(menuType) {
+  return {
+    top: menuType === MenuTypes.LEFT ? documentScrollTop() : 0,
+    left: menuType === MenuTypes.LEFT ? getMenuWidth() : 0
+  };
 }

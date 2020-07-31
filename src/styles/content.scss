@@ -50,3 +50,12 @@
   color: $text-color-dark;
   margin-bottom: 15px;
 }
+
+%subtitle-block--2 {
+  background: $color-gray-25;
+  border-radius: $border-radius-standard;
+  font-weight: $font-weight-semi-bold;
+  font-size: $font-size-small;
+  padding: 5px 10px;
+  margin-bottom: 5px;
+}

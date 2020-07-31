@@ -3,6 +3,7 @@ export const URL = {
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
+  MENU_SETTINGS: '/v2/menu-settings',
   BPMN_DESIGNER: '/v2/bpmn-designer',
   TIMESHEET: '/v2/timesheet',
   TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
@@ -26,8 +27,12 @@ export const SourcesId = {
   EFORM: 'uiserv/eform',
   USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',
+  MENU: 'uiserv/menu',
+  ICON: 'uiserv/icon',
   PREDICATE: 'uiserv/predicate',
   TYPE: 'emodel/type',
+  FONT_ICON: 'ui/icon',
+  AUTHORITY: 'alfresco/authority',
   HISTORY: 'history',
   STATUS: 'status',
   COMMENT: 'comment',
@@ -47,11 +52,6 @@ export const EmodelTypes = {
 export const ActionModes = {
   DASHBOARD: 'dashboard',
   JOURNAL: 'journal'
-};
-
-export const MENU_TYPE = {
-  LEFT: 'LEFT',
-  TOP: 'TOP'
 };
 
 export const RequestStatuses = {
@@ -100,6 +100,8 @@ export const MOBILE_APP_USER_AGENT = 'ecos-mobile-app';
 export const Attributes = {
   DBID: 'sys:node-dbid'
 };
+
+export const TMP_ICON_EMPTY = 'icon-empty';
 
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};

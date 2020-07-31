@@ -1,6 +1,6 @@
 import { isNumber, isSafeInteger, toFinite } from 'lodash';
 
-import { LAYOUT_TYPE, MIN_WIDTH_COLUMN, Layouts } from '../constants/layout';
+import { Layouts, LayoutTypes, MinColumnWidths } from '../constants/layout';
 
 /**
  * Получение минимальной ширины колонки по виду лайоута
@@ -10,20 +10,20 @@ import { LAYOUT_TYPE, MIN_WIDTH_COLUMN, Layouts } from '../constants/layout';
  */
 export function getMinWidthColumn(typeLayout, colNum) {
   switch (typeLayout) {
-    case LAYOUT_TYPE.ONE_COLUMN:
-      return MIN_WIDTH_COLUMN.FULL;
-    case LAYOUT_TYPE.TWO_COLUMNS_BS:
-      return colNum === 0 ? MIN_WIDTH_COLUMN.THREE_QUARTERS : MIN_WIDTH_COLUMN.ONE_QUARTER;
-    case LAYOUT_TYPE.TWO_COLUMNS_SB:
-      return colNum === 0 ? MIN_WIDTH_COLUMN.ONE_QUARTER : MIN_WIDTH_COLUMN.THREE_QUARTERS;
-    case LAYOUT_TYPE.THREE_COLUMNS_CB:
-      return colNum === 1 ? MIN_WIDTH_COLUMN.TWO_QUARTERS : MIN_WIDTH_COLUMN.ONE_QUARTER;
-    case LAYOUT_TYPE.FOUR_COLUMNS:
-      return MIN_WIDTH_COLUMN.ONE_QUARTER;
-    case LAYOUT_TYPE.MOBILE:
-      return MIN_WIDTH_COLUMN.AUTO;
+    case LayoutTypes.ONE_COLUMN:
+      return MinColumnWidths.FULL;
+    case LayoutTypes.TWO_COLUMNS_BS:
+      return colNum === 0 ? MinColumnWidths.THREE_QUARTERS : MinColumnWidths.ONE_QUARTER;
+    case LayoutTypes.TWO_COLUMNS_SB:
+      return colNum === 0 ? MinColumnWidths.ONE_QUARTER : MinColumnWidths.THREE_QUARTERS;
+    case LayoutTypes.THREE_COLUMNS_CB:
+      return colNum === 1 ? MinColumnWidths.TWO_QUARTERS : MinColumnWidths.ONE_QUARTER;
+    case LayoutTypes.FOUR_COLUMNS:
+      return MinColumnWidths.ONE_QUARTER;
+    case LayoutTypes.MOBILE:
+      return MinColumnWidths.AUTO;
     default:
-      return MIN_WIDTH_COLUMN.ONE_QUARTER;
+      return MinColumnWidths.ONE_QUARTER;
   }
 }
 

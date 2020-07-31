@@ -23,6 +23,10 @@
     display: flex;
     justify-content: space-between;
   }
+
+  &-disp_no-label {
+    color: $color-gray-7;
+  }
 }
 
 .select-orgstruct__values-list_compact {

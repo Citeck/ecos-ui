@@ -1,20 +1,3 @@
-import { MENU_TYPE } from './';
-
-export const MenuTypes = [
-  {
-    position: 0,
-    isActive: true,
-    type: MENU_TYPE.LEFT,
-    description: 'dashboard-settings.menu-type1'
-  },
-  {
-    position: 1,
-    isActive: false,
-    type: MENU_TYPE.TOP,
-    description: 'dashboard-settings.menu-type2'
-  }
-];
-
 export const DashboardTypes = {
   CASE_DETAILS: 'case-details',
   USER: 'user-dashboard',
