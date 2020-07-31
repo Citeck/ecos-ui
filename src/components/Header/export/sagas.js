@@ -2,9 +2,18 @@ import { all } from 'redux-saga/effects';
 
 import app from '../../../sagas/app';
 import header from '../../../sagas/header';
+import iconSelect from '../../../sagas/iconSelect';
 import menu from '../../../sagas/menu';
+import menuSettings from '../../../sagas/menuSettings';
 import view from '../../../sagas/view';
 
 export default function* rootSaga(extraArguments) {
-  yield all([app(extraArguments), header(extraArguments), menu(extraArguments), view(extraArguments)]);
+  yield all([
+    app(extraArguments),
+    header(extraArguments),
+    iconSelect(extraArguments),
+    menu(extraArguments),
+    menuSettings(extraArguments),
+    view(extraArguments)
+  ]);
 }

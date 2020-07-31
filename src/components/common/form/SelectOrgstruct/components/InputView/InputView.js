@@ -99,8 +99,8 @@ const InputView = () => {
     <>
       {selectedRows.length > 0 ? (
         <ul className={'select-orgstruct__values-list'}>
-          {selectedRows.map(item => (
-            <li key={item.id}>
+          {selectedRows.map((item, idx) => (
+            <li key={item.id || idx}>
               {renderSelectedValue(item)}
               {disabled ? null : (
                 <div className="select-orgstruct__values-list-actions">

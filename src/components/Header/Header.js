@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
@@ -18,6 +18,8 @@ import LanguageSwitcher from './LanguageSwitcher';
 
 import './style.scss';
 
+const MenuSettings = lazy(() => import('../MenuSettings'));
+
 const mapDispatchToProps = dispatch => ({
   fetchCreateCaseWidgetData: () => dispatch(fetchCreateCaseWidgetData()),
   fetchUserMenuData: () => dispatch(fetchUserMenuData()),
@@ -27,7 +29,8 @@ const mapDispatchToProps = dispatch => ({
 const mapStateToProps = state => ({
   isMobile: get(state, 'view.isMobile'),
   theme: get(state, 'view.theme'),
-  menuType: get(state, 'menu.type', '')
+  menuType: get(state, 'menu.type', ''),
+  isOpenMenuSettings: get(state, 'menuSettings.isOpenMenuSettings', false)
 });
 
 class Header extends React.Component {
@@ -53,6 +56,16 @@ class Header extends React.Component {
     this.setState({ widthHeader: width });
   };
 
+  renderMenuSettings = () => {
+    const { isOpenMenuSettings } = this.props;
+
+    return isOpenMenuSettings ? (
+      <Suspense fallback={null}>
+        <MenuSettings />
+      </Suspense>
+    ) : null;
+  };
+
   render() {
     const { widthHeader } = this.state;
     const { isMobile, hideSiteMenu, legacySiteMenuItems, theme } = this.props;
@@ -60,7 +73,8 @@ class Header extends React.Component {
     const hiddenLanguageSwitcher = isMobile || widthHeader < 600;
 
     return (
-      <React.Fragment>
+      <>
+        {this.renderMenuSettings()}
         <ReactResizeDetector handleWidth handleHeight onResize={debounce(this.onResize, 400)} />
         <div className={classNames('ecos-header', `ecos-header_theme_${theme}`, { 'ecos-header_small': isMobile })}>
           <div className="ecos-header__side ecos-header__side_left">
@@ -74,7 +88,7 @@ class Header extends React.Component {
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
           </div>
         </div>
-      </React.Fragment>
+      </>
     );
   }
 }

@@ -10,6 +10,7 @@ import { Provider } from 'react-redux';
 import Header from '../Header';
 
 import { AppApi } from '../../../api/app';
+import { CustomIconApi } from '../../../api/customIcon';
 import { MenuApi } from '../../../api/menu';
 import { UserApi } from '../../../api/user';
 import { ViewApi } from '../../../api/view';
@@ -34,6 +35,7 @@ const store = configureStore({
 });
 
 api.app = new AppApi(store);
+api.customIcon = new CustomIconApi(store);
 api.menu = new MenuApi(store);
 api.user = new UserApi(store);
 api.view = new ViewApi(store);
