@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import BaseComponent from '../base/BaseComponent';
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
+import { TAB_BY_LEVELS } from '../../../../components/common/form/SelectOrgstruct/constants';
 import { isNodeRef } from '../../../../helpers/util';
 import isEqual from 'lodash/isEqual';
 import Formio from 'formiojs/Formio';
@@ -24,7 +25,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
         excludeAuthoritiesByName: '',
         excludeAuthoritiesByType: '',
         modalTitle: '',
-        isSelectedValueAsText: false
+        isSelectedValueAsText: false,
+        hideTabSwitcher: false,
+        defaultTab: TAB_BY_LEVELS
       },
       ...extend
     );

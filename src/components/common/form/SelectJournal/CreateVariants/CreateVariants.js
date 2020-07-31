@@ -50,7 +50,7 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
 
     createButton = (
       <Dropdown source={items} valueField={'type'} titleField={'title'} isStatic onChange={onSelect}>
-        <IcoBtn invert icon="icon-down" className="btn_drop-down btn_r_8 btn_blue">
+        <IcoBtn invert icon="icon-small-down" className="btn_drop-down btn_r_8 btn_blue">
           {t('select-journal.select-modal.create-button')}
         </IcoBtn>
       </Dropdown>

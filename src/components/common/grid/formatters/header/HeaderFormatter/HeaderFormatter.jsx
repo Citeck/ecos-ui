@@ -138,7 +138,7 @@ export default class HeaderFormatter extends Component {
             onKeyDown={this.onKeyDown}
             value={text}
           />
-          <Icon className="ecos-th__filter-tooltip-close icon-close icon_small" onClick={this.onClear} />
+          <Icon className="ecos-th__filter-tooltip-close icon-small-close icon_small" onClick={this.onClear} />
         </ClickOutside>
       </Tooltip>
     );
@@ -157,15 +157,15 @@ export default class HeaderFormatter extends Component {
           <Icon
             className={classNames('ecos-th__order ecos-th__action-icon', {
               'ecos-th__action-icon_active': isExistValue(ascending),
-              'icon-up': ascending,
-              'icon-down': !ascending
+              'icon-small-up': ascending,
+              'icon-small-down': !ascending
             })}
           />
         )}
         {filterable && (
           <Icon
             id={this.id}
-            className={classNames('ecos-th__filter-icon ecos-th__action-icon icon-filter', {
+            className={classNames('ecos-th__filter-icon ecos-th__action-icon icon-small-filter', {
               'ecos-th__action-icon_active': this.activeFilter
             })}
             onClick={this.onToggle}

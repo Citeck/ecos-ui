@@ -83,7 +83,7 @@ class Tab extends Component {
       return null;
     }
 
-    return <div className="page-tab__tabs-item-close icon-close" onClick={this.handleCloseTab} />;
+    return <div className="page-tab__tabs-item-close icon-small-close" onClick={this.handleCloseTab} />;
   }
 
   render() {

@@ -123,7 +123,7 @@ export default class Search extends Component {
           value={text}
         />
         <Icon
-          className={classNames('icon-close search__icon search__icon-cleaner', { 'search__icon-cleaner_show': hasCleaner })}
+          className={classNames('icon-small-close search__icon search__icon-cleaner', { 'search__icon-cleaner_show': hasCleaner })}
           onClick={this.onClean}
         />
       </div>

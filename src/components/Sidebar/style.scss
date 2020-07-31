@@ -18,6 +18,11 @@ $transition-duration: 0.3s;
   position: relative;
 }
 
+.ecos-main-area#bd {
+  overflow: auto;
+  border-left: 1px solid #ccc;
+}
+
 %menu-item-separator {
   content: '';
   display: block;

@@ -5,7 +5,6 @@ import Formio from 'formiojs/Formio';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
-import isString from 'lodash/isString';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
@@ -68,14 +67,6 @@ class EcosForm extends React.Component {
     };
   }
 
-  _replaceOptionValuePlaceholder(value, options) {
-    let match = /\${options\['(.+)']}/.exec(value);
-    if (match != null) {
-      return options[match[1]];
-    }
-    return value;
-  }
-
   initForm(newFormDefinition = this.state.formDefinition) {
     const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord } = this.props;
     const { recordId, containerId } = this.state;
@@ -134,34 +125,9 @@ class EcosForm extends React.Component {
       });
 
       const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
-      const formDefinition = cloneDeep(originalFormDefinition);
+      const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
       self.setState({ originalFormDefinition, formDefinition });
-
-      EcosFormUtils.forEachComponent(formDefinition, component => {
-        if (component.key) {
-          if (component.properties) {
-            for (let key in component.properties) {
-              if (!component.properties.hasOwnProperty(key)) {
-                continue;
-              }
-              let value = component.properties[key];
-              if (value[0] === '$') {
-                component.properties[key] = this._replaceOptionValuePlaceholder(value, options);
-              }
-            }
-          }
-          for (let key in component) {
-            if (!component.hasOwnProperty(key)) {
-              continue;
-            }
-            let value = component[key];
-            if (isString(value) && value[0] === '$') {
-              component[key] = this._replaceOptionValuePlaceholder(value, options);
-            }
-          }
-        }
-      });
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);

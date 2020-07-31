@@ -12,16 +12,17 @@ import {
   goToJournalsPage,
   goToNodeEditPage
 } from '../../../helpers/urls';
-import { getTimezoneValue, t } from '../../../helpers/util';
+import { getTimezoneValue, isExistValue, t } from '../../../helpers/util';
 import ecosFetch from '../../../helpers/ecosFetch';
 import { ActionModes, SourcesId } from '../../../constants';
 import { URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { TasksApi } from '../../../api/tasks';
 import WidgetService from '../../../services/WidgetService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import dialogManager from '../../common/dialogs/Manager';
+import TaskAssignmentPanel from '../../TaskAssignmentPanel/TaskAssignmentPanel';
 import Records from '../Records';
 import RecordActions from './RecordActions';
-import TaskAssignmentPanel from '../../TaskAssignmentPanel/TaskAssignmentPanel';
 
 function notifySuccess(msg) {
   NotificationManager.success(msg || t('record-action.msg.success.text'), t('record-action.msg.success.title'));
@@ -47,7 +48,10 @@ export const DefaultActionTypes = {
   SAVE_AS_CASE_TEMPLATE: 'save-as-case-template',
   PREVIEW_MODAL: 'content-preview-modal',
   FETCH: 'fetch',
-  SCRIPT: 'script'
+  SCRIPT: 'script',
+  EDIT_TASK_ASSIGNEE: 'edit-task-assignee',
+  VIEW_BUSINESS_PROCESS: 'view-business-process',
+  CANCEL_BUSINESS_PROCESS: 'cancel-business-process'
 };
 
 export const EditAction = {
@@ -145,7 +149,7 @@ export const ViewAction = {
     return {
       name: 'record-action.name.show',
       type: DefaultActionTypes.VIEW,
-      icon: 'icon-on'
+      icon: 'icon-small-eye-show'
     };
   },
 
@@ -184,7 +188,7 @@ export const OpenURL = {
   getDefaultModel: () => {
     return {
       type: OpenURL.type,
-      icon: 'icon-newtab'
+      icon: 'icon-new-tab'
     };
   }
 };
@@ -208,7 +212,7 @@ export const BackgroundOpenAction = {
     return {
       name: 'record-action.name.open-in-background',
       type: BackgroundOpenAction.type,
-      icon: 'icon-newtab'
+      icon: 'icon-new-tab'
     };
   },
 
@@ -399,7 +403,7 @@ export const MoveToLinesJournal = {
     return {
       name: 'record-action.name.details',
       type: DefaultActionTypes.MOVE_TO_LINES,
-      icon: 'icon-big-arrow'
+      icon: 'icon-small-arrow-right'
     };
   },
 
@@ -495,7 +499,7 @@ export const CreateNodeAction = {
     return {
       name: 'record-action.name.create',
       type: DefaultActionTypes.CREATE,
-      icon: 'icon-plus'
+      icon: 'icon-small-plus'
     };
   }
 };
@@ -509,7 +513,7 @@ export const UploadNewVersion = {
     return {
       name: 'record-action.name.upload-new-version',
       type: DefaultActionTypes.UPLOAD_NEW_VERSION,
-      icon: 'icon-load'
+      icon: 'icon-upload'
     };
   }
 };
@@ -556,7 +560,7 @@ export const ViewCardTemplate = {
   getDefaultModel: () => ({
     name: 'record-action.name.view-card-template-in-background',
     type: DefaultActionTypes.VIEW_CARD_TEMPLATE,
-    icon: 'icon-newtab'
+    icon: 'icon-new-tab'
   })
 };
 
@@ -586,7 +590,7 @@ export const SaveAsCaseTemplate = {
   getDefaultModel: () => ({
     name: 'record-action.name.save-as-case-template',
     type: DefaultActionTypes.SAVE_AS_CASE_TEMPLATE,
-    icon: 'icon-filetype-none'
+    icon: 'icon-custom-file-empty'
   })
 };
 
@@ -599,7 +603,7 @@ export const PreviewModal = {
   getDefaultModel: () => ({
     name: 'record-action.name.preview',
     type: DefaultActionTypes.PREVIEW_MODAL,
-    icon: 'icon-preview'
+    icon: 'icon-eye-show'
   })
 };
 
@@ -623,7 +627,7 @@ export const FetchAction = {
   getDefaultModel: () => ({
     name: 'record-action.name.fetch-action',
     type: DefaultActionTypes.FETCH,
-    icon: 'icon-right'
+    icon: 'icon-small-right'
   })
 };
 
@@ -671,7 +675,114 @@ export const ScriptAction = {
     return {
       name: 'record-action.name.script-action',
       type: DefaultActionTypes.SCRIPT,
-      icon: 'icon-check'
+      icon: 'icon-small-check'
+    };
+  }
+};
+
+export const EditTaskAssignee = {
+  execute: ({ record, action: { actionOfAssignment } }) => {
+    const taskId = record.id;
+
+    const actorsPromise = TasksApi.getTask(taskId, 'actors[]?id');
+
+    const _selectPromise = defaultValue =>
+      new Promise(resolve => WidgetService.openSelectOrgstructModal({ defaultValue, onSelect: resolve }));
+
+    const _assignPromise = owner => TasksApi.staticChangeAssigneeTask({ taskId, owner, action: actionOfAssignment });
+
+    return actorsPromise
+      .then(_selectPromise)
+      .then(_assignPromise)
+      .then(success => {
+        if (success) {
+          notifySuccess();
+          return success;
+        }
+
+        return Promise.reject();
+      })
+      .catch(e => {
+        console.error(e);
+        notifyFailure();
+        return false;
+      });
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.edit-task-assignee',
+      type: DefaultActionTypes.EDIT_TASK_ASSIGNEE,
+      icon: 'icon-edit'
+    };
+  }
+};
+
+export const ViewBusinessProcess = {
+  execute: ({ record, action = {} }) => {
+    const workflowIdPromise = action.workflowFromRecord ? Records.get(record).load('workflow?id') : Promise.resolve(record);
+
+    const _workflowInfoPromise = recordId =>
+      Records.get(recordId)
+        .load({ name: '.disp', version: 'version' })
+        .then(info => ({ ...info, recordId }));
+
+    const _viewPromise = info =>
+      new Promise(resolve => {
+        WidgetService.openBusinessProcessModal({ ...info, onClose: resolve });
+      });
+
+    return workflowIdPromise
+      .then(_workflowInfoPromise)
+      .then(_viewPromise)
+      .catch(e => {
+        console.error(e);
+        notifyFailure();
+        return false;
+      });
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.view-business-process',
+      type: DefaultActionTypes.VIEW_BUSINESS_PROCESS,
+      icon: 'icon-models'
+    };
+  }
+};
+
+export const CancelBusinessProcess = {
+  execute: ({ record }) => {
+    const rec = Records.get(record);
+    rec.att('cancel', true);
+
+    return rec
+      .save()
+      .then(record => {
+        if (!isExistValue(record)) {
+          return;
+        }
+
+        if (record.id) {
+          notifySuccess();
+          return true;
+        }
+
+        return Promise.reject();
+      })
+      .catch(e => {
+        console.error(e);
+        notifyFailure();
+        e && e.message && dialogManager.showInfoDialog({ title: t('error'), text: e.message });
+        return false;
+      });
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.cancel-business-process',
+      type: DefaultActionTypes.CANCEL_BUSINESS_PROCESS,
+      icon: 'icon-small-close'
     };
   }
 };

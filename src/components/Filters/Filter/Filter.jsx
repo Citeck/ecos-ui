@@ -78,7 +78,7 @@ export default class Filter extends Component {
                 className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
                 onClick={this.delete}
               />
-              <i className={classNames('ecos-btn__i', 'ecos-btn__i_right icon-drag ecos-filter__drag-ico')} />
+              <i className={classNames('ecos-btn__i', 'ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico')} />
             </>
           ]}
         />

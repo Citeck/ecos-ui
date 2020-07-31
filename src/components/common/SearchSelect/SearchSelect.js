@@ -239,7 +239,7 @@ export default class SearchSelect extends React.Component {
                 getInputRef={this.getInputRef}
               />
               <Icon
-                className={classNames('ecos-input-search__icon ecos-input-search__icon-clear icon-close', {
+                className={classNames('ecos-input-search__icon ecos-input-search__icon-clear icon-small-close', {
                   'ecos-input-search__icon_hidden': isSearchCollapsed || !searchText
                 })}
                 onClick={this.resetSearch}

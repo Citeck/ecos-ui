@@ -18,7 +18,7 @@ class UrlManager extends Component {
     const params = deepClone(currentUrlParams);
     let fromUrlParams = this.setBools(queryString.parse(search));
 
-    Object.keys(params).forEach(key => {
+    Object.keys(params || {}).forEach(key => {
       if (params[key] === undefined) {
         delete params[key];
       }

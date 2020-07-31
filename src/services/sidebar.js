@@ -108,7 +108,6 @@ export default class SidebarService {
               });
 
               ignoreTabHandler = false;
-              attributes.target = '_blank';
               attributes.rel = 'noopener noreferrer';
             } else {
               targetUrl = PAGE_PREFIX;
@@ -148,7 +147,6 @@ export default class SidebarService {
         case 'SITE_LINK':
           if (isNewVersionPage()) {
             ignoreTabHandler = false;
-            attributes.target = '_blank';
             attributes.rel = 'noopener noreferrer';
 
             if (!extraParams.isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
@@ -190,7 +188,6 @@ export default class SidebarService {
 
           targetUrl = `${NEW_VERSION_PREFIX}/${params.pageId}${sectionPostfix}`;
           ignoreTabHandler = false;
-          attributes.target = '_blank';
           attributes.rel = 'noopener noreferrer';
           break;
         default:

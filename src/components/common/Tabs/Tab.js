@@ -17,7 +17,7 @@ const Labels = {
   BUTTON_DELETE: 'dashboard-settings.tabs.button.delete',
   LABEL_OPEN_MENU: 'dashboard-settings.tabs.label.menu'
 };
-const DragHandle = sortableHandle(() => <Icon className="icon-drag ecos-tab-actions__icon ecos-tab-actions__icon_paler" />);
+const DragHandle = sortableHandle(() => <Icon className="icon-custom-drag-big ecos-tab-actions__icon ecos-tab-actions__icon_paler" />);
 
 class Tab extends React.Component {
   static propTypes = {
@@ -236,8 +236,8 @@ class Tab extends React.Component {
           onClick={this.onToggleMenu}
           title={t(Labels.LABEL_OPEN_MENU)}
           className={classNames('ecos-tab-actions__icon ecos-tab-actions__icon_menu', {
-            'icon-menu-small': !isOpenMenu,
-            'icon-menu-small-press ecos-tab-actions__icon_menu-opened': isOpenMenu,
+            'icon-custom-more-small-normal': !isOpenMenu,
+            'icon-custom-more-small-pressed ecos-tab-actions__icon_menu-opened': isOpenMenu,
             'ecos-tab-actions__icon_menu-active-tab': isActive
           })}
         />
@@ -263,7 +263,7 @@ class Tab extends React.Component {
     const actions = [];
 
     if (isEdit) {
-      actions.push(<Icon key="close" className="icon-close ecos-tab-actions__icon" onClick={this.onClose} />);
+      actions.push(<Icon key="close" className="icon-small-close ecos-tab-actions__icon" onClick={this.onClose} />);
     } else {
       actions.push(<React.Fragment key="menu">{this.renderMenu()}</React.Fragment>);
       actions.push(<DragHandle key="drag" />);

@@ -41,16 +41,15 @@ export default class TableFormComponent extends BaseReactComponent {
         customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
         displayElementsJS: '',
-        settingElements: {
-          isInstantClone: false
-        },
         nonSelectableRowsJS: '',
         selectedRowsJS: '',
         import: {
           enable: false,
           uploadUrl: '',
           responseHandler: ''
-        }
+        },
+        triggerEventOnChange: false,
+        isInstantClone: false
       },
       ...extend
     );
@@ -219,7 +218,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
           const journalId = await fetchJournalIdPromise;
           if (!journalId) {
-            return resolve({ error: new Error('The "journalId" config is required!') });
+            return resolve({ error: new Error(t('ecos-table-form.error.no-journal-id')) });
           }
 
           const journalsApi = new JournalsApi();
@@ -502,4 +501,20 @@ export default class TableFormComponent extends BaseReactComponent {
       text
     });
   };
+
+  static optimizeSchema(comp) {
+    return _.omit(
+      {
+        ...comp,
+        source: _.omitBy(comp.source, (value, key) => {
+          const saveAtts = ['type'];
+          if (saveAtts.includes(key)) {
+            return false;
+          }
+          return key !== comp.source.type;
+        })
+      },
+      ['displayColumnsAsyncData']
+    );
+  }
 }

@@ -120,7 +120,7 @@ export default class Dropdown extends Component {
         <IcoBtn
           className={classNames('ecos-dropdown__toggle_selected', controlClassName)}
           invert
-          icon={dropdownOpen ? 'icon-up' : 'icon-down'}
+          icon={dropdownOpen ? 'icon-small-up' : 'icon-small-down'}
         >
           {label}
         </IcoBtn>
@@ -141,7 +141,7 @@ export default class Dropdown extends Component {
     return (
       children || (
         <TwoIcoBtn
-          icons={[controlIcon, dropdownOpen ? 'icon-up' : 'icon-down']}
+          icons={[controlIcon, dropdownOpen ? 'icon-small-up' : 'icon-small-down']}
           label={controlLabel}
           className={classNames('ecos-dropdown__toggle_static', controlClassName)}
         >

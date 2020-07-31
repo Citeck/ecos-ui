@@ -41,7 +41,7 @@ export const BaseConfigGroupButtons = {
   SEND_MANAGER_APPROVE: {
     id: 'ecos-timesheet__table-group-btn_sent-manager-approve_id',
     className: 'ecos-timesheet__table-group-btn_sent-manager-approve',
-    icon: 'icon-arrow',
+    icon: 'icon-small-arrow-right',
     get title() {
       return t(CommonLabels.STATUS_BTN_SEND_MANAGER_APPROVE);
     },
@@ -52,7 +52,7 @@ export const BaseConfigGroupButtons = {
   APPROVE: {
     id: 'ecos-timesheet__table-group-btn_approve_id',
     className: 'ecos-timesheet__table-group-btn_approve',
-    icon: 'icon-check',
+    icon: 'icon-small-check',
     get title() {
       return t(CommonLabels.STATUS_BTN_APPROVE);
     },
@@ -63,7 +63,7 @@ export const BaseConfigGroupButtons = {
   SENT_IMPROVE: {
     id: 'ecos-timesheet__table-group-btn_revision_id',
     className: 'ecos-timesheet__table-group-btn_revision',
-    icon: 'icon-arrow-left',
+    icon: 'icon-small-arrow-left',
     get title() {
       return t(CommonLabels.STATUS_BTN_SENT_IMPROVE);
     },

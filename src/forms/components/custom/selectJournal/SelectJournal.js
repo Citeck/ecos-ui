@@ -17,8 +17,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
         label: 'SelectJournal',
         key: 'selectJournal',
         type: 'selectJournal',
-        customPredicateJs: null,
-        presetFilterPredicatesJs: null,
+        customPredicateJs: '',
+        presetFilterPredicatesJs: '',
         hideCreateButton: false,
         hideEditRowButton: false,
         hideDeleteRowButton: false,
@@ -33,6 +33,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
           },
           type: TableTypes.JOURNAL,
           viewMode: DisplayModes.DEFAULT
+        },
+        displayColumns: [],
+        computed: {
+          valueDisplayName: ''
+        },
+        searchField: '',
+        ecos: {
+          dataType: 'assoc'
         }
       },
       ...extend
@@ -265,6 +273,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         journalId: journalId,
         onChange: this.onReactValueChanged,
         viewOnly: this.viewOnly,
+        queryData: component.queryData,
         viewMode: component.source.viewMode,
         displayColumns: component.displayColumns,
         hideCreateButton: component.hideCreateButton,
@@ -288,6 +297,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
         disableResetOnApplyCustomPredicate: !!component.calculateValue
       };
 
+      if (component.customSourceId) {
+        reactComponentProps.customSourceId = component.customSourceId;
+      }
       if (this.customPredicateValue) {
         reactComponentProps.initCustomPredicate = this.customPredicateValue;
       }
@@ -373,4 +385,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
     return result ? result : value;
   };
+
+  static optimizeSchema(comp) {
+    return _.omit(comp, ['displayColumnsAsyncData']);
+  }
 }

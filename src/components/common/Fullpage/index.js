@@ -34,7 +34,7 @@ export default class Fullpage extends React.Component {
       <>
         {this.props.children}
         <div className="ecos-fullpage__btn-close" onClick={this.onClose}>
-          <Icon className="icon-close" />
+          <Icon className="icon-small-close" />
         </div>
       </>,
       this.el

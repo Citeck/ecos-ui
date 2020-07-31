@@ -182,7 +182,7 @@ class JournalsDashletGrid extends Component {
         {
           title: t('grid.inline-tools.details'),
           onClick: () => this.goToJournalPageWithFilter(),
-          icon: 'icon-big-arrow'
+          icon: 'icon-small-arrow-right'
         }
       ];
     }
@@ -248,7 +248,7 @@ class JournalsDashletGrid extends Component {
         title={t('grid.tools.copy-to')}
       />,
       <IcoBtn
-        icon={'icon-big-arrow'}
+        icon={'icon-small-arrow-right'}
         className="ecos-journal__tool ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t-dark-brown"
         title={t('grid.tools.move-to')}
       />,
@@ -273,7 +273,7 @@ class JournalsDashletGrid extends Component {
         >
           <IcoBtn
             invert
-            icon={'icon-down'}
+            icon={'icon-small-down'}
             className="ecos-journal__tool-group-btn dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn"
             onClick={this.onGoTo}
           >

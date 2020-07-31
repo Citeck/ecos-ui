@@ -19,6 +19,39 @@ const originalApplyActions = Base.prototype.applyActions;
 const INLINE_EDITING_CLASSNAME = 'inline-editing';
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
 
+const originalBaseSchema = Base.schema;
+Base.schema = (...extend) => {
+  return originalBaseSchema(
+    {
+      alwaysEnabled: false,
+      attributes: {},
+      conditional: {
+        json: '',
+        show: '',
+        when: '',
+        eq: ''
+      },
+      customConditional: '',
+      disableInlineEdit: false,
+      encrypted: false,
+      logic: [],
+      mask: false,
+      properties: {},
+      shortcut: '',
+      tags: [],
+      triggerChangeWhenCalculate: false,
+      validate: {
+        customMessage: '',
+        json: '',
+        required: false,
+        custom: '',
+        customPrivate: false
+      }
+    },
+    ...extend
+  );
+};
+
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-166
 const originalGetClassName = Object.getOwnPropertyDescriptor(Base.prototype, 'className');
 Object.defineProperty(Base.prototype, 'className', {
@@ -242,7 +275,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       {
         class: 'ecos-btn inline-editing__button inline-editing__save-button'
       },
-      this.ce('span', { class: 'icon icon-check' })
+      this.ce('span', { class: 'icon icon-small-check' })
     );
 
     const cancelButton = this.ce(
@@ -250,7 +283,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       {
         class: 'ecos-btn inline-editing__button inline-editing__cancel-button'
       },
-      this.ce('span', { class: 'icon icon-close' })
+      this.ce('span', { class: 'icon icon-small-close' })
     );
 
     const switchToViewOnlyMode = () => {

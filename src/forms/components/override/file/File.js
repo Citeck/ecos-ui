@@ -20,7 +20,17 @@ export default class FileComponent extends FormIOFileComponent {
       {
         onFileClick: FILE_CLICK_ACTION_OPEN_DASHBOARD,
         displayElementsJS: {},
-        valueDisplayName: {}
+        valueDisplayName: {},
+        storage: '',
+        dir: '',
+        fileNameTemplate: '',
+        webcam: false,
+        fileTypes: [
+          {
+            label: '',
+            value: ''
+          }
+        ]
       },
       ...extend
     );

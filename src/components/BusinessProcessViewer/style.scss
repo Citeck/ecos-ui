@@ -1,0 +1,21 @@
+.ecos-business-process {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__content {
+    flex: auto;
+  }
+
+  &__actions {
+    margin-top: 20px;
+  }
+}
+
+.ecos-modal-business-process {
+  height: 90%;
+
+  & .modal-content {
+    height: 100%;
+  }
+}

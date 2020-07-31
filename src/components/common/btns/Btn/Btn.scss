@@ -119,15 +119,15 @@ button {
     font-size: 32px;
     padding: 0;
 
-    .icon-big-plus {
+    .icon-small-plus {
       display: inline-block;
       height: 35px;
     }
   }
 
   &.ecos-btn_settings-down {
-    .icon-up,
-    .icon-down {
+    .icon-small-up,
+    .icon-small-down {
       font-size: 14px;
       display: inline-block;
       position: relative;
@@ -142,8 +142,8 @@ button {
     text-align: left;
     display: inline-flex;
 
-    .icon-up,
-    .icon-down {
+    .icon-small-up,
+    .icon-small-down {
       float: right;
     }
 
@@ -160,6 +160,7 @@ button {
   &.ecos-btn_disabled {
     cursor: default;
     pointer-events: none;
+    color: $color-gray-5;
   }
 
   /*Sizes*/
@@ -255,15 +256,15 @@ button {
     background: $color-blue-dark;
     color: $color-white;
 
-    &:disabled {
-      background-color: $color-blue-light2;
-    }
-
     &:hover,
     &:focus,
     &:active {
       color: $color-blue-dark;
       background: $color-white;
+    }
+
+    &:disabled {
+      background-color: $color-blue-light2;
     }
   }
 
@@ -271,21 +272,26 @@ button {
     background: $color-green-dark;
     color: $color-white;
 
-    &:disabled {
-      background-color: $color-green-light2;
-    }
-
     &:hover,
     &:focus,
     &:active {
       color: $color-green-dark;
       background: $color-white;
     }
+
+    &:disabled {
+      background-color: $color-green-light2;
+    }
   }
 
   &.ecos-btn_blue {
     background: $color-blue-dark;
     color: $color-white;
+
+    &:focus,
+    &:hover {
+      background: $color-blue-light;
+    }
 
     &:disabled {
       background-color: $color-blue-light2;
@@ -301,11 +307,7 @@ button {
     background: $color-blue-light;
     color: $color-white;
 
-    &:active {
-      background: $color-blue-light;
-      color: $color-white;
-    }
-
+    &:active,
     &:focus {
       background: $color-blue-light;
       color: $color-white;
@@ -497,13 +499,6 @@ button {
   }
 
   /*hovers*/
-  &.ecos-btn_blue {
-    &:focus,
-    &:hover {
-      background: $color-blue-light;
-    }
-  }
-
   &.ecos-btn_hover_blue2 {
     &:hover {
       background-color: $color-blue-dark;

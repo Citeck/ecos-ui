@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tooltip } from 'reactstrap';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import uniqueId from 'lodash/uniqueId';
 
 import ClickOutside from '../../../ClickOutside';
@@ -9,6 +10,14 @@ import Dropdown from './Dropdown';
 import './Dropdown.scss';
 
 export default class DropdownOuter extends Dropdown {
+  static propTypes = {
+    className: PropTypes.string
+  };
+
+  static defaultProps = {
+    className: ''
+  };
+
   constructor(props) {
     super(props);
 

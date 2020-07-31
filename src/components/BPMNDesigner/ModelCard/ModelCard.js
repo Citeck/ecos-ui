@@ -7,7 +7,7 @@ import { t } from '../../../helpers/util';
 import styles from './ModelCard.module.scss';
 
 const ModelCard = ({ label, author, datetime, viewLink, editLink, onViewLinkClick, onEditLinkClick, image, canWrite }) => {
-  const dragNDropIconClasses = cn('icon-drag', styles.dndActionIcon, styles.hiddenIcon);
+  const dragNDropIconClasses = cn('icon-custom-drag-big', styles.dndActionIcon, styles.hiddenIcon);
 
   let cardTopBgStyle = null;
   if (image) {
