@@ -7,10 +7,10 @@ import { getAuthorityInfoByRefs, initSettings, removeSettings, saveSettingsConfi
 import { t } from '../../helpers/util';
 import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
-import { EcosModal, Loader } from '../../components/common';
-import DialogManager from '../../components/common/dialogs/Manager';
-import { Btn, IcoBtn } from '../../components/common/btns';
-import { SelectOrgstruct } from '../../components/common/form';
+import { EcosModal, Loader } from '../common';
+import DialogManager from '../common/dialogs/Manager';
+import { Btn, IcoBtn } from '../common/btns';
+import { SelectOrgstruct } from '../common/form';
 import EditorItems from './EditorItems';
 import EditorGroupPriority from './EditorGroupPriority';
 

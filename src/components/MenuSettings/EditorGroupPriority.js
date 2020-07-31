@@ -5,8 +5,8 @@ import get from 'lodash/get';
 import { getGroupPriority, setGroupPriority } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
 import { treeMoveItem, treeSetDndIndex } from '../../helpers/arrayOfObjects';
-import { EcosModal, Loader, Tree } from '../../components/common';
-import { Btn } from '../../components/common/btns';
+import { EcosModal, Loader, Tree } from '../common';
+import { Btn } from '../common/btns';
 
 import './style.scss';
 

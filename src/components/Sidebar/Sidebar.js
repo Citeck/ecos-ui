@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -15,6 +15,8 @@ import Logo from './Logo';
 import List from './List';
 
 import './style.scss';
+
+const MenuSettings = lazy(() => import('../MenuSettings'));
 
 class Sidebar extends React.Component {
   slideMenuToggle = null;
@@ -50,6 +52,16 @@ class Sidebar extends React.Component {
     }
   };
 
+  renderMenuSettings = () => {
+    const { isOpenMenuSettings } = this.props;
+
+    return isOpenMenuSettings ? (
+      <Suspense fallback={null}>
+        <MenuSettings />
+      </Suspense>
+    ) : null;
+  };
+
   render() {
     const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items } = this.props;
 
@@ -58,26 +70,29 @@ class Sidebar extends React.Component {
     }
 
     return (
-      <div
-        className={classNames('ecos-sidebar', {
-          'ecos-sidebar_expanded': isOpen,
-          'ecos-sidebar_collapsed': !isOpen
-        })}
-      >
-        <div className={classNames('ecos-sidebar-head', { 'ecos-sidebar-head_expanded': isOpen })}>
-          <Logo large={isOpen} logos={{ large: largeLogoSrc, small: smallLogoSrc }} />
-        </div>
-        <Scrollbars
-          style={{ height: '100%' }}
-          className="ecos-sidebar-scroll"
-          autoHide
-          renderTrackVertical={props => <div {...props} className="ecos-sidebar-scroll-v" />}
-          renderTrackHorizontal={props => <div hidden />}
-          renderView={props => <div {...props} className="ecos-sidebar-scroll-area" />}
+      <>
+        {this.renderMenuSettings()}
+        <div
+          className={classNames('ecos-sidebar', {
+            'ecos-sidebar_expanded': isOpen,
+            'ecos-sidebar_collapsed': !isOpen
+          })}
         >
-          <List items={items} isExpanded />
-        </Scrollbars>
-      </div>
+          <div className={classNames('ecos-sidebar-head', { 'ecos-sidebar-head_expanded': isOpen })}>
+            <Logo large={isOpen} logos={{ large: largeLogoSrc, small: smallLogoSrc }} />
+          </div>
+          <Scrollbars
+            style={{ height: '100%' }}
+            className="ecos-sidebar-scroll"
+            autoHide
+            renderTrackVertical={props => <div {...props} className="ecos-sidebar-scroll-v" />}
+            renderTrackHorizontal={props => <div hidden />}
+            renderView={props => <div {...props} className="ecos-sidebar-scroll-area" />}
+          >
+            <List items={items} isExpanded />
+          </Scrollbars>
+        </div>
+      </>
     );
   }
 }
@@ -88,7 +103,8 @@ const mapStateToProps = state => ({
   items: state.slideMenu.items,
   smallLogoSrc: state.slideMenu.smallLogo,
   largeLogoSrc: state.slideMenu.largeLogo,
-  expandableItems: state.slideMenu.expandableItems
+  expandableItems: state.slideMenu.expandableItems,
+  isOpenMenuSettings: state.menuSettings.isOpenMenuSettings
 });
 
 const mapDispatchToProps = dispatch => ({

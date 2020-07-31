@@ -6,10 +6,10 @@ import set from 'lodash/set';
 import { extractLabel, t } from '../../helpers/util';
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings as MS } from '../../constants/menu';
-import IconSelect from '../../components/IconSelect';
-import { EcosIcon, EcosModal } from '../../components/common';
-import { Input, MLText } from '../../components/common/form';
-import { Btn } from '../../components/common/btns';
+import IconSelect from '../IconSelect';
+import { EcosIcon, EcosModal } from '../common';
+import { Input, MLText } from '../common/form';
+import { Btn } from '../common/btns';
 import { Field } from './Field';
 
 import './style.scss';

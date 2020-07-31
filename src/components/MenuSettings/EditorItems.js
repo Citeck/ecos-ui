@@ -8,11 +8,11 @@ import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import { MenuSettings as ms } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import { addJournalMenuItems, setLastAddedItems, setMenuItems } from '../../actions/menuSettings';
-import IconSelect from '../../components/IconSelect';
-import { Tree } from '../../components/common';
-import { Btn } from '../../components/common/btns';
-import { Badge, DropdownOuter, SelectJournal } from '../../components/common/form';
-import DialogManager from '../../components/common/dialogs/Manager';
+import IconSelect from '../IconSelect';
+import { Tree } from '../common';
+import { Btn } from '../common/btns';
+import { Badge, DropdownOuter, SelectJournal } from '../common/form';
+import DialogManager from '../common/dialogs/Manager';
 import EditorItemModal from './EditorItemModal';
 
 import './style.scss';

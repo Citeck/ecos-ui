@@ -37,7 +37,6 @@ const MyTimesheetPage = lazy(() => import('../../pages/Timesheet/MyTimesheetPage
 const SubordinatesTimesheetPage = lazy(() => import('../../pages/Timesheet/SubordinatesTimesheetPage'));
 const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/VerificationTimesheetPage'));
 const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/DelegatedTimesheetsPage'));
-const MenuSettingsPage = lazy(() => import('../../pages/MenuSettings'));
 
 const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
 const TreePage = lazy(() => import('../../pages/debug/Tree'));
@@ -300,16 +299,6 @@ class App extends Component {
     </div>
   );
 
-  renderMenuSettings = () => {
-    const { isOpenMenuSettings } = this.props;
-
-    return isOpenMenuSettings ? (
-      <Suspense fallback={null}>
-        <MenuSettingsPage />
-      </Suspense>
-    ) : null;
-  };
-
   render() {
     const { isInit, isInitFailure, isAuthenticated, isMobile, theme } = this.props;
 
@@ -349,7 +338,6 @@ class App extends Component {
           </div>
           <NotificationContainer />
         </div>
-        {this.renderMenuSettings()}
       </ErrorBoundary>
     );
   }
@@ -364,8 +352,7 @@ const mapStateToProps = state => ({
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
   tabs: get(state, 'pageTabs.tabs', []),
-  menuType: get(state, ['menu', 'type']),
-  isOpenMenuSettings: get(state, ['menuSettings', 'isOpenMenuSettings'])
+  menuType: get(state, ['menu', 'type'])
 });
 
 const mapDispatchToProps = dispatch => ({

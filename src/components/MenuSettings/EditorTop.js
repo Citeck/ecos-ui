@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import { t } from '../../helpers/util';
-import { DndUtils, DragItem, Droppable } from '../../components/Drag-n-Drop';
+import { DndUtils, DragItem, Droppable } from '../Drag-n-Drop';
 
 import './style.scss';
 

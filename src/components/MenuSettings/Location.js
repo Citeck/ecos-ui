@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { t } from '../../helpers/util';
 import { MenuTypesView } from '../../constants/menu';
-import { MenuLayoutItem } from '../../components/Layout';
+import { MenuLayoutItem } from '../Layout';
 
 import './style.scss';
 
