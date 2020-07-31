@@ -714,24 +714,23 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
 
 function* getSearchPredicate({ logger, stateId }) {
   try {
-    const text = yield select(state => state.journals[stateId].search);
     const grid = yield select(state => state.journals[stateId].grid);
     const fullSearch = yield select(state => get(state, ['journals', stateId, 'journalConfig', 'params', 'full-search-predicate']));
-    const { columns, groupBy = [] } = grid;
+    const { columns, groupBy = [], search } = grid;
     let predicate;
 
     if (fullSearch) {
       predicate = JSON.parse(fullSearch);
-      predicate.val = text;
+      predicate.val = search;
     } else {
-      predicate = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
+      predicate = ParserPredicate.getSearchPredicates({ text: search, columns, groupBy });
     }
 
     if (predicate) {
       predicate = [predicate];
     }
 
-    if (isEmpty(text)) {
+    if (isEmpty(search)) {
       predicate = [];
     }
 

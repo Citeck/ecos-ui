@@ -12,8 +12,11 @@ import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
+import { PREDICATE_AND } from '../common/form/SelectJournal/predicates';
+import ParserPredicate from '../Filters/predicates/ParserPredicate';
 
 import './Export.scss';
+import isEmpty from 'lodash/isEmpty';
 
 const api = new UserConfigApi();
 
@@ -68,8 +71,22 @@ export default class Export extends Component {
       form.action = `${PROXY_URI}report/criteria-report?download=${item.download}`;
       form.target = item.target;
 
+      // return;
+
       form.submit();
     }
+  };
+
+  getSearchPredicate = (grid = {}) => {
+    const { search: text, columns, groupBy } = grid;
+
+    if (isEmpty(text)) {
+      return [];
+    }
+
+    const searchPredicate = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
+
+    return [searchPredicate];
   };
 
   getQuery = (config, type, grid) => {
@@ -82,10 +99,25 @@ export default class Export extends Component {
     const reportColumns = (grid.columns || config.columns || [])
       .filter(c => c.default)
       .map(column => ({ attribute: column.attribute, title: column.text }));
+    const gridPredicate = get(grid, ['predicates', 0], {});
+    const mainPredicate = get(grid, 'predicate', {});
+    const searchPredicate = this.getSearchPredicate(grid);
+
+    const predicate = {
+      t: PREDICATE_AND,
+      val: [
+        ...searchPredicate,
+        gridPredicate,
+        {
+          t: PREDICATE_AND,
+          val: [mainPredicate]
+        }
+      ]
+    };
 
     const query = {
       sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
-      predicate: get(grid, ['predicates', 0], {}),
+      predicate: ParserPredicate.removeEmptyPredicates([predicate]),
       reportType: type,
       reportTitle: name,
       reportColumns: reportColumns,
