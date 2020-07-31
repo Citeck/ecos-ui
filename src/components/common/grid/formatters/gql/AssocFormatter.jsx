@@ -2,6 +2,7 @@ import React from 'react';
 import uuidV4 from 'uuid/v4';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 import ReactResizeDetector from 'react-resize-detector';
 
 import { isNodeRef } from '../../../../../helpers/util';
@@ -48,7 +49,7 @@ export default class AssocFormatter extends DefaultGqlFormatter {
   }
 
   getId(cell) {
-    return cell.assoc || '';
+    return get(cell, 'assoc', '');
   }
 
   state = {
@@ -83,7 +84,7 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     return (
       <div className="ecos-formatter-assoc__tooltip-content">
         {displayNameArray.map((name, i) => (
-          <div key={`${cell.assoc}_${i}`}>{name}</div>
+          <div key={`${get(cell, 'assoc', '')}_${i}`}>{name}</div>
         ))}
       </div>
     );
