@@ -71,8 +71,6 @@ export default class Export extends Component {
       form.action = `${PROXY_URI}report/criteria-report?download=${item.download}`;
       form.target = item.target;
 
-      // return;
-
       form.submit();
     }
   };
@@ -81,12 +79,10 @@ export default class Export extends Component {
     const { search: text, columns, groupBy } = grid;
 
     if (isEmpty(text)) {
-      return [];
+      return {};
     }
 
-    const searchPredicate = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
-
-    return [searchPredicate];
+    return ParserPredicate.getSearchPredicates({ text, columns, groupBy });
   };
 
   getQuery = (config, type, grid) => {
@@ -106,7 +102,7 @@ export default class Export extends Component {
     const predicate = {
       t: PREDICATE_AND,
       val: [
-        ...searchPredicate,
+        searchPredicate,
         gridPredicate,
         {
           t: PREDICATE_AND,
