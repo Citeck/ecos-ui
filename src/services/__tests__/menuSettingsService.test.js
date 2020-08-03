@@ -1,12 +1,27 @@
 import MenuSettingsService from '../MenuSettingsService';
 import { MenuTypes } from '../../constants/menu';
-import { ITEMS_INPUT, ITEMS_OUTPUT, ACTIONS_BY_TYPE, PERMISSIONS_BY_TYPE } from '../__mocks__/menuSettingsService.mock';
+import {
+  ITEMS_INPUT,
+  ITEMS_OUTPUT,
+  ACTIONS_BY_TYPE,
+  PERMISSIONS_BY_TYPE,
+  ACTIONS,
+  ACTIONS_ON_MENU_ITEMS,
+  CREATE_OPTIONS,
+  AVAILABLE_CREATE_OPTIONS
+} from '../__mocks__/menuSettingsService.mock';
 import { MenuSettings as ms } from '../../constants/menu';
 
 function check(data, method) {
   data.forEach(item => {
     it(item.title, () => {
-      const result = MenuSettingsService[method](item.input);
+      let result;
+
+      if (typeof MenuSettingsService[method] === 'function') {
+        result = MenuSettingsService[method](item.input);
+      } else {
+        result = MenuSettingsService[method];
+      }
 
       expect(result).toEqual(item.output);
     });
@@ -152,5 +167,83 @@ describe('Menu Settings Service', () => {
     ];
 
     check(data, 'getActionPermissions');
+  });
+
+  describe('Method getActiveActions', () => {
+    const data = [
+      {
+        title: 'Available actions - 3, but active action - 1 (active toggle)',
+        input: ITEMS_INPUT[5],
+        output: [ACTIONS.ACTIVE_ON]
+      },
+      {
+        title: 'Available actions - 2, active action - 2 (delete, active toggle)',
+        input: ITEMS_INPUT[0],
+        output: [ACTIONS.DELETE, ACTIONS.ACTIVE_ON]
+      }
+    ];
+
+    check(data, 'getActiveActions');
+  });
+
+  describe('Method processAction', () => {
+    const data = [
+      {
+        title: 'Create new item',
+        input: ACTIONS_ON_MENU_ITEMS.CREATE[0],
+        output: ACTIONS_ON_MENU_ITEMS.CREATE[1]
+      },
+      {
+        title: 'Delete item',
+        input: ACTIONS_ON_MENU_ITEMS.DELETE[0],
+        output: ACTIONS_ON_MENU_ITEMS.DELETE[1]
+      },
+      {
+        title: 'Toggle display count',
+        input: ACTIONS_ON_MENU_ITEMS.DISPLAY_COUNT[0],
+        output: ACTIONS_ON_MENU_ITEMS.DISPLAY_COUNT[1]
+      },
+      {
+        title: 'Edit item',
+        input: ACTIONS_ON_MENU_ITEMS.EDIT[0],
+        output: ACTIONS_ON_MENU_ITEMS.EDIT[1]
+      },
+      {
+        title: 'Toggle active item (off)',
+        input: ACTIONS_ON_MENU_ITEMS.ACTIVE_OFF[0],
+        output: ACTIONS_ON_MENU_ITEMS.ACTIVE_OFF[1]
+      },
+      {
+        title: 'Toggle active item (on)',
+        input: ACTIONS_ON_MENU_ITEMS.ACTIVE_ON[0],
+        output: ACTIONS_ON_MENU_ITEMS.ACTIVE_ON[1]
+      }
+    ];
+
+    check(data, 'processAction');
+  });
+
+  describe('Property createOptions', () => {
+    const data = [
+      {
+        title: 'Create options: 5 items',
+        input: null,
+        output: CREATE_OPTIONS
+      }
+    ];
+
+    check(data, 'createOptions');
+  });
+
+  describe('Method getAvailableCreateOptions', () => {
+    const data = [
+      {
+        title: 'Available create options count: 5',
+        input: AVAILABLE_CREATE_OPTIONS[0][0],
+        output: AVAILABLE_CREATE_OPTIONS[0][1]
+      }
+    ];
+
+    check(data, 'getAvailableCreateOptions');
   });
 });
