@@ -68,7 +68,7 @@ export default class Export extends Component {
 
       const form = this.form.current;
 
-      form.action = `${PROXY_URI}report/criteria-report?download=${item.download}`;
+      form.action = `${PROXY_URI}report/predicate-report?download=${item.download}`;
       form.target = item.target;
 
       form.submit();
