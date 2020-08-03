@@ -741,7 +741,7 @@ function* getSearchPredicate({ logger, stateId }) {
   }
 }
 
-function* sagaSearch({ api, logger, stateId, w, ...other }, action) {
+function* sagaSearch({ logger, w }) {
   try {
     yield put(reloadGrid(w()));
     PageService.changeUrlLink(decodeLink(window.location.pathname + window.location.search), { updateUrl: true });
