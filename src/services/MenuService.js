@@ -2,6 +2,7 @@ import { select } from 'redux-saga/effects';
 
 import { selectIdentificationForView } from '../selectors/dashboard';
 import { getSearchParams, SearchKeys } from '../helpers/urls';
+import DashboardService from './dashboard';
 
 export default class MenuService {
   static getSiteMenuLink = function*(menuItem) {
@@ -27,3 +28,5 @@ export default class MenuService {
     return link;
   };
 }
+
+window.MenuService = MenuService;
