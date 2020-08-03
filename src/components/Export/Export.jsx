@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import omit from 'lodash/omit';
 import get from 'lodash/get';
 import queryString from 'query-string';
+import isEmpty from 'lodash/isEmpty';
 
 import { UserConfigApi } from '../../api/userConfig';
 import { URL } from '../../constants';
@@ -12,6 +13,8 @@ import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
+import { PREDICATE_AND } from '../common/form/SelectJournal/predicates';
+import ParserPredicate from '../Filters/predicates/ParserPredicate';
 
 import './Export.scss';
 
@@ -65,11 +68,21 @@ export default class Export extends Component {
 
       const form = this.form.current;
 
-      form.action = `${PROXY_URI}report/criteria-report?download=${item.download}`;
+      form.action = `${PROXY_URI}report/predicate-report?download=${item.download}`;
       form.target = item.target;
 
       form.submit();
     }
+  };
+
+  getSearchPredicate = (grid = {}) => {
+    const { search: text, columns, groupBy } = grid;
+
+    if (isEmpty(text)) {
+      return {};
+    }
+
+    return ParserPredicate.getSearchPredicates({ text, columns, groupBy });
   };
 
   getQuery = (config, type, grid) => {
@@ -82,10 +95,25 @@ export default class Export extends Component {
     const reportColumns = (grid.columns || config.columns || [])
       .filter(c => c.default)
       .map(column => ({ attribute: column.attribute, title: column.text }));
+    const gridPredicate = get(grid, ['predicates', 0], {});
+    const mainPredicate = get(grid, 'predicate', {});
+    const searchPredicate = this.getSearchPredicate(grid);
+
+    const predicate = {
+      t: PREDICATE_AND,
+      val: [
+        searchPredicate,
+        gridPredicate,
+        {
+          t: PREDICATE_AND,
+          val: [mainPredicate]
+        }
+      ]
+    };
 
     const query = {
       sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
-      predicate: get(grid, ['predicates', 0], {}),
+      predicate: ParserPredicate.removeEmptyPredicates([predicate]),
       reportType: type,
       reportTitle: name,
       reportColumns: reportColumns,

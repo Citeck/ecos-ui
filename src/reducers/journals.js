@@ -59,7 +59,8 @@ const defaultState = {
     sortBy: [],
     pagination: DEFAULT_PAGINATION,
     minHeight: null,
-    editingRules: {}
+    editingRules: {},
+    search: ''
   },
 
   journalsList: [],
@@ -106,9 +107,7 @@ const defaultState = {
   zipNodeRef: null,
 
   isLoadingPerformGroupActions: false,
-  performGroupActionResponse: [],
-
-  search: ''
+  performGroupActionResponse: []
 };
 
 const initialState = {};
@@ -477,7 +476,12 @@ export default handleActions(
     [search]: (state, action) => {
       const stateId = action.payload.stateId;
 
-      return handleState(state, stateId, { search: action.payload.text });
+      return handleState(state, stateId, {
+        grid: {
+          ...state[stateId].grid,
+          search: action.payload.text
+        }
+      });
     }
   },
   initialState
