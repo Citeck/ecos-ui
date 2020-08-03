@@ -10,6 +10,7 @@ import SidebarService from '../../services/sidebar';
 import { EcosIcon, Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemLink } from './item-components';
+import { isNewVersionPage } from '../../helpers/export/urls';
 
 class Item extends React.Component {
   static propTypes = {
@@ -60,12 +61,17 @@ class Item extends React.Component {
   }
 
   onToggleList = e => {
-    const { isMobile, data, toggleExpanded, toggleIsOpen } = this.props;
+    const { isMobile, isOpen, data, toggleExpanded, toggleIsOpen } = this.props;
 
     if (this.collapsible) {
       toggleExpanded(data);
       e.stopPropagation();
     } else if (isMobile) {
+      toggleIsOpen(false);
+    }
+
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-354
+    if (!this.collapsible && !isNewVersionPage() && isOpen) {
       toggleIsOpen(false);
     }
   };
