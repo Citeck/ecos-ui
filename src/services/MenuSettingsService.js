@@ -178,3 +178,6 @@ export default class MenuSettingsService {
     return array.filter(opt => !item || !!opt.forbiddenAllTypes || !opt.forbiddenTypes.includes(item.type));
   };
 }
+
+// todo: remove after testing ends
+window.MenuSettingsService = MenuSettingsService;
