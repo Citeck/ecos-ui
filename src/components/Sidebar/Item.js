@@ -70,9 +70,9 @@ class Item extends React.Component {
       toggleIsOpen(false);
     }
 
-    if (!this.collapsible && !isNewVersionPage()) {
-      // Cause: https://citeck.atlassian.net/browse/ECOSUI-354
-      toggleIsOpen(!isOpen);
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-354
+    if (!this.collapsible && !isNewVersionPage() && isOpen) {
+      toggleIsOpen(false);
     }
   };
 
