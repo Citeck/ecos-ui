@@ -28,6 +28,7 @@ let formCounter = 0;
 class EcosForm extends React.Component {
   _formBuilderModal = React.createRef();
   _form = null;
+  _formSubmitDoneResolve = () => {};
 
   constructor(props) {
     super(props);
@@ -91,6 +92,9 @@ class EcosForm extends React.Component {
 
     options.recordId = recordId;
     options.isMobileDevice = isMobileDevice();
+    options.formSubmitDonePromise = new Promise(resolve => {
+      this._formSubmitDoneResolve = resolve;
+    });
 
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
     Formio.setProjectUrl(proxyUri);
@@ -322,6 +326,8 @@ class EcosForm extends React.Component {
         if (self.props.onSubmit) {
           self.props.onSubmit(persistedRecord, form, record);
         }
+
+        this._formSubmitDoneResolve({ persistedRecord, form, record });
       };
 
       const resetOutcomeButtonsValues = () => {
