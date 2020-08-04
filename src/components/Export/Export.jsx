@@ -9,7 +9,7 @@ import isEmpty from 'lodash/isEmpty';
 import { UserConfigApi } from '../../api/userConfig';
 import { URL } from '../../constants';
 import { ALFRESCO, PROXY_URI } from '../../constants/alfresco';
-import { t } from '../../helpers/util';
+import { deepClone, t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
@@ -98,22 +98,20 @@ export default class Export extends Component {
     const gridPredicate = get(grid, ['predicates', 0], {});
     const mainPredicate = get(grid, 'predicate', {});
     const searchPredicate = this.getSearchPredicate(grid);
+    const predicates = [searchPredicate, gridPredicate];
 
-    const predicate = {
+    if (isEmpty(predicates)) {
+      predicates.push(mainPredicate);
+    }
+
+    const predicate = deepClone({
       t: PREDICATE_AND,
-      val: [
-        searchPredicate,
-        gridPredicate,
-        {
-          t: PREDICATE_AND,
-          val: [mainPredicate]
-        }
-      ]
-    };
+      val: predicates
+    });
 
     const query = {
       sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
-      predicate: ParserPredicate.removeEmptyPredicates([predicate]),
+      predicate: ParserPredicate.removeEmptyPredicates([predicate])[0] || null,
       reportType: type,
       reportTitle: name,
       reportColumns: reportColumns,

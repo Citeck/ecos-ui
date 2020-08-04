@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { ActionModes, Attributes, Permissions } from '../constants';
 import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
@@ -73,7 +74,9 @@ export class JournalsApi extends RecordService {
 
     !!Array.isArray(predicates) && val.push(...predicates);
 
-    val.push(predicate);
+    if (isEmpty(val)) {
+      val.push(predicate);
+    }
 
     !!recordRef &&
       val.push({
