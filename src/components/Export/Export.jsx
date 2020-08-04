@@ -104,16 +104,17 @@ export default class Export extends Component {
       val: [
         searchPredicate,
         gridPredicate,
-        {
-          t: PREDICATE_AND,
-          val: [mainPredicate]
-        }
+        mainPredicate
+        // {
+        //   t: PREDICATE_AND,
+        //   val: [mainPredicate]
+        // }
       ]
     };
 
     const query = {
       sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
-      predicate: ParserPredicate.removeEmptyPredicates([predicate]),
+      predicate: ParserPredicate.removeEmptyPredicates([predicate])[0],
       reportType: type,
       reportTitle: name,
       reportColumns: reportColumns,
