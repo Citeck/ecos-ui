@@ -506,6 +506,10 @@ export default class EcosFormUtils {
 
     return EcosFormUtils.forEachComponent(form, function(comp) {
       const currentComponent = Components.components[comp.type];
+      if (!currentComponent) {
+        return comp;
+      }
+
       const currentComponentDefaultSchema = currentComponent ? currentComponent.schema() : {};
 
       if (typeof currentComponent.optimizeSchema === 'function') {
