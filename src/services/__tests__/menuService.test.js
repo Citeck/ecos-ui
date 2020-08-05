@@ -10,7 +10,8 @@ describe('Menu Service', () => {
     Object.defineProperty(window, 'location', {
       value: {
         search: '?recordRef=workspace://SpacesStore/f43fb8cc-d700-4a1b-9f6d-1a18beb069df'
-      }
+      },
+      writable: true
     });
 
     const data = [

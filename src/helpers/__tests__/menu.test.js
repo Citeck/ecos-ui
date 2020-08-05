@@ -78,7 +78,8 @@ describe('Menu helpers', () => {
     Object.defineProperty(window, 'location', {
       value: {
         pathname: `${NEW_VERSION_PREFIX}/test-page`
-      }
+      },
+      writable: true
     });
 
     jest.spyOn(global, 'fetch').mockImplementation(url => {
