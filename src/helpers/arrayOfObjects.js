@@ -215,7 +215,6 @@ export function treeMoveItem({ fromId, toId, original, key = 'id' }) {
   }
 
   const items = deepClone(original);
-
   const infoTo = treeGetItemCoords({ items, key, value: toId });
   const infoFrom = treeGetItemCoords({ items, key, value: fromId });
   const movedItem = treeRemoveItem({ items, key, value: fromId });
