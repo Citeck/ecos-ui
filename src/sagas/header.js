@@ -22,6 +22,7 @@ import { makeSiteMenu, makeUserMenuItems } from '../helpers/menu';
 import { createThumbnailUrl } from '../helpers/urls';
 import { hasInString } from '../helpers/util';
 import { URL } from '../constants';
+import { selectIdentificationForView } from '../selectors/dashboard';
 import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import MenuConverter from '../dto/menu';
@@ -113,7 +114,8 @@ function* filterSiteMenu({ api, logger }, { payload = {} }) {
 
 function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
   try {
-    const link = yield MenuService.getSiteMenuLink(payload);
+    const dashboard = yield select(selectIdentificationForView);
+    const link = yield MenuService.getSiteMenuLink(payload, dashboard);
 
     PageService.changeUrlLink(link, { openNewTab: true });
   } catch (e) {

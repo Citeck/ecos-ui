@@ -57,7 +57,6 @@
     "redux-actions": "^2.6.4",
     "redux-logger": "^3.0.6",
     "redux-saga": "^0.16.2",
-    "redux-saga-test-plan": "^3.7.0",
     "redux-thunk": "^2.3.0",
     "regenerator-runtime": "^0.13.5",
     "reselect": "^4.0.0",

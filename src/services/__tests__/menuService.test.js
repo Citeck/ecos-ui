@@ -1,5 +1,3 @@
-import { expectSaga } from 'redux-saga-test-plan';
-
 import MenuService from '../MenuService';
 import { LINKS_BY_CONFIG } from '../__mocks__/menuService.mock';
 
@@ -20,25 +18,17 @@ describe('Menu Service', () => {
         output: LINKS_BY_CONFIG[1][1]
       }
     ];
-    const storeState = {
-      dashboard: {
-        null: {
-          identification: {
-            id: 'user-base-type-dashboard',
-            key: 'emodel/type@user-base',
-            type: 'case-details',
-            user: null
-          }
-        }
-      }
+
+    const dashboard = {
+      id: 'user-base-type-dashboard',
+      key: 'emodel/type@user-base',
+      type: 'case-details',
+      user: null
     };
 
     data.forEach(item => {
       it(item.title, async () => {
-        const { returnValue } = await expectSaga(MenuService.getSiteMenuLink, item.input)
-          .withState(storeState)
-          .run();
-
+        const returnValue = await MenuService.getSiteMenuLink(item.input, dashboard);
         expect(returnValue).toEqual(item.output);
       });
     });
