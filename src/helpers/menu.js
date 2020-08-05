@@ -23,9 +23,7 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
     .catch(() => DEFAULT_REPORT_ISSUE_URL);
 
   const urls = await Promise.all([customFeedbackUrlPromise, customReportIssueUrlPromise]);
-
   const availability = 'make-' + (isAvailable === false ? '' : 'not') + 'available';
-
   let userMenuItems = [];
 
   userMenuItems.push(
@@ -183,7 +181,7 @@ export function getIconClassMenu(id, specialClass) {
     case 'HEADER_USER_MENU_MY_PROFILE':
       return 'icon-user-normal';
     case 'HEADER_USER_MENU_AVAILABILITY':
-      return specialClass;
+      return specialClass || '';
     case 'HEADER_USER_MENU_PASSWORD':
       return '';
     case 'HEADER_USER_MENU_FEEDBACK':
@@ -225,10 +223,10 @@ export function getSpecialClassByState(id, params = {}) {
   return false;
 }
 
-export function getMenuWidth() {
-  const menu = document.querySelector('.slide-menu');
+export function getMenuWidth(selector = '.slide-menu') {
+  const menu = document.querySelector(selector);
 
-  if (!menu) {
+  if (!menu || !menu.clientWidth) {
     return 0;
   }
 
