@@ -21,6 +21,7 @@ import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import ComparisonModal from './ComparisonModal';
 import { getStateId } from '../../../helpers/redux';
+import { selectIsAdmin } from '../../../selectors/user';
 
 import './style.scss';
 
@@ -32,6 +33,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     id: ownProps.id,
     isMobile,
+    isAdmin: selectIsAdmin(state),
     versions: get(versionState, 'versions', []),
     versionsLabels: selectLabelsVersions(state, id, isMobile),
     isLoading: get(versionState, 'listIsLoading', false),
@@ -269,15 +271,10 @@ class VersionsJournal extends BaseWidget {
   }
 
   renderVersionActions(version, isMobile = false) {
-    const { id } = this.props;
+    const { id, isAdmin } = this.props;
     const key = `${version.id.replace(/[:@/]/gim, '')}-${id}`;
-
-    return (
-      <div
-        className={classNames('ecos-vj__version-actions', {
-          'ecos-vj__version-actions_mobile': isMobile
-        })}
-      >
+    const changeActiveVersionBtn = isAdmin ? (
+      <>
         <Icon
           id={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
           onClick={this.handleOpenSetActiveVersionModal.bind(null, version)}
@@ -292,6 +289,17 @@ class VersionsJournal extends BaseWidget {
         >
           {t('versions-journal-widget.set-current')}
         </UncontrolledTooltip>
+      </>
+    ) : null;
+
+    return (
+      <div
+        className={classNames('ecos-vj__version-actions', {
+          'ecos-vj__version-actions_mobile': isMobile
+        })}
+      >
+        {changeActiveVersionBtn}
+
         <a href={version.url} download data-external id={`${TOOLTIP.DOWNLOAD_VERSION}-${key}`}>
           <Icon className="icon-download ecos-vj__version-actions-item" />
         </a>
@@ -575,11 +583,11 @@ class VersionsJournal extends BaseWidget {
   }
 
   render() {
-    const { isMobile, versionsLabels, record } = this.props;
+    const { isMobile, isAdmin, versionsLabels, record } = this.props;
     const { isCollapsed } = this.state;
     const actions = {};
 
-    if (!isMobile && record) {
+    if (isAdmin && !isMobile && record) {
       actions.addVersion = {
         icon: 'icon-small-plus',
         text: t('versions-journal-widget.add-version'),
