@@ -5,6 +5,15 @@ import BaseComponent from './BaseComponent';
 import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
 
 export default class BaseReactComponent extends BaseComponent {
+  static schema(...extend) {
+    return BaseComponent.schema(
+      {
+        defaultValue: ''
+      },
+      ...extend
+    );
+  }
+
   build() {
     this.onReactValueChanged = value => {
       this.setPristine(false);

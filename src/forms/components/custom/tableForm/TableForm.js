@@ -34,7 +34,7 @@ export default class TableFormComponent extends BaseReactComponent {
           }
         },
         computed: {
-          valueFormKey: null
+          valueFormKey: ''
         },
         customCreateVariantsJs: '',
         isStaticModalTitle: false,
@@ -49,7 +49,8 @@ export default class TableFormComponent extends BaseReactComponent {
           responseHandler: ''
         },
         triggerEventOnChange: false,
-        isInstantClone: false
+        isInstantClone: false,
+        defaultValue: []
       },
       ...extend
     );
