@@ -57,8 +57,10 @@ class Properties extends React.Component {
   }
 
   onSubmitForm = () => {
-    if (this._ecosForm.current) {
-      this._ecosForm.current.onReload();
+    const onReload = get(this._ecosForm, 'current.onReload');
+
+    if (typeof onReload === 'function') {
+      onReload();
     }
 
     this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
@@ -73,8 +75,10 @@ class Properties extends React.Component {
   };
 
   onShowBuilder = () => {
-    if (this._hiddenEcosForm.current) {
-      this._hiddenEcosForm.current.onShowFormBuilder(() => {
+    const onShowFormBuilder = get(this._hiddenEcosForm, 'current.onShowFormBuilder');
+
+    if (typeof onShowFormBuilder === 'function') {
+      onShowFormBuilder(() => {
         this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
       });
     }
