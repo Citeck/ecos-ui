@@ -74,13 +74,8 @@ describe('Menu helpers', () => {
       }
     ];
 
-    global.window = Object.create(window);
-    Object.defineProperty(window, 'location', {
-      value: {
-        pathname: `${NEW_VERSION_PREFIX}/test-page`
-      },
-      writable: true
-    });
+    delete window.location;
+    window.location = { pathname: `${NEW_VERSION_PREFIX}/test-page` };
 
     jest.spyOn(global, 'fetch').mockImplementation(url => {
       let link = '';

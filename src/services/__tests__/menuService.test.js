@@ -5,14 +5,8 @@ import { LINKS_BY_CONFIG } from '../__mocks__/menuService.mock';
 
 describe('Menu Service', () => {
   describe('Method getSiteMenuLink', () => {
-    global.window = Object.create(window);
-
-    Object.defineProperty(window, 'location', {
-      value: {
-        search: '?recordRef=workspace://SpacesStore/f43fb8cc-d700-4a1b-9f6d-1a18beb069df'
-      },
-      writable: true
-    });
+    delete window.location;
+    window.location = { search: '?recordRef=workspace://SpacesStore/f43fb8cc-d700-4a1b-9f6d-1a18beb069df' };
 
     const data = [
       {

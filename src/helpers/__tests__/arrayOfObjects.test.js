@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 import * as common from '../__mocks__/common';
-import { treeAddItem, treeFindFirstItem, treeGetItemCoords, treeGetPathItem, treeRemoveItem } from '../arrayOfObjects';
+import { treeAddItem, treeFindFirstItem, treeGetItemCoords, treeGetPathItem, treeRemoveItem, treeMoveItem } from '../arrayOfObjects';
 
 describe('Helpers for Array of Objects / Tree', () => {
   const items = common.ITEMS; // don't mutate, else create local

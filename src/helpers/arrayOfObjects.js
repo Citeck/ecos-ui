@@ -165,7 +165,7 @@ export function treeGetItemCoords({ items, key, value }) {
         return { level, parent, index: i };
       }
 
-      const sub = !!item.items && find(item.items, level++, i);
+      const sub = !!item.items && find(item.items, level + 1, i);
 
       if (sub) {
         return sub;
