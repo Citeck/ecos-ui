@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { IcoBtn, TwoIcoBtn } from '../../btns';
-import { getPropByStringKey } from '../../../../helpers/util';
+import { getPropByStringKey, getTextByLocale } from '../../../../helpers/util';
 
 import './Dropdown.scss';
 
@@ -186,17 +186,7 @@ export default class Dropdown extends Component {
   }
 
   renderMenuItems() {
-    const {
-      valueField,
-      titleField,
-      source,
-      value,
-      hideSelected,
-      CustomItem,
-      withScrollbar,
-      scrollbarHeightMin,
-      scrollbarHeightMax
-    } = this.props;
+    const { valueField, source, value, hideSelected, withScrollbar, scrollbarHeightMin, scrollbarHeightMax } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
     let Wrapper = ({ children }) => <div>{children}</div>;
 
@@ -210,20 +200,26 @@ export default class Dropdown extends Component {
 
     return (
       <Wrapper>
-        <ul>
-          {filteredSource.map((item, i) =>
-            CustomItem ? (
-              <CustomItem key={this.getKey(item, i)} onClick={this.onChange} item={item} />
-            ) : (
-              <MenuItem key={this.getKey(item, i)} onClick={this.onChange} item={item}>
-                {getPropByStringKey(item, titleField)}
-              </MenuItem>
-            )
-          )}
-        </ul>
+        <ul>{filteredSource.map(this.renderMenuItem)}</ul>
       </Wrapper>
     );
   }
+
+  renderMenuItem = (item, i) => {
+    const { CustomItem, titleField } = this.props;
+
+    if (CustomItem) {
+      return <CustomItem key={this.getKey(item, i)} onClick={this.onChange} item={item} />;
+    }
+
+    const text = getPropByStringKey(item, titleField);
+
+    return (
+      <MenuItem key={this.getKey(item, i)} onClick={this.onChange} item={item}>
+        {getTextByLocale(text)}
+      </MenuItem>
+    );
+  };
 
   render() {
     const { full, className, toggleClassName, direction } = this.props;
