@@ -323,6 +323,7 @@
   "eform.header.EDIT.title": "Редактировать",
   "eform.header.VIEW.title": "Просмотр",
   "eform.btn.tooltip.constructor": "Перейти в конструктор",
+  "eform.form-is-not-ready": "Форма не готова к отправке",
   "events-history-widget.info.no-columns": "Нет настроек отображения",
   "events-history-widget.info.no-events": "Нет событий",
   "events-history-widget.info.no-data": "Нет данных",
