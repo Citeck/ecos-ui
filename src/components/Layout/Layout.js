@@ -139,7 +139,13 @@ class Layout extends Component {
             return;
           }
 
-          item.style.top = `${topElementChild.offsetHeight - topElement.offsetHeight}px`;
+          let topElementIndent = parseInt(topElement.style.top, 10);
+
+          if (isNaN(topElementIndent)) {
+            topElementIndent = 0;
+          }
+
+          item.style.top = `${topElementChild.offsetHeight - topElement.offsetHeight + topElementIndent}px`;
         });
       });
     }
