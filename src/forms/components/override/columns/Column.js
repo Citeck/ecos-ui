@@ -10,10 +10,20 @@ export default class ColumnComponent extends FormIOColumnComponent {
         md: 6,
         lg: 0,
         xl: 0,
+        width: 6,
+        offset: 0,
+        push: 0,
+        pull: 0,
+        clearOnHide: false,
+        label: '',
         hideOnChildrenHidden: false
       },
       ...extend
     );
+  }
+
+  get defaultSchema() {
+    return ColumnComponent.schema();
   }
 
   get className() {
