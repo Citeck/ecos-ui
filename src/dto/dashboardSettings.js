@@ -92,6 +92,8 @@ export default class DashboardSettingsConverter {
     const { mobile } = source;
     const target = [];
 
+    return [];
+
     mobile.tabs.forEach(tab => {
       const { label, idLayout } = tab;
 
