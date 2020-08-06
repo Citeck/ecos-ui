@@ -27,7 +27,9 @@ let formCounter = 0;
 
 class EcosForm extends React.Component {
   _formBuilderModal = React.createRef();
+  _formContainer = React.createRef();
   _form = null;
+  _containerHeightTimerId = null;
   _formSubmitDoneResolve = () => {};
 
   constructor(props) {
@@ -47,6 +49,7 @@ class EcosForm extends React.Component {
     if (this._form) {
       this._form.destroy();
     }
+    window.clearTimeout(this._containerHeightTimerId);
   }
 
   componentDidMount() {
@@ -235,6 +238,12 @@ class EcosForm extends React.Component {
           if (self.props.onReady) {
             self.props.onReady(form);
           }
+
+          form.ready.then(() => {
+            self._containerHeightTimerId = window.setTimeout(() => {
+              self.toggleContainerHeight();
+            }, 500);
+          });
         });
       });
     }, onFormLoadingFailure);
@@ -383,7 +392,16 @@ class EcosForm extends React.Component {
   );
 
   onReload() {
+    this.toggleContainerHeight(true);
     this.initForm({});
+  }
+
+  toggleContainerHeight(toSave = false) {
+    const container = get(this._formContainer, 'current');
+
+    if (container) {
+      container.style.height = toSave ? `${container.offsetHeight}px` : 'unset';
+    }
   }
 
   render() {
@@ -396,7 +414,7 @@ class EcosForm extends React.Component {
 
     return (
       <div className={className}>
-        <div id={containerId} />
+        <div id={containerId} ref={this._formContainer} />
         <EcosFormBuilderModal ref={this._formBuilderModal} />
       </div>
     );
