@@ -323,6 +323,7 @@
   "eform.header.EDIT.title": "Edit",
   "eform.header.VIEW.title": "View",
   "eform.btn.tooltip.constructor": "Go to form builder",
+  "eform.form-is-not-ready": "Form is not ready",
   "events-history-widget.info.no-columns": "No display settings",
   "events-history-widget.info.no-events": "No events",
   "events-history-widget.info.no-data": "No data",
