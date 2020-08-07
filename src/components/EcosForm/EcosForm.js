@@ -5,6 +5,7 @@ import Formio from 'formiojs/Formio';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
@@ -57,7 +58,7 @@ class EcosForm extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.formId !== this.props.formId) {
+    if (prevProps.formId !== this.props.formId || !isEqual(prevProps.options, this.props.options)) {
       this.setState({ ...this.initState });
       this.initForm();
     }
@@ -400,7 +401,7 @@ class EcosForm extends React.Component {
     const container = get(this._formContainer, 'current');
 
     if (container) {
-      container.style.height = toSave ? `${container.offsetHeight}px` : 'unset';
+      container.style.height = toSave ? `${container.offsetHeight}px` : 'auto';
     }
   }
 

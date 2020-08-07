@@ -37,18 +37,8 @@ class Properties extends React.Component {
     loaded: false,
     isLoading: false,
     isReadySubmit: true,
-    hideForm: false,
     contentHeight: 0
   };
-
-  // hack for EcosForm force update on isSmallMode changing
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isSmallMode !== this.props.isSmallMode) {
-      this.setState({ hideForm: true }, () => {
-        this.setState({ hideForm: false });
-      });
-    }
-  }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.formId !== this.props.formId) {
@@ -105,8 +95,8 @@ class Properties extends React.Component {
 
   renderForm() {
     const { record, isSmallMode, onUpdate, formId, onInlineEditSave } = this.props;
-    const { isReadySubmit, hideForm, loaded, isLoading } = this.state;
-    const isShow = !hideForm && isReadySubmit;
+    const { isReadySubmit, loaded, isLoading } = this.state;
+    const isShow = isReadySubmit;
 
     return (
       <>
