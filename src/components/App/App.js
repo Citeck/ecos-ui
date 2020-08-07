@@ -26,6 +26,7 @@ import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 
 import './App.scss';
+import { Popup } from '../common/Tooltip/Popper';
 
 const LoginForm = lazy(() => import('../LoginForm'));
 const BPMNDesignerPage = lazy(() => import('../../pages/BPMNDesignerPage'));
@@ -337,6 +338,7 @@ class App extends Component {
           </div>
 
           <NotificationContainer />
+          <Popup />
         </div>
       </ErrorBoundary>
     );

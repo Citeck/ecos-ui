@@ -4,6 +4,7 @@ import { BaseEditor } from '../editors';
 import { Icon, Tooltip } from '../../index';
 
 import './style.scss';
+import Popper from '../../Tooltip/Popper';
 
 export default class BaseFormatter extends Component {
   static getFilterValue(cell) {
@@ -36,25 +37,33 @@ export default class BaseFormatter extends Component {
     });
   };
 
-  renderTooltip = ({ domId, text, contentComponent, elementId }) => {
-    const { withTooltip } = this.state || {};
-
-    return (
-      <Tooltip
-        ref={this.tooltipRef}
-        showAsNeeded
-        target={domId}
-        elementId={elementId}
-        uncontrolled
-        text={text}
-        getIsNeeded={this.getIsNeededTooltip}
-        contentComponent={contentComponent}
-        innerClassName="ecos-formatter__tooltip-inner"
-      >
-        <Icon id={domId} className="icon-question ecos-formatter__tooltip-icon" hidden={!withTooltip} />
-      </Tooltip>
-    );
-  };
+  // renderTooltip = ({ domId, text, contentComponent, elementId }) => {
+  //   return (
+  //     <Popper
+  //       text={text}
+  //       contentComponent={contentComponent}
+  //       elementId={elementId}
+  //     />
+  //   );
+  //
+  //   const { withTooltip } = this.state || {};
+  //
+  //   return (
+  //     <Tooltip
+  //       ref={this.tooltipRef}
+  //       showAsNeeded
+  //       target={domId}
+  //       elementId={elementId}
+  //       uncontrolled
+  //       text={text}
+  //       getIsNeeded={this.getIsNeededTooltip}
+  //       contentComponent={contentComponent}
+  //       innerClassName="ecos-formatter__tooltip-inner"
+  //     >
+  //       <Icon id={domId} className="icon-question ecos-formatter__tooltip-icon" hidden={!withTooltip} />
+  //     </Tooltip>
+  //   );
+  // };
 
   render() {
     return <>{this.value(this.props.cell)}</>;

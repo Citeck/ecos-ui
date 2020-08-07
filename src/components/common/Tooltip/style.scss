@@ -70,3 +70,37 @@
     }
   }
 }
+
+.ecos-popup {
+  display: flex;
+  padding: 0 10px;
+  border-radius: $border-radius-standard;
+  background: white;
+  box-shadow: $box-shadow-tooltip;
+  z-index: 10000;
+}
+
+.ecos-popper {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-rows: 1fr;
+  grid-template-columns: auto auto;
+  align-items: center;
+
+  &__text {
+    @extend %ellipsis;
+  }
+
+  &__icon {
+    cursor: pointer;
+    color: $color-gray-5;
+
+    &:hover {
+      color: $color-blue-light;
+    }
+  }
+
+  &__resize-detector {
+    display: none;
+  }
+}
