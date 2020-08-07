@@ -347,8 +347,6 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
     selectedRecords = get(gridData, 'data', []).map(item => item.id);
   }
 
-  console.warn(get(gridData, 'data', []));
-
   yield put(setSelectedRecords(w(selectedRecords)));
   yield put(setSelectAllRecords(w(!!userConfigId)));
   yield put(setSelectAllRecordsVisible(w(false)));
