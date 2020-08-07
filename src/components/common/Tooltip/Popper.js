@@ -48,13 +48,17 @@ export default class Popper extends Component {
     return text || contentComponent;
   }
 
-  checkNeedShowPopper() {
+  checkNeedShowPopper = () => {
     const { text } = this.props;
     const element = this.#textRef;
 
     if (!element) {
       this.state.needTooltip && this.setState({ needTooltip: false });
 
+      return;
+    }
+
+    if (!text) {
       return;
     }
 
@@ -66,20 +70,21 @@ export default class Popper extends Component {
 
     context.font = styles.getPropertyValue('font');
 
-    const needTooltip = context.measureText(text).width > element.getBoundingClientRect().width - (paddingLeft + paddingRight);
+    let fullWidth = Math.round(context.measureText(text.trim()).width);
+    let elementWidth = Math.round(element.getBoundingClientRect().width);
 
-    console.group(
-      text,
-      needTooltip,
-      `${context.measureText(text).width} > ${element.getBoundingClientRect().width - (paddingLeft + paddingRight)}`
-    );
-    console.warn(element.getBoundingClientRect().width, styles.getPropertyValue('font'));
-    console.warn(paddingLeft + paddingRight);
-    console.warn(paddingLeft, paddingRight);
-    console.groupEnd();
+    if (isNaN(fullWidth)) {
+      fullWidth = 0;
+    }
+
+    if (isNaN(elementWidth)) {
+      elementWidth = 0;
+    }
+
+    const needTooltip = fullWidth > elementWidth - (paddingLeft + paddingRight);
 
     this.setState({ needTooltip });
-  }
+  };
 
   setIconRef = ref => {
     if (ref) {
@@ -90,6 +95,7 @@ export default class Popper extends Component {
   setTextRef = ref => {
     if (ref) {
       this.#textRef = ref;
+      this.checkNeedShowPopper();
     }
   };
 
@@ -108,10 +114,10 @@ export default class Popper extends Component {
   }, 350);
 
   renderText = () => {
-    const { text, contentComponent, children } = this.props;
+    const { text, contentComponent, children, id } = this.props;
 
     return (
-      <div ref={this.setTextRef} className="ecos-popper__text">
+      <div ref={this.setTextRef} className="ecos-popper__text" id={id}>
         {children || text || contentComponent}
       </div>
     );
@@ -124,25 +130,6 @@ export default class Popper extends Component {
     if (!this.needPopper) {
       return null;
     }
-
-    // return (
-    //   <div className="ecos-popper">
-    //     {this.renderText()}
-    //     {needTooltip && (
-    //       <i
-    //         ref={this.setIconRef}
-    //         className={classNames('icon', icon, 'ecos-popper__icon')}
-    //         hidden={false}
-    //         onMouseEnter={this.handleMouseEnter}
-    //         onMouseOut={this.handleMouseOut}
-    //       />
-    //     )}
-    //     <ReactResizeDetector
-    //       handleWidth
-    //       onResize={this.handleResize}
-    //     />
-    //   </div>
-    // );
 
     return (
       <ReactResizeDetector handleWidth onResize={this.handleResize}>

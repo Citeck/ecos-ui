@@ -94,13 +94,11 @@
   &__icon {
     cursor: pointer;
     color: $color-gray-5;
+    height: 18px;
+    margin-top: -2px;
 
     &:hover {
       color: $color-blue-light;
     }
-  }
-
-  &__resize-detector {
-    display: none;
   }
 }

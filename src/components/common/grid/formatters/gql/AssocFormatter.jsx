@@ -1,5 +1,4 @@
 import React from 'react';
-import uuidV4 from 'uuid/v4';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
@@ -44,7 +43,6 @@ export default class AssocFormatter extends DefaultGqlFormatter {
 
   constructor(props) {
     super(props);
-    this.domId = '_' + uuidV4();
   }
 
   getId(cell) {
@@ -57,7 +55,6 @@ export default class AssocFormatter extends DefaultGqlFormatter {
   };
 
   fetchName = false;
-  domId;
 
   componentDidMount() {
     const { cell } = this.props;
@@ -76,8 +73,8 @@ export default class AssocFormatter extends DefaultGqlFormatter {
   }
 
   renderTooltipContent = () => {
-    const { displayName } = this.state;
     const { cell } = this.props;
+    const { displayName } = this.state;
     const displayNameArray = displayName.split(', ');
 
     if (isEmpty(displayName) || isEmpty(displayNameArray)) {
