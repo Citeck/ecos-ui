@@ -11,6 +11,10 @@ export default class RadioComponent extends FormIORadioComponent {
     );
   }
 
+  get defaultSchema() {
+    return RadioComponent.schema();
+  }
+
   getView(value) {
     // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3153
     return this.t(super.getView(value));

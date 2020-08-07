@@ -45,6 +45,10 @@ export default class TaskOutcome extends NestedComponent {
     };
   }
 
+  get defaultSchema() {
+    return TaskOutcome.schema();
+  }
+
   get baseButtonConfig() {
     return {
       type: 'button',

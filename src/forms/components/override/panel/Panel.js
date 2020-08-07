@@ -12,6 +12,10 @@ export default class PanelComponent extends FormIOPanelComponent {
     );
   }
 
+  get defaultSchema() {
+    return PanelComponent.schema();
+  }
+
   build(state) {
     const hidePanels = this.options.viewAsHtmlConfig && this.options.viewAsHtmlConfig.hidePanels;
 
