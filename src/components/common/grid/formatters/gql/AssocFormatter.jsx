@@ -6,7 +6,7 @@ import { isNodeRef } from '../../../../../helpers/util';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import Records from '../../../../../components/Records';
 import { AssocEditor } from '../../editors';
-import Popper from '../../../Tooltip/Popper';
+import Popper from '../../../Popper';
 
 export default class AssocFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {

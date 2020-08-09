@@ -7,12 +7,14 @@ import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 
+import './style.scss';
+
 const Events = {
   SHOW: 'ecos-popover-show',
   HIDE: 'ecos-popover-hide'
 };
 
-export const emitter = new EventEmitter2();
+export const popupEmitter = new EventEmitter2();
 
 export default class Popper extends Component {
   static propTypes = {
@@ -100,13 +102,13 @@ export default class Popper extends Component {
   };
 
   handleMouseOut = () => {
-    emitter.emit(Events.HIDE);
+    popupEmitter.emit(Events.HIDE);
   };
 
   handleMouseEnter = () => {
     const { text, contentComponent } = this.props;
 
-    emitter.emit(Events.SHOW, this.#iconRef, contentComponent || text);
+    popupEmitter.emit(Events.SHOW, this.#iconRef, contentComponent || text);
   };
 
   handleResize = debounce(() => {
@@ -150,7 +152,7 @@ export default class Popper extends Component {
   }
 }
 
-export const Popup = () => {
+export const PopupManager = () => {
   const [referenceElement, setReferenceElement] = useState(null);
   const [text, setText] = useState('');
   const [popperElement, setPopperElement] = useState(null);
@@ -160,7 +162,15 @@ export const Popup = () => {
     modifiers: [
       {
         name: 'arrow',
-        options: { element: arrowElement }
+        options: {
+          element: arrowElement
+        }
+      },
+      {
+        name: 'offset',
+        options: {
+          offset: [0, 8]
+        }
       }
     ]
   });
@@ -175,12 +185,12 @@ export const Popup = () => {
       setText('');
     };
 
-    emitter.on(Events.SHOW, onShow);
-    emitter.on(Events.HIDE, onHide);
+    popupEmitter.on(Events.SHOW, onShow);
+    popupEmitter.on(Events.HIDE, onHide);
 
     return () => {
-      emitter.off(Events.SHOW, onShow);
-      emitter.off(Events.HIDE, onHide);
+      popupEmitter.off(Events.SHOW, onShow);
+      popupEmitter.off(Events.HIDE, onHide);
     };
   }, []);
 
@@ -189,10 +199,10 @@ export const Popup = () => {
       ref={setPopperElement}
       style={{ ...styles.popper, display: text ? 'unset' : 'none' }}
       {...attributes.popper}
-      className={classNames('ecos-popup', get(attributes, 'popper.className', ''))}
+      className={classNames('ecos-popup-manager', get(attributes, 'popper.className', ''))}
     >
       {text}
-      <div ref={setArrowElement} style={styles.arrow} />
+      <div ref={setArrowElement} style={styles.arrow} className="ecos-popper__arrow" />
     </div>
   );
 };
