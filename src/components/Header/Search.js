@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import { connect } from 'react-redux';
+
 import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../actions/header';
 import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/urls';
@@ -48,12 +50,22 @@ class Search extends React.Component {
     isMobile: false
   };
 
+  state = {
+    isFocused: false
+  };
+
+  _searchSelectRef = React.createRef();
+
   onSearch = searchText => {
     this.props.resetSearchAutocomplete();
 
     if (searchText) {
       this.props.runSearchAutocomplete(searchText);
     }
+  };
+
+  toggleFocus = isFocused => {
+    this.setState({ isFocused });
   };
 
   openFullSearch = searchText => {
@@ -82,15 +94,22 @@ class Search extends React.Component {
   };
 
   goToResult = data => {
+    this.toggleFocus(false);
+
     if (!isNewVersionPage()) {
       return (window.location.href = data.url);
     }
 
     const reopenBrowserTab = !isNewVersionPage(data.url);
     const openNewTab = [Types.DOCUMENTS, Types.SITES, Types.PEOPLE].includes(data.type) && !reopenBrowserTab;
+    const onResetSearch = get(this._searchSelectRef, 'current.resetSearch');
 
     PageService.changeUrlLink(data.url, { openNewTab, reopenBrowserTab });
     this.props.resetSearchAutocomplete();
+
+    if (typeof onResetSearch === 'function') {
+      onResetSearch();
+    }
   };
 
   get searchResult() {
@@ -118,27 +137,36 @@ class Search extends React.Component {
     const searchResult = this.searchResult;
 
     return !noResults && !isEmpty(searchResult)
-      ? searchResult.map((item, i, arr) => <SearchItem key={`ecos-header-search-${i}`} data={item} onClick={this.goToResult} />)
+      ? searchResult.map((item, i, arr) => (
+          <SearchItem key={`ecos-header-search-${i}`} data={item} onClick={this.goToResult} maxWidth={815} />
+        ))
       : null;
   }
 
   render() {
-    const { noResults, isMobile, theme } = this.props;
+    const { noResults, isMobile, theme, isLoading } = this.props;
+    const { isFocused } = this.state;
 
-    const classes = classNames('ecos-header-search', `ecos-header-search_theme_${theme}`);
+    const classes = classNames('ecos-header-search', `ecos-header-search_theme_${theme}`, {
+      'ecos-header-search_focused': isFocused
+    });
 
     return (
       <SearchSelect
+        ref={this._searchSelectRef}
+        isLoading={isLoading}
         className={classes}
         onSearch={this.onSearch}
         openFullSearch={this.openFullSearch}
         theme={theme}
         formattedSearchResult={this.formattedSearchResult}
         autocomplete
+        focused={isFocused}
         isMobile={isMobile}
         collapsed={isMobile}
         collapsible={isMobile}
         noResults={noResults}
+        onToggleFocus={this.toggleFocus}
       />
     );
   }

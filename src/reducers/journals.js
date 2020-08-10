@@ -17,7 +17,10 @@ import {
   setJournalsList,
   setJournalsListItem,
   setOnlyLinked,
+  setCustomJournalMode,
+  setCustomJournal,
   setPerformGroupActionResponse,
+  setPerformGroupActionLoader,
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
@@ -27,7 +30,8 @@ import {
   setSelectedRecords,
   setSettingItem,
   setUrl,
-  setZipNodeRef
+  setZipNodeRef,
+  search
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { deepClone, t } from '../helpers/util';
@@ -55,7 +59,8 @@ const defaultState = {
     sortBy: [],
     pagination: DEFAULT_PAGINATION,
     minHeight: null,
-    editingRules: {}
+    editingRules: {},
+    search: ''
   },
 
   journalsList: [],
@@ -101,6 +106,7 @@ const defaultState = {
   previewFileName: '',
   zipNodeRef: null,
 
+  isLoadingPerformGroupActions: false,
   performGroupActionResponse: []
 };
 
@@ -160,6 +166,18 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { performGroupActionResponse: action.payload });
+    },
+    [setPerformGroupActionResponse]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { performGroupActionResponse: action.payload });
+    },
+    [setPerformGroupActionLoader]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { isLoadingPerformGroupActions: action.payload });
     },
     [setPreviewUrl]: (state, action) => {
       const stateId = action.payload.stateId;
@@ -303,6 +321,29 @@ export default handleActions(
             }
           };
     },
+    [setCustomJournal]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              config: {
+                ...state[stateId].config,
+                customJournal: action.payload
+              }
+            }
+          }
+        : {
+            ...state,
+            config: {
+              ...state.config,
+              customJournal: action.payload
+            }
+          };
+    },
     [setOnlyLinked]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
@@ -323,6 +364,29 @@ export default handleActions(
             config: {
               ...state.config,
               onlyLinked: action.payload
+            }
+          };
+    },
+    [setCustomJournalMode]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return stateId
+        ? {
+            ...state,
+            [stateId]: {
+              ...state[stateId],
+              config: {
+                ...state[stateId].config,
+                customJournalMode: action.payload
+              }
+            }
+          }
+        : {
+            ...state,
+            config: {
+              ...state.config,
+              customJournalMode: action.payload
             }
           };
     },
@@ -408,6 +472,16 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { recordRef: action.payload });
+    },
+    [search]: (state, action) => {
+      const stateId = action.payload.stateId;
+
+      return handleState(state, stateId, {
+        grid: {
+          ...state[stateId].grid,
+          search: action.payload.text
+        }
+      });
     }
   },
   initialState

@@ -6,6 +6,7 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 
@@ -347,7 +348,15 @@ export function getScrollbarWidth() {
   return scrollbarWidth;
 }
 
-export function deepClone(data, defaultValue = '') {
+export function deepClone(data, defaultValue) {
+  if (defaultValue === undefined) {
+    defaultValue = cloneDeep(data);
+  }
+
+  if (isEmpty(data)) {
+    return defaultValue;
+  }
+
   return JSON.parse(JSON.stringify(data || defaultValue));
 }
 
@@ -526,10 +535,10 @@ export function getIconFileByMimetype(mimetype) {
   switch (mimetype) {
     case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
     case 'application/msword':
-      return 'icon-filetype-doc';
+      return 'icon-custom-file-doc';
     case 'application/pdf':
     default:
-      return 'icon-filetype-none';
+      return 'icon-custom-file-empty';
   }
 }
 

@@ -57,7 +57,7 @@ class BlockStatus extends React.Component {
           {t(CommonLabels.EVENT_HISTORY_BTN)}
         </IcoBtn>
         {/*{attention && (
-          <IcoBtn icon="icon-notify-dialogue" className="ecos-timesheet__status-btn-comment ecos-btn_red2" onClick={this.openModalEventHistory}>
+          <IcoBtn icon="icon-notify" className="ecos-timesheet__status-btn-comment ecos-btn_red2" onClick={this.openModalEventHistory}>
             {t(CommonLabels.TO_READ_COMMENT_BTN)}
           </IcoBtn>
         )}*/}

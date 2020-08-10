@@ -1,5 +1,6 @@
 import React from 'react';
 import 'formiojs/FormBuilder';
+import EcosFormUtils from '../EcosFormUtils';
 
 let formPanelIdx = 0;
 
@@ -30,7 +31,7 @@ export default class EcosFormBuilder extends React.Component {
 
   onSubmit() {
     if (this.props.onSubmit) {
-      this.props.onSubmit(this.state.editorForm.form);
+      this.props.onSubmit(EcosFormUtils.optimizeFormSchema(this.state.editorForm.form));
     }
   }
 

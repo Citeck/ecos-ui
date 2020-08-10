@@ -1,6 +1,31 @@
 import FormIOColumnComponent from 'formiojs/components/columns/Column';
 
 export default class ColumnComponent extends FormIOColumnComponent {
+  static schema(...extend) {
+    return FormIOColumnComponent.schema(
+      {
+        classes: '',
+        xs: 0,
+        sm: 12,
+        md: 6,
+        lg: 0,
+        xl: 0,
+        width: 6,
+        offset: 0,
+        push: 0,
+        pull: 0,
+        clearOnHide: false,
+        label: '',
+        hideOnChildrenHidden: false
+      },
+      ...extend
+    );
+  }
+
+  get defaultSchema() {
+    return ColumnComponent.schema();
+  }
+
   get className() {
     const comp = this.component;
     const options = this.options;

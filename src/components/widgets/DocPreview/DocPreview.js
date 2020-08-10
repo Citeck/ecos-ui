@@ -5,6 +5,8 @@ import pdfjs from 'pdfjs-dist';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import debounce from 'lodash/debounce';
+import ReactResizeDetector from 'react-resize-detector';
 
 import { DocPreviewApi } from '../../../api/docPreview';
 import { DocScaleOptions } from '../../../constants';
@@ -31,6 +33,7 @@ const Labels = {
   },
   DOWNLOAD: 'doc-preview.download'
 };
+const decreasingSteps = [562, 387, 293];
 
 class DocPreview extends Component {
   static propTypes = {
@@ -64,6 +67,7 @@ class DocPreview extends Component {
   state = {};
   refToolbar = React.createRef();
   refBody = React.createRef();
+  refWrapper = React.createRef();
 
   constructor(props) {
     super(props);
@@ -78,7 +82,8 @@ class DocPreview extends Component {
       contentHeight: 0,
       error: '',
       fileName: props.fileName,
-      downloadData: {}
+      downloadData: {},
+      wrapperWidth: 0
     };
   }
 
@@ -153,6 +158,22 @@ class DocPreview extends Component {
 
   componentWillUnmount() {
     this.exist = false;
+    this.onResizeWrapper.cancel();
+  }
+
+  get decreasingStep() {
+    const { wrapperWidth } = this.state;
+    let step = decreasingSteps.findIndex(item => item < wrapperWidth);
+
+    if (step === -1) {
+      step = decreasingSteps.length;
+    }
+
+    if (!step) {
+      return '';
+    }
+
+    return step;
   }
 
   clearState = () => {
@@ -333,6 +354,14 @@ class DocPreview extends Component {
     );
   };
 
+  onResizeWrapper = debounce(wrapperWidth => {
+    if (this.state.wrapperWidth === wrapperWidth) {
+      return;
+    }
+
+    this.setState({ wrapperWidth });
+  }, 350);
+
   setScrollPage = (scrollPage = this.props.firstPageNumber) => {
     this.setState(state => ({
       scrollPage,
@@ -435,7 +464,10 @@ class DocPreview extends Component {
 
     return (
       <div
-        className={classNames('ecos-doc-preview', className, { 'ecos-doc-preview_hidden': this.hiddenTool })}
+        ref={this.refWrapper}
+        className={classNames('ecos-doc-preview', `ecos-doc-preview_decreasing-step-${this.decreasingStep}`, className, {
+          'ecos-doc-preview_hidden': this.hiddenTool
+        })}
         style={{ height: this.height }}
       >
         {!isLoading && (
@@ -446,6 +478,8 @@ class DocPreview extends Component {
           </div>
         )}
         {this.renderLoader()}
+
+        <ReactResizeDetector handleWidth onResize={this.onResizeWrapper} />
       </div>
     );
   }

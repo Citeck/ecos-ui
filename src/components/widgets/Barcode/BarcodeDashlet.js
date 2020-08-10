@@ -12,11 +12,11 @@ import DAction from '../../../services/DashletActionService';
 import Barcode from './Barcode';
 import Settings from './Settings';
 import BaseWidget from '../BaseWidget';
-
-import './style.scss';
 import { getBarcodePrintUrl } from '../../../helpers/urls';
 import BarcodeConverter from '../../../dto/barcode';
 import { defaultSettings } from '../../../constants/barcode';
+
+import './style.scss';
 
 class BarcodeDashlet extends BaseWidget {
   static propTypes = {
@@ -48,18 +48,8 @@ class BarcodeDashlet extends BaseWidget {
   }
 
   componentDidMount() {
+    super.componentDidMount();
     this.handleGenerateBarcode();
-    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!prevProps.runUpdate && this.props.runUpdate) {
-      this.runGenerateBarcode();
-    }
-  }
-
-  componentWillUnmount() {
-    this.instanceRecord.unwatch(this.watcher);
   }
 
   get settings() {
@@ -93,6 +83,11 @@ class BarcodeDashlet extends BaseWidget {
 
     this.handleToggleSettings();
   };
+
+  handleUpdate() {
+    super.handleUpdate();
+    this.handleGenerateBarcode();
+  }
 
   renderBarcode() {
     const { config, classNameBarcode, barcode, error, isLoading } = this.props;

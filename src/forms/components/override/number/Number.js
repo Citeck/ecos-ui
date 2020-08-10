@@ -5,6 +5,21 @@ import { maskInput } from 'vanilla-text-mask';
 import { overrideTriggerChange } from '../misc';
 
 export default class NumberComponent extends FormIONumberComponent {
+  static schema(...extend) {
+    return FormIONumberComponent.schema(
+      {
+        delimiter: false,
+        requireDecimal: false,
+        decimalLimit: ''
+      },
+      ...extend
+    );
+  }
+
+  get defaultSchema() {
+    return NumberComponent.schema();
+  }
+
   constructor(...args) {
     super(...args);
 

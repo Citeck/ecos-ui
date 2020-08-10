@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import { setUrl } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
+import { isExistValue } from '../../../helpers/util';
 import { Loader } from '../../common/index';
 import UrlManager from '../../UrlManager';
 
@@ -24,7 +25,9 @@ class JournalsUrlManager extends Component {
   }
 
   setUrl = params => {
-    this.props.setUrl(params);
+    const { isActivePage, setUrl } = this.props;
+
+    (!isExistValue(isActivePage) || isActivePage) && setUrl(params);
   };
 
   onChildrenRender = () => {
@@ -34,13 +37,13 @@ class JournalsUrlManager extends Component {
   };
 
   render() {
-    const { params, children } = this.props;
+    const { params, children, isActivePage } = this.props;
     const { showLoader } = this.state;
 
     return (
       <>
         {!!showLoader && <Loader blur height={100} width={100} />}
-        <UrlManager params={params} onParse={this.setUrl} onChildrenRender={this.onChildrenRender}>
+        <UrlManager isActivePage={isActivePage} params={params} onParse={this.setUrl} onChildrenRender={this.onChildrenRender}>
           {children}
         </UrlManager>
       </>

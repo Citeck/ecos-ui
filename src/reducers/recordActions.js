@@ -1,24 +1,16 @@
 import { handleActions } from 'redux-actions';
 import { backExecuteAction, getActions, resetActions, runExecuteAction, setActions } from '../actions/recordActions';
-import { deleteStateById, getCurrentStateById } from '../helpers/redux';
+import { deleteStateById, getCurrentStateById, startLoading } from '../helpers/redux';
 
 const initialState = {
   isLoading: false,
   list: []
 };
 
-const startLoading = (state, { payload: { stateId } }) => ({
-  ...state,
-  [stateId]: {
-    ...getCurrentStateById(state, stateId, initialState),
-    isLoading: true
-  }
-});
-
 export default handleActions(
   {
-    [getActions]: startLoading,
-    [runExecuteAction]: startLoading,
+    [getActions]: startLoading(initialState),
+    [runExecuteAction]: startLoading(initialState),
     [setActions]: (state, { payload: { stateId, list } }) => ({
       ...state,
       [stateId]: {

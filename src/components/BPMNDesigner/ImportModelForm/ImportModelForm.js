@@ -167,7 +167,7 @@ class ImportModelForm extends React.Component {
           <div key={idx} className="dropzone__accepted-files">
             {item.name}
             <span
-              className={'icon-close'}
+              className={'icon-small-close'}
               onClick={() => {
                 this.deleteAcceptedFile(idx);
               }}

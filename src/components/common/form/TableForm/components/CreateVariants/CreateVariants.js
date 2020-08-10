@@ -59,7 +59,7 @@ const CreateVariants = () => {
 
       createButton = (
         <Dropdown source={variantsToRender} valueField={'createVariantKey'} titleField={'label'} isStatic onChange={onSelect}>
-          <IcoBtn invert icon="icon-down" className={classNames('btn_drop-down btn_r_8 btn_blue', buttonClasses)}>
+          <IcoBtn invert icon="icon-small-down" className={classNames('btn_drop-down btn_r_8 btn_blue', buttonClasses)}>
             {t('ecos-table-form.create-button')}
           </IcoBtn>
         </Dropdown>

@@ -26,6 +26,7 @@ import { UserApi } from './user';
 import { UserConfigApi } from './userConfig';
 import { VersionsJournalApi } from './versionsJournal';
 import { ViewApi } from './view';
+import { DocConstructorApi } from './docConstructor';
 
 export function configureAPI() {
   const api = {};
@@ -58,6 +59,7 @@ export function configureAPI() {
   api.documents = new DocumentsApi();
   api.page = new PageApi();
   api.userConfig = new UserConfigApi();
+  api.docConstructor = new DocConstructorApi();
 
   const setNotAuthCallback = function(cb) {
     for (let key in api) {

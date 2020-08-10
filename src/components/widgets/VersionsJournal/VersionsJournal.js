@@ -21,6 +21,7 @@ import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import ComparisonModal from './ComparisonModal';
 import { getStateId } from '../../../helpers/redux';
+import { selectIsAdmin } from '../../../selectors/user';
 
 import './style.scss';
 
@@ -32,6 +33,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     id: ownProps.id,
     isMobile,
+    isAdmin: selectIsAdmin(state),
     versions: get(versionState, 'versions', []),
     versionsLabels: selectLabelsVersions(state, id, isMobile),
     isLoading: get(versionState, 'listIsLoading', false),
@@ -131,7 +133,7 @@ class VersionsJournal extends BaseWidget {
     this.state = { ...state, ...VersionsJournal.getDefaultSelectedVersions(props) };
 
     this.topPanel = React.createRef();
-    this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateData);
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'version', 'name'])];
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -165,22 +167,17 @@ class VersionsJournal extends BaseWidget {
 
   componentDidMount() {
     super.componentDidMount();
-
     this.props.getVersionsList();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    super.componentDidUpdate();
+    super.componentDidUpdate(prevProps, prevState);
 
     if (!arrayCompare(prevProps.versionsLabels, this.props.versionsLabels)) {
       this.setState({
         ...VersionsJournal.getDefaultSelectedVersions(this.props)
       });
     }
-  }
-
-  componentWillUnmount() {
-    this.instanceRecord.unwatch(this.watcher);
   }
 
   updateData = () => {
@@ -233,6 +230,11 @@ class VersionsJournal extends BaseWidget {
     this.props.toggleModal(MODAL.COMPARISON);
   };
 
+  handleUpdate() {
+    super.handleUpdate();
+    this.updateData();
+  }
+
   get scrollableHeight() {
     let scrollableHeight = this.state.contentHeight;
 
@@ -262,22 +264,17 @@ class VersionsJournal extends BaseWidget {
   renderAddButton() {
     return (
       <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-vj__btn-add" onClick={this.handleToggleAddModal}>
-        <Icon className="icon-plus ecos-vj__btn-add-icon" />
+        <Icon className="icon-small-plus ecos-vj__btn-add-icon" />
         <span className="ecos-vj__btn-add-title">{t('versions-journal-widget.add-version')}</span>
       </Btn>
     );
   }
 
   renderVersionActions(version, isMobile = false) {
-    const { id } = this.props;
+    const { id, isAdmin } = this.props;
     const key = `${version.id.replace(/[:@/]/gim, '')}-${id}`;
-
-    return (
-      <div
-        className={classNames('ecos-vj__version-actions', {
-          'ecos-vj__version-actions_mobile': isMobile
-        })}
-      >
+    const changeActiveVersionBtn = isAdmin ? (
+      <>
         <Icon
           id={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
           onClick={this.handleOpenSetActiveVersionModal.bind(null, version)}
@@ -292,6 +289,17 @@ class VersionsJournal extends BaseWidget {
         >
           {t('versions-journal-widget.set-current')}
         </UncontrolledTooltip>
+      </>
+    ) : null;
+
+    return (
+      <div
+        className={classNames('ecos-vj__version-actions', {
+          'ecos-vj__version-actions_mobile': isMobile
+        })}
+      >
+        {changeActiveVersionBtn}
+
         <a href={version.url} download data-external id={`${TOOLTIP.DOWNLOAD_VERSION}-${key}`}>
           <Icon className="icon-download ecos-vj__version-actions-item" />
         </a>
@@ -346,7 +354,7 @@ class VersionsJournal extends BaseWidget {
               )}
 
               <div className="ecos-vj__version-date">
-                <Icon className="icon-clock ecos-vj__version-date-icon" />
+                <Icon className="icon-small-clock ecos-vj__version-date-icon" />
                 {version.date}
               </div>
             </div>
@@ -510,7 +518,7 @@ class VersionsJournal extends BaseWidget {
         >
           <IcoBtn
             invert
-            icon="icon-down ecos-vj__comparison-dropdown-toggle-icon"
+            icon="icon-small-down ecos-vj__comparison-dropdown-toggle-icon"
             className="ecos-vj__comparison-dropdown-toggle ecos-btn_transparent"
           />
         </Dropdown>
@@ -529,7 +537,7 @@ class VersionsJournal extends BaseWidget {
         >
           <IcoBtn
             invert
-            icon="icon-down ecos-vj__comparison-dropdown-toggle-icon"
+            icon="icon-small-down ecos-vj__comparison-dropdown-toggle-icon"
             className="ecos-vj__comparison-dropdown-toggle ecos-btn_transparent"
           />
         </Dropdown>
@@ -575,13 +583,13 @@ class VersionsJournal extends BaseWidget {
   }
 
   render() {
-    const { isMobile, versionsLabels, record } = this.props;
+    const { isMobile, isAdmin, versionsLabels, record } = this.props;
     const { isCollapsed } = this.state;
     const actions = {};
 
-    if (!isMobile && record) {
+    if (isAdmin && !isMobile && record) {
       actions.addVersion = {
-        icon: 'icon-plus',
+        icon: 'icon-small-plus',
         text: t('versions-journal-widget.add-version'),
         onClick: this.handleToggleAddModal
       };

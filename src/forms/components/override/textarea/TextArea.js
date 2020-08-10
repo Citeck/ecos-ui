@@ -5,6 +5,23 @@ import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
 import { overrideTriggerChange } from '../misc';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
+  static schema(...extend) {
+    return FormIOTextAreaComponent.schema(
+      {
+        autoExpand: false,
+        isUploadEnabled: false,
+        showWordCount: false,
+        showCharCount: false,
+        inputFormat: 'plain'
+      },
+      ...extend
+    );
+  }
+
+  get defaultSchema() {
+    return TextAreaComponent.schema();
+  }
+
   constructor(...args) {
     super(...args);
 

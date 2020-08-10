@@ -1,5 +1,6 @@
 import Base from 'formiojs/components/base/Base';
 import isObject from 'lodash/isObject';
+import isBoolean from 'lodash/isBoolean';
 import clone from 'lodash/clone';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
@@ -14,10 +15,42 @@ const originalCheckConditions = Base.prototype.checkConditions;
 const originalSetValue = Base.prototype.setValue;
 const originalT = Base.prototype.t;
 const originalApplyActions = Base.prototype.applyActions;
-const originalCalculateValue = Base.prototype.calculateValue;
 
 const INLINE_EDITING_CLASSNAME = 'inline-editing';
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
+
+const originalBaseSchema = Base.schema;
+Base.schema = (...extend) => {
+  return originalBaseSchema(
+    {
+      alwaysEnabled: false,
+      attributes: {},
+      conditional: {
+        json: '',
+        show: '',
+        when: '',
+        eq: ''
+      },
+      customConditional: '',
+      disableInlineEdit: false,
+      encrypted: false,
+      logic: [],
+      mask: false,
+      properties: {},
+      shortcut: '',
+      tags: [],
+      triggerChangeWhenCalculate: false,
+      validate: {
+        customMessage: '',
+        json: '',
+        required: false,
+        custom: '',
+        customPrivate: false
+      }
+    },
+    ...extend
+  );
+};
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-166
 const originalGetClassName = Object.getOwnPropertyDescriptor(Base.prototype, 'className');
@@ -33,7 +66,68 @@ Object.defineProperty(Base.prototype, 'className', {
   }
 });
 
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-208
+const emptyCalculateValue = Symbol('empty calculate value');
+const customIsEqual = (val1, val2) => {
+  if (typeof val1 === 'number' || typeof val2 === 'number') {
+    return parseFloat(val1) === parseFloat(val2);
+  }
+  return isEqual(val1, val2);
+};
+
+const modifiedOriginalCalculateValue = function(data, flags) {
+  // If no calculated value or
+  // hidden and set to clearOnHide (Don't calculate a value for a hidden field set to clear when hidden)
+  if (!this.component.calculateValue || ((!this.visible || this.component.hidden) && this.component.clearOnHide)) {
+    return false;
+  }
+
+  // Get the dataValue.
+  let firstPass = false;
+  let dataValue = null;
+  const allowOverride = this.component.allowCalculateOverride;
+  if (allowOverride) {
+    dataValue = this.dataValue;
+  }
+
+  // First pass, the calculatedValue is undefined.
+  if (this.calculatedValue === undefined) {
+    firstPass = true;
+    this.calculatedValue = emptyCalculateValue;
+  }
+
+  // Check to ensure that the calculated value is different than the previously calculated value.
+  if (allowOverride && this.calculatedValue !== emptyCalculateValue && !customIsEqual(dataValue, this.calculatedValue)) {
+    return false;
+  }
+
+  // Calculate the new value.
+  const calculatedValue = this.evaluate(
+    this.component.calculateValue,
+    {
+      value: this.defaultValue,
+      data
+    },
+    'value'
+  );
+
+  // If this is the firstPass, and the dataValue is different than to the calculatedValue.
+  if (allowOverride && firstPass && (isBoolean(dataValue) || !this.isEmpty(dataValue)) && !customIsEqual(dataValue, calculatedValue)) {
+    // Return that we have a change so it will perform another pass.
+    this.calculatedValue = calculatedValue;
+    return true;
+  }
+
+  flags = flags || {};
+  flags.noCheck = true;
+  const changed = this.setValue(calculatedValue, flags);
+  this.calculatedValue = this.dataValue;
+
+  return changed;
+};
+
 Base.prototype.calculateValue = function(data, flags) {
+  // TODO: check, it seems redundant
   const hasChanged = this.hasChanged(
     this.evaluate(
       this.component.calculateValue,
@@ -44,7 +138,8 @@ Base.prototype.calculateValue = function(data, flags) {
       'value'
     )
   );
-  const changed = originalCalculateValue.call(this, data, flags);
+
+  const changed = modifiedOriginalCalculateValue.call(this, data, flags);
 
   if (this.component.triggerChangeWhenCalculate && (changed || hasChanged)) {
     this.triggerChange(flags);
@@ -142,7 +237,6 @@ Base.prototype.createInlineEditButton = function(container) {
       this.options.readOnly = false;
       this.options.viewAsHtml = false;
       this._isInlineEditingMode = true;
-      this.emit('inlineEditingStart', currentValue);
 
       this.redraw();
       container.classList.add(INLINE_EDITING_CLASSNAME);
@@ -181,7 +275,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       {
         class: 'ecos-btn inline-editing__button inline-editing__save-button'
       },
-      this.ce('span', { class: 'icon icon-check' })
+      this.ce('span', { class: 'icon icon-small-check' })
     );
 
     const cancelButton = this.ce(
@@ -189,11 +283,10 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       {
         class: 'ecos-btn inline-editing__button inline-editing__cancel-button'
       },
-      this.ce('span', { class: 'icon icon-close' })
+      this.ce('span', { class: 'icon icon-small-close' })
     );
 
     const switchToViewOnlyMode = () => {
-      this.emit('inlineEditingFinish');
       this.options.readOnly = true;
       this.options.viewAsHtml = true;
       this._isInlineEditingMode = false;
@@ -218,6 +311,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
 
     const onSaveButtonClick = () => {
       const saveButtonClassList = this._inlineEditSaveButton.classList;
+
       if (saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME)) {
         return;
       }
@@ -227,18 +321,8 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
         return;
       }
 
-      if (!this.checkValidity(this.getValue(), true)) {
+      if (!this.checkValidity(this.data, true)) {
         return;
-      }
-
-      if (this._isInlineEditingMode) {
-        var changed = {
-          instance: this,
-          component: this.component,
-          value: this.dataValue,
-          flags: {}
-        };
-        this.emit('inlineSubmit', changed);
       }
 
       return form
@@ -314,6 +398,29 @@ Base.prototype.checkValidity = function(data, dirty, rowData) {
   }
 
   return validity;
+};
+
+Base.prototype.toggleDisableSaveButton = function(disabled) {
+  if (this._inlineEditSaveButton) {
+    const saveButtonClassList = this._inlineEditSaveButton.classList;
+
+    if (disabled !== undefined) {
+      disabled ? saveButtonClassList.add(DISABLED_SAVE_BUTTON_CLASSNAME) : saveButtonClassList.remove(DISABLED_SAVE_BUTTON_CLASSNAME);
+      return;
+    }
+
+    saveButtonClassList.toggle(DISABLED_SAVE_BUTTON_CLASSNAME);
+  }
+};
+
+Base.prototype.isDisabledSaveButton = function() {
+  if (this._inlineEditSaveButton) {
+    const saveButtonClassList = this._inlineEditSaveButton.classList;
+
+    return saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME);
+  }
+
+  return false;
 };
 
 Base.prototype.checkConditions = function(data) {

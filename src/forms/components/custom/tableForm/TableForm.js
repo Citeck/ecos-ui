@@ -34,7 +34,7 @@ export default class TableFormComponent extends BaseReactComponent {
           }
         },
         computed: {
-          valueFormKey: null
+          valueFormKey: ''
         },
         customCreateVariantsJs: '',
         isStaticModalTitle: false,
@@ -47,7 +47,10 @@ export default class TableFormComponent extends BaseReactComponent {
           enable: false,
           uploadUrl: '',
           responseHandler: ''
-        }
+        },
+        triggerEventOnChange: false,
+        isInstantClone: false,
+        defaultValue: []
       },
       ...extend
     );
@@ -167,7 +170,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
     const isMultiple = this.component.multiple;
 
-    const viewOnlyHasValueClassName = 'formio-component-tableForm_viewOnly-hasValue';
+    const viewOnlyHasValueClassName = 'formio-component__view-only-table-has-rows';
     const hasValue = isMultiple ? Array.isArray(this.dataValue) && this.dataValue.length > 0 : !!this.dataValue;
     const elementHasClass = this.element.classList.contains(viewOnlyHasValueClassName);
 
@@ -216,7 +219,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
           const journalId = await fetchJournalIdPromise;
           if (!journalId) {
-            return resolve({ error: new Error('The "journalId" config is required!') });
+            return resolve({ error: new Error(t('ecos-table-form.error.no-journal-id')) });
           }
 
           const journalsApi = new JournalsApi();
@@ -296,16 +299,7 @@ export default class TableFormComponent extends BaseReactComponent {
             let columnsMap = {};
             let formatters = {};
             columns.forEach(item => {
-              const hasBracket = item.name.includes('{');
-              const hasQChar = item.name.includes('?');
-              let colName = item.name;
-              if (hasBracket || hasQChar) {
-                let [origAtt] = item.name.split(hasBracket ? '{' : '?');
-                origAtt = origAtt.replace('[]', '');
-                colName = origAtt;
-              }
-
-              const key = `.edge(n:"${colName}"){title,type,multiple}`;
+              const key = `.edge(n:"${item.name}"){title,type,multiple}`;
               columnsMap[key] = item;
               if (item.formatter) {
                 formatters[item.name] = item.formatter;
@@ -439,6 +433,9 @@ export default class TableFormComponent extends BaseReactComponent {
         parentForm: this.root,
         triggerEventOnTableChange,
         displayElements: this._displayElementsValue,
+        settingElements: {
+          isInstantClone: component.isInstantClone
+        },
         nonSelectableRows: this._nonSelectableRows,
         selectedRows: this._selectedRows,
         importButton: {
@@ -505,4 +502,20 @@ export default class TableFormComponent extends BaseReactComponent {
       text
     });
   };
+
+  static optimizeSchema(comp) {
+    return _.omit(
+      {
+        ...comp,
+        source: _.omitBy(comp.source, (value, key) => {
+          const saveAtts = ['type'];
+          if (saveAtts.includes(key)) {
+            return false;
+          }
+          return key !== comp.source.type;
+        })
+      },
+      ['displayColumnsAsyncData']
+    );
+  }
 }

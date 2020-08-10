@@ -4,6 +4,23 @@ import FormIOSelectComponent from 'formiojs/components/select/Select';
 import _ from 'lodash';
 
 export default class SelectComponent extends FormIOSelectComponent {
+  static schema(...extend) {
+    return FormIOSelectComponent.schema(
+      {
+        unavailableItems: {
+          isActive: false
+        },
+        refreshOnEvent: false,
+        selectThreshold: 0.3
+      },
+      ...extend
+    );
+  }
+
+  get defaultSchema() {
+    return SelectComponent.schema();
+  }
+
   addCurrentChoices(values, items, keyValue) {
     if (!values) {
       return false;
@@ -57,5 +74,12 @@ export default class SelectComponent extends FormIOSelectComponent {
     //   }
     // }
     return added;
+  }
+
+  static optimizeSchema(comp) {
+    return {
+      ...comp,
+      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc)
+    };
   }
 }

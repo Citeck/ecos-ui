@@ -319,6 +319,7 @@ $adaptive-columns-size: 68%;
   }
 
   &__column {
+    position: relative;
     width: 100%;
     height: auto !important;
 
@@ -329,10 +330,11 @@ $adaptive-columns-size: 68%;
     &_adaptive {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-      grid-template-rows: repeat(auto-fit, minmax(0px, 1fr));
       grid-gap: 10px;
 
       #{$root}__element {
+        position: relative;
+
         &:not(:last-child):not(:empty) {
           margin-bottom: 0;
         }
@@ -464,6 +466,10 @@ $adaptive-columns-size: 68%;
   }
 
   &__element {
+    display: flex;
+    flex-direction: column;
+    top: 0;
+
     &:not(:last-child):not(:empty) {
       margin-bottom: 10px;
     }

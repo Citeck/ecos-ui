@@ -17,8 +17,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
         label: 'SelectJournal',
         key: 'selectJournal',
         type: 'selectJournal',
-        customPredicateJs: null,
-        presetFilterPredicatesJs: null,
+        customPredicateJs: '',
+        presetFilterPredicatesJs: '',
         hideCreateButton: false,
         hideEditRowButton: false,
         hideDeleteRowButton: false,
@@ -33,6 +33,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
           },
           type: TableTypes.JOURNAL,
           viewMode: DisplayModes.DEFAULT
+        },
+        displayColumns: [],
+        computed: {
+          valueDisplayName: ''
+        },
+        searchField: '',
+        ecos: {
+          dataType: 'assoc'
         }
       },
       ...extend
@@ -265,6 +273,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         journalId: journalId,
         onChange: this.onReactValueChanged,
         viewOnly: this.viewOnly,
+        queryData: component.queryData,
         viewMode: component.source.viewMode,
         displayColumns: component.displayColumns,
         hideCreateButton: component.hideCreateButton,
@@ -282,9 +291,15 @@ export default class SelectJournalComponent extends BaseReactComponent {
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },
-        onError: () => {}
+        onError: () => {},
+        // Cause https://citeck.atlassian.net/browse/ECOSUI-208
+        // If component has calculateValue, disable value reset when apply custom predicate
+        disableResetOnApplyCustomPredicate: !!component.calculateValue
       };
 
+      if (component.customSourceId) {
+        reactComponentProps.customSourceId = component.customSourceId;
+      }
       if (this.customPredicateValue) {
         reactComponentProps.initCustomPredicate = this.customPredicateValue;
       }
@@ -314,6 +329,42 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
   }
 
+  viewOnlyBuild() {
+    super.viewOnlyBuild();
+    this.refreshElementHasValueClasses();
+  }
+
+  updateValue(flags, value) {
+    const changed = super.updateValue(flags, value);
+
+    this.refreshElementHasValueClasses();
+
+    return changed;
+  }
+
+  refreshElementHasValueClasses() {
+    if (!this.element) {
+      return;
+    }
+
+    const component = this.component;
+    const { multiple, source } = component;
+
+    if (source.viewMode !== DisplayModes.TABLE) {
+      return;
+    }
+
+    const viewOnlyHasValueClassName = 'formio-component__view-only-table-has-rows';
+    const hasValue = multiple ? Array.isArray(this.dataValue) && this.dataValue.length > 0 : !!this.dataValue;
+    const elementHasClass = this.element.classList.contains(viewOnlyHasValueClassName);
+
+    if (!hasValue && elementHasClass) {
+      this.element.classList.remove(viewOnlyHasValueClassName);
+    } else if (hasValue && !elementHasClass) {
+      this.element.classList.add(viewOnlyHasValueClassName);
+    }
+  }
+
   static getValueDisplayName = (component, value) => {
     let dispNameJs = _.get(component, 'computed.valueDisplayName', null);
     let result = null;
@@ -334,4 +385,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
     return result ? result : value;
   };
+
+  static optimizeSchema(comp) {
+    return _.omit(comp, ['displayColumnsAsyncData']);
+  }
 }

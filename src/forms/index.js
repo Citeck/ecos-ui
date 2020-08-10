@@ -5,6 +5,7 @@ import Button from './components/override/button';
 import { Column, Columns } from './components/override/columns';
 import Checkbox from './components/override/checkbox';
 import Currency from './components/override/currency';
+import DataMap from './components/override/datamap';
 import DateTime from './components/override/datetime';
 import Email from './components/override/email';
 import File from './components/override/file';
@@ -41,6 +42,7 @@ Components.setComponents({
   columns: Columns,
   currency: Currency,
   datagridAssoc: DataGridAssoc,
+  datamap: DataMap,
   datetime: DateTime,
   ecosSelect: EcosSelect,
   email: Email,
@@ -63,3 +65,5 @@ Components.setComponents({
   textfield: TextField,
   url: Url
 });
+
+export { Components };

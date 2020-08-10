@@ -7,7 +7,7 @@ import { t } from '../../../helpers/util';
 import styles from './ModelList.module.scss';
 
 const ModelList = ({ label, author, datetime, viewLink, editLink, onViewLinkClick, onEditLinkClick, canWrite }) => {
-  const dragNDropIconClasses = cn('icon-drag', styles.dndActionIcon, styles.hiddenIcon);
+  const dragNDropIconClasses = cn('icon-custom-drag-big', styles.dndActionIcon, styles.hiddenIcon);
 
   let editButton = <div className={styles.emptyActionIcon} />;
   if (canWrite) {

@@ -81,7 +81,6 @@ class DocAssociations extends BaseWidget {
       selectedDocument: null
     };
 
-    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
     this.watcherAssoc = null;
   }
 
@@ -93,9 +92,7 @@ class DocAssociations extends BaseWidget {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.state.runUpdate && !prevState.runUpdate) {
-      this.props.getAssociations();
-    }
+    super.componentDidUpdate(prevProps, prevState, snapshot);
 
     const prevTrackedAssoc = this.getTrackedAssoc(prevProps.allowedAssociations);
     const newTrackedAssoc = this.getTrackedAssoc();
@@ -110,8 +107,8 @@ class DocAssociations extends BaseWidget {
   }
 
   componentWillUnmount() {
+    super.componentWillUnmount();
     this.props.resetStore();
-    this.instanceRecord.unwatch(this.watcher);
     this.watcherAssoc && this.instanceRecord.unwatch(this.watcherAssoc);
   }
 
@@ -148,7 +145,7 @@ class DocAssociations extends BaseWidget {
       {
         name: 'view',
         onClick: this.handleClickViewDocument,
-        className: 'icon-on'
+        className: 'icon-small-eye-show'
       },
       {
         name: 'delete',
@@ -228,6 +225,11 @@ class DocAssociations extends BaseWidget {
     this.closeConfirmRemovingModal();
   };
 
+  handleUpdate() {
+    super.handleUpdate();
+    this.props.getAssociations();
+  }
+
   renderHeader = columns => {
     return (
       <div className="ecos-doc-associations__table-header">
@@ -271,7 +273,7 @@ class DocAssociations extends BaseWidget {
     return (
       <Dropdown isOpen={isMenuOpen} toggle={this.handleToggleMenu} key="add-button" className="ecos-doc-associations__button-add">
         <DropdownToggle tag="button" className="ecos-btn ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue">
-          <Icon id={`tooltip-plus-${id}`} className="icon-big-plus" />
+          <Icon id={`tooltip-plus-${id}`} className="icon-small-plus" />
           <UncontrolledTooltip
             placement="top"
             boundariesElement="window"

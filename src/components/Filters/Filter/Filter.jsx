@@ -10,11 +10,17 @@ import { getPredicateInput, getPredicates } from '../../common/form/SelectJourna
 import './Filter.scss';
 
 export default class Filter extends Component {
+  predicatesWithoutValue = ['empty', 'not-empty'];
+
   changeValue = val => {
     trigger.call(this, 'onChangeValue', { val: val, index: this.props.index });
   };
 
   changePredicate = predicate => {
+    if (this.predicatesWithoutValue.includes(predicate.value)) {
+      this.changeValue('');
+    }
+
     trigger.call(this, 'onChangePredicate', { predicate: predicate.value, index: this.props.index });
   };
 
@@ -48,6 +54,7 @@ export default class Filter extends Component {
       selectClassName: 'select_width_full'
     });
     const FilterValueComponent = predicateInput.component;
+    const isShow = !this.predicatesWithoutValue.includes(predicate.t);
 
     return (
       <div className={classNames('ecos-filter', className)}>
@@ -55,7 +62,7 @@ export default class Filter extends Component {
 
         <Columns
           classNamesColumn={'columns_height_full columns-setup__column_align'}
-          cfgs={[{ xl: 3 }, { xl: 4 }, { xl: 4 }, { xl: 1 }]}
+          cfgs={[{ sm: 3 }, { sm: 4 }, { sm: 4 }, { sm: 1 }]}
           cols={[
             <Label title={column.text} className={'ecos-filter__label ecos-filter_step label_clear label_bold label_middle-grey'}>
               {column.text}
@@ -69,16 +76,14 @@ export default class Filter extends Component {
               value={selectedPredicate}
               onChange={this.changePredicate}
             />,
-            <div className={'ecos-filter__value-wrapper'}>
-              <FilterValueComponent {...predicateProps} />
-            </div>,
+            <div className={'ecos-filter__value-wrapper'}>{isShow && <FilterValueComponent {...predicateProps} />}</div>,
             <>
               <IcoBtn
                 icon={'icon-delete'}
                 className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
                 onClick={this.delete}
               />
-              <i className={classNames('ecos-btn__i', 'ecos-btn__i_right icon-drag ecos-filter__drag-ico')} />
+              <i className={classNames('ecos-btn__i', 'ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico')} />
             </>
           ]}
         />

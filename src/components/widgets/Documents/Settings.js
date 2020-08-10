@@ -6,14 +6,15 @@ import { EcosModal, Search } from '../../common';
 import { Btn } from '../../common/btns';
 import Tree from './Tree';
 import TypeSettings from './TypeSettings';
-import { GrouppedTypeInterface } from './propsInterfaces';
-import { deepClone, t, arrayCompare } from '../../../helpers/util';
+import { GrouppedTypeInterface, TypeSettingsInterface } from './propsInterfaces';
+import { arrayCompare, deepClone, t } from '../../../helpers/util';
 import { Checkbox } from '../../common/form';
 
 const Labels = {
   CANCEL_BUTTON: 'documents-widget.settings-modal.button.cancel',
   OK_BUTTON: 'documents-widget.settings-modal.button.ok',
-  CHECKLIST: 'documents-widget.settings-modal.checklist'
+  CHECKLIST: 'documents-widget.settings-modal.checklist',
+  POSSIBLE_UPLOAD_FILE: 'documents-widget.settings-modal.possible-upload-file'
 };
 
 class Settings extends Component {
@@ -21,20 +22,27 @@ class Settings extends Component {
     isOpen: PropTypes.bool,
     isLoading: PropTypes.bool,
     isLoadChecklist: PropTypes.bool,
+    isPossibleUploadFile: PropTypes.bool,
+    isLoadingTypeSettings: PropTypes.bool,
     title: PropTypes.string,
+    typeSettings: PropTypes.shape(TypeSettingsInterface),
     types: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     onCancel: PropTypes.func,
-    onSave: PropTypes.func
+    onSave: PropTypes.func,
+    onEditType: PropTypes.func
   };
 
   static defaultProps = {
     isOpen: false,
     isLoading: false,
     isLoadChecklist: false,
+    isPossibleUploadFile: false,
+    isLoadingTypeSettings: false,
     title: '',
     types: [],
     onCancel: () => {},
-    onSave: () => {}
+    onSave: () => {},
+    onEditType: () => {}
   };
 
   constructor(props) {
@@ -44,7 +52,9 @@ class Settings extends Component {
       types: props.types,
       filter: '',
       isLoadChecklist: props.isLoadChecklist,
-      editableType: null
+      isPossibleUploadFile: props.isPossibleUploadFile,
+      editableType: null,
+      customizedTypeSettings: new Map()
     };
   }
 
@@ -59,8 +69,16 @@ class Settings extends Component {
       newState.isLoadChecklist = props.isLoadChecklist;
     }
 
+    if (!props.isOpen && props.isPossibleUploadFile !== state.isPossibleUploadFile) {
+      newState.isPossibleUploadFile = props.isPossibleUploadFile;
+    }
+
     if (!props.isOpen && state.filter) {
       newState.filter = '';
+    }
+
+    if (!props.isOpen && state.customizedTypeSettings.size) {
+      newState.customizedTypeSettings = new Map();
     }
 
     if (!Object.keys(newState).length) {
@@ -120,6 +138,17 @@ class Settings extends Component {
     return this.getType(editableType);
   }
 
+  get typeSettings() {
+    const { typeSettings } = this.props;
+    const { customizedTypeSettings, editableType } = this.state;
+
+    if (customizedTypeSettings.has(editableType)) {
+      return customizedTypeSettings.get(editableType);
+    }
+
+    return typeSettings;
+  }
+
   getType = (id, types = this.state.types) => {
     let type = {};
     const searchItem = item => {
@@ -164,13 +193,16 @@ class Settings extends Component {
   };
 
   handleCloseModal = () => {
-    this.setState({ filter: '' });
+    this.setState({
+      filter: '',
+      customizedTypeSettings: new Map()
+    });
 
     this.props.onCancel();
   };
 
   handleClickSave = () => {
-    const { isLoadChecklist } = this.state;
+    const { isLoadChecklist, isPossibleUploadFile } = this.state;
     const types = deepClone(this.state.types);
     const selected = [];
 
@@ -185,7 +217,7 @@ class Settings extends Component {
     };
 
     types.forEach(checkStatus);
-    this.props.onSave({ types: selected, isLoadChecklist });
+    this.props.onSave({ types: selected, isLoadChecklist, isPossibleUploadFile });
   };
 
   handleToggleSelectType = ({ id, checked }) => {
@@ -198,20 +230,31 @@ class Settings extends Component {
 
   handleToggleTypeSettings = (type = null) => {
     this.setState({ editableType: type });
+
+    if (type && !this.state.customizedTypeSettings.has(type)) {
+      this.props.onEditType(type);
+    }
   };
 
   handleSaveTypeSettings = (settings = {}) => {
     this.setTypeData(this.state.editableType, settings);
-    this.setState({ editableType: null });
+    this.setState(state => ({
+      customizedTypeSettings: state.customizedTypeSettings.set(state.editableType, settings),
+      editableType: null
+    }));
   };
 
   handleToggleLoadChecklist = ({ checked }) => {
     this.setState({ isLoadChecklist: checked });
   };
 
+  handleTogglePossibleUploadFile = ({ checked }) => {
+    this.setState({ isPossibleUploadFile: checked });
+  };
+
   render() {
-    const { isOpen, title, isLoading } = this.props;
-    const { editableType, isLoadChecklist } = this.state;
+    const { isOpen, title, isLoading, isLoadingTypeSettings } = this.props;
+    const { editableType, isLoadChecklist, isPossibleUploadFile } = this.state;
 
     return (
       <>
@@ -222,9 +265,13 @@ class Settings extends Component {
           className="ecos-docs__modal-settings"
           hideModal={this.handleCloseModal}
         >
-          <Checkbox className="ecos-docs__modal-checklist" onChange={this.handleToggleLoadChecklist} checked={isLoadChecklist}>
+          <Checkbox className="ecos-docs__modal-checkbox" onChange={this.handleToggleLoadChecklist} checked={isLoadChecklist}>
             {t(Labels.CHECKLIST)}
           </Checkbox>
+          <Checkbox className="ecos-docs__modal-checkbox" onChange={this.handleTogglePossibleUploadFile} checked={isPossibleUploadFile}>
+            {t(Labels.POSSIBLE_UPLOAD_FILE)}
+          </Checkbox>
+
           <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__modal-settings-search" />
           <div className="ecos-docs__modal-settings-field">
             <Tree data={this.availableTypes} onToggleSelect={this.handleToggleSelectType} onOpenSettings={this.handleToggleTypeSettings} />
@@ -240,7 +287,9 @@ class Settings extends Component {
           </div>
         </EcosModal>
         <TypeSettings
+          isLoading={isLoadingTypeSettings}
           type={this.editableType}
+          settings={this.typeSettings}
           isOpen={editableType !== null}
           onCancel={this.handleToggleTypeSettings}
           onSave={this.handleSaveTypeSettings}

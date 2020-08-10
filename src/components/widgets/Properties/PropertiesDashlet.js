@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
 import { isSmallMode, objectCompare, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
@@ -50,7 +51,6 @@ class PropertiesDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
     this.permissionsWatcher = this.instanceRecord.watch('.att(n:"permissions"){has(n:"Write")}', this.checkPermissions);
 
     this.state = {
@@ -68,12 +68,11 @@ class PropertiesDashlet extends BaseWidget {
 
   componentDidMount() {
     super.componentDidMount();
-
     this.checkPermissions();
   }
 
-  componentDidUpdate(prevProps) {
-    super.componentDidUpdate(prevProps);
+  componentDidUpdate(prevProps, prevState) {
+    super.componentDidUpdate(prevProps, prevState);
 
     if (!objectCompare(prevProps.config, this.props.config)) {
       this.reload();
@@ -81,7 +80,7 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   componentWillUnmount() {
-    this.instanceRecord.unwatch(this.watcher);
+    super.componentWillUnmount();
     this.instanceRecord.unwatch(this.permissionsWatcher);
   }
 
@@ -94,7 +93,7 @@ class PropertiesDashlet extends BaseWidget {
 
     const actions = {
       [DAction.Actions.RELOAD]: {
-        onClick: this.reload
+        onClick: this.onReloadDashlet
       },
       [DAction.Actions.SETTINGS]: {
         onClick: this.toggleDisplayFormSettings
@@ -141,7 +140,18 @@ class PropertiesDashlet extends BaseWidget {
       this.setState({ wasLastModifiedWithInlineEditor: false });
     } else {
       this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
+      this.onReloadDashlet();
     }
+  };
+
+  onReloadDashlet = () => {
+    const onUpdate = get(this._propertiesRef, 'current.onUpdateForm');
+
+    if (typeof onUpdate !== 'function') {
+      return;
+    }
+
+    onUpdate();
   };
 
   onResize = width => {
@@ -159,8 +169,10 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   onClickShowFormBuilder = () => {
-    if (this._propertiesRef.current) {
-      this._propertiesRef.current.onShowBuilder();
+    const onShowBuilder = get(this._propertiesRef, 'current.onShowBuilder');
+
+    if (typeof onShowBuilder === 'function') {
+      onShowBuilder();
     }
   };
 
@@ -175,6 +187,7 @@ class PropertiesDashlet extends BaseWidget {
 
   onPropertiesEditFormSubmit = () => {
     this.setState({ isEditProps: false });
+    this.onReloadDashlet();
   };
 
   onPropertiesUpdate = () => {
@@ -238,7 +251,7 @@ class PropertiesDashlet extends BaseWidget {
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onUpdate={this.onPropertiesUpdate}
-          formId={runUpdate ? null : formId}
+          formId={formId}
           onInlineEditSave={this.onInlineEditSave}
           getTitle={this.setTitle}
         />

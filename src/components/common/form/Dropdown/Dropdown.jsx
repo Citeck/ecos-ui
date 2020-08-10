@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { IcoBtn, TwoIcoBtn } from '../../btns';
-import { getPropByStringKey } from '../../../../helpers/util';
+import { getPropByStringKey, getTextByLocale } from '../../../../helpers/util';
 
 import './Dropdown.scss';
 
@@ -24,6 +24,7 @@ export default class Dropdown extends Component {
   static propTypes = {
     valueField: PropTypes.any,
     titleField: PropTypes.string,
+    keyFields: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
     className: PropTypes.string,
     menuClassName: PropTypes.string,
     toggleClassName: PropTypes.string,
@@ -119,7 +120,7 @@ export default class Dropdown extends Component {
         <IcoBtn
           className={classNames('ecos-dropdown__toggle_selected', controlClassName)}
           invert
-          icon={dropdownOpen ? 'icon-up' : 'icon-down'}
+          icon={dropdownOpen ? 'icon-small-up' : 'icon-small-down'}
         >
           {label}
         </IcoBtn>
@@ -140,7 +141,7 @@ export default class Dropdown extends Component {
     return (
       children || (
         <TwoIcoBtn
-          icons={[controlIcon, dropdownOpen ? 'icon-up' : 'icon-down']}
+          icons={[controlIcon, dropdownOpen ? 'icon-small-up' : 'icon-small-down']}
           label={controlLabel}
           className={classNames('ecos-dropdown__toggle_static', controlClassName)}
         >
@@ -148,6 +149,24 @@ export default class Dropdown extends Component {
         </TwoIcoBtn>
       )
     );
+  };
+
+  getKey = (item, index) => {
+    const { keyFields, valueField } = this.props;
+
+    if (isEmpty(keyFields)) {
+      return item[valueField] || index;
+    }
+
+    if (typeof keyFields === 'string') {
+      return item[keyFields] || index;
+    }
+
+    if (Array.isArray(keyFields)) {
+      return keyFields.map(key => `${item[key]}`).join('-');
+    }
+
+    return index;
   };
 
   onChange = selected => {
@@ -167,17 +186,7 @@ export default class Dropdown extends Component {
   }
 
   renderMenuItems() {
-    const {
-      valueField,
-      titleField,
-      source,
-      value,
-      hideSelected,
-      CustomItem,
-      withScrollbar,
-      scrollbarHeightMin,
-      scrollbarHeightMax
-    } = this.props;
+    const { valueField, source, value, hideSelected, withScrollbar, scrollbarHeightMin, scrollbarHeightMax } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
     let Wrapper = ({ children }) => <div>{children}</div>;
 
@@ -191,20 +200,26 @@ export default class Dropdown extends Component {
 
     return (
       <Wrapper>
-        <ul>
-          {filteredSource.map((item, i) =>
-            CustomItem ? (
-              <CustomItem key={item[valueField] || i} onClick={this.onChange} item={item} />
-            ) : (
-              <MenuItem key={item[valueField] || i} onClick={this.onChange} item={item}>
-                {getPropByStringKey(item, titleField)}
-              </MenuItem>
-            )
-          )}
-        </ul>
+        <ul>{filteredSource.map(this.renderMenuItem)}</ul>
       </Wrapper>
     );
   }
+
+  renderMenuItem = (item, i) => {
+    const { CustomItem, titleField } = this.props;
+
+    if (CustomItem) {
+      return <CustomItem key={this.getKey(item, i)} onClick={this.onChange} item={item} />;
+    }
+
+    const text = getPropByStringKey(item, titleField);
+
+    return (
+      <MenuItem key={this.getKey(item, i)} onClick={this.onChange} item={item}>
+        {getTextByLocale(text)}
+      </MenuItem>
+    );
+  };
 
   render() {
     const { full, className, toggleClassName, direction } = this.props;

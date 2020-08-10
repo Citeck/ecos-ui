@@ -1,5 +1,6 @@
 import FormIOBase from 'formiojs/components/base/Base';
 import Records from '../../../../components/Records/Records';
+import { t } from '../../../../helpers/util';
 
 export default class BaseComponent extends FormIOBase {
   getRecordId() {
@@ -24,7 +25,9 @@ export default class BaseComponent extends FormIOBase {
       return false;
     }
     if (!this.isReadyToSubmit()) {
-      this.setCustomValidity('Form is not ready');
+      if (this.root.submitting) {
+        this.setCustomValidity(t('eform.form-is-not-ready'));
+      }
       return false;
     }
     return true;

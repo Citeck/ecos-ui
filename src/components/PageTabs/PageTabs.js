@@ -28,7 +28,7 @@ const Labels = {
 class PageTabs extends React.Component {
   static propTypes = {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
-    ContentComponent: PropTypes.oneOf([PropTypes.node, PropTypes.instanceOf(React.memo)]),
+    ContentComponent: PropTypes.elementType,
     homepageLink: PropTypes.string.isRequired,
     allowedLinks: PropTypes.array,
     isShow: PropTypes.bool,
@@ -344,7 +344,7 @@ class PageTabs extends React.Component {
           })}
           onClick={this.handleScrollLeft}
         >
-          <div className="page-tab__nav-btn-icon icon-left" />
+          <div className="page-tab__nav-btn-icon icon-small-left" />
         </div>
       </div>
     );
@@ -365,7 +365,7 @@ class PageTabs extends React.Component {
           })}
           onClick={this.handleScrollRight}
         >
-          <div className="page-tab__nav-btn-icon icon-right" />
+          <div className="page-tab__nav-btn-icon icon-small-right" />
         </div>
       </div>
     );
@@ -419,7 +419,7 @@ class PageTabs extends React.Component {
             {tabs.map(this.renderTabItem)}
           </div>
         </SortableContainer>
-        <div className="page-tab__tabs-add icon-plus" title={t(Labels.GO_HOME)} onClick={this.handleAddTab} />
+        <div className="page-tab__tabs-add icon-small-plus" title={t(Labels.GO_HOME)} onClick={this.handleAddTab} />
         {this.renderRightButton()}
 
         <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />

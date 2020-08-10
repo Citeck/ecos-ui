@@ -2,16 +2,22 @@ import get from 'lodash/get';
 import { createSelector } from 'reselect';
 
 import { initialState } from '../reducers/documents';
+import { isExistValue } from '../helpers/util';
 
 const selectState = (state, key) => get(state, ['documents', key], { ...initialState });
 
 export const selectStateByKey = createSelector(
   selectState,
   ownState => {
-    let isLoadChecklist = get(ownState, 'config.isLoadChecklist', undefined);
+    let isLoadChecklist = get(ownState, 'config.isLoadChecklist');
+    let isPossibleUploadFile = get(ownState, 'config.isPossibleUploadFile');
 
     if (isLoadChecklist === undefined) {
       isLoadChecklist = true;
+    }
+
+    if (!isExistValue(isPossibleUploadFile)) {
+      isPossibleUploadFile = true;
     }
 
     return {
@@ -21,12 +27,15 @@ export const selectStateByKey = createSelector(
       dynamicTypes: ownState.dynamicTypes,
       documents: ownState.documents,
       actions: ownState.actions,
+      typeSettings: ownState.typeSettings,
 
       isLoading: ownState.isLoading,
       isUploadingFile: ownState.isUploadingFile,
       isLoadingSettings: ownState.isLoadingSettings,
       isLoadingTableData: ownState.isLoadingTableData,
+      isLoadingTypeSettings: ownState.isLoadingTypeSettings,
       isLoadChecklist,
+      isPossibleUploadFile,
 
       uploadError: ownState.uploadError,
       countFilesError: ownState.countFilesError
@@ -81,6 +90,12 @@ export const selectDynamicType = (state, key, id) => {
   const types = selectDynamicTypes(state, key);
 
   return types.find(type => type.type === id);
+};
+
+export const selectAvailableType = (state, key, id) => {
+  const types = selectAvailableTypes(state, key);
+
+  return types.find(type => type.id === id);
 };
 
 export const selectAvailableTypes = createSelector(
@@ -144,3 +159,16 @@ export const selectGrouppedAvailableTypes = createSelector(
       });
   }
 );
+
+export const selectColumnsConfig = (state, key, name) => {
+  const type = get(state, ['documents', key, 'dynamicTypes'], []).find(item => item.type === name) || {};
+
+  return get(type, 'columns', []);
+};
+
+export const selectColumnsFromConfigByType = (state, key, name) => {
+  const types = selectConfigTypes(state, key);
+  const type = types.find(item => item.type === name);
+
+  return get(type, 'columns', []);
+};

@@ -7,12 +7,15 @@ import {
   getPredicates,
   PREDICATE_AND,
   PREDICATE_EMPTY,
+  PREDICATE_NOT_EMPTY,
   PREDICATE_OR,
   SEARCH_EQUAL_PREDICATES_MAP
 } from '../../common/form/SelectJournal/predicates';
 import { FilterPredicate, GroupPredicate, Predicate } from './';
 
 export default class ParserPredicate {
+  static predicatesWithoutValue = [PREDICATE_NOT_EMPTY, PREDICATE_EMPTY];
+
   static getSearchPredicates({ text, columns, groupBy }) {
     const val = [];
 
@@ -119,7 +122,17 @@ export default class ParserPredicate {
       }
     }
 
-    return val.filter(v => (Array.isArray(v.val) ? !!v.val.length : v.t !== PREDICATE_EMPTY && (!!v.val || v.val === 0)));
+    return val.filter(v => {
+      if (Array.isArray(v.val)) {
+        return !!v.val.length;
+      }
+
+      if (ParserPredicate.isWithoutValue(v)) {
+        return true;
+      }
+
+      return !!v.val || v.val === 0;
+    });
   }
 
   static getGroupConditions() {
@@ -256,6 +269,10 @@ export default class ParserPredicate {
     return groups;
   }
 
+  static isWithoutValue(predicate = {}) {
+    return ParserPredicate.predicatesWithoutValue.includes(predicate.t);
+  }
+
   static getFlatFilters(predicates) {
     const out = [];
 
@@ -267,13 +284,14 @@ export default class ParserPredicate {
     predicates = isArray(predicates) ? predicates : predicates.val || [];
 
     const flat = arr => {
-      arr.forEach(item => {
-        if (!isArray(item.val) && (!!item.val || item.val === 0)) {
-          out.push(item);
-        } else if (isArray(item.val)) {
-          flat(item.val);
-        }
-      });
+      isArray(arr) &&
+        arr.forEach(item => {
+          if (!isArray(item.val) && (!!item.val || item.val === 0 || ParserPredicate.isWithoutValue(item))) {
+            out.push(item);
+          } else if (isArray(item.val)) {
+            flat(item.val);
+          }
+        });
     };
 
     flat(predicates);
@@ -286,12 +304,26 @@ export default class ParserPredicate {
       return [];
     }
 
+    if (Array.isArray(newPredicate)) {
+      let newPredicates = predicates;
+
+      newPredicate.forEach(item => {
+        newPredicates = ParserPredicate.setPredicateValue(newPredicates, item);
+      });
+
+      return newPredicates;
+    }
+
     predicates = deepClone(predicates);
 
     const foreach = arr => {
       arr.forEach(item => {
         if (!isArray(item.val) && item.att === newPredicate.att) {
           item.val = newPredicate.val;
+
+          if (newPredicate.t) {
+            item.t = newPredicate.t;
+          }
         } else if (isArray(item.val)) {
           foreach(item.val);
         }

@@ -46,7 +46,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    setDashletConfigByParams: (id, config) => dispatch(setDashletConfigByParams(w({ id, config })))
+    setDashletConfigByParams: (id, config, recordRef) => dispatch(setDashletConfigByParams(w({ id, config, recordRef })))
   };
 };
 
@@ -93,14 +93,16 @@ class JournalsDashlet extends BaseWidget {
     setRecordRef(this.recordRef);
 
     if (onSave) {
-      setDashletConfigByParams(id, config);
+      setDashletConfigByParams(id, config, this.recordRef);
     } else {
       getDashletConfig(id);
     }
   }
 
-  componentDidUpdate({ config: prevConfig }, prevState, snapshot) {
-    super.componentDidUpdate();
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    super.componentDidUpdate(prevProps, prevState, snapshot);
+
+    const { config: prevConfig } = prevProps;
     const { id, config, setDashletConfigByParams, onSave, reloadGrid, isActiveLayout } = this.props;
 
     if (!arrayCompare(config, prevConfig) && !!onSave) {
@@ -123,6 +125,11 @@ class JournalsDashlet extends BaseWidget {
   handleReload = () => {
     this.props.reloadGrid();
   };
+
+  handleUpdate() {
+    super.handleUpdate();
+    this.handleReload();
+  }
 
   goToJournalsPage = () => {
     const {

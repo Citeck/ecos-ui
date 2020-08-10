@@ -180,7 +180,7 @@ export default function getViewer(WrappedComponent, isPdf) {
     renderBtnCloseFullscreen() {
       return (
         <div className="ecos-doc-preview__btn-close-fullscreen" onClick={this.onCloseFullscreen}>
-          <Icon className="icon-close" />
+          <Icon className="icon-small-close" />
         </div>
       );
     }

@@ -32,10 +32,18 @@ export default class SelectComponent extends BaseComponent {
         fuseOptions: {},
         customOptions: {},
         refreshEventName: '',
+        dataPreProcessingCode: '',
         unavailableItems: {
           isActive: false,
           code: ''
-        }
+        },
+        lazyLoad: false,
+        selectValues: '',
+        disableLimit: false,
+        sort: '',
+        refreshOnEvent: false,
+        selectThreshold: 0.3,
+        refreshOn: []
       },
       ...extend
     );
@@ -474,6 +482,15 @@ export default class SelectComponent extends BaseComponent {
     }
 
     this.loading = true;
+
+    const processItems = items => {
+      if (this.component.dataPreProcessingCode) {
+        return this.evaluate(this.component.dataPreProcessingCode, { queryResult: items }, 'values', true);
+      }
+
+      return items;
+    };
+
     let resolveItems = items => {
       this.loading = false;
       const scrollTop = !this.scrollLoading && this.currentItems.length === 0;
@@ -504,6 +521,7 @@ export default class SelectComponent extends BaseComponent {
     if (this.component.data.url === '/citeck/ecos/records/query' && !filter) {
       this.getRecord()
         .load('#' + this.getAttributeToEdit() + '?options')
+        .then(processItems)
         .then(resolveItems)
         .catch(rejectItems);
       return;
@@ -537,6 +555,7 @@ export default class SelectComponent extends BaseComponent {
     // Make the request.
     options.header = headers;
     Formio.makeRequest(this.options.formio, 'select', url, method, body, options)
+      .then(processItems)
       .then(resolveItems)
       .catch(rejectItems);
   }
@@ -1161,5 +1180,12 @@ export default class SelectComponent extends BaseComponent {
 
       this.triggerRedraw();
     }
+  }
+
+  static optimizeSchema(comp) {
+    return {
+      ...comp,
+      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc)
+    };
   }
 }

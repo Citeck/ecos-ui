@@ -8,6 +8,7 @@ import lodashGet from 'lodash/get';
 
 import { Attributes } from '../../../../constants';
 import { t } from '../../../../helpers/util';
+import { DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
 import { JournalsApi } from '../../../../api/journalsApi';
 import { EcosModal, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
@@ -15,14 +16,13 @@ import { Grid } from '../../../common/grid';
 import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/Mapper';
 import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
 import Records from '../../../Records';
-import { parseAttribute } from '../../../Records/Record';
+import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import InputView from './InputView';
 import ViewMode from './ViewMode';
 import Filters from './Filters';
 import Search from './Search';
 import CreateVariants from './CreateVariants';
 import FiltersProvider from './Filters/FiltersProvider';
-import { DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
 
 import './SelectJournal.scss';
 
@@ -81,13 +81,9 @@ export default class SelectJournal extends Component {
   }
 
   componentDidMount() {
-    const { defaultValue, multiple, journalId, onError, isSelectModalOpen, initCustomPredicate } = this.props;
+    const { defaultValue, multiple, isSelectModalOpen, initCustomPredicate } = this.props;
 
-    if (!journalId) {
-      const err = new Error('The "journalId" config is required!');
-      typeof onError === 'function' && onError(err);
-      this.setState({ error: err });
-    }
+    this.checkJournalId();
 
     let initValue;
     if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
@@ -112,6 +108,10 @@ export default class SelectJournal extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (!isEqual(prevProps.defaultValue, this.props.defaultValue) && !isEqual(this.props.defaultValue, this.state.value)) {
       this.updateSelectedValue();
+    }
+
+    if (this.props.journalId !== prevProps.journalId) {
+      this.checkJournalId();
     }
   }
 
@@ -142,12 +142,24 @@ export default class SelectJournal extends Component {
     }
   }
 
+  checkJournalId = () => {
+    const { journalId, onError } = this.props;
+
+    if (!journalId) {
+      const error = new Error(t('select-journal.error.no-journal-id'));
+      typeof onError === 'function' && onError(error);
+      this.setState({ error });
+    } else {
+      this.setState({ error: null });
+    }
+  };
+
   shouldResetValue = () => {
     return new Promise(resolve => {
       const { selectedRows } = this.state;
-      const { sortBy } = this.props;
+      const { sortBy, disableResetOnApplyCustomPredicate } = this.props;
 
-      if (selectedRows.length < 1) {
+      if (disableResetOnApplyCustomPredicate || selectedRows.length < 1) {
         return resolve({ shouldReset: false });
       }
 
@@ -221,8 +233,9 @@ export default class SelectJournal extends Component {
         reject();
       }
 
-      this.api.getJournalConfig(journalId).then(journalConfig => {
-        journalConfig = journalConfig || { meta: {} };
+      this.api.getJournalConfig(journalId).then(_journalConfig => {
+        const journalConfig = _journalConfig || { meta: {} };
+        const journalPredicate = journalConfig.meta.predicate;
 
         let columns = (journalConfig.columns || []).map(item => {
           const column = { ...item };
@@ -233,22 +246,15 @@ export default class SelectJournal extends Component {
         });
 
         if (Array.isArray(displayColumns) && displayColumns.length > 0) {
-          columns = columns.map(item => {
-            return {
-              ...item,
-              default: displayColumns.indexOf(item.attribute) !== -1
-            };
-          });
+          columns = columns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
         }
-
-        const predicate = journalConfig.meta.predicate;
 
         this.setState(prevState => {
           return {
             requestParams: {
               ...prevState.requestParams,
               columns,
-              journalPredicate: predicate,
+              journalPredicate,
               predicates: presetFilterPredicates || []
             },
             journalConfig,
@@ -263,9 +269,9 @@ export default class SelectJournal extends Component {
   refreshGridData = info => {
     return new Promise(resolve => {
       this.setState({ isGridDataReady: false }, () => {
-        const { sortBy } = this.props;
+        const { sortBy, queryData, customSourceId } = this.props;
         let { requestParams, customPredicate, journalConfig } = this.state;
-        const sourceId = lodashGet(journalConfig, 'sourceId', '');
+        const sourceId = customSourceId || lodashGet(journalConfig, 'sourceId', '');
 
         if (customPredicate) {
           if (requestParams.journalPredicate) {
@@ -286,6 +292,9 @@ export default class SelectJournal extends Component {
 
         if (sourceId) {
           requestParams.sourceId = sourceId;
+        }
+        if (queryData) {
+          requestParams.queryData = queryData;
         }
 
         requestParams.sortBy = sortBy;
@@ -433,15 +442,19 @@ export default class SelectJournal extends Component {
 
     return readyPromise.then(() => {
       const atts = [];
+      const noNeedParseIndices = [];
       const tableColumns = this.getColumns();
 
-      tableColumns.forEach(item => {
+      tableColumns.forEach((item, idx) => {
+        const isFullName = item.attribute.startsWith('.att');
         const hasBracket = item.attribute.includes('{');
         const hasQChar = item.attribute.includes('?');
-        if (hasBracket || hasQChar) {
+        if (isFullName || hasBracket || hasQChar) {
           atts.push(item.attribute);
+          noNeedParseIndices.push(idx);
           return;
         }
+
         const multiplePostfix = item.multiple ? 's' : '';
         const schema = `.att${multiplePostfix}(n:"${item.attribute}"){disp}`;
         atts.push(schema);
@@ -453,17 +466,24 @@ export default class SelectJournal extends Component {
             .load(atts)
             .then(result => {
               const fetchedAtts = {};
+              let currentAttIndex = 0;
               for (let attSchema in result) {
                 if (!result.hasOwnProperty(attSchema)) {
                   continue;
                 }
 
-                const attData = parseAttribute(attSchema);
-                if (!attData) {
-                  continue;
-                }
+                if (noNeedParseIndices.includes(currentAttIndex)) {
+                  fetchedAtts[attSchema] = result[attSchema];
+                } else {
+                  const attData = parseAttribute(attSchema);
+                  if (!attData) {
+                    currentAttIndex++;
+                    continue;
+                  }
 
-                fetchedAtts[attData.name] = result[attSchema];
+                  fetchedAtts[attData.name] = result[attSchema];
+                }
+                currentAttIndex++;
               }
 
               return { ...fetchedAtts, ...r };
@@ -799,7 +819,7 @@ export default class SelectJournal extends Component {
                 <div className={'select-journal-collapse-panel__controls-left'}>
                   <IcoBtn
                     invert
-                    icon={isCollapsePanelOpen ? 'icon-up' : 'icon-down'}
+                    icon={isCollapsePanelOpen ? 'icon-small-up' : 'icon-small-down'}
                     className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
                     onClick={this.toggleCollapsePanel}
                   >
@@ -890,6 +910,8 @@ const predicateShape = PropTypes.shape({
 
 SelectJournal.propTypes = {
   journalId: PropTypes.string,
+  queryData: PropTypes.object,
+  customSourceId: PropTypes.string,
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
   onChange: PropTypes.func,
   onError: PropTypes.func,
@@ -902,6 +924,7 @@ SelectJournal.propTypes = {
   displayColumns: PropTypes.array,
   presetFilterPredicates: PropTypes.arrayOf(predicateShape),
   initCustomPredicate: PropTypes.oneOfType([PropTypes.arrayOf(predicateShape), predicateShape]),
+  disableResetOnApplyCustomPredicate: PropTypes.bool,
   viewOnly: PropTypes.bool,
   renderView: PropTypes.func,
   searchField: PropTypes.string,

@@ -4,20 +4,23 @@ import PropTypes from 'prop-types';
 import omit from 'lodash/omit';
 import get from 'lodash/get';
 import queryString from 'query-string';
+import isEmpty from 'lodash/isEmpty';
 
 import { UserConfigApi } from '../../api/userConfig';
 import { URL } from '../../constants';
 import { ALFRESCO, PROXY_URI } from '../../constants/alfresco';
-import { t } from '../../helpers/util';
+import { deepClone, t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
+import { PREDICATE_AND } from '../common/form/SelectJournal/predicates';
+import ParserPredicate from '../Filters/predicates/ParserPredicate';
 
 import './Export.scss';
 
 const api = new UserConfigApi();
 
-export default class extends Component {
+export default class Export extends Component {
   static propTypes = {
     className: PropTypes.string,
     dashletConfig: PropTypes.object,
@@ -59,16 +62,27 @@ export default class extends Component {
   export = item => {
     if (item.target) {
       const { journalConfig, grid } = this.props;
+      const query = this.getQuery(journalConfig, item.type, grid);
 
-      this.textInput.current.value = JSON.stringify(this.getQuery(journalConfig, item.type, grid));
+      this.textInput.current.value = JSON.stringify(query);
 
       const form = this.form.current;
 
-      form.action = `${PROXY_URI}report/criteria-report?download=${item.download}`;
+      form.action = `${PROXY_URI}report/predicate-report?download=${item.download}`;
       form.target = item.target;
 
       form.submit();
     }
+  };
+
+  getSearchPredicate = (grid = {}) => {
+    const { search: text, columns, groupBy } = grid;
+
+    if (isEmpty(text)) {
+      return {};
+    }
+
+    return ParserPredicate.getSearchPredicates({ text, columns, groupBy });
   };
 
   getQuery = (config, type, grid) => {
@@ -81,20 +95,28 @@ export default class extends Component {
     const reportColumns = (grid.columns || config.columns || [])
       .filter(c => c.default)
       .map(column => ({ attribute: column.attribute, title: column.text }));
+    const gridPredicate = get(grid, ['predicates', 0], {});
+    const mainPredicate = get(grid, 'predicate', {});
+    const searchPredicate = this.getSearchPredicate(grid);
+    const predicates = [searchPredicate, gridPredicate];
+
+    if (isEmpty(predicates)) {
+      predicates.push(mainPredicate);
+    }
+
+    const predicate = deepClone({
+      t: PREDICATE_AND,
+      val: predicates
+    });
 
     const query = {
-      sortBy: [
-        {
-          attribute: 'cm:created',
-          order: 'desc'
-        }
-      ],
+      sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
+      predicate: ParserPredicate.removeEmptyPredicates([predicate])[0] || null,
       reportType: type,
       reportTitle: name,
       reportColumns: reportColumns,
       reportFilename: `${name}.${type}`
     };
-
     (config.meta.criteria || []).forEach((criterion, idx) => {
       query['field_' + idx] = criterion.field;
       query['predicate_' + idx] = criterion.predicate;
@@ -151,7 +173,9 @@ export default class extends Component {
           onChange={this.export}
           right={right}
         >
-          {children || <TwoIcoBtn icons={['icon-load', 'icon-down']} className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10" />}
+          {children || (
+            <TwoIcoBtn icons={['icon-upload', 'icon-small-down']} className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10" />
+          )}
         </Dropdown>
 
         <form ref={this.form} method="post" encType="multipart/form-data">

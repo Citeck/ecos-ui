@@ -15,9 +15,6 @@ import pageTabList from '../../../services/pageTabs/PageTabList';
 const mapStateToProps = state => ({
   dashboardId: get(state, `dashboard[${pageTabList.activeTabId}].identification.id`, '')
 });
-const mapDispatchToProps = dispatch => ({
-  dispatch
-});
 
 class DropdownMenuItem extends React.Component {
   static propTypes = {
@@ -30,7 +27,6 @@ class DropdownMenuItem extends React.Component {
       target: PropTypes.string,
       control: PropTypes.object
     }).isRequired,
-    dispatch: PropTypes.func,
     onClick: PropTypes.func,
     iconRight: PropTypes.string,
     dashboardId: PropTypes.string
@@ -82,15 +78,14 @@ class DropdownMenuItem extends React.Component {
   handlerClick = event => {
     const {
       data,
-      data: { control },
-      dispatch,
+      data: { control, isLegacy },
       onClick
     } = this.props;
 
     if (control && control.type) {
       event.preventDefault();
-      handleControl(control.type, control.payload, dispatch);
-    } else if (onClick) {
+      handleControl(control.type, control.payload);
+    } else if (!isLegacy && onClick) {
       event.preventDefault();
       onClick(data);
     }
@@ -125,7 +120,4 @@ class DropdownMenuItem extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DropdownMenuItem);
+export default connect(mapStateToProps)(DropdownMenuItem);

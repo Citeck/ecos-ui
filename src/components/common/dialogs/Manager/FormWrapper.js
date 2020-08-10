@@ -1,6 +1,7 @@
 import React from 'react';
 import uuidv4 from 'uuid/v4';
 import Formio from 'formiojs/Formio';
+import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 
 export default class FormWrapper extends React.Component {
   constructor(props) {
@@ -40,10 +41,13 @@ export default class FormWrapper extends React.Component {
 
     const onSubmit = this.props.onSubmit || (() => {});
     const options = {
+      ...(this.props.formOptions || {}),
       onSubmit
     };
 
-    const formPromise = Formio.createForm(containerElement, formDefinition, options);
+    const processedDefinition = EcosFormUtils.preProcessFormDefinition(formDefinition, options);
+
+    const formPromise = Formio.createForm(containerElement, processedDefinition, options);
     formPromise.then(form => {
       this._form = form;
       form.on('submit', submission => {
@@ -54,6 +58,11 @@ export default class FormWrapper extends React.Component {
           });
         }
       });
+      if (this.props.onFormCancel) {
+        form.on('cancel', () => {
+          this.props.onFormCancel();
+        });
+      }
       if (this.props.formData) {
         form.submission = {
           data: this.props.formData

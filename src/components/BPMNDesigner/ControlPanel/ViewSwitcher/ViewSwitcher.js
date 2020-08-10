@@ -53,7 +53,7 @@ const ViewSwitcher = ({ viewType, setCardViewType, setListViewType, isMobile }) 
 
       <div
         id="bpmn-view-switcher-list"
-        className={cn('icon-list-1', styles.item, { [styles.itemActive]: viewType === VIEW_TYPE_LIST })}
+        className={cn('icon-list', styles.item, { [styles.itemActive]: viewType === VIEW_TYPE_LIST })}
         onClick={setListViewType}
       />
       {tooltipList}

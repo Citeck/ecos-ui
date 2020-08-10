@@ -431,27 +431,6 @@ export default class AsyncDataComponent extends BaseComponent {
     return super.destroy();
   }
 
-  _inlineInitialValue = null;
-  _isInlineEditingMode = false;
-  _changeValue = ({ refreshOn, saveInline = false }) => event => {
-    const validEvent = event && event.component && refreshOn.findIndex(item => item.value === event.component.key) !== -1;
-    const shouldUpdate =
-      validEvent &&
-      this.inContext(event.instance) && // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set in fields inside EditGrids could alter their state from other rows (which is bad).
-      this.shouldExecute; // !!! это условие должно быть последним в этом "if" во избежание ненужных вызовов this.shouldExecute
-    const inlineValueChanged = this._inlineInitialValue !== event.value;
-
-    if (this._isInlineEditingMode) {
-      if (shouldUpdate && saveInline && inlineValueChanged) {
-        this._updateValue(false);
-      }
-    } else {
-      if (shouldUpdate) {
-        this._updateValue(false);
-      }
-    }
-  };
-
   build() {
     super.build();
 
@@ -484,23 +463,20 @@ export default class AsyncDataComponent extends BaseComponent {
 
     const refreshOn = _.get(this.component, 'refreshOn', []);
     if (Array.isArray(refreshOn) && refreshOn.length > 0) {
-      this.on('componentChange', this._changeValue({ refreshOn }), true);
-      this.on('inlineSubmit', this._changeValue({ refreshOn, saveInline: true }), true);
       this.on(
-        'inlineEditingStart',
-        value => {
-          this._inlineInitialValue = value;
-          this._isInlineEditingMode = true;
+        'componentChange',
+        event => {
+          // console.log('changed event', event)
+          if (
+            event &&
+            event.component &&
+            refreshOn.findIndex(item => item.value === event.component.key) !== -1 &&
+            this.inContext(event.instance) && // Make sure the changed component is not in a different "context". Solves issues where refreshOn being set in fields inside EditGrids could alter their state from other rows (which is bad).
+            this.shouldExecute // !!! это условие должно быть последним в этом "if" во избежание ненужных вызовов this.shouldExecute
+          ) {
+            this._updateValue(false);
+          }
         },
-        true
-      );
-      this.on(
-        'inlineEditingFinish',
-        () =>
-          setTimeout(() => {
-            this._inlineInitialValue = null;
-            this._isInlineEditingMode = false;
-          }, 200),
         true
       );
     }
@@ -548,4 +524,19 @@ export default class AsyncDataComponent extends BaseComponent {
       });
     }
   };
+
+  static optimizeSchema(comp) {
+    const defaultSchema = AsyncDataComponent.schema();
+    return {
+      ...comp,
+      source: _.omitBy(comp.source, (value, key) => {
+        const saveAtts = ['type', 'forceLoad'];
+        if (saveAtts.includes(key)) {
+          return false;
+        }
+        return key !== comp.source.type;
+      }),
+      update: _.omitBy(comp.update, (value, key) => _.isEqual(defaultSchema.update[key], value))
+    };
+  }
 }

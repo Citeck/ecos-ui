@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
+import isEmpty from 'lodash/isEmpty';
 
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
 import Records from '../Records/Records';
@@ -8,6 +9,10 @@ import { MIN_WIDTH_DASHLET_SMALL, MAX_DEFAULT_HEIGHT_DASHLET } from '../../const
 
 class BaseWidget extends Component {
   contentRef = React.createRef();
+
+  updateWatcher = null;
+
+  _observableFieldsToUpdate = ['_modified'];
 
   constructor(props) {
     super(props);
@@ -25,6 +30,7 @@ class BaseWidget extends Component {
       userHeight: UserLocalSettingsService.getDashletHeight(lsId),
       isCollapsed: UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED)
     };
+    this.updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload.bind(this));
   }
 
   componentDidMount() {
@@ -37,12 +43,20 @@ class BaseWidget extends Component {
     this.updateLocalStorageDate();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     const { onUpdate } = this.props;
 
     if (typeof onUpdate === 'function') {
       onUpdate(this);
     }
+
+    if (this.state.runUpdate && !prevState.runUpdate) {
+      this.handleUpdate();
+    }
+  }
+
+  componentWillUnmount() {
+    this.instanceRecord.unwatch(this.updateWatcher);
   }
 
   get instanceRecord() {
@@ -80,6 +94,10 @@ class BaseWidget extends Component {
     return undefined;
   }
 
+  get observableFieldsToUpdate() {
+    return this._observableFieldsToUpdate;
+  }
+
   setContentHeight = contentHeight => {
     let contentHeightState = this.state.contentHeight;
 
@@ -108,6 +126,18 @@ class BaseWidget extends Component {
       this.setState({ fitHeights });
     }
   };
+
+  set observableFieldsToUpdate(fields) {
+    this._observableFieldsToUpdate = fields;
+
+    if (this.updateWatcher) {
+      this.instanceRecord.unwatch(this.updateWatcher);
+    }
+
+    if (!isEmpty(fields)) {
+      this.updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload.bind(this));
+    }
+  }
 
   updateLocalStorageDate = () => {
     UserLocalSettingsService.updateDashletDate(this.state.lsId);
@@ -150,9 +180,11 @@ class BaseWidget extends Component {
     !!width && this.setState({ width });
   };
 
-  reload = () => {
+  handleUpdate() {}
+
+  reload() {
     this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
-  };
+  }
 }
 
 export default BaseWidget;

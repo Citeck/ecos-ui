@@ -452,6 +452,11 @@ class Comments extends BaseWidget {
     }
   }, 400);
 
+  handleUpdate() {
+    super.handleUpdate();
+    this.handleReloadData();
+  }
+
   renderHeader() {
     const { isEdit } = this.state;
 
@@ -525,7 +530,7 @@ class Comments extends BaseWidget {
           />
           <IcoBtn
             onMouseDown={this.handleToggleBlockType.bind(this, BUTTONS_TYPE.LIST)}
-            className={classNames('icon-list3', 'ecos-comments__editor-button', 'ecos-comments__editor-button_list', {
+            className={classNames('icon-items', 'ecos-comments__editor-button', 'ecos-comments__editor-button_list', {
               'ecos-comments__editor-button_active': this.blockType === BUTTONS_TYPE.LIST
             })}
           />

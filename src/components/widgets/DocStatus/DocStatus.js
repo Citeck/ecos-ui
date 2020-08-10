@@ -56,7 +56,7 @@ class DocStatus extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.watcher = this.instanceRecord.watch(['caseStatus', 'idocs:documentStatus'], this.updateStatus);
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'caseStatus', 'idocs:documentStatus'])];
   }
 
   state = {
@@ -72,8 +72,8 @@ class DocStatus extends BaseWidget {
     initDocStatus({ stateId, record });
   }
 
-  componentDidUpdate(prevProps) {
-    super.componentDidUpdate();
+  componentDidUpdate(prevProps, prevState) {
+    super.componentDidUpdate(prevProps, prevState);
 
     const { isLoading, status } = this.props;
 
@@ -85,11 +85,11 @@ class DocStatus extends BaseWidget {
   }
 
   componentWillUnmount() {
+    super.componentWillUnmount();
+
     const { resetDocStatus, stateId } = this.props;
 
     resetDocStatus({ stateId });
-
-    this.instanceRecord.unwatch(this.watcher);
   }
 
   get isNoStatus() {
@@ -116,12 +116,17 @@ class DocStatus extends BaseWidget {
     getDocStatus({ stateId, record });
   };
 
-  onChangeStatus = () => {
+  handleChangeStatus = () => {
     const { stateId, record, changeDocStatus } = this.props;
 
     this.setState({ wasChanged: true });
     changeDocStatus({ stateId, record });
   };
+
+  handleUpdate() {
+    super.handleUpdate();
+    this.updateStatus();
+  }
 
   renderReadField() {
     const { status = {} } = this.props;
@@ -161,8 +166,8 @@ class DocStatus extends BaseWidget {
 
     return (
       <div className="ecos-doc-status__data ecos-doc-status__data_manual">
-        <Dropdown source={source} value={status.id} valueField={'id'} titleField={'name'} onChange={this.onChangeStatus} hideSelected>
-          <IcoBtn invert icon={'icon-down'} className={classStatus} loading={this.isShowLoader} />
+        <Dropdown source={source} value={status.id} valueField={'id'} titleField={'name'} onChange={this.handleChangeStatus} hideSelected>
+          <IcoBtn invert icon={'icon-small-down'} className={classStatus} loading={this.isShowLoader} />
         </Dropdown>
       </div>
     );

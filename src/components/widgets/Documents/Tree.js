@@ -4,7 +4,7 @@ import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 
 import { Icon } from '../../common';
-import { Checkbox, Badge } from '../../common/form';
+import { Badge, Checkbox } from '../../common/form';
 import { arrayCompare, arrayFlat, t } from '../../../helpers/util';
 import { GrouppedTypeInterface } from './propsInterfaces';
 
@@ -107,8 +107,8 @@ class TreeItem extends Component {
 
     return (
       <Icon
-        className={classNames('ecos-tree__item-element-arrow icon-right', {
-          'ecos-tree__item-element-arrow_open': isOpen
+        className={classNames('ecos-docs-tree__item-element-arrow icon-small-right', {
+          'ecos-docs-tree__item-element-arrow_open': isOpen
         })}
         onClick={this.handleToggleOpen}
       />
@@ -124,7 +124,7 @@ class TreeItem extends Component {
     }
 
     return (
-      <Collapse isOpen={isOpen} className="ecos-tree__item-element-children">
+      <Collapse isOpen={isOpen} className="ecos-docs-tree__item-element-children">
         {item.items.map(item => (
           <TreeItem item={item} isChild key={item.id} onToggleSelect={onToggleSelect} onOpenSettings={onOpenSettings} />
         ))}
@@ -139,7 +139,7 @@ class TreeItem extends Component {
       return null;
     }
 
-    return <Icon className="icon-settings ecos-tree__item-element-settings" onClick={this.handleToggleSettings} />;
+    return <Icon className="icon-settings ecos-docs-tree__item-element-settings" onClick={this.handleToggleSettings} />;
   }
 
   renderBadge() {
@@ -168,8 +168,8 @@ class TreeItem extends Component {
     return (
       <Badge
         text={text}
-        className={classNames('ecos-tree__item-element-badge', {
-          'ecos-tree__item-element-badge_selected': somethingSelected
+        className={classNames('ecos-docs-tree__item-element-badge', {
+          'ecos-docs-tree__item-element-badge_selected': somethingSelected
         })}
       />
     );
@@ -181,27 +181,27 @@ class TreeItem extends Component {
 
     return (
       <div
-        className={classNames('ecos-tree__item', {
-          'ecos-tree__item_child': isChild,
-          'ecos-tree__item_parent': item.items.length,
-          'ecos-tree__item_open': isOpen,
-          'ecos-tree__item_not-selected': !item.isSelected,
-          'ecos-tree__item_locked': item.locked,
-          'ecos-tree__item_has-grandchildren': this.hasGrandchildren
+        className={classNames('ecos-docs-tree__item', {
+          'ecos-docs-tree__item_child': isChild,
+          'ecos-docs-tree__item_parent': item.items.length,
+          'ecos-docs-tree__item_open': isOpen,
+          'ecos-docs-tree__item_not-selected': !item.isSelected,
+          'ecos-docs-tree__item_locked': item.locked,
+          'ecos-docs-tree__item_has-grandchildren': this.hasGrandchildren
         })}
       >
-        <div className="ecos-tree__item-element">
+        <div className="ecos-docs-tree__item-element">
           {this.renderArrow()}
           <Checkbox
-            className="ecos-tree__item-element-check"
+            className="ecos-docs-tree__item-element-check"
             onChange={this.handleToggleCheck}
             checked={item.isSelected}
             disabled={item.locked}
             title={this.title}
           />
           <div
-            className={classNames('ecos-tree__item-element-label', {
-              'ecos-tree__item-element-label_locked': item.locked
+            className={classNames('ecos-docs-tree__item-element-label', {
+              'ecos-docs-tree__item-element-label_locked': item.locked
             })}
           >
             {item.name}
@@ -267,7 +267,7 @@ class Tree extends Component {
       return null;
     }
 
-    return <div className="ecos-tree__empty">{t(Labels.EMPTY)}</div>;
+    return <div className="ecos-docs-tree__empty">{t(Labels.EMPTY)}</div>;
   }
 
   renderTree() {
@@ -287,7 +287,7 @@ class Tree extends Component {
     const { className } = this.props;
 
     return (
-      <div className={classNames('ecos-tree', className)}>
+      <div className={classNames('ecos-docs-tree', className)}>
         {this.renderTree()}
         {this.renderEmpty()}
       </div>

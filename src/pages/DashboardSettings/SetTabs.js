@@ -172,7 +172,7 @@ class SetTabs extends React.Component {
           {this.renderArrowTabs()}
           {empty && <div className="ecos-dashboard-settings__layout-tabs_empty" />}
           <IcoBtn
-            icon="icon-big-plus"
+            icon="icon-small-plus"
             className="ecos-dashboard-settings__layout-tabs-add-tab ecos-btn_i ecos-btn_blue2 ecos-btn_hover_blue2"
             onClick={this.onCreateTab}
           />

@@ -29,6 +29,13 @@ export const tooltips = {
   SETTINGS: t('documents-widget.tooltip.settings')
 };
 
+export const documentFields = {
+  id: '__id',
+  name: '__name',
+  modified: '__modified',
+  loadedBy: '__loadedBy'
+};
+
 export const tableFields = {
   ALL: [
     {
@@ -36,11 +43,11 @@ export const tableFields = {
       label: 'documents-widget.table-fields.settings'
     },
     {
-      name: 'loadedBy',
+      name: documentFields.loadedBy,
       label: 'documents-widget.table-fields.uploaded-by'
     },
     {
-      name: 'modified',
+      name: documentFields.modified,
       label: 'documents-widget.table-fields.updated-at'
     },
     {
@@ -50,15 +57,15 @@ export const tableFields = {
   ],
   DEFAULT: [
     {
-      name: 'name',
+      name: documentFields.name,
       label: 'documents-widget.table-fields.name'
     },
     {
-      name: 'loadedBy',
+      name: documentFields.loadedBy,
       label: 'documents-widget.table-fields.uploaded-by'
     },
     {
-      name: 'modified',
+      name: documentFields.modified,
       label: 'documents-widget.table-fields.updated-at'
     }
   ]

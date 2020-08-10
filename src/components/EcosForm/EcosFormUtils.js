@@ -1,14 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
+import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
+import omitBy from 'lodash/omitBy';
+import isEqual from 'lodash/isEqual';
 import uuidV4 from 'uuid/v4';
 
+import { Components } from '../../forms';
 import { getCurrentUserName, t } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
@@ -244,6 +248,53 @@ export default class EcosFormUtils {
       });
   }
 
+  static cloneRecord({ clonedRecord, createVariant, saveOnSubmit }) {
+    return new Promise((resolve, reject) => {
+      let { recordRef, formKey } = createVariant || {};
+      const newRecord = Records.getRecordToEdit(recordRef);
+      const formAttributes = { definition: 'definition?json' };
+      const formPromise = EcosFormUtils.getForm(newRecord, formKey, formAttributes);
+
+      formPromise.then(formData => {
+        if (!formData || !formData.definition) {
+          NotificationManager.error(t('ecos-form.error.clone-get-fields'), t('error'));
+          reject(null);
+        }
+
+        const formDefinition = cloneDeep(formData.definition);
+        const inputs = EcosFormUtils.getFormInputs(formDefinition);
+        const recordDataPromise = EcosFormUtils.getClonedData(clonedRecord, inputs);
+        const onSuccess = result => {
+          NotificationManager.success(t('ecos-form.success.clone-record'), t('success'));
+          resolve(result);
+        };
+
+        recordDataPromise
+          .then(data => {
+            for (let att in data) {
+              if (data.hasOwnProperty(att)) {
+                newRecord.att(att, data[att]);
+              }
+            }
+
+            if (saveOnSubmit === false) {
+              onSuccess(newRecord);
+            } else {
+              newRecord
+                .save()
+                .then(onSuccess)
+                .catch(e => Promise.reject(e));
+            }
+          })
+          .catch(e => {
+            console.error(e);
+            reject(null);
+            NotificationManager.error(t('ecos-form.error.clone-record'), t('error'));
+          });
+      });
+    });
+  }
+
   static isNewFormsEnabled() {
     return Records.get('ecos-config@ecos-forms-enable').load('.bool');
   }
@@ -353,6 +404,45 @@ export default class EcosFormUtils {
     });
   }
 
+  static preProcessFormDefinition(formDefinition, formOptions) {
+    const newFormDefinition = cloneDeep(formDefinition);
+
+    EcosFormUtils.forEachComponent(newFormDefinition, component => {
+      if (component.key) {
+        if (component.properties) {
+          for (let key in component.properties) {
+            if (!component.properties.hasOwnProperty(key)) {
+              continue;
+            }
+            let value = component.properties[key];
+            if (value[0] === '$') {
+              component.properties[key] = EcosFormUtils._replaceOptionValuePlaceholder(value, formOptions);
+            }
+          }
+        }
+        for (let key in component) {
+          if (!component.hasOwnProperty(key)) {
+            continue;
+          }
+          let value = component[key];
+          if (isString(value) && value[0] === '$') {
+            component[key] = EcosFormUtils._replaceOptionValuePlaceholder(value, formOptions);
+          }
+        }
+      }
+    });
+
+    return newFormDefinition;
+  }
+
+  static _replaceOptionValuePlaceholder(value, options) {
+    let match = /\${options\['(.+)']}/.exec(value);
+    if (match != null) {
+      return options[match[1]];
+    }
+    return value;
+  }
+
   static forEachComponent(root, action, scope = null) {
     let components = [];
 
@@ -386,11 +476,68 @@ export default class EcosFormUtils {
       }
     }
 
+    const children = [];
     for (let i = 0; i < components.length; i++) {
       let component = components[i];
-      action(component, currentScope);
-      this.forEachComponent(component, action, currentScope);
+      const modifiedComponent = action(component, currentScope);
+      if (modifiedComponent) {
+        component = modifiedComponent;
+      }
+
+      component = this.forEachComponent(component, action, currentScope);
+      children.push(component);
     }
+
+    const modifiedRoot = {
+      ...root
+    };
+
+    if (children.length) {
+      modifiedRoot[root.type === 'columns' ? 'columns' : 'components'] = children;
+    }
+
+    return modifiedRoot;
+  }
+
+  static optimizeFormSchema(form) {
+    const objectAtts = ['conditional', 'validate', 'widget'];
+    const leaveAtts = ['key', 'type', 'input'];
+    const removeAtts = ['id'];
+
+    return EcosFormUtils.forEachComponent(form, function(comp) {
+      const currentComponent = Components.components[comp.type];
+      if (!currentComponent) {
+        return comp;
+      }
+
+      const currentComponentDefaultSchema = currentComponent ? currentComponent.schema() : {};
+
+      if (typeof currentComponent.optimizeSchema === 'function') {
+        comp = currentComponent.optimizeSchema(comp);
+      }
+
+      objectAtts.forEach(att => {
+        if (comp[att]) {
+          comp[att] = omitBy(comp[att], (value, key) => isEqual(currentComponentDefaultSchema[att][key], value));
+        }
+      });
+
+      return omitBy(comp, (attValue, attName) => {
+        if (leaveAtts.includes(attName)) {
+          return false;
+        }
+
+        if (removeAtts.includes(attName)) {
+          return true;
+        }
+
+        if ([...objectAtts, 'attributes', 'properties'].includes(attName) && isEmpty(attValue)) {
+          return true;
+        }
+
+        return isEqual(currentComponentDefaultSchema[attName], attValue);
+      });
+    });
   }
 
   static getComponentAttribute(component) {
@@ -654,7 +801,8 @@ export default class EcosFormUtils {
             input.component &&
             input.component.type === 'datetime' &&
             input.component.enableDate &&
-            !input.component.enableTime
+            !input.component.enableTime &&
+            recordData[attPath]
           ) {
             const serverDate = new Date(recordData[attPath]);
             serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
@@ -697,6 +845,19 @@ export default class EcosFormUtils {
       }
     }
     return result;
+  }
+
+  static getClonedData(recordId, inputs) {
+    if (!recordId) {
+      return Promise.resolve({});
+    }
+
+    let attributes = [];
+    for (let input of inputs) {
+      attributes.push(input.schema);
+    }
+
+    return Records.get(recordId).load(attributes, true);
   }
 
   static removeEmptyValuesFromArray(data) {

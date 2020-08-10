@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
-import dialogManager from '../../common/dialogs/Manager';
+import isEmpty from 'lodash/isEmpty';
 
+import dialogManager from '../../common/dialogs/Manager';
 import JournalsDownloadZip from '../JournalsDownloadZip';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import FormManager from '../../EcosForm/FormManager';
@@ -48,7 +49,8 @@ const mapStateToProps = (state, props) => {
     selectedRecords: newState.selectedRecords,
     selectAllRecords: newState.selectAllRecords,
     selectAllRecordsVisible: newState.selectAllRecordsVisible,
-    performGroupActionResponse: newState.performGroupActionResponse
+    performGroupActionResponse: newState.performGroupActionResponse,
+    isLoadingPerformGroupActions: newState.isLoadingPerformGroupActions
   };
 };
 
@@ -79,6 +81,12 @@ class JournalsDashletGrid extends Component {
   state = {
     isDialogShow: false
   };
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (get(prevProps, 'grid.pagination.page') !== get(this.props, 'grid.pagination.page')) {
+      this.scrollPosition.scrollTop = 0;
+    }
+  }
 
   setSelectedRecords = e => {
     const props = this.props;
@@ -115,10 +123,14 @@ class JournalsDashletGrid extends Component {
   onFilter = ([filter]) => {
     const {
       setPredicate,
-      grid: { columns, pagination: pager }
+      grid: { columns, pagination: pager, predicates }
     } = this.props;
-    const predicate = ParserPredicate.getDefaultPredicates(columns, [filter.att]);
-    const newPredicate = ParserPredicate.setPredicateValue(predicate, filter, true);
+    const currentFilters = ParserPredicate.getFlatFilters(predicates) || [];
+
+    currentFilters.push(filter);
+
+    const predicate = ParserPredicate.getDefaultPredicates(columns, currentFilters.map(filter => filter.att));
+    const newPredicate = ParserPredicate.setPredicateValue(predicate, currentFilters, true);
     const { maxItems } = pager || DEFAULT_JOURNALS_PAGINATION;
     const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 
@@ -170,7 +182,7 @@ class JournalsDashletGrid extends Component {
         {
           title: t('grid.inline-tools.details'),
           onClick: () => this.goToJournalPageWithFilter(),
-          icon: 'icon-big-arrow'
+          icon: 'icon-small-arrow-right'
         }
       ];
     }
@@ -236,7 +248,7 @@ class JournalsDashletGrid extends Component {
         title={t('grid.tools.copy-to')}
       />,
       <IcoBtn
-        icon={'icon-big-arrow'}
+        icon={'icon-small-arrow-right'}
         className="ecos-journal__tool ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t-dark-brown"
         title={t('grid.tools.move-to')}
       />,
@@ -255,12 +267,13 @@ class JournalsDashletGrid extends Component {
           source={sourceGroupActions}
           valueField={'id'}
           titleField={'title'}
+          keyFields={['id', 'formKey', 'title']}
           isStatic
           onChange={this.changeGroupAction}
         >
           <IcoBtn
             invert
-            icon={'icon-down'}
+            icon={'icon-small-down'}
             className="ecos-journal__tool-group-btn dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn"
             onClick={this.onGoTo}
           >
@@ -431,8 +444,12 @@ class JournalsDashletGrid extends Component {
   };
 
   renderPerformGroupActionResponse = (performGroupActionResponse = []) => {
-    const { className } = this.props;
+    const { className, isLoadingPerformGroupActions } = this.props;
     const performGroupActionResponseUrl = (performGroupActionResponse[0] || {}).url;
+
+    if (isEmpty(performGroupActionResponse) || isLoadingPerformGroupActions) {
+      return null;
+    }
 
     return (
       <EmptyGrid maxItems={performGroupActionResponse.length}>
@@ -516,7 +533,8 @@ class JournalsDashletGrid extends Component {
       autoHeight,
       predicate,
       journalConfig: { params = {} },
-      selectorContainer
+      selectorContainer,
+      isLoadingPerformGroupActions
     } = this.props;
 
     let editable = true;
@@ -586,8 +604,9 @@ class JournalsDashletGrid extends Component {
         </div>
 
         <EcosModal
+          isLoading={isLoadingPerformGroupActions}
           title={t('group-action.label.header')}
-          isOpen={!!(performGroupActionResponse && performGroupActionResponse.length)}
+          isOpen={!!((performGroupActionResponse && performGroupActionResponse.length) || isLoadingPerformGroupActions)}
           hideModal={this.closePerformGroupActionDialog}
           className="journal__dialog"
         >

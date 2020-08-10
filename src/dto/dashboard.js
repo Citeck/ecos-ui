@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+
 import { TITLE } from '../constants/pageTabs';
 import DashboardService from '../services/dashboard';
 
@@ -56,7 +57,11 @@ export default class DashboardConverter {
 
       DashboardService.movedToListLayout(config, layouts);
 
-      const mobile = get(config, ['mobile'], DashboardService.generateMobileConfig(layouts));
+      let mobile = get(config, ['mobile']);
+
+      if (isEmpty(mobile)) {
+        mobile = DashboardService.generateMobileConfig(layouts);
+      }
 
       mobile.forEach(item => {
         target.push(DashboardConverter.getDashboardLayoutForWeb(item));

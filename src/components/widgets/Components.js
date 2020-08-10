@@ -24,7 +24,8 @@ export const ComponentKeys = {
   BARCODE: 'barcode',
   BIRTHDAYS: 'birthdays',
   DOCUMENTS: 'documents',
-  USER_PROFILE: 'user-profile'
+  USER_PROFILE: 'user-profile',
+  DOC_CONSTRUCTOR: 'doc-constructor'
 };
 
 /**
@@ -153,6 +154,12 @@ export default class Components {
       label: 'dashboard-settings.widget.user-basic-info',
       supportedDashboardTypes: [DashboardTypes.PROFILE],
       props: {}
+    },
+    [ComponentKeys.DOC_CONSTRUCTOR]: {
+      load: () => lazy(() => import('./DocConstructor')),
+      label: 'dashboard-settings.widget.doc-constructor',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
+      props: {}
     }
   });
 
@@ -213,6 +220,7 @@ export default class Components {
       ...props,
       id: props.id || defWidget.id,
       config: {
+        widgetDisplayCondition: '',
         ...config
       }
     };

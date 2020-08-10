@@ -40,12 +40,15 @@ export default class DashboardSettingsConverter {
 
   static getMobileConfigForWeb(config) {
     const target = [];
-
     const layouts = get(config, ['layouts'], []);
 
     DashboardService.movedToListLayout(config, layouts);
 
-    const mobile = get(config, ['mobile'], DashboardService.generateMobileConfig(layouts));
+    let mobile = get(config, ['mobile']);
+
+    if (isEmpty(mobile)) {
+      mobile = DashboardService.generateMobileConfig(layouts);
+    }
 
     mobile.forEach(layout => {
       target.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));

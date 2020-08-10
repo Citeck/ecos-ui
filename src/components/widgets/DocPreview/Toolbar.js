@@ -6,7 +6,7 @@ import get from 'lodash/get';
 
 import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
-import { getScaleModes, t } from '../../../helpers/util';
+import { getScaleModes, isExistValue, t } from '../../../helpers/util';
 
 const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
@@ -46,7 +46,8 @@ class Toolbar extends Component {
     };
   }
 
-  toolbarZoom = React.createRef();
+  toolbarWrapperRef = React.createRef();
+  toolbarZoomRef = React.createRef();
 
   componentDidMount() {
     const { scale } = this.state;
@@ -60,11 +61,11 @@ class Toolbar extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { scrollPage: currentPage, calcScale: scale } = this.props;
 
-    if (currentPage !== prevState.currentPage && !Object.is(currentPage, prevState.currentPage)) {
+    if (isExistValue(currentPage) && currentPage !== prevState.currentPage) {
       this.setState({ currentPage });
     }
 
-    if (scale !== prevState.scale && !Object.is(scale, prevState.scale)) {
+    if (!Number.isNaN(scale) && isExistValue(scale) && scale !== prevProps.calcScale && scale !== prevState.scale) {
       this.setState({ scale });
     }
   }
@@ -78,6 +79,23 @@ class Toolbar extends Component {
     }
 
     return zooms;
+  }
+
+  get zoomDropdownStyle() {
+    const wrapper = get(this.toolbarWrapperRef, 'current');
+    const styles = {
+      maxWidth: '145px'
+    };
+
+    if (!wrapper) {
+      return styles;
+    }
+
+    const currentStyles = window.getComputedStyle(wrapper);
+
+    styles.maxWidth = `calc(${styles.maxWidth} + ${currentStyles.marginLeft} + ${currentStyles.marginRight})`;
+
+    return styles;
   }
 
   handlePrev = () => {
@@ -123,18 +141,19 @@ class Toolbar extends Component {
   };
 
   setScale = direction => {
-    const { scale } = this.state;
+    const _scale = this.state.scale;
     const selectedZoom = CUSTOM;
-    let currentScale = parseFloat(scale);
+    let scale = parseFloat(_scale);
 
-    if (Number.isNaN(currentScale)) {
-      currentScale = 1;
+    if (Number.isNaN(scale)) {
+      scale = 1;
     }
 
-    currentScale += direction * ZOOM_STEP;
-    currentScale = +Number(currentScale).toFixed(2);
+    scale += direction * ZOOM_STEP;
+    scale = scale < ZOOM_STEP ? ZOOM_STEP : scale;
+    scale = +Number(scale).toFixed(2);
 
-    let newState = { ...this.state, selectedZoom, scale: currentScale };
+    let newState = { ...this.state, selectedZoom, scale };
 
     this.setState(newState);
     this.triggerScaleChange(newState);
@@ -161,20 +180,20 @@ class Toolbar extends Component {
     return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-pager">
         <IcoBtn
-          icon={'icon-left'}
+          icon={'icon-small-left'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-prev', {
             'ecos-btn_disabled': currentPage === 1
           })}
           onClick={this.handlePrev}
         />
         {!!totalPages && (
-          <>
+          <div className="ecos-doc-preview__toolbar-pager-text-wrapper">
             <Input type="text" onChange={this.goToPage} value={currentPage} className="ecos-doc-preview__toolbar-pager-input" />
             <span className="ecos-doc-preview__toolbar-pager-text"> {`${t(Labels.OUT_OF)} ${totalPages}`} </span>
-          </>
+          </div>
         )}
         <IcoBtn
-          icon={'icon-right'}
+          icon={'icon-small-right'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-next', {
             'ecos-btn_disabled': currentPage === totalPages
           })}
@@ -187,17 +206,17 @@ class Toolbar extends Component {
   renderZoom() {
     const { scale, selectedZoom } = this.state;
     const bodyH = get(window, 'document.body.offsetHeight', 400);
-    const bottom = this.toolbarZoom.current ? this.toolbarZoom.current.getBoundingClientRect().bottom : 0;
+    const bottom = this.toolbarZoomRef.current ? this.toolbarZoomRef.current.getBoundingClientRect().bottom : 0;
     const maxH = bodyH - bottom - 10;
 
     return (
-      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom" ref={this.toolbarZoom}>
+      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom" ref={this.toolbarZoomRef}>
         <IcoBtn
-          icon={'icon-minus'}
-          className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= ZOOM_STEP })}
+          icon={'icon-small-minus'}
+          className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= 0 })}
           onClick={() => this.setScale(-1)}
         />
-        <IcoBtn icon={'icon-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={() => this.setScale(1)} />
+        <IcoBtn icon={'icon-small-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={() => this.setScale(1)} />
         <Dropdown
           source={this.zoomOptions}
           value={selectedZoom}
@@ -206,12 +225,14 @@ class Toolbar extends Component {
           onChange={this.onChangeZoomOption}
           hideSelected={selectedZoom === CUSTOM}
           className="ecos-doc-preview__toolbar-zoom-dropdown"
+          controlClassName="ecos-doc-preview__toolbar-zoom-dropdown-control"
           withScrollbar
           scrollbarHeightMax={`${maxH}px`}
         >
           <IcoBtn
             invert
-            icon={'icon-down'}
+            style={this.zoomDropdownStyle}
+            icon={'icon-small-down'}
             className="ecos-btn_sq_sm ecos-btn_tight ecos-btn_drop-down ecos-doc-preview__toolbar-zoom-selector"
           />
         </Dropdown>
@@ -241,9 +262,11 @@ class Toolbar extends Component {
 
     return (
       <div ref={inputRef} className={classNames('ecos-doc-preview__toolbar', className)}>
-        {isPDF && this.renderPager()}
-        {this.renderZoom()}
-        {this.renderExtraBtns()}
+        <div ref={this.toolbarWrapperRef} className="ecos-doc-preview__toolbar-wrapper">
+          {isPDF && this.renderPager()}
+          {this.renderZoom()}
+          {this.renderExtraBtns()}
+        </div>
       </div>
     );
   }

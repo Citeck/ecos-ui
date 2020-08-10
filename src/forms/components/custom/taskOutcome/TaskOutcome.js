@@ -28,7 +28,8 @@ export default class TaskOutcome extends NestedComponent {
         buttons: [],
         customClass: 'formio-task-outcome',
         components: [],
-        input: true
+        input: true,
+        message: 'Action buttons not defined'
       },
       ...extend
     );
@@ -42,6 +43,10 @@ export default class TaskOutcome extends NestedComponent {
       weight: 0,
       schema: TaskOutcome.schema()
     };
+  }
+
+  get defaultSchema() {
+    return TaskOutcome.schema();
   }
 
   get baseButtonConfig() {
@@ -59,6 +64,11 @@ export default class TaskOutcome extends NestedComponent {
 
     if (!this.component.hideLabel) {
       this.createLabel(this.element);
+    }
+
+    if (this.options.builder) {
+      // We need to see it in builder mode.
+      this.append(this.text(this.name + ' (' + this.key + ')'));
     }
 
     this.getButtonsData();

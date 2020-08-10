@@ -72,7 +72,7 @@ export default class Avatar extends React.Component {
         </div>
       );
     } else {
-      return <Icon className="ecos-avatar__icon icon-User_avatar" />;
+      return <Icon className="ecos-avatar__icon icon-user-normal" />;
     }
   }
 
