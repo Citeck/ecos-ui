@@ -41,10 +41,6 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     return AssocFormatter.getDisplayName(value);
   }
 
-  constructor(props) {
-    super(props);
-  }
-
   getId(cell) {
     return get(cell, 'assoc', '');
   }

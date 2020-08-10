@@ -55,16 +55,11 @@ export default class Popper extends Component {
   }
 
   checkNeedShowPopper = () => {
-    const { text } = this.props;
     const element = this.#textRef;
 
-    if (!element) {
+    if (!element || !this.needPopper) {
       this.state.needPopover && this.setState({ needPopover: false });
 
-      return;
-    }
-
-    if (!text) {
       return;
     }
 
@@ -73,11 +68,12 @@ export default class Popper extends Component {
     const styles = window.getComputedStyle(element, null);
     const paddingLeft = parseInt(styles.getPropertyValue('padding-left'), 10) || 0;
     const paddingRight = parseInt(styles.getPropertyValue('padding-right'), 10) || 0;
+    const { text } = this.props;
 
     context.font = styles.getPropertyValue('font');
 
-    let fullWidth = Math.round(context.measureText(text.trim()).width);
-    let elementWidth = Math.round(element.getBoundingClientRect().width);
+    let fullWidth = context.measureText(text.trim()).width;
+    let elementWidth = element.getBoundingClientRect().width;
 
     if (isNaN(fullWidth)) {
       fullWidth = 0;
@@ -87,9 +83,9 @@ export default class Popper extends Component {
       elementWidth = 0;
     }
 
-    const needPopover = fullWidth > elementWidth - (paddingLeft + paddingRight);
-
-    this.setState({ needPopover });
+    this.setState({
+      needPopover: fullWidth > elementWidth - (paddingLeft + paddingRight)
+    });
   };
 
   setIconRef = ref => {
