@@ -17,6 +17,10 @@ export default class SelectComponent extends FormIOSelectComponent {
     );
   }
 
+  get defaultSchema() {
+    return SelectComponent.schema();
+  }
+
   addCurrentChoices(values, items, keyValue) {
     if (!values) {
       return false;

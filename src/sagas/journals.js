@@ -341,8 +341,13 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const params = getGridParams({ journalConfig, journalSetting, pagination });
   const gridData = yield getGridData(api, params, stateId);
   const editingRules = yield getGridEditingRules(api, gridData);
+  let selectedRecords = [];
 
-  yield put(setSelectedRecords(w([])));
+  if (!!userConfigId) {
+    selectedRecords = get(gridData, 'data', []).map(item => item.id);
+  }
+
+  yield put(setSelectedRecords(w(selectedRecords)));
   yield put(setSelectAllRecords(w(!!userConfigId)));
   yield put(setSelectAllRecordsVisible(w(false)));
   yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
@@ -417,7 +422,14 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
       stateId
     );
     const editingRules = yield getGridEditingRules(api, gridData);
+    const selectAllRecords = yield select(state => state.journals[stateId].selectAllRecords);
+    let selectedRecords = [];
 
+    if (!!selectAllRecords) {
+      selectedRecords = get(gridData, 'data', []).map(item => item.id);
+    }
+
+    yield put(setSelectedRecords(w(selectedRecords)));
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
     yield put(setLoading(w(false)));
   } catch (e) {

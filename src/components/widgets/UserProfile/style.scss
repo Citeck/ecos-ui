@@ -64,8 +64,8 @@
     margin-top: 20px;
 
     &_mobile {
-      flex-direction: row;
-      justify-content: space-between;
+      display: grid;
+      grid-gap: 10px;
     }
 
     &:not(&_mobile) > :nth-child(even) {

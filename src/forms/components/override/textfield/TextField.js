@@ -32,6 +32,10 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
     );
   }
 
+  get defaultSchema() {
+    return TextFieldComponent.schema();
+  }
+
   constructor(...args) {
     super(...args);
 

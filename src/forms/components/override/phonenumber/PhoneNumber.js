@@ -14,6 +14,10 @@ export default class PhoneNumberComponent extends FormIOPhoneNumberComponent {
     );
   }
 
+  get defaultSchema() {
+    return PhoneNumberComponent.schema();
+  }
+
   constructor(...args) {
     super(...args);
 

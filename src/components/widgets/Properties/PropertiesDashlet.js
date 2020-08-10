@@ -169,8 +169,10 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   onClickShowFormBuilder = () => {
-    if (this._propertiesRef.current) {
-      this._propertiesRef.current.onShowBuilder();
+    const onShowBuilder = get(this._propertiesRef, 'current.onShowBuilder');
+
+    if (typeof onShowBuilder === 'function') {
+      onShowBuilder();
     }
   };
 
