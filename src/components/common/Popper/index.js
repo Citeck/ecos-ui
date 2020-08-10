@@ -1,3 +1,3 @@
 export { default } from './Popper';
-export { PopupManager } from './PopupManager';
+export { PopupContainer } from './PopupContainer';
 export { popupEmitter, Events } from './emitter';

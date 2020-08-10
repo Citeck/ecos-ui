@@ -5,7 +5,7 @@ import get from 'lodash/get';
 
 import { popupEmitter, Events } from './emitter';
 
-export const PopupManager = () => {
+export const PopupContainer = () => {
   const [referenceElement, setReferenceElement] = useState(null);
   const [text, setText] = useState('');
   const [popperElement, setPopperElement] = useState(null);
