@@ -2,7 +2,6 @@
 
 .ecos-popper {
   display: grid;
-  grid-gap: 10px;
   grid-template-rows: 1fr;
   grid-template-columns: auto auto;
   align-items: center;
@@ -11,14 +10,19 @@
     @extend %ellipsis;
   }
 
-  &__icon {
+  &__icon.icon {
     cursor: pointer;
     color: $color-gray-5;
     height: 18px;
-    margin-top: -2px;
+    margin-top: -3px;
+    margin-left: 10px;
 
     &:hover {
       color: $color-blue-light;
+    }
+
+    &:before {
+      display: unset;
     }
   }
 

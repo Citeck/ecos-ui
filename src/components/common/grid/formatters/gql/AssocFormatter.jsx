@@ -99,6 +99,6 @@ export default class AssocFormatter extends DefaultGqlFormatter {
   render() {
     const { displayName } = this.state;
 
-    return <Popper text={displayName} contentComponent={this.renderTooltipContent()} />;
+    return <Popper showAsNeeded text={displayName} icon="icon-question" contentComponent={this.renderTooltipContent()} />;
   }
 }

@@ -1,39 +1,32 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { EventEmitter2 } from 'eventemitter2';
-import { usePopper } from 'react-popper';
 import ReactResizeDetector from 'react-resize-detector';
-import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 
+import { popupEmitter, Events } from './emitter';
+
 import './style.scss';
-
-const Events = {
-  SHOW: 'ecos-popover-show',
-  HIDE: 'ecos-popover-hide'
-};
-
-export const popupEmitter = new EventEmitter2();
 
 export default class Popper extends Component {
   static propTypes = {
     text: PropTypes.string,
     icon: PropTypes.string,
+    showAsNeeded: PropTypes.bool,
     contentComponent: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
   };
 
   static defaultProps = {
     text: '',
-    icon: 'icon-question'
+    showAsNeeded: false
   };
 
   #iconRef = null;
   #textRef = null;
 
   state = {
-    needTooltip: false
+    needPopover: false
   };
 
   componentDidMount() {
@@ -50,12 +43,23 @@ export default class Popper extends Component {
     return text || contentComponent;
   }
 
+  get canShowPopover() {
+    const { showAsNeeded } = this.props;
+    const { needPopover } = this.state;
+
+    if (showAsNeeded) {
+      return needPopover;
+    }
+
+    return true;
+  }
+
   checkNeedShowPopper = () => {
     const { text } = this.props;
     const element = this.#textRef;
 
     if (!element) {
-      this.state.needTooltip && this.setState({ needTooltip: false });
+      this.state.needPopover && this.setState({ needPopover: false });
 
       return;
     }
@@ -83,9 +87,9 @@ export default class Popper extends Component {
       elementWidth = 0;
     }
 
-    const needTooltip = fullWidth > elementWidth - (paddingLeft + paddingRight);
+    const needPopover = fullWidth > elementWidth - (paddingLeft + paddingRight);
 
-    this.setState({ needTooltip });
+    this.setState({ needPopover });
   };
 
   setIconRef = ref => {
@@ -106,9 +110,10 @@ export default class Popper extends Component {
   };
 
   handleMouseEnter = () => {
-    const { text, contentComponent } = this.props;
+    const { text, contentComponent, icon } = this.props;
+    const element = icon ? this.#iconRef : this.#textRef;
 
-    popupEmitter.emit(Events.SHOW, this.#iconRef, contentComponent || text);
+    popupEmitter.emit(Events.SHOW, element, contentComponent || text);
   };
 
   handleResize = debounce(() => {
@@ -116,19 +121,39 @@ export default class Popper extends Component {
   }, 350);
 
   renderText = () => {
-    const { text, contentComponent, children, id } = this.props;
+    const { icon, text, contentComponent, children } = this.props;
+    const extraProps = {};
+
+    if (!icon && this.canShowPopover) {
+      extraProps.onMouseEnter = this.handleMouseEnter;
+      extraProps.onMouseOut = this.handleMouseOut;
+    }
 
     return (
-      <div ref={this.setTextRef} className="ecos-popper__text" id={id}>
+      <div ref={this.setTextRef} className="ecos-popper__text" {...extraProps}>
         {children || text || contentComponent}
       </div>
     );
   };
 
-  render() {
+  renderIcon() {
     const { icon } = this.props;
-    const { needTooltip } = this.state;
 
+    if (!icon || !this.canShowPopover) {
+      return null;
+    }
+
+    return (
+      <i
+        ref={this.setIconRef}
+        className={classNames('icon', icon, 'ecos-popper__icon')}
+        onMouseEnter={this.handleMouseEnter}
+        onMouseOut={this.handleMouseOut}
+      />
+    );
+  }
+
+  render() {
     if (!this.needPopper) {
       return null;
     }
@@ -137,72 +162,9 @@ export default class Popper extends Component {
       <ReactResizeDetector handleWidth onResize={this.handleResize}>
         <div className="ecos-popper">
           {this.renderText()}
-          {needTooltip && (
-            <i
-              ref={this.setIconRef}
-              className={classNames('icon', icon, 'ecos-popper__icon')}
-              hidden={false}
-              onMouseEnter={this.handleMouseEnter}
-              onMouseOut={this.handleMouseOut}
-            />
-          )}
+          {this.renderIcon()}
         </div>
       </ReactResizeDetector>
     );
   }
 }
-
-export const PopupManager = () => {
-  const [referenceElement, setReferenceElement] = useState(null);
-  const [text, setText] = useState('');
-  const [popperElement, setPopperElement] = useState(null);
-  const [arrowElement, setArrowElement] = useState(null);
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
-    placement: 'top',
-    modifiers: [
-      {
-        name: 'arrow',
-        options: {
-          element: arrowElement
-        }
-      },
-      {
-        name: 'offset',
-        options: {
-          offset: [0, 8]
-        }
-      }
-    ]
-  });
-
-  useEffect(() => {
-    const onShow = (element, text) => {
-      setReferenceElement(element);
-      setText(text);
-    };
-    const onHide = () => {
-      setReferenceElement(null);
-      setText('');
-    };
-
-    popupEmitter.on(Events.SHOW, onShow);
-    popupEmitter.on(Events.HIDE, onHide);
-
-    return () => {
-      popupEmitter.off(Events.SHOW, onShow);
-      popupEmitter.off(Events.HIDE, onHide);
-    };
-  }, []);
-
-  return (
-    <div
-      ref={setPopperElement}
-      style={{ ...styles.popper, display: text ? 'unset' : 'none' }}
-      {...attributes.popper}
-      className={classNames('ecos-popup-manager', get(attributes, 'popper.className', ''))}
-    >
-      {text}
-      <div ref={setArrowElement} style={styles.arrow} className="ecos-popper__arrow" />
-    </div>
-  );
-};
