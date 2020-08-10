@@ -25,6 +25,7 @@ import BaseWidget from '../BaseWidget';
 import Settings from './Settings';
 
 import './style.scss';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 
 const DocumentTypes = {
   CONTRACT: 'contract',
@@ -51,20 +52,26 @@ class DocConstructorDashlet extends BaseWidget {
     classNameDashlet: ''
   };
 
-  state = {
-    ...super.state,
-    delayedUpdate: false,
-    isSmallMode: false,
-    isOpenSettings: false
-  };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      ...this.state,
+      delayedUpdate: false,
+      isSmallMode: false,
+      isOpenSettings: false
+    };
+  }
 
   get disabledAction() {
     const { docOneDocumentId, docOneUrl } = this.props;
+
     return !docOneDocumentId || !docOneUrl;
   }
 
   get disabledCreate() {
     const { documentType, docOneUrl } = this.props;
+
     return documentType !== DocumentTypes.CONTRACT || !docOneUrl;
   }
 
@@ -151,9 +158,14 @@ class DocConstructorDashlet extends BaseWidget {
     }
   };
 
+  onToggleContent = (isCollapsed = false) => {
+    this.setState({ isCollapsed });
+    UserLocalSettingsService.setDashletProperty(this.state.lsId, { isCollapsed });
+  };
+
   render() {
-    const { isSmallMode, isOpenSettings } = this.state;
     const { title, classNameDashlet, isLoading, error, contractTemplate, isAvailable, isAdmin, config } = this.props;
+    const { isSmallMode, isOpenSettings, isCollapsed } = this.state;
 
     return isAdmin || isAvailable ? (
       <Dashlet
@@ -162,7 +174,9 @@ class DocConstructorDashlet extends BaseWidget {
         title={t(title || Labels.TITLE)}
         needGoTo={false}
         actionConfig={this.actionConfig}
+        onToggleCollapse={this.onToggleContent}
         onResize={this.onResize}
+        isCollapsed={isCollapsed}
       >
         <div hidden={isOpenSettings}>
           {isLoading && <Loader blur className="ecos-doc-constructor__loader" />}
