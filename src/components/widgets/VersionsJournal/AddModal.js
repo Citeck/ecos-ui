@@ -381,7 +381,13 @@ class AddModal extends Component {
     const { isShow, title, className, isLoadingModal } = this.props;
 
     return (
-      <EcosModal isOpen={isShow} hideModal={this.handleHideModal} title={title} className={classNames('vj-modal', className)}>
+      <EcosModal
+        isOpen={isShow}
+        hideModal={this.handleHideModal}
+        title={title}
+        className={classNames('vj-modal', className)}
+        reactstrapProps={{ backdrop: 'static', keyboard: true }}
+      >
         {isLoadingModal && <Loader className="vj-modal__loader" blur />}
         {this.renderDropzone()}
         {this.renderErrorMessage()}
