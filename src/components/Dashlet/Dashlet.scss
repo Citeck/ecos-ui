@@ -97,6 +97,12 @@
       position: relative;
     }
 
+    &_no-bottom-indent {
+      #{$root}__body-content {
+        padding-bottom: 0;
+      }
+    }
+
     &-actions {
       padding: 5px 15px 15px;
     }

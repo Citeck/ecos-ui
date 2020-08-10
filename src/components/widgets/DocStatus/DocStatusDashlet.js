@@ -48,8 +48,12 @@ class DocStatusDashlet extends BaseWidget {
     return (
       <Dashlet
         title={title}
-        className={classNames('ecos-doc-status-dashlet', classNameDashlet, { 'ecos-doc-status-dashlet_mobile': isMobile })}
-        bodyClassName="ecos-doc-status-dashlet__body"
+        className={classNames('ecos-doc-status-dashlet', classNameDashlet, {
+          'ecos-doc-status-dashlet_mobile': isMobile
+        })}
+        bodyClassName={classNames('ecos-doc-status-dashlet__body', {
+          'dashlet__body_no-bottom-indent': isBig
+        })}
         resizable={false}
         collapsible={!isBig}
         needGoTo={false}
