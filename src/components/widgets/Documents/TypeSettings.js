@@ -2,19 +2,21 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 
-import { EcosModal, Tabs } from '../../common';
+import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
 import { objectCompare, t } from '../../../helpers/util';
 import { DynamicTypeInterface, TypeSettingsInterface } from './propsInterfaces';
+import { Checkbox, Radio } from '../../common/form';
 
 const Labels = {
   TITLE: 'documents-widget.type-settings.title',
   CANCEL_BUTTON: 'documents-widget.settings-modal.button.cancel',
   OK_BUTTON: 'documents-widget.settings-modal.button.ok',
-  UPLOAD_LABEL: 'documents-widget.type-settings.upload-label',
+  UPLOAD_LABEL: 'documents-widget.type-settings.allowed-number-files',
   SORT_LABEL: 'documents-widget.type-settings.sort-label',
   ONE_FILE: 'documents-widget.type-settings.one-file',
-  MULTIPLE_FILES: 'documents-widget.type-settings.multiple-files'
+  MULTIPLE_FILES: 'documents-widget.type-settings.multiple-files',
+  POSSIBLE_UPLOAD_FILE: 'documents-widget.type-settings.allow-file-upload'
 };
 const FileCount = {
   ONE: 'one',
@@ -89,6 +91,16 @@ class TypeSettings extends Component {
     }));
   };
 
+  handleToggleUploadFile = ({ checked }) => {
+    this.setState(state => ({
+      ...state,
+      settings: {
+        ...state.settings,
+        allowedFileUpload: checked
+      }
+    }));
+  };
+
   renderCountFiles() {
     const { settings, countTabs } = this.state;
 
@@ -99,21 +111,24 @@ class TypeSettings extends Component {
     return (
       <section className="ecos-docs__modal-type-settings-group">
         <div className="ecos-docs__modal-type-settings-label">{t(Labels.UPLOAD_LABEL)}</div>
-        <Tabs
-          className="ecos-docs__modal-type-settings-tabs"
-          classNameTab="ecos-docs__modal-type-settings-tabs-item"
-          items={countTabs}
-          keyField="key"
-          valueField="value"
-          activeTabKey={settings.multiple ? FileCount.MULTIPLE : FileCount.ONE}
-          onClick={this.handleChangeCountFiles}
-        />
+        <div className="ecos-docs__modal-type-settings-tabs">
+          {countTabs.map((tab, index) => (
+            <Radio
+              key={tab.key}
+              label={tab.value}
+              name="countTabs"
+              checked={settings.multiple === (tab.key === FileCount.MULTIPLE)}
+              onChange={() => this.handleChangeCountFiles(index)}
+            />
+          ))}
+        </div>
       </section>
     );
   }
 
   render() {
     const { isOpen, isLoading } = this.props;
+    const { settings } = this.state;
 
     return (
       <EcosModal
@@ -123,6 +138,10 @@ class TypeSettings extends Component {
         className="ecos-docs__modal-type-settings"
         hideModal={this.handleCloseModal}
       >
+        <Checkbox className="ecos-docs__modal-checkbox" onChange={this.handleToggleUploadFile} checked={settings.allowedFileUpload}>
+          {t(Labels.POSSIBLE_UPLOAD_FILE)}
+        </Checkbox>
+
         {this.renderCountFiles()}
         <div className="ecos-docs__modal-type-settings-footer">
           <Btn onClick={this.handleCloseModal} className="ecos-docs__modal-settings-footer-item">

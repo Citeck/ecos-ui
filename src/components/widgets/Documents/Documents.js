@@ -580,7 +580,7 @@ class Documents extends BaseWidget {
     });
   };
 
-  handleSaveSettings = ({ types, isLoadChecklist = false, isPossibleUploadFile = false }) => {
+  handleSaveSettings = ({ types, isLoadChecklist = false }) => {
     const { availableTypes, onSave, id, config, onSaveSettings } = this.props;
     const selectedTypes = types.map(item => {
       const type = availableTypes.find(type => type.id === item.id);
@@ -594,8 +594,7 @@ class Documents extends BaseWidget {
     const newConfig = {
       ...config,
       types: DocumentsConverter.getTypesForConfig(selectedTypes),
-      isLoadChecklist,
-      isPossibleUploadFile
+      isLoadChecklist
     };
 
     onSave(id, { config: newConfig });
@@ -941,12 +940,12 @@ class Documents extends BaseWidget {
   };
 
   renderUploadButton() {
-    const { dynamicTypes, isPossibleUploadFile } = this.props;
+    const { dynamicTypes } = this.props;
     const { selectedType, contentHeight } = this.state;
 
-    if (!isPossibleUploadFile) {
-      return null;
-    }
+    // if (!this.allowedFileUpload) { check for types
+    //   return null;
+    // }
 
     if (selectedType || dynamicTypes.length === 1) {
       const type = dynamicTypes.find(item => item.type === selectedType) || dynamicTypes[0];
@@ -1235,7 +1234,7 @@ class Documents extends BaseWidget {
   }
 
   renderSettings() {
-    const { isLoadingSettings, isLoadChecklist, isPossibleUploadFile, typeSettings, isLoadingTypeSettings } = this.props;
+    const { isLoadingSettings, isLoadChecklist, typeSettings, isLoadingTypeSettings } = this.props;
     const { isOpenSettings } = this.state;
 
     return (
@@ -1246,7 +1245,6 @@ class Documents extends BaseWidget {
         typeSettings={typeSettings}
         isLoading={isLoadingSettings}
         isLoadChecklist={isLoadChecklist}
-        isPossibleUploadFile={isPossibleUploadFile}
         isLoadingTypeSettings={isLoadingTypeSettings}
         onCancel={this.handleCancelSettings}
         onSave={this.handleSaveSettings}
