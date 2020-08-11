@@ -73,6 +73,11 @@ class BaseWidget extends Component {
     return get(this.contentRef, 'current.offsetHeight', 0);
   }
 
+  // TODO: refactor, rename
+  get contentHeight() {
+    return get(this.contentRef, 'current.offsetHeight', 0);
+  }
+
   get otherHeight() {
     return null;
   }
@@ -81,20 +86,20 @@ class BaseWidget extends Component {
     return this.clientHeight + this.otherHeight;
   }
 
-  get contentHeight() {
-    const { maxHeightByContent, fixedHeight } = this.props;
-    const { fitHeights } = this.state;
-
-    if (fixedHeight) {
-      return MAX_DEFAULT_HEIGHT_DASHLET - fitHeights.headerHeight;
-    }
-
-    if (maxHeightByContent) {
-      return this.clientHeight; // - fitHeights.headerHeight;
-    }
-
-    return undefined;
-  }
+  // get contentHeight() {
+  //   const { maxHeightByContent, fixedHeight } = this.props;
+  //   const { fitHeights } = this.state;
+  //
+  //   if (fixedHeight) {
+  //     return MAX_DEFAULT_HEIGHT_DASHLET - fitHeights.headerHeight;
+  //   }
+  //
+  //   if (maxHeightByContent) {
+  //     return this.clientHeight; // - fitHeights.headerHeight;
+  //   }
+  //
+  //   return undefined;
+  // }
 
   get observableFieldsToUpdate() {
     return this._observableFieldsToUpdate;
