@@ -685,9 +685,6 @@ class Comments extends BaseWidget {
       return null;
     }
 
-    const { userHeight, fitHeights } = this.state;
-    const fixHeight = userHeight ? userHeight - this.otherHeight : null;
-
     const renderCommentList = () => (
       <div className="ecos-comments__list" ref={this.contentRef}>
         {comments.map(this.renderComment)}

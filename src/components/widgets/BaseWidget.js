@@ -79,7 +79,7 @@ class BaseWidget extends Component {
   }
 
   get otherHeight() {
-    return null;
+    return this.dashletOtherHeight;
   }
 
   get fullHeight() {
@@ -126,6 +126,28 @@ class BaseWidget extends Component {
     }
 
     return paddingBottom + paddingTop + get(header, 'offsetHeight', 0);
+  }
+
+  get scrollbarProps() {
+    const { maxHeightByContent, fixedHeight } = this.props;
+    const props = {};
+
+    if (maxHeightByContent) {
+      props.autoHeight = true;
+      props.autoHeightMax = '100%';
+
+      return props;
+    }
+
+    if (fixedHeight) {
+      props.style = { height: MAX_DEFAULT_HEIGHT_DASHLET - this.dashletOtherHeight };
+
+      return props;
+    }
+
+    props.style = { height: MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight || '100%' };
+
+    return props;
   }
 
   setDashletRef = ref => {

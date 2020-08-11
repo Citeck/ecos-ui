@@ -175,7 +175,7 @@ class Dashlet extends Component {
   };
 
   renderContent() {
-    const { isMobile, resizable, children } = this.props;
+    const { isMobile, children } = this.props;
 
     if (isMobile) {
       return children;

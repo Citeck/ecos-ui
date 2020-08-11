@@ -210,21 +210,12 @@ class PropertiesDashlet extends BaseWidget {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config, fixedHeight } = this.props;
-    const {
-      isSmallMode,
-      runUpdate,
-      isEditProps,
-      userHeight,
-      fitHeights,
-      formIsChanged,
-      isCollapsed,
-      isShowSetting,
-      title: titleForm
-    } = this.state;
+    const { isSmallMode, isEditProps, fitHeights, formIsChanged, isCollapsed, isShowSetting, title: titleForm } = this.state;
     const { formId = '', titleAsFormName } = config || {};
 
     return (
       <Dashlet
+        setRef={this.setDashletRef}
         title={t((titleAsFormName && titleForm) || title || Labels.WIDGET_TITLE)}
         className={classNames('ecos-properties-dashlet', classNameDashlet)}
         bodyClassName="ecos-properties-dashlet__body"
@@ -254,6 +245,7 @@ class PropertiesDashlet extends BaseWidget {
           formId={formId}
           onInlineEditSave={this.onInlineEditSave}
           getTitle={this.setTitle}
+          scrollProps={this.scrollbarProps}
         />
         {isShowSetting && (
           <PropertiesSettings
