@@ -8,6 +8,8 @@ import Records from '../Records/Records';
 import { MIN_WIDTH_DASHLET_SMALL, MAX_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 
 class BaseWidget extends Component {
+  _dashletRef = null;
+
   contentRef = React.createRef();
 
   updateWatcher = null;
@@ -97,6 +99,34 @@ class BaseWidget extends Component {
   get observableFieldsToUpdate() {
     return this._observableFieldsToUpdate;
   }
+
+  get dashletOtherHeight() {
+    if (!this._dashletRef) {
+      return 0;
+    }
+
+    const body = this._dashletRef.querySelector('.dashlet__body');
+    const header = this._dashletRef.querySelector('.dashlet__header-wrapper');
+    const styles = window.getComputedStyle(body, null);
+    let paddingBottom = parseInt(styles.getPropertyValue('padding-bottom'), 10) || 0;
+    let paddingTop = parseInt(styles.getPropertyValue('padding-top'), 10) || 0;
+
+    if (isNaN(paddingBottom)) {
+      paddingBottom = 0;
+    }
+
+    if (isNaN(paddingTop)) {
+      paddingTop = 0;
+    }
+
+    return paddingBottom + paddingTop + get(header, 'offsetHeight', 0);
+  }
+
+  setDashletRef = ref => {
+    if (ref) {
+      this._dashletRef = ref;
+    }
+  };
 
   setContentHeight = contentHeight => {
     let contentHeightState = this.state.contentHeight;

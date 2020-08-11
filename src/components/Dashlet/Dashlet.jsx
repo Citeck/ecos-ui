@@ -76,7 +76,8 @@ class Dashlet extends Component {
     getFitHeights: () => null
   };
 
-  refDashlet = React.createRef();
+  #dashletRef = null;
+
   resizableRef = React.createRef();
 
   constructor(props) {
@@ -105,7 +106,7 @@ class Dashlet extends Component {
   }
 
   checkBusyHeights = () => {
-    const elDashlet = this.refDashlet.current || {};
+    const elDashlet = this.#dashletRef || {};
     const headerH = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
 
     if (headerH) {
@@ -124,7 +125,7 @@ class Dashlet extends Component {
   }
 
   get busyDashletHeight() {
-    const elDashlet = this.refDashlet.current || {};
+    const elDashlet = this.#dashletRef || {};
 
     const content = elDashlet.querySelector('.dashlet__body-content');
     const contentStyle = window.getComputedStyle(content);
@@ -134,6 +135,16 @@ class Dashlet extends Component {
 
     return { headerHeight: headerHeight + paddingBottom + paddingTop };
   }
+
+  setDashletRef = ref => {
+    if (ref) {
+      this.#dashletRef = ref;
+
+      if (typeof this.props.setRef === 'function') {
+        this.props.setRef(ref);
+      }
+    }
+  };
 
   onGoTo = () => {
     const { onGoTo } = this.props;
@@ -229,7 +240,7 @@ class Dashlet extends Component {
     const { isCollapsed } = this.state;
 
     return (
-      <div ref={this.refDashlet} className="dashlet">
+      <div ref={this.setDashletRef} className="dashlet">
         <Panel
           {...this.props}
           className={classNames('dashlet', className, { dashlet_mobile: isMobile })}

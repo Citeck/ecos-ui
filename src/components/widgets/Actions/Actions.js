@@ -118,6 +118,7 @@ class Actions extends React.Component {
 
     return (
       <Scrollbars
+        autoHeight
         style={{ height: contentHeight || '100%' }}
         className="ecos-actions__scroll"
         renderTrackVertical={props => <div {...props} className="ecos-actions__v-scroll" />}
