@@ -554,12 +554,13 @@ export default class Record {
       value,
       arguments.length === 1,
       Attribute.prototype.getPersistedValue,
-      Attribute.prototype.setPersistedValue
+      Attribute.prototype.setPersistedValue,
+      false
     );
   }
 
   att(name, value) {
-    return this._processAttField(name, value, arguments.length === 1, Attribute.prototype.getValue, Attribute.prototype.setValue);
+    return this._processAttField(name, value, arguments.length === 1, Attribute.prototype.getValue, Attribute.prototype.setValue, true);
   }
 
   removeAtt(name) {
@@ -576,7 +577,7 @@ export default class Record {
     return baseRecord.id !== this.id && baseRecord.isVirtual();
   }
 
-  _processAttField(name, value, isRead, getter, setter) {
+  _processAttField(name, value, isRead, getter, setter, toSave) {
     if (!name) {
       return null;
     }
@@ -592,56 +593,60 @@ export default class Record {
           return attValue;
         }
       } else {
-        let currentValue = this._recordFields[name];
-        if (currentValue === undefined) {
-          this._recordFieldsToSave[name] = this.load(name)
-            .then(loadedValue => {
-              if (!_.isEqual(loadedValue, value)) {
-                this._recordFieldsToSave[name] = value;
-                return value;
-              } else {
+        if (toSave) {
+          let currentValue = this._recordFields[name];
+          if (currentValue === undefined) {
+            this._recordFieldsToSave[name] = this.load(name)
+              .then(loadedValue => {
+                if (!_.isEqual(loadedValue, value)) {
+                  this._recordFieldsToSave[name] = value;
+                  return value;
+                } else {
+                  delete this._recordFieldsToSave[name];
+                  return null;
+                }
+              })
+              .catch(e => {
+                console.error(e);
                 delete this._recordFieldsToSave[name];
                 return null;
-              }
-            })
-            .catch(e => {
-              console.error(e);
-              delete this._recordFieldsToSave[name];
-              return null;
-            });
-        } else if (!_.isEqual(currentValue, value)) {
-          this._recordFieldsToSave[name] = value;
+              });
+          } else if (!_.isEqual(currentValue, value)) {
+            this._recordFieldsToSave[name] = value;
+          }
+        } else {
+          this._recordFields[name] = value;
         }
       }
       return null;
-    }
-
-    let att = this._attributes[parsedAtt.name];
-    if (!att) {
-      if (isRead) {
-        if (this._baseRecord) {
-          att = this._baseRecord._attributes[parsedAtt.name];
-        }
-        if (!att) {
-          return parsedAtt.isMultiple ? [] : null;
-        }
-      } else {
-        att = new Attribute(this, parsedAtt.name);
-        this._attributes[parsedAtt.name] = att;
-      }
-    }
-
-    if (isRead) {
-      let scalar = parsedAtt.scalar;
-      if (value === undefined && name.indexOf('?') === -1 && name[0] !== '.') {
-        scalar = null;
-      }
-      return getter.call(att, scalar, parsedAtt.isMultiple, false);
     } else {
-      if (att) {
-        return setter.call(att, parsedAtt.scalar, value);
+      let att = this._attributes[parsedAtt.name];
+      if (!att) {
+        if (isRead) {
+          if (this._baseRecord) {
+            att = this._baseRecord._attributes[parsedAtt.name];
+          }
+          if (!att) {
+            return parsedAtt.isMultiple ? [] : null;
+          }
+        } else {
+          att = new Attribute(this, parsedAtt.name);
+          this._attributes[parsedAtt.name] = att;
+        }
+      }
+
+      if (isRead) {
+        let scalar = parsedAtt.scalar;
+        if (value === undefined && name.indexOf('?') === -1 && name[0] !== '.') {
+          scalar = null;
+        }
+        return getter.call(att, scalar, parsedAtt.isMultiple, false);
       } else {
-        console.warn("Attribute can't be changed: '" + name + "'");
+        if (att) {
+          return setter.call(att, parsedAtt.scalar, value);
+        } else {
+          console.warn("Attribute can't be changed: '" + name + "'");
+        }
       }
     }
   }

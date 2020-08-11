@@ -1,15 +1,17 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { ActionModes, Attributes, Permissions } from '../constants';
 import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
-import { debounce, isExistValue, queryByCriteria, t } from '../helpers/util';
+import { debounce, isExistValue } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
 import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
 import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
 import Records from '../components/Records';
-import RecordActions from '../components/Records/actions';
+import recordActions from '../components/Records/actions';
+
 import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
 
@@ -68,7 +70,8 @@ export class JournalsApi extends RecordService {
     recordRef,
     journalId,
     journalActions,
-    queryData
+    queryData,
+    groupActions = []
   }) => {
     const val = [];
 
@@ -132,11 +135,41 @@ export class JournalsApi extends RecordService {
       const columns = dataSource.getColumns();
       const actionsContext = {
         mode: ActionModes.JOURNAL,
-        scope: journalId,
-        actions: journalActions
+        scope: journalId
       };
+      const convertedGroupActions = groupActions.map(a => {
+        const actionClone = cloneDeep(a);
+        if (!actionClone.params) {
+          actionClone.params = {};
+        }
+        if (!actionClone.params.actionId) {
+          actionClone.params.actionId = actionClone.id;
+        }
+        return {
+          name: a.title,
+          pluralName: a.title,
+          type: 'server-group-action',
+          config: actionClone
+        };
+      });
 
-      return RecordActions.getActions(data, actionsContext).then(actions => ({ data, actions, total, columns }));
+      const recordRefs = data.map(d => d.id);
+      return recordActions.getActionsForRecords(recordRefs, journalActions, actionsContext).then(actionsForRecords => {
+        const forRecords = {
+          ...actionsForRecords.forRecords,
+          actions: [...actionsForRecords.forRecords.actions, ...convertedGroupActions.filter(a => a.config.type === 'selected')]
+        };
+        const forQuery = {
+          ...actionsForRecords.forQuery,
+          actions: [...actionsForRecords.forQuery.actions, ...convertedGroupActions.filter(a => a.config.type === 'filtered')]
+        };
+        const resActions = {
+          ...actionsForRecords,
+          forQuery,
+          forRecords
+        };
+        return { data, actions: resActions, total, columns, query: bodyQuery };
+      });
     });
   };
 
@@ -361,51 +394,6 @@ export class JournalsApi extends RecordService {
 
   getPreviewUrl = DocPreviewApi.getPreviewLinkByRecord;
 
-  performGroupAction = ({ groupAction, selected, resolved, criteria, journalId }) => {
-    const { type, params } = groupAction;
-
-    if (params.js_action) {
-      var actionFunction = new Function('records', 'parameters', params.js_action); //eslint-disable-line
-      actionFunction(selected, params);
-      return Promise.resolve([]);
-    }
-
-    return Promise.all([
-      this.postJson(`${PROXY_URI}api/journals/group-action`, {
-        actionId: params.actionId,
-        groupType: type,
-        journalId: journalId,
-        nodes: selected,
-        params: params,
-        query: queryByCriteria(criteria)
-      }),
-      Records.get(selected).load('.disp')
-    ])
-      .then(resp => {
-        let actionResults = (resp[0] || {}).results || [];
-        let titles = resp[1] || [];
-
-        titles = Array.isArray(titles) ? titles : [titles];
-
-        let result = actionResults.map((a, i) => ({
-          ...a,
-          title: titles[i],
-          status: t(`batch-edit.message.${a.status}`)
-        }));
-
-        if (resolved) {
-          for (let rec of resolved) {
-            result.push({
-              ...rec,
-              status: t(`batch-edit.message.${rec.status}`)
-            });
-          }
-        }
-        return result;
-      })
-      .catch(() => []);
-  };
-
   getStatus = nodeRef => {
     return this.getJson(`${PROXY_URI}api/internal/downloads/${nodeRef.replace(':/', '')}/status`)
       .then(status => {
@@ -420,12 +408,6 @@ export class JournalsApi extends RecordService {
 
   deleteDownloadsProgress = nodeRef => {
     return this.deleteJson(`${PROXY_URI}api/internal/downloads/${nodeRef.replace(':/', '')}`, true).then(resp => resp);
-  };
-
-  createZip = selected => {
-    return this.postJson(`${PROXY_URI}api/internal/downloads`, selected.map(s => ({ nodeRef: s })))
-      .then(resp => this.getStatus(resp.nodeRef))
-      .catch(() => null);
   };
 
   /**

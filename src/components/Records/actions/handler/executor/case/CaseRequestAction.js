@@ -1,36 +1,18 @@
-import { PROXY_URI, URL_PAGECONTEXT } from '../../../constants/alfresco';
-import dialogManager from '../../common/dialogs/Manager';
-import { t } from '../../../helpers/util';
-import ecosFetch from '../../../helpers/ecosFetch';
-import { createUserActionNode } from './export/recordActions';
+import ActionsExecutor from '../../ActionsExecutor';
+import { PROXY_URI } from '../../../../../../constants/alfresco';
+import ecosFetch from '../../../../../../helpers/ecosFetch';
+import dialogManager from '../../../../../common/dialogs/Manager/DialogManager';
+import { t } from '../../../../../../helpers/export/util';
 
-export const CaseRedirectAction = {
-  execute: ({
-    action,
-    action: {
-      config: { url = '', target = '_self' }
-    }
-  }) => {
-    if (!url) {
-      console.error(action);
-      throw new Error('Redirect action url is missing!');
-    }
+export default class CaseRedirectAction extends ActionsExecutor {
+  static ACTION_ID = 'REQUEST';
 
-    window.open(URL_PAGECONTEXT + url, target);
-  }
-};
-
-export const CaseCreateNodeAction = {
-  execute: ({ action }) => createUserActionNode(action.config)
-};
-
-export const CaseRequestAction = {
-  execute: ({ action }) => {
+  async execForRecord(record, action, context) {
     let onRequestResult = () => {};
 
     const promise = new Promise(resolve => [(onRequestResult = success => resolve(success))]);
 
-    var makeRequest = () => {
+    const makeRequest = () => {
       ecosFetch(PROXY_URI + action.config.url, { method: action.config.requestMethod })
         .then(response => {
           return response.json().then(body => {
@@ -77,11 +59,11 @@ export const CaseRequestAction = {
       }
       return result;
     });
-  },
+  }
 
-  getDefaultModel: () => {
+  getDefaultActionModel() {
     return {
       icon: 'icon-small-arrow-right'
     };
   }
-};
+}

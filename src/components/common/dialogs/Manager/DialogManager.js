@@ -148,7 +148,7 @@ const dialogsById = {
     handlers.hideModal = hideModal;
 
     return (
-      <EcosModal title={title} isOpen={isVisible} hideModal={hideModal} className={`ecos-dialog ${modalClass}`}>
+      <EcosModal title={t(title)} isOpen={isVisible} hideModal={hideModal} className={`ecos-dialog ${modalClass}`}>
         <div className="ecos-dialog__body">{body}</div>
         <div className="ecos-dialog__buttons">
           {buttons.map(b => (

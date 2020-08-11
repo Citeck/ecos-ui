@@ -14,7 +14,15 @@ class RecordsComponent {
     this._records = {};
   }
 
-  get(id, owner) {
+  /**
+   * @param {Array<string>|Array<Record>|string|Record} id
+   * @param {?string} owner - Key to allow clean all cache by owner in internal store when all owners will be destroyed.
+   *
+   * @see release
+   *
+   * @return {Record|Array<Record>}
+   */
+  get(id, owner = null) {
     let record;
 
     if (!id) {

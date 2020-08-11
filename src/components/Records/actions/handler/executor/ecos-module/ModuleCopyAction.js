@@ -1,12 +1,11 @@
-import DialogManager from '../../common/dialogs/Manager';
-import Records from '../Records';
+import ActionsExecutor from '../../ActionsExecutor';
+import Records from '../../../../Records';
+import DialogManager from '../../../../../common/dialogs/Manager';
 
-export const ModuleActionTypes = {
-  MODULE_COPY: 'module-copy'
-};
+export default class ModuleCopyAction extends ActionsExecutor {
+  static ACTION_ID = 'module-copy';
 
-export const ModuleCopyAction = {
-  execute: async ({ record }) => {
+  async execForRecord(record, action, context) {
     const currentModuleId = await record.load('moduleId', true);
 
     if (!currentModuleId) {
@@ -51,13 +50,12 @@ export const ModuleCopyAction = {
         }
       });
     });
-  },
+  }
 
-  getDefaultModel: () => {
+  getDefaultActionModel() {
     return {
       name: 'module.copy',
-      type: ModuleCopyAction.MODULE_COPY,
       icon: 'icon-copy'
     };
   }
-};
+}

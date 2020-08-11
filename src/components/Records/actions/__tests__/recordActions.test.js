@@ -1,4 +1,4 @@
-import RecordActions from '../index';
+import recordActions from '../recordActions';
 import '../__mocks__/recordActions.mock';
 
 describe('RecordActions service', () => {
@@ -144,7 +144,7 @@ describe('RecordActions service', () => {
 
     data.forEach(async item => {
       it(item.title, async () => {
-        const result = await RecordActions.replaceAttributeValues(item.input, record);
+        const result = await recordActions.constructor.replaceAttributeValues(item.input, record);
 
         expect(result).toEqual(item.output);
       });

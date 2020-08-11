@@ -1,8 +1,10 @@
 import { CommonApi } from './common';
 import { PROXY_URI } from '../constants/alfresco';
 
-/* DEPRECATED. Use Records.js instead */
 //todo: remove it
+/**
+ * @deprecated Use Records.js instead
+ */
 export class RecordService extends CommonApi {
   /* DEPRECATED */
   query = dataObj => {
