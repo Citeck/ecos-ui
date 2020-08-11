@@ -48,7 +48,9 @@ class Dashlet extends Component {
     actionConfig: PropTypes.object,
     actionRules: PropTypes.object,
     noActions: PropTypes.bool,
-    isLoading: PropTypes.bool
+    isLoading: PropTypes.bool,
+
+    setRef: PropTypes.func
   };
 
   static defaultProps = {

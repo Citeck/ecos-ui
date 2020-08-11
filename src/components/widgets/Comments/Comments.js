@@ -11,11 +11,11 @@ import ReactResizeDetector from 'react-resize-detector';
 
 import BaseWidget from '../BaseWidget';
 import { deepClone, num2str, t } from '../../../helpers/util';
-import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
+import { MIN_WIDTH_DASHLET_LARGE, MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
-import { Avatar, DefineHeight, Loader } from '../../common/index';
+import { Avatar, Loader } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
 
@@ -245,7 +245,7 @@ class Comments extends BaseWidget {
   }
 
   get otherHeight() {
-    return this.state.headerHeight;
+    return this.state.headerHeight + this.dashletOtherHeight;
   }
 
   get scrollHeight() {
@@ -699,15 +699,14 @@ class Comments extends BaseWidget {
     }
 
     return (
-      <Scrollbars autoHide ref={this._scroll} style={{ height: this.scrollHeight }}>
-        <DefineHeight
-          fixHeight={fixHeight}
-          maxHeight={userHeight !== undefined ? fitHeights.max - this.otherHeight : fitHeights.max}
-          minHeight={0}
-          getOptimalHeight={this.setContentHeight}
-        >
-          {renderCommentList()}
-        </DefineHeight>
+      <Scrollbars
+        autoHide
+        ref={this._scroll}
+        autoHeight
+        autoHeightMax={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
+        style={{ height: this.scrollHeight }}
+      >
+        {renderCommentList()}
       </Scrollbars>
     );
   }
@@ -724,6 +723,7 @@ class Comments extends BaseWidget {
     return (
       <div className={this.className}>
         <Dashlet
+          setRef={this.setDashletRef}
           title={t('comments-widget.title')}
           actionConfig={actions}
           needGoTo={false}

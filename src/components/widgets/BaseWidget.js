@@ -105,6 +105,7 @@ class BaseWidget extends Component {
     return this._observableFieldsToUpdate;
   }
 
+  // TODO: refactor, rename
   get dashletOtherHeight() {
     if (!this._dashletRef) {
       return 0;
