@@ -79,6 +79,7 @@ export default class DocumentsConverter {
     target.name = get(source, 'name', t('documents-widget.untitled'));
     target.countDocuments = get(source, 'countDocuments', 0);
     target.locked = get(source, 'locked', false);
+    target.canUpload = get(source, 'canUpload', false);
 
     return target;
   };
@@ -130,10 +131,10 @@ export default class DocumentsConverter {
     target.name = get(source, 'name', t('documents-widget.untitled'));
     target.formId = get(source, 'formId', '');
     target.multiple = get(source, 'multiple', false);
-    target.canUpload = get(source, 'canUpload', false);
     target.mandatory = get(source, 'mandatory', false);
     target.countDocuments = get(source, 'countDocuments', 0);
     target.locked = get(source, 'locked', false);
+    target.canUpload = get(source, 'canUpload', false);
 
     return target;
   };
