@@ -1,5 +1,6 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
+import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
 
@@ -65,7 +66,20 @@ export class OrgStructApi extends RecordService {
       .catch(() => []);
   };
 
-  static getUserList(searchText) {
+  static async getGlobalSearchFields() {
+    return Records.get(`${SourcesId.CONFIG}@orgstruct-search-user-extra-fields`)
+      .load('value?str')
+      .then(searchFields => {
+        if (typeof searchFields !== 'string' || !searchFields.trim().length) {
+          return [];
+        }
+
+        return searchFields.split(',');
+      })
+      .catch(() => []);
+  }
+
+  static async getUserList(searchText, extraFields = []) {
     const val = searchText.trim();
 
     const queryVal = [
@@ -77,25 +91,27 @@ export class OrgStructApi extends RecordService {
     ];
 
     if (searchText) {
+      const searchFields = ['cm:userName', 'cm:firstName', 'cm:lastName'];
+      const addExtraFields = (fields = []) => {
+        searchFields.push(...fields.map(field => field.trim()));
+      };
+
+      const globalSearchConfig = await OrgStructApi.getGlobalSearchFields();
+      if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
+        addExtraFields(globalSearchConfig);
+      }
+
+      if (Array.isArray(extraFields) && extraFields.length > 0) {
+        addExtraFields(extraFields);
+      }
+
       queryVal.push({
         t: 'or',
-        val: [
-          {
-            t: 'contains',
-            att: 'cm:userName',
-            val
-          },
-          {
-            t: 'contains',
-            att: 'cm:firstName',
-            val
-          },
-          {
-            t: 'contains',
-            att: 'cm:lastName',
-            val
-          }
-        ]
+        val: searchFields.map(att => ({
+          t: 'contains',
+          att,
+          val
+        }))
       });
     }
 

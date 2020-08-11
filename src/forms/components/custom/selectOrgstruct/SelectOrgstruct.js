@@ -27,7 +27,8 @@ export default class SelectOrgstructComponent extends BaseComponent {
         modalTitle: '',
         isSelectedValueAsText: false,
         hideTabSwitcher: false,
-        defaultTab: TAB_BY_LEVELS
+        defaultTab: TAB_BY_LEVELS,
+        userSearchExtraFields: ''
       },
       ...extend
     );
@@ -110,12 +111,14 @@ export default class SelectOrgstructComponent extends BaseComponent {
     let allowedAuthorityType = this.component.allowedAuthorityType || '';
     let allowedGroupType = this.component.allowedGroupType || '';
     let allowedGroupSubType = this.component.allowedGroupSubType || '';
+    let userSearchExtraFieldsStr = this.component.userSearchExtraFields || '';
 
     allowedGroupSubType = allowedGroupSubType.trim();
 
     const allowedAuthorityTypes = allowedAuthorityType.split(',').map(item => item.trim());
     const allowedGroupTypes = allowedGroupType.split(',').map(item => item.trim());
     const allowedGroupSubTypes = allowedGroupSubType.length > 0 ? allowedGroupSubType.split(',').map(item => item.trim()) : [];
+    const userSearchExtraFields = userSearchExtraFieldsStr.length > 0 ? userSearchExtraFieldsStr.split(',').map(item => item.trim()) : [];
     const onChange = this.onValueChange.bind(this);
 
     const excludeAuthoritiesByName = this.component.excludeAuthoritiesByName;
@@ -136,6 +139,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           allowedGroupSubTypes={allowedGroupSubTypes}
           excludeAuthoritiesByName={excludeAuthoritiesByName}
           excludeAuthoritiesByType={excludedAuthoritiesByType}
+          userSearchExtraFields={userSearchExtraFields}
           onChange={onChange}
           viewOnly={self.viewOnly}
           hideTabSwitcher={component.hideTabSwitcher}
