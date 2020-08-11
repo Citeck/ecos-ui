@@ -1,7 +1,6 @@
 import Records from '../Records';
 
-const ACTION_INNER_ATTRIBUTES =
-  'id,' + 'name,' + 'pluralName:pluralName,' + 'icon,' + 'type,' + 'features:features?json,' + 'config:config?json';
+const ACTION_INNER_ATTRIBUTES = 'id,name,pluralName:pluralName,icon,type,features:features?json,config:config?json';
 
 /**
  * @typedef ForRecordsApiRes
@@ -52,7 +51,7 @@ class RecordActionsApi {
     try {
       typeRef = await Records.get(recordRef).load('_type?id');
     } catch (e) {
-      console.error('Exception while getActionsForRecord. RecordRef: ' + recordRef, e);
+      console.error(`Exception while getActionsForRecord. RecordRef: ${recordRef}`, e);
     }
     if (!typeRef) {
       return [];
@@ -71,7 +70,7 @@ class RecordActionsApi {
     try {
       result = await Records.get(typeRef).load(`_actions[]?id`);
     } catch (e) {
-      console.error('Exception while type actions was loaded. TypeRef: ' + typeRef, e);
+      console.error(`Exception while type actions was loaded. TypeRef: ${typeRef}`, e);
     }
     return result || [];
   }
