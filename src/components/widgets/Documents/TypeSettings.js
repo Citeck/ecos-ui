@@ -96,7 +96,7 @@ class TypeSettings extends Component {
       ...state,
       settings: {
         ...state.settings,
-        allowedFileUpload: checked
+        canUpload: checked
       }
     }));
   };
@@ -138,7 +138,7 @@ class TypeSettings extends Component {
         className="ecos-docs__modal-type-settings"
         hideModal={this.handleCloseModal}
       >
-        <Checkbox className="ecos-docs__modal-checkbox" onChange={this.handleToggleUploadFile} checked={settings.allowedFileUpload}>
+        <Checkbox className="ecos-docs__modal-checkbox" onChange={this.handleToggleUploadFile} checked={settings.canUpload}>
           {t(Labels.POSSIBLE_UPLOAD_FILE)}
         </Checkbox>
 

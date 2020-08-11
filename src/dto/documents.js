@@ -59,7 +59,7 @@ export default class DocumentsConverter {
         countDocuments: documents.length,
         lastDocumentRef: get(document, documentFields.id, ''),
         [documentFields.loadedBy]: get(document, documentFields.loadedBy, ''),
-        canDropUpload: !createVariants.formRef,
+        canDropUpload: !!item.canUpload && !createVariants.formRef,
         [documentFields.modified]: DocumentsConverter.getFormattedDate(get(document, documentFields.modified, ''))
       };
     });
@@ -130,6 +130,7 @@ export default class DocumentsConverter {
     target.name = get(source, 'name', t('documents-widget.untitled'));
     target.formId = get(source, 'formId', '');
     target.multiple = get(source, 'multiple', false);
+    target.canUpload = get(source, 'canUpload', false);
     target.mandatory = get(source, 'mandatory', false);
     target.countDocuments = get(source, 'countDocuments', 0);
     target.locked = get(source, 'locked', false);
@@ -161,6 +162,7 @@ export default class DocumentsConverter {
       target.type = get(item, 'type', '');
       target.multiple = get(item, 'multiple', false);
       target.mandatory = get(item, 'mandatory', false);
+      target.canUpload = get(item, 'canUpload', false);
 
       return target;
     });
@@ -183,6 +185,11 @@ export default class DocumentsConverter {
 
         if (result[index].mandatory !== current.mandatory) {
           current.mandatory = result[index].mandatory;
+          result[index] = current;
+        }
+
+        if (result[index].canUpload !== current.canUpload) {
+          current.canUpload = result[index].canUpload;
           result[index] = current;
         }
 

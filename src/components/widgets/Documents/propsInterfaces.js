@@ -14,7 +14,7 @@ export const DynamicTypeInterface = {
 
 export const TypeSettingsInterface = {
   multiple: PropTypes.bool,
-  allowedFileUpload: PropTypes.bool,
+  canUpload: PropTypes.bool,
   columns: PropTypes.arrayOf(
     PropTypes.shape({
       attribute: PropTypes.string,

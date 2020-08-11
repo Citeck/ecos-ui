@@ -526,8 +526,10 @@
         background: darken($color-blue-light, 5%);
       }
 
-      &_not-available {
+      &_not-available,
+      &_not-available:hover {
         cursor: not-allowed;
+        background: $color-blue-light2;
       }
     }
 
