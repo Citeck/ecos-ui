@@ -39,12 +39,13 @@ const mapDispatchToProps = dispatch => ({
   resetEventsHistory: payload => dispatch(resetEventsHistory(payload))
 });
 
-const Scroll = ({ scrollable, children, height = '100%' }) =>
+const Scroll = ({ scrollable, children, height = '100%', scrollbarProps }) =>
   scrollable ? (
     <Scrollbars
       style={{ height }}
       className="ecos-event-history__scroll"
       renderTrackVertical={props => <div {...props} className="ecos-event-history__v-scroll" />}
+      {...scrollbarProps}
     >
       {children}
     </Scrollbars>
@@ -163,10 +164,10 @@ class EventsHistory extends React.Component {
   };
 
   renderEnum() {
-    const { list, columns, isMobile } = this.props;
+    const { list, columns, isMobile, scrollbarProps } = this.props;
 
     return (
-      <Scroll scrollable={!isMobile}>
+      <Scroll scrollable={!isMobile} scrollbarProps={scrollbarProps}>
         <div className="ecos-event-history-list ecos-event-history-list_view-enum">
           {list.map((item, i) => (
             <EventsHistoryCard key={item.id + i} columns={columns} event={item} />
@@ -177,9 +178,7 @@ class EventsHistory extends React.Component {
   }
 
   renderTable() {
-    const { list, columns, isMobile, maxHeight, height } = this.props;
-    const maxHeightGrid = typeof height === 'number' ? height : maxHeight;
-    //todo for server filer const { filters } = this.state;
+    const { list, columns, isMobile, maxHeight } = this.props;
 
     return (
       <Grid
@@ -189,12 +188,9 @@ class EventsHistory extends React.Component {
         scrollable={!isMobile}
         noTopBorder
         className="ecos-event-history-list ecos-event-history-list_view-table"
-        maxHeight={maxHeightGrid}
+        maxHeight={maxHeight}
         autoHeight
       />
-      // filterable={false}
-      // filters={filters}
-      // onFilter={this.onGridFilter}
     );
   }
 
@@ -225,11 +221,6 @@ class EventsHistory extends React.Component {
 
     return (
       <div className={classNames('ecos-event-history', className)}>
-        <div ref={this._filter}>
-          {/*{(isMobile || isSmallMode) && (
-            <DropdownFilter columns={columns} className="ecos-event-history__filter" onFilter={this.onFilter} />
-          )}*/}
-        </div>
         <div ref={forwardedRef}>{this.renderContent()}</div>
       </div>
     );

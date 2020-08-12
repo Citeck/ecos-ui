@@ -3,7 +3,7 @@
 .ecos-event-history {
   $root: &;
 
-  padding-top: 10px;
+  //padding-top: 10px;
 
   &__v-scroll {
     @extend %v-scroll;

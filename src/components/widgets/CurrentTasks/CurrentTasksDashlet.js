@@ -59,7 +59,7 @@ class CurrentTasksDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
+    const { isSmallMode, runUpdate, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: () => this.reload()
@@ -94,8 +94,6 @@ class CurrentTasksDashlet extends BaseWidget {
           isSmallMode={isSmallMode}
           stateId={this.stateId}
           height={this.contentHeight}
-          // minHeight={fitHeights.min}
-          // maxHeight={fitHeights.max}
           setInfo={this.setInfo}
           runUpdate={runUpdate}
           scrollbarProps={this.scrollbarProps}
