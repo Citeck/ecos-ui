@@ -29,10 +29,6 @@ export default class Popper extends Component {
     needPopover: false
   };
 
-  componentDidMount() {
-    this.checkNeedShowPopper();
-  }
-
   componentWillUnmount() {
     this.handleResize.cancel();
   }
@@ -63,28 +59,8 @@ export default class Popper extends Component {
       return;
     }
 
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const styles = window.getComputedStyle(element, null);
-    const paddingLeft = parseInt(styles.getPropertyValue('padding-left'), 10) || 0;
-    const paddingRight = parseInt(styles.getPropertyValue('padding-right'), 10) || 0;
-    const { text } = this.props;
-
-    context.font = styles.getPropertyValue('font');
-
-    let fullWidth = context.measureText(text.trim()).width;
-    let elementWidth = element.getBoundingClientRect().width;
-
-    if (isNaN(fullWidth)) {
-      fullWidth = 0;
-    }
-
-    if (isNaN(elementWidth)) {
-      elementWidth = 0;
-    }
-
     this.setState({
-      needPopover: fullWidth > elementWidth - (paddingLeft + paddingRight)
+      needPopover: 0 > element.clientWidth - element.scrollWidth
     });
   };
 
@@ -97,7 +73,7 @@ export default class Popper extends Component {
   setTextRef = ref => {
     if (ref) {
       this.#textRef = ref;
-      this.checkNeedShowPopper();
+      setTimeout(this.checkNeedShowPopper, 0);
     }
   };
 
