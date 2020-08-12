@@ -18,15 +18,32 @@ import BtnTooltipInfo from './BtnTooltipInfo';
 class CurrentTaskList extends React.Component {
   static propTypes = {
     className: PropTypes.string,
-    height: PropTypes.string,
+    previousHeight: PropTypes.number,
     isSmallMode: PropTypes.bool,
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
   };
 
   static defaultProps = {
-    className: '',
-    height: '100%'
+    className: ''
   };
+
+  state = {
+    previousHeight: 0
+  };
+
+  static getDerivedStateFromProps(props, state) {
+    const newState = {};
+
+    if (props.previousHeight !== undefined && props.previousHeight !== state.previousHeight) {
+      newState.previousHeight = props.previousHeight;
+    }
+
+    if (Object.keys(newState).length) {
+      return newState;
+    }
+
+    return null;
+  }
 
   getActions({ id: taskId }) {
     const { actions, executeAction } = this.props;
@@ -119,11 +136,12 @@ class CurrentTaskList extends React.Component {
   }
 
   renderContent() {
-    const { isSmallMode, isLoading, currentTasks, isMobile } = this.props;
+    const { isSmallMode, isLoading, currentTasks, isMobile, height } = this.props;
+    const { previousHeight } = this.state;
     const isEmptyList = isEmpty(currentTasks);
 
     if (isLoading) {
-      return <Loader className="ecos-current-task-list__loader" />;
+      return <Loader className="ecos-current-task-list__loader" style={{ height: `${previousHeight}px` }} />;
     }
 
     if (isEmptyList) {

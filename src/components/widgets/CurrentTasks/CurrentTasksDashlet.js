@@ -11,6 +11,7 @@ import CurrentTasks from './CurrentTasks';
 
 import './style.scss';
 
+// Все задачи
 class CurrentTasksDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
@@ -92,9 +93,9 @@ class CurrentTasksDashlet extends BaseWidget {
           record={record}
           isSmallMode={isSmallMode}
           stateId={this.stateId}
-          height={userHeight}
-          minHeight={fitHeights.min}
-          maxHeight={fitHeights.max}
+          height={this.contentHeight}
+          // minHeight={fitHeights.min}
+          // maxHeight={fitHeights.max}
           setInfo={this.setInfo}
           runUpdate={runUpdate}
           scrollbarProps={this.scrollbarProps}

@@ -32,9 +32,13 @@ class TaskList extends React.Component {
   contentRef = React.createRef();
 
   renderLoader() {
-    let { isLoading } = this.props;
+    const { isLoading, height } = this.props;
 
-    return isLoading && <Loader className="ecos-task-list__loader" />;
+    if (!isLoading) {
+      return null;
+    }
+
+    return <Loader className="ecos-task-list__loader" style={{ height: `${height}px` }} />;
   }
 
   renderEmptyInfo() {
