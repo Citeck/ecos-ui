@@ -151,7 +151,7 @@ class Dashboard extends Component {
       this.getConfig();
     }
 
-    if (!!this.state.activeLayoutId && !get(queryString.parse(window.location.search), 'activeLayoutId')) {
+    if (this.state.activeLayoutId !== get(queryString.parse(window.location.search), 'activeLayoutId')) {
       this.setActiveLink(this.state.activeLayoutId);
     }
   }
