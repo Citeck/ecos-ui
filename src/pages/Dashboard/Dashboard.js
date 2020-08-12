@@ -86,15 +86,15 @@ class Dashboard extends Component {
     const newState = {};
     const newUrlParams = getSortedUrlParams();
     const firstLayoutId = get(props.config, '[0].id');
-    const activeLayoutId = get(queryString.parse(window.location.search), 'activeLayoutId', firstLayoutId);
+    const activeLayoutId = get(queryString.parse(window.location.search), 'activeLayoutId');
+    const isExistLayout = isArray(props.config) && !!props.config.find(layout => layout.id === activeLayoutId);
 
-    if (isEmpty(state.activeLayoutId)) {
-      newState.activeLayoutId = activeLayoutId;
+    if (!state.activeLayoutId && !isEmpty(props.config)) {
+      newState.activeLayoutId = isExistLayout ? activeLayoutId : firstLayoutId;
     }
 
     if (JSON.stringify(props.config) !== JSON.stringify(state.config)) {
       newState.config = props.config;
-      newState.activeLayoutId = activeLayoutId;
     }
 
     if (state.urlParams !== newUrlParams) {
@@ -119,7 +119,7 @@ class Dashboard extends Component {
     }
 
     if (newState.activeLayoutId) {
-      newState.openedTabs = state.openedTabs.add(activeLayoutId);
+      newState.openedTabs = state.openedTabs.add(newState.activeLayoutId);
       Dashboard.updateTabLink();
     }
 
@@ -149,6 +149,10 @@ class Dashboard extends Component {
       (this.props.enableCache && prevProps.stateKey !== this.props.stateKey)
     ) {
       this.getConfig();
+    }
+
+    if (!!this.state.activeLayoutId && !get(queryString.parse(window.location.search), 'activeLayoutId')) {
+      this.setActiveLink(this.state.activeLayoutId);
     }
   }
 
@@ -273,6 +277,19 @@ class Dashboard extends Component {
     this.saveDashboardConfig({ config });
   };
 
+  setActiveLink = idLayout => {
+    const searchParams = queryString.parse(window.location.search);
+
+    searchParams.activeLayoutId = idLayout;
+
+    this.props.history.push({
+      pathname: URL.DASHBOARD,
+      search: queryString.stringify(searchParams)
+    });
+
+    Dashboard.updateTabLink();
+  };
+
   handleSaveMenu = links => {
     const { saveMenuConfig, menuType } = this.props;
 
@@ -309,18 +326,9 @@ class Dashboard extends Component {
 
   toggleTabLayout = index => {
     const tab = get(this.tabList, [index], {});
-    const searchParams = queryString.parse(window.location.search);
-
-    searchParams.activeLayoutId = tab.idLayout;
-
-    this.props.history.push({
-      pathname: URL.DASHBOARD,
-      search: queryString.stringify(searchParams)
-    });
 
     this.setState(state => ({ openedTabs: state.openedTabs.add(tab.idLayout) }));
-
-    Dashboard.updateTabLink();
+    this.setActiveLink(tab.idLayout);
   };
 
   toggleTabLayoutFromUrl = () => {
