@@ -24,6 +24,7 @@ import { isMobileAppWebView, t } from '../../helpers/util';
 import PageService, { Events } from '../../services/PageService';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
+import { PopupContainer } from '../common/Popper';
 
 import './App.scss';
 
@@ -337,6 +338,7 @@ class App extends Component {
           </div>
 
           <NotificationContainer />
+          <PopupContainer />
         </div>
       </ErrorBoundary>
     );
