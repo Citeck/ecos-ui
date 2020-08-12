@@ -1,5 +1,8 @@
 import recordActions, { DEFAULT_MODEL as GLOBAL_DEFAULT_MODEL } from '../recordActions';
 import actionsRegistry from '../actionsRegistry';
+import { ACTION_DTO_BY_ID, ACTIONS_BY_RECORD, ACTIONS_BY_TYPE, RECORD_TYPE, RECORDS } from '../__mocks__/recordActionsApi';
+import ActionsExecutor from '../handler/ActionsExecutor';
+import '../__mocks__/recordActions.mock';
 
 jest.mock('../recordActionsApi');
 
@@ -22,11 +25,8 @@ class TestActionExecutor extends ActionsExecutor {
 
 actionsRegistry.register(new TestActionExecutor());
 
-import { ACTION_DTO_BY_ID, ACTIONS_BY_RECORD, ACTIONS_BY_TYPE, RECORD_TYPE, RECORDS } from '../__mocks__/recordActionsApi';
-import ActionsExecutor from '../handler/ActionsExecutor';
-
 describe('RecordActions service', () => {
-  test('Method replaceAttributeValues', () => {
+  describe('Method replaceAttributeValues', () => {
     const record = 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e';
     const data = [
       {
