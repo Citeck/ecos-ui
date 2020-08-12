@@ -1,14 +1,12 @@
 import React from 'react';
-import uuidV4 from 'uuid/v4';
-import classNames from 'classnames';
-import debounce from 'lodash/debounce';
 import get from 'lodash/get';
-import ReactResizeDetector from 'react-resize-detector';
+import isEmpty from 'lodash/isEmpty';
 
 import { isNodeRef } from '../../../../../helpers/util';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import Records from '../../../../../components/Records';
 import { AssocEditor } from '../../editors';
+import Popper from '../../../Popper';
 
 export default class AssocFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
@@ -43,11 +41,6 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     return AssocFormatter.getDisplayName(value);
   }
 
-  constructor(props) {
-    super(props);
-    this.domId = '_' + uuidV4();
-  }
-
   getId(cell) {
     return get(cell, 'assoc', '');
   }
@@ -58,7 +51,6 @@ export default class AssocFormatter extends DefaultGqlFormatter {
   };
 
   fetchName = false;
-  domId;
 
   componentDidMount() {
     const { cell } = this.props;
@@ -77,9 +69,13 @@ export default class AssocFormatter extends DefaultGqlFormatter {
   }
 
   renderTooltipContent = () => {
-    const { displayName } = this.state;
     const { cell } = this.props;
+    const { displayName } = this.state;
     const displayNameArray = displayName.split(', ');
+
+    if (isEmpty(displayName) || isEmpty(displayNameArray)) {
+      return null;
+    }
 
     return (
       <div className="ecos-formatter-assoc__tooltip-content">
@@ -97,25 +93,8 @@ export default class AssocFormatter extends DefaultGqlFormatter {
   };
 
   render() {
-    const { displayName, withTooltip } = this.state;
-    const elementId = `value_${this.domId}`;
+    const { displayName } = this.state;
 
-    return (
-      <>
-        <ReactResizeDetector handleWidth onResize={debounce(this.onResize, 250)} />
-        <div
-          className={classNames('ecos-formatter-assoc__value', { 'ecos-formatter-assoc__value_no-tooltip': !withTooltip })}
-          id={elementId}
-        >
-          {displayName}
-        </div>
-        {this.renderTooltip({
-          domId: this.domId,
-          text: displayName,
-          contentComponent: this.renderTooltipContent(),
-          elementId
-        })}
-      </>
-    );
+    return <Popper showAsNeeded text={displayName} icon="icon-question" contentComponent={this.renderTooltipContent()} />;
   }
 }
