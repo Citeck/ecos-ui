@@ -1,8 +1,32 @@
-import recordActions from '../recordActions';
-import '../__mocks__/recordActions.mock';
+import recordActions, { DEFAULT_MODEL as GLOBAL_DEFAULT_MODEL } from '../recordActions';
+import actionsRegistry from '../actionsRegistry';
+
+jest.mock('../recordActionsApi');
+
+class TestActionExecutor extends ActionsExecutor {
+  static ACTION_ID = 'test-action';
+
+  async execForRecord(record, action, context) {}
+
+  async execForRecords(records, action, context) {}
+
+  async execForQuery(query, action, context) {}
+
+  getDefaultActionModel() {
+    return {
+      icon: 'test-icon',
+      name: 'Custom test action'
+    };
+  }
+}
+
+actionsRegistry.register(new TestActionExecutor());
+
+import { ACTION_DTO_BY_ID, ACTIONS_BY_RECORD, ACTIONS_BY_TYPE, RECORD_TYPE, RECORDS } from '../__mocks__/recordActionsApi';
+import ActionsExecutor from '../handler/ActionsExecutor';
 
 describe('RecordActions service', () => {
-  describe('Method replaceAttributeValues', () => {
+  test('Method replaceAttributeValues', () => {
     const record = 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e';
     const data = [
       {
@@ -145,9 +169,78 @@ describe('RecordActions service', () => {
     data.forEach(async item => {
       it(item.title, async () => {
         const result = await recordActions.constructor.replaceAttributeValues(item.input, record);
-
         expect(result).toEqual(item.output);
       });
     });
+  });
+
+  test('Service test', async () => {
+    let mergeModel = (first, second) => {
+      let res = Object.assign({}, first);
+      for (let key in second) {
+        if (second[key]) {
+          res[key] = second[key];
+        }
+      }
+      return res;
+    };
+
+    const getExpectedActionsByRecord = recordId => {
+      return ACTIONS_BY_TYPE[RECORD_TYPE[recordId]].filter(a => ACTIONS_BY_RECORD[recordId].indexOf(a) >= 0);
+    };
+
+    const compareActions = (expected, actual, context = {}, msg) => {
+      let mask = 1;
+      expected = expected
+        .map(a => ACTION_DTO_BY_ID[a])
+        .map(a => {
+          let modelFromHandler = actionsRegistry.getHandler(a.type).getDefaultActionModel();
+          return mergeModel(mergeModel(GLOBAL_DEFAULT_MODEL, modelFromHandler), a);
+        })
+        .map(a => {
+          let currMask = mask;
+          mask = mask << 1;
+          let pluralName = a.pluralName || a.name;
+          return {
+            ...a,
+            pluralName,
+            __act_ctx__: {
+              context: context || {},
+              recordMask: currMask
+            },
+            features: {
+              execForRecord: true,
+              execForRecords: true,
+              execForQuery: true,
+              ...(a.features || {})
+            }
+          };
+        })
+        .filter(a => a.features.execForRecord !== false);
+
+      console.info('Check ' + msg);
+
+      expect(actual.length).toEqual(expected.length);
+      expect(actual).toEqual(expected);
+    };
+
+    for (let recordId of [RECORDS[1]]) {
+      let context = null;
+      let expected = getExpectedActionsByRecord(recordId);
+      let actions = await recordActions.getActionsForRecord(recordId, null, context);
+
+      compareActions(expected, actions, context, recordId + ' ' + JSON.stringify(expected));
+
+      context = { aa: 'bb' };
+      actions = await recordActions.getActionsForRecord(recordId, null, context);
+      expected = getExpectedActionsByRecord(recordId);
+
+      compareActions(expected, actions, context, recordId + ' ' + JSON.stringify(expected));
+
+      expected = ACTIONS_BY_RECORD[recordId];
+      actions = await recordActions.getActionsForRecord(recordId, expected, context);
+
+      compareActions(expected, actions, context, recordId + ' ' + JSON.stringify(expected));
+    }
   });
 });

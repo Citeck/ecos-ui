@@ -55,7 +55,7 @@ import { deepClone, t } from '../../../helpers/util';
 
 const ACTION_CONTEXT_KEY = '__act_ctx__';
 
-const DEFAULT_MODEL = {
+export const DEFAULT_MODEL = {
   name: '',
   pluralName: null,
   type: '',
@@ -99,6 +99,9 @@ class RecordActions {
   static _getActionsWithContext(actionsDto, context = {}) {
     if (!actionsDto || !actionsDto.length) {
       return [];
+    }
+    if (!context) {
+      context = {};
     }
     let idx = -1;
     const result = [];
