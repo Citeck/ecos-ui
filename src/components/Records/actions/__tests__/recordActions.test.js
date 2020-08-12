@@ -218,13 +218,11 @@ describe('RecordActions service', () => {
         })
         .filter(a => a.features.execForRecord !== false);
 
-      console.info('Check ' + msg);
-
       expect(actual.length).toEqual(expected.length);
       expect(actual).toEqual(expected);
     };
 
-    for (let recordId of [RECORDS[1]]) {
+    for (let recordId of RECORDS) {
       let context = null;
       let expected = getExpectedActionsByRecord(recordId);
       let actions = await recordActions.getActionsForRecord(recordId, null, context);
