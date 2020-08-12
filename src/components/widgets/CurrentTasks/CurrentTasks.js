@@ -2,11 +2,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import isEmpty from 'lodash/isEmpty';
 
 import { getCurrentTaskList, initCurrentTasks, resetCurrentTaskList, setInlineTools } from '../../../actions/currentTasks';
 import { selectStateCurrentTasksById } from '../../../selectors/tasks';
-import { DefineHeight } from '../../common/index';
 import CurrentTaskList from './CurrentTaskList';
 
 import './style.scss';
@@ -41,7 +39,8 @@ class CurrentTasks extends React.Component {
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    setInfo: PropTypes.func
+    setInfo: PropTypes.func,
+    scrollbarProps: PropTypes.object
   };
 
   static defaultProps = {
@@ -93,9 +92,7 @@ class CurrentTasks extends React.Component {
   };
 
   render() {
-    const { currentTasks, isLoading, isMobile, height, minHeight, maxHeight } = this.props;
-
-    const { contentHeight } = this.state;
+    const { isMobile, scrollbarProps } = this.props;
 
     if (isMobile) {
       return this.renderCurrentTaskList();
@@ -103,19 +100,11 @@ class CurrentTasks extends React.Component {
 
     return (
       <Scrollbars
-        style={{ height: contentHeight + (contentHeight ? 7 : 0) || '100%' }}
         className="ecos-current-task-list"
         renderTrackVertical={props => <div {...props} className="ecos-current-task-list__v-scroll" />}
+        {...scrollbarProps}
       >
-        <DefineHeight
-          fixHeight={height}
-          maxHeight={maxHeight}
-          minHeight={minHeight}
-          isMin={isLoading || isEmpty(currentTasks)}
-          getOptimalHeight={this.setHeight}
-        >
-          {this.renderCurrentTaskList()}
-        </DefineHeight>
+        {this.renderCurrentTaskList()}
       </Scrollbars>
     );
   }

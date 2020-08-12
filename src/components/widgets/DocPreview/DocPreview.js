@@ -321,7 +321,7 @@ class DocPreview extends Component {
     if (ref) {
       this._toolbarRef = ref;
 
-      if (typeof this.props.setToolbarRef) {
+      if (typeof this.props.setToolbarRef === 'function') {
         this.props.setToolbarRef(ref);
       }
     }

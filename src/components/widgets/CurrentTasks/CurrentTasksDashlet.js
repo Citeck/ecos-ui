@@ -83,6 +83,7 @@ class CurrentTasksDashlet extends BaseWidget {
         isCollapsed={isCollapsed}
         badgeText={getAdaptiveNumberStr(totalCount)}
         noBody={!totalCount && !isLoading}
+        setRef={this.setDashletRef}
       >
         <CurrentTasks
           {...config}
@@ -96,6 +97,7 @@ class CurrentTasksDashlet extends BaseWidget {
           maxHeight={fitHeights.max}
           setInfo={this.setInfo}
           runUpdate={runUpdate}
+          scrollbarProps={this.scrollbarProps}
         />
       </Dashlet>
     );
