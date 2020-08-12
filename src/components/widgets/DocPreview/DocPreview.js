@@ -36,6 +36,9 @@ const Labels = {
 const decreasingSteps = [562, 387, 293];
 
 class DocPreview extends Component {
+  _toolbarRef = null;
+  _bodyRef = null;
+
   static propTypes = {
     link: PropTypes.string,
     className: PropTypes.string,
@@ -53,7 +56,9 @@ class DocPreview extends Component {
     isCollapsed: PropTypes.bool,
     runUpdate: PropTypes.bool,
     clear: PropTypes.bool, // call clear state method
-    setUserScale: PropTypes.func
+    setUserScale: PropTypes.func,
+    setToolbarRef: PropTypes.func,
+    scrollbarProps: PropTypes.object
   };
 
   static defaultProps = {
@@ -65,9 +70,6 @@ class DocPreview extends Component {
   };
 
   state = {};
-  refToolbar = React.createRef();
-  refBody = React.createRef();
-  refWrapper = React.createRef();
 
   constructor(props) {
     super(props);
@@ -198,13 +200,15 @@ class DocPreview extends Component {
   }
 
   get commonProps() {
+    const { scrollbarProps } = this.props;
     const { settings } = this.state;
 
     const props = {
       settings,
       isLoading: !this.loaded,
       calcScale: this.setCalcScale,
-      getContentHeight: this.getContentHeight
+      getContentHeight: this.getContentHeight,
+      scrollbarProps
     };
 
     if (this.props.getContainerPageHeight) {
@@ -251,8 +255,8 @@ class DocPreview extends Component {
   }
 
   get hiddenTool() {
-    const heightTool = get(this.refToolbar, 'current.offsetHeight', 0) + 10;
-    const heightBody = get(this.refBody, 'current.offsetHeight', 0);
+    const heightTool = get(this._toolbarRef, 'offsetHeight', 0) + 10;
+    const heightBody = get(this._bodyRef, 'offsetHeight', 0);
 
     return heightTool >= heightBody && !this.message;
   }
@@ -312,6 +316,22 @@ class DocPreview extends Component {
       this.exist && this.setState({ downloadData });
     });
   }
+
+  setToolbarRef = ref => {
+    if (ref) {
+      this._toolbarRef = ref;
+
+      if (typeof this.props.setToolbarRef) {
+        this.props.setToolbarRef(ref);
+      }
+    }
+  };
+
+  setBodyRef = ref => {
+    if (ref) {
+      this._bodyRef = ref;
+    }
+  };
 
   loadPDF = link => {
     const { firstPageNumber } = this.props;
@@ -423,7 +443,7 @@ class DocPreview extends Component {
         scale={scale}
         scrollPage={scrollPage}
         calcScale={calcScale}
-        inputRef={this.refToolbar}
+        inputRef={this.setToolbarRef}
         fileName={fileName}
         downloadData={downloadData}
       />
@@ -464,14 +484,16 @@ class DocPreview extends Component {
 
     return (
       <div
-        ref={this.refWrapper}
         className={classNames('ecos-doc-preview', `ecos-doc-preview_decreasing-step-${this.decreasingStep}`, className, {
           'ecos-doc-preview_hidden': this.hiddenTool
         })}
         style={{ height: this.height }}
       >
         {!isLoading && (
-          <div ref={this.refBody} className={classNames('ecos-doc-preview__content', { 'ecos-doc-preview__content_indents': !noIndents })}>
+          <div
+            ref={this.setBodyRef}
+            className={classNames('ecos-doc-preview__content', { 'ecos-doc-preview__content_indents': !noIndents })}
+          >
             {this.renderToolbar()}
             {this.renderViewer()}
             {this.renderMessage()}

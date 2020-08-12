@@ -82,10 +82,7 @@ export default class Components {
       load: () => lazy(() => import('./Tasks')),
       label: 'dashboard-settings.widget.tasks',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
-      props: {
-        // maxHeightByContent: true
-        // fixedHeight: true
-      }
+      props: {}
     },
     [ComponentKeys.CURRENT_TASKS]: {
       load: () => lazy(() => import('./CurrentTasks')),

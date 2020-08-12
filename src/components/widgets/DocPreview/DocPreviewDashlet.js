@@ -16,6 +16,8 @@ import './style.scss';
 const isMobile = isMobileDevice();
 
 class DocPreviewDashlet extends BaseWidget {
+  _toolbarRef = null;
+
   static propTypes = {
     id: PropTypes.string.isRequired,
     title: PropTypes.string,
@@ -39,8 +41,6 @@ class DocPreviewDashlet extends BaseWidget {
     maxHeightByContent: false
   };
 
-  docPreviewRef = React.createRef();
-
   constructor(props) {
     super(props);
 
@@ -53,15 +53,13 @@ class DocPreviewDashlet extends BaseWidget {
   }
 
   get otherHeight() {
-    if (!this.props.maxHeightByContent) {
-      return null;
-    }
-
-    return get(this.docPreviewRef, 'current.refToolbar.current.offsetHeight', 0) + 24 + 14;
+    return this.dashletOtherHeight + get(this._toolbarRef, 'offsetHeight', 0) + 15;
   }
 
-  onResize = width => {
-    !!width && this.setState({ width });
+  setToolbarRef = ref => {
+    if (ref) {
+      this._toolbarRef = ref;
+    }
   };
 
   setUserScale = scale => {
@@ -80,9 +78,13 @@ class DocPreviewDashlet extends BaseWidget {
     }
   };
 
+  onResize = width => {
+    !!width && this.setState({ width });
+  };
+
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
-    const { width, userHeight, fitHeights, scale, isCollapsed, runUpdate } = this.state;
+    const { width, scale, isCollapsed, runUpdate } = this.state;
     const classesDashlet = classNames('ecos-doc-preview-dashlet', classNameDashlet, {
       'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE && !isMobile,
       'ecos-doc-preview-dashlet_mobile': isMobile,
@@ -105,15 +107,12 @@ class DocPreviewDashlet extends BaseWidget {
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
+        setRef={this.setDashletRef}
       >
         <DocPreview
-          ref={this.docPreviewRef}
           forwardedRef={this.contentRef}
           link={config.link}
-          height={userHeight}
           className={classNamePreview}
-          minHeight={fitHeights.min}
-          maxHeight={fitHeights.max}
           scale={scale}
           fileName={fileName}
           setUserScale={this.setUserScale}
@@ -121,6 +120,8 @@ class DocPreviewDashlet extends BaseWidget {
           resizable
           isCollapsed={isCollapsed}
           runUpdate={runUpdate}
+          scrollbarProps={this.scrollbarProps}
+          setToolbarRef={this.setToolbarRef}
         />
       </Dashlet>
     );

@@ -145,7 +145,7 @@ class BaseWidget extends Component {
     }
 
     if (fixedHeight) {
-      props.style = { height: MAX_DEFAULT_HEIGHT_DASHLET - this.dashletOtherHeight };
+      props.style = { height: MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight };
 
       return props;
     }

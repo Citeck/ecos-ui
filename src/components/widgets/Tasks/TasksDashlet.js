@@ -48,7 +48,7 @@ class TasksDashlet extends BaseWidget {
     this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'tasks.active-hash'])];
   }
 
-  onResize = (width, height) => {
+  onResize = width => {
     !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
 
@@ -59,7 +59,7 @@ class TasksDashlet extends BaseWidget {
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging, tabId, id } = this.props;
     const stateId = getStateId({ tabId, id });
-    const { runUpdate, isSmallMode, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
+    const { runUpdate, isSmallMode, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: this.reload.bind(this)
@@ -94,7 +94,6 @@ class TasksDashlet extends BaseWidget {
           stateId={stateId}
           runUpdate={runUpdate}
           isSmallMode={isSmallMode}
-          // height={userHeight}
           height={this.contentHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}

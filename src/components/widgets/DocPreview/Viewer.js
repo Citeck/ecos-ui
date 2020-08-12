@@ -6,7 +6,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { DefineHeight, Fullpage, Icon } from '../../common';
+import { Fullpage, Icon } from '../../common';
 
 const $PAGE = '.ecos-doc-preview__viewer-page';
 const fullscreenEnabled = fscreen.fullscreenEnabled;
@@ -186,13 +186,19 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     renderDocument() {
-      const { getContentHeight, resizable } = this.props;
+      const { resizable, scrollbarProps } = this.props;
       const newProps = { ...this.props, refViewer: this.refViewer };
       const { isFullscreenOn } = this.state;
       const renderView = props => <div {...props} className="ecos-doc-preview__viewer-scroll-area" />;
 
       if (this.failed) {
         return null;
+      }
+
+      const extraProps = { ...scrollbarProps };
+
+      if (isFullscreenOn) {
+        extraProps.style = { ...scrollbarProps.style, height: '100%' };
       }
 
       return (
@@ -203,14 +209,11 @@ export default function getViewer(WrappedComponent, isPdf) {
           onScroll={this.onScroll}
           onScrollFrame={this.onScrollFrame}
           autoHide
+          {...extraProps}
         >
-          <DefineHeight
-            className={classNames({ 'ecos-doc-preview__viewer-dh': resizable || isFullscreenOn })}
-            getContentHeight={getContentHeight}
-            querySelector={isPdf ? undefined : $PAGE}
-          >
+          <div className={classNames({ 'ecos-doc-preview__viewer-dh': resizable || isFullscreenOn })}>
             <WrappedComponent {...newProps} />
-          </DefineHeight>
+          </div>
         </Scrollbars>
       );
     }

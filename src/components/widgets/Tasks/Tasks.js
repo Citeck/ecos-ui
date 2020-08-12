@@ -2,11 +2,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import isEmpty from 'lodash/isEmpty';
 
 import { changeTaskAssignee, getTaskList, resetTaskList } from '../../../actions/tasks';
 import { selectStateTasksById } from '../../../selectors/tasks';
-import { DefineHeight } from '../../common';
 import Records from '../../Records';
 import TaskList from './TaskList';
 
@@ -128,8 +126,7 @@ class Tasks extends React.Component {
   };
 
   render() {
-    const { tasks, height, isLoading, minHeight, maxHeight, isMobile, scrollbarProps } = this.props;
-    const { contentHeight } = this.state;
+    const { isMobile, scrollbarProps } = this.props;
 
     if (isMobile) {
       return this.renderTaskList();
@@ -137,22 +134,11 @@ class Tasks extends React.Component {
 
     return (
       <Scrollbars
-        // style={{ height: contentHeight || '100%' }}
-        // autoHeight
-        // autoHeightMax={height}
         className="ecos-task-list"
         renderTrackVertical={props => <div {...props} className="ecos-task-list__v-scroll" />}
         {...scrollbarProps}
       >
-        {/*<DefineHeight*/}
-        {/*  fixHeight={height}*/}
-        {/*  maxHeight={maxHeight}*/}
-        {/*  minHeight={minHeight}*/}
-        {/*  isMin={isLoading || isEmpty(tasks)}*/}
-        {/*  getOptimalHeight={this.setHeight}*/}
-        {/*>*/}
         {this.renderTaskList()}
-        {/*</DefineHeight>*/}
       </Scrollbars>
     );
   }
