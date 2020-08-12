@@ -83,7 +83,7 @@ export default class Components {
       label: 'dashboard-settings.widget.tasks',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
       props: {
-        maxHeightByContent: true
+        // maxHeightByContent: true
         // fixedHeight: true
       }
     },

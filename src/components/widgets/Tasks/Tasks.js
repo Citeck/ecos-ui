@@ -44,7 +44,8 @@ class Tasks extends React.Component {
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     setInfo: PropTypes.func,
-    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
+    scrollbarProps: PropTypes.object
   };
 
   static defaultProps = {
@@ -108,7 +109,6 @@ class Tasks extends React.Component {
   };
 
   setHeight = contentHeight => {
-    console.warn({ contentHeight });
     this.setState({ contentHeight });
   };
 
@@ -128,7 +128,7 @@ class Tasks extends React.Component {
   };
 
   render() {
-    const { tasks, height, isLoading, minHeight, maxHeight, isMobile } = this.props;
+    const { tasks, height, isLoading, minHeight, maxHeight, isMobile, scrollbarProps } = this.props;
     const { contentHeight } = this.state;
 
     if (isMobile) {
@@ -138,20 +138,21 @@ class Tasks extends React.Component {
     return (
       <Scrollbars
         // style={{ height: contentHeight || '100%' }}
-        autoHeight
-        autoHeightMax={height}
+        // autoHeight
+        // autoHeightMax={height}
         className="ecos-task-list"
         renderTrackVertical={props => <div {...props} className="ecos-task-list__v-scroll" />}
+        {...scrollbarProps}
       >
-        <DefineHeight
-          fixHeight={height}
-          maxHeight={maxHeight}
-          minHeight={minHeight}
-          isMin={isLoading || isEmpty(tasks)}
-          getOptimalHeight={this.setHeight}
-        >
-          {this.renderTaskList()}
-        </DefineHeight>
+        {/*<DefineHeight*/}
+        {/*  fixHeight={height}*/}
+        {/*  maxHeight={maxHeight}*/}
+        {/*  minHeight={minHeight}*/}
+        {/*  isMin={isLoading || isEmpty(tasks)}*/}
+        {/*  getOptimalHeight={this.setHeight}*/}
+        {/*>*/}
+        {this.renderTaskList()}
+        {/*</DefineHeight>*/}
       </Scrollbars>
     );
   }

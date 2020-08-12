@@ -11,6 +11,7 @@ import Tasks from './Tasks';
 
 import './style.scss';
 
+// Мои задачи
 class TasksDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
@@ -67,6 +68,7 @@ class TasksDashlet extends BaseWidget {
 
     return (
       <Dashlet
+        setRef={this.setDashletRef}
         title={title || t('tasks-widget.title')}
         bodyClassName="ecos-task-list-dashlet__body"
         className={classNames('ecos-task-list-dashlet', classNameDashlet)}
@@ -97,6 +99,7 @@ class TasksDashlet extends BaseWidget {
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           setInfo={this.setInfo}
+          scrollbarProps={this.scrollbarProps}
         />
       </Dashlet>
     );

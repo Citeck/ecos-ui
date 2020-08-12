@@ -128,6 +128,11 @@ class BaseWidget extends Component {
     return paddingBottom + paddingTop + get(header, 'offsetHeight', 0);
   }
 
+  /**
+   * props for Scrollbar component
+   *
+   * @returns {{}}
+   */
   get scrollbarProps() {
     const { maxHeightByContent, fixedHeight } = this.props;
     const props = {};
@@ -145,11 +150,18 @@ class BaseWidget extends Component {
       return props;
     }
 
-    props.style = { height: MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight || '100%' };
+    props.autoHeight = true;
+    props.autoHeightMax = MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight || '100%';
+    // props.style = { height: MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight || '100%' };
 
     return props;
   }
 
+  /**
+   * for Dashlet component; props - setRef
+   *
+   * @param ref
+   */
   setDashletRef = ref => {
     if (ref) {
       this._dashletRef = ref;
