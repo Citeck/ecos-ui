@@ -21,7 +21,7 @@ import {
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import DAction from '../../../services/DashletActionService';
-import { DefineHeight, DropdownMenu as Menu, Icon, Loader } from '../../common/index';
+import { DropdownMenu as Menu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
 import Dashlet from '../../Dashlet';
@@ -347,7 +347,7 @@ class DocAssociations extends BaseWidget {
 
   render() {
     const { canDragging, dragHandleProps, associationsTotalCount, isLoading, isMobile } = this.props;
-    const { userHeight = 0, fitHeights, contentHeight, isCollapsed } = this.state;
+    const { isCollapsed } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: this.handleReloadData
@@ -380,22 +380,16 @@ class DocAssociations extends BaseWidget {
         isCollapsed={isCollapsed}
         badgeText={getAdaptiveNumberStr(associationsTotalCount)}
         noBody={!associationsTotalCount && !isLoading}
+        setRef={this.setDashletRef}
       >
         {isMobile ? (
           this.renderAssociations()
         ) : (
           <Scrollbars
-            style={{ height: contentHeight || '100%' }}
             renderTrackVertical={props => <div {...props} className="ecos-doc-associations__scroll ecos-doc-associations__scroll_v" />}
+            {...this.scrollbarProps}
           >
-            <DefineHeight
-              fixHeight={userHeight || null}
-              maxHeight={fitHeights.max}
-              minHeight={fitHeights.min}
-              getOptimalHeight={this.setContentHeight}
-            >
-              {this.renderAssociations()}
-            </DefineHeight>
+            {this.renderAssociations()}
           </Scrollbars>
         )}
         {this.renderLoader()}

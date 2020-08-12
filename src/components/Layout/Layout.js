@@ -13,6 +13,7 @@ import { getMinWidthColumn } from '../../helpers/layout';
 import Components from '../widgets/Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import { Loader } from '../../components/common';
+import pageTabService from '../../services/pageTabs/PageTabList';
 
 import './style.scss';
 
@@ -214,13 +215,16 @@ class Layout extends Component {
         canDragging,
         tabId,
         isActiveLayout,
-        record: recordRef,
         onSave: this.props.onSaveWidgetProps,
         onLoad: this.checkWidgets,
         onUpdate: this.checkWidgets
       };
       const baseProps = Components.getProps(widget.name);
       let Widget = this.#loadedWidgets[widget.name];
+
+      if (pageTabService.isActiveTab(tabId)) {
+        commonProps.record = recordRef;
+      }
 
       if (!Widget) {
         Widget = Components.get(widget.name);
