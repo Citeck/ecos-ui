@@ -580,7 +580,7 @@ class Documents extends BaseWidget {
     });
   };
 
-  handleSaveSettings = ({ types, isLoadChecklist = false, isPossibleUploadFile = false }) => {
+  handleSaveSettings = ({ types, isLoadChecklist = false }) => {
     const { availableTypes, onSave, id, config, onSaveSettings } = this.props;
     const selectedTypes = types.map(item => {
       const type = availableTypes.find(type => type.id === item.id);
@@ -594,8 +594,7 @@ class Documents extends BaseWidget {
     const newConfig = {
       ...config,
       types: DocumentsConverter.getTypesForConfig(selectedTypes),
-      isLoadChecklist,
-      isPossibleUploadFile
+      isLoadChecklist
     };
 
     onSave(id, { config: newConfig });
@@ -654,15 +653,15 @@ class Documents extends BaseWidget {
       return;
     }
 
+    if (!type.canDropUpload) {
+      return false;
+    }
+
     if (!type.multiple && files.length > 1) {
       this.setState({ selectedTypeForLoading: type });
 
       this.props.setError(errorTypes.COUNT_FILES, t(Labels.ERROR_ONLY_ONE_FILE));
 
-      return false;
-    }
-
-    if (this.getFormCreateVariants(type).formRef) {
       return false;
     }
 
@@ -726,7 +725,7 @@ class Documents extends BaseWidget {
     this.setToolsOptions();
   };
 
-  handleScollingTable = event => {
+  handleScrollingTable = event => {
     this.scrollPosition = event;
   };
 
@@ -814,7 +813,7 @@ class Documents extends BaseWidget {
       }
     }
 
-    if (this.getFormCreateVariants(type).formRef) {
+    if (!type.canDropUpload) {
       label = t('documents-widget.dnd.disabled');
     }
 
@@ -941,20 +940,17 @@ class Documents extends BaseWidget {
   };
 
   renderUploadButton() {
-    const { dynamicTypes, isPossibleUploadFile } = this.props;
+    const { dynamicTypes } = this.props;
     const { selectedType, contentHeight } = this.state;
+    const allowedTypes = dynamicTypes.filter(type => type.canUpload);
 
-    if (!isPossibleUploadFile) {
-      return null;
-    }
-
-    if (selectedType || dynamicTypes.length === 1) {
-      const type = dynamicTypes.find(item => item.type === selectedType) || dynamicTypes[0];
+    if (selectedType) {
+      const type = allowedTypes.find(item => item.type === selectedType);
 
       return (
         <div
           className={classNames('ecos-docs__panel-upload', {
-            'ecos-docs__panel-upload_not-available': !dynamicTypes.length
+            'ecos-docs__panel-upload_not-available': !type
           })}
           onClick={() => this.handleToggleUploadModalByType(type)}
         >
@@ -968,11 +964,11 @@ class Documents extends BaseWidget {
         isStatic
         withScrollbar
         toggleClassName={classNames('ecos-docs__panel-upload', {
-          'ecos-docs__panel-upload_not-available': !dynamicTypes.length
+          'ecos-docs__panel-upload_not-available': !allowedTypes.length
         })}
         valueField="type"
         titleField="name"
-        source={dynamicTypes}
+        source={allowedTypes}
         onChange={this.handleToggleUploadModalByType}
         scrollbarHeightMax={contentHeight - this.tablePanelHeight}
       >
@@ -1111,7 +1107,7 @@ class Documents extends BaseWidget {
           data={this.tableData}
           columns={this.documentTableColumns}
           onChangeTrOptions={this.handleHoverRow}
-          onScrolling={this.handleScollingTable}
+          onScrolling={this.handleScrollingTable}
           inlineTools={this.renderInlineTools}
           scrollPosition={this.scrollPosition}
           onRowMouseLeave={this.handleRowMouseLeave}
@@ -1178,7 +1174,7 @@ class Documents extends BaseWidget {
             autoHeight
             minHeight={minHeight}
             keyField="type"
-            onScrolling={this.handleScollingTable}
+            onScrolling={this.handleScrollingTable}
             onRowClick={this.handleClickTableRow}
             onRowDrop={this.handleRowDrop}
             onRowDragEnter={this.handleRowDragEnter}
@@ -1235,7 +1231,7 @@ class Documents extends BaseWidget {
   }
 
   renderSettings() {
-    const { isLoadingSettings, isLoadChecklist, isPossibleUploadFile, typeSettings, isLoadingTypeSettings } = this.props;
+    const { isLoadingSettings, isLoadChecklist, typeSettings, isLoadingTypeSettings } = this.props;
     const { isOpenSettings } = this.state;
 
     return (
@@ -1246,7 +1242,6 @@ class Documents extends BaseWidget {
         typeSettings={typeSettings}
         isLoading={isLoadingSettings}
         isLoadChecklist={isLoadChecklist}
-        isPossibleUploadFile={isPossibleUploadFile}
         isLoadingTypeSettings={isLoadingTypeSettings}
         onCancel={this.handleCancelSettings}
         onSave={this.handleSaveSettings}
