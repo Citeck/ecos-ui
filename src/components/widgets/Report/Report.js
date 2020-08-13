@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
-import isEmpty from 'lodash/isEmpty';
 import classNames from 'classnames';
 
-import { DefineHeight, Loader } from '../../common';
+import { Loader } from '../../common';
 import AnalyticsBlock from '../../common/AnalyticsBlock';
 import EcosProgressBar from '../../common/EcosProgressBar';
 import { t } from '../../../helpers/util';
@@ -20,19 +19,13 @@ export default class Report extends React.Component {
     isLoading: PropTypes.bool,
     isMobile: PropTypes.bool,
     runUpdate: PropTypes.bool,
-    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
-    getReportData: PropTypes.func
+    getReportData: PropTypes.func,
+    scrollbarProps: PropTypes.object
   };
 
   static defaultProps = {
     className: ''
-  };
-
-  state = {
-    contentHeight: 0
   };
 
   componentDidMount() {
@@ -46,10 +39,6 @@ export default class Report extends React.Component {
   }
 
   gridRef = null;
-
-  setHeight = contentHeight => {
-    this.setState({ contentHeight });
-  };
 
   renderAnalytics = () => {
     const { reportData, isLoading } = this.props;
@@ -96,18 +85,17 @@ export default class Report extends React.Component {
   };
 
   renderLoader() {
-    const { isLoading } = this.props;
+    const { isLoading, previousHeight } = this.props;
 
     if (!isLoading) {
       return null;
     }
 
-    return <Loader blur />;
+    return <Loader blur style={{ minHeight: previousHeight }} className="ecos-report__loader" />;
   }
 
   render() {
-    const { height, minHeight, isMobile, reportData, isLoading } = this.props;
-    const { contentHeight } = this.state;
+    const { isMobile, scrollbarProps } = this.props;
 
     if (isMobile) {
       return this.renderAnalytics();
@@ -115,14 +103,12 @@ export default class Report extends React.Component {
 
     return (
       <Scrollbars
-        style={{ height: contentHeight || '100%' }}
         className="ecos-report__scroll"
         renderTrackVertical={props => <div {...props} className="ecos-report__v-scroll" />}
+        {...scrollbarProps}
       >
-        <DefineHeight fixHeight={height} minHeight={minHeight} isMin={isLoading || isEmpty(reportData)} getOptimalHeight={this.setHeight}>
-          {this.renderLoader()}
-          {this.renderAnalytics()}
-        </DefineHeight>
+        {this.renderLoader()}
+        {this.renderAnalytics()}
       </Scrollbars>
     );
   }

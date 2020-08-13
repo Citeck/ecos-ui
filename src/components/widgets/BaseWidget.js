@@ -29,6 +29,7 @@ class BaseWidget extends Component {
       fitHeights: {},
       contentHeight: null,
       width: MIN_WIDTH_DASHLET_SMALL,
+      previousHeight: 0,
       userHeight: UserLocalSettingsService.getDashletHeight(lsId),
       isCollapsed: UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED)
     };
@@ -86,23 +87,12 @@ class BaseWidget extends Component {
     return this.clientHeight + this.otherHeight;
   }
 
-  // get contentHeight() {
-  //   const { maxHeightByContent, fixedHeight } = this.props;
-  //   const { fitHeights } = this.state;
-  //
-  //   if (fixedHeight) {
-  //     return MAX_DEFAULT_HEIGHT_DASHLET - fitHeights.headerHeight;
-  //   }
-  //
-  //   if (maxHeightByContent) {
-  //     return this.clientHeight; // - fitHeights.headerHeight;
-  //   }
-  //
-  //   return undefined;
-  // }
-
   get observableFieldsToUpdate() {
     return this._observableFieldsToUpdate;
+  }
+
+  get dashletHeight() {
+    return get(this._dashletRef, 'offsetHeight', 0);
   }
 
   // TODO: refactor, rename
@@ -252,7 +242,13 @@ class BaseWidget extends Component {
   handleUpdate() {}
 
   reload() {
-    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
+    this.setState(
+      {
+        runUpdate: true,
+        previousHeight: this.dashletHeight - this.otherHeight
+      },
+      () => this.setState({ runUpdate: false })
+    );
   }
 }
 

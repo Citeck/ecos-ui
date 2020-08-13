@@ -61,7 +61,7 @@ export default class Components {
     [ComponentKeys.REPORT]: {
       load: () => lazy(() => import('./Report')),
       label: 'dashboard-settings.widget.report',
-      supportedDashboardTypes: [DashboardTypes.USER],
+      supportedDashboardTypes: [/*DashboardTypes.USER*/ DashboardTypes.CASE_DETAILS],
       props: {}
     },
     [ComponentKeys.COMMENTS]: {
@@ -131,7 +131,7 @@ export default class Components {
     [ComponentKeys.BIRTHDAYS]: {
       load: () => lazy(() => import('./Birthdays')),
       label: 'dashboard-settings.widget.birthdays',
-      supportedDashboardTypes: [DashboardTypes.USER],
+      supportedDashboardTypes: [/*DashboardTypes.USER*/ DashboardTypes.CASE_DETAILS],
       props: {}
     },
     [ComponentKeys.BARCODE]: {
