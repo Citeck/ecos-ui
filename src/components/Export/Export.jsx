@@ -105,16 +105,8 @@ export default class Export extends Component {
     const gridPredicate = get(grid, ['predicates', 0], {});
     const mainPredicate = get(grid, 'predicate', {});
     const searchPredicate = this.getSearchPredicate(grid);
-    const predicates = [searchPredicate, gridPredicate];
-
-    if (isEmpty(predicates)) {
-      predicates.push(mainPredicate);
-    }
-
-    const predicate = deepClone({
-      t: PREDICATE_AND,
-      val: predicates
-    });
+    const predicates = [mainPredicate, searchPredicate, gridPredicate];
+    const predicate = deepClone({ t: PREDICATE_AND, val: predicates });
 
     const query = {
       sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
@@ -124,6 +116,7 @@ export default class Export extends Component {
       reportColumns: reportColumns,
       reportFilename: `${name}.${type}`
     };
+
     (config.meta.criteria || []).forEach((criterion, idx) => {
       query['field_' + idx] = criterion.field;
       query['predicate_' + idx] = criterion.predicate;
