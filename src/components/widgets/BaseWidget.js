@@ -74,7 +74,6 @@ class BaseWidget extends Component {
     return get(this.contentRef, 'current.offsetHeight', 0);
   }
 
-  // TODO: refactor, rename
   get contentHeight() {
     return get(this.contentRef, 'current.offsetHeight', 0);
   }
@@ -95,7 +94,6 @@ class BaseWidget extends Component {
     return get(this._dashletRef, 'offsetHeight', 0);
   }
 
-  // TODO: refactor, rename
   get dashletOtherHeight() {
     if (!this._dashletRef) {
       return 0;
@@ -227,12 +225,6 @@ class BaseWidget extends Component {
   handleToggleContent = (isCollapsed = false) => {
     this.setState({ isCollapsed });
     UserLocalSettingsService.setDashletProperty(this.state.lsId, { isCollapsed });
-
-    // TODO: какие-то доп.действия (при необходимости)
-    //  JournalDashlet сейчас (при разворачивании) контент не подстраивает по высоте
-    // if (this.state.isCollapsed && !isCollapsed) {
-    //   this.reload();
-    // }
   };
 
   handleResize = width => {
