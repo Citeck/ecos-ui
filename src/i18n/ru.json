@@ -773,6 +773,8 @@
   "timesheets.allForms.status.sendBack": "Требует доработки",
   "timesheets.allForms.status.sendToApproval": "Отправить на согласование",
   "timesheets.allForms.status.improve": "Доработать",
+  "timesheets.allForms.status.approved": "Согласован",
+  "timesheets.allForms.status.approvedByManager": "Согласован менеджером",
   "timesheets.allForms.buttons.sentBack": "На доработку",
   "timesheets.allForms.buttons.approve": "Согласовать",
   "timesheets.allForms.buttons.sendToApproval": "Отправить на согласование",

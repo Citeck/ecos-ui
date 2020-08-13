@@ -29,8 +29,9 @@ export const CommonLabels = {
   STATUS_VAL_NOT_FILLED: 'timesheets.allForms.status.notFilled',
   STATUS_VAL_WAITING_APPROVAL: 'timesheets.allForms.status.waitingForApproval',
   STATUS_VAL_NEED_IMPROVED: 'timesheets.allForms.status.sendBack',
-  STATUS_VAL_APPROVED: 'Согласован',
-  STATUS_VAL_SENT_TO_ACCOUNTING_SYSTEM: 'Согласован',
+  STATUS_VAL_APPROVED: 'timesheets.allForms.status.approved',
+  STATUS_VAL_APPROVED_BY_MANAGER: 'timesheets.allForms.status.approvedByManager',
+  STATUS_VAL_SENT_TO_ACCOUNTING_SYSTEM: 'timesheets.allForms.status.approved',
 
   STATUS_BTN_SENT_IMPROVE: 'timesheets.allForms.buttons.sentBack',
   STATUS_BTN_APPROVE: 'timesheets.allForms.buttons.approve',

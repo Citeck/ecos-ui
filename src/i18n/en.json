@@ -773,6 +773,8 @@
   "timesheets.allForms.status.sendBack": "Sent Back",
   "timesheets.allForms.status.sendToApproval": "Send to Approval",
   "timesheets.allForms.status.improve": "Edit",
+  "timesheets.allForms.status.approved": "Approved",
+  "timesheets.allForms.status.approvedByManager": "Approved by Manager",
   "timesheets.allForms.filter.people": "By people",
   "timesheets.allForms.filter.events": "By events",
   "timesheets.allForms.filter.companies": "By companies",
