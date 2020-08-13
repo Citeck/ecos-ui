@@ -404,19 +404,8 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
 
     grid.columns = columns;
 
-    const params = {
-      ...grid,
-      ...(action.payload || {})
-    };
-
-    const gridData = yield getGridData(
-      api,
-      {
-        ...params,
-        predicates: [...searchPredicate, ...get(params, 'predicates', [])]
-      },
-      stateId
-    );
+    const params = { ...grid, ...(action.payload || {}), searchPredicate };
+    const gridData = yield getGridData(api, params, stateId);
     const editingRules = yield getGridEditingRules(api, gridData);
     const selectAllRecords = yield select(state => state.journals[stateId].selectAllRecords);
     let selectedRecords = [];
