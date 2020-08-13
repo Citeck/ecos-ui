@@ -6,7 +6,14 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 
-import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../../actions/versionsJournal';
+import {
+  addNewVersion,
+  getVersions,
+  getVersionsComparison,
+  setActiveVersion,
+  toggleModal,
+  getWorkPermit
+} from '../../../actions/versionsJournal';
 import { selectLabelsVersions, selectStateByKey } from '../../../selectors/versionsJournal';
 import { arrayCompare, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
@@ -21,7 +28,6 @@ import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import ComparisonModal from './ComparisonModal';
 import { getStateId } from '../../../helpers/redux';
-import { selectIsAdmin } from '../../../selectors/user';
 
 import './style.scss';
 
@@ -33,7 +39,6 @@ const mapStateToProps = (state, ownProps) => {
   return {
     id: ownProps.id,
     isMobile,
-    isAdmin: selectIsAdmin(state),
     versions: get(versionState, 'versions', []),
     versionsLabels: selectLabelsVersions(state, id, isMobile),
     isLoading: get(versionState, 'listIsLoading', false),
@@ -49,7 +54,8 @@ const mapStateToProps = (state, ownProps) => {
     comparison: get(versionState, 'comparison', ''),
     comparisonModalIsShow: get(versionState, 'comparisonModalIsShow', false),
     comparisonModalIsLoading: get(versionState, 'comparisonModalIsLoading', false),
-    comparisonModalErrorMessage: get(versionState, 'comparisonModalErrorMessage', '')
+    comparisonModalErrorMessage: get(versionState, 'comparisonModalErrorMessage', ''),
+    hasWorkPermit: get(versionState, 'hasWorkPermit', '')
   };
 };
 
@@ -57,6 +63,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   const id = getStateId(ownProps);
 
   return {
+    checkWorkPermit: () => dispatch(getWorkPermit({ record: ownProps.record, id })),
     getVersionsList: () => dispatch(getVersions({ record: ownProps.record, id })),
     getVersionsComparison: payload => dispatch(getVersionsComparison({ ...payload, record: ownProps.record, id })),
     addNewVersion: payload => dispatch(addNewVersion({ ...payload, record: ownProps.record, id })),
@@ -100,7 +107,9 @@ class VersionsJournal extends BaseWidget {
     changeVersionModalIsLoading: PropTypes.bool,
     changeVersionModalErrorMessage: PropTypes.string,
 
-    maxHeightByContent: PropTypes.bool
+    maxHeightByContent: PropTypes.bool,
+
+    checkWorkPermit: PropTypes.func
   };
 
   static defaultProps = {
@@ -168,6 +177,7 @@ class VersionsJournal extends BaseWidget {
   componentDidMount() {
     super.componentDidMount();
     this.props.getVersionsList();
+    this.props.checkWorkPermit();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -271,9 +281,9 @@ class VersionsJournal extends BaseWidget {
   }
 
   renderVersionActions(version, isMobile = false) {
-    const { id, isAdmin } = this.props;
+    const { id, hasWorkPermit } = this.props;
     const key = `${version.id.replace(/[:@/]/gim, '')}-${id}`;
-    const changeActiveVersionBtn = isAdmin ? (
+    const changeActiveVersionBtn = hasWorkPermit ? (
       <>
         <Icon
           id={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
@@ -583,11 +593,11 @@ class VersionsJournal extends BaseWidget {
   }
 
   render() {
-    const { isMobile, isAdmin, versionsLabels, record } = this.props;
+    const { isMobile, hasWorkPermit, versionsLabels, record } = this.props;
     const { isCollapsed } = this.state;
     const actions = {};
 
-    if (isAdmin && !isMobile && record) {
+    if (hasWorkPermit && !isMobile && record) {
       actions.addVersion = {
         icon: 'icon-small-plus',
         text: t('versions-journal-widget.add-version'),

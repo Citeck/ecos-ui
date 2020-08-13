@@ -17,3 +17,6 @@ export const toggleModal = createAction(prefix + 'TOGGLE_MODAL');
 export const addNewVersion = createAction(prefix + 'ADD_NEW_VERSION');
 export const addNewVersionSuccess = createAction(prefix + 'ADD_NEW_VERSION_SUCCESS');
 export const addNewVersionError = createAction(prefix + 'ADD_NEW_VERSION_ERROR');
+
+export const getWorkPermit = createAction(prefix + 'GET_WORK_PERMIT');
+export const setWorkPermit = createAction(prefix + 'SET_WORK_PERMIT');

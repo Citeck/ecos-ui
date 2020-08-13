@@ -10,7 +10,8 @@ import {
   setVersions,
   toggleModal,
   getVersionsComparison,
-  setVersionsComparison
+  setVersionsComparison,
+  setWorkPermit
 } from '../actions/versionsJournal';
 
 export const initialState = {
@@ -30,7 +31,9 @@ export const initialState = {
   comparison: '',
   comparisonModalIsShow: false,
   comparisonModalIsLoading: false,
-  comparisonModalErrorMessage: ''
+  comparisonModalErrorMessage: '',
+
+  hasWorkPermit: false
 };
 
 Object.freeze(initialState);
@@ -136,6 +139,13 @@ export default handleActions(
         ...state[payload.id],
         comparisonModalIsLoading: false,
         comparison: payload.comparison
+      }
+    }),
+    [setWorkPermit]: (state, { payload }) => ({
+      ...state,
+      [payload.id]: {
+        ...state[payload.id],
+        hasWorkPermit: payload.hasWorkPermit
       }
     })
   },

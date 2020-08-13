@@ -7,11 +7,13 @@ import {
   addNewVersionSuccess,
   getVersions,
   getVersionsComparison,
+  getWorkPermit,
   setActiveVersion,
   setActiveVersionError,
   setActiveVersionSuccess,
   setVersions,
-  setVersionsComparison
+  setVersionsComparison,
+  setWorkPermit
 } from '../actions/versionsJournal';
 import VersionsJournalConverter from '../dto/versionsJournal';
 import Records from '../components/Records';
@@ -73,11 +75,22 @@ function* sagaGetVersionsComparison({ api, logger }, { payload }) {
   }
 }
 
+function* sagaCheckWorkPermit({ api, logger }, { payload }) {
+  try {
+    const hasWorkPermit = yield call(api.versionsJournal.getWorkPermit, payload.record);
+
+    yield put(setWorkPermit({ record: payload.record, id: payload.id, hasWorkPermit }));
+  } catch (e) {
+    logger.error('[versionJournal/sagaCheckWorkPermit saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(getVersions().type, sagaGetVersions, ea);
   yield takeEvery(addNewVersion().type, sagaAddNewVersion, ea);
   yield takeEvery(setActiveVersion().type, sagaSetNewVersion, ea);
   yield takeEvery(getVersionsComparison().type, sagaGetVersionsComparison, ea);
+  yield takeEvery(getWorkPermit().type, sagaCheckWorkPermit, ea);
 }
 
 export default saga;

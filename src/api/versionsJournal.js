@@ -54,4 +54,8 @@ export class VersionsJournalApi extends CommonApi {
       { diff: 'diff' }
     ).then(response => response);
   };
+
+  getWorkPermit = record => {
+    return Records.get(record).load('.att(n:"permissions"){has(n:"Write")}');
+  };
 }
