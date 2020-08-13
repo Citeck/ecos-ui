@@ -17,7 +17,7 @@ import { IcoBtn } from '../../common/btns';
 import { DropdownOuter } from '../../common/form';
 import { RemoveDialog } from '../../common/dialogs';
 import { goToNodeEditPage } from '../../../helpers/urls';
-import { t, trigger } from '../../../helpers/util';
+import { isExistValue, t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { PROXY_URI } from '../../../constants/alfresco';
 import {
@@ -394,10 +394,15 @@ class JournalsDashletGrid extends Component {
       }
 
       if (!isEmptyValue) {
-        if (params.changeExistsValue !== 'true') {
+        const changeExistsValue =
+          !isExistValue(params.changeExistsValue) || params.changeExistsValue === 'true' || params.changeExistsValue === true;
+
+        if (!changeExistsValue) {
           addResolved(rec, 'SKIPPED');
         } else {
-          if (params.confirmChange === 'true') {
+          const confirmChange = !isExistValue(params.confirmChange) || params.confirmChange === 'true' || params.confirmChange === true;
+
+          if (confirmChange) {
             let confirmRes = await new Promise(resolve => {
               dialogManager.confirmDialog({
                 title: t('journals.action.confirm.title'),
@@ -417,7 +422,7 @@ class JournalsDashletGrid extends Component {
           }
         }
       } else {
-        if (params.skipEmptyValues === true) {
+        if (params.skipEmptyValues === 'true' || params.skipEmptyValues === true) {
           addResolved(rec, 'SKIPPED');
         } else {
           recordsToChange.push(rec.id);
