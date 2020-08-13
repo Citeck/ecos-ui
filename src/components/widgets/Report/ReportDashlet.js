@@ -85,7 +85,7 @@ class ReportDashlet extends BaseWidget {
       getReportData,
       isMobile
     } = this.props;
-    const { isSmallMode, userHeight, previousHeight, isCollapsed, runUpdate } = this.state;
+    const { isSmallMode, previousHeight, isCollapsed, runUpdate } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: this.reload.bind(this)

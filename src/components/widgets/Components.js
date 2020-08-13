@@ -43,6 +43,11 @@ export const ComponentKeys = {
  * можно указать типы дашбордов, на которых не следует отображать виджет
  */
 export default class Components {
+  /**
+   * @props: - общие параметры виджета:
+   * maxHeightByContent (bool) - высота виджета по контенту
+   * fixedHeight (bool) - фиксированная макимальнодоступная высота виджета вне зависимости от высоты контента
+   */
   static components = Object.freeze({
     [ComponentKeys.DOC_PREVIEW]: {
       load: () => lazy(() => import('./DocPreview')),
@@ -61,7 +66,7 @@ export default class Components {
     [ComponentKeys.REPORT]: {
       load: () => lazy(() => import('./Report')),
       label: 'dashboard-settings.widget.report',
-      supportedDashboardTypes: [/*DashboardTypes.USER*/ DashboardTypes.CASE_DETAILS],
+      supportedDashboardTypes: [DashboardTypes.USER],
       props: {}
     },
     [ComponentKeys.COMMENTS]: {
@@ -131,7 +136,7 @@ export default class Components {
     [ComponentKeys.BIRTHDAYS]: {
       load: () => lazy(() => import('./Birthdays')),
       label: 'dashboard-settings.widget.birthdays',
-      supportedDashboardTypes: [/*DashboardTypes.USER*/ DashboardTypes.CASE_DETAILS],
+      supportedDashboardTypes: [DashboardTypes.USER],
       props: {}
     },
     [ComponentKeys.BARCODE]: {
