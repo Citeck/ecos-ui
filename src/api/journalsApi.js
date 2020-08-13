@@ -68,15 +68,14 @@ export class JournalsApi extends RecordService {
     recordRef,
     journalId,
     journalActions,
-    queryData
+    queryData,
+    searchPredicate
   }) => {
-    const val = [];
+    const val = [predicate];
 
-    !!Array.isArray(predicates) && val.push(...predicates);
+    Array.isArray(predicates) && val.push(...predicates);
 
-    if (isEmpty(val)) {
-      val.push(predicate);
-    }
+    !isEmpty(searchPredicate) && val.push(...searchPredicate);
 
     !!recordRef &&
       val.push({
