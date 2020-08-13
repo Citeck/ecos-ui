@@ -79,7 +79,7 @@ class AssociationGrid extends Component {
     this.handleSetInlineToolsOffsets({ height: 0, top: 0, row: {} });
   };
 
-  handleScollingTable = event => {
+  handleScrollingTable = event => {
     this.#scrollPosition = event;
 
     if (this.#toolsRef.current) {
@@ -142,7 +142,7 @@ class AssociationGrid extends Component {
           columns={DocAssociationsConverter.getColumnForWeb(columns)}
           inlineTools={this.renderInlineTools}
           onChangeTrOptions={this.handleSetInlineToolsOffsets}
-          onScrolling={this.handleScollingTable}
+          onScrolling={this.handleScrollingTable}
           scrollPosition={this.#scrollPosition}
         />
       </div>

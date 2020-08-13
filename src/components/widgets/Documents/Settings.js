@@ -13,8 +13,7 @@ import { Checkbox } from '../../common/form';
 const Labels = {
   CANCEL_BUTTON: 'documents-widget.settings-modal.button.cancel',
   OK_BUTTON: 'documents-widget.settings-modal.button.ok',
-  CHECKLIST: 'documents-widget.settings-modal.checklist',
-  POSSIBLE_UPLOAD_FILE: 'documents-widget.settings-modal.possible-upload-file'
+  CHECKLIST: 'documents-widget.settings-modal.checklist'
 };
 
 class Settings extends Component {
@@ -22,7 +21,6 @@ class Settings extends Component {
     isOpen: PropTypes.bool,
     isLoading: PropTypes.bool,
     isLoadChecklist: PropTypes.bool,
-    isPossibleUploadFile: PropTypes.bool,
     isLoadingTypeSettings: PropTypes.bool,
     title: PropTypes.string,
     typeSettings: PropTypes.shape(TypeSettingsInterface),
@@ -36,7 +34,6 @@ class Settings extends Component {
     isOpen: false,
     isLoading: false,
     isLoadChecklist: false,
-    isPossibleUploadFile: false,
     isLoadingTypeSettings: false,
     title: '',
     types: [],
@@ -52,7 +49,6 @@ class Settings extends Component {
       types: props.types,
       filter: '',
       isLoadChecklist: props.isLoadChecklist,
-      isPossibleUploadFile: props.isPossibleUploadFile,
       editableType: null,
       customizedTypeSettings: new Map()
     };
@@ -67,10 +63,6 @@ class Settings extends Component {
 
     if (!props.isOpen && props.isLoadChecklist !== state.isLoadChecklist) {
       newState.isLoadChecklist = props.isLoadChecklist;
-    }
-
-    if (!props.isOpen && props.isPossibleUploadFile !== state.isPossibleUploadFile) {
-      newState.isPossibleUploadFile = props.isPossibleUploadFile;
     }
 
     if (!props.isOpen && state.filter) {
@@ -202,7 +194,7 @@ class Settings extends Component {
   };
 
   handleClickSave = () => {
-    const { isLoadChecklist, isPossibleUploadFile } = this.state;
+    const { isLoadChecklist } = this.state;
     const types = deepClone(this.state.types);
     const selected = [];
 
@@ -217,7 +209,7 @@ class Settings extends Component {
     };
 
     types.forEach(checkStatus);
-    this.props.onSave({ types: selected, isLoadChecklist, isPossibleUploadFile });
+    this.props.onSave({ types: selected, isLoadChecklist });
   };
 
   handleToggleSelectType = ({ id, checked }) => {
@@ -248,13 +240,9 @@ class Settings extends Component {
     this.setState({ isLoadChecklist: checked });
   };
 
-  handleTogglePossibleUploadFile = ({ checked }) => {
-    this.setState({ isPossibleUploadFile: checked });
-  };
-
   render() {
     const { isOpen, title, isLoading, isLoadingTypeSettings } = this.props;
-    const { editableType, isLoadChecklist, isPossibleUploadFile } = this.state;
+    const { editableType, isLoadChecklist } = this.state;
 
     return (
       <>
@@ -267,9 +255,6 @@ class Settings extends Component {
         >
           <Checkbox className="ecos-docs__modal-checkbox" onChange={this.handleToggleLoadChecklist} checked={isLoadChecklist}>
             {t(Labels.CHECKLIST)}
-          </Checkbox>
-          <Checkbox className="ecos-docs__modal-checkbox" onChange={this.handleTogglePossibleUploadFile} checked={isPossibleUploadFile}>
-            {t(Labels.POSSIBLE_UPLOAD_FILE)}
           </Checkbox>
 
           <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__modal-settings-search" />
