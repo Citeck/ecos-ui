@@ -135,14 +135,13 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ wasLastModifiedWithInlineEditor: true });
   };
 
-  reload = () => {
+  handleUpdate() {
     if (this.state.wasLastModifiedWithInlineEditor) {
       this.setState({ wasLastModifiedWithInlineEditor: false });
     } else {
-      this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
       this.onReloadDashlet();
     }
-  };
+  }
 
   onReloadDashlet = () => {
     const onUpdate = get(this._propertiesRef, 'current.onUpdateForm');

@@ -112,6 +112,22 @@ export default [
     weight: 23
   },
   {
+    type: 'textfield',
+    input: true,
+    key: 'userSearchExtraFields',
+    label: 'User search: extra fields',
+    placeholder: 'Example: field1, field2, field3',
+    defaultValue: '',
+    validate: {
+      required: false
+    },
+    weight: 24,
+    customConditional: `
+      const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
+      show = allowedTypes.indexOf('${AUTHORITY_TYPE_USER}') !== -1;
+    `
+  },
+  {
     label: 'Current user by default',
     labelPosition: 'left-left',
     tooltip: 'Set current user by default when form is in create mode',
@@ -122,6 +138,6 @@ export default [
     input: true,
     key: 'currentUserByDefault',
     defaultValue: false,
-    weight: 24
+    weight: 25
   }
 ];

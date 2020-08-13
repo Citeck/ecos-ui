@@ -26,7 +26,8 @@ export const SelectOrgstructProvider = props => {
     defaultTab,
     liveSearch,
     hideTabSwitcher,
-    renderListItem
+    renderListItem,
+    userSearchExtraFields
   } = controlProps;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
@@ -99,7 +100,7 @@ export const SelectOrgstructProvider = props => {
   // fetch "all" group list (all users)
   useEffect(() => {
     if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TAB_ALL_USERS) {
-      OrgStructApi.getUserList(searchText).then(items => {
+      OrgStructApi.getUserList(searchText, userSearchExtraFields).then(items => {
         setTabItems({
           ...tabItems,
           [TAB_ALL_USERS]: items.map(item => setSelectedItem(item))
@@ -109,7 +110,7 @@ export const SelectOrgstructProvider = props => {
         setIsAllUsersGroupFetched(true);
       });
     }
-  }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab]);
+  }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]);
 
   // reset isSelectedFetched if new previewValue
   useEffect(() => {
