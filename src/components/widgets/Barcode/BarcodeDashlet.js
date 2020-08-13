@@ -149,9 +149,16 @@ class BarcodeDashlet extends BaseWidget {
         actionDrag={isMobileDevice()}
         setRef={this.setDashletRef}
       >
-        <Scrollbars {...this.scrollbarProps}>
-          {this.renderBarcode()}
-          {this.renderSettings()}
+        <Scrollbars
+          autoHide
+          renderTrackHorizontal={props => <div {...props} hidden />}
+          renderThumbHorizontal={props => <div {...props} hidden />}
+          {...this.scrollbarProps}
+        >
+          <div className="ecos-barcode-dashlet__body-content">
+            {this.renderBarcode()}
+            {this.renderSettings()}
+          </div>
         </Scrollbars>
       </Dashlet>
     );

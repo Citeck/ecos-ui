@@ -800,7 +800,13 @@ class Grid extends Component {
 
   checkDropPermission = tr => {
     if (this.props.onCheckDropPermission && typeof this.props.onCheckDropPermission === 'function') {
-      const canDrop = this.props.onCheckDropPermission(this.props.data[tr.rowIndex - 1]);
+      const item = this.props.data[tr.rowIndex - 1];
+
+      if (!item) {
+        return false;
+      }
+
+      const canDrop = this.props.onCheckDropPermission(item);
 
       if (!canDrop) {
         this.setHover(tr, ECOS_GRID_HOVERED_CLASS, false, this._tr);

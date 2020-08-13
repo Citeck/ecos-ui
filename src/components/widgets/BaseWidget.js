@@ -152,7 +152,6 @@ class BaseWidget extends Component {
 
     props.autoHeight = true;
     props.autoHeightMax = MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight || '100%';
-    // props.style = { height: MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight || '100%' };
 
     return props;
   }
