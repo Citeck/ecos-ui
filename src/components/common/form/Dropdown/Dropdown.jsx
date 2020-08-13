@@ -138,8 +138,8 @@ export default class Dropdown extends Component {
     const { children, controlLabel = '', controlIcon = '', controlClassName } = this.props;
     const { dropdownOpen } = this.state;
 
-    return (
-      children || (
+    if (!children) {
+      return (
         <TwoIcoBtn
           icons={[controlIcon, dropdownOpen ? 'icon-small-up' : 'icon-small-down']}
           label={controlLabel}
@@ -147,8 +147,10 @@ export default class Dropdown extends Component {
         >
           <span className="ecos-dropdown__toggle-label">{controlLabel}</span>
         </TwoIcoBtn>
-      )
-    );
+      );
+    }
+
+    return React.Children.map(children, child => React.cloneElement(child, { children: child.props.children }));
   };
 
   getKey = (item, index) => {
