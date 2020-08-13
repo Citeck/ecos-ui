@@ -11,7 +11,7 @@ import ReactResizeDetector from 'react-resize-detector';
 
 import BaseWidget from '../BaseWidget';
 import { deepClone, num2str, t } from '../../../helpers/util';
-import { MIN_WIDTH_DASHLET_LARGE, MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants/index';
+import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
@@ -696,13 +696,7 @@ class Comments extends BaseWidget {
     }
 
     return (
-      <Scrollbars
-        autoHide
-        ref={this._scroll}
-        autoHeight
-        autoHeightMax={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
-        style={{ height: this.scrollHeight }}
-      >
+      <Scrollbars autoHide ref={this._scroll} {...this.scrollbarProps}>
         {renderCommentList()}
       </Scrollbars>
     );
