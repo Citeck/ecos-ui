@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "1.17.1-snapshot",
+  "version": "1.17.2-snapshot",
   "private": true,
   "dependencies": {
     "@popperjs/core": "^2.4.4",
