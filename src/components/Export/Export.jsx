@@ -3,13 +3,14 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import omit from 'lodash/omit';
 import get from 'lodash/get';
-import queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
+import queryString from 'query-string';
 
 import { UserConfigApi } from '../../api/userConfig';
 import { URL } from '../../constants';
 import { ALFRESCO, PROXY_URI } from '../../constants/alfresco';
-import { deepClone, t } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
@@ -105,16 +106,8 @@ export default class Export extends Component {
     const gridPredicate = get(grid, ['predicates', 0], {});
     const mainPredicate = get(grid, 'predicate', {});
     const searchPredicate = this.getSearchPredicate(grid);
-    const predicates = [searchPredicate, gridPredicate];
-
-    if (isEmpty(predicates)) {
-      predicates.push(mainPredicate);
-    }
-
-    const predicate = deepClone({
-      t: PREDICATE_AND,
-      val: predicates
-    });
+    const predicates = [mainPredicate, searchPredicate, gridPredicate];
+    const predicate = cloneDeep({ t: PREDICATE_AND, val: predicates });
 
     const query = {
       sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
@@ -124,6 +117,7 @@ export default class Export extends Component {
       reportColumns: reportColumns,
       reportFilename: `${name}.${type}`
     };
+
     (config.meta.criteria || []).forEach((criterion, idx) => {
       query['field_' + idx] = criterion.field;
       query['predicate_' + idx] = criterion.predicate;

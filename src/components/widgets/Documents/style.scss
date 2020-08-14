@@ -475,19 +475,6 @@
       }
 
       &-tabs {
-        width: 100%;
-
-        &-item {
-          width: 50%;
-          height: 26px;
-          font-size: 14px;
-          line-height: 23px;
-          font-weight: bold;
-
-          &:not(.ecos-tab_active) {
-            background: $color-gray-4;
-          }
-        }
       }
 
       &-label {
@@ -497,8 +484,8 @@
         font-size: 12px;
         line-height: 16px;
         color: $color-gray-dark;
-        border-radius: 6px;
-        margin-bottom: 5px;
+        border-radius: 10px;
+        margin-bottom: 7px;
         padding: 5px 10px;
       }
 
@@ -539,8 +526,10 @@
         background: darken($color-blue-light, 5%);
       }
 
-      &_not-available {
+      &_not-available,
+      &_not-available:hover {
         cursor: not-allowed;
+        background: $color-blue-light2;
       }
     }
 
