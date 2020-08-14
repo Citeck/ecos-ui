@@ -657,12 +657,12 @@ class Comments extends BaseWidget {
       canEdit = false,
       canDelete = false
     } = data;
-    let convertedComment = text;
+    let convertedComment;
 
     try {
       convertedComment = stateToHTML(convertFromRaw(JSON.parse(text)));
     } catch (e) {
-      console.error('convert comment error: ', e.message);
+      convertedComment = text;
     }
 
     return (
