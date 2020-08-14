@@ -12,7 +12,7 @@ import {
   getVersionsComparison,
   setActiveVersion,
   toggleModal,
-  getWorkPermit
+  getModifyRecordStatus
 } from '../../../actions/versionsJournal';
 import { selectLabelsVersions, selectStateByKey } from '../../../selectors/versionsJournal';
 import { arrayCompare, t } from '../../../helpers/util';
@@ -55,7 +55,7 @@ const mapStateToProps = (state, ownProps) => {
     comparisonModalIsShow: get(versionState, 'comparisonModalIsShow', false),
     comparisonModalIsLoading: get(versionState, 'comparisonModalIsLoading', false),
     comparisonModalErrorMessage: get(versionState, 'comparisonModalErrorMessage', ''),
-    hasWorkPermit: get(versionState, 'hasWorkPermit', '')
+    canModifyRecord: get(versionState, 'canModifyRecord', '')
   };
 };
 
@@ -63,7 +63,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   const id = getStateId(ownProps);
 
   return {
-    checkWorkPermit: () => dispatch(getWorkPermit({ record: ownProps.record, id })),
+    getModifyRecordStatus: () => dispatch(getModifyRecordStatus({ record: ownProps.record, id })),
     getVersionsList: () => dispatch(getVersions({ record: ownProps.record, id })),
     getVersionsComparison: payload => dispatch(getVersionsComparison({ ...payload, record: ownProps.record, id })),
     addNewVersion: payload => dispatch(addNewVersion({ ...payload, record: ownProps.record, id })),
@@ -108,8 +108,9 @@ class VersionsJournal extends BaseWidget {
     changeVersionModalErrorMessage: PropTypes.string,
 
     maxHeightByContent: PropTypes.bool,
+    canModifyRecord: PropTypes.bool,
 
-    checkWorkPermit: PropTypes.func
+    getModifyRecordStatus: PropTypes.func
   };
 
   static defaultProps = {
@@ -177,7 +178,7 @@ class VersionsJournal extends BaseWidget {
   componentDidMount() {
     super.componentDidMount();
     this.props.getVersionsList();
-    this.props.checkWorkPermit();
+    this.props.getModifyRecordStatus();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -281,9 +282,9 @@ class VersionsJournal extends BaseWidget {
   }
 
   renderVersionActions(version, isMobile = false) {
-    const { id, hasWorkPermit } = this.props;
+    const { id, canModifyRecord } = this.props;
     const key = `${version.id.replace(/[:@/]/gim, '')}-${id}`;
-    const changeActiveVersionBtn = hasWorkPermit ? (
+    const changeActiveVersionBtn = canModifyRecord ? (
       <>
         <Icon
           id={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
@@ -593,11 +594,11 @@ class VersionsJournal extends BaseWidget {
   }
 
   render() {
-    const { isMobile, hasWorkPermit, versionsLabels, record } = this.props;
+    const { isMobile, canModifyRecord, versionsLabels, record } = this.props;
     const { isCollapsed } = this.state;
     const actions = {};
 
-    if (hasWorkPermit && !isMobile && record) {
+    if (canModifyRecord && !isMobile && record) {
       actions.addVersion = {
         icon: 'icon-small-plus',
         text: t('versions-journal-widget.add-version'),
