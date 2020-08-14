@@ -11,7 +11,7 @@ import {
   toggleModal,
   getVersionsComparison,
   setVersionsComparison,
-  setModifyRecordStatus
+  setWritePermission
 } from '../actions/versionsJournal';
 
 export const initialState = {
@@ -33,7 +33,7 @@ export const initialState = {
   comparisonModalIsLoading: false,
   comparisonModalErrorMessage: '',
 
-  canModifyRecord: false
+  hasWritePermission: false
 };
 
 Object.freeze(initialState);
@@ -141,11 +141,11 @@ export default handleActions(
         comparison: payload.comparison
       }
     }),
-    [setModifyRecordStatus]: (state, { payload }) => ({
+    [setWritePermission]: (state, { payload }) => ({
       ...state,
       [payload.id]: {
         ...state[payload.id],
-        canModifyRecord: payload.canModifyRecord
+        hasWritePermission: payload.hasWritePermission
       }
     })
   },

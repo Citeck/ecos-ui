@@ -7,13 +7,13 @@ import {
   addNewVersionSuccess,
   getVersions,
   getVersionsComparison,
-  getModifyRecordStatus,
+  getWritePermission,
   setActiveVersion,
   setActiveVersionError,
   setActiveVersionSuccess,
   setVersions,
   setVersionsComparison,
-  setModifyRecordStatus
+  setWritePermission
 } from '../actions/versionsJournal';
 import VersionsJournalConverter from '../dto/versionsJournal';
 import Records from '../components/Records';
@@ -75,13 +75,13 @@ function* sagaGetVersionsComparison({ api, logger }, { payload }) {
   }
 }
 
-function* sagaGetModifyRecordStatus({ api, logger }, { payload }) {
+function* sagaGetWritePermission({ api, logger }, { payload }) {
   try {
-    const canModifyRecord = yield call(api.versionsJournal.getModifyRecordStatus, payload.record);
+    const hasWritePermission = yield call(api.versionsJournal.hasWritePermission, payload.record);
 
-    yield put(setModifyRecordStatus({ record: payload.record, id: payload.id, canModifyRecord }));
+    yield put(setWritePermission({ record: payload.record, id: payload.id, hasWritePermission }));
   } catch (e) {
-    logger.error('[versionJournal/sagaGetModifyRecordStatus saga] error', e.message);
+    logger.error('[versionJournal/sagaGetWritePermission saga] error', e.message);
   }
 }
 
@@ -90,7 +90,7 @@ function* saga(ea) {
   yield takeEvery(addNewVersion().type, sagaAddNewVersion, ea);
   yield takeEvery(setActiveVersion().type, sagaSetNewVersion, ea);
   yield takeEvery(getVersionsComparison().type, sagaGetVersionsComparison, ea);
-  yield takeEvery(getModifyRecordStatus().type, sagaGetModifyRecordStatus, ea);
+  yield takeEvery(getWritePermission().type, sagaGetWritePermission, ea);
 }
 
 export default saga;

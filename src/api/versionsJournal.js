@@ -55,7 +55,9 @@ export class VersionsJournalApi extends CommonApi {
     ).then(response => response);
   };
 
-  getModifyRecordStatus = record => {
-    return Records.get(record).load('.att(n:"permissions"){has(n:"Write")}');
+  hasWritePermission = record => {
+    return Records.get(record)
+      .load('.att(n:"permissions"){has(n:"Write")}')
+      .catch(() => false);
   };
 }

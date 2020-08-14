@@ -18,5 +18,5 @@ export const addNewVersion = createAction(prefix + 'ADD_NEW_VERSION');
 export const addNewVersionSuccess = createAction(prefix + 'ADD_NEW_VERSION_SUCCESS');
 export const addNewVersionError = createAction(prefix + 'ADD_NEW_VERSION_ERROR');
 
-export const getModifyRecordStatus = createAction(prefix + 'GET_MODIFY_RECORD_STATUS');
-export const setModifyRecordStatus = createAction(prefix + 'SET_MODIFY_RECORD_STATUS');
+export const getWritePermission = createAction(prefix + 'GET_WRITE_PERMISSION');
+export const setWritePermission = createAction(prefix + 'SET_WRITE_PERMISSION');
