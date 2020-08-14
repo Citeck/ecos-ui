@@ -944,7 +944,7 @@ class Documents extends BaseWidget {
     );
   };
 
-  renderUploadButton() {
+  renderUploadButton = () => {
     const { dynamicTypes } = this.props;
     const { selectedType, contentHeight } = this.state;
     const allowedTypes = dynamicTypes.filter(type => type.canUpload);
@@ -980,7 +980,7 @@ class Documents extends BaseWidget {
         <Icon className="icon-upload ecos-docs__panel-upload-icon" />
       </Dropdown>
     );
-  }
+  };
 
   renderTablePanel() {
     const { dynamicTypes } = this.props;
