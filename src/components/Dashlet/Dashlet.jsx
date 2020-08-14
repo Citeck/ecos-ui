@@ -88,7 +88,6 @@ class Dashlet extends Component {
     this.dashletId = uniqueId('dashlet-id');
 
     this.state = {
-      isCollapsed: props.isCollapsed || false,
       busyHeightsCalculated: false
     };
   }
@@ -167,10 +166,10 @@ class Dashlet extends Component {
   };
 
   onToggle = () => {
-    const { onToggleCollapse } = this.props;
-    const { isCollapsed } = this.state;
+    const { onToggleCollapse, isCollapsed } = this.props;
+    // const { isCollapsed } = this.state;
 
-    this.setState({ isCollapsed: !isCollapsed });
+    // this.setState({ isCollapsed: !isCollapsed });
     onToggleCollapse(!isCollapsed);
   };
 
@@ -237,9 +236,10 @@ class Dashlet extends Component {
       actionRules,
       noActions,
       dashboardEditable,
-      children
+      children,
+      isCollapsed
     } = this.props;
-    const { isCollapsed } = this.state;
+    // const { isCollapsed } = this.state;
 
     return (
       <div ref={this.setDashletRef} className="dashlet">
