@@ -26,6 +26,7 @@ import CancelBusinessProcessAction from './handler/executor/workflow/CancelBusin
 import AttributeActionsResolver from './handler/resolver/AttributeActionsResolver';
 import DownloadZipAction from './handler/executor/DownloadZipAction';
 import ServerGroupAction from './handler/executor/ServerGroupAction';
+import MutateAction from './handler/executor/MutateAction';
 
 export { default } from './recordActions';
 
@@ -57,6 +58,7 @@ actionsRegistry.register(new ViewAction());
 actionsRegistry.register(new ViewCardTemplateAction());
 actionsRegistry.register(new DownloadZipAction());
 actionsRegistry.register(new ServerGroupAction());
+actionsRegistry.register(new MutateAction());
 
 // Executors - Case
 
