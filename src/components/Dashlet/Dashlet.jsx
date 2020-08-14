@@ -167,9 +167,7 @@ class Dashlet extends Component {
 
   onToggle = () => {
     const { onToggleCollapse, isCollapsed } = this.props;
-    // const { isCollapsed } = this.state;
 
-    // this.setState({ isCollapsed: !isCollapsed });
     onToggleCollapse(!isCollapsed);
   };
 
@@ -239,7 +237,6 @@ class Dashlet extends Component {
       children,
       isCollapsed
     } = this.props;
-    // const { isCollapsed } = this.state;
 
     return (
       <div ref={this.setDashletRef} className="dashlet">
@@ -301,9 +298,8 @@ const mapStateToProps = state => ({
   isMobile: get(state, 'view.isMobile'),
   dashboardEditable: get(state, 'app.dashboardEditable')
 });
-const mapDispatchToProps = dispatch => ({});
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  null
 )(Dashlet);
