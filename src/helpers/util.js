@@ -348,6 +348,7 @@ export function getScrollbarWidth() {
   return scrollbarWidth;
 }
 
+/** @deprecated. use lodash/cloneDeep instead */
 export function deepClone(data, defaultValue) {
   if (defaultValue === undefined) {
     defaultValue = cloneDeep(data);
@@ -357,7 +358,7 @@ export function deepClone(data, defaultValue) {
     return defaultValue;
   }
 
-  return JSON.parse(JSON.stringify(data || defaultValue));
+  return cloneDeep(data || defaultValue);
 }
 
 export function isPDFbyStr(str) {
@@ -500,12 +501,13 @@ export function num2str(n = 0, textForms = []) {
   return textForms[2];
 }
 
+/** @deprecated. use lodash/isEqual or lodash/isEqualWith instead */
 export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
   if (!byField) {
-    return JSON.stringify(arr1) === JSON.stringify(arr2);
+    return isEqual(arr1, arr2);
   }
 
-  return JSON.stringify(arr1.map(item => item[byField])) === JSON.stringify(arr2.map(item => item[byField]));
+  return isEqual(arr1.map(item => item[byField]), arr2.map(item => item[byField]));
 }
 
 export function getSearchParams(searchString = window.location.search) {
