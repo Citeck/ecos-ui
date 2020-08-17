@@ -202,4 +202,27 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       })
       .catch(err => console.warn(err));
   }
+
+  prepareToInlineEditMode() {
+    if (this.wysiwygRendered) {
+      this.destroyWysiwyg();
+      this.wysiwygRendered = false;
+    }
+
+    this.editorReady = new Promise(resolve => {
+      this.editorReadyResolve = resolve;
+    });
+
+    this.enableWysiwyg();
+    this.setWysiwygValue(this.dataValue);
+    this.wysiwygRendered = true;
+  }
+
+  cleanAfterInlineEditMode() {
+    if (this.wysiwygRendered) {
+      this.destroyWysiwyg();
+      this.wysiwygRendered = false;
+      this.editorReady = null;
+    }
+  }
 }
