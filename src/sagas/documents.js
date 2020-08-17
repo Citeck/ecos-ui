@@ -447,6 +447,7 @@ function* sagaGetTypeSettings({ api, logger }, { payload }) {
         ...payload,
         settings: {
           multiple: type.multiple,
+          canUpload: type.canUpload,
           columns
         }
       })
