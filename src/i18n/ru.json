@@ -399,6 +399,7 @@
 
   "record-action.name.view-business-process": "Схема бизнес-процесса",
   "record-action.name.cancel-business-process": "Отменить бизнес-процесс",
+  "record-action.name.mutate-action": "Модифицировать",
 
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.inline-tools.details": "Детальная информация",

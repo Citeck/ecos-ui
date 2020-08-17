@@ -12,6 +12,7 @@ import {
   EditTaskAssignee,
   FetchAction,
   MoveToLinesJournal,
+  MutateAction,
   OpenURL,
   PreviewModal,
   SaveAsCaseTemplate,
@@ -48,6 +49,7 @@ Registry.addExecutors({
   [DefaultActionTypes.EDIT_TASK_ASSIGNEE]: EditTaskAssignee,
   [DefaultActionTypes.VIEW_BUSINESS_PROCESS]: ViewBusinessProcess,
   [DefaultActionTypes.CANCEL_BUSINESS_PROCESS]: CancelBusinessProcess,
+  [DefaultActionTypes.MUTATE]: MutateAction,
 
   [ModuleActionTypes.MODULE_COPY]: ModuleCopyAction,
 
