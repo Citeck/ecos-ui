@@ -51,7 +51,8 @@ export const DefaultActionTypes = {
   SCRIPT: 'script',
   EDIT_TASK_ASSIGNEE: 'edit-task-assignee',
   VIEW_BUSINESS_PROCESS: 'view-business-process',
-  CANCEL_BUSINESS_PROCESS: 'cancel-business-process'
+  CANCEL_BUSINESS_PROCESS: 'cancel-business-process',
+  MUTATE: 'mutate'
 };
 
 export const EditAction = {
@@ -783,6 +784,41 @@ export const CancelBusinessProcess = {
       name: 'record-action.name.cancel-business-process',
       type: DefaultActionTypes.CANCEL_BUSINESS_PROCESS,
       icon: 'icon-small-close'
+    };
+  }
+};
+
+export const MutateAction = {
+  execute: ({ record, action }) => {
+    const recordId = get(action, 'config.record.id');
+    const attributes = get(action, 'config.record.attributes') || {};
+    const _record = recordId ? Records.get(recordId) : record;
+
+    for (let att in attributes) {
+      if (attributes.hasOwnProperty(att)) {
+        _record.att(att, attributes[att]);
+      }
+    }
+
+    return _record
+      .save()
+      .then(() => {
+        notifySuccess();
+        return true;
+      })
+      .catch(e => {
+        console.error(e);
+        notifyFailure();
+        e && e.message && dialogManager.showInfoDialog({ title: t('error'), text: e.message });
+        return false;
+      });
+  },
+
+  getDefaultModel: () => {
+    return {
+      name: 'record-action.name.mutate-action',
+      type: DefaultActionTypes.MUTATE,
+      icon: 'icon-arrow'
     };
   }
 };
