@@ -62,6 +62,9 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
 }
 
 class JournalsDashlet extends BaseWidget {
+  _toolbarRef = null;
+  _footerRef = null;
+
   static propTypes = {
     id: PropTypes.string,
     stateId: PropTypes.string,
@@ -116,6 +119,26 @@ class JournalsDashlet extends BaseWidget {
     }
   }
 
+  get toolbarHeight() {
+    return get(this._toolbarRef, 'offsetHeight', 0);
+  }
+
+  get footerHeight() {
+    return get(this._footerRef, 'offsetHeight', 0);
+  }
+
+  setToolbarRef = ref => {
+    if (ref) {
+      this._toolbarRef = ref;
+    }
+  };
+
+  setFooterRef = ref => {
+    if (ref) {
+      this._footerRef = ref;
+    }
+  };
+
   handleResize = width => {
     !!width && this.setState({ width });
   };
@@ -144,6 +167,7 @@ class JournalsDashlet extends BaseWidget {
 
   renderEditor() {
     const { editorMode, id, config, onSave, stateId } = this.props;
+    const { isCollapsed } = this.state;
 
     let addProps = {};
 
@@ -151,7 +175,7 @@ class JournalsDashlet extends BaseWidget {
       addProps = { onSave, config };
     }
 
-    if (!editorMode) {
+    if (!editorMode || isCollapsed) {
       return null;
     }
 
@@ -164,21 +188,28 @@ class JournalsDashlet extends BaseWidget {
 
   renderJournal() {
     const { editorMode, stateId } = this.props;
-    const { width } = this.state;
+    const { width, isCollapsed } = this.state;
 
-    if (editorMode) {
+    if (editorMode || isCollapsed) {
       return null;
     }
+
+    const extraIndents = this.toolbarHeight + this.footerHeight + this.dashletOtherHeight;
 
     return (
       <>
         <Measurer>
-          <JournalsDashletToolbar stateId={stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
+          <JournalsDashletToolbar forwardRef={this.setToolbarRef} stateId={stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
         </Measurer>
 
-        <JournalsDashletGrid stateId={stateId} isWidget maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - 100} selectorContainer={'.ecos-layout'} />
+        <JournalsDashletGrid
+          stateId={stateId}
+          isWidget
+          maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - extraIndents}
+          selectorContainer={'.ecos-layout'}
+        />
 
-        <JournalsDashletFooter stateId={stateId} isWidget />
+        <JournalsDashletFooter forwardRef={this.setFooterRef} stateId={stateId} isWidget />
       </>
     );
   }
@@ -210,7 +241,7 @@ class JournalsDashlet extends BaseWidget {
       <Dashlet
         {...this.props}
         className={classNames('ecos-journal-dashlet', className)}
-        bodyClassName={'ecos-journal-dashlet__body'}
+        bodyClassName="ecos-journal-dashlet__body"
         style={{ minWidth: `${MIN_WIDTH_DASHLET_SMALL}px` }}
         title={journalConfig.meta.title || t('journal.title')}
         onGoTo={this.goToJournalsPage}
@@ -220,6 +251,7 @@ class JournalsDashlet extends BaseWidget {
         dragHandleProps={dragHandleProps}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
+        setRef={this.setDashletRef}
       >
         {this.renderEditor()}
         {this.renderJournal()}

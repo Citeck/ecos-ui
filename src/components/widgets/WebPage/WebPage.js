@@ -6,14 +6,14 @@ import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import classNames from 'classnames';
 
-import { DefineHeight, Loader } from '../../common/index';
+import { Loader } from '../../common/index';
 import { Btn } from '../../common/btns/index';
 import { Caption, Input, Label } from '../../common/form/index';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import DAction from '../../../services/DashletActionService';
-import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
+import { MIN_WIDTH_DASHLET_LARGE, MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants/index';
 import { cancelPageLoading, changePageData, initPage, loadedPage, reloadPageData, setError } from '../../../actions/webPage';
 import { selectStateById } from '../../../selectors/webPage';
 import { t } from '../../../helpers/util';
@@ -73,7 +73,8 @@ class WebPage extends BaseWidget {
       resizable: false,
       pageIsLoaded: false,
       title: get(props, 'config.title', ''),
-      url: get(props, 'config.url', '')
+      url: get(props, 'config.url', ''),
+      previousHeight: 0
     };
 
     props.initPage(props.config);
@@ -150,7 +151,8 @@ class WebPage extends BaseWidget {
       resizable: false,
       pageIsLoaded: false,
       url: '',
-      title: ''
+      title: '',
+      previousHeight: this.contentHeight
     });
   };
 
@@ -200,7 +202,9 @@ class WebPage extends BaseWidget {
 
     this.props.loadedPage();
 
-    this.setState({ pageIsLoaded: true });
+    this.setState({
+      pageIsLoaded: true
+    });
   };
 
   handleUpdate() {
@@ -289,14 +293,24 @@ class WebPage extends BaseWidget {
 
   renderLoading() {
     const { fetchIsLoading, pageIsLoading } = this.props;
-    const { pageIsLoaded } = this.state;
+    const { pageIsLoaded, previousHeight } = this.state;
 
     if ((!fetchIsLoading && !pageIsLoading) || pageIsLoaded) {
       return null;
     }
 
+    const extraProps = {};
+
+    if (!pageIsLoaded) {
+      extraProps.style = {
+        minHeight: previousHeight,
+        position: 'relative',
+        height: 'unset'
+      };
+    }
+
     return (
-      <div className="ecos-wpage__ground ecos-wpage__ground_full">
+      <div className="ecos-wpage__ground ecos-wpage__ground_full" {...extraProps}>
         <Loader />
       </div>
     );
@@ -310,8 +324,8 @@ class WebPage extends BaseWidget {
       return null;
     }
 
-    const { userHeight = 0, resizable } = this.state;
-    const fixHeight = userHeight ? userHeight : 203;
+    const { resizable } = this.state;
+    const fixHeight = MAX_DEFAULT_HEIGHT_DASHLET - this.dashletOtherHeight;
 
     return (
       <iframe
@@ -329,12 +343,18 @@ class WebPage extends BaseWidget {
   }
 
   render() {
-    const { title, pageIsLoaded } = this.props;
-    const { isCollapsed, settingsIsShow } = this.state;
-
-    const { userHeight = 0, contentHeight, fitHeights } = this.state;
-    const fixHeight = userHeight ? userHeight : pageIsLoaded ? 572 : 203;
+    const { title } = this.props;
+    const { isCollapsed, settingsIsShow, pageIsLoaded } = this.state;
+    const fixHeight = MAX_DEFAULT_HEIGHT_DASHLET - this.dashletOtherHeight;
     const actions = {};
+    const scrollProps = { autoHide: true };
+
+    if (pageIsLoaded) {
+      scrollProps.style = { height: fixHeight || '100%' };
+    } else {
+      scrollProps.autoHeight = true;
+      scrollProps.autoHeightMax = fixHeight;
+    }
 
     if (!settingsIsShow) {
       actions[DAction.Actions.SETTINGS] = {
@@ -347,6 +367,7 @@ class WebPage extends BaseWidget {
 
     return (
       <Dashlet
+        setRef={this.setDashletRef}
         title={title || t('web-page-widget.title')}
         className="ecos-wpage"
         bodyClassName="ecos-wpage__body"
@@ -359,19 +380,13 @@ class WebPage extends BaseWidget {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
       >
-        <Scrollbars autoHide style={{ height: contentHeight || '100%' }}>
-          <DefineHeight
-            className="ecos-wpage__container"
-            fixHeight={fixHeight}
-            maxHeight={fitHeights.max}
-            minHeight={1}
-            getOptimalHeight={this.setContentHeight}
-          >
+        <Scrollbars {...scrollProps}>
+          <div className="ecos-wpage__container" ref={this.contentRef}>
             {this.renderEmptyData()}
             {this.renderSettings()}
             {this.renderLoading()}
             {this.renderPage()}
-          </DefineHeight>
+          </div>
         </Scrollbars>
       </Dashlet>
     );

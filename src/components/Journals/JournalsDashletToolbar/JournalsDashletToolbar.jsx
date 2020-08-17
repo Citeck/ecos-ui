@@ -92,7 +92,7 @@ class JournalsDashletToolbar extends Component {
     } = this.props;
 
     return (
-      <div className="ecos-journal-dashlet__toolbar">
+      <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
         {this.renderCreateMenu()}
 
         <Dropdown

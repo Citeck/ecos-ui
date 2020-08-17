@@ -48,7 +48,9 @@ class Dashlet extends Component {
     actionConfig: PropTypes.object,
     actionRules: PropTypes.object,
     noActions: PropTypes.bool,
-    isLoading: PropTypes.bool
+    isLoading: PropTypes.bool,
+
+    setRef: PropTypes.func
   };
 
   static defaultProps = {
@@ -76,7 +78,8 @@ class Dashlet extends Component {
     getFitHeights: () => null
   };
 
-  refDashlet = React.createRef();
+  #dashletRef = null;
+
   resizableRef = React.createRef();
 
   constructor(props) {
@@ -85,7 +88,6 @@ class Dashlet extends Component {
     this.dashletId = uniqueId('dashlet-id');
 
     this.state = {
-      isCollapsed: props.isCollapsed || false,
       busyHeightsCalculated: false
     };
   }
@@ -105,32 +107,45 @@ class Dashlet extends Component {
   }
 
   checkBusyHeights = () => {
-    const elDashlet = this.refDashlet.current || {};
+    const elDashlet = this.#dashletRef || {};
     const headerH = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
-    const resizerH = get(this.resizableRef, 'current.resizeBtnHeight', 0);
 
-    if (resizerH && headerH) {
+    if (headerH) {
       this.setState({ busyHeightsCalculated: true });
     }
   };
 
   get fitHeightChildren() {
-    const { headerHeight, resizerHeight } = this.busyDashletHeight;
-    const busyArea = headerHeight + resizerHeight;
+    const { headerHeight } = this.busyDashletHeight;
+    const busyArea = headerHeight;
 
     const max = MAX_DEFAULT_HEIGHT_DASHLET - busyArea;
     const min = MIN_DEFAULT_HEIGHT_DASHLET - busyArea;
 
-    return { min, max, headerHeight, resizerHeight };
+    return { min, max, headerHeight };
   }
 
   get busyDashletHeight() {
-    const elDashlet = this.refDashlet.current || {};
-    const headerHeight = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
-    const resizerHeight = get(this.resizableRef, 'current.resizeBtnHeight', 0);
+    const elDashlet = this.#dashletRef || {};
 
-    return { headerHeight, resizerHeight };
+    const content = elDashlet.querySelector('.dashlet__body-content');
+    const contentStyle = window.getComputedStyle(content);
+    const paddingTop = parseInt(contentStyle.paddingTop, 10) || 0;
+    const paddingBottom = parseInt(contentStyle.paddingBottom, 10) || 0;
+    const headerHeight = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
+
+    return { headerHeight: headerHeight + paddingBottom + paddingTop };
   }
+
+  setDashletRef = ref => {
+    if (ref) {
+      this.#dashletRef = ref;
+
+      if (typeof this.props.setRef === 'function') {
+        this.props.setRef(ref);
+      }
+    }
+  };
 
   onGoTo = () => {
     const { onGoTo } = this.props;
@@ -151,26 +166,20 @@ class Dashlet extends Component {
   };
 
   onToggle = () => {
-    const { onToggleCollapse, isMobile } = this.props;
-    const { isCollapsed } = this.state;
+    const { onToggleCollapse, isCollapsed } = this.props;
 
-    if (!isMobile) {
-      return;
-    }
-
-    this.setState({ isCollapsed: !isCollapsed });
     onToggleCollapse(!isCollapsed);
   };
 
   renderContent() {
-    const { isMobile, resizable, children } = this.props;
+    const { isMobile, children } = this.props;
 
     if (isMobile) {
       return children;
     }
 
     return (
-      <ResizableBox ref={this.resizableRef} resizable={resizable} classNameResizer="dashlet__resizer" getHeight={this.onChangeHeight}>
+      <ResizableBox ref={this.resizableRef} classNameResizer="dashlet__resizer" getHeight={this.onChangeHeight}>
         {children}
       </ResizableBox>
     );
@@ -224,20 +233,21 @@ class Dashlet extends Component {
       actionConfig,
       actionRules,
       noActions,
-      dashboardEditable
+      dashboardEditable,
+      children,
+      isCollapsed
     } = this.props;
-    const { isCollapsed } = this.state;
 
     return (
-      <div ref={this.refDashlet} className="dashlet">
+      <div ref={this.setDashletRef} className="dashlet">
         <Panel
           {...this.props}
           className={classNames('dashlet', className, { dashlet_mobile: isMobile })}
           headClassName={classNames('dashlet__header-wrapper', {
-            'dashlet__header-wrapper_collapsed': noBody || (isMobile && isCollapsed)
+            'dashlet__header-wrapper_collapsed': noBody || isCollapsed
           })}
           bodyClassName={classNames('dashlet__body', bodyClassName, {
-            dashlet__body_collapsed: noBody || (isMobile && isCollapsed)
+            dashlet__body_collapsed: noBody || isCollapsed
           })}
           noHeader={noHeader}
           header={
@@ -265,10 +275,15 @@ class Dashlet extends Component {
           }
         >
           <ErrorBoundary message={t(Labels.ERROR_BOUNDARY_MSG)} className="dashlet__error-boundary">
-            <div className={classNames('dashlet__body-content', { 'dashlet__body-content_hidden': noBody || (isMobile && isCollapsed) })}>
-              {this.renderContent()}
+            <div
+              className={classNames('dashlet__body-content', {
+                'dashlet__body-content_hidden': noBody || (isMobile && isCollapsed)
+              })}
+            >
+              {children}
               {this.renderHideButton()}
             </div>
+            <div className="dashlet__body-indent dashlet__body-indent_bottom" />
           </ErrorBoundary>
         </Panel>
         <ReactResizeDetector handleWidth handleHeight onResize={debounce(onResize, 400)} />
@@ -283,9 +298,8 @@ const mapStateToProps = state => ({
   isMobile: get(state, 'view.isMobile'),
   dashboardEditable: get(state, 'app.dashboardEditable')
 });
-const mapDispatchToProps = dispatch => ({});
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  null
 )(Dashlet);

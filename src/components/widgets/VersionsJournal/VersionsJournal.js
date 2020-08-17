@@ -20,7 +20,7 @@ import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../const
 import { BASE_HEIGHT, MODAL, TOOLTIP } from '../../../constants/versionsJournal';
 
 import BaseWidget from '../BaseWidget';
-import { Avatar, DefineHeight, Icon, Loader, Tooltip } from '../../common/index';
+import { Avatar, Icon, Loader, Tooltip } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import { Dropdown, Headline } from '../../common/form/index';
 import Dashlet from '../../Dashlet/Dashlet';
@@ -131,8 +131,10 @@ class VersionsJournal extends BaseWidget {
     changeVersionModalIsLoading: false,
     changeVersionModalErrorMessage: '',
 
-    maxHeightByContent: true
+    maxHeightByContent: false
   };
+
+  _topPanelRef = null;
 
   constructor(props) {
     super(props);
@@ -147,7 +149,6 @@ class VersionsJournal extends BaseWidget {
 
     this.state = { ...state, ...VersionsJournal.getDefaultSelectedVersions(props) };
 
-    this.topPanel = React.createRef();
     this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'version', 'name'])];
   }
 
@@ -195,6 +196,12 @@ class VersionsJournal extends BaseWidget {
       });
     }
   }
+
+  setTopPanelRef = ref => {
+    if (ref) {
+      this._topPanelRef = ref;
+    }
+  };
 
   updateData = () => {
     this.props.getVersionsList();
@@ -254,13 +261,13 @@ class VersionsJournal extends BaseWidget {
   get scrollableHeight() {
     let scrollableHeight = this.state.contentHeight;
 
-    scrollableHeight -= get(this.topPanel, 'current.offsetHeight', 0);
+    scrollableHeight -= get(this._topPanelRef, 'offsetHeight', 0);
 
     return scrollableHeight;
   }
 
   get otherHeight() {
-    return get(this.topPanel, 'current.offsetHeight', 0);
+    return super.otherHeight + get(this._topPanelRef, 'offsetHeight', 0);
   }
 
   getScrollHeight = () => {
@@ -586,14 +593,9 @@ class VersionsJournal extends BaseWidget {
       return body;
     }
 
-    const { userHeight = 0, fitHeights } = this.state;
-    const fixHeight = userHeight ? userHeight : null;
-
     return (
-      <Scrollbars autoHide style={{ height: this.getScrollHeight() }}>
-        <DefineHeight fixHeight={fixHeight} maxHeight={fitHeights.max} minHeight={0} getOptimalHeight={this.setContentHeight}>
-          {body}
-        </DefineHeight>
+      <Scrollbars autoHide {...this.scrollbarProps}>
+        {body}
       </Scrollbars>
     );
   }
@@ -626,9 +628,10 @@ class VersionsJournal extends BaseWidget {
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
+        setRef={this.setDashletRef}
       >
         {(versionsLabels.length > 1 || isMobile) && (
-          <div className="ecos-vj__block" ref={this.topPanel}>
+          <div className="ecos-vj__block" ref={this.setTopPanelRef}>
             {this.renderComparison()}
 
             {isMobile && record && this.renderAddButton()}

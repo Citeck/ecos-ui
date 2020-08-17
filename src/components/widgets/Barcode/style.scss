@@ -9,10 +9,14 @@
 
   &-dashlet {
     &__body {
-      padding: 17px 20px 19px;
+      padding: 17px 0 19px;
 
       .dashlet__body-actions {
         padding: 0;
+      }
+
+      &-content {
+        padding: 0 20px;
       }
     }
   }

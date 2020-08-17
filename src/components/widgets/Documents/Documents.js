@@ -12,7 +12,7 @@ import { NotificationManager } from 'react-notifications';
 
 import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet';
-import { DefineHeight, EcosModal, Icon, Loader, ResizeBoxes, Search, Tooltip } from '../../common';
+import { EcosModal, Icon, Loader, ResizeBoxes, Tooltip } from '../../common';
 import { Dropdown } from '../../common/form';
 import { Btn } from '../../common/btns';
 import { Grid, InlineTools } from '../../common/grid';
@@ -45,6 +45,9 @@ import {
 import { closest, deepClone, objectCompare, prepareTooltipId, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
+import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
+import Panel from './Panel';
+import TypesTable from './TypesTable';
 
 import './style.scss';
 
@@ -95,7 +98,7 @@ class Documents extends BaseWidget {
 
   static defaultProps = {
     canDragging: false,
-    maxHeightByContent: true,
+    maxHeightByContent: false,
     dragHandleProps: {}
   };
 
@@ -186,6 +189,10 @@ class Documents extends BaseWidget {
     this.handleRowMouseLeave.cancel();
   }
 
+  get contentWidth() {
+    return get(this.contentRef, 'current.offsetWidth', 0);
+  }
+
   get tablePanelHeight() {
     return get(this._tablePanel, 'current.offsetHeight', 0);
   }
@@ -195,9 +202,9 @@ class Documents extends BaseWidget {
   }
 
   get tableWidth() {
-    const width = get(this._tableRef, 'current.offsetWidth', '100%');
+    const tableWrapper = document.querySelector(`#${this.state.leftColumnId}`);
 
-    return width || '100%';
+    return `calc(${this.contentWidth}px - ${get(tableWrapper, 'offsetWidth', 0)}px)`;
   }
 
   get typesListHeight() {
@@ -231,12 +238,6 @@ class Documents extends BaseWidget {
     }
 
     return Math.max(this.tablePanelHeight + this.tableHeight, this.typesListHeight, this.emptyStubHeight);
-  }
-
-  get calculatedTypesHeight() {
-    const { userHeight } = this.state;
-
-    return userHeight !== undefined ? userHeight : this.typesListHeight;
   }
 
   get calculatedEmptyHeight() {
@@ -388,6 +389,10 @@ class Documents extends BaseWidget {
     }
 
     return columns;
+  }
+
+  get tableMaxHeight() {
+    return MAX_DEFAULT_HEIGHT_DASHLET - this.dashletOtherHeight - this.tablePanelHeight;
   }
 
   getTypeStatus = type => {
@@ -773,7 +778,7 @@ class Documents extends BaseWidget {
 
   handleTypeRowMouseLeave = () => this.setState({ isHoverLastRow: false });
 
-  handleCheckDropPermissions = type => type.canDropUpload;
+  handleCheckDropPermissions = type => get(type, 'canDropUpload', false);
 
   handleUpdate() {
     super.handleUpdate();
@@ -860,9 +865,9 @@ class Documents extends BaseWidget {
     return (
       <div id={leftColumnId} className="ecos-docs__column ecos-docs__column_types">
         <Scrollbars
-          style={{ height: this.calculatedTypesHeight || '100%' }}
-          hideTracksWhenNotNeeded
+          className="ecos-docs__scroll ecos-docs__scroll_only-v"
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+          {...this.scrollbarProps}
         >
           <div className="ecos-docs__types" ref={this._typesList}>
             <div
@@ -939,7 +944,7 @@ class Documents extends BaseWidget {
     );
   };
 
-  renderUploadButton() {
+  renderUploadButton = () => {
     const { dynamicTypes } = this.props;
     const { selectedType, contentHeight } = this.state;
     const allowedTypes = dynamicTypes.filter(type => type.canUpload);
@@ -975,38 +980,7 @@ class Documents extends BaseWidget {
         <Icon className="icon-upload ecos-docs__panel-upload-icon" />
       </Dropdown>
     );
-  }
-
-  renderPanel = React.memo(props => {
-    const { dynamicTypes, statusFilter, selectedType, typesStatuses, contentHeight, tableFilter } = props;
-
-    return (
-      <div className="ecos-docs__panel" ref={this._tablePanel}>
-        {this.renderUploadButton()}
-        <Search
-          text={tableFilter}
-          cleaner
-          liveSearch
-          searchWithEmpty
-          onSearch={this.handleFilterTable}
-          className="ecos-docs__panel-search"
-        />
-        {!selectedType && dynamicTypes.length > 1 && (
-          <Dropdown
-            withScrollbar
-            valueField="key"
-            titleField="value"
-            value={statusFilter}
-            source={typesStatuses}
-            className="ecos-docs__panel-filter"
-            controlClassName="ecos-docs__panel-filter-control"
-            onChange={this.handleChangeTypeFilter}
-            scrollbarHeightMax={contentHeight - this.tablePanelHeight}
-          />
-        )}
-      </div>
-    );
-  });
+  };
 
   renderTablePanel() {
     const { dynamicTypes } = this.props;
@@ -1023,26 +997,35 @@ class Documents extends BaseWidget {
           hideTracksWhenNotNeeded
           renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
         >
-          <this.renderPanel
+          <Panel
             dynamicTypes={dynamicTypes}
             selectedType={selectedType}
             statusFilter={statusFilter}
             typesStatuses={typesStatuses}
-            contentHeight={contentHeight}
             tableFilter={tableFilter}
+            renderUploadButton={this.renderUploadButton}
+            onSearch={this.handleFilterTable}
+            onChangeFilter={this.handleChangeTypeFilter}
+            forwardedRef={this._tablePanel}
+            scrollbarHeightMax={contentHeight - this.tablePanelHeight}
           />
         </Scrollbars>
       );
     }
 
     return (
-      <this.renderPanel
+      <Panel
         dynamicTypes={dynamicTypes}
         selectedType={selectedType}
         statusFilter={statusFilter}
         typesStatuses={typesStatuses}
         contentHeight={contentHeight}
         tableFilter={tableFilter}
+        renderUploadButton={this.renderUploadButton}
+        onSearch={this.handleFilterTable}
+        onChangeFilter={this.handleChangeTypeFilter}
+        forwardedRef={this._tablePanel}
+        scrollbarHeightMax={contentHeight - this.tablePanelHeight}
       />
     );
   }
@@ -1098,7 +1081,7 @@ class Documents extends BaseWidget {
           scrollAutoHide={autoHide}
           forwardedRef={this._tableRef}
           autoHeight
-          minHeight={this.calculatedTableMinHeight}
+          maxHeight={this.tableMaxHeight}
           keyField={documentFields.id}
           className={classNames('ecos-docs__table ecos-docs__table_documents', {
             'ecos-docs__table_hidden': isShowDropZone || isUploadingFile,
@@ -1136,7 +1119,7 @@ class Documents extends BaseWidget {
 
   renderTypesTable = React.memo(
     props => {
-      const { dynamicTypes, selectedType, autoHide, isHoverLastRow, forwardedRef, minHeight, tableData, scrollPosition } = props;
+      const { dynamicTypes, selectedType, autoHide, isHoverLastRow, forwardedRef, tableData, scrollPosition } = props;
 
       if (selectedType || !dynamicTypes.length) {
         return null;
@@ -1172,7 +1155,7 @@ class Documents extends BaseWidget {
             scrollAutoHide={autoHide}
             forwardedRef={forwardedRef}
             autoHeight
-            minHeight={minHeight}
+            maxHeight={this.tableMaxHeight}
             keyField="type"
             onScrolling={this.handleScrollingTable}
             onRowClick={this.handleClickTableRow}
@@ -1215,15 +1198,24 @@ class Documents extends BaseWidget {
       <div id={rightColumnId} className="ecos-docs__column ecos-docs__column_table">
         {this.renderTablePanel()}
         {this.renderDocumentsTable()}
-        <this.renderTypesTable
+        <TypesTable
           dynamicTypes={dynamicTypes}
           selectedType={selectedType}
           autoHide={autoHide}
           isHoverLastRow={isHoverLastRow}
           forwardedRef={this._tableRef}
-          minHeight={this.calculatedTableMinHeight + 2}
           scrollPosition={this.scrollPosition}
           tableData={this.tableData}
+          countFormatter={this.countFormatter}
+          minWidth={this.tableWidth}
+          onScrolling={this.handleScollingTable}
+          onRowClick={this.handleClickTableRow}
+          onRowDrop={this.handleRowDrop}
+          onRowDragEnter={this.handleRowDragEnter}
+          onMouseEnter={this.handleTypeRowMouseEnter}
+          onRowMouseLeave={this.handleTypeRowMouseLeave}
+          onCheckDropPermission={this.handleCheckDropPermissions}
+          maxHeight={this.tableMaxHeight}
         />
         {this.renderTableLoader()}
       </div>
@@ -1309,7 +1301,7 @@ class Documents extends BaseWidget {
 
   render() {
     const { dragHandleProps, canDragging } = this.props;
-    const { isCollapsed, userHeight } = this.state;
+    const { isCollapsed } = this.state;
 
     return (
       <div>
@@ -1327,14 +1319,9 @@ class Documents extends BaseWidget {
           getFitHeights={this.setFitHeights}
           onToggleCollapse={this.handleToggleContent}
           isCollapsed={isCollapsed}
+          setRef={this.setDashletRef}
         >
-          <DefineHeight
-            className="ecos-docs__container"
-            fixHeight={userHeight || null}
-            maxHeight={this.calculatedClientHeight}
-            minHeight={1}
-            getOptimalHeight={this.setContentHeight}
-          >
+          <div className="ecos-docs__container">
             <div>
               <div className="ecos-docs__body" ref={this.contentRef}>
                 {this.renderTypes()}
@@ -1345,7 +1332,7 @@ class Documents extends BaseWidget {
             </div>
             {this.renderSettings()}
             {this.renderUploadingModal()}
-          </DefineHeight>
+          </div>
         </Dashlet>
       </div>
     );

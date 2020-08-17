@@ -4,7 +4,7 @@
   padding-top: 0;
 
   &__toolbar {
-    margin: 12px 15px;
+    padding: 12px 15px;
     position: relative;
     display: flex;
 
@@ -30,7 +30,7 @@
   }
 
   &__footer {
-    margin: 15px 15px 0;
+    padding: 15px 15px 0;
   }
 
   &__grid {
@@ -39,6 +39,6 @@
 
   &__body {
     min-height: 115px;
-    padding-bottom: 10px;
+    //padding-bottom: 10px;
   }
 }

@@ -11,6 +11,7 @@ import Tasks from './Tasks';
 
 import './style.scss';
 
+// Мои задачи
 class TasksDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
@@ -31,7 +32,7 @@ class TasksDashlet extends BaseWidget {
     classNameDashlet: '',
     dragHandleProps: {},
     canDragging: false,
-    maxHeightByContent: true
+    maxHeightByContent: false
   };
 
   constructor(props) {
@@ -58,7 +59,7 @@ class TasksDashlet extends BaseWidget {
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging, tabId, id } = this.props;
     const stateId = getStateId({ tabId, id });
-    const { runUpdate, isSmallMode, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
+    const { runUpdate, isSmallMode, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: this.reload.bind(this)
@@ -67,6 +68,7 @@ class TasksDashlet extends BaseWidget {
 
     return (
       <Dashlet
+        setRef={this.setDashletRef}
         title={title || t('tasks-widget.title')}
         bodyClassName="ecos-task-list-dashlet__body"
         className={classNames('ecos-task-list-dashlet', classNameDashlet)}
@@ -92,10 +94,11 @@ class TasksDashlet extends BaseWidget {
           stateId={stateId}
           runUpdate={runUpdate}
           isSmallMode={isSmallMode}
-          height={userHeight}
+          height={this.contentHeight}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           setInfo={this.setInfo}
+          scrollbarProps={this.scrollbarProps}
         />
       </Dashlet>
     );

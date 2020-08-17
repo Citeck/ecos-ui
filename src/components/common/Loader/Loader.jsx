@@ -17,7 +17,8 @@ export default class Loader extends Component {
     type: PropTypes.oneOf(['circle', 'points']),
     blur: PropTypes.bool,
     darkened: PropTypes.bool,
-    rounded: PropTypes.bool
+    rounded: PropTypes.bool,
+    style: PropTypes.object
   };
 
   static defaultProps = {
@@ -33,14 +34,14 @@ export default class Loader extends Component {
   };
 
   get style() {
-    const { zIndex } = this.props;
+    const { zIndex, style: propStyle } = this.props;
     const style = {};
 
     if (zIndex !== null) {
       style.zIndex = zIndex;
     }
 
-    return style;
+    return { ...style, ...propStyle };
   }
 
   render() {

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import { changePassword, changePhoto, getUserData, togglePasswordModal } from '../../../actions/user';
 import { t } from '../../../helpers/util';
@@ -85,43 +86,52 @@ class UserProfileDashlet extends BaseWidget {
         needGoTo={false}
         noActions
         isLoading={isLoading}
+        setRef={this.setDashletRef}
       >
-        {
-          <PasswordModal
-            isLoading={isLoadingPassword}
-            userName={userName}
-            isCurrentUser={isCurrentUser}
-            isAdmin={isCurrentAdmin}
-            isMobile={isMobile}
-            isShow={isOpenPasswordModal}
-            onCancel={() => this.onTogglePasswordModal(false)}
-            onChange={this.onChangePassword}
-          />
-        }
-        {!isLoading && (
-          <>
-            <div className="ecos-user-profile__info">
-              <Avatar className="ecos-user-profile__info-photo" userName={userName} url={thumbnail} noBorder />
-              <div className="ecos-user-profile__info-name">
-                <div className="ecos-user-profile__info-name-primary">{lastName}</div>
-                <div className="ecos-user-profile__info-name-secondary">{[firstName, middleName].filter(name => !!name).join(' ')}</div>
+        <Scrollbars {...this.scrollbarProps}>
+          {
+            <PasswordModal
+              isLoading={isLoadingPassword}
+              userName={userName}
+              isCurrentUser={isCurrentUser}
+              isAdmin={isCurrentAdmin}
+              isMobile={isMobile}
+              isShow={isOpenPasswordModal}
+              onCancel={() => this.onTogglePasswordModal(false)}
+              onChange={this.onChangePassword}
+            />
+          }
+          {!isLoading && (
+            <>
+              <div className="ecos-user-profile__info">
+                <Avatar className="ecos-user-profile__info-photo" userName={userName} url={thumbnail} noBorder />
+                <div className="ecos-user-profile__info-name">
+                  <div className="ecos-user-profile__info-name-primary">{lastName}</div>
+                  <div className="ecos-user-profile__info-name-secondary">{[firstName, middleName].filter(name => !!name).join(' ')}</div>
+                </div>
               </div>
-            </div>
-            {[isCurrentUser, isCurrentAdmin].some(flag => flag) && (
-              <div className={classNames('ecos-user-profile__actions', { 'ecos-user-profile__actions_mobile': isMobile })}>
-                <BtnUpload label={t(Labels.Btns.CHANGE_PHOTO)} loading={isLoadingPhoto} onSelected={this.onChangePhoto} accept="image/*" />
-                <Btn loading={isLoadingPassword} onClick={() => this.onTogglePasswordModal(true)}>
-                  {t(Labels.Btns.CHANGE_PW)}
-                </Btn>
-              </div>
-            )}
-            {message && (
-              <div className={classNames('ecos-user-profile__message', { 'ecos-user-profile__message_error': message.error })}>
-                {t(message.text)}
-              </div>
-            )}
-          </>
-        )}
+
+              {[isCurrentUser, isCurrentAdmin].some(flag => flag) && (
+                <div className={classNames('ecos-user-profile__actions', { 'ecos-user-profile__actions_mobile': isMobile })}>
+                  <BtnUpload
+                    label={t(Labels.Btns.CHANGE_PHOTO)}
+                    loading={isLoadingPhoto}
+                    onSelected={this.onChangePhoto}
+                    accept="image/*"
+                  />
+                  <Btn loading={isLoadingPassword} onClick={() => this.onTogglePasswordModal(true)}>
+                    {t(Labels.Btns.CHANGE_PW)}
+                  </Btn>
+                </div>
+              )}
+              {message && (
+                <div className={classNames('ecos-user-profile__message', { 'ecos-user-profile__message_error': message.error })}>
+                  {t(message.text)}
+                </div>
+              )}
+            </>
+          )}
+        </Scrollbars>
       </Dashlet>
     );
   }

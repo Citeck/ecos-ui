@@ -198,7 +198,7 @@
   "dashlet.error-boundary.msg": "The error occurred in the widget. Try updating the widget/page. If the error reappears, contact your administrator",
   "dashlet.edit.title": "Edit data",
   "dashlet.edit.tooltip": "Edit data",
-  "dashlet.goto": "Go to section",
+  "dashlet.goto": "Go to",
   "dashlet.help.title": "Help",
   "dashlet.move.title": "Move",
   "dashlet.resize.title": "Resize",

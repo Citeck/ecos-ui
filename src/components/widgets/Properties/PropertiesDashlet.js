@@ -43,7 +43,7 @@ class PropertiesDashlet extends BaseWidget {
     classNameDashlet: '',
     dragHandleProps: {},
     canDragging: false,
-    maxHeightByContent: true
+    maxHeightByContent: false
   };
 
   _propertiesRef = React.createRef();
@@ -208,12 +208,13 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   render() {
-    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
-    const { isSmallMode, isEditProps, userHeight, fitHeights, formIsChanged, isCollapsed, isShowSetting, title: titleForm } = this.state;
+    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config, fixedHeight } = this.props;
+    const { isSmallMode, isEditProps, fitHeights, formIsChanged, isCollapsed, isShowSetting, title: titleForm } = this.state;
     const { formId = '', titleAsFormName } = config || {};
 
     return (
       <Dashlet
+        setRef={this.setDashletRef}
         title={t((titleAsFormName && titleForm) || title || Labels.WIDGET_TITLE)}
         className={classNames('ecos-properties-dashlet', classNameDashlet)}
         bodyClassName="ecos-properties-dashlet__body"
@@ -236,13 +237,14 @@ class PropertiesDashlet extends BaseWidget {
           record={record}
           isSmallMode={isSmallMode}
           stateId={id}
-          height={userHeight}
+          height={fixedHeight ? fitHeights.min : undefined}
           minHeight={fitHeights.min}
           maxHeight={fitHeights.max}
           onUpdate={this.onPropertiesUpdate}
           formId={formId}
           onInlineEditSave={this.onInlineEditSave}
           getTitle={this.setTitle}
+          scrollProps={this.scrollbarProps}
         />
         {isShowSetting && (
           <PropertiesSettings
