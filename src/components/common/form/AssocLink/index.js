@@ -9,7 +9,8 @@ export const AssocLink = ({ className, label, asText, link, paramsLink = {} }) =
   let onClickHandler = null;
 
   if (!asText && link) {
-    onClickHandler = () => {
+    onClickHandler = e => {
+      e.preventDefault();
       PageService.changeUrlLink(link, { openInBackground: !paramsLink.openNewBrowserTab, ...paramsLink });
     };
   }
