@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
@@ -128,6 +129,7 @@ class BarcodeDashlet extends BaseWidget {
 
   render() {
     const { title, classNameDashlet } = this.props;
+    const { isCollapsed } = this.state;
     const actions = {
       [DAction.Actions.SETTINGS]: {
         onClick: this.handleToggleSettings
@@ -142,10 +144,22 @@ class BarcodeDashlet extends BaseWidget {
         className={classNames('ecos-barcode-dashlet', classNameDashlet)}
         resizable={false}
         needGoTo={false}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={this.handleToggleContent}
         actionDrag={isMobileDevice()}
+        setRef={this.setDashletRef}
       >
-        {this.renderBarcode()}
-        {this.renderSettings()}
+        <Scrollbars
+          autoHide
+          renderTrackHorizontal={props => <div {...props} hidden />}
+          renderThumbHorizontal={props => <div {...props} hidden />}
+          {...this.scrollbarProps}
+        >
+          <div className="ecos-barcode-dashlet__body-content">
+            {this.renderBarcode()}
+            {this.renderSettings()}
+          </div>
+        </Scrollbars>
       </Dashlet>
     );
   }

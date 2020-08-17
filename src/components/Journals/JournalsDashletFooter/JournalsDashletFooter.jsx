@@ -3,10 +3,10 @@ import JournalsDashletPagination from '../JournalsDashletPagination';
 
 export default class JournalsDashletFooter extends Component {
   render() {
-    const { stateId, isWidget } = this.props;
+    const { stateId, isWidget, forwardRef } = this.props;
 
     return (
-      <div className="ecos-journal-dashlet__footer">
+      <div ref={forwardRef} className="ecos-journal-dashlet__footer">
         <JournalsDashletPagination stateId={stateId} hasPageSize isWidget={isWidget} />
       </div>
     );

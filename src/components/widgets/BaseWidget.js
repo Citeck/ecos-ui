@@ -5,9 +5,11 @@ import isEmpty from 'lodash/isEmpty';
 
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
 import Records from '../Records/Records';
-import { MIN_WIDTH_DASHLET_SMALL } from '../../constants';
+import { MIN_WIDTH_DASHLET_SMALL, MAX_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 
 class BaseWidget extends Component {
+  _dashletRef = null;
+
   contentRef = React.createRef();
 
   updateWatcher = null;
@@ -27,6 +29,7 @@ class BaseWidget extends Component {
       fitHeights: {},
       contentHeight: null,
       width: MIN_WIDTH_DASHLET_SMALL,
+      previousHeight: 0,
       userHeight: UserLocalSettingsService.getDashletHeight(lsId),
       isCollapsed: UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED)
     };
@@ -71,8 +74,12 @@ class BaseWidget extends Component {
     return get(this.contentRef, 'current.offsetHeight', 0);
   }
 
+  get contentHeight() {
+    return get(this.contentRef, 'current.offsetHeight', 0);
+  }
+
   get otherHeight() {
-    return null;
+    return this.dashletOtherHeight;
   }
 
   get fullHeight() {
@@ -82,6 +89,71 @@ class BaseWidget extends Component {
   get observableFieldsToUpdate() {
     return this._observableFieldsToUpdate;
   }
+
+  get dashletHeight() {
+    return get(this._dashletRef, 'offsetHeight', 0);
+  }
+
+  get dashletOtherHeight() {
+    if (!this._dashletRef) {
+      return 0;
+    }
+
+    const body = this._dashletRef.querySelector('.dashlet__body');
+    const header = this._dashletRef.querySelector('.dashlet__header-wrapper');
+    const styles = window.getComputedStyle(body, null);
+    let paddingBottom = parseInt(styles.getPropertyValue('padding-bottom'), 10) || 0;
+    let paddingTop = parseInt(styles.getPropertyValue('padding-top'), 10) || 0;
+
+    if (isNaN(paddingBottom)) {
+      paddingBottom = 0;
+    }
+
+    if (isNaN(paddingTop)) {
+      paddingTop = 0;
+    }
+
+    return paddingBottom + paddingTop + get(header, 'offsetHeight', 0);
+  }
+
+  /**
+   * props for Scrollbar component
+   *
+   * @returns {{}}
+   */
+  get scrollbarProps() {
+    const { maxHeightByContent, fixedHeight } = this.props;
+    const props = {};
+
+    if (maxHeightByContent) {
+      props.autoHeight = true;
+      props.autoHeightMax = '100%';
+
+      return props;
+    }
+
+    if (fixedHeight) {
+      props.style = { height: MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight };
+
+      return props;
+    }
+
+    props.autoHeight = true;
+    props.autoHeightMax = MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight || '100%';
+
+    return props;
+  }
+
+  /**
+   * for Dashlet component; props - setRef
+   *
+   * @param ref
+   */
+  setDashletRef = ref => {
+    if (ref) {
+      this._dashletRef = ref;
+    }
+  };
 
   setContentHeight = contentHeight => {
     let contentHeightState = this.state.contentHeight;
@@ -100,9 +172,14 @@ class BaseWidget extends Component {
   };
 
   setFitHeights = fitHeights => {
+    const { fixedHeight } = this.props;
     const fitHeightsState = this.state.fitHeights;
 
     if (JSON.stringify(fitHeightsState) !== JSON.stringify(fitHeights)) {
+      if (fixedHeight) {
+        fitHeights.min = fitHeights.max;
+      }
+
       this.setState({ fitHeights });
     }
   };
@@ -157,7 +234,13 @@ class BaseWidget extends Component {
   handleUpdate() {}
 
   reload() {
-    this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
+    this.setState(
+      {
+        runUpdate: true,
+        previousHeight: this.dashletHeight - this.otherHeight
+      },
+      () => this.setState({ runUpdate: false })
+    );
   }
 }
 

@@ -28,7 +28,7 @@ class ActionsDashlet extends BaseWidget {
     classNameDashlet: '',
     dragHandleProps: {},
     canDragging: false,
-    maxHeightByContent: true
+    maxHeightByContent: false
   };
 
   constructor(props) {
@@ -49,7 +49,7 @@ class ActionsDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging, tabId, isActiveLayout } = this.props;
-    const { isSmallMode, userHeight, fitHeights, isCollapsed, runUpdate } = this.state;
+    const { isSmallMode, isCollapsed, runUpdate } = this.state;
 
     return (
       <Dashlet
@@ -67,6 +67,7 @@ class ActionsDashlet extends BaseWidget {
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
+        setRef={this.setDashletRef}
       >
         <Actions
           {...config}
@@ -76,11 +77,9 @@ class ActionsDashlet extends BaseWidget {
           stateId={this.stateId}
           className={classNameContent}
           isSmallMode={isSmallMode}
-          height={userHeight || this.fullHeight}
-          minHeight={fitHeights.min}
-          maxHeight={fitHeights.max}
           runUpdate={runUpdate}
           isActiveLayout={isActiveLayout}
+          scrollbarProps={this.scrollbarProps}
         />
       </Dashlet>
     );

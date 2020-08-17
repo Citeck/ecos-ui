@@ -635,6 +635,22 @@
       }
     }
   }
+
+  &__scroll {
+    &_only-v {
+      & > div:first-of-type {
+        overflow: unset !important;
+        overflow-y: scroll !important;
+      }
+    }
+
+    &_only-h {
+      & > div:first-of-type {
+        overflow: unset !important;
+        overflow-x: scroll !important;
+      }
+    }
+  }
 }
 
 .ecos-docs-tree {

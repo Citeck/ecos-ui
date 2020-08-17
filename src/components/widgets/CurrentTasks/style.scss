@@ -18,6 +18,8 @@
 
     &__loader {
       height: 100%;
+      min-height: 60px;
+      position: relative;
     }
 
     &_view-enum {

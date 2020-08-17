@@ -6,7 +6,7 @@ import get from 'lodash/get';
 
 import { t } from '../../../helpers/util';
 import EcosForm, { FORM_MODE_EDIT } from '../../EcosForm/index';
-import { DefineHeight, InfoText, Loader } from '../../common/index';
+import { InfoText, Loader } from '../../common/index';
 
 import './style.scss';
 
@@ -21,7 +21,8 @@ class Properties extends React.Component {
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
-    onInlineEditSave: PropTypes.func
+    onInlineEditSave: PropTypes.func,
+    scrollProps: PropTypes.object
   };
 
   static defaultProps = {
@@ -140,18 +141,15 @@ class Properties extends React.Component {
   }
 
   render() {
-    const { height, minHeight, forwardedRef, className } = this.props;
-    const { loaded, contentHeight } = this.state;
+    const { forwardedRef, className, scrollProps } = this.props;
 
     return (
       <Scrollbars
-        style={{ height: contentHeight || '100%' }}
         className={classNames('ecos-properties__scroll', className)}
         renderTrackVertical={props => <div {...props} className="ecos-properties__scroll_v" />}
+        {...scrollProps}
       >
-        <DefineHeight fixHeight={height} minHeight={minHeight} isMin={!loaded} getOptimalHeight={this.setHeight}>
-          <div ref={forwardedRef}>{this.renderForm()}</div>
-        </DefineHeight>
+        <div ref={forwardedRef}>{this.renderForm()}</div>
       </Scrollbars>
     );
   }

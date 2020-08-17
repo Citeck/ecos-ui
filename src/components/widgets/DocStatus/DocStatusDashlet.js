@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import Dashlet from '../../Dashlet/Dashlet';
@@ -48,8 +49,12 @@ class DocStatusDashlet extends BaseWidget {
     return (
       <Dashlet
         title={title}
-        className={classNames('ecos-doc-status-dashlet', classNameDashlet, { 'ecos-doc-status-dashlet_mobile': isMobile })}
-        bodyClassName="ecos-doc-status-dashlet__body"
+        className={classNames('ecos-doc-status-dashlet', classNameDashlet, {
+          'ecos-doc-status-dashlet_mobile': isMobile
+        })}
+        bodyClassName={classNames('ecos-doc-status-dashlet__body', {
+          'dashlet__body_no-bottom-indent': isBig
+        })}
         resizable={false}
         collapsible={!isBig}
         needGoTo={false}
@@ -59,8 +64,18 @@ class DocStatusDashlet extends BaseWidget {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
         noHeader={isBig}
+        setRef={this.setDashletRef}
       >
-        <DocStatus title={title} isMobile={isMobile || isSmall} {...config} className={classNameStatus} record={record} stateId={record} />
+        <Scrollbars {...this.scrollbarProps}>
+          <DocStatus
+            title={title}
+            isMobile={isMobile || isSmall}
+            {...config}
+            className={classNameStatus}
+            record={record}
+            stateId={record}
+          />
+        </Scrollbars>
       </Dashlet>
     );
   }

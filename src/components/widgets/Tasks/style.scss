@@ -14,10 +14,14 @@
 
     &-dashlet {
       height: fit-content;
+
+      &__body {
+      }
     }
 
     &__loader {
-      height: 60px;
+      min-height: 60px;
+      position: relative;
     }
   }
 

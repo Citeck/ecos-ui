@@ -2,13 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import isEmpty from 'lodash/isEmpty';
 
 import { ActionModes } from '../../../constants';
 import { selectDataRecordActionsByStateId } from '../../../selectors/recordActions';
 import { selectIdentificationForView } from '../../../selectors/dashboard';
 import { getActions, resetActions, runExecuteAction } from '../../../actions/recordActions';
-import { DefineHeight } from '../../common/index';
 import ActionsList from './ActionsList';
 
 import './style.scss';
@@ -39,18 +37,12 @@ class Actions extends React.Component {
     isLoading: PropTypes.bool,
     isMobile: PropTypes.bool,
     runUpdate: PropTypes.bool,
-    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
+    forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
+    scrollbarProps: PropTypes.object
   };
 
   static defaultProps = {
     className: ''
-  };
-
-  state = {
-    contentHeight: 0
   };
 
   componentDidMount() {
@@ -88,10 +80,6 @@ class Actions extends React.Component {
     runExecuteAction({ action });
   };
 
-  setHeight = contentHeight => {
-    this.setState({ contentHeight });
-  };
-
   renderActionsList = () => {
     const { isLoading, className, list, isMobile, forwardedRef, isActiveLayout } = this.props;
 
@@ -109,8 +97,7 @@ class Actions extends React.Component {
   };
 
   render() {
-    const { height, minHeight, list, isMobile } = this.props;
-    const { contentHeight } = this.state;
+    const { isMobile, scrollbarProps } = this.props;
 
     if (isMobile) {
       return this.renderActionsList();
@@ -118,13 +105,11 @@ class Actions extends React.Component {
 
     return (
       <Scrollbars
-        style={{ height: contentHeight || '100%' }}
         className="ecos-actions__scroll"
         renderTrackVertical={props => <div {...props} className="ecos-actions__v-scroll" />}
+        {...scrollbarProps}
       >
-        <DefineHeight fixHeight={height} minHeight={minHeight} isMin={isEmpty(list)} getOptimalHeight={this.setHeight}>
-          {this.renderActionsList()}
-        </DefineHeight>
+        {this.renderActionsList()}
       </Scrollbars>
     );
   }

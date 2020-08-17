@@ -176,7 +176,7 @@ export default class Export extends Component {
         >
           {children || (
             <TwoIcoBtn
-              icons={['icon-upload', isOpen ? 'icon-small-up' : 'icon-small-down']}
+              icons={['icon-download', isOpen ? 'icon-small-up' : 'icon-small-down']}
               className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10"
             />
           )}

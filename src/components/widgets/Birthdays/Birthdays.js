@@ -13,7 +13,7 @@ import { isNewVersionPage } from '../../../helpers/urls';
 import { getStateId } from '../../../helpers/redux';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import PageService from '../../../services/PageService';
-import { Avatar, DefineHeight, Loader } from '../../common';
+import { Avatar, Loader } from '../../common';
 import { Btn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
@@ -176,8 +176,7 @@ class Birthdays extends BaseWidget {
 
   render() {
     const { canDragging, dragHandleProps, totalCount } = this.props;
-    const { isCollapsed, userHeight = 0, fitHeights, contentHeight } = this.state;
-    const fixHeight = userHeight ? userHeight : null;
+    const { isCollapsed } = this.state;
 
     return (
       <Dashlet
@@ -195,19 +194,12 @@ class Birthdays extends BaseWidget {
         getFitHeights={this.setFitHeights}
         badgeText={getAdaptiveNumberStr(totalCount)}
         noBody={this.noBody}
+        setRef={this.setDashletRef}
       >
-        <Scrollbars autoHide style={{ height: contentHeight || '100%' }}>
-          <DefineHeight
-            className="ecos-hb2u__container"
-            fixHeight={fixHeight}
-            maxHeight={fitHeights.max}
-            minHeight={1}
-            getOptimalHeight={this.setContentHeight}
-          >
-            {this.renderList()}
-            {this.renderLoader()}
-            {this.renderError()}
-          </DefineHeight>
+        <Scrollbars autoHide {...this.scrollbarProps}>
+          {this.renderList()}
+          {this.renderLoader()}
+          {this.renderError()}
         </Scrollbars>
       </Dashlet>
     );

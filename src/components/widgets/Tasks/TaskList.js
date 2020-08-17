@@ -11,7 +11,7 @@ class TaskList extends React.Component {
   static propTypes = {
     tasks: PropTypes.arrayOf(PropTypes.shape(TaskPropTypes)).isRequired,
     className: PropTypes.string,
-    height: PropTypes.string,
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     isLoading: PropTypes.bool,
     isSmallMode: PropTypes.bool,
     onAssignClick: PropTypes.func,
@@ -32,9 +32,13 @@ class TaskList extends React.Component {
   contentRef = React.createRef();
 
   renderLoader() {
-    let { isLoading } = this.props;
+    const { isLoading, height } = this.props;
 
-    return isLoading && <Loader className="ecos-task-list__loader" />;
+    if (!isLoading) {
+      return null;
+    }
+
+    return <Loader className="ecos-task-list__loader" style={{ height: `${height}px` }} />;
   }
 
   renderEmptyInfo() {
@@ -56,6 +60,13 @@ class TaskList extends React.Component {
 
     return tasks.map((item, i) => (
       <React.Fragment key={i + item.id}>
+        <TaskDetails
+          details={item}
+          onAssignClick={onAssignClick}
+          onSubmitForm={onSubmitForm}
+          className={className}
+          isSmallMode={isSmallMode}
+        />
         <TaskDetails
           details={item}
           onAssignClick={onAssignClick}

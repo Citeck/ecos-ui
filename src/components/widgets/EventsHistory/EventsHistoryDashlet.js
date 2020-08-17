@@ -7,6 +7,7 @@ import { getStateId } from '../../../helpers/redux';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import EventsHistory from './EventsHistory';
+import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
 
 import './style.scss';
 
@@ -30,7 +31,7 @@ class EventsHistoryDashlet extends BaseWidget {
     classNameDashlet: '',
     dragHandleProps: {},
     canDragging: false,
-    maxHeightByContent: true
+    maxHeightByContent: false
   };
 
   constructor(props) {
@@ -54,7 +55,7 @@ class EventsHistoryDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, userHeight, fitHeights, isCollapsed } = this.state;
+    const { isSmallMode, runUpdate, isCollapsed } = this.state;
 
     return (
       <Dashlet
@@ -71,6 +72,7 @@ class EventsHistoryDashlet extends BaseWidget {
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
+        setRef={this.setDashletRef}
       >
         <EventsHistory
           {...config}
@@ -80,10 +82,9 @@ class EventsHistoryDashlet extends BaseWidget {
           stateId={this.stateId}
           isSmallMode={isSmallMode}
           runUpdate={runUpdate}
-          height={userHeight}
-          minHeight={fitHeights.min}
-          maxHeight={fitHeights.max}
+          maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
           getContentHeight={this.setContentHeight}
+          scrollbarProps={this.scrollbarProps}
         />
       </Dashlet>
     );

@@ -19,9 +19,11 @@
 
   &-list {
     padding: 8px 20px;
+    min-height: 60px;
 
     &__loader {
       height: 100%;
+      min-height: 60px;
     }
 
     &__text-empty {

@@ -11,6 +11,7 @@ import CurrentTasks from './CurrentTasks';
 
 import './style.scss';
 
+// Все задачи
 class CurrentTasksDashlet extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
@@ -31,7 +32,7 @@ class CurrentTasksDashlet extends BaseWidget {
     classNameDashlet: '',
     dragHandleProps: {},
     canDragging: false,
-    maxHeightByContent: true
+    maxHeightByContent: false
   };
 
   constructor(props) {
@@ -58,7 +59,7 @@ class CurrentTasksDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, userHeight, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
+    const { isSmallMode, runUpdate, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: () => this.reload()
@@ -83,6 +84,7 @@ class CurrentTasksDashlet extends BaseWidget {
         isCollapsed={isCollapsed}
         badgeText={getAdaptiveNumberStr(totalCount)}
         noBody={!totalCount && !isLoading}
+        setRef={this.setDashletRef}
       >
         <CurrentTasks
           {...config}
@@ -91,11 +93,10 @@ class CurrentTasksDashlet extends BaseWidget {
           record={record}
           isSmallMode={isSmallMode}
           stateId={this.stateId}
-          height={userHeight}
-          minHeight={fitHeights.min}
-          maxHeight={fitHeights.max}
+          height={this.contentHeight}
           setInfo={this.setInfo}
           runUpdate={runUpdate}
+          scrollbarProps={this.scrollbarProps}
         />
       </Dashlet>
     );
