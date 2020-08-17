@@ -78,7 +78,7 @@ class CurrentTaskInfo extends React.Component {
                 getStateOpen={isOpenActions => this.setState({ isOpenActions })}
                 CustomItem={MenuItem}
               >
-                <Icon className={isOpenActions ? 'icon-custom-more-small-pressed' : 'custom-more-small-normal'} />
+                <Icon className={isOpenActions ? 'icon-custom-more-small-pressed' : 'icon-custom-more-small-normal'} />
               </DropdownOuter>
             </>
           )}
