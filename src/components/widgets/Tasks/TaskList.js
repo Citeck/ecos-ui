@@ -11,7 +11,7 @@ class TaskList extends React.Component {
   static propTypes = {
     tasks: PropTypes.arrayOf(PropTypes.shape(TaskPropTypes)).isRequired,
     className: PropTypes.string,
-    height: PropTypes.string,
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     isLoading: PropTypes.bool,
     isSmallMode: PropTypes.bool,
     onAssignClick: PropTypes.func,
