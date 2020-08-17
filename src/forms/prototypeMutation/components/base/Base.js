@@ -242,6 +242,10 @@ Base.prototype.createInlineEditButton = function(container) {
       container.classList.add(INLINE_EDITING_CLASSNAME);
       editButton.removeEventListener('click', onEditClick);
 
+      if (typeof this.prepareToInlineEditMode === 'function') {
+        this.prepareToInlineEditMode();
+      }
+
       this.focus();
     };
 
@@ -304,6 +308,10 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
           // this.dataValue = this._valueBeforeEdit;
           this.setValue(this._valueBeforeEdit);
         }
+      }
+
+      if (typeof this.cleanAfterInlineEditMode === 'function') {
+        this.cleanAfterInlineEditMode();
       }
 
       switchToViewOnlyMode();
