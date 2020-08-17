@@ -35,7 +35,6 @@ export default class DocumentsConverter {
   };
 
   static getDynamicTypes = ({ types = [], typeNames = {}, countByTypes = [], availableTypes }, locked = false) => {
-    console.log('KUKU');
     if (!types.length) {
       return types;
     }
