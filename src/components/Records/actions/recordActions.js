@@ -1,14 +1,13 @@
-import Records from '../Records';
-
-import actionsApi from './recordActionsApi';
-
-import actionsRegistry from './actionsRegistry';
-
 import cloneDeep from 'lodash/cloneDeep';
+
+import { t } from '../../../helpers/util';
+import { replaceAttributeValues } from '../utils/recordUtils';
+import Records from '../Records';
+import actionsApi from './recordActionsApi';
+import actionsRegistry from './actionsRegistry';
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
-import { deepClone, t } from '../../../helpers/util';
 
 /**
  * @typedef {Boolean} RecordsActionBoolResult
@@ -161,73 +160,6 @@ class RecordActions {
     return result;
   }
 
-  static async replaceAttributeValues(data, record) {
-    if (!data) {
-      return {};
-    }
-
-    const mutableData = deepClone(data);
-    const regExp = /\$\{([^}]+)\}/g;
-    const nonSpecialsRegex = /([^${}]+)/g;
-    const keys = Object.keys(mutableData);
-    const results = new Map();
-
-    if (!keys.length) {
-      return mutableData;
-    }
-
-    await Promise.all(
-      keys.map(async key => {
-        if (typeof mutableData[key] === 'object') {
-          mutableData[key] = await RecordActions.replaceAttributeValues(mutableData[key], record);
-          return;
-        }
-
-        if (typeof mutableData[key] !== 'string') {
-          return;
-        }
-
-        let fields = mutableData[key].match(regExp);
-
-        if (!fields) {
-          return;
-        }
-
-        fields = fields.map(el => el.match(nonSpecialsRegex)[0]);
-
-        await Promise.all(
-          fields.map(async strKey => {
-            if (results.has(strKey)) {
-              return;
-            }
-
-            let recordData = '';
-
-            if (strKey === 'recordRef') {
-              recordData = await Records.get(record).id;
-            } else {
-              recordData = await Records.get(record).load(strKey);
-            }
-
-            results.set(strKey, recordData);
-          })
-        );
-
-        fields.forEach(field => {
-          const fieldValue = results.get(field);
-          const fieldMask = '${' + field + '}';
-          if (mutableData[key] === fieldMask) {
-            mutableData[key] = fieldValue;
-          } else {
-            mutableData[key] = mutableData[key].replace(fieldMask, fieldValue);
-          }
-        });
-      })
-    );
-
-    return mutableData;
-  }
-
   /**
    * Get actions for record.
    *
@@ -368,7 +300,7 @@ class RecordActions {
       ...context
     };
 
-    const config = await RecordActions.replaceAttributeValues(action.config, record);
+    const config = await replaceAttributeValues(action.config, record);
     const actionToExec = {
       ...action,
       config
