@@ -122,6 +122,14 @@ class ImgViewer extends Component {
     this.props.onError && this.props.onError(error);
   };
 
+  onUpdate() {
+    const calcScale = this.getCalcScale(this.props);
+
+    if (this.state.calcScale !== calcScale) {
+      this.setState({ calcScale });
+    }
+  }
+
   getCalcScale = (props = this.props) => {
     const {
       settings: { scale }
