@@ -10,6 +10,8 @@ import { getScaleModes, isExistValue, t } from '../../../helpers/util';
 
 const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
+const MIN_ZOOM = 0.15;
+const MAX_ZOOM = 4;
 
 const Labels = {
   OUT_OF: 'doc-preview.out-of',
@@ -153,6 +155,14 @@ class Toolbar extends Component {
     scale = scale < ZOOM_STEP ? ZOOM_STEP : scale;
     scale = +Number(scale).toFixed(2);
 
+    if (scale < MIN_ZOOM) {
+      scale = MIN_ZOOM;
+    }
+
+    if (scale > MAX_ZOOM) {
+      scale = MAX_ZOOM;
+    }
+
     let newState = { ...this.state, selectedZoom, scale };
 
     this.setState(newState);
@@ -213,10 +223,16 @@ class Toolbar extends Component {
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-zoom" ref={this.toolbarZoomRef}>
         <IcoBtn
           icon={'icon-small-minus'}
-          className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= 0 })}
+          className={classNames('ecos-btn_sq_sm ecos-btn_tight', { 'ecos-btn_disabled': scale <= MIN_ZOOM })}
           onClick={() => this.setScale(-1)}
         />
-        <IcoBtn icon={'icon-small-plus'} className="ecos-btn_sq_sm ecos-btn_tight" onClick={() => this.setScale(1)} />
+        <IcoBtn
+          icon={'icon-small-plus'}
+          className={classNames('ecos-btn_sq_sm ecos-btn_tight', {
+            'ecos-btn_disabled': scale >= MAX_ZOOM
+          })}
+          onClick={() => this.setScale(1)}
+        />
         <Dropdown
           source={this.zoomOptions}
           value={selectedZoom}
