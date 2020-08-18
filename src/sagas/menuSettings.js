@@ -36,7 +36,7 @@ function* runInitSettings({ api, logger }) {
 
 function* fetchSettingsConfig({ api, logger }) {
   try {
-    const { id, type } = yield select(state => state.menu);
+    const { id, type, version } = yield select(state => state.menu);
     const keyType = MenuSettingsService.getConfigKeyByType(type);
 
     if (!id) {
@@ -44,7 +44,7 @@ function* fetchSettingsConfig({ api, logger }) {
       throw new Error('User Menu Ref has not received');
     }
 
-    const { menu, authorities } = yield call(api.menu.getMenuSettingsConfig, { id });
+    const { menu, authorities } = yield call(api.menu.getMenuSettingsConfig, { id, version });
     const authoritiesInfo = yield call(api.menu.getAuthoritiesInfoByName, authorities);
     const items = MenuConverter.getMenuItemsWeb(get(menu, [keyType, 'items']) || []);
 

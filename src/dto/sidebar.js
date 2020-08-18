@@ -1,6 +1,5 @@
 import get from 'lodash/get';
-
-import { deepClone } from '../helpers/util';
+import cloneDeep from 'lodash/cloneDeep';
 
 export default class SidebarConverter {
   static getMenuListWeb(source = [], lvl = 0) {
@@ -10,7 +9,7 @@ export default class SidebarConverter {
     }
 
     source.forEach(item => {
-      const targetItem = deepClone(item);
+      const targetItem = cloneDeep(item);
       const collapsible = get(targetItem, 'params.collapsible');
       const collapsed = get(targetItem, 'params.collapsed');
 

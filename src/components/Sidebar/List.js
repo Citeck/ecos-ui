@@ -55,10 +55,11 @@ class List extends React.Component {
     const listItemKey = `${item.id}-${item.label}-${level}`;
     const styleProps = SidebarService.getPropsStyleLevel({
       level,
-      actionType: get(item, 'action.type', '')
+      actionType: get(item, 'action.type', ''),
+      itemType: get(item, 'type', '')
     });
     const hasSubItems = !!(item.items && item.items.length);
-    const isItemSeparator = !isOpen && get(styleProps, 'collapsedMenu.asSeparator', false);
+    const isItemSeparator = !isOpen && styleProps.isSeparator;
     const isItemExpanded = SidebarService.isExpanded(expandableItems, item.id);
     const isItemSelected = selectedId === item.id;
     const isChildSelected = !isOpen && level === SidebarService.DROPDOWN_LEVEL && SidebarService.isSelectedChild(expandableItems, item.id);

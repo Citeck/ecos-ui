@@ -201,6 +201,18 @@ export class MenuApi extends CommonApi {
       .catch(() => ({}));
   };
 
+  getMenuItemsByVersion = version => {
+    const user = getCurrentUserName();
+
+    return Records.queryOne(
+      {
+        sourceId: 'uiserv/menu',
+        query: { user, version }
+      },
+      { menu: 'subMenu?json' }
+    ).then(resp => fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || []));
+  };
+
   getMenuItemIconUrl = iconName => {
     return this.getJsonWithSessionCache({
       url: `${PROXY_URI}citeck/menu/icon?iconName=${iconName}`,
@@ -250,14 +262,28 @@ export class MenuApi extends CommonApi {
   getUserMenuConfig = () => {
     const user = getCurrentUserName();
 
-    return Records.queryOne(
-      {
-        sourceId: SourcesId.MENU,
-        query: { user }
-      },
-      { id: 'id' },
-      {}
-    );
+    const getVer = config =>
+      Records.get(config)
+        .load('.str')
+        .then(result => {
+          const version = result.replace('left-v', '');
+
+          if (version !== 'left') {
+            return +version;
+          }
+        });
+
+    const getId = version =>
+      Records.queryOne(
+        {
+          sourceId: SourcesId.MENU,
+          query: { user, version }
+        },
+        { id: 'id' },
+        {}
+      ).then(data => ({ version, ...data }));
+
+    return getVer('ecos-config@default-ui-main-menu').then(getId);
   };
 
   getMenuSettingsConfig = ({ id = '' }) => {
@@ -370,13 +396,11 @@ async function fetchExtraItemInfo(data) {
       }
 
       if (iconRef && iconRef.includes(SourcesId.ICON)) {
-        const icon = await Records.get(iconRef).load({
+        target.icon = await Records.get(iconRef).load({
           url: 'data?str',
           type: 'type',
           value: 'id'
         });
-
-        target.icon = { ...target.icon, ...icon };
       }
 
       if (Array.isArray(item.items)) {

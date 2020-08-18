@@ -6,6 +6,7 @@ import { hasChildWithId } from '../helpers/util';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
+import { MenuSettings } from '../constants/menu';
 import ULS from './userLocalSettings';
 
 export default class SidebarService {
@@ -54,22 +55,17 @@ export default class SidebarService {
     return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).selectedChild) : false;
   }
 
-  static getPropsStyleLevel = ({ level, actionType }) => {
+  static getPropsStyleLevel = ({ level, actionType, itemType }) => {
     const common = {
       noIcon: true,
       noBadge: true,
-      collapsedMenu: {
-        asSeparator: false
-      }
+      isSeparator: itemType === MenuSettings.ItemTypes.HEADER_DIVIDER
     };
 
-    const lvls = {
+    const levels = {
       0: {
         ...common,
-        collapsedMenu: {
-          ...common.collapsedMenu,
-          asSeparator: true
-        }
+        isSeparator: true
       },
       1: {
         ...common,
@@ -84,7 +80,7 @@ export default class SidebarService {
       }
     };
 
-    return lvls[level] || {};
+    return levels[level] || {};
   };
 
   static getPropsUrl(item, extraParams) {
@@ -150,11 +146,11 @@ export default class SidebarService {
             }
           }
           break;
-        case 'PAGE_LINK':
+        case ATypes.PAGE_LINK:
           let sectionPostfix = params.section ? params.section : '';
           targetUrl = `${PAGE_PREFIX}/${params.pageId}${sectionPostfix}`;
           break;
-        case 'SITE_LINK':
+        case ATypes.SITE_LINK:
           if (isNewVersionPage()) {
             ignoreTabHandler = false;
             attributes.rel = 'noopener noreferrer';

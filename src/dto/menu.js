@@ -19,6 +19,7 @@ export default class MenuConverter {
 
     if (source) {
       target.id = source.id;
+      target.version = source.version;
       target.type = source.type || MenuTypes.LEFT;
     }
 

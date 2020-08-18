@@ -38,10 +38,19 @@ function* fetchLargeLogo({ api, fakeApi, logger }) {
 
 function* fetchSlideMenu({ api, fakeApi, logger }) {
   try {
-    const apiData = yield call(api.menu.getSlideMenuItems);
-    const menuItems = SidebarConverter.getMenuListWeb(apiData.items);
+    const version = yield select(state => state.menu.version);
     const selectedId = SidebarService.getSelected();
     const isOpen = SidebarService.getOpenState();
+
+    let menuItems = [];
+
+    if (!version) {
+      const apiData = yield call(api.menu.getSlideMenuItems);
+      menuItems = SidebarConverter.getMenuListWeb(apiData.items);
+    } else {
+      const apiItems = yield call(api.menu.getMenuItemsByVersion, version);
+      menuItems = SidebarConverter.getMenuListWeb(apiItems);
+    }
 
     yield put(toggleIsOpen(isOpen));
     yield put(setSelectedId(selectedId));
