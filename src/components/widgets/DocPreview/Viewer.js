@@ -129,6 +129,7 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     prevScroll = 0;
+
     onScrollFrame = data => {
       if (isPdf) {
         const { scrollPage } = this.state;
