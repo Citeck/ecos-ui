@@ -62,4 +62,10 @@ export class AppApi extends CommonApi {
         return {};
       });
   };
+
+  getFooter = () => {
+    return Records.get('uiserv/config@footer-content')
+      .load('value?str')
+      .catch(() => null);
+  };
 }

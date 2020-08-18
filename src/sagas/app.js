@@ -11,7 +11,9 @@ import {
   initAppRequest,
   initAppSettings,
   initAppSuccess,
-  setDashboardEditable
+  setDashboardEditable,
+  getFooter,
+  setFooter
 } from '../actions/app';
 import { validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
@@ -58,6 +60,7 @@ export function* fetchAppSettings({ api, fakeApi, logger }, { payload }) {
   try {
     yield put(getMenuConfig());
     yield put(getDashboardEditable());
+    yield put(getFooter());
   } catch (e) {
     logger.error('[fetchAppSettings saga] error', e.message);
   }
@@ -71,6 +74,18 @@ export function* fetchDashboardEditable({ api, logger }) {
     yield put(setDashboardEditable(editable));
   } catch (e) {
     logger.error('[fetchDashboardEditable saga] error', e.message);
+  }
+}
+
+export function* fetchFooter({ api, logger }) {
+  try {
+    const footer = yield call(api.app.getFooter);
+
+    if (footer) {
+      yield put(setFooter(footer));
+    }
+  } catch (e) {
+    logger.error('[fetchFooter saga] error', e.message);
   }
 }
 
@@ -104,6 +119,7 @@ function* appSaga(ea) {
 
   yield takeEvery(initAppSettings().type, fetchAppSettings, ea);
   yield takeEvery(getDashboardEditable().type, fetchDashboardEditable, ea);
+  yield takeEvery(getFooter().type, fetchFooter, ea);
   yield takeEvery(backPageFromTransitionsHistory().type, sagaBackFromHistory, ea);
 }
 
