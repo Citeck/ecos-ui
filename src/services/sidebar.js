@@ -59,7 +59,7 @@ export default class SidebarService {
     const common = {
       noIcon: true,
       noBadge: true,
-      isSeparator: itemType === MenuSettings.ItemTypes.HEADER_DIVIDER
+      isSeparator: itemType === MITypes.HEADER_DIVIDER
     };
 
     const levels = {
@@ -199,6 +199,18 @@ export default class SidebarService {
         default:
           break;
       }
+
+      switch (item.type) {
+        case MITypes.JOURNAL:
+          break;
+        case MITypes.LINK_CREATE_CASE:
+          break;
+        case MITypes.ARBITRARY:
+          targetUrl = get(item, 'config.url');
+          break;
+        default:
+          break;
+      }
     }
     if (ignoreTabHandler) {
       attributes[IGNORE_TABS_HANDLER_ATTR_NAME] = true;
@@ -234,4 +246,5 @@ export default class SidebarService {
 }
 
 const ATypes = SidebarService.ActionTypes;
+const MITypes = MenuSettings.ItemTypes;
 const PAGE_PREFIX = '/share/page';
