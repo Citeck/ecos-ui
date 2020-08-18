@@ -678,8 +678,8 @@ export default class EcosFormUtils {
     return Object.assign(result, attributes, formI18n);
   }
 
-  static hasWritePermission(recordId) {
-    return Records.get(recordId).load('.att(n:"permissions"){has(n:"Write")}');
+  static hasWritePermission(recordId, force) {
+    return Records.get(recordId).load('.att(n:"permissions"){has(n:"Write")}', force);
   }
 
   static processValueBeforeSubmit(value, input, keysMapping) {

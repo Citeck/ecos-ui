@@ -75,14 +75,17 @@ class Properties extends React.Component {
     }
   };
 
-  onUpdateForm = () => {
-    const onUpdate = get(this._ecosForm, 'current.onReload');
+  onUpdateForm = withSaveData => {
+    const form = get(this._ecosForm, 'current');
 
-    if (typeof onUpdate !== 'function') {
+    if (!form) {
       return;
     }
 
-    onUpdate.call(this._ecosForm.current);
+    if (typeof form.onReload === 'function') {
+      form.onReload.call(form, withSaveData);
+    }
+
     this.setState({ loaded: false });
   };
 
