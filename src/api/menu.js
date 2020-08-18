@@ -313,6 +313,7 @@ export class MenuApi extends CommonApi {
 
     rec.att('subMenu', subMenu);
     rec.att('authorities[]?str', authorities);
+    rec.att('version', 1);
 
     return rec.save();
   };
