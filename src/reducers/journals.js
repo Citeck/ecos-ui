@@ -19,8 +19,6 @@ import {
   setOnlyLinked,
   setCustomJournalMode,
   setCustomJournal,
-  setPerformGroupActionResponse,
-  setPerformGroupActionLoader,
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
@@ -30,7 +28,6 @@ import {
   setSelectedRecords,
   setSettingItem,
   setUrl,
-  setZipNodeRef,
   search
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
@@ -154,30 +151,6 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { predicate: action.payload });
-    },
-    [setZipNodeRef]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, { zipNodeRef: action.payload });
-    },
-    [setPerformGroupActionResponse]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, { performGroupActionResponse: action.payload });
-    },
-    [setPerformGroupActionResponse]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, { performGroupActionResponse: action.payload });
-    },
-    [setPerformGroupActionLoader]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, { isLoadingPerformGroupActions: action.payload });
     },
     [setPreviewUrl]: (state, action) => {
       const stateId = action.payload.stateId;

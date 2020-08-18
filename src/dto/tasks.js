@@ -36,7 +36,7 @@ export default class TasksConverter {
       return target;
     }
 
-    const actors = deepClone(source.actors || []);
+    const actors = deepClone(source.actors, []);
 
     target.id = source.id || '';
     target.title = source.title || '';

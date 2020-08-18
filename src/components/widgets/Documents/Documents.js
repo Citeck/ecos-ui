@@ -714,7 +714,7 @@ class Documents extends BaseWidget {
     if (actions[id]) {
       actions[id].forEach(action => {
         action.onClick = () => {
-          this.props.execRecordsAction([id], action, this.handleSuccessRecordsAction);
+          this.props.execRecordsAction(id, action, this.handleSuccessRecordsAction);
         };
       });
 

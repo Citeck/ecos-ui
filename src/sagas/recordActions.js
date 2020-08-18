@@ -5,7 +5,7 @@ import { backPageFromTransitionsHistory } from '../actions/app';
 import { backExecuteAction, getActions, runExecuteAction, setActions } from '../actions/recordActions';
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
-import { DefaultActionTypes } from '../components/Records/actions';
+import { ActionTypes } from '../components/Records/actions';
 
 function* sagaGetActions({ api, logger }, { payload }) {
   try {
@@ -33,7 +33,7 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
       yield put(setNotificationMessage(t('records-actions.action-failed')));
     }
 
-    if (res === true && action.type === DefaultActionTypes.DELETE) {
+    if (res === true && action.type === ActionTypes.DELETE) {
       yield put(backPageFromTransitionsHistory());
     }
   } catch (e) {

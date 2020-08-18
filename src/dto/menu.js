@@ -1,30 +1,31 @@
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { MENU_TYPE } from '../constants';
-import { CreateMenuTypes } from '../constants/menu';
+import { CreateMenuTypes, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
 import { extractLabel } from '../helpers/util';
+import { treeFindFirstItem } from '../helpers/arrayOfObjects';
+import { getIconRef } from '../helpers/icon';
+import MenuSettingsService from '../services/MenuSettingsService';
 
 const getId = unique => `HEADER_${unique.replace(/-/g, '_').toUpperCase()}`;
 
 export default class MenuConverter {
+  /* menu config */
   static parseGetResult(source) {
     const target = {
-      type: MENU_TYPE.LEFT,
-      links: [],
-      items: []
+      type: MenuTypes.LEFT
     };
 
     if (source) {
-      target.type = source.type || MENU_TYPE.LEFT;
-      target.links = source.links;
+      target.id = source.id;
+      target.type = source.type || MenuTypes.LEFT;
     }
 
     return target;
   }
 
-  static getAvailableMenuItemsForWeb(items = []) {
+  static getAvailableSoloItemsForWeb(items = []) {
     return items.map(item => {
       return {
         label: item.label,
@@ -48,14 +49,14 @@ export default class MenuConverter {
   static getSettingsConfigForServer(source) {
     const target = {};
 
-    const { menuType, menuLinks } = source;
+    const { type } = source;
 
-    target.type = menuType;
-    target.links = MenuConverter.getMenuItemsForServer(menuLinks);
+    target.type = type;
 
     return target;
   }
 
+  /* menu create */
   static getCreateSiteItems(source = []) {
     const target = [];
 
@@ -120,5 +121,75 @@ export default class MenuConverter {
     const customs = _customs.filter(item => !exSiteId.includes(item.siteId));
 
     return { customs, sites };
+  }
+
+  /* menu settings */
+  static getMenuItemsWeb(source) {
+    const target = [];
+
+    (function prepareTree(sItems, tItems) {
+      for (let i = 0; i < sItems.length; i++) {
+        const sItem = sItems[i];
+        const tItem = MenuSettingsService.getItemParams(sItem);
+        tItem.items = [];
+        sItem.items && prepareTree(sItem.items, tItem.items);
+        tItems.push(tItem);
+      }
+    })(source, target);
+
+    return target;
+  }
+
+  static getMenuItemsServer(source) {
+    const target = [];
+
+    (function prepareTree(sItems, tItems) {
+      for (let i = 0; i < sItems.length; i++) {
+        const sItem = sItems[i];
+        const { dndIdx, locked, draggable, icon, ...newData } = sItem;
+        const oldData = treeFindFirstItem({ items: source.originalItems, value: sItem.id, key: 'id' }) || {};
+        const tItem = { ...oldData, ...newData, items: [] };
+
+        tItem.icon = getIconRef(icon);
+
+        sItem.items && prepareTree(sItem.items, tItem.items);
+
+        tItems.push(tItem);
+      }
+    })(source.items, target);
+
+    return target;
+  }
+
+  static getGroupPriorityConfigWeb(source) {
+    const target = [];
+
+    (function prepareTree(sItems, tItems) {
+      for (let i = 0; i < sItems.length; i++) {
+        const sItem = sItems[i];
+        const tItem = { ...sItem, items: [], draggable: true, badge: i + 1 };
+
+        sItem.items && prepareTree(sItem.items, tItem.items);
+        tItems.push(tItem);
+      }
+    })(source, target);
+
+    return target;
+  }
+
+  static getGroupPriorityConfigServer(source) {
+    const target = [];
+
+    (function prepareTree(sItems, tItems) {
+      for (let i = 0; i < sItems.length; i++) {
+        const sItem = sItems[i];
+        const tItem = { id: sItem.id, items: [] };
+
+        sItem.items && prepareTree(sItem.items, tItem.items);
+        tItems.push(tItem);
+      }
+    })(source, target);
+
+    return target;
   }
 }

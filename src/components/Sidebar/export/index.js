@@ -14,7 +14,7 @@ import { ViewApi } from '../../../api/view';
 import { fakeApi } from '../../../api/fakeApi';
 
 import { detectMobileDevice, loadThemeRequest } from '../../../actions/view';
-import { initMenuSettings } from '../../../actions/menu';
+import { initMenuConfig } from '../../../actions/menu';
 
 import configureStore from './store';
 import { i18nInit } from '../../../i18n';
@@ -36,7 +36,7 @@ const render = (elementId, props, callback) => {
   store.dispatch(
     loadThemeRequest({
       onSuccess: () => {
-        store.dispatch(initMenuSettings());
+        store.dispatch(initMenuConfig());
         store.dispatch(detectMobileDevice());
 
         i18nInit({ debug: false }).then(() => {

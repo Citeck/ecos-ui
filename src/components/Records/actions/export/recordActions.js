@@ -18,7 +18,7 @@ export const createUserActionNode = (config, fallback) => {
         EcosFormUtils.eform(recordRef, {
           params: {
             onSubmit: () => resolve(true),
-            onFormCancel: () => resolve(false),
+            onFormCancel: () => resolve(true),
             attributes
           },
           class: 'ecos-modal_width-lg',

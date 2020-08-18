@@ -775,6 +775,17 @@ export function extractLabel(text) {
   return t(displayText);
 }
 
+export function packInLabel(text = '') {
+  if (isString(text)) {
+    return {
+      [LOCALE_EN]: text,
+      [getCurrentLocale()]: text
+    };
+  }
+
+  return text;
+}
+
 export function getTimezoneValue() {
   let timezone, offset;
 

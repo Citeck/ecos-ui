@@ -19,7 +19,8 @@ import { ErrorBoundary } from '../ErrorBoundary';
 
 import { initAppSettings } from '../../actions/app';
 import { setTab, updateTab } from '../../actions/pageTabs';
-import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
+import { pagesWithOnlyContent, URL } from '../../constants';
+import { MenuTypes } from '../../constants/menu';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';
 import PageService, { Events } from '../../services/PageService';
@@ -157,7 +158,7 @@ class App extends Component {
       return null;
     }
 
-    if (menuType === MENU_TYPE.LEFT) {
+    if (menuType === MenuTypes.LEFT) {
       return <Menu />;
     }
 
@@ -375,7 +376,6 @@ class App extends Component {
 
             {this.renderFooter()}
           </div>
-
           <NotificationContainer />
           <PopupContainer />
         </div>
@@ -392,8 +392,8 @@ const mapStateToProps = state => ({
   theme: get(state, ['view', 'theme']),
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
-  menuType: get(state, ['menu', 'type']),
   tabs: get(state, 'pageTabs.tabs', []),
+  menuType: get(state, ['menu', 'type']),
   footer: get(state, 'app.footer', null)
 });
 

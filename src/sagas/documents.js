@@ -46,8 +46,8 @@ import {
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
 import { getFirstNonEmpty, t } from '../helpers/util';
-import RecordActions from '../components/Records/actions/RecordActions';
-import { BackgroundOpenAction, CreateNodeAction } from '../components/Records/actions/DefaultActions';
+import recordActions, { ActionTypes } from '../components/Records/actions';
+
 import { DEFAULT_REF, documentActions, documentFields } from '../constants/documents';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
@@ -230,11 +230,12 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
 
     if (documents.length) {
       const typeActions = yield select(state => selectActionsByType(state, payload.key, payload.type));
-      const actions = yield RecordActions.getActions(documents.map(item => item[documentFields.id]), {
-        actions: getFirstNonEmpty([typeActions, documentActions], [])
-      });
+      const actions = yield recordActions.getActionsForRecords(
+        documents.map(item => item[documentFields.id]),
+        getFirstNonEmpty([typeActions, documentActions], [])
+      );
 
-      yield put(setActions({ key: payload.key, actions }));
+      yield put(setActions({ key: payload.key, actions: actions.forRecord }));
     }
   } catch (e) {
     logger.error('[documents sagaGetDocumentsByType saga error', e.message);
@@ -250,14 +251,14 @@ function* sagaExecRecordsAction({ api, logger }, { payload }) {
     const actionType = get(payload, 'action.type', '');
 
     if (check) {
-      if (actionType !== BackgroundOpenAction.type) {
+      if (actionType !== ActionTypes.BACKGROUND_VIEW) {
         if (typeof payload.callback === 'function') {
           payload.callback(actionType);
         }
       }
     }
 
-    if (actionType === CreateNodeAction.type) {
+    if (actionType === ActionTypes.CREATE) {
       if (typeof payload.callback === 'function') {
         payload.callback(actionType);
       }

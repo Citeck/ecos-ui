@@ -6,7 +6,7 @@ import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import { Attributes } from '../../../../constants';
 import BaseReactComponent from '../base/BaseReactComponent';
-import { SortOrderOptions, TableTypes, DisplayModes } from './constants';
+import { DisplayModes, SortOrderOptions, TableTypes } from './constants';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import { trimFields } from '../../../../helpers/util';
 

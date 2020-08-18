@@ -3,7 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import uuid from 'uuidv4';
 
 import { SourcesId } from '../constants';
-import { LAYOUT_TYPE } from '../constants/layout';
+import { LayoutTypes } from '../constants/layout';
 import { t } from '../helpers/util';
 import pageTabList from './pageTabs/PageTabList';
 
@@ -30,7 +30,7 @@ export default class DashboardService {
     layout: {
       id: idLayout,
       tab: DashboardService.defaultDashboardTab(idLayout),
-      type: LAYOUT_TYPE.TWO_COLUMNS_BS,
+      type: LayoutTypes.TWO_COLUMNS_BS,
       columns: [
         {
           width: '30%',
@@ -112,7 +112,7 @@ export default class DashboardService {
       mobile.push({
         id: idLayout,
         tab: { label: tab.label, idLayout },
-        type: LAYOUT_TYPE.MOBILE,
+        type: LayoutTypes.MOBILE,
         columns: [
           {
             widgets: columns.reduce((result, current) => {

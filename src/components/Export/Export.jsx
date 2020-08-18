@@ -169,7 +169,7 @@ export default class Export extends Component {
           value={0}
           valueField={'id'}
           titleField={'title'}
-          isButton={true}
+          isButton
           onChange={this.export}
           right={right}
           getStateOpen={this.getStateOpen}

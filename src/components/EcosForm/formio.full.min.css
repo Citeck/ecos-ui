@@ -4945,7 +4945,6 @@ html.formio-dialog-open {
 
 .formio-component-label-hidden {
   position: relative;
-  display: none;
 }
 
 .control-label--hidden {

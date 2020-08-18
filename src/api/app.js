@@ -49,6 +49,20 @@ export class AppApi extends CommonApi {
     ]).then(([isRestrictionOn, isAdmin]) => !isRestrictionOn || isAdmin);
   };
 
+  getBase64 = file => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    })
+      .then(result => result)
+      .catch(err => {
+        console.error(err);
+        return {};
+      });
+  };
+
   getFooter = () => {
     return Records.get('uiserv/config@footer-content')
       .load('value?str')

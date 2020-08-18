@@ -3,15 +3,14 @@ import PropTypes from 'prop-types';
 export const ItemInterface = {
   id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   dndIdx: PropTypes.number,
-  name: PropTypes.string,
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   icon: PropTypes.shape({
     type: PropTypes.string,
     value: PropTypes.string
   }),
-  bage: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  badge: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   selected: PropTypes.bool,
   multiple: PropTypes.bool,
-  mandatory: PropTypes.bool,
   locked: PropTypes.bool,
   items: PropTypes.array,
   actionConfig: PropTypes.array

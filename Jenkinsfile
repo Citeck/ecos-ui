@@ -23,7 +23,7 @@ timestamps {
       }
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
-          sh "yarn && yarn test --watchAll=false && yarn build"
+          sh "yarn && CI=true yarn test && yarn build"
           def build_info = [:]
           def build_timestamp = new Date()
           build_info.put("version", "${package_props.version}")

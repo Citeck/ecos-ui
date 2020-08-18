@@ -6,7 +6,6 @@ import bpmn from './bpmn';
 import header from './header';
 import modal from './modal';
 import notification from './notification';
-import slideMenu from './slideMenu';
 import user from './user';
 import view from './view';
 import journals from './journals';
@@ -16,6 +15,8 @@ import comments from './comments';
 import dashboardSettings from './dashboardSettings';
 import dashboard from './dashboard';
 import menu from './menu';
+import slideMenu from './slideMenu';
+import menuSettings from './menuSettings';
 import currentTasks from './currentTasks';
 import docStatus from './docStatus';
 import eventsHistory from './eventsHistory';
@@ -35,6 +36,7 @@ import properties from './properties';
 import documents from './documents';
 import userProfile from './userProfile';
 import docConstructor from './docConstructor';
+import iconSelect from './iconSelect';
 
 const reducers = {
   app,
@@ -42,7 +44,6 @@ const reducers = {
   header,
   modal,
   notification,
-  slideMenu,
   user,
   view,
   journals,
@@ -51,7 +52,9 @@ const reducers = {
   comments,
   dashboardSettings,
   dashboard,
+  slideMenu,
   menu,
+  menuSettings,
   currentTasks,
   docStatus,
   eventsHistory,
@@ -70,7 +73,8 @@ const reducers = {
   properties,
   documents,
   userProfile,
-  docConstructor
+  docConstructor,
+  iconSelect
 };
 
 export default history =>
