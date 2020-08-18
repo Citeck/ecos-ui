@@ -59,7 +59,7 @@ class Settings extends React.Component {
   handleGoJournal = () => {
     this.handleHideModal();
     goToJournalsPage({
-      journalId: 'menu-configs',
+      journalId: 'ecos-menus',
       journalsListId: 'global-system'
     });
   };
