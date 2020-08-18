@@ -291,6 +291,10 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
     );
 
     const switchToViewOnlyMode = () => {
+      if (typeof this.cleanAfterInlineEditMode === 'function') {
+        this.cleanAfterInlineEditMode();
+      }
+
       this.options.readOnly = true;
       this.options.viewAsHtml = true;
       this._isInlineEditingMode = false;
@@ -308,10 +312,6 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
           // this.dataValue = this._valueBeforeEdit;
           this.setValue(this._valueBeforeEdit);
         }
-      }
-
-      if (typeof this.cleanAfterInlineEditMode === 'function') {
-        this.cleanAfterInlineEditMode();
       }
 
       switchToViewOnlyMode();
