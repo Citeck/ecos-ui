@@ -144,7 +144,7 @@ class EcosForm extends React.Component {
       let canWritePromise = false;
 
       if (options.readOnly && options.viewAsHtml) {
-        canWritePromise = EcosFormUtils.hasWritePermission(recordId);
+        canWritePromise = EcosFormUtils.hasWritePermission(recordId, true);
       }
 
       if (isDebugModeOn) {
@@ -392,9 +392,15 @@ class EcosForm extends React.Component {
     }
   );
 
-  onReload() {
+  onReload(withSaveState) {
+    if (withSaveState) {
+      this.initForm(this.state.formDefinition);
+    } else {
+      this.setState({ ...this.initState });
+      this.initForm({});
+    }
+
     this.toggleContainerHeight(true);
-    this.initForm({});
   }
 
   toggleContainerHeight(toSave = false) {

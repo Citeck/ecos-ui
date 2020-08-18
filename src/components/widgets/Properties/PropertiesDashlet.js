@@ -116,19 +116,11 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   checkPermissions = () => {
-    EcosFormUtils.hasWritePermission(this.props.record)
+    EcosFormUtils.hasWritePermission(this.props.record, true)
       .then(canEditRecord => {
         this.setState({ canEditRecord });
       })
       .catch(console.error);
-  };
-
-  checkEditRights = () => {
-    const { record } = this.props;
-
-    EcosFormUtils.getCanWritePermission(record).then(canEdit => {
-      this.setState({ canEdit });
-    });
   };
 
   onInlineEditSave = () => {
@@ -138,19 +130,21 @@ class PropertiesDashlet extends BaseWidget {
   handleUpdate() {
     if (this.state.wasLastModifiedWithInlineEditor) {
       this.setState({ wasLastModifiedWithInlineEditor: false });
-    } else {
-      this.onReloadDashlet();
     }
+
+    this.onReloadDashlet(this.state.wasLastModifiedWithInlineEditor);
   }
 
-  onReloadDashlet = () => {
+  onReloadDashlet = withSaveData => {
     const onUpdate = get(this._propertiesRef, 'current.onUpdateForm');
+
+    this.checkPermissions();
 
     if (typeof onUpdate !== 'function') {
       return;
     }
 
-    onUpdate();
+    onUpdate(withSaveData);
   };
 
   onResize = width => {
