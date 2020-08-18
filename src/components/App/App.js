@@ -1,6 +1,7 @@
 import React, { Component, lazy, Suspense } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
@@ -60,6 +61,8 @@ const allowedLinks = [
 ];
 
 class App extends Component {
+  _footerRef = null;
+
   componentDidMount() {
     const { initAppSettings } = this.props;
 
@@ -104,6 +107,7 @@ class App extends Component {
   get wrapperStyle() {
     const tabs = document.querySelector('.page-tab');
     const alfrescoHeader = document.querySelector('#alf-hd');
+    const footerHeight = get(this._footerRef, 'offsetHeight', 0);
     let height = [];
 
     if (tabs) {
@@ -120,8 +124,31 @@ class App extends Component {
       height.push(`${outerHeight}px`);
     }
 
+    if (footerHeight) {
+      height.push(`${footerHeight}px`);
+    }
+
     return { height: height.length ? `calc(100vh - (${height.join(' + ')}))` : '100%' };
   }
+
+  get basePageStyle() {
+    const { footer } = this.props;
+    const styles = {};
+
+    if (footer && this._footerRef) {
+      const alfrescoHeader = document.querySelector('#alf-hd');
+
+      styles.maxHeight = `calc(100vh - ${get(alfrescoHeader, 'offsetHeight', 0)}px - ${get(this._footerRef, 'offsetHeight', 0)}px)`;
+    }
+
+    return styles;
+  }
+
+  setFooterRef = ref => {
+    if (ref) {
+      this._footerRef = ref;
+    }
+  };
 
   renderMenu() {
     const { menuType } = this.props;
@@ -299,6 +326,16 @@ class App extends Component {
     </div>
   );
 
+  renderFooter() {
+    const { footer } = this.props;
+
+    if (isEmpty(footer)) {
+      return null;
+    }
+
+    return <div ref={this.setFooterRef} className="app-footer" dangerouslySetInnerHTML={{ __html: footer }} />;
+  }
+
   render() {
     const { isInit, isInitFailure, isAuthenticated, isMobile, theme } = this.props;
 
@@ -330,11 +367,13 @@ class App extends Component {
 
           <div className="ecos-sticky-wrapper" id="sticky-wrapper">
             {this.renderHeader()}
-            <div className={basePageClassNames}>
+            <div className={basePageClassNames} style={this.basePageStyle}>
               {this.renderMenu()}
 
               <div className="ecos-main-area">{this.renderTabs()}</div>
             </div>
+
+            {this.renderFooter()}
           </div>
 
           <NotificationContainer />
@@ -354,7 +393,8 @@ const mapStateToProps = state => ({
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
   menuType: get(state, ['menu', 'type']),
-  tabs: get(state, 'pageTabs.tabs', [])
+  tabs: get(state, 'pageTabs.tabs', []),
+  footer: get(state, 'app.footer', null)
 });
 
 const mapDispatchToProps = dispatch => ({

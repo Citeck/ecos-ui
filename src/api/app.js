@@ -48,4 +48,10 @@ export class AppApi extends CommonApi {
         .catch(() => false)
     ]).then(([isRestrictionOn, isAdmin]) => !isRestrictionOn || isAdmin);
   };
+
+  getFooter = () => {
+    return Records.get('uiserv/config@footer-content')
+      .load('value?str')
+      .catch(() => null);
+  };
 }

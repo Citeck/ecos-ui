@@ -24,3 +24,11 @@
 .sticky-push {
   height: 50px;
 }
+
+.app-footer {
+  padding: 3px 40px;
+  justify-content: space-between;
+  text-align: center;
+  border-top: 1px $color-gray-6 solid;
+  font-size: 10px;
+}
