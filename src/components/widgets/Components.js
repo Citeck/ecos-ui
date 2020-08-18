@@ -73,7 +73,9 @@ export default class Components {
       load: () => lazy(() => import('./Comments')),
       label: 'dashboard-settings.widget.comments',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
-      props: {}
+      props: {
+        dataStorageFormat: 'html'
+      }
     },
     [ComponentKeys.PROPERTIES]: {
       load: () => lazy(() => import('./Properties')),

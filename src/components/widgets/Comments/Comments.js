@@ -4,7 +4,17 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { ContentState, convertFromRaw, convertToRaw, Editor, EditorState, getDefaultKeyBinding, Modifier, RichUtils } from 'draft-js';
+import {
+  ContentState,
+  convertFromRaw,
+  convertToRaw,
+  Editor,
+  EditorState,
+  getDefaultKeyBinding,
+  Modifier,
+  RichUtils,
+  convertFromHTML
+} from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
@@ -51,6 +61,7 @@ class Comments extends BaseWidget {
         canDelete: PropTypes.bool
       })
     ),
+    dataStorageFormat: PropTypes.oneOf(['raw', 'html', 'plain-text']),
     maxLength: PropTypes.number,
     totalCount: PropTypes.number,
     errorMessage: PropTypes.string,
@@ -78,6 +89,7 @@ class Comments extends BaseWidget {
     canDragging: false,
     maxHeightByContent: false,
     commentListMaxHeight: 217,
+    dataStorageFormat: 'raw',
     onSave: () => {},
     onDelete: () => {},
     getComments: () => {},
@@ -319,12 +331,26 @@ class Comments extends BaseWidget {
   };
 
   handleSaveComment = () => {
-    const { saveIsLoading, updateComment, createComment } = this.props;
-    const { editableComment } = this.state;
-    const text = JSON.stringify(convertToRaw(this.state.comment.getCurrentContent()));
+    const { saveIsLoading } = this.props;
 
     if (saveIsLoading) {
       return;
+    }
+
+    const { updateComment, createComment, dataStorageFormat } = this.props;
+    const { editableComment, comment } = this.state;
+    let text = '';
+
+    switch (dataStorageFormat) {
+      case 'raw':
+        text = JSON.stringify(convertToRaw(comment.getCurrentContent()));
+        break;
+      case 'html':
+        text = stateToHTML(comment.getCurrentContent());
+        break;
+      case 'plain-text':
+      default:
+        text = comment.getCurrentContent().getPlainText();
     }
 
     editableComment ? updateComment({ text, id: editableComment }) : createComment(text);
@@ -416,7 +442,11 @@ class Comments extends BaseWidget {
       if (typeof convertedComment === 'object') {
         convertedComment = convertFromRaw(convertedComment);
       }
-    } catch (e) {}
+    } catch (e) {
+      const blocksFromHTML = convertFromHTML(comment.text);
+
+      convertedComment = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
+    }
 
     this.setState(
       {
@@ -627,12 +657,12 @@ class Comments extends BaseWidget {
       canEdit = false,
       canDelete = false
     } = data;
-    let convertedComment = text;
+    let convertedComment;
 
     try {
       convertedComment = stateToHTML(convertFromRaw(JSON.parse(text)));
     } catch (e) {
-      console.error('convert comment error: ', e.message);
+      convertedComment = text;
     }
 
     return (
