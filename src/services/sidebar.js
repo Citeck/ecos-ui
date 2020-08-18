@@ -253,7 +253,5 @@ export default class SidebarService {
   }
 }
 
-window.SidebarService = SidebarService;
-
 const ATypes = SidebarService.ActionTypes;
 const PAGE_PREFIX = '/share/page';

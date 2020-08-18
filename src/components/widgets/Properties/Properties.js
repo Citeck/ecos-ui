@@ -17,9 +17,7 @@ class Properties extends React.Component {
     formId: PropTypes.string,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
-    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
     onInlineEditSave: PropTypes.func,
     scrollProps: PropTypes.object
@@ -144,7 +142,7 @@ class Properties extends React.Component {
   }
 
   render() {
-    const { forwardedRef, className, scrollProps } = this.props;
+    const { forwardedRef, className, scrollProps, minHeight } = this.props;
 
     return (
       <Scrollbars
@@ -152,7 +150,9 @@ class Properties extends React.Component {
         renderTrackVertical={props => <div {...props} className="ecos-properties__scroll_v" />}
         {...scrollProps}
       >
-        <div ref={forwardedRef}>{this.renderForm()}</div>
+        <div ref={forwardedRef} style={{ minHeight: minHeight || '50px' }}>
+          {this.renderForm()}
+        </div>
       </Scrollbars>
     );
   }

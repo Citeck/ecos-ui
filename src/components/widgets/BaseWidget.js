@@ -242,6 +242,10 @@ class BaseWidget extends Component {
       () => this.setState({ runUpdate: false })
     );
   }
+
+  setPreviousHeight() {
+    this.setState({ previousHeight: this.dashletHeight - this.otherHeight });
+  }
 }
 
 export default BaseWidget;
