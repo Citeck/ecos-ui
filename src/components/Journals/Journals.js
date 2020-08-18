@@ -21,7 +21,7 @@ import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
-import { t, trigger, objectCompare } from '../../helpers/util';
+import { objectCompare, t, trigger } from '../../helpers/util';
 import { getSearchParams, goToCardDetailsPage, stringifySearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
@@ -35,7 +35,8 @@ const mapStateToProps = (state, props) => {
     pageTabsIsShow: state.pageTabs.isShow,
     journalConfig: newState.journalConfig,
     predicate: newState.predicate,
-    grid: newState.grid
+    grid: newState.grid,
+    selectedRecords: newState.selectedRecords
   };
 };
 
@@ -203,7 +204,7 @@ class Journals extends Component {
   };
 
   render() {
-    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage, selectedRecords } = this.props;
     const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height, isForceUpdate } = this.state;
 
     if (!journalConfig || isForceUpdate) {
@@ -251,6 +252,7 @@ class Journals extends Component {
               addRecord={this.addRecord}
               isMobile={isMobile}
               searchText={this.getSearch()}
+              selectedRecords={selectedRecords}
             />
 
             <EcosModal
