@@ -129,9 +129,35 @@ export class MenuApi extends CommonApi {
           })
           .filter(r => r.createVariants && r.createVariants.length);
       })
-      .catch(() => []);
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
 
-    return Promise.all([allSites, fromJournals]).then(res => res[0].concat(res[1]));
+    return Promise.all([allSites, fromJournals])
+      .then(res => {
+        const [sitesVariants, journalsVariants] = res;
+        for (let journal of journalsVariants) {
+          if (!journal.siteId || !journal.createVariants || !journal.createVariants.length) {
+            continue;
+          }
+          let siteForJournal = null;
+          for (let site of sitesVariants) {
+            if (site.siteId === journal.siteId && !!site.createVariants) {
+              siteForJournal = site;
+              break;
+            }
+          }
+          if (siteForJournal) {
+            siteForJournal.createVariants = siteForJournal.createVariants.concat(journal.createVariants);
+          }
+        }
+        return sitesVariants;
+      })
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
   };
 
   getCustomCreateVariants = () => {
