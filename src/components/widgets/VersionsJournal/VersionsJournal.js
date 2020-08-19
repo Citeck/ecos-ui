@@ -289,24 +289,26 @@ class VersionsJournal extends BaseWidget {
   renderVersionActions(version, isMobile = false) {
     const { id, hasWritePermission } = this.props;
     const key = `${version.id.replace(/[:@/]/gim, '')}-${id}`;
-    const changeActiveVersionBtn = hasWritePermission ? (
-      <>
-        <Icon
-          id={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
-          onClick={this.handleOpenSetActiveVersionModal.bind(null, version)}
-          className="icon-actual ecos-vj__version-actions-item"
-        />
-        <UncontrolledTooltip
-          placement="top"
-          boundariesElement="window"
-          innerClassName="ecos-vj__tooltip"
-          arrowClassName="ecos-vj__tooltip-arrow"
-          target={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
-        >
-          {t('versions-journal-widget.set-current')}
-        </UncontrolledTooltip>
-      </>
-    ) : null;
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-428
+    // Todo: Restore in the next release (after edits on the backend)
+    // const changeActiveVersionBtn = hasWritePermission ? (
+    //   <>
+    //     <Icon
+    //       id={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
+    //       onClick={this.handleOpenSetActiveVersionModal.bind(null, version)}
+    //       className="icon-actual ecos-vj__version-actions-item"
+    //     />
+    //     <UncontrolledTooltip
+    //       placement="top"
+    //       boundariesElement="window"
+    //       innerClassName="ecos-vj__tooltip"
+    //       arrowClassName="ecos-vj__tooltip-arrow"
+    //       target={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
+    //     >
+    //       {t('versions-journal-widget.set-current')}
+    //     </UncontrolledTooltip>
+    //   </>
+    // ) : null;
 
     return (
       <div
@@ -314,7 +316,7 @@ class VersionsJournal extends BaseWidget {
           'ecos-vj__version-actions_mobile': isMobile
         })}
       >
-        {changeActiveVersionBtn}
+        {/*{changeActiveVersionBtn}*/}
 
         <a href={version.url} download data-external id={`${TOOLTIP.DOWNLOAD_VERSION}-${key}`}>
           <Icon className="icon-download ecos-vj__version-actions-item" />
