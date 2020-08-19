@@ -1,5 +1,6 @@
 import * as queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import { SourcesId, URL } from '../constants';
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
@@ -358,5 +359,47 @@ if (!window.Citeck) {
 window.Citeck.Navigator = {
   goToDashboard: (recordRef, options) => {
     goToCardDetailsPage(recordRef, options);
+  }
+};
+
+export const replaceHistoryLink = (history = {}, link = '') => {
+  if (isEmpty(history)) {
+    return;
+  }
+
+  const search = get(history, 'location.search', '');
+  const pathname = get(history, 'location.pathname', '');
+  const pureLink = decodeLink(link);
+
+  if (`${pathname}${search}` === pureLink) {
+    return;
+  }
+
+  if (typeof history.replace === 'function') {
+    history.replace(pureLink);
+  }
+};
+
+export const pushHistoryLink = (history = {}, linkData = {}) => {
+  if (isEmpty(history) || isEmpty(linkData)) {
+    return;
+  }
+
+  const currentSearch = get(history, 'location.search', '');
+  const currentPathname = get(history, 'location.pathname', '');
+  const search = get(linkData, 'search', '');
+  const pathname = get(linkData, 'pathname', '');
+  const newLink = decodeLink([pathname, search].filter(item => !isEmpty(item)).join('?'));
+
+  if (`${currentPathname}${currentSearch}` === newLink) {
+    return;
+  }
+
+  if (typeof history.push === 'function') {
+    history.push({
+      ...linkData,
+      search,
+      pathname
+    });
   }
 };

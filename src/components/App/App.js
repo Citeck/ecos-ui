@@ -29,6 +29,7 @@ import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 
 import './App.scss';
+import { replaceHistoryLink } from '../../helpers/urls';
 
 const LoginForm = lazy(() => import('../LoginForm'));
 const BPMNDesignerPage = lazy(() => import('../../pages/BPMNDesignerPage'));
@@ -89,7 +90,7 @@ class App extends Component {
       const { link } = updates;
 
       if (link) {
-        this.props.history.replace(link);
+        replaceHistoryLink(this.props.history, link);
       }
 
       updateTab({ updates });
