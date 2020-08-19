@@ -25,7 +25,7 @@ export default class DateTimeFormatter extends DefaultGqlFormatter {
     const unformattedTimeMatcher = /^[0-2][0-9][0-5][0-9][0-5][0-9]$/i;
     const isUnformattedTime = unformattedTimeMatcher.test(value);
     const { unformatedValueType } = params || {};
-    if (!isUnformattedTime || (!unformatedValueType && unformatedValueType !== 'unformatted-time')) {
+    if (!isUnformattedTime || !unformatedValueType || unformatedValueType !== 'unformatted-time') {
       return value;
     }
 
