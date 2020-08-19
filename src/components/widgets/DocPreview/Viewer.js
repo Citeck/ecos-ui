@@ -129,6 +129,7 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     prevScroll = 0;
+
     onScrollFrame = data => {
       if (isPdf) {
         const { scrollPage } = this.state;
@@ -186,7 +187,7 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     renderDocument() {
-      const { resizable, scrollbarProps } = this.props;
+      const { resizable, scrollbarProps, componentRef } = this.props;
       const newProps = { ...this.props, refViewer: this.refViewer };
       const { isFullscreenOn } = this.state;
       const renderView = props => <div {...props} className="ecos-doc-preview__viewer-scroll-area" />;
@@ -212,7 +213,7 @@ export default function getViewer(WrappedComponent, isPdf) {
           {...extraProps}
         >
           <div className={classNames({ 'ecos-doc-preview__viewer-dh': resizable || isFullscreenOn })}>
-            <WrappedComponent {...newProps} />
+            <WrappedComponent {...newProps} ref={componentRef} />
           </div>
         </Scrollbars>
       );

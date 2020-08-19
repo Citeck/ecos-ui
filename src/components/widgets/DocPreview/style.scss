@@ -227,6 +227,10 @@ $border-base: #c1c1c1;
     &-page {
       margin: 0 auto;
 
+      &_center {
+        justify-content: center;
+      }
+
       &_pdf {
         &::before {
           content: ' ';
@@ -237,6 +241,12 @@ $border-base: #c1c1c1;
 
       &_img {
         height: 100%;
+        width: 100%;
+        display: flex;
+
+        #{$root}__viewer-page-content {
+          margin: auto;
+        }
       }
 
       &_full {
@@ -257,7 +267,6 @@ $border-base: #c1c1c1;
       }
 
       &_img &-content {
-        height: 100%;
       }
     }
 
