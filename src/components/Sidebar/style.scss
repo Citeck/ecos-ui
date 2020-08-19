@@ -112,7 +112,7 @@ $transition-duration: 0.3s;
     }
 
     &_title-separator {
-      &:hover {
+      &:not(#{$menu-item}_collapsible):hover {
         background: none;
       }
 
@@ -256,7 +256,6 @@ $transition-duration: 0.3s;
         }
 
         #{$menu-item}__label {
-          color: $color-gray-5;
           font-size: $font-size-large;
         }
       }

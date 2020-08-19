@@ -262,8 +262,8 @@ export class MenuApi extends CommonApi {
   getUserMenuConfig = () => {
     const user = getCurrentUserName();
 
-    const getVer = config =>
-      Records.get(config)
+    const getVer = () =>
+      Records.get('ecos-config@default-ui-main-menu')
         .load('.str')
         .then(result => {
           const version = result.replace('left-v', '');
@@ -283,7 +283,7 @@ export class MenuApi extends CommonApi {
         {}
       ).then(data => ({ version, ...data }));
 
-    return getVer('ecos-config@default-ui-main-menu').then(getId);
+    return getVer().then(getId);
   };
 
   getMenuSettingsConfig = ({ id = '' }) => {

@@ -53,12 +53,13 @@ class List extends React.Component {
     const { level, expandableItems, isOpen, inDropdown, selectedId } = this.props;
     const listItemDomId = `_${item.id}-${level}-${i}`;
     const listItemKey = `${item.id}-${item.label}-${level}`;
+    const hasSubItems = !!(item.items && item.items.length);
     const styleProps = SidebarService.getPropsStyleLevel({
       level,
       actionType: get(item, 'action.type', ''),
-      itemType: get(item, 'type', '')
+      itemType: get(item, 'type', ''),
+      config: get(item, 'config') || {}
     });
-    const hasSubItems = !!(item.items && item.items.length);
     const isItemSeparator = !isOpen && styleProps.isSeparator;
     const isItemExpanded = SidebarService.isExpanded(expandableItems, item.id);
     const isItemSelected = selectedId === item.id;

@@ -55,35 +55,36 @@ export default class SidebarService {
     return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).selectedChild) : false;
   }
 
-  static getPropsStyleLevel = ({ level, actionType, itemType }) => {
+  static getPropsStyleLevel = ({ level, actionType, itemType, config }) => {
+    const knownType = Object.values(MITypes).includes(itemType);
+    const knownActionType = Object.values(ATypes).includes(actionType);
+
     const common = {
       noIcon: true,
-      noBadge: true,
-      isSeparator: itemType === MITypes.HEADER_DIVIDER
+      noBadge: !(
+        (knownActionType && ![ATypes.CREATE_SITE].includes(actionType)) ||
+        (knownType && [MITypes.JOURNAL, MITypes.LINK_CREATE_CASE].includes(itemType) && config.displayCount)
+      ),
+      isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(itemType)
     };
 
     const levels = {
       0: {
         ...common,
-        isSeparator: true
+        noBadge: knownType ? common.noBadge : true,
+        isSeparator: knownType ? common.isSeparator : true
       },
       1: {
         ...common,
-        noIcon: false,
-        noBadge: !actionType && [ATypes.CREATE_SITE].includes(actionType)
-      },
-      2: {
-        ...common
-      },
-      3: {
-        ...common
+        noIcon: false
       }
     };
 
-    return levels[level] || {};
+    return levels[level] || { ...common };
   };
 
   static getPropsUrl(item, extraParams) {
+    console.log(item, extraParams);
     let targetUrl = null;
     let attributes = {};
     let ignoreTabHandler = true;
@@ -199,19 +200,27 @@ export default class SidebarService {
         default:
           break;
       }
-
-      switch (item.type) {
-        case MITypes.JOURNAL:
-          break;
-        case MITypes.LINK_CREATE_CASE:
-          break;
-        case MITypes.ARBITRARY:
-          targetUrl = get(item, 'config.url');
-          break;
-        default:
-          break;
-      }
     }
+
+    switch (item.type) {
+      case MITypes.JOURNAL:
+        break;
+      case MITypes.LINK_CREATE_CASE:
+        break;
+      case MITypes.ARBITRARY:
+        targetUrl = get(item, 'config.url');
+
+        if (targetUrl.includes('http')) {
+          attributes.target = '_blank';
+          attributes.rel = 'noopener noreferrer';
+        } else {
+          ignoreTabHandler = false;
+        }
+        break;
+      default:
+        break;
+    }
+
     if (ignoreTabHandler) {
       attributes[IGNORE_TABS_HANDLER_ATTR_NAME] = true;
     }
