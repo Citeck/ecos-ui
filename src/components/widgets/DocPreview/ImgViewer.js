@@ -93,7 +93,7 @@ class ImgViewer extends Component {
 
   render() {
     const { src } = this.props;
-    const style = { width: this.elImage.offsetWidth || '100%' };
+    const style = { width: this.elImage.offsetWidth || 0 };
 
     return (
       <div className="ecos-doc-preview__viewer-page ecos-doc-preview__viewer-page_img" style={style} ref={this.refImgCtr}>

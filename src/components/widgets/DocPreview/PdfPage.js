@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { TextLayerBuilder } from 'pdfjs-dist/lib/web/text_layer_builder.js';
-import 'pdfjs-dist/web/pdf_viewer.css';
 
 import { getScale, isMobileDevice } from '../../../helpers/util';
 
-class PdfPage extends React.Component {
+import 'pdfjs-dist/web/pdf_viewer.css';
+
+class PdfPage extends React.PureComponent {
   static propTypes = {
     pdf: PropTypes.object.isRequired,
     pageNumber: PropTypes.number.isRequired,
@@ -34,7 +34,7 @@ class PdfPage extends React.Component {
     this.renderPage();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     this.renderPage();
   }
 
