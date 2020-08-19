@@ -55,17 +55,18 @@ export default class SidebarService {
     return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).selectedChild) : false;
   }
 
-  static getPropsStyleLevel = ({ level, actionType, itemType, config }) => {
-    const knownType = Object.values(MITypes).includes(itemType);
+  static getPropsStyleLevel = ({ level, item, item: { type, config = {} } }) => {
+    const actionType = get(item, 'action.type', '');
+    const knownType = Object.values(MITypes).includes(type);
     const knownActionType = Object.values(ATypes).includes(actionType);
 
     const common = {
       noIcon: true,
       noBadge: !(
         (knownActionType && ![ATypes.CREATE_SITE].includes(actionType)) ||
-        (knownType && [MITypes.JOURNAL, MITypes.LINK_CREATE_CASE].includes(itemType) && config.displayCount)
+        (knownType && [MITypes.JOURNAL, MITypes.LINK_CREATE_CASE].includes(type) && config.displayCount)
       ),
-      isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(itemType)
+      isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(type)
     };
 
     const levels = {
@@ -84,7 +85,6 @@ export default class SidebarService {
   };
 
   static getPropsUrl(item, extraParams) {
-    console.log(item, extraParams);
     let targetUrl = null;
     let attributes = {};
     let ignoreTabHandler = true;
@@ -204,8 +204,11 @@ export default class SidebarService {
 
     switch (item.type) {
       case MITypes.JOURNAL:
-        break;
-      case MITypes.LINK_CREATE_CASE:
+        targetUrl = getJournalPageUrl({
+          journalId: get(item, 'config.journalId'),
+          nodeRef: get(item, 'config.recordRef')
+        });
+        ignoreTabHandler = false;
         break;
       case MITypes.ARBITRARY:
         targetUrl = get(item, 'config.url');

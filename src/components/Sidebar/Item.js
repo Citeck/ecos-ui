@@ -9,6 +9,7 @@ import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../..
 import { extractLabel } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/export/urls';
 import { SourcesId } from '../../constants';
+import { MenuSettings } from '../../constants/menu';
 import SidebarService from '../../services/sidebar';
 import { EcosIcon, Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
@@ -54,12 +55,11 @@ class Item extends React.Component {
     return get(this.props, 'data.id');
   }
 
-  get actionType() {
-    return get(this.props, 'data.action.type', '');
-  }
-
   get isLink() {
-    return ![SidebarService.ActionTypes.CREATE_SITE].includes(this.actionType);
+    return !(
+      [SidebarService.ActionTypes.CREATE_SITE].includes(get(this.props, 'data.action.type', '')) ||
+      [MenuSettings.ItemTypes.LINK_CREATE_CASE].includes(get(this.props, 'data.type', ''))
+    );
   }
 
   onToggleList = e => {

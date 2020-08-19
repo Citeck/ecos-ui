@@ -210,7 +210,14 @@ export class MenuApi extends CommonApi {
         query: { user, version }
       },
       { menu: 'subMenu?json' }
-    ).then(resp => fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || []));
+    ).then(resp =>
+      fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || [], {
+        label: '.disp',
+        journalId: 'id',
+        journalsListId: 'journalsListId',
+        createVariants: 'createVariants[]?json'
+      })
+    );
   };
 
   getMenuItemIconUrl = iconName => {
@@ -296,12 +303,12 @@ export class MenuApi extends CommonApi {
         },
         true
       )
-      .then(resp => {
-        return fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || []).then(items => {
+      .then(resp =>
+        fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || [], { label: '.disp' }).then(items => {
           lodashSet(resp, 'menu.left.items', items);
           return resp;
-        });
-      })
+        })
+      )
       .then(resp => resp || {})
       .catch(err => {
         console.error(err);
@@ -381,18 +388,15 @@ export class MenuApi extends CommonApi {
   };
 }
 
-async function fetchExtraItemInfo(data) {
+async function fetchExtraItemInfo(data, attributes) {
   return Promise.all(
     data.map(async item => {
       const target = { ...item };
       const journalRef = lodashGet(item, 'config.recordRef');
       const iconRef = lodashGet(item, 'icon');
 
-      if (journalRef && [ms.ItemTypes.JOURNAL].includes(item.type)) {
-        const result = await Records.get(journalRef).load({ label: '.disp' });
-
-        target.label = result.label;
-        target.config = { ...target.config, count: 999 };
+      if (journalRef && [ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type)) {
+        target._remoteData_ = await Records.get(journalRef).load(attributes);
       }
 
       if (iconRef && iconRef.includes(SourcesId.ICON)) {
@@ -404,7 +408,7 @@ async function fetchExtraItemInfo(data) {
       }
 
       if (Array.isArray(item.items)) {
-        target.items = await fetchExtraItemInfo(item.items);
+        target.items = await fetchExtraItemInfo(item.items, attributes);
       }
 
       return target;
