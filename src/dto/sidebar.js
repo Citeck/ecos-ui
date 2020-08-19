@@ -27,10 +27,10 @@ export default class SidebarConverter {
         const createVariants = get(item, '_remoteData_.createVariants') || [];
 
         if (createVariants.length === 1) {
-          targetItem = SidebarConverter.getMenuCreateVariantWeb(item, createVariants[0]);
+          targetItem = SidebarConverter.getMenuCreateVariantWeb(targetItem, createVariants[0]);
+        } else {
+          targetItem.items = createVariants.map(variant => SidebarConverter.getMenuCreateVariantWeb(targetItem, variant));
         }
-
-        targetItem.items = createVariants.map(variant => SidebarConverter.getMenuCreateVariantWeb(item, variant));
       } else {
         targetItem.items = SidebarConverter.getMenuListWeb(item.items || [], lvl + 1);
       }
@@ -47,7 +47,8 @@ export default class SidebarConverter {
       ...item,
       id: uniqueId('createVariant'),
       label: createVariant.name || item.label,
-      createVariant: createVariant
+      createVariant,
+      params: { collapsible: false, collapsed: false }
     };
   }
 }
