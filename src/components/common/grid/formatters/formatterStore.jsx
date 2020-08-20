@@ -22,8 +22,8 @@ import TaskLinkFormatter from './gql/TaskLinkFormatter';
 
 const formatterStore = {
   UserNameLinkFormatter,
-  temp: FunctionFormatter,
-  FunctionFormatter: FunctionFormatterV2,
+  FunctionFormatter,
+  FunctionFormatterV2,
   DateTimeFormatter,
   DateFormatter,
   DefaultGqlFormatter,

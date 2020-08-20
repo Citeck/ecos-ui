@@ -12,7 +12,7 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
     const result = this.prototype.getResult(this.prototype.value(cell), params, row, rowIndex);
 
     if (typeof get(result, 'then') === 'function') {
-      return result;
+      return '';
     }
 
     return get(FunctionFormatterV2.parseResult(result), 'value');
@@ -56,6 +56,18 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
     super(props);
 
     const result = this.getResult(props.cell, props.params, props.row, props.rowIndex);
+    const promise = get(result, 'then');
+
+    if (typeof promise === 'function') {
+      result.then(result => {
+        const data = FunctionFormatterV2.parseResult(result);
+
+        this.setState({
+          value: get(data, 'value', ''),
+          type: get(data, 'type', '')
+        });
+      });
+    }
     const data = FunctionFormatterV2.parseResult(result);
 
     this.state = {
@@ -66,13 +78,8 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
 
   getResult(cell = {}, params = {}, row = {}, rowIndex = 0) {
     const fn = get(params, 'fn');
-    const then = get(fn, 'then');
     const data = this.value(cell);
-    const args = [cell, row, {}, data, rowIndex, lodash, ecosFetch];
-
-    if (typeof then === 'function') {
-      return fn(...args);
-    }
+    const args = [cell, row, {}, data, rowIndex, { lodash, ecosFetch }];
 
     if (typeof fn === 'function') {
       const elCell = document.createElement('div');
@@ -81,6 +88,11 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
       args[0] = elCell;
 
       const result = fn(...args);
+      const then = get(result, 'then');
+
+      if (typeof then === 'function') {
+        return result;
+      }
 
       return result === undefined ? elCell : result;
     }
@@ -88,17 +100,15 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
     if (typeof fn === 'string') {
       try {
         // eslint-disable-next-line
-        const extractedFn = eval(`(function() { return ${fn}; })()`);
-
-        if (typeof extractedFn.then === 'function') {
-          return extractedFn(...args);
-        }
+        const extractedFn = eval(`(function() { return function (cell, row, column, data, rowIndex, utils) { ${fn};}})()`);
 
         if (typeof extractedFn === 'function') {
           return extractedFn(...args);
         }
       } catch (e) {
         console.error(`FunctionFormatterV2 error: ${e.message}`);
+
+        return fn;
       }
     }
   }
@@ -117,5 +127,3 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
     return value;
   }
 }
-
-window.FunctionFormatterV2 = FunctionFormatterV2;
