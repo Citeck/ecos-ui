@@ -55,8 +55,8 @@ class Item extends React.Component {
     return get(this.props, 'data.id');
   }
 
-  get isLink() {
-    return !(
+  get isHandler() {
+    return (
       [SidebarService.ActionTypes.CREATE_SITE].includes(get(this.props, 'data.action.type', '')) ||
       [MenuSettings.ItemTypes.LINK_CREATE_CASE].includes(get(this.props, 'data.type', ''))
     );
@@ -79,23 +79,17 @@ class Item extends React.Component {
   };
 
   onClickLink = () => {
-    if (!this.hasSubItems) {
+    if (!this.hasSubItems && !this.isHandler) {
       this.props.setSelectItem(this.dataId);
     }
   };
 
-  renderLabel() {
-    const {
-      isOpen,
-      isSiteDashboardEnable,
-      data,
-      styleProps: { noIcon, isSeparator }
-    } = this.props;
-    const extraParams = { isSiteDashboardEnable };
+  renderContent = React.memo(({ isOpen, data, styleProps: { noIcon, isSeparator } }) => {
     const label = extractLabel(data.label);
     const iconCode = typeof data.icon === 'string' && !data.icon.includes(SourcesId.ICON) ? data.icon : undefined;
     const iconData = typeof data.icon === 'object' ? data.icon : undefined;
-    const content = (
+
+    return (
       <>
         {!noIcon && !isSeparator && (
           <EcosIcon family="menu-items" data={iconData} className="ecos-sidebar-item__icon" code={iconCode} title={isOpen ? '' : label} />
@@ -105,23 +99,33 @@ class Item extends React.Component {
         </div>
       </>
     );
+  });
 
-    if (this.collapsible || isSeparator) {
-      return <div className="ecos-sidebar-item__link">{content}</div>;
+  renderLabel() {
+    const { isSiteDashboardEnable, data, isOpen, styleProps } = this.props;
+    const extraParams = { isSiteDashboardEnable };
+    const contentProps = { data, isOpen, styleProps };
+
+    if (this.collapsible || styleProps.isSeparator) {
+      return (
+        <div className="ecos-sidebar-item__link">
+          <this.renderContent {...contentProps} />
+        </div>
+      );
     }
 
-    if (this.isLink) {
+    if (this.isHandler) {
       return (
-        <ItemLink data={data} extraParams={extraParams} onClick={this.onClickLink}>
-          {content}
-        </ItemLink>
+        <ItemBtn data={data} extraParams={extraParams}>
+          <this.renderContent {...contentProps} />
+        </ItemBtn>
       );
     }
 
     return (
-      <ItemBtn data={data} extraParams={extraParams}>
-        {content}
-      </ItemBtn>
+      <ItemLink data={data} extraParams={extraParams} onClick={this.onClickLink}>
+        <this.renderContent {...contentProps} />
+      </ItemLink>
     );
   }
 
