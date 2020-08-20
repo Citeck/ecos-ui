@@ -64,7 +64,7 @@ export default class SidebarService {
       noIcon: true,
       noBadge: !(
         (knownActionType && ![ATypes.CREATE_SITE].includes(actionType)) ||
-        (knownType && [MITypes.JOURNAL, MITypes.LINK_CREATE_CASE].includes(type) && config.displayCount)
+        (knownType && [MITypes.JOURNAL, MITypes.LINK_CREATE_CASE].includes(type) && get(item, 'config.displayCount'))
       ),
       isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(type)
     };
@@ -205,7 +205,8 @@ export default class SidebarService {
     switch (item.type) {
       case MITypes.JOURNAL:
         targetUrl = getJournalPageUrl({
-          journalId: get(item, 'config.journalId'),
+          journalsListId: get(item, 'params.journalsListId'),
+          journalId: get(item, 'params.journalId'),
           nodeRef: get(item, 'config.recordRef')
         });
         ignoreTabHandler = false;

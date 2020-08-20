@@ -320,7 +320,7 @@ export class MenuApi extends CommonApi {
     return Promise.all(
       records.map(recordRef =>
         Records.get(recordRef)
-          .load({ label: '.disp' })
+          .load({ label: '.disp', createVariants: 'createVariants[]' })
           .then(attributes => ({ ...attributes, config: { recordRef } }))
       )
     );

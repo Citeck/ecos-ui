@@ -1,9 +1,10 @@
 import React from 'react';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-import { arrayCompare, extractLabel, t } from '../../helpers/util';
+import { extractLabel, t } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import { MenuSettings as ms } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
@@ -36,7 +37,7 @@ class EditorItems extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { lastAddedItems } = this.props;
 
-    if (!arrayCompare(lastAddedItems, prevProps.lastAddedItems)) {
+    if (!isEqual(lastAddedItems, prevProps.lastAddedItems)) {
       const targetEl = document.querySelector(`#id${get(lastAddedItems, [0, 'id'])}`);
 
       targetEl && targetEl.scrollIntoView();

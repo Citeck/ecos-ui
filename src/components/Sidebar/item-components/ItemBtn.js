@@ -24,7 +24,7 @@ class ItemBtn extends React.Component {
     const { dispatch, data } = this.props;
 
     if (data.type === MenuSettings.ItemTypes.LINK_CREATE_CASE) {
-      handleControl(HandleControlTypes.ECOS_CREATE_VARIANT, data.createVariant, dispatch);
+      handleControl(HandleControlTypes.ECOS_CREATE_VARIANT, data.params.createVariant, dispatch);
     } else {
       handleControl(HandleControlTypes.ALF_CREATE_SITE, null, dispatch);
     }
