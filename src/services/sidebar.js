@@ -55,18 +55,18 @@ export default class SidebarService {
     return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).selectedChild) : false;
   }
 
-  static getPropsStyleLevel = ({ level, item, item: { type, config = {} } }) => {
+  static getPropsStyleLevel = ({ level, item }) => {
     const actionType = get(item, 'action.type', '');
-    const knownType = Object.values(MITypes).includes(type);
+    const knownType = Object.values(MITypes).includes(item.type);
     const knownActionType = Object.values(ATypes).includes(actionType);
 
     const common = {
       noIcon: true,
       noBadge: !(
         (knownActionType && ![ATypes.CREATE_SITE].includes(actionType)) ||
-        (knownType && [MITypes.JOURNAL, MITypes.LINK_CREATE_CASE].includes(type) && get(item, 'config.displayCount'))
+        (knownType && [MITypes.JOURNAL].includes(item.type) && get(item, 'config.displayCount'))
       ),
-      isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(type)
+      isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(item.type)
     };
 
     const levels = {
@@ -77,7 +77,7 @@ export default class SidebarService {
       },
       1: {
         ...common,
-        noIcon: false
+        noIcon: knownType ? [MITypes.HEADER_DIVIDER].includes(item.type) : false
       }
     };
 
