@@ -20,8 +20,11 @@ Webform.prototype.setElement = function(element) {
 };
 
 Webform.prototype.onSubmit = function(submission, saved) {
-  originalOnSubmit.call(this, submission, saved);
+  const result = originalOnSubmit.call(this, submission, saved);
+
   this.setAlert(false);
+
+  return result;
 };
 
 Webform.prototype.submit = function(before, options) {
@@ -70,3 +73,5 @@ Webform.prototype.submit = function(before, options) {
     fireSubmit(new Date().getTime() + 5000);
   });
 };
+
+export default Webform;
