@@ -1,4 +1,5 @@
-import { MenuTypes } from '../../constants/menu';
+import { MenuSettings, MenuTypes } from '../../constants/menu';
+import SidebarService from '../../services/sidebar';
 
 export const makeUserMenuConfigs = [
   [
@@ -224,3 +225,12 @@ export const positionAdjustmentsByType = [
   [MenuTypes.TOP, { top: 40, left: 80 }, { top: 0, left: 0 }],
   [MenuTypes.TOP, { top: 0, left: 0 }, { top: 0, left: 0 }]
 ];
+
+export const itemsForPropsUrl = {
+  JOURNAL: { type: MenuSettings.ItemTypes.JOURNAL, params: { journalId: 'journalId', journalsListId: 'journalsListId' } },
+  ARBITRARY_SELF: { type: MenuSettings.ItemTypes.ARBITRARY, config: { url: '/dashboard' } },
+  ARBITRARY_BLANK: { type: MenuSettings.ItemTypes.ARBITRARY, config: { url: 'https://ya.ru' } },
+
+  BPMN_DESIGNER: { action: { params: { pageId: 'bpmn-designer' } } },
+  PAGE_LINK: { action: { type: SidebarService.ActionTypes.PAGE_LINK, params: { pageId: 'page-link' } } }
+};

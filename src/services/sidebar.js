@@ -10,6 +10,7 @@ import { MenuSettings } from '../constants/menu';
 import ULS from './userLocalSettings';
 
 export default class SidebarService {
+  /** @deprecated since menu v1 */
   static ActionTypes = {
     CREATE_SITE: 'CREATE_SITE',
     FILTER_LINK: 'FILTER_LINK',
@@ -89,6 +90,7 @@ export default class SidebarService {
     let attributes = {};
     let ignoreTabHandler = true;
 
+    /** @deprecated since menu v1 */
     if (item.action) {
       const params = item.action.params;
 
