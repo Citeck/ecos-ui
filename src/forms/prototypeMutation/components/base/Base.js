@@ -490,3 +490,5 @@ Base.prototype.createWidget = function() {
   this._widget = widget;
   return widget;
 };
+
+export default Base;

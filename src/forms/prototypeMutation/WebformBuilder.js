@@ -369,3 +369,5 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   // Called when we edit a component.
   this.emit('editComponent', component);
 };
+
+export default WebformBuilder;

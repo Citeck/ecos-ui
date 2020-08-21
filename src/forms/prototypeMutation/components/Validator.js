@@ -19,3 +19,5 @@ FormioValidator.validators.required = {
     return disabled || !component.isEmpty(value);
   }
 };
+
+export default FormioValidator;
