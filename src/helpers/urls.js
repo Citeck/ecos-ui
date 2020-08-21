@@ -369,7 +369,11 @@ export const replaceHistoryLink = (history = {}, link = '') => {
 
   const search = get(history, 'location.search', '');
   const pathname = get(history, 'location.pathname', '');
-  const pureLink = decodeLink(link);
+  let pureLink = decodeLink(link);
+
+  if (isEmpty(pureLink)) {
+    pureLink = '/';
+  }
 
   if (`${pathname}${search}` === pureLink) {
     return;
@@ -388,7 +392,7 @@ export const pushHistoryLink = (history = {}, linkData = {}) => {
   const currentSearch = get(history, 'location.search', '');
   const currentPathname = get(history, 'location.pathname', '');
   const search = get(linkData, 'search', '');
-  const pathname = get(linkData, 'pathname', '');
+  const pathname = get(linkData, 'pathname', currentPathname);
   const newLink = decodeLink([pathname, search].filter(item => !isEmpty(item)).join('?'));
 
   if (`${currentPathname}${currentSearch}` === newLink) {

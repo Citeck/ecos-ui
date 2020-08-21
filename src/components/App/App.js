@@ -84,7 +84,6 @@ class App extends Component {
 
     if (updates) {
       const { link } = updates;
-
       if (link) {
         replaceHistoryLink(this.props.history, link);
       }
