@@ -46,11 +46,12 @@ const JOURNAL_CONFIG = {
       label: 'Name 1 field'
     },
     {
-      name: 'Name1',
+      name: 'Name2',
+      multiple: true,
       label: 'Name 2 field'
     },
     {
-      name: 'Name1',
+      name: 'Name3',
       label: 'Name 3 field'
     }
   ],
@@ -93,7 +94,11 @@ describe('JournalsService', () => {
 
     const requiredProps = ['text', 'type', 'attribute', 'attSchema', 'default', 'searchable', 'sortable', 'visible', 'groupable', 'params'];
 
+    let idx = 0;
     for (let column of config.columns) {
+      expect(column.multiple).toBe(JOURNAL_CONFIG.columns[idx].multiple === true);
+      expect(column.attSchema.indexOf('[]') !== -1).toBe(column.multiple);
+
       for (let prop of requiredProps) {
         let hasProp = column[prop] !== null && column[prop] !== undefined;
         if (!hasProp) {
@@ -101,6 +106,8 @@ describe('JournalsService', () => {
         }
         expect(hasProp).toBe(true);
       }
+
+      idx++;
     }
   });
 

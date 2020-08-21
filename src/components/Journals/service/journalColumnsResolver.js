@@ -52,9 +52,10 @@ class JournalColumnsResolver {
     const type = column.type || 'text';
     const name = column.name || column.attribute;
     const label = this._getColumnLabel(column);
+    const multiple = column.multiple === true;
 
     const attribute = column.schema || column.attribute || column.name;
-    const attSchema = attribute + '[]{' + (column.innerSchema || DEFAULT_INNER_SCHEMA) + '}';
+    const attSchema = attribute + (multiple ? '[]' : '') + '{' + (column.innerSchema || DEFAULT_INNER_SCHEMA) + '}';
 
     const editable = attribute === column.name && getBoolOrElse(column.editable, true);
     const searchable = getBoolOrElse(column.searchable, () => attribute === name);
@@ -76,6 +77,7 @@ class JournalColumnsResolver {
       visible,
       editable,
       sortable,
+      multiple,
       groupable,
       searchable,
       attribute,
