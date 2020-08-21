@@ -347,6 +347,7 @@ class Comments extends BaseWidget {
         break;
       case 'html':
         text = stateToHTML(comment.getCurrentContent());
+        text = text.replace(/<br>\n/gim, '<br/>');
         break;
       case 'plain-text':
       default:
@@ -425,6 +426,18 @@ class Comments extends BaseWidget {
     this.setState({ comment: newCommentState }, this.updateEditorHeight);
 
     return true;
+  };
+
+  handleReturn = event => {
+    if (!(event.keyCode === 13 && event.shiftKey)) {
+      return 'not_handled';
+    }
+
+    const { comment } = this.state;
+    const newState = RichUtils.insertSoftNewline(comment);
+
+    this.setState({ comment: newState }, this.updateEditorHeight);
+    return 'handled';
   };
 
   handleEditComment = id => {
@@ -575,6 +588,7 @@ class Comments extends BaseWidget {
               onChange={this.handleChangeComment}
               handleKeyCommand={this.handleKeyCommand}
               handlePastedText={this.handlePastedText}
+              handleReturn={this.handleReturn}
               placeholder={this.editorPlaceholder}
             />
           </Scrollbars>
@@ -660,7 +674,21 @@ class Comments extends BaseWidget {
     let convertedComment;
 
     try {
-      convertedComment = stateToHTML(convertFromRaw(JSON.parse(text)));
+      convertedComment = stateToHTML(convertFromRaw(JSON.parse(text)), {
+        blockRenderers: {
+          atomic: block => {
+            let data = block.getData();
+
+            console.warn(data);
+
+            return null;
+
+            // if (data.get('foo') === 'bar') {
+            //   return '<div>' + escape(block.getText()) + '</div>';
+            // }
+          }
+        }
+      });
     } catch (e) {
       convertedComment = text;
     }
