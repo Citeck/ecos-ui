@@ -1,4 +1,4 @@
-import Harness from '../test/harness';
+import Harness from './test/harness';
 import WebformBuilder from './WebformBuilder';
 
 describe('Formio Form Builder tests', () => {

@@ -1,11 +1,11 @@
 import assert from 'power-assert';
 import sinon from 'sinon';
 import each from 'lodash/each';
-import Harness from '../test/harness';
-import FormTests from '../test/forms';
+import Harness from './test/harness';
+import FormTests from './test/forms';
 import Formio from './Formio';
 import Webform from './Webform';
-import { APIMock } from '../test/APIMock';
+import { APIMock } from './test/APIMock';
 
 const createElement = global.document.createElement;
 const FAKECanvasElement = {

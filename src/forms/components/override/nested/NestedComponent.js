@@ -11,3 +11,5 @@ NestedComponent.prototype.checkConditions = function(data) {
 
   return result;
 };
+
+export default NestedComponent;

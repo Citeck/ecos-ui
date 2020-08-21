@@ -1,7 +1,7 @@
 import Webform from 'formiojs/Webform';
 import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
-import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
+import { OUTCOME_BUTTONS_PREFIX } from '../constants/forms';
 
 const originalSetElement = Webform.prototype.setElement;
 const originalOnSubmit = Webform.prototype.onSubmit;

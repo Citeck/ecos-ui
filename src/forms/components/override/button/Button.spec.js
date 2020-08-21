@@ -1,9 +1,6 @@
-import assert from 'power-assert';
-
 import Harness from '../../../test/harness';
 import ButtonComponent from './Button';
-import Formio from '../../../prototypeMutation/Formio';
-import sinon from 'sinon';
+import Formio from '../../../Formio';
 
 import comp1 from './fixtures/comp1';
 
@@ -12,8 +9,8 @@ describe('Button Component', () => {
     Harness.testCreate(ButtonComponent, comp1).then(component => {
       const buttons = Harness.testElements(component, 'button[type="submit"]', 1);
       for (const button of buttons) {
-        assert.equal(button.name, `data[${comp1.key}]`);
-        assert.equal(button.innerHTML, comp1.label);
+        expect(button.name).toBe(`data[${comp1.key}]`);
+        expect(button.innerHTML).toBe(comp1.label);
       }
       done();
     });
@@ -48,13 +45,14 @@ describe('Button Component', () => {
     const element = document.createElement('div');
     Formio.createForm(element, formJson)
       .then(form => {
-        const spy = sinon.spy(Formio, 'makeStaticRequest');
+        const fn = jest.spyOn(Formio, 'makeStaticRequest').mockImplementation(() => Promise.resolve({}));
         form.getComponent('postToUrl').buttonElement.click();
-        const passedUrl = spy.firstCall.args[0];
-        const passedHeaders = spy.firstCall.lastArg.headers;
-        spy.restore();
-        assert.deepEqual(passedHeaders, { testHeader: 'testValue' });
-        assert.equal(passedUrl, 'someUrl');
+        const passedUrl = fn.mock.calls[0][0];
+        const passedHeaders = fn.mock.calls[0][3].headers;
+        fn.mockClear();
+
+        expect(passedHeaders).toEqual({ testHeader: 'testValue' });
+        expect(passedUrl).toBe('someUrl');
         done();
       })
       .catch(done);
@@ -95,11 +93,12 @@ describe('Button Component', () => {
           }
         };
         return form.submissionReady.then(() => {
-          const spy = sinon.spy(Formio, 'makeStaticRequest');
+          const fn = jest.spyOn(Formio, 'makeStaticRequest').mockImplementation(() => Promise.resolve({}));
           form.getComponent('postToUrl').buttonElement.click();
-          const passedUrl = spy.firstCall.args[0];
-          spy.restore();
-          assert.equal(passedUrl, 'someUrl/submission');
+          const passedUrl = fn.mock.calls[0][0];
+          fn.mockClear();
+
+          expect(passedUrl).toBe('someUrl/submission');
           done();
         });
       })
@@ -148,11 +147,12 @@ describe('Button Component', () => {
           }
         };
         return form.submissionReady.then(() => {
-          const spy = sinon.spy(Formio, 'makeStaticRequest');
+          const fn = jest.spyOn(Formio, 'makeStaticRequest').mockImplementation(() => Promise.resolve({}));
           form.getComponent('postToUrl').buttonElement.click();
-          const passedHeaders = spy.firstCall.lastArg.headers;
-          spy.restore();
-          assert.deepEqual(passedHeaders, {
+          const passedHeaders = fn.mock.calls[0][3].headers;
+          fn.mockClear();
+
+          expect(passedHeaders).toEqual({
             testHeader: 'Value some header'
           });
           done();

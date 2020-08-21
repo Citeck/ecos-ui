@@ -2,26 +2,14 @@ import i18next from 'i18next';
 import assert from 'power-assert';
 import _ from 'lodash';
 import EventEmitter from 'eventemitter2';
-
 import i18Defaults from 'formiojs/i18n';
 import WebformBuilder from 'formiojs/WebformBuilder';
-import '..'; // TODO
+
+import '../components';
+import './mocks';
 
 let formBuilderElement = null;
 let formBuilder = null;
-
-// TODO
-global.document.createRange = () => ({
-  setStart: () => {},
-  setEnd: () => {},
-  commonAncestorContainer: {
-    nodeName: 'BODY',
-    ownerDocument: document
-  }
-});
-
-window.require = () => {};
-// -- TODO
 
 function onNext(cmp, event, cb) {
   expect(typeof cmp.events).toBe('object');

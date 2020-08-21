@@ -12,7 +12,7 @@ import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
 import uuidV4 from 'uuid/v4';
 
-import { Components } from '../../forms';
+import { Components } from '../../forms/components';
 import { getCurrentUserName, t } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';

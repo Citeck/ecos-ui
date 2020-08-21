@@ -1,10 +1,11 @@
 import assert from 'power-assert';
 
-import BaseComponent from './base/Base';
+import BaseComponent from './override/base/Base';
 import Validator from './Validator';
 
 describe('Validator Tests', () => {
   const baseComponent = new BaseComponent({});
+  const disabledComponent = new BaseComponent({ disabled: true });
 
   it('Should test for minLength', () => {
     assert.equal(Validator.validators.minLength.check(baseComponent, 5, 'test'), false);
@@ -39,8 +40,16 @@ describe('Validator Tests', () => {
     assert.equal(Validator.validators.required.check(baseComponent, true, null), false);
     assert.equal(Validator.validators.required.check(baseComponent, true, []), false);
     assert.equal(Validator.validators.required.check(baseComponent, true, ['test']), true);
+
+    assert.equal(Validator.validators.required.check(disabledComponent, true, ''), true);
+    assert.equal(Validator.validators.required.check(disabledComponent, true, 't'), true);
+    assert.equal(Validator.validators.required.check(disabledComponent, false, ''), true);
+    assert.equal(Validator.validators.required.check(disabledComponent, false, 'tes'), true);
+    assert.equal(Validator.validators.required.check(disabledComponent, true, undefined), true);
+    assert.equal(Validator.validators.required.check(disabledComponent, true, null), true);
+    assert.equal(Validator.validators.required.check(disabledComponent, true, []), true);
+    assert.equal(Validator.validators.required.check(disabledComponent, true, ['test']), true);
   });
-  // TODO add test for disabled component
 
   it('Should test for custom', () => {
     assert.equal(Validator.validators.custom.check(baseComponent, 'valid = (input == "test")', 'test'), true);
