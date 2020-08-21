@@ -206,17 +206,18 @@ export default class SidebarService {
 
     switch (item.type) {
       case MITypes.JOURNAL:
-        targetUrl = getJournalPageUrl({
-          journalsListId: get(item, 'params.journalsListId'),
-          journalId: get(item, 'params.journalId'),
-          nodeRef: get(item, 'config.recordRef')
-        });
+        if (get(item, 'params.journalId')) {
+          targetUrl = getJournalPageUrl({
+            journalsListId: get(item, 'params.journalsListId'),
+            journalId: get(item, 'params.journalId')
+          });
+        }
         ignoreTabHandler = false;
         break;
       case MITypes.ARBITRARY:
-        targetUrl = get(item, 'config.url');
+        targetUrl = get(item, 'config.url', null);
 
-        if (targetUrl.includes('http')) {
+        if (targetUrl && targetUrl.includes('http')) {
           attributes.target = '_blank';
           attributes.rel = 'noopener noreferrer';
         } else {

@@ -228,9 +228,13 @@ export const positionAdjustmentsByType = [
 
 export const itemsForPropsUrl = {
   JOURNAL: { type: MenuSettings.ItemTypes.JOURNAL, params: { journalId: 'journalId', journalsListId: 'journalsListId' } },
+  JOURNAL_NONE: { type: MenuSettings.ItemTypes.JOURNAL, params: {} },
   ARBITRARY_SELF: { type: MenuSettings.ItemTypes.ARBITRARY, config: { url: '/dashboard' } },
   ARBITRARY_BLANK: { type: MenuSettings.ItemTypes.ARBITRARY, config: { url: 'https://ya.ru' } },
-
+  ARBITRARY_NONE: { type: MenuSettings.ItemTypes.ARBITRARY, config: {} },
+  LINK_CREATE_CASE: { type: MenuSettings.ItemTypes.LINK_CREATE_CASE, config: { url: '_' } },
+  SECTION: { type: MenuSettings.ItemTypes.SECTION, config: { url: '_' } },
+  HEADER_DIVIDER: { type: MenuSettings.ItemTypes.LINK_CREATE_CASE, config: { url: '_' } },
   BPMN_DESIGNER: { action: { params: { pageId: 'bpmn-designer' } } },
   PAGE_LINK: { action: { type: SidebarService.ActionTypes.PAGE_LINK, params: { pageId: 'page-link' } } }
 };

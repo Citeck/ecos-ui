@@ -114,6 +114,14 @@ describe('Sidebar Service', () => {
         }
       },
       {
+        title: `Menu v1 - url for ${MITypes.JOURNAL} no data`,
+        input: _.JOURNAL_NONE,
+        output: {
+          targetUrl: null,
+          attributes: {}
+        }
+      },
+      {
         title: `Menu v1 - url for ${MITypes.ARBITRARY} _blank`,
         input: _.ARBITRARY_BLANK,
         output: {
@@ -127,6 +135,38 @@ describe('Sidebar Service', () => {
         output: {
           targetUrl: `${_.ARBITRARY_SELF.config.url}`,
           attributes: {}
+        }
+      },
+      {
+        title: `Menu v1 - url for ${MITypes.ARBITRARY} no data`,
+        input: _.ARBITRARY_NONE,
+        output: {
+          targetUrl: null,
+          attributes: {}
+        }
+      },
+      {
+        title: `Menu v1 - url for ${MITypes.LINK_CREATE_CASE}`,
+        input: _.LINK_CREATE_CASE,
+        output: {
+          targetUrl: null,
+          attributes: { [IGNORE_TABS_HANDLER_ATTR_NAME]: true }
+        }
+      },
+      {
+        title: `Menu v1 - url for ${MITypes.SECTION}`,
+        input: _.SECTION,
+        output: {
+          targetUrl: null,
+          attributes: { [IGNORE_TABS_HANDLER_ATTR_NAME]: true }
+        }
+      },
+      {
+        title: `Menu v1 - url for ${MITypes.HEADER_DIVIDER}`,
+        input: _.HEADER_DIVIDER,
+        output: {
+          targetUrl: null,
+          attributes: { [IGNORE_TABS_HANDLER_ATTR_NAME]: true }
         }
       }
     ];
