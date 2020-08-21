@@ -137,7 +137,7 @@ export default class MenuConverter {
         tItem.label = get(sItem, '_remoteData_.label') || tItem.label;
 
         if (ms.ItemTypes.JOURNAL === sItem.type) {
-          tItem.config.count = tItem.config.displayCount ? get(sItem, '_remoteData_.count') || '999' : '';
+          tItem.params.count = get(sItem, '_remoteData_.count');
         }
 
         sItem.items && prepareTree(sItem.items, tItem.items);

@@ -219,7 +219,7 @@ class EditorItems extends React.Component {
 
     if (item && [ms.ItemTypes.JOURNAL].includes(item.type)) {
       const displayCount = get(item, 'config.displayCount');
-      const count = String(get(item, 'config.count', 0));
+      const count = String(get(item, 'params.count', '***'));
 
       components.push(
         <div
