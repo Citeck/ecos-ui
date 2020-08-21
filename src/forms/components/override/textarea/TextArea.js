@@ -18,6 +18,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     );
   }
 
+  get defaultSchema() {
+    return TextAreaComponent.schema();
+  }
+
   constructor(...args) {
     super(...args);
 

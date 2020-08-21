@@ -135,14 +135,13 @@ class PropertiesDashlet extends BaseWidget {
     this.setState({ wasLastModifiedWithInlineEditor: true });
   };
 
-  reload = () => {
+  handleUpdate() {
     if (this.state.wasLastModifiedWithInlineEditor) {
       this.setState({ wasLastModifiedWithInlineEditor: false });
     } else {
-      this.setState({ runUpdate: true }, () => this.setState({ runUpdate: false }));
       this.onReloadDashlet();
     }
-  };
+  }
 
   onReloadDashlet = () => {
     const onUpdate = get(this._propertiesRef, 'current.onUpdateForm');
@@ -169,8 +168,10 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   onClickShowFormBuilder = () => {
-    if (this._propertiesRef.current) {
-      this._propertiesRef.current.onShowBuilder();
+    const onShowBuilder = get(this._propertiesRef, 'current.onShowBuilder');
+
+    if (typeof onShowBuilder === 'function') {
+      onShowBuilder();
     }
   };
 

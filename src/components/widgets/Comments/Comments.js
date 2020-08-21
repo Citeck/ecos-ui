@@ -536,7 +536,7 @@ class Comments extends BaseWidget {
           />
         </div>
         <div className="ecos-comments__editor-body" onClick={this.handleFocusEditor}>
-          <Scrollbars autoHide style={{ height: '100%', minHeight }}>
+          <Scrollbars style={{ height: '100%', minHeight }}>
             <Editor
               spellCheck
               ref={this.setEditor}

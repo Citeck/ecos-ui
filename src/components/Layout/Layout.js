@@ -119,7 +119,7 @@ class Layout extends Component {
         const countInnerColumns = Math.floor(columnWidth / get(items, '[0].offsetWidth', 1));
 
         items.forEach((item, index) => {
-          item.style.marginTop = 0;
+          item.style.top = 0;
 
           if (countInnerColumns && index < countInnerColumns) {
             return;
@@ -139,7 +139,13 @@ class Layout extends Component {
             return;
           }
 
-          item.style.marginTop = `${topElementChild.offsetHeight - topElement.offsetHeight}px`;
+          let topElementIndent = parseInt(topElement.style.top, 10);
+
+          if (isNaN(topElementIndent)) {
+            topElementIndent = 0;
+          }
+
+          item.style.top = `${topElementChild.offsetHeight - topElement.offsetHeight + topElementIndent}px`;
         });
       });
     }
@@ -304,7 +310,7 @@ class Layout extends Component {
     return (
       <div className="ecos-layout__wrapper" ref={this._wrapperRef}>
         {columns.map((...data) => this.renderColumn(columns, ...data))}
-        <ReactResizeDetector handleWidth onResize={this.checkWidgets} />
+        <ReactResizeDetector handleWidth handleHeight onResize={this.checkWidgets} />
       </div>
     );
   }

@@ -11,6 +11,10 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     );
   }
 
+  get defaultSchema() {
+    return CheckBoxComponent.schema();
+  }
+
   get defaultValue() {
     if (this.isRadioCheckbox) {
       return '';

@@ -3,8 +3,9 @@ import queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
 import { withRouter } from 'react-router';
 
-import { deepClone, getBool, trigger } from '../../helpers/util';
+import { deepClone, trigger } from '../../helpers/util';
 import PageService from '../../services/PageService';
+import { pushHistoryLink } from '../../helpers/urls';
 
 class UrlManager extends Component {
   _prevUrlParams = {};
@@ -16,7 +17,7 @@ class UrlManager extends Component {
       }
     } = this.props;
     const params = deepClone(currentUrlParams);
-    let fromUrlParams = this.setBools(queryString.parse(search));
+    let fromUrlParams = queryString.parse(search, { parseBooleans: true });
 
     Object.keys(params || {}).forEach(key => {
       if (params[key] === undefined) {
@@ -56,20 +57,11 @@ class UrlManager extends Component {
   }
 
   triggerParse = (params, pathname = window.location.pathname) => {
-    this.props.history.push({
+    pushHistoryLink(this.props.history, {
       pathname,
       search: queryString.stringify(params)
     });
     trigger.call(this, 'onParse', params);
-  };
-
-  setBools = obj => {
-    for (let key in obj) {
-      const val = obj[key];
-      obj[key] = getBool(val);
-    }
-
-    return obj;
   };
 
   onChildrenRender = () => {
@@ -77,8 +69,11 @@ class UrlManager extends Component {
   };
 
   render() {
-    const { children, params } = this.props;
-    this._prevUrlParams = this.updateUrl(params, this._prevUrlParams);
+    const { children, params, isActivePage } = this.props;
+
+    if (isActivePage) {
+      this._prevUrlParams = this.updateUrl(params, this._prevUrlParams);
+    }
 
     return typeof children.type === 'function'
       ? React.cloneElement(children, {

@@ -37,13 +37,13 @@ class JournalsUrlManager extends Component {
   };
 
   render() {
-    const { params, children } = this.props;
+    const { params, children, isActivePage } = this.props;
     const { showLoader } = this.state;
 
     return (
       <>
         {!!showLoader && <Loader blur height={100} width={100} />}
-        <UrlManager params={params} onParse={this.setUrl} onChildrenRender={this.onChildrenRender}>
+        <UrlManager isActivePage={isActivePage} params={params} onParse={this.setUrl} onChildrenRender={this.onChildrenRender}>
           {children}
         </UrlManager>
       </>

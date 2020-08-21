@@ -30,7 +30,8 @@ SelectOrgstruct.defaultProps = {
   allowedAuthorityTypes: [AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER],
   allowedGroupTypes: [GROUP_TYPE_BRANCH, GROUP_TYPE_ROLE],
   allowedGroupSubTypes: [],
-  defaultTab: TAB_BY_LEVELS
+  defaultTab: TAB_BY_LEVELS,
+  userSearchExtraFields: []
 };
 
 SelectOrgstruct.propTypes = {
@@ -55,7 +56,8 @@ SelectOrgstruct.propTypes = {
   allowedGroupSubTypes: PropTypes.array,
   excludeAuthoritiesByName: PropTypes.string,
   excludeAuthoritiesByType: PropTypes.array,
-  liveSearch: PropTypes.bool // search by key down
+  liveSearch: PropTypes.bool, // search by key down
+  userSearchExtraFields: PropTypes.array
 };
 
 export default SelectOrgstruct;

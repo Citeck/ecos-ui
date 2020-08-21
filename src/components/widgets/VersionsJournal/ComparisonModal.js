@@ -209,6 +209,7 @@ class ComparisonModal extends Component {
           'vj-modal-comparison_small': this.isSmall
         })}
         isEmptyTitle
+        reactstrapProps={{ backdrop: 'static', keyboard: true }}
         onResize={this.handleResize}
       >
         {this.renderHeader()}

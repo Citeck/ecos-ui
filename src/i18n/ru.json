@@ -323,6 +323,7 @@
   "eform.header.EDIT.title": "Редактировать",
   "eform.header.VIEW.title": "Просмотр",
   "eform.btn.tooltip.constructor": "Перейти в конструктор",
+  "eform.form-is-not-ready": "Форма не готова к отправке",
   "events-history-widget.info.no-columns": "Нет настроек отображения",
   "events-history-widget.info.no-events": "Нет событий",
   "events-history-widget.info.no-data": "Нет данных",
@@ -398,6 +399,7 @@
 
   "record-action.name.view-business-process": "Схема бизнес-процесса",
   "record-action.name.cancel-business-process": "Отменить бизнес-процесс",
+  "record-action.name.mutate-action": "Модифицировать",
 
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.inline-tools.details": "Детальная информация",
@@ -929,7 +931,7 @@
   "documents-widget.settings-modal.button.cancel": "Отмена",
   "documents-widget.settings-modal.button.ok": "Готово",
   "documents-widget.settings-modal.checklist": "Подгружать типы документов из чек-листов",
-  "documents-widget.settings-modal.possible-upload-file": "Включить возможность добавления новых файлов",
+  "documents-widget.type-settings.allow-file-upload": "Разрешить загрузку файлов",
   "documents-widget.upload.title": "Добавить файлы",
   "documents-widget.upload.message": "Перетяните сюда файл",
   "documents-widget.dnd.disabled": "Drag'n'Drop отключен для этого типа документов",
@@ -943,7 +945,7 @@
   "documents-widget.tree.selected-inside": "Выбрано внутри",
   "documents-widget.tree.selected-inside-of": "из",
   "documents-widget.type-settings.title": "настройки",
-  "documents-widget.type-settings.upload-label": "Возможность загрузки файлов",
+  "documents-widget.type-settings.allowed-number-files": "Разрешенное количество файлов",
   "documents-widget.type-settings.sort-label": "Порядок и отображение колонок в типе",
   "documents-widget.type-settings.one-file": "Только один",
   "documents-widget.type-settings.multiple-files": "Несколько файлов",

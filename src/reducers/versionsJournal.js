@@ -10,7 +10,8 @@ import {
   setVersions,
   toggleModal,
   getVersionsComparison,
-  setVersionsComparison
+  setVersionsComparison,
+  setWritePermission
 } from '../actions/versionsJournal';
 
 export const initialState = {
@@ -30,7 +31,9 @@ export const initialState = {
   comparison: '',
   comparisonModalIsShow: false,
   comparisonModalIsLoading: false,
-  comparisonModalErrorMessage: ''
+  comparisonModalErrorMessage: '',
+
+  hasWritePermission: false
 };
 
 Object.freeze(initialState);
@@ -136,6 +139,13 @@ export default handleActions(
         ...state[payload.id],
         comparisonModalIsLoading: false,
         comparison: payload.comparison
+      }
+    }),
+    [setWritePermission]: (state, { payload }) => ({
+      ...state,
+      [payload.id]: {
+        ...state[payload.id],
+        hasWritePermission: payload.hasWritePermission
       }
     })
   },

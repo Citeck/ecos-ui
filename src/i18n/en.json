@@ -322,6 +322,7 @@
   "eform.header.EDIT.title": "Edit",
   "eform.header.VIEW.title": "View",
   "eform.btn.tooltip.constructor": "Go to form builder",
+  "eform.form-is-not-ready": "Form is not ready",
   "events-history-widget.info.no-columns": "No display settings",
   "events-history-widget.info.no-events": "No events",
   "events-history-widget.info.no-data": "No data",
@@ -397,6 +398,7 @@
 
   "record-action.name.view-business-process": "Business-process scheme",
   "record-action.name.cancel-business-process": "Cancel business-process",
+  "record-action.name.mutate-action": "Mutate",
 
   "grid.inline-tools.details": "Details",
   "grid.no-data-indication": "No items in the list",
@@ -924,7 +926,7 @@
   "documents-widget.settings-modal.button.cancel": "Cancel",
   "documents-widget.settings-modal.button.ok": "Done",
   "documents-widget.settings-modal.checklist": "Download document types from checklists",
-  "documents-widget.settings-modal.possible-upload-file": "Enable the ability to add new files",
+  "documents-widget.type-settings.allow-file-upload": "Allow file uploads",
   "documents-widget.upload.title": "Add files",
   "documents-widget.upload.message": "Drag the file here",
   "documents-widget.dnd.disabled": "Drag'n'Drop is disabled for this type of document",
@@ -938,7 +940,7 @@
   "documents-widget.tree.selected-inside": "Selected inside",
   "documents-widget.tree.selected-inside-of": "of",
   "documents-widget.type-settings.title": "settings",
-  "documents-widget.type-settings.upload-label": "Ability to upload files",
+  "documents-widget.type-settings.allowed-number-files": "Allowed number of files",
   "documents-widget.type-settings.sort-label": "Order and display of columns in the type",
   "documents-widget.type-settings.one-file": "Only one",
   "documents-widget.type-settings.multiple-files": "Multiple files",

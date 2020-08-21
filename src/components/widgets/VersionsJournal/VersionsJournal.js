@@ -6,7 +6,14 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 
-import { addNewVersion, getVersions, getVersionsComparison, setActiveVersion, toggleModal } from '../../../actions/versionsJournal';
+import {
+  addNewVersion,
+  getVersions,
+  getVersionsComparison,
+  setActiveVersion,
+  toggleModal,
+  getWritePermission
+} from '../../../actions/versionsJournal';
 import { selectLabelsVersions, selectStateByKey } from '../../../selectors/versionsJournal';
 import { arrayCompare, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
@@ -47,7 +54,8 @@ const mapStateToProps = (state, ownProps) => {
     comparison: get(versionState, 'comparison', ''),
     comparisonModalIsShow: get(versionState, 'comparisonModalIsShow', false),
     comparisonModalIsLoading: get(versionState, 'comparisonModalIsLoading', false),
-    comparisonModalErrorMessage: get(versionState, 'comparisonModalErrorMessage', '')
+    comparisonModalErrorMessage: get(versionState, 'comparisonModalErrorMessage', ''),
+    hasWritePermission: get(versionState, 'hasWritePermission', '')
   };
 };
 
@@ -55,6 +63,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   const id = getStateId(ownProps);
 
   return {
+    getWritePermission: () => dispatch(getWritePermission({ record: ownProps.record, id })),
     getVersionsList: () => dispatch(getVersions({ record: ownProps.record, id })),
     getVersionsComparison: payload => dispatch(getVersionsComparison({ ...payload, record: ownProps.record, id })),
     addNewVersion: payload => dispatch(addNewVersion({ ...payload, record: ownProps.record, id })),
@@ -98,7 +107,15 @@ class VersionsJournal extends BaseWidget {
     changeVersionModalIsLoading: PropTypes.bool,
     changeVersionModalErrorMessage: PropTypes.string,
 
-    maxHeightByContent: PropTypes.bool
+    maxHeightByContent: PropTypes.bool,
+    hasWritePermission: PropTypes.bool,
+
+    getWritePermission: PropTypes.func,
+    getVersionsList: PropTypes.func,
+    getVersionsComparison: PropTypes.func,
+    addNewVersion: PropTypes.func,
+    toggleModal: PropTypes.func,
+    setActiveVersion: PropTypes.func
   };
 
   static defaultProps = {
@@ -166,6 +183,7 @@ class VersionsJournal extends BaseWidget {
   componentDidMount() {
     super.componentDidMount();
     this.props.getVersionsList();
+    this.props.getWritePermission();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -278,20 +296,6 @@ class VersionsJournal extends BaseWidget {
           'ecos-vj__version-actions_mobile': isMobile
         })}
       >
-        <Icon
-          id={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
-          onClick={this.handleOpenSetActiveVersionModal.bind(null, version)}
-          className="icon-actual ecos-vj__version-actions-item"
-        />
-        <UncontrolledTooltip
-          placement="top"
-          boundariesElement="window"
-          innerClassName="ecos-vj__tooltip"
-          arrowClassName="ecos-vj__tooltip-arrow"
-          target={`${TOOLTIP.SET_ACTUAL_VERSION}-${key}`}
-        >
-          {t('versions-journal-widget.set-current')}
-        </UncontrolledTooltip>
         <a href={version.url} download data-external id={`${TOOLTIP.DOWNLOAD_VERSION}-${key}`}>
           <Icon className="icon-download ecos-vj__version-actions-item" />
         </a>
@@ -575,11 +579,11 @@ class VersionsJournal extends BaseWidget {
   }
 
   render() {
-    const { isMobile, versionsLabels, record } = this.props;
+    const { isMobile, hasWritePermission, versionsLabels, record } = this.props;
     const { isCollapsed } = this.state;
     const actions = {};
 
-    if (!isMobile && record) {
+    if (hasWritePermission && !isMobile && record) {
       actions.addVersion = {
         icon: 'icon-small-plus',
         text: t('versions-journal-widget.add-version'),

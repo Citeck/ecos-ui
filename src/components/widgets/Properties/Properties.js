@@ -37,18 +37,8 @@ class Properties extends React.Component {
     loaded: false,
     isLoading: false,
     isReadySubmit: true,
-    hideForm: false,
     contentHeight: 0
   };
-
-  // hack for EcosForm force update on isSmallMode changing
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isSmallMode !== this.props.isSmallMode) {
-      this.setState({ hideForm: true }, () => {
-        this.setState({ hideForm: false });
-      });
-    }
-  }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.formId !== this.props.formId) {
@@ -57,8 +47,10 @@ class Properties extends React.Component {
   }
 
   onSubmitForm = () => {
-    if (this._ecosForm.current) {
-      this._ecosForm.current.onReload();
+    const onReload = get(this._ecosForm, 'current.onReload');
+
+    if (typeof onReload === 'function') {
+      onReload();
     }
 
     this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
@@ -73,8 +65,10 @@ class Properties extends React.Component {
   };
 
   onShowBuilder = () => {
-    if (this._hiddenEcosForm.current) {
-      this._hiddenEcosForm.current.onShowFormBuilder(() => {
+    const onShowFormBuilder = get(this._hiddenEcosForm, 'current.onShowFormBuilder');
+
+    if (typeof onShowFormBuilder === 'function') {
+      onShowFormBuilder(() => {
         this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
       });
     }
@@ -101,8 +95,8 @@ class Properties extends React.Component {
 
   renderForm() {
     const { record, isSmallMode, onUpdate, formId, onInlineEditSave } = this.props;
-    const { isReadySubmit, hideForm, loaded, isLoading } = this.state;
-    const isShow = !hideForm && isReadySubmit;
+    const { isReadySubmit, loaded, isLoading } = this.state;
+    const isShow = isReadySubmit;
 
     return (
       <>

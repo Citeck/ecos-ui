@@ -16,6 +16,10 @@ export default class NumberComponent extends FormIONumberComponent {
     );
   }
 
+  get defaultSchema() {
+    return NumberComponent.schema();
+  }
+
   constructor(...args) {
     super(...args);
 

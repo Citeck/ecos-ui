@@ -3,6 +3,8 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import omit from 'lodash/omit';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 import queryString from 'query-string';
 
 import { UserConfigApi } from '../../api/userConfig';
@@ -12,6 +14,8 @@ import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
+import { PREDICATE_AND } from '../common/form/SelectJournal/predicates';
+import ParserPredicate from '../Filters/predicates/ParserPredicate';
 
 import './Export.scss';
 
@@ -36,16 +40,17 @@ export default class Export extends Component {
     this.form = React.createRef();
   }
 
+  state = {
+    isOpen: false
+  };
+
   get dropdownSource() {
     return [
       { id: 0, title: t('export-component.action.html-read'), type: 'html', download: false, target: '_blank' },
       { id: 1, title: t('export-component.action.html-load'), type: 'html', download: true, target: '_self' },
       { id: 2, title: 'Excel', type: 'xlsx', download: true, target: '_self' },
       { id: 3, title: 'CSV', type: 'csv', download: true, target: '_self' },
-      {
-        id: 4,
-        title: <div onClick={this.onCopyUrl}>{t('export-component.action.copy-link')}</div>
-      }
+      { id: 4, title: t('export-component.action.copy-link'), click: this.onCopyUrl }
     ];
   }
 
@@ -56,6 +61,10 @@ export default class Export extends Component {
     return !second || first === ALFRESCO;
   }
 
+  getStateOpen = isOpen => {
+    this.setState({ isOpen });
+  };
+
   export = item => {
     if (item.target) {
       const { journalConfig, grid } = this.props;
@@ -65,11 +74,23 @@ export default class Export extends Component {
 
       const form = this.form.current;
 
-      form.action = `${PROXY_URI}report/criteria-report?download=${item.download}`;
+      form.action = `${PROXY_URI}report/predicate-report?download=${item.download}`;
       form.target = item.target;
 
       form.submit();
+    } else if (typeof item.click === 'function') {
+      item.click();
     }
+  };
+
+  getSearchPredicate = (grid = {}) => {
+    const { search: text, columns, groupBy } = grid;
+
+    if (isEmpty(text)) {
+      return {};
+    }
+
+    return ParserPredicate.getSearchPredicates({ text, columns, groupBy });
   };
 
   getQuery = (config, type, grid) => {
@@ -82,15 +103,21 @@ export default class Export extends Component {
     const reportColumns = (grid.columns || config.columns || [])
       .filter(c => c.default)
       .map(column => ({ attribute: column.attribute, title: column.text }));
+    const gridPredicate = get(grid, ['predicates', 0], {});
+    const mainPredicate = get(grid, 'predicate', {});
+    const searchPredicate = this.getSearchPredicate(grid);
+    const predicates = [mainPredicate, searchPredicate, gridPredicate];
+    const predicate = cloneDeep({ t: PREDICATE_AND, val: predicates });
 
     const query = {
       sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
-      predicate: get(grid, ['predicates', 0], {}),
+      predicate: ParserPredicate.removeEmptyPredicates([predicate])[0] || null,
       reportType: type,
       reportTitle: name,
       reportColumns: reportColumns,
       reportFilename: `${name}.${type}`
     };
+
     (config.meta.criteria || []).forEach((criterion, idx) => {
       query['field_' + idx] = criterion.field;
       query['predicate_' + idx] = criterion.predicate;
@@ -123,9 +150,7 @@ export default class Export extends Component {
     return `${objectUrl.url}?${queryString.stringify({ journalId, journalsListId })}`;
   };
 
-  onCopyUrl = e => {
-    e.stopPropagation();
-
+  onCopyUrl = () => {
     const data = this.getSelectionFilter();
     const url = this.getSelectionUrl();
 
@@ -134,6 +159,7 @@ export default class Export extends Component {
 
   render() {
     const { right, className, children, ...props } = this.props;
+    const { isOpen } = this.state;
     const attributes = omit(props, ['journalConfig', 'dashletConfig', 'grid']);
 
     return this.isShow ? (
@@ -146,9 +172,13 @@ export default class Export extends Component {
           isButton={true}
           onChange={this.export}
           right={right}
+          getStateOpen={this.getStateOpen}
         >
           {children || (
-            <TwoIcoBtn icons={['icon-upload', 'icon-small-down']} className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10" />
+            <TwoIcoBtn
+              icons={['icon-upload', isOpen ? 'icon-small-up' : 'icon-small-down']}
+              className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10"
+            />
           )}
         </Dropdown>
 

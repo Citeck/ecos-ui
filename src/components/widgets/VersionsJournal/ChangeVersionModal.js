@@ -196,7 +196,14 @@ class ChangeVersionModal extends Component {
     const { isShow, title, isLoading } = this.props;
 
     return (
-      <EcosModal isOpen={isShow} isLoading={isLoading} hideModal={this.handleHideModal} title={title} className="vj-modal">
+      <EcosModal
+        isOpen={isShow}
+        isLoading={isLoading}
+        hideModal={this.handleHideModal}
+        title={title}
+        className="vj-modal"
+        reactstrapProps={{ backdrop: 'static', keyboard: true }}
+      >
         {this.renderErrorMessage()}
         {this.renderVersions()}
         {this.renderComment()}

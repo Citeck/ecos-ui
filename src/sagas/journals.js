@@ -341,8 +341,13 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const params = getGridParams({ journalConfig, journalSetting, pagination });
   const gridData = yield getGridData(api, params, stateId);
   const editingRules = yield getGridEditingRules(api, gridData);
+  let selectedRecords = [];
 
-  yield put(setSelectedRecords(w([])));
+  if (!!userConfigId) {
+    selectedRecords = get(gridData, 'data', []).map(item => item.id);
+  }
+
+  yield put(setSelectedRecords(w(selectedRecords)));
   yield put(setSelectAllRecords(w(!!userConfigId)));
   yield put(setSelectAllRecordsVisible(w(false)));
   yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
@@ -403,21 +408,17 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
 
     grid.columns = columns;
 
-    const params = {
-      ...grid,
-      ...(action.payload || {})
-    };
-
-    const gridData = yield getGridData(
-      api,
-      {
-        ...params,
-        predicates: [...searchPredicate, ...get(params, 'predicates', [])]
-      },
-      stateId
-    );
+    const params = { ...grid, ...(action.payload || {}), searchPredicate };
+    const gridData = yield getGridData(api, params, stateId);
     const editingRules = yield getGridEditingRules(api, gridData);
+    const selectAllRecords = yield select(state => state.journals[stateId].selectAllRecords);
+    let selectedRecords = [];
 
+    if (!!selectAllRecords) {
+      selectedRecords = get(gridData, 'data', []).map(item => item.id);
+    }
+
+    yield put(setSelectedRecords(w(selectedRecords)));
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
     yield put(setLoading(w(false)));
   } catch (e) {
@@ -714,24 +715,23 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
 
 function* getSearchPredicate({ logger, stateId }) {
   try {
-    const text = yield select(state => state.journals[stateId].search);
     const grid = yield select(state => state.journals[stateId].grid);
     const fullSearch = yield select(state => get(state, ['journals', stateId, 'journalConfig', 'params', 'full-search-predicate']));
-    const { columns, groupBy = [] } = grid;
+    const { columns, groupBy = [], search } = grid;
     let predicate;
 
     if (fullSearch) {
       predicate = JSON.parse(fullSearch);
-      predicate.val = text;
+      predicate.val = search;
     } else {
-      predicate = ParserPredicate.getSearchPredicates({ text, columns, groupBy });
+      predicate = ParserPredicate.getSearchPredicates({ text: search, columns, groupBy });
     }
 
     if (predicate) {
       predicate = [predicate];
     }
 
-    if (isEmpty(text)) {
+    if (isEmpty(search)) {
       predicate = [];
     }
 
@@ -741,7 +741,7 @@ function* getSearchPredicate({ logger, stateId }) {
   }
 }
 
-function* sagaSearch({ api, logger, stateId, w, ...other }, action) {
+function* sagaSearch({ logger, w }) {
   try {
     yield put(reloadGrid(w()));
     PageService.changeUrlLink(decodeLink(window.location.pathname + window.location.search), { updateUrl: true });

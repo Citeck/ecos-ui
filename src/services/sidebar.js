@@ -21,10 +21,20 @@ export default class SidebarService {
   static SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
 
   static getOpenState() {
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-354
+    if (!isNewVersionPage()) {
+      return false;
+    }
+
     return get(ULS.getMenuMode(), 'isSlideMenuOpen', true);
   }
 
   static setOpenState(isSlideMenuOpen) {
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-354
+    if (!isNewVersionPage()) {
+      return;
+    }
+
     ULS.setMenuMode({ isSlideMenuOpen });
   }
 

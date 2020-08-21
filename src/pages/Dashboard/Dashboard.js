@@ -11,7 +11,7 @@ import isEmpty from 'lodash/isEmpty';
 import { LoaderTypes, MENU_TYPE, URL } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, isMobileAppWebView, t } from '../../helpers/util';
-import { getSortedUrlParams, isDashboard } from '../../helpers/urls';
+import { getSortedUrlParams, isDashboard, decodeLink, pushHistoryLink } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import { Loader, ScrollArrow, Tabs } from '../../components/common';
@@ -86,15 +86,15 @@ class Dashboard extends Component {
     const newState = {};
     const newUrlParams = getSortedUrlParams();
     const firstLayoutId = get(props.config, '[0].id');
-    const activeLayoutId = get(queryString.parse(window.location.search), 'activeLayoutId', firstLayoutId);
+    const activeLayoutId = get(queryString.parse(window.location.search), 'activeLayoutId');
+    const isExistLayout = isArray(props.config) && !!props.config.find(layout => layout.id === activeLayoutId);
 
-    if (isEmpty(state.activeLayoutId)) {
-      newState.activeLayoutId = activeLayoutId;
+    if (!state.activeLayoutId && !isEmpty(props.config)) {
+      newState.activeLayoutId = isExistLayout ? activeLayoutId : firstLayoutId;
     }
 
     if (JSON.stringify(props.config) !== JSON.stringify(state.config)) {
       newState.config = props.config;
-      newState.activeLayoutId = activeLayoutId;
     }
 
     if (state.urlParams !== newUrlParams) {
@@ -119,7 +119,7 @@ class Dashboard extends Component {
     }
 
     if (newState.activeLayoutId) {
-      newState.openedTabs = state.openedTabs.add(activeLayoutId);
+      newState.openedTabs = state.openedTabs.add(newState.activeLayoutId);
       Dashboard.updateTabLink();
     }
 
@@ -149,6 +149,15 @@ class Dashboard extends Component {
       (this.props.enableCache && prevProps.stateKey !== this.props.stateKey)
     ) {
       this.getConfig();
+    }
+
+    if (!isEmpty(this.props.config)) {
+      const activeLayoutId = get(queryString.parse(window.location.search), 'activeLayoutId');
+      const isExistLayout = isArray(this.props.config) && !!this.props.config.find(layout => layout.id === activeLayoutId);
+
+      if (!!this.state.activeLayoutId && !isExistLayout) {
+        this.setActiveLink(this.state.activeLayoutId);
+      }
     }
   }
 
@@ -273,6 +282,18 @@ class Dashboard extends Component {
     this.saveDashboardConfig({ config });
   };
 
+  setActiveLink = idLayout => {
+    const searchParams = queryString.parse(window.location.search);
+
+    searchParams.activeLayoutId = idLayout;
+
+    pushHistoryLink(this.props.history, {
+      pathname: URL.DASHBOARD,
+      search: decodeLink(queryString.stringify(searchParams))
+    });
+    Dashboard.updateTabLink();
+  };
+
   handleSaveMenu = links => {
     const { saveMenuConfig, menuType } = this.props;
 
@@ -309,18 +330,9 @@ class Dashboard extends Component {
 
   toggleTabLayout = index => {
     const tab = get(this.tabList, [index], {});
-    const searchParams = queryString.parse(window.location.search);
-
-    searchParams.activeLayoutId = tab.idLayout;
-
-    this.props.history.push({
-      pathname: URL.DASHBOARD,
-      search: queryString.stringify(searchParams)
-    });
 
     this.setState(state => ({ openedTabs: state.openedTabs.add(tab.idLayout) }));
-
-    Dashboard.updateTabLink();
+    this.setActiveLink(tab.idLayout);
   };
 
   toggleTabLayoutFromUrl = () => {
@@ -340,7 +352,8 @@ class Dashboard extends Component {
 
       if (activeLayoutId && !tab) {
         delete searchParams.activeLayoutId;
-        this.props.history.push({
+
+        pushHistoryLink(this.props.history, {
           pathname: URL.DASHBOARD,
           search: queryString.stringify(searchParams)
         });

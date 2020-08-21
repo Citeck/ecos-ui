@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import lodashClone from 'lodash/cloneDeep';
 
-import { deepClone, getTextByLocale, t } from '../helpers/util';
+import { deepClone, getTextByLocale, isExistValue, t } from '../helpers/util';
 import { DATE_FORMAT, DEFAULT_REF, documentFields, NULL_FORM } from '../constants/documents';
 
 export default class DocumentsConverter {
@@ -51,15 +51,18 @@ export default class DocumentsConverter {
         })[0];
       }
 
+      const canUpload = get(item, 'canUpload');
+
       return {
         ...item,
+        canUpload: !isExistValue(canUpload) || canUpload,
         locked: get(item, 'locked', locked),
         formId: DocumentsConverter.formIdIsNull(item.formId) ? null : item.formId,
         name: item.name || get(typeNames, [item.type], t('documents-widget.untitled')),
         countDocuments: documents.length,
         lastDocumentRef: get(document, documentFields.id, ''),
         [documentFields.loadedBy]: get(document, documentFields.loadedBy, ''),
-        canDropUpload: !createVariants.formRef,
+        canDropUpload: (!isExistValue(canUpload) || canUpload) && !createVariants.formRef,
         [documentFields.modified]: DocumentsConverter.getFormattedDate(get(document, documentFields.modified, ''))
       };
     });
@@ -71,6 +74,7 @@ export default class DocumentsConverter {
     if (!Object.keys(source).length) {
       return target;
     }
+    const canUpload = get(source, 'canUpload');
 
     target.formId = DocumentsConverter.formIdIsNull(source.formId) ? null : source.formId;
     target.multiple = get(source, 'multiple', false);
@@ -79,6 +83,7 @@ export default class DocumentsConverter {
     target.name = get(source, 'name', t('documents-widget.untitled'));
     target.countDocuments = get(source, 'countDocuments', 0);
     target.locked = get(source, 'locked', false);
+    target.canUpload = !isExistValue(canUpload) || canUpload;
 
     return target;
   };
@@ -126,6 +131,8 @@ export default class DocumentsConverter {
       return target;
     }
 
+    const canUpload = get(source, 'canUpload');
+
     target.type = get(source, 'id', '');
     target.name = get(source, 'name', t('documents-widget.untitled'));
     target.formId = get(source, 'formId', '');
@@ -133,6 +140,7 @@ export default class DocumentsConverter {
     target.mandatory = get(source, 'mandatory', false);
     target.countDocuments = get(source, 'countDocuments', 0);
     target.locked = get(source, 'locked', false);
+    target.canUpload = !isExistValue(canUpload) || canUpload;
 
     return target;
   };
@@ -149,6 +157,7 @@ export default class DocumentsConverter {
 
       const type = configTypes.find(type => type.type === item.type);
       const target = { ...type };
+      const canUpload = get(item, 'canUpload');
 
       if (!isEmpty(item.customizedColumns)) {
         target.columns = item.customizedColumns.map(column => ({
@@ -161,6 +170,7 @@ export default class DocumentsConverter {
       target.type = get(item, 'type', '');
       target.multiple = get(item, 'multiple', false);
       target.mandatory = get(item, 'mandatory', false);
+      target.canUpload = !isExistValue(canUpload) || canUpload;
 
       return target;
     });
@@ -183,6 +193,11 @@ export default class DocumentsConverter {
 
         if (result[index].mandatory !== current.mandatory) {
           current.mandatory = result[index].mandatory;
+          result[index] = current;
+        }
+
+        if (result[index].canUpload !== current.canUpload) {
+          current.canUpload = result[index].canUpload;
           result[index] = current;
         }
 
