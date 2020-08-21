@@ -674,21 +674,7 @@ class Comments extends BaseWidget {
     let convertedComment;
 
     try {
-      convertedComment = stateToHTML(convertFromRaw(JSON.parse(text)), {
-        blockRenderers: {
-          atomic: block => {
-            let data = block.getData();
-
-            console.warn(data);
-
-            return null;
-
-            // if (data.get('foo') === 'bar') {
-            //   return '<div>' + escape(block.getText()) + '</div>';
-            // }
-          }
-        }
-      });
+      convertedComment = stateToHTML(convertFromRaw(JSON.parse(text)));
     } catch (e) {
       convertedComment = text;
     }
