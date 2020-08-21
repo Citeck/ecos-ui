@@ -180,7 +180,7 @@ class EditorItems extends React.Component {
 
     return editItemIcon ? (
       <IconSelect
-        prefixIcon="leftmenu"
+        prefixIcon="icon-leftmenu-"
         family="menu-items"
         useFontIcons
         selectedIcon={editItemIcon.icon}

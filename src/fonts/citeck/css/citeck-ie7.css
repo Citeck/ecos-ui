@@ -11,193 +11,193 @@
   /* font-size: 120%; */
 }
 
-.icon-arrow {
+.icon-leftmenu-journal-tasks {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe800;&nbsp;');
 }
-.icon-plus {
+.icon-leftmenu-statistic {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe801;&nbsp;');
 }
-.icon-small-plus {
+.icon-leftmenu-new-task {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe802;&nbsp;');
 }
-.icon-calendar {
+.icon-leftmenu-case {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe803;&nbsp;');
 }
-.icon-upload {
+.icon-leftmenu-shared-doc {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe804;&nbsp;');
 }
-.icon-small-eye-show {
+.icon-leftmenu-meeting {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe805;&nbsp;');
 }
-.icon-copy {
+.icon-leftmenu-correspondence {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe806;&nbsp;');
 }
-.icon-group {
+.icon-leftmenu-ord {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe807;&nbsp;');
 }
-.icon-small-left {
+.icon-leftmenu-pass {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe808;&nbsp;');
 }
-.icon-small-right {
+.icon-leftmenu-contract {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe809;&nbsp;');
 }
-.icon-custom-more-big-normal {
+.icon-leftmenu-personal-doc {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe80a;&nbsp;');
 }
-.icon-reload {
+.icon-leftmenu-section {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe80b;&nbsp;');
 }
-.icon-items {
+.icon-arrow {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe80c;&nbsp;');
 }
-.icon-custom-more-small-pressed {
+.icon-leftmenu-org-structure {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe80d;&nbsp;');
 }
-.icon-custom-more-small-normal {
+.icon-leftmenu-run-process {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe80e;&nbsp;');
 }
-.icon-download {
+.icon-leftmenu-completed-process {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe80f;&nbsp;');
 }
-.icon-models {
+.icon-leftmenu-content {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe810;&nbsp;');
 }
-.icon-pie {
+.icon-plus {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe811;&nbsp;');
 }
-.icon-eye-show {
+.icon-leftmenu-files {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe812;&nbsp;');
 }
-.icon-small-filter {
+.icon-leftmenu-data-list {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe813;&nbsp;');
 }
-.icon-small-down {
+.icon-leftmenu-repository {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe814;&nbsp;');
 }
-.icon-custom-drag-big {
+.icon-leftmenu-app {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe815;&nbsp;');
 }
-.icon-edit {
+.icon-leftmenu-bpmn-editor {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe816;&nbsp;');
 }
-.icon-filter {
+.icon-leftmenu-groups {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe817;&nbsp;');
 }
-.icon-small-up {
+.icon-leftmenu-users {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe818;&nbsp;');
 }
-.icon-apps {
+.icon-leftmenu-types {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe819;&nbsp;');
 }
-.icon-question {
+.icon-leftmenu-journal {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe81a;&nbsp;');
 }
-.icon-small-eye-hide {
+.icon-leftmenu-journal-setting {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe81b;&nbsp;');
 }
-.icon-small-minus {
+.icon-leftmenu-template {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe81c;&nbsp;');
 }
-.icon-list {
+.icon-leftmenu-tool {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe81d;&nbsp;');
 }
-.icon-small-arrow-right {
+.icon-leftmenu-more {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe81e;&nbsp;');
 }
-.icon-small-warning {
+.icon-leftmenu-controlled {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe81f;&nbsp;');
 }
-.icon-forms {
+.icon-leftmenu-journal-current-tasks {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe820;&nbsp;');
 }
-.icon-delete {
+.icon-leftmenu-completed {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe821;&nbsp;');
 }
-.icon-tiles {
+.icon-small-plus {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe822;&nbsp;');
 }
-.icon-small-close {
+.icon-calendar {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe823;&nbsp;');
 }
-.icon-settings {
+.icon-small-eye-show {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe824;&nbsp;');
 }
-.icon-case-models {
+.icon-upload {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe825;&nbsp;');
 }
-.icon-search {
+.icon-copy {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe826;&nbsp;');
 }
-.icon-custom-more-big-pressed {
+.icon-group {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe827;&nbsp;');
 }
-.icon-decision-tables {
+.icon-small-eye-hide {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe828;&nbsp;');
 }
-.icon-custom-checkbox-outline-checked {
+.icon-question {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe829;&nbsp;');
 }
-.icon-custom-checkbox-outline-indeterminate {
+.icon-apps {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82a;&nbsp;');
 }
-.icon-custom-checkbox-outline-unchecked {
+.icon-filter {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82b;&nbsp;');
 }
-.icon-custom-checkbox-filled-unchecked {
+.icon-edit {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82c;&nbsp;');
 }
-.icon-custom-checkbox-minus {
+.icon-small-left {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82d;&nbsp;');
 }
-.icon-custom-checkbox-check {
+.icon-small-minus {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82e;&nbsp;');
 }
-.icon-custom-checkbox-filled-checked {
+.icon-search {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe82f;&nbsp;');
 }
 .icon-small-arrow-left {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe830;&nbsp;');
 }
-.icon-columns {
+.icon-eye-show {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe831;&nbsp;');
 }
-.icon-small-check {
+.icon-small-filter {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe832;&nbsp;');
 }
-.icon-custom-radiobutton-dot {
+.icon-small-down {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe833;&nbsp;');
 }
-.icon-custom-radiobutton-filled-unselect {
+.icon-custom-drag-big {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe834;&nbsp;');
 }
-.icon-custom-radiobutton-filled-select {
+.icon-custom-more-big-pressed {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe835;&nbsp;');
 }
-.icon-custom-radiobutton-outline-unselect {
+.icon-decision-tables {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe836;&nbsp;');
 }
-.icon-custom-resize-widget {
+.icon-custom-checkbox-outline-checked {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe837;&nbsp;');
 }
-.icon-underline {
+.icon-custom-checkbox-outline-indeterminate {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe838;&nbsp;');
 }
-.icon-italic {
+.icon-custom-checkbox-filled-unchecked {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe839;&nbsp;');
 }
 .icon-bold {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83a;&nbsp;');
 }
-.icon-small-clock {
+.icon-small-up {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83b;&nbsp;');
 }
-.icon-users {
+.icon-custom-checkbox-minus {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83c;&nbsp;');
 }
-.icon-custom-lock {
+.icon-custom-checkbox-check {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83d;&nbsp;');
 }
-.icon-history {
+.icon-custom-checkbox-filled-checked {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe83e;&nbsp;');
 }
 .icon-custom-resize-vertical {
@@ -206,7 +206,13 @@
 .icon-custom-drag-small {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe840;&nbsp;');
 }
-.icon-print {
+.icon-history {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe841;&nbsp;');
+}
+.icon-users {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe842;&nbsp;');
+}
+.icon-small-clock {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe843;&nbsp;');
 }
 .icon-user-away {
@@ -220,6 +226,9 @@
 }
 .icon-exit {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe847;&nbsp;');
+}
+.icon-pie {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe848;&nbsp;');
 }
 .icon-notify {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe849;&nbsp;');
@@ -236,11 +245,98 @@
 .icon-new-tab {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84d;&nbsp;');
 }
-.icon-eye-hide {
+.icon-small-right {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84e;&nbsp;');
+}
+.icon-list {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe84f;&nbsp;');
+}
+.icon-columns {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe850;&nbsp;');
+}
+.icon-small-check {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe851;&nbsp;');
+}
+.icon-custom-more-big-normal {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe852;&nbsp;');
+}
+.icon-reload {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe853;&nbsp;');
+}
+.icon-items {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe854;&nbsp;');
+}
+.icon-custom-more-small-pressed {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe855;&nbsp;');
+}
+.icon-custom-more-small-normal {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe856;&nbsp;');
+}
+.icon-models {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe857;&nbsp;');
+}
+.icon-settings {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe858;&nbsp;');
+}
+.icon-small-close {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe859;&nbsp;');
 }
 .icon-actual {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85a;&nbsp;');
+}
+.icon-download {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85b;&nbsp;');
+}
+.icon-case-models {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85c;&nbsp;');
+}
+.icon-tiles {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85d;&nbsp;');
+}
+.icon-delete {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85e;&nbsp;');
+}
+.icon-small-warning {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85f;&nbsp;');
+}
+.icon-small-arrow-right {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe860;&nbsp;');
+}
+.icon-forms {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe861;&nbsp;');
+}
+.icon-custom-radiobutton-filled-unselect {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe862;&nbsp;');
+}
+.icon-custom-radiobutton-dot {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe863;&nbsp;');
+}
+.icon-custom-radiobutton-filled-select {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe864;&nbsp;');
+}
+.icon-custom-radiobutton-outline-unselect {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe865;&nbsp;');
+}
+.icon-custom-resize-widget {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe866;&nbsp;');
+}
+.icon-underline {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe867;&nbsp;');
+}
+.icon-italic {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe868;&nbsp;');
+}
+.icon-eye-hide {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe869;&nbsp;');
+}
+.icon-custom-lock {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe86a;&nbsp;');
+}
+.icon-custom-checkbox-outline-unchecked {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe86b;&nbsp;');
+}
+.icon-print {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe86c;&nbsp;');
 }
 .icon-empty {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe88d;&nbsp;');
