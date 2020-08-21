@@ -38,6 +38,7 @@ const decreasingSteps = [562, 387, 293];
 class DocPreview extends Component {
   _toolbarRef = null;
   _bodyRef = null;
+  _viewerRef = null;
 
   static propTypes = {
     link: PropTypes.string,
@@ -85,7 +86,8 @@ class DocPreview extends Component {
       error: '',
       fileName: props.fileName,
       downloadData: {},
-      wrapperWidth: 0
+      wrapperWidth: 0,
+      needRecalculateScale: false
     };
   }
 
@@ -99,6 +101,16 @@ class DocPreview extends Component {
     }
 
     this.getUrlByRecord();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevState.wrapperWidth !== this.state.wrapperWidth) {
+      const viewerForceUpdate = get(this._viewerRef, 'onUpdate');
+
+      if (typeof viewerForceUpdate === 'function') {
+        viewerForceUpdate.call(this._viewerRef);
+      }
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -189,7 +201,8 @@ class DocPreview extends Component {
       contentHeight: 0,
       error: '',
       fileName: '',
-      downloadData: {}
+      downloadData: {},
+      needRecalculateScale: false
     });
   };
 
@@ -201,14 +214,16 @@ class DocPreview extends Component {
 
   get commonProps() {
     const { scrollbarProps } = this.props;
-    const { settings } = this.state;
+    const { settings, needRecalculateScale } = this.state;
 
     const props = {
       settings,
       isLoading: !this.loaded,
       calcScale: this.setCalcScale,
       getContentHeight: this.getContentHeight,
-      scrollbarProps
+      scrollbarProps,
+      needRecalculateScale,
+      componentRef: this.setViewerRef
     };
 
     if (this.props.getContainerPageHeight) {
@@ -394,6 +409,12 @@ class DocPreview extends Component {
 
   setCalcScale = calcScale => {
     this.setState({ calcScale });
+  };
+
+  setViewerRef = ref => {
+    if (ref) {
+      this._viewerRef = ref;
+    }
   };
 
   getContentHeight = contentHeight => {

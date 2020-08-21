@@ -12,7 +12,7 @@ import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, isMobileAppWebView, t } from '../../helpers/util';
-import { getSortedUrlParams, isDashboard } from '../../helpers/urls';
+import { getSortedUrlParams, isDashboard, decodeLink, pushHistoryLink } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { saveMenuConfig } from '../../actions/menu';
 import { Loader, ScrollArrow, Tabs } from '../../components/common';
@@ -150,11 +150,13 @@ class Dashboard extends Component {
       this.getConfig();
     }
 
-    const activeLayoutId = get(queryString.parse(window.location.search), 'activeLayoutId');
-    const isExistLayout = isArray(this.props.config) && !!this.props.config.find(layout => layout.id === activeLayoutId);
+    if (!isEmpty(this.props.config)) {
+      const activeLayoutId = get(queryString.parse(window.location.search), 'activeLayoutId');
+      const isExistLayout = isArray(this.props.config) && !!this.props.config.find(layout => layout.id === activeLayoutId);
 
-    if (!!this.state.activeLayoutId && !isExistLayout) {
-      this.setActiveLink(this.state.activeLayoutId);
+      if (!!this.state.activeLayoutId && !isExistLayout) {
+        this.setActiveLink(this.state.activeLayoutId);
+      }
     }
   }
 
@@ -284,11 +286,10 @@ class Dashboard extends Component {
 
     searchParams.activeLayoutId = idLayout;
 
-    this.props.history.push({
+    pushHistoryLink(this.props.history, {
       pathname: URL.DASHBOARD,
-      search: queryString.stringify(searchParams)
+      search: decodeLink(queryString.stringify(searchParams))
     });
-
     Dashboard.updateTabLink();
   };
 
@@ -350,7 +351,8 @@ class Dashboard extends Component {
 
       if (activeLayoutId && !tab) {
         delete searchParams.activeLayoutId;
-        this.props.history.push({
+
+        pushHistoryLink(this.props.history, {
           pathname: URL.DASHBOARD,
           search: queryString.stringify(searchParams)
         });

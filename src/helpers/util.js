@@ -439,8 +439,13 @@ export function getScale(scale, paramsContainer, paramsPage, ratioAuto = 50) {
       return calcScale(cW, origW);
     case DocScaleOptions.PAGE_FIT:
       return fit(0);
-    case DocScaleOptions.AUTO:
-      return fit(ratioAuto);
+    case DocScaleOptions.AUTO: {
+      const width = Math.min(cW, origW);
+      const height = Math.min(cH, origH);
+      const method = origW > origH ? 'min' : 'max';
+
+      return Math[method](calcScale(width, origW), calcScale(height, origH));
+    }
     case DocScaleOptions.PAGE_WHOLE:
       return calcScale(cW - 10, scaleW);
     default:

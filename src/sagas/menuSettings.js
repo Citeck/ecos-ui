@@ -172,7 +172,6 @@ function* runRemoveSettings({ api, logger }) {
     const { id } = yield select(state => state.menu);
 
     if (id.includes('default-menu')) {
-      console.warn(id);
       NotificationManager.warning('Default menu is not deleted');
     } else {
       yield call(api.menu.removeSettings, { id });

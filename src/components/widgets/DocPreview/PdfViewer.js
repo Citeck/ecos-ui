@@ -19,12 +19,25 @@ class PdfViewer extends React.PureComponent {
     settings: {}
   };
 
+  state = {
+    needUpdate: false
+  };
+
+  onUpdate() {
+    this.setState({ needUpdate: true }, () => this.setState({ needUpdate: false }));
+  }
+
   render() {
     const { forwardedRef, ...props } = this.props;
     let { pdf } = this.props;
+    const { needUpdate } = this.state;
     let { _pdfInfo = {} } = pdf;
     let { numPages = 0 } = _pdfInfo;
     let arrayPages = [];
+
+    if (needUpdate) {
+      return null;
+    }
 
     while (numPages) {
       arrayPages.push(numPages--);

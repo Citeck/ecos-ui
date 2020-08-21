@@ -17,9 +17,10 @@ import { SortableContainer } from '../Drag-n-Drop';
 import ClickOutside from '../ClickOutside';
 import { dropByCacheKey } from '../ReactRouterCache';
 import Tab from './Tab';
+import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
+import { replaceHistoryLink } from '../../helpers/urls';
 
 import './style.scss';
-import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 
 const Labels = {
   GO_HOME: 'header.site-menu.go-home-page'
@@ -116,7 +117,7 @@ class PageTabs extends React.Component {
     }
 
     if (!allowedLinks.includes(location.pathname)) {
-      history.replace(homepageLink);
+      replaceHistoryLink(history, homepageLink);
     }
   }
 
