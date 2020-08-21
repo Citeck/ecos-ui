@@ -3,6 +3,9 @@ import computedResolversRegistry from './computed';
 import journalColumnsResolver from './journalColumnsResolver';
 import journalDataLoader from './journalsDataLoader';
 import lodash from 'lodash';
+import { ActionModes } from '../../../constants';
+import cloneDeep from 'lodash/cloneDeep';
+import recordActions from '../../Records/actions/recordActions';
 
 /**
  * @typedef SortBy
@@ -108,6 +111,58 @@ class JournalsService {
    */
   async getJournalData(journalConfig, settings) {
     return journalDataLoader.load(journalConfig, settings);
+  }
+
+  /**
+   * @param {Object} journalConfig
+   * @param {Array<String>} recordRefs
+   * @return {Promise<RecordsActionsRes>}
+   */
+  async getRecordActions(journalConfig, recordRefs) {
+    let groupActions = journalConfig.groupActions;
+    if (!groupActions) {
+      groupActions = lodash.get(journalConfig, 'meta.groupActions', []);
+    }
+    let journalActions = journalConfig.actions;
+    if (!journalActions) {
+      journalActions = lodash.get(journalConfig, 'meta.actions', []);
+    }
+
+    const actionsContext = {
+      mode: ActionModes.JOURNAL,
+      scope: journalConfig.id
+    };
+    const convertedGroupActions = groupActions.map(a => {
+      const actionClone = cloneDeep(a);
+      if (!actionClone.params) {
+        actionClone.params = {};
+      }
+      if (!actionClone.params.actionId) {
+        actionClone.params.actionId = actionClone.id;
+      }
+      return {
+        name: a.title,
+        pluralName: a.title,
+        type: 'server-group-action',
+        config: actionClone
+      };
+    });
+
+    return recordActions.getActionsForRecords(recordRefs, journalActions, actionsContext).then(actionsForRecords => {
+      const forRecords = {
+        ...actionsForRecords.forRecords,
+        actions: [...actionsForRecords.forRecords.actions, ...convertedGroupActions.filter(a => a.config.type === 'selected')]
+      };
+      const forQuery = {
+        ...actionsForRecords.forQuery,
+        actions: [...actionsForRecords.forQuery.actions, ...convertedGroupActions.filter(a => a.config.type === 'filtered')]
+      };
+      return {
+        ...actionsForRecords,
+        forQuery,
+        forRecords
+      };
+    });
   }
 }
 
