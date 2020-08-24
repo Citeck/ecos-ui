@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
+
 import { MenuApi } from '../../api/menu';
 import { Badge } from '../common/form';
+import SidebarService from '../../services/sidebar';
 
 import './style.scss';
 
@@ -11,13 +13,24 @@ const menuApi = new MenuApi();
 function RemoteBadge({ data, isOpen }) {
   const journalId = get(data, 'params.journalId', '');
   const [journalTotalCount, setJournalTotalCount] = useState('');
-
-  useEffect(() => {
+  const getJournalCount = () => {
     if (journalId) {
       menuApi.getJournalTotalCount(journalId).then(count => {
         setJournalTotalCount(count ? count.toString() : '');
       });
     }
+  };
+
+  useEffect(() => {
+    SidebarService.addListener(SidebarService.UPDATE_EVENT, getJournalCount);
+
+    return () => {
+      SidebarService.removeListener(SidebarService.UPDATE_EVENT, getJournalCount);
+    };
+  }, []);
+
+  useEffect(() => {
+    getJournalCount();
   }, [journalId]);
 
   return (

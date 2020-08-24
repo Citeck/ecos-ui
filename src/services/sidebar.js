@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+import { EventEmitter2 } from 'eventemitter2';
 
 import { getJournalPageUrl } from '../helpers/urls';
 import { getSessionData, setSessionData } from '../helpers/ls';
@@ -19,6 +20,9 @@ export default class SidebarService {
 
   static DROPDOWN_LEVEL = 1;
   static SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
+  static UPDATE_EVENT = 'menu-update-event';
+
+  static emitter = new EventEmitter2();
 
   static getOpenState() {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-354
@@ -234,6 +238,18 @@ export default class SidebarService {
     });
 
     return flatList;
+  }
+
+  static emit(event, callback) {
+    SidebarService.emitter.emit(event, callback);
+  }
+
+  static addListener(event, callback) {
+    SidebarService.emitter.on(event, callback);
+  }
+
+  static removeListener(event, callback) {
+    SidebarService.emitter.off(event, callback);
   }
 }
 
