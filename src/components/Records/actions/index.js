@@ -36,7 +36,8 @@ export const ActionTypes = {
   EDIT: EditAction.ACTION_ID,
   VIEW: ViewAction.ACTION_ID,
   BACKGROUND_VIEW: BackgroundOpenAction.ACTION_ID,
-  CANCEL_WORKFLOW: CancelBusinessProcessAction.ACTION_ID
+  CANCEL_WORKFLOW: CancelBusinessProcessAction.ACTION_ID,
+  DELETE: DeleteAction.ACTION_ID
 };
 
 // Executors - Common
