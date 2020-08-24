@@ -350,27 +350,19 @@ class Grid extends Component {
     const { editingRules } = this.props;
     const [column, , row] = data;
     const rowRules = editingRules[row.id];
-    const columnEditableStatus = get(column, 'params.editable');
-
-    /**
-     * If there are rules for editing the column
-     */
-    if (columnEditableStatus !== undefined) {
-      return columnEditableStatus;
-    }
 
     /**
      * If there is an editing rule for the entire row
      */
     if (typeof rowRules === 'boolean') {
-      return rowRules;
+      return !!rowRules;
     }
 
     /**
      * Validating a rule for a single cell
      */
     if (typeof rowRules === 'object') {
-      return get(rowRules, column.dataField, false);
+      return !!get(rowRules, column.dataField);
     }
 
     /**
