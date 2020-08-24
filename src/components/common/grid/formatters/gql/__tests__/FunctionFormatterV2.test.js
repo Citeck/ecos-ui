@@ -1,8 +1,11 @@
 import React from 'react';
-import { render, unmountComponentAtNode } from 'react-dom';
-import { act } from 'react-dom/test-utils';
+import { configure, mount } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+import { unmountComponentAtNode } from 'react-dom';
 
-import formatterStore from '../components/common/grid/formatters/formatterStore';
+import formatterStore from '../../formatterStore';
+
+configure({ adapter: new Adapter() });
 
 const { FunctionFormatterV2 } = formatterStore;
 
@@ -82,16 +85,57 @@ describe('FunctionFormatterV2 React Component', () => {
         }
       },
       output: 'predicate.boolean-true'
+    },
+    {
+      title: 'fn - function returning promisified bool (No)',
+      props: {
+        ...defaultProps,
+        params: {
+          fn: () => Promise.resolve(false)
+        }
+      },
+      output: 'predicate.boolean-false'
+    },
+    {
+      title: 'fn - function returning promisified bool (Yes)',
+      props: {
+        ...defaultProps,
+        params: {
+          fn: () => Promise.resolve(true)
+        }
+      },
+      output: 'predicate.boolean-true'
+    },
+    {
+      title: 'fn - function returning promisified value ("some string")',
+      props: {
+        ...defaultProps,
+        params: {
+          fn: () => Promise.resolve('some string')
+        }
+      },
+      output: 'some string'
+    },
+    {
+      title: 'fn - function returning promisified number (1000)',
+      props: {
+        ...defaultProps,
+        params: {
+          fn: () => Promise.resolve(1000)
+        }
+      },
+      output: '1000'
     }
   ];
 
   data.forEach(item => {
     it(item.title, () => {
-      act(() => {
-        render(<FunctionFormatterV2 {...item.props} />, container);
-
-        expect(container.textContent).toBe(item.output);
-      });
+      const mounted = mount(<FunctionFormatterV2 {...item.props} />);
+      return Promise.resolve(mounted)
+        .then(() => mounted.update())
+        .then(() => {
+          expect(mounted.text()).toBe(item.output);
+        });
     });
   });
 });

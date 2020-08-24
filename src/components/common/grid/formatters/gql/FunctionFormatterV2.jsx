@@ -46,34 +46,35 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
           value: result ? t('predicate.boolean-true') : t('predicate.boolean-false')
         };
       case 'string':
-        return { value: result, type: '' };
+        return { type: '', value: result };
       default:
-        return { type: '', value: '' };
+        return { type: '', value: JSON.stringify(result) };
     }
   }
 
-  constructor(props) {
-    super(props);
+  state = {
+    value: '',
+    type: ''
+  };
 
-    const result = this.getResult(props.cell, props.params, props.row, props.rowIndex);
+  componentDidMount() {
+    const { cell, params, row, rowIndex } = this.props;
+    const result = this.getResult(cell, params, row, rowIndex);
     const promise = get(result, 'then');
 
-    if (typeof promise === 'function') {
-      result.then(result => {
-        const data = FunctionFormatterV2.parseResult(result);
-
-        this.setState({
-          value: get(data, 'value', ''),
-          type: get(data, 'type', '')
-        });
+    const applyResult = result => {
+      const data = FunctionFormatterV2.parseResult(result);
+      this.setState({
+        value: get(data, 'value', ''),
+        type: get(data, 'type', '')
       });
-    }
-    const data = FunctionFormatterV2.parseResult(result);
-
-    this.state = {
-      value: get(data, 'value', ''),
-      type: get(data, 'type', '')
     };
+
+    if (typeof promise === 'function') {
+      result.then(applyResult);
+    } else {
+      applyResult(result);
+    }
   }
 
   getResult(cell = {}, params = {}, row = {}, rowIndex = 0) {
