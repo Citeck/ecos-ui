@@ -1,4 +1,3 @@
-import assert from 'power-assert';
 import _merge from 'lodash/merge';
 
 import Harness from '../../../test/harness';
@@ -14,7 +13,7 @@ describe('Base Component', () => {
     Harness.testCreate(BaseComponent, comp1).then(component => {
       const inputs = Harness.testElements(component, 'input[type="text"]', 1);
       for (let i = 0; i < inputs.length; i++) {
-        assert.equal(inputs[i].name, `data[${comp1.key}]`);
+        expect(inputs[i].name).toBe(`data[${comp1.key}]`);
       }
       done();
     });
@@ -169,12 +168,8 @@ describe('Base Component', () => {
         component.setValue(draggableRowsComponentData);
         draggableRowsComponent = component;
         draggableRowsComponentData.forEach((value, index) => {
-          assert(!!component.tbody.children[index].dragInfo, 'Drag Info is not populated for a draggable row');
-          assert.equal(
-            component.tbody.children[index].dragInfo.index,
-            index,
-            'Drag Info index is not calculated correctly for a draggable row'
-          );
+          expect(!!component.tbody.children[index].dragInfo).toBe(true);
+          expect(component.tbody.children[index].dragInfo.index).toEqual(index);
         });
         done();
       });
@@ -189,9 +184,9 @@ describe('Base Component', () => {
         draggableRowsComponent.tbody,
         draggableRowsComponent.tbody.children[0]
       );
-      assert.equal(draggableRowsComponent.dataValue[0], draggableRowsComponentData[2]);
-      assert.equal(draggableRowsComponent.dataValue[1], draggableRowsComponentData[0]);
-      assert.equal(draggableRowsComponent.dataValue[2], draggableRowsComponentData[1]);
+      expect(draggableRowsComponent.dataValue[0]).toEqual(draggableRowsComponentData[2]);
+      expect(draggableRowsComponent.dataValue[1]).toEqual(draggableRowsComponentData[0]);
+      expect(draggableRowsComponent.dataValue[2]).toEqual(draggableRowsComponentData[1]);
       done();
     });
 
@@ -204,9 +199,9 @@ describe('Base Component', () => {
         draggableRowsComponent.tbody,
         undefined
       );
-      assert.equal(draggableRowsComponent.dataValue[0], draggableRowsComponentData[1]);
-      assert.equal(draggableRowsComponent.dataValue[1], draggableRowsComponentData[2]);
-      assert.equal(draggableRowsComponent.dataValue[2], draggableRowsComponentData[0]);
+      expect(draggableRowsComponent.dataValue[0]).toEqual(draggableRowsComponentData[1]);
+      expect(draggableRowsComponent.dataValue[1]).toEqual(draggableRowsComponentData[2]);
+      expect(draggableRowsComponent.dataValue[2]).toEqual(draggableRowsComponentData[0]);
       done();
     });
   });

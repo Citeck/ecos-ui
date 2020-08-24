@@ -1,5 +1,3 @@
-import assert from 'power-assert';
-
 import Harness from '../../../test/harness';
 import RadioComponent from './Radio';
 
@@ -17,13 +15,13 @@ describe('Radio Component', () => {
   it('Span should have correct text label', done => {
     Harness.testCreate(RadioComponent, comp1).then(component => {
       component.element.querySelectorAll('input').forEach(input => {
-        assert(input.getAttribute('class').indexOf('form-check-input') !== -1, 'No form-check-input on radios.');
+        expect(input.getAttribute('class').indexOf('form-check-input')).not.toBe(-1);
       });
       const spans = component.element.querySelectorAll('span');
-      assert.equal(spans[0].innerHTML, 'Red');
-      assert.equal(spans[1].innerHTML, 'Green');
-      assert.equal(spans[2].innerHTML, 'Blue');
-      assert.equal(spans[3].innerHTML, 'Yellow');
+      expect(spans[0].innerHTML).toBe('Red');
+      expect(spans[1].innerHTML).toBe('Green');
+      expect(spans[2].innerHTML).toBe('Blue');
+      expect(spans[3].innerHTML).toBe('Yellow');
       done();
     });
   });
@@ -32,9 +30,9 @@ describe('Radio Component', () => {
     Harness.testCreate(RadioComponent, comp1).then(component => {
       const selector = '.radio:nth-child(1)';
       const firstRadioWrapper = component.element.querySelector(selector);
-      assert(firstRadioWrapper.getAttribute('class').indexOf('radio-selected') === -1, 'Radio wrapper does not have radio-selected class.');
+      expect(firstRadioWrapper.getAttribute('class').indexOf('radio-selected')).toBe(-1);
       Harness.clickElement(component, `${selector} input`);
-      assert(firstRadioWrapper.getAttribute('class').indexOf('radio-selected') !== -1, 'Radio wrapper has radio-selected class.');
+      expect(firstRadioWrapper.getAttribute('class').indexOf('radio-selected')).not.toBe(-1);
       done();
     });
   });
@@ -43,11 +41,11 @@ describe('Radio Component', () => {
     Harness.testCreate(RadioComponent, comp1).then(component => {
       const selector = number => `.radio:nth-child(${number})`;
       const radioWrapper = component.element.querySelector(selector(1));
-      assert(radioWrapper.getAttribute('class').indexOf('radio-selected') === -1, 'Radio wrapper does not have radio-selected class.');
+      expect(radioWrapper.getAttribute('class').indexOf('radio-selected')).toBe(-1);
       Harness.clickElement(component, `${selector(1)} input`);
-      assert(radioWrapper.getAttribute('class').indexOf('radio-selected') !== -1, 'Radio wrapper has radio-selected class.');
+      expect(radioWrapper.getAttribute('class').indexOf('radio-selected')).not.toBe(-1);
       Harness.clickElement(component, `${selector(2)} input`);
-      assert(radioWrapper.getAttribute('class').indexOf('radio-selected') === -1, 'Radio wrapper does not have radio-selected class.');
+      expect(radioWrapper.getAttribute('class').indexOf('radio-selected')).toBe(-1);
       done();
     });
   });

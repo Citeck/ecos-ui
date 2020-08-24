@@ -1,5 +1,3 @@
-import assert from 'power-assert';
-
 import Harness from '../../../test/harness';
 import TextFieldComponent from './TextField';
 import EventEmitter from '../../../EventEmitter';
@@ -41,12 +39,9 @@ describe('TextField Builder', () => {
     builder.editForm.formReady.then(() => {
       // Make sure default preview is correct.
       const preview = builder.componentPreview.innerHTML;
-      assert(preview.indexOf('formio-component formio-component-textfield formio-component-textField') !== -1, 'Must have correct classes');
-      assert(preview.indexOf('<label class="control-label" style="" for="textField">Text Field</label>') !== -1, 'Must have a label');
-      assert(
-        preview.indexOf('<input name="data[textField]" type="text" class="form-control" lang="en" id="textField"') !== -1,
-        'Must have an input'
-      );
+      expect(preview.indexOf('formio-component formio-component-textfield formio-component-textField')).not.toBe(-1);
+      expect(preview.indexOf('<label class="control-label" style="" for="textField">Text Field</label>')).not.toBe(-1);
+      expect(preview.indexOf('<input name="data[textField]" type="text" class="form-control" lang="en" id="textField"')).not.toBe(-1);
       done();
     });
   });
@@ -54,17 +49,17 @@ describe('TextField Builder', () => {
   it('Should allow you to change the label', done => {
     // builder = Harness.buildComponent('textfield');
     Harness.setComponentProperty('label', 'Text Field', 'First Name', preview => {
-      assert(preview.match(/label.*input/), 'Label must be on top.');
-      assert(preview.indexOf('<label class="control-label" style="" for="textField2">First Name</label>') !== -1, 'Must have a label');
+      expect(!!preview.match(/label.*input/)).toBe(true);
+      expect(preview.indexOf('<label class="control-label" style="" for="textField2">First Name</label>')).not.toBe(-1);
       done();
     });
   });
 
   it('Should allow you to hide/show the label', done => {
     Harness.setComponentProperty('hideLabel', false, true, preview => {
-      assert(preview.indexOf('<label class="control-label"') === -1, 'Must not have a label');
+      expect(preview.indexOf('<label class="control-label"')).toBe(-1);
       Harness.setComponentProperty('hideLabel', true, false, preview => {
-        assert(preview.indexOf('<label class="control-label"') !== -1, 'Must have a label');
+        expect(preview.indexOf('<label class="control-label"')).not.toBe(-1);
         done();
       });
     });
@@ -72,27 +67,15 @@ describe('TextField Builder', () => {
 
   it('Should allow you to change the label position', done => {
     Harness.setComponentProperty('labelPosition', 'top', 'bottom', preview => {
-      assert(preview.match(/input.*label/), 'Label must be on bottom.');
+      expect(!!preview.match(/input.*label/)).toBe(true);
       Harness.setComponentProperty('labelPosition', 'bottom', 'left-left', preview => {
-        assert(
-          preview.match(/label.*style=".*float: left; width: 30%; margin-right: 3%;.*input/),
-          'Label must be positioned on the left floated left'
-        );
+        expect(!!preview.match(/label.*style=".*float: left; width: 30%; margin-right: 3%;.*input/)).toBe(true);
         Harness.setComponentProperty('labelPosition', 'left-left', 'left-right', preview => {
-          assert(
-            preview.match(/label.*style=".*float: left; width: 30%; margin-right: 3%; text-align: right;.*input/),
-            'Label must be positioned on the left floated right'
-          );
+          expect(!!preview.match(/label.*style=".*float: left; width: 30%; margin-right: 3%; text-align: right;.*input/)).toBe(true);
           Harness.setComponentProperty('labelPosition', 'left-right', 'right-left', preview => {
-            assert(
-              preview.match(/label.*style=".*float: right; width: 30%; margin-left: 3%;.*input/),
-              'Label must be positioned on the right floated left'
-            );
+            expect(!!preview.match(/label.*style=".*float: right; width: 30%; margin-left: 3%;.*input/)).toBe(true);
             Harness.setComponentProperty('labelPosition', 'right-left', 'right-right', preview => {
-              assert(
-                preview.match(/label.*style=".*float: right; width: 30%; margin-left: 3%; text-align: right;.*input/),
-                'Label must be positioned on the right floated right'
-              );
+              expect(!!preview.match(/label.*style=".*float: right; width: 30%; margin-left: 3%; text-align: right;.*input/)).toBe(true);
               done();
             });
           });
@@ -110,15 +93,9 @@ describe('TextField Builder', () => {
         Harness.testVisibility(builder.editForm, '.formio-component-labelMargin', true);
         Harness.setComponentProperty('labelWidth', 30, 20, () => {
           Harness.setComponentProperty('labelMargin', 3, 5, preview => {
-            assert(
-              preview.match(/label.*style=".*float: left; width: 20%; margin-right: 5%;.*input/),
-              'Label must be positioned on the left floated left'
-            );
+            expect(!!preview.match(/label.*style=".*float: left; width: 20%; margin-right: 5%;.*input/)).toBe(true);
             Harness.setComponentProperty('labelPosition', 'left-left', 'right-right', preview => {
-              assert(
-                preview.match(/label.*style=".*float: right; width: 20%; margin-left: 5%; text-align: right;.*input/),
-                'Label must be positioned on the right floated right'
-              );
+              expect(!!preview.match(/label.*style=".*float: right; width: 20%; margin-left: 5%; text-align: right;.*input/)).toBe(true);
               Harness.testVisibility(builder.editForm, '.formio-component-labelWidth', true);
               Harness.testVisibility(builder.editForm, '.formio-component-labelMargin', true);
               done();
@@ -131,10 +108,10 @@ describe('TextField Builder', () => {
 
   it('Should allow you to set the input mask', done => {
     Harness.testBuilderProperty('inputMask', '', '(999) 999-9999', null, () => {
-      assert.equal(builder.preview.inputs[0].placeholder, '(___) ___-____');
+      expect(builder.preview.inputs[0].placeholder).toBe('(___) ___-____');
       builder.preview.setValue('1234567890');
-      assert.equal(builder.preview.inputs[0].value, '(123) 456-7890');
-      assert.equal(builder.preview.getValue(), '(123) 456-7890');
+      expect(builder.preview.inputs[0].value).toBe('(123) 456-7890');
+      expect(builder.preview.getValue()).toBe('(123) 456-7890');
       done();
     });
   });
@@ -168,10 +145,10 @@ describe('TextField Builder', () => {
       'This is something you should fill out.',
       /label.*i.*class="glyphicon glyphicon-question-sign text-muted.*<\/label>/,
       () => {
-        assert(builder.preview.tooltip, 'There should be a tooltip instance');
+        expect(!!builder.preview.tooltip).toBe(true);
         builder.preview.tooltip.show();
         const toolTipText = builder.preview.element.querySelector('.tooltip-inner');
-        assert.equal(toolTipText.innerHTML, 'This is something you should fill out.');
+        expect(toolTipText.innerHTML).toBe('This is something you should fill out.');
         done();
       }
     );
@@ -199,14 +176,14 @@ describe('TextField Builder', () => {
 
   it('Should set the custom css class of the input', done => {
     Harness.testBuilderProperty('customClass', '', 'custom-text-field', null, () => {
-      assert(builder.preview.hasClass(builder.preview.element, 'custom-text-field'), 'Preview should have this custom class');
+      expect(!!builder.preview.hasClass(builder.preview.element, 'custom-text-field')).toBe(true);
       done();
     });
   });
 
   it('Should set the tab index of the input element', done => {
     Harness.testBuilderProperty('tabindex', '', 10, null, () => {
-      assert.equal(builder.preview.inputs[0].tabIndex, 10);
+      expect(builder.preview.inputs[0].tabIndex).toBe(10);
       done();
     });
   });

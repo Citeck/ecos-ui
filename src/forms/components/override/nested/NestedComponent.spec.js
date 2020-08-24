@@ -1,10 +1,9 @@
-import assert from 'power-assert';
 import each from 'lodash/each';
+import _map from 'lodash/map';
 
 import Harness from '../../../test/harness';
 import NestedComponent from './NestedComponent';
 import { comp1 } from './fixtures';
-import _map from 'lodash/map';
 
 describe('NestedComponent class', () => {
   let component = null;
@@ -33,9 +32,9 @@ describe('NestedComponent class', () => {
       email: 'joe@example.com'
     };
     component.setValue(value);
-    assert.deepEqual(component.getValue(), value);
+    expect(component.getValue()).toEqual(value);
     each(component.components, component => {
-      assert.equal(component.getValue(), value[component.component.key]);
+      expect(component.getValue()).toBe(value[component.component.key]);
     });
   });
 
@@ -79,8 +78,8 @@ describe('NestedComponent class', () => {
       ]
     }).then(comp => {
       // Make sure we built the components tree.
-      assert.equal(comp.components.length, 2);
-      assert.equal(comp.components[1].components.length, 2);
+      expect(comp.components.length).toBe(2);
+      expect(comp.components[1].components.length).toBe(2);
       const data = {
         showPanel: true,
         showChild: false,
@@ -89,23 +88,23 @@ describe('NestedComponent class', () => {
 
       comp.setValue(data);
       comp.checkConditions(data);
-      assert.equal(comp.components[1]._visible, true);
-      assert.equal(comp.components[1].components[0]._visible, false);
-      assert.equal(comp.components[1].components[1]._visible, false);
+      expect(comp.components[1]._visible).toBe(true);
+      expect(comp.components[1].components[0]._visible).toBe(false);
+      expect(comp.components[1].components[1]._visible).toBe(false);
 
       data.showChild = true;
       comp.setValue(data);
       comp.checkConditions(data);
-      assert.equal(comp.components[1]._visible, true);
-      assert.equal(comp.components[1].components[0]._visible, true);
-      assert.equal(comp.components[1].components[1]._visible, false);
+      expect(comp.components[1]._visible).toBe(true);
+      expect(comp.components[1].components[0]._visible).toBe(true);
+      expect(comp.components[1].components[1]._visible).toBe(false);
 
       data.showPanel = false;
       comp.setValue(data);
       comp.checkConditions(data);
-      assert.equal(comp.components[1]._visible, false);
-      assert.equal(comp.components[1].components[0]._visible, true);
-      assert.equal(comp.components[1].components[1]._visible, false);
+      expect(comp.components[1]._visible).toBe(false);
+      expect(comp.components[1].components[0]._visible).toBe(true);
+      expect(comp.components[1].components[1]._visible).toBe(false);
       done();
     });
   });

@@ -1,6 +1,6 @@
-import assert from 'power-assert';
 import _ from 'lodash';
 import _merge from 'lodash/merge';
+
 import Harness from '../../../test/harness';
 import NumberComponent from './Number';
 
@@ -88,7 +88,7 @@ describe('Number Component', () => {
 
   it('Should display default integer value', done => {
     Harness.testCreate(NumberComponent, comp3).then(number => {
-      assert.deepEqual(_.get(number, ['inputs', '0', 'value']), '42');
+      expect(_.get(number, ['inputs', '0', 'value'])).toBe('42');
       done();
     });
   });
@@ -102,7 +102,7 @@ describe('Number Component', () => {
     comp.requireDecimal = true;
 
     Harness.testCreate(NumberComponent, comp).then(number => {
-      assert.deepEqual(_.get(number, ['inputs', '0', 'value']), '4.20');
+      expect(_.get(number, ['inputs', '0', 'value'])).toBe('4.20');
       done();
     });
   });
@@ -205,7 +205,7 @@ describe('Number Component', () => {
 
       testset.forEach((set, index) => {
         try {
-          assert.strictEqual(number.inputs.length, index + 1);
+          expect(number.inputs.length).toBe(index + 1);
           Harness.testNumberBlur(number, ...set, index);
           number.addValue();
         } catch (err) {

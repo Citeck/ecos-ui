@@ -45,7 +45,7 @@ describe('Button Component', () => {
     const element = document.createElement('div');
     Formio.createForm(element, formJson)
       .then(form => {
-        const fn = jest.spyOn(Formio, 'makeStaticRequest').mockImplementation(() => Promise.resolve({}));
+        const fn = jest.spyOn(Formio, 'makeStaticRequest').mockResolvedValue();
         form.getComponent('postToUrl').buttonElement.click();
         const passedUrl = fn.mock.calls[0][0];
         const passedHeaders = fn.mock.calls[0][3].headers;
@@ -93,7 +93,7 @@ describe('Button Component', () => {
           }
         };
         return form.submissionReady.then(() => {
-          const fn = jest.spyOn(Formio, 'makeStaticRequest').mockImplementation(() => Promise.resolve({}));
+          const fn = jest.spyOn(Formio, 'makeStaticRequest').mockResolvedValue();
           form.getComponent('postToUrl').buttonElement.click();
           const passedUrl = fn.mock.calls[0][0];
           fn.mockClear();
@@ -147,7 +147,7 @@ describe('Button Component', () => {
           }
         };
         return form.submissionReady.then(() => {
-          const fn = jest.spyOn(Formio, 'makeStaticRequest').mockImplementation(() => Promise.resolve({}));
+          const fn = jest.spyOn(Formio, 'makeStaticRequest').mockResolvedValue();
           form.getComponent('postToUrl').buttonElement.click();
           const passedHeaders = fn.mock.calls[0][3].headers;
           fn.mockClear();
