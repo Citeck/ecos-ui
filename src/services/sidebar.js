@@ -244,11 +244,11 @@ export default class SidebarService {
     SidebarService.emitter.emit(event, callback);
   }
 
-  static addEmitter(event, callback) {
+  static addListener(event, callback) {
     SidebarService.emitter.on(event, callback);
   }
 
-  static removeEmitter(event, callback) {
+  static removeListener(event, callback) {
     SidebarService.emitter.off(event, callback);
   }
 }

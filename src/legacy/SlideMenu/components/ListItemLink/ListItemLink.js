@@ -42,10 +42,10 @@ const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDa
   };
 
   useEffect(() => {
-    SidebarService.addEmitter(SidebarService.UPDATE_EVENT, getJournalCount);
+    SidebarService.addListener(SidebarService.UPDATE_EVENT, getJournalCount);
 
     return () => {
-      SidebarService.removeEmitter(SidebarService.UPDATE_EVENT, getJournalCount);
+      SidebarService.removeListener(SidebarService.UPDATE_EVENT, getJournalCount);
     };
   }, []);
 
