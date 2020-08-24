@@ -266,8 +266,8 @@ class RecordActions {
     }
   };
 
-  static _updateRecords(refs) {
-    const records = Records.get(refs);
+  static _updateRecords(refs, isInstance = false) {
+    const records = isInstance ? refs : Records.get(refs);
 
     if (Array.isArray(records)) {
       records.forEach(record => record.update());
@@ -483,7 +483,7 @@ class RecordActions {
     };
     const result = handler.execForRecords(recordInstances, action, execContext);
 
-    RecordActions._updateRecords(recordInstances);
+    RecordActions._updateRecords(recordInstances, true);
 
     return RecordActions._wrapResultIfRequired(result);
   }
