@@ -347,6 +347,7 @@ class Comments extends BaseWidget {
         break;
       case 'html':
         text = stateToHTML(comment.getCurrentContent());
+        text = text.replace(/<br>\n/gim, '<br/>');
         break;
       case 'plain-text':
       default:
@@ -425,6 +426,18 @@ class Comments extends BaseWidget {
     this.setState({ comment: newCommentState }, this.updateEditorHeight);
 
     return true;
+  };
+
+  handleReturn = event => {
+    if (!(event.keyCode === 13 && event.shiftKey)) {
+      return 'not-handled';
+    }
+
+    const { comment } = this.state;
+    const newState = RichUtils.insertSoftNewline(comment);
+
+    this.setState({ comment: newState }, this.updateEditorHeight);
+    return 'handled';
   };
 
   handleEditComment = id => {
@@ -575,6 +588,7 @@ class Comments extends BaseWidget {
               onChange={this.handleChangeComment}
               handleKeyCommand={this.handleKeyCommand}
               handlePastedText={this.handlePastedText}
+              handleReturn={this.handleReturn}
               placeholder={this.editorPlaceholder}
             />
           </Scrollbars>
