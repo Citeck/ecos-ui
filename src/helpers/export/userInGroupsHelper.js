@@ -34,5 +34,5 @@ const checkFunctionalAvailability = configKeyFromSysJournal => {
 export const checkFunctionalAvailabilityForUser = configKeyFromSysJournal => {
   return Records.get('ecos-config@default-ui-main-menu')
     .load('.str')
-    .then(result => (result === 'left' ? checkFunctionalAvailability(configKeyFromSysJournal) : false));
+    .then(result => (result.indexOf('left') === 0 ? checkFunctionalAvailability(configKeyFromSysJournal) : false));
 };
