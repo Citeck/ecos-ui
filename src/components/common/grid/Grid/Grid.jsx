@@ -6,6 +6,7 @@ import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
@@ -900,6 +901,11 @@ class Grid extends Component {
       byContentHeight,
       ...otherProps
     } = this.props;
+
+    if (isEmpty(columns)) {
+      return null;
+    }
+
     const bootProps = this.setBootstrapTableProps(otherProps, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
     const toolsVisible = this.toolsVisible();
 
@@ -940,43 +946,39 @@ class Grid extends Component {
         <>{children}</>
       );
 
-    if (columns && columns.length) {
-      return (
-        <div
-          ref={this._ref}
-          key={this._id}
-          className={classNames('ecos-grid', {
-            'ecos-grid_freeze': this.fixedHeader,
-            'ecos-grid_checkable': this.hasCheckboxes,
-            'ecos-grid_no-top-border': noTopBorder,
-            [className]: !!className
-          })}
-          onMouseLeave={this.onMouseLeave}
-          onMouseEnter={this.onMouseEnter}
-        >
-          {!!toolsVisible && this.tools(bootProps.selected)}
-          <Scroll scrollable={bootProps.scrollable} refCallback={this.scrollRefCallback}>
-            <div ref={forwardedRef}>
-              <BootstrapTable
-                {...bootProps}
-                classes="ecos-grid__table"
-                headerClasses="ecos-grid__header"
-                rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
-              />
-            </div>
-            {this.inlineTools()}
-          </Scroll>
-          {this.fixedHeader ? (
-            <>
-              <div className={ECOS_GRID_HEAD_SHADOW} />
-              <div className={ECOS_GRID_LEFT_SHADOW} />
-            </>
-          ) : null}
-        </div>
-      );
-    }
-
-    return null;
+    return (
+      <div
+        ref={this._ref}
+        key={this._id}
+        className={classNames('ecos-grid', {
+          'ecos-grid_freeze': this.fixedHeader,
+          'ecos-grid_checkable': this.hasCheckboxes,
+          'ecos-grid_no-top-border': noTopBorder,
+          [className]: !!className
+        })}
+        onMouseLeave={this.onMouseLeave}
+        onMouseEnter={this.onMouseEnter}
+      >
+        {!!toolsVisible && this.tools(bootProps.selected)}
+        <Scroll scrollable={bootProps.scrollable} refCallback={this.scrollRefCallback}>
+          <div ref={forwardedRef}>
+            <BootstrapTable
+              {...bootProps}
+              classes="ecos-grid__table"
+              headerClasses="ecos-grid__header"
+              rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
+            />
+          </div>
+          {this.inlineTools()}
+        </Scroll>
+        {this.fixedHeader ? (
+          <>
+            <div className={ECOS_GRID_HEAD_SHADOW} />
+            <div className={ECOS_GRID_LEFT_SHADOW} />
+          </>
+        ) : null}
+      </div>
+    );
   }
 }
 

@@ -33,6 +33,7 @@ class AssociationGrid extends Component {
 
   #wrapperRef = React.createRef();
   #toolsRef = React.createRef();
+  #tableRef = React.createRef();
 
   #scrollPosition = {};
 
@@ -139,6 +140,7 @@ class AssociationGrid extends Component {
           autoHeight
           byContentHeight
           data={associations}
+          forwardedRef={this.#tableRef}
           columns={DocAssociationsConverter.getColumnForWeb(columns)}
           inlineTools={this.renderInlineTools}
           onChangeTrOptions={this.handleSetInlineToolsOffsets}
