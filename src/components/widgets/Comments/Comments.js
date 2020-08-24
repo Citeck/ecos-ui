@@ -430,7 +430,7 @@ class Comments extends BaseWidget {
 
   handleReturn = event => {
     if (!(event.keyCode === 13 && event.shiftKey)) {
-      return 'not_handled';
+      return 'not-handled';
     }
 
     const { comment } = this.state;
