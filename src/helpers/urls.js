@@ -232,7 +232,7 @@ export const getSortedUrlParams = (params = window.location.search) => {
     return '';
   }
 
-  const byObject = params
+  const byObject = decodeLink(params)
     .slice(1, params.length)
     .split('&')
     .map(i => i.split('='))
