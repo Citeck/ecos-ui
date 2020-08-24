@@ -111,6 +111,7 @@
     &[contenteditable] {
       -webkit-user-select: text;
       user-select: text;
+      padding-right: 2px;
     }
 
     &_editing {
