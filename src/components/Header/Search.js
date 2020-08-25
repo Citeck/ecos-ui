@@ -148,7 +148,8 @@ class Search extends React.Component {
     const { isFocused } = this.state;
 
     const classes = classNames('ecos-header-search', `ecos-header-search_theme_${theme}`, {
-      'ecos-header-search_focused': isFocused
+      'ecos-header-search_focused': isFocused,
+      'ecos-header-search_mobile': isMobile
     });
 
     return (

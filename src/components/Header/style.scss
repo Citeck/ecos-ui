@@ -96,6 +96,15 @@
       width: $search-focused-width;
     }
 
+    &#{$search}_mobile {
+      & .ecos-dropdown__menu.ecos-input-search__results {
+        position: fixed !important;
+        top: 60px !important;
+        left: unset;
+        right: 0;
+      }
+    }
+
     .ecos-dropdown__menu {
       #{$search}-result {
         padding: 11px 15px 0;
@@ -200,6 +209,9 @@
     .ecos-dropdown__menu.ecos-input-search__results {
       width: unset;
       max-width: $dropdown-max-width;
+      z-index: 910;
+      max-height: calc(100vh - 60px);
+      overflow: auto;
     }
   }
 
