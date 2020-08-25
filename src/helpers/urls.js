@@ -333,7 +333,7 @@ export const getLinkWithout = params => {
     delete query[param];
   });
 
-  return `${parsed.url}?${queryString.stringify(query)}`;
+  return queryString.stringifyUrl({ url: parsed.url, query });
 };
 
 export const isDashboard = (url = window.location.href) => {
