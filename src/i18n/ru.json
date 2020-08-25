@@ -1,6 +1,7 @@
 {
   "error": "Ошибка",
   "success": "Успех",
+  "warning": "Предупреждение",
   "actions.document.download": "Скачать",
   "aggregation.columns": "Колонка для агрегации",
   "aggregation.type": "Тип агрегации",
@@ -1086,6 +1087,7 @@
   "menu-settings.error.save-config": "Конфигурация настроек меню не сохранена",
   "menu-settings.error.remove-config": "Конфигурация настроек меню не удалена",
   "menu-settings.error.set-items-from-journal": "Элементы не установлены в конфигурации. Попробуй еще раз",
+  "menu-settings.warn.set-create-items-from-journal": "Элементы \"{{names}}\" не установлены, т.к. у них нет вариантов создания",
   "menu-settings.success.save-config": "Конфигурация настроек меню сохранена",
   "menu-settings.error.get-group-priority": "Приоритеты групп не получены",
   "menu-settings.error.save-group-priority": "Приоритеты групп не сохранены",

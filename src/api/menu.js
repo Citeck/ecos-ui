@@ -201,6 +201,25 @@ export class MenuApi extends CommonApi {
       .catch(() => ({}));
   };
 
+  getMenuItemsByVersion = version => {
+    const user = getCurrentUserName();
+
+    return Records.queryOne(
+      {
+        sourceId: 'uiserv/menu',
+        query: { user, version }
+      },
+      { menu: 'subMenu?json' }
+    ).then(resp =>
+      fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || [], {
+        label: '.disp',
+        journalId: 'id',
+        journalsListId: 'journalsListId',
+        createVariants: 'createVariants[]?json'
+      })
+    );
+  };
+
   getMenuItemIconUrl = iconName => {
     return this.getJsonWithSessionCache({
       url: `${PROXY_URI}citeck/menu/icon?iconName=${iconName}`,
@@ -250,14 +269,28 @@ export class MenuApi extends CommonApi {
   getUserMenuConfig = () => {
     const user = getCurrentUserName();
 
-    return Records.queryOne(
-      {
-        sourceId: SourcesId.MENU,
-        query: { user }
-      },
-      { id: 'id' },
-      {}
-    );
+    const getVer = () =>
+      Records.get('ecos-config@default-ui-main-menu')
+        .load('.str')
+        .then(result => {
+          const version = result.replace('left-v', '');
+
+          if (version !== 'left') {
+            return +version;
+          }
+        });
+
+    const getId = version =>
+      Records.queryOne(
+        {
+          sourceId: SourcesId.MENU,
+          query: { user, version }
+        },
+        { id: 'id' },
+        {}
+      ).then(data => ({ version, ...data }));
+
+    return getVer().then(getId);
   };
 
   getMenuSettingsConfig = ({ id = '' }) => {
@@ -270,12 +303,12 @@ export class MenuApi extends CommonApi {
         },
         true
       )
-      .then(resp => {
-        return fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || []).then(items => {
+      .then(resp =>
+        fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || [], { label: '.disp' }).then(items => {
           lodashSet(resp, 'menu.left.items', items);
           return resp;
-        });
-      })
+        })
+      )
       .then(resp => resp || {})
       .catch(err => {
         console.error(err);
@@ -287,7 +320,7 @@ export class MenuApi extends CommonApi {
     return Promise.all(
       records.map(recordRef =>
         Records.get(recordRef)
-          .load({ label: '.disp' })
+          .load({ label: '.disp', createVariants: 'createVariants[]' })
           .then(attributes => ({ ...attributes, config: { recordRef } }))
       )
     );
@@ -355,32 +388,27 @@ export class MenuApi extends CommonApi {
   };
 }
 
-async function fetchExtraItemInfo(data) {
+async function fetchExtraItemInfo(data, attributes) {
   return Promise.all(
     data.map(async item => {
       const target = { ...item };
       const journalRef = lodashGet(item, 'config.recordRef');
       const iconRef = lodashGet(item, 'icon');
 
-      if (journalRef && [ms.ItemTypes.JOURNAL].includes(item.type)) {
-        const result = await Records.get(journalRef).load({ label: '.disp' });
-
-        target.label = result.label;
-        target.config = { ...target.config, count: 999 };
+      if (journalRef && [ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type)) {
+        target._remoteData_ = await Records.get(journalRef).load(attributes);
       }
 
       if (iconRef && iconRef.includes(SourcesId.ICON)) {
-        const icon = await Records.get(iconRef).load({
+        target.icon = await Records.get(iconRef).load({
           url: 'data?str',
           type: 'type',
           value: 'id'
         });
-
-        target.icon = { ...target.icon, ...icon };
       }
 
       if (Array.isArray(item.items)) {
-        target.items = await fetchExtraItemInfo(item.items);
+        target.items = await fetchExtraItemInfo(item.items, attributes);
       }
 
       return target;

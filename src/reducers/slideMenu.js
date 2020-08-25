@@ -1,6 +1,7 @@
 import { handleActions } from 'redux-actions';
 import {
   collapseAllItems,
+  fetchSlideMenuItems,
   setInitExpandableItems,
   setIsReady,
   setLargeLogo,
@@ -47,6 +48,12 @@ export default handleActions(
       return {
         ...state,
         largeLogo: action.payload
+      };
+    },
+    [fetchSlideMenuItems]: (state, action) => {
+      return {
+        ...state,
+        items: []
       };
     },
     [setSlideMenuItems]: (state, action) => {

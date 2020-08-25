@@ -1,6 +1,7 @@
 {
   "error": "Error",
   "success": "Success",
+  "warning": "Warning",
   "actions.document.download": "Download",
   "aggregation.columns": "Aggregation column",
   "aggregation.type": "Aggregation type",
@@ -1086,6 +1087,7 @@
   "menu-settings.error.save-config": "Menu settings configuration hasn't saved",
   "menu-settings.error.remove-config": "Menu settings configuration hasn't delete",
   "menu-settings.error.set-items-from-journal": "Items haven't set in configuration. Try again",
+  "menu-settings.warn.set-create-items-from-journal": "Items \"{{names}}\" haven't set, because there are no create variants",
   "menu-settings.success.save-config": "Menu settings configuration saved",
   "menu-settings.error.get-group-priority": "Group priority hasn't received",
   "menu-settings.error.save-group-priority": "Group priority hasn't saved",

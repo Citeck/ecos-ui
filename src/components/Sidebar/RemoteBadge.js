@@ -11,7 +11,7 @@ import './style.scss';
 const menuApi = new MenuApi();
 
 function RemoteBadge({ data, isOpen }) {
-  const journalId = get(data, 'params.journalId', '');
+  const journalId = get(data, 'params.journalId');
   const [journalTotalCount, setJournalTotalCount] = useState('');
   const getJournalCount = () => {
     if (journalId) {

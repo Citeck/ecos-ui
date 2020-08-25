@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+
 import handleControl, { HandleControlTypes } from '../../../helpers/handleControl';
+import { MenuSettings } from '../../../constants/menu';
 
 const mapDispatchToProps = dispatch => ({
   dispatch
@@ -19,9 +21,14 @@ class ItemBtn extends React.Component {
   };
 
   clickHandler = e => {
-    const { dispatch } = this.props;
+    const { dispatch, data } = this.props;
 
-    handleControl(HandleControlTypes.ALF_CREATE_SITE, null, dispatch);
+    if (data.type === MenuSettings.ItemTypes.LINK_CREATE_CASE) {
+      handleControl(HandleControlTypes.ECOS_CREATE_VARIANT, data.params.createVariant, dispatch);
+    } else {
+      handleControl(HandleControlTypes.ALF_CREATE_SITE, null, dispatch);
+    }
+
     e.stopPropagation();
   };
 

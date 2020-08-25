@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import get from 'lodash/get';
 import { Tooltip } from 'reactstrap';
 
 import SidebarService from '../../services/sidebar';
@@ -53,12 +52,9 @@ class List extends React.Component {
     const { level, expandableItems, isOpen, inDropdown, selectedId, isMobile } = this.props;
     const listItemDomId = `_${item.id}-${level}-${i}`;
     const listItemKey = `${item.id}-${item.label}-${level}`;
-    const styleProps = SidebarService.getPropsStyleLevel({
-      level,
-      actionType: get(item, 'action.type', '')
-    });
     const hasSubItems = !!(item.items && item.items.length);
-    const isItemSeparator = !isOpen && get(styleProps, 'collapsedMenu.asSeparator', false);
+    const styleProps = SidebarService.getPropsStyleLevel({ level, item });
+    const isItemSeparator = !isOpen && styleProps.isSeparator;
     const isItemExpanded = SidebarService.isExpanded(expandableItems, item.id);
     const isItemSelected = selectedId === item.id;
     const isChildSelected = !isOpen && level === SidebarService.DROPDOWN_LEVEL && SidebarService.isSelectedChild(expandableItems, item.id);

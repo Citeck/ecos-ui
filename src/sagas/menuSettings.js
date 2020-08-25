@@ -2,6 +2,7 @@ import { NotificationManager } from 'react-notifications';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import {
   addJournalMenuItems,
@@ -36,7 +37,7 @@ function* runInitSettings({ api, logger }) {
 
 function* fetchSettingsConfig({ api, logger }) {
   try {
-    const { id, type } = yield select(state => state.menu);
+    const { id, type, version } = yield select(state => state.menu);
     const keyType = MenuSettingsService.getConfigKeyByType(type);
 
     if (!id) {
@@ -44,7 +45,7 @@ function* fetchSettingsConfig({ api, logger }) {
       throw new Error('User Menu Ref has not received');
     }
 
-    const { menu, authorities } = yield call(api.menu.getMenuSettingsConfig, { id });
+    const { menu, authorities } = yield call(api.menu.getMenuSettingsConfig, { id, version });
     const authoritiesInfo = yield call(api.menu.getAuthoritiesInfoByName, authorities);
     const items = MenuConverter.getMenuItemsWeb(get(menu, [keyType, 'items']) || []);
 
@@ -59,13 +60,13 @@ function* fetchSettingsConfig({ api, logger }) {
 
 function* runSaveSettingsConfig({ api, logger }, { payload }) {
   try {
-    const { id, type } = yield select(state => state.menu);
+    const { id, type, version } = yield select(state => state.menu);
     const keyType = MenuSettingsService.getConfigKeyByType(type);
     const items = yield select(state => state.menuSettings.items);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
     const authorities = authoritiesInfo.map(item => item.name);
 
-    const result = yield call(api.menu.getMenuSettingsConfig, { id });
+    const result = yield call(api.menu.getMenuSettingsConfig, { id, version });
     const originalItems = get(result, ['menu', keyType, 'items'], []);
     const newItems = MenuConverter.getMenuItemsServer({ originalItems, items });
 
@@ -94,11 +95,29 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
   try {
     const { records, id, type } = payload;
     const items = yield select(state => state.menuSettings.items);
-    const data = yield call(api.menu.getItemInfoByRef, records);
+    const infoList = yield call(api.menu.getItemInfoByRef, records);
+    const excluded = [];
 
-    data.forEach(item => (item.type = type));
+    const data = infoList
+      .filter(item => {
+        const flag = type !== ms.ItemTypes.LINK_CREATE_CASE || !isEmpty(item.createVariants);
+        !flag && excluded.push(t(item.label));
+        return flag;
+      })
+      .map(({ createVariants, ...info }) => {
+        info.type = type;
+        return info;
+      });
 
     const result = MenuSettingsService.processAction({ action: ms.ActionTypes.CREATE, items, id, data });
+
+    if (excluded.length) {
+      NotificationManager.warning(
+        t('menu-settings.warn.set-create-items-from-journal', { names: excluded.join(', ') }),
+        t('warning'),
+        10000
+      );
+    }
 
     yield put(setMenuItems(result.items));
     yield put(setLastAddedItems(result.newItems));

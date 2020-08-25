@@ -90,7 +90,7 @@ function EditorItemModal({ item, type, onClose, onSave, action }) {
           <div className="ecos-menu-editor-item__field-icon">
             <EcosIcon data={icon} />
             <div className="ecos--flex-space" />
-            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setIcon(item.icon)}>
+            <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setIcon(defaultIcon)}>
               {t(Labels.FIELD_ICON_BTN_CANCEL)}
             </Btn>
             <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => setOpenSelectIcon(true)}>
