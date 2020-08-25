@@ -1,9 +1,13 @@
-import { CommonApi } from './common';
+import lodashSet from 'lodash/set';
+import lodashGet from 'lodash/get';
+
+import ecosXhr from '../helpers/ecosXhr';
+import { loadScript } from '../helpers/util';
 import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
-import ecosXhr from '../helpers/ecosXhr';
+import { CommonApi } from './common';
 
 export class AppApi extends CommonApi {
   getEcosConfig = configName => {
@@ -68,4 +72,32 @@ export class AppApi extends CommonApi {
       .load('value?str')
       .catch(() => null);
   };
+
+  static getDictionaryLocal(lang) {
+    return import(`../i18n/${lang}`)
+      .then(module => module.default)
+      .catch(e => {
+        console.error(e);
+        return {};
+      });
+  }
+
+  static getDictionaryServer(lang) {
+    return new Promise(resolve => {
+      if (!lodashGet(window, 'Alfresco.messages')) {
+        lodashSet(window, 'Alfresco.messages', { global: null, scope: {} });
+      }
+
+      loadScript(`/share/service/messages.js?locale=${lang}`, () => {
+        resolve();
+      });
+    })
+      .then(_ => {
+        return lodashGet(window, 'Alfresco.messages.global', {});
+      })
+      .catch(e => {
+        console.error(e);
+        return {};
+      });
+  }
 }
