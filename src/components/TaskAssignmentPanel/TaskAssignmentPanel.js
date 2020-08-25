@@ -104,26 +104,26 @@ class TaskAssignmentPanel extends Component {
     const btns = [
       {
         isShow: releasable,
-        sentData: { actionOfAssignment: AssignActions.UNASSIGN, ownerUserName: '' },
+        sentData: { actionOfAssignment: AssignActions.RELEASE, ownerUserName: '' },
         label: t('tasks-widget.assign.return-to-group')
       },
       {
         isShow: reassignable,
-        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: '' },
+        sentData: { actionOfAssignment: AssignActions.CLAIM, ownerUserName: '' },
         label: t('tasks-widget.assign.reassign'),
         hasSelector: true,
         className: 'ecos-btn_blue'
       },
       {
         isShow: assignable,
-        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: '' },
+        sentData: { actionOfAssignment: AssignActions.CLAIM, ownerUserName: '' },
         label: t('tasks-widget.assign.assign'),
         hasSelector: true,
         className: 'ecos-btn_blue'
       },
       {
         isShow: claimable,
-        sentData: { actionOfAssignment: AssignActions.ASSIGN_SMB, ownerUserName: USER_CURRENT },
+        sentData: { actionOfAssignment: AssignActions.CLAIM, ownerUserName: USER_CURRENT },
         label: t('tasks-widget.assign.me'),
         className: 'ecos-btn_blue'
       }

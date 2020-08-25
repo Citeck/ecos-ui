@@ -393,11 +393,13 @@
   "record-action.upload-new-version.error.no-version": "No version",
   "record-action.upload-new-version.error.no-record": "No record",
 
+  "record-action.name.set-task-assignee": "Set assignee",
+  "record-action.set-task-assignee.error.not-all-info": "Not enough information to complete the action",
+
   "record-action.name.save-as-case-template": "Save as template",
   "record-action.name.preview": "Preview",
   "record-action.name.fetch-action": "Perform the remote action",
   "record-action.name.edit-task-assignee": "Change employee",
-
   "record-action.name.view-business-process": "Business-process scheme",
   "record-action.name.cancel-business-process": "Cancel business-process",
   "record-action.name.mutate-action": "Mutate",

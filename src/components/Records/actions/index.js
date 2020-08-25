@@ -1,5 +1,10 @@
 import actionsRegistry from './actionsRegistry';
 
+import ViewBusinessProcessAction from './handler/executor/workflow/ViewBusinessProcessAction';
+import CancelBusinessProcessAction from './handler/executor/workflow/CancelBusinessProcessAction';
+import EditTaskAssignee from './handler/executor/workflow/EditTaskAssignee';
+import SetTaskAssignee from './handler/executor/workflow/SetTaskAssignee';
+
 import EditAction from './handler/executor/EditAction';
 import ViewAction from './handler/executor/ViewAction';
 import AssocAction from './handler/executor/AssocAction';
@@ -13,15 +18,12 @@ import PreviewModalAction from './handler/executor/PreviewModalAction';
 import CaseRequestAction from './handler/executor/case/CaseRequestAction';
 import BackgroundOpenAction from './handler/executor/BackgroundOpenAction';
 import CaseRedirectAction from './handler/executor/case/CaseRedirectAction';
-import EditTaskAssignee from './handler/executor/workflow/EditTaskAssignee';
 import UploadNewVersionAction from './handler/executor/UploadNewVersionAction';
 import ViewCardTemplateAction from './handler/executor/ViewCardTemplateAction';
 import ModuleCopyAction from './handler/executor/ecos-module/ModuleCopyAction';
 import CaseCreateNodeAction from './handler/executor/case/CaseCreateNodeAction';
 import SaveAsCaseTemplateAction from './handler/executor/SaveAsCaseTemplateAction';
 import DownloadCardTemplateAction from './handler/executor/DownloadCardTemplateAction';
-import ViewBusinessProcessAction from './handler/executor/workflow/ViewBusinessProcessAction';
-import CancelBusinessProcessAction from './handler/executor/workflow/CancelBusinessProcessAction';
 
 import AttributeActionsResolver from './handler/resolver/AttributeActionsResolver';
 import DownloadZipAction from './handler/executor/DownloadZipAction';
@@ -71,6 +73,7 @@ actionsRegistry.register(new CaseRequestAction());
 
 actionsRegistry.register(new CancelBusinessProcessAction());
 actionsRegistry.register(new EditTaskAssignee());
+actionsRegistry.register(new SetTaskAssignee());
 actionsRegistry.register(new ViewBusinessProcessAction());
 
 // Executors - ECOS Module
