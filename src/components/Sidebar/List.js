@@ -50,7 +50,7 @@ class List extends React.Component {
   );
 
   renderItem = (item, i) => {
-    const { level, expandableItems, isOpen, inDropdown, selectedId } = this.props;
+    const { level, expandableItems, isOpen, inDropdown, selectedId, isMobile } = this.props;
     const listItemDomId = `_${item.id}-${level}-${i}`;
     const listItemKey = `${item.id}-${item.label}-${level}`;
     const styleProps = SidebarService.getPropsStyleLevel({
@@ -76,7 +76,7 @@ class List extends React.Component {
           inDropdown={inDropdown}
         />
         {hasSubItems && this.renderSubList(item.items, isSubListExpanded, inDropdown)}
-        {level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
+        {!isMobile && level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
           <Tooltip
             target={listItemDomId}
             isOpen={!isOpen && isItemExpanded}
@@ -121,7 +121,8 @@ class List extends React.Component {
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
   expandableItems: state.slideMenu.expandableItems,
-  selectedId: state.slideMenu.selectedId
+  selectedId: state.slideMenu.selectedId,
+  isMobile: state.view.isMobile
 });
 
 const mapDispatchToProps = dispatch => ({
