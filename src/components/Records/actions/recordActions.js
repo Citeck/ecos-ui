@@ -5,10 +5,12 @@ import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
 
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
-import { deepClone, t } from '../../../helpers/util';
+import { deepClone, t, extractLabel } from '../../../helpers/util';
+import DialogManager from '../../common/dialogs/Manager/DialogManager';
 
 /**
  * @typedef {Boolean} RecordsActionBoolResult
@@ -136,6 +138,7 @@ class RecordActions {
 
       const defaultModel = handler.getDefaultActionModel();
       const resAction = Object.assign({}, DEFAULT_MODEL, defaultModel);
+
       for (let key in action) {
         let value = action[key];
         if (value != null) {
@@ -228,6 +231,63 @@ class RecordActions {
     return mutableData;
   }
 
+  static _getConfirmData = action => {
+    const title = extractLabel(get(action, 'confirm.title'));
+    const text = extractLabel(get(action, 'confirm.message'));
+    const formId = get(action, 'confirm.formRef');
+    const needConfirm = !!formId || !!title || !!text;
+
+    return needConfirm ? { formId, title, text } : null;
+  };
+
+  static _confirmExecAction = (data, callback) => {
+    const { title, text, formId } = data;
+
+    if (formId) {
+      Records.get(formId)
+        .load('definition?json')
+        .then(formDefinition => {
+          DialogManager.showFormDialog({
+            title,
+            formDefinition: {
+              display: 'form',
+              ...formDefinition
+            },
+            onSubmit: submission => callback(submission.data)
+          });
+        })
+        .catch(e => {
+          console.error(e);
+          callback(false);
+          DialogManager.showInfoDialog({ title: t('error'), text: e.message });
+        });
+    } else {
+      DialogManager.confirmDialog({ title, text, onNo: () => callback(false), onYes: () => callback(true) });
+    }
+  };
+
+  static _updateRecords(refs, isInstance = false) {
+    const records = isInstance ? refs : Records.get(refs);
+
+    if (Array.isArray(records)) {
+      records.forEach(record => record.update());
+    } else {
+      records.update();
+    }
+  }
+
+  static async _checkConfirmAction(action) {
+    const confirmData = RecordActions._getConfirmData(action);
+
+    if (!confirmData) {
+      return true;
+    }
+
+    return await new Promise(resolve => {
+      RecordActions._confirmExecAction(confirmData, result => resolve(result));
+    });
+  }
+
   /**
    * Get actions for record.
    *
@@ -246,7 +306,9 @@ class RecordActions {
     if (actions == null) {
       actions = await actionsApi.getActionsForRecord(recordRef);
     }
+
     const resolvedActions = await this.getActionsForRecords([recordRef], actions, context);
+
     return resolvedActions.forRecord[recordRef] || [];
   }
 
@@ -359,6 +421,7 @@ class RecordActions {
       return false;
     }
     const handler = RecordActions._getActionsExecutor(action);
+
     if (handler == null) {
       return false;
     }
@@ -368,12 +431,21 @@ class RecordActions {
       ...context
     };
 
+    const confirmed = await RecordActions._checkConfirmAction(action);
+
+    if (!confirmed) {
+      return;
+    }
+
     const config = await RecordActions.replaceAttributeValues(action.config, record);
     const actionToExec = {
       ...action,
       config
     };
     const result = handler.execForRecord(Records.get(record), actionToExec, execContext);
+
+    RecordActions._updateRecords(record);
+
     return RecordActions._wrapResultIfRequired(result);
   }
 
@@ -397,12 +469,22 @@ class RecordActions {
     if (!action.config) {
       action.config = {};
     }
+
+    const confirmed = await RecordActions._checkConfirmAction(action);
+
+    if (!confirmed) {
+      return;
+    }
+
     const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
     const execContext = {
       ...actionContext,
       ...context
     };
     const result = handler.execForRecords(recordInstances, action, execContext);
+
+    RecordActions._updateRecords(recordInstances, true);
+
     return RecordActions._wrapResultIfRequired(result);
   }
 
@@ -416,6 +498,7 @@ class RecordActions {
       return false;
     }
     const handler = RecordActions._getActionsExecutor(action);
+
     if (handler == null) {
       return false;
     }
@@ -428,6 +511,13 @@ class RecordActions {
       ...actionContext,
       ...context
     };
+
+    const confirmed = await RecordActions._checkConfirmAction(action);
+
+    if (!confirmed) {
+      return;
+    }
+
     const result = handler.execForQuery(query, action, execContext);
     return RecordActions._wrapResultIfRequired(result);
   }
