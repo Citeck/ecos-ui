@@ -107,8 +107,6 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
           return extractedFn(...args);
         }
       } catch (e) {
-        console.error(`FunctionFormatterV2 error: ${e.message}`);
-
         return fn;
       }
     }

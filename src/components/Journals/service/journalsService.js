@@ -53,7 +53,6 @@ class JournalsService {
 
     let journalConfig = lodash.cloneDeep(await journalsApi.getJournalConfig(journalRecordId));
     if (!journalConfig.columns || !journalConfig.columns.length) {
-      console.warn('Journal config without columns: ' + journalRecordId, journalConfig);
       return journalConfig;
     }
     journalConfig.columns = await this.resolveColumns(journalConfig.columns);
