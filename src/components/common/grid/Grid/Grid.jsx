@@ -246,7 +246,7 @@ class Grid extends Component {
 
         const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
 
-        column = this.setHeaderFormatter(column, filterable, column.sortable);
+        column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false);
 
         if (column.customFormatter === undefined) {
           column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
@@ -993,6 +993,7 @@ Grid.propTypes = {
   scrollAutoHide: PropTypes.bool,
   autoHeight: PropTypes.bool,
   byContentHeight: PropTypes.bool,
+  sortable: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,
@@ -1017,7 +1018,8 @@ Grid.propTypes = {
 };
 
 Grid.defaultProps = {
-  scrollable: true
+  scrollable: true,
+  sortable: true
 };
 
 export default Grid;
