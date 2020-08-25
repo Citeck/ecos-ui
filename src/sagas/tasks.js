@@ -7,8 +7,9 @@ import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import TasksConverter from '../dto/tasks';
 import TasksService from '../services/tasks';
-import Records from '../components/Records';
 import SidebarService from '../services/sidebar';
+import Records from '../components/Records';
+import { ActionTypes } from '../components/Records/actions';
 
 function* sagaGetTasks({ api, logger }, { payload }) {
   try {
@@ -37,15 +38,15 @@ function* sagaGetTasks({ api, logger }, { payload }) {
 
 function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
   try {
-    const { taskId, stateId, ownerUserName, actionOfAssignment } = payload;
-    const save = yield call(api.tasks.changeAssigneeTask, { taskId, action: actionOfAssignment, owner: ownerUserName });
+    const { taskId, stateId, assignTo } = payload;
 
-    if (!save) {
-      NotificationManager.warning(t('tasks-widget.saga.error3'));
-    }
+    const result = yield call(api.recordActions.executeAction, {
+      records: taskId,
+      action: { type: ActionTypes.SET_TASK_ASSIGNEE, assignTo, errorMsg: t('tasks-widget.saga.error3') }
+    });
 
     const updatedFields = yield call(api.tasks.getTaskStateAssign, { taskId });
-    const data = yield TasksService.updateList({ stateId, taskId, updatedFields, ownerUserName });
+    const data = yield TasksService.updateList({ stateId, taskId, updatedFields, ownerUserName: result });
     const documentRef = yield call(api.tasks.getDocumentByTaskId, taskId);
 
     yield put(setTaskAssignee({ stateId, ...data }));

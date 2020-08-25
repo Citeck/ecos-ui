@@ -91,14 +91,10 @@ class Tasks extends React.Component {
     getTaskList();
   };
 
-  onAssignClick = ({ taskId, actionOfAssignment, ownerUserName }) => {
+  onAssignClick = sentData => {
     const { changeTaskAssignee } = this.props;
 
-    changeTaskAssignee({
-      actionOfAssignment,
-      ownerUserName,
-      taskId
-    });
+    changeTaskAssignee(sentData);
   };
 
   onSubmitForm = () => {

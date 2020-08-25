@@ -19,23 +19,24 @@ export default class SetTaskAssignee extends ActionsExecutor {
     let action = get(recAction, 'actionOfAssignment') || '';
     let owner = get(recAction, 'assignee') || '';
 
-    if (!action) {
-      switch (assignTo) {
-        case AssignTo.ASSIGN_SMB:
-          action = AssignActions.CLAIM;
-          break;
-        case AssignTo.ASSIGN_ME:
-          action = AssignActions.CLAIM;
-          owner = USER_CURRENT;
-          break;
-        case AssignTo.ASSIGN_GROUP:
-          action = AssignActions.RELEASE;
-          owner = '';
-          break;
-        default:
+    switch (assignTo) {
+      case AssignTo.ASSIGN_SMB:
+        action = AssignActions.CLAIM;
+        break;
+      case AssignTo.ASSIGN_ME:
+        action = AssignActions.CLAIM;
+        owner = USER_CURRENT;
+        break;
+      case AssignTo.ASSIGN_GROUP:
+        action = AssignActions.RELEASE;
+        owner = '';
+        break;
+      default:
+        if (!action) {
           notifyFailure(t('record-action.set-task-assignee.error.not-all-info'));
           return Promise.reject(false);
-      }
+        }
+        break;
     }
 
     if (!owner && action === AssignActions.CLAIM) {
@@ -49,7 +50,7 @@ export default class SetTaskAssignee extends ActionsExecutor {
 
     return TasksApi.staticChangeAssigneeTask({ taskId, owner, action })
       .then(success => {
-        if (success) {
+        if (success || success === '') {
           notifySuccess();
           return success;
         }
@@ -58,7 +59,7 @@ export default class SetTaskAssignee extends ActionsExecutor {
       })
       .catch(e => {
         console.error(e);
-        notifyFailure();
+        notifyFailure(get(recAction, 'errorMsg') || '');
         return false;
       });
   }

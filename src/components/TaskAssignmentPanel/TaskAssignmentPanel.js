@@ -3,19 +3,19 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
-import { NotificationManager } from 'react-notifications';
 
-import { StateAssignPropTypes } from '../widgets/Tasks/utils';
-import { AssignActions } from '../../constants/tasks';
-import { USER_CURRENT } from '../../constants';
-import { t } from '../../helpers/util';
-import { Btn } from '../common/btns';
-import { SelectOrgstruct } from '../common/form';
-import { AUTHORITY_TYPE_USER } from '../common/form/SelectOrgstruct/constants';
 import { TasksApi } from '../../api/tasks';
+import { RecordActionsApi } from '../../api/recordActions';
+import { AssignTo } from '../../constants/tasks';
+import { t } from '../../helpers/util';
+import { StateAssignPropTypes } from '../widgets/Tasks/utils';
 import Records from '../Records';
+import { ActionTypes } from '../Records/actions';
+import { Btn } from '../common/btns';
 
 import './style.scss';
+
+const actionApi = new RecordActionsApi();
 
 class TaskAssignmentPanel extends Component {
   static propTypes = {
@@ -24,7 +24,6 @@ class TaskAssignmentPanel extends Component {
     wrapperClassName: PropTypes.string,
     className: PropTypes.string,
     onClick: PropTypes.func,
-    changeTaskAssignee: PropTypes.func,
     narrow: PropTypes.bool,
     executeRequest: PropTypes.bool
   };
@@ -104,26 +103,24 @@ class TaskAssignmentPanel extends Component {
     const btns = [
       {
         isShow: releasable,
-        sentData: { actionOfAssignment: AssignActions.RELEASE, ownerUserName: '' },
+        sentData: { assignTo: AssignTo.ASSIGN_GROUP },
         label: t('tasks-widget.assign.return-to-group')
       },
       {
         isShow: reassignable,
-        sentData: { actionOfAssignment: AssignActions.CLAIM, ownerUserName: '' },
+        sentData: { assignTo: AssignTo.ASSIGN_SMB },
         label: t('tasks-widget.assign.reassign'),
-        hasSelector: true,
         className: 'ecos-btn_blue'
       },
       {
         isShow: assignable,
-        sentData: { actionOfAssignment: AssignActions.CLAIM, ownerUserName: '' },
+        sentData: { assignTo: AssignTo.ASSIGN_SMB },
         label: t('tasks-widget.assign.assign'),
-        hasSelector: true,
         className: 'ecos-btn_blue'
       },
       {
         isShow: claimable,
-        sentData: { actionOfAssignment: AssignActions.CLAIM, ownerUserName: USER_CURRENT },
+        sentData: { assignTo: AssignTo.ASSIGN_ME },
         label: t('tasks-widget.assign.me'),
         className: 'ecos-btn_blue'
       }
@@ -156,16 +153,9 @@ class TaskAssignmentPanel extends Component {
 
   handleChangeTaskAssignee = async sentData => {
     const { taskId } = this.props;
-    const { actionOfAssignment, ownerUserName } = sentData;
-    const save = await TasksApi.staticChangeAssigneeTask({
-      taskId,
-      action: actionOfAssignment,
-      owner: ownerUserName
-    });
+    const { assignTo } = sentData;
 
-    if (!save) {
-      NotificationManager.warning(t('tasks-widget.saga.error3'));
-    }
+    await actionApi.executeAction({ records: taskId, action: { type: ActionTypes.SET_TASK_ASSIGNEE, assignTo } });
 
     const documentRef = await TasksApi.getDocument(taskId);
 
@@ -177,20 +167,12 @@ class TaskAssignmentPanel extends Component {
   };
 
   handleClickButton = sentData => {
-    const { onClick, taskId, changeTaskAssignee, executeRequest } = this.props;
+    const { onClick, executeRequest } = this.props;
 
     this.toggleLoading();
 
     if (executeRequest) {
-      if (typeof changeTaskAssignee === 'function') {
-        changeTaskAssignee({
-          ...sentData,
-          taskId,
-          callback: this.getStateAssign
-        });
-      } else {
-        this.handleChangeTaskAssignee(sentData).finally(this.getStateAssign);
-      }
+      this.handleChangeTaskAssignee(sentData).finally(this.getStateAssign);
     }
 
     if (typeof onClick === 'function') {
@@ -202,39 +184,20 @@ class TaskAssignmentPanel extends Component {
     const { narrow, className } = this.props;
     const { isLoading } = this.state;
     const keyBtn = `assignment-panel-${index}-${new Date().getTime()}`;
-    const handleSelect = () => this.handleClickButton(settings.sentData);
 
-    const elmBtn = handleClick => (
+    return (
       <Btn
         key={keyBtn}
         loading={isLoading}
-        className={classNames(className, {
+        className={classNames('assign-panel__item', className, {
           'ecos-btn_narrow-t_standart': narrow,
-          'assign-panel__item': !settings.hasSelector,
           [settings.className]: !className
         })}
-        onClick={handleClick}
+        onClick={() => this.handleClickButton(settings.sentData)}
       >
         {settings.label}
       </Btn>
     );
-
-    if (settings.hasSelector) {
-      return (
-        <SelectOrgstruct
-          key={`select-orgstruct-${keyBtn}`}
-          className="assign-panel__item"
-          allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
-          renderView={props => elmBtn(props.toggleSelectModal)}
-          onChange={value => {
-            settings.sentData.ownerUserName = value;
-            handleSelect();
-          }}
-        />
-      );
-    }
-
-    return elmBtn(handleSelect);
   }
 
   render() {
