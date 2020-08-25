@@ -13,7 +13,7 @@ export default class DeleteAction extends ActionsExecutor {
     let dialogTitle, dialogText;
     if (records.length === 1) {
       dialogTitle = 'record-action.delete.dialog.title.remove-one';
-      dialogText = 'record-action.delete.dialog.title.remove-one';
+      dialogText = 'record-action.delete.dialog.msg.remove-one';
     } else {
       dialogTitle = 'record-action.delete.dialog.title.remove-many';
       dialogText = 'record-action.delete.dialog.msg.remove-many';
