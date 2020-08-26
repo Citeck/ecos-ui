@@ -49,10 +49,10 @@ export default class SetTaskAssignee extends ActionsExecutor {
     }
 
     return TasksApi.staticChangeAssigneeTask({ taskId, owner, action })
-      .then(success => {
-        if (success || success === '') {
-          notifySuccess();
-          return success;
+      .then(answer => {
+        if (answer) {
+          !answer.cancel && notifySuccess();
+          return answer;
         }
 
         return Promise.reject();

@@ -85,7 +85,7 @@ export class TasksApi extends RecordService {
 
     return record
       .save()
-      .then(() => owner)
+      .then(() => ({ action, owner }))
       .catch(console.error);
   };
 }

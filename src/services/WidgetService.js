@@ -45,6 +45,7 @@ export default class WidgetService {
     };
 
     const handleCancel = () => {
+      onSelect && onSelect(false);
       timer = setTimeout(handleClose, 100);
     };
 

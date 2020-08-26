@@ -45,14 +45,18 @@ function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
       action: { type: ActionTypes.SET_TASK_ASSIGNEE, assignTo, errorMsg: t('tasks-widget.saga.error3') }
     });
 
-    const updatedFields = yield call(api.tasks.getTaskStateAssign, { taskId });
-    const data = yield TasksService.updateList({ stateId, taskId, updatedFields, ownerUserName: result });
-    const documentRef = yield call(api.tasks.getDocumentByTaskId, taskId);
+    if (result.cancel) {
+      yield put(setTaskAssignee({ stateId }));
+    } else {
+      const updatedFields = yield call(api.tasks.getTaskStateAssign, { taskId });
+      const data = yield TasksService.updateList({ stateId, taskId, updatedFields, ownerUserName: result });
+      const documentRef = yield call(api.tasks.getDocumentByTaskId, taskId);
 
-    yield put(setTaskAssignee({ stateId, ...data }));
-    yield Records.get(documentRef).update();
+      yield put(setTaskAssignee({ stateId, ...data }));
+      yield Records.get(documentRef).update();
 
-    SidebarService.emitter.emit(SidebarService.UPDATE_EVENT);
+      SidebarService.emitter.emit(SidebarService.UPDATE_EVENT);
+    }
   } catch (e) {
     yield put(setNotificationMessage(t('tasks-widget.saga.error2')));
     logger.error('[tasks/sagaChangeAssigneeTask saga] error', e.message);
