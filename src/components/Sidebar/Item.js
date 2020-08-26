@@ -4,13 +4,16 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
+
 import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
-import { t } from '../../helpers/util';
+import { extractLabel } from '../../helpers/util';
+import { isNewVersionPage } from '../../helpers/export/urls';
+import { SourcesId } from '../../constants';
+import { MenuSettings } from '../../constants/menu';
 import SidebarService from '../../services/sidebar';
 import { EcosIcon, Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemLink } from './item-components';
-import { isNewVersionPage } from '../../helpers/export/urls';
 
 class Item extends React.Component {
   static propTypes = {
@@ -52,12 +55,11 @@ class Item extends React.Component {
     return get(this.props, 'data.id');
   }
 
-  get actionType() {
-    return get(this.props, 'data.action.type', '');
-  }
-
-  get isLink() {
-    return ![SidebarService.ActionTypes.CREATE_SITE].includes(this.actionType);
+  get isHandler() {
+    return (
+      [SidebarService.ActionTypes.CREATE_SITE].includes(get(this.props, 'data.action.type', '')) ||
+      [MenuSettings.ItemTypes.LINK_CREATE_CASE].includes(get(this.props, 'data.type', ''))
+    );
   }
 
   onToggleList = e => {
@@ -77,48 +79,53 @@ class Item extends React.Component {
   };
 
   onClickLink = () => {
-    if (!this.hasSubItems) {
+    if (!this.hasSubItems && !this.isHandler) {
       this.props.setSelectItem(this.dataId);
     }
   };
 
-  renderLabel() {
-    const {
-      isOpen,
-      isSiteDashboardEnable,
-      data,
-      styleProps: { noIcon }
-    } = this.props;
-    const extraParams = { isSiteDashboardEnable };
+  renderContent = React.memo(({ isOpen, data, styleProps: { noIcon, isSeparator } }) => {
+    const label = extractLabel(data.label);
+    const iconCode = typeof data.icon === 'string' && !data.icon.includes(SourcesId.ICON) ? data.icon : undefined;
+    const iconData = typeof data.icon === 'object' ? data.icon : undefined;
 
-    const label = t(data.label);
-    const content = (
+    return (
       <>
-        {!noIcon && (
-          <EcosIcon family="menu-items" className="ecos-sidebar-item__icon" code={data.icon} title={isOpen ? '' : get(data, 'label', '')} />
+        {!noIcon && !isSeparator && (
+          <EcosIcon family="menu-items" data={iconData} className="ecos-sidebar-item__icon" code={iconCode} title={isOpen ? '' : label} />
         )}
         <div className="ecos-sidebar-item__label" title={label}>
           {label}
         </div>
       </>
     );
+  });
 
-    if (this.collapsible) {
-      return <div className="ecos-sidebar-item__link">{content}</div>;
+  renderLabel() {
+    const { isSiteDashboardEnable, data, isOpen, styleProps } = this.props;
+    const extraParams = { isSiteDashboardEnable };
+    const contentProps = { data, isOpen, styleProps };
+
+    if (this.collapsible || styleProps.isSeparator) {
+      return (
+        <div className="ecos-sidebar-item__link">
+          <this.renderContent {...contentProps} />
+        </div>
+      );
     }
 
-    if (this.isLink) {
+    if (this.isHandler) {
       return (
-        <ItemLink data={data} extraParams={extraParams} onClick={this.onClickLink}>
-          {content}
-        </ItemLink>
+        <ItemBtn data={data} extraParams={extraParams}>
+          <this.renderContent {...contentProps} />
+        </ItemBtn>
       );
     }
 
     return (
-      <ItemBtn data={data} extraParams={extraParams}>
-        {content}
-      </ItemBtn>
+      <ItemLink data={data} extraParams={extraParams} onClick={this.onClickLink}>
+        <this.renderContent {...contentProps} />
+      </ItemLink>
     );
   }
 
@@ -126,10 +133,10 @@ class Item extends React.Component {
     const {
       isOpen,
       data,
-      styleProps: { noBadge }
+      styleProps: { noBadge, isSeparator }
     } = this.props;
 
-    return !noBadge ? <RemoteBadge data={data} isOpen={isOpen} /> : null;
+    return !noBadge && !isSeparator ? <RemoteBadge data={data} isOpen={isOpen} /> : null;
   }
 
   renderToggle() {
@@ -156,12 +163,9 @@ class Item extends React.Component {
       isExpanded,
       isSelected,
       inDropdown,
-      styleProps: {
-        noIcon,
-        collapsedMenu: { asSeparator }
-      }
+      styleProps: { noIcon, isSeparator }
     } = this.props;
-    const itemSeparator = !isOpen && asSeparator;
+    const itemSeparator = !isOpen && isSeparator;
     const events = {};
 
     if (isOpen || inDropdown) {
@@ -175,7 +179,8 @@ class Item extends React.Component {
           'ecos-sidebar-item_collapsible': this.collapsible,
           'ecos-sidebar-item_last-lvl': !this.hasSubItems,
           'ecos-sidebar-item_nested-expanded': isExpanded && this.hasSubItems,
-          'ecos-sidebar-item_selected': isSelected,
+          'ecos-sidebar-item_selected': !isSeparator && isSelected,
+          'ecos-sidebar-item_title-separator': isSeparator,
           'ecos-sidebar-item_separator': itemSeparator
         })}
         title={!isOpen && !noIcon ? get(data, 'label', '') : ''}

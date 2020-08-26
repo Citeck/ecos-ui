@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import get from 'lodash/get';
 import { Tooltip } from 'reactstrap';
 
 import SidebarService from '../../services/sidebar';
@@ -50,15 +49,12 @@ class List extends React.Component {
   );
 
   renderItem = (item, i) => {
-    const { level, expandableItems, isOpen, inDropdown, selectedId } = this.props;
+    const { level, expandableItems, isOpen, inDropdown, selectedId, isMobile } = this.props;
     const listItemDomId = `_${item.id}-${level}-${i}`;
     const listItemKey = `${item.id}-${item.label}-${level}`;
-    const styleProps = SidebarService.getPropsStyleLevel({
-      level,
-      actionType: get(item, 'action.type', '')
-    });
     const hasSubItems = !!(item.items && item.items.length);
-    const isItemSeparator = !isOpen && get(styleProps, 'collapsedMenu.asSeparator', false);
+    const styleProps = SidebarService.getPropsStyleLevel({ level, item });
+    const isItemSeparator = !isOpen && styleProps.isSeparator;
     const isItemExpanded = SidebarService.isExpanded(expandableItems, item.id);
     const isItemSelected = selectedId === item.id;
     const isChildSelected = !isOpen && level === SidebarService.DROPDOWN_LEVEL && SidebarService.isSelectedChild(expandableItems, item.id);
@@ -76,7 +72,7 @@ class List extends React.Component {
           inDropdown={inDropdown}
         />
         {hasSubItems && this.renderSubList(item.items, isSubListExpanded, inDropdown)}
-        {level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
+        {!isMobile && level === SidebarService.DROPDOWN_LEVEL && hasSubItems && (
           <Tooltip
             target={listItemDomId}
             isOpen={!isOpen && isItemExpanded}
@@ -121,7 +117,8 @@ class List extends React.Component {
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
   expandableItems: state.slideMenu.expandableItems,
-  selectedId: state.slideMenu.selectedId
+  selectedId: state.slideMenu.selectedId,
+  isMobile: state.view.isMobile
 });
 
 const mapDispatchToProps = dispatch => ({

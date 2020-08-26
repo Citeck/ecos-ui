@@ -139,6 +139,7 @@ class PropertiesDashlet extends BaseWidget {
     const onUpdate = get(this._propertiesRef, 'current.onUpdateForm');
 
     this.checkPermissions();
+    this.setPreviousHeight();
 
     if (typeof onUpdate !== 'function') {
       return;
@@ -202,8 +203,8 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   render() {
-    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config, fixedHeight } = this.props;
-    const { isSmallMode, isEditProps, fitHeights, formIsChanged, isCollapsed, isShowSetting, title: titleForm } = this.state;
+    const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
+    const { isSmallMode, isEditProps, formIsChanged, isCollapsed, isShowSetting, title: titleForm, previousHeight } = this.state;
     const { formId = '', titleAsFormName } = config || {};
 
     return (
@@ -231,9 +232,7 @@ class PropertiesDashlet extends BaseWidget {
           record={record}
           isSmallMode={isSmallMode}
           stateId={id}
-          height={fixedHeight ? fitHeights.min : undefined}
-          minHeight={fitHeights.min}
-          maxHeight={fitHeights.max}
+          minHeight={previousHeight}
           onUpdate={this.onPropertiesUpdate}
           formId={formId}
           onInlineEditSave={this.onInlineEditSave}

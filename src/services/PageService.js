@@ -122,7 +122,7 @@ export default class PageService {
     PageService.eventIsDispatched = true;
 
     try {
-      CHANGE_URL.params = { link, ...params };
+      CHANGE_URL.params = { link: decodeLink(link), ...params };
       document.dispatchEvent(CHANGE_URL);
     } finally {
       PageService.eventIsDispatched = false;

@@ -8,6 +8,7 @@ import { t } from '../helpers/util';
 import TasksConverter from '../dto/tasks';
 import TasksService from '../services/tasks';
 import Records from '../components/Records';
+import SidebarService from '../services/sidebar';
 
 function* sagaGetTasks({ api, logger }, { payload }) {
   try {
@@ -26,6 +27,8 @@ function* sagaGetTasks({ api, logger }, { payload }) {
         })
       );
     }
+
+    SidebarService.emitter.emit(SidebarService.UPDATE_EVENT);
   } catch (e) {
     yield put(setNotificationMessage(t('tasks-widget.saga.error1')));
     logger.error('[tasks/sagaGetTasks saga] error', e.message);
@@ -47,6 +50,8 @@ function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
 
     yield put(setTaskAssignee({ stateId, ...data }));
     yield Records.get(documentRef).update();
+
+    SidebarService.emitter.emit(SidebarService.UPDATE_EVENT);
   } catch (e) {
     yield put(setNotificationMessage(t('tasks-widget.saga.error2')));
     logger.error('[tasks/sagaChangeAssigneeTask saga] error', e.message);

@@ -369,7 +369,7 @@ function* getGridEditingRules(api, gridData) {
 
     if (canEditing) {
       byColumns = yield columns.map(function*(column) {
-        const isProtected = yield call(api.journals.checkCellProtectedFromEditing, row.id, row[column.dataField]);
+        const isProtected = yield call(api.journals.checkCellProtectedFromEditing, row.id, column.dataField);
 
         return {
           [column.dataField]: !isProtected

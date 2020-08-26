@@ -7,12 +7,12 @@ import { selectUserName } from '../selectors/user';
 import {
   backPageFromTransitionsHistory,
   getDashboardEditable,
+  getFooter,
   initAppFailure,
   initAppRequest,
   initAppSettings,
   initAppSuccess,
   setDashboardEditable,
-  getFooter,
   setFooter
 } from '../actions/app';
 import { validateUserFailure, validateUserSuccess } from '../actions/user';
@@ -91,23 +91,18 @@ export function* fetchFooter({ api, logger }) {
 
 function* sagaBackFromHistory({ api, logger }) {
   try {
-    const isShowTabs = yield select(state => lodashGet(state, 'pageTabs.isShow', false));
+    const isShowTabs = yield select(state => lodashGet(state, 'pageTabs.isShow'));
 
     if (!isShowTabs) {
       window.history.length > 1 ? window.history.back() : PageService.changeUrlLink(URL.DASHBOARD);
     } else {
       const location = yield select(state => state.router.location);
-      const hasTabs = yield select(state => lodashGet(state, 'pageTabs.tabs.length', 0));
+      const lenTabs = yield select(state => lodashGet(state, 'pageTabs.tabs.length', 0));
 
       const subsidiaryLink = location ? location.pathname + location.search : window.location.href;
-      const pageUrl = (hasTabs && PageService.extractWhereLinkOpen({ subsidiaryLink })) || URL.DASHBOARD;
-      const params = {};
+      const pageUrl = lenTabs > 1 ? '' : PageService.extractWhereLinkOpen({ subsidiaryLink }) || URL.DASHBOARD;
 
-      if (!pageUrl) {
-        params.closeActiveTab = true;
-      }
-
-      PageService.changeUrlLink(pageUrl, params);
+      PageService.changeUrlLink(pageUrl, { reopen: lenTabs <= 1, closeActiveTab: lenTabs > 1 });
     }
   } catch (e) {
     logger.error('[app/page sagaChangeTabData saga error', e.message);

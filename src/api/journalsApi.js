@@ -232,7 +232,15 @@ export class JournalsApi extends RecordService {
   };
 
   getJournalConfig = journalId => {
-    //return this.getJson(`${MICRO_URI}api/journalcfg?journalId=contract-agreements`).then(resp => {
+    const emptyConfig = {
+      columns: [],
+      meta: { createVariants: [] }
+    };
+
+    if (!journalId) {
+      console.warn('No journalId');
+      return Promise.resolve(emptyConfig);
+    }
 
     let journalRecordId = journalId;
 
@@ -254,7 +262,7 @@ export class JournalsApi extends RecordService {
 
         return data;
       })
-      .catch(() => {
+      .catch(firstE => {
         return this.getJson(`${PROXY_URI}api/journals/config?journalId=${journalId}`)
           .then(resp => {
             const data = resp || {};
@@ -265,7 +273,11 @@ export class JournalsApi extends RecordService {
 
             return data;
           })
-          .catch(() => {});
+          .catch(secondE => {
+            console.error(firstE);
+            console.error(secondE);
+            return emptyConfig;
+          });
       });
   };
 

@@ -165,7 +165,7 @@ export default class Export extends Component {
   render() {
     const { right, className, children, ...props } = this.props;
     const { isOpen } = this.state;
-    const attributes = omit(props, ['journalConfig', 'dashletConfig', 'grid']);
+    const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid']);
 
     return this.isShow ? (
       <div {...attributes} className={classNames('ecos-btn-export', className)}>

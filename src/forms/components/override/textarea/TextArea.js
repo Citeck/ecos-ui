@@ -229,7 +229,13 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-89
     if (show && this.wysiwygRendered && this.editorReady) {
       this.editorReady.then(editor => {
-        const parentNode = _.get(editor, 'sourceElement.parentNode');
+        let parentNode = null;
+        if (this.component.editor === 'ckeditor') {
+          parentNode = _.get(editor, 'sourceElement.parentNode');
+        } else {
+          parentNode = _.get(editor, 'container.parentNode');
+        }
+
         if (!parentNode) {
           this.refreshWysiwyg();
         }
