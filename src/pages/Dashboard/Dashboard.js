@@ -11,7 +11,7 @@ import isEmpty from 'lodash/isEmpty';
 import { LoaderTypes, MENU_TYPE, URL } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, isMobileAppWebView, t } from '../../helpers/util';
-import { getSortedUrlParams, isDashboard, decodeLink, pushHistoryLink } from '../../helpers/urls';
+import { decodeLink, getSortedUrlParams, isDashboard, pushHistoryLink } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
 import { Loader, ScrollArrow, Tabs } from '../../components/common';
@@ -135,7 +135,7 @@ class Dashboard extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return !(nextProps.tabId && !pageTabList.isActiveTab(nextProps.tabId));
+    return isDashboard() && !(nextProps.tabId && !pageTabList.isActiveTab(nextProps.tabId));
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -150,7 +150,7 @@ class Dashboard extends Component {
       this.getConfig(urlParams);
     }
 
-    if (!isEmpty(config)) {
+    if (isDashboard() && !isEmpty(config)) {
       const layoutId = get(queryString.parse(decodeLink(window.location.search)), 'activeLayoutId');
       const isExistLayout = isArray(config) && !!config.find(layout => layout.id === layoutId);
 
