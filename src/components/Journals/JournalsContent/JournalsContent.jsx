@@ -18,15 +18,11 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const Grid = ({ showPreview, ...props } /*{ stateId, showPreview, onRowClick, maxHeight, minHeight }*/) => (
+const Grid = ({ showPreview, ...props }) => (
   <Well className="ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden">
     <JournalsDashletGrid
-      // stateId={stateId}
-      // onRowClick={onRowClick}
-      doInlineToolsOnRowClick={showPreview}
       noTopBorder
-      // maxHeight={maxHeight}
-      // minHeight={minHeight}
+      doInlineToolsOnRowClick={showPreview}
       toolsClassName={'grid-tools_r_12'}
       selectorContainer={'.ecos-journal-page'}
       {...props}
