@@ -1,35 +1,10 @@
-import assert from 'power-assert';
-import sinon from 'sinon';
 import each from 'lodash/each';
+
 import Harness from './test/harness';
 import FormTests from './test/forms';
 import Formio from './Formio';
 import Webform from './Webform';
 import { APIMock } from './test/APIMock';
-
-const createElement = global.document.createElement;
-const FAKECanvasElement = {
-  getContext: jest.fn(() => {
-    return {
-      fillStyle: null,
-      fillRect: jest.fn(),
-      drawImage: jest.fn(),
-      getImageData: jest.fn(),
-      setAttribute: jest.fn()
-    };
-  })
-};
-
-/**
- * Using Sinon to stub the createElement function call with the original method
- * unless we match the 'canvas' argument.  If that the case, return the Fake
- * Canvas object.
- */
-sinon
-  .stub(global.document, 'createElement')
-  .callsFake(createElement)
-  .withArgs('canvas')
-  .returns(FAKECanvasElement);
 
 describe('Formio Form Renderer tests', () => {
   let simpleForm = null;
@@ -95,7 +70,7 @@ describe('Formio Form Renderer tests', () => {
       })
       .then(() => {
         const label = formElement.querySelector('.control-label');
-        assert.equal(label.innerHTML, 'Spanish Label');
+        expect(label.innerHTML).toBe('Spanish Label');
         done();
       });
   });
@@ -126,7 +101,7 @@ describe('Formio Form Renderer tests', () => {
       .then(() => {
         translateForm.language = 'es';
         const label = formElement.querySelector('.control-label');
-        assert.equal(label.innerHTML, 'Spanish Label');
+        expect(label.innerHTML).toBe('Spanish Label');
         done();
       });
   });
@@ -161,7 +136,7 @@ describe('Formio Form Renderer tests', () => {
       .then(() => {
         translateForm.language = 'fr';
         const label = formElement.querySelector('.control-label');
-        assert.equal(label.innerHTML, 'French Label');
+        expect(label.innerHTML).toBe('French Label');
         done();
       });
   });
@@ -186,7 +161,7 @@ describe('Formio Form Renderer tests', () => {
       .then(() => {
         translateForm.addLanguage('es', { 'Default Label': 'Spanish Label' }, true);
         const label = formElement.querySelector('.control-label');
-        assert.equal(label.innerHTML, 'Spanish Label');
+        expect(label.innerHTML).toBe('Spanish Label');
         done();
       });
   });
@@ -258,7 +233,7 @@ describe('Formio Form Renderer tests', () => {
           return (form.language = 'ru');
         }, done)
         .then(() => {
-          assert(isLanguageChangedEventFired);
+          expect(isLanguageChangedEventFired).toBe(true);
           done();
         }, done)
         .catch(done);
@@ -291,7 +266,7 @@ describe('Formio Form Renderer tests', () => {
         isChangeEventFired = true;
       });
       form.on('initialized', () => {
-        assert(isChangeEventFired);
+        expect(isChangeEventFired).toBe(true);
         done();
       });
     });
@@ -335,7 +310,7 @@ describe('Formio Form Renderer tests', () => {
     });
 
     simpleForm.submit().then(submission => {
-      assert.deepEqual(submission.data, { name: 'noname' });
+      expect(submission.data).toEqual({ name: 'noname' });
       done();
     });
   });
@@ -343,16 +318,16 @@ describe('Formio Form Renderer tests', () => {
   describe('set/get nosubmit', () => {
     it('should set/get nosubmit flag and emit nosubmit event', () => {
       const form = new Webform(null, {});
-      const emit = sinon.spy(form, 'emit');
+      const emit = jest.spyOn(form, 'emit');
       expect(form.nosubmit).toBe(false);
       form.nosubmit = true;
       expect(form.nosubmit).toBe(true);
-      expect(emit.callCount).toBe(1);
-      expect(emit.args[0]).toEqual(['nosubmit', true]);
+      expect(emit.mock.calls.length).toBe(1);
+      expect(emit.mock.calls[0]).toEqual(['nosubmit', true]);
       form.nosubmit = false;
       expect(form.nosubmit).toBe(false);
-      expect(emit.callCount).toBe(2);
-      expect(emit.args[1]).toEqual(['nosubmit', false]);
+      expect(emit.mock.calls.length).toBe(2);
+      expect(emit.mock.calls[1]).toEqual(['nosubmit', false]);
     });
   });
 
@@ -399,21 +374,21 @@ describe('Test the saveDraft and restoreDraft feature', () => {
     form.src = 'https://savedraft.form.io/myform';
     Formio.setUser(user);
     form.on('restoreDraft', existing => {
-      assert.deepEqual(existing ? existing.data : null, draft);
+      expect(existing ? existing.data : null).toEqual(draft);
       form.setSubmission({ data: newData }, { modified: true });
     });
     form.on('saveDraft', saved => {
       // Make sure the modified class was added to the components.
       const a = form.getComponent('a');
       const b = form.getComponent('b');
-      assert.equal(a.hasClass(a.getElement(), 'formio-modified'), true);
-      assert.equal(b.hasClass(b.getElement(), 'formio-modified'), true);
-      assert.deepEqual(saved.data, newData);
+      expect(a.hasClass(a.getElement(), 'formio-modified')).toBe(true);
+      expect(b.hasClass(b.getElement(), 'formio-modified')).toBe(true);
+      expect(saved.data).toEqual(newData);
       form.draftEnabled = false;
       done();
     });
     form.formReady.then(() => {
-      assert.equal(form.savingDraft, true);
+      expect(form.savingDraft).toBe(true);
     });
   };
 

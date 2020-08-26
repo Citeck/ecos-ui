@@ -15,10 +15,6 @@ describe('TextField Component', () => {
 
 describe('TextField Builder', () => {
   let builder = null;
-
-  // TODO check
-  // before((done) => {
-  // Incrise Events limit for this tests set
   Harness.builderBefore(() => {}, {
     editForm: {
       events: new EventEmitter({
@@ -29,10 +25,6 @@ describe('TextField Builder', () => {
       })
     }
   });
-  // });
-  // after(() => {
-  //   Harness.builderAfter();
-  // });
 
   it('Should create a new textfield component', done => {
     builder = Harness.buildComponent('textfield');
@@ -47,7 +39,6 @@ describe('TextField Builder', () => {
   });
 
   it('Should allow you to change the label', done => {
-    // builder = Harness.buildComponent('textfield');
     Harness.setComponentProperty('label', 'Text Field', 'First Name', preview => {
       expect(!!preview.match(/label.*input/)).toBe(true);
       expect(preview.indexOf('<label class="control-label" style="" for="textField2">First Name</label>')).not.toBe(-1);

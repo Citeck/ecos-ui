@@ -1,5 +1,3 @@
-import assert from 'power-assert';
-
 import BaseComponent from './override/base/Base';
 import Validator from './Validator';
 
@@ -8,70 +6,69 @@ describe('Validator Tests', () => {
   const disabledComponent = new BaseComponent({ disabled: true });
 
   it('Should test for minLength', () => {
-    assert.equal(Validator.validators.minLength.check(baseComponent, 5, 'test'), false);
-    assert.equal(Validator.validators.minLength.check(baseComponent, 4, 'test'), true);
-    assert.equal(Validator.validators.minLength.check(baseComponent, 3, 'test'), true);
-    assert.equal(Validator.validators.minLength.check(baseComponent, 6, 'test'), false);
-    assert.equal(Validator.validators.minLength.check(baseComponent, 6, ''), false);
+    expect(Validator.validators.minLength.check(baseComponent, 5, 'test')).toBe(false);
+    expect(Validator.validators.minLength.check(baseComponent, 4, 'test')).toBe(true);
+    expect(Validator.validators.minLength.check(baseComponent, 3, 'test')).toBe(true);
+    expect(Validator.validators.minLength.check(baseComponent, 6, 'test')).toBe(false);
+    expect(Validator.validators.minLength.check(baseComponent, 6, '')).toBe(false);
   });
 
   it('Should test for maxLength', () => {
-    assert.equal(Validator.validators.maxLength.check(baseComponent, 5, 'test'), true);
-    assert.equal(Validator.validators.maxLength.check(baseComponent, 4, 'test'), true);
-    assert.equal(Validator.validators.maxLength.check(baseComponent, 3, 'test'), false);
-    assert.equal(Validator.validators.maxLength.check(baseComponent, 6, 'test'), true);
-    assert.equal(Validator.validators.maxLength.check(baseComponent, 6, ''), true);
+    expect(Validator.validators.maxLength.check(baseComponent, 5, 'test')).toBe(true);
+    expect(Validator.validators.maxLength.check(baseComponent, 4, 'test')).toBe(true);
+    expect(Validator.validators.maxLength.check(baseComponent, 3, 'test')).toBe(false);
+    expect(Validator.validators.maxLength.check(baseComponent, 6, 'test')).toBe(true);
+    expect(Validator.validators.maxLength.check(baseComponent, 6, '')).toBe(true);
   });
 
   it('Should test for email', () => {
-    assert.equal(Validator.validators.email.check(baseComponent, '', 'test'), false);
-    assert.equal(Validator.validators.email.check(baseComponent, '', 'test@a'), false);
-    assert.equal(Validator.validators.email.check(baseComponent, '', 'test@example.com'), true);
-    assert.equal(Validator.validators.email.check(baseComponent, '', 'test@a.com'), true);
-    assert.equal(Validator.validators.email.check(baseComponent, '', 'test@a.co'), true);
+    expect(Validator.validators.email.check(baseComponent, '', 'test')).toBe(false);
+    expect(Validator.validators.email.check(baseComponent, '', 'test@a')).toBe(false);
+    expect(Validator.validators.email.check(baseComponent, '', 'test@example.com')).toBe(true);
+    expect(Validator.validators.email.check(baseComponent, '', 'test@a.com')).toBe(true);
+    expect(Validator.validators.email.check(baseComponent, '', 'test@a.co')).toBe(true);
   });
 
   it('Should test for required', () => {
-    assert.equal(Validator.validators.required.check(baseComponent, true, ''), false);
-    assert.equal(Validator.validators.required.check(baseComponent, true, 't'), true);
-    assert.equal(Validator.validators.required.check(baseComponent, false, ''), true);
-    assert.equal(Validator.validators.required.check(baseComponent, false, 'tes'), true);
-    assert.equal(Validator.validators.required.check(baseComponent, true, undefined), false);
-    assert.equal(Validator.validators.required.check(baseComponent, true, null), false);
-    assert.equal(Validator.validators.required.check(baseComponent, true, []), false);
-    assert.equal(Validator.validators.required.check(baseComponent, true, ['test']), true);
+    expect(Validator.validators.required.check(baseComponent, true, '')).toBe(false);
+    expect(Validator.validators.required.check(baseComponent, true, 't')).toBe(true);
+    expect(Validator.validators.required.check(baseComponent, false, '')).toBe(true);
+    expect(Validator.validators.required.check(baseComponent, false, 'tes')).toBe(true);
+    expect(Validator.validators.required.check(baseComponent, true, undefined)).toBe(false);
+    expect(Validator.validators.required.check(baseComponent, true, null)).toBe(false);
+    expect(Validator.validators.required.check(baseComponent, true, [])).toBe(false);
+    expect(Validator.validators.required.check(baseComponent, true, ['test'])).toBe(true);
 
-    assert.equal(Validator.validators.required.check(disabledComponent, true, ''), true);
-    assert.equal(Validator.validators.required.check(disabledComponent, true, 't'), true);
-    assert.equal(Validator.validators.required.check(disabledComponent, false, ''), true);
-    assert.equal(Validator.validators.required.check(disabledComponent, false, 'tes'), true);
-    assert.equal(Validator.validators.required.check(disabledComponent, true, undefined), true);
-    assert.equal(Validator.validators.required.check(disabledComponent, true, null), true);
-    assert.equal(Validator.validators.required.check(disabledComponent, true, []), true);
-    assert.equal(Validator.validators.required.check(disabledComponent, true, ['test']), true);
+    expect(Validator.validators.required.check(disabledComponent, true, '')).toBe(true);
+    expect(Validator.validators.required.check(disabledComponent, true, 't')).toBe(true);
+    expect(Validator.validators.required.check(disabledComponent, false, '')).toBe(true);
+    expect(Validator.validators.required.check(disabledComponent, false, 'tes')).toBe(true);
+    expect(Validator.validators.required.check(disabledComponent, true, undefined)).toBe(true);
+    expect(Validator.validators.required.check(disabledComponent, true, null)).toBe(true);
+    expect(Validator.validators.required.check(disabledComponent, true, [])).toBe(true);
+    expect(Validator.validators.required.check(disabledComponent, true, ['test'])).toBe(true);
   });
 
   it('Should test for custom', () => {
-    assert.equal(Validator.validators.custom.check(baseComponent, 'valid = (input == "test")', 'test'), true);
-    assert.equal(Validator.validators.custom.check(baseComponent, 'valid = (input == "test")', 'test2'), false);
-    assert.equal(
-      Validator.validators.custom.check(baseComponent, 'valid = (input == "test") ? true : "Should be false."', 'test2'),
+    expect(Validator.validators.custom.check(baseComponent, 'valid = (input == "test")', 'test')).toBe(true);
+    expect(Validator.validators.custom.check(baseComponent, 'valid = (input == "test")', 'test2')).toBe(false);
+    expect(Validator.validators.custom.check(baseComponent, 'valid = (input == "test") ? true : "Should be false."', 'test2')).toBe(
       'Should be false.'
     );
-    assert.equal(Validator.validators.custom.check(baseComponent, 'valid = (input == "test") ? true : "Should be false."', 'test'), true);
+    expect(Validator.validators.custom.check(baseComponent, 'valid = (input == "test") ? true : "Should be false."', 'test')).toBe(true);
   });
 
   it('Should test for pattern', () => {
-    assert.equal(Validator.validators.pattern.check(baseComponent, 'A.*', 'A'), true);
-    assert.equal(Validator.validators.pattern.check(baseComponent, 'A.*', 'Aaaa'), true);
-    assert.equal(Validator.validators.pattern.check(baseComponent, 'w+', 'test'), false);
-    assert.equal(Validator.validators.pattern.check(baseComponent, '\\w+', 'test'), true);
-    assert.equal(Validator.validators.pattern.check(baseComponent, '\\w+@\\w+', 'test@a'), true);
-    assert.equal(Validator.validators.pattern.check(baseComponent, '\\w+@\\w+', 'test@example.com'), false);
+    expect(Validator.validators.pattern.check(baseComponent, 'A.*', 'A')).toBe(true);
+    expect(Validator.validators.pattern.check(baseComponent, 'A.*', 'Aaaa')).toBe(true);
+    expect(Validator.validators.pattern.check(baseComponent, 'w+', 'test')).toBe(false);
+    expect(Validator.validators.pattern.check(baseComponent, '\\w+', 'test')).toBe(true);
+    expect(Validator.validators.pattern.check(baseComponent, '\\w+@\\w+', 'test@a')).toBe(true);
+    expect(Validator.validators.pattern.check(baseComponent, '\\w+@\\w+', 'test@example.com')).toBe(false);
   });
 
   it('Should test for json', () => {
-    assert.equal(
+    expect(
       Validator.validators.json.check(
         baseComponent,
         {
@@ -79,10 +76,10 @@ describe('Validator Tests', () => {
         },
         null,
         { test: ['1', '2', '3'] }
-      ),
-      true
-    );
-    assert.equal(
+      )
+    ).toBe(true);
+
+    expect(
       Validator.validators.json.check(
         baseComponent,
         {
@@ -90,8 +87,7 @@ describe('Validator Tests', () => {
         },
         null,
         { test: ['1', '2', '4'] }
-      ),
-      'Should be false.'
-    );
+      )
+    ).toBe('Should be false.');
   });
 });
