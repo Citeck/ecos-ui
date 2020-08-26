@@ -86,10 +86,7 @@ store.dispatch(
       store.dispatch(
         initAppRequest({
           onSuccess: isAuthenticated => {
-            i18nInit({
-              debug: process.env.NODE_ENV === 'development',
-              shouldLoadLegacyMessages: isAuthenticated
-            }).then(() => {
+            i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
               ReactDOM.render(
                 <Provider store={store}>
                   <ConnectedRouter history={history}>
