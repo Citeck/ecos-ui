@@ -15,7 +15,8 @@ class ImgViewer extends Component {
     }),
     refViewer: PropTypes.object,
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
-    onError: PropTypes.func
+    onError: PropTypes.func,
+    onCentered: PropTypes.func
   };
 
   static defaultProps = {
@@ -75,13 +76,17 @@ class ImgViewer extends Component {
   };
 
   setImageScale = () => {
+    const { onCentered } = this.props;
+    const { calcScale: currentScale } = this.state;
     const calcScale = this.getCalcScale();
 
-    if (this.state.calcScale !== calcScale) {
+    if (currentScale !== calcScale) {
       this.setState({ calcScale });
     }
 
-    this.props.onCentered();
+    if (typeof onCentered === 'function') {
+      onCentered();
+    }
   };
 
   get elImage() {
