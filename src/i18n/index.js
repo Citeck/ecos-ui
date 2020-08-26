@@ -1,6 +1,5 @@
 import i18next from 'i18next';
 import lodashSet from 'lodash/set';
-import lodashGet from 'lodash/get';
 
 import { getCurrentLocale } from '../helpers/util';
 import { AppApi } from '../api/app';
@@ -10,10 +9,10 @@ export function i18nInit({ debug = false }) {
   const promiseServer = AppApi.getDictionaryServer(lng);
   const promiseLocal = AppApi.getDictionaryLocal(lng);
 
-  return Promise.allSettled([promiseServer, promiseLocal])
+  return Promise.all([promiseServer, promiseLocal])
     .then(([server, local]) => ({
-      ...lodashGet(local, 'value', {}),
-      ...lodashGet(server, 'value', {})
+      ...(local || {}),
+      ...(server || {})
     }))
     .then(translation => {
       const ecosForms = {}; // see src/components/EcosForm/EcosFormUtils.js getI18n()

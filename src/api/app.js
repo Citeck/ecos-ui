@@ -80,7 +80,7 @@ export class AppApi extends CommonApi {
 
   static getDictionaryServer(lang) {
     return ecosXhr(`${PROXY_URI}citeck/micro/uiserv/api/messages/locale?id=${lang}`, { method: 'GET' }).then(
-      dictionary => dictionary || {},
+      dictionary => (typeof dictionary === 'string' ? JSON.parse(dictionary) : dictionary),
       e => {
         console.error(e);
         return {};
