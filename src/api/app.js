@@ -1,8 +1,4 @@
-import lodashSet from 'lodash/set';
-import lodashGet from 'lodash/get';
-
 import ecosXhr from '../helpers/ecosXhr';
-import { loadScript } from '../helpers/util';
 import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records/Records';
@@ -83,21 +79,12 @@ export class AppApi extends CommonApi {
   }
 
   static getDictionaryServer(lang) {
-    return new Promise(resolve => {
-      if (!lodashGet(window, 'Alfresco.messages')) {
-        lodashSet(window, 'Alfresco.messages', { global: null, scope: {} });
-      }
-
-      loadScript(`/share/service/messages.js?locale=${lang}`, () => {
-        resolve();
-      });
-    })
-      .then(_ => {
-        return lodashGet(window, 'Alfresco.messages.global', {});
-      })
-      .catch(e => {
+    return ecosXhr(`${PROXY_URI}citeck/micro/uiserv/api/messages/locale?id=${lang}`, { method: 'GET' }).then(
+      dictionary => dictionary || {},
+      e => {
         console.error(e);
         return {};
-      });
+      }
+    );
   }
 }

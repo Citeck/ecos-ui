@@ -21,6 +21,8 @@ export function i18nInit({ debug = false }) {
       Object.keys(translation)
         .filter(key => key.indexOf('ecos.forms.') === 0)
         .forEach(key => (ecosForms[key] = translation[key]));
+
+      lodashSet(window, 'Alfresco.messages.global', translation);
       lodashSet(window, 'Alfresco.messages.ecosForms', ecosForms);
 
       i18next
