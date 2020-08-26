@@ -80,6 +80,8 @@ class ImgViewer extends Component {
     if (this.state.calcScale !== calcScale) {
       this.setState({ calcScale });
     }
+
+    this.props.onCentered();
   };
 
   get elImage() {
@@ -109,10 +111,27 @@ class ImgViewer extends Component {
 
   get styleZoom() {
     const { calcScale = {} } = this.state;
+    const wrapper = get(this.refImgCtr, 'current');
     const styles = {};
 
     if (calcScale) {
       styles.transform = `scale(${calcScale})`;
+    }
+
+    if (wrapper) {
+      wrapper.style.textAlign = 'unset';
+    }
+
+    if (calcScale > 1) {
+      styles.transformOrigin = 'top left';
+    } else {
+      const imageWidth = get(this._imageRef, 'offsetWidth', 0);
+
+      if (wrapper && wrapper.offsetWidth > imageWidth) {
+        wrapper.style.textAlign = 'center';
+      }
+
+      styles.transformOrigin = 'top center';
     }
 
     return styles;
@@ -162,7 +181,7 @@ class ImgViewer extends Component {
         <img
           src={src}
           alt={src}
-          className="ecos-doc-preview__viewer-page-content"
+          className="ecos-doc-preview__viewer-page-content ecos-doc-preview__viewer-page-content_img"
           style={this.styleZoom}
           ref={this.setImgRef}
           onError={this.onError}
