@@ -1,4 +1,5 @@
 import ecosXhr from '../helpers/ecosXhr';
+import ecosFetch from '../helpers/ecosFetch';
 import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records/Records';
@@ -79,12 +80,11 @@ export class AppApi extends CommonApi {
   }
 
   static getDictionaryServer(lang) {
-    return ecosXhr(`${PROXY_URI}citeck/micro/uiserv/api/messages/locale?id=${lang}`, { method: 'GET' }).then(
-      dictionary => (typeof dictionary === 'string' ? JSON.parse(dictionary) : dictionary),
-      e => {
+    return ecosFetch(`${PROXY_URI}citeck/micro/uiserv/api/messages/locale?id=${lang}`)
+      .then(res => (res.ok ? res.json() : Promise.reject(res)))
+      .catch(e => {
         console.error(e);
         return {};
-      }
-    );
+      });
   }
 }
