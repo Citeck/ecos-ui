@@ -107,88 +107,89 @@ describe('Number Component', () => {
     });
   });
 
-  // TODO check
-  // it('Should limit decimals using step', (done) => {
-  //   Harness.testCreate(NumberComponent, _merge({}, comp2, {
-  //     validate: {
-  //       step: '0.001'
-  //     }
-  //   })).then((component) => {
-  //     Harness.testSetInput(component, 123456789.123456789, 123456789.123, '123,456,789.123');
-  //     Harness.testSetInput(component, -123456789.123456789, -123456789.123, '-123,456,789.123');
-  //     Harness.testSetInput(component, '123456789.123456789', 123456789.123, '123,456,789.123');
-  //     Harness.testSetInput(component, '-123456789.123456789', -123456789.123, '-123,456,789.123');
-  //     done();
-  //   });
-  // });
+  // TODO check and fix
+  xit('Should limit decimals using step', done => {
+    Harness.testCreate(
+      NumberComponent,
+      _merge({}, comp2, {
+        validate: {
+          step: '0.001'
+        }
+      })
+    ).then(component => {
+      Harness.testSetInput(component, 123456789.123456789, 123456789.123, '123,456,789.123');
+      Harness.testSetInput(component, -123456789.123456789, -123456789.123, '-123,456,789.123');
+      Harness.testSetInput(component, '123456789.123456789', 123456789.123, '123,456,789.123');
+      Harness.testSetInput(component, '-123456789.123456789', -123456789.123, '-123,456,789.123');
+      done();
+    });
+  });
 
-  // TODO check
-  // it('Should add trailing zeros on blur, if decimal required', (done) => {
-  //   const comp = _.cloneDeep(comp3);
-  //
-  //   comp.decimalLimit = 2;
-  //   comp.requireDecimal = true;
-  //
-  //   Harness.testCreate(NumberComponent, comp).then(number => {
-  //     const testset = [
-  //       // [inv, outv, display]
-  //       ['42',        42,       '42.00'],
-  //       ['42.1',      42.1,     '42.10'],
-  //       ['42.01',     42.01,    '42.01'],
-  //       ['4200',      4200,     '4200.00'],
-  //       ['4200.4',    4200.4,   '4200.40'],
-  //       ['4200.42',   4200.42,  '4200.42'],
-  //       ['4200.',     4200,     '4200.00'],
-  //       ['99999999.', 99999999, '99999999.00']
-  //     ];
-  //
-  //     testset.forEach((set, index) => {
-  //       try {
-  //         Harness.testNumberBlur(number, ...set);
-  //       }
-  //       catch (err) {
-  //         done(new Error(`Test case #${index}, set: ${set}, err: ${err.message}`));
-  //       }
-  //     });
-  //
-  //     done();
-  //   }, done);
-  // });
+  // TODO check and fix
+  xit('Should add trailing zeros on blur, if decimal required', done => {
+    const comp = _.cloneDeep(comp3);
 
-  // TODO check
-  // it('Should add trailing zeros on blur, if decimal and delimiter is required', (done) => {
-  //   const comp = _.cloneDeep(comp3);
-  //
-  //   comp.decimalLimit = 2;
-  //   comp.requireDecimal = true;
-  //   comp.delimiter = true;
-  //
-  //   /* eslint-disable max-statements */
-  //   Harness.testCreate(NumberComponent, comp).then(number => {
-  //     const testset = [
-  //       // [inv, outv, display]
-  //       ['42',        42,       '42.00'],
-  //       ['42.1',      42.1,     '42.10'],
-  //       ['42.01',     42.01,    '42.01'],
-  //       ['4200',      4200,     '4,200.00'],
-  //       ['4200.4',    4200.4,   '4,200.40'],
-  //       ['4200.42',   4200.42,  '4,200.42'],
-  //       ['4200.',     4200,     '4,200.00'],
-  //       ['99999999.', 99999999, '99,999,999.00']
-  //     ];
-  //
-  //     testset.forEach((set, index) => {
-  //       try {
-  //         Harness.testNumberBlur(number, ...set);
-  //       }
-  //       catch (err) {
-  //         done(new Error(`Test case #${index}, set: ${set}, err: ${err.message}`));
-  //       }
-  //     });
-  //
-  //     done();
-  //   }, done);
-  // });
+    comp.decimalLimit = 2;
+    comp.requireDecimal = true;
+
+    Harness.testCreate(NumberComponent, comp).then(number => {
+      const testset = [
+        // [inv, outv, display]
+        ['42', 42, '42.00'],
+        ['42.1', 42.1, '42.10'],
+        ['42.01', 42.01, '42.01'],
+        ['4200', 4200, '4200.00'],
+        ['4200.4', 4200.4, '4200.40'],
+        ['4200.42', 4200.42, '4200.42'],
+        ['4200.', 4200, '4200.00'],
+        ['99999999.', 99999999, '99999999.00']
+      ];
+
+      testset.forEach((set, index) => {
+        try {
+          Harness.testNumberBlur(number, ...set);
+        } catch (err) {
+          done(new Error(`Test case #${index}, set: ${set}, err: ${err.message}`));
+        }
+      });
+
+      done();
+    }, done);
+  });
+
+  // TODO check and fix
+  xit('Should add trailing zeros on blur, if decimal and delimiter is required', done => {
+    const comp = _.cloneDeep(comp3);
+
+    comp.decimalLimit = 2;
+    comp.requireDecimal = true;
+    comp.delimiter = true;
+
+    /* eslint-disable max-statements */
+    Harness.testCreate(NumberComponent, comp).then(number => {
+      const testset = [
+        // [inv, outv, display]
+        ['42', 42, '42.00'],
+        ['42.1', 42.1, '42.10'],
+        ['42.01', 42.01, '42.01'],
+        ['4200', 4200, '4,200.00'],
+        ['4200.4', 4200.4, '4,200.40'],
+        ['4200.42', 4200.42, '4,200.42'],
+        ['4200.', 4200, '4,200.00'],
+        ['99999999.', 99999999, '99,999,999.00']
+      ];
+
+      testset.forEach((set, index) => {
+        try {
+          Harness.testNumberBlur(number, ...set);
+        } catch (err) {
+          done(new Error(`Test case #${index}, set: ${set}, err: ${err.message}`));
+        }
+      });
+
+      done();
+    }, done);
+  });
 
   it('Should add trailing zeros on blur with `multiple` flag', done => {
     Harness.testCreate(NumberComponent, comp4).then(number => {
