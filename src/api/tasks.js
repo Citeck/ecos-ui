@@ -72,6 +72,9 @@ export class TasksApi extends RecordService {
       .then(res => res);
   };
 
+  /**
+   * @description do not use directly; Execute with action service (SET_TASK_ASSIGNEE)
+   */
   static staticChangeAssigneeTask = ({ taskId, action, owner }) => {
     const record = Records.get(taskId);
 
