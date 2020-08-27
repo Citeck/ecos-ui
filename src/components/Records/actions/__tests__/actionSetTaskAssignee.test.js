@@ -65,13 +65,13 @@ describe('action Set Task Assignee', () => {
 
   const assignToSmbInSelect = [
     {
-      title: 'Assign To Someone (without assignee)',
+      title: 'Assign To Someone (without assignee / select)',
       assignee: TEST_USER,
       input: { assignTo: 'someone' },
       output: { action: 'claim', owner: 'workspace://SpacesStore/test-user' }
     },
     {
-      title: 'Assign To Someone (cancel)',
+      title: 'Assign To Someone (without assignee / cancel select)',
       assignee: false,
       input: { assignTo: 'someone' },
       output: { cancel: true }
