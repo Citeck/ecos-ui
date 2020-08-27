@@ -13,7 +13,8 @@ import {
   initAppSettings,
   initAppSuccess,
   setDashboardEditable,
-  setFooter
+  setFooter,
+  setLeftMenuEditable
 } from '../actions/app';
 import { validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
@@ -72,6 +73,7 @@ export function* fetchDashboardEditable({ api, logger }) {
     const editable = yield call(api.app.isDashboardEditable, { username });
 
     yield put(setDashboardEditable(editable));
+    yield put(setLeftMenuEditable(editable)); //todo while there is no own key setting
   } catch (e) {
     logger.error('[fetchDashboardEditable saga] error', e.message);
   }
