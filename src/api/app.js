@@ -1,9 +1,10 @@
-import { CommonApi } from './common';
+import ecosXhr from '../helpers/ecosXhr';
+import ecosFetch from '../helpers/ecosFetch';
 import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
-import ecosXhr from '../helpers/ecosXhr';
+import { CommonApi } from './common';
 
 export class AppApi extends CommonApi {
   getEcosConfig = configName => {
@@ -68,4 +69,22 @@ export class AppApi extends CommonApi {
       .load('value?str')
       .catch(() => null);
   };
+
+  static getDictionaryLocal(lang) {
+    return import(`../i18n/${lang}`)
+      .then(module => module.default)
+      .catch(e => {
+        console.error(e);
+        return {};
+      });
+  }
+
+  static getDictionaryServer(lang) {
+    return ecosFetch(`${PROXY_URI}citeck/micro/uiserv/api/messages/locale?id=${lang}`)
+      .then(res => (res.ok ? res.json() : Promise.reject(res)))
+      .catch(e => {
+        console.error(e);
+        return {};
+      });
+  }
 }

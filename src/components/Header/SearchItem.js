@@ -55,7 +55,7 @@ export default class SearchItem extends React.PureComponent {
     const { icon, title, description, groupName, avatarUrl, isLast, isAvatar } = data || {};
 
     return groupName ? (
-      <li className="ecos-header-search-result__group-name">{groupName}</li>
+      <li className="ecos-header-search-result ecos-header-search-result__group-name">{groupName}</li>
     ) : (
       <li onClick={this.onClick} className="ecos-header-search-result" data-separator={!isLast} ref={this.checkStyle}>
         <div className={classNames('ecos-header-search-result__content', { 'ecos-header-search-result__content_last': isLast })}>

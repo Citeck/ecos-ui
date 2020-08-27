@@ -37,7 +37,7 @@ class JournalsPreview extends Component {
     return (
       <div className={classNames('ecos-journals-preview', className)}>
         <div className="ecos-journals-preview__container">
-          <DocPreview height={'100%'} scale={1} recordId={recordId} clear={clear} />
+          <DocPreview height={'100%'} scale={'auto'} recordId={recordId} clear={clear} />
         </div>
       </div>
     );

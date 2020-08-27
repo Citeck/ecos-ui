@@ -18,16 +18,14 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const Grid = ({ stateId, showPreview, onRowClick, maxHeight }) => (
+const Grid = ({ showPreview, ...props }) => (
   <Well className="ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden">
     <JournalsDashletGrid
-      stateId={stateId}
-      onRowClick={onRowClick}
-      doInlineToolsOnRowClick={showPreview}
       noTopBorder
-      maxHeight={maxHeight}
+      doInlineToolsOnRowClick={showPreview}
       toolsClassName={'grid-tools_r_12'}
       selectorContainer={'.ecos-journal-page'}
+      {...props}
     />
   </Well>
 );
@@ -56,12 +54,14 @@ class JournalsContent extends Component {
   render() {
     const { stateId, showPreview, showPie, maxHeight, isActivePage } = this.props;
     const { recordId } = this.state;
+    let leftColumnClassNames = '';
 
     let cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />];
 
     if (showPreview) {
+      leftColumnClassNames = 'columns columns__column_half-space';
       cols = [
-        <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />,
+        <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} autoHeight minHeight={468} />,
         <Preview stateId={stateId} recordId={recordId} />
       ];
     }
@@ -75,7 +75,7 @@ class JournalsContent extends Component {
         <Columns
           classNamesColumn="columns_height_full columns__column_margin_0"
           cols={cols}
-          cfgs={[{}, { className: 'ecos-journals-content_col-step' }]}
+          cfgs={[{ className: leftColumnClassNames }, { className: 'ecos-journals-content_col-step' }]}
         />
       </JournalsUrlManager>
     );

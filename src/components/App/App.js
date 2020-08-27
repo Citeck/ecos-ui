@@ -169,7 +169,7 @@ class App extends Component {
     if (this.isOnlyContent) {
       if (isMobileAppWebView()) {
         return (
-          <div id="alf-hd">
+          <div id="alf-hd" className="app-header">
             <Notification />
           </div>
         );
@@ -179,7 +179,7 @@ class App extends Component {
     }
 
     return (
-      <div id="alf-hd">
+      <div id="alf-hd" className="app-header">
         <Header />
         <Notification />
       </div>
@@ -359,7 +359,7 @@ class App extends Component {
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile });
-    const basePageClassNames = classNames('ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
+    const basePageClassNames = classNames('app-content ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
 
     return (
       <ErrorBoundary title={t('page.error-loading.title')} message={t('page.error-loading.message')}>
