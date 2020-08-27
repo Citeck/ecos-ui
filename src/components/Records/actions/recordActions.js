@@ -1,16 +1,18 @@
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
+
+import { deepClone, extractLabel, t } from '../../../helpers/util';
+import DialogManager from '../../common/dialogs/Manager/DialogManager';
 import Records from '../Records';
 
 import actionsApi from './recordActionsApi';
-
 import actionsRegistry from './actionsRegistry';
 
-import cloneDeep from 'lodash/cloneDeep';
-import get from 'lodash/get';
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
-import { deepClone, t, extractLabel } from '../../../helpers/util';
-import DialogManager from '../../common/dialogs/Manager/DialogManager';
 
 /**
  * @typedef {Boolean} RecordsActionBoolResult
@@ -288,6 +290,16 @@ class RecordActions {
     });
   }
 
+  static _fillTargetFromSourceByMap = ({ action, data, targetPath, sourcePath }) => {
+    const attributesMapping = get(action, `${sourcePath}attributesMapping`) || {};
+
+    for (let path in attributesMapping) {
+      if (attributesMapping.hasOwnProperty(path)) {
+        set(action, `${targetPath}${path}`, get(data, attributesMapping[path]));
+      }
+    }
+  };
+
   /**
    * Get actions for record.
    *
@@ -435,6 +447,10 @@ class RecordActions {
 
     if (!confirmed) {
       return;
+    }
+
+    if (!isEmpty(confirmed)) {
+      RecordActions._fillTargetFromSourceByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
     }
 
     const config = await RecordActions.replaceAttributeValues(action.config, record);
