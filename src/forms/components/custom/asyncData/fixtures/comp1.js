@@ -1,5 +1,8 @@
 export default {
   type: 'asyncData',
   key: 'asyncData',
-  input: true
+  input: true,
+  update: {
+    type: 'once'
+  }
 };
