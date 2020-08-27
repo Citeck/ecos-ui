@@ -107,30 +107,12 @@ describe('Number Component', () => {
     });
   });
 
-  // TODO check and fix
-  xit('Should limit decimals using step', done => {
-    Harness.testCreate(
-      NumberComponent,
-      _merge({}, comp2, {
-        validate: {
-          step: '0.001'
-        }
-      })
-    ).then(component => {
-      Harness.testSetInput(component, 123456789.123456789, 123456789.123, '123,456,789.123');
-      Harness.testSetInput(component, -123456789.123456789, -123456789.123, '-123,456,789.123');
-      Harness.testSetInput(component, '123456789.123456789', 123456789.123, '123,456,789.123');
-      Harness.testSetInput(component, '-123456789.123456789', -123456789.123, '-123,456,789.123');
-      done();
-    });
-  });
-
-  // TODO check and fix
-  xit('Should add trailing zeros on blur, if decimal required', done => {
+  it('Should add trailing zeros on blur, if decimal required', done => {
     const comp = _.cloneDeep(comp3);
 
     comp.decimalLimit = 2;
     comp.requireDecimal = true;
+    comp.defaultValue = '';
 
     Harness.testCreate(NumberComponent, comp).then(number => {
       const testset = [
@@ -157,13 +139,13 @@ describe('Number Component', () => {
     }, done);
   });
 
-  // TODO check and fix
-  xit('Should add trailing zeros on blur, if decimal and delimiter is required', done => {
+  it('Should add trailing zeros on blur, if decimal and delimiter is required', done => {
     const comp = _.cloneDeep(comp3);
 
     comp.decimalLimit = 2;
     comp.requireDecimal = true;
     comp.delimiter = true;
+    comp.defaultValue = '';
 
     /* eslint-disable max-statements */
     Harness.testCreate(NumberComponent, comp).then(number => {
