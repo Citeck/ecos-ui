@@ -44,7 +44,7 @@ export default class DownloadAction extends ActionsExecutor {
           if (!filename.endsWith('.json')) {
             filename += '.json';
           }
-          DownloadAction._downloadText(JSON.stringify(data.json), filename, 'text/json');
+          DownloadAction._downloadText(JSON.stringify(data.json, null, '  '), filename, 'text/json');
         });
     } else {
       const name = fileName || 'file';
