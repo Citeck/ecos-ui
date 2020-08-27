@@ -217,7 +217,6 @@ export default class FileComponent extends FormIOFileComponent {
       recordRef = FileComponent.extractFileRecordRef(file);
       documentUrl = FileComponent.buildDocumentUrl(recordRef);
     } catch (e) {
-      console.warn(`EcosForm File: ${e.message}`);
       this.calculateFileLinkText({ fileItemElement, originalFileName, file });
       return fileItemElement;
     }

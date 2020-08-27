@@ -1,3 +1,4 @@
+import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import React, { Component } from 'react';
 
@@ -48,7 +49,8 @@ export default class RawHtmlWrapper extends Component {
     };
 
     // detect functional component
-    if (!this.props.component.prototype.render) {
+    const componentRender = get(this, 'props.component.prototype.render');
+    if (!componentRender) {
       self.resolveComponent(this);
       return <this.props.component {...props} />;
     }
