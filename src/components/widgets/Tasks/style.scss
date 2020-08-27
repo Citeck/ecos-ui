@@ -17,6 +17,10 @@
 
       &__body {
       }
+
+      .formio-form {
+        min-height: unset;
+      }
     }
 
     &__loader {
