@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import _merge from 'lodash/merge';
 
 import Harness from '../../../test/harness';
 import NumberComponent from './Number';
