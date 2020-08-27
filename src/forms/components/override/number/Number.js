@@ -10,7 +10,8 @@ export default class NumberComponent extends FormIONumberComponent {
       {
         delimiter: false,
         requireDecimal: false,
-        decimalLimit: ''
+        decimalLimit: '',
+        stringValue: ''
       },
       ...extend
     );
@@ -26,8 +27,44 @@ export default class NumberComponent extends FormIONumberComponent {
     overrideTriggerChange.call(this);
   }
 
+  isBigInt(dataValue = this.dataValue) {
+    let value = dataValue;
+
+    if (typeof value === 'string') {
+      value = parseFloat(value);
+    }
+
+    return String(value).includes('e+');
+  }
+
   getMaskedValue(value) {
     return this.formatValue(this.clearInput(value));
+  }
+
+  clearInput(input) {
+    let value = parseFloat(input);
+
+    if (!_.isNaN(value)) {
+      let strNumber = String(value);
+
+      if (strNumber.includes('e+')) {
+        strNumber = this.component.stringValue;
+      }
+
+      value = String(strNumber).replace('.', this.decimalSeparator);
+    } else {
+      value = null;
+    }
+
+    return value;
+  }
+
+  setValue(value, flags) {
+    super.setValue(value, flags);
+
+    if (this.isBigInt()) {
+      this.dataValue = _.get(this.component, 'stringValue', value);
+    }
   }
 
   formatValue(value) {
@@ -45,6 +82,17 @@ export default class NumberComponent extends FormIONumberComponent {
     return value;
   }
 
+  getValue() {
+    let value = super.getValue();
+
+    if (this.isBigInt(value)) {
+      value = window.BigInt(value).toString();
+      value = this._prepareStringNumber(value);
+    }
+
+    return value;
+  }
+
   setupValueElement(element) {
     const renderValue = val => {
       element.innerHTML = val;
@@ -54,6 +102,13 @@ export default class NumberComponent extends FormIONumberComponent {
 
     if (this.isEmpty(value)) {
       renderValue(this.defaultViewOnlyValue);
+      return;
+    }
+
+    if (this.isBigInt(value)) {
+      value = window.BigInt(value).toString();
+      value = this._prepareStringNumber(value);
+      renderValue(value);
       return;
     }
 
@@ -80,6 +135,28 @@ export default class NumberComponent extends FormIONumberComponent {
     }
 
     renderValue(value);
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-78
+  _prepareStringNumber(value) {
+    const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
+    let newValue = value;
+
+    newValue = newValue.replace(/,/g, '.');
+    newValue = newValue.replace(/\./g, this.decimalSeparator);
+
+    if (!!decimalLimit) {
+      let [mainPart, decimalPart] = newValue.split(this.decimalSeparator);
+
+      if (decimalPart) {
+        decimalPart = decimalPart.slice(0, decimalLimit);
+        newValue = `${mainPart}${this.decimalSeparator}${decimalPart}`;
+      }
+
+      newValue = this._fillZeros(newValue);
+    }
+
+    return newValue;
   }
 
   _fillZeros(value) {
@@ -134,6 +211,8 @@ export default class NumberComponent extends FormIONumberComponent {
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-109
   recalculateMask = (value, options, input) => {
+    _.set(this.component, 'stringValue', value);
+
     const updatedValue = value.replace(/\.|,/g, this.decimalSeparator);
     const formattedValue = this.formatValue(updatedValue);
     let position = options.currentCaretPosition;
