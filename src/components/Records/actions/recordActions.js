@@ -255,7 +255,8 @@ class RecordActions {
               display: 'form',
               ...formDefinition
             },
-            onSubmit: submission => callback(submission.data)
+            onSubmit: submission => callback(submission.data),
+            onCancel: _ => callback(false)
           });
         })
         .catch(e => {
@@ -290,7 +291,15 @@ class RecordActions {
     });
   }
 
-  static _fillTargetFromSourceByMap = ({ action, data, targetPath, sourcePath }) => {
+  /**
+   * Fill values by attributes mapping (change properties of action)
+   *
+   * @param {Object} action - configuration
+   * @param {Object} data - values which set
+   * @param {String} targetPath - where attributesMapping is in action
+   * @param {String} sourcePath - where to set values by map
+   */
+  static _fillDataByMap = ({ action, data, targetPath, sourcePath }) => {
     const attributesMapping = get(action, `${sourcePath}attributesMapping`) || {};
 
     for (let path in attributesMapping) {
@@ -446,11 +455,11 @@ class RecordActions {
     const confirmed = await RecordActions._checkConfirmAction(action);
 
     if (!confirmed) {
-      return;
+      return false;
     }
 
     if (!isEmpty(confirmed)) {
-      RecordActions._fillTargetFromSourceByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
+      RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
     }
 
     const config = await RecordActions.replaceAttributeValues(action.config, record);
