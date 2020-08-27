@@ -1,5 +1,7 @@
 import actionsRegistry from './actionsRegistry';
 
+import AttributeActionsResolver from './handler/resolver/AttributeActionsResolver';
+
 import ViewBusinessProcessAction from './handler/executor/workflow/ViewBusinessProcessAction';
 import CancelBusinessProcessAction from './handler/executor/workflow/CancelBusinessProcessAction';
 import EditTaskAssignee from './handler/executor/workflow/EditTaskAssignee';
@@ -24,8 +26,6 @@ import ModuleCopyAction from './handler/executor/ecos-module/ModuleCopyAction';
 import CaseCreateNodeAction from './handler/executor/case/CaseCreateNodeAction';
 import SaveAsCaseTemplateAction from './handler/executor/SaveAsCaseTemplateAction';
 import DownloadCardTemplateAction from './handler/executor/DownloadCardTemplateAction';
-
-import AttributeActionsResolver from './handler/resolver/AttributeActionsResolver';
 import DownloadZipAction from './handler/executor/DownloadZipAction';
 import ServerGroupAction from './handler/executor/ServerGroupAction';
 import MutateAction from './handler/executor/MutateAction';
