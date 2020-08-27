@@ -35,7 +35,8 @@ const mapStateToProps = (state, props) => {
     pageTabsIsShow: state.pageTabs.isShow,
     journalConfig: newState.journalConfig,
     predicate: newState.predicate,
-    grid: newState.grid
+    grid: newState.grid,
+    isLoading: newState.loading
   };
 };
 
@@ -98,7 +99,8 @@ class Journals extends Component {
       isActivePage,
       urlParams: { journalId },
       stateId,
-      grid
+      grid,
+      isLoading
     } = this.props;
     const {
       isActivePage: _isActivePage,
@@ -118,8 +120,13 @@ class Journals extends Component {
       this.search(search);
     }
 
-    if (!_isActivePage && isActivePage) {
-      this.onForceUpdate();
+    if (isActivePage && this.state.isForceUpdate) {
+      this.setState({ isForceUpdate: false });
+      this.props.reloadGrid();
+    }
+
+    if (_isActivePage && !isActivePage && isLoading) {
+      this.setState({ isForceUpdate: true });
     }
   }
 
@@ -204,9 +211,9 @@ class Journals extends Component {
 
   render() {
     const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage } = this.props;
-    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height, isForceUpdate } = this.state;
+    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height } = this.state;
 
-    if (!journalConfig || isForceUpdate) {
+    if (!journalConfig) {
       return null;
     }
 
