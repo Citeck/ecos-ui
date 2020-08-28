@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import fscreen from 'fscreen';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import debounce from 'lodash/debounce';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { Fullpage, Icon } from '../../common';
@@ -46,6 +47,10 @@ export default function getViewer(WrappedComponent, isPdf) {
       if (fullscreenEnabled) {
         document.addEventListener('fullscreenchange', this.onChangeFullscreen, false);
       }
+
+      if (!isPdf) {
+        this.setScrollDefaultPosition();
+      }
     }
 
     getSnapshotBeforeUpdate(prevProps) {
@@ -86,9 +91,14 @@ export default function getViewer(WrappedComponent, isPdf) {
           set(this.elScrollbar, 'view.scrollTop', scrollTo);
         }
       }
+
+      if (!isPdf && get(this.props, 'settings.scale') !== get(prevProps, 'settings.scale')) {
+        this.setScrollDefaultPosition();
+      }
     }
 
     componentWillUnmount() {
+      this.setScrollDefaultPosition.cancel();
       document.removeEventListener('fullscreenchange', this.onChangeFullscreen, false);
     }
 
@@ -129,6 +139,17 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     prevScroll = 0;
+
+    setScrollDefaultPosition = debounce(() => {
+      if (!this.elScrollbar) {
+        return;
+      }
+
+      const { clientWidth, clientHeight, scrollWidth, scrollHeight } = this.elScrollbar.getValues();
+
+      this.elScrollbar.scrollLeft((scrollWidth - clientWidth) / 2);
+      this.elScrollbar.scrollTop((scrollHeight - clientHeight) / 2);
+    }, 250);
 
     onScrollFrame = data => {
       if (isPdf) {
@@ -212,8 +233,12 @@ export default function getViewer(WrappedComponent, isPdf) {
           autoHide
           {...extraProps}
         >
-          <div className={classNames({ 'ecos-doc-preview__viewer-dh': resizable || isFullscreenOn })}>
-            <WrappedComponent {...newProps} ref={componentRef} />
+          <div
+            className={classNames({
+              'ecos-doc-preview__viewer-dh': resizable || isFullscreenOn
+            })}
+          >
+            <WrappedComponent {...newProps} ref={componentRef} onCentered={this.setScrollDefaultPosition} />
           </div>
         </Scrollbars>
       );
