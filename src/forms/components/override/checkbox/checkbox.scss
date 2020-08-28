@@ -74,9 +74,14 @@
         }
       }
 
-      &.field-required:after {
-        position: absolute;
-        margin-left: 2px;
+      &.field-required {
+        & span {
+          width: 99%;
+        }
+
+        &:after {
+          position: absolute;
+        }
       }
     }
   }
