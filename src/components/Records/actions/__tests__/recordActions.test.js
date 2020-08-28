@@ -174,6 +174,26 @@ describe('RecordActions service', () => {
     });
   });
 
+  it('Method _fillDataByMap', () => {
+    const action = {
+      config: {},
+      confirm: {
+        attributesMapping: {
+          'body.comment': 'comment'
+        }
+      }
+    };
+
+    recordActions.constructor._fillDataByMap({
+      action,
+      data: { comment: 'test' },
+      targetPath: 'config.',
+      sourcePath: 'confirm.'
+    });
+
+    expect(action.config.body).toEqual({ comment: 'test' });
+  });
+
   test('Service test', async () => {
     let mergeModel = (first, second) => {
       let res = Object.assign({}, first);
