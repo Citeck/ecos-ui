@@ -40,4 +40,17 @@ export default class ActionsExecutor extends ActionsHandler {
   async execForQuery(query, action, context) {
     throw new Error('Not implemented');
   }
+
+  /**
+   * Update records
+   *
+   * @param {Record|Array<Record>} records
+   */
+  updateRecords(records) {
+    if (Array.isArray(records)) {
+      records.forEach(record => record.update());
+    } else {
+      records.update();
+    }
+  }
 }
