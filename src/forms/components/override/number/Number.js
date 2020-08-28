@@ -85,8 +85,22 @@ export default class NumberComponent extends FormIONumberComponent {
   getValue() {
     let value = super.getValue();
 
+    if (typeof value === 'object') {
+      const keys = Object.keys(value);
+
+      switch (true) {
+        case keys.includes('str'):
+          value = value.str;
+          break;
+        case keys.includes('num'):
+          value = value.num;
+          break;
+        default:
+          value = '';
+      }
+    }
+
     if (this.isBigInt(value)) {
-      value = window.BigInt(value).toString();
       value = this._prepareStringNumber(value);
     }
 
@@ -106,7 +120,6 @@ export default class NumberComponent extends FormIONumberComponent {
     }
 
     if (this.isBigInt(value)) {
-      value = window.BigInt(value).toString();
       value = this._prepareStringNumber(value);
       renderValue(value);
       return;
@@ -138,7 +151,7 @@ export default class NumberComponent extends FormIONumberComponent {
   }
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-78
-  _prepareStringNumber(value) {
+  _prepareStringNumber(value = '') {
     const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
     let newValue = value;
 
@@ -195,6 +208,10 @@ export default class NumberComponent extends FormIONumberComponent {
 
     if (!val) {
       return ''; // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2501 (See const "changed" in Base.updateValue())
+    }
+
+    if (typeof val === 'string' && val.length > String(Number.MAX_SAFE_INTEGER).length) {
+      return this._prepareStringNumber(val);
     }
 
     return this.parseNumber(val);
