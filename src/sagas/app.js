@@ -18,7 +18,7 @@ import {
 } from '../actions/app';
 import { validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
-import { getMenuConfig } from '../actions/menu';
+import { getMenuConfig, setMenuConfig } from '../actions/menu';
 import PageService from '../services/PageService';
 
 export function* initApp({ api, fakeApi, logger }, { payload }) {
@@ -73,9 +73,19 @@ export function* fetchDashboardEditable({ api, logger }) {
     const editable = yield call(api.app.isDashboardEditable, { username });
 
     yield put(setDashboardEditable(editable));
-    yield put(setLeftMenuEditable(editable)); //todo while there is no own key setting
   } catch (e) {
     logger.error('[fetchDashboardEditable saga] error', e.message);
+  }
+}
+
+export function* fetchLeftMenuEditable({ api, logger }) {
+  try {
+    const leftMenuEditable = yield select(state => state.app.dashboardEditable); //todo while there is no own key setting
+    const menuVersion = yield select(state => state.menu.version);
+
+    yield put(setLeftMenuEditable(leftMenuEditable && menuVersion > 0));
+  } catch (e) {
+    logger.error('[fetchLeftMenuEditable saga] error', e.message);
   }
 }
 
@@ -116,6 +126,7 @@ function* appSaga(ea) {
 
   yield takeEvery(initAppSettings().type, fetchAppSettings, ea);
   yield takeEvery(getDashboardEditable().type, fetchDashboardEditable, ea);
+  yield takeEvery([setDashboardEditable().type, setMenuConfig().type], fetchLeftMenuEditable, ea);
   yield takeEvery(getFooter().type, fetchFooter, ea);
   yield takeEvery(backPageFromTransitionsHistory().type, sagaBackFromHistory, ea);
 }
