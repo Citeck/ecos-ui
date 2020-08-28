@@ -165,7 +165,7 @@ export function treeGetItemCoords({ items, key, value }) {
         return { level, parent, index: i };
       }
 
-      const sub = !!item.items && find(item.items, level++, i);
+      const sub = !!item.items && find(item.items, level + 1, i);
 
       if (sub) {
         return sub;
@@ -215,7 +215,6 @@ export function treeMoveItem({ fromId, toId, original, key = 'id' }) {
   }
 
   const items = deepClone(original);
-
   const infoTo = treeGetItemCoords({ items, key, value: toId });
   const infoFrom = treeGetItemCoords({ items, key, value: fromId });
   const movedItem = treeRemoveItem({ items, key, value: fromId });
