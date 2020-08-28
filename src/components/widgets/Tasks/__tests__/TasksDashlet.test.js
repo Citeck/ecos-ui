@@ -73,7 +73,7 @@ describe('TasksDashlet', () => {
           .then(() => {
             expect(wrapper.instance().scrollbarProps).toEqual(item.output);
           })
-          .finally(() => wrapper.unmount());
+          .then(() => wrapper.unmount());
       });
     });
   });
