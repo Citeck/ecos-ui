@@ -1,3 +1,5 @@
+import * as queryString from 'query-string';
+
 import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch from '../helpers/ecosFetch';
 import { SourcesId } from '../constants';
@@ -79,8 +81,19 @@ export class AppApi extends CommonApi {
       });
   }
 
-  static getDictionaryServer(lang) {
-    return ecosFetch(`${PROXY_URI}citeck/micro/uiserv/api/messages/locale?id=${lang}`)
+  /**
+   * Fetch translation dictionary for selected lang
+   * @param id - selected lang [ en | ru | ... ]
+   * @returns {Promise<Object<String,String>>}
+   */
+  static async getDictionaryServer(id) {
+    const cb = await Records.get('uiserv/meta@')
+      .load('attributes.i18n-cache-key')
+      .then(k => k || '0')
+      .catch(_ => '0');
+    const url = queryString.stringifyUrl({ url: `${PROXY_URI}citeck/micro/uiserv/api/messages/locale`, query: { id, cb } });
+
+    return ecosFetch(url)
       .then(res => (res.ok ? res.json() : Promise.reject(res)))
       .catch(e => {
         console.error(e);
