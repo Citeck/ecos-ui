@@ -20,7 +20,7 @@ export const AssocLink = ({ className, label, asText, link, paramsLink = {} }) =
   }
 
   return (
-    <a href={link} onClick={onClickHandler} className={classNames('assoc-value', className)}>
+    <a href={link} title={label} onClick={onClickHandler} className={classNames('assoc-value', className)}>
       {label}
     </a>
   );
