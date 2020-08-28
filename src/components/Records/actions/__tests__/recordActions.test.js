@@ -174,7 +174,7 @@ describe('RecordActions service', () => {
     });
   });
 
-  describe('Method _fillDataByMap', () => {
+  it('Method _fillDataByMap', () => {
     const action = {
       config: {},
       confirm: {
