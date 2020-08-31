@@ -28,6 +28,8 @@ import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { replaceHistoryLink } from '../../helpers/urls';
+import { selectThemeImage, selectThemeStylesheet } from '../../selectors/view';
+import { DefaultImages } from '../../constants/theme';
 
 import './App.scss';
 
@@ -337,8 +339,14 @@ class App extends Component {
     return <div ref={this.setFooterRef} className="app-footer" dangerouslySetInnerHTML={{ __html: footer }} />;
   }
 
+  renderThemeStylesheet() {
+    const { themeStylesheet } = this.props;
+
+    return <link rel="stylesheet" type="text/css" href={themeStylesheet} />;
+  }
+
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile, theme } = this.props;
+    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, loginLogo } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -353,7 +361,8 @@ class App extends Component {
     if (!isAuthenticated) {
       return (
         <Suspense fallback={null}>
-          <LoginForm theme={theme} />
+          {this.renderThemeStylesheet()}
+          <LoginForm theme={theme} logo={loginLogo} />
         </Suspense>
       );
     }
@@ -363,6 +372,8 @@ class App extends Component {
 
     return (
       <ErrorBoundary title={t('page.error-loading.title')} message={t('page.error-loading.message')}>
+        {this.renderThemeStylesheet()}
+
         <div className={appClassNames}>
           {this.renderReduxModal()}
 
@@ -394,7 +405,9 @@ const mapStateToProps = state => ({
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
   tabs: get(state, 'pageTabs.tabs', []),
   menuType: get(state, ['menu', 'type']),
-  footer: get(state, 'app.footer', null)
+  footer: get(state, 'app.footer', null),
+  loginLogo: selectThemeImage(state, DefaultImages.LOGIN_LOGO),
+  themeStylesheet: selectThemeStylesheet(state)
 });
 
 const mapDispatchToProps = dispatch => ({
