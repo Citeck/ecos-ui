@@ -134,7 +134,7 @@ export const oldToNewMenu = [
 export const makeSiteMenuFromConfig = [
   [{}, []],
   [
-    { isAdmin: true },
+    { leftMenuEditable: true, isAdmin: true },
     [
       {
         id: 'SETTINGS_MENU',
@@ -161,7 +161,7 @@ export const makeSiteMenuFromConfig = [
     ]
   ],
   [
-    { isAdmin: true, isDashboardPage: true },
+    { leftMenuEditable: true, isAdmin: true, isDashboardPage: true },
     [
       {
         id: 'SETTINGS_DASHBOARD',
@@ -179,6 +179,16 @@ export const makeSiteMenuFromConfig = [
         label: 'header.site-menu.admin-page',
         targetUrl: '/v2/bpmn-designer',
         targetUrlType: 'FULL_PATH'
+      }
+    ]
+  ],
+  [
+    { leftMenuEditable: true },
+    [
+      {
+        id: 'SETTINGS_MENU',
+        isAction: true,
+        label: 'header.site-menu.menu-settings'
       }
     ]
   ]

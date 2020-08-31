@@ -164,7 +164,7 @@ class TaskAssignmentPanel extends Component {
     });
 
     if (!save) {
-      NotificationManager.warning(t('tasks-widget.saga.error3'));
+      NotificationManager.warning(t('tasks-widget.error.failed-assign-task'));
     }
 
     const documentRef = await TasksApi.getDocument(taskId);
