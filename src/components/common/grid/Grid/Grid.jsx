@@ -474,7 +474,9 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable) => {
-    const { filters, sortBy } = this.props;
+    const { filters, sortBy, onSort, onFilter } = this.props;
+    const isFilterable = filterable && typeof onFilter === 'function';
+    const isSortable = sortable && typeof onSort === 'function';
 
     column.headerFormatter = (column, colIndex) => {
       const filterValue = ((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || '';
@@ -482,11 +484,11 @@ class Grid extends Component {
 
       return (
         <HeaderFormatter
-          filterable={filterable}
+          filterable={isFilterable}
           closeFilterEvent={CLOSE_FILTER_EVENT}
           filterValue={filterValue}
           onFilter={this.onFilter}
-          sortable={sortable}
+          sortable={isSortable}
           onSort={this.onSort}
           ascending={ascending}
           column={column}
