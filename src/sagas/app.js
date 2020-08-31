@@ -80,7 +80,8 @@ export function* fetchDashboardEditable({ api, logger }) {
 
 export function* fetchLeftMenuEditable({ api, logger }) {
   try {
-    const leftMenuEditable = yield select(state => state.app.dashboardEditable); //todo while there is no own key setting
+    const username = yield select(selectUserName);
+    const leftMenuEditable = yield call(api.app.isDashboardEditable, { username });
     const menuVersion = yield select(state => state.menu.version);
 
     yield put(setLeftMenuEditable(leftMenuEditable && menuVersion > 0));
