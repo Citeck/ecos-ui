@@ -133,6 +133,7 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
 export function makeSiteMenu(params = {}) {
   const isDashboardPage = get(params, 'isDashboardPage', false);
   const isAdmin = get(params, 'isAdmin', false);
+  const leftMenuEditable = get(params, 'leftMenuEditable', false);
   const menu = [
     // {
     //   id: 'HOME_PAGE',
@@ -168,6 +169,7 @@ export function makeSiteMenu(params = {}) {
       case 'SETTINGS_DASHBOARD':
         return isDashboardPage;
       case 'SETTINGS_MENU':
+        return leftMenuEditable;
       case 'GO_ADMIN_PAGE':
         return isAdmin;
       default:

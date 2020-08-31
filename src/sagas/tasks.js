@@ -16,7 +16,7 @@ function* sagaGetTasks({ api, logger }, { payload }) {
     const res = yield call(api.tasks.getTasksForUser, { document });
 
     if (isEmpty(res)) {
-      NotificationManager.warning(t('tasks-widget.saga.error1'));
+      NotificationManager.warning(t('tasks-widget.error.get-tasks'));
       setTaskList({ stateId, list: [], totalCount: 0 });
     } else {
       yield put(
@@ -30,7 +30,7 @@ function* sagaGetTasks({ api, logger }, { payload }) {
 
     SidebarService.emitter.emit(SidebarService.UPDATE_EVENT);
   } catch (e) {
-    yield put(setNotificationMessage(t('tasks-widget.saga.error1')));
+    yield put(setNotificationMessage(t('tasks-widget.error.get-tasks')));
     logger.error('[tasks/sagaGetTasks saga] error', e.message);
   }
 }
@@ -41,7 +41,7 @@ function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
     const save = yield call(api.tasks.changeAssigneeTask, { taskId, action: actionOfAssignment, owner: ownerUserName });
 
     if (!save) {
-      NotificationManager.warning(t('tasks-widget.saga.error3'));
+      NotificationManager.warning(t('tasks-widget.error.failed-assign-task'));
     }
 
     const updatedFields = yield call(api.tasks.getTaskStateAssign, { taskId });
@@ -53,7 +53,7 @@ function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
 
     SidebarService.emitter.emit(SidebarService.UPDATE_EVENT);
   } catch (e) {
-    yield put(setNotificationMessage(t('tasks-widget.saga.error2')));
+    yield put(setNotificationMessage(t('tasks-widget.error.assign-task')));
     logger.error('[tasks/sagaChangeAssigneeTask saga] error', e.message);
   }
 }

@@ -33,13 +33,9 @@ export default handleActions(
     [saveMenuConfig]: startLoading,
 
     [setMenuConfig]: (state, action) => {
-      const { id, type, version } = action.payload;
-
       return {
         ...state,
-        id,
-        type,
-        version,
+        ...action.payload,
         isLoading: false
       };
     },
