@@ -29,11 +29,16 @@
 
       &:focus {
         box-shadow: none;
-        background-color: $color-gray-1;
+        background-color: $color-gray-4;
       }
 
       &:active {
         background-color: $color-gray-4;
+      }
+
+      &:disabled {
+        background-color: $color-gray-4;
+        color: $color-gray-5;
       }
 
       &.btn-primary {
@@ -46,7 +51,7 @@
 
         &:focus {
           box-shadow: none;
-          background-color: $color-blue-light;
+          background-color: $color-blue-dark;
         }
 
         &:active {
@@ -54,7 +59,8 @@
         }
 
         &:disabled {
-          background-color: #c6d6f0;
+          background-color: $color-blue-light2;
+          color: $color-white;
         }
       }
 
