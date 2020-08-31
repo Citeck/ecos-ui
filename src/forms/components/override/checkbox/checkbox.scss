@@ -23,7 +23,6 @@
           display: inline-block;
           line-height: 18px;
           position: relative;
-          word-break: break-all;
 
           &:before {
             font-family: $font-family-citeck;
@@ -75,12 +74,10 @@
       }
 
       &.field-required {
-        & span {
-          width: 99%;
-        }
-
         &:after {
           position: absolute;
+          margin-left: 1px;
+          margin-top: -3px;
         }
       }
     }
