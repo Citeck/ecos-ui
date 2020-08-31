@@ -91,7 +91,7 @@ class Journals extends Component {
   }
 
   componentDidMount() {
-    this.getJournalsData();
+    trigger.call(this, 'getJournalsData');
     trigger.call(this, 'onRender');
   }
 
@@ -101,7 +101,8 @@ class Journals extends Component {
       urlParams: { journalId },
       stateId,
       grid,
-      isLoading
+      isLoading,
+      getJournalsData
     } = this.props;
     const {
       isActivePage: _isActivePage,
@@ -110,11 +111,11 @@ class Journals extends Component {
     const search = this.getSearch();
 
     if (isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId)) {
-      this.getJournalsData();
+      getJournalsData();
     }
 
     if (prevProps.stateId !== stateId) {
-      this.getJournalsData();
+      getJournalsData();
     }
 
     if (search && !get(prevProps, 'grid.columns') && get(grid, 'columns')) {
@@ -146,10 +147,6 @@ class Journals extends Component {
   refresh = () => {
     this.props.reloadGrid();
   };
-
-  getJournalsData() {
-    this.props.getJournalsData();
-  }
 
   addRecord = createVariant => {
     FormManager.createRecordByVariant(createVariant, {
