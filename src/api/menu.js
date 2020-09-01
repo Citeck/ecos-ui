@@ -266,33 +266,15 @@ export class MenuApi extends CommonApi {
       .then(resp => resp);
   };
 
-  getUserMenuConfig = () => {
+  getUserMenuConfig = async () => {
     const user = getCurrentUserName();
 
-    const getVer = () =>
-      Records.get('ecos-config@default-ui-main-menu')
-        .load('.str')
-        .then(configVersion => {
-          const version = configVersion.replace('left-v', '');
+    const configVersion = await Records.get('ecos-config@default-ui-main-menu').load('.str');
+    const _ver = configVersion.replace('left-v', '');
+    const version = _ver !== 'left' ? +_ver : 0;
+    const id = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'id');
 
-          if (version !== 'left') {
-            return { version: +version, configVersion };
-          }
-
-          return { version: 0, configVersion };
-        });
-
-    const getId = version =>
-      Records.queryOne(
-        {
-          sourceId: SourcesId.MENU,
-          query: { user, version }
-        },
-        { id: 'id' },
-        {}
-      ).then(data => ({ ...version, ...data }));
-
-    return getVer().then(getId);
+    return Promise.resolve({ version, configVersion, id });
   };
 
   getMenuSettingsConfig = ({ id = '' }) => {
