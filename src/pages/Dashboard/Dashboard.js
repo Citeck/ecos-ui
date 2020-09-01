@@ -131,7 +131,6 @@ class Dashboard extends Component {
 
   componentDidMount() {
     this.getConfig(this.state.urlParams);
-    window.getConfig = () => this.getConfig(getSortedUrlParams());
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
