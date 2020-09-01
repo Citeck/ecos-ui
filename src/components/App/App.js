@@ -28,7 +28,7 @@ import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { replaceHistoryLink } from '../../helpers/urls';
-import { selectThemeImage, selectThemeStylesheet } from '../../selectors/view';
+import { selectThemeImage } from '../../selectors/view';
 import { DefaultImages } from '../../constants/theme';
 
 import './App.scss';
@@ -339,12 +339,6 @@ class App extends Component {
     return <div ref={this.setFooterRef} className="app-footer" dangerouslySetInnerHTML={{ __html: footer }} />;
   }
 
-  renderThemeStylesheet() {
-    const { themeStylesheet } = this.props;
-
-    return <link rel="stylesheet" type="text/css" href={themeStylesheet} />;
-  }
-
   render() {
     const { isInit, isInitFailure, isAuthenticated, isMobile, theme, loginLogo } = this.props;
 
@@ -361,7 +355,6 @@ class App extends Component {
     if (!isAuthenticated) {
       return (
         <Suspense fallback={null}>
-          {this.renderThemeStylesheet()}
           <LoginForm theme={theme} logo={loginLogo} />
         </Suspense>
       );
@@ -372,8 +365,6 @@ class App extends Component {
 
     return (
       <ErrorBoundary title={t('page.error-loading.title')} message={t('page.error-loading.message')}>
-        {this.renderThemeStylesheet()}
-
         <div className={appClassNames}>
           {this.renderReduxModal()}
 
@@ -406,8 +397,7 @@ const mapStateToProps = state => ({
   tabs: get(state, 'pageTabs.tabs', []),
   menuType: get(state, ['menu', 'type']),
   footer: get(state, 'app.footer', null),
-  loginLogo: selectThemeImage(state, DefaultImages.LOGIN_LOGO),
-  themeStylesheet: selectThemeStylesheet(state)
+  loginLogo: selectThemeImage(state, DefaultImages.LOGIN_LOGO)
 });
 
 const mapDispatchToProps = dispatch => ({

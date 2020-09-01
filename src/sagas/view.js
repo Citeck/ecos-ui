@@ -1,9 +1,10 @@
-import { put, takeLatest, call } from 'redux-saga/effects';
+import { put, takeLatest, call, select } from 'redux-saga/effects';
 import get from 'lodash/get';
 
 import { detectMobileDevice, setTheme, setThemeConfig } from '../actions/view';
 import { setIsMobile, loadThemeRequest } from '../actions/view';
-import { applyTheme, isMobileDevice } from '../helpers/util';
+import { applyTheme, isMobileDevice, loadStylesheet } from '../helpers/util';
+import { selectThemeStylesheet } from '../selectors/view';
 
 export function* doDetectMobileDevice({ api, fakeApi, logger }) {
   try {
@@ -33,7 +34,8 @@ export function* loadTheme({ api, fakeApi, logger }, { payload }) {
     yield put(setTheme(id));
     yield call(applyTheme, id);
 
-    typeof payload.onSuccess === 'function' && payload.onSuccess(id);
+    const stylesheetUrl = yield select(selectThemeStylesheet);
+    yield call(loadStylesheet, stylesheetUrl, payload.onSuccess);
   } catch (e) {
     logger.error('[loadTheme saga] error', e.message);
   }

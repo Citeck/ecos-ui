@@ -1,3 +1,5 @@
+import { PROXY_URI } from './alfresco';
+
 export const DEFAULT_THEME = 'citeckTheme';
 
 export const DefaultImages = {
@@ -7,4 +9,4 @@ export const DefaultImages = {
   MENU_LEFT_LOGO_SMALL: 'menu-left-logo-small'
 };
 
-export const THEME_URL_PATH = '/share/proxy/alfresco/citeck/micro/uiserv/api/theme';
+export const THEME_URL_PATH = `${PROXY_URI}citeck/micro/uiserv/api/theme`;
