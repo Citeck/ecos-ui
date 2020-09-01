@@ -124,9 +124,10 @@ function* sagaGetDashletEditorData({ api, logger, stateId, w }, action) {
 function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
   try {
     const config = yield call(api.journals.getDashletConfig, action.payload);
-    const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode } = config;
 
     if (config) {
+      const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode } = config;
+
       yield put(setEditorMode(w(false)));
       yield put(setDashletConfig(w(config)));
       yield getJournals(api, journalsListId, w);

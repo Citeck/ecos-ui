@@ -15,7 +15,8 @@ class ImgViewer extends Component {
     }),
     refViewer: PropTypes.object,
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
-    onError: PropTypes.func
+    onError: PropTypes.func,
+    onCentered: PropTypes.func
   };
 
   static defaultProps = {
@@ -75,10 +76,16 @@ class ImgViewer extends Component {
   };
 
   setImageScale = () => {
+    const { onCentered } = this.props;
+    const { calcScale: currentScale } = this.state;
     const calcScale = this.getCalcScale();
 
-    if (this.state.calcScale !== calcScale) {
+    if (currentScale !== calcScale) {
       this.setState({ calcScale });
+    }
+
+    if (typeof onCentered === 'function') {
+      onCentered();
     }
   };
 
@@ -109,10 +116,27 @@ class ImgViewer extends Component {
 
   get styleZoom() {
     const { calcScale = {} } = this.state;
+    const wrapper = get(this.refImgCtr, 'current');
     const styles = {};
 
     if (calcScale) {
       styles.transform = `scale(${calcScale})`;
+    }
+
+    if (wrapper) {
+      wrapper.style.textAlign = 'unset';
+    }
+
+    if (calcScale > 1) {
+      styles.transformOrigin = 'top left';
+    } else {
+      const imageWidth = get(this._imageRef, 'offsetWidth', 0);
+
+      if (wrapper && wrapper.offsetWidth > imageWidth) {
+        wrapper.style.textAlign = 'center';
+      }
+
+      styles.transformOrigin = 'top center';
     }
 
     return styles;
@@ -162,7 +186,7 @@ class ImgViewer extends Component {
         <img
           src={src}
           alt={src}
-          className="ecos-doc-preview__viewer-page-content"
+          className="ecos-doc-preview__viewer-page-content ecos-doc-preview__viewer-page-content_img"
           style={this.styleZoom}
           ref={this.setImgRef}
           onError={this.onError}

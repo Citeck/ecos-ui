@@ -1,4 +1,4 @@
-import FormIOBase from 'formiojs/components/base/Base';
+import FormIOBase from '../../override/base/Base';
 import Records from '../../../../components/Records/Records';
 import { t } from '../../../../helpers/util';
 

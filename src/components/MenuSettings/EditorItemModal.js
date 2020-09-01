@@ -99,7 +99,7 @@ function EditorItemModal({ item, type, onClose, onSave, action }) {
           </div>
           {isOpenSelectIcon && (
             <IconSelect
-              prefixIcon="leftmenu"
+              prefixIcon="icon-leftmenu-"
               family="menu-items"
               useFontIcons
               selectedIcon={icon}

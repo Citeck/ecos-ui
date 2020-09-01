@@ -1,16 +1,18 @@
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
+
+import { deepClone, extractLabel, t } from '../../../helpers/util';
+import DialogManager from '../../common/dialogs/Manager/DialogManager';
 import Records from '../Records';
 
 import actionsApi from './recordActionsApi';
-
 import actionsRegistry from './actionsRegistry';
 
-import cloneDeep from 'lodash/cloneDeep';
-import get from 'lodash/get';
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
-import { deepClone, t, extractLabel } from '../../../helpers/util';
-import DialogManager from '../../common/dialogs/Manager/DialogManager';
 
 /**
  * @typedef {Boolean} RecordsActionBoolResult
@@ -253,7 +255,8 @@ class RecordActions {
               display: 'form',
               ...formDefinition
             },
-            onSubmit: submission => callback(submission.data)
+            onSubmit: submission => callback(submission.data),
+            onCancel: _ => callback(false)
           });
         })
         .catch(e => {
@@ -287,6 +290,24 @@ class RecordActions {
       RecordActions._confirmExecAction(confirmData, result => resolve(result));
     });
   }
+
+  /**
+   * Fill values by attributes mapping (change properties of action)
+   *
+   * @param {Object} action - configuration
+   * @param {Object} data - values which set
+   * @param {String} targetPath - where attributesMapping is in action
+   * @param {String} sourcePath - where to set values by map
+   */
+  static _fillDataByMap = ({ action, data, targetPath, sourcePath }) => {
+    const attributesMapping = get(action, `${sourcePath}attributesMapping`) || {};
+
+    for (let path in attributesMapping) {
+      if (attributesMapping.hasOwnProperty(path)) {
+        set(action, `${targetPath}${path}`, get(data, attributesMapping[path]));
+      }
+    }
+  };
 
   /**
    * Get actions for record.
@@ -434,7 +455,11 @@ class RecordActions {
     const confirmed = await RecordActions._checkConfirmAction(action);
 
     if (!confirmed) {
-      return;
+      return false;
+    }
+
+    if (!isEmpty(confirmed)) {
+      RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
     }
 
     const config = await RecordActions.replaceAttributeValues(action.config, record);
