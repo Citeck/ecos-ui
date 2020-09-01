@@ -118,7 +118,7 @@ class Journals extends Component {
       getJournalsData();
     }
 
-    if (search !== grid.search) {
+    if (search !== get(grid, 'search')) {
       this.onSearch(search);
     }
 
