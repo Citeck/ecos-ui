@@ -393,11 +393,13 @@
   "record-action.upload-new-version.error.no-version": "Нет версий",
   "record-action.upload-new-version.error.no-record": "Запись не найдена",
 
+  "record-action.name.set-task-assignee": "Установить исполнителя",
+  "record-action.set-task-assignee.error.not-all-info": "Недостаточно информации для завершения действия",
+
   "record-action.name.save-as-case-template": "Сохранить как шаблон",
   "record-action.name.preview": "Предпросмотр",
   "record-action.name.fetch-action": "Выполнить действие",
   "record-action.name.edit-task-assignee": "Изменить исполнителя",
-
   "record-action.name.view-business-process": "Схема бизнес-процесса",
   "record-action.name.cancel-business-process": "Отменить бизнес-процесс",
   "record-action.name.mutate-action": "Модифицировать",

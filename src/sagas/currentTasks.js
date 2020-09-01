@@ -62,7 +62,7 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
 
     yield call(api.recordActions.executeAction, {
       records,
-      action: { ...action, actionOfAssignment: AssignActions.ASSIGN_SMB, workflowFromRecord: true }
+      action: { ...action, actionOfAssignment: AssignActions.CLAIM, workflowFromRecord: true }
     });
 
     Records.get(record).update();

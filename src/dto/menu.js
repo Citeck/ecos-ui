@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { CreateMenuTypes, MenuSettings as ms, MenuTypes } from '../constants/menu';
@@ -138,7 +139,7 @@ export default class MenuConverter {
         tItem.label = get(sItem, '_remoteData_.label') || tItem.label;
 
         if (ms.ItemTypes.JOURNAL === sItem.type) {
-          tItem.params.count = get(sItem, '_remoteData_.count');
+          set(tItem, 'params.count', get(sItem, '_remoteData_.count'));
         }
 
         sItem.items && prepareTree(sItem.items, tItem.items);

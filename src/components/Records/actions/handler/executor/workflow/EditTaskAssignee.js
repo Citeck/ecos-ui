@@ -1,7 +1,7 @@
 import ActionsExecutor from '../../ActionsExecutor';
 import { TasksApi } from '../../../../../../api/tasks';
 import WidgetService from '../../../../../../services/WidgetService';
-import { notifySuccess, notifyFailure } from '../../../util/actionUtils';
+import { notifyFailure, notifySuccess } from '../../../util/actionUtils';
 
 export default class EditTaskAssignee extends ActionsExecutor {
   static ACTION_ID = 'edit-task-assignee';
@@ -16,18 +16,25 @@ export default class EditTaskAssignee extends ActionsExecutor {
     const _selectPromise = defaultValue =>
       new Promise(resolve => WidgetService.openSelectOrgstructModal({ defaultValue, onSelect: resolve }));
 
-    const _assignPromise = owner => TasksApi.staticChangeAssigneeTask({ taskId, owner, action: actionOfAssignment });
+    const _assignPromise = owner =>
+      owner === false
+        ? Promise.resolve({ cancel: true })
+        : TasksApi.staticChangeAssigneeTask({
+            taskId,
+            owner,
+            action: actionOfAssignment
+          });
 
     return actorsPromise
       .then(_selectPromise)
       .then(_assignPromise)
-      .then(success => {
-        if (success) {
-          notifySuccess();
-          return success;
+      .then(answer => {
+        if (answer) {
+          !answer.cancel && notifySuccess();
+          return answer;
         }
 
-        return Promise.reject();
+        return Promise.reject(answer);
       })
       .catch(e => {
         console.error(e);
