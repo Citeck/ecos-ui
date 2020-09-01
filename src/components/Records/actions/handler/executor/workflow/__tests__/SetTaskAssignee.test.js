@@ -1,9 +1,7 @@
-import WidgetService from '../../../../services/WidgetService';
-import Records from '../../Records';
-import actionsRegistry from '../actionsRegistry';
-import { SetTaskAssignee } from '../actionStore';
-
-jest.mock('../recordActionsApi');
+import WidgetService from '../../../../../../../services/WidgetService';
+import Records from '../../../../../Records';
+import actionsRegistry from '../../../../actionsRegistry';
+import SetTaskAssignee from '../SetTaskAssignee';
 
 jest.spyOn(global, 'fetch').mockImplementation(() => {
   return Promise.resolve({
@@ -12,7 +10,7 @@ jest.spyOn(global, 'fetch').mockImplementation(() => {
   });
 });
 
-describe('action Set Task Assignee', () => {
+describe('SetTaskAssignee action', () => {
   actionsRegistry.register(new SetTaskAssignee());
   const actionSetTaskAssignee = actionsRegistry.getHandler(SetTaskAssignee.ACTION_ID);
   const record = Records.get('workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e');
