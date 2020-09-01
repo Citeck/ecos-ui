@@ -237,13 +237,14 @@ class RecordActions {
     const title = extractLabel(get(action, 'confirm.title'));
     const text = extractLabel(get(action, 'confirm.message'));
     const formId = get(action, 'confirm.formRef');
+    const modalClass = get(action, 'confirm.modalClass');
     const needConfirm = !!formId || !!title || !!text;
 
-    return needConfirm ? { formId, title, text } : null;
+    return needConfirm ? { formId, title, text, modalClass } : null;
   };
 
   static _confirmExecAction = (data, callback) => {
-    const { title, text, formId } = data;
+    const { title, text, formId, modalClass } = data;
 
     if (formId) {
       Records.get(formId)
@@ -265,7 +266,7 @@ class RecordActions {
           DialogManager.showInfoDialog({ title: t('error'), text: e.message });
         });
     } else {
-      DialogManager.confirmDialog({ title, text, onNo: () => callback(false), onYes: () => callback(true) });
+      DialogManager.confirmDialog({ title, text, modalClass, onNo: () => callback(false), onYes: () => callback(true) });
     }
   };
 
