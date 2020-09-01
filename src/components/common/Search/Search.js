@@ -47,8 +47,11 @@ export default class Search extends Component {
 
     if (text !== (prevProps.text || '') && text !== this.state.text) {
       this.setState({ text });
-      //this.triggerSearch(this.props.text);
     }
+  }
+
+  componentWillUnmount() {
+    this.onLiveSearch.cancel();
   }
 
   onPressBtn = () => {

@@ -118,7 +118,7 @@ class Journals extends Component {
       getJournalsData();
     }
 
-    if (search && !get(prevProps, 'grid.columns') && get(grid, 'columns')) {
+    if ((search && get(prevProps, 'grid.journalId') !== get(grid, 'journalId')) || search !== grid.search) {
       this.search(search);
     }
 
@@ -142,10 +142,6 @@ class Journals extends Component {
 
   getSearch = () => {
     return this.props.isActivePage ? get(getSearchParams(), 'search', '') : '';
-  };
-
-  refresh = () => {
-    this.props.reloadGrid();
   };
 
   addRecord = createVariant => {
@@ -208,7 +204,7 @@ class Journals extends Component {
   };
 
   render() {
-    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage, selectedRecords } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage, selectedRecords, reloadGrid } = this.props;
     const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height } = this.state;
 
     if (!journalConfig) {
@@ -251,7 +247,7 @@ class Journals extends Component {
               togglePreview={this.togglePreview}
               togglePie={this.togglePie}
               showGrid={this.showGrid}
-              refresh={this.refresh}
+              refresh={reloadGrid}
               onSearch={this.search}
               addRecord={this.addRecord}
               isMobile={isMobile}
