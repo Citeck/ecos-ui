@@ -60,7 +60,7 @@ function* fetchSettingsConfig({ api, logger }) {
 
 function* runSaveSettingsConfig({ api, logger }, { payload }) {
   try {
-    const { id, type, version } = yield select(state => state.menu);
+    const { id, type } = yield select(state => state.menu);
     const keyType = MenuSettingsService.getConfigKeyByType(type);
     const items = yield select(state => state.menuSettings.items);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
