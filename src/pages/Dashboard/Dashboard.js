@@ -131,6 +131,7 @@ class Dashboard extends Component {
 
   componentDidMount() {
     this.getConfig(this.state.urlParams);
+    window.getConfig = () => this.getConfig(getSortedUrlParams());
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -138,7 +139,7 @@ class Dashboard extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { tabId, stateKey, enableCache, config } = this.props;
+    const { tabId, stateKey, enableCache, config, resetDashboardConfig, isMobile } = this.props;
     const { needGetConfig, activeLayoutId, urlParams } = this.state;
 
     if (this.tabList.length) {
@@ -146,6 +147,10 @@ class Dashboard extends Component {
     }
 
     if (needGetConfig || (!prevProps.tabId && tabId) || (enableCache && prevProps.stateKey !== stateKey)) {
+      if (isMobile) {
+        resetDashboardConfig();
+      }
+
       this.getConfig(urlParams);
     }
 
