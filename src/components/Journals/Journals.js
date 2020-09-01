@@ -118,8 +118,8 @@ class Journals extends Component {
       getJournalsData();
     }
 
-    if ((search && get(prevProps, 'grid.journalId') !== get(grid, 'journalId')) || search !== grid.search) {
-      this.search(search);
+    if (search !== grid.search) {
+      this.onSearch(search);
     }
 
     if (isActivePage && this.state.isForceUpdate) {
@@ -189,7 +189,7 @@ class Journals extends Component {
     );
   };
 
-  search = text => {
+  onSearch = text => {
     const searchParams = {
       ...getSearchParams(),
       search: text
@@ -248,7 +248,7 @@ class Journals extends Component {
               togglePie={this.togglePie}
               showGrid={this.showGrid}
               refresh={reloadGrid}
-              onSearch={this.search}
+              onSearch={this.onSearch}
               addRecord={this.addRecord}
               isMobile={isMobile}
               searchText={this.getSearch()}
