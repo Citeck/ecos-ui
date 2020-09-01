@@ -1,11 +1,12 @@
 import { handleActions } from 'redux-actions';
-import { initAppFailure, initAppSuccess, setDashboardEditable, setFooter } from '../actions/app';
+import { initAppFailure, initAppSuccess, setDashboardEditable, setFooter, setLeftMenuEditable } from '../actions/app';
 
 const initialState = {
   isInit: false,
   isInitFailure: false,
   enableCache: true,
   dashboardEditable: false,
+  leftMenuEditable: false,
   footer: null
 };
 
@@ -30,6 +31,12 @@ export default handleActions(
       return {
         ...state,
         dashboardEditable: action.payload
+      };
+    },
+    [setLeftMenuEditable]: (state, action) => {
+      return {
+        ...state,
+        leftMenuEditable: action.payload
       };
     },
     [setFooter]: (state, action) => {

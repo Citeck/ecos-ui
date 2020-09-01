@@ -755,9 +755,9 @@
   "tasks-widget.column.started": "Запущено",
   "tasks-widget.no-tasks": "Нет задач",
   "tasks-widget.saga.change-assignee-success": "Успешное назначение задачи",
-  "tasks-widget.saga.error1": "Ошибка получения данных",
-  "tasks-widget.saga.error2": "Ошибка назначения",
-  "tasks-widget.saga.error3": "При назначении возникла проблема. Пожалуйста, проверьте задачу",
+  "tasks-widget.error.get-tasks": "Ошибка получения данных",
+  "tasks-widget.error.assign-task": "Ошибка назначения",
+  "tasks-widget.error.failed-assign-task": "При назначении возникла проблема. Пожалуйста, проверьте задачу",
   "tasks-widget.title": "Мои задачи",
 
   "timesheets.allForms.title": "Табели учёта времени",
@@ -1038,7 +1038,7 @@
   "business-process-viewer.button.cancel-bp": "Отменить бизнес-процесс",
   "business-process-viewer.dialog.msg": "Отменить бизнес-процесс?",
 
-  "menu.error.get-config": "Конфиг меню не получил",
+  "menu.error.get-config": "Конфигурация меню не получена",
   "menu.error.save-config": "Конфигурация меню не сохранена",
 
   "menu-settings.header.title": "Настройки меню",

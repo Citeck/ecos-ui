@@ -272,12 +272,14 @@ export class MenuApi extends CommonApi {
     const getVer = () =>
       Records.get('ecos-config@default-ui-main-menu')
         .load('.str')
-        .then(result => {
-          const version = result.replace('left-v', '');
+        .then(configVersion => {
+          const version = configVersion.replace('left-v', '');
 
           if (version !== 'left') {
-            return +version;
+            return { version: +version, configVersion };
           }
+
+          return { version: 0, configVersion };
         });
 
     const getId = version =>
@@ -288,7 +290,7 @@ export class MenuApi extends CommonApi {
         },
         { id: 'id' },
         {}
-      ).then(data => ({ version, ...data }));
+      ).then(data => ({ ...version, ...data }));
 
     return getVer().then(getId);
   };

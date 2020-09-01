@@ -755,9 +755,9 @@
   "tasks-widget.column.started": "Started",
   "tasks-widget.no-tasks": "No tasks",
   "tasks-widget.saga.change-assignee-success": "Task assigned successfully",
-  "tasks-widget.saga.error1": "Error. Failure to fetch data",
-  "tasks-widget.saga.error2": "Assignment error",
-  "tasks-widget.saga.error3": "There was a problem while assign. Please, check task",
+  "tasks-widget.error.get-tasks": "Error. Failure to fetch data",
+  "tasks-widget.error.assign-task": "Assignment error",
+  "tasks-widget.error.failed-assign-task": "There was a problem while assign. Please, check task",
   "tasks-widget.title": "My tasks",
 
   "timesheets.allForms.title": "Timesheets",
@@ -1038,8 +1038,8 @@
   "business-process-viewer.button.cancel-bp": "Cancel the business-process",
   "business-process-viewer.dialog.msg": "Cancel the business-process?",
 
-  "menu.error.get-config": "Error. Menu configuration hasn't received",
-  "menu.error.save-config": "Error. Menu configuration hasn't saved",
+  "menu.error.get-config": "Menu configuration hasn't received",
+  "menu.error.save-config": "Menu configuration hasn't saved",
 
   "menu-settings.header.title": "Menu Settings",
   "menu-settings.button.cancel": "Cancel",
