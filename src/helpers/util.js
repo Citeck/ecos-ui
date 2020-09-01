@@ -2,6 +2,7 @@ import moment from 'moment';
 import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
 import lodashGet from 'lodash/get';
+import lodashSet from 'lodash/set';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
@@ -139,6 +140,7 @@ export const getId = () =>
     .substr(2, 9);
 
 export function applyTheme(themeName, callback) {
+  lodashSet(window, 'Citeck.config.theme', themeName);
   document.body.classList.add(`body_theme_${themeName}`);
 }
 
