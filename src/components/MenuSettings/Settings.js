@@ -82,7 +82,6 @@ class Settings extends React.Component {
 
   handleReset = () => {
     DialogManager.showRemoveDialog({
-      className: 'ecos-modal_width-xs',
       onDelete: () => {
         this.props.removeSettings();
       }
