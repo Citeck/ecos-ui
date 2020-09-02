@@ -145,38 +145,59 @@ const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDa
         targetUrl = `${PAGE_PREFIX}/${params.pageId}${sectionPostfix}`;
         break;
       case 'SITE_LINK':
-        if (isNewVersionPage()) {
-          ignoreTabHandler = false;
-          attributes.target = '_blank';
-          attributes.rel = 'noopener noreferrer';
+        {
+          const uiType = params.uiType || '';
+          let isNewUILink;
 
-          if (!isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
-            const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');
-
-            if (journalLink) {
-              const params = journalLink.action.params;
-              let listId = 'tasks';
-
-              if (params.siteName) {
-                listId = params.listId || 'main';
-              }
-
-              targetUrl = getJournalPageUrl({
-                journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
-                journalId: params.journalRef,
-                journalSettingId: '', // TODO?
-                nodeRef: params.journalRef,
-                filter: params.filterRef
-              });
-
+          // Cause: https://citeck.atlassian.net/browse/ECOSUI-469
+          switch (uiType) {
+            case 'react':
+              isNewUILink = true;
               break;
-            }
+            case 'share':
+              isNewUILink = false;
+              break;
+            default:
+              if (isNewVersionPage()) {
+                isNewUILink = isNewJournalsPageEnable;
+              } else {
+                isNewUILink = false;
+              }
           }
 
-          targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
-          attributes[REMOTE_TITLE_ATTR_NAME] = true;
-        } else {
-          targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
+          if (isNewUILink) {
+            ignoreTabHandler = false;
+            attributes.target = '_blank';
+            attributes.rel = 'noopener noreferrer';
+
+            if (!isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
+              const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');
+
+              if (journalLink) {
+                const params = journalLink.action.params;
+                let listId = 'tasks';
+
+                if (params.siteName) {
+                  listId = params.listId || 'main';
+                }
+
+                targetUrl = getJournalPageUrl({
+                  journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
+                  journalId: params.journalRef,
+                  journalSettingId: '', // TODO?
+                  nodeRef: params.journalRef,
+                  filter: params.filterRef
+                });
+
+                break;
+              }
+            }
+
+            targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
+            attributes[REMOTE_TITLE_ATTR_NAME] = true;
+          } else {
+            targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
+          }
         }
         break;
       default:
