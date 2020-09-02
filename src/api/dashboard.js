@@ -126,7 +126,7 @@ export class DashboardApi extends RecordService {
     const _getDashboardByUserAndType = this.getDashboardByUserAndType;
 
     function* getDashboard() {
-      let { recType } = recordRef ? yield Records.get(recordRef).load({ recType: '_etype?id' }) : {};
+      let { recType } = recordRef ? yield Records.get(recordRef).load({ recType: '_etype?id' }, true) : {};
 
       if (!recType) {
         recType = recordRef ? EmodelTypes.BASE : EmodelTypes.USER_DASHBOARD;
