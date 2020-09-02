@@ -102,18 +102,21 @@ class Settings extends React.Component {
   }
 
   render() {
-    const { isLoading, authorityRefs } = this.props;
-    const customButtons = [
-      <IcoBtn
-        key="ecos-menu-settings-btn-goto"
-        invert
-        icon={'icon-big-arrow'}
-        className="ecos-menu-settings__btn-goto ecos-btn_narrow"
-        onClick={this.handleGoJournal}
-      >
-        {t(Labels.GOTO_JOURNAL)}
-      </IcoBtn>
-    ];
+    const { isLoading, authorityRefs, isAdmin } = this.props;
+    const customButtons = [];
+
+    isAdmin &&
+      customButtons.push(
+        <IcoBtn
+          key="ecos-menu-settings-btn-goto"
+          invert
+          icon="icon-arrow"
+          className="ecos-menu-settings__btn-goto ecos-btn_narrow"
+          onClick={this.handleGoJournal}
+        >
+          {t(Labels.GOTO_JOURNAL)}
+        </IcoBtn>
+      );
 
     return (
       <EcosModal
@@ -147,6 +150,7 @@ class Settings extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  isAdmin: get(state, 'user.isAdmin'),
   id: get(state, 'menu.id'),
   type: get(state, 'menu.type') || MenuTypes.LEFT,
   authorityRefs: (get(state, 'menuSettings.authorities') || []).map(item => item.ref),
