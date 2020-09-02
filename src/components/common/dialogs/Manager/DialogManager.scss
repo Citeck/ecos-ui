@@ -40,8 +40,9 @@
 
   &_confirm {
     #{$root}__buttons {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      justify-content: normal;
+      grid-gap: 1em;
 
       & .ecos-btn {
         width: 100%;
