@@ -15,15 +15,17 @@ const postProcessMenuItemChildren = items => {
 };
 
 const postProcessMenuConfig = item => {
-  let journalRef = lodashGet(item, 'action.params.journalRef');
+  const journalRef = lodashGet(item, 'action.params.journalRef');
+  const siteName = lodashGet(item, 'action.params.siteName');
 
-  let items = postProcessMenuItemChildren(item.items);
-  let uiType = journalRef ? getJournalUIType(journalRef) : '';
+  const items = postProcessMenuItemChildren(item.items);
+  const journalUiType = journalRef ? getJournalUIType(journalRef) : '';
+  const siteUiType = siteName ? Records.get(`site@${siteName}`).load('uiType?str', true) : '';
 
-  return Promise.all([items, uiType]).then(itemsAndUIType => {
+  return Promise.all([items, journalUiType, siteUiType]).then(itemsAndUIType => {
     item.items = itemsAndUIType[0];
-    if (itemsAndUIType[1]) {
-      item.action.params.uiType = itemsAndUIType[1];
+    if (itemsAndUIType[1] || itemsAndUIType[2]) {
+      item.action.params.uiType = itemsAndUIType[1] || itemsAndUIType[2];
     }
     return item;
   });
