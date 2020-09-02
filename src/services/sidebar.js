@@ -155,37 +155,42 @@ export default class SidebarService {
           targetUrl = `${PAGE_PREFIX}/${params.pageId}${sectionPostfix}`;
           break;
         case 'SITE_LINK':
-          if (isNewVersionPage()) {
-            ignoreTabHandler = false;
-            attributes.rel = 'noopener noreferrer';
+          {
+            let uiType = params.uiType || '';
+            let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
 
-            if (!extraParams.isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
-              const journalLink = item.items.find(item => {
-                return item.action.type === 'JOURNAL_LINK';
-              });
+            if (isNewUILink) {
+              ignoreTabHandler = false;
+              attributes.rel = 'noopener noreferrer';
 
-              if (journalLink) {
-                const params = journalLink.action.params;
-                let listId = 'tasks';
-                if (params.siteName) {
-                  listId = params.listId || 'main';
-                }
-                targetUrl = getJournalPageUrl({
-                  journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
-                  journalId: params.journalRef,
-                  journalSettingId: '', // TODO?
-                  nodeRef: params.journalRef,
-                  filter: params.filterRef
+              if (!extraParams.isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
+                const journalLink = item.items.find(item => {
+                  return item.action.type === 'JOURNAL_LINK';
                 });
-                break;
-              }
-            }
 
-            attributes[REMOTE_TITLE_ATTR_NAME] = true;
-            targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
-            break;
-          } else {
-            targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
+                if (journalLink) {
+                  const params = journalLink.action.params;
+                  let listId = 'tasks';
+                  if (params.siteName) {
+                    listId = params.listId || 'main';
+                  }
+                  targetUrl = getJournalPageUrl({
+                    journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
+                    journalId: params.journalRef,
+                    journalSettingId: '', // TODO?
+                    nodeRef: params.journalRef,
+                    filter: params.filterRef
+                  });
+                  break;
+                }
+              }
+
+              attributes[REMOTE_TITLE_ATTR_NAME] = true;
+              targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
+              break;
+            } else {
+              targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
+            }
           }
           break;
         default:
