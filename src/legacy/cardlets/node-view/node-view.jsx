@@ -3,7 +3,7 @@ import React from 'react';
 import NodeCardlet from '../node-cardlet';
 import RemoteCardlet from '../remote/remote';
 import EcosForm from '../../../components/EcosForm/export';
-import { t } from '../../../helpers/util';
+import { t } from '../../common/util';
 import { FORM_MODE_EDIT } from '../../../components/EcosForm';
 import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../components/Records';
