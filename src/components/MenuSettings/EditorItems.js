@@ -73,7 +73,6 @@ class EditorItems extends React.Component {
       DialogManager.showRemoveDialog({
         title: '',
         text: t('menu-settings.message.delete-item', { name: extractLabel(item.label) }),
-        className: 'ecos-modal_width-xs',
         onDelete: () => {
           setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items }).items);
         }

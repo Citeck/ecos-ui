@@ -4,7 +4,6 @@ import { t } from '../../helpers/util';
 import { ActionTypes } from '../Records/actions';
 import recordActions from '../Records/actions/recordActions';
 import { Btn } from '../common/btns';
-import dialogManager from '../common/dialogs/Manager/DialogManager';
 import { DocPreview } from '../widgets/DocPreview';
 
 import './style.scss';
@@ -24,18 +23,12 @@ export default class BusinessProcessViewer extends React.Component {
 
     this.setState({ disabledCancelBP: true });
 
-    dialogManager.confirmDialog({
-      modalClass: 'ecos-modal_width-xs',
-      title: t(Labels.MSG_CANCEL_BP),
-      onYes: () => {
-        recordActions
-          .execForRecord(recordId, {
-            type: ActionTypes.CANCEL_WORKFLOW
-          })
-          .then(success => !success && this.setState({ disabledCancelBP: false }));
-      },
-      onNo: () => this.setState({ disabledCancelBP: false })
-    });
+    recordActions
+      .execForRecord(recordId, {
+        type: ActionTypes.CANCEL_WORKFLOW,
+        confirm: { title: Labels.MSG_CANCEL_BP }
+      })
+      .then(success => !success && this.setState({ disabledCancelBP: false }));
   };
 
   render() {
