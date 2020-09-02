@@ -11,11 +11,13 @@ import './Dropdown.scss';
 
 export default class DropdownOuter extends Dropdown {
   static propTypes = {
-    className: PropTypes.string
+    className: PropTypes.string,
+    trigger: PropTypes.string
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    trigger: 'click'
   };
 
   constructor(props) {
@@ -30,7 +32,7 @@ export default class DropdownOuter extends Dropdown {
   }
 
   render() {
-    const { className, outClassName = '' } = this.props;
+    const { className, outClassName = '', trigger } = this.props;
     const { dropdownOpen, targetId } = this.state;
 
     return (
@@ -40,7 +42,8 @@ export default class DropdownOuter extends Dropdown {
           isOpen={dropdownOpen}
           toggle={this.toggle}
           target={targetId}
-          trigger="click"
+          delay={{ show: 300, hide: 300 }}
+          trigger={trigger}
           hideArrow
           className={classNames('ecos-base-tooltip ecos-base-tooltip_opaque', outClassName)}
           innerClassName="ecos-base-tooltip-inner ecos-dropdown-outer__tooltip-inner"

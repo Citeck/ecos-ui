@@ -227,5 +227,9 @@
         color: $color-gray-5;
       }
     }
+
+    &-dropdown {
+      cursor: pointer;
+    }
   }
 }

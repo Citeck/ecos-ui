@@ -95,9 +95,7 @@ export default class Dropdown extends Component {
 
   toggle = () => {
     this.setState(
-      {
-        dropdownOpen: !this.state.dropdownOpen
-      },
+      state => ({ dropdownOpen: !state.dropdownOpen }),
       () => {
         if (typeof this.props.getStateOpen == 'function') {
           this.props.getStateOpen(this.state.dropdownOpen);
@@ -174,11 +172,11 @@ export default class Dropdown extends Component {
   onChange = selected => {
     const { onChange } = this.props;
 
-    this.toggle();
-
     if (typeof onChange === 'function') {
       onChange(selected);
     }
+
+    this.toggle();
   };
 
   renderToggle() {
