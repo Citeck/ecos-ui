@@ -26,10 +26,7 @@ export default class BusinessProcessViewer extends React.Component {
     recordActions
       .execForRecord(recordId, {
         type: ActionTypes.CANCEL_WORKFLOW,
-        confirm: {
-          title: Labels.MSG_CANCEL_BP,
-          modalClass: 'ecos-modal_width-xs'
-        }
+        confirm: { title: Labels.MSG_CANCEL_BP }
       })
       .then(success => !success && this.setState({ disabledCancelBP: false }));
   };

@@ -9,6 +9,7 @@ import Records from '../Records';
 
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
+import { notifyFailure } from './util/actionUtils';
 
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
@@ -440,11 +441,14 @@ class RecordActions {
   async execForRecord(record, action, context = {}) {
     if (!record) {
       console.error('Record is a mandatory parameter! Action: ', action);
+      notifyFailure();
       return false;
     }
     const handler = RecordActions._getActionsExecutor(action);
 
     if (handler == null) {
+      notifyFailure();
+      console.error('No handler. Action: ', action);
       return false;
     }
     const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
