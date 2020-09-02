@@ -268,36 +268,34 @@ export class MenuApi extends CommonApi {
 
   getUserMenuConfig = async () => {
     const user = getCurrentUserName();
-
-    const configVersion = await Records.get('ecos-config@default-ui-main-menu').load('.str');
+    const configVersion = await Records.get(`${SourcesId.ECOS_CONFIG}@default-ui-main-menu`).load('.str');
     const _ver = configVersion.replace('left-v', '');
     const version = _ver !== 'left' ? +_ver : 0;
     const id = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'id');
 
-    return Promise.resolve({ version, configVersion, id });
+    return { version, configVersion, id };
   };
 
-  getMenuSettingsConfig = ({ id = '' }) => {
-    return Records.get(`${SourcesId.MENU}@${id}`)
-      .load(
-        {
-          id: 'id',
-          authorities: 'authorities[]?str',
-          menu: 'subMenu?json'
-        },
-        true
-      )
-      .then(resp =>
-        fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || [], { label: '.disp' }).then(items => {
-          lodashSet(resp, 'menu.left.items', items);
-          return resp;
-        })
-      )
-      .then(resp => resp || {})
-      .catch(err => {
-        console.error(err);
-        return {};
-      });
+  getMenuSettingsConfig = async ({ id = '' }) => {
+    const config = await Records.get(`${SourcesId.MENU}@${id}`).load(
+      {
+        id: 'id',
+        authorities: 'authorities[]?str',
+        menu: 'subMenu?json'
+      },
+      true
+    );
+    const updItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
+    const filterAuthorities = (lodashGet(config, 'authorities') || []).filter(item => item !== LOWEST_PRIORITY);
+
+    !filterAuthorities.length && filterAuthorities.push(getCurrentUserName());
+
+    const updAuthorities = await this.getAuthoritiesInfoByName(filterAuthorities);
+
+    lodashSet(config, 'menu.left.items', updItems);
+    lodashSet(config, 'authorities', updAuthorities);
+
+    return config;
   };
 
   getItemInfoByRef = records => {
@@ -353,6 +351,8 @@ export class MenuApi extends CommonApi {
 
   saveMenuSettingsConfig = ({ id, subMenu, authorities }) => {
     const rec = Records.get(`${SourcesId.MENU}@${id}`);
+
+    !authorities.length && authorities.push(LOWEST_PRIORITY);
 
     rec.att('subMenu', subMenu);
     rec.att('authorities[]?str', authorities);
