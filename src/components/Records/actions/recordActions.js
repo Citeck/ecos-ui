@@ -9,6 +9,7 @@ import Records from '../Records';
 
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
+import { notifyFailure } from './util/actionUtils';
 
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
@@ -237,13 +238,14 @@ class RecordActions {
     const title = extractLabel(get(action, 'confirm.title'));
     const text = extractLabel(get(action, 'confirm.message'));
     const formId = get(action, 'confirm.formRef');
+    const modalClass = get(action, 'confirm.modalClass');
     const needConfirm = !!formId || !!title || !!text;
 
-    return needConfirm ? { formId, title, text } : null;
+    return needConfirm ? { formId, title, text, modalClass } : null;
   };
 
   static _confirmExecAction = (data, callback) => {
-    const { title, text, formId } = data;
+    const { title, text, formId, modalClass } = data;
 
     if (formId) {
       Records.get(formId)
@@ -265,7 +267,7 @@ class RecordActions {
           DialogManager.showInfoDialog({ title: t('error'), text: e.message });
         });
     } else {
-      DialogManager.confirmDialog({ title, text, onNo: () => callback(false), onYes: () => callback(true) });
+      DialogManager.confirmDialog({ title, text, modalClass, onNo: () => callback(false), onYes: () => callback(true) });
     }
   };
 
@@ -439,11 +441,14 @@ class RecordActions {
   async execForRecord(record, action, context = {}) {
     if (!record) {
       console.error('Record is a mandatory parameter! Action: ', action);
+      notifyFailure();
       return false;
     }
     const handler = RecordActions._getActionsExecutor(action);
 
     if (handler == null) {
+      notifyFailure();
+      console.error('No handler. Action: ', action);
       return false;
     }
     const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
