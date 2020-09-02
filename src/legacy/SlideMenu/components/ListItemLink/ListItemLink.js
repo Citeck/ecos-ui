@@ -78,7 +78,23 @@ const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDa
         }
 
         let uiType = params.uiType || '';
-        let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
+        let isNewUILink;
+
+        // Cause: https://citeck.atlassian.net/browse/ECOSUI-468
+        switch (uiType) {
+          case 'react':
+            isNewUILink = true;
+            break;
+          case 'share':
+            isNewUILink = false;
+            break;
+          default:
+            if (isNewVersionPage()) {
+              isNewUILink = isNewJournalsPageEnable;
+            } else {
+              isNewUILink = false;
+            }
+        }
 
         if (isNewUILink) {
           targetUrl = getJournalPageUrl({
@@ -94,6 +110,7 @@ const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDa
           attributes.rel = 'noopener noreferrer';
         } else {
           targetUrl = PAGE_PREFIX;
+
           if (params.siteName) {
             targetUrl += `/site/${params.siteName}`;
           }
@@ -119,10 +136,6 @@ const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDa
 
           if (params.maxItems) {
             targetUrl += `&maxItems=${params.maxItems}`;
-          }
-
-          if (isNewJournalsPageEnable) {
-            targetUrl = menuApi.getNewJournalPageUrl(params);
           }
         }
 
