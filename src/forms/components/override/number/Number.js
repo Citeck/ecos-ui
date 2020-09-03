@@ -60,13 +60,13 @@ export default class NumberComponent extends FormIONumberComponent {
   }
 
   setValue(value, flags) {
-    const res = super.setValue(value, flags);
+    const result = super.setValue(value, flags);
 
-    if (this.isBigInt(value)) {
+    if (!Array.isArray(value) && this.isBigInt(value)) {
       this.dataValue = _.get(this.component, 'stringValue', value);
     }
 
-    return res;
+    return result;
   }
 
   formatValue(value) {
