@@ -306,7 +306,8 @@ class PageTabs extends React.Component {
   };
 
   handleBeforeSortStart = ({ node }) => {
-    node.classList.toggle('page-tab__tabs-item_sorting');
+    node.classList.add('page-tab__tabs-item_sorting');
+    this.wrapper && this.wrapper.classList.add('page-tab__tabs_sorting');
 
     this.setState({ draggableNode: node });
   };
@@ -315,7 +316,8 @@ class PageTabs extends React.Component {
     const { draggableNode } = this.state;
 
     event.stopPropagation();
-    draggableNode.classList.toggle('page-tab__tabs-item_sorting');
+    draggableNode && draggableNode.classList.remove('page-tab__tabs-item_sorting');
+    this.wrapper && this.wrapper.classList.remove('page-tab__tabs_sorting');
 
     this.props.moveTabs({ indexFrom: oldIndex, indexTo: newIndex });
     this.setState({ draggableNode: null });
@@ -409,7 +411,7 @@ class PageTabs extends React.Component {
           axis="x"
           lockAxis="x"
           lockToContainerEdges={true}
-          lockOffset="10%"
+          lockOffset="20%"
           distance={3}
           updateBeforeSortStart={this.handleBeforeSortStart}
           onSortEnd={this.handleSortEnd}

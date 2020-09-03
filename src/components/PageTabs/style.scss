@@ -54,6 +54,8 @@
       display: flex;
       width: 40px;
       height: 100%;
+      z-index: 4;
+      background-color: $color-gray-6;
     }
 
     &:hover {
@@ -88,12 +90,26 @@
     overflow: hidden;
     padding: 0 10px;
 
+    &_sorting {
+      overflow-x: auto;
+      overflow-y: hidden;
+
+      &::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+      }
+
+      scrollbar-width: none;
+    }
+
     &-add {
       font-size: 21px;
       cursor: pointer;
       display: flex;
       align-items: center;
       color: $text-color-gray;
+      background-color: $color-gray-6;
+      z-index: 4;
 
       &:hover {
         color: $text-color-dark;
@@ -186,6 +202,8 @@
         }
 
         &:before {
+          background-color: transparent;
+          top: auto;
           content: '';
           position: absolute;
           bottom: -6px;
@@ -199,9 +217,8 @@
         }
 
         &:after {
-          background-color: unset;
-          top: unset;
-
+          background-color: transparent;
+          top: auto;
           content: '';
           position: absolute;
           bottom: -6px;
@@ -224,10 +241,7 @@
         border-radius: 6px;
         display: flex;
         align-items: center;
-
-        &:not(#{$item}_active) {
-          border: 1px $color-gray-5 solid;
-        }
+        background-color: $color-gray-1;
 
         &::after,
         &::before {
