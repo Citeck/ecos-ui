@@ -25,13 +25,12 @@ import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
-import { Avatar, Loader } from '../../common/index';
+import { Avatar, Loader, Popper } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
-import Popper from '../../common/Popper';
 
 const BASE_HEIGHT = 21;
 const BUTTONS_TYPE = {
@@ -54,12 +53,15 @@ class Comments extends BaseWidget {
         lastName: PropTypes.string,
         middleName: PropTypes.string,
         displayName: PropTypes.string,
+        editorName: PropTypes.string,
+        editorUserName: PropTypes.string,
         text: PropTypes.string.isRequired,
         dateCreate: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]).isRequired,
         dateModify: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]),
         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         canEdit: PropTypes.bool,
-        canDelete: PropTypes.bool
+        canDelete: PropTypes.bool,
+        edited: PropTypes.bool
       })
     ),
     dataStorageFormat: PropTypes.oneOf(['raw', 'html', 'plain-text']),
@@ -72,6 +74,8 @@ class Comments extends BaseWidget {
     canDragging: PropTypes.bool,
     maxHeightByContent: PropTypes.bool,
     commentListMaxHeight: PropTypes.number,
+    isMobile: PropTypes.bool,
+    userName: PropTypes.string,
     onSave: PropTypes.func,
     onDelete: PropTypes.func,
     getComments: PropTypes.func,
@@ -660,7 +664,8 @@ class Comments extends BaseWidget {
   }
 
   renderCommentDate(comment) {
-    const { userName, dateCreate = new Date(), edited = false, dateModify, editorName, editorUserName } = comment;
+    const { userName } = this.props;
+    const { dateCreate = new Date(), edited = false, dateModify, editorName, editorUserName } = comment;
 
     if (!edited) {
       return <div className="ecos-comments__comment-date">{this.formatDate(dateCreate)}</div>;
@@ -686,7 +691,7 @@ class Comments extends BaseWidget {
     }
 
     const displayText = `${editorName} / ${inMoment.format('DD.MM.YYYY HH:mm')}`;
-    const popperContent = () => <div className="ecos-comments__comment-date-popper">{displayText}</div>;
+    const popperContent = <div className="ecos-comments__comment-date-popper">{displayText}</div>;
 
     return (
       <div className="ecos-comments__comment-date">
@@ -809,7 +814,8 @@ class Comments extends BaseWidget {
 
 const mapStateToProps = (state, ownProps) => ({
   ...selectStateByNodeRef(state, ownProps.record),
-  isMobile: state.view.isMobile
+  isMobile: state.view.isMobile,
+  userName: state.user.userName
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

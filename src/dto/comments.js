@@ -13,7 +13,10 @@ export function getCommentForWeb(source) {
   const editor = source.editor || {};
   const permissions = source.permissions || {};
 
-  target.id = source.id;
+  if (source.id) {
+    target.id = source.id;
+  }
+
   target.text = source.text;
   target.dateCreate = source.createdAt;
 
