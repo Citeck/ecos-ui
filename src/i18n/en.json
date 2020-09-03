@@ -109,6 +109,8 @@
   "comments-widget.second-form3": "seconds",
   "comments-widget.time-ago": "ago",
   "comments-widget.title": "Comments",
+  "comments-widget.edited-by": "edited by",
+  "comments-widget.edited-in": "in",
   "create_case.label": "Create",
 
   "current-tasks-widget.title": "All tasks",

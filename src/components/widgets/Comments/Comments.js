@@ -31,6 +31,7 @@ import Dashlet from '../../Dashlet';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
+import Popper from '../../common/Popper';
 
 const BASE_HEIGHT = 21;
 const BUTTONS_TYPE = {
@@ -658,19 +659,44 @@ class Comments extends BaseWidget {
     );
   }
 
+  renderCommentDate(comment) {
+    const { userName, dateCreate = new Date(), edited = false, dateModify, editorName, editorUserName } = comment;
+
+    if (!edited) {
+      return <div className="ecos-comments__comment-date">{this.formatDate(dateCreate)}</div>;
+    }
+
+    const inMoment = moment(dateModify);
+    let title = t('comments-widget.edited-by');
+
+    if (userName === editorUserName) {
+      const now = moment();
+      const yesterday = now
+        .clone()
+        .subtract(1, 'days')
+        .startOf('day');
+
+      if (inMoment.isSame(yesterday, 'd')) {
+        title += ` ${inMoment.format('DD.MM.YYYY')}`;
+      }
+
+      title += ` ${t('comments-widget.edited-in')} ${inMoment.format('HH:mm')}`;
+
+      return <div className="ecos-comments__comment-date">{title}</div>;
+    }
+
+    const displayText = `${editorName} / ${inMoment.format('DD.MM.YYYY HH:mm')}`;
+    const popperContent = () => <div className="ecos-comments__comment-date-popper">{displayText}</div>;
+
+    return (
+      <div className="ecos-comments__comment-date">
+        <Popper text={title} className="ecos-comments__comment-date-pseudo-link" contentComponent={popperContent} />
+      </div>
+    );
+  }
+
   renderComment = data => {
-    const {
-      id,
-      avatar = '',
-      firstName,
-      lastName,
-      middleName,
-      displayName,
-      text,
-      dateCreate = new Date(),
-      canEdit = false,
-      canDelete = false
-    } = data;
+    const { id, avatar = '', firstName, lastName, middleName, displayName, text, canEdit = false, canDelete = false } = data;
     let convertedComment;
 
     try {
@@ -695,10 +721,10 @@ class Comments extends BaseWidget {
                 {firstName} {middleName}
               </div>
               <div className="ecos-comments__comment-name">{lastName}</div>
-              <div className="ecos-comments__comment-date">{this.formatDate(dateCreate)}</div>
+              {this.renderCommentDate(data)}
             </div>
           </div>
-          <div className="ecos-comments__comment-header-cell">
+          <div className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions">
             {canEdit && (
               <div
                 className="ecos-comments__comment-btn ecos-comments__comment-btn-edit icon-edit"
