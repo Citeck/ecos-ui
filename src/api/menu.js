@@ -203,23 +203,22 @@ export class MenuApi extends CommonApi {
       .catch(() => ({}));
   };
 
-  getMenuItemsByVersion = version => {
+  getMenuItems = async ({ version, id }) => {
     const user = getCurrentUserName();
+    let config;
 
-    return Records.queryOne(
-      {
-        sourceId: 'uiserv/menu',
-        query: { user, version }
-      },
-      { menu: 'subMenu?json' }
-    ).then(resp =>
-      fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || [], {
-        label: '.disp',
-        journalId: 'id',
-        journalsListId: 'journalsListId',
-        createVariants: 'createVariants[]?json'
-      })
-    );
+    if (id) {
+      config = await Records.get(`${SourcesId.MENU}@${id}`).load('subMenu?json', true);
+    } else {
+      config = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'subMenu?json');
+    }
+
+    return fetchExtraItemInfo(lodashGet(config, 'left.items') || [], {
+      label: '.disp',
+      journalId: 'id',
+      journalsListId: 'journalsListId',
+      createVariants: 'createVariants[]?json'
+    });
   };
 
   getMenuItemIconUrl = iconName => {
@@ -351,14 +350,14 @@ export class MenuApi extends CommonApi {
       .then(fetchExtraGroupItemInfo);
   };
 
-  saveMenuSettingsConfig = ({ id, subMenu, authorities }) => {
+  saveMenuSettingsConfig = ({ id, subMenu, authorities, version }) => {
     const rec = Records.get(`${SourcesId.MENU}@${id}`);
 
     !authorities.length && authorities.push(LOWEST_PRIORITY);
 
     rec.att('subMenu', subMenu);
     rec.att('authorities[]?str', authorities);
-    rec.att('version', 1);
+    rec.att('version', version);
 
     return rec.save();
   };
