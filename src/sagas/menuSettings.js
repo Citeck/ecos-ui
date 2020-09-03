@@ -25,7 +25,7 @@ import { fetchSlideMenuItems } from '../actions/slideMenu';
 import { t } from '../helpers/util';
 import MenuConverter from '../dto/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
-import { LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
+import { MenuSettings as ms } from '../constants/menu';
 
 function* runInitSettings({ api, logger }) {
   try {
@@ -46,11 +46,10 @@ function* fetchSettingsConfig({ api, logger }) {
     }
 
     const { menu, authorities } = yield call(api.menu.getMenuSettingsConfig, { id });
-    const authoritiesInfo = yield call(api.menu.getAuthoritiesInfoByName, authorities);
     const items = MenuConverter.getMenuItemsWeb(get(menu, [keyType, 'items']) || []);
 
     yield put(setMenuItems(items));
-    yield put(setAuthorities(authoritiesInfo));
+    yield put(setAuthorities(authorities));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.get-config'), t('error'));
@@ -71,7 +70,6 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
     const newItems = MenuConverter.getMenuItemsServer({ originalItems, items });
 
     set(result, ['subMenu', keyType, 'items'], newItems);
-    !authorities.length && authorities.push(LOWEST_PRIORITY);
 
     const resultSave = yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities });
 

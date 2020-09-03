@@ -33,6 +33,7 @@ export const SourcesId = {
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
   AUTHORITY: 'alfresco/authority',
+  ECOS_CONFIG: 'ecos-config',
   HISTORY: 'history',
   STATUS: 'status',
   COMMENT: 'comment',
