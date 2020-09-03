@@ -77,7 +77,12 @@ class CurrentTaskInfo extends React.Component {
               getStateOpen={isOpenActions => this.setState({ isOpenActions })}
               CustomItem={MenuItem}
             >
-              <Icon className={isOpenActions ? 'icon-custom-more-small-pressed' : 'icon-custom-more-small-normal'} />
+              <Icon
+                className={classNames('ecos-current-task__action-dropdown-icon', {
+                  'icon-custom-more-small-pressed': isOpenActions,
+                  'icon-custom-more-small-normal': !isOpenActions
+                })}
+              />
             </DropdownOuter>
           )}
         </Headline>

@@ -42,7 +42,6 @@ export default class DropdownOuter extends Dropdown {
           isOpen={dropdownOpen}
           toggle={this.toggle}
           target={targetId}
-          delay={{ show: 300, hide: 300 }}
           trigger={trigger}
           hideArrow
           className={classNames('ecos-base-tooltip ecos-base-tooltip_opaque', outClassName)}
