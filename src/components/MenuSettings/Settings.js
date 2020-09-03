@@ -93,11 +93,15 @@ class Settings extends React.Component {
   };
 
   renderButtons() {
+    const isDisabled = () => {
+      return !this.props.id || !this.props.authorities.length;
+    };
+
     return (
       <div className="ecos-menu-settings__buttons">
         {/*<Btn className="ecos-btn_red" onClick={this.handleReset}>Delete</Btn>*/}
         <Btn onClick={this.handleCancel}>{t(Labels.BTN_CANCEL)}</Btn>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleApply} disabled={!this.props.id}>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleApply} disabled={isDisabled()}>
           {t(Labels.BTN_APPLY)}
         </Btn>
       </div>
