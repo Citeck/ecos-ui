@@ -20,7 +20,7 @@ import {
   setMenuItems,
   setOpenMenuSettings
 } from '../actions/menuSettings';
-import { initMenuConfig } from '../actions/menu';
+import { initMenuConfig, setMenuConfig } from '../actions/menu';
 import { fetchSlideMenuItems } from '../actions/slideMenu';
 import { t } from '../helpers/util';
 import MenuConverter from '../dto/menu';
@@ -59,7 +59,8 @@ function* fetchSettingsConfig({ api, logger }) {
 
 function* runSaveSettingsConfig({ api, logger }, { payload }) {
   try {
-    const { id, type } = yield select(state => state.menu);
+    const config = yield select(state => state.menu);
+    const { id, type, version } = config;
     const keyType = MenuSettingsService.getConfigKeyByType(type);
     const items = yield select(state => state.menuSettings.items);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
@@ -71,14 +72,14 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
 
     set(result, ['subMenu', keyType, 'items'], newItems);
 
-    const resultSave = yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities });
+    const resultSave = yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities, version });
 
-    yield put(saveGroupPriority(payload));
+    yield put(saveGroupPriority());
     yield put(setOpenMenuSettings(false));
 
-    if (!resultSave.id.includes(id)) {
-      yield put(initMenuConfig());
-      yield put(fetchSlideMenuItems());
+    if (resultSave) {
+      yield put(setMenuConfig({ ...config, id: resultSave.id }));
+      yield put(fetchSlideMenuItems({ id: resultSave.id }));
     }
 
     NotificationManager.success(t('menu-settings.success.save-config'), t('success'));

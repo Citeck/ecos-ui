@@ -1,4 +1,6 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+import get from 'lodash/get';
+
 import {
   fetchLargeLogoSrc,
   fetchSlideMenuItems,
@@ -36,21 +38,23 @@ function* fetchLargeLogo({ api, fakeApi, logger }) {
   }
 }
 
-function* fetchSlideMenu({ api, fakeApi, logger }) {
+function* fetchSlideMenu({ api, fakeApi, logger }, action) {
   try {
     const version = yield select(state => state.menu.version);
     const selectedId = SidebarService.getSelected();
     const isOpen = SidebarService.getOpenState();
+    const id = get(action, 'payload.id');
 
-    let menuItems = [];
+    let menuItems;
 
-    if (!version) {
-      const apiData = yield call(api.menu.getSlideMenuItems);
-      menuItems = SidebarConverter.getMenuListWeb(apiData.items);
+    if (id || version) {
+      menuItems = yield call(api.menu.getMenuItems, { id, version });
     } else {
-      const apiItems = yield call(api.menu.getMenuItemsByVersion, version);
-      menuItems = SidebarConverter.getMenuListWeb(apiItems);
+      const apiData = yield call(api.menu.getSlideMenuItems);
+      menuItems = apiData.items;
     }
+
+    menuItems = SidebarConverter.getMenuListWeb(menuItems);
 
     yield put(toggleIsOpen(isOpen));
     yield put(setSelectedId(selectedId));
