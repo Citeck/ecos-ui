@@ -52,6 +52,10 @@ class Settings extends React.Component {
     }
   }
 
+  get authorityRefs() {
+    return this.props.authorities.map(item => item.ref);
+  }
+
   handleHideModal = () => {
     this.props.setOpenMenuSettings(false);
   };
@@ -82,7 +86,6 @@ class Settings extends React.Component {
 
   handleReset = () => {
     DialogManager.showRemoveDialog({
-      className: 'ecos-modal_width-xs',
       onDelete: () => {
         this.props.removeSettings();
       }
@@ -90,11 +93,15 @@ class Settings extends React.Component {
   };
 
   renderButtons() {
+    const isDisabled = () => {
+      return !this.props.id || !this.props.authorities.length;
+    };
+
     return (
       <div className="ecos-menu-settings__buttons">
         {/*<Btn className="ecos-btn_red" onClick={this.handleReset}>Delete</Btn>*/}
         <Btn onClick={this.handleCancel}>{t(Labels.BTN_CANCEL)}</Btn>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleApply} disabled={!this.props.id}>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleApply} disabled={isDisabled()}>
           {t(Labels.BTN_APPLY)}
         </Btn>
       </div>
@@ -102,7 +109,7 @@ class Settings extends React.Component {
   }
 
   render() {
-    const { isLoading, authorityRefs, isAdmin } = this.props;
+    const { isLoading, isAdmin } = this.props;
     const customButtons = [];
 
     isAdmin &&
@@ -137,7 +144,7 @@ class Settings extends React.Component {
 
         <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
         <div className="ecos-menu-settings-ownership">
-          <SelectOrgstruct defaultValue={authorityRefs} multiple onChange={this.handleSelectOrg} isSelectedValueAsText />
+          <SelectOrgstruct defaultValue={this.authorityRefs} multiple onChange={this.handleSelectOrg} isSelectedValueAsText />
         </div>
 
         <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
@@ -153,7 +160,7 @@ const mapStateToProps = state => ({
   isAdmin: get(state, 'user.isAdmin'),
   id: get(state, 'menu.id'),
   type: get(state, 'menu.type') || MenuTypes.LEFT,
-  authorityRefs: (get(state, 'menuSettings.authorities') || []).map(item => item.ref),
+  authorities: get(state, 'menuSettings.authorities') || [],
   isLoading: get(state, 'menuSettings.isLoading')
 });
 

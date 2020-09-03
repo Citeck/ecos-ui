@@ -1,6 +1,10 @@
+@import '../../../../styles/constants';
+
 .ecos-dialog {
+  $root: &;
+
   &__buttons {
-    margin-top: 2em;
+    margin-top: 25px;
     display: grid;
     grid-auto-flow: column;
     justify-content: end;
@@ -9,5 +13,49 @@
 
   &__body {
     white-space: pre-wrap;
+  }
+
+  &_headless {
+    & .ecos-modal-header {
+      height: 40px;
+    }
+
+    & .modal-body,
+    #{$root}__body {
+      font-size: $font-size-large;
+      font-weight: $font-weight-semi-bold;
+      text-align: center;
+    }
+  }
+
+  &_removal {
+    & .ecos-remove-dialog__footer {
+      justify-content: space-between;
+
+      & .ecos-btn {
+        width: 100%;
+      }
+    }
+  }
+
+  &_confirm {
+    #{$root}__buttons {
+      display: grid;
+      justify-content: normal;
+      grid-gap: 1em;
+
+      & .ecos-btn {
+        width: 100%;
+      }
+    }
+  }
+
+  &_info {
+  }
+
+  &_form {
+  }
+
+  &_custom {
   }
 }
