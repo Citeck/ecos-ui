@@ -47,7 +47,7 @@ export default class NumberComponent extends FormIONumberComponent {
     if (!_.isNaN(value)) {
       let strNumber = String(value);
 
-      if (strNumber.includes('e+')) {
+      if (this.isBigInt(strNumber)) {
         strNumber = this.component.stringValue;
       }
 
@@ -60,11 +60,13 @@ export default class NumberComponent extends FormIONumberComponent {
   }
 
   setValue(value, flags) {
-    super.setValue(value, flags);
+    const res = super.setValue(value, flags);
 
-    if (this.isBigInt()) {
+    if (this.isBigInt(value)) {
       this.dataValue = _.get(this.component, 'stringValue', value);
     }
+
+    return res;
   }
 
   formatValue(value) {
@@ -84,6 +86,18 @@ export default class NumberComponent extends FormIONumberComponent {
 
   getValue() {
     let value = super.getValue();
+
+    if (Array.isArray(value)) {
+      value = value.map(item => {
+        if (this.isBigInt(item)) {
+          item = this._prepareStringNumber(item);
+        }
+
+        return item;
+      });
+
+      return value;
+    }
 
     if (typeof value === 'object') {
       const keys = Object.keys(value);
@@ -155,6 +169,10 @@ export default class NumberComponent extends FormIONumberComponent {
     const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
     let newValue = value;
 
+    if (this.isBigInt(value)) {
+      newValue = _.get(this.component, 'stringValue', String(value));
+    }
+
     newValue = newValue.replace(/,/g, '.');
     newValue = newValue.replace(/\./g, this.decimalSeparator);
 
@@ -210,7 +228,7 @@ export default class NumberComponent extends FormIONumberComponent {
       return ''; // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2501 (See const "changed" in Base.updateValue())
     }
 
-    if (typeof val === 'string' && val.length > String(Number.MAX_SAFE_INTEGER).length) {
+    if (typeof val === 'string' && this.isBigInt(val)) {
       return this._prepareStringNumber(val);
     }
 
@@ -228,7 +246,9 @@ export default class NumberComponent extends FormIONumberComponent {
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-109
   recalculateMask = (value, options, input) => {
-    _.set(this.component, 'stringValue', value);
+    if (this.isBigInt(value)) {
+      _.set(this.component, 'stringValue', value);
+    }
 
     const updatedValue = value.replace(/\.|,/g, this.decimalSeparator);
     const formattedValue = this.formatValue(updatedValue);
