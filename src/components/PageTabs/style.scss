@@ -221,13 +221,17 @@
 
       &_sorting {
         top: 0;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
 
         &:not(#{$item}_active) {
-          background-color: $color-gray-1;
+          border: 1px $color-gray-5 solid;
+        }
 
-          &::after {
-            display: none !important;
-          }
+        &::after,
+        &::before {
+          display: none !important;
         }
       }
 

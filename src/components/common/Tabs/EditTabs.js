@@ -1,8 +1,10 @@
 import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import isEqualWith from 'lodash/isEqualWith';
+import isEqual from 'lodash/isEqual';
 
-import { arrayCompare, arrayMove } from '../../../helpers/util';
+import { arrayMove } from '../../../helpers/util';
 import { SortableContainer, SortableElement } from '../../Drag-n-Drop';
 import { commonTabsDefaultProps, commonTabsPropTypes } from './utils';
 import Tab from './Tab';
@@ -26,7 +28,7 @@ class EditTabs extends React.Component {
     const { items, hasHover, hasHint, keyField, valueField, activeTabKey } = this.props;
 
     if (
-      !arrayCompare(items, nextProps.items) ||
+      !isEqualWith(items, nextProps.items, isEqual) ||
       hasHover !== nextProps.hasHover ||
       hasHint !== nextProps.hasHint ||
       keyField !== nextProps.keyField ||
@@ -75,7 +77,7 @@ class EditTabs extends React.Component {
     } = this.props;
 
     return (
-      <SortableContainer axis="x" lockAxis="x" onSortEnd={this.handleSortEnd} useDragHandle>
+      <SortableContainer axis="x" lockAxis="x" lockToContainerEdges={true} lockOffset="10%" onSortEnd={this.handleSortEnd} useDragHandle>
         <div className={classNames('ecos-tabs', className)}>
           {items.map((item, index) => (
             <SortableElement key={`${item[keyField]}-${index}-editable`} index={index} disabled={disabled}>
