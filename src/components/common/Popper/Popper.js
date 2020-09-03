@@ -10,6 +10,7 @@ import './style.scss';
 
 export default class Popper extends Component {
   static propTypes = {
+    className: PropTypes.string,
     text: PropTypes.string,
     icon: PropTypes.string,
     showAsNeeded: PropTypes.bool,
@@ -130,9 +131,11 @@ export default class Popper extends Component {
       return null;
     }
 
+    const { className } = this.props;
+
     return (
       <ReactResizeDetector handleWidth onResize={this.handleResize}>
-        <div className="ecos-popper">
+        <div className={classNames('ecos-popper', className)}>
           {this.renderText()}
           {this.renderIcon()}
         </div>
