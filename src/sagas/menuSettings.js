@@ -59,6 +59,7 @@ function* fetchSettingsConfig({ api, logger }) {
 
 function* runSaveSettingsConfig({ api, logger }, { payload }) {
   try {
+    const userName = yield select(state => state.user.userName);
     const config = yield select(state => state.menu);
     const { id, type, version } = config;
     const keyType = MenuSettingsService.getConfigKeyByType(type);
@@ -77,7 +78,7 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
     yield put(saveGroupPriority());
     yield put(setOpenMenuSettings(false));
 
-    if (resultSave) {
+    if (resultSave && authorities.includes(userName)) {
       yield put(setMenuConfig({ ...config, id: resultSave.id }));
       yield put(fetchSlideMenuItems({ id: resultSave.id }));
     }
