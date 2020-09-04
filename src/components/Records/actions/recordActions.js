@@ -3,10 +3,10 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 
-import { deepClone, extractLabel, t } from '../../../helpers/util';
+import { extractLabel, t } from '../../../helpers/util';
 import DialogManager from '../../common/dialogs/Manager/DialogManager';
+import { replaceAttributeValues } from '../utils/recordUtils';
 import Records from '../Records';
-
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
 import { notifyFailure } from './util/actionUtils';
@@ -165,73 +165,6 @@ class RecordActions {
       result.push(resAction);
     }
     return result;
-  }
-
-  static async replaceAttributeValues(data, record) {
-    if (!data) {
-      return {};
-    }
-
-    const mutableData = deepClone(data);
-    const regExp = /\$\{([^}]+)\}/g;
-    const nonSpecialsRegex = /([^${}]+)/g;
-    const keys = Object.keys(mutableData);
-    const results = new Map();
-
-    if (!keys.length) {
-      return mutableData;
-    }
-
-    await Promise.all(
-      keys.map(async key => {
-        if (typeof mutableData[key] === 'object') {
-          mutableData[key] = await RecordActions.replaceAttributeValues(mutableData[key], record);
-          return;
-        }
-
-        if (typeof mutableData[key] !== 'string') {
-          return;
-        }
-
-        let fields = mutableData[key].match(regExp);
-
-        if (!fields) {
-          return;
-        }
-
-        fields = fields.map(el => el.match(nonSpecialsRegex)[0]);
-
-        await Promise.all(
-          fields.map(async strKey => {
-            if (results.has(strKey)) {
-              return;
-            }
-
-            let recordData = '';
-
-            if (strKey === 'recordRef') {
-              recordData = await Records.get(record).id;
-            } else {
-              recordData = await Records.get(record).load(strKey);
-            }
-
-            results.set(strKey, recordData);
-          })
-        );
-
-        fields.forEach(field => {
-          const fieldValue = results.get(field);
-          const fieldMask = '${' + field + '}';
-          if (mutableData[key] === fieldMask) {
-            mutableData[key] = fieldValue;
-          } else {
-            mutableData[key] = mutableData[key].replace(fieldMask, fieldValue);
-          }
-        });
-      })
-    );
-
-    return mutableData;
   }
 
   static _getConfirmData = action => {
@@ -467,7 +400,7 @@ class RecordActions {
       RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
     }
 
-    const config = await RecordActions.replaceAttributeValues(action.config, record);
+    const config = await replaceAttributeValues(action.config, record);
     const actionToExec = {
       ...action,
       config
