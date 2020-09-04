@@ -24,8 +24,6 @@ export default class NumberComponent extends FormIONumberComponent {
   constructor(...args) {
     super(...args);
 
-    window.NumberComponent = this;
-
     overrideTriggerChange.call(this);
   }
 
