@@ -13,7 +13,7 @@ import SidebarService from '../../../../services/sidebar';
 const PAGE_PREFIX = '/share/page';
 const menuApi = new MenuApi();
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = state => ({
   selectedId: state.slideMenu.selectedId,
   isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable,
   isNewJournalsPageEnable: state.slideMenu.isNewJournalsPageEnable
@@ -28,17 +28,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   setExpanded: id => dispatch(toggleExpanded(id))
 });
 
-const ListItemLink = ({
-  item,
-  onSelectItem,
-  selectedId,
-  nestedList,
-  setExpanded,
-  isNestedListExpanded,
-  withNestedList,
-  isSiteDashboardEnable,
-  isNewJournalsPageEnable
-}) => {
+const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDashboardEnable, isNewJournalsPageEnable }) => {
   const journalId = lodashGet(item, 'params.journalId', '');
   const [journalTotalCount, setJournalTotalCount] = useState(0);
   const attributes = {};
