@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
-import debounce from 'lodash/debounce';
 
 import { getOutputFormat, prepareTooltipId } from '../../../helpers/util';
 import { Icon, Tooltip } from '../../common';
@@ -67,20 +66,26 @@ class CurrentTaskInfo extends React.Component {
             </span>
           </Tooltip>
           {!isEmpty(actions) && (
-            <>
-              <DropdownOuter
-                className="ecos-current-task__action-dropdown"
-                source={actions}
-                valueField={'icon'}
-                titleField={'name'}
-                keyFields={['icon', 'name']}
-                isStatic
-                getStateOpen={isOpenActions => this.setState({ isOpenActions })}
-                CustomItem={MenuItem}
-              >
-                <Icon className={isOpenActions ? 'icon-custom-more-small-pressed' : 'icon-custom-more-small-normal'} />
-              </DropdownOuter>
-            </>
+            <DropdownOuter
+              className={classNames('ecos-current-task__action-dropdown', {
+                'ecos-current-task__action-dropdown_mobile': isMobile
+              })}
+              source={actions}
+              valueField={'icon'}
+              titleField={'name'}
+              keyFields={['icon', 'name']}
+              isStatic
+              trigger={'click'}
+              getStateOpen={isOpenActions => this.setState({ isOpenActions })}
+              CustomItem={MenuItem}
+            >
+              <Icon
+                className={classNames({
+                  'icon-custom-more-small-pressed': isOpenActions,
+                  'icon-custom-more-small-normal': !isOpenActions
+                })}
+              />
+            </DropdownOuter>
           )}
         </Headline>
         <div className="ecos-current-task-info__fields">
@@ -131,23 +136,20 @@ class CurrentTaskInfo extends React.Component {
 }
 
 class MenuItem extends React.PureComponent {
-  componentWillUnmount() {
-    this.handleClick.cancel();
-  }
-
-  handleClick = debounce((...data) => {
+  handleClick = event => {
     const onClick = get(this.props, 'item.onClick');
 
     if (typeof onClick === 'function') {
-      onClick(...data);
+      event.stopPropagation();
+      onClick();
     }
-  }, 350);
+  };
 
   render() {
     const { icon, name } = this.props.item;
 
     return (
-      <li onClick={this.handleClick} className="ecos-current-task__action-menu-item">
+      <li onClick={this.handleClick} onTouchEnd={this.handleClick} className="ecos-current-task__action-menu-item">
         <Icon className={icon} />
         <span>{name}</span>
       </li>
