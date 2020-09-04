@@ -67,7 +67,9 @@ class CurrentTaskInfo extends React.Component {
           </Tooltip>
           {!isEmpty(actions) && (
             <DropdownOuter
-              className="ecos-current-task__action-dropdown"
+              className={classNames('ecos-current-task__action-dropdown', {
+                'ecos-current-task__action-dropdown_mobile': isMobile
+              })}
               source={actions}
               valueField={'icon'}
               titleField={'name'}
@@ -78,7 +80,7 @@ class CurrentTaskInfo extends React.Component {
               CustomItem={MenuItem}
             >
               <Icon
-                className={classNames('ecos-current-task__action-dropdown-icon', {
+                className={classNames({
                   'icon-custom-more-small-pressed': isOpenActions,
                   'icon-custom-more-small-normal': !isOpenActions
                 })}
