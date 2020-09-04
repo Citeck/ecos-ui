@@ -1007,7 +1007,7 @@ class Documents extends BaseWidget {
             onSearch={this.handleFilterTable}
             onChangeFilter={this.handleChangeTypeFilter}
             forwardedRef={this._tablePanel}
-            scrollbarHeightMax={contentHeight - this.tablePanelHeight}
+            scrollbarHeightMax={this.tableHeight}
           />
         </Scrollbars>
       );
@@ -1025,7 +1025,7 @@ class Documents extends BaseWidget {
         onSearch={this.handleFilterTable}
         onChangeFilter={this.handleChangeTypeFilter}
         forwardedRef={this._tablePanel}
-        scrollbarHeightMax={contentHeight - this.tablePanelHeight}
+        scrollbarHeightMax={this.tableHeight}
       />
     );
   }
