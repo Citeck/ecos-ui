@@ -198,4 +198,15 @@ describe('Number Component', () => {
       done();
     }, done);
   });
+
+  it('BigInt', done => {
+    const comp = _.cloneDeep(comp3);
+    comp.defaultValue = '';
+
+    Harness.testCreate(NumberComponent, comp).then(component => {
+      Harness.testSetInput(component, 11111111111111, 11111111111111, '11111111111111');
+      Harness.testSetInput(component, 1111111111111111111111111111, 1111111111111111111111111111, '1111111111111111111111111111');
+      done();
+    });
+  });
 });
