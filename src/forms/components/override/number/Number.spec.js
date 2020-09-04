@@ -204,8 +204,9 @@ describe('Number Component', () => {
     comp.defaultValue = '';
 
     Harness.testCreate(NumberComponent, comp).then(component => {
+      Harness.testSetInput(component, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, String(Number.MAX_SAFE_INTEGER));
       Harness.testSetInput(component, 11111111111111, 11111111111111, '11111111111111');
-      Harness.testSetInput(component, 1111111111111111111111111111, 1111111111111111111111111111, '1111111111111111111111111111');
+      Harness.testSetInput(component, '1111111111111111111111111111', '1111111111111111111111111111', '1111111111111111111111111111');
       done();
     });
   });

@@ -24,11 +24,21 @@ export default class NumberComponent extends FormIONumberComponent {
   constructor(...args) {
     super(...args);
 
+    window.NumberComponent = this;
+
     overrideTriggerChange.call(this);
   }
 
   isBigInt(dataValue = this.dataValue) {
     let value = dataValue;
+
+    if (value === undefined || (typeof value === 'string' && !value) || Number.isNaN(value)) {
+      return false;
+    }
+
+    if (!Number.isNaN(+value) && +value > Number.MAX_SAFE_INTEGER) {
+      return true;
+    }
 
     if (typeof value === 'string') {
       value = parseFloat(value);
@@ -63,7 +73,22 @@ export default class NumberComponent extends FormIONumberComponent {
     const result = super.setValue(value, flags);
 
     if (!Array.isArray(value) && this.isBigInt(value)) {
-      this.dataValue = _.get(this.component, 'stringValue', value);
+      let stringValue = _.get(this.component, 'stringValue');
+
+      if (!stringValue) {
+        stringValue = String(value);
+        _.set(this.component, 'stringValue', stringValue);
+      }
+
+      this.dataValue = stringValue;
+
+      for (const i in this.inputs) {
+        if (this.inputs.hasOwnProperty(i)) {
+          this.setValueAt(i, stringValue, flags);
+        }
+      }
+
+      return this.updateValue(flags);
     }
 
     return result;
