@@ -1,4 +1,5 @@
 import lodashGet from 'lodash/get';
+import debounce from 'lodash/debounce';
 
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
@@ -6,6 +7,7 @@ import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records';
 import { getJournalUIType } from './export/journalsApi';
 import { CommonApi } from './common';
+import SidebarService from '../services/sidebar';
 
 const postProcessMenuItemChildren = items => {
   if (items && items.length) {
@@ -15,23 +17,62 @@ const postProcessMenuItemChildren = items => {
 };
 
 const postProcessMenuConfig = item => {
+  const type = lodashGet(item, 'action.type');
   const journalRef = lodashGet(item, 'action.params.journalRef');
   const siteName = lodashGet(item, 'action.params.siteName');
 
   const items = postProcessMenuItemChildren(item.items);
-  const journalUiType = journalRef ? getJournalUIType(journalRef) : '';
-  const siteUiType = siteName ? Records.get(`site@${siteName}`).load('uiType?str', true) : '';
+  const journalUiType = type === SidebarService.ActionTypes.JOURNAL_LINK && journalRef ? getJournalUIType(journalRef) : '';
+  const siteUiType = type === SidebarService.ActionTypes.SITE_LINK && siteName ? MenuApi.getSiteUiType(siteName) : '';
 
   return Promise.all([items, journalUiType, siteUiType]).then(itemsAndUIType => {
     item.items = itemsAndUIType[0];
+
     if (itemsAndUIType[1] || itemsAndUIType[2]) {
       item.action.params.uiType = itemsAndUIType[1] || itemsAndUIType[2];
     }
+
     return item;
   });
 };
 
 export class MenuApi extends CommonApi {
+  static getSiteUiType = siteName => {
+    if (!siteName) {
+      return Promise.resolve();
+    }
+
+    let uiType = MenuApi.uiTypeBySiteName[siteName];
+
+    if (uiType) {
+      return uiType.typePromise;
+    }
+
+    uiType = {};
+    uiType.typePromise = new Promise(resolve => {
+      uiType.resolve = resolve;
+    });
+
+    MenuApi.uiTypeBySiteName[siteName] = uiType;
+    MenuApi.getSiteUiTypes();
+
+    return uiType.typePromise;
+  };
+
+  static uiTypeBySiteName = {};
+
+  static getSiteUiTypes = debounce(() => {
+    const records = Object.keys(MenuApi.uiTypeBySiteName).map(key => `site@${key}`);
+
+    Records.get(records)
+      .load({ id: '.id', type: 'uiType' }, true)
+      .then(result => {
+        result.forEach(data => {
+          MenuApi.uiTypeBySiteName[data.id].resolve(data.type);
+        });
+      });
+  }, 300);
+
   getNewJournalPageUrl = params => {
     let listId = params.listId;
     let siteId = params.siteName;
