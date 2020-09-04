@@ -95,7 +95,9 @@ export default class Dropdown extends Component {
 
   toggle = () => {
     this.setState(
-      state => ({ dropdownOpen: !state.dropdownOpen }),
+      {
+        dropdownOpen: !this.state.dropdownOpen
+      },
       () => {
         if (typeof this.props.getStateOpen == 'function') {
           this.props.getStateOpen(this.state.dropdownOpen);
