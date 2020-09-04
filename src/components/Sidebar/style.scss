@@ -39,7 +39,7 @@ $transition-duration: 0.3s;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-
+  z-index: 5;
   width: 72px;
   transition: width $transition-duration;
   background: $color-white;
@@ -111,6 +111,31 @@ $transition-duration: 0.3s;
       }
     }
 
+    &_title-separator {
+      &:not(#{$menu-item}_collapsible):hover {
+        background: none;
+      }
+
+      #{$menu-item}__label {
+        color: $color-gray-5;
+      }
+    }
+
+    &_separator {
+      cursor: none;
+      pointer-events: none;
+
+      & :nth-child(n) {
+        display: none;
+      }
+
+      &::after {
+        @extend %menu-item-separator;
+        width: 70%;
+        left: 15%;
+      }
+    }
+
     &#{$menu-item}_selected:not(#{$menu-item}_nested-expanded):not(:hover) {
       background: $color-blue-light;
 
@@ -154,6 +179,15 @@ $transition-duration: 0.3s;
       align-items: center;
       text-decoration: none;
       padding-right: 3px;
+
+      &[disabled] {
+        pointer-events: none;
+
+        #{$menu-item}__label {
+          pointer-events: none;
+          color: $text-color-gray;
+        }
+      }
     }
 
     &__icon {
@@ -230,23 +264,7 @@ $transition-duration: 0.3s;
           background: initial;
         }
 
-        &#{$menu-item}_separator {
-          cursor: none;
-          pointer-events: none;
-
-          & :nth-child(n) {
-            display: none;
-          }
-
-          &::after {
-            @extend %menu-item-separator;
-            width: 70%;
-            left: 15%;
-          }
-        }
-
         #{$menu-item}__label {
-          color: $color-gray-5;
           font-size: $font-size-large;
         }
       }

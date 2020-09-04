@@ -1,4 +1,5 @@
-import { MenuTypes } from '../../constants/menu';
+import { MenuSettings, MenuTypes } from '../../constants/menu';
+import SidebarService from '../../services/sidebar';
 
 export const makeUserMenuConfigs = [
   [
@@ -133,7 +134,7 @@ export const oldToNewMenu = [
 export const makeSiteMenuFromConfig = [
   [{}, []],
   [
-    { isAdmin: true },
+    { leftMenuEditable: true, isAdmin: true },
     [
       {
         id: 'SETTINGS_MENU',
@@ -160,7 +161,7 @@ export const makeSiteMenuFromConfig = [
     ]
   ],
   [
-    { isAdmin: true, isDashboardPage: true },
+    { leftMenuEditable: true, isAdmin: true, isDashboardPage: true },
     [
       {
         id: 'SETTINGS_DASHBOARD',
@@ -178,6 +179,16 @@ export const makeSiteMenuFromConfig = [
         label: 'header.site-menu.admin-page',
         targetUrl: '/v2/bpmn-designer',
         targetUrlType: 'FULL_PATH'
+      }
+    ]
+  ],
+  [
+    { leftMenuEditable: true },
+    [
+      {
+        id: 'SETTINGS_MENU',
+        isAction: true,
+        label: 'header.site-menu.menu-settings'
       }
     ]
   ]
@@ -224,3 +235,16 @@ export const positionAdjustmentsByType = [
   [MenuTypes.TOP, { top: 40, left: 80 }, { top: 0, left: 0 }],
   [MenuTypes.TOP, { top: 0, left: 0 }, { top: 0, left: 0 }]
 ];
+
+export const itemsForPropsUrl = {
+  JOURNAL: { type: MenuSettings.ItemTypes.JOURNAL, params: { journalId: 'journalId', journalsListId: 'journalsListId' } },
+  JOURNAL_NONE: { type: MenuSettings.ItemTypes.JOURNAL, params: {} },
+  ARBITRARY_SELF: { type: MenuSettings.ItemTypes.ARBITRARY, config: { url: '/dashboard' } },
+  ARBITRARY_BLANK: { type: MenuSettings.ItemTypes.ARBITRARY, config: { url: 'https://ya.ru' } },
+  ARBITRARY_NONE: { type: MenuSettings.ItemTypes.ARBITRARY, config: {} },
+  LINK_CREATE_CASE: { type: MenuSettings.ItemTypes.LINK_CREATE_CASE, config: { url: '_' } },
+  SECTION: { type: MenuSettings.ItemTypes.SECTION, config: { url: '_' } },
+  HEADER_DIVIDER: { type: MenuSettings.ItemTypes.LINK_CREATE_CASE, config: { url: '_' } },
+  BPMN_DESIGNER: { action: { params: { pageId: 'bpmn-designer' } } },
+  PAGE_LINK: { action: { type: SidebarService.ActionTypes.PAGE_LINK, params: { pageId: 'page-link' } } }
+};

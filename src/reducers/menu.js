@@ -11,6 +11,8 @@ import {
 
 const initialState = {
   type: '',
+  id: '',
+  version: '',
   items: [],
   availableSoloItems: [],
   isLoading: false,
@@ -31,12 +33,9 @@ export default handleActions(
     [saveMenuConfig]: startLoading,
 
     [setMenuConfig]: (state, action) => {
-      const { id, type } = action.payload;
-
       return {
         ...state,
-        id,
-        type,
+        ...action.payload,
         isLoading: false
       };
     },

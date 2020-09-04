@@ -1077,6 +1077,7 @@ class Documents extends BaseWidget {
       >
         <Grid
           scrollable
+          sortable={false}
           fixedHeader
           scrollAutoHide={autoHide}
           forwardedRef={this._tableRef}

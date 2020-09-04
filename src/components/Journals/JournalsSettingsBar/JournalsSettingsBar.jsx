@@ -24,7 +24,8 @@ const JournalsSettingsBar = ({
   addRecord,
   grid,
   isMobile,
-  searchText
+  searchText,
+  selectedRecords
 }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
@@ -79,7 +80,12 @@ const JournalsSettingsBar = ({
         cleaner
       />
 
-      <Export journalConfig={journalConfig} grid={grid} className={classNames('ecos-journal__settings-bar-export', step)}>
+      <Export
+        journalConfig={journalConfig}
+        grid={grid}
+        className={classNames('ecos-journal__settings-bar-export', step)}
+        selectedItems={selectedRecords}
+      >
         <IcoBtn
           invert
           icon={isMobile ? 'icon-download' : 'icon-small-down'}

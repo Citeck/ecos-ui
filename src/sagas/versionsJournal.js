@@ -58,6 +58,7 @@ function* sagaSetNewVersion({ api, logger }, { payload }) {
     yield call(api.versionsJournal.setActiveVersion, VersionsJournalConverter.getActiveVersionForServer(payload));
     yield put(setActiveVersionSuccess(payload.id));
     yield put(getVersions({ record: payload.record, id: payload.id }));
+    Records.get(payload.record).update();
   } catch (e) {
     logger.error('[versionJournal/sagaSetNewVersion saga] error', e.message);
     yield put(setActiveVersionError({ message: e.message, id: payload.id }));

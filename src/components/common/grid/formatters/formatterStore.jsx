@@ -1,5 +1,6 @@
 import UserNameLinkFormatter from './gql/UserNameLinkFormatter';
 import FunctionFormatter from './gql/FunctionFormatter';
+import FunctionFormatterV2 from './gql/FunctionFormatterV2';
 import DateTimeFormatter from './gql/DateTimeFormatter';
 import DateFormatter from './gql/DateFormatter';
 import DefaultGqlFormatter from './gql/DefaultGqlFormatter';
@@ -22,6 +23,7 @@ import TaskLinkFormatter from './gql/TaskLinkFormatter';
 const formatterStore = {
   UserNameLinkFormatter,
   FunctionFormatter,
+  FunctionFormatterV2,
   DateTimeFormatter,
   DateFormatter,
   DefaultGqlFormatter,

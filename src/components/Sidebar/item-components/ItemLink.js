@@ -20,7 +20,7 @@ class ItemLink extends React.Component {
     const { targetUrl, attributes } = SS.getPropsUrl(data, extraParams);
 
     return (
-      <a href={targetUrl} {...attributes} {...props} className="ecos-sidebar-item__link">
+      <a href={targetUrl} {...attributes} {...props} disabled={!targetUrl} className="ecos-sidebar-item__link">
         {children}
       </a>
     );

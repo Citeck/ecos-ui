@@ -6,6 +6,7 @@ import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
@@ -245,7 +246,7 @@ class Grid extends Component {
 
         const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
 
-        column = this.setHeaderFormatter(column, filterable, column.sortable);
+        column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false);
 
         if (column.customFormatter === undefined) {
           column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
@@ -350,27 +351,19 @@ class Grid extends Component {
     const { editingRules } = this.props;
     const [column, , row] = data;
     const rowRules = editingRules[row.id];
-    const columnEditableStatus = get(column, 'params.editable');
-
-    /**
-     * If there are rules for editing the column
-     */
-    if (columnEditableStatus !== undefined) {
-      return columnEditableStatus;
-    }
 
     /**
      * If there is an editing rule for the entire row
      */
     if (typeof rowRules === 'boolean') {
-      return rowRules;
+      return !!rowRules;
     }
 
     /**
      * Validating a rule for a single cell
      */
     if (typeof rowRules === 'object') {
-      return get(rowRules, column.dataField, false);
+      return !!get(rowRules, column.dataField);
     }
 
     /**
@@ -481,7 +474,9 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable) => {
-    const { filters, sortBy } = this.props;
+    const { filters, sortBy, onSort, onFilter } = this.props;
+    const isFilterable = filterable && typeof onFilter === 'function';
+    const isSortable = sortable && typeof onSort === 'function';
 
     column.headerFormatter = (column, colIndex) => {
       const filterValue = ((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || '';
@@ -489,11 +484,11 @@ class Grid extends Component {
 
       return (
         <HeaderFormatter
-          filterable={filterable}
+          filterable={isFilterable}
           closeFilterEvent={CLOSE_FILTER_EVENT}
           filterValue={filterValue}
           onFilter={this.onFilter}
-          sortable={sortable}
+          sortable={isSortable}
           onSort={this.onSort}
           ascending={ascending}
           column={column}
@@ -900,6 +895,11 @@ class Grid extends Component {
       byContentHeight,
       ...otherProps
     } = this.props;
+
+    if (isEmpty(columns)) {
+      return null;
+    }
+
     const bootProps = this.setBootstrapTableProps(otherProps, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
     const toolsVisible = this.toolsVisible();
 
@@ -940,43 +940,39 @@ class Grid extends Component {
         <>{children}</>
       );
 
-    if (columns && columns.length) {
-      return (
-        <div
-          ref={this._ref}
-          key={this._id}
-          className={classNames('ecos-grid', {
-            'ecos-grid_freeze': this.fixedHeader,
-            'ecos-grid_checkable': this.hasCheckboxes,
-            'ecos-grid_no-top-border': noTopBorder,
-            [className]: !!className
-          })}
-          onMouseLeave={this.onMouseLeave}
-          onMouseEnter={this.onMouseEnter}
-        >
-          {!!toolsVisible && this.tools(bootProps.selected)}
-          <Scroll scrollable={bootProps.scrollable} refCallback={this.scrollRefCallback}>
-            <div ref={forwardedRef}>
-              <BootstrapTable
-                {...bootProps}
-                classes="ecos-grid__table"
-                headerClasses="ecos-grid__header"
-                rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
-              />
-            </div>
-            {this.inlineTools()}
-          </Scroll>
-          {this.fixedHeader ? (
-            <>
-              <div className={ECOS_GRID_HEAD_SHADOW} />
-              <div className={ECOS_GRID_LEFT_SHADOW} />
-            </>
-          ) : null}
-        </div>
-      );
-    }
-
-    return null;
+    return (
+      <div
+        ref={this._ref}
+        key={this._id}
+        className={classNames('ecos-grid', {
+          'ecos-grid_freeze': this.fixedHeader,
+          'ecos-grid_checkable': this.hasCheckboxes,
+          'ecos-grid_no-top-border': noTopBorder,
+          [className]: !!className
+        })}
+        onMouseLeave={this.onMouseLeave}
+        onMouseEnter={this.onMouseEnter}
+      >
+        {!!toolsVisible && this.tools(bootProps.selected)}
+        <Scroll scrollable={bootProps.scrollable} refCallback={this.scrollRefCallback}>
+          <div ref={forwardedRef}>
+            <BootstrapTable
+              {...bootProps}
+              classes="ecos-grid__table"
+              headerClasses="ecos-grid__header"
+              rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
+            />
+          </div>
+          {this.inlineTools()}
+        </Scroll>
+        {this.fixedHeader ? (
+          <>
+            <div className={ECOS_GRID_HEAD_SHADOW} />
+            <div className={ECOS_GRID_LEFT_SHADOW} />
+          </>
+        ) : null}
+      </div>
+    );
   }
 }
 
@@ -999,6 +995,7 @@ Grid.propTypes = {
   scrollAutoHide: PropTypes.bool,
   autoHeight: PropTypes.bool,
   byContentHeight: PropTypes.bool,
+  sortable: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,
@@ -1023,7 +1020,8 @@ Grid.propTypes = {
 };
 
 Grid.defaultProps = {
-  scrollable: true
+  scrollable: true,
+  sortable: true
 };
 
 export default Grid;

@@ -115,7 +115,9 @@ class CurrentTaskInfo extends React.Component {
           </div>
 
           {isMobile && isOpenUsers && (
-            <div className="ecos-current-task-info-value ecos-current-task-info-value_add">{this.renderUsersGroup(task.usersGroup)}</div>
+            <div className="ecos-current-task-info-value ecos-current-task-info-value_mobile-list">
+              {this.renderUsersGroup(task.usersGroup)}
+            </div>
           )}
 
           <div className="ecos-current-task-info__fields-item">

@@ -103,6 +103,10 @@
       #{$self}-btn-delete {
         visibility: visible;
       }
+
+      #{$self}-header-cell_actions {
+        background: white;
+      }
     }
 
     &-header {
@@ -111,12 +115,16 @@
 
       &-cell {
         display: flex;
+
+        &_actions {
+          position: absolute;
+          right: 0;
+          top: 15px;
+        }
       }
 
       &-column {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        display: grid;
       }
     }
 
@@ -141,10 +149,7 @@
       font-size: 12px;
       line-height: 16px;
       color: $color-black;
-      //max-width: 190px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      @extend %ellipsis;
     }
 
     &-date {
@@ -159,6 +164,21 @@
         font-size: 12px;
         color: $color-gray-7;
         margin-right: 5px;
+      }
+
+      &-popper {
+        padding: 10px 5px;
+      }
+
+      &-pseudo-link {
+        display: inline-grid;
+        cursor: help;
+        border-bottom: 1px dashed $color-gray-5;
+
+        &:hover {
+          color: $color-blue-dark;
+          border-color: $color-blue-dark;
+        }
       }
     }
 

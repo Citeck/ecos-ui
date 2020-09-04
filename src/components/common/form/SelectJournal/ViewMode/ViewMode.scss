@@ -3,4 +3,8 @@
 .select-journal-view-mode__list {
   list-style: none;
   padding-left: 0;
+
+  & &-value {
+    white-space: normal;
+  }
 }

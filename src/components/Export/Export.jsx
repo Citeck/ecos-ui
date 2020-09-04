@@ -27,7 +27,8 @@ export default class Export extends Component {
     dashletConfig: PropTypes.object,
     journalConfig: PropTypes.object,
     grid: PropTypes.object,
-    right: PropTypes.bool
+    right: PropTypes.bool,
+    selectedItems: PropTypes.array
   };
 
   static defaultProps = {
@@ -154,13 +155,17 @@ export default class Export extends Component {
     const data = this.getSelectionFilter();
     const url = this.getSelectionUrl();
 
+    if (!isEmpty(this.props.selectedItems)) {
+      data.selectedItems = this.props.selectedItems;
+    }
+
     api.copyUrlConfig({ data, url });
   };
 
   render() {
     const { right, className, children, ...props } = this.props;
     const { isOpen } = this.state;
-    const attributes = omit(props, ['journalConfig', 'dashletConfig', 'grid']);
+    const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid']);
 
     return this.isShow ? (
       <div {...attributes} className={classNames('ecos-btn-export', className)}>

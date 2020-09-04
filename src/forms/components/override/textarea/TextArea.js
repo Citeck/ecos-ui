@@ -203,12 +203,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       .catch(err => console.warn(err));
   }
 
-  prepareToInlineEditMode() {
-    if (this.wysiwygRendered) {
-      this.destroyWysiwyg();
-      this.wysiwygRendered = false;
-    }
-
+  refreshWysiwyg() {
     this.editorReady = new Promise(resolve => {
       this.editorReadyResolve = resolve;
     });
@@ -218,11 +213,35 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     this.wysiwygRendered = true;
   }
 
+  prepareToInlineEditMode() {
+    this.refreshWysiwyg();
+  }
+
   cleanAfterInlineEditMode() {
     if (this.wysiwygRendered) {
       this.destroyWysiwyg();
       this.wysiwygRendered = false;
       this.editorReady = null;
     }
+  }
+
+  show(show, noClear) {
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-89
+    if (show && this.wysiwygRendered && this.editorReady) {
+      this.editorReady.then(editor => {
+        let parentNode = null;
+        if (this.component.editor === 'ckeditor') {
+          parentNode = _.get(editor, 'sourceElement.parentNode');
+        } else {
+          parentNode = _.get(editor, 'container.parentNode');
+        }
+
+        if (!parentNode) {
+          this.refreshWysiwyg();
+        }
+      });
+    }
+
+    return super.show(show, noClear);
   }
 }

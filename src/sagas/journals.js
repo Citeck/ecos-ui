@@ -124,9 +124,10 @@ function* sagaGetDashletEditorData({ api, logger, stateId, w }, action) {
 function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
   try {
     const config = yield call(api.journals.getDashletConfig, action.payload);
-    const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode } = config;
 
     if (config) {
+      const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode } = config;
+
       yield put(setEditorMode(w(false)));
       yield put(setDashletConfig(w(config)));
       yield getJournals(api, journalsListId, w);
@@ -338,14 +339,21 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const params = getGridParams({ journalConfig, journalSetting, pagination });
   const gridData = yield getGridData(api, params, stateId);
   const editingRules = yield getGridEditingRules(api, gridData);
+
   let selectedRecords = [];
+  let isSelectAllRecords = false;
 
   if (!!userConfigId) {
-    selectedRecords = get(gridData, 'data', []).map(item => item.id);
+    if (isEmpty(userConfig.selectedItems)) {
+      selectedRecords = get(gridData, 'data', []).map(item => item.id);
+      isSelectAllRecords = true;
+    } else {
+      selectedRecords = userConfig.selectedItems;
+    }
   }
 
   yield put(setSelectedRecords(w(selectedRecords)));
-  yield put(setSelectAllRecords(w(!!userConfigId)));
+  yield put(setSelectAllRecords(w(isSelectAllRecords)));
   yield put(setSelectAllRecordsVisible(w(false)));
   yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
   yield put(setPreviewUrl(w('')));
@@ -362,7 +370,7 @@ function* getGridEditingRules(api, gridData) {
 
     if (canEditing) {
       byColumns = yield columns.map(function*(column) {
-        const isProtected = yield call(api.journals.checkCellProtectedFromEditing, row.id, row[column.dataField]);
+        const isProtected = yield call(api.journals.checkCellProtectedFromEditing, row.id, column.dataField);
 
         return {
           [column.dataField]: !isProtected

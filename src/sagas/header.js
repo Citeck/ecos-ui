@@ -18,6 +18,8 @@ import { setOpenMenuSettings } from '../actions/menuSettings';
 import { setDashboardIdentification } from '../actions/dashboard';
 import { setUserThumbnail, validateUserSuccess } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
+import { setLeftMenuEditable } from '../actions/app';
+
 import { makeSiteMenu, makeUserMenuItems } from '../helpers/menu';
 import { createThumbnailUrl } from '../helpers/urls';
 import { hasInString } from '../helpers/util';
@@ -74,9 +76,10 @@ function* fetchUserMenu({ api, fakeApi, logger }) {
 function* fetchSiteMenu({ api, fakeApi, logger }) {
   try {
     const isAdmin = yield select(state => state.user.isAdmin);
+    const leftMenuEditable = yield select(state => state.app.leftMenuEditable);
     const url = document.location.href;
     const isDashboardPage = hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
-    const menuItems = makeSiteMenu({ isDashboardPage, isAdmin });
+    const menuItems = makeSiteMenu({ isDashboardPage, isAdmin, leftMenuEditable });
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
     logger.error('[fetchSiteMenu saga] error', e.message);
@@ -86,6 +89,7 @@ function* fetchSiteMenu({ api, fakeApi, logger }) {
 function* filterSiteMenu({ api, logger }, { payload = {} }) {
   try {
     const isAdmin = yield select(state => state.user.isAdmin);
+    const leftMenuEditable = yield select(state => state.app.leftMenuEditable);
     const { identification = null } = payload;
     const tabLink = get(payload, 'tab.link', '');
     let { url = '' } = payload;
@@ -104,7 +108,7 @@ function* filterSiteMenu({ api, logger }, { payload = {} }) {
       isDashboardPage = hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
     }
 
-    const menuItems = makeSiteMenu({ isDashboardPage, isAdmin });
+    const menuItems = makeSiteMenu({ isDashboardPage, isAdmin, leftMenuEditable });
 
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
@@ -150,7 +154,11 @@ function* headerSaga(ea) {
   yield takeLatest(fetchCreateCaseWidgetData().type, fetchCreateCaseWidget, ea);
   yield takeLatest(fetchUserMenuData().type, fetchUserMenu, ea);
   yield takeLatest(fetchSiteMenuData().type, fetchSiteMenu, ea);
-  yield takeLatest([setDashboardIdentification().type, changeTab().type, validateUserSuccess().type], filterSiteMenu, ea);
+  yield takeLatest(
+    [setDashboardIdentification().type, changeTab().type, validateUserSuccess().type, setLeftMenuEditable().type],
+    filterSiteMenu,
+    ea
+  );
   yield takeLatest(goToPageFromSiteMenu().type, goToPageSiteMenu, ea);
   yield takeLatest(runActionFromSiteMenu().type, runActionSiteMenu, ea);
   yield takeLatest(runSearchAutocompleteItems().type, sagaRunSearchAutocomplete, ea);

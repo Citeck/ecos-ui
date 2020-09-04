@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import classnames from 'classnames';
 
 import { isExistValue, t } from '../../../../helpers/util';
 import { Btn } from '../../btns';
@@ -51,13 +52,26 @@ class DialogWrapper extends React.Component {
 const dialogsById = {
   [REMOVE_DIALOG_ID]: props => {
     const dialogProps = props.dialogProps || {};
-    const { onDelete = () => {}, onCancel = () => {}, onClose = onCancel, title, text } = dialogProps;
+    const {
+      onDelete = () => undefined,
+      onCancel = () => undefined,
+      onClose = onCancel,
+      title,
+      text,
+      className,
+      ...otherProps
+    } = dialogProps;
     const dProps = {
-      ...dialogProps,
+      ...otherProps,
       title: t(isExistValue(title) ? title : 'record-action.delete.dialog.title.remove-many'),
       text: t(isExistValue(text) ? text : 'record-action.delete.dialog.msg.remove-many'),
       isOpen: props.isVisible
     };
+
+    if (text === '') {
+      dProps.text = dProps.title;
+      dProps.title = '';
+    }
 
     dProps.onDelete = () => {
       props.setVisible(false);
@@ -74,11 +88,15 @@ const dialogsById = {
       onClose();
     };
 
+    dProps.className = classnames('ecos-dialog ecos-dialog_removal ecos-modal_width-xs', className, {
+      'ecos-dialog_headless': !dProps.title
+    });
+
     return <RemoveDialog {...dProps} />;
   },
   [INFO_DIALOG_ID]: props => {
     const dialogProps = props.dialogProps || {};
-    const { onClose = () => {}, title, text } = dialogProps;
+    const { onClose = () => undefined, title, text, modalClass } = dialogProps;
     const dProps = {
       ...dialogProps,
       title: t(title || ''),
@@ -86,13 +104,23 @@ const dialogsById = {
       isOpen: props.isVisible
     };
 
+    if (!text) {
+      dProps.text = dProps.title;
+      dProps.title = '';
+    }
+
     dProps.onClose = () => {
       props.setVisible(false);
       onClose();
     };
 
     return (
-      <EcosModal title={dProps.title} isOpen={dProps.isOpen} hideModal={dProps.onClose} className="ecos-dialog ecos-dialog_info">
+      <EcosModal
+        title={dProps.title}
+        isOpen={dProps.isOpen}
+        hideModal={dProps.onClose}
+        className={classnames('ecos-dialog ecos-dialog_info ecos-modal_width-xs', modalClass, { 'ecos-dialog_headless': !dProps.title })}
+      >
         <div className="ecos-dialog__body">{dProps.text}</div>
         <div className="ecos-dialog__buttons">
           <Btn onClick={dProps.onClose}>{t('button.close-modal')}</Btn>
@@ -102,13 +130,18 @@ const dialogsById = {
   },
   [CONFIRM_DIALOG_ID]: props => {
     const dialogProps = props.dialogProps || {};
-    const { onNo = () => {}, onYes = () => {}, title, text, modalClass = '' } = dialogProps;
+    const { onNo = () => undefined, onYes = () => undefined, title, text, modalClass = '' } = dialogProps;
     const dProps = {
       ...dialogProps,
       title: t(title || ''),
       text: t(text || ''),
       isOpen: props.isVisible
     };
+
+    if (!text) {
+      dProps.text = dProps.title;
+      dProps.title = '';
+    }
 
     dProps.onNo = () => {
       props.setVisible(false);
@@ -125,20 +158,21 @@ const dialogsById = {
         title={dProps.title}
         isOpen={dProps.isOpen}
         hideModal={dProps.onNo}
-        className={`ecos-dialog ecos-dialog_confirm ${modalClass}`}
+        className={classnames('ecos-dialog ecos-dialog_confirm ecos-modal_width-xs', modalClass, { 'ecos-dialog_headless': !dProps.title })}
       >
         {isExistValue(dProps.text) && <div className="ecos-dialog__body">{dProps.text}</div>}
         <div className="ecos-dialog__buttons">
-          <Btn onClick={dProps.onYes}>{t('boolean.yes')}</Btn>
           <Btn onClick={dProps.onNo}>{t('boolean.no')}</Btn>
+          <Btn className="ecos-btn_blue" onClick={dProps.onYes}>
+            {t('boolean.yes')}
+          </Btn>
         </div>
       </EcosModal>
     );
   },
   [CUSTOM_DIALOG_ID]: props => {
     const { isVisible, setVisible } = props;
-
-    const { title = '', onHide = () => {}, modalClass = 'ecos-dialog_info', body, buttons = [], handlers = {} } = props.dialogProps;
+    const { title = '', onHide = () => undefined, modalClass, body, buttons = [], handlers = {} } = props.dialogProps;
 
     const hideModal = () => {
       setVisible(false);
@@ -148,7 +182,12 @@ const dialogsById = {
     handlers.hideModal = hideModal;
 
     return (
-      <EcosModal title={t(title)} isOpen={isVisible} hideModal={hideModal} className={`ecos-dialog ${modalClass}`}>
+      <EcosModal
+        title={t(title)}
+        isOpen={isVisible}
+        hideModal={hideModal}
+        className={classnames('ecos-dialog ecos-dialog_custom', modalClass)}
+      >
         <div className="ecos-dialog__body">{body}</div>
         <div className="ecos-dialog__buttons">
           {buttons.map(b => (
@@ -167,12 +206,11 @@ const dialogsById = {
   },
   [FORM_DIALOG_ID]: props => {
     const { isVisible, setVisible } = props;
-
     const {
       title = '',
-      onCancel = () => {},
-      onSubmit = () => {},
-      modalClass = 'ecos-dialog_info',
+      onCancel = () => undefined,
+      onSubmit = () => undefined,
+      modalClass,
       showDefaultButtons = false
     } = props.dialogProps;
 
@@ -252,7 +290,7 @@ const dialogsById = {
         title={title}
         isOpen={isVisible}
         hideModal={hideModal}
-        className={`ecos-dialog ${modalClass}`}
+        className={classnames('ecos-dialog ecos-dialog_form', modalClass)}
         reactstrapProps={{ backdrop: false }}
       >
         <div className="ecos-dialog__body">

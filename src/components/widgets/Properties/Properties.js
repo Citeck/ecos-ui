@@ -17,9 +17,7 @@ class Properties extends React.Component {
     formId: PropTypes.string,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
-    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
     onInlineEditSave: PropTypes.func,
     scrollProps: PropTypes.object
@@ -75,14 +73,17 @@ class Properties extends React.Component {
     }
   };
 
-  onUpdateForm = () => {
-    const onUpdate = get(this._ecosForm, 'current.onReload');
+  onUpdateForm = withSaveData => {
+    const form = get(this._ecosForm, 'current');
 
-    if (typeof onUpdate !== 'function') {
+    if (!form) {
       return;
     }
 
-    onUpdate.call(this._ecosForm.current);
+    if (typeof form.onReload === 'function') {
+      form.onReload.call(form, withSaveData);
+    }
+
     this.setState({ loaded: false });
   };
 
@@ -141,7 +142,7 @@ class Properties extends React.Component {
   }
 
   render() {
-    const { forwardedRef, className, scrollProps } = this.props;
+    const { forwardedRef, className, scrollProps, minHeight } = this.props;
 
     return (
       <Scrollbars
@@ -149,7 +150,9 @@ class Properties extends React.Component {
         renderTrackVertical={props => <div {...props} className="ecos-properties__scroll_v" />}
         {...scrollProps}
       >
-        <div ref={forwardedRef}>{this.renderForm()}</div>
+        <div ref={forwardedRef} style={{ minHeight: minHeight || '50px' }}>
+          {this.renderForm()}
+        </div>
       </Scrollbars>
     );
   }

@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ContentEditable from 'react-contenteditable';
-import { sortableHandle } from 'react-sortable-hoc';
 import { Tooltip } from 'reactstrap';
 import uuidV4 from 'uuidv4';
 
 import { commonOneTabDefaultProps, commonOneTabPropTypes } from './utils';
 import { placeCaretAtEnd, t } from '../../../helpers/util';
 import ClickOutside from '../../ClickOutside/ClickOutside';
+import { SortableHandle } from '../../Drag-n-Drop';
 import { Icon } from '../';
 
 const EMPTY_STR = '';
@@ -17,7 +17,6 @@ const Labels = {
   BUTTON_DELETE: 'dashboard-settings.tabs.button.delete',
   LABEL_OPEN_MENU: 'dashboard-settings.tabs.label.menu'
 };
-const DragHandle = sortableHandle(() => <Icon className="icon-custom-drag-big ecos-tab-actions__icon ecos-tab-actions__icon_paler" />);
 
 class Tab extends React.Component {
   static propTypes = {
@@ -266,7 +265,11 @@ class Tab extends React.Component {
       actions.push(<Icon key="close" className="icon-small-close ecos-tab-actions__icon" onClick={this.onClose} />);
     } else {
       actions.push(<React.Fragment key="menu">{this.renderMenu()}</React.Fragment>);
-      actions.push(<DragHandle key="drag" />);
+      actions.push(
+        <SortableHandle key="drag">
+          <Icon className="icon-custom-drag-big ecos-tab-actions__icon ecos-tab-actions__icon_paler" />
+        </SortableHandle>
+      );
     }
 
     return <div className="ecos-tab-actions">{actions}</div>;

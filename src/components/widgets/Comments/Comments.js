@@ -4,7 +4,17 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { ContentState, convertFromRaw, convertToRaw, Editor, EditorState, getDefaultKeyBinding, Modifier, RichUtils } from 'draft-js';
+import {
+  ContentState,
+  convertFromRaw,
+  convertToRaw,
+  Editor,
+  EditorState,
+  getDefaultKeyBinding,
+  Modifier,
+  RichUtils,
+  convertFromHTML
+} from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
@@ -15,7 +25,7 @@ import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
-import { Avatar, Loader } from '../../common/index';
+import { Avatar, Loader, Popper } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
 
@@ -43,14 +53,18 @@ class Comments extends BaseWidget {
         lastName: PropTypes.string,
         middleName: PropTypes.string,
         displayName: PropTypes.string,
+        editorName: PropTypes.string,
+        editorUserName: PropTypes.string,
         text: PropTypes.string.isRequired,
         dateCreate: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]).isRequired,
         dateModify: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]),
         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         canEdit: PropTypes.bool,
-        canDelete: PropTypes.bool
+        canDelete: PropTypes.bool,
+        edited: PropTypes.bool
       })
     ),
+    dataStorageFormat: PropTypes.oneOf(['raw', 'html', 'plain-text']),
     maxLength: PropTypes.number,
     totalCount: PropTypes.number,
     errorMessage: PropTypes.string,
@@ -60,6 +74,8 @@ class Comments extends BaseWidget {
     canDragging: PropTypes.bool,
     maxHeightByContent: PropTypes.bool,
     commentListMaxHeight: PropTypes.number,
+    isMobile: PropTypes.bool,
+    userName: PropTypes.string,
     onSave: PropTypes.func,
     onDelete: PropTypes.func,
     getComments: PropTypes.func,
@@ -78,6 +94,7 @@ class Comments extends BaseWidget {
     canDragging: false,
     maxHeightByContent: false,
     commentListMaxHeight: 217,
+    dataStorageFormat: 'raw',
     onSave: () => {},
     onDelete: () => {},
     getComments: () => {},
@@ -319,12 +336,27 @@ class Comments extends BaseWidget {
   };
 
   handleSaveComment = () => {
-    const { saveIsLoading, updateComment, createComment } = this.props;
-    const { editableComment } = this.state;
-    const text = JSON.stringify(convertToRaw(this.state.comment.getCurrentContent()));
+    const { saveIsLoading } = this.props;
 
     if (saveIsLoading) {
       return;
+    }
+
+    const { updateComment, createComment, dataStorageFormat } = this.props;
+    const { editableComment, comment } = this.state;
+    let text = '';
+
+    switch (dataStorageFormat) {
+      case 'raw':
+        text = JSON.stringify(convertToRaw(comment.getCurrentContent()));
+        break;
+      case 'html':
+        text = stateToHTML(comment.getCurrentContent());
+        text = text.replace(/<br>\n/gim, '<br/>');
+        break;
+      case 'plain-text':
+      default:
+        text = comment.getCurrentContent().getPlainText();
     }
 
     editableComment ? updateComment({ text, id: editableComment }) : createComment(text);
@@ -401,6 +433,18 @@ class Comments extends BaseWidget {
     return true;
   };
 
+  handleReturn = event => {
+    if (!(event.keyCode === 13 && event.shiftKey)) {
+      return 'not-handled';
+    }
+
+    const { comment } = this.state;
+    const newState = RichUtils.insertSoftNewline(comment);
+
+    this.setState({ comment: newState }, this.updateEditorHeight);
+    return 'handled';
+  };
+
   handleEditComment = id => {
     const { comments } = this.props;
     const comment = comments.find(comment => comment.id === id);
@@ -416,7 +460,11 @@ class Comments extends BaseWidget {
       if (typeof convertedComment === 'object') {
         convertedComment = convertFromRaw(convertedComment);
       }
-    } catch (e) {}
+    } catch (e) {
+      const blocksFromHTML = convertFromHTML(comment.text);
+
+      convertedComment = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
+    }
 
     this.setState(
       {
@@ -545,6 +593,7 @@ class Comments extends BaseWidget {
               onChange={this.handleChangeComment}
               handleKeyCommand={this.handleKeyCommand}
               handlePastedText={this.handlePastedText}
+              handleReturn={this.handleReturn}
               placeholder={this.editorPlaceholder}
             />
           </Scrollbars>
@@ -614,25 +663,51 @@ class Comments extends BaseWidget {
     );
   }
 
+  renderCommentDate(comment) {
+    const { userName } = this.props;
+    const { dateCreate = new Date(), edited = false, dateModify, editorName, editorUserName } = comment;
+
+    if (!edited) {
+      return <div className="ecos-comments__comment-date">{this.formatDate(dateCreate)}</div>;
+    }
+
+    const inMoment = moment(dateModify);
+    let title = t('comments-widget.edited-by');
+
+    if (userName === editorUserName) {
+      const now = moment();
+      const yesterday = now
+        .clone()
+        .subtract(1, 'days')
+        .startOf('day');
+
+      if (inMoment.isSame(yesterday, 'd')) {
+        title += ` ${inMoment.format('DD.MM.YYYY')}`;
+      }
+
+      title += ` ${t('comments-widget.edited-in')} ${inMoment.format('HH:mm')}`;
+
+      return <div className="ecos-comments__comment-date">{title}</div>;
+    }
+
+    const displayText = `${editorName} / ${inMoment.format('DD.MM.YYYY HH:mm')}`;
+    const popperContent = <div className="ecos-comments__comment-date-popper">{displayText}</div>;
+
+    return (
+      <div className="ecos-comments__comment-date">
+        <Popper text={title} className="ecos-comments__comment-date-pseudo-link" contentComponent={popperContent} />
+      </div>
+    );
+  }
+
   renderComment = data => {
-    const {
-      id,
-      avatar = '',
-      firstName,
-      lastName,
-      middleName,
-      displayName,
-      text,
-      dateCreate = new Date(),
-      canEdit = false,
-      canDelete = false
-    } = data;
-    let convertedComment = text;
+    const { id, avatar = '', firstName, lastName, middleName, displayName, text, canEdit = false, canDelete = false } = data;
+    let convertedComment;
 
     try {
       convertedComment = stateToHTML(convertFromRaw(JSON.parse(text)));
     } catch (e) {
-      console.error('convert comment error: ', e.message);
+      convertedComment = text;
     }
 
     return (
@@ -651,10 +726,10 @@ class Comments extends BaseWidget {
                 {firstName} {middleName}
               </div>
               <div className="ecos-comments__comment-name">{lastName}</div>
-              <div className="ecos-comments__comment-date">{this.formatDate(dateCreate)}</div>
+              {this.renderCommentDate(data)}
             </div>
           </div>
-          <div className="ecos-comments__comment-header-cell">
+          <div className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions">
             {canEdit && (
               <div
                 className="ecos-comments__comment-btn ecos-comments__comment-btn-edit icon-edit"
@@ -739,7 +814,8 @@ class Comments extends BaseWidget {
 
 const mapStateToProps = (state, ownProps) => ({
   ...selectStateByNodeRef(state, ownProps.record),
-  isMobile: state.view.isMobile
+  isMobile: state.view.isMobile,
+  userName: state.user.userName
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

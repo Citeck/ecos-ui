@@ -18,15 +18,17 @@ const postProcessMenuItemChildren = items => {
 };
 
 const postProcessMenuConfig = item => {
-  let journalRef = lodashGet(item, 'action.params.journalRef');
+  const journalRef = lodashGet(item, 'action.params.journalRef');
+  const siteName = lodashGet(item, 'action.params.siteName');
 
-  let items = postProcessMenuItemChildren(item.items);
-  let uiType = journalRef ? getJournalUIType(journalRef) : '';
+  const items = postProcessMenuItemChildren(item.items);
+  const journalUiType = journalRef ? getJournalUIType(journalRef) : '';
+  const siteUiType = siteName ? Records.get(`site@${siteName}`).load('uiType?str', true) : '';
 
-  return Promise.all([items, uiType]).then(itemsAndUIType => {
+  return Promise.all([items, journalUiType, siteUiType]).then(itemsAndUIType => {
     item.items = itemsAndUIType[0];
-    if (itemsAndUIType[1]) {
-      item.action.params.uiType = itemsAndUIType[1];
+    if (itemsAndUIType[1] || itemsAndUIType[2]) {
+      item.action.params.uiType = itemsAndUIType[1] || itemsAndUIType[2];
     }
     return item;
   });
@@ -129,9 +131,35 @@ export class MenuApi extends CommonApi {
           })
           .filter(r => r.createVariants && r.createVariants.length);
       })
-      .catch(() => []);
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
 
-    return Promise.all([allSites, fromJournals]).then(res => res[0].concat(res[1]));
+    return Promise.all([allSites, fromJournals])
+      .then(res => {
+        const [sitesVariants, journalsVariants] = res;
+        for (let journal of journalsVariants) {
+          if (!journal.siteId || !journal.createVariants || !journal.createVariants.length) {
+            continue;
+          }
+          let siteForJournal = null;
+          for (let site of sitesVariants) {
+            if (site.siteId === journal.siteId && !!site.createVariants) {
+              siteForJournal = site;
+              break;
+            }
+          }
+          if (siteForJournal) {
+            siteForJournal.createVariants = siteForJournal.createVariants.concat(journal.createVariants);
+          }
+        }
+        return sitesVariants;
+      })
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
   };
 
   getCustomCreateVariants = () => {
@@ -173,6 +201,24 @@ export class MenuApi extends CommonApi {
         })
       )
       .catch(() => ({}));
+  };
+
+  getMenuItems = async ({ version, id }) => {
+    const user = getCurrentUserName();
+    let config;
+
+    if (id) {
+      config = await Records.get(`${SourcesId.MENU}@${id}`).load('subMenu?json', true);
+    } else {
+      config = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'subMenu?json');
+    }
+
+    return fetchExtraItemInfo(lodashGet(config, 'left.items') || [], {
+      label: '.disp',
+      journalId: 'id',
+      journalsListId: 'journalsListId',
+      createVariants: 'createVariants[]?json'
+    });
   };
 
   getMenuItemIconUrl = iconName => {
@@ -221,47 +267,43 @@ export class MenuApi extends CommonApi {
       .then(resp => resp);
   };
 
-  getUserMenuConfig = () => {
+  getUserMenuConfig = async () => {
     const user = getCurrentUserName();
+    const configVersion = await Records.get(`${SourcesId.ECOS_CONFIG}@default-ui-main-menu`).load('.str');
+    const _ver = configVersion.replace('left-v', '');
+    const version = _ver !== 'left' ? +_ver : 0;
+    const id = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'id');
 
-    return Records.queryOne(
-      {
-        sourceId: SourcesId.MENU,
-        query: { user }
-      },
-      { id: 'id' },
-      {}
-    );
+    return { version, configVersion, id };
   };
 
-  getMenuSettingsConfig = ({ id = '' }) => {
-    return Records.get(`${SourcesId.MENU}@${id}`)
-      .load(
-        {
-          id: 'id',
-          authorities: 'authorities[]?str',
-          menu: 'subMenu?json'
-        },
-        true
-      )
-      .then(resp => {
-        return fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || []).then(items => {
-          lodashSet(resp, 'menu.left.items', items);
-          return resp;
-        });
-      })
-      .then(resp => resp || {})
-      .catch(err => {
-        console.error(err);
-        return {};
-      });
+  getMenuSettingsConfig = async ({ id = '' }) => {
+    const config = await Records.get(`${SourcesId.MENU}@${id}`).load(
+      {
+        id: 'id',
+        authorities: 'authorities[]?str',
+        menu: 'subMenu?json'
+      },
+      true
+    );
+    const updItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
+    const filterAuthorities = (lodashGet(config, 'authorities') || []).filter(item => item !== LOWEST_PRIORITY);
+
+    !filterAuthorities.length && filterAuthorities.push(getCurrentUserName());
+
+    const updAuthorities = await this.getAuthoritiesInfoByName(filterAuthorities);
+
+    lodashSet(config, 'menu.left.items', updItems);
+    lodashSet(config, 'authorities', updAuthorities);
+
+    return config;
   };
 
   getItemInfoByRef = records => {
     return Promise.all(
       records.map(recordRef =>
         Records.get(recordRef)
-          .load({ label: '.disp' })
+          .load({ label: '.disp', createVariants: 'createVariants[]' })
           .then(attributes => ({ ...attributes, config: { recordRef } }))
       )
     );
@@ -308,12 +350,14 @@ export class MenuApi extends CommonApi {
       .then(fetchExtraGroupItemInfo);
   };
 
-  saveMenuSettingsConfig = ({ id, subMenu, authorities }) => {
+  saveMenuSettingsConfig = ({ id, subMenu, authorities, version }) => {
     const rec = Records.get(`${SourcesId.MENU}@${id}`);
+
+    !authorities.length && authorities.push(LOWEST_PRIORITY);
 
     rec.att('subMenu', subMenu);
     rec.att('authorities[]?str', authorities);
-    rec.att('version', 1);
+    rec.att('version', version);
 
     return rec.save();
   };
@@ -329,32 +373,27 @@ export class MenuApi extends CommonApi {
   };
 }
 
-async function fetchExtraItemInfo(data) {
+async function fetchExtraItemInfo(data, attributes) {
   return Promise.all(
     data.map(async item => {
       const target = { ...item };
       const journalRef = lodashGet(item, 'config.recordRef');
       const iconRef = lodashGet(item, 'icon');
 
-      if (journalRef && [ms.ItemTypes.JOURNAL].includes(item.type)) {
-        const result = await Records.get(journalRef).load({ label: '.disp' });
-
-        target.label = result.label;
-        target.config = { ...target.config, count: 999 };
+      if (journalRef && [ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type)) {
+        target._remoteData_ = await Records.get(journalRef).load(attributes);
       }
 
       if (iconRef && iconRef.includes(SourcesId.ICON)) {
-        const icon = await Records.get(iconRef).load({
+        target.icon = await Records.get(iconRef).load({
           url: 'data?str',
           type: 'type',
           value: 'id'
         });
-
-        target.icon = { ...target.icon, ...icon };
       }
 
       if (Array.isArray(item.items)) {
-        target.items = await fetchExtraItemInfo(item.items);
+        target.items = await fetchExtraItemInfo(item.items, attributes);
       }
 
       return target;

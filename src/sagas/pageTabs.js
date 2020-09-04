@@ -125,7 +125,7 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
 function* sagaDeleteTab({ api, logger }, action) {
   try {
     const deletedTab = PageTabList.delete(action.payload);
-    PageService.extractWhereLinkOpen({ subsidiaryLink: deletedTab.link });
+    deletedTab && PageService.extractWhereLinkOpen({ subsidiaryLink: deletedTab.link });
 
     const activeTab = PageTabList.activeTab;
 

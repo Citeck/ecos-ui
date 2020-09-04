@@ -13,7 +13,7 @@ import SidebarService from '../../../../services/sidebar';
 const PAGE_PREFIX = '/share/page';
 const menuApi = new MenuApi();
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = state => ({
   selectedId: state.slideMenu.selectedId,
   isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable,
   isNewJournalsPageEnable: state.slideMenu.isNewJournalsPageEnable
@@ -28,28 +28,29 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   setExpanded: id => dispatch(toggleExpanded(id))
 });
 
-const ListItemLink = ({
-  item,
-  onSelectItem,
-  selectedId,
-  nestedList,
-  setExpanded,
-  isNestedListExpanded,
-  withNestedList,
-  isSiteDashboardEnable,
-  isNewJournalsPageEnable
-}) => {
+const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDashboardEnable, isNewJournalsPageEnable }) => {
   const journalId = lodashGet(item, 'params.journalId', '');
   const [journalTotalCount, setJournalTotalCount] = useState(0);
   const attributes = {};
   let ignoreTabHandler = true;
-
-  useEffect(() => {
+  const getJournalCount = () => {
     if (journalId) {
       menuApi.getJournalTotalCount(journalId).then(count => {
         setJournalTotalCount(count);
       });
     }
+  };
+
+  useEffect(() => {
+    SidebarService.addListener(SidebarService.UPDATE_EVENT, getJournalCount);
+
+    return () => {
+      SidebarService.removeListener(SidebarService.UPDATE_EVENT, getJournalCount);
+    };
+  }, []);
+
+  useEffect(() => {
+    getJournalCount();
   }, [journalId]);
 
   let itemId = item.id;
@@ -77,7 +78,23 @@ const ListItemLink = ({
         }
 
         let uiType = params.uiType || '';
-        let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
+        let isNewUILink;
+
+        // Cause: https://citeck.atlassian.net/browse/ECOSUI-468
+        switch (uiType) {
+          case 'react':
+            isNewUILink = true;
+            break;
+          case 'share':
+            isNewUILink = false;
+            break;
+          default:
+            if (isNewVersionPage()) {
+              isNewUILink = isNewJournalsPageEnable;
+            } else {
+              isNewUILink = false;
+            }
+        }
 
         if (isNewUILink) {
           targetUrl = getJournalPageUrl({
@@ -93,6 +110,7 @@ const ListItemLink = ({
           attributes.rel = 'noopener noreferrer';
         } else {
           targetUrl = PAGE_PREFIX;
+
           if (params.siteName) {
             targetUrl += `/site/${params.siteName}`;
           }
@@ -119,10 +137,6 @@ const ListItemLink = ({
           if (params.maxItems) {
             targetUrl += `&maxItems=${params.maxItems}`;
           }
-
-          if (isNewJournalsPageEnable) {
-            targetUrl = menuApi.getNewJournalPageUrl(params);
-          }
         }
 
         break;
@@ -131,38 +145,59 @@ const ListItemLink = ({
         targetUrl = `${PAGE_PREFIX}/${params.pageId}${sectionPostfix}`;
         break;
       case 'SITE_LINK':
-        if (isNewVersionPage()) {
-          ignoreTabHandler = false;
-          attributes.target = '_blank';
-          attributes.rel = 'noopener noreferrer';
+        {
+          const uiType = params.uiType || '';
+          let isNewUILink;
 
-          if (!isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
-            const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');
-
-            if (journalLink) {
-              const params = journalLink.action.params;
-              let listId = 'tasks';
-
-              if (params.siteName) {
-                listId = params.listId || 'main';
-              }
-
-              targetUrl = getJournalPageUrl({
-                journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
-                journalId: params.journalRef,
-                journalSettingId: '', // TODO?
-                nodeRef: params.journalRef,
-                filter: params.filterRef
-              });
-
+          // Cause: https://citeck.atlassian.net/browse/ECOSUI-469
+          switch (uiType) {
+            case 'react':
+              isNewUILink = true;
               break;
-            }
+            case 'share':
+              isNewUILink = false;
+              break;
+            default:
+              if (isNewVersionPage()) {
+                isNewUILink = isNewJournalsPageEnable;
+              } else {
+                isNewUILink = false;
+              }
           }
 
-          targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
-          attributes[REMOTE_TITLE_ATTR_NAME] = true;
-        } else {
-          targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
+          if (isNewUILink) {
+            ignoreTabHandler = false;
+            attributes.target = '_blank';
+            attributes.rel = 'noopener noreferrer';
+
+            if (!isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
+              const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');
+
+              if (journalLink) {
+                const params = journalLink.action.params;
+                let listId = 'tasks';
+
+                if (params.siteName) {
+                  listId = params.listId || 'main';
+                }
+
+                targetUrl = getJournalPageUrl({
+                  journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
+                  journalId: params.journalRef,
+                  journalSettingId: '', // TODO?
+                  nodeRef: params.journalRef,
+                  filter: params.filterRef
+                });
+
+                break;
+              }
+            }
+
+            targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
+            attributes[REMOTE_TITLE_ATTR_NAME] = true;
+          } else {
+            targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
+          }
         }
         break;
       default:

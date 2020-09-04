@@ -21,7 +21,7 @@ import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
-import { t, trigger, objectCompare } from '../../helpers/util';
+import { objectCompare, t, trigger } from '../../helpers/util';
 import { getSearchParams, goToCardDetailsPage, stringifySearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
@@ -35,7 +35,9 @@ const mapStateToProps = (state, props) => {
     pageTabsIsShow: state.pageTabs.isShow,
     journalConfig: newState.journalConfig,
     predicate: newState.predicate,
-    grid: newState.grid
+    grid: newState.grid,
+    selectedRecords: newState.selectedRecords,
+    isLoading: newState.loading
   };
 };
 
@@ -89,7 +91,7 @@ class Journals extends Component {
   }
 
   componentDidMount() {
-    this.getJournalsData();
+    trigger.call(this, 'getJournalsData');
     trigger.call(this, 'onRender');
   }
 
@@ -98,7 +100,9 @@ class Journals extends Component {
       isActivePage,
       urlParams: { journalId },
       stateId,
-      grid
+      grid,
+      isLoading,
+      getJournalsData
     } = this.props;
     const {
       isActivePage: _isActivePage,
@@ -107,19 +111,24 @@ class Journals extends Component {
     const search = this.getSearch();
 
     if (isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId)) {
-      this.getJournalsData();
+      getJournalsData();
     }
 
     if (prevProps.stateId !== stateId) {
-      this.getJournalsData();
+      getJournalsData();
     }
 
-    if (search && !get(prevProps, 'grid.columns') && get(grid, 'columns')) {
-      this.search(search);
+    if (search !== get(grid, 'search')) {
+      this.onSearch(search);
     }
 
-    if (!_isActivePage && isActivePage) {
-      this.onForceUpdate();
+    if (isActivePage && this.state.isForceUpdate) {
+      this.setState({ isForceUpdate: false });
+      this.props.reloadGrid();
+    }
+
+    if (_isActivePage && !isActivePage && isLoading) {
+      this.setState({ isForceUpdate: true });
     }
   }
 
@@ -134,14 +143,6 @@ class Journals extends Component {
   getSearch = () => {
     return this.props.isActivePage ? get(getSearchParams(), 'search', '') : '';
   };
-
-  refresh = () => {
-    this.props.reloadGrid();
-  };
-
-  getJournalsData() {
-    this.props.getJournalsData();
-  }
 
   addRecord = createVariant => {
     FormManager.createRecordByVariant(createVariant, {
@@ -188,7 +189,7 @@ class Journals extends Component {
     );
   };
 
-  search = text => {
+  onSearch = text => {
     const searchParams = {
       ...getSearchParams(),
       search: text
@@ -203,10 +204,10 @@ class Journals extends Component {
   };
 
   render() {
-    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage } = this.props;
-    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height, isForceUpdate } = this.state;
+    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage, selectedRecords, reloadGrid } = this.props;
+    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height } = this.state;
 
-    if (!journalConfig || isForceUpdate) {
+    if (!journalConfig) {
       return null;
     }
 
@@ -246,11 +247,12 @@ class Journals extends Component {
               togglePreview={this.togglePreview}
               togglePie={this.togglePie}
               showGrid={this.showGrid}
-              refresh={this.refresh}
-              onSearch={this.search}
+              refresh={reloadGrid}
+              onSearch={this.onSearch}
               addRecord={this.addRecord}
               isMobile={isMobile}
               searchText={this.getSearch()}
+              selectedRecords={selectedRecords}
             />
 
             <EcosModal

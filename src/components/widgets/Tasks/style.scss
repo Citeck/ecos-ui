@@ -17,6 +17,10 @@
 
       &__body {
       }
+
+      .formio-form {
+        min-height: unset;
+      }
     }
 
     &__loader {
@@ -107,6 +111,10 @@
     &__wrapper {
       margin: 0;
 
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+
       &_small-mode {
         margin: 13px 0;
       }
@@ -128,6 +136,10 @@
         margin-bottom: 13px;
         background-color: $color-blue-dark;
         color: $color-white;
+
+        width: 100%;
+        min-width: 160px;
+        margin-left: unset;
 
         &:hover {
           background-color: $color-blue-light;

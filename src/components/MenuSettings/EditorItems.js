@@ -1,9 +1,10 @@
 import React from 'react';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-import { arrayCompare, extractLabel, t } from '../../helpers/util';
+import { extractLabel, t } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
 import { MenuSettings as ms } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
@@ -36,7 +37,7 @@ class EditorItems extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { lastAddedItems } = this.props;
 
-    if (!arrayCompare(lastAddedItems, prevProps.lastAddedItems)) {
+    if (!isEqual(lastAddedItems, prevProps.lastAddedItems)) {
       const targetEl = document.querySelector(`#id${get(lastAddedItems, [0, 'id'])}`);
 
       targetEl && targetEl.scrollIntoView();
@@ -72,7 +73,6 @@ class EditorItems extends React.Component {
       DialogManager.showRemoveDialog({
         title: '',
         text: t('menu-settings.message.delete-item', { name: extractLabel(item.label) }),
-        className: 'ecos-modal_width-xs',
         onDelete: () => {
           setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items }).items);
         }
@@ -180,7 +180,7 @@ class EditorItems extends React.Component {
 
     return editItemIcon ? (
       <IconSelect
-        prefixIcon="leftmenu"
+        prefixIcon="icon-leftmenu-"
         family="menu-items"
         useFontIcons
         selectedIcon={editItemIcon.icon}
@@ -218,7 +218,7 @@ class EditorItems extends React.Component {
 
     if (item && [ms.ItemTypes.JOURNAL].includes(item.type)) {
       const displayCount = get(item, 'config.displayCount');
-      const count = String(get(item, 'config.count', 0));
+      const count = String(get(item, 'params.count', '***'));
 
       components.push(
         <div

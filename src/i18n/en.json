@@ -1,6 +1,7 @@
 {
   "error": "Error",
   "success": "Success",
+  "warning": "Warning",
   "actions.document.download": "Download",
   "aggregation.columns": "Aggregation column",
   "aggregation.type": "Aggregation type",
@@ -108,6 +109,8 @@
   "comments-widget.second-form3": "seconds",
   "comments-widget.time-ago": "ago",
   "comments-widget.title": "Comments",
+  "comments-widget.edited-by": "edited by",
+  "comments-widget.edited-in": "in",
   "create_case.label": "Create",
 
   "current-tasks-widget.title": "All tasks",
@@ -174,7 +177,7 @@
   "dashboard-settings.widget.comments": "Comments",
   "dashboard-settings.widget.current-tasks": "All tasks",
   "dashboard-settings.widget.doc-associations": "Document associations",
-  "dashboard-settings.widget.doc-status": "Case status",
+  "dashboard-settings.widget.doc-status": "Status",
   "dashboard-settings.widget.events-history": "Events history",
   "dashboard-settings.widget.journal": "Journal",
   "dashboard-settings.widget.report": "Tasks statistics",
@@ -239,7 +242,7 @@
   "doc-status-widget.saga.error1": "Error. Failure to fetch document status",
   "doc-status-widget.saga.error2": "Error. Failure to fetch document status list",
   "doc-status-widget.saga.error3": "Error. Failure to change document status",
-  "doc-status-widget.title": "Case status",
+  "doc-status-widget.title": "Status",
   "dochist.assoc.added": "Added",
   "dochist.assoc.contains": "Document",
   "dochist.assoc.removed": "Removed",
@@ -392,11 +395,13 @@
   "record-action.upload-new-version.error.no-version": "No version",
   "record-action.upload-new-version.error.no-record": "No record",
 
+  "record-action.name.set-task-assignee": "Set assignee",
+  "record-action.set-task-assignee.error.not-all-info": "Not enough information to complete the action",
+
   "record-action.name.save-as-case-template": "Save as template",
   "record-action.name.preview": "Preview",
   "record-action.name.fetch-action": "Perform the remote action",
   "record-action.name.edit-task-assignee": "Change employee",
-
   "record-action.name.view-business-process": "Business-process scheme",
   "record-action.name.cancel-business-process": "Cancel business-process",
   "record-action.name.mutate-action": "Mutate",
@@ -752,9 +757,9 @@
   "tasks-widget.column.started": "Started",
   "tasks-widget.no-tasks": "No tasks",
   "tasks-widget.saga.change-assignee-success": "Task assigned successfully",
-  "tasks-widget.saga.error1": "Error. Failure to fetch data",
-  "tasks-widget.saga.error2": "Assignment error",
-  "tasks-widget.saga.error3": "There was a problem while assign. Please, check task",
+  "tasks-widget.error.get-tasks": "Error. Failure to fetch data",
+  "tasks-widget.error.assign-task": "Assignment error",
+  "tasks-widget.error.failed-assign-task": "There was a problem while assign. Please, check task",
   "tasks-widget.title": "My tasks",
 
   "timesheets.allForms.title": "Timesheets",
@@ -1035,8 +1040,8 @@
   "business-process-viewer.button.cancel-bp": "Cancel the business-process",
   "business-process-viewer.dialog.msg": "Cancel the business-process?",
 
-  "menu.error.get-config": "Error. Menu configuration hasn't received",
-  "menu.error.save-config": "Error. Menu configuration hasn't saved",
+  "menu.error.get-config": "Menu configuration hasn't received",
+  "menu.error.save-config": "Menu configuration hasn't saved",
 
   "menu-settings.header.title": "Menu Settings",
   "menu-settings.button.cancel": "Cancel",
@@ -1086,6 +1091,7 @@
   "menu-settings.error.save-config": "Menu settings configuration hasn't saved",
   "menu-settings.error.remove-config": "Menu settings configuration hasn't delete",
   "menu-settings.error.set-items-from-journal": "Items haven't set in configuration. Try again",
+  "menu-settings.warn.set-create-items-from-journal": "Items \"{{names}}\" haven't set, because there are no create variants",
   "menu-settings.success.save-config": "Menu settings configuration saved",
   "menu-settings.error.get-group-priority": "Group priority hasn't received",
   "menu-settings.error.save-group-priority": "Group priority hasn't saved",

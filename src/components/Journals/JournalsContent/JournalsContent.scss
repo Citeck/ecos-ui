@@ -10,6 +10,8 @@
 
 .ecos-journals-content__preview-well {
   padding: 17px 15px;
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-337
+  min-height: 468px;
 }
 
 .ecos-journals-content__preview-y-step {

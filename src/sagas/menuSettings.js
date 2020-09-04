@@ -2,6 +2,7 @@ import { NotificationManager } from 'react-notifications';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import {
   addJournalMenuItems,
@@ -19,12 +20,12 @@ import {
   setMenuItems,
   setOpenMenuSettings
 } from '../actions/menuSettings';
-import { initMenuConfig } from '../actions/menu';
+import { initMenuConfig, setMenuConfig } from '../actions/menu';
 import { fetchSlideMenuItems } from '../actions/slideMenu';
 import { t } from '../helpers/util';
 import MenuConverter from '../dto/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
-import { LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
+import { MenuSettings as ms } from '../constants/menu';
 
 function* runInitSettings({ api, logger }) {
   try {
@@ -45,11 +46,10 @@ function* fetchSettingsConfig({ api, logger }) {
     }
 
     const { menu, authorities } = yield call(api.menu.getMenuSettingsConfig, { id });
-    const authoritiesInfo = yield call(api.menu.getAuthoritiesInfoByName, authorities);
     const items = MenuConverter.getMenuItemsWeb(get(menu, [keyType, 'items']) || []);
 
     yield put(setMenuItems(items));
-    yield put(setAuthorities(authoritiesInfo));
+    yield put(setAuthorities(authorities));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.get-config'), t('error'));
@@ -59,7 +59,9 @@ function* fetchSettingsConfig({ api, logger }) {
 
 function* runSaveSettingsConfig({ api, logger }, { payload }) {
   try {
-    const { id, type } = yield select(state => state.menu);
+    const userName = yield select(state => state.user.userName);
+    const config = yield select(state => state.menu);
+    const { id, type, version } = config;
     const keyType = MenuSettingsService.getConfigKeyByType(type);
     const items = yield select(state => state.menuSettings.items);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
@@ -70,16 +72,15 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
     const newItems = MenuConverter.getMenuItemsServer({ originalItems, items });
 
     set(result, ['subMenu', keyType, 'items'], newItems);
-    !authorities.length && authorities.push(LOWEST_PRIORITY);
 
-    const resultSave = yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities });
+    const resultSave = yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities, version });
 
-    yield put(saveGroupPriority(payload));
+    yield put(saveGroupPriority());
     yield put(setOpenMenuSettings(false));
 
-    if (!resultSave.id.includes(id)) {
-      yield put(initMenuConfig());
-      yield put(fetchSlideMenuItems());
+    if (resultSave && authorities.includes(userName)) {
+      yield put(setMenuConfig({ ...config, id: resultSave.id }));
+      yield put(fetchSlideMenuItems({ id: resultSave.id }));
     }
 
     NotificationManager.success(t('menu-settings.success.save-config'), t('success'));
@@ -94,11 +95,29 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
   try {
     const { records, id, type } = payload;
     const items = yield select(state => state.menuSettings.items);
-    const data = yield call(api.menu.getItemInfoByRef, records);
+    const infoList = yield call(api.menu.getItemInfoByRef, records);
+    const excluded = [];
 
-    data.forEach(item => (item.type = type));
+    const data = infoList
+      .filter(item => {
+        const flag = type !== ms.ItemTypes.LINK_CREATE_CASE || !isEmpty(item.createVariants);
+        !flag && excluded.push(t(item.label));
+        return flag;
+      })
+      .map(({ createVariants, ...info }) => {
+        info.type = type;
+        return info;
+      });
 
     const result = MenuSettingsService.processAction({ action: ms.ActionTypes.CREATE, items, id, data });
+
+    if (excluded.length) {
+      NotificationManager.warning(
+        t('menu-settings.warn.set-create-items-from-journal', { names: excluded.join(', ') }),
+        t('warning'),
+        10000
+      );
+    }
 
     yield put(setMenuItems(result.items));
     yield put(setLastAddedItems(result.newItems));
@@ -153,7 +172,6 @@ function* runRemoveSettings({ api, logger }) {
     const { id } = yield select(state => state.menu);
 
     if (id.includes('default-menu')) {
-      console.warn(id);
       NotificationManager.warning('Default menu is not deleted');
     } else {
       yield call(api.menu.removeSettings, { id });

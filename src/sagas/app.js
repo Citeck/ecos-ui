@@ -7,15 +7,18 @@ import { selectUserName } from '../selectors/user';
 import {
   backPageFromTransitionsHistory,
   getDashboardEditable,
+  getFooter,
   initAppFailure,
   initAppRequest,
   initAppSettings,
   initAppSuccess,
-  setDashboardEditable
+  setDashboardEditable,
+  setFooter,
+  setLeftMenuEditable
 } from '../actions/app';
 import { validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
-import { getMenuConfig } from '../actions/menu';
+import { getMenuConfig, setMenuConfig } from '../actions/menu';
 import PageService from '../services/PageService';
 
 export function* initApp({ api, fakeApi, logger }, { payload }) {
@@ -58,6 +61,7 @@ export function* fetchAppSettings({ api, fakeApi, logger }, { payload }) {
   try {
     yield put(getMenuConfig());
     yield put(getDashboardEditable());
+    yield put(getFooter());
   } catch (e) {
     logger.error('[fetchAppSettings saga] error', e.message);
   }
@@ -74,25 +78,44 @@ export function* fetchDashboardEditable({ api, logger }) {
   }
 }
 
+export function* fetchLeftMenuEditable({ api, logger }) {
+  try {
+    const username = yield select(selectUserName);
+    const leftMenuEditable = yield call(api.app.isDashboardEditable, { username });
+    const menuVersion = yield select(state => state.menu.version);
+
+    yield put(setLeftMenuEditable(leftMenuEditable && menuVersion > 0));
+  } catch (e) {
+    logger.error('[fetchLeftMenuEditable saga] error', e.message);
+  }
+}
+
+export function* fetchFooter({ api, logger }) {
+  try {
+    const footer = yield call(api.app.getFooter);
+
+    if (footer) {
+      yield put(setFooter(footer));
+    }
+  } catch (e) {
+    logger.error('[fetchFooter saga] error', e.message);
+  }
+}
+
 function* sagaBackFromHistory({ api, logger }) {
   try {
-    const isShowTabs = yield select(state => lodashGet(state, 'pageTabs.isShow', false));
+    const isShowTabs = yield select(state => lodashGet(state, 'pageTabs.isShow'));
 
     if (!isShowTabs) {
       window.history.length > 1 ? window.history.back() : PageService.changeUrlLink(URL.DASHBOARD);
     } else {
       const location = yield select(state => state.router.location);
-      const hasTabs = yield select(state => lodashGet(state, 'pageTabs.tabs.length', 0));
+      const lenTabs = yield select(state => lodashGet(state, 'pageTabs.tabs.length', 0));
 
       const subsidiaryLink = location ? location.pathname + location.search : window.location.href;
-      const pageUrl = (hasTabs && PageService.extractWhereLinkOpen({ subsidiaryLink })) || URL.DASHBOARD;
-      const params = {};
+      const pageUrl = lenTabs > 1 ? '' : PageService.extractWhereLinkOpen({ subsidiaryLink }) || URL.DASHBOARD;
 
-      if (!pageUrl) {
-        params.closeActiveTab = true;
-      }
-
-      PageService.changeUrlLink(pageUrl, params);
+      PageService.changeUrlLink(pageUrl, { reopen: lenTabs <= 1, closeActiveTab: lenTabs > 1 });
     }
   } catch (e) {
     logger.error('[app/page sagaChangeTabData saga error', e.message);
@@ -104,6 +127,8 @@ function* appSaga(ea) {
 
   yield takeEvery(initAppSettings().type, fetchAppSettings, ea);
   yield takeEvery(getDashboardEditable().type, fetchDashboardEditable, ea);
+  yield takeEvery([setDashboardEditable().type, setMenuConfig().type], fetchLeftMenuEditable, ea);
+  yield takeEvery(getFooter().type, fetchFooter, ea);
   yield takeEvery(backPageFromTransitionsHistory().type, sagaBackFromHistory, ea);
 }
 

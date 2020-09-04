@@ -4,12 +4,12 @@ import { ActionModes, SourcesId } from '../../../../../constants';
 import Records from '../../../Records';
 import { notifyFailure } from '../../util/actionUtils';
 
-const goToTaskView = (task, inBackground) => {
+const goToTaskView = (task, params) => {
   let taskRecord = Records.get(task);
 
   taskRecord.load('wfm:document?id').then(docId => {
     if (docId) {
-      goToCardDetailsPage(docId, { openInBackground: inBackground });
+      goToCardDetailsPage(docId, params);
     } else {
       taskRecord.load('cm:name?str').then(taskId => {
         if (!taskId) {
@@ -21,7 +21,7 @@ const goToTaskView = (task, inBackground) => {
         Records.get(taskRecordId)
           .load('workflow?id')
           .then(workflowId => {
-            goToCardDetailsPage(workflowId || taskRecordId, { openInBackground: inBackground });
+            goToCardDetailsPage(workflowId || taskRecordId, params);
           });
       });
     }
@@ -33,19 +33,32 @@ export default class ViewAction extends ActionsExecutor {
 
   async execForRecord(record, action, context) {
     const { config = {} } = action;
-    const inBackground = config.background === true;
+    const openInBackground = config.background === true;
+    const updateUrl = config.reopen === true;
+    const openNewBrowserTab = config.newBrowserTab === true;
+    const reopenBrowserTab = config.reopenBrowserTab === true;
+    const openNewTab = openInBackground || !config.reopen;
+    const openParams = {
+      openInBackground,
+      openNewTab,
+      updateUrl,
+      openNewBrowserTab,
+      reopenBrowserTab
+    };
 
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
-        .then(docId => (docId ? goToCardDetailsPage(docId, { openInBackground: inBackground }) : ''));
-      return false;
-    } else if (config.viewType === 'view-task') {
-      goToTaskView(record.id, false);
+        .then(docId => (docId ? goToCardDetailsPage(docId, openParams) : ''));
       return false;
     }
 
-    goToCardDetailsPage(record.id, { openInBackground: inBackground });
+    if (config.viewType === 'view-task') {
+      goToTaskView(record.id, openParams);
+      return false;
+    }
+
+    goToCardDetailsPage(record.id, openParams);
     return false;
   }
 

@@ -73,7 +73,7 @@ export default class MenuSettingsService {
   };
 
   static getActionPermissions(item) {
-    const knownType = Object.keys(ms.ItemTypes).includes(item.type);
+    const knownType = Object.values(ms.ItemTypes).includes(item.type);
 
     return {
       editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),

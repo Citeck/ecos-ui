@@ -1,10 +1,16 @@
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
 
-import { t } from '../../../helpers/util';
+import { deepClone, extractLabel, t } from '../../../helpers/util';
+import DialogManager from '../../common/dialogs/Manager/DialogManager';
 import { replaceAttributeValues } from '../utils/recordUtils';
 import Records from '../Records';
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
+import { notifyFailure } from './util/actionUtils';
+
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
@@ -135,6 +141,7 @@ class RecordActions {
 
       const defaultModel = handler.getDefaultActionModel();
       const resAction = Object.assign({}, DEFAULT_MODEL, defaultModel);
+
       for (let key in action) {
         let value = action[key];
         if (value != null) {
@@ -160,6 +167,83 @@ class RecordActions {
     return result;
   }
 
+  static _getConfirmData = action => {
+    const title = extractLabel(get(action, 'confirm.title'));
+    const text = extractLabel(get(action, 'confirm.message'));
+    const formId = get(action, 'confirm.formRef');
+    const modalClass = get(action, 'confirm.modalClass');
+    const needConfirm = !!formId || !!title || !!text;
+
+    return needConfirm ? { formId, title, text, modalClass } : null;
+  };
+
+  static _confirmExecAction = (data, callback) => {
+    const { title, text, formId, modalClass } = data;
+
+    if (formId) {
+      Records.get(formId)
+        .load('definition?json')
+        .then(formDefinition => {
+          DialogManager.showFormDialog({
+            title,
+            formDefinition: {
+              display: 'form',
+              ...formDefinition
+            },
+            onSubmit: submission => callback(submission.data),
+            onCancel: _ => callback(false)
+          });
+        })
+        .catch(e => {
+          console.error(e);
+          callback(false);
+          DialogManager.showInfoDialog({ title: t('error'), text: e.message });
+        });
+    } else {
+      DialogManager.confirmDialog({ title, text, modalClass, onNo: () => callback(false), onYes: () => callback(true) });
+    }
+  };
+
+  static _updateRecords(refs, isInstance = false) {
+    const records = isInstance ? refs : Records.get(refs);
+
+    if (Array.isArray(records)) {
+      records.forEach(record => record.update());
+    } else {
+      records.update();
+    }
+  }
+
+  static async _checkConfirmAction(action) {
+    const confirmData = RecordActions._getConfirmData(action);
+
+    if (!confirmData) {
+      return true;
+    }
+
+    return await new Promise(resolve => {
+      RecordActions._confirmExecAction(confirmData, result => resolve(result));
+    });
+  }
+
+  /**
+   * Fill values by attributes mapping (change properties of action)
+   *
+   * @param {Object} action - configuration
+   * @param {Object} data - values which set
+   * @param {String} targetPath - where attributesMapping is in action
+   * @param {String} sourcePath - where to set values by map
+   */
+  static _fillDataByMap = ({ action, data, targetPath, sourcePath }) => {
+    const attributesMapping = get(action, `${sourcePath}attributesMapping`) || {};
+
+    for (let path in attributesMapping) {
+      if (attributesMapping.hasOwnProperty(path)) {
+        set(action, `${targetPath}${path}`, get(data, attributesMapping[path]));
+      }
+    }
+  };
+
   /**
    * Get actions for record.
    *
@@ -178,7 +262,9 @@ class RecordActions {
     if (actions == null) {
       actions = await actionsApi.getActionsForRecord(recordRef);
     }
+
     const resolvedActions = await this.getActionsForRecords([recordRef], actions, context);
+
     return resolvedActions.forRecord[recordRef] || [];
   }
 
@@ -288,10 +374,14 @@ class RecordActions {
   async execForRecord(record, action, context = {}) {
     if (!record) {
       console.error('Record is a mandatory parameter! Action: ', action);
+      notifyFailure();
       return false;
     }
     const handler = RecordActions._getActionsExecutor(action);
+
     if (handler == null) {
+      notifyFailure();
+      console.error('No handler. Action: ', action);
       return false;
     }
     const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
@@ -300,12 +390,25 @@ class RecordActions {
       ...context
     };
 
+    const confirmed = await RecordActions._checkConfirmAction(action);
+
+    if (!confirmed) {
+      return false;
+    }
+
+    if (!isEmpty(confirmed)) {
+      RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
+    }
+
     const config = await replaceAttributeValues(action.config, record);
     const actionToExec = {
       ...action,
       config
     };
     const result = handler.execForRecord(Records.get(record), actionToExec, execContext);
+
+    RecordActions._updateRecords(record);
+
     return RecordActions._wrapResultIfRequired(result);
   }
 
@@ -329,12 +432,22 @@ class RecordActions {
     if (!action.config) {
       action.config = {};
     }
+
+    const confirmed = await RecordActions._checkConfirmAction(action);
+
+    if (!confirmed) {
+      return;
+    }
+
     const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
     const execContext = {
       ...actionContext,
       ...context
     };
     const result = handler.execForRecords(recordInstances, action, execContext);
+
+    RecordActions._updateRecords(recordInstances, true);
+
     return RecordActions._wrapResultIfRequired(result);
   }
 
@@ -348,6 +461,7 @@ class RecordActions {
       return false;
     }
     const handler = RecordActions._getActionsExecutor(action);
+
     if (handler == null) {
       return false;
     }
@@ -360,6 +474,13 @@ class RecordActions {
       ...actionContext,
       ...context
     };
+
+    const confirmed = await RecordActions._checkConfirmAction(action);
+
+    if (!confirmed) {
+      return;
+    }
+
     const result = handler.execForQuery(query, action, execContext);
     return RecordActions._wrapResultIfRequired(result);
   }

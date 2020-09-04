@@ -159,7 +159,7 @@ export const ACTIONS_BY_TYPE = {
   [MenuSettings.ItemTypes.JOURNAL]: [ACTIONS.DELETE, ACTIONS.ACTIVE_ON],
   [MenuSettings.ItemTypes.ARBITRARY]: [ACTIONS.EDIT, ACTIONS.DELETE, ACTIONS.ACTIVE_ON],
   [MenuSettings.ItemTypes.LINK_CREATE_CASE]: [ACTIONS.DELETE, ACTIONS.ACTIVE_OFF],
-  [MenuSettings.ItemTypes.HEADER_DIVIDER]: [ACTIONS.DELETE, ACTIONS.ACTIVE_OFF],
+  [MenuSettings.ItemTypes.HEADER_DIVIDER]: [ACTIONS.EDIT, ACTIONS.DELETE, ACTIONS.ACTIVE_OFF],
   EMPTY_TYPE: [ACTIONS.DELETE, ACTIONS.ACTIVE_ON]
 };
 
@@ -194,7 +194,7 @@ export const PERMISSIONS_BY_TYPE = {
   },
   [MenuSettings.ItemTypes.HEADER_DIVIDER]: {
     draggable: true,
-    editable: false,
+    editable: true,
     hasIcon: false,
     hideable: true,
     removable: true

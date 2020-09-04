@@ -1,5 +1,12 @@
 import actionsRegistry from './actionsRegistry';
 
+import AttributeActionsResolver from './handler/resolver/AttributeActionsResolver';
+
+import ViewBusinessProcessAction from './handler/executor/workflow/ViewBusinessProcessAction';
+import CancelBusinessProcessAction from './handler/executor/workflow/CancelBusinessProcessAction';
+import EditTaskAssignee from './handler/executor/workflow/EditTaskAssignee';
+import SetTaskAssignee from './handler/executor/workflow/SetTaskAssignee';
+
 import EditAction from './handler/executor/EditAction';
 import ViewAction from './handler/executor/ViewAction';
 import AssocAction from './handler/executor/AssocAction';
@@ -13,17 +20,12 @@ import PreviewModalAction from './handler/executor/PreviewModalAction';
 import CaseRequestAction from './handler/executor/case/CaseRequestAction';
 import BackgroundOpenAction from './handler/executor/BackgroundOpenAction';
 import CaseRedirectAction from './handler/executor/case/CaseRedirectAction';
-import EditTaskAssignee from './handler/executor/workflow/EditTaskAssignee';
 import UploadNewVersionAction from './handler/executor/UploadNewVersionAction';
 import ViewCardTemplateAction from './handler/executor/ViewCardTemplateAction';
 import ModuleCopyAction from './handler/executor/ecos-module/ModuleCopyAction';
 import CaseCreateNodeAction from './handler/executor/case/CaseCreateNodeAction';
 import SaveAsCaseTemplateAction from './handler/executor/SaveAsCaseTemplateAction';
 import DownloadCardTemplateAction from './handler/executor/DownloadCardTemplateAction';
-import ViewBusinessProcessAction from './handler/executor/workflow/ViewBusinessProcessAction';
-import CancelBusinessProcessAction from './handler/executor/workflow/CancelBusinessProcessAction';
-
-import AttributeActionsResolver from './handler/resolver/AttributeActionsResolver';
 import DownloadZipAction from './handler/executor/DownloadZipAction';
 import ServerGroupAction from './handler/executor/ServerGroupAction';
 import MutateAction from './handler/executor/MutateAction';
@@ -36,7 +38,9 @@ export const ActionTypes = {
   EDIT: EditAction.ACTION_ID,
   VIEW: ViewAction.ACTION_ID,
   BACKGROUND_VIEW: BackgroundOpenAction.ACTION_ID,
-  CANCEL_WORKFLOW: CancelBusinessProcessAction.ACTION_ID
+  CANCEL_WORKFLOW: CancelBusinessProcessAction.ACTION_ID,
+  DELETE: DeleteAction.ACTION_ID,
+  SET_TASK_ASSIGNEE: SetTaskAssignee.ACTION_ID
 };
 
 // Executors - Common
@@ -70,6 +74,7 @@ actionsRegistry.register(new CaseRequestAction());
 
 actionsRegistry.register(new CancelBusinessProcessAction());
 actionsRegistry.register(new EditTaskAssignee());
+actionsRegistry.register(new SetTaskAssignee());
 actionsRegistry.register(new ViewBusinessProcessAction());
 
 // Executors - ECOS Module
