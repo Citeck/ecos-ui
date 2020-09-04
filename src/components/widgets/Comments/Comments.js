@@ -603,7 +603,7 @@ class Comments extends BaseWidget {
 
           <div className="ecos-comments__editor-footer-btn-wrapper">
             <Btn
-              className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-comments__editor-footer-btn"
+              className="ecos-btn_grey5 ecos-btn_hover_color-grey ecos-comments__editor-footer-btn"
               onClick={this.handleCloseEditor}
               disabled={saveIsLoading}
             >
@@ -649,7 +649,10 @@ class Comments extends BaseWidget {
           <div className="ecos-comments__comment-confirm-title">{t('comments-widget.confirm.title')}?</div>
 
           <div className="ecos-comments__comment-confirm-btns">
-            <Btn className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-comments__comment-confirm-btn" onClick={this.handleCancelDeletion}>
+            <Btn
+              className="ecos-btn_grey5 ecos-btn_hover_color-grey ecos-comments__comment-confirm-btn"
+              onClick={this.handleCancelDeletion}
+            >
               {t('comments-widget.confirm.cancel')}
             </Btn>
             <Btn className="ecos-btn_red ecos-comments__comment-confirm-btn" onClick={this.handleConfirmDeletion}>
