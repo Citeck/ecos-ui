@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 
-import { deepClone, extractLabel, t } from '../../../helpers/util';
+import { extractLabel, t } from '../../../helpers/util';
 import DialogManager from '../../common/dialogs/Manager/DialogManager';
 import { replaceAttributeValues } from '../utils/recordUtils';
 import Records from '../Records';

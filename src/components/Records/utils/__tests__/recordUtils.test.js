@@ -1,9 +1,11 @@
-import * as recordUtils from '../recordUtils';
+import * as RecordUtils from '../recordUtils';
+
 import '../__mocks__/recordUtils.mock';
+
+const RECORD = 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e';
 
 describe('Record Utils', () => {
   describe('Function replaceAttributeValues', () => {
-    const record = 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e';
     const data = [
       {
         title: 'with simple field',
@@ -144,7 +146,62 @@ describe('Record Utils', () => {
 
     data.forEach(async item => {
       it(item.title, async () => {
-        const result = await recordUtils.replaceAttributeValues(item.input, record);
+        const result = await RecordUtils.replaceAttributeValues(item.input, RECORD);
+        expect(result).toEqual(item.output);
+      });
+    });
+  });
+
+  describe('Function replaceAttrValuesForRecord', () => {
+    const data = [
+      {
+        title: 'by own record',
+        record: RECORD,
+        url: '',
+        input: {
+          innerField: '${.disp}-postfix',
+          ref: 'recordRef = ${recordRef}'
+        },
+        output: {
+          innerField: 'Договор №1244-postfix',
+          ref: 'recordRef = ' + RECORD
+        }
+      },
+      {
+        title: 'by url record',
+        record: '',
+        url: 'http://dev.com/v2/dashboard?recordRef=' + RECORD,
+        input: {
+          innerField: '${.disp}-postfix',
+          ref: 'recordRef = ${recordRef}'
+        },
+        output: {
+          innerField: 'Договор №1244-postfix',
+          ref: 'recordRef = ' + RECORD
+        }
+      },
+      {
+        title: 'there is record nowhere',
+        record: '',
+        url: 'http://dev.com/v2/dashboard',
+        input: {
+          innerField: '${.disp}-postfix',
+          ref: 'recordRef = ${recordRef}'
+        },
+        output: {
+          innerField: '${.disp}-postfix',
+          ref: 'recordRef = ${recordRef}'
+        }
+      }
+    ];
+
+    data.forEach(async item => {
+      it(item.title, async () => {
+        delete window.location;
+        window.location = { href: item.url };
+
+        const result = await RecordUtils.replaceAttrValuesForRecord(item.input, item.record);
+
         expect(result).toEqual(item.output);
       });
     });

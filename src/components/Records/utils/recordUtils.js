@@ -1,4 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import queryString from 'query-string';
 
 import Records from '../Records';
 
@@ -67,4 +69,22 @@ export async function replaceAttributeValues(data, record) {
   );
 
   return mutableData;
+}
+
+export async function replaceAttrValuesForRecord(data, record) {
+  let recordRef;
+
+  if (record) {
+    recordRef = await Records.get(record).id;
+  }
+
+  if (!recordRef) {
+    recordRef = get(queryString.parseUrl(window.location.href), 'query.recordRef');
+  }
+
+  if (!recordRef) {
+    return data;
+  }
+
+  return await replaceAttributeValues(data, recordRef);
 }
