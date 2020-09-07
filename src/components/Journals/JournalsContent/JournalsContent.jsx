@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
 
+import { ResizeBoxes } from '../../common';
 import { Well } from '../../common/form';
-import Columns from '../../common/templates/Columns/Columns';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsPreview from '../JournalsPreview';
 import JournalsUrlManager from '../JournalsUrlManager';
@@ -54,29 +54,40 @@ class JournalsContent extends Component {
   render() {
     const { stateId, showPreview, showPie, maxHeight, isActivePage } = this.props;
     const { recordId } = this.state;
-    let leftColumnClassNames = '';
 
-    let cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />];
+    let content = <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />;
 
     if (showPreview) {
-      leftColumnClassNames = 'columns columns__column_half-space';
-      cols = [
-        <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} autoHeight minHeight={468} />,
-        <Preview stateId={stateId} recordId={recordId} />
-      ];
+      const leftId = `_${stateId}-grid`;
+      const rightId = `_${stateId}-preview`;
+
+      content = (
+        <div className="ecos-journals-content__sides">
+          <div id={leftId} className="ecos-journals-content__sides-left">
+            <Grid
+              stateId={stateId}
+              showPreview={showPreview}
+              onRowClick={this.onRowClick}
+              maxHeight={maxHeight}
+              autoHeight
+              minHeight={468}
+            />
+          </div>
+          <div id={rightId} className="ecos-journals-content__sides-right">
+            <ResizeBoxes leftId={leftId} rightId={rightId} className="ecos-journals-content__resizer" autoRightSide />
+            <Preview stateId={stateId} recordId={recordId} />
+          </div>
+        </div>
+      );
     }
 
     if (showPie) {
-      cols = [<Pie />];
+      content = <Pie />;
     }
 
     return (
       <JournalsUrlManager stateId={stateId} params={{ showPreview }} isActivePage={isActivePage}>
-        <Columns
-          classNamesColumn="columns_height_full columns__column_margin_0"
-          cols={cols}
-          cfgs={[{ className: leftColumnClassNames }, { className: 'ecos-journals-content_col-step' }]}
-        />
+        {content}
       </JournalsUrlManager>
     );
   }

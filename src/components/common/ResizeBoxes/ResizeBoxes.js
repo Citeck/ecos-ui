@@ -13,13 +13,12 @@ class ResizeBoxes extends React.Component {
     rightId: PropTypes.string,
     notCountAtLeft: PropTypes.bool,
     notCountAtRight: PropTypes.bool,
+    autoRightSide: PropTypes.bool,
     onResizeComplete: PropTypes.func
   };
 
   static defaultProps = {
     className: '',
-    notCountAtLeft: false,
-    notCountAtRight: false,
     onResizeComplete: () => null
   };
 
@@ -50,18 +49,20 @@ class ResizeBoxes extends React.Component {
   };
 
   doResize = event => {
-    const { leftId, rightId, notCountAtRight, notCountAtLeft } = this.props;
+    const { leftId, rightId, notCountAtRight, notCountAtLeft, autoRightSide } = this.props;
     const { resizing, startLeftWidth, startRightWidth, startX } = this.state;
 
     if (resizing) {
-      let diff = event.pageX - startX;
+      const diff = event.pageX - startX;
+      const leftSide = +startLeftWidth + diff + 'px';
+      const rightSide = +startRightWidth - diff + 'px';
 
       if (leftId && !notCountAtLeft) {
-        this.getElm(leftId).style.width = +startLeftWidth + diff + 'px';
+        this.getElm(leftId).style.width = leftSide;
       }
 
       if (rightId && !notCountAtRight) {
-        this.getElm(rightId).style.width = +startRightWidth - diff + 'px';
+        this.getElm(rightId).style.width = autoRightSide && !notCountAtLeft ? `calc(100% - ${leftSide})` : rightSide;
       }
     }
   };
