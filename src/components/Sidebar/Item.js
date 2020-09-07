@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
 import { extractLabel } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/export/urls';
+import { getIconObjectWeb } from '../../helpers/icon';
 import { SourcesId } from '../../constants';
 import { ActionTypes } from '../../constants/sidebar';
 import { MenuSettings } from '../../constants/menu';
@@ -87,8 +88,14 @@ class Item extends React.Component {
 
   renderContent = React.memo(({ isOpen, data, styleProps: { noIcon, isSeparator } }) => {
     const label = extractLabel(data.label);
-    const iconCode = typeof data.icon === 'string' && !data.icon.includes(SourcesId.ICON) ? data.icon : undefined;
-    const iconData = typeof data.icon === 'object' ? data.icon : undefined;
+    let iconCode;
+    let iconData;
+
+    if (typeof data.icon === 'string' && !data.icon.includes(SourcesId.ICON) && !data.icon.includes(SourcesId.FONT_ICON)) {
+      iconCode = data.icon;
+    } else {
+      iconData = getIconObjectWeb(data.icon);
+    }
 
     return (
       <>
