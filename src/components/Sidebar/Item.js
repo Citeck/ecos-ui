@@ -11,6 +11,7 @@ import { EcosIcon, Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemLink } from './item-components';
 import { isNewVersionPage } from '../../helpers/export/urls';
+import { ActionTypes } from '../../constants/sidebar';
 
 class Item extends React.Component {
   static propTypes = {
@@ -57,7 +58,7 @@ class Item extends React.Component {
   }
 
   get isLink() {
-    return ![SidebarService.ActionTypes.CREATE_SITE].includes(this.actionType);
+    return ![ActionTypes.CREATE_SITE].includes(this.actionType);
   }
 
   onToggleList = e => {

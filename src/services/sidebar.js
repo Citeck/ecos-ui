@@ -6,17 +6,12 @@ import { hasChildWithId } from '../helpers/util';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
+import { ActionTypes } from '../constants/sidebar';
 import ULS from './userLocalSettings';
 
-export default class SidebarService {
-  static ActionTypes = {
-    CREATE_SITE: 'CREATE_SITE',
-    FILTER_LINK: 'FILTER_LINK',
-    JOURNAL_LINK: 'JOURNAL_LINK',
-    PAGE_LINK: 'PAGE_LINK',
-    SITE_LINK: 'SITE_LINK'
-  };
+const PAGE_PREFIX = '/share/page';
 
+export default class SidebarService {
   static DROPDOWN_LEVEL = 1;
   static SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
 
@@ -74,7 +69,7 @@ export default class SidebarService {
       1: {
         ...common,
         noIcon: false,
-        noBadge: !actionType && [ATypes.CREATE_SITE].includes(actionType)
+        noBadge: !actionType && [ActionTypes.CREATE_SITE].includes(actionType)
       },
       2: {
         ...common
@@ -96,8 +91,8 @@ export default class SidebarService {
       const params = item.action.params;
 
       switch (item.action.type) {
-        case ATypes.FILTER_LINK:
-        case ATypes.JOURNAL_LINK:
+        case ActionTypes.FILTER_LINK:
+        case ActionTypes.JOURNAL_LINK:
           {
             let listId = params.listId || 'tasks';
 
@@ -241,6 +236,3 @@ export default class SidebarService {
     return flatList;
   }
 }
-
-const ATypes = SidebarService.ActionTypes;
-const PAGE_PREFIX = '/share/page';
