@@ -43,7 +43,7 @@ import {
   JOURNAL_SETTING_ID_FIELD
 } from '../components/Journals/constants';
 
-const defaultState = {
+export const defaultState = {
   loading: true,
   editorMode: false,
 
@@ -113,6 +113,7 @@ const defaultState = {
 const initialState = {};
 
 Object.freeze(initialState);
+Object.freeze(defaultState);
 
 export default handleActions(
   {
