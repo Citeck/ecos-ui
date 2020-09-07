@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 
 import Sidebar from '../Sidebar';
 
+import { AppApi } from '../../../api/app';
 import { MenuApi } from '../../../api/menu';
 import { ViewApi } from '../../../api/view';
 import { fakeApi } from '../../../api/fakeApi';
@@ -29,6 +30,7 @@ const store = configureStore({
   logger
 });
 
+api.app = new AppApi(store);
 api.menu = new MenuApi(store);
 api.view = new ViewApi(store);
 
