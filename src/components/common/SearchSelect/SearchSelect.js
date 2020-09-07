@@ -37,18 +37,16 @@ export default class SearchSelect extends React.Component {
     collapsed: false,
     focused: false,
     collapsible: false,
-    onSearch: () => {},
-    openFullSearch: () => {}
+    onSearch: () => undefined,
+    openFullSearch: () => undefined
   };
 
   constructor(props) {
     super(props);
 
-    const { collapsed } = this.props;
-
     this.state = {
       searchText: '',
-      collapsed,
+      collapsed: props.collapsed,
       focused: false,
       hiddenPlaceholder: false
     };
@@ -122,9 +120,21 @@ export default class SearchSelect extends React.Component {
   };
 
   resetSearch = () => {
-    this.setState({ searchText: '' });
+    const { collapsed } = this.props;
 
-    this.props.onSearch('');
+    this.setState(state => {
+      const st = {};
+
+      if (state.searchText) {
+        st.searchText = '';
+      }
+
+      if (collapsed && !state.collapsed && !state.searchText) {
+        st.collapsed = true;
+      }
+
+      return st;
+    }, this.runSearch.cancel);
   };
 
   setFocused = isFocused => {
@@ -171,9 +181,9 @@ export default class SearchSelect extends React.Component {
   };
 
   renderNoResults() {
-    const { noResults } = this.props;
-
-    return noResults ? <li className="ecos-input-search__no-results">{t('search.no-results')}</li> : null;
+    return this.props.noResults && this.state.searchText ? (
+      <li className="ecos-input-search__no-results">{t('search.no-results')}</li>
+    ) : null;
   }
 
   renderBtnShowAll() {
@@ -240,7 +250,7 @@ export default class SearchSelect extends React.Component {
               />
               <Icon
                 className={classNames('ecos-input-search__icon ecos-input-search__icon-clear icon-small-close', {
-                  'ecos-input-search__icon_hidden': isSearchCollapsed || !searchText
+                  'ecos-input-search__icon_hidden': isSearchCollapsed
                 })}
                 onClick={this.resetSearch}
               />
