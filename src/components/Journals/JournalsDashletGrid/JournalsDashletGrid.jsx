@@ -365,8 +365,8 @@ class JournalsDashletGrid extends Component {
                 onSort={this.onSort}
                 onFilter={this.onFilter}
                 onSelect={this.setSelectedRecords}
-                onRowClick={doInlineToolsOnRowClick && this.onRowClick}
-                onMouseLeave={!doInlineToolsOnRowClick && this.hideGridInlineToolSettings}
+                onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
+                onMouseLeave={!doInlineToolsOnRowClick ? this.hideGridInlineToolSettings : null}
                 onChangeTrOptions={this.showGridInlineToolSettings}
                 onScrolling={this.onScrolling}
                 onEdit={saveRecords}
