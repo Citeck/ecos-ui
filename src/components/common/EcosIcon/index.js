@@ -9,6 +9,8 @@ import { Icon } from '../index';
 
 import './style.scss';
 
+const menuApi = new MenuApi();
+
 function EcosIcon({ code, className, data, title, family, onClick }) {
   const [remoteData, setRemoteData] = useState({});
   const { type, value, url } = remoteData || {};
@@ -25,7 +27,6 @@ function EcosIcon({ code, className, data, title, family, onClick }) {
 
   useEffect(() => {
     if (family === 'menu-items' && code) {
-      const menuApi = new MenuApi();
       menuApi.getMenuItemIconUrl(code).then(data => setRemoteData(data));
     } else {
       setRemoteData(data);

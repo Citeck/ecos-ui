@@ -9,17 +9,9 @@ import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
 import { MenuSettings } from '../constants/menu';
 import ULS from './userLocalSettings';
+import { ActionTypes } from '../constants/sidebar';
 
 export default class SidebarService {
-  /** @deprecated since menu v1 */
-  static ActionTypes = {
-    CREATE_SITE: 'CREATE_SITE',
-    FILTER_LINK: 'FILTER_LINK',
-    JOURNAL_LINK: 'JOURNAL_LINK',
-    PAGE_LINK: 'PAGE_LINK',
-    SITE_LINK: 'SITE_LINK'
-  };
-
   static DROPDOWN_LEVEL = 1;
   static SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
   static UPDATE_EVENT = 'menu-update-event';
@@ -282,6 +274,6 @@ export default class SidebarService {
   }
 }
 
-const ATypes = SidebarService.ActionTypes;
+const ATypes = ActionTypes;
 const MITypes = MenuSettings.ItemTypes;
 const PAGE_PREFIX = '/share/page';

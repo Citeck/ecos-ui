@@ -4,13 +4,13 @@ import debounce from 'lodash/debounce';
 
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
+import { ActionTypes } from '../constants/sidebar';
 import { PROXY_URI } from '../constants/alfresco';
 import { LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
 import Records from '../components/Records';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
 import { getJournalUIType } from './export/journalsApi';
 import { CommonApi } from './common';
-import SidebarService from '../services/sidebar';
 
 const postProcessMenuItemChildren = items => {
   if (items && items.length) {
@@ -25,8 +25,8 @@ const postProcessMenuConfig = item => {
   const siteName = lodashGet(item, 'action.params.siteName');
 
   const items = postProcessMenuItemChildren(item.items);
-  const journalUiType = type === SidebarService.ActionTypes.JOURNAL_LINK && journalRef ? getJournalUIType(journalRef) : '';
-  const siteUiType = type === SidebarService.ActionTypes.SITE_LINK && siteName ? MenuApi.getSiteUiType(siteName) : '';
+  const journalUiType = type === ActionTypes.JOURNAL_LINK && journalRef ? getJournalUIType(journalRef) : '';
+  const siteUiType = type === ActionTypes.SITE_LINK && siteName ? MenuApi.getSiteUiType(siteName) : '';
 
   return Promise.all([items, journalUiType, siteUiType]).then(itemsAndUIType => {
     item.items = itemsAndUIType[0];
