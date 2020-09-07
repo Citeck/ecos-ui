@@ -1,5 +1,6 @@
 import { MenuSettings, MenuTypes } from '../../constants/menu';
 import SidebarService from '../../services/sidebar';
+import { ActionTypes } from '../../constants/sidebar';
 
 export const makeUserMenuConfigs = [
   [
@@ -246,5 +247,5 @@ export const itemsForPropsUrl = {
   SECTION: { type: MenuSettings.ItemTypes.SECTION, config: { url: '_' } },
   HEADER_DIVIDER: { type: MenuSettings.ItemTypes.LINK_CREATE_CASE, config: { url: '_' } },
   BPMN_DESIGNER: { action: { params: { pageId: 'bpmn-designer' } } },
-  PAGE_LINK: { action: { type: SidebarService.ActionTypes.PAGE_LINK, params: { pageId: 'page-link' } } }
+  PAGE_LINK: { action: { type: ActionTypes.PAGE_LINK, params: { pageId: 'page-link' } } }
 };
