@@ -104,6 +104,20 @@ export const Attributes = {
 
 export const TMP_ICON_EMPTY = 'icon-empty';
 
+export const Pages = {
+  DASHBOARD_SETTINGS: 'dashboard-settings',
+  DASHBOARD: 'dashboard',
+  BPMN: 'bpmn',
+  JOURNAL: 'journal',
+  TIMESHEET_MY: 'timesheet-my',
+  TIMESHEET_SUBORDINATES: 'timesheet-subordinates',
+  TIMESHEET_VERIFICATION: 'timesheet-verification',
+  TIMESHEET_DELEGATED: 'timesheet-delegated',
+  LOGIN: 'login',
+  DEBUG_FORMIO: 'debug-formio',
+  DEBUG_TREE: 'debug-tree'
+};
+
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};
 window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };
