@@ -3,7 +3,7 @@ import lodashSet from 'lodash/set';
 import lodashGet from 'lodash/get';
 
 import { URL } from '../constants';
-import { selectUserName } from '../selectors/user';
+import { getCurrentUserName } from '../helpers/util';
 import {
   backPageFromTransitionsHistory,
   getDashboardEditable,
@@ -69,7 +69,7 @@ export function* fetchAppSettings({ api, fakeApi, logger }, { payload }) {
 
 export function* fetchDashboardEditable({ api, logger }) {
   try {
-    const username = yield select(selectUserName);
+    const username = getCurrentUserName();
     const editable = yield call(api.app.isDashboardEditable, { username });
 
     yield put(setDashboardEditable(editable));
@@ -80,9 +80,9 @@ export function* fetchDashboardEditable({ api, logger }) {
 
 export function* fetchLeftMenuEditable({ api, logger }) {
   try {
-    const username = yield select(selectUserName);
+    const username = getCurrentUserName();
     const leftMenuEditable = yield call(api.app.isDashboardEditable, { username });
-    const menuVersion = yield select(state => state.menu.version);
+    const menuVersion = yield select(state => lodashGet(state, 'menu.version', 0));
 
     yield put(setLeftMenuEditable(leftMenuEditable && menuVersion > 0));
   } catch (e) {
@@ -127,7 +127,7 @@ function* appSaga(ea) {
 
   yield takeEvery(initAppSettings().type, fetchAppSettings, ea);
   yield takeEvery(getDashboardEditable().type, fetchDashboardEditable, ea);
-  yield takeEvery([setDashboardEditable().type, setMenuConfig().type], fetchLeftMenuEditable, ea);
+  yield takeEvery([setMenuConfig().type], fetchLeftMenuEditable, ea);
   yield takeEvery(getFooter().type, fetchFooter, ea);
   yield takeEvery(backPageFromTransitionsHistory().type, sagaBackFromHistory, ea);
 }
