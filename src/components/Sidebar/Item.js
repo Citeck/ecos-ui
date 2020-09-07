@@ -9,6 +9,7 @@ import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../..
 import { extractLabel } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/export/urls';
 import { SourcesId } from '../../constants';
+import { ActionTypes } from '../../constants/sidebar';
 import { MenuSettings } from '../../constants/menu';
 import SidebarService from '../../services/sidebar';
 import { EcosIcon, Icon } from '../common';
@@ -57,7 +58,7 @@ class Item extends React.Component {
 
   get isHandler() {
     return (
-      [SidebarService.ActionTypes.CREATE_SITE].includes(get(this.props, 'data.action.type', '')) ||
+      [ActionTypes.CREATE_SITE].includes(get(this.props, 'data.action.type', '')) ||
       [MenuSettings.ItemTypes.LINK_CREATE_CASE].includes(get(this.props, 'data.type', ''))
     );
   }
