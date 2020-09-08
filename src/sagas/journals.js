@@ -511,9 +511,20 @@ function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
     const uiType = yield select(() => selectJournalUiType(journals, journalId));
     const needLink = isNewVersionPage() ? uiType === 'share' : uiType === 'react';
 
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-484
     if (needLink) {
       const { journalsListId } = yield select(selectSearch);
-      const url = yield call(getOldPageUrl, { journalId, siteId: '', listId: journalsListId });
+      const data = journalsListId.split('-');
+      let siteId = '';
+      let listId = '';
+
+      if (data[0] === 'site') {
+        data.shift();
+        listId = data.pop();
+        siteId = data.join('-');
+      }
+
+      const url = yield call(getOldPageUrl, { journalId, siteId, listId });
 
       return PageService.changeUrlLink(url, { reopenBrowserTab: true });
     }
