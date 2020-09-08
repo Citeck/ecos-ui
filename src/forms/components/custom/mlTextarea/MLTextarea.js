@@ -46,6 +46,7 @@ export default class MLTextareaComponent extends BaseReactComponent {
   getInitialReactProps() {
     return {
       value: this.dataValue || this.emptyValue,
+      lang: this.component.lang,
       onChange: value => {
         this.setPristine(false);
         this.setValue(value);

@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
-import uuidV4 from 'uuidv4';
+import isEqual from 'lodash/isEqual';
 import omit from 'lodash/omit';
+import uuidV4 from 'uuidv4';
 
 import Tooltip from '../../Tooltip';
 import { getCurrentLocale } from '../../../../helpers/export/util';
@@ -55,13 +56,29 @@ class BaseMLField extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // TODO: ask about it later
-    // if (!this.value && !isEqual(this.props.value, prevProps.value)) {
-    //   let selectedLang = this.getLocaleWithValue(this.props.value);
-    //   if (this.state.selectedLang !== selectedLang) {
-    //     this.setState({ selectedLang });
-    //   }
-    // }
+    if (this.value === undefined && !isEqual(this.props.value, prevProps.value)) {
+      const selectedLang = this.getLocaleWithValue(this.props.value);
+
+      if (this.state.selectedLang !== selectedLang) {
+        this.setState({ selectedLang });
+      }
+    }
+
+    if (prevProps.lang !== this.props.lang) {
+      let selectedLang = this.props.lang;
+      const value = get(this.props, ['value', selectedLang]);
+
+      if (value === undefined) {
+        this.props.onChange({
+          ...this.props.value,
+          [selectedLang]: ''
+        });
+      }
+
+      if (this.state.selectedLang !== selectedLang) {
+        this.setState({ selectedLang });
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -72,12 +89,21 @@ class BaseMLField extends Component {
     const { value } = this.props;
     const { selectedLang } = this.state;
 
-    return get(value, selectedLang, '');
+    return get(value, selectedLang);
   }
 
   get inputProps() {
     const { inputClassName, ...props } = this.props;
-    const inputProps = omit(props, ['onChange', 'style', 'lang', 'languages', 'className', 'setWrapperProps']);
+    const inputProps = omit(props, [
+      'onChange',
+      'style',
+      'lang',
+      'languages',
+      'className',
+      'setWrapperProps',
+      'imgClassName',
+      'inputClassName'
+    ]);
 
     return {
       ...inputProps,
