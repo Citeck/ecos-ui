@@ -194,11 +194,10 @@ class EditorItems extends React.Component {
     const components = [];
     const id = get(item, 'id');
 
-    if (!item || (level < 3 && !item.hidden && !MenuSettingsService.isChildless(item))) {
-      const createOptions = MenuSettingsService.getAvailableCreateOptions(item);
+    if (!item || (!item.hidden && !MenuSettingsService.isChildless(item))) {
+      const createOptions = MenuSettingsService.getAvailableCreateOptions(item, { level });
 
-      createOptions &&
-        createOptions.length &&
+      createOptions.length &&
         components.push(
           <DropdownOuter
             key={`${id}--dropdown`}
