@@ -532,6 +532,7 @@
   "journal.task.statistics.perform_time_ration.title": "Expected lead time / Lead time",
   "journal.task.statistics.task_type.title": "Task type",
   "journal.title": "Journal",
+  "journal.cell.no-label": "(Missing Label)",
   "journals-selector.assocs-load-error": "Connection loading error",
   "journals-selector.create-button.label": "Add Connection",
   "journals.action.apply": "Apply",
@@ -574,6 +575,7 @@
   "journals.name": "Journals",
   "journals.settings": "Settings",
   "journals.tpl.defaults": "Settings template",
+
   "label.password": "Password",
   "label.username": "User Name",
 

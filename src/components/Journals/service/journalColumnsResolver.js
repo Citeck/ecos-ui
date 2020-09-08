@@ -1,5 +1,7 @@
-import { t, getTextByLocale } from '../../../helpers/util';
-import lodash from 'lodash';
+import isFunction from 'lodash/isFunction';
+import isObject from 'lodash/isObject';
+
+import { getTextByLocale, t } from '../../../helpers/util';
 
 import {
   COLUMN_DATA_TYPE_ASSOC,
@@ -31,7 +33,7 @@ const DEFAULT_INNER_SCHEMA = ['disp:.disp'].join(',');
 
 const getBoolOrElse = (value, orElse) => {
   if (value == null) {
-    if (lodash.isFunction(orElse)) {
+    if (isFunction(orElse)) {
       return orElse();
     } else {
       return orElse;
@@ -91,10 +93,10 @@ class JournalColumnsResolver {
   _getColumnLabel(column) {
     let label;
     if (column.label) {
-      label = lodash.isObject(column.label) ? getTextByLocale(column.label) : column.label;
+      label = isObject(column.label) ? getTextByLocale(column.label) : column.label;
     }
-    label = label || column.text || name;
-    return label ? t(label) : '(Missing Label)';
+    label = label || column.text || column.name;
+    return label ? t(label) : t('journal.cell.no-label');
   }
 }
 

@@ -1,11 +1,12 @@
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+
+import { ActionModes } from '../../../constants';
+import recordActions from '../../Records/actions/recordActions';
 import journalsApi from './journalsServiceApi';
 import computedResolversRegistry from './computed';
 import journalColumnsResolver from './journalColumnsResolver';
 import journalDataLoader from './journalsDataLoader';
-import lodash from 'lodash';
-import { ActionModes } from '../../../constants';
-import cloneDeep from 'lodash/cloneDeep';
-import recordActions from '../../Records/actions/recordActions';
 
 /**
  * @typedef SortBy
@@ -48,19 +49,20 @@ import recordActions from '../../Records/actions/recordActions';
  */
 class JournalsService {
   async getJournalConfig(journalId) {
-    let sourceDelimIdx = journalId.indexOf('@');
-    let journalRecordId = sourceDelimIdx === -1 ? journalId : journalId.substring(sourceDelimIdx + 1);
+    const sourceDelimIdx = journalId.indexOf('@');
+    const journalRecordId = sourceDelimIdx === -1 ? journalId : journalId.substring(sourceDelimIdx + 1);
+    const journalConfig = cloneDeep(await journalsApi.getJournalConfig(journalRecordId));
 
-    let journalConfig = lodash.cloneDeep(await journalsApi.getJournalConfig(journalRecordId));
     if (!journalConfig.columns || !journalConfig.columns.length) {
       return journalConfig;
     }
+
     journalConfig.columns = await this.resolveColumns(journalConfig.columns);
     journalConfig.computed = await this.resolveComputedParams(journalConfig.computed);
     journalConfig.modelVersion = 1;
 
     if (!journalConfig.predicate) {
-      journalConfig.predicate = lodash.get(journalConfig, 'meta.predicate', {});
+      journalConfig.predicate = get(journalConfig, 'meta.predicate', {});
     }
 
     return journalConfig;
@@ -120,11 +122,11 @@ class JournalsService {
   async getRecordActions(journalConfig, recordRefs) {
     let groupActions = journalConfig.groupActions;
     if (!groupActions) {
-      groupActions = lodash.get(journalConfig, 'meta.groupActions', []);
+      groupActions = get(journalConfig, 'meta.groupActions', []);
     }
     let journalActions = journalConfig.actions;
     if (!journalActions) {
-      journalActions = lodash.get(journalConfig, 'meta.actions', []);
+      journalActions = get(journalConfig, 'meta.actions', []);
     }
 
     const actionsContext = {

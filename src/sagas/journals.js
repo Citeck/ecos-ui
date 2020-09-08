@@ -3,7 +3,15 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import { decodeLink, getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
+import { wrapSaga } from '../helpers/redux';
+import PageService from '../services/PageService';
+
 import Records from '../components/Records';
+import { ActionTypes } from '../components/Records/actions';
+import JournalsService from '../components/Journals/service/journalsService';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
+import { ParserPredicate } from '../components/Filters/predicates';
 
 import {
   createJournalSetting,
@@ -47,14 +55,6 @@ import {
   setSelectedRecords
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
-import { ParserPredicate } from '../components/Filters/predicates';
-import { ActionTypes } from '../components/Records/actions';
-
-import { decodeLink, getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
-import { t } from '../helpers/util';
-import { wrapSaga } from '../helpers/redux';
-import PageService from '../services/PageService';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -223,16 +223,13 @@ function* getJournals(api, journalsListId, w) {
 
 function* getJournalSettings(api, journalId, w) {
   const settings = yield call(api.journals.getJournalSettings, journalId);
-
   yield put(setJournalSettings(w(settings)));
+  return settings;
 }
 
 function* getJournalConfig(api, journalId, w) {
-  const journalConfig = yield call(api.journals.getJournalConfig, journalId);
-
-  journalConfig.columns = journalConfig.columns.map(c => ({ ...c, text: t(c.text) }));
+  const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId);
   yield put(setJournalConfig(w(journalConfig)));
-
   return journalConfig;
 }
 
@@ -461,13 +458,8 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
     yield put(setLoading(w(true)));
 
     const { journalId, journalSettingId, userConfigId, customJournal, customJournalMode } = action.payload;
-
-    let journalConfig;
-    if (!customJournalMode || !customJournal) {
-      journalConfig = yield getJournalConfig(api, journalId, w);
-    } else {
-      journalConfig = yield getJournalConfig(api, customJournal, w);
-    }
+    const id = !customJournalMode || !customJournal ? journalId : customJournal;
+    const journalConfig = yield getJournalConfig(api, id, w);
 
     yield getJournalSettings(api, journalConfig.id, w);
     yield loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w);
@@ -498,9 +490,7 @@ function* sagaOnJournalSettingsSelect({ api, logger, stateId, w }, action) {
 function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
   try {
     yield put(setLoading(w(true)));
-
-    let journalId = action.payload;
-    const journalConfig = yield getJournalConfig(api, journalId, w);
+    const journalConfig = yield getJournalConfig(api, action.payload, w);
 
     yield getJournalSettings(api, journalConfig.id, w);
     yield loadGrid(api, { journalConfig, stateId }, w);
@@ -661,7 +651,8 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
       const journalType = (criteria[0] || {}).value || predicate.val;
 
       if (journalType && journalConfig.groupBy && journalConfig.groupBy.length) {
-        let journalConfig = yield call(api.journals.getJournalConfig, `alf_${encodeURI(journalType)}`);
+        const journalConfig = yield call(JournalsService.getJournalConfig, `alf_${encodeURI(journalType)}`);
+
         nodeRef = journalConfig.meta.nodeRef;
         id = journalConfig.id;
       }
@@ -682,7 +673,6 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
         let attributes = {};
 
         columns.forEach(c => (attributes[c.attribute] = `${c.attribute}?str`));
-
         row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
       }
 
