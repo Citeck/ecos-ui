@@ -20,7 +20,7 @@ export default ({ pageKey, footer, ...props }) => {
 
   switch (pageKey) {
     case Pages.LOGIN:
-      return LoginPage;
+      return <LoginPage {...props} />;
     case Pages.BPMN:
       Page = BPMNDesignerPage;
       break;
