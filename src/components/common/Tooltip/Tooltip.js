@@ -134,19 +134,21 @@ class Tooltip extends Component {
       modifiers,
       offset,
       innerRef,
-      hideArrow
+      hideArrow,
+      container
     } = this.props;
 
     return {
       target,
       placement,
       boundariesElement,
-      trigger: uncontrolled ? (!trigger ? 'hover' : trigger) : 'click',
+      trigger: uncontrolled ? (!trigger ? 'hover' : trigger) : trigger || 'click',
       autohide,
       innerRef,
       delay,
       modifiers,
       offset,
+      container,
       hideArrow,
       className: classNames('ecos-base-tooltip', className),
       innerClassName: classNames('ecos-base-tooltip-inner', innerClassName),

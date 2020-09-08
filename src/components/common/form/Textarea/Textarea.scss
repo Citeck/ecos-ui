@@ -21,6 +21,8 @@
   }
 
   &__ml {
+    $ml: &;
+
     &-image {
       margin: unset;
       left: 8px;
@@ -28,8 +30,7 @@
     }
 
     &-input {
-      padding-right: unset;
-      padding-bottom: 35px;
+      padding: 11px 15px;
     }
   }
 }

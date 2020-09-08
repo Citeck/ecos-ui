@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 import uuidV4 from 'uuidv4';
+import omit from 'lodash/omit';
 
 import Tooltip from '../../Tooltip';
 import { getCurrentLocale } from '../../../../helpers/export/util';
@@ -10,14 +12,14 @@ import { prepareTooltipId } from '../../../../helpers/util';
 import { allowedLanguages } from '../../../../constants/lang';
 
 import './style.scss';
-import omit from 'lodash/omit';
 
 class BaseMLField extends Component {
   static defaultProps = {
     languages: allowedLanguages
   };
 
-  #key = prepareTooltipId(uuidV4());
+  _key = prepareTooltipId(uuidV4());
+  _wrapperId = `ml-${uuidV4()}`;
 
   constructor(props) {
     super(props);
@@ -28,16 +30,26 @@ class BaseMLField extends Component {
       selectedLang = this.getLocaleWithValue(props.value);
     }
 
-    this.state = { selectedLang };
+    this.state = {
+      selectedLang,
+      isShowTooltip: false,
+      isShowButton: false,
+      isFocus: false
+    };
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!this.value && !isEqual(this.props.value, prevProps.value)) {
-      let selectedLang = this.getLocaleWithValue(this.props.value);
-      if (this.state.selectedLang !== selectedLang) {
-        this.setState({ selectedLang });
-      }
-    }
+    // TODO: ask about it later
+    // if (!this.value && !isEqual(this.props.value, prevProps.value)) {
+    //   let selectedLang = this.getLocaleWithValue(this.props.value);
+    //   if (this.state.selectedLang !== selectedLang) {
+    //     this.setState({ selectedLang });
+    //   }
+    // }
+  }
+
+  componentWillUnmount() {
+    this.handleToggleShowButton.cancel();
   }
 
   get value() {
@@ -53,7 +65,11 @@ class BaseMLField extends Component {
 
     return {
       ...inputProps,
-      className: classNames('ecos-ml-text__input', inputClassName)
+      className: classNames('ecos-ml-text__input', inputClassName),
+      onFocus: () => this.handleToggleFocus(true),
+      onBlur: () => this.handleToggleFocus(false),
+      onMouseEnter: () => this.handleToggleShowButton(true),
+      onMouseLeave: () => this.handleToggleShowButton(false)
     };
   }
 
@@ -68,6 +84,16 @@ class BaseMLField extends Component {
     }
     return currentLocale;
   }
+
+  handleToggleShowButton = debounce((isShowButton = !this.state.isShowButton) => {
+    const newState = { isShowButton };
+
+    if (!isShowButton) {
+      newState.isShowTooltip = false;
+    }
+
+    this.setState({ ...newState });
+  }, 250);
 
   handleChangeText = event => {
     const { value: oldValue, onChange } = this.props;
@@ -87,6 +113,19 @@ class BaseMLField extends Component {
     this.setState({ selectedLang });
   };
 
+  handleToggleTooltip = (isShowTooltip = !this.state.isShowTooltip) => {
+    if (isShowTooltip) {
+      this.handleToggleShowButton(true);
+    }
+
+    this.setState({ isShowTooltip });
+  };
+
+  handleToggleFocus = (isFocus = !this.state.isFocus) => {
+    this.handleToggleShowButton(isFocus);
+    this.setState({ isFocus });
+  };
+
   renderTooltip() {
     const { languages } = this.props;
     const { selectedLang } = this.state;
@@ -103,7 +142,7 @@ class BaseMLField extends Component {
 
   renderLang() {
     const { languages, imgClassName } = this.props;
-    const { selectedLang } = this.state;
+    const { selectedLang, isShowTooltip, isShowButton, isFocus } = this.state;
     const lang = languages.find(item => item.id === selectedLang);
     const extraImageProps = {};
 
@@ -119,16 +158,20 @@ class BaseMLField extends Component {
 
     return (
       <Tooltip
-        target={this.#key}
-        uncontrolled
+        target={this._key}
+        isOpen={isShowTooltip}
+        trigger="hover"
+        onToggle={this.handleToggleTooltip}
         className="ecos-ml-text__tooltip"
         arrowClassName="ecos-ml-text__tooltip-arrow"
-        delay={{ show: 0, hide: 200 }}
+        delay={{ show: 0, hide: 450 }}
         contentComponent={this.renderTooltip()}
       >
         <img
-          id={this.#key}
-          className={classNames('ecos-ml-text__image', imgClassName)}
+          id={this._key}
+          className={classNames('ecos-ml-text__image', imgClassName, {
+            'ecos-ml-text__image_visible': isShowButton || isFocus
+          })}
           src={lang.img}
           alt={lang.label}
           {...extraImageProps}
