@@ -18,7 +18,7 @@ class MlTextarea extends BaseMLField {
     const { className, style } = this.props;
 
     return (
-      <div id={this._wrapperId} style={style} className={classNames('ecos-ml-text', className)}>
+      <div style={style} className={classNames('ecos-ml-text', className)}>
         <Textarea {...this.inputProps} value={this.value} onChange={this.handleChangeText} />
         {this.renderLang()}
       </div>

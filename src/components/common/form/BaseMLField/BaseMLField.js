@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import uuidV4 from 'uuidv4';
@@ -12,14 +11,31 @@ import { prepareTooltipId } from '../../../../helpers/util';
 import { allowedLanguages } from '../../../../constants/lang';
 
 import './style.scss';
+import PropTypes from 'prop-types';
 
 class BaseMLField extends Component {
+  static propTypes = {
+    className: PropTypes.string,
+    imgClassName: PropTypes.string,
+    inputClassName: PropTypes.string,
+    languages: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        label: PropTypes.string,
+        img: PropTypes.string
+      })
+    ),
+    value: PropTypes.object,
+    style: PropTypes.object,
+    lang: PropTypes.string,
+    onChange: PropTypes.func
+  };
+
   static defaultProps = {
     languages: allowedLanguages
   };
 
   _key = prepareTooltipId(uuidV4());
-  _wrapperId = `ml-${uuidV4()}`;
 
   constructor(props) {
     super(props);
@@ -93,7 +109,7 @@ class BaseMLField extends Component {
     }
 
     this.setState({ ...newState });
-  }, 250);
+  }, 150);
 
   handleChangeText = event => {
     const { value: oldValue, onChange } = this.props;
