@@ -47,18 +47,12 @@ export class JournalsApi extends RecordService {
   getRecord = ({ id, attributes, noCache = false }) => {
     return Records.get(id)
       .load(attributes, noCache)
-      .then(resp => resp)
       .catch(() => null);
   };
 
   saveRecords = ({ id, attributes }) => {
     //todo: replace to using Records.js
     return this.mutate({ record: { id, attributes } }).catch(() => null);
-  };
-
-  deleteRecords = records => {
-    //todo: replace to using Records.js
-    return this.delete({ records: records });
   };
 
   getGridData = ({
@@ -333,41 +327,35 @@ export class JournalsApi extends RecordService {
   };
 
   getDashletConfig = id => {
-    return this.getJson(`${PROXY_URI}citeck/dashlet/config?key=${id}`)
-      .then(resp => resp)
-      .catch(() => null);
+    return this.getJson(`${PROXY_URI}citeck/dashlet/config?key=${id}`).catch(() => null);
   };
 
   saveDashletConfig = (config, id) => {
-    return this.postJson(`${PROXY_URI}citeck/dashlet/config?key=${id}`, config).then(resp => resp);
+    return this.postJson(`${PROXY_URI}citeck/dashlet/config?key=${id}`, config);
   };
 
   getJournalSettings = journalType => {
-    return this.getJson(`${MICRO_URI}api/journalprefs/list?journalId=${journalType}`).then(resp => resp);
+    return this.getJson(`${MICRO_URI}api/journalprefs/list?journalId=${journalType}`);
   };
 
   getJournalSetting = id => {
-    return this.getJson(`${MICRO_URI}api/journalprefs?id=${id}`)
-      .then(resp => resp)
-      .catch(() => null);
+    return this.getJson(`${MICRO_URI}api/journalprefs?id=${id}`).catch(() => null);
   };
 
   saveJournalSetting = ({ id, settings }) => {
-    return this.putJson(`${MICRO_URI}api/journalprefs?id=${id}`, settings, true).then(resp => resp);
+    return this.putJson(`${MICRO_URI}api/journalprefs?id=${id}`, settings, true);
   };
 
   createJournalSetting = ({ journalId, settings }) => {
-    return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${journalId}`, settings, true)
-      .then(resp => resp)
-      .catch(() => null);
+    return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${journalId}`, settings, true).catch(() => null);
   };
 
   deleteJournalSetting = id => {
-    return this.deleteJson(`${MICRO_URI}api/journalprefs/id/${id}`, true).then(resp => resp);
+    return this.deleteJson(`${MICRO_URI}api/journalprefs/id/${id}`, true);
   };
 
   getNodeContent = nodeRef => {
-    return this.getJson(`${PROXY_URI}citeck/node-content?nodeRef=${nodeRef}`).then(resp => resp);
+    return this.getJson(`${PROXY_URI}citeck/node-content?nodeRef=${nodeRef}`);
   };
 
   getPreviewUrl = DocPreviewApi.getPreviewLinkByRecord;
@@ -385,7 +373,7 @@ export class JournalsApi extends RecordService {
   };
 
   deleteDownloadsProgress = nodeRef => {
-    return this.deleteJson(`${PROXY_URI}api/internal/downloads/${nodeRef.replace(':/', '')}`, true).then(resp => resp);
+    return this.deleteJson(`${PROXY_URI}api/internal/downloads/${nodeRef.replace(':/', '')}`, true);
   };
 
   /**
@@ -398,7 +386,6 @@ export class JournalsApi extends RecordService {
   checkRowEditRules = recordRef => {
     return Records.get(recordRef)
       .load('.att(n:"permissions"){has(n:"Write")}')
-      .then(response => response)
       .catch(() => null);
   };
 
@@ -413,7 +400,6 @@ export class JournalsApi extends RecordService {
   checkCellProtectedFromEditing = (recordRef, cell) => {
     return Records.get(recordRef)
       .load(`#${cell}?protected`)
-      .then(response => response)
       .catch(() => null);
   };
 }
