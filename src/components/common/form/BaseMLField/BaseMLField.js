@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
@@ -11,7 +12,6 @@ import { prepareTooltipId } from '../../../../helpers/util';
 import { allowedLanguages } from '../../../../constants/lang';
 
 import './style.scss';
-import PropTypes from 'prop-types';
 
 class BaseMLField extends Component {
   static propTypes = {

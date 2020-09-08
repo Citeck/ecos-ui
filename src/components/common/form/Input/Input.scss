@@ -70,3 +70,12 @@
     padding-left: 15px;
   }
 }
+
+.ecos-ml-text {
+  &__input {
+    &:focus,
+    &:hover {
+      border-color: $color-blue-light;
+    }
+  }
+}

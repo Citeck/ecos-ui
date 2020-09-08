@@ -30,6 +30,10 @@
   }
 
   &__tooltip {
+    .tooltip {
+      z-index: 10005;
+    }
+
     .tooltip-inner {
       overflow: hidden;
       padding: 0;
