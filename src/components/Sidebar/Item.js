@@ -16,6 +16,7 @@ import SidebarService from '../../services/sidebar';
 import { EcosIcon, Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemLink } from './item-components';
+import { selectIsNewUIAvailable } from '../../selectors/user';
 
 class Item extends React.Component {
   static propTypes = {
@@ -110,8 +111,8 @@ class Item extends React.Component {
   });
 
   renderLabel() {
-    const { isSiteDashboardEnable, data, isOpen, styleProps } = this.props;
-    const extraParams = { isSiteDashboardEnable };
+    const { isSiteDashboardEnable, data, isOpen, styleProps, isNewUIAvailable } = this.props;
+    const extraParams = { isSiteDashboardEnable, isNewUIAvailable };
     const contentProps = { data, isOpen, styleProps };
 
     if (this.collapsible || styleProps.isSeparator) {
@@ -205,7 +206,8 @@ class Item extends React.Component {
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
   isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable,
-  isMobile: state.view.isMobile
+  isMobile: state.view.isMobile,
+  isNewUIAvailable: selectIsNewUIAvailable(state)
 });
 
 const mapDispatchToProps = dispatch => ({

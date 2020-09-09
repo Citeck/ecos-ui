@@ -3,6 +3,7 @@ import { PROXY_URI, URL_CONTEXT } from '../constants/alfresco';
 import { SourcesId } from '../constants';
 import Records from '../components/Records';
 import { t } from '../helpers/util';
+import { checkFunctionalAvailabilityForUser } from '../helpers/export/userInGroupsHelper';
 
 export class UserApi extends CommonApi {
   getPhotoSize = userNodeRef => {
@@ -104,5 +105,9 @@ export class UserApi extends CommonApi {
 
         return { success: false, message };
       });
+  }
+
+  checkNewUIAvailableStatus() {
+    return checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
   }
 }
