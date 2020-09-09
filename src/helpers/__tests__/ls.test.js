@@ -1,5 +1,5 @@
 import * as Storage from '../ls';
-import { LocalStorageMock } from '../__mocks__/storage.mock';
+import { LocalStorageMock } from '../../__mocks__/storage.mock';
 
 const COMMON_DATA = [
   {
@@ -9,7 +9,7 @@ const COMMON_DATA = [
   },
   {
     title: 'correct data 2',
-    key: 'KEY_2',
+    key: 'KEY_2_filter',
     data: { test2: 'test2' }
   },
   {
@@ -21,7 +21,7 @@ const COMMON_DATA = [
 
 describe('Storage helpers', () => {
   delete window.localStorage;
-  window.localStorage = new LocalStorageMock();
+  window.localStorage = new LocalStorageMock(jest);
 
   describe('Set & Get data', () => {
     COMMON_DATA.forEach(_ => {
@@ -67,12 +67,14 @@ describe('Storage helpers', () => {
     const data = COMMON_DATA.filter(_ => !!_.key);
     const count = data.length;
 
-    afterEach(window.localStorage.clear);
-
-    it('delete keys', () => {
+    beforeEach(() => {
       data.forEach(_ => {
         Storage.setData(_.key, _.data);
       });
+    });
+    afterEach(window.localStorage.clear);
+
+    it('delete keys', () => {
       const deletedKeys = [COMMON_DATA[0].key, COMMON_DATA[1].key];
 
       expect(window.localStorage.length).toEqual(count);
@@ -82,13 +84,33 @@ describe('Storage helpers', () => {
     });
 
     it('delete without keys', () => {
-      data.forEach(_ => {
-        Storage.setData(_.key, _.data);
-      });
       expect(window.localStorage.length).toEqual(count);
       const resultDel1 = Storage.removeItems();
       expect(resultDel1).toBeNull();
       expect(window.localStorage.length).toEqual(count);
+    });
+  });
+
+  describe('getFilteredKeys', () => {
+    const data = COMMON_DATA.filter(_ => !!_.key);
+    const count = data.length;
+
+    beforeEach(() => {
+      data.forEach(_ => {
+        Storage.setData(_.key, _.data);
+      });
+    });
+
+    afterEach(window.localStorage.clear);
+
+    it('without filter', () => {
+      const keys = Storage.getFilteredKeys();
+      expect(keys.length).toEqual(count);
+    });
+
+    it('with filter', () => {
+      const keys = Storage.getFilteredKeys('_filter');
+      expect(keys.every(key => key.includes('_filter'))).toBe(true);
     });
   });
 });
