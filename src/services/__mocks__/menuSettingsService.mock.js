@@ -6351,18 +6351,7 @@ function _getAvailableOptions(items = CREATE_OPTIONS) {
 
 export const AVAILABLE_CREATE_OPTIONS = [
   [undefined, {}, _getAvailableOptions()],
-  [
-    {
-      id: 'HEADER_TASKS',
-      label: 'menu.header.tasks',
-      type: 'item',
-      hidden: false,
-      icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-      config: {}
-    },
-    { level: 1 },
-    []
-  ],
+  [{ type: 'item' }, { level: 1 }, []],
   [{ type: 'SECTION' }, { level: 0 }, _getAvailableOptions()],
   [{ type: 'SECTION' }, { level: 1 }, _getAvailableOptions()],
   [{ type: 'SECTION' }, { level: 2 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
