@@ -70,7 +70,7 @@ const getFirstJournalByList = listId => {
   return request;
 };
 
-const getNewPageUrl = params => {
+export const getNewPageUrl = params => {
   const { journalId, siteId, listId, settingsId } = params;
 
   let journalsListId = 'main';
@@ -92,7 +92,7 @@ const getNewPageUrl = params => {
   });
 };
 
-const getOldPageUrl = params => {
+export const getOldPageUrl = params => {
   const { journalId, siteId, listId, filterRef, settingsId, skipCount, maxItems } = params;
 
   let targetUrl = '/share/page';
