@@ -103,6 +103,11 @@ export default class SidebarService {
             let uiType = params.uiType || '';
             let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
 
+            // Cause: https://citeck.atlassian.net/browse/ECOSUI-499
+            if (!uiType) {
+              isNewUILink = extraParams.isNewUIAvailable;
+            }
+
             if (isNewUILink) {
               targetUrl = getJournalPageUrl({
                 journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
@@ -153,6 +158,11 @@ export default class SidebarService {
           {
             let uiType = params.uiType || '';
             let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
+
+            // Cause: https://citeck.atlassian.net/browse/ECOSUI-499
+            if (!uiType) {
+              isNewUILink = extraParams.isNewUIAvailable;
+            }
 
             if (isNewUILink) {
               ignoreTabHandler = false;
