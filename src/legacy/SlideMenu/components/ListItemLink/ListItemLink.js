@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
+
 import { setSelectedId, toggleExpanded } from '../../actions/slideMenu';
 import { t } from '../../../../helpers/util';
 import ListItemIcon from '../ListItemIcon';

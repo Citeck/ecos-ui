@@ -3,6 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+
 import Records from '../components/Records';
 
 import {
@@ -51,10 +52,13 @@ import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETT
 import { ParserPredicate } from '../components/Filters/predicates';
 import { ActionTypes } from '../components/Records/actions';
 
-import { decodeLink, getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl } from '../helpers/urls';
+import { decodeLink, getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl, isNewVersionPage } from '../helpers/urls';
 import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
+import { getJournalUIType, getOldPageUrl } from '../api/export/journalsApi';
+import { selectJournals, selectJournalUiType } from '../selectors/journals';
+import { selectSearch } from '../selectors/router';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -218,6 +222,15 @@ function* getJournals(api, journalsListId, w) {
   const journals = journalsListId
     ? yield call(api.journals.getJournalsByJournalsList, journalsListId)
     : yield call(api.journals.getJournals);
+
+  yield Promise.all(
+    journals.map(async journal => {
+      const uiType = await getJournalUIType(journal.type);
+
+      return (journal.uiType = uiType);
+    })
+  );
+
   yield put(setJournals(w(journals)));
 }
 
@@ -497,14 +510,35 @@ function* sagaOnJournalSettingsSelect({ api, logger, stateId, w }, action) {
 
 function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
   try {
+    const journalId = action.payload;
+    const journals = yield select(state => selectJournals(state, stateId, journalId));
+    const uiType = yield select(() => selectJournalUiType(journals, journalId));
+    const needLink = isNewVersionPage() ? uiType === 'share' : uiType === 'react';
+
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-484
+    if (needLink) {
+      const { journalsListId } = yield select(selectSearch);
+      const data = journalsListId.split('-');
+      let siteId = '';
+      let listId = '';
+
+      if (data[0] === 'site') {
+        data.shift();
+        listId = data.pop();
+        siteId = data.join('-');
+      }
+
+      const url = yield call(getOldPageUrl, { journalId, siteId, listId });
+
+      return PageService.changeUrlLink(url, { reopenBrowserTab: true });
+    }
+
     yield put(setLoading(w(true)));
 
-    let journalId = action.payload;
     const journalConfig = yield getJournalConfig(api, journalId, w);
 
     yield getJournalSettings(api, journalConfig.id, w);
     yield loadGrid(api, { journalConfig, stateId }, w);
-
     yield put(setLoading(w(false)));
   } catch (e) {
     logger.error('[journals sagaOnJournalSelect saga error', e.message);
