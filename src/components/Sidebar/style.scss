@@ -283,6 +283,10 @@ $transition-duration: 0.3s;
         #{$menu-item}__link {
           padding-left: 25px;
         }
+
+        &#{$menu-item}_title-separator #{$menu-item}__label {
+          color: $text-color-dark;
+        }
       }
     }
 
