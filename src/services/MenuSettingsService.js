@@ -79,8 +79,8 @@ export default class MenuSettingsService {
       editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
       removable: ![].includes(item.type),
       draggable: knownType && ![].includes(item.type),
-      hideable: knownType && ![].includes(item.type),
-      hasIcon: knownType && ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type)
+      hideable: ![].includes(item.type),
+      hasIcon: ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type)
     };
   }
 
