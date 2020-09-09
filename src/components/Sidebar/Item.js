@@ -87,7 +87,7 @@ class Item extends React.Component {
     }
   };
 
-  renderContent = React.memo(({ isOpen, data, styleProps: { noIcon, isSeparator } }) => {
+  renderContent = React.memo(({ isOpen, data, styleProps: { noIcon } }) => {
     const label = extractLabel(data.label);
     let iconCode;
     let iconData;
@@ -100,7 +100,7 @@ class Item extends React.Component {
 
     return (
       <>
-        {!noIcon && !isSeparator && (
+        {!noIcon && (
           <EcosIcon family="menu-items" data={iconData} className="ecos-sidebar-item__icon" code={iconCode} title={isOpen ? '' : label} />
         )}
         <div className="ecos-sidebar-item__label" title={label}>
