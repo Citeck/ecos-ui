@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
+import lodashGet from 'lodash/get';
 
 import { setSelectedId, toggleExpanded } from '../../actions/slideMenu';
 import { t } from '../../../../helpers/util';
 import ListItemIcon from '../ListItemIcon';
-import lodashGet from 'lodash/get';
 import { MenuApi } from '../../../../api/menu';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../../../../constants/pageTabs';
 import { getJournalPageUrl, isNewVersionPage, NEW_VERSION_PREFIX } from '../../../../helpers/urls';
 import { URL } from '../../../../constants';
 import SidebarService from '../../../../services/sidebar';
+import { selectIsNewUIAvailable } from '../../../../selectors/user';
 
 const PAGE_PREFIX = '/share/page';
 const menuApi = new MenuApi();
 
 const mapStateToProps = state => ({
+  isNewUIAvailable: selectIsNewUIAvailable(state),
   selectedId: state.slideMenu.selectedId,
   isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable,
   isNewJournalsPageEnable: state.slideMenu.isNewJournalsPageEnable
@@ -29,7 +31,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   setExpanded: id => dispatch(toggleExpanded(id))
 });
 
-const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDashboardEnable, isNewJournalsPageEnable }) => {
+const ListItemLink = ({
+  item,
+  onSelectItem,
+  selectedId,
+  withNestedList,
+  isSiteDashboardEnable,
+  isNewJournalsPageEnable,
+  isNewUIAvailable
+}) => {
   const journalId = lodashGet(item, 'params.journalId', '');
   const [journalTotalCount, setJournalTotalCount] = useState(0);
   const attributes = {};
@@ -79,11 +89,8 @@ const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDa
             isNewUILink = false;
             break;
           default:
-            if (isNewVersionPage()) {
-              isNewUILink = isNewJournalsPageEnable;
-            } else {
-              isNewUILink = false;
-            }
+            // Cause: https://citeck.atlassian.net/browse/ECOSUI-499
+            isNewUILink = isNewUIAvailable;
         }
 
         if (isNewUILink) {
@@ -148,11 +155,8 @@ const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDa
               isNewUILink = false;
               break;
             default:
-              if (isNewVersionPage()) {
-                isNewUILink = isNewJournalsPageEnable;
-              } else {
-                isNewUILink = false;
-              }
+              // Cause: https://citeck.atlassian.net/browse/ECOSUI-499
+              isNewUILink = isNewUIAvailable;
           }
 
           if (isNewUILink) {
