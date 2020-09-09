@@ -72,11 +72,13 @@ export default class MenuSettingsService {
     return actions;
   };
 
-  static getActionPermissions(item) {
-    const knownType = Object.values(ms.ItemTypes).includes(item.type);
+  static isKnownType(type) {
+    return Object.values(ms.ItemTypes).includes(type);
+  }
 
+  static getActionPermissions(item) {
     return {
-      editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
+      editable: MenuSettingsService.isKnownType(item.type) && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
       removable: ![].includes(item.type),
       draggable: ![].includes(item.type),
       hideable: ![].includes(item.type),
@@ -176,7 +178,11 @@ export default class MenuSettingsService {
 
     return array.filter(type => {
       const maxLevel = get(type, 'when.maxLevel');
-      return !isExistValue(maxLevel) || !isExistValue(level) || maxLevel >= level;
+      const goodLevel = !isExistValue(maxLevel) || !isExistValue(level) || maxLevel >= level;
+      const goodType = !item || MenuSettingsService.isKnownType(item.type);
+      const allowedType = !item || !MenuSettingsService.isChildless(item);
+
+      return goodLevel && goodType && allowedType;
     });
   };
 }
