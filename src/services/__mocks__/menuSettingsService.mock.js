@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings } from '../../constants/menu';
 
@@ -6342,11 +6344,8 @@ export const CREATE_OPTIONS = [
   { key: 'LINK-CREATE-CASE', label: 'menu-item.type.link-create-case', when: { maxLevel: 2 } }
 ];
 
-function _getAvailableOptions(items = CREATE_OPTIONS) {
-  return items.map(item => {
-    item.id = item.label;
-    return item;
-  });
+function _getAvailableOptions(items) {
+  return (items || cloneDeep(CREATE_OPTIONS)).map(item => ({ ...item, id: item.label }));
 }
 
 export const AVAILABLE_CREATE_OPTIONS = [

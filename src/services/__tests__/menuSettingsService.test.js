@@ -225,7 +225,7 @@ describe('Menu Settings Service', () => {
   describe('Property createOptions', () => {
     const data = [
       {
-        title: 'Create options: 5 items',
+        title: `Create options: ${CREATE_OPTIONS.length} items`,
         input: null,
         output: CREATE_OPTIONS
       }
