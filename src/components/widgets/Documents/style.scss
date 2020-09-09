@@ -498,6 +498,8 @@
   }
 
   &__panel {
+    $panel: &;
+
     --e-docs-panel-upload-width: 40px;
     --e-docs-panel-search-width: 175px;
 
@@ -554,6 +556,43 @@
         &-control {
           background: $color-blue-light;
           color: $color-white;
+        }
+      }
+    }
+
+    &_mobile {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: 1fr 1fr;
+      grid-row-gap: 15px;
+      grid-column-gap: 10px;
+
+      #{$panel} {
+        &-upload {
+          width: 100%;
+          min-width: 40px;
+          margin: unset;
+        }
+
+        &-search {
+          width: 100%;
+          margin: unset;
+        }
+
+        &-filter {
+          max-width: unset;
+          grid-column-start: 1;
+          grid-column-end: 3;
+          margin: unset;
+
+          .ecos-btn__i_right {
+            position: absolute;
+            right: 15px;
+          }
+
+          .ecos-dropdown__menu {
+            max-width: calc(100vw - 38px);
+          }
         }
       }
     }

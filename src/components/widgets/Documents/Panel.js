@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 
 import { Search } from '../../common';
 import { Dropdown } from '../../common/form';
@@ -14,11 +15,12 @@ export default React.memo(props => {
     onChangeFilter,
     renderUploadButton,
     forwardedRef,
-    scrollbarHeightMax
+    scrollbarHeightMax,
+    isMobile
   } = props;
 
   return (
-    <div ref={forwardedRef} className="ecos-docs__panel">
+    <div ref={forwardedRef} className={classNames('ecos-docs__panel', { 'ecos-docs__panel_mobile': isMobile })}>
       {renderUploadButton()}
       <Search text={tableFilter} cleaner liveSearch searchWithEmpty onSearch={onSearch} className="ecos-docs__panel-search" />
       {!selectedType && dynamicTypes.length > 1 && (

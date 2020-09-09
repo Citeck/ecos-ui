@@ -2,6 +2,8 @@ import get from 'lodash/get';
 import { createSelector } from 'reselect';
 
 import { initialState } from '../reducers/documents';
+import { t } from '../helpers/export/util';
+import { Labels } from '../constants/documents';
 
 const selectState = (state, key) => get(state, ['documents', key], { ...initialState });
 
@@ -165,3 +167,16 @@ export const selectColumnsFromConfigByType = (state, key, name) => {
 
   return get(type, 'columns', []);
 };
+
+export const selectWidgetTitle = createSelector(
+  selectState,
+  ownState => {
+    const dynamicTypes = get(ownState, 'dynamicTypes', []);
+
+    if (dynamicTypes.length === 1) {
+      return dynamicTypes[0].name;
+    }
+
+    return t(Labels.TITLE);
+  }
+);
