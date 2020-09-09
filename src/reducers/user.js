@@ -1,5 +1,12 @@
 import { handleActions } from 'redux-actions';
-import { setIsAuthenticated, setUserPhoto, setUserThumbnail, validateUserFailure, validateUserSuccess } from '../actions/user';
+import {
+  setIsAuthenticated,
+  setNewUIAvailableStatus,
+  setUserPhoto,
+  setUserThumbnail,
+  validateUserFailure,
+  validateUserSuccess
+} from '../actions/user';
 
 const initialState = {
   id: '',
@@ -13,7 +20,8 @@ const initialState = {
   isAvailable: false,
   isMutable: false,
   isAuthenticated: false,
-  isAdmin: false
+  isAdmin: false,
+  isNewUIAvailable: false
 };
 
 Object.freeze(initialState);
@@ -47,6 +55,12 @@ export default handleActions(
       return {
         ...state,
         isAuthenticated: action.payload
+      };
+    },
+    [setNewUIAvailableStatus]: (state, action) => {
+      return {
+        ...state,
+        isNewUIAvailable: action.payload
       };
     },
     [setUserPhoto]: (state, { payload }) => {

@@ -3,6 +3,7 @@ import { getCurrentUserName } from '../../helpers/util';
 
 const isCurrentUserInGroup = group => {
   const currentPersonName = getCurrentUserName();
+
   return Records.queryOne(
     {
       query: `TYPE:"cm:authority" AND =cm:authorityName:"${group}"`,
