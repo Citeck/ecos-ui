@@ -262,9 +262,6 @@ export class JournalsApi extends RecordService {
   };
 
   getJournalsByJournalsList = journalsListId => {
-    //journalsListId = 'site-contracts-main';
-    //return this.getJson(`${MICRO_URI}api/journallist?listId=${journalsListId}`).then(resp => {
-
     let journalsFromUiserv = Records.query(
       {
         sourceId: 'uiserv/journal_v1',
@@ -294,6 +291,7 @@ export class JournalsApi extends RecordService {
             });
           }
         }
+
         return result;
       });
     });
