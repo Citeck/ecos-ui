@@ -6,6 +6,7 @@ import set from 'lodash/set';
 import { extractLabel, packInLabel, t } from '../../helpers/util';
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings as MS } from '../../constants/menu';
+import MenuSettingsService from '../../services/MenuSettingsService';
 import IconSelect from '../IconSelect';
 import { EcosIcon, EcosModal } from '../common';
 import { Input, MLText } from '../common/form';
@@ -28,14 +29,13 @@ const Labels = {
   MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit'
 };
 
-function EditorItemModal({ item, type, onClose, onSave, action }) {
+function EditorItemModal({ item, type, onClose, onSave, action, params }) {
   const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
+  const { hasUrl, hasIcon } = MenuSettingsService.getActionPermissions({ ...item, type: type.key }, params);
   const [label, setLabel] = useState({});
   const [url, setUrl] = useState('');
   const [icon, setIcon] = useState(defaultIcon);
   const [isOpenSelectIcon, setOpenSelectIcon] = useState(false);
-  const hasUrl = [MS.ItemTypes.ARBITRARY].includes(type.key);
-  const hasIcon = ![MS.ItemTypes.HEADER_DIVIDER].includes(type.key);
 
   useEffect(() => {
     if (action === MS.ActionTypes.EDIT) {
