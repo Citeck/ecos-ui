@@ -170,4 +170,14 @@ describe('Util helpers', () => {
 
     check(data, 'hasInString');
   });
+
+  describe.each([
+    ['empty id', true, 'true'],
+    ['clean id begins number', '123qwerty', 'tooltip-123qwerty'],
+    ['clean id begins str', 'id123qwerty', 'id123qwerty'],
+    ['dirty id begins number', '8- 4 5-6*/qwerty', 'tooltip-8-45-6qwerty'],
+    ['dirty id begins str', '- 4 5-6*/qwerty', '-45-6qwerty']
+  ])('fun prepareTooltipId %s', (title, input, output) => {
+    it(input + '>' + output, () => expect(Util.prepareTooltipId(input)).toEqual(output));
+  });
 });
