@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 import Harness from '../../../test/harness';
 import MLTextareaComponent from './MLTextarea';
 
@@ -26,16 +28,23 @@ describe('MLTextarea Component', () => {
     });
   });
 
-  // TODO: test falls
-  // it('Should set "ru" language text', done => {
-  //   const comp = _.cloneDeep(comp2);
-  //
-  //   comp.defaultValue = { en: 'Test data' };
-  //
-  //   Harness.testCreate(MLTextareaComponent, comp).then(component => {
-  //     component.setReactProps({ lang: 'ru' });
-  //     Harness.getInputValue(component, 'Textarea', '', 'textarea');
-  //     done();
-  //   });
-  // });
+  it('Should set "ru" language text', done => {
+    const value1 = { en: 'Test data' };
+    const value2 = { en: 'Test data', ru: 'Тест' };
+
+    const comp = cloneDeep(comp2);
+    comp.defaultValue = value1;
+
+    Harness.testCreate(MLTextareaComponent, comp).then(component => {
+      expect(component.getValue()).toEqual(cloneDeep(value1));
+
+      component.setReactProps({ lang: 'ru', value: value2 });
+      component.setValue(value2);
+      component.on('componentChange', () => {
+        expect(component.getValue()).toEqual(cloneDeep(value2));
+        Harness.getInputValue(component, 'Textarea', value2.ru, 'textarea');
+        done();
+      });
+    });
+  });
 });
