@@ -97,6 +97,7 @@
     &__menu-dropdown {
       .tooltip {
         z-index: 9999;
+        min-width: 120px;
       }
     }
 
@@ -158,6 +159,15 @@
 
         & .ecos-tree__action#{$editor}__action_no-hide {
           display: inline-block;
+        }
+
+        & .ecos-menu-settings-editor-items__block-dropdown.ecos-dropdown-outer_open {
+          display: inline-block;
+
+          .ecos-btn {
+            background-color: $color-blue-light;
+            color: $color-white;
+          }
         }
       }
     }
