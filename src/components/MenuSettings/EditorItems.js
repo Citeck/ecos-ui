@@ -222,7 +222,6 @@ class EditorItems extends React.Component {
 
     if (item && [ms.ItemTypes.JOURNAL].includes(item.type)) {
       const displayCount = get(item, 'config.displayCount');
-      const count = String(get(item, 'params.count', '***'));
 
       components.push(
         <div
@@ -233,8 +232,7 @@ class EditorItems extends React.Component {
           })}
           onClick={() => this.handleActionItem({ action: ms.ActionTypes.DISPLAY_COUNT, level: 0, item })}
         >
-          <Badge text={count} />
-          <span>{displayCount ? t('menu-settings.editor-items.action.count-off') : t('menu-settings.editor-items.action.count-on')}</span>
+          <Badge text={displayCount ? t('menu-settings.editor-items.action.count-off') : t('menu-settings.editor-items.action.count-on')} />
         </div>
       );
     }
