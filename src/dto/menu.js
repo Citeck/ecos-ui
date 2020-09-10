@@ -130,10 +130,11 @@ export default class MenuConverter {
   static getMenuItemsWeb(source) {
     const target = [];
 
-    (function prepareTree(sItems, tItems) {
+    (function prepareTree(sItems, tItems, level) {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
-        const tItem = MenuSettingsService.getItemParams(sItem);
+        const tItem = MenuSettingsService.getItemParams(sItem, { level });
+
         tItem.items = [];
         tItem.config = { ...sItem.config };
         tItem.label = get(sItem, '_remoteData_.label') || tItem.label;
@@ -142,12 +143,12 @@ export default class MenuConverter {
           set(tItem, 'params.count', get(sItem, '_remoteData_.count'));
         }
 
-        sItem.items && prepareTree(sItem.items, tItem.items);
+        sItem.items && prepareTree(sItem.items, tItem.items, level + 1);
 
         delete sItem._remoteData_;
         tItems.push(tItem);
       }
-    })(source, target);
+    })(source, target, 0);
 
     return target;
   }

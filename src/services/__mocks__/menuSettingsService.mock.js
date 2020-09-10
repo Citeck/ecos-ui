@@ -68,7 +68,7 @@ export const ITEMS_INPUT = [
   }
 ];
 
-export const ITEMS_OUTPUT = [
+export const ITEM_PARAMS_OUTPUT = [
   {
     id: ITEMS_INPUT[0].id,
     label: ITEMS_INPUT[0].label,
@@ -185,6 +185,7 @@ export const PERMISSIONS_BY_TYPE = {
     draggable: true,
     editable: true,
     hasIcon: true,
+    hasUrl: false,
     hideable: true,
     removable: true
   },
@@ -192,6 +193,7 @@ export const PERMISSIONS_BY_TYPE = {
     draggable: true,
     editable: false,
     hasIcon: true,
+    hasUrl: false,
     hideable: true,
     removable: true
   },
@@ -199,6 +201,7 @@ export const PERMISSIONS_BY_TYPE = {
     draggable: true,
     editable: true,
     hasIcon: true,
+    hasUrl: true,
     hideable: true,
     removable: true
   },
@@ -206,6 +209,7 @@ export const PERMISSIONS_BY_TYPE = {
     draggable: true,
     editable: false,
     hasIcon: true,
+    hasUrl: false,
     hideable: true,
     removable: true
   },
@@ -213,6 +217,7 @@ export const PERMISSIONS_BY_TYPE = {
     draggable: true,
     editable: true,
     hasIcon: false,
+    hasUrl: false,
     hideable: true,
     removable: true
   }
@@ -707,7 +712,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
       action: 'CREATE',
       data: [
         { id: 'c111aeed-77be-4675-828d-2d4b20432910', label: 'Тестовый', config: { recordRef: 'uiserv/journal@Test' }, type: 'JOURNAL' }
-      ]
+      ],
+      level: 1
     },
     {
       items: [
@@ -6352,11 +6358,11 @@ export const ACTIONS_ON_MENU_ITEMS = {
 };
 
 export const CREATE_OPTIONS = [
-  { key: 'SECTION', label: 'menu-item.type.section', when: { maxLevel: 1 } },
-  { key: 'HEADER-DIVIDER', label: 'menu-item.type.header-divider', when: { maxLevel: 1 } },
-  { key: 'JOURNAL', label: 'menu-item.type.journal', when: { maxLevel: 2 } },
-  { key: 'ARBITRARY', label: 'menu-item.type.arbitrary', when: { maxLevel: 2 } },
-  { key: 'LINK-CREATE-CASE', label: 'menu-item.type.link-create-case', when: { maxLevel: 2 } }
+  { key: 'SECTION', label: 'menu-item.type.section', when: { maxLevel: 0 } },
+  { key: 'HEADER-DIVIDER', label: 'menu-item.type.header-divider', when: { maxLevel: 0 } },
+  { key: 'JOURNAL', label: 'menu-item.type.journal', when: {} },
+  { key: 'ARBITRARY', label: 'menu-item.type.arbitrary', when: {} },
+  { key: 'LINK-CREATE-CASE', label: 'menu-item.type.link-create-case', when: {} }
 ];
 
 function _getAvailableOptions(items) {
@@ -6364,11 +6370,10 @@ function _getAvailableOptions(items) {
 }
 
 export const AVAILABLE_CREATE_OPTIONS = [
-  [undefined, {}, _getAvailableOptions()],
-  [{ type: 'item' }, { level: 1 }, []],
+  [undefined, undefined, _getAvailableOptions()],
+  [{ type: 'item' }, { level: 0 }, []],
   [{ type: 'SECTION' }, { level: 0 }, _getAvailableOptions()],
-  [{ type: 'SECTION' }, { level: 1 }, _getAvailableOptions()],
-  [{ type: 'SECTION' }, { level: 2 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
-  [{ type: 'SECTION' }, { level: 3 }, []],
+  [{ type: 'SECTION' }, { level: 1 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
+  [{ type: 'ARBITRARY' }, { level: 3 }, []],
   [{ type: 'JOURNAL' }, { level: 2 }, []]
 ];
