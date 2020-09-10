@@ -97,3 +97,6 @@ export const Labels = {
   ERROR_UPLOAD: 'documents-widget.error.upload-filed',
   ERROR_ONLY_ONE_FILE: 'documents-widget.error.only-one-file'
 };
+
+export const CANCELED_TIME = 5;
+export const UNDOABLE_ACTIONS = ['delete'];

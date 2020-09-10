@@ -1,9 +1,12 @@
 import get from 'lodash/get';
+import omit from 'lodash/omit';
 import { createSelector } from 'reselect';
 
 import { initialState } from '../reducers/documents';
 import { t } from '../helpers/export/util';
-import { Labels } from '../constants/documents';
+import { documentFields, Labels } from '../constants/documents';
+import { DataFormatTypes } from '../constants';
+import { getOutputFormat } from '../helpers/util';
 
 const selectState = (state, key) => get(state, ['documents', key], { ...initialState });
 
@@ -178,5 +181,58 @@ export const selectWidgetTitle = createSelector(
     }
 
     return t(Labels.TITLE);
+  }
+);
+
+export const selectStateId = createSelector(
+  selectState,
+  ownState => {
+    return get(ownState, 'stateId');
+  }
+);
+
+const getDocumentsByTypes = state => get(state, 'documentsByTypes');
+const dynamicTypesIds = state => getDynamicTypes(state).map(item => item.type);
+
+const selectDocuments = createSelector(
+  selectState,
+  getDocumentsByTypes
+);
+const selectTypeIds = createSelector(
+  selectState,
+  dynamicTypesIds
+);
+const selectAvailableTypesById = createSelector(
+  selectState,
+  selectTypeIds,
+  (ownProps, typesIds) => {
+    return getAvailableTypes(ownProps).filter(type => typesIds.includes(type.id));
+  }
+);
+const selectActions = createSelector(
+  selectState,
+  ownProps => get(ownProps, 'actions', {})
+);
+
+export const selectDocumentsByTypes = createSelector(
+  selectStateByKey,
+  selectDocuments,
+  selectAvailableTypesById,
+  selectActions,
+  (ownProps, documents, types, actions) => {
+    return types.reduce(
+      (result, type) => ({
+        ...result,
+        [type.id]: {
+          ...omit(type, ['actions']),
+          documents: get(documents, type.id, []).map(doc => ({
+            ...doc,
+            [documentFields.modified]: getOutputFormat(DataFormatTypes.DATE, doc[documentFields.modified]),
+            actions: get(actions, doc[documentFields.id], [])
+          }))
+        }
+      }),
+      {}
+    );
   }
 );

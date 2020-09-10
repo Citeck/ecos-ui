@@ -14,6 +14,7 @@ import {
   setAvailableTypes,
   setConfig,
   setDocuments,
+  setDocumentsByTypes,
   setDynamicTypes,
   setError,
   setInlineTools,
@@ -41,6 +42,7 @@ export const initialState = {
   availableTypes: [],
   dynamicTypes: [],
   documents: [],
+  documentsByTypes: {},
   actions: {},
   isLoading: false,
   isLoadingTableData: false,
@@ -235,6 +237,14 @@ export default handleActions(
       [payload.key]: {
         ...state[payload.key],
         tools: payload.tools || { ...emptyTools }
+      }
+    }),
+
+    [setDocumentsByTypes]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        documentsByTypes: payload.documentsByTypes
       }
     })
   },

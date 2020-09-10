@@ -14,6 +14,7 @@ import {
   selectAvailableTypes,
   selectColumnsConfig,
   selectConfigTypes,
+  selectDocumentsByTypes,
   selectDynamicType,
   selectDynamicTypes,
   selectIsLoadChecklist,
@@ -24,6 +25,7 @@ import {
   execRecordsAction,
   getAvailableTypes,
   getDocumentsByType,
+  getDocumentsByTypes,
   getDocumentsFinally,
   getDynamicTypes,
   getTypeSettings,
@@ -36,6 +38,7 @@ import {
   setAvailableTypes,
   setConfig,
   setDocuments,
+  setDocumentsByTypes,
   setDynamicTypes,
   setTypeSettings,
   setTypeSettingsFinally,
@@ -459,6 +462,38 @@ function* sagaGetTypeSettings({ api, logger }, { payload }) {
   }
 }
 
+function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
+  try {
+    const documentsByTypes = {};
+    const documentsIds = [];
+    const types = yield select(state => selectDynamicTypes(state, payload.key));
+
+    const { records, errors } = yield call(api.documents.getDocumentsByTypes, payload.record, types.map(item => item.type));
+
+    if (errors.length) {
+      throw new Error(errors.join(' '));
+    }
+
+    types.forEach((item, index) => {
+      const documents = get(records, `[${index}].documents`, []);
+
+      documentsByTypes[item.type] = documents;
+      documentsIds.push(...documents.map(doc => doc[documentFields.id]));
+    });
+
+    if (documentsIds.length) {
+      const typeActions = yield select(state => selectActionsByType(state, payload.key, payload.type));
+      const actions = yield recordActions.getActionsForRecords(documentsIds, getFirstNonEmpty([typeActions, documentActions], []));
+
+      yield put(setActions({ key: payload.key, actions: actions.forRecord }));
+    }
+
+    yield put(setDocumentsByTypes({ ...payload, documentsByTypes }));
+  } catch (e) {
+    logger.error('[documents sagaGetDocumentsByTypes saga error] ', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(initStore().type, sagaInitWidget, ea);
   yield takeEvery(getAvailableTypes().type, sagaGetAvailableTypes, ea);
@@ -469,6 +504,7 @@ function* saga(ea) {
   yield takeEvery(updateVersion().type, sagaUpdateVersion, ea);
   yield takeEvery(execRecordsAction().type, sagaExecRecordsAction, ea);
   yield takeEvery(getTypeSettings().type, sagaGetTypeSettings, ea);
+  yield takeEvery(getDocumentsByTypes().type, sagaGetDocumentsByTypes, ea);
 }
 
 export default saga;

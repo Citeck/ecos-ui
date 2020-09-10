@@ -16,7 +16,9 @@ export const getDynamicTypes = createAction(prefix + 'GET_DYNAMIC_TYPES');
 export const setDynamicTypes = createAction(prefix + 'SET_DYNAMIC_TYPES');
 
 export const setDocuments = createAction(prefix + 'SET_DOCUMENTS');
-export const getDocumentsByType = createAction(prefix + 'SET_DOCUMENTS_BY_TYPE');
+export const getDocumentsByType = createAction(prefix + 'GET_DOCUMENTS_BY_TYPE');
+export const getDocumentsByTypes = createAction(prefix + 'GET_DOCUMENTS_BY_TYPES');
+export const setDocumentsByTypes = createAction(prefix + 'SET_DOCUMENTS_BY_TYPES');
 export const getDocumentsFinally = createAction(prefix + 'GET_DOCUMENTS_FINALLY');
 
 export const getTypeSettings = createAction(prefix + 'GET_TYPE_SETTINGS');

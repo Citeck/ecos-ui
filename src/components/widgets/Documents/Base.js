@@ -509,6 +509,8 @@ class Base extends BaseWidget {
 
     this.setState({ isLoadingUploadingModal: false });
 
+    console.warn({ type, availableTypes });
+
     if (type === null) {
       this.setState({
         selectedTypeForLoading: '',
