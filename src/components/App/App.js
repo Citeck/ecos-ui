@@ -1,4 +1,4 @@
-import React, { Component, lazy, Suspense } from 'react';
+import React, { Component, Suspense } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -14,6 +14,7 @@ import Header from '../Header';
 import Notification from '../Notification';
 import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
+import Page from '../../pages';
 import PageTabs from '../PageTabs';
 import { ErrorBoundary } from '../ErrorBoundary';
 
@@ -30,8 +31,6 @@ import { PopupContainer } from '../common/Popper';
 import { replaceHistoryLink } from '../../helpers/urls';
 
 import './App.scss';
-
-const Page = lazy(() => import('../../pages'));
 
 const allowedLinks = [
   URL.DASHBOARD,
