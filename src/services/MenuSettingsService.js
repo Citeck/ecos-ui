@@ -1,9 +1,9 @@
-import cloneDeep from 'lodash/cloneDeep';
 import uuidV4 from 'uuid/v4';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
-import { deepClone, isExistValue, t } from '../helpers/util';
+import { isExistValue, t } from '../helpers/util';
 import { getIconObjectWeb } from '../helpers/icon';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
 import { MenuSettings as ms, MenuTypes } from '../constants/menu';
@@ -72,11 +72,13 @@ export default class MenuSettingsService {
     return actions;
   };
 
-  static getActionPermissions(item) {
-    const knownType = Object.values(ms.ItemTypes).includes(item.type);
+  static isKnownType(type) {
+    return Object.values(ms.ItemTypes).includes(type);
+  }
 
+  static getActionPermissions(item) {
     return {
-      editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
+      editable: MenuSettingsService.isKnownType(item.type) && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
       removable: ![].includes(item.type),
       draggable: knownType && ![].includes(item.type),
       hideable: ![].includes(item.type),
@@ -141,40 +143,46 @@ export default class MenuSettingsService {
   static createOptions = [
     {
       key: ms.ItemTypes.SECTION,
-      forbiddenTypes: [],
-      label: 'menu-item.type.section'
-    },
-    {
-      key: ms.ItemTypes.JOURNAL,
-      forbiddenTypes: [],
-      forbiddenAllTypes: true,
-      label: 'menu-item.type.journal'
-    },
-    {
-      key: ms.ItemTypes.ARBITRARY,
-      forbiddenAllTypes: true,
-      label: 'menu-item.type.arbitrary'
-    },
-    {
-      key: ms.ItemTypes.LINK_CREATE_CASE,
-      forbiddenAllTypes: true,
-      label: 'menu-item.type.link-create-case'
+      label: 'menu-item.type.section',
+      when: { maxLevel: 1 }
     },
     {
       key: ms.ItemTypes.HEADER_DIVIDER,
-      forbiddenAllTypes: true,
-      label: 'menu-item.type.header-divider'
+      label: 'menu-item.type.header-divider',
+      when: { maxLevel: 1 }
+    },
+    {
+      key: ms.ItemTypes.JOURNAL,
+      label: 'menu-item.type.journal',
+      when: { maxLevel: 2 }
+    },
+    {
+      key: ms.ItemTypes.ARBITRARY,
+      label: 'menu-item.type.arbitrary',
+      when: { maxLevel: 2 }
+    },
+    {
+      key: ms.ItemTypes.LINK_CREATE_CASE,
+      label: 'menu-item.type.link-create-case',
+      when: { maxLevel: 2 }
     }
   ];
 
-  static getAvailableCreateOptions = item => {
-    const array = deepClone(MenuSettingsService.createOptions || []);
+  static getAvailableCreateOptions = (item, { level }) => {
+    const array = cloneDeep(MenuSettingsService.createOptions);
 
-    array.forEach(item => {
-      item.id = item.id || item.label;
-      item.label = t(item.label);
+    array.forEach(type => {
+      type.id = type.id || type.label;
+      type.label = t(type.label);
     });
 
-    return array.filter(opt => !item || !!opt.forbiddenAllTypes || !opt.forbiddenTypes.includes(item.type));
+    return array.filter(type => {
+      const maxLevel = get(type, 'when.maxLevel');
+      const goodLevel = !isExistValue(maxLevel) || !isExistValue(level) || maxLevel >= level;
+      const goodType = !item || MenuSettingsService.isKnownType(item.type);
+      const allowedType = !item || !MenuSettingsService.isChildless(item);
+
+      return goodLevel && goodType && allowedType;
+    });
   };
 }

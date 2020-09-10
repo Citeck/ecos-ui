@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings } from '../../constants/menu';
 
@@ -6350,29 +6352,23 @@ export const ACTIONS_ON_MENU_ITEMS = {
 };
 
 export const CREATE_OPTIONS = [
-  { key: 'SECTION', forbiddenTypes: [], label: 'menu-item.type.section' },
-  { key: 'JOURNAL', forbiddenTypes: [], forbiddenAllTypes: true, label: 'menu-item.type.journal' },
-  { key: 'ARBITRARY', forbiddenAllTypes: true, label: 'menu-item.type.arbitrary' },
-  { key: 'LINK-CREATE-CASE', forbiddenAllTypes: true, label: 'menu-item.type.link-create-case' },
-  { key: 'HEADER-DIVIDER', forbiddenAllTypes: true, label: 'menu-item.type.header-divider' }
+  { key: 'SECTION', label: 'menu-item.type.section', when: { maxLevel: 1 } },
+  { key: 'HEADER-DIVIDER', label: 'menu-item.type.header-divider', when: { maxLevel: 1 } },
+  { key: 'JOURNAL', label: 'menu-item.type.journal', when: { maxLevel: 2 } },
+  { key: 'ARBITRARY', label: 'menu-item.type.arbitrary', when: { maxLevel: 2 } },
+  { key: 'LINK-CREATE-CASE', label: 'menu-item.type.link-create-case', when: { maxLevel: 2 } }
 ];
 
+function _getAvailableOptions(items) {
+  return (items || cloneDeep(CREATE_OPTIONS)).map(item => ({ ...item, id: item.label }));
+}
+
 export const AVAILABLE_CREATE_OPTIONS = [
-  [
-    {
-      id: 'HEADER_TASKS',
-      label: 'menu.header.tasks',
-      type: 'item',
-      hidden: false,
-      icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-      config: {}
-    },
-    [
-      { key: 'SECTION', forbiddenTypes: [], label: 'menu-item.type.section', id: 'menu-item.type.section' },
-      { key: 'JOURNAL', forbiddenTypes: [], forbiddenAllTypes: true, label: 'menu-item.type.journal', id: 'menu-item.type.journal' },
-      { key: 'ARBITRARY', forbiddenAllTypes: true, label: 'menu-item.type.arbitrary', id: 'menu-item.type.arbitrary' },
-      { key: 'LINK-CREATE-CASE', forbiddenAllTypes: true, label: 'menu-item.type.link-create-case', id: 'menu-item.type.link-create-case' },
-      { key: 'HEADER-DIVIDER', forbiddenAllTypes: true, label: 'menu-item.type.header-divider', id: 'menu-item.type.header-divider' }
-    ]
-  ]
+  [undefined, {}, _getAvailableOptions()],
+  [{ type: 'item' }, { level: 1 }, []],
+  [{ type: 'SECTION' }, { level: 0 }, _getAvailableOptions()],
+  [{ type: 'SECTION' }, { level: 1 }, _getAvailableOptions()],
+  [{ type: 'SECTION' }, { level: 2 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
+  [{ type: 'SECTION' }, { level: 3 }, []],
+  [{ type: 'JOURNAL' }, { level: 2 }, []]
 ];
