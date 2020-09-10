@@ -189,7 +189,7 @@ export default class MenuSettingsService {
       const goodType = MenuSettingsService.isKnownType(get(item, 'type'));
       const allowedType = !MenuSettingsService.isChildless(item);
 
-      return (goodLevel && !item) || (goodType && allowedType);
+      return goodLevel && (!isExistValue(item) || (goodType && allowedType));
     });
   };
 }

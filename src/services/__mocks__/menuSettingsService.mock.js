@@ -6359,10 +6359,10 @@ export const ACTIONS_ON_MENU_ITEMS = {
 
 export const CREATE_OPTIONS = [
   { key: 'SECTION', label: 'menu-item.type.section', when: { maxLevel: 0 } },
-  { key: 'HEADER-DIVIDER', label: 'menu-item.type.header-divider', when: { maxLevel: 0 } },
-  { key: 'JOURNAL', label: 'menu-item.type.journal', when: {} },
-  { key: 'ARBITRARY', label: 'menu-item.type.arbitrary', when: {} },
-  { key: 'LINK-CREATE-CASE', label: 'menu-item.type.link-create-case', when: {} }
+  { key: 'HEADER-DIVIDER', label: 'menu-item.type.header-divider', when: { maxLevel: 0, minLevel: 0 } },
+  { key: 'JOURNAL', label: 'menu-item.type.journal', when: { minLevel: 0 } },
+  { key: 'ARBITRARY', label: 'menu-item.type.arbitrary', when: { minLevel: 0 } },
+  { key: 'LINK-CREATE-CASE', label: 'menu-item.type.link-create-case', when: { minLevel: 0 } }
 ];
 
 function _getAvailableOptions(items) {
@@ -6371,8 +6371,12 @@ function _getAvailableOptions(items) {
 
 export const AVAILABLE_CREATE_OPTIONS = [
   [undefined, undefined, _getAvailableOptions()],
+  [undefined, { level: -1 }, _getAvailableOptions([CREATE_OPTIONS[0]])],
+  [{ type: 'SECTION' }, { level: -1 }, _getAvailableOptions([CREATE_OPTIONS[0]])],
+  [undefined, { level: 0 }, _getAvailableOptions()],
   [{ type: 'item' }, { level: 0 }, []],
   [{ type: 'SECTION' }, { level: 0 }, _getAvailableOptions()],
+  [undefined, { level: 2 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
   [{ type: 'SECTION' }, { level: 1 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
   [{ type: 'ARBITRARY' }, { level: 3 }, []],
   [{ type: 'JOURNAL' }, { level: 2 }, []]
