@@ -17,7 +17,7 @@ function check(data, method) {
       let result;
 
       if (typeof MenuSettingsService[method] === 'function') {
-        result = MenuSettingsService[method](item.input);
+        result = MenuSettingsService[method](item.input, item.params);
       } else {
         result = MenuSettingsService[method];
       }
@@ -235,7 +235,7 @@ describe('Menu Settings Service', () => {
   describe('Property createOptions', () => {
     const data = [
       {
-        title: 'Create options: 5 items',
+        title: `Create options: ${CREATE_OPTIONS.length} items`,
         input: null,
         output: CREATE_OPTIONS
       }
@@ -245,13 +245,10 @@ describe('Menu Settings Service', () => {
   });
 
   describe('Method getAvailableCreateOptions', () => {
-    const data = [
-      {
-        title: 'Available create options count: 5',
-        input: AVAILABLE_CREATE_OPTIONS[0][0],
-        output: AVAILABLE_CREATE_OPTIONS[0][1]
-      }
-    ];
+    const data = AVAILABLE_CREATE_OPTIONS.map(([input, params, output]) => {
+      const title = `Type: ${input && input.type} Level:  ${params && params.level} Available create options count: ${output.length}`;
+      return { title, input, params, output };
+    });
 
     check(data, 'getAvailableCreateOptions');
   });
