@@ -22,4 +22,4 @@ export const Labels = {
 };
 
 export const STEP_LVL = 1;
-export const TOP_LVL = 1;
+export const TOP_LVL = 0;
