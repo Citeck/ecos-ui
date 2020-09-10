@@ -19,8 +19,8 @@ export default class MenuSettingsService {
     }
   }
 
-  static getItemParams = data => {
-    const permissions = MenuSettingsService.getActionPermissions(data);
+  static getItemParams = (data, params) => {
+    const permissions = MenuSettingsService.getActionPermissions(data, params);
 
     return {
       id: data.id || uuidV4(),
@@ -37,7 +37,7 @@ export default class MenuSettingsService {
   };
 
   static isChildless = item => {
-    return ![ms.ItemTypes.SECTION].includes(item.type);
+    return ![ms.ItemTypes.SECTION].includes(get(item, 'type'));
   };
 
   static getAvailableActions = item => {
@@ -76,13 +76,17 @@ export default class MenuSettingsService {
     return Object.values(ms.ItemTypes).includes(type);
   }
 
-  static getActionPermissions(item) {
+  static getActionPermissions(item, params) {
+    const knownType = MenuSettingsService.isKnownType(item.type);
+    const { level } = params || {};
+
     return {
-      editable: MenuSettingsService.isKnownType(item.type) && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
+      editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
+      draggable: knownType && ![].includes(item.type),
       removable: ![].includes(item.type),
-      draggable: MenuSettingsService.isKnownType(item.type) && ![].includes(item.type),
       hideable: ![].includes(item.type),
-      hasIcon: ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type)
+      hasIcon: ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level),
+      hasUrl: [ms.ItemTypes.ARBITRARY].includes(item.type)
     };
   }
 
@@ -92,7 +96,7 @@ export default class MenuSettingsService {
     return availableActions.filter(act => !isExistValue(get(act, 'when.hidden')) || act.when.hidden === !!item.hidden);
   }
 
-  static processAction = ({ items: original, action, id, data }) => {
+  static processAction = ({ items: original, action, id, data, level }) => {
     const items = cloneDeep(original) || [];
     const foundItem = treeFindFirstItem({ items, key: 'id', value: id });
 
@@ -109,9 +113,9 @@ export default class MenuSettingsService {
         let newItems;
 
         if (Array.isArray(data)) {
-          newItems = data.map(d => MenuSettingsService.getItemParams(d));
+          newItems = data.map(d => MenuSettingsService.getItemParams(d, { level }));
         } else {
-          newItems = [MenuSettingsService.getItemParams(data)];
+          newItems = [MenuSettingsService.getItemParams(data, { level })];
         }
 
         if (path) {
@@ -144,32 +148,33 @@ export default class MenuSettingsService {
     {
       key: ms.ItemTypes.SECTION,
       label: 'menu-item.type.section',
-      when: { maxLevel: 1 }
+      when: { maxLevel: 0 }
     },
     {
       key: ms.ItemTypes.HEADER_DIVIDER,
       label: 'menu-item.type.header-divider',
-      when: { maxLevel: 1 }
+      when: { maxLevel: 0 }
     },
     {
       key: ms.ItemTypes.JOURNAL,
       label: 'menu-item.type.journal',
-      when: { maxLevel: 2 }
+      when: {}
     },
     {
       key: ms.ItemTypes.ARBITRARY,
       label: 'menu-item.type.arbitrary',
-      when: { maxLevel: 2 }
+      when: {}
     },
     {
       key: ms.ItemTypes.LINK_CREATE_CASE,
       label: 'menu-item.type.link-create-case',
-      when: { maxLevel: 2 }
+      when: {}
     }
   ];
 
-  static getAvailableCreateOptions = (item, { level }) => {
+  static getAvailableCreateOptions = (item, params) => {
     const array = cloneDeep(MenuSettingsService.createOptions);
+    const { level } = params || {};
 
     array.forEach(type => {
       type.id = type.id || type.label;
@@ -179,10 +184,10 @@ export default class MenuSettingsService {
     return array.filter(type => {
       const maxLevel = get(type, 'when.maxLevel');
       const goodLevel = !isExistValue(maxLevel) || !isExistValue(level) || maxLevel >= level;
-      const goodType = !item || MenuSettingsService.isKnownType(item.type);
-      const allowedType = !item || !MenuSettingsService.isChildless(item);
+      const goodType = MenuSettingsService.isKnownType(get(item, 'type'));
+      const allowedType = !MenuSettingsService.isChildless(item);
 
-      return goodLevel && goodType && allowedType;
+      return !item || (goodLevel && goodType && allowedType);
     });
   };
 }

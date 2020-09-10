@@ -6,8 +6,8 @@ import {
   ACTIONS_ON_MENU_ITEMS,
   AVAILABLE_CREATE_OPTIONS,
   CREATE_OPTIONS,
+  ITEM_PARAMS_OUTPUT,
   ITEMS_INPUT,
-  ITEMS_OUTPUT,
   PERMISSIONS_BY_TYPE
 } from '../__mocks__/menuSettingsService.mock';
 
@@ -60,22 +60,32 @@ describe('Menu Settings Service', () => {
       {
         title: 'Item with icon (type img)',
         input: ITEMS_INPUT[0],
-        output: ITEMS_OUTPUT[0]
+        output: ITEM_PARAMS_OUTPUT[0],
+        params: { level: 1 }
       },
       {
         title: 'Item with icon (type icon)',
         input: ITEMS_INPUT[1],
-        output: ITEMS_OUTPUT[1]
+        output: ITEM_PARAMS_OUTPUT[1],
+        params: { level: 1 }
       },
       {
         title: 'Item without icon (divider item)',
         input: ITEMS_INPUT[2],
-        output: ITEMS_OUTPUT[2]
+        output: ITEM_PARAMS_OUTPUT[2],
+        params: { level: 1 }
       },
       {
         title: 'Item with default icon',
         input: ITEMS_INPUT[3],
-        output: ITEMS_OUTPUT[3]
+        output: ITEM_PARAMS_OUTPUT[3],
+        params: { level: 1 }
+      },
+      {
+        title: 'Item with undefined icon Level no 1',
+        input: ITEMS_INPUT[4],
+        output: { ...ITEM_PARAMS_OUTPUT[4], icon: undefined },
+        params: { level: 0 }
       }
     ];
 
@@ -141,27 +151,38 @@ describe('Menu Settings Service', () => {
       {
         title: `Type ${ms.ItemTypes.SECTION} has all permissions`,
         input: { type: ms.ItemTypes.SECTION },
-        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.SECTION]
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.SECTION],
+        params: { level: 1 }
       },
       {
         title: `Type ${ms.ItemTypes.JOURNAL} has all permissions, except edit`,
         input: { type: ms.ItemTypes.JOURNAL },
-        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.JOURNAL]
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.JOURNAL],
+        params: { level: 1 }
       },
       {
         title: `Type ${ms.ItemTypes.ARBITRARY} has all permissions`,
         input: { type: ms.ItemTypes.ARBITRARY },
-        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.ARBITRARY]
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.ARBITRARY],
+        params: { level: 1 }
       },
       {
         title: `Type ${ms.ItemTypes.LINK_CREATE_CASE} has all permissions, except edit`,
         input: { type: ms.ItemTypes.LINK_CREATE_CASE },
-        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.LINK_CREATE_CASE]
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.LINK_CREATE_CASE],
+        params: { level: 1 }
+      },
+      {
+        title: `Type ${ms.ItemTypes.LINK_CREATE_CASE} has all permissions, except edit and level = 0 > hasIcon = false`,
+        input: { type: ms.ItemTypes.LINK_CREATE_CASE },
+        output: { ...PERMISSIONS_BY_TYPE[ms.ItemTypes.LINK_CREATE_CASE], hasIcon: false },
+        params: { level: 0 }
       },
       {
         title: `Type ${ms.ItemTypes.HEADER_DIVIDER} has all permissions, except edit and hasIcon`,
         input: { type: ms.ItemTypes.HEADER_DIVIDER },
-        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.HEADER_DIVIDER]
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.HEADER_DIVIDER],
+        params: { level: 1 }
       }
     ];
 
