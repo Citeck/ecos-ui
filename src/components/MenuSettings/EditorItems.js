@@ -212,6 +212,7 @@ class EditorItems extends React.Component {
             isStatic
             controlLabel={t(Labels.BTN_ADD)}
             controlIcon="icon-plus"
+            className="ecos-menu-settings-editor-items__block-dropdown"
             controlClassName="ecos-btn_hover_light-blue2 ecos-btn_sq_sm"
             outClassName="ecos-menu-settings-editor-items__menu-dropdown"
             menuClassName="ecos-menu-settings-editor-items__menu-options"
