@@ -122,7 +122,6 @@
         align-items: center;
         justify-content: center;
         color: $color-gray-5;
-        font-weight: $font-weight-bold;
 
         &:hover {
           cursor: pointer;
@@ -135,6 +134,7 @@
 
         .ecos-badge {
           margin-right: 5px;
+          font-weight: $font-weight-semi-bold;
         }
 
         &_active {
