@@ -153,22 +153,22 @@ export default class MenuSettingsService {
     {
       key: ms.ItemTypes.HEADER_DIVIDER,
       label: 'menu-item.type.header-divider',
-      when: { maxLevel: 0 }
+      when: { maxLevel: 0, minLevel: 0 }
     },
     {
       key: ms.ItemTypes.JOURNAL,
       label: 'menu-item.type.journal',
-      when: {}
+      when: { minLevel: 0 }
     },
     {
       key: ms.ItemTypes.ARBITRARY,
       label: 'menu-item.type.arbitrary',
-      when: {}
+      when: { minLevel: 0 }
     },
     {
       key: ms.ItemTypes.LINK_CREATE_CASE,
       label: 'menu-item.type.link-create-case',
-      when: {}
+      when: { minLevel: 0 }
     }
   ];
 
@@ -183,11 +183,13 @@ export default class MenuSettingsService {
 
     return array.filter(type => {
       const maxLevel = get(type, 'when.maxLevel');
-      const goodLevel = !isExistValue(maxLevel) || !isExistValue(level) || maxLevel >= level;
+      const minLevel = get(type, 'when.minLevel');
+      const goodLevel =
+        !isExistValue(level) || ((!isExistValue(maxLevel) || maxLevel >= level) && (!isExistValue(minLevel) || minLevel <= level));
       const goodType = MenuSettingsService.isKnownType(get(item, 'type'));
       const allowedType = !MenuSettingsService.isChildless(item);
 
-      return !item || (goodLevel && goodType && allowedType);
+      return (goodLevel && !item) || (goodType && allowedType);
     });
   };
 }

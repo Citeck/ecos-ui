@@ -36,7 +36,11 @@ export default class DropdownOuter extends Dropdown {
     const { dropdownOpen, targetId } = this.state;
 
     return (
-      <div id={targetId} className={classNames('ecos-dropdown-outer', className)} ref={this.dropdownOuterRef}>
+      <div
+        id={targetId}
+        className={classNames('ecos-dropdown-outer', className, { 'ecos-dropdown-outer_open': dropdownOpen })}
+        ref={this.dropdownOuterRef}
+      >
         {this.renderToggle()}
         <Tooltip
           isOpen={dropdownOpen}
