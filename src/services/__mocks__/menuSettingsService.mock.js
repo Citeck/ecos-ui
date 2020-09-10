@@ -50,6 +50,21 @@ export const ITEMS_INPUT = [
     type: 'SECTION',
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
     config: {}
+  },
+  {
+    id: 'JOURNAL_1',
+    label: 'menu.header.tasks',
+    type: 'JOURNAL',
+    icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
+    config: {}
+  },
+  {
+    id: 'JOURNAL_2',
+    label: 'menu.header.tasks',
+    type: 'JOURNAL',
+    hidden: true,
+    icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
+    config: {}
   }
 ];
 
@@ -66,7 +81,7 @@ export const ITEMS_OUTPUT = [
     config: { ...ITEMS_INPUT[0].config },
     items: [],
     locked: !!ITEMS_INPUT[0].hidden,
-    draggable: ![].includes(ITEMS_INPUT[0].type)
+    draggable: false
   },
   {
     id: ITEMS_INPUT[1].id,
@@ -80,7 +95,7 @@ export const ITEMS_OUTPUT = [
     config: { ...ITEMS_INPUT[1].config },
     items: [],
     locked: !!ITEMS_INPUT[1].hidden,
-    draggable: ![].includes(ITEMS_INPUT[1].type)
+    draggable: false
   },
   {
     id: ITEMS_INPUT[2].id,
@@ -91,7 +106,7 @@ export const ITEMS_OUTPUT = [
     config: { ...ITEMS_INPUT[2].config },
     items: [],
     locked: !!ITEMS_INPUT[2].hidden,
-    draggable: ![].includes(ITEMS_INPUT[2].type)
+    draggable: true
   },
   {
     id: ITEMS_INPUT[3].id,
@@ -102,7 +117,7 @@ export const ITEMS_OUTPUT = [
     config: { ...ITEMS_INPUT[3].config },
     items: [],
     locked: !!ITEMS_INPUT[3].hidden,
-    draggable: ![].includes(ITEMS_INPUT[3].type)
+    draggable: false
   },
   {
     config: {},
@@ -144,13 +159,13 @@ export const ACTIONS = {
   },
   ACTIVE_ON: {
     className: 'ecos-menu-settings-editor-items__action_no-hide',
-    icon: 'icon-on',
+    icon: 'icon-eye-show',
     text: 'menu-settings.editor-items.action.hide',
     type: 'ACTIVE'
   },
   ACTIVE_OFF: {
     className: 'ecos-menu-settings-editor-items__action_no-hide',
-    icon: 'icon-off',
+    icon: 'icon-eye-hide',
     text: 'menu-settings.editor-items.action.show',
     type: 'ACTIVE'
   }

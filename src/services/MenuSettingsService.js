@@ -64,7 +64,7 @@ export default class MenuSettingsService {
     permissions.hideable &&
       actions.push({
         type: ms.ActionTypes.ACTIVE,
-        icon: item.hidden ? 'icon-off' : 'icon-on',
+        icon: item.hidden ? 'icon-eye-hide' : 'icon-eye-show',
         className: 'ecos-menu-settings-editor-items__action_no-hide',
         text: item.hidden ? 'menu-settings.editor-items.action.show' : 'menu-settings.editor-items.action.hide'
       });
@@ -80,7 +80,7 @@ export default class MenuSettingsService {
     return {
       editable: MenuSettingsService.isKnownType(item.type) && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
       removable: ![].includes(item.type),
-      draggable: ![].includes(item.type),
+      draggable: knownType && ![].includes(item.type),
       hideable: ![].includes(item.type),
       hasIcon: ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type)
     };
@@ -89,7 +89,7 @@ export default class MenuSettingsService {
   static getActiveActions(item) {
     const availableActions = MenuSettingsService.getAvailableActions(item);
 
-    return availableActions.filter(act => !isExistValue(get(act, 'when.hidden')) || act.when.hidden === item.hidden);
+    return availableActions.filter(act => !isExistValue(get(act, 'when.hidden')) || act.when.hidden === !!item.hidden);
   }
 
   static processAction = ({ items: original, action, id, data }) => {

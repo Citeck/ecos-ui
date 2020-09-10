@@ -168,17 +168,27 @@ describe('Menu Settings Service', () => {
     check(data, 'getActionPermissions');
   });
 
-  describe('Method getActiveActions', () => {
+  describe('Method getActiveActions (default hidden = true)', () => {
     const data = [
       {
-        title: 'Available actions - 3, but active action - 1 (active toggle)',
-        input: ITEMS_INPUT[5],
-        output: [ACTIONS.ACTIVE_ON]
-      },
-      {
-        title: 'Available actions - 2, active action - 2 (delete, active toggle)',
+        title: `${ITEMS_INPUT[0].type} > hidden ${ITEMS_INPUT[0].hidden} > Available actions - 2`,
         input: ITEMS_INPUT[0],
         output: [ACTIONS.DELETE, ACTIONS.ACTIVE_ON]
+      },
+      {
+        title: `${ITEMS_INPUT[5].type} > hidden ${ITEMS_INPUT[5].hidden} > Available actions - 3`,
+        input: ITEMS_INPUT[5],
+        output: [ACTIONS.EDIT, ACTIONS.DELETE, ACTIONS.ACTIVE_ON]
+      },
+      {
+        title: `${ITEMS_INPUT[6].type} > hidden ${ITEMS_INPUT[6].hidden} > Available actions - 2`,
+        input: ITEMS_INPUT[6],
+        output: [ACTIONS.DELETE, ACTIONS.ACTIVE_ON]
+      },
+      {
+        title: `${ITEMS_INPUT[7].type} > hidden ${ITEMS_INPUT[7].hidden} > Available actions - 1`,
+        input: ITEMS_INPUT[7],
+        output: [ACTIONS.ACTIVE_OFF]
       }
     ];
 

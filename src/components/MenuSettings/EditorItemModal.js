@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
-import { extractLabel, t } from '../../helpers/util';
+import { extractLabel, packInLabel, t } from '../../helpers/util';
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings as MS } from '../../constants/menu';
 import IconSelect from '../IconSelect';
@@ -65,15 +65,16 @@ function EditorItemModal({ item, type, onClose, onSave, action }) {
     setOpenSelectIcon(false);
   };
 
-  const isValid = () => {
-    return !label;
+  const isNotValid = () => {
+    const _label = packInLabel(label);
+
+    return Object.values(_label).every(val => !val) || (hasUrl && !url);
   };
 
   const title =
-    (action === MS.ActionTypes.CREATE ? t(Labels.MODAL_TITLE_ADD) : t(Labels.MODAL_TITLE_EDIT)) +
-    ': ' +
-    t(type.label) +
-    (!!item ? ` "${extractLabel(item.label)}"` : '');
+    action === MS.ActionTypes.CREATE
+      ? t(Labels.MODAL_TITLE_ADD, { type: t(type.label) })
+      : t(Labels.MODAL_TITLE_EDIT, { type: t(type.label), name: extractLabel(item.label) });
 
   return (
     <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={title}>
@@ -112,7 +113,7 @@ function EditorItemModal({ item, type, onClose, onSave, action }) {
 
       <div className="ecos-menu-editor-item__buttons">
         <Btn onClick={handleCancel}>{t(Labels.MODAL_BTN_CANCEL)}</Btn>
-        <Btn onClick={handleApply} className="ecos-btn_blue ecos-btn_hover_light-blue" disabled={isValid()}>
+        <Btn onClick={handleApply} className="ecos-btn_blue ecos-btn_hover_light-blue" disabled={isNotValid()}>
           {!!item ? t(Labels.MODAL_BTN_EDIT) : t(Labels.MODAL_BTN_ADD)}
         </Btn>
       </div>
