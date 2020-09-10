@@ -1,16 +1,15 @@
 import MenuSettingsService from '../MenuSettingsService';
-import { MenuTypes } from '../../constants/menu';
+import { MenuSettings as ms, MenuTypes } from '../../constants/menu';
 import {
+  ACTIONS,
+  ACTIONS_BY_TYPE,
+  ACTIONS_ON_MENU_ITEMS,
+  AVAILABLE_CREATE_OPTIONS,
+  CREATE_OPTIONS,
   ITEMS_INPUT,
   ITEMS_OUTPUT,
-  ACTIONS_BY_TYPE,
-  PERMISSIONS_BY_TYPE,
-  ACTIONS,
-  ACTIONS_ON_MENU_ITEMS,
-  CREATE_OPTIONS,
-  AVAILABLE_CREATE_OPTIONS
+  PERMISSIONS_BY_TYPE
 } from '../__mocks__/menuSettingsService.mock';
-import { MenuSettings as ms } from '../../constants/menu';
 
 function check(data, method) {
   data.forEach(item => {
@@ -18,7 +17,7 @@ function check(data, method) {
       let result;
 
       if (typeof MenuSettingsService[method] === 'function') {
-        result = MenuSettingsService[method](item.input);
+        result = MenuSettingsService[method](item.input, item.params);
       } else {
         result = MenuSettingsService[method];
       }
@@ -226,7 +225,7 @@ describe('Menu Settings Service', () => {
   describe('Property createOptions', () => {
     const data = [
       {
-        title: 'Create options: 5 items',
+        title: `Create options: ${CREATE_OPTIONS.length} items`,
         input: null,
         output: CREATE_OPTIONS
       }
@@ -236,13 +235,10 @@ describe('Menu Settings Service', () => {
   });
 
   describe('Method getAvailableCreateOptions', () => {
-    const data = [
-      {
-        title: 'Available create options count: 5',
-        input: AVAILABLE_CREATE_OPTIONS[0][0],
-        output: AVAILABLE_CREATE_OPTIONS[0][1]
-      }
-    ];
+    const data = AVAILABLE_CREATE_OPTIONS.map(([input, params, output]) => {
+      const title = `Type: ${input && input.type} Level:  ${params && params.level} Available create options count: ${output.length}`;
+      return { title, input, params, output };
+    });
 
     check(data, 'getAvailableCreateOptions');
   });
