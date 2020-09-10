@@ -71,57 +71,11 @@
   }
 }
 
-%image {
-  width: 20px;
-  height: 20px;
-  object-fit: cover;
-}
-
 .ecos-ml-text {
-  position: relative;
-
-  &__image {
-    @extend %image;
-
-    position: absolute;
-    right: 13px;
-    top: 0;
-    bottom: 0;
-    margin: auto 0;
-    cursor: pointer;
-  }
-
   &__input {
-    padding-right: 35px;
-  }
-
-  &__tooltip {
-    .tooltip-inner {
-      overflow: hidden;
-      padding: 0;
-    }
-
-    &-lang {
-      padding: 5px 15px;
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-
-      &:hover {
-        color: #7396cd;
-      }
-
-      &-label {
-        font-style: normal;
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-standard;
-        line-height: 18px;
-        margin-right: 10px;
-      }
-
-      &-image {
-        @extend %image;
-      }
+    &:focus,
+    &:hover {
+      border-color: $color-blue-light;
     }
   }
 }

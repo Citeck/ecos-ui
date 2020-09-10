@@ -19,6 +19,18 @@
   &::placeholder {
     color: $color-gray-5;
   }
+
+  &__ml {
+    &-image {
+      margin: unset;
+      left: 8px;
+      top: calc(100% - 20px - 8px);
+    }
+
+    &-input {
+      padding: 11px 15px;
+    }
+  }
 }
 
 textarea:not(:disabled).textarea:focus {
