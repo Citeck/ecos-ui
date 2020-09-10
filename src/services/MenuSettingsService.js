@@ -80,7 +80,7 @@ export default class MenuSettingsService {
     return {
       editable: MenuSettingsService.isKnownType(item.type) && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
       removable: ![].includes(item.type),
-      draggable: knownType && ![].includes(item.type),
+      draggable: MenuSettingsService.isKnownType(item.type) && ![].includes(item.type),
       hideable: ![].includes(item.type),
       hasIcon: ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type)
     };
