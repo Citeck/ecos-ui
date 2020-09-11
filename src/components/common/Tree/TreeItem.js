@@ -102,9 +102,9 @@ class TreeItem extends Component {
   };
 
   handleActionItem = action => {
-    const { item, onClickAction } = this.props;
+    const { item, level, onClickAction } = this.props;
 
-    onClickAction && onClickAction({ action, item });
+    onClickAction && onClickAction({ action, item, level });
   };
 
   renderArrow() {

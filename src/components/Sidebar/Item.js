@@ -16,6 +16,7 @@ import SidebarService from '../../services/sidebar';
 import { EcosIcon, Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemLink } from './item-components';
+import { selectIsNewUIAvailable } from '../../selectors/user';
 
 class Item extends React.Component {
   static propTypes = {
@@ -86,7 +87,7 @@ class Item extends React.Component {
     }
   };
 
-  renderContent = React.memo(({ isOpen, data, styleProps: { noIcon, isSeparator } }) => {
+  renderContent = React.memo(({ isOpen, data, styleProps: { noIcon } }) => {
     const label = extractLabel(data.label);
     let iconCode;
     let iconData;
@@ -99,7 +100,7 @@ class Item extends React.Component {
 
     return (
       <>
-        {!noIcon && !isSeparator && (
+        {!noIcon && (
           <EcosIcon family="menu-items" data={iconData} className="ecos-sidebar-item__icon" code={iconCode} title={isOpen ? '' : label} />
         )}
         <div className="ecos-sidebar-item__label" title={label}>
@@ -110,8 +111,8 @@ class Item extends React.Component {
   });
 
   renderLabel() {
-    const { isSiteDashboardEnable, data, isOpen, styleProps } = this.props;
-    const extraParams = { isSiteDashboardEnable };
+    const { isSiteDashboardEnable, data, isOpen, styleProps, isNewUIAvailable } = this.props;
+    const extraParams = { isSiteDashboardEnable, isNewUIAvailable };
     const contentProps = { data, isOpen, styleProps };
 
     if (this.collapsible || styleProps.isSeparator) {
@@ -205,7 +206,8 @@ class Item extends React.Component {
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
   isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable,
-  isMobile: state.view.isMobile
+  isMobile: state.view.isMobile,
+  isNewUIAvailable: selectIsNewUIAvailable(state)
 });
 
 const mapDispatchToProps = dispatch => ({

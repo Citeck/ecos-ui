@@ -16,7 +16,7 @@ import {
   setFooter,
   setLeftMenuEditable
 } from '../actions/app';
-import { validateUserFailure, validateUserSuccess } from '../actions/user';
+import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
 import { getMenuConfig, setMenuConfig } from '../actions/menu';
 import PageService from '../services/PageService';
@@ -31,6 +31,7 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
         yield put(validateUserFailure());
       } else {
         const resp = yield call(api.user.getUserData);
+
         if (!resp.success) {
           yield put(validateUserFailure());
         } else {
@@ -40,6 +41,10 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
           // TODO remove in future: see src/helpers/util.js getCurrentUserName()
           lodashSet(window, 'Alfresco.constants.USERNAME', lodashGet(resp.payload, 'userName'));
         }
+
+        const isNewUIAvailable = yield call(api.user.checkNewUIAvailableStatus);
+
+        yield put(setNewUIAvailableStatus(isNewUIAvailable));
       }
     } catch (e) {
       yield put(validateUserFailure());
