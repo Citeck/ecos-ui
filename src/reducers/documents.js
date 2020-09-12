@@ -21,6 +21,7 @@ import {
   setTypeSettings,
   setTypeSettingsFinally,
   setUploadError,
+  updateVersion,
   uploadFiles,
   uploadFilesFinally
 } from '../actions/documents';
@@ -198,6 +199,13 @@ export default handleActions(
         ...state[payload.key],
         uploadError: payload.message,
         countFilesError: ''
+      }
+    }),
+    [updateVersion]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        isUploadingFile: true
       }
     }),
     [uploadFilesFinally]: (state, { payload }) => ({

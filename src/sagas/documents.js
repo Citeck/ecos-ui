@@ -382,7 +382,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
      * update version
      */
     if (!type.multiple && type.countDocuments > 0) {
-      yield put(updateVersion(payload));
+      yield call(sagaUpdateVersion, { api, logger }, { payload });
 
       return;
     }
@@ -413,7 +413,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
       );
     });
 
-    yield put(getDocumentsByType({ ...payload, delay: 0 }));
+    yield put(getDocumentsByType({ ...payload }));
 
     NotificationManager.success(
       t(payload.files.length > 1 ? 'documents-widget.notification.add-many.success' : 'documents-widget.notification.add-one.success')
@@ -427,6 +427,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     );
   } finally {
     yield put(uploadFilesFinally(payload.key));
+    yield put(getDocumentsByTypes({ ...payload, delay: 1000 }));
   }
 }
 
@@ -464,6 +465,10 @@ function* sagaGetTypeSettings({ api, logger }, { payload }) {
 
 function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
   try {
+    if (payload.delay !== undefined) {
+      yield delay(payload.delay);
+    }
+
     const documentsByTypes = {};
     const documentsIds = [];
     const types = yield select(state => selectDynamicTypes(state, payload.key));

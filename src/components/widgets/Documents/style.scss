@@ -728,6 +728,16 @@
         width: 100%;
         padding: 15px;
       }
+
+      &__progress {
+        height: 6px;
+        background: $color-gray-6;
+
+        .progress-bar {
+          background: $color-blue-dark;
+          border-radius: 100px;
+        }
+      }
     }
 
     &-document {

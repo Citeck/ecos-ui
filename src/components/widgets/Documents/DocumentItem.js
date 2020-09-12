@@ -16,19 +16,20 @@ const DocumentItem = props => {
     [documentFields.modified]: modified,
     [documentFields.loadedBy]: loadedBy,
     actions,
-    onClick
+    onClickAction
   } = props;
   const handleAction = action => {
     if (UNDOABLE_ACTIONS.includes(action.id)) {
       setCountDown(CANCELED_TIME);
       setAction(action);
     } else {
-      onClick(id, action);
+      onClickAction(id, action);
     }
   };
   const handleCancelAction = () => {
     clearTimer(timer);
     setCountDown(0);
+    // onClickAction(false);
   };
   const clearTimer = timer => {
     window.clearTimeout(timer);
@@ -51,7 +52,7 @@ const DocumentItem = props => {
       setCountDown(count);
 
       if (count <= 0) {
-        onClick(id, action);
+        onClickAction(id, action);
         setAction(null);
         clearTimer(timer);
       }

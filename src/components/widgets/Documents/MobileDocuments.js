@@ -1,8 +1,8 @@
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 
-import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet';
 import { connect } from 'react-redux';
 import {
@@ -11,6 +11,7 @@ import {
   selectDynamicTypes,
   selectStateByKey,
   selectStateId,
+  selectUploadingFileStatus,
   selectWidgetTitle
 } from '../../../selectors/documents';
 import { getStateId } from '../../../helpers/redux';
@@ -20,18 +21,107 @@ import { execRecordsAction, getDocumentsByTypes, initStore, uploadFiles } from '
 import TypeItem from './TypeItem';
 import DocumentItem from './DocumentItem';
 import { documentFields } from '../../../constants/documents';
+import { FileStatuses } from '../../../helpers/ecosXhr';
 
 class MobileDocuments extends Base {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      ...this.state,
+      actionInProgress: false,
+      uploadPercent: null
+    };
+  }
   componentDidUpdate(prevProps, prevState) {
-    super.componentDidUpdate(prevProps, prevState);
+    // super.componentDidUpdate(prevProps, prevState);
+
+    if (prevProps.isUploadingFile && !this.props.isUploadingFile && (prevState.isOpenUploadModal || prevState.isDragFiles)) {
+      this.uploadingComplete();
+      // this.props.getDocumentsByTypes();
+    }
 
     if (!prevProps.stateId && this.props.stateId) {
       this.props.getDocumentsByTypes();
     }
+
+    if (prevState.actionInProgress && !this.state.actionInProgress) {
+      this.props.getDocumentsByTypes();
+    }
+
+    if (prevState.uploadPercent !== 100 && this.state.uploadPercent === 100) {
+      this.clearUploadStatus();
+    }
   }
 
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    this.clearUploadStatus.cancel();
+  }
+
+  clearUploadStatus = debounce(() => {
+    this.setState({
+      selectedTypeForLoading: '',
+      uploadPercent: null
+    });
+  }, 500);
+
+  updateUploadStatus = data => {
+    const { uploadPercent } = this.state;
+    let percent = data.percent;
+
+    switch (data.status) {
+      case FileStatuses.UPLOADING:
+        percent = percent === 100 ? uploadPercent : percent;
+        break;
+      case FileStatuses.HEADERS_RECEIVED:
+        percent = percent === 100 ? uploadPercent : percent;
+        break;
+      case FileStatuses.DONE:
+        percent = 100;
+        break;
+      default:
+        percent = data.percent;
+    }
+
+    this.setState({ uploadPercent: percent });
+  };
+
+  handleEndAction = () => {
+    this.setState({ actionInProgress: false });
+  };
+
   handleClickAction = (record, action) => {
-    this.props.execRecordsAction(record, action /*, this.handleSuccessRecordsAction*/);
+    if (!record) {
+      return;
+    }
+
+    this.setState({ actionInProgress: true });
+
+    this.props.execRecordsAction(record, action, this.handleEndAction);
+  };
+
+  handleSelectUploadFiles = (files, callback) => {
+    const { selectedTypeForLoading } = this.state;
+
+    this.setState({ isOpenUploadModal: false });
+
+    if (this.getformId(selectedTypeForLoading)) {
+      this.props.onUploadFiles({
+        files,
+        type: get(selectedTypeForLoading, 'type'),
+        openForm: this.openForm,
+        callback: this.updateUploadStatus
+      });
+
+      return;
+    }
+
+    this.props.onUploadFiles({
+      files,
+      type: get(selectedTypeForLoading, 'type'),
+      callback: this.updateUploadStatus
+    });
   };
 
   renderPanel() {
@@ -56,16 +146,28 @@ class MobileDocuments extends Base {
   }
 
   renderTypes() {
-    const { dynamicTypes, documentsByTypes } = this.props;
+    const { dynamicTypes, documentsByTypes, isUploadingFile } = this.props;
+    const { isLoadingUploadingModal, uploadPercent, selectedTypeForLoading } = this.state;
 
     if (isEmpty(dynamicTypes)) {
       return null;
     }
 
     return dynamicTypes.map(item => (
-      <TypeItem key={item.type} type={item} onUpload={this.handleToggleUploadModalByType}>
+      <TypeItem
+        key={item.type}
+        type={item}
+        canUploaded={!isUploadingFile}
+        onUpload={this.handleToggleUploadModalByType}
+        uploadPercent={get(selectedTypeForLoading, 'type') === item.type ? uploadPercent : null}
+      >
         {get(documentsByTypes, [item.type, 'documents'], []).map(document => (
-          <DocumentItem key={document[documentFields.id]} {...document} onClick={this.handleClickAction} />
+          <DocumentItem
+            canUploaded={!isLoadingUploadingModal}
+            key={document[documentFields.id]}
+            {...document}
+            onClickAction={this.handleClickAction}
+          />
         ))}
       </TypeItem>
     ));
@@ -108,6 +210,7 @@ const mapStateToProps = (state, ownProps) => {
     dynamicTypes: selectDynamicTypes(...baseParams),
     documentsByTypes: selectDocumentsByTypes(...baseParams),
     availableTypes: selectAvailableTypes(...baseParams),
+    isUploadingFile: selectUploadingFileStatus(...baseParams),
     isMobile: state.view.isMobile
   };
 };

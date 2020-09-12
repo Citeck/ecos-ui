@@ -236,3 +236,8 @@ export const selectDocumentsByTypes = createSelector(
     );
   }
 );
+
+export const selectUploadingFileStatus = createSelector(
+  selectState,
+  ownProps => get(ownProps, 'isUploadingFile')
+);

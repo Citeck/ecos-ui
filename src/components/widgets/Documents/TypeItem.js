@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Collapse } from 'reactstrap';
+import { Collapse, Progress } from 'reactstrap';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -38,9 +38,12 @@ const TypeItem = props => {
       <Collapse isOpen={isOpen} className="ecos-docs-m-type__body">
         {props.children}
         <div className="ecos-docs-m__panel">
-          <Btn className="ecos-docs-m-type__upload ecos-btn_blue" onClick={handleUpload}>
-            {t('Добавить файлы')}
-          </Btn>
+          {props.uploadPercent === null && (
+            <Btn disabled={!props.canUploaded} className="ecos-docs-m-type__upload ecos-btn_blue" onClick={handleUpload}>
+              {t('Добавить файлы')}
+            </Btn>
+          )}
+          {props.uploadPercent !== null && <Progress className="ecos-docs-m-type__progress" value={props.uploadPercent} />}
         </div>
       </Collapse>
     </div>
