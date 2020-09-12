@@ -10,7 +10,7 @@ export default React.memo(props => {
     statusFilter,
     selectedType,
     typesStatuses,
-    tableFilter,
+    searchText,
     onSearch,
     onChangeFilter,
     renderUploadButton,
@@ -22,7 +22,7 @@ export default React.memo(props => {
   return (
     <div ref={forwardedRef} className={classNames('ecos-docs__panel', { 'ecos-docs__panel_mobile': isMobile })}>
       {renderUploadButton()}
-      <Search text={tableFilter} cleaner liveSearch searchWithEmpty onSearch={onSearch} className="ecos-docs__panel-search" />
+      <Search text={searchText} cleaner liveSearch searchWithEmpty onSearch={onSearch} className="ecos-docs__panel-search" />
       {!selectedType && dynamicTypes.length > 1 && (
         <Dropdown
           withScrollbar

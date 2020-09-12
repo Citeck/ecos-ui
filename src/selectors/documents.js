@@ -1,10 +1,11 @@
 import get from 'lodash/get';
 import omit from 'lodash/omit';
+import isEmpty from 'lodash/isEmpty';
 import { createSelector } from 'reselect';
 
 import { initialState } from '../reducers/documents';
 import { t } from '../helpers/export/util';
-import { documentFields, Labels } from '../constants/documents';
+import { documentFields, Labels, statusesKeys } from '../constants/documents';
 import { DataFormatTypes } from '../constants';
 import { getOutputFormat } from '../helpers/util';
 
@@ -240,4 +241,70 @@ export const selectDocumentsByTypes = createSelector(
 export const selectUploadingFileStatus = createSelector(
   selectState,
   ownProps => get(ownProps, 'isUploadingFile')
+);
+
+export const selectFilteredTypes = createSelector(
+  (types, text, status) => ({ types, text, status }),
+  ({ types, text, status }) => {
+    if (isEmpty(types)) {
+      return [];
+    }
+
+    if (isEmpty(text) && isEmpty(status)) {
+      return types;
+    }
+
+    let filteredTypes = types;
+
+    if (!isEmpty(text)) {
+      filteredTypes = filteredTypes.filter(type => {
+        return (
+          get(type, 'name', '')
+            .toLowerCase()
+            .includes(text) ||
+          get(type, documentFields.loadedBy, '')
+            .toLowerCase()
+            .includes(text) ||
+          get(type, documentFields.modified, '')
+            .toLowerCase()
+            .includes(text)
+        );
+      });
+    }
+
+    if (status && status !== statusesKeys.ALL) {
+      filteredTypes = filteredTypes.filter(type => selectTypeStatus(type) === status);
+    }
+
+    return filteredTypes;
+  }
+);
+
+export const selectTypeStatus = createSelector(
+  type => ({
+    countDocuments: type.countDocuments,
+    mandatory: type.mandatory,
+    multiple: type.multiple
+  }),
+  ({ countDocuments, mandatory, multiple }) => {
+    let status = statusesKeys.CAN_ADD_FILE;
+
+    if (countDocuments === 1) {
+      status = statusesKeys.FILE_ADDED;
+    }
+
+    if (countDocuments > 1) {
+      status = statusesKeys.MULTI_FILES_ADDED;
+    }
+
+    if (mandatory && !countDocuments) {
+      status = multiple ? statusesKeys.NEED_ADD_FILES : statusesKeys.NEED_ADD_FILE;
+    }
+
+    if (!countDocuments && !mandatory) {
+      status = multiple ? statusesKeys.CAN_ADD_FILES : statusesKeys.CAN_ADD_FILE;
+    }
+
+    return status;
+  }
 );

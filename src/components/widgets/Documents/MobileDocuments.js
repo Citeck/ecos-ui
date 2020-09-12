@@ -9,7 +9,7 @@ import {
   selectAvailableTypes,
   selectDocumentsByTypes,
   selectDynamicTypes,
-  selectStateByKey,
+  selectFilteredTypes,
   selectStateId,
   selectUploadingFileStatus,
   selectWidgetTitle
@@ -30,9 +30,11 @@ class MobileDocuments extends Base {
     this.state = {
       ...this.state,
       actionInProgress: false,
-      uploadPercent: null
+      uploadPercent: null,
+      typeFilter: ''
     };
   }
+
   componentDidUpdate(prevProps, prevState) {
     // super.componentDidUpdate(prevProps, prevState);
 
@@ -57,6 +59,14 @@ class MobileDocuments extends Base {
   componentWillUnmount() {
     super.componentWillUnmount();
     this.clearUploadStatus.cancel();
+  }
+
+  get filteredDynamicTypes() {
+    const { dynamicTypes } = this.props;
+    const { typeFilter, statusFilter } = this.state;
+    const text = typeFilter.trim().toLowerCase();
+
+    return selectFilteredTypes(dynamicTypes, text, statusFilter);
   }
 
   clearUploadStatus = debounce(() => {
@@ -101,7 +111,7 @@ class MobileDocuments extends Base {
     this.props.execRecordsAction(record, action, this.handleEndAction);
   };
 
-  handleSelectUploadFiles = (files, callback) => {
+  handleSelectUploadFiles = files => {
     const { selectedTypeForLoading } = this.state;
 
     this.setState({ isOpenUploadModal: false });
@@ -124,9 +134,13 @@ class MobileDocuments extends Base {
     });
   };
 
+  handleFilterTypes = typeFilter => {
+    this.setState({ typeFilter });
+  };
+
   renderPanel() {
     const { dynamicTypes } = this.props;
-    const { selectedType, statusFilter, typesStatuses, tableFilter } = this.state;
+    const { selectedType, statusFilter, typesStatuses, typeFilter } = this.state;
 
     return (
       <Panel
@@ -135,9 +149,9 @@ class MobileDocuments extends Base {
         selectedType={selectedType}
         statusFilter={statusFilter}
         typesStatuses={typesStatuses}
-        tableFilter={tableFilter}
+        searchText={typeFilter}
         renderUploadButton={this.renderUploadButton}
-        onSearch={this.handleFilterTable}
+        onSearch={this.handleFilterTypes}
         onChangeFilter={this.handleChangeTypeFilter}
         forwardedRef={this._tablePanel}
         // scrollbarHeightMax={this.tableHeight}
@@ -146,14 +160,14 @@ class MobileDocuments extends Base {
   }
 
   renderTypes() {
-    const { dynamicTypes, documentsByTypes, isUploadingFile } = this.props;
+    const { documentsByTypes, isUploadingFile } = this.props;
     const { isLoadingUploadingModal, uploadPercent, selectedTypeForLoading } = this.state;
 
-    if (isEmpty(dynamicTypes)) {
+    if (isEmpty(this.filteredDynamicTypes)) {
       return null;
     }
 
-    return dynamicTypes.map(item => (
+    return this.filteredDynamicTypes.map(item => (
       <TypeItem
         key={item.type}
         type={item}
@@ -229,7 +243,6 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   };
 };
 
-// selectWidgetTitle
 export default connect(
   mapStateToProps,
   mapDispatchToProps

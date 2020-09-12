@@ -992,7 +992,7 @@ class Base extends BaseWidget {
             selectedType={selectedType}
             statusFilter={statusFilter}
             typesStatuses={typesStatuses}
-            tableFilter={tableFilter}
+            searchText={tableFilter}
             renderUploadButton={this.renderUploadButton}
             onSearch={this.handleFilterTable}
             onChangeFilter={this.handleChangeTypeFilter}
