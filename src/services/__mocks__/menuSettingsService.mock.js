@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings } from '../../constants/menu';
 
@@ -48,10 +50,25 @@ export const ITEMS_INPUT = [
     type: 'SECTION',
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
     config: {}
+  },
+  {
+    id: 'JOURNAL_1',
+    label: 'menu.header.tasks',
+    type: 'JOURNAL',
+    icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
+    config: {}
+  },
+  {
+    id: 'JOURNAL_2',
+    label: 'menu.header.tasks',
+    type: 'JOURNAL',
+    hidden: true,
+    icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
+    config: {}
   }
 ];
 
-export const ITEMS_OUTPUT = [
+export const ITEM_PARAMS_OUTPUT = [
   {
     id: ITEMS_INPUT[0].id,
     label: ITEMS_INPUT[0].label,
@@ -64,7 +81,7 @@ export const ITEMS_OUTPUT = [
     config: { ...ITEMS_INPUT[0].config },
     items: [],
     locked: !!ITEMS_INPUT[0].hidden,
-    draggable: ![].includes(ITEMS_INPUT[0].type)
+    draggable: false
   },
   {
     id: ITEMS_INPUT[1].id,
@@ -78,7 +95,7 @@ export const ITEMS_OUTPUT = [
     config: { ...ITEMS_INPUT[1].config },
     items: [],
     locked: !!ITEMS_INPUT[1].hidden,
-    draggable: ![].includes(ITEMS_INPUT[1].type)
+    draggable: false
   },
   {
     id: ITEMS_INPUT[2].id,
@@ -89,7 +106,7 @@ export const ITEMS_OUTPUT = [
     config: { ...ITEMS_INPUT[2].config },
     items: [],
     locked: !!ITEMS_INPUT[2].hidden,
-    draggable: ![].includes(ITEMS_INPUT[2].type)
+    draggable: true
   },
   {
     id: ITEMS_INPUT[3].id,
@@ -100,7 +117,7 @@ export const ITEMS_OUTPUT = [
     config: { ...ITEMS_INPUT[3].config },
     items: [],
     locked: !!ITEMS_INPUT[3].hidden,
-    draggable: ![].includes(ITEMS_INPUT[3].type)
+    draggable: false
   },
   {
     config: {},
@@ -142,13 +159,13 @@ export const ACTIONS = {
   },
   ACTIVE_ON: {
     className: 'ecos-menu-settings-editor-items__action_no-hide',
-    icon: 'icon-on',
+    icon: 'icon-eye-show',
     text: 'menu-settings.editor-items.action.hide',
     type: 'ACTIVE'
   },
   ACTIVE_OFF: {
     className: 'ecos-menu-settings-editor-items__action_no-hide',
-    icon: 'icon-off',
+    icon: 'icon-eye-hide',
     text: 'menu-settings.editor-items.action.show',
     type: 'ACTIVE'
   }
@@ -168,6 +185,7 @@ export const PERMISSIONS_BY_TYPE = {
     draggable: true,
     editable: true,
     hasIcon: true,
+    hasUrl: false,
     hideable: true,
     removable: true
   },
@@ -175,6 +193,7 @@ export const PERMISSIONS_BY_TYPE = {
     draggable: true,
     editable: false,
     hasIcon: true,
+    hasUrl: false,
     hideable: true,
     removable: true
   },
@@ -182,6 +201,7 @@ export const PERMISSIONS_BY_TYPE = {
     draggable: true,
     editable: true,
     hasIcon: true,
+    hasUrl: true,
     hideable: true,
     removable: true
   },
@@ -189,6 +209,7 @@ export const PERMISSIONS_BY_TYPE = {
     draggable: true,
     editable: false,
     hasIcon: true,
+    hasUrl: false,
     hideable: true,
     removable: true
   },
@@ -196,6 +217,7 @@ export const PERMISSIONS_BY_TYPE = {
     draggable: true,
     editable: true,
     hasIcon: false,
+    hasUrl: false,
     hideable: true,
     removable: true
   }
@@ -690,7 +712,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
       action: 'CREATE',
       data: [
         { id: 'c111aeed-77be-4675-828d-2d4b20432910', label: 'Тестовый', config: { recordRef: 'uiserv/journal@Test' }, type: 'JOURNAL' }
-      ]
+      ],
+      level: 1
     },
     {
       items: [
@@ -6335,29 +6358,26 @@ export const ACTIONS_ON_MENU_ITEMS = {
 };
 
 export const CREATE_OPTIONS = [
-  { key: 'SECTION', forbiddenTypes: [], label: 'menu-item.type.section' },
-  { key: 'JOURNAL', forbiddenTypes: [], forbiddenAllTypes: true, label: 'menu-item.type.journal' },
-  { key: 'ARBITRARY', forbiddenAllTypes: true, label: 'menu-item.type.arbitrary' },
-  { key: 'LINK-CREATE-CASE', forbiddenAllTypes: true, label: 'menu-item.type.link-create-case' },
-  { key: 'HEADER-DIVIDER', forbiddenAllTypes: true, label: 'menu-item.type.header-divider' }
+  { key: 'SECTION', label: 'menu-item.type.section', when: { maxLevel: 0 } },
+  { key: 'HEADER-DIVIDER', label: 'menu-item.type.header-divider', when: { maxLevel: 0, minLevel: 0 } },
+  { key: 'JOURNAL', label: 'menu-item.type.journal', when: { minLevel: 0 } },
+  { key: 'ARBITRARY', label: 'menu-item.type.arbitrary', when: { minLevel: 0 } },
+  { key: 'LINK-CREATE-CASE', label: 'menu-item.type.link-create-case', when: { minLevel: 0 } }
 ];
 
+function _getAvailableOptions(items) {
+  return (items || cloneDeep(CREATE_OPTIONS)).map(item => ({ ...item, id: item.label }));
+}
+
 export const AVAILABLE_CREATE_OPTIONS = [
-  [
-    {
-      id: 'HEADER_TASKS',
-      label: 'menu.header.tasks',
-      type: 'item',
-      hidden: false,
-      icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-      config: {}
-    },
-    [
-      { key: 'SECTION', forbiddenTypes: [], label: 'menu-item.type.section', id: 'menu-item.type.section' },
-      { key: 'JOURNAL', forbiddenTypes: [], forbiddenAllTypes: true, label: 'menu-item.type.journal', id: 'menu-item.type.journal' },
-      { key: 'ARBITRARY', forbiddenAllTypes: true, label: 'menu-item.type.arbitrary', id: 'menu-item.type.arbitrary' },
-      { key: 'LINK-CREATE-CASE', forbiddenAllTypes: true, label: 'menu-item.type.link-create-case', id: 'menu-item.type.link-create-case' },
-      { key: 'HEADER-DIVIDER', forbiddenAllTypes: true, label: 'menu-item.type.header-divider', id: 'menu-item.type.header-divider' }
-    ]
-  ]
+  [undefined, undefined, _getAvailableOptions()],
+  [undefined, { level: -1 }, _getAvailableOptions([CREATE_OPTIONS[0]])],
+  [{ type: 'SECTION' }, { level: -1 }, _getAvailableOptions([CREATE_OPTIONS[0]])],
+  [undefined, { level: 0 }, _getAvailableOptions()],
+  [{ type: 'item' }, { level: 0 }, []],
+  [{ type: 'SECTION' }, { level: 0 }, _getAvailableOptions()],
+  [undefined, { level: 2 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
+  [{ type: 'SECTION' }, { level: 1 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
+  [{ type: 'ARBITRARY' }, { level: 3 }, []],
+  [{ type: 'JOURNAL' }, { level: 2 }, []]
 ];

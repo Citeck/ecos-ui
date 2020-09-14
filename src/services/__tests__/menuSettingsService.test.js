@@ -1,16 +1,15 @@
 import MenuSettingsService from '../MenuSettingsService';
-import { MenuTypes } from '../../constants/menu';
+import { MenuSettings as ms, MenuTypes } from '../../constants/menu';
 import {
-  ITEMS_INPUT,
-  ITEMS_OUTPUT,
-  ACTIONS_BY_TYPE,
-  PERMISSIONS_BY_TYPE,
   ACTIONS,
+  ACTIONS_BY_TYPE,
   ACTIONS_ON_MENU_ITEMS,
+  AVAILABLE_CREATE_OPTIONS,
   CREATE_OPTIONS,
-  AVAILABLE_CREATE_OPTIONS
+  ITEM_PARAMS_OUTPUT,
+  ITEMS_INPUT,
+  PERMISSIONS_BY_TYPE
 } from '../__mocks__/menuSettingsService.mock';
-import { MenuSettings as ms } from '../../constants/menu';
 
 function check(data, method) {
   data.forEach(item => {
@@ -18,7 +17,7 @@ function check(data, method) {
       let result;
 
       if (typeof MenuSettingsService[method] === 'function') {
-        result = MenuSettingsService[method](item.input);
+        result = MenuSettingsService[method](item.input, item.params);
       } else {
         result = MenuSettingsService[method];
       }
@@ -61,22 +60,32 @@ describe('Menu Settings Service', () => {
       {
         title: 'Item with icon (type img)',
         input: ITEMS_INPUT[0],
-        output: ITEMS_OUTPUT[0]
+        output: ITEM_PARAMS_OUTPUT[0],
+        params: { level: 1 }
       },
       {
         title: 'Item with icon (type icon)',
         input: ITEMS_INPUT[1],
-        output: ITEMS_OUTPUT[1]
+        output: ITEM_PARAMS_OUTPUT[1],
+        params: { level: 1 }
       },
       {
         title: 'Item without icon (divider item)',
         input: ITEMS_INPUT[2],
-        output: ITEMS_OUTPUT[2]
+        output: ITEM_PARAMS_OUTPUT[2],
+        params: { level: 1 }
       },
       {
         title: 'Item with default icon',
         input: ITEMS_INPUT[3],
-        output: ITEMS_OUTPUT[3]
+        output: ITEM_PARAMS_OUTPUT[3],
+        params: { level: 1 }
+      },
+      {
+        title: 'Item with undefined icon Level no 1',
+        input: ITEMS_INPUT[4],
+        output: { ...ITEM_PARAMS_OUTPUT[4], icon: undefined },
+        params: { level: 0 }
       }
     ];
 
@@ -142,44 +151,65 @@ describe('Menu Settings Service', () => {
       {
         title: `Type ${ms.ItemTypes.SECTION} has all permissions`,
         input: { type: ms.ItemTypes.SECTION },
-        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.SECTION]
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.SECTION],
+        params: { level: 1 }
       },
       {
         title: `Type ${ms.ItemTypes.JOURNAL} has all permissions, except edit`,
         input: { type: ms.ItemTypes.JOURNAL },
-        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.JOURNAL]
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.JOURNAL],
+        params: { level: 1 }
       },
       {
         title: `Type ${ms.ItemTypes.ARBITRARY} has all permissions`,
         input: { type: ms.ItemTypes.ARBITRARY },
-        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.ARBITRARY]
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.ARBITRARY],
+        params: { level: 1 }
       },
       {
         title: `Type ${ms.ItemTypes.LINK_CREATE_CASE} has all permissions, except edit`,
         input: { type: ms.ItemTypes.LINK_CREATE_CASE },
-        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.LINK_CREATE_CASE]
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.LINK_CREATE_CASE],
+        params: { level: 1 }
+      },
+      {
+        title: `Type ${ms.ItemTypes.LINK_CREATE_CASE} has all permissions, except edit and level = 0 > hasIcon = false`,
+        input: { type: ms.ItemTypes.LINK_CREATE_CASE },
+        output: { ...PERMISSIONS_BY_TYPE[ms.ItemTypes.LINK_CREATE_CASE], hasIcon: false },
+        params: { level: 0 }
       },
       {
         title: `Type ${ms.ItemTypes.HEADER_DIVIDER} has all permissions, except edit and hasIcon`,
         input: { type: ms.ItemTypes.HEADER_DIVIDER },
-        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.HEADER_DIVIDER]
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.HEADER_DIVIDER],
+        params: { level: 1 }
       }
     ];
 
     check(data, 'getActionPermissions');
   });
 
-  describe('Method getActiveActions', () => {
+  describe('Method getActiveActions (default hidden = true)', () => {
     const data = [
       {
-        title: 'Available actions - 3, but active action - 1 (active toggle)',
-        input: ITEMS_INPUT[5],
-        output: [ACTIONS.ACTIVE_ON]
-      },
-      {
-        title: 'Available actions - 2, active action - 2 (delete, active toggle)',
+        title: `${ITEMS_INPUT[0].type} > hidden ${ITEMS_INPUT[0].hidden} > Available actions - 2`,
         input: ITEMS_INPUT[0],
         output: [ACTIONS.DELETE, ACTIONS.ACTIVE_ON]
+      },
+      {
+        title: `${ITEMS_INPUT[5].type} > hidden ${ITEMS_INPUT[5].hidden} > Available actions - 3`,
+        input: ITEMS_INPUT[5],
+        output: [ACTIONS.EDIT, ACTIONS.DELETE, ACTIONS.ACTIVE_ON]
+      },
+      {
+        title: `${ITEMS_INPUT[6].type} > hidden ${ITEMS_INPUT[6].hidden} > Available actions - 2`,
+        input: ITEMS_INPUT[6],
+        output: [ACTIONS.DELETE, ACTIONS.ACTIVE_ON]
+      },
+      {
+        title: `${ITEMS_INPUT[7].type} > hidden ${ITEMS_INPUT[7].hidden} > Available actions - 1`,
+        input: ITEMS_INPUT[7],
+        output: [ACTIONS.ACTIVE_OFF]
       }
     ];
 
@@ -226,7 +256,7 @@ describe('Menu Settings Service', () => {
   describe('Property createOptions', () => {
     const data = [
       {
-        title: 'Create options: 5 items',
+        title: `Create options: ${CREATE_OPTIONS.length} items`,
         input: null,
         output: CREATE_OPTIONS
       }
@@ -236,13 +266,10 @@ describe('Menu Settings Service', () => {
   });
 
   describe('Method getAvailableCreateOptions', () => {
-    const data = [
-      {
-        title: 'Available create options count: 5',
-        input: AVAILABLE_CREATE_OPTIONS[0][0],
-        output: AVAILABLE_CREATE_OPTIONS[0][1]
-      }
-    ];
+    const data = AVAILABLE_CREATE_OPTIONS.map(([input, params, output]) => {
+      const title = `Type: ${input && input.type} Level:  ${params && params.level} Available create options count: ${output.length}`;
+      return { title, input, params, output };
+    });
 
     check(data, 'getAvailableCreateOptions');
   });

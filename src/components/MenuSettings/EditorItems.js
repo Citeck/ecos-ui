@@ -66,7 +66,7 @@ class EditorItems extends React.Component {
     }
   };
 
-  handleActionItem = ({ action, item }) => {
+  handleActionItem = ({ action, item, level }) => {
     const { items, setMenuItems } = this.props;
 
     if (action === ms.ActionTypes.DELETE) {
@@ -74,7 +74,8 @@ class EditorItems extends React.Component {
         title: '',
         text: t('menu-settings.message.delete-item', { name: extractLabel(item.label) }),
         onDelete: () => {
-          setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items }).items);
+          const result = MenuSettingsService.processAction({ action, id: item.id, items });
+          setMenuItems(result.items);
         }
       });
       return;
@@ -83,11 +84,11 @@ class EditorItems extends React.Component {
     if (action === ms.ActionTypes.EDIT) {
       const type = MenuSettingsService.createOptions.find(o => o.key === item.type);
 
-      type && this.handleChooseOption({ type, item, action });
+      type && this.handleChooseOption({ type, item, action, level });
       return;
     }
 
-    setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items }).items);
+    setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, level }).items);
   };
 
   handleClickIcon = item => {
@@ -118,7 +119,8 @@ class EditorItems extends React.Component {
         action: editItemInfo.action,
         items,
         id: get(editItemInfo, 'item.id'),
-        data: { ...data, type: get(editItemInfo, 'type.key') }
+        data: { ...data, type: get(editItemInfo, 'type.key') },
+        level: editItemInfo.level
       });
       setMenuItems(result.items);
       setLastAddedItems(result.newItems);
@@ -154,6 +156,7 @@ class EditorItems extends React.Component {
         onClose={handleHideModal}
         onSave={handleSave}
         action={editItemInfo.action}
+        params={{ level: editItemInfo.level }}
       />
     );
   };
@@ -171,7 +174,8 @@ class EditorItems extends React.Component {
         action: ms.ActionTypes.EDIT,
         items,
         id: editItemIcon.id,
-        data: { icon }
+        data: { icon },
+        level: editItemIcon.level
       });
 
       setMenuItems(result.items);
@@ -190,25 +194,25 @@ class EditorItems extends React.Component {
     ) : null;
   };
 
-  renderExtraComponents = ({ item, level, isOpen }) => {
+  renderExtraComponents = ({ item, level = -1, isOpen }) => {
     const components = [];
     const id = get(item, 'id');
 
-    if (!item || (level < 3 && !item.hidden && !MenuSettingsService.isChildless(item))) {
-      const createOptions = MenuSettingsService.getAvailableCreateOptions(item);
+    if (!item || (!item.hidden && !MenuSettingsService.isChildless(item))) {
+      const createOptions = MenuSettingsService.getAvailableCreateOptions(item, { level });
 
-      createOptions &&
-        createOptions.length &&
+      createOptions.length &&
         components.push(
           <DropdownOuter
             key={`${id}--dropdown`}
             source={createOptions}
             valueField={'id'}
             titleField={'label'}
-            onChange={type => this.handleChooseOption({ type, item, action: ms.ActionTypes.CREATE })}
+            onChange={type => this.handleChooseOption({ type, item, action: ms.ActionTypes.CREATE, level: level + 1 })}
             isStatic
             controlLabel={t(Labels.BTN_ADD)}
             controlIcon="icon-plus"
+            className="ecos-menu-settings-editor-items__block-dropdown"
             controlClassName="ecos-btn_hover_light-blue2 ecos-btn_sq_sm"
             outClassName="ecos-menu-settings-editor-items__menu-dropdown"
             menuClassName="ecos-menu-settings-editor-items__menu-options"
@@ -218,7 +222,6 @@ class EditorItems extends React.Component {
 
     if (item && [ms.ItemTypes.JOURNAL].includes(item.type)) {
       const displayCount = get(item, 'config.displayCount');
-      const count = String(get(item, 'params.count', '***'));
 
       components.push(
         <div
@@ -227,10 +230,9 @@ class EditorItems extends React.Component {
             'ecos-menu-settings-editor-items__action-count_active': displayCount,
             'ecos-menu-settings-editor-items__action-count_disabled': item.hidden
           })}
-          onClick={() => this.handleActionItem({ action: ms.ActionTypes.DISPLAY_COUNT, item })}
+          onClick={() => this.handleActionItem({ action: ms.ActionTypes.DISPLAY_COUNT, level: 0, item })}
         >
-          <Badge text={count} />
-          <span>{displayCount ? t('menu-settings.editor-items.action.count-off') : t('menu-settings.editor-items.action.count-on')}</span>
+          <Badge text={displayCount ? t('menu-settings.editor-items.action.count-off') : t('menu-settings.editor-items.action.count-on')} />
         </div>
       );
     }
