@@ -16,5 +16,6 @@ export const setMessage = createAction(prefix + 'SET_PROFILE_MESSAGE');
 export const setChangePassword = createAction(prefix + 'RESULT_USER_PASSWORD');
 export const setUserThumbnail = createAction(prefix + 'SET_USER_THUMBNAIL');
 export const setIsAuthenticated = createAction(prefix + 'SET_USER_IS_AUTHENTICATED');
+export const setNewUIAvailableStatus = createAction(prefix + 'SET_NEW_UI_AVAILABLE_STATUS');
 
 export const togglePasswordModal = createAction(prefix + 'TOGGLE_PASSWORD_MODAL');

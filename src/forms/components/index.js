@@ -27,6 +27,7 @@ import DataGridAssoc from './custom/datagridAssoc';
 import EcosSelect from './custom/ecosSelect';
 import HorizontalLine from './custom/horizontalLine';
 import MLText from './custom/mlText';
+import MLTextarea from './custom/mlTextarea';
 import SelectJournal from './custom/selectJournal';
 import SelectAction from './custom/selectAction';
 import SelectOrgstruct from './custom/selectOrgstruct';
@@ -51,6 +52,7 @@ Components.setComponents({
   horizontalLine: HorizontalLine,
   htmlelement: HTML,
   mlText: MLText,
+  mlTextarea: MLTextarea,
   nested: Nested,
   number: Number,
   panel: Panel,

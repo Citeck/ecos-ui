@@ -89,13 +89,13 @@
         margin-right: 18px;
       }
 
-      &-custom-components,
+      &-custom-components > :nth-child(n),
       .ecos-tree__action {
         display: none;
       }
 
       &:hover {
-        #{$element}-custom-components,
+        #{$element}-custom-components > :nth-child(n),
         .ecos-tree__action {
           display: inline-block;
         }

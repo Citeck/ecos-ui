@@ -17,8 +17,10 @@ import { SourcesId } from '../../constants';
 import Records from '../Records';
 import Logo from './Logo';
 import List from './List';
+import { selectThemeImage } from '../../selectors/view';
 
 import './style.scss';
+import { DefaultImages } from '../../constants/theme';
 
 class Sidebar extends React.Component {
   slideMenuToggle = null;
@@ -108,8 +110,8 @@ const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
   isReady: state.slideMenu.isReady,
   items: state.slideMenu.items,
-  smallLogoSrc: state.slideMenu.smallLogo,
-  largeLogoSrc: state.slideMenu.largeLogo,
+  smallLogoSrc: selectThemeImage(state, DefaultImages.MENU_LEFT_LOGO_SMALL),
+  largeLogoSrc: selectThemeImage(state, DefaultImages.MENU_LEFT_LOGO_LARGE),
   expandableItems: state.slideMenu.expandableItems
 });
 

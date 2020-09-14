@@ -33,6 +33,15 @@ export default class Measurer extends Component {
   };
 
   componentDidMount() {
+    this.doMeasure();
+    window.addEventListener('resize', this.doMeasure, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.doMeasure, false);
+  }
+
+  doMeasure = () => {
     const dom = this._ref.current;
 
     if (dom) {
@@ -50,10 +59,11 @@ export default class Measurer extends Component {
     }
 
     this.setState({ show: true });
-  }
+  };
 
   render() {
     const { className, children } = this.props;
+
     return (
       <div key={getId()} style={{ width: '100%' }} ref={this._ref} className={className}>
         {this.state.show && children ? React.cloneElement(children, { measurer: this.measurer }) : null}

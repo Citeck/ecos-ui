@@ -12,9 +12,11 @@ import SlideMenu from '../components/SlideMenu';
 import { MenuApi } from '../../../api/menu';
 import { ViewApi } from '../../../api/view';
 import { fakeApi } from '../../../api/fakeApi';
+import { UserApi } from '../../../api/user';
 
 import { detectMobileDevice, loadThemeRequest } from '../../../actions/view';
 import { initMenuConfig } from '../../../actions/menu';
+import { getUserData } from '../../../actions/user';
 
 import configureStore from './store';
 import { i18nInit } from '../../../i18n';
@@ -31,23 +33,30 @@ const store = configureStore({
 
 api.menu = new MenuApi();
 api.view = new ViewApi();
+api.user = new UserApi();
 
 const render = (elementId, props, callback) => {
   store.dispatch(
     loadThemeRequest({
       onSuccess: () => {
-        store.dispatch(initMenuConfig());
-        store.dispatch(detectMobileDevice());
+        store.dispatch(
+          getUserData({
+            onSuccess: () => {
+              store.dispatch(initMenuConfig());
+              store.dispatch(detectMobileDevice());
 
-        i18nInit({ debug: false }).then(() => {
-          ReactDOM.render(
-            <Provider store={store}>
-              <SlideMenu {...props} />
-            </Provider>,
-            document.getElementById(elementId),
-            callback
-          );
-        });
+              i18nInit({ debug: false }).then(() => {
+                ReactDOM.render(
+                  <Provider store={store}>
+                    <SlideMenu {...props} />
+                  </Provider>,
+                  document.getElementById(elementId),
+                  callback
+                );
+              });
+            }
+          })
+        );
       }
     })
   );

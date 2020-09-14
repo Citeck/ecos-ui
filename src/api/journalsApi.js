@@ -321,6 +321,7 @@ export class JournalsApi extends RecordService {
             });
           }
         }
+
         return result;
       });
     });
