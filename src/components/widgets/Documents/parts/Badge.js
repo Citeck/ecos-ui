@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
-import { Icon } from '../../common';
+import { Icon } from '../../../common';
 
 const Badge = props => {
   const { type, target, forwardedRef, onClick } = props;

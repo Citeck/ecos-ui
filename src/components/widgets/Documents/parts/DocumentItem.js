@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import classNames from 'classnames';
 
-import { CANCELED_TIME, UNDOABLE_ACTIONS, documentFields } from '../../../constants/documents';
-import { t } from '../../../helpers/export/util';
-import { Icon } from '../../common';
-import { Btn } from '../../common/btns';
+import { CANCELED_TIME, UNDOABLE_ACTIONS, documentFields } from '../../../../constants/documents';
+import { t } from '../../../../helpers/export/util';
+import { Icon } from '../../../common';
+import { Btn } from '../../../common/btns';
 
 const DocumentItem = props => {
   const [countDown, setCountDown] = useState(0);

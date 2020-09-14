@@ -3,6 +3,7 @@ import { handleActions } from 'redux-actions';
 import {
   getAvailableTypes,
   getDocumentsByType,
+  getDocumentsByTypes,
   getDocumentsFinally,
   getTypeSettings,
   initFinally,
@@ -248,11 +249,19 @@ export default handleActions(
       }
     }),
 
+    [getDocumentsByTypes]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        isLoading: true
+      }
+    }),
     [setDocumentsByTypes]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        documentsByTypes: payload.documentsByTypes
+        documentsByTypes: payload.documentsByTypes,
+        isLoading: false
       }
     })
   },

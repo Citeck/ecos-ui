@@ -4,12 +4,21 @@ import isEmpty from 'lodash/isEmpty';
 import { createSelector } from 'reselect';
 
 import { initialState } from '../reducers/documents';
+import { getOutputFormat } from '../helpers/util';
 import { t } from '../helpers/export/util';
 import { documentFields, Labels, statusesKeys } from '../constants/documents';
 import { DataFormatTypes } from '../constants';
-import { getOutputFormat } from '../helpers/util';
 
 const selectState = (state, key) => get(state, ['documents', key], { ...initialState });
+const getIsLoadChecklist = ownState => {
+  let isLoadChecklist = get(ownState, 'config.isLoadChecklist');
+
+  if (isLoadChecklist === undefined) {
+    isLoadChecklist = true;
+  }
+
+  return isLoadChecklist;
+};
 
 export const selectStateByKey = createSelector(
   selectState,
@@ -38,6 +47,73 @@ export const selectStateByKey = createSelector(
 
       uploadError: ownState.uploadError,
       countFilesError: ownState.countFilesError
+    };
+  }
+);
+
+const getDocumentsByTypes = state => get(state, 'documentsByTypes');
+const dynamicTypesIds = state => getDynamicTypes(state).map(item => item.type);
+
+const selectDocuments = createSelector(
+  selectState,
+  getDocumentsByTypes
+);
+const selectTypeIds = createSelector(
+  selectState,
+  dynamicTypesIds
+);
+const selectAvailableTypesById = createSelector(
+  selectState,
+  selectTypeIds,
+  (ownProps, typesIds) => {
+    return getAvailableTypes(ownProps).filter(type => typesIds.includes(type.id));
+  }
+);
+const selectActions = createSelector(
+  selectState,
+  ownProps => get(ownProps, 'actions', {})
+);
+
+export const selectDocumentsByTypes = createSelector(
+  selectDocuments,
+  selectAvailableTypesById,
+  selectActions,
+  (documents, types, actions) => {
+    return types.reduce(
+      (result, type) => ({
+        ...result,
+        [type.id]: {
+          ...omit(type, ['actions']),
+          documents: get(documents, type.id, []).map(doc => ({
+            ...doc,
+            [documentFields.modified]: getOutputFormat(DataFormatTypes.DATE, doc[documentFields.modified]),
+            actions: get(actions, doc[documentFields.id], [])
+          }))
+        }
+      }),
+      {}
+    );
+  }
+);
+
+export const selectMobileStateByKey = createSelector(
+  selectState,
+  selectDocumentsByTypes,
+  getIsLoadChecklist,
+  (ownState, documentsByTypes, isLoadChecklist) => {
+    return {
+      stateId: ownState.stateId,
+      widgetTitle: getWidgetTitle(ownState),
+      dynamicTypes: getDynamicTypes(ownState),
+      documentsByTypes,
+      availableTypes: getAvailableTypes(ownState),
+      grouppedAvailableTypes: selectGrouppedAvailableTypes(ownState),
+      typeSettings: get(ownState, 'typeSettings', {}),
+      isUploadingFile: get(ownState, 'isUploadingFile', false),
+      isLoadingSettings: get(ownState, 'isLoadingSettings', false),
+      isLoadChecklist,
+      isLoading: get(ownState, 'isLoading', false),
+      isLoadingTypeSettings: get(ownState, 'isLoadingTypeSettings', false)
     };
   }
 );
@@ -165,83 +241,15 @@ export const selectColumnsConfig = (state, key, name) => {
   return get(type, 'columns', []);
 };
 
-export const selectColumnsFromConfigByType = (state, key, name) => {
-  const types = selectConfigTypes(state, key);
-  const type = types.find(item => item.type === name);
+const getWidgetTitle = ownState => {
+  const dynamicTypes = get(ownState, 'dynamicTypes', []);
 
-  return get(type, 'columns', []);
+  if (dynamicTypes.length === 1) {
+    return dynamicTypes[0].name;
+  }
+
+  return t(Labels.TITLE);
 };
-
-export const selectWidgetTitle = createSelector(
-  selectState,
-  ownState => {
-    const dynamicTypes = get(ownState, 'dynamicTypes', []);
-
-    if (dynamicTypes.length === 1) {
-      return dynamicTypes[0].name;
-    }
-
-    return t(Labels.TITLE);
-  }
-);
-
-export const selectStateId = createSelector(
-  selectState,
-  ownState => {
-    return get(ownState, 'stateId');
-  }
-);
-
-const getDocumentsByTypes = state => get(state, 'documentsByTypes');
-const dynamicTypesIds = state => getDynamicTypes(state).map(item => item.type);
-
-const selectDocuments = createSelector(
-  selectState,
-  getDocumentsByTypes
-);
-const selectTypeIds = createSelector(
-  selectState,
-  dynamicTypesIds
-);
-const selectAvailableTypesById = createSelector(
-  selectState,
-  selectTypeIds,
-  (ownProps, typesIds) => {
-    return getAvailableTypes(ownProps).filter(type => typesIds.includes(type.id));
-  }
-);
-const selectActions = createSelector(
-  selectState,
-  ownProps => get(ownProps, 'actions', {})
-);
-
-export const selectDocumentsByTypes = createSelector(
-  selectStateByKey,
-  selectDocuments,
-  selectAvailableTypesById,
-  selectActions,
-  (ownProps, documents, types, actions) => {
-    return types.reduce(
-      (result, type) => ({
-        ...result,
-        [type.id]: {
-          ...omit(type, ['actions']),
-          documents: get(documents, type.id, []).map(doc => ({
-            ...doc,
-            [documentFields.modified]: getOutputFormat(DataFormatTypes.DATE, doc[documentFields.modified]),
-            actions: get(actions, doc[documentFields.id], [])
-          }))
-        }
-      }),
-      {}
-    );
-  }
-);
-
-export const selectUploadingFileStatus = createSelector(
-  selectState,
-  ownProps => get(ownProps, 'isUploadingFile')
-);
 
 export const selectFilteredTypes = createSelector(
   (types, text, status) => ({ types, text, status }),

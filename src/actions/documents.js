@@ -38,6 +38,7 @@ export const getActions = createAction(prefix + 'GET_ACTIONS');
 export const setActions = createAction(prefix + 'SET_ACTIONS');
 
 export const execRecordsAction = createAction(prefix + 'EXECUTE_RECORDS_ACTIONS');
+export const execRecordsActionFinally = createAction(prefix + 'EXECUTE_RECORDS_ACTIONS_FINALLY');
 
 export const setInlineTools = createAction(prefix + 'SET_INLINE_TOOLS');
 

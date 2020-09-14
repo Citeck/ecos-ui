@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Collapse, Progress, UncontrolledTooltip } from 'reactstrap';
+import { Collapse, Progress } from 'reactstrap';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import uuidV4 from 'uuid/v4';
 
-import { Icon, Popper, Tooltip } from '../../common';
-import { Btn } from '../../common/btns';
-import { t } from '../../../helpers/export/util';
-import { usePrevious } from '../../../hooks/usePrevious';
-import { typesStatuses } from '../../../constants/documents';
-import { selectTypeStatus } from '../../../selectors/documents';
-import { prepareTooltipId } from '../../../helpers/util';
+import { Icon, Popper } from '../../../common';
+import { Btn } from '../../../common/btns';
+import { t } from '../../../../helpers/export/util';
+import { usePrevious } from '../../../../hooks/usePrevious';
+import { typesStatuses } from '../../../../constants/documents';
+import { selectTypeStatus } from '../../../../selectors/documents';
+import { prepareTooltipId } from '../../../../helpers/util';
 import Badge from './Badge';
 
 const TypeItem = props => {

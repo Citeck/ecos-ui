@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { tableFields } from '../../../constants/documents';
-import { t } from '../../../helpers/export/util';
-import { Grid } from '../../common/grid';
+import { tableFields } from '../../../../constants/documents';
+import { t } from '../../../../helpers/export/util';
+import { Grid } from '../../../common/grid';
 import classNames from 'classnames';
-import { objectCompare } from '../../../helpers/util';
+import { objectCompare } from '../../../../helpers/util';
 
 export default React.memo(
   props => {

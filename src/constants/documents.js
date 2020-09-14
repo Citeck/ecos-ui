@@ -95,7 +95,8 @@ export const Labels = {
   NOT_CONFIGURATION_LABEL: 'documents-widget.label.not-configuration',
   OPEN_SETTINGS_BUTTON: 'documents-widget.btn.settings',
   ERROR_UPLOAD: 'documents-widget.error.upload-filed',
-  ERROR_ONLY_ONE_FILE: 'documents-widget.error.only-one-file'
+  ERROR_ONLY_ONE_FILE: 'documents-widget.error.only-one-file',
+  NOTHING_FOUND: 'documents-widget.label.nothing-found'
 };
 
 export const CANCELED_TIME = 5;

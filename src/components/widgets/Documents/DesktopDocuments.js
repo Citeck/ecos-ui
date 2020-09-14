@@ -8,19 +8,11 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { NotificationManager } from 'react-notifications';
 
-import BaseWidget from '../BaseWidget';
 import Dashlet from '../../Dashlet';
-import { EcosModal, Icon, Loader, ResizeBoxes, Tooltip } from '../../common';
-import { Dropdown } from '../../common/form';
-import { Btn } from '../../common/btns';
+import { Loader, ResizeBoxes, Tooltip } from '../../common';
 import { Grid, InlineTools } from '../../common/grid';
-import FormManager from '../../EcosForm/FormManager';
-import DropZone from './DropZone';
-import Settings from './Settings';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
-import DAction from '../../../services/DashletActionService';
+import DropZone from './parts/DropZone';
 import DocumentsConverter from '../../../dto/documents';
 import {
   execRecordsAction,
@@ -33,40 +25,20 @@ import {
   uploadFiles
 } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
-import {
-  documentFields,
-  errorTypes,
-  statusesKeys,
-  tableFields,
-  tooltips,
-  typesStatuses,
-  typeStatusesByFields
-} from '../../../constants/documents';
-import { closest, deepClone, objectCompare, prepareTooltipId, t } from '../../../helpers/util';
+import { documentFields, errorTypes, statusesKeys, tableFields, typeStatusesByFields } from '../../../constants/documents';
+import { closest, deepClone, prepareTooltipId, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
+import Panel from './parts/Panel';
+import TypesTable from './parts/TypesTable';
+import BaseDocuments from './_BaseDocuments';
+import { Labels } from '../../../constants/documents';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
-import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
-import Panel from './Panel';
-import TypesTable from './TypesTable';
 
-import './style.scss';
-import Badge from './Badge';
-
-const Labels = {
-  TITLE: 'documents-widget.title',
-  SETTINGS: 'documents-widget.settings.title',
-  UPLOAD_DROPZONE: 'documents-widget.upload.title',
-  UPLOAD_MESSAGE: 'documents-widget.upload.message',
-  NOT_CONFIGURATION_LABEL: 'documents-widget.label.not-configuration',
-  OPEN_SETTINGS_BUTTON: 'documents-widget.btn.settings',
-  ERROR_UPLOAD: 'documents-widget.error.upload-filed',
-  ERROR_ONLY_ONE_FILE: 'documents-widget.error.only-one-file'
-};
-
-class DesktopDocuments extends BaseWidget {
+class DesktopDocuments extends BaseDocuments {
   scrollPosition = {};
 
   static propTypes = {
+    ...super.propTypes,
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     stateId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 
@@ -134,38 +106,6 @@ class DesktopDocuments extends BaseWidget {
     this._typesList = React.createRef();
     this._emptyStubRef = React.createRef();
     this._counterRef = React.createRef();
-  }
-
-  componentDidMount() {
-    super.componentDidMount();
-    this.initWidget();
-  }
-
-  static getDerivedStateFromProps(props, state) {
-    const newState = {};
-
-    if (!props.dynamicTypes.find(item => item.type === state.selectedType)) {
-      newState.selectedType = '';
-    }
-
-    if (!state.selectedType && props.dynamicTypes.length === 1) {
-      newState.selectedType = props.dynamicTypes[0].type;
-    }
-
-    if (!state.selectedTypeForLoading && props.dynamicTypes.length === 1) {
-      newState.selectedTypeForLoading = props.dynamicTypes[0];
-    }
-
-    if (!props.isLoadingSettings && state.isOpenSettings && state.isSentSettingsToSave) {
-      newState.isOpenSettings = false;
-      newState.isSentSettingsToSave = false;
-    }
-
-    if (!Object.keys(newState).length) {
-      return null;
-    }
-
-    return newState;
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -241,67 +181,10 @@ class DesktopDocuments extends BaseWidget {
     return Math.max(this.tablePanelHeight + this.tableHeight, this.typesListHeight, this.emptyStubHeight);
   }
 
-  get calculatedEmptyHeight() {
-    const { userHeight } = this.state;
-
-    return userHeight !== undefined ? userHeight : this.emptyStubHeight;
-  }
-
   get calculatedTableMinHeight() {
     const { userHeight } = this.state;
 
     return userHeight !== undefined ? userHeight - this.tablePanelHeight : this.tableHeight;
-  }
-
-  get widgetTitle() {
-    const { dynamicTypes } = this.props;
-
-    if (dynamicTypes.length === 1) {
-      return dynamicTypes[0].name;
-    }
-
-    return t(Labels.TITLE);
-  }
-
-  get availableTypes() {
-    const { grouppedAvailableTypes } = this.props;
-    const { typesFilter } = this.state;
-
-    if (!typesFilter) {
-      return grouppedAvailableTypes;
-    }
-
-    const check = originTypes => {
-      const types = deepClone(originTypes);
-      const checkName = type => type.name.toLowerCase().includes(typesFilter);
-
-      return types
-        .map(type => {
-          if (!type.items.length) {
-            if (checkName(type)) {
-              return type;
-            }
-
-            return null;
-          }
-
-          const items = check(type.items);
-
-          if (!items.length) {
-            type.items = [];
-
-            return checkName(type) ? type : null;
-          }
-
-          return {
-            ...type,
-            items
-          };
-        })
-        .filter(item => item !== null);
-    };
-
-    return check(grouppedAvailableTypes);
   }
 
   get tableData() {
@@ -343,42 +226,6 @@ class DesktopDocuments extends BaseWidget {
     return dynamicTypes.filter(type => this.getTypeStatus(type) === statusFilter);
   }
 
-  get dashletActionsConfig() {
-    return {
-      [DAction.Actions.RELOAD]: {
-        onClick: this.initWidget
-      },
-      [DAction.Actions.SETTINGS]: {
-        onClick: this.handleToggleTypesSettings,
-        text: t(tooltips.SETTINGS)
-      }
-    };
-  }
-
-  get uploadingSettings() {
-    const { dynamicTypes } = this.props;
-    const { selectedTypeForLoading } = this.state;
-    const defaultSettings = {
-      multiple: false
-    };
-
-    if (dynamicTypes.length === 1) {
-      return {
-        ...defaultSettings,
-        multiple: get(dynamicTypes, '[0].multiple', false)
-      };
-    }
-
-    if (!selectedTypeForLoading) {
-      return defaultSettings;
-    }
-
-    return {
-      ...defaultSettings,
-      multiple: get(selectedTypeForLoading, 'multiple', false)
-    };
-  }
-
   get documentTableColumns() {
     const { dynamicTypes } = this.props;
     const { selectedType } = this.state;
@@ -391,32 +238,6 @@ class DesktopDocuments extends BaseWidget {
 
     return columns;
   }
-
-  get tableMaxHeight() {
-    return MAX_DEFAULT_HEIGHT_DASHLET - this.dashletOtherHeight - this.tablePanelHeight;
-  }
-
-  getTypeStatus = type => {
-    let status = statusesKeys.CAN_ADD_FILE;
-
-    if (type.countDocuments === 1) {
-      status = statusesKeys.FILE_ADDED;
-    }
-
-    if (type.countDocuments > 1) {
-      status = statusesKeys.MULTI_FILES_ADDED;
-    }
-
-    if (type.mandatory && !type.countDocuments) {
-      status = type.multiple ? statusesKeys.NEED_ADD_FILES : statusesKeys.NEED_ADD_FILE;
-    }
-
-    if (!type.countDocuments && !type.mandatory) {
-      status = type.multiple ? statusesKeys.CAN_ADD_FILES : statusesKeys.CAN_ADD_FILE;
-    }
-
-    return status;
-  };
 
   getDynamicType = (id = '') => {
     const { dynamicTypes, availableTypes } = this.props;
@@ -440,32 +261,12 @@ class DesktopDocuments extends BaseWidget {
     return deepClone(type);
   };
 
-  initWidget = () => {
-    this.props.initStore();
-    this.setState({ isDragFiles: false });
-  };
-
   refreshGrid() {
     this.setState({ needRefreshGrid: true }, () => this.setState({ needRefreshGrid: false }));
   }
 
-  uploadingComplete() {
-    this.setState({
-      isOpenUploadModal: false,
-      isDragFiles: false
-    });
-  }
-
   handleReloadData = () => {
     this.props.initStore();
-  };
-
-  handleToggleTypesSettings = event => {
-    event.stopPropagation();
-    this.setState(state => ({
-      isOpenSettings: !state.isOpenSettings,
-      typesFilter: ''
-    }));
   };
 
   handleClearSelectedType = () => {
@@ -490,10 +291,6 @@ class DesktopDocuments extends BaseWidget {
     this.scrollPosition = {};
   };
 
-  handleFilterTypes = (filter = '') => {
-    this.setState({ typesFilter: filter.toLowerCase() });
-  };
-
   getDocumentsByType = debounce(
     type => {
       this.props.getDocuments(type);
@@ -502,130 +299,12 @@ class DesktopDocuments extends BaseWidget {
     { leading: true, trailing: true }
   );
 
-  getformId = (type = {}) => {
-    const createVariants = this.getFormCreateVariants(type);
-
-    return type.formId || createVariants.formRef;
-  };
-
-  getFormCreateVariants = (type = {}) => {
-    const { availableTypes } = this.props;
-    const typeId = typeof type === 'string' ? type : type.type;
-
-    return get(availableTypes.find(item => item.id === typeId), 'createVariants', {}) || {};
-  };
-
-  handleToggleUploadModalByType = (type = null) => {
-    const { availableTypes } = this.props;
-
-    this.setState({ isLoadingUploadingModal: false });
-
-    if (type === null) {
-      this.setState({
-        selectedTypeForLoading: '',
-        isOpenUploadModal: false
-      });
-
-      return;
-    }
-
-    const { formId = null } = type;
-    const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {}) || {};
-    const hasForm = formId !== null || !isEmpty(createVariants.formRef);
-    let isFormOpens = false;
-
-    if (hasForm) {
-      isFormOpens = true;
-
-      this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record, createVariants }));
-    }
-
-    this.setState({
-      selectedTypeForLoading: type,
-      isOpenUploadModal: !isFormOpens
-    });
-  };
-
-  handleFilterTable = (filter = '') => {
-    this.setState({ tableFilter: filter.toLowerCase() });
-  };
-
-  handleChangeTypeFilter = (status = statusesKeys.ALL) => {
-    this.setState({
-      statusFilter: status.key
-    });
-  };
-
   handleClickTableRow = row => {
     if (this.state.selectedType) {
       return;
     }
 
     this.handleSelectType(row);
-  };
-
-  handleChangeHeight = height => {
-    let userHeight = height;
-
-    if (this.state.userHeight === userHeight) {
-      return;
-    }
-
-    if (userHeight < 0) {
-      userHeight = 0;
-    }
-
-    UserLocalSettingsService.setDashletHeight(this.state.lsId, userHeight);
-    this.setState({ userHeight });
-  };
-
-  handleCancelSettings = () => {
-    this.setState({
-      isOpenSettings: false,
-      isSentSettingsToSave: false
-    });
-  };
-
-  handleSaveSettings = ({ types, isLoadChecklist = false }) => {
-    const { availableTypes, onSave, id, config, onSaveSettings } = this.props;
-    const selectedTypes = types.map(item => {
-      const type = availableTypes.find(type => type.id === item.id);
-
-      return DocumentsConverter.getFormattedDynamicType({
-        ...type,
-        ...item
-      });
-    });
-
-    const newConfig = {
-      ...config,
-      types: DocumentsConverter.getTypesForConfig(selectedTypes),
-      isLoadChecklist
-    };
-
-    onSave(id, { config: newConfig });
-    onSaveSettings(selectedTypes, newConfig);
-    this.setState({ isSentSettingsToSave: true });
-  };
-
-  handleOpenTypeSettings = type => {
-    this.props.getTypeSettings(type);
-  };
-
-  handleSelectUploadFiles = (files, callback) => {
-    const { selectedTypeForLoading } = this.state;
-
-    if (this.getformId(selectedTypeForLoading)) {
-      this.props.onUploadFiles({ files, type: selectedTypeForLoading.type, openForm: this.openForm, callback });
-
-      return;
-    }
-
-    this.props.onUploadFiles({ files, type: selectedTypeForLoading.type, callback });
-  };
-
-  handleUploadedFiles = () => {
-    this.setState({ isLoadingUploadingModal: true });
   };
 
   handleDropRejected = () => {
@@ -692,14 +371,6 @@ class DesktopDocuments extends BaseWidget {
     this.handleTypeRowMouseEnter(event);
   };
 
-  handleSubmitForm = () => {
-    const { selectedTypeForLoading } = this.state;
-
-    this.props.getDocuments(selectedTypeForLoading.type);
-    this.uploadingComplete();
-    NotificationManager.success(t('documents-widget.notification.add-one.success'));
-  };
-
   handleMouseLeaveTable = () => {
     this.setToolsOptions();
     this.setState({ isHoverLastRow: false });
@@ -726,20 +397,8 @@ class DesktopDocuments extends BaseWidget {
     }
   };
 
-  handleSuccessRecordsAction = () => {
-    this.props.getDocuments(this.state.selectedType);
-    this.setToolsOptions();
-  };
-
   handleScrollingTable = event => {
     this.scrollPosition = event;
-  };
-
-  /**
-   * To recalculate the need for scroll bars
-   */
-  handleCompleteResizeColumns = () => {
-    this.setState({ autoHide: true }, () => this.setState({ autoHide: false }));
   };
 
   handleMouseEnterInlineTools = () => {
@@ -781,19 +440,8 @@ class DesktopDocuments extends BaseWidget {
 
   handleCheckDropPermissions = type => get(type, 'canDropUpload', false);
 
-  handleUpdate() {
-    super.handleUpdate();
-    this.initWidget();
-  }
-
   setToolsOptions = (options = {}) => {
     this.props.setInlineTools(options);
-  };
-
-  openForm = (data = {}) => {
-    FormManager.createRecordByVariant(data, {
-      onSubmit: this.handleSubmitForm
-    });
   };
 
   countFormatter = (...params) => {
@@ -915,56 +563,6 @@ class DesktopDocuments extends BaseWidget {
 
         {this.renderCountStatus(item)}
       </div>
-    );
-  };
-
-  renderCountStatus = (type, keyPostfix = '') => {
-    const { id, stateId } = this.props;
-    const target = prepareTooltipId(`${type.type}-${id}-${stateId}-${keyPostfix}`);
-    const status = typesStatuses[this.getTypeStatus(type)];
-
-    return (
-      <Tooltip target={target} text={t(status)} uncontrolled showAsNeeded autohide>
-        <Badge type={type} target={target} forwardedRef={this._counterRef} />
-      </Tooltip>
-    );
-  };
-
-  renderUploadButton = () => {
-    const { dynamicTypes } = this.props;
-    const { selectedType, contentHeight } = this.state;
-    const allowedTypes = dynamicTypes.filter(type => type.canUpload);
-
-    if (selectedType) {
-      const type = allowedTypes.find(item => item.type === selectedType);
-
-      return (
-        <div
-          className={classNames('ecos-docs__panel-upload', {
-            'ecos-docs__panel-upload_not-available': !type
-          })}
-          onClick={() => this.handleToggleUploadModalByType(type)}
-        >
-          <Icon className="icon-upload ecos-docs__panel-upload-icon" />
-        </div>
-      );
-    }
-
-    return (
-      <Dropdown
-        isStatic
-        withScrollbar
-        toggleClassName={classNames('ecos-docs__panel-upload', {
-          'ecos-docs__panel-upload_not-available': !allowedTypes.length
-        })}
-        valueField="type"
-        titleField="name"
-        source={allowedTypes}
-        onChange={this.handleToggleUploadModalByType}
-        scrollbarHeightMax={contentHeight - this.tablePanelHeight}
-      >
-        <Icon className="icon-upload ecos-docs__panel-upload-icon" />
-      </Dropdown>
     );
   };
 
@@ -1104,63 +702,6 @@ class DesktopDocuments extends BaseWidget {
     );
   };
 
-  renderTypesTable = React.memo(
-    props => {
-      const { dynamicTypes, selectedType, autoHide, isHoverLastRow, forwardedRef, tableData, scrollPosition } = props;
-
-      if (selectedType || !dynamicTypes.length) {
-        return null;
-      }
-
-      const columns = tableFields.ALL.map(item => {
-        const { name, label, ...other } = item;
-        const extended = {};
-
-        if (name === 'count') {
-          extended.customFormatter = this.countFormatter;
-        }
-
-        return {
-          dataField: name,
-          text: t(label),
-          ...other,
-          ...extended
-        };
-      });
-
-      return (
-        <div className="ecos-docs__table-container" style={{ maxWidth: this.tableWidth }}>
-          <Grid
-            className={classNames('ecos-docs__table ecos-docs__table_types', {
-              'ecos-docs__table_without-after-element': isHoverLastRow
-            })}
-            rowClassName="ecos-docs__table-row"
-            data={tableData}
-            columns={columns}
-            scrollable
-            fixedHeader
-            scrollAutoHide={autoHide}
-            forwardedRef={forwardedRef}
-            autoHeight
-            maxHeight={this.tableMaxHeight}
-            keyField="type"
-            onScrolling={this.handleScrollingTable}
-            onRowClick={this.handleClickTableRow}
-            onRowDrop={this.handleRowDrop}
-            onRowDragEnter={this.handleRowDragEnter}
-            onMouseEnter={this.handleTypeRowMouseEnter}
-            onRowMouseLeave={this.handleTypeRowMouseLeave}
-            onCheckDropPermission={this.handleCheckDropPermissions}
-            scrollPosition={scrollPosition}
-          />
-        </div>
-      );
-    },
-    (prevProps, nextProps) => {
-      return objectCompare(prevProps, nextProps, { exclude: ['forwardedRef'] });
-    }
-  );
-
   renderTableLoader() {
     const { isLoading, isLoadingTableData, isUploadingFile } = this.props;
     const { selectedType } = this.state;
@@ -1209,85 +750,8 @@ class DesktopDocuments extends BaseWidget {
     );
   }
 
-  renderSettings() {
-    const { isLoadingSettings, isLoadChecklist, typeSettings, isLoadingTypeSettings } = this.props;
-    const { isOpenSettings } = this.state;
-
-    return (
-      <Settings
-        isOpen={isOpenSettings}
-        title={t(Labels.SETTINGS)}
-        types={this.availableTypes}
-        typeSettings={typeSettings}
-        isLoading={isLoadingSettings}
-        isLoadChecklist={isLoadChecklist}
-        isLoadingTypeSettings={isLoadingTypeSettings}
-        onCancel={this.handleCancelSettings}
-        onSave={this.handleSaveSettings}
-        onEditType={this.handleOpenTypeSettings}
-      />
-    );
-  }
-
-  renderUploadingModal() {
-    const { isUploadingFile } = this.props;
-    const { selectedTypeForLoading, isOpenUploadModal, isLoadingUploadingModal } = this.state;
-
-    return (
-      <EcosModal
-        title={get(selectedTypeForLoading, 'name', '')}
-        isOpen={isOpenUploadModal}
-        isLoading={isLoadingUploadingModal}
-        className="ecos-docs__modal-upload"
-        hideModal={this.handleToggleUploadModalByType.bind(this, null)}
-      >
-        <DropZone
-          onSelect={this.handleSelectUploadFiles}
-          onUploaded={this.handleUploadedFiles}
-          isLoading={isUploadingFile}
-          {...this.uploadingSettings}
-        />
-      </EcosModal>
-    );
-  }
-
-  renderLoader() {
-    const { isLoading } = this.props;
-
-    if (!isLoading) {
-      return null;
-    }
-
-    return <Loader className="ecos-docs__loader" blur />;
-  }
-
-  renderEmptyStub() {
-    const { dynamicTypes } = this.props;
-    const { selectedType } = this.state;
-
-    if (selectedType || dynamicTypes.length) {
-      return null;
-    }
-
-    return (
-      <Scrollbars
-        style={{ height: this.calculatedEmptyHeight || '100%' }}
-        hideTracksWhenNotNeeded
-        renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
-      >
-        <div className="ecos-docs__empty-stub" ref={this._emptyStubRef}>
-          <div className="ecos-docs__empty-stub-label">{t(Labels.NOT_CONFIGURATION_LABEL)}</div>
-
-          <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-docs__empty-stub-button" onClick={this.handleToggleTypesSettings}>
-            {t(Labels.OPEN_SETTINGS_BUTTON)}
-          </Btn>
-        </div>
-      </Scrollbars>
-    );
-  }
-
   render() {
-    const { dragHandleProps, canDragging, isMobile } = this.props;
+    const { dragHandleProps, canDragging } = this.props;
     const { isCollapsed } = this.state;
 
     return (

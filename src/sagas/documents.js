@@ -14,7 +14,6 @@ import {
   selectAvailableTypes,
   selectColumnsConfig,
   selectConfigTypes,
-  selectDocumentsByTypes,
   selectDynamicType,
   selectDynamicTypes,
   selectIsLoadChecklist,
@@ -23,6 +22,7 @@ import {
 } from '../selectors/documents';
 import {
   execRecordsAction,
+  execRecordsActionFinally,
   getAvailableTypes,
   getDocumentsByType,
   getDocumentsByTypes,
@@ -268,6 +268,8 @@ function* sagaExecRecordsAction({ api, logger }, { payload }) {
     }
   } catch (e) {
     logger.error('[documents sagaExecRecordsAction saga error', e.message, e);
+  } finally {
+    yield put(execRecordsActionFinally(payload));
   }
 }
 
@@ -503,13 +505,13 @@ function* saga(ea) {
   yield takeEvery(initStore().type, sagaInitWidget, ea);
   yield takeEvery(getAvailableTypes().type, sagaGetAvailableTypes, ea);
   yield takeEvery(getDocumentsByType().type, sagaGetDocumentsByType, ea);
-  yield takeEvery(getDynamicTypes().type, sagaGetDynamicTypes, ea);
+  yield takeEvery([getDynamicTypes().type, execRecordsActionFinally().type], sagaGetDynamicTypes, ea);
   yield takeEvery(saveSettings().type, sagaSaveSettings, ea);
   yield takeEvery(uploadFiles().type, sagaUploadFiles, ea);
   yield takeEvery(updateVersion().type, sagaUpdateVersion, ea);
   yield takeEvery(execRecordsAction().type, sagaExecRecordsAction, ea);
   yield takeEvery(getTypeSettings().type, sagaGetTypeSettings, ea);
-  yield takeEvery(getDocumentsByTypes().type, sagaGetDocumentsByTypes, ea);
+  yield takeEvery([getDocumentsByTypes().type, execRecordsActionFinally().type], sagaGetDocumentsByTypes, ea);
 }
 
 export default saga;

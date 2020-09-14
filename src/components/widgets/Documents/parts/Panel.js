@@ -1,8 +1,8 @@
 import React from 'react';
 import classNames from 'classnames';
 
-import { Search } from '../../common';
-import { Dropdown } from '../../common/form';
+import { Search } from '../../../common';
+import { Dropdown } from '../../../common/form';
 
 export default React.memo(props => {
   const {

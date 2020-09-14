@@ -1,29 +1,26 @@
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import set from 'lodash/set';
 import debounce from 'lodash/debounce';
+import cloneDeep from 'lodash/cloneDeep';
+import { connect } from 'react-redux';
 
 import Dashlet from '../../Dashlet';
-import { connect } from 'react-redux';
-import {
-  selectAvailableTypes,
-  selectDocumentsByTypes,
-  selectDynamicTypes,
-  selectFilteredTypes,
-  selectStateId,
-  selectUploadingFileStatus,
-  selectWidgetTitle
-} from '../../../selectors/documents';
+import { selectFilteredTypes, selectMobileStateByKey } from '../../../selectors/documents';
 import { getStateId } from '../../../helpers/redux';
-import Panel from './Panel';
-import Base from './Base';
-import { execRecordsAction, getDocumentsByTypes, initStore, uploadFiles } from '../../../actions/documents';
-import TypeItem from './TypeItem';
-import DocumentItem from './DocumentItem';
-import { documentFields } from '../../../constants/documents';
+import Panel from './parts/Panel';
+import BaseDocuments from './_BaseDocuments';
+import { execRecordsAction, getDocumentsByTypes, getTypeSettings, initStore, saveSettings, uploadFiles } from '../../../actions/documents';
+import TypeItem from './parts/TypeItem';
+import DocumentItem from './parts/DocumentItem';
 import { FileStatuses } from '../../../helpers/ecosXhr';
+import { ActionTypes } from '../../Records/actions';
+import { t } from '../../../helpers/export/util';
+import { documentFields } from '../../../constants/documents';
+import { Labels } from '../../../constants/documents';
 
-class MobileDocuments extends Base {
+class MobileDocuments extends BaseDocuments {
   constructor(props) {
     super(props);
 
@@ -36,11 +33,8 @@ class MobileDocuments extends Base {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // super.componentDidUpdate(prevProps, prevState);
-
     if (prevProps.isUploadingFile && !this.props.isUploadingFile && (prevState.isOpenUploadModal || prevState.isDragFiles)) {
       this.uploadingComplete();
-      // this.props.getDocumentsByTypes();
     }
 
     if (!prevProps.stateId && this.props.stateId) {
@@ -101,12 +95,18 @@ class MobileDocuments extends Base {
     this.setState({ actionInProgress: false });
   };
 
-  handleClickAction = (record, action) => {
+  handleClickAction = (record, data) => {
     if (!record) {
       return;
     }
 
     this.setState({ actionInProgress: true });
+
+    const action = cloneDeep(data);
+
+    if (action.type === ActionTypes.DELETE) {
+      set(action, 'config.withoutConfirm', true);
+    }
 
     this.props.execRecordsAction(record, action, this.handleEndAction);
   };
@@ -142,6 +142,10 @@ class MobileDocuments extends Base {
     const { dynamicTypes } = this.props;
     const { selectedType, statusFilter, typesStatuses, typeFilter } = this.state;
 
+    if (isEmpty(dynamicTypes)) {
+      return null;
+    }
+
     return (
       <Panel
         isMobile
@@ -154,7 +158,6 @@ class MobileDocuments extends Base {
         onSearch={this.handleFilterTypes}
         onChangeFilter={this.handleChangeTypeFilter}
         forwardedRef={this._tablePanel}
-        // scrollbarHeightMax={this.tableHeight}
       />
     );
   }
@@ -162,8 +165,13 @@ class MobileDocuments extends Base {
   renderTypes() {
     const { documentsByTypes, isUploadingFile } = this.props;
     const { isLoadingUploadingModal, uploadPercent, selectedTypeForLoading } = this.state;
+    const { typeFilter, statusFilter } = this.state;
 
     if (isEmpty(this.filteredDynamicTypes)) {
+      if (typeFilter || statusFilter) {
+        return <div className="ecos-docs-m__panel">{t(Labels.NOTHING_FOUND)}</div>;
+      }
+
       return null;
     }
 
@@ -199,7 +207,6 @@ class MobileDocuments extends Base {
         needGoTo={false}
         canDragging={canDragging}
         resizable
-        // contentMaxHeight={this.calculatedClientHeight}
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
         onChangeHeight={this.handleChangeHeight}
@@ -211,6 +218,9 @@ class MobileDocuments extends Base {
         {this.renderPanel()}
         {this.renderTypes()}
         {this.renderUploadingModal()}
+        {this.renderSettings()}
+        {this.renderEmptyStub('ecos-docs-m__empty')}
+        {this.renderLoader()}
       </Dashlet>
     );
   }
@@ -218,14 +228,10 @@ class MobileDocuments extends Base {
 
 const mapStateToProps = (state, ownProps) => {
   const baseParams = [state, getStateId(ownProps)];
+  const ownState = selectMobileStateByKey(...baseParams);
 
   return {
-    stateId: selectStateId(...baseParams),
-    widgetTitle: selectWidgetTitle(...baseParams),
-    dynamicTypes: selectDynamicTypes(...baseParams),
-    documentsByTypes: selectDocumentsByTypes(...baseParams),
-    availableTypes: selectAvailableTypes(...baseParams),
-    isUploadingFile: selectUploadingFileStatus(...baseParams),
+    ...ownState,
     isMobile: state.view.isMobile
   };
 };
@@ -240,7 +246,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     initStore: () => dispatch(initStore({ ...baseParams, config: ownProps.config })),
     getDocumentsByTypes: () => dispatch(getDocumentsByTypes({ ...baseParams })),
     execRecordsAction: (records, action, callback) => dispatch(execRecordsAction({ ...baseParams, records, action, callback })),
-    onUploadFiles: data => dispatch(uploadFiles({ ...baseParams, ...data }))
+    onUploadFiles: data => dispatch(uploadFiles({ ...baseParams, ...data })),
+    onSaveSettings: (types, config) => dispatch(saveSettings({ ...baseParams, types, config })),
+    getTypeSettings: type => dispatch(getTypeSettings({ ...baseParams, type }))
   };
 };
 
