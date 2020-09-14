@@ -406,10 +406,11 @@ class RecordActions {
       config
     };
     const result = handler.execForRecord(Records.get(record), actionToExec, execContext);
+    const actResult = await RecordActions._wrapResultIfRequired(result);
 
     RecordActions._updateRecords(record);
 
-    return RecordActions._wrapResultIfRequired(result);
+    return actResult;
   }
 
   /**
@@ -445,10 +446,11 @@ class RecordActions {
       ...context
     };
     const result = handler.execForRecords(recordInstances, action, execContext);
+    const actResult = await RecordActions._wrapResultIfRequired(result);
 
     RecordActions._updateRecords(recordInstances, true);
 
-    return RecordActions._wrapResultIfRequired(result);
+    return actResult;
   }
 
   /**
@@ -482,6 +484,7 @@ class RecordActions {
     }
 
     const result = handler.execForQuery(query, action, execContext);
+
     return RecordActions._wrapResultIfRequired(result);
   }
 
@@ -516,9 +519,11 @@ class RecordActions {
     if (!actionResult) {
       return false;
     }
+
     if (actionResult.then) {
       return actionResult.then(r => (r == null ? false : r));
     }
+
     return actionResult;
   }
 
