@@ -173,6 +173,7 @@ class MobileDocuments extends Base {
         type={item}
         canUploaded={!isUploadingFile}
         onUpload={this.handleToggleUploadModalByType}
+        tooltip={this.renderCountStatus(item, 'type')}
         uploadPercent={get(selectedTypeForLoading, 'type') === item.type ? uploadPercent : null}
       >
         {get(documentsByTypes, [item.type, 'documents'], []).map(document => (

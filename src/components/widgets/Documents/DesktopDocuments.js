@@ -50,6 +50,7 @@ import Panel from './Panel';
 import TypesTable from './TypesTable';
 
 import './style.scss';
+import Badge from './Badge';
 
 const Labels = {
   TITLE: 'documents-widget.title',
@@ -924,22 +925,7 @@ class DesktopDocuments extends BaseWidget {
 
     return (
       <Tooltip target={target} text={t(status)} uncontrolled showAsNeeded autohide>
-        <div
-          id={target}
-          ref={this._counterRef}
-          className={classNames('ecos-docs__types-item-status', {
-            'ecos-docs__types-item-status_files-need': !type.countDocuments && type.mandatory,
-            'ecos-docs__types-item-status_files-can': !type.countDocuments && !type.mandatory
-          })}
-        >
-          <Icon
-            className={classNames('ecos-docs__types-item-status-icon', {
-              'icon-small-check': type.countDocuments,
-              'icon-small-close': !type.countDocuments
-            })}
-          />
-          <div className="ecos-docs__types-item-status-counter">{type.countDocuments}</div>
-        </div>
+        <Badge type={type} target={target} forwardedRef={this._counterRef} />
       </Tooltip>
     );
   };
