@@ -1,13 +1,16 @@
 import React from 'react';
-import ActionsExecutor from '../ActionsExecutor';
-import FormManager from '../../../../EcosForm/FormManager';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+
+import FormManager from '../../../../EcosForm/FormManager';
 import { PROXY_URI } from '../../../../../constants/alfresco';
-import { t } from '../../../../../helpers/util';
-import Records from '../../../Records';
-import dialogManager from '../../../../common/dialogs/Manager/DialogManager';
-import { EmptyGrid, Grid } from '../../../../common/grid';
+import { isExistValue, t } from '../../../../../helpers/util';
 import { CommonApi } from '../../../../../api/common';
+import Records from '../../../Records';
+import { Loader } from '../../../../common';
+import DialogManager from '../../../../common/dialogs/Manager';
+import { EmptyGrid, Grid } from '../../../../common/grid';
+import ActionsExecutor from '../ActionsExecutor';
 
 const commonApi = new CommonApi();
 
@@ -60,6 +63,20 @@ const performGroupAction = async ({ groupAction, selected = [], resolved, query 
     });
 };
 
+const _getPreviewRecords = async records => {
+  return Promise.all(
+    records.map(nodeRef =>
+      Records.get(nodeRef)
+        .load('.disp', true)
+        .then(title => ({
+          title,
+          nodeRef,
+          status: t('batch-edit.message.in-progress')
+        }))
+    )
+  );
+};
+
 const _performBatchEditAction = async groupActionData => {
   const { groupAction, selected, performGroupAction, query = null } = groupActionData;
   const attributeName = groupAction.params['form_option_batch-edit-attribute'];
@@ -110,7 +127,7 @@ const _performBatchEditAction = async groupActionData => {
       } else {
         if (params.confirmChange === 'true') {
           let confirmRes = await new Promise(resolve => {
-            dialogManager.confirmDialog({
+            DialogManager.confirmDialog({
               title: t('journals.action.confirm.title'),
               text: t('journals.action.change-value.message', { name: rec.disp, value: rec.valueDisp }),
               onNo: () => resolve(false),
@@ -189,30 +206,27 @@ export default class ServerGroupAction extends ActionsExecutor {
     const selectedRecords = records.map(r => r.id);
     const groupAction = cloneDeep(action.config);
     groupAction.type = 'selected';
+    const previewRecords = await _getPreviewRecords(selectedRecords);
 
-    if (groupAction.formKey) {
-      const groupActionWithData = await showFormIfRequired(groupAction);
+    const groupActionWithData = isExistValue(groupAction.formKey) ? await showFormIfRequired(groupAction) : undefined;
 
-      let result;
-      if (groupActionWithData.params['form_option_batch-edit-attribute']) {
-        result = _performBatchEditAction({
-          groupAction: groupActionWithData,
-          selected: selectedRecords,
-          performGroupAction
-        });
-      } else {
-        result = performGroupAction({
-          groupAction: groupActionWithData,
-          selected: selectedRecords
-        });
-      }
-      return result.then(res => this.showGroupActionResult(res));
+    this.showGroupActionResult(previewRecords, { isLoading: true });
+
+    let result;
+    if (get(groupActionWithData, ['params', 'form_option_batch-edit-attribute'])) {
+      result = await _performBatchEditAction({
+        groupAction: groupActionWithData,
+        selected: selectedRecords,
+        performGroupAction
+      });
     } else {
-      return performGroupAction({
-        groupAction,
+      result = await performGroupAction({
+        groupAction: groupActionWithData || groupAction,
         selected: selectedRecords
-      }).then(res => this.showGroupActionResult(res));
+      });
     }
+
+    return result ? await this.showGroupActionResult(result, { isLoading: false }) : false;
   }
 
   async execForQuery(query, action, context) {
@@ -226,79 +240,79 @@ export default class ServerGroupAction extends ActionsExecutor {
       query
     }).then(() => {
       return new Promise(resolve => {
-        dialogManager.showInfoDialog({
-          title: 'Действие запущено',
-          text: 'Действие запущено',
+        DialogManager.showInfoDialog({
+          title: 'group-action.label.started',
           onClose: resolve
         });
       });
     });
   }
 
-  async showGroupActionResult(res) {
+  async showGroupActionResult(res, options) {
     return new Promise(resolve => {
-      dialogManager.showCustomDialog({
+      DialogManager.showCustomDialog({
         title: 'group-action.label.header',
-        body: renderPerformGroupActionResponse(res),
+        body: renderPerformGroupActionResponse(res, options),
         onHide: () => resolve(true)
       });
     });
   }
 }
 
-const renderPerformGroupActionResponse = (performGroupActionResponse = []) => {
+const renderPerformGroupActionResponse = (performGroupActionResponse = [], options) => {
   const performGroupActionResponseUrl = (performGroupActionResponse[0] || {}).url;
 
   return (
-    <EmptyGrid maxItems={performGroupActionResponse.length}>
-      {performGroupActionResponseUrl ? (
-        <Grid
-          /*className={className}*/
-          keyField={'link'}
-          data={[
-            {
-              status: t('group-action.label.report'),
-              link: performGroupActionResponseUrl
-            }
-          ]}
-          columns={[
-            {
-              dataField: 'status',
-              text: t('group-action.label.status')
-            },
-            {
-              dataField: 'link',
-              text: t('actions.document.download'),
-              formatExtraData: {
-                formatter: ({ cell }) => {
-                  const html = `<a href="${PROXY_URI + cell}" onclick="event.stopPropagation()">${t('actions.document.download')}</a>`;
-                  return <span dangerouslySetInnerHTML={{ __html: html }} />;
+    <div>
+      {get(options, 'isLoading') && <Loader blur rounded />}
+      <EmptyGrid maxItems={performGroupActionResponse.length}>
+        {performGroupActionResponseUrl ? (
+          <Grid
+            keyField={'link'}
+            data={[
+              {
+                status: t('group-action.label.report'),
+                link: performGroupActionResponseUrl
+              }
+            ]}
+            columns={[
+              {
+                dataField: 'status',
+                text: t('group-action.label.status')
+              },
+              {
+                dataField: 'link',
+                text: t('actions.document.download'),
+                formatExtraData: {
+                  formatter: ({ cell }) => {
+                    const html = `<a href="${PROXY_URI + cell}" onclick="event.stopPropagation()">${t('actions.document.download')}</a>`;
+                    return <span dangerouslySetInnerHTML={{ __html: html }} />;
+                  }
                 }
               }
-            }
-          ]}
-        />
-      ) : (
-        <Grid
-          /*className={className}*/
-          keyField={'nodeRef'}
-          data={performGroupActionResponse}
-          columns={[
-            {
-              dataField: 'title',
-              text: t('group-action.label.record')
-            },
-            {
-              dataField: 'status',
-              text: t('group-action.label.status')
-            },
-            {
-              dataField: 'message',
-              text: t('group-action.label.message')
-            }
-          ]}
-        />
-      )}
-    </EmptyGrid>
+            ]}
+          />
+        ) : (
+          <Grid
+            keyField={'nodeRef'}
+            data={performGroupActionResponse}
+            columns={[
+              {
+                dataField: 'title',
+                text: t('group-action.label.record')
+              },
+              {
+                dataField: 'status',
+                text: t('group-action.label.status')
+              },
+              {
+                dataField: 'message',
+                text: t('group-action.label.message')
+              }
+            ]}
+          />
+        )}
+      </EmptyGrid>
+    </div>
   );
 };
