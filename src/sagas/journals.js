@@ -361,7 +361,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
       selectedRecords = get(gridData, 'data', []).map(item => item.id);
       isSelectAllRecords = true;
     } else {
-      selectedRecords = userConfig.selectedItems;
+      selectedRecords = sharedSettings.selectedItems;
     }
   }
 
