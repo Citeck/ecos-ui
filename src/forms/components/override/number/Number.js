@@ -34,7 +34,7 @@ export default class NumberComponent extends FormIONumberComponent {
       return false;
     }
 
-    if (!Number.isNaN(+value) && +value > Number.MAX_SAFE_INTEGER) {
+    if (!Number.isNaN(+value) && (+value > Number.MAX_SAFE_INTEGER || +value < -Number.MAX_SAFE_INTEGER)) {
       return true;
     }
 
@@ -68,15 +68,9 @@ export default class NumberComponent extends FormIONumberComponent {
   }
 
   setValue(value, flags) {
-    const result = super.setValue(value, flags);
-
     if (!Array.isArray(value) && this.isBigInt(value)) {
-      let stringValue = _.get(this.component, 'stringValue');
-
-      if (!stringValue) {
-        stringValue = String(value);
-        _.set(this.component, 'stringValue', stringValue);
-      }
+      const stringValue = String(value);
+      _.set(this.component, 'stringValue', stringValue);
 
       this.dataValue = stringValue;
 
@@ -89,7 +83,7 @@ export default class NumberComponent extends FormIONumberComponent {
       return this.updateValue(flags);
     }
 
-    return result;
+    return super.setValue(value, flags);
   }
 
   formatValue(value) {
