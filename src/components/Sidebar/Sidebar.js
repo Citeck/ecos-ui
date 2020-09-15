@@ -12,7 +12,6 @@ import {
   setInitExpandableItems,
   toggleIsOpen
 } from '../../actions/slideMenu';
-import { setMenuConfig } from '../../actions/menu';
 import { SourcesId } from '../../constants';
 import Records from '../Records';
 import Logo from './Logo';
@@ -24,19 +23,6 @@ class Sidebar extends React.Component {
   slideMenuToggle = null;
 
   componentDidMount() {
-    //*****************
-    // todo DELETE after ECOSUI-476
-    window.debugResetIdMenu = id => {
-      console.warn('p.s. удалить эту функцию');
-      console.log('текущий ид', this.props.idMenu);
-      if (id) {
-        this.props.setMenuConfig({ ...this.props.menu, id });
-        this.props.fetchSlideMenuItems({ id });
-      }
-      console.log('новый ид', id);
-    };
-    //****************
-
     this.props.fetchSmallLogoSrc();
     this.props.fetchLargeLogoSrc();
     this.props.fetchSlideMenuItems();
@@ -103,7 +89,6 @@ class Sidebar extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  menu: state.menu, //todo temp
   idMenu: state.menu.id,
   isOpen: state.slideMenu.isOpen,
   isReady: state.slideMenu.isReady,
@@ -114,7 +99,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setMenuConfig: _ => dispatch(setMenuConfig(_)), //todo temp
   fetchSlideMenuItems: _ => dispatch(fetchSlideMenuItems(_)),
   fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
   fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
