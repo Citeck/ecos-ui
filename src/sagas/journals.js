@@ -245,11 +245,11 @@ function* getJournalConfig(api, journalId, w) {
   return journalConfig;
 }
 
-function* getJournalSetting(api, { journalSettingId, journalConfig, userConfig, stateId }, w) {
+function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w) {
   let journalSetting;
 
-  if (userConfig) {
-    journalSetting = userConfig;
+  if (sharedSettings) {
+    journalSetting = sharedSettings;
   } else {
     journalSettingId = journalSettingId || journalConfig.journalSettingId || api.journals.getLsJournalSettingId(journalConfig.id) || '';
 
@@ -275,6 +275,10 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, userConfig, 
   yield put(initJournalSettingData(w({ journalSetting, predicate })));
 
   return journalSetting;
+}
+
+function* getJournalSharedSettings(api, id) {
+  return id ? yield call(api.userConfig.getConfig, { id }) : null;
 }
 
 function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
@@ -342,9 +346,9 @@ function* getGridData(api, params, stateId) {
 }
 
 function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w) {
-  const userConfig = userConfigId ? yield call(api.userConfig.getConfig, { id: userConfigId }) : null;
-  const pagination = userConfig ? userConfig.pagination : yield select(state => state.journals[stateId].grid.pagination);
-  const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, userConfig, stateId }, w);
+  const sharedSettings = yield getJournalSharedSettings(api, userConfigId);
+  const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
+  const pagination = get(sharedSettings, 'pagination') || (yield select(state => state.journals[stateId].grid.pagination));
   const params = getGridParams({ journalConfig, journalSetting, pagination });
   const gridData = yield getGridData(api, params, stateId);
   const editingRules = yield getGridEditingRules(api, gridData);
@@ -353,7 +357,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   let isSelectAllRecords = false;
 
   if (!!userConfigId) {
-    if (isEmpty(userConfig.selectedItems)) {
+    if (isEmpty(sharedSettings.selectedItems)) {
       selectedRecords = get(gridData, 'data', []).map(item => item.id);
       isSelectAllRecords = true;
     } else {

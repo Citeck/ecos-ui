@@ -1,6 +1,9 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 import journalsServiceApi from './journalsServiceApi';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../common/form/SelectJournal/predicates';
-import lodash from 'lodash';
+import * as RecordUtils from '../../Records/utils/recordUtils';
+import { ParserPredicate } from '../../Filters/predicates';
 
 const isPredicateValid = predicate => {
   return !!(predicate && predicate.t);
@@ -24,14 +27,17 @@ const optimizePredicate = predicate => {
       };
     }
   }
-  return lodash.cloneDeep(predicate);
+  return cloneDeep(predicate);
 };
 
 class JournalsDataLoader {
   async load(journalConfig, settings) {
-    const columns = journalConfig.columns || [];
+    const columns = journalConfig.columns || []; // todo settings?
 
-    const predicates = [journalConfig.predicate, settings.predicate];
+    let predicates = [journalConfig.predicate, settings.predicate];
+
+    settings.filter = this._prepareFilter(settings.filter);
+
     if (settings.onlyLinked && settings.recordRef) {
       predicates.push({
         t: PREDICATE_OR,
@@ -45,7 +51,9 @@ class JournalsDataLoader {
       });
     }
 
-    //todo: replace placeholders in predicates
+    if (settings.recordRef) {
+      predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef); //todo: replace placeholders in predicates - is it?
+    }
 
     let language = 'predicate';
     let query = optimizePredicate({
@@ -88,6 +96,10 @@ class JournalsDataLoader {
       ...res,
       query: recordsQuery
     }));
+  }
+
+  _prepareFilter(data) {
+    return ParserPredicate.removeEmptyPredicates(cloneDeep(data));
   }
 
   _getAttributes(journalConfig, settings) {

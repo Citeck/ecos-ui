@@ -111,7 +111,10 @@ class JournalsService {
    * @return {Promise<JournalData>}
    */
   async getJournalData(journalConfig, settings) {
-    return journalDataLoader.load(journalConfig, settings);
+    const records = journalDataLoader.load(journalConfig, settings);
+    //todo get actions
+    //todo get edit rules
+    return records;
   }
 
   /**
