@@ -235,3 +235,99 @@
 .icon-hamburger-menu {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe88e;&nbsp;');
 }
+.icon-leftmenu-more {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe8d0;&nbsp;');
+}
+.icon-leftmenu-contract-1 {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe98d;&nbsp;');
+}
+.icon-leftmenu-completed {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe98e;&nbsp;');
+}
+.icon-leftmenu-controlled {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe98f;&nbsp;');
+}
+.icon-leftmenu-journal-tasks {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe990;&nbsp;');
+}
+.icon-leftmenu-statistic {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe991;&nbsp;');
+}
+.icon-leftmenu-new-task {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe992;&nbsp;');
+}
+.icon-leftmenu-case {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe993;&nbsp;');
+}
+.icon-leftmenu-shared-doc {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe994;&nbsp;');
+}
+.icon-leftmenu-meeting {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe995;&nbsp;');
+}
+.icon-leftmenu-correspondence {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe996;&nbsp;');
+}
+.icon-leftmenu-ord {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe997;&nbsp;');
+}
+.icon-leftmenu-pass {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe998;&nbsp;');
+}
+.icon-leftmenu-contract {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe999;&nbsp;');
+}
+.icon-leftmenu-personal-doc {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe99a;&nbsp;');
+}
+.icon-leftmenu-section {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe99b;&nbsp;');
+}
+.icon-leftmenu-org-structure {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe99d;&nbsp;');
+}
+.icon-leftmenu-run-process {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe99e;&nbsp;');
+}
+.icon-leftmenu-completed-process {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe99f;&nbsp;');
+}
+.icon-leftmenu-content {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9a0;&nbsp;');
+}
+.icon-leftmenu-files {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9a2;&nbsp;');
+}
+.icon-leftmenu-data-list {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9a3;&nbsp;');
+}
+.icon-leftmenu-repository {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9a4;&nbsp;');
+}
+.icon-leftmenu-app {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9a5;&nbsp;');
+}
+.icon-leftmenu-bpmn-editor {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9a6;&nbsp;');
+}
+.icon-leftmenu-groups {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9a7;&nbsp;');
+}
+.icon-leftmenu-users {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9a8;&nbsp;');
+}
+.icon-leftmenu-types {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9a9;&nbsp;');
+}
+.icon-leftmenu-journal {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9aa;&nbsp;');
+}
+.icon-leftmenu-journal-setting {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9ab;&nbsp;');
+}
+.icon-leftmenu-template {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9ac;&nbsp;');
+}
+.icon-leftmenu-tool {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe9ad;&nbsp;');
+}

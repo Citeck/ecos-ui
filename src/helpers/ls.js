@@ -39,7 +39,7 @@ export function removeItem(key = '') {
 }
 
 export function removeItems(keys = []) {
-  if (!keys.length) {
+  if (!keys || !keys.length) {
     return null;
   }
 

@@ -1,5 +1,5 @@
 import { MenuSettings, MenuTypes } from '../../constants/menu';
-import SidebarService from '../../services/sidebar';
+import { ActionTypes } from '../../constants/sidebar';
 
 export const makeUserMenuConfigs = [
   [
@@ -134,7 +134,7 @@ export const oldToNewMenu = [
 export const makeSiteMenuFromConfig = [
   [{}, []],
   [
-    { isAdmin: true },
+    { leftMenuEditable: true, isAdmin: true },
     [
       {
         id: 'SETTINGS_MENU',
@@ -161,7 +161,7 @@ export const makeSiteMenuFromConfig = [
     ]
   ],
   [
-    { isAdmin: true, isDashboardPage: true },
+    { leftMenuEditable: true, isAdmin: true, isDashboardPage: true },
     [
       {
         id: 'SETTINGS_DASHBOARD',
@@ -179,6 +179,16 @@ export const makeSiteMenuFromConfig = [
         label: 'header.site-menu.admin-page',
         targetUrl: '/v2/bpmn-designer',
         targetUrlType: 'FULL_PATH'
+      }
+    ]
+  ],
+  [
+    { leftMenuEditable: true },
+    [
+      {
+        id: 'SETTINGS_MENU',
+        isAction: true,
+        label: 'header.site-menu.menu-settings'
       }
     ]
   ]
@@ -236,5 +246,5 @@ export const itemsForPropsUrl = {
   SECTION: { type: MenuSettings.ItemTypes.SECTION, config: { url: '_' } },
   HEADER_DIVIDER: { type: MenuSettings.ItemTypes.LINK_CREATE_CASE, config: { url: '_' } },
   BPMN_DESIGNER: { action: { params: { pageId: 'bpmn-designer' } } },
-  PAGE_LINK: { action: { type: SidebarService.ActionTypes.PAGE_LINK, params: { pageId: 'page-link' } } }
+  PAGE_LINK: { action: { type: ActionTypes.PAGE_LINK, params: { pageId: 'page-link' } } }
 };

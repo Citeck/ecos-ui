@@ -72,6 +72,14 @@
           }
         }
       }
+
+      &.field-required {
+        &:after {
+          position: absolute;
+          margin-left: 1px;
+          margin-top: -3px;
+        }
+      }
     }
   }
 }

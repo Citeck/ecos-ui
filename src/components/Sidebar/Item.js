@@ -8,12 +8,15 @@ import { connect } from 'react-redux';
 import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
 import { extractLabel } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/export/urls';
+import { getIconObjectWeb } from '../../helpers/icon';
 import { SourcesId } from '../../constants';
+import { ActionTypes } from '../../constants/sidebar';
 import { MenuSettings } from '../../constants/menu';
 import SidebarService from '../../services/sidebar';
 import { EcosIcon, Icon } from '../common';
 import RemoteBadge from './RemoteBadge';
 import { ItemBtn, ItemLink } from './item-components';
+import { selectIsNewUIAvailable } from '../../selectors/user';
 
 class Item extends React.Component {
   static propTypes = {
@@ -57,7 +60,7 @@ class Item extends React.Component {
 
   get isHandler() {
     return (
-      [SidebarService.ActionTypes.CREATE_SITE].includes(get(this.props, 'data.action.type', '')) ||
+      [ActionTypes.CREATE_SITE].includes(get(this.props, 'data.action.type', '')) ||
       [MenuSettings.ItemTypes.LINK_CREATE_CASE].includes(get(this.props, 'data.type', ''))
     );
   }
@@ -84,14 +87,20 @@ class Item extends React.Component {
     }
   };
 
-  renderContent = React.memo(({ isOpen, data, styleProps: { noIcon, isSeparator } }) => {
+  renderContent = React.memo(({ isOpen, data, styleProps: { noIcon } }) => {
     const label = extractLabel(data.label);
-    const iconCode = typeof data.icon === 'string' && !data.icon.includes(SourcesId.ICON) ? data.icon : undefined;
-    const iconData = typeof data.icon === 'object' ? data.icon : undefined;
+    let iconCode;
+    let iconData;
+
+    if (typeof data.icon === 'string' && !data.icon.includes(SourcesId.ICON) && !data.icon.includes(SourcesId.FONT_ICON)) {
+      iconCode = data.icon;
+    } else {
+      iconData = getIconObjectWeb(data.icon);
+    }
 
     return (
       <>
-        {!noIcon && !isSeparator && (
+        {!noIcon && (
           <EcosIcon family="menu-items" data={iconData} className="ecos-sidebar-item__icon" code={iconCode} title={isOpen ? '' : label} />
         )}
         <div className="ecos-sidebar-item__label" title={label}>
@@ -102,8 +111,8 @@ class Item extends React.Component {
   });
 
   renderLabel() {
-    const { isSiteDashboardEnable, data, isOpen, styleProps } = this.props;
-    const extraParams = { isSiteDashboardEnable };
+    const { isSiteDashboardEnable, data, isOpen, styleProps, isNewUIAvailable } = this.props;
+    const extraParams = { isSiteDashboardEnable, isNewUIAvailable };
     const contentProps = { data, isOpen, styleProps };
 
     if (this.collapsible || styleProps.isSeparator) {
@@ -197,7 +206,8 @@ class Item extends React.Component {
 const mapStateToProps = state => ({
   isOpen: state.slideMenu.isOpen,
   isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable,
-  isMobile: state.view.isMobile
+  isMobile: state.view.isMobile,
+  isNewUIAvailable: selectIsNewUIAvailable(state)
 });
 
 const mapDispatchToProps = dispatch => ({

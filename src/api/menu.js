@@ -1,8 +1,10 @@
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
+import debounce from 'lodash/debounce';
 
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
+import { ActionTypes } from '../constants/sidebar';
 import { PROXY_URI } from '../constants/alfresco';
 import { LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
 import Records from '../components/Records';
@@ -18,21 +20,62 @@ const postProcessMenuItemChildren = items => {
 };
 
 const postProcessMenuConfig = item => {
-  let journalRef = lodashGet(item, 'action.params.journalRef');
+  const type = lodashGet(item, 'action.type');
+  const journalRef = lodashGet(item, 'action.params.journalRef');
+  const siteName = lodashGet(item, 'action.params.siteName');
 
-  let items = postProcessMenuItemChildren(item.items);
-  let uiType = journalRef ? getJournalUIType(journalRef) : '';
+  const items = postProcessMenuItemChildren(item.items);
+  const journalUiType = type === ActionTypes.JOURNAL_LINK && journalRef ? getJournalUIType(journalRef) : '';
+  const siteUiType = type === ActionTypes.SITE_LINK && siteName ? MenuApi.getSiteUiType(siteName) : '';
 
-  return Promise.all([items, uiType]).then(itemsAndUIType => {
+  return Promise.all([items, journalUiType, siteUiType]).then(itemsAndUIType => {
     item.items = itemsAndUIType[0];
-    if (itemsAndUIType[1]) {
-      item.action.params.uiType = itemsAndUIType[1];
+
+    if (itemsAndUIType[1] || itemsAndUIType[2]) {
+      item.action.params.uiType = itemsAndUIType[1] || itemsAndUIType[2];
     }
+
     return item;
   });
 };
 
 export class MenuApi extends CommonApi {
+  static getSiteUiType = siteName => {
+    if (!siteName) {
+      return Promise.resolve();
+    }
+
+    let uiType = MenuApi.uiTypeBySiteName[siteName];
+
+    if (uiType) {
+      return uiType.typePromise;
+    }
+
+    uiType = {};
+    uiType.typePromise = new Promise(resolve => {
+      uiType.resolve = resolve;
+    });
+
+    MenuApi.uiTypeBySiteName[siteName] = uiType;
+    MenuApi.getSiteUiTypes();
+
+    return uiType.typePromise;
+  };
+
+  static uiTypeBySiteName = {};
+
+  static getSiteUiTypes = debounce(() => {
+    const records = Object.keys(MenuApi.uiTypeBySiteName).map(key => `site@${key}`);
+
+    Records.get(records)
+      .load({ id: '.id', type: 'uiType' }, true)
+      .then(result => {
+        result.forEach(data => {
+          MenuApi.uiTypeBySiteName[data.id].resolve(data.type);
+        });
+      });
+  }, 300);
+
   getNewJournalPageUrl = params => {
     let listId = params.listId;
     let siteId = params.siteName;
@@ -201,23 +244,22 @@ export class MenuApi extends CommonApi {
       .catch(() => ({}));
   };
 
-  getMenuItemsByVersion = version => {
+  getMenuItems = async ({ version, id }) => {
     const user = getCurrentUserName();
+    let config;
 
-    return Records.queryOne(
-      {
-        sourceId: 'uiserv/menu',
-        query: { user, version }
-      },
-      { menu: 'subMenu?json' }
-    ).then(resp =>
-      fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || [], {
-        label: '.disp',
-        journalId: 'id',
-        journalsListId: 'journalsListId',
-        createVariants: 'createVariants[]?json'
-      })
-    );
+    if (id) {
+      config = await Records.get(`${SourcesId.MENU}@${id}`).load('subMenu?json', true);
+    } else {
+      config = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'subMenu?json');
+    }
+
+    return fetchExtraItemInfo(lodashGet(config, 'left.items') || [], {
+      label: '.disp',
+      journalId: 'id',
+      journalsListId: 'journalsListId',
+      createVariants: 'createVariants[]?json'
+    });
   };
 
   getMenuItemIconUrl = iconName => {
@@ -266,54 +308,36 @@ export class MenuApi extends CommonApi {
       .then(resp => resp);
   };
 
-  getUserMenuConfig = () => {
+  getUserMenuConfig = async () => {
     const user = getCurrentUserName();
+    const configVersion = await Records.get(`${SourcesId.ECOS_CONFIG}@default-ui-main-menu`).load('.str');
+    const _ver = configVersion.replace('left-v', '');
+    const version = _ver !== 'left' ? +_ver : 0;
+    const id = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'id');
 
-    const getVer = () =>
-      Records.get('ecos-config@default-ui-main-menu')
-        .load('.str')
-        .then(result => {
-          const version = result.replace('left-v', '');
-
-          if (version !== 'left') {
-            return +version;
-          }
-        });
-
-    const getId = version =>
-      Records.queryOne(
-        {
-          sourceId: SourcesId.MENU,
-          query: { user, version }
-        },
-        { id: 'id' },
-        {}
-      ).then(data => ({ version, ...data }));
-
-    return getVer().then(getId);
+    return { version, configVersion, id };
   };
 
-  getMenuSettingsConfig = ({ id = '' }) => {
-    return Records.get(`${SourcesId.MENU}@${id}`)
-      .load(
-        {
-          id: 'id',
-          authorities: 'authorities[]?str',
-          menu: 'subMenu?json'
-        },
-        true
-      )
-      .then(resp =>
-        fetchExtraItemInfo(lodashGet(resp, 'menu.left.items') || [], { label: '.disp' }).then(items => {
-          lodashSet(resp, 'menu.left.items', items);
-          return resp;
-        })
-      )
-      .then(resp => resp || {})
-      .catch(err => {
-        console.error(err);
-        return {};
-      });
+  getMenuSettingsConfig = async ({ id = '' }) => {
+    const config = await Records.get(`${SourcesId.MENU}@${id}`).load(
+      {
+        id: 'id',
+        authorities: 'authorities[]?str',
+        menu: 'subMenu?json'
+      },
+      true
+    );
+    const updItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
+    const filterAuthorities = (lodashGet(config, 'authorities') || []).filter(item => item !== LOWEST_PRIORITY);
+
+    !filterAuthorities.length && filterAuthorities.push(getCurrentUserName());
+
+    const updAuthorities = await this.getAuthoritiesInfoByName(filterAuthorities);
+
+    lodashSet(config, 'menu.left.items', updItems);
+    lodashSet(config, 'authorities', updAuthorities);
+
+    return config;
   };
 
   getItemInfoByRef = records => {
@@ -367,12 +391,14 @@ export class MenuApi extends CommonApi {
       .then(fetchExtraGroupItemInfo);
   };
 
-  saveMenuSettingsConfig = ({ id, subMenu, authorities }) => {
+  saveMenuSettingsConfig = ({ id, subMenu, authorities, version }) => {
     const rec = Records.get(`${SourcesId.MENU}@${id}`);
+
+    !authorities.length && authorities.push(LOWEST_PRIORITY);
 
     rec.att('subMenu', subMenu);
     rec.att('authorities[]?str', authorities);
-    rec.att('version', 1);
+    rec.att('version', version);
 
     return rec.save();
   };

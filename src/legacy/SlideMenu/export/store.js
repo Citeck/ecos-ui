@@ -2,6 +2,7 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
+
 import createRootReducer from './reducers';
 import sagas from './sagas';
 

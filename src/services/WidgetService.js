@@ -2,11 +2,12 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 
 import { t } from '../helpers/util';
-import Modal from '../components/common/EcosModal/CiteckEcosModal';
 import { UploadNewVersion } from '../components/formAction';
-import { DocPreview } from '../components/widgets/DocPreview';
-import { SelectOrgstruct } from '../components/common/form';
 import BusinessProcessViewer from '../components/BusinessProcessViewer';
+import { DocPreview } from '../components/widgets/DocPreview';
+import Modal from '../components/common/EcosModal/CiteckEcosModal';
+import { SelectOrgstruct } from '../components/common/form';
+import { AUTHORITY_TYPE_USER, TAB_ALL_USERS } from '../components/common/form/SelectOrgstruct/constants';
 
 export default class WidgetService {
   static uploadNewVersion(params = {}) {
@@ -45,6 +46,7 @@ export default class WidgetService {
     };
 
     const handleCancel = () => {
+      onSelect && onSelect(false);
       timer = setTimeout(handleClose, 100);
     };
 
@@ -62,6 +64,8 @@ export default class WidgetService {
         onCancelSelect={handleCancel}
         className="select-orgstruct-modal"
         modalTitle={t('select-orgstruct.modal.title.edit-task-assignee')}
+        allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
+        defaultTab={TAB_ALL_USERS}
       />,
       container
     );

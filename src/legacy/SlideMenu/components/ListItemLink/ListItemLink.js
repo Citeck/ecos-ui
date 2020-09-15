@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
+import lodashGet from 'lodash/get';
+
 import { setSelectedId, toggleExpanded } from '../../actions/slideMenu';
 import { t } from '../../../../helpers/util';
 import ListItemIcon from '../ListItemIcon';
-import lodashGet from 'lodash/get';
 import { MenuApi } from '../../../../api/menu';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../../../../constants/pageTabs';
 import { getJournalPageUrl, isNewVersionPage, NEW_VERSION_PREFIX } from '../../../../helpers/urls';
 import { URL } from '../../../../constants';
 import SidebarService from '../../../../services/sidebar';
+import { selectIsNewUIAvailable } from '../../../../selectors/user';
 
 const PAGE_PREFIX = '/share/page';
 const menuApi = new MenuApi();
 
 const mapStateToProps = state => ({
+  isNewUIAvailable: selectIsNewUIAvailable(state),
   selectedId: state.slideMenu.selectedId,
   isSiteDashboardEnable: state.slideMenu.isSiteDashboardEnable,
   isNewJournalsPageEnable: state.slideMenu.isNewJournalsPageEnable
@@ -28,7 +31,15 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   setExpanded: id => dispatch(toggleExpanded(id))
 });
 
-const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDashboardEnable, isNewJournalsPageEnable }) => {
+const ListItemLink = ({
+  item,
+  onSelectItem,
+  selectedId,
+  withNestedList,
+  isSiteDashboardEnable,
+  isNewJournalsPageEnable,
+  isNewUIAvailable
+}) => {
   const journalId = lodashGet(item, 'params.journalId', '');
   const [journalTotalCount, setJournalTotalCount] = useState(0);
   const attributes = {};
@@ -78,7 +89,20 @@ const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDa
         }
 
         let uiType = params.uiType || '';
-        let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
+        let isNewUILink;
+
+        // Cause: https://citeck.atlassian.net/browse/ECOSUI-468
+        switch (uiType) {
+          case 'react':
+            isNewUILink = true;
+            break;
+          case 'share':
+            isNewUILink = false;
+            break;
+          default:
+            // Cause: https://citeck.atlassian.net/browse/ECOSUI-499
+            isNewUILink = isNewUIAvailable;
+        }
 
         if (isNewUILink) {
           targetUrl = getJournalPageUrl({
@@ -94,6 +118,7 @@ const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDa
           attributes.rel = 'noopener noreferrer';
         } else {
           targetUrl = PAGE_PREFIX;
+
           if (params.siteName) {
             targetUrl += `/site/${params.siteName}`;
           }
@@ -120,10 +145,6 @@ const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDa
           if (params.maxItems) {
             targetUrl += `&maxItems=${params.maxItems}`;
           }
-
-          if (isNewJournalsPageEnable) {
-            targetUrl = menuApi.getNewJournalPageUrl(params);
-          }
         }
 
         break;
@@ -132,38 +153,56 @@ const ListItemLink = ({ item, onSelectItem, selectedId, withNestedList, isSiteDa
         targetUrl = `${PAGE_PREFIX}/${params.pageId}${sectionPostfix}`;
         break;
       case 'SITE_LINK':
-        if (isNewVersionPage()) {
-          ignoreTabHandler = false;
-          attributes.target = '_blank';
-          attributes.rel = 'noopener noreferrer';
+        {
+          const uiType = params.uiType || '';
+          let isNewUILink;
 
-          if (!isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
-            const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');
-
-            if (journalLink) {
-              const params = journalLink.action.params;
-              let listId = 'tasks';
-
-              if (params.siteName) {
-                listId = params.listId || 'main';
-              }
-
-              targetUrl = getJournalPageUrl({
-                journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
-                journalId: params.journalRef,
-                journalSettingId: '', // TODO?
-                nodeRef: params.journalRef,
-                filter: params.filterRef
-              });
-
+          // Cause: https://citeck.atlassian.net/browse/ECOSUI-469
+          switch (uiType) {
+            case 'react':
+              isNewUILink = true;
               break;
-            }
+            case 'share':
+              isNewUILink = false;
+              break;
+            default:
+              // Cause: https://citeck.atlassian.net/browse/ECOSUI-499
+              isNewUILink = isNewUIAvailable;
           }
 
-          targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
-          attributes[REMOTE_TITLE_ATTR_NAME] = true;
-        } else {
-          targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
+          if (isNewUILink) {
+            ignoreTabHandler = false;
+            attributes.target = '_blank';
+            attributes.rel = 'noopener noreferrer';
+
+            if (!isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
+              const journalLink = item.items.find(subitem => subitem.action.type === 'JOURNAL_LINK');
+
+              if (journalLink) {
+                const params = journalLink.action.params;
+                let listId = 'tasks';
+
+                if (params.siteName) {
+                  listId = params.listId || 'main';
+                }
+
+                targetUrl = getJournalPageUrl({
+                  journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
+                  journalId: params.journalRef,
+                  journalSettingId: '', // TODO?
+                  nodeRef: params.journalRef,
+                  filter: params.filterRef
+                });
+
+                break;
+              }
+            }
+
+            targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
+            attributes[REMOTE_TITLE_ATTR_NAME] = true;
+          } else {
+            targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
+          }
         }
         break;
       default:

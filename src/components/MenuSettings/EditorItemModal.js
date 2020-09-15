@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
-import { extractLabel, t } from '../../helpers/util';
+import { extractLabel, packInLabel, t } from '../../helpers/util';
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings as MS } from '../../constants/menu';
+import MenuSettingsService from '../../services/MenuSettingsService';
 import IconSelect from '../IconSelect';
 import { EcosIcon, EcosModal } from '../common';
 import { Input, MLText } from '../common/form';
@@ -28,14 +29,13 @@ const Labels = {
   MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit'
 };
 
-function EditorItemModal({ item, type, onClose, onSave, action }) {
+function EditorItemModal({ item, type, onClose, onSave, action, params }) {
   const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
+  const { hasUrl, hasIcon } = MenuSettingsService.getActionPermissions({ ...item, type: type.key }, params);
   const [label, setLabel] = useState({});
   const [url, setUrl] = useState('');
   const [icon, setIcon] = useState(defaultIcon);
   const [isOpenSelectIcon, setOpenSelectIcon] = useState(false);
-  const hasUrl = [MS.ItemTypes.ARBITRARY].includes(type.key);
-  const hasIcon = ![MS.ItemTypes.HEADER_DIVIDER].includes(type.key);
 
   useEffect(() => {
     if (action === MS.ActionTypes.EDIT) {
@@ -65,15 +65,16 @@ function EditorItemModal({ item, type, onClose, onSave, action }) {
     setOpenSelectIcon(false);
   };
 
-  const isValid = () => {
-    return !label;
+  const isNotValid = () => {
+    const _label = packInLabel(label);
+
+    return Object.values(_label).every(val => !val) || (hasUrl && !url);
   };
 
   const title =
-    (action === MS.ActionTypes.CREATE ? t(Labels.MODAL_TITLE_ADD) : t(Labels.MODAL_TITLE_EDIT)) +
-    ': ' +
-    t(type.label) +
-    (!!item ? ` "${extractLabel(item.label)}"` : '');
+    action === MS.ActionTypes.CREATE
+      ? t(Labels.MODAL_TITLE_ADD, { type: t(type.label) })
+      : t(Labels.MODAL_TITLE_EDIT, { type: t(type.label), name: extractLabel(item.label) });
 
   return (
     <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={title}>
@@ -99,7 +100,7 @@ function EditorItemModal({ item, type, onClose, onSave, action }) {
           </div>
           {isOpenSelectIcon && (
             <IconSelect
-              prefixIcon="leftmenu"
+              prefixIcon="icon-leftmenu-"
               family="menu-items"
               useFontIcons
               selectedIcon={icon}
@@ -112,7 +113,7 @@ function EditorItemModal({ item, type, onClose, onSave, action }) {
 
       <div className="ecos-menu-editor-item__buttons">
         <Btn onClick={handleCancel}>{t(Labels.MODAL_BTN_CANCEL)}</Btn>
-        <Btn onClick={handleApply} className="ecos-btn_blue ecos-btn_hover_light-blue" disabled={isValid()}>
+        <Btn onClick={handleApply} className="ecos-btn_blue ecos-btn_hover_light-blue" disabled={isNotValid()}>
           {!!item ? t(Labels.MODAL_BTN_EDIT) : t(Labels.MODAL_BTN_ADD)}
         </Btn>
       </div>

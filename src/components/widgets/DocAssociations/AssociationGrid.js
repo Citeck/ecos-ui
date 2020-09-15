@@ -140,6 +140,7 @@ class AssociationGrid extends Component {
           autoHeight
           byContentHeight
           data={associations}
+          sortable={false}
           forwardedRef={this.#tableRef}
           columns={DocAssociationsConverter.getColumnForWeb(columns)}
           inlineTools={this.renderInlineTools}

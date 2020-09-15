@@ -8,7 +8,7 @@ export default class AttributeActionsResolver extends RecordActionsResolver {
     const {
       config: { attribute = '_actions' }
     } = action;
-    const actions = await Records.get(records).load(`${attribute}[]{id,name,icon,type,config:config?json}`);
+    const actions = await Records.get(records).load(`${attribute}[]{id,name,icon,type,config:config?json}`, true);
     if (actions) {
       let result = {};
       for (let i = 0; i < actions.length; i++) {

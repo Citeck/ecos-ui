@@ -242,10 +242,10 @@ $border-base: #c1c1c1;
       &_img {
         height: 100%;
         width: 100%;
-        display: flex;
+        text-align: unset;
 
         #{$root}__viewer-page-content {
-          margin: auto;
+          margin: unset;
         }
       }
 
@@ -264,6 +264,11 @@ $border-base: #c1c1c1;
         box-shadow: $box-shadow-default;
         transition: all 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
         transform-origin: top center;
+
+        &_img {
+          transform-origin: top left;
+          transition-duration: 0.5s;
+        }
       }
 
       &_img &-content {

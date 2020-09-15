@@ -1,16 +1,19 @@
-import Records from '../Records';
-
-import actionsApi from './recordActionsApi';
-
-import actionsRegistry from './actionsRegistry';
-
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
+
+import { extractLabel, t } from '../../../helpers/util';
+import DialogManager from '../../common/dialogs/Manager/DialogManager';
+import { replaceAttributeValues } from '../utils/recordUtils';
+import Records from '../Records';
+import actionsApi from './recordActionsApi';
+import actionsRegistry from './actionsRegistry';
+import { notifyFailure } from './util/actionUtils';
+
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
-import { deepClone, t, extractLabel } from '../../../helpers/util';
-import DialogManager from '../../common/dialogs/Manager/DialogManager';
 
 /**
  * @typedef {Boolean} RecordsActionBoolResult
@@ -164,84 +167,18 @@ class RecordActions {
     return result;
   }
 
-  static async replaceAttributeValues(data, record) {
-    if (!data) {
-      return {};
-    }
-
-    const mutableData = deepClone(data);
-    const regExp = /\$\{([^}]+)\}/g;
-    const nonSpecialsRegex = /([^${}]+)/g;
-    const keys = Object.keys(mutableData);
-    const results = new Map();
-
-    if (!keys.length) {
-      return mutableData;
-    }
-
-    await Promise.all(
-      keys.map(async key => {
-        if (typeof mutableData[key] === 'object') {
-          mutableData[key] = await RecordActions.replaceAttributeValues(mutableData[key], record);
-          return;
-        }
-
-        if (typeof mutableData[key] !== 'string') {
-          return;
-        }
-
-        let fields = mutableData[key].match(regExp);
-
-        if (!fields) {
-          return;
-        }
-
-        fields = fields.map(el => el.match(nonSpecialsRegex)[0]);
-
-        await Promise.all(
-          fields.map(async strKey => {
-            if (results.has(strKey)) {
-              return;
-            }
-
-            let recordData = '';
-
-            if (strKey === 'recordRef') {
-              recordData = await Records.get(record).id;
-            } else {
-              recordData = await Records.get(record).load(strKey);
-            }
-
-            results.set(strKey, recordData);
-          })
-        );
-
-        fields.forEach(field => {
-          const fieldValue = results.get(field);
-          const fieldMask = '${' + field + '}';
-          if (mutableData[key] === fieldMask) {
-            mutableData[key] = fieldValue;
-          } else {
-            mutableData[key] = mutableData[key].replace(fieldMask, fieldValue);
-          }
-        });
-      })
-    );
-
-    return mutableData;
-  }
-
   static _getConfirmData = action => {
     const title = extractLabel(get(action, 'confirm.title'));
     const text = extractLabel(get(action, 'confirm.message'));
     const formId = get(action, 'confirm.formRef');
+    const modalClass = get(action, 'confirm.modalClass');
     const needConfirm = !!formId || !!title || !!text;
 
-    return needConfirm ? { formId, title, text } : null;
+    return needConfirm ? { formId, title, text, modalClass } : null;
   };
 
   static _confirmExecAction = (data, callback) => {
-    const { title, text, formId } = data;
+    const { title, text, formId, modalClass } = data;
 
     if (formId) {
       Records.get(formId)
@@ -253,7 +190,8 @@ class RecordActions {
               display: 'form',
               ...formDefinition
             },
-            onSubmit: submission => callback(submission.data)
+            onSubmit: submission => callback(submission.data),
+            onCancel: _ => callback(false)
           });
         })
         .catch(e => {
@@ -262,7 +200,7 @@ class RecordActions {
           DialogManager.showInfoDialog({ title: t('error'), text: e.message });
         });
     } else {
-      DialogManager.confirmDialog({ title, text, onNo: () => callback(false), onYes: () => callback(true) });
+      DialogManager.confirmDialog({ title, text, modalClass, onNo: () => callback(false), onYes: () => callback(true) });
     }
   };
 
@@ -287,6 +225,24 @@ class RecordActions {
       RecordActions._confirmExecAction(confirmData, result => resolve(result));
     });
   }
+
+  /**
+   * Fill values by attributes mapping (change properties of action)
+   *
+   * @param {Object} action - configuration
+   * @param {Object} data - values which set
+   * @param {String} targetPath - where attributesMapping is in action
+   * @param {String} sourcePath - where to set values by map
+   */
+  static _fillDataByMap = ({ action, data, targetPath, sourcePath }) => {
+    const attributesMapping = get(action, `${sourcePath}attributesMapping`) || {};
+
+    for (let path in attributesMapping) {
+      if (attributesMapping.hasOwnProperty(path)) {
+        set(action, `${targetPath}${path}`, get(data, attributesMapping[path]));
+      }
+    }
+  };
 
   /**
    * Get actions for record.
@@ -418,11 +374,14 @@ class RecordActions {
   async execForRecord(record, action, context = {}) {
     if (!record) {
       console.error('Record is a mandatory parameter! Action: ', action);
+      notifyFailure();
       return false;
     }
     const handler = RecordActions._getActionsExecutor(action);
 
     if (handler == null) {
+      notifyFailure();
+      console.error('No handler. Action: ', action);
       return false;
     }
     const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
@@ -434,19 +393,24 @@ class RecordActions {
     const confirmed = await RecordActions._checkConfirmAction(action);
 
     if (!confirmed) {
-      return;
+      return false;
     }
 
-    const config = await RecordActions.replaceAttributeValues(action.config, record);
+    if (!isEmpty(confirmed)) {
+      RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
+    }
+
+    const config = await replaceAttributeValues(action.config, record);
     const actionToExec = {
       ...action,
       config
     };
     const result = handler.execForRecord(Records.get(record), actionToExec, execContext);
+    const actResult = await RecordActions._wrapResultIfRequired(result);
 
     RecordActions._updateRecords(record);
 
-    return RecordActions._wrapResultIfRequired(result);
+    return actResult;
   }
 
   /**
@@ -482,10 +446,11 @@ class RecordActions {
       ...context
     };
     const result = handler.execForRecords(recordInstances, action, execContext);
+    const actResult = await RecordActions._wrapResultIfRequired(result);
 
     RecordActions._updateRecords(recordInstances, true);
 
-    return RecordActions._wrapResultIfRequired(result);
+    return actResult;
   }
 
   /**
@@ -519,6 +484,7 @@ class RecordActions {
     }
 
     const result = handler.execForQuery(query, action, execContext);
+
     return RecordActions._wrapResultIfRequired(result);
   }
 
@@ -553,9 +519,11 @@ class RecordActions {
     if (!actionResult) {
       return false;
     }
+
     if (actionResult.then) {
       return actionResult.then(r => (r == null ? false : r));
     }
+
     return actionResult;
   }
 

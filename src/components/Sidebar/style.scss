@@ -39,7 +39,7 @@ $transition-duration: 0.3s;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-
+  z-index: 5;
   width: 72px;
   transition: width $transition-duration;
   background: $color-white;
@@ -282,6 +282,10 @@ $transition-duration: 0.3s;
 
         #{$menu-item}__link {
           padding-left: 25px;
+        }
+
+        &#{$menu-item}_title-separator #{$menu-item}__label {
+          color: $text-color-dark;
         }
       }
     }

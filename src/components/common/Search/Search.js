@@ -43,10 +43,15 @@ export default class Search extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if ((this.props.text && !prevProps.text && !this.state.text) || (this.props.text && this.props.text !== prevProps.text)) {
-      this.setState({ text: this.props.text });
-      this.triggerSearch(this.props.text);
+    const text = this.props.text || '';
+
+    if (text !== (prevProps.text || '') && text !== this.state.text) {
+      this.setState({ text });
     }
+  }
+
+  componentWillUnmount() {
+    this.onLiveSearch.cancel();
   }
 
   onPressBtn = () => {

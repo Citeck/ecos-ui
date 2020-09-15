@@ -91,7 +91,7 @@ class Journals extends Component {
   }
 
   componentDidMount() {
-    this.getJournalsData();
+    trigger.call(this, 'getJournalsData');
     trigger.call(this, 'onRender');
   }
 
@@ -101,7 +101,8 @@ class Journals extends Component {
       urlParams: { journalId },
       stateId,
       grid,
-      isLoading
+      isLoading,
+      getJournalsData
     } = this.props;
     const {
       isActivePage: _isActivePage,
@@ -110,15 +111,15 @@ class Journals extends Component {
     const search = this.getSearch();
 
     if (isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId)) {
-      this.getJournalsData();
+      getJournalsData();
     }
 
     if (prevProps.stateId !== stateId) {
-      this.getJournalsData();
+      getJournalsData();
     }
 
-    if (search && !get(prevProps, 'grid.columns') && get(grid, 'columns')) {
-      this.search(search);
+    if (search !== get(grid, 'search')) {
+      this.onSearch(search);
     }
 
     if (isActivePage && this.state.isForceUpdate) {
@@ -142,14 +143,6 @@ class Journals extends Component {
   getSearch = () => {
     return this.props.isActivePage ? get(getSearchParams(), 'search', '') : '';
   };
-
-  refresh = () => {
-    this.props.reloadGrid();
-  };
-
-  getJournalsData() {
-    this.props.getJournalsData();
-  }
 
   addRecord = createVariant => {
     FormManager.createRecordByVariant(createVariant, {
@@ -196,7 +189,7 @@ class Journals extends Component {
     );
   };
 
-  search = text => {
+  onSearch = text => {
     const searchParams = {
       ...getSearchParams(),
       search: text
@@ -211,7 +204,7 @@ class Journals extends Component {
   };
 
   render() {
-    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage, selectedRecords } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage, selectedRecords, reloadGrid } = this.props;
     const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height } = this.state;
 
     if (!journalConfig) {
@@ -254,8 +247,8 @@ class Journals extends Component {
               togglePreview={this.togglePreview}
               togglePie={this.togglePie}
               showGrid={this.showGrid}
-              refresh={this.refresh}
-              onSearch={this.search}
+              refresh={reloadGrid}
+              onSearch={this.onSearch}
               addRecord={this.addRecord}
               isMobile={isMobile}
               searchText={this.getSearch()}

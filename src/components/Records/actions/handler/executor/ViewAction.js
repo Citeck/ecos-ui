@@ -34,15 +34,26 @@ export default class ViewAction extends ActionsExecutor {
   async execForRecord(record, action, context) {
     const { config = {} } = action;
     const openInBackground = config.background === true;
+    const updateUrl = config.reopen === true;
+    const openNewBrowserTab = config.newBrowserTab === true;
+    const reopenBrowserTab = config.reopenBrowserTab === true;
     const openNewTab = openInBackground || !config.reopen;
-    const openParams = { openInBackground, openNewTab };
+    const openParams = {
+      openInBackground,
+      openNewTab,
+      updateUrl,
+      openNewBrowserTab,
+      reopenBrowserTab
+    };
 
     if (config.viewType === 'task-document-dashboard') {
       Records.get(record.id)
         .load('wfm:document?id')
         .then(docId => (docId ? goToCardDetailsPage(docId, openParams) : ''));
       return false;
-    } else if (config.viewType === 'view-task') {
+    }
+
+    if (config.viewType === 'view-task') {
       goToTaskView(record.id, openParams);
       return false;
     }

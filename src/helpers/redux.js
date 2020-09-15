@@ -13,7 +13,7 @@ export const handleState = (state, stateId, payload) =>
       };
 
 export const handleAction = action => {
-  const _args = action.payload._args;
+  const { _args } = action.payload || {};
 
   if (_args !== undefined) {
     action.payload = _args;

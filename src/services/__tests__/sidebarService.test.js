@@ -3,8 +3,9 @@ import { MenuSettings } from '../../constants/menu';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../constants/pageTabs';
 import { itemsForPropsUrl } from '../../helpers/__mocks__/menu.mock';
 import SidebarService from '../sidebar';
+import { ActionTypes } from '../../constants/sidebar';
 
-const ATypes = SidebarService.ActionTypes;
+const ATypes = ActionTypes;
 const MITypes = MenuSettings.ItemTypes;
 
 function check(data, method) {

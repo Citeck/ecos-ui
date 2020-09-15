@@ -46,11 +46,10 @@ class PageTabs extends React.Component {
 
   inited = false;
 
+  $tabWrapper = React.createRef();
+
   constructor(props) {
     super(props);
-
-    this.$tabWrapper = React.createRef();
-
     this.checkUrl();
   }
 
@@ -102,11 +101,11 @@ class PageTabs extends React.Component {
   }
 
   get elmActiveTab() {
-    return this.wrapper.querySelector('.page-tab__tabs-item_active');
+    return this.wrapper && this.wrapper.querySelector('.page-tab__tabs-item_active');
   }
 
   get sizeTab() {
-    return (this.wrapper.querySelector('.page-tab__tabs-item:not(.page-tab__tabs-item_active)') || {}).offsetWidth;
+    return this.wrapper && (this.wrapper.querySelector('.page-tab__tabs-item:not(.page-tab__tabs-item_active)') || {}).offsetWidth;
   }
 
   checkUrl() {
@@ -132,7 +131,7 @@ class PageTabs extends React.Component {
     const isLast = this.elmActiveTab && this.elmActiveTab.nextElementSibling ? 1 : -1;
     const padding = 10;
 
-    animateScrollTo(this.wrapper, { scrollLeft: tLeft - wLeft - isLast * padding });
+    this.wrapper && animateScrollTo(this.wrapper, { scrollLeft: tLeft - wLeft - isLast * padding });
     this.checkNeedArrow();
   }
 
@@ -162,10 +161,8 @@ class PageTabs extends React.Component {
    * @returns {boolean}
    */
   checkScrollPosition() {
-    const { current } = this.$tabWrapper;
-
-    if (current) {
-      if (current.scrollWidth > current.offsetWidth + getScrollbarWidth()) {
+    if (this.wrapper) {
+      if (this.wrapper.scrollWidth > this.wrapper.offsetWidth + getScrollbarWidth()) {
         return true;
       }
     }
@@ -296,21 +293,21 @@ class PageTabs extends React.Component {
 
   handleScrollToActiveTab = () => {
     const { needArrow } = this.state;
-    const wrapper = this.wrapper;
 
-    if (!wrapper || !needArrow) {
+    if (!this.wrapper || !needArrow) {
       return;
     }
 
     const { offsetLeft = 0, offsetWidth = 0 } = this.elmActiveTab || {};
-    const scrollLeft = offsetLeft - wrapper.offsetWidth / 2 + offsetWidth / 2;
+    const scrollLeft = offsetLeft - this.wrapper.offsetWidth / 2 + offsetWidth / 2;
 
-    animateScrollTo(wrapper, { scrollLeft });
+    animateScrollTo(this.wrapper, { scrollLeft });
     this.checkNeedArrow();
   };
 
   handleBeforeSortStart = ({ node }) => {
-    node.classList.toggle('page-tab__tabs-item_sorting');
+    node.classList.add('page-tab__tabs-item_sorting');
+    this.wrapper && this.wrapper.classList.add('page-tab__tabs_sorting');
 
     this.setState({ draggableNode: node });
   };
@@ -319,7 +316,8 @@ class PageTabs extends React.Component {
     const { draggableNode } = this.state;
 
     event.stopPropagation();
-    draggableNode.classList.toggle('page-tab__tabs-item_sorting');
+    draggableNode && draggableNode.classList.remove('page-tab__tabs-item_sorting');
+    this.wrapper && this.wrapper.classList.remove('page-tab__tabs_sorting');
 
     this.props.moveTabs({ indexFrom: oldIndex, indexTo: newIndex });
     this.setState({ draggableNode: null });
@@ -412,6 +410,8 @@ class PageTabs extends React.Component {
         <SortableContainer
           axis="x"
           lockAxis="x"
+          lockToContainerEdges={true}
+          lockOffset="20%"
           distance={3}
           updateBeforeSortStart={this.handleBeforeSortStart}
           onSortEnd={this.handleSortEnd}
@@ -422,7 +422,6 @@ class PageTabs extends React.Component {
         </SortableContainer>
         <div className="page-tab__tabs-add icon-small-plus" title={t(Labels.GO_HOME)} onClick={this.handleAddTab} />
         {this.renderRightButton()}
-
         <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
       </ClickOutside>
     );

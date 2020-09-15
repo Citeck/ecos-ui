@@ -1,9 +1,13 @@
 import { handleActions } from 'redux-actions';
 import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
 
 import {
   initState,
+  search,
   setColumnsSetup,
+  setCustomJournal,
+  setCustomJournalMode,
   setDashletConfig,
   setEditorMode,
   setGrid,
@@ -17,8 +21,6 @@ import {
   setJournalsList,
   setJournalsListItem,
   setOnlyLinked,
-  setCustomJournalMode,
-  setCustomJournal,
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
@@ -27,11 +29,10 @@ import {
   setSelectAllRecordsVisible,
   setSelectedRecords,
   setSettingItem,
-  setUrl,
-  search
+  setUrl
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { deepClone, t } from '../helpers/util';
+import { t } from '../helpers/util';
 import { handleAction, handleState } from '../helpers/redux';
 import {
   DEFAULT_INLINE_TOOL_SETTINGS,
@@ -40,7 +41,7 @@ import {
   JOURNAL_SETTING_ID_FIELD
 } from '../components/Journals/constants';
 
-const defaultState = {
+export const defaultState = {
   loading: true,
   editorMode: false,
 
@@ -110,6 +111,7 @@ const defaultState = {
 const initialState = {};
 
 Object.freeze(initialState);
+Object.freeze(defaultState);
 
 export default handleActions(
   {
@@ -122,7 +124,7 @@ export default handleActions(
 
       return {
         ...state,
-        [id]: deepClone(defaultState)
+        [id]: cloneDeep(defaultState)
       };
     },
     [setUrl]: (state, action) => {

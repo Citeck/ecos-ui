@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep';
 
-import { replaceHistoryLink, pushHistoryLink } from '../urls';
+import * as UrlUtils from '../urls';
 import { history } from '../__mocks__/urls.mock';
 
 describe('Urls helpers', () => {
@@ -21,7 +21,7 @@ describe('Urls helpers', () => {
 
     data.forEach(item => {
       it(item.title, () => {
-        replaceHistoryLink(...item.input);
+        UrlUtils.replaceHistoryLink(...item.input);
 
         expect(item.input[0].history[item.input[0].history.length - 1]).toEqual(item.output);
       });
@@ -55,10 +55,24 @@ describe('Urls helpers', () => {
 
     data.forEach(item => {
       it(item.title, () => {
-        pushHistoryLink(...item.input);
+        UrlUtils.pushHistoryLink(...item.input);
 
         expect(item.input[0].history[item.input[0].history.length - 1]).toEqual(item.output);
       });
     });
   });
+
+  describe.each([['/v2/journals', false], ['/v2/dashboard', true], ['/v2/dashboard/settings', false], ['/share/page', false]])(
+    'fun isDashboard %s',
+    (url, expected) => {
+      beforeEach(() => {
+        delete window.location;
+        window.location = { pathname: url };
+      });
+
+      it(`returns ${expected}`, () => {
+        expect(UrlUtils.isDashboard(url)).toEqual(expected);
+      });
+    }
+  );
 });

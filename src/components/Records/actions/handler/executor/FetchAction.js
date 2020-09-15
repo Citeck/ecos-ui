@@ -17,6 +17,8 @@ export default class FetchAction extends ActionsExecutor {
       .then(response => (response.ok ? response : Promise.reject({ message: response.statusText })))
       .then(result => {
         notifySuccess();
+        this.updateRecords(record);
+
         return result;
       })
       .catch(e => {

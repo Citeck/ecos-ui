@@ -664,7 +664,7 @@ export default class EcosFormUtils {
   }
 
   static getI18n(defaultI18n, attributes, formI18n) {
-    let global = lodashGet(window, 'Alfresco.messages.ecosForms', {});
+    let global = lodashGet(window, 'Citeck.messages.ecosForms', {});
 
     let result = cloneDeep(defaultI18n);
 

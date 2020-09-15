@@ -63,7 +63,6 @@ class Sidebar extends React.Component {
     if (!isReady) {
       return null;
     }
-
     return (
       <div
         className={classNames('ecos-sidebar', {
@@ -100,7 +99,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
+  fetchSlideMenuItems: _ => dispatch(fetchSlideMenuItems(_)),
   fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
   fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),

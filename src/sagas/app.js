@@ -3,7 +3,7 @@ import lodashSet from 'lodash/set';
 import lodashGet from 'lodash/get';
 
 import { URL } from '../constants';
-import { selectUserName } from '../selectors/user';
+import { getCurrentUserName } from '../helpers/util';
 import {
   backPageFromTransitionsHistory,
   getDashboardEditable,
@@ -13,11 +13,12 @@ import {
   initAppSettings,
   initAppSuccess,
   setDashboardEditable,
-  setFooter
+  setFooter,
+  setLeftMenuEditable
 } from '../actions/app';
-import { validateUserFailure, validateUserSuccess } from '../actions/user';
+import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
-import { getMenuConfig } from '../actions/menu';
+import { getMenuConfig, setMenuConfig } from '../actions/menu';
 import PageService from '../services/PageService';
 
 export function* initApp({ api, fakeApi, logger }, { payload }) {
@@ -30,6 +31,7 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
         yield put(validateUserFailure());
       } else {
         const resp = yield call(api.user.getUserData);
+
         if (!resp.success) {
           yield put(validateUserFailure());
         } else {
@@ -39,6 +41,10 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
           // TODO remove in future: see src/helpers/util.js getCurrentUserName()
           lodashSet(window, 'Alfresco.constants.USERNAME', lodashGet(resp.payload, 'userName'));
         }
+
+        const isNewUIAvailable = yield call(api.user.checkNewUIAvailableStatus);
+
+        yield put(setNewUIAvailableStatus(isNewUIAvailable));
       }
     } catch (e) {
       yield put(validateUserFailure());
@@ -68,12 +74,24 @@ export function* fetchAppSettings({ api, fakeApi, logger }, { payload }) {
 
 export function* fetchDashboardEditable({ api, logger }) {
   try {
-    const username = yield select(selectUserName);
+    const username = getCurrentUserName();
     const editable = yield call(api.app.isDashboardEditable, { username });
 
     yield put(setDashboardEditable(editable));
   } catch (e) {
     logger.error('[fetchDashboardEditable saga] error', e.message);
+  }
+}
+
+export function* fetchLeftMenuEditable({ api, logger }) {
+  try {
+    const username = getCurrentUserName();
+    const leftMenuEditable = yield call(api.app.isDashboardEditable, { username });
+    const menuVersion = yield select(state => lodashGet(state, 'menu.version', 0));
+
+    yield put(setLeftMenuEditable(leftMenuEditable && menuVersion > 0));
+  } catch (e) {
+    logger.error('[fetchLeftMenuEditable saga] error', e.message);
   }
 }
 
@@ -114,6 +132,7 @@ function* appSaga(ea) {
 
   yield takeEvery(initAppSettings().type, fetchAppSettings, ea);
   yield takeEvery(getDashboardEditable().type, fetchDashboardEditable, ea);
+  yield takeEvery([setMenuConfig().type], fetchLeftMenuEditable, ea);
   yield takeEvery(getFooter().type, fetchFooter, ea);
   yield takeEvery(backPageFromTransitionsHistory().type, sagaBackFromHistory, ea);
 }

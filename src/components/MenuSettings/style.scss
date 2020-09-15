@@ -97,6 +97,7 @@
     &__menu-dropdown {
       .tooltip {
         z-index: 9999;
+        min-width: 120px;
       }
     }
 
@@ -122,7 +123,6 @@
         align-items: center;
         justify-content: center;
         color: $color-gray-5;
-        font-weight: $font-weight-bold;
 
         &:hover {
           cursor: pointer;
@@ -135,6 +135,7 @@
 
         .ecos-badge {
           margin-right: 5px;
+          font-weight: $font-weight-semi-bold;
         }
 
         &_active {
@@ -158,6 +159,15 @@
 
         & .ecos-tree__action#{$editor}__action_no-hide {
           display: inline-block;
+        }
+
+        & .ecos-menu-settings-editor-items__block-dropdown.ecos-dropdown-outer_open {
+          display: inline-block;
+
+          .ecos-btn {
+            background-color: $color-blue-light;
+            color: $color-white;
+          }
         }
       }
     }

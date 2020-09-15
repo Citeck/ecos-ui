@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { CreateMenuTypes, MenuSettings as ms, MenuTypes } from '../constants/menu';
+import { CreateMenuTypes, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
 import { extractLabel } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
@@ -20,6 +20,7 @@ export default class MenuConverter {
     if (source) {
       target.id = source.id;
       target.version = source.version;
+      target.configVersion = source.configVersion;
       target.type = source.type || MenuTypes.LEFT;
     }
 
@@ -128,24 +129,21 @@ export default class MenuConverter {
   static getMenuItemsWeb(source) {
     const target = [];
 
-    (function prepareTree(sItems, tItems) {
+    (function prepareTree(sItems, tItems, level) {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
-        const tItem = MenuSettingsService.getItemParams(sItem);
+        const tItem = MenuSettingsService.getItemParams(sItem, { level });
+
         tItem.items = [];
         tItem.config = { ...sItem.config };
         tItem.label = get(sItem, '_remoteData_.label') || tItem.label;
 
-        if (ms.ItemTypes.JOURNAL === sItem.type) {
-          tItem.params.count = get(sItem, '_remoteData_.count');
-        }
-
-        sItem.items && prepareTree(sItem.items, tItem.items);
+        sItem.items && prepareTree(sItem.items, tItem.items, level + 1);
 
         delete sItem._remoteData_;
         tItems.push(tItem);
       }
-    })(source, target);
+    })(source, target, 0);
 
     return target;
   }
