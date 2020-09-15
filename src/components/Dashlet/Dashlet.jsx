@@ -127,8 +127,12 @@ class Dashlet extends Component {
 
   get busyDashletHeight() {
     const elDashlet = this.#dashletRef || {};
-
     const content = elDashlet.querySelector('.dashlet__body-content');
+
+    if (!content) {
+      return {};
+    }
+
     const contentStyle = window.getComputedStyle(content);
     const paddingTop = parseInt(contentStyle.paddingTop, 10) || 0;
     const paddingBottom = parseInt(contentStyle.paddingBottom, 10) || 0;

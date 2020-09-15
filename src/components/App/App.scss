@@ -38,10 +38,12 @@
   }
 
   &-footer {
+    display: grid;
     padding: 3px 40px 15px;
     justify-content: space-between;
     text-align: center;
     font-size: 10px;
     background: $color-footer;
+    grid-row-end: -1;
   }
 }
