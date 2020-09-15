@@ -27,22 +27,8 @@ export default class NumberComponent extends FormIONumberComponent {
     overrideTriggerChange.call(this);
   }
 
-  isBigInt(dataValue = this.dataValue) {
-    let value = dataValue;
-
-    if (value === undefined || (typeof value === 'string' && !value) || Number.isNaN(value)) {
-      return false;
-    }
-
-    if (!Number.isNaN(+value) && (+value > Number.MAX_SAFE_INTEGER || +value < -Number.MAX_SAFE_INTEGER)) {
-      return true;
-    }
-
-    if (typeof value === 'string') {
-      value = parseFloat(value);
-    }
-
-    return String(value).includes('e+');
+  isBigNumber() {
+    return _.get(this, 'component.isBigNumber', false);
   }
 
   getMaskedValue(value) {
@@ -55,7 +41,7 @@ export default class NumberComponent extends FormIONumberComponent {
     if (!_.isNaN(value)) {
       let strNumber = String(value);
 
-      if (this.isBigInt(strNumber)) {
+      if (this.isBigNumber()) {
         strNumber = this.component.stringValue;
       }
 
@@ -68,10 +54,10 @@ export default class NumberComponent extends FormIONumberComponent {
   }
 
   setValue(value, flags) {
-    if (!Array.isArray(value) && this.isBigInt(value)) {
+    if (!Array.isArray(value) && this.isBigNumber()) {
       const stringValue = String(value);
-      _.set(this.component, 'stringValue', stringValue);
 
+      _.set(this.component, 'stringValue', stringValue);
       this.dataValue = stringValue;
 
       for (const i in this.inputs) {
@@ -106,7 +92,7 @@ export default class NumberComponent extends FormIONumberComponent {
 
     if (Array.isArray(value)) {
       value = value.map(item => {
-        if (this.isBigInt(item)) {
+        if (this.isBigNumber()) {
           item = this._prepareStringNumber(item);
         }
 
@@ -131,7 +117,7 @@ export default class NumberComponent extends FormIONumberComponent {
       }
     }
 
-    if (this.isBigInt(value)) {
+    if (this.isBigNumber()) {
       value = this._prepareStringNumber(value);
     }
 
@@ -150,7 +136,7 @@ export default class NumberComponent extends FormIONumberComponent {
       return;
     }
 
-    if (this.isBigInt(value)) {
+    if (this.isBigNumber()) {
       value = this._prepareStringNumber(value);
       renderValue(value);
       return;
@@ -186,8 +172,9 @@ export default class NumberComponent extends FormIONumberComponent {
     const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
     let newValue = value;
 
-    if (this.isBigInt(value)) {
-      newValue = _.get(this.component, 'stringValue', String(value));
+    if (this.isBigNumber()) {
+      newValue = this.formatValue(String(value));
+      _.set(this.component, 'stringValue', newValue);
     }
 
     newValue = newValue.replace(/,/g, '.');
@@ -245,7 +232,7 @@ export default class NumberComponent extends FormIONumberComponent {
       return ''; // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2501 (See const "changed" in Base.updateValue())
     }
 
-    if (typeof val === 'string' && this.isBigInt(val)) {
+    if (this.isBigNumber()) {
       return this._prepareStringNumber(val);
     }
 
@@ -263,7 +250,7 @@ export default class NumberComponent extends FormIONumberComponent {
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-109
   recalculateMask = (value, options, input) => {
-    if (this.isBigInt(value)) {
+    if (this.isBigNumber()) {
       _.set(this.component, 'stringValue', value);
     }
 

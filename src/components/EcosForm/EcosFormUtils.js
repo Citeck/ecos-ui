@@ -34,7 +34,7 @@ const getComponentInnerAttSchema = component => {
 
   switch (component.type) {
     case 'number':
-      return isEmpty(component.stringValue) ? 'num' : 'str';
+      return lodashGet(component, 'isBigNumber', false) ? 'str' : 'num';
     case 'checkbox':
       return 'bool';
     case 'datagridAssoc':
