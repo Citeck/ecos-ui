@@ -1,10 +1,10 @@
 import { NotificationManager } from 'react-notifications';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 
-import { getMenuConfig, initMenuConfig, saveMenuConfig, setMenuConfig, setRequestResultMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
 import { RequestStatuses } from '../constants';
 import MenuConverter from '../dto/menu';
+import { getMenuConfig, initMenuConfig, saveMenuConfig, setMenuConfig, setRequestResultMenuConfig } from '../actions/menu';
 
 function* doInitMenu({ api, logger }, action) {
   try {

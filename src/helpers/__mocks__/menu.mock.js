@@ -1,5 +1,4 @@
 import { MenuSettings, MenuTypes } from '../../constants/menu';
-import SidebarService from '../../services/sidebar';
 import { ActionTypes } from '../../constants/sidebar';
 
 export const makeUserMenuConfigs = [

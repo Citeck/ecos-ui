@@ -20,7 +20,7 @@ import {
   setMenuItems,
   setOpenMenuSettings
 } from '../actions/menuSettings';
-import { initMenuConfig, setMenuConfig } from '../actions/menu';
+import { initMenuConfig } from '../actions/menu';
 import { fetchSlideMenuItems } from '../actions/slideMenu';
 import { t } from '../helpers/util';
 import MenuConverter from '../dto/menu';
@@ -59,7 +59,6 @@ function* fetchSettingsConfig({ api, logger }) {
 
 function* runSaveSettingsConfig({ api, logger }, { payload }) {
   try {
-    const userName = yield select(state => state.user.userName);
     const config = yield select(state => state.menu);
     const { id, type, version } = config;
     const keyType = MenuSettingsService.getConfigKeyByType(type);
@@ -78,9 +77,9 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
     yield put(saveGroupPriority());
     yield put(setOpenMenuSettings(false));
 
-    if (resultSave && authorities.includes(userName)) {
-      yield put(setMenuConfig({ ...config, id: resultSave.id }));
-      yield put(fetchSlideMenuItems({ id: resultSave.id }));
+    if (resultSave && resultSave.id) {
+      yield put(initMenuConfig());
+      yield put(fetchSlideMenuItems());
     }
 
     NotificationManager.success(t('menu-settings.success.save-config'), t('success'));
