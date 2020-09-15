@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 
-import { EcosModal } from '../../common';
-import { Btn } from '../../common/btns';
-import { objectCompare, t } from '../../../helpers/util';
-import { DynamicTypeInterface, TypeSettingsInterface } from './propsInterfaces';
-import { Checkbox, Radio } from '../../common/form';
+import { EcosModal } from '../../../common';
+import { Btn } from '../../../common/btns';
+import { objectCompare, t } from '../../../../helpers/util';
+import { DynamicTypeInterface, TypeSettingsInterface } from '../propsInterfaces';
+import { Checkbox, Radio } from '../../../common/form';
 
 const Labels = {
   TITLE: 'documents-widget.type-settings.title',

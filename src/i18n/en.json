@@ -965,6 +965,7 @@
   "documents-widget.btn.settings": "Open Settings",
   "documents-widget.error.upload-filed": "Could not upload file",
   "documents-widget.error.only-one-file": "Only one file can be uploaded",
+  "documents-widget.label.nothing-found": "Nothing found",
   "documents-widget.tree.empty": "Nothing found",
   "documents-widget.tree.cannot-be-disabled": "Always displayed",
   "documents-widget.tree.not-selected": "Not selected for display",

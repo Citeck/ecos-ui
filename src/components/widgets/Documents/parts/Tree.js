@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 
-import { Icon } from '../../common';
-import { Badge, Checkbox } from '../../common/form';
-import { arrayCompare, arrayFlat, t } from '../../../helpers/util';
-import { GrouppedTypeInterface } from './propsInterfaces';
+import { Icon } from '../../../common';
+import { Badge, Checkbox } from '../../../common/form';
+import { arrayCompare, arrayFlat, t } from '../../../../helpers/util';
+import { GrouppedTypeInterface } from '../propsInterfaces';
 
 const Labels = {
   EMPTY: 'documents-widget.tree.empty',

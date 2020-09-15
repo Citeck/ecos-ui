@@ -86,3 +86,18 @@ export const documentActions = [
 export const NULL_FORM = 'uiserv/eform@null';
 export const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
 export const DEFAULT_REF = 'dict@cm:content';
+
+export const Labels = {
+  TITLE: 'documents-widget.title',
+  SETTINGS: 'documents-widget.settings.title',
+  UPLOAD_DROPZONE: 'documents-widget.upload.title',
+  UPLOAD_MESSAGE: 'documents-widget.upload.message',
+  NOT_CONFIGURATION_LABEL: 'documents-widget.label.not-configuration',
+  OPEN_SETTINGS_BUTTON: 'documents-widget.btn.settings',
+  ERROR_UPLOAD: 'documents-widget.error.upload-filed',
+  ERROR_ONLY_ONE_FILE: 'documents-widget.error.only-one-file',
+  NOTHING_FOUND: 'documents-widget.label.nothing-found'
+};
+
+export const CANCELED_TIME = 5;
+export const UNDOABLE_ACTIONS = ['delete'];

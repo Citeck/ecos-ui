@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 
-import { EcosModal, Search } from '../../common';
-import { Btn } from '../../common/btns';
+import { EcosModal, Search } from '../../../common';
+import { Btn } from '../../../common/btns';
 import Tree from './Tree';
 import TypeSettings from './TypeSettings';
-import { GrouppedTypeInterface, TypeSettingsInterface } from './propsInterfaces';
-import { arrayCompare, deepClone, t } from '../../../helpers/util';
-import { Checkbox } from '../../common/form';
+import { GrouppedTypeInterface, TypeSettingsInterface } from '../propsInterfaces';
+import { arrayCompare, deepClone, t } from '../../../../helpers/util';
+import { Checkbox } from '../../../common/form';
 
 const Labels = {
   CANCEL_BUTTON: 'documents-widget.settings-modal.button.cancel',

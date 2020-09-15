@@ -8,6 +8,7 @@ import { popupEmitter, Events } from './emitter';
 export const PopupContainer = () => {
   const [referenceElement, setReferenceElement] = useState(null);
   const [text, setText] = useState('');
+  const [contentClassName, setContentClassName] = useState('');
   const [popperElement, setPopperElement] = useState(null);
   const [arrowElement, setArrowElement] = useState(null);
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
@@ -29,13 +30,15 @@ export const PopupContainer = () => {
   });
 
   useEffect(() => {
-    const onShow = (element, text) => {
+    const onShow = (element, text, className = '') => {
       setReferenceElement(element);
       setText(text);
+      setContentClassName(className);
     };
     const onHide = () => {
       setReferenceElement(null);
       setText('');
+      setContentClassName('');
     };
 
     popupEmitter.on(Events.SHOW, onShow);
@@ -54,7 +57,7 @@ export const PopupContainer = () => {
       {...attributes.popper}
       className={classNames('ecos-popup-manager', get(attributes, 'popper.className', ''))}
     >
-      {text}
+      <div className={classNames(contentClassName)}>{text}</div>
       <div ref={setArrowElement} style={styles.arrow} className="ecos-popper__arrow" />
     </div>
   );

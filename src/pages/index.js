@@ -56,7 +56,9 @@ export default ({ pageKey, footer, ...props }) => {
 
   return (
     <>
-      <Page {...props} />
+      <div className="app-content">
+        <Page {...props} />
+      </div>
       {footer}
     </>
   );

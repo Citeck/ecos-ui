@@ -4,8 +4,8 @@ import classNames from 'classnames';
 import { default as DZ } from 'react-dropzone';
 import get from 'lodash/get';
 
-import { t } from '../../../helpers/util';
-import { FileStatuses } from '../../../helpers/ecosXhr';
+import { t } from '../../../../helpers/util';
+import { FileStatuses } from '../../../../helpers/ecosXhr';
 
 const Labels = {
   DROPZONE_PLACEHOLDER: 'versions-journal-widget.modal.dropzone_placeholder',

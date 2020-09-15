@@ -3,6 +3,7 @@ import { handleActions } from 'redux-actions';
 import {
   getAvailableTypes,
   getDocumentsByType,
+  getDocumentsByTypes,
   getDocumentsFinally,
   getTypeSettings,
   initFinally,
@@ -14,12 +15,14 @@ import {
   setAvailableTypes,
   setConfig,
   setDocuments,
+  setDocumentsByTypes,
   setDynamicTypes,
   setError,
   setInlineTools,
   setTypeSettings,
   setTypeSettingsFinally,
   setUploadError,
+  updateVersion,
   uploadFiles,
   uploadFilesFinally
 } from '../actions/documents';
@@ -41,6 +44,7 @@ export const initialState = {
   availableTypes: [],
   dynamicTypes: [],
   documents: [],
+  documentsByTypes: {},
   actions: {},
   isLoading: false,
   isLoadingTableData: false,
@@ -198,6 +202,13 @@ export default handleActions(
         countFilesError: ''
       }
     }),
+    [updateVersion]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        isUploadingFile: true
+      }
+    }),
     [uploadFilesFinally]: (state, { payload }) => ({
       ...state,
       [payload]: {
@@ -235,6 +246,22 @@ export default handleActions(
       [payload.key]: {
         ...state[payload.key],
         tools: payload.tools || { ...emptyTools }
+      }
+    }),
+
+    [getDocumentsByTypes]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        isLoading: true
+      }
+    }),
+    [setDocumentsByTypes]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        documentsByTypes: payload.documentsByTypes,
+        isLoading: false
       }
     })
   },

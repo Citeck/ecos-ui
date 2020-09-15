@@ -965,6 +965,7 @@
   "documents-widget.btn.settings": "Открыть настройки",
   "documents-widget.error.upload-filed": "Не удалось загрузить файл",
   "documents-widget.error.only-one-file": "Можно загрузить только один файл",
+  "documents-widget.label.nothing-found": "Ничего не найдено",
   "documents-widget.tree.empty": "Ничего не найдено",
   "documents-widget.tree.cannot-be-disabled": "Отображается всегда",
   "documents-widget.tree.not-selected": "Не выбран для отображения",

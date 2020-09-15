@@ -102,6 +102,17 @@
       @extend %h-indents;
 
       padding-bottom: 15px;
+
+      .formio-component-ecosSelect {
+        .is-flipped .choices__list--dropdown {
+          top: 100%;
+          bottom: auto;
+        }
+
+        .choices__list--dropdown .choices__list {
+          overflow: initial;
+        }
+      }
     }
   }
 

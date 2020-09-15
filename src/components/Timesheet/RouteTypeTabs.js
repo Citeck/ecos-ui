@@ -2,8 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 
-import { deepClone } from '../../helpers/util';
 import CommonTimesheetService from '../../services/timesheet/common';
 import PageService from '../../services/PageService';
 import { getTotalCounts } from '../../actions/timesheet/common';
@@ -29,31 +30,26 @@ class RouteTypeTabs extends React.Component {
   }
 
   componentDidMount() {
-    const { currentDate } = this.props;
-
-    this.props.getTotalCounts({ currentDate });
+    const { currentDate, getTotalCounts } = this.props;
+    getTotalCounts({ currentDate });
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
-    const { totalCounts, currentDate } = this.props;
-    const badge = key => (nextProps.isLoading ? '• • •' : nextProps.totalCounts[key] || null);
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { totalCounts, currentDate, isLoading, getTotalCounts } = this.props;
+    const badge = key => (isLoading ? '• • •' : totalCounts[key] || null);
 
-    if (JSON.stringify(totalCounts) !== JSON.stringify(nextProps.totalCounts)) {
-      const sheetTabs = this.state.sheetTabs.map(item => ({
-        ...item,
-        badge: badge(item.key)
-      }));
-
+    if (!isEqual(totalCounts, prevProps.totalCounts)) {
+      const sheetTabs = cloneDeep(this.state.sheetTabs).map(item => ({ ...item, badge: badge(item.key) }));
       this.setState({ sheetTabs });
     }
 
-    if (currentDate !== nextProps.currentDate) {
-      this.props.getTotalCounts({ currentDate: nextProps.currentDate });
+    if (currentDate !== prevProps.currentDate) {
+      getTotalCounts({ currentDate });
     }
   }
 
   handleChangeActiveSheetTab = tabIndex => {
-    const sheetTabs = deepClone(this.state.sheetTabs);
+    const sheetTabs = cloneDeep(this.state.sheetTabs);
 
     sheetTabs.forEach((tab, index) => {
       tab.isActive = index === tabIndex;
