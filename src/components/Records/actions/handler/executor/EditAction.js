@@ -1,9 +1,10 @@
 import ActionsExecutor from '../ActionsExecutor';
 import { SourcesId } from '../../../../../constants';
-import TaskAssignmentPanel from '../../../../TaskAssignmentPanel';
-import EcosFormUtils from '../../../../EcosForm/EcosFormUtils';
 import { URL_PAGECONTEXT } from '../../../../../constants/alfresco';
 import { goToNodeEditPage } from '../../../../../helpers/urls';
+import MenuSettingsService from '../../../../../services/MenuSettingsService';
+import TaskAssignmentPanel from '../../../../TaskAssignmentPanel';
+import EcosFormUtils from '../../../../EcosForm/EcosFormUtils';
 import React from 'react';
 import { notifyFailure } from '../../util/actionUtils';
 
@@ -12,6 +13,12 @@ export default class EditAction extends ActionsExecutor {
 
   async execForRecord(record, action, context) {
     const { config = {} } = action;
+
+    if (record.id.includes(SourcesId.MENU)) {
+      return new Promise(resolve => {
+        MenuSettingsService.emitter.emit(MenuSettingsService.Events.SHOW, record.id, resolve);
+      });
+    }
 
     if (config.mode === 'task') {
       return record.load('cm:name?str').then(taskId => {
