@@ -85,11 +85,10 @@ export function* fetchDashboardEditable({ api, logger }) {
 
 export function* fetchLeftMenuEditable({ api, logger }) {
   try {
-    const username = getCurrentUserName();
-    const leftMenuEditable = yield call(api.app.isDashboardEditable, { username });
+    const isAdmin = yield select(state => lodashGet(state, 'user.isAdmin', false));
     const menuVersion = yield select(state => lodashGet(state, 'menu.version', 0));
 
-    yield put(setLeftMenuEditable(leftMenuEditable && menuVersion > 0));
+    yield put(setLeftMenuEditable(isAdmin && menuVersion > 0));
   } catch (e) {
     logger.error('[fetchLeftMenuEditable saga] error', e.message);
   }
