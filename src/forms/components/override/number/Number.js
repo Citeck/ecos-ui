@@ -1,6 +1,7 @@
 import FormIONumberComponent from 'formiojs/components/number/Number';
 import _ from 'lodash';
 import { maskInput } from 'vanilla-text-mask';
+import BigNumber from 'bignumber.js';
 
 import { overrideTriggerChange } from '../misc';
 
@@ -27,8 +28,14 @@ export default class NumberComponent extends FormIONumberComponent {
     overrideTriggerChange.call(this);
   }
 
-  isBigNumber() {
-    return _.get(this, 'component.isBigNumber', false);
+  isBigNumber(val) {
+    const isBigNumber = _.get(this, 'component.isBigNumber', false);
+
+    if (val === undefined) {
+      return isBigNumber;
+    }
+
+    return new BigNumber(val).toString().includes('e+') || isBigNumber;
   }
 
   getMaskedValue(value) {
@@ -41,7 +48,7 @@ export default class NumberComponent extends FormIONumberComponent {
     if (!_.isNaN(value)) {
       let strNumber = String(value);
 
-      if (this.isBigNumber()) {
+      if (this.isBigNumber(strNumber)) {
         strNumber = this.component.stringValue;
       }
 
@@ -54,8 +61,8 @@ export default class NumberComponent extends FormIONumberComponent {
   }
 
   setValue(value, flags) {
-    if (!Array.isArray(value) && this.isBigNumber()) {
-      const stringValue = String(value);
+    if (!Array.isArray(value) && this.isBigNumber(value)) {
+      const stringValue = new BigNumber(value).toFixed(); /*String(value)*/
 
       _.set(this.component, 'stringValue', stringValue);
       this.dataValue = stringValue;
@@ -136,7 +143,7 @@ export default class NumberComponent extends FormIONumberComponent {
       return;
     }
 
-    if (this.isBigNumber()) {
+    if (this.isBigNumber(value)) {
       value = this._prepareStringNumber(value);
       renderValue(value);
       return;
@@ -172,7 +179,7 @@ export default class NumberComponent extends FormIONumberComponent {
     const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
     let newValue = value;
 
-    if (this.isBigNumber()) {
+    if (this.isBigNumber(value)) {
       newValue = this.formatValue(String(value));
       _.set(this.component, 'stringValue', newValue);
     }
@@ -250,7 +257,7 @@ export default class NumberComponent extends FormIONumberComponent {
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-109
   recalculateMask = (value, options, input) => {
-    if (this.isBigNumber()) {
+    if (this.isBigNumber(value)) {
       _.set(this.component, 'stringValue', value);
     }
 

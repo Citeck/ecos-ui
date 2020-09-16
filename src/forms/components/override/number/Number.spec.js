@@ -206,7 +206,8 @@ describe('Number Component', () => {
 
     Harness.testCreate(NumberComponent, comp).then(component => {
       Harness.testSetInput(component, 111111111111111111111, 111111111111111110000, 111111111111111110000);
-      Harness.testNumberBlur(component, 22222222222222222222222, parseFloat('22222222222222222222222'), '2.2222222222222223e+22');
+      Harness.testSetInput(component, 2.2222222222222223e22, 22222222222222223000000, 22222222222222223000000);
+      Harness.testSetInput(component, '1234578902345678901234567890', '1234578902345678901234567890', '1234578902345678901234567890');
       done();
     });
   });
