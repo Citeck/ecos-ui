@@ -199,6 +199,18 @@ describe('Number Component', () => {
     }, done);
   });
 
+  it('"Big number" settings disabled, but input big number', done => {
+    const comp = _.cloneDeep(comp3);
+    comp.defaultValue = '';
+    comp.isBigNumber = false;
+
+    Harness.testCreate(NumberComponent, comp).then(component => {
+      Harness.testSetInput(component, 111111111111111111111, 111111111111111110000, 111111111111111110000);
+      Harness.testNumberBlur(component, 22222222222222222222222, parseFloat('22222222222222222222222'), '2.2222222222222223e+22');
+      done();
+    });
+  });
+
   it('"Big number" settings enabled (always outputs string value)', done => {
     const comp = _.cloneDeep(comp3);
     comp.defaultValue = '';
