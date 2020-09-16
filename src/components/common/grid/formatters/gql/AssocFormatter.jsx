@@ -3,10 +3,10 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { isNodeRef } from '../../../../../helpers/util';
-import DefaultGqlFormatter from './DefaultGqlFormatter';
 import Records from '../../../../../components/Records';
-import { AssocEditor } from '../../editors';
 import Popper from '../../../Popper';
+import { AssocEditor, AssocOrgstructEditor } from '../../editors';
+import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class AssocFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
@@ -14,7 +14,11 @@ export default class AssocFormatter extends DefaultGqlFormatter {
   }
 
   static getEditor(editorProps, value, row, column) {
-    return <AssocEditor {...editorProps} value={value} column={column} />;
+    if (column.type === 'assoc') {
+      return <AssocEditor {...editorProps} value={value} column={column} />;
+    }
+
+    return <AssocOrgstructEditor {...editorProps} value={value} column={column} />;
   }
 
   static async getDisplayName(item) {
