@@ -7,7 +7,7 @@ import { t } from '../../../../helpers/util';
 import ListItemIcon from '../ListItemIcon';
 import { MenuApi } from '../../../../api/menu';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../../../../constants/pageTabs';
-import { getJournalPageUrl, isNewVersionPage, NEW_VERSION_PREFIX } from '../../../../helpers/urls';
+import { getJournalPageUrl, NEW_VERSION_PREFIX } from '../../../../helpers/urls';
 import { URL } from '../../../../constants';
 import SidebarService from '../../../../services/sidebar';
 import { selectIsNewUIAvailable } from '../../../../selectors/user';

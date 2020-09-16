@@ -138,7 +138,7 @@ export const makeSiteMenuFromConfig = [
     [
       {
         id: 'SETTINGS_MENU',
-        isAction: true,
+        onClick: 'function',
         label: 'header.site-menu.menu-settings'
       },
       {
@@ -171,7 +171,7 @@ export const makeSiteMenuFromConfig = [
       },
       {
         id: 'SETTINGS_MENU',
-        isAction: true,
+        onClick: 'function',
         label: 'header.site-menu.menu-settings'
       },
       {
@@ -187,7 +187,7 @@ export const makeSiteMenuFromConfig = [
     [
       {
         id: 'SETTINGS_MENU',
-        isAction: true,
+        onClick: 'function',
         label: 'header.site-menu.menu-settings'
       }
     ]

@@ -28,6 +28,7 @@ import PageService, { Events } from '../../services/PageService';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
+import { MenuSettingsController } from '../MenuSettings';
 import { replaceHistoryLink } from '../../helpers/urls';
 
 import './App.scss';
@@ -403,6 +404,7 @@ class App extends Component {
           </div>
           <NotificationContainer />
           <PopupContainer />
+          <MenuSettingsController />
         </div>
       </ErrorBoundary>
     );
