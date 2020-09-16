@@ -32,13 +32,13 @@ export default class AssocOrgstructEditor extends BaseEditor {
     return (
       <SelectOrgstruct
         {...rest}
+        isCompact
+        getFullData
         inputViewClass="select-orgstruct__input-view_сompact-extra"
-        isCompact={true}
         defaultValue={(value || {}).assoc}
+        allowedAuthorityTypes={this.allowedAuthorityTypes}
         onChange={this.onChange}
         onCancelSelect={rest.onBlur}
-        allowedAuthorityTypes={this.allowedAuthorityTypes}
-        getFullData
       />
     );
   }

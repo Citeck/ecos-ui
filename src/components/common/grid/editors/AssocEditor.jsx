@@ -22,8 +22,8 @@ export default class AssocEditor extends BaseEditor {
       <SelectJournal
         {...rest}
         autoFocus
+        isCompact
         inputViewClass="select-journal__input-view_extra-compact"
-        isCompact={true}
         journalId={column.editorKey}
         defaultValue={(value || {}).assoc}
         onChange={this.onChange}
