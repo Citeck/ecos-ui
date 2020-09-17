@@ -10,8 +10,6 @@ import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 import { hasInString } from './util';
 
-window.queryString = queryString;
-
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';
 const DASHBOARD_ID_KEY = 'dashboardId';
