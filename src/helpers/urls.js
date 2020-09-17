@@ -10,6 +10,8 @@ import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 import { hasInString } from './util';
 
+window.queryString = queryString;
+
 const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';
 const DASHBOARD_ID_KEY = 'dashboardId';
@@ -342,6 +344,16 @@ export const isDashboard = (url = window.location.href) => {
   }
 
   return false;
+};
+
+export const isHomePage = (url = window.location.href) => {
+  if (!hasInString(url, URL.DASHBOARD) || hasInString(url, URL.DASHBOARD_SETTINGS)) {
+    return false;
+  }
+
+  const { query } = queryString.parseUrl(url);
+
+  return isEmpty(query.recordRef) && isEmpty(query.nodeRef);
 };
 
 export const stringifySearchParams = (params = {}, stringifyParams = { skipEmptyString: true }) => {

@@ -100,4 +100,8 @@ export class AppApi extends CommonApi {
         return {};
       });
   }
+
+  getRedirectToNewUi() {
+    return Records.get('ecos-config@new-ui-redirect-dashboard-enabled').load('.bool');
+  }
 }
