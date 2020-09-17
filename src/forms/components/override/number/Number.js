@@ -1,6 +1,7 @@
 import FormIONumberComponent from 'formiojs/components/number/Number';
 import _ from 'lodash';
 import { maskInput } from 'vanilla-text-mask';
+import BigNumber from 'bignumber.js';
 
 import { overrideTriggerChange } from '../misc';
 
@@ -10,7 +11,8 @@ export default class NumberComponent extends FormIONumberComponent {
       {
         delimiter: false,
         requireDecimal: false,
-        decimalLimit: ''
+        decimalLimit: '',
+        stringValue: ''
       },
       ...extend
     );
@@ -26,8 +28,120 @@ export default class NumberComponent extends FormIONumberComponent {
     overrideTriggerChange.call(this);
   }
 
+  build() {
+    super.build();
+
+    if (this.element) {
+      this.element.addEventListener('input', this.onInput);
+      this.on('blur', this.onBlur);
+    }
+  }
+
+  onBlur = () => {
+    if (this.isBigNumber()) {
+      const value = _.get(this, 'inputs.[0].value');
+      const stringValue = this._getPureStringValue(value);
+
+      _.set(this.component, 'stringValue', stringValue);
+
+      this.setValue(stringValue);
+    }
+  };
+
+  onInput = event => {
+    const value = _.get(event, 'target.value');
+
+    if (this.isBigNumber()) {
+      _.set(this.component, 'stringValue', this._getPureStringValue(value));
+
+      return;
+    }
+
+    if (!this.hasDegree(value)) {
+      return;
+    }
+
+    const formattedValue = this.getFormattedByBigNumber(value);
+
+    if (value !== formattedValue) {
+      this.setValue(formattedValue);
+    }
+  };
+
+  getFormattedByBigNumber(val) {
+    let value = val;
+
+    if (typeof val === 'string' && !this.hasDegree(val)) {
+      value = val.replace(/\D/gi, '');
+    }
+
+    const floatingPointString = parseFloat(value).toFixed();
+    const formattedByBigNumber = new BigNumber(floatingPointString).toFixed();
+
+    if (floatingPointString !== formattedByBigNumber) {
+      return formattedByBigNumber;
+    }
+
+    return val;
+  }
+
+  isBigNumber() {
+    return _.get(this, 'component.isBigNumber', false);
+  }
+
+  hasDegree(val) {
+    return new BigNumber(val).toString().includes('e+');
+  }
+
   getMaskedValue(value) {
     return this.formatValue(this.clearInput(value));
+  }
+
+  clearInput(input) {
+    let value = parseFloat(input);
+
+    if (!_.isNaN(value)) {
+      let strNumber = String(value);
+
+      if (this.isBigNumber()) {
+        strNumber = String(input);
+        _.set(this.component, 'stringValue', strNumber);
+      } else if (this.hasDegree(strNumber)) {
+        strNumber = this.getFormattedByBigNumber(strNumber);
+        _.set(this.component, 'stringValue', strNumber);
+      }
+
+      value = String(strNumber).replace('.', this.decimalSeparator);
+    } else {
+      value = null;
+    }
+
+    return value;
+  }
+
+  setValue(value, flags) {
+    if (!Array.isArray(value)) {
+      let stringValue = value;
+
+      if (this.isBigNumber()) {
+        stringValue = typeof value === 'string' ? value : new BigNumber(value).toFixed();
+      } else if (this.hasDegree(value)) {
+        stringValue = this.getFormattedByBigNumber(value);
+      }
+
+      _.set(this.component, 'stringValue', stringValue);
+      this.dataValue = stringValue;
+
+      for (const i in this.inputs) {
+        if (this.inputs.hasOwnProperty(i)) {
+          this.setValueAt(i, stringValue, flags);
+        }
+      }
+
+      return this.updateValue(flags);
+    }
+
+    return super.setValue(value, flags);
   }
 
   formatValue(value) {
@@ -45,6 +159,47 @@ export default class NumberComponent extends FormIONumberComponent {
     return value;
   }
 
+  getValue() {
+    let value = super.getValue();
+
+    if (Array.isArray(value)) {
+      value = value.map(item => {
+        if (this.isBigNumber()) {
+          item = this._prepareStringNumber(item);
+        }
+
+        return item;
+      });
+
+      return value;
+    }
+
+    if (typeof value === 'object') {
+      const keys = Object.keys(value);
+
+      switch (true) {
+        case keys.includes('str'):
+          value = value.str;
+          break;
+        case keys.includes('num'):
+          value = value.num;
+          break;
+        default:
+          value = '';
+      }
+    }
+
+    if (this.isBigNumber()) {
+      return this._prepareStringNumber(value);
+    }
+
+    if (this.hasDegree(value)) {
+      return parseFloat(this.component.stringValue);
+    }
+
+    return value;
+  }
+
   setupValueElement(element) {
     const renderValue = val => {
       element.innerHTML = val;
@@ -54,6 +209,12 @@ export default class NumberComponent extends FormIONumberComponent {
 
     if (this.isEmpty(value)) {
       renderValue(this.defaultViewOnlyValue);
+      return;
+    }
+
+    if (this.isBigNumber() || this.hasDegree(value)) {
+      value = this._prepareStringNumber(value);
+      renderValue(value);
       return;
     }
 
@@ -80,6 +241,45 @@ export default class NumberComponent extends FormIONumberComponent {
     }
 
     renderValue(value);
+  }
+
+  _getPureStringValue(value = '') {
+    const regexp = new RegExp(this.delimiter, 'g');
+
+    return value.replace(regexp, '').split(this.decimalSeparator)[0] || '';
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-78
+  _prepareStringNumber(value = '') {
+    const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
+    let newValue = String(value);
+
+    if (this.isBigNumber()) {
+      const regexp = new RegExp(this.delimiter, 'g');
+      const pureStringValue = newValue.replace(regexp, '').split(this.decimalSeparator)[0] || '';
+
+      newValue = String(value);
+      _.set(this.component, 'stringValue', pureStringValue);
+    } else if (this.hasDegree(newValue)) {
+      newValue = this.getFormattedByBigNumber(value);
+      _.set(this.component, 'stringValue', newValue);
+    }
+
+    newValue = newValue.replace(/,/g, '.');
+    newValue = newValue.replace(/\./g, this.decimalSeparator);
+
+    if (!!decimalLimit) {
+      let [mainPart, decimalPart] = newValue.split(this.decimalSeparator);
+
+      if (decimalPart) {
+        decimalPart = decimalPart.slice(0, decimalLimit);
+        newValue = `${mainPart}${this.decimalSeparator}${decimalPart}`;
+      }
+
+      newValue = this._fillZeros(newValue);
+    }
+
+    return newValue;
   }
 
   _fillZeros(value) {
@@ -120,6 +320,10 @@ export default class NumberComponent extends FormIONumberComponent {
       return ''; // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2501 (See const "changed" in Base.updateValue())
     }
 
+    if (this.isBigNumber()) {
+      return this.component.stringValue;
+    }
+
     return this.parseNumber(val);
   }
 
@@ -134,7 +338,15 @@ export default class NumberComponent extends FormIONumberComponent {
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-109
   recalculateMask = (value, options, input) => {
-    const updatedValue = value.replace(/\.|,/g, this.decimalSeparator);
+    let newValue = value;
+
+    if (this.isBigNumber()) {
+      newValue = String(value);
+    } else if (this.hasDegree(value)) {
+      newValue = this._prepareStringNumber(newValue);
+    }
+
+    const updatedValue = newValue.replace(/\.|,/g, this.decimalSeparator);
     const formattedValue = this.formatValue(updatedValue);
     let position = options.currentCaretPosition;
 
@@ -148,7 +360,7 @@ export default class NumberComponent extends FormIONumberComponent {
 
     this.setCaretPosition(input, position);
 
-    return this.numberMask(updatedValue, options);
+    return this.numberMask(formattedValue, options);
   };
 
   setCaretPosition = _.debounce((input, position) => {
