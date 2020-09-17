@@ -28,14 +28,69 @@ export default class NumberComponent extends FormIONumberComponent {
     overrideTriggerChange.call(this);
   }
 
-  isBigNumber(val) {
-    const isBigNumber = _.get(this, 'component.isBigNumber', false);
+  build() {
+    super.build();
 
-    if (val === undefined) {
-      return isBigNumber;
+    if (this.element) {
+      this.element.addEventListener('input', this.onInput);
+      this.on('blur', this.onBlur);
+    }
+  }
+
+  onBlur = () => {
+    if (this.isBigNumber()) {
+      const value = _.get(this, 'inputs.[0].value');
+      const stringValue = this._getPureStringValue(value);
+
+      _.set(this.component, 'stringValue', stringValue);
+
+      this.setValue(stringValue);
+    }
+  };
+
+  onInput = event => {
+    const value = _.get(event, 'target.value');
+
+    if (this.isBigNumber()) {
+      _.set(this.component, 'stringValue', this._getPureStringValue(value));
+
+      return;
     }
 
-    return new BigNumber(val).toString().includes('e+') || isBigNumber;
+    if (!this.hasDegree(value)) {
+      return;
+    }
+
+    const formattedValue = this.getFormattedByBigNumber(value);
+
+    if (value !== formattedValue) {
+      this.setValue(formattedValue);
+    }
+  };
+
+  getFormattedByBigNumber(val) {
+    let value = val;
+
+    if (typeof val === 'string' && !this.hasDegree(val)) {
+      value = val.replace(/\D/gi, '');
+    }
+
+    const floatingPointString = parseFloat(value).toFixed();
+    const formattedByBigNumber = new BigNumber(floatingPointString).toFixed();
+
+    if (floatingPointString !== formattedByBigNumber) {
+      return formattedByBigNumber;
+    }
+
+    return val;
+  }
+
+  isBigNumber() {
+    return _.get(this, 'component.isBigNumber', false);
+  }
+
+  hasDegree(val) {
+    return new BigNumber(val).toString().includes('e+');
   }
 
   getMaskedValue(value) {
@@ -48,8 +103,12 @@ export default class NumberComponent extends FormIONumberComponent {
     if (!_.isNaN(value)) {
       let strNumber = String(value);
 
-      if (this.isBigNumber(strNumber)) {
-        strNumber = this.component.stringValue;
+      if (this.isBigNumber()) {
+        strNumber = String(input);
+        _.set(this.component, 'stringValue', strNumber);
+      } else if (this.hasDegree(strNumber)) {
+        strNumber = this.getFormattedByBigNumber(strNumber);
+        _.set(this.component, 'stringValue', strNumber);
       }
 
       value = String(strNumber).replace('.', this.decimalSeparator);
@@ -61,8 +120,14 @@ export default class NumberComponent extends FormIONumberComponent {
   }
 
   setValue(value, flags) {
-    if (!Array.isArray(value) && this.isBigNumber(value)) {
-      const stringValue = new BigNumber(value).toFixed(); /*String(value)*/
+    if (!Array.isArray(value)) {
+      let stringValue = value;
+
+      if (this.isBigNumber()) {
+        stringValue = typeof value === 'string' ? value : new BigNumber(value).toFixed();
+      } else if (this.hasDegree(value)) {
+        stringValue = this.getFormattedByBigNumber(value);
+      }
 
       _.set(this.component, 'stringValue', stringValue);
       this.dataValue = stringValue;
@@ -125,7 +190,11 @@ export default class NumberComponent extends FormIONumberComponent {
     }
 
     if (this.isBigNumber()) {
-      value = this._prepareStringNumber(value);
+      return this._prepareStringNumber(value);
+    }
+
+    if (this.hasDegree(value)) {
+      return parseFloat(this.component.stringValue);
     }
 
     return value;
@@ -143,7 +212,7 @@ export default class NumberComponent extends FormIONumberComponent {
       return;
     }
 
-    if (this.isBigNumber(value)) {
+    if (this.isBigNumber() || this.hasDegree(value)) {
       value = this._prepareStringNumber(value);
       renderValue(value);
       return;
@@ -174,13 +243,25 @@ export default class NumberComponent extends FormIONumberComponent {
     renderValue(value);
   }
 
+  _getPureStringValue(value = '') {
+    const regexp = new RegExp(this.delimiter, 'g');
+
+    return value.replace(regexp, '').split(this.decimalSeparator)[0] || '';
+  }
+
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-78
   _prepareStringNumber(value = '') {
     const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
-    let newValue = value;
+    let newValue = String(value);
 
-    if (this.isBigNumber(value)) {
-      newValue = this.formatValue(String(value));
+    if (this.isBigNumber()) {
+      const regexp = new RegExp(this.delimiter, 'g');
+      const pureStringValue = newValue.replace(regexp, '').split(this.decimalSeparator)[0] || '';
+
+      newValue = String(value);
+      _.set(this.component, 'stringValue', pureStringValue);
+    } else if (this.hasDegree(newValue)) {
+      newValue = this.getFormattedByBigNumber(value);
       _.set(this.component, 'stringValue', newValue);
     }
 
@@ -240,7 +321,7 @@ export default class NumberComponent extends FormIONumberComponent {
     }
 
     if (this.isBigNumber()) {
-      return this._prepareStringNumber(val);
+      return this.component.stringValue;
     }
 
     return this.parseNumber(val);
@@ -257,11 +338,15 @@ export default class NumberComponent extends FormIONumberComponent {
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-109
   recalculateMask = (value, options, input) => {
-    if (this.isBigNumber(value)) {
-      _.set(this.component, 'stringValue', value);
+    let newValue = value;
+
+    if (this.isBigNumber()) {
+      newValue = String(value);
+    } else if (this.hasDegree(value)) {
+      newValue = this._prepareStringNumber(newValue);
     }
 
-    const updatedValue = value.replace(/\.|,/g, this.decimalSeparator);
+    const updatedValue = newValue.replace(/\.|,/g, this.decimalSeparator);
     const formattedValue = this.formatValue(updatedValue);
     let position = options.currentCaretPosition;
 
@@ -275,7 +360,7 @@ export default class NumberComponent extends FormIONumberComponent {
 
     this.setCaretPosition(input, position);
 
-    return this.numberMask(updatedValue, options);
+    return this.numberMask(formattedValue, options);
   };
 
   setCaretPosition = _.debounce((input, position) => {
