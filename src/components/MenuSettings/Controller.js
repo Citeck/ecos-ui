@@ -1,20 +1,41 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { NotificationManager } from 'react-notifications';
 
-import { setOpenMenuSettings } from '../../actions/menuSettings';
+import { getSettingsConfig, resetStore, setOpenMenuSettings } from '../../actions/menuSettings';
 import MenuSettingsService from '../../services/MenuSettingsService';
+import { t } from '../../helpers/export/util';
 
 class Controller extends React.Component {
   state = {
-    isOpen: false
+    isOpen: false,
+    callback: undefined
   };
 
-  onShow = () => {
-    !this.state.isOpen && this.props.setOpenMenuSettings(true);
+  onShow = (id, callback) => {
+    if (this.state.isOpen) {
+      NotificationManager.warning(t('menu-settings.warn.editor-already-open'), t('warning'), 5000);
+    } else {
+      this.setState({ isOpen: true, callback }, () => {
+        this.props.setOpenMenuSettings(true);
+        this.props.getSettingsConfig({ id: id || this.props.myId });
+      });
+    }
   };
 
   onHide = () => {
-    this.state.isOpen && this.props.setOpenMenuSettings(false);
+    const { isOpen, callback } = this.state;
+
+    if (isOpen) {
+      if (typeof callback === 'function') {
+        callback();
+      }
+
+      this.setState({ isOpen: false, callback: undefined }, () => {
+        this.props.setOpenMenuSettings(false);
+        this.props.resetStore();
+      });
+    }
   };
 
   componentDidMount() {
@@ -32,12 +53,18 @@ class Controller extends React.Component {
   }
 }
 
+const mapStateToProps = state => ({
+  myId: state.menu.id
+});
+
 const mapDispatchToProps = dispatch => ({
-  setOpenMenuSettings: payload => dispatch(setOpenMenuSettings(payload))
+  setOpenMenuSettings: payload => dispatch(setOpenMenuSettings(payload)),
+  getSettingsConfig: payload => dispatch(getSettingsConfig(payload)),
+  resetStore: payload => dispatch(resetStore(payload))
 });
 
 const MSController = connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(Controller);
 
