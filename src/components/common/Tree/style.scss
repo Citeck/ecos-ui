@@ -86,7 +86,6 @@
         font-weight: $font-weight-bold;
         font-size: $font-size-standard;
         color: $text-color-dark;
-        margin-right: 18px;
       }
 
       &-custom-components > :nth-child(n),
@@ -103,6 +102,12 @@
 
       &-space {
         flex: auto;
+      }
+
+      &-actions,
+      &-custom-components {
+        flex: 0 0 auto;
+        padding-left: 10px;
       }
 
       &-drag {
