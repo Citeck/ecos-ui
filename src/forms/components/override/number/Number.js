@@ -28,8 +28,8 @@ export default class NumberComponent extends FormIONumberComponent {
     overrideTriggerChange.call(this);
   }
 
-  build() {
-    super.build();
+  build(state) {
+    super.build(state);
 
     if (this.element) {
       this.element.addEventListener('input', this.onInput);
@@ -130,15 +130,8 @@ export default class NumberComponent extends FormIONumberComponent {
       }
 
       _.set(this.component, 'stringValue', stringValue);
-      this.dataValue = stringValue;
 
-      for (const i in this.inputs) {
-        if (this.inputs.hasOwnProperty(i)) {
-          this.setValueAt(i, stringValue, flags);
-        }
-      }
-
-      return this.updateValue(flags);
+      return super.setValue(stringValue, flags);
     }
 
     return super.setValue(value, flags);
