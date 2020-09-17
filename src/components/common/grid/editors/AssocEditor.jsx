@@ -2,7 +2,7 @@ import React from 'react';
 import SelectJournal from '../../../common/form/SelectJournal';
 import BaseEditor from './BaseEditor';
 
-export default class DateEditor extends BaseEditor {
+export default class AssocEditor extends BaseEditor {
   onChange = (value, selected) => {
     const oldValue = this.getValue() || {};
     const newValue = selected[0] || {};
@@ -22,8 +22,8 @@ export default class DateEditor extends BaseEditor {
       <SelectJournal
         {...rest}
         autoFocus
-        inputViewClass={'select-journal__input-view_extra-compact'}
-        isCompact={true}
+        isCompact
+        inputViewClass="select-journal__input-view_extra-compact"
         journalId={column.editorKey}
         defaultValue={(value || {}).assoc}
         onChange={this.onChange}
