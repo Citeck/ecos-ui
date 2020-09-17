@@ -8,7 +8,8 @@ import EditAction from '../EditAction';
 
 const RecordIds = {
   TASK_REF: 'workspace://SpacesStore/test-task',
-  MENU: 'uiserv/menu@test-menu'
+  MENU_0: 'uiserv/menu@test-menu-0',
+  MENU_1: 'uiserv/menu@test-menu-1'
 };
 
 jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
@@ -26,6 +27,28 @@ jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
             }
           })
       });
+    case RecordIds.MENU_0:
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            id: RecordIds.MENU_0,
+            attributes: {
+              'version?str': '0'
+            }
+          })
+      });
+    case RecordIds.MENU_1:
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            id: RecordIds.MENU_1,
+            attributes: {
+              'version?str': '1'
+            }
+          })
+      });
     default:
       return Promise.resolve({
         ok: true,
@@ -39,16 +62,15 @@ jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
 });
 
 describe('Edit Action', () => {
+  const _safeError = NotificationManager.error;
+  const _safeEmit = MenuSettingsService.emitter.emit;
   const action = actionsRegistry.getHandler(EditAction.ACTION_ID);
 
-  it('case Task no taskId', async () => {
-    const _safe = NotificationManager.error;
-    NotificationManager.error = () => undefined;
+  NotificationManager.error = () => undefined;
 
+  it('case Task no taskId', async () => {
     const result = await action.execForRecord(Records.get(null), { config: { mode: 'task' } });
     expect(result).toEqual(false);
-
-    NotificationManager.error = _safe;
   });
 
   it('case Task form fallback ', async () => {
@@ -59,13 +81,18 @@ describe('Edit Action', () => {
     expect(result).toEqual(false);
   });
 
-  it('case Menu', async () => {
-    const _safe = MenuSettingsService.emitter.emit;
+  it('case Menu version 0', async () => {
+    const result = await action.execForRecord(Records.get(RecordIds.MENU_0), {});
+    expect(result).toEqual(false);
+  });
+
+  it('case Menu version 1', async () => {
     MenuSettingsService.emitter.emit = (show, id, callback) => callback(show);
 
-    const result = await action.execForRecord(Records.get(RecordIds.MENU), {});
+    const result = await action.execForRecord(Records.get(RecordIds.MENU_1), {});
     expect(result).toEqual(MenuSettingsService.Events.SHOW);
-
-    MenuSettingsService.emitter.emit = _safe;
   });
+
+  NotificationManager.error = _safeError;
+  MenuSettingsService.emitter.emit = _safeEmit;
 });

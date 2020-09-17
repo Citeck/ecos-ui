@@ -1109,6 +1109,7 @@
   "menu-settings.warn.editor-already-open": "У Вас уже открыты настройки меню. Завершите работу с ними",
   "menu-settings.success.save-config": "Конфигурация настроек меню сохранена",
   "menu-settings.error.get-group-priority": "Приоритеты групп не получены",
+  "menu-settings.error.edit-version-not-available": "Версия {{version}} меню не доступна для редактирования",
   "menu-settings.error.save-group-priority": "Приоритеты групп не сохранены",
   "menu-settings.success.save-group-priority": "Приоритеты групп сохранены",
 
