@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
+import isEqualWith from 'lodash/isEqualWith';
+import isEqual from 'lodash/isEqual';
 
-import { arrayCompare, extractLabel, isExistValue, t } from '../../../helpers/util';
+import { extractLabel, isExistValue, t } from '../../../helpers/util';
 import { EcosIcon, Icon, Tooltip } from '../../common';
 import { Badge, Checkbox } from '../../common/form';
 import { SortableElement, SortableHandle } from '../../Drag-n-Drop';
@@ -56,8 +58,8 @@ class TreeItem extends Component {
       nextState.isOpen !== isOpen ||
       nextProps.openAll !== openAll ||
       nextProps.isChild !== isChild ||
-      !arrayCompare(self, _self) ||
-      !arrayCompare(items, _items)
+      !isEqual(self, _self) ||
+      !isEqualWith(items, _items, isEqual)
     );
   }
 
