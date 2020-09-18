@@ -6,7 +6,6 @@ import {
   fetchSiteMenuData,
   fetchUserMenuData,
   goToPageFromSiteMenu,
-  runActionFromSiteMenu,
   runSearchAutocompleteItems,
   setCreateCaseWidgetIsCascade,
   setCreateCaseWidgetItems,
@@ -14,7 +13,6 @@ import {
   setSiteMenuItems,
   setUserMenuItems
 } from '../actions/header';
-import { setOpenMenuSettings } from '../actions/menuSettings';
 import { setDashboardIdentification } from '../actions/dashboard';
 import { setUserThumbnail, validateUserSuccess } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
@@ -127,16 +125,6 @@ function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
   }
 }
 
-function* runActionSiteMenu({ api, fakeApi, logger }, { payload }) {
-  try {
-    if (payload.id === 'SETTINGS_MENU') {
-      yield put(setOpenMenuSettings(true));
-    }
-  } catch (e) {
-    logger.error('[header runActionSiteMenu saga] error', e.message);
-  }
-}
-
 function* sagaRunSearchAutocomplete({ api, fakeApi, logger }, { payload }) {
   try {
     const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
@@ -160,7 +148,6 @@ function* headerSaga(ea) {
     ea
   );
   yield takeLatest(goToPageFromSiteMenu().type, goToPageSiteMenu, ea);
-  yield takeLatest(runActionFromSiteMenu().type, runActionSiteMenu, ea);
   yield takeLatest(runSearchAutocompleteItems().type, sagaRunSearchAutocomplete, ea);
 }
 

@@ -1,6 +1,7 @@
 import WidgetService from '../../../../../../../services/WidgetService';
 import Records from '../../../../../Records';
 import actionsRegistry from '../../../../actionsRegistry';
+import '../../../../index';
 import SetTaskAssignee from '../SetTaskAssignee';
 
 jest.spyOn(global, 'fetch').mockImplementation(() => {
@@ -11,7 +12,6 @@ jest.spyOn(global, 'fetch').mockImplementation(() => {
 });
 
 describe('SetTaskAssignee action', () => {
-  actionsRegistry.register(new SetTaskAssignee());
   const actionSetTaskAssignee = actionsRegistry.getHandler(SetTaskAssignee.ACTION_ID);
   const record = Records.get('workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e');
   const TEST_USER = 'workspace://SpacesStore/test-user';

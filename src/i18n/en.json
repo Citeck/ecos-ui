@@ -1108,8 +1108,10 @@
   "menu-settings.error.remove-config": "Menu settings configuration hasn't delete",
   "menu-settings.error.set-items-from-journal": "Items haven't set in configuration. Try again",
   "menu-settings.warn.set-create-items-from-journal": "Items \"{{names}}\" haven't set, because there are no create variants",
+  "menu-settings.warn.editor-already-open": "You already have menu settings open. Finish working with it",
   "menu-settings.success.save-config": "Menu settings configuration saved",
   "menu-settings.error.get-group-priority": "Group priority hasn't received",
+  "menu-settings.error.edit-version-not-available": "The version {{version}} of the menu is not editable",
   "menu-settings.error.save-group-priority": "Group priority hasn't saved",
   "menu-settings.success.save-group-priority": "Group priority has saved",
 

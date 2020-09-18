@@ -3,10 +3,11 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { getAuthorityInfoByRefs, initSettings, removeSettings, saveSettingsConfig, setOpenMenuSettings } from '../../actions/menuSettings';
+import { getAuthorityInfoByRefs, removeSettings, saveSettingsConfig } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
 import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
+import MenuSettingsService from '../../services/MenuSettingsService';
 import { EcosModal, Loader } from '../common';
 import DialogManager from '../common/dialogs/Manager';
 import { Btn, IcoBtn } from '../common/btns';
@@ -35,10 +36,6 @@ class Settings extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.props.initSettings();
-  }
-
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { type } = this.props;
     const state = {};
@@ -57,7 +54,7 @@ class Settings extends React.Component {
   }
 
   handleHideModal = () => {
-    this.props.setOpenMenuSettings(false);
+    MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
   };
 
   handleGoJournal = () => {
@@ -165,10 +162,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  initSettings: () => dispatch(initSettings()),
   removeSettings: () => dispatch(removeSettings()),
   saveSettings: payload => dispatch(saveSettingsConfig(payload)),
-  setOpenMenuSettings: payload => dispatch(setOpenMenuSettings(payload)),
   getAuthorityInfoByRefs: payload => dispatch(getAuthorityInfoByRefs(payload))
 });
 
