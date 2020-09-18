@@ -7,6 +7,7 @@ import isEmpty from 'lodash/isEmpty';
 import { decodeLink, getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl, isNewVersionPage } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
+import JournalsConverter from '../dto/journals';
 import { getJournalUIType, getOldPageUrl } from '../api/export/journalsApi';
 
 import Records from '../components/Records';
@@ -333,16 +334,23 @@ function* sagaRestoreJournalSettingData({ api, logger, stateId, w }, action) {
 }
 
 function* getGridData(api, params, stateId) {
-  const { pagination: _pagination, predicates: _predicates, ...forRequest } = params;
   const _recordRef = yield select(state => state.journals[stateId].recordRef);
-  const config = yield select(state => state.journals[stateId].config);
+  const journalConfig = yield select(state => state.journals[stateId].journalConfig);
+  const onlyLinked = yield select(state => get(state, `journals[${stateId}].config.onlyLinked`));
 
+  const { pagination: _pagination, predicates: _predicates, ...forRequest } = params;
   const predicates = ParserPredicate.removeEmptyPredicates(cloneDeep(_predicates));
   const pagination = forRequest.groupBy.length ? { ..._pagination, maxItems: undefined } : _pagination;
-  const recordRef = _recordRef && (config || {}).onlyLinked ? _recordRef : null;
+
+  const recordRef = _recordRef && onlyLinked ? _recordRef : null;
   const groupActions = forRequest.groupActions || [];
 
-  return yield call(api.journals.getGridData, { ...forRequest, predicates, pagination, recordRef, groupActions });
+  const settings = JournalsConverter.getSettingsForDataLoaderServer({ ...forRequest, recordRef, pagination, predicates, onlyLinked });
+  const result = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
+  const data = JournalsConverter.getJournalDataWeb(result);
+  console.log(data);
+  //const r = yield call(api.journals.getGridData, { ...forRequest, predicates, pagination, recordRef, groupActions });
+  return { ...data, columns: params.columns, actions: {} };
 }
 
 function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w) {

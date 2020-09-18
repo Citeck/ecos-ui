@@ -3,7 +3,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import journalsServiceApi from './journalsServiceApi';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../common/form/SelectJournal/predicates';
 import * as RecordUtils from '../../Records/utils/recordUtils';
-import { ParserPredicate } from '../../Filters/predicates';
 
 const isPredicateValid = predicate => {
   return !!(predicate && predicate.t);
@@ -36,8 +35,6 @@ class JournalsDataLoader {
 
     let predicates = [journalConfig.predicate, settings.predicate];
 
-    settings.filter = this._prepareFilter(settings.filter);
-
     if (settings.onlyLinked && settings.recordRef) {
       predicates.push({
         t: PREDICATE_OR,
@@ -49,9 +46,7 @@ class JournalsDataLoader {
             att: a.attribute
           }))
       });
-    }
 
-    if (settings.recordRef) {
       predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef); //todo: replace placeholders in predicates - is it?
     }
 
@@ -96,10 +91,6 @@ class JournalsDataLoader {
       ...res,
       query: recordsQuery
     }));
-  }
-
-  _prepareFilter(data) {
-    return ParserPredicate.removeEmptyPredicates(cloneDeep(data));
   }
 
   _getAttributes(journalConfig, settings) {
