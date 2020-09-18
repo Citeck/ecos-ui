@@ -198,4 +198,71 @@ describe('Number Component', () => {
       done();
     }, done);
   });
+
+  it('"Big number" settings disabled, but input big number (with decimal and delimiter settings)', done => {
+    const comp = _.cloneDeep(comp3);
+
+    comp.decimalLimit = 2;
+    comp.requireDecimal = true;
+    comp.delimiter = true;
+    comp.isBigNumber = false;
+
+    Harness.testCreate(NumberComponent, comp).then(component => {
+      Harness.testSetInput(component, '3333333333333333313331', 3.3333333333333335e21, '3,333,333,333,333,333,500,000.00');
+      Harness.testSetInput(component, 222222222222222222, 222222222222222200, '222,222,222,222,222,200.00');
+      Harness.testSetInput(component, '1234578902345678901234567890', 1.234578902345679e27, '1,234,578,902,345,679,000,000,000,000.00');
+      done();
+    });
+  });
+
+  it('"Big number" settings disabled, but input big number', done => {
+    const comp = _.cloneDeep(comp3);
+    comp.defaultValue = '';
+    comp.isBigNumber = false;
+
+    Harness.testCreate(NumberComponent, comp).then(component => {
+      Harness.testSetInput(component, 111111111111111111111, 111111111111111110000, 111111111111111110000);
+      Harness.testSetInput(component, 2.2222222222222223e22, 2.2222222222222223e22, 22222222222222223000000);
+      Harness.testSetInput(component, '1234578902345678901234567890', 1.234578902345679e27, '1234578902345679000000000000');
+      done();
+    });
+  });
+
+  it('"Big number" settings enabled (always outputs string value)', done => {
+    const comp = _.cloneDeep(comp3);
+    comp.defaultValue = '';
+    comp.isBigNumber = true;
+
+    Harness.testCreate(NumberComponent, comp).then(component => {
+      Harness.testSetInput(component, Number.MAX_SAFE_INTEGER, String(Number.MAX_SAFE_INTEGER), String(Number.MAX_SAFE_INTEGER));
+      Harness.testSetInput(component, -Number.MAX_SAFE_INTEGER, String(-Number.MAX_SAFE_INTEGER), String(-Number.MAX_SAFE_INTEGER));
+      Harness.testSetInput(component, '1111111111111111111111111111', '1111111111111111111111111111', '1111111111111111111111111111');
+      Harness.testSetInput(component, '-1111111111111111111111111111', '-1111111111111111111111111111', '-1111111111111111111111111111');
+      Harness.testSetInput(component, '2222222222222222222222222222', '2222222222222222222222222222', '2222222222222222222222222222');
+      Harness.testSetInput(component, 42, '42', '42');
+      done();
+    });
+  });
+
+  it('"Big number" settings enabled with required decimals', done => {
+    const comp = _.cloneDeep(comp3);
+
+    comp.defaultValue = '';
+    comp.isBigNumber = true;
+    comp.decimalLimit = 2;
+    comp.requireDecimal = true;
+
+    Harness.testCreate(NumberComponent, comp).then(component => {
+      Harness.testSetInput(component, '91111111111111111111111111111', '91111111111111111111111111111', '91111111111111111111111111111.00');
+      Harness.testSetInput(
+        component,
+        '-91111111111111111111111111111',
+        '-91111111111111111111111111111',
+        '-91111111111111111111111111111.00'
+      );
+      Harness.testSetInput(component, '92222222222222222222222222222', '92222222222222222222222222222', '92222222222222222222222222222.00');
+      Harness.testSetInput(component, 942, 942, '942.00');
+      done();
+    });
+  });
 });

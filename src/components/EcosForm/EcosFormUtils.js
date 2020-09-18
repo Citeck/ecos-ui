@@ -34,7 +34,7 @@ const getComponentInnerAttSchema = component => {
 
   switch (component.type) {
     case 'number':
-      return 'num';
+      return lodashGet(component, 'isBigNumber', false) ? 'str' : 'num';
     case 'checkbox':
       return 'bool';
     case 'datagridAssoc':
@@ -661,6 +661,10 @@ export default class EcosFormUtils {
       }
     }
     return inputByKey;
+  }
+
+  static getThemeName() {
+    return lodashGet(window, 'Citeck.config.theme');
   }
 
   static getI18n(defaultI18n, attributes, formI18n) {

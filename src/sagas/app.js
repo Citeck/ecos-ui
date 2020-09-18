@@ -14,7 +14,8 @@ import {
   initAppSuccess,
   setDashboardEditable,
   setFooter,
-  setLeftMenuEditable
+  setLeftMenuEditable,
+  setRedirectToNewUi
 } from '../actions/app';
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
@@ -45,6 +46,10 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
         const isNewUIAvailable = yield call(api.user.checkNewUIAvailableStatus);
 
         yield put(setNewUIAvailableStatus(isNewUIAvailable));
+
+        const isForceOldUserDashboardEnabled = yield call(api.app.isForceOldUserDashboardEnabled);
+
+        yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
       }
     } catch (e) {
       yield put(validateUserFailure());

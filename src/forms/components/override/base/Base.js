@@ -62,6 +62,10 @@ Object.defineProperty(Base.prototype, 'className', {
       className += ` ${INLINE_EDITING_CLASSNAME}`;
     }
 
+    if (this.options.theme) {
+      className += ` formio-component-${this.component.type}_theme_${this.options.theme}`;
+    }
+
     return className;
   }
 });

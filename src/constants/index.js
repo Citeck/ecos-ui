@@ -2,6 +2,7 @@ export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
+  OLD_DASHBOARD: '/share/page',
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
   MENU_SETTINGS: '/v2/menu-settings',
   BPMN_DESIGNER: '/v2/bpmn-designer',
