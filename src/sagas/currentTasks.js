@@ -2,7 +2,7 @@ import { call, put, select, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
 import { NotificationManager } from 'react-notifications';
 
-import RecordActions from '../components/Records/actions/RecordActions';
+import recordActions from '../components/Records/actions/recordActions';
 import Records from '../components/Records/Records';
 import { executeAction, getActions, getCurrentTaskList, initCurrentTasks, setActions, setCurrentTaskList } from '../actions/currentTasks';
 import { t } from '../helpers/util';
@@ -46,7 +46,7 @@ function* sagaGetActions({ api, logger }, { payload }) {
     const isAdmin = yield select(state => state.user.isAdmin);
 
     if (isAdmin) {
-      const actions = yield RecordActions.getActions(record, { actions: TaskActions });
+      const actions = yield recordActions.getActionsForRecord(record, TaskActions, {});
 
       yield put(setActions({ stateId, actions }));
     }
@@ -62,7 +62,7 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
 
     yield call(api.recordActions.executeAction, {
       records,
-      action: { ...action, actionOfAssignment: AssignActions.ASSIGN_SMB, workflowFromRecord: true }
+      action: { ...action, actionOfAssignment: AssignActions.CLAIM, workflowFromRecord: true }
     });
 
     Records.get(record).update();

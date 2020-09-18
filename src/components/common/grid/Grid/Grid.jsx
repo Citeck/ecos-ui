@@ -246,7 +246,7 @@ class Grid extends Component {
 
         const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
 
-        column = this.setHeaderFormatter(column, filterable, column.sortable);
+        column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false);
 
         if (column.customFormatter === undefined) {
           column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
@@ -351,27 +351,19 @@ class Grid extends Component {
     const { editingRules } = this.props;
     const [column, , row] = data;
     const rowRules = editingRules[row.id];
-    const columnEditableStatus = get(column, 'params.editable');
-
-    /**
-     * If there are rules for editing the column
-     */
-    if (columnEditableStatus !== undefined) {
-      return columnEditableStatus;
-    }
 
     /**
      * If there is an editing rule for the entire row
      */
     if (typeof rowRules === 'boolean') {
-      return rowRules;
+      return !!rowRules;
     }
 
     /**
      * Validating a rule for a single cell
      */
     if (typeof rowRules === 'object') {
-      return get(rowRules, column.dataField, false);
+      return !!get(rowRules, column.dataField);
     }
 
     /**
@@ -482,7 +474,9 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable) => {
-    const { filters, sortBy } = this.props;
+    const { filters, sortBy, onSort, onFilter } = this.props;
+    const isFilterable = filterable && typeof onFilter === 'function';
+    const isSortable = sortable && typeof onSort === 'function';
 
     column.headerFormatter = (column, colIndex) => {
       const filterValue = ((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || '';
@@ -490,11 +484,11 @@ class Grid extends Component {
 
       return (
         <HeaderFormatter
-          filterable={filterable}
+          filterable={isFilterable}
           closeFilterEvent={CLOSE_FILTER_EVENT}
           filterValue={filterValue}
           onFilter={this.onFilter}
-          sortable={sortable}
+          sortable={isSortable}
           onSort={this.onSort}
           ascending={ascending}
           column={column}
@@ -1001,6 +995,7 @@ Grid.propTypes = {
   scrollAutoHide: PropTypes.bool,
   autoHeight: PropTypes.bool,
   byContentHeight: PropTypes.bool,
+  sortable: PropTypes.bool,
 
   columns: PropTypes.array,
   data: PropTypes.array,
@@ -1025,7 +1020,8 @@ Grid.propTypes = {
 };
 
 Grid.defaultProps = {
-  scrollable: true
+  scrollable: true,
+  sortable: true
 };
 
 export default Grid;

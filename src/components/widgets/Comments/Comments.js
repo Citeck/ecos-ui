@@ -25,7 +25,7 @@ import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
-import { Avatar, Loader } from '../../common/index';
+import { Avatar, Loader, Popper } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
 
@@ -53,12 +53,15 @@ class Comments extends BaseWidget {
         lastName: PropTypes.string,
         middleName: PropTypes.string,
         displayName: PropTypes.string,
+        editorName: PropTypes.string,
+        editorUserName: PropTypes.string,
         text: PropTypes.string.isRequired,
         dateCreate: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]).isRequired,
         dateModify: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]),
         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         canEdit: PropTypes.bool,
-        canDelete: PropTypes.bool
+        canDelete: PropTypes.bool,
+        edited: PropTypes.bool
       })
     ),
     dataStorageFormat: PropTypes.oneOf(['raw', 'html', 'plain-text']),
@@ -71,6 +74,8 @@ class Comments extends BaseWidget {
     canDragging: PropTypes.bool,
     maxHeightByContent: PropTypes.bool,
     commentListMaxHeight: PropTypes.number,
+    isMobile: PropTypes.bool,
+    userName: PropTypes.string,
     onSave: PropTypes.func,
     onDelete: PropTypes.func,
     getComments: PropTypes.func,
@@ -598,7 +603,7 @@ class Comments extends BaseWidget {
 
           <div className="ecos-comments__editor-footer-btn-wrapper">
             <Btn
-              className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-comments__editor-footer-btn"
+              className="ecos-btn_grey5 ecos-btn_hover_color-grey ecos-comments__editor-footer-btn"
               onClick={this.handleCloseEditor}
               disabled={saveIsLoading}
             >
@@ -644,7 +649,10 @@ class Comments extends BaseWidget {
           <div className="ecos-comments__comment-confirm-title">{t('comments-widget.confirm.title')}?</div>
 
           <div className="ecos-comments__comment-confirm-btns">
-            <Btn className="ecos-btn_grey5 ecos-btn_hover_grey1 ecos-comments__comment-confirm-btn" onClick={this.handleCancelDeletion}>
+            <Btn
+              className="ecos-btn_grey5 ecos-btn_hover_color-grey ecos-comments__comment-confirm-btn"
+              onClick={this.handleCancelDeletion}
+            >
               {t('comments-widget.confirm.cancel')}
             </Btn>
             <Btn className="ecos-btn_red ecos-comments__comment-confirm-btn" onClick={this.handleConfirmDeletion}>
@@ -658,19 +666,45 @@ class Comments extends BaseWidget {
     );
   }
 
+  renderCommentDate(comment) {
+    const { userName } = this.props;
+    const { dateCreate = new Date(), edited = false, dateModify, editorName, editorUserName } = comment;
+
+    if (!edited) {
+      return <div className="ecos-comments__comment-date">{this.formatDate(dateCreate)}</div>;
+    }
+
+    const inMoment = moment(dateModify);
+    let title = t('comments-widget.edited-by');
+
+    if (userName === editorUserName) {
+      const now = moment();
+      const yesterday = now
+        .clone()
+        .subtract(1, 'days')
+        .startOf('day');
+
+      if (inMoment.isSame(yesterday, 'd')) {
+        title += ` ${inMoment.format('DD.MM.YYYY')}`;
+      }
+
+      title += ` ${t('comments-widget.edited-in')} ${inMoment.format('HH:mm')}`;
+
+      return <div className="ecos-comments__comment-date">{title}</div>;
+    }
+
+    const displayText = `${editorName} / ${inMoment.format('DD.MM.YYYY HH:mm')}`;
+    const popperContent = <div className="ecos-comments__comment-date-popper">{displayText}</div>;
+
+    return (
+      <div className="ecos-comments__comment-date">
+        <Popper text={title} className="ecos-comments__comment-date-pseudo-link" contentComponent={popperContent} />
+      </div>
+    );
+  }
+
   renderComment = data => {
-    const {
-      id,
-      avatar = '',
-      firstName,
-      lastName,
-      middleName,
-      displayName,
-      text,
-      dateCreate = new Date(),
-      canEdit = false,
-      canDelete = false
-    } = data;
+    const { id, avatar = '', firstName, lastName, middleName, displayName, text, canEdit = false, canDelete = false } = data;
     let convertedComment;
 
     try {
@@ -695,10 +729,10 @@ class Comments extends BaseWidget {
                 {firstName} {middleName}
               </div>
               <div className="ecos-comments__comment-name">{lastName}</div>
-              <div className="ecos-comments__comment-date">{this.formatDate(dateCreate)}</div>
+              {this.renderCommentDate(data)}
             </div>
           </div>
-          <div className="ecos-comments__comment-header-cell">
+          <div className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions">
             {canEdit && (
               <div
                 className="ecos-comments__comment-btn ecos-comments__comment-btn-edit icon-edit"
@@ -783,7 +817,8 @@ class Comments extends BaseWidget {
 
 const mapStateToProps = (state, ownProps) => ({
   ...selectStateByNodeRef(state, ownProps.record),
-  isMobile: state.view.isMobile
+  isMobile: state.view.isMobile,
+  userName: state.user.userName
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

@@ -17,6 +17,10 @@
 
       &__body {
       }
+
+      .formio-form {
+        min-height: unset;
+      }
     }
 
     &__loader {
@@ -98,6 +102,17 @@
       @extend %h-indents;
 
       padding-bottom: 15px;
+
+      .formio-component-ecosSelect {
+        .is-flipped .choices__list--dropdown {
+          top: 100%;
+          bottom: auto;
+        }
+
+        .choices__list--dropdown .choices__list {
+          overflow: initial;
+        }
+      }
     }
   }
 
@@ -106,6 +121,10 @@
 
     &__wrapper {
       margin: 0;
+
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
 
       &_small-mode {
         margin: 13px 0;
@@ -128,6 +147,10 @@
         margin-bottom: 13px;
         background-color: $color-blue-dark;
         color: $color-white;
+
+        width: 100%;
+        min-width: 160px;
+        margin-left: unset;
 
         &:hover {
           background-color: $color-blue-light;

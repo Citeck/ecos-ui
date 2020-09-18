@@ -1,9 +1,9 @@
-import { getTextByLocale } from '../util';
+import * as Util from '../util';
 
-function check(data) {
+function check(data, nameFun) {
   data.forEach(item => {
     it(item.title, () => {
-      const isValid = getTextByLocale(...item.input);
+      const isValid = Util[nameFun](...item.input);
 
       expect(isValid).toEqual(item.output);
     });
@@ -12,7 +12,7 @@ function check(data) {
 
 describe('Util helpers', () => {
   describe('Method getTextByLocale', () => {
-    describe('Object with needet locale', () => {
+    describe('Object with needed locale', () => {
       const data = [
         {
           title: '(ru) Заголовок',
@@ -26,10 +26,10 @@ describe('Util helpers', () => {
         }
       ];
 
-      check(data);
+      check(data, 'getTextByLocale');
     });
 
-    describe('Object without needet locale, but with "en" locale', () => {
+    describe('Object without needed locale, but with "en" locale', () => {
       const data = [
         {
           title: '(fr) Title',
@@ -43,7 +43,7 @@ describe('Util helpers', () => {
         }
       ];
 
-      check(data);
+      check(data, 'getTextByLocale');
     });
 
     describe('Object with only "ru" locale', () => {
@@ -60,7 +60,7 @@ describe('Util helpers', () => {
         }
       ];
 
-      check(data);
+      check(data, 'getTextByLocale');
     });
 
     describe('String data', () => {
@@ -77,7 +77,7 @@ describe('Util helpers', () => {
         }
       ];
 
-      check(data);
+      check(data, 'getTextByLocale');
     });
 
     describe('Array of objects', () => {
@@ -94,7 +94,7 @@ describe('Util helpers', () => {
         }
       ];
 
-      check(data);
+      check(data, 'getTextByLocale');
     });
 
     describe('Array of string', () => {
@@ -106,7 +106,7 @@ describe('Util helpers', () => {
         }
       ];
 
-      check(data);
+      check(data, 'getTextByLocale');
     });
 
     describe('Array of mixed data', () => {
@@ -118,7 +118,66 @@ describe('Util helpers', () => {
         }
       ];
 
-      check(data);
+      check(data, 'getTextByLocale');
     });
+  });
+
+  describe('function isExistValue', () => {
+    const data = [
+      {
+        input: [undefined],
+        output: false
+      },
+      {
+        input: [null],
+        output: false
+      },
+      {
+        input: [false],
+        output: true
+      },
+      {
+        input: [0],
+        output: true
+      },
+      {
+        input: [''],
+        output: true
+      }
+    ];
+    data.forEach(_ => {
+      _.title = `${_.input[0]} > ${_.output}`;
+    });
+
+    check(data, 'isExistValue');
+  });
+
+  describe('fun hasInString', () => {
+    const data = [
+      {
+        input: ['there is data here', 'data'],
+        output: true
+      },
+      {
+        input: ['there is not data here', 'text'],
+        output: false
+      }
+    ];
+
+    data.forEach(_ => {
+      _.title = `${_.input[0]}`;
+    });
+
+    check(data, 'hasInString');
+  });
+
+  describe.each([
+    ['empty id', true, 'true'],
+    ['clean id begins number', '123qwerty', 'tooltip-123qwerty'],
+    ['clean id begins str', 'id123qwerty', 'id123qwerty'],
+    ['dirty id begins number', '8- 4 5-6*/qwerty', 'tooltip-8-45-6qwerty'],
+    ['dirty id begins str', '- 4 5-6*/qwerty', '-45-6qwerty']
+  ])('fun prepareTooltipId %s', (title, input, output) => {
+    it(input + '>' + output, () => expect(Util.prepareTooltipId(input)).toEqual(output));
   });
 });

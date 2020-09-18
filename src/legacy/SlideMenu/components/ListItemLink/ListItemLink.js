@@ -44,13 +44,24 @@ const ListItemLink = ({
   const [journalTotalCount, setJournalTotalCount] = useState(0);
   const attributes = {};
   let ignoreTabHandler = true;
-
-  useEffect(() => {
+  const getJournalCount = () => {
     if (journalId) {
       menuApi.getJournalTotalCount(journalId).then(count => {
         setJournalTotalCount(count);
       });
     }
+  };
+
+  useEffect(() => {
+    SidebarService.addListener(SidebarService.UPDATE_EVENT, getJournalCount);
+
+    return () => {
+      SidebarService.removeListener(SidebarService.UPDATE_EVENT, getJournalCount);
+    };
+  }, []);
+
+  useEffect(() => {
+    getJournalCount();
   }, [journalId]);
 
   let itemId = item.id;

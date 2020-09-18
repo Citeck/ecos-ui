@@ -1,6 +1,7 @@
 import { generateSearchTerm, getCurrentLocale } from './util';
 import { MenuApi } from '../../api/menu';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
+import Records from '../../components/Records/Records';
 
 const Citeck = window.Citeck || {};
 
@@ -66,7 +67,45 @@ export default class {
 
   getCreateVariantsForAllSites = () => {
     const url = 'api/journals/create-variants/site/ALL';
-    return this.getJSON(url).catch(() => []);
+
+    const allSites = this.getJSON(url).catch(() => []);
+    const fromJournals = Records.query(
+      {
+        sourceId: 'uiserv/journal',
+        language: 'site-journals'
+      },
+      {
+        createVariants: 'createVariants[]{id,attributes:attributes?json,formRef:formRef?id,name,recordRef:recordRef?id}',
+        journalList: 'attributes.journalsListId'
+      }
+    )
+      .then(res => res.records || [])
+      .then(records => {
+        return records
+          .map(r => {
+            let listId = r.journalList;
+            if (!listId) {
+              return {};
+            }
+            let siteId = listId.substring('site-'.length, listId.length - '-main'.length);
+            let variants = (r.createVariants || []).map(v => {
+              return {
+                canCreate: true,
+                formId: v.formRef,
+                title: v.name,
+                ...v
+              };
+            });
+            return {
+              createVariants: variants,
+              siteId: siteId
+            };
+          })
+          .filter(r => r.createVariants && r.createVariants.length);
+      })
+      .catch(() => []);
+
+    return Promise.all([allSites, fromJournals]).then(res => res[0].concat(res[1]));
   };
 
   getCustomCreateVariants = () => {

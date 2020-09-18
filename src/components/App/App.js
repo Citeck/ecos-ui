@@ -1,6 +1,7 @@
-import React, { Component, lazy, Suspense } from 'react';
+import React, { Component, Suspense } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
@@ -13,12 +14,14 @@ import Header from '../Header';
 import Notification from '../Notification';
 import Menu from '../Sidebar/Sidebar';
 import ReduxModal from '../ReduxModal';
+import Page from '../../pages';
 import PageTabs from '../PageTabs';
 import { ErrorBoundary } from '../ErrorBoundary';
 
 import { initAppSettings } from '../../actions/app';
 import { setTab, updateTab } from '../../actions/pageTabs';
-import { MENU_TYPE, pagesWithOnlyContent, URL } from '../../constants';
+import { Pages, pagesWithOnlyContent, URL } from '../../constants';
+import { MenuTypes } from '../../constants/menu';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';
 import PageService, { Events } from '../../services/PageService';
@@ -28,19 +31,6 @@ import { PopupContainer } from '../common/Popper';
 import { replaceHistoryLink } from '../../helpers/urls';
 
 import './App.scss';
-
-const LoginForm = lazy(() => import('../LoginForm'));
-const BPMNDesignerPage = lazy(() => import('../../pages/BPMNDesignerPage'));
-const DashboardPage = lazy(() => import('../../pages/Dashboard'));
-const DashboardSettingsPage = lazy(() => import('../../pages/DashboardSettings'));
-const JournalsPage = lazy(() => import('../../pages/JournalsPage'));
-const MyTimesheetPage = lazy(() => import('../../pages/Timesheet/MyTimesheetPage'));
-const SubordinatesTimesheetPage = lazy(() => import('../../pages/Timesheet/SubordinatesTimesheetPage'));
-const VerificationTimesheetPage = lazy(() => import('../../pages/Timesheet/VerificationTimesheetPage'));
-const DelegatedTimesheetsPage = lazy(() => import('../../pages/Timesheet/DelegatedTimesheetsPage'));
-
-const FormIOPage = lazy(() => import('../../pages/debug/FormIOPage'));
-const TreePage = lazy(() => import('../../pages/debug/Tree'));
 
 const allowedLinks = [
   URL.DASHBOARD,
@@ -61,6 +51,8 @@ const allowedLinks = [
 ];
 
 class App extends Component {
+  _footerRef = null;
+
   componentDidMount() {
     const { initAppSettings } = this.props;
 
@@ -123,6 +115,12 @@ class App extends Component {
     return { height: height.length ? `calc(100vh - (${height.join(' + ')}))` : '100%' };
   }
 
+  setFooterRef = ref => {
+    if (ref) {
+      this._footerRef = ref;
+    }
+  };
+
   renderMenu() {
     const { menuType } = this.props;
 
@@ -130,7 +128,7 @@ class App extends Component {
       return null;
     }
 
-    if (menuType === MENU_TYPE.LEFT) {
+    if (menuType === MenuTypes.LEFT) {
       return <Menu />;
     }
 
@@ -141,7 +139,7 @@ class App extends Component {
     if (this.isOnlyContent) {
       if (isMobileAppWebView()) {
         return (
-          <div id="alf-hd">
+          <div id="alf-hd" className="app-header">
             <Notification />
           </div>
         );
@@ -151,7 +149,7 @@ class App extends Component {
     }
 
     return (
-      <div id="alf-hd">
+      <div id="alf-hd" className="app-header">
         <Header />
         <Notification />
       </div>
@@ -202,7 +200,8 @@ class App extends Component {
     const basePageProps = {
       tabId: tab.id,
       tabLink: tab.link,
-      enableCache: true
+      enableCache: true,
+      footer: this.renderFooter()
     };
     const styles = { ...this.wrapperStyle };
 
@@ -223,45 +222,70 @@ class App extends Component {
             <CacheRoute
               {...baseCacheRouteProps}
               path={URL.DASHBOARD_SETTINGS}
-              render={props => <DashboardSettingsPage {...props} {...basePageProps} />}
+              render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} {...basePageProps} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
               path={URL.DASHBOARD}
               exact
-              render={props => <DashboardPage {...props} {...basePageProps} />}
+              render={props => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
               path={URL.BPMN_DESIGNER}
-              render={props => <BPMNDesignerPage {...props} {...basePageProps} />}
+              render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />}
             />
-            <CacheRoute {...baseCacheRouteProps} path={URL.JOURNAL} render={props => <JournalsPage {...props} {...basePageProps} />} />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={[URL.TIMESHEET, URL.TIMESHEET_IFRAME]}
+              path={URL.JOURNAL}
+              render={props => <Page pageKey={Pages.JOURNAL} {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.TIMESHEET}
               exact
-              render={props => <MyTimesheetPage {...props} {...basePageProps} />}
+              render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={[URL.TIMESHEET_SUBORDINATES, URL.TIMESHEET_IFRAME_SUBORDINATES]}
-              render={props => <SubordinatesTimesheetPage {...props} {...basePageProps} />}
+              path={URL.TIMESHEET_IFRAME}
+              exact
+              render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} footer={null} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={[URL.TIMESHEET_FOR_VERIFICATION, URL.TIMESHEET_IFRAME_FOR_VERIFICATION]}
-              render={props => <VerificationTimesheetPage {...props} {...basePageProps} />}
+              path={URL.TIMESHEET_SUBORDINATES}
+              render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} {...basePageProps} />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={[URL.TIMESHEET_DELEGATED, URL.TIMESHEET_IFRAME_DELEGATED]}
-              render={props => <DelegatedTimesheetsPage {...props} {...basePageProps} />}
+              path={URL.TIMESHEET_IFRAME_SUBORDINATES}
+              render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} {...basePageProps} footer={null} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.TIMESHEET_FOR_VERIFICATION}
+              render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION}
+              render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} {...basePageProps} footer={null} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.TIMESHEET_DELEGATED}
+              render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.TIMESHEET_IFRAME_DELEGATED}
+              render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} footer={null} />}
             />
 
             {/*temporary routes */}
-            <Route path="/v2/debug/formio-develop" render={props => <FormIOPage {...props} {...basePageProps} />} />
-            <Route path="/v2/debug/tree" render={props => <TreePage {...props} {...basePageProps} />} />
+            <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
+            <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} {...basePageProps} />} />
 
             {/* Redirect not working: https://github.com/CJY0208/react-router-cache-route/issues/72 */}
             <Redirect to={URL.DASHBOARD} />
@@ -271,33 +295,74 @@ class App extends Component {
     );
   });
 
-  renderRouter = () => (
-    <div className="ecos-main-content" style={this.wrapperStyle}>
-      <Suspense fallback={null}>
-        <Switch>
-          <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
-          <Route path={URL.DASHBOARD_SETTINGS} component={DashboardSettingsPage} />
-          <Route path={URL.DASHBOARD} exact component={DashboardPage} />
-          <Route path={URL.BPMN_DESIGNER} component={BPMNDesignerPage} />
-          <Route path={URL.JOURNAL} component={JournalsPage} />
-          <Route path={URL.TIMESHEET} exact component={MyTimesheetPage} />
-          <Route path={URL.TIMESHEET_SUBORDINATES} component={SubordinatesTimesheetPage} />
-          <Route path={URL.TIMESHEET_FOR_VERIFICATION} component={VerificationTimesheetPage} />
-          <Route path={URL.TIMESHEET_DELEGATED} component={DelegatedTimesheetsPage} />
-          <Route path={URL.TIMESHEET_IFRAME} exact component={MyTimesheetPage} />
-          <Route path={URL.TIMESHEET_IFRAME_SUBORDINATES} component={SubordinatesTimesheetPage} />
-          <Route path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION} component={VerificationTimesheetPage} />
-          <Route path={URL.TIMESHEET_IFRAME_DELEGATED} component={DelegatedTimesheetsPage} />
+  renderRouter = () => {
+    const basePageProps = {
+      footer: this.renderFooter()
+    };
 
-          {/* temporary routes */}
-          <Route path="/v2/debug/formio-develop" component={FormIOPage} />
-          <Route path="/v2/debug/tree" component={TreePage} />
+    return (
+      <div className="ecos-main-content" style={this.wrapperStyle}>
+        <Suspense fallback={null}>
+          <Switch>
+            <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
+            <Route
+              path={URL.DASHBOARD_SETTINGS}
+              render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} {...basePageProps} />}
+            />
+            <Route path={URL.DASHBOARD} exact render={props => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />} />
+            <Route path={URL.BPMN_DESIGNER} render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />} />
+            <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} {...basePageProps} />} />
+            <Route path={URL.TIMESHEET} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} />} />
+            <Route
+              path={URL.TIMESHEET_SUBORDINATES}
+              render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} {...basePageProps} />}
+            />
+            <Route
+              path={URL.TIMESHEET_FOR_VERIFICATION}
+              render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} {...basePageProps} />}
+            />
+            <Route
+              path={URL.TIMESHEET_DELEGATED}
+              render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} />}
+            />
+            <Route
+              path={URL.TIMESHEET_IFRAME}
+              exact
+              render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} footer={null} />}
+            />
+            <Route
+              path={URL.TIMESHEET_IFRAME_SUBORDINATES}
+              render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} {...basePageProps} footer={null} />}
+            />
+            <Route
+              path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION}
+              render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} {...basePageProps} footer={null} />}
+            />
+            <Route
+              path={URL.TIMESHEET_IFRAME_DELEGATED}
+              render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} footer={null} />}
+            />
 
-          <Redirect to={URL.DASHBOARD} />
-        </Switch>
-      </Suspense>
-    </div>
-  );
+            {/* temporary routes */}
+            <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
+            <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} {...basePageProps} />} />
+
+            <Redirect to={URL.DASHBOARD} />
+          </Switch>
+        </Suspense>
+      </div>
+    );
+  };
+
+  renderFooter() {
+    const { footer } = this.props;
+
+    if (isEmpty(footer)) {
+      return null;
+    }
+
+    return <div ref={this.setFooterRef} className="app-footer" dangerouslySetInnerHTML={{ __html: footer }} />;
+  }
 
   render() {
     const { isInit, isInitFailure, isAuthenticated, isMobile, theme } = this.props;
@@ -315,13 +380,13 @@ class App extends Component {
     if (!isAuthenticated) {
       return (
         <Suspense fallback={null}>
-          <LoginForm theme={theme} />
+          <Page pageKey={Pages.LOGIN} theme={theme} />
         </Suspense>
       );
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile });
-    const basePageClassNames = classNames('ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
+    const basePageClassNames = classNames('app-content ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
 
     return (
       <ErrorBoundary title={t('page.error-loading.title')} message={t('page.error-loading.message')}>
@@ -336,7 +401,6 @@ class App extends Component {
               <div className="ecos-main-area">{this.renderTabs()}</div>
             </div>
           </div>
-
           <NotificationContainer />
           <PopupContainer />
         </div>
@@ -353,8 +417,9 @@ const mapStateToProps = state => ({
   theme: get(state, ['view', 'theme']),
   isAuthenticated: get(state, ['user', 'isAuthenticated']),
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
+  tabs: get(state, 'pageTabs.tabs', []),
   menuType: get(state, ['menu', 'type']),
-  tabs: get(state, 'pageTabs.tabs', [])
+  footer: get(state, 'app.footer', null)
 });
 
 const mapDispatchToProps = dispatch => ({

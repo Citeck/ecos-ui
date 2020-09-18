@@ -12,7 +12,7 @@ import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
 import uuidV4 from 'uuid/v4';
 
-import { Components } from '../../forms';
+import { Components } from '../../forms/components';
 import { getCurrentUserName, t } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
@@ -34,7 +34,7 @@ const getComponentInnerAttSchema = component => {
 
   switch (component.type) {
     case 'number':
-      return 'num';
+      return lodashGet(component, 'isBigNumber', false) ? 'str' : 'num';
     case 'checkbox':
       return 'bool';
     case 'datagridAssoc':
@@ -353,7 +353,7 @@ export default class EcosFormUtils {
         .then(({ typeId, formKey }) => {
           if (typeId && typeId.indexOf('emodel/type@') === 0) {
             return Records.get(typeId)
-              .load('inheritedForm?id')
+              .load('inhFormRef?id')
               .then(formId => {
                 if (EcosFormUtils.isFormId(formId)) {
                   return EcosFormUtils.getFormById(formId, attributes);
@@ -664,7 +664,7 @@ export default class EcosFormUtils {
   }
 
   static getI18n(defaultI18n, attributes, formI18n) {
-    let global = lodashGet(window, 'Alfresco.messages.ecosForms', {});
+    let global = lodashGet(window, 'Citeck.messages.ecosForms', {});
 
     let result = cloneDeep(defaultI18n);
 

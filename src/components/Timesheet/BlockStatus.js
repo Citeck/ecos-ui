@@ -85,9 +85,13 @@ class BlockStatus extends React.Component {
           btn: CommonLabels.STATUS_BTN_SENT_APPROVE
         });
       case ServerStatusKeys.MANAGER_APPROVAL:
-      case ServerStatusKeys.APPROVED_BY_MANAGER:
         return this.getCommonViewStatus({
           value: CommonLabels.STATUS_VAL_WAITING_APPROVAL,
+          btn: CommonLabels.STATUS_BTN_SENT_IMPROVE
+        });
+      case ServerStatusKeys.APPROVED_BY_MANAGER:
+        return this.getCommonViewStatus({
+          value: CommonLabels.STATUS_VAL_APPROVED_BY_MANAGER,
           btn: CommonLabels.STATUS_BTN_SENT_IMPROVE
         });
       case ServerStatusKeys.CORRECTION:

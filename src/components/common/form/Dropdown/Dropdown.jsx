@@ -174,11 +174,11 @@ export default class Dropdown extends Component {
   onChange = selected => {
     const { onChange } = this.props;
 
-    this.toggle();
-
     if (typeof onChange === 'function') {
       onChange(selected);
     }
+
+    this.toggle();
   };
 
   renderToggle() {

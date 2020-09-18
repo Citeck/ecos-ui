@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Btn } from '../../../../common/btns';
+
+import { t } from '../../../../../helpers/util';
+import Records from '../../../../Records';
 import EcosForm, { FORM_MODE_CREATE } from '../../../../EcosForm/EcosForm';
 import EcosModal from '../../../EcosModal';
-import Records from '../../../../Records';
+import { Btn, IcoBtn } from '../../../btns';
 import Dropdown from '../../Dropdown/Dropdown';
-import { IcoBtn } from '../../../btns';
-import { t } from '../../../../../helpers/util';
 
 const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateFormSubmit }) => {
   if (!items || !items.length) {
@@ -15,7 +15,9 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
 
   const [record, setRecord] = useState(null);
   const [formKey, setFormKey] = useState(null);
-  const [displayName, setDisplayName] = useState();
+  const [formId, setFormId] = useState(null);
+  const [displayName, setDisplayName] = useState(null);
+
   useEffect(() => {
     Records.get(record)
       .load('.disp')
@@ -33,6 +35,7 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
       const variant = items[0];
       setRecord(variant.recordRef || `dict@${variant.type}`);
       setFormKey(variant.formKey);
+      setFormId(variant.formId);
       toggleCreateModal();
     };
 
@@ -45,6 +48,7 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
     const onSelect = variant => {
       setRecord(variant.recordRef || `dict@${variant.type}`);
       setFormKey(variant.formKey);
+      setFormId(variant.formId);
       toggleCreateModal();
     };
 
@@ -71,6 +75,7 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
       <EcosForm
         record={record}
         formKey={formKey}
+        formId={formId}
         onSubmit={onCreateFormSubmit}
         onFormCancel={toggleCreateModal}
         options={{

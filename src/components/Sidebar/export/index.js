@@ -9,13 +9,14 @@ import { Provider } from 'react-redux';
 
 import Sidebar from '../Sidebar';
 
+import { AppApi } from '../../../api/app';
 import { MenuApi } from '../../../api/menu';
 import { ViewApi } from '../../../api/view';
 import { fakeApi } from '../../../api/fakeApi';
 import { UserApi } from '../../../api/user';
 
 import { detectMobileDevice, loadThemeRequest } from '../../../actions/view';
-import { initMenuSettings } from '../../../actions/menu';
+import { initMenuConfig } from '../../../actions/menu';
 import { getUserData } from '../../../actions/user';
 
 import configureStore from './store';
@@ -31,6 +32,7 @@ const store = configureStore({
   logger
 });
 
+api.app = new AppApi(store);
 api.menu = new MenuApi(store);
 api.view = new ViewApi(store);
 api.user = new UserApi(store);
@@ -42,7 +44,7 @@ const render = (elementId, props, callback) => {
         store.dispatch(
           getUserData({
             onSuccess: () => {
-              store.dispatch(initMenuSettings());
+              store.dispatch(initMenuConfig());
               store.dispatch(detectMobileDevice());
 
               i18nInit({ debug: false }).then(() => {

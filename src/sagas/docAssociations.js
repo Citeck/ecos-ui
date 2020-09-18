@@ -20,7 +20,7 @@ import DocAssociationsConverter from '../dto/docAssociations';
 import { t } from '../helpers/util';
 import { DIRECTIONS } from '../constants/docAssociations';
 import Records from '../components/Records';
-import { DefaultActionTypes } from '../components/Records/actions';
+import { ActionTypes } from '../components/Records/actions';
 
 function* sagaGetSectionList({ api, logger }, { payload }) {
   try {
@@ -208,7 +208,7 @@ function* sagaViewAssociation({ api, logger }, { payload }) {
   try {
     yield call(api.recordActions.executeAction, {
       records: payload,
-      action: { type: DefaultActionTypes.VIEW }
+      action: { type: ActionTypes.VIEW }
     });
   } catch (e) {
     NotificationManager.error(t('doc-associations-widget.view-association.error.message'), t('error'));

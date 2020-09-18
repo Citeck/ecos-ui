@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
+
 import {
   collapseAllItems,
   fetchLargeLogoSrc,
@@ -11,6 +12,8 @@ import {
   setInitExpandableItems,
   toggleIsOpen
 } from '../../actions/slideMenu';
+import { SourcesId } from '../../constants';
+import Records from '../Records';
 import Logo from './Logo';
 import List from './List';
 
@@ -26,6 +29,8 @@ class Sidebar extends React.Component {
     this.props.getSiteDashboardEnable();
 
     this.slideMenuToggle = document.getElementById('slide-menu-toggle');
+    this.recordMenu = Records.get(`${SourcesId.MENU}@${this.props.idMenu}`);
+    this.updateWatcher = this.recordMenu.watch('subMenu{.json}', this.props.fetchSlideMenuItems);
 
     if (this.slideMenuToggle) {
       this.slideMenuToggle.addEventListener('click', this.toggleSlideMenu);
@@ -36,6 +41,8 @@ class Sidebar extends React.Component {
     if (this.slideMenuToggle) {
       this.slideMenuToggle.removeEventListener('click', this.toggleSlideMenu);
     }
+
+    this.recordMenu && this.updateWatcher && this.recordMenu.unwatch(this.updateWatcher);
   }
 
   toggleSlideMenu = () => {
@@ -56,7 +63,6 @@ class Sidebar extends React.Component {
     if (!isReady) {
       return null;
     }
-
     return (
       <div
         className={classNames('ecos-sidebar', {
@@ -83,6 +89,7 @@ class Sidebar extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  idMenu: state.menu.id,
   isOpen: state.slideMenu.isOpen,
   isReady: state.slideMenu.isReady,
   items: state.slideMenu.items,
@@ -92,7 +99,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
+  fetchSlideMenuItems: _ => dispatch(fetchSlideMenuItems(_)),
   fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
   fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),

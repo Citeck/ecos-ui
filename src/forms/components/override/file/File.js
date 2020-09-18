@@ -6,8 +6,8 @@ import get from 'lodash/get';
 import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
 
-import RecordActionExecutorsRegistry from '../../../../components/Records/actions/RecordActionExecutorsRegistry';
-import { DefaultActionTypes } from '../../../../components/Records/actions';
+import recordActions, { ActionTypes } from '../../../../components/Records/actions';
+
 import Records from '../../../../components/Records';
 import { createDocumentUrl, getDownloadContentUrl, isNewVersionPage } from '../../../../helpers/urls';
 import { t } from '../../../../helpers/util';
@@ -65,29 +65,17 @@ export default class FileComponent extends FormIOFileComponent {
     return recordRef;
   }
 
-  static getDownloadExecutor() {
-    const downloadExecutor = RecordActionExecutorsRegistry.get(DefaultActionTypes.DOWNLOAD);
-    if (!downloadExecutor) {
-      throw new Error("Cant't extract downloadExecutor");
-    }
-
-    return downloadExecutor;
-  }
-
   static downloadFile(recordRef, fileName) {
-    try {
-      const downloadExecutor = FileComponent.getDownloadExecutor();
-      downloadExecutor.execute({
-        record: Records.get(recordRef),
-        action: {
-          config: {
-            filename: fileName
-          }
+    return recordActions
+      .execForRecord(recordRef, {
+        type: ActionTypes.DOWNLOAD,
+        config: {
+          filename: fileName
         }
+      })
+      .catch(e => {
+        console.error(`EcosForm File: Failure to download file. Cause: ${e.message}`);
       });
-    } catch (e) {
-      console.error(`EcosForm File: Failure to download file. Cause: ${e.message}`);
-    }
   }
 
   static buildDocumentUrl(recordRef) {
@@ -229,7 +217,6 @@ export default class FileComponent extends FormIOFileComponent {
       recordRef = FileComponent.extractFileRecordRef(file);
       documentUrl = FileComponent.buildDocumentUrl(recordRef);
     } catch (e) {
-      console.warn(`EcosForm File: ${e.message}`);
       this.calculateFileLinkText({ fileItemElement, originalFileName, file });
       return fileItemElement;
     }

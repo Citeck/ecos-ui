@@ -22,8 +22,10 @@ import {
 } from '../selectors/documents';
 import {
   execRecordsAction,
+  execRecordsActionFinally,
   getAvailableTypes,
   getDocumentsByType,
+  getDocumentsByTypes,
   getDocumentsFinally,
   getDynamicTypes,
   getTypeSettings,
@@ -36,6 +38,7 @@ import {
   setAvailableTypes,
   setConfig,
   setDocuments,
+  setDocumentsByTypes,
   setDynamicTypes,
   setTypeSettings,
   setTypeSettingsFinally,
@@ -46,8 +49,8 @@ import {
 } from '../actions/documents';
 import DocumentsConverter from '../dto/documents';
 import { getFirstNonEmpty, t } from '../helpers/util';
-import RecordActions from '../components/Records/actions/RecordActions';
-import { BackgroundOpenAction, CreateNodeAction } from '../components/Records/actions/DefaultActions';
+import recordActions, { ActionTypes } from '../components/Records/actions';
+
 import { DEFAULT_REF, documentActions, documentFields } from '../constants/documents';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
@@ -230,11 +233,12 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
 
     if (documents.length) {
       const typeActions = yield select(state => selectActionsByType(state, payload.key, payload.type));
-      const actions = yield RecordActions.getActions(documents.map(item => item[documentFields.id]), {
-        actions: getFirstNonEmpty([typeActions, documentActions], [])
-      });
+      const actions = yield recordActions.getActionsForRecords(
+        documents.map(item => item[documentFields.id]),
+        getFirstNonEmpty([typeActions, documentActions], [])
+      );
 
-      yield put(setActions({ key: payload.key, actions }));
+      yield put(setActions({ key: payload.key, actions: actions.forRecord }));
     }
   } catch (e) {
     logger.error('[documents sagaGetDocumentsByType saga error', e.message);
@@ -250,20 +254,22 @@ function* sagaExecRecordsAction({ api, logger }, { payload }) {
     const actionType = get(payload, 'action.type', '');
 
     if (check) {
-      if (actionType !== BackgroundOpenAction.type) {
+      if (actionType !== ActionTypes.BACKGROUND_VIEW) {
         if (typeof payload.callback === 'function') {
           payload.callback(actionType);
         }
       }
     }
 
-    if (actionType === CreateNodeAction.type) {
+    if (actionType === ActionTypes.CREATE) {
       if (typeof payload.callback === 'function') {
         payload.callback(actionType);
       }
     }
   } catch (e) {
     logger.error('[documents sagaExecRecordsAction saga error', e.message, e);
+  } finally {
+    yield put(execRecordsActionFinally(payload));
   }
 }
 
@@ -378,7 +384,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
      * update version
      */
     if (!type.multiple && type.countDocuments > 0) {
-      yield put(updateVersion(payload));
+      yield call(sagaUpdateVersion, { api, logger }, { payload });
 
       return;
     }
@@ -409,7 +415,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
       );
     });
 
-    yield put(getDocumentsByType({ ...payload, delay: 0 }));
+    yield put(getDocumentsByType({ ...payload }));
 
     NotificationManager.success(
       t(payload.files.length > 1 ? 'documents-widget.notification.add-many.success' : 'documents-widget.notification.add-one.success')
@@ -423,6 +429,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     );
   } finally {
     yield put(uploadFilesFinally(payload.key));
+    yield put(getDocumentsByTypes({ ...payload, delay: 1000 }));
   }
 }
 
@@ -458,16 +465,53 @@ function* sagaGetTypeSettings({ api, logger }, { payload }) {
   }
 }
 
+function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
+  try {
+    if (payload.delay !== undefined) {
+      yield delay(payload.delay);
+    }
+
+    const documentsByTypes = {};
+    const documentsIds = [];
+    const types = yield select(state => selectDynamicTypes(state, payload.key));
+
+    const { records, errors } = yield call(api.documents.getDocumentsByTypes, payload.record, types.map(item => item.type));
+
+    if (errors.length) {
+      throw new Error(errors.join(' '));
+    }
+
+    types.forEach((item, index) => {
+      const documents = get(records, `[${index}].documents`, []);
+
+      documentsByTypes[item.type] = documents;
+      documentsIds.push(...documents.map(doc => doc[documentFields.id]));
+    });
+
+    if (documentsIds.length) {
+      const typeActions = yield select(state => selectActionsByType(state, payload.key, payload.type));
+      const actions = yield recordActions.getActionsForRecords(documentsIds, getFirstNonEmpty([typeActions, documentActions], []));
+
+      yield put(setActions({ key: payload.key, actions: actions.forRecord }));
+    }
+
+    yield put(setDocumentsByTypes({ ...payload, documentsByTypes }));
+  } catch (e) {
+    logger.error('[documents sagaGetDocumentsByTypes saga error] ', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(initStore().type, sagaInitWidget, ea);
   yield takeEvery(getAvailableTypes().type, sagaGetAvailableTypes, ea);
   yield takeEvery(getDocumentsByType().type, sagaGetDocumentsByType, ea);
-  yield takeEvery(getDynamicTypes().type, sagaGetDynamicTypes, ea);
+  yield takeEvery([getDynamicTypes().type, execRecordsActionFinally().type], sagaGetDynamicTypes, ea);
   yield takeEvery(saveSettings().type, sagaSaveSettings, ea);
   yield takeEvery(uploadFiles().type, sagaUploadFiles, ea);
   yield takeEvery(updateVersion().type, sagaUpdateVersion, ea);
   yield takeEvery(execRecordsAction().type, sagaExecRecordsAction, ea);
   yield takeEvery(getTypeSettings().type, sagaGetTypeSettings, ea);
+  yield takeEvery([getDocumentsByTypes().type, execRecordsActionFinally().type], sagaGetDocumentsByTypes, ea);
 }
 
 export default saga;

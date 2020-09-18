@@ -8,12 +8,13 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
-import { LoaderTypes, MENU_TYPE, URL } from '../../constants';
+import { LoaderTypes, URL } from '../../constants';
+import { MenuTypes } from '../../constants/menu';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, isMobileAppWebView, t } from '../../helpers/util';
-import { decodeLink, getSortedUrlParams, isDashboard, pushHistoryLink } from '../../helpers/urls';
+import { decodeLink, getSortedUrlParams, isDashboard, isHomePage, pushHistoryLink } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
-import { getMenuConfig, saveMenuConfig } from '../../actions/menu';
+import { saveMenuConfig } from '../../actions/menu';
 import { Loader, ScrollArrow, Tabs } from '../../components/common';
 import { Badge } from '../../components/common/form';
 import { DocStatus } from '../../components/widgets/DocStatus';
@@ -51,7 +52,8 @@ const mapStateToProps = (state, ownProps) => {
     dashboardType: get(dashboardState, ['identification', 'type']),
     identificationId: get(dashboardState, ['identification', 'id'], null),
     titleInfo: get(dashboardState, ['titleInfo'], {}),
-    isMobile
+    isMobile,
+    redirectToNewUi: get(state, 'app.redirectToNewUi', false)
   };
 };
 
@@ -59,7 +61,6 @@ const mapDispatchToProps = (dispatch, state) => ({
   getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key: getStateId(state) })),
   getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: getStateId(state) })),
   saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: getStateId(state) })),
-  initMenuSettings: payload => dispatch(getMenuConfig({ ...payload, key: getStateId(state) })),
   saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: getStateId(state) })),
   setLoading: status => dispatch(setLoading({ status, key: getStateId(state) })),
   resetDashboardConfig: () => dispatch(resetDashboardConfig(getStateId(state)))
@@ -102,11 +103,14 @@ class Dashboard extends Component {
         props.resetDashboardConfig();
       }
 
-      props.initMenuSettings();
       newState.urlParams = newUrlParams;
 
       if (isDashboard()) {
         newState.needGetConfig = true;
+      }
+
+      if (isHomePage() && !props.redirectToNewUi) {
+        window.open(URL.OLD_DASHBOARD, '_self');
       }
     }
 
@@ -139,7 +143,7 @@ class Dashboard extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { tabId, stateKey, enableCache, config } = this.props;
+    const { tabId, stateKey, enableCache, config, resetDashboardConfig, isMobile } = this.props;
     const { needGetConfig, activeLayoutId, urlParams } = this.state;
 
     if (this.tabList.length) {
@@ -147,6 +151,10 @@ class Dashboard extends Component {
     }
 
     if (needGetConfig || (!prevProps.tabId && tabId) || (enableCache && prevProps.stateKey !== stateKey)) {
+      if (isMobile) {
+        resetDashboardConfig();
+      }
+
       this.getConfig(urlParams);
     }
 
@@ -402,7 +410,7 @@ class Dashboard extends Component {
   renderTopMenu() {
     const { menuType, isLoadingMenu, links } = this.props;
 
-    if (menuType !== MENU_TYPE.TOP) {
+    if (menuType !== MenuTypes.TOP) {
       return null;
     }
 

@@ -4,7 +4,7 @@ import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 
-import { arrayCompare, t } from '../../../helpers/util';
+import { arrayCompare, extractLabel, t } from '../../../helpers/util';
 import { EcosIcon, Icon, Tooltip } from '../../common';
 import { Badge, Checkbox } from '../../common/form';
 import { SortableElement, SortableHandle } from '../../Drag-n-Drop';
@@ -84,7 +84,7 @@ class TreeItem extends Component {
   get hasGrandchildren() {
     const { item } = this.props;
 
-    return !!item && !isEmpty(item.items) && item.items.some(child => !!child.items.length);
+    return !!item && !isEmpty(item.items) && item.items.some(child => !isEmpty(child.items));
   }
 
   handleToggleOpen = () => {
@@ -102,9 +102,9 @@ class TreeItem extends Component {
   };
 
   handleActionItem = action => {
-    const { item, onClickAction } = this.props;
+    const { item, level, onClickAction } = this.props;
 
-    onClickAction && onClickAction({ action, item });
+    onClickAction && onClickAction({ action, item, level });
   };
 
   renderArrow() {
@@ -178,7 +178,7 @@ class TreeItem extends Component {
   renderItem = (targetId, canDrag) => {
     const { isChild, item, selectable, prefixClassName, level, isMajor, renderExtraComponents, onClickIcon, getActions } = this.props;
     const { isOpen } = this.state;
-    const { items, selected, locked, icon, name, actionConfig, badge } = item || {};
+    const { items, selected, locked, icon, label, actionConfig, badge } = item || {};
     const filteredActions = getActions ? getActions(item) : actionConfig;
 
     return (
@@ -195,7 +195,10 @@ class TreeItem extends Component {
           [`${prefixClassName}--item-container`]: !!prefixClassName
         })}
       >
-        <div className={classNames('ecos-tree__item-element', { [`${prefixClassName}--item-element`]: !!prefixClassName })}>
+        <div
+          className={classNames('ecos-tree__item-element', { [`${prefixClassName}--item-element`]: !!prefixClassName })}
+          id={'id' + item.id}
+        >
           {this.renderArrow()}
           {selectable && (
             <Checkbox
@@ -207,23 +210,17 @@ class TreeItem extends Component {
             />
           )}
           {!!icon && (
-            <EcosIcon
-              code={item.icon.code}
-              data={item.icon}
-              source="menu"
-              className="ecos-tree__item-element-icon"
-              onClick={() => onClickIcon && onClickIcon(item)}
-            />
+            <EcosIcon data={item.icon} className="ecos-tree__item-element-icon" onClick={() => onClickIcon && onClickIcon(item)} />
           )}
           {badge != null && <Badge text={String(badge)} className="ecos-tree__item-element-badge" />}
-          <Tooltip target={targetId} text={t(name)} showAsNeeded uncontrolled autohide>
+          <Tooltip target={targetId} text={extractLabel(label)} showAsNeeded uncontrolled autohide>
             <div
               className={classNames('ecos-tree__item-element-label', {
                 'ecos-tree__item-element-label_locked': item.locked
               })}
               id={targetId}
             >
-              {t(name)}
+              {extractLabel(label)}
             </div>
           </Tooltip>
           {renderExtraComponents && (
@@ -232,7 +229,7 @@ class TreeItem extends Component {
           <div className="ecos-tree__item-element-space" />
           {filteredActions && !!filteredActions.length && (
             <div className="ecos-tree__item-element-actions">
-              <Actions actionConfig={filteredActions} onClick={this.handleActionItem} />
+              <Actions actionConfig={filteredActions} onClick={this.handleActionItem} idItem={item.id} />
             </div>
           )}
           {canDrag && (
@@ -250,7 +247,7 @@ class TreeItem extends Component {
     const { item, dragLvlTo, draggable, level, moveInLevel, moveInParent, parentKey = '' } = this.props;
     const draggableLevel = dragLvlTo === undefined || dragLvlTo >= level;
     const canDrag = draggable && item.draggable && draggableLevel;
-    const key = `key_${level}_${item.id}_${item.dndIdx || ''}`.replace(/[\s-]*/g, '');
+    const key = `key_${level}_${item.id}_${item.dndIdx || ''}`.replace(/\W/g, '');
     const itemElement = this.renderItem(key, canDrag);
     const dragProps = {};
 

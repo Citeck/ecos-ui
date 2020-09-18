@@ -1,13 +1,5 @@
 @import '../../styles/constants';
-
-.draggable-item {
-  padding: 10px;
-  border: $border-width-standard solid $color-gray-11;
-  border-radius: $border-radius-standard;
-  background: $color-gray-5;
-  width: 100px;
-  display: flex;
-}
+@import '../../styles/content';
 
 .ecos-dashboard-settings {
   $ecos-dashboard-settings: &;
@@ -24,13 +16,9 @@
   }
 
   &__header {
-    padding-bottom: 18px;
-    font-style: normal;
-    font-weight: $font-weight-bold;
-    font-size: $font-size-xxl;
-    line-height: 33px;
-    color: $text-color-dark;
+    @extend %title-page;
     margin-top: 30px;
+    margin-bottom: 24px;
   }
 
   &__bindings {
@@ -105,30 +93,16 @@
   }
 
   &__container {
-    background: $color-white;
-    box-shadow: $box-shadow-default;
-    border-radius: $border-radius-extra-large;
-    padding: 26px;
+    @extend %block--1;
     margin-bottom: 30px;
 
     &-title {
-      background: $color-yellow;
-      border-radius: $border-radius-standard;
-      padding: 5px 12px;
-      font-style: normal;
-      font-weight: $font-weight-bold;
-      font-size: $font-size-large;
-      line-height: 22px;
-      color: $text-color-gray;
+      @extend %title-block--1;
       margin-bottom: 20px;
     }
 
     &-subtitle {
-      font-style: normal;
-      font-weight: $font-weight-semi-bold;
-      font-size: $font-size-standard;
-      line-height: 22px;
-      color: $text-color-dark;
+      @extend %subtitle-block--1;
       margin-bottom: 18px;
     }
 
@@ -159,11 +133,6 @@
     width: 100%;
     justify-content: flex-start;
 
-    &_menu {
-      height: 270px;
-      margin-bottom: 34px;
-    }
-
     &_multiline {
       flex-wrap: wrap;
     }
@@ -177,17 +146,6 @@
 
       &_full {
         min-width: 100%;
-      }
-
-      &_menu {
-        &-to {
-          flex-basis: 40%;
-          max-width: 298px;
-        }
-
-        &-from {
-          margin-right: 10px;
-        }
       }
 
       &_widgets-to {
@@ -270,33 +228,5 @@
   }
 
   &__actions {
-    //margin-top: 26px;
   }
-}
-
-.drag-item {
-  padding: 10px;
-  border: 1px dashed blue;
-  display: flex;
-  user-select: none;
-  margin: 0 0 0.5rem 0;
-  align-items: flex-start;
-  align-content: flex-start;
-  line-height: 1.5;
-  border-radius: 3px;
-  background: #fff;
-}
-
-.clone {
-  padding: 10px;
-  border: 1px dashed blue;
-  display: flex;
-  user-select: none;
-  margin: 0 0 0.5rem 0;
-  align-items: flex-start;
-  align-content: flex-start;
-  line-height: 1.5;
-  border-radius: 3px;
-  background: #fff;
-  transform: none !important;
 }

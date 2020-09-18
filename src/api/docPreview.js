@@ -4,12 +4,13 @@ import Records from '../components/Records';
 import endsWith from 'lodash/endsWith';
 
 export class DocPreviewApi extends RecordService {
-  static getPreviewLinkByRecord = nodeRef => {
-    return Records.get(nodeRef)
+  static getPreviewLinkByRecord = recordRef => {
+    return Records.get(recordRef)
       .load(
         {
           info: 'previewInfo?json',
-          fileName: '.disp'
+          fileName: '.disp',
+          version: 'version'
         },
         true
       )
@@ -17,8 +18,16 @@ export class DocPreviewApi extends RecordService {
         resp = resp || {};
 
         const fileName = resp.fileName || '';
+        const version = resp.version || '1.0';
         const { url = '', ext = '', originalUrl = '' } = resp.info || {};
-        const link = url || originalUrl;
+        let link = url || originalUrl;
+
+        // Cause: https://citeck.atlassian.net/browse/ECOSUI-415
+        if (link.includes('?')) {
+          link += `&version=${version}`;
+        } else {
+          link += `?version=${version}`;
+        }
 
         if (link && ext) {
           const extWithDot = '.' + ext;
@@ -36,8 +45,8 @@ export class DocPreviewApi extends RecordService {
       });
   };
 
-  static getFileName = nodeRef => {
-    return Records.get(nodeRef)
+  static getFileName = recordRef => {
+    return Records.get(recordRef)
       .load(
         {
           json: 'previewInfo?json',
@@ -64,8 +73,8 @@ export class DocPreviewApi extends RecordService {
       });
   };
 
-  static getDownloadData = nodeRef => {
-    return Records.get(nodeRef)
+  static getDownloadData = recordRef => {
+    return Records.get(recordRef)
       .load(
         {
           info: 'previewInfo?json',

@@ -1,21 +1,44 @@
 @import '../../../styles/constants';
 
-.ecos-journals-content__grid-well {
-  min-height: 50px;
+.ecos-journals-content {
+  &__sides {
+    display: flex;
 
-  &_overflow_hidden {
-    overflow: hidden;
+    & > :nth-child(n) {
+      position: relative;
+      width: 50%;
+
+      &:nth-child(even) {
+        margin-left: 10px;
+      }
+    }
+
+    &-left {
+      min-width: 280px;
+    }
+
+    &-right {
+      min-width: 440px;
+    }
   }
-}
 
-.ecos-journals-content__preview-well {
-  padding: 17px 15px;
-}
+  &__resizer {
+    right: initial;
+    left: -15px;
+    top: 45%;
+  }
 
-.ecos-journals-content__preview-y-step {
-  margin-bottom: 17px;
-}
+  &__preview-well {
+    padding: 17px 15px;
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-337
+    min-height: 468px;
+  }
 
-.ecos-journals-content_col-step {
-  margin-left: 10px;
+  &__grid-well {
+    min-height: 50px;
+
+    &_overflow_hidden {
+      overflow: hidden;
+    }
+  }
 }

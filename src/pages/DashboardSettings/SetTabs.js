@@ -3,8 +3,12 @@ import PropTypes from 'prop-types';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
+
 import DashboardService from '../../services/dashboard';
-import { arrayCompare, deepClone, t } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { EditTabs, ScrollArrow } from '../../components/common';
 import { IcoBtn } from '../../components/common/btns';
 import { RemoveDialog } from '../../components/common/dialogs';
@@ -35,7 +39,7 @@ class SetTabs extends React.Component {
     const { scrollTabToEnd, updateScrollPosition, removedTab } = this.state;
 
     return (
-      !arrayCompare(tabs, nextProps.tabs) ||
+      !isEqualWith(tabs, nextProps.tabs, isEqual) ||
       activeTabKey !== nextProps.activeTabKey ||
       scrollTabToEnd !== nextState.scrollTabToEnd ||
       updateScrollPosition !== nextState.updateScrollPosition ||
@@ -78,7 +82,7 @@ class SetTabs extends React.Component {
   onEditTab = (tab, index) => {
     const { tabs, setData } = this.props;
     const { label, idLayout } = tab;
-    const newTabs = deepClone(tabs);
+    const newTabs = cloneDeep(tabs);
 
     set(newTabs, [index], { label, idLayout });
     setData && setData({ tabs: newTabs });
@@ -106,7 +110,7 @@ class SetTabs extends React.Component {
       removedTab: { index, idLayout }
     } = this.state;
     let { tabs, activeTabKey, setData } = this.props;
-    const newTabs = deepClone(tabs);
+    const newTabs = cloneDeep(tabs);
 
     newTabs.splice(index, 1);
 

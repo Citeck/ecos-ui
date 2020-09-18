@@ -1,5 +1,5 @@
 import Number from './Number';
-import NumberEditor from 'formiojs/components/number/Number.form';
+import NumberEditor from './Number.form';
 
 Number.editForm = NumberEditor;
 

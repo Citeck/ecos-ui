@@ -1,9 +1,30 @@
+@NonCPS
+def getChangeString() {
+  MAX_MSG_LEN = 100
+  def changeString = ""
+  echo "Gathering SCM changes"
+  def changeLogSets = currentBuild.changeSets
+  for (int i = 0; i < changeLogSets.size(); i++) {
+    def entries = changeLogSets[i].items
+    for (int j = 0; j < entries.length; j++) {
+      def entry = entries[j]
+      truncated_msg = entry.msg.take(MAX_MSG_LEN)
+      changeString += " - ${truncated_msg} [${entry.author}]\n"
+    }
+  }
+
+  if (!changeString) {
+    changeString = " - No new changes"
+  }
+  return changeString
+}
+// Changes func
 properties([
     buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '7')),
 ])
 timestamps {
   node {
-    mattermostSend endpoint: 'https://mm.citeck.ru/hooks/9ytch3uox3retkfypuq7xi3yyr', channel: "build_notifications", color: 'good', message: " :arrow_forward: Build info - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+    def project_id = "ecos-ui"
     try {
       stage('Checkout SCM') {
         checkout([
@@ -16,6 +37,8 @@ timestamps {
         ])
       }
       def package_props = readJSON file:("package.json")
+      def project_version = package_props.version
+      mattermostSend endpoint: 'https://mm.citeck.ru/hooks/9ytch3uox3retkfypuq7xi3yyr', channel: "qa-cicd", color: 'good', message: " :arrow_forward: **Build project ${project_id}:**\n**Branch:** ${env.BRANCH_NAME}\n**Version:** ${project_version}\n**Build id:** ${env.BUILD_NUMBER}\n**Build url:** ${env.BUILD_URL}\n**Changes:**\n" + getChangeString()
       if ((env.BRANCH_NAME != "master") && (!package_props.version.contains('snapshot')))  {
         echo "Assembly of release artifacts is allowed only from the master branch!"
         currentBuild.result = 'SUCCESS'
@@ -23,7 +46,7 @@ timestamps {
       }
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
-          sh "yarn && yarn test --watchAll=false && yarn build"
+          sh "yarn && CI=true yarn test && yarn build"
           def build_info = [:]
           def build_timestamp = new Date()
           build_info.put("version", "${package_props.version}")
@@ -68,10 +91,10 @@ timestamps {
     }
     script{
       if(currentBuild.result != 'FAILURE'){
-        mattermostSend endpoint: 'https://mm.citeck.ru/hooks/9ytch3uox3retkfypuq7xi3yyr', channel: "build_notifications", color: 'good', message: " :white_check_mark: Build complete - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+        mattermostSend endpoint: 'https://mm.citeck.ru/hooks/9ytch3uox3retkfypuq7xi3yyr', channel: "qa-cicd", color: 'good', message: " :white_check_mark: **Build project ${project_id} with ID ${env.BUILD_NUMBER} complete!**"
       }
       else{
-        mattermostSend endpoint: 'https://mm.citeck.ru/hooks/9ytch3uox3retkfypuq7xi3yyr', channel: "build_notifications", color: 'danger', message: " @channel :exclamation: Build failure - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>) :\n${error_message}"
+        mattermostSend endpoint: 'https://mm.citeck.ru/hooks/9ytch3uox3retkfypuq7xi3yyr', channel: "qa-cicd", color: 'danger', message: " @channel :exclamation: **Build project ${project_id} with ID  ${env.BUILD_NUMBER} failure with message:**\n```${error_message}```"
       }
     }
   }

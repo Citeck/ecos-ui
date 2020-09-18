@@ -194,7 +194,7 @@ Actions.propTypes = {
     PropTypes.shape({
       icon: PropTypes.string,
       onClick: PropTypes.func,
-      text: PropTypes.text
+      text: PropTypes.string
     })
   ),
   actionRules: PropTypes.shape({

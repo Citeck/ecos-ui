@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+import { EventEmitter2 } from 'eventemitter2';
 
 import { getJournalPageUrl } from '../helpers/urls';
 import { getSessionData, setSessionData } from '../helpers/ls';
@@ -6,14 +7,16 @@ import { hasChildWithId } from '../helpers/util';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
-import { ActionTypes } from '../constants/sidebar';
+import { MenuSettings } from '../constants/menu';
 import ULS from './userLocalSettings';
-
-const PAGE_PREFIX = '/share/page';
+import { ActionTypes } from '../constants/sidebar';
 
 export default class SidebarService {
   static DROPDOWN_LEVEL = 1;
   static SELECTED_MENU_ITEM_ID_KEY = 'selectedMenuItemId';
+  static UPDATE_EVENT = 'menu-update-event';
+
+  static emitter = new EventEmitter2();
 
   static getOpenState() {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-354
@@ -49,37 +52,33 @@ export default class SidebarService {
     return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).selectedChild) : false;
   }
 
-  static getPropsStyleLevel = ({ level, actionType }) => {
+  static getPropsStyleLevel = ({ level, item }) => {
+    const actionType = get(item, 'action.type', '');
+    const knownType = Object.values(MITypes).includes(item.type);
+    const knownActionType = Object.values(ATypes).includes(actionType);
+
     const common = {
       noIcon: true,
-      noBadge: true,
-      collapsedMenu: {
-        asSeparator: false
-      }
+      noBadge: !(
+        (knownActionType && ![ATypes.CREATE_SITE].includes(actionType)) ||
+        (knownType && [MITypes.JOURNAL].includes(item.type) && get(item, 'config.displayCount'))
+      ),
+      isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(item.type)
     };
 
-    const lvls = {
+    const levels = {
       0: {
         ...common,
-        collapsedMenu: {
-          ...common.collapsedMenu,
-          asSeparator: true
-        }
+        noBadge: knownType ? common.noBadge : true,
+        isSeparator: knownType ? common.isSeparator : true
       },
       1: {
         ...common,
-        noIcon: false,
-        noBadge: !actionType && [ActionTypes.CREATE_SITE].includes(actionType)
-      },
-      2: {
-        ...common
-      },
-      3: {
-        ...common
+        noIcon: knownType ? [MITypes.HEADER_DIVIDER].includes(item.type) : false
       }
     };
 
-    return lvls[level] || {};
+    return levels[level] || { ...common };
   };
 
   static getPropsUrl(item, extraParams) {
@@ -87,12 +86,13 @@ export default class SidebarService {
     let attributes = {};
     let ignoreTabHandler = true;
 
+    /** @deprecated since menu v1 */
     if (item.action) {
       const params = item.action.params;
 
       switch (item.action.type) {
-        case ActionTypes.FILTER_LINK:
-        case ActionTypes.JOURNAL_LINK:
+        case ATypes.FILTER_LINK:
+        case ATypes.JOURNAL_LINK:
           {
             let listId = params.listId || 'tasks';
 
@@ -150,11 +150,11 @@ export default class SidebarService {
             }
           }
           break;
-        case 'PAGE_LINK':
+        case ATypes.PAGE_LINK:
           let sectionPostfix = params.section ? params.section : '';
           targetUrl = `${PAGE_PREFIX}/${params.pageId}${sectionPostfix}`;
           break;
-        case 'SITE_LINK':
+        case ATypes.SITE_LINK:
           {
             let uiType = params.uiType || '';
             let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
@@ -214,6 +214,31 @@ export default class SidebarService {
           break;
       }
     }
+
+    switch (item.type) {
+      case MITypes.JOURNAL:
+        if (get(item, 'params.journalId')) {
+          targetUrl = getJournalPageUrl({
+            journalsListId: get(item, 'params.journalsListId'),
+            journalId: get(item, 'params.journalId')
+          });
+        }
+        ignoreTabHandler = false;
+        break;
+      case MITypes.ARBITRARY:
+        targetUrl = get(item, 'config.url', null);
+
+        if (targetUrl && targetUrl.includes('http')) {
+          attributes.target = '_blank';
+          attributes.rel = 'noopener noreferrer';
+        } else {
+          ignoreTabHandler = false;
+        }
+        break;
+      default:
+        break;
+    }
+
     if (ignoreTabHandler) {
       attributes[IGNORE_TABS_HANDLER_ATTR_NAME] = true;
     }
@@ -245,4 +270,20 @@ export default class SidebarService {
 
     return flatList;
   }
+
+  static emit(event, callback) {
+    SidebarService.emitter.emit(event, callback);
+  }
+
+  static addListener(event, callback) {
+    SidebarService.emitter.on(event, callback);
+  }
+
+  static removeListener(event, callback) {
+    SidebarService.emitter.off(event, callback);
+  }
 }
+
+const ATypes = ActionTypes;
+const MITypes = MenuSettings.ItemTypes;
+const PAGE_PREFIX = '/share/page';

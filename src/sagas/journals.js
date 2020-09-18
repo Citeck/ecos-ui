@@ -8,9 +8,7 @@ import Records from '../components/Records';
 
 import {
   createJournalSetting,
-  createZip,
   deleteJournalSetting,
-  deleteRecords,
   execRecordsAction,
   getDashletConfig,
   getDashletEditorData,
@@ -21,7 +19,6 @@ import {
   initPreview,
   onJournalSelect,
   onJournalSettingsSelect,
-  performGroupAction,
   reloadGrid,
   reloadTreeGrid,
   renameJournalSetting,
@@ -43,20 +40,18 @@ import {
   setJournalSetting,
   setJournalSettings,
   setJournalsList,
-  setPerformGroupActionLoader,
-  setPerformGroupActionResponse,
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
-  setSelectedRecords,
-  setZipNodeRef
+  setSelectedRecords
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
-import { BackgroundOpenAction } from '../components/Records/actions/DefaultActions';
+import { ActionTypes } from '../components/Records/actions';
+
 import { decodeLink, getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl, isNewVersionPage } from '../helpers/urls';
 import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
@@ -93,7 +88,7 @@ function getDefaultJournalSetting(journalConfig) {
 
 function getGridParams({ journalConfig, journalSetting, pagination }) {
   const {
-    meta: { createVariants, predicate, actions: journalActions },
+    meta: { createVariants, predicate, actions: journalActions, groupActions },
     sourceId,
     id: journalId
   } = journalConfig;
@@ -105,6 +100,7 @@ function getGridParams({ journalConfig, journalSetting, pagination }) {
     : [journalSettingPredicate];
 
   return {
+    groupActions: groupActions || [],
     journalId,
     journalActions,
     createVariants,
@@ -132,9 +128,10 @@ function* sagaGetDashletEditorData({ api, logger, stateId, w }, action) {
 function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
   try {
     const config = yield call(api.journals.getDashletConfig, action.payload);
-    const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode } = config;
 
     if (config) {
+      const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode } = config;
+
       yield put(setEditorMode(w(false)));
       yield put(setDashletConfig(w(config)));
       yield getJournals(api, journalsListId, w);
@@ -343,8 +340,9 @@ function* getGridData(api, params, stateId) {
   const predicates = ParserPredicate.removeEmptyPredicates(cloneDeep(_predicates));
   const pagination = forRequest.groupBy.length ? { ..._pagination, maxItems: undefined } : _pagination;
   const recordRef = _recordRef && (config || {}).onlyLinked ? _recordRef : null;
+  const groupActions = forRequest.groupActions || [];
 
-  return yield call(api.journals.getGridData, { ...forRequest, predicates, pagination, recordRef });
+  return yield call(api.journals.getGridData, { ...forRequest, predicates, pagination, recordRef, groupActions });
 }
 
 function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w) {
@@ -354,17 +352,23 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const params = getGridParams({ journalConfig, journalSetting, pagination });
   const gridData = yield getGridData(api, params, stateId);
   const editingRules = yield getGridEditingRules(api, gridData);
+
   let selectedRecords = [];
+  let isSelectAllRecords = false;
 
   if (!!userConfigId) {
-    selectedRecords = get(gridData, 'data', []).map(item => item.id);
+    if (isEmpty(userConfig.selectedItems)) {
+      selectedRecords = get(gridData, 'data', []).map(item => item.id);
+      isSelectAllRecords = true;
+    } else {
+      selectedRecords = userConfig.selectedItems;
+    }
   }
 
   yield put(setSelectedRecords(w(selectedRecords)));
-  yield put(setSelectAllRecords(w(!!userConfigId)));
+  yield put(setSelectAllRecords(w(isSelectAllRecords)));
   yield put(setSelectAllRecordsVisible(w(false)));
   yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
-  yield put(setPerformGroupActionResponse(w([])));
   yield put(setPreviewUrl(w('')));
   yield put(setPreviewFileName(w('')));
 
@@ -379,7 +383,7 @@ function* getGridEditingRules(api, gridData) {
 
     if (canEditing) {
       byColumns = yield columns.map(function*(column) {
-        const isProtected = yield call(api.journals.checkCellProtectedFromEditing, row.id, row[column.dataField]);
+        const isProtected = yield call(api.journals.checkCellProtectedFromEditing, row.id, column.dataField);
 
         return {
           [column.dataField]: !isProtected
@@ -541,25 +545,13 @@ function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaDeleteRecords({ api, logger, stateId, w }, action) {
-  try {
-    yield put(setLoading(w(true)));
-    yield call(api.journals.deleteRecords, action.payload);
-    yield put(setLoading(w(false)));
-    yield put(reloadGrid(w()));
-    yield put(setSelectedRecords(w([])));
-  } catch (e) {
-    logger.error('[journals sagaDeleteRecords saga error', e.message);
-  }
-}
-
 function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
   try {
     const actionResult = yield call(api.recordActions.executeAction, action.payload);
     const check = isArray(actionResult) ? actionResult.some(res => res !== false) : actionResult !== false;
 
     if (check) {
-      if (get(action, 'payload.action.type', '') !== BackgroundOpenAction.type) {
+      if (get(action, 'payload.action.type', '') !== ActionTypes.BACKGROUND_VIEW) {
         yield put(reloadGrid(w()));
       }
     }
@@ -784,45 +776,6 @@ function* sagaSearch({ logger, w }) {
   }
 }
 
-function* sagaPerformGroupAction({ api, logger, stateId, w }, action) {
-  try {
-    yield put(setPerformGroupActionLoader(w(true)));
-
-    const { groupAction, selected, resolved } = action.payload;
-    const journalConfig = yield select(state => state.journals[stateId].journalConfig);
-    const performGroupActionResponse = yield call(api.journals.performGroupAction, {
-      groupAction,
-      selected,
-      resolved,
-      criteria: journalConfig.meta.criteria,
-      journalId: journalConfig.id
-    });
-
-    if (performGroupActionResponse.length) {
-      yield put(reloadGrid(w()));
-      yield put(setPerformGroupActionResponse(w(performGroupActionResponse)));
-    }
-  } catch (e) {
-    logger.error('[journals sagaPerformGroupAction saga error', e.message);
-  } finally {
-    yield put(setPerformGroupActionLoader(w(false)));
-  }
-}
-
-function* sagaCreateZip({ api, logger, stateId, w }, action) {
-  try {
-    const selected = action.payload;
-    const nodeRef = yield call(api.journals.createZip, selected);
-
-    if (nodeRef) {
-      yield call(api.journals.deleteDownloadsProgress, nodeRef);
-      yield put(setZipNodeRef(w(nodeRef)));
-    }
-  } catch (e) {
-    logger.error('[journals sagaCreateZip saga error', e.message);
-  }
-}
-
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(setDashletConfigByParams().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
@@ -834,7 +787,6 @@ function* saga(ea) {
   yield takeEvery(reloadGrid().type, wrapSaga, { ...ea, saga: sagaReloadGrid });
   yield takeEvery(reloadTreeGrid().type, wrapSaga, { ...ea, saga: sagaReloadTreeGrid });
 
-  yield takeEvery(deleteRecords().type, wrapSaga, { ...ea, saga: sagaDeleteRecords });
   yield takeEvery(execRecordsAction().type, wrapSaga, { ...ea, saga: sagaExecRecordsAction });
   yield takeEvery(saveRecords().type, wrapSaga, { ...ea, saga: sagaSaveRecords });
 
@@ -852,8 +804,6 @@ function* saga(ea) {
   yield takeEvery(initPreview().type, wrapSaga, { ...ea, saga: sagaInitPreview });
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });
   yield takeEvery(search().type, wrapSaga, { ...ea, saga: sagaSearch });
-  yield takeEvery(performGroupAction().type, wrapSaga, { ...ea, saga: sagaPerformGroupAction });
-  yield takeEvery(createZip().type, wrapSaga, { ...ea, saga: sagaCreateZip });
 }
 
 export default saga;

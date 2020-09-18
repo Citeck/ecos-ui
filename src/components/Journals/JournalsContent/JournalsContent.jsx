@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
 
+import { ResizeBoxes } from '../../common';
 import { Well } from '../../common/form';
-import Columns from '../../common/templates/Columns/Columns';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsPreview from '../JournalsPreview';
 import JournalsUrlManager from '../JournalsUrlManager';
@@ -18,16 +18,14 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const Grid = ({ stateId, showPreview, onRowClick, maxHeight }) => (
+const Grid = ({ showPreview, ...props }) => (
   <Well className="ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden">
     <JournalsDashletGrid
-      stateId={stateId}
-      onRowClick={onRowClick}
-      doInlineToolsOnRowClick={showPreview}
       noTopBorder
-      maxHeight={maxHeight}
+      doInlineToolsOnRowClick={showPreview}
       toolsClassName={'grid-tools_r_12'}
       selectorContainer={'.ecos-journal-page'}
+      {...props}
     />
   </Well>
 );
@@ -57,26 +55,39 @@ class JournalsContent extends Component {
     const { stateId, showPreview, showPie, maxHeight, isActivePage } = this.props;
     const { recordId } = this.state;
 
-    let cols = [<Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />];
+    let content = <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />;
 
     if (showPreview) {
-      cols = [
-        <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />,
-        <Preview stateId={stateId} recordId={recordId} />
-      ];
+      const leftId = `_${stateId}-grid`;
+      const rightId = `_${stateId}-preview`;
+
+      content = (
+        <div className="ecos-journals-content__sides">
+          <div id={leftId} className="ecos-journals-content__sides-left">
+            <Grid
+              stateId={stateId}
+              showPreview={showPreview}
+              onRowClick={this.onRowClick}
+              maxHeight={maxHeight}
+              autoHeight
+              minHeight={468}
+            />
+          </div>
+          <div id={rightId} className="ecos-journals-content__sides-right">
+            <ResizeBoxes leftId={leftId} rightId={rightId} className="ecos-journals-content__resizer" autoRightSide />
+            <Preview stateId={stateId} recordId={recordId} />
+          </div>
+        </div>
+      );
     }
 
     if (showPie) {
-      cols = [<Pie />];
+      content = <Pie />;
     }
 
     return (
       <JournalsUrlManager stateId={stateId} params={{ showPreview }} isActivePage={isActivePage}>
-        <Columns
-          classNamesColumn="columns_height_full columns__column_margin_0"
-          cols={cols}
-          cfgs={[{}, { className: 'ecos-journals-content_col-step' }]}
-        />
+        {content}
       </JournalsUrlManager>
     );
   }

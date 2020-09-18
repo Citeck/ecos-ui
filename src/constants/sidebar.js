@@ -1,3 +1,4 @@
+/** @deprecated since menu v1 */
 export const ActionTypes = {
   CREATE_SITE: 'CREATE_SITE',
   FILTER_LINK: 'FILTER_LINK',

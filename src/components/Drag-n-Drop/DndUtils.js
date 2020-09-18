@@ -1,6 +1,8 @@
 import { cloneDeep } from 'lodash';
 import uuidV4 from 'uuid/v4';
 
+import { deepClone } from '../../helpers/util';
+
 export default class DndUtils {
   static reorder = (list, startIndex, endIndex) => {
     const result = cloneDeep(list);
@@ -39,7 +41,7 @@ export default class DndUtils {
   };
 
   static setDndId = items => {
-    const arr = Array.from(items || []);
+    const arr = deepClone(items, []);
 
     arr.forEach(value => {
       if (!value.dndId) {

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { MENU_TYPE } from '../../../constants';
+import { MenuTypes } from '../../../constants/menu';
 import Base from './Base';
 
 import '../style.scss';
@@ -23,7 +23,7 @@ export default class Menu extends Base {
       return null;
     }
 
-    if (menu.type === MENU_TYPE.LEFT) {
+    if (menu.type === MenuTypes.LEFT) {
       block = (
         <div className="ecos-layout__menu">
           <div className="ecos-layout__menu-left" />
@@ -31,7 +31,7 @@ export default class Menu extends Base {
       );
     }
 
-    if (menu.type === MENU_TYPE.TOP) {
+    if (menu.type === MenuTypes.TOP) {
       block = (
         <div className="ecos-layout__menu ecos-layout__menu_top">
           <div className="ecos-layout__menu-item-template" />
