@@ -193,6 +193,7 @@ $transition-duration: 0.3s;
     &__icon {
       color: $text-color-gray;
       text-align: center;
+      overflow: hidden;
     }
 
     &__label {

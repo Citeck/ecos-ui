@@ -27,14 +27,6 @@
       &_selected {
         background: $color-gray-4;
       }
-
-      & .ecos-icon-img__content {
-        width: auto;
-        height: inherit;
-        vertical-align: super;
-        object-fit: scale-down;
-        max-width: 20px;
-      }
     }
 
     &-value {
