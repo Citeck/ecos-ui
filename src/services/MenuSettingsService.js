@@ -2,6 +2,7 @@ import uuidV4 from 'uuid/v4';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import { EventEmitter2 } from 'eventemitter2';
 
 import { isExistValue, t } from '../helpers/util';
 import { getIconObjectWeb } from '../helpers/icon';
@@ -9,6 +10,13 @@ import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/a
 import { MenuSettings as ms, MenuTypes } from '../constants/menu';
 
 export default class MenuSettingsService {
+  static emitter = new EventEmitter2();
+
+  static Events = {
+    SHOW: 'ecos-menu-settings-show',
+    HIDE: 'ecos-menu-settings-hide'
+  };
+
   static getConfigKeyByType(type) {
     switch (type) {
       case MenuTypes.TOP:

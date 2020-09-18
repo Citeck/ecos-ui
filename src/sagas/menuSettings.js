@@ -9,7 +9,6 @@ import {
   getAuthorityInfoByRefs,
   getGroupPriority,
   getSettingsConfig,
-  initSettings,
   removeSettings,
   saveGroupPriority,
   saveSettingsConfig,
@@ -17,8 +16,7 @@ import {
   setGroupPriority,
   setLastAddedItems,
   setLoading,
-  setMenuItems,
-  setOpenMenuSettings
+  setMenuItems
 } from '../actions/menuSettings';
 import { initMenuConfig } from '../actions/menu';
 import { fetchSlideMenuItems } from '../actions/slideMenu';
@@ -27,17 +25,10 @@ import MenuConverter from '../dto/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import { MenuSettings as ms } from '../constants/menu';
 
-function* runInitSettings({ api, logger }) {
-  try {
-    yield put(getSettingsConfig());
-  } catch (e) {
-    logger.error('[menu-settings / runInitSettings]', e.message);
-  }
-}
-
 function* fetchSettingsConfig({ api, logger }) {
   try {
-    const { id, type } = yield select(state => state.menu);
+    const type = yield select(state => state.menu.type);
+    const id = yield select(state => state.menuSettings.editedId);
     const keyType = MenuSettingsService.getConfigKeyByType(type);
 
     if (!id) {
@@ -60,7 +51,8 @@ function* fetchSettingsConfig({ api, logger }) {
 function* runSaveSettingsConfig({ api, logger }, { payload }) {
   try {
     const config = yield select(state => state.menu);
-    const { id, type, version } = config;
+    const { type, version } = config;
+    const id = yield select(state => state.menuSettings.editedId);
     const keyType = MenuSettingsService.getConfigKeyByType(type);
     const items = yield select(state => state.menuSettings.items);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
@@ -75,7 +67,7 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
     const resultSave = yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities, version });
 
     yield put(saveGroupPriority());
-    yield put(setOpenMenuSettings(false));
+    MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
 
     if (resultSave && resultSave.id) {
       yield put(initMenuConfig());
@@ -173,8 +165,8 @@ function* runRemoveSettings({ api, logger }) {
     if (id.includes('default-menu')) {
       NotificationManager.warning('Default menu is not deleted');
     } else {
+      MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
       yield call(api.menu.removeSettings, { id });
-      yield put(setOpenMenuSettings(false));
       yield put(initMenuConfig());
       yield put(fetchSlideMenuItems());
     }
@@ -187,7 +179,6 @@ function* runRemoveSettings({ api, logger }) {
 }
 
 function* saga(ea) {
-  yield takeLatest(initSettings().type, runInitSettings, ea);
   yield takeLatest(removeSettings().type, runRemoveSettings, ea);
   yield takeLatest(getSettingsConfig().type, fetchSettingsConfig, ea);
   yield takeLatest(saveSettingsConfig().type, runSaveSettingsConfig, ea);

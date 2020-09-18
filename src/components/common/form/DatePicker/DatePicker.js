@@ -53,7 +53,7 @@ export default class extends Component {
           selected={otherProps.selected || null}
           {...additionalProps}
           className={cssClasses}
-          calendarClassName={'ecos-datepicker__calendar'}
+          calendarClassName="ecos-datepicker__calendar"
         />
         {calendarIcon}
       </div>

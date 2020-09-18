@@ -1,11 +1,11 @@
 import {
-  makeUserMenuItems,
-  processMenuItemsFromOldMenu,
-  makeSiteMenu,
   getIconClassMenu,
-  getSpecialClassByState,
   getMenuWidth,
-  getPositionAdjustment
+  getPositionAdjustment,
+  getSpecialClassByState,
+  makeSiteMenu,
+  makeUserMenuItems,
+  processMenuItemsFromOldMenu
 } from '../menu';
 import {
   iconsByMenuId,
@@ -33,6 +33,13 @@ function check(data, method, manyProperties = false) {
       } else {
         result = method;
       }
+
+      Array.isArray(result) &&
+        result.forEach(item => {
+          if (typeof item.onClick === 'function') {
+            item.onClick = 'function';
+          }
+        });
 
       expect(result).toEqual(item.output);
     });
@@ -325,9 +332,9 @@ describe('Menu helpers', () => {
 
   describe('Method getPositionAdjustment', () => {
     const data = positionAdjustmentsByType.map(item => ({
-      title: `Position adjustment 
-            - menu type: ${item[0]}, 
-            - scrollTop: ${item[1].top}, 
+      title: `Position adjustment
+            - menu type: ${item[0]},
+            - scrollTop: ${item[1].top},
             - menu width ${item[1].left},
             - result ${JSON.stringify(item[2])}`,
       input: item[0],

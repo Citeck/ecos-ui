@@ -7,6 +7,7 @@ import Records from '../components/Records';
 import { HandleControlTypes } from './handleControl';
 import { createProfileUrl } from './urls';
 import { documentScrollTop } from './util';
+import MenuSettingsService from '../services/MenuSettingsService';
 
 const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
 const DEFAULT_REPORT_ISSUE_URL =
@@ -150,7 +151,9 @@ export function makeSiteMenu(params = {}) {
     {
       id: 'SETTINGS_MENU',
       label: 'header.site-menu.menu-settings',
-      isAction: true
+      onClick: () => {
+        MenuSettingsService.emitter.emit(MenuSettingsService.Events.SHOW);
+      }
     },
     {
       id: 'GO_ADMIN_PAGE',
