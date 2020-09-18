@@ -47,9 +47,9 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
 
         yield put(setNewUIAvailableStatus(isNewUIAvailable));
 
-        const redirectToNewUi = yield call(api.app.getRedirectToNewUi);
+        const isForceOldUserDashboardEnabled = yield call(api.app.isForceOldUserDashboardEnabled);
 
-        yield put(setRedirectToNewUi(redirectToNewUi));
+        yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
       }
     } catch (e) {
       yield put(validateUserFailure());
