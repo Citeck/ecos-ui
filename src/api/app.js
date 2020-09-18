@@ -100,4 +100,11 @@ export class AppApi extends CommonApi {
         return {};
       });
   }
+
+  isForceOldUserDashboardEnabled() {
+    return Records.get('ecos-config@force-old-user-dashboard-enabled')
+      .load('.bool')
+      .then(res => res === true)
+      .catch(() => false);
+  }
 }

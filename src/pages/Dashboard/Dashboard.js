@@ -12,7 +12,7 @@ import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, isMobileAppWebView, t } from '../../helpers/util';
-import { decodeLink, getSortedUrlParams, isDashboard, pushHistoryLink } from '../../helpers/urls';
+import { decodeLink, getSortedUrlParams, isDashboard, isHomePage, pushHistoryLink } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
 import { saveMenuConfig } from '../../actions/menu';
 import { Loader, ScrollArrow, Tabs } from '../../components/common';
@@ -52,7 +52,8 @@ const mapStateToProps = (state, ownProps) => {
     dashboardType: get(dashboardState, ['identification', 'type']),
     identificationId: get(dashboardState, ['identification', 'id'], null),
     titleInfo: get(dashboardState, ['titleInfo'], {}),
-    isMobile
+    isMobile,
+    redirectToNewUi: get(state, 'app.redirectToNewUi', false)
   };
 };
 
@@ -106,6 +107,10 @@ class Dashboard extends Component {
 
       if (isDashboard()) {
         newState.needGetConfig = true;
+      }
+
+      if (isHomePage() && !props.redirectToNewUi) {
+        window.open(URL.OLD_DASHBOARD, '_self');
       }
     }
 
