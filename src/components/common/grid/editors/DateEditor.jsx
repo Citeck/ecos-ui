@@ -34,14 +34,19 @@ export default class DateEditor extends BaseEditor {
     );
   };
 
+  onSelect = () => {
+    this.props.onBlur && this.props.onBlur();
+  };
+
   render() {
     const { value, dateFormat, onUpdate, ...rest } = this.props;
 
     return (
       <DatePicker
         {...rest}
-        className={'ecos-input_grid-editor'}
+        className="ecos-input_grid-editor"
         onChange={this.onChange}
+        onSelect={this.onSelect}
         autoFocus
         selected={moment(value || undefined).toDate()}
         dateFormat={dateFormat}

@@ -16,4 +16,6 @@ export const setLeftMenuEditable = createAction(prefix + 'SET_LEFT_MENU_EDITABLE
 export const getFooter = createAction(prefix + 'GET_FOOTER');
 export const setFooter = createAction(prefix + 'SET_FOOTER');
 
+export const setRedirectToNewUi = createAction(prefix + 'SET_REDIRECT_TO_NEW_UI');
+
 export const backPageFromTransitionsHistory = createAction(prefix + 'BACK_PAGE_FROM_TRANSITIONS_HISTORY');

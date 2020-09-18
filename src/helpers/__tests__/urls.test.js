@@ -75,4 +75,35 @@ describe('Urls helpers', () => {
       });
     }
   );
+
+  describe('Method isHomePage', () => {
+    const data = [
+      {
+        title: 'Dashboard link (without query attributes)',
+        input: 'https://dev.ecos24.ru/v2/dashboard',
+        output: true
+      },
+      {
+        title: 'Dashboard link (with query attributes, but without recordRef)',
+        input: 'https://dev.ecos24.ru/v2/dashboard?activeLayoutId=layout_bb6e6685-f802-4680-8606-007a42a8c1bd',
+        output: true
+      },
+      {
+        title: 'Dashboard link (with query attributes, including recordRef)',
+        input: 'https://dev.ecos24.ru/v2/dashboard?recordRef=workspace://SpacesStore/2407ae6f-75ad-4413-81b4-a96dcbe9b303',
+        output: false
+      },
+      {
+        title: 'Not Dashboard link',
+        input: '/v2/debug/formio-develop',
+        output: false
+      }
+    ];
+
+    data.forEach(item => {
+      it(item.title, () => {
+        expect(UrlUtils.isHomePage(item.input)).toEqual(item.output);
+      });
+    });
+  });
 });

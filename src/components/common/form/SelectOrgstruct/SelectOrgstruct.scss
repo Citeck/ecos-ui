@@ -12,5 +12,11 @@
   &_compact {
     overflow: hidden;
     width: 100%;
+
+    &-extra {
+      &.ecos-btn {
+        height: 22px;
+      }
+    }
   }
 }
