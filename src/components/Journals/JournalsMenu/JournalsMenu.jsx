@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
 
 import { getPropByStringKey, t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { deleteJournalSetting, onJournalSelect, onJournalSettingsSelect, renameJournalSetting } from '../../../actions/journals';
-import { CollapsibleList } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { RemoveDialog } from '../../common/dialogs';
 import { Input, Well } from '../../common/form';
+import CollapsableList from '../../common/CollapsableList/CollapsableList';
 import JournalsUrlManager from '../JournalsUrlManager';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
@@ -42,7 +42,7 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-class ListItem extends React.Component {
+class ListItem extends Component {
   constructor(props) {
     super(props);
 
@@ -120,11 +120,12 @@ class ListItem extends React.Component {
   render() {
     const { item, removable } = this.props;
     const { isMouseOver, isDialogShow, isRenameMode, title, _title } = this.state;
+    const quotes = String.fromCharCode(8221);
 
     return (
-      <>
+      <Fragment>
         {isRenameMode ? (
-          <>
+          <Fragment>
             <Input
               type={'text'}
               autoFocus
@@ -148,7 +149,7 @@ class ListItem extends React.Component {
               className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_green ecos-btn_hover_t_light-green ecos-btn_transparent ecos-journal-menu__apply-btn`}
               onClick={this.apply}
             />
-          </>
+          </Fragment>
         ) : (
           <div
             className={`ecos-journal-menu__list-item ${isMouseOver ? 'ecos-journal-menu__list-item_hover' : ''}`}
@@ -159,7 +160,7 @@ class ListItem extends React.Component {
             <span>{title}</span>
 
             {removable && !item.notRemovable && isMouseOver ? (
-              <>
+              <Fragment>
                 <IcoBtn
                   title={t('journals.action.rename-tpl-msg')}
                   icon={'icon-edit'}
@@ -172,7 +173,7 @@ class ListItem extends React.Component {
                   className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__delete-btn`}
                   onClick={this.showDialog}
                 />
-              </>
+              </Fragment>
             ) : null}
           </div>
         )}
@@ -180,17 +181,17 @@ class ListItem extends React.Component {
         <RemoveDialog
           isOpen={isDialogShow}
           title={t('journals.action.delete-tpl-msg')}
-          text={t('journals.action.remove-tpl-msg', { name: title })}
+          text={`${t('journals.action.remove-tpl-msg')} ${quotes + title + quotes} ?`}
           onCancel={this.closeDialog}
           onDelete={this.delete}
           onClose={this.closeDialog}
         />
-      </>
+      </Fragment>
     );
   }
 }
 
-class JournalsMenu extends React.Component {
+class JournalsMenu extends Component {
   onClose = () => {
     const onClose = this.props.onClose;
     if (typeof onClose === 'function') {
@@ -325,26 +326,25 @@ class JournalsMenu extends React.Component {
           </div>
 
           <Well className={'ecos-journal-menu__journals'}>
-            <CollapsibleList
+            <CollapsableList
               height={!isMobile && journalsHeight}
               classNameList={'ecos-list-group_mode_journal'}
               list={this.getMenuJornals(journals)}
               selected={this.getSelectedIndex(journals, nodeRef, 'nodeRef')}
-              emptyText={t('journals.menu.journal-list.empty')}
             >
-              {t('journals.menu.journal-list.title')}
-            </CollapsibleList>
+              {t('journals.name')}
+            </CollapsableList>
           </Well>
 
           <Well className={'ecos-journal-menu__presets'}>
-            <CollapsibleList
+            <CollapsableList
               height={!isMobile && settingsHeight}
               classNameList={'ecos-list-group_mode_journal'}
               list={this.getMenuJournalSettings(journalSettings, menuJournalSettingsSelectedIndex)}
               selected={menuJournalSettingsSelectedIndex}
             >
               {t('journals.tpl.defaults')}
-            </CollapsibleList>
+            </CollapsableList>
           </Well>
         </div>
       </JournalsUrlManager>

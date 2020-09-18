@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
 
-import { extractLabel, isExistValue, t } from '../../../helpers/util';
+import { extractLabel, t } from '../../../helpers/util';
 import { EcosIcon, Icon, Tooltip } from '../../common';
 import { Badge, Checkbox } from '../../common/form';
 import { SortableElement, SortableHandle } from '../../Drag-n-Drop';
@@ -214,7 +214,7 @@ class TreeItem extends Component {
           {!!icon && (
             <EcosIcon data={item.icon} className="ecos-tree__item-element-icon" onClick={() => onClickIcon && onClickIcon(item)} />
           )}
-          {isExistValue(badge) && <Badge text={badge} className="ecos-tree__item-element-badge" />}
+          {badge != null && <Badge text={String(badge)} className="ecos-tree__item-element-badge" />}
           <Tooltip target={targetId} text={extractLabel(label)} showAsNeeded uncontrolled autohide>
             <div
               className={classNames('ecos-tree__item-element-label', {

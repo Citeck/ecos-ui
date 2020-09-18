@@ -1,16 +1,9 @@
 import { handleActions } from 'redux-actions';
-
-import { setIsMobile, setTheme, setThemeConfig } from '../actions/view';
+import { setIsMobile, setTheme } from '../actions/view';
 
 const initialState = {
   isMobile: false,
-  theme: null,
-  themeConfig: {
-    id: '',
-    name: '',
-    images: {},
-    cacheKey: ''
-  }
+  theme: null
 };
 
 Object.freeze(initialState);
@@ -27,12 +20,6 @@ export default handleActions(
       return {
         ...state,
         theme: action.payload
-      };
-    },
-    [setThemeConfig]: (state, action) => {
-      return {
-        ...state,
-        themeConfig: action.payload
       };
     }
   },

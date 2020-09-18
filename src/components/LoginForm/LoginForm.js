@@ -2,9 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { withRouter } from 'react-router';
 import queryString from 'query-string';
-
 import { t } from '../../helpers/util';
-
 import styles from './LoginForm.module.scss';
 import './LoginForm.scss';
 
@@ -33,9 +31,9 @@ class LoginForm extends React.Component {
   }
 
   render() {
-    const { theme, location, logo } = this.props;
-    const locationPath = location.pathname;
-    const locationSearch = location.search;
+    const locationPath = this.props.location.pathname;
+    const locationSearch = this.props.location.search;
+    const theme = this.props.theme;
     let searchParams = queryString.parse(locationSearch);
 
     let loginError = null;
@@ -56,12 +54,7 @@ class LoginForm extends React.Component {
         <div className={styles.trademark} />
 
         <div className={classNames(`login-form-container login-form-container_theme_${theme}`)}>
-          <div
-            style={{
-              background: `transparent url(${logo}) no-repeat`
-            }}
-            className={classNames(`login-company-logo login-company-logo_theme_${theme}`)}
-          />
+          <div className={classNames(`login-company-logo login-company-logo_theme_${theme}`)} />
           {loginError}
           <form method="post" action="/share/page/dologin" className={classNames(`login-form login-form_theme_${theme}`)}>
             <input type="hidden" name="success" value={successUrl} />

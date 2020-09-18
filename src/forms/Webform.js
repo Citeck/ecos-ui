@@ -10,18 +10,12 @@ const originalSubmit = Webform.prototype.submit;
 Webform.prototype.setElement = function(element) {
   originalSetElement.call(this, element);
 
-  const { viewAsHtml, readOnly, viewAsHtmlConfig, theme } = this.options;
-
-  if (viewAsHtml && readOnly) {
+  if (this.options.viewAsHtml && this.options.readOnly) {
     this.addClass(this.wrapper, 'formio-form_view-mode');
 
-    if (viewAsHtmlConfig.alwaysWrap) {
+    if (this.options.viewAsHtmlConfig.alwaysWrap) {
       this.addClass(this.wrapper, 'formio-form_view-mode-wrap');
     }
-  }
-
-  if (theme) {
-    this.addClass(this.wrapper, `formio-form_theme_${theme}`);
   }
 };
 

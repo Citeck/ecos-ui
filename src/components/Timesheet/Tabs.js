@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import isEqual from 'lodash/isEqual';
-import isEqualWith from 'lodash/isEqualWith';
 
 class Tabs extends Component {
   static propTypes = {
@@ -23,7 +21,7 @@ class Tabs extends Component {
     tabs: [],
     className: '',
     classNameItem: '',
-    onClick: () => undefined
+    onClick: () => {}
   };
 
   handleClickTabItem = (tab, index) => {
@@ -60,4 +58,4 @@ class Tabs extends Component {
   }
 }
 
-export default React.memo(Tabs, (prev, next) => !isEqualWith(prev.tabs, next.tabs, isEqual));
+export default React.memo(Tabs);

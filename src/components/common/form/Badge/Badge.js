@@ -1,15 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-
-import { isExistValue } from '../../../../helpers/util';
+import { isEmpty } from 'lodash';
 
 import './style.scss';
 
 class Badge extends React.Component {
   static propTypes = {
     className: PropTypes.string,
-    text: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    text: PropTypes.string,
     short: PropTypes.bool,
     size: PropTypes.oneOf(['small', 'medium', 'large']),
     state: PropTypes.string
@@ -26,7 +25,7 @@ class Badge extends React.Component {
     const { className, state, text, size } = this.props;
     const classes = classNames('ecos-badge', `ecos-badge_${state}`, `ecos-badge_${size}`, className);
 
-    return isExistValue(text) ? <span className={classes}>{text}</span> : null;
+    return isEmpty(text) ? null : <span className={classes}>{text}</span>;
   }
 }
 

@@ -566,7 +566,7 @@
   "journals.action.remove-filter-group-msg": "Удалить группу фильтров?",
   "journals.action.remove-filter-msg": "Удалить фильтр?",
   "journals.action.remove-records-msg": "Вы действительно хотите удалить записи?",
-  "journals.action.remove-tpl-msg": "Удалить шаблон \"{{name}}\"?",
+  "journals.action.remove-tpl-msg": "Удалить шаблон",
   "journals.action.rename-tpl-msg": "Переименовать шаблон",
   "journals.action.reset": "Сбросить",
   "journals.action.reset-settings": "Сбросить настройки",
@@ -587,8 +587,6 @@
   "journals.name": "Журналы",
   "journals.settings": "Настройки",
   "journals.tpl.defaults": "Шаблоны настроек",
-  "journals.menu.journal-list.title": "Журналы",
-  "journals.menu.journal-list.empty": "Список пуст",
   "label.password": "Пароль",
   "label.username": "Имя пользователя",
 

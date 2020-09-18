@@ -188,8 +188,8 @@ const Harness = {
     element.value = value;
     return element.dispatchEvent(inputEvent);
   },
-  getInputValue(component, name, value, selector = `[name="${name}"]`) {
-    const element = component.element.querySelector(selector);
+  getInputValue(component, name, value) {
+    const element = component.element.querySelector(`[name="${name}"]`);
     assert(element, `${name} input not found`);
     assert.equal(value, element.value);
   },
