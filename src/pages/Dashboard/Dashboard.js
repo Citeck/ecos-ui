@@ -34,10 +34,9 @@ import DashboardService from '../../services/dashboard';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import { selectDashboardByKey } from '../../selectors/dashboard';
 import PageService from '../../services/PageService';
+import DialogManager from '../../components/common/dialogs/Manager';
 
 import './style.scss';
-import DialogManager from '../../components/common/dialogs/Manager';
-import { Btn } from '../../components/common/btns';
 
 const getStateId = state => {
   return state.enableCache ? state.tabId || DashboardService.key : null;
@@ -210,7 +209,7 @@ class Dashboard extends Component {
           className: 'ecos-btn_blue',
           key: 'home-page',
           onClick: () => {
-            PageService.changeUrlLink(URL.DASHBOARD, { updateUrl: true });
+            PageService.changeUrlLink(URL.DASHBOARD, { openNewTab: true, closeActiveTab: true });
           },
           label: t('go-to.home-page')
         }
