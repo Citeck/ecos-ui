@@ -13,8 +13,9 @@ const optimizePredicate = predicate => {
   if (!isPredicateValid(predicate)) {
     return {};
   }
+
   if (predicate.t === 'and' || predicate.t === 'or') {
-    let predicates = (predicate.val || []).map(pred => optimizePredicate(pred)).filter(isPredicateValid);
+    const predicates = (predicate.val || []).map(pred => optimizePredicate(pred)).filter(isPredicateValid);
 
     if (predicates.length === 0) {
       return {};
@@ -27,13 +28,14 @@ const optimizePredicate = predicate => {
       };
     }
   }
+
   return cloneDeep(predicate);
 };
 
 class JournalsDataLoader {
   async load(journalConfig, settings) {
     const columns = journalConfig.columns || [];
-    let predicates = [journalConfig.predicate, settings.predicate, settings.filter];
+    let predicates = [journalConfig.predicate, settings.predicate, ...settings.filter];
 
     if (settings.onlyLinked && settings.recordRef) {
       predicates.push({
@@ -47,7 +49,7 @@ class JournalsDataLoader {
           }))
       });
 
-      predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef); //todo: replace placeholders in predicates - is it?
+      predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
     }
 
     let language = 'predicate';

@@ -2,11 +2,9 @@ import cloneDeep from 'lodash/cloneDeep';
 
 export default class JournalsConverter {
   static getSettingsForDataLoaderServer(source) {
-    console.log(source);
     const _source = cloneDeep(source);
     const target = {};
 
-    target.columns = _source.columns;
     target.predicate = _source.predicate;
     target.onlyLinked = !!_source.onlyLinked;
     target.recordRef = _source.recordRef;

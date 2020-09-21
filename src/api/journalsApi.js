@@ -55,6 +55,7 @@ export class JournalsApi extends RecordService {
     return this.mutate({ record: { id, attributes } }).catch(() => null);
   };
 
+  //todo: remove
   getGridData = ({
     columns,
     pagination,
