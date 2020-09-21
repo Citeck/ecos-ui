@@ -1,8 +1,9 @@
 import cloneDeep from 'lodash/cloneDeep';
 
-import journalsServiceApi from './journalsServiceApi';
+import { Attributes } from '../../../constants';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../common/form/SelectJournal/predicates';
 import * as RecordUtils from '../../Records/utils/recordUtils';
+import journalsServiceApi from './journalsServiceApi';
 
 const isPredicateValid = predicate => {
   return !!(predicate && predicate.t);
@@ -31,9 +32,8 @@ const optimizePredicate = predicate => {
 
 class JournalsDataLoader {
   async load(journalConfig, settings) {
-    const columns = journalConfig.columns || []; // todo settings?
-
-    let predicates = [journalConfig.predicate, settings.predicate];
+    const columns = journalConfig.columns || [];
+    let predicates = [journalConfig.predicate, settings.predicate, settings.filter];
 
     if (settings.onlyLinked && settings.recordRef) {
       predicates.push({
@@ -80,9 +80,16 @@ class JournalsDataLoader {
       consistency: 'EVENTUAL'
     };
 
-    let groupBy = journalConfig.groupBy || settings.groupBy;
+    const groupBy = settings.groupBy || journalConfig.groupBy;
     if (groupBy && groupBy.length) {
       recordsQuery.groupBy = groupBy;
+    }
+
+    const sortBy = settings.sortBy || journalConfig.sortBy;
+    if (sortBy && sortBy.length) {
+      recordsQuery.sortBy = sortBy;
+    } else {
+      recordsQuery.sortBy = [{ attribute: Attributes.DBID, ascending: false }];
     }
 
     const attributes = this._getAttributes(journalConfig, settings);

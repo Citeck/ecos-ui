@@ -2,7 +2,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 
 import { ActionModes } from '../../../constants';
-import recordActions from '../../Records/actions/recordActions';
+import RecordActions from '../../Records/actions';
 import journalsApi from './journalsServiceApi';
 import computedResolversRegistry from './computed';
 import journalColumnsResolver from './journalColumnsResolver';
@@ -111,10 +111,7 @@ class JournalsService {
    * @return {Promise<JournalData>}
    */
   async getJournalData(journalConfig, settings) {
-    const records = journalDataLoader.load(journalConfig, settings);
-    //todo get actions
-    //todo get edit rules
-    return records;
+    return journalDataLoader.load(journalConfig, settings);
   }
 
   /**
@@ -152,7 +149,7 @@ class JournalsService {
       };
     });
 
-    return recordActions.getActionsForRecords(recordRefs, journalActions, actionsContext).then(actionsForRecords => {
+    return RecordActions.getActionsForRecords(recordRefs, journalActions, actionsContext).then(actionsForRecords => {
       const forRecords = {
         ...actionsForRecords.forRecords,
         actions: [...actionsForRecords.forRecords.actions, ...convertedGroupActions.filter(a => a.config.type === 'selected')]

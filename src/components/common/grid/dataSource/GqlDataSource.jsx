@@ -7,6 +7,9 @@ import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
 import BaseDataSource, { DEFAULT_FORMATTER } from './BaseDataSource';
 
+/**
+ * @deprecated see JournalsService
+ */
 export default class GqlDataSource extends BaseDataSource {
   constructor(options) {
     super(options);
