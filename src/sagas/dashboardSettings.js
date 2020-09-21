@@ -24,6 +24,7 @@ import { RequestStatuses } from '../constants';
 import DashboardService from '../services/dashboard';
 import PageService from '../services/PageService';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
+import { MOBILE_SETTINGS_CONFIG_VERSION } from '../constants/dashboard';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
@@ -119,7 +120,8 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
     const serverConfig = {
       layouts: DashboardSettingsConverter.getSettingsConfigForServer(payload),
-      mobile: DashboardSettingsConverter.getSettingsMobileConfigForServer(payload)
+      // mobile: DashboardSettingsConverter.getSettingsMobileConfigForServer(payload)
+      mobile: DashboardSettingsConverter.getSettingsMobileConfigForServerV2(payload)
     };
     const { layouts, mobile } = serverConfig;
     const identification = yield select(selectIdentificationForSet, payload.key);
@@ -138,7 +140,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     }
 
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
-      config: { layouts, mobile },
+      config: { layouts, mobile, mobileVersion: MOBILE_SETTINGS_CONFIG_VERSION },
       identification: identificationData
     });
 

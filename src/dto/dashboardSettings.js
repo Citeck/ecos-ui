@@ -2,6 +2,8 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
 import head from 'lodash/head';
+
+import { MOBILE_SETTINGS_CONFIG_VERSION } from '../constants/dashboard';
 import { Layouts, LayoutTypes } from '../constants/layout';
 import Components from '../components/widgets/Components';
 import DashboardService from '../services/dashboard';
@@ -41,13 +43,21 @@ export default class DashboardSettingsConverter {
   static getMobileConfigForWeb(config) {
     const target = [];
     const layouts = get(config, ['layouts'], []);
+    const mobileVersion = get(config, 'mobileVersion');
 
     DashboardService.movedToListLayout(config, layouts);
 
     let mobile = get(config, ['mobile']);
 
-    if (isEmpty(mobile)) {
-      mobile = DashboardService.generateMobileConfig(layouts);
+    if (isEmpty(mobile) || mobileVersion !== MOBILE_SETTINGS_CONFIG_VERSION) {
+      // mobile = DashboardService.generateMobileConfig(layouts);
+
+      // mobile = DashboardService.generateMobileConfigByDesktop(layouts);
+      console.warn('empty, generate new', {
+        selectedById: DashboardService.getSelectedWidgetsByIdFromDesktopConfig(layouts),
+        mobileConfig: DashboardService.generateMobileConfig(layouts),
+        newMobileConfig: DashboardService.generateNewMobileConfig(layouts)
+      });
     }
 
     mobile.forEach(layout => {
@@ -102,6 +112,29 @@ export default class DashboardSettingsConverter {
         columns: [
           {
             widgets: head(Components.setDefaultPropsOfWidgets(mobile.widgets[idLayout])) || []
+          }
+        ]
+      });
+    });
+
+    return target;
+  }
+
+  static getSettingsMobileConfigForServerV2(source) {
+    const { mobile } = source;
+    const target = [];
+
+    mobile.tabs.forEach(tab => {
+      const { label, idLayout } = tab;
+      const widgets = head(Components.setDefaultPropsOfWidgets(mobile.widgets[idLayout])) || [];
+
+      target.push({
+        id: idLayout,
+        tab: { label, idLayout },
+        type: LayoutTypes.MOBILE,
+        columns: [
+          {
+            widgets: widgets.map(widget => widget.id)
           }
         ]
       });

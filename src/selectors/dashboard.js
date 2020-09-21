@@ -1,4 +1,5 @@
 import { get } from 'lodash';
+import { createSelector } from 'reselect';
 
 import DashboardService from '../services/dashboard';
 import { initialState } from '../reducers/dashboard';
@@ -15,3 +16,20 @@ export const selectDashboardConfigs = state => {
     isMobile: get(state, 'view.isMobile', false)
   };
 };
+
+export const selectDashboardConfig = createSelector(
+  (state, isMobile) => {
+    const config = get(state, 'config', []);
+
+    if (!isMobile) {
+      return config;
+    }
+
+    const mobileConfig = get(state, 'mobileConfig', []);
+
+    console.warn('DashboardService', DashboardService.getSelectedWidgetsByIdFromDesktopConfig(config));
+
+    return mobileConfig;
+  },
+  config => config
+);

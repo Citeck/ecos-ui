@@ -335,6 +335,18 @@ class DashboardSettings extends React.Component {
     return find(DeviceTabs, ['key', 'mobile']).key === this.state.activeDeviceTabId;
   }
 
+  get availableWidgets() {
+    const { selectedDesktopWidgets } = this.props;
+    const { availableWidgets } = this.state;
+    const isMobile = this.isSelectedMobileVer;
+
+    if (!isMobile) {
+      return availableWidgets;
+    }
+
+    return Object.keys(selectedDesktopWidgets).map(key => selectedDesktopWidgets[key]);
+  }
+
   renderHeader() {
     let title = '';
 
@@ -462,6 +474,7 @@ class DashboardSettings extends React.Component {
   }
 
   renderWidgetsBlock() {
+    const { selectedDesktopWidgets } = this.props;
     const { availableWidgets, activeLayoutTabId, selectedWidgets, mobileSelectedWidgets, mobileActiveLayoutTabId } = this.state;
     const isMob = this.isSelectedMobileVer;
 
@@ -481,11 +494,13 @@ class DashboardSettings extends React.Component {
 
     return (
       <SetWidgets
-        availableWidgets={availableWidgets}
+        // availableWidgets={availableWidgets}
+        availableWidgets={this.availableWidgets}
         activeWidgets={this.activeData.widgets}
         columns={this.selectedTypeLayout.columns}
         setData={setData}
         isMobile={isMob}
+        selected={selectedDesktopWidgets}
       />
     );
   }

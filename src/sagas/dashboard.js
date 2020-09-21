@@ -35,6 +35,12 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
     const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
 
+    console.warn(
+      { result },
+      DashboardService.getAllWidgetsFromOldConfig(get(result, 'config.layouts', [])),
+      DashboardService.getWidgetsById(DashboardService.getAllWidgetsFromOldConfig(get(result, 'config.layouts', [])))
+    );
+
     const data = DashboardService.checkDashboardResult(result);
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
     const webConfig = DashboardConverter.getDashboardForWeb(data);

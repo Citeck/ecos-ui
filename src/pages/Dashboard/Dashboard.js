@@ -24,7 +24,7 @@ import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
 import DashboardService from '../../services/dashboard';
 import pageTabList from '../../services/pageTabs/PageTabList';
-import { selectDashboardByKey } from '../../selectors/dashboard';
+import { selectDashboardByKey, selectDashboardConfig } from '../../selectors/dashboard';
 import PageService from '../../services/PageService';
 
 import './style.scss';
@@ -39,10 +39,12 @@ const mapStateToProps = (state, ownProps) => {
   const stateKey = getStateId(ownProps);
   const dashboardState = selectDashboardByKey(state, stateKey);
 
+  // console.warn(selectDashboardConfig(dashboardState, isMobile));
+
   return {
     stateKey,
     enableCache,
-    config: get(dashboardState, [isMobile ? 'mobileConfig' : 'config'], []),
+    config: selectDashboardConfig(dashboardState, isMobile),
     isLoadingDashboard: get(dashboardState, ['isLoading']),
     saveResultDashboard: get(dashboardState, ['requestResult'], {}),
     isLoadingMenu: get(state, ['menu', 'isLoading']),

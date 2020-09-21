@@ -53,7 +53,30 @@ class SetWidgets extends React.Component {
   };
 
   getWidgetLabel(widget) {
-    return t(get(Components.components, [widget.name, 'label'], get(widget, 'label', '')));
+    const description = get(widget, 'description', '');
+    let label = t(get(Components.components, [widget.name, 'label'], get(widget, 'label', '')));
+
+    if (description) {
+      label = `[${description}] ${label}`;
+    }
+
+    return label;
+  }
+
+  get availableWidgets() {
+    const { availableWidgets, isMobile, activeWidgets } = this.props;
+
+    if (isEmpty(availableWidgets)) {
+      return [];
+    }
+
+    if (!isMobile) {
+      return availableWidgets;
+    }
+
+    const ids = get(activeWidgets, '[0]', []).map(item => item.id);
+
+    return availableWidgets.filter(widget => !ids.includes(widget.id));
   }
 
   handleDragUpdate = provided => {
@@ -208,11 +231,18 @@ class SetWidgets extends React.Component {
               scrollHeight={250}
               autoHeight
             >
-              {availableWidgets &&
-                availableWidgets.length &&
-                availableWidgets.map((item, index) => (
-                  <DragItem isCloning key={item.dndId} draggableId={item.dndId} draggableIndex={index} title={this.getWidgetLabel(item)} />
-                ))}
+              {this.availableWidgets.map((item, index) => (
+                <DragItem
+                  className={classNames({
+                    'ecos-drag-item_by-content': isMobile
+                  })}
+                  isCloning={!isMobile}
+                  key={item.dndId}
+                  draggableId={item.dndId}
+                  draggableIndex={index}
+                  title={this.getWidgetLabel(item)}
+                />
+              ))}
             </Droppable>
             {this.renderWidgetColumns()}
           </DragDropContext>

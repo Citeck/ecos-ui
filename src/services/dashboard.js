@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 import uuid from 'uuidv4';
 
 import { SourcesId } from '../constants';
@@ -129,4 +130,90 @@ export default class DashboardService {
 
     return mobile;
   }
+
+  static generateNewMobileConfig(source = []) {
+    const mobile = [];
+
+    source.forEach(layout => {
+      const { id: idLayout, columns = [], tab = {} } = layout;
+
+      mobile.push({
+        id: idLayout,
+        tab: { label: tab.label, idLayout },
+        type: LayoutTypes.MOBILE,
+        columns: [
+          {
+            widgets: columns.reduce((result, current) => {
+              if (Array.isArray(current)) {
+                return [...result, ...[].concat.apply([], current.map(item => get(item, 'widgets', []).map(w => w.id)))];
+              }
+
+              return [...result, ...get(current, 'widgets', []).map(widget => widget.id)];
+            }, [])
+          }
+        ]
+      });
+    });
+
+    return mobile;
+  }
+
+  static getSelectedWidgetsByIdFromDesktopConfig(source = []) {
+    const byId = {};
+    const getWidgetsFromColumn = (widget, column) => {
+      if (Array.isArray(widget)) {
+        widget.forEach(widget => getWidgetsFromColumn(widget, column));
+      } else {
+        byId[widget.id] = {
+          ...widget,
+          description: get(column, 'tab.label', '')
+        };
+      }
+    };
+    const getWidgetFromLayout = column => {
+      if (Array.isArray(column)) {
+        column.forEach((widget, index) => getWidgetFromLayout(widget, column[index]));
+      } else {
+        get(column, 'widgets', []).forEach(widget => getWidgetsFromColumn(widget, column));
+      }
+    };
+
+    source.forEach(getWidgetFromLayout);
+
+    return byId;
+  }
+
+  static getAllWidgetsFromOldConfig(source) {
+    const widgets = [];
+    const getWidgetsFromColumn = (widget, column) => {
+      if (Array.isArray(widget)) {
+        widget.forEach(widget => getWidgetsFromColumn(widget, column));
+      } else {
+        widgets.push(widget);
+      }
+    };
+    const getWidgetFromLayout = column => {
+      if (Array.isArray(column)) {
+        column.forEach((widget, index) => getWidgetFromLayout(widget, column[index]));
+      } else {
+        get(column, 'widgets', []).forEach(widget => getWidgetsFromColumn(widget, column));
+      }
+    };
+
+    source.forEach(layout => getWidgetFromLayout(get(layout, 'columns', [])));
+
+    return widgets;
+  }
+
+  static getWidgetsById(widgets) {
+    return widgets.reduce(
+      (res, widget) => ({
+        ...res,
+        [widget.id]: widget
+      }),
+      {}
+    );
+  }
+
+  static mergeConfigFromOldVersion(config) {}
 }
