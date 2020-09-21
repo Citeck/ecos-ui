@@ -4,6 +4,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import uuid from 'uuidv4';
 
 import { SourcesId } from '../constants';
+import { CONFIG_VERSION } from '../constants/dashboard';
 import { LayoutTypes } from '../constants/layout';
 import { t } from '../helpers/util';
 import pageTabList from './pageTabs/PageTabList';
@@ -145,10 +146,10 @@ export default class DashboardService {
           {
             widgets: columns.reduce((result, current) => {
               if (Array.isArray(current)) {
-                return [...result, ...[].concat.apply([], current.map(item => get(item, 'widgets', []).map(w => w.id)))];
+                return [...result, ...[].concat.apply([], current.map(item => get(item, 'widgets', [])))];
               }
 
-              return [...result, ...get(current, 'widgets', []).map(widget => widget.id)];
+              return [...result, ...get(current, 'widgets', [])];
             }, [])
           }
         ]
@@ -215,5 +216,61 @@ export default class DashboardService {
     );
   }
 
-  static mergeConfigFromOldVersion(config) {}
+  static mergeConfigFromOldVersion(config) {
+    const version = get(config, 'version');
+
+    if (version === CONFIG_VERSION) {
+      return config;
+    }
+
+    const getWidgetsFromColumn = (widget, column) => {
+      if (Array.isArray(widget)) {
+        return widget.map(widget => getWidgetsFromColumn(widget, column));
+      } else {
+        widgets.push(widget);
+        return widget.id;
+      }
+    };
+    const getWidgetFromLayout = column => {
+      if (Array.isArray(column)) {
+        return column.map((widget, index) => getWidgetFromLayout(widget, column[index]));
+      } else {
+        return {
+          ...column,
+          widgets: get(column, 'widgets', []).map(widget => getWidgetsFromColumn(widget, column))
+        };
+      }
+    };
+
+    let mobile = get(config, 'mobile', []);
+    let desktop = get(config, 'layouts', []);
+    const widgets = [];
+
+    if (isEmpty(desktop)) {
+      const layout = {};
+
+      layout.id = DashboardService.newIdLayout;
+      layout.tab = DashboardService.defaultDashboardTab(layout.id);
+
+      desktop = [layout];
+    }
+
+    desktop = desktop.map(layout => {
+      return {
+        ...layout,
+        columns: getWidgetFromLayout(get(layout, 'columns', []))
+      };
+    });
+
+    if (isEmpty(mobile)) {
+      mobile = DashboardService.generateNewMobileConfig(desktop);
+    }
+
+    return {
+      version: CONFIG_VERSION,
+      mobile,
+      desktop,
+      widgets
+    };
+  }
 }

@@ -32,3 +32,13 @@ export const selectAllSelectedWidgets = createSelector(
   config => config,
   config => DashboardService.getSelectedWidgetsByIdFromDesktopConfig(config)
 );
+
+export const selectNewVersionConfig = createSelector(
+  config => config,
+  config => DashboardService.mergeConfigFromOldVersion(config)
+);
+
+export const selectSelectedWidgetsById = createSelector(
+  config => get(config, 'widgets', []),
+  widgets => DashboardService.getWidgetsById(widgets)
+);

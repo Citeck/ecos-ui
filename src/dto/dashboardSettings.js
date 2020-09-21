@@ -10,31 +10,33 @@ import DashboardService from '../services/dashboard';
 import DashboardConverter from './dashboard';
 
 export default class DashboardSettingsConverter {
-  static getSettingsForWeb(source = {}) {
+  static getSettingsForWeb(source = {}, widgetsById) {
     let target = {};
 
     if (!isEmpty(source)) {
       const { config } = source;
 
-      target.identification = DashboardConverter.getKeyInfoDashboardForWeb(source).identification;
+      // target.identification = DashboardConverter.getKeyInfoDashboardForWeb(source).identification;
 
       target.config = {
-        layouts: DashboardSettingsConverter.getDescConfigForWeb(config),
-        mobile: DashboardSettingsConverter.getMobileConfigForWeb(config)
+        layouts: DashboardSettingsConverter.getDesktopConfigForWeb(source, widgetsById),
+        mobile: DashboardSettingsConverter.getMobileConfigForWeb(source, widgetsById)
       };
     }
 
     return target;
   }
 
-  static getDescConfigForWeb(config) {
+  static getDesktopConfigForWeb(config, widgetsById) {
     const target = [];
-    const layouts = get(config, ['layouts'], []);
+    const layouts = get(config, ['desktop'], []);
 
-    DashboardService.movedToListLayout(config, layouts);
+    console.warn({ layouts, config });
+
+    // DashboardService.movedToListLayout(config, layouts);
 
     layouts.forEach(layout => {
-      target.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
+      target.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout, widgetsById));
     });
 
     return target;
@@ -67,13 +69,23 @@ export default class DashboardSettingsConverter {
     return target;
   }
 
-  static getSettingsLayoutForWeb(layout = {}) {
+  static getSettingsLayoutForWeb(layout = {}, widgetsById) {
     let target = {};
 
     target.id = layout.id;
     target.tab = layout.tab || DashboardService.defaultDashboardTab(layout.id);
     target.type = layout.type || LayoutTypes.TWO_COLUMNS_BS;
-    target.widgets = isArray(layout.columns) ? [].concat.apply([], layout.columns).map(item => item.widgets) : [];
+    target.widgets = isArray(layout.columns)
+      ? [].concat.apply([], layout.columns).map(item =>
+          item.widgets.map(widget => {
+            if (typeof widget === 'string') {
+              return widgetsById[widget];
+            }
+
+            return widget;
+          })
+        )
+      : [];
 
     return target;
   }

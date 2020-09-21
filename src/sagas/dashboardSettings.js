@@ -25,6 +25,8 @@ import DashboardService from '../services/dashboard';
 import PageService from '../services/PageService';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { MOBILE_SETTINGS_CONFIG_VERSION } from '../constants/dashboard';
+import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
+import DashboardConverter from '../dto/dashboard';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
@@ -39,9 +41,15 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
 
   try {
     if (dashboardId) {
-      const result = yield call(api.dashboard.getDashboardById, dashboardId, true);
+      const { config, ...result } = yield call(api.dashboard.getDashboardById, dashboardId, true);
+
+      const newConfig = selectNewVersionConfig(config);
+      const widgetsById = selectSelectedWidgetsById(newConfig);
+
       const data = DashboardService.checkDashboardResult(result);
-      const webConfigs = DashboardSettingsConverter.getSettingsForWeb(data);
+      const webConfigs = DashboardSettingsConverter.getSettingsForWeb(newConfig, widgetsById);
+
+      webConfigs.identification = DashboardConverter.getKeyInfoDashboardForWeb(data).identification;
 
       yield put(setDashboardConfig({ ...webConfigs, key }));
       yield put(getAvailableWidgets({ type: data.type, key }));
@@ -138,6 +146,10 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
 
       identificationData.user = user;
     }
+
+    console.warn({ config: { layouts, mobile, mobileVersion: MOBILE_SETTINGS_CONFIG_VERSION } });
+
+    return;
 
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: { layouts, mobile, mobileVersion: MOBILE_SETTINGS_CONFIG_VERSION },
