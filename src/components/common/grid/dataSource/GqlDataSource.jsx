@@ -6,6 +6,7 @@ import Records from '../../../Records';
 import formatterStore from '../formatters/formatterStore';
 import Mapper from '../mapping/Mapper';
 import BaseDataSource, { DEFAULT_FORMATTER } from './BaseDataSource';
+import AttributesService from '../../../../services/AttributesService';
 
 /**
  * @deprecated see JournalsService
@@ -114,16 +115,7 @@ export default class GqlDataSource extends BaseDataSource {
     return attributes;
   }
 
-  _getPermissions(permissions) {
-    const attributes = {};
-
-    for (let i = 0; i < permissions.length; i++) {
-      const permission = permissions[i];
-      attributes[`hasPerission${permission}`] = `.att(n:"permissions"){has(n:"${permission}")}`;
-    }
-
-    return attributes;
-  }
+  _getPermissions = AttributesService.getPermissions;
 
   static getFormatterStatic(options) {
     const defaultFormatter = formatterStore[DEFAULT_FORMATTER];

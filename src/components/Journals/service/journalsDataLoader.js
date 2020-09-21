@@ -1,6 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep';
 
 import { Attributes } from '../../../constants';
+import AttributesService from '../../../services/AttributesService';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../common/form/SelectJournal/predicates';
 import * as RecordUtils from '../../Records/utils/recordUtils';
 import journalsServiceApi from './journalsServiceApi';
@@ -33,6 +34,8 @@ const optimizePredicate = predicate => {
 };
 
 class JournalsDataLoader {
+  static DEFAULT_SORT_BY = [{ attribute: Attributes.DBID, ascending: false }];
+
   async load(journalConfig, settings) {
     const columns = journalConfig.columns || [];
     let predicates = [journalConfig.predicate, settings.predicate, ...settings.filter];
@@ -91,7 +94,7 @@ class JournalsDataLoader {
     if (sortBy && sortBy.length) {
       recordsQuery.sortBy = sortBy;
     } else {
-      recordsQuery.sortBy = [{ attribute: Attributes.DBID, ascending: false }];
+      recordsQuery.sortBy = JournalsDataLoader.DEFAULT_SORT_BY;
     }
 
     const attributes = this._getAttributes(journalConfig, settings);
@@ -106,7 +109,6 @@ class JournalsDataLoader {
     const groupBy = journalConfig.groupBy || [];
     const columns = journalConfig.columns || [];
     const settingsAttributes = settings.attributes || {};
-
     const attributes = {};
 
     for (let column of columns) {
@@ -120,9 +122,7 @@ class JournalsDataLoader {
     }
 
     if (groupBy.length) {
-      for (let att of groupBy) {
-        attributes['groupBy_' + att] = att + '?str';
-      }
+      AttributesService.getGroupBy(groupBy, attributes);
     }
 
     return attributes;

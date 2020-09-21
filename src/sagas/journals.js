@@ -247,6 +247,7 @@ function* getJournalConfig(api, journalId, w) {
 }
 
 function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w) {
+  const _journalSetting = yield yield select(state => state.journals[stateId].journalSetting);
   let journalSetting;
 
   if (sharedSettings) {
@@ -263,7 +264,7 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
     }
   }
 
-  journalSetting = { ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
+  journalSetting = { ..._journalSetting, ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
 
   journalSetting.columns = journalSetting.columns.map(column => {
     const match = journalConfig.columns.filter(c => c.attribute === column.attribute)[0];
@@ -336,6 +337,7 @@ function* sagaRestoreJournalSettingData({ api, logger, stateId, w }, action) {
 function* getGridData(api, params, stateId) {
   const recordRef = yield select(state => state.journals[stateId].recordRef);
   const journalConfig = yield select(state => state.journals[stateId].journalConfig);
+  const journalSetting = yield select(state => state.journals[stateId].journalSetting);
   const onlyLinked = yield select(state => get(state, `journals[${stateId}].config.onlyLinked`));
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, ...forRequest } = params;
@@ -348,7 +350,8 @@ function* getGridData(api, params, stateId) {
     pagination,
     predicates,
     onlyLinked,
-    searchPredicate
+    searchPredicate,
+    journalSetting
   });
   const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
   const journalData = JournalsConverter.getJournalDataWeb(resultData);
