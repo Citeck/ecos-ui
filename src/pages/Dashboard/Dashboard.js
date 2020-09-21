@@ -573,16 +573,6 @@ class Dashboard extends Component {
     });
   }
 
-  renderWarningMessage() {
-    const { warningMessage } = this.props;
-
-    if (isEmpty(warningMessage)) {
-      return null;
-    }
-
-    return null;
-  }
-
   render() {
     return (
       <>
