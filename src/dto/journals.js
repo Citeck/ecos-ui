@@ -1,4 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep';
+import concat from 'lodash/concat';
 
 export default class JournalsConverter {
   static getSettingsForDataLoaderServer(source) {
@@ -9,7 +10,7 @@ export default class JournalsConverter {
     target.onlyLinked = !!_source.onlyLinked;
     target.recordRef = _source.recordRef;
     target.page = _source.pagination;
-    target.filter = _source.predicates;
+    target.filter = concat(_source.predicates, _source.searchPredicate);
     target.groupBy = _source.groupBy;
     target.sortBy = _source.sortBy;
     //target.attributes = _source.attributes; //todo permissions

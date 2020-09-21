@@ -338,18 +338,24 @@ function* getGridData(api, params, stateId) {
   const journalConfig = yield select(state => state.journals[stateId].journalConfig);
   const onlyLinked = yield select(state => get(state, `journals[${stateId}].config.onlyLinked`));
 
-  const { pagination: _pagination, predicates: _predicates, ...forRequest } = params;
+  const { pagination: _pagination, predicates: _predicates, searchPredicate, ...forRequest } = params;
   const predicates = ParserPredicate.removeEmptyPredicates(cloneDeep(_predicates));
   const pagination = forRequest.groupBy.length ? { ..._pagination, maxItems: undefined } : _pagination;
 
-  const settings = JournalsConverter.getSettingsForDataLoaderServer({ ...forRequest, recordRef, pagination, predicates, onlyLinked });
+  const settings = JournalsConverter.getSettingsForDataLoaderServer({
+    ...forRequest,
+    recordRef,
+    pagination,
+    predicates,
+    onlyLinked,
+    searchPredicate
+  });
   const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
   const journalData = JournalsConverter.getJournalDataWeb(resultData);
   const recordRefs = journalData.data.map(d => d.id);
   const resultActions = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
   const actions = JournalsConverter.getJournalActions(resultActions);
-  //const r = yield call(api.journals.getGridData, { ...forRequest, predicates, pagination, recordRef });
-  //console.log(r);
+
   return { ...journalData, actions };
 }
 
