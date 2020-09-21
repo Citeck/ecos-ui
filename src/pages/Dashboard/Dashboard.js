@@ -84,6 +84,12 @@ class Dashboard extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
+    if (isHomePage() && !props.redirectToNewUi) {
+      window.open(URL.OLD_DASHBOARD, '_self');
+
+      return null;
+    }
+
     const newState = {};
     const newUrlParams = getSortedUrlParams();
     const firstLayoutId = get(props.config, '[0].id');
@@ -107,10 +113,6 @@ class Dashboard extends Component {
 
       if (isDashboard()) {
         newState.needGetConfig = true;
-      }
-
-      if (isHomePage() && !props.redirectToNewUi) {
-        window.open(URL.OLD_DASHBOARD, '_self');
       }
     }
 
