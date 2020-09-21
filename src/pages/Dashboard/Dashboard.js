@@ -7,13 +7,21 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import debounce from 'lodash/debounce';
 
 import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, isMobileAppWebView, t } from '../../helpers/util';
 import { decodeLink, getSortedUrlParams, isDashboard, isHomePage, pushHistoryLink } from '../../helpers/urls';
-import { getDashboardConfig, getDashboardTitle, resetDashboardConfig, saveDashboardConfig, setLoading } from '../../actions/dashboard';
+import {
+  getDashboardConfig,
+  getDashboardTitle,
+  resetDashboardConfig,
+  saveDashboardConfig,
+  setLoading,
+  setWarningMessage
+} from '../../actions/dashboard';
 import { saveMenuConfig } from '../../actions/menu';
 import { Loader, ScrollArrow, Tabs } from '../../components/common';
 import { Badge } from '../../components/common/form';
@@ -28,6 +36,8 @@ import { selectDashboardByKey } from '../../selectors/dashboard';
 import PageService from '../../services/PageService';
 
 import './style.scss';
+import DialogManager from '../../components/common/dialogs/Manager';
+import { Btn } from '../../components/common/btns';
 
 const getStateId = state => {
   return state.enableCache ? state.tabId || DashboardService.key : null;
@@ -52,6 +62,7 @@ const mapStateToProps = (state, ownProps) => {
     dashboardType: get(dashboardState, ['identification', 'type']),
     identificationId: get(dashboardState, ['identification', 'id'], null),
     titleInfo: get(dashboardState, ['titleInfo'], {}),
+    warningMessage: get(dashboardState, 'warningMessage', ''),
     isMobile,
     redirectToNewUi: get(state, 'app.redirectToNewUi', false)
   };
@@ -63,7 +74,8 @@ const mapDispatchToProps = (dispatch, state) => ({
   saveDashboardConfig: payload => dispatch(saveDashboardConfig({ ...payload, key: getStateId(state) })),
   saveMenuConfig: config => dispatch(saveMenuConfig({ config, key: getStateId(state) })),
   setLoading: status => dispatch(setLoading({ status, key: getStateId(state) })),
-  resetDashboardConfig: () => dispatch(resetDashboardConfig(getStateId(state)))
+  resetDashboardConfig: () => dispatch(resetDashboardConfig(getStateId(state))),
+  closeWarningMessage: () => dispatch(setWarningMessage({ key: getStateId(state), message: '' }))
 });
 
 class Dashboard extends Component {
@@ -145,7 +157,7 @@ class Dashboard extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { tabId, stateKey, enableCache, config, resetDashboardConfig, isMobile } = this.props;
+    const { tabId, stateKey, enableCache, config, resetDashboardConfig, isMobile, warningMessage } = this.props;
     const { needGetConfig, activeLayoutId, urlParams } = this.state;
 
     if (this.tabList.length) {
@@ -168,11 +180,43 @@ class Dashboard extends Component {
         this.setActiveLink(get(config, '[0].id'));
       }
     }
+
+    if (warningMessage !== prevProps.warningMessage) {
+      this.showWarningMessage();
+    }
   }
 
   componentWillUnmount() {
     this.instanceRecord.unwatch(this.watcher);
+    this.showWarningMessage.cancel();
   }
+
+  showWarningMessage = debounce(() => {
+    const { warningMessage, closeWarningMessage } = this.props;
+
+    DialogManager.showCustomDialog({
+      isVisible: !!warningMessage,
+      title: t('warning'),
+      setVisible: data => console.warn(data),
+      body: warningMessage,
+      modalClass: 'ecos-modal_width-xs ecos-modal_level-4',
+      buttons: [
+        {
+          key: 'close',
+          onClick: closeWarningMessage,
+          label: t('button.close-modal')
+        },
+        {
+          className: 'ecos-btn_blue',
+          key: 'home-page',
+          onClick: () => {
+            PageService.changeUrlLink(URL.DASHBOARD, { updateUrl: true });
+          },
+          label: t('go-to.home-page')
+        }
+      ]
+    });
+  }, 0);
 
   getPathInfo(data = window.location.search) {
     const search = decodeLink(data);
@@ -528,6 +572,16 @@ class Dashboard extends Component {
         </div>
       );
     });
+  }
+
+  renderWarningMessage() {
+    const { warningMessage } = this.props;
+
+    if (isEmpty(warningMessage)) {
+      return null;
+    }
+
+    return null;
   }
 
   render() {
