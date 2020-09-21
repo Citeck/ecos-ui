@@ -48,6 +48,12 @@ class TasksDashlet extends BaseWidget {
     this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'tasks.active-hash'])];
   }
 
+  get stateId() {
+    const { tabId, id } = this.props;
+
+    return getStateId({ tabId, id });
+  }
+
   onResize = width => {
     !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
@@ -57,8 +63,7 @@ class TasksDashlet extends BaseWidget {
   };
 
   render() {
-    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging, tabId, id } = this.props;
-    const stateId = getStateId({ tabId, id });
+    const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { runUpdate, isSmallMode, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
@@ -91,7 +96,7 @@ class TasksDashlet extends BaseWidget {
           forwardedRef={this.contentRef}
           className={classNameTasks}
           record={record}
-          stateId={stateId}
+          stateId={this.stateId}
           runUpdate={runUpdate}
           isSmallMode={isSmallMode}
           height={this.contentHeight}

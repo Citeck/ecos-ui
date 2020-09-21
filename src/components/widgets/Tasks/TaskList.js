@@ -58,8 +58,8 @@ class TaskList extends React.Component {
       return null;
     }
 
-    return tasks.map((item, i) => (
-      <React.Fragment key={i + item.id}>
+    return tasks.map(item => (
+      <React.Fragment key={item.id}>
         <TaskDetails
           details={item}
           onAssignClick={onAssignClick}
