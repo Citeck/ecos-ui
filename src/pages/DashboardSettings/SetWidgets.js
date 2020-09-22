@@ -53,10 +53,11 @@ class SetWidgets extends React.Component {
   };
 
   getWidgetLabel(widget) {
+    const { isMobile } = this.props;
     const description = get(widget, 'description', '');
     let label = t(get(Components.components, [widget.name, 'label'], get(widget, 'label', '')));
 
-    if (description) {
+    if (isMobile && description) {
       label = `[${description}] ${label}`;
     }
 
@@ -94,7 +95,7 @@ class SetWidgets extends React.Component {
 
   handleDropEndWidget = result => {
     const { source, destination } = result;
-    const { availableWidgets, activeWidgets } = this.props;
+    const { activeWidgets } = this.props;
 
     let selectedWidgets = deepClone(activeWidgets);
 
@@ -104,7 +105,7 @@ class SetWidgets extends React.Component {
 
       switch (source.droppableId) {
         case NAMES.WIDGETS_FROM:
-          set(selectedWidgets, [colIndex], DndUtils.copy(availableWidgets, activeWidgets[colIndex], source, destination, true));
+          set(selectedWidgets, [colIndex], DndUtils.copy(this.availableWidgets, activeWidgets[colIndex], source, destination, true));
           break;
         case destination.droppableId:
           set(selectedWidgets, [colIndex], DndUtils.reorder(colSelected, source.index, destination.index));

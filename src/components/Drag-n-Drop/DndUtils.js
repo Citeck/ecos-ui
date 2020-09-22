@@ -35,6 +35,10 @@ export default class DndUtils {
       item.dndId = uuidV4();
     }
 
+    if (!item.id) {
+      item.id = uuidV4();
+    }
+
     destClone.splice(droppableDestination.index, 0, { ...item });
 
     return DndUtils.setDndId(destClone);
