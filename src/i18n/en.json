@@ -344,6 +344,7 @@
   "export-component.notice.buffer-link-preparation": "Wait while preparing a sample link",
 
   "tree-component.tooltip.cannot-be-changes": "Cannot change state",
+  "tree-component.tooltip.update-icon": "Update icon",
   "tree-component.empty": "Nothing found",
 
   "filter-list.add-criterion": "Add criterion",

@@ -72,6 +72,12 @@
         margin-right: 5px;
         overflow: hidden;
         text-align: center;
+
+        &-tooltip {
+          .tooltip {
+            z-index: 9999;
+          }
+        }
       }
 
       &-badge {
