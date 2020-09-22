@@ -344,6 +344,7 @@
   "export-component.notice.buffer-link-preparation": "Подождите, идет подготовка ссылки на выборку",
 
   "tree-component.tooltip.cannot-be-changes": "Нельзя изменить состояние",
+  "tree-component.tooltip.update-icon": "Обновить иконку",
   "tree-component.empty": "Элементов не найдено",
 
   "filter-list.add-criterion": "Добавить критерий",

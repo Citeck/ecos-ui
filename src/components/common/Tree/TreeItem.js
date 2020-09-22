@@ -212,7 +212,21 @@ class TreeItem extends Component {
             />
           )}
           {!!icon && (
-            <EcosIcon data={item.icon} className="ecos-tree__item-element-icon" onClick={() => onClickIcon && onClickIcon(item)} />
+            <Tooltip
+              className="ecos-tree__item-element-icon-tooltip"
+              target={targetId + '-icon'}
+              text={t('tree-component.tooltip.update-icon')}
+              off={!onClickIcon}
+              uncontrolled
+              autohide
+            >
+              <EcosIcon
+                id={targetId + '-icon'}
+                data={item.icon}
+                className="ecos-tree__item-element-icon"
+                onClick={() => onClickIcon && onClickIcon(item)}
+              />
+            </Tooltip>
           )}
           {isExistValue(badge) && <Badge text={badge} className="ecos-tree__item-element-badge" />}
           <Tooltip target={targetId} text={extractLabel(label)} showAsNeeded uncontrolled autohide>
