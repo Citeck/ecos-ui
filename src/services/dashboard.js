@@ -216,11 +216,12 @@ export default class DashboardService {
     );
   }
 
-  static mergeConfigFromOldVersion(config) {
-    const version = get(config, 'version');
+  static migrateConfigFromOldVersion(source) {
+    const version = get(source, 'version');
+    const newVersionConfig = get(source, version, []);
 
-    if (version === CONFIG_VERSION) {
-      return config;
+    if (version === CONFIG_VERSION && !isEmpty(newVersionConfig)) {
+      return source;
     }
 
     const getWidgetsFromColumn = (widget, column) => {
@@ -242,8 +243,8 @@ export default class DashboardService {
       }
     };
 
-    let mobile = get(config, 'mobile', []);
-    let desktop = get(config, 'layouts', []);
+    let mobile = get(source, 'mobile', []);
+    let desktop = get(source, 'layouts', []);
     const widgets = [];
 
     if (isEmpty(desktop)) {
@@ -267,10 +268,13 @@ export default class DashboardService {
     }
 
     return {
+      ...source,
       version: CONFIG_VERSION,
-      mobile,
-      desktop,
-      widgets
+      [CONFIG_VERSION]: {
+        mobile,
+        desktop,
+        widgets
+      }
     };
   }
 }

@@ -35,10 +35,15 @@ export const selectAllSelectedWidgets = createSelector(
 
 export const selectNewVersionConfig = createSelector(
   config => config,
-  config => DashboardService.mergeConfigFromOldVersion(config)
+  config => get(config, config.version, [])
 );
 
 export const selectSelectedWidgetsById = createSelector(
   config => get(config, 'widgets', []),
   widgets => DashboardService.getWidgetsById(widgets)
+);
+
+export const selectOriginalConfig = createSelector(
+  selectState,
+  ownState => get(ownState, 'originalConfig', [])
 );

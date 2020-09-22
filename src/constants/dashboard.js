@@ -16,6 +16,4 @@ export const DeviceTabs = [
   }
 ];
 
-export const MOBILE_SETTINGS_CONFIG_VERSION = 'v2';
-
 export const CONFIG_VERSION = 'v2';
