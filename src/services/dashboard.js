@@ -159,7 +159,8 @@ export default class DashboardService {
     return mobile;
   }
 
-  static getSelectedWidgetsByIdFromDesktopConfig(source = []) {
+  static getSelectedWidgetsByIdFromDesktopConfig(data = []) {
+    const source = cloneDeep(data);
     const byId = {};
     const getWidgetsFromColumn = (widget, column) => {
       if (Array.isArray(widget)) {
@@ -184,7 +185,8 @@ export default class DashboardService {
     return byId;
   }
 
-  static getAllWidgetsFromOldConfig(source) {
+  static getAllWidgetsFromOldConfig(data) {
+    const source = cloneDeep(data);
     const widgets = [];
     const getWidgetsFromColumn = (widget, column) => {
       if (Array.isArray(widget)) {
@@ -216,7 +218,8 @@ export default class DashboardService {
     );
   }
 
-  static migrateConfigFromOldVersion(source) {
+  static migrateConfigFromOldVersion(data) {
+    const source = cloneDeep(data);
     const version = get(source, 'version');
     const newVersionConfig = get(source, version, []);
 

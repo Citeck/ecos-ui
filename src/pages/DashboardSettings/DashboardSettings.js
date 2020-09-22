@@ -41,6 +41,7 @@ import SetLayouts from './SetLayouts';
 import SetWidgets from './SetWidgets';
 
 import './style.scss';
+import DashboardSettingsConverter from '../../dto/dashboardSettings';
 
 const getStateId = props => get(getSearchParams(), SearchKeys.DASHBOARD_ID, props.tabId || 'base');
 
@@ -336,15 +337,14 @@ class DashboardSettings extends React.Component {
   }
 
   get availableWidgets() {
-    const { selectedDesktopWidgets } = this.props;
-    const { availableWidgets } = this.state;
+    const { availableWidgets, selectedWidgets, tabs } = this.state;
     const isMobile = this.isSelectedMobileVer;
 
     if (!isMobile) {
       return availableWidgets;
     }
 
-    return Object.keys(selectedDesktopWidgets).map(key => selectedDesktopWidgets[key]);
+    return DashboardSettingsConverter.getSelectedWidgetsFromDesktop(selectedWidgets, tabs);
   }
 
   renderHeader() {

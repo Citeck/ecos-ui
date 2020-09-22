@@ -23,7 +23,7 @@ export const selectStateByKey = createSelector(
       identification: get(ownState, 'identification', {}),
       dashboardKeyItems: get(ownState, 'dashboardKeys', []),
       isDefaultConfig: !isExistValue(get(ownState, 'identification.user')),
-      selectedDesktopWidgets: selectAllSelectedWidgets(layouts)
+      selectedDesktopWidgets: [] // selectAllSelectedWidgets(layouts)
     };
   }
 );
@@ -40,7 +40,43 @@ export const selectNewVersionConfig = createSelector(
 
 export const selectSelectedWidgetsById = createSelector(
   config => get(config, 'widgets', []),
-  widgets => DashboardService.getWidgetsById(widgets)
+  config => {
+    const desktop = get(config, 'desktop', []);
+    const tabByWidget = {};
+    let tab = null;
+    const eachColumn = column => {
+      if (Array.isArray(column)) {
+        column.forEach(eachColumn);
+      } else {
+        column.widgets.forEach(widget => {
+          if (typeof widget === 'string') {
+            tabByWidget[widget] = tab;
+          } else {
+            tabByWidget[widget.id] = tab;
+          }
+        });
+      }
+    };
+
+    desktop.forEach(layout => {
+      tab = layout.tab;
+      layout.columns.forEach(eachColumn);
+    });
+
+    return tabByWidget;
+  },
+  (widgets, tabByWidget) => {
+    const data = DashboardService.getWidgetsById(widgets);
+
+    Object.keys(data).forEach(key => {
+      data[key] = {
+        ...data[key],
+        description: tabByWidget[key].label
+      };
+    });
+
+    return data;
+  }
 );
 
 export const selectOriginalConfig = createSelector(

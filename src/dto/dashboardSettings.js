@@ -11,17 +11,14 @@ import DashboardService from '../services/dashboard';
 import DashboardConverter from './dashboard';
 
 export default class DashboardSettingsConverter {
-  static getSettingsForWeb(source = {}, widgetsById) {
+  static getSettingsForWeb(data = {}, widgetsById, version = CONFIG_VERSION) {
+    const source = cloneDeep(data);
     let target = {};
 
     if (!isEmpty(source)) {
-      const { config } = source;
-
-      // target.identification = DashboardConverter.getKeyInfoDashboardForWeb(source).identification;
-
       target.config = {
         layouts: DashboardSettingsConverter.getDesktopConfigForWeb(source, widgetsById),
-        mobile: DashboardSettingsConverter.getMobileConfigForWeb(source, widgetsById)
+        mobile: DashboardSettingsConverter.getMobileConfigForWeb(source, widgetsById, version)
       };
     }
 
@@ -32,10 +29,6 @@ export default class DashboardSettingsConverter {
     const target = [];
     const layouts = get(config, ['desktop'], []);
 
-    console.warn({ layouts, config });
-
-    // DashboardService.movedToListLayout(config, layouts);
-
     layouts.forEach(layout => {
       target.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout, widgetsById));
     });
@@ -43,9 +36,8 @@ export default class DashboardSettingsConverter {
     return target;
   }
 
-  static getMobileConfigForWeb(config, widgetsById) {
+  static getMobileConfigForWeb(config, widgetsById, version) {
     const target = [];
-    const version = get(config, 'version');
     let layouts = get(config, ['layouts'], []);
 
     if (isEmpty(layouts)) {
@@ -63,6 +55,8 @@ export default class DashboardSettingsConverter {
     mobile.forEach(layout => {
       target.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout, widgetsById));
     });
+
+    console.warn({ target });
 
     return target;
   }
@@ -137,7 +131,8 @@ export default class DashboardSettingsConverter {
 
     mobile.tabs.forEach(tab => {
       const { label, idLayout } = tab;
-      const widgets = head(Components.setDefaultPropsOfWidgets(mobile.widgets[idLayout])) || [];
+      // const widgets = head(Components.setDefaultPropsOfWidgets(mobile.widgets[idLayout])) || [];
+      const widgets = head(mobile.widgets[idLayout]) || [];
 
       target.push({
         id: idLayout,
@@ -196,7 +191,6 @@ export default class DashboardSettingsConverter {
 
   static getNewWidgetsForServer(source = {}) {
     const widgets = Object.keys(source).reduce((result, key) => {
-      console.warn(source[key]);
       const layoutWidgets = source[key].reduce((outcome, current) => {
         outcome.push(...current);
 
@@ -255,6 +249,11 @@ export default class DashboardSettingsConverter {
     const source = cloneDeep(data);
     const target = {};
     const { tabs = [], layoutType, widgets = {} } = source;
+
+    Object.keys(widgets).forEach(key => {
+      widgets[key] = Components.setDefaultPropsOfWidgets(widgets[key]);
+    });
+
     const allWidgets = DashboardSettingsConverter.getNewWidgetsForServer(widgets);
     const desktop = DashboardSettingsConverter.getNewDesktopConfigForServer(tabs, layoutType, widgets);
     const mobile = DashboardSettingsConverter.getSettingsMobileConfigForServerV2(source, allWidgets);
@@ -266,5 +265,28 @@ export default class DashboardSettingsConverter {
       desktop,
       mobile
     };
+  }
+
+  static getSelectedWidgetsFromDesktop(widgets, tabs) {
+    const selected = [];
+    const eachColumn = item => {
+      if (Array.isArray(item)) {
+        item.forEach(eachColumn);
+      } else {
+        selected.push({
+          ...item,
+          description: tabName
+        });
+      }
+    };
+    let tabName = '';
+
+    Object.keys(widgets).forEach(key => {
+      tabName = get(tabs.find(tab => tab.idLayout === key), 'label', '');
+
+      widgets[key].forEach(eachColumn);
+    });
+
+    return selected;
   }
 }

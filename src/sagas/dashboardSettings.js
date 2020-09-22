@@ -42,12 +42,11 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     if (dashboardId) {
       const { config, ...result } = yield call(api.dashboard.getDashboardById, dashboardId, true);
-
       const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
-      const newConfig = selectNewVersionConfig(migratedConfig);
-      const widgetsById = selectSelectedWidgetsById(newConfig);
+      const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
+      const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
       const data = DashboardService.checkDashboardResult(result);
-      const webConfigs = DashboardSettingsConverter.getSettingsForWeb(newConfig, widgetsById);
+      const webConfigs = DashboardSettingsConverter.getSettingsForWeb(newConfig, widgetsById, migratedConfig.version);
 
       webConfigs.identification = DashboardConverter.getKeyInfoDashboardForWeb(data).identification;
 
