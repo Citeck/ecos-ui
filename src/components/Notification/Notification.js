@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
+
 import { setNotificationMessage } from '../../actions/notification';
+
 import styles from './Notification.module.scss';
 
 const Notification = ({ text, closeMessage }) => {

@@ -14,6 +14,10 @@
   "page.error-loading.message": "Try reloading the page. If the error persists, contact your administrator",
   "page.error-loading.log": "Error log",
 
+  "record.permission-denied.message": "You do not have sufficient rights to view this document. Contact your administrator.",
+
+  "record.not-found.message": "The document was deleted or not yet created.",
+
   "bpmn-card.go-back-to-list-button.text": "Back to list",
   "bpmn-card.open-editor-button.text": "Visual Editor",
   "bpmn-designer.add-category": "Create category",
@@ -1128,5 +1132,7 @@
   "icon-select.error.get-custom-icons": "Customs menu icons haven't received",
   "icon-select.error.get-font-icons": "Font menu icons haven't received",
   "icon-select.error.upload-custom-icon": "Custom icon hasn't uploaded",
-  "icon-select.error.delete-custom-icon": "Custom icon hasn't deleted"
+  "icon-select.error.delete-custom-icon": "Custom icon hasn't deleted",
+
+  "go-to.home-page": "Go to home page"
 }
