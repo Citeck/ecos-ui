@@ -246,8 +246,22 @@ function* getJournalConfig(api, journalId, w) {
   return journalConfig;
 }
 
+function* getColumns({ stateId }) {
+  const journalConfig = yield select(state => state.journals[stateId].journalConfig);
+  const journalSetting = yield select(state => state.journals[stateId].journalSetting);
+
+  if (journalSetting.columns && journalSetting.columns.length) {
+    return journalSetting.columns.map(setting => {
+      const config = journalConfig.columns.find(column => column.attribute === setting.attribute);
+      return config ? { ...config, ...setting, sortable: config.sortable } : setting;
+    });
+  }
+
+  return journalConfig.columns;
+}
+
 function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w) {
-  const _journalSetting = yield yield select(state => state.journals[stateId].journalSetting);
+  const _journalSetting = yield select(state => state.journals[stateId].journalSetting);
   let journalSetting;
 
   if (sharedSettings) {
@@ -265,11 +279,6 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
   }
 
   journalSetting = { ..._journalSetting, ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
-
-  journalSetting.columns = journalSetting.columns.map(column => {
-    const match = journalConfig.columns.filter(c => c.attribute === column.attribute)[0];
-    return match ? { ...column, sortable: match.sortable } : column;
-  });
 
   const predicate = journalSetting.predicate;
 
@@ -358,8 +367,9 @@ function* getGridData(api, params, stateId) {
   const recordRefs = journalData.data.map(d => d.id);
   const resultActions = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
   const actions = JournalsConverter.getJournalActions(resultActions);
+  const columns = yield getColumns({ stateId });
 
-  return { ...journalData, actions };
+  return { ...journalData, columns, actions };
 }
 
 function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w) {
@@ -436,12 +446,8 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
   try {
     yield put(setLoading(w(true)));
 
-    const { columns } = yield select(state => state.journals[stateId].journalSetting);
     const grid = yield select(state => state.journals[stateId].grid);
     const searchPredicate = yield getSearchPredicate({ logger, stateId });
-
-    grid.columns = columns;
-
     const params = { ...grid, ...(action.payload || {}), searchPredicate };
     const gridData = yield getGridData(api, params, stateId);
     const editingRules = yield getGridEditingRules(api, gridData);
@@ -774,7 +780,7 @@ function* getSearchPredicate({ logger, stateId }) {
 
     return predicate;
   } catch (e) {
-    logger.error('[journals getSearchPredicate function* error', e.message);
+    logger.error('[journals getSearchPredicate saga error', e.message);
   }
 }
 
