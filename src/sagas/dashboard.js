@@ -22,6 +22,7 @@ import DashboardConverter from '../dto/dashboard';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
 import DashboardService from '../services/dashboard';
 import PageService from '../services/PageService';
+import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
@@ -34,11 +35,11 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     }
 
     const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
-    const data = DashboardService.checkDashboardResult(result);
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
-    const webConfig = DashboardConverter.getDashboardForWeb(data);
-    const webConfigMobile = DashboardConverter.getMobileDashboardForWeb(data);
-
+    const migratedConfig = DashboardService.migrateConfigFromOldVersion(result.config);
+    const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
+    const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
+    const webConfigs = DashboardConverter.getNewDashboardForWeb(newConfig, widgetsById);
     const isReset = yield select(selectResetStatus);
 
     if (isReset) {
@@ -46,8 +47,14 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     }
 
     yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key }));
-    yield put(setDashboardConfig({ config: webConfig, key: payload.key }));
-    yield put(setMobileDashboardConfig({ config: webConfigMobile, key: payload.key }));
+    yield put(
+      setDashboardConfig({
+        config: get(webConfigs, 'config.layouts', []),
+        originalConfig: result.config,
+        key: payload.key
+      })
+    );
+    yield put(setMobileDashboardConfig({ config: get(webConfigs, 'config.mobile', []), key: payload.key }));
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
     NotificationManager.error(t('dashboard.error.get-config'), t('error'));

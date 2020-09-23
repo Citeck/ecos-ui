@@ -56,8 +56,6 @@ export default class DashboardSettingsConverter {
       target.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout, widgetsById));
     });
 
-    console.warn({ target });
-
     return target;
   }
 
