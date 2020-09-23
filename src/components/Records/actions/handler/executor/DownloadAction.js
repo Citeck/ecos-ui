@@ -57,14 +57,7 @@ export default class DownloadAction extends ActionsExecutor {
   static _downloadByUrl(url, filename, record) {
     url = url || getDownloadContentUrl(record.id);
     url = url.replace('${recordRef}', record.id); // eslint-disable-line no-template-curly-in-string
-
-    const a = document.createElement('A', { target: '_blank' });
-
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    DownloadAction._downloadDataStr(url, filename, { target: '_blank' });
   }
 
   static _downloadBase64(base64, filename) {
@@ -77,10 +70,18 @@ export default class DownloadAction extends ActionsExecutor {
     DownloadAction._downloadDataStr(dataStr, filename);
   }
 
-  static _downloadDataStr(dataStr, filename) {
+  static _downloadDataStr(dataStr, filename, options = {}) {
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute('href', dataStr);
     downloadAnchorNode.setAttribute('download', filename);
+    downloadAnchorNode.setAttribute('data-external', true);
+
+    for (let key in options) {
+      if (options.hasOwnProperty(key)) {
+        downloadAnchorNode.setAttribute(key, options[key]);
+      }
+    }
+
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
