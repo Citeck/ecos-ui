@@ -57,21 +57,19 @@ export default class SidebarService {
     const knownType = Object.values(MITypes).includes(item.type);
     const knownActionType = Object.values(ATypes).includes(actionType);
 
+    const badgeV0 = knownActionType && [ATypes.JOURNAL_LINK].includes(actionType) && CountableItems.includes(get(item, 'params.journalId'));
+    const badgeV1 = knownType && [MITypes.JOURNAL].includes(item.type) && get(item, 'config.displayCount');
+
     const common = {
       noIcon: true,
-      noBadge: !//v0
-      (
-        (knownActionType && [ATypes.JOURNAL_LINK].includes(actionType) && CountableItems.includes(get(item, 'params.journalId'))) ||
-        //v1
-        (knownType && [MITypes.JOURNAL].includes(item.type) && get(item, 'config.displayCount'))
-      ),
+      noBadge: !(badgeV0 || badgeV1),
       isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(item.type)
     };
 
     const levels = {
       0: {
         ...common,
-        noBadge: true,
+        noBadge: knownType ? common.noBadge : true,
         isSeparator: knownType ? common.isSeparator : true
       },
       1: {
