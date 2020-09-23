@@ -1,19 +1,17 @@
 @font-face {
-  font-family: 'icomoon';
-  src: url('fonts/icomoon.eot?916oa8');
-  src: url('fonts/icomoon.eot?916oa8#iefix') format('embedded-opentype'), url('fonts/icomoon.ttf?916oa8') format('truetype'),
-    url('fonts/icomoon.woff?916oa8') format('woff'), url('fonts/icomoon.svg?916oa8#icomoon') format('svg');
+  font-family: 'citeck-leftmenu';
+  src: url('fonts/citeck-leftmenu.eot?azxvyd');
+  src: url('fonts/citeck-leftmenu.eot?azxvyd#iefix') format('embedded-opentype'), url('fonts/citeck-leftmenu.ttf?azxvyd') format('truetype'),
+    url('fonts/citeck-leftmenu.woff?azxvyd') format('woff'), url('fonts/citeck-leftmenu.svg?azxvyd#citeck-leftmenu') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
 }
 
-[class^='icon-leftmenu-'],
-[class*=' icon-leftmenu-'],
-[class^='icon-leftmenu-']::before,
-[class*=' icon-leftmenu-']::before {
+[class^='i-leftmenu-'],
+[class*=' i-leftmenu-'] {
   /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'icomoon' !important;
+  font-family: 'citeck-leftmenu' !important;
   speak: none;
   font-style: normal;
   font-weight: normal;
@@ -26,72 +24,72 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-leftmenu-cases:before {
+.i-leftmenu-cases:before {
   content: '\e900';
 }
-.icon-leftmenu-more:before {
+.i-leftmenu-more:before {
   content: '\e901';
 }
-.icon-leftmenu-meetings:before {
+.i-leftmenu-meetings:before {
   content: '\e902';
 }
-.icon-leftmenu-correspondence:before {
+.i-leftmenu-correspondence:before {
   content: '\e903';
 }
-.icon-leftmenu-ord:before {
+.i-leftmenu-ord:before {
   content: '\e904';
 }
-.icon-leftmenu-contracts:before {
+.i-leftmenu-contracts:before {
   content: '\e905';
 }
-.icon-leftmenu-personal-documents:before {
+.i-leftmenu-personal-documents:before {
   content: '\e906';
 }
-.icon-leftmenu-find-section:before {
+.i-leftmenu-find-section:before {
   content: '\e907';
 }
-.icon-leftmenu-controlled:before {
+.i-leftmenu-controlled:before {
   content: '\e908';
 }
-.icon-leftmenu-current-tasks:before {
+.i-leftmenu-current-tasks:before {
   content: '\e909';
 }
-.icon-leftmenu-subordinate-tasks:before {
+.i-leftmenu-subordinate-tasks:before {
   content: '\e90a';
 }
-.icon-leftmenu-task-statistic:before {
+.i-leftmenu-task-statistic:before {
   content: '\e90b';
 }
-.icon-leftmenu-shared-documents:before {
+.i-leftmenu-shared-documents:before {
   content: '\e90c';
 }
-.icon-leftmenu-pass:before {
+.i-leftmenu-pass:before {
   content: '\e90d';
 }
-.icon-leftmenu-new-section:before {
+.i-leftmenu-new-section:before {
   content: '\e90e';
 }
-.icon-leftmenu-organizational-structure:before {
+.i-leftmenu-organizational-structure:before {
   content: '\e90f';
 }
-.icon-leftmenu-running-processes:before {
+.i-leftmenu-running-processes:before {
   content: '\e910';
 }
-.icon-leftmenu-completed-processes:before {
+.i-leftmenu-completed-processes:before {
   content: '\e911';
 }
-.icon-leftmenu-sections:before {
+.i-leftmenu-sections:before {
   content: '\e912';
 }
-.icon-leftmenu-files:before {
+.i-leftmenu-files:before {
   content: '\e913';
 }
-.icon-leftmenu-data-lists:before {
+.i-leftmenu-data-lists:before {
   content: '\e914';
 }
-.icon-leftmenu-new-tasks:before {
+.i-leftmenu-new-tasks:before {
   content: '\e915';
 }
-.icon-leftmenu-content:before {
+.i-leftmenu-content:before {
   content: '\e916';
 }

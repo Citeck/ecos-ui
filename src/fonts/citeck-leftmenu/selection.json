@@ -10,17 +10,11 @@
         "attrs": [{}, {}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-cases"]
+        "tags": ["leftmenu-cases"],
+        "grid": 0
       },
       "attrs": [{}, {}],
-      "properties": {
-        "order": 3,
-        "id": 22,
-        "name": "leftmenu-cases",
-        "prevSize": 32,
-        "code": 59648
-      },
+      "properties": { "order": 3, "id": 0, "name": "cases", "prevSize": 32, "code": 59648 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 0
@@ -33,17 +27,11 @@
         "attrs": [{}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-more"]
+        "tags": ["leftmenu-more"],
+        "grid": 0
       },
       "attrs": [{}],
-      "properties": {
-        "order": 4,
-        "id": 21,
-        "name": "leftmenu-more",
-        "prevSize": 32,
-        "code": 59649
-      },
+      "properties": { "order": 4, "id": 1, "name": "more", "prevSize": 32, "code": 59649 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 1
@@ -56,17 +44,11 @@
         "attrs": [{}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-meetings"]
+        "tags": ["leftmenu-meetings"],
+        "grid": 0
       },
       "attrs": [{}],
-      "properties": {
-        "order": 5,
-        "id": 20,
-        "name": "leftmenu-meetings",
-        "prevSize": 32,
-        "code": 59650
-      },
+      "properties": { "order": 5, "id": 2, "name": "meetings", "prevSize": 32, "code": 59650 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 2
@@ -80,17 +62,11 @@
         "attrs": [{}, {}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-correspondence"]
+        "tags": ["leftmenu-correspondence"],
+        "grid": 0
       },
       "attrs": [{}, {}],
-      "properties": {
-        "order": 6,
-        "id": 19,
-        "name": "leftmenu-correspondence",
-        "prevSize": 32,
-        "code": 59651
-      },
+      "properties": { "order": 6, "id": 3, "name": "correspondence", "prevSize": 32, "code": 59651 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 3
@@ -101,21 +77,15 @@
           "M358.813 512.65c0 56.499 45.962 102.477 102.475 102.477 56.498 0 102.46-45.978 102.46-102.477 0-56.5-45.962-102.475-102.46-102.475-56.513 0-102.475 45.975-102.475 102.475z",
           "M921.6 298.425c0-27.175-10.788-53.225-29.988-72.425l-196.024-196c-19.2-19.2-45.251-30-72.402-30h-520.786c-56.55 0-102.4 45.85-102.4 102.4v819.2c0 11.648 1.95 22.851 5.537 33.3 13.813 40.197 51.963 69.1 96.863 69.1h716.8c56.55 0 102.4-45.85 102.4-102.4v-623.175zM746.327 462.75c8.709 0 18.775 6.5 19.748 15.15 2.601 23.25 2.575 46.752-0.138 69.848-1.060 9.001-9.175 15.775-17.976 15.053l-3.799-0.077c-27.162 0-52.398 16.727-62.848 41.626-11.1 26.476-4.163 57.277 17.213 76.652 3.461 3.123 5.35 7.347 5.586 11.674 0.225 4.076-0.998 8.248-3.748 11.674-14.612 18.202-31.329 34.729-49.7 49.126-7.076 5.473-17.116 4.675-23.188-1.925-18.278-20.101-50.801-27.648-76.078-17.326-19 7.777-33.111 23.803-39.025 42.9-2.224 7.199-3.286 14.828-3.011 22.625 0.3 8.924-6.3 16.599-15.213 17.577-6.125 0.676-12.25 1.172-18.375 1.5-5.112 0.251-10.225 0.374-15.35 0.374-11.838 0-23.65-0.676-35.388-2.048-8.975-1.029-15.612-8.904-15.075-17.951 1.637-28.774-15.050-55.578-41.563-66.678-25.312-10.624-58.2-3.098-76.588 17.229-6.1 6.723-16.337 7.521-23.375 1.848-17.95-14.449-34.325-30.976-48.6-49.178-5.55-6.999-4.712-17.096 1.863-23.122 21.012-19.277 27.912-49.802 17.175-75.976-10.775-26.225-36.45-42.778-63.213-42.102-8.8 0-19.175-6.426-20.137-15.099-2.6-23.276-2.575-46.775 0.125-69.875 1.075-8.85 8.012-15.375 17.75-15.075 30.012 0 56.238-16.275 66.85-41.525 11.1-26.475 4.2-57.275-17.187-76.65-3.375-3.075-5.25-7.2-5.55-11.45-0.287-4.15 0.925-8.425 3.725-11.9 14.538-18.15 31.288-34.675 49.7-49.125 7.037-5.5 17.137-4.675 23.175 1.95 18.275 20.1 50.938 27.575 76.050 17.3 26.187-10.725 43.075-37.050 42.062-65.525-0.238-7.175 3.975-13.55 10.263-16.25 1.538-0.675 3.2-1.125 4.95-1.325 23.025-2.575 46.175-2.475 69.112 0.175 9.013 1.050 15.614 8.9 15.075 17.95-1.625 28.75 15.049 55.55 41.499 66.675 12.677 5.3 27.203 6.075 40.852 3 13.737-3.075 26.588-10.025 35.773-20.2 6.077-6.725 16.338-7.5 23.352-1.875 10.337 8.275 20.163 17.3 29.399 26.975 6.748 7.050 13.184 14.45 19.261 22.15 5.54 7.025 4.736 17.15-1.864 23.175-20.987 19.25-27.889 49.775-17.188 75.975 10.476 25.55 35.466 42.075 63.616 42.075z"
         ],
-        "attrs": [{}, {}],
         "width": 922,
+        "attrs": [{}, {}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-ord"]
+        "tags": ["leftmenu-ord"],
+        "grid": 0
       },
       "attrs": [{}, {}],
-      "properties": {
-        "order": 7,
-        "id": 18,
-        "name": "leftmenu-ord",
-        "prevSize": 32,
-        "code": 59652
-      },
+      "properties": { "order": 7, "id": 4, "name": "ord", "prevSize": 32, "code": 59652 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 4
@@ -125,21 +95,15 @@
         "paths": [
           "M913.577 258.675c5.248 12.45 8.023 25.95 8.023 39.75v623.175c0 56.55-45.85 102.4-102.4 102.4h-716.8c-44.9 0-83.050-28.902-96.863-69.1-1.225-3.548-2.25-7.199-3.075-10.926-0.75-3.323-1.325-6.697-1.737-10.148-0.475-4.024-0.725-8.1-0.725-12.227v-819.2c0-56.55 45.85-102.4 102.4-102.4h520.786c27.151 0 53.202 10.8 72.402 30l196.024 196c3.876 3.875 7.398 8.025 10.573 12.4 3.215 4.45 6.052 9.125 8.504 14 1.034 2.050 1.997 4.15 2.888 6.275zM153.6 307.2c0 28.275 22.925 51.2 51.2 51.2h512c28.273 0 51.2-22.925 51.2-51.2s-22.927-51.2-51.2-51.2h-512c-28.275 0-51.2 22.925-51.2 51.2zM204.8 460.8c-28.275 0-51.2 22.925-51.2 51.2 0 28.273 22.925 51.2 51.2 51.2h512c28.273 0 51.2-22.927 51.2-51.2 0-28.275-22.927-51.2-51.2-51.2h-512zM153.6 716.8c0 28.273 22.925 51.2 51.2 51.2h153.6c14.25 0 27.138-5.827 36.412-15.201 9.138-9.247 14.788-21.975 14.788-35.999 0-5.827-0.975-11.423-2.775-16.65-2.5-7.276-6.6-13.824-11.875-19.2-3.975-4.050-8.613-7.424-13.737-9.974-6.863-3.451-14.612-5.376-22.813-5.376h-153.6c-28.275 0-51.2 22.927-51.2 51.2zM665.6 665.6c-56.55 0-102.4 45.85-102.4 102.4s45.85 102.4 102.4 102.4c56.55 0 102.4-45.85 102.4-102.4s-45.85-102.4-102.4-102.4z"
         ],
-        "attrs": [{}],
         "width": 922,
+        "attrs": [{}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-contracts"]
+        "tags": ["leftmenu-contracts"],
+        "grid": 0
       },
       "attrs": [{}],
-      "properties": {
-        "order": 8,
-        "id": 17,
-        "name": "leftmenu-contracts",
-        "prevSize": 32,
-        "code": 59653
-      },
+      "properties": { "order": 8, "id": 5, "name": "contracts", "prevSize": 32, "code": 59653 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 5
@@ -152,17 +116,11 @@
         "attrs": [{}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-personal-documents"]
+        "tags": ["leftmenu-personal-documents"],
+        "grid": 0
       },
       "attrs": [{}],
-      "properties": {
-        "order": 10,
-        "id": 16,
-        "name": "leftmenu-personal-documents",
-        "prevSize": 32,
-        "code": 59654
-      },
+      "properties": { "order": 10, "id": 6, "name": "personal-documents", "prevSize": 32, "code": 59654 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 6
@@ -176,17 +134,11 @@
         "attrs": [{}, {}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-find-section"]
+        "tags": ["leftmenu-find-section"],
+        "grid": 0
       },
       "attrs": [{}, {}],
-      "properties": {
-        "order": 9,
-        "id": 15,
-        "name": "leftmenu-find-section",
-        "prevSize": 32,
-        "code": 59655
-      },
+      "properties": { "order": 9, "id": 7, "name": "find-section", "prevSize": 32, "code": 59655 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 7
@@ -200,17 +152,11 @@
         "attrs": [{}, {}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-controlled"]
+        "tags": ["leftmenu-controlled"],
+        "grid": 0
       },
       "attrs": [{}, {}],
-      "properties": {
-        "order": 11,
-        "id": 14,
-        "name": "leftmenu-controlled",
-        "prevSize": 32,
-        "code": 59656
-      },
+      "properties": { "order": 11, "id": 8, "name": "controlled", "prevSize": 32, "code": 59656 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 8
@@ -221,21 +167,15 @@
           "M388.613 0c-27.997 0-50.693 22.696-50.693 50.693 0 0.28-0.227 0.507-0.507 0.507h-30.213c-28.277 0-51.2 22.923-51.2 51.2v51.2c0 28.277 22.923 51.2 51.2 51.2h204.8c28.278 0 51.2-22.923 51.2-51.2v-51.2c0-28.277-22.922-51.2-51.2-51.2h-30.213c-0.28 0-0.507-0.227-0.507-0.507 0-27.997-22.696-50.693-50.693-50.693h-41.974z",
           "M102.684 102.675l50.917 0.141v51.2c0 84.831 68.769 153.6 153.6 153.6h204.799c84.833 0 153.6-68.769 153.6-153.6v-51.2l50.918-0.141c56.663-0.157 102.682 45.735 102.682 102.399v716.51c0 56.55-45.844 102.4-102.4 102.4h-614.4c-56.554 0-102.399-45.844-102.4-102.4v-716.511c0.001-56.664 46.020-102.555 102.684-102.398zM409.601 512.415c-28.277 0-51.2 22.927-51.2 51.2 0 28.278 22.923 51.2 51.2 51.2h204.799c28.278 0 51.2-22.922 51.2-51.2 0-28.273-22.922-51.2-51.2-51.2h-204.799zM358.401 768.415c0-28.273 22.923-51.2 51.2-51.2h204.799c28.278 0 51.2 22.927 51.2 51.2 0 28.278-22.922 51.2-51.2 51.2h-204.799c-28.277 0-51.2-22.922-51.2-51.2zM204.801 512.415c-28.277 0-51.2 22.927-51.2 51.2 0 28.278 22.923 51.2 51.2 51.2s51.2-22.922 51.2-51.2c0-28.273-22.923-51.2-51.2-51.2zM153.601 768.415c0-28.273 22.923-51.2 51.2-51.2s51.2 22.927 51.2 51.2c0 28.278-22.923 51.2-51.2 51.2s-51.2-22.922-51.2-51.2z"
         ],
-        "attrs": [{}, {}],
         "width": 819,
+        "attrs": [{}, {}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-current-tasks"]
+        "tags": ["leftmenu-current-tasks"],
+        "grid": 0
       },
       "attrs": [{}, {}],
-      "properties": {
-        "order": 12,
-        "id": 13,
-        "name": "leftmenu-current-tasks",
-        "prevSize": 32,
-        "code": 59657
-      },
+      "properties": { "order": 12, "id": 9, "name": "current-tasks", "prevSize": 32, "code": 59657 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 9
@@ -246,21 +186,15 @@
           "M388.613 0.025c-27.997 0-50.693 22.696-50.693 50.693 0 0.28-0.227 0.507-0.507 0.507h-81.413c-28.277 0-51.2 22.923-51.2 51.2v51.2c0 28.277 22.923 51.2 51.2 51.2h307.2c28.278 0 51.2-22.923 51.2-51.2v-51.2c0-28.277-22.922-51.2-51.2-51.2h-81.413c-0.28 0-0.507-0.227-0.507-0.507 0-27.997-22.696-50.693-50.693-50.693h-41.974z",
           "M102.4 102.425v51.2c0 84.831 68.769 153.6 153.6 153.6h307.2c84.833 0 153.6-68.769 153.6-153.6v-51.2h51.2c28.278 0 51.2 22.923 51.2 51.2v819.201c0 28.278-22.922 51.2-51.2 51.2h-716.8c-28.277 0-51.2-22.922-51.2-51.2v-819.201c0-28.277 22.923-51.2 51.2-51.2h51.2zM290.134 529.091c0 68.096 51.37 119.47 119.466 119.47s119.465-51.374 119.465-119.47c0-68.095-51.369-119.465-119.465-119.465s-119.466 51.37-119.466 119.465zM563.2 872.202c28.278 0 51.2-22.927 51.2-51.2v-1.777c0-34.125-76.559-100.623-170.666-100.623h-68.267c-94.106 0-170.666 66.499-170.666 100.623v1.777c0 28.273 22.923 51.2 51.2 51.2h307.2z"
         ],
-        "attrs": [{}, {}],
         "width": 819,
+        "attrs": [{}, {}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-subordinate-tasks"]
+        "tags": ["leftmenu-subordinate-tasks"],
+        "grid": 0
       },
       "attrs": [{}, {}],
-      "properties": {
-        "order": 13,
-        "id": 12,
-        "name": "leftmenu-subordinate-tasks",
-        "prevSize": 32,
-        "code": 59658
-      },
+      "properties": { "order": 13, "id": 10, "name": "subordinate-tasks", "prevSize": 32, "code": 59658 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 10
@@ -276,17 +210,11 @@
         "attrs": [{}, {}, {}, {}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-task-statistic"]
+        "tags": ["leftmenu-task-statistic"],
+        "grid": 0
       },
       "attrs": [{}, {}, {}, {}],
-      "properties": {
-        "order": 14,
-        "id": 11,
-        "name": "leftmenu-task-statistic",
-        "prevSize": 32,
-        "code": 59659
-      },
+      "properties": { "order": 14, "id": 11, "name": "task-statistic", "prevSize": 32, "code": 59659 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 11
@@ -300,17 +228,11 @@
         "attrs": [{}, {}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-shared-documents"]
+        "tags": ["leftmenu-shared-documents"],
+        "grid": 0
       },
       "attrs": [{}, {}],
-      "properties": {
-        "order": 15,
-        "id": 10,
-        "name": "leftmenu-shared-documents",
-        "prevSize": 32,
-        "code": 59660
-      },
+      "properties": { "order": 15, "id": 12, "name": "shared-documents", "prevSize": 32, "code": 59660 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 12
@@ -323,17 +245,11 @@
         "attrs": [{}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-pass"]
+        "tags": ["leftmenu-pass"],
+        "grid": 0
       },
       "attrs": [{}],
-      "properties": {
-        "order": 26,
-        "id": 9,
-        "name": "leftmenu-pass",
-        "prevSize": 32,
-        "code": 59661
-      },
+      "properties": { "order": 26, "id": 13, "name": "pass", "prevSize": 32, "code": 59661 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 13
@@ -346,17 +262,11 @@
         "attrs": [{}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-new-section"]
+        "tags": ["leftmenu-new-section"],
+        "grid": 0
       },
       "attrs": [{}],
-      "properties": {
-        "order": 24,
-        "id": 8,
-        "name": "leftmenu-new-section",
-        "prevSize": 32,
-        "code": 59662
-      },
+      "properties": { "order": 24, "id": 14, "name": "new-section", "prevSize": 32, "code": 59662 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 14
@@ -369,17 +279,11 @@
         "attrs": [{}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-organizational-structure"]
+        "tags": ["leftmenu-organizational-structure"],
+        "grid": 0
       },
       "attrs": [{}],
-      "properties": {
-        "order": 23,
-        "id": 7,
-        "name": "leftmenu-organizational-structure",
-        "prevSize": 32,
-        "code": 59663
-      },
+      "properties": { "order": 23, "id": 15, "name": "organizational-structure", "prevSize": 32, "code": 59663 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 15
@@ -392,17 +296,11 @@
         "attrs": [{}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-running-processes"]
+        "tags": ["leftmenu-running-processes"],
+        "grid": 0
       },
       "attrs": [{}],
-      "properties": {
-        "order": 22,
-        "id": 6,
-        "name": "leftmenu-running-processes",
-        "prevSize": 32,
-        "code": 59664
-      },
+      "properties": { "order": 22, "id": 16, "name": "running-processes", "prevSize": 32, "code": 59664 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 16
@@ -415,17 +313,11 @@
         "attrs": [{}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-completed-processes"]
+        "tags": ["leftmenu-completed-processes"],
+        "grid": 0
       },
       "attrs": [{}],
-      "properties": {
-        "order": 25,
-        "id": 5,
-        "name": "leftmenu-completed-processes",
-        "prevSize": 32,
-        "code": 59665
-      },
+      "properties": { "order": 25, "id": 17, "name": "completed-processes", "prevSize": 32, "code": 59665 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 17
@@ -438,17 +330,11 @@
         "attrs": [{}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-sections"]
+        "tags": ["leftmenu-sections"],
+        "grid": 0
       },
       "attrs": [{}],
-      "properties": {
-        "order": 21,
-        "id": 4,
-        "name": "leftmenu-sections",
-        "prevSize": 32,
-        "code": 59666
-      },
+      "properties": { "order": 21, "id": 18, "name": "sections", "prevSize": 32, "code": 59666 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 18
@@ -459,21 +345,15 @@
           "M963.692 256.2c5.944 13.15 9.108 27.525 9.108 42.225v367.175c0 56.55-45.844 102.4-102.4 102.4-28.278 0-51.2-22.922-51.2-51.2v-162.376c0-54.324-21.576-106.424-59.986-144.824l-196.014-196.025c-38.405-38.4-90.5-59.975-144.813-59.975h-111.187c-28.277 0-51.2-22.923-51.2-51.2 0-56.55 45.844-102.4 102.4-102.4h315.986c27.156 0 53.202 10.8 72.407 30l196.014 196c8.812 8.8 15.852 19.050 20.884 30.2z",
           "M711.281 521.252c3.62 10.573 5.519 21.775 5.519 33.172v367.176c0 56.55-45.844 102.4-102.4 102.4h-512c-44.9 0-83.050-28.902-96.869-69.1-3.587-10.45-5.531-21.652-5.531-33.3v-563.2c0-56.55 45.844-102.4 102.4-102.4h315.987c27.156 0 53.2 10.8 72.407 30l196.013 196c11.151 11.15 19.461 24.6 24.474 39.252z"
         ],
-        "attrs": [{}, {}],
         "width": 973,
+        "attrs": [{}, {}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-files"]
+        "tags": ["leftmenu-files"],
+        "grid": 0
       },
       "attrs": [{}, {}],
-      "properties": {
-        "order": 20,
-        "id": 3,
-        "name": "leftmenu-files",
-        "prevSize": 32,
-        "code": 59667
-      },
+      "properties": { "order": 20, "id": 19, "name": "files", "prevSize": 32, "code": 59667 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 19
@@ -483,21 +363,15 @@
         "paths": [
           "M0 102.4c0-56.55 52.393-102.4 117.028-102.4h585.144c64.635 0 117.028 45.85 117.028 102.4v563.2c0 28.278-22.922 51.2-51.2 51.2v204.8c28.278 0 51.2 22.922 51.2 51.2s-22.922 51.2-51.2 51.2h-563.2c-113.108 0-204.8-91.694-204.8-204.8v-716.8zM665.6 716.8h-460.8c-56.554 0-102.4 45.844-102.4 102.4s45.846 102.4 102.4 102.4h460.8v-51.2h-460.8c-28.277 0-51.2-22.922-51.2-51.2s22.923-51.2 51.2-51.2h460.8v-51.2zM204.8 307.2c0-28.277 22.923-51.2 51.2-51.2h307.2c28.278 0 51.2 22.923 51.2 51.2s-22.922 51.2-51.2 51.2h-307.2c-28.277 0-51.2-22.923-51.2-51.2z"
         ],
-        "attrs": [{}],
         "width": 819,
+        "attrs": [{}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-data-lists"]
+        "tags": ["leftmenu-data-lists"],
+        "grid": 0
       },
       "attrs": [{}],
-      "properties": {
-        "order": 19,
-        "id": 2,
-        "name": "leftmenu-data-lists",
-        "prevSize": 32,
-        "code": 59668
-      },
+      "properties": { "order": 19, "id": 20, "name": "data-lists", "prevSize": 32, "code": 59668 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 20
@@ -510,17 +384,11 @@
         "attrs": [{}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-new-tasks"]
+        "tags": ["leftmenu-new-tasks"],
+        "grid": 0
       },
       "attrs": [{}],
-      "properties": {
-        "order": 18,
-        "id": 1,
-        "name": "leftmenu-new-tasks",
-        "prevSize": 32,
-        "code": 59669
-      },
+      "properties": { "order": 18, "id": 21, "name": "new-tasks", "prevSize": 32, "code": 59669 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 21
@@ -535,43 +403,34 @@
         "attrs": [{}, {}, {}],
         "isMulticolor": false,
         "isMulticolor2": false,
-        "grid": 0,
-        "tags": ["leftmenu-content"]
+        "tags": ["leftmenu-content"],
+        "grid": 0
       },
       "attrs": [{}, {}, {}],
-      "properties": {
-        "order": 17,
-        "id": 0,
-        "name": "leftmenu-content",
-        "prevSize": 32,
-        "code": 59670
-      },
+      "properties": { "order": 17, "id": 22, "name": "content", "prevSize": 32, "code": 59670 },
       "setIdx": 0,
       "setId": 0,
       "iconIdx": 22
     }
   ],
   "height": 1024,
-  "metadata": {
-    "name": "icomoon"
-  },
+  "metadata": { "name": "citeck-leftmenu" },
   "preferences": {
     "showGlyphs": true,
     "showQuickUse": true,
     "showQuickUse2": true,
     "showSVGs": true,
     "fontPref": {
-      "prefix": "icon-",
-      "metadata": {
-        "fontFamily": "icomoon"
-      },
-      "metrics": {
-        "emSize": 1024,
-        "baseline": 6.25,
-        "whitespace": 50
-      },
+      "prefix": "i-leftmenu-",
+      "metadata": { "fontFamily": "citeck-leftmenu", "majorVersion": 1, "minorVersion": 0 },
+      "metrics": { "emSize": 1024, "baseline": 6.25, "whitespace": 50 },
       "embed": false,
-      "resetPoint": 59648
+      "resetPoint": 59648,
+      "showSelector": true,
+      "selector": "",
+      "showMetrics": false,
+      "showVersion": false,
+      "classSelector": ".icon"
     },
     "imagePref": {
       "prefix": "icon-",
