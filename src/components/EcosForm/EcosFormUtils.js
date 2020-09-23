@@ -663,10 +663,6 @@ export default class EcosFormUtils {
     return inputByKey;
   }
 
-  static getThemeName() {
-    return lodashGet(window, 'Citeck.config.theme');
-  }
-
   static getI18n(defaultI18n, attributes, formI18n) {
     let global = lodashGet(window, 'Citeck.messages.ecosForms', {});
 

@@ -20,8 +20,9 @@
     flex-shrink: 0;
 
     &__content {
-      width: 100%;
-      vertical-align: baseline;
+      width: auto;
+      height: inherit;
+      vertical-align: super;
     }
   }
 }

@@ -2,6 +2,7 @@
 @import '../../../styles/content';
 
 .ecos-tree {
+  $tree: &;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -70,6 +71,14 @@
 
       &-icon {
         margin-right: 5px;
+        overflow: hidden;
+        text-align: center;
+
+        &-tooltip {
+          .tooltip {
+            z-index: 9999;
+          }
+        }
       }
 
       &-badge {
@@ -86,7 +95,6 @@
         font-weight: $font-weight-bold;
         font-size: $font-size-standard;
         color: $text-color-dark;
-        margin-right: 18px;
       }
 
       &-custom-components > :nth-child(n),
@@ -94,15 +102,22 @@
         display: none;
       }
 
+      &:focus-within,
       &:hover {
         #{$element}-custom-components > :nth-child(n),
-        .ecos-tree__action {
+        #{$tree}__action {
           display: inline-block;
         }
       }
 
       &-space {
         flex: auto;
+      }
+
+      &-actions,
+      &-custom-components {
+        flex: 0 0 auto;
+        padding-left: 10px;
       }
 
       &-drag {

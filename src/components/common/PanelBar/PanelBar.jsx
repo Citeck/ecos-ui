@@ -20,20 +20,23 @@ export default class PanelBar extends Component {
 
   render() {
     const { css = {}, className, header, children } = this.props;
-    const { panelVisible } = this.state;
+    const cssClasses = classNames('panel-bar', className);
+    const headerClassName = classNames('panel-bar__header', css.headerClassName);
+    const headerLabelClassName = classNames('panel-bar__header-label', css.headerLabelClassName);
+    const contentClassName = classNames('panel-bar__content', css.contentClassName);
 
     return (
-      <div className={classNames('panel-bar', className, { 'panel-bar_open': panelVisible })}>
-        <div className={classNames('panel-bar__header', css.headerClassName)}>
-          <h3 className={classNames('panel-bar__header-label', css.headerLabelClassName)} onClick={this.showPanel}>
+      <div className={cssClasses}>
+        <div className={headerClassName}>
+          <h3 className={headerLabelClassName} onClick={this.showPanel}>
             {header}
           </h3>
 
-          <div className="panel-bar__actions" />
+          <div className={'panel-bar__actions'} />
         </div>
 
-        <Collapse isOpened={panelVisible}>
-          <div className={classNames('panel-bar__content', css.contentClassName)}>{children}</div>
+        <Collapse isOpened={this.state.panelVisible}>
+          <div className={contentClassName}>{children}</div>
         </Collapse>
       </div>
     );

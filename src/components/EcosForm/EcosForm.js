@@ -175,7 +175,6 @@ class EcosForm extends React.Component {
         const formI18N = (formData.i18n || {})[language] || {};
 
         i18n[language] = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formI18N);
-        options.theme = EcosFormUtils.getThemeName();
         options.language = language;
         options.i18n = i18n;
         options.events = new CustomEventEmitter({

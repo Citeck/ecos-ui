@@ -84,7 +84,7 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
 
 function* runAddJournalMenuItems({ api, logger }, { payload }) {
   try {
-    const { records, id, type } = payload;
+    const { records, id, type, level } = payload;
     const items = yield select(state => state.menuSettings.items);
     const infoList = yield call(api.menu.getItemInfoByRef, records);
     const excluded = [];
@@ -100,7 +100,7 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
         return info;
       });
 
-    const result = MenuSettingsService.processAction({ action: ms.ActionTypes.CREATE, items, id, data });
+    const result = MenuSettingsService.processAction({ action: ms.ActionTypes.CREATE, items, id, data, level });
 
     if (excluded.length) {
       NotificationManager.warning(

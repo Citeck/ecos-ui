@@ -16,7 +16,7 @@ function RemoteBadge({ data, isOpen }) {
   const getJournalCount = () => {
     if (journalId) {
       menuApi.getJournalTotalCount(journalId).then(count => {
-        setJournalTotalCount(count ? count.toString() : '');
+        setJournalTotalCount(String(count));
       });
     }
   };

@@ -1,9 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import cloneDeep from 'lodash/cloneDeep';
 
 import * as ArrayOfObjects from '../../../helpers/arrayOfObjects';
-import { deepClone, getOutputFormat, t } from '../../../helpers/util';
+import { getOutputFormat, t } from '../../../helpers/util';
 import { DataFormatTypes } from '../../../constants';
 import EcosForm from '../../EcosForm/index';
 import { Headline } from '../../common/form/index';
@@ -64,7 +65,7 @@ class TaskDetails extends React.Component {
   };
 
   renderDetailsGrid() {
-    const details = deepClone(this.props.details);
+    const details = cloneDeep(this.props.details);
 
     for (const key in details) {
       if (details.hasOwnProperty(key)) {

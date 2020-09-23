@@ -14,6 +14,10 @@
   "page.error-loading.message": "Попробуйте перезагрузить страницу. Если ошибка повториться, обратитесь к администратору ",
   "page.error-loading.log": "Журнал ошибки",
 
+  "record.permission-denied.message": "У вас недостаточно прав для просмотра данного документа. Обратитесь к администратору.",
+
+  "record.not-found.message": "Документ удален или еще не создан.",
+
   "bpmn-card.go-back-to-list-button.text": "Назад к списку",
   "bpmn-card.open-editor-button.text": "Визуальный редактор",
   "bpmn-designer.add-category": "Добавить категорию",
@@ -340,6 +344,7 @@
   "export-component.notice.buffer-link-preparation": "Подождите, идет подготовка ссылки на выборку",
 
   "tree-component.tooltip.cannot-be-changes": "Нельзя изменить состояние",
+  "tree-component.tooltip.update-icon": "Обновить иконку",
   "tree-component.empty": "Элементов не найдено",
 
   "filter-list.add-criterion": "Добавить критерий",
@@ -566,7 +571,7 @@
   "journals.action.remove-filter-group-msg": "Удалить группу фильтров?",
   "journals.action.remove-filter-msg": "Удалить фильтр?",
   "journals.action.remove-records-msg": "Вы действительно хотите удалить записи?",
-  "journals.action.remove-tpl-msg": "Удалить шаблон \"{{name}}\"?",
+  "journals.action.remove-tpl-msg": "Удалить шаблон",
   "journals.action.rename-tpl-msg": "Переименовать шаблон",
   "journals.action.reset": "Сбросить",
   "journals.action.reset-settings": "Сбросить настройки",
@@ -587,8 +592,6 @@
   "journals.name": "Журналы",
   "journals.settings": "Настройки",
   "journals.tpl.defaults": "Шаблоны настроек",
-  "journals.menu.journal-list.title": "Журналы",
-  "journals.menu.journal-list.empty": "Список пуст",
   "label.password": "Пароль",
   "label.username": "Имя пользователя",
 
@@ -1096,7 +1099,7 @@
   "menu-settings.editor-item.btn.edit": "Сохранить",
   "menu-settings.editor-ownership.title": "Редактор принадлежности настроек",
   "menu-settings.editor-group-priority.title": "Приоритет групп",
-  "menu-settings.editor-group-priority.desc": "Глобальная настройка приотритетов конфигурации меню для пользователей состоящих в нескольких группах. Перетаскивайте группы для изменения приоритета.",
+  "menu-settings.editor-group-priority.desc": "Глобальная настройка приоритетов конфигурации меню для пользователей, состоящих в нескольких группах. Перетаскивайте группы для изменения приоритета.",
   "menu-settings.editor-group-priority.btn.manage": "Управление",
   "menu-settings.editor-group-priority.btn.cancel": "Отмена",
   "menu-settings.editor-group-priority.btn.done": "Готово",
@@ -1119,7 +1122,7 @@
   "menu-item.type.journal": "Журнал",
   "menu-item.type.arbitrary": "Произвольный пункт меню",
   "menu-item.type.link-create-case": "Ссылку на создание кейса",
-  "menu-item.type.header-divider": "Разделяющий загловок",
+  "menu-item.type.header-divider": "Разделяющий заголовок",
 
   "icon-select.title": "Выбор иконки",
   "icon-select.btn.upload-custom": "Загрузить",
@@ -1132,5 +1135,7 @@
   "icon-select.error.get-custom-icons": "Пользовательские иконки меню не получены",
   "icon-select.error.get-font-icons": "Шрифт-иконки не получены",
   "icon-select.error.upload-custom-icon": "Загузка иконки не удалась",
-  "icon-select.error.delete-custom-icon": "Удаление иконки не удалось"
+  "icon-select.error.delete-custom-icon": "Удаление иконки не удалось",
+
+  "go-to.home-page": "Перейти на домашнюю страницу"
 }
