@@ -1,5 +1,4 @@
 import get from 'lodash/get';
-import cloneDeep from 'lodash/cloneDeep';
 import { createSelector } from 'reselect';
 
 import { initialState } from '../reducers/dashboardSettings';
@@ -22,15 +21,9 @@ export const selectStateByKey = createSelector(
       requestResult: get(ownState, 'requestResult', {}),
       identification: get(ownState, 'identification', {}),
       dashboardKeyItems: get(ownState, 'dashboardKeys', []),
-      isDefaultConfig: !isExistValue(get(ownState, 'identification.user')),
-      selectedDesktopWidgets: [] // selectAllSelectedWidgets(layouts)
+      isDefaultConfig: !isExistValue(get(ownState, 'identification.user'))
     };
   }
-);
-
-export const selectAllSelectedWidgets = createSelector(
-  config => config,
-  config => DashboardService.getSelectedWidgetsByIdFromDesktopConfig(config)
 );
 
 export const selectNewVersionConfig = createSelector(

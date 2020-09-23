@@ -8,7 +8,6 @@ import { CONFIG_VERSION } from '../constants/dashboard';
 import { Layouts, LayoutTypes } from '../constants/layout';
 import Components from '../components/widgets/Components';
 import DashboardService from '../services/dashboard';
-import DashboardConverter from './dashboard';
 
 export default class DashboardSettingsConverter {
   static getSettingsForWeb(data = {}, widgetsById, version = CONFIG_VERSION) {

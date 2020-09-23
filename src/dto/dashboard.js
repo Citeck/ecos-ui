@@ -20,36 +20,6 @@ export default class DashboardConverter {
     return target;
   }
 
-  static getDashboardLayoutForWeb(source) {
-    const target = {};
-
-    if (!isEmpty(source)) {
-      target.id = source.id;
-      target.tab = source.tab || {};
-      target.type = source.type || '';
-      target.columns = source.columns || [];
-    }
-
-    return target;
-  }
-
-  static getDashboardForWeb(source) {
-    const target = [];
-
-    if (!isEmpty(source)) {
-      const { config } = source;
-      const layouts = get(config, ['layouts'], []);
-
-      DashboardService.movedToListLayout(config, layouts);
-
-      layouts.forEach(item => {
-        target.push(DashboardConverter.getDashboardLayoutForWeb(item));
-      });
-    }
-
-    return target;
-  }
-
   static getNewDashboardLayoutForWeb(source = {}, widgetsById) {
     const target = {};
     const eachColumn = column => {
@@ -113,7 +83,7 @@ export default class DashboardConverter {
     return target;
   }
 
-  static getNewDashboardForWeb(data = {}, widgetsById, version = CONFIG_VERSION) {
+  static getNewDashboardForWeb(data = {}, widgetsById) {
     const source = cloneDeep(data);
     let target = {};
 
@@ -122,29 +92,6 @@ export default class DashboardConverter {
         layouts: DashboardConverter.getDesktopConfigForWeb(source, widgetsById),
         mobile: DashboardConverter.getMobileConfigForWeb(source, widgetsById)
       };
-    }
-
-    return target;
-  }
-
-  static getMobileDashboardForWeb(source) {
-    const target = [];
-
-    if (!isEmpty(source)) {
-      const { config } = source;
-      const layouts = get(config, ['layouts'], []);
-
-      DashboardService.movedToListLayout(config, layouts);
-
-      let mobile = get(config, ['mobile']);
-
-      if (isEmpty(mobile)) {
-        mobile = DashboardService.generateMobileConfig(layouts);
-      }
-
-      mobile.forEach(item => {
-        target.push(DashboardConverter.getDashboardLayoutForWeb(item));
-      });
     }
 
     return target;

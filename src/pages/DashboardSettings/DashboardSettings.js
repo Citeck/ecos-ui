@@ -506,8 +506,7 @@ class DashboardSettings extends React.Component {
   };
 
   renderWidgetsBlock() {
-    const { selectedDesktopWidgets } = this.props;
-    const { availableWidgets, activeLayoutTabId, selectedWidgets, mobileSelectedWidgets, mobileActiveLayoutTabId } = this.state;
+    const { activeLayoutTabId, selectedWidgets, mobileSelectedWidgets, mobileActiveLayoutTabId } = this.state;
     const isMob = this.isSelectedMobileVer;
 
     const setData = (data, removedWidgets) => {

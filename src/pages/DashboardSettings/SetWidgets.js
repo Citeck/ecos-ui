@@ -209,7 +209,7 @@ class SetWidgets extends React.Component {
   }
 
   render() {
-    const { availableWidgets, isMobile } = this.props;
+    const { isMobile } = this.props;
 
     return (
       <>
