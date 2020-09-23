@@ -6,7 +6,8 @@
 .ecos-remove-dialog__body {
   font-weight: $font-weight-semi-bold;
   text-align: center;
-  word-break: break-word;
+  overflow: hidden;
+  word-wrap: break-word;
 }
 
 .ecos-remove-dialog__footer {
