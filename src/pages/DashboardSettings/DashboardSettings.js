@@ -456,8 +456,6 @@ class DashboardSettings extends React.Component {
 
           delete selectedWidgets[removedTab];
 
-          console.warn({ tab });
-
           tab.forEach(column => {
             column.forEach(widget => {
               removedWidgets.push(widget.id);

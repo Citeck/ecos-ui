@@ -129,7 +129,6 @@ export default class DashboardSettingsConverter {
 
     mobile.tabs.forEach(tab => {
       const { label, idLayout } = tab;
-      // const widgets = head(Components.setDefaultPropsOfWidgets(mobile.widgets[idLayout])) || [];
       const widgets = head(mobile.widgets[idLayout]) || [];
 
       target.push({

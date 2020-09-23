@@ -18,7 +18,7 @@ const initialState = {
     type: null,
     user: null
   },
-  originalConfig: [],
+  originalConfig: {},
   config: [],
   mobileConfig: [],
   titleInfo: {

@@ -25,11 +25,17 @@ export const selectDashboardConfig = createSelector(
       return config;
     }
 
-    const mobileConfig = get(state, 'mobileConfig', []);
-
-    console.warn('DashboardService', DashboardService.getSelectedWidgetsByIdFromDesktopConfig(config));
-
-    return mobileConfig;
+    return get(state, 'mobileConfig', []);
   },
   config => config
+);
+
+export const selectOriginalConfig = createSelector(
+  selectDashboardByKey,
+  ownState => get(ownState, 'originalConfig', {})
+);
+
+export const selectDashboardConfigVersion = createSelector(
+  state => get(state, 'originalConfig', {}),
+  config => get(config, 'version', null)
 );

@@ -7,6 +7,7 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
@@ -24,7 +25,7 @@ import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
 import DashboardService from '../../services/dashboard';
 import pageTabList from '../../services/pageTabs/PageTabList';
-import { selectDashboardByKey, selectDashboardConfig } from '../../selectors/dashboard';
+import { selectDashboardByKey, selectDashboardConfig, selectDashboardConfigVersion } from '../../selectors/dashboard';
 import PageService from '../../services/PageService';
 
 import './style.scss';
@@ -39,22 +40,22 @@ const mapStateToProps = (state, ownProps) => {
   const stateKey = getStateId(ownProps);
   const dashboardState = selectDashboardByKey(state, stateKey);
 
-  // console.warn(selectDashboardConfig(dashboardState, isMobile));
-
   return {
     stateKey,
     enableCache,
     config: selectDashboardConfig(dashboardState, isMobile),
-    isLoadingDashboard: get(dashboardState, ['isLoading']),
-    saveResultDashboard: get(dashboardState, ['requestResult'], {}),
+    isLoadingDashboard: get(dashboardState, 'isLoading'),
+    saveResultDashboard: get(dashboardState, 'requestResult', {}),
     isLoadingMenu: get(state, ['menu', 'isLoading']),
     saveResultMenu: get(state, ['menu', 'requestResult']),
     menuType: get(state, ['menu', 'type']),
     links: get(state, ['menu', 'links']),
     dashboardType: get(dashboardState, ['identification', 'type']),
     identificationId: get(dashboardState, ['identification', 'id'], null),
-    titleInfo: get(dashboardState, ['titleInfo'], {}),
-    isMobile
+    titleInfo: get(dashboardState, 'titleInfo', {}),
+    originalConfig: get(dashboardState, 'originalConfig', {}),
+    isMobile,
+    configVersion: selectDashboardConfigVersion(dashboardState)
   };
 };
 
@@ -306,6 +307,26 @@ class Dashboard extends Component {
   };
 
   handleSaveWidgetProps = (id, props = {}) => {
+    const { configVersion } = this.props;
+
+    if (configVersion) {
+      const originalConfig = cloneDeep(this.props.originalConfig);
+      const widgets = get(originalConfig, [configVersion, 'widgets'], []);
+      const widget = widgets.find(widget => widget.id === id);
+      const { recordRef } = this.getPathInfo();
+
+      if (widget) {
+        widget.props = {
+          ...widget.props,
+          ...props
+        };
+      }
+
+      this.saveDashboardConfig({ config: originalConfig, recordRef });
+
+      return;
+    }
+
     const activeLayout = deepClone(this.activeLayout, {});
     const columns = activeLayout.columns || [];
     const eachColumns = column => {

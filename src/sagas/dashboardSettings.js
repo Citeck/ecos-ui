@@ -165,7 +165,6 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     yield put(setLoading({ key: payload.key, status: false }));
     NotificationManager.error(t('dashboard-settings.error.save-config'), t('error'));
     logger.error('[dashboard-settings/ doSaveSettingsRequest saga] error', e.message);
-    console.trace(e);
   }
 }
 
