@@ -2,6 +2,7 @@
 @import '../../../styles/content';
 
 .ecos-tree {
+  $tree: &;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -101,9 +102,10 @@
         display: none;
       }
 
+      &:focus-within,
       &:hover {
         #{$element}-custom-components > :nth-child(n),
-        .ecos-tree__action {
+        #{$tree}__action {
           display: inline-block;
         }
       }
