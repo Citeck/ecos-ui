@@ -38,14 +38,19 @@ describe('Sidebar Service', () => {
         output: { noIcon: false, noBadge: true, isSeparator: false }
       },
       {
-        title: `Menu v0 - appearance for type ${ATypes.JOURNAL_LINK} level-1`,
-        input: { level: 1, item: { action: { type: ATypes.JOURNAL_LINK } } },
+        title: `Menu v0 - appearance for type ${ATypes.JOURNAL_LINK} level-2`,
+        input: { level: 2, item: { action: { type: ATypes.JOURNAL_LINK } } },
+        output: { noIcon: true, noBadge: true, isSeparator: false }
+      },
+      {
+        title: `Menu v0 - appearance for type ${ATypes.JOURNAL_LINK} journalId: 'active-tasks'`,
+        input: { level: 1, item: { action: { type: ATypes.JOURNAL_LINK }, params: { journalId: 'active-tasks' } } },
         output: { noIcon: false, noBadge: false, isSeparator: false }
       },
       {
-        title: `Menu v0 - appearance for type ${ATypes.JOURNAL_LINK} level-2`,
-        input: { level: 2, item: { action: { type: ATypes.JOURNAL_LINK } } },
-        output: { noIcon: true, noBadge: false, isSeparator: false }
+        title: `Menu v0 - appearance for type ${ATypes.JOURNAL_LINK} journalId: ''`,
+        input: { level: 1, item: { action: { type: ATypes.JOURNAL_LINK }, params: { journalId: '' } } },
+        output: { noIcon: false, noBadge: true, isSeparator: false }
       },
       //**************
       {
