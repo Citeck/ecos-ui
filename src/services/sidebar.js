@@ -8,8 +8,8 @@ import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
 import { MenuSettings } from '../constants/menu';
+import { ActionTypes, CountableItems } from '../constants/sidebar';
 import ULS from './userLocalSettings';
-import { ActionTypes } from '../constants/sidebar';
 
 export default class SidebarService {
   static DROPDOWN_LEVEL = 1;
@@ -57,12 +57,12 @@ export default class SidebarService {
     const knownType = Object.values(MITypes).includes(item.type);
     const knownActionType = Object.values(ATypes).includes(actionType);
 
+    const badgeV0 = knownActionType && [ATypes.JOURNAL_LINK].includes(actionType) && CountableItems.includes(get(item, 'params.journalId'));
+    const badgeV1 = knownType && [MITypes.JOURNAL].includes(item.type) && get(item, 'config.displayCount');
+
     const common = {
       noIcon: true,
-      noBadge: !(
-        (knownActionType && ![ATypes.CREATE_SITE].includes(actionType)) ||
-        (knownType && [MITypes.JOURNAL].includes(item.type) && get(item, 'config.displayCount'))
-      ),
+      noBadge: !(badgeV0 || badgeV1),
       isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(item.type)
     };
 

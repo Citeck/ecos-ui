@@ -11,11 +11,11 @@ import './style.scss';
 
 const menuApi = new MenuApi();
 
-function EcosIcon({ code, className, data, title, family, onClick }) {
+function EcosIcon({ code, className, data, title, family, onClick, id }) {
   const [remoteData, setRemoteData] = useState({});
   const { type, value, url } = remoteData || {};
   const commonClass = classNames('ecos-icon', className, { 'ecos-icon_button': onClick });
-  const commonProps = { title };
+  const commonProps = { title, id };
 
   const onError = () => {
     setRemoteData({});

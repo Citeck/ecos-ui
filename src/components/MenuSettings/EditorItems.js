@@ -131,7 +131,8 @@ class EditorItems extends React.Component {
       addJournalMenuItems({
         records,
         id: get(editItemInfo, 'item.id'),
-        type: get(editItemInfo, 'type.key')
+        type: get(editItemInfo, 'type.key'),
+        level: editItemInfo.level
       });
       handleHideModal();
     };

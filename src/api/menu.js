@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 
 import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
-import { ActionTypes } from '../constants/sidebar';
+import { ActionTypes, CountableItems } from '../constants/sidebar';
 import { PROXY_URI } from '../constants/alfresco';
 import { LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
 import Records from '../components/Records';
@@ -271,8 +271,8 @@ export class MenuApi extends CommonApi {
   };
 
   getJournalTotalCount = journalId => {
-    //TODO: move this to a menu config
-    if (journalId === 'active-tasks' || journalId === 'subordinate-tasks') {
+    //TODO: move this to a menu config / https://citeck.atlassian.net/browse/ECOSUI-101
+    if (CountableItems.includes(journalId)) {
       const url = `${PROXY_URI}api/journals/records/count?journal=${journalId}`;
       return this.getJson(url)
         .then(resp => resp.recordsCount)
@@ -280,9 +280,9 @@ export class MenuApi extends CommonApi {
           console.error(err);
           return 0;
         });
-    } else {
-      return Promise.resolve(0);
     }
+
+    return Promise.resolve(0);
   };
 
   getMenuConfig = (disabledCache = false) => {

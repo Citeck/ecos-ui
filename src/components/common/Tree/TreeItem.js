@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
+import isEqualWith from 'lodash/isEqualWith';
+import isEqual from 'lodash/isEqual';
 
-import { arrayCompare, extractLabel, t } from '../../../helpers/util';
+import { extractLabel, isExistValue, t } from '../../../helpers/util';
 import { EcosIcon, Icon, Tooltip } from '../../common';
 import { Badge, Checkbox } from '../../common/form';
 import { SortableElement, SortableHandle } from '../../Drag-n-Drop';
@@ -56,8 +58,8 @@ class TreeItem extends Component {
       nextState.isOpen !== isOpen ||
       nextProps.openAll !== openAll ||
       nextProps.isChild !== isChild ||
-      !arrayCompare(self, _self) ||
-      !arrayCompare(items, _items)
+      !isEqual(self, _self) ||
+      !isEqualWith(items, _items, isEqual)
     );
   }
 
@@ -210,9 +212,23 @@ class TreeItem extends Component {
             />
           )}
           {!!icon && (
-            <EcosIcon data={item.icon} className="ecos-tree__item-element-icon" onClick={() => onClickIcon && onClickIcon(item)} />
+            <Tooltip
+              className="ecos-tree__item-element-icon-tooltip"
+              target={targetId + '-icon'}
+              text={t('tree-component.tooltip.update-icon')}
+              off={!onClickIcon}
+              uncontrolled
+              autohide
+            >
+              <EcosIcon
+                id={targetId + '-icon'}
+                data={item.icon}
+                className="ecos-tree__item-element-icon"
+                onClick={() => onClickIcon && onClickIcon(item)}
+              />
+            </Tooltip>
           )}
-          {badge != null && <Badge text={String(badge)} className="ecos-tree__item-element-badge" />}
+          {isExistValue(badge) && <Badge text={badge} className="ecos-tree__item-element-badge" />}
           <Tooltip target={targetId} text={extractLabel(label)} showAsNeeded uncontrolled autohide>
             <div
               className={classNames('ecos-tree__item-element-label', {

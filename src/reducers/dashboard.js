@@ -7,7 +7,8 @@ import {
   setDashboardTitleInfo,
   setLoading,
   setMobileDashboardConfig,
-  setRequestResultDashboard
+  setRequestResultDashboard,
+  setWarningMessage
 } from '../actions/dashboard';
 
 const initialState = {
@@ -32,7 +33,8 @@ const initialState = {
     status: '',
     dashboardId: ''
   },
-  reset: false
+  reset: false,
+  warningMessage: ''
 };
 
 Object.freeze(initialState);
@@ -144,6 +146,16 @@ export default handleActions(
         [payload.key]: {
           ...state[payload.key],
           isLoading: payload.status
+        }
+      };
+    },
+
+    [setWarningMessage]: (state, { payload }) => {
+      return {
+        ...state,
+        [payload.key]: {
+          ...state[payload.key],
+          warningMessage: payload.message
         }
       };
     }

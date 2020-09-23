@@ -4,13 +4,12 @@ import { getCurrentUserName } from '../../helpers/util';
 const isCurrentUserInGroup = group => {
   const currentPersonName = getCurrentUserName();
 
-  return Records.queryOne(
-    {
-      query: `TYPE:"cm:authority" AND =cm:authorityName:"${group}"`,
-      language: 'fts-alfresco'
-    },
-    'cm:member[].cm:userName'
-  ).then(usernames => (usernames || []).includes(currentPersonName));
+  return Records.get('people@' + currentPersonName)
+    .load(`.att(n:"authorities"){has(n:"${group}")}`)
+    .catch(e => {
+      console.error(e);
+      return false;
+    });
 };
 
 const checkFunctionalAvailability = configKeyFromSysJournal => {
