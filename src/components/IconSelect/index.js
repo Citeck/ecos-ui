@@ -30,10 +30,10 @@ class IconSelect extends React.Component {
   };
 
   componentDidMount() {
-    const { getCustomIcons, getFontIcons, selectedIcon, prefixIcon, useFontIcons, family } = this.props;
+    const { getCustomIcons, getFontIcons, selectedIcon, prefixIcon, family, myFontIcons, myCustomIcons } = this.props;
 
-    getCustomIcons({ family });
-    useFontIcons && getFontIcons(prefixIcon);
+    isEmpty(myCustomIcons) && getCustomIcons({ family });
+    isEmpty(myFontIcons) && getFontIcons(prefixIcon);
 
     this.setState({ icon: selectedIcon });
   }
@@ -140,10 +140,12 @@ class IconSelect extends React.Component {
 IconSelect.propTypes = {
   className: PropTypes.string,
   family: PropTypes.string,
+  prefixIcon: PropTypes.string,
+  selectedIcon: PropTypes.object,
+  myCustomIcons: PropTypes.array,
+  myFontIcons: PropTypes.array,
   onClose: PropTypes.func,
-  onSave: PropTypes.func,
-  useFontIcons: PropTypes.bool,
-  prefixIcon: PropTypes.string
+  onSave: PropTypes.func
 };
 
 IconSelect.defaultProps = {
@@ -151,9 +153,9 @@ IconSelect.defaultProps = {
   customIcons: []
 };
 
-const mapStateToProps = state => ({
-  customIcons: get(state, 'iconSelect.customIcons', []),
-  fontIcons: get(state, 'iconSelect.fontIcons', []),
+const mapStateToProps = (state, props) => ({
+  customIcons: isEmpty(props.myCustomIcons) ? get(state, 'iconSelect.customIcons', []) : props.myCustomIcons,
+  fontIcons: isEmpty(props.myFontIcons) ? get(state, 'iconSelect.fontIcons', []) : props.myFontIcons,
   isLoading: get(state, 'iconSelect.isLoading', false)
 });
 

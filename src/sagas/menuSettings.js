@@ -17,6 +17,7 @@ import {
   setGroupPriority,
   setLastAddedItems,
   setLoading,
+  setMenuIcons,
   setMenuItems,
   setOpenMenuSettings
 } from '../actions/menuSettings';
@@ -48,8 +49,12 @@ function* fetchSettingsConfig({ api, logger }) {
     const { menu, authorities } = yield call(api.menu.getMenuSettingsConfig, { id });
     const items = MenuConverter.getMenuItemsWeb(get(menu, [keyType, 'items']) || []);
 
+    const _font = yield import('../fonts/citeck-leftmenu/selection.json');
+    const font = _font.icons.map(item => ({ value: `icon-${item.properties.name}`, type: 'icon' }));
+
     yield put(setMenuItems(items));
     yield put(setAuthorities(authorities));
+    yield put(setMenuIcons({ font }));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.get-config'), t('error'));
