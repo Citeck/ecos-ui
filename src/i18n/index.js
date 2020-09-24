@@ -33,6 +33,6 @@ export function i18nInit({ debug = false }) {
             [lng]: { translation }
           }
         })
-        .then(Promise.resolve);
+        .then(r => r);
     });
 }
