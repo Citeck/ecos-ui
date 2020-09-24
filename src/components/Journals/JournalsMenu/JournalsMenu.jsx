@@ -139,14 +139,14 @@ class ListItem extends Component {
             <IcoBtn
               title={t('journals.action.cancel-rename-tpl-msg')}
               icon={'icon-small-close'}
-              className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_red ecos-btn_hover_t_light-red ecos-btn_transparent ecos-journal-menu__cancel-btn`}
+              className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_red ecos-btn_hover_t_light-red ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_cancel`}
               onClick={this.cancelRenameMode}
             />
 
             <IcoBtn
               title={t('journals.action.rename-tpl-msg')}
               icon={'icon-small-check'}
-              className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_green ecos-btn_hover_t_light-green ecos-btn_transparent ecos-journal-menu__apply-btn`}
+              className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_green ecos-btn_hover_t_light-green ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_apply`}
               onClick={this.apply}
             />
           </Fragment>
@@ -164,13 +164,13 @@ class ListItem extends Component {
                 <IcoBtn
                   title={t('journals.action.rename-tpl-msg')}
                   icon={'icon-edit'}
-                  className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__edit-btn`}
+                  className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_edit`}
                   onClick={this.showRenameMode}
                 />
                 <IcoBtn
                   title={t('journals.action.remove-tpl-msg')}
                   icon={'icon-delete'}
-                  className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__delete-btn`}
+                  className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_delete`}
                   onClick={this.showDialog}
                 />
               </Fragment>

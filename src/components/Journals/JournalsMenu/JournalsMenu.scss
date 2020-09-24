@@ -48,28 +48,31 @@
   background: $color-white;
 }
 
-.ecos-journal-menu__delete-btn {
-  position: absolute;
-  right: 13px;
-  top: 10px;
-}
+.ecos-btn.ecos-journal-menu {
+  &__btn {
+    position: absolute;
+    line-height: 15px;
 
-.ecos-journal-menu__edit-btn {
-  position: absolute;
-  right: 39px;
-  top: 10px;
-}
+    &_delete {
+      right: 13px;
+      top: 10px;
+    }
 
-.ecos-journal-menu__cancel-btn {
-  position: absolute;
-  right: 12px;
-  top: 10px;
-}
+    &_edit {
+      right: 39px;
+      top: 10px;
+    }
 
-.ecos-journal-menu__apply-btn {
-  position: absolute;
-  right: 37px;
-  top: 10px;
+    &_cancel {
+      right: 12px;
+      top: 10px;
+    }
+
+    &_apply {
+      right: 37px;
+      top: 10px;
+    }
+  }
 }
 
 .ecos-journal-menu__list-item {
