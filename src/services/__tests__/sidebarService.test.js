@@ -30,63 +30,63 @@ describe('Sidebar Service', () => {
       {
         title: `Menu v0 - appearance for type ${ATypes.CREATE_SITE} level-0`,
         input: { level: 0, item: { action: { type: ATypes.CREATE_SITE } } },
-        output: { noIcon: true, noBadge: true, isSeparator: true }
+        output: { noIcon: true, noBadge: true, isSeparator: false, isClosedSeparator: true }
       },
       {
         title: `Menu v0 - appearance for type ${ATypes.CREATE_SITE} level-1`,
         input: { level: 1, item: { action: { type: ATypes.CREATE_SITE } } },
-        output: { noIcon: false, noBadge: true, isSeparator: false }
+        output: { noIcon: false, noBadge: true, isSeparator: false, isClosedSeparator: false }
       },
       {
         title: `Menu v0 - appearance for type ${ATypes.JOURNAL_LINK} level-2`,
         input: { level: 2, item: { action: { type: ATypes.JOURNAL_LINK } } },
-        output: { noIcon: true, noBadge: true, isSeparator: false }
+        output: { noIcon: true, noBadge: true, isSeparator: false, isClosedSeparator: false }
       },
       {
         title: `Menu v0 - appearance for type ${ATypes.JOURNAL_LINK} journalId: 'active-tasks'`,
         input: { level: 1, item: { action: { type: ATypes.JOURNAL_LINK }, params: { journalId: 'active-tasks' } } },
-        output: { noIcon: false, noBadge: false, isSeparator: false }
+        output: { noIcon: false, noBadge: false, isSeparator: false, isClosedSeparator: false }
       },
       {
         title: `Menu v0 - appearance for type ${ATypes.JOURNAL_LINK} journalId: ''`,
         input: { level: 1, item: { action: { type: ATypes.JOURNAL_LINK }, params: { journalId: '' } } },
-        output: { noIcon: false, noBadge: true, isSeparator: false }
+        output: { noIcon: false, noBadge: true, isSeparator: false, isClosedSeparator: false }
       },
       //**************
       {
         title: `Menu v1 - appearance for type ${MITypes.SECTION} level-0`,
         input: { level: 0, item: { type: MITypes.SECTION } },
-        output: { noIcon: true, noBadge: true, isSeparator: true }
+        output: { noIcon: true, noBadge: true, isSeparator: true, isClosedSeparator: true }
       },
       {
         title: `Menu v1 - appearance for type ${MITypes.SECTION} level-1`,
         input: { level: 1, item: { type: MITypes.SECTION } },
-        output: { noIcon: false, noBadge: true, isSeparator: true }
+        output: { noIcon: false, noBadge: true, isSeparator: true, isClosedSeparator: false }
       },
       {
         title: `Menu v1 - appearance for type ${MITypes.HEADER_DIVIDER} level-1`,
         input: { level: 1, item: { type: MITypes.HEADER_DIVIDER } },
-        output: { noIcon: true, noBadge: true, isSeparator: true }
+        output: { noIcon: true, noBadge: true, isSeparator: true, isClosedSeparator: false }
       },
       {
         title: `Menu v1 - appearance for type ${MITypes.JOURNAL} level-0`,
         input: { level: 0, item: { type: MITypes.JOURNAL, config: { displayCount: true } } },
-        output: { noIcon: true, noBadge: false, isSeparator: false }
+        output: { noIcon: true, noBadge: false, isSeparator: false, isClosedSeparator: false }
       },
       {
         title: `Menu v1 - appearance for type ${MITypes.JOURNAL} level-1`,
         input: { level: 1, item: { type: MITypes.JOURNAL, config: { displayCount: false } } },
-        output: { noIcon: false, noBadge: true, isSeparator: false }
+        output: { noIcon: false, noBadge: true, isSeparator: false, isClosedSeparator: false }
       },
       {
         title: `Menu v1 - appearance for type ${MITypes.JOURNAL} level-1`,
         input: { level: 1, item: { type: MITypes.JOURNAL, config: { displayCount: true } } },
-        output: { noIcon: false, noBadge: false, isSeparator: false }
+        output: { noIcon: false, noBadge: false, isSeparator: false, isClosedSeparator: false }
       },
       {
         title: `Menu v1 - appearance for type ${MITypes.LINK_CREATE_CASE} level-2`,
         input: { level: 2, item: { type: MITypes.LINK_CREATE_CASE } },
-        output: { noIcon: true, noBadge: true, isSeparator: false }
+        output: { noIcon: true, noBadge: true, isSeparator: false, isClosedSeparator: false }
       }
     ];
 
