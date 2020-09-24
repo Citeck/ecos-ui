@@ -15,7 +15,7 @@ const Labels = {
   BTN_MANAGE: 'menu-settings.editor-group-priority.btn.manage',
   MODAL_TITLE: 'menu-settings.editor-group-priority.title',
   MODAL_BTN_CANCEL: 'menu-settings.editor-group-priority.btn.cancel',
-  MODAL_BTN_APPLY: 'menu-settings.editor-group-priority.btn.done',
+  MODAL_BTN_APPLY: 'menu-settings.editor-group-priority.btn.apply',
   MODAL_BTN_EXPAND_ALL: 'menu-settings.editor-group-priority.btn.expand-all',
   MODAL_BTN_COLLAPSE_ALL: 'menu-settings.editor-group-priority.btn.collapse-all'
 };
