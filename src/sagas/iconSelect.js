@@ -27,11 +27,10 @@ function* fetchGetCustomIcons({ api, logger }, { payload: { family } }) {
 
 function* fetchGetFontIcons({ api, logger }, { payload: prefix }) {
   try {
-    const icons = yield import('../fonts/citeck/config.json')
-      .then(module => (module.glyphs || []).map(item => ({ value: `icon-${item.css}`, type: 'icon' })))
-      .then(icons => (prefix ? icons.filter(item => item.value.startsWith(prefix)) : icons));
+    const common = yield import('../fonts/citeck/config.json');
+    const icons = common.glyphs.map(item => ({ value: `icon-${item.css}`, type: 'icon' }));
 
-    yield put(setFontIcons(icons));
+    yield put(setFontIcons(prefix ? icons.filter(item => item.value.startsWith(prefix)) : icons));
   } catch (e) {
     NotificationManager.error(t('icon-select.error.get-font-icons'), t('error'));
     logger.error('[menu-settings / fetchGetFontIcons]', e.message);

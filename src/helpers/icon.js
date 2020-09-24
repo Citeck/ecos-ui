@@ -9,7 +9,7 @@ export function getIconObjectWeb(data) {
   if (isString(data)) {
     const [_source, _value] = data.split('@');
 
-    if (_value && _source) {
+    if (_source && _value && _value !== 'null') {
       icon.value = _value;
       icon.type = _source === SourcesId.ICON ? 'img' : 'icon';
     }
