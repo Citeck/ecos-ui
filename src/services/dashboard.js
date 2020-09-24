@@ -70,7 +70,7 @@ export default class DashboardService {
     };
   }
 
-  static getCacheKey({ type, user }) {
+  static getCacheKey({ type, user } = {}) {
     return `${type}|${user}`;
   }
 
@@ -132,7 +132,7 @@ export default class DashboardService {
     return mobile;
   }
 
-  static getWidgetsById(widgets) {
+  static getWidgetsById(widgets = []) {
     return widgets.reduce(
       (res, widget) => ({
         ...res,
