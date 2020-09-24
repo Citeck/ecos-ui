@@ -1102,7 +1102,7 @@
   "menu-settings.editor-group-priority.desc": "Глобальная настройка приоритетов конфигурации меню для пользователей, состоящих в нескольких группах. Перетаскивайте группы для изменения приоритета.",
   "menu-settings.editor-group-priority.btn.manage": "Управление",
   "menu-settings.editor-group-priority.btn.cancel": "Отмена",
-  "menu-settings.editor-group-priority.btn.done": "Готово",
+  "menu-settings.editor-group-priority.btn.apply": "Готово",
   "menu-settings.editor-group-priority.btn.expand-all": "Развернуть все",
   "menu-settings.editor-group-priority.btn.collapse-all": "Свернуть все",
   "menu-settings.error.no-id-config": "Идентификатор пользовательского меню отсутствует",
