@@ -29,7 +29,7 @@ const Labels = {
   MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit'
 };
 
-function EditorItemModal({ item, type, onClose, onSave, action, params }) {
+function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcons }) {
   const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
   const { hasUrl, hasIcon } = MenuSettingsService.getActionPermissions({ ...item, type: type.key }, params);
   const [label, setLabel] = useState({});
@@ -100,12 +100,11 @@ function EditorItemModal({ item, type, onClose, onSave, action, params }) {
           </div>
           {isOpenSelectIcon && (
             <IconSelect
-              prefixIcon="icon-leftmenu-"
               family="menu-items"
-              useFontIcons
               selectedIcon={icon}
               onClose={() => setOpenSelectIcon(false)}
               onSave={handleApplyIcon}
+              myFontIcons={fontIcons}
             />
           )}
         </Field>
@@ -122,6 +121,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params }) {
 }
 
 EditorItemModal.propTypes = {
+  fontIcons: PropTypes.array,
   type: PropTypes.object,
   item: PropTypes.object,
   onClose: PropTypes.func,

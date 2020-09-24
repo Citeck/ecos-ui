@@ -8,6 +8,7 @@ export const setMenuItems = createAction(prefix + 'SET_MENU_ITEMS');
 export const setLastAddedItems = createAction(prefix + 'SET_LAST_ADDED_ITEMS');
 export const setAuthorities = createAction(prefix + 'SET_AUTHORITIES');
 export const setGroupPriority = createAction(prefix + 'SET_GROUP_PRIORITY');
+export const setMenuIcons = createAction(prefix + 'SET_MENU_ICONS');
 export const removeSettings = createAction(prefix + 'REMOVE_SETTINGS');
 
 export const getSettingsConfig = createAction(prefix + 'GET_SETTINGS_CONFIG');

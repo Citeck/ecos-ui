@@ -12,6 +12,7 @@ import {
   setGroupPriority,
   setLastAddedItems,
   setLoading,
+  setMenuIcons,
   setMenuItems,
   setOpenMenuSettings
 } from '../actions/menuSettings';
@@ -24,7 +25,8 @@ const initialState = {
   isLoading: false,
   isLoadingPriority: false,
   isOpenMenuSettings: false,
-  lastAddedItems: []
+  lastAddedItems: [],
+  fontIcons: []
 };
 
 Object.freeze(initialState);
@@ -62,6 +64,11 @@ export default handleActions(
     [setAuthorities]: (state, { payload }) => ({
       ...state,
       authorities: payload
+    }),
+    [setMenuIcons]: (state, { payload }) => ({
+      ...state,
+      fontIcons: payload.font,
+      customIcons: payload.custom
     }),
     [getGroupPriority]: state => ({
       ...state,
