@@ -3,6 +3,7 @@ import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
+import { getCurrentUserName } from '../helpers/util';
 
 export const ROOT_ORGSTRUCT_GROUP = '_orgstruct_home_';
 
@@ -89,6 +90,38 @@ export class OrgStructApi extends RecordService {
         val: 'cm:person'
       }
     ];
+
+    const predicateNotDisabledAndAvailable = {
+      t: 'and',
+      val: [
+        {
+          t: 'not-eq',
+          att: 'ecos:isPersonDisabled',
+          val: 'true'
+        },
+        {
+          t: 'eq',
+          att: 'deputy:available',
+          val: 'true'
+        }
+      ]
+    };
+
+    const isHideForAll = Boolean(await Records.get('ecos-config@hide-disabled-users-for-everyone').load('.bool'));
+    if (isHideForAll) {
+      queryVal.push(predicateNotDisabledAndAvailable);
+    } else {
+      const showInactiveUserOnlyForAdmin = Boolean(
+        await Records.get('ecos-config@orgstruct-show-inactive-user-only-for-admin').load('.bool')
+      );
+      if (showInactiveUserOnlyForAdmin) {
+        const userName = getCurrentUserName();
+        const isAdmin = Boolean(await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool'));
+        if (!isAdmin) {
+          queryVal.push(predicateNotDisabledAndAvailable);
+        }
+      }
+    }
 
     if (searchText) {
       const searchFields = ['cm:userName', 'cm:firstName', 'cm:lastName'];
