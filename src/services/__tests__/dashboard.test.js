@@ -4,7 +4,6 @@ import DashboardService from '../dashboard';
 import pageTabList from '../pageTabs/PageTabList';
 import { t } from '../../helpers/util';
 import { LayoutTypes } from '../../constants/layout';
-import { SourcesId } from '../../constants';
 import {
   CONFIGS,
   FULL_DASHBOARD_ID,
