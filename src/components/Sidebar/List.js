@@ -22,7 +22,8 @@ class List extends React.Component {
     className: '',
     items: [],
     expandableItems: [],
-    level: 0
+    level: 0,
+    inDropdown: false
   };
 
   get boundariesElement() {
@@ -54,11 +55,11 @@ class List extends React.Component {
     const listItemKey = `${item.id}-${item.label}-${level}`;
     const hasSubItems = !!(item.items && item.items.length);
     const styleProps = SidebarService.getPropsStyleLevel({ level, item });
-    const isItemSeparator = !isOpen && styleProps.isSeparator;
+    const isClosedSeparator = !isOpen && styleProps.isClosedSeparator;
     const isItemExpanded = SidebarService.isExpanded(expandableItems, item.id);
     const isItemSelected = selectedId === item.id;
     const isChildSelected = !isOpen && level === SidebarService.DROPDOWN_LEVEL && SidebarService.isSelectedChild(expandableItems, item.id);
-    const isSubListExpanded = isItemSeparator || ((isOpen || inDropdown) && isItemExpanded);
+    const isSubListExpanded = isClosedSeparator || ((isOpen || inDropdown) && isItemExpanded);
 
     return (
       <React.Fragment key={listItemKey}>

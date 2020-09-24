@@ -63,14 +63,15 @@ export default class SidebarService {
     const common = {
       noIcon: true,
       noBadge: !(badgeV0 || badgeV1),
-      isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(item.type)
+      isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(item.type),
+      isClosedSeparator: false
     };
 
     const levels = {
       0: {
         ...common,
         noBadge: knownType ? common.noBadge : true,
-        isSeparator: knownType ? common.isSeparator : true
+        isClosedSeparator: knownType ? [MITypes.SECTION].includes(item.type) : true
       },
       1: {
         ...common,
