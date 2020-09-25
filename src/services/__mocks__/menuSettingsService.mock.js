@@ -187,7 +187,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasIcon: true,
     hasUrl: false,
     hideable: true,
-    removable: true
+    removable: true,
+    hideableLabel: false
   },
   [MenuSettings.ItemTypes.JOURNAL]: {
     draggable: true,
@@ -195,7 +196,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasIcon: true,
     hasUrl: false,
     hideable: true,
-    removable: true
+    removable: true,
+    hideableLabel: false
   },
   [MenuSettings.ItemTypes.ARBITRARY]: {
     draggable: true,
@@ -203,7 +205,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasIcon: true,
     hasUrl: true,
     hideable: true,
-    removable: true
+    removable: true,
+    hideableLabel: false
   },
   [MenuSettings.ItemTypes.LINK_CREATE_CASE]: {
     draggable: true,
@@ -211,7 +214,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasIcon: true,
     hasUrl: false,
     hideable: true,
-    removable: true
+    removable: true,
+    hideableLabel: false
   },
   [MenuSettings.ItemTypes.HEADER_DIVIDER]: {
     draggable: true,
@@ -219,7 +223,8 @@ export const PERMISSIONS_BY_TYPE = {
     hasIcon: false,
     hasUrl: false,
     hideable: true,
-    removable: true
+    removable: true,
+    hideableLabel: false
   }
 };
 
