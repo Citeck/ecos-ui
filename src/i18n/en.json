@@ -1088,6 +1088,7 @@
   "menu-settings.editor-items.action.count-on": "On counter",
   "menu-settings.editor-items.action.count-off": "Off counter",
   "menu-settings.editor-item.field.name.label": "Name",
+  "menu-settings.editor-item.field.hide-name.label": "Hide name",
   "menu-settings.editor-item.field.url.label": "URL",
   "menu-settings.editor-item.field.icon.label": "Icon",
   "menu-settings.editor-item.field.icon.btn.cancel": "Reset",

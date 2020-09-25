@@ -9,7 +9,7 @@ import { MenuSettings as MS } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import IconSelect from '../IconSelect';
 import { EcosIcon, EcosModal } from '../common';
-import { Input, MLText } from '../common/form';
+import { Checkbox, Input, MLText } from '../common/form';
 import { Btn } from '../common/btns';
 import { Field } from './Field';
 
@@ -17,6 +17,7 @@ import './style.scss';
 
 const Labels = {
   FIELD_NAME_LABEL: 'menu-settings.editor-item.field.name.label',
+  FIELD_HIDE_NAME_LABEL: 'menu-settings.editor-item.field.hide-name.label',
   FIELD_URL_LABEL: 'menu-settings.editor-item.field.url.label',
   FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',
@@ -31,10 +32,11 @@ const Labels = {
 
 function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcons }) {
   const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
-  const { hasUrl, hasIcon } = MenuSettingsService.getActionPermissions({ ...item, type: type.key }, params);
+  const { hasUrl, hasIcon, hideableName } = MenuSettingsService.getActionPermissions({ ...item, type: type.key }, params);
   const [label, setLabel] = useState({});
   const [url, setUrl] = useState('');
   const [icon, setIcon] = useState(defaultIcon);
+  const [hiddenName, setHiddenName] = useState(false);
   const [isOpenSelectIcon, setOpenSelectIcon] = useState(false);
 
   useEffect(() => {
@@ -42,6 +44,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
       setLabel(item.label);
       hasUrl && setUrl(get(item, 'config.url'));
       hasIcon && setIcon(item.icon);
+      hideableName && setHiddenName(get(item, 'config.hiddenName'));
     }
   }, [item]);
 
@@ -56,6 +59,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
     !get(item, 'type') && (data.type = type.key);
     hasUrl && set(data, 'config.url', url);
     hasIcon && (data.icon = icon);
+    hideableName && set(data, 'config.hiddenName', hiddenName);
 
     onSave(data);
   };
@@ -81,6 +85,11 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
       <Field label={t(Labels.FIELD_NAME_LABEL)} required>
         <MLText onChange={setLabel} value={label} />
       </Field>
+      {hideableName && (
+        <Checkbox checked={hiddenName} onChange={f => setHiddenName(f.checked)} className="ecos-checkbox_flex ecos-field-col">
+          {t(Labels.FIELD_HIDE_NAME_LABEL)}
+        </Checkbox>
+      )}
       {hasUrl && (
         <Field label={t(Labels.FIELD_URL_LABEL)} required>
           <Input onChange={e => setUrl(e.target.value)} value={url} />
