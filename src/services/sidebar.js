@@ -65,7 +65,7 @@ export default class SidebarService {
       noBadge: !(badgeV0 || badgeV1),
       isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(item.type),
       isClosedSeparator: false,
-      hiddenName: get(item, 'config.hiddenName')
+      hiddenLabel: get(item, 'config.hiddenLabel')
     };
 
     const levels = {

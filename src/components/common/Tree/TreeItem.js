@@ -27,7 +27,8 @@ class TreeItem extends Component {
     getActions: PropTypes.func,
     onClickAction: PropTypes.func,
     onClickIcon: PropTypes.func,
-    renderExtraComponents: PropTypes.func
+    renderExtraComponents: PropTypes.func,
+    convertItemProps: PropTypes.func
   };
 
   static defaultProps = {
@@ -141,6 +142,7 @@ class TreeItem extends Component {
       moveInLevel,
       moveInParent,
       renderExtraComponents,
+      convertItemProps,
       getActions
     } = this.props;
     const { isOpen } = this.state;
@@ -171,6 +173,7 @@ class TreeItem extends Component {
               moveInParent={moveInParent}
               parentKey={item.id}
               renderExtraComponents={renderExtraComponents}
+              convertItemProps={convertItemProps}
             />
           ))}
       </Collapse>
@@ -178,9 +181,21 @@ class TreeItem extends Component {
   };
 
   renderItem = (targetId, canDrag) => {
-    const { isChild, item, selectable, prefixClassName, level, isMajor, renderExtraComponents, onClickIcon, getActions } = this.props;
+    const {
+      isChild,
+      item,
+      selectable,
+      prefixClassName,
+      level,
+      isMajor,
+      renderExtraComponents,
+      onClickIcon,
+      getActions,
+      convertItemProps
+    } = this.props;
     const { isOpen } = this.state;
-    const { items, selected, locked, icon, label, actionConfig, badge } = item || {};
+    const _item = typeof convertItemProps === 'function' ? convertItemProps(item) : item || {};
+    const { items, selected, locked, icon, label, actionConfig, badge } = _item;
     const filteredActions = getActions ? getActions(item) : actionConfig;
 
     return (
