@@ -71,7 +71,7 @@ export default class SidebarService {
       0: {
         ...common,
         noBadge: knownType ? common.noBadge : true,
-        isClosedSeparator: [MITypes.SECTION, MITypes.HEADER_DIVIDER].includes(item.type)
+        isClosedSeparator: knownType ? [MITypes.SECTION, MITypes.HEADER_DIVIDER].includes(item.type) : true
       },
       1: {
         ...common,
