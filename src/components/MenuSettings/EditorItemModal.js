@@ -4,6 +4,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 
 import { extractLabel, packInLabel, t } from '../../helpers/util';
+import { decodeLink } from '../../helpers/urls';
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings as MS } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
@@ -19,6 +20,7 @@ const Labels = {
   FIELD_NAME_LABEL: 'menu-settings.editor-item.field.name.label',
   FIELD_HIDE_NAME_LABEL: 'menu-settings.editor-item.field.checkbox.hide-name',
   FIELD_URL_LABEL: 'menu-settings.editor-item.field.url.label',
+  FIELD_URL_DESC: 'menu-settings.editor-item.field.url.desc',
   FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',
   FIELD_ICON_BTN_SELECT: 'menu-settings.editor-item.field.icon.btn.select',
@@ -80,6 +82,8 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
       ? t(Labels.MODAL_TITLE_ADD, { type: t(type.label) })
       : t(Labels.MODAL_TITLE_EDIT, { type: t(type.label), name: extractLabel(item.label) });
 
+  const urlDesc = decodeLink(t(Labels.FIELD_URL_DESC, { origin: window.location.origin, pathname: window.location.pathname, value: url }));
+
   return (
     <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={title}>
       <Field label={t(Labels.FIELD_NAME_LABEL)} required>
@@ -93,7 +97,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
         </Field>
       )}
       {hasUrl && (
-        <Field label={t(Labels.FIELD_URL_LABEL)} required>
+        <Field label={t(Labels.FIELD_URL_LABEL)} required description={urlDesc}>
           <Input onChange={e => setUrl(e.target.value)} value={url} />
         </Field>
       )}
