@@ -67,7 +67,8 @@ class DocPreview extends Component {
     height: 'inherit',
     scale: DocScaleOptions.AUTO,
     firstPageNumber: 1,
-    fileName: ''
+    fileName: '',
+    scrollbarProps: {}
   };
 
   state = {};
