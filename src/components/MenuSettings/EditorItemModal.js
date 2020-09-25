@@ -4,7 +4,6 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 
 import { extractLabel, packInLabel, t } from '../../helpers/util';
-import { decodeLink } from '../../helpers/urls';
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings as MS } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
@@ -21,6 +20,9 @@ const Labels = {
   FIELD_HIDE_NAME_LABEL: 'menu-settings.editor-item.field.checkbox.hide-name',
   FIELD_URL_LABEL: 'menu-settings.editor-item.field.url.label',
   FIELD_URL_DESC: 'menu-settings.editor-item.field.url.desc',
+  FIELD_URL_RESULT_ABSOLUTE: 'menu-settings.editor-item.field.url.result-absolute',
+  FIELD_URL_RESULT_WITH_SLASH: 'menu-settings.editor-item.field.url.result-relative-with-slash',
+  FIELD_URL_RESULT_WITHOUT_SLASH: 'menu-settings.editor-item.field.url.result-relative-without-slash',
   FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',
   FIELD_ICON_BTN_SELECT: 'menu-settings.editor-item.field.icon.btn.select',
@@ -82,7 +84,12 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
       ? t(Labels.MODAL_TITLE_ADD, { type: t(type.label) })
       : t(Labels.MODAL_TITLE_EDIT, { type: t(type.label), name: extractLabel(item.label) });
 
-  const urlDesc = decodeLink(t(Labels.FIELD_URL_DESC, { origin: window.location.origin, pathname: window.location.pathname, value: url }));
+  const urlInfo = {
+    origin: window.location.origin,
+    pathname: window.location.pathname,
+    value: url,
+    interpolation: { escapeValue: false }
+  };
 
   return (
     <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={title}>
@@ -97,9 +104,21 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
         </Field>
       )}
       {hasUrl && (
-        <Field label={t(Labels.FIELD_URL_LABEL)} required description={urlDesc}>
-          <Input onChange={e => setUrl(e.target.value)} value={url} />
-        </Field>
+        <>
+          <Field label={t(Labels.FIELD_URL_LABEL)} required description={t(Labels.FIELD_URL_DESC, urlInfo)}>
+            <Input onChange={e => setUrl(e.target.value)} value={url} />
+          </Field>
+          <Field className="ecos-menu-editor-item__field-result">
+            {t(
+              url.startsWith('http')
+                ? Labels.FIELD_URL_RESULT_ABSOLUTE
+                : url.startsWith('/')
+                ? Labels.FIELD_URL_RESULT_WITH_SLASH
+                : Labels.FIELD_URL_RESULT_WITHOUT_SLASH,
+              urlInfo
+            )}
+          </Field>
+        </>
       )}
       {hasIcon && (
         <Field label={t(Labels.FIELD_ICON_LABEL)} description={t(Labels.FIELD_ICON_DESC)}>

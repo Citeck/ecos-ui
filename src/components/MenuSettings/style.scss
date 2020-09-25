@@ -240,6 +240,11 @@
         margin-left: 10px;
       }
     }
+
+    &-result {
+      font-size: $font-size-small;
+      font-weight: $font-weight-semi-bold;
+    }
   }
 
   &__buttons {
@@ -279,5 +284,6 @@
     color: $color-gray-5;
     margin-top: 15px;
     white-space: pre-wrap;
+    word-break: break-word;
   }
 }
