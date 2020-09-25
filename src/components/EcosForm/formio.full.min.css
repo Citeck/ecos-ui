@@ -4380,7 +4380,7 @@ dialog.fixed {
 }
 
 .field-required:after {
-  content: ' *';
+  content: '*';
   color: red;
 }
 
