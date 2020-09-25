@@ -111,13 +111,13 @@ export class OrgStructApi extends RecordService {
     if (isHideForAll) {
       queryVal.push(predicateNotDisabledAndAvailable);
     } else {
-      const showInactiveUserOnlyForAdmin = Boolean(
-        await Records.get('ecos-config@orgstruct-show-inactive-user-only-for-admin').load('.bool')
-      );
-      if (showInactiveUserOnlyForAdmin) {
-        const userName = getCurrentUserName();
-        const isAdmin = Boolean(await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool'));
-        if (!isAdmin) {
+      const userName = getCurrentUserName();
+      const isAdmin = Boolean(await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool'));
+      if (!isAdmin) {
+        const showInactiveUserOnlyForAdmin = Boolean(
+          await Records.get('ecos-config@orgstruct-show-inactive-user-only-for-admin').load('.bool')
+        );
+        if (showInactiveUserOnlyForAdmin) {
           queryVal.push(predicateNotDisabledAndAvailable);
         }
       }
