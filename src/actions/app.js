@@ -17,5 +17,6 @@ export const getFooter = createAction(prefix + 'GET_FOOTER');
 export const setFooter = createAction(prefix + 'SET_FOOTER');
 
 export const setRedirectToNewUi = createAction(prefix + 'SET_REDIRECT_TO_NEW_UI');
+export const setIsNewHomeLink = createAction(prefix + 'SET_IS_NEW_HOME_LINK');
 
 export const backPageFromTransitionsHistory = createAction(prefix + 'BACK_PAGE_FROM_TRANSITIONS_HISTORY');

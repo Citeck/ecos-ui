@@ -14,6 +14,7 @@ import {
   initAppSuccess,
   setDashboardEditable,
   setFooter,
+  setIsNewHomeLink,
   setLeftMenuEditable,
   setRedirectToNewUi
 } from '../actions/app';
@@ -28,6 +29,7 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
     let isAuthenticated = false;
     try {
       const checkAuthResp = yield call(api.user.checkIsAuthenticated);
+
       if (!checkAuthResp.success) {
         yield put(validateUserFailure());
       } else {
@@ -51,6 +53,10 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
 
         yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
       }
+
+      const isNewHomeLink = yield call(api.app.isNewHomeLink);
+
+      yield put(setIsNewHomeLink(isNewHomeLink));
     } catch (e) {
       yield put(validateUserFailure());
     }

@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
+import get from 'lodash/get';
 
 import {
   collapseAllItems,
@@ -13,7 +14,7 @@ import {
   toggleIsOpen
 } from '../../actions/slideMenu';
 import { isExistValue } from '../../helpers/util';
-import { SourcesId } from '../../constants';
+import { SourcesId, URL } from '../../constants';
 import Records from '../Records';
 import Logo from './Logo';
 import List from './List';
@@ -70,7 +71,7 @@ class Sidebar extends React.Component {
   };
 
   render() {
-    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items } = this.props;
+    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, isNewHomeLink } = this.props;
 
     if (!isReady) {
       return null;
@@ -83,7 +84,11 @@ class Sidebar extends React.Component {
         })}
       >
         <div className={classNames('ecos-sidebar-head', { 'ecos-sidebar-head_expanded': isOpen })}>
-          <Logo large={isOpen} logos={{ large: largeLogoSrc, small: smallLogoSrc }} />
+          <Logo
+            large={isOpen}
+            logos={{ large: largeLogoSrc, small: smallLogoSrc }}
+            link={isNewHomeLink ? URL.DASHBOARD : URL.OLD_DASHBOARD}
+          />
         </div>
         <Scrollbars
           style={{ height: '100%' }}
@@ -101,14 +106,15 @@ class Sidebar extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  idMenu: state.menu.id,
-  versionMenu: state.menu.version,
-  isOpen: state.slideMenu.isOpen,
-  isReady: state.slideMenu.isReady,
-  items: state.slideMenu.items || [],
-  smallLogoSrc: state.slideMenu.smallLogo,
-  largeLogoSrc: state.slideMenu.largeLogo,
-  expandableItems: state.slideMenu.expandableItems
+  idMenu: get(state, 'menu.id'),
+  versionMenu: get(state, 'menu.version'),
+  isOpen: get(state, 'slideMenu.isOpen'),
+  isReady: get(state, 'slideMenu.isReady'),
+  items: get(state, 'slideMenu.items', []),
+  smallLogoSrc: get(state, 'slideMenu.smallLogo'),
+  largeLogoSrc: get(state, 'slideMenu.largeLogo'),
+  expandableItems: get(state, 'slideMenu.expandableItems'),
+  isNewHomeLink: get(state, 'app.isNewHomeLink')
 });
 
 const mapDispatchToProps = dispatch => ({

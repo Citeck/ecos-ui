@@ -1,5 +1,13 @@
 import { handleActions } from 'redux-actions';
-import { initAppFailure, initAppSuccess, setDashboardEditable, setFooter, setLeftMenuEditable, setRedirectToNewUi } from '../actions/app';
+import {
+  initAppFailure,
+  initAppSuccess,
+  setDashboardEditable,
+  setFooter,
+  setLeftMenuEditable,
+  setRedirectToNewUi,
+  setIsNewHomeLink
+} from '../actions/app';
 
 const initialState = {
   isInit: false,
@@ -8,7 +16,8 @@ const initialState = {
   dashboardEditable: false,
   leftMenuEditable: false,
   footer: null,
-  redirectToNewUi: false
+  redirectToNewUi: false,
+  isNewHomeLink: false
 };
 
 Object.freeze(initialState);
@@ -50,6 +59,12 @@ export default handleActions(
       return {
         ...state,
         redirectToNewUi: action.payload
+      };
+    },
+    [setIsNewHomeLink]: (state, action) => {
+      return {
+        ...state,
+        isNewHomeLink: action.payload
       };
     }
   },
