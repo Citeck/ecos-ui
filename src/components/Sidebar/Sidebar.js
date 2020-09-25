@@ -12,6 +12,7 @@ import {
   setInitExpandableItems,
   toggleIsOpen
 } from '../../actions/slideMenu';
+import { isExistValue } from '../../helpers/util';
 import { SourcesId } from '../../constants';
 import Records from '../Records';
 import Logo from './Logo';
@@ -22,18 +23,29 @@ import './style.scss';
 class Sidebar extends React.Component {
   slideMenuToggle = null;
 
+  state = {
+    fetchItems: false
+  };
+
   componentDidMount() {
     this.props.fetchSmallLogoSrc();
     this.props.fetchLargeLogoSrc();
-    this.props.fetchSlideMenuItems();
     this.props.getSiteDashboardEnable();
 
     this.slideMenuToggle = document.getElementById('slide-menu-toggle');
     this.recordMenu = Records.get(`${SourcesId.MENU}@${this.props.idMenu}`);
-    this.updateWatcher = this.recordMenu.watch('subMenu{.json}', this.props.fetchSlideMenuItems);
+    this.updateWatcher = this.recordMenu.watch('subMenu{.json}', () => {
+      this.setState({ fetchItems: false });
+    });
 
     if (this.slideMenuToggle) {
       this.slideMenuToggle.addEventListener('click', this.toggleSlideMenu);
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (isExistValue(this.props.versionMenu) && !this.state.fetchItems) {
+      this.setState({ fetchItems: true }, this.props.fetchSlideMenuItems);
     }
   }
 
@@ -90,9 +102,10 @@ class Sidebar extends React.Component {
 
 const mapStateToProps = state => ({
   idMenu: state.menu.id,
+  versionMenu: state.menu.version,
   isOpen: state.slideMenu.isOpen,
   isReady: state.slideMenu.isReady,
-  items: state.slideMenu.items,
+  items: state.slideMenu.items || [],
   smallLogoSrc: state.slideMenu.smallLogo,
   largeLogoSrc: state.slideMenu.largeLogo,
   expandableItems: state.slideMenu.expandableItems

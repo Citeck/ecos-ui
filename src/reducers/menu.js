@@ -10,9 +10,9 @@ import {
 } from '../actions/menu';
 
 const initialState = {
-  type: '',
-  id: '',
-  version: '',
+  type: undefined,
+  id: undefined,
+  version: undefined,
   items: [],
   availableSoloItems: [],
   isLoading: false,
