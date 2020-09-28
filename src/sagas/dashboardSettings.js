@@ -24,6 +24,9 @@ import { RequestStatuses } from '../constants';
 import DashboardService from '../services/dashboard';
 import PageService from '../services/PageService';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
+import { CONFIG_VERSION } from '../constants/dashboard';
+import { selectNewVersionConfig, selectOriginalConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
+import DashboardConverter from '../dto/dashboard';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
@@ -38,11 +41,16 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
 
   try {
     if (dashboardId) {
-      const result = yield call(api.dashboard.getDashboardById, dashboardId, true);
+      const { config, ...result } = yield call(api.dashboard.getDashboardById, dashboardId, true);
+      const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
+      const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
+      const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
       const data = DashboardService.checkDashboardResult(result);
-      const webConfigs = DashboardSettingsConverter.getSettingsForWeb(data);
+      const webConfigs = DashboardSettingsConverter.getSettingsForWeb(newConfig, widgetsById, migratedConfig.version);
 
-      yield put(setDashboardConfig({ ...webConfigs, key }));
+      webConfigs.identification = DashboardConverter.getKeyInfoDashboardForWeb(data).identification;
+
+      yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config }));
       yield put(getAvailableWidgets({ type: data.type, key }));
       yield put(getDashboardKeys({ recordRef, key }));
     } else {
@@ -117,11 +125,6 @@ function* doCheckUpdatedSettings({ api, logger }, { payload }) {
 
 function* doSaveSettingsRequest({ api, logger }, { payload }) {
   try {
-    const serverConfig = {
-      layouts: DashboardSettingsConverter.getSettingsConfigForServer(payload),
-      mobile: DashboardSettingsConverter.getSettingsMobileConfigForServer(payload)
-    };
-    const { layouts, mobile } = serverConfig;
     const identification = yield select(selectIdentificationForSet, payload.key);
     const newIdentification = payload.newIdentification || {};
     const isAdmin = yield select(selectIsAdmin);
@@ -137,8 +140,13 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       identificationData.user = user;
     }
 
+    const originalConfig = yield select(state => selectOriginalConfig(state, payload.key));
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
-      config: { layouts, mobile },
+      config: {
+        ...originalConfig,
+        [CONFIG_VERSION]: DashboardSettingsConverter.getNewSettingsConfigForServer(payload),
+        version: CONFIG_VERSION
+      },
       identification: identificationData
     });
 

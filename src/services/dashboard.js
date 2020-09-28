@@ -1,8 +1,10 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 import uuid from 'uuidv4';
 
 import { SourcesId } from '../constants';
+import { CONFIG_VERSION } from '../constants/dashboard';
 import { LayoutTypes } from '../constants/layout';
 import { t } from '../helpers/util';
 import pageTabList from './pageTabs/PageTabList';
@@ -68,7 +70,7 @@ export default class DashboardService {
     };
   }
 
-  static getCacheKey({ type, user }) {
+  static getCacheKey({ type, user } = {}) {
     return `${type}|${user}`;
   }
 
@@ -103,7 +105,7 @@ export default class DashboardService {
     }
   }
 
-  static generateMobileConfig(source = []) {
+  static generateNewMobileConfig(source = []) {
     const mobile = [];
 
     source.forEach(layout => {
@@ -117,10 +119,10 @@ export default class DashboardService {
           {
             widgets: columns.reduce((result, current) => {
               if (Array.isArray(current)) {
-                return [...result, ...[].concat.apply([], current)];
+                return [...result, ...[].concat.apply([], current.map(item => get(item, 'widgets', [])))];
               }
 
-              return [...result, ...current.widgets];
+              return [...result, ...get(current, 'widgets', [])];
             }, [])
           }
         ]
@@ -128,5 +130,78 @@ export default class DashboardService {
     });
 
     return mobile;
+  }
+
+  static getWidgetsById(widgets = []) {
+    return widgets.reduce(
+      (res, widget) => ({
+        ...res,
+        [widget.id]: widget
+      }),
+      {}
+    );
+  }
+
+  static migrateConfigFromOldVersion(data) {
+    const source = cloneDeep(data);
+    const version = get(source, 'version');
+    const newVersionConfig = get(source, version, []);
+
+    if (version === CONFIG_VERSION && !isEmpty(newVersionConfig)) {
+      return source;
+    }
+
+    const getWidgetsFromColumn = (widget, column) => {
+      if (Array.isArray(widget)) {
+        return widget.map(widget => getWidgetsFromColumn(widget, column));
+      } else {
+        widgets.push(widget);
+        return widget.id;
+      }
+    };
+    const getWidgetFromLayout = column => {
+      if (Array.isArray(column)) {
+        return column.map((widget, index) => getWidgetFromLayout(widget, column[index]));
+      } else {
+        return {
+          ...column,
+          widgets: get(column, 'widgets', []).map(widget => getWidgetsFromColumn(widget, column))
+        };
+      }
+    };
+
+    let mobile = get(source, 'mobile', []);
+    let desktop = get(source, 'layouts', []);
+    const widgets = [];
+
+    if (isEmpty(desktop)) {
+      const layout = {};
+
+      layout.id = DashboardService.newIdLayout;
+      layout.tab = DashboardService.defaultDashboardTab(layout.id);
+
+      desktop = [layout];
+    }
+
+    desktop = desktop.map(layout => {
+      return {
+        ...layout,
+        columns: getWidgetFromLayout(get(layout, 'columns', []))
+      };
+    });
+
+    if (isEmpty(mobile)) {
+      mobile = DashboardService.generateNewMobileConfig(desktop);
+    }
+
+    return {
+      ...source,
+      version: CONFIG_VERSION,
+      [CONFIG_VERSION]: {
+        mobile,
+        desktop,
+        widgets
+      }
+    };
   }
 }

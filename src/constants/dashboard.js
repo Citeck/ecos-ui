@@ -15,3 +15,5 @@ export const DeviceTabs = [
     label: 'dashboard-settings.tabs.mobile'
   }
 ];
+
+export const CONFIG_VERSION = 'v2';

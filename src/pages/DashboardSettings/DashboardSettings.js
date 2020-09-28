@@ -7,6 +7,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
+import cloneDeep from 'lodash/cloneDeep';
 import find from 'lodash/find';
 
 import { clearCache } from '../../components/ReactRouterCache';
@@ -41,6 +42,7 @@ import SetLayouts from './SetLayouts';
 import SetWidgets from './SetWidgets';
 
 import './style.scss';
+import DashboardSettingsConverter from '../../dto/dashboardSettings';
 
 const getStateId = props => get(getSearchParams(), SearchKeys.DASHBOARD_ID, props.tabId || 'base');
 
@@ -335,6 +337,17 @@ class DashboardSettings extends React.Component {
     return find(DeviceTabs, ['key', 'mobile']).key === this.state.activeDeviceTabId;
   }
 
+  get availableWidgets() {
+    const { availableWidgets, selectedWidgets, tabs } = this.state;
+    const isMobile = this.isSelectedMobileVer;
+
+    if (!isMobile) {
+      return availableWidgets;
+    }
+
+    return DashboardSettingsConverter.getSelectedWidgetsFromDesktop(selectedWidgets, tabs);
+  }
+
   renderHeader() {
     let title = '';
 
@@ -418,11 +431,12 @@ class DashboardSettings extends React.Component {
     const isMob = this.isSelectedMobileVer;
     const state = {};
 
-    const setData = ({ tabs, activeTabKey }) => {
+    const setData = ({ tabs, activeTabKey, removedTab }) => {
       if (isMob) {
         if (!isEmpty(tabs)) {
           state.mobileTabs = tabs;
         }
+
         if (!isEmpty(activeTabKey)) {
           state.mobileActiveLayoutTabId = activeTabKey;
         }
@@ -430,8 +444,26 @@ class DashboardSettings extends React.Component {
         if (!isEmpty(tabs)) {
           state.tabs = tabs;
         }
+
         if (!isEmpty(activeTabKey)) {
           state.activeLayoutTabId = activeTabKey;
+        }
+
+        if (!isEmpty(removedTab)) {
+          const { removedWidgets } = this.state;
+          const selectedWidgets = cloneDeep(this.state.selectedWidgets);
+          const tab = selectedWidgets[removedTab];
+
+          delete selectedWidgets[removedTab];
+
+          tab.forEach(column => {
+            column.forEach(widget => {
+              removedWidgets.push(widget.id);
+            });
+          });
+
+          state.selectedWidgets = selectedWidgets;
+          state.removedWidgets = removedWidgets;
         }
       }
       this.setState(state);
@@ -461,8 +493,20 @@ class DashboardSettings extends React.Component {
     return <SetLayouts dashboardType={type} activeLayout={this.activeData.layout} setData={setData} isMobile={this.isSelectedMobileVer} />;
   }
 
+  handleRemoveMobileWidgets = (widgets = this.state.removedWidgets) => {
+    const { mobileSelectedWidgets } = this.state;
+
+    Object.keys(mobileSelectedWidgets).forEach(key => {
+      if (mobileSelectedWidgets[key].length) {
+        mobileSelectedWidgets[key][0] = mobileSelectedWidgets[key][0].filter(widget => !widgets.includes(widget.id));
+      }
+    });
+
+    this.setState({ mobileSelectedWidgets });
+  };
+
   renderWidgetsBlock() {
-    const { availableWidgets, activeLayoutTabId, selectedWidgets, mobileSelectedWidgets, mobileActiveLayoutTabId } = this.state;
+    const { activeLayoutTabId, selectedWidgets, mobileSelectedWidgets, mobileActiveLayoutTabId } = this.state;
     const isMob = this.isSelectedMobileVer;
 
     const setData = (data, removedWidgets) => {
@@ -476,12 +520,14 @@ class DashboardSettings extends React.Component {
 
       if (removedWidgets) {
         this.setState({ removedWidgets });
+
+        this.handleRemoveMobileWidgets(removedWidgets);
       }
     };
 
     return (
       <SetWidgets
-        availableWidgets={availableWidgets}
+        availableWidgets={this.availableWidgets}
         activeWidgets={this.activeData.widgets}
         columns={this.selectedTypeLayout.columns}
         setData={setData}

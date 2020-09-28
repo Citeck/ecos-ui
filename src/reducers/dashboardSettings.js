@@ -24,6 +24,7 @@ export const initialState = {
     type: null
   },
   config: [],
+  originalConfig: [],
   availableWidgets: [],
   dashboardKeys: [],
   isLoading: false,
@@ -67,13 +68,14 @@ export default handleActions(
     [resetConfigToDefault]: startLoading,
 
     [setDashboardConfig]: (state, { payload }) => {
-      const { identification, config, key } = payload;
+      const { identification, config, key, originalConfig } = payload;
 
       return {
         ...state,
         [key]: {
           ...state[key],
           config,
+          originalConfig,
           identification,
           isLoading: false
         }

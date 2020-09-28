@@ -1,4 +1,5 @@
 import { get } from 'lodash';
+import { createSelector } from 'reselect';
 
 import DashboardService from '../services/dashboard';
 import { initialState } from '../reducers/dashboard';
@@ -15,3 +16,26 @@ export const selectDashboardConfigs = state => {
     isMobile: get(state, 'view.isMobile', false)
   };
 };
+
+export const selectDashboardConfig = createSelector(
+  (state, isMobile) => {
+    const config = get(state, 'config', []);
+
+    if (!isMobile) {
+      return config;
+    }
+
+    return get(state, 'mobileConfig', []);
+  },
+  config => config
+);
+
+export const selectOriginalConfig = createSelector(
+  selectDashboardByKey,
+  ownState => get(ownState, 'originalConfig', {})
+);
+
+export const selectDashboardConfigVersion = createSelector(
+  state => get(state, 'originalConfig', {}),
+  config => get(config, 'version', null)
+);

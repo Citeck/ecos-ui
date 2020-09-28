@@ -19,6 +19,7 @@ const initialState = {
     type: null,
     user: null
   },
+  originalConfig: {},
   config: [],
   mobileConfig: [],
   titleInfo: {
@@ -67,7 +68,7 @@ export default handleActions(
         }
       };
     },
-    [setDashboardConfig]: (state, { payload: { key, config } }) => {
+    [setDashboardConfig]: (state, { payload: { key, config, originalConfig } }) => {
       const { id: _id, key: _key } = state[key].identification || {};
       const boards = {};
       const keys = Object.keys(state);
@@ -81,16 +82,27 @@ export default handleActions(
         }
       }
 
+      if (originalConfig) {
+        boards[key].originalConfig = originalConfig;
+      }
+
       return {
         ...state,
         ...boards
       };
     },
     [setMobileDashboardConfig]: (state, { payload }) => {
+      const extra = {};
+
+      if (payload.originalConfig) {
+        extra.originalConfig = payload.originalConfig;
+      }
+
       return {
         ...state,
         [payload.key]: {
           ...state[payload.key],
+          ...extra,
           mobileConfig: payload.config,
           isLoading: false
         }
