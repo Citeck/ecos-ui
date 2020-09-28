@@ -44,6 +44,10 @@ class EditorItems extends React.Component {
     }
   }
 
+  convertItemProps = item => {
+    return MenuSettingsService.convertItemForTree(item);
+  };
+
   getAvailableActions = item => {
     return MenuSettingsService.getActiveActions(item);
   };
@@ -264,6 +268,7 @@ class EditorItems extends React.Component {
             moveInParent
             onDragEnd={this.handleDragEnd}
             getActions={this.getAvailableActions}
+            convertItemProps={this.convertItemProps}
             onClickAction={this.handleActionItem}
             onClickIcon={this.handleClickIcon}
             renderExtraComponents={this.renderExtraComponents}

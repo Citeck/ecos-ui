@@ -41,6 +41,12 @@
     border: 0;
   }
 
+  &:disabled {
+    background: $color-gray-4;
+    border-color: $color-gray-6;
+    color: $text-color-gray;
+  }
+
   &[type='text'],
   &_hover {
     &:not(:disabled):hover {
