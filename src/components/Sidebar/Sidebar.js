@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
+import get from 'lodash/get';
 
 import {
   collapseAllItems,
@@ -72,7 +73,7 @@ class Sidebar extends React.Component {
   };
 
   render() {
-    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items } = this.props;
+    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, homeLink } = this.props;
 
     if (!isReady) {
       return null;
@@ -85,14 +86,14 @@ class Sidebar extends React.Component {
         })}
       >
         <div className={classNames('ecos-sidebar-head', { 'ecos-sidebar-head_expanded': isOpen })}>
-          <Logo large={isOpen} logos={{ large: largeLogoSrc, small: smallLogoSrc }} />
+          <Logo large={isOpen} logos={{ large: largeLogoSrc, small: smallLogoSrc }} link={homeLink} />
         </div>
         <Scrollbars
           style={{ height: '100%' }}
           className="ecos-sidebar-scroll"
           autoHide
           renderTrackVertical={props => <div {...props} className="ecos-sidebar-scroll-v" />}
-          renderTrackHorizontal={props => <div hidden />}
+          renderTrackHorizontal={() => <div hidden />}
           renderView={props => <div {...props} className="ecos-sidebar-scroll-area" />}
         >
           <List items={items} isExpanded />
@@ -103,14 +104,15 @@ class Sidebar extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  idMenu: state.menu.id,
-  versionMenu: state.menu.version,
-  isOpen: state.slideMenu.isOpen,
-  isReady: state.slideMenu.isReady,
-  items: state.slideMenu.items || [],
+  idMenu: get(state, 'menu.id'),
+  versionMenu: get(state, 'menu.version'),
+  isOpen: get(state, 'slideMenu.isOpen'),
+  isReady: get(state, 'slideMenu.isReady'),
+  items: get(state, 'slideMenu.items', []),
   smallLogoSrc: selectThemeImage(state, DefaultImages.MENU_LEFT_LOGO_SMALL),
   largeLogoSrc: selectThemeImage(state, DefaultImages.MENU_LEFT_LOGO_LARGE),
-  expandableItems: state.slideMenu.expandableItems
+  expandableItems: get(state, 'slideMenu.expandableItems'),
+  homeLink: get(state, 'app.homeLink')
 });
 
 const mapDispatchToProps = dispatch => ({
