@@ -150,16 +150,20 @@ export class AppApi extends CommonApi {
       });
   }
 
-  isNewHomeLink() {
+  getHomeLink() {
     return Records.get('uiserv/config@home-link-url')
       .load('value?str')
       .then(link => {
-        return link !== URL.OLD_DASHBOARD;
+        if (link === null || link === '') {
+          return URL.DASHBOARD;
+        }
+
+        return link;
       })
       .catch(e => {
         console.error(e);
 
-        return true;
+        return URL.DASHBOARD;
       });
   }
 }

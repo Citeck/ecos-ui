@@ -14,7 +14,7 @@ import {
   toggleIsOpen
 } from '../../actions/slideMenu';
 import { isExistValue } from '../../helpers/util';
-import { SourcesId, URL } from '../../constants';
+import { SourcesId } from '../../constants';
 import Records from '../Records';
 import Logo from './Logo';
 import List from './List';
@@ -71,7 +71,7 @@ class Sidebar extends React.Component {
   };
 
   render() {
-    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, isNewHomeLink } = this.props;
+    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, homeLink } = this.props;
 
     if (!isReady) {
       return null;
@@ -84,18 +84,14 @@ class Sidebar extends React.Component {
         })}
       >
         <div className={classNames('ecos-sidebar-head', { 'ecos-sidebar-head_expanded': isOpen })}>
-          <Logo
-            large={isOpen}
-            logos={{ large: largeLogoSrc, small: smallLogoSrc }}
-            link={isNewHomeLink ? URL.DASHBOARD : URL.OLD_DASHBOARD}
-          />
+          <Logo large={isOpen} logos={{ large: largeLogoSrc, small: smallLogoSrc }} link={homeLink} />
         </div>
         <Scrollbars
           style={{ height: '100%' }}
           className="ecos-sidebar-scroll"
           autoHide
           renderTrackVertical={props => <div {...props} className="ecos-sidebar-scroll-v" />}
-          renderTrackHorizontal={props => <div hidden />}
+          renderTrackHorizontal={() => <div hidden />}
           renderView={props => <div {...props} className="ecos-sidebar-scroll-area" />}
         >
           <List items={items} isExpanded />
@@ -114,7 +110,7 @@ const mapStateToProps = state => ({
   smallLogoSrc: get(state, 'slideMenu.smallLogo'),
   largeLogoSrc: get(state, 'slideMenu.largeLogo'),
   expandableItems: get(state, 'slideMenu.expandableItems'),
-  isNewHomeLink: get(state, 'app.isNewHomeLink')
+  homeLink: get(state, 'app.homeLink')
 });
 
 const mapDispatchToProps = dispatch => ({
