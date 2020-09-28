@@ -149,7 +149,13 @@ describe('Menu Settings Service', () => {
   describe('Method getActionPermissions', () => {
     const data = [
       {
-        title: `Type ${ms.ItemTypes.SECTION} has all permissions`,
+        title: `Type ${ms.ItemTypes.SECTION} no icon `,
+        input: { type: ms.ItemTypes.SECTION },
+        output: { ...PERMISSIONS_BY_TYPE[ms.ItemTypes.SECTION], hasIcon: false, hideableLabel: true },
+        params: { level: 0 }
+      },
+      {
+        title: `Type ${ms.ItemTypes.SECTION} no hideable label`,
         input: { type: ms.ItemTypes.SECTION },
         output: PERMISSIONS_BY_TYPE[ms.ItemTypes.SECTION],
         params: { level: 1 }

@@ -1,4 +1,4 @@
-export { default as CollapsibleList } from './CollapsibleList/CollapsibleList';
+export { default as CollapsableList } from './CollapsableList/CollapsableList';
 export { default as DropdownMenu } from './DropdownMenu';
 export { default as EcosModal } from './EcosModal';
 export { default as Icon } from './icons/Icon/Icon';

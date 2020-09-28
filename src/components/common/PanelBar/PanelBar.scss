@@ -3,12 +3,6 @@
 .panel-bar {
   background: $color-white;
   border-radius: $border-radius-extra-large;
-
-  &_open {
-    .panel-bar__header-label::before {
-      transform: rotate(225deg);
-    }
-  }
 }
 
 .panel-bar__header {
@@ -55,7 +49,7 @@
     height: 6px;
     margin: auto;
     position: absolute;
-    transform: rotate(135deg);
+    transform: rotate(225deg);
     top: 13px;
     left: 16px;
     transition: transform 0.1s, right 0.1s;

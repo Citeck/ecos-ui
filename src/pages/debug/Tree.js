@@ -5,7 +5,6 @@ import { deepClone } from '../../helpers/util';
 import { treeMoveItem, treeSetDndIndex } from '../../helpers/arrayOfObjects';
 import { toGeneratorTree } from '../../helpers/dataGenerators';
 import { Btn, IcoBtn } from '../../components/common/btns';
-import { MLText, MLTextarea } from '../../components/common/form';
 
 const _actions = [
   {
@@ -43,9 +42,7 @@ function findItem(items, id) {
 
 export default class extends React.Component {
   state = {
-    items: treeSetDndIndex(_items),
-    text: { en: '', ru: '' },
-    textarea: { en: '', ru: '' }
+    items: treeSetDndIndex(_items)
   };
 
   onClickActionItem = ({ action, item }) => {
@@ -96,12 +93,6 @@ export default class extends React.Component {
 
     return (
       <div>
-        <div style={{ padding: '10px 15px' }}>
-          <MLText lang="ru" style={{ width: '200px' }} value={this.state.text} onChange={text => this.setState({ text })} />
-
-          <MLTextarea lang="ru" style={{ width: '200px' }} value={this.state.textarea} onChange={textarea => this.setState({ textarea })} />
-        </div>
-
         <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
           {openAllMenuItems ? 'Свернуть все' : 'Развернуть все'}
         </Btn>

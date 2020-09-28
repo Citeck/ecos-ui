@@ -192,6 +192,8 @@ const dialogsById = {
         <div className="ecos-dialog__buttons">
           {buttons.map(b => (
             <Btn
+              className={b.className}
+              key={b.key || b.label}
               onClick={() => {
                 b.onClick();
                 hideModal();
@@ -324,7 +326,7 @@ const showDialog = (id, props) => {
     dialog.setProps(props);
   }
 
-  dialog.setVisible(true);
+  dialog.setVisible(props.isVisible === undefined ? true : props.isVisible);
 
   return dialog;
 };

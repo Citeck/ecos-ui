@@ -1,4 +1,5 @@
 import * as queryString from 'query-string';
+import { NotificationManager } from 'react-notifications';
 
 import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch from '../helpers/ecosFetch';
@@ -7,6 +8,7 @@ import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
+import { t } from '../helpers/export/util';
 
 export class AppApi extends CommonApi {
   getEcosConfig = configName => {
@@ -106,5 +108,45 @@ export class AppApi extends CommonApi {
       .load('.bool')
       .then(res => res === true)
       .catch(() => false);
+  }
+
+  recordIsExist(recordRef, showNotification = false) {
+    return Records.get(recordRef)
+      .load('_notExists?bool')
+      .then(status => {
+        if (status === null) {
+          return true;
+        }
+
+        return !status;
+      })
+      .catch(e => {
+        if (showNotification) {
+          NotificationManager.error(t('page.error-loading.message'), t('page.error-loading.title'));
+        }
+
+        console.error(e);
+        return false;
+      });
+  }
+
+  hasRecordReadPermission(recordRef, showNotification = false) {
+    return Records.get(recordRef)
+      .load('.att(n:"permissions"){has(n:"Read")}')
+      .then(status => {
+        if (status === null) {
+          return true;
+        }
+
+        return status;
+      })
+      .catch(e => {
+        if (showNotification) {
+          NotificationManager.error(t('page.error-loading.message'), t('page.error-loading.title'));
+        }
+
+        console.error(e);
+        return false;
+      });
   }
 }

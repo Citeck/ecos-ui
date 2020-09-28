@@ -1,3 +1,7 @@
+export const getTitleFormatter = module => {
+  return (action, time, took) => `${module} >>> action @ ${action.type}`;
+};
+
 export const handleState = (state, stateId, payload) =>
   stateId
     ? {

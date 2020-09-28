@@ -14,6 +14,10 @@
   "page.error-loading.message": "Try reloading the page. If the error persists, contact your administrator",
   "page.error-loading.log": "Error log",
 
+  "record.permission-denied.message": "You do not have sufficient rights to view this document. Contact your administrator.",
+
+  "record.not-found.message": "The document was deleted or not yet created.",
+
   "bpmn-card.go-back-to-list-button.text": "Back to list",
   "bpmn-card.open-editor-button.text": "Visual Editor",
   "bpmn-designer.add-category": "Create category",
@@ -340,6 +344,7 @@
   "export-component.notice.buffer-link-preparation": "Wait while preparing a sample link",
 
   "tree-component.tooltip.cannot-be-changes": "Cannot change state",
+  "tree-component.tooltip.update-icon": "Update icon",
   "tree-component.empty": "Nothing found",
 
   "filter-list.add-criterion": "Add criterion",
@@ -567,7 +572,7 @@
   "journals.action.remove-filter-group-msg": "Remove filter group?",
   "journals.action.remove-filter-msg": "Remove filter?",
   "journals.action.remove-records-msg": "Do you really want to delete records?",
-  "journals.action.remove-tpl-msg": "Remove template \"{{name}}\"?",
+  "journals.action.remove-tpl-msg": "Remove template",
   "journals.action.rename-tpl-msg": "Rename template",
   "journals.action.reset": "Reset",
   "journals.action.reset-settings": "Reset settings",
@@ -1060,6 +1065,7 @@
 
   "menu.error.get-config": "Menu configuration hasn't received",
   "menu.error.save-config": "Menu configuration hasn't saved",
+  "menu.label.no-name": "No name",
 
   "menu-settings.header.title": "Menu Settings",
   "menu-settings.button.cancel": "Cancel",
@@ -1087,7 +1093,12 @@
   "menu-settings.editor-items.action.count-on": "On counter",
   "menu-settings.editor-items.action.count-off": "Off counter",
   "menu-settings.editor-item.field.name.label": "Name",
+  "menu-settings.editor-item.field.checkbox.hide-name": "Hide name",
   "menu-settings.editor-item.field.url.label": "URL",
+  "menu-settings.editor-item.field.url.desc": "URL is formed by one of ways:\n• Absolute URL - value starts with \"http://\" or \"https://\", opens in a new tab\n• Relative URL - if it starts with \"/\", output {{origin}}/{{value}}\n• Relative URL if it doesn't start with \"/\", output {{origin}}/{{pathname}}{{value}}",
+  "menu-settings.editor-item.field.url.result-absolute": "Result: {{value}}",
+  "menu-settings.editor-item.field.url.result-relative-with-slash": "Result: {{origin}}{{value}}",
+  "menu-settings.editor-item.field.url.result-relative-without-slash": "Result: {{origin}}{{pathname}}{{value}}",
   "menu-settings.editor-item.field.icon.label": "Icon",
   "menu-settings.editor-item.field.icon.btn.cancel": "Reset",
   "menu-settings.editor-item.field.icon.btn.select": "Select",
@@ -1134,5 +1145,7 @@
   "icon-select.error.get-custom-icons": "Customs menu icons haven't received",
   "icon-select.error.get-font-icons": "Font menu icons haven't received",
   "icon-select.error.upload-custom-icon": "Custom icon hasn't uploaded",
-  "icon-select.error.delete-custom-icon": "Custom icon hasn't deleted"
+  "icon-select.error.delete-custom-icon": "Custom icon hasn't deleted",
+
+  "go-to.home-page": "Go to home page"
 }

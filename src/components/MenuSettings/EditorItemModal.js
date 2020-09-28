@@ -9,7 +9,7 @@ import { MenuSettings as MS } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import IconSelect from '../IconSelect';
 import { EcosIcon, EcosModal } from '../common';
-import { Input, MLText } from '../common/form';
+import { Checkbox, Input, MLText } from '../common/form';
 import { Btn } from '../common/btns';
 import { Field } from './Field';
 
@@ -17,7 +17,12 @@ import './style.scss';
 
 const Labels = {
   FIELD_NAME_LABEL: 'menu-settings.editor-item.field.name.label',
+  FIELD_HIDE_NAME_LABEL: 'menu-settings.editor-item.field.checkbox.hide-name',
   FIELD_URL_LABEL: 'menu-settings.editor-item.field.url.label',
+  FIELD_URL_DESC: 'menu-settings.editor-item.field.url.desc',
+  FIELD_URL_RESULT_ABSOLUTE: 'menu-settings.editor-item.field.url.result-absolute',
+  FIELD_URL_RESULT_WITH_SLASH: 'menu-settings.editor-item.field.url.result-relative-with-slash',
+  FIELD_URL_RESULT_WITHOUT_SLASH: 'menu-settings.editor-item.field.url.result-relative-without-slash',
   FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',
   FIELD_ICON_BTN_SELECT: 'menu-settings.editor-item.field.icon.btn.select',
@@ -29,12 +34,13 @@ const Labels = {
   MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit'
 };
 
-function EditorItemModal({ item, type, onClose, onSave, action, params }) {
+function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcons }) {
   const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
-  const { hasUrl, hasIcon } = MenuSettingsService.getActionPermissions({ ...item, type: type.key }, params);
+  const { hasUrl, hasIcon, hideableLabel } = MenuSettingsService.getActionPermissions({ ...item, type: type.key }, params);
   const [label, setLabel] = useState({});
   const [url, setUrl] = useState('');
   const [icon, setIcon] = useState(defaultIcon);
+  const [hiddenLabel, setHiddenLabel] = useState(false);
   const [isOpenSelectIcon, setOpenSelectIcon] = useState(false);
 
   useEffect(() => {
@@ -42,6 +48,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params }) {
       setLabel(item.label);
       hasUrl && setUrl(get(item, 'config.url'));
       hasIcon && setIcon(item.icon);
+      hideableLabel && setHiddenLabel(get(item, 'config.hiddenLabel'));
     }
   }, [item]);
 
@@ -56,6 +63,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params }) {
     !get(item, 'type') && (data.type = type.key);
     hasUrl && set(data, 'config.url', url);
     hasIcon && (data.icon = icon);
+    hideableLabel && set(data, 'config.hiddenLabel', hiddenLabel);
 
     onSave(data);
   };
@@ -76,15 +84,41 @@ function EditorItemModal({ item, type, onClose, onSave, action, params }) {
       ? t(Labels.MODAL_TITLE_ADD, { type: t(type.label) })
       : t(Labels.MODAL_TITLE_EDIT, { type: t(type.label), name: extractLabel(item.label) });
 
+  const urlInfo = {
+    origin: window.location.origin,
+    pathname: window.location.pathname,
+    value: url,
+    interpolation: { escapeValue: false }
+  };
+
   return (
     <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={title}>
       <Field label={t(Labels.FIELD_NAME_LABEL)} required>
-        <MLText onChange={setLabel} value={label} />
+        <MLText onChange={setLabel} value={label} disabled={hiddenLabel} />
       </Field>
-      {hasUrl && (
-        <Field label={t(Labels.FIELD_URL_LABEL)} required>
-          <Input onChange={e => setUrl(e.target.value)} value={url} />
+      {hideableLabel && (
+        <Field>
+          <Checkbox checked={hiddenLabel} onChange={f => setHiddenLabel(f.checked)} className="ecos-checkbox_flex">
+            {t(Labels.FIELD_HIDE_NAME_LABEL)}
+          </Checkbox>
         </Field>
+      )}
+      {hasUrl && (
+        <>
+          <Field label={t(Labels.FIELD_URL_LABEL)} required description={t(Labels.FIELD_URL_DESC, urlInfo)}>
+            <Input onChange={e => setUrl(e.target.value)} value={url} />
+          </Field>
+          <Field className="ecos-menu-editor-item__field-result">
+            {t(
+              url.startsWith('http')
+                ? Labels.FIELD_URL_RESULT_ABSOLUTE
+                : url.startsWith('/')
+                ? Labels.FIELD_URL_RESULT_WITH_SLASH
+                : Labels.FIELD_URL_RESULT_WITHOUT_SLASH,
+              urlInfo
+            )}
+          </Field>
+        </>
       )}
       {hasIcon && (
         <Field label={t(Labels.FIELD_ICON_LABEL)} description={t(Labels.FIELD_ICON_DESC)}>
@@ -100,12 +134,11 @@ function EditorItemModal({ item, type, onClose, onSave, action, params }) {
           </div>
           {isOpenSelectIcon && (
             <IconSelect
-              prefixIcon="icon-leftmenu-"
               family="menu-items"
-              useFontIcons
               selectedIcon={icon}
               onClose={() => setOpenSelectIcon(false)}
               onSave={handleApplyIcon}
+              myFontIcons={fontIcons}
             />
           )}
         </Field>
@@ -122,6 +155,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params }) {
 }
 
 EditorItemModal.propTypes = {
+  fontIcons: PropTypes.array,
   type: PropTypes.object,
   item: PropTypes.object,
   onClose: PropTypes.func,

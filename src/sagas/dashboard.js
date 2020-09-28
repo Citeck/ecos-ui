@@ -14,7 +14,8 @@ import {
   setDashboardTitleInfo,
   setLoading,
   setMobileDashboardConfig,
-  setRequestResultDashboard
+  setRequestResultDashboard,
+  setWarningMessage
 } from '../actions/dashboard';
 import { setDashboardConfig as setDashboardSettingsConfig } from '../actions/dashboardSettings';
 import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
@@ -30,6 +31,24 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
     if (redirect) {
       PageService.changeUrlLink(createOldVersionUrlDocument(recordRef), { reopenBrowserTab: true });
+      return;
+    }
+
+    const recordIsExist = yield call(api.app.recordIsExist, recordRef, true);
+
+    if (!recordIsExist) {
+      yield put(setWarningMessage({ key: payload.key, message: t('record.not-found.message') }));
+      yield put(setLoading({ key: payload.key, status: false }));
+
+      return;
+    }
+
+    const hasRecordReadPermission = yield call(api.app.hasRecordReadPermission, recordRef, true);
+
+    if (!hasRecordReadPermission) {
+      yield put(setWarningMessage({ key: payload.key, message: t('record.permission-denied.message') }));
+      yield put(setLoading({ key: payload.key, status: false }));
+
       return;
     }
 

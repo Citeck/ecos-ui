@@ -172,9 +172,8 @@ class Item extends React.Component {
       isExpanded,
       isSelected,
       inDropdown,
-      styleProps: { noIcon, isSeparator }
+      styleProps: { noIcon, isSeparator, isClosedSeparator, hiddenLabel }
     } = this.props;
-    const itemSeparator = !isOpen && isSeparator;
     const events = {};
 
     if (isOpen || inDropdown) {
@@ -190,7 +189,8 @@ class Item extends React.Component {
           'ecos-sidebar-item_nested-expanded': isExpanded && this.hasSubItems,
           'ecos-sidebar-item_selected': !isSeparator && isSelected,
           'ecos-sidebar-item_title-separator': isSeparator,
-          'ecos-sidebar-item_separator': itemSeparator
+          'ecos-sidebar-item_line-separator': !isOpen && isClosedSeparator,
+          'ecos-sidebar-item_hidden': hiddenLabel
         })}
         title={!isOpen && !noIcon ? get(data, 'label', '') : ''}
         {...events}

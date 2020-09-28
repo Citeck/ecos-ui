@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
+import isEqualWith from 'lodash/isEqualWith';
+import isEqual from 'lodash/isEqual';
 
-import { arrayCompare, extractLabel, t } from '../../../helpers/util';
+import { extractLabel, isExistValue, t } from '../../../helpers/util';
 import { EcosIcon, Icon, Tooltip } from '../../common';
 import { Badge, Checkbox } from '../../common/form';
 import { SortableElement, SortableHandle } from '../../Drag-n-Drop';
@@ -25,7 +27,8 @@ class TreeItem extends Component {
     getActions: PropTypes.func,
     onClickAction: PropTypes.func,
     onClickIcon: PropTypes.func,
-    renderExtraComponents: PropTypes.func
+    renderExtraComponents: PropTypes.func,
+    convertItemProps: PropTypes.func
   };
 
   static defaultProps = {
@@ -56,8 +59,8 @@ class TreeItem extends Component {
       nextState.isOpen !== isOpen ||
       nextProps.openAll !== openAll ||
       nextProps.isChild !== isChild ||
-      !arrayCompare(self, _self) ||
-      !arrayCompare(items, _items)
+      !isEqual(self, _self) ||
+      !isEqualWith(items, _items, isEqual)
     );
   }
 
@@ -139,6 +142,7 @@ class TreeItem extends Component {
       moveInLevel,
       moveInParent,
       renderExtraComponents,
+      convertItemProps,
       getActions
     } = this.props;
     const { isOpen } = this.state;
@@ -169,6 +173,7 @@ class TreeItem extends Component {
               moveInParent={moveInParent}
               parentKey={item.id}
               renderExtraComponents={renderExtraComponents}
+              convertItemProps={convertItemProps}
             />
           ))}
       </Collapse>
@@ -176,9 +181,21 @@ class TreeItem extends Component {
   };
 
   renderItem = (targetId, canDrag) => {
-    const { isChild, item, selectable, prefixClassName, level, isMajor, renderExtraComponents, onClickIcon, getActions } = this.props;
+    const {
+      isChild,
+      item,
+      selectable,
+      prefixClassName,
+      level,
+      isMajor,
+      renderExtraComponents,
+      onClickIcon,
+      getActions,
+      convertItemProps
+    } = this.props;
     const { isOpen } = this.state;
-    const { items, selected, locked, icon, label, actionConfig, badge } = item || {};
+    const _item = typeof convertItemProps === 'function' ? convertItemProps(item) : item || {};
+    const { items, selected, locked, icon, label, actionConfig, badge } = _item;
     const filteredActions = getActions ? getActions(item) : actionConfig;
 
     return (
@@ -210,9 +227,23 @@ class TreeItem extends Component {
             />
           )}
           {!!icon && (
-            <EcosIcon data={item.icon} className="ecos-tree__item-element-icon" onClick={() => onClickIcon && onClickIcon(item)} />
+            <Tooltip
+              className="ecos-tree__item-element-icon-tooltip"
+              target={targetId + '-icon'}
+              text={t('tree-component.tooltip.update-icon')}
+              off={!onClickIcon}
+              uncontrolled
+              autohide
+            >
+              <EcosIcon
+                id={targetId + '-icon'}
+                data={item.icon}
+                className="ecos-tree__item-element-icon"
+                onClick={() => onClickIcon && onClickIcon(item)}
+              />
+            </Tooltip>
           )}
-          {badge != null && <Badge text={String(badge)} className="ecos-tree__item-element-badge" />}
+          {isExistValue(badge) && <Badge text={badge} className="ecos-tree__item-element-badge" />}
           <Tooltip target={targetId} text={extractLabel(label)} showAsNeeded uncontrolled autohide>
             <div
               className={classNames('ecos-tree__item-element-label', {

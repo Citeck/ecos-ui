@@ -44,6 +44,10 @@ class EditorItems extends React.Component {
     }
   }
 
+  convertItemProps = item => {
+    return MenuSettingsService.convertItemForTree(item);
+  };
+
   getAvailableActions = item => {
     return MenuSettingsService.getActiveActions(item);
   };
@@ -104,7 +108,7 @@ class EditorItems extends React.Component {
 
   renderEditorItem = () => {
     const { editItemInfo } = this.state;
-    const { items, setMenuItems, addJournalMenuItems, setLastAddedItems } = this.props;
+    const { items, setMenuItems, addJournalMenuItems, setLastAddedItems, fontIcons } = this.props;
 
     if (!editItemInfo) {
       return null;
@@ -131,7 +135,8 @@ class EditorItems extends React.Component {
       addJournalMenuItems({
         records,
         id: get(editItemInfo, 'item.id'),
-        type: get(editItemInfo, 'type.key')
+        type: get(editItemInfo, 'type.key'),
+        level: editItemInfo.level
       });
       handleHideModal();
     };
@@ -157,13 +162,14 @@ class EditorItems extends React.Component {
         onSave={handleSave}
         action={editItemInfo.action}
         params={{ level: editItemInfo.level }}
+        fontIcons={fontIcons}
       />
     );
   };
 
   renderEditorIcon = () => {
     const { editItemIcon } = this.state;
-    const { items, setMenuItems } = this.props;
+    const { items, setMenuItems, fontIcons } = this.props;
 
     const handleHideModal = () => {
       this.setState({ editItemIcon: null });
@@ -184,12 +190,11 @@ class EditorItems extends React.Component {
 
     return editItemIcon ? (
       <IconSelect
-        prefixIcon="icon-leftmenu-"
         family="menu-items"
-        useFontIcons
         selectedIcon={editItemIcon.icon}
         onClose={handleHideModal}
         onSave={handleSave}
+        myFontIcons={fontIcons}
       />
     ) : null;
   };
@@ -263,6 +268,7 @@ class EditorItems extends React.Component {
             moveInParent
             onDragEnd={this.handleDragEnd}
             getActions={this.getAvailableActions}
+            convertItemProps={this.convertItemProps}
             onClickAction={this.handleActionItem}
             onClickIcon={this.handleClickIcon}
             renderExtraComponents={this.renderExtraComponents}
@@ -277,6 +283,7 @@ class EditorItems extends React.Component {
 
 const mapStateToProps = state => ({
   items: get(state, 'menuSettings.items', []),
+  fontIcons: get(state, 'menuSettings.fontIcons', []),
   lastAddedItems: get(state, 'menuSettings.lastAddedItems', [])
 });
 
