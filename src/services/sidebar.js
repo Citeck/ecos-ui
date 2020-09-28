@@ -63,8 +63,8 @@ export default class SidebarService {
     const common = {
       noIcon: true,
       noBadge: !(badgeV0 || badgeV1),
-      isSeparator: knownType && [MITypes.HEADER_DIVIDER, MITypes.SECTION].includes(item.type),
-      isClosedSeparator: false,
+      isSeparator: [MITypes.HEADER_DIVIDER].includes(item.type),
+      isClosedSeparator: [MITypes.HEADER_DIVIDER].includes(item.type),
       hiddenLabel: get(item, 'config.hiddenLabel')
     };
 
@@ -72,11 +72,11 @@ export default class SidebarService {
       0: {
         ...common,
         noBadge: knownType ? common.noBadge : true,
-        isClosedSeparator: knownType ? [MITypes.SECTION].includes(item.type) : true
+        isClosedSeparator: knownType ? [MITypes.SECTION, MITypes.HEADER_DIVIDER].includes(item.type) : true
       },
       1: {
         ...common,
-        noIcon: knownType ? [MITypes.HEADER_DIVIDER].includes(item.type) : false
+        noIcon: [MITypes.HEADER_DIVIDER].includes(item.type)
       }
     };
 
