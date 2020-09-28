@@ -92,7 +92,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
   };
 
   return (
-    <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-xs" isOpen hideModal={onClose} title={title}>
+    <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-sm" isOpen hideModal={onClose} title={title}>
       <Field label={t(Labels.FIELD_NAME_LABEL)} required>
         <MLText onChange={setLabel} value={label} disabled={hiddenLabel} />
       </Field>
@@ -110,7 +110,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
           </Field>
           <Field className="ecos-menu-editor-item__field-result">
             {t(
-              url.startsWith('http')
+              !url || url.startsWith('http')
                 ? Labels.FIELD_URL_RESULT_ABSOLUTE
                 : url.startsWith('/')
                 ? Labels.FIELD_URL_RESULT_WITH_SLASH
