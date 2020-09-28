@@ -2,68 +2,79 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
 import head from 'lodash/head';
+import cloneDeep from 'lodash/cloneDeep';
+
+import { CONFIG_VERSION } from '../constants/dashboard';
 import { Layouts, LayoutTypes } from '../constants/layout';
 import Components from '../components/widgets/Components';
 import DashboardService from '../services/dashboard';
-import DashboardConverter from './dashboard';
 
 export default class DashboardSettingsConverter {
-  static getSettingsForWeb(source = {}) {
+  static getSettingsForWeb(data = {}, widgetsById, version = CONFIG_VERSION) {
+    const source = cloneDeep(data);
     let target = {};
 
     if (!isEmpty(source)) {
-      const { config } = source;
-
-      target.identification = DashboardConverter.getKeyInfoDashboardForWeb(source).identification;
-
       target.config = {
-        layouts: DashboardSettingsConverter.getDescConfigForWeb(config),
-        mobile: DashboardSettingsConverter.getMobileConfigForWeb(config)
+        layouts: DashboardSettingsConverter.getDesktopConfigForWeb(source, widgetsById),
+        mobile: DashboardSettingsConverter.getMobileConfigForWeb(source, widgetsById, version)
       };
     }
 
     return target;
   }
 
-  static getDescConfigForWeb(config) {
+  static getDesktopConfigForWeb(config, widgetsById) {
     const target = [];
-    const layouts = get(config, ['layouts'], []);
-
-    DashboardService.movedToListLayout(config, layouts);
+    const layouts = get(config, ['desktop'], []);
 
     layouts.forEach(layout => {
-      target.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
+      target.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout, widgetsById));
     });
 
     return target;
   }
 
-  static getMobileConfigForWeb(config) {
+  static getMobileConfigForWeb(config, widgetsById, version) {
     const target = [];
-    const layouts = get(config, ['layouts'], []);
+    let layouts = get(config, ['layouts'], []);
+
+    if (isEmpty(layouts)) {
+      layouts = get(config, ['desktop'], []);
+    }
 
     DashboardService.movedToListLayout(config, layouts);
 
     let mobile = get(config, ['mobile']);
 
-    if (isEmpty(mobile)) {
-      mobile = DashboardService.generateMobileConfig(layouts);
+    if (isEmpty(mobile) || version !== CONFIG_VERSION) {
+      mobile = DashboardService.generateNewMobileConfig(layouts);
     }
 
     mobile.forEach(layout => {
-      target.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout));
+      target.push(DashboardSettingsConverter.getSettingsLayoutForWeb(layout, widgetsById));
     });
 
     return target;
   }
 
-  static getSettingsLayoutForWeb(layout = {}) {
+  static getSettingsLayoutForWeb(layout = {}, widgetsById) {
     let target = {};
 
     target.id = layout.id;
     target.tab = layout.tab || DashboardService.defaultDashboardTab(layout.id);
     target.type = layout.type || LayoutTypes.TWO_COLUMNS_BS;
-    target.widgets = isArray(layout.columns) ? [].concat.apply([], layout.columns).map(item => item.widgets) : [];
+    target.widgets = isArray(layout.columns)
+      ? [].concat.apply([], layout.columns).map(item =>
+          item.widgets.map(widget => {
+            if (typeof widget === 'string') {
+              return widgetsById[widget];
+            }
+
+            return widget;
+          })
+        )
+      : [];
 
     return target;
   }
@@ -110,6 +121,44 @@ export default class DashboardSettingsConverter {
     return target;
   }
 
+  static getSettingsMobileConfigForServerV2(source, allWidgets) {
+    const { mobile } = source;
+    const target = [];
+    const byId = DashboardService.getWidgetsById(allWidgets);
+
+    mobile.tabs.forEach(tab => {
+      const { label, idLayout } = tab;
+      const widgets = head(mobile.widgets[idLayout]) || [];
+
+      target.push({
+        id: idLayout,
+        tab: { label, idLayout },
+        type: LayoutTypes.MOBILE,
+        columns: [
+          {
+            widgets: widgets
+              .map(widget => {
+                if (byId[widget.id]) {
+                  return widget.id;
+                }
+
+                widget = allWidgets.find(w => w.name === widget.name);
+
+                if (!widget) {
+                  return null;
+                }
+
+                return widget.id;
+              })
+              .filter(item => !isEmpty(item))
+          }
+        ]
+      });
+    });
+
+    return target;
+  }
+
   static getWidgetsForServer(columns = [], widgets = []) {
     let defProps = Components.setDefaultPropsOfWidgets(widgets);
     let order = 0;
@@ -134,5 +183,106 @@ export default class DashboardSettingsConverter {
 
       return getWidget(column);
     });
+  }
+
+  static getNewWidgetsForServer(source = {}) {
+    const widgets = Object.keys(source).reduce((result, key) => {
+      const layoutWidgets = source[key].reduce((outcome, current) => {
+        outcome.push(...current);
+
+        return outcome;
+      }, []);
+
+      result.push(...layoutWidgets);
+
+      return result;
+    }, []);
+
+    return Components.setDefaultPropsOfWidgets(widgets);
+  }
+
+  static getNewDesktopConfigForServer(tabs = [], layoutType, widgets) {
+    const target = [];
+
+    tabs.forEach(tab => {
+      let order = 0;
+      const { label, idLayout } = tab;
+      const layoutWidgets = get(widgets, idLayout, []);
+      const type = layoutType[idLayout] || LayoutTypes.TWO_COLUMNS_BS;
+      const columns = Layouts.find(layout => layout.type === type).columns;
+      const getWidget = column => {
+        const data = {
+          widgets: layoutWidgets[order].map(widget => Components.getDefaultWidget(widget).id) || []
+        };
+
+        if (column.width) {
+          data.width = column.width;
+        }
+
+        order += 1;
+
+        return data;
+      };
+
+      target.push({
+        id: idLayout,
+        tab: { label, idLayout },
+        type,
+        columns: columns.map(column => {
+          if (Array.isArray(column)) {
+            return column.map(getWidget);
+          }
+
+          return getWidget(column);
+        })
+      });
+    });
+
+    return target;
+  }
+
+  static getNewSettingsConfigForServer(data) {
+    const source = cloneDeep(data);
+    const target = {};
+    const { tabs = [], layoutType, widgets = {} } = source;
+
+    Object.keys(widgets).forEach(key => {
+      widgets[key] = Components.setDefaultPropsOfWidgets(widgets[key]);
+    });
+
+    const allWidgets = DashboardSettingsConverter.getNewWidgetsForServer(widgets);
+    const desktop = DashboardSettingsConverter.getNewDesktopConfigForServer(tabs, layoutType, widgets);
+    const mobile = DashboardSettingsConverter.getSettingsMobileConfigForServerV2(source, allWidgets);
+
+    target.widgets = allWidgets;
+
+    return {
+      widgets: allWidgets,
+      desktop,
+      mobile
+    };
+  }
+
+  static getSelectedWidgetsFromDesktop(widgets, tabs) {
+    const selected = [];
+    const eachColumn = item => {
+      if (Array.isArray(item)) {
+        item.forEach(eachColumn);
+      } else {
+        selected.push({
+          ...item,
+          description: tabName
+        });
+      }
+    };
+    let tabName = '';
+
+    Object.keys(widgets).forEach(key => {
+      tabName = get(tabs.find(tab => tab.idLayout === key), 'label', '');
+
+      widgets[key].forEach(eachColumn);
+    });
+
+    return selected;
   }
 }

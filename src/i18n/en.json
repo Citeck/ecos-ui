@@ -571,7 +571,7 @@
   "journals.action.remove-filter-group-msg": "Remove filter group?",
   "journals.action.remove-filter-msg": "Remove filter?",
   "journals.action.remove-records-msg": "Do you really want to delete records?",
-  "journals.action.remove-tpl-msg": "Remove template",
+  "journals.action.remove-tpl-msg": "Remove template \"{{name}}\"?",
   "journals.action.rename-tpl-msg": "Rename template",
   "journals.action.reset": "Reset",
   "journals.action.reset-settings": "Reset settings",
@@ -592,6 +592,8 @@
   "journals.name": "Journals",
   "journals.settings": "Settings",
   "journals.tpl.defaults": "Settings template",
+  "journals.menu.journal-list.title": "Journals",
+  "journals.menu.journal-list.empty": "List is empty",
   "label.password": "Password",
   "label.username": "User Name",
 
@@ -1061,6 +1063,7 @@
 
   "menu.error.get-config": "Menu configuration hasn't received",
   "menu.error.save-config": "Menu configuration hasn't saved",
+  "menu.label.no-name": "No name",
 
   "menu-settings.header.title": "Menu Settings",
   "menu-settings.button.cancel": "Cancel",
@@ -1088,7 +1091,12 @@
   "menu-settings.editor-items.action.count-on": "On counter",
   "menu-settings.editor-items.action.count-off": "Off counter",
   "menu-settings.editor-item.field.name.label": "Name",
+  "menu-settings.editor-item.field.checkbox.hide-name": "Hide name",
   "menu-settings.editor-item.field.url.label": "URL",
+  "menu-settings.editor-item.field.url.desc": "URL is formed by one of ways:\n• Absolute URL - value starts with \"http://\" or \"https://\", opens in a new tab\n• Relative URL - if it starts with \"/\", output {{origin}}/{{value}}\n• Relative URL if it doesn't start with \"/\", output {{origin}}/{{pathname}}{{value}}",
+  "menu-settings.editor-item.field.url.result-absolute": "Result: {{value}}",
+  "menu-settings.editor-item.field.url.result-relative-with-slash": "Result: {{origin}}{{value}}",
+  "menu-settings.editor-item.field.url.result-relative-without-slash": "Result: {{origin}}{{pathname}}{{value}}",
   "menu-settings.editor-item.field.icon.label": "Icon",
   "menu-settings.editor-item.field.icon.btn.cancel": "Reset",
   "menu-settings.editor-item.field.icon.btn.select": "Select",

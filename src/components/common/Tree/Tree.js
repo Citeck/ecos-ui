@@ -33,7 +33,8 @@ class Tree extends Component {
     onClickAction: PropTypes.func,
     onClickIcon: PropTypes.func,
     onDragEnd: PropTypes.func,
-    renderExtraComponents: PropTypes.func
+    renderExtraComponents: PropTypes.func,
+    convertItemProps: PropTypes.func
   };
 
   static defaultProps = {
@@ -108,6 +109,7 @@ class Tree extends Component {
       moveInLevel,
       moveInParent,
       renderExtraComponents,
+      convertItemProps,
       getActions
     } = this.props;
 
@@ -127,6 +129,7 @@ class Tree extends Component {
         moveInLevel={moveInLevel}
         moveInParent={moveInParent}
         renderExtraComponents={renderExtraComponents}
+        convertItemProps={convertItemProps}
         getActions={getActions}
         isMajor
       />

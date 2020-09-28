@@ -1,0 +1,65 @@
+@import '../../../../styles/constants';
+
+%image {
+  width: 20px;
+  height: 20px;
+  object-fit: cover;
+}
+
+.ecos-ml-text {
+  position: relative;
+
+  &__image {
+    @extend %image;
+
+    position: absolute;
+    right: 13px;
+    top: 0;
+    bottom: 0;
+    margin: auto 0;
+    cursor: pointer;
+    display: none;
+    filter: drop-shadow(0px 1px 5px rgba(0, 0, 0, 0.2));
+
+    &_visible {
+      display: block;
+    }
+  }
+
+  &__input {
+  }
+
+  &__tooltip {
+    .tooltip {
+      z-index: 10005;
+    }
+
+    .tooltip-inner {
+      overflow: hidden;
+      padding: 0;
+    }
+
+    &-lang {
+      padding: 5px 15px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+
+      &:hover {
+        color: #7396cd;
+      }
+
+      &-label {
+        font-style: normal;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-standard;
+        line-height: 18px;
+        margin-right: 10px;
+      }
+
+      &-image {
+        @extend %image;
+      }
+    }
+  }
+}

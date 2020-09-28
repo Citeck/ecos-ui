@@ -30,6 +30,8 @@ import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { MenuSettingsController } from '../MenuSettings';
 import { replaceHistoryLink } from '../../helpers/urls';
+import { selectThemeImage } from '../../selectors/view';
+import { DefaultImages } from '../../constants/theme';
 
 import './App.scss';
 
@@ -367,7 +369,7 @@ class App extends Component {
   }
 
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile, theme } = this.props;
+    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, loginLogo } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -382,7 +384,7 @@ class App extends Component {
     if (!isAuthenticated) {
       return (
         <Suspense fallback={null}>
-          <Page pageKey={Pages.LOGIN} theme={theme} />
+          <Page pageKey={Pages.LOGIN} theme={theme} logo={loginLogo} />
         </Suspense>
       );
     }
@@ -422,7 +424,8 @@ const mapStateToProps = state => ({
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
   tabs: get(state, 'pageTabs.tabs', []),
   menuType: get(state, ['menu', 'type']),
-  footer: get(state, 'app.footer', null)
+  footer: get(state, 'app.footer', null),
+  loginLogo: selectThemeImage(state, DefaultImages.LOGIN_LOGO)
 });
 
 const mapDispatchToProps = dispatch => ({

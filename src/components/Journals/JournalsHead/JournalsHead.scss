@@ -22,6 +22,8 @@
 
     &_hidden {
       opacity: 0;
+      cursor: initial;
+      pointer-events: none;
     }
   }
 }

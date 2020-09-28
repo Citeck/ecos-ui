@@ -7,7 +7,8 @@ export default class MLTextComponent extends BaseReactComponent {
       {
         label: 'ML Text',
         key: 'mlText',
-        type: 'mlText'
+        type: 'mlText',
+        defaultValue: {}
       },
       ...extend
     );

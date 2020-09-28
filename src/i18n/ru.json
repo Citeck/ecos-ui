@@ -571,7 +571,7 @@
   "journals.action.remove-filter-group-msg": "Удалить группу фильтров?",
   "journals.action.remove-filter-msg": "Удалить фильтр?",
   "journals.action.remove-records-msg": "Вы действительно хотите удалить записи?",
-  "journals.action.remove-tpl-msg": "Удалить шаблон",
+  "journals.action.remove-tpl-msg": "Удалить шаблон \"{{name}}\"?",
   "journals.action.rename-tpl-msg": "Переименовать шаблон",
   "journals.action.reset": "Сбросить",
   "journals.action.reset-settings": "Сбросить настройки",
@@ -592,6 +592,8 @@
   "journals.name": "Журналы",
   "journals.settings": "Настройки",
   "journals.tpl.defaults": "Шаблоны настроек",
+  "journals.menu.journal-list.title": "Журналы",
+  "journals.menu.journal-list.empty": "Список пуст",
   "label.password": "Пароль",
   "label.username": "Имя пользователя",
 
@@ -1061,6 +1063,7 @@
 
   "menu.error.get-config": "Конфигурация меню не получена",
   "menu.error.save-config": "Конфигурация меню не сохранена",
+  "menu.label.no-name": "Без имени",
 
   "menu-settings.header.title": "Настройки меню",
   "menu-settings.button.cancel": "Отмена",
@@ -1088,7 +1091,12 @@
   "menu-settings.editor-items.action.count-on": "Вкл. счетчик",
   "menu-settings.editor-items.action.count-off": "Выкл. счетчик",
   "menu-settings.editor-item.field.name.label": "Название",
+  "menu-settings.editor-item.field.checkbox.hide-name": "Скрывать название",
   "menu-settings.editor-item.field.url.label": "Ссылка",
+  "menu-settings.editor-item.field.url.desc": "URL формируется по одному из вариантов:\n• Абсолютный URL - значение начинается с \"http://\" или c \"https://\", открывается в новой вкладке\n• Относительный URL - если начинается с \"/\", формат {{origin}}/<значение ссылки>\n• Относительный URL - если НЕ начинается с \"/\", формат {{origin}}/v2/<значение ссылки>",
+  "menu-settings.editor-item.field.url.result-absolute": "Результат: {{value}}",
+  "menu-settings.editor-item.field.url.result-relative-with-slash": "Результат: {{origin}}{{value}}",
+  "menu-settings.editor-item.field.url.result-relative-without-slash": "Результат: {{origin}}{{pathname}}{{value}}",
   "menu-settings.editor-item.field.icon.label": "Иконка",
   "menu-settings.editor-item.field.icon.btn.cancel": "Сбросить",
   "menu-settings.editor-item.field.icon.btn.select": "Выбрать",
