@@ -31,6 +31,14 @@ export default class PanelComponent extends FormIOPanelComponent {
       this.panelBody.classList.remove('p-0', 'm-0');
     }
 
+    if (this.panelTitle) {
+      if (this.component.validate && this.component.validate.required) {
+        this.panelTitle.classList.add('field-required');
+      } else {
+        this.panelTitle.classList.remove('field-required');
+      }
+    }
+
     if (this.component.scrollableContent) {
       this.panelBody.classList.add('panel-body_scrollable');
 
