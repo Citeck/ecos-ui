@@ -120,7 +120,6 @@ class BaseDocuments extends BaseWidget {
       const selectedType = props.dynamicTypes.find(item => item.type === state.selectedTypeForLoading.type);
 
       if (!isEqual(state.selectedTypeForLoading, selectedType)) {
-        console.warn('newState.selectedTypeForLoading = selectedType;');
         newState.selectedTypeForLoading = selectedType;
       }
     }
@@ -130,11 +129,6 @@ class BaseDocuments extends BaseWidget {
     }
 
     return newState;
-  }
-
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    // this.handleRowMouseLeave.cancel();
   }
 
   get availableTypes() {
