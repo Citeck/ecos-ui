@@ -39,6 +39,7 @@ export default class JournalsConverter {
     target.data = source.records;
     target.total = source.totalCount;
     target.query = source.query;
+    target.attributes = source.attributes;
 
     return target;
   }

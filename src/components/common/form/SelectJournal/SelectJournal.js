@@ -4,12 +4,14 @@ import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
-import lodashGet from 'lodash/get';
+import get from 'lodash/get';
 
 import { Attributes } from '../../../../constants';
 import { t } from '../../../../helpers/util';
 import { DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
 import { JournalsApi } from '../../../../api/journalsApi';
+import JournalsConverter from '../../../../dto/journals';
+import JournalsService from '../../../Journals/service/journalsService';
 import { EcosModal, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
@@ -228,41 +230,40 @@ export default class SelectJournal extends Component {
   getJournalConfig = () => {
     const { journalId, displayColumns, presetFilterPredicates } = this.props;
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (!journalId) {
         reject();
       }
 
-      this.api.getJournalConfig(journalId).then(_journalConfig => {
-        const journalConfig = _journalConfig || { meta: {} };
-        const journalPredicate = journalConfig.meta.predicate;
+      const journalConfig = await JournalsService.getJournalConfig(journalId);
+      const journalPredicate = get(journalConfig, 'meta.predicate');
+      let columns = journalConfig.columns || [];
 
-        let columns = (journalConfig.columns || []).map(item => {
-          const column = { ...item };
-          if (matchCardDetailsLinkFormatterColumn(item)) {
-            column.disableFormatter = true;
-          }
-          return column;
-        });
-
-        if (Array.isArray(displayColumns) && displayColumns.length > 0) {
-          columns = columns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
+      columns = columns.map(item => {
+        const column = { ...item };
+        if (matchCardDetailsLinkFormatterColumn(item)) {
+          column.disableFormatter = true;
         }
-
-        this.setState(prevState => {
-          return {
-            requestParams: {
-              ...prevState.requestParams,
-              columns,
-              journalPredicate,
-              predicates: presetFilterPredicates || []
-            },
-            journalConfig,
-            isJournalConfigFetched: true
-            // isCollapsePanelOpen: Array.isArray(presetFilterPredicates) && presetFilterPredicates.length > 0
-          };
-        }, resolve);
+        return column;
       });
+
+      if (Array.isArray(displayColumns) && displayColumns.length > 0) {
+        columns = columns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
+      }
+
+      this.setState(prevState => {
+        return {
+          requestParams: {
+            ...prevState.requestParams,
+            columns,
+            journalPredicate,
+            predicates: presetFilterPredicates || []
+          },
+          journalConfig,
+          isJournalConfigFetched: true
+          // isCollapsePanelOpen: Array.isArray(presetFilterPredicates) && presetFilterPredicates.length > 0
+        };
+      }, resolve);
     });
   };
 
@@ -354,7 +355,7 @@ export default class SelectJournal extends Component {
       } else if (fetchedGridData.data.length < pagination.maxItems) {
         let record = memoryRecord;
 
-        if (memoryRecord.id === lodashGet(fetchedGridData, 'recordData.id')) {
+        if (memoryRecord.id === get(fetchedGridData, 'recordData.id')) {
           newInMemoryData[i] = record = fetchedGridData.recordData;
         }
 
@@ -494,7 +495,7 @@ export default class SelectJournal extends Component {
   };
 
   fetchDisplayNames = selectedRows => {
-    let computedDispName = lodashGet(this.props, 'computed.valueDisplayName', null);
+    let computedDispName = get(this.props, 'computed.valueDisplayName', null);
     return Promise.all(
       selectedRows.map(r => {
         if (r.disp) {
@@ -695,7 +696,7 @@ export default class SelectJournal extends Component {
 
   getColumns = () => {
     const { columns } = this.props;
-    const baseColumns = lodashGet(this.state, 'gridData.columns', []);
+    const baseColumns = get(this.state, 'gridData.columns', []);
 
     if (isEmpty(columns)) {
       return baseColumns;
