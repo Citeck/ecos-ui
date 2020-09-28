@@ -1,13 +1,13 @@
 import BaseReactComponent from '../base/BaseReactComponent';
-import MLText from '../../../../components/common/form/Input/MLText';
+import MLTextarea from '../../../../components/common/form/Textarea/MLTextarea';
 
-export default class MLTextComponent extends BaseReactComponent {
+export default class MLTextareaComponent extends BaseReactComponent {
   static schema(...extend) {
     return BaseReactComponent.schema(
       {
-        label: 'ML Text',
-        key: 'mlText',
-        type: 'mlText',
+        label: 'ML Textarea',
+        key: 'mlTextarea',
+        type: 'mlTextarea',
         defaultValue: {}
       },
       ...extend
@@ -16,16 +16,16 @@ export default class MLTextComponent extends BaseReactComponent {
 
   static get builderInfo() {
     return {
-      title: 'ML Text',
+      title: 'ML Textarea',
       icon: 'fa fa-language',
       group: 'basic',
-      weight: 0,
-      schema: MLTextComponent.schema()
+      weight: 45,
+      schema: MLTextareaComponent.schema()
     };
   }
 
   get defaultSchema() {
-    return MLTextComponent.schema();
+    return MLTextareaComponent.schema();
   }
 
   get emptyValue() {
@@ -40,12 +40,13 @@ export default class MLTextComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
-    return MLText;
+    return MLTextarea;
   }
 
   getInitialReactProps() {
     return {
       value: this.dataValue || this.emptyValue,
+      lang: this.component.lang,
       onChange: value => {
         this.setPristine(false);
         this.setValue(value);

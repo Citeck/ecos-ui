@@ -571,7 +571,7 @@
   "journals.action.remove-filter-group-msg": "Remove filter group?",
   "journals.action.remove-filter-msg": "Remove filter?",
   "journals.action.remove-records-msg": "Do you really want to delete records?",
-  "journals.action.remove-tpl-msg": "Remove template",
+  "journals.action.remove-tpl-msg": "Remove template \"{{name}}\"?",
   "journals.action.rename-tpl-msg": "Rename template",
   "journals.action.reset": "Reset",
   "journals.action.reset-settings": "Reset settings",
@@ -592,6 +592,8 @@
   "journals.name": "Journals",
   "journals.settings": "Settings",
   "journals.tpl.defaults": "Settings template",
+  "journals.menu.journal-list.title": "Journals",
+  "journals.menu.journal-list.empty": "List is empty",
   "label.password": "Password",
   "label.username": "User Name",
 
