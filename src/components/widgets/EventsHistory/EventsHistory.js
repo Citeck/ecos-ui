@@ -164,10 +164,10 @@ class EventsHistory extends React.Component {
   };
 
   renderEnum() {
-    const { list, columns, isMobile, scrollbarProps } = this.props;
+    const { list, columns, scrollbarProps } = this.props;
 
     return (
-      <Scroll scrollable={!isMobile} scrollbarProps={scrollbarProps}>
+      <Scroll scrollable scrollbarProps={scrollbarProps}>
         <div className="ecos-event-history-list ecos-event-history-list_view-enum">
           {list.map((item, i) => (
             <EventsHistoryCard key={item.id + i} columns={columns} event={item} />
