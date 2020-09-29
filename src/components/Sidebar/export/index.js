@@ -1,5 +1,6 @@
 import '../../../styles/bootstrap.scss';
 import '../../../fonts/citeck/css/citeck.css';
+import '../../../fonts/citeck-leftmenu/style.css';
 
 import 'react-app-polyfill/ie11';
 
