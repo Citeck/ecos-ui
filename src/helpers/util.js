@@ -947,6 +947,10 @@ export function isInViewport(element, container) {
 }
 
 export function reverseString(str = '') {
+  if (typeof str !== 'string') {
+    return str;
+  }
+
   return str
     .split('')
     .reverse()
