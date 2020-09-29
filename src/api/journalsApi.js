@@ -178,6 +178,7 @@ export class JournalsApi extends RecordService {
     });
   };
 
+  //todo: remove
   getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy, queryData }) => {
     const queryPredicates = journalPredicate ? [journalPredicate] : [];
     let query = {

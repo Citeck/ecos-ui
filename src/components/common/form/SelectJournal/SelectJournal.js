@@ -6,7 +6,7 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import { Attributes } from '../../../../constants';
+import { Attributes, Permissions } from '../../../../constants';
 import { t } from '../../../../helpers/util';
 import { DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
 import { JournalsApi } from '../../../../api/journalsApi';
@@ -19,6 +19,7 @@ import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mappin
 import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
 import Records from '../../../Records';
 import { parseAttribute } from '../../../Records/utils/attStrUtils';
+
 import InputView from './InputView';
 import ViewMode from './ViewMode';
 import Filters from './Filters';
@@ -268,77 +269,49 @@ export default class SelectJournal extends Component {
   };
 
   refreshGridData = info => {
-    return new Promise(resolve => {
-      this.setState({ isGridDataReady: false }, () => {
-        const { sortBy, queryData, customSourceId } = this.props;
-        let { requestParams, customPredicate, journalConfig } = this.state;
-        const sourceId = customSourceId || lodashGet(journalConfig, 'sourceId', '');
+    const getData = async resolve => {
+      const { sortBy, queryData, customSourceId } = this.props;
+      const { requestParams, customPredicate, journalConfig, gridData } = this.state;
+      const recordId = get(info, 'record.id');
 
-        if (customPredicate) {
-          if (requestParams.journalPredicate) {
-            requestParams = {
-              ...requestParams,
-              journalPredicate: {
-                t: 'and',
-                val: [requestParams.journalPredicate, customPredicate]
-              }
-            };
-          } else {
-            requestParams = {
-              ...requestParams,
-              journalPredicate: customPredicate
-            };
-          }
-        }
-
-        if (sourceId) {
-          requestParams.sourceId = sourceId;
-        }
-        if (queryData) {
-          requestParams.queryData = queryData;
-        }
-
-        requestParams.sortBy = sortBy;
-
-        return this.api
-          .getGridDataUsePredicates(requestParams)
-          .then(fetchedGridData => {
-            const recordId = lodashGet(info, 'record.id');
-
-            if (!recordId) {
-              return Promise.resolve(fetchedGridData);
-            }
-
-            return new Promise(resolve =>
-              Records.get(recordId)
-                .load(fetchedGridData.attributes)
-                .then(recordData => {
-                  recordData.id = recordId;
-                  resolve({ ...fetchedGridData, recordData });
-                })
-            );
-          })
-          .then(fetchedGridData => {
-            const gridData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
-
-            this.setState(prevState => ({
-              gridData: {
-                ...prevState.gridData,
-                ...gridData
-              },
-              isGridDataReady: true
-            }));
-
-            resolve(gridData);
-          });
+      const settings = JournalsConverter.getSettingsForDataLoaderServer({
+        sourceId: customSourceId,
+        sortBy,
+        pagination: requestParams.pagination,
+        predicates: [customPredicate],
+        permissions: { [Permissions.Write]: true }
       });
+      settings.queryData = queryData;
+
+      const result = await JournalsService.getJournalData(journalConfig, settings);
+      const fetchedGridData = JournalsConverter.getJournalDataWeb(result);
+      fetchedGridData.columns = requestParams.columns;
+
+      if (recordId) {
+        const recordData = await Records.get(recordId).load(fetchedGridData.attributes);
+        recordData.id = recordId;
+        fetchedGridData.recordData = recordData;
+      }
+
+      const mergedData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
+
+      this.setState({
+        gridData: { ...gridData, ...mergedData },
+        isGridDataReady: true
+      });
+
+      resolve(gridData);
+    };
+
+    return new Promise(resolve => {
+      this.setState({ isGridDataReady: false }, () => getData(resolve));
     });
   };
 
   mergeFetchedDataWithInMemoryData = fetchedGridData => {
     const { requestParams, gridData } = this.state;
     const { pagination } = requestParams;
-    const { inMemoryData } = gridData;
+    const { inMemoryData = [] } = gridData;
 
     if (inMemoryData.length < 1) {
       return fetchedGridData;

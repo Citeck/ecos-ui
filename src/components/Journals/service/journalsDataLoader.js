@@ -1,4 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 
 import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
@@ -34,8 +35,6 @@ const optimizePredicate = predicate => {
 };
 
 class JournalsDataLoader {
-  static DEFAULT_SORT_BY = [{ attribute: Attributes.DBID, ascending: false }];
-
   async load(journalConfig, settings) {
     const columns = journalConfig.columns || [];
     let predicates = [journalConfig.predicate, settings.predicate, ...settings.filter];
@@ -78,7 +77,7 @@ class JournalsDataLoader {
     }
 
     const recordsQuery = {
-      sourceId: journalConfig.sourceId,
+      sourceId: settings.customSourceId || journalConfig.sourceId,
       query,
       language,
       page: settings.page,
@@ -91,11 +90,12 @@ class JournalsDataLoader {
     }
 
     const sortBy = settings.sortBy || journalConfig.sortBy;
-    if (sortBy && sortBy.length) {
-      recordsQuery.sortBy = sortBy;
-    } else {
-      recordsQuery.sortBy = JournalsDataLoader.DEFAULT_SORT_BY;
-    }
+    recordsQuery.sortBy = [
+      {
+        attribute: get(sortBy, 'attribute') || Attributes.DBID,
+        ascending: !!get(sortBy, 'ascending')
+      }
+    ];
 
     const attributes = this._getAttributes(journalConfig, settings);
 

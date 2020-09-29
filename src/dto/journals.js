@@ -9,7 +9,7 @@ export default class JournalsConverter {
     const _source = cloneDeep(source);
     const target = {};
 
-    const permissionsObj = get(_source, 'journalSetting.permissions');
+    const permissionsObj = get(_source, 'journalSetting.permissions') || _source.permissions || {};
     const permissionsArr = [];
     for (let key in permissionsObj) {
       if (permissionsObj.hasOwnProperty(key) && permissionsObj[key]) {
@@ -17,6 +17,7 @@ export default class JournalsConverter {
       }
     }
 
+    target.customSourceId = _source.sourceId;
     target.predicate = _source.predicate;
     target.onlyLinked = !!_source.onlyLinked;
     target.recordRef = _source.recordRef;
