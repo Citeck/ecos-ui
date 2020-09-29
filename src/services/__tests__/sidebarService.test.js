@@ -56,17 +56,17 @@ describe('Sidebar Service', () => {
       {
         title: `Menu v1 - appearance for type ${MITypes.SECTION} level-0`,
         input: { level: 0, item: { type: MITypes.SECTION } },
-        output: { noIcon: true, noBadge: true, isSeparator: true, isClosedSeparator: true }
+        output: { noIcon: true, noBadge: true, isSeparator: false, isClosedSeparator: true }
       },
       {
         title: `Menu v1 - appearance for type ${MITypes.SECTION} level-1`,
         input: { level: 1, item: { type: MITypes.SECTION } },
-        output: { noIcon: false, noBadge: true, isSeparator: true, isClosedSeparator: false }
+        output: { noIcon: false, noBadge: true, isSeparator: false, isClosedSeparator: false }
       },
       {
         title: `Menu v1 - appearance for type ${MITypes.HEADER_DIVIDER} level-1`,
         input: { level: 1, item: { type: MITypes.HEADER_DIVIDER } },
-        output: { noIcon: true, noBadge: true, isSeparator: true, isClosedSeparator: false }
+        output: { noIcon: true, noBadge: true, isSeparator: true, isClosedSeparator: true }
       },
       {
         title: `Menu v1 - appearance for type ${MITypes.JOURNAL} level-0`,

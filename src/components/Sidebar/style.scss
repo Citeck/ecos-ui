@@ -116,6 +116,9 @@ $transition-duration: 0.3s;
     }
 
     &_title-separator {
+      cursor: pointer;
+      pointer-events: none;
+
       &:not(#{$menu-item}_collapsible):hover {
         background: none;
       }
@@ -126,7 +129,7 @@ $transition-duration: 0.3s;
     }
 
     &_line-separator {
-      cursor: none;
+      cursor: pointer;
       pointer-events: none;
 
       & :nth-child(n) {
@@ -271,6 +274,7 @@ $transition-duration: 0.3s;
 
         #{$menu-item}__label {
           font-size: $font-size-large;
+          color: $color-gray-5;
         }
       }
     }
@@ -287,10 +291,6 @@ $transition-duration: 0.3s;
 
         #{$menu-item}__link {
           padding-left: 25px;
-        }
-
-        &#{$menu-item}_title-separator #{$menu-item}__label {
-          color: $text-color-dark;
         }
       }
     }

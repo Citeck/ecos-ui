@@ -110,7 +110,7 @@
         }
 
         .choices__list--dropdown .choices__list {
-          overflow: initial;
+          max-height: unset;
         }
       }
     }
