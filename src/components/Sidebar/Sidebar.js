@@ -34,11 +34,12 @@ class Sidebar extends React.Component {
     this.props.fetchSmallLogoSrc();
     this.props.fetchLargeLogoSrc();
     this.props.getSiteDashboardEnable();
+    this.fetchItems();
 
     this.slideMenuToggle = document.getElementById('slide-menu-toggle');
     this.recordMenu = Records.get(`${SourcesId.MENU}@${this.props.idMenu}`);
     this.updateWatcher = this.recordMenu.watch('subMenu{.json}', () => {
-      this.setState({ fetchItems: false });
+      this.fetchItems(true);
     });
 
     if (this.slideMenuToggle) {
@@ -47,9 +48,7 @@ class Sidebar extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (isExistValue(this.props.versionMenu) && !this.state.fetchItems) {
-      this.setState({ fetchItems: true }, this.props.fetchSlideMenuItems);
-    }
+    this.fetchItems();
   }
 
   componentWillUnmount() {
@@ -58,6 +57,14 @@ class Sidebar extends React.Component {
     }
 
     this.recordMenu && this.updateWatcher && this.recordMenu.unwatch(this.updateWatcher);
+  }
+
+  fetchItems(force) {
+    if ((isExistValue(this.props.versionMenu) && !this.state.fetchItems) || force) {
+      this.setState({ fetchItems: true }, () => {
+        this.props.fetchSlideMenuItems();
+      });
+    }
   }
 
   toggleSlideMenu = () => {
@@ -78,6 +85,7 @@ class Sidebar extends React.Component {
     if (!isReady) {
       return null;
     }
+
     return (
       <div
         className={classNames('ecos-sidebar', {
@@ -116,7 +124,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchSlideMenuItems: _ => dispatch(fetchSlideMenuItems(_)),
+  fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
   fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
   fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),

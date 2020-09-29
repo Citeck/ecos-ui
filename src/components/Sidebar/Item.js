@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
-import { connect } from 'react-redux';
+import isEqual from 'lodash/isEqual';
 
 import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
 import { extractLabel } from '../../helpers/util';
@@ -36,11 +37,15 @@ class Item extends React.Component {
   };
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
+    const { label: label_1, icon: icon_1 } = nextProps.data || {};
+    const { label: label_2, icon: icon_2 } = this.props.data || {};
+
     return (
       nextProps.isExpanded !== this.props.isExpanded ||
       nextProps.isSelected !== this.props.isSelected ||
       nextProps.inDropdown !== this.props.inDropdown ||
-      nextProps.isOpen !== this.props.isOpen
+      nextProps.isOpen !== this.props.isOpen ||
+      !isEqual({ label: label_1, icon: icon_1 }, { label: label_2, icon: icon_2 })
     );
   }
 
