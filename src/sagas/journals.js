@@ -1,5 +1,4 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
@@ -350,7 +349,7 @@ function* getGridData(api, params, stateId) {
   const onlyLinked = yield select(state => get(state, `journals[${stateId}].config.onlyLinked`));
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, ...forRequest } = params;
-  const predicates = ParserPredicate.removeEmptyPredicates(cloneDeep(_predicates));
+  const predicates = JournalsConverter.cleanUpPredicate(_predicates);
   const pagination = forRequest.groupBy.length ? { ..._pagination, maxItems: undefined } : _pagination;
 
   const settings = JournalsConverter.getSettingsForDataLoaderServer({

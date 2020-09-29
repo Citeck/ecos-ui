@@ -3,8 +3,40 @@ import concat from 'lodash/concat';
 import get from 'lodash/get';
 
 import AttributesService from '../services/AttributesService';
+import { ParserPredicate } from '../components/Filters/predicates';
+
+const isPredicateValid = predicate => {
+  return !!(predicate && predicate.t);
+};
 
 export default class JournalsConverter {
+  static cleanUpPredicate(predicate) {
+    return ParserPredicate.removeEmptyPredicates(cloneDeep(predicate));
+  }
+
+  static optimizePredicate(predicate) {
+    if (!isPredicateValid(predicate)) {
+      return {};
+    }
+
+    if (predicate.t === 'and' || predicate.t === 'or') {
+      const predicates = (predicate.val || []).map(pred => JournalsConverter.optimizePredicate(pred)).filter(isPredicateValid);
+
+      if (predicates.length === 0) {
+        return {};
+      } else if (predicates.length === 1) {
+        return predicates[0];
+      } else {
+        return {
+          ...predicate,
+          val: predicates
+        };
+      }
+    }
+
+    return cloneDeep(predicate);
+  }
+
   static getSettingsForDataLoaderServer(source) {
     const _source = cloneDeep(source);
     const target = {};

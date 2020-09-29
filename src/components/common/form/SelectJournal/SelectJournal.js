@@ -273,12 +273,12 @@ export default class SelectJournal extends Component {
       const { sortBy, queryData, customSourceId } = this.props;
       const { requestParams, customPredicate, journalConfig, gridData } = this.state;
       const recordId = get(info, 'record.id');
-
+      const predicates = JournalsConverter.cleanUpPredicate(requestParams.predicates);
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         sourceId: customSourceId,
         sortBy,
         pagination: requestParams.pagination,
-        predicates: [customPredicate],
+        predicates: [customPredicate, ...predicates],
         permissions: { [Permissions.Write]: true }
       });
       settings.queryData = queryData;

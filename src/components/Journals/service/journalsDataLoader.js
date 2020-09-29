@@ -1,38 +1,11 @@
-import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 
 import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
+import JournalsConverter from '../../../dto/journals';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../common/form/SelectJournal/predicates';
 import * as RecordUtils from '../../Records/utils/recordUtils';
 import journalsServiceApi from './journalsServiceApi';
-
-const isPredicateValid = predicate => {
-  return !!(predicate && predicate.t);
-};
-
-const optimizePredicate = predicate => {
-  if (!isPredicateValid(predicate)) {
-    return {};
-  }
-
-  if (predicate.t === 'and' || predicate.t === 'or') {
-    const predicates = (predicate.val || []).map(pred => optimizePredicate(pred)).filter(isPredicateValid);
-
-    if (predicates.length === 0) {
-      return {};
-    } else if (predicates.length === 1) {
-      return predicates[0];
-    } else {
-      return {
-        ...predicate,
-        val: predicates
-      };
-    }
-  }
-
-  return cloneDeep(predicate);
-};
 
 class JournalsDataLoader {
   async load(journalConfig, settings) {
@@ -55,10 +28,7 @@ class JournalsDataLoader {
     }
 
     let language = 'predicate';
-    let query = optimizePredicate({
-      t: PREDICATE_AND,
-      val: predicates
-    });
+    let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
 
     let queryData = null;
     if (journalConfig.queryData || settings.queryData) {
