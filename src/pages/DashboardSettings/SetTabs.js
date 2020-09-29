@@ -119,7 +119,7 @@ class SetTabs extends React.Component {
     }
 
     this.closeDialog();
-    setData && setData({ tabs: newTabs, activeTabKey });
+    setData && setData({ tabs: newTabs, activeTabKey, removedTab: idLayout });
     this.doScrollCheck();
   };
 

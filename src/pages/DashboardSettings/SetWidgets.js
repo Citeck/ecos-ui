@@ -53,7 +53,31 @@ class SetWidgets extends React.Component {
   };
 
   getWidgetLabel(widget) {
-    return t(get(Components.components, [widget.name, 'label'], get(widget, 'label', '')));
+    const { isMobile } = this.props;
+    const description = get(widget, 'description', '');
+    let label = t(get(Components.components, [widget.name, 'label'], get(widget, 'label', '')));
+
+    if (isMobile && description) {
+      label = `[${description}] ${label}`;
+    }
+
+    return label;
+  }
+
+  get availableWidgets() {
+    const { availableWidgets, isMobile, activeWidgets } = this.props;
+
+    if (isEmpty(availableWidgets)) {
+      return [];
+    }
+
+    if (!isMobile) {
+      return availableWidgets;
+    }
+
+    const ids = get(activeWidgets, '[0]', []).map(item => item.id);
+
+    return availableWidgets.filter(widget => !ids.includes(widget.id));
   }
 
   handleDragUpdate = provided => {
@@ -71,7 +95,7 @@ class SetWidgets extends React.Component {
 
   handleDropEndWidget = result => {
     const { source, destination } = result;
-    const { availableWidgets, activeWidgets } = this.props;
+    const { activeWidgets } = this.props;
 
     let selectedWidgets = deepClone(activeWidgets);
 
@@ -81,7 +105,7 @@ class SetWidgets extends React.Component {
 
       switch (source.droppableId) {
         case NAMES.WIDGETS_FROM:
-          set(selectedWidgets, [colIndex], DndUtils.copy(availableWidgets, activeWidgets[colIndex], source, destination, true));
+          set(selectedWidgets, [colIndex], DndUtils.copy(this.availableWidgets, activeWidgets[colIndex], source, destination, true));
           break;
         case destination.droppableId:
           set(selectedWidgets, [colIndex], DndUtils.reorder(colSelected, source.index, destination.index));
@@ -185,7 +209,7 @@ class SetWidgets extends React.Component {
   }
 
   render() {
-    const { availableWidgets, isMobile } = this.props;
+    const { isMobile } = this.props;
 
     return (
       <>
@@ -208,11 +232,18 @@ class SetWidgets extends React.Component {
               scrollHeight={250}
               autoHeight
             >
-              {availableWidgets &&
-                availableWidgets.length &&
-                availableWidgets.map((item, index) => (
-                  <DragItem isCloning key={item.dndId} draggableId={item.dndId} draggableIndex={index} title={this.getWidgetLabel(item)} />
-                ))}
+              {this.availableWidgets.map((item, index) => (
+                <DragItem
+                  className={classNames({
+                    'ecos-drag-item_by-content': isMobile
+                  })}
+                  isCloning={!isMobile}
+                  key={item.dndId}
+                  draggableId={item.dndId}
+                  draggableIndex={index}
+                  title={this.getWidgetLabel(item)}
+                />
+              ))}
             </Droppable>
             {this.renderWidgetColumns()}
           </DragDropContext>
