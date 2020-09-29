@@ -1,5 +1,5 @@
 import { CommonApi } from './common';
-import { SourcesId, URL } from '../constants';
+import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
