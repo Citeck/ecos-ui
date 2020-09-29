@@ -24,6 +24,7 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
     let isAuthenticated = false;
     try {
       const checkAuthResp = yield call(api.user.checkIsAuthenticated);
+
       if (!checkAuthResp.success) {
         yield put(validateUserFailure());
       } else {
@@ -65,6 +66,18 @@ export function* fetchAppSettings({ api, fakeApi, logger }, { payload }) {
     yield put(getDashboardEditable());
   } catch (e) {
     logger.error('[fetchAppSettings saga] error', e.message);
+  }
+}
+
+export function* sagaRedirectToLoginPage({ api, logger }) {
+  try {
+    const url = yield call(api.app.getLoginPageUrl);
+
+    if (url && url !== window.location.pathname) {
+      window.open(url, '_self');
+    }
+  } catch (e) {
+    logger.error('[sagaRedirectToLoginPage saga] error', e.message);
   }
 }
 
@@ -110,6 +123,7 @@ function* appSaga(ea) {
   yield takeEvery(initAppSettings().type, fetchAppSettings, ea);
   yield takeEvery(getDashboardEditable().type, fetchDashboardEditable, ea);
   yield takeEvery(backPageFromTransitionsHistory().type, sagaBackFromHistory, ea);
+  yield takeEvery(validateUserFailure().type, sagaRedirectToLoginPage, ea);
 }
 
 export default appSaga;
