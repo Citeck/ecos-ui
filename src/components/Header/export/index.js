@@ -1,3 +1,4 @@
+import '../../../styles/bootstrap.scss';
 import '../../../fonts/citeck/css/citeck.css';
 
 import 'react-app-polyfill/ie11';
@@ -9,11 +10,7 @@ import { Provider } from 'react-redux';
 
 import Header from '../Header';
 
-import { AppApi } from '../../../api/app';
-import { CustomIconApi } from '../../../api/customIcon';
-import { MenuApi } from '../../../api/menu';
-import { UserApi } from '../../../api/user';
-import { ViewApi } from '../../../api/view';
+import { configureAPI } from '../../../api';
 import { fakeApi } from '../../../api/fakeApi';
 
 import { initAppRequest } from '../../../actions/app';
@@ -27,18 +24,12 @@ import { i18nInit } from '../../../i18n';
 const logger = Logger.create('Header');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
 
-const api = {};
+const { api } = configureAPI();
 const store = configureStore({
   api,
   fakeApi,
   logger
 });
-
-api.app = new AppApi(store);
-api.customIcon = new CustomIconApi(store);
-api.menu = new MenuApi(store);
-api.user = new UserApi(store);
-api.view = new ViewApi(store);
 
 const render = (elementId, props, callback) => {
   store.dispatch(
