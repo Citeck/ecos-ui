@@ -1,4 +1,6 @@
+import '../../../styles/bootstrap.scss';
 import '../../../fonts/citeck/css/citeck.css';
+import '../../../fonts/citeck-leftmenu/style.css';
 
 import 'react-app-polyfill/ie11';
 
@@ -9,11 +11,8 @@ import { Provider } from 'react-redux';
 
 import Sidebar from '../Sidebar';
 
-import { AppApi } from '../../../api/app';
-import { MenuApi } from '../../../api/menu';
-import { ViewApi } from '../../../api/view';
+import { configureAPI } from '../../../api';
 import { fakeApi } from '../../../api/fakeApi';
-import { UserApi } from '../../../api/user';
 
 import { detectMobileDevice, loadThemeRequest } from '../../../actions/view';
 import { initMenuConfig } from '../../../actions/menu';
@@ -25,17 +24,12 @@ import { i18nInit } from '../../../i18n';
 const logger = Logger.create('Sidebar');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
 
-const api = {};
+const { api } = configureAPI();
 const store = configureStore({
   api,
   fakeApi,
   logger
 });
-
-api.app = new AppApi(store);
-api.menu = new MenuApi(store);
-api.view = new ViewApi(store);
-api.user = new UserApi(store);
 
 const render = (elementId, props, callback) => {
   store.dispatch(
