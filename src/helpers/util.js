@@ -945,3 +945,10 @@ export function isInViewport(element, container) {
     );
   }
 }
+
+export function reverseString(str = '') {
+  return str
+    .split('')
+    .reverse()
+    .join('');
+}

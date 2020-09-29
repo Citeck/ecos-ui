@@ -2,8 +2,10 @@ import FormIONumberComponent from 'formiojs/components/number/Number';
 import _ from 'lodash';
 import { maskInput } from 'vanilla-text-mask';
 import BigNumber from 'bignumber.js';
+import { createNumberMask } from 'text-mask-addons';
 
 import { overrideTriggerChange } from '../misc';
+import { reverseString } from '../../../../helpers/util';
 
 export default class NumberComponent extends FormIONumberComponent {
   static schema(...extend) {
@@ -35,6 +37,19 @@ export default class NumberComponent extends FormIONumberComponent {
       this.element.addEventListener('input', this.onInput);
       this.on('blur', this.onBlur);
     }
+
+    if (this.delimiter) {
+      this.numberMask = createNumberMask({
+        prefix: '',
+        suffix: '',
+        requireDecimal: _.get(this.component, 'requireDecimal', false),
+        thousandsSeparatorSymbol: _.get(this.component, 'thousandsSeparator', this.component.delimiterValue || this.delimiter),
+        decimalSymbol: _.get(this.component, 'decimalSymbol', this.decimalSeparator),
+        decimalLimit: _.get(this.component, 'decimalLimit', this.decimalLimit),
+        allowNegative: _.get(this.component, 'allowNegative', true),
+        allowDecimal: _.get(this.component, 'allowDecimal', !(this.component.validate && this.component.validate.integer))
+      });
+    }
   }
 
   onBlur = () => {
@@ -50,6 +65,8 @@ export default class NumberComponent extends FormIONumberComponent {
 
   onInput = event => {
     const value = _.get(event, 'target.value');
+
+    console.warn({ value });
 
     if (this.isBigNumber()) {
       _.set(this.component, 'stringValue', this._getPureStringValue(value));
@@ -296,9 +313,11 @@ export default class NumberComponent extends FormIONumberComponent {
   _applyThousandsSeparator = value => {
     const [mainPart, decimalPart] = value.split(this.decimalSeparator);
     let newValue = parseInt(mainPart).toLocaleString();
+
     if (decimalPart) {
       newValue = `${newValue}${this.decimalSeparator}${decimalPart}`;
     }
+
     return newValue;
   };
 
@@ -339,7 +358,7 @@ export default class NumberComponent extends FormIONumberComponent {
       newValue = this._prepareStringNumber(newValue);
     }
 
-    const updatedValue = newValue.replace(/\.|,/g, this.decimalSeparator);
+    const updatedValue = reverseString(reverseString(newValue).replace(/\.|,/, this.decimalSeparator));
     const formattedValue = this.formatValue(updatedValue);
     let position = options.currentCaretPosition;
 
