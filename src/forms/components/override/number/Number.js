@@ -38,6 +38,7 @@ export default class NumberComponent extends FormIONumberComponent {
       this.on('blur', this.onBlur);
     }
 
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-528
     if (this.delimiter) {
       this.numberMask = createNumberMask({
         prefix: '',
@@ -65,8 +66,6 @@ export default class NumberComponent extends FormIONumberComponent {
 
   onInput = event => {
     const value = _.get(event, 'target.value');
-
-    console.warn({ value });
 
     if (this.isBigNumber()) {
       _.set(this.component, 'stringValue', this._getPureStringValue(value));
@@ -254,7 +253,11 @@ export default class NumberComponent extends FormIONumberComponent {
   }
 
   _getPureStringValue(value = '') {
-    const regexp = new RegExp(this.delimiter, 'g');
+    let regexp = new RegExp(this.delimiter, 'g');
+
+    if (this.delimiter && this.component.delimiterValue) {
+      regexp = new RegExp(this.component.delimiterValue, 'g');
+    }
 
     return value.replace(regexp, '').split(this.decimalSeparator)[0] || '';
   }
@@ -265,8 +268,7 @@ export default class NumberComponent extends FormIONumberComponent {
     let newValue = String(value);
 
     if (this.isBigNumber()) {
-      const regexp = new RegExp(this.delimiter, 'g');
-      const pureStringValue = newValue.replace(regexp, '').split(this.decimalSeparator)[0] || '';
+      const pureStringValue = this._getPureStringValue(newValue);
 
       newValue = String(value);
       _.set(this.component, 'stringValue', pureStringValue);
@@ -337,6 +339,21 @@ export default class NumberComponent extends FormIONumberComponent {
     }
 
     return this.parseNumber(val);
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-528
+  parseNumber(value) {
+    // Remove delimiters and convert decimal separator to dot.
+    value = value
+      .split(this.component.delimiterValue || this.delimiter)
+      .join('')
+      .replace(this.decimalSeparator, '.');
+
+    if (this.component.validate && this.component.validate.integer) {
+      return parseInt(value, 10);
+    }
+
+    return parseFloat(value);
   }
 
   setInputMask(input) {
