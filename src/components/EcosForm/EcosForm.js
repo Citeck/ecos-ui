@@ -73,7 +73,7 @@ class EcosForm extends React.Component {
     };
   }
 
-  get storingValuesFieldsByComponent() {
+  get savedFieldsByComponentType() {
     return {
       tabs: ['currentTab']
     };
@@ -202,7 +202,7 @@ class EcosForm extends React.Component {
           return;
         }
 
-        self._applyStoringFields.call(self, formDefinition);
+        self._applySavedFields.call(self, formDefinition);
 
         const formPromise = Formio.createForm(containerElement, formDefinition, options);
 
@@ -259,14 +259,14 @@ class EcosForm extends React.Component {
     }, onFormLoadingFailure);
   }
 
-  _applyStoringFields(formDefinition) {
+  _applySavedFields(formDefinition) {
     if (this._form) {
       const components = {};
 
       EcosFormUtils.forEachComponent(formDefinition, component => (components[component.id] = component));
       EcosFormUtils.forEachComponent(this._form, item => {
         const component = components[item.id];
-        const fields = get(this, ['storingValuesFieldsByComponent', component.type], []);
+        const fields = get(this, ['savedFieldsByComponentType', component.type], []);
 
         if (component && !isEmpty(fields)) {
           fields.forEach(field => {
