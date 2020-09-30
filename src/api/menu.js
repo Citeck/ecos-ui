@@ -322,6 +322,7 @@ export class MenuApi extends CommonApi {
     const config = await Records.get(`${SourcesId.MENU}@${id}`).load(
       {
         id: 'id',
+        version: 'version',
         authorities: 'authorities[]?str',
         menu: 'subMenu?json'
       },
