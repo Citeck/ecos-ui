@@ -63,6 +63,7 @@
     "redux-thunk": "^2.3.0",
     "regenerator-runtime": "^0.13.5",
     "reselect": "^4.0.0",
+    "text-mask-addons": "^3.8.0",
     "uuidv4": "^4.0.0",
     "vanilla-text-mask": "^5.1.1"
   },
