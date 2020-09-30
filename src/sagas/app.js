@@ -83,6 +83,18 @@ export function* fetchAppSettings({ api, fakeApi, logger }, { payload }) {
   }
 }
 
+export function* sagaRedirectToLoginPage({ api, logger }) {
+  try {
+    const url = yield call(api.app.getLoginPageUrl);
+
+    if (url && url !== window.location.pathname) {
+      window.open(url, '_self');
+    }
+  } catch (e) {
+    logger.error('[sagaRedirectToLoginPage saga] error', e.message);
+  }
+}
+
 export function* fetchDashboardEditable({ api, logger }) {
   try {
     const username = getCurrentUserName();
@@ -145,6 +157,7 @@ function* appSaga(ea) {
   yield takeEvery([setMenuConfig().type], fetchLeftMenuEditable, ea);
   yield takeEvery(getFooter().type, fetchFooter, ea);
   yield takeEvery(backPageFromTransitionsHistory().type, sagaBackFromHistory, ea);
+  yield takeEvery(validateUserFailure().type, sagaRedirectToLoginPage, ea);
 }
 
 export default appSaga;

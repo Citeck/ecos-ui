@@ -2,8 +2,10 @@ import FormIONumberComponent from 'formiojs/components/number/Number';
 import _ from 'lodash';
 import { maskInput } from 'vanilla-text-mask';
 import BigNumber from 'bignumber.js';
+import { createNumberMask } from 'text-mask-addons';
 
 import { overrideTriggerChange } from '../misc';
+import { reverseString } from '../../../../helpers/util';
 
 export default class NumberComponent extends FormIONumberComponent {
   static schema(...extend) {
@@ -34,6 +36,20 @@ export default class NumberComponent extends FormIONumberComponent {
     if (this.element) {
       this.element.addEventListener('input', this.onInput);
       this.on('blur', this.onBlur);
+    }
+
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-528
+    if (this.delimiter) {
+      this.numberMask = createNumberMask({
+        prefix: '',
+        suffix: '',
+        requireDecimal: _.get(this.component, 'requireDecimal', false),
+        thousandsSeparatorSymbol: _.get(this.component, 'thousandsSeparator', this.component.delimiterValue || this.delimiter),
+        decimalSymbol: _.get(this.component, 'decimalSymbol', this.decimalSeparator),
+        decimalLimit: _.get(this.component, 'decimalLimit', this.decimalLimit),
+        allowNegative: _.get(this.component, 'allowNegative', true),
+        allowDecimal: _.get(this.component, 'allowDecimal', !(this.component.validate && this.component.validate.integer))
+      });
     }
   }
 
@@ -237,7 +253,11 @@ export default class NumberComponent extends FormIONumberComponent {
   }
 
   _getPureStringValue(value = '') {
-    const regexp = new RegExp(this.delimiter, 'g');
+    let regexp = new RegExp(this.delimiter, 'g');
+
+    if (this.delimiter && this.component.delimiterValue) {
+      regexp = new RegExp(this.component.delimiterValue, 'g');
+    }
 
     return value.replace(regexp, '').split(this.decimalSeparator)[0] || '';
   }
@@ -248,8 +268,7 @@ export default class NumberComponent extends FormIONumberComponent {
     let newValue = String(value);
 
     if (this.isBigNumber()) {
-      const regexp = new RegExp(this.delimiter, 'g');
-      const pureStringValue = newValue.replace(regexp, '').split(this.decimalSeparator)[0] || '';
+      const pureStringValue = this._getPureStringValue(newValue);
 
       newValue = String(value);
       _.set(this.component, 'stringValue', pureStringValue);
@@ -296,9 +315,11 @@ export default class NumberComponent extends FormIONumberComponent {
   _applyThousandsSeparator = value => {
     const [mainPart, decimalPart] = value.split(this.decimalSeparator);
     let newValue = parseInt(mainPart).toLocaleString();
+
     if (decimalPart) {
       newValue = `${newValue}${this.decimalSeparator}${decimalPart}`;
     }
+
     return newValue;
   };
 
@@ -320,6 +341,21 @@ export default class NumberComponent extends FormIONumberComponent {
     return this.parseNumber(val);
   }
 
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-528
+  parseNumber(value) {
+    // Remove delimiters and convert decimal separator to dot.
+    value = value
+      .split(this.component.delimiterValue || this.delimiter)
+      .join('')
+      .replace(this.decimalSeparator, '.');
+
+    if (this.component.validate && this.component.validate.integer) {
+      return parseInt(value, 10);
+    }
+
+    return parseFloat(value);
+  }
+
   setInputMask(input) {
     input.setAttribute('pattern', '\\d*');
 
@@ -339,7 +375,7 @@ export default class NumberComponent extends FormIONumberComponent {
       newValue = this._prepareStringNumber(newValue);
     }
 
-    const updatedValue = newValue.replace(/\.|,/g, this.decimalSeparator);
+    const updatedValue = reverseString(reverseString(newValue).replace(/\.|,/, this.decimalSeparator));
     const formattedValue = this.formatValue(updatedValue);
     let position = options.currentCaretPosition;
 

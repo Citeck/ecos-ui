@@ -1095,7 +1095,7 @@
   "menu-settings.editor-item.field.name.label": "Название",
   "menu-settings.editor-item.field.checkbox.hide-name": "Скрывать название",
   "menu-settings.editor-item.field.url.label": "Ссылка",
-  "menu-settings.editor-item.field.url.desc": "URL формируется по одному из вариантов:\n• Абсолютный URL - значение начинается с \"http://\" или c \"https://\", пр. http://example.com, открывается в новой вкладке\n• Относительный URL - значение начинается с \"/\", обрацец: example.com/<значение> \n• Относительный URL - значение НЕ начинается с \"/\", формат example.com/v2/page<значение>",
+  "menu-settings.editor-item.field.url.desc": "URL формируется по одному из вариантов:\n• Абсолютный URL - значение начинается с \"http://\" или c \"https://\", например: http://example.com, открывается в новой вкладке\n• Относительный URL - значение начинается с \"/\", формат: example.com/<значение> \n• Относительный URL - значение НЕ начинается с \"/\", формат example.com/v2/page<значение>",
   "menu-settings.editor-item.field.url.result-absolute": "Результат: {{value}}",
   "menu-settings.editor-item.field.url.result-relative-with-slash": "Результат: {{origin}}{{value}}",
   "menu-settings.editor-item.field.url.result-relative-without-slash": "Результат: {{origin}}{{pathname}}{{value}}",

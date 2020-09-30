@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { TableFormContext } from '../../TableFormContext';
-import EcosForm, { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../../../EcosForm/EcosForm';
+import EcosForm, { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../../../EcosForm/EcosForm';
 import EcosModal from '../../../../EcosModal';
 import { t } from '../../../../../../helpers/util';
 import Records from '../../../../../Records';
@@ -37,6 +37,9 @@ const ModalForm = () => {
 
   let title = '';
   switch (formMode) {
+    case FORM_MODE_VIEW:
+      title = t('ecos-table-form.view-modal.title');
+      break;
     case FORM_MODE_CREATE:
       title = t('ecos-table-form.create-modal.title');
       break;
@@ -47,9 +50,6 @@ const ModalForm = () => {
       title = t('ecos-table-form.edit-modal.title');
       break;
     default:
-      if (isViewOnlyForm) {
-        title = t('ecos-table-form.view-modal.title');
-      }
       break;
   }
 

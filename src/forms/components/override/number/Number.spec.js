@@ -265,4 +265,62 @@ describe('Number Component', () => {
       done();
     });
   });
+
+  it('"Use Delimeter" settings enabled with delimiter characters (" | ")', done => {
+    const comp = _.cloneDeep(comp3);
+
+    comp.defaultValue = '';
+    comp.delimiter = true;
+    comp.delimiterValue = ' | ';
+
+    Harness.testCreate(NumberComponent, comp).then(component => {
+      Harness.testSetInput(component, 123, 123, '123');
+      Harness.testSetInput(component, 12345678, 12345678, '12 | 345 | 678');
+      done();
+    });
+  });
+
+  it('"Use Delimeter" settings enabled with delimiter characters (",")', done => {
+    const comp = _.cloneDeep(comp3);
+
+    comp.defaultValue = '';
+    comp.delimiter = true;
+    comp.delimiterValue = ',';
+
+    Harness.testCreate(NumberComponent, comp).then(component => {
+      Harness.testSetInput(component, 123, 123, '123');
+      Harness.testSetInput(component, 12345678, 12345678, '12,345,678');
+      Harness.testSetInput(component, 12345678.03, 12345678.03, '12,345,678.03');
+      done();
+    });
+  });
+
+  it('"Use Delimeter" settings enabled with delimiter characters ("-[-thousand-]-")', done => {
+    const comp = _.cloneDeep(comp3);
+
+    comp.defaultValue = '';
+    comp.delimiter = true;
+    comp.delimiterValue = '-[-thousand-]-';
+
+    Harness.testCreate(NumberComponent, comp).then(component => {
+      Harness.testSetInput(component, 123, 123, '123');
+      Harness.testSetInput(component, 12345678, 12345678, '12-[-thousand-]-345-[-thousand-]-678');
+      Harness.testSetInput(component, 12345678.03, 12345678.03, '12-[-thousand-]-345-[-thousand-]-678.03');
+      done();
+    });
+  });
+
+  it('"Use Delimeter" settings enabled without custom delimiter characters', done => {
+    const comp = _.cloneDeep(comp3);
+
+    comp.defaultValue = '';
+    comp.delimiter = true;
+
+    Harness.testCreate(NumberComponent, comp).then(component => {
+      Harness.testSetInput(component, 123, 123, '123');
+      Harness.testSetInput(component, 12345678, 12345678, '12,345,678');
+      Harness.testSetInput(component, 12345678.03, 12345678.03, '12,345,678.03');
+      done();
+    });
+  });
 });

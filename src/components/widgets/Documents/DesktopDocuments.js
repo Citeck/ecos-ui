@@ -312,24 +312,40 @@ class DesktopDocuments extends BaseDocuments {
   };
 
   handleDragIn = event => {
-    const dataTypes = get(event, 'dataTransfer.types', []);
-
     event.preventDefault();
     event.stopPropagation();
+
+    const dataTypes = get(event, 'dataTransfer.types', []);
+
+    this.debounceDragIn(dataTypes);
+  };
+
+  debounceDragIn = debounce(dataTypes => {
+    this.debounceDragOut.cancel();
 
     if (!dataTypes.includes('Files')) {
       return;
     }
 
-    this.setState({ isDragFiles: true });
-  };
+    if (!this.state.isDragFiles) {
+      this.setState({ isDragFiles: true });
+    }
+  }, 0);
 
   handleDragOut = event => {
     event.preventDefault();
     event.stopPropagation();
 
-    this.setState({ isDragFiles: false });
+    this.debounceDragOut();
   };
+
+  debounceDragOut = debounce(() => {
+    this.debounceDragIn.cancel();
+
+    if (this.state.isDragFiles) {
+      this.setState({ isDragFiles: false });
+    }
+  }, 0);
 
   handleRowDrop = data => {
     const { files = [], type = {} } = data;
@@ -639,7 +655,7 @@ class DesktopDocuments extends BaseDocuments {
 
   renderDocumentsTable = () => {
     const { dynamicTypes, isUploadingFile, isLoadingTableData } = this.props;
-    const { selectedType, isDragFiles, autoHide, isHoverLastRow, needRefreshGrid } = this.state;
+    const { selectedType, isDragFiles, autoHide, isHoverLastRow, needRefreshGrid, selectedTypeForLoading } = this.state;
     const { formRef } = this.getFormCreateVariants(selectedType);
 
     if (
@@ -650,6 +666,7 @@ class DesktopDocuments extends BaseDocuments {
       return null;
     }
 
+    const needDropZone = get(selectedTypeForLoading, 'canUpload', false);
     const isShowDropZone = isDragFiles && !formRef;
 
     return (
@@ -669,7 +686,7 @@ class DesktopDocuments extends BaseDocuments {
           maxHeight={this.tableMaxHeight}
           keyField={documentFields.id}
           className={classNames('ecos-docs__table ecos-docs__table_documents', {
-            'ecos-docs__table_hidden': isShowDropZone || isUploadingFile,
+            'ecos-docs__table_hidden': needDropZone && (isShowDropZone || isUploadingFile),
             'ecos-docs__table_without-after-element': isHoverLastRow
           })}
           data={this.tableData}
@@ -684,20 +701,22 @@ class DesktopDocuments extends BaseDocuments {
           onGridMouseEnter={this.handleMouseLeaveTable}
         />
 
-        <DropZone
-          withoutButton
-          style={{
-            height: `${this.calculatedTableMinHeight - 2 * 19}px`
-          }}
-          label={t(Labels.UPLOAD_DROPZONE)}
-          className={classNames('ecos-docs__table-dropzone', {
-            'ecos-docs__table-dropzone_hidden': !isShowDropZone
-          })}
-          onSelect={this.handleSelectUploadFiles}
-          onDropRejected={this.handleDropRejected}
-          isLoading={isUploadingFile}
-          {...this.uploadingSettings}
-        />
+        {needDropZone && (
+          <DropZone
+            withoutButton
+            style={{
+              height: `${this.calculatedTableMinHeight - 2 * 19}px`
+            }}
+            label={t(Labels.UPLOAD_DROPZONE)}
+            className={classNames('ecos-docs__table-dropzone', {
+              'ecos-docs__table-dropzone_hidden': !isShowDropZone
+            })}
+            onSelect={this.handleSelectUploadFiles}
+            onDropRejected={this.handleDropRejected}
+            isLoading={isUploadingFile}
+            {...this.uploadingSettings}
+          />
+        )}
       </div>
     );
   };

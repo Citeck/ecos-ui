@@ -85,6 +85,7 @@ class Sidebar extends React.Component {
     if (!isReady) {
       return null;
     }
+
     return (
       <div
         className={classNames('ecos-sidebar', {

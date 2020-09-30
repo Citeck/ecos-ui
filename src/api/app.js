@@ -151,19 +151,20 @@ export class AppApi extends CommonApi {
   }
 
   getHomeLink() {
-    return Records.get('uiserv/config@home-link-url')
+    return Records.get(`${SourcesId.CONFIG}@home-link-url`)
       .load('value?str')
       .then(link => {
-        if (link === null || link === '') {
+        if (!link) {
           return URL.DASHBOARD;
         }
-
         return link;
       })
-      .catch(e => {
-        console.error(e);
-
-        return URL.DASHBOARD;
-      });
+      .catch(() => URL.DASHBOARD);
   }
+
+  getLoginPageUrl = () => {
+    return Records.get(`${SourcesId.CONFIG}@login-page-redirect-url`)
+      .load('value?str', true)
+      .catch(() => null);
+  };
 }

@@ -180,4 +180,26 @@ describe('Util helpers', () => {
   ])('fun prepareTooltipId %s', (title, input, output) => {
     it(input + '>' + output, () => expect(Util.prepareTooltipId(input)).toEqual(output));
   });
+
+  describe('function reverseString', () => {
+    const data = [
+      {
+        title: 'Input string value',
+        input: ['test'],
+        output: 'tset'
+      },
+      {
+        title: 'Without input parameter',
+        input: [],
+        output: ''
+      },
+      {
+        title: 'Input not string value',
+        input: [5],
+        output: 5
+      }
+    ];
+
+    check(data, 'reverseString');
+  });
 });

@@ -1095,7 +1095,7 @@
   "menu-settings.editor-item.field.name.label": "Name",
   "menu-settings.editor-item.field.checkbox.hide-name": "Hide name",
   "menu-settings.editor-item.field.url.label": "URL",
-  "menu-settings.editor-item.field.url.desc": "URL is formed by one of ways:\n• Absolute URL - value starts with \"http://\" or \"https://\", ex. http://example.com, opens in a new tab\n• Relative URL - value starts with \"/\", sample: example.com/<value>\n• Relative URL - value doesn't start with \"/\", sample: example.com/v2/page<value>",
+  "menu-settings.editor-item.field.url.desc": "URL is formed by one of ways:\n• Absolute URL - value starts with \"http://\" or \"https://\", for example: http://example.com, opens in a new tab\n• Relative URL - value starts with \"/\", sample: example.com/<value>\n• Relative URL - value doesn't start with \"/\", sample: example.com/v2/page<value>",
   "menu-settings.editor-item.field.url.result-absolute": "Result: {{value}}",
   "menu-settings.editor-item.field.url.result-relative-with-slash": "Result: {{origin}}{{value}}",
   "menu-settings.editor-item.field.url.result-relative-without-slash": "Result: {{origin}}{{pathname}}{{value}}",

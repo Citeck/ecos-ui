@@ -227,7 +227,7 @@ export function loadScript(url, callback) {
   }
 }
 
-export function loadStylesheet(url, callback) {
+export function loadStylesheet(url, onLoadCb, onErrorCb) {
   const link = document.createElement('link');
 
   link.setAttribute('rel', 'stylesheet');
@@ -236,8 +236,12 @@ export function loadStylesheet(url, callback) {
 
   document.head.appendChild(link);
 
-  if (typeof callback === 'function') {
-    link.onload = callback;
+  if (typeof onLoadCb === 'function') {
+    link.onload = onLoadCb;
+  }
+
+  if (typeof onErrorCb === 'function') {
+    link.onerror = onErrorCb;
   }
 }
 
@@ -944,4 +948,15 @@ export function isInViewport(element, container) {
       rect.right <= (rectCont.right || window.innerWidth)
     );
   }
+}
+
+export function reverseString(str = '') {
+  if (typeof str !== 'string') {
+    return str;
+  }
+
+  return str
+    .split('')
+    .reverse()
+    .join('');
 }

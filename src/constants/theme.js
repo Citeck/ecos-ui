@@ -1,6 +1,6 @@
 import { PROXY_URI } from './alfresco';
 
-export const DEFAULT_THEME = 'citeckTheme';
+export const DEFAULT_THEME = 'ecos';
 
 export const DefaultImages = {
   LOGO: 'logo',
