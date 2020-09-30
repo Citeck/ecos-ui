@@ -194,7 +194,7 @@ export default class Dropdown extends Component {
 
     if (withScrollbar) {
       Wrapper = ({ children }) => (
-        <Scrollbars autoHeight autoHeightMin={scrollbarHeightMin} autoHeightMax={scrollbarHeightMax}>
+        <Scrollbars autoHeight autoHeightMin={scrollbarHeightMin} autoHeightMax={scrollbarHeightMax || '100%'}>
           {children}
         </Scrollbars>
       );
