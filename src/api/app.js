@@ -50,27 +50,8 @@ export class AppApi extends CommonApi {
   };
 
   getLoginPageUrl = () => {
-    return Records.get('uiserv/config@login-page-redirect-url')
+    return Records.get(`${SourcesId.CONFIG}@login-page-redirect-url`)
       .load('value?str', true)
-      .then(url => {
-        if (url === null || url === '') {
-          return false;
-        }
-
-        return url;
-      })
-      .catch(e => {
-        console.error(e);
-
-        return false;
-      });
-  };
-
-  setRecordUrl = (recordRef, url, valueField = 'value') => {
-    const record = Records.get(recordRef);
-
-    record.att(valueField, url);
-
-    return record.save();
+      .catch(() => null);
   };
 }
