@@ -35,7 +35,7 @@ export function* loadTheme({ api, fakeApi, logger }, { payload }) {
     yield call(applyTheme, id);
 
     const stylesheetUrl = yield select(selectThemeStylesheet);
-    yield call(loadStylesheet, stylesheetUrl, payload.onSuccess);
+    yield call(loadStylesheet, stylesheetUrl, payload.onSuccess, payload.onSuccess);
   } catch (e) {
     logger.error('[loadTheme saga] error', e.message);
   }

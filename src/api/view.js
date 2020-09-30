@@ -13,7 +13,12 @@ export class ViewApi extends CommonApi {
   getActiveThemeId = () => {
     return Records.get('uiserv/config@active-theme')
       .load('value', true)
-      .then(resp => resp)
+      .then(resp => {
+        if (!resp) {
+          return DEFAULT_THEME;
+        }
+        return resp;
+      })
       .catch(() => DEFAULT_THEME);
   };
 
