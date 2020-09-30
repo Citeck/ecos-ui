@@ -58,7 +58,7 @@ function* fetchSettingsConfig({ api, logger }) {
 function* runSaveSettingsConfig({ api, logger }, { payload }) {
   try {
     const config = yield select(state => state.menu);
-    const { type, version } = config;
+    const { type } = config;
     const id = yield select(state => state.menuSettings.editedId);
     const keyType = MenuSettingsService.getConfigKeyByType(type);
     const items = yield select(state => state.menuSettings.items);
@@ -71,7 +71,7 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
 
     set(result, ['subMenu', keyType, 'items'], newItems);
 
-    const resultSave = yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities, version });
+    const resultSave = yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities, version: result.version });
 
     yield put(saveGroupPriority());
     MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
