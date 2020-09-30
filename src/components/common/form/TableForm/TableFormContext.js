@@ -7,7 +7,7 @@ import WidgetService from '../../../../services/WidgetService';
 import Records from '../../../Records/Records';
 import Record from '../../../Records/Record';
 import { parseAttribute } from '../../../Records/utils/attStrUtils';
-import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT } from '../../../EcosForm';
+import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import TableFormPropTypes from './TableFormPropTypes';
 
@@ -212,7 +212,7 @@ export const TableFormContextProvider = props => {
           setIsViewOnlyForm(true);
           setCreateVariant(null);
           setRecord(record);
-          setFormMode(FORM_MODE_EDIT);
+          setFormMode(FORM_MODE_VIEW);
           setIsModalFormOpen(true);
         },
 
