@@ -76,7 +76,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
   const isNotValid = () => {
     const _label = packInLabel(label);
 
-    return Object.values(_label).every(val => !val) || (hasUrl && !url);
+    return (!hiddenLabel && Object.values(_label).every(val => !val)) || (hasUrl && !url);
   };
 
   const title =
@@ -93,7 +93,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
 
   return (
     <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-sm" isOpen hideModal={onClose} title={title}>
-      <Field label={t(Labels.FIELD_NAME_LABEL)} required>
+      <Field label={t(Labels.FIELD_NAME_LABEL)} required={!hiddenLabel}>
         <MLText onChange={setLabel} value={label} disabled={hiddenLabel} />
       </Field>
       {hideableLabel && (
