@@ -48,4 +48,10 @@ export class AppApi extends CommonApi {
         .catch(() => false)
     ]).then(([isRestrictionOn, isAdmin]) => !isRestrictionOn || isAdmin);
   };
+
+  getLoginPageUrl = () => {
+    return Records.get(`${SourcesId.CONFIG}@login-page-redirect-url`)
+      .load('value?str', true)
+      .catch(() => null);
+  };
 }
