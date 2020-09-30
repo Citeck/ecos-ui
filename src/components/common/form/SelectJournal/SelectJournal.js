@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
+import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
@@ -55,10 +56,8 @@ export default class SelectJournal extends Component {
       columns: [],
       selected: []
     },
-    requestParams: {
-      pagination: paginationInitState,
-      predicates: []
-    },
+    pagination: paginationInitState,
+    filterPredicate: [],
     selectedRows: [],
     error: null,
     customPredicate: null
@@ -85,7 +84,6 @@ export default class SelectJournal extends Component {
 
   componentDidMount() {
     const { defaultValue, multiple, isSelectModalOpen, initCustomPredicate } = this.props;
-
     this.checkJournalId();
 
     let initValue;
@@ -158,7 +156,8 @@ export default class SelectJournal extends Component {
   };
 
   shouldResetValue = () => {
-    return new Promise(resolve => {
+    return new Promise(async resolve => {
+      const { customPredicate, journalConfig, pagination, filterPredicate } = this.state;
       const { selectedRows } = this.state;
       const { sortBy, disableResetOnApplyCustomPredicate } = this.props;
 
@@ -166,65 +165,38 @@ export default class SelectJournal extends Component {
         return resolve({ shouldReset: false });
       }
 
-      const dbIDs = {};
-      const dbIDsPromises = selectedRows.map(item => {
-        return Records.get(item.id)
-          .load(Attributes.DBID)
-          .then(dbID => {
-            dbIDs[item.id] = dbID;
-          });
+      const dbIDsArray = await Promise.all(
+        selectedRows.map(({ id }) =>
+          Records.get(id)
+            .load(Attributes.DBID)
+            .then(dbID => ({ id, dbID }))
+        )
+      );
+      const dbIDsObj = {};
+      dbIDsArray.forEach(({ id, dbID }) => (dbIDsObj[id] = dbID));
+
+      const selectedRowsPredicate = customPredicate
+        ? { t: 'or', val: selectedRows.map(item => ({ t: 'eq', att: Attributes.DBID, val: dbIDsObj[item.id] })) }
+        : null;
+
+      const settings = JournalsConverter.getSettingsForDataLoaderServer({
+        sortBy,
+        pagination,
+        predicates: JournalsConverter.cleanUpPredicate([customPredicate, selectedRowsPredicate, ...filterPredicate]), //todo check without ...
+        permissions: { [Permissions.Write]: true }
       });
+      const result = await JournalsService.getJournalData(journalConfig, settings);
+      const gridData = JournalsConverter.getJournalDataWeb(result);
 
-      Promise.all(dbIDsPromises).then(() => {
-        let { requestParams, customPredicate, journalConfig } = this.state;
-        const sourceId = lodashGet(journalConfig, 'sourceId', '');
+      if (gridData.total && gridData.total === selectedRows.length) {
+        return resolve({ shouldReset: false });
+      }
 
-        if (customPredicate) {
-          let selectedRowsPredicate = selectedRows.map(item => ({ t: 'eq', att: Attributes.DBID, val: dbIDs[item.id] }));
+      const matchedRows = Array.isArray(gridData.data)
+        ? selectedRows.filter(row => gridData.data.findIndex(item => item.id === row.id) !== -1)
+        : null;
 
-          selectedRowsPredicate = {
-            t: 'or',
-            val: [...selectedRowsPredicate]
-          };
-
-          if (requestParams.journalPredicate) {
-            requestParams = {
-              ...requestParams,
-              journalPredicate: {
-                t: 'and',
-                val: [requestParams.journalPredicate, customPredicate, selectedRowsPredicate]
-              }
-            };
-          } else {
-            requestParams = {
-              ...requestParams,
-              journalPredicate: {
-                t: 'and',
-                val: [customPredicate, selectedRowsPredicate]
-              }
-            };
-          }
-        }
-
-        if (sourceId) {
-          requestParams.sourceId = sourceId;
-        }
-
-        requestParams.sortBy = sortBy;
-
-        return this.api.getGridDataUsePredicates(requestParams).then(gridData => {
-          if (gridData.total && gridData.total === selectedRows.length) {
-            return resolve({ shouldReset: false });
-          }
-
-          let matchedRows = null;
-          if (Array.isArray(gridData.data)) {
-            matchedRows = selectedRows.filter(row => gridData.data.findIndex(item => item.id === row.id) !== -1);
-          }
-
-          resolve({ shouldReset: true, matchedRows });
-        });
-      });
+      return resolve({ shouldReset: true, matchedRows });
     });
   };
 
@@ -237,10 +209,9 @@ export default class SelectJournal extends Component {
       }
 
       const journalConfig = await JournalsService.getJournalConfig(journalId);
-      const journalPredicate = get(journalConfig, 'meta.predicate');
-      let columns = journalConfig.columns || [];
+      let displayedColumns = cloneDeep(journalConfig.columns || []);
 
-      columns = columns.map(item => {
+      displayedColumns = displayedColumns.map(item => {
         const column = { ...item };
         if (matchCardDetailsLinkFormatterColumn(item)) {
           column.disableFormatter = true;
@@ -249,17 +220,13 @@ export default class SelectJournal extends Component {
       });
 
       if (Array.isArray(displayColumns) && displayColumns.length > 0) {
-        columns = columns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
+        displayedColumns = displayedColumns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
       }
 
       this.setState(prevState => {
         return {
-          requestParams: {
-            ...prevState.requestParams,
-            columns,
-            journalPredicate,
-            predicates: presetFilterPredicates || []
-          },
+          filterPredicate: presetFilterPredicates,
+          displayedColumns,
           journalConfig,
           isJournalConfigFetched: true
           // isCollapsePanelOpen: Array.isArray(presetFilterPredicates) && presetFilterPredicates.length > 0
@@ -271,27 +238,28 @@ export default class SelectJournal extends Component {
   refreshGridData = info => {
     const getData = async resolve => {
       const { sortBy, queryData, customSourceId } = this.props;
-      const { requestParams, customPredicate, journalConfig, gridData } = this.state;
+      const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns } = this.state;
       const recordId = get(info, 'record.id');
-      const predicates = JournalsConverter.cleanUpPredicate(requestParams.predicates);
+      const predicates = JournalsConverter.cleanUpPredicate([customPredicate, ...filterPredicate]);
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         sourceId: customSourceId,
         sortBy,
-        pagination: requestParams.pagination,
-        predicates: [customPredicate, ...predicates],
+        pagination,
+        predicates,
         permissions: { [Permissions.Write]: true }
       });
       settings.queryData = queryData;
 
       const result = await JournalsService.getJournalData(journalConfig, settings);
       const fetchedGridData = JournalsConverter.getJournalDataWeb(result);
-      fetchedGridData.columns = requestParams.columns;
 
       if (recordId) {
         const recordData = await Records.get(recordId).load(fetchedGridData.attributes);
         recordData.id = recordId;
         fetchedGridData.recordData = recordData;
       }
+
+      fetchedGridData.columns = displayedColumns;
 
       const mergedData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
 
@@ -309,8 +277,7 @@ export default class SelectJournal extends Component {
   };
 
   mergeFetchedDataWithInMemoryData = fetchedGridData => {
-    const { requestParams, gridData } = this.state;
-    const { pagination } = requestParams;
+    const { gridData, pagination } = this.state;
     const { inMemoryData = [] } = gridData;
 
     if (inMemoryData.length < 1) {
@@ -583,9 +550,8 @@ export default class SelectJournal extends Component {
     this.setState(
       state => {
         const prevSelected = state.gridData.selected || [];
-        const newSkipCount =
-          Math.floor(state.gridData.total / state.requestParams.pagination.maxItems) * state.requestParams.pagination.maxItems;
-        const newPageNum = Math.ceil((state.gridData.total + 1) / state.requestParams.pagination.maxItems);
+        const newSkipCount = Math.floor(state.gridData.total / state.pagination.maxItems) * state.pagination.maxItems;
+        const newPageNum = Math.ceil((state.gridData.total + 1) / state.pagination.maxItems);
 
         return {
           isCreateModalOpen: false,
@@ -600,14 +566,11 @@ export default class SelectJournal extends Component {
               }
             ]
           },
-          requestParams: {
-            ...state.requestParams,
-            predicates: [],
-            pagination: {
-              ...state.requestParams.pagination,
-              skipCount: newSkipCount,
-              page: newPageNum
-            }
+          filterPredicate: [],
+          pagination: {
+            ...state.pagination,
+            skipCount: newSkipCount,
+            page: newPageNum
           }
         };
       },
@@ -643,25 +606,16 @@ export default class SelectJournal extends Component {
     this.setValue(newValue);
   };
 
-  onChangePage = pagination => {
-    this.setState(prevState => {
-      return {
-        requestParams: {
-          ...prevState.requestParams,
-          pagination
-        }
-      };
-    }, this.refreshGridData);
+  onChangePage = _pagination_ => {
+    const pagination = { ...this.state.pagination, ..._pagination_ };
+    this.setState({ pagination }, this.refreshGridData);
   };
 
-  onApplyFilters = predicates => {
+  onApplyFilters = filterPredicate => {
     this.setState(prevState => {
       return {
-        requestParams: {
-          ...prevState.requestParams,
-          predicates: predicates,
-          pagination: paginationInitState
-        },
+        filterPredicate,
+        pagination: paginationInitState,
         isJournalConfigFetched: true
       };
     }, this.refreshGridData);
@@ -716,7 +670,7 @@ export default class SelectJournal extends Component {
       gridData,
       editRecordId,
       editRecordName,
-      requestParams,
+      pagination,
       journalConfig,
       selectedRows,
       error
@@ -781,12 +735,7 @@ export default class SelectJournal extends Component {
       <div className={wrapperClasses}>
         {typeof renderView === 'function' ? renderView(inputViewProps) : defaultView}
 
-        <FiltersProvider
-          columns={journalConfig.columns}
-          sourceId={journalConfig.sourceId}
-          api={this.api}
-          presetFilterPredicates={presetFilterPredicates}
-        >
+        <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} presetFilterPredicates={presetFilterPredicates}>
           <EcosModal title={selectModalTitle} isOpen={isSelectModalOpen} hideModal={this.hideSelectModal} className={selectModalClasses}>
             <div className={'select-journal-collapse-panel'}>
               <div className={'select-journal-collapse-panel__controls'}>
@@ -833,12 +782,7 @@ export default class SelectJournal extends Component {
                 scrollable={false}
               />
 
-              <Pagination
-                className={'select-journal__pagination'}
-                total={gridData.total}
-                {...requestParams.pagination}
-                onChange={this.onChangePage}
-              />
+              <Pagination className={'select-journal__pagination'} total={gridData.total} {...pagination} onChange={this.onChangePage} />
             </div>
 
             <div className="select-journal-select-modal__buttons">

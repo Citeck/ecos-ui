@@ -1,6 +1,6 @@
 import isArray from 'lodash/isArray';
 
-import { deepClone } from '../../../helpers/util';
+import { deepClone, isExistValue } from '../../../helpers/util';
 import {
   EQUAL_PREDICATES_MAP,
   filterPredicates,
@@ -117,12 +117,16 @@ export default class ParserPredicate {
     for (let i = 0, length = val.length; i < length; i++) {
       const item = val[i];
 
-      if (Array.isArray(item.val)) {
+      if (item && Array.isArray(item.val)) {
         item.val = this.removeEmptyPredicates(item.val);
       }
     }
 
     return val.filter(v => {
+      if (!isExistValue(v)) {
+        return false;
+      }
+
       if (Array.isArray(v.val)) {
         return !!v.val.length;
       }
