@@ -253,6 +253,7 @@ button {
 
   /*Colors*/
   &.ecos-btn_theme_citeckTheme,
+  &.ecos-btn_theme_uedmsTheme,
   &.ecos-btn_theme_ecos {
     background: $color-blue-dark;
     color: $color-white;
@@ -266,22 +267,6 @@ button {
 
     &:disabled {
       background-color: $color-blue-light2;
-    }
-  }
-
-  &.ecos-btn_theme_uedmsTheme {
-    background: $color-green-dark;
-    color: $color-white;
-
-    &:hover,
-    &:focus,
-    &:active {
-      color: $color-green-dark;
-      background: $color-white;
-    }
-
-    &:disabled {
-      background-color: $color-green-light2;
     }
   }
 

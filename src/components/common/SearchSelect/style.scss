@@ -55,6 +55,7 @@
   }
 
   &_theme_citeckTheme,
+  &_theme_uedmsTheme,
   &_theme_ecos {
     background: $color-blue-dark;
     border-radius: $border-radius-standard;
@@ -80,35 +81,6 @@
 
       &::placeholder {
         color: $color-blue-light2;
-      }
-    }
-  }
-
-  &_theme_uedmsTheme {
-    background: $color-green-dark;
-    border-radius: $border-radius-standard;
-
-    #{$root}__icon {
-      &-search {
-        color: $color-white;
-      }
-
-      &-clear {
-        color: $color-green-light2;
-
-        &:hover {
-          color: $color-white;
-        }
-      }
-    }
-
-    #{$root}__input {
-      background: transparent;
-      border: none !important;
-      color: $color-white;
-
-      &::placeholder {
-        color: $color-green-light2;
       }
     }
   }
