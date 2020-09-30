@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
@@ -69,6 +70,12 @@ class EcosForm extends React.Component {
       formId: 'eform@',
       error: null,
       formDefinition: {}
+    };
+  }
+
+  get storingValuesFieldsByComponent() {
+    return {
+      tabs: ['currentTab']
     };
   }
 
@@ -195,6 +202,8 @@ class EcosForm extends React.Component {
           return;
         }
 
+        self._applyStoringFields.call(self, formDefinition);
+
         const formPromise = Formio.createForm(containerElement, formDefinition, options);
 
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
@@ -203,7 +212,6 @@ class EcosForm extends React.Component {
           const handlersPrefix = 'onForm';
 
           self._form = form;
-
           form.ecos = { custom: customModule };
 
           if (customModule.init) {
@@ -249,6 +257,30 @@ class EcosForm extends React.Component {
         });
       });
     }, onFormLoadingFailure);
+  }
+
+  _applyStoringFields(formDefinition) {
+    if (this._form) {
+      const components = {};
+
+      EcosFormUtils.forEachComponent(formDefinition, component => (components[component.id] = component));
+      EcosFormUtils.forEachComponent(this._form, item => {
+        const component = components[item.id];
+        const fields = get(this, ['storingValuesFieldsByComponent', component.type], []);
+
+        if (component && !isEmpty(fields)) {
+          fields.forEach(field => {
+            const fieldValue = get(item, field);
+
+            if (fieldValue === undefined) {
+              return;
+            }
+
+            component[field] = fieldValue;
+          });
+        }
+      });
+    }
   }
 
   fireEvent(event, data) {
