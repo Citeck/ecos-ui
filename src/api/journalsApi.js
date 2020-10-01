@@ -1,22 +1,19 @@
 import get from 'lodash/get';
 import set from 'lodash/set';
-import isEmpty from 'lodash/isEmpty';
-import cloneDeep from 'lodash/cloneDeep';
-
-import { ActionModes, Attributes, Permissions } from '../constants';
 import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
-import { debounce, isExistValue } from '../helpers/util';
+import { debounce } from '../helpers/util';
 import * as ls from '../helpers/ls';
-import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
-import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
 import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
 import Records from '../components/Records';
-import RecordActions from '../components/Records/actions';
 import * as RecordUtils from '../components/Records/utils/recordUtils';
 
 import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
 
+/**
+ * @description Now only Settings, Storage and special functions are actual here, other ↩
+ * @see src/components/Journals/service
+ */
 export class JournalsApi extends RecordService {
   lsJournalSettingIdsKey = ls.generateKey('journal-setting-ids', true);
 
@@ -50,125 +47,12 @@ export class JournalsApi extends RecordService {
       .catch(() => null);
   };
 
+  /** @todo replace to using Records.js */
   saveRecords = ({ id, attributes }) => {
-    //todo: replace to using Records.js
     return this.mutate({ record: { id, attributes } }).catch(() => null);
   };
 
-  //todo: remove
-  getGridData = ({
-    columns,
-    pagination,
-    predicate,
-    groupBy,
-    sortBy,
-    predicates,
-    sourceId,
-    recordRef,
-    journalId,
-    journalActions,
-    queryData,
-    groupActions = [],
-    searchPredicate
-  }) => {
-    const val = [predicate];
-
-    Array.isArray(predicates) && val.push(...predicates);
-
-    !isEmpty(searchPredicate) && val.push(...searchPredicate);
-
-    !!recordRef &&
-      val.push({
-        t: PREDICATE_OR,
-        val: columns
-          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC)
-          .map(a => ({
-            t: PREDICATE_CONTAINS,
-            val: recordRef,
-            att: a.attribute
-          }))
-      });
-
-    let query = {
-      t: 'and',
-      val: val.filter(item => item && isExistValue(item.t) && isExistValue(item.val) && item.val !== '')
-    };
-    let language = 'predicate';
-    if (queryData) {
-      query = {
-        data: queryData,
-        predicate: query
-      };
-      language = 'predicate-with-data';
-    }
-
-    const bodyQuery = {
-      consistency: 'EVENTUAL',
-      query,
-      language,
-      page: pagination,
-      groupBy,
-      sortBy
-    };
-
-    if (sourceId) {
-      bodyQuery.sourceId = sourceId;
-    }
-
-    const dataSource = new GqlDataSource({
-      url: `${PROXY_URI}citeck/ecos/records`,
-      dataSourceName: 'GqlDataSource',
-      ajax: {
-        body: {
-          query: bodyQuery
-        }
-      },
-      columns: columns || [],
-      permissions: [Permissions.Write]
-    });
-
-    return dataSource.load().then(function({ data, total }) {
-      const columns = dataSource.getColumns();
-      const actionsContext = {
-        mode: ActionModes.JOURNAL,
-        scope: journalId
-      };
-      const convertedGroupActions = groupActions.map(a => {
-        const actionClone = cloneDeep(a);
-        if (!actionClone.params) {
-          actionClone.params = {};
-        }
-        if (!actionClone.params.actionId) {
-          actionClone.params.actionId = actionClone.id;
-        }
-        return {
-          name: a.title,
-          pluralName: a.title,
-          type: 'server-group-action',
-          config: actionClone
-        };
-      });
-
-      const recordRefs = data.map(d => d.id);
-      return RecordActions.getActionsForRecords(recordRefs, journalActions, actionsContext).then(actionsForRecords => {
-        const forRecords = {
-          ...actionsForRecords.forRecords,
-          actions: [...actionsForRecords.forRecords.actions, ...convertedGroupActions.filter(a => a.config.type === 'selected')]
-        };
-        const forQuery = {
-          ...actionsForRecords.forQuery,
-          actions: [...actionsForRecords.forQuery.actions, ...convertedGroupActions.filter(a => a.config.type === 'filtered')]
-        };
-        const resActions = {
-          ...actionsForRecords,
-          forQuery,
-          forRecords
-        };
-        return { data, actions: resActions, total, columns, query: bodyQuery };
-      });
-    });
-  };
-
+  /** @todo replace to using Journals/service ? */
   getTreeGridData = () => {
     const dataSource = new TreeDataSource();
 
@@ -178,57 +62,7 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  //todo: remove
-  getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy, queryData }) => {
-    const queryPredicates = journalPredicate ? [journalPredicate] : [];
-    let query = {
-      t: 'and',
-      val: queryPredicates.concat(
-        ((Array.isArray(predicates) && predicates) || []).filter(item => {
-          return item.val !== '' && item.val !== null;
-        })
-      )
-    };
-    let language = 'predicate';
-    if (queryData) {
-      query = {
-        data: queryData,
-        predicate: query
-      };
-      language = 'predicate-with-data';
-    }
-    const bodyQuery = {
-      query,
-      language,
-      page: pagination,
-      consistency: 'EVENTUAL',
-      sortBy: [
-        {
-          attribute: get(sortBy, 'attribute') || Attributes.DBID,
-          ascending: get(sortBy, 'ascending') !== false
-        }
-      ]
-    };
-
-    if (sourceId) {
-      bodyQuery['sourceId'] = sourceId;
-    }
-
-    const dataSource = new GqlDataSource({
-      url: `${PROXY_URI}citeck/ecos/records`,
-      dataSourceName: 'GqlDataSource',
-      ajax: {
-        body: {
-          query: bodyQuery
-        }
-      },
-      columns: columns || [],
-      permissions: [Permissions.Write]
-    });
-
-    return dataSource.load().then(({ data, total, attributes }) => ({ data, total, attributes, columns: dataSource.getColumns() }));
-  };
-
+  //todo remove
   getJournalConfig = async journalId => {
     const emptyConfig = {
       columns: [],
@@ -294,7 +128,7 @@ export class JournalsApi extends RecordService {
   };
 
   getJournalsByJournalsList = journalsListId => {
-    let journalsFromUiserv = Records.query(
+    const journalsFromUiserv = Records.query(
       {
         sourceId: 'uiserv/journal_v1',
         language: 'list-id',
@@ -385,6 +219,7 @@ export class JournalsApi extends RecordService {
    *
    * @param recordRef
    * @returns {*}
+   * @todo move to Journals/service
    */
   checkRowEditRules = recordRef => {
     return Records.get(recordRef)
@@ -399,6 +234,7 @@ export class JournalsApi extends RecordService {
    * @param recordRef
    * @param cell
    * @returns {*}
+   * @todo move to Journals/service
    */
   checkCellProtectedFromEditing = (recordRef, cell) => {
     return Records.get(recordRef)

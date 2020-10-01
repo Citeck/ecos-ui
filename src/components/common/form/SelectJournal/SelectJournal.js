@@ -10,9 +10,8 @@ import get from 'lodash/get';
 import { Attributes, Permissions } from '../../../../constants';
 import { t } from '../../../../helpers/util';
 import { DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
-import { JournalsApi } from '../../../../api/journalsApi';
 import JournalsConverter from '../../../../dto/journals';
-import JournalsService from '../../../Journals/service/journalsService';
+import JournalsService from '../../../Journals/service';
 import { EcosModal, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
@@ -77,11 +76,6 @@ export default class SelectJournal extends Component {
     return newState;
   }
 
-  constructor(props) {
-    super(props);
-    this.api = new JournalsApi();
-  }
-
   componentDidMount() {
     const { defaultValue, multiple, isSelectModalOpen, initCustomPredicate } = this.props;
     this.checkJournalId();
@@ -131,11 +125,7 @@ export default class SelectJournal extends Component {
 
   setCustomPredicate(customPredicate) {
     if (!isEqual(this.state.customPredicate, customPredicate)) {
-      let state = { customPredicate };
-      // if (this.state.wasChangedFromPopup) {
-      state.isGridDataReady = false;
-      // }
-      this.setState(state, () => {
+      this.setState({ customPredicate, isGridDataReady: false }, () => {
         this.shouldResetValue().then(({ shouldReset, matchedRows }) => {
           shouldReset && this.setValue(matchedRows);
         });
@@ -182,7 +172,7 @@ export default class SelectJournal extends Component {
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         sortBy,
         pagination,
-        predicates: JournalsConverter.cleanUpPredicate([customPredicate, selectedRowsPredicate, ...filterPredicate]), //todo check without ...
+        predicates: JournalsConverter.cleanUpPredicate([customPredicate, selectedRowsPredicate, ...(filterPredicate || [])]),
         permissions: { [Permissions.Write]: true }
       });
       const result = await JournalsService.getJournalData(journalConfig, settings);
@@ -223,15 +213,16 @@ export default class SelectJournal extends Component {
         displayedColumns = displayedColumns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
       }
 
-      this.setState(prevState => {
-        return {
-          filterPredicate: presetFilterPredicates,
+      this.setState(
+        {
+          filterPredicate: presetFilterPredicates || [],
           displayedColumns,
           journalConfig,
           isJournalConfigFetched: true
           // isCollapsePanelOpen: Array.isArray(presetFilterPredicates) && presetFilterPredicates.length > 0
-        };
-      }, resolve);
+        },
+        resolve
+      );
     });
   };
 
@@ -240,7 +231,7 @@ export default class SelectJournal extends Component {
       const { sortBy, queryData, customSourceId } = this.props;
       const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns } = this.state;
       const recordId = get(info, 'record.id');
-      const predicates = JournalsConverter.cleanUpPredicate([customPredicate, ...filterPredicate]);
+      const predicates = JournalsConverter.cleanUpPredicate([customPredicate, ...(filterPredicate || [])]);
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         sourceId: customSourceId,
         sortBy,
@@ -857,5 +848,6 @@ SelectJournal.propTypes = {
 };
 
 SelectJournal.defaultProps = {
-  isSelectModalOpen: false
+  isSelectModalOpen: false,
+  presetFilterPredicates: []
 };

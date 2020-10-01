@@ -9,7 +9,8 @@ import BaseDataSource, { DEFAULT_FORMATTER } from './BaseDataSource';
 import AttributesService from '../../../../services/AttributesService';
 
 /**
- * @deprecated see JournalsService
+ * @deprecated
+ * @see src/components/Journals/service
  */
 export default class GqlDataSource extends BaseDataSource {
   constructor(options) {

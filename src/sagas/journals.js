@@ -11,7 +11,7 @@ import { getJournalUIType, getOldPageUrl } from '../api/export/journalsApi';
 
 import Records from '../components/Records';
 import { ActionTypes } from '../components/Records/actions';
-import JournalsService from '../components/Journals/service/journalsService';
+import JournalsService from '../components/Journals/service';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import {
