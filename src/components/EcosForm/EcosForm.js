@@ -73,7 +73,7 @@ class EcosForm extends React.Component {
     };
   }
 
-  get savedFieldsByComponentType() {
+  get recoverableComponentsProperties() {
     return {
       tabs: ['currentTab']
     };
@@ -202,7 +202,7 @@ class EcosForm extends React.Component {
           return;
         }
 
-        self._applySavedFields.call(self, formDefinition);
+        self._recoverComponentsProperties(formDefinition);
 
         const formPromise = Formio.createForm(containerElement, formDefinition, options);
 
@@ -259,28 +259,34 @@ class EcosForm extends React.Component {
     }, onFormLoadingFailure);
   }
 
-  _applySavedFields(formDefinition) {
-    if (this._form) {
-      const components = {};
-
-      EcosFormUtils.forEachComponent(formDefinition, component => (components[component.id] = component));
-      EcosFormUtils.forEachComponent(this._form, item => {
-        const component = components[item.id];
-        const fields = get(this, ['savedFieldsByComponentType', component.type], []);
-
-        if (component && !isEmpty(fields)) {
-          fields.forEach(field => {
-            const fieldValue = get(item, field);
-
-            if (fieldValue === undefined) {
-              return;
-            }
-
-            component[field] = fieldValue;
-          });
-        }
-      });
+  _recoverComponentsProperties(formDefinition) {
+    if (!this._form) {
+      return;
     }
+
+    const components = {};
+
+    EcosFormUtils.forEachComponent(formDefinition, component => (components[component.id] = component));
+
+    EcosFormUtils.forEachComponent(this._form, prevDefinitionComponent => {
+      const component = components[prevDefinitionComponent.id];
+      if (!component) {
+        return;
+      }
+
+      const recoverableProperties = this.recoverableComponentsProperties[component.type] || [];
+      if (isEmpty(recoverableProperties)) {
+        return;
+      }
+
+      recoverableProperties.forEach(property => {
+        const propertyValue = prevDefinitionComponent[property];
+        if (propertyValue === undefined) {
+          return;
+        }
+        component[property] = propertyValue;
+      });
+    });
   }
 
   fireEvent(event, data) {
