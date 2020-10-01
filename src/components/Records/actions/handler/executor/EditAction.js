@@ -62,7 +62,7 @@ async function runEditMenu(record) {
 
   if (Number(version) > 0) {
     return new Promise(resolve => {
-      MenuSettingsService.emitter.emit(MenuSettingsService.Events.SHOW, record.id, resolve);
+      MenuSettingsService.emitter.emit(MenuSettingsService.Events.SHOW, { recordId: record.id }, resolve);
     });
   }
 
