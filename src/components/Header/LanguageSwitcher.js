@@ -44,7 +44,9 @@ export default class LanguageSwitcher extends React.Component {
       return null;
     }
 
-    const classNameIcoBtn = classNames(`ecos-header-lang__btn ecos-btn_theme_${theme} ecos-btn_padding_small ecos-btn_r_6`);
+    const classNameIcoBtn = classNames(
+      `ecos-header-lang__btn ecos-btn_theme_${theme} ecos-btn_padding_small ecos-btn_r_6 ecos-btn_blue-classic`
+    );
 
     const currentLanguage = items.find(item => item.id === language);
     if (!currentLanguage) {
