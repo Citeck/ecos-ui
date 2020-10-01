@@ -295,6 +295,11 @@ $border-base: #c1c1c1;
       font-size: $font-size-small;
     }
   }
+
+  &__modal {
+    &-body {
+    }
+  }
 }
 
 .ecos-modal-preview-doc {
@@ -308,5 +313,11 @@ $border-base: #c1c1c1;
     & .ecos-doc-preview__content {
       padding: 0;
     }
+  }
+
+  &__body.modal-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 }
