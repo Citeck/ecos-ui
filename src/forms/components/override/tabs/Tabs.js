@@ -42,7 +42,8 @@ export default class TabsComponent extends NestedComponent {
 
   constructor(component, options, data) {
     super(component, options, data);
-    this.currentTab = 0;
+
+    this.currentTab = lodashGet(component, 'currentTab', 0) || lodashGet(options, 'currentTab', 0) || 0;
     this.validityTabs = [];
   }
 
