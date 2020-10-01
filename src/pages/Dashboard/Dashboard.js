@@ -494,7 +494,8 @@ class Dashboard extends Component {
       titleInfo: { name = '', version = '' },
       dashboardType,
       isMobile,
-      isLoadingDashboard
+      isLoadingDashboard,
+      stateKey
     } = this.props;
     const { recordRef } = this.getPathInfo();
 
@@ -543,6 +544,7 @@ class Dashboard extends Component {
         {title}
         {showStatus && (
           <DocStatus
+            stateId={stateKey}
             record={recordRef}
             className="ecos-dashboard__header-status"
             loaderType={LoaderTypes.POINTS}

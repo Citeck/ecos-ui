@@ -83,14 +83,14 @@ export default class DashboardConverter {
     return target;
   }
 
-  static getNewDashboardForWeb(data = {}, widgetsById) {
+  static getNewDashboardForWeb(data = {}, widgetsById, version) {
     const source = cloneDeep(data);
     let target = {};
 
     if (!isEmpty(source)) {
       target.config = {
         layouts: DashboardConverter.getDesktopConfigForWeb(source, widgetsById),
-        mobile: DashboardConverter.getMobileConfigForWeb(source, widgetsById)
+        mobile: DashboardConverter.getMobileConfigForWeb(source, widgetsById, version)
       };
     }
 
