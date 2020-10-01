@@ -53,7 +53,13 @@ class SiteMenu extends React.Component {
   render() {
     const { dropdownOpen } = this.state;
     const { items, legacyItems, theme } = this.props;
-    const classNameIcoBtn = classNames(`ecos-header-site__btn ecos-btn_theme_${theme} ecos-btn_padding_small ecos-btn_r_6`);
+    const classNameIcoBtn = classNames(
+      'ecos-header-site__btn',
+      `ecos-btn_theme_${theme}`,
+      'ecos-btn_padding_small',
+      'ecos-btn_r_6',
+      'ecos-btn_blue-classic'
+    );
 
     let menuItems = [];
     if (Array.isArray(legacyItems) && legacyItems.length) {
