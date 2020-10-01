@@ -41,7 +41,7 @@ class UserMenu extends React.Component {
     const medium = widthParent > 600 && widthParent < 910;
     const disabled = !(!isEmpty(items) && isArray(items));
     const mob = isMobile || medium;
-    const classNameIcoBtn = classNames(`ecos-header-user__btn ecos-btn_tight ecos-btn_r_6 ecos-btn_blue-classic`, {
+    const classNameIcoBtn = classNames('ecos-header-user__btn', 'ecos-btn_tight', 'ecos-btn_r_6', 'ecos-btn_blue-classic', {
       [`ecos-btn_theme_${theme}`]: !mob && !!theme,
       'ecos-btn_no-back ecos-btn_width_auto': mob
     });
