@@ -57,7 +57,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     const migratedConfig = DashboardService.migrateConfigFromOldVersion(result.config);
     const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
     const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
-    const webConfigs = DashboardConverter.getNewDashboardForWeb(newConfig, widgetsById);
+    const webConfigs = DashboardConverter.getNewDashboardForWeb(newConfig, widgetsById, migratedConfig.version);
     const isReset = yield select(selectResetStatus);
 
     if (isReset) {
