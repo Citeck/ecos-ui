@@ -1,26 +1,22 @@
 import { CommonApi } from './common';
 import Records from '../components/Records';
-import { DEFAULT_THEME } from '../constants/theme';
+import ecosFetch from '../helpers/ecosFetch';
+import { DEFAULT_THEME, THEME_URL_PATH } from '../constants/theme';
+import { SourcesId } from '../constants';
 
 export class ViewApi extends CommonApi {
   getActiveThemeId = () => {
-    return Records.get('uiserv/config@active-theme')
-      .load('value', true)
-      .then(resp => {
-        if (!resp) {
-          return DEFAULT_THEME;
-        }
-        return resp;
-      })
+    return ecosFetch(`${THEME_URL_PATH}/current`)
+      .then(resp => (resp.ok ? resp.text() : DEFAULT_THEME))
       .catch(() => DEFAULT_THEME);
   };
 
   getThemeCacheKey = () => {
-    return Records.get('uiserv/meta@').load('attributes.theme-cache-key', true);
+    return Records.get(`${SourcesId.META}@`).load('attributes.theme-cache-key', true);
   };
 
   changeTheme = theme => {
-    const record = Records.get('uiserv/config@active-theme');
+    const record = Records.get(`${SourcesId.CONFIG}@active-theme`);
 
     record.att('value', theme);
 
@@ -28,7 +24,7 @@ export class ViewApi extends CommonApi {
   };
 
   getThemeConfig = theme => {
-    return Records.get(`uiserv/theme@${theme}`)
+    return Records.get(`${SourcesId.THEME}@${theme}`)
       .load(
         {
           name: 'name?str',
@@ -36,7 +32,6 @@ export class ViewApi extends CommonApi {
         },
         true
       )
-      .then(resp => resp)
       .catch(() => null);
   };
 }

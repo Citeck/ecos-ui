@@ -79,13 +79,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// TODO simplify
 store.dispatch(
-  loadThemeRequest({
-    onSuccess: () => {
+  initAppRequest({
+    onSuccess: isAuthenticated => {
       store.dispatch(
-        initAppRequest({
-          onSuccess: isAuthenticated => {
+        loadThemeRequest({
+          isAuthenticated,
+          onSuccess: () => {
             i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
               ReactDOM.render(
                 <Provider store={store}>
