@@ -24,15 +24,16 @@ export default class ParserPredicate {
       columns = columns.filter(c => groupBy.filter(g => g === c.attribute)[0]);
     }
 
-    columns.forEach(c => {
-      if (c.visible && c.default && c.searchable) {
-        const predicate = SEARCH_EQUAL_PREDICATES_MAP[c.type];
+    columns &&
+      columns.forEach(c => {
+        if (c.visible && c.default && c.searchable) {
+          const predicate = SEARCH_EQUAL_PREDICATES_MAP[c.type];
 
-        if (predicate) {
-          val.push(new Predicate({ att: c.attribute, t: predicate, val: text }));
+          if (predicate) {
+            val.push(new Predicate({ att: c.attribute, t: predicate, val: text }));
+          }
         }
-      }
-    });
+      });
 
     return val.length
       ? {
