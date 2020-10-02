@@ -30,7 +30,8 @@ export default class WidgetService {
 
     modal.open(<DocPreview height={'100%'} scale={1} recordId={recordId} className="ecos-modal-preview-doc__content" />, {
       title: t(title),
-      class: 'ecos-modal-preview-doc'
+      class: 'ecos-modal-preview-doc',
+      classBody: 'ecos-modal-preview-doc__body'
     });
   }
 
