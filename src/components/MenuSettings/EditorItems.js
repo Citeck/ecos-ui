@@ -106,6 +106,26 @@ class EditorItems extends React.Component {
     setMenuItems(sorted);
   };
 
+  handleScrollTree = event => {
+    const target = get(event, 'target', null);
+
+    if (!target) {
+      return;
+    }
+
+    if (target.classList.contains('ecos-dropdown__scrollbar')) {
+      return;
+    }
+
+    document.body.dispatchEvent(
+      new MouseEvent('mousedown', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      })
+    );
+  };
+
   renderEditorItem = () => {
     const { editItemInfo } = this.state;
     const { items, setMenuItems, addJournalMenuItems, setLastAddedItems, fontIcons } = this.props;
@@ -215,6 +235,10 @@ class EditorItems extends React.Component {
             titleField={'label'}
             onChange={type => this.handleChooseOption({ type, item, action: ms.ActionTypes.CREATE, level: level + 1 })}
             isStatic
+            boundariesElement="window"
+            modifiers={null}
+            withScrollbar
+            scrollbarHeightMax={200}
             controlLabel={t(Labels.BTN_ADD)}
             controlIcon="icon-plus"
             className="ecos-menu-settings-editor-items__block-dropdown"
@@ -246,8 +270,8 @@ class EditorItems extends React.Component {
   };
 
   render() {
-    const { openAllMenuItems } = this.state;
     const { items } = this.props;
+    const { openAllMenuItems } = this.state;
 
     return (
       <div className="ecos-menu-settings-editor-items">
@@ -259,7 +283,7 @@ class EditorItems extends React.Component {
             {t(openAllMenuItems ? Labels.BTN_COLLAPSE_ALL : Labels.BTN_EXPAND_ALL)}
           </Btn>
         </div>
-        <div className="ecos-menu-settings-editor-items__tree-field">
+        <div className="ecos-menu-settings-editor-items__tree-field" onScroll={this.handleScrollTree}>
           <Tree
             data={items}
             prefixClassName="ecos-menu-settings-editor-items"
