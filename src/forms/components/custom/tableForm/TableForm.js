@@ -3,8 +3,7 @@ import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../../components/Records';
-import { JournalsApi } from '../../../../api/journalsApi';
-import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
+import JournalsService from '../../../../components/Journals/service';
 import DialogManager from '../../../../components/common/dialogs/Manager';
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
@@ -198,36 +197,25 @@ export default class TableFormComponent extends BaseReactComponent {
         return resolve({ error: new Error('Empty source') });
       }
 
+      const attribute = this.getAttributeToEdit();
+
       switch (source.type) {
         case 'journal':
           const { journal } = source;
+          const journalId = await (journal.journalId ||
+            this.getRecord()
+              .loadEditorKey(attribute)
+              .catch(() => null));
+          const displayColumns = journal.columns;
 
-          let fetchJournalIdPromise;
-          if (!journal.journalId) {
-            fetchJournalIdPromise = new Promise(resolve1 => {
-              const attribute = this.getAttributeToEdit();
-              return this.getRecord()
-                .loadEditorKey(attribute)
-                .then(resolve1)
-                .catch(() => {
-                  resolve1(null);
-                });
-            });
-          } else {
-            fetchJournalIdPromise = Promise.resolve(journal.journalId);
-          }
-
-          const journalId = await fetchJournalIdPromise;
           if (!journalId) {
             return resolve({ error: new Error(t('ecos-table-form.error.no-journal-id')) });
           }
 
-          const journalsApi = new JournalsApi();
-          const displayColumns = journal.columns;
-
           try {
-            const journalConfig = await journalsApi.getJournalConfig(journalId);
+            const journalConfig = await JournalsService.getJournalConfig(journalId);
             let columns = journalConfig.columns;
+
             if (Array.isArray(displayColumns) && displayColumns.length > 0) {
               columns = columns.map(item => {
                 return {
@@ -239,17 +227,17 @@ export default class TableFormComponent extends BaseReactComponent {
 
             resolve({
               createVariants: journalConfig.meta.createVariants || [],
-              columns: GqlDataSource.getColumnsStatic(columns)
+              columns: await JournalsService.resolveColumns(columns)
             });
-          } catch (e) {
-            return resolve({ error: new Error(`Can't fetch journal config: ${e.message}`) });
+          } catch (error) {
+            console.error(error);
+            return resolve({ error: new Error(`${t('ecos-table-form.error.no-journal-id')} (${error.message})`) });
           }
           break;
         case 'custom':
           const component = this.component;
           const record = this.getRecord();
-          const attribute = this.getAttributeToEdit();
-          const columns = source.custom.columns.map(item => {
+          const columns = (_.get(source, 'custom.columns') || []).map(item => {
             const col = { ...item };
             if (item.formatter) {
               col.formatter = this.evaluate(item.formatter, {}, 'value', true);
@@ -268,14 +256,18 @@ export default class TableFormComponent extends BaseReactComponent {
 
           let createVariantsPromise = Promise.resolve([]);
           if (customCreateVariants) {
-            let fetchCustomCreateVariantsPromise;
+            let fetchCustomCreateVariantsPromise = Promise.resolve([]);
+
             if (customCreateVariants.then) {
               fetchCustomCreateVariantsPromise = customCreateVariants;
             } else {
               fetchCustomCreateVariantsPromise = Promise.resolve(customCreateVariants);
             }
+
+            const variants = await fetchCustomCreateVariantsPromise;
+
             createVariantsPromise = Promise.all(
-              (await fetchCustomCreateVariantsPromise).map(variant => {
+              variants.map(variant => {
                 if (_.isObject(variant)) {
                   return variant;
                 }
@@ -296,8 +288,9 @@ export default class TableFormComponent extends BaseReactComponent {
 
           try {
             const createVariants = await createVariantsPromise;
-            let columnsMap = {};
-            let formatters = {};
+            const columnsMap = {};
+            const formatters = {};
+
             columns.forEach(item => {
               const key = `.edge(n:"${item.name}"){title,type,multiple}`;
               columnsMap[key] = item;
@@ -350,47 +343,41 @@ export default class TableFormComponent extends BaseReactComponent {
               inputsPromise = EcosFormUtils.getRecordFormInputsMap(cvRecordRef);
             }
 
-            Promise.all([columnsInfoPromise, inputsPromise])
-              .then(columnsAndInputs => {
-                let [columns, inputs] = columnsAndInputs;
+            const result = await Promise.all([columnsInfoPromise, inputsPromise]).catch(err => {
+              console.error(err);
+              return [columns, {}];
+            });
 
-                for (let column of columns) {
-                  let input = inputs[column.attribute] || {};
-                  let computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
+            const [updColumns = [], inputs = {}] = result;
 
-                  if (computedDispName) {
-                    //Is this filter required?
-                    column.formatter = {
-                      name: 'FormFieldFormatter',
-                      params: input
-                    };
-                  }
+            for (let col of updColumns) {
+              let input = inputs[col.attribute] || {};
+              let computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
 
-                  if (formatters.hasOwnProperty(column.attribute)) {
-                    column.formatter = formatters[column.attribute];
-                  }
-                }
+              if (computedDispName) {
+                //todo Is this filter required?
+                col.formatter = {
+                  name: 'FormFieldFormatter',
+                  params: input
+                };
+              }
 
-                resolve({
-                  createVariants,
-                  columns: GqlDataSource.getColumnsStatic(columns)
-                });
-              })
-              .catch(err => {
-                console.error(err);
-                columnsInfoPromise.then(columns => {
-                  resolve({
-                    createVariants,
-                    columns: GqlDataSource.getColumnsStatic(columns)
-                  });
-                });
-              });
-          } catch (e) {
-            return resolve({ error: new Error(`Can't fetch create variants: ${e.message}`) });
+              if (formatters.hasOwnProperty(col.attribute)) {
+                col.formatter = formatters[col.attribute];
+              }
+            }
+
+            resolve({
+              createVariants,
+              columns: await JournalsService.resolveColumns(updColumns)
+            });
+          } catch (error) {
+            console.error(error);
+            return resolve({ error: new Error(`Can't fetch create variants: ${error.message}`) });
           }
           break;
         default:
-          return resolve({ error: new Error(`Invalid source type`) });
+          return resolve({ error: new Error(t('ecos-table-form.error.source')) });
       }
     });
   };

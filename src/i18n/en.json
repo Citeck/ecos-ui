@@ -302,6 +302,8 @@
   "ecos-table-form.error.failure-to-import": "Failure to import file",
   "ecos-table-form.error.no-response-handler": "You must set \"Response handler\" setting",
   "ecos-table-form.error.no-journal-id": "The \"journal ID\" config is required!",
+  "ecos-table-form.error.no-journal-config": "Journal config hasn't gotten",
+  "ecos-table-form.error.source": "Invalid source type",
   "ecos-ui.select.loading-message": "Loading...",
   "ecos-ui.select.no-options-message": "No options",
   "ecos.forms.Drop files to attach, or": "Drop files to attach, or",
