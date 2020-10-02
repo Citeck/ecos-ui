@@ -1,11 +1,8 @@
-import get from 'lodash/get';
-import set from 'lodash/set';
 import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
 import { debounce } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
 import Records from '../components/Records';
-import * as RecordUtils from '../components/Records/utils/recordUtils';
 
 import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
@@ -60,63 +57,6 @@ export class JournalsApi extends RecordService {
       const columns = dataSource.getColumns();
       return { data, total, columns, isTree: true };
     });
-  };
-
-  //todo remove
-  getJournalConfig = async journalId => {
-    const emptyConfig = {
-      columns: [],
-      meta: { createVariants: [] }
-    };
-
-    if (!journalId) {
-      console.warn('No journalId');
-      return Promise.resolve(emptyConfig);
-    }
-
-    let journalRecordId = journalId;
-
-    if (journalRecordId.indexOf('@') === -1) {
-      journalRecordId = 'uiserv/journal_v1@' + journalId;
-    }
-
-    const config = await Records.get(journalRecordId)
-      .load('.json')
-      .then(resp => {
-        const data = resp || {};
-        if (!data.columns || data.columns.length === 0) {
-          throw new Error('fallback to legacy config get');
-        }
-
-        (data.columns || []).forEach((col, i) => {
-          col.type = get(col, 'params.edgeType') || col.type;
-        });
-
-        return data;
-      })
-      .catch(firstE => {
-        return this.getJson(`${PROXY_URI}api/journals/config?journalId=${journalId}`)
-          .then(resp => {
-            const data = resp || {};
-
-            (data.columns || []).forEach((col, i) => {
-              col.type = get(col, 'params.edgeType') || col.type;
-            });
-
-            return data;
-          })
-          .catch(secondE => {
-            console.error(firstE);
-            console.error(secondE);
-            return emptyConfig;
-          });
-      });
-
-    const updPredicate = await RecordUtils.replaceAttrValuesForRecord(get(config, 'meta.predicate'));
-
-    set(config, 'meta.predicate', updPredicate);
-
-    return config;
   };
 
   getJournalsList = () => {
