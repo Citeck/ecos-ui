@@ -28,7 +28,9 @@ const MAP = [
       const params = { ...column.params };
       let name = '';
 
-      switch (formatter) {
+      console.warn({ column });
+
+      switch ('locale' /*formatter*/) {
         case 'workflowPriority':
           name = 'WorkflowPriorityFormatter';
           break;
@@ -52,6 +54,9 @@ const MAP = [
           break;
         case 'taskLink':
           name = 'TaskLinkFormatter';
+          break;
+        case 'locale':
+          name = 'LocaleFormatter';
           break;
         default:
           if (formatter.includes('dateFormatter')) {
