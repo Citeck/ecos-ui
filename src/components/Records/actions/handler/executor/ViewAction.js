@@ -3,8 +3,6 @@ import { ActionModes, SourcesId } from '../../../../../constants';
 import Records from '../../../Records';
 import { notifyFailure } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
-import MenuSettingsService from '../../../../../services/MenuSettingsService';
-import { t } from '../../../../../helpers/export/util';
 
 export default class ViewAction extends ActionsExecutor {
   static ACTION_ID = 'view';
@@ -31,10 +29,6 @@ export default class ViewAction extends ActionsExecutor {
       }
       case config.viewType === 'view-task': {
         goToTaskView(record.id, openParams);
-        return false;
-      }
-      case record.id.includes(SourcesId.MENU): {
-        await runViewMenu(record);
         return false;
       }
       default: {
@@ -85,14 +79,4 @@ function runViewTaskDocDashboard(record, openParams) {
   Records.get(record.id)
     .load('wfm:document?id')
     .then(docId => (docId ? goToCardDetailsPage(docId, openParams) : ''));
-}
-
-async function runViewMenu(record) {
-  const version = await record.load('version?str');
-
-  if (Number(version) > 0) {
-    MenuSettingsService.emitter.emit(MenuSettingsService.Events.SHOW, { recordId: record.id, disabledEdit: true });
-  } else {
-    notifyFailure(t('menu-settings.error.view-version-not-available', { version }));
-  }
 }
