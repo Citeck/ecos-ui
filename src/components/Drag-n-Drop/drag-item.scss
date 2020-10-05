@@ -29,6 +29,10 @@ $ecos_btn_grey5: ecos-btn_grey5;
     margin-right: 0;
   }
 
+  &:focus {
+    outline: none;
+  }
+
   &_selected {
     background: $color-gray-4;
     box-shadow: none;
@@ -67,6 +71,12 @@ $ecos_btn_grey5: ecos-btn_grey5;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    &-popper {
+      padding: 5px 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
   }
 
   &__actions {
