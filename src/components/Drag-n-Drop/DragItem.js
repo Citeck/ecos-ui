@@ -6,9 +6,8 @@ import { Draggable } from 'react-beautiful-dnd';
 import { IcoBtn } from '../common/btns';
 
 import './drag-item.scss';
-import { Tooltip, Icon } from '../common';
+import { Tooltip, Icon, Popper } from '../common';
 import { prepareTooltipId } from '../../helpers/util';
-import Popper from '../common/Popper';
 
 class DragItem extends React.Component {
   static propTypes = {
