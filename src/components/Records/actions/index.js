@@ -8,6 +8,7 @@ import EditTaskAssignee from './handler/executor/workflow/EditTaskAssignee';
 import SetTaskAssignee from './handler/executor/workflow/SetTaskAssignee';
 
 import EditAction from './handler/executor/EditAction';
+import EditMenuAction from './handler/executor/EditMenuAction';
 import ViewAction from './handler/executor/ViewAction';
 import ViewCardTemplateAction from './handler/executor/ViewCardTemplateAction';
 import ViewMenuAction from './handler/executor/ViewMenuAction';
@@ -48,6 +49,7 @@ export const ActionTypes = {
 
 actionsRegistry.register(new DeleteAction());
 actionsRegistry.register(new EditAction());
+actionsRegistry.register(new EditMenuAction());
 actionsRegistry.register(new AssocAction());
 actionsRegistry.register(new BackgroundOpenAction());
 actionsRegistry.register(new CreateAction());
