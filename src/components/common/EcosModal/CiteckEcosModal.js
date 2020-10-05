@@ -50,6 +50,7 @@ class ModalWrapper extends React.Component {
         title={this.props.title}
         isBigHeader={this.props.isBigHeader}
         className={classNames.join(' ')}
+        classNameBody={this.props.classNameBody}
         zIndex={9000}
         reactstrapProps={this.props.reactstrapProps}
       >
@@ -62,6 +63,7 @@ class ModalWrapper extends React.Component {
 ModalWrapper.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
+  classNameBody: PropTypes.string,
   title: PropTypes.string,
   onHideModal: PropTypes.func,
   getInstance: PropTypes.func,
@@ -94,6 +96,7 @@ class Modal {
         title={config.title || config.header || EMPTY_HEADER_TITLE}
         isBigHeader={config.isBigHeader}
         className={config.class}
+        classNameBody={config.classBody}
         onHideModal={this.onHideModal}
         getInstance={el => (this.modal = el)}
         reactstrapProps={config.reactstrapProps}
