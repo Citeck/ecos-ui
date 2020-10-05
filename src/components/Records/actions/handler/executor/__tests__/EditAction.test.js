@@ -19,7 +19,7 @@ jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
           Promise.resolve({
             id: RecordIds.TASK_REF,
             attributes: {
-              'cm:name?str': 'activiti$task***********'
+              'cm:name?str': 'activiti$task'
             }
           })
       });

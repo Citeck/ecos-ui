@@ -24,11 +24,11 @@ export default class ViewAction extends ActionsExecutor {
 
     switch (true) {
       case config.viewType === 'task-document-dashboard': {
-        runViewTaskDocDashboard(record, openParams);
+        await runViewTaskDocDashboard(record, openParams);
         return false;
       }
       case config.viewType === 'view-task': {
-        goToTaskView(record.id, openParams);
+        await goToTaskView(record.id, openParams);
         return false;
       }
       default: {
@@ -51,21 +51,21 @@ export default class ViewAction extends ActionsExecutor {
   }
 }
 
-const goToTaskView = (task, params) => {
+const goToTaskView = async (task, params) => {
   let taskRecord = Records.get(task);
 
-  taskRecord.load('wfm:document?id').then(docId => {
+  await taskRecord.load('wfm:document?id').then(docId => {
     if (docId) {
       goToCardDetailsPage(docId, params);
     } else {
-      taskRecord.load('cm:name?str').then(taskId => {
+      taskRecord.load('cm:name?str').then(async taskId => {
         if (!taskId) {
           console.error('Task Id is not found!');
           notifyFailure();
           return;
         }
         const taskRecordId = `${SourcesId.TASK}@${taskId}`;
-        Records.get(taskRecordId)
+        await Records.get(taskRecordId)
           .load('workflow?id')
           .then(workflowId => {
             goToCardDetailsPage(workflowId || taskRecordId, params);
@@ -75,8 +75,8 @@ const goToTaskView = (task, params) => {
   });
 };
 
-function runViewTaskDocDashboard(record, openParams) {
-  Records.get(record.id)
+const runViewTaskDocDashboard = async (record, openParams) => {
+  await Records.get(record.id)
     .load('wfm:document?id')
     .then(docId => (docId ? goToCardDetailsPage(docId, openParams) : ''));
-}
+};
