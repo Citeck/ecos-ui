@@ -153,7 +153,8 @@
         width: 100%;
 
         &_mobile {
-          width: 40%;
+          max-width: 40%;
+          min-width: 180px;
 
           #{$ecos-dashboard-settings}__column-widgets {
             width: 100%;
