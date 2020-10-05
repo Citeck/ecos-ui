@@ -1,5 +1,5 @@
-const LANGUAGE_RU = 'ru';
-const LANGUAGE_EN = 'en';
+export const LANGUAGE_RU = 'ru';
+export const LANGUAGE_EN = 'en';
 const IMG_V = '2';
 
 export const allowedLanguages = [

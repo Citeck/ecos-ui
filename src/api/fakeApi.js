@@ -135,7 +135,7 @@ export const fakeApi = {
   getCurrentThemeName() {
     return new Promise(resolve => {
       setTimeout(() => {
-        resolve('citeckTheme');
+        resolve('ecos');
       }, 0);
     });
   }

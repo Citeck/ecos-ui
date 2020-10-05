@@ -8,6 +8,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
@@ -32,7 +33,7 @@ import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
 import DashboardService from '../../services/dashboard';
 import pageTabList from '../../services/pageTabs/PageTabList';
-import { selectDashboardByKey } from '../../selectors/dashboard';
+import { selectDashboardByKey, selectDashboardConfig, selectDashboardConfigVersion } from '../../selectors/dashboard';
 import PageService from '../../services/PageService';
 import DialogManager from '../../components/common/dialogs/Manager';
 
@@ -51,9 +52,9 @@ const mapStateToProps = (state, ownProps) => {
   return {
     stateKey,
     enableCache,
-    config: get(dashboardState, [isMobile ? 'mobileConfig' : 'config'], []),
-    isLoadingDashboard: get(dashboardState, ['isLoading']),
-    saveResultDashboard: get(dashboardState, ['requestResult'], {}),
+    config: selectDashboardConfig(dashboardState, isMobile),
+    isLoadingDashboard: get(dashboardState, 'isLoading'),
+    saveResultDashboard: get(dashboardState, 'requestResult', {}),
     isLoadingMenu: get(state, ['menu', 'isLoading']),
     saveResultMenu: get(state, ['menu', 'requestResult']),
     menuType: get(state, ['menu', 'type']),
@@ -63,7 +64,9 @@ const mapStateToProps = (state, ownProps) => {
     titleInfo: get(dashboardState, ['titleInfo'], {}),
     warningMessage: get(dashboardState, 'warningMessage', ''),
     isMobile,
-    redirectToNewUi: get(state, 'app.redirectToNewUi', false)
+    redirectToNewUi: get(state, 'app.redirectToNewUi', false),
+    originalConfig: get(dashboardState, 'originalConfig', {}),
+    configVersion: selectDashboardConfigVersion(dashboardState)
   };
 };
 
@@ -354,6 +357,26 @@ class Dashboard extends Component {
   };
 
   handleSaveWidgetProps = (id, props = {}) => {
+    const { configVersion } = this.props;
+
+    if (configVersion) {
+      const originalConfig = cloneDeep(this.props.originalConfig);
+      const widgets = get(originalConfig, [configVersion, 'widgets'], []);
+      const widget = widgets.find(widget => widget.id === id);
+      const { recordRef } = this.getPathInfo();
+
+      if (widget) {
+        widget.props = {
+          ...widget.props,
+          ...props
+        };
+      }
+
+      this.saveDashboardConfig({ config: originalConfig, recordRef });
+
+      return;
+    }
+
     const activeLayout = deepClone(this.activeLayout, {});
     const columns = activeLayout.columns || [];
     const eachColumns = column => {
@@ -471,7 +494,8 @@ class Dashboard extends Component {
       titleInfo: { name = '', version = '' },
       dashboardType,
       isMobile,
-      isLoadingDashboard
+      isLoadingDashboard,
+      stateKey
     } = this.props;
     const { recordRef } = this.getPathInfo();
 
@@ -520,6 +544,7 @@ class Dashboard extends Component {
         {title}
         {showStatus && (
           <DocStatus
+            stateId={stateKey}
             record={recordRef}
             className="ecos-dashboard__header-status"
             loaderType={LoaderTypes.POINTS}

@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
@@ -70,6 +71,12 @@ class EcosForm extends React.Component {
       formId: 'eform@',
       error: null,
       formDefinition: {}
+    };
+  }
+
+  get recoverableComponentsProperties() {
+    return {
+      tabs: ['currentTab']
     };
   }
 
@@ -176,6 +183,7 @@ class EcosForm extends React.Component {
         const formI18N = (formData.i18n || {})[language] || {};
 
         i18n[language] = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formI18N);
+        options.theme = EcosFormUtils.getThemeName();
         options.language = language;
         options.i18n = i18n;
         options.events = new CustomEventEmitter({
@@ -195,6 +203,8 @@ class EcosForm extends React.Component {
           return;
         }
 
+        self._recoverComponentsProperties(formDefinition);
+
         const formPromise = Formio.createForm(containerElement, formDefinition, options);
 
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
@@ -203,7 +213,6 @@ class EcosForm extends React.Component {
           const handlersPrefix = 'onForm';
 
           self._form = form;
-
           form.ecos = { custom: customModule };
 
           if (customModule.init) {
@@ -249,6 +258,36 @@ class EcosForm extends React.Component {
         });
       });
     }, onFormLoadingFailure);
+  }
+
+  _recoverComponentsProperties(formDefinition) {
+    if (!this._form) {
+      return;
+    }
+
+    const components = {};
+
+    EcosFormUtils.forEachComponent(formDefinition, component => (components[component.id] = component));
+
+    EcosFormUtils.forEachComponent(this._form, prevDefinitionComponent => {
+      const component = components[prevDefinitionComponent.id];
+      if (!component) {
+        return;
+      }
+
+      const recoverableProperties = this.recoverableComponentsProperties[component.type] || [];
+      if (isEmpty(recoverableProperties)) {
+        return;
+      }
+
+      recoverableProperties.forEach(property => {
+        const propertyValue = prevDefinitionComponent[property];
+        if (propertyValue === undefined) {
+          return;
+        }
+        component[property] = propertyValue;
+      });
+    });
   }
 
   fireEvent(event, data) {

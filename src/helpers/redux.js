@@ -1,3 +1,7 @@
+export const getTitleFormatter = module => {
+  return (action, time, took) => `${module} >>> action @ ${action.type}`;
+};
+
 export const handleState = (state, stateId, payload) =>
   stateId
     ? {
@@ -62,3 +66,11 @@ export function startLoading(initialState) {
     };
   };
 }
+
+export const updateState = (state, stateId, newData = {}, initialState) => ({
+  ...state,
+  [stateId]: {
+    ...getCurrentStateById(state, stateId, initialState),
+    ...newData
+  }
+});

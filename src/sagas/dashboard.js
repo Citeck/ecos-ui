@@ -20,9 +20,9 @@ import {
 import { setDashboardConfig as setDashboardSettingsConfig } from '../actions/dashboardSettings';
 import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
 import DashboardConverter from '../dto/dashboard';
-import DashboardSettingsConverter from '../dto/dashboardSettings';
 import DashboardService from '../services/dashboard';
 import PageService from '../services/PageService';
+import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
@@ -53,12 +53,11 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     }
 
     const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
-
-    const data = DashboardService.checkDashboardResult(result);
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
-    const webConfig = DashboardConverter.getDashboardForWeb(data);
-    const webConfigMobile = DashboardConverter.getMobileDashboardForWeb(data);
-
+    const migratedConfig = DashboardService.migrateConfigFromOldVersion(result.config);
+    const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
+    const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
+    const webConfigs = DashboardConverter.getNewDashboardForWeb(newConfig, widgetsById, migratedConfig.version);
     const isReset = yield select(selectResetStatus);
 
     if (isReset) {
@@ -66,8 +65,14 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     }
 
     yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key }));
-    yield put(setDashboardConfig({ config: webConfig, key: payload.key }));
-    yield put(setMobileDashboardConfig({ config: webConfigMobile, key: payload.key }));
+    yield put(
+      setDashboardConfig({
+        config: get(webConfigs, 'config.layouts', []),
+        originalConfig: result.config,
+        key: payload.key
+      })
+    );
+    yield put(setMobileDashboardConfig({ config: get(webConfigs, 'config.mobile', []), key: payload.key }));
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
     NotificationManager.error(t('dashboard.error.get-config'), t('error'));
@@ -92,27 +97,52 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   yield put(setRequestResultDashboard({ key: payload.key }));
 
   try {
+    let config = payload.config;
     const identification = yield select(selectIdentificationForView);
-    const config = yield select(selectDashboardConfigs);
 
-    if (config.isMobile) {
-      config.mobile = payload.config;
-      yield put(setMobileDashboardConfig(payload.config));
-    } else {
-      config.layouts = payload.config;
-      yield put(setDashboardConfig({ config: payload.config, key: payload.key }));
+    if (!get(config, 'version')) {
+      const dashboardConfig = yield select(selectDashboardConfigs);
+
+      if (dashboardConfig.isMobile) {
+        dashboardConfig.mobile = payload.config;
+      } else {
+        dashboardConfig.layouts = payload.config;
+      }
+
+      delete dashboardConfig.isMobile;
+
+      config = DashboardService.migrateConfigFromOldVersion(dashboardConfig);
     }
 
-    delete config.isMobile;
-
+    const widgetsById = yield select(() => selectSelectedWidgetsById(config[config.version]));
+    const forWeb = DashboardConverter.getNewDashboardForWeb(config[config.version], widgetsById);
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification });
     const res = DashboardService.parseRequestResult(dashboardResult);
     const isExistSettings = !!(yield select(state => get(state, ['dashboardSettings', res.dashboardId])));
 
     if (isExistSettings) {
-      const settingsConfig = DashboardSettingsConverter.getSettingsForWeb({ config, ...identification });
-      yield put(setDashboardSettingsConfig({ ...settingsConfig, key: res.dashboardId }));
+      yield put(
+        setDashboardSettingsConfig({
+          ...forWeb,
+          key: res.dashboardId,
+          originalConfig: payload.config
+        })
+      );
     }
+
+    yield put(
+      setDashboardConfig({
+        config: get(forWeb, 'config.layouts', []),
+        originalConfig: payload.config,
+        key: payload.key
+      })
+    );
+    yield put(
+      setMobileDashboardConfig({
+        config: get(forWeb, 'config.mobile', []),
+        key: payload.key
+      })
+    );
 
     yield put(
       setRequestResultDashboard({

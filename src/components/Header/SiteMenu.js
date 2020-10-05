@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
-import { goToPageFromSiteMenu, runActionFromSiteMenu } from '../../actions/header';
+import { goToPageFromSiteMenu } from '../../actions/header';
 import { processMenuItemsFromOldMenu } from '../../helpers/menu';
 import { DropdownMenu as Menu, Icon } from '../common';
 import { IcoBtn } from '../common/btns';
@@ -16,8 +16,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  goToPage: payload => dispatch(goToPageFromSiteMenu(payload)),
-  runAction: payload => dispatch(runActionFromSiteMenu(payload))
+  goToPage: payload => dispatch(goToPageFromSiteMenu(payload))
 });
 
 class SiteMenu extends React.Component {
@@ -44,8 +43,8 @@ class SiteMenu extends React.Component {
   handelItem = data => {
     this.toggle();
 
-    if (data.isAction) {
-      this.props.runAction(data);
+    if (data.onClick) {
+      data.onClick(data);
     } else {
       this.props.goToPage(data);
     }
@@ -54,7 +53,13 @@ class SiteMenu extends React.Component {
   render() {
     const { dropdownOpen } = this.state;
     const { items, legacyItems, theme } = this.props;
-    const classNameIcoBtn = classNames(`ecos-header-site__btn ecos-btn_theme_${theme} ecos-btn_padding_small ecos-btn_r_6`);
+    const classNameIcoBtn = classNames(
+      'ecos-header-site__btn',
+      `ecos-btn_theme_${theme}`,
+      'ecos-btn_padding_small',
+      'ecos-btn_r_6',
+      'ecos-btn_blue-classic'
+    );
 
     let menuItems = [];
     if (Array.isArray(legacyItems) && legacyItems.length) {

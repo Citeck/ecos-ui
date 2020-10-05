@@ -34,13 +34,14 @@ export class TimesheetDelegatedApi extends RecordService {
     }).then(res => res);
   };
 
-  getTotalCountByType = ({ userName, delegationType }) => {
+  getTotalCountByType = ({ userName, delegationType, year, month }) => {
     const queryType = `AND @timesheet:${delegationType}Delegated:true AND @timesheet:${delegationType}Deputy:${userName}`;
     const queryStatuses = getQueryStatuses(delegationType);
+    const queryTime = `AND @timesheet:currentYear:${year} AND @timesheet:currentMonth:${month + 1}`;
 
     return Records.query({
       query: {
-        query: `TYPE:'timesheet:Request' ${queryType} ${queryStatuses}`,
+        query: `TYPE:'timesheet:Request' ${queryType} ${queryStatuses} ${queryTime}`,
         language: 'fts-alfresco',
         maxItems: 100,
         sourceId: SourcesId.PEOPLE,
@@ -51,12 +52,12 @@ export class TimesheetDelegatedApi extends RecordService {
   };
 
   // TODO: Need to get rid of the generators in API
-  getTotalCountsForTypes = function*({ userName }) {
+  getTotalCountsForTypes = function*({ userName, year, month }) {
     const delegationTypes = [DelegationTypes.FILL, DelegationTypes.APPROVE];
     const counts = {};
 
     for (let delegationType of delegationTypes) {
-      counts[delegationType] = yield this.getTotalCountByType({ userName, delegationType });
+      counts[delegationType] = yield this.getTotalCountByType({ userName, delegationType, year, month });
     }
 
     return counts;

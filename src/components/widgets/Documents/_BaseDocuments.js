@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { NotificationManager } from 'react-notifications';
 
@@ -115,16 +116,19 @@ class BaseDocuments extends BaseWidget {
       newState.isSentSettingsToSave = false;
     }
 
+    if (state.selectedTypeForLoading) {
+      const selectedType = props.dynamicTypes.find(item => item.type === state.selectedTypeForLoading.type);
+
+      if (!isEqual(state.selectedTypeForLoading, selectedType)) {
+        newState.selectedTypeForLoading = selectedType;
+      }
+    }
+
     if (!Object.keys(newState).length) {
       return null;
     }
 
     return newState;
-  }
-
-  componentWillUnmount() {
-    super.componentWillUnmount();
-    // this.handleRowMouseLeave.cancel();
   }
 
   get availableTypes() {

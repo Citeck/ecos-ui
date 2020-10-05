@@ -55,6 +55,10 @@ $ecos_btn_grey5: ecos-btn_grey5;
     margin-right: 0;
   }
 
+  &_by-content {
+    max-width: unset;
+  }
+
   &__title {
     font-style: normal;
     font-weight: 600;

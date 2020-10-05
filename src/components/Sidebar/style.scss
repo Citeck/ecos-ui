@@ -105,6 +105,10 @@ $transition-duration: 0.3s;
       }
     }
 
+    &_hidden {
+      display: none;
+    }
+
     &_collapsible {
       #{$menu-item}__link {
         width: calc(100% - 16px);

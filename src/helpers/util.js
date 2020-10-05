@@ -2,6 +2,7 @@ import moment from 'moment';
 import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
 import lodashGet from 'lodash/get';
+import lodashSet from 'lodash/set';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
@@ -139,7 +140,8 @@ export const getId = () =>
     .substr(2, 9);
 
 export function applyTheme(themeName, callback) {
-  document.body.classList.add(`yui-skin-${themeName}`);
+  lodashSet(window, 'Citeck.config.theme', themeName);
+  document.body.classList.add(`body_theme_${themeName}`);
 }
 
 export function placeCaretAtEnd(el) {
@@ -222,6 +224,24 @@ export function loadScript(url, callback) {
 
   if (typeof callback === 'function') {
     script.onload = callback;
+  }
+}
+
+export function loadStylesheet(url, onLoadCb, onErrorCb) {
+  const link = document.createElement('link');
+
+  link.setAttribute('rel', 'stylesheet');
+  link.setAttribute('type', 'text/css');
+  link.setAttribute('href', url);
+
+  document.head.appendChild(link);
+
+  if (typeof onLoadCb === 'function') {
+    link.onload = onLoadCb;
+  }
+
+  if (typeof onErrorCb === 'function') {
+    link.onerror = onErrorCb;
   }
 }
 
@@ -928,4 +948,15 @@ export function isInViewport(element, container) {
       rect.right <= (rectCont.right || window.innerWidth)
     );
   }
+}
+
+export function reverseString(str = '') {
+  if (typeof str !== 'string') {
+    return str;
+  }
+
+  return str
+    .split('')
+    .reverse()
+    .join('');
 }

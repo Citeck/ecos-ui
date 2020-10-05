@@ -69,4 +69,35 @@ describe('Redux helpers', () => {
       expect(keysBefore).toEqual(keysAfter);
     });
   });
+
+  describe('fun startLoading', () => {
+    const state = {
+      123: { t: 123 },
+      456: { t: 456, isLoading: false }
+    };
+
+    it('isLoading=undefined', () => {
+      expect(state[123].isLoading).toBeUndefined();
+      const _state = ReduxUtils.startLoading()(state, { payload: { stateId: 123 } });
+      expect(_state[123].isLoading).toBe(true);
+    });
+
+    it('isLoading=false', () => {
+      expect(state[456].isLoading).toBe(false);
+      const _state = ReduxUtils.startLoading()(state, { payload: { stateId: 456 } });
+      expect(_state[456].isLoading).toBe(true);
+    });
+  });
+
+  describe('fun updateState', () => {
+    const state = {
+      123: { a: 123 }
+    };
+
+    it('isLoading=undefined', () => {
+      expect(state[123]).toEqual({ a: 123 });
+      const _state = ReduxUtils.updateState(state, 123, { b: 456 });
+      expect(_state[123]).toEqual({ a: 123, b: 456 });
+    });
+  });
 });

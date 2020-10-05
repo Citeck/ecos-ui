@@ -14,6 +14,7 @@ import {
   initAppSuccess,
   setDashboardEditable,
   setFooter,
+  setHomeLink,
   setLeftMenuEditable,
   setRedirectToNewUi
 } from '../actions/app';
@@ -52,6 +53,10 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
 
         yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
       }
+
+      const homeLink = yield call(api.app.getHomeLink);
+
+      yield put(setHomeLink(homeLink));
     } catch (e) {
       yield put(validateUserFailure());
     }

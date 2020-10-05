@@ -2,13 +2,21 @@ import uuidV4 from 'uuid/v4';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import { EventEmitter2 } from 'eventemitter2';
 
-import { isExistValue, t } from '../helpers/util';
+import { isExistValue, packInLabel, t } from '../helpers/util';
 import { getIconObjectWeb } from '../helpers/icon';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
 import { MenuSettings as ms, MenuTypes } from '../constants/menu';
 
 export default class MenuSettingsService {
+  static emitter = new EventEmitter2();
+
+  static Events = {
+    SHOW: 'ecos-menu-settings-show',
+    HIDE: 'ecos-menu-settings-hide'
+  };
+
   static getConfigKeyByType(type) {
     switch (type) {
       case MenuTypes.TOP:
@@ -86,7 +94,8 @@ export default class MenuSettingsService {
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),
       hasIcon: ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level),
-      hasUrl: [ms.ItemTypes.ARBITRARY].includes(item.type)
+      hasUrl: [ms.ItemTypes.ARBITRARY].includes(item.type),
+      hideableLabel: [ms.ItemTypes.SECTION].includes(item.type) && [0].includes(level)
     };
   }
 
@@ -94,6 +103,23 @@ export default class MenuSettingsService {
     const availableActions = MenuSettingsService.getAvailableActions(item);
 
     return availableActions.filter(act => !isExistValue(get(act, 'when.hidden')) || act.when.hidden === !!item.hidden);
+  }
+
+  static convertItemForTree(source) {
+    const item = {
+      id: source.id,
+      dndIdx: source.dndIdx,
+      label: source.label,
+      icon: source.icon,
+      locked: source.locked,
+      items: source.items
+    };
+
+    if (get(source, 'config.hiddenLabel')) {
+      item.label = packInLabel('menu.label.no-name');
+    }
+
+    return item;
   }
 
   static processAction = ({ items: original, action, id, data, level }) => {

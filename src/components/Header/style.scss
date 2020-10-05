@@ -11,10 +11,6 @@
   display: flex;
   justify-content: space-between;
 
-  &_theme_uedmsTheme {
-    background: $color-green-light;
-  }
-
   & .ecos-btn {
     display: inline-flex;
     align-items: center;
@@ -159,28 +155,6 @@
 
         .ecos-separator {
           margin-top: 15px;
-        }
-      }
-    }
-
-    &_theme_uedmsTheme {
-      .ecos-dropdown__menu {
-        #{$search}-result {
-          &__content {
-            &-icon {
-              color: $color-green-light2;
-            }
-
-            &-avatar {
-              .ecos-avatar__icon {
-                color: $color-green-light2;
-              }
-            }
-
-            &-title {
-              color: $color-green-dark;
-            }
-          }
         }
       }
     }

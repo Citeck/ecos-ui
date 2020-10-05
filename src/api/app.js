@@ -3,7 +3,7 @@ import { NotificationManager } from 'react-notifications';
 
 import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch from '../helpers/ecosFetch';
-import { SourcesId } from '../constants';
+import { SourcesId, URL } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
@@ -148,6 +148,18 @@ export class AppApi extends CommonApi {
         console.error(e);
         return false;
       });
+  }
+
+  getHomeLink() {
+    return Records.get(`${SourcesId.CONFIG}@home-link-url`)
+      .load('value?str')
+      .then(link => {
+        if (!link) {
+          return URL.DASHBOARD;
+        }
+        return link;
+      })
+      .catch(() => URL.DASHBOARD);
   }
 
   getLoginPageUrl = () => {
