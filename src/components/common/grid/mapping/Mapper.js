@@ -28,9 +28,7 @@ const MAP = [
       const params = { ...column.params };
       let name = '';
 
-      console.warn({ column });
-
-      switch ('locale' /*formatter*/) {
+      switch (formatter) {
         case 'workflowPriority':
           name = 'WorkflowPriorityFormatter';
           break;
