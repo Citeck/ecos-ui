@@ -18,7 +18,7 @@ $ecos_btn_grey5: ecos-btn_grey5;
   box-shadow: $box-shadow-default;
   border-radius: 6px;
   box-sizing: border-box;
-  //padding: 0 7px;
+
   // for Safari
   padding: 0 0 0 7px;
   margin: 0 10px 10px 0;
@@ -97,7 +97,7 @@ $ecos_btn_grey5: ecos-btn_grey5;
     &__btn-remove.#{$ecos_btn} {
       @extend %common-btn;
       font-size: $font-size-small;
-      visibility: hidden;
+      display: none;
 
       &.#{$ecos_btn_grey5} {
         &:hover {
@@ -108,8 +108,7 @@ $ecos_btn_grey5: ecos-btn_grey5;
 
     &-item {
       font-size: $font-size-small;
-      display: block;
-      visibility: hidden;
+      display: none;
 
       &-alert {
         cursor: help;
@@ -123,11 +122,11 @@ $ecos_btn_grey5: ecos-btn_grey5;
 
   &:hover {
     .ecos-drag-item__actions__btn-remove {
-      visibility: visible;
+      display: block;
     }
 
     .ecos-drag-item__actions-item {
-      visibility: visible;
+      display: block;
     }
   }
 }

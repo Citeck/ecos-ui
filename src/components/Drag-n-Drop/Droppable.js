@@ -103,7 +103,6 @@ class Droppable extends React.Component {
       <Scrollbars
         style={style}
         autoHide
-        hideTracksWhenNotNeeded
         renderView={props => <div {...props} className={classNameView} />}
         renderTrackHorizontal={props => <div {...props} hidden />}
         renderThumbHorizontal={props => <div {...props} hidden />}
