@@ -361,35 +361,26 @@ export class MenuApi extends CommonApi {
     return Records.get(refs).load({ ref: '.str', name: 'cm:userName!cm:authorityName', label: '.disp' });
   };
 
-  getGroupPriority = ({ authorities }) => {
-    const localAuthorities = authorities.map(item => item.name);
+  getGroupPriority = () => {
+    return Records.get(`${SourcesId.CONFIG}@menu-group-priority`).load('value?json');
+  };
 
-    const promiseAuthorities = Records.query(
+  getFullGroupPriority = async ({ authorities }) => {
+    const localAuthorities = authorities.map(item => item.name);
+    const serverAuthorities = await Records.query(
       {
         sourceId: SourcesId.MENU,
         language: 'authorities'
       },
       { name: '.str' }
-    )
-      .then(res => res.records.map(r => r.name))
-      .then(server => {
-        const local = localAuthorities.filter(name => !server.includes(name));
-        return server.concat(...local);
-      });
+    ).then(res => res.records.map(r => r.name));
 
-    const promiseConfig = Records.get(`${SourcesId.CONFIG}@menu-group-priority`)
-      .load('value?json')
-      .then(res => res || []);
+    const groupPriority = await this.getGroupPriority();
+    const setAuthorities = groupPriority.map(item => item.id);
+    const mergeAuthorities = Array.from(new Set([...setAuthorities, ...serverAuthorities, ...localAuthorities]));
+    const filteredAuthorities = mergeAuthorities.filter(id => id !== LOWEST_PRIORITY && id.includes(AUTHORITY_TYPE_GROUP));
 
-    return Promise.all([promiseAuthorities, promiseConfig])
-      .then(([serverAuthorities, config]) => {
-        const setAuthoritiesId = config.map(item => item.id);
-        const filteredAvailableAuthorities = serverAuthorities.filter(id => !setAuthoritiesId.includes(id)).map(id => ({ id }));
-
-        return config.concat(...filteredAvailableAuthorities);
-      })
-      .then(authorities => authorities.filter(item => item.id !== LOWEST_PRIORITY && item.id.includes(AUTHORITY_TYPE_GROUP)))
-      .then(fetchExtraGroupItemInfo);
+    return fetchExtraGroupItemInfo(filteredAuthorities.map(id => ({ id })));
   };
 
   saveMenuSettingsConfig = ({ id, subMenu, authorities, version }) => {
