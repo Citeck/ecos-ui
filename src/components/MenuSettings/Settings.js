@@ -90,8 +90,10 @@ class Settings extends React.Component {
   };
 
   renderButtons() {
+    const { id, authorities } = this.props;
+
     const isDisabled = () => {
-      return !this.props.id || !this.props.authorities.length;
+      return !id || !(authorities || []).length;
     };
 
     return (
@@ -106,7 +108,7 @@ class Settings extends React.Component {
   }
 
   render() {
-    const { isLoading, isAdmin } = this.props;
+    const { isLoading, isAdmin, disabledEdit } = this.props;
     const customButtons = [];
 
     isAdmin &&
@@ -141,13 +143,19 @@ class Settings extends React.Component {
 
         <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
         <div className="ecos-menu-settings-ownership">
-          <SelectOrgstruct defaultValue={this.authorityRefs} multiple onChange={this.handleSelectOrg} isSelectedValueAsText />
+          <SelectOrgstruct
+            defaultValue={this.authorityRefs}
+            multiple
+            onChange={this.handleSelectOrg}
+            isSelectedValueAsText
+            viewOnly={disabledEdit}
+          />
         </div>
 
         <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
         <EditorGroupPriority />
 
-        {this.renderButtons()}
+        {!disabledEdit && this.renderButtons()}
       </EcosModal>
     );
   }
@@ -157,6 +165,7 @@ const mapStateToProps = state => ({
   isAdmin: get(state, 'user.isAdmin'),
   id: get(state, 'menu.id'),
   type: get(state, 'menu.type') || MenuTypes.LEFT,
+  disabledEdit: get(state, 'menuSettings.disabledEdit'),
   authorities: get(state, 'menuSettings.authorities') || [],
   isLoading: get(state, 'menuSettings.isLoading')
 });

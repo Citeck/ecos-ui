@@ -8,7 +8,10 @@ import EditTaskAssignee from './handler/executor/workflow/EditTaskAssignee';
 import SetTaskAssignee from './handler/executor/workflow/SetTaskAssignee';
 
 import EditAction from './handler/executor/EditAction';
+import EditMenuAction from './handler/executor/EditMenuAction';
 import ViewAction from './handler/executor/ViewAction';
+import ViewCardTemplateAction from './handler/executor/ViewCardTemplateAction';
+import ViewMenuAction from './handler/executor/ViewMenuAction';
 import AssocAction from './handler/executor/AssocAction';
 import FetchAction from './handler/executor/FetchAction';
 import DeleteAction from './handler/executor/DeleteAction';
@@ -21,7 +24,6 @@ import CaseRequestAction from './handler/executor/case/CaseRequestAction';
 import BackgroundOpenAction from './handler/executor/BackgroundOpenAction';
 import CaseRedirectAction from './handler/executor/case/CaseRedirectAction';
 import UploadNewVersionAction from './handler/executor/UploadNewVersionAction';
-import ViewCardTemplateAction from './handler/executor/ViewCardTemplateAction';
 import ModuleCopyAction from './handler/executor/ecos-module/ModuleCopyAction';
 import CaseCreateNodeAction from './handler/executor/case/CaseCreateNodeAction';
 import SaveAsCaseTemplateAction from './handler/executor/SaveAsCaseTemplateAction';
@@ -47,6 +49,7 @@ export const ActionTypes = {
 
 actionsRegistry.register(new DeleteAction());
 actionsRegistry.register(new EditAction());
+actionsRegistry.register(new EditMenuAction());
 actionsRegistry.register(new AssocAction());
 actionsRegistry.register(new BackgroundOpenAction());
 actionsRegistry.register(new CreateAction());
@@ -60,6 +63,7 @@ actionsRegistry.register(new ScriptAction());
 actionsRegistry.register(new UploadNewVersionAction());
 actionsRegistry.register(new ViewAction());
 actionsRegistry.register(new ViewCardTemplateAction());
+actionsRegistry.register(new ViewMenuAction());
 actionsRegistry.register(new DownloadZipAction());
 actionsRegistry.register(new ServerGroupAction());
 actionsRegistry.register(new MutateAction());

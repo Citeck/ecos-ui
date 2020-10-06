@@ -41,7 +41,8 @@ export default handleActions(
     [getSettingsConfig]: (state, { payload }) => ({
       ...state,
       isLoading: true,
-      editedId: payload.id
+      editedId: payload.id,
+      disabledEdit: payload.disabledEdit
     }),
     [setOpenMenuSettings]: (state, { payload }) => ({
       ...state,
