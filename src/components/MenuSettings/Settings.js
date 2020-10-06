@@ -25,6 +25,8 @@ const Labels = {
   TITLE_OWNERSHIP: 'menu-settings.editor-ownership.title',
   TITLE_GROUP_PRIORITY: 'menu-settings.editor-group-priority.title',
   GOTO_JOURNAL: 'menu-settings.header.btn.journal-menu-template',
+  GLOBAL_DESC: 'menu-settings.desc.global-config',
+  GLOBAL_TITLE: 'menu-settings.editor-global-settings.title',
   BTN_CANCEL: 'menu-settings.button.cancel',
   BTN_APPLY: 'menu-settings.button.apply'
 };
@@ -126,14 +128,14 @@ class Settings extends React.Component {
   };
 
   renderMenuConfigTab(key) {
-    const { disabledEdit, id } = this.props;
+    const { disabledEdit, editedId } = this.props;
 
     return (
       <div className={classNames(`ecos-menu-settings__tab tab--${key}`, { 'd-none': this.activeTabId !== key })}>
         <div className="ecos-menu-settings__card ">
           <div>
             <span className="ecos-menu-settings__card-label">{t('menu-settings.data.id')}:</span>
-            <span className="ecos-menu-settings__card-value">{id}</span>
+            <span className="ecos-menu-settings__card-value">{editedId}</span>
           </div>
         </div>
         <div>
@@ -163,16 +165,19 @@ class Settings extends React.Component {
           <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
           <EditorGroupPriority />
         </div>
-        <div>info</div>
+        <div>
+          <div className="ecos-menu-settings__title">{t(Labels.GLOBAL_TITLE)}</div>
+          <div className="ecos-menu-settings__explanation">{t(Labels.GLOBAL_DESC)}</div>
+        </div>
       </div>
     );
   }
 
   renderButtons() {
-    const { id, authorities } = this.props;
+    const { editedId, authorities } = this.props;
 
     const isDisabled = () => {
-      return !id || !(authorities || []).length;
+      return !editedId || !(authorities || []).length;
     };
 
     return (
@@ -229,11 +234,11 @@ class Settings extends React.Component {
 
 const mapStateToProps = state => ({
   isAdmin: get(state, 'user.isAdmin'),
-  id: get(state, 'menu.id'),
   type: get(state, 'menu.type') || MenuTypes.LEFT,
   disabledEdit: get(state, 'menuSettings.disabledEdit'),
   authorities: get(state, 'menuSettings.authorities') || [],
-  isLoading: get(state, 'menuSettings.isLoading')
+  isLoading: get(state, 'menuSettings.isLoading'),
+  editedId: get(state, 'menuSettings.editedId')
 });
 
 const mapDispatchToProps = dispatch => ({

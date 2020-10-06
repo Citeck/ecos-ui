@@ -143,8 +143,8 @@
     &__tree {
       &-field {
         @extend %block--2;
-        min-height: 300px;
-        max-height: 300px;
+        min-height: 350px;
+        max-height: 350px;
         overflow-x: hidden;
       }
     }
@@ -217,17 +217,15 @@
   }
 
   &-group-priority {
-    &__wrapper {
-      display: flex;
-      align-items: center;
-      margin-bottom: 5px;
-    }
-
     &__tree {
+      &-container {
+        position: relative;
+      }
+
       &-field {
         @extend %block--2;
-        min-height: 420px;
-        max-height: 420px;
+        min-height: 350px;
+        max-height: 350px;
         overflow-x: hidden;
       }
     }
@@ -257,8 +255,10 @@
 
   &__explanation {
     font-weight: $font-weight-semi-bold;
-    font-size: $font-size-small;
+    font-size: $font-size-standard;
     color: $text-color-gray;
+    margin-bottom: 15px;
+    white-space: pre-wrap;
   }
 }
 
