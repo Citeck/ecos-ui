@@ -142,9 +142,12 @@ function* fetchGroupPriority({ api, logger }, { payload }) {
 function* runSaveGroupPriority({ api, logger }) {
   try {
     const _groupPriority = yield select(state => state.menuSettings.groupPriority);
-    const groupPriority = MenuConverter.getGroupPriorityConfigServer(_groupPriority);
 
-    yield call(api.menu.saveGroupPriority, { groupPriority });
+    if (!isEmpty(_groupPriority)) {
+      const groupPriority = MenuConverter.getGroupPriorityConfigServer(_groupPriority);
+
+      yield call(api.menu.saveGroupPriority, { groupPriority });
+    }
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.save-group-priority'), t('error'));
     logger.error('[menu-settings / runSaveGroupPriority]', e.message);
