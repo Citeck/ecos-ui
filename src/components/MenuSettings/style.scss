@@ -14,15 +14,29 @@
   &__tabs {
     margin-bottom: 20px;
 
-    .ecos-tab:not(.ecos-tab_active) {
-      background: $color-gray-4;
+    .ecos-tab {
+      padding: 0 20px;
+
+      &:not(.ecos-tab_active) {
+        background: $color-gray-4;
+      }
     }
   }
 
+  &__tab {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+  }
+
   &__card {
-    margin-bottom: 20px;
     font-size: $font-size-standard;
     font-weight: $font-weight-semi-bold;
+
+    grid-column-start: 1;
+    grid-column-end: 3;
+    grid-row-start: 1;
+    grid-row-end: 1;
 
     &-label {
       color: $color-gray-5;
@@ -97,7 +111,6 @@
 
   &-editor-items {
     $editor: &;
-    margin-bottom: 30px;
 
     &__header {
       display: flex;
@@ -201,7 +214,6 @@
   }
 
   &-ownership {
-    margin-bottom: 30px;
   }
 
   &-group-priority {

@@ -129,25 +129,28 @@ class Settings extends React.Component {
     const { disabledEdit, id } = this.props;
 
     return (
-      <div className={classNames({ key, 'd-none': this.activeTabId !== key })}>
-        <div className="ecos-menu-settings__card">
+      <div className={classNames(`ecos-menu-settings__tab tab--${key}`, { 'd-none': this.activeTabId !== key })}>
+        <div className="ecos-menu-settings__card ">
           <div>
             <span className="ecos-menu-settings__card-label">{t('menu-settings.data.id')}:</span>
             <span className="ecos-menu-settings__card-value">{id}</span>
           </div>
         </div>
-        <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
-        <EditorItems />
-
-        <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
-        <div className="ecos-menu-settings-ownership">
-          <SelectOrgstruct
-            defaultValue={this.authorityRefs}
-            multiple
-            onChange={this.handleSelectOrg}
-            isSelectedValueAsText
-            viewOnly={disabledEdit}
-          />
+        <div>
+          <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
+          <EditorItems />
+        </div>
+        <div>
+          <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
+          <div className="ecos-menu-settings-ownership">
+            <SelectOrgstruct
+              defaultValue={this.authorityRefs}
+              multiple
+              onChange={this.handleSelectOrg}
+              isSelectedValueAsText
+              viewOnly={disabledEdit}
+            />
+          </div>
         </div>
       </div>
     );
@@ -155,9 +158,12 @@ class Settings extends React.Component {
 
   renderGlobalConfigTab(key) {
     return (
-      <div className={classNames({ key, 'd-none': this.activeTabId !== key })}>
-        <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
-        <EditorGroupPriority />
+      <div className={classNames(`ecos-menu-settings__tab tab--${key}`, { 'd-none': this.activeTabId !== key })}>
+        <div>
+          <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
+          <EditorGroupPriority />
+        </div>
+        <div>info</div>
       </div>
     );
   }
