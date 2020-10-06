@@ -11,6 +11,25 @@
     z-index: 10000;
   }
 
+  &__tabs {
+    margin-bottom: 20px;
+
+    .ecos-tab:not(.ecos-tab_active) {
+      background: $color-gray-4;
+    }
+  }
+
+  &__card {
+    margin-bottom: 20px;
+    font-size: $font-size-standard;
+    font-weight: $font-weight-semi-bold;
+
+    &-label {
+      color: $color-gray-5;
+      margin-right: 5px;
+    }
+  }
+
   &__title {
     @extend %title-block--1;
   }

@@ -1,14 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { getAuthorityInfoByRefs, removeSettings, saveSettingsConfig } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
 import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
-import { EcosModal, Loader } from '../common';
+import { EcosModal, Loader, Tabs } from '../common';
 import DialogManager from '../common/dialogs/Manager';
 import { Btn, IcoBtn } from '../common/btns';
 import { SelectOrgstruct } from '../common/form';
@@ -32,8 +34,18 @@ class Settings extends React.Component {
     super(props);
 
     this.state = {
-      selectedType: props.type
+      selectedType: props.type,
+      selectedTab: undefined,
+      loadedTabs: []
     };
+  }
+
+  componentDidMount() {
+    const selectedTab = 0;
+    const loadedTabs = cloneDeep(this.state.loadedTabs);
+
+    loadedTabs[selectedTab] = true;
+    this.setState({ selectedTab, loadedTabs });
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -51,6 +63,18 @@ class Settings extends React.Component {
 
   get authorityRefs() {
     return this.props.authorities.map(item => item.ref);
+  }
+
+  get mainTabs() {
+    return [
+      { id: 'settings-menu-config', label: t('menu-settings.tabs.menu-config') },
+      { id: 'settings-global-config', label: t('menu-settings.tabs.global-config') }
+    ];
+  }
+
+  get activeTabId() {
+    const { selectedTab } = this.state;
+    return get(this.mainTabs, [selectedTab, 'id']);
   }
 
   handleHideModal = () => {
@@ -81,6 +105,18 @@ class Settings extends React.Component {
     this.props.getAuthorityInfoByRefs(data);
   };
 
+  handleClickTab = (selectedTab = 0) => {
+    const loadedTabs = cloneDeep(this.state.loadedTabs);
+    const newState = { selectedTab };
+
+    if (!loadedTabs[selectedTab]) {
+      loadedTabs[selectedTab] = true;
+      newState.loadedTabs = loadedTabs;
+    }
+
+    this.setState(newState);
+  };
+
   handleReset = () => {
     DialogManager.showRemoveDialog({
       onDelete: () => {
@@ -88,6 +124,43 @@ class Settings extends React.Component {
       }
     });
   };
+
+  renderMenuConfigTab(key) {
+    const { disabledEdit, id } = this.props;
+
+    return (
+      <div className={classNames({ key, 'd-none': this.activeTabId !== key })}>
+        <div className="ecos-menu-settings__card">
+          <div>
+            <span className="ecos-menu-settings__card-label">{t('menu-settings.data.id')}:</span>
+            <span className="ecos-menu-settings__card-value">{id}</span>
+          </div>
+        </div>
+        <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
+        <EditorItems />
+
+        <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
+        <div className="ecos-menu-settings-ownership">
+          <SelectOrgstruct
+            defaultValue={this.authorityRefs}
+            multiple
+            onChange={this.handleSelectOrg}
+            isSelectedValueAsText
+            viewOnly={disabledEdit}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  renderGlobalConfigTab(key) {
+    return (
+      <div className={classNames({ key, 'd-none': this.activeTabId !== key })}>
+        <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
+        <EditorGroupPriority />
+      </div>
+    );
+  }
 
   renderButtons() {
     const { id, authorities } = this.props;
@@ -108,6 +181,7 @@ class Settings extends React.Component {
   }
 
   render() {
+    const { loadedTabs } = this.state;
     const { isLoading, isAdmin, disabledEdit } = this.props;
     const customButtons = [];
 
@@ -126,7 +200,7 @@ class Settings extends React.Component {
 
     return (
       <EcosModal
-        className="ecos-menu-settings__modal ecos-modal_width-m"
+        className="ecos-menu-settings__modal ecos-modal_width-lg"
         isOpen
         isTopDivider
         isBigHeader
@@ -138,23 +212,9 @@ class Settings extends React.Component {
       >
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
 
-        <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
-        <EditorItems />
-
-        <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
-        <div className="ecos-menu-settings-ownership">
-          <SelectOrgstruct
-            defaultValue={this.authorityRefs}
-            multiple
-            onChange={this.handleSelectOrg}
-            isSelectedValueAsText
-            viewOnly={disabledEdit}
-          />
-        </div>
-
-        <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
-        <EditorGroupPriority />
-
+        <Tabs items={this.mainTabs} activeTabKey={this.activeTabId} onClick={this.handleClickTab} className="ecos-menu-settings__tabs" />
+        {loadedTabs[0] && this.renderMenuConfigTab(this.mainTabs[0].id)}
+        {loadedTabs[1] && this.renderGlobalConfigTab(this.mainTabs[1].id)}
         {!disabledEdit && this.renderButtons()}
       </EcosModal>
     );
