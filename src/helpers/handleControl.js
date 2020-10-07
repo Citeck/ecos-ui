@@ -1,3 +1,6 @@
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+
 import { URL_RESCONTEXT, URL_SERVICECONTEXT, URL_EIS_CONFIG, PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { getCurrentUserName, loadScript, t } from '../helpers/util';
 import { goToCardDetailsPage } from '../helpers/urls';
@@ -5,6 +8,8 @@ import FormManager from '../components/EcosForm/FormManager';
 import dialogManager from '../components/common/dialogs/Manager';
 import { requireShareAssets } from '../legacy/share';
 import ecosFetch from './ecosFetch';
+import DialogManager from '../components/common/dialogs/Manager/DialogManager';
+import Records from '../components/Records/Records';
 
 export const HandleControlTypes = {
   ALF_DOLOGOUT: 'ALF_DOLOGOUT',
@@ -46,33 +51,81 @@ export default function handleControl(type, payload) {
 
     case HCT.ALF_SHOW_MODAL_MAKE_UNAVAILABLE:
       return (() => {
-        const openDialog = () => {
-          window.Citeck.forms.dialog('deputy:selfAbsenceEvent', '', {
-            fn: function() {
-              handleControl(HCT.ALF_NAVIGATE_TO_PAGE, {
-                url: payload.targetUrl
+        DialogManager.showFormDialog({
+          title: t(payload.isAvailable ? 'header.make-notavailable.label' : 'header.make-available.label'),
+          showDefaultButtons: true,
+          formDefinition: {
+            display: 'form',
+            components: [
+              {
+                key: 'absenceBeginning',
+                type: 'datetime',
+                label: 'Начало отсутствия',
+                labelPosition: 'left-left',
+                format: 'yyyy-MM-dd H:mm',
+                displayInTimezone: 'viewer',
+                datepickerMode: 'day',
+                customDefaultValue: 'value = moment();',
+                datePicker: {
+                  minDate: 'moment()'
+                },
+                timePicker: {
+                  showMeridian: false
+                }
+              },
+              {
+                key: 'absenceEnd',
+                type: 'datetime',
+                label: 'Окончание отсутствия',
+                labelPosition: 'left-left',
+                format: 'yyyy-MM-dd H:mm',
+                displayInTimezone: 'viewer',
+                datepickerMode: 'day',
+                customDefaultValue: "value = moment().add(5, 'm');",
+                datePicker: {
+                  minDate: "moment().add(1, 'm')"
+                },
+                timePicker: {
+                  showMeridian: false
+                },
+                validate: {
+                  required: true,
+                  custom: "valid = moment(data.dateTime2).isBefore(value) ? true : 'Дата начала не может быть больше даты окончания';"
+                }
+              },
+              {
+                key: 'autoAnswer',
+                type: 'textarea',
+                label: 'Автоответ',
+                labelPosition: 'left-left'
+              }
+            ]
+          },
+          onSubmit: async submission => {
+            const userRef = await Records.get(`people@${getCurrentUserName()}`).load('nodeRef?str');
+
+            await ecosFetch('/share/proxy/alfresco/citeck/ecos/forms/node-view?formType=type&formKey=deputy:selfAbsenceEvent', {
+              method: 'POST',
+              body: {
+                attributes: {
+                  'deputy:endAbsence': get(submission, 'data.absenceBeginning', ''),
+                  'deputy:startAbsence': get(submission, 'data.absenceEnd', ''),
+                  'deputy:autoAnswer': get(submission, 'data.autoAnswer', ''),
+                  'deputy:user': userRef
+                }
+              }
+            })
+              .then(response => {
+                if (!isEmpty(response)) {
+                  window.reload();
+                }
+
+                return response.json();
+              })
+              .catch(e => {
+                console.error(e);
               });
-            }
-          });
-        };
-
-        const isCiteckFormDialogReady = () => {
-          return window.Citeck && window.Citeck.forms && window.Citeck.forms.dialog && typeof window.Citeck.forms.dialog === 'function';
-        };
-
-        if (isCiteckFormDialogReady()) {
-          return openDialog();
-        }
-
-        return requireShareAssets().then(() => {
-          const intervalId = setInterval(() => {
-            if (!isCiteckFormDialogReady()) {
-              return;
-            }
-
-            clearInterval(intervalId);
-            openDialog();
-          }, 300);
+          }
         });
       })();
 
