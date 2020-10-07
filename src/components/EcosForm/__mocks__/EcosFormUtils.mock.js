@@ -1742,3 +1742,14 @@ export const columnsCaseOptimized = {
     }
   ]
 };
+
+export const dataGridAssocCaseOptimized = {
+  components: [
+    {
+      key: 'datagridAssoc',
+      type: 'datagridAssoc',
+      input: true,
+      multiple: true
+    }
+  ]
+};
