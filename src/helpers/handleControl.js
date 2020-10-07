@@ -54,6 +54,10 @@ export default function handleControl(type, payload) {
         DialogManager.showFormDialog({
           title: t(payload.isAvailable ? 'header.make-notavailable.label' : 'header.make-available.label'),
           showDefaultButtons: true,
+          modalClass: 'ecos-modal_width-sm',
+          reactstrapProps: {
+            backdrop: true
+          },
           formDefinition: {
             display: 'form',
             components: [
@@ -115,12 +119,11 @@ export default function handleControl(type, payload) {
                 }
               }
             })
-              .then(response => {
-                if (!isEmpty(response)) {
-                  window.reload();
+              .then(response => response.json())
+              .then(json => {
+                if (!isEmpty(json)) {
+                  window.location.reload();
                 }
-
-                return response.json();
               })
               .catch(e => {
                 console.error(e);
