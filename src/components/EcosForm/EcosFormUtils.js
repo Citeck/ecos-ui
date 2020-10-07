@@ -535,6 +535,11 @@ export default class EcosFormUtils {
           return true;
         }
 
+        // Cause: https://citeck.atlassian.net/browse/ECOSUI-612
+        if (attName === 'multiple' && attValue === true) {
+          return false;
+        }
+
         return isEqual(currentComponentDefaultSchema[attName], attValue);
       });
     });
