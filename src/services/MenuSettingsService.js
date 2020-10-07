@@ -17,6 +17,8 @@ export default class MenuSettingsService {
     HIDE: 'ecos-menu-settings-hide'
   };
 
+  static NonAvailableVersions = [0];
+
   static getConfigKeyByType(type) {
     switch (type) {
       case MenuTypes.TOP:

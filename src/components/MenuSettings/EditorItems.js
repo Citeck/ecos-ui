@@ -49,6 +49,10 @@ class EditorItems extends React.Component {
   };
 
   getAvailableActions = item => {
+    if (this.props.disabledEdit) {
+      return [];
+    }
+
     return MenuSettingsService.getActiveActions(item);
   };
 
@@ -96,6 +100,10 @@ class EditorItems extends React.Component {
   };
 
   handleClickIcon = item => {
+    if (this.props.disabledEdit) {
+      return;
+    }
+
     this.setState({ editItemIcon: item });
   };
 
@@ -200,13 +208,15 @@ class EditorItems extends React.Component {
   };
 
   renderExtraComponents = ({ item, level = -1, isOpen }) => {
+    const { disabledEdit } = this.props;
     const components = [];
     const id = get(item, 'id');
 
     if (!item || (!item.hidden && !MenuSettingsService.isChildless(item))) {
       const createOptions = MenuSettingsService.getAvailableCreateOptions(item, { level });
 
-      createOptions.length &&
+      !disabledEdit &&
+        createOptions.length &&
         components.push(
           <DropdownOuter
             key={`${id}--dropdown`}
@@ -233,7 +243,7 @@ class EditorItems extends React.Component {
           key={`${id}--counter`}
           className={classNames('ecos-menu-settings-editor-items__action-count', {
             'ecos-menu-settings-editor-items__action-count_active': displayCount,
-            'ecos-menu-settings-editor-items__action-count_disabled': item.hidden
+            'ecos-menu-settings-editor-items__action-count_disabled': disabledEdit || item.hidden
           })}
           onClick={() => this.handleActionItem({ action: ms.ActionTypes.DISPLAY_COUNT, level: 0, item })}
         >
@@ -247,7 +257,7 @@ class EditorItems extends React.Component {
 
   render() {
     const { openAllMenuItems } = this.state;
-    const { items } = this.props;
+    const { items, disabledEdit } = this.props;
 
     return (
       <div className="ecos-menu-settings-editor-items">
@@ -264,7 +274,7 @@ class EditorItems extends React.Component {
             data={items}
             prefixClassName="ecos-menu-settings-editor-items"
             openAll={openAllMenuItems}
-            draggable
+            draggable={!disabledEdit}
             moveInParent
             onDragEnd={this.handleDragEnd}
             getActions={this.getAvailableActions}
@@ -282,6 +292,7 @@ class EditorItems extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  disabledEdit: get(state, 'menuSettings.disabledEdit'),
   items: get(state, 'menuSettings.items', []),
   fontIcons: get(state, 'menuSettings.fontIcons', []),
   lastAddedItems: get(state, 'menuSettings.lastAddedItems', [])
