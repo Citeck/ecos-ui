@@ -58,7 +58,7 @@ class EditorGroupPriority extends React.Component {
 
   render() {
     const { isOpenManager, isOpenAllGroup, updatedList } = this.state;
-    const { groupPriority, isLoadingPriority } = this.props;
+    const { groupPriority, isLoadingPriority, disabledEdit } = this.props;
 
     return (
       <>
@@ -85,18 +85,20 @@ class EditorGroupPriority extends React.Component {
                 data={updatedList || groupPriority}
                 prefixClassName="ecos-menu-settings-group-priority"
                 openAll={isOpenAllGroup}
-                draggable
+                draggable={!disabledEdit}
                 moveInParent
                 onDragEnd={this.handleDragEnd}
               />
             </div>
 
-            <div className="ecos-menu-settings__buttons">
-              <Btn onClick={this.handleCancel}>{t(Labels.MODAL_BTN_CANCEL)}</Btn>
-              <Btn onClick={this.handleApply} className="ecos-btn_blue ecos-btn_hover_light-blue">
-                {t(Labels.MODAL_BTN_APPLY)}
-              </Btn>
-            </div>
+            {!disabledEdit && (
+              <div className="ecos-menu-settings__buttons">
+                <Btn onClick={this.handleCancel}>{t(Labels.MODAL_BTN_CANCEL)}</Btn>
+                <Btn onClick={this.handleApply} className="ecos-btn_blue ecos-btn_hover_light-blue">
+                  {t(Labels.MODAL_BTN_APPLY)}
+                </Btn>
+              </div>
+            )}
           </EcosModal>
         )}
       </>
@@ -105,6 +107,7 @@ class EditorGroupPriority extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  disabledEdit: get(state, 'menuSettings.disabledEdit'),
   groupPriority: get(state, 'menuSettings.groupPriority', []),
   isLoadingPriority: get(state, 'menuSettings.isLoadingPriority')
 });

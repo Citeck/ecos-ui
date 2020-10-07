@@ -1,15 +1,15 @@
 import { NotificationManager } from 'react-notifications';
 
-import MenuSettingsService from '../../../../../../services/MenuSettingsService';
+import EcosFormUtils from '../../../../../EcosForm/EcosFormUtils';
 import Records from '../../../../Records';
+
 import actionsRegistry from '../../../actionsRegistry';
 import '../../../index';
 import EditAction from '../EditAction';
 
 const RecordIds = {
   TASK_REF: 'workspace://SpacesStore/test-task',
-  MENU_0: 'uiserv/menu@test-menu-0',
-  MENU_1: 'uiserv/menu@test-menu-1'
+  TASK_ID: 'activiti$task'
 };
 
 jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
@@ -23,29 +23,18 @@ jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
           Promise.resolve({
             id: RecordIds.TASK_REF,
             attributes: {
-              'cm:name?str': 'activiti$task'
+              'cm:name?str': RecordIds.TASK_ID
             }
           })
       });
-    case RecordIds.MENU_0:
+    case 'ecos-config@default-ui-main-menu':
       return Promise.resolve({
         ok: true,
         json: () =>
           Promise.resolve({
-            id: RecordIds.MENU_0,
+            id: RecordIds.TASK_REF,
             attributes: {
-              'version?str': '0'
-            }
-          })
-      });
-    case RecordIds.MENU_1:
-      return Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: RecordIds.MENU_1,
-            attributes: {
-              'version?str': '1'
+              '.str': 'left'
             }
           })
       });
@@ -63,7 +52,7 @@ jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
 
 describe('Edit Action', () => {
   const _safeError = NotificationManager.error;
-  const _safeEmit = MenuSettingsService.emitter.emit;
+  const _safeEditRecord = EcosFormUtils.editRecord;
   const action = actionsRegistry.getHandler(EditAction.ACTION_ID);
 
   NotificationManager.error = () => undefined;
@@ -73,7 +62,7 @@ describe('Edit Action', () => {
     expect(result).toEqual(false);
   });
 
-  it('case Task form fallback ', async () => {
+  it('case Task form - fallback ', async () => {
     delete window.open;
     window.open = () => undefined;
 
@@ -81,18 +70,22 @@ describe('Edit Action', () => {
     expect(result).toEqual(false);
   });
 
-  it('case Menu version 0', async () => {
-    const result = await action.execForRecord(Records.get(RecordIds.MENU_0), {});
-    expect(result).toEqual(false);
+  it('case Task form - onSubmit', async () => {
+    delete window.open;
+    window.open = () => undefined;
+
+    EcosFormUtils.editRecord = config => {
+      expect(config.recordRef).toEqual('wftask@' + RecordIds.TASK_ID);
+      config.onSubmit();
+    };
+
+    const result = await action.execForRecord(Records.get(RecordIds.TASK_REF), { config: { mode: 'task' } });
+    expect(result).toEqual(true);
+
+    EcosFormUtils.editRecord = _safeEditRecord;
   });
 
-  it('case Menu version 1', async () => {
-    MenuSettingsService.emitter.emit = (show, id, callback) => callback(show);
-
-    const result = await action.execForRecord(Records.get(RecordIds.MENU_1), {});
-    expect(result).toEqual(MenuSettingsService.Events.SHOW);
-  });
+  //todo default case
 
   NotificationManager.error = _safeError;
-  MenuSettingsService.emitter.emit = _safeEmit;
 });
