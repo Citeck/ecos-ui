@@ -106,4 +106,33 @@ describe('Urls helpers', () => {
       });
     });
   });
+
+  describe('Method removeUrlSearchParams', () => {
+    const defaultUrl =
+      'https://dev.ecos24.ru/v2/journals?journalId=contract-agreements&journalSettingId=31aea70b-60b1-4fc8-9614-f5ce887b4e3e&journalsListId=contractor-documents&userConfigId=';
+    const data = [
+      {
+        title: 'Empty remove params',
+        input: [defaultUrl],
+        output: defaultUrl
+      },
+      {
+        title: 'The parameter to be removed is a string',
+        input: [defaultUrl, 'journalsListId'],
+        output:
+          'https://dev.ecos24.ru/v2/journals?journalId=contract-agreements&journalSettingId=31aea70b-60b1-4fc8-9614-f5ce887b4e3e&userConfigId='
+      },
+      {
+        title: 'The parameter being removed is an array of strings',
+        input: [defaultUrl, ['journalSettingId', 'journalsListId', 'journalId']],
+        output: 'https://dev.ecos24.ru/v2/journals?userConfigId='
+      }
+    ];
+
+    data.forEach(item => {
+      it(item.title, () => {
+        expect(UrlUtils.removeUrlSearchParams(...item.input).href).toEqual(item.output);
+      });
+    });
+  });
 });

@@ -417,3 +417,30 @@ export const pushHistoryLink = (history = {}, linkData = {}) => {
     });
   }
 };
+
+/**
+ *
+ * @param {String} sourceUrl
+ * @param {?Array<String>|?String} keys
+ *
+ * @returns {URL}
+ */
+export const removeUrlSearchParams = (sourceUrl = window.location.href, keys = []) => {
+  const url = new window.URL(sourceUrl);
+
+  if (isEmpty(keys)) {
+    return url;
+  }
+
+  if (typeof keys === 'string') {
+    url.searchParams.delete(keys);
+  }
+
+  if (Array.isArray(keys)) {
+    keys.forEach(key => {
+      url.searchParams.delete(key);
+    });
+  }
+
+  return url;
+};
