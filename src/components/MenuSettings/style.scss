@@ -24,9 +24,10 @@
   }
 
   &__tab {
+    $gap: 20px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 20px;
+    grid-template-columns: repeat(2, calc(50% - #{$gap}/ 2));
+    grid-gap: $gap;
   }
 
   &__card {
