@@ -10,8 +10,7 @@ import {
   getGroupPriority,
   getSettingsConfig,
   removeSettings,
-  saveGroupPriority,
-  saveSettingsConfig,
+  saveMenuSettings,
   setAuthorities,
   setGroupPriority,
   setLastAddedItems,
@@ -55,12 +54,29 @@ function* fetchSettingsConfig({ api, logger }) {
   }
 }
 
-function* runSaveSettingsConfig({ api, logger }, { payload }) {
+function* runSaveMenuSettings(props, action) {
+  const id = yield select(state => state.menu.id);
+  const resultMenu = yield runSaveMenuConfig(props, action);
+  const resultGlobal = yield runSaveGlobalSettings(props, action);
+
+  if (![resultMenu, resultGlobal].includes(false)) {
+    MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
+
+    if (get(resultMenu, 'id') && get(resultMenu, 'id').includes(id)) {
+      yield put(initMenuConfig());
+    }
+
+    NotificationManager.success(t('menu-settings.success.save-all-menu-settings'), t('success'));
+  }
+
+  yield put(setLoading(false));
+}
+
+function* runSaveMenuConfig({ api, logger }, action) {
   try {
     const config = yield select(state => state.menu);
-    const { type } = config;
     const id = yield select(state => state.menuSettings.editedId);
-    const keyType = MenuSettingsService.getConfigKeyByType(type);
+    const keyType = MenuSettingsService.getConfigKeyByType(config.type);
     const items = yield select(state => state.menuSettings.items);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
     const authorities = authoritiesInfo.map(item => item.name);
@@ -71,21 +87,29 @@ function* runSaveSettingsConfig({ api, logger }, { payload }) {
 
     set(result, ['subMenu', keyType, 'items'], newItems);
 
-    const resultSave = yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities, version: result.version });
+    return yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities, version: result.version });
+  } catch (e) {
+    NotificationManager.error(t('menu-settings.error.save-config'), t('error'));
+    logger.error('[menu-settings / runSaveMenuSettings]', e.message);
+    return false;
+  }
+}
 
-    yield put(saveGroupPriority());
-    MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
+function* runSaveGlobalSettings({ api, logger }, action) {
+  try {
+    const _groupPriority = yield select(state => state.menuSettings.groupPriority);
 
-    if (resultSave && resultSave.id) {
-      yield put(initMenuConfig());
-      yield put(fetchSlideMenuItems());
+    if (!isEmpty(_groupPriority)) {
+      const groupPriority = MenuConverter.getGroupPriorityConfigServer(_groupPriority);
+
+      yield call(api.menu.saveGroupPriority, { groupPriority });
     }
 
-    NotificationManager.success(t('menu-settings.success.save-config'), t('success'));
+    return true;
   } catch (e) {
-    yield put(setLoading(false));
-    NotificationManager.error(t('menu-settings.error.save-config'), t('error'));
-    logger.error('[menu-settings / runSaveSettingsConfig]', e.message);
+    NotificationManager.error(t('menu-settings.error.save-group-priority'), t('error'));
+    logger.error('[menu-settings / runSaveGlobalSettings]', e.message);
+    return false;
   }
 }
 
@@ -139,21 +163,6 @@ function* fetchGroupPriority({ api, logger }, { payload }) {
   }
 }
 
-function* runSaveGroupPriority({ api, logger }) {
-  try {
-    const _groupPriority = yield select(state => state.menuSettings.groupPriority);
-
-    if (!isEmpty(_groupPriority)) {
-      const groupPriority = MenuConverter.getGroupPriorityConfigServer(_groupPriority);
-
-      yield call(api.menu.saveGroupPriority, { groupPriority });
-    }
-  } catch (e) {
-    NotificationManager.error(t('menu-settings.error.save-group-priority'), t('error'));
-    logger.error('[menu-settings / runSaveGroupPriority]', e.message);
-  }
-}
-
 function* fetchAuthorityInfoByRefs({ api, logger }, { payload = [] }) {
   try {
     yield put(setAuthorities(payload.map(ref => ({ ref }))));
@@ -189,10 +198,9 @@ function* runRemoveSettings({ api, logger }) {
 }
 
 function* saga(ea) {
+  yield takeLatest(saveMenuSettings().type, runSaveMenuSettings, ea);
   yield takeLatest(removeSettings().type, runRemoveSettings, ea);
   yield takeLatest(getSettingsConfig().type, fetchSettingsConfig, ea);
-  yield takeLatest(saveSettingsConfig().type, runSaveSettingsConfig, ea);
-  yield takeLatest(saveGroupPriority().type, runSaveGroupPriority, ea);
   yield takeLatest(addJournalMenuItems().type, runAddJournalMenuItems, ea);
   yield takeLatest(getGroupPriority().type, fetchGroupPriority, ea);
   yield takeLatest(getAuthorityInfoByRefs().type, fetchAuthorityInfoByRefs, ea);

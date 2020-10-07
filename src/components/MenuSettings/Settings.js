@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { getAuthorityInfoByRefs, removeSettings, saveSettingsConfig } from '../../actions/menuSettings';
+import { getAuthorityInfoByRefs, removeSettings, saveMenuSettings } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
 import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
@@ -243,7 +243,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   removeSettings: () => dispatch(removeSettings()),
-  saveSettings: payload => dispatch(saveSettingsConfig(payload)),
+  saveSettings: payload => dispatch(saveMenuSettings(payload)),
   getAuthorityInfoByRefs: payload => dispatch(getAuthorityInfoByRefs(payload))
 });
 

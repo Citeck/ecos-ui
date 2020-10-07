@@ -12,10 +12,9 @@ export const setMenuIcons = createAction(prefix + 'SET_MENU_ICONS');
 export const removeSettings = createAction(prefix + 'REMOVE_SETTINGS');
 
 export const getSettingsConfig = createAction(prefix + 'GET_SETTINGS_CONFIG');
-export const saveSettingsConfig = createAction(prefix + 'SAVE_SETTINGS_CONFIG');
 export const addJournalMenuItems = createAction(prefix + 'ADD_JOURNAL_MENU_ITEMS');
 export const getGroupPriority = createAction(prefix + 'GET_GROUP_PRIORITY');
-export const saveGroupPriority = createAction(prefix + 'SAVE_GROUP_PRIORITY');
 export const getAuthorityInfoByRefs = createAction(prefix + 'GET_AUTHORITY_INFO_BY_REFS');
+export const saveMenuSettings = createAction(prefix + 'SAVE_MENU_SETTINGS');
 
 export const resetStore = createAction(prefix + 'RESET_STORE');
