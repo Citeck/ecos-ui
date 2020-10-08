@@ -354,6 +354,13 @@
   "filter-list.filter-group-add": "Добавить",
   "filter-list.panel-header": "Фильтрация",
 
+  "record-action.task-outcome.incorrect-action.header": "Некорректное действие",
+  "record-action.task-outcome.incorrect-action.message": "Некорректное действие. Если ошибка повторится, обратитесь к администратору",
+  "record-action.task-outcome.form-not-found.header": "Форма для задачи не найдена",
+  "record-action.task-outcome.form-not-found.message": "Форма для задачи не найдена. Если ошибка повторится, обратитесь к администратору",
+  "record-action.task-outcome.complete-task.header": "Завершить задачу",
+  "record-action.task-outcome.complete-task.message": "Завершить задачу с вердиктом '{{outcome}}'",
+
   "record-action.msg.confirm.title": "Подтверждение действия",
   "record-action.msg.info.title": "Информация",
   "record-action.msg.error.title": "Ошибка",

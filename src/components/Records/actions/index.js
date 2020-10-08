@@ -1,6 +1,7 @@
 import actionsRegistry from './actionsRegistry';
 
 import AttributeActionsResolver from './handler/resolver/AttributeActionsResolver';
+import TasksActionsResolver from './handler/resolver/TasksActionsResolver';
 
 import ViewBusinessProcessAction from './handler/executor/workflow/ViewBusinessProcessAction';
 import CancelBusinessProcessAction from './handler/executor/workflow/CancelBusinessProcessAction';
@@ -31,6 +32,7 @@ import DownloadCardTemplateAction from './handler/executor/DownloadCardTemplateA
 import DownloadZipAction from './handler/executor/DownloadZipAction';
 import ServerGroupAction from './handler/executor/ServerGroupAction';
 import MutateAction from './handler/executor/MutateAction';
+import TaskOutcomeAction from './handler/executor/workflow/TaskOutcomeAction';
 
 export { default } from './recordActions';
 
@@ -79,6 +81,7 @@ actionsRegistry.register(new CaseRequestAction());
 actionsRegistry.register(new CancelBusinessProcessAction());
 actionsRegistry.register(new EditTaskAssignee());
 actionsRegistry.register(new SetTaskAssignee());
+actionsRegistry.register(new TaskOutcomeAction());
 actionsRegistry.register(new ViewBusinessProcessAction());
 
 // Executors - ECOS Module
@@ -88,3 +91,4 @@ actionsRegistry.register(new ModuleCopyAction());
 // Resolvers
 
 actionsRegistry.register(new AttributeActionsResolver());
+actionsRegistry.register(new TasksActionsResolver());
