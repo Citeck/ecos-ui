@@ -1,7 +1,15 @@
+import { MICRO_URI } from '../constants/alfresco';
 import { CommonApi } from './common';
 import Records from '../components/Records';
 import ecosFetch from '../helpers/ecosFetch';
-import { DEFAULT_THEME, THEME_URL_PATH } from '../constants/theme';
+import {
+  DEFAULT_THEME,
+  THEME_URL_PATH,
+  CACHE_KEY_RESOURCE_THEME,
+  CACHE_KEY_RESOURCE_IMAGES,
+  CACHE_KEY_RESOURCE_I18N,
+  CACHE_KEY_RESOURCE_MENU
+} from '../constants/theme';
 import { SourcesId } from '../constants';
 
 export class ViewApi extends CommonApi {
@@ -11,8 +19,11 @@ export class ViewApi extends CommonApi {
       .catch(() => DEFAULT_THEME);
   };
 
-  getThemeCacheKey = () => {
-    return Records.get(`${SourcesId.META}@`).load('attributes.theme-cache-key', true);
+  getThemeCacheKeys = () => {
+    const resources = [CACHE_KEY_RESOURCE_THEME, CACHE_KEY_RESOURCE_IMAGES, CACHE_KEY_RESOURCE_I18N, CACHE_KEY_RESOURCE_MENU];
+    return ecosFetch(`${MICRO_URI}api/ui-cache?types=${resources.join(',')}`)
+      .then(resp => (resp.ok ? resp.json() : {}))
+      .catch(() => {});
   };
 
   changeTheme = theme => {

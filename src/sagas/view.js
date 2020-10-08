@@ -18,13 +18,13 @@ export function* loadTheme({ api, fakeApi, logger }, { payload }) {
   try {
     const { isAuthenticated, onSuccess } = payload;
     const id = yield call(api.view.getActiveThemeId);
-    const themeConfig = { id };
+    const cacheKeys = yield call(api.view.getThemeCacheKeys);
+    const themeConfig = { id, cacheKeys };
 
     if (isAuthenticated) {
       const config = yield call(api.view.getThemeConfig, id);
       themeConfig.images = get(config, 'images', {});
       themeConfig.name = get(config, 'name', '');
-      themeConfig.cacheKey = yield call(api.view.getThemeCacheKey);
     }
 
     yield put(setThemeConfig(themeConfig));
