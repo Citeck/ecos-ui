@@ -19,7 +19,6 @@ import EditorItemModal from './EditorItemModal';
 import './style.scss';
 
 const Labels = {
-  SUBTITLE: 'menu-settings.editor-items.subtitle',
   BTN_ADD: 'menu-settings.editor-items.dropdown.add',
   TIP_NO_ITEMS: 'menu-settings.editor-items.none',
   TIP_DRAG_HERE: 'menu-settings.editor-items.drag-item-here',
@@ -49,6 +48,10 @@ class EditorItems extends React.Component {
   };
 
   getAvailableActions = item => {
+    if (this.props.disabledEdit) {
+      return [];
+    }
+
     return MenuSettingsService.getActiveActions(item);
   };
 
@@ -96,6 +99,10 @@ class EditorItems extends React.Component {
   };
 
   handleClickIcon = item => {
+    if (this.props.disabledEdit) {
+      return;
+    }
+
     this.setState({ editItemIcon: item });
   };
 
@@ -220,13 +227,15 @@ class EditorItems extends React.Component {
   };
 
   renderExtraComponents = ({ item, level = -1, isOpen }) => {
+    const { disabledEdit } = this.props;
     const components = [];
     const id = get(item, 'id');
 
     if (!item || (!item.hidden && !MenuSettingsService.isChildless(item))) {
       const createOptions = MenuSettingsService.getAvailableCreateOptions(item, { level });
 
-      createOptions.length &&
+      !disabledEdit &&
+        createOptions.length &&
         components.push(
           <DropdownOuter
             key={`${id}--dropdown`}
@@ -257,7 +266,7 @@ class EditorItems extends React.Component {
           key={`${id}--counter`}
           className={classNames('ecos-menu-settings-editor-items__action-count', {
             'ecos-menu-settings-editor-items__action-count_active': displayCount,
-            'ecos-menu-settings-editor-items__action-count_disabled': item.hidden
+            'ecos-menu-settings-editor-items__action-count_disabled': disabledEdit || item.hidden
           })}
           onClick={() => this.handleActionItem({ action: ms.ActionTypes.DISPLAY_COUNT, level: 0, item })}
         >
@@ -270,13 +279,12 @@ class EditorItems extends React.Component {
   };
 
   render() {
-    const { items } = this.props;
     const { openAllMenuItems } = this.state;
+    const { items, disabledEdit } = this.props;
 
     return (
       <div className="ecos-menu-settings-editor-items">
         <div className="ecos-menu-settings-editor-items__header">
-          <div className="ecos-menu-settings__subtitle ecos-menu-settings-editor-items__subtitle">{t(Labels.SUBTITLE)}</div>
           {this.renderExtraComponents({})}
           <div className="ecos--flex-space" />
           <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
@@ -288,7 +296,7 @@ class EditorItems extends React.Component {
             data={items}
             prefixClassName="ecos-menu-settings-editor-items"
             openAll={openAllMenuItems}
-            draggable
+            draggable={!disabledEdit}
             moveInParent
             onDragEnd={this.handleDragEnd}
             getActions={this.getAvailableActions}
@@ -306,6 +314,7 @@ class EditorItems extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  disabledEdit: get(state, 'menuSettings.disabledEdit'),
   items: get(state, 'menuSettings.items', []),
   fontIcons: get(state, 'menuSettings.fontIcons', []),
   lastAddedItems: get(state, 'menuSettings.lastAddedItems', [])

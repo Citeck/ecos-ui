@@ -11,6 +11,40 @@
     z-index: 10000;
   }
 
+  &__tabs {
+    margin-bottom: 20px;
+
+    .ecos-tab {
+      padding: 0 20px;
+
+      &:not(.ecos-tab_active) {
+        background: $color-gray-4;
+      }
+    }
+  }
+
+  &__tab {
+    $gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, calc(50% - #{$gap}/ 2));
+    grid-gap: $gap;
+  }
+
+  &__card {
+    font-size: $font-size-standard;
+    font-weight: $font-weight-semi-bold;
+
+    grid-column-start: 1;
+    grid-column-end: 3;
+    grid-row-start: 1;
+    grid-row-end: 1;
+
+    &-label {
+      color: $color-gray-5;
+      margin-right: 5px;
+    }
+  }
+
   &__title {
     @extend %title-block--1;
   }
@@ -78,7 +112,6 @@
 
   &-editor-items {
     $editor: &;
-    margin-bottom: 30px;
 
     &__header {
       display: flex;
@@ -111,8 +144,8 @@
     &__tree {
       &-field {
         @extend %block--2;
-        min-height: 300px;
-        max-height: 300px;
+        min-height: 350px;
+        max-height: 350px;
         overflow-x: hidden;
       }
     }
@@ -182,21 +215,18 @@
   }
 
   &-ownership {
-    margin-bottom: 30px;
   }
 
   &-group-priority {
-    &__wrapper {
-      display: flex;
-      align-items: center;
-      margin-bottom: 5px;
-    }
-
     &__tree {
+      &-container {
+        position: relative;
+      }
+
       &-field {
         @extend %block--2;
-        min-height: 420px;
-        max-height: 420px;
+        min-height: 350px;
+        max-height: 350px;
         overflow-x: hidden;
       }
     }
@@ -226,8 +256,10 @@
 
   &__explanation {
     font-weight: $font-weight-semi-bold;
-    font-size: $font-size-small;
+    font-size: $font-size-standard;
     color: $text-color-gray;
+    margin-bottom: 15px;
+    white-space: pre-wrap;
   }
 }
 

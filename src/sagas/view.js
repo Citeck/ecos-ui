@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import { detectMobileDevice, setTheme, setThemeConfig } from '../actions/view';
 import { setIsMobile, loadThemeRequest } from '../actions/view';
 import { applyTheme, isMobileDevice, loadStylesheet } from '../helpers/util';
-import { selectThemeStylesheet } from '../selectors/view';
+import { selectActiveThemeStylesheet } from '../selectors/view';
 
 export function* doDetectMobileDevice({ api, fakeApi, logger }) {
   try {
@@ -16,26 +16,24 @@ export function* doDetectMobileDevice({ api, fakeApi, logger }) {
 
 export function* loadTheme({ api, fakeApi, logger }, { payload }) {
   try {
+    const { isAuthenticated, onSuccess } = payload;
     const id = yield call(api.view.getActiveThemeId);
-    const cacheKey = yield call(api.view.getThemeCacheKey);
-    const themeConfig = yield call(api.view.getThemeConfig, id);
-    const images = get(themeConfig, 'images', {});
-    const name = get(themeConfig, 'name', '');
+    const cacheKeys = yield call(api.view.getThemeCacheKeys);
+    const themeConfig = { id, cacheKeys };
 
-    yield put(
-      setThemeConfig({
-        id,
-        name,
-        images,
-        cacheKey
-      })
-    );
+    if (isAuthenticated) {
+      const config = yield call(api.view.getThemeConfig, id);
+      themeConfig.images = get(config, 'images', {});
+      themeConfig.name = get(config, 'name', '');
+    }
+
+    yield put(setThemeConfig(themeConfig));
 
     yield put(setTheme(id));
     yield call(applyTheme, id);
 
-    const stylesheetUrl = yield select(selectThemeStylesheet);
-    yield call(loadStylesheet, stylesheetUrl, payload.onSuccess, payload.onSuccess);
+    const stylesheetUrl = yield select(selectActiveThemeStylesheet);
+    yield call(loadStylesheet, stylesheetUrl, onSuccess, onSuccess);
   } catch (e) {
     logger.error('[loadTheme saga] error', e.message);
   }
