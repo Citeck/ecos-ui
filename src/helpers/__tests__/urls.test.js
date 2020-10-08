@@ -80,17 +80,17 @@ describe('Urls helpers', () => {
     const data = [
       {
         title: 'Dashboard link (without query attributes)',
-        input: 'https://dev.ecos24.ru/v2/dashboard',
+        input: '/v2/dashboard',
         output: true
       },
       {
         title: 'Dashboard link (with query attributes, but without recordRef)',
-        input: 'https://dev.ecos24.ru/v2/dashboard?activeLayoutId=layout_bb6e6685-f802-4680-8606-007a42a8c1bd',
+        input: '/v2/dashboard?activeLayoutId=layout_bb6e6685-f802-4680-8606-007a42a8c1bd',
         output: true
       },
       {
         title: 'Dashboard link (with query attributes, including recordRef)',
-        input: 'https://dev.ecos24.ru/v2/dashboard?recordRef=workspace://SpacesStore/2407ae6f-75ad-4413-81b4-a96dcbe9b303',
+        input: '/v2/dashboard?recordRef=workspace://SpacesStore/2407ae6f-75ad-4413-81b4-a96dcbe9b303',
         output: false
       },
       {
@@ -109,7 +109,7 @@ describe('Urls helpers', () => {
 
   describe('Method removeUrlSearchParams', () => {
     const defaultUrl =
-      'https://dev.ecos24.ru/v2/journals?journalId=contract-agreements&journalSettingId=31aea70b-60b1-4fc8-9614-f5ce887b4e3e&journalsListId=contractor-documents&userConfigId=';
+      '/v2/journals?journalId=contract-agreements&journalSettingId=31aea70b-60b1-4fc8-9614-f5ce887b4e3e&journalsListId=contractor-documents&userConfigId=';
     const data = [
       {
         title: 'Empty remove params',
@@ -119,13 +119,12 @@ describe('Urls helpers', () => {
       {
         title: 'The parameter to be removed is a string',
         input: [defaultUrl, 'journalsListId'],
-        output:
-          'https://dev.ecos24.ru/v2/journals?journalId=contract-agreements&journalSettingId=31aea70b-60b1-4fc8-9614-f5ce887b4e3e&userConfigId='
+        output: '/v2/journals?journalId=contract-agreements&journalSettingId=31aea70b-60b1-4fc8-9614-f5ce887b4e3e&userConfigId='
       },
       {
         title: 'The parameter being removed is an array of strings',
         input: [defaultUrl, ['journalSettingId', 'journalsListId', 'journalId']],
-        output: 'https://dev.ecos24.ru/v2/journals?userConfigId='
+        output: '/v2/journals?userConfigId='
       }
     ];
 

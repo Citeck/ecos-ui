@@ -418,8 +418,6 @@ export const pushHistoryLink = (history = {}, linkData = {}) => {
   }
 };
 
-window.queryString = queryString;
-
 /**
  *
  * @param {String} sourceUrl
