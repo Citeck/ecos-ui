@@ -1108,7 +1108,7 @@
   "menu-settings.editor-item.btn.cancel": "Cancel",
   "menu-settings.editor-item.btn.add": "Add",
   "menu-settings.editor-item.btn.edit": "Save",
-  "menu-settings.editor-ownership.title": "Ownership settings",
+  "menu-settings.editor-ownership.title": "Groups or users",
   "menu-settings.editor-global-settings.title": "Description",
   "menu-settings.editor-group-priority.title": "Group priority",
 
