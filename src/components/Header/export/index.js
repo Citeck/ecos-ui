@@ -34,9 +34,10 @@ const store = configureStore({
 const render = (elementId, props, callback) => {
   store.dispatch(
     initAppRequest({
-      onSuccess: () => {
+      onSuccess: isAuthenticated => {
         store.dispatch(
           loadThemeRequest({
+            isAuthenticated,
             onSuccess: () => {
               store.dispatch(initMenuConfig());
               store.dispatch(fetchUserMenuData());

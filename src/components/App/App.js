@@ -30,7 +30,7 @@ import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { MenuSettingsController } from '../MenuSettings';
 import { replaceHistoryLink } from '../../helpers/urls';
-import { selectThemeImage } from '../../selectors/view';
+import { selectActiveThemeImage } from '../../selectors/view';
 import { DefaultImages } from '../../constants/theme';
 
 import './App.scss';
@@ -425,7 +425,7 @@ const mapStateToProps = state => ({
   tabs: get(state, 'pageTabs.tabs', []),
   menuType: get(state, ['menu', 'type']),
   footer: get(state, 'app.footer', null),
-  loginLogo: selectThemeImage(state, DefaultImages.LOGIN_LOGO)
+  loginLogo: selectActiveThemeImage(state, DefaultImages.LOGIN_LOGO)
 });
 
 const mapDispatchToProps = dispatch => ({
