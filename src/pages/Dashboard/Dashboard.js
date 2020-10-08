@@ -199,7 +199,6 @@ class Dashboard extends Component {
     DialogManager.showCustomDialog({
       isVisible: !!warningMessage,
       title: t('warning'),
-      setVisible: data => console.warn(data),
       body: warningMessage,
       modalClass: 'ecos-modal_width-xs ecos-modal_level-4',
       buttons: [

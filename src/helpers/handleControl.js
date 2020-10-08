@@ -51,8 +51,15 @@ export default function handleControl(type, payload) {
 
     case HCT.ALF_SHOW_MODAL_MAKE_UNAVAILABLE:
       return (() => {
+        if (!payload.isAvailable) {
+          ecosFetch('/share/page/components/deputy/make-available?available=true').then(() => {
+            window.location.reload();
+          });
+          return;
+        }
+
         DialogManager.showFormDialog({
-          title: t(payload.isAvailable ? 'header.make-notavailable.label' : 'header.make-available.label'),
+          title: t('header.make-notavailable.label'),
           showDefaultButtons: true,
           modalClass: 'ecos-modal_width-sm',
           reactstrapProps: {
@@ -107,27 +114,30 @@ export default function handleControl(type, payload) {
           },
           onSubmit: async submission => {
             const userRef = await Records.get(`people@${getCurrentUserName()}`).load('nodeRef?str');
-
-            await ecosFetch('/share/proxy/alfresco/citeck/ecos/forms/node-view?formType=type&formKey=deputy:selfAbsenceEvent', {
-              method: 'POST',
-              body: {
-                attributes: {
-                  'deputy:endAbsence': get(submission, 'data.absenceBeginning', ''),
-                  'deputy:startAbsence': get(submission, 'data.absenceEnd', ''),
-                  'deputy:autoAnswer': get(submission, 'data.autoAnswer', ''),
-                  'deputy:user': userRef
+            const result = await ecosFetch(
+              '/share/proxy/alfresco/citeck/ecos/forms/node-view?formType=type&formKey=deputy:selfAbsenceEvent',
+              {
+                method: 'POST',
+                body: {
+                  attributes: {
+                    'deputy:endAbsence': get(submission, 'data.absenceBeginning', ''),
+                    'deputy:startAbsence': get(submission, 'data.absenceEnd', ''),
+                    'deputy:autoAnswer': get(submission, 'data.autoAnswer', ''),
+                    'deputy:user': userRef
+                  }
                 }
               }
-            })
+            )
               .then(response => response.json())
-              .then(json => {
-                if (!isEmpty(json)) {
-                  window.location.reload();
-                }
-              })
               .catch(e => {
                 console.error(e);
               });
+
+            if (!isEmpty(result)) {
+              await ecosFetch('/share/page/components/deputy/make-available?available=false').then(() => {
+                window.location.reload();
+              });
+            }
           }
         });
       })();

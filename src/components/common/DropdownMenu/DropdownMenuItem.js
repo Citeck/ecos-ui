@@ -38,10 +38,12 @@ class DropdownMenuItem extends React.Component {
   };
 
   get iconLeft() {
-    const { id, targetUrl } = this.props.data || {};
-
+    const { id, targetUrl, control } = this.props.data || {};
     const paramsUrl = queryString.parse(targetUrl);
-    const iconSpecialClass = getSpecialClassByState(id, paramsUrl);
+    const iconSpecialClass = getSpecialClassByState(id, {
+      ...paramsUrl,
+      available: get(control, 'payload.isAvailable')
+    });
     const icon = getIconClassMenu(id, iconSpecialClass);
 
     return icon ? `ecos-dropdown-menu__icon ${icon}` : '';
