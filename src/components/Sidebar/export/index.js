@@ -34,6 +34,7 @@ const store = configureStore({
 const render = (elementId, props, callback) => {
   store.dispatch(
     loadThemeRequest({
+      isAuthenticated: true,
       onSuccess: () => {
         store.dispatch(
           getUserData({

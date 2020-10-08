@@ -38,6 +38,7 @@ api.user = new UserApi();
 const render = (elementId, props, callback) => {
   store.dispatch(
     loadThemeRequest({
+      isAuthenticated: true,
       onSuccess: () => {
         store.dispatch(
           getUserData({
