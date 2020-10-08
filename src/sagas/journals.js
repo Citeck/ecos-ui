@@ -52,7 +52,13 @@ import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETT
 import { ParserPredicate } from '../components/Filters/predicates';
 import { ActionTypes } from '../components/Records/actions';
 
-import { decodeLink, getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl, isNewVersionPage } from '../helpers/urls';
+import {
+  decodeLink,
+  getFilterUrlParam,
+  goToJournalsPage as goToJournalsPageUrl,
+  isNewVersionPage,
+  removeUrlSearchParams
+} from '../helpers/urls';
 import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
@@ -262,6 +268,10 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, userConfig, 
     }
 
     if (!journalSetting) {
+      const url = removeUrlSearchParams(window.location.href, 'journalSettingId');
+
+      window.history.pushState({ path: url }, '', url);
+
       journalSetting = getDefaultJournalSetting(journalConfig);
     }
   }

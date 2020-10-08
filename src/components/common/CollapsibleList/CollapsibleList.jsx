@@ -17,7 +17,7 @@ export default class CollapsibleList extends Component {
     return (
       <div className={classNames('collapsible-list', className)}>
         <PanelBar
-          open={!close && list && list.length}
+          open={!close && Boolean(list && list.length)}
           header={children}
           css={{
             headerClassName: 'panel-bar__header_full panel-bar__header_narrow ',
