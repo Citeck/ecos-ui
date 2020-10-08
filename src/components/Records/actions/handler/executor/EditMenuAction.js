@@ -1,4 +1,3 @@
-import React from 'react';
 import MenuSettingsService from '../../../../../services/MenuSettingsService';
 import { notifyFailure } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';

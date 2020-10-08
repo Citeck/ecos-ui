@@ -131,7 +131,7 @@ describe('Urls helpers', () => {
 
     data.forEach(item => {
       it(item.title, () => {
-        expect(UrlUtils.removeUrlSearchParams(...item.input).href).toEqual(item.output);
+        expect(UrlUtils.removeUrlSearchParams(...item.input)).toEqual(item.output);
       });
     });
   });

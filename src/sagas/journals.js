@@ -270,7 +270,7 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, userConfig, 
     if (!journalSetting) {
       const url = removeUrlSearchParams(window.location.href, 'journalSettingId');
 
-      window.history.pushState({ path: url.href }, '', url.href);
+      window.history.pushState({ path: url }, '', url);
 
       journalSetting = getDefaultJournalSetting(journalConfig);
     }
