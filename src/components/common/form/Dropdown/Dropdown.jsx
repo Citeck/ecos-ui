@@ -194,7 +194,12 @@ export default class Dropdown extends Component {
 
     if (withScrollbar) {
       Wrapper = ({ children }) => (
-        <Scrollbars autoHeight autoHeightMin={scrollbarHeightMin} autoHeightMax={scrollbarHeightMax || '100%'}>
+        <Scrollbars
+          autoHeight
+          autoHeightMin={scrollbarHeightMin}
+          autoHeightMax={scrollbarHeightMax || '100%'}
+          renderView={props => <div {...props} className="ecos-dropdown__scrollbar" />}
+        >
           {children}
         </Scrollbars>
       );
