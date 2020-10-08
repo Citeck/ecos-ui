@@ -31,7 +31,8 @@ SelectOrgstruct.defaultProps = {
   allowedGroupTypes: [GROUP_TYPE_BRANCH, GROUP_TYPE_ROLE],
   allowedGroupSubTypes: [],
   defaultTab: TAB_BY_LEVELS,
-  userSearchExtraFields: []
+  userSearchExtraFields: [],
+  isCompactView: true
 };
 
 SelectOrgstruct.propTypes = {
@@ -44,6 +45,7 @@ SelectOrgstruct.propTypes = {
   renderListItem: PropTypes.func,
   multiple: PropTypes.bool,
   isCompact: PropTypes.bool,
+  isCompactView: PropTypes.bool,
   hideTabSwitcher: PropTypes.bool,
   hideInputView: PropTypes.bool,
   getFullData: PropTypes.bool, // return full data about selected user, not only nodeRef

@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
+import classNames from 'classnames';
 import get from 'lodash/get';
 
-import { t } from '../../../../../../helpers/util';
+import { isExistValue, t } from '../../../../../../helpers/util';
 import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
 import { AssocLink } from '../../../AssocLink';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
@@ -12,8 +13,9 @@ import './ViewMode.scss';
 const ViewMode = () => {
   const context = useContext(SelectOrgstructContext);
   const { selectedRows, controlProps } = context;
-  const { placeholder, isSelectedValueAsText } = controlProps;
+  const { placeholder, isSelectedValueAsText, isCompactView } = controlProps;
   const placeholderText = placeholder ? placeholder : t('select-orgstruct.placeholder');
+  const isCompact = isExistValue(isCompactView) ? isCompactView : true;
 
   const renderValue = item => {
     let url = '';
@@ -44,11 +46,11 @@ const ViewMode = () => {
   return (
     <>
       {selectedRows.length > 0 ? (
-        <ul className="select-orgstruct-view-mode__list">
+        <div className={classNames('select-orgstruct-view-mode__list', { 'select-orgstruct-view-mode__list_compact': isCompact })}>
           {selectedRows.map(item => (
-            <li key={item.id}>{renderValue(item)}</li>
+            <div key={item.id}>{renderValue(item)}</div>
           ))}
-        </ul>
+        </div>
       ) : (
         <p>{placeholderText}</p>
       )}

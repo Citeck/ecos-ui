@@ -151,6 +151,7 @@ class Settings extends React.Component {
               onChange={this.handleSelectOrg}
               isSelectedValueAsText
               viewOnly={disabledEdit}
+              isCompactView={false}
             />
           </div>
         </div>
