@@ -49,5 +49,5 @@ PanelBar.propTypes = {
   }),
   className: PropTypes.string,
   header: PropTypes.string,
-  children: PropTypes.element
+  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
 };
