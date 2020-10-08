@@ -22,8 +22,6 @@ export default function handleControl(type, payload, dispatch) {
 
     case 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE':
       return (() => {
-        console.warn('ALF_SHOW_MODAL_MAKE_UNAVAILABLE => ', { payload });
-
         if (!payload.isAvailable) {
           ecosFetch('/share/page/components/deputy/make-available?available=true').then(() => {
             window.location.reload();
