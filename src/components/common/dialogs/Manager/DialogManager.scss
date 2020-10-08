@@ -11,6 +11,12 @@
     grid-gap: 1em;
   }
 
+  &_no-buttons {
+    .ecos-dialog__buttons {
+      margin-top: 0;
+    }
+  }
+
   &__body {
     white-space: pre-wrap;
   }
