@@ -1,11 +1,15 @@
 import { NotificationManager } from 'react-notifications';
+
+import EcosFormUtils from '../../../../../EcosForm/EcosFormUtils';
 import Records from '../../../../Records';
+
 import actionsRegistry from '../../../actionsRegistry';
 import '../../../index';
 import EditAction from '../EditAction';
 
 const RecordIds = {
-  TASK_REF: 'workspace://SpacesStore/test-task'
+  TASK_REF: 'workspace://SpacesStore/test-task',
+  TASK_ID: 'activiti$task'
 };
 
 jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
@@ -19,7 +23,18 @@ jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
           Promise.resolve({
             id: RecordIds.TASK_REF,
             attributes: {
-              'cm:name?str': 'activiti$task'
+              'cm:name?str': RecordIds.TASK_ID
+            }
+          })
+      });
+    case 'ecos-config@default-ui-main-menu':
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            id: RecordIds.TASK_REF,
+            attributes: {
+              '.str': 'left'
             }
           })
       });
@@ -37,6 +52,7 @@ jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
 
 describe('Edit Action', () => {
   const _safeError = NotificationManager.error;
+  const _safeEditRecord = EcosFormUtils.editRecord;
   const action = actionsRegistry.getHandler(EditAction.ACTION_ID);
 
   NotificationManager.error = () => undefined;
@@ -46,12 +62,27 @@ describe('Edit Action', () => {
     expect(result).toEqual(false);
   });
 
-  it('case Task form fallback ', async () => {
+  it('case Task form - fallback ', async () => {
     delete window.open;
     window.open = () => undefined;
 
     const result = await action.execForRecord(Records.get(RecordIds.TASK_REF), { config: { mode: 'task' } });
+    expect(result).toEqual(false);
+  });
+
+  it('case Task form - onSubmit', async () => {
+    delete window.open;
+    window.open = () => undefined;
+
+    EcosFormUtils.editRecord = config => {
+      expect(config.recordRef).toEqual('wftask@' + RecordIds.TASK_ID);
+      config.onSubmit();
+    };
+
+    const result = await action.execForRecord(Records.get(RecordIds.TASK_REF), { config: { mode: 'task' } });
     expect(result).toEqual(true);
+
+    EcosFormUtils.editRecord = _safeEditRecord;
   });
 
   //todo default case
