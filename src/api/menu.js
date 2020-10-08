@@ -384,7 +384,8 @@ export class MenuApi extends CommonApi {
   };
 
   saveMenuSettingsConfig = ({ id, subMenu, authorities, version }) => {
-    const rec = Records.get(`${SourcesId.MENU}@${id}`);
+    const recordId = id.includes(SourcesId.MENU) ? id : `${SourcesId.MENU}@${id}`;
+    const rec = Records.get(recordId);
 
     !authorities.length && authorities.push(LOWEST_PRIORITY);
 

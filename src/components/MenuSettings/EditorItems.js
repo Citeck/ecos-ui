@@ -19,7 +19,6 @@ import EditorItemModal from './EditorItemModal';
 import './style.scss';
 
 const Labels = {
-  SUBTITLE: 'menu-settings.editor-items.subtitle',
   BTN_ADD: 'menu-settings.editor-items.dropdown.add',
   TIP_NO_ITEMS: 'menu-settings.editor-items.none',
   TIP_DRAG_HERE: 'menu-settings.editor-items.drag-item-here',
@@ -262,7 +261,6 @@ class EditorItems extends React.Component {
     return (
       <div className="ecos-menu-settings-editor-items">
         <div className="ecos-menu-settings-editor-items__header">
-          <div className="ecos-menu-settings__subtitle ecos-menu-settings-editor-items__subtitle">{t(Labels.SUBTITLE)}</div>
           {this.renderExtraComponents({})}
           <div className="ecos--flex-space" />
           <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
