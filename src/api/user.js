@@ -29,8 +29,8 @@ export class UserApi extends CommonApi {
       },
       {
         userName: 'userName',
-        // isAvailable: 'isAvailable?bool',
-        isAvailable: 'deputy:available?bool',
+        isAvailable: 'isAvailable?bool',
+        isDeputyAvailable: 'deputy:available?bool',
         isMutable: 'isMutable?bool',
         firstName: 'cm:firstName',
         lastName: 'cm:lastName',
