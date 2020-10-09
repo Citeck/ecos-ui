@@ -4,14 +4,14 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
+import debounce from 'lodash/debounce';
 
-import { getAuthorityInfoByRefs, removeSettings, saveMenuSettings } from '../../actions/menuSettings';
+import { getAuthorityInfoByRefs, saveMenuSettings } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
 import { goToJournalsPage } from '../../helpers/urls';
 import { MenuTypes } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import { EcosModal, Loader, Tabs } from '../common';
-import DialogManager from '../common/dialogs/Manager';
 import { Btn, IcoBtn } from '../common/btns';
 import { SelectOrgstruct } from '../common/form';
 import EditorItems from './EditorItems';
@@ -31,6 +31,8 @@ const Labels = {
   BTN_APPLY: 'menu-settings.button.apply'
 };
 
+const FIX_PLACE_H = 300;
+
 class Settings extends React.Component {
   constructor(props) {
     super(props);
@@ -38,7 +40,8 @@ class Settings extends React.Component {
     this.state = {
       selectedType: props.type,
       selectedTab: undefined,
-      loadedTabs: []
+      loadedTabs: [],
+      heightContent: window.innerHeight - FIX_PLACE_H
     };
   }
 
@@ -48,6 +51,8 @@ class Settings extends React.Component {
 
     loadedTabs[selectedTab] = true;
     this.setState({ selectedTab, loadedTabs });
+
+    window.addEventListener('resize', this.resizeWindow);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -61,6 +66,10 @@ class Settings extends React.Component {
     if (!isEmpty(state)) {
       this.setState(state);
     }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.resizeWindow);
   }
 
   get authorityRefs() {
@@ -78,6 +87,10 @@ class Settings extends React.Component {
     const { selectedTab } = this.state;
     return get(this.mainTabs, [selectedTab, 'id']);
   }
+
+  resizeWindow = debounce(() => {
+    this.setState({ heightContent: window.innerHeight - FIX_PLACE_H });
+  }, 300);
 
   handleHideModal = () => {
     MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
@@ -119,19 +132,11 @@ class Settings extends React.Component {
     this.setState(newState);
   };
 
-  handleReset = () => {
-    DialogManager.showRemoveDialog({
-      onDelete: () => {
-        this.props.removeSettings();
-      }
-    });
-  };
-
   renderMenuConfigTab(key) {
     const { disabledEdit, editedId } = this.props;
 
     return (
-      <div className={classNames(`ecos-menu-settings__tab tab--${key}`, { 'd-none': this.activeTabId !== key })}>
+      <div className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
         <div className="ecos-menu-settings__card ">
           <div>
             <span className="ecos-menu-settings__card-label">{t('menu-settings.data.id')}:</span>
@@ -160,10 +165,14 @@ class Settings extends React.Component {
 
   renderGlobalConfigTab(key) {
     return (
-      <div className={classNames(`ecos-menu-settings__tab tab--${key}`, { 'd-none': this.activeTabId !== key })}>
+      <div
+        className={classNames(`ecos-menu-settings__tab-content ecos-menu-settings__tab-content_two-cols tab--${key}`, {
+          'd-none': this.activeTabId !== key
+        })}
+      >
         <div>
           <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
-          <EditorGroupPriority />
+          <EditorGroupPriority heightContent={this.state.heightContent} />
         </div>
         <div>
           <div className="ecos-menu-settings__title">{t(Labels.GLOBAL_TITLE)}</div>
@@ -192,7 +201,7 @@ class Settings extends React.Component {
   }
 
   render() {
-    const { loadedTabs } = this.state;
+    const { loadedTabs, heightContent } = this.state;
     const { isLoading, isAdmin, disabledEdit } = this.props;
     const customButtons = [];
 
@@ -223,9 +232,18 @@ class Settings extends React.Component {
       >
         {isLoading && <Loader blur className="ecos-menu-settings__loader" />}
 
-        <Tabs items={this.mainTabs} activeTabKey={this.activeTabId} onClick={this.handleClickTab} className="ecos-menu-settings__tabs" />
-        {loadedTabs[0] && this.renderMenuConfigTab(this.mainTabs[0].id)}
-        {loadedTabs[1] && this.renderGlobalConfigTab(this.mainTabs[1].id)}
+        <Tabs
+          items={this.mainTabs}
+          activeTabKey={this.activeTabId}
+          onClick={this.handleClickTab}
+          className="ecos-menu-settings__tabs"
+          widthFull
+          narrow
+        />
+        <div className="ecos-menu-settings__content-container" style={{ height: `${heightContent}px` }}>
+          {loadedTabs[0] && this.renderMenuConfigTab(this.mainTabs[0].id)}
+          {loadedTabs[1] && this.renderGlobalConfigTab(this.mainTabs[1].id)}
+        </div>
         {!disabledEdit && this.renderButtons()}
       </EcosModal>
     );
@@ -242,7 +260,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  removeSettings: () => dispatch(removeSettings()),
   saveSettings: payload => dispatch(saveMenuSettings(payload)),
   getAuthorityInfoByRefs: payload => dispatch(getAuthorityInfoByRefs(payload))
 });

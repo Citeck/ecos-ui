@@ -9,7 +9,6 @@ import {
   getAuthorityInfoByRefs,
   getGroupPriority,
   getSettingsConfig,
-  removeSettings,
   saveMenuSettings,
   setAuthorities,
   setGroupPriority,
@@ -19,7 +18,6 @@ import {
   setMenuItems
 } from '../actions/menuSettings';
 import { initMenuConfig } from '../actions/menu';
-import { fetchSlideMenuItems } from '../actions/slideMenu';
 import { t } from '../helpers/util';
 import MenuConverter from '../dto/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
@@ -177,29 +175,8 @@ function* fetchAuthorityInfoByRefs({ api, logger }, { payload = [] }) {
   }
 }
 
-function* runRemoveSettings({ api, logger }) {
-  try {
-    const { id } = yield select(state => state.menu);
-
-    if (id.includes('default-menu')) {
-      NotificationManager.warning('Default menu is not deleted');
-    } else {
-      MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
-      yield call(api.menu.removeSettings, { id });
-      yield put(initMenuConfig());
-      yield put(fetchSlideMenuItems());
-    }
-    yield put(setLoading(false));
-  } catch (e) {
-    yield put(setLoading(false));
-    NotificationManager.error(t('menu-settings.error.remove-config'), t('error'));
-    logger.error('[menu-settings / runRemoveSettings]', e.message);
-  }
-}
-
 function* saga(ea) {
   yield takeLatest(saveMenuSettings().type, runSaveMenuSettings, ea);
-  yield takeLatest(removeSettings().type, runRemoveSettings, ea);
   yield takeLatest(getSettingsConfig().type, fetchSettingsConfig, ea);
   yield takeLatest(addJournalMenuItems().type, runAddJournalMenuItems, ea);
   yield takeLatest(getGroupPriority().type, fetchGroupPriority, ea);
