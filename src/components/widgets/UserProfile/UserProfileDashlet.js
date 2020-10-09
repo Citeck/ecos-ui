@@ -12,7 +12,7 @@ import { Avatar, BtnUpload } from '../../common';
 import { Btn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
-import PasswordModal from './PasswordModal';
+import { PasswordEditor } from '../../Password';
 
 import './style.scss';
 
@@ -93,7 +93,7 @@ class UserProfileDashlet extends BaseWidget {
       >
         <Scrollbars {...this.scrollbarProps}>
           {
-            <PasswordModal
+            <PasswordEditor
               isLoading={isLoadingPassword}
               userName={userName}
               isCurrentUser={isCurrentUser}

@@ -430,6 +430,7 @@
   "record-action.name.cancel-business-process": "Cancel business-process",
   "record-action.name.mutate-action": "Mutate",
   "record-action.name.edit-doc-permissions": "Edit document permissions",
+  "record-action.name.edit-password": "Change password",
 
   "grid.inline-tools.details": "Details",
   "grid.no-data-indication": "No items in the list",

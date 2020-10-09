@@ -8,6 +8,7 @@ import { DocPreview } from '../components/widgets/DocPreview';
 import Modal from '../components/common/EcosModal/CiteckEcosModal';
 import { SelectOrgstruct } from '../components/common/form';
 import { AUTHORITY_TYPE_USER, TAB_ALL_USERS } from '../components/common/form/SelectOrgstruct/constants';
+import { PasswordEditor } from '../components/Password';
 
 export default class WidgetService {
   static uploadNewVersion(params = {}) {
@@ -82,5 +83,19 @@ export default class WidgetService {
       class: 'ecos-modal-business-process',
       onHideModal: onClose
     });
+  }
+
+  static openEditorPassword(params = {}) {
+    const { record, onClose } = params;
+    const container = document.createElement('div');
+
+    const onCloseModal = done => {
+      ReactDOM.unmountComponentAtNode(container);
+      document.body.removeChild(container);
+      onClose && onClose(done);
+    };
+
+    ReactDOM.render(<PasswordEditor />, container);
+    document.body.appendChild(container);
   }
 }
