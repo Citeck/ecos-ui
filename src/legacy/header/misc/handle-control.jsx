@@ -1,11 +1,6 @@
 import { t } from '../../common/util';
 import { showModal, hideModal, leaveSiteRequest, joinSiteRequest, becomeSiteManagerRequest, requestSiteMembership } from '../actions';
-import ecosFetch from '../../../helpers/ecosFetch';
-import DialogManager from '../../../components/common/dialogs/Manager';
-import Records from '../../../components/Records';
-import { getCurrentUserName } from '../../../helpers/util';
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
+import { toggleUnavailableStatus } from '../../../helpers/handleControl';
 
 const Alfresco = window.Alfresco || {};
 const Citeck = window.Citeck || {};
@@ -21,97 +16,7 @@ export default function handleControl(type, payload, dispatch) {
       break;
 
     case 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE':
-      return (() => {
-        if (!payload.isAvailable) {
-          ecosFetch('/share/page/components/deputy/make-available?available=true').then(() => {
-            window.location.reload();
-          });
-          return;
-        }
-
-        DialogManager.showFormDialog({
-          title: t('header.make-notavailable.label'),
-          showDefaultButtons: true,
-          modalClass: 'ecos-modal_width-sm',
-          reactstrapProps: {
-            backdrop: true
-          },
-          formDefinition: {
-            display: 'form',
-            components: [
-              {
-                key: 'absenceBeginning',
-                type: 'datetime',
-                label: 'Начало отсутствия',
-                labelPosition: 'left-left',
-                format: 'yyyy-MM-dd H:mm',
-                displayInTimezone: 'viewer',
-                datepickerMode: 'day',
-                customDefaultValue: 'value = moment();',
-                datePicker: {
-                  minDate: 'moment()'
-                },
-                timePicker: {
-                  showMeridian: false
-                }
-              },
-              {
-                key: 'absenceEnd',
-                type: 'datetime',
-                label: 'Окончание отсутствия',
-                labelPosition: 'left-left',
-                format: 'yyyy-MM-dd H:mm',
-                displayInTimezone: 'viewer',
-                datepickerMode: 'day',
-                customDefaultValue: "value = moment().add(5, 'm');",
-                datePicker: {
-                  minDate: "moment().add(1, 'm')"
-                },
-                timePicker: {
-                  showMeridian: false
-                },
-                validate: {
-                  required: true,
-                  custom: "valid = moment(data.dateTime2).isBefore(value) ? true : 'Дата начала не может быть больше даты окончания';"
-                }
-              },
-              {
-                key: 'autoAnswer',
-                type: 'textarea',
-                label: 'Автоответ',
-                labelPosition: 'left-left'
-              }
-            ]
-          },
-          onSubmit: async submission => {
-            const userRef = await Records.get(`people@${getCurrentUserName()}`).load('nodeRef?str');
-            const result = await ecosFetch(
-              '/share/proxy/alfresco/citeck/ecos/forms/node-view?formType=type&formKey=deputy:selfAbsenceEvent',
-              {
-                method: 'POST',
-                body: {
-                  attributes: {
-                    'deputy:endAbsence': get(submission, 'data.absenceBeginning', ''),
-                    'deputy:startAbsence': get(submission, 'data.absenceEnd', ''),
-                    'deputy:autoAnswer': get(submission, 'data.autoAnswer', ''),
-                    'deputy:user': userRef
-                  }
-                }
-              }
-            )
-              .then(response => response.json())
-              .catch(e => {
-                console.error(e);
-              });
-
-            if (!isEmpty(result)) {
-              await ecosFetch('/share/page/components/deputy/make-available?available=false').then(() => {
-                window.location.reload();
-              });
-            }
-          }
-        });
-      })();
+      return toggleUnavailableStatus(payload);
 
     case 'ALF_NAVIGATE_TO_PAGE':
       // TODO improve it

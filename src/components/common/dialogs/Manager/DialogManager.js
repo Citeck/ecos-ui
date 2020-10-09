@@ -255,7 +255,7 @@ const dialogsById = {
                   index: 1,
                   components: [
                     {
-                      label: 'Отмена',
+                      label: t('btn.cancel.label'),
                       type: 'button',
                       action: 'event',
                       block: true,
@@ -272,7 +272,7 @@ const dialogsById = {
                   index: 2,
                   components: [
                     {
-                      label: 'Подтвердить',
+                      label: t('btn.confirm.label'),
                       type: 'button',
                       theme: 'primary',
                       action: 'submit',
