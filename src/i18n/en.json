@@ -363,6 +363,8 @@
   "filter-list.filter-group-add": "Add",
   "filter-list.panel-header": "Filter",
 
+  "record-action.tasks-actions.task-name-prefix": "Complete task: ",
+
   "record-action.task-outcome.incorrect-action.header": "Incorrect action",
   "record-action.task-outcome.incorrect-action.message": "Incorrect action. Contact your system administrator",
   "record-action.task-outcome.form-not-found.header": "Form not found",
@@ -1125,7 +1127,7 @@
   "menu-settings.editor-item.btn.cancel": "Cancel",
   "menu-settings.editor-item.btn.add": "Add",
   "menu-settings.editor-item.btn.edit": "Save",
-  "menu-settings.editor-ownership.title": "Ownership settings",
+  "menu-settings.editor-ownership.title": "Groups or users",
   "menu-settings.editor-global-settings.title": "Description",
   "menu-settings.editor-group-priority.title": "Group priority",
 

@@ -22,8 +22,21 @@ Tab.propTypes = commonOneTabPropTypes;
 Tab.defaultProps = commonOneTabDefaultProps;
 
 const Tabs = props => {
-  const { items, keyField, valueField, valuePrefix, className, classNameTab, activeTabKey, onClick, hasHover, hasHint } = props;
-  const tabsClassNames = classNames('ecos-tabs', className);
+  const {
+    items,
+    keyField,
+    valueField,
+    valuePrefix,
+    className,
+    classNameTab,
+    activeTabKey,
+    onClick,
+    hasHover,
+    hasHint,
+    widthFull,
+    narrow
+  } = props;
+  const tabsClassNames = classNames('ecos-tabs', className, { 'ecos-tabs_width-full': widthFull, 'ecos-tabs_narrow': narrow });
 
   return (
     <div className={tabsClassNames}>

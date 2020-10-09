@@ -11,7 +11,15 @@
     display: flex;
 
     .ecos-tab {
-      flex-grow: 1;
+      flex: 1;
+    }
+  }
+
+  &_narrow {
+    & .ecos-tab {
+      padding: 0 13px;
+      font-size: $font-size-standard;
+      line-height: 26px;
     }
   }
 

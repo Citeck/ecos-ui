@@ -29,22 +29,35 @@
   }
 
   &__tabs {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    padding-right: 2px;
 
     .ecos-tab {
-      padding: 0 20px;
-
       &:not(.ecos-tab_active) {
         background: $color-gray-4;
       }
     }
   }
 
-  &__tab {
-    $gap: 20px;
-    display: grid;
-    grid-template-columns: repeat(2, calc(50% - #{$gap}/ 2));
-    grid-gap: $gap;
+  &__content-container {
+    overflow: auto;
+    padding-right: 2px;
+    min-height: 150px;
+  }
+
+  &__tab-content {
+    &:not(&_two-cols) {
+      & > :nth-child(n) {
+        margin-bottom: 15px;
+      }
+    }
+
+    &_two-cols {
+      $gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(2, calc(50% - #{$gap}/ 2));
+      grid-gap: $gap;
+    }
   }
 
   &__card {
@@ -244,8 +257,7 @@
       &-field {
         @extend %block--2;
         @extend %scroll-tree;
-        min-height: 350px;
-        max-height: 350px;
+        min-height: 300px;
         overflow-x: hidden;
       }
     }
@@ -270,6 +282,17 @@
 
     & > :not(:last-child) {
       margin-right: 10px;
+    }
+
+    &::before {
+      content: ' ';
+      display: block;
+      background: $color-gray-4;
+      height: 2px;
+      position: absolute;
+      margin-top: -20px;
+      left: 0;
+      width: 100%;
     }
   }
 

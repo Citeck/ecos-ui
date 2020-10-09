@@ -94,10 +94,7 @@
     }
 
     &-item {
-      padding: 0 13px;
       max-width: 350px;
-      font-size: 14px;
-      line-height: 26px;
 
       @extend %ellipsis;
     }

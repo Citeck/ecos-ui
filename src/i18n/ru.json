@@ -363,6 +363,8 @@
   "filter-list.filter-group-add": "Добавить",
   "filter-list.panel-header": "Фильтрация",
 
+  "record-action.tasks-actions.task-name-prefix": "Завершить задачу: ",
+
   "record-action.task-outcome.incorrect-action.header": "Некорректное действие",
   "record-action.task-outcome.incorrect-action.message": "Некорректное действие. Если ошибка повторится, обратитесь к администратору",
   "record-action.task-outcome.form-not-found.header": "Форма для задачи не найдена",
@@ -1125,7 +1127,7 @@
   "menu-settings.editor-item.btn.cancel": "Отмена",
   "menu-settings.editor-item.btn.add": "Добавить",
   "menu-settings.editor-item.btn.edit": "Сохранить",
-  "menu-settings.editor-ownership.title": "Принадлежность настроек",
+  "menu-settings.editor-ownership.title": "Группы или пользователи",
   "menu-settings.editor-global-settings.title": "Описание",
   "menu-settings.editor-group-priority.title": "Приоритет групп",
 
