@@ -1,16 +1,18 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { URL_RESCONTEXT, URL_SERVICECONTEXT, URL_EIS_CONFIG, PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
+import { PROXY_URI, URL_EIS_CONFIG, URL_PAGECONTEXT, URL_RESCONTEXT, URL_SERVICECONTEXT } from '../constants/alfresco';
 import { getCurrentUserName, loadScript, t } from '../helpers/util';
 import { goToCardDetailsPage } from '../helpers/urls';
+import { SourcesId } from '../constants';
+import { requireShareAssets } from '../legacy/share';
 import FormManager from '../components/EcosForm/FormManager';
 import dialogManager from '../components/common/dialogs/Manager';
-import { requireShareAssets } from '../legacy/share';
-import ecosFetch from './ecosFetch';
 import DialogManager from '../components/common/dialogs/Manager/DialogManager';
 import Records from '../components/Records/Records';
-import { SourcesId } from '../constants';
+import { ActionTypes } from '../components/Records/actions';
+import RecordActions from '../components/Records/actions/recordActions';
+import ecosFetch from './ecosFetch';
 
 export const HandleControlTypes = {
   ALF_DOLOGOUT: 'ALF_DOLOGOUT',
@@ -22,7 +24,8 @@ export const HandleControlTypes = {
   ALF_JOIN_SITE: 'ALF_JOIN_SITE',
   ALF_BECOME_SITE_MANAGER: 'ALF_BECOME_SITE_MANAGER',
   ALF_REQUEST_SITE_MEMBERSHIP: 'ALF_REQUEST_SITE_MEMBERSHIP',
-  ECOS_CREATE_VARIANT: 'ECOS_CREATE_VARIANT'
+  ECOS_CREATE_VARIANT: 'ECOS_CREATE_VARIANT',
+  ECOS_EDIT_PASSWORD: 'ECOS_EDIT_PASSWORD'
 };
 
 const HCT = HandleControlTypes;
@@ -324,7 +327,14 @@ export default function handleControl(type, payload) {
         }
       });
       break;
-
+    case HCT.ECOS_EDIT_PASSWORD:
+      RecordActions.execForRecord(getCurrentUserName(), {
+        type: ActionTypes.EDIT_PASSWORD,
+        config: {}
+      }).catch(e => {
+        console.error(e);
+      });
+      break;
     default:
       console.warn('Unknown control type: ', type);
   }

@@ -10,7 +10,7 @@ export const makeUserMenuConfigs = [
       false // isExternalAuthentication
     ],
     [
-      { id: 'HEADER_USER_MENU_MY_PROFILE', label: 'header.my-profile.label', targetUrl: '/v2/dashboard?recordRef=people@admin' },
+      { id: 'HEADER_USER_MENU_MY_PROFILE', label: 'header.user-menu.my-profile', targetUrl: '/v2/dashboard?recordRef=people@admin' },
       {
         id: 'HEADER_USER_MENU_AVAILABILITY',
         label: 'header.make-notavailable.label',
@@ -49,7 +49,7 @@ export const makeUserMenuConfigs = [
       true // isExternalAuthentication
     ],
     [
-      { id: 'HEADER_USER_MENU_MY_PROFILE', label: 'header.my-profile.label', targetUrl: '/v2/dashboard?recordRef=people@test-user' },
+      { id: 'HEADER_USER_MENU_MY_PROFILE', label: 'header.user-menu.my-profile', targetUrl: '/v2/dashboard?recordRef=people@test-user' },
       {
         id: 'HEADER_USER_MENU_AVAILABILITY',
         label: 'header.make-notavailable.label',

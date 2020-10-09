@@ -30,7 +30,7 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
   userMenuItems.push(
     {
       id: 'HEADER_USER_MENU_MY_PROFILE',
-      label: 'header.my-profile.label',
+      label: 'header.user-menu.my-profile',
       targetUrl: createProfileUrl(encodeURIComponent(userName))
     },
     {
@@ -47,6 +47,13 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
                 targetUrl: '/share/page/components/deputy/make-available?available=' + (isAvailable === false ? 'true' : 'false')
               }
             }
+    },
+    {
+      id: 'HEADER_USER_MENU_MY_PROFILE',
+      label: 'header.user-menu.edit-password',
+      control: {
+        type: HandleControlTypes.ECOS_EDIT_PASSWORD
+      }
     }
   );
 

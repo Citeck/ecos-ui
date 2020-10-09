@@ -5,7 +5,7 @@ export default class EditPasswordAction extends ActionsExecutor {
   static ACTION_ID = 'edit-password';
 
   async execForRecord(record, action, context) {
-    console.log(action);
+    console.log(record, action);
     return new Promise(resolve => {
       WidgetService.openEditorPassword({ record, onClose: resolve });
     });

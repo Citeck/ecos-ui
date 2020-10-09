@@ -10,6 +10,7 @@ import SetTaskAssignee from './handler/executor/workflow/SetTaskAssignee';
 
 import EditAction from './handler/executor/EditAction';
 import EditMenuAction from './handler/executor/EditMenuAction';
+import EditPasswordAction from './handler/executor/EditPasswordAction';
 import ViewAction from './handler/executor/ViewAction';
 import ViewCardTemplateAction from './handler/executor/ViewCardTemplateAction';
 import ViewMenuAction from './handler/executor/ViewMenuAction';
@@ -45,7 +46,8 @@ export const ActionTypes = {
   BACKGROUND_VIEW: BackgroundOpenAction.ACTION_ID,
   CANCEL_WORKFLOW: CancelBusinessProcessAction.ACTION_ID,
   DELETE: DeleteAction.ACTION_ID,
-  SET_TASK_ASSIGNEE: SetTaskAssignee.ACTION_ID
+  SET_TASK_ASSIGNEE: SetTaskAssignee.ACTION_ID,
+  EDIT_PASSWORD: EditPasswordAction.ACTION_ID
 };
 
 // Executors - Common
@@ -71,6 +73,7 @@ actionsRegistry.register(new DownloadZipAction());
 actionsRegistry.register(new ServerGroupAction());
 actionsRegistry.register(new MutateAction());
 actionsRegistry.register(new EditDocPermissionsAction());
+actionsRegistry.register(new EditPasswordAction());
 
 // Executors - Case
 
