@@ -7,6 +7,7 @@ import get from 'lodash/get';
 import { t } from '../../../helpers/util';
 import EcosForm, { FORM_MODE_EDIT } from '../../EcosForm/index';
 import { InfoText, Loader } from '../../common/index';
+import { ComponentKeys } from '../Components';
 
 import './style.scss';
 
@@ -125,6 +126,7 @@ class Properties extends React.Component {
           })}
           formId={formId}
           getTitle={this.getTitle}
+          initiator={`widget:${ComponentKeys.PROPERTIES}`}
         />
         {/* Cause: https://citeck.atlassian.net/browse/ECOSCOM-2654 */}
 
@@ -135,6 +137,7 @@ class Properties extends React.Component {
           onSubmit={this.onSubmitForm}
           onFormSubmitDone={onUpdate}
           className="d-none"
+          initiator={`widget:${ComponentKeys.PROPERTIES}`}
         />
         {!isShow && <InfoText text={t('properties-widget.no-form.text')} />}
       </>

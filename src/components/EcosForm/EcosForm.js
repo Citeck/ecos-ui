@@ -81,7 +81,7 @@ class EcosForm extends React.Component {
   }
 
   initForm(newFormDefinition = this.state.formDefinition) {
-    const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord } = this.props;
+    const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
     const self = this;
     const options = cloneDeep(propsOptions);
@@ -196,6 +196,7 @@ class EcosForm extends React.Component {
             }
           }
         });
+        options.initiator = initiator;
 
         const containerElement = document.getElementById(containerId);
 
@@ -253,6 +254,8 @@ class EcosForm extends React.Component {
           form.ready.then(() => {
             self._containerHeightTimerId = window.setTimeout(() => {
               self.toggleContainerHeight();
+
+              console.warn(self._form.options.initiator);
             }, 500);
           });
         });
@@ -487,7 +490,9 @@ EcosForm.propTypes = {
   onToggleLoader: PropTypes.func,
   // -----
   saveOnSubmit: PropTypes.bool,
-  className: PropTypes.string
+  className: PropTypes.string,
+
+  initiator: PropTypes.string // initiator of form creation (modal window, widget, etc.)
 };
 
 EcosForm.defaultProps = {

@@ -11,6 +11,7 @@ import { Headline } from '../../common/form/index';
 import { Grid } from '../../common/grid/index';
 import TaskAssignmentPanel from '../../TaskAssignmentPanel';
 import { TaskPropTypes } from './utils';
+import { ComponentKeys } from '../Components';
 
 import './style.scss';
 
@@ -146,6 +147,7 @@ class TaskDetails extends React.Component {
               useNarrowButtons: true,
               fullWidthColumns: isSmallMode
             }}
+            initiator={`widget:${ComponentKeys.PROPERTIES}`}
           />
         </div>
       </div>
