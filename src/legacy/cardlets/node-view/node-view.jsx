@@ -116,6 +116,7 @@ export default class NodeViewFormCardlet extends NodeCardlet {
                   },
                   formMode: FORM_MODE_EDIT
                 }}
+                initiator={{ type: 'cardlet', name: 'node-view' }}
               />
             ) : null}
           </div>

@@ -139,7 +139,7 @@ class FormManager {
       onFormCancel && onFormCancel();
     };
 
-    modal.open(<EcosForm {...props} onSubmit={_onSubmit} onFormCancel={_onFormCancel} />, { title });
+    modal.open(<EcosForm {...props} onSubmit={_onSubmit} onFormCancel={_onFormCancel} initiator={{ type: 'modal' }} />, { title });
 
     return modal;
   }

@@ -81,6 +81,10 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
         options={{
           formMode: FORM_MODE_CREATE
         }}
+        initiator={{
+          type: 'form-component',
+          name: 'CreateVariants'
+        }}
       />
     </EcosModal>
   ) : null;

@@ -199,7 +199,7 @@ export default class EcosFormModal extends React.Component {
           zIndex={9000}
         >
           {this.renderContentBefore()}
-          <EcosForm ref={this._formRef} onFormSubmitDone={this.onUpdateForm} {...formProps} />
+          <EcosForm ref={this._formRef} onFormSubmitDone={this.onUpdateForm} {...formProps} initiator={{ type: 'modal' }} />
           {contentAfter}
         </EcosModal>
       </div>

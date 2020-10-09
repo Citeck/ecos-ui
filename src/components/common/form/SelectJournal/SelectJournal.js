@@ -895,6 +895,10 @@ export default class SelectJournal extends Component {
             options={{
               formMode: FORM_MODE_EDIT
             }}
+            initiator={{
+              type: 'form-component',
+              name: 'SelectJournal'
+            }}
           />
         </EcosModal>
       </div>
