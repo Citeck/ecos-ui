@@ -11,7 +11,9 @@ import {
   GROUP_TYPE_ROLE,
   TAB_ALL_USERS,
   TAB_BY_LEVELS,
-  TAB_ONLY_SELECTED
+  TAB_ONLY_SELECTED,
+  VIEW_MODE_TYPE_DEFAULT,
+  VIEW_MODE_TYPE_LINE_SEPARATED
 } from './constants';
 
 import './SelectOrgstruct.scss';
@@ -31,7 +33,8 @@ SelectOrgstruct.defaultProps = {
   allowedGroupTypes: [GROUP_TYPE_BRANCH, GROUP_TYPE_ROLE],
   allowedGroupSubTypes: [],
   defaultTab: TAB_BY_LEVELS,
-  userSearchExtraFields: []
+  userSearchExtraFields: [],
+  viewModeType: VIEW_MODE_TYPE_DEFAULT
 };
 
 SelectOrgstruct.propTypes = {
@@ -44,6 +47,7 @@ SelectOrgstruct.propTypes = {
   renderListItem: PropTypes.func,
   multiple: PropTypes.bool,
   isCompact: PropTypes.bool,
+  viewModeType: PropTypes.oneOf([VIEW_MODE_TYPE_DEFAULT, VIEW_MODE_TYPE_LINE_SEPARATED]),
   hideTabSwitcher: PropTypes.bool,
   hideInputView: PropTypes.bool,
   getFullData: PropTypes.bool, // return full data about selected user, not only nodeRef
