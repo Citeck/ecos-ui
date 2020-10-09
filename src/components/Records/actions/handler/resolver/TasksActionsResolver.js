@@ -28,11 +28,12 @@ export default class TasksActionsResolver extends RecordActionsResolver {
       for (let taskData of recordData.taskActions || []) {
         let outcomes = taskData.outcomes;
 
+        let variants = [];
+
         for (let outcome of outcomes) {
-          actions.push({
+          variants.push({
             id: 'task-' + taskData.taskRef + '-' + outcome.outcome,
             name: outcome.label,
-            type: 'task-outcome',
             config: {
               ...outcome,
               taskRef: taskData.taskRef,
@@ -40,6 +41,13 @@ export default class TasksActionsResolver extends RecordActionsResolver {
             }
           });
         }
+
+        actions.push({
+          id: 'task-' + taskData.taskRef,
+          name: taskData.taskDisp,
+          type: 'task-outcome',
+          variants
+        });
       }
 
       result[recordData.recordRef] = actions;
