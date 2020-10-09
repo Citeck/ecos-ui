@@ -30,8 +30,6 @@ const HCT = HandleControlTypes;
 const LOGOUT_URL_DEFAULT = `${URL_SERVICECONTEXT}dologout`;
 
 export const toggleUnavailableStatus = payload => {
-  console.warn({ payload });
-
   if (!payload.isAvailable) {
     ecosFetch(`${URL_PAGECONTEXT}components/deputy/make-available?available=true`).then(() => {
       window.location.reload();
