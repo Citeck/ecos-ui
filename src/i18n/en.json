@@ -363,6 +363,8 @@
   "filter-list.filter-group-add": "Add",
   "filter-list.panel-header": "Filter",
 
+  "record-action.tasks-actions.task-name-prefix": "Complete task: ",
+
   "record-action.task-outcome.incorrect-action.header": "Incorrect action",
   "record-action.task-outcome.incorrect-action.message": "Incorrect action. Contact your system administrator",
   "record-action.task-outcome.form-not-found.header": "Form not found",

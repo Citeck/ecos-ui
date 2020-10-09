@@ -363,6 +363,8 @@
   "filter-list.filter-group-add": "Добавить",
   "filter-list.panel-header": "Фильтрация",
 
+  "record-action.tasks-actions.task-name-prefix": "Завершить задачу: ",
+
   "record-action.task-outcome.incorrect-action.header": "Некорректное действие",
   "record-action.task-outcome.incorrect-action.message": "Некорректное действие. Если ошибка повторится, обратитесь к администратору",
   "record-action.task-outcome.form-not-found.header": "Форма для задачи не найдена",

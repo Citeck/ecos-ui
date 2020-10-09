@@ -1,5 +1,6 @@
 import RecordActionsResolver from '../RecordActionsResolver';
 import Records from '../../../Records';
+import { t } from '../../../../../helpers/export/util';
 
 export default class TasksActionsResolver extends RecordActionsResolver {
   static ACTION_ID = 'tasks-actions';
@@ -44,7 +45,7 @@ export default class TasksActionsResolver extends RecordActionsResolver {
 
         actions.push({
           id: 'task-' + taskData.taskRef,
-          name: taskData.taskDisp,
+          name: t('record-action.tasks-actions.task-name-prefix') + taskData.taskDisp,
           type: 'task-outcome',
           variants
         });
