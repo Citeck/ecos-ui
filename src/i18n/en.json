@@ -9,6 +9,7 @@
   "boolean.yes": "Yes",
   "btn.cancel.label": "Cancel",
   "btn.done.label": "Done",
+  "btn.confirm.label": "Confirm",
 
   "page.error-loading.title": "The error occurred while loading the page",
   "page.error-loading.message": "Try reloading the page. If the error persists, contact your administrator",
@@ -453,6 +454,9 @@
   "header.logout.label": "Logout",
   "header.make-available.label": "Change status to \"I'm here\"",
   "header.make-notavailable.label": "Change status to \"I'm absent\"",
+  "modal.make-notavailable.start.label": "Beginning of absence",
+  "modal.make-notavailable.end.label": "End of absence",
+  "modal.make-notavailable.auto-answer.label": "Auto answer",
   "header.my-profile.label": "My Profile",
   "header.reportIssue.label": "Report an issue",
   "header.site-menu.admin-page": "Go to admin page",

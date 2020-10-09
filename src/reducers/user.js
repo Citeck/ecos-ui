@@ -18,6 +18,7 @@ const initialState = {
   nodeRef: '',
   thumbnail: null,
   isAvailable: false,
+  isDeputyAvailable: false, // User in the office or not
   isMutable: false,
   isAuthenticated: false,
   isAdmin: false,
@@ -33,6 +34,7 @@ export default handleActions(
         ...state,
         ...action.payload,
         isAvailable: action.payload.isAvailable,
+        isDeputyAvailable: action.payload.isDeputyAvailable,
         isMutable: action.payload.isMutable,
         isAdmin: action.payload.isAdmin,
         fullName: action.payload.fullName,

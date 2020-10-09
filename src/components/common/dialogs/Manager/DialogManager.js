@@ -213,7 +213,8 @@ const dialogsById = {
       onCancel = () => undefined,
       onSubmit = () => undefined,
       modalClass,
-      showDefaultButtons = false
+      showDefaultButtons = false,
+      reactstrapProps = {}
     } = props.dialogProps;
 
     const hideModal = () => {
@@ -254,7 +255,7 @@ const dialogsById = {
                   index: 1,
                   components: [
                     {
-                      label: 'Отмена',
+                      label: t('btn.cancel.label'),
                       type: 'button',
                       action: 'event',
                       block: true,
@@ -271,7 +272,7 @@ const dialogsById = {
                   index: 2,
                   components: [
                     {
-                      label: 'Подтвердить',
+                      label: t('btn.confirm.label'),
                       type: 'button',
                       theme: 'primary',
                       action: 'submit',
@@ -293,7 +294,7 @@ const dialogsById = {
         isOpen={isVisible}
         hideModal={hideModal}
         className={classnames('ecos-dialog ecos-dialog_form', modalClass)}
-        reactstrapProps={{ backdrop: false }}
+        reactstrapProps={{ backdrop: false, ...reactstrapProps }}
       >
         <div className="ecos-dialog__body">
           <FormWrapper isVisible {...formProps} />
