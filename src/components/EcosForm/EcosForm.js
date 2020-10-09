@@ -254,8 +254,6 @@ class EcosForm extends React.Component {
           form.ready.then(() => {
             self._containerHeightTimerId = window.setTimeout(() => {
               self.toggleContainerHeight();
-
-              console.warn(self._form.options.initiator);
             }, 500);
           });
         });
