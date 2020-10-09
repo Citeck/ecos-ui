@@ -1,15 +1,17 @@
 @import '../../../../../../styles/constants';
 
 .select-orgstruct-view-mode__list {
-  &_compact {
-  }
+  list-style: none;
+  padding-left: 0;
 
-  &:not(&_compact) {
-    border-top: 2px solid $color-gray-4;
+  &_type {
+    &_line-separated {
+      border-top: 2px solid $color-gray-4;
 
-    & > :nth-child(n) {
-      border-bottom: 2px solid $color-gray-4;
-      line-height: 36px;
+      & > :nth-child(n) {
+        border-bottom: 2px solid $color-gray-4;
+        line-height: 36px;
+      }
     }
   }
 }

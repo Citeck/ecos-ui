@@ -14,6 +14,7 @@ import { EcosModal, Loader, Tabs } from '../common';
 import DialogManager from '../common/dialogs/Manager';
 import { Btn, IcoBtn } from '../common/btns';
 import { SelectOrgstruct } from '../common/form';
+import { VIEW_MODE_TYPE_LINE_SEPARATED } from '../common/form/SelectOrgstruct/constants';
 import EditorItems from './EditorItems';
 import EditorGroupPriority from './EditorGroupPriority';
 
@@ -151,7 +152,7 @@ class Settings extends React.Component {
               onChange={this.handleSelectOrg}
               isSelectedValueAsText
               viewOnly={disabledEdit}
-              isCompactView={false}
+              viewModeType={VIEW_MODE_TYPE_LINE_SEPARATED}
             />
           </div>
         </div>
