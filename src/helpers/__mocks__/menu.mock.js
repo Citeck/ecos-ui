@@ -17,7 +17,10 @@ export const makeUserMenuConfigs = [
         targetUrl: '/share/page/components/deputy/make-available?available=false',
         control: {
           type: 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE',
-          payload: { targetUrl: '/share/page/components/deputy/make-available?available=false' }
+          payload: {
+            targetUrl: '/share/page/components/deputy/make-available?available=false',
+            isAvailable: true
+          }
         }
       },
       {
@@ -53,7 +56,10 @@ export const makeUserMenuConfigs = [
         targetUrl: '/share/page/components/deputy/make-available?available=false',
         control: {
           type: 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE',
-          payload: { targetUrl: '/share/page/components/deputy/make-available?available=false' }
+          payload: {
+            targetUrl: '/share/page/components/deputy/make-available?available=false',
+            isAvailable: true
+          }
         }
       },
       {

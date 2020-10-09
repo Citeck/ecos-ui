@@ -9,6 +9,7 @@
   "boolean.yes": "Да",
   "btn.cancel.label": "Отмена",
   "btn.done.label": "Готово",
+  "btn.confirm.label": "Подтвердить",
 
   "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",
   "page.error-loading.message": "Попробуйте перезагрузить страницу. Если ошибка повториться, обратитесь к администратору ",
@@ -472,6 +473,9 @@
   "header.logout.label": "Выйти",
   "header.make-available.label": "Сменить статус на \"Я на месте\"",
   "header.make-notavailable.label": "Сменить статус на \"Отсутствую\"",
+  "modal.make-notavailable.start.label": "Начало отсутствия",
+  "modal.make-notavailable.end.label": "Окончание отсутствия",
+  "modal.make-notavailable.auto-answer.label": "Автоответ",
   "header.my-profile.label": "Мой профиль",
   "header.reportIssue.label": "Сообщить о проблеме",
   "header.site-menu.admin-page": "Перейти в раздел администратора",

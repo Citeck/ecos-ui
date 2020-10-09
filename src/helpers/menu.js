@@ -43,6 +43,7 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
           : {
               type: HandleControlTypes.ALF_SHOW_MODAL_MAKE_UNAVAILABLE,
               payload: {
+                isAvailable,
                 targetUrl: '/share/page/components/deputy/make-available?available=' + (isAvailable === false ? 'true' : 'false')
               }
             }

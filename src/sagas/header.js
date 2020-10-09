@@ -49,7 +49,7 @@ function* fetchCreateCaseWidget({ api, logger }) {
 function* fetchUserMenu({ api, fakeApi, logger }) {
   try {
     const userName = yield select(state => state.user.userName);
-    const isAvailable = yield select(state => state.user.isAvailable);
+    const isAvailable = yield select(state => state.user.isDeputyAvailable);
     const isMutable = yield select(state => state.user.isMutable);
 
     // TODO use real api
