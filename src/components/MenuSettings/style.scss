@@ -1,6 +1,23 @@
 @import '../../styles/constants';
 @import '../../styles/content';
 
+%scroll-tree {
+  &::-webkit-scrollbar,
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-track-piece {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border: 2px solid $color-gray-4;
+    border-radius: 8px;
+  }
+}
+
 .ecos--flex-space {
   flex: auto;
 }
@@ -144,6 +161,7 @@
     &__tree {
       &-field {
         @extend %block--2;
+        @extend %scroll-tree;
         min-height: 350px;
         max-height: 350px;
         overflow-x: hidden;
@@ -225,6 +243,7 @@
 
       &-field {
         @extend %block--2;
+        @extend %scroll-tree;
         min-height: 350px;
         max-height: 350px;
         overflow-x: hidden;
