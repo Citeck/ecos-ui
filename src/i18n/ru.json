@@ -1127,7 +1127,7 @@
   "menu-settings.editor-item.btn.cancel": "Отмена",
   "menu-settings.editor-item.btn.add": "Добавить",
   "menu-settings.editor-item.btn.edit": "Сохранить",
-  "menu-settings.editor-ownership.title": "Принадлежность настроек",
+  "menu-settings.editor-ownership.title": "Группы или пользователи",
   "menu-settings.editor-global-settings.title": "Описание",
   "menu-settings.editor-group-priority.title": "Приоритет групп",
 

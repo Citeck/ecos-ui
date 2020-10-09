@@ -26,6 +26,8 @@ export const commonTabsPropTypes = {
   classNameTab: PropTypes.string,
   hasHover: PropTypes.bool,
   hasHint: PropTypes.bool,
+  widthFull: PropTypes.bool,
+  narrow: PropTypes.bool,
   keyField: PropTypes.string,
   valueField: PropTypes.string,
   activeTabKey: PropTypes.string,

@@ -5,7 +5,6 @@ import {
   addJournalMenuItems,
   getGroupPriority,
   getSettingsConfig,
-  removeSettings,
   resetStore,
   saveMenuSettings,
   setAuthorities,
@@ -35,7 +34,6 @@ const startLoading = state => ({ ...state, isLoading: true });
 
 export default handleActions(
   {
-    [removeSettings]: startLoading,
     [saveMenuSettings]: startLoading,
 
     [getSettingsConfig]: (state, { payload }) => ({

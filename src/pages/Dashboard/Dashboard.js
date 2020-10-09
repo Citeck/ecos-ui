@@ -459,6 +459,7 @@ class Dashboard extends Component {
           <Tabs
             hasHover
             hasHint
+            narrow
             className="ecos-dashboard__tabs-block"
             classNameTab="ecos-dashboard__tabs-item"
             items={this.tabList}
