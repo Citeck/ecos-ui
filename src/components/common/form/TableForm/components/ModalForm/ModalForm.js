@@ -114,7 +114,7 @@ const ModalForm = () => {
             onFormCancel={toggleModal}
             saveOnSubmit={false}
             options={formOptions}
-            initiator="modal"
+            initiator={{ type: 'modal' }}
           />
         </EcosModal>
       ) : null}

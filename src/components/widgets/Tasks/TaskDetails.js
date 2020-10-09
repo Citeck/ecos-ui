@@ -147,7 +147,10 @@ class TaskDetails extends React.Component {
               useNarrowButtons: true,
               fullWidthColumns: isSmallMode
             }}
-            initiator={`widget:${ComponentKeys.PROPERTIES}`}
+            initiator={{
+              type: 'widget',
+              name: ComponentKeys.TASKS
+            }}
           />
         </div>
       </div>

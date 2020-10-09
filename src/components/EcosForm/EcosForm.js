@@ -490,7 +490,10 @@ EcosForm.propTypes = {
   saveOnSubmit: PropTypes.bool,
   className: PropTypes.string,
 
-  initiator: PropTypes.string // initiator of form creation (modal window, widget, etc.)
+  initiator: PropTypes.shape({
+    type: PropTypes.string.isRequired,
+    name: PropTypes.string
+  }) // initiator of form creation
 };
 
 EcosForm.defaultProps = {
