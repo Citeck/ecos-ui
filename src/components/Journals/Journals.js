@@ -15,12 +15,21 @@ import JournalsMenu from './JournalsMenu';
 import JournalsSettingsBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
+import { JournalsGroupActionsTools } from './JournalsTools';
 
 import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
-import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
+import {
+  execRecordsAction,
+  getJournalsData,
+  reloadGrid,
+  restoreJournalSettingData,
+  search,
+  setSelectAllRecords,
+  setSelectedRecords
+} from '../../actions/journals';
 import { objectCompare, t, trigger } from '../../helpers/util';
 import { getSearchParams, goToCardDetailsPage, stringifySearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
@@ -37,6 +46,8 @@ const mapStateToProps = (state, props) => {
     predicate: newState.predicate,
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
+    selectAllRecords: newState.selectAllRecords,
+    selectAllRecordsVisible: newState.selectAllRecordsVisible,
     isLoading: newState.loading
   };
 };
@@ -45,6 +56,9 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
+    setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
+    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
+    execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     search: text => dispatch(search({ text, stateId: props.stateId })),
@@ -203,8 +217,43 @@ class Journals extends Component {
     !!height && this.setState({ height });
   };
 
+  onSelectAllRecords = () => {
+    const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
+
+    setSelectAllRecords(!selectAllRecords);
+
+    if (!selectAllRecords) {
+      setSelectedRecords([]);
+    }
+  };
+
+  onExecuteGroupAction(action) {
+    const { selectAllRecords } = this.props;
+
+    if (!selectAllRecords) {
+      const records = get(this.props, 'selectedRecords', []);
+
+      this.props.execRecordsAction(records, action);
+    } else {
+      const query = get(this.props, 'grid.query');
+
+      this.props.execRecordsAction(query, action);
+    }
+  }
+
   render() {
-    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage, selectedRecords, reloadGrid } = this.props;
+    const {
+      stateId,
+      journalConfig,
+      pageTabsIsShow,
+      grid,
+      isMobile,
+      isActivePage,
+      selectedRecords,
+      selectAllRecordsVisible,
+      selectAllRecords,
+      reloadGrid
+    } = this.props;
     const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height } = this.state;
 
     if (!journalConfig) {
@@ -283,6 +332,17 @@ class Journals extends Component {
                 />
               </Well>
             </EcosModal>
+
+            <JournalsGroupActionsTools
+              isMobile={isMobile}
+              selectAllRecordsVisible={selectAllRecordsVisible}
+              selectAllRecords={selectAllRecords}
+              grid={grid}
+              selectedRecords={selectedRecords}
+              onExecuteAction={this.onExecuteGroupAction.bind(this)}
+              onGoTo={this.onGoTo}
+              onSelectAll={this.onSelectAllRecords}
+            />
 
             <JournalsContent
               stateId={stateId}
