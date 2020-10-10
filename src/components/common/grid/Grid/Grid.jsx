@@ -300,7 +300,7 @@ class Grid extends Component {
     };
 
     if (props.multiSelectable) {
-      options.selectRow = this.createMultiSelectioCheckboxs(props);
+      options.selectRow = this.createMultiSelectionCheckboxs(props);
     }
 
     if (props.singleSelectable) {
@@ -526,8 +526,12 @@ class Grid extends Component {
     };
   }
 
-  createMultiSelectioCheckboxs(props) {
+  createMultiSelectionCheckboxs(props) {
     this._selected = props.selectAll ? props.data.map(row => row[this._keyField]) : props.selected || [];
+
+    if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === this._selected.length) {
+      this.#isAllSelected = true;
+    }
 
     return {
       mode: 'checkbox',
@@ -549,7 +553,7 @@ class Grid extends Component {
         }
 
         trigger.call(this, 'onSelect', {
-          selected: this._selected,
+          selected: [...new Set(this._selected)],
           all: false
         });
       },
@@ -566,7 +570,7 @@ class Grid extends Component {
           : this.getSelectedByPage(this.props.data, false);
 
         trigger.call(this, 'onSelect', {
-          selected: this._selected,
+          selected: [...new Set(this._selected)],
           all: isSelect
         });
       },
