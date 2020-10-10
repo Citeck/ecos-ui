@@ -44,6 +44,7 @@ const MAX_START_TH_WIDTH = 500;
 
 class Grid extends Component {
   #columnsSizes = {};
+  #isAllSelected = false;
 
   constructor(props) {
     super(props);
@@ -539,12 +540,27 @@ class Grid extends Component {
 
         this._selected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
 
+        if (!isSelect) {
+          this.#isAllSelected = false;
+        }
+
+        if (!isEmpty(this._selected) && this._selected.length === this.props.data.length) {
+          this.#isAllSelected = true;
+        }
+
         trigger.call(this, 'onSelect', {
           selected: this._selected,
           all: false
         });
       },
       onSelectAll: (isSelect, rows) => {
+        if (!isSelect && !this.#isAllSelected) {
+          isSelect = true;
+          rows = this.props.data;
+        }
+
+        this.#isAllSelected = isSelect;
+
         this._selected = isSelect
           ? [...this._selected, ...rows.map(row => row[this._keyField])]
           : this.getSelectedByPage(this.props.data, false);
@@ -564,8 +580,15 @@ class Grid extends Component {
   };
 
   getSelectedByPage = (records, onPage) => {
+    const { nonSelectable } = this.props;
+
     return this._selected.filter(id => {
+      if (nonSelectable.includes(id)) {
+        return true;
+      }
+
       const length = records.filter(record => record[this._keyField] === id).length;
+
       return onPage ? length : !length;
     });
   };
