@@ -81,7 +81,7 @@ class EcosForm extends React.Component {
   }
 
   initForm(newFormDefinition = this.state.formDefinition) {
-    const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord } = this.props;
+    const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
     const self = this;
     const options = cloneDeep(propsOptions);
@@ -196,6 +196,7 @@ class EcosForm extends React.Component {
             }
           }
         });
+        options.initiator = initiator;
 
         const containerElement = document.getElementById(containerId);
 
@@ -487,7 +488,12 @@ EcosForm.propTypes = {
   onToggleLoader: PropTypes.func,
   // -----
   saveOnSubmit: PropTypes.bool,
-  className: PropTypes.string
+  className: PropTypes.string,
+
+  initiator: PropTypes.shape({
+    type: PropTypes.string.isRequired,
+    name: PropTypes.string
+  }) // initiator of form creation
 };
 
 EcosForm.defaultProps = {

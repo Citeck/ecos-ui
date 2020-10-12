@@ -17,7 +17,8 @@ import {
   tableFormCase,
   tableFormCaseOptimized,
   columnsCase,
-  columnsCaseOptimized
+  columnsCaseOptimized,
+  dataGridAssocCaseOptimized
 } from '../__mocks__/EcosFormUtils.mock';
 
 function runTests(tests, method) {
@@ -75,6 +76,11 @@ describe('EcosFormUtils', () => {
         title: `optimize Columns an Column components`,
         input: columnsCase,
         output: columnsCaseOptimized
+      },
+      {
+        title: `leave "multiple" attribute when optimize DataGridAssoc component`,
+        input: dataGridAssocCaseOptimized,
+        output: dataGridAssocCaseOptimized
       }
     ];
 

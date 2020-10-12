@@ -30,7 +30,7 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
   userMenuItems.push(
     {
       id: 'HEADER_USER_MENU_MY_PROFILE',
-      label: 'header.my-profile.label',
+      label: 'header.user-menu.my-profile',
       targetUrl: createProfileUrl(encodeURIComponent(userName))
     },
     {
@@ -43,9 +43,17 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
           : {
               type: HandleControlTypes.ALF_SHOW_MODAL_MAKE_UNAVAILABLE,
               payload: {
+                isAvailable,
                 targetUrl: '/share/page/components/deputy/make-available?available=' + (isAvailable === false ? 'true' : 'false')
               }
             }
+    },
+    {
+      id: 'HEADER_USER_MENU_EDIT_PASSWORD',
+      label: 'header.user-menu.edit-password',
+      control: {
+        type: HandleControlTypes.ECOS_EDIT_PASSWORD
+      }
     }
   );
 
@@ -185,6 +193,8 @@ export function getIconClassMenu(id, specialClass) {
   switch (id) {
     case 'HEADER_USER_MENU_MY_PROFILE':
       return 'icon-user-normal';
+    case 'HEADER_USER_MENU_EDIT_PASSWORD':
+      return 'icon-edit';
     case 'HEADER_USER_MENU_AVAILABILITY':
       return specialClass || '';
     case 'HEADER_USER_MENU_PASSWORD':

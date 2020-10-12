@@ -1,5 +1,6 @@
 import { t } from '../../common/util';
 import { showModal, hideModal, leaveSiteRequest, joinSiteRequest, becomeSiteManagerRequest, requestSiteMembership } from '../actions';
+import { toggleUnavailableStatus } from '../../../helpers/handleControl';
 
 const Alfresco = window.Alfresco || {};
 const Citeck = window.Citeck || {};
@@ -15,13 +16,7 @@ export default function handleControl(type, payload, dispatch) {
       break;
 
     case 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE':
-      return Citeck.forms.dialog('deputy:selfAbsenceEvent', '', {
-        fn: function(node) {
-          handleControl('ALF_NAVIGATE_TO_PAGE', {
-            url: payload.targetUrl
-          });
-        }
-      });
+      return toggleUnavailableStatus(payload);
 
     case 'ALF_NAVIGATE_TO_PAGE':
       // TODO improve it

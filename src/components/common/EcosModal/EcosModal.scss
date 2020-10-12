@@ -199,6 +199,12 @@
   max-width: calc(100% - 1rem);
 }
 
+.ecos-modal.ecos-modal_width-auto {
+  width: fit-content;
+  max-width: 100vw;
+  min-width: 300px;
+}
+
 .modal .modal-dialog.ecos-modal.ecos-modal_center {
   margin: 0;
   transform: translate(-50%, -50%);

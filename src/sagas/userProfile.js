@@ -1,15 +1,7 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 
-import {
-  changePassword,
-  changePhoto,
-  getUserData,
-  setChangePassword,
-  setUserData,
-  setUserPhoto,
-  togglePasswordModal
-} from '../actions/user';
+import { changePhoto, getUserData, setUserData, setUserPhoto } from '../actions/user';
 import { setNotificationMessage } from '../actions/notification';
 import { createThumbnailUrl } from '../helpers/urls';
 import { t } from '../helpers/util';
@@ -71,31 +63,9 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
   }
 }
 
-function* sagaChangePassword({ api, logger }, { payload }) {
-  const { data, record, stateId } = payload;
-
-  try {
-    const response = yield call(api.user.changePassword, { record, data });
-    const text = response.success
-      ? t('user-profile-widget.success.change-profile-password')
-      : `${t('user-profile-widget.error.change-profile-password')}. ${response.message}`;
-
-    if (response.success) {
-      yield put(togglePasswordModal({ stateId, isOpen: false }));
-    }
-
-    yield put(setChangePassword({ stateId }));
-    NotificationManager[response.success ? 'success' : 'error'](text);
-  } catch (e) {
-    NotificationManager.error(t('user-profile-widget.error.change-profile-password'));
-    logger.error('[userProfile/sagaChangePassword saga] error', e.message);
-  }
-}
-
 function* userProfileSaga(ea) {
   yield takeEvery(getUserData().type, sagaGetUserData, ea);
   yield takeEvery(changePhoto().type, sagaChangePhoto, ea);
-  yield takeEvery(changePassword().type, sagaChangePassword, ea);
 }
 
 export default userProfileSaga;

@@ -199,7 +199,6 @@ class Dashboard extends Component {
     DialogManager.showCustomDialog({
       isVisible: !!warningMessage,
       title: t('warning'),
-      setVisible: data => console.warn(data),
       body: warningMessage,
       modalClass: 'ecos-modal_width-xs ecos-modal_level-4',
       buttons: [
@@ -459,6 +458,7 @@ class Dashboard extends Component {
           <Tabs
             hasHover
             hasHint
+            narrow
             className="ecos-dashboard__tabs-block"
             classNameTab="ecos-dashboard__tabs-item"
             items={this.tabList}

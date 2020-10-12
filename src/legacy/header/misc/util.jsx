@@ -304,7 +304,7 @@ export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAu
     userMenuItems.push(
       {
         id: 'HEADER_USER_MENU_MY_PROFILE',
-        label: 'header.my-profile.label',
+        label: 'header.user-menu.my-profile',
         targetUrl: '/share/page/user/' + encodeURIComponent(userName) + '/profile'
       },
       {
@@ -317,6 +317,7 @@ export const makeUserMenuItems = (userName, isAvailable, isMutable, isExternalAu
             : {
                 type: 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE',
                 payload: {
+                  isAvailable,
                   targetUrl: '/share/page/components/deputy/make-available?available=' + (isAvailable === false ? 'true' : 'false')
                 }
               }

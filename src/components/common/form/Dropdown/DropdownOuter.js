@@ -12,12 +12,20 @@ import './Dropdown.scss';
 export default class DropdownOuter extends Dropdown {
   static propTypes = {
     className: PropTypes.string,
-    trigger: PropTypes.string
+    trigger: PropTypes.string,
+    boundariesElement: PropTypes.string,
+    modifiers: PropTypes.object,
+    needClose: PropTypes.bool
   };
 
   static defaultProps = {
     className: '',
-    trigger: 'click'
+    trigger: 'click',
+    modifiers: {
+      flip: {
+        behavior: ['bottom', 'top', 'right', 'left']
+      }
+    }
   };
 
   constructor(props) {
@@ -32,7 +40,7 @@ export default class DropdownOuter extends Dropdown {
   }
 
   render() {
-    const { className, outClassName = '', trigger } = this.props;
+    const { className, outClassName = '', trigger, boundariesElement, modifiers } = this.props;
     const { dropdownOpen, targetId } = this.state;
 
     return (
@@ -41,17 +49,18 @@ export default class DropdownOuter extends Dropdown {
         className={classNames('ecos-dropdown-outer', className, { 'ecos-dropdown-outer_open': dropdownOpen })}
         ref={this.dropdownOuterRef}
       >
-        {this.renderToggle()}
+        <div onClick={this.toggle}>{this.renderToggle()}</div>
         <Tooltip
           isOpen={dropdownOpen}
           toggle={this.toggle}
           target={targetId}
           trigger={trigger}
           hideArrow
+          boundariesElement={boundariesElement}
           className={classNames('ecos-base-tooltip ecos-base-tooltip_opaque', outClassName)}
           innerClassName="ecos-base-tooltip-inner ecos-dropdown-outer__tooltip-inner"
           placement="bottom-start"
-          modifiers={{ flip: { behavior: ['bottom', 'top', 'right', 'left'] } }}
+          modifiers={modifiers}
         >
           <ClickOutside
             className={this.cssDropdownMenu}

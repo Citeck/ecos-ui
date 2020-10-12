@@ -18,7 +18,7 @@ import { SourcesId } from '../../constants';
 import Records from '../Records';
 import Logo from './Logo';
 import List from './List';
-import { selectThemeImage } from '../../selectors/view';
+import { selectActiveThemeImage } from '../../selectors/view';
 import { DefaultImages } from '../../constants/theme';
 
 import './style.scss';
@@ -117,8 +117,8 @@ const mapStateToProps = state => ({
   isOpen: get(state, 'slideMenu.isOpen'),
   isReady: get(state, 'slideMenu.isReady'),
   items: get(state, 'slideMenu.items', []),
-  smallLogoSrc: selectThemeImage(state, DefaultImages.MENU_LEFT_LOGO_SMALL),
-  largeLogoSrc: selectThemeImage(state, DefaultImages.MENU_LEFT_LOGO_LARGE),
+  smallLogoSrc: selectActiveThemeImage(state, DefaultImages.MENU_LEFT_LOGO_SMALL),
+  largeLogoSrc: selectActiveThemeImage(state, DefaultImages.MENU_LEFT_LOGO_LARGE),
   expandableItems: get(state, 'slideMenu.expandableItems'),
   homeLink: get(state, 'app.homeLink')
 });

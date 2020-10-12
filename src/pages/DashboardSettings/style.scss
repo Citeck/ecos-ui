@@ -153,7 +153,16 @@
         width: 100%;
 
         &_mobile {
-          width: auto;
+          max-width: 30%;
+          min-width: 180px;
+
+          #{$ecos-dashboard-settings}__column-widgets {
+            width: 100%;
+          }
+
+          .ecos-drag-item {
+            max-width: 100%;
+          }
         }
       }
 

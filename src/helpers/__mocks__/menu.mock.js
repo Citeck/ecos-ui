@@ -10,16 +10,20 @@ export const makeUserMenuConfigs = [
       false // isExternalAuthentication
     ],
     [
-      { id: 'HEADER_USER_MENU_MY_PROFILE', label: 'header.my-profile.label', targetUrl: '/v2/dashboard?recordRef=people@admin' },
+      { id: 'HEADER_USER_MENU_MY_PROFILE', label: 'header.user-menu.my-profile', targetUrl: '/v2/dashboard?recordRef=people@admin' },
       {
         id: 'HEADER_USER_MENU_AVAILABILITY',
         label: 'header.make-notavailable.label',
         targetUrl: '/share/page/components/deputy/make-available?available=false',
         control: {
           type: 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE',
-          payload: { targetUrl: '/share/page/components/deputy/make-available?available=false' }
+          payload: {
+            targetUrl: '/share/page/components/deputy/make-available?available=false',
+            isAvailable: true
+          }
         }
       },
+      { id: 'HEADER_USER_MENU_EDIT_PASSWORD', label: 'header.user-menu.edit-password', control: { type: 'ECOS_EDIT_PASSWORD' } },
       {
         id: 'HEADER_USER_MENU_FEEDBACK',
         label: 'header.feedback.label',
@@ -46,16 +50,20 @@ export const makeUserMenuConfigs = [
       true // isExternalAuthentication
     ],
     [
-      { id: 'HEADER_USER_MENU_MY_PROFILE', label: 'header.my-profile.label', targetUrl: '/v2/dashboard?recordRef=people@test-user' },
+      { id: 'HEADER_USER_MENU_MY_PROFILE', label: 'header.user-menu.my-profile', targetUrl: '/v2/dashboard?recordRef=people@test-user' },
       {
         id: 'HEADER_USER_MENU_AVAILABILITY',
         label: 'header.make-notavailable.label',
         targetUrl: '/share/page/components/deputy/make-available?available=false',
         control: {
           type: 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE',
-          payload: { targetUrl: '/share/page/components/deputy/make-available?available=false' }
+          payload: {
+            targetUrl: '/share/page/components/deputy/make-available?available=false',
+            isAvailable: true
+          }
         }
       },
+      { id: 'HEADER_USER_MENU_EDIT_PASSWORD', label: 'header.user-menu.edit-password', control: { type: 'ECOS_EDIT_PASSWORD' } },
       {
         id: 'HEADER_USER_MENU_FEEDBACK',
         label: 'header.feedback.label',

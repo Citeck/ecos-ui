@@ -12,13 +12,15 @@ class Controller extends React.Component {
     callback: undefined
   };
 
-  onShow = (id, callback) => {
+  onShow = (params = {}, callback) => {
     if (this.state.isOpen) {
       NotificationManager.warning(t('menu-settings.warn.editor-already-open'), t('warning'), 5000);
     } else {
       this.setState({ isOpen: true, callback }, () => {
+        const id = (params.recordId || this.props.myId || '').split('@').pop();
+
         this.props.setOpenMenuSettings(true);
-        this.props.getSettingsConfig({ id: id || this.props.myId });
+        this.props.getSettingsConfig({ ...params, id });
       });
     }
   };

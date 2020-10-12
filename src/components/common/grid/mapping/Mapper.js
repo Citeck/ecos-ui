@@ -53,6 +53,9 @@ const MAP = [
         case 'taskLink':
           name = 'TaskLinkFormatter';
           break;
+        case 'locale':
+          name = 'LocaleFormatter';
+          break;
         default:
           if (formatter.includes('dateFormatter')) {
             name = 'DateTimeFormatter';

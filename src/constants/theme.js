@@ -10,3 +10,8 @@ export const DefaultImages = {
 };
 
 export const THEME_URL_PATH = `${PROXY_URI}citeck/micro/uiserv/api/theme`;
+
+export const CACHE_KEY_RESOURCE_IMAGES = 'images';
+export const CACHE_KEY_RESOURCE_THEME = 'theme';
+export const CACHE_KEY_RESOURCE_I18N = 'i18n';
+export const CACHE_KEY_RESOURCE_MENU = 'menu';

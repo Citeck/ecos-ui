@@ -1,6 +1,23 @@
 @import '../../styles/constants';
 @import '../../styles/content';
 
+%scroll-tree {
+  &::-webkit-scrollbar,
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-track-piece {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border: 2px solid $color-gray-4;
+    border-radius: 8px;
+  }
+}
+
 .ecos--flex-space {
   flex: auto;
 }
@@ -9,6 +26,53 @@
   &__loader {
     border-radius: $border-radius-large;
     z-index: 10000;
+  }
+
+  &__tabs {
+    margin-bottom: 15px;
+    padding-right: 2px;
+
+    .ecos-tab {
+      &:not(.ecos-tab_active) {
+        background: $color-gray-4;
+      }
+    }
+  }
+
+  &__content-container {
+    overflow: auto;
+    padding-right: 2px;
+    min-height: 150px;
+  }
+
+  &__tab-content {
+    &:not(&_two-cols) {
+      & > :nth-child(n) {
+        margin-bottom: 15px;
+      }
+    }
+
+    &_two-cols {
+      $gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(2, calc(50% - #{$gap}/ 2));
+      grid-gap: $gap;
+    }
+  }
+
+  &__card {
+    font-size: $font-size-standard;
+    font-weight: $font-weight-semi-bold;
+
+    grid-column-start: 1;
+    grid-column-end: 3;
+    grid-row-start: 1;
+    grid-row-end: 1;
+
+    &-label {
+      color: $color-gray-5;
+      margin-right: 5px;
+    }
   }
 
   &__title {
@@ -78,7 +142,6 @@
 
   &-editor-items {
     $editor: &;
-    margin-bottom: 30px;
 
     &__header {
       display: flex;
@@ -111,8 +174,9 @@
     &__tree {
       &-field {
         @extend %block--2;
-        min-height: 300px;
-        max-height: 300px;
+        @extend %scroll-tree;
+        min-height: 325px;
+        max-height: 325px;
         overflow-x: hidden;
       }
     }
@@ -182,21 +246,18 @@
   }
 
   &-ownership {
-    margin-bottom: 30px;
   }
 
   &-group-priority {
-    &__wrapper {
-      display: flex;
-      align-items: center;
-      margin-bottom: 5px;
-    }
-
     &__tree {
+      &-container {
+        position: relative;
+      }
+
       &-field {
         @extend %block--2;
-        min-height: 420px;
-        max-height: 420px;
+        @extend %scroll-tree;
+        min-height: 300px;
         overflow-x: hidden;
       }
     }
@@ -222,12 +283,25 @@
     & > :not(:last-child) {
       margin-right: 10px;
     }
+
+    &::before {
+      content: ' ';
+      display: block;
+      background: $color-gray-4;
+      height: 2px;
+      position: absolute;
+      margin-top: -20px;
+      left: 0;
+      width: 100%;
+    }
   }
 
   &__explanation {
     font-weight: $font-weight-semi-bold;
-    font-size: $font-size-small;
+    font-size: $font-size-standard;
     color: $text-color-gray;
+    margin-bottom: 15px;
+    white-space: pre-wrap;
   }
 }
 

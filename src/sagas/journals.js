@@ -3,17 +3,9 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
-import { decodeLink, getFilterUrlParam, goToJournalsPage as goToJournalsPageUrl, isNewVersionPage } from '../helpers/urls';
-import { wrapSaga } from '../helpers/redux';
-import PageService from '../services/PageService';
 import JournalsConverter from '../dto/journals';
-import { getJournalUIType, getOldPageUrl } from '../api/export/journalsApi';
-
 import Records from '../components/Records';
-import { ActionTypes } from '../components/Records/actions';
 import JournalsService from '../components/Journals/service';
-import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
-import { ParserPredicate } from '../components/Filters/predicates';
 import {
   createJournalSetting,
   deleteJournalSetting,
@@ -56,6 +48,19 @@ import {
   setSelectedRecords
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
+import { ParserPredicate } from '../components/Filters/predicates';
+import { ActionTypes } from '../components/Records/actions';
+import {
+  decodeLink,
+  getFilterUrlParam,
+  goToJournalsPage as goToJournalsPageUrl,
+  isNewVersionPage,
+  removeUrlSearchParams
+} from '../helpers/urls';
+import { wrapSaga } from '../helpers/redux';
+import PageService from '../services/PageService';
+import { getJournalUIType, getOldPageUrl } from '../api/export/journalsApi';
 import { selectJournals, selectJournalUiType } from '../selectors/journals';
 import { selectSearch } from '../selectors/router';
 
@@ -273,6 +278,10 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
     }
 
     if (!journalSetting) {
+      const url = removeUrlSearchParams(window.location.href, 'journalSettingId');
+
+      window.history.pushState({ path: url }, '', url);
+
       journalSetting = getDefaultJournalSetting(journalConfig);
     }
   }
