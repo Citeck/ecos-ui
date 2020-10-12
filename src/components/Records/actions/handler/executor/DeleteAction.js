@@ -46,8 +46,9 @@ export default class DeleteAction extends ActionsExecutor {
       dialogManager.showRemoveDialog({
         title: dialogTitle,
         text: dialogText,
-        onDelete: () => {
-          Records.remove(records)
+        isWaitResponse: true,
+        onDelete: async () => {
+          await Records.remove(records)
             .then(() => {
               resolve(true);
             })

@@ -22,6 +22,7 @@ class DialogWrapper extends React.Component {
 
     this.state = {
       isVisible: false,
+      isLoading: false,
       dialogProps: props.dialogProps || {}
     };
   }
@@ -32,10 +33,12 @@ class DialogWrapper extends React.Component {
     });
   }
 
-  setVisible(value) {
-    this.setState({
-      isVisible: value
-    });
+  setVisible(isVisible) {
+    this.setState({ isVisible });
+  }
+
+  setLoading(isLoading) {
+    this.setState({ isLoading });
   }
 
   show() {
@@ -43,9 +46,17 @@ class DialogWrapper extends React.Component {
   }
 
   render() {
-    const { isVisible, dialogProps } = this.state;
+    const { isVisible, dialogProps, isLoading } = this.state;
 
-    return <this.props.dialogComponent isVisible={isVisible} setVisible={value => this.setVisible(value)} dialogProps={dialogProps} />;
+    return (
+      <this.props.dialogComponent
+        isVisible={isVisible}
+        isLoading={isLoading}
+        setVisible={value => this.setVisible(value)}
+        setLoading={value => this.setLoading(value)}
+        dialogProps={dialogProps}
+      />
+    );
   }
 }
 
@@ -58,6 +69,7 @@ const dialogsById = {
       onClose = onCancel,
       title,
       text,
+      isWaitResponse,
       className,
       ...otherProps
     } = dialogProps;
@@ -65,7 +77,8 @@ const dialogsById = {
       ...otherProps,
       title: t(isExistValue(title) ? title : 'record-action.delete.dialog.title.remove-many'),
       text: t(isExistValue(text) ? text : 'record-action.delete.dialog.msg.remove-many'),
-      isOpen: props.isVisible
+      isOpen: props.isVisible,
+      isLoading: props.isLoading
     };
 
     if (text === '') {
@@ -73,7 +86,16 @@ const dialogsById = {
       dProps.title = '';
     }
 
-    dProps.onDelete = () => {
+    dProps.onDelete = async () => {
+      if (isWaitResponse) {
+        props.setLoading(true);
+        await onDelete();
+        props.setVisible(false);
+        props.setLoading(false);
+
+        return;
+      }
+
       props.setVisible(false);
       onDelete();
     };
