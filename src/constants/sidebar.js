@@ -4,7 +4,8 @@ export const ActionTypes = {
   FILTER_LINK: 'FILTER_LINK',
   JOURNAL_LINK: 'JOURNAL_LINK',
   PAGE_LINK: 'PAGE_LINK',
-  SITE_LINK: 'SITE_LINK'
+  SITE_LINK: 'SITE_LINK',
+  STATIC_LINK: 'STATIC_LINK'
 };
 
 /** @deprecated since menu v1
