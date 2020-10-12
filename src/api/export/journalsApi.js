@@ -190,9 +190,9 @@ export const getJournalUIType = journalId => {
 
 export const isNewJournalsPageEnable = () => {
   const isNewJournalPageEnable = Records.get('ecos-config@new-journals-page-enable').load('.bool');
-  const isJournalAvailibleForUser = checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
+  const isJournalAvailableForUser = checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
 
-  return Promise.all([isNewJournalPageEnable, isJournalAvailibleForUser]).then(values => values.includes(true));
+  return Promise.all([isNewJournalPageEnable, isJournalAvailableForUser]).then(values => values.includes(true));
 };
 
 export const getJournalPageUrl = params => {
