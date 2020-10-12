@@ -194,7 +194,7 @@ const dialogsById = {
   },
   [CUSTOM_DIALOG_ID]: props => {
     const { isVisible, setVisible } = props;
-    const { title = '', onHide = () => undefined, modalClass, body, buttons = [], handlers = {} } = props.dialogProps;
+    const { title = '', onHide = () => undefined, modalClass, body, buttons = [], handlers = {}, reactstrapProps = {} } = props.dialogProps;
 
     const hideModal = () => {
       setVisible(false);
@@ -209,6 +209,7 @@ const dialogsById = {
         isOpen={isVisible}
         hideModal={hideModal}
         className={classnames('ecos-dialog ecos-dialog_custom', modalClass)}
+        reactstrapProps={reactstrapProps}
       >
         <div className="ecos-dialog__body">{body}</div>
         <div className="ecos-dialog__buttons">
@@ -217,7 +218,9 @@ const dialogsById = {
               className={b.className}
               key={b.key || b.label}
               onClick={() => {
-                b.onClick();
+                if (typeof b.onClick === 'function') {
+                  b.onClick();
+                }
                 hideModal();
               }}
             >

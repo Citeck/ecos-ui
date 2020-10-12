@@ -6,7 +6,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import { IcoBtn } from '../common/btns';
 
 import './drag-item.scss';
-import { Tooltip, Icon } from '../common';
+import { Tooltip, Icon, Popper } from '../common';
 import { prepareTooltipId } from '../../helpers/util';
 
 class DragItem extends React.Component {
@@ -110,7 +110,8 @@ class DragItem extends React.Component {
 
     return (
       <>
-        <span className="ecos-drag-item__title">{title}</span>
+        <Popper className="ecos-drag-item__title" popupClassName="ecos-drag-item__title-popper" showAsNeeded text={title} />
+
         {this.renderActions()}
       </>
     );

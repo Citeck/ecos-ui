@@ -1,4 +1,4 @@
-import { checkFunctionalAvailabilityForUser } from '../../../helpers/export/userInGroupsHelper';
+import { isNewJournalsPageEnable } from '../../../api/export/journalsApi';
 export function fetchExpandableItems(items, selectedId) {
   let flatList = [];
   items.map(item => {
@@ -43,8 +43,5 @@ export function hasChildWithId(items, selectedId) {
 }
 
 export function getNewJournalsPageEnable() {
-  const isNewJournalPageEnable = window.Citeck.Records.get('ecos-config@new-journals-page-enable').load('.bool');
-  const isJournalAvailibleForUser = checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
-
-  return Promise.all([isNewJournalPageEnable, isJournalAvailibleForUser]).then(values => values.includes(true));
+  return isNewJournalsPageEnable();
 }
