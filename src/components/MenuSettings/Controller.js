@@ -17,8 +17,10 @@ class Controller extends React.Component {
       NotificationManager.warning(t('menu-settings.warn.editor-already-open'), t('warning'), 5000);
     } else {
       this.setState({ isOpen: true, callback }, () => {
+        const id = (params.recordId || this.props.myId || '').split('@').pop();
+
         this.props.setOpenMenuSettings(true);
-        this.props.getSettingsConfig({ ...params, id: params.recordId || this.props.myId });
+        this.props.getSettingsConfig({ ...params, id });
       });
     }
   };
