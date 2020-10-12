@@ -1,9 +1,7 @@
 import { generateSearchTerm, getCurrentLocale } from './util';
 import { MenuApi } from '../../api/menu';
-import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import Records from '../../components/Records/Records';
-
-const Citeck = window.Citeck || {};
+import { isNewJournalsPageEnable } from '../../api/export/journalsApi';
 
 function handleErrors(response) {
   if (!response.ok) {
@@ -47,10 +45,7 @@ export default class {
   };
 
   getNewJournalsPageEnable = () => {
-    const isNewJournalPageEnable = Citeck.Records.get('ecos-config@new-journals-page-enable').load('.bool');
-    const isJournalAvailibleForUser = checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
-
-    return Promise.all([isNewJournalPageEnable, isJournalAvailibleForUser]).then(values => values.includes(true));
+    return isNewJournalsPageEnable();
   };
 
   getSitesForUser = username => {

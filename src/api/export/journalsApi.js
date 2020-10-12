@@ -188,15 +188,19 @@ export const getJournalUIType = journalId => {
   return uiType.typePromise;
 };
 
+export const isNewJournalsPageEnable = () => {
+  const isNewJournalPageEnable = Records.get('ecos-config@new-journals-page-enable').load('.bool');
+  const isJournalAvailableForUser = checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
+
+  return Promise.all([isNewJournalPageEnable, isJournalAvailableForUser]).then(values => values.includes(true));
+};
+
 export const getJournalPageUrl = params => {
   const preparedParams = prepareJournalLinkParams(params);
 
   if (isNewVersionPage()) {
-    const isNewJournalPageEnable = Records.get('ecos-config@new-journals-page-enable').load('.bool');
-    const isJournalAvailibleForUser = checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
-
-    return Promise.all([isNewJournalPageEnable, isJournalAvailibleForUser]).then(values => {
-      return values.includes(true) ? getNewPageUrl(preparedParams) : getOldPageUrl(preparedParams);
+    isNewJournalsPageEnable().then(isNew => {
+      return isNew ? getNewPageUrl(preparedParams) : getOldPageUrl(preparedParams);
     });
   }
 };
