@@ -90,7 +90,7 @@ export default class SidebarService {
 
     /** @deprecated since menu v1 */
     if (item.action) {
-      const params = item.action.params;
+      const params = item.action.params || {};
 
       switch (item.action.type) {
         case ATypes.FILTER_LINK:
@@ -200,11 +200,17 @@ export default class SidebarService {
             }
           }
           break;
+        case ATypes.STATIC_LINK: {
+          targetUrl = params.url;
+          attributes.target = '_blank';
+          ignoreTabHandler = true;
+          break;
+        }
         default:
           break;
       }
 
-      switch (item.action.params.pageId) {
+      switch (params.pageId) {
         case 'bpmn-designer':
           let sectionPostfix = params.section ? params.section : '';
 
