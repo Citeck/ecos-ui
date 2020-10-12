@@ -27,7 +27,7 @@
       }
     }
 
-    &__icon-btn {
+    & &__icon-btn {
       position: absolute;
       font-size: 15px;
       color: $color-gray-5;
@@ -55,7 +55,7 @@
     margin: 10px 0;
 
     &__item {
-      &-icon {
+      & &-icon {
         font-size: $font-size-small;
         padding-right: 10px;
       }
