@@ -587,7 +587,7 @@ class Grid extends Component {
     const { nonSelectable } = this.props;
 
     return this._selected.filter(id => {
-      if (nonSelectable.includes(id)) {
+      if (Array.isArray(nonSelectable) && nonSelectable.includes(id)) {
         return true;
       }
 
