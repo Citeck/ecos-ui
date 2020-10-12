@@ -36,6 +36,15 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   }
 }
 
+// function* doGetDashboardByRef({ api, logger }, { payload }) {
+//   try {
+//     const
+//     yield put(getDashboardConfig(payload));
+//   } catch (e) {
+//     logger.error('[dashboard-settings/ doInitDashboardSettingsRequest saga] error', e.message);
+//   }
+// }
+
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   const { dashboardId, recordRef, key } = payload;
 

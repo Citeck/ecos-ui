@@ -59,6 +59,7 @@ class DropdownMenuItem extends React.Component {
     let link = targetUrl;
 
     if (targetUrl === URL.DASHBOARD_SETTINGS) {
+      // console.warn(this.props, { recordRef, dashboardKey })
       if (dashboardId) {
         params.push(`${SearchKeys.DASHBOARD_ID}=${dashboardId}`);
       }
@@ -80,7 +81,8 @@ class DropdownMenuItem extends React.Component {
   handlerClick = event => {
     const {
       data,
-      data: { control, isLegacy },
+      data: { control, isLegacy, id },
+      dashboardId,
       onClick
     } = this.props;
 
@@ -89,6 +91,13 @@ class DropdownMenuItem extends React.Component {
       handleControl(control.type, control.payload);
     } else if (!isLegacy && onClick) {
       event.preventDefault();
+
+      if (id === 'SETTINGS_DASHBOARD') {
+        onClick({ ...data, dashboardId });
+
+        return;
+      }
+
       onClick(data);
     }
   };

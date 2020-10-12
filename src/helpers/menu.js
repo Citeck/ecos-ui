@@ -8,6 +8,7 @@ import { HandleControlTypes } from './handleControl';
 import { createProfileUrl } from './urls';
 import { documentScrollTop } from './util';
 import MenuSettingsService from '../services/MenuSettingsService';
+import DashboardService from '../services/dashboard';
 
 const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
 const DEFAULT_REPORT_ISSUE_URL =
@@ -146,6 +147,13 @@ export function makeSiteMenu(params = {}) {
     {
       id: 'SETTINGS_DASHBOARD',
       label: 'header.site-menu.page-settings',
+      onClick: params => {
+        DashboardService.openEditModal(params);
+      }
+    },
+    {
+      id: 'SETTINGS_DASHBOARD',
+      label: 'Настроить страницу в новой вкладке',
       targetUrl: URL.DASHBOARD_SETTINGS,
       targetUrlType: 'FULL_PATH'
     },

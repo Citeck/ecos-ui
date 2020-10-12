@@ -1,3 +1,5 @@
+import React, { lazy, Suspense } from 'react';
+import { Provider } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
@@ -8,6 +10,13 @@ import { CONFIG_VERSION } from '../constants/dashboard';
 import { LayoutTypes } from '../constants/layout';
 import { t } from '../helpers/util';
 import pageTabList from './pageTabs/PageTabList';
+import DialogManager from '../components/common/dialogs/Manager/DialogManager';
+import { getSearchParams, SearchKeys } from '../helpers/urls';
+import { Loader } from '../components/common';
+import { configureAPI } from '../api';
+import configureStore from '../store';
+import { fakeApi } from '../api/fakeApi';
+import Logger from 'logplease';
 
 const separatorId = '@';
 
@@ -203,5 +212,53 @@ export default class DashboardService {
         widgets
       }
     };
+  }
+
+  static openEditModal(props = {}) {
+    const DashboardSettingsModal = lazy(() => import('../pages/DashboardSettings/DashboardSettingsModal'));
+    const searchParams = getSearchParams();
+    // const record
+    const { recordRef, dashboardKey } = getSearchParams();
+    const params = [];
+
+    console.warn({ props });
+
+    // params.push(`${SearchKeys.DASHBOARD_ID}=${dashboard.id}`);
+
+    if (recordRef) {
+      params.push(`${SearchKeys.RECORD_REF}=${recordRef}`);
+    }
+
+    if (dashboardKey) {
+      params.push(`${SearchKeys.DASHBOARD_KEY}=${dashboardKey}`);
+    }
+
+    const logger = Logger.create('EcoS');
+
+    Logger.setLogLevel(Logger.LogLevels.DEBUG);
+
+    const { api, setNotAuthCallback } = configureAPI();
+    const store = configureStore({
+      api,
+      fakeApi,
+      logger
+    });
+    const settingsProps = {
+      dashboardId: props.dashboardId
+    };
+
+    console.warn({ searchParams, params, props });
+
+    DialogManager.showCustomDialog({
+      isVisible: true,
+      title: props.record,
+      body: (
+        <Provider store={store}>
+          <Suspense fallback={<Loader type="points" />}>
+            <DashboardSettingsModal tabId={pageTabList.activeTabId} {...settingsProps} />
+          </Suspense>
+        </Provider>
+      )
+    });
   }
 }

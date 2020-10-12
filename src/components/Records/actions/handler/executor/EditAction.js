@@ -17,6 +17,9 @@ export default class EditAction extends ActionsExecutor {
     switch (true) {
       case config.mode === 'task':
         return runEditTask(record, config);
+      case config.mode === 'dashboard':
+        console.warn({ config, record, context });
+        return;
       default:
         return new Promise(resolve => {
           let submitted = false;
