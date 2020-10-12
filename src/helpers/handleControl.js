@@ -328,12 +328,7 @@ export default function handleControl(type, payload) {
       });
       break;
     case HCT.ECOS_EDIT_PASSWORD:
-      RecordActions.execForRecord(getCurrentUserName(), {
-        type: ActionTypes.EDIT_PASSWORD,
-        config: {}
-      }).catch(e => {
-        console.error(e);
-      });
+      RecordActions.execForRecord(`${SourcesId.PEOPLE}@${getCurrentUserName()}`, { type: ActionTypes.EDIT_PASSWORD }).catch(console.error);
       break;
     default:
       console.warn('Unknown control type: ', type);

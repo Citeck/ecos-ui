@@ -84,9 +84,9 @@ export class UserApi extends CommonApi {
         let message = response.message || (response.errors && response.errors.join('; ')) || '';
 
         if (message.indexOf('BadCredentials') !== -1) {
-          message = t('user-profile-widget.error.invalid-password');
+          message = t('password-editor.error.invalid-password');
         } else {
-          message = t('user-profile-widget.error.server-error');
+          message = t('password-editor.error.server-error');
         }
 
         return { success: false, message };
