@@ -86,16 +86,19 @@ export default class WidgetService {
   }
 
   static openEditorPassword(params = {}) {
-    const { record, onClose } = params;
     const container = document.createElement('div');
+    const render = (props, callback) => ReactDOM.render(<PasswordEditor {...props} />, container, callback);
 
-    const onCloseModal = done => {
-      ReactDOM.unmountComponentAtNode(container);
-      document.body.removeChild(container);
-      onClose && onClose(done);
-    };
-
-    ReactDOM.render(<PasswordEditor />, container);
+    const modal = render({ isLoading: true, isShow: true, ...params });
     document.body.appendChild(container);
+
+    return {
+      update: (newProps, callback) => render({ ...modal.props, ...newProps }, callback),
+      terminate: () =>
+        render({ isShow: false }, () => {
+          ReactDOM.unmountComponentAtNode(container);
+          document.body.removeChild(container);
+        })
+    };
   }
 }

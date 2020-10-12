@@ -5,16 +5,17 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { changePassword, changePhoto, getUserData, togglePasswordModal } from '../../../actions/user';
+import { changePhoto, getUserData } from '../../../actions/user';
 import { t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import { Avatar, BtnUpload } from '../../common';
 import { Btn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
-import { PasswordEditor } from '../../Password';
 
 import './style.scss';
+import RecordActions from '../../Records/actions/recordActions';
+import { ActionTypes } from '../../Records/actions';
 
 const Labels = {
   TITLE: 'user-profile-widget.title',
@@ -50,12 +51,8 @@ class UserProfileDashlet extends BaseWidget {
     }
   };
 
-  onTogglePasswordModal = flag => {
-    this.props.togglePasswordModal(flag);
-  };
-
-  onChangePassword = data => {
-    this.props.changePassword(data);
+  onChangePassword = () => {
+    RecordActions.execForRecord(this.props.record, { type: ActionTypes.EDIT_PASSWORD }).catch(console.error);
   };
 
   handleUpdate() {
@@ -71,11 +68,9 @@ class UserProfileDashlet extends BaseWidget {
       isCurrentUser,
       isLoading,
       isLoadingPhoto,
-      isLoadingPassword,
       isMobile,
       message,
-      isCurrentAdmin,
-      isOpenPasswordModal
+      isCurrentAdmin
     } = this.props;
     const { isCollapsed } = this.state;
 
@@ -92,18 +87,6 @@ class UserProfileDashlet extends BaseWidget {
         isCollapsed={isCollapsed}
       >
         <Scrollbars {...this.scrollbarProps}>
-          {
-            <PasswordEditor
-              isLoading={isLoadingPassword}
-              userName={userName}
-              isCurrentUser={isCurrentUser}
-              isAdmin={isCurrentAdmin}
-              isMobile={isMobile}
-              isShow={isOpenPasswordModal}
-              onCancel={() => this.onTogglePasswordModal(false)}
-              onChange={this.onChangePassword}
-            />
-          }
           {!isLoading && (
             <>
               <div className="ecos-user-profile__info">
@@ -122,9 +105,7 @@ class UserProfileDashlet extends BaseWidget {
                     onSelected={this.onChangePhoto}
                     accept="image/*"
                   />
-                  <Btn loading={isLoadingPassword} onClick={() => this.onTogglePasswordModal(true)}>
-                    {t(Labels.Btns.CHANGE_PW)}
-                  </Btn>
+                  <Btn onClick={this.onChangePassword}>{t(Labels.Btns.CHANGE_PW)}</Btn>
                 </div>
               )}
               {message && (
@@ -149,8 +130,6 @@ const mapStateToProps = (state, context) => {
   return {
     isLoading: profile.isLoading,
     isLoadingPhoto: profile.isLoadingPhoto,
-    isLoadingPassword: profile.isLoadingPassword,
-    isOpenPasswordModal: profile.isOpenPasswordModal,
     profile: profile.data || {},
     message: profile.message,
     isCurrentUser,
@@ -165,9 +144,7 @@ const mapDispatchToProps = (dispatch, context) => {
 
   return {
     getUserData: () => dispatch(getUserData({ record, stateId })),
-    changePassword: data => dispatch(changePassword({ data, record, stateId })),
-    changePhoto: data => dispatch(changePhoto({ data, record, stateId })),
-    togglePasswordModal: isOpen => dispatch(togglePasswordModal({ isOpen, record, stateId }))
+    changePhoto: data => dispatch(changePhoto({ data, record, stateId }))
   };
 };
 

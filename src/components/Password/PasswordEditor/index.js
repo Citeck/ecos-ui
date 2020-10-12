@@ -11,17 +11,17 @@ import './style.scss';
 
 const Labels = {
   Titles: {
-    OLD: 'user-profile-widget.modal-password.label.old-password',
-    NEW: 'user-profile-widget.modal-password.label.new-password',
-    REPEAT: 'user-profile-widget.modal-password.label.repeat-new'
+    OLD: 'password-editor.label.old-password',
+    NEW: 'password-editor.label.new-password',
+    REPEAT: 'password-editor.label.repeat-new'
   },
   Btns: {
-    CANCEL: 'user-profile-widget.modal-password.button.cancel',
-    CHANGE: 'user-profile-widget.modal-password.button.change'
+    CANCEL: 'password-editor.button.cancel',
+    CHANGE: 'password-editor.button.change'
   },
   Msgs: {
-    REPEATED_NOT_MATCH: 'user-profile-widget.modal-password.msg.new-passwords-not-match',
-    NEW_EQ_OLD: 'user-profile-widget.modal-password.msg.new-n-old-passwords-match'
+    REPEATED_NOT_MATCH: 'password-editor.msg.new-passwords-not-match',
+    NEW_EQ_OLD: 'password-editor.msg.new-n-old-passwords-match'
   }
 };
 
