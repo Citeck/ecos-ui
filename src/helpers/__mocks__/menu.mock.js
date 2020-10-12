@@ -23,6 +23,7 @@ export const makeUserMenuConfigs = [
           }
         }
       },
+      { id: 'HEADER_USER_MENU_EDIT_PASSWORD', label: 'header.user-menu.edit-password', control: { type: 'ECOS_EDIT_PASSWORD' } },
       {
         id: 'HEADER_USER_MENU_FEEDBACK',
         label: 'header.feedback.label',
@@ -62,6 +63,7 @@ export const makeUserMenuConfigs = [
           }
         }
       },
+      { id: 'HEADER_USER_MENU_EDIT_PASSWORD', label: 'header.user-menu.edit-password', control: { type: 'ECOS_EDIT_PASSWORD' } },
       {
         id: 'HEADER_USER_MENU_FEEDBACK',
         label: 'header.feedback.label',
