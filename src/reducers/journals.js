@@ -89,8 +89,8 @@ export const defaultState = {
     columns: [],
     predicate: null,
     permissions: {
-      Write: true,
-      Delete: true
+      Write: true
+      // Delete: true
     }
   },
 
@@ -118,13 +118,9 @@ export default handleActions(
     [initState]: (state, action) => {
       const id = action.payload;
 
-      if (state[id]) {
-        return { ...state };
-      }
-
       return {
         ...state,
-        [id]: cloneDeep(defaultState)
+        [id]: { ...cloneDeep(defaultState), ...(state[id] || {}) }
       };
     },
     [setUrl]: (state, action) => {

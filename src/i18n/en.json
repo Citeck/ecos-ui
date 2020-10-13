@@ -312,6 +312,8 @@
   "ecos-table-form.error.failure-to-import": "Failure to import file",
   "ecos-table-form.error.no-response-handler": "You must set \"Response handler\" setting",
   "ecos-table-form.error.no-journal-id": "The \"journal ID\" config is required!",
+  "ecos-table-form.error.no-journal-config": "Journal config hasn't gotten",
+  "ecos-table-form.error.source": "Invalid source type",
   "ecos-ui.select.loading-message": "Loading...",
   "ecos-ui.select.no-options-message": "No options",
   "ecos.forms.Drop files to attach, or": "Drop files to attach, or",
@@ -575,6 +577,7 @@
   "journal.task.statistics.perform_time_ration.title": "Expected lead time / Lead time",
   "journal.task.statistics.task_type.title": "Task type",
   "journal.title": "Journal",
+  "journal.cell.no-label": "(Missing Label)",
   "journals-selector.assocs-load-error": "Connection loading error",
   "journals-selector.create-button.label": "Add Connection",
   "journals.action.apply": "Apply",
@@ -619,6 +622,7 @@
   "journals.tpl.defaults": "Settings template",
   "journals.menu.journal-list.title": "Journals",
   "journals.menu.journal-list.empty": "List is empty",
+
   "label.password": "Password",
   "label.username": "User Name",
 

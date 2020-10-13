@@ -312,6 +312,8 @@
   "ecos-table-form.error.failure-to-import": "Не удалось загрузить файл",
   "ecos-table-form.error.no-response-handler": "Необходимо указать настройку \"Response handler\"",
   "ecos-table-form.error.no-journal-id": "Конфигурация \"ID журнала\" обязательна!",
+  "ecos-table-form.error.no-journal-config": "Конфигурация журнала не получена",
+  "ecos-table-form.error.source": "Неверный тип источника",
   "ecos-ui.select.loading-message": "Загрузка...",
   "ecos-ui.select.no-options-message": "Не найдено",
   "ecos.forms.Drop files to attach, or": "Перетащите файлы для прикрепления, или",
@@ -575,6 +577,7 @@
   "journal.task.statistics.perform_time_ration.title": "Ожидаемое время / Время выполнения",
   "journal.task.statistics.task_type.title": "Тип задачи",
   "journal.title": "Журнал",
+  "journal.cell.no-label": "(Нет наименования)",
   "journals-selector.assocs-load-error": "Ошибка загрузки связей",
   "journals-selector.create-button.label": "Добавить связь",
   "journals.action.apply": "Применить",
@@ -619,6 +622,7 @@
   "journals.tpl.defaults": "Шаблоны настроек",
   "journals.menu.journal-list.title": "Журналы",
   "journals.menu.journal-list.empty": "Список пуст",
+
   "label.password": "Пароль",
   "label.username": "Имя пользователя",
 

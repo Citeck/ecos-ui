@@ -1,6 +1,6 @@
 import isArray from 'lodash/isArray';
 
-import { deepClone } from '../../../helpers/util';
+import { deepClone, isExistValue } from '../../../helpers/util';
 import {
   EQUAL_PREDICATES_MAP,
   filterPredicates,
@@ -24,15 +24,16 @@ export default class ParserPredicate {
       columns = columns.filter(c => groupBy.filter(g => g === c.attribute)[0]);
     }
 
-    columns.forEach(c => {
-      if (c.visible && c.default && c.searchable) {
-        const predicate = SEARCH_EQUAL_PREDICATES_MAP[c.type];
+    columns &&
+      columns.forEach(c => {
+        if (c.visible && c.default && c.searchable) {
+          const predicate = SEARCH_EQUAL_PREDICATES_MAP[c.type];
 
-        if (predicate) {
-          val.push(new Predicate({ att: c.attribute, t: predicate, val: text }));
+          if (predicate) {
+            val.push(new Predicate({ att: c.attribute, t: predicate, val: text }));
+          }
         }
-      }
-    });
+      });
 
     return val.length
       ? {
@@ -117,12 +118,16 @@ export default class ParserPredicate {
     for (let i = 0, length = val.length; i < length; i++) {
       const item = val[i];
 
-      if (Array.isArray(item.val)) {
+      if (item && Array.isArray(item.val)) {
         item.val = this.removeEmptyPredicates(item.val);
       }
     }
 
     return val.filter(v => {
+      if (!isExistValue(v)) {
+        return false;
+      }
+
       if (Array.isArray(v.val)) {
         return !!v.val.length;
       }

@@ -56,7 +56,7 @@ export default class EditAction extends ActionsExecutor {
 function runEditTask(record, config) {
   return record.load('cm:name?str').then(taskId => {
     if (!taskId) {
-      console.error('Task ID is not found for record', record);
+      // console.error('Task ID is not found for record', record);
       notifyFailure();
       return false;
     }
