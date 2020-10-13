@@ -92,7 +92,7 @@ class DropdownMenuItem extends React.Component {
       event.preventDefault();
 
       if (id === 'SETTINGS_DASHBOARD') {
-        onClick({ ...data, dashboardId });
+        onClick({ ...data, dashboardId, updateDashboard: true });
 
         return;
       }

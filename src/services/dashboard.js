@@ -241,8 +241,8 @@ export default class DashboardService {
             <DashboardSettingsModal
               modalRef={ref}
               tabId={pageTabList.activeTabId}
-              recordRef={props.recordRef}
               dashboardId={props.dashboardId}
+              updateDashboard={props.updateDashboard}
               onSetDialogProps={props => dialog.updateProps(props)}
               onSave={() => dialog.setVisible(false)}
             />

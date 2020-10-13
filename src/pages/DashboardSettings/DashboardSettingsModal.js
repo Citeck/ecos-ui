@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
+import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
@@ -14,16 +15,26 @@ import { clearCache } from '../../components/ReactRouterCache';
 import { getDashboardConfig } from '../../actions/dashboard';
 
 class DashboardSettingsModal extends Settings {
+  static propTypes = {
+    ...super.propTypes,
+    modalRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
+    dashboardId: PropTypes.string,
+    onSave: PropTypes.func,
+    onSetDialogProps: PropTypes.func,
+    updateDashboard: PropTypes.bool
+  };
+
   _actionsRef = null;
   _bodyRef = null;
 
   componentDidUpdate(prevProps, prevState) {
     super.componentDidUpdate(prevProps, prevState);
 
-    const type = get(this, 'props.identification.type');
+    const { onSetDialogProps, identification } = this.props;
+    const type = get(identification, 'type');
 
-    if (type !== get(prevProps, 'identification.type')) {
-      this.props.onSetDialogProps({ title: this.getTitleByType(type) });
+    if (type !== get(prevProps, 'identification.type') && typeof onSetDialogProps === 'function') {
+      onSetDialogProps({ title: this.getTitleByType(type) });
     }
   }
 
@@ -126,7 +137,7 @@ class DashboardSettingsModal extends Settings {
     const newSaveWay = checkResult.saveWay;
 
     if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
-      const onSave = get(this, 'props.onSave');
+      const { getAwayFromPage, updateDashboard, getDashboardConfig, onSave } = this.props;
       let { recordRef } = this.props;
 
       if (isEmpty(recordRef)) {
@@ -135,8 +146,11 @@ class DashboardSettingsModal extends Settings {
 
       clearCache();
       this.clearLocalStorage();
-      this.props.getAwayFromPage();
-      this.props.getDashboardConfig({ recordRef });
+      getAwayFromPage();
+
+      if (updateDashboard) {
+        getDashboardConfig({ recordRef });
+      }
 
       if (typeof onSave === 'function') {
         onSave();
