@@ -57,10 +57,6 @@ class PageTabList {
     return get(this.activeTab, 'id', null);
   }
 
-  get activeTabKey() {
-    return get(this.activeTab, 'key', null);
-  }
-
   pushCallback = callback => {
     this.#callbacks.push(callback);
   };

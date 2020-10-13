@@ -11,13 +11,8 @@ import { LayoutTypes } from '../constants/layout';
 import { t } from '../helpers/util';
 import pageTabList from './pageTabs/PageTabList';
 import DialogManager from '../components/common/dialogs/Manager/DialogManager';
-import { getSearchParams, SearchKeys } from '../helpers/urls';
 import { Loader } from '../components/common';
-import { configureAPI } from '../api';
-import configureStore, { getStore } from '../store';
-import { fakeApi } from '../api/fakeApi';
-import Logger from 'logplease';
-import Records from '../components/Records';
+import { getStore } from '../store';
 
 const separatorId = '@';
 
@@ -215,15 +210,11 @@ export default class DashboardService {
     };
   }
 
-  static async openEditModal(props = {}) {
+  static openEditModal(props = {}) {
     const DashboardSettingsModal = lazy(() => import('../pages/DashboardSettings/DashboardSettingsModal'));
     const store = getStore();
     const ref = React.createRef();
     let title;
-
-    if (props.dashboardId) {
-      title = await Records.get(`${SourcesId.DASHBOARD}@${props.dashboardId}`).load('typeRef.inhDashboardType?str', true);
-    }
 
     switch (get(this, 'props.identification.type', '')) {
       case DashboardTypes.USER:
@@ -248,9 +239,8 @@ export default class DashboardService {
         <Provider store={store}>
           <Suspense fallback={<Loader type="points" />}>
             <DashboardSettingsModal
-              updatePage
               modalRef={ref}
-              tabId={pageTabList.activeTabKey}
+              tabId={pageTabList.activeTabId}
               recordRef={props.recordRef}
               dashboardId={props.dashboardId}
               onSetDialogProps={props => dialog.updateProps(props)}
@@ -260,7 +250,5 @@ export default class DashboardService {
         </Provider>
       )
     });
-
-    console.warn({ dialog });
   }
 }

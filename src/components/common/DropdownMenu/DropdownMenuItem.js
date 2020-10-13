@@ -59,7 +59,6 @@ class DropdownMenuItem extends React.Component {
     let link = targetUrl;
 
     if (targetUrl === URL.DASHBOARD_SETTINGS) {
-      // console.warn(this.props, { recordRef, dashboardKey })
       if (dashboardId) {
         params.push(`${SearchKeys.DASHBOARD_ID}=${dashboardId}`);
       }
@@ -93,7 +92,6 @@ class DropdownMenuItem extends React.Component {
       event.preventDefault();
 
       if (id === 'SETTINGS_DASHBOARD') {
-        console.warn('handle click => ', this.props);
         onClick({ ...data, dashboardId });
 
         return;

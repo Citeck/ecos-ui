@@ -96,7 +96,6 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardByOneOf = ({ dashboardId, recordRef }) => {
-    console.warn('getDashboardByOneOf => ', { dashboardId, recordRef });
     if (!isEmpty(dashboardId)) {
       return this.getDashboardById(dashboardId);
     }

@@ -128,7 +128,6 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
 
     if (!isAdmin) {
       const user = yield select(state => {
-        console.warn({ state });
         return selectUserName(state);
       });
 

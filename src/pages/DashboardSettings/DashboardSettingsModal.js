@@ -1,25 +1,21 @@
-import React, { Component } from 'react';
+// eslint-disable-next-line no-unused-vars
+import React from 'react';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
 
-import DashboardSettings, { mapStateToProps, mapDispatchToProps } from './DashboardSettings';
-import pageTabList from '../../services/pageTabs/PageTabList';
-import Settings from './Settings';
+import Settings, { getStateId, mapStateToProps, mapDispatchToProps } from './Settings';
 import { DashboardTypes } from '../../constants/dashboard';
 import { t } from '../../helpers/export/util';
 import DashboardService from '../../services/dashboard';
 import { Container } from 'reactstrap';
 import { RequestStatuses } from '../../constants';
 import { clearCache } from '../../components/ReactRouterCache';
+import { getDashboardConfig } from '../../actions/dashboard';
 
 class DashboardSettingsModal extends Settings {
   _actionsRef = null;
   _bodyRef = null;
-
-  constructor(props) {
-    super(props);
-  }
 
   componentDidUpdate(prevProps, prevState) {
     super.componentDidUpdate(prevProps, prevState);
@@ -130,17 +126,20 @@ class DashboardSettingsModal extends Settings {
     const newSaveWay = checkResult.saveWay;
 
     if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
-      const onClose = get(this, 'props.onClose');
+      const onSave = get(this, 'props.onSave');
+      let { recordRef } = this.props;
+
+      if (isEmpty(recordRef)) {
+        recordRef = get(this.getPathInfo(), 'recordRef');
+      }
 
       clearCache();
       this.clearLocalStorage();
       this.props.getAwayFromPage();
+      this.props.getDashboardConfig({ recordRef });
 
-      if (typeof onClose === 'function') {
-        onClose();
-      }
-
-      if (this.props.updatePage) {
+      if (typeof onSave === 'function') {
+        onSave();
       }
     } else if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
       this.acceptChanges(checkResult.dashboardId);
@@ -167,7 +166,16 @@ class DashboardSettingsModal extends Settings {
   }
 }
 
+const _mapDispatchToProps = (dispatch, ownProps) => {
+  const key = getStateId(ownProps);
+
+  return {
+    ...mapDispatchToProps(dispatch, ownProps),
+    getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key }))
+  };
+};
+
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  _mapDispatchToProps
 )(DashboardSettingsModal);

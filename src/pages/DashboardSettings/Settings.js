@@ -8,7 +8,7 @@ import find from 'lodash/find';
 import * as queryString from 'query-string';
 import { Col, Container, Row } from 'reactstrap';
 
-import { decodeLink, getSortedUrlParams } from '../../helpers/urls';
+import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import { arrayCompare, deepClone, t } from '../../helpers/util';
@@ -30,10 +30,46 @@ import SetWidgets from './SetWidgets';
 import PageService from '../../services/PageService';
 import { Btn } from '../../components/common/btns';
 import { TunableDialog } from '../../components/common/dialogs';
+import { selectStateByKey } from '../../selectors/dashboardSettings';
+import {
+  getAwayFromPage,
+  getCheckUpdatedDashboardConfig,
+  initDashboardSettings,
+  resetConfigToDefault,
+  resetDashboardConfig,
+  saveDashboardConfig,
+  setCheckUpdatedDashboardConfig
+} from '../../actions/dashboardSettings';
 
 const DESK_VER = find(DeviceTabs, ['key', 'desktop']);
 
 const findLayout = type => Layouts.find(layout => layout.type === type) || {};
+
+export const getStateId = props => get(getSearchParams(), SearchKeys.DASHBOARD_ID, props.tabId || 'base');
+
+export const mapStateToProps = (state, ownProps) => ({
+  isActive: ownProps.tabId ? pageTabList.isActiveTab(ownProps.tabId) : true,
+  userData: {
+    userName: get(state, 'user.userName'),
+    isAdmin: get(state, 'user.isAdmin', false)
+  },
+  isLoadingMenu: get(state, ['menu', 'isLoading']),
+  ...selectStateByKey(state, getStateId(ownProps))
+});
+
+export const mapDispatchToProps = (dispatch, ownProps) => {
+  const key = getStateId(ownProps);
+
+  return {
+    initSettings: payload => dispatch(initDashboardSettings({ ...payload, key })),
+    checkUpdatedSettings: payload => dispatch(getCheckUpdatedDashboardConfig({ ...payload, key })),
+    saveSettings: payload => dispatch(saveDashboardConfig({ ...payload, key })),
+    getAwayFromPage: () => dispatch(getAwayFromPage(key)),
+    setCheckUpdatedConfig: payload => dispatch(setCheckUpdatedDashboardConfig({ ...payload, key })),
+    resetConfig: () => dispatch(resetDashboardConfig(key)),
+    resetConfigToDefault: payload => dispatch(resetConfigToDefault({ ...payload, key }))
+  };
+};
 
 class Settings extends Component {
   static propTypes = {
@@ -246,14 +282,10 @@ class Settings extends Component {
     const newSaveWay = checkResult.saveWay;
 
     if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
-      console.warn('success');
-
       clearCache();
       this.clearLocalStorage();
       this.closePage(this.props);
     } else if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
-      console.warn('confirm');
-
       this.acceptChanges(checkResult.dashboardId);
     }
   }

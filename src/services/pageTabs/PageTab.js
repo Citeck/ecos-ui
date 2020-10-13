@@ -22,11 +22,9 @@ import PageService from '../PageService';
  */
 export default class PageTab {
   constructor(data) {
-    let { link, title, id, isLoading = false, isActive = false, key } = data || {};
-    const tabKey = key || uuidv4();
+    let { link, title, id, isLoading = false, isActive = false } = data || {};
 
-    this.id = id || `page-tab-${tabKey}`;
-    this.key = tabKey;
+    this.id = id || `page-tab-${uuidv4()}`;
     this.link = decodeLink(link);
     this.title = title;
     this.isLoading = isLoading;
