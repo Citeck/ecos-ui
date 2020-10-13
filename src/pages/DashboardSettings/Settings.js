@@ -162,8 +162,6 @@ class Settings extends Component {
     const { initSettings } = props;
     const { recordRef, dashboardId } = this.getPathInfo();
 
-    console.warn({ recordRef, dashboardId });
-
     if (!dashboardId || !pageTabList.isActiveTab(props.tabId)) {
       return;
     }
@@ -248,10 +246,14 @@ class Settings extends Component {
     const newSaveWay = checkResult.saveWay;
 
     if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
+      console.warn('success');
+
       clearCache();
       this.clearLocalStorage();
       this.closePage(this.props);
     } else if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
+      console.warn('confirm');
+
       this.acceptChanges(checkResult.dashboardId);
     }
   }
@@ -419,11 +421,12 @@ class Settings extends Component {
 
           delete selectedWidgets[removedTab];
 
-          tab.forEach(column => {
-            column.forEach(widget => {
-              removedWidgets.push(widget.id);
+          tab &&
+            tab.forEach(column => {
+              column.forEach(widget => {
+                removedWidgets.push(widget.id);
+              });
             });
-          });
 
           state.selectedWidgets = selectedWidgets;
           state.removedWidgets = removedWidgets;

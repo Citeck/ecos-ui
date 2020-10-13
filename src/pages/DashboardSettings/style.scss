@@ -2,9 +2,85 @@
 @import '../../styles/content';
 
 .ecos-dashboard-settings {
-  $ecos-dashboard-settings: &;
+  $settings: &;
 
   position: relative;
+
+  &__tooltip {
+    .tooltip {
+      z-index: 10001;
+    }
+  }
+
+  &_modal {
+    padding: 0;
+
+    .ecos-tab:not(.ecos-tab_active),
+    #{$settings}__layout-tabs-add-tab:not(:hover):not(:focus):not(:active) {
+      border-width: 1px;
+      border-color: $color-gray-6;
+      border-style: solid;
+    }
+
+    #{$settings} {
+      &__body {
+        overflow-y: auto;
+        position: relative;
+        padding: 10px 17px 10px 20px;
+        margin: 10px 3px 10px 0;
+      }
+
+      &__container {
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        &-group {
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+
+      &__actions {
+        position: relative;
+        padding-left: 15px;
+        padding-bottom: 20px;
+        padding-top: 15px;
+
+        &:before {
+          content: '';
+          display: block;
+          background: #e8edef;
+          height: 2px;
+          position: absolute;
+          left: -19px;
+          top: 0;
+          width: calc(100% + 38px);
+        }
+      }
+    }
+  }
+
+  &-modal-wrapper.ecos-modal {
+    top: 10px;
+    margin-top: 0;
+    margin-bottom: 0;
+
+    .ecos-modal-header {
+      display: flex;
+      flex-shrink: 0;
+      flex-basis: auto;
+    }
+
+    .modal-body {
+      padding: 0;
+    }
+
+    .modal-content {
+      max-height: calc(100vh - 20px);
+    }
+  }
 
   &__loader-wrapper {
     border-radius: $border-radius-extra-large;
@@ -156,7 +232,7 @@
           max-width: 30%;
           min-width: 180px;
 
-          #{$ecos-dashboard-settings}__column-widgets {
+          #{$settings}__column-widgets {
             width: 100%;
           }
 

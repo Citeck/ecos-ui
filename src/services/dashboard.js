@@ -6,7 +6,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import uuid from 'uuidv4';
 
 import { SourcesId } from '../constants';
-import { CONFIG_VERSION } from '../constants/dashboard';
+import { CONFIG_VERSION, DashboardTypes } from '../constants/dashboard';
 import { LayoutTypes } from '../constants/layout';
 import { t } from '../helpers/util';
 import pageTabList from './pageTabs/PageTabList';
@@ -14,9 +14,10 @@ import DialogManager from '../components/common/dialogs/Manager/DialogManager';
 import { getSearchParams, SearchKeys } from '../helpers/urls';
 import { Loader } from '../components/common';
 import { configureAPI } from '../api';
-import configureStore from '../store';
+import configureStore, { getStore } from '../store';
 import { fakeApi } from '../api/fakeApi';
 import Logger from 'logplease';
+import Records from '../components/Records';
 
 const separatorId = '@';
 
@@ -214,51 +215,52 @@ export default class DashboardService {
     };
   }
 
-  static openEditModal(props = {}) {
+  static async openEditModal(props = {}) {
     const DashboardSettingsModal = lazy(() => import('../pages/DashboardSettings/DashboardSettingsModal'));
-    const searchParams = getSearchParams();
-    // const record
-    const { recordRef, dashboardKey } = getSearchParams();
-    const params = [];
+    const store = getStore();
+    const ref = React.createRef();
+    let title;
 
-    console.warn({ props });
-
-    // params.push(`${SearchKeys.DASHBOARD_ID}=${dashboard.id}`);
-
-    if (recordRef) {
-      params.push(`${SearchKeys.RECORD_REF}=${recordRef}`);
+    if (props.dashboardId) {
+      title = await Records.get(`${SourcesId.DASHBOARD}@${props.dashboardId}`).load('typeRef.inhDashboardType?str', true);
     }
 
-    if (dashboardKey) {
-      params.push(`${SearchKeys.DASHBOARD_KEY}=${dashboardKey}`);
+    switch (get(this, 'props.identification.type', '')) {
+      case DashboardTypes.USER:
+        title = t('dashboard-settings.page-title');
+        break;
+      case DashboardTypes.CASE_DETAILS:
+        title = t('dashboard-settings.card-settings');
+        break;
+      default:
+        title = t('dashboard-settings.page-display-settings');
+        break;
     }
 
-    const logger = Logger.create('EcoS');
-
-    Logger.setLogLevel(Logger.LogLevels.DEBUG);
-
-    const { api, setNotAuthCallback } = configureAPI();
-    const store = configureStore({
-      api,
-      fakeApi,
-      logger
-    });
-    const settingsProps = {
-      dashboardId: props.dashboardId
-    };
-
-    console.warn({ searchParams, params, props });
-
-    DialogManager.showCustomDialog({
+    const dialog = DialogManager.showCustomDialog({
       isVisible: true,
-      title: props.record,
+      title: props.title || title,
+      className: 'ecos-dashboard-settings-modal-wrapper ecos-modal_width-lg',
+      isTopDivider: true,
+      reactstrapProps: { ref },
+      onHide: () => dialog.setVisible(false),
       body: (
         <Provider store={store}>
           <Suspense fallback={<Loader type="points" />}>
-            <DashboardSettingsModal tabId={pageTabList.activeTabId} {...settingsProps} />
+            <DashboardSettingsModal
+              updatePage
+              modalRef={ref}
+              tabId={pageTabList.activeTabKey}
+              recordRef={props.recordRef}
+              dashboardId={props.dashboardId}
+              onSetDialogProps={props => dialog.updateProps(props)}
+              onSave={() => dialog.setVisible(false)}
+            />
           </Suspense>
         </Provider>
       )
     });
+
+    console.warn({ dialog });
   }
 }

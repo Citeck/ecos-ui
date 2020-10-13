@@ -14,6 +14,7 @@ import './Tabs.scss';
 class EditTabs extends React.Component {
   static propTypes = {
     ...commonTabsPropTypes,
+    classNameTooltip: PropTypes.string,
     disabled: PropTypes.bool,
     onSort: PropTypes.func,
     onDelete: PropTypes.func,
@@ -66,6 +67,7 @@ class EditTabs extends React.Component {
       items = [],
       className,
       classNameTab,
+      classNameTooltip,
       keyField,
       valueField,
       valuePrefix,
@@ -85,6 +87,7 @@ class EditTabs extends React.Component {
                 {...item}
                 id={item[keyField]}
                 index={index}
+                classNameTooltip={classNameTooltip}
                 className={classNameTab}
                 label={classNames(valuePrefix, item[valueField])}
                 isActive={item.isActive || item[keyField] === activeTabKey}

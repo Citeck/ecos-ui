@@ -192,6 +192,7 @@ class SetWidgets extends React.Component {
                       className="ecos-dashboard-settings__column-widgets__items__cell"
                       title={this.getWidgetLabel(widget)}
                       selected={true}
+                      tooltipClassName="ecos-dashboard-settings__tooltip"
                       alertTooltip={this.getMessage(widget)}
                       canRemove={true}
                       removeItem={response => {

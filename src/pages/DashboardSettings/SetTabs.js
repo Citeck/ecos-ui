@@ -148,6 +148,7 @@ class SetTabs extends React.Component {
         <EditTabs
           className="ecos-dashboard-settings__layout-tabs-wrap"
           classNameTab="ecos-dashboard-settings__layout-tabs-item"
+          classNameTooltip="ecos-dashboard-settings__tooltip"
           hasHover
           hasHint
           items={tabs}

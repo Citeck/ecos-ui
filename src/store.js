@@ -11,6 +11,8 @@ import sagas from './sagas';
 const sagaMiddleware = createSagaMiddleware();
 const history = createBrowserHistory();
 
+let store = {};
+
 let optionalMiddlewares = [];
 if (process.env.NODE_ENV === 'development') {
   const logger = createLogger({ collapsed: true, diff: true });
@@ -24,7 +26,8 @@ if (typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
 
 export default function configureStore(ea) {
   const initialState = {};
-  const store = createStore(
+
+  store = createStore(
     createRootReducer(history),
     initialState,
     composeEnhancers(applyMiddleware(routerMiddleware(history), sagaMiddleware, thunk.withExtraArgument(ea), ...optionalMiddlewares))
@@ -38,6 +41,10 @@ export default function configureStore(ea) {
 
 export function getHistory() {
   return history;
+}
+
+export function getStore() {
+  return store || {};
 }
 
 export function injectAsyncReducer(store, name, reducer) {

@@ -6,11 +6,102 @@ import { connect } from 'react-redux';
 import DashboardSettings, { mapStateToProps, mapDispatchToProps } from './DashboardSettings';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import Settings from './Settings';
+import { DashboardTypes } from '../../constants/dashboard';
+import { t } from '../../helpers/export/util';
+import DashboardService from '../../services/dashboard';
+import { Container } from 'reactstrap';
+import { RequestStatuses } from '../../constants';
+import { clearCache } from '../../components/ReactRouterCache';
 
 class DashboardSettingsModal extends Settings {
+  _actionsRef = null;
+  _bodyRef = null;
+
   constructor(props) {
     super(props);
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    super.componentDidUpdate(prevProps, prevState);
+
+    const type = get(this, 'props.identification.type');
+
+    if (type !== get(prevProps, 'identification.type')) {
+      this.props.onSetDialogProps({ title: this.getTitleByType(type) });
+    }
+  }
+
+  get bodyStyles() {
+    const modal = get(this, 'props.modalRef.current._dialog');
+    const footerHeight = get(this._actionsRef, 'offsetHeight', 0);
+    const height = [];
+
+    if (modal) {
+      const header = modal.querySelector('.ecos-modal-header');
+
+      if (header) {
+        height.push(`${header.offsetHeight}px`);
+      }
+    }
+
+    if (footerHeight) {
+      height.push(`${footerHeight}px`);
+    }
+
+    if (this._bodyRef) {
+      const styles = window.getComputedStyle(this._bodyRef);
+
+      if (styles.marginTop) {
+        height.push(styles.marginTop);
+      }
+
+      if (styles.paddingTop) {
+        height.push(styles.paddingTop);
+      }
+
+      if (styles.paddingBottom) {
+        height.push(styles.paddingBottom);
+      }
+
+      if (styles.marginBottom) {
+        height.push(styles.marginBottom);
+      }
+    }
+
+    return {
+      maxHeight: `calc(100vh - (${height.join(' + ') || 0}))`
+    };
+  }
+
+  getTitleByType = type => {
+    let title = '';
+
+    switch (type) {
+      case DashboardTypes.USER:
+        title = t('dashboard-settings.page-title');
+        break;
+      case DashboardTypes.CASE_DETAILS:
+        title = t('dashboard-settings.card-settings');
+        break;
+      default:
+        title = t('dashboard-settings.page-display-settings');
+        break;
+    }
+
+    return title;
+  };
+
+  setBodyRef = ref => {
+    if (ref) {
+      this._bodyRef = ref;
+    }
+  };
+
+  setActionRef = ref => {
+    if (ref) {
+      this._actionsRef = ref;
+    }
+  };
 
   fetchData(props = this.props) {
     const { initSettings } = props;
@@ -24,32 +115,59 @@ class DashboardSettingsModal extends Settings {
       dashboardId = get(this.getPathInfo(), 'dashboardId');
     }
 
-    console.warn({ recordRef, dashboardId, props });
-
-    // if (!dashboardId || !pageTabList.isActiveTab(props.tabId)) {
-    //   return;
-    // }
+    if (!dashboardId && !recordRef) {
+      return;
+    }
 
     initSettings({ recordRef, dashboardId });
   }
 
-  // render() {
-  //   return (
-  //     <div>
-  //
-  //     </div>
-  //   );
-  // }
-}
+  checkRequestResult(prevProps) {
+    const oldRStatus = get(prevProps, 'requestResult.status', null);
+    const newRStatus = get(this.props, 'requestResult.status', null);
+    const oldSaveWay = get(prevProps, 'requestResult.saveWay', null);
+    const checkResult = get(this.props, 'requestResult', {});
+    const newSaveWay = checkResult.saveWay;
 
-// export default DashboardSettingsModal;
-// export default connect()(DashboardSettingsModal);
+    if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
+      const onClose = get(this, 'props.onClose');
+
+      clearCache();
+      this.clearLocalStorage();
+      this.props.getAwayFromPage();
+
+      if (typeof onClose === 'function') {
+        onClose();
+      }
+
+      if (this.props.updatePage) {
+      }
+    } else if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
+      this.acceptChanges(checkResult.dashboardId);
+    }
+  }
+
+  render() {
+    return (
+      <Container className="ecos-dashboard-settings ecos-dashboard-settings_modal">
+        {this.renderLoader()}
+        <div className="ecos-dashboard-settings__body" style={this.bodyStyles} ref={this.setBodyRef}>
+          {this.renderOwnershipBlock()}
+          {this.renderDeviceTabsBlock()}
+          {this.renderLayoutTabsBlock()}
+          <div className="ecos-dashboard-settings__container">
+            {this.renderLayoutsBlock()}
+            {this.renderWidgetsBlock()}
+          </div>
+        </div>
+        <div ref={this.setActionRef}>{this.renderButtons()}</div>
+        {this.renderDialogs()}
+      </Container>
+    );
+  }
+}
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
-  null,
-  {
-    // areStatePropsEqual: next => !next.isActive
-  }
+  mapDispatchToProps
 )(DashboardSettingsModal);

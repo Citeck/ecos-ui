@@ -33,6 +33,15 @@ class DialogWrapper extends React.Component {
     });
   }
 
+  updateProps(props) {
+    this.setState(state => ({
+      dialogProps: {
+        ...state.dialogProps,
+        ...props
+      }
+    }));
+  }
+
   setVisible(value) {
     this.setState({
       isVisible: value

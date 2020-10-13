@@ -21,6 +21,7 @@ const Labels = {
 class Tab extends React.Component {
   static propTypes = {
     ...commonOneTabPropTypes,
+    classNameTooltip: PropTypes.string,
     disabled: PropTypes.bool,
     isNew: PropTypes.bool,
     index: PropTypes.number,
@@ -31,6 +32,7 @@ class Tab extends React.Component {
 
   static defaultProps = {
     ...commonOneTabDefaultProps,
+    classNameTooltip: '',
     disabled: false,
     isNew: false,
     index: 0
@@ -210,7 +212,7 @@ class Tab extends React.Component {
       return null;
     }
 
-    const { isActive } = this.props;
+    const { isActive, classNameTooltip } = this.props;
     const { isOpenMenu, id } = this.state;
     const menu = [];
 
@@ -248,7 +250,7 @@ class Tab extends React.Component {
           isOpen={isOpenMenu}
           toggle={this.onToggleMenu}
           hideArrow
-          className="ecos-base-tooltip ecos-base-tooltip_opaque"
+          className={classNames('ecos-base-tooltip', 'ecos-base-tooltip_opaque', classNameTooltip)}
           innerClassName="ecos-base-tooltip-inner ecos-tab-actions__menu"
         >
           {menu}
