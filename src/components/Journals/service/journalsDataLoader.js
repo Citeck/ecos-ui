@@ -1,5 +1,5 @@
 import journalsServiceApi from './journalsServiceApi';
-import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../common/form/SelectJournal/predicates';
+import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../Records/predicates/predicates';
 import lodash from 'lodash';
 
 const isPredicateValid = predicate => {

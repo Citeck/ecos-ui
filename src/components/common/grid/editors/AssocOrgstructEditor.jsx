@@ -3,7 +3,11 @@ import React from 'react';
 import BaseEditor from './BaseEditor';
 import { SelectOrgstruct } from '../../form';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../form/SelectOrgstruct/constants';
-import { COLUMN_DATA_TYPE_AUTHORITY, COLUMN_DATA_TYPE_AUTHORITY_GROUP, COLUMN_DATA_TYPE_PERSON } from '../../form/SelectJournal/predicates';
+import {
+  COLUMN_DATA_TYPE_AUTHORITY,
+  COLUMN_DATA_TYPE_AUTHORITY_GROUP,
+  COLUMN_DATA_TYPE_PERSON
+} from '../../../Records/predicates/predicates';
 
 export default class AssocOrgstructEditor extends BaseEditor {
   onChange = newValue => {

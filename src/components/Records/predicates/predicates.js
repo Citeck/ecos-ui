@@ -3,10 +3,10 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isObject from 'lodash/isObject';
 
-import { extractLabel, t } from '../../../../helpers/util';
-import Records from '../../../../components/Records';
-import { DatePicker, Input, Select, SelectJournal, SelectOrgstruct } from '../../../common/form';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../common/form/SelectOrgstruct/constants';
+import { extractLabel, t } from '../../../helpers/util';
+import Records from '../Records';
+import { DatePicker, Input, Select, SelectJournal, SelectOrgstruct } from '../../common/form';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../common/form/SelectOrgstruct/constants';
 
 export const COLUMN_DATA_TYPE_TEXT = 'text';
 export const COLUMN_DATA_TYPE_MLTEXT = 'mltext';
@@ -108,26 +108,6 @@ export const SEARCH_EQUAL_PREDICATES_MAP = {
 
 export const NUMBERS = [COLUMN_DATA_TYPE_INT, COLUMN_DATA_TYPE_DOUBLE, COLUMN_DATA_TYPE_LONG, COLUMN_DATA_TYPE_FLOAT];
 
-// Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
-const getAllPredicates = function() {
-  return [
-    { value: PREDICATE_CONTAINS, label: t('predicate.contains'), needValue: true },
-    { value: PREDICATE_NOT_CONTAINS, label: t('predicate.not-contains'), needValue: true },
-    { value: PREDICATE_EQ, label: t('predicate.eq'), needValue: true },
-    { value: PREDICATE_NOT_EQ, label: t('predicate.not-eq'), needValue: true },
-    { value: PREDICATE_STARTS, label: t('predicate.starts'), needValue: true },
-    { value: PREDICATE_ENDS, label: t('predicate.ends'), needValue: true },
-    { value: PREDICATE_EMPTY, label: t('predicate.empty'), needValue: false },
-    { value: PREDICATE_NOT_EMPTY, label: t('predicate.not-empty'), needValue: false },
-    { value: PREDICATE_GE, label: t('predicate.ge'), needValue: true },
-    { value: PREDICATE_GT, label: t('predicate.gt'), needValue: true },
-    { value: PREDICATE_LE, label: t('predicate.le'), needValue: true },
-    { value: PREDICATE_LT, label: t('predicate.lt'), needValue: true },
-    { value: PREDICATE_AND, label: t('predicate.and'), needValue: true },
-    { value: PREDICATE_OR, label: t('predicate.or'), needValue: true }
-  ];
-};
-
 const PREDICATE_LIST_TYPE_STRING = [
   PREDICATE_CONTAINS,
   PREDICATE_EQ,
@@ -150,6 +130,26 @@ const PREDICATE_LIST_TYPE_NO_CONTROL_YET = [PREDICATE_NOT_EMPTY, PREDICATE_EMPTY
 const PREDICATE_LIST_TYPE_FILTER_GROUP = [PREDICATE_AND, PREDICATE_OR];
 
 let allPredicates = [];
+
+// Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
+const getAllPredicates = function() {
+  return [
+    { value: PREDICATE_CONTAINS, label: t('predicate.contains'), needValue: true },
+    { value: PREDICATE_NOT_CONTAINS, label: t('predicate.not-contains'), needValue: true },
+    { value: PREDICATE_EQ, label: t('predicate.eq'), needValue: true },
+    { value: PREDICATE_NOT_EQ, label: t('predicate.not-eq'), needValue: true },
+    { value: PREDICATE_STARTS, label: t('predicate.starts'), needValue: true },
+    { value: PREDICATE_ENDS, label: t('predicate.ends'), needValue: true },
+    { value: PREDICATE_EMPTY, label: t('predicate.empty'), needValue: false },
+    { value: PREDICATE_NOT_EMPTY, label: t('predicate.not-empty'), needValue: false },
+    { value: PREDICATE_GE, label: t('predicate.ge'), needValue: true },
+    { value: PREDICATE_GT, label: t('predicate.gt'), needValue: true },
+    { value: PREDICATE_LE, label: t('predicate.le'), needValue: true },
+    { value: PREDICATE_LT, label: t('predicate.lt'), needValue: true },
+    { value: PREDICATE_AND, label: t('predicate.and'), needValue: true },
+    { value: PREDICATE_OR, label: t('predicate.or'), needValue: true }
+  ];
+};
 
 export function filterPredicates(filterArr) {
   if (!allPredicates.length) {
