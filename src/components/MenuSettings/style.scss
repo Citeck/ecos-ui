@@ -42,6 +42,7 @@
   &__content-container {
     overflow: auto;
     padding-right: 2px;
+    height: calc(100vh - 284px);
     min-height: 150px;
   }
 
@@ -55,7 +56,7 @@
     &_two-cols {
       $gap: 20px;
       display: grid;
-      grid-template-columns: repeat(2, calc(50% - #{$gap}/ 2));
+      grid-template-columns: repeat(2, calc(50% - #{$gap} / 2));
       grid-gap: $gap;
     }
   }
@@ -259,6 +260,7 @@
         @extend %scroll-tree;
         min-height: 300px;
         overflow-x: hidden;
+        height: calc(100vh / 1.7);
       }
     }
 
