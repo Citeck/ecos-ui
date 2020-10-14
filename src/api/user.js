@@ -3,7 +3,7 @@ import { PROXY_URI, URL_CONTEXT } from '../constants/alfresco';
 import { SourcesId } from '../constants';
 import Records from '../components/Records';
 import { t } from '../helpers/util';
-import { checkFunctionalAvailabilityForUser } from '../helpers/export/userInGroupsHelper';
+import { isNewJournalsPageEnable } from './export/journalsApi';
 
 export class UserApi extends CommonApi {
   getPhotoSize = userNodeRef => {
@@ -84,9 +84,9 @@ export class UserApi extends CommonApi {
         let message = response.message || (response.errors && response.errors.join('; ')) || '';
 
         if (message.indexOf('BadCredentials') !== -1) {
-          message = t('user-profile-widget.error.invalid-password');
+          message = t('password-editor.error.invalid-password');
         } else {
-          message = t('user-profile-widget.error.server-error');
+          message = t('password-editor.error.server-error');
         }
 
         return { success: false, message };
@@ -109,6 +109,6 @@ export class UserApi extends CommonApi {
   }
 
   checkNewUIAvailableStatus() {
-    return checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
+    return isNewJournalsPageEnable();
   }
 }

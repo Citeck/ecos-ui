@@ -41,6 +41,8 @@ import {
   setCheckUpdatedDashboardConfig
 } from '../../actions/dashboardSettings';
 
+import './style.scss';
+
 const DESK_VER = find(DeviceTabs, ['key', 'desktop']);
 
 const findLayout = type => Layouts.find(layout => layout.type === type) || {};

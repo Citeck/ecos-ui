@@ -205,6 +205,12 @@ const ListItemLink = ({
           }
         }
         break;
+      case 'STATIC_LINK': {
+        targetUrl = params.url;
+        attributes.target = '_blank';
+        ignoreTabHandler = true;
+        break;
+      }
       default:
         break;
     }

@@ -72,26 +72,4 @@
       margin-top: 10px;
     }
   }
-
-  &__password-modal {
-    &-label {
-      background: $color-gray-25;
-      border-radius: $border-radius-standard;
-      padding: 5px 10px;
-      margin-bottom: 5px;
-    }
-
-    &-filed {
-      margin-bottom: 20px;
-
-      &_hidden {
-        display: none;
-      }
-    }
-
-    &-actions {
-      display: flex;
-      justify-content: space-between;
-    }
-  }
 }
