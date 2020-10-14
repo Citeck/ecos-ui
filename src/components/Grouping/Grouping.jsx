@@ -1,12 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import classNames from 'classnames';
+import { Scrollbars } from 'react-custom-scrollbars';
+
 import Columns from '../common/templates/Columns/Columns';
 import Checkbox from '../common/form/Checkbox/Checkbox';
 import Select from '../common/form/Select/Select';
 import { Label } from '../common/form';
 import { Dnd2List, List } from '../common/List';
-import { Scrollbars } from 'react-custom-scrollbars';
-import { NUMBERS } from '../../components/common/form/SelectJournal/predicates';
+import { NUMBERS } from '../../components/Records/predicates/predicates';
 import { t, trigger } from '../../helpers/util';
 
 import './Grouping.scss';

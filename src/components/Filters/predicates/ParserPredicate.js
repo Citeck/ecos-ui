@@ -10,7 +10,7 @@ import {
   PREDICATE_NOT_EMPTY,
   PREDICATE_OR,
   SEARCH_EQUAL_PREDICATES_MAP
-} from '../../common/form/SelectJournal/predicates';
+} from '../../Records/predicates/predicates';
 import { FilterPredicate, GroupPredicate, Predicate } from './';
 
 export default class ParserPredicate {
