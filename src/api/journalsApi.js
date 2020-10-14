@@ -95,13 +95,13 @@ export class JournalsApi extends RecordService {
           }))
       });
 
-    let query = {
-      t: 'and',
-      val: AttributeUtils.convertAttributeValues(val, columns).filter(
-        item => item && isExistValue(item.t) && isExistValue(item.val) && item.val !== ''
-      )
-    };
+    const preparedVal = AttributeUtils.convertAttributeValues(val, columns).filter(
+      item => item && isExistValue(item.t) && isExistValue(item.val) && item.val !== ''
+    );
+
+    let query = { t: 'and', val: preparedVal };
     let language = 'predicate';
+
     if (queryData) {
       query = {
         data: queryData,
@@ -188,14 +188,12 @@ export class JournalsApi extends RecordService {
 
   getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy, queryData }) => {
     const queryPredicates = journalPredicate ? [journalPredicate] : [];
-    let query = {
-      t: 'and',
-      val: queryPredicates.concat(Array.isArray(predicates) ? predicates : [])
-    };
+    let preparedVal = queryPredicates.concat(Array.isArray(predicates) ? predicates : []);
+    preparedVal = AttributeUtils.convertAttributeValues(preparedVal, columns).filter(item => item.val !== '' && isExistValue(item.val));
 
-    query = AttributeUtils.convertAttributeValues(query, columns).filter(item => item.val !== '' && isExistValue(item.val));
-
+    let query = { t: 'and', val: preparedVal };
     let language = 'predicate';
+
     if (queryData) {
       query = {
         data: queryData,
