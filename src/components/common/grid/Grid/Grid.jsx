@@ -143,7 +143,7 @@ class Grid extends Component {
           continue;
         }
 
-        let { width = 0, indents = 0 } = get(this.#columnsSizes, `[${j}]`, {});
+        let { width = 0 } = get(this.#columnsSizes, `[${j}]`, {});
 
         if (!width) {
           continue;
@@ -672,7 +672,6 @@ class Grid extends Component {
     let th = this._resizingTh;
 
     if (th && this._tableDom) {
-      const { left, right } = this.getElementPaddings(th);
       let width = this._startResizingThOffset + e.pageX;
 
       if (width < MIN_TH_WIDTH) {
