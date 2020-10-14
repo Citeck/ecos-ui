@@ -23,6 +23,11 @@ class DashboardSettingsModal extends Settings {
     updateDashboard: PropTypes.bool
   };
 
+  static defaultProps = {
+    ...super.defaultProps,
+    mode: 'modal'
+  };
+
   _actionsRef = null;
   _bodyRef = null;
 

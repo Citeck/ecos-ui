@@ -89,7 +89,8 @@ class Settings extends Component {
     availableWidgets: PropTypes.array,
     dashboardKeyItems: PropTypes.array,
     requestResult: PropTypes.object,
-    isMobile: PropTypes.bool
+    isMobile: PropTypes.bool,
+    mode: PropTypes.oneOf(['modal', 'page'])
   };
 
   static defaultProps = {
@@ -99,7 +100,8 @@ class Settings extends Component {
     mobileConfig: [],
     availableWidgets: [],
     dashboardKeyItems: [],
-    requestResult: {}
+    requestResult: {},
+    mode: 'page'
   };
 
   state = {
@@ -432,6 +434,7 @@ class Settings extends Component {
       return null;
     }
 
+    const { mode } = this.props;
     const isMob = this.isSelectedMobileVer;
     const state = {};
 
@@ -479,7 +482,7 @@ class Settings extends Component {
     const currentTabs = isMob ? mobileTabs : tabs;
     const active = isMob ? mobileActiveLayoutTabId : activeLayoutTabId;
 
-    return <SetTabs tabs={currentTabs} activeTabKey={active} setData={setData} />;
+    return <SetTabs tabs={currentTabs} activeTabKey={active} setData={setData} mode={mode} />;
   }
 
   renderLayoutsBlock() {

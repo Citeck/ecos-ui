@@ -153,6 +153,14 @@
 
     &-item {
       max-width: 350px;
+
+      &_modal {
+        &.ecos-tab_draggable {
+          border-width: 1px;
+          border-color: $color-gray-6;
+          border-style: solid;
+        }
+      }
     }
 
     &-add-tab {
