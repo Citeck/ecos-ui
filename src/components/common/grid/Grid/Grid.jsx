@@ -11,7 +11,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
-import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
+import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 
 import './Grid.scss';

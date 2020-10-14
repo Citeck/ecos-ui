@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
 import JournalsConverter from '../../../dto/journals';
-import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../common/form/SelectJournal/predicates';
+import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../Records/predicates/predicates';
 import * as RecordUtils from '../../Records/utils/recordUtils';
 import journalsServiceApi from './journalsServiceApi';
 

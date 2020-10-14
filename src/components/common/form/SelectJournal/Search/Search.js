@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+
+import { t } from '../../../../../helpers/util';
+import { COLUMN_DATA_TYPE_MLTEXT, COLUMN_DATA_TYPE_TEXT, PREDICATE_CONTAINS } from '../../../../Records/predicates/predicates';
 import Input from '../../Input/Input';
 import FiltersContext from '../Filters/FiltersContext';
-import { t } from '../../../../../helpers/util';
-import { PREDICATE_CONTAINS, COLUMN_DATA_TYPE_TEXT, COLUMN_DATA_TYPE_MLTEXT } from '../predicates';
+
 import './Search.scss';
 
 class Search extends Component {
