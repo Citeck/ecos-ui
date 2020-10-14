@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
 import { SourcesId, URL } from '../constants';
-import { MenuTypes } from '../constants/menu';
+import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
 import Records from '../components/Records';
 import { HandleControlTypes } from './handleControl';
 import { createProfileUrl } from './urls';
@@ -246,7 +246,7 @@ export function getSpecialClassByState(id, params = {}) {
   return false;
 }
 
-export function getMenuWidth(selector = '.slide-menu') {
+export function getMenuWidth(selector = `#${BASE_LEFT_MENU_ID}`) {
   const menu = document.querySelector(selector);
 
   if (!menu || !menu.clientWidth) {

@@ -18,7 +18,7 @@ export default class EditAction extends ActionsExecutor {
       case config.mode === 'task':
         return runEditTask(record, config);
       case config.mode === 'dashboard':
-        console.warn({ config, record, context });
+        // TODO https://citeck.atlassian.net/browse/ECOSUI-610
         return;
       default:
         return new Promise(resolve => {

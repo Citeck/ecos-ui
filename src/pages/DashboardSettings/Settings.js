@@ -56,6 +56,7 @@ export const mapStateToProps = (state, ownProps) => ({
     isAdmin: get(state, 'user.isAdmin', false)
   },
   isLoadingMenu: get(state, ['menu', 'isLoading']),
+  menuType: get(state, ['menu', 'type']),
   ...selectStateByKey(state, getStateId(ownProps))
 });
 
@@ -347,6 +348,10 @@ class Settings extends Component {
     return DashboardSettingsConverter.getSelectedWidgetsFromDesktop(selectedWidgets, tabs);
   }
 
+  getPositionOffset = () => {
+    return { left: 0, top: 0 };
+  };
+
   renderHeader() {
     let title = '';
 
@@ -532,6 +537,7 @@ class Settings extends Component {
         columns={this.selectedTypeLayout.columns}
         setData={setData}
         isMobile={isMob}
+        positionAdjustment={this.getPositionOffset}
       />
     );
   }

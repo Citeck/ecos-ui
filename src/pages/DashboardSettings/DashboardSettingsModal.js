@@ -159,6 +159,28 @@ class DashboardSettingsModal extends Settings {
     }
   }
 
+  getPositionOffset = () => {
+    const defaultOffset = { left: 0, top: 0 };
+    const modal = get(this, 'props.modalRef.current._dialog');
+
+    if (!modal) {
+      return defaultOffset;
+    }
+
+    const content = modal.querySelector('.modal-content');
+
+    if (!content) {
+      return defaultOffset;
+    }
+
+    const positions = content.getBoundingClientRect();
+
+    return {
+      left: -positions.left,
+      top: -positions.top
+    };
+  };
+
   render() {
     return (
       <Container className="ecos-dashboard-settings ecos-dashboard-settings_modal">

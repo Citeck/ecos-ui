@@ -213,7 +213,7 @@ export default class DashboardService {
   static openEditModal(props = {}) {
     const DashboardSettingsModal = lazy(() => import('../pages/DashboardSettings/DashboardSettingsModal'));
     const store = getStore();
-    const ref = React.createRef();
+    const modalRef = React.createRef();
     let title;
 
     switch (get(this, 'props.identification.type', '')) {
@@ -233,13 +233,13 @@ export default class DashboardService {
       title: props.title || title,
       className: 'ecos-dashboard-settings-modal-wrapper ecos-modal_width-lg',
       isTopDivider: true,
-      reactstrapProps: { ref },
+      reactstrapProps: { ref: modalRef },
       onHide: () => dialog.setVisible(false),
       body: (
         <Provider store={store}>
           <Suspense fallback={<Loader type="points" />}>
             <DashboardSettingsModal
-              modalRef={ref}
+              modalRef={modalRef}
               tabId={pageTabList.activeTabId}
               dashboardId={props.dashboardId}
               updateDashboard={props.updateDashboard}
