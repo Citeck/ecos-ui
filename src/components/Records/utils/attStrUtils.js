@@ -88,7 +88,7 @@ export const convertValueByType = (type, value) => {
       const float = parseFloat(value);
       return Number.isNaN(float) ? null : float;
     case Predicates.COLUMN_DATA_TYPE_BOOLEAN:
-      const found = _.find(MapBooleanValues, o => (o.strict ? o.input === value : o.input.includes(value)));
+      const found = _.find(MapBooleanValues, o => (o.strict ? o.input === _.lowerCase(value) : o.input.includes(_.lowerCase(value))));
       return found ? found.output : null;
     case Predicates.COLUMN_DATA_TYPE_TEXT:
       return _.toString(value);
