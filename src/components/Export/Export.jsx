@@ -14,7 +14,7 @@ import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
-import { PREDICATE_AND } from '../common/form/SelectJournal/predicates';
+import { PREDICATE_AND } from '../Records/predicates/predicates';
 import ParserPredicate from '../Filters/predicates/ParserPredicate';
 
 import './Export.scss';

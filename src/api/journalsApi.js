@@ -7,12 +7,13 @@ import { ActionModes, Attributes, Permissions } from '../constants';
 import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
 import { debounce, isExistValue } from '../helpers/util';
 import * as ls from '../helpers/ls';
-import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/common/form/SelectJournal/predicates';
+import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/Records/predicates/predicates';
 import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
 import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
 import Records from '../components/Records';
 import RecordActions from '../components/Records/actions';
 import * as RecordUtils from '../components/Records/utils/recordUtils';
+import * as AttributeUtils from '../components/Records/utils/attStrUtils';
 
 import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
@@ -94,11 +95,13 @@ export class JournalsApi extends RecordService {
           }))
       });
 
-    let query = {
-      t: 'and',
-      val: val.filter(item => item && isExistValue(item.t) && isExistValue(item.val) && item.val !== '')
-    };
+    const preparedVal = AttributeUtils.convertAttributeValues(val, columns).filter(
+      item => item && isExistValue(item.t) && isExistValue(item.val) && item.val !== ''
+    );
+
+    let query = { t: 'and', val: preparedVal };
     let language = 'predicate';
+
     if (queryData) {
       query = {
         data: queryData,
@@ -185,15 +188,12 @@ export class JournalsApi extends RecordService {
 
   getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy, queryData }) => {
     const queryPredicates = journalPredicate ? [journalPredicate] : [];
-    let query = {
-      t: 'and',
-      val: queryPredicates.concat(
-        ((Array.isArray(predicates) && predicates) || []).filter(item => {
-          return item.val !== '' && item.val !== null;
-        })
-      )
-    };
+    let preparedVal = queryPredicates.concat(Array.isArray(predicates) ? predicates : []);
+    preparedVal = AttributeUtils.convertAttributeValues(preparedVal, columns).filter(item => item.val !== '' && isExistValue(item.val));
+
+    let query = { t: 'and', val: preparedVal };
     let language = 'predicate';
+
     if (queryData) {
       query = {
         data: queryData,
