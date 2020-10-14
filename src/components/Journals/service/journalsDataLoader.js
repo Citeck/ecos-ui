@@ -4,7 +4,7 @@ import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
 import JournalsConverter from '../../../dto/journals';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../Records/predicates/predicates';
-import * as AttributeUtils from '../../Records/utils/attStrUtils';
+import { convertAttributeValues } from '../../Records/predicates/util';
 import * as RecordUtils from '../../Records/utils/recordUtils';
 import journalsServiceApi from './journalsServiceApi';
 
@@ -31,7 +31,7 @@ class JournalsDataLoader {
     let language = 'predicate';
     let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
 
-    query = AttributeUtils.convertAttributeValues(query, columns);
+    query = convertAttributeValues(query, columns);
 
     let queryData = null;
     if (journalConfig.queryData || settings.queryData) {

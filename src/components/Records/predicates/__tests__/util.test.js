@@ -1,6 +1,6 @@
-import * as AttributeUtils from '../attStrUtils';
+import { convertAttributeValues, convertValueByType } from '../util';
 
-describe('Attribute Utils', () => {
+describe('Predicates Utils', () => {
   describe('Function convertAttributeValues', () => {
     const columns = [
       { text: 'Количество', type: 'int', attribute: 'quantity' },
@@ -186,7 +186,7 @@ describe('Attribute Utils', () => {
 
     data.forEach(async item => {
       it(item.title, async () => {
-        const result = AttributeUtils.convertAttributeValues(item.input, columns);
+        const result = convertAttributeValues(item.input, columns);
         expect(result).toEqual(item.output);
         item.expectedJsType && expect(item.expectedJsType).toEqual(typeof item.output.val);
       });
@@ -207,7 +207,7 @@ describe('Attribute Utils', () => {
 
     data.forEach(async item => {
       it(item.type + ' > ' + item.jsType, async () => {
-        const result = AttributeUtils.convertValueByType(item.type, item.value);
+        const result = convertValueByType(item.type, item.value);
         expect(result).toEqual(item.out);
         expect(item.jsType).toEqual(typeof result);
       });
