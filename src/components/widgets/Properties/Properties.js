@@ -5,7 +5,8 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 
 import { t } from '../../../helpers/util';
-import EcosForm, { FORM_MODE_EDIT } from '../../EcosForm/index';
+import EcosForm from '../../EcosForm/EcosForm';
+import { FORM_MODE_EDIT } from '../../EcosForm/constants';
 import { InfoText, Loader } from '../../common/index';
 import { ComponentKeys } from '../Components';
 

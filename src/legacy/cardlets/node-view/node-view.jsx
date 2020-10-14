@@ -4,7 +4,7 @@ import NodeCardlet from '../node-cardlet';
 import RemoteCardlet from '../remote/remote';
 import EcosForm from '../../../components/EcosForm/export';
 import { t } from '../../common/util';
-import { FORM_MODE_EDIT } from '../../../components/EcosForm';
+import { FORM_MODE_EDIT } from '../../../components/EcosForm/constants';
 import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../components/Records';
 import { checkFunctionalAvailabilityForUser } from '../../../helpers/export/userInGroupsHelper';

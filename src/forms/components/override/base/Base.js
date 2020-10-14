@@ -1,10 +1,12 @@
-import Base from 'formiojs/components/base/Base';
 import isObject from 'lodash/isObject';
 import isBoolean from 'lodash/isBoolean';
 import clone from 'lodash/clone';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
+import Base from 'formiojs/components/base/Base';
+
 import Widgets from '../../../widgets';
+import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
 
 const originalCreateTooltip = Base.prototype.createTooltip;
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
@@ -115,8 +117,16 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     'value'
   );
 
+  const formOptions = this.options;
+  const formMode = formOptions.formMode;
+  const isNotEmptyValue = value => {
+    if (formMode === FORM_MODE_CREATE) {
+      return !this.isEmpty(value);
+    }
+    return isBoolean(value) || !this.isEmpty(value);
+  };
   // If this is the firstPass, and the dataValue is different than to the calculatedValue.
-  if (allowOverride && firstPass && (isBoolean(dataValue) || !this.isEmpty(dataValue)) && !customIsEqual(dataValue, calculatedValue)) {
+  if (allowOverride && firstPass && isNotEmptyValue(dataValue) && !customIsEqual(dataValue, calculatedValue)) {
     // Return that we have a change so it will perform another pass.
     this.calculatedValue = calculatedValue;
     return true;
@@ -150,6 +160,10 @@ Base.prototype.calculateValue = function(data, flags) {
   }
 
   return changed;
+};
+
+Base.prototype.isEmpty = function(value) {
+  return value === undefined || value === null || value.length === 0 || isEqual(value, this.emptyValue);
 };
 
 Base.prototype.applyActions = function(actions, result, data, newComponent) {

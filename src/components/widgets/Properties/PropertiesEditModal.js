@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import EcosFormModal from '../../EcosForm/EcosFormModal';
-import { FORM_MODE_EDIT } from '../../EcosForm/index';
+import { FORM_MODE_EDIT } from '../../EcosForm/constants';
 
 function usePrevious(value = false) {
   const ref = useRef();
