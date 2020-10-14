@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 
 import { t } from '../../../../../helpers/util';
 import Records from '../../../../Records';
-import EcosForm, { FORM_MODE_CREATE } from '../../../../EcosForm/EcosForm';
+import EcosForm from '../../../../EcosForm/EcosForm';
+import { FORM_MODE_CREATE } from '../../../../EcosForm/constants';
 import EcosModal from '../../../EcosModal';
 import { Btn, IcoBtn } from '../../../btns';
 import Dropdown from '../../Dropdown/Dropdown';

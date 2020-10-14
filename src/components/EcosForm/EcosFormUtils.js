@@ -19,7 +19,8 @@ import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import Modal from '../common/EcosModal/CiteckEcosModal';
 import Records from '../Records';
-import EcosForm, { FORM_MODE_CREATE, FORM_MODE_EDIT } from './';
+import EcosForm from './EcosForm';
+import { FORM_MODE_CREATE, FORM_MODE_EDIT } from './constants';
 
 const EDGE_PREFIX = 'edge__';
 

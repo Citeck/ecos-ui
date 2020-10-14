@@ -16,7 +16,8 @@ import { EcosModal, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
 import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/Mapper';
-import EcosForm, { FORM_MODE_EDIT } from '../../../EcosForm';
+import EcosForm from '../../../EcosForm/EcosForm';
+import { FORM_MODE_EDIT } from '../../../EcosForm/constants';
 import Records from '../../../Records';
 import { parseAttribute } from '../../../Records/utils/attStrUtils';
 
