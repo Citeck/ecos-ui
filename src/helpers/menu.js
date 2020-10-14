@@ -158,12 +158,12 @@ export function makeSiteMenu(params = {}) {
         DashboardService.openEditModal(params);
       }
     },
-    {
-      id: 'SETTINGS_DASHBOARD',
-      label: 'Настроить страницу в новой вкладке',
-      targetUrl: URL.DASHBOARD_SETTINGS,
-      targetUrlType: 'FULL_PATH'
-    },
+    // {
+    //   id: 'SETTINGS_DASHBOARD',
+    //   label: 'Настроить страницу в новой вкладке',
+    //   targetUrl: URL.DASHBOARD_SETTINGS,
+    //   targetUrlType: 'FULL_PATH'
+    // },
     {
       id: 'SETTINGS_MENU',
       label: 'header.site-menu.menu-settings',

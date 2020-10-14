@@ -54,6 +54,10 @@ export default class DashboardService {
     return (id || '').replace(SourcesId.DASHBOARD + separatorId, '');
   }
 
+  static isDashboardRecord(recordRef = '') {
+    return recordRef.indexOf(SourcesId.DASHBOARD) === 0;
+  }
+
   static checkDashboardResult(result) {
     if (isEmpty(result)) {
       return [DashboardService.defaultDashboardConfig(DashboardService.newIdLayout)];
@@ -214,7 +218,7 @@ export default class DashboardService {
     const DashboardSettingsModal = lazy(() => import('../pages/DashboardSettings/DashboardSettingsModal'));
     const store = getStore();
     const modalRef = React.createRef();
-    let title;
+    let { title, ...otherProps } = props;
 
     switch (get(this, 'props.identification.type', '')) {
       case DashboardTypes.USER:
@@ -241,10 +245,9 @@ export default class DashboardService {
             <DashboardSettingsModal
               modalRef={modalRef}
               tabId={pageTabList.activeTabId}
-              dashboardId={props.dashboardId}
-              updateDashboard={props.updateDashboard}
               onSetDialogProps={props => dialog.updateProps(props)}
               onSave={() => dialog.setVisible(false)}
+              {...otherProps}
             />
           </Suspense>
         </Provider>

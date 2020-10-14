@@ -7,6 +7,7 @@ import TaskAssignmentPanel from '../../../../TaskAssignmentPanel';
 import EcosFormUtils from '../../../../EcosForm/EcosFormUtils';
 import { notifyFailure } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
+import DashboardService from '../../../../../services/dashboard';
 
 export default class EditAction extends ActionsExecutor {
   static ACTION_ID = 'edit';
@@ -17,8 +18,10 @@ export default class EditAction extends ActionsExecutor {
     switch (true) {
       case config.mode === 'task':
         return runEditTask(record, config);
-      case config.mode === 'dashboard':
-        // TODO https://citeck.atlassian.net/browse/ECOSUI-610
+      case DashboardService.isDashboardRecord(record.id):
+        DashboardService.openEditModal({
+          dashboardId: DashboardService.formShortId(record.id)
+        });
         return;
       default:
         return new Promise(resolve => {

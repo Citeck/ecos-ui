@@ -18,6 +18,7 @@ class DashboardSettingsModal extends Settings {
     ...super.propTypes,
     modalRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
     dashboardId: PropTypes.string,
+    recordRef: PropTypes.string,
     onSave: PropTypes.func,
     onSetDialogProps: PropTypes.func,
     updateDashboard: PropTypes.bool
