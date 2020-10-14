@@ -11,7 +11,7 @@ import DashboardService from '../../services/dashboard';
 import { Container } from 'reactstrap';
 import { RequestStatuses } from '../../constants';
 import { clearCache } from '../../components/ReactRouterCache';
-import { getDashboardConfig } from '../../actions/dashboard';
+import { getDashboardConfig, resetAllDashboardsConfig } from '../../actions/dashboard';
 
 class DashboardSettingsModal extends Settings {
   static propTypes = {
@@ -142,7 +142,7 @@ class DashboardSettingsModal extends Settings {
     const newSaveWay = checkResult.saveWay;
 
     if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
-      const { getAwayFromPage, updateDashboard, getDashboardConfig, onSave } = this.props;
+      const { getAwayFromPage, updateDashboard, getDashboardConfig, resetAllDashboardsConfig, onSave, identification } = this.props;
       let { recordRef } = this.props;
 
       if (isEmpty(recordRef)) {
@@ -155,6 +155,8 @@ class DashboardSettingsModal extends Settings {
 
       if (updateDashboard) {
         getDashboardConfig({ recordRef });
+      } else {
+        resetAllDashboardsConfig(identification);
       }
 
       if (typeof onSave === 'function') {
@@ -212,7 +214,8 @@ const _mapDispatchToProps = (dispatch, ownProps) => {
 
   return {
     ...mapDispatchToProps(dispatch, ownProps),
-    getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key }))
+    getDashboardConfig: payload => dispatch(getDashboardConfig({ ...payload, key })),
+    resetAllDashboardsConfig: payload => dispatch(resetAllDashboardsConfig({ ...payload }))
   };
 };
 

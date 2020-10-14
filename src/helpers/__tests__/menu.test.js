@@ -18,6 +18,7 @@ import {
   specialClassByState
 } from '../__mocks__/menu.mock';
 import { NEW_VERSION_PREFIX } from '../export/urls';
+import { BASE_LEFT_MENU_ID } from '../../constants/menu';
 
 function check(data, method, manyProperties = false) {
   data.forEach(item => {
@@ -344,7 +345,7 @@ describe('Menu helpers', () => {
     const originalScrollingElement = Object.getOwnPropertyDescriptor(Document.prototype, 'scrollingElement');
     const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth');
 
-    document.body.insertAdjacentHTML('beforeend', '<div class="slide-menu" style="width: 300px;"></div>');
+    document.body.insertAdjacentHTML('beforeend', `<div id="${BASE_LEFT_MENU_ID}" style="width: 300px;"></div>`);
 
     data.forEach((item, index) => {
       it(item.title, () => {
