@@ -67,7 +67,7 @@ const JournalsSettingsBar = ({
         <IcoBtn
           title={t('journals.settings')}
           icon={'icon-settings'}
-          className={`ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
+          className={classNames('ecos-btn_i', 'ecos-btn_white', 'ecos-btn_hover_blue2', step, 'ecos-btn_size-by-content')}
           onClick={toggleSettings}
         />
       )}
