@@ -27,13 +27,13 @@ class EditorGroupPriority extends React.Component {
   };
 
   render() {
-    const { groupPriority, isLoadingPriority, disabledEdit, heightContent } = this.props;
+    const { groupPriority, isLoadingPriority, disabledEdit } = this.props;
 
     return (
       <div className="ecos-menu-settings-group-priority__tree-container">
         {isLoadingPriority && <Loader blur className="ecos-menu-settings__loader" />}
         <div className="ecos-menu-settings__explanation">{t(Labels.DESC)}</div>
-        <div className="ecos-menu-settings-group-priority__tree-field" style={{ height: `${heightContent - 100}px` }}>
+        <div className="ecos-menu-settings-group-priority__tree-field">
           <Tree
             data={groupPriority}
             prefixClassName="ecos-menu-settings-group-priority"
