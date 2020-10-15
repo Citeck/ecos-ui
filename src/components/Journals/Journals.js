@@ -30,7 +30,7 @@ import {
   setSelectAllRecords,
   setSelectedRecords
 } from '../../actions/journals';
-import { animateScrollTo, objectCompare, t, trigger } from '../../helpers/util';
+import { animateScrollTo, getScrollbarWidth, objectCompare, t, trigger } from '../../helpers/util';
 import { getSearchParams, goToCardDetailsPage, stringifySearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
@@ -68,6 +68,8 @@ const mapDispatchToProps = (dispatch, props) => {
 
 class Journals extends Component {
   _journalRef = null;
+  _journalMenuRef = null;
+  _toggleMenuTimerId = null;
 
   constructor(props) {
     super(props);
@@ -150,11 +152,23 @@ class Journals extends Component {
 
   componentWillUnmount() {
     this.onForceUpdate.cancel();
+    this.onResize.cancel();
+
+    if (this._toggleMenuTimerId) {
+      window.clearTimeout(this._toggleMenuTimerId);
+      this._toggleMenuTimerId = null;
+    }
   }
 
   setJournalRef = ref => {
     if (ref) {
       this._journalRef = ref;
+    }
+  };
+
+  setJournalMenuRef = ref => {
+    if (ref) {
+      this._journalMenuRef = ref;
     }
   };
 
@@ -201,13 +215,33 @@ class Journals extends Component {
   };
 
   toggleMenu = () => {
+    if (this._toggleMenuTimerId) {
+      window.clearTimeout(this._toggleMenuTimerId);
+    }
+
     this.setState({ menuOpenAnimate: !this.state.menuOpenAnimate });
 
-    setTimeout(
+    if (this.state.menuOpen) {
+      animateScrollTo(this._journalRef, {
+        scrollLeft: this._journalRef.scrollLeft - get(this, '_journalMenuRef.offsetWidth', 0)
+      });
+    }
+
+    this._toggleMenuTimerId = window.setTimeout(
       () => {
         this.setState({ menuOpen: !this.state.menuOpen }, () => {
-          if (!this.props.isMobile && this.state.menuOpen) {
-            animateScrollTo(this._journalRef, { scrollLeft: this._journalRef.scrollWidth });
+          if (this.props.isMobile) {
+            return;
+          }
+
+          if (this.state.menuOpen) {
+            animateScrollTo(
+              this._journalRef,
+              {
+                scrollLeft: this._journalRef.scrollLeft + get(this, '_journalMenuRef.offsetWidth', 0)
+              },
+              500
+            );
           }
         });
       },
@@ -225,9 +259,15 @@ class Journals extends Component {
     this.props.search(text);
   };
 
-  onResize = (w, height) => {
-    !!height && this.setState({ height });
-  };
+  onResize = debounce((w, h) => {
+    const height = parseInt(h);
+
+    if (!h || Number.isNaN(height) || height === this.state.height) {
+      return;
+    }
+
+    this.setState({ height });
+  }, 250);
 
   onSelectAllRecords = () => {
     const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
@@ -296,7 +336,8 @@ class Journals extends Component {
           <div
             className={classNames('ecos-journal__body', {
               'ecos-journal__body_with-tabs': pageTabsIsShow,
-              'ecos-journal__body_mobile': isMobile
+              'ecos-journal__body_mobile': isMobile,
+              'ecos-journal__body_with-preview': showPreview
             })}
           >
             <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} isMobile={isMobile} />
@@ -386,10 +427,11 @@ class Journals extends Component {
             })}
           >
             <JournalsMenu
+              forwardedRef={this.setJournalMenuRef}
               stateId={stateId}
               open={menuOpen}
               onClose={this.toggleMenu}
-              height={availableHeight(height)}
+              height={availableHeight(height) - getScrollbarWidth()}
               isActivePage={isActivePage}
             />
           </div>

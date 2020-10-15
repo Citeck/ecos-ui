@@ -43,6 +43,7 @@
   flex: auto;
   padding: 19px 26px 0 24px;
   height: 100%;
+  min-width: 510px;
 
   &_with-menu {
     float: left;
@@ -57,6 +58,10 @@
 
   &_mobile {
     padding: 16px;
+  }
+
+  &_with-preview {
+    min-width: 780px;
   }
 }
 
