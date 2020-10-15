@@ -1,31 +1,35 @@
-//awesome commit 2
 @NonCPS
-def getChangeString() {
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurperClassic
+
+def getChangeLogSetsMap() {
   MAX_MSG_LEN = 100
-  def changeString = ""
-  echo "Gathering SCM changes"
   def changeLogSets = currentBuild.changeSets
-  for (int i = 0; i < changeLogSets.size(); i++) {
-    def entries = changeLogSets[i].items
-    for (int j = 0; j < entries.length; j++) {
-      def entry = entries[j]
-      truncated_msg = entry.msg.take(MAX_MSG_LEN)
-      changeString += " - ${truncated_msg} [${entry.author}]\n"
+  def changeLogSetsMap = [commits:[]]
+  if (changeLogSets.size() > 0) {
+    for (int i = 0; i < changeLogSets.size(); i++) {
+      def entries = changeLogSets[i].items
+      for (int j = 0; j < entries.length; j++) {
+        def entry = entries[j]
+        truncated_msg = entry.msg.take(MAX_MSG_LEN)
+        changeLogSetsMap.commits.add([ author: "${entry.author}", commit: "${entry.commitId}", message: "${truncated_msg}", date: "${entry.date}"])
+      }
     }
   }
-
-  if (!changeString) {
-    changeString = " - No new changes"
-  }
-  return changeString
+  return changeLogSetsMap
 }
-// Changes func
+//Get Log sets func
 properties([
     buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '7')),
 ])
 timestamps {
   node {
     def project_id = "ecos-ui"
+    def changeLogSetsMessage = " - No new changes"
+    def commitCount = 0
+    def maxCommitCount = 50
+    def tmpText = ""
+    justCreated = false
     try {
       stage('Checkout SCM') {
         checkout([
@@ -37,23 +41,58 @@ timestamps {
           userRemoteConfigs: [[credentialsId: 'bc074014-bab1-4fb0-b5a4-4cfa9ded5e66',url: 'git@bitbucket.org:citeck/ecos-ui.git']]
         ])
       }
+      stage('Save change log sets') {
+        if (!fileExists("/opt/commits_log/${project_id}/${env.BRANCH_NAME}/full.json")) {
+          sh "mkdir -p /opt/commits_log/${project_id}/${env.BRANCH_NAME}"
+          justCreated = true
+        }
+        def currentChangeLogSetsMap = [:]
+        currentChangeLogSetsMap = getChangeLogSetsMap()
+        if (currentChangeLogSetsMap.commits != []) {
+          changeLogSetsMessage = ""
+          currentChangeLogSetsMap.commits.each { currenCommit ->
+            changeLogSetsMessage += "- [${currenCommit.commit.substring(0,7)}](https://bitbucket.org/citeck/${project_id}/commits/${currenCommit.commit})     ${currenCommit.message}    [ ${currenCommit.author} ]\n"
+            commitCount++
+          }
+          buildDate = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC")).toString()
+          currentChangeLogSetsMap.put("repo", "git@bitbucket.org:citeck/pipelines.git")
+          currentChangeLogSetsMap.put("branch", "${env.BRANCH_NAME}")
+          currentChangeLogSetsMap.put("date", "${buildDate}")
+          if (commitCount < maxCommitCount) {
+            def diffCommitCount = maxCommitCount - commitCount
+            commitCount = 0
+            if (!justCreated) {
+              tmpText = new File ("/opt/commits_log/${project_id}/${env.BRANCH_NAME}/full.json").text
+              histroryChangeLogSetsMap = new JsonSlurperClassic().parseText(tmpText)
+              new File ("/opt/commits_log/${project_id}/${env.BRANCH_NAME}/full.json").delete()
+              histroryChangeLogSetsMap.commits.each {currenCommit ->
+                  currentChangeLogSetsMap.commits.add([ author: "${currenCommit.author}", commit: "${currenCommit.commit}", message: "${currenCommit.message}", date: "${currenCommit.date}"])
+                  commitCount++
+                if (commitCount == diffCommitCount) {
+                  break
+                }
+              }
+            }
+          }
+          currentChangeLogSetsJson = JsonOutput.toJson(currentChangeLogSetsMap)
+          currentChangeLogSetsJson = JsonOutput.prettyPrint(currentChangeLogSetsJson)
+          echo "${currentChangeLogSetsJson}"
+          new File("/opt/commits_log/${project_id}/${env.BRANCH_NAME}/full.json").write(currentChangeLogSetsJson)
+        }
+      }
       def package_props = readJSON file:("package.json")
       def project_version = package_props.version
-      mattermostSend endpoint: 'https://mm.citeck.ru/hooks/9ytch3uox3retkfypuq7xi3yyr', channel: "qa-cicd", color: 'good', message: " :arrow_forward: **Build project ${project_id}:**\n**Branch:** ${env.BRANCH_NAME}\n**Version:** ${project_version}\n**Build id:** ${env.BUILD_NUMBER}\n**Build url:** ${env.BUILD_URL}\n**Changes:**\n" + getChangeString()
+      mattermostSend endpoint: 'https://mm.citeck.ru/hooks/9ytch3uox3retkfypuq7xi3yyr', channel: "qa-cicd", color: 'good', message: " :arrow_forward: **Build project ${project_id}:**\n**Branch:** ${env.BRANCH_NAME}\n**Version:** ${project_version}\n**Build id:** ${env.BUILD_NUMBER}\n**Build url:** ${env.BUILD_URL}\n**Changes:**\n" + "${changeLogSetsMessage}"
       if ((env.BRANCH_NAME != "master") && (!package_props.version.contains('snapshot')))  {
         echo "Assembly of release artifacts is allowed only from the master branch!"
-        currentBuild.result = 'SUCCESS'
+        currentBuild.result = 'FAILURE'
         return
       }
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
           sh "yarn && CI=true yarn test && yarn build"
-          def build_info = [:]
-          def build_timestamp = new Date()
-          build_info.put("version", "${package_props.version}")
-          build_info.put("timestamp","${build_timestamp}")
-          def jsonOut = readJSON text: groovy.json.JsonOutput.toJson(build_info)
-          writeJSON(file: 'build/build-info.json', json: jsonOut, pretty: 2)
+          sh "mkdir build/build-info"
+          fileOperations([fileCopyOperation(excludes: '', flattenFiles: false, includes: "/opt/commits_log/${project_id}/${env.BRANCH_NAME}/full.json", targetLocation: 'build/build-info/full.json')])
           if (!fileExists("/opt/ecos-ui-static/${env.BRANCH_NAME}")) {
             sh "mkdir -p /opt/ecos-ui-static/${env.BRANCH_NAME}"
           }
