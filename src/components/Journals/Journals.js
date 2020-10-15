@@ -402,7 +402,7 @@ class Journals extends Component {
 
             <JournalsContent
               stateId={stateId}
-              showPreview={showPreview}
+              showPreview={showPreview && !isMobile}
               showPie={showPie}
               maxHeight={availableHeight(height) - 165}
               isActivePage={isActivePage}
