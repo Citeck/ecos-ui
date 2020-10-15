@@ -30,7 +30,7 @@ import {
   setSelectAllRecords,
   setSelectedRecords
 } from '../../actions/journals';
-import { objectCompare, t, trigger } from '../../helpers/util';
+import { animateScrollTo, objectCompare, t, trigger } from '../../helpers/util';
 import { getSearchParams, goToCardDetailsPage, stringifySearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
@@ -67,6 +67,8 @@ const mapDispatchToProps = (dispatch, props) => {
 };
 
 class Journals extends Component {
+  _journalRef = null;
+
   constructor(props) {
     super(props);
 
@@ -150,6 +152,12 @@ class Journals extends Component {
     this.onForceUpdate.cancel();
   }
 
+  setJournalRef = ref => {
+    if (ref) {
+      this._journalRef = ref;
+    }
+  };
+
   onForceUpdate = debounce(() => {
     this.setState({ isForceUpdate: true }, () => this.setState({ isForceUpdate: false }));
   }, 250);
@@ -197,7 +205,11 @@ class Journals extends Component {
 
     setTimeout(
       () => {
-        this.setState({ menuOpen: !this.state.menuOpen });
+        this.setState({ menuOpen: !this.state.menuOpen }, () => {
+          if (this.state.menuOpen) {
+            animateScrollTo(this._journalRef, { scrollLeft: this._journalRef.scrollWidth });
+          }
+        });
       },
       this.state.menuOpen ? 500 : 0
     );
@@ -277,7 +289,10 @@ class Journals extends Component {
 
     return (
       <ReactResizeDetector handleHeight onResize={this.onResize}>
-        <div className={classNames('ecos-journal', { 'ecos-journal_mobile': isMobile, 'ecos-journal_scroll': height <= minH })}>
+        <div
+          ref={this.setJournalRef}
+          className={classNames('ecos-journal', { 'ecos-journal_mobile': isMobile, 'ecos-journal_scroll': height <= minH })}
+        >
           <div
             className={classNames('ecos-journal__body', {
               'ecos-journal__body_with-tabs': pageTabsIsShow,
