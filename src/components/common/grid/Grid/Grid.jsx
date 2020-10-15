@@ -143,17 +143,13 @@ class Grid extends Component {
           continue;
         }
 
-        let { width = 0, indents = 0 } = get(this.#columnsSizes, `[${j}]`, {});
+        let { width = 0 } = get(this.#columnsSizes, `[${j}]`, {});
 
         if (!width) {
           continue;
         }
 
         cell.style.width = `${width}px`;
-
-        if (cell.firstChild && cell.firstChild.style) {
-          cell.firstChild.style.width = `${width - indents}px`;
-        }
       }
     }
   };
@@ -162,8 +158,9 @@ class Grid extends Component {
     !this._startResizingThOffset &&
       this._ref.current &&
       this._ref.current.querySelectorAll('.ecos-grid__td').forEach(cellEl => {
-        if (cellEl && cellEl.clientWidth > MAX_START_TH_WIDTH) {
-          cellEl.style.width = MAX_START_TH_WIDTH + 'px';
+        const td = cellEl && cellEl.closest('td');
+        if (td && td.clientWidth > MAX_START_TH_WIDTH) {
+          td.style.width = MAX_START_TH_WIDTH + 'px';
         }
       });
   };
@@ -675,7 +672,6 @@ class Grid extends Component {
     let th = this._resizingTh;
 
     if (th && this._tableDom) {
-      const { left, right } = this.getElementPaddings(th);
       let width = this._startResizingThOffset + e.pageX;
 
       if (width < MIN_TH_WIDTH) {
@@ -697,10 +693,6 @@ class Grid extends Component {
 
         firstCol.style.removeProperty('min-width');
         firstCol.style.width = `${width}px`;
-
-        if (firstCol.firstChild && firstCol.firstChild.style) {
-          firstCol.firstChild.style.width = `${width - left - right}px`;
-        }
       }
     }
   };
