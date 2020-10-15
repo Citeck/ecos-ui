@@ -206,7 +206,7 @@ class Journals extends Component {
     setTimeout(
       () => {
         this.setState({ menuOpen: !this.state.menuOpen }, () => {
-          if (this.state.menuOpen) {
+          if (!this.props.isMobile && this.state.menuOpen) {
             animateScrollTo(this._journalRef, { scrollLeft: this._journalRef.scrollWidth });
           }
         });
