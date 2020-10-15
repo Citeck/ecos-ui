@@ -158,7 +158,7 @@ export const makeSiteMenuFromConfig = [
     ]
   ],
   [
-    { isDashboardPage: true },
+    { isDashboardPage: true, dashboardEditable: true },
     [
       {
         id: 'SETTINGS_DASHBOARD',
@@ -169,7 +169,7 @@ export const makeSiteMenuFromConfig = [
     ]
   ],
   [
-    { leftMenuEditable: true, isAdmin: true, isDashboardPage: true },
+    { leftMenuEditable: true, isAdmin: true, isDashboardPage: true, dashboardEditable: true },
     [
       {
         id: 'SETTINGS_DASHBOARD',
@@ -177,6 +177,22 @@ export const makeSiteMenuFromConfig = [
         targetUrl: '/v2/dashboard/settings',
         targetUrlType: 'FULL_PATH'
       },
+      {
+        id: 'SETTINGS_MENU',
+        onClick: 'function',
+        label: 'header.site-menu.menu-settings'
+      },
+      {
+        id: 'GO_ADMIN_PAGE',
+        label: 'header.site-menu.admin-page',
+        targetUrl: '/v2/bpmn-designer',
+        targetUrlType: 'FULL_PATH'
+      }
+    ]
+  ],
+  [
+    { leftMenuEditable: true, isAdmin: true, isDashboardPage: true, dashboardEditable: false },
+    [
       {
         id: 'SETTINGS_MENU',
         onClick: 'function',
