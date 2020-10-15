@@ -1,3 +1,4 @@
+//awesome commit
 @NonCPS
 def getChangeString() {
   MAX_MSG_LEN = 100
