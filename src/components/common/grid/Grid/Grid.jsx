@@ -706,7 +706,7 @@ class Grid extends Component {
         resizeCol.style.removeProperty('min-width');
         resizeCol.style.width = `${width}px`;
 
-        if (lastCol && resizeCol.nextElementSibling === lastCol) {
+        if (lastCol) {
           lastCol.style.width = `${parseFloat(lastCol.style.width) + (parseFloat(curWidth) - width)}px`;
         }
       }
