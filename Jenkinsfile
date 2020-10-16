@@ -58,7 +58,7 @@ timestamps {
             commitCount++
           }
           buildDate = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC")).toString()
-          currentChangeLogSetsMap.put("repo", "git@bitbucket.org:citeck/pipelines.git")
+          currentChangeLogSetsMap.put("repo", "git@bitbucket.org:citeck/ecos-ui.git")
           currentChangeLogSetsMap.put("branch", "${env.BRANCH_NAME}")
           currentChangeLogSetsMap.put("date", "${buildDate}")
           if (commitCount < maxCommitCount) {
