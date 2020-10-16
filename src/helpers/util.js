@@ -662,13 +662,21 @@ export function fromISO8601(formattedString) {
   return result; // Date or null
 }
 
-export function animateScrollTo(element = '', scrollTo = {}) {
+export function animateScrollTo(element = '', scrollTo = {}, delay = 0) {
   if (!element) {
     return;
   }
 
+  if (delay) {
+    window.setTimeout(() => {
+      animateScrollTo(element, scrollTo);
+    }, delay);
+
+    return;
+  }
+
   if (element.length) {
-    element.forEach(item => animateScrollTo(item, scrollTo));
+    element.forEach(item => animateScrollTo(item, scrollTo, delay));
     return;
   }
 

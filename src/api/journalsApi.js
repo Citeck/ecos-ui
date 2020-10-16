@@ -13,7 +13,7 @@ import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource'
 import Records from '../components/Records';
 import RecordActions from '../components/Records/actions';
 import * as RecordUtils from '../components/Records/utils/recordUtils';
-import * as AttributeUtils from '../components/Records/utils/attStrUtils';
+import { convertAttributeValues } from '../components/Records/predicates/util';
 
 import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
@@ -95,7 +95,7 @@ export class JournalsApi extends RecordService {
           }))
       });
 
-    const preparedVal = AttributeUtils.convertAttributeValues(val, columns).filter(
+    const preparedVal = convertAttributeValues(val, columns).filter(
       item => item && isExistValue(item.t) && isExistValue(item.val) && item.val !== ''
     );
 
@@ -189,7 +189,7 @@ export class JournalsApi extends RecordService {
   getGridDataUsePredicates = ({ columns, pagination, journalPredicate, predicates, sourceId, sortBy, queryData }) => {
     const queryPredicates = journalPredicate ? [journalPredicate] : [];
     let preparedVal = queryPredicates.concat(Array.isArray(predicates) ? predicates : []);
-    preparedVal = AttributeUtils.convertAttributeValues(preparedVal, columns).filter(item => item.val !== '' && isExistValue(item.val));
+    preparedVal = convertAttributeValues(preparedVal, columns).filter(item => item.val !== '' && isExistValue(item.val));
 
     let query = { t: 'and', val: preparedVal };
     let language = 'predicate';

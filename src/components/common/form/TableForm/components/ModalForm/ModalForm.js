@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { TableFormContext } from '../../TableFormContext';
-import EcosForm, { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../../../EcosForm/EcosForm';
+import EcosForm from '../../../../../EcosForm/EcosForm';
+import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../../../EcosForm/constants';
 import EcosModal from '../../../../EcosModal';
 import { t } from '../../../../../../helpers/util';
 import Records from '../../../../../Records';

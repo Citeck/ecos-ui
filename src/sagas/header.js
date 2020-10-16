@@ -71,13 +71,20 @@ function* fetchUserMenu({ api, fakeApi, logger }) {
   }
 }
 
+function* fetchInfluentialParams() {
+  const isAdmin = yield select(state => state.user.isAdmin);
+  const leftMenuEditable = yield select(state => state.app.leftMenuEditable);
+  const dashboardEditable = yield select(state => state.app.dashboardEditable);
+
+  return { isAdmin, dashboardEditable, leftMenuEditable };
+}
+
 function* fetchSiteMenu({ api, fakeApi, logger }) {
   try {
-    const isAdmin = yield select(state => state.user.isAdmin);
-    const leftMenuEditable = yield select(state => state.app.leftMenuEditable);
+    const params = yield fetchInfluentialParams();
     const url = document.location.href;
     const isDashboardPage = hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
-    const menuItems = makeSiteMenu({ isDashboardPage, isAdmin, leftMenuEditable });
+    const menuItems = makeSiteMenu({ isDashboardPage, ...params });
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
     logger.error('[fetchSiteMenu saga] error', e.message);
@@ -86,8 +93,7 @@ function* fetchSiteMenu({ api, fakeApi, logger }) {
 
 function* filterSiteMenu({ api, logger }, { payload = {} }) {
   try {
-    const isAdmin = yield select(state => state.user.isAdmin);
-    const leftMenuEditable = yield select(state => state.app.leftMenuEditable);
+    const params = yield fetchInfluentialParams();
     const { identification = null } = payload;
     const tabLink = get(payload, 'tab.link', '');
     let { url = '' } = payload;
@@ -106,7 +112,7 @@ function* filterSiteMenu({ api, logger }, { payload = {} }) {
       isDashboardPage = hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
     }
 
-    const menuItems = makeSiteMenu({ isDashboardPage, isAdmin, leftMenuEditable });
+    const menuItems = makeSiteMenu({ isDashboardPage, ...params });
 
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {

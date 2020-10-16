@@ -163,6 +163,10 @@ button {
     color: $color-gray-5;
   }
 
+  &.ecos-btn_size-by-content {
+    flex: 0 0 auto;
+  }
+
   /*Sizes*/
   &.ecos-btn_i_sm {
     font-size: $font-size-extra-large;

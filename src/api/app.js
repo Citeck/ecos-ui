@@ -3,12 +3,13 @@ import { NotificationManager } from 'react-notifications';
 
 import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch from '../helpers/ecosFetch';
+import { isExistValue } from '../helpers/util';
+import { t } from '../helpers/export/util';
 import { SourcesId, URL } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
-import { t } from '../helpers/export/util';
 
 export class AppApi extends CommonApi {
   getEcosConfig = configName => {
@@ -47,7 +48,8 @@ export class AppApi extends CommonApi {
     return Promise.all([
       Records.get(`${SourcesId.CONFIG}@restrict-access-to-edit-dashboard`)
         .load('value?bool')
-        .catch(() => false),
+        .then(value => (isExistValue(value) ? value : true))
+        .catch(() => true),
       Records.get(`${SourcesId.PEOPLE}@${username}`)
         .load('isAdmin?bool')
         .catch(() => false)
