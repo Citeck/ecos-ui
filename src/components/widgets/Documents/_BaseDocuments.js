@@ -511,10 +511,10 @@ class BaseDocuments extends BaseWidget {
   }
 
   renderEmptyStub(className = '') {
-    const { dynamicTypes } = this.props;
+    const { dynamicTypes, isLoading } = this.props;
     const { selectedType } = this.state;
 
-    if (selectedType || dynamicTypes.length) {
+    if (isLoading || selectedType || dynamicTypes.length) {
       return null;
     }
 
