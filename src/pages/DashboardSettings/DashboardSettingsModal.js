@@ -20,6 +20,7 @@ class DashboardSettingsModal extends Settings {
     dashboardId: PropTypes.string,
     recordRef: PropTypes.string,
     onSave: PropTypes.func,
+    onClose: PropTypes.func,
     onSetDialogProps: PropTypes.func,
     updateDashboard: PropTypes.bool
   };
@@ -187,6 +188,14 @@ class DashboardSettingsModal extends Settings {
       left: -positions.left,
       top: -positions.top
     };
+  };
+
+  handleCloseSettings = () => {
+    const { onClose } = this.props;
+
+    if (typeof onClose === 'function') {
+      onClose();
+    }
   };
 
   render() {

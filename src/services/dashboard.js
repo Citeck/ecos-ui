@@ -247,6 +247,7 @@ export default class DashboardService {
               tabId={pageTabList.activeTabId}
               onSetDialogProps={props => dialog.updateProps(props)}
               onSave={() => dialog.setVisible(false)}
+              onClose={() => dialog.setVisible(false)}
               {...otherProps}
             />
           </Suspense>
