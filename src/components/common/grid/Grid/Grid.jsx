@@ -158,9 +158,19 @@ class Grid extends Component {
     !this._startResizingThOffset &&
       this._ref.current &&
       this._ref.current.querySelectorAll('.ecos-grid__td').forEach(cellEl => {
-        const td = cellEl && cellEl.closest('td');
-        if (td && td.clientWidth > MAX_START_TH_WIDTH) {
-          td.style.width = MAX_START_TH_WIDTH + 'px';
+        if (cellEl) {
+          const td = cellEl.closest('td');
+          const table = cellEl.closest('table');
+          const container = table.parentElement;
+          const checkbox = table.querySelector('.ecos-grid__checkbox');
+          const cellLen = table.rows[0].cells.length - (checkbox ? 1 : 0);
+          const proratedSizeCell = (container.clientWidth - (checkbox ? checkbox.clientWidth : 0)) / cellLen;
+          const clearedSizeCell = Math.floor(proratedSizeCell / 10) * 10;
+          const max = clearedSizeCell > MAX_START_TH_WIDTH ? clearedSizeCell : MAX_START_TH_WIDTH;
+
+          if (cellLen > 1 && table.clientWidth > container.clientWidth && td.clientWidth > max) {
+            td.style.width = `${max}px`;
+          }
         }
       });
   };
@@ -685,14 +695,20 @@ class Grid extends Component {
       const rows = this._tableDom.rows;
 
       for (let i = 0; i < rows.length; i++) {
-        let firstCol = rows[i].cells[th.cellIndex];
+        const resizeCol = rows[i].cells[th.cellIndex];
+        const lastCol = rows[i].cells[rows[i].cells.length - 1];
+        const curWidth = resizeCol.style.width;
 
-        if (!firstCol) {
+        if (!resizeCol) {
           continue;
         }
 
-        firstCol.style.removeProperty('min-width');
-        firstCol.style.width = `${width}px`;
+        resizeCol.style.removeProperty('min-width');
+        resizeCol.style.width = `${width}px`;
+
+        if (lastCol) {
+          lastCol.style.width = `${parseFloat(lastCol.style.width) + (parseFloat(curWidth) - width)}px`;
+        }
       }
     }
   };
