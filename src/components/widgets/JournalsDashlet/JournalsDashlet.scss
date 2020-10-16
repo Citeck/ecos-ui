@@ -41,4 +41,11 @@
     min-height: 115px;
     //padding-bottom: 10px;
   }
+
+  &__group-actions {
+    margin-bottom: 0;
+    border-top: 1px $color-gray-4 solid;
+    border-bottom: 1px $color-gray-4 solid;
+    border-radius: 0;
+  }
 }
