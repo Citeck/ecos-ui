@@ -62,4 +62,4 @@ class SelectUserModal extends Component {
   }
 }
 
-export default React.memo(SelectUserModal);
+export default SelectUserModal;
