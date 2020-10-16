@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import EcosModal from '../common/EcosModal';
@@ -15,7 +15,7 @@ const LABELS = {
   BTN_SEND: 'Отправить'
 };
 
-class CommentModal extends Component {
+class CommentModal extends React.PureComponent {
   static propTypes = {
     title: PropTypes.string,
     placeholder: PropTypes.string,
@@ -130,4 +130,4 @@ class CommentModal extends Component {
   }
 }
 
-export default React.memo(CommentModal);
+export default CommentModal;
