@@ -76,12 +76,7 @@ export const errorTypes = Object.freeze({
   COUNT_FILES: 'countFilesError'
 });
 
-export const documentActions = [
-  'uiserv/action@content-download',
-  'uiserv/action@content-preview-modal',
-  'uiserv/action@edit',
-  'uiserv/action@delete'
-];
+export const documentActions = ['uiserv/action@view', 'uiserv/action@content-download', 'uiserv/action@edit', 'uiserv/action@delete'];
 
 export const NULL_FORM = 'uiserv/eform@null';
 export const DATE_FORMAT = 'DD.MM.YYYY HH:mm';

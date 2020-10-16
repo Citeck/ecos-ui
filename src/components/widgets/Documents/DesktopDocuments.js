@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
+import { Scrollbars } from 'react-custom-scrollbars';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
-import { Scrollbars } from 'react-custom-scrollbars';
+import cloneDeep from 'lodash/cloneDeep';
 
 import Dashlet from '../../Dashlet';
 import { Loader, ResizeBoxes, Tooltip } from '../../common';
@@ -25,13 +26,12 @@ import {
   uploadFiles
 } from '../../../actions/documents';
 import { selectStateByKey } from '../../../selectors/documents';
-import { documentFields, errorTypes, statusesKeys, tableFields, typeStatusesByFields } from '../../../constants/documents';
-import { closest, deepClone, prepareTooltipId, t } from '../../../helpers/util';
+import { documentFields, errorTypes, Labels, statusesKeys, tableFields, typeStatusesByFields } from '../../../constants/documents';
+import { closest, prepareTooltipId, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import Panel from './parts/Panel';
 import TypesTable from './parts/TypesTable';
 import BaseDocuments from './_BaseDocuments';
-import { Labels } from '../../../constants/documents';
 import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, GrouppedTypeInterface } from './propsInterfaces';
 
 class DesktopDocuments extends BaseDocuments {
@@ -258,7 +258,7 @@ class DesktopDocuments extends BaseDocuments {
       type = DocumentsConverter.getDynamicType(type);
     }
 
-    return deepClone(type);
+    return cloneDeep(type);
   };
 
   refreshGrid() {
@@ -393,8 +393,8 @@ class DesktopDocuments extends BaseDocuments {
   };
 
   handleHoverRow = data => {
-    const options = deepClone(data);
-    let actions = deepClone(this.props.actions);
+    const options = cloneDeep(data);
+    let actions = cloneDeep(this.props.actions);
     const id = options.row[documentFields.id];
 
     delete options.row;
