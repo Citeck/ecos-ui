@@ -4,8 +4,9 @@ import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
-import debounce from 'lodash/debounce';
+import isEmpty from 'lodash/isEmpty';
 
+import debounce from 'lodash/debounce';
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
 import JournalsFilters from './JournalsFilters';
@@ -15,8 +16,8 @@ import JournalsMenu from './JournalsMenu';
 import JournalsSettingsBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
-import { JournalsGroupActionsTools } from './JournalsTools';
 
+import { JournalsGroupActionsTools } from './JournalsTools';
 import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
@@ -33,6 +34,7 @@ import {
 import { animateScrollTo, getScrollbarWidth, objectCompare, t, trigger } from '../../helpers/util';
 import { getSearchParams, goToCardDetailsPage, stringifySearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
+import { JOURNAL_MIN_HEIGHT } from './constants';
 
 import './Journals.scss';
 
@@ -152,12 +154,26 @@ class Journals extends Component {
 
   componentWillUnmount() {
     this.onForceUpdate.cancel();
-    this.onResize.cancel();
+    this.setHeight.cancel();
 
     if (this._toggleMenuTimerId) {
       window.clearTimeout(this._toggleMenuTimerId);
       this._toggleMenuTimerId = null;
     }
+  }
+
+  get isOpenGroupActions() {
+    const { grid, selectedRecords, selectAllRecords } = this.props;
+
+    if (isEmpty(selectedRecords) && !selectAllRecords) {
+      return false;
+    }
+
+    const forRecords = get(grid, 'actions.forRecords', {});
+    const forQuery = get(grid, 'actions.forQuery', {});
+    const groupActions = (selectAllRecords ? forQuery.actions : forRecords.actions) || [];
+
+    return !isEmpty(groupActions);
   }
 
   setJournalRef = ref => {
@@ -178,6 +194,14 @@ class Journals extends Component {
 
   getSearch = () => {
     return this.props.isActivePage ? get(getSearchParams(), 'search', '') : '';
+  };
+
+  getAvailableHeight = (height = this.state.height || 0) => {
+    if (!height) {
+      return 0;
+    }
+
+    return height > JOURNAL_MIN_HEIGHT ? height : JOURNAL_MIN_HEIGHT;
   };
 
   addRecord = createVariant => {
@@ -259,15 +283,20 @@ class Journals extends Component {
     this.props.search(text);
   };
 
-  onResize = debounce((w, h) => {
+  onResize = (w, h) => {
     const height = parseInt(h);
 
     if (!h || Number.isNaN(height) || height === this.state.height) {
       return;
     }
 
+    this.setHeight(height);
+  };
+
+  setHeight = debounce(height => {
+    // console.warn('set height => ', height, getScrollbarWidth());
     this.setState({ height });
-  }, 250);
+  }, 500);
 
   onSelectAllRecords = () => {
     const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
@@ -324,14 +353,17 @@ class Journals extends Component {
     }
 
     const visibleColumns = columns.filter(c => c.visible);
-    const minH = 300;
-    const availableHeight = height => (height && height > minH ? height : minH);
+
+    // console.warn({ available: this.getAvailableHeight(), groupActions: this.groupActionsHeight});
 
     return (
       <ReactResizeDetector handleHeight onResize={this.onResize}>
         <div
           ref={this.setJournalRef}
-          className={classNames('ecos-journal', { 'ecos-journal_mobile': isMobile, 'ecos-journal_scroll': height <= minH })}
+          className={classNames('ecos-journal', {
+            'ecos-journal_mobile': isMobile,
+            'ecos-journal_scroll': height <= JOURNAL_MIN_HEIGHT
+          })}
         >
           <div
             className={classNames('ecos-journal__body', {
@@ -390,6 +422,7 @@ class Journals extends Component {
             </EcosModal>
 
             <JournalsGroupActionsTools
+              isOpen={this.isOpenGroupActions}
               isMobile={isMobile}
               selectAllRecordsVisible={selectAllRecordsVisible}
               selectAllRecords={selectAllRecords}
@@ -404,7 +437,7 @@ class Journals extends Component {
               stateId={stateId}
               showPreview={showPreview && !isMobile}
               showPie={showPie}
-              maxHeight={availableHeight(height) - 165}
+              maxHeight={this.getAvailableHeight() - (165 + (this.isOpenGroupActions ? 60 : 0))}
               isActivePage={isActivePage}
             />
 
@@ -431,7 +464,7 @@ class Journals extends Component {
               stateId={stateId}
               open={menuOpen}
               onClose={this.toggleMenu}
-              height={availableHeight(height) - getScrollbarWidth()}
+              height={this.getAvailableHeight() - getScrollbarWidth()}
               isActivePage={isActivePage}
             />
           </div>

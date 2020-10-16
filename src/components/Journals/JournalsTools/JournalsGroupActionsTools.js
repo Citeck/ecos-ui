@@ -20,10 +20,12 @@ export default React.memo(function JournalsGroupActionsTools(props) {
     onExecuteAction,
     className,
     onGoTo,
-    onSelectAll
+    onSelectAll,
+    forwardedRef,
+    isOpen
   } = props;
 
-  if (isEmpty(selectedRecords) && !selectAllRecords) {
+  if (!isOpen || (isEmpty(selectedRecords) && !selectAllRecords)) {
     return;
   }
 
@@ -81,6 +83,7 @@ export default React.memo(function JournalsGroupActionsTools(props) {
 
   return (
     <Tools
+      forwardedRef={forwardedRef}
       onSelectAll={onSelectAll}
       selectAllVisible={selectAllRecordsVisible}
       selectAll={selectAllRecords}
