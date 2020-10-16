@@ -16,12 +16,11 @@ import DropZone from './parts/DropZone';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import DAction from '../../../services/DashletActionService';
 import DocumentsConverter from '../../../dto/documents';
-import { statusesKeys, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
+import { Labels, statusesKeys, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
 import { deepClone, prepareTooltipId } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
 import { AvailableTypeInterface, DynamicTypeInterface } from './propsInterfaces';
 import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
-import { Labels } from '../../../constants/documents';
 import Badge from './parts/Badge';
 import { selectTypeStatus } from '../../../selectors/documents';
 import Settings from './parts/Settings';
@@ -488,7 +487,7 @@ class BaseDocuments extends BaseWidget {
       return null;
     }
 
-    return <Loader className="ecos-docs__loader" blur />;
+    return <Loader className="ecos-docs__loader" blur rounded />;
   }
 
   renderSettings() {
@@ -512,10 +511,10 @@ class BaseDocuments extends BaseWidget {
   }
 
   renderEmptyStub(className = '') {
-    const { dynamicTypes } = this.props;
+    const { dynamicTypes, isLoading } = this.props;
     const { selectedType } = this.state;
 
-    if (selectedType || dynamicTypes.length) {
+    if (isLoading || selectedType || dynamicTypes.length) {
       return null;
     }
 
