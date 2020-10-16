@@ -294,7 +294,6 @@ class Journals extends Component {
   };
 
   setHeight = debounce(height => {
-    // console.warn('set height => ', height, getScrollbarWidth());
     this.setState({ height });
   }, 500);
 
@@ -353,8 +352,6 @@ class Journals extends Component {
     }
 
     const visibleColumns = columns.filter(c => c.visible);
-
-    // console.warn({ available: this.getAvailableHeight(), groupActions: this.groupActionsHeight});
 
     return (
       <ReactResizeDetector handleHeight onResize={this.onResize}>
