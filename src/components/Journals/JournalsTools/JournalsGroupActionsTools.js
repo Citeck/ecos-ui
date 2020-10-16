@@ -21,11 +21,10 @@ export default React.memo(function JournalsGroupActionsTools(props) {
     className,
     onGoTo,
     onSelectAll,
-    forwardedRef,
-    isOpen
+    forwardedRef
   } = props;
 
-  if (!isOpen || (isEmpty(selectedRecords) && !selectAllRecords)) {
+  if (isEmpty(selectedRecords) && !selectAllRecords) {
     return;
   }
 

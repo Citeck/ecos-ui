@@ -419,7 +419,6 @@ class Journals extends Component {
             </EcosModal>
 
             <JournalsGroupActionsTools
-              isOpen={this.isOpenGroupActions}
               isMobile={isMobile}
               selectAllRecordsVisible={selectAllRecordsVisible}
               selectAllRecords={selectAllRecords}
