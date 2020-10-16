@@ -1,5 +1,4 @@
 import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 
 import { SourcesId, URL } from '../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
@@ -141,9 +140,7 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
 }
 
 export function makeSiteMenu(params = {}) {
-  const isDashboardPage = get(params, 'isDashboardPage', false);
-  const isAdmin = get(params, 'isAdmin', false);
-  const leftMenuEditable = get(params, 'leftMenuEditable', false);
+  const { isAdmin, isDashboardPage, dashboardEditable, leftMenuEditable } = params || {};
   const menu = [
     // {
     //   id: 'HOME_PAGE',
@@ -186,7 +183,7 @@ export function makeSiteMenu(params = {}) {
   return menu.filter(item => {
     switch (item.id) {
       case 'SETTINGS_DASHBOARD':
-        return isDashboardPage;
+        return dashboardEditable && isDashboardPage;
       case 'SETTINGS_MENU':
         return leftMenuEditable;
       case 'GO_ADMIN_PAGE':

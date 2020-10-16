@@ -5,7 +5,7 @@ class JournalsServiceApi {
     return Records.get('uiserv/journal_v1@' + journalId)
       .load('.json')
       .then(resp => {
-        const data = resp || {};
+        const data = resp || { meta: {} };
         if (!data.columns || data.columns.length === 0) {
           console.error("Journal without columns! ID: '" + journalId + "'", resp);
         }

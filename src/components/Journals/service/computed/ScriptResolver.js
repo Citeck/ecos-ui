@@ -12,6 +12,7 @@ export default class ScriptResolver extends ComputedResolver {
     if (!config.script) {
       throw new Error("Script is a mandatory parameter for computed parameter with type 'script'. Config: " + JSON.stringify(config));
     }
+    /* eslint-disable-next-line */
     return new Function('Records', 'lodash', 't', config.script)(Records, lodash, t);
   }
 }

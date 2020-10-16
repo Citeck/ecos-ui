@@ -9,7 +9,8 @@ import Records from '../Records';
 import IcoBtn from '../common/btns/IcoBtn';
 import EcosModal from '../common/EcosModal';
 import EcosFormUtils from './EcosFormUtils';
-import EcosForm, { FORM_MODE_EDIT } from './';
+import EcosForm from './EcosForm';
+import { FORM_MODE_EDIT } from './constants';
 import TaskAssignmentPanel from '../TaskAssignmentPanel';
 
 import './EcosFormModal.scss';
