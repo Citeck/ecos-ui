@@ -22,3 +22,5 @@ export const DEFAULT_INLINE_TOOL_SETTINGS = {
   row: {},
   actions: []
 };
+
+export const JOURNAL_MIN_HEIGHT = 300;
