@@ -17,8 +17,7 @@ import DocumentItem from './parts/DocumentItem';
 import { FileStatuses } from '../../../helpers/ecosXhr';
 import { ActionTypes } from '../../Records/actions';
 import { t } from '../../../helpers/export/util';
-import { documentFields } from '../../../constants/documents';
-import { Labels } from '../../../constants/documents';
+import { documentFields, Labels } from '../../../constants/documents';
 
 class MobileDocuments extends BaseDocuments {
   constructor(props) {
@@ -163,12 +162,12 @@ class MobileDocuments extends BaseDocuments {
   }
 
   renderTypes() {
-    const { documentsByTypes, isUploadingFile } = this.props;
+    const { documentsByTypes, isUploadingFile, isLoading } = this.props;
     const { isLoadingUploadingModal, uploadPercent, selectedTypeForLoading } = this.state;
     const { typeFilter, statusFilter } = this.state;
 
     if (isEmpty(this.filteredDynamicTypes)) {
-      if (typeFilter || statusFilter) {
+      if (!isLoading && (typeFilter || statusFilter)) {
         return <div className="ecos-docs-m__panel">{t(Labels.NOTHING_FOUND)}</div>;
       }
 
