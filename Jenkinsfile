@@ -1,18 +1,21 @@
 @NonCPS
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurperClassic
+import java.text.SimpleDateFormat
 
 def getChangeLogSetsMap() {
   MAX_MSG_LEN = 100
   def changeLogSets = currentBuild.changeSets
   def changeLogSetsMap = [commits:[]]
+  dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z")
   if (changeLogSets.size() > 0) {
     for (int i = 0; i < changeLogSets.size(); i++) {
       def entries = changeLogSets[i].items
       for (int j = 0; j < entries.length; j++) {
         def entry = entries[j]
         truncated_msg = entry.msg.take(MAX_MSG_LEN)
-        changeLogSetsMap.commits.add([ author: "${entry.author}", commit: "${entry.commitId}", message: "${truncated_msg}", date: "${entry.date}"])
+        formatedDate = dateFormat.parse("${entry.date}").toInstant().toString()
+        changeLogSetsMap.commits.add([ author: "${entry.author}", commit: "${entry.commitId}", message: "${truncated_msg}", date: "${formatedDate}"])
       }
     }
   }
