@@ -21,7 +21,7 @@ import { ErrorBoundary } from '../ErrorBoundary';
 import { initAppSettings } from '../../actions/app';
 import { setTab, updateTab } from '../../actions/pageTabs';
 import { Pages, pagesWithOnlyContent, URL } from '../../constants';
-import { MenuTypes } from '../../constants/menu';
+import { BASE_LEFT_MENU_ID, MenuTypes } from '../../constants/menu';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';
 import PageService, { Events } from '../../services/PageService';
@@ -133,7 +133,7 @@ class App extends Component {
     }
 
     if (menuType === MenuTypes.LEFT) {
-      return <Menu />;
+      return <Menu id={BASE_LEFT_MENU_ID} />;
     }
 
     return null;

@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import classnames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
 
 import { isExistValue, t } from '../../../../helpers/util';
 import { Btn } from '../../btns';
@@ -31,6 +32,15 @@ class DialogWrapper extends React.Component {
     this.setState({
       dialogProps: props
     });
+  }
+
+  updateProps(props) {
+    this.setState(state => ({
+      dialogProps: {
+        ...state.dialogProps,
+        ...props
+      }
+    }));
   }
 
   setVisible(isVisible) {
@@ -194,7 +204,7 @@ const dialogsById = {
   },
   [CUSTOM_DIALOG_ID]: props => {
     const { isVisible, setVisible } = props;
-    const { title = '', onHide = () => undefined, modalClass, body, buttons = [], handlers = {}, reactstrapProps = {} } = props.dialogProps;
+    const { title = '', onHide = () => undefined, modalClass, body, buttons = [], handlers = {}, ...modalProps } = props.dialogProps;
 
     const hideModal = () => {
       setVisible(false);
@@ -209,25 +219,27 @@ const dialogsById = {
         isOpen={isVisible}
         hideModal={hideModal}
         className={classnames('ecos-dialog ecos-dialog_custom', modalClass)}
-        reactstrapProps={reactstrapProps}
+        {...modalProps}
       >
         <div className="ecos-dialog__body">{body}</div>
-        <div className="ecos-dialog__buttons">
-          {buttons.map(b => (
-            <Btn
-              className={b.className}
-              key={b.key || b.label}
-              onClick={() => {
-                if (typeof b.onClick === 'function') {
-                  b.onClick();
-                }
-                hideModal();
-              }}
-            >
-              {t(b.label)}
-            </Btn>
-          ))}
-        </div>
+        {!isEmpty(buttons) && (
+          <div className="ecos-dialog__buttons">
+            {buttons.map(b => (
+              <Btn
+                className={b.className}
+                key={b.key || b.label}
+                onClick={() => {
+                  if (typeof b.onClick === 'function') {
+                    b.onClick();
+                  }
+                  hideModal();
+                }}
+              >
+                {t(b.label)}
+              </Btn>
+            ))}
+          </div>
+        )}
       </EcosModal>
     );
   },

@@ -1,6 +1,9 @@
 import { handleActions } from 'redux-actions';
+import get from 'lodash/get';
+
 import {
   getDashboardConfig,
+  resetAllDashboardsConfig,
   resetDashboardConfig,
   setDashboardConfig,
   setDashboardIdentification,
@@ -137,6 +140,25 @@ export default handleActions(
           ...initialState,
           reset: true
         }
+      };
+    },
+
+    [resetAllDashboardsConfig]: (state, { payload }) => {
+      const newState = Object.keys(state)
+        .filter(key => {
+          return get(state, [key, 'identification', 'type']) === get(payload, 'type');
+        })
+        .reduce(
+          (result, key) => ({
+            ...result,
+            [key]: { ...initialState }
+          }),
+          {}
+        );
+
+      return {
+        ...state,
+        ...newState
       };
     },
 

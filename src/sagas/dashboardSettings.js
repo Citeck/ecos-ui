@@ -37,25 +37,21 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 }
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
-  const { dashboardId, recordRef, key } = payload;
+  const { recordRef, key } = payload;
 
   try {
-    if (dashboardId) {
-      const { config, ...result } = yield call(api.dashboard.getDashboardById, dashboardId, true);
-      const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
-      const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
-      const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
-      const data = DashboardService.checkDashboardResult(result);
-      const webConfigs = DashboardSettingsConverter.getSettingsForWeb(newConfig, widgetsById, migratedConfig.version);
+    const { config, ...result } = yield call(api.dashboard.getDashboardByOneOf, payload);
+    const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
+    const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
+    const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
+    const data = DashboardService.checkDashboardResult(result);
+    const webConfigs = DashboardSettingsConverter.getSettingsForWeb(newConfig, widgetsById, migratedConfig.version);
 
-      webConfigs.identification = DashboardConverter.getKeyInfoDashboardForWeb(data).identification;
+    webConfigs.identification = DashboardConverter.getKeyInfoDashboardForWeb(data).identification;
 
-      yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config }));
-      yield put(getAvailableWidgets({ type: data.type, key }));
-      yield put(getDashboardKeys({ recordRef, key }));
-    } else {
-      throw new Error('No dashboard ID');
-    }
+    yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config }));
+    yield put(getAvailableWidgets({ type: data.type, key }));
+    yield put(getDashboardKeys({ recordRef, key }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-config'), t('error'));
     logger.error('[dashboard-settings/ doGetDashboardConfigRequest saga] error', e.message);
@@ -131,7 +127,9 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     const identificationData = { ...identification, ...newIdentification };
 
     if (!isAdmin) {
-      const user = yield select(selectUserName);
+      const user = yield select(state => {
+        return selectUserName(state);
+      });
 
       if (!user) {
         throw new Error(' No user name');
