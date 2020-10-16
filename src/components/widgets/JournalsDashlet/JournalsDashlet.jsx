@@ -83,6 +83,7 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
 class JournalsDashlet extends BaseWidget {
   _toolbarRef = null;
   _footerRef = null;
+  _groupActionsRef = null;
 
   static propTypes = {
     id: PropTypes.string,
@@ -146,6 +147,10 @@ class JournalsDashlet extends BaseWidget {
     return get(this._toolbarRef, 'offsetHeight', 0);
   }
 
+  get groupActionsHeight() {
+    return get(this._groupActionsRef, 'offsetHeight', 0);
+  }
+
   get footerHeight() {
     return get(this._footerRef, 'offsetHeight', 0);
   }
@@ -159,6 +164,12 @@ class JournalsDashlet extends BaseWidget {
   setFooterRef = ref => {
     if (ref) {
       this._footerRef = ref;
+    }
+  };
+
+  setGroupActionsRef = ref => {
+    if (ref) {
+      this._groupActionsRef = ref;
     }
   };
 
@@ -242,7 +253,7 @@ class JournalsDashlet extends BaseWidget {
     }
 
     const { grid, isMobile, selectedRecords, selectAllRecords, selectAllRecordsVisible } = this.props;
-    const extraIndents = this.toolbarHeight + this.footerHeight + this.dashletOtherHeight;
+    const extraIndents = this.toolbarHeight + this.footerHeight + this.dashletOtherHeight + this.groupActionsHeight;
 
     return (
       <>
@@ -251,6 +262,7 @@ class JournalsDashlet extends BaseWidget {
         </Measurer>
 
         <JournalsGroupActionsTools
+          forwardedRef={this.setGroupActionsRef}
           className="ecos-journal-dashlet__group-actions"
           isMobile={isMobile}
           selectAllRecordsVisible={selectAllRecordsVisible}
