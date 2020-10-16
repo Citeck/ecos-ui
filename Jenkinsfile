@@ -91,6 +91,10 @@ timestamps {
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
           sh "yarn && CI=true yarn test && yarn build"
+          def build_info = [:]
+          build_info.put("version", "${package_props.version}")
+          def jsonOut = readJSON text: groovy.json.JsonOutput.toJson(build_info)
+          writeJSON(file: 'build/build-info.json', json: jsonOut, pretty: 2)
           sh "mkdir build/build-info"
           sh "cp -f /opt/commits_log/${project_id}/${env.BRANCH_NAME}/full.json build/build-info/full.json"
           if (!fileExists("/opt/ecos-ui-static/${env.BRANCH_NAME}")) {
