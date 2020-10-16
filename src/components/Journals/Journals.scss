@@ -44,6 +44,10 @@
   padding: 19px 26px 0 24px;
   height: 100%;
 
+  &:not(&_mobile) {
+    min-width: 510px;
+  }
+
   &_with-menu {
     float: left;
     width: calc(100% - 273px);
@@ -57,6 +61,10 @@
 
   &_mobile {
     padding: 16px;
+  }
+
+  &_with-preview {
+    min-width: 780px;
   }
 }
 
