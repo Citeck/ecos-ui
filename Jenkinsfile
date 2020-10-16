@@ -92,7 +92,7 @@ timestamps {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
           sh "yarn && CI=true yarn test && yarn build"
           sh "mkdir build/build-info"
-          fileOperations([fileCopyOperation(excludes: '', flattenFiles: false, includes: "/opt/commits_log/${project_id}/${env.BRANCH_NAME}/full.json", targetLocation: 'build/build-info/full.json')])
+          sh "cp -f /opt/commits_log/${project_id}/${env.BRANCH_NAME}/full.json build/build-info/full.json"
           if (!fileExists("/opt/ecos-ui-static/${env.BRANCH_NAME}")) {
             sh "mkdir -p /opt/ecos-ui-static/${env.BRANCH_NAME}"
           }
