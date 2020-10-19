@@ -1,7 +1,5 @@
 @NonCPS
 import groovy.json.JsonOutput
-import groovy.json.JsonSlurperClassic
-import java.text.SimpleDateFormat
 
 //Get Log sets func
 properties([
@@ -53,10 +51,14 @@ timestamps {
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
           sh "yarn && CI=true yarn test && yarn build"
+
+          // this info can be received from /build-info/main.json
           def build_info = [:]
           build_info.put("version", "${package_props.version}")
-          def jsonOut = readJSON text: groovy.json.JsonOutput.toJson(build_info)
+          def jsonOut = readJSON text: JsonOutput.toJson(build_info)
           writeJSON(file: 'build/build-info.json', json: jsonOut, pretty: 2)
+          // todo: remove this block
+
           // build-info
           def buildData = buildTools.getBuildInfo(repoUrl, "${env.BRANCH_NAME}", project_version)
           dir('build/build-info') {
