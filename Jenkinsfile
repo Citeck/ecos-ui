@@ -9,21 +9,26 @@ properties([
 ])
 timestamps {
   node {
+
     def repoUrl = "git@bitbucket.org:citeck/ecos-ui.git"
-    try {
-      stage('Checkout Script Tools SCM') {
-        dir('jenkins-script-tools') {
-          checkout([
-            $class: 'GitSCM',
-            branches: [[name: "script-tools"]],
-            doGenerateSubmoduleConfigurations: false,
-            extensions: [],
-            submoduleCfg: [],
-            userRemoteConfigs: [[credentialsId: 'bc074014-bab1-4fb0-b5a4-4cfa9ded5e66', url: 'git@bitbucket.org:citeck/pipelines.git']]
-          ])
-        }
+
+    stage('Checkout Script Tools SCM') {
+      dir('jenkins-script-tools') {
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: "script-tools"]],
+          doGenerateSubmoduleConfigurations: false,
+          extensions: [],
+          submoduleCfg: [],
+          userRemoteConfigs: [[credentialsId: 'bc074014-bab1-4fb0-b5a4-4cfa9ded5e66', url: 'git@bitbucket.org:citeck/pipelines.git']]
+        ])
       }
-      currentBuild.changeSets.clear()
+    }
+    currentBuild.changeSets.clear()
+    def buildTools = load "jenkins-script-tools/scripts/build-tools.groovy"
+
+    try {
+
       stage('Checkout SCM') {
         checkout([
           $class: 'GitSCM',
@@ -34,7 +39,6 @@ timestamps {
           userRemoteConfigs: [[credentialsId: 'bc074014-bab1-4fb0-b5a4-4cfa9ded5e66', url: repoUrl]]
         ])
       }
-      def buildTools = load "jenkins-script-tools/scripts/build-tools.groovy"
 
       def package_props = readJSON file:("package.json")
       def project_version = package_props.version
@@ -96,9 +100,9 @@ timestamps {
     }
     script {
       if (currentBuild.result != 'FAILURE') {
-        notifyBuildSuccess(repoUrl, env)
+        buildTools.notifyBuildSuccess(repoUrl, env)
       } else {
-        notifyBuildFailed(repoUrl, error_message, env)
+        buildTools.notifyBuildFailed(repoUrl, error_message, env)
       }
     }
   }
