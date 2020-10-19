@@ -9,8 +9,7 @@ properties([
 ])
 timestamps {
   node {
-    def project_id = "ecos-ui"
-    def repoUrl = "git@bitbucket.org:citeck/${project_id}.git"
+    def repoUrl = "git@bitbucket.org:citeck/ecos-ui.git"
     try {
       stage('Checkout Script Tools SCM') {
         dir('jenkins-script-tools') {
@@ -90,18 +89,16 @@ timestamps {
           string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
         ]
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       currentBuild.result = 'FAILURE'
       error_message = e.getMessage()
       echo error_message
     }
-    script{
-      if(currentBuild.result != 'FAILURE'){
-        mattermostSend endpoint: 'https://mm.citeck.ru/hooks/9ytch3uox3retkfypuq7xi3yyr', channel: "qa-cicd", color: 'good', message: " :white_check_mark: **Build project ${project_id} with ID ${env.BUILD_NUMBER} complete!**"
-      }
-      else{
-        mattermostSend endpoint: 'https://mm.citeck.ru/hooks/9ytch3uox3retkfypuq7xi3yyr', channel: "qa-cicd", color: 'danger', message: " @channel :exclamation: **Build project ${project_id} with ID  ${env.BUILD_NUMBER} failure with message:**\n```${error_message}```"
+    script {
+      if (currentBuild.result != 'FAILURE') {
+        notifyBuildSuccess(repoUrl, env)
+      } else {
+        notifyBuildFailed(repoUrl, error_message, env)
       }
     }
   }
