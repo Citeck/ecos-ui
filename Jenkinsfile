@@ -43,7 +43,7 @@ timestamps {
       def package_props = readJSON file:("package.json")
       def project_version = package_props.version
 
-      buildTools.notifyBuildStarted(repoUrl, project_version, currentBuild.changeSets, env)
+      buildTools.notifyBuildStarted(repoUrl, project_version, env)
 
       if ((env.BRANCH_NAME != "master") && (!package_props.version.contains('snapshot')))  {
         echo "Assembly of release artifacts is allowed only from the master branch!"
