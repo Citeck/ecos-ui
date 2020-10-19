@@ -39,8 +39,9 @@ timestamps {
 
       def package_props = readJSON file:("package.json")
       def project_version = package_props.version
-      def changeLogSetsMessage = buildTools.getChangeSetsMessage(currentBuild.changeSets, repoUrl)
-      mattermostSend endpoint: 'https://mm.citeck.ru/hooks/9ytch3uox3retkfypuq7xi3yyr', channel: "qa-cicd", color: 'good', message: " :arrow_forward: **Build project ${project_id}:**\n**Branch:** ${env.BRANCH_NAME}\n**Version:** ${project_version}\n**Build id:** ${env.BUILD_NUMBER}\n**Build url:** ${env.BUILD_URL}\n**Changes:**\n" + "${changeLogSetsMessage}"
+
+      buildTools.notifyBuildStarted(repoUrl, project_version, currentBuild.changeSets, env)
+
       if ((env.BRANCH_NAME != "master") && (!package_props.version.contains('snapshot')))  {
         echo "Assembly of release artifacts is allowed only from the master branch!"
         currentBuild.result = 'FAILURE'
