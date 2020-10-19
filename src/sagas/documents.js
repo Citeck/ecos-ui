@@ -87,7 +87,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     let combinedTypes = DocumentsConverter.combineTypes(dynamicTypes, configTypes);
     const dynamicTypeKeys = combinedTypes.map(record => record.type);
     const { records: documents, errors: documentsErrors } = yield call(api.documents.getDocumentsByTypes, payload.record, dynamicTypeKeys);
-    const countDocuments = documents.map(record => record.documents);
+    const countByTypes = documents.map(record => record.documents);
 
     if (documentsErrors.length) {
       throw new Error(documentsErrors.join(' '));
@@ -117,14 +117,10 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
 
     yield all(
       combinedTypes.map(function*(item) {
-        const columnsConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
-        const columns = yield call(api.documents.getFormattedColumns, {
-          ...columnsConfig,
-          columns: DocumentsConverter.getColumnsForGrid(columnsConfig.columns)
-        });
-
+        const journalConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
+        const _columns = DocumentsConverter.getColumnsForGrid(journalConfig.columns);
+        const columns = yield call(api.documents.getFormattedColumns, { ...journalConfig, columns: _columns });
         item.columns = DocumentsConverter.getColumnForWeb(columns);
-
         return item;
       })
     );
@@ -133,21 +129,11 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
       yield put(getDocumentsByType({ ...payload, type: combinedTypes[0].type }));
     }
 
-    yield put(
-      setDynamicTypes({
-        key: payload.key,
-        dynamicTypes: DocumentsConverter.getDynamicTypes({ types: combinedTypes, typeNames, countByTypes: countDocuments, availableTypes })
-      })
-    );
-
+    const _dynamicTypes = DocumentsConverter.getDynamicTypes({ types: combinedTypes, typeNames, countByTypes, availableTypes });
     const types = yield select(state => selectAvailableTypes(state, payload.key));
 
-    yield put(
-      setAvailableTypes({
-        key: payload.key,
-        types
-      })
-    );
+    yield put(setDynamicTypes({ key: payload.key, dynamicTypes: _dynamicTypes }));
+    yield put(setAvailableTypes({ key: payload.key, types }));
   } catch (e) {
     logger.error('[documents sagaGetDynamicTypes saga error', e.message);
   }

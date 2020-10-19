@@ -131,11 +131,11 @@ class BaseDocuments extends BaseWidget {
   }
 
   get availableTypes() {
-    const { grouppedAvailableTypes } = this.props;
+    const { groupedAvailableTypes } = this.props;
     const { typesFilter } = this.state;
 
     if (!typesFilter) {
-      return grouppedAvailableTypes;
+      return groupedAvailableTypes;
     }
 
     const check = originTypes => {
@@ -168,7 +168,7 @@ class BaseDocuments extends BaseWidget {
         .filter(item => item !== null);
     };
 
-    return check(grouppedAvailableTypes);
+    return check(groupedAvailableTypes);
   }
 
   get emptyStubHeight() {
