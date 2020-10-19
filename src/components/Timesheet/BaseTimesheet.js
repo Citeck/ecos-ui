@@ -287,7 +287,7 @@ class BaseTimesheet extends Component {
       <div className="ecos-timesheet__table-lock">
         <div id="timesheet-locked-tooltip">
           <Icon className="icon-custom-lock ecos-timesheet__table-lock-icon" />
-          <span>{t('Редактирование заблокировано')}</span>
+          <span>{t(CommonLabels.EDITING_IS_BLOCKED)}</span>
         </div>
 
         {lockedMessage && (
