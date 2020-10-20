@@ -727,6 +727,18 @@
   "records-actions.no-available": "Нет доступных действий",
   "records-actions.original": "Оригинал",
   "records-actions.remove": "Удалить",
+
+  "records-actions.dialog.all-records-not-allowed.title": "Действие нельзя выполнить",
+  "records-actions.dialog.all-records-not-allowed.text": "Данное действие над выбранными строками недоступно",
+
+  "records-actions.confirm-not-allowed": "Действие разрешено не для всех строк. Продолжить?",
+
+  "records-actions.record.status.ALLOWED": "Разрешено",
+  "records-actions.record.status.NOT_ALLOWED": "Не разрешено",
+
+  "records-actions.records-status.column.displayName.label": "Строка",
+  "records-actions.records-status.column.status.label": "Статус",
+
   "relative.day": "вчера",
   "relative.days": "{{value}} дн. назад",
   "relative.earlierThisWeek": "Ранее на этой неделе",

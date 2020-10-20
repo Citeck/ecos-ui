@@ -55,4 +55,12 @@ export default class ActionsExecutor extends ActionsHandler {
       records.update();
     }
   }
+
+  /**
+   * @param {RecordAction} action
+   * @return {boolean} true if service should check action by server before execution
+   */
+  isActionConfigCheckingRequired(action) {
+    return true;
+  }
 }
