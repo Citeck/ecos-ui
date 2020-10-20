@@ -450,8 +450,8 @@ class RecordActions {
       return dispByRecId;
     });
 
-    const res = await this._getActionAllowedInfoForRecords(recordInstances, action, context);
-    const { allowedRecords = [], notAllowedRecords = [] } = res;
+    const allowedInfo = await this._getActionAllowedInfoForRecords(recordInstances, action, context);
+    const { allowedRecords = [], notAllowedRecords = [] } = allowedInfo;
 
     if (!allowedRecords.length) {
       return new Promise(resolve => {
