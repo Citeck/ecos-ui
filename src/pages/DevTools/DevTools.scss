@@ -1,0 +1,12 @@
+@import '../../styles/constants';
+
+.dev-tools-page {
+  &__title {
+    margin: 20px 0 10px;
+  }
+
+  &__tab-content {
+    margin-top: 20px;
+    padding: 20px;
+  }
+}

@@ -213,6 +213,11 @@
   "dashlet.update.title": "Обновить данные",
   "dashlet.settings.title": "Настроить виджет",
 
+  "dev-tools.tab.build": "Сборка",
+  "dev-tools.tab.dev-modules": "Модули разработки",
+  "dev-tools.tab.commits": "Коммиты",
+  "dev-tools.tab.settings": "Настройки",
+
   "doc-associations-widget.add-association": "Добавить связь",
   "doc-associations-widget.assoc-with-docs": "Связан с документами",
   "doc-associations-widget.basis-document": "Документ-основание",
@@ -644,6 +649,7 @@
   "page-tabs.tab-name-tip": "Название вкладки",
   "page-tabs.tab-name-default": "Вкладка",
   "page-tabs.timesheet": "Табель",
+  "page-tabs.dev-tools": "Инструменты разработчика",
   "pagination.from": "из",
   "predicate.and": "И",
   "predicate.any": "Любое значение",
