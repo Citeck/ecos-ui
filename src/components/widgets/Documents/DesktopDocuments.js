@@ -43,7 +43,7 @@ class DesktopDocuments extends BaseDocuments {
     stateId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 
     dragHandleProps: PropTypes.object,
-    grouppedAvailableTypes: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
+    groupedAvailableTypes: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     availableTypes: PropTypes.arrayOf(PropTypes.shape(AvailableTypeInterface)),
     dynamicTypes: PropTypes.arrayOf(PropTypes.shape(DynamicTypeInterface)),
     documents: PropTypes.arrayOf(PropTypes.shape(DocumentInterface)),

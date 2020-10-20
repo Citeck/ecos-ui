@@ -266,8 +266,14 @@ export default class DocumentsConverter {
 
     return source
       .map(column => {
-        const { name } = column;
-        let attribute = column.attribute || '';
+        let { name, schema, attribute } = column;
+
+        if (attribute && schema) {
+          if (schema.charAt(0) === '.') {
+            return `${attribute}:${schema.slice(1)}`;
+          }
+          return `${attribute}:att(n:"${schema}"){disp}`;
+        }
 
         if (!attribute && !name) {
           return '';
@@ -307,8 +313,8 @@ export default class DocumentsConverter {
     return source.map(item => {
       return {
         ...item,
-        dataField: DocumentsConverter.getAttribute(item.attribute, item.name),
-        text: getTextByLocale(item.label)
+        dataField: DocumentsConverter.getAttribute(item.schema || item.attribute, item.name || item.attribute),
+        text: getTextByLocale(item.label || item.text)
       };
     });
   }

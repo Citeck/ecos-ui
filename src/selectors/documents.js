@@ -31,7 +31,7 @@ export const selectStateByKey = createSelector(
 
     return {
       stateId: ownState.stateId,
-      grouppedAvailableTypes: selectGrouppedAvailableTypes(ownState),
+      groupedAvailableTypes: selectGroupedAvailableTypes(ownState),
       availableTypes: getAvailableTypes(ownState),
       dynamicTypes: ownState.dynamicTypes,
       documents: ownState.documents,
@@ -107,7 +107,7 @@ export const selectMobileStateByKey = createSelector(
       dynamicTypes: getDynamicTypes(ownState),
       documentsByTypes,
       availableTypes: getAvailableTypes(ownState),
-      grouppedAvailableTypes: selectGrouppedAvailableTypes(ownState),
+      groupedAvailableTypes: selectGroupedAvailableTypes(ownState),
       typeSettings: get(ownState, 'typeSettings', {}),
       isUploadingFile: get(ownState, 'isUploadingFile', false),
       isLoadingSettings: get(ownState, 'isLoadingSettings', false),
@@ -184,7 +184,7 @@ export const selectActionsByType = (state, key, type) => {
   return get(availableTypes.find(item => item.id === type), 'actions', []);
 };
 
-export const selectGrouppedAvailableTypes = createSelector(
+export const selectGroupedAvailableTypes = createSelector(
   getAvailableTypes,
   getDynamicTypes,
   (availableTypes, dynamicTypes) => {
