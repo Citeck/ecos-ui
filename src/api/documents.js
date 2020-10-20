@@ -35,10 +35,13 @@ export class DocumentsApi {
     ).then(response => response);
   };
 
+  /***
+   * @todo use JournalsService
+   */
   getColumnsConfigByType = typeRef => {
     return Records.queryOne(
       {
-        sourceId: 'uiserv/journal',
+        sourceId: 'uiserv/journal_v1',
         query: { typeRef }
       },
       '.json'
@@ -118,7 +121,9 @@ export class DocumentsApi {
     if (sourceId) {
       bodyQuery['sourceId'] = sourceId;
     }
-
+    /***
+     * @todo use JournalsService
+     */
     const dataSource = new GqlDataSource({
       url: `${PROXY_URI}citeck/ecos/records`,
       dataSourceName: 'GqlDataSource',

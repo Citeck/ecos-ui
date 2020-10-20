@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 import { t } from '../../../../helpers/util';
 import Mapper from '../mapping/Mapper';
 import formatterStore from '../formatters/formatterStore';
@@ -46,7 +48,7 @@ export default class BaseDataSource {
 
   _getColumns(columns) {
     return columns.map((column, idx) => {
-      const newColumn = { ...column };
+      const newColumn = cloneDeep(column);
       const formatterOptions = column.formatter || Mapper.getFormatterOptions(newColumn, idx);
       const { formatter, params } = this._getFormatter(formatterOptions);
 
