@@ -257,6 +257,10 @@ export default class ServerGroupAction extends ActionsExecutor {
       });
     });
   }
+
+  isActionConfigCheckingRequired(action) {
+    return false;
+  }
 }
 
 const renderPerformGroupActionResponse = (performGroupActionResponse = [], options) => {
