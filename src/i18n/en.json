@@ -723,6 +723,18 @@
   "records-actions.no-available": "No action available",
   "records-actions.original": "Original",
   "records-actions.remove": "Remove",
+
+  "records-actions.dialog.all-records-not-allowed.title": "Action is not allowed",
+  "records-actions.dialog.all-records-not-allowed.text": "The action with selected lines is not allowed",
+
+  "records-actions.confirm-not-allowed": "Action is not allowed for all lines. Continue?",
+
+  "records-actions.record.status.ALLOWED": "Allowed",
+  "records-actions.record.status.NOT_ALLOWED": "Not Allowed",
+
+  "records-actions.records-status.column.displayName.label": "Line",
+  "records-actions.records-status.column.status.label": "Status",
+
   "relative.day": "about a day ago",
   "relative.days": "{{value}} days ago",
   "relative.earlierThisWeek": "Earlier this week",
