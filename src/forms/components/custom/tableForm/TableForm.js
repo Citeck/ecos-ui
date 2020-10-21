@@ -308,7 +308,15 @@ export default class TableFormComponent extends BaseReactComponent {
 
             let columnsInfoPromise;
             let inputsPromise;
-            if (createVariants.length < 1 || columns.length < 1) {
+
+            let spareCreateVariants = [];
+            if (!Array.isArray(createVariants) || createVariants.length < 1) {
+              if (customCreateVariants && attribute) {
+                spareCreateVariants = await EcosFormUtils.getCreateVariants(record, attribute);
+              }
+            }
+
+            if (createVariants.length < 1 && spareCreateVariants.length < 1) {
               columnsInfoPromise = Promise.resolve(
                 columns.map(item => {
                   return {
@@ -322,7 +330,8 @@ export default class TableFormComponent extends BaseReactComponent {
               );
               inputsPromise = Promise.resolve({});
             } else {
-              let cvRecordRef = createVariants[0].recordRef;
+              const firstCreateVariant = _.get(createVariants, '[0]', _.get(spareCreateVariants, '[0]'));
+              let cvRecordRef = firstCreateVariant.recordRef;
               columnsInfoPromise = Records.get(cvRecordRef)
                 .load(Object.keys(columnsMap))
                 .then(loadedAtt => {
