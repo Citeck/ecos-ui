@@ -1,7 +1,3 @@
-@NonCPS
-import groovy.json.JsonOutput
-
-//Get Log sets func
 properties([
     buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '7')),
 ])
@@ -51,13 +47,6 @@ timestamps {
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
           sh "yarn && CI=true yarn test && yarn build"
-
-          // this info can be received from /build-info/main.json
-          def build_info = [:]
-          build_info.put("version", "${package_props.version}")
-          def jsonOut = readJSON text: JsonOutput.toJson(build_info)
-          writeJSON(file: 'build/build-info.json', json: jsonOut, pretty: 2)
-          // todo: remove this block
 
           // build-info
           def buildData = buildTools.getBuildInfo(repoUrl, "${env.BRANCH_NAME}", project_version)
