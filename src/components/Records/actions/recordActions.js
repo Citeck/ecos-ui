@@ -7,6 +7,10 @@ import React from 'react';
 import { extractLabel, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
 import Records from '../Records';
+import { EmptyGrid, Grid } from '../../common/grid';
+import dialogManager from '../../common/dialogs/Manager/DialogManager';
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
+
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
 import { notifyFailure } from './util/actionUtils';
@@ -14,8 +18,6 @@ import { notifyFailure } from './util/actionUtils';
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
-import { EmptyGrid, Grid } from '../../common/grid';
-import dialogManager from '../../common/dialogs/Manager/DialogManager';
 
 /**
  * @typedef {Boolean} RecordsActionBoolResult
@@ -183,15 +185,14 @@ class RecordActions {
     const { title, text, formId, modalClass } = data;
 
     if (formId) {
-      Records.get(formId)
-        .load('definition?json')
-        .then(formDefinition => {
+      EcosFormUtils.getFormById(formId, { definition: 'definition?json', i18n: 'i18n?json' })
+        .then(formData => {
+          const { definition, ...formOptions } = formData;
+
           dialogManager.showFormDialog({
             title,
-            formDefinition: {
-              display: 'form',
-              ...formDefinition
-            },
+            formOptions,
+            formDefinition: { display: 'form', ...definition },
             onSubmit: submission => callback(submission.data),
             onCancel: _ => callback(false)
           });
