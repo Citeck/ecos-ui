@@ -60,6 +60,9 @@
   }
 
   &_form {
+    #{$root}__body {
+      white-space: initial;
+    }
   }
 
   &_custom {
