@@ -422,7 +422,7 @@
   "grid.tools.select-all": "Select all",
   "grid.tools.zip": "Download Zip",
 
-  "group-action.label.header": "Group action results",
+  "group-action.label.header": "Result action \"{{action}}\"",
   "group-action.label.message": "Description",
   "group-action.label.record": "Record",
   "group-action.label.report": "The report has been successfully formed",
@@ -1009,6 +1009,7 @@
   "documents-widget.table-fields.updated-at": "Updated",
   "documents-widget.table-fields.name": "Title",
   "documents-widget.untitled": "Untitled",
+  "documents-widget.label.all-types": "All types",
   "documents-widget.notification.add-one.success": "Document uploaded successfully",
   "documents-widget.notification.add-one.error": "Failed to upload document",
   "documents-widget.notification.add-many.success": "Documents uploaded successfully",
