@@ -541,7 +541,7 @@ class DesktopDocuments extends BaseDocuments {
                 'ecos-docs__types-item_selected': !selectedType
               })}
             >
-              <div className="ecos-docs__types-item-label">{t('Все типы')}</div>
+              <div className="ecos-docs__types-item-label">{t(Labels.ALL_TYPES)}</div>
             </div>
 
             {dynamicTypes.map(this.renderType)}
