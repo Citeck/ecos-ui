@@ -18,6 +18,33 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     );
   }
 
+  setValue(value, flags) {
+    const skipSetting = _.isEqual(value, this.getValue());
+    value = value || '';
+    if (this.options.readOnly || this.htmlView) {
+      // For readOnly, just view the contents.
+      if (this.input) {
+        if (Array.isArray(value)) {
+          value = value.join('<br/><br/>');
+        }
+        this.input.innerHTML = this.interpolate(value);
+      }
+      // Cause: ECOSUI-675 - Group list is not loaded in user info
+      const changed = value !== undefined ? this.hasChanged(value, this.dataValue) : false;
+      this.dataValue = value;
+      return changed;
+    } else if (this.isPlain) {
+      value = Array.isArray(value) ? value.map(val => this.setConvertedValue(val)) : this.setConvertedValue(value);
+      return super.setValue(value, flags);
+    }
+
+    // Set the value when the editor is ready.
+    this.dataValue = value;
+
+    this.setWysiwygValue(value, skipSetting, flags);
+    return this.updateValue(flags); // Cause: ECOSUI-675 - Group list is not loaded in user info
+  }
+
   get defaultSchema() {
     return TextAreaComponent.schema();
   }
