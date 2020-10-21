@@ -91,7 +91,8 @@ export const Labels = {
   OPEN_SETTINGS_BUTTON: 'documents-widget.btn.settings',
   ERROR_UPLOAD: 'documents-widget.error.upload-filed',
   ERROR_ONLY_ONE_FILE: 'documents-widget.error.only-one-file',
-  NOTHING_FOUND: 'documents-widget.label.nothing-found'
+  NOTHING_FOUND: 'documents-widget.label.nothing-found',
+  ALL_TYPES: 'documents-widget.label.all-types'
 };
 
 export const CANCELED_TIME = 5;
