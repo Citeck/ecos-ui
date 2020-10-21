@@ -1,8 +1,6 @@
 import React from 'react';
 import uuidv4 from 'uuid/v4';
 import Formio from 'formiojs/Formio';
-
-import { getCurrentLocale } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 
@@ -42,11 +40,9 @@ export default class FormWrapper extends React.Component {
       return;
     }
 
-    const language = getCurrentLocale();
     const onSubmit = this.props.onSubmit || (() => {});
     const options = {
       ...(this.props.formOptions || {}),
-      language,
       onSubmit
     };
 
