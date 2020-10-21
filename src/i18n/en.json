@@ -1009,6 +1009,7 @@
   "documents-widget.table-fields.updated-at": "Updated",
   "documents-widget.table-fields.name": "Title",
   "documents-widget.untitled": "Untitled",
+  "documents-widget.label.all-types": "All types",
   "documents-widget.notification.add-one.success": "Document uploaded successfully",
   "documents-widget.notification.add-one.error": "Failed to upload document",
   "documents-widget.notification.add-many.success": "Documents uploaded successfully",
