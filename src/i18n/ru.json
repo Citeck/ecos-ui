@@ -422,7 +422,7 @@
   "grid.tools.select-all": "Выбрать все",
   "grid.tools.zip": "Скачать как Zip",
 
-  "group-action.label.header": "Результат выполнения групповой операции",
+  "group-action.label.header": "Результат действия \"{{action}}\"",
   "group-action.label.message": "Описание",
   "group-action.label.record": "Запись",
   "group-action.label.report": "Отчет успешно сформирован",

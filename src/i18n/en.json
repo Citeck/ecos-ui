@@ -422,7 +422,7 @@
   "grid.tools.select-all": "Select all",
   "grid.tools.zip": "Download Zip",
 
-  "group-action.label.header": "Group action results",
+  "group-action.label.header": "Result action \"{{action}}\"",
   "group-action.label.message": "Description",
   "group-action.label.record": "Record",
   "group-action.label.report": "The report has been successfully formed",

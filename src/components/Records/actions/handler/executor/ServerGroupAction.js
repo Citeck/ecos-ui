@@ -211,8 +211,9 @@ export default class ServerGroupAction extends ActionsExecutor {
     groupAction.type = 'selected';
     const previewRecords = await _getPreviewRecords(selectedRecords);
     const groupActionWithData = isExistValue(groupAction.formKey) ? await showFormIfRequired(groupAction) : undefined;
+    const options = { isLoading: true, title: groupAction.title };
 
-    this.showGroupActionResult(previewRecords, { isLoading: true });
+    this.showGroupActionResult(previewRecords, options);
 
     if (get(groupActionWithData, ['params', 'form_option_batch-edit-attribute'])) {
       result = await _performBatchEditAction({
@@ -227,7 +228,9 @@ export default class ServerGroupAction extends ActionsExecutor {
       });
     }
 
-    return result ? await this.showGroupActionResult(result, { isLoading: false }) : false;
+    options.isLoading = false;
+
+    return result ? await this.showGroupActionResult(result, options) : false;
   }
 
   async execForQuery(query, action, context) {
@@ -252,7 +255,7 @@ export default class ServerGroupAction extends ActionsExecutor {
   async showGroupActionResult(data, options) {
     return new Promise(resolve => {
       DialogManager.showCustomDialog({
-        title: 'group-action.label.header',
+        title: t('group-action.label.header', { action: options.title }),
         body: <ExecuteInfoGroupAction data={data} options={options} />,
         onHide: () => resolve(true)
       });
