@@ -918,6 +918,7 @@ class Grid extends Component {
   render() {
     const {
       minHeight,
+      correctorHeight,
       autoHeight,
       scrollAutoHide,
       className,
@@ -928,6 +929,7 @@ class Grid extends Component {
       columns,
       rowEvents,
       byContentHeight,
+      byWinHeight,
       ...otherProps
     } = this.props;
 
@@ -944,6 +946,10 @@ class Grid extends Component {
 
     if (byContentHeight && this._scrollRef) {
       maxHeight = this._scrollRef.getScrollHeight();
+    }
+
+    if (byWinHeight && this._ref.current) {
+      maxHeight = window.innerHeight - this._ref.current.getBoundingClientRect().top + correctorHeight;
     }
 
     if (autoHeight) {
@@ -1030,7 +1036,11 @@ Grid.propTypes = {
   scrollAutoHide: PropTypes.bool,
   autoHeight: PropTypes.bool,
   byContentHeight: PropTypes.bool,
+  byWinHeight: PropTypes.bool,
   sortable: PropTypes.bool,
+  maxHeight: PropTypes.number,
+  minHeight: PropTypes.number,
+  correctorHeight: PropTypes.number,
 
   columns: PropTypes.array,
   data: PropTypes.array,
@@ -1056,7 +1066,8 @@ Grid.propTypes = {
 
 Grid.defaultProps = {
   scrollable: true,
-  sortable: true
+  sortable: true,
+  correctorHeight: 0
 };
 
 export default Grid;
