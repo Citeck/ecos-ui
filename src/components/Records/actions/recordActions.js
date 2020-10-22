@@ -587,6 +587,16 @@ class RecordActions {
   }
 
   /**
+   * Get some information about action (name, icon ...)
+   * @param params
+   * @return {Object} info
+   */
+  getActionInfo(params) {
+    const defaultDesc = RecordActions._getActionsExecutor(params).getDefaultActionModel();
+    return { ...defaultDesc, ...params };
+  }
+
+  /**
    * Check if group action allowed for records or not
    * @param {Object<String, Number>} records
    * @param {RecActionWithCtx} action

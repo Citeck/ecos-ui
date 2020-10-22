@@ -1,26 +1,35 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import get from 'lodash/get';
 
+import { extractLabel } from '../../../../../helpers/util';
+import RecordActions from '../../../../Records/actions/recordActions';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 class ActionFormatter extends DefaultGqlFormatter {
-  static propTypes = {
-    className: PropTypes.string
+  state = {
+    info: {}
   };
 
-  static defaultProps = {
-    className: ''
+  componentDidMount() {
+    const info = RecordActions.getActionInfo(this.props.params);
+    this.setState({ info });
+  }
+
+  onClick = () => {
+    const { row, params } = this.props;
+    RecordActions.execForRecord(get(row, 'recordRef'), params).then(r => console.log(r));
   };
-
-  state = {};
-
-  componentDidMount() {}
-
-  onClick = () => {};
 
   render() {
-    console.log(this.props);
-    return <>Hi</>;
+    const { cell } = this.props;
+    const { info } = this.state;
+    const actionName = extractLabel(info.name);
+
+    return (
+      <div className="ecos-formatter-action__text" onClick={this.onClick} title={actionName}>
+        {cell}
+      </div>
+    );
   }
 }
 
