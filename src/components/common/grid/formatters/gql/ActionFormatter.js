@@ -1,5 +1,4 @@
 import React from 'react';
-import get from 'lodash/get';
 
 import { extractLabel } from '../../../../../helpers/util';
 import RecordActions from '../../../../Records/actions/recordActions';
@@ -17,7 +16,9 @@ class ActionFormatter extends DefaultGqlFormatter {
 
   onClick = () => {
     const { row, params } = this.props;
-    RecordActions.execForRecord(get(row, 'recordRef'), params).then(r => console.log(r));
+    const ref = row.id || row.recordRef;
+
+    RecordActions.execForRecord(ref, params).then(r => r);
   };
 
   render() {
