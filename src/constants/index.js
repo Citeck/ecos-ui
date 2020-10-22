@@ -25,6 +25,7 @@ export const pagesWithOnlyContent = [
 ];
 
 export const SourcesId = {
+  BUILD_INFO: 'uiserv/build-info',
   DASHBOARD: 'uiserv/dashboard',
   EFORM: 'uiserv/eform',
   USER_CONF: 'uiserv/user-conf',
