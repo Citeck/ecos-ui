@@ -13,4 +13,16 @@
   &__error {
     margin-bottom: 2em;
   }
+
+  &__setting {
+    margin-bottom: 2em;
+  }
+
+  &__switch-setting {
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: start;
+    grid-gap: 0.8em;
+    font-weight: $font-weight-semi-bold;
+  }
 }

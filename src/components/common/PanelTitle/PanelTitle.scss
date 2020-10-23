@@ -2,4 +2,16 @@
 
 .ecos-panel-title {
   @extend %title-block--1;
+
+  &_color {
+    &-gray {
+      background: $color-gray-25;
+    }
+  }
+
+  &_narrow {
+    font-size: $font-size-standard;
+    font-weight: $font-weight-semi-bold;
+    padding: 3px 12px;
+  }
 }

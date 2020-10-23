@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { TABS } from './constants';
 
 import { BuildContextProvider } from './Build/BuildContext';
+import { SettingsContextProvider } from './Settings/SettingsContext';
 
 export const DevToolsContext = React.createContext();
 
@@ -28,7 +29,9 @@ export const DevToolsContextProvider = props => {
         setActiveTab: _setActiveTab
       }}
     >
-      <BuildContextProvider>{props.children}</BuildContextProvider>
+      <BuildContextProvider>
+        <SettingsContextProvider>{props.children}</SettingsContextProvider>
+      </BuildContextProvider>
     </DevToolsContext.Provider>
   );
 };

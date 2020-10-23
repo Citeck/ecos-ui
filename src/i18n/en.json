@@ -220,6 +220,10 @@
   "dev-tools.error.failure-to-fetch-data": "Failure to fetch data",
   "dev-tools.build.alfresco.panel-title": "Alfresco modules",
   "dev-tools.build.system.panel-title": "System modules",
+  "dev-tools.settings.force-enable-new-forms": "Force new forms",
+  "dev-tools.settings.enable-logger-for-new-forms": "Enable logger for new forms",
+  "dev-tools.settings.on": "On",
+  "dev-tools.settings.off": "Off",
 
   "doc-associations-widget.add-association": "Add association",
   "doc-associations-widget.assoc-with-docs": "Associated with documents",
