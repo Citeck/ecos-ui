@@ -91,25 +91,15 @@ export class OrgStructApi extends RecordService {
       }
     ];
 
-    const predicateNotDisabledAndAvailable = {
-      t: 'and',
-      val: [
-        {
-          t: 'not-eq',
-          att: 'ecos:isPersonDisabled',
-          val: 'true'
-        },
-        {
-          t: 'eq',
-          att: 'deputy:available',
-          val: 'true'
-        }
-      ]
+    const predicateNotDisabled = {
+      t: 'not-eq',
+      att: 'ecos:isPersonDisabled',
+      val: 'true'
     };
 
     const isHideForAll = Boolean(await Records.get('ecos-config@hide-disabled-users-for-everyone').load('.bool'));
     if (isHideForAll) {
-      queryVal.push(predicateNotDisabledAndAvailable);
+      queryVal.push(predicateNotDisabled);
     } else {
       const userName = getCurrentUserName();
       const isAdmin = Boolean(await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool'));
@@ -118,7 +108,7 @@ export class OrgStructApi extends RecordService {
           await Records.get('ecos-config@orgstruct-show-inactive-user-only-for-admin').load('.bool')
         );
         if (showInactiveUserOnlyForAdmin) {
-          queryVal.push(predicateNotDisabledAndAvailable);
+          queryVal.push(predicateNotDisabled);
         }
       }
     }
