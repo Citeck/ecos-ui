@@ -5,12 +5,12 @@ import { Btn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
 import { t } from '../../../../helpers/util';
 
-import { DocPermissionsEditorContext } from '../DocPermissionsEditorContext';
-import { STATUS_FIELD_NAME, DOC_PERM_READ, DOC_PERM_WRITE } from '../../constants';
-import { switchDocPerm } from '../../helpers/switchDocPerm';
+import { TypePermissionsEditorContext } from '../TypePermissionsEditorContext';
+import { STATUS_FIELD_NAME, TYPE_PERM_READ, TYPE_PERM_WRITE } from '../../constants';
+import { switchTypePerm } from '../../helpers/switchTypePerm';
 
-const DocPermissionsGrid = () => {
-  const context = useContext(DocPermissionsEditorContext);
+const TypePermissionsGrid = () => {
+  const context = useContext(TypePermissionsEditorContext);
   const { matrixConfig, roles, statuses, setPermission } = context;
 
   const columns = [
@@ -20,32 +20,32 @@ const DocPermissionsGrid = () => {
     }
   ].concat(
     roles.map(role => ({
-      dataField: role.roleid,
+      dataField: role.id,
       text: role.name,
-      className: 'doc-permissions__column',
+      className: 'type-permissions__column',
       formatExtraData: {
         formatter: ({ cell, row, roleId }) => {
           const docStatus = row.id;
           const permission = cell;
           const onClick = () => {
-            const newPermission = switchDocPerm(permission);
+            const newPermission = switchTypePerm(permission);
             setPermission(roleId, docStatus, newPermission);
           };
 
           return (
-            <div className={'doc-permissions__switch-buttons'}>
+            <div className={'type-permissions__switch-buttons'}>
               <Btn
-                className={classNames('ecos-btn_narrow', 'doc-permissions__switch-button', {
-                  'ecos-btn_blue': permission === DOC_PERM_WRITE || permission === DOC_PERM_READ
+                className={classNames('ecos-btn_narrow', 'type-permissions__switch-button', {
+                  'ecos-btn_blue': permission === TYPE_PERM_WRITE || permission === TYPE_PERM_READ
                 })}
                 onClick={onClick}
               >
-                {t(`doc-permissions.${String(permission).toLowerCase()}`)}
+                {t(`type-permissions.${String(permission).toLowerCase()}`)}
               </Btn>
             </div>
           );
         },
-        roleId: role.roleid
+        roleId: role.id
       }
     }))
   );
@@ -53,8 +53,8 @@ const DocPermissionsGrid = () => {
   const data = statuses.map(status => {
     const rolesPermissions = {};
     roles.forEach(role => {
-      const rolePermissions = matrixConfig.permissions.find(perm => perm.role === role.roleid);
-      rolesPermissions[role.roleid] = rolePermissions.statuses[status.id];
+      const rolePermissions = matrixConfig[role.id] || {};
+      rolesPermissions[role.id] = rolePermissions[status.id] || 'READ';
     });
 
     return {
@@ -69,10 +69,10 @@ const DocPermissionsGrid = () => {
   };
 
   return (
-    <div className="doc-permissions__grid-container">
-      <Grid autoHeight maxHeight={calcMaxHeight()} fixedHeader data={data} columns={columns} className="doc-permissions__grid" />
+    <div className="type-permissions__grid-container">
+      <Grid autoHeight maxHeight={calcMaxHeight()} fixedHeader data={data} columns={columns} className="type-permissions__grid" />
     </div>
   );
 };
 
-export default DocPermissionsGrid;
+export default TypePermissionsGrid;
