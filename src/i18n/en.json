@@ -224,6 +224,7 @@
   "dev-tools.settings.enable-logger-for-new-forms": "Enable logger for new forms",
   "dev-tools.settings.on": "On",
   "dev-tools.settings.off": "Off",
+  "dev-tools.dev-modules.panel-title": "Modules",
 
   "doc-associations-widget.add-association": "Add association",
   "doc-associations-widget.assoc-with-docs": "Associated with documents",

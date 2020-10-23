@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { TABS } from './constants';
 
 import { BuildContextProvider } from './Build/BuildContext';
+import { DevModulesContextProvider } from './DevModules/DevModulesContext';
 import { SettingsContextProvider } from './Settings/SettingsContext';
 
 export const DevToolsContext = React.createContext();
@@ -30,7 +31,9 @@ export const DevToolsContextProvider = props => {
       }}
     >
       <BuildContextProvider>
-        <SettingsContextProvider>{props.children}</SettingsContextProvider>
+        <DevModulesContextProvider>
+          <SettingsContextProvider>{props.children}</SettingsContextProvider>
+        </DevModulesContextProvider>
       </BuildContextProvider>
     </DevToolsContext.Provider>
   );

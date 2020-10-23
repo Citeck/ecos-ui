@@ -9,9 +9,9 @@ import * as RecordUtils from '../../Records/utils/recordUtils';
 import journalsServiceApi from './journalsServiceApi';
 
 class JournalsDataLoader {
-  async load(journalConfig, settings) {
+  async load(journalConfig, settings = {}) {
     const columns = journalConfig.columns || [];
-    let predicates = [journalConfig.predicate, settings.predicate, ...settings.filter];
+    let predicates = [journalConfig.predicate, settings.predicate, ...(settings.filter || [])];
 
     if (settings.onlyLinked && settings.recordRef) {
       predicates.push({

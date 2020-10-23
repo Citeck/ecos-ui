@@ -224,6 +224,7 @@
   "dev-tools.settings.enable-logger-for-new-forms": "Включить логгер для новых форм",
   "dev-tools.settings.on": "Вкл",
   "dev-tools.settings.off": "Выкл",
+  "dev-tools.dev-modules.panel-title": "Модули",
 
   "doc-associations-widget.add-association": "Добавить связь",
   "doc-associations-widget.assoc-with-docs": "Связан с документами",

@@ -3,6 +3,8 @@
 .ecos-panel-title {
   @extend %title-block--1;
 
+  margin-bottom: 0;
+
   &_color {
     &-gray {
       background: $color-gray-25;

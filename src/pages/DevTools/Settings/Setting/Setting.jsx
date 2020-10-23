@@ -10,7 +10,7 @@ const Setting = ({ title, children, className }) => {
       <PanelTitle narrow color={COLOR_GRAY}>
         {title}
       </PanelTitle>
-      {children}
+      <div className="dev-tools-page__setting-body">{children}</div>
     </div>
   );
 };

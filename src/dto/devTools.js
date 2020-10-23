@@ -8,6 +8,7 @@ export default class DevToolsConverter {
         buildDate = `20${groups[1]}-${groups[2]}-${groups[3]}T${groups[4]}:${groups[5]}:00Z`;
       }
       return {
+        id: module.id,
         label: module.id,
         version: module.version,
         buildDate
@@ -19,6 +20,7 @@ export default class DevToolsConverter {
     const modules = Array.isArray(source.records) ? source.records : [];
     return modules.map(module => {
       return {
+        id: module.label,
         label: module.label,
         version: module.version,
         buildDate: module.buildDate
