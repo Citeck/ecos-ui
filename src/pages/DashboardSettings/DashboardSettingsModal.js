@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
 
-import Settings, { getStateId, mapStateToProps, mapDispatchToProps } from './Settings';
+import Settings, { getStateId, mapDispatchToProps, mapStateToProps } from './Settings';
 import { DashboardTypes } from '../../constants/dashboard';
 import { t } from '../../helpers/export/util';
 import DashboardService from '../../services/dashboard';
@@ -203,6 +203,7 @@ class DashboardSettingsModal extends Settings {
       <Container className="ecos-dashboard-settings ecos-dashboard-settings_modal">
         {this.renderLoader()}
         <div className="ecos-dashboard-settings__body" style={this.bodyStyles} ref={this.setBodyRef}>
+          {this.renderSpecificationsBlock()}
           {this.renderOwnershipBlock()}
           {this.renderDeviceTabsBlock()}
           {this.renderLayoutTabsBlock()}

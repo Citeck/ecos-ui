@@ -98,6 +98,21 @@
     margin-bottom: 24px;
   }
 
+  &__spec {
+    font-size: $font-size-standard;
+    font-weight: $font-weight-semi-bold;
+    margin-bottom: 20px;
+
+    &-block {
+      display: flex;
+    }
+
+    &-label {
+      color: $color-gray-5;
+      padding-right: 5px;
+    }
+  }
+
   &__bindings {
     &-owner {
       display: flex;
@@ -112,6 +127,16 @@
 
       & > :not(:last-child) {
         margin-right: 15px;
+      }
+
+      & :first-child {
+        position: relative;
+      }
+      &-loader {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        background: rgba($color-white, 0.5);
       }
     }
 

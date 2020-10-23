@@ -139,6 +139,7 @@
   "dashboard-settings.button.save": "Save",
   "dashboard-settings.cancel": "Cancel",
   "dashboard-settings.card-settings": "Card settings",
+  "dashboard-settings.spec.id": "Dashboard ID",
   "dashboard-settings.bind.title": "Ownership settings",
   "dashboard-settings.bind.reset.btn": "Reset",
   "dashboard-settings.bind.reset.desc": "You can reset custom settings for selected case type to default settings",

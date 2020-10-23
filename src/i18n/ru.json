@@ -139,6 +139,7 @@
   "dashboard-settings.button.save": "Применить",
   "dashboard-settings.cancel": "Отменить",
   "dashboard-settings.card-settings": "Настройка карточек",
+  "dashboard-settings.spec.id": "Идентификатор дашборда",
   "dashboard-settings.bind.title": "Принадлежность настроек",
   "dashboard-settings.bind.reset.btn": "Сбросить",
   "dashboard-settings.bind.reset.desc": "Вы можете сбросить пользовательские настройки для выбранного типа кейса на настройки \"По умолчанию\"",

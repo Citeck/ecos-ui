@@ -15,6 +15,7 @@ import {
   setDashboardConfig,
   setDashboardKeys,
   setLoading,
+  setLoadingKeys,
   setRequestResultDashboard
 } from '../actions/dashboardSettings';
 import { selectIdentificationForSet } from '../selectors/dashboard';
@@ -37,7 +38,7 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 }
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
-  const { recordRef, key } = payload;
+  const { key } = payload;
 
   try {
     const { config, ...result } = yield call(api.dashboard.getDashboardByOneOf, payload);
@@ -51,7 +52,7 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
 
     yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config }));
     yield put(getAvailableWidgets({ type: data.type, key }));
-    yield put(getDashboardKeys({ recordRef, key }));
+    yield put(getDashboardKeys(payload));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-config'), t('error'));
     logger.error('[dashboard-settings/ doGetDashboardConfigRequest saga] error', e.message);
@@ -73,12 +74,16 @@ function* doGetWidgetsRequest({ api, logger }, { payload }) {
 
 function* doGetDashboardKeys({ api, logger }, { payload }) {
   try {
-    const keys = yield call(api.dashboard.getDashboardKeysByRef, payload.recordRef);
+    yield put(setLoadingKeys({ status: true, key: payload.key }));
+
+    const keys = yield call(api.dashboard.getDashboardTypes, payload);
 
     yield put(setDashboardKeys({ keys, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-board-key'), t('error'));
     logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e.message);
+  } finally {
+    yield put(setLoadingKeys({ status: false, key: payload.key }));
   }
 }
 
