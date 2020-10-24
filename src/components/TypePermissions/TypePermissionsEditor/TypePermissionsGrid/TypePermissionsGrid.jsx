@@ -21,7 +21,7 @@ const TypePermissionsGrid = () => {
   ].concat(
     roles.map(role => ({
       dataField: role.id,
-      text: role.name,
+      text: role.name || role.id,
       className: 'type-permissions__column',
       formatExtraData: {
         formatter: ({ cell, row, roleId }) => {
@@ -59,7 +59,7 @@ const TypePermissionsGrid = () => {
 
     return {
       id: status.id,
-      [STATUS_FIELD_NAME]: status.name,
+      [STATUS_FIELD_NAME]: status.name || status.id,
       ...rolesPermissions
     };
   });

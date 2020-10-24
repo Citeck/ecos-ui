@@ -789,23 +789,31 @@ export function objectCompare(obj1, obj2, params = {}) {
   return isEqual(filteredFirst, filteredSecond);
 }
 
-export function extractLabel(text) {
+export function getMLValue(text) {
   let displayText = text || '';
+  if (!isObject(text)) {
+    return displayText;
+  }
 
-  if (isObject(text)) {
-    displayText = text[getCurrentLocale()] || text[LOCALE_EN] || '';
+  displayText = text[getCurrentLocale()] || text[LOCALE_EN] || '';
 
-    if (!displayText) {
-      for (const key in text) {
-        if (text.hasOwnProperty(key) && isString(text[key])) {
-          displayText = text[key] || '';
+  if (!displayText) {
+    for (const key in text) {
+      if (text.hasOwnProperty(key)) {
+        let value = text[key];
+        if (value && isString(value)) {
+          displayText = value;
           break;
         }
       }
     }
   }
 
-  return t(displayText);
+  return displayText;
+}
+
+export function extractLabel(text) {
+  return t(getMLValue(text));
 }
 
 export function packInLabel(text = '') {
@@ -968,3 +976,6 @@ export function reverseString(str = '') {
     .reverse()
     .join('');
 }
+
+lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
+lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);

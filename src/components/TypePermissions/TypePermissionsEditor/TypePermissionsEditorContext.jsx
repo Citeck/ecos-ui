@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import cloneDeep from 'lodash/cloneDeep';
 
 import TypePermissionsEditorPropTypes from './TypePermissionsEditorPropTypes';
 import dialogManager from '../../common/dialogs/Manager/DialogManager';
+import { formatPermissionsMatrix } from '../helpers/formatPermissionsMatrix';
 
 export const TypePermissionsEditorContext = React.createContext();
 
@@ -11,21 +11,7 @@ export const TypePermissionsEditorContextProvider = props => {
   const { controlProps } = props;
   const { onSave, onCancel, onDelete, roles, statuses } = controlProps;
 
-  const matrix = cloneDeep(controlProps.permissionsDef.matrix || {});
-  for (let role of roles) {
-    let roleData = matrix[role.id];
-    if (!roleData) {
-      roleData = {};
-      matrix[role.id] = roleData;
-    }
-    for (let status of statuses) {
-      let statusPermission = roleData[status.id];
-      if (!statusPermission) {
-        roleData[status.id] = 'READ';
-      }
-    }
-  }
-
+  const matrix = formatPermissionsMatrix(controlProps.permissionsDef.matrix, roles, statuses);
   const [matrixConfig, setMatrixConfig] = useState(matrix);
 
   const savePermissions = async () => {
