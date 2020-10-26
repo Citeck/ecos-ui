@@ -52,7 +52,8 @@ export const DefaultActionTypes = {
   EDIT_TASK_ASSIGNEE: 'edit-task-assignee',
   VIEW_BUSINESS_PROCESS: 'view-business-process',
   CANCEL_BUSINESS_PROCESS: 'cancel-business-process',
-  MUTATE: 'mutate'
+  MUTATE: 'mutate',
+  FORM_OPEN_SUBMIT: 'form-open-submit'
 };
 
 export const EditAction = {
@@ -818,6 +819,17 @@ export const MutateAction = {
     return {
       name: 'record-action.name.mutate-action',
       type: DefaultActionTypes.MUTATE,
+      icon: 'icon-arrow'
+    };
+  }
+};
+
+export const FormOpenSubmitAction = {
+  execute: ({ record, action }) => {},
+  getDefaultModel: () => {
+    return {
+      name: '',
+      type: DefaultActionTypes.FORM_OPEN_SUBMIT,
       icon: 'icon-arrow'
     };
   }
