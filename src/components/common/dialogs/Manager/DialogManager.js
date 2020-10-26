@@ -260,6 +260,8 @@ const dialogsById = {
       onFormCancel: hideModal
     };
 
+    reactstrapProps.backdrop = 'static';
+
     if (showDefaultButtons && formProps.formDefinition) {
       let definition = formProps.formDefinition;
       if (definition.components) {
