@@ -350,7 +350,7 @@ const dialogsById = {
 
     return (
       <EcosModal isLoading noHeader noDraggable isOpen={isVisible} className="ecos-dialog ecos-dialog_loader">
-        {text && <div className="ecos-dialog_loader-status">{text}</div>}
+        <div className="ecos-dialog_loader-status">{t(text || 'waiting')}</div>
       </EcosModal>
     );
   }

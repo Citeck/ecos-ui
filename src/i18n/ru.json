@@ -2,6 +2,7 @@
   "error": "Ошибка",
   "success": "Успех",
   "warning": "Предупреждение",
+  "waiting": "Ожидайте",
   "actions.document.download": "Скачать",
   "aggregation.columns": "Колонка для агрегации",
   "aggregation.type": "Тип агрегации",
