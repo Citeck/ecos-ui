@@ -25,6 +25,10 @@ export class TypePermissionsApi extends CommonApi {
     );
   };
 
+  static deleteTypePermissions = async permissionsRef => {
+    Records.remove([permissionsRef]);
+  };
+
   /**
    * Fetch roles, statuses and type display name by typeRef
    *

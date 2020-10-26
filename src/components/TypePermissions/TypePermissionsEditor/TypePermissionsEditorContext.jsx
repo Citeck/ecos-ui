@@ -11,7 +11,9 @@ export const TypePermissionsEditorContextProvider = props => {
   const { controlProps } = props;
   const { onSave, onCancel, onDelete, roles, statuses } = controlProps;
 
-  const matrix = formatPermissionsMatrix(controlProps.permissionsDef.matrix, roles, statuses);
+  const matrix = formatPermissionsMatrix(controlProps.permissionsDef.matrix, roles, statuses, {
+    fillEmptyMatrix: true
+  });
   const [matrixConfig, setMatrixConfig] = useState(matrix);
 
   const savePermissions = async () => {

@@ -8,6 +8,7 @@ import TypePermissionsEditor from './TypePermissionsEditor';
 import { TypePermissionsApi } from '../../api/typePermissions';
 import DownloadAction from '../Records/actions/handler/executor/DownloadAction';
 import { formatPermissionsConfig } from './helpers/formatPermissionsMatrix';
+import dialogManager from '../common/dialogs/Manager/DialogManager';
 
 export default class TypePermissionsService {
   static async editTypePermissions(typeRef, customPermsData = {}) {
@@ -41,7 +42,7 @@ export default class TypePermissionsService {
   }
 
   static async downloadPermissionsConfig(typeRef, roles, statuses, attributes) {
-    let typePermissions = await TypePermissionsApi.getTypePermissions(typeRef);
+    let typePermissions = await this.getTypePermissions(typeRef);
     if (!typePermissions) {
       throw new Error(t('type-permissions.load-data-error'));
     }
@@ -61,8 +62,28 @@ export default class TypePermissionsService {
     DownloadAction._downloadText(JSON.stringify(matrix, null, '  '), filename, 'text/json');
   }
 
+  static async deletePermissionsConfig(typeRef) {
+    let typePermissions = await TypePermissionsApi.getTypePermissions(typeRef);
+    if (typePermissions) {
+      dialogManager.showRemoveDialog({
+        title: 'type-permissions.delete.modal-title',
+        text: 'type-permissions.delete.modal-text',
+        isWaitResponse: true,
+        onDelete: async () => {
+          await TypePermissionsApi.deleteTypePermissions(typePermissions);
+        }
+      });
+    }
+  }
+
+  static async isTypeHasPermissions(typeRef) {
+    let permissions = await TypePermissionsApi.getTypePermissions(typeRef);
+    return permissions != null;
+  }
+
   static async _editPermissions(typeRef, customPermsData, permsDefGetter, permsDefSetter, permsDefDelete) {
     let permsData = await TypePermissionsService._getTypePermissionsData(typeRef);
+
     if (customPermsData) {
       permsData = Object.assign({}, permsData, customPermsData);
     }
@@ -117,10 +138,27 @@ export default class TypePermissionsService {
     });
   }
 
+  static getTypePermissions = async typeRef => {
+    let typePermissions = await TypePermissionsApi.getTypePermissions(typeRef);
+    if (!typePermissions) {
+      typePermissions = {
+        id: 'emodel/perms@',
+        typeRef,
+        permissions: {
+          matrix: {},
+          rules: []
+        },
+        attributes: {}
+      };
+    }
+    return typePermissions;
+  };
+
   static _getTypePermissionsData = async typeRef => {
     try {
+      let typePermissions = await this.getTypePermissions(typeRef);
       return {
-        typePermissions: await TypePermissionsApi.getTypePermissions(typeRef),
+        typePermissions: typePermissions,
         ...(await TypePermissionsApi.getTypeInfo(typeRef))
       };
     } catch (e) {
