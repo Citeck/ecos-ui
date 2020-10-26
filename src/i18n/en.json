@@ -225,6 +225,7 @@
   "dev-tools.settings.on": "On",
   "dev-tools.settings.off": "Off",
   "dev-tools.dev-modules.panel-title": "Modules",
+  "dev-tools.commits.all-repos": "All repositories",
 
   "doc-associations-widget.add-association": "Add association",
   "doc-associations-widget.assoc-with-docs": "Associated with documents",

@@ -30,4 +30,31 @@ export class DevToolsApi extends CommonApi {
       }
     );
   };
+
+  /**
+   * Fetch ecos-ui commits list
+   *
+   * @returns {Promise<[]>} Promise object represents commits list
+   */
+  getUiCommits = async () => {
+    return this.getJson(`/build-info/full.json`);
+  };
+
+  /**
+   * Fetch all applications commits list
+   *
+   * @returns {Promise<[]>} Promise object represents commits list
+   */
+  getAllAppsCommits = async () => {
+    return Records.query(
+      {
+        sourceId: SourcesId.BUILD_INFO
+      },
+      {
+        label: 'label',
+        repo: 'info.repo',
+        commits: 'info.commits?json'
+      }
+    );
+  };
 }

@@ -225,6 +225,7 @@
   "dev-tools.settings.on": "Вкл",
   "dev-tools.settings.off": "Выкл",
   "dev-tools.dev-modules.panel-title": "Модули",
+  "dev-tools.commits.all-repos": "Все репозитории",
 
   "doc-associations-widget.add-association": "Добавить связь",
   "doc-associations-widget.assoc-with-docs": "Связан с документами",

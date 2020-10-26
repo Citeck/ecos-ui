@@ -5,6 +5,7 @@ import { TABS } from './constants';
 
 import { BuildContextProvider } from './Build/BuildContext';
 import { DevModulesContextProvider } from './DevModules/DevModulesContext';
+import { CommitsContextProvider } from './Commits/CommitsContext';
 import { SettingsContextProvider } from './Settings/SettingsContext';
 
 export const DevToolsContext = React.createContext();
@@ -32,7 +33,9 @@ export const DevToolsContextProvider = props => {
     >
       <BuildContextProvider>
         <DevModulesContextProvider>
-          <SettingsContextProvider>{props.children}</SettingsContextProvider>
+          <CommitsContextProvider>
+            <SettingsContextProvider>{props.children}</SettingsContextProvider>
+          </CommitsContextProvider>
         </DevModulesContextProvider>
       </BuildContextProvider>
     </DevToolsContext.Provider>

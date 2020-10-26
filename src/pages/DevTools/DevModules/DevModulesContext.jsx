@@ -3,7 +3,7 @@ import React, { useReducer } from 'react';
 import JournalsService from '../../../components/Journals/service';
 import { t } from '../../../helpers/util';
 
-import { SET_JOURNAL_CONFIG, SET_GRID_DATA, SET_GRID_COLUMNS, SET_GRID_ACTIONS, SET_IS_READY, SET_ERROR } from './actions';
+import { SET_GRID_DATA, SET_GRID_COLUMNS, SET_GRID_ACTIONS, SET_IS_READY, SET_ERROR } from './actions';
 import { initialState, reducer } from './reducer';
 
 export const DevModulesContext = React.createContext();
@@ -16,7 +16,6 @@ export const DevModulesContextProvider = props => {
   const getDevModulesData = async () => {
     try {
       const journalConfig = await JournalsService.getJournalConfig(DEV_MODULES_JOURNAL_ID);
-      dispatch({ type: SET_JOURNAL_CONFIG, payload: journalConfig });
 
       const columns = await JournalsService.resolveColumns(journalConfig.columns);
       dispatch({ type: SET_GRID_COLUMNS, payload: columns });

@@ -1,3 +1,6 @@
+import omit from 'lodash/omit';
+import get from 'lodash/get';
+
 export default class DevToolsConverter {
   static fetchAlfrescoModulesList(source = {}) {
     const modules = source.modules || [];
@@ -26,5 +29,27 @@ export default class DevToolsConverter {
         buildDate: module.buildDate
       };
     });
+  }
+
+  static fetchRepos(source = []) {
+    const target = {};
+
+    source.forEach(repo => {
+      target[repo.id] = omit(repo, ['commits']);
+    });
+
+    return target;
+  }
+
+  static normalizeCommits(source = []) {
+    return source
+      .map(app => {
+        return app.commits.map(commit => ({
+          ...commit,
+          repo: app.repo
+        }));
+      })
+      .reduce((acc, val) => acc.concat(val))
+      .sort((a, b) => (get(a, 'committer.date') > get(b, 'committer.date') ? -1 : 1));
   }
 }

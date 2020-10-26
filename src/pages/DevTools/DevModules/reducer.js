@@ -1,9 +1,8 @@
-import { SET_JOURNAL_CONFIG, SET_GRID_DATA, SET_GRID_COLUMNS, SET_GRID_ACTIONS, SET_IS_READY, SET_ERROR } from './actions';
+import { SET_GRID_DATA, SET_GRID_COLUMNS, SET_GRID_ACTIONS, SET_IS_READY, SET_ERROR } from './actions';
 
 export const initialState = {
   isReady: false,
   error: null,
-  journalConfig: {},
   actions: [],
   columns: [],
   data: []
@@ -11,11 +10,6 @@ export const initialState = {
 
 export function reducer(state, { type, payload }) {
   switch (type) {
-    case SET_JOURNAL_CONFIG:
-      return {
-        ...state,
-        journalConfig: payload
-      };
     case SET_GRID_ACTIONS:
       return {
         ...state,
