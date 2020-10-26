@@ -65,7 +65,15 @@ const performGroupAction = async ({ groupAction, selected = [], resolved, query 
   return result;
 };
 
-const _getPreviewRecords = async records => {
+const _getPlugRecords = records => {
+  return records.map(nodeRef => ({
+    nodeRef,
+    title: t('batch-edit.label.fetch-data'),
+    status: t('batch-edit.message.started')
+  }));
+};
+
+const _getPreviewRecords = records => {
   return Promise.all(
     records.map(nodeRef =>
       Records.get(nodeRef)
@@ -209,10 +217,12 @@ export default class ServerGroupAction extends ActionsExecutor {
     const selectedRecords = records.map(r => r.id);
     const groupAction = cloneDeep(action.config);
     groupAction.type = 'selected';
-    const previewRecords = await _getPreviewRecords(selectedRecords);
+
     const groupActionWithData = isExistValue(groupAction.formKey) ? await showFormIfRequired(groupAction) : undefined;
     const options = { isLoading: true, title: groupAction.title };
 
+    this.showGroupActionResult(_getPlugRecords(selectedRecords), options);
+    const previewRecords = await _getPreviewRecords(selectedRecords);
     this.showGroupActionResult(previewRecords, options);
 
     if (get(groupActionWithData, ['params', 'form_option_batch-edit-attribute'])) {
@@ -228,9 +238,15 @@ export default class ServerGroupAction extends ActionsExecutor {
       });
     }
 
-    options.isLoading = false;
-
-    return result ? await this.showGroupActionResult(result, options) : false;
+    return result
+      ? await new Promise(resolve =>
+          this.showGroupActionResult(result, {
+            ...options,
+            isLoading: false,
+            callback: resolve
+          })
+        )
+      : false;
   }
 
   async execForQuery(query, action, context) {
@@ -252,13 +268,13 @@ export default class ServerGroupAction extends ActionsExecutor {
     });
   }
 
-  async showGroupActionResult(data, options) {
-    return new Promise(resolve => {
-      DialogManager.showCustomDialog({
-        title: t('group-action.label.header', { action: options.title }),
-        body: <ExecuteInfoGroupAction data={data} options={options} />,
-        onHide: () => resolve(true)
-      });
+  showGroupActionResult(data, options) {
+    DialogManager.showCustomDialog({
+      title: t('group-action.label.header', { action: options.title }),
+      body: <ExecuteInfoGroupAction data={data} options={options} />,
+      onHide: () => {
+        options.callback && options.callback(true);
+      }
     });
   }
 

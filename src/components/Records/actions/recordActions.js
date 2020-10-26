@@ -1,14 +1,14 @@
+import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
-import React from 'react';
 
 import { extractLabel, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
 import Records from '../Records';
 import { EmptyGrid, Grid } from '../../common/grid';
-import dialogManager from '../../common/dialogs/Manager/DialogManager';
+import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 
 import actionsApi from './recordActionsApi';
@@ -189,7 +189,7 @@ class RecordActions {
         .then(formData => {
           const { definition, ...formOptions } = formData;
 
-          dialogManager.showFormDialog({
+          DialogManager.showFormDialog({
             title,
             formOptions,
             formDefinition: { display: 'form', ...definition },
@@ -200,10 +200,10 @@ class RecordActions {
         .catch(e => {
           console.error(e);
           callback(false);
-          dialogManager.showInfoDialog({ title: t('error'), text: e.message });
+          DialogManager.showInfoDialog({ title: t('error'), text: e.message });
         });
     } else {
-      dialogManager.confirmDialog({ title, text, modalClass, onNo: () => callback(false), onYes: () => callback(true) });
+      DialogManager.confirmDialog({ title, text, modalClass, onNo: () => callback(false), onYes: () => callback(true) });
     }
   };
 
@@ -422,6 +422,10 @@ class RecordActions {
    * @param {Object} context
    */
   async execForRecords(records, action, context = {}) {
+    const loaderOptions = { isVisible: true, text: t('record-action.msg.status.start-n-wait') };
+
+    DialogManager.toggleLoader(loaderOptions);
+
     if (!records || !records.length) {
       return false;
     }
@@ -443,20 +447,24 @@ class RecordActions {
       return false;
     }
 
-    let recordsDisplayNamePromise = recordInstances.load('.disp').then(names => {
-      let dispByRecId = {};
+    const recordsDisplayNamePromise = recordInstances.load('.disp').then(names => {
+      const dispByRecId = {};
+
       for (let idx = 0; idx < names.length; idx++) {
         dispByRecId[recordInstances[idx].id] = names[idx];
       }
+
       return dispByRecId;
     });
+
+    DialogManager.toggleLoader(loaderOptions);
 
     const allowedInfo = await this._getActionAllowedInfoForRecords(recordInstances, action, context);
     const { allowedRecords = [], notAllowedRecords = [] } = allowedInfo;
 
     if (!allowedRecords.length) {
       return new Promise(resolve => {
-        dialogManager.showInfoDialog({
+        DialogManager.showInfoDialog({
           title: 'records-actions.dialog.all-records-not-allowed.title',
           text: 'records-actions.dialog.all-records-not-allowed.text',
           onClose: () => {
@@ -481,7 +489,7 @@ class RecordActions {
         ...allowedRecords.map(rec => formatRecordsStatus(rec, 'ALLOWED')),
         ...notAllowedRecords.map(rec => formatRecordsStatus(rec, 'NOT_ALLOWED'))
       ];
-      let confirmResult = await showRecordsStatus(recordsStatus, {
+      const confirmResult = await showRecordsStatus(recordsStatus, {
         title: 'records-actions.confirm-not-allowed',
         withConfirm: true,
         columns: ['displayName', 'status']
@@ -686,7 +694,7 @@ const showRecordsStatus = async (records, options = {}) => {
     ];
   }
   return new Promise(resolve => {
-    dialogManager.showCustomDialog({
+    DialogManager.showCustomDialog({
       ...dialogProps,
       onHide: () => resolve(popupResult)
     });
