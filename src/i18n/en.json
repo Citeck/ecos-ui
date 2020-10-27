@@ -226,6 +226,11 @@
   "dev-tools.settings.off": "Off",
   "dev-tools.dev-modules.panel-title": "Modules",
   "dev-tools.commits.all-repos": "All repositories",
+  "dev-tools.commits.grid-column.author": "Author",
+  "dev-tools.commits.grid-column.repo": "Repository",
+  "dev-tools.commits.grid-column.commit": "Commit",
+  "dev-tools.commits.grid-column.date": "Date",
+  "dev-tools.commits.grid-column.message": "Message",
 
   "doc-associations-widget.add-association": "Add association",
   "doc-associations-widget.assoc-with-docs": "Associated with documents",

@@ -1,6 +1,11 @@
 @import '../../styles/constants';
 
 .dev-tools-page {
+  &__tabs {
+    overflow: auto;
+    margin-bottom: -3px;
+  }
+
   &__title {
     margin: 20px 0 10px;
   }
@@ -27,6 +32,15 @@
     grid-auto-flow: column;
     justify-content: start;
     grid-gap: 0.8em;
+    font-weight: $font-weight-semi-bold;
+  }
+}
+
+.commits-grid {
+  margin-top: 15px;
+  border-top: 2px solid $color-gray-4;
+
+  &__link {
     font-weight: $font-weight-semi-bold;
   }
 }

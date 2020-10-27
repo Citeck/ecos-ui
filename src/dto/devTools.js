@@ -34,8 +34,8 @@ export default class DevToolsConverter {
   static fetchRepos(source = []) {
     const target = {};
 
-    source.forEach(repo => {
-      target[repo.id] = omit(repo, ['commits']);
+    source.forEach(item => {
+      target[item.repo] = omit(item, ['commits']);
     });
 
     return target;
@@ -46,7 +46,8 @@ export default class DevToolsConverter {
       .map(app => {
         return app.commits.map(commit => ({
           ...commit,
-          repo: app.repo
+          repo: app.repo,
+          id: commit.commit
         }));
       })
       .reduce((acc, val) => acc.concat(val))

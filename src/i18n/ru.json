@@ -226,6 +226,11 @@
   "dev-tools.settings.off": "Выкл",
   "dev-tools.dev-modules.panel-title": "Модули",
   "dev-tools.commits.all-repos": "Все репозитории",
+  "dev-tools.commits.grid-column.author": "Автор",
+  "dev-tools.commits.grid-column.repo": "Репозиторий",
+  "dev-tools.commits.grid-column.commit": "Коммит",
+  "dev-tools.commits.grid-column.date": "Дата",
+  "dev-tools.commits.grid-column.message": "Сообщение",
 
   "doc-associations-widget.add-association": "Добавить связь",
   "doc-associations-widget.assoc-with-docs": "Связан с документами",

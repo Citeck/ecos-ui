@@ -4,7 +4,8 @@ import DevToolsConverter from '../../../dto/devTools';
 import { t } from '../../../helpers/util';
 
 import devToolsApi from '../api';
-import { SET_REPOS, SET_COMMITS, SET_IS_READY, SET_ERROR } from './actions';
+import { ECOS_UI_REPO_ID, ECOS_UI_REPO_LABEL } from './constants';
+import { SET_REPOS, SET_COMMITS, SET_IS_READY, SET_ERROR, SELECT_REPO } from './actions';
 import { reducer, initialState } from './reducer';
 
 export const CommitsContext = React.createContext();
@@ -18,8 +19,8 @@ export const CommitsContextProvider = props => {
       const otherAppsCommits = await devToolsApi.getAllAppsCommits();
       const allAppsCommits = [
         {
-          id: uiCommits.id || 'ecos-ui',
-          label: uiCommits.label || 'ECOS UI',
+          id: uiCommits.id || ECOS_UI_REPO_ID,
+          label: uiCommits.label || ECOS_UI_REPO_LABEL,
           ...uiCommits
         },
         ...(otherAppsCommits.records || [])
@@ -33,11 +34,16 @@ export const CommitsContextProvider = props => {
     }
   };
 
+  const selectRepo = repo => {
+    dispatch({ type: SELECT_REPO, payload: repo });
+  };
+
   return (
     <CommitsContext.Provider
       value={{
         state,
-        getCommitsInfo
+        getCommitsInfo,
+        selectRepo
       }}
     >
       {props.children}

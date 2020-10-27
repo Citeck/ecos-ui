@@ -10,14 +10,22 @@ export const SettingsContextProvider = props => {
   const [forceEnableNewForms, setForceEnableNewForms] = useState(forceEnableNewFormsInitState);
   const _setForceEnableNewForms = value => {
     setForceEnableNewForms(value);
-    localStorage.setItem(SETTING_FORCE_ENABLE_NEW_FORMS, JSON.stringify(value));
+    if (value) {
+      localStorage.setItem(SETTING_FORCE_ENABLE_NEW_FORMS, JSON.stringify(value));
+    } else {
+      localStorage.removeItem(SETTING_FORCE_ENABLE_NEW_FORMS);
+    }
   };
 
   const enableLoggerForNewFormsInitState = !!JSON.parse(localStorage.getItem(SETTING_ENABLE_LOGGING_FOR_NEW_FORMS));
   const [enableLoggerForNewForms, setEnableLoggerForNewForms] = useState(enableLoggerForNewFormsInitState);
   const _setEnableLoggerForNewForms = value => {
     setEnableLoggerForNewForms(value);
-    localStorage.setItem(SETTING_ENABLE_LOGGING_FOR_NEW_FORMS, JSON.stringify(value));
+    if (value) {
+      localStorage.setItem(SETTING_ENABLE_LOGGING_FOR_NEW_FORMS, JSON.stringify(value));
+    } else {
+      localStorage.removeItem(SETTING_ENABLE_LOGGING_FOR_NEW_FORMS);
+    }
   };
 
   return (
