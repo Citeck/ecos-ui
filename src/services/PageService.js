@@ -15,6 +15,7 @@ export const PageTypes = {
   JOURNALS: 'journals',
   SETTINGS: 'dashboard/settings',
   BPMN_DESIGNER: 'bpmn-designer',
+  DEV_TOOLS: 'dev-tools',
   TIMESHEET: 'timesheet'
 };
 
@@ -98,6 +99,11 @@ export default class PageService {
     [PageTypes.TIMESHEET]: {
       getTitle: () => {
         return staticTitle(TITLE.TIMESHEET);
+      }
+    },
+    [PageTypes.DEV_TOOLS]: {
+      getTitle: () => {
+        return staticTitle(TITLE[URL.DEV_TOOLS]);
       }
     }
   });
