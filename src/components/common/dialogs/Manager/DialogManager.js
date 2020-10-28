@@ -319,7 +319,7 @@ const dialogsById = {
         isOpen={isVisible}
         hideModal={hideModal}
         className={classnames('ecos-dialog ecos-dialog_form', modalClass)}
-        reactstrapProps={{ backdrop: false, ...reactstrapProps }}
+        reactstrapProps={{ backdrop: 'static', ...reactstrapProps }}
       >
         <div className="ecos-dialog__body">
           <FormWrapper isVisible {...formProps} />
