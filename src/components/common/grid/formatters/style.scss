@@ -28,7 +28,7 @@
 
       &_no-tooltip {
         width: 100%;
-        padding-right: 0px;
+        padding-right: 0;
       }
 
       &:empty {
@@ -47,6 +47,17 @@
 
       & :not(:last-child) {
         border-bottom: $border-width-standard solid $color-gray-4;
+      }
+    }
+  }
+
+  &-action {
+    &__text {
+      color: $color-blue-dark;
+      cursor: pointer;
+
+      &:hover {
+        color: $color-blue-dark2;
       }
     }
   }
