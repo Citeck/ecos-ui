@@ -7,7 +7,7 @@ import './style.scss';
 
 export default class BaseFormatter extends Component {
   static propTypes = {
-    cell: PropTypes.string,
+    cell: PropTypes.any,
     params: PropTypes.object,
     row: PropTypes.object,
     rowIndex: PropTypes.number
