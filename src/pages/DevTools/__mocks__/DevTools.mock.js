@@ -357,19 +357,19 @@ export const output1 = [
     id: 'ecos-task-mail-approval-repo',
     label: 'ecos-task-mail-approval-repo',
     version: '3.31.0.20.10.26.8.31',
-    buildDate: '2020-10-26T8:31:00Z'
+    buildDate: '2020-10-26T08:31:00Z'
   },
   {
     id: 'meetings-repo',
     label: 'meetings-repo',
     version: '3.22.0.20.10.26.8.32',
-    buildDate: '2020-10-26T8:32:00Z'
+    buildDate: '2020-10-26T08:32:00Z'
   },
   {
     id: 'ecos-flowable-repo',
     label: 'ecos-flowable-repo',
     version: '3.31.0.20.10.26.8.28',
-    buildDate: '2020-10-26T8:28:00Z'
+    buildDate: '2020-10-26T08:28:00Z'
   },
   {
     id: 'de.fme.alfresco.JavascriptConsole-repo',
@@ -381,103 +381,103 @@ export const output1 = [
     id: 'ecos-base-core-repo',
     label: 'ecos-base-core-repo',
     version: '3.31.0.20.10.26.8.28',
-    buildDate: '2020-10-26T8:28:00Z'
+    buildDate: '2020-10-26T08:28:00Z'
   },
   {
     id: 'idocs-repo',
     label: 'idocs-repo',
     version: '3.31.0.20.10.26.8.28',
-    buildDate: '2020-10-26T8:28:00Z'
+    buildDate: '2020-10-26T08:28:00Z'
   },
   {
     id: 'ecos-tax-reporting-repo',
     label: 'ecos-tax-reporting-repo',
     version: '3.31.0.20.10.26.8.31',
-    buildDate: '2020-10-26T8:31:00Z'
+    buildDate: '2020-10-26T08:31:00Z'
   },
   {
     id: 'journals-repo',
     label: 'journals-repo',
     version: '3.31.0.20.10.26.8.28',
-    buildDate: '2020-10-26T8:28:00Z'
+    buildDate: '2020-10-26T08:28:00Z'
   },
   {
     id: 'letters-repo',
     label: 'letters-repo',
     version: '3.22.0.20.10.26.8.32',
-    buildDate: '2020-10-26T8:32:00Z'
+    buildDate: '2020-10-26T08:32:00Z'
   },
   {
     id: 'ecos-integration-repo',
     label: 'ecos-integration-repo',
     version: '3.31.0.20.10.26.8.31',
-    buildDate: '2020-10-26T8:31:00Z'
+    buildDate: '2020-10-26T08:31:00Z'
   },
   {
     id: 'ecos-google-calendar-integration-repo',
     label: 'ecos-google-calendar-integration-repo',
     version: '3.31.0.20.10.26.8.31',
-    buildDate: '2020-10-26T8:31:00Z'
+    buildDate: '2020-10-26T08:31:00Z'
   },
   {
     id: 'contracts-ent-repo',
     label: 'contracts-ent-repo',
     version: '3.22.0.20.10.26.8.33',
-    buildDate: '2020-10-26T8:33:00Z'
+    buildDate: '2020-10-26T08:33:00Z'
   },
   {
     id: 'ecos-enterprise-repo',
     label: 'ecos-enterprise-repo',
     version: '3.31.0.20.10.26.8.31',
-    buildDate: '2020-10-26T8:31:00Z'
+    buildDate: '2020-10-26T08:31:00Z'
   },
   {
     id: 'ecos-esign-repo',
     label: 'ecos-esign-repo',
     version: '3.31.0.20.10.26.8.31',
-    buildDate: '2020-10-26T8:31:00Z'
+    buildDate: '2020-10-26T08:31:00Z'
   },
   {
     id: 'ecos-calendar-repo',
     label: 'ecos-calendar-repo',
     version: '3.31.0.20.10.26.8.31',
-    buildDate: '2020-10-26T8:31:00Z'
+    buildDate: '2020-10-26T08:31:00Z'
   },
   {
     id: 'ecos-order-pass-repo',
     label: 'ecos-order-pass-repo',
     version: '3.22.0.20.10.26.8.32',
-    buildDate: '2020-10-26T8:32:00Z'
+    buildDate: '2020-10-26T08:32:00Z'
   },
   {
     id: 'contracts-repo',
     label: 'contracts-repo',
     version: '3.22.0.20.10.26.8.32',
-    buildDate: '2020-10-26T8:32:00Z'
+    buildDate: '2020-10-26T08:32:00Z'
   },
   {
     id: 'ecos-jira-repo',
     label: 'ecos-jira-repo',
     version: '3.31.0.20.10.26.8.31',
-    buildDate: '2020-10-26T8:31:00Z'
+    buildDate: '2020-10-26T08:31:00Z'
   },
   {
     id: 'attorneys-repo',
     label: 'attorneys-repo',
     version: '3.1.0.20.4.1.5.35',
-    buildDate: '2020-4-1T5:35:00Z'
+    buildDate: '2020-04-01T05:35:00Z'
   },
   {
     id: 'ecos-fin-integration-repo',
     label: 'ecos-fin-integration-repo',
     version: '1.15.0.20.10.26.7.33',
-    buildDate: '2020-10-26T7:33:00Z'
+    buildDate: '2020-10-26T07:33:00Z'
   },
   {
     id: 'ecos-diadoc-repo',
     label: 'ecos-diadoc-repo',
     version: '3.31.0.20.10.26.8.31',
-    buildDate: '2020-10-26T8:31:00Z'
+    buildDate: '2020-10-26T08:31:00Z'
   },
   {
     id: 'onlyoffice-integration-platform-jar',
@@ -489,13 +489,13 @@ export const output1 = [
     id: 'ecos-finance-repo',
     label: 'ecos-finance-repo',
     version: '1.15.0.20.10.26.7.33',
-    buildDate: '2020-10-26T7:33:00Z'
+    buildDate: '2020-10-26T07:33:00Z'
   },
   {
     id: 'ecos-flowable-ent-repo',
     label: 'ecos-flowable-ent-repo',
     version: '3.31.0.20.10.26.8.31',
-    buildDate: '2020-10-26T8:31:00Z'
+    buildDate: '2020-10-26T08:31:00Z'
   },
   {
     id: 'alfresco-aos-module',
@@ -507,25 +507,25 @@ export const output1 = [
     id: 'ecos-forms-repo',
     label: 'ecos-forms-repo',
     version: '3.31.0.20.10.26.8.28',
-    buildDate: '2020-10-26T8:28:00Z'
+    buildDate: '2020-10-26T08:28:00Z'
   },
   {
     id: 'ecos-hr-repo',
     label: 'ecos-hr-repo',
     version: '1.1.0.20.3.2.4.24',
-    buildDate: '2020-3-2T4:24:00Z'
+    buildDate: '2020-03-02T04:24:00Z'
   },
   {
     id: '1st-override-repo',
     label: '1st-override-repo',
     version: '3.31.0.20.10.26.8.28',
-    buildDate: '2020-10-26T8:28:00Z'
+    buildDate: '2020-10-26T08:28:00Z'
   },
   {
     id: 'orders-repo',
     label: 'orders-repo',
     version: '3.22.0.20.10.26.8.32',
-    buildDate: '2020-10-26T8:32:00Z'
+    buildDate: '2020-10-26T08:32:00Z'
   },
   {
     id: 'alfresco-share-services',
@@ -537,7 +537,7 @@ export const output1 = [
     id: 'ecos-eform-repo',
     label: 'ecos-eform-repo',
     version: '3.31.0.20.10.26.8.28',
-    buildDate: '2020-10-26T8:28:00Z'
+    buildDate: '2020-10-26T08:28:00Z'
   }
 ];
 

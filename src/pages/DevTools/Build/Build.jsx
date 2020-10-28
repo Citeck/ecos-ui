@@ -1,5 +1,8 @@
 import React, { useContext, useEffect } from 'react';
+import set from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
 
+import DateTimeFormatter from '../../../components/common/grid/formatters/gql/DateTimeFormatter';
 import PanelTitle from '../../../components/common/PanelTitle';
 import { Grid } from '../../../components/common/grid';
 import { t } from '../../../helpers/util';
@@ -20,7 +23,7 @@ const BuildTab = () => {
   const columns = [
     { dataField: 'label', text: 'ID' },
     { dataField: 'version', text: 'Version' },
-    { dataField: 'buildDate', text: 'Build Date' }
+    { dataField: 'buildDate', text: 'Build Date', formatExtraData: { formatter: DateTimeFormatter } }
   ];
 
   let systemModules = null;
@@ -29,7 +32,18 @@ const BuildTab = () => {
   } else if (system.error) {
     systemModules = <ErrorText>{system.error}</ErrorText>;
   } else {
-    systemModules = <Grid scrollable={false} data={system.items} columns={columns} />;
+    systemModules = (
+      <Grid
+        scrollable={false}
+        data={system.items}
+        columns={cloneDeep(columns).map(column => {
+          if (column.dataField === 'buildDate') {
+            set(column, 'formatExtraData.params.format', 'DD.MM.YYYY HH:mm:ss');
+          }
+          return column;
+        })}
+      />
+    );
   }
 
   let alfrescoModules = null;

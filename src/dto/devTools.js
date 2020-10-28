@@ -7,8 +7,9 @@ export default class DevToolsConverter {
     return modules.map(module => {
       let buildDate = '';
       const groups = module.version.match(/\d+.\d+.\d+.(\d\d).(\d{1,2}).(\d{1,2}).(\d{1,2}).(\d{1,2})/);
-      if (groups) {
-        buildDate = `20${groups[1]}-${groups[2]}-${groups[3]}T${groups[4]}:${groups[5]}:00Z`;
+      if (Array.isArray(groups)) {
+        const dateParts = groups.slice(1).map(str => (str.length === 1 ? `0${str}` : str));
+        buildDate = `20${dateParts[0]}-${dateParts[1]}-${dateParts[2]}T${dateParts[3]}:${dateParts[4]}:00Z`;
       }
       return {
         id: module.id,
