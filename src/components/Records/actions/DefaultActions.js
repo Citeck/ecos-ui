@@ -53,7 +53,15 @@ export const DefaultActionTypes = {
   VIEW_BUSINESS_PROCESS: 'view-business-process',
   CANCEL_BUSINESS_PROCESS: 'cancel-business-process',
   MUTATE: 'mutate',
-  FORM_OPEN_SUBMIT: 'form-open-submit'
+  OPEN_SUBMIT_FORM: 'open-submit-form'
+};
+
+const showForm = (recordRef, params) => {
+  EcosFormUtils.eform(recordRef, {
+    params,
+    class: 'ecos-modal_width-lg',
+    isBigHeader: true
+  });
 };
 
 export const EditAction = {
@@ -442,13 +450,6 @@ export const CreateNodeAction = {
     const fromRecordRegexp = /^\$/;
     const { config = {} } = action;
     const attributesFromRecord = {};
-    const showForm = (recordRef, params) => {
-      EcosFormUtils.eform(recordRef, {
-        params: params,
-        class: 'ecos-modal_width-lg',
-        isBigHeader: true
-      });
-    };
 
     Object.entries(config.attributes || {})
       .filter(entry => fromRecordRegexp.test(entry[1]))
@@ -824,12 +825,31 @@ export const MutateAction = {
   }
 };
 
-export const FormOpenSubmitAction = {
-  execute: ({ record, action }) => {},
+export const OpenSubmitFormAction = {
+  execute: ({ record, action }) => {
+    const formId = get(action, 'config.formId');
+    const rec = Records.get(record);
+
+    return new Promise(resolve => {
+      const params = {
+        formId,
+        onSubmit: record => {
+          record.update();
+          resolve(true);
+        },
+        onFormCancel: () => resolve(false),
+        onFormRender: function() {
+          this.executeSubmit();
+        }
+      };
+
+      showForm(rec.id, params);
+    });
+  },
   getDefaultModel: () => {
     return {
-      name: '',
-      type: DefaultActionTypes.FORM_OPEN_SUBMIT,
+      name: 'record-action.name.open-submit-form',
+      type: DefaultActionTypes.OPEN_SUBMIT_FORM,
       icon: 'icon-arrow'
     };
   }
