@@ -52,7 +52,7 @@ const ExecuteInfoGroupAction = React.memo(props => {
   return (
     <>
       {get(props.options, 'isLoading') && <Loader blur rounded />}
-      <Grid keyField={keyField} data={data} columns={columns} minHeight={100} correctorHeight={-70} byWinHeight autoHeight fixedHeader />
+      <Grid keyField={keyField} data={data} columns={columns} fixedHeader autoHeight maxHeight="calc(100vh - 170px)" />
     </>
   );
 });
