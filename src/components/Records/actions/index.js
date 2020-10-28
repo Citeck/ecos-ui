@@ -13,6 +13,7 @@ import {
   FetchAction,
   MoveToLinesJournal,
   MutateAction,
+  OpenSubmitFormAction,
   OpenURL,
   PreviewModal,
   SaveAsCaseTemplate,
@@ -50,6 +51,7 @@ Registry.addExecutors({
   [DefaultActionTypes.VIEW_BUSINESS_PROCESS]: ViewBusinessProcess,
   [DefaultActionTypes.CANCEL_BUSINESS_PROCESS]: CancelBusinessProcess,
   [DefaultActionTypes.MUTATE]: MutateAction,
+  [DefaultActionTypes.OPEN_SUBMIT_FORM]: OpenSubmitFormAction,
 
   [ModuleActionTypes.MODULE_COPY]: ModuleCopyAction,
 

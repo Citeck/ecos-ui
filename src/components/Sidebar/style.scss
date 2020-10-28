@@ -72,6 +72,10 @@ $transition-duration: 0.3s;
       position: absolute;
       max-height: 25px;
     }
+
+    &__icon {
+      font-size: 25px;
+    }
   }
 
   &-scroll-v {

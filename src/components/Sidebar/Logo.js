@@ -1,10 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import { URL } from '../../constants';
+import { Icon } from '../common';
 
 const Logo = ({ logos, large = false }) => {
+  const [isError, setIsError] = useState(false);
+  const onError = e => {
+    console.error('There is problem with LOGO', e);
+    setIsError(true);
+  };
+
   return (
     <div
       className={classNames('ecos-sidebar-logo', {
@@ -16,15 +23,18 @@ const Logo = ({ logos, large = false }) => {
         <img
           className="ecos-sidebar-logo__img ecos-sidebar-logo__img_large"
           src={logos.large}
-          alt="logo"
-          style={{ opacity: Number(large) }}
+          alt="Home"
+          style={{ opacity: Number(!isError && large) }}
+          onError={onError}
         />
         <img
           className="ecos-sidebar-logo__img ecos-sidebar-logo__img_small"
           src={logos.small}
-          alt="logo"
-          style={{ opacity: Number(!large) }}
+          alt="Home"
+          style={{ opacity: Number(!isError && !large) }}
+          onError={onError}
         />
+        {isError && <Icon className="ecos-sidebar-logo__icon fa fa-home" title="There is problem with LOGO" />}
       </a>
     </div>
   );
