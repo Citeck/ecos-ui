@@ -411,6 +411,7 @@
   "record-action.name.view-business-process": "Business-process scheme",
   "record-action.name.cancel-business-process": "Cancel business-process",
   "record-action.name.mutate-action": "Mutate",
+  "record-action.name.open-submit-form": "Open and submit",
 
   "grid.inline-tools.details": "Details",
   "grid.no-data-indication": "No items in the list",

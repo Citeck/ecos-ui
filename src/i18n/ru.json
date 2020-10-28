@@ -411,6 +411,7 @@
   "record-action.name.view-business-process": "Схема бизнес-процесса",
   "record-action.name.cancel-business-process": "Отменить бизнес-процесс",
   "record-action.name.mutate-action": "Модифицировать",
+  "record-action.name.open-submit-form": "Открыть и рассмотреть",
 
   "grid.inline-tools.details": "Детальная информация",
   "grid.no-data-indication": "Нет элементов в списке",
