@@ -92,6 +92,10 @@ const MAP = [
     enable: column => column.type === 'options'
   },
   {
+    options: () => 'ActionFormatter',
+    enable: column => column.type === 'action'
+  },
+  {
     options: () => 'AssocFormatter',
     enable: column => column.type === 'assoc'
   },

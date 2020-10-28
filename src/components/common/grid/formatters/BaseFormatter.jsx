@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 import { BaseEditor } from '../editors';
 
 import './style.scss';
 
 export default class BaseFormatter extends Component {
+  static propTypes = {
+    cell: PropTypes.string,
+    params: PropTypes.object,
+    row: PropTypes.object,
+    rowIndex: PropTypes.number
+  };
+
   static getFilterValue(cell) {
     return this.prototype.value(cell);
   }
