@@ -35,6 +35,7 @@ import ServerGroupAction from './handler/executor/ServerGroupAction';
 import MutateAction from './handler/executor/MutateAction';
 import EditTypePermissionsAction from './handler/executor/EditTypePermissionsAction';
 import TaskOutcomeAction from './handler/executor/workflow/TaskOutcomeAction';
+import OpenSubmitAction from './handler/executor/workflow/OpenSubmitAction';
 
 export { default } from './recordActions';
 
@@ -88,6 +89,7 @@ actionsRegistry.register(new EditTaskAssignee());
 actionsRegistry.register(new SetTaskAssignee());
 actionsRegistry.register(new TaskOutcomeAction());
 actionsRegistry.register(new ViewBusinessProcessAction());
+actionsRegistry.register(new OpenSubmitAction());
 
 // Executors - ECOS Module
 

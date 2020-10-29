@@ -850,6 +850,10 @@ export function getTimezoneValue() {
   return { timezone, offset };
 }
 
+export function isHiddenElement(el) {
+  return el.style.display === 'none' || el.style.visibility === 'hidden';
+}
+
 /**
  * check self or closest parent on hiddens
  *
@@ -867,18 +871,14 @@ export function isClosestHidden(el = null) {
     return true;
   }
 
-  const isHidden = el => {
-    return el.style.display === 'none' || el.style.visibility === 'hidden';
-  };
-
-  if (isHidden(node)) {
+  if (isHiddenElement(node)) {
     return true;
   }
 
   const parent = node.parentElement;
 
   if (parent) {
-    if (isHidden(parent)) {
+    if (isHiddenElement(parent)) {
       return true;
     } else {
       return isClosestHidden(parent);
