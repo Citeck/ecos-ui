@@ -316,6 +316,7 @@ export default function handleControl(type, payload) {
 
     case HCT.ECOS_CREATE_VARIANT:
       FormManager.createRecordByVariant(payload, {
+        title: payload.formTitle,
         onSubmit: record => {
           if (payload.afterSubmit === 'reload') {
             window.location.reload();

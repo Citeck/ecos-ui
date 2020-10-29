@@ -499,6 +499,7 @@
   "grouping.show": "Посмотреть принцип действия группировки",
   "grouping.what": "Что группировать",
   "header.create-workflow-adhoc.label": "Поручение",
+  "header.create-workflow-adhoc.description": "Создать поручение",
   "header.create-workflow-confirm.label": "Согласование",
   "header.create-workflow.label": "Создать задачу",
   "header.feedback.label": "Обратная связь",

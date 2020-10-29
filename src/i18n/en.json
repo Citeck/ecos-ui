@@ -499,6 +499,7 @@
   "grouping.show": "View the principle of grouping",
   "grouping.what": "What to group",
   "header.create-workflow-adhoc.label": "Assignment",
+  "header.create-workflow-adhoc.description": "Create an assignment",
   "header.create-workflow-confirm.label": "Approval",
   "header.create-workflow.label": "Create Task",
   "header.feedback.label": "Give feedback",
