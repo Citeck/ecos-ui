@@ -18,6 +18,7 @@ export const selectStateByKey = createSelector(
       mobileConfig: get(config, 'mobile', []),
       availableWidgets: get(ownState, 'availableWidgets', []),
       isLoading: get(ownState, 'isLoading', false),
+      isLoadingKeys: get(ownState, 'isLoadingKeys', false),
       requestResult: get(ownState, 'requestResult', {}),
       identification: get(ownState, 'identification', {}),
       dashboardKeyItems: get(ownState, 'dashboardKeys', []),

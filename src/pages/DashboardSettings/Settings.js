@@ -74,6 +74,19 @@ export const mapDispatchToProps = (dispatch, ownProps) => {
   };
 };
 
+const Labels = {
+  USER_TITLE: 'dashboard-settings.page-title',
+  CARD_TITLE: 'dashboard-settings.card-settings',
+  DEFAULT_TITLE: 'dashboard-settings.page-display-settings',
+  SPEC_ID: 'dashboard-settings.spec.id',
+  BTN_CANCEL: 'dashboard-settings.button.cancel',
+  BTN_SAVE: 'dashboard-settings.button.save',
+  DIALOG_CONFIRM_TITLE: 'dashboard-settings.confirm-changes',
+  DIALOG_BOARD_EXISTS: 'dashboard-settings.already-exists',
+  DIALOG_BTN_CANCEL: 'dashboard-settings.cancel',
+  DIALOG_BTN_REPLACE: 'dashboard-settings.replace'
+};
+
 class Settings extends Component {
   static propTypes = {
     identification: PropTypes.object,
@@ -359,13 +372,13 @@ class Settings extends Component {
 
     switch (get(this, 'props.identification.type', '')) {
       case DashboardTypes.USER:
-        title = t('dashboard-settings.page-title');
+        title = t(Labels.USER_TITLE);
         break;
       case DashboardTypes.CASE_DETAILS:
-        title = t('dashboard-settings.card-settings');
+        title = t(Labels.CARD_TITLE);
         break;
       default:
-        title = t('dashboard-settings.page-display-settings');
+        title = t(Labels.DEFAULT_TITLE);
         break;
     }
     return (
@@ -377,8 +390,21 @@ class Settings extends Component {
     );
   }
 
+  renderSpecificationsBlock() {
+    const { identification } = this.props;
+
+    return (
+      <div className="ecos-dashboard-settings__spec">
+        <div className="ecos-dashboard-settings__spec-block">
+          <span className="ecos-dashboard-settings__spec-label">{t(Labels.SPEC_ID)}:</span>
+          <span className="ecos-dashboard-settings__spec-value">{identification.id}</span>
+        </div>
+      </div>
+    );
+  }
+
   renderOwnershipBlock() {
-    const { dashboardKeyItems, userData, resetConfigToDefault, isDefaultConfig } = this.props;
+    const { dashboardKeyItems, userData, resetConfigToDefault, isDefaultConfig, isLoadingKeys } = this.props;
     const { selectedDashboardKey, isForAllUsers } = this.state;
     const { recordRef } = this.getPathInfo();
 
@@ -400,6 +426,7 @@ class Settings extends Component {
           isDefaultConfig={isDefaultConfig}
           setData={setData}
           resetConfig={reset}
+          isLoadingKeys={isLoadingKeys}
         />
       </div>
     );
@@ -598,10 +625,10 @@ class Settings extends Component {
     return (
       <div className="ecos-dashboard-settings__actions">
         <Btn className="ecos-btn_x-step_10" onClick={this.handleCloseSettings}>
-          {t('dashboard-settings.button.cancel')}
+          {t(Labels.BTN_CANCEL)}
         </Btn>
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleCheckChanges} disabled={!get(identification, 'key')}>
-          {t('dashboard-settings.button.save')}
+          {t(Labels.BTN_SAVE)}
         </Btn>
       </div>
     );
@@ -623,14 +650,14 @@ class Settings extends Component {
         <TunableDialog
           isOpen
           onClose={handleCancel}
-          title={t('dashboard-settings.confirm-changes')}
-          content={t('dashboard-settings.already-exists')}
+          title={t(Labels.DIALOG_CONFIRM_TITLE)}
+          content={t(Labels.DIALOG_BOARD_EXISTS)}
           footer={[
             <Btn key="handleCancel" onClick={handleCancel}>
-              {t('dashboard-settings.cancel')}
+              {t(Labels.DIALOG_BTN_CANCEL)}
             </Btn>,
             <Btn key="handleReplace" onClick={handleReplace} className="ecos-btn_blue">
-              {t('dashboard-settings.replace')}
+              {t(Labels.DIALOG_BTN_REPLACE)}
             </Btn>
           ]}
         />

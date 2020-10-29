@@ -14,6 +14,7 @@ import {
   setDashboardConfig,
   setDashboardKeys,
   setLoading,
+  setLoadingKeys,
   setRequestResultDashboard
 } from '../actions/dashboardSettings';
 
@@ -28,6 +29,7 @@ export const initialState = {
   availableWidgets: [],
   dashboardKeys: [],
   isLoading: false,
+  isLoadingKeys: false,
   requestResult: {
     status: '',
     dashboardId: '',
@@ -146,6 +148,17 @@ export default handleActions(
         [key]: {
           ...state[key],
           isLoading: payload.status
+        }
+      };
+    },
+    [setLoadingKeys]: (state, { payload }) => {
+      const { key } = payload;
+
+      return {
+        ...state,
+        [key]: {
+          ...state[key],
+          isLoadingKeys: payload.status
         }
       };
     }
