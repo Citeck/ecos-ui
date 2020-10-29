@@ -47,6 +47,8 @@ timestamps {
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
           sh "yarn && CI=true yarn test && yarn build"
+          
+          sh "gradle publish -PmavenUser=jenkins -PmavenPass=po098765 -PmavenUrl='http://127.0.0.1:8081/repository/maven-snapshots/'"
 
           // build-info
           def buildData = buildTools.getBuildInfo(repoUrl, "${env.BRANCH_NAME}", project_version)
