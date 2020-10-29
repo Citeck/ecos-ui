@@ -21,6 +21,7 @@ publishing {
     uiBuild(MavenPublication) {
       version = packageVersion
       groupId = 'ru.citeck.ecos.ui'
+      artifactId = 'ecos-ui'
       artifact source: assembleArtifact, extension: 'zip'
     }
   }
