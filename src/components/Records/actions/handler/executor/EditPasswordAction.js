@@ -1,5 +1,7 @@
+import { SourcesId } from '../../../../../constants';
 import WidgetService from '../../../../../services/WidgetService';
 import { UserApi } from '../../../../../api/user';
+import { getCurrentUserName } from '../../../../../helpers/util';
 import { t } from '../../../../../helpers/export/util';
 import { notifyFailure, notifySuccess } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
@@ -30,9 +32,10 @@ export default class EditPasswordAction extends ActionsExecutor {
       };
 
       const modal = WidgetService.openEditorPassword({ onChange, onCancel });
-      const data = await this.#userApi.getUserDataByRef(record.id);
+      const authUserData = await this.#userApi.getUserDataByRef(`${SourcesId.PEOPLE}@${getCurrentUserName()}`);
+      const editUserData = await this.#userApi.getUserDataByRef(record.id);
 
-      modal.update({ ...data, isCurrentUser: record.id.includes(data.userName), isLoading: false });
+      modal.update({ ...editUserData, isCurrentUser: authUserData.userName === editUserData.userName, isLoading: false });
     });
   }
 
