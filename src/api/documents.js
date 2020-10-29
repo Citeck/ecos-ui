@@ -66,7 +66,7 @@ export class DocumentsApi {
   };
 
   getDocumentsByTypes = (recordRef = '', data = [], attributes = '') => {
-    const baseAttrs = `${documentFields.id}:id,${documentFields.name}:att(n:"name"){disp},${
+    const baseAttrs = `recordRef:id,${documentFields.id}:id,${documentFields.name}:att(n:"name"){disp},${
       documentFields.modified
     }:att(n:"_modified"){disp},${documentFields.loadedBy}:att(n:"_modifier"){disp}`;
 

@@ -19,6 +19,7 @@ export const TITLE = {
   [URL.DASHBOARD]: 'header.site-menu.home-page',
   [URL.DASHBOARD_SETTINGS]: 'page-tabs.dashboard-settings',
   [URL.BPMN_DESIGNER]: 'page-tabs.bpmn-designer',
+  [URL.DEV_TOOLS]: 'page-tabs.dev-tools',
   TIMESHEET: 'page-tabs.timesheet',
   [URL.TIMESHEET]: 'page-tabs.timesheet',
   [URL.TIMESHEET_SUBORDINATES]: 'page-tabs.timesheet',

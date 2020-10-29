@@ -1,8 +1,9 @@
-import ActionsExecutor from '../ActionsExecutor';
-import EcosFormUtils from '../../../../EcosForm/EcosFormUtils';
-import { goToCardDetailsPage } from '../../../../../helpers/urls';
 import isEmpty from 'lodash/isEmpty';
+
+import { goToCardDetailsPage } from '../../../../../helpers/urls';
 import Records from '../../../Records';
+import { showForm } from '../../util/actionUtils';
+import ActionsExecutor from '../ActionsExecutor';
 
 export default class CreateAction extends ActionsExecutor {
   static ACTION_ID = 'create';
@@ -11,13 +12,6 @@ export default class CreateAction extends ActionsExecutor {
     const fromRecordRegexp = /^\$/;
     const { config = {} } = action;
     const attributesFromRecord = {};
-    const showForm = (recordRef, params) => {
-      EcosFormUtils.eform(recordRef, {
-        params: params,
-        class: 'ecos-modal_width-lg',
-        isBigHeader: true
-      });
-    };
 
     Object.entries(config.attributes || {})
       .filter(entry => fromRecordRegexp.test(entry[1]))

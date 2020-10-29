@@ -20,6 +20,7 @@ import NumberFormatter from './gql/NumberFormatter';
 import RejectionSignTaskFormatter from './gql/RejectionSignTaskFormatter';
 import TaskLinkFormatter from './gql/TaskLinkFormatter';
 import LocaleFormatter from './gql/LocaleFormatter';
+import ActionFormatter from './gql/ActionFormatter';
 
 const formatterStore = {
   UserNameLinkFormatter,
@@ -43,7 +44,8 @@ const formatterStore = {
   NumberFormatter,
   RejectionSignTaskFormatter,
   TaskLinkFormatter,
-  LocaleFormatter
+  LocaleFormatter,
+  ActionFormatter
 };
 
 export default formatterStore;

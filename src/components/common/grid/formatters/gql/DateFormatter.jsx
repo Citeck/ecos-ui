@@ -12,7 +12,7 @@ export default class DateFormatter extends DefaultGqlFormatter {
   }
 
   render() {
-    let { cell, params } = this.props;
+    const { cell, params = {} } = this.props;
 
     const value = this.value(cell);
     const format = params.format || FORMAT;
