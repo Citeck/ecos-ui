@@ -377,14 +377,25 @@ export default class NumberComponent extends FormIONumberComponent {
 
     const updatedValue = reverseString(reverseString(newValue).replace(/\.|,/, this.decimalSeparator));
     const formattedValue = this.formatValue(updatedValue);
+    const maskedValue = super.getMaskedValue(updatedValue);
+    const prevValue = options.previousConformedValue || '';
+
     let position = options.currentCaretPosition;
 
-    if (formattedValue[0] === this.decimalSeparator) {
+    if (value && formattedValue[0] === this.decimalSeparator) {
       position = 2;
     }
 
-    if (options.previousConformedValue === super.getMaskedValue(updatedValue)) {
+    if (value && prevValue === maskedValue) {
       position -= 1;
+    }
+
+    const diffLen = maskedValue.length - prevValue.length;
+    console.log(maskedValue);
+    console.log(prevValue);
+    console.log(diffLen);
+    if (Math.abs(diffLen) > 1) {
+      position = position + diffLen / Math.abs(diffLen);
     }
 
     this.setCaretPosition(input, position);
@@ -395,5 +406,5 @@ export default class NumberComponent extends FormIONumberComponent {
   setCaretPosition = _.debounce((input, position) => {
     input.selectionStart = position;
     input.selectionEnd = position;
-  }, 10);
+  });
 }
