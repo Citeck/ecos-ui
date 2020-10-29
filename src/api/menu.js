@@ -2,7 +2,7 @@ import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
 import debounce from 'lodash/debounce';
 
-import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
+import { generateSearchTerm, getCurrentUserName, t } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes, CountableItems } from '../constants/sidebar';
 import { PROXY_URI } from '../constants/alfresco';
@@ -120,6 +120,7 @@ export class MenuApi extends CommonApi {
             control: {
               type: 'ECOS_CREATE_VARIANT',
               payload: {
+                formTitle: t('header.create-workflow-adhoc.description'),
                 recordRef: 'workflow@def_activiti$perform'
               }
             }
