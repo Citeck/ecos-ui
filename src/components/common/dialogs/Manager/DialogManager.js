@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import classnames from 'classnames';
+import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 
 import { isExistValue, t } from '../../../../helpers/util';
@@ -16,6 +16,7 @@ const INFO_DIALOG_ID = 'DialogManager-info-dialog';
 const CONFIRM_DIALOG_ID = 'DialogManager-confirm-dialog';
 const CUSTOM_DIALOG_ID = 'DialogManager-custom-dialog';
 const FORM_DIALOG_ID = 'DialogManager-form-dialog';
+const LOADER_DIALOG_ID = 'DialogManager-loader-dialog';
 
 class DialogWrapper extends React.Component {
   constructor(props) {
@@ -26,6 +27,10 @@ class DialogWrapper extends React.Component {
       isLoading: false,
       dialogProps: props.dialogProps || {}
     };
+  }
+
+  get isVisible() {
+    return this.state.isVisible;
   }
 
   setProps(props) {
@@ -43,8 +48,8 @@ class DialogWrapper extends React.Component {
     }));
   }
 
-  setVisible(isVisible) {
-    this.setState({ isVisible });
+  setVisible(isVisible, callback = () => null) {
+    this.setState({ isVisible }, callback);
   }
 
   setLoading(isLoading) {
@@ -120,7 +125,7 @@ const dialogsById = {
       onClose();
     };
 
-    dProps.className = classnames('ecos-dialog ecos-dialog_removal ecos-modal_width-xs', className, {
+    dProps.className = classNames('ecos-dialog ecos-dialog_removal ecos-modal_width-xs', className, {
       'ecos-dialog_headless': !dProps.title
     });
 
@@ -151,7 +156,7 @@ const dialogsById = {
         title={dProps.title}
         isOpen={dProps.isOpen}
         hideModal={dProps.onClose}
-        className={classnames('ecos-dialog ecos-dialog_info ecos-modal_width-xs', modalClass, { 'ecos-dialog_headless': !dProps.title })}
+        className={classNames('ecos-dialog ecos-dialog_info ecos-modal_width-xs', modalClass, { 'ecos-dialog_headless': !dProps.title })}
       >
         <div className="ecos-dialog__body">{dProps.text}</div>
         <div className="ecos-dialog__buttons">
@@ -190,7 +195,7 @@ const dialogsById = {
         title={dProps.title}
         isOpen={dProps.isOpen}
         hideModal={dProps.onNo}
-        className={classnames('ecos-dialog ecos-dialog_confirm ecos-modal_width-xs', modalClass, { 'ecos-dialog_headless': !dProps.title })}
+        className={classNames('ecos-dialog ecos-dialog_confirm ecos-modal_width-xs', modalClass, { 'ecos-dialog_headless': !dProps.title })}
       >
         {isExistValue(dProps.text) && <div className="ecos-dialog__body">{dProps.text}</div>}
         <div className="ecos-dialog__buttons">
@@ -218,7 +223,7 @@ const dialogsById = {
         title={t(title)}
         isOpen={isVisible}
         hideModal={hideModal}
-        className={classnames('ecos-dialog ecos-dialog_custom', modalClass)}
+        className={classNames('ecos-dialog ecos-dialog_custom', modalClass)}
         {...modalProps}
       >
         <div className="ecos-dialog__body">{body}</div>
@@ -330,7 +335,7 @@ const dialogsById = {
         title={title}
         isOpen={isVisible}
         hideModal={hideModal}
-        className={classnames('ecos-dialog ecos-dialog_form', modalClass)}
+        className={classNames('ecos-dialog ecos-dialog_form', modalClass)}
         reactstrapProps={{ backdrop: 'static', ...reactstrapProps }}
       >
         <div className="ecos-dialog__body">
@@ -338,12 +343,23 @@ const dialogsById = {
         </div>
       </EcosModal>
     );
+  },
+  [LOADER_DIALOG_ID]: props => {
+    const { isVisible } = props;
+    const { text } = props.dialogProps;
+
+    return (
+      <EcosModal isLoading noHeader noDraggable isOpen={isVisible} className="ecos-dialog ecos-dialog_loader">
+        <div className="ecos-dialog_loader-status">{t(text || 'waiting')}</div>
+      </EcosModal>
+    );
   }
 };
 
 const dialogs = {};
 
-const showDialog = (id, props) => {
+const showDialog = (id, props = {}) => {
+  const isVisible = isExistValue(props.isVisible) ? props.isVisible : true;
   let dialog = dialogs[id];
 
   if (!dialog) {
@@ -364,10 +380,21 @@ const showDialog = (id, props) => {
     dialog.setProps(props);
   }
 
-  dialog.setVisible(props.isVisible === undefined ? true : props.isVisible);
+  dialog.setVisible(isVisible, checkLoader);
 
   return dialog;
 };
+
+function checkLoader() {
+  if (dialogs[LOADER_DIALOG_ID]) {
+    for (let key in dialogs) {
+      if (key !== LOADER_DIALOG_ID && dialogs[key].isVisible) {
+        dialogs[LOADER_DIALOG_ID].setVisible(false);
+        return;
+      }
+    }
+  }
+}
 
 export default class DialogManager {
   static showRemoveDialog(props) {
@@ -388,6 +415,16 @@ export default class DialogManager {
 
   static showFormDialog(props) {
     return showDialog(FORM_DIALOG_ID, props);
+  }
+
+  /**
+   * Display dialog loader; Manual or auto control
+   * @param props {?Object} other props or open state
+   */
+  static toggleLoader(props = {}) {
+    const isVisible = props.isVisible || (dialogs[LOADER_DIALOG_ID] && dialogs[LOADER_DIALOG_ID].isVisible);
+
+    return showDialog(LOADER_DIALOG_ID, { ...props, isVisible });
   }
 }
 

@@ -2,6 +2,7 @@
   "error": "Error",
   "success": "Success",
   "warning": "Warning",
+  "waiting": "Waiting",
   "actions.document.download": "Download",
   "aggregation.columns": "Aggregation column",
   "aggregation.type": "Aggregation type",
@@ -410,6 +411,7 @@
   "record-action.msg.error.text": "Action's failed",
   "record-action.msg.success.title": "Action success",
   "record-action.msg.success.text": "Action's completed",
+  "record-action.msg.status.start-n-wait": "Action started\nPending execution",
 
   "action.edit.label": "Edit",
   "action.view.label": "View",
@@ -488,6 +490,8 @@
 
   "batch-edit.header.edit-attribute": "Edit attribute",
   "batch-edit.header.results": "Result edit attribute",
+  "batch-edit.label.fetch-data": "Fetching data",
+  "batch-edit.message.started": "Started",
   "batch-edit.message.in-progress": "In progress",
   "batch-edit.message.OK": "Success",
   "batch-edit.message.ERROR": "Error",

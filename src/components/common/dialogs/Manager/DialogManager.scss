@@ -67,4 +67,21 @@
 
   &_custom {
   }
+
+  &_loader {
+    &.ecos-modal {
+      max-width: 250px;
+
+      .modal-body {
+        height: 140px;
+        text-align: center;
+        font-weight: $font-weight-bold;
+      }
+      .modal-loading {
+        align-items: flex-end;
+        bottom: 15px;
+        background: unset;
+      }
+    }
+  }
 }
