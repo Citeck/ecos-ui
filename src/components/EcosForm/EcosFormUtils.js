@@ -84,19 +84,8 @@ export default class EcosFormUtils {
       config.reactstrapProps.keyboard = false;
     }
 
-    let modal = null;
-
-    if (!config.formContainer) {
-      modal = new Modal();
-    }
-
-    const formParams = Object.assign(
-      {
-        record: record
-      },
-      config.params || {}
-    );
-
+    const modal = config.formContainer ? null : new Modal();
+    const formParams = Object.assign({ record }, config.params || {});
     const configParams = config.params || {};
 
     formParams['options'] = configParams.options || {};
@@ -209,7 +198,7 @@ export default class EcosFormUtils {
         }
 
         EcosFormUtils.eform(recordRef, {
-          params: params,
+          params,
           class: 'ecos-modal_width-lg',
           isBigHeader: true,
           formContainer: config.formContainer || null

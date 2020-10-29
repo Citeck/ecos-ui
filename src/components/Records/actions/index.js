@@ -31,6 +31,7 @@ import DownloadCardTemplateAction from './handler/executor/DownloadCardTemplateA
 import DownloadZipAction from './handler/executor/DownloadZipAction';
 import ServerGroupAction from './handler/executor/ServerGroupAction';
 import MutateAction from './handler/executor/MutateAction';
+import OpenSubmitAction from './handler/executor/workflow/OpenSubmitAction';
 
 export { default } from './recordActions';
 
@@ -80,6 +81,7 @@ actionsRegistry.register(new CancelBusinessProcessAction());
 actionsRegistry.register(new EditTaskAssignee());
 actionsRegistry.register(new SetTaskAssignee());
 actionsRegistry.register(new ViewBusinessProcessAction());
+actionsRegistry.register(new OpenSubmitAction());
 
 // Executors - ECOS Module
 
