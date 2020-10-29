@@ -58,16 +58,14 @@ export class UserApi extends CommonApi {
   };
 
   getUserDataByRef(ref) {
-    return Records.get(ref)
-      .load({
-        userName: 'userName',
-        firstName: 'cm:firstName',
-        lastName: 'cm:lastName',
-        middleName: 'cm:middleName',
-        isAdmin: 'isAdmin?bool',
-        nodeRef: 'nodeRef?str'
-      })
-      .then(responce => responce);
+    return Records.get(ref).load({
+      userName: 'userName',
+      firstName: 'cm:firstName',
+      lastName: 'cm:lastName',
+      middleName: 'cm:middleName',
+      isAdmin: 'isAdmin?bool',
+      nodeRef: 'nodeRef?str'
+    });
   }
 
   changePassword({ record, data: { oldPass, pass, passVerify } }) {
