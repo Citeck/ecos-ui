@@ -64,7 +64,8 @@ export class UserApi extends CommonApi {
       lastName: 'cm:lastName',
       middleName: 'cm:middleName',
       isAdmin: 'isAdmin?bool',
-      nodeRef: 'nodeRef?str'
+      nodeRef: 'nodeRef?str',
+      modified: '_modified?str'
     });
   }
 
