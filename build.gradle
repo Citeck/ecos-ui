@@ -1,0 +1,43 @@
+apply plugin: "base"
+apply plugin: "maven"
+apply plugin: "maven-publish"
+
+import groovy.json.JsonSlurper
+
+def packageSlurper = new JsonSlurper()
+def packageJson = packageSlurper.parse(file('package.json'))
+def packageVersion = packageJson.version.toUpperCase()
+
+task assembleArtifact(type: Zip) {
+  from 'build/'
+  include '**/*'
+  exclude '*.zip'
+  archiveName "ecos-ui-${packageVersion}.zip"
+  destinationDir(file('build'))
+}
+
+publishing {
+  publications {
+    uiBuild(MavenPublication) {
+      version = packageVersion
+      groupId = 'ru.citeck.ecos.ui'
+      artifactId = 'ecos-ui'
+      artifact source: assembleArtifact, extension: 'zip'
+    }
+  }
+  repositories {
+    maven {
+      name 'maven-repo'
+      credentials {
+        username project.getProperty("mavenUser")
+        password project.getProperty("mavenPass")
+      }
+      url project.getProperty("mavenUrl")
+    }
+  }
+}
+
+assemble.dependsOn assembleArtifact
+build.dependsOn assemble
+
+publish.dependsOn build
