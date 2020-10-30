@@ -5,7 +5,7 @@ timestamps {
   node {
 
     def repoUrl = "git@bitbucket.org:citeck/ecos-ui.git"
-    def mavenRepository = "maven-releases"
+    def mavenRepository = "maven-snapshots"
 
     stage('Checkout Script Tools SCM') {
       dir('jenkins-script-tools') {
@@ -57,7 +57,7 @@ timestamps {
           // /build-info
 
           if (env.BRANCH_NAME == "master") {
-            mavenRepository = "maven-snapshots"
+            mavenRepository = "maven-releases"
           }
 
           sh "gradle publish -PmavenUser=jenkins -PmavenPass=po098765 -PmavenUrl='http://127.0.0.1:8081/repository/${mavenRepository}/'"
