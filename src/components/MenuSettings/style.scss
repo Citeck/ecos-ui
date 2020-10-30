@@ -23,6 +23,8 @@
 }
 
 .ecos-menu-settings {
+  $root: &;
+
   &__loader {
     border-radius: $border-radius-large;
     z-index: 10000;
@@ -42,8 +44,14 @@
   &__content-container {
     overflow: auto;
     padding-right: 2px;
-    height: calc(100vh - 284px);
+    height: calc(100vh - 288px);
     min-height: 150px;
+  }
+
+  &_disabled {
+    #{$root}__content-container {
+      height: calc(100vh - 209px);
+    }
   }
 
   &__tab-content {
