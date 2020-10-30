@@ -214,6 +214,7 @@ class Settings extends React.Component {
         hideModal={this.handleHideModal}
         title={t(Labels.TITLE)}
         customButtons={customButtons}
+        classNameBody={classNames({ 'ecos-menu-settings_disabled': disabledEdit })}
         classNameHeader="ecos-menu-settings__modal-header"
         reactstrapProps={{ backdrop: 'static' }}
       >

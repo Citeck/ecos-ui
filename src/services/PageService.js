@@ -64,7 +64,7 @@ export default class PageService {
   static getPage({ link, type }) {
     const _type = type || PageService.getType(link);
 
-    return PageService.pageTypes[_type] || getDefaultPage();
+    return PageService.pageTypes[_type] || getDefaultPage(link);
   }
 
   static pageTypes = Object.freeze({
@@ -77,7 +77,7 @@ export default class PageService {
       getTitle: ({ journalId }) => {
         const prom = pageApi.getJournalTitle(journalId);
 
-        return prom.then(title => `${t('page-tabs.journal')} "${convertTitle(title)}"`);
+        return prom.then(title => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.SETTINGS]: {
@@ -91,20 +91,11 @@ export default class PageService {
         return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${convertTitle(title)}"`);
       }
     },
-    [PageTypes.BPMN_DESIGNER]: {
-      getTitle: () => {
-        return staticTitle(TITLE[URL.BPMN_DESIGNER]);
-      }
-    },
     [PageTypes.TIMESHEET]: {
-      getTitle: () => {
-        return staticTitle(TITLE.TIMESHEET);
-      }
+      getTitle: () => staticTitle(TITLE.TIMESHEET)
     },
     [PageTypes.DEV_TOOLS]: {
-      getTitle: () => {
-        return staticTitle(TITLE[URL.DEV_TOOLS]);
-      }
+      getTitle: () => staticTitle(TITLE[URL.DEV_TOOLS])
     }
   });
 
@@ -289,9 +280,9 @@ function staticTitle(keyTitle) {
   });
 }
 
-function getDefaultPage() {
+function getDefaultPage(link) {
   return Object.freeze({
-    getTitle: () => staticTitle(TITLE.NO_NAME)
+    getTitle: () => staticTitle(TITLE[link] || TITLE.NO_NAME)
   });
 }
 

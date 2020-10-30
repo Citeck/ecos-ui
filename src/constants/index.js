@@ -14,7 +14,8 @@ export const URL = {
   TIMESHEET_IFRAME: '/v2/pure-timesheet',
   TIMESHEET_IFRAME_SUBORDINATES: '/v2/pure-timesheet/subordinates',
   TIMESHEET_IFRAME_FOR_VERIFICATION: '/v2/pure-timesheet/for-verification',
-  TIMESHEET_IFRAME_DELEGATED: '/v2/pure-timesheet/delegated'
+  TIMESHEET_IFRAME_DELEGATED: '/v2/pure-timesheet/delegated',
+  FORM_COMPONENTS: '/v2/debug/formio-develop'
 };
 
 export const pagesWithOnlyContent = [

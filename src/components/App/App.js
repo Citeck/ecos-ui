@@ -38,7 +38,7 @@ import './App.scss';
 const allowedLinks = [
   URL.DASHBOARD,
   '/share/page/bpmn-designer',
-  '/v2/debug/formio-develop',
+  URL.FORM_COMPONENTS,
   '/v2/debug/tree',
   URL.DASHBOARD_SETTINGS,
   URL.BPMN_DESIGNER,
