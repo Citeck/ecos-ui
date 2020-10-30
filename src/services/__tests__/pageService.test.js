@@ -100,10 +100,10 @@ describe('Page Service', () => {
     ],
     ['https://community.ecos24.ru/v2/bpmn-designer', 'page-tabs.bpmn-designer'],
     ['https://community.ecos24.ru/v2/timesheet', 'page-tabs.timesheet']
-  ])('Method getTitle by type', (link, output) => {
+  ])('Method getTitle by type', (url, output) => {
     it(output, async () => {
-      const type = PageService.getType(link);
-      const getTitle = PageService.pageTypes[type].getTitle;
+      const link = url.split('ru')[1];
+      const getTitle = PageService.getPage({ link }).getTitle;
       const props = queryString.parseUrl(link).query;
       const title = await getTitle(props);
 
