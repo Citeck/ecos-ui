@@ -13,7 +13,7 @@ function* sagaGetUserData({ api, logger }, { payload }) {
     const data = yield call(api.user.getUserDataByRef, record);
 
     yield put(setUserData({ data, stateId }));
-    yield put(setUserPhoto({ thumbnail: createThumbnailUrl(data.nodeRef), stateId }));
+    yield put(setUserPhoto({ thumbnail: createThumbnailUrl(data.nodeRef, { t: data.modified }), stateId }));
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.get-profile-data')));
     logger.error('[userProfile/sagaGetUserData saga] error', e.message);
@@ -48,7 +48,7 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
     if (response.success) {
       const data = yield call(api.user.getUserDataByRef, record);
 
-      yield put(setUserPhoto({ thumbnail: createThumbnailUrl(data.nodeRef, { t: Date.now() }), stateId }));
+      yield put(setUserPhoto({ thumbnail: createThumbnailUrl(data.nodeRef, { t: data.modified || Date.now() }), stateId }));
       message = t('user-profile-widget.success.change-photo');
     } else {
       message = t('user-profile-widget.error.upload-profile-photo');
