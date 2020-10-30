@@ -383,7 +383,7 @@ export default class NumberComponent extends FormIONumberComponent {
     let position = options.currentCaretPosition;
 
     if (value && formattedValue[0] === this.decimalSeparator) {
-      position = 2;
+      position = _.includes(_.get(window, 'event.inputType'), 'Backward') ? 2 : 1;
     }
 
     if (value && prevValue === maskedValue) {
@@ -391,10 +391,7 @@ export default class NumberComponent extends FormIONumberComponent {
     }
 
     const diffLen = maskedValue.length - prevValue.length;
-    console.log(maskedValue);
-    console.log(prevValue);
-    console.log(diffLen);
-    if (Math.abs(diffLen) > 1) {
+    if (position && Math.abs(diffLen) > 1) {
       position = position + diffLen / Math.abs(diffLen);
     }
 
