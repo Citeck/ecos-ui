@@ -35,7 +35,8 @@ export const SourcesId = {
   META: 'uiserv/meta',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
-  AUTHORITY: 'alfresco/authority',
+  A_AUTHORITY: 'alfresco/authority',
+  A_META: 'alfresco/meta',
   ECOS_CONFIG: 'ecos-config',
   HISTORY: 'history',
   STATUS: 'status',
@@ -119,6 +120,10 @@ export const Pages = {
   LOGIN: 'login',
   DEBUG_FORMIO: 'debug-formio',
   DEBUG_TREE: 'debug-tree'
+};
+
+export const AppEditions = {
+  ENTERPRISE: 'enterprise'
 };
 
 window.Citeck = window.Citeck || {};

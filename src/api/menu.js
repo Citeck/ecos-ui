@@ -353,7 +353,7 @@ export class MenuApi extends CommonApi {
   };
 
   getAuthoritiesInfoByName = authorities => {
-    const _authorities = authorities.map(auth => `${SourcesId.AUTHORITY}@${auth}`);
+    const _authorities = authorities.map(auth => `${SourcesId.A_AUTHORITY}@${auth}`);
 
     return Records.get(_authorities).load({ name: '.str', ref: 'nodeRef' });
   };
@@ -442,7 +442,7 @@ async function fetchExtraGroupItemInfo(data) {
       const target = { ...item };
 
       if (item.id) {
-        target.label = await Records.get(`${SourcesId.AUTHORITY}@${item.id}`)
+        target.label = await Records.get(`${SourcesId.A_AUTHORITY}@${item.id}`)
           .load('.disp')
           .catch(_ => '');
       }

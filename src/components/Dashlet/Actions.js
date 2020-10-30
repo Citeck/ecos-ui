@@ -99,11 +99,12 @@ const DropdownActions = ({ list, dashletId }) => {
  *        orderedVisible: [array | отображаемые упорядоченные кнопки],
  *        countShow: [number | кол-во видимых кнопок]
  *    }
- * @param dashboardEditable возможность редактирования дашборда - для проверки действий перечисленных DashletActionService.checkEditableFor
+ * @param dashboardEditable the ability to edit the dashboard - define available actions > DashletActionService.uneditable
+ * @param appEdition - app's version (ex. enterprise) - define available actions > DashletActionService.enterprise
  * @returns Elements
  */
-const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable }) => {
-  const isAvailable = key => dashboardEditable || !DashletActionService.uneditable.includes(key);
+const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable, appEdition }) => {
+  const isAvailable = key => DashletActionService.isAvailable(key, { dashboardEditable, appEdition });
   const baseOrderActions = DashletActionService.baseOrder;
   const { orderedVisible, countShow = 4 } = actionRules || {};
   const outputActions = [];
