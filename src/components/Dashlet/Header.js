@@ -25,7 +25,8 @@ const Header = React.forwardRef(
       actionConfig,
       actionRules,
       noActions,
-      dashboardEditable
+      dashboardEditable,
+      appEdition
     },
     ref
   ) => {
@@ -77,7 +78,13 @@ const Header = React.forwardRef(
 
         <div className="dashlet__header-actions">
           {!(isMobile || noActions) && (
-            <Actions actionConfig={actionConfig} actionRules={actionRules} dashletId={dashletId} dashboardEditable={dashboardEditable} />
+            <Actions
+              actionConfig={actionConfig}
+              actionRules={actionRules}
+              dashletId={dashletId}
+              dashboardEditable={dashboardEditable}
+              appEdition={appEdition}
+            />
           )}
           {dragBtn}
         </div>

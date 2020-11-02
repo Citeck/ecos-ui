@@ -238,6 +238,7 @@ class Dashlet extends Component {
       actionRules,
       noActions,
       dashboardEditable,
+      appEdition,
       children,
       isCollapsed
     } = this.props;
@@ -273,6 +274,7 @@ class Dashlet extends Component {
                   actionRules={actionRules}
                   noActions={noActions}
                   dashboardEditable={dashboardEditable}
+                  appEdition={appEdition}
                 />
               </Measurer>
             )
@@ -300,7 +302,8 @@ class Dashlet extends Component {
 
 const mapStateToProps = state => ({
   isMobile: get(state, 'view.isMobile'),
-  dashboardEditable: get(state, 'app.dashboardEditable')
+  dashboardEditable: get(state, 'app.dashboardEditable'),
+  appEdition: get(state, 'app.appEdition')
 });
 
 export default connect(

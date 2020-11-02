@@ -6,12 +6,14 @@ import { URL } from '../constants';
 import { getCurrentUserName } from '../helpers/util';
 import {
   backPageFromTransitionsHistory,
+  getAppEdition,
   getDashboardEditable,
   getFooter,
   initAppFailure,
   initAppRequest,
   initAppSettings,
   initAppSuccess,
+  setAppEdition,
   setDashboardEditable,
   setFooter,
   setHomeLink,
@@ -77,6 +79,7 @@ export function* fetchAppSettings({ api, fakeApi, logger }, { payload }) {
   try {
     yield put(getMenuConfig());
     yield put(getDashboardEditable());
+    yield put(getAppEdition());
     yield put(getFooter());
   } catch (e) {
     logger.error('[fetchAppSettings saga] error', e.message);
@@ -103,6 +106,15 @@ export function* fetchDashboardEditable({ api, logger }) {
     yield put(setDashboardEditable(editable));
   } catch (e) {
     logger.error('[fetchDashboardEditable saga] error', e.message);
+  }
+}
+
+export function* fetchAppEdition({ api, logger }) {
+  try {
+    const edition = yield call(api.app.getAppEdition);
+    yield put(setAppEdition(edition));
+  } catch (e) {
+    logger.error('[fetchAppEdition saga] error', e.message);
   }
 }
 
@@ -154,6 +166,7 @@ function* appSaga(ea) {
 
   yield takeEvery(initAppSettings().type, fetchAppSettings, ea);
   yield takeEvery(getDashboardEditable().type, fetchDashboardEditable, ea);
+  yield takeEvery(getAppEdition().type, fetchAppEdition, ea);
   yield takeEvery([setMenuConfig().type], fetchLeftMenuEditable, ea);
   yield takeEvery(getFooter().type, fetchFooter, ea);
   yield takeEvery(backPageFromTransitionsHistory().type, sagaBackFromHistory, ea);

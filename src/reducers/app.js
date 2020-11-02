@@ -4,11 +4,12 @@ import { URL } from '../constants';
 import {
   initAppFailure,
   initAppSuccess,
+  setAppEdition,
   setDashboardEditable,
   setFooter,
+  setHomeLink,
   setLeftMenuEditable,
-  setRedirectToNewUi,
-  setHomeLink
+  setRedirectToNewUi
 } from '../actions/app';
 
 const initialState = {
@@ -43,6 +44,12 @@ export default handleActions(
       return {
         ...state,
         dashboardEditable: action.payload
+      };
+    },
+    [setAppEdition]: (state, action) => {
+      return {
+        ...state,
+        appEdition: action.payload
       };
     },
     [setLeftMenuEditable]: (state, action) => {
