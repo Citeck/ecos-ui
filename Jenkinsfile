@@ -5,6 +5,7 @@ timestamps {
   node {
 
     def repoUrl = "git@bitbucket.org:citeck/ecos-ui.git"
+    def mavenRepository = "maven-snapshots"
 
     stage('Checkout Script Tools SCM') {
       dir('jenkins-script-tools') {
@@ -44,6 +45,7 @@ timestamps {
         currentBuild.result = 'FAILURE'
         return
       }
+
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
           sh "yarn && CI=true yarn test && yarn build"
@@ -54,24 +56,23 @@ timestamps {
               buildTools.writeBuildInfoToFiles(buildData)
           }
           // /build-info
-          if (!fileExists("/opt/ecos-ui-static/${env.BRANCH_NAME}")) {
-            sh "mkdir -p /opt/ecos-ui-static/${env.BRANCH_NAME}"
+
+          if (env.BRANCH_NAME == "master") {
+            mavenRepository = "maven-releases"
           }
-          sh "rm -rf /opt/ecos-ui-static/${env.BRANCH_NAME}/*"
-          fileOperations([folderCopyOperation(destinationFolderPath: '/opt/ecos-ui-static/'+"${env.BRANCH_NAME}"+'/build', sourceFolderPath: "build")])
+
+          sh "gradle publish -PmavenUser=jenkins -PmavenPass=po098765 -PmavenUrl='http://127.0.0.1:8081/repository/${mavenRepository}/'"
+
         }
       }
+
       stage('Building an ecos-proxy-odic docker images') {
         build job: 'build_ecos_ui_image', parameters: [
           string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'),
-          string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
+          string(name: 'ECOS_UI_VERSION', value: project_version.toUpperCase())
         ]
       }
-      stage('Transfer artifacts to Unilever Jenkins') {
-        build job: 'artifact_transfer_to_unilever_jenkins', parameters: [
-          string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
-        ]
-      }
+      
     } catch (Exception e) {
       currentBuild.result = 'FAILURE'
       error_message = e.getMessage()
