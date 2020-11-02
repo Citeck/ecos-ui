@@ -69,7 +69,7 @@ timestamps {
       stage('Building an ecos-proxy-odic docker images') {
         build job: 'build_ecos_ui_image', parameters: [
           string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'),
-          string(name: 'ECOS_UI_VERSION', value: "${project_version}")
+          string(name: 'ECOS_UI_VERSION', value: project_version.toUpperCase())
         ]
       }
 
