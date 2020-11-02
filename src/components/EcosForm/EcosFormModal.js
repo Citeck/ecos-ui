@@ -8,10 +8,10 @@ import { SourcesId } from '../../constants';
 import Records from '../Records';
 import IcoBtn from '../common/btns/IcoBtn';
 import EcosModal from '../common/EcosModal';
+import TaskAssignmentPanel from '../TaskAssignmentPanel';
 import EcosFormUtils from './EcosFormUtils';
 import EcosForm from './EcosForm';
 import { FORM_MODE_EDIT } from './constants';
-import TaskAssignmentPanel from '../TaskAssignmentPanel';
 
 import './EcosFormModal.scss';
 
@@ -27,7 +27,7 @@ export default class EcosFormModal extends React.Component {
 
     this.state = {
       isModalOpen: false,
-      isAdmin: false
+      isConfigurableForm: false
     };
   }
 
@@ -83,12 +83,8 @@ export default class EcosFormModal extends React.Component {
   }
 
   checkEditRights() {
-    Records.query({ sourceId: SourcesId.PEOPLE }, { isAdmin: 'isAdmin?bool' }).then(result => {
-      if (!Array.isArray(result.records) || result.records.length < 1) {
-        return;
-      }
-
-      this.setState({ isAdmin: result.records[0].isAdmin });
+    EcosFormUtils.isConfigurableForm().then(isConfigurableForm => {
+      this.setState({ isConfigurableForm });
     });
   }
 
@@ -111,9 +107,9 @@ export default class EcosFormModal extends React.Component {
   };
 
   renderConstructorButton() {
-    const { isAdmin } = this.state;
+    const { isConfigurableForm } = this.state;
 
-    if (!isAdmin) {
+    if (!isConfigurableForm) {
       return null;
     }
 

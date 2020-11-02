@@ -1,8 +1,8 @@
-import { CommonApi } from './common';
 import { PROXY_URI, URL_CONTEXT } from '../constants/alfresco';
 import { SourcesId } from '../constants';
 import Records from '../components/Records';
 import { t } from '../helpers/util';
+import { CommonApi } from './common';
 import { isNewJournalsPageEnable } from './export/journalsApi';
 
 export class UserApi extends CommonApi {
@@ -55,6 +55,10 @@ export class UserApi extends CommonApi {
         }
       };
     });
+  };
+
+  isUserAdmin = () => {
+    return Records.queryOne({ sourceId: SourcesId.PEOPLE }, 'isAdmin?bool');
   };
 
   getUserDataByRef(ref) {
