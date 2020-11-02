@@ -5,6 +5,7 @@ timestamps {
   node {
 
     def repoUrl = "git@bitbucket.org:citeck/ecos-ui.git"
+    def mavenRepository = "maven-snapshots"
 
     stage('Checkout Script Tools SCM') {
       dir('jenkins-script-tools') {
