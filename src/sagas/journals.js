@@ -773,9 +773,7 @@ function* getSearchPredicate({ logger, stateId }) {
 
     return predicate;
   } catch (e) {
-    if (logger) {
-      logger.error('[journals getSearchPredicate function* error', e.message);
-    }
+    logger.error('[journals getSearchPredicate function* error', e.message);
   }
 }
 
