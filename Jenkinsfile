@@ -63,11 +63,6 @@ timestamps {
 
           sh "gradle publish -PmavenUser=jenkins -PmavenPass=po098765 -PmavenUrl='http://127.0.0.1:8081/repository/${mavenRepository}/'"
 
-          if (!fileExists("/opt/ecos-ui-static/${env.BRANCH_NAME}")) {
-            sh "mkdir -p /opt/ecos-ui-static/${env.BRANCH_NAME}"
-          }
-          sh "rm -rf /opt/ecos-ui-static/${env.BRANCH_NAME}/*"
-          fileOperations([folderCopyOperation(destinationFolderPath: '/opt/ecos-ui-static/'+"${env.BRANCH_NAME}"+'/build', sourceFolderPath: "build")])
         }
       }
 
