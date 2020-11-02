@@ -273,7 +273,7 @@ export default class ServerGroupAction extends ActionsExecutor {
       title: t('group-action.label.header', { action: options.title }),
       body: <ExecuteInfoGroupAction data={data} options={options} />,
       onHide: () => {
-        options.callback && options.callback(true);
+        options.callback && options.callback(false);
       }
     });
   }
