@@ -1,4 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
@@ -260,4 +261,63 @@ export class DashboardApi extends RecordService {
         return false;
       });
   }
+
+  getAvailableConfigElements = async (config = [], params) => {
+    const _config = cloneDeep(config);
+
+    const filterWidgets = async widgets => {
+      const checks = await Promise.all(
+        widgets.map(widget =>
+          DashboardApi.getIsAvailableWidget({
+            record: params.recordRef,
+            condition: widget.widgetDisplayCondition
+          })
+        )
+      );
+      // todo savingggg?
+      return widgets.filter((value, index) => checks[index]);
+    };
+
+    await Promise.all(
+      _config.map(layout =>
+        layout.columns.map(async col => {
+          if (Array.isArray(col)) {
+            col.map(async cell => {
+              cell.widgets = await filterWidgets(cell.widgets);
+            });
+          } else {
+            col.widgets = await filterWidgets(col.widgets);
+          }
+        })
+      )
+    );
+
+    return _config;
+  };
+
+  static getIsAvailableWidget = ({ record, condition }) => {
+    if (!condition) {
+      return Promise.resolve(true);
+    }
+
+    const jsonCondition = JSON.parse(condition);
+    const query = {
+      record: record.includes('workspace://') ? `alfresco/@${record}` : record
+    };
+
+    if (Array.isArray(jsonCondition)) {
+      query.predicates = jsonCondition;
+    } else if (typeof jsonCondition === 'object') {
+      query.predicate = jsonCondition;
+    } else {
+      return Promise.resolve(false);
+    }
+
+    return Records.queryOne({ sourceId: SourcesId.PREDICATE, query }, 'result?bool')
+      .then(response => (Array.isArray(response) ? response.every(flag => !!flag) : response))
+      .catch(e => {
+        console.log(e);
+        return false;
+      });
+  };
 }

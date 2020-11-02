@@ -63,15 +63,16 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     if (isReset) {
       throw new Error('info: Dashboard is unmounted');
     }
-
     yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key }));
+    const desktopConfig = yield call(api.dashboard.getAvailableConfigElements, get(webConfigs, 'config.layouts', []), { recordRef });
     yield put(
       setDashboardConfig({
-        config: get(webConfigs, 'config.layouts', []),
+        config: desktopConfig,
         originalConfig: result.config,
         key: payload.key
       })
     );
+    //todo &tut
     yield put(setMobileDashboardConfig({ config: get(webConfigs, 'config.mobile', []), key: payload.key }));
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
