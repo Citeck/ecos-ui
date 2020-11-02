@@ -45,6 +45,7 @@ timestamps {
         currentBuild.result = 'FAILURE'
         return
       }
+
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
           sh "yarn && CI=true yarn test && yarn build"
@@ -69,17 +70,14 @@ timestamps {
           fileOperations([folderCopyOperation(destinationFolderPath: '/opt/ecos-ui-static/'+"${env.BRANCH_NAME}"+'/build', sourceFolderPath: "build")])
         }
       }
+
       stage('Building an ecos-proxy-odic docker images') {
         build job: 'build_ecos_ui_image', parameters: [
           string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'),
-          string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
+          string(name: 'ECOS_UI_VERSION', value: "${project_version}")
         ]
       }
-      stage('Transfer artifacts to Unilever Jenkins') {
-        build job: 'artifact_transfer_to_unilever_jenkins', parameters: [
-          string(name: 'ECOS_UI_BRANCH', value: "${env.BRANCH_NAME}")
-        ]
-      }
+
     } catch (Exception e) {
       currentBuild.result = 'FAILURE'
       error_message = e.getMessage()
