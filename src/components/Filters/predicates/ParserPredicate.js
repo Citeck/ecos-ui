@@ -1,4 +1,5 @@
 import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 
 import { deepClone } from '../../../helpers/util';
 import {
@@ -113,6 +114,10 @@ export default class ParserPredicate {
 
   static removeEmptyPredicates(val) {
     val = val || [];
+
+    if (isEmpty(val)) {
+      return [];
+    }
 
     for (let i = 0, length = val.length; i < length; i++) {
       const item = val[i];

@@ -63,7 +63,7 @@ import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
 import { getJournalUIType, getOldPageUrl } from '../api/export/journalsApi';
-import { selectJournals, selectJournalUiType } from '../selectors/journals';
+import { selectJournals, selectJournalSettings, selectJournalUiType } from '../selectors/journals';
 import { selectSearch } from '../selectors/router';
 
 const getDefaultSortBy = config => {
@@ -346,11 +346,11 @@ function* getGridData(api, params, stateId) {
   const { pagination: _pagination, predicates: _predicates, ...forRequest } = params;
   const _recordRef = yield select(state => state.journals[stateId].recordRef);
   const config = yield select(state => state.journals[stateId].config);
-
+  const groupBy = get(forRequest, 'groupBy', []);
   const predicates = ParserPredicate.removeEmptyPredicates(cloneDeep(_predicates));
-  const pagination = forRequest.groupBy.length ? { ..._pagination, maxItems: undefined } : _pagination;
+  const pagination = groupBy.length ? { ..._pagination, maxItems: undefined } : _pagination;
   const recordRef = _recordRef && (config || {}).onlyLinked ? _recordRef : null;
-  const groupActions = forRequest.groupActions || [];
+  const groupActions = get(forRequest, 'groupActions', []);
 
   return yield call(api.journals.getGridData, { ...forRequest, predicates, pagination, recordRef, groupActions });
 }
@@ -360,9 +360,9 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const pagination = userConfig ? userConfig.pagination : yield select(state => state.journals[stateId].grid.pagination);
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, userConfig, stateId }, w);
   const params = getGridParams({ journalConfig, journalSetting, pagination });
-  const gridData = yield getGridData(api, params, stateId);
+  const searchPredicate = yield getSearchPredicate({ stateId });
+  const gridData = yield getGridData(api, { ...params, searchPredicate }, stateId);
   const editingRules = yield getGridEditingRules(api, gridData);
-
   let selectedRecords = [];
   let isSelectAllRecords = false;
 
@@ -429,11 +429,11 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
   try {
     yield put(setLoading(w(true)));
 
-    const { columns } = yield select(state => state.journals[stateId].journalSetting);
+    const journalSetting = yield select(state => selectJournalSettings(state, stateId));
     const grid = yield select(state => state.journals[stateId].grid);
     const searchPredicate = yield getSearchPredicate({ logger, stateId });
 
-    grid.columns = columns;
+    grid.columns = get(journalSetting, 'columns', []);
 
     const params = { ...grid, ...(action.payload || {}), searchPredicate };
     const gridData = yield getGridData(api, params, stateId);
@@ -753,7 +753,7 @@ function* getSearchPredicate({ logger, stateId }) {
   try {
     const grid = yield select(state => state.journals[stateId].grid);
     const fullSearch = yield select(state => get(state, ['journals', stateId, 'journalConfig', 'params', 'full-search-predicate']));
-    const { columns, groupBy = [], search } = grid;
+    const { columns = [], groupBy = [], search } = grid;
     let predicate;
 
     if (fullSearch) {
@@ -773,7 +773,9 @@ function* getSearchPredicate({ logger, stateId }) {
 
     return predicate;
   } catch (e) {
-    logger.error('[journals getSearchPredicate function* error', e.message);
+    if (logger) {
+      logger.error('[journals getSearchPredicate function* error', e.message);
+    }
   }
 }
 

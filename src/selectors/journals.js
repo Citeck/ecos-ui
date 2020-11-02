@@ -4,6 +4,10 @@ import get from 'lodash/get';
 import { defaultState } from '../reducers/journals';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState });
+export const selectJournalSettings = createSelector(
+  selectState,
+  ownState => get(ownState, 'journalSetting', defaultState.journalSetting)
+);
 export const selectJournals = createSelector(
   selectState,
   ownState => get(ownState, 'journals', [])
