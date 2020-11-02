@@ -31,19 +31,26 @@ function isRecordWithAppName(record) {
   return appDelimIdx > 0 && appDelimIdx < sourceDelimIdx;
 }
 
-function recordsFetch(url, body) {
-  //for request identification
+/**
+ * Request identification
+ * @param url
+ * @param body
+ * @return url{String}
+ */
+function getRecognizableUrl(url, body) {
   let urlKey = '';
-
   let withAppName = false;
+
   if (body.query) {
-    urlKey = 'q_' + (body.query.sourceId || '');
+    urlKey = 'q_' + (body.query.sourceId ? body.query.sourceId : JSON.stringify(body.query.query).substring(0, 15));
     withAppName = lodashGet(body, 'query.sourceId', '').indexOf('/') > -1;
   } else if (body.record) {
     urlKey = 'rec_' + body.record;
     withAppName = isRecordWithAppName(body.record);
   } else if (body.records) {
-    urlKey = 'recs_' + lodashGet(body, 'records[0].id', '');
+    urlKey = 'recs_';
+    urlKey += 'count_' + (body.records || []).length;
+    urlKey += '0_' + lodashGet(body, 'records[0].id', '');
     withAppName = isAnyWithAppName(body.records);
   }
 
@@ -52,6 +59,12 @@ function recordsFetch(url, body) {
   }
 
   url += '?k=' + encodeURIComponent(urlKey);
+
+  return url;
+}
+
+function recordsFetch(url, body) {
+  url = getRecognizableUrl(url, body);
 
   return ecosFetch(url, { method: 'POST', headers: { 'Content-type': 'application/json;charset=UTF-8' }, body }).then(response => {
     return response.json().then(body => {
