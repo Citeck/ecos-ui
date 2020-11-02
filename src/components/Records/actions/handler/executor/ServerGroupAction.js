@@ -257,7 +257,7 @@ export default class ServerGroupAction extends ActionsExecutor {
       DialogManager.showCustomDialog({
         title: t('group-action.label.header', { action: options.title }),
         body: <ExecuteInfoGroupAction data={data} options={options} />,
-        onHide: () => resolve(true)
+        onHide: () => resolve(false)
       });
     });
   }
