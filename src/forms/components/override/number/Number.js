@@ -367,6 +367,7 @@ export default class NumberComponent extends FormIONumberComponent {
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-109
   recalculateMask = (value, options, input) => {
+    const inputType = _.get(window, 'event.inputType');
     let newValue = value;
 
     if (this.isBigNumber()) {
@@ -375,23 +376,43 @@ export default class NumberComponent extends FormIONumberComponent {
       newValue = this._prepareStringNumber(newValue);
     }
 
-    const updatedValue = reverseString(reverseString(newValue).replace(/\.|,/, this.decimalSeparator));
-    const formattedValue = this.formatValue(updatedValue);
-    const maskedValue = super.getMaskedValue(updatedValue);
+    if (!this.delimiter) {
+      newValue = reverseString(reverseString(newValue).replace(/\.|,/, this.decimalSeparator));
+    }
+
+    if (this.delimiter !== '.' && this.component.delimiterValue !== '.') {
+      newValue = reverseString(reverseString(newValue).replace(/\./, this.decimalSeparator));
+    }
+
+    if (this.delimiter !== ',' && this.component.delimiterValue !== ',') {
+      newValue = reverseString(reverseString(newValue).replace(/,/, this.decimalSeparator));
+    }
+
+    const formattedValue = this.formatValue(newValue);
+    const maskedValue = super.getMaskedValue(newValue);
     const prevValue = options.previousConformedValue || '';
 
     let position = options.currentCaretPosition;
 
     if (value && formattedValue[0] === this.decimalSeparator) {
-      position = _.includes(_.get(window, 'event.inputType'), 'Backward') ? 2 : 1;
+      position = _.includes(inputType, 'Backward') ? 2 : 1;
     }
 
-    if (value && prevValue === maskedValue) {
+    if (_.includes(inputType, 'Forward') && this.delimiter) {
+      const separator = this.component.delimiterValue || this.delimiter;
+
+      if (maskedValue.slice(position, position + separator.length) === separator) {
+        position += separator.length;
+      }
+    }
+
+    if (value && prevValue === maskedValue && !_.includes(inputType, 'Forward')) {
       position -= 1;
     }
 
     const diffLen = maskedValue.length - prevValue.length;
-    if (position && Math.abs(diffLen) > 1) {
+
+    if (position && Math.abs(diffLen) > 1 && position >= Math.abs(diffLen)) {
       position = position + diffLen / Math.abs(diffLen);
     }
 
@@ -403,5 +424,5 @@ export default class NumberComponent extends FormIONumberComponent {
   setCaretPosition = _.debounce((input, position) => {
     input.selectionStart = position;
     input.selectionEnd = position;
-  });
+  }, 0);
 }
