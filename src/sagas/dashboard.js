@@ -24,6 +24,15 @@ import DashboardService from '../services/dashboard';
 import PageService from '../services/PageService';
 import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 
+function* _parseConfig({ api, logger }, { recordRef, config }) {
+  const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
+  const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
+  newConfig.widgets = yield call(api.dashboard.getFilteredWidgets, newConfig.widgets, { recordRef });
+  const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
+
+  return DashboardConverter.getNewDashboardForWeb(newConfig, widgetsById, migratedConfig.version);
+}
+
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
     const { recordRef } = payload;
@@ -54,25 +63,21 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
     const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
-    const migratedConfig = DashboardService.migrateConfigFromOldVersion(result.config);
-    const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
-    const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
-    const webConfigs = DashboardConverter.getNewDashboardForWeb(newConfig, widgetsById, migratedConfig.version);
+    const webConfigs = yield _parseConfig({ api, logger }, { config: result.config, recordRef });
     const isReset = yield select(selectResetStatus);
 
     if (isReset) {
       throw new Error('info: Dashboard is unmounted');
     }
+
     yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key }));
-    const desktopConfig = yield call(api.dashboard.getAvailableConfigElements, get(webConfigs, 'config.layouts', []), { recordRef });
     yield put(
       setDashboardConfig({
-        config: desktopConfig,
+        config: get(webConfigs, 'config.layouts', []),
         originalConfig: result.config,
         key: payload.key
       })
     );
-    //todo &tut
     yield put(setMobileDashboardConfig({ config: get(webConfigs, 'config.mobile', []), key: payload.key }));
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
@@ -112,11 +117,10 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
 
       delete dashboardConfig.isMobile;
 
-      config = DashboardService.migrateConfigFromOldVersion(dashboardConfig);
+      config = dashboardConfig;
     }
 
-    const widgetsById = yield select(() => selectSelectedWidgetsById(config[config.version]));
-    const forWeb = DashboardConverter.getNewDashboardForWeb(config[config.version], widgetsById);
+    const forWeb = yield _parseConfig({ api, logger }, { config, recordRef: payload.recordRef });
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification });
     const res = DashboardService.parseRequestResult(dashboardResult);
     const isExistSettings = !!(yield select(state => get(state, ['dashboardSettings', res.dashboardId])));

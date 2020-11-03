@@ -1,5 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
-import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 
 import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
@@ -262,40 +262,15 @@ export class DashboardApi extends RecordService {
       });
   }
 
-  getAvailableConfigElements = async (config = [], params) => {
-    const _config = cloneDeep(config);
-
-    const filterWidgets = async widgets => {
-      const checks = await Promise.all(
-        widgets.map(widget =>
-          DashboardApi.getIsAvailableWidget({
-            record: params.recordRef,
-            condition: widget.widgetDisplayCondition
-          })
-        )
-      );
-      // todo savingggg?
-      return widgets.filter((value, index) => checks[index]);
-    };
-
-    await Promise.all(
-      _config.map(layout =>
-        layout.columns.map(async col => {
-          if (Array.isArray(col)) {
-            col.map(async cell => {
-              cell.widgets = await filterWidgets(cell.widgets);
-            });
-          } else {
-            col.widgets = await filterWidgets(col.widgets);
-          }
-        })
-      )
+  getFilteredWidgets = async (widgets = [], params = {}) => {
+    const checks = await Promise.all(
+      widgets.map(widget => DashboardApi.getIsAvailableWidget(params.recordRef, get(widget, 'props.config.widgetDisplayCondition')))
     );
 
-    return _config;
+    return widgets.filter((value, index) => checks[index]);
   };
 
-  static getIsAvailableWidget = ({ record, condition }) => {
+  static getIsAvailableWidget = (record, condition) => {
     if (!condition) {
       return Promise.resolve(true);
     }
