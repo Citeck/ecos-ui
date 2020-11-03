@@ -165,12 +165,6 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   render() {
-    const { isAvailable, isAdmin } = this.props;
-
-    if (!isAdmin && !isAvailable) {
-      return null;
-    }
-
     const { title, classNameDashlet, isLoading, error, contractTemplate, config } = this.props;
     const { isSmallMode, isOpenSettings, isCollapsed } = this.state;
 
@@ -231,9 +225,7 @@ class DocConstructorDashlet extends BaseWidget {
               </div>
             </div>
           </div>
-          {isOpenSettings && (
-            <Settings config={config} onSave={this.onSaveSettings} onCancel={this.onToggleSettings} isAvailable={isAvailable} />
-          )}
+          {isOpenSettings && <Settings config={config} onSave={this.onSaveSettings} onCancel={this.onToggleSettings} />}
         </Scrollbars>
       </Dashlet>
     );
