@@ -17,9 +17,10 @@ export const BuildContextProvider = props => {
   const getBuildInfo = async () => {
     try {
       const alfresco = await devToolsApi.getAlfrescoModules();
+      const compare = (a, b) => (a.label < b.label ? -1 : 1);
       dispatch({
         type: SET_ALFRESCO_MODULES_ITEMS,
-        payload: DevToolsConverter.fetchAlfrescoModulesList(alfresco)
+        payload: DevToolsConverter.fetchAlfrescoModulesList(alfresco).sort(compare)
       });
     } catch (e) {
       dispatch({ type: SET_ALFRESCO_MODULES_ERROR, payload: t('dev-tools.error.failure-to-fetch-data') });
