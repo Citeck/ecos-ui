@@ -66,6 +66,7 @@ export default class Avatar extends React.Component {
         <div className="ecos-avatar__name">
           {userName
             .split(' ')
+            .slice(0, 2)
             .map(word => word[0])
             .join(' ')
             .toUpperCase()}

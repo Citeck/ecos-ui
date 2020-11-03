@@ -385,9 +385,9 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
   const pagination = get(sharedSettings, 'pagination') || (yield select(state => state.journals[stateId].grid.pagination));
   const params = getGridParams({ journalConfig, journalSetting, pagination });
-  const gridData = yield getGridData(api, params, stateId);
+  const searchPredicate = yield getSearchPredicate({ stateId });
+  const gridData = yield getGridData(api, { ...params, searchPredicate }, stateId);
   const editingRules = yield getGridEditingRules(api, gridData);
-
   let selectedRecords = [];
   let isSelectAllRecords = false;
 
@@ -768,7 +768,7 @@ function* getSearchPredicate({ logger, stateId }) {
   try {
     const grid = yield select(state => state.journals[stateId].grid);
     const fullSearch = yield select(state => get(state, ['journals', stateId, 'journalConfig', 'params', 'full-search-predicate']));
-    const { columns, groupBy = [], search } = grid;
+    const { columns = [], groupBy = [], search } = grid;
     let predicate;
 
     if (fullSearch) {
