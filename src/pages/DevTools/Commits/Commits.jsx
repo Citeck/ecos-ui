@@ -19,10 +19,12 @@ const CommitsTab = () => {
     getCommitsInfo();
   }, []);
 
+  if (error) {
+    return <ErrorText>{error}</ErrorText>;
+  }
+
   if (!isReady) {
     return <Loader />;
-  } else if (error) {
-    return <ErrorText>{error}</ErrorText>;
   }
 
   const allReposLabel = t('dev-tools.commits.all-repos');

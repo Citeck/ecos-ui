@@ -27,10 +27,10 @@ const BuildTab = () => {
   ];
 
   let systemModules = null;
-  if (!system.isReady) {
-    systemModules = <Loader />;
-  } else if (system.error) {
+  if (system.error) {
     systemModules = <ErrorText>{system.error}</ErrorText>;
+  } else if (!system.isReady) {
+    systemModules = <Loader />;
   } else {
     systemModules = (
       <Grid
@@ -47,10 +47,10 @@ const BuildTab = () => {
   }
 
   let alfrescoModules = null;
-  if (!alfresco.isReady) {
-    alfrescoModules = <Loader />;
-  } else if (alfresco.error) {
+  if (alfresco.error) {
     alfrescoModules = <ErrorText>{alfresco.error}</ErrorText>;
+  } else if (!alfresco.isReady) {
+    alfrescoModules = <Loader />;
   } else {
     alfrescoModules = <Grid scrollable={false} data={alfresco.items} columns={columns} />;
   }

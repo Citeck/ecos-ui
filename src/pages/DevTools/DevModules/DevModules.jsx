@@ -18,10 +18,10 @@ const DevModulesTab = () => {
   }, []);
 
   let devModulesContent = null;
-  if (!isReady) {
-    devModulesContent = <Loader />;
-  } else if (error) {
+  if (error) {
     devModulesContent = <ErrorText>{error}</ErrorText>;
+  } else if (!isReady) {
+    devModulesContent = <Loader />;
   } else {
     devModulesContent = <DevModulesGrid />;
   }
