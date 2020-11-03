@@ -77,7 +77,7 @@ export class JournalsApi extends RecordService {
     groupActions = [],
     searchPredicate
   }) => {
-    const val = [predicate];
+    const val = [predicate || {}];
 
     Array.isArray(predicates) && val.push(...predicates);
 

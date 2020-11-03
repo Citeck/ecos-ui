@@ -62,7 +62,7 @@ const mapDispatchToProps = (dispatch, props) => {
     setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
-    reloadGrid: options => dispatch(reloadGrid(w(options))),
+    reloadGrid: () => dispatch(reloadGrid(w({}))),
     search: text => dispatch(search({ text, stateId: props.stateId })),
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting)))
   };
