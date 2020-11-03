@@ -35,7 +35,12 @@ export default class EditPasswordAction extends ActionsExecutor {
       const authUserData = await this.#userApi.getUserDataByRef(`${SourcesId.PEOPLE}@${getCurrentUserName()}`);
       const editUserData = await this.#userApi.getUserDataByRef(record.id);
 
-      modal.update({ ...editUserData, isCurrentUser: authUserData.userName === editUserData.userName, isLoading: false });
+      modal.update({
+        ...editUserData,
+        isAdminEditor: authUserData.isAdmin,
+        isCurrentUser: authUserData.userName === editUserData.userName,
+        isLoading: false
+      });
     });
   }
 
