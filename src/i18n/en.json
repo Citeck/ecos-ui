@@ -219,6 +219,7 @@
   "dev-tools.tab.dev-modules": "Dev modules",
   "dev-tools.tab.commits": "Commits",
   "dev-tools.tab.settings": "Settings",
+  "dev-tools.error.access-denied": "Access denied",
   "dev-tools.error.failure-to-fetch-data": "Failure to fetch data",
   "dev-tools.build.alfresco.panel-title": "Alfresco modules",
   "dev-tools.build.system.panel-title": "System modules",

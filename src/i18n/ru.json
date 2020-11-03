@@ -219,6 +219,7 @@
   "dev-tools.tab.dev-modules": "Модули разработки",
   "dev-tools.tab.commits": "Коммиты",
   "dev-tools.tab.settings": "Настройки",
+  "dev-tools.error.access-denied": "Нет доступа",
   "dev-tools.error.failure-to-fetch-data": "Не удалось загрузить данные",
   "dev-tools.build.alfresco.panel-title": "Модули Alfresco",
   "dev-tools.build.system.panel-title": "Модули системы",

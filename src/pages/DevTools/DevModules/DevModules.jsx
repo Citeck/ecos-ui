@@ -4,8 +4,8 @@ import PanelTitle from '../../../components/common/PanelTitle/PanelTitle';
 import { t } from '../../../helpers/util';
 
 import { DevModulesContext } from './DevModulesContext';
-import Loader from '../Loader/Loader';
-import ErrorText from '../ErrorText/ErrorText';
+import Loader from '../Loader';
+import ErrorText from '../ErrorText';
 import DevModulesGrid from './DevModulesGrid';
 
 const DevModulesTab = () => {
