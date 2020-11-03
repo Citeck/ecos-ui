@@ -102,7 +102,8 @@ export default class TaskOutcomeAction extends ActionsExecutor {
           showDefaultButtons: true,
           formDefinition: formDef.definition,
           formOptions: {
-            recordId: taskRef
+            recordId: taskRef,
+            outcome
           },
           formI18n,
           onCancel: () => resolve(false),
