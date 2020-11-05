@@ -29,13 +29,7 @@ export default class DashboardConverter {
 
       return {
         ...column,
-        widgets: column.widgets.map(widget => {
-          if (typeof widget === 'string') {
-            return widgetsById[widget];
-          }
-
-          return widget;
-        })
+        widgets: column.widgets.map(widget => (typeof widget === 'string' ? widgetsById[widget] : widget)).filter(w => !!w)
       };
     };
 
