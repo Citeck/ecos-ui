@@ -63,6 +63,7 @@ import PageService from '../services/PageService';
 import { getJournalUIType, getOldPageUrl } from '../api/export/journalsApi';
 import { selectJournals, selectJournalUiType } from '../selectors/journals';
 import { selectSearch } from '../selectors/router';
+import { hasInString } from '../helpers/util';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -277,10 +278,10 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
       journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
     }
 
-    if (!journalSetting) {
+    if (!journalSetting && hasInString(window.location.href, 'journalSettingId')) {
       const url = removeUrlSearchParams(window.location.href, 'journalSettingId');
 
-      window.history.pushState({ path: url }, '', url);
+      window.history.replaceState({ path: url }, '', url);
 
       journalSetting = getDefaultJournalSetting(journalConfig);
     }

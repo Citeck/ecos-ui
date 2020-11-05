@@ -9,7 +9,16 @@ import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 import { withRouter } from 'react-router-dom';
 
-import { changeTab, deleteTab, initTabs, moveTabs, setDisplayState, setTab, updateTab } from '../../actions/pageTabs';
+import {
+  changeTab,
+  deleteTab,
+  initTabs,
+  moveTabs,
+  setDisplayState,
+  setTab,
+  updateTab,
+  updateTabsFromStorage
+} from '../../actions/pageTabs';
 import { animateScrollTo, arrayCompare, getScrollbarWidth, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
 import UserLocalSettingsService from '../../services/userLocalSettings';
@@ -21,6 +30,7 @@ import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { replaceHistoryLink } from '../../helpers/urls';
 
 import './style.scss';
+import { updateTabEmitter } from '../../services/pageTabs/PageTabList';
 
 const Labels = {
   GO_HOME: 'header.site-menu.go-home-page'
@@ -50,7 +60,10 @@ class PageTabs extends React.Component {
 
   constructor(props) {
     super(props);
+
     this.checkUrl();
+
+    updateTabEmitter.on('update', props.updateTabs);
   }
 
   componentDidMount() {
@@ -487,7 +500,8 @@ const mapDispatchToProps = dispatch => ({
   updateTab: tab => dispatch(updateTab(tab)),
   deleteTab: tab => dispatch(deleteTab(tab)),
   push: url => dispatch(push(url)),
-  replace: url => dispatch(replace(url))
+  replace: url => dispatch(replace(url)),
+  updateTabs: () => dispatch(updateTabsFromStorage())
 });
 
 export default withRouter(

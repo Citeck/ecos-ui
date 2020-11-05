@@ -1,12 +1,14 @@
 import isArray from 'lodash/isArray';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import { EventEmitter2 } from 'eventemitter2';
 
 import * as storage from '../../helpers/ls';
 import { equalsQueryUrls, IgnoredUrlParams } from '../../helpers/urls';
 import { t } from '../../helpers/util';
 import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
+import PageService from '../PageService';
 
 const exist = index => !!~index;
 
@@ -302,6 +304,45 @@ class PageTabList {
 }
 
 const pageTabList = get(window, 'Citeck.PageTabList', new PageTabList());
+
+export const updateTabEmitter = new EventEmitter2();
+
+window.addEventListener('popstate', event => {
+  const { href, origin } = get(event, 'target.location');
+  const link = href.replace(origin, '');
+  const exist = pageTabList.existTab({ link });
+
+  console.warn({
+    activeTab: pageTabList.activeTab
+  });
+
+  if (exist) {
+    pageTabList.activate(exist);
+  } else {
+    pageTabList.setTab({ link }, { openNewTab: true });
+  }
+
+  // activeTab.link = link;
+  //
+  // pageTabList.setTab(activeTab, { reopen: true });
+
+  // PageService.changeUrlLink(link, { openNewTab: true });
+
+  console.warn({
+    event,
+    // href,
+    // origin,
+    link,
+    // activeTab,
+    current: window.location.href,
+    // newTab,
+    exist,
+    tabs: pageTabList.tabs
+    // normalized: pageTabList.getValidList(pageTabList.tabs)
+  });
+
+  updateTabEmitter.emit('update');
+});
 
 set(window, 'Citeck.PageTabList', pageTabList);
 

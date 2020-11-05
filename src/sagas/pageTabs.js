@@ -15,7 +15,8 @@ import {
   setShowTabsStatus,
   setTab,
   setTabs,
-  updateTab
+  updateTab,
+  updateTabsFromStorage
 } from '../actions/pageTabs';
 import { selectInitStatus } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
@@ -190,6 +191,14 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
   }
 }
 
+function* sagaUpdateTabs({ api, logger }, { payload }) {
+  try {
+    yield put(setTabs(PageTabList.storeList));
+  } catch (e) {
+    logger.error('[pageTabs sagaUpdateTabs saga error', e.message);
+  }
+}
+
 function* getTitle(tab) {
   try {
     const urlProps = queryString.parseUrl(tab.link);
@@ -216,6 +225,7 @@ function* saga(ea) {
   yield takeEvery(deleteTab().type, sagaDeleteTab, ea);
   yield takeEvery(changeTab().type, sagaChangeTabData, ea);
   yield takeEvery(updateTab().type, sagaUpdateTabData, ea);
+  yield takeEvery(updateTabsFromStorage().type, sagaUpdateTabs, ea);
 }
 
 export default saga;

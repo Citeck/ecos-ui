@@ -390,7 +390,9 @@ export const replaceHistoryLink = (history = {}, link = '') => {
   }
 
   if (typeof history.replace === 'function') {
-    history.replace(pureLink);
+    console.warn('replaceHistoryLink', history);
+    window.history.replaceState({ path: pureLink }, '', pureLink);
+    // history.replace(pureLink);
   }
 };
 
@@ -410,11 +412,20 @@ export const pushHistoryLink = (history = {}, linkData = {}) => {
   }
 
   if (typeof history.push === 'function') {
-    history.push({
-      ...linkData,
-      search,
-      pathname
-    });
+    console.warn('pushHistoryLink', history);
+    console.trace(linkData);
+
+    // window.history.replaceState({ path: newLink }, '', newLink);
+
+    window.history.pushState({ path: newLink }, '', newLink);
+
+    // history.replace(newLink)
+
+    // history.push({
+    //   ...linkData,
+    //   search,
+    //   pathname
+    // });
   }
 };
 
