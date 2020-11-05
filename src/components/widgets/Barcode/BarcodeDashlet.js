@@ -97,7 +97,7 @@ class BarcodeDashlet extends BaseWidget {
   }
 
   renderBarcode() {
-    const { config, classNameBarcode, barcode, error, isLoading } = this.props;
+    const { config, classNameBarcode, barcode, error, isLoading, displayElements } = this.props;
     const { isOpenSettings } = this.state;
 
     return (
@@ -111,6 +111,7 @@ class BarcodeDashlet extends BaseWidget {
         isLoading={isLoading}
         onGenerate={this.handleGenerateBarcode}
         onPrint={this.handlePrint}
+        displayElements={displayElements || {}}
       />
     );
   }
@@ -181,14 +182,17 @@ const mapStateToProps = (state, ownProps) => {
     error: stateB.error,
     isLoading: stateB.isLoading,
     allowedTypes: stateB.allowedTypes,
-    settings: BarcodeConverter.getSettingsForWeb(get(stateB, 'config.settings'))
+    settings: BarcodeConverter.getSettingsForWeb(get(stateB, 'config.settings')),
+    displayElements: stateB.displayElements
   };
 };
 
-const mapDispatchToProps = (dispatch, { record }) => ({
-  init: stateId => dispatch(init(stateId)),
-  generateBase64Barcode: stateId => dispatch(getBase64Barcode({ stateId, record }))
-});
+const mapDispatchToProps = (dispatch, { record, config }) => {
+  return {
+    init: stateId => dispatch(init({ stateId, record, config })),
+    generateBase64Barcode: stateId => dispatch(getBase64Barcode({ stateId, record }))
+  };
+};
 
 export default connect(
   mapStateToProps,
