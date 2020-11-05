@@ -1,4 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import { getCurrentUserName, t } from '../helpers/util';
 import Cache from '../helpers/cache';
@@ -260,4 +261,38 @@ export class DashboardApi extends RecordService {
         return false;
       });
   }
+
+  getFilteredWidgets = async (widgets = [], params = {}) => {
+    const checks = await Promise.all(
+      widgets.map(widget => DashboardApi.getIsAvailableWidget(params.recordRef, get(widget, 'props.config.widgetDisplayCondition')))
+    );
+
+    return widgets.filter((value, index) => checks[index]);
+  };
+
+  static getIsAvailableWidget = (record, condition) => {
+    if (!condition) {
+      return Promise.resolve(true);
+    }
+
+    const jsonCondition = JSON.parse(condition);
+    const query = {
+      record: record.includes('workspace://') ? `alfresco/@${record}` : record
+    };
+
+    if (Array.isArray(jsonCondition)) {
+      query.predicates = jsonCondition;
+    } else if (typeof jsonCondition === 'object') {
+      query.predicate = jsonCondition;
+    } else {
+      return Promise.resolve(false);
+    }
+
+    return Records.queryOne({ sourceId: SourcesId.PREDICATE, query }, 'result?bool')
+      .then(response => (Array.isArray(response) ? response.every(flag => !!flag) : response))
+      .catch(e => {
+        console.log(e);
+        return false;
+      });
+  };
 }
