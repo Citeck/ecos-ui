@@ -360,7 +360,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const pagination = userConfig ? userConfig.pagination : yield select(state => state.journals[stateId].grid.pagination);
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, userConfig, stateId }, w);
   const params = getGridParams({ journalConfig, journalSetting, pagination });
-  const searchPredicate = yield getSearchPredicate({ stateId });
+  const searchPredicate = yield getSearchPredicate(w({ stateId }));
   const gridData = yield getGridData(api, { ...params, searchPredicate }, stateId);
   const editingRules = yield getGridEditingRules(api, gridData);
   let selectedRecords = [];
@@ -493,7 +493,7 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
     }
 
     yield getJournalSettings(api, journalConfig.id, w);
-    yield loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w);
+    yield loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, (...data) => ({ ...w(...data), logger }));
 
     yield put(setLoading(w(false)));
   } catch (e) {
