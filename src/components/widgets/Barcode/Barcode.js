@@ -24,20 +24,22 @@ class Barcode extends React.Component {
   };
 
   render() {
-    const { isLoading, barcode, error, className, onPrint, onGenerate } = this.props;
+    const { isLoading, barcode, error, className, onPrint, onGenerate, displayElements = {} } = this.props;
 
     return (
       <div className={classNames('ecos-barcode', className)}>
         <div className="ecos-barcode__container">
           {error && <div className="ecos-barcode__error">{error}</div>}
-          <Btn
-            className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no"
-            loading={isLoading}
-            disabled={isLoading}
-            onClick={onGenerate}
-          >
-            {!barcode ? t(Labels.BTN_GENERATE) : t(Labels.BTN_GENERATE_NEW)}
-          </Btn>
+          {(!barcode || displayElements.btnGenerateNew) && (
+            <Btn
+              className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no"
+              loading={isLoading}
+              disabled={isLoading}
+              onClick={onGenerate}
+            >
+              {barcode ? t(Labels.BTN_GENERATE_NEW) : t(Labels.BTN_GENERATE)}
+            </Btn>
+          )}
           {barcode && <img className="ecos-barcode__image" src={barcode} alt={t(Labels.TITLE)} />}
         </div>
         <Btn className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no" onClick={onPrint} disabled={!!error}>
