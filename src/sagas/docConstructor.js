@@ -23,23 +23,16 @@ const OPTIONS = { role: 'initiator', permission: 'Consumer' };
 
 function* runInitConstructor({ api, logger }, { payload, payload: { stateId, record, config } }) {
   try {
-    const { widgetDisplayCondition: condition } = config;
     const settings = {};
+    const data = yield call(api.docConstructor.getSettings, { name: KEY_URL });
+    const isRight = data && data[KEY_URL];
 
-    settings.isAvailable = yield call(api.docConstructor.getIsAvailableWidget, { condition, record });
-
-    if (settings.isAvailable) {
-      const data = yield call(api.docConstructor.getSettings, { name: KEY_URL });
-      const isRight = data && data[KEY_URL];
-
-      if (isRight) {
-        settings.docOneUrl = data[KEY_URL] + POSTFIX_URL;
-        yield* fetchDocumentParams({ api, logger }, { payload });
-      }
-
-      yield put(setError({ stateId, error: isRight ? '' : t('doc-constructor-widget.error.no-doc-one-base-url') }));
+    if (isRight) {
+      settings.docOneUrl = data[KEY_URL] + POSTFIX_URL;
+      yield* fetchDocumentParams({ api, logger }, { payload });
     }
 
+    yield put(setError({ stateId, error: isRight ? '' : t('doc-constructor-widget.error.no-doc-one-base-url') }));
     yield put(setSettings({ stateId, settings }));
   } catch (e) {
     yield put(setError({ stateId, error: e.message }));
