@@ -7,7 +7,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
-import { init, getBase64Barcode } from '../../../actions/barcode';
+import { getBase64Barcode, init } from '../../../actions/barcode';
 import Dashlet from '../../Dashlet';
 import DAction from '../../../services/DashletActionService';
 import Barcode from './Barcode';
@@ -59,6 +59,12 @@ class BarcodeDashlet extends BaseWidget {
     return get(config, 'settings', defaultSettings);
   }
 
+  get displayCondition() {
+    const { config } = this.props;
+
+    return get(config, 'elementsDisplayCondition');
+  }
+
   handleGenerateBarcode = () => {
     this.props.generateBase64Barcode(this.stateId);
   };
@@ -75,11 +81,11 @@ class BarcodeDashlet extends BaseWidget {
     window.open(url, '_blank');
   };
 
-  handleSaveSettings = settings => {
+  handleSaveSettings = (settings, elementsDisplayCondition) => {
     const { id, onSave, config } = this.props;
 
     if (typeof onSave === 'function') {
-      onSave(id, { config: { ...config, settings } });
+      onSave(id, { config: { ...config, settings, elementsDisplayCondition } });
     }
 
     this.handleToggleSettings();
@@ -120,6 +126,7 @@ class BarcodeDashlet extends BaseWidget {
     return (
       <Settings
         settings={this.settings}
+        displayCondition={this.displayCondition}
         allowedTypes={allowedTypes}
         onSave={this.handleSaveSettings}
         onCancel={this.handleToggleSettings}
