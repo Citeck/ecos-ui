@@ -1,16 +1,18 @@
 import isArray from 'lodash/isArray';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
 import { EventEmitter2 } from 'eventemitter2';
 
 import * as storage from '../../helpers/ls';
-import { equalsQueryUrls, IgnoredUrlParams } from '../../helpers/urls';
+import { decodeLink, equalsQueryUrls, IgnoredUrlParams } from '../../helpers/urls';
 import { t } from '../../helpers/util';
 import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
 import PageService from '../PageService';
 
 const exist = index => !!~index;
+let _prevPage = '';
 
 /**
  * @define Application Tabs Service (Singleton)
@@ -36,7 +38,7 @@ class PageTabList {
     this.#tabs = [];
 
     tabs = isArray(tabs) ? tabs : [];
-    tabs.forEach(item => this.setTab(item, params));
+    this.#tabs = tabs.map(item => this.setTab(item, params));
   }
 
   set displayState(state) {
@@ -311,16 +313,44 @@ window.addEventListener('popstate', event => {
   const { href, origin } = get(event, 'target.location');
   const link = href.replace(origin, '');
   const exist = pageTabList.existTab({ link });
+  const prevTab = pageTabList.existTab({ link: _prevPage });
+  const activeTab = cloneDeep({ ...pageTabList.activeTab, isActive: false });
+  const tabs = cloneDeep(pageTabList.storeList);
 
   console.warn({
-    activeTab: pageTabList.activeTab
+    activeTab,
+    current: pageTabList.activeTab.link,
+    _prevPage,
+    link,
+    prevTab,
+    tabs
   });
 
-  if (exist) {
-    pageTabList.activate(exist);
+  const founded = tabs.find(tab => tab.link === decodeLink(link));
+
+  console.warn({ founded }, link, decodeLink(link));
+
+  if (founded) {
+    tabs.forEach(tab => {
+      tab.isActive = tab.link === decodeLink(link);
+    });
   } else {
-    pageTabList.setTab({ link }, { openNewTab: true });
+    const newTab = new PageTab({ title: t(TITLE.LOADING), isLoading: true, link: window.encodeURIComponent(link) });
+
+    tabs.push(newTab.store);
+
+    console.warn(newTab);
   }
+
+  // pageTabList.setTab({ link }, { openNewTab: true, closeActiveTab: true });
+
+  // if (exist) {
+  //   pageTabList.activate(exist);
+  //   pageTabList.setTab(activeTab);
+  //
+  // } else {
+  //   pageTabList.setTab({ link }, { openNewTab: true, closeActiveTab: true });
+  // }
 
   // activeTab.link = link;
   //
@@ -337,13 +367,51 @@ window.addEventListener('popstate', event => {
     current: window.location.href,
     // newTab,
     exist,
-    tabs: pageTabList.tabs
+    tabs,
+    // tabs: pageTabList.tabs,
+    prev: event.srcElement.location.href
     // normalized: pageTabList.getValidList(pageTabList.tabs)
   });
 
+  _prevPage = link;
+  pageTabList.tabs = { tabs, params: { openNewTab: true } };
   updateTabEmitter.emit('update');
+
+  console.warn(cloneDeep(pageTabList.storeList));
 });
 
 set(window, 'Citeck.PageTabList', pageTabList);
+
+window.history.pushState = function(params) {
+  const { href, origin } = get(window, 'location', {});
+  let link = get(params, 'path');
+
+  if (!link) {
+    link = href.replace(origin, '');
+  }
+
+  if (link !== href.replace(origin, '')) {
+    _prevPage = link;
+  }
+
+  console.warn('pushState', link, params);
+  History.prototype.pushState.apply(window.history, arguments);
+};
+
+window.history.replaceState = function(params) {
+  const { href, origin } = get(window, 'location', {});
+  let link = get(params, 'path');
+
+  if (!link) {
+    link = href.replace(origin, '');
+  }
+
+  if (link !== href.replace(origin, '')) {
+    _prevPage = link;
+  }
+
+  console.warn('replaceState', link, params);
+  History.prototype.replaceState.apply(window.history, arguments);
+};
 
 export default pageTabList;

@@ -57,10 +57,10 @@ class UrlManager extends Component {
   }
 
   triggerParse = (params, pathname = window.location.pathname) => {
-    pushHistoryLink(this.props.history, {
-      pathname,
-      search: queryString.stringify(params)
-    });
+    // pushHistoryLink(this.props.history, {
+    //   pathname,
+    //   search: queryString.stringify(params)
+    // });
     trigger.call(this, 'onParse', params);
   };
 

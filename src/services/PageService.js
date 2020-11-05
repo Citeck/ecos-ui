@@ -116,6 +116,8 @@ export default class PageService {
       return;
     }
 
+    console.trace('changeUrlLink => ', link);
+
     PageService.eventIsDispatched = true;
 
     try {

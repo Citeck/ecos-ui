@@ -390,8 +390,9 @@ export const replaceHistoryLink = (history = {}, link = '') => {
   }
 
   if (typeof history.replace === 'function') {
-    console.warn('replaceHistoryLink', history);
-    window.history.replaceState({ path: pureLink }, '', pureLink);
+    console.warn('replaceHistoryLink', { link, pureLink });
+    console.trace('replaceHistoryLink');
+    window.history.replaceState({ path: pureLink }, '', pureLink /*, window.encodeURI(pureLink)*/);
     // history.replace(pureLink);
   }
 };
@@ -412,12 +413,11 @@ export const pushHistoryLink = (history = {}, linkData = {}) => {
   }
 
   if (typeof history.push === 'function') {
-    console.warn('pushHistoryLink', history);
-    console.trace(linkData);
+    console.warn('pushHistoryLink', { linkData, newLink });
 
     // window.history.replaceState({ path: newLink }, '', newLink);
 
-    window.history.pushState({ path: newLink }, '', newLink);
+    window.history.pushState({ path: newLink }, '', newLink /*, window.encodeURI(newLink)*/);
 
     // history.replace(newLink)
 
@@ -455,3 +455,5 @@ export const removeUrlSearchParams = (sourceUrl = window.location.href, keys = [
 
   return queryString.stringifyUrl(url);
 };
+
+window.queryString = queryString;
