@@ -270,7 +270,7 @@ export class DashboardApi extends RecordService {
     return widgets.filter((value, index) => checks[index]);
   };
 
-  getDisplayElementsByCondition = async (conditions, params) => {
+  getDisplayElementsByCondition = async (conditions = {}, params) => {
     const keys = Object.keys(conditions);
     const target = {};
     const checks = await Promise.all(keys.map(key => DashboardApi.getIsAvailableWidget(params.recordRef, conditions[key])));
