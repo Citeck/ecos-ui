@@ -227,6 +227,7 @@ export default class Components {
       id: props.id || defWidget.id,
       config: {
         widgetDisplayCondition: '',
+        elementsDisplayCondition: {},
         ...config
       }
     };

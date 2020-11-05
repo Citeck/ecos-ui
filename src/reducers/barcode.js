@@ -1,15 +1,14 @@
 import { handleActions } from 'redux-actions';
 
-import { init, setAllowedTypes, getBase64Barcode, setBase64Barcode, setError } from '../actions/barcode';
-import { defaultSettings } from '../constants/barcode';
+import { getBase64Barcode, init, setAllowedTypes, setBase64Barcode, setDisplayElements, setError } from '../actions/barcode';
 
 const initialState = {
   error: '',
   barcode: '',
   isLoading: false,
   allowedTypes: [],
-  config: {
-    settings: { ...defaultSettings }
+  displayElements: {
+    btnGenerateNew: false
   }
 };
 
@@ -34,6 +33,13 @@ export default handleActions(
       [stateId]: {
         ...state[stateId],
         allowedTypes
+      }
+    }),
+    [setDisplayElements]: (state, { payload: { stateId, displayElements } }) => ({
+      ...state,
+      [stateId]: {
+        ...state[stateId],
+        displayElements
       }
     }),
     [setError]: (state, { payload: { stateId, error } }) => ({
