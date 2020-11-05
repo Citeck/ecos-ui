@@ -1,5 +1,3 @@
-import get from 'lodash/get';
-
 import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
 import JournalsConverter from '../../../dto/journals';
@@ -62,13 +60,19 @@ class JournalsDataLoader {
       recordsQuery.groupBy = groupBy;
     }
 
-    const sortBy = settings.sortBy || journalConfig.sortBy;
-    recordsQuery.sortBy = [
-      {
-        attribute: get(sortBy, 'attribute') || Attributes.DBID,
-        ascending: !!get(sortBy, 'ascending')
-      }
-    ];
+    let sortBy = settings.sortBy || [];
+    if (!sortBy.length) {
+      sortBy = journalConfig.sortBy || [];
+    }
+    if (!sortBy.length && recordsQuery.sourceId === '') {
+      sortBy = [
+        {
+          attribute: Attributes.DBID,
+          ascending: false
+        }
+      ];
+    }
+    recordsQuery.sortBy = sortBy;
 
     const attributes = this._getAttributes(journalConfig, settings);
 
