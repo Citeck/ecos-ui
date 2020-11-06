@@ -335,7 +335,12 @@ window.addEventListener('popstate', event => {
       tab.isActive = tab.link === decodeLink(link);
     });
   } else {
-    const newTab = new PageTab({ title: t(TITLE.LOADING), isLoading: true, link: window.encodeURIComponent(link) });
+    const newTab = new PageTab({
+      title: t(TITLE.LOADING),
+      isLoading: true,
+      isActive: true,
+      link: window.encodeURIComponent(link)
+    });
 
     tabs.push(newTab.store);
 
@@ -395,6 +400,7 @@ window.history.pushState = function(params) {
   }
 
   console.warn('pushState', link, params);
+  console.trace('pushState');
   History.prototype.pushState.apply(window.history, arguments);
 };
 

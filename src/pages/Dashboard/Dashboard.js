@@ -340,8 +340,6 @@ class Dashboard extends Component {
   setActiveLink = idLayout => {
     const searchParams = queryString.parse(window.location.search);
 
-    console.warn('setActiveLink', this.state.urlParams, searchParams);
-
     searchParams.activeLayoutId = idLayout;
 
     if (!this.state.urlParams) {
