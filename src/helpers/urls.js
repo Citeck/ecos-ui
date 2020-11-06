@@ -372,7 +372,7 @@ window.Citeck.Navigator = {
   }
 };
 
-export const replaceHistoryLink = (history = {}, link = '') => {
+export const replaceHistoryLink = (history = window, link = '') => {
   if (isEmpty(history)) {
     return;
   }
@@ -389,13 +389,10 @@ export const replaceHistoryLink = (history = {}, link = '') => {
     return;
   }
 
-  if (typeof history.replace === 'function') {
-    window.history.replaceState({ path: pureLink }, '', pureLink /*, window.encodeURI(pureLink)*/);
-    // history.replace(pureLink);
-  }
+  window.history.replaceState({ path: pureLink }, '', pureLink);
 };
 
-export const pushHistoryLink = (history = {}, linkData = {}) => {
+export const pushHistoryLink = (history = window, linkData = {}) => {
   if (isEmpty(history) || isEmpty(linkData)) {
     return;
   }
@@ -410,19 +407,7 @@ export const pushHistoryLink = (history = {}, linkData = {}) => {
     return;
   }
 
-  if (typeof history.push === 'function') {
-    // window.history.replaceState({ path: newLink }, '', newLink);
-
-    window.history.pushState({ path: newLink }, '', newLink /*, window.encodeURI(newLink)*/);
-
-    // history.replace(newLink)
-
-    // history.push({
-    //   ...linkData,
-    //   search,
-    //   pathname
-    // });
-  }
+  window.history.pushState({ path: newLink }, '', newLink);
 };
 
 /**
