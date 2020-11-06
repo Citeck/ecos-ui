@@ -82,7 +82,6 @@ class App extends Component {
       const { link } = updates;
 
       if (link) {
-        console.warn('replaceHistoryLink => APP', link);
         replaceHistoryLink(this.props.history, link);
       }
 

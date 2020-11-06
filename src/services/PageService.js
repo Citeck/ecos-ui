@@ -318,5 +318,3 @@ function getKeyHistory() {
 function convertTitle(title) {
   return t(title || TITLE.NO_NAME);
 }
-
-window.PageService = PageService;

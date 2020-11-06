@@ -5,7 +5,6 @@ import { withRouter } from 'react-router';
 
 import { deepClone, trigger } from '../../helpers/util';
 import PageService from '../../services/PageService';
-import { pushHistoryLink } from '../../helpers/urls';
 
 class UrlManager extends Component {
   _prevUrlParams = {};
@@ -56,11 +55,7 @@ class UrlManager extends Component {
     return fromUrlParams;
   }
 
-  triggerParse = (params, pathname = window.location.pathname) => {
-    // pushHistoryLink(this.props.history, {
-    //   pathname,
-    //   search: queryString.stringify(params)
-    // });
+  triggerParse = params => {
     trigger.call(this, 'onParse', params);
   };
 
