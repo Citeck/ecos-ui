@@ -10,7 +10,7 @@ import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 import { hasInString } from './util';
 
-const JOURNALS_LIST_ID_KEY = 'journalsListId';
+export const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';
 const DASHBOARD_ID_KEY = 'dashboardId';
 const DASHBOARD_KEY_KEY = 'dashboardKey';
@@ -391,7 +391,6 @@ export const replaceHistoryLink = (history = {}, link = '') => {
 
   if (typeof history.replace === 'function') {
     console.warn('replaceHistoryLink', { link, pureLink });
-    console.trace('replaceHistoryLink');
     window.history.replaceState({ path: pureLink }, '', pureLink /*, window.encodeURI(pureLink)*/);
     // history.replace(pureLink);
   }
