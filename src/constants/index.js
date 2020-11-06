@@ -13,7 +13,8 @@ export const URL = {
   TIMESHEET_IFRAME: '/v2/pure-timesheet',
   TIMESHEET_IFRAME_SUBORDINATES: '/v2/pure-timesheet/subordinates',
   TIMESHEET_IFRAME_FOR_VERIFICATION: '/v2/pure-timesheet/for-verification',
-  TIMESHEET_IFRAME_DELEGATED: '/v2/pure-timesheet/delegated'
+  TIMESHEET_IFRAME_DELEGATED: '/v2/pure-timesheet/delegated',
+  FORM_COMPONENTS: '/v2/debug/formio-develop'
 };
 
 export const pagesWithOnlyContent = [
@@ -35,7 +36,8 @@ export const SourcesId = {
   META: 'uiserv/meta',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
-  AUTHORITY: 'alfresco/authority',
+  A_AUTHORITY: 'alfresco/authority',
+  A_META: 'alfresco/meta',
   ECOS_CONFIG: 'ecos-config',
   HISTORY: 'history',
   STATUS: 'status',
@@ -119,6 +121,10 @@ export const Pages = {
   LOGIN: 'login',
   DEBUG_FORMIO: 'debug-formio',
   DEBUG_TREE: 'debug-tree'
+};
+
+export const AppEditions = {
+  ENTERPRISE: 'enterprise'
 };
 
 window.Citeck = window.Citeck || {};

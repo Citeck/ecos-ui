@@ -19,21 +19,18 @@ jest.spyOn(global, 'fetch').mockImplementation(() => {
 
 describe('Page Service', () => {
   describe.each([
-    ['https://community.ecos24.ru/v2/dashboard', PageTypes.DASHBOARD],
+    ['/v2/dashboard', PageTypes.DASHBOARD],
     [
-      'https://community.ecos24.ru/v2/journals?journalId=workspace://SpacesStore/journal-meta-j-active-tasks&journalSettingId=&journalsListId=global-global-tasks',
+      '/v2/journals?journalId=workspace://SpacesStore/journal-meta-j-active-tasks&journalSettingId=&journalsListId=global-global-tasks',
       PageTypes.JOURNALS
     ],
+    ['/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72', PageTypes.DASHBOARD],
     [
-      'https://community.ecos24.ru/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
-      PageTypes.DASHBOARD
-    ],
-    [
-      'https://community.ecos24.ru/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
+      '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       PageTypes.SETTINGS
     ],
-    ['https://community.ecos24.ru/v2/bpmn-designer', PageTypes.BPMN_DESIGNER],
-    ['https://community.ecos24.ru/v2/timesheet', PageTypes.TIMESHEET]
+    ['/v2/bpmn-designer', PageTypes.BPMN_DESIGNER],
+    ['/v2/timesheet', PageTypes.TIMESHEET]
   ])('Method getType', (input, output) => {
     it(output, async () => {
       expect(PageService.getType(input)).toEqual(output);
@@ -41,22 +38,22 @@ describe('Page Service', () => {
   });
 
   describe.each([
-    ['https://community.ecos24.ru/v2/dashboard', ''],
+    ['/v2/dashboard', ''],
     [
-      'https://community.ecos24.ru/v2/journals?journalId=workspace://SpacesStore/journal-meta-j-active-tasks&journalSettingId=&journalsListId=global-global-tasks',
+      '/v2/journals?journalId=workspace://SpacesStore/journal-meta-j-active-tasks&journalSettingId=&journalsListId=global-global-tasks',
       'global-global-tasks'
     ],
     [
-      'https://community.ecos24.ru/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
+      '/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       'workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72'
     ],
     [
-      'https://community.ecos24.ru/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
+      '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       '034cbe25-098c-48be-ac21-d69e5c7abc79'
     ],
-    ['https://community.ecos24.ru/v2/bpmn-designer', ''],
-    ['https://community.ecos24.ru/v2/timesheet', ''],
-    ['https://community.ecos24.ru/v2/dashboard', '', 'test-type']
+    ['/v2/bpmn-designer', ''],
+    ['/v2/timesheet', ''],
+    ['/v2/dashboard', '', 'test-type']
   ])('Method getKey', (link, output, type) => {
     it(output || 'without key', async () => {
       expect(PageService.getKey({ link, type })).toEqual(output);
@@ -64,23 +61,23 @@ describe('Page Service', () => {
   });
 
   describe.each([
-    ['https://community.ecos24.ru/v2/dashboard', 'dashboard-'],
+    ['/v2/dashboard', 'dashboard-'],
     [
-      'https://community.ecos24.ru/v2/journals?journalId=workspace://SpacesStore/journal-meta-j-active-tasks&journalSettingId=&journalsListId=global-global-tasks',
+      '/v2/journals?journalId=workspace://SpacesStore/journal-meta-j-active-tasks&journalSettingId=&journalsListId=global-global-tasks',
       'journals-global-global-tasks'
     ],
     [
-      'https://community.ecos24.ru/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
+      '/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       'dashboard-workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72'
     ],
     [
-      'https://community.ecos24.ru/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
+      '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       'dashboard/settings-034cbe25-098c-48be-ac21-d69e5c7abc79'
     ],
-    ['https://community.ecos24.ru/v2/bpmn-designer', 'bpmn-designer-'],
-    ['https://community.ecos24.ru/v2/timesheet', 'timesheet-'],
-    ['https://community.ecos24.ru/v2/dashboard', 'test-type-', 'test-type'],
-    ['https://community.ecos24.ru/v2/dashboard', 'test-type-test-key', 'test-type', 'test-key']
+    ['/v2/bpmn-designer', 'bpmn-designer-'],
+    ['/v2/timesheet', 'timesheet-'],
+    ['/v2/dashboard', 'test-type-', 'test-type'],
+    ['/v2/dashboard', 'test-type-test-key', 'test-type', 'test-key']
   ])('Method getId', (link, output, type, key) => {
     it(output, async () => {
       expect(PageService.keyId({ link, type, key })).toEqual(output);
@@ -88,22 +85,21 @@ describe('Page Service', () => {
   });
 
   describe.each([
-    ['https://community.ecos24.ru/v2/dashboard', 'header.site-menu.home-page'],
+    ['/v2/dashboard', 'header.site-menu.home-page'],
     [
-      'https://community.ecos24.ru/v2/journals?journalId=workspace://SpacesStore/journal-meta-j-active-tasks&journalSettingId=&journalsListId=global-global-tasks',
+      '/v2/journals?journalId=workspace://SpacesStore/journal-meta-j-active-tasks&journalSettingId=&journalsListId=global-global-tasks',
       `page-tabs.journal \"${TITLE}\"`
     ],
-    ['https://community.ecos24.ru/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72', TITLE],
+    ['/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72', TITLE],
     [
-      'https://community.ecos24.ru/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
+      '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       `page-tabs.dashboard-settings \"${TITLE}\"`
     ],
-    ['https://community.ecos24.ru/v2/bpmn-designer', 'page-tabs.bpmn-designer'],
-    ['https://community.ecos24.ru/v2/timesheet', 'page-tabs.timesheet']
+    ['/v2/bpmn-designer', 'page-tabs.bpmn-designer'],
+    ['/v2/timesheet', 'page-tabs.timesheet']
   ])('Method getTitle by type', (link, output) => {
     it(output, async () => {
-      const type = PageService.getType(link);
-      const getTitle = PageService.pageTypes[type].getTitle;
+      const getTitle = PageService.getPage({ link }).getTitle;
       const props = queryString.parseUrl(link).query;
       const title = await getTitle(props);
 

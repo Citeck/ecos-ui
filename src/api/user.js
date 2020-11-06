@@ -1,8 +1,8 @@
-import { CommonApi } from './common';
 import { PROXY_URI, URL_CONTEXT } from '../constants/alfresco';
 import { SourcesId } from '../constants';
 import Records from '../components/Records';
 import { t } from '../helpers/util';
+import { CommonApi } from './common';
 import { isNewJournalsPageEnable } from './export/journalsApi';
 
 export class UserApi extends CommonApi {
@@ -57,17 +57,20 @@ export class UserApi extends CommonApi {
     });
   };
 
+  isUserAdmin = () => {
+    return Records.queryOne({ sourceId: SourcesId.PEOPLE }, 'isAdmin?bool');
+  };
+
   getUserDataByRef(ref) {
-    return Records.get(ref)
-      .load({
-        userName: 'userName',
-        firstName: 'cm:firstName',
-        lastName: 'cm:lastName',
-        middleName: 'cm:middleName',
-        isAdmin: 'isAdmin?bool',
-        nodeRef: 'nodeRef?str'
-      })
-      .then(responce => responce);
+    return Records.get(ref).load({
+      userName: 'userName',
+      firstName: 'cm:firstName',
+      lastName: 'cm:lastName',
+      middleName: 'cm:middleName',
+      isAdmin: 'isAdmin?bool',
+      nodeRef: 'nodeRef?str',
+      modified: '_modified?str'
+    });
   }
 
   changePassword({ record, data: { oldPass, pass, passVerify } }) {
@@ -84,9 +87,9 @@ export class UserApi extends CommonApi {
         let message = response.message || (response.errors && response.errors.join('; ')) || '';
 
         if (message.indexOf('BadCredentials') !== -1) {
-          message = t('user-profile-widget.error.invalid-password');
+          message = t('password-editor.error.invalid-password');
         } else {
-          message = t('user-profile-widget.error.server-error');
+          message = t('password-editor.error.server-error');
         }
 
         return { success: false, message };

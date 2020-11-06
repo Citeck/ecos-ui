@@ -169,4 +169,8 @@ export class AppApi extends CommonApi {
       .load('value?str', true)
       .catch(() => null);
   };
+
+  getAppEdition = () => {
+    return Records.get(`${SourcesId.A_META}@`).load('attributes.edition');
+  };
 }

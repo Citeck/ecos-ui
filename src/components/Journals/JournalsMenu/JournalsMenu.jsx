@@ -287,7 +287,8 @@ class JournalsMenu extends React.Component {
       },
       pageTabsIsShow,
       isMobile,
-      isActivePage
+      isActivePage,
+      forwardedRef
     } = this.props;
 
     if (!open) {
@@ -307,6 +308,7 @@ class JournalsMenu extends React.Component {
     return (
       <JournalsUrlManager stateId={stateId} params={urlParams} isActivePage={isActivePage}>
         <div
+          ref={forwardedRef}
           className={classNames('ecos-journal-menu', {
             'ecos-journal-menu_open': open,
             'ecos-journal-menu_tabs': pageTabsIsShow,

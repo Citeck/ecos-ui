@@ -1,4 +1,5 @@
 import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
 
 import { deepClone } from '../../../helpers/util';
 import {
@@ -10,7 +11,7 @@ import {
   PREDICATE_NOT_EMPTY,
   PREDICATE_OR,
   SEARCH_EQUAL_PREDICATES_MAP
-} from '../../common/form/SelectJournal/predicates';
+} from '../../Records/predicates/predicates';
 import { FilterPredicate, GroupPredicate, Predicate } from './';
 
 export default class ParserPredicate {
@@ -113,6 +114,10 @@ export default class ParserPredicate {
 
   static removeEmptyPredicates(val) {
     val = val || [];
+
+    if (isEmpty(val)) {
+      return [];
+    }
 
     for (let i = 0, length = val.length; i < length; i++) {
       const item = val[i];

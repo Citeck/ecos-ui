@@ -5,9 +5,7 @@ import get from 'lodash/get';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { Loader } from '../../common';
-import { EmptyGrid, Grid, InlineTools, Tools } from '../../common/grid';
-import { IcoBtn } from '../../common/btns';
-import { DropdownOuter } from '../../common/form';
+import { EmptyGrid, Grid, InlineTools } from '../../common/grid';
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import {
@@ -34,9 +32,7 @@ const mapStateToProps = (state, props) => {
     predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords,
-    selectAllRecordsVisible: newState.selectAllRecordsVisible,
-    isLoadingPerformGroupActions: newState.isLoadingPerformGroupActions
+    selectAllRecords: newState.selectAllRecords
   };
 };
 
@@ -78,15 +74,6 @@ class JournalsDashletGrid extends Component {
 
     if (!e.all) {
       props.setSelectAllRecords(false);
-    }
-  };
-
-  setSelectAllRecords = () => {
-    const props = this.props;
-    props.setSelectAllRecords(!props.selectAllRecords);
-
-    if (!props.selectAllRecords) {
-      props.setSelectedRecords([]);
     }
   };
 
@@ -194,88 +181,6 @@ class JournalsDashletGrid extends Component {
     return <InlineTools stateId={stateId} />;
   };
 
-  renderTools = () => {
-    const {
-      isMobile,
-      selectAllRecordsVisible,
-      selectAllRecords,
-      grid: {
-        total,
-        actions: { forRecords = {}, forQuery = {} }
-      },
-      toolsClassName
-    } = this.props;
-
-    const forRecordsInlineActions = [];
-    const forRecordsDropDownActions = [];
-    const groupActions = selectAllRecords ? forQuery.actions : forRecords.actions;
-
-    for (let action of groupActions) {
-      if (action.icon) {
-        forRecordsInlineActions.push(action);
-      } else {
-        forRecordsDropDownActions.push(action);
-      }
-    }
-
-    const tools = forRecordsInlineActions.map(action => (
-      <IcoBtn
-        icon={action.icon}
-        className="ecos-journal__tool ecos-btn_i_sm ecos-btn_grey4 ecos-btn_hover_t-dark-brown"
-        title={action.pluralName}
-        onClick={() => this.executeGroupAction(action)}
-      />
-    ));
-
-    if (forRecordsDropDownActions.length) {
-      tools.push(
-        <DropdownOuter
-          className="ecos-journal__tool-group-dropdown grid-tools__item_left_5"
-          source={forRecordsDropDownActions}
-          valueField={'id'}
-          titleField={'pluralName'}
-          keyFields={['id', 'formRef', 'pluralName']}
-          isStatic
-          onChange={action => this.executeGroupAction(action)}
-        >
-          <IcoBtn
-            invert
-            icon={'icon-small-down'}
-            className="ecos-journal__tool-group-btn dashlet__btn ecos-btn_extra-narrow grid-tools__item_select-group-actions-btn"
-            onClick={this.onGoTo}
-          >
-            {t(isMobile ? 'grid.tools.group-actions-mobile' : 'grid.tools.group-actions')}
-          </IcoBtn>
-        </DropdownOuter>
-      );
-    }
-
-    return (
-      <Tools
-        onSelectAll={this.setSelectAllRecords}
-        selectAllVisible={selectAllRecordsVisible}
-        selectAll={selectAllRecords}
-        total={total}
-        className={toolsClassName}
-        tools={tools}
-      />
-    );
-  };
-
-  executeGroupAction(action) {
-    const {
-      selectAllRecords,
-      grid: { query }
-    } = this.props;
-
-    if (!selectAllRecords) {
-      const records = this.props.selectedRecords || [];
-      this.props.execRecordsAction(records, action);
-    } else {
-      this.props.execRecordsAction(query, action);
-    }
-  }
-
   onRowClick = row => {
     trigger.call(this, 'onRowClick', row);
   };
@@ -361,7 +266,6 @@ class JournalsDashletGrid extends Component {
                 changeTrOptionsByRowClick={doInlineToolsOnRowClick}
                 filters={filters}
                 inlineTools={this.inlineTools}
-                tools={this.renderTools}
                 onSort={this.onSort}
                 onFilter={this.onFilter}
                 onSelect={this.setSelectedRecords}

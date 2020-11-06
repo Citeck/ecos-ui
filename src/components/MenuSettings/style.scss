@@ -1,11 +1,30 @@
 @import '../../styles/constants';
 @import '../../styles/content';
 
+%scroll-tree {
+  &::-webkit-scrollbar,
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-track-piece {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border: 2px solid $color-gray-4;
+    border-radius: 8px;
+  }
+}
+
 .ecos--flex-space {
   flex: auto;
 }
 
 .ecos-menu-settings {
+  $root: &;
+
   &__loader {
     border-radius: $border-radius-large;
     z-index: 10000;
@@ -25,7 +44,14 @@
   &__content-container {
     overflow: auto;
     padding-right: 2px;
+    height: calc(100vh - 288px);
     min-height: 150px;
+  }
+
+  &_disabled {
+    #{$root}__content-container {
+      height: calc(100vh - 209px);
+    }
   }
 
   &__tab-content {
@@ -38,7 +64,7 @@
     &_two-cols {
       $gap: 20px;
       display: grid;
-      grid-template-columns: repeat(2, calc(50% - #{$gap}/ 2));
+      grid-template-columns: repeat(2, calc(50% - #{$gap} / 2));
       grid-gap: $gap;
     }
   }
@@ -157,8 +183,9 @@
     &__tree {
       &-field {
         @extend %block--2;
-        min-height: 350px;
-        max-height: 350px;
+        @extend %scroll-tree;
+        min-height: 325px;
+        max-height: 325px;
         overflow-x: hidden;
       }
     }
@@ -238,8 +265,10 @@
 
       &-field {
         @extend %block--2;
+        @extend %scroll-tree;
         min-height: 300px;
         overflow-x: hidden;
+        height: calc(100vh - 380px);
       }
     }
 

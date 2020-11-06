@@ -12,11 +12,14 @@ import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
 import uuidV4 from 'uuid/v4';
 
-import { Components } from '../../forms/components';
+import { AppEditions } from '../../constants';
+import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import { getCurrentUserName, t } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
+import { UserApi } from '../../api/user';
+import { AppApi } from '../../api/app';
+import { Components } from '../../forms/components';
 import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
-import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import Modal from '../common/EcosModal/CiteckEcosModal';
 import Records from '../Records';
 import EcosForm from './EcosForm';
@@ -53,6 +56,9 @@ const getComponentInnerAttSchema = component => {
 };
 
 export default class EcosFormUtils {
+  static #apiApp = new AppApi();
+  static #apiUser = new UserApi();
+
   static isCurrentUserInGroup(group) {
     const currentPersonName = getCurrentUserName();
 
@@ -84,19 +90,8 @@ export default class EcosFormUtils {
       config.reactstrapProps.keyboard = false;
     }
 
-    let modal = null;
-
-    if (!config.formContainer) {
-      modal = new Modal();
-    }
-
-    const formParams = Object.assign(
-      {
-        record: record
-      },
-      config.params || {}
-    );
-
+    const modal = config.formContainer ? null : new Modal();
+    const formParams = Object.assign({ record }, config.params || {});
     const configParams = config.params || {};
 
     formParams['options'] = configParams.options || {};
@@ -209,7 +204,7 @@ export default class EcosFormUtils {
         }
 
         EcosFormUtils.eform(recordRef, {
-          params: params,
+          params,
           class: 'ecos-modal_width-lg',
           isBigHeader: true,
           formContainer: config.formContainer || null
@@ -977,5 +972,15 @@ export default class EcosFormUtils {
 
   static isOutcomeButton(component) {
     return component && component.type === 'button' && component.key.startsWith(OUTCOME_BUTTONS_PREFIX);
+  }
+
+  static async isConfigurableForm() {
+    const edition = await EcosFormUtils.#apiApp.getAppEdition();
+
+    if (edition !== AppEditions.ENTERPRISE) {
+      return false;
+    }
+
+    return EcosFormUtils.#apiUser.isUserAdmin();
   }
 }

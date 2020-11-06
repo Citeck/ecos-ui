@@ -19,10 +19,10 @@ export default class Tools extends Component {
   };
 
   render() {
-    const { selectAllVisible, selectAll, total, className } = this.props;
+    const { selectAllVisible, selectAll, total, className, forwardedRef } = this.props;
 
     return (
-      <div className={classNames('grid-tools', className)}>
+      <div ref={forwardedRef} className={classNames('grid-tools', className)}>
         {selectAllVisible ? (
           <div className={'grid-tools__item grid-tools__item_select-all'}>
             <Btn

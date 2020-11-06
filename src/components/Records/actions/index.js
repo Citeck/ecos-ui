@@ -1,6 +1,7 @@
 import actionsRegistry from './actionsRegistry';
 
 import AttributeActionsResolver from './handler/resolver/AttributeActionsResolver';
+import TasksActionsResolver from './handler/resolver/TasksActionsResolver';
 
 import ViewBusinessProcessAction from './handler/executor/workflow/ViewBusinessProcessAction';
 import CancelBusinessProcessAction from './handler/executor/workflow/CancelBusinessProcessAction';
@@ -9,6 +10,7 @@ import SetTaskAssignee from './handler/executor/workflow/SetTaskAssignee';
 
 import EditAction from './handler/executor/EditAction';
 import EditMenuAction from './handler/executor/EditMenuAction';
+import EditPasswordAction from './handler/executor/EditPasswordAction';
 import ViewAction from './handler/executor/ViewAction';
 import ViewCardTemplateAction from './handler/executor/ViewCardTemplateAction';
 import ViewMenuAction from './handler/executor/ViewMenuAction';
@@ -31,6 +33,9 @@ import DownloadCardTemplateAction from './handler/executor/DownloadCardTemplateA
 import DownloadZipAction from './handler/executor/DownloadZipAction';
 import ServerGroupAction from './handler/executor/ServerGroupAction';
 import MutateAction from './handler/executor/MutateAction';
+import EditDocPermissionsAction from './handler/executor/EditDocPermissionsAction';
+import TaskOutcomeAction from './handler/executor/workflow/TaskOutcomeAction';
+import OpenSubmitAction from './handler/executor/workflow/OpenSubmitAction';
 
 export { default } from './recordActions';
 
@@ -42,7 +47,8 @@ export const ActionTypes = {
   BACKGROUND_VIEW: BackgroundOpenAction.ACTION_ID,
   CANCEL_WORKFLOW: CancelBusinessProcessAction.ACTION_ID,
   DELETE: DeleteAction.ACTION_ID,
-  SET_TASK_ASSIGNEE: SetTaskAssignee.ACTION_ID
+  SET_TASK_ASSIGNEE: SetTaskAssignee.ACTION_ID,
+  EDIT_PASSWORD: EditPasswordAction.ACTION_ID
 };
 
 // Executors - Common
@@ -67,6 +73,8 @@ actionsRegistry.register(new ViewMenuAction());
 actionsRegistry.register(new DownloadZipAction());
 actionsRegistry.register(new ServerGroupAction());
 actionsRegistry.register(new MutateAction());
+actionsRegistry.register(new EditDocPermissionsAction());
+actionsRegistry.register(new EditPasswordAction());
 
 // Executors - Case
 
@@ -79,7 +87,9 @@ actionsRegistry.register(new CaseRequestAction());
 actionsRegistry.register(new CancelBusinessProcessAction());
 actionsRegistry.register(new EditTaskAssignee());
 actionsRegistry.register(new SetTaskAssignee());
+actionsRegistry.register(new TaskOutcomeAction());
 actionsRegistry.register(new ViewBusinessProcessAction());
+actionsRegistry.register(new OpenSubmitAction());
 
 // Executors - ECOS Module
 
@@ -88,3 +98,4 @@ actionsRegistry.register(new ModuleCopyAction());
 // Resolvers
 
 actionsRegistry.register(new AttributeActionsResolver());
+actionsRegistry.register(new TasksActionsResolver());

@@ -662,13 +662,21 @@ export function fromISO8601(formattedString) {
   return result; // Date or null
 }
 
-export function animateScrollTo(element = '', scrollTo = {}) {
+export function animateScrollTo(element = '', scrollTo = {}, delay = 0) {
   if (!element) {
     return;
   }
 
+  if (delay) {
+    window.setTimeout(() => {
+      animateScrollTo(element, scrollTo);
+    }, delay);
+
+    return;
+  }
+
   if (element.length) {
-    element.forEach(item => animateScrollTo(item, scrollTo));
+    element.forEach(item => animateScrollTo(item, scrollTo, delay));
     return;
   }
 
@@ -834,6 +842,10 @@ export function getTimezoneValue() {
   return { timezone, offset };
 }
 
+export function isHiddenElement(el) {
+  return el.style.display === 'none' || el.style.visibility === 'hidden';
+}
+
 /**
  * check self or closest parent on hiddens
  *
@@ -851,18 +863,14 @@ export function isClosestHidden(el = null) {
     return true;
   }
 
-  const isHidden = el => {
-    return el.style.display === 'none' || el.style.visibility === 'hidden';
-  };
-
-  if (isHidden(node)) {
+  if (isHiddenElement(node)) {
     return true;
   }
 
   const parent = node.parentElement;
 
   if (parent) {
-    if (isHidden(parent)) {
+    if (isHiddenElement(parent)) {
       return true;
     } else {
       return isClosestHidden(parent);

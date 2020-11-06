@@ -1,4 +1,4 @@
-import { t, getTextByLocale } from '../../../helpers/util';
+import { getTextByLocale, t } from '../../../helpers/util';
 import lodash from 'lodash';
 
 import {
@@ -8,7 +8,7 @@ import {
   COLUMN_DATA_TYPE_CATEGORY,
   COLUMN_DATA_TYPE_NODEREF,
   COLUMN_DATA_TYPE_TEXT
-} from '../../common/form/SelectJournal/predicates';
+} from '../../Records/predicates/predicates';
 
 const NOT_SORTABLE_TYPES = [
   COLUMN_DATA_TYPE_ASSOC,

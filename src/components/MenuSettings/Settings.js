@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
-import debounce from 'lodash/debounce';
 
 import { getAuthorityInfoByRefs, saveMenuSettings } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
@@ -14,6 +13,7 @@ import MenuSettingsService from '../../services/MenuSettingsService';
 import { EcosModal, Loader, Tabs } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
 import { SelectOrgstruct } from '../common/form';
+import { VIEW_MODE_TYPE_LINE_SEPARATED } from '../common/form/SelectOrgstruct/constants';
 import EditorItems from './EditorItems';
 import EditorGroupPriority from './EditorGroupPriority';
 
@@ -31,8 +31,6 @@ const Labels = {
   BTN_APPLY: 'menu-settings.button.apply'
 };
 
-const FIX_PLACE_H = 300;
-
 class Settings extends React.Component {
   constructor(props) {
     super(props);
@@ -40,8 +38,7 @@ class Settings extends React.Component {
     this.state = {
       selectedType: props.type,
       selectedTab: undefined,
-      loadedTabs: [],
-      heightContent: window.innerHeight - FIX_PLACE_H
+      loadedTabs: []
     };
   }
 
@@ -51,8 +48,6 @@ class Settings extends React.Component {
 
     loadedTabs[selectedTab] = true;
     this.setState({ selectedTab, loadedTabs });
-
-    window.addEventListener('resize', this.resizeWindow);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -66,10 +61,6 @@ class Settings extends React.Component {
     if (!isEmpty(state)) {
       this.setState(state);
     }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.resizeWindow);
   }
 
   get authorityRefs() {
@@ -87,10 +78,6 @@ class Settings extends React.Component {
     const { selectedTab } = this.state;
     return get(this.mainTabs, [selectedTab, 'id']);
   }
-
-  resizeWindow = debounce(() => {
-    this.setState({ heightContent: window.innerHeight - FIX_PLACE_H });
-  }, 300);
 
   handleHideModal = () => {
     MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
@@ -156,6 +143,7 @@ class Settings extends React.Component {
               onChange={this.handleSelectOrg}
               isSelectedValueAsText
               viewOnly={disabledEdit}
+              viewModeType={VIEW_MODE_TYPE_LINE_SEPARATED}
             />
           </div>
         </div>
@@ -172,7 +160,7 @@ class Settings extends React.Component {
       >
         <div>
           <div className="ecos-menu-settings__title">{t(Labels.TITLE_GROUP_PRIORITY)}</div>
-          <EditorGroupPriority heightContent={this.state.heightContent} />
+          <EditorGroupPriority />
         </div>
         <div>
           <div className="ecos-menu-settings__title">{t(Labels.GLOBAL_TITLE)}</div>
@@ -191,7 +179,6 @@ class Settings extends React.Component {
 
     return (
       <div className="ecos-menu-settings__buttons">
-        {/*<Btn className="ecos-btn_red" onClick={this.handleReset}>Delete</Btn>*/}
         <Btn onClick={this.handleCancel}>{t(Labels.BTN_CANCEL)}</Btn>
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleApply} disabled={isDisabled()}>
           {t(Labels.BTN_APPLY)}
@@ -201,7 +188,7 @@ class Settings extends React.Component {
   }
 
   render() {
-    const { loadedTabs, heightContent } = this.state;
+    const { loadedTabs } = this.state;
     const { isLoading, isAdmin, disabledEdit } = this.props;
     const customButtons = [];
 
@@ -227,6 +214,7 @@ class Settings extends React.Component {
         hideModal={this.handleHideModal}
         title={t(Labels.TITLE)}
         customButtons={customButtons}
+        classNameBody={classNames({ 'ecos-menu-settings_disabled': disabledEdit })}
         classNameHeader="ecos-menu-settings__modal-header"
         reactstrapProps={{ backdrop: 'static' }}
       >
@@ -240,7 +228,7 @@ class Settings extends React.Component {
           widthFull
           narrow
         />
-        <div className="ecos-menu-settings__content-container" style={{ height: `${heightContent}px` }}>
+        <div className="ecos-menu-settings__content-container">
           {loadedTabs[0] && this.renderMenuConfigTab(this.mainTabs[0].id)}
           {loadedTabs[1] && this.renderGlobalConfigTab(this.mainTabs[1].id)}
         </div>

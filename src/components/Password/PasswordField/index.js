@@ -5,8 +5,8 @@ import isArray from 'lodash/isArray';
 
 import { t } from '../../../helpers/util';
 import { passwordValidator } from '../../../helpers/validators';
-import { Input } from '../form';
-import { Icon } from '../';
+import { Input } from '../../common/form';
+import { Icon } from '../../common';
 
 import './style.scss';
 
@@ -49,7 +49,7 @@ const RULES = [
   }
 ];
 
-export default class Password extends React.Component {
+export default class PasswordField extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     keyValue: PropTypes.string,

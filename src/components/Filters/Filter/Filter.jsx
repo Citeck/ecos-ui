@@ -5,7 +5,7 @@ import { t, trigger } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns/index';
 import { Label, Select } from '../../common/form';
-import { getPredicateInput, getPredicates } from '../../common/form/SelectJournal/predicates';
+import { getPredicateInput, getPredicates } from '../../Records/predicates/predicates';
 
 import './Filter.scss';
 

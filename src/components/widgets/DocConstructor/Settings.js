@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../helpers/export/util';
+import { isValid as isValidCondition } from '../../../helpers/validators/displayCondition';
 import { InfoText } from '../../common';
 import { Caption, Input, Textarea } from '../../common/form';
 import { Btn } from '../../common/btns';
@@ -11,9 +12,9 @@ import './style.scss';
 const Labels = {
   TITLE: 'doc-constructor-widget.settings.title',
   JOURNAL_TEMPLATES_ID: 'doc-constructor-widget.settings.prop.journal-templates-id',
-  WIDGET_DISPLAY_CONDITION: 'doc-constructor-widget.settings.prop.widget-display-condition',
-  ERROR_WIDGET_DISPLAY_CONDITION: 'doc-constructor-widget.settings.error.widget-display-condition',
-  RESULT_WIDGET_DISPLAY_CONDITION: 'doc-constructor-widget.settings.info.widget-display-condition-result--',
+  WIDGET_DISPLAY_CONDITION: 'widget.display-condition.widget-title',
+  ERROR_WIDGET_DISPLAY_CONDITION: 'widget.display-condition.error.invalid',
+  RESULT_WIDGET_DISPLAY_CONDITION: 'widget.display-condition.info.visible-result--', //todo for ECOSUI-329
   BTN_CANCEL: 'doc-constructor-widget.settings.button.cancel',
   BTN_SAVE: 'doc-constructor-widget.settings.button.save'
 };
@@ -22,8 +23,7 @@ class Settings extends React.Component {
   static propTypes = {
     onSave: PropTypes.func,
     onCancel: PropTypes.func,
-    config: PropTypes.object,
-    isAvailable: PropTypes.bool
+    config: PropTypes.object
   };
 
   static defaultProps = {
@@ -43,20 +43,12 @@ class Settings extends React.Component {
 
   onSave = () => {
     const { widgetDisplayCondition, journalTemplatesId } = this.state;
+    const isValid = isValidCondition(widgetDisplayCondition);
 
-    try {
-      const jsonCondition = !widgetDisplayCondition || JSON.parse(widgetDisplayCondition);
+    this.setState({ errorCondition: !isValid });
 
-      if (!(!widgetDisplayCondition || Array.isArray(jsonCondition) || typeof jsonCondition === 'object')) {
-        this.setState({ errorCondition: true });
-        return;
-      }
-
-      this.setState({ errorCondition: false });
+    if (isValid) {
       this.props.onSave({ widgetDisplayCondition, journalTemplatesId });
-    } catch (e) {
-      console.log(e);
-      this.setState({ errorCondition: true });
     }
   };
 
@@ -74,7 +66,6 @@ class Settings extends React.Component {
 
   render() {
     const { errorCondition, journalTemplatesId, widgetDisplayCondition } = this.state;
-    const { isAvailable } = this.props;
 
     return (
       <div className="ecos-doc-constructor-settings">
@@ -95,7 +86,6 @@ class Settings extends React.Component {
           {errorCondition && (
             <InfoText className="ecos-doc-constructor-settings__info" text={t(Labels.ERROR_WIDGET_DISPLAY_CONDITION)} type="error" />
           )}
-          <InfoText className="ecos-doc-constructor-settings__info" text={t(`${Labels.RESULT_WIDGET_DISPLAY_CONDITION}${!!isAvailable}`)} />
         </div>
         <div className="ecos-doc-constructor-settings__buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.onCancel}>

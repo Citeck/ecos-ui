@@ -226,19 +226,20 @@ class EcosForm extends React.Component {
             self.submitForm(form, submission);
           });
 
-          for (const key in self.props) {
-            if (self.props.hasOwnProperty(key) && key.startsWith(handlersPrefix)) {
-              const event = key.slice(handlersPrefix.length).toLowerCase();
+          const events = Object.keys(self.props)
+            .filter(key => key.startsWith(handlersPrefix))
+            .map(prop => ({ prop, event: prop.slice(handlersPrefix.length).toLowerCase() }));
 
-              if (event !== 'submit') {
-                form.on(event, () => {
-                  self.props[key].apply(form, arguments);
-                });
-              } else {
-                console.warn('Please use onSubmit handler instead of onFormSubmit');
-              }
+          events.forEach(o => {
+            if (o.event !== 'submit') {
+              form.on(o.event, () => {
+                const fun = self.props[o.prop];
+                typeof fun === 'function' && fun.apply(form, arguments);
+              });
+            } else {
+              console.warn('Please use onSubmit handler instead of onFormSubmit');
             }
-          }
+          });
 
           self.setState({ formId: formData.id });
 
@@ -474,7 +475,9 @@ EcosForm.propTypes = {
   onSubmit: PropTypes.func,
   onReady: PropTypes.func, // Form ready, but not rendered yet
   onFormCancel: PropTypes.func,
-  // See https://github.com/formio/formio.js/wiki/Form-Renderer#events
+  /**
+   * @see https://github.com/formio/formio.js/wiki/Form-Renderer#events
+   */
   onFormSubmitDone: PropTypes.func,
   onFormChange: PropTypes.func,
   onFormRender: PropTypes.func,

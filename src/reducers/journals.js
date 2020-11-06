@@ -53,7 +53,7 @@ export const defaultState = {
     total: 0,
     createVariants: [],
     predicate: {},
-    groupBy: null,
+    groupBy: [],
     sortBy: [],
     pagination: DEFAULT_PAGINATION,
     minHeight: null,

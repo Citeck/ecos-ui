@@ -4,8 +4,9 @@ import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
-import debounce from 'lodash/debounce';
+import isEmpty from 'lodash/isEmpty';
 
+import debounce from 'lodash/debounce';
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
 import JournalsFilters from './JournalsFilters';
@@ -16,14 +17,24 @@ import JournalsSettingsBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
 
+import { JournalsGroupActionsTools } from './JournalsTools';
 import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
-import { getJournalsData, reloadGrid, restoreJournalSettingData, search } from '../../actions/journals';
-import { objectCompare, t, trigger } from '../../helpers/util';
+import {
+  execRecordsAction,
+  getJournalsData,
+  reloadGrid,
+  restoreJournalSettingData,
+  search,
+  setSelectAllRecords,
+  setSelectedRecords
+} from '../../actions/journals';
+import { animateScrollTo, getScrollbarWidth, objectCompare, t, trigger } from '../../helpers/util';
 import { getSearchParams, goToCardDetailsPage, stringifySearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
+import { JOURNAL_MIN_HEIGHT } from './constants';
 
 import './Journals.scss';
 
@@ -37,6 +48,8 @@ const mapStateToProps = (state, props) => {
     predicate: newState.predicate,
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
+    selectAllRecords: newState.selectAllRecords,
+    selectAllRecordsVisible: newState.selectAllRecordsVisible,
     isLoading: newState.loading
   };
 };
@@ -45,14 +58,21 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
+    setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
+    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
+    execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
-    reloadGrid: options => dispatch(reloadGrid(w(options))),
+    reloadGrid: () => dispatch(reloadGrid(w({}))),
     search: text => dispatch(search({ text, stateId: props.stateId })),
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting)))
   };
 };
 
 class Journals extends Component {
+  _journalRef = null;
+  _journalMenuRef = null;
+  _toggleMenuTimerId = null;
+
   constructor(props) {
     super(props);
 
@@ -134,7 +154,39 @@ class Journals extends Component {
 
   componentWillUnmount() {
     this.onForceUpdate.cancel();
+    this.setHeight.cancel();
+
+    if (this._toggleMenuTimerId) {
+      window.clearTimeout(this._toggleMenuTimerId);
+      this._toggleMenuTimerId = null;
+    }
   }
+
+  get isOpenGroupActions() {
+    const { grid, selectedRecords, selectAllRecords } = this.props;
+
+    if (isEmpty(selectedRecords) && !selectAllRecords) {
+      return false;
+    }
+
+    const forRecords = get(grid, 'actions.forRecords', {});
+    const forQuery = get(grid, 'actions.forQuery', {});
+    const groupActions = (selectAllRecords ? forQuery.actions : forRecords.actions) || [];
+
+    return !isEmpty(groupActions);
+  }
+
+  setJournalRef = ref => {
+    if (ref) {
+      this._journalRef = ref;
+    }
+  };
+
+  setJournalMenuRef = ref => {
+    if (ref) {
+      this._journalMenuRef = ref;
+    }
+  };
 
   onForceUpdate = debounce(() => {
     this.setState({ isForceUpdate: true }, () => this.setState({ isForceUpdate: false }));
@@ -142,6 +194,14 @@ class Journals extends Component {
 
   getSearch = () => {
     return this.props.isActivePage ? get(getSearchParams(), 'search', '') : '';
+  };
+
+  getAvailableHeight = (height = this.state.height || 0) => {
+    if (!height) {
+      return 0;
+    }
+
+    return height > JOURNAL_MIN_HEIGHT ? height : JOURNAL_MIN_HEIGHT;
   };
 
   addRecord = createVariant => {
@@ -179,11 +239,35 @@ class Journals extends Component {
   };
 
   toggleMenu = () => {
+    if (this._toggleMenuTimerId) {
+      window.clearTimeout(this._toggleMenuTimerId);
+    }
+
     this.setState({ menuOpenAnimate: !this.state.menuOpenAnimate });
 
-    setTimeout(
+    if (this.state.menuOpen) {
+      animateScrollTo(this._journalRef, {
+        scrollLeft: this._journalRef.scrollLeft - get(this, '_journalMenuRef.offsetWidth', 0)
+      });
+    }
+
+    this._toggleMenuTimerId = window.setTimeout(
       () => {
-        this.setState({ menuOpen: !this.state.menuOpen });
+        this.setState({ menuOpen: !this.state.menuOpen }, () => {
+          if (this.props.isMobile) {
+            return;
+          }
+
+          if (this.state.menuOpen) {
+            animateScrollTo(
+              this._journalRef,
+              {
+                scrollLeft: this._journalRef.scrollLeft + get(this, '_journalMenuRef.offsetWidth', 0)
+              },
+              500
+            );
+          }
+        });
       },
       this.state.menuOpen ? 500 : 0
     );
@@ -199,12 +283,57 @@ class Journals extends Component {
     this.props.search(text);
   };
 
-  onResize = (w, height) => {
-    !!height && this.setState({ height });
+  onResize = (w, h) => {
+    const height = parseInt(h);
+
+    if (!h || Number.isNaN(height) || height === this.state.height) {
+      return;
+    }
+
+    this.setHeight(height);
   };
 
+  setHeight = debounce(height => {
+    this.setState({ height });
+  }, 500);
+
+  onSelectAllRecords = () => {
+    const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
+
+    setSelectAllRecords(!selectAllRecords);
+
+    if (!selectAllRecords) {
+      setSelectedRecords([]);
+    }
+  };
+
+  onExecuteGroupAction(action) {
+    const { selectAllRecords } = this.props;
+
+    if (!selectAllRecords) {
+      const records = get(this.props, 'selectedRecords', []);
+
+      this.props.execRecordsAction(records, action);
+    } else {
+      const query = get(this.props, 'grid.query');
+
+      this.props.execRecordsAction(query, action);
+    }
+  }
+
   render() {
-    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage, selectedRecords, reloadGrid } = this.props;
+    const {
+      stateId,
+      journalConfig,
+      pageTabsIsShow,
+      grid,
+      isMobile,
+      isActivePage,
+      selectedRecords,
+      selectAllRecordsVisible,
+      selectAllRecords,
+      reloadGrid
+    } = this.props;
     const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height } = this.state;
 
     if (!journalConfig) {
@@ -223,16 +352,21 @@ class Journals extends Component {
     }
 
     const visibleColumns = columns.filter(c => c.visible);
-    const minH = 300;
-    const availableHeight = height => (height && height > minH ? height : minH);
 
     return (
       <ReactResizeDetector handleHeight onResize={this.onResize}>
-        <div className={classNames('ecos-journal', { 'ecos-journal_mobile': isMobile, 'ecos-journal_scroll': height <= minH })}>
+        <div
+          ref={this.setJournalRef}
+          className={classNames('ecos-journal', {
+            'ecos-journal_mobile': isMobile,
+            'ecos-journal_scroll': height <= JOURNAL_MIN_HEIGHT
+          })}
+        >
           <div
             className={classNames('ecos-journal__body', {
               'ecos-journal__body_with-tabs': pageTabsIsShow,
-              'ecos-journal__body_mobile': isMobile
+              'ecos-journal__body_mobile': isMobile,
+              'ecos-journal__body_with-preview': showPreview
             })}
           >
             <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} isMobile={isMobile} />
@@ -284,11 +418,22 @@ class Journals extends Component {
               </Well>
             </EcosModal>
 
+            <JournalsGroupActionsTools
+              isMobile={isMobile}
+              selectAllRecordsVisible={selectAllRecordsVisible}
+              selectAllRecords={selectAllRecords}
+              grid={grid}
+              selectedRecords={selectedRecords}
+              onExecuteAction={this.onExecuteGroupAction.bind(this)}
+              onGoTo={this.onGoTo}
+              onSelectAll={this.onSelectAllRecords}
+            />
+
             <JournalsContent
               stateId={stateId}
-              showPreview={showPreview}
+              showPreview={showPreview && !isMobile}
               showPie={showPie}
-              maxHeight={availableHeight(height) - 165}
+              maxHeight={this.getAvailableHeight() - (165 + (this.isOpenGroupActions ? 60 : 0))}
               isActivePage={isActivePage}
             />
 
@@ -311,10 +456,11 @@ class Journals extends Component {
             })}
           >
             <JournalsMenu
+              forwardedRef={this.setJournalMenuRef}
               stateId={stateId}
               open={menuOpen}
               onClose={this.toggleMenu}
-              height={availableHeight(height)}
+              height={this.getAvailableHeight() - getScrollbarWidth()}
               isActivePage={isActivePage}
             />
           </div>

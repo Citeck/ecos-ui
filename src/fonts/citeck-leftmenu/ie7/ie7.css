@@ -1,0 +1,135 @@
+.i-leftmenu-current-tasks {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe909;');
+}
+.i-leftmenu-completed-tasks {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf058;');
+}
+.i-leftmenu-controlled {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe908;');
+}
+.i-leftmenu-subordinate-tasks {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe90a;');
+}
+.i-leftmenu-task-statistic {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe90b;');
+}
+.i-leftmenu-new-tasks {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe915;');
+}
+.i-leftmenu-new-tasks-1 {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf0fe;');
+}
+.i-leftmenu-cases {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe900;');
+}
+.i-leftmenu-shared-documents-1 {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf079;');
+}
+.i-leftmenu-shared-documents {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe90c;');
+}
+.i-leftmenu-meetings {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe902;');
+}
+.i-leftmenu-tax-report {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf0ae;');
+}
+.i-leftmenu-correspondence {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe903;');
+}
+.i-leftmenu-ord {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe904;');
+}
+.i-leftmenu-ord-1 {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf1ea;');
+}
+.i-leftmenu-pass {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe90d;');
+}
+.i-leftmenu-contracts {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe905;');
+}
+.i-leftmenu-finances {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf09d;');
+}
+.i-leftmenu-power-attorney {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf19c;');
+}
+.i-leftmenu-hr-department {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf0c0;');
+}
+.i-leftmenu-personal-documents {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe906;');
+}
+.i-leftmenu-find-section {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe907;');
+}
+.i-leftmenu-new-section {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe90e;');
+}
+.i-leftmenu-organizational-structure {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe90f;');
+}
+.i-leftmenu-running-processes {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe910;');
+}
+.i-leftmenu-completed-processes {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe911;');
+}
+.i-leftmenu-workflows {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf0db;');
+}
+.i-leftmenu-material {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf15b;');
+}
+.i-leftmenu-content {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe916;');
+}
+.i-leftmenu-sections {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe912;');
+}
+.i-leftmenu-files {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#x1f5ca;');
+}
+.i-leftmenu-data-lists {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe914;');
+}
+.i-leftmenu-finances-1 {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf055;');
+}
+.i-leftmenu-power-attorney-1 {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf187;');
+}
+.i-leftmenu-repository {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe91c;');
+}
+.i-leftmenu-app {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#x1f5bc;');
+}
+.i-leftmenu-bpmn-editor {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe91e;');
+}
+.i-leftmenu-groups {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe919;');
+}
+.i-leftmenu-users {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe91f;');
+}
+.i-leftmenu-types {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe920;');
+}
+.i-leftmenu-system-journals {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe91a;');
+}
+.i-leftmenu-journal-settings {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe91b;');
+}
+.i-leftmenu-templates {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe921;');
+}
+.i-leftmenu-tools {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe922;');
+}
+.i-leftmenu-more {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#x2689;');
+}

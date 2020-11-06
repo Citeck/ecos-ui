@@ -21,14 +21,14 @@ class RemoveDialog extends Component {
   };
 
   render() {
-    const { className, bodyClassName, footerClassName, title, isOpen, text } = this.props;
+    const { className, bodyClassName, footerClassName, title, isOpen, text, isLoading } = this.props;
 
     const cssClasses = classNames('ecos-remove-dialog', className, { 'ecos-modal_width-sm': !className.includes('ecos-modal_width-') });
     const bodyCssClasses = classNames('ecos-remove-dialog__body', bodyClassName);
     const footerCssClasses = classNames('ecos-remove-dialog__footer', footerClassName);
 
     return (
-      <EcosModal title={title} isOpen={isOpen} hideModal={this.onClose} className={cssClasses}>
+      <EcosModal title={title} isOpen={isOpen} isLoading={isLoading} hideModal={this.onClose} className={cssClasses}>
         <div className={bodyCssClasses}>{text}</div>
 
         <div className={footerCssClasses}>

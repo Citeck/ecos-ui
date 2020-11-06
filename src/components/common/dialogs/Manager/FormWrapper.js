@@ -1,9 +1,8 @@
 import React from 'react';
 import uuidv4 from 'uuid/v4';
 import Formio from 'formiojs/Formio';
-
-import { getCurrentLocale } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
+import { getCurrentLocale } from '../../../../helpers/export/util';
 
 export default class FormWrapper extends React.Component {
   constructor(props) {
@@ -41,13 +40,20 @@ export default class FormWrapper extends React.Component {
       return;
     }
 
-    const language = getCurrentLocale();
     const onSubmit = this.props.onSubmit || (() => {});
     const options = {
       ...(this.props.formOptions || {}),
-      language,
       onSubmit
     };
+
+    const i18n = options.i18n || {};
+    const language = options.language || getCurrentLocale();
+    const defaultI18N = i18n[language] || {};
+    const formI18N = (this.props.formI18n || {})[language] || {};
+
+    i18n[language] = EcosFormUtils.getI18n(defaultI18N, {}, formI18N);
+    options.i18n = i18n;
+    options.language = language;
 
     const processedDefinition = EcosFormUtils.preProcessFormDefinition(formDefinition, options);
 

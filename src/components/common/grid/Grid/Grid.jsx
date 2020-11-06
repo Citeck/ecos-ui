@@ -11,7 +11,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
-import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../form/SelectJournal/predicates';
+import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 
 import './Grid.scss';
@@ -143,17 +143,13 @@ class Grid extends Component {
           continue;
         }
 
-        let { width = 0, indents = 0 } = get(this.#columnsSizes, `[${j}]`, {});
+        let { width = 0 } = get(this.#columnsSizes, `[${j}]`, {});
 
         if (!width) {
           continue;
         }
 
         cell.style.width = `${width}px`;
-
-        if (cell.firstChild && cell.firstChild.style) {
-          cell.firstChild.style.width = `${width - indents}px`;
-        }
       }
     }
   };
@@ -162,8 +158,19 @@ class Grid extends Component {
     !this._startResizingThOffset &&
       this._ref.current &&
       this._ref.current.querySelectorAll('.ecos-grid__td').forEach(cellEl => {
-        if (cellEl && cellEl.clientWidth > MAX_START_TH_WIDTH) {
-          cellEl.style.width = MAX_START_TH_WIDTH + 'px';
+        if (cellEl) {
+          const td = cellEl.closest('td');
+          const table = cellEl.closest('table');
+          const container = table.parentElement;
+          const checkbox = table.querySelector('.ecos-grid__checkbox');
+          const cellLen = table.rows[0].cells.length - (checkbox ? 1 : 0);
+          const proratedSizeCell = (container.clientWidth - (checkbox ? checkbox.clientWidth : 0)) / cellLen;
+          const clearedSizeCell = Math.floor(proratedSizeCell / 10) * 10;
+          const max = clearedSizeCell > MAX_START_TH_WIDTH ? clearedSizeCell : MAX_START_TH_WIDTH;
+
+          if (cellLen > 1 && table.clientWidth > container.clientWidth && td.clientWidth > max) {
+            td.style.width = `${max}px`;
+          }
         }
       });
   };
@@ -675,7 +682,6 @@ class Grid extends Component {
     let th = this._resizingTh;
 
     if (th && this._tableDom) {
-      const { left, right } = this.getElementPaddings(th);
       let width = this._startResizingThOffset + e.pageX;
 
       if (width < MIN_TH_WIDTH) {
@@ -689,17 +695,19 @@ class Grid extends Component {
       const rows = this._tableDom.rows;
 
       for (let i = 0; i < rows.length; i++) {
-        let firstCol = rows[i].cells[th.cellIndex];
+        const resizeCol = rows[i].cells[th.cellIndex];
+        const lastCol = rows[i].cells[rows[i].cells.length - 1];
+        const curWidth = resizeCol.style.width;
 
-        if (!firstCol) {
+        if (!resizeCol) {
           continue;
         }
 
-        firstCol.style.removeProperty('min-width');
-        firstCol.style.width = `${width}px`;
+        resizeCol.style.removeProperty('min-width');
+        resizeCol.style.width = `${width}px`;
 
-        if (firstCol.firstChild && firstCol.firstChild.style) {
-          firstCol.firstChild.style.width = `${width - left - right}px`;
+        if (lastCol) {
+          lastCol.style.width = `${parseFloat(lastCol.style.width) + (parseFloat(curWidth) - width)}px`;
         }
       }
     }
@@ -1023,6 +1031,8 @@ Grid.propTypes = {
   autoHeight: PropTypes.bool,
   byContentHeight: PropTypes.bool,
   sortable: PropTypes.bool,
+  maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 
   columns: PropTypes.array,
   data: PropTypes.array,

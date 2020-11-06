@@ -11,7 +11,17 @@ import { getStateId, wrapArgs } from '../../../helpers/redux';
 import { arrayCompare, t } from '../../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
-import { getDashletConfig, initState, reloadGrid, setDashletConfigByParams, setEditorMode, setRecordRef } from '../../../actions/journals';
+import {
+  execRecordsAction,
+  getDashletConfig,
+  initState,
+  reloadGrid,
+  setDashletConfigByParams,
+  setEditorMode,
+  setRecordRef,
+  setSelectAllRecords,
+  setSelectedRecords
+} from '../../../actions/journals';
 
 import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet';
@@ -19,6 +29,7 @@ import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
 import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
 import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
 import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
+import { JournalsGroupActionsTools } from '../../Journals/JournalsTools';
 import BaseWidget from '../BaseWidget';
 
 import './JournalsDashlet.scss';
@@ -33,7 +44,12 @@ const mapStateToProps = (state, ownProps) => {
     stateId: getKey(ownProps),
     editorMode: newState.editorMode,
     journalConfig: newState.journalConfig,
-    config: newState.config
+    config: newState.config,
+    isMobile: state.view.isMobile,
+    grid: newState.grid,
+    selectedRecords: newState.selectedRecords,
+    selectAllRecords: newState.selectAllRecords,
+    selectAllRecordsVisible: newState.selectAllRecordsVisible
   };
 };
 
@@ -46,7 +62,10 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
     reloadGrid: options => dispatch(reloadGrid(w(options))),
-    setDashletConfigByParams: (id, config, recordRef) => dispatch(setDashletConfigByParams(w({ id, config, recordRef })))
+    setDashletConfigByParams: (id, config, recordRef) => dispatch(setDashletConfigByParams(w({ id, config, recordRef }))),
+    setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
+    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
+    execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context })))
   };
 };
 
@@ -64,6 +83,7 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
 class JournalsDashlet extends BaseWidget {
   _toolbarRef = null;
   _footerRef = null;
+  _groupActionsRef = null;
 
   static propTypes = {
     id: PropTypes.string,
@@ -73,7 +93,11 @@ class JournalsDashlet extends BaseWidget {
     onSave: PropTypes.func,
 
     editorMode: PropTypes.bool,
-    journalConfig: PropTypes.object
+    isMobile: PropTypes.bool,
+    journalConfig: PropTypes.object,
+    selectedRecords: PropTypes.array,
+    selectAllRecords: PropTypes.bool,
+    selectAllRecordsVisible: PropTypes.bool
   };
 
   static defaultProps = {
@@ -123,6 +147,10 @@ class JournalsDashlet extends BaseWidget {
     return get(this._toolbarRef, 'offsetHeight', 0);
   }
 
+  get groupActionsHeight() {
+    return get(this._groupActionsRef, 'offsetHeight', 0);
+  }
+
   get footerHeight() {
     return get(this._footerRef, 'offsetHeight', 0);
   }
@@ -139,6 +167,12 @@ class JournalsDashlet extends BaseWidget {
     }
   };
 
+  setGroupActionsRef = ref => {
+    if (ref) {
+      this._groupActionsRef = ref;
+    }
+  };
+
   handleResize = width => {
     !!width && this.setState({ width });
   };
@@ -152,6 +186,30 @@ class JournalsDashlet extends BaseWidget {
   handleUpdate() {
     super.handleUpdate();
     this.handleReload();
+  }
+
+  handleSelectAllRecords = () => {
+    const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
+
+    setSelectAllRecords(!selectAllRecords);
+
+    if (!selectAllRecords) {
+      setSelectedRecords([]);
+    }
+  };
+
+  handleExecuteGroupAction(action) {
+    const { selectAllRecords } = this.props;
+
+    if (!selectAllRecords) {
+      const records = get(this.props, 'selectedRecords', []);
+
+      this.props.execRecordsAction(records, action);
+    } else {
+      const query = get(this.props, 'grid.query');
+
+      this.props.execRecordsAction(query, action);
+    }
   }
 
   goToJournalsPage = () => {
@@ -194,13 +252,26 @@ class JournalsDashlet extends BaseWidget {
       return null;
     }
 
-    const extraIndents = this.toolbarHeight + this.footerHeight + this.dashletOtherHeight;
+    const { grid, isMobile, selectedRecords, selectAllRecords, selectAllRecordsVisible } = this.props;
+    const extraIndents = this.toolbarHeight + this.footerHeight + this.dashletOtherHeight + this.groupActionsHeight;
 
     return (
       <>
         <Measurer>
           <JournalsDashletToolbar forwardRef={this.setToolbarRef} stateId={stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
         </Measurer>
+
+        <JournalsGroupActionsTools
+          forwardedRef={this.setGroupActionsRef}
+          className="ecos-journal-dashlet__group-actions"
+          isMobile={isMobile}
+          selectAllRecordsVisible={selectAllRecordsVisible}
+          selectAllRecords={selectAllRecords}
+          grid={grid}
+          selectedRecords={selectedRecords}
+          onExecuteAction={this.handleExecuteGroupAction.bind(this)}
+          onSelectAll={this.handleSelectAllRecords}
+        />
 
         <JournalsDashletGrid
           stateId={stateId}

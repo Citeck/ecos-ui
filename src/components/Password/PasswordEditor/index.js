@@ -3,31 +3,32 @@ import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 
 import { t } from '../../../helpers/util';
-import { EcosModal, Password } from '../../common';
+import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
+import PasswordField from '../PasswordField';
 
 import './style.scss';
 
 const Labels = {
   Titles: {
-    OLD: 'user-profile-widget.modal-password.label.old-password',
-    NEW: 'user-profile-widget.modal-password.label.new-password',
-    REPEAT: 'user-profile-widget.modal-password.label.repeat-new'
+    OLD: 'password-editor.label.old-password',
+    NEW: 'password-editor.label.new-password',
+    REPEAT: 'password-editor.label.repeat-new'
   },
-  Btns: {
-    CANCEL: 'user-profile-widget.modal-password.button.cancel',
-    CHANGE: 'user-profile-widget.modal-password.button.change'
+  Buttons: {
+    CANCEL: 'password-editor.button.cancel',
+    CHANGE: 'password-editor.button.change'
   },
-  Msgs: {
-    REPEATED_NOT_MATCH: 'user-profile-widget.modal-password.msg.new-passwords-not-match',
-    NEW_EQ_OLD: 'user-profile-widget.modal-password.msg.new-n-old-passwords-match'
+  Messages: {
+    REPEATED_NOT_MATCH: 'password-editor.msg.new-passwords-not-match',
+    NEW_EQ_OLD: 'password-editor.msg.new-n-old-passwords-match'
   }
 };
 
-class PasswordModal extends React.Component {
+class PasswordEditor extends React.Component {
   static propTypes = {
     isLoading: PropTypes.bool,
-    isAdmin: PropTypes.bool,
+    isAdminEditor: PropTypes.bool,
     isShow: PropTypes.bool,
     isMobile: PropTypes.bool,
     isCurrentUser: PropTypes.bool,
@@ -66,13 +67,13 @@ class PasswordModal extends React.Component {
   };
 
   checkWords = () => {
-    const { isAdmin } = this.props;
+    const { isAdminEditor } = this.props;
     const { oldWord, newWord, repeatWord, newWordMsgs, repeatWordMsgs } = this.state;
 
     return (
       !newWordMsgs.length &&
       !repeatWordMsgs.length &&
-      (isAdmin || !!oldWord.value) &&
+      (isAdminEditor || !!oldWord.value) &&
       !!repeatWord.value &&
       !!newWord.value &&
       newWord.valid &&
@@ -123,11 +124,11 @@ class PasswordModal extends React.Component {
     };
 
     if (repeatWord.value && repeatWord.value !== newWord.value) {
-      newState.repeatWordMsgs.push(Labels.Msgs.REPEATED_NOT_MATCH);
+      newState.repeatWordMsgs.push(Labels.Messages.REPEATED_NOT_MATCH);
     }
 
     if (newWord.value && oldWord.value === newWord.value) {
-      newState.newWordMsgs.push(Labels.Msgs.NEW_EQ_OLD);
+      newState.newWordMsgs.push(Labels.Messages.NEW_EQ_OLD);
     }
 
     this.setState({ ...newState });
@@ -145,14 +146,14 @@ class PasswordModal extends React.Component {
         isOpen={isShow}
         isLoading={isLoading}
         hideModal={this.hideModal}
-        className="ecos-user-profile-password-modal ecos-modal_width-xs"
+        className="ecos-password-editor__modal ecos-modal_width-xs"
       >
         <form autoComplete="off">
           {isCurrentUser && (
             <>
-              <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.OLD)}</div>
-              <Password
-                className="ecos-user-profile__password-modal-filed"
+              <div className="ecos-password-editor__label">{t(Labels.Titles.OLD)}</div>
+              <PasswordField
+                className="ecos-password-editor__filed"
                 type={passwordType}
                 keyValue="oldWord"
                 value={oldWord.value}
@@ -161,21 +162,21 @@ class PasswordModal extends React.Component {
               />
             </>
           )}
-          <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.NEW)}</div>
-          <Password
+          <div className="ecos-password-editor__label">{t(Labels.Titles.NEW)}</div>
+          <PasswordField
             verifiable
             type={passwordType}
-            className="ecos-user-profile__password-modal-filed"
+            className="ecos-password-editor__filed"
             keyValue="newWord"
             value={newWord.value}
             onChange={this.onChangeWord}
             onBlur={this.checkFields}
             errMsgs={newWordMsgs}
           />
-          <div className="ecos-user-profile__password-modal-label">{t(Labels.Titles.REPEAT)}</div>
-          <Password
+          <div className="ecos-password-editor__label">{t(Labels.Titles.REPEAT)}</div>
+          <PasswordField
             type={passwordType}
-            className="ecos-user-profile__password-modal-filed"
+            className="ecos-password-editor__filed"
             keyValue="repeatWord"
             value={repeatWord.value}
             onChange={this.onChangeWord}
@@ -183,10 +184,10 @@ class PasswordModal extends React.Component {
             errMsgs={repeatWordMsgs}
           />
         </form>
-        <div className="ecos-user-profile__password-modal-actions">
-          <Btn onClick={this.hideModal}>{t(Labels.Btns.CANCEL)}</Btn>
+        <div className="ecos-password-editor__actions">
+          <Btn onClick={this.hideModal}>{t(Labels.Buttons.CANCEL)}</Btn>
           <Btn onClick={this.onConfirmChangePassword} className="ecos-btn_blue" disabled={!this.checkWords()}>
-            {t(Labels.Btns.CHANGE)}
+            {t(Labels.Buttons.CHANGE)}
           </Btn>
         </div>
       </EcosModal>
@@ -194,4 +195,4 @@ class PasswordModal extends React.Component {
   }
 }
 
-export default PasswordModal;
+export default PasswordEditor;
