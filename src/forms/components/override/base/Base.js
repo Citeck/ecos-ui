@@ -162,6 +162,21 @@ Base.prototype.calculateValue = function(data, flags) {
   return changed;
 };
 
+Object.defineProperty(Base.prototype, 'hasSetValue', {
+  get: function() {
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-664
+    if (!this.hasValue()) {
+      this.dataValue = this.component.multiple ? [] : this.emptyValue;
+    }
+    const formMode = get(this.options, 'formMode');
+    if (formMode && formMode !== FORM_MODE_CREATE) {
+      return this.hasValue();
+    }
+
+    return this.hasValue() && !this.isEmpty(this.dataValue);
+  }
+});
+
 Base.prototype.isEmpty = function(value) {
   return value === undefined || value === null || value.length === 0 || isEqual(value, this.emptyValue);
 };
