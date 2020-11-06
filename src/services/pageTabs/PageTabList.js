@@ -267,7 +267,7 @@ class PageTabList {
       : activeIndex + 1;
   }
 
-  getValidList(tabs) {
+  getValidList(tabs = this.#tabs) {
     tabs = isArray(tabs) ? tabs : [];
 
     if (!this.#isDuplicateAllowed) {
@@ -347,6 +347,10 @@ window.addEventListener('popstate', event => {
       isLoading: true,
       isActive: true,
       link: window.encodeURIComponent(link)
+    });
+
+    tabs.forEach(tab => {
+      tab.isActive = false;
     });
 
     try {

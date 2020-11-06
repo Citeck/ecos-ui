@@ -28,9 +28,9 @@ import { dropByCacheKey } from '../ReactRouterCache';
 import Tab from './Tab';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { replaceHistoryLink } from '../../helpers/urls';
+import { updateTabEmitter } from '../../services/pageTabs/PageTabList';
 
 import './style.scss';
-import { updateTabEmitter } from '../../services/pageTabs/PageTabList';
 
 const Labels = {
   GO_HOME: 'header.site-menu.go-home-page'
@@ -107,6 +107,10 @@ class PageTabs extends React.Component {
         }
       }
     }
+  }
+
+  componentWillUnmount() {
+    updateTabEmitter.off('update', this.props.updateTabs);
   }
 
   get wrapper() {
