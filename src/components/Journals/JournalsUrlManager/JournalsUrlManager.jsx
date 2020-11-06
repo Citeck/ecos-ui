@@ -6,7 +6,6 @@ import { wrapArgs } from '../../../helpers/redux';
 import { isExistValue } from '../../../helpers/util';
 import { Loader } from '../../common/index';
 import UrlManager from '../../UrlManager';
-import { URL } from '../../../constants';
 
 const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
@@ -44,13 +43,7 @@ class JournalsUrlManager extends Component {
     return (
       <>
         {!!showLoader && <Loader blur height={100} width={100} />}
-        <UrlManager
-          isActivePage={isActivePage}
-          params={params}
-          path={URL.JOURNAL}
-          onParse={this.setUrl}
-          onChildrenRender={this.onChildrenRender}
-        >
+        <UrlManager isActivePage={isActivePage} params={params} onParse={this.setUrl} onChildrenRender={this.onChildrenRender}>
           {children}
         </UrlManager>
       </>
