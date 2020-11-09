@@ -2,6 +2,7 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 
 import { deepClone } from '../../../helpers/util';
+import { t } from '../../../helpers/export/util';
 import {
   datePredicateVariables,
   EQUAL_PREDICATES_MAP,
@@ -139,7 +140,7 @@ export default class ParserPredicate {
         return true;
       }
 
-      return !!v.val || v.val === 0;
+      return !!v.val || v.val === 0 || v.val === false;
     });
   }
 
@@ -317,7 +318,12 @@ export default class ParserPredicate {
     const flat = arr => {
       isArray(arr) &&
         arr.forEach(item => {
-          if (!isArray(item.val) && (!!item.val || item.val === 0 || ParserPredicate.isWithoutValue(item))) {
+          if (!isArray(item.val) && (!!item.val || item.val === false || item.val === 0 || ParserPredicate.isWithoutValue(item))) {
+            if (typeof item.val === 'boolean') {
+              out.push({ ...item, val: t(item.val ? 'boolean.yes' : 'boolean.no') });
+              return;
+            }
+
             out.push(item);
           } else if (isArray(item.val)) {
             flat(item.val);
