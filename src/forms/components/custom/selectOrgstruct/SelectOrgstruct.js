@@ -28,7 +28,8 @@ export default class SelectOrgstructComponent extends BaseComponent {
         isSelectedValueAsText: false,
         hideTabSwitcher: false,
         defaultTab: TAB_BY_LEVELS,
-        userSearchExtraFields: ''
+        userSearchExtraFields: '',
+        isIncludedAdminGroup: false
       },
       ...extend
     );
@@ -112,6 +113,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
     let allowedGroupType = this.component.allowedGroupType || '';
     let allowedGroupSubType = this.component.allowedGroupSubType || '';
     let userSearchExtraFieldsStr = this.component.userSearchExtraFields || '';
+    const excludeAuthoritiesByName = this.component.excludeAuthoritiesByName;
+    const excludeAuthoritiesByType = this.component.excludeAuthoritiesByType;
+    const isIncludedAdminGroup = this.component.isIncludedAdminGroup;
 
     allowedGroupSubType = allowedGroupSubType.trim();
 
@@ -121,8 +125,6 @@ export default class SelectOrgstructComponent extends BaseComponent {
     const userSearchExtraFields = userSearchExtraFieldsStr.length > 0 ? userSearchExtraFieldsStr.split(',').map(item => item.trim()) : [];
     const onChange = this.onValueChange.bind(this);
 
-    const excludeAuthoritiesByName = this.component.excludeAuthoritiesByName;
-    const excludeAuthoritiesByType = this.component.excludeAuthoritiesByType;
     const excludedAuthoritiesByType =
       excludeAuthoritiesByType.length > 0 ? excludeAuthoritiesByType.split(',').map(item => item.trim()) : [];
 
@@ -146,6 +148,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           defaultTab={component.defaultTab}
           modalTitle={component.modalTitle ? self.t(component.modalTitle) : null}
           isSelectedValueAsText={component.isSelectedValueAsText}
+          isIncludedAdminGroup={isIncludedAdminGroup}
           onError={err => {
             // this.setCustomValidity(err, false);
           }}

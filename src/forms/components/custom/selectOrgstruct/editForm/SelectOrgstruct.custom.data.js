@@ -1,10 +1,10 @@
 import {
-  TAB_ALL_USERS,
-  TAB_BY_LEVELS,
-  AUTHORITY_TYPE_USER,
   AUTHORITY_TYPE_GROUP,
+  AUTHORITY_TYPE_USER,
+  GROUP_TYPE_BRANCH,
   GROUP_TYPE_ROLE,
-  GROUP_TYPE_BRANCH
+  TAB_ALL_USERS,
+  TAB_BY_LEVELS
 } from '../../../../../components/common/form/SelectOrgstruct/constants';
 
 export default [
@@ -128,6 +128,17 @@ export default [
     `
   },
   {
+    label: 'Include Admin Group',
+    labelPosition: 'left-left',
+    tableView: true,
+    alwaysEnabled: false,
+    type: 'checkbox',
+    input: true,
+    key: 'isIncludedAdminGroup',
+    defaultValue: false,
+    weight: 25
+  },
+  {
     label: 'Current user by default',
     labelPosition: 'left-left',
     tooltip: 'Set current user by default when form is in create mode',
@@ -138,6 +149,6 @@ export default [
     input: true,
     key: 'currentUserByDefault',
     defaultValue: false,
-    weight: 25
+    weight: 26
   }
 ];

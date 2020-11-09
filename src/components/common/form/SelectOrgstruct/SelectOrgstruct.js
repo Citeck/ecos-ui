@@ -61,7 +61,8 @@ SelectOrgstruct.propTypes = {
   excludeAuthoritiesByName: PropTypes.string,
   excludeAuthoritiesByType: PropTypes.array,
   liveSearch: PropTypes.bool, // search by key down
-  userSearchExtraFields: PropTypes.array
+  userSearchExtraFields: PropTypes.array,
+  isIncludedAdminGroup: PropTypes.bool
 };
 
 export default SelectOrgstruct;

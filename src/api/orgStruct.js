@@ -1,3 +1,5 @@
+import * as queryString from 'query-string';
+
 import { RecordService } from './recordService';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
@@ -19,7 +21,7 @@ export class OrgStructApi extends RecordService {
     return this.getJson(url).catch(() => []);
   };
 
-  fetchGroup = ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [] }) => {
+  fetchGroup = ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [], isIncludedAdminGroup }) => {
     excludeAuthoritiesByName = excludeAuthoritiesByName
       .split(',')
       .map(item => item.trim())
@@ -32,11 +34,17 @@ export class OrgStructApi extends RecordService {
     }
 
     const { groupName, searchText } = query;
+    const urlQuery = { excludeAuthorities: excludeAuthoritiesByName, addAdminGroup: !!isIncludedAdminGroup };
 
-    let url = `${PROXY_URI}/api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true&excludeAuthorities=${excludeAuthoritiesByName}`;
     if (searchText) {
-      url += `&filter=${encodeURIComponent(searchText)}&recurse=true`;
+      urlQuery.filter = encodeURIComponent(searchText);
+      urlQuery.recurse = true;
     }
+
+    const url = queryString.stringifyUrl({
+      url: `${PROXY_URI}/api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true`,
+      query: urlQuery
+    });
 
     // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2812: filter by group type or subtype
     const filterByType = items =>
