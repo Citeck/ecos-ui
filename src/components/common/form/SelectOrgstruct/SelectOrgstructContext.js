@@ -27,7 +27,8 @@ export const SelectOrgstructProvider = props => {
     liveSearch,
     hideTabSwitcher,
     renderListItem,
-    userSearchExtraFields
+    userSearchExtraFields,
+    isIncludedAdminGroup
   } = controlProps;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
@@ -80,7 +81,8 @@ export const SelectOrgstructProvider = props => {
             searchText: trimSearchText
           },
           excludeAuthoritiesByName,
-          excludeAuthoritiesByType
+          excludeAuthoritiesByType,
+          isIncludedAdminGroup
         })
         .then(handleResponse)
         .then(items => {
@@ -377,7 +379,8 @@ export const SelectOrgstructProvider = props => {
               .fetchGroup({
                 query: { groupName },
                 excludeAuthoritiesByName,
-                excludeAuthoritiesByType
+                excludeAuthoritiesByType,
+                isIncludedAdminGroup
               })
               .then(handleResponse)
               .then(items => items.map(item => setSelectedItem(item, tabItems[TAB_ONLY_SELECTED], { parentId: targetItem.id })))
@@ -431,7 +434,8 @@ SelectOrgstructProvider.propTypes = {
     onChange: PropTypes.func,
     onError: PropTypes.func,
     multiple: PropTypes.bool,
-    isCompact: PropTypes.bool
+    isCompact: PropTypes.bool,
+    isIncludedAdminGroup: PropTypes.bool
   }),
   orgStructApi: PropTypes.instanceOf(OrgStructApi)
 };
