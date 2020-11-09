@@ -128,7 +128,7 @@ export default [
     `
   },
   {
-    label: 'Include Admin Group',
+    label: 'Include Admin group',
     labelPosition: 'left-left',
     tableView: true,
     alwaysEnabled: false,

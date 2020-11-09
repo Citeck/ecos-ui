@@ -144,6 +144,7 @@ class Settings extends React.Component {
               isSelectedValueAsText
               viewOnly={disabledEdit}
               viewModeType={VIEW_MODE_TYPE_LINE_SEPARATED}
+              isIncludedAdminGroup
             />
           </div>
         </div>
