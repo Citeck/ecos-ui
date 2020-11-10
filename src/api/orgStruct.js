@@ -27,7 +27,7 @@ export class OrgStructApi extends RecordService {
       .map(item => item.trim())
       .join(',');
 
-    const queryStr = JSON.stringify({ query, excludeAuthoritiesByName, excludeAuthoritiesByType });
+    const queryStr = JSON.stringify({ query, excludeAuthoritiesByName, excludeAuthoritiesByType, isIncludedAdminGroup });
 
     if (this._loadedGroups[queryStr]) {
       return Promise.resolve(this._loadedGroups[queryStr]);
