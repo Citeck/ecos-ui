@@ -1,8 +1,7 @@
 import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
-  GROUP_TYPE_BRANCH,
-  GROUP_TYPE_ROLE,
+  GroupTypes,
   TAB_ALL_USERS,
   TAB_BY_LEVELS
 } from '../../../../../components/common/form/SelectOrgstruct/constants';
@@ -60,8 +59,8 @@ export default [
     input: true,
     key: 'allowedGroupType',
     label: 'Allowed group type',
-    placeholder: `Example: "${GROUP_TYPE_ROLE}, ${GROUP_TYPE_BRANCH}"`,
-    defaultValue: `${GROUP_TYPE_ROLE}, ${GROUP_TYPE_BRANCH}`,
+    placeholder: `Example: "${Object.values(GroupTypes).join(', ')}"`,
+    defaultValue: `${GroupTypes.ROLE}, ${GroupTypes.BRANCH}`,
     validate: {
       required: false
     },

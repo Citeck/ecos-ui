@@ -13,7 +13,7 @@ import MenuSettingsService from '../../services/MenuSettingsService';
 import { EcosModal, Loader, Tabs } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
 import { SelectOrgstruct } from '../common/form';
-import { VIEW_MODE_TYPE_LINE_SEPARATED } from '../common/form/SelectOrgstruct/constants';
+import { GroupTypes, ViewModes } from '../common/form/SelectOrgstruct/constants';
 import EditorItems from './EditorItems';
 import EditorGroupPriority from './EditorGroupPriority';
 
@@ -143,7 +143,8 @@ class Settings extends React.Component {
               onChange={this.handleSelectOrg}
               isSelectedValueAsText
               viewOnly={disabledEdit}
-              viewModeType={VIEW_MODE_TYPE_LINE_SEPARATED}
+              viewModeType={ViewModes.LINE_SEPARATED}
+              allowedGroupTypes={Object.values(GroupTypes)}
               isIncludedAdminGroup
             />
           </div>

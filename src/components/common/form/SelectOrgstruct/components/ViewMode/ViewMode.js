@@ -6,7 +6,7 @@ import { t } from '../../../../../../helpers/util';
 import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
 import { AssocLink } from '../../../AssocLink';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, VIEW_MODE_TYPE_DEFAULT } from '../../constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, ViewModes } from '../../constants';
 
 import './ViewMode.scss';
 
@@ -47,7 +47,7 @@ const ViewMode = () => {
       {selectedRows.length > 0 ? (
         <ul
           className={classNames('select-orgstruct-view-mode__list', {
-            [`select-orgstruct-view-mode__list_type_${viewModeType}`]: !!viewModeType && viewModeType !== VIEW_MODE_TYPE_DEFAULT
+            [`select-orgstruct-view-mode__list_type_${viewModeType}`]: !!viewModeType && viewModeType !== ViewModes.DEFAULT
           })}
         >
           {selectedRows.map(item => (
