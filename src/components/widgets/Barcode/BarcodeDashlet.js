@@ -2,8 +2,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
+import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
@@ -51,6 +52,14 @@ class BarcodeDashlet extends BaseWidget {
   componentDidMount() {
     super.componentDidMount();
     this.handleGenerateBarcode();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    super.componentDidUpdate(prevProps, prevState, snapshot);
+
+    if (!!prevProps.config && !isEqual(prevProps.config, this.props.config)) {
+      this.props.init(this.stateId);
+    }
   }
 
   get settings() {
