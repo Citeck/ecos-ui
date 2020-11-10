@@ -1,22 +1,30 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
 import { t, trigger } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns/index';
 import { Label, Select } from '../../common/form';
 import { getPredicateInput, getPredicates } from '../../common/form/SelectJournal/predicates';
+import ParserPredicate from '../predicates/ParserPredicate';
 
 import './Filter.scss';
 
 export default class Filter extends Component {
-  predicatesWithoutValue = ['empty', 'not-empty'];
+  predicatesWithoutValue = ParserPredicate.predicatesWithoutValue;
 
   changeValue = val => {
     trigger.call(this, 'onChangeValue', { val: val, index: this.props.index });
   };
 
   changePredicate = predicate => {
+    if (predicate.fixedValue !== undefined) {
+      trigger.call(this, 'onChangePredicate', { predicate: predicate.value, index: this.props.index });
+      this.changeValue(predicate.fixedValue);
+      return;
+    }
+
     if (this.predicatesWithoutValue.includes(predicate.value)) {
       this.changeValue('');
     }
@@ -46,7 +54,7 @@ export default class Filter extends Component {
     } = this.props;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
-    const predicateInput = getPredicateInput(column, sourceId, metaRecord);
+    const predicateInput = getPredicateInput(column, sourceId, metaRecord, predicate);
     const predicateProps = predicateInput.getProps({
       predicateValue: predicate.val,
       changePredicateValue: this.changeValue,
@@ -54,7 +62,7 @@ export default class Filter extends Component {
       selectClassName: 'select_width_full'
     });
     const FilterValueComponent = predicateInput.component;
-    const isShow = !this.predicatesWithoutValue.includes(predicate.t);
+    const isShow = !this.predicatesWithoutValue.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
 
     return (
       <div className={classNames('ecos-filter', className)}>

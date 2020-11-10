@@ -135,6 +135,16 @@ export default class ParserPredicate {
     });
   }
 
+  static replacePredicatesType(val = []) {
+    return val.map(predicate => {
+      return {
+        ...predicate,
+        t: EQUAL_PREDICATES_MAP[predicate.t] || predicate.t,
+        val: Array.isArray(predicate.val) ? ParserPredicate.replacePredicatesType(predicate.val) : predicate.val
+      };
+    });
+  }
+
   static getGroupConditions() {
     return getPredicates({ type: 'filterGroup' });
   }

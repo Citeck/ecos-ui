@@ -42,6 +42,8 @@ export const PREDICATE_LE = 'le';
 export const PREDICATE_LT = 'lt';
 export const PREDICATE_AND = 'and';
 export const PREDICATE_OR = 'or';
+export const PREDICATE_TODAY = 'today';
+export const PREDICATE_TIME_INTERVAL = 'time-interval';
 
 export const ALFRESCO_EQUAL_PREDICATES_MAP = {
   [COLUMN_DATA_TYPE_TEXT]: 'string-contains',
@@ -74,6 +76,8 @@ export const EQUAL_PREDICATES_MAP = {
   [COLUMN_DATA_TYPE_DOUBLE]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_DATE]: PREDICATE_GE,
   [COLUMN_DATA_TYPE_DATETIME]: PREDICATE_GE,
+  [PREDICATE_TODAY]: PREDICATE_EQ,
+  [PREDICATE_TIME_INTERVAL]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_BOOLEAN]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_QNAME]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_NODEREF]: PREDICATE_EQ,
@@ -93,8 +97,10 @@ export const SEARCH_EQUAL_PREDICATES_MAP = {
   [COLUMN_DATA_TYPE_LONG]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_FLOAT]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_DOUBLE]: PREDICATE_EQ,
-  // [COLUMN_DATA_TYPE_DATE]: PREDICATE_EQ,
-  // [COLUMN_DATA_TYPE_DATETIME]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_DATE]: PREDICATE_EQ,
+  [COLUMN_DATA_TYPE_DATETIME]: PREDICATE_EQ,
+  [PREDICATE_TODAY]: PREDICATE_EQ,
+  [PREDICATE_TIME_INTERVAL]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_BOOLEAN]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_QNAME]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_NODEREF]: PREDICATE_EQ,
@@ -128,6 +134,19 @@ const getAllPredicates = function() {
   ];
 };
 
+const getExtraPredicates = function(type) {
+  switch (type) {
+    case COLUMN_DATA_TYPE_DATE:
+    case COLUMN_DATA_TYPE_DATETIME:
+      return [
+        { value: PREDICATE_TODAY, label: t('predicate.today'), needValue: false, fixedValue: '$TODAY' },
+        { value: PREDICATE_TIME_INTERVAL, label: t('predicate.time-interval'), needValue: true }
+      ];
+    default:
+      return [];
+  }
+};
+
 const PREDICATE_LIST_TYPE_STRING = [
   PREDICATE_CONTAINS,
   PREDICATE_EQ,
@@ -156,7 +175,13 @@ export function filterPredicates(filterArr) {
     allPredicates = getAllPredicates();
   }
 
-  return filterArr.map(arrItem => allPredicates.find(item => item.value === arrItem));
+  return filterArr.map(arrItem => {
+    if (typeof arrItem === 'object') {
+      return arrItem;
+    }
+
+    return allPredicates.find(item => item.value === arrItem);
+  });
 }
 
 export function getPredicates(field) {
@@ -179,9 +204,9 @@ export function getPredicates(field) {
       return filterPredicates(PREDICATE_LIST_TYPE_NODE_REF);
 
     case COLUMN_DATA_TYPE_DATE:
-      return filterPredicates(PREDICATE_LIST_TYPE_DATE);
+      return [...filterPredicates(PREDICATE_LIST_TYPE_DATE), ...getExtraPredicates(COLUMN_DATA_TYPE_DATE)];
     case COLUMN_DATA_TYPE_DATETIME:
-      return filterPredicates(PREDICATE_LIST_TYPE_DATETIME);
+      return [...filterPredicates(PREDICATE_LIST_TYPE_DATETIME), ...getExtraPredicates(COLUMN_DATA_TYPE_DATETIME)];
 
     case COLUMN_DATA_TYPE_OPTIONS:
       return filterPredicates(PREDICATE_LIST_TYPE_OPTIONS);
@@ -208,7 +233,7 @@ export function getPredicates(field) {
   }
 }
 
-export function getPredicateInput(field, sourceId, metaRecord) {
+export function getPredicateInput(field, sourceId, metaRecord, predicate) {
   const defaultValue = {
     label: t('react-select.default-value.label'),
     value: null
@@ -223,6 +248,25 @@ export function getPredicateInput(field, sourceId, metaRecord) {
   switch (field.type) {
     case COLUMN_DATA_TYPE_DATE:
     case COLUMN_DATA_TYPE_DATETIME:
+      if (predicate.t === PREDICATE_TIME_INTERVAL) {
+        return {
+          component: Input,
+          defaultValue: '',
+          getProps: ({ predicateValue, changePredicateValue, applyFilters }) => ({
+            className: 'ecos-input_narrow',
+            value: predicateValue,
+            onChange: function(e) {
+              changePredicateValue(e.target.value);
+            },
+            onKeyDown: function(e) {
+              if (e.key === 'Enter' && typeof applyFilters === 'function') {
+                applyFilters();
+              }
+            }
+          })
+        };
+      }
+
       return {
         component: DatePicker,
         defaultValue: null, // new Date(),
