@@ -21,6 +21,12 @@ $header-height: 52px;
     background: $color-blue-light3;
   }
 
+  &_no-header {
+    & thead {
+      display: none;
+    }
+  }
+
   &_no-top-border {
     #{$selector-table} {
       &::before {
