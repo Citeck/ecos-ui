@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import queryString from 'query-string';
 
 import Records from '../Records';
+import { SOURCE_DELIMITER } from '../constants';
 
 export async function replaceAttributeValues(data, record) {
   if (!data) {
@@ -87,4 +88,14 @@ export async function replaceAttrValuesForRecord(data, record) {
   }
 
   return await replaceAttributeValues(data, recordRef);
+}
+
+/**
+ * Get sourceId
+ * @param recordRef
+ * @return sourceId{String}
+ */
+export function getSourceId(recordRef) {
+  const hasDelimiter = typeof recordRef === 'string' && recordRef.includes(SOURCE_DELIMITER);
+  return hasDelimiter ? recordRef.split(SOURCE_DELIMITER)[0] : '';
 }
