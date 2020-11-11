@@ -37,7 +37,7 @@ export class OrgStructApi extends RecordService {
     const urlQuery = { excludeAuthorities: excludeAuthoritiesByName, addAdminGroup: !!isIncludedAdminGroup };
 
     if (searchText) {
-      urlQuery.filter = encodeURIComponent(searchText);
+      urlQuery.filter = searchText;
       urlQuery.recurse = true;
     }
 
