@@ -358,7 +358,7 @@ function* getGridData(api, params, stateId) {
   const onlyLinked = yield select(state => get(state, `journals[${stateId}].config.onlyLinked`));
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, ...forRequest } = params;
-  const predicates = JournalsConverter.cleanUpPredicate(_predicates);
+  const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(_predicates));
   const pagination = get(forRequest, 'groupBy.length') ? { ..._pagination, maxItems: undefined } : _pagination;
 
   const settings = JournalsConverter.getSettingsForDataLoaderServer({
