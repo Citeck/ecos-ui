@@ -428,3 +428,18 @@ export function getPredicateInput(field, sourceId, metaRecord, predicate) {
       };
   }
 }
+
+export const datePredicateVariables = {
+  TODAY: '$TODAY',
+  NOW: '$NOW',
+  PERIOD: 'P',
+  YEAR: 'Y',
+  MONTH: 'M',
+  WEEK: 'W',
+  DAY: 'D',
+  TIME_DESIGNATOR: 'T',
+  HOUR: 'H',
+  MINUTE: 'M',
+  SECOND: 'S',
+  INTERVAL_DELIMITER: '/'
+};

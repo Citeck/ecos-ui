@@ -2,13 +2,16 @@ import isArray from 'lodash/isArray';
 
 import { deepClone } from '../../../helpers/util';
 import {
+  datePredicateVariables,
   EQUAL_PREDICATES_MAP,
   filterPredicates,
   getPredicates,
   PREDICATE_AND,
   PREDICATE_EMPTY,
+  PREDICATE_EQ,
   PREDICATE_NOT_EMPTY,
   PREDICATE_OR,
+  PREDICATE_TIME_INTERVAL,
   SEARCH_EQUAL_PREDICATES_MAP
 } from '../../common/form/SelectJournal/predicates';
 import { FilterPredicate, GroupPredicate, Predicate } from './';
@@ -137,10 +140,23 @@ export default class ParserPredicate {
 
   static replacePredicatesType(val = []) {
     return val.map(predicate => {
+      let type = EQUAL_PREDICATES_MAP[predicate.t] || predicate.t;
+      let val = predicate.val;
+
+      if (predicate.t === PREDICATE_TIME_INTERVAL && !Array.isArray(val)) {
+        const { INTERVAL_DELIMITER: delimiter, NOW: now } = datePredicateVariables;
+        const parts = val.split(delimiter);
+
+        if (parts.length === 1) {
+          type = PREDICATE_EQ;
+          val = val.charAt(0) === '-' ? val + `${delimiter}${now}` : `${now}${delimiter}` + val;
+        }
+      }
+
       return {
         ...predicate,
-        t: EQUAL_PREDICATES_MAP[predicate.t] || predicate.t,
-        val: Array.isArray(predicate.val) ? ParserPredicate.replacePredicatesType(predicate.val) : predicate.val
+        t: type,
+        val: Array.isArray(predicate.val) ? ParserPredicate.replacePredicatesType(predicate.val) : val
       };
     });
   }
