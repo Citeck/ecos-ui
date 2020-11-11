@@ -76,8 +76,6 @@ export const EQUAL_PREDICATES_MAP = {
   [COLUMN_DATA_TYPE_DOUBLE]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_DATE]: PREDICATE_GE,
   [COLUMN_DATA_TYPE_DATETIME]: PREDICATE_GE,
-  [PREDICATE_TODAY]: PREDICATE_EQ,
-  [PREDICATE_TIME_INTERVAL]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_BOOLEAN]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_QNAME]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_NODEREF]: PREDICATE_EQ,
@@ -99,8 +97,6 @@ export const SEARCH_EQUAL_PREDICATES_MAP = {
   [COLUMN_DATA_TYPE_DOUBLE]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_DATE]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_DATETIME]: PREDICATE_EQ,
-  [PREDICATE_TODAY]: PREDICATE_EQ,
-  [PREDICATE_TIME_INTERVAL]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_BOOLEAN]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_QNAME]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_NODEREF]: PREDICATE_EQ,
@@ -124,8 +120,24 @@ const PREDICATE_LIST_TYPE_STRING = [
   PREDICATE_NOT_EMPTY
 ];
 const PREDICATE_LIST_TYPE_OPTIONS = PREDICATE_LIST_TYPE_STRING;
-const PREDICATE_LIST_TYPE_DATE = [PREDICATE_EQ, PREDICATE_NOT_EQ, PREDICATE_GE, PREDICATE_LE, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
-const PREDICATE_LIST_TYPE_DATETIME = [PREDICATE_GE, PREDICATE_LT, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
+const PREDICATE_LIST_TYPE_DATE = [
+  PREDICATE_EQ,
+  PREDICATE_NOT_EQ,
+  PREDICATE_GE,
+  PREDICATE_LE,
+  PREDICATE_EMPTY,
+  PREDICATE_NOT_EMPTY,
+  PREDICATE_TODAY,
+  PREDICATE_TIME_INTERVAL
+];
+const PREDICATE_LIST_TYPE_DATETIME = [
+  PREDICATE_GE,
+  PREDICATE_LT,
+  PREDICATE_EMPTY,
+  PREDICATE_NOT_EMPTY,
+  PREDICATE_TODAY,
+  PREDICATE_TIME_INTERVAL
+];
 const PREDICATE_LIST_TYPE_NODE_REF = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_NUMBER = [PREDICATE_EQ, PREDICATE_NOT_EQ, PREDICATE_LT, PREDICATE_LE, PREDICATE_GT, PREDICATE_GE];
 const PREDICATE_LIST_TYPE_BOOLEAN = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
@@ -153,21 +165,10 @@ const getAllPredicates = function() {
     { value: PREDICATE_LE, label: t('predicate.le'), needValue: true },
     { value: PREDICATE_LT, label: t('predicate.lt'), needValue: true },
     { value: PREDICATE_AND, label: t('predicate.and'), needValue: true },
-    { value: PREDICATE_OR, label: t('predicate.or'), needValue: true }
+    { value: PREDICATE_OR, label: t('predicate.or'), needValue: true },
+    { value: PREDICATE_TODAY, label: t('predicate.today'), needValue: false, fixedValue: '$TODAY' },
+    { value: PREDICATE_TIME_INTERVAL, label: t('predicate.time-interval'), needValue: true }
   ];
-};
-
-const getExtraPredicates = function(type) {
-  switch (type) {
-    case COLUMN_DATA_TYPE_DATE:
-    case COLUMN_DATA_TYPE_DATETIME:
-      return [
-        { value: PREDICATE_TODAY, label: t('predicate.today'), needValue: false, fixedValue: '$TODAY' },
-        { value: PREDICATE_TIME_INTERVAL, label: t('predicate.time-interval'), needValue: true }
-      ];
-    default:
-      return [];
-  }
 };
 
 export function filterPredicates(filterArr) {
@@ -204,9 +205,9 @@ export function getPredicates(field) {
       return filterPredicates(PREDICATE_LIST_TYPE_NODE_REF);
 
     case COLUMN_DATA_TYPE_DATE:
-      return [...filterPredicates(PREDICATE_LIST_TYPE_DATE), ...getExtraPredicates(COLUMN_DATA_TYPE_DATE)];
+      return filterPredicates(PREDICATE_LIST_TYPE_DATE);
     case COLUMN_DATA_TYPE_DATETIME:
-      return [...filterPredicates(PREDICATE_LIST_TYPE_DATETIME), ...getExtraPredicates(COLUMN_DATA_TYPE_DATETIME)];
+      return filterPredicates(PREDICATE_LIST_TYPE_DATETIME);
 
     case COLUMN_DATA_TYPE_OPTIONS:
       return filterPredicates(PREDICATE_LIST_TYPE_OPTIONS);
