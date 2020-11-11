@@ -422,96 +422,103 @@ class RecordActions {
    * @param {Object} context
    */
   async execForRecords(records, action, context = {}) {
-    const loaderOptions = { isVisible: true, text: t('record-action.msg.status.start-n-wait') };
+    const loader = DialogManager.toggleLoader({ text: t('record-action.msg.status.start-n-wait') });
+    const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
 
-    DialogManager.toggleLoader(loaderOptions);
-
-    if (!records || !records.length) {
-      return false;
-    }
-
-    const handler = RecordActions._getActionsExecutor(action);
-    if (handler == null) {
-      return false;
-    }
-
-    const recordInstances = Records.get(records);
-
-    if (!action.config) {
-      action.config = {};
-    }
-
-    const confirmed = await RecordActions._checkConfirmAction(action);
-
-    if (!confirmed) {
-      return false;
-    }
-
-    const recordsDisplayNamePromise = recordInstances.load('.disp').then(names => {
-      const dispByRecId = {};
-
-      for (let idx = 0; idx < names.length; idx++) {
-        dispByRecId[recordInstances[idx].id] = names[idx];
-      }
-
-      return dispByRecId;
-    });
-
-    DialogManager.toggleLoader(loaderOptions);
-
-    const allowedInfo = await this._getActionAllowedInfoForRecords(recordInstances, action, context);
-    const { allowedRecords = [], notAllowedRecords = [] } = allowedInfo;
-
-    if (!allowedRecords.length) {
-      return new Promise(resolve => {
-        DialogManager.showInfoDialog({
-          title: 'records-actions.dialog.all-records-not-allowed.title',
-          text: 'records-actions.dialog.all-records-not-allowed.text',
-          onClose: () => {
-            resolve(false);
-          }
-        });
-      });
-    }
-
-    if (notAllowedRecords.length) {
-      const recordsDisplayName = await recordsDisplayNamePromise;
-
-      const formatRecordsStatus = (rec, status) => {
-        return {
-          id: rec.id,
-          displayName: recordsDisplayName[rec.id] || rec.id,
-          status: t('records-actions.record.status.' + status)
-        };
-      };
-
-      const recordsStatus = [
-        ...allowedRecords.map(rec => formatRecordsStatus(rec, 'ALLOWED')),
-        ...notAllowedRecords.map(rec => formatRecordsStatus(rec, 'NOT_ALLOWED'))
-      ];
-      const confirmResult = await showRecordsStatus(recordsStatus, {
-        title: 'records-actions.confirm-not-allowed',
-        withConfirm: true,
-        columns: ['displayName', 'status']
-      });
-
-      if (!confirmResult) {
+    const execution = await (async function() {
+      if (!records || !records.length) {
         return false;
       }
-    }
 
-    const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
-    const execContext = {
-      ...actionContext,
-      ...context
-    };
+      const handler = RecordActions._getActionsExecutor(action);
+      if (handler == null) {
+        return false;
+      }
 
-    const result = handler.execForRecords(allowedRecords, action, execContext);
-    const actResult = await RecordActions._wrapResultIfRequired(result);
+      const recordInstances = Records.get(records);
 
-    RecordActions._updateRecords(allowedRecords, true);
+      if (!action.config) {
+        action.config = {};
+      }
 
-    return actResult;
+      const confirmed = await RecordActions._checkConfirmAction(action);
+
+      if (!confirmed) {
+        return false;
+      }
+
+      loader.show();
+
+      const recordsDisplayNamePromise = recordInstances.load('.disp').then(names => {
+        const dispByRecId = {};
+
+        for (let idx = 0; idx < names.length; idx++) {
+          dispByRecId[recordInstances[idx].id] = names[idx];
+        }
+
+        return dispByRecId;
+      });
+
+      const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
+      const { allowedRecords = [], notAllowedRecords = [] } = allowedInfo;
+
+      if (!allowedRecords.length) {
+        return new Promise(resolve => {
+          DialogManager.showInfoDialog({
+            title: 'records-actions.dialog.all-records-not-allowed.title',
+            text: 'records-actions.dialog.all-records-not-allowed.text',
+            onClose: () => {
+              resolve(false);
+            }
+          });
+        });
+      }
+
+      if (notAllowedRecords.length) {
+        const recordsDisplayName = await recordsDisplayNamePromise;
+
+        const formatRecordsStatus = (rec, status) => {
+          return {
+            id: rec.id,
+            displayName: recordsDisplayName[rec.id] || rec.id,
+            status: t('records-actions.record.status.' + status)
+          };
+        };
+
+        const recordsStatus = [
+          ...allowedRecords.map(rec => formatRecordsStatus(rec, 'ALLOWED')),
+          ...notAllowedRecords.map(rec => formatRecordsStatus(rec, 'NOT_ALLOWED'))
+        ];
+        const confirmResult = await showRecordsStatus(recordsStatus, {
+          title: 'records-actions.confirm-not-allowed',
+          withConfirm: true,
+          columns: ['displayName', 'status']
+        });
+
+        if (!confirmResult) {
+          return false;
+        }
+
+        loader.show();
+      }
+
+      const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
+      const execContext = {
+        ...actionContext,
+        ...context
+      };
+
+      const result = handler.execForRecords(allowedRecords, action, execContext);
+      const actResult = await RecordActions._wrapResultIfRequired(result);
+
+      RecordActions._updateRecords(allowedRecords, true);
+
+      return actResult;
+    })();
+
+    loader.hide();
+
+    return execution;
   }
 
   async _getActionAllowedInfoForRecords(records, action, context) {
