@@ -928,6 +928,7 @@ class Grid extends Component {
       columns,
       rowEvents,
       byContentHeight,
+      noHeader,
       ...otherProps
     } = this.props;
 
@@ -980,6 +981,7 @@ class Grid extends Component {
         ref={this._ref}
         key={this._id}
         className={classNames('ecos-grid', {
+          'ecos-grid_no-header': noHeader,
           'ecos-grid_freeze': this.fixedHeader,
           'ecos-grid_checkable': this.hasCheckboxes,
           'ecos-grid_no-top-border': noTopBorder,
@@ -1025,6 +1027,7 @@ Grid.propTypes = {
   freezeCheckboxes: PropTypes.bool,
   selectAll: PropTypes.bool,
   fixedHeader: PropTypes.bool,
+  noHeader: PropTypes.bool,
   noTopBorder: PropTypes.bool,
   scrollable: PropTypes.bool,
   scrollAutoHide: PropTypes.bool,
