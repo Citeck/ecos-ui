@@ -2,6 +2,8 @@ import uuidv4 from 'uuid/v4';
 
 import { decodeLink } from '../../helpers/urls';
 import PageService from '../PageService';
+import { t } from '../../helpers/export/util';
+import { TITLE } from '../../constants/pageTabs';
 
 /**
  * @define Describe One Application Tab
@@ -29,6 +31,10 @@ export default class PageTab {
     this.title = title;
     this.isLoading = isLoading;
     this.isActive = isActive;
+
+    if (isLoading) {
+      this.title = t(TITLE.LOADING);
+    }
   }
 
   get uniqueKey() {

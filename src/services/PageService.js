@@ -54,6 +54,23 @@ export default class PageService {
     }
   }
 
+  static getRef(link) {
+    const _link = link || window.location.href;
+    const _type = PageService.getType(_link);
+    const urlProps = queryString.parseUrl(_link);
+
+    switch (_type) {
+      case PageTypes.SETTINGS:
+        return urlProps.query.recordRef || '';
+      case PageTypes.DASHBOARD:
+        return urlProps.query.recordRef || '';
+      case PageTypes.JOURNALS:
+        return urlProps.query.journalId || '';
+      default:
+        return '';
+    }
+  }
+
   static keyId({ link, type, key }) {
     const _type = type || PageService.getType(link);
     const _key = key || PageService.getKey({ link, type });
@@ -69,12 +86,20 @@ export default class PageService {
 
   static pageTypes = Object.freeze({
     [PageTypes.DASHBOARD]: {
-      getTitle: ({ recordRef }) => {
+      getTitle: ({ recordRef }, link) => {
+        if (!recordRef) {
+          recordRef = PageService.getRef(link);
+        }
+
         return recordRef ? pageApi.getRecordTitle(recordRef).then(title => convertTitle(title)) : staticTitle(TITLE.HOMEPAGE);
       }
     },
     [PageTypes.JOURNALS]: {
-      getTitle: ({ journalId }) => {
+      getTitle: ({ journalId } = {}, link) => {
+        if (!journalId) {
+          journalId = PageService.getRef(link);
+        }
+
         const prom = pageApi.getJournalTitle(journalId);
 
         return prom.then(title => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);

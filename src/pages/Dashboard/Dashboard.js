@@ -14,7 +14,7 @@ import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import { DashboardTypes } from '../../constants/dashboard';
 import { deepClone, isMobileAppWebView, t } from '../../helpers/util';
-import { decodeLink, getSortedUrlParams, isDashboard, isHomePage, pushHistoryLink } from '../../helpers/urls';
+import { decodeLink, getSortedUrlParams, isDashboard, isHomePage, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -147,7 +147,7 @@ class Dashboard extends Component {
   }
 
   static updateTabLink() {
-    PageService.changeUrlLink(unescape(`${window.location.pathname}${window.location.search}`), { updateUrl: true });
+    PageService.changeUrlLink(unescape(decodeURI(`${window.location.pathname}${window.location.search}`)), { updateUrl: true });
   }
 
   componentDidMount() {
@@ -342,10 +342,15 @@ class Dashboard extends Component {
 
     searchParams.activeLayoutId = idLayout;
 
-    pushHistoryLink(this.props.history, {
-      pathname: URL.DASHBOARD,
-      search: decodeLink(queryString.stringify(searchParams))
-    });
+    if (!this.state.urlParams) {
+      replaceHistoryLink(this.props.history, `${URL.DASHBOARD}?${decodeLink(queryString.stringify(searchParams))}`);
+    } else {
+      pushHistoryLink(this.props.history, {
+        pathname: URL.DASHBOARD,
+        search: decodeLink(queryString.stringify(searchParams))
+      });
+    }
+
     Dashboard.updateTabLink();
   };
 
