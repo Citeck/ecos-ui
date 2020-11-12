@@ -8,6 +8,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
@@ -230,6 +231,13 @@ class Grid extends Component {
           break;
       }
     }
+  };
+
+  onSelect = (all, selected = this._selected) => {
+    trigger.call(this, 'onSelect', {
+      selected: [...new Set(selected)],
+      all
+    });
   };
 
   setBootstrapTableProps(props, extra) {
@@ -522,11 +530,7 @@ class Grid extends Component {
         const keyValue = row[this._keyField];
 
         this._selected = selected !== keyValue ? [keyValue] : [];
-
-        trigger.call(this, 'onSelect', {
-          selected: this._selected,
-          all: false
-        });
+        this.onSelect(false);
       },
       selectionHeaderRenderer: ({ indeterminate, ...rest }) => SelectorHeader({ indeterminate, ...rest }),
       selectionRenderer: ({ mode, ...rest }) => Selector({ mode, ...rest })
@@ -559,27 +563,29 @@ class Grid extends Component {
           this.#isAllSelected = true;
         }
 
-        trigger.call(this, 'onSelect', {
-          selected: [...new Set(this._selected)],
-          all: false
-        });
+        this.onSelect(false);
       },
       onSelectAll: (isSelect, rows) => {
+        const { nonSelectable, data } = this.props;
+
+        if (!isSelect && !isEmpty(nonSelectable) && isEqual(this._selected, nonSelectable)) {
+          this._selected = data.map(row => row[this._keyField]);
+          this.#isAllSelected = true;
+          this.onSelect(true);
+
+          return;
+        }
+
         if (!isSelect && !this.#isAllSelected) {
-          isSelect = true;
-          rows = this.props.data;
+          rows = data;
         }
 
         this.#isAllSelected = isSelect;
-
         this._selected = isSelect
           ? [...this._selected, ...rows.map(row => row[this._keyField])]
           : this.getSelectedByPage(this.props.data, false);
 
-        trigger.call(this, 'onSelect', {
-          selected: [...new Set(this._selected)],
-          all: isSelect
-        });
+        this.onSelect(isSelect);
       },
       selectionHeaderRenderer: ({ indeterminate, ...rest }) => SelectorHeader({ indeterminate, ...rest }),
       selectionRenderer: ({ mode, ...rest }) => Selector({ mode, ...rest })
