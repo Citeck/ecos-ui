@@ -54,6 +54,7 @@ class DesktopDocuments extends BaseDocuments {
 
     canDragging: PropTypes.bool,
     isMobile: PropTypes.bool,
+    isAdmin: PropTypes.bool,
     isLoading: PropTypes.bool,
     isUploadingFile: PropTypes.bool,
     isLoadingSettings: PropTypes.bool,
@@ -816,7 +817,8 @@ class DesktopDocuments extends BaseDocuments {
 
 const mapStateToProps = (state, ownProps) => ({
   ...selectStateByKey(state, getStateId(ownProps)),
-  isMobile: state.view.isMobile
+  isMobile: get(state, 'view.isMobile'),
+  isAdmin: get(state, 'user.isAdmin')
 });
 const mapDispatchToProps = (dispatch, ownProps) => {
   const baseParams = {
