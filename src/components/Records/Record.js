@@ -78,9 +78,13 @@ export default class Record {
     }
 
     for (let complexAtt in this._recordFieldsToSave) {
+      if (!this._recordFieldsToSave.hasOwnProperty(complexAtt)) {
+        continue;
+      }
+
       const att = complexAtt.substring(complexAtt.indexOf('(n:"') + 4, complexAtt.indexOf('")'));
 
-      if (this._recordFieldsToSave.hasOwnProperty(complexAtt) && !attributes[att]) {
+      if (att && !attributes[att]) {
         attributes[att] = this._recordFieldsToSave[complexAtt];
       }
     }
