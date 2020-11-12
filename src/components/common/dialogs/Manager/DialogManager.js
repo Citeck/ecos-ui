@@ -56,6 +56,10 @@ class DialogWrapper extends React.Component {
     this.setState({ isLoading });
   }
 
+  hide() {
+    this.setVisible(false);
+  }
+
   show() {
     this.setVisible(true);
   }
