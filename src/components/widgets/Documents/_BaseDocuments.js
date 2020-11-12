@@ -43,6 +43,7 @@ class BaseDocuments extends BaseWidget {
 
     canDragging: PropTypes.bool,
     isMobile: PropTypes.bool,
+    isAdmin: PropTypes.bool,
     isLoading: PropTypes.bool,
     isUploadingFile: PropTypes.bool,
     isLoadingSettings: PropTypes.bool,
@@ -172,7 +173,7 @@ class BaseDocuments extends BaseWidget {
   }
 
   get emptyStubHeight() {
-    return get(this._emptyStubRef, 'current.offsetHeight', 0);
+    return get(this._emptyStubRef, 'current.offsetHeight', 150);
   }
 
   get calculatedEmptyHeight() {
@@ -511,7 +512,7 @@ class BaseDocuments extends BaseWidget {
   }
 
   renderEmptyStub(className = '') {
-    const { dynamicTypes, isLoading } = this.props;
+    const { dynamicTypes, isLoading, isAdmin } = this.props;
     const { selectedType } = this.state;
 
     if (isLoading || selectedType || dynamicTypes.length) {
@@ -520,16 +521,21 @@ class BaseDocuments extends BaseWidget {
 
     return (
       <Scrollbars
-        style={{ height: this.calculatedEmptyHeight || '100%' }}
+        autoHeight={!Boolean(this.calculatedEmptyHeight)}
+        style={{
+          height: this.calculatedEmptyHeight || '100%'
+        }}
         hideTracksWhenNotNeeded
         renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
       >
         <div className={classNames('ecos-docs__empty-stub', className)} ref={this._emptyStubRef}>
           <div className="ecos-docs__empty-stub-label">{t(Labels.NOT_CONFIGURATION_LABEL)}</div>
 
-          <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-docs__empty-stub-button" onClick={this.handleToggleTypesSettings}>
-            {t(Labels.OPEN_SETTINGS_BUTTON)}
-          </Btn>
+          {isAdmin && (
+            <Btn className="ecos-btn_blue ecos-btn_hover_light-blue ecos-docs__empty-stub-button" onClick={this.handleToggleTypesSettings}>
+              {t(Labels.OPEN_SETTINGS_BUTTON)}
+            </Btn>
+          )}
         </div>
       </Scrollbars>
     );
