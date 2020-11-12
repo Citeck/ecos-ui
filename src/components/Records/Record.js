@@ -423,7 +423,7 @@ export default class Record {
     return attributes;
   }
 
-  _getLinkedRecordsToSave() {
+  async _getLinkedRecordsToSave() {
     let self = this;
 
     let result = this._getAssocAttributes().reduce((acc, att) => {
@@ -435,7 +435,10 @@ export default class Record {
       return acc.concat(value.map(id => this._records.get(id)).map(rec => rec._getWhenReadyToSave()));
     }, []);
 
-    return Promise.all(result).then(records => records.filter(r => !r.isPersisted()));
+    const linkedRecords = await Promise.all(result).then(records => records.filter(r => !r.isPersisted()));
+    const nestedLinkedRecords = await Promise.all(linkedRecords.map(async r => await r._getLinkedRecordsToSave()));
+    const nestedLinkedRecordsFlatten = nestedLinkedRecords.reduce((acc, val) => acc.concat(val), []);
+    return [...linkedRecords, ...nestedLinkedRecordsFlatten];
   }
 
   save() {
