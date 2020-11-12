@@ -5,11 +5,11 @@ import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
 
-import { Input, Label, Select, Textarea } from '../../common/form';
-import { Btn } from '../../common/btns';
+import DisplayElementService from '../../../services/DisplayElementService';
 import { objectCompare, t } from '../../../helpers/util';
 import { InfoText } from '../../common';
-import { isValid as isValidCondition } from '../../../helpers/validators/displayCondition';
+import { Input, Label, Select, Textarea } from '../../common/form';
+import { Btn } from '../../common/btns';
 
 const Labels = {
   DONE_BUTTON: 'btn.done.label',
@@ -126,7 +126,7 @@ class Settings extends Component {
 
     if (typeof onSave === 'function') {
       const { type, scale, top, left, right, bottom, dcGenerateNew } = this.state;
-      const isValid = isValidCondition(dcGenerateNew);
+      const isValid = DisplayElementService.isValidCondition(dcGenerateNew);
 
       this.setState({ errorCondition: !isValid });
       isValid &&
@@ -162,11 +162,7 @@ class Settings extends Component {
           <Label htmlFor="displayCondition1" className="ecos-barcode-settings__label">
             {t(Labels.DISPLAY_CONDITION_TITLE, { title: t('barcode-widget.btn.generate-new') })}
           </Label>
-          <Textarea
-            value={dcGenerateNew}
-            onChange={this.onChangeCondition}
-            placeholder={'[{ "t": "eq", "att": "title", "val": "№333" }, ...]'}
-          />
+          <Textarea value={dcGenerateNew} onChange={this.onChangeCondition} placeholder={DisplayElementService.placeholderCondition} />
           {errorCondition && (
             <InfoText className="ecos-doc-constructor-settings__info" text={t(Labels.DISPLAY_CONDITION_ERR)} type="error" />
           )}
