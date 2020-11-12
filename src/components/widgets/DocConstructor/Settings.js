@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../helpers/export/util';
-import { isValid as isValidCondition } from '../../../helpers/validators/displayCondition';
+import DisplayElementService from '../../../services/DisplayElementService';
 import { InfoText } from '../../common';
 import { Caption, Input, Textarea } from '../../common/form';
 import { Btn } from '../../common/btns';
@@ -43,7 +43,7 @@ class Settings extends React.Component {
 
   onSave = () => {
     const { widgetDisplayCondition, journalTemplatesId } = this.state;
-    const isValid = isValidCondition(widgetDisplayCondition);
+    const isValid = DisplayElementService.isValidCondition(widgetDisplayCondition);
 
     this.setState({ errorCondition: !isValid });
 
@@ -81,7 +81,7 @@ class Settings extends React.Component {
           <Textarea
             value={widgetDisplayCondition}
             onChange={this.onChangeCondition}
-            placeholder={'[{ "t": "eq", "att": "title", "val": "№333" }, ...]'}
+            placeholder={DisplayElementService.placeholderCondition}
           />
           {errorCondition && (
             <InfoText className="ecos-doc-constructor-settings__info" text={t(Labels.ERROR_WIDGET_DISPLAY_CONDITION)} type="error" />

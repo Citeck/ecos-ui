@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { t } from '../../../helpers/util';
+import DisplayElementService from '../../../services/DisplayElementService';
 import { Btn } from '../../common/btns/index';
 
 import './style.scss';
@@ -30,7 +31,7 @@ class Barcode extends React.Component {
       <div className={classNames('ecos-barcode', className)}>
         <div className="ecos-barcode__container">
           {error && <div className="ecos-barcode__error">{error}</div>}
-          {(!barcode || displayElements.btnGenerateNew) && (
+          {(!barcode || DisplayElementService.checkResultCondition(displayElements.btnGenerateNew)) && (
             <Btn
               className="ecos-btn_blue ecos-btn_full-width ecos-btn_focus_no"
               loading={isLoading}
