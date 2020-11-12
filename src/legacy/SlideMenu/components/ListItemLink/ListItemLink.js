@@ -208,7 +208,7 @@ const ListItemLink = ({
       case 'STATIC_LINK': {
         targetUrl = params.url;
         attributes.target = '_blank';
-        ignoreTabHandler = params.url.indexOf('/v2/') !== 0;
+        ignoreTabHandler = true;
         break;
       }
       default:

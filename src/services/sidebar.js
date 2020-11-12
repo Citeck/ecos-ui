@@ -154,6 +154,7 @@ export default class SidebarService {
           break;
         case ATypes.PAGE_LINK:
           let sectionPostfix = params.section ? params.section : '';
+
           targetUrl = `${PAGE_PREFIX}/${params.pageId}${sectionPostfix}`;
           break;
         case ATypes.SITE_LINK:
@@ -203,7 +204,7 @@ export default class SidebarService {
         case ATypes.STATIC_LINK: {
           targetUrl = params.url;
           attributes.target = '_blank';
-          ignoreTabHandler = true;
+          ignoreTabHandler = params.url.indexOf(NEW_VERSION_PREFIX) !== 0;
           break;
         }
         default:
