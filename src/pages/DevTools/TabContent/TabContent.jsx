@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
 import Well from '../../../components/common/form/Well';
 
-import { DevToolsContext } from '../DevToolsContext';
+import { useContext } from '../DevToolsContext';
 import { TABS } from '../constants';
 import BuildTab from '../Build';
 import DevModulesTab from '../DevModules';
@@ -10,7 +10,7 @@ import CommitsTab from '../Commits';
 import SettingsTab from '../Settings';
 
 const TabContent = () => {
-  const context = useContext(DevToolsContext);
+  const context = useContext();
   const { activeTab } = context;
 
   let TabComponent = null;

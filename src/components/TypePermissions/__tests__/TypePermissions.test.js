@@ -1,6 +1,7 @@
-import React from 'react';
-import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
+import { configure } from 'enzyme';
+
+import { mountWithContext } from '../../../helpers/tests';
 
 import { switchTypePerm } from '../helpers/switchTypePerm';
 import { TYPE_PERM_NONE, TYPE_PERM_READ, TYPE_PERM_WRITE } from '../constants';
@@ -10,15 +11,6 @@ import TypePermissionsGrid from '../TypePermissionsEditor/TypePermissionsGrid';
 import ButtonsPanel from '../TypePermissionsEditor/ButtonsPanel';
 
 configure({ adapter: new Adapter() });
-
-const mountComponentWithContext = (Component, contextValue) => {
-  return mount(<Component />, {
-    wrappingComponent: TypePermissionsEditorContext.Provider,
-    wrappingComponentProps: {
-      value: contextValue
-    }
-  });
-};
 
 describe('TypePermissions tests', () => {
   describe('switchDocPerm helper', () => {
@@ -41,7 +33,7 @@ describe('TypePermissions tests', () => {
 
   describe('<TypePermissionsEditor />', () => {
     it('fetching data (show loader)', () => {
-      const wrapper = mountComponentWithContext(TypePermissionsEditor, {
+      const wrapper = mountWithContext(TypePermissionsEditor, TypePermissionsEditorContext, {
         isReady: false
       });
       return Promise.resolve(wrapper)
@@ -54,7 +46,7 @@ describe('TypePermissions tests', () => {
 
     it('failure to fetch data (show error)', () => {
       const errorText = 'Some error';
-      const wrapper = mountComponentWithContext(TypePermissionsEditor, {
+      const wrapper = mountWithContext(TypePermissionsEditor, TypePermissionsEditorContext, {
         error: errorText
       });
       return Promise.resolve(wrapper)
@@ -67,7 +59,7 @@ describe('TypePermissions tests', () => {
     });
 
     it('data fetched successfully', () => {
-      const wrapper = mountComponentWithContext(TypePermissionsEditor, {
+      const wrapper = mountWithContext(TypePermissionsEditor, TypePermissionsEditorContext, {
         error: null,
         isReady: true,
         matrixConfig: { id: 'fakeId', permissions: [] },
@@ -90,7 +82,7 @@ describe('TypePermissions tests', () => {
     it('render buttons', () => {
       const savePermissions = jest.fn();
       const closeEditor = jest.fn();
-      const wrapper = mountComponentWithContext(ButtonsPanel, {
+      const wrapper = mountWithContext(ButtonsPanel, TypePermissionsEditorContext, {
         savePermissions,
         closeEditor
       });
@@ -116,7 +108,7 @@ describe('TypePermissions tests', () => {
   describe('<TypePermissionsGrid />', () => {
     it('render grid; switch button READ -> WRITE', () => {
       const setPermission = jest.fn();
-      const wrapper = mountComponentWithContext(TypePermissionsGrid, {
+      const wrapper = mountWithContext(TypePermissionsGrid, TypePermissionsEditorContext, {
         setPermission,
         roles: [{ id: 'role1', name: 'Role 1' }],
         statuses: [{ id: 'status1', name: 'Status 1' }],

@@ -1,6 +1,11 @@
 @import '../../styles/constants';
 
 .dev-tools-page {
+  &__access-denied {
+    margin-top: 20px;
+    padding: 20px;
+  }
+
   &__tabs {
     overflow: auto;
     margin-bottom: -3px;

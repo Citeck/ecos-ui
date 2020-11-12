@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
+import cloneDeep from 'lodash/cloneDeep';
 
 import WidgetService from '../../../../services/WidgetService';
 import Records from '../../../Records/Records';
@@ -148,11 +149,24 @@ export const TableFormContextProvider = props => {
     setClonedRecord(null);
 
     record.toJsonAsync().then(res => {
+      const attributes = cloneDeep(res.attributes);
+
+      for (let att in res.attributes) {
+        if (res.attributes.hasOwnProperty(att)) {
+          const col = columns.find(item => item.attribute !== att && item.attribute.includes(att));
+
+          if (col) {
+            attributes[col.attribute] = attributes[att];
+            delete attributes[att];
+          }
+        }
+      }
+
       const newGridRows = [
         ...gridRows,
         {
           id: record.id,
-          ...res.attributes
+          ...attributes
         }
       ];
 

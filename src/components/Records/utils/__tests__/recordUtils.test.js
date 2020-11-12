@@ -206,4 +206,22 @@ describe('Record Utils', () => {
       });
     });
   });
+
+  describe('getSourceId', () => {
+    [
+      { input: undefined, output: '' },
+      { input: null, output: '' },
+      { input: 0, output: '' },
+      { input: 1, output: '' },
+      { input: '', output: '' },
+      { input: '@id', output: '' },
+      { input: 'source@', output: 'source' },
+      { input: 'source@id', output: 'source' },
+      { input: 'source@id@something', output: 'source' }
+    ].forEach(caseItem => {
+      it(`should return "${caseItem.output}" for recordId=${caseItem.input}`, () => {
+        expect(RecordUtils.getSourceId(caseItem.input)).toBe(caseItem.output);
+      });
+    });
+  });
 });

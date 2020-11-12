@@ -1,0 +1,475 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DevTools tests <ErrorText /> should render ErrorText component 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <_default />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "checkPropTypes": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": undefined,
+      "className": "dev-tools-page__error",
+    },
+    "ref": null,
+    "rendered": null,
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": undefined,
+        "className": "dev-tools-page__error",
+      },
+      "ref": null,
+      "rendered": null,
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "legacyContextMode": "parent",
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getChildContext": Object {
+            "calledByRenderer": false,
+          },
+          "getDerivedStateFromError": true,
+          "getDerivedStateFromProps": Object {
+            "hasShouldComponentUpdateBug": false,
+          },
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+    Symbol(enzyme.__providerValues__): undefined,
+  },
+  Symbol(enzyme.__providerValues__): Map {},
+}
+`;
+
+exports[`DevTools tests <Loader /> should render Loader component 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <_default />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "checkPropTypes": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "class",
+    "props": Object {
+      "blur": true,
+      "className": "",
+      "color": "light-blue",
+      "darkened": false,
+      "height": 45,
+      "rounded": true,
+      "style": Object {
+        "margin": "2em 0",
+        "position": "relative",
+      },
+      "type": "circle",
+      "width": 45,
+      "zIndex": null,
+    },
+    "ref": null,
+    "rendered": null,
+    "type": [Function],
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "class",
+      "props": Object {
+        "blur": true,
+        "className": "",
+        "color": "light-blue",
+        "darkened": false,
+        "height": 45,
+        "rounded": true,
+        "style": Object {
+          "margin": "2em 0",
+          "position": "relative",
+        },
+        "type": "circle",
+        "width": 45,
+        "zIndex": null,
+      },
+      "ref": null,
+      "rendered": null,
+      "type": [Function],
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "legacyContextMode": "parent",
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getChildContext": Object {
+            "calledByRenderer": false,
+          },
+          "getDerivedStateFromError": true,
+          "getDerivedStateFromProps": Object {
+            "hasShouldComponentUpdateBug": false,
+          },
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+    Symbol(enzyme.__providerValues__): undefined,
+  },
+  Symbol(enzyme.__providerValues__): Map {},
+}
+`;
+
+exports[`DevTools tests <TabContent /> should render TabContent component 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <TabContent />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "checkPropTypes": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "class",
+    "props": Object {
+      "children": <BuildTab />,
+      "className": "dev-tools-page__tab-content",
+    },
+    "ref": null,
+    "rendered": Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "function",
+      "props": Object {},
+      "ref": null,
+      "rendered": null,
+      "type": [Function],
+    },
+    "type": [Function],
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "class",
+      "props": Object {
+        "children": <BuildTab />,
+        "className": "dev-tools-page__tab-content",
+      },
+      "ref": null,
+      "rendered": Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "function",
+        "props": Object {},
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+      "type": [Function],
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "legacyContextMode": "parent",
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getChildContext": Object {
+            "calledByRenderer": false,
+          },
+          "getDerivedStateFromError": true,
+          "getDerivedStateFromProps": Object {
+            "hasShouldComponentUpdateBug": false,
+          },
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+    Symbol(enzyme.__providerValues__): undefined,
+  },
+  Symbol(enzyme.__providerValues__): Map {},
+}
+`;
+
+exports[`DevTools tests <Tabs /> should render Tabs component 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <Tabs />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "checkPropTypes": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": <Tabs
+        activeTabKey=""
+        className="ecos-tabs_mt-10"
+        hasHint={false}
+        hasHover={false}
+        items={
+          Array [
+            Object {
+              "id": "build",
+              "isActive": false,
+              "label": "dev-tools.tab.build",
+              "onClick": [Function],
+            },
+            Object {
+              "id": "dev-modules",
+              "isActive": false,
+              "label": "dev-tools.tab.dev-modules",
+              "onClick": [Function],
+            },
+            Object {
+              "id": "commits",
+              "isActive": false,
+              "label": "dev-tools.tab.commits",
+              "onClick": [Function],
+            },
+            Object {
+              "id": "settings",
+              "isActive": false,
+              "label": "dev-tools.tab.settings",
+              "onClick": [Function],
+            },
+          ]
+        }
+        keyField="id"
+        narrow={true}
+        onClick={null}
+        valueField="label"
+        valuePrefix=""
+      />,
+      "className": "dev-tools-page__tabs",
+    },
+    "ref": null,
+    "rendered": Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "function",
+      "props": Object {
+        "activeTabKey": "",
+        "className": "ecos-tabs_mt-10",
+        "hasHint": false,
+        "hasHover": false,
+        "items": Array [
+          Object {
+            "id": "build",
+            "isActive": false,
+            "label": "dev-tools.tab.build",
+            "onClick": [Function],
+          },
+          Object {
+            "id": "dev-modules",
+            "isActive": false,
+            "label": "dev-tools.tab.dev-modules",
+            "onClick": [Function],
+          },
+          Object {
+            "id": "commits",
+            "isActive": false,
+            "label": "dev-tools.tab.commits",
+            "onClick": [Function],
+          },
+          Object {
+            "id": "settings",
+            "isActive": false,
+            "label": "dev-tools.tab.settings",
+            "onClick": [Function],
+          },
+        ],
+        "keyField": "id",
+        "narrow": true,
+        "onClick": null,
+        "valueField": "label",
+        "valuePrefix": "",
+      },
+      "ref": null,
+      "rendered": null,
+      "type": [Function],
+    },
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": <Tabs
+          activeTabKey=""
+          className="ecos-tabs_mt-10"
+          hasHint={false}
+          hasHover={false}
+          items={
+            Array [
+              Object {
+                "id": "build",
+                "isActive": false,
+                "label": "dev-tools.tab.build",
+                "onClick": [Function],
+              },
+              Object {
+                "id": "dev-modules",
+                "isActive": false,
+                "label": "dev-tools.tab.dev-modules",
+                "onClick": [Function],
+              },
+              Object {
+                "id": "commits",
+                "isActive": false,
+                "label": "dev-tools.tab.commits",
+                "onClick": [Function],
+              },
+              Object {
+                "id": "settings",
+                "isActive": false,
+                "label": "dev-tools.tab.settings",
+                "onClick": [Function],
+              },
+            ]
+          }
+          keyField="id"
+          narrow={true}
+          onClick={null}
+          valueField="label"
+          valuePrefix=""
+        />,
+        "className": "dev-tools-page__tabs",
+      },
+      "ref": null,
+      "rendered": Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "function",
+        "props": Object {
+          "activeTabKey": "",
+          "className": "ecos-tabs_mt-10",
+          "hasHint": false,
+          "hasHover": false,
+          "items": Array [
+            Object {
+              "id": "build",
+              "isActive": false,
+              "label": "dev-tools.tab.build",
+              "onClick": [Function],
+            },
+            Object {
+              "id": "dev-modules",
+              "isActive": false,
+              "label": "dev-tools.tab.dev-modules",
+              "onClick": [Function],
+            },
+            Object {
+              "id": "commits",
+              "isActive": false,
+              "label": "dev-tools.tab.commits",
+              "onClick": [Function],
+            },
+            Object {
+              "id": "settings",
+              "isActive": false,
+              "label": "dev-tools.tab.settings",
+              "onClick": [Function],
+            },
+          ],
+          "keyField": "id",
+          "narrow": true,
+          "onClick": null,
+          "valueField": "label",
+          "valuePrefix": "",
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "legacyContextMode": "parent",
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getChildContext": Object {
+            "calledByRenderer": false,
+          },
+          "getDerivedStateFromError": true,
+          "getDerivedStateFromProps": Object {
+            "hasShouldComponentUpdateBug": false,
+          },
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+    Symbol(enzyme.__providerValues__): undefined,
+  },
+  Symbol(enzyme.__providerValues__): Map {},
+}
+`;

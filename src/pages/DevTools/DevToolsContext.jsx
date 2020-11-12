@@ -10,6 +10,8 @@ import { SettingsContextProvider } from './Settings/SettingsContext';
 
 export const DevToolsContext = React.createContext();
 
+export const useContext = () => React.useContext(DevToolsContext);
+
 export const DevToolsContextProvider = props => {
   let defaultActiveTab = TABS.BUILD;
   if (Object.values(TABS).includes(props.activeTab)) {

@@ -402,7 +402,12 @@ class DesktopDocuments extends BaseDocuments {
     if (actions[id]) {
       actions[id].forEach(action => {
         action.onClick = () => {
-          this.props.execRecordsAction(id, action, this.handleSuccessRecordsAction);
+          this.props.execRecordsAction({
+            records: id,
+            action,
+            callback: this.handleSuccessRecordsAction,
+            type: this.state.selectedType
+          });
         };
       });
 
@@ -825,7 +830,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     onSaveSettings: (types, config) => dispatch(saveSettings({ ...baseParams, types, config })),
     onUploadFiles: data => dispatch(uploadFiles({ ...baseParams, ...data })),
     setError: (type, message = '') => dispatch(setError({ ...baseParams, type, message })),
-    execRecordsAction: (records, action, callback) => dispatch(execRecordsAction({ ...baseParams, records, action, callback })),
+    execRecordsAction: data => dispatch(execRecordsAction({ ...baseParams, ...data })),
     setInlineTools: tools => dispatch(setInlineTools({ ...baseParams, tools })),
     getTypeSettings: type => dispatch(getTypeSettings({ ...baseParams, type }))
   };

@@ -1,13 +1,13 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
 import { default as EcosTabs } from '../../../components/common/Tabs';
 import { t } from '../../../helpers/util';
 
 import { TABS } from '../constants';
-import { DevToolsContext } from '../DevToolsContext';
+import { useContext } from '../DevToolsContext';
 
 const Tabs = () => {
-  const context = useContext(DevToolsContext);
+  const context = useContext();
   const { activeTab, setActiveTab } = context;
 
   const tabs = [

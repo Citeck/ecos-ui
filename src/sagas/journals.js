@@ -359,7 +359,7 @@ function* getGridData(api, params, stateId) {
   const onlyLinked = yield select(state => get(state, `journals[${stateId}].config.onlyLinked`));
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, ...forRequest } = params;
-  const predicates = JournalsConverter.cleanUpPredicate(_predicates);
+  const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(_predicates));
   const pagination = get(forRequest, 'groupBy.length') ? { ..._pagination, maxItems: undefined } : _pagination;
 
   const settings = JournalsConverter.getSettingsForDataLoaderServer({
@@ -386,7 +386,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
   const pagination = get(sharedSettings, 'pagination') || (yield select(state => state.journals[stateId].grid.pagination));
   const params = getGridParams({ journalConfig, journalSetting, pagination });
-  const searchPredicate = yield getSearchPredicate({ stateId });
+  const searchPredicate = yield getSearchPredicate(w({ stateId }));
   const gridData = yield getGridData(api, { ...params, searchPredicate }, stateId);
   const editingRules = yield getGridEditingRules(api, gridData);
   let selectedRecords = [];
@@ -510,7 +510,7 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
     const journalConfig = yield getJournalConfig(api, id, w);
 
     yield getJournalSettings(api, journalConfig.id, w);
-    yield loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w);
+    yield loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, (...data) => ({ ...w(...data), logger }));
 
     yield put(setLoading(w(false)));
   } catch (e) {

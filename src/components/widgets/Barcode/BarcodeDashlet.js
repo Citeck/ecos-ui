@@ -2,12 +2,13 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
+import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
-import { init, getBase64Barcode } from '../../../actions/barcode';
+import { getBase64Barcode, init } from '../../../actions/barcode';
 import Dashlet from '../../Dashlet';
 import DAction from '../../../services/DashletActionService';
 import Barcode from './Barcode';
@@ -53,10 +54,24 @@ class BarcodeDashlet extends BaseWidget {
     this.handleGenerateBarcode();
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    super.componentDidUpdate(prevProps, prevState, snapshot);
+
+    if (!!prevProps.config && !isEqual(prevProps.config, this.props.config)) {
+      this.props.init(this.stateId);
+    }
+  }
+
   get settings() {
     const { config } = this.props;
 
     return get(config, 'settings', defaultSettings);
+  }
+
+  get displayCondition() {
+    const { config } = this.props;
+
+    return get(config, 'elementsDisplayCondition');
   }
 
   handleGenerateBarcode = () => {
@@ -75,11 +90,11 @@ class BarcodeDashlet extends BaseWidget {
     window.open(url, '_blank');
   };
 
-  handleSaveSettings = settings => {
+  handleSaveSettings = (settings, elementsDisplayCondition) => {
     const { id, onSave, config } = this.props;
 
     if (typeof onSave === 'function') {
-      onSave(id, { config: { ...config, settings } });
+      onSave(id, { config: { ...config, settings, elementsDisplayCondition } });
     }
 
     this.handleToggleSettings();
@@ -91,7 +106,7 @@ class BarcodeDashlet extends BaseWidget {
   }
 
   renderBarcode() {
-    const { config, classNameBarcode, barcode, error, isLoading } = this.props;
+    const { config, classNameBarcode, barcode, error, isLoading, displayElements } = this.props;
     const { isOpenSettings } = this.state;
 
     return (
@@ -105,6 +120,7 @@ class BarcodeDashlet extends BaseWidget {
         isLoading={isLoading}
         onGenerate={this.handleGenerateBarcode}
         onPrint={this.handlePrint}
+        displayElements={displayElements || {}}
       />
     );
   }
@@ -120,6 +136,7 @@ class BarcodeDashlet extends BaseWidget {
     return (
       <Settings
         settings={this.settings}
+        displayCondition={this.displayCondition}
         allowedTypes={allowedTypes}
         onSave={this.handleSaveSettings}
         onCancel={this.handleToggleSettings}
@@ -174,14 +191,17 @@ const mapStateToProps = (state, ownProps) => {
     error: stateB.error,
     isLoading: stateB.isLoading,
     allowedTypes: stateB.allowedTypes,
-    settings: BarcodeConverter.getSettingsForWeb(get(stateB, 'config.settings'))
+    settings: BarcodeConverter.getSettingsForWeb(get(stateB, 'config.settings')),
+    displayElements: stateB.displayElements
   };
 };
 
-const mapDispatchToProps = (dispatch, { record }) => ({
-  init: stateId => dispatch(init(stateId)),
-  generateBase64Barcode: stateId => dispatch(getBase64Barcode({ stateId, record }))
-});
+const mapDispatchToProps = (dispatch, { record, config }) => {
+  return {
+    init: stateId => dispatch(init({ stateId, record, config })),
+    generateBase64Barcode: stateId => dispatch(getBase64Barcode({ stateId, record }))
+  };
+};
 
 export default connect(
   mapStateToProps,

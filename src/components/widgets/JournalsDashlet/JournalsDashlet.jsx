@@ -96,8 +96,8 @@ class JournalsDashlet extends BaseWidget {
     isMobile: PropTypes.bool,
     journalConfig: PropTypes.object,
     selectedRecords: PropTypes.array,
-    selectAllRecords: PropTypes.array,
-    selectAllRecordsVisible: PropTypes.array
+    selectAllRecords: PropTypes.bool,
+    selectAllRecordsVisible: PropTypes.bool
   };
 
   static defaultProps = {

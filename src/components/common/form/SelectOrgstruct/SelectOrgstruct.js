@@ -7,13 +7,11 @@ import { OrgStructApi } from '../../../../api/orgStruct';
 import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
-  GROUP_TYPE_BRANCH,
-  GROUP_TYPE_ROLE,
+  GroupTypes,
   TAB_ALL_USERS,
   TAB_BY_LEVELS,
   TAB_ONLY_SELECTED,
-  VIEW_MODE_TYPE_DEFAULT,
-  VIEW_MODE_TYPE_LINE_SEPARATED
+  ViewModes
 } from './constants';
 
 import './SelectOrgstruct.scss';
@@ -30,11 +28,11 @@ const SelectOrgstruct = props => {
 
 SelectOrgstruct.defaultProps = {
   allowedAuthorityTypes: [AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER],
-  allowedGroupTypes: [GROUP_TYPE_BRANCH, GROUP_TYPE_ROLE],
+  allowedGroupTypes: [GroupTypes.BRANCH, GroupTypes.ROLE],
   allowedGroupSubTypes: [],
   defaultTab: TAB_BY_LEVELS,
   userSearchExtraFields: [],
-  viewModeType: VIEW_MODE_TYPE_DEFAULT
+  viewModeType: ViewModes.DEFAULT
 };
 
 SelectOrgstruct.propTypes = {
@@ -47,7 +45,7 @@ SelectOrgstruct.propTypes = {
   renderListItem: PropTypes.func,
   multiple: PropTypes.bool,
   isCompact: PropTypes.bool,
-  viewModeType: PropTypes.oneOf([VIEW_MODE_TYPE_DEFAULT, VIEW_MODE_TYPE_LINE_SEPARATED]),
+  viewModeType: PropTypes.oneOf(Object.values(ViewModes)),
   hideTabSwitcher: PropTypes.bool,
   hideInputView: PropTypes.bool,
   getFullData: PropTypes.bool, // return full data about selected user, not only nodeRef
@@ -56,12 +54,13 @@ SelectOrgstruct.propTypes = {
   openByDefault: PropTypes.bool,
   modalTitle: PropTypes.string,
   allowedAuthorityTypes: PropTypes.array,
-  allowedGroupTypes: PropTypes.array,
+  allowedGroupTypes: PropTypes.arrayOf(PropTypes.oneOf(Object.values(GroupTypes))),
   allowedGroupSubTypes: PropTypes.array,
   excludeAuthoritiesByName: PropTypes.string,
   excludeAuthoritiesByType: PropTypes.array,
   liveSearch: PropTypes.bool, // search by key down
-  userSearchExtraFields: PropTypes.array
+  userSearchExtraFields: PropTypes.array,
+  isIncludedAdminGroup: PropTypes.bool
 };
 
 export default SelectOrgstruct;

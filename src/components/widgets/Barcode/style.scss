@@ -67,6 +67,10 @@
       font-size: $font-size-large;
       line-height: 22px;
       margin-bottom: 15px;
+
+      &_s {
+        font-size: $font-size-standard;
+      }
     }
 
     &__group {
