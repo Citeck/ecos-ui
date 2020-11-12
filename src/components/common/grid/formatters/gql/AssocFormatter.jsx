@@ -7,6 +7,8 @@ import Records from '../../../../../components/Records';
 import Popper from '../../../Popper';
 import { AssocEditor, AssocOrgstructEditor } from '../../editors';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
+import { createDocumentUrl } from '../../../../../helpers/urls';
+import PageService from '../../../../../services/PageService';
 
 export default class AssocFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
@@ -90,6 +92,27 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     );
   };
 
+  renderDisp = () => {
+    const { displayName } = this.state;
+    const { cell, params } = this.props;
+
+    if (!get(params, 'asLink')) {
+      return displayName;
+    }
+
+    const link = createDocumentUrl(cell);
+    const handler = e => {
+      e.preventDefault();
+      PageService.changeUrlLink(link, { openNewTab: !params.openInBackground, ...params });
+    };
+
+    return (
+      <a href={link} onClick={handler}>
+        {displayName}
+      </a>
+    );
+  };
+
   onResize = () => {
     const tool = this.tooltipRef.current;
 
@@ -99,6 +122,10 @@ export default class AssocFormatter extends DefaultGqlFormatter {
   render() {
     const { displayName } = this.state;
 
-    return <Popper showAsNeeded text={displayName} icon="icon-question" contentComponent={this.renderTooltipContent()} />;
+    return (
+      <Popper showAsNeeded text={displayName} icon="icon-question" contentComponent={this.renderTooltipContent()}>
+        {this.renderDisp()}
+      </Popper>
+    );
   }
 }
