@@ -173,7 +173,7 @@ class BaseDocuments extends BaseWidget {
   }
 
   get emptyStubHeight() {
-    return get(this._emptyStubRef, 'current.offsetHeight', 150);
+    return get(this._emptyStubRef, 'current.offsetHeight', 0);
   }
 
   get calculatedEmptyHeight() {
