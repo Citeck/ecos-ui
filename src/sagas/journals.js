@@ -265,7 +265,7 @@ function* getColumns({ stateId }) {
   return journalConfig.columns;
 }
 
-function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId, ...extra }, w) {
+function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w) {
   const _journalSetting = yield select(state => state.journals[stateId].journalSetting);
   let journalSetting;
 

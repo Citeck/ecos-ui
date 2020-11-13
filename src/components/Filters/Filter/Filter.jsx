@@ -27,8 +27,8 @@ export default class Filter extends Component {
 
   predicatesWithoutValue = ParserPredicate.predicatesWithoutValue;
 
-  changeValue = val => {
-    this.setState({ value: val });
+  changeValue = value => {
+    this.setState({ value });
     this.handleChangeValue();
   };
 
