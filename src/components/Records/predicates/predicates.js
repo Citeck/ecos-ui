@@ -3,7 +3,8 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isObject from 'lodash/isObject';
 
-import { extractLabel, t } from '../../../helpers/util';
+import { extractLabel } from '../../../helpers/util';
+import { t } from '../../../helpers/export/util';
 import Records from '../Records';
 import { DatePicker, Input, Select, SelectJournal, SelectOrgstruct } from '../../common/form';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../common/form/SelectOrgstruct/constants';
@@ -79,6 +80,8 @@ export const EQUAL_PREDICATES_MAP = {
   [COLUMN_DATA_TYPE_BOOLEAN]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_QNAME]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_NODEREF]: PREDICATE_EQ,
+  [PREDICATE_TODAY]: PREDICATE_EQ,
+  [PREDICATE_TIME_INTERVAL]: PREDICATE_EQ,
   [COLUMN_DATA_TYPE_CATEGORY]: PREDICATE_CONTAINS,
   [COLUMN_DATA_TYPE_ASSOC]: PREDICATE_CONTAINS,
   [COLUMN_DATA_TYPE_OPTIONS]: PREDICATE_CONTAINS,
@@ -249,7 +252,7 @@ export function getPredicateInput(field, sourceId, metaRecord, predicate) {
   switch (field.type) {
     case COLUMN_DATA_TYPE_DATE:
     case COLUMN_DATA_TYPE_DATETIME:
-      if (predicate.t === PREDICATE_TIME_INTERVAL) {
+      if (get(predicate, 't') === PREDICATE_TIME_INTERVAL || get(predicate, 'value') === PREDICATE_TIME_INTERVAL) {
         return {
           component: Input,
           defaultValue: '',
