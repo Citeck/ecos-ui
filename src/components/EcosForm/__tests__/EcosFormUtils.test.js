@@ -34,7 +34,7 @@ function runTests(tests, method) {
 }
 
 describe('EcosFormUtils', () => {
-  const debug = true;
+  const debug = false;
 
   describe('optimizeFormSchema method', () => {
     const tests = [
