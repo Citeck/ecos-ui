@@ -984,20 +984,27 @@ export default class EcosFormUtils {
     return EcosFormUtils.#apiUser.isUserAdmin();
   }
 
-  static isComponentsReady(form) {
-    function checkReadyComponents(components = []) {
+  static isComponentsReady(form, options = {}) {
+    const opt = { debug: false, attempts: 7, ...options };
+
+    function checkReadyComponents(components = [], path = '*') {
       for (let i = 0; i < components.length; i++) {
         const comp = components[i];
+        const _name = () => `${path} > ${lodashGet(comp, 'constructor.name', '?')} `;
+
+        opt.debug && console.debug(_name(), ' isReadyToSubmit:', comp.isReadyToSubmit && comp.isReadyToSubmit());
+
         if (comp.isReadyToSubmit && !comp.isReadyToSubmit()) {
+          opt.debug && console.debug('•• isReadyToSubmit=false');
           return false;
         }
 
-        comp.components && checkReadyComponents(comp.components);
+        comp.components && checkReadyComponents(comp.components, _name());
       }
     }
 
     return new Promise(resolve => {
-      let checkTimes = 0;
+      let checkTimes = 1;
       let _interval = setInterval(() => {
         const result = checkReadyComponents(form.components);
 
@@ -1006,11 +1013,12 @@ export default class EcosFormUtils {
           resolve(true);
         }
 
-        if (checkTimes > 7) {
+        if (checkTimes > opt.attempts) {
           clearInterval(_interval);
           resolve(false);
         }
 
+        opt.debug && console.debug('•• attempt=', checkTimes);
         checkTimes++;
       }, 1000);
     });
