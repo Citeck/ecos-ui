@@ -11,7 +11,6 @@ export default class DocumentLinkFormatter extends DefaultGqlFormatter {
   }
 
   value(cell) {
-    console.warn({ props: this.props, cell });
     if (typeof cell === 'string') {
       return cell;
     }
