@@ -150,26 +150,28 @@ export default class ParserPredicate {
   }
 
   static replacePredicatesType(val = []) {
-    return val.map(predicate => {
-      let type = EQUAL_PREDICATES_MAP[predicate.t] || predicate.t;
-      let val = predicate.val;
+    return val.map(predicate => ParserPredicate.replacePredicateType(predicate));
+  }
 
-      if (predicate.t === PREDICATE_TIME_INTERVAL && !Array.isArray(val)) {
-        const { INTERVAL_DELIMITER: delimiter, NOW: now } = datePredicateVariables;
-        const parts = val.split(delimiter);
+  static replacePredicateType(predicate) {
+    let type = EQUAL_PREDICATES_MAP[predicate.t] || predicate.t;
+    let val = predicate.val;
 
-        if (parts.length === 1) {
-          type = PREDICATE_EQ;
-          val = val.charAt(0) === '-' ? val + `${delimiter}${now}` : `${now}${delimiter}` + val;
-        }
+    if (predicate.t === PREDICATE_TIME_INTERVAL && !Array.isArray(val)) {
+      const { INTERVAL_DELIMITER: delimiter, NOW: now } = datePredicateVariables;
+      const parts = val.split(delimiter);
+
+      if (parts.length === 1) {
+        type = PREDICATE_EQ;
+        val = val.charAt(0) === '-' ? val + `${delimiter}${now}` : `${now}${delimiter}` + val;
       }
+    }
 
-      return {
-        ...predicate,
-        t: type,
-        val: Array.isArray(predicate.val) ? ParserPredicate.replacePredicatesType(predicate.val) : val
-      };
-    });
+    return {
+      ...predicate,
+      t: type,
+      val: Array.isArray(predicate.val) ? ParserPredicate.replacePredicatesType(predicate.val) : val
+    };
   }
 
   static getGroupConditions() {

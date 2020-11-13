@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import { Col, Row } from 'reactstrap';
 import PropTypes from 'prop-types';
+
 import Dropdown from '../../../../common/form/Dropdown';
 import { Btn, IcoBtn } from '../../../../common/btns';
 import FiltersContext from './FiltersContext';
 import Filter from '../Filter';
 import { t } from '../../../../../helpers/util';
+import ParserPredicate from '../../../../Filters/predicates/ParserPredicate';
+
 import './Filters.scss';
 
 class Filters extends Component {
@@ -15,16 +18,21 @@ class Filters extends Component {
 
     onApply(
       fields.map(item => {
+        const { selectedPredicate, attribute, predicateValue } = item;
         const predicate = {
-          t: item.selectedPredicate.value,
-          att: item.attribute
+          t: selectedPredicate.value,
+          att: attribute
         };
 
-        if (item.selectedPredicate.needValue) {
-          predicate.val = item.predicateValue;
+        if (selectedPredicate.needValue) {
+          predicate.val = predicateValue;
         }
 
-        return predicate;
+        if (selectedPredicate.fixedValue) {
+          predicate.val = selectedPredicate.fixedValue;
+        }
+
+        return ParserPredicate.replacePredicateType(predicate);
       })
     );
   };
@@ -50,6 +58,7 @@ class Filters extends Component {
                 <Filter
                   key={`${item.attribute}_${idx}`}
                   text={item.text}
+                  item={item}
                   idx={idx}
                   data-idx={idx}
                   predicates={item.predicates}
@@ -58,7 +67,6 @@ class Filters extends Component {
                   changePredicate={onChangePredicate}
                   predicateValue={item.predicateValue}
                   applyFilters={this.onApply}
-                  input={item.input}
                   changePredicateValue={onChangePredicateValue}
                 />
               );
