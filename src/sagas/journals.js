@@ -265,7 +265,7 @@ function* getColumns({ stateId }) {
   return journalConfig.columns;
 }
 
-function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w) {
+function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId, ...extra }, w) {
   const _journalSetting = yield select(state => state.journals[stateId].journalSetting);
   let journalSetting;
 
@@ -283,6 +283,10 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
 
       window.history.replaceState({ path: url }, '', url);
 
+      journalSetting = getDefaultJournalSetting(journalConfig);
+    }
+
+    if (isEmpty(journalSettingId) && isEmpty(journalSetting)) {
       journalSetting = getDefaultJournalSetting(journalConfig);
     }
   }
