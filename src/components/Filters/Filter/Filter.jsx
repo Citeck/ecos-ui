@@ -19,7 +19,6 @@ export default class Filter extends Component {
   };
 
   changePredicate = predicate => {
-    console.warn({ predicate });
     if (predicate.fixedValue !== undefined) {
       trigger.call(this, 'onChangePredicate', { predicate: predicate.value, index: this.props.index });
       this.changeValue(predicate.fixedValue);

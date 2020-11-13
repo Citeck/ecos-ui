@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 
 import { t } from '../../../../../helpers/util';
 import Select from '../../../../common/form/Select';
+import { getPredicateInput } from '../../../../Records/predicates/predicates';
 
 import './Filter.scss';
-import { getPredicateInput } from '../../../../Records/predicates/predicates';
 
 const Filter = ({
   idx,
