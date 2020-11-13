@@ -20,6 +20,11 @@ describe('Urls helpers', () => {
     ];
 
     data.forEach(item => {
+      beforeEach(() => {
+        delete window.history;
+        window.history = replaceHistory;
+      });
+
       it(item.title, () => {
         UrlUtils.replaceHistoryLink(...item.input);
 
@@ -54,6 +59,11 @@ describe('Urls helpers', () => {
     ];
 
     data.forEach(item => {
+      beforeEach(() => {
+        delete window.history;
+        window.history = pushHistory;
+      });
+
       it(item.title, () => {
         UrlUtils.pushHistoryLink(...item.input);
 

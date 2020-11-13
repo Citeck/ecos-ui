@@ -80,7 +80,7 @@ class Sidebar extends React.Component {
   };
 
   render() {
-    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, homeLink } = this.props;
+    const { isOpen, isReady, largeLogoSrc, smallLogoSrc, items, homeLink, id } = this.props;
 
     if (!isReady) {
       return null;
@@ -88,6 +88,7 @@ class Sidebar extends React.Component {
 
     return (
       <div
+        id={id}
         className={classNames('ecos-sidebar', {
           'ecos-sidebar_expanded': isOpen,
           'ecos-sidebar_collapsed': !isOpen

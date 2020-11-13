@@ -1,15 +1,11 @@
 import lodashGet from 'lodash/get';
 import isString from 'lodash/isString';
+import isEqual from 'lodash/isEqual';
+
 import ecosFetch from '../../helpers/ecosFetch';
 
-export const QUERY_URL = '/share/proxy/alfresco/citeck/ecos/records/query';
-const DELETE_URL = '/share/proxy/alfresco/citeck/ecos/records/delete';
-const MUTATE_URL = '/share/proxy/alfresco/citeck/ecos/records/mutate';
-
-const GATEWAY_URL_MAP = {};
-GATEWAY_URL_MAP[QUERY_URL] = '/share/api/records/query';
-GATEWAY_URL_MAP[MUTATE_URL] = '/share/api/records/mutate';
-GATEWAY_URL_MAP[DELETE_URL] = '/share/api/records/delete';
+import { getSourceId } from './utils/recordUtils';
+import { SOURCE_DELIMITER, APP_DELIMITER, QUERY_URL, DELETE_URL, MUTATE_URL, GATEWAY_URL_MAP } from './constants';
 
 function isAnyWithAppName(records) {
   for (let i = 0; i < records.length; i++) {
@@ -26,8 +22,8 @@ function isRecordWithAppName(record) {
   if (isString(record.id)) {
     record = record.id;
   }
-  let sourceDelimIdx = record.indexOf('@');
-  let appDelimIdx = record.indexOf('/');
+  let sourceDelimIdx = record.indexOf(SOURCE_DELIMITER);
+  let appDelimIdx = record.indexOf(APP_DELIMITER);
   return appDelimIdx > 0 && appDelimIdx < sourceDelimIdx;
 }
 
@@ -43,14 +39,13 @@ function getRecognizableUrl(url, body) {
 
   if (body.query) {
     urlKey = 'q_' + (body.query.sourceId ? body.query.sourceId : JSON.stringify(body.query.query).substring(0, 15));
-    withAppName = lodashGet(body, 'query.sourceId', '').indexOf('/') > -1;
+    withAppName = lodashGet(body, 'query.sourceId', '').indexOf(APP_DELIMITER) > -1;
   } else if (body.record) {
-    urlKey = 'rec_' + body.record;
+    urlKey = `rec_${body.record}`;
     withAppName = isRecordWithAppName(body.record);
   } else if (body.records) {
-    urlKey = 'recs_';
-    urlKey += 'count_' + (body.records || []).length;
-    urlKey += '0_' + lodashGet(body, 'records[0].id', '');
+    const sourceId = getSourceId(lodashGet(body, 'records[0]', ''));
+    urlKey = `recs_count_${(body.records || []).length}_${sourceId}`;
     withAppName = isAnyWithAppName(body.records);
   }
 
@@ -66,7 +61,7 @@ function getRecognizableUrl(url, body) {
 function recordsFetch(url, body) {
   url = getRecognizableUrl(url, body);
 
-  return ecosFetch(url, { method: 'POST', headers: { 'Content-type': 'application/json;charset=UTF-8' }, body }).then(response => {
+  return ecosFetch(url, { method: 'POST', body }).then(response => {
     return response.json().then(body => {
       if (response.ok) {
         return body;
@@ -94,6 +89,8 @@ export function recordsMutateFetch(body) {
 }
 
 const attributesQueryBatch = {};
+const pendingRequests = new Set();
+const getPendingKey = (recordId, attsKeys) => `${recordId}|${attsKeys.join('|')}`;
 
 export function loadAttribute(recordId, attribute) {
   let attributesBatch = attributesQueryBatch[recordId];
@@ -118,23 +115,51 @@ export function loadAttribute(recordId, attribute) {
 
   if (isNewBatch) {
     setTimeout(() => {
+      const attsKeys = Object.keys(attributesBatch);
+      const sourceId = getSourceId(recordId);
+      const records = [recordId];
+      const sourceBuffer = { [recordId]: attributesQueryBatch[recordId] };
       delete attributesQueryBatch[recordId];
 
-      const attsKeys = Object.keys(attributesBatch);
+      if (pendingRequests.has(getPendingKey(recordId, attsKeys))) {
+        return;
+      }
 
-      recordsQueryFetch({
-        record: recordId,
-        attributes: attsKeys
-      })
+      Object.keys(attributesQueryBatch).forEach(recordId => {
+        if (sourceId === getSourceId(recordId) && isEqual(attsKeys, Object.keys(attributesQueryBatch[recordId]))) {
+          records.push(recordId);
+          pendingRequests.add(getPendingKey(recordId, attsKeys));
+          sourceBuffer[recordId] = attributesQueryBatch[recordId];
+        }
+      });
+
+      let body = { attributes: attsKeys };
+      if (records.length > 1) {
+        body.records = records;
+      } else {
+        body.record = recordId;
+      }
+
+      recordsQueryFetch(body)
         .then(result => {
-          let attributes = result.attributes || {};
-          for (let key of attsKeys) {
-            attributesBatch[key].resolve(attributes[key]);
-          }
+          const resultRecords = records.length > 1 ? result.records || [] : [result];
+          resultRecords.forEach((rec, idx) => {
+            let attributes = rec.attributes || {};
+            const recordId = records[idx];
+            for (let attKey of attsKeys) {
+              sourceBuffer[recordId][attKey].resolve(attributes[attKey]);
+              delete sourceBuffer[recordId][attKey];
+            }
+            pendingRequests.delete(getPendingKey(recordId, attsKeys));
+          });
         })
         .catch(e => {
-          for (let key of attsKeys) {
-            attributesBatch[key].reject(e);
+          for (let recordId in sourceBuffer) {
+            for (let attKey of attsKeys) {
+              sourceBuffer[recordId][attKey].reject(e);
+              delete sourceBuffer[recordId][attKey];
+            }
+            pendingRequests.delete(getPendingKey(recordId, attsKeys));
           }
         });
     }, 10);

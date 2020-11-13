@@ -1,37 +1,16 @@
-import journalsServiceApi from './journalsServiceApi';
+import { Attributes } from '../../../constants';
+import AttributesService from '../../../services/AttributesService';
+import JournalsConverter from '../../../dto/journals';
 import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../Records/predicates/predicates';
-import lodash from 'lodash';
-
-const isPredicateValid = predicate => {
-  return !!(predicate && predicate.t);
-};
-
-const optimizePredicate = predicate => {
-  if (!isPredicateValid(predicate)) {
-    return {};
-  }
-  if (predicate.t === 'and' || predicate.t === 'or') {
-    let predicates = (predicate.val || []).map(pred => optimizePredicate(pred)).filter(isPredicateValid);
-
-    if (predicates.length === 0) {
-      return {};
-    } else if (predicates.length === 1) {
-      return predicates[0];
-    } else {
-      return {
-        ...predicate,
-        val: predicates
-      };
-    }
-  }
-  return lodash.cloneDeep(predicate);
-};
+import { convertAttributeValues } from '../../Records/predicates/util';
+import * as RecordUtils from '../../Records/utils/recordUtils';
+import journalsServiceApi from './journalsServiceApi';
 
 class JournalsDataLoader {
-  async load(journalConfig, settings) {
+  async load(journalConfig, settings = {}) {
     const columns = journalConfig.columns || [];
+    let predicates = [journalConfig.predicate, settings.predicate, ...(settings.filter || [])];
 
-    const predicates = [journalConfig.predicate, settings.predicate];
     if (settings.onlyLinked && settings.recordRef) {
       predicates.push({
         t: PREDICATE_OR,
@@ -43,15 +22,14 @@ class JournalsDataLoader {
             att: a.attribute
           }))
       });
+
+      predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
     }
 
-    //todo: replace placeholders in predicates
-
     let language = 'predicate';
-    let query = optimizePredicate({
-      t: PREDICATE_AND,
-      val: predicates
-    });
+    let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
+
+    query = convertAttributeValues(query, columns);
 
     let queryData = null;
     if (journalConfig.queryData || settings.queryData) {
@@ -70,17 +48,31 @@ class JournalsDataLoader {
     }
 
     const recordsQuery = {
-      sourceId: journalConfig.sourceId,
+      sourceId: settings.customSourceId || journalConfig.sourceId,
       query,
       language,
       page: settings.page,
       consistency: 'EVENTUAL'
     };
 
-    let groupBy = journalConfig.groupBy || settings.groupBy;
+    const groupBy = settings.groupBy || journalConfig.groupBy;
     if (groupBy && groupBy.length) {
       recordsQuery.groupBy = groupBy;
     }
+
+    let sortBy = settings.sortBy || [];
+    if (!sortBy.length) {
+      sortBy = journalConfig.sortBy || [];
+    }
+    if (!sortBy.length && recordsQuery.sourceId === '') {
+      sortBy = [
+        {
+          attribute: Attributes.DBID,
+          ascending: false
+        }
+      ];
+    }
+    recordsQuery.sortBy = sortBy;
 
     const attributes = this._getAttributes(journalConfig, settings);
 
@@ -94,7 +86,6 @@ class JournalsDataLoader {
     const groupBy = journalConfig.groupBy || [];
     const columns = journalConfig.columns || [];
     const settingsAttributes = settings.attributes || {};
-
     const attributes = {};
 
     for (let column of columns) {
@@ -108,9 +99,7 @@ class JournalsDataLoader {
     }
 
     if (groupBy.length) {
-      for (let att of groupBy) {
-        attributes['groupBy_' + att] = att + '?str';
-      }
+      AttributesService.getGroupBy(groupBy, attributes);
     }
 
     return attributes;

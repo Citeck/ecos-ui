@@ -14,6 +14,7 @@ class DragItem extends React.Component {
     draggableIndex: PropTypes.number,
     draggableId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     className: PropTypes.string,
+    tooltipClassName: PropTypes.string,
     title: PropTypes.string,
     alertTooltip: PropTypes.string,
     selected: PropTypes.bool,
@@ -29,6 +30,7 @@ class DragItem extends React.Component {
 
   static defaultProps = {
     className: '',
+    tooltipClassName: '',
     title: '',
     alertTooltip: '',
     selected: false,
@@ -65,7 +67,7 @@ class DragItem extends React.Component {
   };
 
   renderAlert = () => {
-    const { alertTooltip, draggableId } = this.props;
+    const { alertTooltip, draggableId, tooltipClassName } = this.props;
 
     if (!alertTooltip) {
       return null;
@@ -74,7 +76,7 @@ class DragItem extends React.Component {
     const tooltipId = prepareTooltipId(`widget-tooltip-${draggableId}`);
 
     return (
-      <Tooltip target={tooltipId} text={alertTooltip} placement="top" trigger="hover" uncontrolled autohide>
+      <Tooltip className={tooltipClassName} target={tooltipId} text={alertTooltip} placement="top" trigger="hover" uncontrolled autohide>
         <Icon id={tooltipId} className={classNames('icon-alert ecos-drag-item__actions-item ecos-drag-item__actions-item-alert')} />
       </Tooltip>
     );

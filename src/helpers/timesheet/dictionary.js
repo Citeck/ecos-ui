@@ -75,11 +75,11 @@ export const CommonLabels = {
 
   EVENT_HISTORY_BTN: 'timesheets.allForms.eventHistory.button',
   EVENT_HISTORY_TITLE: 'timesheets.allForms.eventHistory.title',
-  EVENT_HISTORY_COL_DATE: 'Дата',
-  EVENT_HISTORY_COL_PERSON: 'Участник',
-  EVENT_HISTORY_COL_TASK: 'Задача',
-  EVENT_HISTORY_COL_OUTCOME: 'Результат',
-  EVENT_HISTORY_COL_COMMENT: 'Комментарий',
+  EVENT_HISTORY_COL_DATE: 'timesheets.allForms.eventHistory.column.date',
+  EVENT_HISTORY_COL_PERSON: 'timesheets.allForms.eventHistory.column.person',
+  EVENT_HISTORY_COL_TASK: 'timesheets.allForms.eventHistory.column.task',
+  EVENT_HISTORY_COL_OUTCOME: 'timesheets.allForms.eventHistory.column.outcome',
+  EVENT_HISTORY_COL_COMMENT: 'timesheets.allForms.eventHistory.column.comment',
 
   MODAL_IN_PROGRESS: 'timesheets.allForms.modal.inProgress',
   MODAL_SELECT_ORG_STRUCT_TITLE: 'Выберите сотрудника',
@@ -93,7 +93,9 @@ export const CommonLabels = {
 
   FILTER_BY_PEOPLE: 'timesheets.allForms.filter.people',
   FILTER_BY_EVENTS: 'timesheets.allForms.filter.events',
-  FILTER_BY_COMPANIES: 'timesheets.allForms.filter.companies'
+  FILTER_BY_COMPANIES: 'timesheets.allForms.filter.companies',
+
+  EDITING_IS_BLOCKED: 'timesheets.widget.blockedEditing'
 };
 
 export const MyTimesheetLabels = {

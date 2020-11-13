@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import classNames from 'classnames';
@@ -15,7 +15,7 @@ const DATE_ACTIONS = {
   SUBTRACT: 'subtract'
 };
 
-class DateSlider extends Component {
+class DateSlider extends React.PureComponent {
   static propTypes = {
     date: PropTypes.instanceOf(Date),
     type: PropTypes.oneOf(Object.keys(TYPES).map(key => TYPES[key])),
@@ -110,4 +110,4 @@ class DateSlider extends Component {
   }
 }
 
-export default React.memo(DateSlider);
+export default DateSlider;

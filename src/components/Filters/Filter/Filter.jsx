@@ -8,6 +8,7 @@ import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns/index';
 import { Label, Select } from '../../common/form';
 import { getPredicateInput, getPredicates } from '../../Records/predicates/predicates';
+import ParserPredicate from '../predicates/ParserPredicate';
 
 import './Filter.scss';
 
@@ -24,7 +25,7 @@ export default class Filter extends Component {
     this.handleChangeValue.cancel();
   }
 
-  predicatesWithoutValue = ['empty', 'not-empty'];
+  predicatesWithoutValue = ParserPredicate.predicatesWithoutValue;
 
   changeValue = val => {
     this.setState({ value: val });
@@ -36,6 +37,12 @@ export default class Filter extends Component {
   }, 350);
 
   changePredicate = predicate => {
+    if (predicate.fixedValue !== undefined) {
+      trigger.call(this, 'onChangePredicate', { predicate: predicate.value, index: this.props.index });
+      this.changeValue(predicate.fixedValue);
+      return;
+    }
+
     if (this.predicatesWithoutValue.includes(predicate.value)) {
       this.changeValue('');
     }
@@ -66,16 +73,15 @@ export default class Filter extends Component {
     const { value } = this.state;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
-    const predicateInput = getPredicateInput(column, sourceId, metaRecord);
+    const predicateInput = getPredicateInput(column, sourceId, metaRecord, predicate);
     const predicateProps = predicateInput.getProps({
-      // predicateValue: predicate.val,
       predicateValue: value,
       changePredicateValue: this.changeValue,
       datePickerWrapperClasses: 'ecos-filter_width_full',
       selectClassName: 'select_width_full'
     });
     const FilterValueComponent = predicateInput.component;
-    const isShow = !this.predicatesWithoutValue.includes(predicate.t);
+    const isShow = !this.predicatesWithoutValue.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
 
     return (
       <div className={classNames('ecos-filter', className)}>

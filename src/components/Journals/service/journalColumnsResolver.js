@@ -1,6 +1,9 @@
-import { getTextByLocale, t } from '../../../helpers/util';
-import lodash from 'lodash';
+import isFunction from 'lodash/isFunction';
+import isObject from 'lodash/isObject';
 
+import { getTextByLocale, t } from '../../../helpers/util';
+import Mapper from '../../common/grid/mapping/Mapper';
+import formatterStore from '../../common/grid/formatters/formatterStore';
 import {
   COLUMN_DATA_TYPE_ASSOC,
   COLUMN_DATA_TYPE_AUTHORITY,
@@ -31,7 +34,7 @@ const DEFAULT_INNER_SCHEMA = ['disp:.disp'].join(',');
 
 const getBoolOrElse = (value, orElse) => {
   if (value == null) {
-    if (lodash.isFunction(orElse)) {
+    if (isFunction(orElse)) {
       return orElse();
     } else {
       return orElse;
@@ -45,13 +48,13 @@ class JournalColumnsResolver {
     if (!columns) {
       columns = [];
     }
-    return columns.map(c => this._resolveColumn(c));
+    return columns.map((c, i) => this._resolveColumn(c, i));
   }
 
-  _resolveColumn(column) {
+  _resolveColumn(column, index) {
     const type = column.type || 'text';
     const name = column.name || column.attribute;
-    const label = this._getColumnLabel(column);
+    const label = this._getLabel(column);
     const multiple = column.multiple === true;
 
     const attribute = column.schema || column.attribute || column.name;
@@ -67,7 +70,7 @@ class JournalColumnsResolver {
 
     const params = column.params || {};
 
-    return {
+    const updColumn = {
       ...column,
       name,
       type,
@@ -86,15 +89,43 @@ class JournalColumnsResolver {
       dataField: name,
       default: defaultValue
     };
+
+    const formatterOptions = updColumn.formatter || Mapper.getFormatterOptions(updColumn, index);
+    const formatterData = this._getFormatter(formatterOptions);
+
+    updColumn.formatExtraData = { ...formatterData, createVariants: updColumn.createVariants };
+    updColumn.filterValue = (cell, row) => formatterData.formatter.getFilterValue(cell, row, formatterData.params);
+    updColumn.editorRenderer = formatterData.formatter.getEditor;
+
+    return updColumn;
   }
 
-  _getColumnLabel(column) {
+  _getLabel(column) {
     let label;
     if (column.label) {
-      label = lodash.isObject(column.label) ? getTextByLocale(column.label) : column.label;
+      label = isObject(column.label) ? getTextByLocale(column.label) : column.label;
     }
-    label = label || column.text || name;
-    return label ? t(label) : '(Missing Label)';
+    label = label || column.text || column.name;
+    return label ? t(label) : t('journal.cell.no-label');
+  }
+
+  _getFormatter(column) {
+    let name;
+    let params;
+    let defaultFormatter = formatterStore.DefaultGqlFormatter;
+
+    if (column) {
+      ({ name, params } = column);
+    }
+
+    let formatter = formatterStore[name || column] || defaultFormatter;
+
+    params = params || {};
+
+    return {
+      formatter,
+      params
+    };
   }
 }
 

@@ -46,3 +46,5 @@ export const MenuSettings = {
     HEADER_DIVIDER: 'HEADER-DIVIDER'
   }
 };
+
+export const BASE_LEFT_MENU_ID = 'ecos-left-menu-id';

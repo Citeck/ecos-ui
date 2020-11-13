@@ -21,7 +21,7 @@ import { ErrorBoundary } from '../ErrorBoundary';
 import { initAppSettings } from '../../actions/app';
 import { setTab, updateTab } from '../../actions/pageTabs';
 import { Pages, pagesWithOnlyContent, URL } from '../../constants';
-import { MenuTypes } from '../../constants/menu';
+import { BASE_LEFT_MENU_ID, MenuTypes } from '../../constants/menu';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';
 import PageService, { Events } from '../../services/PageService';
@@ -43,6 +43,7 @@ const allowedLinks = [
   URL.DASHBOARD_SETTINGS,
   URL.BPMN_DESIGNER,
   URL.JOURNAL,
+  URL.DEV_TOOLS,
   URL.TIMESHEET,
   URL.TIMESHEET_SUBORDINATES,
   URL.TIMESHEET_FOR_VERIFICATION,
@@ -133,7 +134,7 @@ class App extends Component {
     }
 
     if (menuType === MenuTypes.LEFT) {
-      return <Menu />;
+      return <Menu id={BASE_LEFT_MENU_ID} />;
     }
 
     return null;
@@ -246,6 +247,11 @@ class App extends Component {
             />
             <CacheRoute
               {...baseCacheRouteProps}
+              path={URL.DEV_TOOLS}
+              render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
               path={URL.TIMESHEET}
               exact
               render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} />}
@@ -316,6 +322,7 @@ class App extends Component {
             <Route path={URL.DASHBOARD} exact render={props => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />} />
             <Route path={URL.BPMN_DESIGNER} render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />} />
             <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} {...basePageProps} />} />
+            <Route path={URL.DEV_TOOLS} render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} {...basePageProps} />} />
             <Route path={URL.TIMESHEET} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} />} />
             <Route
               path={URL.TIMESHEET_SUBORDINATES}

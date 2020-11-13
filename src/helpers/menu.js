@@ -1,12 +1,13 @@
 import isEmpty from 'lodash/isEmpty';
 
 import { SourcesId, URL } from '../constants';
-import { MenuTypes } from '../constants/menu';
+import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
 import Records from '../components/Records';
 import { HandleControlTypes } from './handleControl';
 import { createProfileUrl } from './urls';
 import { documentScrollTop } from './util';
 import MenuSettingsService from '../services/MenuSettingsService';
+import DashboardService from '../services/dashboard';
 
 const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
 const DEFAULT_REPORT_ISSUE_URL =
@@ -150,9 +151,16 @@ export function makeSiteMenu(params = {}) {
     {
       id: 'SETTINGS_DASHBOARD',
       label: 'header.site-menu.page-settings',
-      targetUrl: URL.DASHBOARD_SETTINGS,
-      targetUrlType: 'FULL_PATH'
+      onClick: params => {
+        DashboardService.openEditModal(params);
+      }
     },
+    // {
+    //   id: 'SETTINGS_DASHBOARD',
+    //   label: 'Настроить страницу в новой вкладке',
+    //   targetUrl: URL.DASHBOARD_SETTINGS,
+    //   targetUrlType: 'FULL_PATH'
+    // },
     {
       id: 'SETTINGS_MENU',
       label: 'header.site-menu.menu-settings',
@@ -235,7 +243,7 @@ export function getSpecialClassByState(id, params = {}) {
   return false;
 }
 
-export function getMenuWidth(selector = '.slide-menu') {
+export function getMenuWidth(selector = `#${BASE_LEFT_MENU_ID}`) {
   const menu = document.querySelector(selector);
 
   if (!menu || !menu.clientWidth) {

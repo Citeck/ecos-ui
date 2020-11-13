@@ -1,10 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import isEqual from 'lodash/isEqual';
-import isEqualWith from 'lodash/isEqualWith';
 
-class Tabs extends Component {
+class Tabs extends React.PureComponent {
   static propTypes = {
     tabs: PropTypes.arrayOf(
       PropTypes.shape({
@@ -60,4 +58,4 @@ class Tabs extends Component {
   }
 }
 
-export default React.memo(Tabs, (prev, next) => !isEqualWith(prev.tabs, next.tabs, isEqual));
+export default Tabs;

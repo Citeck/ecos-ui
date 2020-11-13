@@ -15,6 +15,7 @@ import {
   setDashboardConfig,
   setDashboardKeys,
   setLoading,
+  setLoadingKeys,
   setRequestResultDashboard
 } from '../actions/dashboardSettings';
 import { selectIdentificationForSet } from '../selectors/dashboard';
@@ -37,25 +38,21 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 }
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
-  const { dashboardId, recordRef, key } = payload;
+  const { key } = payload;
 
   try {
-    if (dashboardId) {
-      const { config, ...result } = yield call(api.dashboard.getDashboardById, dashboardId, true);
-      const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
-      const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
-      const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
-      const data = DashboardService.checkDashboardResult(result);
-      const webConfigs = DashboardSettingsConverter.getSettingsForWeb(newConfig, widgetsById, migratedConfig.version);
+    const { config, ...result } = yield call(api.dashboard.getDashboardByOneOf, payload);
+    const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
+    const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
+    const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
+    const data = DashboardService.checkDashboardResult(result);
+    const webConfigs = DashboardSettingsConverter.getSettingsForWeb(newConfig, widgetsById, migratedConfig.version);
 
-      webConfigs.identification = DashboardConverter.getKeyInfoDashboardForWeb(data).identification;
+    webConfigs.identification = DashboardConverter.getKeyInfoDashboardForWeb(data).identification;
 
-      yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config }));
-      yield put(getAvailableWidgets({ type: data.type, key }));
-      yield put(getDashboardKeys({ recordRef, key }));
-    } else {
-      throw new Error('No dashboard ID');
-    }
+    yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config }));
+    yield put(getAvailableWidgets({ type: data.type, key }));
+    yield put(getDashboardKeys(payload));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-config'), t('error'));
     logger.error('[dashboard-settings/ doGetDashboardConfigRequest saga] error', e.message);
@@ -77,12 +74,16 @@ function* doGetWidgetsRequest({ api, logger }, { payload }) {
 
 function* doGetDashboardKeys({ api, logger }, { payload }) {
   try {
-    const keys = yield call(api.dashboard.getDashboardKeysByRef, payload.recordRef);
+    yield put(setLoadingKeys({ status: true, key: payload.key }));
+
+    const keys = yield call(api.dashboard.getDashboardTypes, payload);
 
     yield put(setDashboardKeys({ keys, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-board-key'), t('error'));
     logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e.message);
+  } finally {
+    yield put(setLoadingKeys({ status: false, key: payload.key }));
   }
 }
 
@@ -131,7 +132,9 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     const identificationData = { ...identification, ...newIdentification };
 
     if (!isAdmin) {
-      const user = yield select(selectUserName);
+      const user = yield select(state => {
+        return selectUserName(state);
+      });
 
       if (!user) {
         throw new Error(' No user name');

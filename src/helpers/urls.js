@@ -10,7 +10,7 @@ import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 import { hasInString } from './util';
 
-const JOURNALS_LIST_ID_KEY = 'journalsListId';
+export const JOURNALS_LIST_ID_KEY = 'journalsListId';
 const JOURNAL_ID_KEY = 'journalId';
 const DASHBOARD_ID_KEY = 'dashboardId';
 const DASHBOARD_KEY_KEY = 'dashboardKey';
@@ -372,7 +372,7 @@ window.Citeck.Navigator = {
   }
 };
 
-export const replaceHistoryLink = (history = {}, link = '') => {
+export const replaceHistoryLink = (history = window, link = '') => {
   if (isEmpty(history)) {
     return;
   }
@@ -389,12 +389,10 @@ export const replaceHistoryLink = (history = {}, link = '') => {
     return;
   }
 
-  if (typeof history.replace === 'function') {
-    history.replace(pureLink);
-  }
+  window.history.replaceState({ path: pureLink }, '', pureLink);
 };
 
-export const pushHistoryLink = (history = {}, linkData = {}) => {
+export const pushHistoryLink = (history = window, linkData = {}) => {
   if (isEmpty(history) || isEmpty(linkData)) {
     return;
   }
@@ -409,13 +407,7 @@ export const pushHistoryLink = (history = {}, linkData = {}) => {
     return;
   }
 
-  if (typeof history.push === 'function') {
-    history.push({
-      ...linkData,
-      search,
-      pathname
-    });
-  }
+  window.history.pushState({ path: newLink }, '', newLink);
 };
 
 /**
