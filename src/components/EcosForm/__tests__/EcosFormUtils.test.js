@@ -16,6 +16,7 @@ import {
   ecosSelectCaseOptimized,
   emptyObjectsCase,
   emptyObjectsCaseOptimized,
+  formReadyComponents,
   selectJournalCase,
   selectJournalCaseOptimized,
   simpleCase,
@@ -33,6 +34,8 @@ function runTests(tests, method) {
 }
 
 describe('EcosFormUtils', () => {
+  const debug = false;
+
   describe('optimizeFormSchema method', () => {
     const tests = [
       {
@@ -90,7 +93,7 @@ describe('EcosFormUtils', () => {
     runTests(tests, EcosFormUtils.optimizeFormSchema);
   });
 
-  describe('isComponentsReady method', () => {
+  describe('isComponentsReadyWaiting method', () => {
     const spy = time => {
       jest.spyOn(global, 'fetch').mockImplementation(() => {
         return Promise.resolve({
@@ -110,21 +113,39 @@ describe('EcosFormUtils', () => {
       });
     };
 
-    const debug = false;
-
-    it('TEST OK', async () => {
-      spy(1000);
-      const form = await Formio.createForm(document.createElement('div'), formDefinition1);
-      const result = await EcosFormUtils.isComponentsReady(form, { debug });
-
+    it('TEST SIMPLE OK', async () => {
+      const _safe = EcosFormUtils.isComponentsReady;
+      EcosFormUtils.isComponentsReady = () => true;
+      const result = await EcosFormUtils.isComponentsReadyWaiting(formReadyComponents.empty, { debug });
+      EcosFormUtils.isComponentsReady = _safe;
       expect(result).toBeTruthy();
     });
 
-    it('TEST FAIL', async () => {
-      spy(2000);
-      const form = await Formio.createForm(document.createElement('div'), formDefinition1);
-      const result = await EcosFormUtils.isComponentsReady(form, { debug, attempts: 1 });
+    it('TEST SIMPLE FAIL', async () => {
+      const _safe = EcosFormUtils.isComponentsReady;
+      EcosFormUtils.isComponentsReady = () => false;
+      const result = await EcosFormUtils.isComponentsReadyWaiting(formReadyComponents.empty, { debug, attempts: 3 });
+      EcosFormUtils.isComponentsReady = _safe;
+      expect(result).toBeFalsy();
+    });
 
+    it('TEST FORM', async () => {
+      spy(1001);
+      const form = await Formio.createForm(document.createElement('div'), formDefinition1);
+      const result = await EcosFormUtils.isComponentsReadyWaiting(form.components, { debug });
+
+      expect(result).toBeTruthy();
+    });
+  });
+
+  describe('isComponentsReady method', () => {
+    it('TEST OK', () => {
+      const result = EcosFormUtils.isComponentsReady(formReadyComponents.allReady, { debug });
+      expect(result).toBeTruthy();
+    });
+
+    it('TEST FAIL', () => {
+      const result = EcosFormUtils.isComponentsReady(formReadyComponents.notAllReady, { debug });
       expect(result).toBeFalsy();
     });
   });

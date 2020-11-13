@@ -984,29 +984,41 @@ export default class EcosFormUtils {
     return EcosFormUtils.#apiUser.isUserAdmin();
   }
 
-  static isComponentsReady(form, options = {}) {
-    const opt = { debug: false, attempts: 7, ...options };
+  static isComponentsReady(components, options = {}) {
+    const opt = { debug: false, path: '*', ...options };
 
-    function checkReadyComponents(components = [], path = '*') {
-      for (let i = 0; i < components.length; i++) {
-        const comp = components[i];
-        const _name = () => `${path} > ${lodashGet(comp, 'constructor.name', '?')} `;
+    for (let i = 0; i < components.length; i++) {
+      const comp = components[i];
+      const _name = () => `${opt.path} > ${lodashGet(comp, 'constructor.name', '?')} `;
 
-        opt.debug && console.debug(_name(), ' isReadyToSubmit:', comp.isReadyToSubmit && comp.isReadyToSubmit());
+      opt.debug && console.debug(_name(), ' isReadyToSubmit:', comp.isReadyToSubmit && comp.isReadyToSubmit());
 
-        if (comp.isReadyToSubmit && !comp.isReadyToSubmit()) {
-          opt.debug && console.debug('•• isReadyToSubmit=false');
-          return false;
+      if (comp.isReadyToSubmit && !comp.isReadyToSubmit()) {
+        opt.debug && console.debug('•• isReadyToSubmit=false');
+        return false;
+      }
+
+      if (comp.components) {
+        const result = EcosFormUtils.isComponentsReady(comp.components, { ...opt, path: _name() });
+
+        if (result === false) {
+          return result;
         }
-
-        comp.components && checkReadyComponents(comp.components, _name());
       }
     }
+
+    return true;
+  }
+
+  static isComponentsReadyWaiting(components, options = {}) {
+    const opt = { debug: false, attempts: 7, ...options };
 
     return new Promise(resolve => {
       let checkTimes = 1;
       let _interval = setInterval(() => {
-        const result = checkReadyComponents(form.components);
+        opt.debug && console.debug('•• attempt=', checkTimes);
+
+        const result = EcosFormUtils.isComponentsReady(components, options);
 
         if (result !== false) {
           clearInterval(_interval);
@@ -1018,7 +1030,6 @@ export default class EcosFormUtils {
           resolve(false);
         }
 
-        opt.debug && console.debug('•• attempt=', checkTimes);
         checkTimes++;
       }, 1000);
     });
