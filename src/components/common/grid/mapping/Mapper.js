@@ -23,7 +23,7 @@ export function matchCardDetailsLinkFormatterColumn(column) {
 
 const MAP = [
   {
-    options: column => {
+    options: (column, ...extra) => {
       const formatter = column.params.formatter;
       const params = { ...column.params };
       let name = '';
