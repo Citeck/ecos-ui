@@ -358,7 +358,23 @@ export function getPredicateInput(field, sourceId, metaRecord) {
     case COLUMN_DATA_TYPE_DOUBLE:
     case COLUMN_DATA_TYPE_LONG:
     case COLUMN_DATA_TYPE_FLOAT:
-    // TODO use input type number
+      return {
+        component: Input,
+        defaultValue: '',
+        getProps: ({ predicateValue, changePredicateValue, applyFilters }) => ({
+          type: 'number',
+          className: 'ecos-input_narrow',
+          value: predicateValue,
+          onChange: function(e) {
+            changePredicateValue(e.target.value);
+          },
+          onKeyDown: function(e) {
+            if (e.key === 'Enter' && typeof applyFilters === 'function') {
+              applyFilters();
+            }
+          }
+        })
+      };
     /* eslint-disable-next-line */
     case COLUMN_DATA_TYPE_MLTEXT:
     case COLUMN_DATA_TYPE_TEXT:
