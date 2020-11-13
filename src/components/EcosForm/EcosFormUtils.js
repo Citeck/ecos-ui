@@ -958,7 +958,7 @@ export default class EcosFormUtils {
     return component && component.type === 'button' && component.key.startsWith(OUTCOME_BUTTONS_PREFIX);
   }
 
-  static isComponentsReady(components, options) {
+  static isComponentsReady(components, options = {}) {
     const opt = { debug: false, path: '*', ...options };
 
     for (let i = 0; i < components.length; i++) {
@@ -973,7 +973,11 @@ export default class EcosFormUtils {
       }
 
       if (comp.components) {
-        return EcosFormUtils.isComponentsReady(comp.components, { ...opt, path: _name() });
+        const result = EcosFormUtils.isComponentsReady(comp.components, { ...opt, path: _name() });
+
+        if (result === false) {
+          return result;
+        }
       }
     }
 
@@ -988,7 +992,7 @@ export default class EcosFormUtils {
       let _interval = setInterval(() => {
         opt.debug && console.debug('•• attempt=', checkTimes);
 
-        const result = EcosFormUtils.isComponentsReady(components);
+        const result = EcosFormUtils.isComponentsReady(components, options);
 
         if (result !== false) {
           clearInterval(_interval);
