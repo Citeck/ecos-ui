@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 
 import { t, trigger } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
@@ -10,11 +12,28 @@ import { getPredicateInput, getPredicates } from '../../Records/predicates/predi
 import './Filter.scss';
 
 export default class Filter extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      value: get(props, 'filter.predicate.val', '')
+    };
+  }
+
+  componentWillUnmount() {
+    this.handleChangeValue.cancel();
+  }
+
   predicatesWithoutValue = ['empty', 'not-empty'];
 
   changeValue = val => {
-    trigger.call(this, 'onChangeValue', { val: val, index: this.props.index });
+    this.setState({ value: val });
+    this.handleChangeValue();
   };
+
+  handleChangeValue = debounce(() => {
+    trigger.call(this, 'onChangeValue', { val: this.state.value, index: this.props.index });
+  }, 350);
 
   changePredicate = predicate => {
     if (this.predicatesWithoutValue.includes(predicate.value)) {
@@ -44,11 +63,13 @@ export default class Filter extends Component {
       sourceId,
       metaRecord
     } = this.props;
+    const { value } = this.state;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
     const predicateInput = getPredicateInput(column, sourceId, metaRecord);
     const predicateProps = predicateInput.getProps({
-      predicateValue: predicate.val,
+      // predicateValue: predicate.val,
+      predicateValue: value,
       changePredicateValue: this.changeValue,
       datePickerWrapperClasses: 'ecos-filter_width_full',
       selectClassName: 'select_width_full'
