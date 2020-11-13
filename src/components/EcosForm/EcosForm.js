@@ -252,8 +252,8 @@ class EcosForm extends React.Component {
 
           form.formReady.then(() => {
             if (self.props.onReadyToSubmit) {
-              EcosFormUtils.isComponentsReady(form).then(state => {
-                self.props.onReadyToSubmit(form, state);
+              EcosFormUtils.isComponentsReadyWaiting(form).then(state => {
+                self.props.onReadyToSubmit(form.components, state);
               });
             }
           });
