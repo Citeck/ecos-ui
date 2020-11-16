@@ -957,4 +957,46 @@ export default class EcosFormUtils {
   static isOutcomeButton(component) {
     return component && component.type === 'button' && component.key.startsWith(OUTCOME_BUTTONS_PREFIX);
   }
+
+  static isComponentsReady(components, options = {}) {
+    for (let i = 0; i < components.length; i++) {
+      const comp = components[i];
+
+      if (comp.isReadyToSubmit && !comp.isReadyToSubmit()) {
+        return false;
+      }
+
+      if (comp.components) {
+        const result = EcosFormUtils.isComponentsReady(comp.components, options);
+        if (!result) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  static isComponentsReadyWaiting(components, options = {}) {
+    const opt = { attempts: 7, interval: 1000, ...options };
+
+    return new Promise(resolve => {
+      let checkTimes = 0;
+      const check = () => {
+        checkTimes++;
+
+        if (EcosFormUtils.isComponentsReady(components, options)) {
+          return resolve(true);
+        }
+
+        if (checkTimes >= opt.attempts) {
+          return resolve(false);
+        }
+
+        setTimeout(check, opt.interval);
+      };
+
+      check();
+    });
+  }
 }

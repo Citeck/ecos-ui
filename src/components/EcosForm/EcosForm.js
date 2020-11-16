@@ -31,7 +31,7 @@ class EcosForm extends React.Component {
   _formContainer = React.createRef();
   _form = null;
   _containerHeightTimerId = null;
-  _formSubmitDoneResolve = () => {};
+  _formSubmitDoneResolve = () => undefined;
 
   constructor(props) {
     super(props);
@@ -222,7 +222,10 @@ class EcosForm extends React.Component {
 
           const events = Object.keys(self.props)
             .filter(key => key.startsWith(handlersPrefix))
-            .map(prop => ({ prop, event: prop.slice(handlersPrefix.length).toLowerCase() }));
+            .map(prop => ({
+              prop,
+              event: prop.replace(handlersPrefix, '').replace(/[^a-z\s]/, f => f.toLowerCase())
+            }));
 
           events.forEach(o => {
             if (o.event !== 'submit') {
@@ -245,6 +248,14 @@ class EcosForm extends React.Component {
             self._containerHeightTimerId = window.setTimeout(() => {
               self.toggleContainerHeight();
             }, 500);
+          });
+
+          form.formReady.then(() => {
+            if (self.props.onReadyToSubmit) {
+              EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => {
+                self.props.onReadyToSubmit(form, state);
+              });
+            }
           });
         });
       });
@@ -438,6 +449,7 @@ EcosForm.propTypes = {
   formId: PropTypes.string,
   onSubmit: PropTypes.func,
   onReady: PropTypes.func, // Form ready, but not rendered yet
+  onReadyToSubmit: PropTypes.func,
   onFormCancel: PropTypes.func,
   /**
    * @see https://github.com/formio/formio.js/wiki/Form-Renderer#events

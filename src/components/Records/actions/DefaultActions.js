@@ -56,10 +56,10 @@ export const DefaultActionTypes = {
   OPEN_SUBMIT_FORM: 'open-submit-form'
 };
 
-const showForm = (recordRef, params) => {
+const showForm = (recordRef, params, className = '') => {
   EcosFormUtils.eform(recordRef, {
     params,
-    class: 'ecos-modal_width-lg',
+    class: 'ecos-modal_width-lg ' + className,
     isBigHeader: true
   });
 };
@@ -838,8 +838,12 @@ export const OpenSubmitFormAction = {
           resolve(true);
         },
         onFormCancel: () => resolve(false),
-        onFormRender: function() {
-          this.executeSubmit();
+        onReadyToSubmit: function(form, state) {
+          if (state) {
+            form.executeSubmit();
+          } else {
+            notifyFailure(t('eform.form-is-not-ready'));
+          }
         }
       };
 
