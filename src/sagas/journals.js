@@ -1,7 +1,10 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
+import set from 'lodash/set';
+import has from 'lodash/has';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import * as queryString from 'query-string';
 
 import JournalsConverter from '../dto/journals';
 import Records from '../components/Records';
@@ -386,8 +389,13 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
   const pagination = get(sharedSettings, 'pagination') || (yield select(state => state.journals[stateId].grid.pagination));
   const params = getGridParams({ journalConfig, journalSetting, pagination });
-  const searchPredicate = yield getSearchPredicate(w({ stateId }));
-  const gridData = yield getGridData(api, { ...params, searchPredicate }, stateId);
+  let gridData = yield getGridData(api, { ...params }, stateId);
+  const searchPredicate = yield getSearchPredicate({ ...w({ stateId }), grid: gridData });
+
+  if (!isEmpty(searchPredicate)) {
+    gridData = yield getGridData(api, { ...params, searchPredicate }, stateId);
+  }
+
   const editingRules = yield getGridEditingRules(api, gridData);
   let selectedRecords = [];
   let isSelectAllRecords = false;
@@ -765,12 +773,17 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
   }
 }
 
-function* getSearchPredicate({ logger, stateId }) {
+function* getSearchPredicate({ logger, stateId, grid }) {
   try {
-    const grid = yield select(state => state.journals[stateId].grid);
     const fullSearch = yield select(state => get(state, ['journals', stateId, 'journalConfig', 'params', 'full-search-predicate']));
-    const { columns = [], groupBy = [], search } = grid;
+    let gridData = yield select(state => state.journals[stateId].grid);
     let predicate;
+
+    if (!isEmpty(grid)) {
+      gridData = { ...gridData, ...grid };
+    }
+
+    const { columns = [], groupBy = [], search } = gridData;
 
     if (fullSearch) {
       predicate = JSON.parse(fullSearch);
@@ -793,10 +806,21 @@ function* getSearchPredicate({ logger, stateId }) {
   }
 }
 
-function* sagaSearch({ logger, w }) {
+function* sagaSearch({ logger, w }, { payload }) {
   try {
+    const urlData = queryString.parseUrl(window.location.href);
+    const searchText = get(payload, 'text', '');
+
+    if (searchText && get(urlData, 'query.search') !== searchText) {
+      set(urlData, 'query.search', searchText);
+    }
+
+    if (searchText === '' && has(urlData, 'query.search')) {
+      delete urlData.query.search;
+    }
+
     yield put(reloadGrid(w()));
-    PageService.changeUrlLink(decodeLink(window.location.pathname + window.location.search), { updateUrl: true });
+    PageService.changeUrlLink(decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
   } catch (e) {
     logger.error('[journals sagaSearch saga error', e.message);
   }
