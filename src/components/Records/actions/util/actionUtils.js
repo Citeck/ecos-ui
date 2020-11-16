@@ -11,10 +11,10 @@ export function notifyFailure(msg) {
   NotificationManager.error(msg || t('record-action.msg.error.text'), t('record-action.msg.error.title'), 5000);
 }
 
-export function showForm(recordRef, params) {
+export function showForm(recordRef, params, className = '') {
   EcosFormUtils.eform(recordRef, {
     params,
-    class: 'ecos-modal_width-lg',
+    class: 'ecos-modal_width-lg ' + className,
     isBigHeader: true
   });
 }
