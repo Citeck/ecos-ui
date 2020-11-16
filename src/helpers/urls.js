@@ -399,8 +399,13 @@ export const pushHistoryLink = (history = window, linkData = {}) => {
 
   const currentSearch = get(history, 'location.search', '');
   const currentPathname = get(history, 'location.pathname', '');
-  const search = get(linkData, 'search', '');
+  let search = get(linkData, 'search', '');
   const pathname = get(linkData, 'pathname', currentPathname);
+
+  if (search.charAt(0) === '?') {
+    search = search.slice(1);
+  }
+
   const newLink = decodeLink([pathname, search].filter(item => !isEmpty(item)).join('?'));
 
   if (`${currentPathname}${currentSearch}` === newLink) {
