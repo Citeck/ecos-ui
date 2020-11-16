@@ -285,6 +285,10 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
 
       journalSetting = getDefaultJournalSetting(journalConfig);
     }
+
+    if (isEmpty(journalSettingId) && isEmpty(journalSetting)) {
+      journalSetting = getDefaultJournalSetting(journalConfig);
+    }
   }
 
   journalSetting = { ..._journalSetting, ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
