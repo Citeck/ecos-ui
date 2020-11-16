@@ -23,14 +23,18 @@ describe('OpenSubmit action', () => {
   beforeEach(() => {
     ActionUtils.showForm = (rec, params) => {
       const record = Records.get(rec);
-      params.onFormRender.call({
-        executeSubmit: () => (TEST_RECORDS[rec] ? params.onSubmit(record) : params.onFormCancel(record))
-      });
+      params.onReadyToSubmit.call(
+        null,
+        {
+          executeSubmit: () => (TEST_RECORDS[rec] ? params.onSubmit(record) : params.onFormCancel(record))
+        },
+        true
+      );
     };
   });
 
   for (let key in TEST_RECORDS) {
-    xit("Open'n'Submit " + key + ' record', async () => {
+    it("Open'n'Submit " + key + ' record', async () => {
       const result = await action.execForRecord(key, {});
       expect(result).toEqual(TEST_RECORDS[key]);
     });
