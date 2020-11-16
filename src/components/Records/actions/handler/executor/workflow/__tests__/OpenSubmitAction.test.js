@@ -15,7 +15,16 @@ describe('OpenSubmit action', () => {
     notifyFailureSpy && notifyFailureSpy.mockClear();
   });
 
-  it('ActionUtils.showForm should be invoked', async () => {
+  it('should invoke ActionUtils.showForm', async () => {
+    showFormSpy = jest.spyOn(ActionUtils, 'showForm').mockImplementation();
+
+    action.execForRecord(testRecordRef, {});
+
+    expect(showFormSpy).toHaveBeenCalledTimes(1);
+    expect(showFormSpy.mock.calls[0][0]).toBe(testRecordRef);
+  });
+
+  it('should return true if form submit', async () => {
     showFormSpy = jest.spyOn(ActionUtils, 'showForm').mockImplementation((recordId, params) => {
       const record = Records.get(recordId);
       params.onSubmit(record);
@@ -23,12 +32,10 @@ describe('OpenSubmit action', () => {
 
     const result = await action.execForRecord(testRecordRef, {});
 
-    expect(showFormSpy).toHaveBeenCalledTimes(1);
-    expect(showFormSpy.mock.calls[0][0]).toBe(testRecordRef);
     expect(result).toEqual(true);
   });
 
-  it('Close form (onFormCancel)', async () => {
+  it('should return false if form closed', async () => {
     showFormSpy = jest.spyOn(ActionUtils, 'showForm').mockImplementation((recordId, params) => {
       params.onFormCancel();
     });
@@ -38,7 +45,7 @@ describe('OpenSubmit action', () => {
     expect(result).toEqual(false);
   });
 
-  it('Form is not ready (show notification)', async () => {
+  it('should show notification if form is not ready', async () => {
     showFormSpy = jest.spyOn(ActionUtils, 'showForm').mockImplementation((recordId, params) => {
       params.onReadyToSubmit({}, false);
     });
@@ -49,7 +56,7 @@ describe('OpenSubmit action', () => {
     expect(notifyFailureSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('Form is ready, invoke form.executeSubmit()', async () => {
+  it('should invoke form.executeSubmit() if form is ready', async () => {
     const executeSubmit = jest.fn();
 
     showFormSpy = jest.spyOn(ActionUtils, 'showForm').mockImplementation((recordId, params) => {
