@@ -985,24 +985,17 @@ export default class EcosFormUtils {
   }
 
   static isComponentsReady(components, options = {}) {
-    const opt = { debug: false, path: '*', ...options };
-
     for (let i = 0; i < components.length; i++) {
       const comp = components[i];
-      const _name = () => `${opt.path} > ${lodashGet(comp, 'constructor.name', '?')} `;
-
-      opt.debug && console.debug(_name(), ' isReadyToSubmit:', comp.isReadyToSubmit && comp.isReadyToSubmit());
 
       if (comp.isReadyToSubmit && !comp.isReadyToSubmit()) {
-        opt.debug && console.debug('•• isReadyToSubmit=false');
         return false;
       }
 
       if (comp.components) {
-        const result = EcosFormUtils.isComponentsReady(comp.components, { ...opt, path: _name() });
-
-        if (result === false) {
-          return result;
+        const result = EcosFormUtils.isComponentsReady(comp.components, options);
+        if (!result) {
+          return false;
         }
       }
     }
@@ -1011,27 +1004,25 @@ export default class EcosFormUtils {
   }
 
   static isComponentsReadyWaiting(components, options = {}) {
-    const opt = { debug: false, attempts: 7, ...options };
+    const opt = { attempts: 7, interval: 1000, ...options };
 
     return new Promise(resolve => {
-      let checkTimes = 1;
-      let _interval = setInterval(() => {
-        opt.debug && console.debug('•• attempt=', checkTimes);
-
-        const result = EcosFormUtils.isComponentsReady(components, options);
-
-        if (result !== false) {
-          clearInterval(_interval);
-          resolve(true);
-        }
-
-        if (checkTimes > opt.attempts) {
-          clearInterval(_interval);
-          resolve(false);
-        }
-
+      let checkTimes = 0;
+      const check = () => {
         checkTimes++;
-      }, 1000);
+
+        if (EcosFormUtils.isComponentsReady(components, options)) {
+          return resolve(true);
+        }
+
+        if (checkTimes >= opt.attempts) {
+          return resolve(false);
+        }
+
+        setTimeout(check, opt.interval);
+      };
+
+      check();
     });
   }
 }

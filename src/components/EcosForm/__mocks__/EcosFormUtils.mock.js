@@ -1755,16 +1755,21 @@ export const dataGridAssocCaseOptimized = {
 };
 
 export const formReadyComponents = {
-  empty: [{ components: [{ components: [{ components: [{}] }] }] }],
-  allReady: [
+  simple: [{ components: [{ components: [{ components: [{}] }] }] }],
+  isReady: [
     {
-      isReadyToSubmit: () => true,
+      isReadyToSubmit: () => true
+    }
+  ],
+  isNotReady: [
+    {
+      isReadyToSubmit: () => false
+    }
+  ],
+  isReadyNested: [
+    {
       components: [
         {
-          isReadyToSubmit: () => true
-        },
-        {
-          isReadyToSubmit: () => true,
           components: [
             {
               isReadyToSubmit: () => true
@@ -1774,15 +1779,10 @@ export const formReadyComponents = {
       ]
     }
   ],
-  notAllReady: [
+  isNotReadyNested: [
     {
-      isReadyToSubmit: () => true,
       components: [
         {
-          isReadyToSubmit: () => true
-        },
-        {
-          isReadyToSubmit: () => true,
           components: [
             {
               isReadyToSubmit: () => false
