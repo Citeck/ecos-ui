@@ -1,7 +1,4 @@
-import Formio from 'formiojs/Formio';
-
 import EcosFormUtils from '../EcosFormUtils';
-import formDefinition1 from '../__mocks__/formDef.mock';
 import {
   asyncDataCase,
   asyncDataCaseOptimized,
@@ -34,8 +31,6 @@ function runTests(tests, method) {
 }
 
 describe('EcosFormUtils', () => {
-  const debug = false;
-
   describe('optimizeFormSchema method', () => {
     const tests = [
       {
@@ -93,59 +88,65 @@ describe('EcosFormUtils', () => {
     runTests(tests, EcosFormUtils.optimizeFormSchema);
   });
 
-  describe('isComponentsReadyWaiting method', () => {
-    const spy = time => {
-      jest.spyOn(global, 'fetch').mockImplementation(() => {
-        return Promise.resolve({
-          ok: true,
-          json: () =>
-            new Promise(resolve => {
-              setTimeout(() => {
-                resolve({
-                  id: 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e',
-                  attributes: {
-                    '.disp': 'Договор №1244'
-                  }
-                });
-              }, time);
-            })
-        });
-      });
-    };
-
-    it('TEST SIMPLE OK', async () => {
-      const _safe = EcosFormUtils.isComponentsReady;
-      EcosFormUtils.isComponentsReady = () => true;
-      const result = await EcosFormUtils.isComponentsReadyWaiting(formReadyComponents.empty, { debug });
-      EcosFormUtils.isComponentsReady = _safe;
+  describe('isComponentsReady method', () => {
+    it('should be true if there is no "isReadyToSubmit" method', () => {
+      const result = EcosFormUtils.isComponentsReady(formReadyComponents.simple, {});
       expect(result).toBeTruthy();
     });
 
-    it('TEST SIMPLE FAIL', async () => {
-      const _safe = EcosFormUtils.isComponentsReady;
-      EcosFormUtils.isComponentsReady = () => false;
-      const result = await EcosFormUtils.isComponentsReadyWaiting(formReadyComponents.empty, { debug, attempts: 3 });
-      EcosFormUtils.isComponentsReady = _safe;
+    it('should be true if "isReadyToSubmit" returns true', () => {
+      const result = EcosFormUtils.isComponentsReady(formReadyComponents.isReady, {});
+      expect(result).toBeTruthy();
+    });
+
+    it('should be true if nested "isReadyToSubmit" returns true', () => {
+      const result = EcosFormUtils.isComponentsReady(formReadyComponents.isReadyNested, {});
+      expect(result).toBeTruthy();
+    });
+
+    it('should be false if "isReadyToSubmit" returns false', () => {
+      const result = EcosFormUtils.isComponentsReady(formReadyComponents.isNotReady, {});
       expect(result).toBeFalsy();
     });
 
-    it('TEST FORM', async () => {
-      spy(1001);
-      const form = await Formio.createForm(document.createElement('div'), formDefinition1);
-      const result = await EcosFormUtils.isComponentsReadyWaiting(form.components, { debug });
-
-      expect(result).toBeTruthy();
+    it('should be false if nested "isReadyToSubmit" returns false', () => {
+      const result = EcosFormUtils.isComponentsReady(formReadyComponents.isNotReadyNested, {});
+      expect(result).toBeFalsy();
     });
   });
 
-  describe('isComponentsReady method', () => {
-    it('TEST OK', () => {
-      const result = EcosFormUtils.isComponentsReady(formReadyComponents.allReady, { debug });
+  describe('isComponentsReadyWaiting method', () => {
+    let spy;
+    afterEach(() => {
+      spy && spy.mockClear();
+    });
+
+    it('simple positive case', async () => {
+      spy = jest.spyOn(EcosFormUtils, 'isComponentsReady').mockImplementation(() => true);
+      const result = await EcosFormUtils.isComponentsReadyWaiting([], { interval: 1 });
+
+      expect(spy).toHaveBeenCalledTimes(1);
       expect(result).toBeTruthy();
     });
 
-    it('TEST FAIL', () => {
-      const result = EcosFormUtils.isComponentsReady(formReadyComponents.notAllReady, { debug });
+    it('positive case with 3 attempts', async () => {
+      let isReadyResult = false;
+      spy = jest.spyOn(EcosFormUtils, 'isComponentsReady').mockImplementation(() => isReadyResult);
+      setTimeout(() => {
+        isReadyResult = true;
+      }, 20);
+
+      const result = await EcosFormUtils.isComponentsReadyWaiting([], { attempts: 3, interval: 10 });
+
+      expect(spy).toHaveBeenCalledTimes(3);
+      expect(result).toBeTruthy();
+    });
+
+    it('negative case', async () => {
+      spy = jest.spyOn(EcosFormUtils, 'isComponentsReady').mockImplementation(() => false);
+      const result = await EcosFormUtils.isComponentsReadyWaiting([], { attempts: 3, interval: 1 });
+
+      expect(spy).toHaveBeenCalledTimes(3);
       expect(result).toBeFalsy();
     });
   });
