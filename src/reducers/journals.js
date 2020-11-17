@@ -201,6 +201,10 @@ export default handleActions(
               journalSetting: {
                 ...state[stateId].journalSetting,
                 ...action.payload
+              },
+              grid: {
+                ...state[stateId].grid,
+                search: ''
               }
             }
           }
@@ -450,7 +454,9 @@ export default handleActions(
       return handleState(state, stateId, {
         grid: {
           ...state[stateId].grid,
-          search: action.payload.text
+          search: action.payload.text,
+          sortBy: [],
+          groupBy: []
         }
       });
     }
