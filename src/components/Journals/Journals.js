@@ -32,7 +32,7 @@ import {
   setSelectedRecords
 } from '../../actions/journals';
 import { animateScrollTo, getScrollbarWidth, objectCompare, t, trigger } from '../../helpers/util';
-import { getSearchParams, goToCardDetailsPage, stringifySearchParams } from '../../helpers/urls';
+import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams, stringifySearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 import { JOURNAL_MIN_HEIGHT } from './constants';
 
@@ -120,7 +120,6 @@ class Journals extends Component {
       isActivePage,
       urlParams: { journalId },
       stateId,
-      grid,
       isLoading,
       getJournalsData
     } = this.props;
@@ -128,7 +127,6 @@ class Journals extends Component {
       isActivePage: _isActivePage,
       urlParams: { journalId: _journalId }
     } = prevProps;
-    const search = this.getSearch();
 
     if (isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId)) {
       getJournalsData();
@@ -136,10 +134,6 @@ class Journals extends Component {
 
     if (prevProps.stateId !== stateId) {
       getJournalsData();
-    }
-
-    if (search !== get(grid, 'search')) {
-      this.onSearch(search);
     }
 
     if (isActivePage && this.state.isForceUpdate) {
@@ -214,6 +208,14 @@ class Journals extends Component {
 
   resetSettings = savedSetting => {
     this.setState({ savedSetting });
+  };
+
+  applySettings = () => {
+    const url = removeUrlSearchParams(window.location.href, 'search');
+
+    window.history.replaceState({ path: url }, '', url);
+
+    this.toggleSettings();
   };
 
   toggleSettings = () => {
@@ -411,7 +413,7 @@ class Journals extends Component {
                   parentClass="ecos-journal__settings"
                   stateId={stateId}
                   journalId={journalId}
-                  onApply={this.toggleSettings}
+                  onApply={this.applySettings}
                   onCreate={this.toggleSettings}
                   onReset={this.resetSettings}
                 />

@@ -454,11 +454,10 @@ export default handleActions(
       return handleState(state, stateId, {
         grid: {
           ...state[stateId].grid,
-          predicates: [],
-          predicate: {},
-          search: action.payload.text
-        },
-        predicate: null
+          search: action.payload.text,
+          sortBy: [],
+          groupBy: []
+        }
       });
     }
   },

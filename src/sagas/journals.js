@@ -394,16 +394,16 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
   const pagination = get(sharedSettings, 'pagination') || (yield select(state => state.journals[stateId].grid.pagination));
   const params = getGridParams({ journalConfig, journalSetting, pagination });
+  const search = yield select(state => state.journals[stateId].url.search);
   let gridData = yield getGridData(api, { ...params }, stateId);
-  const searchPredicate = yield getSearchPredicate({
-    ...w({ stateId }),
-    grid: gridData,
-    filterParams: {
-      include: [],
-      exclude: ['date', 'datetime'],
-      field: 'type'
-    }
-  });
+  let searchData = {};
+
+  if (search) {
+    yield put(setGrid(w({ search })));
+    searchData = { search };
+  }
+
+  const searchPredicate = yield getSearchPredicate({ ...w({ stateId }), grid: { ...gridData, ...searchData } });
 
   if (!isEmpty(searchPredicate)) {
     gridData = yield getGridData(api, { ...params, searchPredicate }, stateId);
@@ -824,16 +824,6 @@ function* getSearchPredicate({ logger, stateId, grid }) {
   }
 }
 
-function* sagaSetJournalSetting({ logger }) {
-  try {
-    const url = removeUrlSearchParams(window.location.href, 'search');
-
-    window.history.replaceState({ path: url }, '', url);
-  } catch (e) {
-    logger.error('[journals sagaSetJournalSetting saga error', e.message);
-  }
-}
-
 function* sagaSearch({ logger, w, stateId }, { payload }) {
   try {
     const urlData = queryString.parseUrl(window.location.href);
@@ -848,7 +838,10 @@ function* sagaSearch({ logger, w, stateId }, { payload }) {
     }
 
     const searchPredicate = yield getSearchPredicate({ logger, stateId });
+    const journalConfig = yield select(state => get(state, ['journals', stateId, 'journalConfig']));
+    const config = getDefaultJournalSetting(journalConfig);
 
+    yield put(setPredicate(w(config.predicate)));
     yield put(reloadGrid(w({ searchPredicate: searchPredicate })));
     PageService.changeUrlLink(decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
   } catch (e) {
@@ -884,7 +877,6 @@ function* saga(ea) {
   yield takeEvery(initPreview().type, wrapSaga, { ...ea, saga: sagaInitPreview });
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });
   yield takeEvery(search().type, wrapSaga, { ...ea, saga: sagaSearch });
-  yield takeEvery(setJournalSetting().type, wrapSaga, { ...ea, saga: sagaSetJournalSetting });
 }
 
 export default saga;
