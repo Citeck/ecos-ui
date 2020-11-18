@@ -12,6 +12,7 @@ export default class TableFormComponent extends BaseReactComponent {
   _selectedRows = [];
   _displayElementsValue = {};
   _nonSelectableRows = [];
+  _createVariants = [];
 
   static schema(...extend) {
     return BaseReactComponent.schema(
@@ -72,9 +73,10 @@ export default class TableFormComponent extends BaseReactComponent {
 
   checkConditions(data) {
     let result = super.checkConditions(data);
+    const { displayElementsJS, nonSelectableRowsJS, selectedRowsJS, customCreateVariantsJs } = this.component;
 
-    if (this.component.displayElementsJS) {
-      let displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
+    if (displayElementsJS) {
+      let displayElements = this.evaluate(displayElementsJS, {}, 'value', true);
       if (!_.isEqual(displayElements, this._displayElementsValue)) {
         this._displayElementsValue = displayElements;
         this.setReactProps({
@@ -83,8 +85,8 @@ export default class TableFormComponent extends BaseReactComponent {
       }
     }
 
-    if (this.component.nonSelectableRowsJS) {
-      let nonSelectableRows = this.evaluate(this.component.nonSelectableRowsJS, {}, 'value', true);
+    if (nonSelectableRowsJS) {
+      let nonSelectableRows = this.evaluate(nonSelectableRowsJS, {}, 'value', true);
       if (!_.isEqual(nonSelectableRows, this._nonSelectableRows)) {
         this._nonSelectableRows = nonSelectableRows;
         this.setReactProps({
@@ -93,14 +95,30 @@ export default class TableFormComponent extends BaseReactComponent {
       }
     }
 
-    if (this.component.selectedRowsJS) {
-      let selectedRows = this.evaluate(this.component.selectedRowsJS, {}, 'value', true);
+    if (selectedRowsJS) {
+      let selectedRows = this.evaluate(selectedRowsJS, {}, 'value', true);
       if (!_.isEqual(selectedRows, this._selectedRows)) {
         this._selectedRows = selectedRows;
         this.setReactProps({
           selectedRows
         });
       }
+    }
+
+    if (customCreateVariantsJs) {
+      const createVariantsResult = this._getCustomCreateVariants();
+      createVariantsResult.then(createVariants => {
+        if (!createVariants) {
+          return;
+        }
+
+        if (!_.isEqual(createVariants, this._createVariants)) {
+          this._createVariants = createVariants;
+          this.setReactProps({
+            createVariants
+          });
+        }
+      });
     }
 
     return result;
@@ -192,6 +210,51 @@ export default class TableFormComponent extends BaseReactComponent {
     return this._selectedRows;
   };
 
+  async _getCustomCreateVariants() {
+    const { customCreateVariantsJs } = this.component;
+
+    let customCreateVariants = null;
+    if (customCreateVariantsJs) {
+      try {
+        customCreateVariants = this.evaluate(customCreateVariantsJs, {}, 'value', true);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    let createVariantsPromise = Promise.resolve(null);
+    if (customCreateVariants) {
+      let fetchCustomCreateVariantsPromise = Promise.resolve([]);
+
+      if (customCreateVariants.then) {
+        fetchCustomCreateVariantsPromise = customCreateVariants;
+      } else {
+        fetchCustomCreateVariantsPromise = Promise.resolve(customCreateVariants);
+      }
+
+      const variants = await fetchCustomCreateVariantsPromise;
+
+      createVariantsPromise = Promise.all(
+        variants.map(variant => {
+          if (_.isObject(variant)) {
+            return variant;
+          }
+
+          return Records.get(variant)
+            .load('.disp')
+            .then(dispName => {
+              return {
+                recordRef: variant,
+                label: dispName
+              };
+            });
+        })
+      );
+    }
+
+    return createVariantsPromise;
+  }
+
   _fetchAsyncProperties = source => {
     return new Promise(async resolve => {
       if (!source) {
@@ -226,8 +289,9 @@ export default class TableFormComponent extends BaseReactComponent {
               });
             }
 
+            this._createVariants = journalConfig.meta.createVariants || [];
+
             resolve({
-              createVariants: journalConfig.meta.createVariants || [],
               columns: await JournalsService.resolveColumns(columns)
             });
           } catch (error) {
@@ -236,7 +300,6 @@ export default class TableFormComponent extends BaseReactComponent {
           }
           break;
         case 'custom':
-          const component = this.component;
           const record = this.getRecord();
           const columns = (_.get(source, 'custom.columns') || []).map(item => {
             const col = { ...item };
@@ -246,49 +309,18 @@ export default class TableFormComponent extends BaseReactComponent {
             return col;
           });
 
-          let customCreateVariants = null;
-          if (component.customCreateVariantsJs) {
-            try {
-              customCreateVariants = this.evaluate(component.customCreateVariantsJs, {}, 'value', true);
-            } catch (e) {
-              console.error(e);
-            }
-          }
-
+          const customCreateVariants = await this._getCustomCreateVariants();
           let createVariantsPromise = Promise.resolve([]);
           if (customCreateVariants) {
-            let fetchCustomCreateVariantsPromise = Promise.resolve([]);
-
-            if (customCreateVariants.then) {
-              fetchCustomCreateVariantsPromise = customCreateVariants;
-            } else {
-              fetchCustomCreateVariantsPromise = Promise.resolve(customCreateVariants);
-            }
-
-            const variants = await fetchCustomCreateVariantsPromise;
-
-            createVariantsPromise = Promise.all(
-              variants.map(variant => {
-                if (_.isObject(variant)) {
-                  return variant;
-                }
-
-                return Records.get(variant)
-                  .load('.disp')
-                  .then(dispName => {
-                    return {
-                      recordRef: variant,
-                      label: dispName
-                    };
-                  });
-              })
-            );
+            createVariantsPromise = customCreateVariants;
           } else if (attribute) {
             createVariantsPromise = EcosFormUtils.getCreateVariants(record, attribute);
           }
 
           try {
             const createVariants = await createVariantsPromise;
+            this._createVariants = createVariants;
+
             const columnsMap = {};
             const formatters = {};
 
@@ -378,7 +410,6 @@ export default class TableFormComponent extends BaseReactComponent {
             }
 
             resolve({
-              createVariants,
               columns: await JournalsService.resolveColumns(updColumns)
             });
           } catch (error) {
@@ -396,7 +427,7 @@ export default class TableFormComponent extends BaseReactComponent {
     const component = this.component;
 
     let resolveProps = props => {
-      const { createVariants = [], columns = [], error } = props || {};
+      const { columns = [], error } = props || {};
 
       let triggerEventOnTableChange = null;
       if (component.eventName) {
@@ -413,7 +444,7 @@ export default class TableFormComponent extends BaseReactComponent {
       }
 
       return {
-        createVariants,
+        createVariants: this._createVariants,
         columns,
         error,
         defaultValue: this.dataValue,
