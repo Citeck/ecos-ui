@@ -21,6 +21,16 @@ export default class Filter extends Component {
     };
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const prevValue = get(prevProps, 'filter.predicate.val', '');
+    const currentValue = get(this.props, 'filter.predicate.val', '');
+    const { value } = this.state;
+
+    if (prevValue !== currentValue && currentValue !== value) {
+      this.setState({ value: currentValue });
+    }
+  }
+
   componentWillUnmount() {
     this.handleChangeValue.cancel();
   }
@@ -28,8 +38,8 @@ export default class Filter extends Component {
   predicatesWithoutValue = ParserPredicate.predicatesWithoutValue;
 
   changeValue = value => {
-    this.setState({ value });
-    this.handleChangeValue();
+    this.setState({ value }, this.handleChangeValue);
+    // this.handleChangeValue();
   };
 
   handleChangeValue = debounce(() => {
