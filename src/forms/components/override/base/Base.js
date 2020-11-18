@@ -119,14 +119,20 @@ const modifiedOriginalCalculateValue = function(data, flags) {
 
   const formOptions = this.options;
   const formMode = formOptions.formMode;
-  const isNotEmptyValue = value => {
+  const isEmptyValue = value => {
     if (formMode === FORM_MODE_CREATE) {
-      return !this.isEmpty(value);
+      return this.isEmpty(value);
     }
-    return isBoolean(value) || !this.isEmpty(value);
+    return !isBoolean(value) && this.isEmpty(value);
   };
   // If this is the firstPass, and the dataValue is different than to the calculatedValue.
-  if (allowOverride && firstPass && isNotEmptyValue(dataValue) && !customIsEqual(dataValue, calculatedValue)) {
+  if (allowOverride && firstPass && !isEmptyValue(dataValue) && !customIsEqual(dataValue, calculatedValue)) {
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-212
+    if (formMode && formMode !== FORM_MODE_CREATE && isEmptyValue(calculatedValue)) {
+      this.calculatedValue = undefined;
+      return false;
+    }
+
     // Return that we have a change so it will perform another pass.
     this.calculatedValue = calculatedValue;
     return true;

@@ -305,7 +305,8 @@ export default class SelectComponent extends BaseComponent {
         this.scrollList.removeChild(loadingItem);
       }
     }
-    this.scrollList.scrollTo(0, this.scrollTop);
+
+    requestAnimationFrame(() => this.scrollList.scrollTo(0, this.scrollTop));
     this.isScrollLoading = isScrolling;
     return isScrolling;
   }
