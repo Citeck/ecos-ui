@@ -184,6 +184,15 @@ export const selectActionsByType = (state, key, type) => {
   return get(availableTypes.find(item => item.id === type), 'actions', []);
 };
 
+export const selectActionsByTypes = (state, key, types) => {
+  const availableTypes = getAvailableTypes(selectState(state, key)) || [];
+  const actions = [];
+
+  availableTypes.filter(item => types.includes(item.id)).forEach(item => actions.push(...(item.actions || [])));
+
+  return actions;
+};
+
 export const selectGroupedAvailableTypes = createSelector(
   getAvailableTypes,
   getDynamicTypes,

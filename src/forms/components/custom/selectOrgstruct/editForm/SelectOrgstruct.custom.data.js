@@ -1,10 +1,9 @@
 import {
-  TAB_ALL_USERS,
-  TAB_BY_LEVELS,
-  AUTHORITY_TYPE_USER,
   AUTHORITY_TYPE_GROUP,
-  GROUP_TYPE_ROLE,
-  GROUP_TYPE_BRANCH
+  AUTHORITY_TYPE_USER,
+  GroupTypes,
+  TAB_ALL_USERS,
+  TAB_BY_LEVELS
 } from '../../../../../components/common/form/SelectOrgstruct/constants';
 
 export default [
@@ -48,7 +47,7 @@ export default [
     input: true,
     key: 'allowedAuthorityType',
     label: 'Allowed authority type',
-    placeholder: `Example: "${AUTHORITY_TYPE_USER}, ${AUTHORITY_TYPE_GROUP}"`,
+    description: `Available types: ${AUTHORITY_TYPE_USER}, ${AUTHORITY_TYPE_GROUP}`,
     defaultValue: `${AUTHORITY_TYPE_USER}, ${AUTHORITY_TYPE_GROUP}`,
     validate: {
       required: false
@@ -60,8 +59,8 @@ export default [
     input: true,
     key: 'allowedGroupType',
     label: 'Allowed group type',
-    placeholder: `Example: "${GROUP_TYPE_ROLE}, ${GROUP_TYPE_BRANCH}"`,
-    defaultValue: `${GROUP_TYPE_ROLE}, ${GROUP_TYPE_BRANCH}`,
+    description: `Available types: ${Object.values(GroupTypes).join(', ')}`,
+    defaultValue: `${GroupTypes.ROLE}, ${GroupTypes.BRANCH}`,
     validate: {
       required: false
     },
@@ -76,7 +75,7 @@ export default [
     input: true,
     key: 'allowedGroupSubType',
     label: 'Allowed group subtype',
-    placeholder: 'Example: company, subdivision, manager, employee, director, department',
+    description: 'Example: company, subdivision, manager, employee, director, department',
     defaultValue: '',
     validate: {
       required: false
@@ -92,7 +91,7 @@ export default [
     input: true,
     key: 'excludeAuthoritiesByName',
     label: 'Exclude authorities by name',
-    placeholder: 'Example: groupName1, groupName2',
+    description: 'Example: groupName1, groupName2',
     defaultValue: '',
     validate: {
       required: false
@@ -104,7 +103,7 @@ export default [
     input: true,
     key: 'excludeAuthoritiesByType',
     label: 'Exclude authorities by group type or subtype',
-    placeholder: 'Example: groupType1, groupType2, groupSubType',
+    description: 'Example: groupType1, groupType2, groupSubType',
     defaultValue: '',
     validate: {
       required: false
@@ -116,7 +115,7 @@ export default [
     input: true,
     key: 'userSearchExtraFields',
     label: 'User search: extra fields',
-    placeholder: 'Example: field1, field2, field3',
+    description: 'Example: field1, field2, field3',
     defaultValue: '',
     validate: {
       required: false
@@ -126,6 +125,17 @@ export default [
       const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
       show = allowedTypes.indexOf('${AUTHORITY_TYPE_USER}') !== -1;
     `
+  },
+  {
+    label: 'Include Admin group',
+    labelPosition: 'left-left',
+    tableView: true,
+    alwaysEnabled: false,
+    type: 'checkbox',
+    input: true,
+    key: 'isIncludedAdminGroup',
+    defaultValue: false,
+    weight: 25
   },
   {
     label: 'Current user by default',
@@ -138,6 +148,6 @@ export default [
     input: true,
     key: 'currentUserByDefault',
     defaultValue: false,
-    weight: 25
+    weight: 26
   }
 ];

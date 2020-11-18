@@ -1,7 +1,8 @@
 import get from 'lodash/get';
 
 import Records from '../../../../Records';
-import { notifySuccess, showForm } from '../../../util/actionUtils';
+import { t } from '../../../../../../helpers/export/util';
+import { notifyFailure, notifySuccess, showForm } from '../../../util/actionUtils';
 import ActionsExecutor from '../../ActionsExecutor';
 
 export default class OpenSubmitAction extends ActionsExecutor {
@@ -20,8 +21,12 @@ export default class OpenSubmitAction extends ActionsExecutor {
           notifySuccess();
         },
         onFormCancel: () => resolve(false),
-        onFormRender: function() {
-          this.executeSubmit();
+        onReadyToSubmit: function(form, state) {
+          if (state) {
+            form.executeSubmit();
+          } else {
+            notifyFailure(t('eform.form-is-not-ready'));
+          }
         }
       };
 

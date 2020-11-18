@@ -34,7 +34,7 @@ export function convertAttributeValues(predicate, columns) {
       current.val.forEach(item => convert(item));
       current.val = current.val.filter(v => isExistValue(v.val));
     } else if (_.isObject(current)) {
-      const col = columns.find(item => item.attribute === current.att);
+      const col = columns && columns.find(item => item.attribute === current.att);
       const type = _.get(col, 'type');
 
       current.val = convertValueByType(type, current.val);

@@ -7,8 +7,13 @@ export const ALL_USERS_GROUP_SHORT_NAME = 'all';
 export const AUTHORITY_TYPE_GROUP = 'GROUP';
 export const AUTHORITY_TYPE_USER = 'USER';
 
-export const GROUP_TYPE_ROLE = 'ROLE';
-export const GROUP_TYPE_BRANCH = 'BRANCH';
+export const GroupTypes = {
+  ROLE: 'ROLE',
+  BRANCH: 'BRANCH',
+  GROUP: 'GROUP'
+};
 
-export const VIEW_MODE_TYPE_DEFAULT = 'default';
-export const VIEW_MODE_TYPE_LINE_SEPARATED = 'line-separated';
+export const ViewModes = {
+  DEFAULT: 'default',
+  LINE_SEPARATED: 'line-separated'
+};

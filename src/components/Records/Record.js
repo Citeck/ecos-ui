@@ -1,8 +1,9 @@
 import _ from 'lodash';
+import { EventEmitter2 } from 'eventemitter2';
+
+import { mapValueToScalar, parseAttribute } from './utils/attStrUtils';
 import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import Attribute from './Attribute';
-import { EventEmitter2 } from 'eventemitter2';
-import { mapValueToScalar, parseAttribute } from './utils/attStrUtils';
 import RecordWatcher from './RecordWatcher';
 
 export const EVENT_CHANGE = 'change';
@@ -73,6 +74,18 @@ export default class Record {
         } else {
           attributes[att] = this._attributes[att].getValue();
         }
+      }
+    }
+
+    for (let complexAtt in this._recordFieldsToSave) {
+      if (!this._recordFieldsToSave.hasOwnProperty(complexAtt)) {
+        continue;
+      }
+
+      const att = complexAtt.substring(complexAtt.indexOf('(n:"') + 4, complexAtt.indexOf('")'));
+
+      if (att && !attributes[att]) {
+        attributes[att] = this._recordFieldsToSave[complexAtt];
       }
     }
 
@@ -423,7 +436,7 @@ export default class Record {
     return attributes;
   }
 
-  _getLinkedRecordsToSave() {
+  async _getLinkedRecordsToSave() {
     let self = this;
 
     let result = this._getAssocAttributes().reduce((acc, att) => {
@@ -435,7 +448,10 @@ export default class Record {
       return acc.concat(value.map(id => this._records.get(id)).map(rec => rec._getWhenReadyToSave()));
     }, []);
 
-    return Promise.all(result).then(records => records.filter(r => !r.isPersisted()));
+    const linkedRecords = await Promise.all(result).then(records => records.filter(r => !r.isPersisted()));
+    const nestedLinkedRecords = await Promise.all(linkedRecords.map(async r => await r._getLinkedRecordsToSave()));
+    const nestedLinkedRecordsFlatten = nestedLinkedRecords.reduce((acc, val) => acc.concat(val), []);
+    return [...linkedRecords, ...nestedLinkedRecordsFlatten];
   }
 
   save() {

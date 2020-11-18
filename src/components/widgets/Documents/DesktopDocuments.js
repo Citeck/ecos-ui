@@ -54,6 +54,7 @@ class DesktopDocuments extends BaseDocuments {
 
     canDragging: PropTypes.bool,
     isMobile: PropTypes.bool,
+    isAdmin: PropTypes.bool,
     isLoading: PropTypes.bool,
     isUploadingFile: PropTypes.bool,
     isLoadingSettings: PropTypes.bool,
@@ -402,7 +403,12 @@ class DesktopDocuments extends BaseDocuments {
     if (actions[id]) {
       actions[id].forEach(action => {
         action.onClick = () => {
-          this.props.execRecordsAction(id, action, this.handleSuccessRecordsAction);
+          this.props.execRecordsAction({
+            records: id,
+            action,
+            callback: this.handleSuccessRecordsAction,
+            type: this.state.selectedType
+          });
         };
       });
 
@@ -811,7 +817,8 @@ class DesktopDocuments extends BaseDocuments {
 
 const mapStateToProps = (state, ownProps) => ({
   ...selectStateByKey(state, getStateId(ownProps)),
-  isMobile: state.view.isMobile
+  isMobile: get(state, 'view.isMobile'),
+  isAdmin: get(state, 'user.isAdmin')
 });
 const mapDispatchToProps = (dispatch, ownProps) => {
   const baseParams = {
@@ -825,7 +832,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     onSaveSettings: (types, config) => dispatch(saveSettings({ ...baseParams, types, config })),
     onUploadFiles: data => dispatch(uploadFiles({ ...baseParams, ...data })),
     setError: (type, message = '') => dispatch(setError({ ...baseParams, type, message })),
-    execRecordsAction: (records, action, callback) => dispatch(execRecordsAction({ ...baseParams, records, action, callback })),
+    execRecordsAction: data => dispatch(execRecordsAction({ ...baseParams, ...data })),
     setInlineTools: tools => dispatch(setInlineTools({ ...baseParams, tools })),
     getTypeSettings: type => dispatch(getTypeSettings({ ...baseParams, type }))
   };
