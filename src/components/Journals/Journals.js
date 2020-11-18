@@ -5,7 +5,6 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 
 import JournalsDashletPagination from './JournalsDashletPagination';
@@ -216,7 +215,7 @@ class Journals extends Component {
   };
 
   resetSettings = savedSetting => {
-    const { gridPredicates, predicate } = this.props;
+    const { predicate } = this.props;
 
     this.setState({ savedSetting: { ...savedSetting, predicate }, isReset: true });
   };
@@ -225,7 +224,6 @@ class Journals extends Component {
     const url = removeUrlSearchParams(window.location.href, 'search');
 
     window.history.replaceState({ path: url }, '', url);
-
     this.toggleSettings();
   };
 
