@@ -39,7 +39,6 @@ export default class Filter extends Component {
 
   changeValue = value => {
     this.setState({ value }, this.handleChangeValue);
-    // this.handleChangeValue();
   };
 
   handleChangeValue = debounce(() => {
