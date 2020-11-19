@@ -53,6 +53,17 @@ const JOURNAL_CONFIG = {
     {
       name: 'Name3',
       label: 'Name 3 field'
+    },
+    {
+      name: 'Name4',
+      multiple: true,
+      label: 'Name 4 field',
+      innerSchema: 'disp:.disp,id:.id'
+    },
+    {
+      name: 'Name5',
+      label: 'Name 5 field',
+      innerSchema: 'disp:.disp,id:.id'
     }
   ],
   groupBy: ['icase:caseStatusAssoc']
@@ -97,7 +108,7 @@ describe('JournalsService', () => {
     let idx = 0;
     for (let column of config.columns) {
       expect(column.multiple).toBe(JOURNAL_CONFIG.columns[idx].multiple === true);
-      expect(column.attSchema.indexOf('[]') !== -1).toBe(column.multiple);
+      expect(column.innerSchema && column.attSchema.indexOf('[]') !== -1).toBe(column.innerSchema && column.multiple);
 
       for (let prop of requiredProps) {
         let hasProp = column[prop] !== null && column[prop] !== undefined;
