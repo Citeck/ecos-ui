@@ -80,8 +80,11 @@ export const documentActions = ['uiserv/action@view', 'uiserv/action@content-dow
 
 export const fieldFormatters = {
   displayName: {
-    name: 'ActionFormatter',
-    params: { type: 'content-preview-modal' }
+    schema: 'disp',
+    formatter: {
+      name: 'ActionFormatter',
+      params: { type: 'content-preview-modal' }
+    }
   }
 };
 

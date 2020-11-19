@@ -447,13 +447,12 @@ export default class DocumentsConverter {
   }
 
   static setDefaultFormatters(columns) {
-    const hasViewer = columns.find(col => get(col, 'formatter.params.type') === fieldFormatters.displayName.params.type);
-
-    if (!hasViewer) {
-      const findIndex = columns.findIndex(col => col.attribute && col.attribute.toLowerCase().includes('name'));
+    for (let key in fieldFormatters) {
+      const info = fieldFormatters[key];
+      const findIndex = columns.findIndex(col => col.schema && col.schema.includes(info.schema));
 
       if (findIndex >= 0 && !columns[findIndex].formatter) {
-        columns[findIndex].formatter = fieldFormatters.displayName;
+        columns[findIndex].formatter = info.formatter;
       }
     }
   }
