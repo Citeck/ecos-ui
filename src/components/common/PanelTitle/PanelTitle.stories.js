@@ -3,7 +3,7 @@ import React from 'react';
 import PanelTitle, { COLOR_GRAY } from './PanelTitle';
 
 export default {
-  title: 'PanelTitle',
+  title: 'Components/common/PanelTitle',
   component: PanelTitle
 };
 

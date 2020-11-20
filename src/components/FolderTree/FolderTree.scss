@@ -1,0 +1,54 @@
+@import '../../styles/constants';
+
+.ecos-folder-tree {
+  &__item {
+    display: grid;
+    grid-auto-flow: column;
+    align-items: start;
+    justify-content: start;
+    grid-gap: 10px;
+  }
+
+  &__item-body {
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: start;
+    grid-gap: 10px;
+    cursor: pointer;
+    height: 40px;
+  }
+
+  &__item-title {
+    font-size: $font-size-standard;
+    font-weight: $font-weight-semi-bold;
+    color: $text-color-dark;
+
+    &_selected {
+      font-weight: $font-weight-bold;
+    }
+  }
+
+  &__folder-image {
+    height: 15px;
+    &_selected {
+      path {
+        fill: #7396cd;
+      }
+    }
+  }
+
+  &__fold-switch {
+    height: 40px;
+    display: grid;
+    align-items: center;
+    min-width: 15px;
+
+    &-icon {
+      font-size: 14px;
+      cursor: pointer;
+      width: 15px;
+      min-width: 15px;
+    }
+  }
+}
