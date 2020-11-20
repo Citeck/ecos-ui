@@ -5,8 +5,8 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-
 import debounce from 'lodash/debounce';
+
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
 import JournalsFilters from './JournalsFilters';
@@ -45,7 +45,9 @@ const mapStateToProps = (state, props) => {
     isMobile: state.view.isMobile,
     pageTabsIsShow: state.pageTabs.isShow,
     journalConfig: newState.journalConfig,
+    journalSetting: newState.journalSetting,
     predicate: newState.predicate,
+    gridPredicates: get(newState, 'grid.predicates', []),
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
     selectAllRecords: newState.selectAllRecords,
@@ -78,6 +80,7 @@ class Journals extends Component {
 
     this.state = {
       menuOpen: false,
+      isReset: false,
       menuOpenAnimate: false,
       settingsVisible: false,
       showPreview: props.urlParams.showPreview,
@@ -96,7 +99,12 @@ class Journals extends Component {
       newState.journalId = journalId;
     }
 
-    if (state.settingsVisible && state.savedSetting && !objectCompare(props.predicate, get(state, 'savedSetting.predicate', {}))) {
+    if (
+      !state.isReset &&
+      state.settingsVisible &&
+      state.savedSetting &&
+      !objectCompare(props.predicate, get(state, 'savedSetting.predicate', {}))
+    ) {
       newState.savedSetting = {
         ...state.savedSetting,
         predicate: props.predicate
@@ -207,25 +215,31 @@ class Journals extends Component {
   };
 
   resetSettings = savedSetting => {
-    this.setState({ savedSetting });
+    const { predicate } = this.props;
+
+    this.setState({ savedSetting: { ...savedSetting, predicate }, isReset: true });
   };
 
   applySettings = () => {
     const url = removeUrlSearchParams(window.location.href, 'search');
 
     window.history.replaceState({ path: url }, '', url);
-
     this.toggleSettings();
   };
 
-  toggleSettings = () => {
-    const { savedSetting, settingsVisible } = this.state;
+  toggleSettings = (isCancel = false) => {
+    const { gridPredicates, journalSetting } = this.props;
+    const { savedSetting, settingsVisible, isReset } = this.state;
 
     if (savedSetting && settingsVisible) {
-      this.props.restoreJournalSettingData(savedSetting);
+      this.props.restoreJournalSettingData({ ...savedSetting, predicate: get(savedSetting, 'predicate', {}), isReset });
     }
 
-    this.setState({ settingsVisible: !settingsVisible, savedSetting: null });
+    if (!savedSetting && settingsVisible && isCancel) {
+      this.props.restoreJournalSettingData({ ...journalSetting, predicate: get(gridPredicates, ['0'], {}) });
+    }
+
+    this.setState({ settingsVisible: !settingsVisible, savedSetting: null, isReset: false });
   };
 
   togglePreview = () => {
@@ -394,7 +408,7 @@ class Journals extends Component {
             <EcosModal
               title={t('journals.action.setting-dialog-msg')}
               isOpen={settingsVisible}
-              hideModal={this.toggleSettings}
+              hideModal={() => this.toggleSettings(true)}
               isBigHeader
               className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
             >

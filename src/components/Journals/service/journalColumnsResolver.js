@@ -58,7 +58,7 @@ class JournalColumnsResolver {
     const multiple = column.multiple === true;
 
     const attribute = column.schema || column.attribute || column.name;
-    const attSchema = attribute + (multiple ? '[]' : '') + '{' + (column.innerSchema || DEFAULT_INNER_SCHEMA) + '}';
+    const attSchema = `${attribute}${multiple ? '[]' : ''}{${column.innerSchema || DEFAULT_INNER_SCHEMA}}`;
 
     const editable = attribute === column.name && getBoolOrElse(column.editable, true);
     const searchable = getBoolOrElse(column.searchable, () => attribute === name);
@@ -92,7 +92,9 @@ class JournalColumnsResolver {
 
     const formatterOptions = updColumn.formatter || Mapper.getFormatterOptions(updColumn, index);
     const formatterData = this._getFormatter(formatterOptions);
+    const formatAttSchema = formatterData.formatter.getQueryString(attribute);
 
+    formatAttSchema && !updColumn.innerSchema && (updColumn.attSchema = formatAttSchema);
     updColumn.formatExtraData = { ...formatterData, createVariants: updColumn.createVariants };
     updColumn.filterValue = (cell, row) => formatterData.formatter.getFilterValue(cell, row, formatterData.params);
     updColumn.editorRenderer = formatterData.formatter.getEditor;

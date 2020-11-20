@@ -351,7 +351,14 @@ function* sagaResetJournalSettingData({ api, logger, stateId, w }, action) {
 
 function* sagaRestoreJournalSettingData({ api, logger, stateId, w }, action) {
   try {
-    const journalSetting = action.payload;
+    let { isReset, ...journalSetting } = action.payload || {};
+
+    if (isReset) {
+      const journalConfig = yield select(state => get(state, ['journals', stateId, 'journalConfig']));
+      const journalSettingId = yield select(state => get(state, ['journals', stateId, ['journalSetting', JOURNAL_SETTING_ID_FIELD], '']));
+
+      journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
+    }
 
     yield put(setJournalSetting(w(journalSetting)));
     yield put(initJournalSettingData(w({ journalSetting })));

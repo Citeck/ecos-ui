@@ -456,7 +456,12 @@ export default handleActions(
           ...state[stateId].grid,
           search: action.payload.text,
           sortBy: [],
-          groupBy: []
+          groupBy: [],
+          pagination: {
+            ...state[stateId].grid.pagination,
+            skipCount: 0,
+            page: 1
+          }
         }
       });
     }
