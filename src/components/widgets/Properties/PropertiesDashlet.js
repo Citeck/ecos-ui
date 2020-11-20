@@ -4,15 +4,15 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 
 import { isSmallMode, objectCompare, t } from '../../../helpers/util';
+import { isTaskDashboard } from '../../../helpers/urls';
 import DAction from '../../../services/DashletActionService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
+import TaskAssignmentPanel from '../../TaskAssignmentPanel';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
 import PropertiesSettings from './PropertiesSettings';
-import { isTaskDashboard } from '../../../helpers/urls';
-import TaskAssignmentPanel from '../../TaskAssignmentPanel';
 
 import './style.scss';
 
