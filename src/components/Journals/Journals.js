@@ -7,17 +7,6 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 
-import JournalsDashletPagination from './JournalsDashletPagination';
-import JournalsGrouping from './JournalsGrouping';
-import JournalsFilters from './JournalsFilters';
-import JournalsColumnsSetup from './JournalsColumnsSetup';
-import JournalsSettingsFooter from './JournalsSettingsFooter';
-import JournalsMenu from './JournalsMenu';
-import JournalsSettingsBar from './JournalsSettingsBar';
-import JournalsHead from './JournalsHead';
-import JournalsContent from './JournalsContent';
-
-import { JournalsGroupActionsTools } from './JournalsTools';
 import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
@@ -27,14 +16,25 @@ import {
   getJournalsData,
   reloadGrid,
   restoreJournalSettingData,
-  search,
+  runSearch,
   setSelectAllRecords,
   setSelectedRecords
 } from '../../actions/journals';
 import { animateScrollTo, getScrollbarWidth, objectCompare, t, trigger } from '../../helpers/util';
 import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams, stringifySearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
+
 import { JOURNAL_MIN_HEIGHT } from './constants';
+import JournalsDashletPagination from './JournalsDashletPagination';
+import JournalsGrouping from './JournalsGrouping';
+import JournalsFilters from './JournalsFilters';
+import JournalsColumnsSetup from './JournalsColumnsSetup';
+import JournalsSettingsFooter from './JournalsSettingsFooter';
+import JournalsMenu from './JournalsMenu';
+import JournalsSettingsBar from './JournalsSettingsBar';
+import JournalsHead from './JournalsHead';
+import JournalsContent from './JournalsContent';
+import { JournalsGroupActionsTools } from './JournalsTools';
 
 import './Journals.scss';
 
@@ -65,7 +65,7 @@ const mapDispatchToProps = (dispatch, props) => {
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: () => dispatch(reloadGrid(w({}))),
-    search: text => dispatch(search({ text, stateId: props.stateId })),
+    runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting)))
   };
 };
@@ -296,7 +296,7 @@ class Journals extends Component {
     };
 
     this.props.setUrl(getSearchParams(stringifySearchParams(searchParams)));
-    this.props.search(text);
+    this.props.runSearch(text);
   };
 
   onResize = (w, h) => {

@@ -27,10 +27,10 @@ import {
   renameJournalSetting,
   resetJournalSettingData,
   restoreJournalSettingData,
+  runSearch,
   saveDashlet,
   saveJournalSetting,
   saveRecords,
-  search,
   setColumnsSetup,
   setDashletConfig,
   setDashletConfigByParams,
@@ -845,11 +845,8 @@ function* sagaSearch({ logger, w, stateId }, { payload }) {
     }
 
     const searchPredicate = yield getSearchPredicate({ logger, stateId });
-    const journalConfig = yield select(state => get(state, ['journals', stateId, 'journalConfig']));
-    const config = getDefaultJournalSetting(journalConfig);
 
-    yield put(setPredicate(w(config.predicate)));
-    yield put(reloadGrid(w({ searchPredicate: searchPredicate })));
+    yield put(reloadGrid(w({ searchPredicate })));
     PageService.changeUrlLink(decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
   } catch (e) {
     logger.error('[journals sagaSearch saga error', e.message);
@@ -883,7 +880,7 @@ function* saga(ea) {
 
   yield takeEvery(initPreview().type, wrapSaga, { ...ea, saga: sagaInitPreview });
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });
-  yield takeEvery(search().type, wrapSaga, { ...ea, saga: sagaSearch });
+  yield takeEvery(runSearch().type, wrapSaga, { ...ea, saga: sagaSearch });
 }
 
 export default saga;

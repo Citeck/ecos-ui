@@ -4,7 +4,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import {
   initState,
-  search,
+  runSearch,
   setColumnsSetup,
   setCustomJournal,
   setCustomJournalMode,
@@ -448,7 +448,7 @@ export default handleActions(
 
       return handleState(state, stateId, { recordRef: action.payload });
     },
-    [search]: (state, action) => {
+    [runSearch]: (state, action) => {
       const stateId = action.payload.stateId;
 
       return handleState(state, stateId, {
