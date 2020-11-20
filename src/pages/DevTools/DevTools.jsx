@@ -1,5 +1,5 @@
-import React, { useCallback, useState, useEffect } from 'react';
-import { Container, Row, Col } from 'reactstrap';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Col, Container, Row } from 'reactstrap';
 import queryString from 'query-string';
 
 import PageService from '../../services/PageService';
@@ -8,7 +8,7 @@ import Well from '../../components/common/form/Well';
 import { t } from '../../helpers/util';
 import { URL } from '../../constants';
 
-import { userApi } from './api';
+import api from './api';
 import { TABS } from './constants';
 import { DevToolsContextProvider } from './DevToolsContext';
 import Tabs from './Tabs';
@@ -23,8 +23,8 @@ export default () => {
   const [hasAccess, setAccess] = useState(false);
   useEffect(() => {
     (async () => {
-      const isAdmin = await userApi.isUserAdmin();
-      setAccess(isAdmin);
+      const isAccessible = await api.getIsAccessiblePage();
+      setAccess(isAccessible);
       setIsReady(true);
     })();
   }, []);

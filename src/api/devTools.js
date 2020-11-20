@@ -1,7 +1,8 @@
 import { PROXY_URI } from '../constants/alfresco';
 import { SourcesId } from '../constants';
-import { CommonApi } from './common';
+import { getCurrentUserName } from '../helpers/util';
 import Records from '../components/Records';
+import { CommonApi } from './common';
 
 export class DevToolsApi extends CommonApi {
   /**
@@ -56,5 +57,11 @@ export class DevToolsApi extends CommonApi {
         commits: 'info.commits?json'
       }
     );
+  };
+
+  getIsAccessiblePage = () => {
+    return Records.get(`${SourcesId.PEOPLE}@${getCurrentUserName()}`)
+      .load({ isAdmin: 'isAdmin?bool', isDevAdmin: '.att(n:"authorities"){has(n:"GROUP_DEV_TOOLS_ADMIN")}' })
+      .then(({ isAdmin, isDevAdmin }) => isAdmin || isDevAdmin);
   };
 }
