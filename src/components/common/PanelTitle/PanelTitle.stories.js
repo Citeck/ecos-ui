@@ -3,7 +3,7 @@ import React from 'react';
 import PanelTitle, { COLOR_GRAY } from './PanelTitle';
 
 export default {
-  title: 'Example/PanelTitle',
+  title: 'PanelTitle',
   component: PanelTitle
 };
 
@@ -17,7 +17,7 @@ Gray.args = {
   color: COLOR_GRAY
 };
 
-export const narrow = Template.bind({});
-narrow.args = {
+export const Narrow = Template.bind({});
+Narrow.args = {
   narrow: true
 };
