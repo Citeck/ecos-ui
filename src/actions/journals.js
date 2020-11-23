@@ -55,7 +55,7 @@ export const setPreviewUrl = createAction(prefix + 'SET_PREVIEW_URL');
 export const setPreviewFileName = createAction(prefix + 'SET_PREVIEW_FILE_NAME');
 
 export const goToJournalsPage = createAction(prefix + 'GO_TO_JOURNALS_PAGE');
-export const search = createAction(prefix + 'SEARCH');
+export const runSearch = createAction(prefix + 'RUN_SEARCH');
 export const setUrl = createAction(prefix + 'SET_URL');
 export const initState = createAction(prefix + 'INIT_STATE');
 export const setRecordRef = createAction(prefix + 'SET_RECORD_REF');
