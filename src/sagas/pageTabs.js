@@ -3,6 +3,7 @@ import { push } from 'connected-react-router';
 import queryString from 'query-string';
 import find from 'lodash/find';
 import get from 'lodash/get';
+import assign from 'lodash/assign';
 
 import {
   changeTab,
@@ -125,11 +126,13 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
 
 function* sagaDeleteTab({ api, logger }, action) {
   try {
+    const activePrev = PageTabList.activeTab;
     const deletedTab = PageTabList.delete(action.payload);
+    const tab = PageTabList.activeTab;
+    const updates = !deletedTab || PageTabList.equals(activePrev, tab) ? {} : { isActive: true };
 
     deletedTab && PageService.extractWhereLinkOpen({ subsidiaryLink: deletedTab.link });
-
-    yield put(changeTab({ tab: PageTabList.activeTab, data: { isActive: true } }));
+    yield put(changeTab({ tab, updates }));
   } catch (e) {
     logger.error('[pageTabs sagaDeleteTab saga error', e.message);
   }
@@ -143,8 +146,8 @@ function* sagaChangeTabData({ api, logger }, { payload }) {
       return;
     }
 
-    const { filter, data: updates } = payload;
-    const tab = payload.tab || find(PageTabList.tabs, filter);
+    const updates = assign(payload.data, payload.updates);
+    const tab = payload.tab || find(PageTabList.tabs, payload.filter);
 
     PageTabList.changeOne({ tab, updates });
 
@@ -167,7 +170,7 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
     }
 
     const updatingPayload = get(payload, 'updates', {});
-    let tab = payload.tab;
+    let tab = get(payload, 'tab');
 
     if (!tab) {
       tab = PageTabList.changeOne({

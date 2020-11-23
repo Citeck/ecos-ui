@@ -31,7 +31,7 @@ class PageTabList {
   #callbacks = [];
 
   get tabs() {
-    return this.#tabs;
+    return cloneDeep(this.#tabs || []);
   }
 
   set tabs({ tabs = [], params = {} }) {
@@ -46,15 +46,15 @@ class PageTabList {
   }
 
   get activeTab() {
-    return this.#tabs.find(item => item.isActive) || {};
+    return this.tabs.find(item => item.isActive) || {};
   }
 
   get storageList() {
-    return this.#tabs.map(item => item.storage);
+    return this.tabs.map(item => item.storage);
   }
 
   get storeList() {
-    return this.#tabs.map(item => item.store);
+    return this.tabs.map(item => item.store);
   }
 
   get activeTabId() {
@@ -165,11 +165,8 @@ class PageTabList {
     const length = this.#tabs.length;
 
     if (deletedTab.isActive && !!length) {
-      if (tabIndex >= length) {
-        this.#tabs[length - 1].isActive = true;
-      } else {
-        this.#tabs[tabIndex].isActive = true;
-      }
+      const newIndex = tabIndex >= length ? length - 1 : tabIndex;
+      this.activate(this.#tabs[newIndex]);
     }
 
     this.setToStorage();
@@ -303,20 +300,6 @@ class PageTabList {
       return storage.getData(this.#keyStorage);
     }
   }
-
-  getTabById = id => {
-    return this.#tabs.find(tab => tab.id === id) || {};
-  };
-
-  getTabByLink = (link = '') => {
-    let url = link;
-
-    if (!link.length) {
-      url = window.location.pathname + window.location.search;
-    }
-
-    return this.#tabs.find(tab => tab.link === url) || {};
-  };
 
   isActiveTab = tabId => {
     if (!tabId) {
