@@ -14,9 +14,13 @@
     grid-auto-flow: column;
     align-items: center;
     justify-content: start;
-    grid-gap: 10px;
+    grid-gap: 5px;
     cursor: pointer;
     height: 40px;
+
+    &:hover {
+      opacity: 0.7;
+    }
   }
 
   &__item-title {
@@ -30,11 +34,10 @@
   }
 
   &__folder-image {
-    height: 15px;
+    font-size: 15px;
+    color: $color-blue-light2;
     &_selected {
-      path {
-        fill: #7396cd;
-      }
+      color: $color-blue-light;
     }
   }
 
@@ -45,6 +48,7 @@
     min-width: 15px;
 
     &-icon {
+      color: $color-gray-5;
       font-size: 14px;
       cursor: pointer;
       width: 15px;

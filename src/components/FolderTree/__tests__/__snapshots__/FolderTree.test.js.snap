@@ -104,8 +104,13 @@ ShallowWrapper {
             className="ecos-folder-tree__item-body"
             onClick={[Function]}
           >
-            <ReactComponent
+            <UNDEFINED
               className="ecos-folder-tree__folder-image"
+              data={
+                Object {
+                  "value": "icon-folder",
+                }
+              }
             />
             <span
               className="ecos-folder-tree__item-title"
@@ -144,8 +149,13 @@ ShallowWrapper {
               className="ecos-folder-tree__item-body"
               onClick={[Function]}
             >
-              <ReactComponent
+              <UNDEFINED
                 className="ecos-folder-tree__folder-image"
+                data={
+                  Object {
+                    "value": "icon-folder",
+                  }
+                }
               />
               <span
                 className="ecos-folder-tree__item-title"
@@ -166,8 +176,13 @@ ShallowWrapper {
             "nodeType": "host",
             "props": Object {
               "children": Array [
-                <ReactComponent
+                <UNDEFINED
                   className="ecos-folder-tree__folder-image"
+                  data={
+                    Object {
+                      "value": "icon-folder",
+                    }
+                  }
                 />,
                 <span
                   className="ecos-folder-tree__item-title"
@@ -186,10 +201,17 @@ ShallowWrapper {
                 "nodeType": "function",
                 "props": Object {
                   "className": "ecos-folder-tree__folder-image",
+                  "data": Object {
+                    "value": "icon-folder",
+                  },
                 },
                 "ref": null,
                 "rendered": null,
-                "type": [Function],
+                "type": Object {
+                  "$$typeof": Symbol(react.memo),
+                  "compare": null,
+                  "type": [Function],
+                },
               },
               Object {
                 "instance": null,
@@ -239,8 +261,13 @@ ShallowWrapper {
               className="ecos-folder-tree__item-body"
               onClick={[Function]}
             >
-              <ReactComponent
+              <UNDEFINED
                 className="ecos-folder-tree__folder-image"
+                data={
+                  Object {
+                    "value": "icon-folder",
+                  }
+                }
               />
               <span
                 className="ecos-folder-tree__item-title"
@@ -279,8 +306,13 @@ ShallowWrapper {
                 className="ecos-folder-tree__item-body"
                 onClick={[Function]}
               >
-                <ReactComponent
+                <UNDEFINED
                   className="ecos-folder-tree__folder-image"
+                  data={
+                    Object {
+                      "value": "icon-folder",
+                    }
+                  }
                 />
                 <span
                   className="ecos-folder-tree__item-title"
@@ -301,8 +333,13 @@ ShallowWrapper {
               "nodeType": "host",
               "props": Object {
                 "children": Array [
-                  <ReactComponent
+                  <UNDEFINED
                     className="ecos-folder-tree__folder-image"
+                    data={
+                      Object {
+                        "value": "icon-folder",
+                      }
+                    }
                   />,
                   <span
                     className="ecos-folder-tree__item-title"
@@ -321,10 +358,17 @@ ShallowWrapper {
                   "nodeType": "function",
                   "props": Object {
                     "className": "ecos-folder-tree__folder-image",
+                    "data": Object {
+                      "value": "icon-folder",
+                    },
                   },
                   "ref": null,
                   "rendered": null,
-                  "type": [Function],
+                  "type": Object {
+                    "$$typeof": Symbol(react.memo),
+                    "compare": null,
+                    "type": [Function],
+                  },
                 },
                 Object {
                   "instance": null,

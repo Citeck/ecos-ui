@@ -4,8 +4,6 @@ import classNames from 'classnames';
 
 import EcosIcon from '../common/EcosIcon';
 
-import { ReactComponent as FolderImage } from './FolderImage.svg';
-
 import './FolderTree.scss';
 
 const FolderTreeItem = ({ children, item, isSelected, onSelect, onUnfold, onFold }) => {
@@ -27,10 +25,11 @@ const FolderTreeItem = ({ children, item, isSelected, onSelect, onUnfold, onFold
       </div>
       <div>
         <div className="ecos-folder-tree__item-body" onClick={_onSelect}>
-          <FolderImage
+          <EcosIcon
             className={classNames('ecos-folder-tree__folder-image', {
               'ecos-folder-tree__folder-image_selected': isSelected
             })}
+            data={{ value: 'icon-folder' }}
           />
           <span
             className={classNames('ecos-folder-tree__item-title', {
