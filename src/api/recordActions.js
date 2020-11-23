@@ -1,6 +1,8 @@
+import isString from 'lodash/isString';
+
+import { PROXY_URI } from '../constants/alfresco';
 import recordActions from '../components/Records/actions/recordActions';
 import { CommonApi } from './common';
-import isString from 'lodash/isString';
 
 export class RecordActionsApi extends CommonApi {
   getActions = ({ records, context }) => {
@@ -25,5 +27,23 @@ export class RecordActionsApi extends CommonApi {
       console.error(e);
       return false;
     });
+  };
+
+  executeServerGroupAction = ({ action, query, nodes }) => {
+    const { type, params } = action;
+
+    const postBody = {
+      actionId: params.actionId,
+      groupType: type,
+      nodes,
+      params
+    };
+
+    if (query) {
+      postBody.query = query.query;
+      postBody.language = query.language;
+    }
+
+    return this.postJson(`${PROXY_URI}api/journals/group-action`, postBody).catch(error => ({ error }));
   };
 }
