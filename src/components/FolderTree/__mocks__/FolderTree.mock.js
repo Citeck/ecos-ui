@@ -50,6 +50,13 @@ export const demoItems = [
   },
   {
     id: 'item2',
-    title: 'Item 2'
+    title: 'Item 2',
+    hasChildren: true,
+    isUnfolded: false
+  },
+  {
+    id: 'item2.1',
+    title: 'Item 2.1',
+    parent: 'item2'
   }
 ];

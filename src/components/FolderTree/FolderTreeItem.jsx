@@ -4,7 +4,8 @@ import classNames from 'classnames';
 
 import EcosIcon from '../common/EcosIcon';
 
-import FolderImage from './FolderImage';
+import { ReactComponent as FolderImage } from './FolderImage.svg';
+
 import './FolderTree.scss';
 
 const FolderTreeItem = ({ children, item, isSelected, onSelect, onUnfold, onFold }) => {

@@ -24,7 +24,7 @@ const FolderTree = ({ items, selected, onSelect, onUnfold, onFold }) => {
             onUnfold={onUnfold}
             onFold={onFold}
           >
-            {renderLevel(item.id)}
+            {item.hasChildren && item.isUnfolded && renderLevel(item.id)}
           </FolderTreeItem>
         );
       });

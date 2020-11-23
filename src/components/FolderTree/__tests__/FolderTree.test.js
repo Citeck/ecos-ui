@@ -4,7 +4,6 @@ import { shallow } from 'enzyme';
 import { item1, item1111, item1112, demoItems } from '../__mocks__/FolderTree.mock';
 import FolderTree from '../FolderTree';
 import FolderTreeItem from '../FolderTreeItem';
-import FolderImage from '../FolderImage';
 
 describe('FolderTree tests', () => {
   describe('<FolderTree />', () => {
@@ -13,9 +12,18 @@ describe('FolderTree tests', () => {
       expect(component).toMatchSnapshot();
     });
 
-    it('should render all items', () => {
+    it('should render all visible items', () => {
       const component = shallow(<FolderTree items={demoItems} />);
-      expect(component.find(FolderTreeItem)).toHaveLength(demoItems.length);
+      const visibleItems = demoItems.filter(item => {
+        if (item.parent) {
+          const parent = demoItems.find(i => i.id === item.parent);
+          if (parent && !parent.isUnfolded) {
+            return false;
+          }
+        }
+        return true;
+      });
+      expect(component.find(FolderTreeItem)).toHaveLength(visibleItems.length);
     });
   });
 
@@ -93,13 +101,6 @@ describe('FolderTree tests', () => {
       component.find('.ecos-folder-tree__fold-switch-icon').simulate('click');
       expect(onFold).toHaveBeenCalledTimes(1);
       expect(onFold).toHaveBeenCalledWith(item1.id);
-    });
-  });
-
-  describe('<FolderImage />', () => {
-    it('should render FolderImage component', () => {
-      const component = shallow(<FolderImage />);
-      expect(component).toMatchSnapshot();
     });
   });
 });
