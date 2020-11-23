@@ -129,7 +129,7 @@ function* sagaDeleteTab({ api, logger }, action) {
 
     deletedTab && PageService.extractWhereLinkOpen({ subsidiaryLink: deletedTab.link });
 
-    yield put(setTabs(PageTabList.storeList));
+    yield put(changeTab({ tab: PageTabList.activeTab, data: { isActive: true } }));
   } catch (e) {
     logger.error('[pageTabs sagaDeleteTab saga error', e.message);
   }
