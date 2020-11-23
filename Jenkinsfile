@@ -73,13 +73,6 @@ timestamps {
         ]
       }
 
-      stage('Building an ecos-proxy-odic-unstable docker images') {
-        build job: 'build_ecos_ui_image', parameters: [
-          string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc-unstable'),
-          string(name: 'ECOS_UI_VERSION', value: project_version.toUpperCase())
-        ]
-      }
-
     } catch (Exception e) {
       currentBuild.result = 'FAILURE'
       error_message = e.getMessage()
