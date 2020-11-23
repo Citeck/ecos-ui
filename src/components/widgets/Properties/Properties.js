@@ -108,6 +108,7 @@ class Properties extends React.Component {
         <EcosForm
           ref={this._ecosForm}
           record={record}
+          formId={formId}
           options={{
             readOnly: true,
             viewAsHtml: true,
@@ -125,7 +126,6 @@ class Properties extends React.Component {
             'ecos-properties__formio_small': isSmallMode,
             'd-none': !isShow
           })}
-          formId={formId}
           getTitle={this.getTitle}
           initiator={{
             type: 'widget',
@@ -133,10 +133,10 @@ class Properties extends React.Component {
           }}
         />
         {/* Cause: https://citeck.atlassian.net/browse/ECOSCOM-2654 */}
-
         <EcosForm
           ref={this._hiddenEcosForm}
           record={record}
+          formId={formId}
           options={{ formMode: FORM_MODE_EDIT }}
           onSubmit={this.onSubmitForm}
           onFormSubmitDone={onUpdate}
