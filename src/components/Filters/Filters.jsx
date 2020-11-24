@@ -31,7 +31,7 @@ export default class Filters extends Component {
       this.groups.splice(groupIndex, 1);
     }
 
-    this.triggerChange(this.groups.length === 1 && !this.groups[0].filters.length ? [] : this.groups);
+    this.triggerChange(this.groups);
 
     this.closeDialog();
   };
