@@ -6,7 +6,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import * as queryString from 'query-string';
 
 import * as storage from '../../helpers/ls';
-import { decodeLink, equalsQueryUrls, IgnoredUrlParams, JOURNALS_LIST_ID_KEY } from '../../helpers/urls';
+import { equalsQueryUrls, IgnoredUrlParams, JOURNALS_LIST_ID_KEY } from '../../helpers/urls';
 import { t } from '../../helpers/util';
 import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
@@ -275,7 +275,7 @@ class PageTabList {
           const isJournalExist =
             get(parsedItemUrl, ['query', JOURNALS_LIST_ID_KEY]) === get(parsedCurrentTabUrl, ['query', JOURNALS_LIST_ID_KEY], null);
 
-          return tab.link === item.link || isJournalExist;
+          return PageTab.equals(tab, item) || isJournalExist;
         });
 
         if (!found) {
@@ -318,11 +318,11 @@ window.addEventListener('popstate', event => {
   const { href, origin } = get(event, 'target.location');
   const link = href.replace(origin, '');
   let tabs = cloneDeep(pageTabList.storeList);
-  const founded = tabs.find(tab => tab.link === decodeLink(link));
+  const founded = tabs.find(tab => PageTab.equals(tab, { link }));
 
   if (founded) {
     tabs.forEach(tab => {
-      tab.isActive = tab.link === decodeLink(link);
+      tab.isActive = tab.link === founded.link;
     });
   } else {
     const newTab = new PageTab({

@@ -60,4 +60,8 @@ export default class PageTab {
       }
     }
   }
+
+  static equals(tab1, tab2) {
+    return (tab1 && PageService.keyId(tab1)) === (tab2 && PageService.keyId(tab2));
+  }
 }
