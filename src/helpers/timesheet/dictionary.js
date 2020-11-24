@@ -131,5 +131,7 @@ export const TimesheetMessages = {
   ERROR_SAVE_STATUS: 'Ошибка обновления статуса',
   ERROR_SAVE_EVENT_HOURS: 'Ошибка обновления часов',
   ERROR_DELEGATE_TO: 'Ошибка делегирования табеля',
-  ERROR_REMOVE_DELEGATED_TO: 'Ошибка отмены делегирования табеля'
+  ERROR_REMOVE_DELEGATED_TO: 'Ошибка отмены делегирования табеля',
+  ERROR_GET_SUBORDINATES: 'timesheets.error.get-subordinates',
+  WARN_NO_SUBORDINATES: 'timesheets.error.no-subordinates'
 };

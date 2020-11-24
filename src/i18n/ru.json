@@ -952,6 +952,8 @@
   "timesheets.modal.comment.placeholder": "Если комментарий не нужен, оставьте поле пустым.",
   "timesheets.modal.comment.btn.cancel": "Отмена",
   "timesheets.modal.comment.btn.send": "Отправить",
+  "timesheets.error.get-subordinates": "Ошибка при получении подчиненных",
+  "timesheets.error.no-subordinates": "Подчиненные отсутствуют",
 
   "versions-journal-widget.add": "Добавить новую версию",
   "versions-journal-widget.add-version": "Добавить версию",
