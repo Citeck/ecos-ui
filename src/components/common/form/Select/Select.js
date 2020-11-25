@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import ReactSelect from 'react-select';
-import AsyncSelect from 'react-select/lib/Async';
+// import AsyncSelect from 'react-select/lib/Async';
+import { Async as AsyncSelect } from 'react-select/lib';
 import isString from 'lodash/isString';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
+
 import { t } from '../../../../helpers/util';
+
 import './Select.scss';
 
 export default class Select extends Component {

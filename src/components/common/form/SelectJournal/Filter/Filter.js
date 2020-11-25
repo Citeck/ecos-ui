@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
 
 import { t } from '../../../../../helpers/util';
 import Select from '../../../../common/form/Select';
@@ -20,7 +21,7 @@ const Filter = ({
   item
 }) => {
   const predicateInput = getPredicateInput(item, idx, null, selectedPredicate);
-  const predicateProps = predicateInput.getProps({
+  const predicateProps = get(item, 'input', predicateInput).getProps({
     predicateValue,
     changePredicateValue,
     applyFilters
