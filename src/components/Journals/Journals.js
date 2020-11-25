@@ -83,7 +83,7 @@ class Journals extends Component {
       isReset: false,
       menuOpenAnimate: false,
       settingsVisible: false,
-      showPreview: props.urlParams.showPreview,
+      showPreview: get(props, 'urlParams.showPreview'),
       showPie: false,
       savedSetting: null,
       journalId: get(props, 'urlParams.journalId'),
@@ -124,17 +124,10 @@ class Journals extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const {
-      isActivePage,
-      urlParams: { journalId },
-      stateId,
-      isLoading,
-      getJournalsData
-    } = this.props;
-    const {
-      isActivePage: _isActivePage,
-      urlParams: { journalId: _journalId }
-    } = prevProps;
+    const { isActivePage, urlParams, stateId, isLoading, getJournalsData } = this.props;
+    const { isActivePage: _isActivePage } = prevProps;
+    const _journalId = get(prevProps, 'urlParams.journalId');
+    const journalId = get(urlParams, 'journalId');
 
     if (isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId)) {
       getJournalsData();

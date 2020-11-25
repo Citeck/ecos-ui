@@ -48,7 +48,7 @@ import journalDataLoader from './journalsDataLoader';
  * Service to work with journals.
  */
 class JournalsService {
-  async getJournalConfig(journalId) {
+  async getJournalConfig(journalId = '') {
     const sourceDelimIdx = journalId.indexOf('@');
     const journalRecordId = sourceDelimIdx === -1 ? journalId : journalId.substring(sourceDelimIdx + 1);
     const journalConfig = cloneDeep(await journalsApi.getJournalConfig(journalRecordId));
