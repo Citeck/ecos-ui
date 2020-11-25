@@ -390,6 +390,8 @@ export const replaceHistoryLink = (history = window, link = '') => {
   }
 
   window.history.replaceState({ path: pureLink }, '', pureLink);
+
+  return pureLink;
 };
 
 export const pushHistoryLink = (history = window, linkData = {}) => {
@@ -413,6 +415,8 @@ export const pushHistoryLink = (history = window, linkData = {}) => {
   }
 
   window.history.pushState({ path: newLink }, '', newLink);
+
+  return newLink;
 };
 
 /**
