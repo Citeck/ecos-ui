@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import ReactSelect from 'react-select';
-// import AsyncSelect from 'react-select/lib/Async';
-import { Async as AsyncSelect } from 'react-select/lib';
+import AsyncSelect from 'react-select/lib/Async';
 import isString from 'lodash/isString';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
