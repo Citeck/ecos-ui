@@ -1,4 +1,4 @@
-import { put, select, takeEvery, takeLatest, call } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
   declineDelegation,
@@ -26,7 +26,7 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
   try {
     const { currentDate, delegationType, status } = payload;
     const userName = yield select(selectUserName);
-    const requestList = yield api.timesheetDelegated.getRequestListByType({
+    const requestList = yield call(api.timesheetDelegated.getRequestListByType, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userName,
@@ -38,13 +38,13 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
 
     const peopleList = yield call(api.timesheetCommon.getInfoPeopleList, { userNames });
 
-    const innerCounts = yield api.timesheetDelegated.getTotalCountsForTypes({
+    const innerCounts = yield call(api.timesheetDelegated.getTotalCountsForTypes, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userName
     });
 
-    const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
+    const calendarEvents = yield call(api.timesheetCommon.getTimesheetCalendarEventsList, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userNames: userNames

@@ -952,6 +952,8 @@
   "timesheets.modal.comment.placeholder": "If you don't need a comment, leave the field empty.",
   "timesheets.modal.comment.btn.cancel": "Cancel",
   "timesheets.modal.comment.btn.send": "Send",
+  "timesheets.error.get-subordinates": "There's error while getting subordinates",
+  "timesheets.error.no-subordinates": "There aren't subordinates",
 
   "versions-journal-widget.add": "Add new version",
   "versions-journal-widget.add-version": "Add version",

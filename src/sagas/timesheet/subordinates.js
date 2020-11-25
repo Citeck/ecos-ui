@@ -1,25 +1,26 @@
-import { put, select, takeLatest, takeEvery, call } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { NotificationManager } from 'react-notifications';
 
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
+  delegateTo,
   getSubordinatesTimesheetByParams,
   modifyEventDayHours,
   modifyStatus,
+  removeDelegation,
   resetEventDayHours,
+  setDelegatedTo,
   setLoading,
   setMergedList,
   setPopupMessage,
   setSubordinatesTimesheetByParams,
-  setUpdatingEventDayHours,
-  delegateTo,
-  setDelegatedTo,
-  removeDelegation
+  setUpdatingEventDayHours
 } from '../../actions/timesheet/subordinates';
 import {
   selectTSubordinatesDelegatedTo,
+  selectTSubordinatesList,
   selectTSubordinatesMergedList,
-  selectTSubordinatesUpdatingHours,
-  selectTSubordinatesList
+  selectTSubordinatesUpdatingHours
 } from '../../selectors/timesheet';
 import { selectUserName } from '../../selectors/user';
 import SubordinatesTimesheetConverter from '../../dto/timesheet/subordinates';
@@ -27,7 +28,7 @@ import CommonTimesheetService from '../../services/timesheet/common';
 import SubordinatesTimesheetService from '../../services/timesheet/subordinates';
 import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
 import { DelegationTypes } from '../../constants/timesheet';
-import { deepClone } from '../../helpers/util';
+import { deepClone, t } from '../../helpers/util';
 
 function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -35,6 +36,17 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
     const userName = yield select(selectUserName);
 
     const subordinates = yield call(api.timesheetSubordinates.getSubordinatesList, { userName });
+
+    if (subordinates.errors && subordinates.errors.length > 0) {
+      NotificationManager.error(t(TimesheetMessages.ERROR_GET_SUBORDINATES), t('error'));
+      console.error(subordinates.errors);
+    }
+
+    if (!subordinates.records || !subordinates.records.length) {
+      NotificationManager.warning(t(TimesheetMessages.WARN_NO_SUBORDINATES), t('warning'));
+      yield put(setLoading(false));
+      return;
+    }
 
     const userNames = CommonTimesheetService.getUserNameList(subordinates.records);
 
@@ -47,7 +59,7 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
 
     const userNamesPure = CommonTimesheetService.getUserNameList(requestList.records);
 
-    const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
+    const calendarEvents = yield call(api.timesheetCommon.getTimesheetCalendarEventsList, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userNames: userNamesPure
