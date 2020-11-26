@@ -31,6 +31,9 @@ const NOT_INPUT_TYPES = ['container', 'datagrid', 'button', 'horizontalLine'];
 
 const getComponentInnerAttSchema = component => {
   let dataType = lodashGet(component, 'ecos.dataType', '');
+  if (!dataType) {
+    dataType = lodashGet(component, 'properties.dataType', '');
+  }
 
   if (dataType === 'json') {
     return 'json';
@@ -1026,3 +1029,6 @@ export default class EcosFormUtils {
     });
   }
 }
+
+window.Citeck = window.Citeck || {};
+window.Citeck.EcosFormUtils = EcosFormUtils;
