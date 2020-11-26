@@ -76,16 +76,22 @@
 }
 
 .ecos-journal-menu__list-item {
+  $item: &;
+
   padding: 13px 15px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-}
 
-.ecos-journal-menu__list-item_hover {
-  padding: 13px 60px 13px 15px;
-}
+  &_hover {
+    padding: 13px 15px;
 
-.ecos-journal-menu__list-item-input {
-  padding-right: 58px;
+    &#{$item}_actions {
+      padding-right: 60px;
+    }
+  }
+
+  &-input {
+    padding-right: 58px;
+  }
 }

@@ -23,6 +23,7 @@ import {
   onJournalSelect,
   onJournalSettingsSelect,
   openSelectedJournal,
+  openSelectedJournalSettings,
   reloadGrid,
   reloadTreeGrid,
   renameJournalSetting,
@@ -550,6 +551,25 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
   }
 }
 
+function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
+  try {
+    yield put(setLoading(w(true)));
+
+    const { journalConfig } = yield select(selectJournalData, stateId);
+    const query = getSearchParams();
+
+    query.journalSettingId = action.payload || undefined;
+    query.userConfigId = undefined;
+
+    const url = queryString.stringifyUrl({ url: window.location.href, query });
+
+    PageService.changeUrlLink(url, { updateUrl: true });
+    api.journals.setLsJournalSettingId(journalConfig.id, action.payload);
+  } catch (e) {
+    logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
+  }
+}
+
 function* sagaOnJournalSettingsSelect({ api, logger, stateId, w }, action) {
   try {
     yield put(setLoading(w(true)));
@@ -618,8 +638,6 @@ function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
     }
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
-  } finally {
-    yield put(setLoading(w(false)));
   }
 }
 
@@ -883,10 +901,7 @@ function* sagaSearch({ logger, w, stateId }, { payload }) {
     if (searchText === '' && has(urlData, 'query.search')) {
       delete urlData.query.search;
     }
-
-    const searchPredicate = yield getSearchPredicate({ logger, stateId });
-
-    yield put(reloadGrid(w({ searchPredicate })));
+    yield put(setLoading(true));
     PageService.changeUrlLink(decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
   } catch (e) {
     logger.error('[journals sagaSearch saga error', e.message);
@@ -915,6 +930,7 @@ function* saga(ea) {
   yield takeEvery(onJournalSettingsSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSettingsSelect });
   yield takeEvery(onJournalSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSelect });
   yield takeEvery(openSelectedJournal().type, wrapSaga, { ...ea, saga: sagaOpenSelectedJournal });
+  yield takeEvery(openSelectedJournalSettings().type, wrapSaga, { ...ea, saga: sagaOpenSelectedJournalSettings });
   yield takeEvery(initJournalSettingData().type, wrapSaga, { ...ea, saga: sagaInitJournalSettingData });
   yield takeEvery(resetJournalSettingData().type, wrapSaga, { ...ea, saga: sagaResetJournalSettingData });
   yield takeEvery(restoreJournalSettingData().type, wrapSaga, { ...ea, saga: sagaRestoreJournalSettingData });

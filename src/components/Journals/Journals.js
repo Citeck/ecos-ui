@@ -132,7 +132,7 @@ class Journals extends Component {
     const { isActivePage: _isActivePage } = prevProps;
     const _journalId = get(prevProps, 'urlParams.journalId');
     const journalId = get(urlParams, 'journalId');
-    const someUrlChanges = isActivePage && !isLoading && !equalsQueryUrls({ urls: [this.props._url, prevProps._url] });
+    const someUrlChanges = isActivePage && !equalsQueryUrls({ urls: [this.props._url, prevProps._url] });
     const otherActiveJournal =
       isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId);
 

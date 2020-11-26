@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 import { getPropByStringKey, t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { deleteJournalSetting, onJournalSettingsSelect, openSelectedJournal, renameJournalSetting } from '../../../actions/journals';
+import { deleteJournalSetting, openSelectedJournal, openSelectedJournalSettings, renameJournalSetting } from '../../../actions/journals';
 import { CollapsibleList } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { RemoveDialog } from '../../common/dialogs';
@@ -48,7 +48,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     deleteJournalSetting: id => dispatch(deleteJournalSetting(w(id))),
     renameJournalSetting: options => dispatch(renameJournalSetting(w(options))),
-    onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(w(journalSettingId))),
+    openSelectedJournalSettings: journalSettingId => dispatch(openSelectedJournalSettings(w(journalSettingId))),
     openSelectedJournal: journalId => dispatch(openSelectedJournal(w(journalId)))
   };
 };
@@ -131,6 +131,7 @@ class ListItem extends React.Component {
   render() {
     const { item, removable } = this.props;
     const { isMouseOver, isDialogShow, isRenameMode, title, _title } = this.state;
+    const hasActions = removable && !item.notRemovable && isMouseOver;
 
     return (
       <>
@@ -162,14 +163,17 @@ class ListItem extends React.Component {
           </>
         ) : (
           <div
-            className={classNames('ecos-journal-menu__list-item', { 'ecos-journal-menu__list-item_hover': isMouseOver })}
+            className={classNames('ecos-journal-menu__list-item', {
+              'ecos-journal-menu__list-item_hover': isMouseOver,
+              'ecos-journal-menu__list-item_actions': hasActions
+            })}
             onClick={this.onClick}
             onMouseOver={this.onMouseOver}
             onMouseLeave={this.onMouseLeave}
           >
             <span>{title}</span>
 
-            {removable && !item.notRemovable && isMouseOver ? (
+            {hasActions && (
               <>
                 <IcoBtn
                   title={t(Labels.TEMPLATE_RENAME)}
@@ -184,7 +188,7 @@ class ListItem extends React.Component {
                   onClick={this.showDialog}
                 />
               </>
-            ) : null}
+            )}
           </div>
         )}
 
@@ -214,7 +218,7 @@ class JournalsMenu extends React.Component {
   };
 
   onJournalSettingsSelect = setting => {
-    this.props.onJournalSettingsSelect(setting[JOURNAL_SETTING_ID_FIELD]);
+    this.props.openSelectedJournalSettings(setting[JOURNAL_SETTING_ID_FIELD]);
   };
 
   deleteJournalSettings = item => {
@@ -307,12 +311,6 @@ class JournalsMenu extends React.Component {
     const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
     const menuJournalSettingsSelectedIndex = this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD);
     const { settingsHeight, journalsHeight } = this.calculateHeight(journals, journalSettings);
-    const urlParams = { journalId };
-
-    if (journalSettingId) {
-      urlParams.journalSettingId = journalSettingId;
-      urlParams.userConfigId = '';
-    }
 
     return (
       <div
