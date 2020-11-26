@@ -1,4 +1,5 @@
 const proxy = require('http-proxy-middleware');
+const fs = require('fs');
 
 console.log('Setup proxy...');
 
@@ -17,6 +18,50 @@ console.log('==============Dev Server Proxy URL==============');
 }
 console.log('=============/Dev Server Proxy URL==============');
 
+let reqCookies = '';
+let isCookiesSent = false;
+
+function runCookiesWatcher() {
+  const cookiesFileName = '.cookies';
+
+  const setReqCookie = () => {
+    fs.readFile(cookiesFileName, (err, buf) => {
+      if (err) {
+        console.log(`Can't read ${cookiesFileName}`);
+        return;
+      }
+
+      reqCookies = buf.toString().trim();
+      isCookiesSent = false;
+      console.log(`Set cookies:${reqCookies}!!!`);
+    });
+  };
+
+  if (!fs.existsSync(cookiesFileName)) {
+    try {
+      fs.writeFileSync(cookiesFileName, '');
+    } catch (e) {
+      console.log(`Can't create ${cookiesFileName}`);
+      return;
+    }
+  } else {
+    setReqCookie();
+  }
+
+  fs.watchFile(cookiesFileName, setReqCookie);
+}
+
+runCookiesWatcher();
+
+const onProxyReq = function(req) {
+  if (reqCookies && !isCookiesSent) {
+    console.log(`setHeader[Cookie]:${reqCookies}!!!`);
+    req.setHeader('cookie', reqCookies);
+    // reqCookies = '';
+    isCookiesSent = true;
+  }
+};
+
 // TODO import common parts with server/app.js
 const shareProxyOptions = {
   target: PROXY_URL.SHARE,
@@ -24,6 +69,7 @@ const shareProxyOptions = {
   secure: false,
   logLevel: 'warn', // ['debug', 'info', 'warn', 'error', 'silent']
   ws: true,
+  onProxyReq,
   onProxyRes: (proxyRes, req, res) => {
     // redirect from share proxy to ecos-ui (http://localhost:3000 by default)
     if ([302].indexOf(proxyRes.statusCode) > -1 && proxyRes.headers.location) {
