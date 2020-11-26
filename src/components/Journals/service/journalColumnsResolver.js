@@ -91,7 +91,7 @@ class JournalColumnsResolver {
       default: defaultValue
     };
 
-    const formatterOptions = updColumn.formatter || Mapper.getFormatterOptions(/*updColumn*/ cloneDeep(updColumn), index);
+    const formatterOptions = updColumn.formatter || Mapper.getFormatterOptions(cloneDeep(updColumn), index);
     const formatterData = this._getFormatter(formatterOptions);
     const formatAttSchema = formatterData.formatter.getQueryString(attribute);
 

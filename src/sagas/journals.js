@@ -399,6 +399,8 @@ function* getGridData(api, params, stateId) {
 function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w) {
   const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
 
+  console.warn({ userConfigId, sharedSettings });
+
   if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
     sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
   }
