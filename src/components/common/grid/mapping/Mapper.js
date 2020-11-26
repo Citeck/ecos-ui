@@ -87,6 +87,7 @@ const MAP = [
   {
     options: column => {
       const params = column.params || {};
+
       return { name: 'SelectFormatter', params: { ...params, column } };
     },
     enable: column => column.type === 'options'

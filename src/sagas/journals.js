@@ -397,7 +397,12 @@ function* getGridData(api, params, stateId) {
 }
 
 function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w) {
-  const sharedSettings = yield getJournalSharedSettings(api, userConfigId);
+  const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
+
+  if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
+    sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
+  }
+
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
   const pagination = get(sharedSettings, 'pagination') || (yield select(state => state.journals[stateId].grid.pagination));
   const params = getGridParams({ journalConfig, journalSetting, pagination });
@@ -421,7 +426,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   let isSelectAllRecords = false;
 
   if (!!userConfigId) {
-    if (isEmpty(sharedSettings.selectedItems)) {
+    if (isEmpty(get(sharedSettings, 'selectedItems'))) {
       selectedRecords = get(gridData, 'data', []).map(item => item.id);
       isSelectAllRecords = true;
     } else {
