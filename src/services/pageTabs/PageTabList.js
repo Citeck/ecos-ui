@@ -202,6 +202,8 @@ class PageTabList {
         item.change(updates);
         changingTab = item;
       }
+
+      item.link = item.link.replace(window.location.origin, '');
     });
 
     if (updates.isActive) {

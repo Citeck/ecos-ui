@@ -18,10 +18,11 @@ import {
   restoreJournalSettingData,
   runSearch,
   setSelectAllRecords,
-  setSelectedRecords
+  setSelectedRecords,
+  setUrl
 } from '../../actions/journals';
-import { animateScrollTo, getScrollbarWidth, objectCompare, t, trigger } from '../../helpers/util';
-import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams, stringifySearchParams } from '../../helpers/urls';
+import { animateScrollTo, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
+import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 
 import { JOURNAL_MIN_HEIGHT } from './constants';
@@ -52,7 +53,9 @@ const mapStateToProps = (state, props) => {
     selectedRecords: newState.selectedRecords,
     selectAllRecords: newState.selectAllRecords,
     selectAllRecordsVisible: newState.selectAllRecordsVisible,
-    isLoading: newState.loading
+    isLoading: newState.loading,
+    urlParams: newState.url,
+    _url: window.location.href
   };
 };
 
@@ -66,7 +69,8 @@ const mapDispatchToProps = (dispatch, props) => {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: () => dispatch(reloadGrid(w({}))),
     runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
-    restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting)))
+    restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
+    setUrl: urlParams => dispatch(setUrl(w(urlParams)))
   };
 };
 
@@ -119,27 +123,30 @@ class Journals extends Component {
   }
 
   componentDidMount() {
-    trigger.call(this, 'getJournalsData');
-    trigger.call(this, 'onRender');
+    this.props.setUrl(getSearchParams());
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { isActivePage, urlParams, stateId, isLoading, getJournalsData } = this.props;
+    const { urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl } = this.props;
+
     const { isActivePage: _isActivePage } = prevProps;
     const _journalId = get(prevProps, 'urlParams.journalId');
     const journalId = get(urlParams, 'journalId');
+    const someUrlChanges = isActivePage && !isLoading && !equalsQueryUrls({ urls: [this.props._url, prevProps._url] });
+    const otherActiveJournal =
+      isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId);
 
-    if (isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId)) {
-      getJournalsData();
+    if (someUrlChanges) {
+      setUrl(getSearchParams());
     }
 
-    if (prevProps.stateId !== stateId) {
+    if (someUrlChanges || otherActiveJournal || prevProps.stateId !== stateId) {
       getJournalsData();
     }
 
     if (isActivePage && this.state.isForceUpdate) {
       this.setState({ isForceUpdate: false });
-      this.props.reloadGrid();
+      reloadGrid();
     }
 
     if (_isActivePage && !isActivePage && isLoading) {
@@ -288,7 +295,7 @@ class Journals extends Component {
       search: text
     };
 
-    this.props.setUrl(getSearchParams(stringifySearchParams(searchParams)));
+    this.props.setUrl(searchParams);
     this.props.runSearch(text);
   };
 
