@@ -1026,3 +1026,6 @@ export default class EcosFormUtils {
     });
   }
 }
+
+window.Citeck = window.Citeck || {};
+window.Citeck.EcosFormUtils = EcosFormUtils;
