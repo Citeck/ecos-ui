@@ -345,6 +345,7 @@ class Journals extends Component {
       grid,
       isMobile,
       isActivePage,
+      isLoading,
       selectedRecords,
       selectAllRecordsVisible,
       selectAllRecords,
@@ -385,7 +386,7 @@ class Journals extends Component {
               'ecos-journal__body_with-preview': showPreview
             })}
           >
-            <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} isMobile={isMobile} />
+            <JournalsHead isLoading={isLoading} toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} isMobile={isMobile} />
 
             <JournalsSettingsBar
               grid={grid}

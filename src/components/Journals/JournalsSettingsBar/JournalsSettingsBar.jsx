@@ -34,7 +34,7 @@ const JournalsSettingsBar = ({
   const renderCreateMenu = () => {
     const createVariants = get(journalConfig, 'meta.createVariants') || [];
 
-    if (isMobile || !createVariants.length) {
+    if (isMobile || !createVariants || !createVariants.length) {
       return null;
     }
 
@@ -49,7 +49,16 @@ const JournalsSettingsBar = ({
     }
 
     return (
-      <Dropdown hasEmpty isButton source={createVariants} valueField="destination" titleField="title" onChange={addRecord} className={step}>
+      <Dropdown
+        hasEmpty
+        isButton
+        className={step}
+        source={createVariants}
+        keyFields={['destination', 'type']}
+        valueField="destination"
+        titleField="title"
+        onChange={addRecord}
+      >
         <TwoIcoBtn
           icons={['icon-small-plus', 'icon-small-down']}
           className="ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"

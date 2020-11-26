@@ -68,7 +68,15 @@ class JournalsDashletToolbar extends Component {
     }
 
     return (
-      <Dropdown hasEmpty isButton source={createVariants} valueField="destination" titleField="title" onChange={this.addRecord}>
+      <Dropdown
+        hasEmpty
+        isButton
+        source={createVariants}
+        keyFields={['destination', 'type']}
+        valueField="destination"
+        titleField="title"
+        onChange={this.addRecord}
+      >
         <TwoIcoBtn
           icons={['icon-small-plus', 'icon-small-down']}
           className="ecos-btn_settings-down ecos-btn_blue ecos-btn_hover_light-blue ecos-btn_x-step_10 ecos-journal-dashlet__create-btn"

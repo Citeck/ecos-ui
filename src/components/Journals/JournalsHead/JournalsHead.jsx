@@ -1,17 +1,26 @@
 import React from 'react';
 import classNames from 'classnames';
+import ReactPlaceholder from 'react-placeholder';
+import { RectShape } from 'react-placeholder/lib/placeholders';
+
 import { t } from '../../../helpers/util';
 import { Caption } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
 
 import './JournalsHead.scss';
 
-const JournalsHead = ({ menuOpen, toggleMenu, title, isMobile }) => {
+const JournalsHead = ({ isLoading, menuOpen, toggleMenu, title, isMobile }) => {
   return (
     <div className="journals-head">
-      <Caption normal className={classNames('journals-head__caption', { 'journals-head__caption_small': isMobile })}>
-        {title}
-      </Caption>
+      <ReactPlaceholder
+        ready={!isLoading}
+        showLoadingAnimation
+        customPlaceholder={<RectShape color="#b7b7b7" style={{ width: 200, height: 20, borderRadius: 10 }} />}
+      >
+        <Caption normal className={classNames('journals-head__caption', { 'journals-head__caption_small': isMobile })}>
+          {title}
+        </Caption>
+      </ReactPlaceholder>
 
       <div className={classNames('journals-head__menu-btn', { 'journals-head__menu-btn_hidden': menuOpen })}>
         <IcoBtn

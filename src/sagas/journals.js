@@ -22,6 +22,7 @@ import {
   initPreview,
   onJournalSelect,
   onJournalSettingsSelect,
+  openSelectedJournal,
   reloadGrid,
   reloadTreeGrid,
   renameJournalSetting,
@@ -57,6 +58,7 @@ import { ActionTypes } from '../components/Records/actions';
 import {
   decodeLink,
   getFilterUrlParam,
+  getSearchParams,
   goToJournalsPage as goToJournalsPageUrl,
   isNewVersionPage,
   removeUrlSearchParams
@@ -564,7 +566,7 @@ function* sagaOnJournalSettingsSelect({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
+function* redirectSelectedJournal({ api, logger, stateId, w }, action) {
   try {
     const journalId = action.payload;
     const journals = yield select(state => selectJournals(state, stateId, journalId));
@@ -586,15 +588,54 @@ function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
 
       const url = yield call(getOldPageUrl, { journalId, siteId, listId });
 
-      return PageService.changeUrlLink(url, { reopenBrowserTab: true });
+      PageService.changeUrlLink(url, { reopenBrowserTab: true });
+
+      return true;
     }
+  } catch (e) {
+    logger.error('[journals redirectSelectedJournal saga error', e.message);
+    return false;
+  }
+}
 
+function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
+  try {
     yield put(setLoading(w(true)));
-    const journalConfig = yield getJournalConfig(api, journalId, w);
+    const redirect = yield redirectSelectedJournal({ api, logger, stateId, w }, action);
+    if (!redirect) {
+      const exceptionalParams = ['journalsListId'];
+      const query = getSearchParams();
 
-    yield getJournalSettings(api, journalConfig.id, w);
-    yield loadGrid(api, { journalConfig, stateId }, w);
+      for (let key in query) {
+        if (!exceptionalParams.includes(key)) {
+          query[key] = undefined;
+        }
+      }
+      query.journalId = action.payload;
+
+      const url = queryString.stringifyUrl({ url: window.location.href, query });
+      PageService.changeUrlLink(url, { updateUrl: true });
+    }
+  } catch (e) {
+    logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
+  } finally {
     yield put(setLoading(w(false)));
+  }
+}
+
+function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
+  try {
+    const journalId = action.payload;
+    const redirect = yield redirectSelectedJournal({ api, logger, stateId, w }, action);
+
+    if (!redirect) {
+      yield put(setLoading(w(true)));
+      const journalConfig = yield getJournalConfig(api, journalId, w);
+
+      yield getJournalSettings(api, journalConfig.id, w);
+      yield loadGrid(api, { journalConfig, stateId }, w);
+      yield put(setLoading(w(false)));
+    }
   } catch (e) {
     logger.error('[journals sagaOnJournalSelect saga error', e.message);
   }
@@ -873,6 +914,7 @@ function* saga(ea) {
 
   yield takeEvery(onJournalSettingsSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSettingsSelect });
   yield takeEvery(onJournalSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSelect });
+  yield takeEvery(openSelectedJournal().type, wrapSaga, { ...ea, saga: sagaOpenSelectedJournal });
   yield takeEvery(initJournalSettingData().type, wrapSaga, { ...ea, saga: sagaInitJournalSettingData });
   yield takeEvery(resetJournalSettingData().type, wrapSaga, { ...ea, saga: sagaResetJournalSettingData });
   yield takeEvery(restoreJournalSettingData().type, wrapSaga, { ...ea, saga: sagaRestoreJournalSettingData });
