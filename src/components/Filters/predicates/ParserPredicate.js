@@ -19,7 +19,9 @@ import {
 import { FilterPredicate, GroupPredicate, Predicate } from './';
 
 export default class ParserPredicate {
-  static predicatesWithoutValue = [PREDICATE_NOT_EMPTY, PREDICATE_EMPTY];
+  static get predicatesWithoutValue() {
+    return [PREDICATE_NOT_EMPTY, PREDICATE_EMPTY];
+  }
 
   static getSearchPredicates({ text, columns, groupBy }) {
     const val = [];
