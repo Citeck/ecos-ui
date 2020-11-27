@@ -27,7 +27,7 @@ export default class PageTab {
     let { link, title, id, isLoading = false, isActive = false } = data || {};
 
     this.id = id || `page-tab-${uuidv4()}`;
-    this.link = decodeLink(link.replace(window.location.origin, ''));
+    this.link = decodeLink(link && link.replace(window.location.origin, ''));
     this.title = title;
     this.isLoading = isLoading;
     this.isActive = isActive;
