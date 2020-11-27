@@ -71,6 +71,7 @@ import { selectJournalData, selectJournals, selectJournalUiType, selectUrl } fro
 import { selectSearch } from '../selectors/router';
 import { hasInString } from '../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
+import { JournalUrlParams } from '../constants';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -284,8 +285,8 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
       journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
     }
 
-    if (!journalSetting && hasInString(window.location.href, 'journalSettingId')) {
-      const url = removeUrlSearchParams(window.location.href, 'journalSettingId');
+    if (!journalSetting && hasInString(window.location.href, JournalUrlParams.JOURNAL_SETTING_ID)) {
+      const url = removeUrlSearchParams(window.location.href, JournalUrlParams.JOURNAL_SETTING_ID);
 
       window.history.replaceState({ path: url }, '', url);
 
@@ -558,8 +559,8 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
     const { journalConfig } = yield select(selectJournalData, stateId);
     const query = getSearchParams();
 
-    query.journalSettingId = action.payload || undefined;
-    query.userConfigId = undefined;
+    query[JournalUrlParams.JOURNAL_SETTING_ID] = action.payload || undefined;
+    query[JournalUrlParams.USER_CONFIG_ID] = undefined;
 
     const url = queryString.stringifyUrl({ url: window.location.href, query });
 
@@ -623,7 +624,7 @@ function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
     yield put(setLoading(w(true)));
     const redirect = yield redirectSelectedJournal({ api, logger, stateId, w }, action);
     if (!redirect) {
-      const exceptionalParams = ['journalsListId'];
+      const exceptionalParams = [JournalUrlParams.JOURNALS_LIST_ID];
       const query = getSearchParams();
 
       for (let key in query) {
@@ -631,7 +632,7 @@ function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
           query[key] = undefined;
         }
       }
-      query.journalId = action.payload;
+      query[JournalUrlParams.JOURNAL_ID] = action.payload;
 
       const url = queryString.stringifyUrl({ url: window.location.href, query });
       PageService.changeUrlLink(url, { updateUrl: true });
@@ -894,11 +895,11 @@ function* sagaSearch({ logger, w, stateId }, { payload }) {
     const urlData = queryString.parseUrl(window.location.href);
     const searchText = get(payload, 'text', '');
 
-    if (searchText && get(urlData, 'query.search') !== searchText) {
-      set(urlData, 'query.search', searchText);
+    if (searchText && get(urlData, ['query', JournalUrlParams.SEARCH]) !== searchText) {
+      set(urlData, ['query', JournalUrlParams.SEARCH], searchText);
     }
 
-    if (searchText === '' && has(urlData, 'query.search')) {
+    if (searchText === '' && has(urlData, ['query', JournalUrlParams.SEARCH])) {
       delete urlData.query.search;
     }
     yield put(setLoading(true));

@@ -7,7 +7,6 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 
-import FormManager from '../EcosForm/FormManager';
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
@@ -21,9 +20,11 @@ import {
   setSelectedRecords,
   setUrl
 } from '../../actions/journals';
-import { animateScrollTo, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
-import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams } from '../../helpers/urls';
+import { JournalUrlParams } from '../../constants';
+import { animateScrollTo, getScrollbarWidth, isExistValue, objectCompare, t } from '../../helpers/util';
+import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
+import FormManager from '../EcosForm/FormManager';
 
 import { JOURNAL_MIN_HEIGHT } from './constants';
 import JournalsDashletPagination from './JournalsDashletPagination';
@@ -85,19 +86,20 @@ class Journals extends Component {
     this.state = {
       menuOpen: false,
       isReset: false,
+      isForceUpdate: false,
       menuOpenAnimate: false,
       settingsVisible: false,
-      showPreview: get(props, 'urlParams.showPreview'),
       showPie: false,
       savedSetting: null,
-      journalId: get(props, 'urlParams.journalId'),
-      isForceUpdate: false
+      showPreview: get(props, ['urlParams', JournalUrlParams.SHOW_PREVIEW]),
+      journalId: get(props, ['urlParams', JournalUrlParams.JOURNAL_ID])
     };
   }
 
   static getDerivedStateFromProps(props, state) {
     const newState = {};
-    const journalId = get(props, 'urlParams.journalId');
+    const journalId = get(props, ['urlParams', JournalUrlParams.JOURNAL_ID]);
+    const showPreview = get(props, ['urlParams', JournalUrlParams.SHOW_PREVIEW]);
 
     if (props.isActivePage && journalId !== state.journalId) {
       newState.journalId = journalId;
@@ -128,13 +130,14 @@ class Journals extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl } = this.props;
+    const { isActivePage: _isActivePage, urlParams: _urlParams } = prevProps;
 
-    const { isActivePage: _isActivePage } = prevProps;
-    const _journalId = get(prevProps, 'urlParams.journalId');
-    const journalId = get(urlParams, 'journalId');
-    const someUrlChanges = isActivePage && !equalsQueryUrls({ urls: [this.props._url, prevProps._url] });
+    const _journalId = get(_urlParams, JournalUrlParams.JOURNAL_ID);
+    const journalId = get(urlParams, JournalUrlParams.JOURNAL_ID);
     const otherActiveJournal =
       isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId);
+    const someUrlChanges =
+      isActivePage && !equalsQueryUrls({ urls: [this.props._url, prevProps._url], ignored: [JournalUrlParams.SHOW_PREVIEW] });
 
     if (someUrlChanges) {
       setUrl(getSearchParams());
@@ -195,7 +198,7 @@ class Journals extends Component {
   }, 250);
 
   getSearch = () => {
-    return this.props.isActivePage ? get(getSearchParams(), 'search', '') : '';
+    return this.props.isActivePage ? get(getSearchParams(), JournalUrlParams.SEARCH, '') : '';
   };
 
   getAvailableHeight = (height = this.state.height || 0) => {
@@ -221,7 +224,7 @@ class Journals extends Component {
   };
 
   applySettings = () => {
-    const url = removeUrlSearchParams(window.location.href, 'search');
+    const url = removeUrlSearchParams(window.location.href, JournalUrlParams.SEARCH);
 
     window.history.replaceState({ path: url }, '', url);
     this.toggleSettings();
