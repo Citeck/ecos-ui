@@ -15,7 +15,6 @@ import './JournalsSettingsBar.scss';
 const JournalsSettingsBar = ({
   stateId,
   showPreview,
-  showPie,
   toggleSettings,
   togglePreview,
   showGrid,
@@ -132,13 +131,13 @@ const JournalsSettingsBar = ({
             <IcoBtn
               title={t('journal.title')}
               icon={'icon-list'}
-              className={`${!showPie && !showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
+              className={classNames('ecos-journal__settings-bar_right-btn', step, { [grey]: showPreview, [blue]: !showPreview })}
               onClick={showGrid}
             />
             <IcoBtn
               title={t('doc-preview.preview')}
               icon={'icon-columns'}
-              className={`${showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
+              className={classNames('ecos-journal__settings-bar_right-btn', step, { [grey]: !showPreview, [blue]: showPreview })}
               onClick={togglePreview}
             />
           </>

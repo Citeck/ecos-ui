@@ -21,7 +21,7 @@ import {
   setUrl
 } from '../../actions/journals';
 import { JournalUrlParams } from '../../constants';
-import { animateScrollTo, getScrollbarWidth, isExistValue, objectCompare, t } from '../../helpers/util';
+import { animateScrollTo, getBool, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 import FormManager from '../EcosForm/FormManager';
@@ -89,17 +89,14 @@ class Journals extends Component {
       isForceUpdate: false,
       menuOpenAnimate: false,
       settingsVisible: false,
-      showPie: false,
       savedSetting: null,
-      showPreview: get(props, ['urlParams', JournalUrlParams.SHOW_PREVIEW]),
-      journalId: get(props, ['urlParams', JournalUrlParams.JOURNAL_ID])
+      showPreview: getBool(get(getSearchParams(), JournalUrlParams.SHOW_PREVIEW))
     };
   }
 
   static getDerivedStateFromProps(props, state) {
     const newState = {};
     const journalId = get(props, ['urlParams', JournalUrlParams.JOURNAL_ID]);
-    const showPreview = get(props, ['urlParams', JournalUrlParams.SHOW_PREVIEW]);
 
     if (props.isActivePage && journalId !== state.journalId) {
       newState.journalId = journalId;
@@ -134,10 +131,14 @@ class Journals extends Component {
 
     const _journalId = get(_urlParams, JournalUrlParams.JOURNAL_ID);
     const journalId = get(urlParams, JournalUrlParams.JOURNAL_ID);
+    const showPreview = getBool(get(getSearchParams(), JournalUrlParams.SHOW_PREVIEW));
+
     const otherActiveJournal =
       isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId);
     const someUrlChanges =
-      isActivePage && !equalsQueryUrls({ urls: [this.props._url, prevProps._url], ignored: [JournalUrlParams.SHOW_PREVIEW] });
+      isActivePage &&
+      _isActivePage &&
+      !equalsQueryUrls({ urls: [this.props._url, prevProps._url], ignored: [JournalUrlParams.SHOW_PREVIEW] });
 
     if (someUrlChanges) {
       setUrl(getSearchParams());
@@ -154,6 +155,10 @@ class Journals extends Component {
 
     if (_isActivePage && !isActivePage && isLoading) {
       this.setState({ isForceUpdate: true });
+    }
+
+    if (isActivePage && showPreview !== this.state.showPreview) {
+      updateCurrentUrl({ showPreview: this.state.showPreview });
     }
   }
 
@@ -246,15 +251,11 @@ class Journals extends Component {
   };
 
   togglePreview = () => {
-    this.setState(state => ({ showPreview: !state.showPreview, showPie: false }));
-  };
-
-  togglePie = () => {
-    this.setState(state => ({ showPreview: false, showPie: !state.showPie }));
+    this.setState(state => ({ showPreview: !state.showPreview }));
   };
 
   showGrid = () => {
-    this.setState({ showPreview: false, showPie: false });
+    this.setState({ showPreview: false });
   };
 
   toggleMenu = () => {
@@ -348,24 +349,18 @@ class Journals extends Component {
       grid,
       isMobile,
       isActivePage,
-      isLoading,
       selectedRecords,
       selectAllRecordsVisible,
       selectAllRecords,
       reloadGrid
     } = this.props;
-    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height } = this.state;
+    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, height } = this.state;
 
     if (!journalConfig) {
       return null;
     }
 
-    const {
-      id: journalId,
-      columns = [],
-      meta: { title = '', metaRecord },
-      sourceId
-    } = journalConfig;
+    const { id: journalId, columns = [], meta = {}, sourceId } = journalConfig;
 
     if (!columns.length) {
       return null;
@@ -389,17 +384,15 @@ class Journals extends Component {
               'ecos-journal__body_with-preview': showPreview
             })}
           >
-            <JournalsHead isLoading={isLoading} toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} isMobile={isMobile} />
+            <JournalsHead toggleMenu={this.toggleMenu} title={get(meta, 'title')} menuOpen={menuOpen} isMobile={isMobile} />
 
             <JournalsSettingsBar
               grid={grid}
               journalConfig={journalConfig}
               stateId={stateId}
               showPreview={showPreview}
-              showPie={showPie}
               toggleSettings={this.toggleSettings}
               togglePreview={this.togglePreview}
-              togglePie={this.togglePie}
               showGrid={this.showGrid}
               refresh={reloadGrid}
               onSearch={this.onSearch}
@@ -420,7 +413,12 @@ class Journals extends Component {
                 <EcosModalHeight>
                   {height => (
                     <Scrollbars style={{ height }}>
-                      <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={metaRecord} />
+                      <JournalsFilters
+                        stateId={stateId}
+                        columns={visibleColumns}
+                        sourceId={sourceId}
+                        metaRecord={get(meta, 'metaRecord')}
+                      />
                       <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
                       <JournalsGrouping stateId={stateId} columns={visibleColumns} />
                     </Scrollbars>
@@ -452,7 +450,6 @@ class Journals extends Component {
             <JournalsContent
               stateId={stateId}
               showPreview={showPreview && !isMobile}
-              showPie={showPie}
               maxHeight={this.getAvailableHeight() - (165 + (this.isOpenGroupActions ? 60 : 0))}
               isActivePage={isActivePage}
             />

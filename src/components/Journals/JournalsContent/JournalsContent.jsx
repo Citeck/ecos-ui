@@ -35,8 +35,6 @@ const Preview = ({ stateId, recordId }) => (
   </Well>
 );
 
-const Pie = () => <div>{'showPie'}</div>;
-
 class JournalsContent extends Component {
   state = {};
 
@@ -51,7 +49,7 @@ class JournalsContent extends Component {
   };
 
   render() {
-    const { stateId, showPreview, showPie, maxHeight } = this.props;
+    const { stateId, showPreview, maxHeight } = this.props;
     const { recordId } = this.state;
 
     let content = <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />;
@@ -78,10 +76,6 @@ class JournalsContent extends Component {
           </div>
         </div>
       );
-    }
-
-    if (showPie) {
-      content = <Pie />;
     }
 
     return content;

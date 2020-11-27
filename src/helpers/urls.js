@@ -263,8 +263,8 @@ export const getSortedUrlParams = (params = window.location.search) => {
   return sortedParams.map(key => `${key}=${byObject[key]}`).join('&');
 };
 
-export const getSearchParams = (params = window.location.search) => {
-  return queryString.parse(params);
+export const getSearchParams = (params = window.location.search, options) => {
+  return queryString.parse(params, options);
 };
 
 export const decodeLink = link => {

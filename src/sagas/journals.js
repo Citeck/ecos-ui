@@ -902,7 +902,7 @@ function* sagaSearch({ logger, w, stateId }, { payload }) {
     if (searchText === '' && has(urlData, ['query', JournalUrlParams.SEARCH])) {
       delete urlData.query.search;
     }
-    yield put(setLoading(true));
+    yield put(setLoading(w(true)));
     PageService.changeUrlLink(decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
   } catch (e) {
     logger.error('[journals sagaSearch saga error', e.message);

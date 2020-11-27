@@ -296,7 +296,6 @@ class JournalsMenu extends React.Component {
       journals,
       open,
       journalConfig: {
-        id: journalId,
         meta: { nodeRef }
       },
       pageTabsIsShow,
