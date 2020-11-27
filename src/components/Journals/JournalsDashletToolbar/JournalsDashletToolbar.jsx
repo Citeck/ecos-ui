@@ -12,6 +12,7 @@ import Export from '../../Export/Export';
 import FormManager from '../../EcosForm/FormManager';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
+import { getCreateVariantKeyField } from '../service/util';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -67,12 +68,14 @@ class JournalsDashletToolbar extends Component {
       );
     }
 
+    const keyFields = getCreateVariantKeyField(createVariants[0]);
+
     return (
       <Dropdown
         hasEmpty
         isButton
         source={createVariants}
-        keyFields={['destination', 'type']}
+        keyFields={keyFields}
         valueField="destination"
         titleField="title"
         onChange={this.addRecord}

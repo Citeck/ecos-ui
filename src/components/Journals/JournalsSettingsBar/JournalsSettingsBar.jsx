@@ -7,6 +7,7 @@ import { Search } from '../../common';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import Export from '../../Export/Export';
+import { getCreateVariantKeyField } from '../service/util';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 
 import './JournalsSettingsBar.scss';
@@ -48,13 +49,15 @@ const JournalsSettingsBar = ({
       );
     }
 
+    const keyFields = getCreateVariantKeyField(createVariants[0]);
+
     return (
       <Dropdown
         hasEmpty
         isButton
         className={step}
         source={createVariants}
-        keyFields={['destination', 'type']}
+        keyFields={keyFields}
         valueField="destination"
         titleField="title"
         onChange={addRecord}
