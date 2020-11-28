@@ -19,7 +19,7 @@ export default class PanelBar extends Component {
   };
 
   render() {
-    const { css = {}, className, header, children } = this.props;
+    const { css = {}, className, header, children, collapseTheme } = this.props;
     const { panelVisible } = this.state;
 
     return (
@@ -32,7 +32,7 @@ export default class PanelBar extends Component {
           <div className="panel-bar__actions" />
         </div>
 
-        <Collapse isOpened={panelVisible}>
+        <Collapse isOpened={panelVisible} theme={collapseTheme}>
           <div className={classNames('panel-bar__content', css.contentClassName)}>{children}</div>
         </Collapse>
       </div>
@@ -49,5 +49,9 @@ PanelBar.propTypes = {
   }),
   className: PropTypes.string,
   header: PropTypes.string,
-  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
+  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+  collapseTheme: PropTypes.shape({
+    collapse: PropTypes.string,
+    content: PropTypes.string
+  })
 };

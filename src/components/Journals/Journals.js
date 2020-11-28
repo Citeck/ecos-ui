@@ -188,6 +188,8 @@ class Journals extends Component {
     if (ref) {
       this._journalMenuRef = ref;
     }
+
+    return ref;
   };
 
   onForceUpdate = debounce(() => {
