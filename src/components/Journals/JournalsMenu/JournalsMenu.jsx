@@ -156,7 +156,7 @@ class JournalsMenu extends React.Component {
       <JournalsUrlManager stateId={stateId} params={urlParams} isActivePage={isActivePage}>
         <div
           ref={this.setRef}
-          className={classNames('ecos-journal-menu', 'ecos-journal-menu_test', {
+          className={classNames('ecos-journal-menu', 'ecos-journal-menu_grid', {
             'ecos-journal-menu_open': open,
             'ecos-journal-menu_tabs': pageTabsIsShow,
             'ecos-journal-menu_mobile': isMobile
