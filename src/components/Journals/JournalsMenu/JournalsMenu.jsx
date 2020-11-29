@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
 import get from 'lodash/get';
@@ -40,6 +41,10 @@ const mapDispatchToProps = (dispatch, props) => {
 };
 
 class JournalsMenu extends React.Component {
+  static propTypes = {
+    height: PropTypes.number // needed to track changes in the height of the parent component
+  };
+
   _menuRef = null;
 
   state = {
