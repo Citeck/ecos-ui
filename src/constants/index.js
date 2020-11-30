@@ -130,6 +130,16 @@ export const AppEditions = {
   ENTERPRISE: 'enterprise'
 };
 
+export const JournalUrlParams = {
+  JOURNALS_LIST_ID: 'journalsListId',
+  JOURNAL_ID: 'journalId',
+  RECORD_REF: 'recordRef',
+  JOURNAL_SETTING_ID: 'journalSettingId',
+  USER_CONFIG_ID: 'userConfigId',
+  SHOW_PREVIEW: 'showPreview',
+  SEARCH: 'search'
+};
+
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};
 window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };

@@ -1,5 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
+
 import { t } from '../../../helpers/util';
 import { Caption } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
@@ -12,7 +13,6 @@ const JournalsHead = ({ menuOpen, toggleMenu, title, isMobile }) => {
       <Caption normal className={classNames('journals-head__caption', { 'journals-head__caption_small': isMobile })}>
         {title}
       </Caption>
-
       <div className={classNames('journals-head__menu-btn', { 'journals-head__menu-btn_hidden': menuOpen })}>
         <IcoBtn
           onClick={toggleMenu}

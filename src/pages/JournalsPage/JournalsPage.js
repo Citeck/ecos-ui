@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+import { initState } from '../../actions/journals';
 import { getId, t } from '../../helpers/util';
 import { getStateId } from '../../helpers/redux';
-import { initState } from '../../actions/journals';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
-import { Journals, JournalsUrlManager } from '../../components/Journals';
+import { Journals } from '../../components/Journals';
 import pageTabList from '../../services/pageTabs/PageTabList';
 
 import './style.scss';
@@ -21,8 +21,8 @@ const mapDispatchToProps = dispatch => ({
   initState: stateId => dispatch(initState(stateId))
 });
 
-const mapStateToProps = (state, props) => ({
-  pageTabsIsShow: state.pageTabs.isShow,
+const mapStateToProps = (store, props) => ({
+  pageTabsIsShow: store.pageTabs.isShow,
   isActivePage: !(props.tabId && !pageTabList.isActiveTab(props.tabId))
 });
 
@@ -38,14 +38,10 @@ class JournalsPage extends React.Component {
   }
 
   render() {
-    const { isActivePage } = this.props;
-
     return (
       <div className="ecos-journal-page">
         <ErrorBoundary title={t(Labels.ERROR_BOUNDARY_TITLE)} message={t(Labels.ERROR_BOUNDARY_MSG)}>
-          <JournalsUrlManager stateId={this.stateId} isActivePage={isActivePage}>
-            <Journals stateId={this.stateId} isActivePage={isActivePage} />
-          </JournalsUrlManager>
+          <Journals stateId={this.stateId} isActivePage={this.props.isActivePage} />
         </ErrorBoundary>
       </div>
     );

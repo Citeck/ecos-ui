@@ -6,7 +6,6 @@ import { ResizeBoxes } from '../../common';
 import { Well } from '../../common/form';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsPreview from '../JournalsPreview';
-import JournalsUrlManager from '../JournalsUrlManager';
 
 import './JournalsContent.scss';
 
@@ -36,8 +35,6 @@ const Preview = ({ stateId, recordId }) => (
   </Well>
 );
 
-const Pie = () => <div>{'showPie'}</div>;
-
 class JournalsContent extends Component {
   state = {};
 
@@ -52,7 +49,7 @@ class JournalsContent extends Component {
   };
 
   render() {
-    const { stateId, showPreview, showPie, maxHeight, isActivePage } = this.props;
+    const { stateId, showPreview, maxHeight } = this.props;
     const { recordId } = this.state;
 
     let content = <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />;
@@ -81,15 +78,7 @@ class JournalsContent extends Component {
       );
     }
 
-    if (showPie) {
-      content = <Pie />;
-    }
-
-    return (
-      <JournalsUrlManager stateId={stateId} params={{ showPreview }} isActivePage={isActivePage}>
-        {content}
-      </JournalsUrlManager>
-    );
+    return content;
   }
 }
 

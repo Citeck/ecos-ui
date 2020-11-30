@@ -2,7 +2,7 @@ import * as queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import { SourcesId, URL } from '../constants';
+import { JournalUrlParams, SourcesId, URL } from '../constants';
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/Records/predicates/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
@@ -10,19 +10,19 @@ import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 import { hasInString } from './util';
 
-export const JOURNALS_LIST_ID_KEY = 'journalsListId';
-const JOURNAL_ID_KEY = 'journalId';
+const JOURNALS_LIST_ID_KEY = JournalUrlParams.JOURNALS_LIST_ID;
+const JOURNAL_ID_KEY = JournalUrlParams.JOURNAL_ID;
 const DASHBOARD_ID_KEY = 'dashboardId';
 const DASHBOARD_KEY_KEY = 'dashboardKey';
-const RECORD_REF_KEY = 'recordRef';
-const JOURNAL_SETTING_ID_KEY = 'journalSettingId';
+const RECORD_REF_KEY = JournalUrlParams.RECORD_REF;
+const JOURNAL_SETTING_ID_KEY = JournalUrlParams.JOURNAL_SETTING_ID;
 const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
 const FILTER_KEY = 'filter';
 const SORT_KEY = 'sortBy';
 const PAGINATION_KEY = 'pagination';
-const SHOW_PREVIEW_KEY = 'showPreview';
-const SEARCH_KEY = 'search';
+const SHOW_PREVIEW_KEY = JournalUrlParams.SHOW_PREVIEW;
+const SEARCH_KEY = JournalUrlParams.SEARCH;
 
 export const SearchKeys = {
   TYPE: [TYPE_KEY],
@@ -220,6 +220,16 @@ export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
 
 export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page-v2?nodeRef=${nodeRef}`, '_self');
 
+export const updateCurrentUrl = (params = {}) => {
+  const query = getSearchParams();
+
+  for (let key in params) {
+    query[key] = params[key];
+  }
+
+  changeUrl(queryString.stringifyUrl({ url: window.location.href, query }), { updateUrl: true });
+};
+
 /**
  * Метод перебирает и сортирует параметры из url
  *
@@ -253,8 +263,8 @@ export const getSortedUrlParams = (params = window.location.search) => {
   return sortedParams.map(key => `${key}=${byObject[key]}`).join('&');
 };
 
-export const getSearchParams = (params = window.location.search) => {
-  return queryString.parse(params);
+export const getSearchParams = (params = window.location.search, options) => {
+  return queryString.parse(params, options);
 };
 
 export const decodeLink = link => {
