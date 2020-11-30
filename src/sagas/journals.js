@@ -569,7 +569,7 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
 
     const url = queryString.stringifyUrl({ url: window.location.href, query });
 
-    PageService.changeUrlLink(url, { updateUrl: true /*, pushHistory: true*/ });
+    PageService.changeUrlLink(url, { updateUrl: true });
     api.journals.setLsJournalSettingId(journalConfig.id, action.payload);
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
