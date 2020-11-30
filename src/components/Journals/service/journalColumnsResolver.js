@@ -1,5 +1,6 @@
 import isFunction from 'lodash/isFunction';
 import isObject from 'lodash/isObject';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { getTextByLocale, t } from '../../../helpers/util';
 import Mapper from '../../common/grid/mapping/Mapper';
@@ -90,7 +91,7 @@ class JournalColumnsResolver {
       default: defaultValue
     };
 
-    const formatterOptions = updColumn.formatter || Mapper.getFormatterOptions(updColumn, index);
+    const formatterOptions = updColumn.formatter || Mapper.getFormatterOptions(cloneDeep(updColumn), index);
     const formatterData = this._getFormatter(formatterOptions);
     const formatAttSchema = formatterData.formatter.getQueryString(attribute);
 
