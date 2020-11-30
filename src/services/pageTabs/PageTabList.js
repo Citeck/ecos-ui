@@ -6,8 +6,9 @@ import { EventEmitter2 } from 'eventemitter2';
 import * as queryString from 'query-string';
 
 import * as storage from '../../helpers/ls';
-import { equalsQueryUrls, IgnoredUrlParams, JOURNALS_LIST_ID_KEY } from '../../helpers/urls';
+import { equalsQueryUrls, IgnoredUrlParams } from '../../helpers/urls';
 import { t } from '../../helpers/util';
+import { JournalUrlParams } from '../../constants';
 import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
 import PageService from '../PageService';
@@ -202,6 +203,8 @@ class PageTabList {
         item.change(updates);
         changingTab = item;
       }
+
+      item.link = item.link.replace(window.location.origin, '');
     });
 
     if (updates.isActive) {
@@ -273,7 +276,8 @@ class PageTabList {
           const parsedItemUrl = queryString.parseUrl(item.link);
           const parsedCurrentTabUrl = queryString.parseUrl(tab.link);
           const isJournalExist =
-            get(parsedItemUrl, ['query', JOURNALS_LIST_ID_KEY]) === get(parsedCurrentTabUrl, ['query', JOURNALS_LIST_ID_KEY], null);
+            get(parsedItemUrl, ['query', JournalUrlParams.JOURNALS_LIST_ID]) ===
+            get(parsedCurrentTabUrl, ['query', JournalUrlParams.JOURNALS_LIST_ID], null);
 
           return PageTab.equals(tab, item) || isJournalExist;
         });

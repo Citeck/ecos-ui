@@ -7,6 +7,7 @@ import { Search } from '../../common';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import Export from '../../Export/Export';
+import { getCreateVariantKeyField } from '../service/util';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 
 import './JournalsSettingsBar.scss';
@@ -14,7 +15,6 @@ import './JournalsSettingsBar.scss';
 const JournalsSettingsBar = ({
   stateId,
   showPreview,
-  showPie,
   toggleSettings,
   togglePreview,
   showGrid,
@@ -34,7 +34,7 @@ const JournalsSettingsBar = ({
   const renderCreateMenu = () => {
     const createVariants = get(journalConfig, 'meta.createVariants') || [];
 
-    if (isMobile || !createVariants.length) {
+    if (isMobile || !createVariants || !createVariants.length) {
       return null;
     }
 
@@ -48,8 +48,19 @@ const JournalsSettingsBar = ({
       );
     }
 
+    const keyFields = getCreateVariantKeyField(createVariants[0]);
+
     return (
-      <Dropdown hasEmpty isButton source={createVariants} valueField="destination" titleField="title" onChange={addRecord} className={step}>
+      <Dropdown
+        hasEmpty
+        isButton
+        className={step}
+        source={createVariants}
+        keyFields={keyFields}
+        valueField="destination"
+        titleField="title"
+        onChange={addRecord}
+      >
         <TwoIcoBtn
           icons={['icon-small-plus', 'icon-small-down']}
           className="ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
@@ -120,13 +131,13 @@ const JournalsSettingsBar = ({
             <IcoBtn
               title={t('journal.title')}
               icon={'icon-list'}
-              className={`${!showPie && !showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
+              className={classNames('ecos-journal__settings-bar_right-btn', step, { [grey]: showPreview, [blue]: !showPreview })}
               onClick={showGrid}
             />
             <IcoBtn
               title={t('doc-preview.preview')}
               icon={'icon-columns'}
-              className={`${showPreview ? blue : grey} ${step} ecos-journal__settings-bar_right-btn`}
+              className={classNames('ecos-journal__settings-bar_right-btn', step, { [grey]: !showPreview, [blue]: showPreview })}
               onClick={togglePreview}
             />
           </>
