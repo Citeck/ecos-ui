@@ -24,8 +24,6 @@ const PAGINATION_KEY = 'pagination';
 const SHOW_PREVIEW_KEY = JournalUrlParams.SHOW_PREVIEW;
 const SEARCH_KEY = JournalUrlParams.SEARCH;
 
-window.queryString = queryString;
-
 export const SearchKeys = {
   TYPE: [TYPE_KEY],
   DESTINATION: [DESTINATION_KEY],
