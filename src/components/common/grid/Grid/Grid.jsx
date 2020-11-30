@@ -73,7 +73,6 @@ class Grid extends Component {
 
   componentDidMount() {
     this.createCloseFilterEvent();
-    this.createColumnResizeEvents();
     this.createKeydownEvents();
     this.createDragEvents();
 
@@ -89,13 +88,23 @@ class Grid extends Component {
     }
 
     this.checkScrollPosition();
+
+    if (this.props.resizableColumns) {
+      this.createColumnResizeEvents();
+    } else {
+      this.removeColumnResizeEvents();
+    }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     const grid = get(this.props, 'forwardedRef.current', null);
 
     if (grid) {
       this._tableDom = grid.querySelector('table');
+    }
+
+    if (!prevProps.resizableColumns) {
+      this.props.resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
     }
 
     this.setColumnsSizes();
@@ -935,6 +944,7 @@ class Grid extends Component {
       rowEvents,
       byContentHeight,
       noHeader,
+      resizableColumns,
       ...otherProps
     } = this.props;
 
@@ -1002,7 +1012,9 @@ class Grid extends Component {
             <BootstrapTable
               {...bootProps}
               classes="ecos-grid__table"
-              headerClasses="ecos-grid__header"
+              headerClasses={classNames('ecos-grid__header', {
+                'ecos-grid__header_columns-not-resizable': !resizableColumns
+              })}
               rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
             />
           </div>
@@ -1040,6 +1052,7 @@ Grid.propTypes = {
   autoHeight: PropTypes.bool,
   byContentHeight: PropTypes.bool,
   sortable: PropTypes.bool,
+  resizableColumns: PropTypes.bool,
   maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 
@@ -1067,7 +1080,8 @@ Grid.propTypes = {
 
 Grid.defaultProps = {
   scrollable: true,
-  sortable: true
+  sortable: true,
+  resizableColumns: true
 };
 
 export default Grid;

@@ -70,7 +70,15 @@ const TypePermissionsGrid = () => {
 
   return (
     <div className="type-permissions__grid-container">
-      <Grid autoHeight maxHeight={calcMaxHeight()} fixedHeader data={data} columns={columns} className="type-permissions__grid" />
+      <Grid
+        resizableColumns={false}
+        autoHeight
+        maxHeight={calcMaxHeight()}
+        fixedHeader
+        data={data}
+        columns={columns}
+        className="type-permissions__grid"
+      />
     </div>
   );
 };
