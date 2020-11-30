@@ -569,7 +569,7 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
 
     const url = queryString.stringifyUrl({ url: window.location.href, query });
 
-    PageService.changeUrlLink(url, { updateUrl: true });
+    PageService.changeUrlLink(url, { updateUrl: true /*, pushHistory: true*/ });
     api.journals.setLsJournalSettingId(journalConfig.id, action.payload);
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
@@ -627,7 +627,9 @@ function* redirectSelectedJournal({ api, logger, stateId, w }, action) {
 function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
   try {
     yield put(setLoading(w(true)));
+
     const redirect = yield redirectSelectedJournal({ api, logger, stateId, w }, action);
+
     if (!redirect) {
       const exceptionalParams = [JournalUrlParams.JOURNALS_LIST_ID];
       const query = getSearchParams();
@@ -637,10 +639,12 @@ function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
           query[key] = undefined;
         }
       }
+
       query[JournalUrlParams.JOURNAL_ID] = action.payload;
 
       const url = queryString.stringifyUrl({ url: window.location.href, query });
-      PageService.changeUrlLink(url, { updateUrl: true });
+
+      PageService.changeUrlLink(url, { updateUrl: true, pushHistory: true });
     }
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e.message);

@@ -7,6 +7,7 @@ import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
 import { NotificationContainer } from 'react-notifications';
 import { push } from 'connected-react-router';
+import * as queryString from 'query-string';
 
 import CacheRoute, { CacheSwitch } from '../ReactRouterCache';
 
@@ -29,7 +30,7 @@ import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { MenuSettingsController } from '../MenuSettings';
-import { replaceHistoryLink } from '../../helpers/urls';
+import { pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import { selectActiveThemeImage } from '../../selectors/view';
 import { DefaultImages } from '../../constants/theme';
 
@@ -76,13 +77,28 @@ class App extends Component {
       return;
     }
 
-    const { reopen, closeActiveTab, updates, ...data } = PageService.parseEvent({ event }) || {};
+    const { reopen, closeActiveTab, updates, pushHistory, ...data } = PageService.parseEvent({ event }) || {};
 
     if (updates) {
       const { link } = updates;
 
       if (link) {
-        replaceHistoryLink(this.props.history, link);
+        if (pushHistory) {
+          const { url, query } = queryString.parseUrl(link);
+
+          pushHistoryLink(window, {
+            pathname: url,
+            search: Object.keys(query)
+              .reduce((result, key) => {
+                result.push(`${key}=${query[key]}`);
+
+                return result;
+              }, [])
+              .join('&')
+          });
+        } else {
+          replaceHistoryLink(this.props.history, link);
+        }
       }
 
       updateTab({ updates });
