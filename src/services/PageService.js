@@ -133,8 +133,10 @@ export default class PageService {
    *    openNewTab - bool,
    *    openNewBrowserTab - bool,
    *    reopenBrowserTab - bool,
-   *    closeActiveTab - bool
-   *    openInBackground - bool
+   *    closeActiveTab - bool,
+   *    openInBackground - bool,
+   *    pushHistory - bool,
+   *    replaceHistory - bool // default true, if updateUrl is true
    */
   static changeUrlLink = (link = '', params = {}) => {
     if (PageService.eventIsDispatched) {
