@@ -306,6 +306,10 @@ button {
     color: $color-white;
   }
 
+  &.ecos-btn.ecos-btn_color_dark {
+    color: $text-color-dark;
+  }
+
   &.ecos-btn_color_blue-light2 {
     color: $color-blue-light2;
   }
