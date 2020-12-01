@@ -30,7 +30,7 @@ import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { MenuSettingsController } from '../MenuSettings';
-import { pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
+import { decodeLink, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import { selectActiveThemeImage } from '../../selectors/view';
 import { DefaultImages } from '../../constants/theme';
 
@@ -88,13 +88,7 @@ class App extends Component {
 
           pushHistoryLink(window, {
             pathname: url,
-            search: Object.keys(query)
-              .reduce((result, key) => {
-                result.push(`${key}=${query[key]}`);
-
-                return result;
-              }, [])
-              .join('&')
+            search: decodeLink(queryString.stringify(query))
           });
         } else {
           replaceHistoryLink(this.props.history, link);
