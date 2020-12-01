@@ -6,7 +6,7 @@ import { Grid } from '../../../common/grid';
 import { t } from '../../../../helpers/util';
 
 import { TypePermissionsEditorContext } from '../TypePermissionsEditorContext';
-import { STATUS_FIELD_NAME, TYPE_PERM_READ, TYPE_PERM_WRITE } from '../../constants';
+import { STATUS_FIELD_NAME, TYPE_PERM_NONE, TYPE_PERM_WRITE } from '../../constants';
 import { switchTypePerm } from '../../helpers/switchTypePerm';
 
 const TypePermissionsGrid = () => {
@@ -36,7 +36,8 @@ const TypePermissionsGrid = () => {
             <div className={'type-permissions__switch-buttons'}>
               <Btn
                 className={classNames('ecos-btn_narrow', 'type-permissions__switch-button', {
-                  'ecos-btn_blue': permission === TYPE_PERM_WRITE || permission === TYPE_PERM_READ
+                  'ecos-btn_blue': permission === TYPE_PERM_WRITE,
+                  'type-permissions__switch-button_none': permission === TYPE_PERM_NONE
                 })}
                 onClick={onClick}
               >
