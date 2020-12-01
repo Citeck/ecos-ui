@@ -567,7 +567,8 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
     query[JournalUrlParams.JOURNAL_SETTING_ID] = action.payload || undefined;
     query[JournalUrlParams.USER_CONFIG_ID] = undefined;
 
-    const url = queryString.stringifyUrl({ url: window.location.href, query });
+    const { pathname, search } = window.location;
+    const url = queryString.stringifyUrl({ url: `${pathname}${search}`, query });
 
     PageService.changeUrlLink(url, { updateUrl: true });
     api.journals.setLsJournalSettingId(journalConfig.id, action.payload);
@@ -642,7 +643,8 @@ function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
 
       query[JournalUrlParams.JOURNAL_ID] = action.payload;
 
-      const url = queryString.stringifyUrl({ url: window.location.href, query });
+      const { pathname, search } = window.location;
+      const url = queryString.stringifyUrl({ url: `${pathname}${search}`, query });
 
       PageService.changeUrlLink(url, { updateUrl: true, pushHistory: true });
     }
@@ -901,7 +903,8 @@ function* getSearchPredicate({ logger, stateId, grid }) {
 
 function* sagaSearch({ logger, w, stateId }, { payload }) {
   try {
-    const urlData = queryString.parseUrl(window.location.href);
+    const { pathname, search } = window.location;
+    const urlData = queryString.parseUrl(`${pathname}${search}`);
     const searchText = get(payload, 'text', '');
 
     if (searchText && get(urlData, ['query', JournalUrlParams.SEARCH]) !== searchText) {
