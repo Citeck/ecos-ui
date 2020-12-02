@@ -37,7 +37,7 @@ const TypePermissionsGrid = () => {
               <Btn
                 className={classNames('ecos-btn_narrow', 'type-permissions__switch-button', {
                   'ecos-btn_blue': permission === TYPE_PERM_WRITE,
-                  'type-permissions__switch-button_none': permission === TYPE_PERM_NONE
+                  'ecos-btn_grey-dark': permission === TYPE_PERM_NONE
                 })}
                 onClick={onClick}
               >

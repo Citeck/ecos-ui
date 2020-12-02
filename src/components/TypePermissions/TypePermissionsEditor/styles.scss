@@ -1,5 +1,3 @@
-@import '../../../styles/constants';
-
 .type-permissions {
   &__buttons-panel {
     display: grid;
@@ -19,21 +17,7 @@
   }
 
   &__switch-button {
-    $btn: &;
-
     width: 80px;
-
-    &.ecos-btn#{$btn} {
-      &_none {
-        background: $color-gray-11;
-        color: $color-white;
-
-        &:focus,
-        &:hover {
-          background: lighten($color-gray-11, 10%);
-        }
-      }
-    }
   }
 
   &__column {
@@ -45,8 +29,5 @@
       display: flex;
       justify-content: center;
     }
-  }
-
-  &__error {
   }
 }
