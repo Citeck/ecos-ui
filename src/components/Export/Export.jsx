@@ -16,9 +16,9 @@ import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
 import { PREDICATE_AND } from '../Records/predicates/predicates';
 import ParserPredicate from '../Filters/predicates/ParserPredicate';
+import { JournalsIds } from '../Journals/constants';
 
 import './Export.scss';
-import { JournalsIds } from '../Journals/constants';
 
 const api = new UserConfigApi();
 
@@ -160,8 +160,6 @@ export default class Export extends Component {
   onCopyUrl = () => {
     const data = this.getSelectionFilter();
     const url = this.getSelectionUrl();
-
-    console.warn({ data, url });
 
     if (!isEmpty(this.props.selectedItems)) {
       data.selectedItems = this.props.selectedItems;
