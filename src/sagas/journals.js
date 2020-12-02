@@ -60,6 +60,7 @@ import {
   decodeLink,
   getFilterUrlParam,
   getSearchParams,
+  getUrlWithoutOrigin,
   goToJournalsPage as goToJournalsPageUrl,
   isNewVersionPage,
   removeUrlSearchParams
@@ -567,7 +568,7 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
     query[JournalUrlParams.JOURNAL_SETTING_ID] = action.payload || undefined;
     query[JournalUrlParams.USER_CONFIG_ID] = undefined;
 
-    const url = queryString.stringifyUrl({ url: window.location.href, query });
+    const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
 
     PageService.changeUrlLink(url, { updateUrl: true });
     api.journals.setLsJournalSettingId(journalConfig.id, action.payload);
@@ -642,7 +643,7 @@ function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
 
       query[JournalUrlParams.JOURNAL_ID] = action.payload;
 
-      const url = queryString.stringifyUrl({ url: window.location.href, query });
+      const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
 
       PageService.changeUrlLink(url, { updateUrl: true, pushHistory: true });
     }
@@ -901,7 +902,7 @@ function* getSearchPredicate({ logger, stateId, grid }) {
 
 function* sagaSearch({ logger, w, stateId }, { payload }) {
   try {
-    const urlData = queryString.parseUrl(window.location.href);
+    const urlData = queryString.parseUrl(getUrlWithoutOrigin());
     const searchText = get(payload, 'text', '');
 
     if (searchText && get(urlData, ['query', JournalUrlParams.SEARCH]) !== searchText) {
