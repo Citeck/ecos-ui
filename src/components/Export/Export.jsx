@@ -18,6 +18,7 @@ import { PREDICATE_AND } from '../Records/predicates/predicates';
 import ParserPredicate from '../Filters/predicates/ParserPredicate';
 
 import './Export.scss';
+import { JournalsIds } from '../Journals/constants';
 
 const api = new UserConfigApi();
 
@@ -136,7 +137,7 @@ export default class Export extends Component {
   };
 
   getSelectionUrl = () => {
-    const { dashletConfig } = this.props;
+    const { dashletConfig, journalConfig } = this.props;
     const { href, host } = window.location;
 
     if (dashletConfig) {
@@ -147,13 +148,20 @@ export default class Export extends Component {
 
     const objectUrl = queryString.parseUrl(href);
     const { journalId, journalsListId } = objectUrl.query;
+    const query = { journalId, journalsListId };
 
-    return `${objectUrl.url}?${queryString.stringify({ journalId, journalsListId })}`;
+    if (get(journalConfig, 'id') === JournalsIds.SEARCH) {
+      query.search = get(objectUrl, 'query.search');
+    }
+
+    return `${objectUrl.url}?${queryString.stringify(query)}`;
   };
 
   onCopyUrl = () => {
     const data = this.getSelectionFilter();
     const url = this.getSelectionUrl();
+
+    console.warn({ data, url });
 
     if (!isEmpty(this.props.selectedItems)) {
       data.selectedItems = this.props.selectedItems;
