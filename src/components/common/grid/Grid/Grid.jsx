@@ -91,20 +91,19 @@ class Grid extends Component {
 
     if (this.props.resizableColumns) {
       this.createColumnResizeEvents();
-    } else {
-      this.removeColumnResizeEvents();
     }
   }
 
   componentDidUpdate(prevProps) {
-    const grid = get(this.props, 'forwardedRef.current', null);
+    const { forwardedRef, resizableColumns } = this.props;
 
+    const grid = get(forwardedRef, 'current', null);
     if (grid) {
       this._tableDom = grid.querySelector('table');
     }
 
-    if (!prevProps.resizableColumns) {
-      this.props.resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
+    if (prevProps.resizableColumns !== resizableColumns) {
+      resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
     }
 
     this.setColumnsSizes();
