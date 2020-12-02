@@ -131,7 +131,7 @@ export default handleActions(
         ? {
             ...state,
             [stateId]: {
-              ...state[stateId],
+              ...(state[stateId] || {}),
               url: {
                 ...action.payload
               }
@@ -197,13 +197,13 @@ export default handleActions(
         ? {
             ...state,
             [stateId]: {
-              ...state[stateId],
+              ...(state[stateId] || {}),
               journalSetting: {
-                ...state[stateId].journalSetting,
+                ...(state[stateId] || {}).journalSetting,
                 ...action.payload
               },
               grid: {
-                ...state[stateId].grid,
+                ...(state[stateId] || {}).grid,
                 search: ''
               }
             }
@@ -233,9 +233,9 @@ export default handleActions(
         ? {
             ...state,
             [stateId]: {
-              ...state[stateId],
+              ...(state[stateId] || {}),
               config: {
-                ...state[stateId].config,
+                ...(state[stateId] || {}).config,
                 journalsListId: action.payload.id
               }
             }
@@ -256,9 +256,9 @@ export default handleActions(
         ? {
             ...state,
             [stateId]: {
-              ...state[stateId],
+              ...(state[stateId] || {}),
               config: {
-                ...state[stateId].config,
+                ...(state[stateId] || {}).config,
                 journalId: action.payload.nodeRef,
                 journalType: action.payload.type
               }
@@ -281,9 +281,9 @@ export default handleActions(
         ? {
             ...state,
             [stateId]: {
-              ...state[stateId],
+              ...(state[stateId] || {}),
               config: {
-                ...state[stateId].config,
+                ...(state[stateId] || {}).config,
                 journalSettingId: action.payload
               }
             }
@@ -304,9 +304,9 @@ export default handleActions(
         ? {
             ...state,
             [stateId]: {
-              ...state[stateId],
+              ...(state[stateId] || {}),
               config: {
-                ...state[stateId].config,
+                ...(state[stateId] || {}).config,
                 customJournal: action.payload
               }
             }
@@ -327,9 +327,9 @@ export default handleActions(
         ? {
             ...state,
             [stateId]: {
-              ...state[stateId],
+              ...(state[stateId] || {}),
               config: {
-                ...state[stateId].config,
+                ...(state[stateId] || {}).config,
                 onlyLinked: action.payload
               }
             }
@@ -350,9 +350,9 @@ export default handleActions(
         ? {
             ...state,
             [stateId]: {
-              ...state[stateId],
+              ...(state[stateId] || {}),
               config: {
-                ...state[stateId].config,
+                ...(state[stateId] || {}).config,
                 customJournalMode: action.payload
               }
             }
@@ -391,9 +391,9 @@ export default handleActions(
         ? {
             ...state,
             [stateId]: {
-              ...state[stateId],
+              ...(state[stateId] || {}),
               grid: {
-                ...state[stateId].grid,
+                ...(state[stateId] || {}).grid,
                 ...action.payload
               }
             }
@@ -453,12 +453,12 @@ export default handleActions(
 
       return handleState(state, stateId, {
         grid: {
-          ...state[stateId].grid,
+          ...(state[stateId] || {}).grid,
           search: action.payload.text,
           sortBy: [],
           groupBy: [],
           pagination: {
-            ...state[stateId].grid.pagination,
+            ...(state[stateId] || {}).grid.pagination,
             skipCount: 0,
             page: 1
           }

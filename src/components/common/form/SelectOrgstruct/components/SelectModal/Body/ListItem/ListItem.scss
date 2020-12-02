@@ -71,21 +71,18 @@
   align-items: center;
   margin: 0 5px;
   flex-shrink: 0;
-}
-
-.select-orgstruct__select-handler_not-selected {
   background: $color-green1;
 
   &:before {
     font-size: 14px;
+    line-height: inherit;
   }
 }
 
 .select-orgstruct__select-handler_selected {
-  background: $color-red-1;
-
-  &:before {
-    font-size: 14px;
+  &.icon:before {
+    font-weight: bold;
+    font-size: 15px;
   }
 }
 

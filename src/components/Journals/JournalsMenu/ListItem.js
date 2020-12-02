@@ -1,10 +1,19 @@
 import React from 'react';
+import classNames from 'classnames';
 
 import { getPropByStringKey, t, trigger } from '../../../helpers/util';
 import { JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { Input } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
 import { RemoveDialog } from '../../common/dialogs';
+
+const Labels = {
+  TEMPLATE_CANCEL: 'journals.action.cancel-rename-tpl-msg',
+  TEMPLATE_RENAME: 'journals.action.rename-tpl-msg',
+  TEMPLATE_REMOVE: 'journals.action.remove-tpl-msg',
+  TEMPLATE_REMOVE_TITLE: 'journals.action.delete-tpl-msg',
+  TEMPLATE_REMOVE_TEXT: 'journals.action.remove-tpl-msg'
+};
 
 class ListItem extends React.Component {
   constructor(props) {
@@ -84,6 +93,7 @@ class ListItem extends React.Component {
   render() {
     const { item, removable } = this.props;
     const { isMouseOver, isDialogShow, isRenameMode, title, _title } = this.state;
+    const hasActions = removable && !item.notRemovable && isMouseOver;
 
     return (
       <>
@@ -93,47 +103,50 @@ class ListItem extends React.Component {
               type={'text'}
               autoFocus
               autoSelect
-              className={'ecos-journal-menu__list-item-input'}
+              className="ecos-journal-menu__list-item-input"
               value={_title}
               onChange={this.onChangeTitle}
               onKeyPress={this.onKeyPress}
             />
 
             <IcoBtn
-              title={t('journals.action.cancel-rename-tpl-msg')}
+              title={t(Labels.TEMPLATE_CANCEL)}
               icon={'icon-small-close'}
-              className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_red ecos-btn_hover_t_light-red ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_cancel`}
+              className="ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_red ecos-btn_hover_t_light-red ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_cancel"
               onClick={this.cancelRenameMode}
             />
 
             <IcoBtn
-              title={t('journals.action.rename-tpl-msg')}
+              title={t(Labels.TEMPLATE_RENAME)}
               icon={'icon-small-check'}
-              className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_green ecos-btn_hover_t_light-green ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_apply`}
+              className="ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_green ecos-btn_hover_t_light-green ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_apply"
               onClick={this.apply}
             />
           </>
         ) : (
           <div
-            className={`ecos-journal-menu__list-item ${isMouseOver ? 'ecos-journal-menu__list-item_hover' : ''}`}
+            className={classNames('ecos-journal-menu__list-item', {
+              'ecos-journal-menu__list-item_hover': isMouseOver,
+              'ecos-journal-menu__list-item_actions': hasActions
+            })}
             onClick={this.onClick}
             onMouseOver={this.onMouseOver}
             onMouseLeave={this.onMouseLeave}
           >
             <span>{title}</span>
 
-            {removable && !item.notRemovable && isMouseOver ? (
+            {hasActions ? (
               <>
                 <IcoBtn
-                  title={t('journals.action.rename-tpl-msg')}
+                  title={t(Labels.TEMPLATE_RENAME)}
                   icon={'icon-edit'}
-                  className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_edit`}
+                  className="ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_edit"
                   onClick={this.showRenameMode}
                 />
                 <IcoBtn
-                  title={t('journals.action.remove-tpl-msg')}
+                  title={t(Labels.TEMPLATE_REMOVE)}
                   icon={'icon-delete'}
-                  className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_delete`}
+                  className="ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_delete"
                   onClick={this.showDialog}
                 />
               </>
@@ -143,8 +156,8 @@ class ListItem extends React.Component {
 
         <RemoveDialog
           isOpen={isDialogShow}
-          title={t('journals.action.delete-tpl-msg')}
-          text={t('journals.action.remove-tpl-msg', { name: title })}
+          title={t(Labels.TEMPLATE_REMOVE_TITLE)}
+          text={t(Labels.TEMPLATE_REMOVE_TEXT, { name: title })}
           onCancel={this.closeDialog}
           onDelete={this.delete}
           onClose={this.closeDialog}

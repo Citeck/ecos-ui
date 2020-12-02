@@ -45,7 +45,8 @@ export default class Dropdown extends Component {
     scrollbarHeightMin: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     scrollbarHeightMax: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     CustomItem: PropTypes.element,
-    getStateOpen: PropTypes.func
+    getStateOpen: PropTypes.func,
+    onChange: PropTypes.func
   };
 
   static defaultProps = {
@@ -165,7 +166,7 @@ export default class Dropdown extends Component {
     }
 
     if (Array.isArray(keyFields)) {
-      return keyFields.map(key => `${item[key]}`).join('-');
+      return keyFields.map(key => item[key]).join('-');
     }
 
     return index;

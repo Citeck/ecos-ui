@@ -6,15 +6,22 @@ import get from 'lodash/get';
 
 import { getScrollbarWidth, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { deleteJournalSetting, onJournalSelect, onJournalSettingsSelect, renameJournalSetting } from '../../../actions/journals';
+import { deleteJournalSetting, openSelectedJournal, openSelectedJournalSettings, renameJournalSetting } from '../../../actions/journals';
 import { CollapsibleList } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { Well } from '../../common/form';
-import JournalsUrlManager from '../JournalsUrlManager';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import ListItem from './ListItem';
 
 import './JournalsMenu.scss';
+
+const Labels = {
+  HIDE_MENU: 'journals.action.hide-menu',
+  HIDE_MENU_sm: 'journals.action.hide-menu_sm',
+  EMPTY_LIST: 'journals.menu.journal-list.empty',
+  JOURNALS_TITLE: 'journals.menu.journal-list.title',
+  TEMPLATES_TITLE: 'journals.tpl.defaults'
+};
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -35,8 +42,8 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     deleteJournalSetting: id => dispatch(deleteJournalSetting(w(id))),
     renameJournalSetting: options => dispatch(renameJournalSetting(w(options))),
-    onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(w(journalSettingId))),
-    onJournalSelect: journalId => dispatch(onJournalSelect(w(journalId)))
+    openSelectedJournalSettings: journalSettingId => dispatch(openSelectedJournalSettings(w(journalSettingId))),
+    openSelectedJournal: journalId => dispatch(openSelectedJournal(w(journalId)))
   };
 };
 
@@ -60,11 +67,11 @@ class JournalsMenu extends React.Component {
   };
 
   onJournalSelect = journal => {
-    this.props.onJournalSelect(journal.nodeRef);
+    this.props.openSelectedJournal(journal.nodeRef);
   };
 
   onJournalSettingsSelect = setting => {
-    this.props.onJournalSettingsSelect(setting[JOURNAL_SETTING_ID_FIELD]);
+    this.props.openSelectedJournalSettings(setting[JOURNAL_SETTING_ID_FIELD]);
   };
 
   deleteJournalSettings = item => {
@@ -75,7 +82,7 @@ class JournalsMenu extends React.Component {
     this.props.renameJournalSetting(options);
   };
 
-  getMenuJornals = journals => {
+  getMenuJournals = journals => {
     return journals.map(journal => <ListItem onClick={this.onJournalSelect} item={journal} titleField={'title'} />);
   };
 
@@ -130,18 +137,15 @@ class JournalsMenu extends React.Component {
 
   render() {
     const {
-      stateId,
       journalSetting,
       journalSettings,
       journals,
       open,
       journalConfig: {
-        id: journalId,
         meta: { nodeRef }
       },
       pageTabsIsShow,
-      isMobile,
-      isActivePage
+      isMobile
     } = this.props;
 
     if (!open) {
@@ -150,61 +154,54 @@ class JournalsMenu extends React.Component {
 
     const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
     const menuJournalSettingsSelectedIndex = this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD);
-    const urlParams = { journalId };
-
-    if (journalSettingId) {
-      urlParams.journalSettingId = journalSettingId;
-      urlParams.userConfigId = '';
-    }
 
     return (
-      <JournalsUrlManager stateId={stateId} params={urlParams} isActivePage={isActivePage}>
-        <div
-          ref={this.setRef}
-          className={classNames('ecos-journal-menu', 'ecos-journal-menu_grid', {
-            'ecos-journal-menu_open': open,
-            'ecos-journal-menu_tabs': pageTabsIsShow,
-            'ecos-journal-menu_mobile': isMobile
-          })}
-          style={{ maxHeight: this.getMaxMenuHeight() }}
-        >
-          <div className={'ecos-journal-menu__hide-menu-btn'}>
-            <IcoBtn
-              onClick={this.onClose}
-              icon={'icon-small-arrow-right'}
-              invert
-              className={'ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
-            >
-              {isMobile ? t('journals.action.hide-menu_sm') : t('journals.action.hide-menu')}
-            </IcoBtn>
-          </div>
-
-          <Well className={'ecos-journal-menu__journals'}>
-            <CollapsibleList
-              needScrollbar={false}
-              className="ecos-journal-menu__collapsible-list"
-              classNameList={'ecos-list-group_mode_journal'}
-              list={this.getMenuJornals(journals)}
-              selected={this.getSelectedIndex(journals, nodeRef, 'nodeRef')}
-              emptyText={t('journals.menu.journal-list.empty')}
-            >
-              {t('journals.menu.journal-list.title')}
-            </CollapsibleList>
-          </Well>
-
-          <Well className={'ecos-journal-menu__presets'}>
-            <CollapsibleList
-              needScrollbar={false}
-              className="ecos-journal-menu__collapsible-list"
-              classNameList={'ecos-list-group_mode_journal'}
-              list={this.getMenuJournalSettings(journalSettings, menuJournalSettingsSelectedIndex)}
-              selected={menuJournalSettingsSelectedIndex}
-            >
-              {t('journals.tpl.defaults')}
-            </CollapsibleList>
-          </Well>
+      <div
+        ref={this.setRef}
+        className={classNames('ecos-journal-menu', 'ecos-journal-menu_grid', {
+          'ecos-journal-menu_open': open,
+          'ecos-journal-menu_tabs': pageTabsIsShow,
+          'ecos-journal-menu_mobile': isMobile
+        })}
+        style={{ maxHeight: this.getMaxMenuHeight() }}
+      >
+        <div className="ecos-journal-menu__hide-menu-btn">
+          <IcoBtn
+            onClick={this.onClose}
+            icon="icon-small-arrow-right"
+            invert
+            className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest"
+          >
+            {isMobile ? t(Labels.HIDE_MENU_sm) : t(Labels.HIDE_MENU)}
+          </IcoBtn>
         </div>
-      </JournalsUrlManager>
+
+        <Well className="ecos-journal-menu__journals">
+          <CollapsibleList
+            needScrollbar={false}
+            className="ecos-journal-menu__collapsible-list"
+            classNameList="ecos-list-group_mode_journal"
+            list={this.getMenuJournals(journals)}
+            selected={this.getSelectedIndex(journals, nodeRef, 'nodeRef')}
+            emptyText={t(Labels.EMPTY_LIST)}
+          >
+            {t(Labels.JOURNALS_TITLE)}
+          </CollapsibleList>
+        </Well>
+
+        <Well className="ecos-journal-menu__presets">
+          <CollapsibleList
+            needScrollbar={false}
+            className="ecos-journal-menu__collapsible-list"
+            classNameList="ecos-list-group_mode_journal"
+            list={this.getMenuJournalSettings(journalSettings, menuJournalSettingsSelectedIndex)}
+            selected={menuJournalSettingsSelectedIndex}
+            emptyText={t(Labels.EMPTY_LIST)}
+          >
+            {t(Labels.TEMPLATES_TITLE)}
+          </CollapsibleList>
+        </Well>
+      </div>
     );
   }
 }

@@ -339,11 +339,15 @@ class Dashboard extends Component {
   };
 
   setActiveLink = idLayout => {
+    const { urlParams } = this.state;
     const searchParams = queryString.parse(window.location.search);
+    const prevSearchParams = queryString.parse(urlParams);
+    const isEqualRefs = get(prevSearchParams, 'recordRef', '') === get(searchParams, 'recordRef');
+    const isEqualLayoutIds = get(prevSearchParams, 'activeLayoutId', '') === get(searchParams, 'activeLayoutId');
 
     searchParams.activeLayoutId = idLayout;
 
-    if (!this.state.urlParams) {
+    if (!urlParams || (isEqualRefs && !isEqualLayoutIds)) {
       replaceHistoryLink(this.props.history, `${URL.DASHBOARD}?${decodeLink(queryString.stringify(searchParams))}`);
     } else {
       pushHistoryLink(undefined, {
