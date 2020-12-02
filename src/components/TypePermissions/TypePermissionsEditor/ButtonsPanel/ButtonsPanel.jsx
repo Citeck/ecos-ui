@@ -12,9 +12,7 @@ const ButtonsPanel = () => {
   return (
     <div className="type-permissions__buttons-panel">
       <Btn onClick={closeEditor}>{t('type-permissions.cancel-button')}</Btn>
-      <Btn className="ecos-btn_grey5 ecos-btn_color_dark" onClick={deletePermissions}>
-        {t('type-permissions.delete-button')}
-      </Btn>
+      <Btn onClick={deletePermissions}>{t('type-permissions.delete-button')}</Btn>
       <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={savePermissions}>
         {t('type-permissions.save-button')}
       </Btn>
