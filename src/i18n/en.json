@@ -706,6 +706,8 @@
   "predicate.string-starts-with": "Starts with",
   "predicate.type-equals": "Equals",
   "predicate.type-not-equals": "Not equals",
+  "predicate.today": "Today",
+  "predicate.time-interval": "Over a period of time",
   "priority.high": "High",
   "priority.low": "Low",
   "priority.medium": "Medium",

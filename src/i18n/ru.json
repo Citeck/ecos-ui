@@ -706,6 +706,8 @@
   "predicate.string-starts-with": "Начинается с",
   "predicate.type-equals": "Равно",
   "predicate.type-not-equals": "Не равно",
+  "predicate.today": "Сегодня",
+  "predicate.time-interval": "За период времени",
   "priority.high": "Высокий",
   "priority.low": "Низкий",
   "priority.medium": "Средний",
