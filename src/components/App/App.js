@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
 import { NotificationContainer } from 'react-notifications';
-import { push, replace } from 'connected-react-router';
+import { replace } from 'connected-react-router';
 import * as queryString from 'query-string';
 
 import CacheRoute, { CacheSwitch } from '../ReactRouterCache';
@@ -458,7 +458,6 @@ const mapDispatchToProps = dispatch => ({
 
   setTab: params => dispatch(setTab(params)),
   updateTab: params => dispatch(updateTab(params)),
-  push: url => dispatch(push(url)),
   replace: url => dispatch(replace(url))
 });
 
