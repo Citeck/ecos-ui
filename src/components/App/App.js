@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
 import { NotificationContainer } from 'react-notifications';
-import { push } from 'connected-react-router';
+import { push, replace } from 'connected-react-router';
 import * as queryString from 'query-string';
 
 import CacheRoute, { CacheSwitch } from '../ReactRouterCache';
@@ -70,10 +70,18 @@ class App extends Component {
     const {
       params: { link = '' }
     } = event;
-    const { isShowTabs, isMobile, push, setTab, updateTab } = this.props;
+    const { isShowTabs, isMobile, replace, setTab, updateTab } = this.props;
 
     if (!(isShowTabs && !this.isOnlyContent && !isMobile)) {
-      push.call(this, link);
+      const { url, query } = queryString.parseUrl(link);
+
+      pushHistoryLink(window, {
+        pathname: url,
+        search: decodeLink(queryString.stringify(query))
+      });
+
+      replace(link);
+
       return;
     }
 
@@ -450,7 +458,8 @@ const mapDispatchToProps = dispatch => ({
 
   setTab: params => dispatch(setTab(params)),
   updateTab: params => dispatch(updateTab(params)),
-  push: url => dispatch(push(url))
+  push: url => dispatch(push(url)),
+  replace: url => dispatch(replace(url))
 });
 
 export default withRouter(
