@@ -16,7 +16,6 @@ import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
 import { PREDICATE_AND } from '../Records/predicates/predicates';
 import ParserPredicate from '../Filters/predicates/ParserPredicate';
-import { JournalsIds } from '../Journals/constants';
 
 import './Export.scss';
 
@@ -131,13 +130,13 @@ export default class Export extends Component {
 
   getSelectionFilter = () => {
     const { columns } = this.props.journalConfig || {};
-    const { groupBy, sortBy, pagination, predicates } = this.props.grid || {};
+    const { groupBy, sortBy, pagination, predicates, search } = this.props.grid || {};
 
-    return { columns, groupBy, sortBy, pagination, predicate: predicates[0] };
+    return { columns, groupBy, sortBy, pagination, predicate: predicates[0], search };
   };
 
   getSelectionUrl = () => {
-    const { dashletConfig, journalConfig } = this.props;
+    const { dashletConfig } = this.props;
     const { href, host } = window.location;
 
     if (dashletConfig) {
@@ -150,16 +149,14 @@ export default class Export extends Component {
     const { journalId, journalsListId } = objectUrl.query;
     const query = { journalId, journalsListId };
 
-    if (get(journalConfig, 'id') === JournalsIds.SEARCH) {
-      query.search = get(objectUrl, 'query.search');
-    }
-
     return `${objectUrl.url}?${queryString.stringify(query)}`;
   };
 
   onCopyUrl = () => {
     const data = this.getSelectionFilter();
     const url = this.getSelectionUrl();
+
+    console.warn({ data, url });
 
     if (!isEmpty(this.props.selectedItems)) {
       data.selectedItems = this.props.selectedItems;

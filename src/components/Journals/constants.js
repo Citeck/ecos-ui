@@ -24,7 +24,3 @@ export const DEFAULT_INLINE_TOOL_SETTINGS = {
 };
 
 export const JOURNAL_MIN_HEIGHT = 300;
-
-export const JournalsIds = {
-  SEARCH: 'search'
-};
