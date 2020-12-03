@@ -561,10 +561,14 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
 
 function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
   try {
+    const query = getSearchParams();
+    if (query[JournalUrlParams.JOURNAL_SETTING_ID] === (action.payload || undefined)) {
+      return;
+    }
+
     yield put(setLoading(w(true)));
 
     const { journalConfig } = yield select(selectJournalData, stateId);
-    const query = getSearchParams();
 
     query[JournalUrlParams.JOURNAL_SETTING_ID] = action.payload || undefined;
     query[JournalUrlParams.USER_CONFIG_ID] = undefined;
@@ -628,13 +632,17 @@ function* redirectSelectedJournal({ api, logger, stateId, w }, action) {
 
 function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
   try {
+    const query = getSearchParams();
+    if (query[JournalUrlParams.JOURNAL_ID] === (action.payload || undefined)) {
+      return;
+    }
+
     yield put(setLoading(w(true)));
 
     const redirect = yield redirectSelectedJournal({ api, logger, stateId, w }, action);
 
     if (!redirect) {
       const exceptionalParams = [JournalUrlParams.JOURNALS_LIST_ID];
-      const query = getSearchParams();
 
       for (let key in query) {
         if (!exceptionalParams.includes(key)) {
