@@ -347,7 +347,7 @@ function* getGridData(api, params, stateId) {
   const _recordRef = yield select(state => state.journals[stateId].recordRef);
   const config = yield select(state => state.journals[stateId].config);
   const groupBy = get(forRequest, 'groupBy', []);
-  const predicates = ParserPredicate.removeEmptyPredicates(cloneDeep(_predicates));
+  const predicates = ParserPredicate.replacePredicatesType(ParserPredicate.removeEmptyPredicates(cloneDeep(_predicates)));
   const pagination = groupBy.length ? { ..._pagination, maxItems: undefined } : _pagination;
   const recordRef = _recordRef && (config || {}).onlyLinked ? _recordRef : null;
   const groupActions = get(forRequest, 'groupActions', []);
