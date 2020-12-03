@@ -147,16 +147,13 @@ export default class Export extends Component {
 
     const objectUrl = queryString.parseUrl(href);
     const { journalId, journalsListId } = objectUrl.query;
-    const query = { journalId, journalsListId };
 
-    return `${objectUrl.url}?${queryString.stringify(query)}`;
+    return `${objectUrl.url}?${queryString.stringify({ journalId, journalsListId })}`;
   };
 
   onCopyUrl = () => {
     const data = this.getSelectionFilter();
     const url = this.getSelectionUrl();
-
-    console.warn({ data, url });
 
     if (!isEmpty(this.props.selectedItems)) {
       data.selectedItems = this.props.selectedItems;
