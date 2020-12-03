@@ -24,6 +24,7 @@ import { selectIsAuthenticated } from '../selectors/user';
 import { getCurrentUserName } from '../helpers/util';
 import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
+import { TITLE } from '../constants/pageTabs';
 
 function* sagaInitTabs({ api, logger }) {
   try {
@@ -209,8 +210,11 @@ function* getTitle(tab) {
       isLoading: false
     };
   } catch (e) {
-    console.error(e);
-    throw new Error('[pageTabs getTitle function error');
+    console.error('[getTitle]', e);
+    return {
+      title: TITLE.NO_NAME,
+      isLoading: false
+    };
   }
 }
 

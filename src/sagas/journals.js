@@ -1,10 +1,11 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import * as queryString from 'query-string';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import has from 'lodash/has';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import * as queryString from 'query-string';
+import isEqual from 'lodash/isEqual';
 
 import JournalsConverter from '../dto/journals';
 import Records from '../components/Records';
@@ -910,10 +911,13 @@ function* sagaSearch({ logger, w, stateId }, { payload }) {
     }
 
     if (searchText === '' && has(urlData, ['query', JournalUrlParams.SEARCH])) {
-      delete urlData.query.search;
+      delete urlData.query[JournalUrlParams.SEARCH];
     }
-    yield put(setLoading(w(true)));
-    PageService.changeUrlLink(decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
+
+    if (!isEqual(getSearchParams(), urlData.query)) {
+      yield put(setLoading(w(true)));
+      PageService.changeUrlLink(decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
+    }
   } catch (e) {
     logger.error('[journals sagaSearch saga error', e.message);
   }

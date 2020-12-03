@@ -201,10 +201,9 @@ class PageTabList {
     this.#tabs.forEach(item => {
       if (this.equals(item, tab)) {
         item.change(updates);
+        item.link = item.link.replace(window.location.origin, '');
         changingTab = item;
       }
-
-      item.link = item.link.replace(window.location.origin, '');
     });
 
     if (updates.isActive) {
