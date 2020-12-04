@@ -5,9 +5,9 @@ import debounce from 'lodash/debounce';
 import uniqueId from 'lodash/uniqueId';
 
 import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
-import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, TAB_ALL_USERS, TAB_BY_LEVELS, TAB_ONLY_SELECTED } from './constants';
-import { handleResponse, prepareSelected } from './helpers';
 import { usePrevious } from '../../../../hooks/usePrevious';
+import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, TabTypes } from './constants';
+import { handleResponse, prepareSelected } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
 
@@ -32,7 +32,7 @@ export const SelectOrgstructProvider = props => {
   } = controlProps;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
-  const [currentTab, setCurrentTab] = useState(defaultTab || TAB_BY_LEVELS);
+  const [currentTab, setCurrentTab] = useState(defaultTab || TabTypes.LEVELS);
   const [searchText, updateSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
   const [isSelectedFetched, setIsSelectedFetched] = useState(false);
@@ -41,9 +41,9 @@ export const SelectOrgstructProvider = props => {
   const [isAllUsersGroupsExists, setIsAllUsersGroupsExists] = useState(undefined);
   const [targetId, setTargetId] = useState(undefined);
   const [tabItems, setTabItems] = useState({
-    [TAB_BY_LEVELS]: [],
-    [TAB_ALL_USERS]: [],
-    [TAB_ONLY_SELECTED]: []
+    [TabTypes.LEVELS]: [],
+    [TabTypes.USERS]: [],
+    [TabTypes.SELECTED]: []
   });
   const prevDefaultValue = usePrevious(defaultValue);
 
@@ -54,7 +54,7 @@ export const SelectOrgstructProvider = props => {
 
   const liveSearchDebounce = debounce(onSubmitSearchForm, 500);
 
-  const setSelectedItem = (item, selectedItems = tabItems[TAB_ONLY_SELECTED], extra = {}) => ({
+  const setSelectedItem = (item, selectedItems = tabItems[TabTypes.SELECTED], extra = {}) => ({
     ...item,
     ...extra,
     isSelected: selectedItems.some(selected => item.id === selected.id)
@@ -64,8 +64,8 @@ export const SelectOrgstructProvider = props => {
     const allowedUsers = allowedAuthorityTypes.includes(AUTHORITY_TYPE_USER);
     setIsAllUsersGroupsExists(allowedUsers);
 
-    if (!allowedUsers && currentTab === TAB_ALL_USERS) {
-      setCurrentTab(TAB_BY_LEVELS);
+    if (!allowedUsers && currentTab === TabTypes.USERS) {
+      setCurrentTab(TabTypes.LEVELS);
     }
   };
 
@@ -73,7 +73,7 @@ export const SelectOrgstructProvider = props => {
   useEffect(() => {
     const trimSearchText = (searchText || '').trim();
 
-    if (!isRootGroupsFetched && isSelectModalOpen && currentTab === TAB_BY_LEVELS) {
+    if (!isRootGroupsFetched && isSelectModalOpen && currentTab === TabTypes.LEVELS) {
       orgStructApi
         .fetchGroup({
           query: {
@@ -88,7 +88,7 @@ export const SelectOrgstructProvider = props => {
         .then(items => {
           setTabItems({
             ...tabItems,
-            [TAB_BY_LEVELS]: items
+            [TabTypes.LEVELS]: items
               .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
               .map(item => setSelectedItem(item))
           });
@@ -101,11 +101,11 @@ export const SelectOrgstructProvider = props => {
 
   // fetch "all" group list (all users)
   useEffect(() => {
-    if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TAB_ALL_USERS) {
+    if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.USERS) {
       OrgStructApi.getUserList(searchText, userSearchExtraFields).then(items => {
         setTabItems({
           ...tabItems,
-          [TAB_ALL_USERS]: items.map(item => setSelectedItem(item))
+          [TabTypes.USERS]: items.map(item => setSelectedItem(item))
         });
 
         checkIsAllUsersGroupExists();
@@ -157,9 +157,9 @@ export const SelectOrgstructProvider = props => {
         .then(selectedItems => {
           setTabItems({
             ...tabItems,
-            [TAB_ONLY_SELECTED]: [...selectedItems],
-            [TAB_BY_LEVELS]: tabItems[TAB_BY_LEVELS].map(item => setSelectedItem(item, selectedItems)),
-            [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(item => setSelectedItem(item, selectedItems))
+            [TabTypes.SELECTED]: [...selectedItems],
+            [TabTypes.LEVELS]: tabItems[TabTypes.LEVELS].map(item => setSelectedItem(item, selectedItems)),
+            [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => setSelectedItem(item, selectedItems))
           });
           setSelectedRows([...selectedItems]);
         });
@@ -211,9 +211,9 @@ export const SelectOrgstructProvider = props => {
         onCancelSelect: () => {
           setTabItems({
             ...tabItems,
-            [TAB_ONLY_SELECTED]: [...selectedRows],
-            [TAB_BY_LEVELS]: tabItems[TAB_BY_LEVELS].map(item => setSelectedItem(item, selectedRows)),
-            [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(item => setSelectedItem(item, selectedRows))
+            [TabTypes.SELECTED]: [...selectedRows],
+            [TabTypes.LEVELS]: tabItems[TabTypes.LEVELS].map(item => setSelectedItem(item, selectedRows)),
+            [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => setSelectedItem(item, selectedRows))
           });
 
           toggleSelectModal(false);
@@ -224,11 +224,11 @@ export const SelectOrgstructProvider = props => {
         },
 
         deleteSelectedItem: targetId => {
-          const selectedFiltered = tabItems[TAB_ONLY_SELECTED].filter(item => item.id !== targetId);
+          const selectedFiltered = tabItems[TabTypes.SELECTED].filter(item => item.id !== targetId);
           setTabItems({
             ...tabItems,
-            [TAB_ONLY_SELECTED]: selectedFiltered,
-            [TAB_BY_LEVELS]: tabItems[TAB_BY_LEVELS].map(item => {
+            [TabTypes.SELECTED]: selectedFiltered,
+            [TabTypes.LEVELS]: tabItems[TabTypes.LEVELS].map(item => {
               if (item.id !== targetId) {
                 return item;
               }
@@ -238,7 +238,7 @@ export const SelectOrgstructProvider = props => {
                 isSelected: false
               };
             }),
-            [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(item => {
+            [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => {
               if (item.id !== targetId) {
                 return item;
               }
@@ -278,19 +278,19 @@ export const SelectOrgstructProvider = props => {
 
           let newValue;
           if (multiple) {
-            newValue = tabItems[TAB_ONLY_SELECTED].map(item => (getFullData ? item : item.id));
+            newValue = tabItems[TabTypes.SELECTED].map(item => (getFullData ? item : item.id));
           } else {
             newValue =
-              tabItems[TAB_ONLY_SELECTED].length > 0
+              tabItems[TabTypes.SELECTED].length > 0
                 ? getFullData
-                  ? tabItems[TAB_ONLY_SELECTED][0]
-                  : tabItems[TAB_ONLY_SELECTED][0]['id']
+                  ? tabItems[TabTypes.SELECTED][0]
+                  : tabItems[TabTypes.SELECTED][0]['id']
                 : '';
           }
 
           typeof onChange === 'function' && onChange(newValue);
 
-          setSelectedRows([...tabItems[TAB_ONLY_SELECTED]]);
+          setSelectedRows([...tabItems[TabTypes.SELECTED]]);
 
           toggleSelectModal(false);
         },
@@ -302,13 +302,13 @@ export const SelectOrgstructProvider = props => {
         },
 
         onToggleSelectItem: targetItem => {
-          const itemIdx = tabItems[TAB_ONLY_SELECTED].findIndex(item => item.id === targetItem.id);
+          const itemIdx = tabItems[TabTypes.SELECTED].findIndex(item => item.id === targetItem.id);
 
           if (itemIdx === -1) {
             setTabItems({
               ...tabItems,
-              [TAB_ONLY_SELECTED]: multiple ? [...tabItems[TAB_ONLY_SELECTED], prepareSelected(targetItem)] : [prepareSelected(targetItem)],
-              [TAB_BY_LEVELS]: tabItems[TAB_BY_LEVELS].map(item => {
+              [TabTypes.SELECTED]: multiple ? [...tabItems[TabTypes.SELECTED], prepareSelected(targetItem)] : [prepareSelected(targetItem)],
+              [TabTypes.LEVELS]: tabItems[TabTypes.LEVELS].map(item => {
                 if (item.id === targetItem.id) {
                   return {
                     ...item,
@@ -325,7 +325,7 @@ export const SelectOrgstructProvider = props => {
 
                 return item;
               }),
-              [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(item => {
+              [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => {
                 if (item.id === targetItem.id) {
                   return {
                     ...item,
@@ -346,8 +346,8 @@ export const SelectOrgstructProvider = props => {
           } else {
             setTabItems({
               ...tabItems,
-              [TAB_ONLY_SELECTED]: tabItems[TAB_ONLY_SELECTED].slice(0, itemIdx).concat(tabItems[TAB_ONLY_SELECTED].slice(itemIdx + 1)),
-              [TAB_BY_LEVELS]: tabItems[TAB_BY_LEVELS].map(item => {
+              [TabTypes.SELECTED]: tabItems[TabTypes.SELECTED].slice(0, itemIdx).concat(tabItems[TabTypes.SELECTED].slice(itemIdx + 1)),
+              [TabTypes.LEVELS]: tabItems[TabTypes.LEVELS].map(item => {
                 if (item.id === targetItem.id) {
                   return {
                     ...item,
@@ -357,7 +357,7 @@ export const SelectOrgstructProvider = props => {
 
                 return item;
               }),
-              [TAB_ALL_USERS]: tabItems[TAB_ALL_USERS].map(item => {
+              [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => {
                 if (item.id === targetItem.id) {
                   return {
                     ...item,
@@ -383,7 +383,7 @@ export const SelectOrgstructProvider = props => {
                 isIncludedAdminGroup
               })
               .then(handleResponse)
-              .then(items => items.map(item => setSelectedItem(item, tabItems[TAB_ONLY_SELECTED], { parentId: targetItem.id })))
+              .then(items => items.map(item => setSelectedItem(item, tabItems[TabTypes.SELECTED], { parentId: targetItem.id })))
               .then(newItems => {
                 setTabItems({
                   ...tabItems,

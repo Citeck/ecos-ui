@@ -1,13 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import BaseComponent from '../base/BaseComponent';
-import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
-import { TAB_BY_LEVELS } from '../../../../components/common/form/SelectOrgstruct/constants';
-import { isNodeRef } from '../../../../helpers/util';
-import isEqual from 'lodash/isEqual';
 import Formio from 'formiojs/Formio';
+import isEqual from 'lodash/isEqual';
 
+import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
+import {
+  AUTHORITY_TYPE_GROUP,
+  AUTHORITY_TYPE_USER,
+  GroupTypes,
+  TabTypes
+} from '../../../../components/common/form/SelectOrgstruct/constants';
+import { isNodeRef } from '../../../../helpers/util';
 import Records from '../../../../components/Records';
+import BaseComponent from '../base/BaseComponent';
 
 let authorityRefsByName = {};
 
@@ -18,8 +23,8 @@ export default class SelectOrgstructComponent extends BaseComponent {
         label: 'SelectOrgstruct',
         key: 'selectOrgstruct',
         type: 'selectOrgstruct',
-        allowedAuthorityType: 'USER, GROUP',
-        allowedGroupType: 'ROLE, BRANCH',
+        allowedAuthorityType: [AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP].join(', '),
+        allowedGroupType: [GroupTypes.ROLE, GroupTypes.BRANCH].join(', '),
         allowedGroupSubType: '',
         currentUserByDefault: false,
         excludeAuthoritiesByName: '',
@@ -27,7 +32,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
         modalTitle: '',
         isSelectedValueAsText: false,
         hideTabSwitcher: false,
-        defaultTab: TAB_BY_LEVELS,
+        defaultTab: TabTypes.LEVELS,
         userSearchExtraFields: '',
         isIncludedAdminGroup: false
       },
