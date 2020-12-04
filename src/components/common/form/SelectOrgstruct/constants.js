@@ -19,3 +19,8 @@ export const ViewModes = {
   DEFAULT: 'default',
   LINE_SEPARATED: 'line-separated'
 };
+
+export const DataTypes = {
+  NODE_REF: 'nodeRef',
+  AUTHORITY: 'authority'
+};

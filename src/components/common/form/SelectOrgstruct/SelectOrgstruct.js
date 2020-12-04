@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import SelectOrgstructRoot from './components/SelectOrgstructRoot';
 import { SelectOrgstructProvider } from './SelectOrgstructContext';
 import { OrgStructApi } from '../../../../api/orgStruct';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, GroupTypes, TabTypes, ViewModes } from './constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, DataTypes, GroupTypes, TabTypes, ViewModes } from './constants';
 
 import './SelectOrgstruct.scss';
 
@@ -23,6 +23,7 @@ SelectOrgstruct.defaultProps = {
   allowedGroupTypes: [GroupTypes.BRANCH, GroupTypes.ROLE],
   allowedGroupSubTypes: [],
   defaultTab: TabTypes.LEVELS,
+  dataType: DataTypes.NODE_REF,
   userSearchExtraFields: [],
   viewModeType: ViewModes.DEFAULT
 };
@@ -30,6 +31,7 @@ SelectOrgstruct.defaultProps = {
 SelectOrgstruct.propTypes = {
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
   defaultTab: PropTypes.oneOf([Object.values(TabTypes)]),
+  dataType: PropTypes.oneOf([Object.values(DataTypes)]),
   onChange: PropTypes.func,
   onCancelSelect: PropTypes.func,
   onError: PropTypes.func,

@@ -431,6 +431,7 @@ export const SelectOrgstructProvider = props => {
 SelectOrgstructProvider.propTypes = {
   controlProps: PropTypes.shape({
     defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
+    dataType: PropTypes.string,
     onChange: PropTypes.func,
     onError: PropTypes.func,
     multiple: PropTypes.bool,

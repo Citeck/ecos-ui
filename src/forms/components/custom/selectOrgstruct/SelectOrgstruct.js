@@ -7,6 +7,7 @@ import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct'
 import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
+  DataTypes,
   GroupTypes,
   TabTypes
 } from '../../../../components/common/form/SelectOrgstruct/constants';
@@ -33,6 +34,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
         isSelectedValueAsText: false,
         hideTabSwitcher: false,
         defaultTab: TabTypes.LEVELS,
+        dataType: DataTypes.NODE_REF,
         userSearchExtraFields: '',
         isIncludedAdminGroup: false
       },
@@ -151,6 +153,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           viewOnly={self.viewOnly}
           hideTabSwitcher={component.hideTabSwitcher}
           defaultTab={component.defaultTab}
+          dataType={component.dataType}
           modalTitle={component.modalTitle ? self.t(component.modalTitle) : null}
           isSelectedValueAsText={component.isSelectedValueAsText}
           isIncludedAdminGroup={isIncludedAdminGroup}
