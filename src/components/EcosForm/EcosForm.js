@@ -29,6 +29,7 @@ class EcosForm extends React.Component {
   _form = null;
   _containerHeightTimerId = null;
   _formSubmitDoneResolve = () => undefined;
+  _initInProcess = false;
 
   constructor(props) {
     super(props);
@@ -57,6 +58,11 @@ class EcosForm extends React.Component {
   componentDidUpdate(prevProps) {
     if (prevProps.formId !== this.props.formId || !isEqual(prevProps.options, this.props.options)) {
       this.setState({ ...this.initState });
+
+      if (this._form) {
+        this._form.destroy();
+      }
+
       this.initForm();
     }
   }
@@ -86,6 +92,8 @@ class EcosForm extends React.Component {
       title: 'title',
       i18n: 'i18n?json'
     };
+
+    this._initInProcess = !this._initInProcess;
 
     let formLoadingPromise;
     let alfConstants = (window.Alfresco || {}).constants || {};
@@ -246,14 +254,14 @@ class EcosForm extends React.Component {
 
           self.setState({ formId: formData.id });
 
-          if (self.props.onReady) {
-            self.props.onReady(form);
-          }
-
           form.ready.then(() => {
             self._containerHeightTimerId = window.setTimeout(() => {
               self.toggleContainerHeight();
             }, 500);
+
+            if (self.props.onReady) {
+              self.props.onReady(form);
+            }
           });
 
           form.formReady.then(() => {
