@@ -29,7 +29,6 @@ class EcosForm extends React.Component {
   _form = null;
   _containerHeightTimerId = null;
   _formSubmitDoneResolve = () => undefined;
-  _initInProcess = false;
 
   constructor(props) {
     super(props);
@@ -92,8 +91,6 @@ class EcosForm extends React.Component {
       title: 'title',
       i18n: 'i18n?json'
     };
-
-    this._initInProcess = !this._initInProcess;
 
     let formLoadingPromise;
     let alfConstants = (window.Alfresco || {}).constants || {};

@@ -59,7 +59,6 @@ class Properties extends React.Component {
   };
 
   onReady = debounce(() => {
-    console.warn('onReady in Properties');
     this.setState({ loaded: true });
   }, 350);
 
