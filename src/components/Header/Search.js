@@ -113,17 +113,20 @@ class Search extends React.Component {
   };
 
   get searchResult() {
-    const { documents, sites, people } = this.props;
+    const { documents, people } = this.props;
     const searchResult = [];
 
     if (!isEmpty(documents)) {
       searchResult.push({ groupName: t('search.documents') });
       searchResult.push(...setOutputParams(documents, Types.DOCUMENTS));
     }
-    if (!isEmpty(sites)) {
-      searchResult.push({ groupName: t('search.sites') });
-      searchResult.push(...setOutputParams(sites, Types.SITES));
-    }
+
+    // Cause https://citeck.atlassian.net/browse/ECOSUI-772
+    // if (!isEmpty(sites)) {
+    //   searchResult.push({ groupName: t('search.sites') });
+    //   searchResult.push(...setOutputParams(sites, Types.SITES));
+    // }
+
     if (!isEmpty(people)) {
       searchResult.push({ groupName: t('search.people') });
       searchResult.push(...setOutputParams(people, Types.PEOPLE));
