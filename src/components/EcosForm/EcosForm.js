@@ -57,11 +57,6 @@ class EcosForm extends React.Component {
   componentDidUpdate(prevProps) {
     if (prevProps.formId !== this.props.formId || !isEqual(prevProps.options, this.props.options)) {
       this.setState({ ...this.initState });
-
-      if (this._form) {
-        this._form.destroy();
-      }
-
       this.initForm();
     }
   }
