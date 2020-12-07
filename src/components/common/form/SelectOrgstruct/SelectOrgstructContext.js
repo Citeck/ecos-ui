@@ -6,7 +6,7 @@ import uniqueId from 'lodash/uniqueId';
 
 import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
-import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, TabTypes } from './constants';
+import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, TabTypes } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
@@ -28,7 +28,8 @@ export const SelectOrgstructProvider = props => {
     hideTabSwitcher,
     renderListItem,
     userSearchExtraFields,
-    isIncludedAdminGroup
+    isIncludedAdminGroup,
+    dataType
   } = controlProps;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
@@ -67,6 +68,32 @@ export const SelectOrgstructProvider = props => {
     if (!allowedUsers && currentTab === TabTypes.USERS) {
       setCurrentTab(TabTypes.LEVELS);
     }
+  };
+
+  const onChangeValue = selectedList => {
+    const { onChange } = controlProps;
+    let valuePromise;
+
+    function getVal(arr = []) {
+      return multiple ? arr : arr[0] || '';
+    }
+
+    switch (true) {
+      case getFullData: {
+        valuePromise = Promise.resolve(getVal(selectedList));
+        break;
+      }
+      case dataType === DataTypes.AUTHORITY: {
+        valuePromise = Promise.all(selectedList.map(item => item.id && orgStructApi.fetchAuthName(item.id))).then(getVal);
+        break;
+      }
+      default: {
+        valuePromise = Promise.resolve(getVal(selectedList.map(item => item.id)));
+        break;
+      }
+    }
+
+    valuePromise.then(value => typeof onChange === 'function' && onChange(value));
   };
 
   // fetch root group list
@@ -132,7 +159,6 @@ export const SelectOrgstructProvider = props => {
     setIsSelectedFetched(true);
 
     let initValue;
-    const promises = [];
 
     if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
       initValue = [...defaultValue];
@@ -145,9 +171,7 @@ export const SelectOrgstructProvider = props => {
     }
 
     if (Array.isArray(initValue)) {
-      for (let i = 0; i < initValue.length; i++) {
-        promises.push(orgStructApi.fetchAuthority(initValue[i]));
-      }
+      const promises = initValue.map(item => orgStructApi.fetchAuthority(dataType, item));
 
       Promise.all(promises)
         .then(handleResponse)
@@ -251,18 +275,7 @@ export const SelectOrgstructProvider = props => {
           });
 
           setSelectedRows(selectedRows.filter(item => item.id !== targetId));
-
-          const { onChange } = controlProps;
-          if (typeof onChange === 'function') {
-            let newValue;
-            if (multiple) {
-              newValue = selectedFiltered.map(item => item.id);
-            } else {
-              newValue = selectedFiltered.length > 0 ? selectedFiltered[0]['id'] : '';
-            }
-
-            onChange(newValue);
-          }
+          onChangeValue(selectedFiltered);
         },
 
         updateSearchText: e => {
@@ -274,24 +287,8 @@ export const SelectOrgstructProvider = props => {
         },
 
         onSelect: () => {
-          const { onChange } = controlProps;
-
-          let newValue;
-          if (multiple) {
-            newValue = tabItems[TabTypes.SELECTED].map(item => (getFullData ? item : item.id));
-          } else {
-            newValue =
-              tabItems[TabTypes.SELECTED].length > 0
-                ? getFullData
-                  ? tabItems[TabTypes.SELECTED][0]
-                  : tabItems[TabTypes.SELECTED][0]['id']
-                : '';
-          }
-
-          typeof onChange === 'function' && onChange(newValue);
-
+          onChangeValue(tabItems[TabTypes.SELECTED]);
           setSelectedRows([...tabItems[TabTypes.SELECTED]]);
-
           toggleSelectModal(false);
         },
 

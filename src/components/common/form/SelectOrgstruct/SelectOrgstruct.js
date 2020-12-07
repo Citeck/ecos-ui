@@ -30,8 +30,8 @@ SelectOrgstruct.defaultProps = {
 
 SelectOrgstruct.propTypes = {
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
-  defaultTab: PropTypes.oneOf([Object.values(TabTypes)]),
-  dataType: PropTypes.oneOf([Object.values(DataTypes)]),
+  defaultTab: PropTypes.oneOf(Object.values(TabTypes)),
+  dataType: PropTypes.oneOf(Object.values(DataTypes)),
   onChange: PropTypes.func,
   onCancelSelect: PropTypes.func,
   onError: PropTypes.func,
