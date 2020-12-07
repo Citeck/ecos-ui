@@ -22,6 +22,7 @@ export default class ButtonComponent extends FormIOButtonComponent {
 
       if (!parentEl.classList.contains('col-12-manual')) {
         this.element.classList.remove('form-group');
+        this.buttonElement.classList.add('btn_without-indents');
       }
     }
 
@@ -29,10 +30,6 @@ export default class ButtonComponent extends FormIOButtonComponent {
 
     if (options.useNarrowButtons) {
       this.buttonElement.classList.add('btn_narrow');
-    }
-
-    if (this.component.removeIndents) {
-      this.buttonElement.classList.add('btn_without-indents');
     }
   }
 }
