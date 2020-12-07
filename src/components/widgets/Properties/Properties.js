@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 
 import { t } from '../../../helpers/util';
 import EcosForm from '../../EcosForm/EcosForm';
@@ -57,9 +58,9 @@ class Properties extends React.Component {
     this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
   };
 
-  onReady = () => {
+  onReady = debounce(() => {
     this.setState({ loaded: true });
-  };
+  }, 350);
 
   onToggleLoader = (isLoading = !this.state.isLoading) => {
     this.setState({ isLoading });
@@ -101,10 +102,11 @@ class Properties extends React.Component {
     const { record, isSmallMode, onUpdate, formId, onInlineEditSave } = this.props;
     const { isReadySubmit, loaded, isLoading } = this.state;
     const isShow = isReadySubmit;
+    const isLoaded = loaded && !isLoading;
 
     return (
       <>
-        {(!loaded || isLoading) && <Loader className="ecos-properties__loader" blur />}
+        {!isLoaded && <Loader className="ecos-properties__loader" blur />}
         <EcosForm
           ref={this._ecosForm}
           record={record}
@@ -124,7 +126,7 @@ class Properties extends React.Component {
           onToggleLoader={this.onToggleLoader}
           className={classNames('ecos-properties__formio', {
             'ecos-properties__formio_small': isSmallMode,
-            'd-none': !isShow
+            'd-none': !isShow || !isLoaded
           })}
           getTitle={this.getTitle}
           initiator={{
