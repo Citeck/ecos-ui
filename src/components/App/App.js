@@ -91,7 +91,7 @@ class App extends Component {
             search: decodeLink(queryString.stringify(query))
           });
         } else {
-          replaceHistoryLink(this.props.history, link);
+          replaceHistoryLink(window, link);
         }
       }
 
