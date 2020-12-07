@@ -57,7 +57,7 @@ timestamps {
           }
           // /build-info
 
-          if (env.BRANCH_NAME == "master") {
+          if (!project_version.contains('snapshot')) {
             mavenRepository = "maven-releases"
           }
 
