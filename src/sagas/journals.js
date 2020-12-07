@@ -48,7 +48,6 @@ import {
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
-  setSelectAllRecords,
   setSelectAllRecordsVisible,
   setSelectedRecords
 } from '../actions/journals';
