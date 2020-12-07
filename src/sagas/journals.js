@@ -1,10 +1,11 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import * as queryString from 'query-string';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import has from 'lodash/has';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
-import * as queryString from 'query-string';
+import isEqual from 'lodash/isEqual';
 
 import JournalsConverter from '../dto/journals';
 import Records from '../components/Records';
@@ -556,10 +557,14 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
 
 function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
   try {
+    const query = getSearchParams();
+    if (query[JournalUrlParams.JOURNAL_SETTING_ID] === (action.payload || undefined)) {
+      return;
+    }
+
     yield put(setLoading(w(true)));
 
     const { journalConfig } = yield select(selectJournalData, stateId);
-    const query = getSearchParams();
 
     query[JournalUrlParams.JOURNAL_SETTING_ID] = action.payload || undefined;
     query[JournalUrlParams.USER_CONFIG_ID] = undefined;
@@ -623,13 +628,17 @@ function* redirectSelectedJournal({ api, logger, stateId, w }, action) {
 
 function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
   try {
+    const query = getSearchParams();
+    if (query[JournalUrlParams.JOURNAL_ID] === (action.payload || undefined)) {
+      return;
+    }
+
     yield put(setLoading(w(true)));
 
     const redirect = yield redirectSelectedJournal({ api, logger, stateId, w }, action);
 
     if (!redirect) {
       const exceptionalParams = [JournalUrlParams.JOURNALS_LIST_ID];
-      const query = getSearchParams();
 
       for (let key in query) {
         if (!exceptionalParams.includes(key)) {
@@ -906,10 +915,13 @@ function* sagaSearch({ logger, w, stateId }, { payload }) {
     }
 
     if (searchText === '' && has(urlData, ['query', JournalUrlParams.SEARCH])) {
-      delete urlData.query.search;
+      delete urlData.query[JournalUrlParams.SEARCH];
     }
-    yield put(setLoading(w(true)));
-    PageService.changeUrlLink(decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
+
+    if (!isEqual(getSearchParams(), urlData.query)) {
+      yield put(setLoading(w(true)));
+      PageService.changeUrlLink(decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
+    }
   } catch (e) {
     logger.error('[journals sagaSearch saga error', e.message);
   }
