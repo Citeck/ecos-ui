@@ -410,7 +410,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
 
   const pagination = get(sharedSettings, 'pagination') || get(journalData, 'grid.pagination') || {};
   const params = getGridParams({ journalConfig, journalSetting, pagination });
-  const search = url.search;
+  const search = url.search || journalSetting.search;
 
   let gridData = yield getGridData(api, { ...params }, stateId);
   let searchData = {};
