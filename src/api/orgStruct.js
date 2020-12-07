@@ -5,7 +5,7 @@ import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
-import { getCurrentUserName } from '../helpers/util';
+import { getCurrentUserName, isNodeRef } from '../helpers/util';
 import { RecordService } from './recordService';
 
 export const ROOT_ORGSTRUCT_GROUP = '_orgstruct_home_';
@@ -67,7 +67,7 @@ export class OrgStructApi extends RecordService {
   };
 
   fetchAuthority = (dataType, value) => {
-    if (dataType === DataTypes.AUTHORITY && !value.includes('workspace://')) {
+    if (dataType === DataTypes.AUTHORITY && !isNodeRef(value)) {
       return this.fetchAuthorityByName(value);
     }
 
