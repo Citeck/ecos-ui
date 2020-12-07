@@ -48,7 +48,6 @@ import {
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
-  setSelectAllRecords,
   setSelectAllRecordsVisible,
   setSelectedRecords
 } from '../actions/journals';
@@ -429,19 +428,16 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
 
   const editingRules = yield getGridEditingRules(api, gridData);
   let selectedRecords = [];
-  let isSelectAllRecords = false;
 
   if (!!userConfigId) {
     if (isEmpty(get(sharedSettings, 'selectedItems'))) {
       selectedRecords = get(gridData, 'data', []).map(item => item.id);
-      isSelectAllRecords = true;
     } else {
       selectedRecords = sharedSettings.selectedItems;
     }
   }
 
   yield put(setSelectedRecords(w(selectedRecords)));
-  yield put(setSelectAllRecords(w(isSelectAllRecords)));
   yield put(setSelectAllRecordsVisible(w(false)));
   yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
   yield put(setPreviewUrl(w('')));
