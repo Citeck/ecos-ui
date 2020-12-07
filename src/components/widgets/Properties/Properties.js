@@ -108,7 +108,6 @@ class Properties extends React.Component {
       <>
         {!isLoaded && <Loader className="ecos-properties__loader" blur />}
         <EcosForm
-          testField="qwerty"
           ref={this._ecosForm}
           record={record}
           formId={formId}
