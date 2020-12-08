@@ -50,7 +50,8 @@ import {
   setPreviewFileName,
   setPreviewUrl,
   setSelectAllRecordsVisible,
-  setSelectedRecords
+  setSelectedRecords,
+  setUrl
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
@@ -419,6 +420,10 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   if (search) {
     yield put(setGrid(w({ search })));
     searchData = { search };
+  }
+
+  if (search && !url.search) {
+    yield put(setUrl({ stateId, ...url, search }));
   }
 
   const searchPredicate = yield getSearchPredicate({ ...w({ stateId }), grid: { ...gridData, ...searchData } });

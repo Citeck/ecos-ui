@@ -224,7 +224,13 @@ class Journals extends Component {
   }, 250);
 
   getSearch = () => {
-    return this.props.isActivePage ? get(getSearchParams(), JournalUrlParams.SEARCH, '') : '';
+    const { isActivePage, urlParams } = this.props;
+
+    if (!isActivePage) {
+      return '';
+    }
+
+    return get(getSearchParams(), JournalUrlParams.SEARCH, get(urlParams, 'search', ''));
   };
 
   addRecord = createVariant => {
