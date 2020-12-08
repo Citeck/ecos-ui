@@ -313,6 +313,10 @@ class Journals extends Component {
   };
 
   onSearch = text => {
+    if (text === get(this.props, 'urlParams.search', '')) {
+      return;
+    }
+
     const searchParams = {
       ...getSearchParams(),
       search: text
