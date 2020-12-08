@@ -137,6 +137,10 @@ export default class EcosModal extends Component {
         left: -boundX,
         right: boundX
       };
+      // Cause: https://citeck.atlassian.net/browse/ECOSUI-803
+      draggableProps.onMouseDown = event => {
+        event.stopPropagation();
+      };
     }
 
     return (
