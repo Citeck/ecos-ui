@@ -1,32 +1,26 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
-import { getPropByStringKey, t, trigger } from '../../../helpers/util';
+import { getScrollbarWidth, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { deleteJournalSetting, openSelectedJournal, openSelectedJournalSettings, renameJournalSetting } from '../../../actions/journals';
 import { CollapsibleList } from '../../common';
 import { IcoBtn } from '../../common/btns';
-import { RemoveDialog } from '../../common/dialogs';
-import { Input, Well } from '../../common/form';
+import { Well } from '../../common/form';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
+import ListItem from './ListItem';
 
 import './JournalsMenu.scss';
 
-const ITEM_HEIGHT = 41;
-const HEIGHT_DIFF = 250;
-const PAGE_TABS_HEIGHT_DIFF = 30;
 const Labels = {
   HIDE_MENU: 'journals.action.hide-menu',
   HIDE_MENU_sm: 'journals.action.hide-menu_sm',
   EMPTY_LIST: 'journals.menu.journal-list.empty',
   JOURNALS_TITLE: 'journals.menu.journal-list.title',
-  TEMPLATES_TITLE: 'journals.tpl.defaults',
-  TEMPLATE_CANCEL: 'journals.action.cancel-rename-tpl-msg',
-  TEMPLATE_RENAME: 'journals.action.rename-tpl-msg',
-  TEMPLATE_REMOVE: 'journals.action.remove-tpl-msg',
-  TEMPLATE_REMOVE_TITLE: 'journals.action.delete-tpl-msg',
-  TEMPLATE_REMOVE_TEXT: 'journals.action.remove-tpl-msg'
+  TEMPLATES_TITLE: 'journals.tpl.defaults'
 };
 
 const mapStateToProps = (state, props) => {
@@ -53,159 +47,18 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-class ListItem extends React.Component {
-  constructor(props) {
-    super(props);
-
-    const title = getPropByStringKey(props.item, props.titleField);
-
-    this.state = {
-      isMouseOver: false,
-      isDialogShow: false,
-      isRenameMode: false,
-      title: title,
-      _title: title
-    };
-  }
-
-  onClick = () => {
-    const { onClick, item } = this.props;
-    onClick(item);
-  };
-
-  delete = () => {
-    trigger.call(this, 'onDelete', this.props.item);
-    this.closeDialog();
-  };
-
-  apply = () => {
-    const title = this.state._title;
-    trigger.call(this, 'onApply', { id: this.props.item[JOURNAL_SETTING_ID_FIELD], title });
-    this.setState({ title });
-    this.hideRenameMode();
-  };
-
-  closeDialog = () => {
-    this.setState({ isDialogShow: false });
-  };
-
-  showDialog = e => {
-    e.stopPropagation();
-    this.setState({ isDialogShow: true });
-  };
-
-  showRenameMode = e => {
-    e.stopPropagation();
-    this.setState({ isRenameMode: true });
-  };
-
-  hideRenameMode = () => {
-    this.setState({ isRenameMode: false });
-  };
-
-  cancelRenameMode = () => {
-    this.hideRenameMode();
-    this.setState({ _title: this.state.title });
-  };
-
-  onChangeTitle = e => {
-    this.setState({ _title: e.target.value });
-  };
-
-  onKeyPress = e => {
-    e.stopPropagation();
-
-    if (e.key === 'Enter') {
-      this.apply();
-    }
-  };
-
-  onMouseOver = () => {
-    this.setState({ isMouseOver: true });
-  };
-
-  onMouseLeave = () => {
-    this.setState({ isMouseOver: false });
-  };
-
-  render() {
-    const { item, removable } = this.props;
-    const { isMouseOver, isDialogShow, isRenameMode, title, _title } = this.state;
-    const hasActions = removable && !item.notRemovable && isMouseOver;
-
-    return (
-      <>
-        {isRenameMode ? (
-          <>
-            <Input
-              type={'text'}
-              autoFocus
-              autoSelect
-              className="ecos-journal-menu__list-item-input"
-              value={_title}
-              onChange={this.onChangeTitle}
-              onKeyPress={this.onKeyPress}
-            />
-
-            <IcoBtn
-              title={t(Labels.TEMPLATE_CANCEL)}
-              icon={'icon-small-close'}
-              className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_red ecos-btn_hover_t_light-red ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_cancel`}
-              onClick={this.cancelRenameMode}
-            />
-
-            <IcoBtn
-              title={t(Labels.TEMPLATE_RENAME)}
-              icon={'icon-small-check'}
-              className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_green ecos-btn_hover_t_light-green ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_apply`}
-              onClick={this.apply}
-            />
-          </>
-        ) : (
-          <div
-            className={classNames('ecos-journal-menu__list-item', {
-              'ecos-journal-menu__list-item_hover': isMouseOver,
-              'ecos-journal-menu__list-item_actions': hasActions
-            })}
-            onClick={this.onClick}
-            onMouseOver={this.onMouseOver}
-            onMouseLeave={this.onMouseLeave}
-          >
-            <span>{title}</span>
-
-            {hasActions && (
-              <>
-                <IcoBtn
-                  title={t(Labels.TEMPLATE_RENAME)}
-                  icon={'icon-edit'}
-                  className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_edit`}
-                  onClick={this.showRenameMode}
-                />
-                <IcoBtn
-                  title={t(Labels.TEMPLATE_REMOVE)}
-                  icon={'icon-delete'}
-                  className={`ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__btn ecos-journal-menu__btn_delete`}
-                  onClick={this.showDialog}
-                />
-              </>
-            )}
-          </div>
-        )}
-
-        <RemoveDialog
-          isOpen={isDialogShow}
-          title={t(Labels.TEMPLATE_REMOVE_TITLE)}
-          text={t(Labels.TEMPLATE_REMOVE_TEXT, { name: title })}
-          onCancel={this.closeDialog}
-          onDelete={this.delete}
-          onClose={this.closeDialog}
-        />
-      </>
-    );
-  }
-}
-
 class JournalsMenu extends React.Component {
+  static propTypes = {
+    height: PropTypes.number // needed to track changes in the height of the parent component
+  };
+
+  _menuRef = null;
+
+  state = {
+    journalsHeight: 0,
+    settingsHeight: 0
+  };
+
   onClose = () => {
     const onClose = this.props.onClose;
     if (typeof onClose === 'function') {
@@ -256,37 +109,32 @@ class JournalsMenu extends React.Component {
     return undefined;
   };
 
-  calculateHeight = (journals, journalSettings) => {
-    const { height, pageTabsIsShow } = this.props;
+  getMaxMenuHeight = () => {
+    let height = document.body.offsetHeight;
 
-    const itemHeight = ITEM_HEIGHT;
-    const containerHeight = height - HEIGHT_DIFF + (pageTabsIsShow ? 0 : PAGE_TABS_HEIGHT_DIFF);
-    const halfHeight = containerHeight / 2;
+    height -= get(document.querySelector('#alf-hd'), 'offsetHeight', 0);
+    height -= get(document.querySelector('.page-tab'), 'offsetHeight', 0);
 
-    const settingsCount = journalSettings.length;
-    const journalsCount = journals.length;
+    if (this._menuRef) {
+      const styles = window.getComputedStyle(this._menuRef, null);
 
-    let settingsHeight = settingsCount * itemHeight;
-    let journalsHeight = journalsCount * itemHeight;
-
-    if (settingsHeight > halfHeight && journalsHeight > halfHeight) {
-      settingsHeight = halfHeight;
-      journalsHeight = halfHeight;
-    } else if (settingsHeight > halfHeight && journalsHeight < halfHeight) {
-      const freeHeight = halfHeight + halfHeight - journalsHeight;
-
-      if (settingsHeight > freeHeight) {
-        settingsHeight = freeHeight;
-      }
-    } else if (journalsHeight > halfHeight && settingsHeight < halfHeight) {
-      const freeHeight = halfHeight + halfHeight - settingsHeight;
-
-      if (journalsHeight > freeHeight) {
-        journalsHeight = freeHeight;
-      }
+      height -= parseInt(styles.getPropertyValue('padding-top'), 10) || 0;
+      height -= parseInt(styles.getPropertyValue('padding-bottom'), 10) || 0;
     }
 
-    return { settingsHeight, journalsHeight };
+    height -= getScrollbarWidth();
+
+    return height < 300 ? 300 : height;
+  };
+
+  setRef = ref => {
+    if (typeof this.props.forwardedRef === 'function') {
+      this.props.forwardedRef(ref);
+    }
+
+    if (ref) {
+      this._menuRef = ref;
+    }
   };
 
   render() {
@@ -299,8 +147,7 @@ class JournalsMenu extends React.Component {
         meta: { nodeRef }
       },
       pageTabsIsShow,
-      isMobile,
-      forwardedRef
+      isMobile
     } = this.props;
 
     if (!open) {
@@ -309,16 +156,16 @@ class JournalsMenu extends React.Component {
 
     const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
     const menuJournalSettingsSelectedIndex = this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD);
-    const { settingsHeight, journalsHeight } = this.calculateHeight(journals, journalSettings);
 
     return (
       <div
-        ref={forwardedRef}
-        className={classNames('ecos-journal-menu', {
+        ref={this.setRef}
+        className={classNames('ecos-journal-menu', 'ecos-journal-menu_grid', {
           'ecos-journal-menu_open': open,
           'ecos-journal-menu_tabs': pageTabsIsShow,
           'ecos-journal-menu_mobile': isMobile
         })}
+        style={{ maxHeight: this.getMaxMenuHeight() }}
       >
         <div className="ecos-journal-menu__hide-menu-btn">
           <IcoBtn
@@ -333,8 +180,9 @@ class JournalsMenu extends React.Component {
 
         <Well className="ecos-journal-menu__journals">
           <CollapsibleList
-            height={!isMobile && journalsHeight}
-            classNameList={'ecos-list-group_mode_journal'}
+            needScrollbar={false}
+            className="ecos-journal-menu__collapsible-list"
+            classNameList="ecos-list-group_mode_journal"
             list={this.getMenuJournals(journals)}
             selected={this.getSelectedIndex(journals, nodeRef, 'nodeRef')}
             emptyText={t(Labels.EMPTY_LIST)}
@@ -345,7 +193,8 @@ class JournalsMenu extends React.Component {
 
         <Well className="ecos-journal-menu__presets">
           <CollapsibleList
-            height={!isMobile && settingsHeight}
+            needScrollbar={false}
+            className="ecos-journal-menu__collapsible-list"
             classNameList="ecos-list-group_mode_journal"
             list={this.getMenuJournalSettings(journalSettings, menuJournalSettingsSelectedIndex)}
             selected={menuJournalSettingsSelectedIndex}
