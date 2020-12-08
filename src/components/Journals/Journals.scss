@@ -66,6 +66,10 @@
   &_with-preview {
     min-width: 780px;
   }
+
+  &-group {
+    display: grid;
+  }
 }
 
 .ecos-journal__menu {
