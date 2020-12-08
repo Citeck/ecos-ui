@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import { SelectOrgstructContext } from '../../../../SelectOrgstructContext';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, TAB_ALL_USERS } from '../../../../constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, TabTypes } from '../../../../constants';
 
 import './ListItem.scss';
 
@@ -16,7 +16,7 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
   const itemGroupType = get(item, 'attributes.groupType', '').toUpperCase();
   const itemGroupSubType = get(item, 'attributes.groupSubType', '');
 
-  const isAllUsers = currentTab === TAB_ALL_USERS;
+  const isAllUsers = currentTab === TabTypes.USERS;
   const isAllowedSelect =
     allowedAuthorityTypes.includes(itemAuthorityType) &&
     (itemAuthorityType === AUTHORITY_TYPE_USER ||

@@ -2,8 +2,7 @@ import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
   GroupTypes,
-  TAB_ALL_USERS,
-  TAB_BY_LEVELS
+  TabTypes
 } from '../../../../../components/common/form/SelectOrgstruct/constants';
 
 export default [
@@ -31,16 +30,16 @@ export default [
     data: {
       values: [
         {
-          value: TAB_ALL_USERS,
+          value: TabTypes.USERS,
           label: 'All users'
         },
         {
-          value: TAB_BY_LEVELS,
+          value: TabTypes.LEVELS,
           label: 'By levels'
         }
       ]
     },
-    defaultValue: TAB_BY_LEVELS
+    defaultValue: TabTypes.LEVELS
   },
   {
     type: 'textfield',
