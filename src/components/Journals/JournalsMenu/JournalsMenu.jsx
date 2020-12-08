@@ -128,7 +128,9 @@ class JournalsMenu extends React.Component {
   };
 
   setRef = ref => {
-    this.props.forwardedRef(ref);
+    if (typeof this.props.forwardedRef === 'function') {
+      this.props.forwardedRef(ref);
+    }
 
     if (ref) {
       this._menuRef = ref;
