@@ -97,6 +97,9 @@ export default class HeaderFormatter extends Component {
     const { colIndex } = this.props;
     const current = this.thRef.current;
 
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-803
+    e.stopPropagation();
+
     trigger.call(this, 'onDividerMouseDown', {
       e: e,
       th: current.parentElement,
