@@ -98,7 +98,7 @@ const InputView = () => {
   ) : (
     <>
       {selectedRows.length > 0 ? (
-        <ul className={'select-orgstruct__values-list'}>
+        <ul className="select-orgstruct__values-list">
           {selectedRows.map((item, idx) => (
             <li key={item.id || idx}>
               {renderSelectedValue(item)}
@@ -112,7 +112,7 @@ const InputView = () => {
           ))}
         </ul>
       ) : (
-        <p className={'select-orgstruct__value-not-selected'}>{placeholderText}</p>
+        <p className="select-orgstruct__value-not-selected">{placeholderText}</p>
       )}
     </>
   );
@@ -122,7 +122,7 @@ const InputView = () => {
       {isCompact ? null : valuesList}
 
       {error ? (
-        <p className={'select-orgstruct__error'}>{error.message}</p>
+        <p className="select-orgstruct__error">{error.message}</p>
       ) : (
         <Btn className={buttonClasses} onClick={toggleSelectModal} disabled={disabled}>
           {selectedRows.length > 0
