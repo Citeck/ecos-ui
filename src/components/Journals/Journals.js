@@ -77,6 +77,9 @@ const mapDispatchToProps = (dispatch, props) => {
 
 class Journals extends Component {
   _journalRef = null;
+  _journalBodyRef = null;
+  _beforeJournalBlockRef = null;
+  _journalFooterRef = null;
   _journalMenuRef = null;
   _toggleMenuTimerId = null;
 
@@ -192,6 +195,24 @@ class Journals extends Component {
     }
   };
 
+  setJournalBodyRef = ref => {
+    if (ref) {
+      this._journalBodyRef = ref;
+    }
+  };
+
+  setJournalBodyGroupRef = ref => {
+    if (ref) {
+      this._beforeJournalBlockRef = ref;
+    }
+  };
+
+  setJournalFooterRef = ref => {
+    if (ref) {
+      this._journalFooterRef = ref;
+    }
+  };
+
   setJournalMenuRef = ref => {
     if (ref) {
       this._journalMenuRef = ref;
@@ -204,14 +225,6 @@ class Journals extends Component {
 
   getSearch = () => {
     return this.props.isActivePage ? get(getSearchParams(), JournalUrlParams.SEARCH, '') : '';
-  };
-
-  getAvailableHeight = (height = this.state.height || 0) => {
-    if (!height) {
-      return 0;
-    }
-
-    return height > JOURNAL_MIN_HEIGHT ? height : JOURNAL_MIN_HEIGHT;
   };
 
   addRecord = createVariant => {
@@ -341,6 +354,33 @@ class Journals extends Component {
     }
   }
 
+  getJournalContentMaxHeight = () => {
+    const journalMinHeight = 175;
+    let height = document.body.offsetHeight;
+
+    height -= get(document.querySelector('#alf-hd'), 'offsetHeight', 0);
+    height -= get(document.querySelector('.page-tab'), 'offsetHeight', 0);
+
+    if (this._beforeJournalBlockRef) {
+      height -= get(this._beforeJournalBlockRef, 'offsetHeight', 0);
+    }
+
+    if (this._journalFooterRef) {
+      height -= get(this._journalFooterRef, 'offsetHeight', 0);
+    }
+
+    if (this._journalBodyRef) {
+      const styles = window.getComputedStyle(this._journalBodyRef, null);
+
+      height -= parseInt(styles.getPropertyValue('padding-top'), 10) || 0;
+      height -= parseInt(styles.getPropertyValue('padding-bottom'), 10) || 0;
+    }
+
+    height -= getScrollbarWidth();
+
+    return height < journalMinHeight ? journalMinHeight : height;
+  };
+
   render() {
     const {
       stateId,
@@ -378,29 +418,43 @@ class Journals extends Component {
           })}
         >
           <div
+            ref={this.setJournalBodyRef}
             className={classNames('ecos-journal__body', {
               'ecos-journal__body_with-tabs': pageTabsIsShow,
               'ecos-journal__body_mobile': isMobile,
               'ecos-journal__body_with-preview': showPreview
             })}
           >
-            <JournalsHead toggleMenu={this.toggleMenu} title={get(meta, 'title')} menuOpen={menuOpen} isMobile={isMobile} />
+            <div className="ecos-journal__body-group" ref={this.setJournalBodyGroupRef}>
+              <JournalsHead toggleMenu={this.toggleMenu} title={get(meta, 'title')} menuOpen={menuOpen} isMobile={isMobile} />
 
-            <JournalsSettingsBar
-              grid={grid}
-              journalConfig={journalConfig}
-              stateId={stateId}
-              showPreview={showPreview}
-              toggleSettings={this.toggleSettings}
-              togglePreview={this.togglePreview}
-              showGrid={this.showGrid}
-              refresh={reloadGrid}
-              onSearch={this.onSearch}
-              addRecord={this.addRecord}
-              isMobile={isMobile}
-              searchText={this.getSearch()}
-              selectedRecords={selectedRecords}
-            />
+              <JournalsSettingsBar
+                grid={grid}
+                journalConfig={journalConfig}
+                stateId={stateId}
+                showPreview={showPreview}
+                toggleSettings={this.toggleSettings}
+                togglePreview={this.togglePreview}
+                showGrid={this.showGrid}
+                refresh={reloadGrid}
+                onSearch={this.onSearch}
+                addRecord={this.addRecord}
+                isMobile={isMobile}
+                searchText={this.getSearch()}
+                selectedRecords={selectedRecords}
+              />
+
+              <JournalsGroupActionsTools
+                isMobile={isMobile}
+                selectAllRecordsVisible={selectAllRecordsVisible}
+                selectAllRecords={selectAllRecords}
+                grid={grid}
+                selectedRecords={selectedRecords}
+                onExecuteAction={this.onExecuteGroupAction.bind(this)}
+                onGoTo={this.onGoTo}
+                onSelectAll={this.onSelectAllRecords}
+              />
+            </div>
 
             <EcosModal
               title={t('journals.action.setting-dialog-msg')}
@@ -436,25 +490,14 @@ class Journals extends Component {
               </Well>
             </EcosModal>
 
-            <JournalsGroupActionsTools
-              isMobile={isMobile}
-              selectAllRecordsVisible={selectAllRecordsVisible}
-              selectAllRecords={selectAllRecords}
-              grid={grid}
-              selectedRecords={selectedRecords}
-              onExecuteAction={this.onExecuteGroupAction.bind(this)}
-              onGoTo={this.onGoTo}
-              onSelectAll={this.onSelectAllRecords}
-            />
-
             <JournalsContent
               stateId={stateId}
               showPreview={showPreview && !isMobile}
-              maxHeight={this.getAvailableHeight() - (165 + (this.isOpenGroupActions ? 60 : 0))}
+              maxHeight={this.getJournalContentMaxHeight()}
               isActivePage={isActivePage}
             />
 
-            <div className={'ecos-journal__footer'}>
+            <div className="ecos-journal__footer" ref={this.setJournalFooterRef}>
               <JournalsDashletPagination
                 stateId={stateId}
                 hasPageSize
@@ -473,11 +516,11 @@ class Journals extends Component {
             })}
           >
             <JournalsMenu
+              height={height}
               forwardedRef={this.setJournalMenuRef}
               stateId={stateId}
               open={menuOpen}
               onClose={this.toggleMenu}
-              height={this.getAvailableHeight() - getScrollbarWidth()}
               isActivePage={isActivePage}
             />
           </div>
