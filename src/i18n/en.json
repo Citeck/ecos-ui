@@ -417,6 +417,7 @@
   "record-action.msg.info.title": "Information",
   "record-action.msg.error.title": "Action error",
   "record-action.msg.error.text": "Action's failed",
+  "record-action.msg.error.text.error-found": "The error was found",
   "record-action.msg.success.title": "Action success",
   "record-action.msg.success.text": "Action's completed",
   "record-action.msg.status.start-n-wait": "Action started\nPending execution",
