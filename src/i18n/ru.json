@@ -417,6 +417,7 @@
   "record-action.msg.info.title": "Информация",
   "record-action.msg.error.title": "Ошибка",
   "record-action.msg.error.text": "Действие не выполнено",
+  "record-action.msg.error.text.error-found": "Была обнаружена ошибка",
   "record-action.msg.success.title": "Успех",
   "record-action.msg.success.text": "Действие выполнено",
   "record-action.msg.status.start-n-wait": "Действие запущено\nОжидайте выполнения",
