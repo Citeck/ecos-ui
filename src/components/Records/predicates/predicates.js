@@ -237,7 +237,7 @@ export function getPredicates(field) {
   }
 }
 
-export function getPredicateInput(field, sourceId, metaRecord, predicate) {
+export function getPredicateInput(field, sourceId, metaRecord, predicate = {}) {
   const defaultValue = {
     label: t('react-select.default-value.label'),
     value: null
