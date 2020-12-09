@@ -2,6 +2,8 @@ import uuidv4 from 'uuid/v4';
 
 import { decodeLink } from '../../helpers/urls';
 import PageService from '../PageService';
+import { t } from '../../helpers/export/util';
+import { TITLE } from '../../constants/pageTabs';
 
 /**
  * @define Describe One Application Tab
@@ -25,10 +27,14 @@ export default class PageTab {
     let { link, title, id, isLoading = false, isActive = false } = data || {};
 
     this.id = id || `page-tab-${uuidv4()}`;
-    this.link = decodeLink(link);
+    this.link = decodeLink(link && link.replace(window.location.origin, ''));
     this.title = title;
     this.isLoading = isLoading;
     this.isActive = isActive;
+
+    if (isLoading) {
+      this.title = t(TITLE.LOADING);
+    }
   }
 
   get uniqueKey() {
@@ -53,5 +59,9 @@ export default class PageTab {
         this[key] = data[key];
       }
     }
+  }
+
+  static equals(tab1, tab2) {
+    return (tab1 && PageService.keyId(tab1)) === (tab2 && PageService.keyId(tab2));
   }
 }

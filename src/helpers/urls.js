@@ -2,7 +2,7 @@ import * as queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import { SourcesId, URL } from '../constants';
+import { JournalUrlParams, SourcesId, URL } from '../constants';
 import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/Records/predicates/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
@@ -10,19 +10,19 @@ import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 import { hasInString } from './util';
 
-const JOURNALS_LIST_ID_KEY = 'journalsListId';
-const JOURNAL_ID_KEY = 'journalId';
+const JOURNALS_LIST_ID_KEY = JournalUrlParams.JOURNALS_LIST_ID;
+const JOURNAL_ID_KEY = JournalUrlParams.JOURNAL_ID;
 const DASHBOARD_ID_KEY = 'dashboardId';
 const DASHBOARD_KEY_KEY = 'dashboardKey';
-const RECORD_REF_KEY = 'recordRef';
-const JOURNAL_SETTING_ID_KEY = 'journalSettingId';
+const RECORD_REF_KEY = JournalUrlParams.RECORD_REF;
+const JOURNAL_SETTING_ID_KEY = JournalUrlParams.JOURNAL_SETTING_ID;
 const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
 const FILTER_KEY = 'filter';
 const SORT_KEY = 'sortBy';
 const PAGINATION_KEY = 'pagination';
-const SHOW_PREVIEW_KEY = 'showPreview';
-const SEARCH_KEY = 'search';
+const SHOW_PREVIEW_KEY = JournalUrlParams.SHOW_PREVIEW;
+const SEARCH_KEY = JournalUrlParams.SEARCH;
 
 export const SearchKeys = {
   TYPE: [TYPE_KEY],
@@ -220,6 +220,16 @@ export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
 
 export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page-v2?nodeRef=${nodeRef}`, '_self');
 
+export const updateCurrentUrl = (params = {}) => {
+  const query = getSearchParams();
+
+  for (let key in params) {
+    query[key] = params[key];
+  }
+
+  changeUrl(queryString.stringifyUrl({ url: window.location.href, query }), { updateUrl: true });
+};
+
 /**
  * Метод перебирает и сортирует параметры из url
  *
@@ -253,8 +263,8 @@ export const getSortedUrlParams = (params = window.location.search) => {
   return sortedParams.map(key => `${key}=${byObject[key]}`).join('&');
 };
 
-export const getSearchParams = (params = window.location.search) => {
-  return queryString.parse(params);
+export const getSearchParams = (params = window.location.search, options) => {
+  return queryString.parse(params, options);
 };
 
 export const decodeLink = link => {
@@ -372,7 +382,7 @@ window.Citeck.Navigator = {
   }
 };
 
-export const replaceHistoryLink = (history = {}, link = '') => {
+export const replaceHistoryLink = (history = window, link = '') => {
   if (isEmpty(history)) {
     return;
   }
@@ -389,33 +399,34 @@ export const replaceHistoryLink = (history = {}, link = '') => {
     return;
   }
 
-  if (typeof history.replace === 'function') {
-    history.replace(pureLink);
-  }
+  window.history.replaceState({ path: pureLink }, '', pureLink);
+
+  return pureLink;
 };
 
-export const pushHistoryLink = (history = {}, linkData = {}) => {
+export const pushHistoryLink = (history = window, linkData = {}) => {
   if (isEmpty(history) || isEmpty(linkData)) {
     return;
   }
 
   const currentSearch = get(history, 'location.search', '');
   const currentPathname = get(history, 'location.pathname', '');
-  const search = get(linkData, 'search', '');
+  let search = get(linkData, 'search', '');
   const pathname = get(linkData, 'pathname', currentPathname);
+
+  if (search.charAt(0) === '?') {
+    search = search.slice(1);
+  }
+
   const newLink = decodeLink([pathname, search].filter(item => !isEmpty(item)).join('?'));
 
   if (`${currentPathname}${currentSearch}` === newLink) {
     return;
   }
 
-  if (typeof history.push === 'function') {
-    history.push({
-      ...linkData,
-      search,
-      pathname
-    });
-  }
+  window.history.pushState({ path: newLink }, '', newLink);
+
+  return newLink;
 };
 
 /**
@@ -443,4 +454,11 @@ export const removeUrlSearchParams = (sourceUrl = window.location.href, keys = [
   }
 
   return queryString.stringifyUrl(url);
+};
+
+export const getUrlWithoutOrigin = (location = window.location) => {
+  const pathname = get(location, 'pathname', window.location.pathname);
+  const search = get(location, 'search', window.location.search);
+
+  return `${pathname}${search}`;
 };

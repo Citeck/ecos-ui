@@ -163,8 +163,7 @@ export const makeSiteMenuFromConfig = [
       {
         id: 'SETTINGS_DASHBOARD',
         label: 'header.site-menu.page-settings',
-        targetUrl: '/v2/dashboard/settings',
-        targetUrlType: 'FULL_PATH'
+        onClick: 'function'
       }
     ]
   ],
@@ -174,8 +173,7 @@ export const makeSiteMenuFromConfig = [
       {
         id: 'SETTINGS_DASHBOARD',
         label: 'header.site-menu.page-settings',
-        targetUrl: '/v2/dashboard/settings',
-        targetUrlType: 'FULL_PATH'
+        onClick: 'function'
       },
       {
         id: 'SETTINGS_MENU',

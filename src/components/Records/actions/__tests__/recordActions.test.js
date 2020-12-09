@@ -1,28 +1,15 @@
+import isBoolean from 'lodash/isBoolean';
+import DialogManager from '../../../common/dialogs/Manager';
+import { DetailActionResult, prepareResult } from '../util/actionUtils';
 import recordActions, { DEFAULT_MODEL as GLOBAL_DEFAULT_MODEL } from '../recordActions';
 import actionsRegistry from '../actionsRegistry';
-import ActionsExecutor from '../handler/ActionsExecutor';
 
 import { ACTION_DTO_BY_ID, ACTIONS_BY_RECORD, ACTIONS_BY_TYPE, RECORD_TYPE, RECORDS } from '../__mocks__/recordActionsApi';
 import '../__mocks__/recordActions.mock';
+import TestActionExecutor, { TEST_ACTION_CONFIG } from '../__mocks__/TestActionExecutor.mock';
+import { ActionResultFormation, ActionResultTypes } from '../__mocks__/recordActions.mock';
 
 jest.mock('../recordActionsApi');
-
-class TestActionExecutor extends ActionsExecutor {
-  static ACTION_ID = 'test-action';
-
-  async execForRecord(record, action, context) {}
-
-  async execForRecords(records, action, context) {}
-
-  async execForQuery(query, action, context) {}
-
-  getDefaultActionModel() {
-    return {
-      icon: 'test-icon',
-      name: 'Custom test action'
-    };
-  }
-}
 
 actionsRegistry.register(new TestActionExecutor());
 
@@ -113,5 +100,76 @@ describe('RecordActions service', () => {
 
       compareActions(expected, actions, context, recordId + ' ' + JSON.stringify(expected));
     }
+  });
+
+  describe('Display Info Result Action', async () => {
+    let showCustomDialogSpy;
+    let winOpenSpy;
+    let detailActionPreviewSpy;
+    let detailActionResultSpy;
+    let getActionAllowedInfoForRecordsSpy;
+
+    beforeEach(() => {
+      winOpenSpy = jest.spyOn(window, 'open').mockImplementation(() => true);
+      showCustomDialogSpy = jest.spyOn(DialogManager, 'showCustomDialog').mockImplementation(p1 => p1.onHide());
+      getActionAllowedInfoForRecordsSpy = jest
+        .spyOn(recordActions, '_getActionAllowedInfoForRecords')
+        .mockImplementation(allowedRecords => ({ allowedRecords, notAllowedRecords: [] }));
+      detailActionResultSpy = jest.spyOn(DetailActionResult, 'showResult');
+      detailActionPreviewSpy = jest.spyOn(DetailActionResult, 'showPreviewRecords');
+    });
+
+    afterEach(() => {
+      delete TEST_ACTION_CONFIG.callback;
+      jest.resetAllMocks();
+    });
+
+    describe(`Result for execForRecord`, async () => {
+      for (let key in ActionResultTypes) {
+        beforeEach(() => {
+          TEST_ACTION_CONFIG.callback = () => ActionResultTypes[key];
+        });
+
+        it(key, async () => {
+          const result = await recordActions.execForRecord('test', TEST_ACTION_CONFIG);
+          expect(detailActionResultSpy).toHaveBeenCalledTimes(isBoolean(result) ? 0 : 1);
+        });
+      }
+    });
+
+    describe(`Result for execForRecords`, async () => {
+      for (let key in ActionResultTypes) {
+        beforeEach(() => {
+          TEST_ACTION_CONFIG.callback = () => ActionResultTypes[key];
+        });
+
+        it(key, async () => {
+          const result = await recordActions.execForRecords(['test'], TEST_ACTION_CONFIG);
+          expect(detailActionPreviewSpy).toHaveBeenCalledTimes(1);
+          expect(detailActionResultSpy).toHaveBeenCalledTimes(isBoolean(result) ? 0 : 1);
+        });
+      }
+    });
+
+    describe(`Result for execForQuery`, async () => {
+      for (const key in ActionResultTypes) {
+        beforeEach(() => {
+          TEST_ACTION_CONFIG.callback = () => ActionResultTypes[key];
+        });
+
+        it(key, async () => {
+          const result = await recordActions.execForQuery({ query: '', attributes: {}, isSingle: false }, TEST_ACTION_CONFIG);
+          expect(detailActionResultSpy).toHaveBeenCalledTimes(isBoolean(result) ? 0 : 1);
+        });
+      }
+    });
+
+    describe('Formation Result', () => {
+      for (let key in ActionResultFormation) {
+        it(key, () => {
+          expect(prepareResult(ActionResultFormation[key].input)).toEqual(ActionResultFormation[key].output);
+        });
+      }
+    });
   });
 });

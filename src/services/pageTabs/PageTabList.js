@@ -1,12 +1,17 @@
 import isArray from 'lodash/isArray';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
+import { EventEmitter2 } from 'eventemitter2';
+import * as queryString from 'query-string';
 
 import * as storage from '../../helpers/ls';
 import { equalsQueryUrls, IgnoredUrlParams } from '../../helpers/urls';
 import { t } from '../../helpers/util';
+import { JournalUrlParams } from '../../constants';
 import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
+import PageService from '../PageService';
 
 const exist = index => !!~index;
 
@@ -27,14 +32,14 @@ class PageTabList {
   #callbacks = [];
 
   get tabs() {
-    return this.#tabs;
+    return cloneDeep(this.#tabs || []);
   }
 
   set tabs({ tabs = [], params = {} }) {
     this.#tabs = [];
 
     tabs = isArray(tabs) ? tabs : [];
-    tabs.forEach(item => this.setTab(item, params));
+    this.#tabs = tabs.map(item => this.setTab(item, params));
   }
 
   set displayState(state) {
@@ -42,15 +47,15 @@ class PageTabList {
   }
 
   get activeTab() {
-    return this.#tabs.find(item => item.isActive) || {};
+    return this.tabs.find(item => item.isActive) || {};
   }
 
   get storageList() {
-    return this.#tabs.map(item => item.storage);
+    return this.tabs.map(item => item.storage);
   }
 
   get storeList() {
-    return this.#tabs.map(item => item.store);
+    return this.tabs.map(item => item.store);
   }
 
   get activeTabId() {
@@ -67,6 +72,7 @@ class PageTabList {
     this.#isDuplicateAllowed = !!isDuplicateAllowed;
 
     let tabs = this.getFromStorage();
+
     tabs = this.getValidList(tabs);
 
     params = { ...params, last: true };
@@ -160,11 +166,8 @@ class PageTabList {
     const length = this.#tabs.length;
 
     if (deletedTab.isActive && !!length) {
-      if (tabIndex >= length) {
-        this.#tabs[length - 1].isActive = true;
-      } else {
-        this.#tabs[tabIndex].isActive = true;
-      }
+      const newIndex = tabIndex >= length ? length - 1 : tabIndex;
+      this.activate(this.#tabs[newIndex]);
     }
 
     this.setToStorage();
@@ -198,6 +201,7 @@ class PageTabList {
     this.#tabs.forEach(item => {
       if (this.equals(item, tab)) {
         item.change(updates);
+        item.link = item.link.replace(window.location.origin, '');
         changingTab = item;
       }
     });
@@ -262,8 +266,30 @@ class PageTabList {
       : activeIndex + 1;
   }
 
-  getValidList(tabs) {
+  getValidList(tabs = this.#tabs) {
     tabs = isArray(tabs) ? tabs : [];
+
+    if (!this.#isDuplicateAllowed) {
+      tabs = tabs.reduce((result, item) => {
+        const found = result.find(tab => {
+          const parsedItemUrl = queryString.parseUrl(item.link);
+          const parsedCurrentTabUrl = queryString.parseUrl(tab.link);
+          const isJournalExist =
+            get(parsedItemUrl, ['query', JournalUrlParams.JOURNALS_LIST_ID]) ===
+            get(parsedCurrentTabUrl, ['query', JournalUrlParams.JOURNALS_LIST_ID], null);
+
+          return PageTab.equals(tab, item) || isJournalExist;
+        });
+
+        if (!found) {
+          result.push(item);
+        } else {
+          found.isLoading = true;
+        }
+
+        return result;
+      }, []);
+    }
 
     return tabs.filter(tab => tab.link);
   }
@@ -278,20 +304,6 @@ class PageTabList {
     }
   }
 
-  getTabById = id => {
-    return this.#tabs.find(tab => tab.id === id) || {};
-  };
-
-  getTabByLink = (link = '') => {
-    let url = link;
-
-    if (!link.length) {
-      url = window.location.pathname + window.location.search;
-    }
-
-    return this.#tabs.find(tab => tab.link === url) || {};
-  };
-
   isActiveTab = tabId => {
     if (!tabId) {
       return false;
@@ -302,6 +314,53 @@ class PageTabList {
 }
 
 const pageTabList = get(window, 'Citeck.PageTabList', new PageTabList());
+
+export const updateTabEmitter = new EventEmitter2();
+
+window.addEventListener('popstate', event => {
+  const { href, origin } = get(event, 'target.location');
+  const link = href.replace(origin, '');
+  let tabs = cloneDeep(pageTabList.storeList);
+  const founded = tabs.find(tab => PageTab.equals(tab, { link }));
+
+  if (founded) {
+    tabs.forEach(tab => {
+      tab.isActive = tab.link === founded.link;
+    });
+  } else {
+    const newTab = new PageTab({
+      title: t(TITLE.LOADING),
+      isLoading: true,
+      isActive: true,
+      link: window.encodeURIComponent(link)
+    });
+
+    tabs.forEach(tab => {
+      tab.isActive = false;
+    });
+
+    try {
+      const decodedLink = decodeURIComponent(link);
+      const getTitle = PageService.getPage({ link: decodedLink }).getTitle({}, decodedLink);
+
+      Promise.all([getTitle]).then(values => {
+        newTab.title = values[0];
+        newTab.isLoading = false;
+        pageTabList.setTab(newTab);
+        updateTabEmitter.emit('update');
+      });
+    } catch (e) {
+      console.error('Update tab title filed: ', e.message);
+    }
+
+    tabs.push(newTab.store);
+  }
+
+  tabs = pageTabList.getValidList(tabs);
+
+  pageTabList.tabs = { tabs, params: { openNewTab: true } };
+  updateTabEmitter.emit('update');
+});
 
 set(window, 'Citeck.PageTabList', pageTabList);
 

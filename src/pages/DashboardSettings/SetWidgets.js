@@ -30,6 +30,7 @@ const Labels = {
 class SetWidgets extends React.Component {
   static propTypes = {
     className: PropTypes.string,
+    menuType: PropTypes.string,
     availableWidgets: PropTypes.array,
     activeWidgets: PropTypes.array,
     setData: PropTypes.func,
@@ -154,7 +155,7 @@ class SetWidgets extends React.Component {
   };
 
   renderWidgetColumns() {
-    const { activeWidgets, columns, isMobile } = this.props;
+    const { activeWidgets, columns, isMobile, positionAdjustment } = this.props;
     const { draggableDestination } = this.state;
 
     return (
@@ -192,12 +193,14 @@ class SetWidgets extends React.Component {
                       className="ecos-dashboard-settings__column-widgets__items__cell"
                       title={this.getWidgetLabel(widget)}
                       selected={true}
+                      tooltipClassName="ecos-dashboard-settings__tooltip"
                       alertTooltip={this.getMessage(widget)}
                       canRemove={true}
                       removeItem={response => {
                         this.handleRemoveWidget(response, indexColumn, indexWidget);
                       }}
                       item={widget}
+                      getPositionAdjustment={positionAdjustment}
                     />
                   ))}
               </Droppable>
@@ -209,7 +212,7 @@ class SetWidgets extends React.Component {
   }
 
   render() {
-    const { isMobile } = this.props;
+    const { isMobile, positionAdjustment } = this.props;
 
     return (
       <>
@@ -242,6 +245,7 @@ class SetWidgets extends React.Component {
                   draggableId={item.dndId}
                   draggableIndex={index}
                   title={this.getWidgetLabel(item)}
+                  getPositionAdjustment={positionAdjustment}
                 />
               ))}
             </Droppable>

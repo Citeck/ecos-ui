@@ -80,7 +80,8 @@ class DropdownMenuItem extends React.Component {
   handlerClick = event => {
     const {
       data,
-      data: { control, isLegacy },
+      data: { control, isLegacy, id },
+      dashboardId,
       onClick
     } = this.props;
 
@@ -89,6 +90,13 @@ class DropdownMenuItem extends React.Component {
       handleControl(control.type, control.payload);
     } else if (!isLegacy && onClick) {
       event.preventDefault();
+
+      if (id === 'SETTINGS_DASHBOARD') {
+        onClick({ ...data, dashboardId, updateDashboard: true });
+
+        return;
+      }
+
       onClick(data);
     }
   };

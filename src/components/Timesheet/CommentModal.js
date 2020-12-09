@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import EcosModal from '../common/EcosModal';
@@ -7,15 +7,15 @@ import { Btn } from '../common/btns';
 import { t } from '../../helpers/util';
 
 const LABELS = {
-  TITLE_REQUIRED: 'Добавьте комментарий',
-  TITLE: 'Добавить комментарий?',
-  PLACEHOLDER_REQUIRED: 'Напишите коротко, что нужно доработать.',
-  PLACEHOLDER: 'Если комментарий не нужен, оставьте поле пустым.',
-  BTN_CANCEL: 'Отмена',
-  BTN_SEND: 'Отправить'
+  TITLE_REQUIRED: 'timesheets.modal.comment.required.title',
+  TITLE: 'timesheets.modal.comment.title',
+  PLACEHOLDER_REQUIRED: 'timesheets.modal.comment.required.placeholder',
+  PLACEHOLDER: 'timesheets.modal.comment.placeholder',
+  BTN_CANCEL: 'timesheets.modal.comment.btn.cancel',
+  BTN_SEND: 'timesheets.modal.comment.btn.send'
 };
 
-class CommentModal extends Component {
+class CommentModal extends React.PureComponent {
   static propTypes = {
     title: PropTypes.string,
     placeholder: PropTypes.string,
@@ -130,4 +130,4 @@ class CommentModal extends Component {
   }
 }
 
-export default React.memo(CommentModal);
+export default CommentModal;

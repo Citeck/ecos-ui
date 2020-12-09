@@ -35,9 +35,15 @@ export default class extends Component {
     ) : null;
 
     let additionalProps = {};
+    let selected = otherProps.selected;
+
     if (otherProps.showTimeInput) {
       additionalProps.timeInputLabel = `${t('ecos-forms.datepicker.time-input-label')}:`;
       additionalProps.dateFormat = 'P HH:mm';
+    }
+
+    if (selected && !(selected instanceof Date)) {
+      selected = new Date(selected);
     }
 
     return (
@@ -50,7 +56,7 @@ export default class extends Component {
           // dropdownMode="select"
           // popperPlacement="top-end"
           {...otherProps}
-          selected={otherProps.selected || null}
+          selected={selected || null}
           {...additionalProps}
           className={cssClasses}
           calendarClassName="ecos-datepicker__calendar"

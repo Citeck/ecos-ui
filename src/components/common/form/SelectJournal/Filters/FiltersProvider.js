@@ -39,7 +39,6 @@ export default class FiltersProvider extends Component {
         .map(item => {
           const predicates = getPredicates(item);
           const input = getPredicateInput(item, sourceId);
-
           let predicateValue = input ? input.defaultValue : null;
           let selectedPredicate = predicates[0];
           if (Array.isArray(presetFilterPredicates)) {

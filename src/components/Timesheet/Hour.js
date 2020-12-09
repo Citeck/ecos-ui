@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
@@ -15,7 +15,7 @@ const KEYS = {
 const KEY_FOR_SAVE = [KEYS.ENTER];
 const DELIMITERS = [',', '.'];
 
-class Hour extends Component {
+class Hour extends React.PureComponent {
   static propTypes = {
     count: PropTypes.number,
     color: PropTypes.string,
@@ -330,4 +330,4 @@ class Hour extends Component {
   }
 }
 
-export default React.memo(Hour);
+export default Hour;

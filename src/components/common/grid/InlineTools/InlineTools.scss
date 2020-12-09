@@ -20,7 +20,7 @@ $border: $border-width-standard solid $color-brown-2;
     overflow: hidden;
     background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
 
-    &::before {
+    &:not(:empty)::before {
       content: ' ';
       width: 35px;
     }

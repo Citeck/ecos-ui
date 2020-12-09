@@ -6,6 +6,10 @@ import formatterStore from '../formatters/formatterStore';
 
 export const DEFAULT_FORMATTER = 'DefaultGqlFormatter';
 
+/**
+ * @deprecated
+ * @see src/components/Journals/service
+ */
 export default class BaseDataSource {
   constructor(options) {
     options = options || {};

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 
 import { SelectOrgstruct } from '../common/form';
-import { TAB_ALL_USERS } from '../common/form/SelectOrgstruct/constants';
+import { TabTypes } from '../common/form/SelectOrgstruct/constants';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 
 class SelectUserModal extends Component {
@@ -45,7 +45,7 @@ class SelectUserModal extends Component {
 
     return (
       <SelectOrgstruct
-        defaultTab={TAB_ALL_USERS}
+        defaultTab={TabTypes.USERS}
         defaultValue={defaultValue}
         modalTitle={CommonLabels.MODAL_SELECT_ORG_STRUCT_TITLE}
         onChange={onSelect}
@@ -62,4 +62,4 @@ class SelectUserModal extends Component {
   }
 }
 
-export default React.memo(SelectUserModal);
+export default SelectUserModal;

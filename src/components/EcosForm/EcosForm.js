@@ -246,17 +246,15 @@ class EcosForm extends React.Component {
 
           self.setState({ formId: formData.id });
 
-          if (self.props.onReady) {
-            self.props.onReady(form);
-          }
+          form.formReady.then(() => {
+            if (self.props.onReady) {
+              self.props.onReady(form);
+            }
 
-          form.ready.then(() => {
             self._containerHeightTimerId = window.setTimeout(() => {
               self.toggleContainerHeight();
             }, 500);
-          });
 
-          form.formReady.then(() => {
             if (self.props.onReadyToSubmit) {
               EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => {
                 self.props.onReadyToSubmit(form, state);

@@ -10,6 +10,7 @@ export const setRequestResultDashboard = createAction(prefix + 'SET_REQUEST_RESU
 export const setCheckUpdatedDashboardConfig = createAction(prefix + 'SET_CHECK_UPDATED_DASHBOARD_CONFIG');
 export const resetDashboardConfig = createAction(prefix + 'RESET_DASHBOARD_CONFIG');
 export const setLoading = createAction(prefix + 'SET_LOADING');
+export const setLoadingKeys = createAction(prefix + 'SET_LOADING_KEYS');
 
 export const getAwayFromPage = createAction(prefix + 'GET_AWAY_FROM_PAGE');
 

@@ -4,21 +4,23 @@ export const history = Object.freeze({
     search: ''
   }),
   history: Object.freeze([]),
-  push: function({ search, pathname }) {
-    this.location.search = search ? `?${search}` : '';
+  pushState: function({ path = '' } = {}) {
+    const [pathname, search = ''] = path.split('?');
+
+    this.location.search = search;
     this.location.pathname = pathname;
-    this.history.push(`${pathname}${this.location.search}`);
+    this.history.push(path);
   },
-  replace: function(link) {
-    const [pathname, search] = link.split('?');
+  replaceState: function({ path = '' } = {}) {
+    const [pathname, search] = path.split('?');
 
     this.location.search = search;
     this.location.pathname = pathname;
 
     if (!this.history.length) {
-      this.history.push(link);
+      this.history.push(path);
     } else {
-      this.history.splice(this.history.length - 1, 1, link);
+      this.history.splice(this.history.length - 1, 1, path);
     }
   }
 });

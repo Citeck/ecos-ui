@@ -45,6 +45,8 @@ export default class ActionsExecutor extends ActionsHandler {
    * Update records
    *
    * @param {Record|Array<Record>} records
+   *
+   * @deprecated ActionsExecutor should not has method like this
    */
   updateRecords(records) {
     if (Array.isArray(records)) {

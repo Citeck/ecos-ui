@@ -6,6 +6,7 @@ export const URL = {
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
   MENU_SETTINGS: '/v2/menu-settings',
   BPMN_DESIGNER: '/v2/bpmn-designer',
+  DEV_TOOLS: '/v2/dev-tools',
   TIMESHEET: '/v2/timesheet',
   TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
   TIMESHEET_FOR_VERIFICATION: '/v2/timesheet/for-verification',
@@ -25,6 +26,7 @@ export const pagesWithOnlyContent = [
 ];
 
 export const SourcesId = {
+  BUILD_INFO: 'uiserv/build-info',
   DASHBOARD: 'uiserv/dashboard',
   EFORM: 'uiserv/eform',
   USER_CONF: 'uiserv/user-conf',
@@ -120,11 +122,22 @@ export const Pages = {
   TIMESHEET_DELEGATED: 'timesheet-delegated',
   LOGIN: 'login',
   DEBUG_FORMIO: 'debug-formio',
-  DEBUG_TREE: 'debug-tree'
+  DEBUG_TREE: 'debug-tree',
+  DEV_TOOLS: 'dev-tools'
 };
 
 export const AppEditions = {
   ENTERPRISE: 'enterprise'
+};
+
+export const JournalUrlParams = {
+  JOURNALS_LIST_ID: 'journalsListId',
+  JOURNAL_ID: 'journalId',
+  RECORD_REF: 'recordRef',
+  JOURNAL_SETTING_ID: 'journalSettingId',
+  USER_CONFIG_ID: 'userConfigId',
+  SHOW_PREVIEW: 'showPreview',
+  SEARCH: 'search'
 };
 
 window.Citeck = window.Citeck || {};

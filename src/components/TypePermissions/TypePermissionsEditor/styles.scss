@@ -1,0 +1,36 @@
+.type-permissions {
+  &__buttons-panel {
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: end;
+    grid-gap: 1em;
+  }
+
+  &__grid-container {
+    margin-bottom: 2em;
+  }
+
+  &__switch-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &__switch-button {
+    width: 80px;
+  }
+
+  &__column {
+    width: 100%;
+  }
+
+  &__grid {
+    th .ecos-th {
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  &__error {
+  }
+}

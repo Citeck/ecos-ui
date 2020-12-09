@@ -1,13 +1,18 @@
+import React, { lazy, Suspense } from 'react';
+import { Provider } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import uuid from 'uuidv4';
 
 import { SourcesId } from '../constants';
-import { CONFIG_VERSION } from '../constants/dashboard';
+import { CONFIG_VERSION, DashboardTypes } from '../constants/dashboard';
 import { LayoutTypes } from '../constants/layout';
 import { t } from '../helpers/util';
 import pageTabList from './pageTabs/PageTabList';
+import DialogManager from '../components/common/dialogs/Manager/DialogManager';
+import { Loader } from '../components/common';
+import { getStore } from '../store';
 
 const separatorId = '@';
 
@@ -47,6 +52,10 @@ export default class DashboardService {
 
   static formShortId(id) {
     return (id || '').replace(SourcesId.DASHBOARD + separatorId, '');
+  }
+
+  static isDashboardRecord(recordRef = '') {
+    return recordRef.indexOf(SourcesId.DASHBOARD) === 0;
   }
 
   static checkDashboardResult(result) {
@@ -203,5 +212,47 @@ export default class DashboardService {
         widgets
       }
     };
+  }
+
+  static openEditModal(props = {}) {
+    const DashboardSettingsModal = lazy(() => import('../pages/DashboardSettings/DashboardSettingsModal'));
+    const store = getStore();
+    const modalRef = React.createRef();
+    let { title, ...otherProps } = props;
+
+    switch (get(this, 'props.identification.type', '')) {
+      case DashboardTypes.USER:
+        title = t('dashboard-settings.page-title');
+        break;
+      case DashboardTypes.CASE_DETAILS:
+        title = t('dashboard-settings.card-settings');
+        break;
+      default:
+        title = t('dashboard-settings.page-display-settings');
+        break;
+    }
+
+    const dialog = DialogManager.showCustomDialog({
+      isVisible: true,
+      title: props.title || title,
+      className: 'ecos-dashboard-settings-modal-wrapper ecos-modal_width-lg',
+      isTopDivider: true,
+      reactstrapProps: { ref: modalRef },
+      onHide: () => dialog.setVisible(false),
+      body: (
+        <Provider store={store}>
+          <Suspense fallback={<Loader type="points" />}>
+            <DashboardSettingsModal
+              modalRef={modalRef}
+              tabId={pageTabList.activeTabId}
+              onSetDialogProps={props => dialog.updateProps(props)}
+              onSave={() => dialog.setVisible(false)}
+              onClose={() => dialog.setVisible(false)}
+              {...otherProps}
+            />
+          </Suspense>
+        </Provider>
+      )
+    });
   }
 }

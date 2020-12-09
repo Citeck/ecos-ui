@@ -5,8 +5,28 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-
 import debounce from 'lodash/debounce';
+
+import EcosModal from '../common/EcosModal/EcosModal';
+import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
+import { Well } from '../common/form';
+import {
+  execRecordsAction,
+  getJournalsData,
+  reloadGrid,
+  restoreJournalSettingData,
+  runSearch,
+  setSelectAllRecords,
+  setSelectedRecords,
+  setUrl
+} from '../../actions/journals';
+import { JournalUrlParams } from '../../constants';
+import { animateScrollTo, getBool, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
+import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
+import { wrapArgs } from '../../helpers/redux';
+import FormManager from '../EcosForm/FormManager';
+
+import { JOURNAL_MIN_HEIGHT } from './constants';
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
 import JournalsFilters from './JournalsFilters';
@@ -16,25 +36,7 @@ import JournalsMenu from './JournalsMenu';
 import JournalsSettingsBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
-
 import { JournalsGroupActionsTools } from './JournalsTools';
-import FormManager from '../EcosForm/FormManager';
-import EcosModal from '../common/EcosModal/EcosModal';
-import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
-import { Well } from '../common/form';
-import {
-  execRecordsAction,
-  getJournalsData,
-  reloadGrid,
-  restoreJournalSettingData,
-  search,
-  setSelectAllRecords,
-  setSelectedRecords
-} from '../../actions/journals';
-import { animateScrollTo, getScrollbarWidth, objectCompare, t, trigger } from '../../helpers/util';
-import { getSearchParams, goToCardDetailsPage, stringifySearchParams } from '../../helpers/urls';
-import { wrapArgs } from '../../helpers/redux';
-import { JOURNAL_MIN_HEIGHT } from './constants';
 
 import './Journals.scss';
 
@@ -45,12 +47,16 @@ const mapStateToProps = (state, props) => {
     isMobile: state.view.isMobile,
     pageTabsIsShow: state.pageTabs.isShow,
     journalConfig: newState.journalConfig,
+    journalSetting: newState.journalSetting,
     predicate: newState.predicate,
+    gridPredicates: get(newState, 'grid.predicates', []),
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
     selectAllRecords: newState.selectAllRecords,
     selectAllRecordsVisible: newState.selectAllRecordsVisible,
-    isLoading: newState.loading
+    isLoading: newState.loading,
+    urlParams: newState.url,
+    _url: window.location.href
   };
 };
 
@@ -63,13 +69,17 @@ const mapDispatchToProps = (dispatch, props) => {
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: () => dispatch(reloadGrid(w({}))),
-    search: text => dispatch(search({ text, stateId: props.stateId })),
-    restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting)))
+    runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
+    restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
+    setUrl: urlParams => dispatch(setUrl(w(urlParams)))
   };
 };
 
 class Journals extends Component {
   _journalRef = null;
+  _journalBodyRef = null;
+  _beforeJournalBlockRef = null;
+  _journalFooterRef = null;
   _journalMenuRef = null;
   _toggleMenuTimerId = null;
 
@@ -78,25 +88,29 @@ class Journals extends Component {
 
     this.state = {
       menuOpen: false,
+      isReset: false,
+      isForceUpdate: false,
       menuOpenAnimate: false,
       settingsVisible: false,
-      showPreview: props.urlParams.showPreview,
-      showPie: false,
       savedSetting: null,
-      journalId: get(props, 'urlParams.journalId'),
-      isForceUpdate: false
+      showPreview: getBool(get(getSearchParams(), JournalUrlParams.SHOW_PREVIEW))
     };
   }
 
   static getDerivedStateFromProps(props, state) {
     const newState = {};
-    const journalId = get(props, 'urlParams.journalId');
+    const journalId = get(props, ['urlParams', JournalUrlParams.JOURNAL_ID]);
 
     if (props.isActivePage && journalId !== state.journalId) {
       newState.journalId = journalId;
     }
 
-    if (state.settingsVisible && state.savedSetting && !objectCompare(props.predicate, get(state, 'savedSetting.predicate', {}))) {
+    if (
+      !state.isReset &&
+      state.settingsVisible &&
+      state.savedSetting &&
+      !objectCompare(props.predicate, get(state, 'savedSetting.predicate', {}))
+    ) {
       newState.savedSetting = {
         ...state.savedSetting,
         predicate: props.predicate
@@ -111,44 +125,43 @@ class Journals extends Component {
   }
 
   componentDidMount() {
-    trigger.call(this, 'getJournalsData');
-    trigger.call(this, 'onRender');
+    this.props.setUrl(getSearchParams());
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const {
-      isActivePage,
-      urlParams: { journalId },
-      stateId,
-      grid,
-      isLoading,
-      getJournalsData
-    } = this.props;
-    const {
-      isActivePage: _isActivePage,
-      urlParams: { journalId: _journalId }
-    } = prevProps;
-    const search = this.getSearch();
+    const { urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl } = this.props;
+    const { isActivePage: _isActivePage, urlParams: _urlParams } = prevProps;
 
-    if (isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId)) {
-      getJournalsData();
+    const _journalId = get(_urlParams, JournalUrlParams.JOURNAL_ID);
+    const journalId = get(urlParams, JournalUrlParams.JOURNAL_ID);
+    const showPreview = getBool(get(getSearchParams(), JournalUrlParams.SHOW_PREVIEW));
+
+    const otherActiveJournal =
+      isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId);
+    const someUrlChanges =
+      isActivePage &&
+      _isActivePage &&
+      !equalsQueryUrls({ urls: [this.props._url, prevProps._url], ignored: [JournalUrlParams.SHOW_PREVIEW] });
+
+    if (someUrlChanges) {
+      setUrl(getSearchParams());
     }
 
-    if (prevProps.stateId !== stateId) {
+    if (someUrlChanges || otherActiveJournal || prevProps.stateId !== stateId) {
       getJournalsData();
-    }
-
-    if (search !== get(grid, 'search')) {
-      this.onSearch(search);
     }
 
     if (isActivePage && this.state.isForceUpdate) {
       this.setState({ isForceUpdate: false });
-      this.props.reloadGrid();
+      reloadGrid();
     }
 
     if (_isActivePage && !isActivePage && isLoading) {
       this.setState({ isForceUpdate: true });
+    }
+
+    if (isActivePage && showPreview !== this.state.showPreview) {
+      updateCurrentUrl({ showPreview: this.state.showPreview });
     }
   }
 
@@ -182,6 +195,24 @@ class Journals extends Component {
     }
   };
 
+  setJournalBodyRef = ref => {
+    if (ref) {
+      this._journalBodyRef = ref;
+    }
+  };
+
+  setJournalBodyGroupRef = ref => {
+    if (ref) {
+      this._beforeJournalBlockRef = ref;
+    }
+  };
+
+  setJournalFooterRef = ref => {
+    if (ref) {
+      this._journalFooterRef = ref;
+    }
+  };
+
   setJournalMenuRef = ref => {
     if (ref) {
       this._journalMenuRef = ref;
@@ -193,15 +224,13 @@ class Journals extends Component {
   }, 250);
 
   getSearch = () => {
-    return this.props.isActivePage ? get(getSearchParams(), 'search', '') : '';
-  };
+    const { isActivePage, urlParams } = this.props;
 
-  getAvailableHeight = (height = this.state.height || 0) => {
-    if (!height) {
-      return 0;
+    if (!isActivePage) {
+      return '';
     }
 
-    return height > JOURNAL_MIN_HEIGHT ? height : JOURNAL_MIN_HEIGHT;
+    return get(getSearchParams(), JournalUrlParams.SEARCH, get(urlParams, 'search', ''));
   };
 
   addRecord = createVariant => {
@@ -213,29 +242,39 @@ class Journals extends Component {
   };
 
   resetSettings = savedSetting => {
-    this.setState({ savedSetting });
+    const { predicate } = this.props;
+
+    this.setState({ savedSetting: { ...savedSetting, predicate }, isReset: true });
   };
 
-  toggleSettings = () => {
-    const { savedSetting, settingsVisible } = this.state;
+  applySettings = () => {
+    const url = removeUrlSearchParams(window.location.href, JournalUrlParams.SEARCH);
+
+    window.history.replaceState({ path: url }, '', url);
+    this.toggleSettings();
+  };
+
+  toggleSettings = (isCancel = false) => {
+    const { gridPredicates, journalSetting } = this.props;
+    const { savedSetting, settingsVisible, isReset } = this.state;
 
     if (savedSetting && settingsVisible) {
-      this.props.restoreJournalSettingData(savedSetting);
+      this.props.restoreJournalSettingData({ ...savedSetting, predicate: get(savedSetting, 'predicate', {}), isReset });
     }
 
-    this.setState({ settingsVisible: !settingsVisible, savedSetting: null });
+    if (!savedSetting && settingsVisible && isCancel) {
+      this.props.restoreJournalSettingData({ ...journalSetting, predicate: get(gridPredicates, ['0'], {}) });
+    }
+
+    this.setState({ settingsVisible: !settingsVisible, savedSetting: null, isReset: false });
   };
 
   togglePreview = () => {
-    this.setState(state => ({ showPreview: !state.showPreview, showPie: false }));
-  };
-
-  togglePie = () => {
-    this.setState(state => ({ showPreview: false, showPie: !state.showPie }));
+    this.setState(state => ({ showPreview: !state.showPreview }));
   };
 
   showGrid = () => {
-    this.setState({ showPreview: false, showPie: false });
+    this.setState({ showPreview: false });
   };
 
   toggleMenu = () => {
@@ -274,13 +313,17 @@ class Journals extends Component {
   };
 
   onSearch = text => {
+    if (text === get(this.props, 'urlParams.search', '')) {
+      return;
+    }
+
     const searchParams = {
       ...getSearchParams(),
       search: text
     };
 
-    this.props.setUrl(getSearchParams(stringifySearchParams(searchParams)));
-    this.props.search(text);
+    this.props.setUrl(searchParams);
+    this.props.runSearch(text);
   };
 
   onResize = (w, h) => {
@@ -321,6 +364,33 @@ class Journals extends Component {
     }
   }
 
+  getJournalContentMaxHeight = () => {
+    const journalMinHeight = 175;
+    let height = document.body.offsetHeight;
+
+    height -= get(document.querySelector('#alf-hd'), 'offsetHeight', 0);
+    height -= get(document.querySelector('.page-tab'), 'offsetHeight', 0);
+
+    if (this._beforeJournalBlockRef) {
+      height -= get(this._beforeJournalBlockRef, 'offsetHeight', 0);
+    }
+
+    if (this._journalFooterRef) {
+      height -= get(this._journalFooterRef, 'offsetHeight', 0);
+    }
+
+    if (this._journalBodyRef) {
+      const styles = window.getComputedStyle(this._journalBodyRef, null);
+
+      height -= parseInt(styles.getPropertyValue('padding-top'), 10) || 0;
+      height -= parseInt(styles.getPropertyValue('padding-bottom'), 10) || 0;
+    }
+
+    height -= getScrollbarWidth();
+
+    return height < journalMinHeight ? journalMinHeight : height;
+  };
+
   render() {
     const {
       stateId,
@@ -334,18 +404,13 @@ class Journals extends Component {
       selectAllRecords,
       reloadGrid
     } = this.props;
-    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, showPie, height } = this.state;
+    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, height } = this.state;
 
     if (!journalConfig) {
       return null;
     }
 
-    const {
-      id: journalId,
-      columns = [],
-      meta: { title = '', metaRecord },
-      sourceId
-    } = journalConfig;
+    const { id: journalId, columns = [], meta = {}, sourceId } = journalConfig;
 
     if (!columns.length) {
       return null;
@@ -363,36 +428,48 @@ class Journals extends Component {
           })}
         >
           <div
+            ref={this.setJournalBodyRef}
             className={classNames('ecos-journal__body', {
               'ecos-journal__body_with-tabs': pageTabsIsShow,
               'ecos-journal__body_mobile': isMobile,
               'ecos-journal__body_with-preview': showPreview
             })}
           >
-            <JournalsHead toggleMenu={this.toggleMenu} title={title} menuOpen={menuOpen} isMobile={isMobile} />
+            <div className="ecos-journal__body-group" ref={this.setJournalBodyGroupRef}>
+              <JournalsHead toggleMenu={this.toggleMenu} title={get(meta, 'title')} menuOpen={menuOpen} isMobile={isMobile} />
 
-            <JournalsSettingsBar
-              grid={grid}
-              journalConfig={journalConfig}
-              stateId={stateId}
-              showPreview={showPreview}
-              showPie={showPie}
-              toggleSettings={this.toggleSettings}
-              togglePreview={this.togglePreview}
-              togglePie={this.togglePie}
-              showGrid={this.showGrid}
-              refresh={reloadGrid}
-              onSearch={this.onSearch}
-              addRecord={this.addRecord}
-              isMobile={isMobile}
-              searchText={this.getSearch()}
-              selectedRecords={selectedRecords}
-            />
+              <JournalsSettingsBar
+                grid={grid}
+                journalConfig={journalConfig}
+                stateId={stateId}
+                showPreview={showPreview}
+                toggleSettings={this.toggleSettings}
+                togglePreview={this.togglePreview}
+                showGrid={this.showGrid}
+                refresh={reloadGrid}
+                onSearch={this.onSearch}
+                addRecord={this.addRecord}
+                isMobile={isMobile}
+                searchText={this.getSearch()}
+                selectedRecords={selectedRecords}
+              />
+
+              <JournalsGroupActionsTools
+                isMobile={isMobile}
+                selectAllRecordsVisible={selectAllRecordsVisible}
+                selectAllRecords={selectAllRecords}
+                grid={grid}
+                selectedRecords={selectedRecords}
+                onExecuteAction={this.onExecuteGroupAction.bind(this)}
+                onGoTo={this.onGoTo}
+                onSelectAll={this.onSelectAllRecords}
+              />
+            </div>
 
             <EcosModal
               title={t('journals.action.setting-dialog-msg')}
               isOpen={settingsVisible}
-              hideModal={this.toggleSettings}
+              hideModal={() => this.toggleSettings(true)}
               isBigHeader
               className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
             >
@@ -400,7 +477,12 @@ class Journals extends Component {
                 <EcosModalHeight>
                   {height => (
                     <Scrollbars style={{ height }}>
-                      <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={metaRecord} />
+                      <JournalsFilters
+                        stateId={stateId}
+                        columns={visibleColumns}
+                        sourceId={sourceId}
+                        metaRecord={get(meta, 'metaRecord')}
+                      />
                       <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
                       <JournalsGrouping stateId={stateId} columns={visibleColumns} />
                     </Scrollbars>
@@ -411,33 +493,21 @@ class Journals extends Component {
                   parentClass="ecos-journal__settings"
                   stateId={stateId}
                   journalId={journalId}
-                  onApply={this.toggleSettings}
+                  onApply={this.applySettings}
                   onCreate={this.toggleSettings}
                   onReset={this.resetSettings}
                 />
               </Well>
             </EcosModal>
 
-            <JournalsGroupActionsTools
-              isMobile={isMobile}
-              selectAllRecordsVisible={selectAllRecordsVisible}
-              selectAllRecords={selectAllRecords}
-              grid={grid}
-              selectedRecords={selectedRecords}
-              onExecuteAction={this.onExecuteGroupAction.bind(this)}
-              onGoTo={this.onGoTo}
-              onSelectAll={this.onSelectAllRecords}
-            />
-
             <JournalsContent
               stateId={stateId}
               showPreview={showPreview && !isMobile}
-              showPie={showPie}
-              maxHeight={this.getAvailableHeight() - (165 + (this.isOpenGroupActions ? 60 : 0))}
+              maxHeight={this.getJournalContentMaxHeight()}
               isActivePage={isActivePage}
             />
 
-            <div className={'ecos-journal__footer'}>
+            <div className="ecos-journal__footer" ref={this.setJournalFooterRef}>
               <JournalsDashletPagination
                 stateId={stateId}
                 hasPageSize
@@ -456,11 +526,11 @@ class Journals extends Component {
             })}
           >
             <JournalsMenu
+              height={height}
               forwardedRef={this.setJournalMenuRef}
               stateId={stateId}
               open={menuOpen}
               onClose={this.toggleMenu}
-              height={this.getAvailableHeight() - getScrollbarWidth()}
               isActivePage={isActivePage}
             />
           </div>

@@ -13,8 +13,8 @@ import cloneDeep from 'lodash/cloneDeep';
 import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import { DashboardTypes } from '../../constants/dashboard';
-import { deepClone, isMobileAppWebView, t } from '../../helpers/util';
-import { decodeLink, getSortedUrlParams, isDashboard, isHomePage, pushHistoryLink } from '../../helpers/urls';
+import { isMobileAppWebView, t } from '../../helpers/util';
+import { decodeLink, getSortedUrlParams, isDashboard, isHomePage, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -32,7 +32,7 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
 import DashboardService from '../../services/dashboard';
-import pageTabList from '../../services/pageTabs/PageTabList';
+import PageTabList from '../../services/pageTabs/PageTabList';
 import { selectDashboardByKey, selectDashboardConfig, selectDashboardConfigVersion } from '../../selectors/dashboard';
 import PageService from '../../services/PageService';
 import DialogManager from '../../components/common/dialogs/Manager';
@@ -147,7 +147,8 @@ class Dashboard extends Component {
   }
 
   static updateTabLink() {
-    PageService.changeUrlLink(unescape(`${window.location.pathname}${window.location.search}`), { updateUrl: true });
+    const link = unescape(decodeURI(`${window.location.pathname}${window.location.search}`));
+    PageService.changeUrlLink(link, { updateUrl: true });
   }
 
   componentDidMount() {
@@ -155,7 +156,7 @@ class Dashboard extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return isDashboard() && !(nextProps.tabId && !pageTabList.isActiveTab(nextProps.tabId));
+    return isDashboard() && !(nextProps.tabId && !PageTabList.isActiveTab(nextProps.tabId));
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -235,7 +236,7 @@ class Dashboard extends Component {
   getConfig(search = window.location.search) {
     const { getDashboardConfig, getDashboardTitle, tabId } = this.props;
 
-    if (tabId && !pageTabList.isActiveTab(tabId)) {
+    if (tabId && !PageTabList.isActiveTab(tabId)) {
       return;
     }
 
@@ -294,7 +295,7 @@ class Dashboard extends Component {
 
   updateActiveConfig(activeLayout) {
     const { config, activeLayoutId } = this.state;
-    const upConfig = deepClone(config, []);
+    const upConfig = cloneDeep(config || []);
 
     upConfig.forEach((item, i) => {
       if (item.id === activeLayoutId) {
@@ -308,7 +309,7 @@ class Dashboard extends Component {
   }
 
   prepareWidgetsConfig = (data, dnd) => {
-    const activeLayout = deepClone(this.activeLayout, {});
+    const activeLayout = cloneDeep(this.activeLayout);
     const columns = activeLayout.columns || [];
 
     const { isWidget, columnFrom, columnTo } = data;
@@ -338,14 +339,23 @@ class Dashboard extends Component {
   };
 
   setActiveLink = idLayout => {
+    const { urlParams } = this.state;
     const searchParams = queryString.parse(window.location.search);
+    const prevSearchParams = queryString.parse(urlParams);
+    const isEqualRefs = get(prevSearchParams, 'recordRef', '') === get(searchParams, 'recordRef');
+    const isEqualLayoutIds = get(prevSearchParams, 'activeLayoutId', '') === get(searchParams, 'activeLayoutId');
 
     searchParams.activeLayoutId = idLayout;
 
-    pushHistoryLink(this.props.history, {
-      pathname: URL.DASHBOARD,
-      search: decodeLink(queryString.stringify(searchParams))
-    });
+    if (!urlParams || (isEqualRefs && !isEqualLayoutIds)) {
+      replaceHistoryLink(this.props.history, `${URL.DASHBOARD}?${decodeLink(queryString.stringify(searchParams))}`);
+    } else {
+      pushHistoryLink(undefined, {
+        pathname: URL.DASHBOARD,
+        search: decodeLink(queryString.stringify(searchParams))
+      });
+    }
+
     Dashboard.updateTabLink();
   };
 
@@ -376,7 +386,7 @@ class Dashboard extends Component {
       return;
     }
 
-    const activeLayout = deepClone(this.activeLayout, {});
+    const activeLayout = cloneDeep(this.activeLayout);
     const columns = activeLayout.columns || [];
     const eachColumns = column => {
       const index = column.widgets.findIndex(widget => widget.id === id);
@@ -390,7 +400,7 @@ class Dashboard extends Component {
     };
 
     columns.forEach(column => {
-      if (Array.isArray(column)) {
+      if (isArray(column)) {
         column.forEach(eachColumns);
       } else {
         eachColumns(column);
@@ -589,7 +599,7 @@ class Dashboard extends Component {
             columns={columns}
             type={type}
             tabId={tabId}
-            isActiveLayout={pageTabList.isActiveTab(tabId)}
+            isActiveLayout={PageTabList.isActiveTab(tabId)}
             onSaveWidget={this.prepareWidgetsConfig}
             onSaveWidgetProps={this.handleSaveWidgetProps}
           />
