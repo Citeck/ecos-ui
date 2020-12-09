@@ -377,6 +377,7 @@ class Journals extends Component {
 
     if (this._journalFooterRef) {
       height -= get(this._journalFooterRef, 'offsetHeight', 0);
+      height -= 15; // for indent under pagination
     }
 
     if (this._journalBodyRef) {
