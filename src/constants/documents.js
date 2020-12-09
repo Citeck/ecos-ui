@@ -78,6 +78,16 @@ export const errorTypes = Object.freeze({
 
 export const documentActions = ['uiserv/action@view', 'uiserv/action@content-download', 'uiserv/action@edit', 'uiserv/action@delete'];
 
+export const fieldFormatters = {
+  displayName: {
+    schema: 'disp',
+    formatter: {
+      name: 'ActionFormatter',
+      params: { type: 'content-preview-modal' }
+    }
+  }
+};
+
 export const NULL_FORM = 'uiserv/eform@null';
 export const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
 export const DEFAULT_REF = 'dict@cm:content';

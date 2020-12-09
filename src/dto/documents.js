@@ -4,7 +4,7 @@ import isEmpty from 'lodash/isEmpty';
 import lodashClone from 'lodash/cloneDeep';
 
 import { deepClone, getTextByLocale, isExistValue, t } from '../helpers/util';
-import { DATE_FORMAT, DEFAULT_REF, documentFields, NULL_FORM } from '../constants/documents';
+import { DATE_FORMAT, DEFAULT_REF, documentFields, fieldFormatters, NULL_FORM } from '../constants/documents';
 
 export default class DocumentsConverter {
   static formIdIsNull = (id = '') => {
@@ -444,5 +444,16 @@ export default class DocumentsConverter {
     target.label = getTextByLocale(config.label);
 
     return target;
+  }
+
+  static setDefaultFormatters(columns) {
+    for (let key in fieldFormatters) {
+      const info = fieldFormatters[key];
+      const findIndex = columns.findIndex(col => col.schema && col.schema.includes(info.schema));
+
+      if (findIndex >= 0 && !columns[findIndex].formatter) {
+        columns[findIndex].formatter = info.formatter;
+      }
+    }
   }
 }
