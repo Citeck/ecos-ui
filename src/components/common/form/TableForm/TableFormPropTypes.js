@@ -5,6 +5,7 @@ export default {
   columns: PropTypes.array,
   error: PropTypes.any,
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
+  noColHeaders: PropTypes.bool,
   isCompact: PropTypes.bool,
   multiple: PropTypes.bool,
   placeholder: PropTypes.string,

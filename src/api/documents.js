@@ -32,7 +32,7 @@ export class DocumentsApi {
         multiple: 'multiple?bool',
         mandatory: 'mandatory?bool'
       }
-    ).then(response => response);
+    );
   };
 
   /***
@@ -89,7 +89,7 @@ export class DocumentsApi {
         documents: `.atts(n:"documents"){${[baseAttrs, attributes].join(',')}}`,
         type: 'type'
       }
-    ).then(response => response);
+    );
   };
 
   getCreateVariants = type => {

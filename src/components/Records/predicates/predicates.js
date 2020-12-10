@@ -238,7 +238,7 @@ export function getPredicates(field) {
   }
 }
 
-export function getPredicateInput(field, sourceId, metaRecord, predicate) {
+export function getPredicateInput(field, sourceId, metaRecord, predicate = {}) {
   const defaultValue = {
     label: t('react-select.default-value.label'),
     value: null
@@ -253,7 +253,7 @@ export function getPredicateInput(field, sourceId, metaRecord, predicate) {
   switch (field.type) {
     case COLUMN_DATA_TYPE_DATE:
     case COLUMN_DATA_TYPE_DATETIME:
-      if (predicate.t === PREDICATE_TIME_INTERVAL) {
+      if (predicate && predicate.t === PREDICATE_TIME_INTERVAL) {
         return {
           component: Input,
           defaultValue: '',

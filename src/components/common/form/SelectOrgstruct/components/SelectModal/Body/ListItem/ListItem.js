@@ -1,8 +1,10 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import get from 'lodash/get';
 import { SelectOrgstructContext } from '../../../../SelectOrgstructContext';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, TAB_ALL_USERS } from '../../../../constants';
+
 import './ListItem.scss';
 
 const ListItem = ({ item, nestingLevel, nestedList }) => {
@@ -10,9 +12,9 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
   const { controlProps = {}, renderListItem, currentTab } = context;
   const { allowedAuthorityTypes, allowedGroupTypes, allowedGroupSubTypes } = controlProps;
 
-  const itemAuthorityType = item.attributes.authorityType;
-  const itemGroupType = (item.attributes.groupType || '').toUpperCase();
-  const itemGroupSubType = item.attributes.groupSubType || '';
+  const itemAuthorityType = get(item, 'attributes.authorityType');
+  const itemGroupType = get(item, 'attributes.groupType', '').toUpperCase();
+  const itemGroupSubType = get(item, 'attributes.groupSubType', '');
 
   const isAllUsers = currentTab === TAB_ALL_USERS;
   const isAllowedSelect =
@@ -43,9 +45,8 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
     if (isAllUsers || isAllowedSelect) {
       const selectHandlerClassNames = classNames('icon', 'select-orgstruct__select-handler', {
         'icon-small-plus': !item.isSelected,
-        'select-orgstruct__select-handler_not-selected': !item.isSelected,
-        'icon-small-close': item.isSelected,
-        'select-orgstruct__select-handler_selected': item.isSelected
+        'select-orgstruct__select-handler_selected': item.isSelected,
+        'icon-custom-checkbox-check': item.isSelected
       });
 
       return <span className={selectHandlerClassNames} onClick={() => context.onToggleSelectItem(item)} />;
@@ -82,7 +83,12 @@ export const itemPropType = PropTypes.shape({
   isOpen: PropTypes.bool,
   isSelected: PropTypes.bool,
   isStrong: PropTypes.bool,
-  parentId: PropTypes.string
+  parentId: PropTypes.string,
+  attributes: PropTypes.shape({
+    authorityType: PropTypes.string,
+    groupType: PropTypes.string,
+    groupSubType: PropTypes.string
+  })
 });
 
 ListItem.propTypes = {
