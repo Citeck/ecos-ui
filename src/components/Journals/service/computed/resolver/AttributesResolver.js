@@ -2,7 +2,7 @@ import ComputedResolver from './ComputedResolver';
 
 import lodash from 'lodash';
 
-import journalsServiceApi from '../journalsServiceApi';
+import journalsServiceApi from '../../journalsServiceApi';
 
 export default class AttributesResolver extends ComputedResolver {
   static RESOLVER_ID = 'attributes';
