@@ -81,5 +81,60 @@
         }
       }
     }
+
+    &.checkbox-checked_cross {
+      .form-check-label {
+        .form-check-input:first-child {
+          + span {
+            position: relative;
+
+            &:before {
+              position: absolute;
+              z-index: 5;
+              content: $citeck-icon-close;
+
+              font-family: $font-family-citeck;
+              margin-right: 10px;
+              font-size: 16px;
+              position: absolute;
+              left: 4px;
+              top: 1px;
+              color: white;
+            }
+
+            &:after {
+              content: $citeck-icon-checkbox-dark;
+              font-family: $font-family-citeck;
+              //background: $color-blue-dark;
+              color: $color-blue-dark;
+              font-size: 22px;
+              position: absolute;
+              left: 1px;
+              top: 0;
+              border-radius: $border-radius-standard;
+            }
+          }
+
+          &:focus {
+            + span {
+              &:after {
+                background: $color-blue-light;
+                color: $color-blue-light;
+              }
+            }
+          }
+
+          &:disabled {
+            + span {
+              color: $color-gray-5;
+
+              &:after {
+                color: $color-gray-4;
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
