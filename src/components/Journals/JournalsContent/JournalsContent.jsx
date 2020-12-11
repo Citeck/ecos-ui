@@ -51,34 +51,28 @@ class JournalsContent extends Component {
   render() {
     const { stateId, showPreview, maxHeight } = this.props;
     const { recordId } = this.state;
+    const grid = (
+      <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} autoHeight minHeight={468} />
+    );
 
-    let content = <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />;
-
-    if (showPreview) {
-      const leftId = `_${stateId}-grid`;
-      const rightId = `_${stateId}-preview`;
-
-      content = (
-        <div className="ecos-journals-content__sides">
-          <div id={leftId} className="ecos-journals-content__sides-left">
-            <Grid
-              stateId={stateId}
-              showPreview={showPreview}
-              onRowClick={this.onRowClick}
-              maxHeight={maxHeight}
-              autoHeight
-              minHeight={468}
-            />
-          </div>
-          <div id={rightId} className="ecos-journals-content__sides-right">
-            <ResizeBoxes leftId={leftId} rightId={rightId} className="ecos-journals-content__resizer" autoRightSide />
-            <Preview stateId={stateId} recordId={recordId} />
-          </div>
-        </div>
-      );
+    if (!showPreview) {
+      return grid;
     }
 
-    return content;
+    const leftId = `_${stateId}-grid`;
+    const rightId = `_${stateId}-preview`;
+
+    return (
+      <div className="ecos-journals-content__sides">
+        <div id={leftId} className="ecos-journals-content__sides-left">
+          {grid}
+        </div>
+        <div id={rightId} className="ecos-journals-content__sides-right">
+          <ResizeBoxes leftId={leftId} rightId={rightId} className="ecos-journals-content__resizer" autoRightSide />
+          <Preview stateId={stateId} recordId={recordId} />
+        </div>
+      </div>
+    );
   }
 }
 
