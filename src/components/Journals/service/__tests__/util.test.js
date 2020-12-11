@@ -12,4 +12,56 @@ describe('Journal util', () => {
     });
     expect(fields).toEqual(['_str1', '_str2']);
   });
+
+  it('fun replacePlaceholders', async () => {
+    let params = {
+      valueStr: 'abc',
+      valueNum: 123,
+      valueNull: null,
+      valueObj: {
+        innerStr: 'str'
+      },
+      valueArr: ['first', 'second']
+    };
+
+    let result;
+
+    result = Util.replacePlaceholders(
+      {
+        flat_str: '${valueStr}'
+      },
+      params
+    );
+    expect(result).toEqual({ flat_str: params['valueStr'] });
+
+    result = Util.replacePlaceholders(
+      {
+        testArray: ['${valueNum}', '${valueNull}']
+      },
+      params
+    );
+
+    expect(result).toEqual({
+      testArray: [params['valueNum'], null]
+    });
+
+    result = Util.replacePlaceholders(
+      {
+        emptyString: '${valueNull}${}',
+        nullValue: '${valueNull}'
+      },
+      params
+    );
+
+    expect(result).toEqual({ emptyString: '', nullValue: null });
+
+    result = Util.replacePlaceholders(
+      {
+        array: '${valueArr}'
+      },
+      params
+    );
+
+    expect(result).toEqual({ array: params.valueArr });
+  });
 });

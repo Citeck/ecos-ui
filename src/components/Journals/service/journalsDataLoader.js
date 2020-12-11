@@ -5,6 +5,8 @@ import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR
 import { convertAttributeValues } from '../../Records/predicates/util';
 import * as RecordUtils from '../../Records/utils/recordUtils';
 import journalsServiceApi from './journalsServiceApi';
+import computedService from './computed/computedService';
+import { COMPUTED_ATT_PREFIX } from './util';
 
 class JournalsDataLoader {
   async load(journalConfig, settings = {}) {
@@ -76,33 +78,108 @@ class JournalsDataLoader {
 
     const attributes = this._getAttributes(journalConfig, settings);
 
-    return journalsServiceApi.queryData(recordsQuery, attributes).then(res => ({
-      ...res,
-      query: recordsQuery
-    }));
+    return journalsServiceApi
+      .queryData(recordsQuery, attributes.attributesSet)
+      .then(res => ({
+        ...res,
+        query: recordsQuery
+      }))
+      .then(resArg => {
+        const result = { ...resArg };
+        const resultRecords = [];
+        const records = result.records || [];
+        const attributesMap = attributes.attributesMap;
+
+        const computedPromises = [];
+
+        for (let record of records) {
+          const newRecord = {
+            id: record.id,
+            // attributes as is without aliases
+            rawAttributes: {
+              recordRef: record.id,
+              '?id': record.id,
+              ...record
+            }
+          };
+          const recordComputed = journalConfig.configData.recordComputed;
+          if (recordComputed && recordComputed.length) {
+            computedPromises.push(computedService.resolve(recordComputed, newRecord.rawAttributes));
+          }
+          const configComputed = journalConfig.configData.configComputed;
+          if (configComputed) {
+            for (let key in configComputed) {
+              if (configComputed.hasOwnProperty(key)) {
+                newRecord.rawAttributes[COMPUTED_ATT_PREFIX + key] = configComputed[key];
+              }
+            }
+          }
+
+          for (let key in attributesMap) {
+            if (attributesMap.hasOwnProperty(key)) {
+              newRecord[key] = record[attributesMap[key]];
+            }
+          }
+
+          resultRecords.push(newRecord);
+        }
+
+        return Promise.all(computedPromises).then(computedResults => {
+          for (let idx = 0; idx < computedResults.length; idx++) {
+            const computedAttributes = computedResults[idx];
+            const recordRawAtts = resultRecords[idx].rawAttributes;
+
+            for (let key in computedAttributes) {
+              if (computedAttributes.hasOwnProperty(key)) {
+                recordRawAtts[COMPUTED_ATT_PREFIX + key] = computedAttributes[key];
+              }
+            }
+          }
+
+          result.records = resultRecords;
+          return result;
+        });
+      });
   }
 
   _getAttributes(journalConfig, settings) {
     const groupBy = journalConfig.groupBy || [];
     const columns = journalConfig.columns || [];
     const settingsAttributes = settings.attributes || {};
-    const attributes = {};
+    const attributesMap = {};
 
     for (let column of columns) {
-      attributes[column.name] = column.attSchema;
+      attributesMap[column.name] = column.attSchema;
     }
 
     for (let att in settingsAttributes) {
       if (settingsAttributes.hasOwnProperty(att)) {
-        attributes[att] = settingsAttributes[att];
+        attributesMap[att] = settingsAttributes[att];
       }
     }
 
     if (groupBy.length) {
-      AttributesService.getGroupBy(groupBy, attributes);
+      AttributesService.getGroupBy(groupBy, attributesMap);
     }
 
-    return attributes;
+    const attributesSet = new Set();
+    for (let key in attributesMap) {
+      if (attributesMap.hasOwnProperty(key)) {
+        attributesSet.add(attributesMap[key]);
+      }
+    }
+
+    const additionalAttributes = journalConfig.configData.attributesToLoad;
+    if (additionalAttributes) {
+      for (let att of additionalAttributes) {
+        attributesSet.add(att);
+      }
+    }
+
+    return {
+      attributesMap: attributesMap,
+      attributesSet: [...attributesSet]
+    };
   }
 }
 

@@ -78,7 +78,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
       const { records, errors: dtErrors } = yield call(api.documents.getDynamicTypes, payload.record);
 
       if (dtErrors.length) {
-        throw new Error(dtErrors.join(' '));
+        throw new Error(dtErrors.map(item => item.msg || item).join(', '));
       }
 
       dynamicTypes = DocumentsConverter.getDynamicTypes({ types: records, typeNames, availableTypes }, true);
@@ -91,7 +91,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     const countByTypes = documents.map(record => record.documents);
 
     if (documentsErrors.length) {
-      throw new Error(documentsErrors.join(' '));
+      throw new Error(documentsErrors.map(item => item.msg || item).join(', '));
     }
 
     combinedTypes = yield combinedTypes.map(function*(item) {

@@ -377,7 +377,7 @@ export class MenuApi extends CommonApi {
     ).then(res => res.records.map(r => r.name));
 
     const groupPriority = await this.getGroupPriority();
-    const setAuthorities = groupPriority.map(item => item.id);
+    const setAuthorities = (groupPriority || []).map(item => item.id);
     const mergeAuthorities = Array.from(new Set([...setAuthorities, ...serverAuthorities, ...localAuthorities]));
     const filteredAuthorities = mergeAuthorities.filter(id => id !== LOWEST_PRIORITY && id.includes(AUTHORITY_TYPE_GROUP));
 
