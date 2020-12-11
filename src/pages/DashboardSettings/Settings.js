@@ -224,7 +224,7 @@ class Settings extends Component {
   }
 
   setStateConfig(props) {
-    const selectedDashboardKey = get(props, 'identification.key', '');
+    const selectedDashboardKey = /* get(props, 'recordRef') ||*/ get(props, 'identification.key', '');
     const isForAllUsers = isNull(get(props, 'identification.user', null));
     const { config } = props;
 

@@ -81,13 +81,18 @@ export class DashboardApi {
     return types;
   };
 
-  saveDashboardConfig = ({ identification, config }) => {
+  saveDashboardConfig = ({ identification, config, recordRef = false }) => {
     const { key, user } = identification;
     const record = Records.get(`${SourcesId.DASHBOARD}@`);
 
     record.att('config?json', config);
     record.att('authority?str', user);
     record.att('typeRef', key);
+
+    if (recordRef) {
+      record.att('appliedToRef?str', recordRef);
+      record.att('typeRef', null);
+    }
 
     return record.save().then(response => {
       cache.clear();
