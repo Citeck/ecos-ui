@@ -13,42 +13,76 @@ const ATTRIBUTES_COMPUTED_NAME = 'attributesComputed';
 const ATTRIBUTES_COMPUTED_REC = 'rec0';
 const ATTRIBUTES_COMPUTED_ATTS = { Name1: 'Name1' };
 
+const VALUE_COMPUTED_NAME = 'value-computed';
+const VALUE_COMPUTED_VALUE = 'value-computed-value';
+
 const JOURNAL_CONFIG = {
   id: 'test-journal',
   computed: [
     {
+      id: SCRIPT_COMPUTED_NAME,
       type: 'script',
-      name: SCRIPT_COMPUTED_NAME,
       config: {
         script: 'return new Promise(resolve => setTimeout(() => { resolve("' + SCRIPT_COMPUTED_RES + '"); }, 100));'
       }
     },
     {
+      id: QUERY_COMPUTED_NAME,
       type: 'query',
-      name: QUERY_COMPUTED_NAME,
       config: {
         query: { query: 'test', language: 'predicate' },
         attributes: { value: QUERY_COMPUTED_VALUE_ATTRIBUTE }
       }
     },
     {
+      id: ATTRIBUTES_COMPUTED_NAME,
       type: 'attributes',
-      name: ATTRIBUTES_COMPUTED_NAME,
       config: {
         record: ATTRIBUTES_COMPUTED_REC,
         attributes: ATTRIBUTES_COMPUTED_ATTS
+      }
+    },
+    {
+      id: VALUE_COMPUTED_NAME,
+      type: 'value',
+      config: {
+        value: VALUE_COMPUTED_VALUE
       }
     }
   ],
   columns: [
     {
       name: 'Name1',
-      label: 'Name 1 field'
+      label: 'Name 1 field',
+      computed: [
+        {
+          id: 'test-computed',
+          type: 'script',
+          config: {
+            vars: {
+              key: 'prefix-${Name1}'
+            },
+            script: 'return vars.key;'
+          }
+        }
+      ],
+      formatter: {
+        type: 'test',
+        config: {
+          url: 'http://host/v2/dashboard?recordRef=${$computed.test-computed}'
+        }
+      }
     },
     {
       name: 'Name2',
       multiple: true,
-      label: 'Name 2 field'
+      label: 'Name 2 field',
+      formatter: {
+        type: 'test',
+        config: {
+          url: 'http://host/v2/dashboard?recordRef=${$computed.test-computed}'
+        }
+      }
     },
     {
       name: 'Name3',
@@ -128,8 +162,8 @@ describe('JournalsService', () => {
 
     const config = await journalsService.getJournalConfig(JOURNAL_CONFIG.id);
 
-    expect(config.computed[SCRIPT_COMPUTED_NAME]).toEqual(SCRIPT_COMPUTED_RES);
-    expect(config.computed[QUERY_COMPUTED_NAME]).toEqual(
+    expect(config.configData.configComputed[SCRIPT_COMPUTED_NAME]).toEqual(SCRIPT_COMPUTED_RES);
+    expect(config.configData.configComputed[QUERY_COMPUTED_NAME]).toEqual(
       RECORDS.map(r => {
         return { id: r.id, value: r[QUERY_COMPUTED_VALUE_ATTRIBUTE] };
       })
@@ -140,6 +174,31 @@ describe('JournalsService', () => {
     for (let key in ATTRIBUTES_COMPUTED_ATTS) {
       attsComputedRes[key] = attsComputedRec[ATTRIBUTES_COMPUTED_ATTS[key]];
     }
-    expect(config.computed[ATTRIBUTES_COMPUTED_NAME]).toEqual(attsComputedRes);
+    expect(config.configData.configComputed[ATTRIBUTES_COMPUTED_NAME]).toEqual(attsComputedRes);
+
+    expect(config.configData.configComputed[VALUE_COMPUTED_NAME]).toEqual(VALUE_COMPUTED_VALUE);
+  });
+
+  it('Test record computed attributes', async () => {
+    journalsServiceApi.setConfig(JOURNAL_CONFIG);
+    journalsServiceApi.setRecords(RECORDS);
+
+    const config = await journalsService.getJournalConfig(JOURNAL_CONFIG.id);
+
+    expect(config.columns[0].formatter.config.url).toBe('http://host/v2/dashboard?recordRef=${$computed.column_Name1.test-computed}');
+    expect(config.columns[1].formatter.config.url).toBe('http://host/v2/dashboard?recordRef=${$computed.test-computed}');
+
+    const journalData = await journalsService.getJournalData(config, {});
+
+    expect(journalData.records.length).toEqual(RECORDS.length);
+    expect(config.configData.configComputed[SCRIPT_COMPUTED_NAME] != null).toEqual(true);
+
+    for (let idx = 0; idx < RECORDS.length; idx++) {
+      expect(journalData.records[idx].rawAttributes['$computed.column_Name1.test-computed']).toEqual('prefix-' + RECORDS[idx].Name1);
+
+      expect(journalData.records[idx].rawAttributes['$computed.' + SCRIPT_COMPUTED_NAME]).toEqual(
+        config.configData.configComputed[SCRIPT_COMPUTED_NAME]
+      );
+    }
   });
 });

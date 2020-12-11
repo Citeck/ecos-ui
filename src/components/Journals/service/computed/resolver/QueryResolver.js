@@ -1,5 +1,5 @@
 import ComputedResolver from './ComputedResolver';
-import journalsServiceApi from '../journalsServiceApi';
+import journalsServiceApi from '../../journalsServiceApi';
 
 export default class QueryResolver extends ComputedResolver {
   static RESOLVER_ID = 'query';
