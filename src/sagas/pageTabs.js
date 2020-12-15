@@ -47,6 +47,8 @@ function* sagaInitTabs({ api, logger }) {
     yield put(setTabs(PageTabList.storeList));
     yield put(initTabsComplete());
 
+    console.warn(PageTabList.tabs);
+
     yield PageTabList.tabs.map(function*(tab) {
       const updates = yield* getTitle(tab);
       PageTabList.changeOne({ tab, updates });
@@ -203,7 +205,7 @@ function* getTitle(tab) {
     const urlProps = queryString.parseUrl(tab.link);
     const { recordRef: ref, nodeRef, journalId } = urlProps.query || {};
     const recordRef = ref || nodeRef;
-    const title = yield PageService.getPage(tab).getTitle({ recordRef, journalId });
+    const title = yield PageService.getPage(tab).getTitle({ recordRef, journalId }, tab.link);
 
     return {
       title,
