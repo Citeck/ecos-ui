@@ -295,7 +295,10 @@ Base.prototype.createInlineEditButton = function(container) {
 };
 
 Base.prototype.createViewOnlyValue = function(container) {
-  this.component.customClass && container.classList.add(`${this.component.customClass}_view-mode`);
+  if (get(this, 'component.customClass') && get(container, 'classList.add')) {
+    container.classList.add(`${this.component.customClass}_view-mode`);
+  }
+
   originalCreateViewOnlyValue.call(this, container);
   this.createInlineEditButton(container);
 };
