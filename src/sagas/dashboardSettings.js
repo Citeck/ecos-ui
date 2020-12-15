@@ -30,7 +30,7 @@ import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { CONFIG_VERSION } from '../constants/dashboard';
 import { selectNewVersionConfig, selectOriginalConfig, selectRecordRef, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 import DashboardConverter from '../dto/dashboard';
-import { getSearchParams } from '../helpers/urls';
+import { getRefWithAlfrescoPrefix, getSearchParams } from '../helpers/urls';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
@@ -46,7 +46,13 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   try {
     yield put(setDashboardData({ key, recordRef: get(getSearchParams(), 'recordRef') }));
 
-    const { config, ...result } = yield call(api.dashboard.getDashboardByOneOf, payload);
+    let { recordRef } = payload;
+
+    if (recordRef) {
+      recordRef = getRefWithAlfrescoPrefix(recordRef);
+    }
+
+    const { config, ...result } = yield call(api.dashboard.getDashboardByOneOf, { ...payload, recordRef });
     const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
     const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
     const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
@@ -54,6 +60,10 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
     const webConfigs = DashboardSettingsConverter.getSettingsForWeb(newConfig, widgetsById, migratedConfig.version);
 
     webConfigs.identification = DashboardConverter.getKeyInfoDashboardForWeb(data).identification;
+
+    if (recordRef && !webConfigs.identification.key) {
+      webConfigs.identification.key = recordRef;
+    }
 
     yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config }));
     yield put(getAvailableWidgets({ type: data.type, key }));
@@ -157,9 +167,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     }
 
     if (recordRef && identificationData.key === recordRef) {
-      if (recordRef.indexOf('workspace://') === 0) {
-        recordRef = `alfresco/@${recordRef}`;
-      }
+      recordRef = getRefWithAlfrescoPrefix(recordRef);
     } else {
       recordRef = '';
     }
