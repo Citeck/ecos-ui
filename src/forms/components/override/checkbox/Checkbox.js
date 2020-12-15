@@ -1,6 +1,7 @@
 import FormIOCheckBoxComponent from 'formiojs/components/checkbox/Checkbox';
 import get from 'lodash/get';
-import _ from 'lodash';
+import unset from 'lodash/unset';
+import set from 'lodash/set';
 
 import Base from '../base/Base';
 import { t } from '../../../../helpers/util';
@@ -11,24 +12,24 @@ Object.defineProperty(FormIOCheckBoxComponent.prototype, 'dataValue', {
       return value;
     }
 
-    if (this.component.hasThreeStates) {
+    if (this.hasThreeStates) {
       if (value === undefined) {
-        _.unset(this.data, this.key);
+        unset(this.data, this.key);
       } else {
-        _.set(this.data, this.key, value);
+        set(this.data, this.key, value);
       }
 
       return value;
     }
 
     if (value === null || value === undefined) {
-      _.unset(this.data, this.key);
+      unset(this.data, this.key);
     } else {
-      _.set(this.data, this.key, value);
+      set(this.data, this.key, value);
     }
 
     if (this.isRadioCheckbox) {
-      _.set(this.data, this.component.key, value === this.component.value);
+      set(this.data, this.component.key, value === this.component.value);
 
       this.setCheckedState(value);
     }
@@ -45,7 +46,7 @@ Object.defineProperty(FormIOCheckBoxComponent.prototype, 'defaultValue', {
 
     let defaultValue = this.emptyValue;
 
-    if (this.component.hasThreeStates) {
+    if (this.hasThreeStates) {
       if (this.component.defaultValue !== undefined) {
         defaultValue = this.getValueByString(get(this.component, 'defaultValue', null));
       }
@@ -90,12 +91,16 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     return CheckBoxComponent.schema();
   }
 
+  get hasThreeStates() {
+    return this.component.hasThreeStates;
+  }
+
   isEmpty(value) {
-    if (this.component.hasThreeStates) {
+    if (this.hasThreeStates) {
       return value === null;
     }
 
-    return super.isEmpty(value) || value === false;
+    return super.isEmpty(value);
   }
 
   getValueByString = data => {
@@ -103,6 +108,8 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
 
     switch (`${data === undefined ? null : data}`) {
       case 'true':
+      case '1':
+      case 'on':
         value = true;
         break;
       case 'false':
@@ -125,32 +132,32 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     this.checkState();
   }
 
-  checkState() {
-    if (!this.component.hasThreeStates) {
+  checkState(state = this.defaultValue) {
+    if (!this.hasThreeStates) {
       return;
     }
 
     let value;
 
-    switch (this.defaultValue) {
-      case null:
+    switch (`${state}`) {
+      case 'null':
         value = null;
         this.removeClass(this.element, 'checkbox-checked');
         this.removeClass(this.element, 'checkbox-checked_cross');
         break;
-      case true:
+      case 'true':
         value = true;
         this.removeClass(this.element, 'checkbox-checked_cross');
         this.addClass(this.element, 'checkbox-checked');
         break;
-      case false:
+      case 'false':
       default:
         value = false;
         this.addClass(this.element, 'checkbox-checked checkbox-checked_cross');
     }
 
-    if (this.#beforeState === undefined && this.#beforeState !== this.defaultValue) {
-      this.dataValue = this.defaultValue;
+    if (this.#beforeState === undefined && this.#beforeState !== state) {
+      this.dataValue = state;
     }
 
     this.#beforeState = value;
@@ -164,28 +171,66 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     element.innerHTML = value ? t('boolean.yes') : t('boolean.no');
   }
 
+  getValueAt(index) {
+    if (this.hasThreeStates) {
+      return this.dataValue;
+    }
+
+    return super.getValueAt(index);
+  }
+
+  setCheckedState(value) {
+    if (this.hasThreeStates) {
+      const newValue = this.getValueByString(value);
+
+      this.input.checked = newValue;
+      this.input.value = newValue;
+
+      return newValue;
+    }
+
+    return super.setCheckedState(value);
+  }
+
   // TODO delete when will fixed in new formiojs version
   updateValue(flags, value) {
-    if (this.component.hasThreeStates) {
-      if (!flags.modified) {
+    if (this.hasThreeStates) {
+      if (!flags.modified && value === undefined) {
         return;
       }
 
       let newValue;
 
-      switch (this.#beforeState) {
-        case null:
-          newValue = true;
+      if (value !== undefined) {
+        newValue = this.getValueByString(value);
+      } else {
+        /**
+         * value change logic:
+         * true => false => null => etc by circle
+         */
+        switch (this.#beforeState) {
+          case null:
+            newValue = true;
+            break;
+          case true:
+            newValue = false;
+            break;
+          case false:
+          default:
+            newValue = null;
+        }
+      }
+
+      switch (newValue) {
+        case true:
           this.addClass(this.element, 'checkbox-checked');
           this.removeClass(this.element, 'checkbox-cross-checked');
           break;
-        case true:
-          newValue = false;
+        case false:
           this.addClass(this.element, 'checkbox-checked checkbox-checked_cross');
           break;
-        case false:
+        case null:
         default:
-          newValue = null;
           this.removeClass(this.element, 'checkbox-checked');
           this.removeClass(this.element, 'checkbox-checked_cross');
       }
