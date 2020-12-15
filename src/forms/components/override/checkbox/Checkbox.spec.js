@@ -1,9 +1,10 @@
-import Harness from '../../../test/harness';
-import CheckBoxComponent from './Checkbox';
+import cloneDeep from 'lodash/cloneDeep';
 
+import Harness from '../../../test/harness';
+
+import CheckBoxComponent from './Checkbox';
 import comp1 from './fixtures/comp1';
 import comp2 from './fixtures/comp2';
-import cloneDeep from 'lodash/cloneDeep';
 
 describe('Checkbox Component', () => {
   it('Should build a checkbox component', done => {
