@@ -22,7 +22,7 @@ export class TimesheetSubordinatesApi extends RecordService {
         taskId: 'timesheet:currentTaskId',
         uid: 'sys:node-uuid'
       }
-    ).then(res => res);
+    );
   };
 
   getSubordinatesList = ({ userName }) => {
@@ -46,6 +46,6 @@ export class TimesheetSubordinatesApi extends RecordService {
         lastNameRus: 'ggodic:lastNameRus',
         middleNameRus: 'ggodic:middleNameRus'
       }
-    ).then(res => res);
+    );
   };
 }

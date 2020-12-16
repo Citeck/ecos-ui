@@ -88,7 +88,8 @@ module.exports = function(app) {
         '!**/bpmn-editor',
         '!**/bpmn-editor/**',
         '!**/ui/journals',
-        '!**/journalsDashboard'
+        '!**/journalsDashboard',
+        '/build-info/**'
       ],
       {
         ...shareProxyOptions

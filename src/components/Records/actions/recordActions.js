@@ -2,18 +2,17 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
-import React from 'react';
+import isBoolean from 'lodash/isBoolean';
 
 import { extractLabel, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
 import Records from '../Records';
-import { EmptyGrid, Grid } from '../../common/grid';
-import dialogManager from '../../common/dialogs/Manager/DialogManager';
+import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
-import { notifyFailure } from './util/actionUtils';
+import { DetailActionResult, getActionResultTitle, notifyFailure } from './util/actionUtils';
 
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
@@ -63,6 +62,12 @@ import RecordActionsResolver from './handler/RecordActionsResolver';
  */
 
 const ACTION_CONTEXT_KEY = '__act_ctx__';
+
+const Labels = {
+  RECORDS_NOT_ALLOWED_TITLE: 'records-actions.dialog.all-records-not-allowed.title',
+  RECORDS_NOT_ALLOWED_TEXT: 'records-actions.dialog.all-records-not-allowed.text',
+  CONFIRM_NOT_ALLOWED: 'records-actions.confirm-not-allowed'
+};
 
 export const DEFAULT_MODEL = {
   name: '',
@@ -189,7 +194,7 @@ class RecordActions {
         .then(formData => {
           const { definition, ...formOptions } = formData;
 
-          dialogManager.showFormDialog({
+          DialogManager.showFormDialog({
             title,
             formOptions,
             formDefinition: { display: 'form', ...definition },
@@ -200,10 +205,10 @@ class RecordActions {
         .catch(e => {
           console.error(e);
           callback(false);
-          dialogManager.showInfoDialog({ title: t('error'), text: e.message });
+          DialogManager.showInfoDialog({ title: t('error'), text: e.message });
         });
     } else {
-      dialogManager.confirmDialog({ title, text, modalClass, onNo: () => callback(false), onYes: () => callback(true) });
+      DialogManager.confirmDialog({ title, text, modalClass, onNo: () => callback(false), onYes: () => callback(true) });
     }
   };
 
@@ -413,6 +418,10 @@ class RecordActions {
 
     RecordActions._updateRecords(record);
 
+    if (!isBoolean(actResult)) {
+      await DetailActionResult.showResult(actResult, { title: getActionResultTitle(action) });
+    }
+
     return actResult;
   }
 
@@ -422,88 +431,77 @@ class RecordActions {
    * @param {Object} context
    */
   async execForRecords(records, action, context = {}) {
-    if (!records || !records.length) {
-      return false;
-    }
+    let popupExecution;
+    const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
+    const resultOptions = { title: getActionResultTitle(action), withConfirm: false };
 
-    const handler = RecordActions._getActionsExecutor(action);
-    if (handler == null) {
-      return false;
-    }
-
-    const recordInstances = Records.get(records);
-
-    if (!action.config) {
-      action.config = {};
-    }
-
-    const confirmed = await RecordActions._checkConfirmAction(action);
-
-    if (!confirmed) {
-      return false;
-    }
-
-    let recordsDisplayNamePromise = recordInstances.load('.disp').then(names => {
-      let dispByRecId = {};
-      for (let idx = 0; idx < names.length; idx++) {
-        dispByRecId[recordInstances[idx].id] = names[idx];
-      }
-      return dispByRecId;
-    });
-
-    const allowedInfo = await this._getActionAllowedInfoForRecords(recordInstances, action, context);
-    const { allowedRecords = [], notAllowedRecords = [] } = allowedInfo;
-
-    if (!allowedRecords.length) {
-      return new Promise(resolve => {
-        dialogManager.showInfoDialog({
-          title: 'records-actions.dialog.all-records-not-allowed.title',
-          text: 'records-actions.dialog.all-records-not-allowed.text',
-          onClose: () => {
-            resolve(false);
-          }
-        });
-      });
-    }
-
-    if (notAllowedRecords.length) {
-      const recordsDisplayName = await recordsDisplayNamePromise;
-
-      const formatRecordsStatus = (rec, status) => {
-        return {
-          id: rec.id,
-          displayName: recordsDisplayName[rec.id] || rec.id,
-          status: t('records-actions.record.status.' + status)
-        };
-      };
-
-      const recordsStatus = [
-        ...allowedRecords.map(rec => formatRecordsStatus(rec, 'ALLOWED')),
-        ...notAllowedRecords.map(rec => formatRecordsStatus(rec, 'NOT_ALLOWED'))
-      ];
-      let confirmResult = await showRecordsStatus(recordsStatus, {
-        title: 'records-actions.confirm-not-allowed',
-        withConfirm: true,
-        columns: ['displayName', 'status']
-      });
-
-      if (!confirmResult) {
+    const execution = await (async function() {
+      if (!records || !records.length) {
         return false;
       }
-    }
 
-    const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
-    const execContext = {
-      ...actionContext,
-      ...context
-    };
+      const handler = RecordActions._getActionsExecutor(action);
+      if (handler == null) {
+        return false;
+      }
 
-    const result = handler.execForRecords(allowedRecords, action, execContext);
-    const actResult = await RecordActions._wrapResultIfRequired(result);
+      if (!action.config) {
+        action.config = {};
+      }
 
-    RecordActions._updateRecords(allowedRecords, true);
+      const recordInstances = Records.get(records);
+      const confirmed = await RecordActions._checkConfirmAction(action);
 
-    return actResult;
+      if (!confirmed) {
+        return false;
+      }
+
+      popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => r.id), resultOptions);
+
+      const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
+      const { allowedRecords = [], notAllowedRecords = [] } = allowedInfo;
+
+      if (!allowedRecords.length) {
+        return new Promise(resolve => {
+          DialogManager.showInfoDialog({
+            title: Labels.RECORDS_NOT_ALLOWED_TITLE,
+            text: Labels.RECORDS_NOT_ALLOWED_TEXT,
+            onClose: () => resolve(false)
+          });
+        });
+      }
+
+      if (notAllowedRecords.length) {
+        const formatData = (rec, status) => ({ recordRef: rec.id, ...rec, status });
+        const recordsStatus = [
+          ...allowedRecords.map(rec => formatData(rec, 'ALLOWED')),
+          ...notAllowedRecords.map(rec => formatData(rec, 'NOT_ALLOWED'))
+        ];
+        const confirmResult = await DetailActionResult.showResult(recordsStatus, {
+          title: t(Labels.CONFIRM_NOT_ALLOWED),
+          withConfirm: true
+        });
+
+        if (!confirmResult) {
+          return false;
+        }
+
+        popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => r.id), resultOptions);
+      }
+
+      const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
+      const execContext = { ...actionContext, ...context };
+      const result = handler.execForRecords(allowedRecords, action, execContext);
+      const actResult = await RecordActions._wrapResultIfRequired(result);
+
+      RecordActions._updateRecords(allowedRecords, true);
+
+      return actResult;
+    })();
+
+    isBoolean(execution) ? popupExecution && popupExecution.hide() : await DetailActionResult.showResult(execution, resultOptions);
+
+    return execution;
   }
 
   async _getActionAllowedInfoForRecords(records, action, context) {
@@ -514,29 +512,30 @@ class RecordActions {
       allowedRecords: records
     };
 
-    let executor = RecordActions._getActionsExecutor(action);
+    const executor = RecordActions._getActionsExecutor(action);
     if (!executor) {
       return allNotAllowedResult;
     }
     if (!executor.isActionConfigCheckingRequired(action)) {
       return allAllowedResult;
     }
+
     if (!action.id) {
       return allNotAllowedResult;
     }
 
-    let actions = await this.getActionsForRecords(records, [action.id], context);
-    let actionsMaskByRecord = get(actions, 'forRecords.records');
-    let actionFromServer = get(actions, 'forRecords.actions[0]');
+    const actions = await this.getActionsForRecords(records, [action.id], context);
+    const actionsMaskByRecord = get(actions, 'forRecords.records');
+    const actionFromServer = get(actions, 'forRecords.actions[0]');
 
     if (!actionsMaskByRecord || !actionFromServer) {
       console.error('Incorrect getActionsForRecords response', actions);
       return allNotAllowedResult;
     }
 
-    let isActionAllowedByRecord = RecordActions.isRecordsGroupActionAllowed(actionsMaskByRecord, actionFromServer);
-    let allowedRecords = [];
-    let notAllowedRecords = [];
+    const isActionAllowedByRecord = RecordActions.isRecordsGroupActionAllowed(actionsMaskByRecord, actionFromServer);
+    const allowedRecords = [];
+    const notAllowedRecords = [];
 
     for (let record of records) {
       if (isActionAllowedByRecord[record.id]) {
@@ -583,8 +582,13 @@ class RecordActions {
     }
 
     const result = handler.execForQuery(query, action, execContext);
+    const actResult = await RecordActions._wrapResultIfRequired(result);
 
-    return RecordActions._wrapResultIfRequired(result);
+    if (!isBoolean(actResult)) {
+      await DetailActionResult.showResult(actResult, { title: getActionResultTitle(action) });
+    }
+
+    return actResult;
   }
 
   /**
@@ -653,55 +657,6 @@ class RecordActions {
     return handler;
   }
 }
-
-const showRecordsStatus = async (records, options = {}) => {
-  if (!records || !records.length) {
-    return false;
-  }
-
-  const { withConfirm, title, columns } = options;
-
-  let columnsIds = columns || Object.keys(records[0]).filter(att => att !== 'id');
-  let columnsToRender = columnsIds.map(att => {
-    return {
-      dataField: att,
-      text: t('records-actions.records-status.column.' + att + '.label')
-    };
-  });
-
-  const body = (
-    <div>
-      <EmptyGrid maxItems={records.length}>
-        <Grid keyField={'id'} data={records} columns={columnsToRender} />
-      </EmptyGrid>
-    </div>
-  );
-
-  let popupResult = false;
-
-  const dialogProps = {
-    title,
-    body
-  };
-
-  if (withConfirm) {
-    dialogProps['buttons'] = [
-      {
-        label: 'btn.cancel.label'
-      },
-      {
-        label: 'btn.confirm.label',
-        onClick: () => (popupResult = true)
-      }
-    ];
-  }
-  return new Promise(resolve => {
-    dialogManager.showCustomDialog({
-      ...dialogProps,
-      onHide: () => resolve(popupResult)
-    });
-  });
-};
 
 window.Citeck = window.Citeck || {};
 window.Citeck.RecordActions = window.Citeck.RecordActions || new RecordActions();

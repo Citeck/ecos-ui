@@ -1,14 +1,13 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import { getCurrentUserName, t } from '../helpers/util';
+import { getCurrentUserName, isExistValue, t } from '../helpers/util';
 import Cache from '../helpers/cache';
 import { EmodelTypes, SourcesId } from '../constants';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';
 import Components from '../components/widgets/Components';
 import Records from '../components/Records';
-import { RecordService } from './recordService';
 import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
@@ -22,7 +21,12 @@ const defaultAttr = {
 
 const cache = new Cache('_dashboardId');
 
-export class DashboardApi extends RecordService {
+const Helper = {
+  getDisp: ref => Records.get(ref).load('.disp'),
+  parseDashboardId: id => id && (id.includes(SourcesId.DASHBOARD) ? id : `${SourcesId.DASHBOARD}@${id}`)
+};
+
+export class DashboardApi {
   getAllWidgets = () => {
     return Components.getComponentsFullData();
   };
@@ -31,55 +35,50 @@ export class DashboardApi extends RecordService {
     return Components.getComponentsFullData(type);
   };
 
-  getDashboardKeysByRef = function*(recordRef) {
-    const baseTypeId = EmodelTypes.BASE;
-    const userDashboardId = EmodelTypes.USER_DASHBOARD;
-    const dashboardKeys = [];
+  getDashboardTypes = async options => {
+    const { dashboardId, recordRef } = options || {};
+    let type;
 
-    let typesToSelect;
     if (recordRef) {
-      const recType = yield Records.get(recordRef).load('_etype?id');
+      type = await Records.get(recordRef).load('_etype?id');
+    } else if (dashboardId) {
+      const id = Helper.parseDashboardId(dashboardId);
+      type = await Records.get(id).load('typeRef?id');
+    } else {
+      type = EmodelTypes.USER_DASHBOARD;
+    }
 
-      if (recType) {
-        typesToSelect = yield Records.get(recType).load('.atts(n:"parents"){id, disp}');
-        if (typesToSelect) {
-          typesToSelect = [...typesToSelect];
-        } else {
-          typesToSelect = [];
-        }
-        typesToSelect.unshift({
-          id: recType,
-          disp: yield Records.get(recType).load('.disp')
-        });
+    const types = await DashboardApi.getAvailableTypes(type);
 
-        if (recType !== baseTypeId) {
-          typesToSelect = typesToSelect.filter(t => t.id !== baseTypeId);
-        }
-      } else {
-        typesToSelect = [
-          {
-            id: baseTypeId,
-            disp: yield Records.get(baseTypeId).load('.disp')
-          }
-        ];
+    return types.map(({ id: key, disp: displayName }) => ({ key, displayName }));
+  };
+
+  static getAvailableTypes = async type => {
+    const types = [];
+    let disp;
+
+    if (type) {
+      disp = await Helper.getDisp(type);
+      types.push({ id: type, disp });
+
+      if (type === EmodelTypes.USER_DASHBOARD) {
+        return types;
+      }
+
+      const typeParents = await Records.get(type).load('.atts(n:"parents"){id, disp}');
+
+      types.push(...typeParents);
+
+      if (type !== EmodelTypes.BASE) {
+        const baseI = types.findIndex(t => t.id === EmodelTypes.BASE);
+        isExistValue(baseI) && types.splice(baseI, 1);
       }
     } else {
-      typesToSelect = [
-        {
-          id: userDashboardId,
-          disp: yield Records.get(userDashboardId).load('.disp')
-        }
-      ];
+      disp = await Helper.getDisp(EmodelTypes.BASE);
+      types.push({ id: EmodelTypes.BASE, disp });
     }
 
-    for (let p of typesToSelect) {
-      dashboardKeys.push({
-        key: p.id,
-        displayName: p.disp
-      });
-    }
-
-    return dashboardKeys;
+    return types;
   };
 
   saveDashboardConfig = ({ identification, config }) => {
@@ -105,9 +104,7 @@ export class DashboardApi extends RecordService {
   };
 
   getDashboardById = (dashboardId, force = false) => {
-    return Records.get(`${SourcesId.DASHBOARD}@${dashboardId}`)
-      .load({ ...defaultAttr, dashboardType: '_dashboardType' }, force)
-      .then(response => response);
+    return Records.get(Helper.parseDashboardId(dashboardId)).load({ ...defaultAttr, dashboardType: '_dashboardType' }, force);
   };
 
   getDashboardByUserAndType = (user, typeRef) => {
@@ -151,7 +148,7 @@ export class DashboardApi extends RecordService {
     return getDashboard();
   };
 
-  getTitleInfo = function*(recordRef = '') {
+  getTitleInfo = async recordRef => {
     const defaultInfo = Object.freeze({
       modifier: '',
       modified: '',
@@ -160,19 +157,14 @@ export class DashboardApi extends RecordService {
     });
 
     if (!recordRef) {
-      return {
-        ...defaultInfo,
-        displayName: t(TITLE.HOMEPAGE)
-      };
+      return { ...defaultInfo, displayName: t(TITLE.HOMEPAGE) };
     }
 
-    let type = yield Records.get(recordRef)
-      .load('_dashboardType')
-      .then(response => response);
+    let type = await Records.get(recordRef).load('_dashboardType');
 
     switch (type) {
       case DashboardTypes.CASE_DETAILS:
-        return yield new Promise(resolve => {
+        return new Promise(resolve => {
           const MAX_ATTEMPT_NUMBER = 10;
           let attemptNumber = 0;
           let isForceLoad = false;
@@ -205,14 +197,9 @@ export class DashboardApi extends RecordService {
       case DashboardTypes.SITE:
       case DashboardTypes.PROFILE:
       default: {
-        const displayName = yield Records.get(recordRef)
-          .load('.disp')
-          .then(response => response);
+        const displayName = await Helper.getDisp(recordRef);
 
-        return {
-          ...defaultInfo,
-          displayName
-        };
+        return { ...defaultInfo, displayName };
       }
     }
   };

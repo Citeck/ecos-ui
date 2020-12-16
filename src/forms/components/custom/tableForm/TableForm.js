@@ -3,8 +3,7 @@ import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../../components/Records';
-import { JournalsApi } from '../../../../api/journalsApi';
-import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
+import JournalsService from '../../../../components/Journals/service';
 import DialogManager from '../../../../components/common/dialogs/Manager';
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
@@ -13,6 +12,7 @@ export default class TableFormComponent extends BaseReactComponent {
   _selectedRows = [];
   _displayElementsValue = {};
   _nonSelectableRows = [];
+  _createVariants = [];
 
   static schema(...extend) {
     return BaseReactComponent.schema(
@@ -73,9 +73,10 @@ export default class TableFormComponent extends BaseReactComponent {
 
   checkConditions(data) {
     let result = super.checkConditions(data);
+    const { displayElementsJS, nonSelectableRowsJS, selectedRowsJS, customCreateVariantsJs } = this.component;
 
-    if (this.component.displayElementsJS) {
-      let displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
+    if (displayElementsJS) {
+      let displayElements = this.evaluate(displayElementsJS, {}, 'value', true);
       if (!_.isEqual(displayElements, this._displayElementsValue)) {
         this._displayElementsValue = displayElements;
         this.setReactProps({
@@ -84,8 +85,8 @@ export default class TableFormComponent extends BaseReactComponent {
       }
     }
 
-    if (this.component.nonSelectableRowsJS) {
-      let nonSelectableRows = this.evaluate(this.component.nonSelectableRowsJS, {}, 'value', true);
+    if (nonSelectableRowsJS) {
+      let nonSelectableRows = this.evaluate(nonSelectableRowsJS, {}, 'value', true);
       if (!_.isEqual(nonSelectableRows, this._nonSelectableRows)) {
         this._nonSelectableRows = nonSelectableRows;
         this.setReactProps({
@@ -94,14 +95,30 @@ export default class TableFormComponent extends BaseReactComponent {
       }
     }
 
-    if (this.component.selectedRowsJS) {
-      let selectedRows = this.evaluate(this.component.selectedRowsJS, {}, 'value', true);
+    if (selectedRowsJS) {
+      let selectedRows = this.evaluate(selectedRowsJS, {}, 'value', true);
       if (!_.isEqual(selectedRows, this._selectedRows)) {
         this._selectedRows = selectedRows;
         this.setReactProps({
           selectedRows
         });
       }
+    }
+
+    if (customCreateVariantsJs) {
+      const createVariantsResult = this._getCustomCreateVariants();
+      createVariantsResult.then(createVariants => {
+        if (!createVariants) {
+          return;
+        }
+
+        if (!_.isEqual(createVariants, this._createVariants)) {
+          this._createVariants = createVariants;
+          this.setReactProps({
+            createVariants
+          });
+        }
+      });
     }
 
     return result;
@@ -193,42 +210,76 @@ export default class TableFormComponent extends BaseReactComponent {
     return this._selectedRows;
   };
 
+  async _getCustomCreateVariants() {
+    const { customCreateVariantsJs } = this.component;
+
+    let customCreateVariants = null;
+    if (customCreateVariantsJs) {
+      try {
+        customCreateVariants = this.evaluate(customCreateVariantsJs, {}, 'value', true);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    let createVariantsPromise = Promise.resolve(null);
+    if (customCreateVariants) {
+      let fetchCustomCreateVariantsPromise = Promise.resolve([]);
+
+      if (customCreateVariants.then) {
+        fetchCustomCreateVariantsPromise = customCreateVariants;
+      } else {
+        fetchCustomCreateVariantsPromise = Promise.resolve(customCreateVariants);
+      }
+
+      const variants = await fetchCustomCreateVariantsPromise;
+
+      createVariantsPromise = Promise.all(
+        variants.map(variant => {
+          if (_.isObject(variant)) {
+            return variant;
+          }
+
+          return Records.get(variant)
+            .load('.disp')
+            .then(dispName => {
+              return {
+                recordRef: variant,
+                label: dispName
+              };
+            });
+        })
+      );
+    }
+
+    return createVariantsPromise;
+  }
+
   _fetchAsyncProperties = source => {
     return new Promise(async resolve => {
       if (!source) {
         return resolve({ error: new Error('Empty source') });
       }
 
+      const attribute = this.getAttributeToEdit();
+
       switch (source.type) {
         case 'journal':
           const { journal } = source;
+          const journalId = await (journal.journalId ||
+            this.getRecord()
+              .loadEditorKey(attribute)
+              .catch(() => null));
+          const displayColumns = journal.columns;
 
-          let fetchJournalIdPromise;
-          if (!journal.journalId) {
-            fetchJournalIdPromise = new Promise(resolve1 => {
-              const attribute = this.getAttributeToEdit();
-              return this.getRecord()
-                .loadEditorKey(attribute)
-                .then(resolve1)
-                .catch(() => {
-                  resolve1(null);
-                });
-            });
-          } else {
-            fetchJournalIdPromise = Promise.resolve(journal.journalId);
-          }
-
-          const journalId = await fetchJournalIdPromise;
           if (!journalId) {
             return resolve({ error: new Error(t('ecos-table-form.error.no-journal-id')) });
           }
 
-          const journalsApi = new JournalsApi();
-          const displayColumns = journal.columns;
-
           try {
-            const journalConfig = await journalsApi.getJournalConfig(journalId);
+            const journalConfig = await JournalsService.getJournalConfig(journalId);
             let columns = journalConfig.columns;
+
             if (Array.isArray(displayColumns) && displayColumns.length > 0) {
               columns = columns.map(item => {
                 return {
@@ -238,19 +289,19 @@ export default class TableFormComponent extends BaseReactComponent {
               });
             }
 
+            this._createVariants = journalConfig.meta.createVariants || [];
+
             resolve({
-              createVariants: journalConfig.meta.createVariants || [],
-              columns: GqlDataSource.getColumnsStatic(columns)
+              columns: await JournalsService.resolveColumns(columns)
             });
-          } catch (e) {
-            return resolve({ error: new Error(`Can't fetch journal config: ${e.message}`) });
+          } catch (error) {
+            console.error(error);
+            return resolve({ error: new Error(`${t('ecos-table-form.error.no-journal-id')} (${error.message})`) });
           }
           break;
         case 'custom':
-          const component = this.component;
           const record = this.getRecord();
-          const attribute = this.getAttributeToEdit();
-          const columns = source.custom.columns.map(item => {
+          const columns = (_.get(source, 'custom.columns') || []).map(item => {
             const col = { ...item };
             if (item.formatter) {
               col.formatter = this.evaluate(item.formatter, {}, 'value', true);
@@ -258,47 +309,21 @@ export default class TableFormComponent extends BaseReactComponent {
             return col;
           });
 
-          let customCreateVariants = null;
-          if (component.customCreateVariantsJs) {
-            try {
-              customCreateVariants = this.evaluate(component.customCreateVariantsJs, {}, 'value', true);
-            } catch (e) {
-              console.error(e);
-            }
-          }
-
+          const customCreateVariants = await this._getCustomCreateVariants();
           let createVariantsPromise = Promise.resolve([]);
           if (customCreateVariants) {
-            let fetchCustomCreateVariantsPromise;
-            if (customCreateVariants.then) {
-              fetchCustomCreateVariantsPromise = customCreateVariants;
-            } else {
-              fetchCustomCreateVariantsPromise = Promise.resolve(customCreateVariants);
-            }
-            createVariantsPromise = Promise.all(
-              (await fetchCustomCreateVariantsPromise).map(variant => {
-                if (_.isObject(variant)) {
-                  return variant;
-                }
-
-                return Records.get(variant)
-                  .load('.disp')
-                  .then(dispName => {
-                    return {
-                      recordRef: variant,
-                      label: dispName
-                    };
-                  });
-              })
-            );
+            createVariantsPromise = customCreateVariants;
           } else if (attribute) {
             createVariantsPromise = EcosFormUtils.getCreateVariants(record, attribute);
           }
 
           try {
             const createVariants = await createVariantsPromise;
-            let columnsMap = {};
-            let formatters = {};
+            this._createVariants = createVariants;
+
+            const columnsMap = {};
+            const formatters = {};
+
             columns.forEach(item => {
               const key = `.edge(n:"${item.name}"){title,type,multiple}`;
               columnsMap[key] = item;
@@ -360,47 +385,40 @@ export default class TableFormComponent extends BaseReactComponent {
               inputsPromise = EcosFormUtils.getRecordFormInputsMap(cvRecordRef);
             }
 
-            Promise.all([columnsInfoPromise, inputsPromise])
-              .then(columnsAndInputs => {
-                let [columns, inputs] = columnsAndInputs;
+            const result = await Promise.all([columnsInfoPromise, inputsPromise]).catch(err => {
+              console.error(err);
+              return [columns, {}];
+            });
 
-                for (let column of columns) {
-                  let input = inputs[column.attribute] || {};
-                  let computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
+            const [updColumns = [], inputs = {}] = result;
 
-                  if (computedDispName) {
-                    //Is this filter required?
-                    column.formatter = {
-                      name: 'FormFieldFormatter',
-                      params: input
-                    };
-                  }
+            for (let col of updColumns) {
+              let input = inputs[col.attribute] || {};
+              let computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
 
-                  if (formatters.hasOwnProperty(column.attribute)) {
-                    column.formatter = formatters[column.attribute];
-                  }
-                }
+              if (computedDispName) {
+                //todo Is this filter required?
+                col.formatter = {
+                  name: 'FormFieldFormatter',
+                  params: input
+                };
+              }
 
-                resolve({
-                  createVariants,
-                  columns: GqlDataSource.getColumnsStatic(columns)
-                });
-              })
-              .catch(err => {
-                console.error(err);
-                columnsInfoPromise.then(columns => {
-                  resolve({
-                    createVariants,
-                    columns: GqlDataSource.getColumnsStatic(columns)
-                  });
-                });
-              });
-          } catch (e) {
-            return resolve({ error: new Error(`Can't fetch create variants: ${e.message}`) });
+              if (formatters.hasOwnProperty(col.attribute)) {
+                col.formatter = formatters[col.attribute];
+              }
+            }
+
+            resolve({
+              columns: await JournalsService.resolveColumns(updColumns)
+            });
+          } catch (error) {
+            console.error(error);
+            return resolve({ error: new Error(`Can't fetch create variants: ${error.message}`) });
           }
           break;
         default:
-          return resolve({ error: new Error(`Invalid source type`) });
+          return resolve({ error: new Error(t('ecos-table-form.error.source')) });
       }
     });
   };
@@ -409,7 +427,7 @@ export default class TableFormComponent extends BaseReactComponent {
     const component = this.component;
 
     let resolveProps = props => {
-      const { createVariants = [], columns = [], error } = props || {};
+      const { columns = [], error } = props || {};
 
       let triggerEventOnTableChange = null;
       if (component.eventName) {
@@ -426,7 +444,7 @@ export default class TableFormComponent extends BaseReactComponent {
       }
 
       return {
-        createVariants,
+        createVariants: this._createVariants,
         columns,
         error,
         defaultValue: this.dataValue,

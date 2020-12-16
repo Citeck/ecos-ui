@@ -1,4 +1,4 @@
-import { put, select, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { getTotalCounts, setTotalCounts } from '../../actions/timesheet/common';
 import { selectUserName } from '../../selectors/user';
 import { TimesheetTypes } from '../../constants/timesheet';
@@ -8,7 +8,7 @@ function* sagaGetTotalCounts({ api, logger }, { payload }) {
     const userName = yield select(selectUserName);
     const { currentDate } = payload;
 
-    const delegatedCount = yield api.timesheetCommon.getTotalCountDelegated({
+    const delegatedCount = yield call(api.timesheetCommon.getTotalCountDelegated, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userName: userName

@@ -1,11 +1,12 @@
 import * as queryString from 'query-string';
 
-import { RecordService } from './recordService';
+import { DataTypes } from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
-import { getCurrentUserName } from '../helpers/util';
+import { getCurrentUserName, isNodeRef } from '../helpers/util';
+import { RecordService } from './recordService';
 
 export const ROOT_ORGSTRUCT_GROUP = '_orgstruct_home_';
 
@@ -61,7 +62,19 @@ export class OrgStructApi extends RecordService {
       .catch(() => []);
   };
 
-  fetchAuthority = nodeRef => {
+  fetchAuthName = id => {
+    return Records.get(id).load('cm:authorityName!cm:userName');
+  };
+
+  fetchAuthority = (dataType, value) => {
+    if (dataType === DataTypes.AUTHORITY && !isNodeRef(value)) {
+      return this.fetchAuthorityByName(value);
+    }
+
+    return this.fetchAuthorityByRef(value);
+  };
+
+  fetchAuthorityByRef = nodeRef => {
     if (this._loadedAuthorities[nodeRef]) {
       return Promise.resolve(this._loadedAuthorities[nodeRef]);
     }
@@ -73,6 +86,11 @@ export class OrgStructApi extends RecordService {
         return result;
       })
       .catch(() => []);
+  };
+
+  fetchAuthorityByName = async (authName = '') => {
+    const nodeRef = await Records.get(`${SourcesId.A_AUTHORITY}@${authName}`).load('nodeRef?str');
+    return this.fetchAuthorityByRef(nodeRef);
   };
 
   static async getGlobalSearchFields() {

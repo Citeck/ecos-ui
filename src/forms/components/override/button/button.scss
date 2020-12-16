@@ -76,3 +76,11 @@
     }
   }
 }
+
+@media (max-width: 768px) {
+  .formio-form .formio-component-button {
+    .btn.btn_without-indents {
+      margin-bottom: 10px;
+    }
+  }
+}

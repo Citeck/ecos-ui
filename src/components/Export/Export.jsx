@@ -130,9 +130,9 @@ export default class Export extends Component {
 
   getSelectionFilter = () => {
     const { columns } = this.props.journalConfig || {};
-    const { groupBy, sortBy, pagination, predicates } = this.props.grid || {};
+    const { groupBy, sortBy, pagination, predicates, search } = this.props.grid || {};
 
-    return { columns, groupBy, sortBy, pagination, predicate: predicates[0] };
+    return { columns, groupBy, sortBy, pagination, predicate: predicates[0], search };
   };
 
   getSelectionUrl = () => {

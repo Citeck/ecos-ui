@@ -2,14 +2,22 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { push, replace } from 'connected-react-router';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 import { withRouter } from 'react-router-dom';
 
-import { changeTab, deleteTab, initTabs, moveTabs, setDisplayState, setTab, updateTab } from '../../actions/pageTabs';
+import {
+  changeTab,
+  deleteTab,
+  initTabs,
+  moveTabs,
+  setDisplayState,
+  setTab,
+  updateTab,
+  updateTabsFromStorage
+} from '../../actions/pageTabs';
 import { animateScrollTo, arrayCompare, getScrollbarWidth, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
 import UserLocalSettingsService from '../../services/userLocalSettings';
@@ -19,6 +27,7 @@ import { dropByCacheKey } from '../ReactRouterCache';
 import Tab from './Tab';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { replaceHistoryLink } from '../../helpers/urls';
+import { updateTabEmitter } from '../../services/pageTabs/PageTabList';
 
 import './style.scss';
 
@@ -50,7 +59,10 @@ class PageTabs extends React.Component {
 
   constructor(props) {
     super(props);
+
     this.checkUrl();
+
+    updateTabEmitter.on('update', props.updateTabs);
   }
 
   componentDidMount() {
@@ -94,6 +106,10 @@ class PageTabs extends React.Component {
         }
       }
     }
+  }
+
+  componentWillUnmount() {
+    updateTabEmitter.off('update', this.props.updateTabs);
   }
 
   get wrapper() {
@@ -486,8 +502,7 @@ const mapDispatchToProps = dispatch => ({
   setTab: params => dispatch(setTab(params)),
   updateTab: tab => dispatch(updateTab(tab)),
   deleteTab: tab => dispatch(deleteTab(tab)),
-  push: url => dispatch(push(url)),
-  replace: url => dispatch(replace(url))
+  updateTabs: () => dispatch(updateTabsFromStorage())
 });
 
 export default withRouter(

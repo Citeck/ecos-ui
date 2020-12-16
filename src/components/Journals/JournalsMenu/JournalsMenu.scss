@@ -1,10 +1,38 @@
 @import '../../../styles/constants';
 
 .ecos-journal-menu {
+  $menu: &;
+
   background: $color-gray-3;
   padding: 15px 25px 15px 15px;
   height: 100%;
   min-width: 273px;
+
+  &_grid {
+    display: grid;
+    grid-auto-rows: minmax(41px, max-content);
+    align-items: stretch;
+
+    #{$menu} {
+      &__journals,
+      &__presets {
+        overflow: hidden;
+      }
+    }
+  }
+
+  &__collapsible-list {
+    height: 100%;
+
+    .panel-bar {
+      display: grid;
+      height: 100%;
+    }
+
+    .collapsible-list__collapse {
+      overflow: auto;
+    }
+  }
 
   &_open {
     width: 100%;
@@ -76,16 +104,22 @@
 }
 
 .ecos-journal-menu__list-item {
+  $item: &;
+
   padding: 13px 15px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-}
 
-.ecos-journal-menu__list-item_hover {
-  padding: 13px 60px 13px 15px;
-}
+  &_hover {
+    padding: 13px 15px;
 
-.ecos-journal-menu__list-item-input {
-  padding-right: 58px;
+    &#{$item}_actions {
+      padding-right: 60px;
+    }
+  }
+
+  &-input {
+    padding-right: 58px;
+  }
 }

@@ -2,23 +2,23 @@ import React, { useContext, useMemo } from 'react';
 import { default as EcosTabs } from '../../../../../Tabs';
 import { SelectOrgstructContext } from '../../../SelectOrgstructContext';
 import { t } from '../../../../../../../helpers/util';
-import { TAB_BY_LEVELS, TAB_ALL_USERS, TAB_ONLY_SELECTED } from '../../../constants';
+import { TabTypes } from '../../../constants';
 
 function getTabItems(isAllUsersGroupsExists) {
   const tabs = [
     {
-      id: TAB_BY_LEVELS,
+      id: TabTypes.LEVELS,
       label: t('select-orgstruct.tab.by-levels')
     },
     {
-      id: TAB_ONLY_SELECTED,
+      id: TabTypes.SELECTED,
       label: t('select-orgstruct.tab.only-selected')
     }
   ];
 
   if (isAllUsersGroupsExists) {
     tabs.splice(1, 0, {
-      id: TAB_ALL_USERS,
+      id: TabTypes.USERS,
       label: t('select-orgstruct.tab.all-users')
     });
   }

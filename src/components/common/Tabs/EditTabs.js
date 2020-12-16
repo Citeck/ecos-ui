@@ -14,6 +14,7 @@ import './Tabs.scss';
 class EditTabs extends React.Component {
   static propTypes = {
     ...commonTabsPropTypes,
+    classNameTooltip: PropTypes.string,
     disabled: PropTypes.bool,
     onSort: PropTypes.func,
     onDelete: PropTypes.func,
@@ -23,6 +24,8 @@ class EditTabs extends React.Component {
   };
 
   static defaultProps = commonTabsDefaultProps;
+
+  state = { sortableNode: null };
 
   shouldComponentUpdate(nextProps) {
     const { items, hasHover, hasHint, keyField, valueField, activeTabKey } = this.props;
@@ -55,10 +58,21 @@ class EditTabs extends React.Component {
     this.props.onStartEdit && this.props.onStartEdit(position);
   };
 
+  handleBeforeSortStart = ({ node }) => {
+    node.classList.toggle('ecos-tab_draggable');
+    this.setState({ sortableNode: node });
+  };
+
   handleSortEnd = ({ oldIndex, newIndex }) => {
     const { items = [], onSort } = this.props;
+    const { sortableNode } = this.state;
 
     onSort && onSort(arrayMove(items, oldIndex, newIndex));
+
+    if (sortableNode) {
+      sortableNode.classList.toggle('ecos-tab_draggable');
+      this.setState({ sortableNode: null });
+    }
   };
 
   render() {
@@ -66,6 +80,7 @@ class EditTabs extends React.Component {
       items = [],
       className,
       classNameTab,
+      classNameTooltip,
       keyField,
       valueField,
       valuePrefix,
@@ -77,7 +92,15 @@ class EditTabs extends React.Component {
     } = this.props;
 
     return (
-      <SortableContainer axis="x" lockAxis="x" lockToContainerEdges={true} lockOffset="10%" onSortEnd={this.handleSortEnd} useDragHandle>
+      <SortableContainer
+        axis="x"
+        lockAxis="x"
+        lockToContainerEdges={true}
+        lockOffset="10%"
+        updateBeforeSortStart={this.handleBeforeSortStart}
+        onSortEnd={this.handleSortEnd}
+        useDragHandle
+      >
         <div className={classNames('ecos-tabs', className)}>
           {items.map((item, index) => (
             <SortableElement key={`${item[keyField]}-${index}-editable`} index={index} disabled={disabled}>
@@ -85,6 +108,7 @@ class EditTabs extends React.Component {
                 {...item}
                 id={item[keyField]}
                 index={index}
+                classNameTooltip={classNameTooltip}
                 className={classNameTab}
                 label={classNames(valuePrefix, item[valueField])}
                 isActive={item.isActive || item[keyField] === activeTabKey}

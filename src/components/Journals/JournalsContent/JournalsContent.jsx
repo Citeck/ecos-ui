@@ -6,7 +6,6 @@ import { ResizeBoxes } from '../../common';
 import { Well } from '../../common/form';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsPreview from '../JournalsPreview';
-import JournalsUrlManager from '../JournalsUrlManager';
 
 import './JournalsContent.scss';
 
@@ -36,8 +35,6 @@ const Preview = ({ stateId, recordId }) => (
   </Well>
 );
 
-const Pie = () => <div>{'showPie'}</div>;
-
 class JournalsContent extends Component {
   state = {};
 
@@ -52,43 +49,29 @@ class JournalsContent extends Component {
   };
 
   render() {
-    const { stateId, showPreview, showPie, maxHeight, isActivePage } = this.props;
+    const { stateId, showPreview, maxHeight } = this.props;
     const { recordId } = this.state;
+    const grid = (
+      <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} autoHeight minHeight={468} />
+    );
 
-    let content = <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} />;
-
-    if (showPreview) {
-      const leftId = `_${stateId}-grid`;
-      const rightId = `_${stateId}-preview`;
-
-      content = (
-        <div className="ecos-journals-content__sides">
-          <div id={leftId} className="ecos-journals-content__sides-left">
-            <Grid
-              stateId={stateId}
-              showPreview={showPreview}
-              onRowClick={this.onRowClick}
-              maxHeight={maxHeight}
-              autoHeight
-              minHeight={468}
-            />
-          </div>
-          <div id={rightId} className="ecos-journals-content__sides-right">
-            <ResizeBoxes leftId={leftId} rightId={rightId} className="ecos-journals-content__resizer" autoRightSide />
-            <Preview stateId={stateId} recordId={recordId} />
-          </div>
-        </div>
-      );
+    if (!showPreview) {
+      return grid;
     }
 
-    if (showPie) {
-      content = <Pie />;
-    }
+    const leftId = `_${stateId}-grid`;
+    const rightId = `_${stateId}-preview`;
 
     return (
-      <JournalsUrlManager stateId={stateId} params={{ showPreview }} isActivePage={isActivePage}>
-        {content}
-      </JournalsUrlManager>
+      <div className="ecos-journals-content__sides">
+        <div id={leftId} className="ecos-journals-content__sides-left">
+          {grid}
+        </div>
+        <div id={rightId} className="ecos-journals-content__sides-right">
+          <ResizeBoxes leftId={leftId} rightId={rightId} className="ecos-journals-content__resizer" autoRightSide />
+          <Preview stateId={stateId} recordId={recordId} />
+        </div>
+      </div>
     );
   }
 }

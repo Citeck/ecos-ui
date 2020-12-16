@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../helpers/util';
+import { PointsLoader } from '../../components/common';
 import { Checkbox, Dropdown } from '../../components/common/form';
 import { Btn } from '../../components/common/btns';
 import DialogManager from '../../components/common/dialogs/Manager';
@@ -27,6 +28,7 @@ class SetBind extends React.Component {
     isAdmin: PropTypes.bool,
     isForAllUsers: PropTypes.bool,
     isDefaultConfig: PropTypes.bool,
+    isLoadingKeys: PropTypes.bool,
     setData: PropTypes.func,
     resetConfig: PropTypes.func
   };
@@ -54,7 +56,7 @@ class SetBind extends React.Component {
   };
 
   render() {
-    const { keys, isAdmin, selectedDashboardKey, isForAllUsers, isDefaultConfig } = this.props;
+    const { keys, isAdmin, selectedDashboardKey, isForAllUsers, isDefaultConfig, isLoadingKeys } = this.props;
 
     return (
       <>
@@ -63,17 +65,20 @@ class SetBind extends React.Component {
           {isDefaultConfig ? t(Labels.CONFIG_DEFAULT) : t(Labels.CONFIG_CUSTOM)}
         </div>
         <div className="ecos-dashboard-settings__bindings-types">
-          <Dropdown
-            source={keys}
-            value={selectedDashboardKey}
-            valueField={'key'}
-            titleField={'displayName'}
-            onChange={this.onChangeDashboardKey}
-            hideSelected
-            className="ecos-dashboard-settings__bindings-dropdown"
-            menuClassName="ecos-dashboard-settings__bindings-dropdown-menu"
-            controlClassName="ecos-btn_drop-down ecos-btn_white2"
-          />
+          <div>
+            <Dropdown
+              source={keys}
+              value={selectedDashboardKey}
+              valueField={'key'}
+              titleField={'displayName'}
+              onChange={this.onChangeDashboardKey}
+              hideSelected
+              className="ecos-dashboard-settings__bindings-dropdown"
+              menuClassName="ecos-dashboard-settings__bindings-dropdown-menu"
+              controlClassName="ecos-btn_drop-down ecos-btn_white2"
+            />
+            {isLoadingKeys && <PointsLoader className="ecos-dashboard-settings__bindings-types-loader" color={'light-blue'} />}
+          </div>
           <Btn className="ecos-btn_blue" onClick={this.onClickReset} disabled={!selectedDashboardKey || isDefaultConfig}>
             {t(Labels.RESET_BTN)}
           </Btn>

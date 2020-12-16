@@ -6,7 +6,8 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
 import { NotificationContainer } from 'react-notifications';
-import { push } from 'connected-react-router';
+import { replace } from 'connected-react-router';
+import * as queryString from 'query-string';
 
 import CacheRoute, { CacheSwitch } from '../ReactRouterCache';
 
@@ -21,7 +22,7 @@ import { ErrorBoundary } from '../ErrorBoundary';
 import { initAppSettings } from '../../actions/app';
 import { setTab, updateTab } from '../../actions/pageTabs';
 import { Pages, pagesWithOnlyContent, URL } from '../../constants';
-import { MenuTypes } from '../../constants/menu';
+import { BASE_LEFT_MENU_ID, MenuTypes } from '../../constants/menu';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';
 import PageService, { Events } from '../../services/PageService';
@@ -29,7 +30,7 @@ import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { MenuSettingsController } from '../MenuSettings';
-import { replaceHistoryLink } from '../../helpers/urls';
+import { decodeLink, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import { selectActiveThemeImage } from '../../selectors/view';
 import { DefaultImages } from '../../constants/theme';
 
@@ -43,6 +44,7 @@ const allowedLinks = [
   URL.DASHBOARD_SETTINGS,
   URL.BPMN_DESIGNER,
   URL.JOURNAL,
+  URL.DEV_TOOLS,
   URL.TIMESHEET,
   URL.TIMESHEET_SUBORDINATES,
   URL.TIMESHEET_FOR_VERIFICATION,
@@ -68,20 +70,37 @@ class App extends Component {
     const {
       params: { link = '' }
     } = event;
-    const { isShowTabs, isMobile, push, setTab, updateTab } = this.props;
+    const { isShowTabs, isMobile, replace, setTab, updateTab } = this.props;
 
     if (!(isShowTabs && !this.isOnlyContent && !isMobile)) {
-      push.call(this, link);
+      const { url, query } = queryString.parseUrl(link);
+
+      pushHistoryLink(window, {
+        pathname: url,
+        search: decodeLink(queryString.stringify(query))
+      });
+
+      replace(link);
+
       return;
     }
 
-    const { reopen, closeActiveTab, updates, ...data } = PageService.parseEvent({ event }) || {};
+    const { reopen, closeActiveTab, updates, pushHistory, ...data } = PageService.parseEvent({ event }) || {};
 
     if (updates) {
       const { link } = updates;
 
       if (link) {
-        replaceHistoryLink(this.props.history, link);
+        if (pushHistory) {
+          const { url, query } = queryString.parseUrl(link);
+
+          pushHistoryLink(window, {
+            pathname: url,
+            search: decodeLink(queryString.stringify(query))
+          });
+        } else {
+          replaceHistoryLink(window, link);
+        }
       }
 
       updateTab({ updates });
@@ -133,7 +152,7 @@ class App extends Component {
     }
 
     if (menuType === MenuTypes.LEFT) {
-      return <Menu />;
+      return <Menu id={BASE_LEFT_MENU_ID} />;
     }
 
     return null;
@@ -246,6 +265,11 @@ class App extends Component {
             />
             <CacheRoute
               {...baseCacheRouteProps}
+              path={URL.DEV_TOOLS}
+              render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} {...basePageProps} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
               path={URL.TIMESHEET}
               exact
               render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} />}
@@ -316,6 +340,7 @@ class App extends Component {
             <Route path={URL.DASHBOARD} exact render={props => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />} />
             <Route path={URL.BPMN_DESIGNER} render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />} />
             <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} {...basePageProps} />} />
+            <Route path={URL.DEV_TOOLS} render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} {...basePageProps} />} />
             <Route path={URL.TIMESHEET} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} />} />
             <Route
               path={URL.TIMESHEET_SUBORDINATES}
@@ -433,7 +458,7 @@ const mapDispatchToProps = dispatch => ({
 
   setTab: params => dispatch(setTab(params)),
   updateTab: params => dispatch(updateTab(params)),
-  push: url => dispatch(push(url))
+  replace: url => dispatch(replace(url))
 });
 
 export default withRouter(

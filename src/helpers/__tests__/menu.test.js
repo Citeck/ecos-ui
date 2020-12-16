@@ -18,6 +18,7 @@ import {
   specialClassByState
 } from '../__mocks__/menu.mock';
 import { NEW_VERSION_PREFIX } from '../export/urls';
+import { BASE_LEFT_MENU_ID } from '../../constants/menu';
 
 function check(data, method, manyProperties = false) {
   data.forEach(item => {
@@ -84,25 +85,25 @@ describe('Menu helpers', () => {
     delete window.location;
     window.location = { pathname: `${NEW_VERSION_PREFIX}/test-page` };
 
-    jest.spyOn(global, 'fetch').mockImplementation(url => {
-      let link = '';
+    let spyFetch;
 
-      switch (true) {
-        case url.includes('custom-feedback-url'):
-          link = 'https://www.citeck.ru/feedback';
-          break;
-        case url.includes('custom-report-issue-url'):
-          link =
-            'mailto:support@citeck.ru?subject=Ошибка в работе Citeck ECOS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.';
-          break;
-        default:
-          link = '';
-      }
-
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(link)
+    beforeEach(() => {
+      spyFetch = jest.spyOn(global, 'fetch').mockImplementation(url => {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              records: [
+                'https://www.citeck.ru/feedback',
+                'mailto:support@citeck.ru?subject=Ошибка в работе Citeck ECOS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.'
+              ]
+            })
+        });
       });
+    });
+
+    afterEach(() => {
+      spyFetch.mockReset();
     });
 
     asyncCheck(data, makeUserMenuItems, true);
@@ -344,7 +345,7 @@ describe('Menu helpers', () => {
     const originalScrollingElement = Object.getOwnPropertyDescriptor(Document.prototype, 'scrollingElement');
     const originalClientWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth');
 
-    document.body.insertAdjacentHTML('beforeend', '<div class="slide-menu" style="width: 300px;"></div>');
+    document.body.insertAdjacentHTML('beforeend', `<div id="${BASE_LEFT_MENU_ID}" style="width: 300px;"></div>`);
 
     data.forEach((item, index) => {
       it(item.title, () => {

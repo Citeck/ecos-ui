@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import moment from 'moment';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import { DateEditor } from '../../editors';
@@ -12,13 +12,23 @@ export default class DateTimeFormatter extends DefaultGqlFormatter {
   }
 
   render() {
-    let { cell, params } = this.props;
+    const { cell, params = {} } = this.props;
+    const { format, relative, cellProperty } = params;
 
-    const value = this.getTimeOrValue(this.value(cell), params);
-    const format = params.format || FORMAT;
-    const date = value ? moment(value).format(format) : '';
+    let cellValue = cell;
+    if (cellProperty) {
+      cellValue = cell[cellProperty];
+    }
 
-    return <Fragment>{date}</Fragment>;
+    const value = this.getTimeOrValue(this.value(cellValue), params);
+    if (!value) {
+      return '';
+    }
+
+    const title = moment(value).format('LLL');
+    const date = relative ? moment(value).fromNow() : moment(value).format(format || FORMAT);
+
+    return <span title={title}>{date}</span>;
   }
 
   getTimeOrValue(value, params) {

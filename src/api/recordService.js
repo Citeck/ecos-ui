@@ -6,19 +6,19 @@ import { PROXY_URI } from '../constants/alfresco';
  * @deprecated Use Records.js instead
  */
 export class RecordService extends CommonApi {
-  /* DEPRECATED */
+  /** @deprecated */
   query = dataObj => {
     const url = `${PROXY_URI}citeck/ecos/records/query`;
     return this.postJson(url, dataObj);
   };
 
-  /* DEPRECATED */
+  /** @deprecated */
   mutate = dataObj => {
     const url = `${PROXY_URI}citeck/ecos/records/mutate`;
     return this.postJson(url, dataObj);
   };
 
-  /* DEPRECATED */
+  /** @deprecated */
   delete = dataObj => {
     const url = `${PROXY_URI}citeck/ecos/records/delete`;
     return this.postJson(url, dataObj);
