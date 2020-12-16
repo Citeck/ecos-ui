@@ -295,12 +295,14 @@ Base.prototype.createInlineEditButton = function(container) {
 };
 
 Base.prototype.createViewOnlyValue = function(container) {
-  if (get(this, 'component.customClass') && get(container, 'classList.add')) {
-    container.classList.add(`${this.component.customClass}_view-mode`);
-  }
-
   originalCreateViewOnlyValue.call(this, container);
+
   this.createInlineEditButton(container);
+
+  const customClass = get(this, 'component.customClass');
+  if (customClass) {
+    container.classList.add(`${customClass}_view-mode`);
+  }
 };
 
 Base.prototype.createViewOnlyElement = function() {
