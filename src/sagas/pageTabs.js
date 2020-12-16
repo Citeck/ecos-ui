@@ -47,8 +47,6 @@ function* sagaInitTabs({ api, logger }) {
     yield put(setTabs(PageTabList.storeList));
     yield put(initTabsComplete());
 
-    console.warn(PageTabList.tabs);
-
     yield PageTabList.tabs.map(function*(tab) {
       const updates = yield* getTitle(tab);
       PageTabList.changeOne({ tab, updates });
