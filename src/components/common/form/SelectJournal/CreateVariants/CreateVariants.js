@@ -1,60 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../../../helpers/util';
-import Records from '../../../../Records';
-import EcosForm from '../../../../EcosForm/EcosForm';
-import { FORM_MODE_CREATE } from '../../../../EcosForm/constants';
-import EcosModal from '../../../EcosModal';
+import FormManager from '../../../../EcosForm/FormManager';
 import { Btn, IcoBtn } from '../../../btns';
 import Dropdown from '../../Dropdown/Dropdown';
 
-const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateFormSubmit }) => {
+const CreateVariants = ({ items, onCreateFormSubmit }) => {
   if (!items || !items.length) {
     return null;
   }
 
-  const [record, setRecord] = useState(null);
-  const [formKey, setFormKey] = useState(null);
-  const [formId, setFormId] = useState(null);
-  const [displayName, setDisplayName] = useState(null);
+  const openForm = variant => {
+    FormManager.createRecordByVariant(variant, {
+      onSubmit: onCreateFormSubmit,
+      initiator: {
+        type: 'form-component',
+        name: 'CreateVariants'
+      }
+    });
+  };
 
-  useEffect(() => {
-    Records.get(record)
-      .load('.disp')
-      .then(disp => setDisplayName(disp));
-  }, [record, setDisplayName]);
-
-  let title = t('select-journal.create-modal.title');
-  if (displayName) {
-    title = `${title}: ${displayName}`;
-  }
-
-  let createButton;
-  if (items.length === 1) {
-    const onClick = () => {
-      const variant = items[0];
-      setRecord(variant.recordRef || `dict@${variant.type}`);
-      setFormKey(variant.formKey);
-      setFormId(variant.formId);
-      toggleCreateModal();
-    };
-
-    createButton = (
-      <Btn className={'ecos-btn_blue'} onClick={onClick}>
-        {t('select-journal.select-modal.create-button')}
-      </Btn>
-    );
-  } else {
-    const onSelect = variant => {
-      setRecord(variant.recordRef || `dict@${variant.type}`);
-      setFormKey(variant.formKey);
-      setFormId(variant.formId);
-      toggleCreateModal();
-    };
-
-    createButton = (
-      <Dropdown source={items} valueField={'type'} titleField={'title'} isStatic onChange={onSelect}>
+  if (items.length > 1) {
+    return (
+      <Dropdown source={items} valueField="type" titleField="title" isStatic onChange={openForm}>
         <IcoBtn invert icon="icon-small-down" className="btn_drop-down btn_r_8 btn_blue">
           {t('select-journal.select-modal.create-button')}
         </IcoBtn>
@@ -62,39 +31,10 @@ const CreateVariants = ({ items, toggleCreateModal, isCreateModalOpen, onCreateF
     );
   }
 
-  const modal = record ? (
-    <EcosModal
-      reactstrapProps={{
-        backdrop: 'static'
-      }}
-      className="ecos-modal_width-lg ecos-form-modal"
-      isBigHeader
-      title={title}
-      isOpen={isCreateModalOpen}
-      hideModal={toggleCreateModal}
-    >
-      <EcosForm
-        record={record}
-        formKey={formKey}
-        formId={formId}
-        onSubmit={onCreateFormSubmit}
-        onFormCancel={toggleCreateModal}
-        options={{
-          formMode: FORM_MODE_CREATE
-        }}
-        initiator={{
-          type: 'form-component',
-          name: 'CreateVariants'
-        }}
-      />
-    </EcosModal>
-  ) : null;
-
   return (
-    <div>
-      {createButton}
-      {modal}
-    </div>
+    <Btn className={'ecos-btn_blue'} onClick={() => openForm(items[0])}>
+      {t('select-journal.select-modal.create-button')}
+    </Btn>
   );
 };
 
@@ -110,9 +50,7 @@ CreateVariants.propTypes = {
       // createArguments: null
     })
   ),
-  toggleCreateModal: PropTypes.func,
-  onCreateFormSubmit: PropTypes.func,
-  isCreateModalOpen: PropTypes.bool
+  onCreateFormSubmit: PropTypes.func
 };
 
 export default CreateVariants;
