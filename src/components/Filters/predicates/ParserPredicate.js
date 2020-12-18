@@ -1,7 +1,9 @@
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
 
-import { deepClone, isExistValue } from '../../../helpers/util';
+import { isExistValue } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
 import {
   datePredicateVariables,
@@ -70,7 +72,8 @@ export default class ParserPredicate {
       const predicate = EQUAL_PREDICATES_MAP[type];
 
       if (predicate) {
-        val.push(new Predicate({ att: key, t: predicate, val: column.formatExtraData.formatter.getFilterValue(value) }));
+        const _getFilterValue = get(column, 'formatExtraData.formatter.getFilterValue') || (v => v);
+        val.push(new Predicate({ att: key, t: predicate, val: _getFilterValue(value) }));
       }
     }
 
@@ -321,7 +324,7 @@ export default class ParserPredicate {
       return out;
     }
 
-    predicates = deepClone(predicates);
+    predicates = cloneDeep(predicates);
     predicates = isArray(predicates) ? predicates : predicates.val || [];
 
     const flat = arr => {
@@ -360,7 +363,7 @@ export default class ParserPredicate {
       return newPredicates;
     }
 
-    predicates = deepClone(predicates);
+    predicates = cloneDeep(predicates);
 
     const foreach = arr => {
       arr.forEach(item => {
