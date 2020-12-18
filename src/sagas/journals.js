@@ -6,6 +6,7 @@ import has from 'lodash/has';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import cloneDeep from 'lodash/cloneDeep';
 
 import JournalsConverter from '../dto/journals';
 import Records from '../components/Records';
@@ -805,12 +806,14 @@ function* sagaInitPreview({ api, logger, stateId, w }, action) {
 
 function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
   try {
-    let row = action.payload;
-
     const url = yield select(selectUrl, stateId);
-    const { journalConfig = {}, config = {}, grid = {} } = yield select(selectJournalData, stateId);
+    const journalData = yield select(selectJournalData, stateId);
+    const { journalConfig = {}, config = {}, grid = {} } = journalData;
     const { columns, groupBy = [] } = grid;
-    const { journalsListId = config.journalsListId, journalSettingId = config.journalSettingId } = url;
+    const journalsListId = url.journalsListId || (config && config.journalsListId);
+    const journalSettingId = url.journalSettingId || (config && config.journalSettingId);
+
+    let row = cloneDeep(action.payload);
     let {
       id = '',
       meta: { nodeRef = '', criteria = [], predicate = {} }
@@ -819,7 +822,6 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
 
     if (id === 'event-lines-stat') {
       //todo: move to journal config
-
       let eventRef = row['groupBy_skifem:eventTypeAssoc'];
       let eventTypeId = yield call(api.journals.getRecord, { id: eventRef, attributes: 'skifdm:eventTypeId?str' });
       id = 'event-lines-' + eventTypeId;
