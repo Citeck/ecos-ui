@@ -14,6 +14,7 @@ import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/ut
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
+import { ErrorCell } from '../ErrorCell';
 
 import './Grid.scss';
 
@@ -265,7 +266,7 @@ class Grid extends Component {
         column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false);
 
         if (column.customFormatter === undefined) {
-          column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
+          column.formatter = this.initFormatter({ editable: props.editable, className: column.className, column });
         } else {
           column.formatter = column.customFormatter;
         }
@@ -467,15 +468,17 @@ class Grid extends Component {
       const errorAttribute = row.error;
 
       return (
-        <div
-          className={classNames('ecos-grid__td', {
-            'ecos-grid__td_editable': editable,
-            'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell,
-            [className]: !!className
-          })}
-        >
-          {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
-        </div>
+        <ErrorCell data={cell}>
+          <div
+            className={classNames('ecos-grid__td', {
+              'ecos-grid__td_editable': editable,
+              'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell,
+              [className]: !!className
+            })}
+          >
+            {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
+          </div>
+        </ErrorCell>
       );
     };
   };

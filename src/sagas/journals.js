@@ -269,15 +269,16 @@ function* getJournalConfig(api, journalId, w) {
 
 function* getColumns({ stateId }) {
   const { journalConfig = {}, journalSetting = {} } = yield select(selectJournalData, stateId);
+  const columns = yield JournalsService.resolveColumns(journalSetting.columns);
 
-  if (journalSetting.columns && journalSetting.columns.length) {
-    return journalSetting.columns.map(setting => {
+  if (columns.length) {
+    return columns.map(setting => {
       const config = journalConfig.columns.find(column => column.attribute === setting.attribute);
       return config ? { ...config, ...setting, sortable: config.sortable } : setting;
     });
   }
 
-  return journalConfig.columns;
+  return columns;
 }
 
 function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w) {
