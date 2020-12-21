@@ -55,12 +55,17 @@ import {
   setUrl
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
-import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
+import {
+  DEFAULT_INLINE_TOOL_SETTINGS,
+  DEFAULT_JOURNALS_PAGINATION,
+  DEFAULT_PAGINATION,
+  JOURNAL_SETTING_ID_FIELD
+} from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { ActionTypes } from '../components/Records/actions';
 import {
   decodeLink,
-  getFilterUrlParam,
+  getFilterParam,
   getSearchParams,
   getUrlWithoutOrigin,
   goToJournalsPage as goToJournalsPageUrl,
@@ -102,7 +107,7 @@ function getDefaultJournalSetting(journalConfig) {
   };
 }
 
-function getGridParams({ journalConfig, journalSetting, pagination }) {
+function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = DEFAULT_PAGINATION }) {
   const {
     meta: { createVariants, predicate, actions: journalActions, groupActions },
     sourceId,
@@ -449,7 +454,6 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
   yield put(setPreviewUrl(w('')));
   yield put(setPreviewFileName(w('')));
-
   yield put(setGrid(w({ ...params, ...gridData, editingRules })));
 }
 
@@ -577,8 +581,8 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
 
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
 
-    PageService.changeUrlLink(url, { updateUrl: true });
     api.journals.setLsJournalSettingId(journalConfig.id, action.payload);
+    PageService.changeUrlLink(url, { updateUrl: true });
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
   }
@@ -854,20 +858,36 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
         row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
       }
 
-      filter = getFilterUrlParam({ row, columns, groupBy });
+      filter = getFilterParam({ row, columns, groupBy });
     }
 
     if (filter) {
       api.journals.setLsJournalSettingId(id, '');
     }
 
-    goToJournalsPageUrl({
-      journalsListId,
-      journalId: id,
-      journalSettingId,
-      nodeRef,
-      filter
-    });
+    if (isNewVersionPage()) {
+      const journalSetting = yield getJournalSetting(api, { journalConfig, stateId }, w);
+      const params = getGridParams({ journalConfig, journalSetting });
+      const predicateValue = ParserPredicate.setPredicateValue(get(params, 'predicates[0]') || [], filter);
+      set(params, 'predicates', [predicateValue]);
+      const gridData = yield getGridData(api, { ...params }, stateId);
+      const editingRules = yield getGridEditingRules(api, gridData);
+
+      yield put(setSelectedRecords(w([])));
+      yield put(setSelectAllRecordsVisible(w(false)));
+      yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
+      yield put(setPreviewUrl(w('')));
+      yield put(setPreviewFileName(w('')));
+      yield put(setGrid(w({ ...params, ...gridData, editingRules })));
+    } else {
+      goToJournalsPageUrl({
+        journalsListId,
+        journalId: id,
+        journalSettingId,
+        nodeRef,
+        filter
+      });
+    }
   } catch (e) {
     logger.error('[journals sagaGoToJournalsPage saga error', e.message);
   }

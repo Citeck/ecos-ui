@@ -59,40 +59,26 @@ export default class ParserPredicate {
 
   static getRowPredicates({ row, columns, groupBy }) {
     const val = [];
+    let _columns = [];
 
     if (groupBy.length) {
-      groupBy = groupBy[0].split('&');
-      columns = columns.filter(c => groupBy.filter(g => g === c.attribute)[0]);
+      const _groupBy = groupBy[0].split('&');
+      _columns = columns.filter(c => _groupBy.find(g => g === c.attribute));
     }
 
     for (const key in row) {
       const value = row[key];
-      const column = columns.filter(c => c.attribute === key && c.visible && c.default && c.searchable)[0] || {};
+      const column = _columns.find(c => c.attribute === key && c.visible && c.default && c.searchable) || {};
       const type = column.type;
       const predicate = EQUAL_PREDICATES_MAP[type];
 
       if (predicate) {
-        const _getFilterValue = get(column, 'formatExtraData.formatter.getFilterValue') || (v => v);
-        val.push(new Predicate({ att: key, t: predicate, val: _getFilterValue(value) }));
+        const getter = get(column, 'formatExtraData.formatter.getFilterValue');
+        val.push(new Predicate({ att: key, t: predicate, val: getter ? column.formatExtraData.formatter.getFilterValue(value) : value }));
       }
     }
 
-    return val.length
-      ? {
-          t: PREDICATE_OR,
-          val: [
-            {
-              t: PREDICATE_OR,
-              val: [
-                {
-                  t: PREDICATE_AND,
-                  val: val
-                }
-              ]
-            }
-          ]
-        }
-      : null;
+    return val;
   }
 
   static getDefaultPredicates(columns, extra) {
