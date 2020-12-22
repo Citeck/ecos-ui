@@ -15,8 +15,8 @@ const ViewTable = ({ hidden, models, searchText }) => {
   }, [models, searchText]);
 
   return (
-    <div className={classNames('bpmn-designer-view-table common-container_white h-100', { 'd-none': hidden })}>
-      <Grid data={data} columns={columns} scrollable fixedHeader autoHeight byContentHeight />
+    <div className={classNames('bpmn-designer-view-table common-container_white', { 'd-none': hidden })}>
+      <Grid data={data} columns={columns} scrollable fixedHeader autoHeight maxHeight="calc(100vh - 300px)" />
     </div>
   );
 };
