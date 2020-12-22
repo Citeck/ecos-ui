@@ -7,7 +7,7 @@ import { t } from '../../helpers/util';
 import { ROOT_CATEGORY_NODE_REF } from '../../constants/bpmn';
 import { IcoBtn } from '../common/btns';
 import { Caption } from '../common/form';
-import { createCategory, showImportModelForm, showModelCreationForm } from '../../actions/bpmn';
+import { createCategory } from '../../actions/bpmn';
 import Categories from './Categories';
 import ControlPanel from './ControlPanel';
 import RightMenu from './RightMenu';
@@ -23,21 +23,12 @@ const Labels = {
   HIDE_MENU_sm: 'journals.action.hide-menu_sm'
 };
 
-const BPMNDesigner = ({ isMobile, isReady, totalModels, createCategory, showModelCreationForm, showImportModelForm }) => {
+const BPMNDesigner = ({ isMobile, isReady, totalModels, createCategory }) => {
   if (!isReady) {
     return null;
   }
 
   const [isOpenMenu, setOpenMenu] = useState(false);
-  const handlerCreateVariant = variant => {
-    if (variant.id === 'bpmn-designer-create-model') {
-      showModelCreationForm();
-    } else if (variant.id === 'bpmn-designer-import-model') {
-      showImportModelForm();
-    } else {
-      console.warn('Unknown variant');
-    }
-  };
 
   return (
     <div className="bpmn-designer-page__container">
@@ -63,7 +54,7 @@ const BPMNDesigner = ({ isMobile, isReady, totalModels, createCategory, showMode
 
           <Row>
             <Col md={12}>
-              <ControlPanel onClickCreateVariant={handlerCreateVariant} />
+              <ControlPanel />
               <Categories categoryId={ROOT_CATEGORY_NODE_REF} />
               <div className={styles.addCategoryBlock} onClick={createCategory}>
                 {t('bpmn-designer.add-category')}
@@ -96,9 +87,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  createCategory: () => dispatch(createCategory({ parentId: ROOT_CATEGORY_NODE_REF })),
-  showModelCreationForm: () => dispatch(showModelCreationForm()),
-  showImportModelForm: () => dispatch(showImportModelForm())
+  createCategory: () => dispatch(createCategory({ parentId: ROOT_CATEGORY_NODE_REF }))
 });
 
 export default connect(

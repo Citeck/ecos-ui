@@ -10,6 +10,8 @@
 }
 
 .bpmn-designer-page {
+  $page: &;
+
   &__container {
     display: flex;
     padding: 17px 0 25px 25px;
@@ -41,6 +43,19 @@
       & :nth-child(n) {
         clear: both;
       }
+
+      #{$page}__btn-menu-opener {
+        transition: opacity 0.2s;
+
+        &_hidden {
+          opacity: 0;
+        }
+      }
+
+      #{$page}__btn-menu-closer {
+        float: right;
+        margin-bottom: 15px;
+      }
     }
   }
 
@@ -53,23 +68,10 @@
       justify-content: flex-end;
     }
   }
-
-  &__btn-menu-opener {
-    transition: opacity 0.2s;
-
-    &_hidden {
-      opacity: 0;
-    }
-  }
-
-  &__btn-menu-closer {
-    float: right;
-    margin-bottom: 15px;
-  }
 }
 
-.bpmn-designer-page__control-panel {
-  & .ecos-btn {
+.bpmn-designer__control-panel {
+  & .ecos-dropdown__toggle_static {
     font-size: $font-size-xxl;
   }
 
