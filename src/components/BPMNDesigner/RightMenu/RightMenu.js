@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import mainStyles from '../BPMNDesigner.module.scss';
+import classNames from 'classnames';
+import { DESIGNER_PAGE_CONTEXT } from '../../../constants/bpmn';
+import { BPMNDesignerService } from '../../../services/BPMNDesignerService';
+
 import styles from './RightMenu.module.scss';
-import cn from 'classnames';
-import { EDITOR_PAGE_CONTEXT, DESIGNER_PAGE_CONTEXT } from '../../../constants/bpmn';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
-import { t } from '../../../helpers/util';
+import '../style.scss';
 
 const mapStateToProps = state => ({
   isAdmin: state.user.isAdmin,
@@ -13,62 +13,21 @@ const mapStateToProps = state => ({
 });
 
 function RightMenu({ isAdmin, isBpmAdmin }) {
-  const menuItems = [
-    {
-      className: cn(styles.item, { [styles.itemActive]: true }),
-      href: DESIGNER_PAGE_CONTEXT,
-      iconClassName: 'icon-models',
-      label: t('bpmn-designer.right-menu.process-models')
-    }
-  ];
-
-  if (isAdmin || isBpmAdmin) {
-    menuItems.push({
-      className: styles.item,
-      href: `${EDITOR_PAGE_CONTEXT}#/casemodels`,
-      iconClassName: 'icon-case-models',
-      label: t('bpmn-designer.right-menu.case-models')
-    });
-  }
-
-  menuItems.push({
-    className: styles.item,
-    href: `${EDITOR_PAGE_CONTEXT}#/forms`,
-    iconClassName: 'icon-forms',
-    label: t('bpmn-designer.right-menu.forms')
-  });
-
-  if (isAdmin || isBpmAdmin) {
-    menuItems.push(
-      {
-        className: styles.item,
-        href: `${EDITOR_PAGE_CONTEXT}#/decision-tables`,
-        iconClassName: 'icon-decision-tables',
-        label: t('bpmn-designer.right-menu.decision-tables')
-      },
-      {
-        className: styles.item,
-        href: `${EDITOR_PAGE_CONTEXT}#/apps`,
-        iconClassName: 'icon-apps',
-        label: t('bpmn-designer.right-menu.apps')
-      }
-    );
-  }
+  const menuItems = useMemo(() => BPMNDesignerService.getMenuItems({ isAdmin, isBpmAdmin }), [isBpmAdmin, isAdmin]);
+  const [activeLink, setActiveLink] = useState(DESIGNER_PAGE_CONTEXT);
 
   return (
-    <div className={styles.wrapper}>
-      <div className={mainStyles.whiteBlock}>
-        <nav>
-          <ul>
-            {menuItems.map(item => (
-              <li className={item.className} key={item.label}>
-                <a href={item.href} className={item.iconClassName} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+    <div>
+      <div className="common-container_white">
+        {menuItems.map(item => (
+          <div
+            className={classNames(styles.item, { [styles.itemActive]: item.href === activeLink })}
+            key={item.label}
+            onClick={() => setActiveLink(item.href)}
+          >
+            <a href={item.href}>{item.label}</a>
+          </div>
+        ))}
       </div>
     </div>
   );

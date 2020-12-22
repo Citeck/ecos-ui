@@ -1,20 +1,35 @@
 import React from 'react';
-import Search from './Search';
-import SortFilter from './SortFilter';
-import ViewSwitcher from './ViewSwitcher';
-import { Row, Col } from 'reactstrap';
-import styles from './ControlPanel.module.scss';
+import { Col, Row } from 'reactstrap';
 
-const ControlPanel = () => {
+import { BPMNDesignerService } from '../../../services/BPMNDesignerService';
+import { Dropdown } from '../../common/form';
+import Search from './Search';
+import ViewSwitcher from './ViewSwitcher';
+
+import '../style.scss';
+
+const ControlPanel = ({ onClickCreateVariant }) => {
+  const createVariants = BPMNDesignerService.getCreateVariants();
+
   return (
-    <div style={{ marginBottom: 10, marginTop: 40 }}>
+    <div className="mb-3 bpmn-designer-page__control-panel">
       <Row noGutters>
         <Col lg={6} md={12}>
+          <Dropdown
+            hasEmpty
+            isStatic
+            source={createVariants}
+            valueField="id"
+            titleField="title"
+            onChange={onClickCreateVariant}
+            controlIcon="icon-small-plus"
+            controlClassName="ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
+          />
           <Search />
         </Col>
         <Col lg={6} md={12}>
-          <div className={styles.rightWrapper}>
-            <SortFilter />
+          <div className="bpmn-designer-page__control-panel-right">
+            {/*<SortFilter />*/}
             <ViewSwitcher />
           </div>
         </Col>
