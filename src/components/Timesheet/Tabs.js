@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-class Tabs extends React.PureComponent {
+class Tabs extends React.Component {
   static propTypes = {
     tabs: PropTypes.arrayOf(
       PropTypes.shape({
@@ -29,7 +29,7 @@ class Tabs extends React.PureComponent {
       return;
     }
 
-    this.props.onClick(index);
+    this.props.onClick(index, tab.link);
   };
 
   renderTab = (tab, index) => {
@@ -38,7 +38,7 @@ class Tabs extends React.PureComponent {
 
     return (
       <div
-        key={index}
+        key={tab.name}
         className={classNames('ecos-tabs-v2__item', classNameItem, {
           'ecos-tabs-v2__item_active': isActive,
           'ecos-tabs-v2__item_disabled': !isAvailable
