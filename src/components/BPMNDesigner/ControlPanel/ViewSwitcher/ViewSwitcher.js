@@ -1,10 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { UncontrolledTooltip } from 'reactstrap';
-import { VIEW_TYPE_LIST, VIEW_TYPE_CARDS } from '../../../../constants/bpmn';
+import cn from 'classnames';
+
 import { setViewType } from '../../../../actions/bpmn';
 import { t } from '../../../../helpers/util';
-import cn from 'classnames';
+import { BPMNDesignerService } from '../../../../services/BPMNDesignerService';
+
 import styles from './ViewSwitcher.module.scss';
 
 const mapStateToProps = state => ({
@@ -13,50 +15,31 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setCardViewType: () => dispatch(setViewType(VIEW_TYPE_CARDS)),
-  setListViewType: () => dispatch(setViewType(VIEW_TYPE_LIST))
+  setViewType: type => dispatch(setViewType(type))
 });
 
-const ViewSwitcher = ({ viewType, setCardViewType, setListViewType, isMobile }) => {
-  const tooltipCards = isMobile ? null : (
-    <UncontrolledTooltip
-      target="bpmn-view-switcher-cards"
-      delay={0}
-      placement="top"
-      innerClassName="tooltip-inner-custom"
-      arrowClassName="arrow-custom"
-    >
-      {t('bpmn-designer.view-mode.cards')}
-    </UncontrolledTooltip>
-  );
-
-  const tooltipList = isMobile ? null : (
-    <UncontrolledTooltip
-      target="bpmn-view-switcher-list"
-      delay={0}
-      placement="top"
-      innerClassName="tooltip-inner-custom"
-      arrowClassName="arrow-custom"
-    >
-      {t('bpmn-designer.view-mode.list')}
-    </UncontrolledTooltip>
-  );
+const ViewSwitcher = ({ viewType, setViewType, isMobile }) => {
+  const viewTypes = BPMNDesignerService.getViewPageTypes();
+  const renderTooltipList = vt =>
+    isMobile ? null : (
+      <UncontrolledTooltip target={vt.id} delay={0} placement="top" innerClassName="tooltip-inner-custom" arrowClassName="arrow-custom">
+        {t(vt.title)}
+      </UncontrolledTooltip>
+    );
 
   return (
     <div className={styles.wrapper}>
-      <div
-        id="bpmn-view-switcher-cards"
-        className={cn('icon-tiles', styles.item, { [styles.itemActive]: viewType === VIEW_TYPE_CARDS })}
-        onClick={setCardViewType}
-      />
-      {tooltipCards}
-
-      <div
-        id="bpmn-view-switcher-list"
-        className={cn('icon-list', styles.item, { [styles.itemActive]: viewType === VIEW_TYPE_LIST })}
-        onClick={setListViewType}
-      />
-      {tooltipList}
+      {viewTypes.map(vt => (
+        <>
+          <div
+            key={vt.id}
+            id={vt.id}
+            className={cn(vt.icon, styles.item, { [styles.itemActive]: viewType === vt.type })}
+            onClick={() => setViewType(vt.type)}
+          />
+          {renderTooltipList(vt)}
+        </>
+      ))}
     </div>
   );
 };

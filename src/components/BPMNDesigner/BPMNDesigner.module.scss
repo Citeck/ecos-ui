@@ -22,27 +22,3 @@
     margin-left: 5px;
   }
 }
-
-.addCategoryBlock {
-  background: $color-gray-1;
-  border-radius: $border-radius-extra-large;
-  margin-top: 10px;
-  margin-bottom: 30px;
-  cursor: pointer;
-  padding: 20px;
-  text-align: center;
-  text-transform: uppercase;
-  font-weight: $font-weight-semi-bold;
-  color: $text-color-gray;
-
-  &:hover {
-    background-color: $color-gray-2;
-  }
-}
-
-.headerBtn {
-  margin-right: 10px;
-  font-weight: $font-weight-semi-bold;
-  font-size: $font-size-standard;
-  border-radius: $border-radius-large;
-}

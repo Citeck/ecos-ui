@@ -1,5 +1,8 @@
-export const VIEW_TYPE_CARDS = 'cards';
-export const VIEW_TYPE_LIST = 'list';
+export const ViewTypes = {
+  CARDS: 'cards',
+  LIST: 'list',
+  TABLE: 'table'
+};
 
 export const SORT_FILTER_LAST_MODIFIED = 0;
 export const SORT_FILTER_OLD = 1;

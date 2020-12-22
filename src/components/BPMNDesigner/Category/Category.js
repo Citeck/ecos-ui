@@ -3,11 +3,20 @@ import { connect } from 'react-redux';
 import ContentEditable from 'react-contenteditable';
 import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
-import { VIEW_TYPE_CARDS, VIEW_TYPE_LIST } from '../../../constants/bpmn';
-import { createCategory, cancelEditCategory, setIsEditable, saveCategoryRequest, deleteCategoryRequest } from '../../../actions/bpmn';
-import { showModelCreationForm, setCategoryCollapseState } from '../../../actions/bpmn';
+
+import { ViewTypes } from '../../../constants/bpmn';
+import { placeCaretAtEnd, t } from '../../../helpers/util';
+import {
+  cancelEditCategory,
+  createCategory,
+  deleteCategoryRequest,
+  saveCategoryRequest,
+  setCategoryCollapseState,
+  setIsEditable,
+  showModelCreationForm
+} from '../../../actions/bpmn';
 import { hideModal, showModal } from '../../../actions/modal';
-import { t, placeCaretAtEnd } from '../../../helpers/util';
+
 import styles from './Category.module.scss';
 import './Category.scss';
 
@@ -178,7 +187,7 @@ class Category extends React.Component {
       [styles.bpmnCategoryLevel1]: level === 1,
       [styles.bpmnCategoryLevel2]: level === 2,
       bpmnCategoryLevelOpen: isOpen,
-      bpmnCategoryListViewType: viewType === VIEW_TYPE_LIST && level !== 0
+      bpmnCategoryListViewType: viewType === ViewTypes.LIST && level !== 0
     });
 
     const whiteContainerClasses = cn(styles.category, {
@@ -308,14 +317,14 @@ class Category extends React.Component {
 
             <div className={styles.categoryActions}>{actionButtons}</div>
           </div>
-          {viewType === VIEW_TYPE_CARDS ? (
+          {viewType === ViewTypes.CARDS ? (
             <Collapse isOpen={isOpen}>
               <div className={styles.content}>{this.props.children}</div>
             </Collapse>
           ) : null}
         </div>
 
-        {viewType === VIEW_TYPE_LIST ? (
+        {viewType === ViewTypes.LIST ? (
           <Collapse isOpen={isOpen}>
             <div className={styles.contentNested}>{this.props.children}</div>
           </Collapse>

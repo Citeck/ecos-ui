@@ -4,16 +4,15 @@ import classNames from 'classnames';
 import { Col, Container, Row } from 'reactstrap';
 
 import { t } from '../../helpers/util';
-import { ROOT_CATEGORY_NODE_REF } from '../../constants/bpmn';
+import { ViewTypes } from '../../constants/bpmn';
 import { IcoBtn } from '../common/btns';
 import { Caption } from '../common/form';
-import { createCategory } from '../../actions/bpmn';
-import Categories from './Categories';
 import ControlPanel from './ControlPanel';
 import RightMenu from './RightMenu';
+import ViewBlocks from './ViewBlocks';
+import ViewTable from './ViewTable';
 
 import './style.scss';
-import styles from './BPMNDesigner.module.scss';
 
 const Labels = {
   TITLE_PAGE: 'bpmn-designer.process-models.header',
@@ -23,7 +22,7 @@ const Labels = {
   HIDE_MENU_sm: 'journals.action.hide-menu_sm'
 };
 
-const BPMNDesigner = ({ isMobile, isReady, totalModels, createCategory }) => {
+const BPMNDesigner = ({ isMobile, isReady, viewType }) => {
   if (!isReady) {
     return null;
   }
@@ -55,10 +54,8 @@ const BPMNDesigner = ({ isMobile, isReady, totalModels, createCategory }) => {
           <Row>
             <Col md={12}>
               <ControlPanel />
-              <Categories categoryId={ROOT_CATEGORY_NODE_REF} />
-              <div className={styles.addCategoryBlock} onClick={createCategory}>
-                {t('bpmn-designer.add-category')}
-              </div>
+              <ViewBlocks hidden={viewType === ViewTypes.TABLE} />
+              <ViewTable hidden={viewType !== ViewTypes.TABLE} />
             </Col>
           </Row>
         </Container>
@@ -83,14 +80,8 @@ const BPMNDesigner = ({ isMobile, isReady, totalModels, createCategory }) => {
 const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
   isReady: state.bpmn.isReady,
+  viewType: state.bpmn.viewType,
   totalModels: state.bpmn.models.length
 });
 
-const mapDispatchToProps = dispatch => ({
-  createCategory: () => dispatch(createCategory({ parentId: ROOT_CATEGORY_NODE_REF }))
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(BPMNDesigner);
+export default connect(mapStateToProps)(BPMNDesigner);

@@ -1,4 +1,4 @@
-import { DESIGNER_PAGE_CONTEXT, EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
+import { DESIGNER_PAGE_CONTEXT, EDITOR_PAGE_CONTEXT, ViewTypes } from '../constants/bpmn';
 import { t } from '../helpers/export/util';
 
 export class BPMNDesignerService {
@@ -55,5 +55,29 @@ export class BPMNDesignerService {
         title: t('bpmn-designer.import-model')
       }
     ];
+  }
+
+  static getViewPageTypes() {
+    return [
+      {
+        id: 'bpmn-view-switcher-cards',
+        icon: 'icon-tiles',
+        type: ViewTypes.CARDS,
+        title: 'bpmn-designer.view-mode.cards'
+      },
+      {
+        id: 'bpmn-view-switcher-list',
+        icon: 'icon-history',
+        type: ViewTypes.LIST,
+        title: 'bpmn-designer.view-mode.list',
+        hidden: true
+      },
+      {
+        id: 'bpmn-view-switcher-table',
+        icon: 'icon-list',
+        type: ViewTypes.TABLE,
+        title: 'bpmn-designer.view-mode.table'
+      }
+    ].filter(item => !item.hidden);
   }
 }
