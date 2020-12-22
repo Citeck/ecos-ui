@@ -30,15 +30,14 @@ const ViewSwitcher = ({ viewType, setViewType, isMobile }) => {
   return (
     <div className={styles.wrapper}>
       {viewTypes.map(vt => (
-        <>
+        <React.Fragment key={vt.id}>
           <div
-            key={vt.id}
             id={vt.id}
             className={cn(vt.icon, styles.item, { [styles.itemActive]: viewType === vt.type })}
             onClick={() => setViewType(vt.type)}
           />
           {renderTooltipList(vt)}
-        </>
+        </React.Fragment>
       ))}
     </div>
   );

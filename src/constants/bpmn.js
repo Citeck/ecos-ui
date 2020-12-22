@@ -1,3 +1,24 @@
+export const Labels = {
+  TITLE_PAGE: 'bpmn-designer.process-models.header',
+  SHOW_MENU: 'journals.action.show-menu',
+  SHOW_MENU_sm: 'journals.action.show-menu_sm',
+  HIDE_MENU: 'journals.action.hide-menu',
+  HIDE_MENU_sm: 'journals.action.hide-menu_sm',
+  ADD_CATEGORY: 'bpmn-designer.add-category',
+  Columns: {
+    CAN_WRITE: 'Can Write',
+    ID: 'ID',
+    LABEL: 'Label',
+    CREATED: 'Created',
+    CREATOR: 'Creator',
+    MODIFIED: 'Modified',
+    MODIFIER: 'Modifier',
+    DESCRIPTION: 'Description',
+    HAS_THUMBNAIL: 'Has Thumbnail',
+    CATEGORY: 'Category'
+  }
+};
+
 export const ViewTypes = {
   CARDS: 'cards',
   LIST: 'list',

@@ -1,17 +1,18 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 
-import { ROOT_CATEGORY_NODE_REF } from '../../constants/bpmn';
+import { Labels, ROOT_CATEGORY_NODE_REF } from '../../constants/bpmn';
 import { t } from '../../helpers/export/util';
 import { createCategory } from '../../actions/bpmn';
 import Categories from './Categories/Categories';
 
 const ViewBlocks = ({ createCategory, hidden }) => {
   return (
-    <div className={hidden ? 'd-none' : ''}>
+    <div className={classNames('bpmn-designer-view-blocks', { 'd-none': hidden })}>
       <Categories categoryId={ROOT_CATEGORY_NODE_REF} />
-      <div className="bpmn-designer-page__add-category" onClick={createCategory}>
-        {t('bpmn-designer.add-category')}
+      <div className="bpmn-designer-view-blocks__add-category" onClick={createCategory}>
+        {t(Labels.ADD_CATEGORY)}
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Col, Container, Row } from 'reactstrap';
 
 import { t } from '../../helpers/util';
-import { ViewTypes } from '../../constants/bpmn';
+import { Labels, ViewTypes } from '../../constants/bpmn';
 import { IcoBtn } from '../common/btns';
 import { Caption } from '../common/form';
 import ControlPanel from './ControlPanel';
@@ -13,14 +13,6 @@ import ViewBlocks from './ViewBlocks';
 import ViewTable from './ViewTable';
 
 import './style.scss';
-
-const Labels = {
-  TITLE_PAGE: 'bpmn-designer.process-models.header',
-  SHOW_MENU: 'journals.action.show-menu',
-  SHOW_MENU_sm: 'journals.action.show-menu_sm',
-  HIDE_MENU: 'journals.action.hide-menu',
-  HIDE_MENU_sm: 'journals.action.hide-menu_sm'
-};
 
 const BPMNDesigner = ({ isMobile, isReady, viewType }) => {
   if (!isReady) {

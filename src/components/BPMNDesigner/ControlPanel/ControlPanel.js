@@ -26,7 +26,7 @@ const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm }) 
   };
 
   return (
-    <div className="mb-3 bpmn-designer__control-panel">
+    <div className="mb-3 bpmn-designer-control-panel">
       <Row noGutters>
         <Col lg={6} md={12}>
           <Dropdown
@@ -50,7 +50,7 @@ const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm }) 
           />
         </Col>
         <Col lg={6} md={12}>
-          <div className="bpmn-designer__control-panel-right">
+          <div className="bpmn-designer-control-panel__side-right">
             {/*<SortFilter />*/}
             <ViewSwitcher />
           </div>
