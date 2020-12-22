@@ -22,6 +22,7 @@ export const selectStateByKey = createSelector(
       requestResult: get(ownState, 'requestResult', {}),
       identification: get(ownState, 'identification', {}),
       dashboardKeyItems: get(ownState, 'dashboardKeys', []),
+      recordRef: get(ownState, 'recordRef'),
       isDefaultConfig: !isExistValue(get(ownState, 'identification.user'))
     };
   }
@@ -76,4 +77,9 @@ export const selectSelectedWidgetsById = createSelector(
 export const selectOriginalConfig = createSelector(
   selectState,
   ownState => get(ownState, 'originalConfig', [])
+);
+
+export const selectRecordRef = createSelector(
+  selectState,
+  ownState => get(ownState, 'recordRef')
 );

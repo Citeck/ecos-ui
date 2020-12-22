@@ -1,6 +1,7 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 import queryString from 'query-string';
+import get from 'lodash/get';
 
 import {
   getAvailableWidgets,
@@ -16,7 +17,8 @@ import {
   setDashboardKeys,
   setLoading,
   setLoadingKeys,
-  setRequestResultDashboard
+  setRequestResultDashboard,
+  setDashboardData
 } from '../actions/dashboardSettings';
 import { selectIdentificationForSet } from '../selectors/dashboard';
 import { selectIsAdmin, selectUserName } from '../selectors/user';
@@ -26,8 +28,9 @@ import DashboardService from '../services/dashboard';
 import PageService from '../services/PageService';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { CONFIG_VERSION } from '../constants/dashboard';
-import { selectNewVersionConfig, selectOriginalConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
+import { selectNewVersionConfig, selectOriginalConfig, selectRecordRef, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 import DashboardConverter from '../dto/dashboard';
+import { getRefWithAlfrescoPrefix, getSearchParams } from '../helpers/urls';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
@@ -41,7 +44,15 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
   const { key } = payload;
 
   try {
-    const { config, ...result } = yield call(api.dashboard.getDashboardByOneOf, payload);
+    yield put(setDashboardData({ key, recordRef: get(getSearchParams(), 'recordRef') }));
+
+    let { recordRef } = payload;
+
+    if (recordRef) {
+      recordRef = getRefWithAlfrescoPrefix(recordRef);
+    }
+
+    const { config, ...result } = yield call(api.dashboard.getDashboardByOneOf, { ...payload, recordRef });
     const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
     const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
     const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
@@ -49,6 +60,10 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
     const webConfigs = DashboardSettingsConverter.getSettingsForWeb(newConfig, widgetsById, migratedConfig.version);
 
     webConfigs.identification = DashboardConverter.getKeyInfoDashboardForWeb(data).identification;
+
+    if (recordRef && !webConfigs.identification.key) {
+      webConfigs.identification.key = recordRef;
+    }
 
     yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config }));
     yield put(getAvailableWidgets({ type: data.type, key }));
@@ -77,6 +92,13 @@ function* doGetDashboardKeys({ api, logger }, { payload }) {
     yield put(setLoadingKeys({ status: true, key: payload.key }));
 
     const keys = yield call(api.dashboard.getDashboardTypes, payload);
+    const recordRef = yield select(state => selectRecordRef(state, payload.key));
+
+    if (recordRef) {
+      const displayName = get(yield call(api.dashboard.getTitleInfo, recordRef), 'displayName');
+
+      keys.unshift({ key: recordRef, displayName });
+    }
 
     yield put(setDashboardKeys({ keys, key: payload.key }));
   } catch (e) {
@@ -130,6 +152,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
     const newIdentification = payload.newIdentification || {};
     const isAdmin = yield select(selectIsAdmin);
     const identificationData = { ...identification, ...newIdentification };
+    let recordRef = yield select(state => selectRecordRef(state, payload.key));
 
     if (!isAdmin) {
       const user = yield select(state => {
@@ -143,6 +166,12 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       identificationData.user = user;
     }
 
+    if (recordRef && identificationData.key === recordRef) {
+      recordRef = getRefWithAlfrescoPrefix(recordRef);
+    } else {
+      recordRef = '';
+    }
+
     const originalConfig = yield select(state => selectOriginalConfig(state, payload.key));
     const dashboardResult = yield call(api.dashboard.saveDashboardConfig, {
       config: {
@@ -150,7 +179,8 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
         [CONFIG_VERSION]: DashboardSettingsConverter.getNewSettingsConfigForServer(payload),
         version: CONFIG_VERSION
       },
-      identification: identificationData
+      identification: identificationData,
+      recordRef
     });
 
     const parseDashboard = DashboardService.parseRequestResult(dashboardResult);
