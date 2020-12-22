@@ -60,12 +60,11 @@ export class TimesheetCommonApi extends RecordService {
     ).then(res => res);
   };
 
-  // TODO: Need to get rid of the generators in API
-  getTimesheetCalendarEventsList = function*({ month, year, userNames }) {
+  getTimesheetCalendarEventsList = async ({ month, year, userNames }) => {
     const events = {};
 
     for (let userName of userNames) {
-      const res = yield this.getTimesheetCalendarEventsByUserName({ month, year, userName });
+      const res = await this.getTimesheetCalendarEventsByUserName({ month, year, userName });
 
       events[userName] = res.records || [];
     }

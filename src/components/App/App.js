@@ -68,11 +68,11 @@ class App extends Component {
 
   handleCustomEvent = event => {
     const {
-      params: { link = '' }
+      params: { link = '', rerenderPage, replaceHistory }
     } = event;
     const { isShowTabs, isMobile, replace, setTab, updateTab } = this.props;
 
-    if (!(isShowTabs && !this.isOnlyContent && !isMobile)) {
+    if (!(isShowTabs && !this.isOnlyContent && !isMobile) || (rerenderPage && replaceHistory)) {
       const { url, query } = queryString.parseUrl(link);
 
       pushHistoryLink(window, {

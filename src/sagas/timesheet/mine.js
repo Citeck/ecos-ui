@@ -31,7 +31,7 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
     const userName = yield select(selectUserName);
     const { currentDate } = payload;
 
-    const statuses = yield api.timesheetCommon.getTimesheetStatusList({
+    const statuses = yield call(api.timesheetCommon.getTimesheetStatusList, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userNames: [userName]
@@ -39,12 +39,12 @@ function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
 
     const status = CommonTimesheetConverter.getStatusForWeb(statuses);
 
-    const calendar = yield api.timesheetCommon.getTimesheetCalendarEventsList({
+    const calendar = yield call(api.timesheetCommon.getTimesheetCalendarEventsList, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userNames: [userName]
     });
-    const delegationStatus = yield api.timesheetDelegated.getDelegationInfo({ user: userName, delegationType: DelegationTypes.FILL });
+    const delegationStatus = yield call(api.timesheetDelegated.getDelegationInfo, { user: userName, delegationType: DelegationTypes.FILL });
     const deputy = DelegationTimesheetConverter.getDelegationInfo(delegationStatus.records);
     const calendarEvents = calendar[userName] || [];
     const mergedEvents = CommonTimesheetConverter.getCalendarEventsForWeb(calendarEvents);
@@ -60,7 +60,7 @@ function* sagaGetStatus({ api, logger }, { payload }) {
     const userName = yield select(selectUserName);
     const { currentDate } = payload;
 
-    const statuses = yield api.timesheetCommon.getTimesheetStatusList({
+    const statuses = yield call(api.timesheetCommon.getTimesheetStatusList, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userNames: [userName]
@@ -167,7 +167,7 @@ function* sagaDelegateTo({ api, logger }, { payload }) {
   const userName = yield select(selectUserName);
 
   try {
-    yield api.timesheetDelegated.setRecord({
+    yield call(api.timesheetDelegated.setRecord, {
       userName,
       deputyName: deputy.userName,
       delegationType: payload.delegationType
@@ -185,7 +185,7 @@ function* sagaRemoveDelegation({ api, logger }) {
   const deputyName = yield select(selectTMineDelegatedTo);
 
   try {
-    yield api.timesheetDelegated.removeRecord({ userName, deputyName, delegationType: DelegationTypes.FILL });
+    yield call(api.timesheetDelegated.removeRecord, { userName, deputyName, delegationType: DelegationTypes.FILL });
 
     yield put(setDelegatedTo(DelegationTimesheetConverter.getDeputyData()));
   } catch (e) {
