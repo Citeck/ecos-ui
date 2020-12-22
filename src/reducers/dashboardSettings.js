@@ -15,7 +15,8 @@ import {
   setDashboardKeys,
   setLoading,
   setLoadingKeys,
-  setRequestResultDashboard
+  setRequestResultDashboard,
+  setDashboardData
 } from '../actions/dashboardSettings';
 
 export const initialState = {
@@ -34,7 +35,8 @@ export const initialState = {
     status: '',
     dashboardId: '',
     saveWay: ''
-  }
+  },
+  recordRef: ''
 };
 
 Object.freeze(initialState);
@@ -159,6 +161,17 @@ export default handleActions(
         [key]: {
           ...state[key],
           isLoadingKeys: payload.status
+        }
+      };
+    },
+    [setDashboardData]: (state, { payload }) => {
+      const { key, ...data } = payload;
+
+      return {
+        ...state,
+        [key]: {
+          ...state[key],
+          ...data
         }
       };
     }

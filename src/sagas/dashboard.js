@@ -4,7 +4,7 @@ import { NotificationManager } from 'react-notifications';
 
 import { RequestStatuses } from '../constants';
 import { t } from '../helpers/util';
-import { createOldVersionUrlDocument } from '../helpers/urls';
+import { createOldVersionUrlDocument, getRefWithAlfrescoPrefix } from '../helpers/urls';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -61,7 +61,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
       return;
     }
 
-    const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef });
+    const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef: getRefWithAlfrescoPrefix(recordRef) });
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
     const webConfigs = yield _parseConfig({ api, logger }, { config: result.config, recordRef });
     const isReset = yield select(selectResetStatus);
