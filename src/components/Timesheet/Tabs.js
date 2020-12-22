@@ -25,11 +25,11 @@ class Tabs extends React.Component {
   };
 
   handleClickTabItem = (tab, index) => {
-    if (!tab.isAvailable) {
+    if (!tab.isAvailable || tab.isActive) {
       return;
     }
 
-    this.props.onClick(index, tab.link);
+    this.props.onClick(tab.link);
   };
 
   renderTab = (tab, index) => {
