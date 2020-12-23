@@ -18,6 +18,11 @@
     height: 100%;
   }
 
+  &__loader {
+    position: relative;
+    height: 100px;
+  }
+
   &__content {
     flex: auto;
   }
@@ -87,7 +92,7 @@
   }
 }
 
-.bpmn-designer-view-blocks {
+.bpmn-designer-view-models {
   &__add-category {
     background: $color-gray-1;
     border-radius: $border-radius-large;
@@ -105,6 +110,6 @@
   }
 }
 
-.bpmn-designer-view-table {
+.bpmn-designer-view-journal {
   padding: 0;
 }

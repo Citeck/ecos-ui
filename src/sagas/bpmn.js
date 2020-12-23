@@ -1,28 +1,30 @@
 import React from 'react';
 import { delay } from 'redux-saga';
-import { select, put, takeLatest, call } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
 import ImportModelForm from '../components/BPMNDesigner/ImportModelForm';
 import {
-  initRequest,
-  setCategories,
-  setModels,
-  setIsReady,
-  saveCategoryRequest,
-  setCategoryData,
-  deleteCategoryRequest,
   deleteCategory,
-  saveProcessModelRequest,
-  showModelCreationForm,
-  showImportModelForm,
+  deleteCategoryRequest,
+  fetchSectionList,
   importProcessModelRequest,
+  initRequest,
+  saveCategoryRequest,
   savePagePosition,
+  saveProcessModelRequest,
+  setCategories,
   setCategoryCollapseState,
-  setViewType
+  setCategoryData,
+  setIsReady,
+  setModels,
+  setSectionList,
+  setViewType,
+  showImportModelForm,
+  showModelCreationForm
 } from '../actions/bpmn';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
-import { getPagePositionState, savePagePositionState, removePagePositionState } from '../helpers/bpmn';
+import { getPagePositionState, removePagePositionState, savePagePositionState } from '../helpers/bpmn';
 import { t } from '../helpers/util';
 import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
 
@@ -30,6 +32,8 @@ function* doInitRequest({ api, logger }) {
   try {
     const categories = yield call(api.bpmn.fetchCategories);
     const models = yield call(api.bpmn.fetchProcessModels);
+
+    yield put(fetchSectionList());
     yield put(setCategories(categories));
     yield put(setModels(models));
 
@@ -243,6 +247,15 @@ function* doSavePagePosition({ api, logger }, action) {
   }
 }
 
+function* doFetchSectionList({ api, logger }, action) {
+  try {
+    const list = yield call(api.bpmn.getSystemJournals);
+    yield put(setSectionList(list));
+  } catch (e) {
+    logger.error('[bpmn doFetchSectionList saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initRequest().type, doInitRequest, ea);
   yield takeLatest(saveCategoryRequest().type, doSaveCategoryRequest, ea);
@@ -252,6 +265,7 @@ function* saga(ea) {
   yield takeLatest(showModelCreationForm().type, doShowModelCreationForm, ea);
   yield takeLatest(showImportModelForm().type, doShowImportModelForm, ea);
   yield takeLatest(savePagePosition().type, doSavePagePosition, ea);
+  yield takeLatest(fetchSectionList().type, doFetchSectionList, ea);
 }
 
 export default saga;

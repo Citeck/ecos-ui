@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Col, Row } from 'reactstrap';
 
@@ -8,7 +7,6 @@ import { Labels } from '../../../constants/bpmn';
 import { showImportModelForm, showModelCreationForm } from '../../../actions/bpmn';
 import { BPMNDesignerService } from '../../../services/BPMNDesignerService';
 import { Dropdown } from '../../common/form';
-import { IcoBtn } from '../../common/btns';
 import Search from './Search';
 import ViewSwitcher from './ViewSwitcher';
 
@@ -42,14 +40,6 @@ const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm, to
             controlClassName="ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
           />
           <Search />
-          <IcoBtn
-            icon={'icon-reload'}
-            className={classNames('ml-4', {
-              'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue': !isMobile,
-              'ecos-btn_i ecos-btn_white': isMobile
-            })}
-            onClick={() => {}}
-          />
         </Col>
         <Col lg={6} md={12}>
           <div className="bpmn-designer-control-panel__side-right">

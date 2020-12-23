@@ -37,7 +37,7 @@ export default class CollapsibleList extends Component {
           css={{
             headerClassName: 'panel-bar__header_full panel-bar__header_narrow ',
             headerLabelClassName: 'panel-bar__header-label_narrow panel-bar__header-label_bold',
-            contentClassName: 'collapsible-list_panel-bar-header'
+            contentClassName: children ? 'collapsible-list_panel-bar-header' : ''
           }}
           collapseTheme={{
             collapse: 'collapsible-list__collapse'

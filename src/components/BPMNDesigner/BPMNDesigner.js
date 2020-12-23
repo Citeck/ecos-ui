@@ -4,21 +4,18 @@ import classNames from 'classnames';
 import { Col, Container, Row } from 'reactstrap';
 
 import { t } from '../../helpers/util';
-import { Labels, ViewTypes } from '../../constants/bpmn';
+import { Labels } from '../../constants/bpmn';
+import { Loader } from '../common';
 import { IcoBtn } from '../common/btns';
 import { Caption } from '../common/form';
-import ControlPanel from './ControlPanel';
-import RightMenu from './RightMenu';
-import ViewBlocks from './ViewBlocks';
-import ViewTable from './ViewTable';
+
+import SectionList from './SectionList';
+import ViewModels from './ViewModels';
+import ViewJournal from './ViewJournal';
 
 import './style.scss';
 
-const BPMNDesigner = ({ isMobile, isReady, viewType }) => {
-  if (!isReady) {
-    return null;
-  }
-
+const BPMNDesigner = ({ isMobile, isReady, activeSection }) => {
   const [isOpenMenu, setOpenMenu] = useState(false);
 
   return (
@@ -42,14 +39,19 @@ const BPMNDesigner = ({ isMobile, isReady, viewType }) => {
               </IcoBtn>
             </Col>
           </Row>
-
-          <Row>
-            <Col md={12}>
-              <ControlPanel />
-              <ViewBlocks hidden={viewType === ViewTypes.TABLE} />
-              <ViewTable hidden={viewType !== ViewTypes.TABLE} />
-            </Col>
-          </Row>
+          {!isReady && (
+            <div className="common-container_white bpmn-designer-page__loader">
+              <Loader />
+            </div>
+          )}
+          {isReady && (
+            <Row>
+              <Col md={12}>
+                <ViewModels hidden={activeSection.journalId} />
+                <ViewJournal hidden={!activeSection.journalId} />
+              </Col>
+            </Row>
+          )}
         </Container>
       </div>
       <div className={classNames('bpmn-designer-page__menu', { 'bpmn-designer-page__menu_open': isOpenMenu })}>
@@ -62,7 +64,7 @@ const BPMNDesigner = ({ isMobile, isReady, viewType }) => {
           >
             {isMobile ? t(Labels.HIDE_MENU_sm) : t(Labels.HIDE_MENU)}
           </IcoBtn>
-          <RightMenu />
+          <SectionList />
         </div>
       </div>
     </div>
@@ -72,7 +74,7 @@ const BPMNDesigner = ({ isMobile, isReady, viewType }) => {
 const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
   isReady: state.bpmn.isReady,
-  viewType: state.bpmn.viewType
+  activeSection: state.bpmn.activeSection || {}
 });
 
 export default connect(mapStateToProps)(BPMNDesigner);

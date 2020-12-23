@@ -1,5 +1,6 @@
 import { RecordService } from './recordService';
 import { ROOT_CATEGORY_NODE_REF } from '../constants/bpmn';
+import Records from '../components/Records';
 
 export class BpmnApi extends RecordService {
   fetchCategories = () => {
@@ -167,5 +168,23 @@ export class BpmnApi extends RecordService {
     return this.delete({
       record: id
     });
+  };
+
+  getSystemJournals = () => {
+    //todo no api
+    return [
+      {
+        journalId: 'ecos-forms',
+        label: 'bpmn-designer.right-menu.forms'
+      }
+    ];
+
+    return Records.query(
+      {
+        sourceId: 'uiserv/journal',
+        language: 'system-journals'
+      },
+      { id: 'id', label: '?disp' }
+    ).then(res => res.records);
   };
 }

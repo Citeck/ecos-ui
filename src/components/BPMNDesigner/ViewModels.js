@@ -6,12 +6,14 @@ import { Labels, ROOT_CATEGORY_NODE_REF } from '../../constants/bpmn';
 import { t } from '../../helpers/export/util';
 import { createCategory } from '../../actions/bpmn';
 import Categories from './Categories/Categories';
+import ControlPanel from './ControlPanel/ControlPanel';
 
-const ViewBlocks = ({ createCategory, hidden }) => {
+const ViewModels = ({ createCategory, hidden }) => {
   return (
-    <div className={classNames('bpmn-designer-view-blocks', { 'd-none': hidden })}>
+    <div className={classNames('bpmn-designer-view-models', { 'd-none': hidden })}>
+      <ControlPanel />
       <Categories categoryId={ROOT_CATEGORY_NODE_REF} />
-      <div className="bpmn-designer-view-blocks__add-category" onClick={createCategory}>
+      <div className="bpmn-designer-view-models__add-category" onClick={createCategory}>
         {t(Labels.ADD_CATEGORY)}
       </div>
     </div>
@@ -25,4 +27,4 @@ const mapDispatchToProps = dispatch => ({
 export default connect(
   null,
   mapDispatchToProps
-)(ViewBlocks);
+)(ViewModels);

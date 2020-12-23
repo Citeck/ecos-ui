@@ -1,0 +1,10 @@
+@import '../../../styles/constants';
+
+.item {
+  font-weight: $font-weight-bold;
+  border-radius: $border-radius-standard;
+  font-size: $font-size-standard;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}

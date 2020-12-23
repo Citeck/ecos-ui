@@ -699,7 +699,7 @@
   "message.loginautherror": "Ваши данные аутентификации неверны, или сайт Alfresco в данный момент недоступен.",
   "message.request-join-success": "Запрос на присоединение к сайту \"{{site}}\" отправлен. Сейчас будет выполнен обратный переход к вашей домашней странице.",
   "message.request-join-success-title": "Запрос отправлен",
-  "page-tabs.bpmn-designer": "Редактор бизнес-процессов",
+  "page-tabs.bpmn-designer": "Модели бизнес процессов",
   "page-tabs.dashboard-settings": "Настройка",
   "page-tabs.home-page": "Домашняя страница",
   "page-tabs.journal": "Журнал",

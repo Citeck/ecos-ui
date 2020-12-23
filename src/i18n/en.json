@@ -699,7 +699,7 @@
   "message.loginautherror": "Your authentication details have not been recognized or Alfresco may not be available at this time.",
   "message.request-join-success": "Request to join site \"{{site}}\" successfully sent. You'll now be returned to your personal dashboard.",
   "message.request-join-success-title": "Request Sent",
-  "page-tabs.bpmn-designer": "Business process editor",
+  "page-tabs.bpmn-designer": "Business process models",
   "page-tabs.dashboard-settings": "Settings",
   "page-tabs.home-page": "Home page",
   "page-tabs.journal": "Journal",
