@@ -53,7 +53,7 @@ const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm, to
         </Col>
         <Col lg={6} md={12}>
           <div className="bpmn-designer-control-panel__side-right">
-            <div className="bpmn-designer-control-panel__counter">{`${totalModels} ${t(Labels.MODELS)}`}</div>
+            <div className="bpmn-designer-control-panel__counter">{`${t(Labels.TOTAL)} ${totalModels}`}</div>
             {/*<SortFilter />*/}
             <ViewSwitcher />
           </div>

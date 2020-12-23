@@ -10,13 +10,13 @@ export class BPMNDesignerService {
       {
         href: DESIGNER_PAGE_CONTEXT,
         icon: 'icon-models',
-        label: t('bpmn-designer.right-menu.process-models'),
+        label: t(Labels.BaseMenu.PROCESS_MODELS),
         order: 1
       },
       {
         href: `${EDITOR_PAGE_CONTEXT}#/forms`,
         icon: 'icon-forms',
-        label: t('bpmn-designer.right-menu.forms'),
+        label: t(Labels.BaseMenu.FORMS),
         order: 3
       }
     ];
@@ -26,19 +26,19 @@ export class BPMNDesignerService {
         {
           href: `${EDITOR_PAGE_CONTEXT}#/casemodels`,
           icon: 'icon-case-models',
-          label: t('bpmn-designer.right-menu.case-models'),
+          label: t(Labels.BaseMenu.CASE_MODELS),
           order: 2
         },
         {
           href: `${EDITOR_PAGE_CONTEXT}#/decision-tables`,
           icon: 'icon-decision-tables',
-          label: t('bpmn-designer.right-menu.decision-tables'),
+          label: t(Labels.BaseMenu.DECISION_TABLES),
           order: 4
         },
         {
           href: `${EDITOR_PAGE_CONTEXT}#/apps`,
           icon: 'icon-apps',
-          label: t('bpmn-designer.right-menu.apps'),
+          label: t(Labels.BaseMenu.APPS),
           order: 5
         }
       );
@@ -51,11 +51,11 @@ export class BPMNDesignerService {
     return [
       {
         id: 'bpmn-designer-create-model',
-        title: t('bpmn-designer.create-model')
+        title: t(Labels.CreateVariants.CREATE_MODEL)
       },
       {
         id: 'bpmn-designer-import-model',
-        title: t('bpmn-designer.import-model')
+        title: t(Labels.CreateVariants.IMPORT_MODEL)
       }
     ];
   }
@@ -66,20 +66,20 @@ export class BPMNDesignerService {
         id: 'bpmn-view-switcher-cards',
         icon: 'icon-tiles',
         type: ViewTypes.CARDS,
-        title: 'bpmn-designer.view-mode.cards'
+        title: Labels.Views.CARDS
       },
       {
         id: 'bpmn-view-switcher-list',
         icon: 'icon-history',
         type: ViewTypes.LIST,
-        title: 'bpmn-designer.view-mode.list',
+        title: Labels.Views.LIST,
         hidden: true
       },
       {
         id: 'bpmn-view-switcher-table',
         icon: 'icon-list',
         type: ViewTypes.TABLE,
-        title: 'bpmn-designer.view-mode.table'
+        title: Labels.Views.TABLE
       }
     ].filter(item => !item.hidden);
   }

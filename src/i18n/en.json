@@ -79,6 +79,11 @@
   "bpmn-designer.view-mode.cards": "Cards",
   "bpmn-designer.view-mode.list": "List",
   "bpmn-designer.view-mode.table": "Table",
+  "bpmn-designer.sidebar.show": "Show menu",
+  "bpmn-designer.sidebar.show-sm": "Menu",
+  "bpmn-designer.sidebar.hide": "Hide menu",
+  "bpmn-designer.sidebar.hide-sm": "Hide",
+
   "button.close-modal": "Close",
   "button.export": "Export",
   "button.leave-site.cancel-label": "Cancel",

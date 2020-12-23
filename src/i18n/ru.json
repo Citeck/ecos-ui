@@ -79,6 +79,11 @@
   "bpmn-designer.view-mode.cards": "Плитка",
   "bpmn-designer.view-mode.list": "Список",
   "bpmn-designer.view-mode.table": "Таблица",
+  "bpmn-designer.sidebar.show": "Показать меню",
+  "bpmn-designer.sidebar.show-sm": "Меню",
+  "bpmn-designer.sidebar.hide": "Скрыть меню",
+  "bpmn-designer.sidebar.hide-sm": "Скрыть",
+
   "button.close-modal": "Закрыть",
   "button.export": "Экспорт",
   "button.leave-site.cancel-label": "Отмена",

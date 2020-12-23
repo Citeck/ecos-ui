@@ -1,11 +1,11 @@
 export const Labels = {
   TITLE_PAGE: 'bpmn-designer.process-models.header',
-  SHOW_MENU: 'journals.action.show-menu',
-  SHOW_MENU_sm: 'journals.action.show-menu_sm',
-  HIDE_MENU: 'journals.action.hide-menu',
-  HIDE_MENU_sm: 'journals.action.hide-menu_sm',
+  SHOW_MENU: 'bpmn-designer.sidebar.show',
+  SHOW_MENU_sm: 'bpmn-designer.sidebar.show-sm',
+  HIDE_MENU: 'bpmn-designer.sidebar.hide',
+  HIDE_MENU_sm: 'bpmn-designer.sidebar.hide-sm',
   ADD_CATEGORY: 'bpmn-designer.add-category',
-  MODELS: 'models',
+  TOTAL: 'bpmn-designer.total',
   Columns: {
     CAN_WRITE: 'Can Write',
     ID: 'ID',
@@ -17,6 +17,22 @@ export const Labels = {
     DESCRIPTION: 'Description',
     HAS_THUMBNAIL: 'Has Thumbnail',
     CATEGORY: 'Category'
+  },
+  BaseMenu: {
+    PROCESS_MODELS: 'bpmn-designer.right-menu.process-models',
+    FORMS: 'bpmn-designer.right-menu.forms',
+    CASE_MODELS: 'bpmn-designer.right-menu.case-models',
+    DECISION_TABLES: 'bpmn-designer.right-menu.decision-tables',
+    APPS: 'bpmn-designer.right-menu.apps'
+  },
+  CreateVariants: {
+    CREATE_MODEL: 'bpmn-designer.create-model',
+    IMPORT_MODEL: 'bpmn-designer.import-model'
+  },
+  Views: {
+    CARDS: 'bpmn-designer.view-mode.cards',
+    LIST: 'bpmn-designer.view-mode.list',
+    TABLE: 'bpmn-designer.view-mode.table'
   }
 };
 
