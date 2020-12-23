@@ -3,6 +3,7 @@
   "success": "Success",
   "warning": "Warning",
   "waiting": "Waiting",
+  "load-data-error": "Failure to load data",
   "actions.document.download": "Download",
   "aggregation.columns": "Aggregation column",
   "aggregation.type": "Aggregation type",

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { t } from '../../../helpers/util';
 import { InfoText } from '../index';
 
 export class ErrorCell extends React.Component {
@@ -9,13 +10,10 @@ export class ErrorCell extends React.Component {
   };
 
   static defaultProps = {
-    text: "Data hasn't loaded"
+    text: t('load-data-error')
   };
 
-  constructor(props) {
-    super(props);
-    this.state = { error: null, errorInfo: null };
-  }
+  state = { error: null, errorInfo: null };
 
   componentDidCatch(error, errorInfo) {
     console.warn(error, errorInfo);
