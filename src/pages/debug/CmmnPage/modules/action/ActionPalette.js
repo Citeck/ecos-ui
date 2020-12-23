@@ -10,16 +10,16 @@ export default class ActionPalette {
     const { create, elementFactory } = this;
 
     function createServiceTask(event) {
-      const shape = elementFactory.createShape({ type: 'cmmn:Task' });
+      const shape = elementFactory.createPlanItemShape('cmmn:Task');
 
       create.start(event, shape);
     }
 
     return {
       'create.action': {
-        group: 'activity',
+        group: 'custom',
         className: 'cmmn-icon-bpmn-io',
-        title: 'Create CUSTOM action',
+        title: 'Create action',
         action: {
           dragstart: createServiceTask,
           click: createServiceTask

@@ -15,6 +15,7 @@ export default class ActionContextPad {
 
     function appendServiceTask(event, element) {
       if (autoPlace) {
+        console.warn('appendServiceTask => ', { elementFactory });
         const shape = elementFactory.createShape({ type: 'cmmn:Task' });
 
         autoPlace.append(element, shape);
@@ -24,7 +25,9 @@ export default class ActionContextPad {
     }
 
     function appendServiceTaskStart(event) {
-      const shape = elementFactory.createShape({ type: 'cmmn:Task' });
+      console.warn('appendServiceTaskStart => ', { elementFactory });
+      // const shape = elementFactory.createShape({ type: 'cmmn:Task' });
+      const shape = elementFactory.createPlanItemShape('cmmn:Task');
 
       create.start(event, shape, element);
     }
