@@ -72,8 +72,7 @@ const BPMNDesigner = ({ isMobile, isReady, viewType }) => {
 const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
   isReady: state.bpmn.isReady,
-  viewType: state.bpmn.viewType,
-  totalModels: state.bpmn.models.length
+  viewType: state.bpmn.viewType
 });
 
 export default connect(mapStateToProps)(BPMNDesigner);

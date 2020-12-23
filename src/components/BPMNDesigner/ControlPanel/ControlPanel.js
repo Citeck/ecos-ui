@@ -3,6 +3,8 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Col, Row } from 'reactstrap';
 
+import { t } from '../../../helpers/export/util';
+import { Labels } from '../../../constants/bpmn';
 import { showImportModelForm, showModelCreationForm } from '../../../actions/bpmn';
 import { BPMNDesignerService } from '../../../services/BPMNDesignerService';
 import { Dropdown } from '../../common/form';
@@ -12,7 +14,7 @@ import ViewSwitcher from './ViewSwitcher';
 
 import '../style.scss';
 
-const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm }) => {
+const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm, totalModels }) => {
   const createVariants = BPMNDesignerService.getCreateVariants();
 
   const handlerCreateVariant = variant => {
@@ -51,6 +53,7 @@ const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm }) 
         </Col>
         <Col lg={6} md={12}>
           <div className="bpmn-designer-control-panel__side-right">
+            <div className="bpmn-designer-control-panel__counter">{`${totalModels} ${t(Labels.MODELS)}`}</div>
             {/*<SortFilter />*/}
             <ViewSwitcher />
           </div>
@@ -61,7 +64,8 @@ const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm }) 
 };
 
 const mapStateToProps = state => ({
-  isMobile: state.view.isMobile
+  isMobile: state.view.isMobile,
+  totalModels: state.bpmn.models.length
 });
 
 const mapDispatchToProps = dispatch => ({

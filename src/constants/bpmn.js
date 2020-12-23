@@ -5,6 +5,7 @@ export const Labels = {
   HIDE_MENU: 'journals.action.hide-menu',
   HIDE_MENU_sm: 'journals.action.hide-menu_sm',
   ADD_CATEGORY: 'bpmn-designer.add-category',
+  MODELS: 'models',
   Columns: {
     CAN_WRITE: 'Can Write',
     ID: 'ID',

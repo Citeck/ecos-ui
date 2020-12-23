@@ -78,6 +78,12 @@
   &__side-right {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+  }
+
+  &__counter {
+    color: $text-color-gray;
+    font-weight: $font-weight-semi-bold;
   }
 }
 
@@ -97,4 +103,8 @@
       background-color: $color-gray-2;
     }
   }
+}
+
+.bpmn-designer-view-table {
+  padding: 0;
 }
