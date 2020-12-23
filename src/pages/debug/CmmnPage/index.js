@@ -1,23 +1,12 @@
 import React, { Component } from 'react';
 import CmmnModeler from 'cmmn-js/lib/Modeler';
-// import CmmnModeler from 'bpmn-js/lib/Modeler';
 
 import customModuleAction from './modules/action';
-
-// import CustomModeler from './Modeler';
-
-// import * as PaletteProvider from 'cmmn-js/lib/features/palette/PaletteProvider';
-// import * as CmmnRenderer from 'cmmn-js/lib/draw/CmmnRenderer';
-
-// import ActionDrawModule from './modules/action/draw';
-// import ActionPaletteProvider from './modules/action/palette';
 
 import 'cmmn-js/dist/assets/diagram-js.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-codes.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-embedded.css';
-
-// import 'bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css';
 
 const res = `
 <?xml version="1.0" encoding="UTF-8"?>
@@ -43,52 +32,6 @@ const res = `
   </cmmndi:CMMNDI>
 </cmmn:definitions>
 `;
-// const originPaletteEntries = PaletteProvider.prototype.getPaletteEntries;
-// const originDrawShape = CmmnRenderer.prototype.drawShape;
-
-// PaletteProvider.prototype.getPaletteEntries = function(element) {
-//   const actions = originPaletteEntries.call(this, element);
-//   const elementFactory = this._elementFactory;
-//   const create = this._create;
-//
-//   function createPlanItem(type, group, className, title) {
-//     const shortType = type.replace(/^cmmn:/, '');
-//
-//     function createListener(event) {
-//       create.start(event, elementFactory.createPlanItemShape(type));
-//     }
-//
-//     return {
-//       group: group,
-//       className: className,
-//       title: title || 'Create ' + shortType,
-//       action: {
-//         dragstart: createListener,
-//         click: createListener
-//       }
-//     };
-//   }
-//
-//   actions['create.action'] = createPlanItem('cmmn:Task', 'planItem', 'cmmn-icon-bpmn-io')
-//
-//   // actions.test = {
-//   //   group: 'case.action',
-//   //   className: 'cmmn-icon-bpmn-io',
-//   //   title: 'Create Action',
-//   //   action: {
-//   //     dragstart: createCaseFileItem,
-//   //     click: createCaseFileItem
-//   //   }
-//   // };
-//
-//   return actions;
-// };
-//
-// CmmnRenderer.prototype.drawShape = function(parent, element) {
-//   console.warn({ parent, element });
-//
-//   originDrawShape.call(this, parent, element);
-// };
 
 class CmmnPage extends Component {
   containerRef = React.createRef();
@@ -109,18 +52,6 @@ class CmmnPage extends Component {
       additionalModules: [customModuleAction]
     });
 
-    // const viewer = new CustomModeler({
-    //   container,
-    //   // additionalModules: [
-    //     // ActionDrawModule,
-    //     // ActionPaletteProvider
-    //     // resizeAllModule,
-    //     // colorPickerModule,
-    //     // nyanDrawModule,
-    //     // nyanPaletteModule
-    //   // ]
-    // });
-
     viewer.importXML(res, function(err) {
       if (err) {
         console.error('error rendering', err);
@@ -131,12 +62,7 @@ class CmmnPage extends Component {
   };
 
   render() {
-    return (
-      <>
-        <div ref={this.containerRef} style={{ width: '100vw', height: '100vh' }} />
-        <div id="js-properties-panel" />
-      </>
-    );
+    return <div ref={this.containerRef} style={{ width: '100vw', height: '100vh' }} />;
   }
 }
 

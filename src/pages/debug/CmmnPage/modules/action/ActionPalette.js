@@ -10,6 +10,7 @@ export default class ActionPalette {
     const { create, elementFactory } = this;
 
     function createServiceTask(event) {
+      // const shape = elementFactory.createPlanItemShape('cmmn:Task');
       const shape = elementFactory.createPlanItemShape('cmmn:Task');
 
       create.start(event, shape);
