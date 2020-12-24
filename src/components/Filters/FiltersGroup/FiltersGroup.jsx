@@ -42,8 +42,6 @@ export default class FiltersGroup extends Component {
     const filter = this.props.group.filters[index];
     const predicateData = getPredicate(predicate);
 
-    console.warn({ filter, predicate, predicateData });
-
     if (PREDICATE_LIST_WITH_CLEARED_VALUES.includes(filter.predicate.t) || PREDICATE_LIST_WITH_CLEARED_VALUES.includes(predicate)) {
       filter.predicate.setVal(predicateData.fixedValue || '');
     }

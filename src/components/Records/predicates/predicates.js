@@ -181,7 +181,7 @@ export function getPredicate(value) {
   const predicate = allPredicates.find(item => item.value === value);
 
   if (predicate === undefined || value === undefined) {
-    return null;
+    return {};
   }
 
   return predicate;
@@ -269,22 +269,18 @@ export function getPredicateInput(field, sourceId, metaRecord, predicate = {}) {
         return {
           component: Input,
           defaultValue: '',
-          getProps: ({ predicateValue, changePredicateValue, applyFilters }) => {
-            console.warn({ predicateValue, changePredicateValue, applyFilters });
-
-            return {
-              className: 'ecos-input_narrow',
-              value: predicateValue,
-              onChange: function(e) {
-                changePredicateValue(e.target.value);
-              },
-              onKeyDown: function(e) {
-                if (e.key === 'Enter' && typeof applyFilters === 'function') {
-                  applyFilters();
-                }
+          getProps: ({ predicateValue, changePredicateValue, applyFilters }) => ({
+            className: 'ecos-input_narrow',
+            value: predicateValue,
+            onChange: function(e) {
+              changePredicateValue(e.target.value);
+            },
+            onKeyDown: function(e) {
+              if (e.key === 'Enter' && typeof applyFilters === 'function') {
+                applyFilters();
               }
-            };
-          }
+            }
+          })
         };
       }
 
