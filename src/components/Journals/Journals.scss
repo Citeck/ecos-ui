@@ -31,6 +31,7 @@
           border-radius: 50%;
           padding: 0;
         }
+
         &:disabled {
           background: $color-gray-6;
         }
@@ -69,6 +70,10 @@
 
   &-group {
     display: grid;
+
+    &:empty {
+      display: none;
+    }
   }
 }
 
@@ -135,6 +140,10 @@
 .ecos-journal__footer {
   width: 100%;
   margin-top: 5px;
+
+  &:empty {
+    display: none;
+  }
 }
 
 .ecos-journal_right {

@@ -117,4 +117,8 @@
 
 .bpmn-designer-view-journal {
   padding: 0;
+
+  &__body.ecos-journal__body {
+    padding: 0;
+  }
 }

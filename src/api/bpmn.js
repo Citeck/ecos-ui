@@ -175,7 +175,13 @@ export class BpmnApi extends RecordService {
     return [
       {
         journalId: 'ecos-forms',
-        label: 'bpmn-designer.right-menu.forms'
+        label: 'bpmn-designer.right-menu.forms',
+        type: 'JOURNAL'
+      },
+      {
+        journalId: 'ecos-types',
+        label: 'Типы',
+        type: 'JOURNAL'
       }
     ];
 

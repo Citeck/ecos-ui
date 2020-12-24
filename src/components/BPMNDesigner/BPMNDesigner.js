@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Col, Container, Row } from 'reactstrap';
+import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../helpers/util';
-import { Labels } from '../../constants/bpmn';
+import { Labels, SectionTypes } from '../../constants/bpmn';
 import { Loader } from '../common';
 import { IcoBtn } from '../common/btns';
 import { Caption } from '../common/form';
@@ -44,11 +45,11 @@ const BPMNDesigner = ({ isMobile, isReady, activeSection }) => {
               <Loader />
             </div>
           )}
-          {isReady && (
+          {isReady && !isEmpty(activeSection) && (
             <Row>
               <Col md={12}>
-                <ModelsViewer hidden={activeSection.journalId} />
-                <JournalViewer hidden={!activeSection.journalId} />
+                <ModelsViewer hidden={activeSection.type !== SectionTypes.BPM} />
+                <JournalViewer hidden={activeSection.type !== SectionTypes.JOURNAL} />
               </Col>
             </Row>
           )}

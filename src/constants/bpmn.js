@@ -20,10 +20,11 @@ export const Labels = {
   },
   BaseMenu: {
     PROCESS_MODELS: 'bpmn-designer.right-menu.process-models',
-    FORMS: 'bpmn-designer.right-menu.forms',
-    CASE_MODELS: 'bpmn-designer.right-menu.case-models',
-    DECISION_TABLES: 'bpmn-designer.right-menu.decision-tables',
-    APPS: 'bpmn-designer.right-menu.apps'
+    DEV_TOOLS: 'page-tabs.dev-tools'
+    // FORMS: 'bpmn-designer.right-menu.forms',
+    // CASE_MODELS: 'bpmn-designer.right-menu.case-models',
+    // DECISION_TABLES: 'bpmn-designer.right-menu.decision-tables',
+    // APPS: 'bpmn-designer.right-menu.apps'
   },
   CreateVariants: {
     CREATE_MODEL: 'bpmn-designer.create-model',
@@ -40,6 +41,12 @@ export const ViewTypes = {
   CARDS: 'cards',
   LIST: 'list',
   TABLE: 'table'
+};
+
+export const SectionTypes = {
+  BPM: 'BPM',
+  DEV_TOOLS: 'DEV_TOOLS',
+  JOURNAL: 'JOURNAL'
 };
 
 export const SORT_FILTER_LAST_MODIFIED = 0;
