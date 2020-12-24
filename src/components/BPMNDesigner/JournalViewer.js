@@ -24,7 +24,7 @@ const JournalViewer = ({ hidden, isActivePage, activeSection, initStateJournal, 
 
   return (
     <div ref={tableCont} className={classNames('bpmn-designer-view-journal', { 'd-none': hidden })}>
-      {!hidden && (
+      {!hidden && wasActivated && (
         <ErrorBoundary>
           <Journals
             isActivePage={isActivePage}

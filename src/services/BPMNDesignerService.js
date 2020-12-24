@@ -1,19 +1,22 @@
-import { Labels, ViewTypes } from '../constants/bpmn';
+import { Labels, SectionTypes, ViewTypes } from '../constants/bpmn';
 import { t } from '../helpers/export/util';
 import { URL } from '../constants';
 
 export class BPMNDesignerService {
-  static getMenuItems({ isAdmin, isBpmAdmin }) {
-    const menuItems = [
+  static getMenuItems() {
+    return [
       {
         href: URL.BPMN_DESIGNER,
-        icon: 'icon-models',
         label: Labels.BaseMenu.PROCESS_MODELS,
-        order: 1
+        type: SectionTypes.BPM,
+        icon: 'icon-models'
+      },
+      {
+        href: URL.DEV_TOOLS,
+        type: SectionTypes.DEV_TOOLS,
+        label: Labels.BaseMenu.DEV_TOOLS
       }
     ];
-
-    return menuItems.sort((current, next) => current.order - next.order);
   }
 
   static getCreateVariants() {

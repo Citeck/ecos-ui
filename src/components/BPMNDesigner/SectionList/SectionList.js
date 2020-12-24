@@ -1,13 +1,7 @@
-import React, { useEffect, useMemo } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
-import queryString from 'query-string';
 import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
-
-import { URL } from '../../../constants';
 import { t } from '../../../helpers/util';
-import { BPMNDesignerService } from '../../../services/BPMNDesignerService';
-import PageService from '../../../services/PageService';
 import { setActiveSection } from '../../../actions/bpmn';
 import { CollapsibleList } from '../../common';
 
@@ -15,42 +9,12 @@ import '../style.scss';
 import './style.scss';
 
 function SectionList({ sectionList = [], setActive, activeSection }) {
-  const menuItems = useMemo(() => {
-    const list = BPMNDesignerService.getMenuItems({});
-    list.push(...sectionList);
-    return list;
-  }, [sectionList]);
-
-  useEffect(() => {
-    if (activeSection) {
-      const query = queryString.parseUrl(window.location.href).query;
-
-      if (isEmpty(query)) {
-        setActive(menuItems[0]);
-      } else {
-        setActive(menuItems.find(item => item.journalId === query.journalId));
-      }
-    }
-  }, [sectionList]);
-
   const onClick = item => {
     setActive(item);
-    let href = '';
-
-    if (item.href) {
-      href = item.href;
-    } else if (item.journalId) {
-      href = queryString.stringifyUrl({ url: URL.BPMN_DESIGNER, query: { journalId: item.journalId } });
-    } else {
-      console.warn('Unknown section');
-      return;
-    }
-
-    PageService.changeUrlLink(href, { updateUrl: true, pushHistory: true });
   };
 
   const renderItems = () => {
-    return menuItems.map(item => (
+    return sectionList.map(item => (
       <div className="bpmn-section-list__item" key={item.label} onClick={() => onClick(item)}>
         {t(item.label)}
       </div>
@@ -58,12 +22,12 @@ function SectionList({ sectionList = [], setActive, activeSection }) {
   };
 
   const getSelectedI = () => {
-    return menuItems.findIndex(item => isEqual(item, activeSection));
+    return sectionList.findIndex(item => isEqual(item, activeSection));
   };
 
   return (
     <div className="bpmn-common-container_white">
-      <CollapsibleList needScrollbar list={renderItems()} selected={getSelectedI()} />
+      {sectionList.length && <CollapsibleList needScrollbar list={renderItems()} selected={getSelectedI()} />}
     </div>
   );
 }
