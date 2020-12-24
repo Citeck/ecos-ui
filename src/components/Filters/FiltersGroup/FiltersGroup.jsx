@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
+
 import { IcoBtn } from '../../common/btns';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { Well, Label, Select } from '../../common/form';
 import { Filter, FiltersCondition } from '../';
 import { ParserPredicate } from '../predicates';
 import { t, trigger } from '../../../helpers/util';
+import { getPredicate, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
 
 import './FiltersGroup.scss';
 
@@ -38,6 +40,14 @@ export default class FiltersGroup extends Component {
 
   onChangeFilterPredicate = ({ predicate, index }) => {
     const filter = this.props.group.filters[index];
+    const predicateData = getPredicate(predicate);
+
+    console.warn({ filter, predicate, predicateData });
+
+    if (PREDICATE_LIST_WITH_CLEARED_VALUES.includes(filter.predicate.t) || PREDICATE_LIST_WITH_CLEARED_VALUES.includes(predicate)) {
+      filter.predicate.setVal(predicateData.fixedValue || '');
+    }
+
     filter.predicate.setT(predicate);
     trigger.call(this, 'onChangeFilter', { filter, index, groupIndex: this.props.index });
   };

@@ -17,16 +17,21 @@ export default class Filter extends Component {
     super(props);
 
     this.state = {
-      value: get(props, 'filter.predicate.val', '')
+      value: get(props, 'filter.predicate.val', ''),
+      hasDataEntry: false
     };
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const prevValue = get(prevProps, 'filter.predicate.val', '');
     const currentValue = get(this.props, 'filter.predicate.val', '');
-    const { value } = this.state;
+    const { value, hasDataEntry } = this.state;
 
-    if (prevValue !== currentValue && currentValue !== value) {
+    if (hasDataEntry) {
+      return;
+    }
+
+    if (prevValue !== currentValue || currentValue !== value) {
       this.setState({ value: currentValue });
     }
   }
@@ -38,11 +43,12 @@ export default class Filter extends Component {
   predicatesWithoutValue = ParserPredicate.predicatesWithoutValue;
 
   changeValue = value => {
-    this.setState({ value }, this.handleChangeValue);
+    this.setState({ value, hasDataEntry: true }, this.handleChangeValue);
   };
 
   handleChangeValue = debounce(() => {
     trigger.call(this, 'onChangeValue', { val: this.state.value, index: this.props.index });
+    this.setState({ isInput: false });
   }, 350);
 
   changePredicate = predicate => {

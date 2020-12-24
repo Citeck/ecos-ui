@@ -150,6 +150,8 @@ const PREDICATE_LIST_TYPE_AUTHORITY = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAIN
 const PREDICATE_LIST_TYPE_NO_CONTROL_YET = [PREDICATE_NOT_EMPTY, PREDICATE_EMPTY];
 const PREDICATE_LIST_TYPE_FILTER_GROUP = [PREDICATE_AND, PREDICATE_OR];
 
+export const PREDICATE_LIST_WITH_CLEARED_VALUES = [PREDICATE_TODAY, PREDICATE_TIME_INTERVAL];
+
 let allPredicates = [];
 
 // Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
@@ -173,6 +175,17 @@ const getAllPredicates = function() {
     { value: PREDICATE_TIME_INTERVAL, label: t('predicate.time-interval'), needValue: true }
   ];
 };
+
+export function getPredicate(value) {
+  const allPredicates = getAllPredicates();
+  const predicate = allPredicates.find(item => item.value === value);
+
+  if (predicate === undefined || value === undefined) {
+    return null;
+  }
+
+  return predicate;
+}
 
 export function filterPredicates(filterArr) {
   if (!allPredicates.length) {
@@ -256,18 +269,22 @@ export function getPredicateInput(field, sourceId, metaRecord, predicate = {}) {
         return {
           component: Input,
           defaultValue: '',
-          getProps: ({ predicateValue, changePredicateValue, applyFilters }) => ({
-            className: 'ecos-input_narrow',
-            value: predicateValue,
-            onChange: function(e) {
-              changePredicateValue(e.target.value);
-            },
-            onKeyDown: function(e) {
-              if (e.key === 'Enter' && typeof applyFilters === 'function') {
-                applyFilters();
+          getProps: ({ predicateValue, changePredicateValue, applyFilters }) => {
+            console.warn({ predicateValue, changePredicateValue, applyFilters });
+
+            return {
+              className: 'ecos-input_narrow',
+              value: predicateValue,
+              onChange: function(e) {
+                changePredicateValue(e.target.value);
+              },
+              onKeyDown: function(e) {
+                if (e.key === 'Enter' && typeof applyFilters === 'function') {
+                  applyFilters();
+                }
               }
-            }
-          })
+            };
+          }
         };
       }
 
@@ -284,7 +301,7 @@ export function getPredicateInput(field, sourceId, metaRecord, predicate = {}) {
               value = moment(value).format('YYYY-MM-DD');
             }
 
-            changePredicateValue(value);
+            changePredicateValue(`${value}`);
           },
           showTimeInput: field.type === COLUMN_DATA_TYPE_DATETIME
         })
