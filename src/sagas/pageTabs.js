@@ -210,7 +210,7 @@ function* getTitle(tab) {
       isLoading: false
     };
   } catch (e) {
-    console.error('[getTitle]', e);
+    console.error('[pageTabs getTitle]', e);
     return {
       title: TITLE.NO_NAME,
       isLoading: false

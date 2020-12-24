@@ -24,7 +24,7 @@ const BPMNDesigner = ({ isMobile, isReady, activeSection }) => {
         <Container fluid className="p-0">
           <Row className="bpmn-designer-page__header">
             <Col md={10}>
-              <Caption normal>{t(Labels.TITLE_PAGE)}</Caption>
+              <Caption normal>{t(activeSection.label)}</Caption>
             </Col>
             <Col md={2} className="bpmn-designer-page__header-right">
               <IcoBtn

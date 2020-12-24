@@ -8,7 +8,7 @@ export class BPMNDesignerService {
       {
         href: URL.BPMN_DESIGNER,
         icon: 'icon-models',
-        label: t(Labels.BaseMenu.PROCESS_MODELS),
+        label: Labels.BaseMenu.PROCESS_MODELS,
         order: 1
       }
     ];

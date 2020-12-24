@@ -48,6 +48,10 @@
       & :nth-child(n) {
         clear: both;
       }
+
+      & .list-group-item {
+        cursor: pointer;
+      }
     }
   }
 
