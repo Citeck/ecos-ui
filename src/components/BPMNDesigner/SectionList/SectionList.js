@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import queryString from 'query-string';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
-import pick from 'lodash/pick';
 
 import { URL } from '../../../constants';
 import { t } from '../../../helpers/util';
@@ -12,8 +11,8 @@ import PageService from '../../../services/PageService';
 import { setActiveSection } from '../../../actions/bpmn';
 import { CollapsibleList } from '../../common';
 
-import styles from './SectionList.module.scss';
 import '../style.scss';
+import './style.scss';
 
 function SectionList({ sectionList = [], setActive, activeSection }) {
   const menuItems = useMemo(() => {
@@ -41,7 +40,7 @@ function SectionList({ sectionList = [], setActive, activeSection }) {
     if (item.href) {
       href = item.href;
     } else if (item.journalId) {
-      href = queryString.stringifyUrl({ url: URL.BPMN_DESIGNER, query: pick(item, ['journalId']) });
+      href = queryString.stringifyUrl({ url: URL.BPMN_DESIGNER, query: { journalId: item.journalId } });
     } else {
       console.warn('Unknown section');
       return;
@@ -52,7 +51,7 @@ function SectionList({ sectionList = [], setActive, activeSection }) {
 
   const renderItems = () => {
     return menuItems.map(item => (
-      <div className={styles.item} key={item.label} onClick={onClick}>
+      <div className="bpmn-section-list__item" key={item.label} onClick={() => onClick(item)}>
         {t(item.label)}
       </div>
     ));
@@ -63,7 +62,7 @@ function SectionList({ sectionList = [], setActive, activeSection }) {
   };
 
   return (
-    <div className="common-container_white">
+    <div className="bpmn-common-container_white">
       <CollapsibleList needScrollbar list={renderItems()} selected={getSelectedI()} />
     </div>
   );

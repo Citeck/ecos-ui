@@ -1,6 +1,6 @@
 @import '../../styles/constants';
 
-.common {
+.bpmn-common {
   &-container_white {
     background: $color-white;
     border-radius: $border-radius-extra-large;
@@ -62,10 +62,11 @@
   }
 
   &__btn-menu-opener {
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, visibility 0s ease 0.2s;
 
     &_hidden {
       opacity: 0;
+      visibility: hidden;
     }
   }
 

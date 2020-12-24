@@ -10,8 +10,8 @@ import { IcoBtn } from '../common/btns';
 import { Caption } from '../common/form';
 
 import SectionList from './SectionList';
-import ViewModels from './ViewModels';
-import ViewJournal from './ViewJournal';
+import ModelsViewer from './ModelsViewer';
+import JournalViewer from './JournalViewer';
 
 import './style.scss';
 
@@ -40,15 +40,15 @@ const BPMNDesigner = ({ isMobile, isReady, activeSection }) => {
             </Col>
           </Row>
           {!isReady && (
-            <div className="common-container_white bpmn-designer-page__loader">
+            <div className="bpmn-common-container_white bpmn-designer-page__loader">
               <Loader />
             </div>
           )}
           {isReady && (
             <Row>
               <Col md={12}>
-                <ViewModels hidden={activeSection.journalId} />
-                <ViewJournal hidden={!activeSection.journalId} />
+                <ModelsViewer hidden={activeSection.journalId} />
+                <JournalViewer hidden={!activeSection.journalId} />
               </Col>
             </Row>
           )}

@@ -8,7 +8,7 @@ import { createCategory } from '../../actions/bpmn';
 import Categories from './Categories/Categories';
 import ControlPanel from './ControlPanel/ControlPanel';
 
-const ViewModels = ({ createCategory, hidden }) => {
+const ModelsViewer = ({ createCategory, hidden }) => {
   return (
     <div className={classNames('bpmn-designer-view-models', { 'd-none': hidden })}>
       <ControlPanel />
@@ -27,4 +27,4 @@ const mapDispatchToProps = dispatch => ({
 export default connect(
   null,
   mapDispatchToProps
-)(ViewModels);
+)(ModelsViewer);
