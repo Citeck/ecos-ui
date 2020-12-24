@@ -7,7 +7,7 @@ const originCanConnect = CustomRules.prototype.canConnect;
 CustomRules.prototype.canConnect = function(source, target, connection) {
   const result = originCanConnect.call(this, source, target, connection);
 
-  console.warn('canConnect => ', { source, target, connection, result });
+  // console.warn('canConnect => ', { source, target, connection, result });
 
   return result;
 };

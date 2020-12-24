@@ -29,7 +29,8 @@ export default class ActionContextPad {
     function appendActionStart(event, businessObject) {
       console.warn('appendServiceTaskStart => ', { elementFactory });
       // const shape = elementFactory.createShape({ type: 'cmmn:Task' });
-      const shape = elementFactory.createPlanItemShape('cmmn:Task');
+      // const shape = elementFactory.createPlanItemShape('cmmn:Task');
+      const shape = elementFactory.create('custom', { type: 'cmmn:Action' });
       // const shape = elementFactory.createCmmnElement('shape', {
       //   type: 'cmmn:Task',
       //   businessObject

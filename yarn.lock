@@ -5117,31 +5117,6 @@ boxen@^4.1.0:
     type-fest "^0.8.1"
     widest-line "^3.1.0"
 
-bpmn-js@^8.0.0:
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/bpmn-js/-/bpmn-js-8.0.0.tgz#932bfe718b8f102f7634938ac972bfb37d1a006a"
-  integrity sha512-nU8WdOqhGXlRcSSkNwy3F2y4y6kjMHlkznv3Pqa8HKNAiKnyjnSUF9jzdXqq2EpWlYVO+5p6Kp89LaNuU96ceA==
-  dependencies:
-    bpmn-moddle "^7.0.4"
-    css.escape "^1.5.1"
-    diagram-js "^7.0.0"
-    diagram-js-direct-editing "^1.6.1"
-    ids "^1.0.0"
-    inherits "^2.0.4"
-    min-dash "^3.5.2"
-    min-dom "^3.1.3"
-    object-refs "^0.3.0"
-    tiny-svg "^2.2.2"
-
-bpmn-moddle@^7.0.4:
-  version "7.0.4"
-  resolved "https://registry.yarnpkg.com/bpmn-moddle/-/bpmn-moddle-7.0.4.tgz#0e1453d8606c9a985309dc8f068a66e063d64637"
-  integrity sha512-/rqz1hAEGArOdiQ7y2HK/+5KmdthPRC8vO5i5wkLRx5SiRzFJx2WfWg9ES0XyjmAIVH7nPRGhihMaeV6zdzd1w==
-  dependencies:
-    min-dash "^3.0.0"
-    moddle "^5.0.1"
-    moddle-xml "^9.0.4"
-
 brace-expansion@^1.1.7:
   version "1.1.11"
   resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-1.1.11.tgz#3c7fcbf529d87226f3d2f52b966ff5271eb441dd"
@@ -7136,7 +7111,7 @@ detect-port@^1.3.0:
     address "^1.0.1"
     debug "^2.6.0"
 
-diagram-js-direct-editing@^1.5.0, diagram-js-direct-editing@^1.6.1:
+diagram-js-direct-editing@^1.5.0:
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/diagram-js-direct-editing/-/diagram-js-direct-editing-1.6.2.tgz#d6ed7076f24227048d7ea6b1837b9a08954fc6ad"
   integrity sha512-hAiSnt6iETMLHBRsCU+XeATiV7u/rovlAX/l4MnvzW6+VeHqQOn+xFetD6JwxfTHKvT3h9fAQpfMZPOPlRFNlw==
@@ -7159,21 +7134,6 @@ diagram-js@^4.0.1:
     path-intersection "^1.0.2"
     tiny-svg "^2.2.1"
 
-diagram-js@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/diagram-js/-/diagram-js-7.0.0.tgz#ddd20ec3606174ecff6a196fc55d8b54437b9fc0"
-  integrity sha512-Tz4yAurGSnTC2rSZjP2oPOkJjBjBFF7oQ9MVNYJU88j7jxAs38LjyzDZzEhLz0VZXHpMZhW2gKeVLMD1YtFNjg==
-  dependencies:
-    css.escape "^1.5.1"
-    didi "^5.2.1"
-    hammerjs "^2.0.1"
-    inherits "^2.0.4"
-    min-dash "^3.5.2"
-    min-dom "^3.1.3"
-    object-refs "^0.3.0"
-    path-intersection "^2.2.0"
-    tiny-svg "^2.2.2"
-
 dialog-polyfill@^0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/dialog-polyfill/-/dialog-polyfill-0.5.0.tgz#bf67bc67abaf538e44fff80f2f71ff132befadd7"
@@ -7183,11 +7143,6 @@ didi@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/didi/-/didi-4.0.0.tgz#2b89d892a67fd3777f7642d3bf06697b69e9b622"
   integrity sha512-AzMElh8mCHOPWPCWfGjoJRla31fMXUT6+287W5ef3IPmtuBcyG9+MkFS7uPP6v3t2Cl086KwWfRB9mESa0OsHQ==
-
-didi@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/didi/-/didi-5.2.1.tgz#1a0b1336be8baa0b068a72036eedd9fb94135bff"
-  integrity sha512-IKNnajUlD4lWMy/Q9Emkk7H1qnzREgY4UyE3IhmOi/9IKua0JYtYldk928bOdt1yNxN8EiOy1sqtSozEYsmjCg==
 
 diff-match-patch@^1.0.0:
   version "1.0.5"
@@ -9941,11 +9896,6 @@ ids@^0.2.0:
   dependencies:
     hat "^0.0.3"
 
-ids@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/ids/-/ids-1.0.0.tgz#df67f2d37b81d7c2effc87e03d17ebff95a58c05"
-  integrity sha512-Zvtq1xUto4LttpstyOlFum8lKx+i1OmRfg+6A9drFS9iSZsDPMHG4Sof/qwNR4kCU7jBeWFPrY2ocHxiz7cCRw==
-
 ieee754@^1.1.4:
   version "1.1.13"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.13.tgz#ec168558e95aa181fd87d37f55c32bbcb6708b84"
@@ -12597,26 +12547,10 @@ moddle-xml@^7.1.0:
     moddle "^4.1.0"
     saxen "^8.1.0"
 
-moddle-xml@^9.0.4:
-  version "9.0.4"
-  resolved "https://registry.yarnpkg.com/moddle-xml/-/moddle-xml-9.0.4.tgz#47e518fbac5dc3fb05ee0bc243895ba3fce22deb"
-  integrity sha512-RzF+hLiMGetWuEnJLuljORDdmFPJxgNYVEdog7ynmg0EK+MjtrsqYZjn786XluW9de6h7Y/FRQjVQZP4vJ9HyQ==
-  dependencies:
-    min-dash "^3.5.2"
-    moddle "^5.0.1"
-    saxen "^8.1.2"
-
 moddle@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/moddle/-/moddle-4.1.0.tgz#1b49f60dbe6c9565875605555c9fabe661e400b6"
   integrity sha512-asBaDLTTNpv4oC8iFdwonfMf/noPVvaBDXoSL7AsXZUDqwokgy8Lsf5eXwdnjXiDqm0olYi/S3Do544uVJSQDg==
-  dependencies:
-    min-dash "^3.0.0"
-
-moddle@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/moddle/-/moddle-5.0.1.tgz#1e27915d5539fcdad33e6e7ad2acdeacc5ad856c"
-  integrity sha512-RB9NCYxbnQLiY1ZJ8Y61+I8TBEmmyaMr8Tj0+fJHN8Fm6l5NqojDy1s4LNDxq+omvug4gnzERMgT8uwNsADDvw==
   dependencies:
     min-dash "^3.0.0"
 
@@ -13775,11 +13709,6 @@ path-intersection@^1.0.2:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/path-intersection/-/path-intersection-1.1.1.tgz#a1185ebae7cd9f6d86fd299533c3f7c638a01559"
   integrity sha512-EdeUuXCm0+tb/2gv8PmRhd9fYYOtbDeTYkwCnzkBuAEjevEZi2mWUi1DVFF5nqSObYsxKcchvKUhnRULWOFreQ==
-
-path-intersection@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/path-intersection/-/path-intersection-2.2.0.tgz#84ce9da5a71e855536678efc7150a71468b155dc"
-  integrity sha512-1qchRuLKhRt3qYePf9CU/74fLrBo9OTiKYNn5fxfuHJW6kTThEk04ql7w8JwOgZjNANAGp1052tWGpwZ7ItNRA==
 
 path-is-absolute@^1.0.0, path-is-absolute@^1.0.1:
   version "1.0.1"
@@ -15830,6 +15759,13 @@ react-transition-group@^2.2.1, react-transition-group@^2.3.1:
     prop-types "^15.6.2"
     react-lifecycles-compat "^3.0.4"
 
+react-xml-viewer@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-xml-viewer/-/react-xml-viewer-1.1.0.tgz#7c33380ae028e3a5125ea546a7f00f00a76965e1"
+  integrity sha512-L8kcNv1y0j1XD7muqcqMAIXJfFrFaMsfNzjymAeLb9GQjkwp0eM+xqQviCP8Vn+PqMzl3l4kIu+JvgX7GOVbjQ==
+  dependencies:
+    xml-js "^1.6.11"
+
 react@^16.8.2:
   version "16.8.6"
   resolved "https://registry.yarnpkg.com/react/-/react-16.8.6.tgz#ad6c3a9614fd3a4e9ef51117f54d888da01f2bbe"
@@ -16685,7 +16621,7 @@ sax@^1.2.4, sax@~1.2.4:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
 
-saxen@^8.1.0, saxen@^8.1.2:
+saxen@^8.1.0:
   version "8.1.2"
   resolved "https://registry.yarnpkg.com/saxen/-/saxen-8.1.2.tgz#e677b32afe93667c9d939d3f3de02e09df108e54"
   integrity sha512-xUOiiFbc3Ow7p8KMxwsGICPx46ZQvy3+qfNVhrkwfz3Vvq45eGt98Ft5IQaA1R/7Tb5B5MKh9fUR9x3c3nDTxw==
@@ -19425,6 +19361,13 @@ xdg-trashdir@^2.1.1:
     pify "^2.2.0"
     user-home "^2.0.0"
     xdg-basedir "^2.0.0"
+
+xml-js@^1.6.11:
+  version "1.6.11"
+  resolved "https://registry.yarnpkg.com/xml-js/-/xml-js-1.6.11.tgz#927d2f6947f7f1c19a316dd8eea3614e8b18f8e9"
+  integrity sha512-7rVi2KMfwfWFl+GpPg6m80IVMWXLRjO+PxTq7V2CDhoGak0wzYzFgUY2m4XJ47OGdXd8eLE8EmwfAmdjw7lC1g==
+  dependencies:
+    sax "^1.2.4"
 
 xml-name-validator@^3.0.0:
   version "3.0.0"

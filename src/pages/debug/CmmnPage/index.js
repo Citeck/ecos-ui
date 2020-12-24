@@ -1,32 +1,42 @@
 import React, { Component } from 'react';
 import CmmnModeler from 'cmmn-js/lib/Modeler';
+import XMLViewer from 'react-xml-viewer';
+
+import { Btn } from '../../../components/common/btns';
+import { EcosModal } from '../../../components/common';
 
 import customModuleAction from './modules/action';
+
+import nyanDrawModule from './modules/nyan/draw';
+import nyanPaletteModule from './modules/nyan/palette';
 
 import 'cmmn-js/dist/assets/diagram-js.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-codes.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-embedded.css';
 
+import './style.scss';
+
 const res = `
 <?xml version="1.0" encoding="UTF-8"?>
-<cmmn:definitions xmlns:dc="http://www.omg.org/spec/CMMN/20151109/DC" xmlns:di="http://www.omg.org/spec/CMMN/20151109/DI" xmlns:cmmndi="http://www.omg.org/spec/CMMN/20151109/CMMNDI" xmlns:cmmn="http://www.omg.org/spec/CMMN/20151109/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Test" targetNamespace="http://bpmn.io/schema/cmmn">
+<cmmn:definitions xmlns:dc="http://www.omg.org/spec/CMMN/20151109/DC" xmlns:cmmndi="http://www.omg.org/spec/CMMN/20151109/CMMNDI" xmlns:cmmn="http://www.omg.org/spec/CMMN/20151109/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Test" targetNamespace="http://bpmn.io/schema/cmmn">
+  <cmmn:case id="Case_2">
+    <cmmn:casePlanModel id="CasePlanModel_2" name="Another CasePlanModel"/>
+  </cmmn:case>
   <cmmn:case id="Case_1">
-    <cmmn:casePlanModel id="CasePlanModel_1" name="A CasePlanModel">
-      <cmmn:planItem id="PlanItem_1" definitionRef="Task_1" />
-      <cmmn:task id="Task_1" />
-    </cmmn:casePlanModel>
+    <cmmn:casePlanModel id="CasePlanModel_1" name="A CasePlanModel"/>
   </cmmn:case>
   <cmmndi:CMMNDI>
-    <cmmndi:CMMNDiagram id="_5a66685b-5f57-4e2f-b1d1-acca4fae04b2">
-      <cmmndi:Size xsi:type="dc:Dimension" width="500" height="500" />
+    <cmmndi:CMMNDiagram id="Diagram_1">
+      <cmmndi:Size width="500" height="500"/>
       <cmmndi:CMMNShape id="DI_CasePlanModel_1" cmmnElementRef="CasePlanModel_1">
-        <dc:Bounds x="114" y="63" width="534" height="389" />
-        <cmmndi:CMMNLabel />
+        <dc:Bounds x="138" y="44" width="525" height="381"/>
       </cmmndi:CMMNShape>
-      <cmmndi:CMMNShape id="PlanItem_1_di" cmmnElementRef="PlanItem_1">
-        <dc:Bounds x="150" y="96" width="100" height="80" />
-        <cmmndi:CMMNLabel />
+    </cmmndi:CMMNDiagram>
+    <cmmndi:CMMNDiagram id="Diagram_2">
+      <cmmndi:Size width="500" height="500"/>
+      <cmmndi:CMMNShape id="DI_CasePlanModel_2" cmmnElementRef="CasePlanModel_2">
+        <dc:Bounds x="50" y="50" width="400" height="250"/>
       </cmmndi:CMMNShape>
     </cmmndi:CMMNDiagram>
   </cmmndi:CMMNDI>
@@ -35,6 +45,9 @@ const res = `
 
 class CmmnPage extends Component {
   containerRef = React.createRef();
+  _viewer = null;
+
+  state = { xml: '', isOpen: false };
 
   componentDidMount() {
     this.initCmmn();
@@ -47,22 +60,60 @@ class CmmnPage extends Component {
       return;
     }
 
-    const viewer = new CmmnModeler({
+    this._viewer = new CmmnModeler({
       container,
-      additionalModules: [customModuleAction]
+      additionalModules: [nyanDrawModule, nyanPaletteModule, customModuleAction]
     });
 
-    viewer.importXML(res, function(err) {
+    this._viewer.importXML(res, err => {
       if (err) {
         console.error('error rendering', err);
-      } else {
-        console.warn('rendered');
       }
     });
   };
 
+  handleClickViewXml = () => {
+    if (!this._viewer) {
+      return;
+    }
+
+    try {
+      this._viewer.saveXML({ format: true }, (error, xml) => {
+        if (error) {
+          console.error('error save XML', error);
+
+          return;
+        }
+
+        if (xml) {
+          this.setState({ xml, isOpen: true });
+        }
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  handleHideModal = () => {
+    this.setState({ isOpen: false, xml: '' });
+  };
+
   render() {
-    return <div ref={this.containerRef} style={{ width: '100vw', height: '100vh' }} />;
+    const { xml, isOpen } = this.state;
+
+    return (
+      <div className="cmmn-page">
+        <Btn className="ecos-btn_blue" onClick={this.handleClickViewXml}>
+          View XML
+        </Btn>
+
+        <div ref={this.containerRef} className="cmmn-editor" />
+
+        <EcosModal title="XML" isOpen={isOpen} hideModal={this.handleHideModal}>
+          <div className="cmmn-page__xml-viewer">{xml && <XMLViewer xml={xml} />}</div>
+        </EcosModal>
+      </div>
+    );
   }
 }
 
