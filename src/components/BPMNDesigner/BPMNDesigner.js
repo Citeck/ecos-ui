@@ -32,18 +32,18 @@ const BPMNDesigner = ({ createCategory, hidden, isReady, initRequest }) => {
   return (
     <>
       {
-        <div className={classNames('bpmn-designer-view-models', { 'd-none': hidden })}>
+        <div className={classNames('ecos-bpmn-designer', { 'd-none': hidden })}>
           <ControlPanel />
           {isReady && (
             <>
               <Categories categoryId={ROOT_CATEGORY_NODE_REF} />
-              <div className="bpmn-designer-view-models__add-category" onClick={createCategory}>
+              <div className="ecos-bpmn-designer__add-category" onClick={createCategory}>
                 {t(Labels.ADD_CATEGORY)}
               </div>
             </>
           )}
           {!isReady && (
-            <div className="bpmn-common-container_white bpmn-common-loader">
+            <div className="ecos-bpmn-designer-common__container_white ecos-bpmn-designer-common__loader">
               <Loader />
             </div>
           )}

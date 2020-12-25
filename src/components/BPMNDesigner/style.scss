@@ -1,108 +1,20 @@
 @import '../../styles/constants';
 
-.bpmn-common {
-  &-container_white {
-    background: $color-white;
-    border-radius: $border-radius-extra-large;
-    padding: 15px;
-    margin-bottom: 10px;
-  }
-
-  &-loader {
-    position: relative;
-    height: 100px;
-  }
-}
-
-.bpmn-designer-page {
-  $page: &;
-
-  &__container {
-    display: flex;
-    padding: 17px 0 25px 25px;
-    height: 100%;
-  }
-
-  &__loader {
-    position: relative;
-    height: 100px;
-  }
-
-  &__content {
-    flex: auto;
-  }
-
-  &__menu {
-    width: 0;
-    transition: width 0.5s;
-    overflow: hidden;
-    padding-left: 25px;
-    height: 100%;
-
-    &_open {
-      width: 300px;
-    }
-
-    &-content {
-      background: $color-gray-3;
-      height: 100%;
-      min-width: 275px;
+.ecos-bpmn-designer {
+  &-common {
+    &__container_white {
+      background: $color-white;
       border-radius: $border-radius-extra-large;
-      padding: 15px 25px 15px 15px;
+      padding: 15px;
+      margin-bottom: 10px;
+    }
 
-      & :nth-child(n) {
-        clear: both;
-      }
-
-      & .list-group-item {
-        cursor: pointer;
-      }
+    &__loader {
+      position: relative;
+      height: 100px;
     }
   }
 
-  &__header {
-    padding-bottom: 20px;
-    min-height: 26px;
-
-    &-right {
-      display: flex;
-      justify-content: flex-end;
-    }
-  }
-
-  &__btn-menu-opener {
-    transition: opacity 0.2s, visibility 0s ease 0.2s;
-
-    &_hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-  }
-
-  &__btn-menu-closer {
-    float: right;
-    margin-bottom: 15px;
-  }
-}
-
-.bpmn-designer-control-panel {
-  & .ecos-dropdown__toggle_static {
-    font-size: $font-size-xxl;
-  }
-
-  &__side-right {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-  }
-
-  &__counter {
-    color: $text-color-gray;
-    font-weight: $font-weight-semi-bold;
-  }
-}
-
-.bpmn-designer-view-models {
   &__add-category {
     background: $color-gray-1;
     border-radius: $border-radius-large;
@@ -118,12 +30,21 @@
       background-color: $color-gray-2;
     }
   }
-}
 
-.bpmn-designer-view-journal {
-  padding: 0;
+  &-control-panel {
+    & .ecos-dropdown__toggle_static {
+      font-size: $font-size-xxl;
+    }
 
-  &__body.ecos-journal__body {
-    padding: 0;
+    &__side-right {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    &__counter {
+      color: $text-color-gray;
+      font-weight: $font-weight-semi-bold;
+    }
   }
 }

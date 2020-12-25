@@ -26,7 +26,7 @@ const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm, to
   };
 
   return (
-    <div className="mb-3 bpmn-designer-control-panel">
+    <div className="mb-3 ecos-bpmn-designer-control-panel">
       <Row noGutters>
         <Col lg={6} md={12}>
           <Dropdown
@@ -42,8 +42,8 @@ const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm, to
           <Search />
         </Col>
         <Col lg={6} md={12}>
-          <div className="bpmn-designer-control-panel__side-right">
-            <div className="bpmn-designer-control-panel__counter">{`${t(Labels.TOTAL)} ${totalModels}`}</div>
+          <div className="ecos-bpmn-designer-control-panel__side-right">
+            <div className="ecos-bpmn-designer-control-panel__counter">{`${t(Labels.TOTAL)} ${totalModels}`}</div>
             {/*<SortFilter />*/}
             <ViewSwitcher />
           </div>
