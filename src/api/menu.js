@@ -229,7 +229,7 @@ export class MenuApi extends CommonApi {
 
   getSlideMenuItems = () => {
     const username = getCurrentUserName();
-    const cacheKey = Records.get('uiserv/meta@')
+    const cacheKey = Records.get(SourcesId.META + '@')
       .load('attributes.menu-cache-key')
       .catch(() => '0');
 

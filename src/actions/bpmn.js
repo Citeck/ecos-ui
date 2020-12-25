@@ -25,7 +25,3 @@ export const showModelCreationForm = createAction(prefix + 'SHOW_MODEL_CREATION_
 export const showImportModelForm = createAction(prefix + 'SHOW_IMPORT_MODEL_FROM');
 
 export const savePagePosition = createAction(prefix + 'SAVE_PAGE_POSITION');
-
-export const fetchSectionList = createAction(prefix + 'GET_SECTION_LIST');
-export const setSectionList = createAction(prefix + 'SET_SECTION_LIST');
-export const setActiveSection = createAction(prefix + 'SET_ACTIVE_SECTION');

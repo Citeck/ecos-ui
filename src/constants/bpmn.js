@@ -1,11 +1,7 @@
 export const Labels = {
-  TITLE_PAGE: 'bpmn-designer.process-models.header',
-  SHOW_MENU: 'bpmn-designer.sidebar.show',
-  SHOW_MENU_sm: 'bpmn-designer.sidebar.show-sm',
-  HIDE_MENU: 'bpmn-designer.sidebar.hide',
-  HIDE_MENU_sm: 'bpmn-designer.sidebar.hide-sm',
   ADD_CATEGORY: 'bpmn-designer.add-category',
   TOTAL: 'bpmn-designer.total',
+  EMPTY_LIST: 'journals.menu.journal-list.empty',
   Columns: {
     CAN_WRITE: 'Can Write',
     ID: 'ID',
@@ -17,14 +13,6 @@ export const Labels = {
     DESCRIPTION: 'Description',
     HAS_THUMBNAIL: 'Has Thumbnail',
     CATEGORY: 'Category'
-  },
-  BaseMenu: {
-    PROCESS_MODELS: 'bpmn-designer.right-menu.process-models',
-    DEV_TOOLS: 'page-tabs.dev-tools'
-    // FORMS: 'bpmn-designer.right-menu.forms',
-    // CASE_MODELS: 'bpmn-designer.right-menu.case-models',
-    // DECISION_TABLES: 'bpmn-designer.right-menu.decision-tables',
-    // APPS: 'bpmn-designer.right-menu.apps'
   },
   CreateVariants: {
     CREATE_MODEL: 'bpmn-designer.create-model',

@@ -1,36 +1,37 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+
 import pageTabList from '../../services/pageTabs/PageTabList';
 import { getStateId } from '../../helpers/redux';
 import { getId } from '../../helpers/util';
+import { initState } from '../../actions/journals';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Journals } from '../Journals';
-import { initState } from '../../actions/journals';
 
-const JournalViewer = ({ hidden, isActivePage, activeSection, initStateJournal, ...props }) => {
+const JournalViewer = ({ hidden, isActivePage, initStateJournal, ...props }) => {
   const tableCont = useRef(null);
-  const [wasActivated, setWasActivated] = useState(false);
+  const [initialized, setInitialized] = useState(false);
   const [stateId, setStateId] = useState('');
 
   useEffect(() => {
-    if (isActivePage && !hidden && !wasActivated) {
+    if (isActivePage && !hidden && !initialized) {
       const id = getStateId({ tabId: props.tabId, id: getId() });
       initStateJournal(id);
       setStateId(id);
-      setWasActivated(true);
+      setInitialized(true);
     }
-  }, [isActivePage, hidden, wasActivated]);
+  }, [isActivePage, hidden, initialized]);
 
   return (
-    <div ref={tableCont} className={classNames('bpmn-designer-view-journal', { 'd-none': hidden })}>
-      {!hidden && wasActivated && (
+    <div ref={tableCont} className={classNames('ecos-admin-section__journal', { 'd-none': hidden })}>
+      {!hidden && initialized && (
         <ErrorBoundary>
           <Journals
             isActivePage={isActivePage}
             stateId={stateId}
             displayElements={{ menu: false, header: false }}
-            bodyClassName="bpmn-designer-view-journal__body"
+            bodyClassName="ecos-admin-section__journal-body"
           />
         </ErrorBoundary>
       )}
@@ -40,11 +41,7 @@ const JournalViewer = ({ hidden, isActivePage, activeSection, initStateJournal, 
 
 const mapStateToProps = (store, props) => {
   return {
-    models: store.bpmn.models,
-    searchText: store.bpmn.searchText,
-    isMobile: store.view.isMobile,
-    isActivePage: !(props.tabId && !pageTabList.isActiveTab(props.tabId)),
-    activeSection: store.bpmn.activeSection || {}
+    isActivePage: !(props.tabId && !pageTabList.isActiveTab(props.tabId))
   };
 };
 

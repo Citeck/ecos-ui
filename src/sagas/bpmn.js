@@ -1,32 +1,23 @@
 import React from 'react';
 import { delay } from 'redux-saga';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
-import queryString from 'query-string';
-import isEmpty from 'lodash/isEmpty';
-import cloneDeep from 'lodash/cloneDeep';
-
-import { URL } from '../constants';
-import { EDITOR_PAGE_CONTEXT, SectionTypes } from '../constants/bpmn';
+import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
 import { t } from '../helpers/util';
-import PageService from '../services/PageService';
 import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
 import ImportModelForm from '../components/BPMNDesigner/ImportModelForm';
 import {
   deleteCategory,
   deleteCategoryRequest,
-  fetchSectionList,
   importProcessModelRequest,
   initRequest,
   saveCategoryRequest,
   savePagePosition,
   saveProcessModelRequest,
-  setActiveSection,
   setCategories,
   setCategoryCollapseState,
   setCategoryData,
   setIsReady,
   setModels,
-  setSectionList,
   setViewType,
   showImportModelForm,
   showModelCreationForm
@@ -34,14 +25,12 @@ import {
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
 import { getPagePositionState, removePagePositionState, savePagePositionState } from '../helpers/bpmn';
-import { BPMNDesignerService } from '../services/BPMNDesignerService';
 
 function* doInitRequest({ api, logger }) {
   try {
     const categories = yield call(api.bpmn.fetchCategories);
     const models = yield call(api.bpmn.fetchProcessModels);
 
-    yield put(fetchSectionList());
     yield put(setCategories(categories));
     yield put(setModels(models));
 
@@ -255,63 +244,6 @@ function* doSavePagePosition({ api, logger }, action) {
   }
 }
 
-function* doFetchSectionList({ api, logger }, action) {
-  try {
-    const localList = BPMNDesignerService.getMenuItems();
-    const remoteList = yield call(api.bpmn.getSystemJournals);
-    const query = queryString.parseUrl(window.location.href).query;
-
-    yield put(setSectionList([...localList, ...remoteList]));
-
-    if (isEmpty(query)) {
-      yield put(setActiveSection(localList.find(i => i.type === SectionTypes.BPM) || localList[0] || remoteList[0]));
-    } else {
-      yield put(setActiveSection(remoteList.find(item => item.journalId === query.journalId)));
-    }
-  } catch (e) {
-    logger.error('[bpmn doFetchSectionList saga] error', e.message);
-  }
-}
-
-function* openActiveSection({ api, logger }, action) {
-  try {
-    const item = cloneDeep(action.payload);
-    const sectionList = yield select(state => state.bpmn.sectionList || []);
-
-    let href = '';
-    let options = { updateUrl: true, pushHistory: true };
-
-    switch (item.type) {
-      case SectionTypes.BPM: {
-        href = item.href;
-        break;
-      }
-      case SectionTypes.JOURNAL: {
-        href = queryString.stringifyUrl({ url: URL.BPMN_DESIGNER, query: { journalId: item.journalId } });
-        break;
-      }
-      case SectionTypes.DEV_TOOLS: {
-        href = item.href;
-        //todo
-        // options = { openInBackground: true };
-        break;
-      }
-      default: {
-        console.warn('Unknown section');
-        return;
-      }
-    }
-
-    PageService.changeUrlLink(href, options);
-    //
-    // if (options.openInBackground) {
-    //   yield put(setActiveSection(sectionList.find(i => i.type === SectionTypes.BPM)));
-    // }
-  } catch (e) {
-    logger.error('[bpmn openActiveSection saga] error', e.message);
-  }
-}
-
 function* saga(ea) {
   yield takeLatest(initRequest().type, doInitRequest, ea);
   yield takeLatest(saveCategoryRequest().type, doSaveCategoryRequest, ea);
@@ -321,8 +253,6 @@ function* saga(ea) {
   yield takeLatest(showModelCreationForm().type, doShowModelCreationForm, ea);
   yield takeLatest(showImportModelForm().type, doShowImportModelForm, ea);
   yield takeLatest(savePagePosition().type, doSavePagePosition, ea);
-  yield takeLatest(fetchSectionList().type, doFetchSectionList, ea);
-  yield takeLatest(setActiveSection().type, openActiveSection, ea);
 }
 
 export default saga;

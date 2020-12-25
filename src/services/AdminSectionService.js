@@ -1,24 +1,8 @@
-import { Labels, SectionTypes, ViewTypes } from '../constants/bpmn';
+import { Labels, ViewTypes } from '../constants/bpmn';
 import { t } from '../helpers/export/util';
-import { URL } from '../constants';
+import isEqual from 'lodash/isEqual';
 
-export class BPMNDesignerService {
-  static getMenuItems() {
-    return [
-      {
-        href: URL.BPMN_DESIGNER,
-        label: Labels.BaseMenu.PROCESS_MODELS,
-        type: SectionTypes.BPM,
-        icon: 'icon-models'
-      },
-      {
-        href: URL.DEV_TOOLS,
-        type: SectionTypes.DEV_TOOLS,
-        label: Labels.BaseMenu.DEV_TOOLS
-      }
-    ];
-  }
-
+export default class AdminSectionService {
   static getCreateVariants() {
     return [
       {
@@ -47,5 +31,21 @@ export class BPMNDesignerService {
         title: Labels.Views.LIST
       }
     ].filter(item => !item.hidden);
+  }
+
+  static getSelectedSectionIndex(list, active) {
+    return list.findIndex(item => isEqual(item, active));
+  }
+
+  static getActiveSectionInGroups(groups, funCompare) {
+    let section;
+
+    for (const item of groups) {
+      section = item.sections.find(funCompare);
+
+      if (section) {
+        return section;
+      }
+    }
   }
 }

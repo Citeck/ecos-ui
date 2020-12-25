@@ -1,81 +1,59 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { Col, Container, Row } from 'reactstrap';
-import isEmpty from 'lodash/isEmpty';
 
-import { t } from '../../helpers/util';
-import { Labels, SectionTypes } from '../../constants/bpmn';
+import { Labels, ROOT_CATEGORY_NODE_REF } from '../../constants/bpmn';
+import { t } from '../../helpers/export/util';
+import { createCategory, initRequest } from '../../actions/bpmn';
+import Categories from './Categories/Categories';
+import ControlPanel from './ControlPanel/ControlPanel';
 import { Loader } from '../common';
-import { IcoBtn } from '../common/btns';
-import { Caption } from '../common/form';
 
-import SectionList from './SectionList';
-import ModelsViewer from './ModelsViewer';
-import JournalViewer from './JournalViewer';
+const ModelsViewer = ({ createCategory, hidden, isReady, initRequest }) => {
+  const [initialized, setInitialized] = useState(false);
 
-import './style.scss';
-
-const BPMNDesigner = ({ isMobile, isReady, activeSection }) => {
-  const [isOpenMenu, setOpenMenu] = useState(false);
+  useEffect(() => {
+    if (!hidden && !initialized) {
+      setInitialized(true);
+      initRequest();
+    }
+  }, [initialized]);
 
   return (
-    <div className="bpmn-designer-page__container">
-      <div className="bpmn-designer-page__content">
-        <Container fluid className="p-0">
-          <Row className="bpmn-designer-page__header">
-            <Col md={10}>
-              <Caption normal>{t(activeSection.label)}</Caption>
-            </Col>
-            <Col md={2} className="bpmn-designer-page__header-right">
-              <IcoBtn
-                onClick={() => setOpenMenu(true)}
-                icon={'icon-small-arrow-left'}
-                className={classNames(
-                  'ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standart ecos-btn_r_biggest bpmn-designer-page__btn-menu-opener',
-                  { 'bpmn-designer-page__btn-menu-opener_hidden': isOpenMenu }
-                )}
-              >
-                {isMobile ? t(Labels.SHOW_MENU_sm) : t(Labels.SHOW_MENU)}
-              </IcoBtn>
-            </Col>
-          </Row>
+    <>
+      {
+        <div className={classNames('bpmn-designer-view-models', { 'd-none': hidden })}>
           {!isReady && (
-            <div className="bpmn-common-container_white bpmn-designer-page__loader">
+            <div className="bpmn-common-container_white bpmn-common-loader">
               <Loader />
             </div>
           )}
-          {isReady && !isEmpty(activeSection) && (
-            <Row>
-              <Col md={12}>
-                <ModelsViewer hidden={activeSection.type !== SectionTypes.BPM} />
-                <JournalViewer hidden={activeSection.type !== SectionTypes.JOURNAL} />
-              </Col>
-            </Row>
+          {isReady && (
+            <>
+              <ControlPanel />
+              <Categories categoryId={ROOT_CATEGORY_NODE_REF} />
+              <div className="bpmn-designer-view-models__add-category" onClick={createCategory}>
+                {t(Labels.ADD_CATEGORY)}
+              </div>
+            </>
           )}
-        </Container>
-      </div>
-      <div className={classNames('bpmn-designer-page__menu', { 'bpmn-designer-page__menu_open': isOpenMenu })}>
-        <div className="bpmn-designer-page__menu-content">
-          <IcoBtn
-            onClick={() => setOpenMenu(false)}
-            icon="icon-small-arrow-right"
-            invert
-            className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest bpmn-designer-page__btn-menu-closer"
-          >
-            {isMobile ? t(Labels.HIDE_MENU_sm) : t(Labels.HIDE_MENU)}
-          </IcoBtn>
-          <SectionList />
         </div>
-      </div>
-    </div>
+      }
+    </>
   );
 };
 
 const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
-  isReady: state.bpmn.isReady,
-  activeSection: state.bpmn.activeSection || {}
+  isReady: state.bpmn.isReady
 });
 
-export default connect(mapStateToProps)(BPMNDesigner);
+const mapDispatchToProps = dispatch => ({
+  initRequest: () => dispatch(initRequest({ parentId: ROOT_CATEGORY_NODE_REF })),
+  createCategory: () => dispatch(createCategory({ parentId: ROOT_CATEGORY_NODE_REF }))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ModelsViewer);

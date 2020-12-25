@@ -3,7 +3,6 @@ import {
   cancelEditCategory,
   createCategory,
   deleteCategory,
-  setActiveSection,
   setActiveSortFilter,
   setCategories,
   setCategoryCollapseState,
@@ -12,7 +11,6 @@ import {
   setIsReady,
   setModels,
   setSearchText,
-  setSectionList,
   setViewType
 } from '../actions/bpmn';
 import { SORT_FILTER_LAST_MODIFIED, ViewTypes } from '../constants/bpmn';
@@ -23,9 +21,7 @@ const initialState = {
   models: [],
   viewType: ViewTypes.CARDS,
   sortFilter: SORT_FILTER_LAST_MODIFIED,
-  searchText: '',
-  sectionList: [],
-  activeSection: {}
+  searchText: ''
 };
 
 Object.freeze(initialState);
@@ -176,18 +172,6 @@ export default handleActions(
       return {
         ...state,
         categories: newCategoryList
-      };
-    },
-    [setSectionList]: (state, action) => {
-      return {
-        ...state,
-        sectionList: action.payload || []
-      };
-    },
-    [setActiveSection]: (state, action) => {
-      return {
-        ...state,
-        activeSection: action.payload || {}
       };
     }
   },

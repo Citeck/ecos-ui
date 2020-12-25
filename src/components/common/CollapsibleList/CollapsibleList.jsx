@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
+import PropTypes from 'prop-types';
 
 import PanelBar from '../PanelBar/PanelBar';
 import List from '../List/List';
@@ -9,6 +10,12 @@ import { InfoText } from '../index';
 import './CollapsibleList.scss';
 
 export default class CollapsibleList extends Component {
+  static propTypes = {
+    className: PropTypes.string,
+    classNameList: PropTypes.string,
+    needScrollbar: PropTypes.bool
+  };
+
   static defaultProps = {
     needScrollbar: true
   };
