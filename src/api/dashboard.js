@@ -3,6 +3,7 @@ import get from 'lodash/get';
 
 import { getCurrentUserName, isExistValue, t } from '../helpers/util';
 import Cache from '../helpers/cache';
+import { getRefWithAlfrescoPrefix } from '../helpers/urls';
 import { EmodelTypes, SourcesId } from '../constants';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';
@@ -81,13 +82,18 @@ export class DashboardApi {
     return types;
   };
 
-  saveDashboardConfig = ({ identification, config }) => {
+  saveDashboardConfig = ({ identification, config, recordRef = false }) => {
     const { key, user } = identification;
     const record = Records.get(`${SourcesId.DASHBOARD}@`);
 
     record.att('config?json', config);
     record.att('authority?str', user);
     record.att('typeRef', key);
+
+    if (recordRef) {
+      record.att('appliedToRef?str', recordRef);
+      record.att('typeRef', null);
+    }
 
     return record.save().then(response => {
       cache.clear();
@@ -107,17 +113,17 @@ export class DashboardApi {
     return Records.get(Helper.parseDashboardId(dashboardId)).load({ ...defaultAttr, dashboardType: '_dashboardType' }, force);
   };
 
-  getDashboardByUserAndType = (user, typeRef) => {
-    return Records.queryOne(
-      {
-        sourceId: SourcesId.DASHBOARD,
-        query: {
-          typeRef,
-          authority: user
-        }
-      },
-      { ...defaultAttr }
-    );
+  getDashboardByUserAndType = (user, typeRef, recordRef) => {
+    const query = {
+      typeRef,
+      authority: user
+    };
+
+    if (recordRef) {
+      query.recordRef = recordRef;
+    }
+
+    return Records.queryOne({ sourceId: SourcesId.DASHBOARD, query }, { ...defaultAttr });
   };
 
   getDashboardByRecordRef = recordRef => {
@@ -138,7 +144,7 @@ export class DashboardApi {
         return result;
       }
 
-      const dashboard = yield _getDashboardByUserAndType(user, recType);
+      const dashboard = yield _getDashboardByUserAndType(user, recType, recordRef);
 
       cache.set(cacheKey, dashboard);
 
@@ -274,7 +280,7 @@ export class DashboardApi {
 
     const jsonCondition = JSON.parse(condition);
     const query = {
-      record: record.includes('workspace://') ? `alfresco/@${record}` : record
+      record: getRefWithAlfrescoPrefix(record)
     };
 
     if (Array.isArray(jsonCondition)) {
