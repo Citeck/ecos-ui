@@ -137,7 +137,24 @@ export class DashboardApi {
       }
 
       const user = getCurrentUserName();
-      const cacheKey = DashboardService.getCacheKey({ type: recType, user });
+      const key = yield Records.queryOne(
+        {
+          sourceId: SourcesId.DASHBOARD,
+          query: {
+            typeRef: recType,
+            authority: user,
+            recordRef
+          }
+        },
+        'typeRef?id'
+      );
+      let type = recType;
+
+      if (!key) {
+        type = recordRef;
+      }
+
+      const cacheKey = DashboardService.getCacheKey({ type, user });
       const result = cache.get(cacheKey);
 
       if (result) {
