@@ -4,12 +4,22 @@ import classNames from 'classnames';
 
 import { Labels, ROOT_CATEGORY_NODE_REF } from '../../constants/bpmn';
 import { t } from '../../helpers/export/util';
+import { Loader } from '../common';
 import { createCategory, initRequest } from '../../actions/bpmn';
 import Categories from './Categories/Categories';
 import ControlPanel from './ControlPanel/ControlPanel';
-import { Loader } from '../common';
 
-const ModelsViewer = ({ createCategory, hidden, isReady, initRequest }) => {
+const mapStateToProps = state => ({
+  isMobile: state.view.isMobile,
+  isReady: state.bpmn.isReady
+});
+
+const mapDispatchToProps = dispatch => ({
+  initRequest: () => dispatch(initRequest({ parentId: ROOT_CATEGORY_NODE_REF })),
+  createCategory: () => dispatch(createCategory({ parentId: ROOT_CATEGORY_NODE_REF }))
+});
+
+const BPMNDesigner = ({ createCategory, hidden, isReady, initRequest }) => {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
@@ -24,11 +34,6 @@ const ModelsViewer = ({ createCategory, hidden, isReady, initRequest }) => {
       {
         <div className={classNames('bpmn-designer-view-models', { 'd-none': hidden })}>
           <ControlPanel />
-          {!isReady && (
-            <div className="bpmn-common-container_white bpmn-common-loader">
-              <Loader />
-            </div>
-          )}
           {isReady && (
             <>
               <Categories categoryId={ROOT_CATEGORY_NODE_REF} />
@@ -37,23 +42,18 @@ const ModelsViewer = ({ createCategory, hidden, isReady, initRequest }) => {
               </div>
             </>
           )}
+          {!isReady && (
+            <div className="bpmn-common-container_white bpmn-common-loader">
+              <Loader />
+            </div>
+          )}
         </div>
       }
     </>
   );
 };
 
-const mapStateToProps = state => ({
-  isMobile: state.view.isMobile,
-  isReady: state.bpmn.isReady
-});
-
-const mapDispatchToProps = dispatch => ({
-  initRequest: () => dispatch(initRequest({ parentId: ROOT_CATEGORY_NODE_REF })),
-  createCategory: () => dispatch(createCategory({ parentId: ROOT_CATEGORY_NODE_REF }))
-});
-
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ModelsViewer);
+)(BPMNDesigner);

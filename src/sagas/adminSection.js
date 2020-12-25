@@ -32,15 +32,14 @@ function* doFetchGroupSectionList({ api, logger }, action) {
       yield put(setActiveSection(AdminSectionService.getActiveSectionInGroups(sectionsGroup, i => i.config.journalId === query.journalId)));
     }
   } catch (e) {
-    logger.error('[bpmn doFetchGroupSectionList saga] error', e.message);
+    logger.error('[adminSection doFetchGroupSectionList saga] error', e.message);
   }
 }
 
 function* openActiveSection({ api, logger }, action) {
   try {
     const item = cloneDeep(action.payload);
-    const groupSectionList = yield select(state => state.adminSection.groupSectionList || []);
-    console.log(item);
+    const sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
     let href = '';
     let options = { updateUrl: true, pushHistory: true };
 
@@ -55,7 +54,7 @@ function* openActiveSection({ api, logger }, action) {
       }
       case SectionTypes.DEV_TOOLS: {
         href = SectionURL[SectionTypes.DEV_TOOLS];
-        options = { openInBackground: true };
+        options = { openNewTab: true };
         break;
       }
       default: {
@@ -66,11 +65,11 @@ function* openActiveSection({ api, logger }, action) {
 
     PageService.changeUrlLink(href, options);
 
-    if (options.openInBackground) {
-      PageService.changeUrlLink(SectionURL[SectionTypes.BPM], { updateUrl: true });
+    if (options.openInBackground || options.openNewTab) {
+      yield put(setActiveSection(AdminSectionService.getActiveSectionInGroups(sectionsGroup, i => i.type === SectionTypes.BPM)));
     }
   } catch (e) {
-    logger.error('[bpmn openActiveSection saga] error', e.message);
+    logger.error('[adminSection openActiveSection saga] error', e.message);
   }
 }
 
