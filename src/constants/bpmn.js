@@ -20,8 +20,7 @@ export const Labels = {
   },
   Views: {
     CARDS: 'bpmn-designer.view-mode.cards',
-    LIST: 'bpmn-designer.view-mode.list',
-    TABLE: 'bpmn-designer.view-mode.table'
+    LIST: 'bpmn-designer.view-mode.list'
   }
 };
 

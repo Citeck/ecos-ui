@@ -63,11 +63,11 @@ function* openActiveSection({ api, logger }, action) {
       }
     }
 
-    PageService.changeUrlLink(href, options);
-
     if (options.openInBackground || options.openNewTab) {
       yield put(setActiveSection(AdminSectionService.getActiveSectionInGroups(sectionsGroup, i => i.type === SectionTypes.BPM)));
     }
+
+    PageService.changeUrlLink(href, options);
   } catch (e) {
     logger.error('[adminSection openActiveSection saga] error', e.message);
   }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Col, Container, Row } from 'reactstrap';
@@ -16,7 +16,16 @@ import JournalViewer from './JournalViewer';
 import './style.scss';
 
 const AdminSection = ({ isMobile, isReady, activeSection, groupSectionList }) => {
+  const sidebarRef = useRef(null);
   const [isOpenMenu, setOpenMenu] = useState(false);
+  const [topHeight, setTopHeight] = useState(500);
+
+  useEffect(() => {
+    if (sidebarRef.current) {
+      const params = sidebarRef.current.getBoundingClientRect();
+      setTopHeight(params.y + 20);
+    }
+  }, [sidebarRef]);
 
   return (
     <div className="ecos-admin-section__container">
@@ -50,7 +59,11 @@ const AdminSection = ({ isMobile, isReady, activeSection, groupSectionList }) =>
           )}
         </Container>
       </div>
-      <div className={classNames('ecos-admin-section__menu', { 'ecos-admin-section__menu_open': isOpenMenu })}>
+      <div
+        ref={sidebarRef}
+        className={classNames('ecos-admin-section__menu', { 'ecos-admin-section__menu_open': isOpenMenu })}
+        style={{ maxHeight: `calc(100vh - ${topHeight}px)` }}
+      >
         <div className="ecos-admin-section__menu-content">
           <IcoBtn
             onClick={() => setOpenMenu(false)}

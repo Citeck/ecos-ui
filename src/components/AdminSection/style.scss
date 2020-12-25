@@ -42,8 +42,9 @@
       background: $color-gray-3;
       height: 100%;
       min-width: 275px;
-      border-radius: $border-radius-extra-large;
+      border-radius: $border-radius-extra-large 0 0 $border-radius-extra-large;
       padding: 15px 25px 15px 15px;
+      overflow: auto;
 
       & :nth-child(n) {
         clear: both;

@@ -78,11 +78,12 @@
   "bpmn-designer.view-button": "Просмотр",
   "bpmn-designer.view-mode.cards": "Плитка",
   "bpmn-designer.view-mode.list": "Список",
-  "bpmn-designer.view-mode.table": "Таблица",
-  "bpmn-designer.sidebar.show": "Показать меню",
-  "bpmn-designer.sidebar.show-sm": "Меню",
-  "bpmn-designer.sidebar.hide": "Скрыть меню",
-  "bpmn-designer.sidebar.hide-sm": "Скрыть",
+
+  "admin-section.sidebar.show": "Показать меню",
+  "admin-section.sidebar.show-sm": "Меню",
+  "admin-section.sidebar.hide": "Скрыть меню",
+  "admin-section.sidebar.hide-sm": "Скрыть",
+  "admin-section.sidebar.list-empty": "Нет данных",
 
   "button.close-modal": "Закрыть",
   "button.export": "Экспорт",

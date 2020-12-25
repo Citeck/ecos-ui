@@ -78,11 +78,12 @@
   "bpmn-designer.view-button": "View",
   "bpmn-designer.view-mode.cards": "Cards",
   "bpmn-designer.view-mode.list": "List",
-  "bpmn-designer.view-mode.table": "Table",
-  "bpmn-designer.sidebar.show": "Show menu",
-  "bpmn-designer.sidebar.show-sm": "Menu",
-  "bpmn-designer.sidebar.hide": "Hide menu",
-  "bpmn-designer.sidebar.hide-sm": "Hide",
+
+  "admin-section.sidebar.show": "Show menu",
+  "admin-section.sidebar.show-sm": "Menu",
+  "admin-section.sidebar.hide": "Hide menu",
+  "admin-section.sidebar.hide-sm": "Hide",
+  "admin-section.sidebar.list-empty": "No data",
 
   "button.close-modal": "Close",
   "button.export": "Export",

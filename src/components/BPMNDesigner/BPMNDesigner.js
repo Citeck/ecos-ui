@@ -10,24 +10,23 @@ import Categories from './Categories/Categories';
 import ControlPanel from './ControlPanel/ControlPanel';
 
 const mapStateToProps = state => ({
-  isMobile: state.view.isMobile,
   isReady: state.bpmn.isReady
 });
 
 const mapDispatchToProps = dispatch => ({
-  initRequest: () => dispatch(initRequest({ parentId: ROOT_CATEGORY_NODE_REF })),
+  initSection: () => dispatch(initRequest({ parentId: ROOT_CATEGORY_NODE_REF })),
   createCategory: () => dispatch(createCategory({ parentId: ROOT_CATEGORY_NODE_REF }))
 });
 
-const BPMNDesigner = ({ createCategory, hidden, isReady, initRequest }) => {
+const BPMNDesigner = ({ createCategory, hidden, isReady, initSection }) => {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     if (!hidden && !initialized) {
       setInitialized(true);
-      initRequest();
+      initSection();
     }
-  }, [initialized]);
+  }, [initialized, hidden]);
 
   return (
     <>

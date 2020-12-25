@@ -1,11 +1,11 @@
 import { URL } from './index';
 
 export const Labels = {
-  SHOW_MENU: 'bpmn-designer.sidebar.show',
-  SHOW_MENU_sm: 'bpmn-designer.sidebar.show-sm',
-  HIDE_MENU: 'bpmn-designer.sidebar.hide',
-  HIDE_MENU_sm: 'bpmn-designer.sidebar.hide-sm',
-  EMPTY_LIST: 'journals.menu.journal-list.empty'
+  SHOW_MENU: 'admin-section.sidebar.show',
+  SHOW_MENU_sm: 'admin-section.sidebar.show-sm',
+  HIDE_MENU: 'admin-section.sidebar.hide',
+  HIDE_MENU_sm: 'admin-section.sidebar.hide-sm',
+  EMPTY_LIST: 'admin-section.sidebar.list-empty'
 };
 
 export const SectionTypes = {

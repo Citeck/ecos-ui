@@ -12,7 +12,7 @@ import ViewSwitcher from './ViewSwitcher';
 
 import '../style.scss';
 
-const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm, totalModels }) => {
+const ControlPanel = ({ showModelCreationForm, showImportModelForm, totalModels, isReady }) => {
   const createVariants = BPMNDesignerService.getCreateVariants();
 
   const handlerCreateVariant = variant => {
@@ -43,7 +43,7 @@ const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm, to
         </Col>
         <Col lg={6} md={12}>
           <div className="ecos-bpmn-designer-control-panel__side-right">
-            <div className="ecos-bpmn-designer-control-panel__counter">{`${t(Labels.TOTAL)} ${totalModels}`}</div>
+            {isReady && <div className="ecos-bpmn-designer-control-panel__counter">{`${t(Labels.TOTAL)} ${totalModels}`}</div>}
             {/*<SortFilter />*/}
             <ViewSwitcher />
           </div>
@@ -54,8 +54,8 @@ const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm, to
 };
 
 const mapStateToProps = state => ({
-  isMobile: state.view.isMobile,
-  totalModels: state.bpmn.models.length
+  totalModels: state.bpmn.models.length,
+  isReady: state.bpmn.isReady
 });
 
 const mapDispatchToProps = dispatch => ({
