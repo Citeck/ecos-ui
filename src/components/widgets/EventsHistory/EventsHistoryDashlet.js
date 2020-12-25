@@ -49,6 +49,16 @@ class EventsHistoryDashlet extends BaseWidget {
     return this.state.contentHeight;
   }
 
+  get contentMaxHeight() {
+    let height = Math.ceil(this.contentHeight + this.otherHeight);
+
+    if (height > MAX_DEFAULT_HEIGHT_DASHLET) {
+      height = MAX_DEFAULT_HEIGHT_DASHLET;
+    }
+
+    return height;
+  }
+
   onResize = width => {
     !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
@@ -73,6 +83,7 @@ class EventsHistoryDashlet extends BaseWidget {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={isCollapsed}
         setRef={this.setDashletRef}
+        contentMaxHeight={this.contentHeight + this.otherHeight}
       >
         <EventsHistory
           {...config}
