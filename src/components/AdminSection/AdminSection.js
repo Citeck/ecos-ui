@@ -15,7 +15,7 @@ import JournalViewer from './JournalViewer';
 
 import './style.scss';
 
-const AdminSection = ({ isMobile, isReady, activeSection, groupSectionList }) => {
+const AdminSection = ({ isMobile, activeSection, groupSectionList }) => {
   const sidebarRef = useRef(null);
   const [isOpenMenu, setOpenMenu] = useState(false);
   const [topHeight, setTopHeight] = useState(500);
@@ -23,13 +23,15 @@ const AdminSection = ({ isMobile, isReady, activeSection, groupSectionList }) =>
   useEffect(() => {
     if (sidebarRef.current) {
       const params = sidebarRef.current.getBoundingClientRect();
-      setTopHeight(params.y + 20);
+      const top = params.y + 20;
+
+      topHeight !== top && setTopHeight(top);
     }
   }, [sidebarRef]);
 
   return (
     <div className="ecos-admin-section__container">
-      <div className="ecos-admin-section__content">
+      <div className={classNames('ecos-admin-section__content', { 'ecos-admin-section__content_full': !isOpenMenu })}>
         <Container fluid className="p-0">
           <Row className="ecos-admin-section__header">
             <Col md={10}>

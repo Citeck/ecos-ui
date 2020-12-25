@@ -1,4 +1,3 @@
-import React from 'react';
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';

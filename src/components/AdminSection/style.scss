@@ -24,7 +24,12 @@
   }
 
   &__content {
-    flex: auto;
+    transition: width 0.5s;
+    width: calc(100% - 300px);
+
+    &_full {
+      width: 100%;
+    }
   }
 
   &__menu {

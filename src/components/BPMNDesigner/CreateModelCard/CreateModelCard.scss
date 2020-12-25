@@ -18,6 +18,12 @@
   width: 80%;
 }
 
+.bpmn-category {
+  &:not(:first-child) {
+    margin-top: 10px;
+  }
+}
+
 .bpmn-category_level1 {
   .process-model-card {
     border-color: $color-brown-2;
