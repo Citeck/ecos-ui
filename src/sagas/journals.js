@@ -74,6 +74,7 @@ import { selectSearch } from '../selectors/router';
 import { hasInString } from '../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 import { JournalUrlParams } from '../constants';
+import { loadDocumentLibrarySettings } from './docLib';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -552,6 +553,7 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
 
     yield getJournalSettings(api, journalConfig.id, w);
     yield loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, (...data) => ({ ...w(...data), logger }));
+    yield call(loadDocumentLibrarySettings, journalConfig.id, w);
 
     yield put(setLoading(w(false)));
   } catch (e) {

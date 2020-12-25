@@ -1,0 +1,29 @@
+@import '../../../../styles/constants';
+
+.ecos-doclib {
+  &__breadcrumbs {
+    margin-bottom: 1.5em;
+    background-color: $color-white;
+    border-radius: $border-radius-extra-large;
+    padding: 15px 20px;
+
+    box-sizing: border-box;
+    direction: rtl;
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &-link,
+    &-link-separator {
+      font-size: $font-size-standard;
+      font-weight: $font-weight-semi-bold;
+      color: $text-color-gray;
+    }
+
+    &-link-separator {
+      margin: 0 5px;
+    }
+  }
+}

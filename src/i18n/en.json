@@ -11,6 +11,7 @@
   "btn.cancel.label": "Cancel",
   "btn.done.label": "Done",
   "btn.confirm.label": "Confirm",
+  "btn.create.label": "Create",
 
   "page.error-loading.title": "The error occurred while loading the page",
   "page.error-loading.message": "Try reloading the page. If the error persists, contact your administrator",
@@ -271,6 +272,17 @@
   "doc-preview.scale.page-height": "Page Height",
   "doc-preview.scale.page-width": "Page Width",
   "doc-preview.modal.title": "Document preview",
+
+  "document-library.title": "Document library",
+  "document-library.folders-panel.title": "Folders",
+  "document-library.no-folders": "No folders",
+  "document-library.empty-folder": "Empty folder",
+  "document-library.failure-to-fetch-data": "Failure to fetch data",
+  "document-library.sidebar.failure-to-load-children": "Failure to load nested folders",
+  "document-library.create-node.title": "Create new \"{{name}}\"",
+  "document-library.create-node.fields.title": "Name",
+  "document-library.create-node.fields.content": "Content",
+
   "type-permissions.empty-attribute.title": "Attribute id is empty",
   "type-permissions.empty-attribute.text": "Please fill id field before call permissions editor",
   "type-permissions.empty-roles.title": "Roles is empty",

@@ -11,6 +11,7 @@
   "btn.cancel.label": "Отмена",
   "btn.done.label": "Готово",
   "btn.confirm.label": "Подтвердить",
+  "btn.create.label": "Создать",
 
   "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",
   "page.error-loading.message": "Попробуйте перезагрузить страницу. Если ошибка повториться, обратитесь к администратору ",
@@ -271,6 +272,17 @@
   "doc-preview.scale.page-height": "По высоте страницы",
   "doc-preview.scale.page-width": "По ширине страницы",
   "doc-preview.modal.title": "Предпросмотр документа",
+
+  "document-library.title": "Библиотека документов",
+  "document-library.folders-panel.title": "Папки",
+  "document-library.no-folders": "Нет папок",
+  "document-library.empty-folder": "Папка пуста",
+  "document-library.failure-to-fetch-data": "Не удалось загрузить данные",
+  "document-library.sidebar.failure-to-load-children": "Не удалось загрузить вложенные папки",
+  "document-library.create-node.title": "Создать \"{{name}}\"",
+  "document-library.create-node.fields.title": "Название",
+  "document-library.create-node.fields.content": "Содержимое",
+
   "type-permissions.empty-attribute.title": "Идинтификатор атрибута не заполнен",
   "type-permissions.empty-attribute.text": "Пожалуйста, заполните поле 'Идентификатор' перед редактированием прав",
   "type-permissions.empty-roles.title": "Роли не настроены",

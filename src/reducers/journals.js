@@ -31,6 +31,34 @@ import {
   setSettingItem,
   setUrl
 } from '../actions/journals';
+import {
+  setIsDocLibEnabled,
+  setTypeRef,
+  setFileTypeRefs,
+  setDirTypeRef,
+  setCreateVariants,
+  setRootId,
+  setFolderId,
+  setFolderTitle,
+  setFolderPath,
+  setSearchText,
+  setSidebarItems,
+  addSidebarItems,
+  setSidebarIsReady,
+  setSidebarError,
+  foldSidebarItem,
+  unfoldSidebarItem,
+  updateSidebarItem,
+  setFileViewerIsReady,
+  setFileViewerItems,
+  setFileViewerError,
+  setFileViewerPagination,
+  setFileViewerTotal,
+  setFileViewerSelected,
+  setFileViewerLastClicked,
+  setIsGroupActionsReady,
+  setGroupActions
+} from '../actions/docLib';
 import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
 import { handleAction, handleState } from '../helpers/redux';
@@ -40,6 +68,7 @@ import {
   JOURNAL_SETTING_DATA_FIELD,
   JOURNAL_SETTING_ID_FIELD
 } from '../components/Journals/constants';
+import { DEFAULT_DOCLIB_PAGINATION } from '../constants/docLib';
 
 export const defaultState = {
   loading: true,
@@ -105,7 +134,39 @@ export const defaultState = {
   zipNodeRef: null,
 
   isLoadingPerformGroupActions: false,
-  performGroupActionResponse: []
+  performGroupActionResponse: [],
+
+  documentLibrary: {
+    isEnabled: false,
+    typeRef: null,
+    fileTypeRefs: [],
+    dirTypeRef: null,
+    rootId: null,
+    folderId: null,
+    folderTitle: '',
+    folderPath: [],
+    searchText: '',
+    createVariants: [],
+    groupActions: {
+      isReady: true,
+      forRecords: {},
+      forQuery: {}
+    },
+    sidebar: {
+      isReady: false,
+      items: [],
+      hasError: false
+    },
+    fileViewer: {
+      isReady: false,
+      items: [],
+      selected: [],
+      lastClicked: null,
+      total: 0,
+      pagination: DEFAULT_DOCLIB_PAGINATION,
+      hasError: false
+    }
+  }
 };
 
 const initialState = {};
@@ -461,6 +522,389 @@ export default handleActions(
             ...(state[stateId] || {}).grid.pagination,
             skipCount: 0,
             page: 1
+          }
+        }
+      });
+    },
+    [setIsDocLibEnabled]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...state[stateId].documentLibrary,
+          isEnabled: action.payload
+        }
+      });
+    },
+    [setTypeRef]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...state[stateId].documentLibrary,
+          typeRef: action.payload
+        }
+      });
+    },
+    [setFileTypeRefs]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...state[stateId].documentLibrary,
+          fileTypeRefs: Array.isArray(action.payload) ? action.payload : []
+        }
+      });
+    },
+    [setDirTypeRef]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...state[stateId].documentLibrary,
+          dirTypeRef: action.payload
+        }
+      });
+    },
+    [setCreateVariants]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...state[stateId].documentLibrary,
+          createVariants: Array.isArray(action.payload) ? action.payload : []
+        }
+      });
+    },
+    [setRootId]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...state[stateId].documentLibrary,
+          rootId: action.payload
+        }
+      });
+    },
+    [setFolderId]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...state[stateId].documentLibrary,
+          folderId: handledAction.payload
+        }
+      });
+    },
+    [setFolderTitle]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...state[stateId].documentLibrary,
+          folderTitle: handledAction.payload
+        }
+      });
+    },
+    [setFolderPath]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...state[stateId].documentLibrary,
+          folderPath: Array.isArray(handledAction.payload) ? handledAction.payload : []
+        }
+      });
+    },
+    [setSearchText]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...state[stateId].documentLibrary,
+          searchText: handledAction.payload
+        }
+      });
+    },
+    [setSidebarItems]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          sidebar: {
+            ...documentLibrary.sidebar,
+            items: action.payload
+          }
+        }
+      });
+    },
+    [addSidebarItems]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      action = handleAction(action);
+
+      const resultItems = cloneDeep(documentLibrary.sidebar.items);
+      const addItems = Array.isArray(action.payload) ? action.payload : [];
+
+      for (let i = 0; i < addItems.length; i++) {
+        const newItem = addItems[i];
+        const newItemId = newItem.id;
+        const index = resultItems.findIndex(item => item.id === newItemId);
+        if (index === -1) {
+          resultItems.push(newItem);
+        } else {
+          resultItems[index] = { ...resultItems[index], ...newItem };
+        }
+      }
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          sidebar: {
+            ...documentLibrary.sidebar,
+            items: resultItems
+          }
+        }
+      });
+    },
+    [setSidebarIsReady]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          sidebar: {
+            ...documentLibrary.sidebar,
+            isReady: action.payload
+          }
+        }
+      });
+    },
+    [setSidebarError]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          sidebar: {
+            ...documentLibrary.sidebar,
+            hasError: action.payload
+          }
+        }
+      });
+    },
+    [foldSidebarItem]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          sidebar: {
+            ...documentLibrary.sidebar,
+            items: documentLibrary.sidebar.items.map(item => {
+              if (item.id !== handledAction.payload) {
+                return item;
+              }
+              return { ...item, isUnfolded: false };
+            })
+          }
+        }
+      });
+    },
+    [unfoldSidebarItem]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          sidebar: {
+            ...documentLibrary.sidebar,
+            items: documentLibrary.sidebar.items.map(item => {
+              if (item.id !== handledAction.payload) {
+                return item;
+              }
+              return { ...item, isUnfolded: true };
+            })
+          }
+        }
+      });
+    },
+    [updateSidebarItem]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          sidebar: {
+            ...documentLibrary.sidebar,
+            items: documentLibrary.sidebar.items.map(item => {
+              if (item.id !== action.payload.id) {
+                return item;
+              }
+              return { ...item, ...action.payload };
+            })
+          }
+        }
+      });
+    },
+    [setFileViewerIsReady]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          fileViewer: {
+            ...documentLibrary.fileViewer,
+            isReady: handledAction.payload
+          }
+        }
+      });
+    },
+    [setFileViewerItems]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          fileViewer: {
+            ...documentLibrary.fileViewer,
+            items: handledAction.payload
+          }
+        }
+      });
+    },
+    [setFileViewerError]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          fileViewer: {
+            ...documentLibrary.fileViewer,
+            hasError: handledAction.payload
+          }
+        }
+      });
+    },
+    [setFileViewerPagination]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          fileViewer: {
+            ...documentLibrary.fileViewer,
+            pagination: {
+              ...documentLibrary.fileViewer.pagination,
+              ...handledAction.payload
+            }
+          }
+        }
+      });
+    },
+    [setFileViewerTotal]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          fileViewer: {
+            ...documentLibrary.fileViewer,
+            total: handledAction.payload
+          }
+        }
+      });
+    },
+    [setFileViewerSelected]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          fileViewer: {
+            ...documentLibrary.fileViewer,
+            selected: Array.isArray(handledAction.payload) ? handledAction.payload : []
+          }
+        }
+      });
+    },
+    [setFileViewerLastClicked]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          fileViewer: {
+            ...documentLibrary.fileViewer,
+            lastClicked: handledAction.payload
+          }
+        }
+      });
+    },
+    [setIsGroupActionsReady]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          groupActions: {
+            ...documentLibrary.groupActions,
+            isReady: handledAction.payload
+          }
+        }
+      });
+    },
+    [setGroupActions]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          groupActions: {
+            ...documentLibrary.groupActions,
+            forRecords: handledAction.payload.forRecords || {},
+            forQuery: handledAction.payload.forQuery || {}
           }
         }
       });

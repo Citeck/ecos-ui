@@ -75,7 +75,7 @@
 .ecos-journal__menu {
   $root: &;
   width: 0;
-  transition: width 0.5s;
+  transition: width ease-in-out 0.3s;
 
   &_with-tabs {
     padding: 15px 0;
@@ -83,7 +83,9 @@
 
   &_expanded {
     width: 273px;
-    max-width: 273px;
+    &-document-library {
+      width: 400px;
+    }
   }
 
   &_close {
@@ -102,7 +104,9 @@
 
     &#{$root}_expanded {
       width: 100%;
-      max-width: 100%;
+      &-document-library {
+        width: 100%;
+      }
     }
   }
 }

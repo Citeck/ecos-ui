@@ -9,7 +9,8 @@ export default class PointsLoader extends React.Component {
     className: PropTypes.string,
     color: PropTypes.oneOf(['white', 'light-blue']),
     width: PropTypes.number,
-    height: PropTypes.number
+    height: PropTypes.number,
+    style: PropTypes.object
   };
 
   static defaultProps = {
@@ -18,7 +19,7 @@ export default class PointsLoader extends React.Component {
   };
 
   get styles() {
-    const { width, height } = this.props;
+    const { width, height, style: propStyle } = this.props;
     const styles = {};
 
     if (width !== undefined) {
@@ -29,7 +30,7 @@ export default class PointsLoader extends React.Component {
       styles.height = height;
     }
 
-    return styles;
+    return { ...styles, ...propStyle };
   }
 
   render() {

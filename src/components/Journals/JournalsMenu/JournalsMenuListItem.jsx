@@ -2,20 +2,13 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { getPropByStringKey, t, trigger } from '../../../helpers/util';
-import { JOURNAL_SETTING_ID_FIELD } from '../constants';
-import { Input } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
 import { RemoveDialog } from '../../common/dialogs';
+import { Input } from '../../common/form';
+import { JOURNAL_SETTING_ID_FIELD } from '../constants';
+import { Labels } from './constants';
 
-const Labels = {
-  TEMPLATE_CANCEL: 'journals.action.cancel-rename-tpl-msg',
-  TEMPLATE_RENAME: 'journals.action.rename-tpl-msg',
-  TEMPLATE_REMOVE: 'journals.action.remove-tpl-msg',
-  TEMPLATE_REMOVE_TITLE: 'journals.action.delete-tpl-msg',
-  TEMPLATE_REMOVE_TEXT: 'journals.action.remove-tpl-msg'
-};
-
-class ListItem extends React.Component {
+export default class ListItem extends React.Component {
   constructor(props) {
     super(props);
 
@@ -135,7 +128,7 @@ class ListItem extends React.Component {
           >
             <span>{title}</span>
 
-            {hasActions ? (
+            {hasActions && (
               <>
                 <IcoBtn
                   title={t(Labels.TEMPLATE_RENAME)}
@@ -150,7 +143,7 @@ class ListItem extends React.Component {
                   onClick={this.showDialog}
                 />
               </>
-            ) : null}
+            )}
           </div>
         )}
 
@@ -166,5 +159,3 @@ class ListItem extends React.Component {
     );
   }
 }
-
-export default ListItem;
