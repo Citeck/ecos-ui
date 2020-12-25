@@ -6,10 +6,10 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { URL } from '../constants';
-import { SectionTypes } from '../constants/bpmn';
+import { SectionTypes, SectionURL } from '../constants/adminSection';
 import PageService from '../services/PageService';
-import { fetchGroupSectionList, initAdminSection, setActiveSection, setGroupSectionList } from '../actions/adminSection';
 import AdminSectionService from '../services/AdminSectionService';
+import { fetchGroupSectionList, initAdminSection, setActiveSection, setGroupSectionList } from '../actions/adminSection';
 
 function* doInit({ api, logger }) {
   try {
@@ -22,7 +22,6 @@ function* doInit({ api, logger }) {
 function* doFetchGroupSectionList({ api, logger }, action) {
   try {
     const sectionsGroup = yield call(api.adminSection.getGroupSectionList);
-    console.log(sectionsGroup);
     const query = queryString.parseUrl(window.location.href).query;
 
     yield put(setGroupSectionList(sectionsGroup));
@@ -47,7 +46,7 @@ function* openActiveSection({ api, logger }, action) {
 
     switch (item.type) {
       case SectionTypes.BPM: {
-        href = item.href;
+        href = SectionURL[SectionTypes.BPM];
         break;
       }
       case SectionTypes.JOURNAL: {
@@ -55,9 +54,8 @@ function* openActiveSection({ api, logger }, action) {
         break;
       }
       case SectionTypes.DEV_TOOLS: {
-        href = item.href;
-        //todo
-        // options = { openInBackground: true };
+        href = SectionURL[SectionTypes.DEV_TOOLS];
+        options = { openInBackground: true };
         break;
       }
       default: {
@@ -67,10 +65,10 @@ function* openActiveSection({ api, logger }, action) {
     }
 
     PageService.changeUrlLink(href, options);
-    //
-    // if (options.openInBackground) {
-    //   yield put(setActiveSection(groupSectionList.find(i => i.type === SectionTypes.BPM)));
-    // }
+
+    if (options.openInBackground) {
+      PageService.changeUrlLink(SectionURL[SectionTypes.BPM], { updateUrl: true });
+    }
   } catch (e) {
     logger.error('[bpmn openActiveSection saga] error', e.message);
   }

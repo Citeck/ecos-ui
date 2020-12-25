@@ -5,7 +5,7 @@ import cn from 'classnames';
 
 import { setViewType } from '../../../../actions/bpmn';
 import { t } from '../../../../helpers/util';
-import AdminSectionService from '../../../../services/AdminSectionService';
+import BPMNDesignerService from '../../../../services/BPMNDesignerService';
 
 import styles from './ViewSwitcher.module.scss';
 
@@ -19,7 +19,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const ViewSwitcher = ({ viewType, setViewType, isMobile }) => {
-  const viewTypes = AdminSectionService.getViewPageTypes();
+  const viewTypes = BPMNDesignerService.getViewPageTypes();
   const renderTooltipList = vt =>
     isMobile ? null : (
       <UncontrolledTooltip target={vt.id} delay={0} placement="top" innerClassName="tooltip-inner-custom" arrowClassName="arrow-custom">

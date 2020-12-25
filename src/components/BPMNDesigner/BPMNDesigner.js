@@ -23,6 +23,7 @@ const ModelsViewer = ({ createCategory, hidden, isReady, initRequest }) => {
     <>
       {
         <div className={classNames('bpmn-designer-view-models', { 'd-none': hidden })}>
+          <ControlPanel />
           {!isReady && (
             <div className="bpmn-common-container_white bpmn-common-loader">
               <Loader />
@@ -30,7 +31,6 @@ const ModelsViewer = ({ createCategory, hidden, isReady, initRequest }) => {
           )}
           {isReady && (
             <>
-              <ControlPanel />
               <Categories categoryId={ROOT_CATEGORY_NODE_REF} />
               <div className="bpmn-designer-view-models__add-category" onClick={createCategory}>
                 {t(Labels.ADD_CATEGORY)}

@@ -31,12 +31,6 @@ export const ViewTypes = {
   TABLE: 'table'
 };
 
-export const SectionTypes = {
-  BPM: 'BPM',
-  DEV_TOOLS: 'DEV_TOOLS',
-  JOURNAL: 'JOURNAL'
-};
-
 export const SORT_FILTER_LAST_MODIFIED = 0;
 export const SORT_FILTER_OLD = 1;
 export const SORT_FILTER_AZ = 2;

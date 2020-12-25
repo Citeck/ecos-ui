@@ -5,7 +5,7 @@ import { Col, Row } from 'reactstrap';
 import { t } from '../../../helpers/export/util';
 import { Labels } from '../../../constants/bpmn';
 import { showImportModelForm, showModelCreationForm } from '../../../actions/bpmn';
-import AdminSectionService from '../../../services/AdminSectionService';
+import BPMNDesignerService from '../../../services/BPMNDesignerService';
 import { Dropdown } from '../../common/form';
 import Search from './Search';
 import ViewSwitcher from './ViewSwitcher';
@@ -13,7 +13,7 @@ import ViewSwitcher from './ViewSwitcher';
 import '../style.scss';
 
 const ControlPanel = ({ isMobile, showModelCreationForm, showImportModelForm, totalModels }) => {
-  const createVariants = AdminSectionService.getCreateVariants();
+  const createVariants = BPMNDesignerService.getCreateVariants();
 
   const handlerCreateVariant = variant => {
     if (variant.id === 'bpmn-designer-create-model') {
