@@ -258,3 +258,9 @@ $header-height: 52px;
   border-right: 2px solid $color-gray-4;
   z-index: 10;
 }
+
+.ecos-info-text.ecos-info-text-cell_error {
+  display: inline-block;
+  font-weight: unset;
+  font-size: $font-size-small;
+}

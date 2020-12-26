@@ -57,8 +57,8 @@ class RouteTypeTabs extends React.Component {
     }
   }
 
-  handleChangeActiveSheetTab = link => {
-    PageService.changeUrlLink(link, { rerenderPage: true, replaceHistory: true });
+  handleChangeActiveSheetTab = (index, tab) => {
+    PageService.changeUrlLink(tab.link, { rerenderPage: true, replaceHistory: true });
   };
 
   render() {

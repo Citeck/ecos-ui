@@ -29,7 +29,7 @@ class Tabs extends React.Component {
       return;
     }
 
-    this.props.onClick(tab.link);
+    this.props.onClick(index, tab);
   };
 
   renderTab = (tab, index) => {

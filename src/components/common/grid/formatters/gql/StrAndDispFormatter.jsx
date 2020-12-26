@@ -1,4 +1,6 @@
-import React, { Fragment } from 'react';
+import React from 'react';
+import get from 'lodash/get';
+
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class StrAndDispFormatter extends DefaultGqlFormatter {
@@ -6,14 +8,17 @@ export default class StrAndDispFormatter extends DefaultGqlFormatter {
     return `.att(n:"${attribute}"){str,disp}`;
   }
 
-  value(cell) {
-    return cell.disp || '';
+  static getFilterValue(cell) {
+    cell = get(cell, '[0]') || cell;
+    return get(cell, 'disp', '');
+  }
+
+  value() {
+    let cell = this.props.cell || {};
+    return get(cell, '[0].disp') || cell.disp || '';
   }
 
   render() {
-    let props = this.props;
-    let cell = props.cell || {};
-
-    return <Fragment>{this.value(cell)}</Fragment>;
+    return <>{this.value()}</>;
   }
 }

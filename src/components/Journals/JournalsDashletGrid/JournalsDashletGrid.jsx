@@ -124,20 +124,11 @@ class JournalsDashletGrid extends Component {
   };
 
   setSelectedRow(row) {
-    this.selectedRow = row;
-  }
-
-  getSelectedRow() {
-    return this.selectedRow;
-  }
-
-  clearSelectedRow() {
-    this.selectedRow = {};
+    this.selectedRow = row || {};
   }
 
   showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
-
     this.props.setGridInlineToolSettings({ actions: this.getCurrentRowInlineActions(), ...options });
   };
 
@@ -154,26 +145,21 @@ class JournalsDashletGrid extends Component {
       return [
         {
           title: t('grid.inline-tools.details'),
-          onClick: () => this.goToJournalPageWithFilter(),
+          onClick: () => this.props.goToJournalsPage(this.selectedRow),
           icon: 'icon-small-arrow-right'
         }
       ];
     }
 
-    const currentRow = this.getSelectedRow().id;
+    const currentRow = this.selectedRow.id;
     const recordActions = get(forRecord, currentRow, []);
 
     return recordActions.map(action => ({ ...action, onClick: () => execRecordsAction(currentRow, action) }));
   }
 
   hideGridInlineToolSettings = () => {
-    this.clearSelectedRow();
+    this.setSelectedRow();
     this.props.setGridInlineToolSettings(DEFAULT_INLINE_TOOL_SETTINGS);
-  };
-
-  goToJournalPageWithFilter = () => {
-    const selectedRow = this.getSelectedRow();
-    this.props.goToJournalsPage(selectedRow);
   };
 
   inlineTools = () => {
