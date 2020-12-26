@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import { t } from '../../helpers/util';
+import { Icon } from '../common';
 import { DndUtils, DragItem, Droppable } from '../Drag-n-Drop';
 
 import './style.scss';
@@ -69,7 +70,7 @@ class EditorLeftMenu extends React.Component {
     this.props.setData(state);
   };
 
-  handleRemoveMenuItem = ({ item }) => {
+  handleRemoveMenuItem = item => {
     const { selectedItems, availableItems, setData } = this.props;
 
     if (!availableItems.find(elm => elm.id === item.id)) {
@@ -80,6 +81,15 @@ class EditorLeftMenu extends React.Component {
       selectedItems: selectedItems.filter(menu => menu.id !== item.id),
       availableItems
     });
+  };
+
+  getActionsComponents = item => {
+    return [
+      <Icon
+        className="icon-small-close ecos-dashboard-settings__widgets-action ecos-dashboard-settings__widgets-action_remove"
+        onClick={() => this.handleRemoveMenuItem(item)}
+      />
+    ];
   };
 
   render() {
@@ -131,10 +141,9 @@ class EditorLeftMenu extends React.Component {
                     key={`selected-${item.id}-${index}`}
                     draggableId={item.dndId}
                     draggableIndex={index}
-                    removeItem={this.handleRemoveMenuItem}
                     selected={true}
-                    canRemove={true}
                     item={item}
+                    actionsComponent={this.getActionsComponents(item)}
                   />
                 ))}
             </Droppable>

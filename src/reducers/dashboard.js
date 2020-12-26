@@ -71,7 +71,7 @@ export default handleActions(
         }
       };
     },
-    [setDashboardConfig]: (state, { payload: { key, config, originalConfig } }) => {
+    [setDashboardConfig]: (state, { payload: { key, config, originalConfig, modelAttributes } }) => {
       const { id: _id, key: _key } = state[key].identification || {};
       const boards = {};
       const keys = Object.keys(state);
@@ -87,6 +87,10 @@ export default handleActions(
 
       if (originalConfig) {
         boards[key].originalConfig = originalConfig;
+      }
+
+      if (modelAttributes) {
+        boards[key].modelAttributes = modelAttributes;
       }
 
       return {

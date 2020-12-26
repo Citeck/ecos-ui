@@ -79,64 +79,49 @@ $ecos_btn_grey5: ecos-btn_grey5;
     }
   }
 
+  &:hover {
+    & #{$root}__actions > :nth-child(n) {
+      display: block;
+    }
+  }
+
   &__actions {
     display: inline-flex;
     align-items: center;
     position: relative;
     right: 0;
 
-    %common-btn {
-      padding: 0;
-      height: 100%;
+    & > :nth-child(n):not(.ecos-drag-item__actions-item_drag) {
       margin-left: 5px;
-    }
-
-    &__btn-move.#{$ecos_btn} {
-      pointer-events: none;
-      @extend %common-btn;
-      font-size: $font-size-extra-large;
-      cursor: grab;
-
-      .icon-custom-drag-big {
-        &:before {
-          width: 1em;
-        }
-      }
-    }
-
-    &__btn-remove.#{$ecos_btn} {
-      @extend %common-btn;
-      font-size: $font-size-small;
       display: none;
+    }
 
-      &.#{$ecos_btn_grey5} {
-        &:hover {
-          color: $text-color-dark;
-        }
+    & .icon {
+      height: 100%;
+      font-size: $font-size-small;
+      color: $text-color-gray;
+      cursor: pointer;
+
+      &:hover {
+        color: $text-color-dark;
       }
     }
 
     &-item {
-      font-size: $font-size-small;
-      display: none;
+      &_drag {
+        pointer-events: none;
+        cursor: grab;
+        margin: 0 6px;
 
-      &-alert {
-        cursor: help;
-
-        &:hover {
-          color: $color-red-1;
+        &.icon {
+          color: $color-gray-6;
+          font-size: $font-size-extra-large;
         }
       }
-    }
-  }
 
-  &:hover {
-    .ecos-drag-item__actions__btn-remove {
-      display: block;
-    }
-
-    .ecos-drag-item__actions-item {
-      display: block;
+      &_selected.icon {
+        color: $color-gray-5;
+      }
     }
   }
 }

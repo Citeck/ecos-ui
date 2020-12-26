@@ -17,6 +17,7 @@ export const selectStateByKey = createSelector(
       config: layouts,
       mobileConfig: get(config, 'mobile', []),
       availableWidgets: get(ownState, 'availableWidgets', []),
+      modelAttributes: get(ownState, 'modelAttributes', []),
       isLoading: get(ownState, 'isLoading', false),
       isLoadingKeys: get(ownState, 'isLoadingKeys', false),
       requestResult: get(ownState, 'requestResult', {}),

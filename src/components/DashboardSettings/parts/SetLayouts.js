@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { t } from '../../helpers/util';
-import { getLayouts } from '../../helpers/layout';
-import { LayoutItem } from '../../components/Layout';
+import { t } from '../../../helpers/util';
+import { getLayouts } from '../../../helpers/layout';
+import { LayoutItem } from '../../../components/Layout';
 
-import './style.scss';
+import '../style.scss';
 
 class SetLayouts extends React.Component {
   static propTypes = {
