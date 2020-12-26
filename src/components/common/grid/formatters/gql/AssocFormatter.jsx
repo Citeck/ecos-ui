@@ -23,6 +23,11 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     return <AssocOrgstructEditor {...editorProps} value={value} column={column} />;
   }
 
+  static getFilterValue(cell) {
+    cell = get(cell, '[0]') || cell;
+    return get(cell, 'disp', '');
+  }
+
   static async getDisplayName(item) {
     if (isNodeRef(item)) {
       return Records.get(item).load('.disp');
