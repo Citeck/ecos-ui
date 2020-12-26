@@ -46,6 +46,10 @@ export default class extends Component {
       selected = new Date(selected);
     }
 
+    if (window.isNaN(selected)) {
+      selected = '';
+    }
+
     return (
       <div className={wrapperCssClasses}>
         <DatePicker
