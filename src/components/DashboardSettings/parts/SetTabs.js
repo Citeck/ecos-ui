@@ -8,13 +8,13 @@ import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
 import classNames from 'classnames';
 
-import DashboardService from '../../services/dashboard';
-import { t } from '../../helpers/util';
-import { EditTabs, ScrollArrow } from '../../components/common';
-import { IcoBtn } from '../../components/common/btns';
-import { RemoveDialog } from '../../components/common/dialogs';
+import DashboardService from '../../../services/dashboard';
+import { t } from '../../../helpers/util';
+import { EditTabs, ScrollArrow } from '../../../components/common';
+import { IcoBtn } from '../../../components/common/btns';
+import { RemoveDialog } from '../../../components/common/dialogs';
 
-import './style.scss';
+import '../style.scss';
 
 class SetTabs extends React.Component {
   static propTypes = {

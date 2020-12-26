@@ -105,5 +105,19 @@
       display: flex;
       justify-content: space-between;
     }
+
+    &__filters {
+      & .ecos-filters-group {
+        box-shadow: none;
+
+        & .ecos-filters-group__empty {
+          background: $color-blue-light3;
+          border-radius: $border-radius-standard;
+          height: unset;
+          font-size: $font-size-small;
+          padding: 4px 10px;
+        }
+      }
+    }
   }
 }

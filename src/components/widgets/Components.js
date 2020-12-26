@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import uuidV4 from 'uuid/v4';
-import { deepClone } from '../../helpers/util';
+import { deepClone, t } from '../../helpers/util';
 import { DashboardTypes } from '../../constants/dashboard';
 
 export const ComponentKeys = {
@@ -226,7 +226,7 @@ export default class Components {
       ...props,
       id: props.id || defWidget.id,
       config: {
-        widgetDisplayCondition: '',
+        widgetDisplayCondition: null,
         elementsDisplayCondition: {},
         ...config
       }
@@ -263,5 +263,17 @@ export default class Components {
 
   static getAllDashboardTypesExcept(types = []) {
     return Components.allDashboardTypes.filter(item => !types.includes(item));
+  }
+
+  static getWidgetLabel(widget, isMobile) {
+    const description = get(widget, 'description', '');
+    let label = t(get(Components.components, [widget.name, 'label'], get(widget, 'label', '')));
+
+    if (isMobile && description) {
+      label = `[${description}] ${label}`;
+      return label;
+    }
+
+    return label;
   }
 }

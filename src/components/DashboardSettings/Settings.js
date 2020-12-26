@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isNull from 'lodash/isNull';
 import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
 import find from 'lodash/find';
-import * as queryString from 'query-string';
+import cloneDeep from 'lodash/cloneDeep';
 import { Col, Container, Row } from 'reactstrap';
 
 import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
@@ -21,13 +22,8 @@ import UserLocalSettingsService from '../../services/userLocalSettings';
 import { Layouts, LayoutTypes } from '../../constants/layout';
 import { DashboardTypes, DeviceTabs } from '../../constants/dashboard';
 import DashboardSettingsConverter from '../../dto/dashboardSettings';
-import SetBind from './SetBind';
-import { Loader, Tabs } from '../../components/common';
-import cloneDeep from 'lodash/cloneDeep';
-import SetTabs from './SetTabs';
-import SetLayouts from './SetLayouts';
-import SetWidgets from './SetWidgets';
 import PageService from '../../services/PageService';
+import { Loader, Tabs } from '../../components/common';
 import { Btn } from '../../components/common/btns';
 import { TunableDialog } from '../../components/common/dialogs';
 import { selectStateByKey } from '../../selectors/dashboardSettings';
@@ -40,6 +36,10 @@ import {
   saveDashboardConfig,
   setCheckUpdatedDashboardConfig
 } from '../../actions/dashboardSettings';
+import SetBind from './parts/SetBind';
+import SetTabs from './parts/SetTabs';
+import SetLayouts from './parts/SetLayouts';
+import SetWidgets from './parts/SetWidgets';
 
 import './style.scss';
 
@@ -541,7 +541,10 @@ class Settings extends Component {
   };
 
   renderWidgetsBlock() {
-    const { activeLayoutTabId, selectedWidgets, mobileSelectedWidgets, mobileActiveLayoutTabId } = this.state;
+    const { activeLayoutTabId, mobileActiveLayoutTabId } = this.state;
+    const selectedWidgets = cloneDeep(this.state.selectedWidgets);
+    const mobileSelectedWidgets = cloneDeep(this.state.mobileSelectedWidgets);
+    const { modelAttributes } = this.props;
     const isMob = this.isSelectedMobileVer;
 
     const setData = (data, removedWidgets) => {
@@ -555,7 +558,6 @@ class Settings extends Component {
 
       if (removedWidgets) {
         this.setState({ removedWidgets });
-
         this.handleRemoveMobileWidgets(removedWidgets);
       }
     };
@@ -568,6 +570,7 @@ class Settings extends Component {
         setData={setData}
         isMobile={isMob}
         positionAdjustment={this.getPositionOffset}
+        modelAttributes={modelAttributes}
       />
     );
   }

@@ -369,4 +369,21 @@ export default class ParserPredicate {
 
     return predicates;
   }
+
+  static getWrappedPredicate(value) {
+    return {
+      t: PREDICATE_OR,
+      val: [
+        {
+          t: PREDICATE_OR,
+          val: [
+            {
+              t: PREDICATE_AND,
+              val: value
+            }
+          ]
+        }
+      ]
+    };
+  }
 }

@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import { FiltersGroup } from './';
-import { ParserPredicate } from './predicates';
-import { RemoveDialog } from '../common/dialogs';
+import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
+
 import { t, trigger } from '../../helpers/util';
+import { RemoveDialog } from '../common/dialogs';
+import { ParserPredicate } from './predicates';
+import { FiltersGroup } from './';
 
 import './Filters.scss';
 
-export default class Filters extends Component {
+class Filters extends Component {
   state = {
     isDialogShow: false,
     dialogTitle: '',
@@ -38,11 +40,8 @@ export default class Filters extends Component {
 
   onDeleteGroup = () => {
     if (this._groupIndex) {
-      const groupIndex = this._groupIndex;
-
-      this.groups.splice(groupIndex, 1);
-
-      this.triggerChange(this.groups.length === 1 && !this.groups[0].filters.length ? [] : this.groups);
+      this.groups.splice(this._groupIndex, 1);
+      this.triggerChange(this.groups);
     }
 
     this.closeDialog();
@@ -74,6 +73,8 @@ export default class Filters extends Component {
   };
 
   createGroup = (group, first, idx, sourceId, metaRecord) => {
+    const { classNameGroup, textEmpty, columns } = this.props;
+
     return (
       <FiltersGroup
         key={idx}
@@ -82,7 +83,7 @@ export default class Filters extends Component {
         group={group}
         sourceId={sourceId}
         metaRecord={metaRecord}
-        columns={this.props.columns}
+        columns={columns}
         onAddGroup={this.addGroup}
         onChangeFilter={this.onChangeFilter}
         onDeleteFilter={this.showDeleteFilterDialog}
@@ -90,6 +91,8 @@ export default class Filters extends Component {
         onAddFilter={this.onAddFilter}
         onChangeGroupFilterCondition={this.onChangeGroupFilterCondition}
         onChangeFilterCondition={this.onChangeFilterCondition}
+        className={classNameGroup}
+        textEmpty={textEmpty}
       />
     );
   };
@@ -198,19 +201,17 @@ export default class Filters extends Component {
     this.delete = this.onDeleteFilter;
   };
 
-  delete = () => {};
+  delete = () => undefined;
 
   render() {
     const { isDialogShow, dialogTitle, dialogText } = this.state;
-    const props = this.props;
-    const groups = (this.groups = ParserPredicate.parse(props.predicate, props.columns));
+    const { predicate, columns, sourceId, metaRecord, className } = this.props;
+    const groups = (this.groups = ParserPredicate.parse(predicate, columns));
     const length = groups.length;
     const lastIdx = length ? length - 1 : 0;
-    const sourceId = props.sourceId;
-    const metaRecord = props.metaRecord;
 
     return (
-      <div className={classNames('ecos-filters', this.props.className)}>
+      <div className={classNames('ecos-filters', className)}>
         <DragDropContext onDragEnd={this.onDragEnd}>
           {groups.map((group, idx) => {
             if (idx > 0) {
@@ -225,6 +226,7 @@ export default class Filters extends Component {
           isOpen={isDialogShow}
           title={dialogTitle}
           text={dialogText}
+          className="ecos-modal_width-xs"
           onDelete={this.delete}
           onCancel={this.closeDialog}
           onClose={this.closeDialog}
@@ -233,3 +235,16 @@ export default class Filters extends Component {
     );
   }
 }
+
+Filters.propTypes = {
+  predicate: PropTypes.object,
+  columns: PropTypes.array,
+  sourceId: PropTypes.string,
+  metaRecord: PropTypes.string,
+  className: PropTypes.string,
+  classNameGroup: PropTypes.string,
+  textEmpty: PropTypes.string,
+  onChange: PropTypes.func
+};
+
+export default Filters;

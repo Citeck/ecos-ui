@@ -2,20 +2,27 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Col, Row } from 'reactstrap';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
 
 import DisplayElementService from '../../../services/DisplayElementService';
 import { objectCompare, t } from '../../../helpers/util';
 import { InfoText } from '../../common';
-import { Input, Label, Select, Textarea } from '../../common/form';
+import { Caption, Input, Label, Select } from '../../common/form';
 import { Btn } from '../../common/btns';
+import Filters from '../../Filters/Filters';
+import { SourcesId } from '../../../constants';
+import { ParserPredicate } from '../../Filters/predicates';
 
 const Labels = {
+  TITLE: 'barcode-widget.settings.title',
   DONE_BUTTON: 'btn.done.label',
   CANCEL_BUTTON: 'btn.cancel.label',
-  DISPLAY_CONDITION_TITLE: 'widget.display-condition.element-title',
-  DISPLAY_CONDITION_ERR: 'widget.display-condition.error.invalid',
+  BTN_GENERATE_NEW: 'barcode-widget.btn.generate-new',
+  DISPLAY_CONDITION_TITLE: 'widget-settings.display-condition.element-title',
+  DISPLAY_CONDITION_NO_ATTR: 'widget-settings.dc-no-attributes',
+  DISPLAY_CONDITION_NO_RULES: 'widget-settings.dc-no-rules',
   CODE_TYPE: 'barcode-widget.settings.code-type.label',
   PRINT_SET: 'barcode-widget.settings.print-settings.label',
   SCALE: 'barcode-widget.settings.scale.label',
@@ -53,7 +60,7 @@ class Settings extends Component {
       right: get(props, 'settings.right', 0),
       bottom: get(props, 'settings.bottom', 0),
       left: get(props, 'settings.left', 0),
-      dcGenerateNew: get(props, 'displayCondition.btnGenerateNew', '')
+      dcGenerateNew: this.getPredicate(get(props, 'displayCondition.btnGenerateNew'))
     };
   }
 
@@ -69,7 +76,7 @@ class Settings extends Component {
     }
 
     if (!isEqual(displayCondition, prevProps.displayCondition)) {
-      this.setState({ dcGenerateNew: get(displayCondition, 'btnGenerateNew', '') });
+      this.setState({ dcGenerateNew: this.getPredicate(get(displayCondition, 'btnGenerateNew')) });
     }
   }
 
@@ -89,12 +96,20 @@ class Settings extends Component {
     });
   }
 
+  get columns() {
+    return DisplayElementService.getModelAttributesLikeColumns(this.props.modelAttributes);
+  }
+
   getNumber(value = '') {
     if (typeof value !== 'string') {
       return 0;
     }
 
     return parseInt(value.replace(/\D/g, ''), 10);
+  }
+
+  getPredicate(predicate) {
+    return predicate || ParserPredicate.getDefaultPredicates(this.columns);
   }
 
   handleChangeScale = event => {
@@ -109,8 +124,8 @@ class Settings extends Component {
     this.setState({ [position]: this.getNumber(value) || 0 });
   };
 
-  onChangeCondition = event => {
-    this.setState({ dcGenerateNew: event.target.value });
+  onChangeCondition = dcGenerateNew => {
+    this.setState({ dcGenerateNew });
   };
 
   handleCancel = () => {
@@ -126,32 +141,32 @@ class Settings extends Component {
 
     if (typeof onSave === 'function') {
       const { type, scale, top, left, right, bottom, dcGenerateNew } = this.state;
-      const isValid = DisplayElementService.isValidCondition(dcGenerateNew);
 
-      this.setState({ errorCondition: !isValid });
-      isValid &&
-        onSave(
-          {
-            scale,
-            top,
-            left,
-            right,
-            bottom,
-            type: get(type, 'value', '')
-          },
-          {
-            btnGenerateNew: dcGenerateNew
-          }
-        );
+      onSave(
+        {
+          scale,
+          top,
+          left,
+          right,
+          bottom,
+          type: get(type, 'value', '')
+        },
+        {
+          btnGenerateNew: dcGenerateNew
+        }
+      );
     }
   };
 
   render() {
-    const { allowedTypes } = this.props;
-    const { type, scale, top, left, right, bottom, dcGenerateNew, errorCondition } = this.state;
+    const { allowedTypes, modelAttributes } = this.props;
+    const { type, scale, top, left, right, bottom, dcGenerateNew } = this.state;
 
     return (
       <div className="ecos-barcode-settings">
+        <Caption middle className="ecos-doc-constructor-settings__title">
+          {t(Labels.TITLE)}
+        </Caption>
         <div className="ecos-barcode-settings__group">
           <Label htmlFor="codeType" className="ecos-barcode-settings__label">
             {t(Labels.CODE_TYPE)}
@@ -160,11 +175,18 @@ class Settings extends Component {
         </div>
         <div className="ecos-barcode-settings__group">
           <Label htmlFor="displayCondition1" className="ecos-barcode-settings__label">
-            {t(Labels.DISPLAY_CONDITION_TITLE, { title: t('barcode-widget.btn.generate-new') })}
+            {t(Labels.DISPLAY_CONDITION_TITLE, { title: t(Labels.BTN_GENERATE_NEW) })}
           </Label>
-          <Textarea value={dcGenerateNew} onChange={this.onChangeCondition} placeholder={DisplayElementService.placeholderCondition} />
-          {errorCondition && (
-            <InfoText className="ecos-doc-constructor-settings__info" text={t(Labels.DISPLAY_CONDITION_ERR)} type="error" />
+          {isEmpty(modelAttributes) && <InfoText noIndents text={t(Labels.DISPLAY_CONDITION_NO_ATTR)} />}
+          {!isEmpty(modelAttributes) && (
+            <Filters
+              predicate={dcGenerateNew}
+              columns={this.columns}
+              sourceId={SourcesId.TYPE}
+              textEmpty={t(Labels.DISPLAY_CONDITION_NO_RULES)}
+              onChange={this.onChangeCondition}
+              className="ecos-barcode-settings__filters"
+            />
           )}
         </div>
         <div className="ecos-barcode-settings__section-name">{t(Labels.PRINT_SET)}</div>
