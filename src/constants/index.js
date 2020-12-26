@@ -146,6 +146,14 @@ export const JournalUrlParams = {
   DOCLIB_SEARCH: 'dlSearch'
 };
 
+export const SYSTEM_LIST = 'global-system';
+
+export const SystemJournals = {
+  ALL_J: 'ecos-all-journals',
+  TYPES: 'ecos-types',
+  MENUS: 'ecos-menus'
+};
+
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};
 window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };

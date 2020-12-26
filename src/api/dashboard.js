@@ -1,5 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import isString from 'lodash/isString';
 
 import { getCurrentUserName, isExistValue, t } from '../helpers/util';
 import Cache from '../helpers/cache';
@@ -290,12 +291,21 @@ export class DashboardApi {
     return target;
   };
 
+  getModelAttributes = ref => {
+    return Records.get(ref)
+      .load('resolvedModel.attributes[]{id,name,type}')
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
+  };
+
   static getIsAvailableWidget = (record, condition) => {
     if (!condition) {
       return Promise.resolve(true);
     }
 
-    const jsonCondition = JSON.parse(condition);
+    const jsonCondition = isString(condition) ? JSON.parse(condition) : condition;
     const query = {
       record: getRefWithAlfrescoPrefix(record)
     };

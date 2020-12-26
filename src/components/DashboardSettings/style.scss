@@ -132,6 +132,7 @@
       & :first-child {
         position: relative;
       }
+
       &-loader {
         position: absolute;
         top: 0;
@@ -266,7 +267,7 @@
           max-width: 30%;
           min-width: 180px;
 
-          #{$settings}__column-widgets {
+          #{$settings}__widgets-column {
             width: 100%;
           }
 
@@ -308,44 +309,104 @@
     }
   }
 
-  &__column-widgets {
-    display: flex;
-    flex-direction: column;
-    width: 195px;
-    margin-bottom: 16px;
+  &__widgets {
+    $widgets: &;
 
-    &:not(:last-of-type) {
-      margin-right: 16px;
+    &-column {
+      display: flex;
+      flex-direction: column;
+      width: 195px;
+      margin-bottom: 16px;
+
+      &:not(:last-of-type) {
+        margin-right: 16px;
+      }
+
+      &-title {
+        background: $color-gray-4;
+        border-radius: $border-radius-small;
+        vertical-align: bottom;
+        padding: 5px 11px 0;
+        height: 26px;
+        font-style: normal;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-small;
+        color: $text-color-gray;
+        margin-bottom: 9px;
+        box-sizing: border-box;
+      }
     }
 
-    &__title {
-      background: $color-gray-4;
-      border-radius: $border-radius-small;
-      vertical-align: bottom;
-      padding: 5px 11px 0;
-      height: 26px;
-      font-style: normal;
-      font-weight: $font-weight-semi-bold;
-      font-size: $font-size-small;
-      color: $text-color-gray;
-      margin-bottom: 9px;
-      box-sizing: border-box;
-    }
-
-    &__items {
+    &-container {
       width: 100%;
       box-sizing: border-box;
+    }
 
-      &__cell {
-        width: 100%;
+    &-item {
+      width: 100%;
 
-        &:not(:last-child) {
-          margin-bottom: 5px;
+      &:not(:last-child) {
+        margin-bottom: 5px;
+      }
+    }
+  }
+}
+
+.ecos-ds-widget {
+  &-actions {
+    &__tooltip {
+      .tooltip {
+        z-index: 10001;
+      }
+    }
+
+    &__btn {
+      &_alert.icon {
+        cursor: help;
+
+        &:hover {
+          color: $color-red-1;
         }
       }
     }
   }
 
-  &__actions {
+  &-settings {
+    &__title {
+      @extend %title-block--1;
+
+      & > :nth-child(n) {
+        margin-left: 10px;
+      }
+    }
+
+    &__filter {
+      & .ecos-filters-group {
+        box-shadow: none;
+
+        &__tools {
+          padding: 0 0 10px 25px;
+        }
+
+        & .ecos-filters-group__empty {
+          font-weight: $font-weight-semi-bold;
+          text-align: center;
+          background: $color-gray-15;
+          border-radius: $border-radius-standard;
+          height: unset;
+          padding: 5px;
+        }
+      }
+    }
+
+    &__buttons {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+
+      & > :nth-child(n) {
+        margin-left: 10px;
+      }
+    }
   }
 }

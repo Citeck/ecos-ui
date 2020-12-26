@@ -1,9 +1,10 @@
 import React, { lazy, Suspense } from 'react';
 import { Provider } from 'react-redux';
+import uuid from 'uuidv4';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 import cloneDeep from 'lodash/cloneDeep';
-import uuid from 'uuidv4';
 
 import { SourcesId } from '../constants';
 import { CONFIG_VERSION, DashboardTypes } from '../constants/dashboard';
@@ -13,6 +14,7 @@ import pageTabList from './pageTabs/PageTabList';
 import DialogManager from '../components/common/dialogs/Manager/DialogManager';
 import { Loader } from '../components/common';
 import { getStore } from '../store';
+import { ParserPredicate } from '../components/Filters/predicates';
 
 const separatorId = '@';
 
@@ -156,7 +158,32 @@ export default class DashboardService {
     const version = get(source, 'version');
     const newVersionConfig = get(source, version, []);
 
+    const updWidgetProps = widgets => {
+      function getJson(data) {
+        const val = JSON.parse(data);
+        return val && (Array.isArray(val) ? val : [val]);
+      }
+
+      widgets &&
+        widgets.forEach(w => {
+          const widgetDisplayCondition = get(w, 'props.config.widgetDisplayCondition');
+          const elementsDisplayCondition = get(w, 'props.config.elementsDisplayCondition');
+
+          if (widgetDisplayCondition && isString(widgetDisplayCondition)) {
+            w.props.config.widgetDisplayCondition = ParserPredicate.getWrappedPredicate(getJson(widgetDisplayCondition));
+          }
+
+          elementsDisplayCondition &&
+            Object.keys(elementsDisplayCondition).forEach(key => {
+              if (elementsDisplayCondition[key] && isString(elementsDisplayCondition[key])) {
+                elementsDisplayCondition[key] = ParserPredicate.getWrappedPredicate(getJson(elementsDisplayCondition[key]));
+              }
+            });
+        });
+    };
+
     if (version === CONFIG_VERSION && !isEmpty(newVersionConfig)) {
+      updWidgetProps(source[CONFIG_VERSION].widgets);
       return source;
     }
 
@@ -203,6 +230,8 @@ export default class DashboardService {
       mobile = DashboardService.generateNewMobileConfig(desktop);
     }
 
+    updWidgetProps(widgets);
+
     return {
       ...source,
       version: CONFIG_VERSION,
@@ -215,7 +244,7 @@ export default class DashboardService {
   }
 
   static openEditModal(props = {}) {
-    const DashboardSettingsModal = lazy(() => import('../pages/DashboardSettings/DashboardSettingsModal'));
+    const DashboardSettingsModal = lazy(() => import('../components/DashboardSettings/DashboardSettingsModal'));
     const store = getStore();
     const modalRef = React.createRef();
     let { title, ...otherProps } = props;

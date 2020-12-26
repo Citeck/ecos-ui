@@ -118,15 +118,15 @@ export default class Filter extends Component {
               value={selectedPredicate}
               onChange={this.changePredicate}
             />,
-            <div className={'ecos-filter__value-wrapper'}>{isShow && <FilterValueComponent {...predicateProps} />}</div>,
-            <>
+            <div className="ecos-filter__value-wrapper">{isShow && <FilterValueComponent {...predicateProps} />}</div>,
+            <div className="ecos-filter__actions">
               <IcoBtn
                 icon={'icon-delete'}
                 className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
                 onClick={this.delete}
               />
-              <i className={classNames('ecos-btn__i', 'ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico')} />
-            </>
+              <i className="ecos-btn__i ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico" />
+            </div>
           ]}
         />
       </div>

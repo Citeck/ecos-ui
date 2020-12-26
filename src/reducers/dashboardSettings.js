@@ -72,7 +72,7 @@ export default handleActions(
     [resetConfigToDefault]: startLoading,
 
     [setDashboardConfig]: (state, { payload }) => {
-      const { identification, config, key, originalConfig } = payload;
+      const { identification, config, key, originalConfig, modelAttributes } = payload;
 
       return {
         ...state,
@@ -81,6 +81,7 @@ export default handleActions(
           config,
           originalConfig,
           identification,
+          modelAttributes,
           isLoading: false
         }
       };

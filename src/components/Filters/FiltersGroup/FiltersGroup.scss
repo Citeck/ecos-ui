@@ -1,37 +1,40 @@
 @import '../../../styles/constants';
 
 .ecos-filters-group {
-}
+  &__head {
+    position: relative;
+  }
 
-.ecos-filters-group__head {
-  position: relative;
-}
+  &__tools {
+    display: flex;
+    align-items: center;
+    padding: 13px 20px 10px 20px;
 
-.ecos-filters-group__tools {
-  display: flex;
-  align-items: center;
-  padding: 13px 20px 10px 20px;
-}
+    &_step {
+      margin-right: 10px;
+    }
+  }
 
-.ecos-filters-group__tools_step {
-  margin-right: 10px;
-}
+  &__item {
+    &_draggable {
+      background: $color-white;
+      z-index: 20000 !important;
+      list-style-type: none;
+      outline: none;
+      box-shadow: $box-shadow-default;
+    }
+  }
 
-.ecos-filters-group__select {
-  width: 160px;
-}
+  &__select {
+    width: 160px;
+  }
 
-.ecos-filters-group__draggable {
-  background: $color-white !important;
-  z-index: 20000 !important;
-  list-style-type: none !important;
-}
+  &__empty {
+    height: 40px;
+  }
 
-.ecos-filters-group__empty {
-  height: 40px;
-}
-
-.ecos-filters-group__delete-btn {
-  position: absolute;
-  right: 0;
+  &__delete-btn {
+    position: absolute;
+    right: 0;
+  }
 }

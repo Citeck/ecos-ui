@@ -53,6 +53,7 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
     }
 
     const { config, ...result } = yield call(api.dashboard.getDashboardByOneOf, { ...payload, recordRef });
+    const modelAttributes = yield call(api.dashboard.getModelAttributes, result.key);
     const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
     const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
     const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
@@ -65,7 +66,7 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
       webConfigs.identification.key = recordRef;
     }
 
-    yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config }));
+    yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config, modelAttributes }));
     yield put(getAvailableWidgets({ type: data.type, key }));
     yield put(getDashboardKeys(payload));
   } catch (e) {
