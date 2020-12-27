@@ -6,21 +6,27 @@ import { Grid } from '../';
 class EmptyGrid extends React.Component {
   constructor(props) {
     super(props);
-    this._ref = React.createRef();
+    this._ref = null;
     this.state = { height: 0 };
   }
 
   getHeight = () => {
-    if (this._ref.current) {
-      return (this._ref.current || {}).offsetHeight + this.props.diff;
+    if (this._ref) {
+      return this._ref.offsetHeight + this.props.diff;
     }
 
     return 0;
   };
 
-  componentDidMount() {
-    this.setState({ height: this.getHeight() });
-  }
+  setRef = ref => {
+    if (!ref) {
+      return;
+    }
+
+    this._ref = ref;
+
+    this.setState({ height: ref.offsetHeight + this.props.diff });
+  };
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.maxItems !== this.props.maxItems) {
@@ -43,16 +49,14 @@ class EmptyGrid extends React.Component {
     const { height } = this.state;
     const fakeData = Array.from(Array(maxItems), (e, i) => ({ id: i }));
 
-    return maxItems ? (
-      <div ref={this._ref} style={{ height: height || 'auto', minHeight, maxHeight }}>
-        {height ? (
-          this.getChild(height)
-        ) : (
-          <Grid data={fakeData} columns={[{ dataField: '_', text: ' ' }]} className="ecos-grid_transparent" scrollable={false} />
-        )}
+    if (height) {
+      return this.getChild(height);
+    }
+
+    return (
+      <div ref={this.setRef} style={{ height: height || 'auto', minHeight, maxHeight }}>
+        <Grid data={fakeData} columns={[{ dataField: '_', text: ' ' }]} className="ecos-grid_transparent" scrollable={false} />
       </div>
-    ) : (
-      this.getChild(height)
     );
   }
 }

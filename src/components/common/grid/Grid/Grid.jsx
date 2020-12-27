@@ -47,6 +47,7 @@ const MAX_START_TH_WIDTH = 500;
 class Grid extends Component {
   #columnsSizes = {};
   #isAllSelected = false;
+  #gridRef = null;
 
   constructor(props) {
     super(props);
@@ -93,10 +94,8 @@ class Grid extends Component {
   }
 
   componentDidUpdate() {
-    const grid = get(this.props, 'forwardedRef.current', null);
-
-    if (grid) {
-      this._tableDom = grid.querySelector('table');
+    if (this.#gridRef) {
+      this._tableDom = this.#gridRef.querySelector('table');
     }
 
     this.setColumnsSizes();
@@ -122,6 +121,20 @@ class Grid extends Component {
 
     return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
   }
+
+  setGridRef = ref => {
+    if (!ref) {
+      return;
+    }
+
+    const { forwarderRef } = this.props;
+
+    if (typeof forwarderRef === 'function') {
+      forwarderRef(ref);
+    }
+
+    this.#gridRef = ref;
+  };
 
   /**
    * Fixes loss of column sizes when redrawing a component
@@ -1001,7 +1014,7 @@ class Grid extends Component {
       >
         {!!toolsVisible && this.tools(bootProps.selected)}
         <Scroll scrollable={bootProps.scrollable} refCallback={this.scrollRefCallback}>
-          <div ref={forwardedRef}>
+          <div ref={this.setGridRef}>
             <BootstrapTable
               {...bootProps}
               classes="ecos-grid__table"
