@@ -40,7 +40,7 @@ function* openActiveSection({ api, logger }, action) {
     let href = '';
     let options = { updateUrl: true, pushHistory: true };
 
-    switch (item.type) {
+    switch (get(item, 'type')) {
       case SectionTypes.BPM: {
         href = SectionURL[SectionTypes.BPM];
         break;

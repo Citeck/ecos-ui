@@ -9,8 +9,9 @@ import { Labels, SectionTypes } from '../../constants/adminSection';
 import { IcoBtn } from '../common/btns';
 import { Caption } from '../common/form';
 
-import SectionList from './SectionList';
 import BPMNDesigner from '../BPMNDesigner';
+import { JournalSettings } from '../Journals';
+import SectionList from './SectionList';
 import JournalViewer from './JournalViewer';
 
 import './style.scss';
@@ -19,6 +20,7 @@ const AdminSection = ({ isMobile, activeSection, groupSectionList, tabId }) => {
   const sidebarRef = useRef(null);
   const [isOpenMenu, setOpenMenu] = useState(false);
   const [topHeight, setTopHeight] = useState(500);
+  const [journalStateId, setJournalStateId] = useState(null);
 
   useEffect(() => {
     if (sidebarRef.current) {
@@ -28,6 +30,13 @@ const AdminSection = ({ isMobile, activeSection, groupSectionList, tabId }) => {
       topHeight !== top && setTopHeight(top);
     }
   }, [sidebarRef]);
+
+  const _setJournalStateId = id => {
+    id !== journalStateId && setJournalStateId(id);
+  };
+
+  const displayBpm = activeSection.type === SectionTypes.BPM;
+  const displayJournal = activeSection.type === SectionTypes.JOURNAL;
 
   return (
     <div className="ecos-admin-section__container">
@@ -54,8 +63,8 @@ const AdminSection = ({ isMobile, activeSection, groupSectionList, tabId }) => {
           {!isEmpty(activeSection) && (
             <Row>
               <Col md={12}>
-                <BPMNDesigner hidden={activeSection.type !== SectionTypes.BPM} />
-                <JournalViewer hidden={activeSection.type !== SectionTypes.JOURNAL} tabId={tabId} />
+                <BPMNDesigner hidden={!displayBpm} />
+                <JournalViewer hidden={!displayJournal} tabId={tabId} upStateId={_setJournalStateId} />
               </Col>
             </Row>
           )}
@@ -78,6 +87,7 @@ const AdminSection = ({ isMobile, activeSection, groupSectionList, tabId }) => {
           {groupSectionList.map(item => (
             <SectionList key={item.id} list={item.sections} title={item.label} />
           ))}
+          {displayJournal && journalStateId && <JournalSettings stateId={journalStateId} />}
         </div>
       </div>
     </div>

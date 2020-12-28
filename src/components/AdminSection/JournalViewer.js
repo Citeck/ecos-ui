@@ -9,7 +9,7 @@ import { initState } from '../../actions/journals';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Journals } from '../Journals';
 
-const JournalViewer = ({ hidden, isActivePage, initStateJournal, ...props }) => {
+const JournalViewer = ({ hidden, isActivePage, initStateJournal, upStateId, ...props }) => {
   const tableCont = useRef(null);
   const [initialized, setInitialized] = useState(false);
   const [stateId, setStateId] = useState('');
@@ -19,6 +19,7 @@ const JournalViewer = ({ hidden, isActivePage, initStateJournal, ...props }) => 
       const id = getStateId({ tabId: props.tabId, id: getId() });
       initStateJournal(id);
       setStateId(id);
+      upStateId(id);
       setInitialized(true);
     }
   }, [isActivePage, hidden, initialized]);
