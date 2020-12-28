@@ -7,9 +7,6 @@ import { EcosModal } from '../../../components/common';
 
 import customModuleAction from './modules/action';
 
-import nyanDrawModule from './modules/nyan/draw';
-import nyanPaletteModule from './modules/nyan/palette';
-
 import 'cmmn-js/dist/assets/diagram-js.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-codes.css';
@@ -19,7 +16,15 @@ import './style.scss';
 
 const res = `
 <?xml version="1.0" encoding="UTF-8"?>
-<cmmn:definitions xmlns:dc="http://www.omg.org/spec/CMMN/20151109/DC" xmlns:cmmndi="http://www.omg.org/spec/CMMN/20151109/CMMNDI" xmlns:cmmn="http://www.omg.org/spec/CMMN/20151109/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Test" targetNamespace="http://bpmn.io/schema/cmmn">
+<cmmn:definitions
+    xmlns:dc="http://www.omg.org/spec/CMMN/20151109/DC"
+    xmlns:cmmndi="http://www.omg.org/spec/CMMN/20151109/CMMNDI"
+    xmlns:cmmn="http://www.omg.org/spec/CMMN/20151109/MODEL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecos="http://www.citeck.ru/ecos/cmmn"
+    id="Test"
+    targetNamespace="http://bpmn.io/schema/cmmn">
+
   <cmmn:case id="Case_2">
     <cmmn:casePlanModel id="CasePlanModel_2" name="Another CasePlanModel"/>
   </cmmn:case>
@@ -62,7 +67,7 @@ class CmmnPage extends Component {
 
     this._viewer = new CmmnModeler({
       container,
-      additionalModules: [nyanDrawModule, nyanPaletteModule, customModuleAction]
+      additionalModules: [customModuleAction]
     });
 
     this._viewer.importXML(res, err => {

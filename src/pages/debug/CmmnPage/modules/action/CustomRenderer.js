@@ -1,111 +1,113 @@
-import inherits from 'inherits';
-import CmmnRenderer from 'cmmn-js/lib/draw/CmmnRenderer';
-import { is } from 'cmmn-js/lib/util/ModelUtil';
+import BaseRenderer from 'diagram-js/lib/draw/BaseRenderer';
+import TextUtil from 'diagram-js/lib/util/Text';
 
-// const originDrawShape = CmmnRenderer.prototype.drawShape;
-//
-// CmmnRenderer.prototype.drawShape = function(parent, element) {
-//   let type = element.type;
-//
-//   console.warn('drawShape => ', { element })
-//
-//   return originDrawShape.call(this, parent, element);
-//
-//   // if (type === 'cmmn:Action') {
-//   //   type = 'cmmn:Task';
-//   // }
-//   //
-//   // const h = handlers[type];
-//   //
-//   // console.warn({ handlers })
-//   //
-//   // if (!h) {
-//   //   return BaseRenderer.prototype.drawShape.apply(this, [ parent, element ]);
-//   // } else {
-//   //   return h(parent, element);
-//   // }
-// };
+import { getName } from 'cmmn-js/lib/util/ModelUtil';
 
-export default function CustomRenderer(eventBus, styles) {
-  CmmnRenderer.call(this, eventBus, 2000);
+import { getEcosType } from './utils';
 
-  // this.canRender = function(element) {
-  //   return is(element, 'bpmn:ServiceTask');
-  // };
+import { append as svgAppend, attr as svgAttr, classes as svgClasses, create as svgCreate, remove as svgRemove } from 'tiny-svg';
 
-  this.drawShape = function(parent, element) {
-    console.warn('DRAW SHAPE => ', { parent, element });
+import actionTypes from './action-types.json';
 
-    return CmmnRenderer.prototype.drawShape.call(this, parent, element);
-  };
+import 'bpmn-font/dist/css/bpmn.css';
+
+const HIGH_PRIORITY = 1500,
+  TASK_BORDER_RADIUS = 10;
+
+var LABEL_STYLE = {
+  fontFamily: 'Arial, sans-serif',
+  fontSize: '12px'
+};
+
+const DEFAULT_TYPES_TO_RENDER = ['Action'];
+
+export default class CustomRenderer extends BaseRenderer {
+  constructor(eventBus, cmmnRenderer) {
+    super(eventBus, HIGH_PRIORITY);
+    this.cmmnRenderer = cmmnRenderer;
+
+    this._actionTypesToRender = [...DEFAULT_TYPES_TO_RENDER, ...actionTypes.map(type => type.id)];
+  }
+
+  canRender(element) {
+    return this._actionTypesToRender.indexOf(getEcosType(element)) !== -1;
+  }
+
+  drawShape(parentNode, element, attrs) {
+    var rect = drawRect(parentNode, element.width, element.height, TASK_BORDER_RADIUS, attrs);
+    let ecosType = getEcosType(element);
+    renderLabel(parentNode, ecosType, {
+      box: element,
+      align: 'left-top',
+      padding: 5
+    });
+    renderEmbeddedLabel(parentNode, element, 'center-middle');
+    //attachTaskMarkers(p, element);
+    return rect;
+
+    /*return task;
+
+    const shape = this.cmmnRenderer.drawShape(parentNode, element);
+    const rect = drawRect(parentNode, 30, 20, TASK_BORDER_RADIUS, '#cc0000');
+
+    svgAttr(rect, {
+      transform: 'translate(-20, -10)'
+    });
+
+    return shape;*/
+  }
+
+  getShapePath(shape) {
+    return this.cmmnRenderer.getShapePath(shape);
+  }
 }
 
-inherits(CustomRenderer, CmmnRenderer);
+CustomRenderer.$inject = ['eventBus', 'cmmnRenderer'];
 
-CustomRenderer.$inject = ['eventBus', 'styles'];
+// helpers //////////
 
-console.warn({ CustomRenderer });
+const textUtil = new TextUtil({
+  style: LABEL_STYLE,
+  size: { width: 100 }
+});
 
-CustomRenderer.prototype.canRender = function(element) {
-  console.warn('canRenderer => ', { element });
+function renderLabel(parentGfx, label, options) {
+  var text = textUtil.createText(label || '', options);
+  svgClasses(text).add('djs-label');
+  svgAppend(parentGfx, text);
 
-  return CmmnRenderer.prototype.canRender.call(this, element);
+  return text;
+}
 
-  // return /^custom:/.test(element.type);
-};
+function renderEmbeddedLabel(p, element, align) {
+  var name = getName(element);
+  return renderLabel(p, name, {
+    box: element,
+    align: align,
+    padding: 5
+  });
+}
 
-CustomRenderer.prototype.drawShape = function(p, element) {
-  console.warn('drawShape => ', { p, element });
+// copied from https://github.com/bpmn-io/bpmn-js/blob/master/lib/draw/BpmnRenderer.js
+function drawRect(parentNode, width, height, borderRadius, strokeColor) {
+  const rect = svgCreate('rect');
 
-  return CmmnRenderer.prototype.drawShape.call(this, p, element);
+  svgAttr(rect, {
+    width: width,
+    height: height,
+    rx: borderRadius,
+    ry: borderRadius,
+    stroke: strokeColor || '#000',
+    strokeWidth: 2,
+    fill: '#fff'
+  });
 
-  // var type = element.type;
-  //
-  // if (type === 'custom:triangle') {
-  //   return this.drawTriangle(p, element.width);
-  // }
-  //
-  // if (type === 'custom:circle') {
-  //   return this.drawCircle(p, element.width, element.height);
-  // }
-};
+  svgAppend(parentNode, rect);
 
-CustomRenderer.prototype.getShapePath = function(shape) {
-  console.warn('getShapePath => ', { shape });
+  return rect;
+}
 
-  return CmmnRenderer.prototype.getShapePath.call(this, shape);
-
-  // var type = shape.type;
-  //
-  // if (type === 'custom:triangle') {
-  //   return this.getTrianglePath(shape);
-  // }
-  //
-  // if (type === 'custom:circle') {
-  //   return this.getCirclePath(shape);
-  // }
-};
-
-CustomRenderer.prototype.drawConnection = function(p, element) {
-  console.warn('drawConnection => ', { p, element });
-
-  return CmmnRenderer.prototype.drawConnection.call(this, p, element);
-
-  // var type = element.type;
-  //
-  // if (type === 'custom:connection') {
-  //   return this.drawCustomConnection(p, element);
-  // }
-};
-
-CustomRenderer.prototype.getConnectionPath = function(connection) {
-  console.warn('getConnectionPath => ', { connection });
-
-  return CmmnRenderer.prototype.getConnectionPath.call(this, connection);
-
-  // var type = connection.type;
-  //
-  // if (type === 'custom:connection') {
-  //   return this.getCustomConnectionPath(connection);
-  // }
-};
+// copied from https://github.com/bpmn-io/diagram-js/blob/master/lib/core/GraphicsFactory.js
+function prependTo(newNode, parentNode, siblingNode) {
+  parentNode.insertBefore(newNode, siblingNode || parentNode.firstChild);
+}

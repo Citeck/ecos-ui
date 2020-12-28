@@ -1,24 +1,10 @@
-import ActionContextPad from './ActionContextPad';
 import ActionPalette from './ActionPalette';
-import ReplaceMenuProvider from './ReplaceMenu';
-import CustomRules from './CustomRules';
 import CustomRenderer from './CustomRenderer';
-import CustomElementFactory from './CustomElementFactory';
-// import ReplaceMenuProvider from './ReplaceMenuProvider';
+import CustomReplaceMenuProvider from './CustomReplaceMenuProvider';
 
 export default {
-  __init__: [
-    'actionContextPad',
-    'actionPalette',
-    'replaceMenuProvider',
-    'customRules',
-    'customRenderer'
-    // 'elementFactory'
-  ],
-  actionContextPad: ['type', ActionContextPad],
+  __init__: ['actionPalette', 'replaceMenuProvider', 'customRenderer'],
   actionPalette: ['type', ActionPalette],
-  customRules: ['type', CustomRules],
-  replaceMenuProvider: ['type', ReplaceMenuProvider],
+  replaceMenuProvider: ['type', CustomReplaceMenuProvider],
   customRenderer: ['type', CustomRenderer]
-  // elementFactory: [ 'type', CustomElementFactory ],
 };

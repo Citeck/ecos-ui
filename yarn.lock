@@ -5117,6 +5117,11 @@ boxen@^4.1.0:
     type-fest "^0.8.1"
     widest-line "^3.1.0"
 
+bpmn-font@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/bpmn-font/-/bpmn-font-0.10.0.tgz#d8f7185795c7108bd6ada5afe74be828916c26b7"
+  integrity sha512-y5UhxANjxWFH3hgA/4ATpgiXEJVfn1V6j72ui+iiqf6qQDRS4ScWTdKvpHHRqQ/HR/3Jc8sFSxRcTHHb4E488A==
+
 brace-expansion@^1.1.7:
   version "1.1.11"
   resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-1.1.11.tgz#3c7fcbf529d87226f3d2f52b966ff5271eb441dd"
