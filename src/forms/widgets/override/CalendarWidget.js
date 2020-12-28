@@ -13,4 +13,11 @@ export default class CalendarWidget extends FormIOCalendarWidget {
   get defaultSettings() {
     return CalendarWidget.defaultSettings;
   }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-795
+  attach(input) {
+    this.settings.disableMobile = 'true';
+
+    super.attach(input);
+  }
 }
