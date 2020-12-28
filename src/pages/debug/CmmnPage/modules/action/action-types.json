@@ -2,13 +2,22 @@
   {
     "id": "EmailAction",
     "name": {
-      "en": "Send Email"
+      "en": "Send Email",
+      "ru": "Отправить Email"
     }
   },
   {
-    "id": "ExecuteScript",
+    "id": "ScriptAction",
     "name": {
-      "en": "Execute Script"
+      "en": "Execute Script",
+      "ru": "Выполнить скрипт"
+    }
+  },
+  {
+    "id": "SetCaseStatusAction",
+    "name": {
+      "en": "Set Case Status",
+      "ru": "Установить статус кейса"
     }
   }
 ]
