@@ -31,5 +31,9 @@ export default class AdminSectionService {
         return section;
       }
     }
+
+    if (!section) {
+      console.warn('Unknown section');
+    }
   }
 }

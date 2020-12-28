@@ -22,14 +22,12 @@ function* doFetchGroupSectionList({ api, logger }, action) {
   try {
     const sectionsGroup = yield call(api.adminSection.getGroupSectionList);
     const query = queryString.parseUrl(window.location.href).query;
+    const activeSection =
+      (!isEmpty(query) && AdminSectionService.getActiveSectionInGroups(sectionsGroup, i => i.config.journalId === query.journalId)) ||
+      AdminSectionService.getActiveSectionInGroups(sectionsGroup, i => i.type === SectionTypes.BPM);
 
     yield put(setGroupSectionList(sectionsGroup));
-
-    if (isEmpty(query)) {
-      yield put(setActiveSection(AdminSectionService.getActiveSectionInGroups(sectionsGroup, i => i.type === SectionTypes.BPM)));
-    } else {
-      yield put(setActiveSection(AdminSectionService.getActiveSectionInGroups(sectionsGroup, i => i.config.journalId === query.journalId)));
-    }
+    yield put(setActiveSection(activeSection));
   } catch (e) {
     logger.error('[adminSection doFetchGroupSectionList saga] error', e.message);
   }

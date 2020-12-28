@@ -15,7 +15,7 @@ import JournalViewer from './JournalViewer';
 
 import './style.scss';
 
-const AdminSection = ({ isMobile, activeSection, groupSectionList }) => {
+const AdminSection = ({ isMobile, activeSection, groupSectionList, tabId }) => {
   const sidebarRef = useRef(null);
   const [isOpenMenu, setOpenMenu] = useState(false);
   const [topHeight, setTopHeight] = useState(500);
@@ -55,7 +55,7 @@ const AdminSection = ({ isMobile, activeSection, groupSectionList }) => {
             <Row>
               <Col md={12}>
                 <BPMNDesigner hidden={activeSection.type !== SectionTypes.BPM} />
-                <JournalViewer hidden={activeSection.type !== SectionTypes.JOURNAL} />
+                <JournalViewer hidden={activeSection.type !== SectionTypes.JOURNAL} tabId={tabId} />
               </Col>
             </Row>
           )}

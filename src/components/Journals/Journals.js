@@ -25,7 +25,7 @@ import {
 import { JournalUrlParams } from '../../constants';
 import { animateScrollTo, getBool, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
-import { selectIsDocLibEnabled, selectDocLibFolderTitle } from '../../selectors/docLib';
+import { selectDocLibFolderTitle, selectIsDocLibEnabled } from '../../selectors/docLib';
 import { wrapArgs } from '../../helpers/redux';
 import FormManager from '../EcosForm/FormManager';
 
@@ -268,7 +268,7 @@ class Journals extends Component {
     this.setState({ isForceUpdate: true }, () => this.setState({ isForceUpdate: false }));
   }, 250);
 
-  getSearch = () => {
+  getSearchText = () => {
     const { isActivePage, urlParams } = this.props;
 
     if (!isActivePage) {
@@ -399,7 +399,7 @@ class Journals extends Component {
     }
   };
 
-  onExecuteGroupAction(action) {
+  onExecuteGroupAction = action => {
     const { selectAllRecords } = this.props;
 
     if (!selectAllRecords) {
@@ -411,7 +411,7 @@ class Journals extends Component {
 
       this.props.execRecordsAction(query, action);
     }
-  }
+  };
 
   getJournalContentMaxHeight = () => {
     const journalMinHeight = 175;
@@ -461,13 +461,13 @@ class Journals extends Component {
 
   renderSettings = () => {
     if (this.displayElements.settings) {
-      const { stateId, journalConfig, grid, isMobile, isActivePage, selectedRecords, reloadGrid, isDocLibEnabled } = this.props;
+      const { stateId, journalConfig, grid, isMobile, selectedRecords, reloadGrid, isDocLibEnabled } = this.props;
       const { showPreview, settingsVisible } = this.state;
       const { id: journalId, columns = [], meta = {}, sourceId } = pick(this.props.journalConfig, ['id', 'columns', 'meta', 'sourceId']);
       const visibleColumns = columns.filter(c => c.visible);
 
       if (this.isDocLibMode) {
-        <DocLibSettingsBar stateId={stateId} showGrid={this.showGrid} togglePreview={this.togglePreview} isMobile={isMobile} />;
+        return <DocLibSettingsBar stateId={stateId} showGrid={this.showGrid} togglePreview={this.togglePreview} isMobile={isMobile} />;
       }
 
       return (
@@ -507,12 +507,13 @@ class Journals extends Component {
             showPreview={showPreview}
             toggleSettings={this.toggleSettings}
             togglePreview={this.togglePreview}
+            showDocLibrary={this.showDocLibrary}
             showGrid={this.showGrid}
             refresh={reloadGrid}
             onSearch={this.onSearch}
             addRecord={this.addRecord}
             isMobile={isMobile}
-            searchText={this.getSearch()}
+            searchText={this.getSearchText()}
             selectedRecords={selectedRecords}
             isDocLibEnabled={isDocLibEnabled}
           />
@@ -536,7 +537,7 @@ class Journals extends Component {
           selectAllRecords={selectAllRecords}
           grid={grid}
           selectedRecords={selectedRecords}
-          onExecuteAction={this.onExecuteGroupAction.bind(this)}
+          onExecuteAction={this.onExecuteGroupAction}
           onGoTo={this.onGoTo}
           onSelectAll={this.onSelectAllRecords}
         />
@@ -591,7 +592,6 @@ class Journals extends Component {
   };
 
   render() {
-    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, height, viewMode } = this.state;
     const { stateId, journalConfig, pageTabsIsShow, isMobile, isActivePage, bodyClassName } = this.props;
     const { showPreview, height } = this.state;
 
@@ -610,7 +610,7 @@ class Journals extends Component {
         >
           <div
             ref={this.setJournalBodyRef}
-            className={classNames('ecos-journal__body', {
+            className={classNames('ecos-journal__body', bodyClassName, {
               'ecos-journal__body_with-tabs': pageTabsIsShow,
               'ecos-journal__body_mobile': isMobile,
               'ecos-journal__body_with-preview': showPreview
