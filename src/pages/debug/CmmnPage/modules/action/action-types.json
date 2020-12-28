@@ -2,14 +2,14 @@
   {
     "id": "EmailAction",
     "name": {
-      "en": "Send Email",
+      "en": "Email Action",
       "ru": "Отправить Email"
     }
   },
   {
     "id": "ScriptAction",
     "name": {
-      "en": "Execute Script",
+      "en": "Script Action",
       "ru": "Выполнить скрипт"
     }
   },
