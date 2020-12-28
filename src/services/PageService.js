@@ -32,14 +32,18 @@ export default class PageService {
   static getType(link) {
     const _link = link || window.location.href;
     const found = queryString.parseUrl(_link).url.split('/v2/');
+    let type = get(found, '[1]', '');
 
-    return get(found, '[1]', '');
+    if (type.indexOf(PageTypes.TIMESHEET) === 0) {
+      return PageTypes.TIMESHEET;
+    }
+
+    return type;
   }
 
   static getKey({ link, type }) {
     const _link = link || window.location.href;
     const _type = type || PageService.getType(_link);
-
     const urlProps = queryString.parseUrl(_link);
 
     switch (_type) {
@@ -142,6 +146,7 @@ export default class PageService {
    *    openInBackground - bool,
    *    pushHistory - bool,
    *    replaceHistory - bool // default true, if updateUrl is true
+   *    rerenderPage - bool, needed to replace link in the router and start rerendering page
    */
   static changeUrlLink = (link = '', params = {}) => {
     if (PageService.eventIsDispatched) {

@@ -12,6 +12,13 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  &__actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
 }
 
 .ecos-filter_step {

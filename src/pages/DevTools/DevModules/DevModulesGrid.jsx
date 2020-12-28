@@ -3,7 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 
 import { Grid } from '../../../components/common/grid';
-import InlineToolsComponent from '../../../components/common/grid/InlineTools/InlineToolsComponent';
+import { renderAction } from '../../../components/common/grid/InlineTools/helpers';
 import InlineToolsDisconnected from '../../../components/common/grid/InlineTools/InlineToolsDisconnected';
 import recordActions from '../../../components/Records/actions/recordActions';
 
@@ -37,7 +37,7 @@ const DevModulesGrid = () => {
 
     const rowActions = get(actions, `forRecord.${rowId}`, []);
     const buttons = rowActions.map((action, idx) =>
-      InlineToolsComponent.renderAction(
+      renderAction(
         {
           ...action,
           onClick: () => recordActions.execForRecord(rowId, action)

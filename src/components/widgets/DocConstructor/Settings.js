@@ -2,9 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../helpers/export/util';
-import DisplayElementService from '../../../services/DisplayElementService';
-import { InfoText } from '../../common';
-import { Caption, Input, Textarea } from '../../common/form';
+import { Caption, Input } from '../../common/form';
 import { Btn } from '../../common/btns';
 
 import './style.scss';
@@ -12,9 +10,6 @@ import './style.scss';
 const Labels = {
   TITLE: 'doc-constructor-widget.settings.title',
   JOURNAL_TEMPLATES_ID: 'doc-constructor-widget.settings.prop.journal-templates-id',
-  WIDGET_DISPLAY_CONDITION: 'widget.display-condition.widget-title',
-  ERROR_WIDGET_DISPLAY_CONDITION: 'widget.display-condition.error.invalid',
-  RESULT_WIDGET_DISPLAY_CONDITION: 'widget.display-condition.info.visible-result--', //todo for ECOSUI-329
   BTN_CANCEL: 'doc-constructor-widget.settings.button.cancel',
   BTN_SAVE: 'doc-constructor-widget.settings.button.save'
 };
@@ -31,33 +26,22 @@ class Settings extends React.Component {
   };
 
   state = {
-    widgetDisplayCondition: '',
     journalTemplatesId: ''
   };
 
   componentDidMount() {
-    const { widgetDisplayCondition, journalTemplatesId } = this.props.config;
+    const { journalTemplatesId } = this.props.config;
 
-    this.setState({ widgetDisplayCondition, journalTemplatesId });
+    this.setState({ journalTemplatesId });
   }
 
   onSave = () => {
-    const { widgetDisplayCondition, journalTemplatesId } = this.state;
-    const isValid = DisplayElementService.isValidCondition(widgetDisplayCondition);
-
-    this.setState({ errorCondition: !isValid });
-
-    if (isValid) {
-      this.props.onSave({ widgetDisplayCondition, journalTemplatesId });
-    }
+    const { journalTemplatesId } = this.state;
+    this.props.onSave({ journalTemplatesId });
   };
 
   onCancel = () => {
     this.props.onCancel();
-  };
-
-  onChangeCondition = event => {
-    this.setState({ widgetDisplayCondition: event.target.value });
   };
 
   onChangeJournalTemplates = event => {
@@ -65,7 +49,7 @@ class Settings extends React.Component {
   };
 
   render() {
-    const { errorCondition, journalTemplatesId, widgetDisplayCondition } = this.state;
+    const { journalTemplatesId } = this.state;
 
     return (
       <div className="ecos-doc-constructor-settings">
@@ -75,17 +59,6 @@ class Settings extends React.Component {
         <div className="ecos-doc-constructor-settings__block">
           <div className="ecos-doc-constructor-settings__subtitle">{t(Labels.JOURNAL_TEMPLATES_ID)}</div>
           <Input defaultValue={journalTemplatesId} onChange={this.onChangeJournalTemplates} />
-        </div>
-        <div className="ecos-doc-constructor-settings__block">
-          <div className="ecos-doc-constructor-settings__subtitle">{t(Labels.WIDGET_DISPLAY_CONDITION)}</div>
-          <Textarea
-            value={widgetDisplayCondition}
-            onChange={this.onChangeCondition}
-            placeholder={DisplayElementService.placeholderCondition}
-          />
-          {errorCondition && (
-            <InfoText className="ecos-doc-constructor-settings__info" text={t(Labels.ERROR_WIDGET_DISPLAY_CONDITION)} type="error" />
-          )}
         </div>
         <div className="ecos-doc-constructor-settings__buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.onCancel}>

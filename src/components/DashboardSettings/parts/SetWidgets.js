@@ -1,16 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
+import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import classNames from 'classnames';
+import cloneDeep from 'lodash/cloneDeep';
 
-import { deepClone, t } from '../../helpers/util';
-import { DndUtils, DragItem, Droppable } from '../../components/Drag-n-Drop';
-import Components from '../../components/widgets/Components';
+import { t } from '../../../helpers/util';
+import Components from '../../../components/widgets/Components';
+import { DndUtils, DragItem, Droppable } from '../../../components/Drag-n-Drop';
+import SelectedWidget from './SelectedWidget';
 
-import './style.scss';
+import '../style.scss';
 
 const NAMES = {
   WIDGETS_FROM: 'availableWidgets',
@@ -23,14 +25,14 @@ const Labels = {
   SUBTITLE_M: 'dashboard-settings.widgets.subtitle-mobile',
   TIP_NO_AVAILABLE: 'dashboard-settings.widgets.placeholder',
   COLUMN: 'dashboard-settings.column',
-  TIP_DROP_HERE: 'dashboard-settings.column.placeholder',
-  WIDGET_WITH_CONFIG: 'dashboard-settings.widget.with-config'
+  TIP_DROP_HERE: 'dashboard-settings.column.placeholder'
 };
 
 class SetWidgets extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     menuType: PropTypes.string,
+    modelAttributes: PropTypes.array,
     availableWidgets: PropTypes.array,
     activeWidgets: PropTypes.array,
     setData: PropTypes.func,
@@ -43,27 +45,14 @@ class SetWidgets extends React.Component {
     availableWidgets: [],
     activeWidgets: [],
     columns: [],
-    setData: () => {},
-    positionAdjustment: () => {},
-    isMobile: false
+    setData: () => undefined,
+    positionAdjustment: () => undefined
   };
 
   state = {
     draggableDestination: '',
     removedWidgets: []
   };
-
-  getWidgetLabel(widget) {
-    const { isMobile } = this.props;
-    const description = get(widget, 'description', '');
-    let label = t(get(Components.components, [widget.name, 'label'], get(widget, 'label', '')));
-
-    if (isMobile && description) {
-      label = `[${description}] ${label}`;
-    }
-
-    return label;
-  }
 
   get availableWidgets() {
     const { availableWidgets, isMobile, activeWidgets } = this.props;
@@ -98,7 +87,7 @@ class SetWidgets extends React.Component {
     const { source, destination } = result;
     const { activeWidgets } = this.props;
 
-    let selectedWidgets = deepClone(activeWidgets);
+    let selectedWidgets = cloneDeep(activeWidgets);
 
     if (!isEmpty(source) && !isEmpty(destination) && destination.droppableId !== NAMES.WIDGETS_FROM) {
       const colIndex = destination.droppableId.split(NAMES.WIDGETS_TO)[1];
@@ -126,13 +115,13 @@ class SetWidgets extends React.Component {
     this.setData(selectedWidgets);
   };
 
-  handleRemoveWidget = ({ item }, indexColumn, indexWidget) => {
+  handleRemoveWidget = (widget, indexColumn, indexWidget) => {
     const { activeWidgets } = this.props;
     const { removedWidgets } = this.state;
-    const newActiveWidgets = deepClone(activeWidgets);
+    const newActiveWidgets = cloneDeep(activeWidgets);
 
-    if (item.id) {
-      removedWidgets.push(item.id);
+    if (widget.id) {
+      removedWidgets.push(widget.id);
       this.setState({ removedWidgets });
     }
 
@@ -140,22 +129,20 @@ class SetWidgets extends React.Component {
     this.setData(newActiveWidgets, removedWidgets);
   };
 
+  handleEditWidget = (updWidget, indexColumn, indexWidget) => {
+    const { activeWidgets } = this.props;
+    const newActiveWidgets = cloneDeep(activeWidgets);
+
+    set(newActiveWidgets, [indexColumn, indexWidget], updWidget);
+    this.setData(newActiveWidgets);
+  };
+
   setData = (activeWidgets, removedWidgets) => {
     this.props.setData(activeWidgets, removedWidgets);
   };
 
-  getMessage = widget => {
-    const hasSettings = !isEmpty(get(widget, 'props.config', {}));
-
-    if (!hasSettings) {
-      return '';
-    }
-
-    return t(Labels.WIDGET_WITH_CONFIG);
-  };
-
   renderWidgetColumns() {
-    const { activeWidgets, columns, isMobile, positionAdjustment } = this.props;
+    const { activeWidgets, columns, isMobile, positionAdjustment, modelAttributes } = this.props;
     const { draggableDestination } = this.state;
 
     return (
@@ -166,18 +153,18 @@ class SetWidgets extends React.Component {
         })}
       >
         {[].concat(...columns).map((column, indexColumn) => {
-          const key_id = `column-widgets-${indexColumn}`;
+          const key_id = `widgets-column-${indexColumn}`;
 
           return (
-            <div className="ecos-dashboard-settings__column-widgets" key={key_id}>
+            <div className="ecos-dashboard-settings__widgets-column" key={key_id}>
               {isMobile ? null : (
-                <div className="ecos-dashboard-settings__column-widgets__title">{`${t(Labels.COLUMN)} ${indexColumn + 1}`}</div>
+                <div className="ecos-dashboard-settings__widgets-column-title">{`${t(Labels.COLUMN)} ${indexColumn + 1}`}</div>
               )}
               <Droppable
                 droppableId={NAMES.WIDGETS_TO + indexColumn}
                 droppableIndex={indexColumn}
                 childPosition="column"
-                className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__column-widgets__items"
+                className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__widgets-container"
                 classNameView="ecos-dashboard-settings__drag-scrollbar-wrapper"
                 placeholder={t(Labels.TIP_DROP_HERE)}
                 isDragingOver={draggableDestination === NAMES.WIDGETS_TO + indexColumn}
@@ -186,21 +173,13 @@ class SetWidgets extends React.Component {
                 {activeWidgets &&
                   activeWidgets[indexColumn] &&
                   activeWidgets[indexColumn].map((widget, indexWidget) => (
-                    <DragItem
+                    <SelectedWidget
                       key={widget.dndId}
-                      draggableId={widget.dndId}
-                      draggableIndex={indexWidget}
-                      className="ecos-dashboard-settings__column-widgets__items__cell"
-                      title={this.getWidgetLabel(widget)}
-                      selected={true}
-                      tooltipClassName="ecos-dashboard-settings__tooltip"
-                      alertTooltip={this.getMessage(widget)}
-                      canRemove={true}
-                      removeItem={response => {
-                        this.handleRemoveWidget(response, indexColumn, indexWidget);
+                      {...{ widget, indexWidget, indexColumn, isMobile, modelAttributes, positionAdjustment }}
+                      executors={{
+                        remove: () => this.handleRemoveWidget(widget, indexColumn, indexWidget),
+                        edit: updWidget => this.handleEditWidget(updWidget, indexColumn, indexWidget)
                       }}
-                      item={widget}
-                      getPositionAdjustment={positionAdjustment}
                     />
                   ))}
               </Droppable>
@@ -237,14 +216,12 @@ class SetWidgets extends React.Component {
             >
               {this.availableWidgets.map((item, index) => (
                 <DragItem
-                  className={classNames({
-                    'ecos-drag-item_by-content': isMobile
-                  })}
+                  className={classNames({ 'ecos-drag-item_by-content': isMobile })}
                   isCloning={!isMobile}
                   key={item.dndId}
                   draggableId={item.dndId}
                   draggableIndex={index}
-                  title={this.getWidgetLabel(item)}
+                  title={Components.getWidgetLabel(item, isMobile)}
                   getPositionAdjustment={positionAdjustment}
                 />
               ))}

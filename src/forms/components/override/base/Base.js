@@ -298,6 +298,11 @@ Base.prototype.createViewOnlyValue = function(container) {
   originalCreateViewOnlyValue.call(this, container);
 
   this.createInlineEditButton(container);
+
+  const customClass = get(this, 'component.customClass');
+  if (customClass) {
+    container.classList.add(`${customClass}_view-mode`);
+  }
 };
 
 Base.prototype.createViewOnlyElement = function() {

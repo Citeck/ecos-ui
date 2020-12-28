@@ -59,8 +59,8 @@ const getComponentInnerAttSchema = component => {
 };
 
 export default class EcosFormUtils {
-  static #apiApp = new AppApi();
-  static #apiUser = new UserApi();
+  static _apiApp = new AppApi();
+  static _apiUser = new UserApi();
 
   static isCurrentUserInGroup(group) {
     const currentPersonName = getCurrentUserName();
@@ -99,13 +99,13 @@ export default class EcosFormUtils {
 
     formParams['options'] = configParams.options || {};
 
-    formParams['onSubmit'] = function(record, form) {
+    formParams['onSubmit'] = function(record, form, alias) {
       if (modal) {
         modal.close();
       }
 
       if (configParams.onSubmit) {
-        configParams.onSubmit(record, form);
+        configParams.onSubmit(record, form, alias);
       }
     };
 
@@ -978,13 +978,13 @@ export default class EcosFormUtils {
   }
 
   static async isConfigurableForm() {
-    const edition = await EcosFormUtils.#apiApp.getAppEdition();
+    const edition = await EcosFormUtils._apiApp.getAppEdition();
 
     if (edition !== AppEditions.ENTERPRISE) {
       return false;
     }
 
-    return EcosFormUtils.#apiUser.isUserAdmin();
+    return EcosFormUtils._apiUser.isUserAdmin();
   }
 
   static isComponentsReady(components, options = {}) {

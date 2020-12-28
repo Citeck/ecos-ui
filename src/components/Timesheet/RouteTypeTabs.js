@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
+import omit from 'lodash/omit';
+import { withRouter } from 'react-router-dom';
 
 import CommonTimesheetService from '../../services/timesheet/common';
 import PageService from '../../services/PageService';
@@ -31,6 +33,7 @@ class RouteTypeTabs extends React.Component {
 
   componentDidMount() {
     const { currentDate, getTotalCounts } = this.props;
+
     getTotalCounts({ currentDate });
   }
 
@@ -46,20 +49,16 @@ class RouteTypeTabs extends React.Component {
     if (currentDate !== prevProps.currentDate) {
       getTotalCounts({ currentDate });
     }
+
+    if (!isEqual(omit(prevProps.location, ['key', 'state']), omit(this.props.location, ['key', 'state']))) {
+      this.setState({
+        sheetTabs: CommonTimesheetService.getSheetTabs()
+      });
+    }
   }
 
-  handleChangeActiveSheetTab = tabIndex => {
-    const sheetTabs = cloneDeep(this.state.sheetTabs);
-
-    sheetTabs.forEach((tab, index) => {
-      tab.isActive = index === tabIndex;
-
-      if (tab.isActive) {
-        PageService.changeUrlLink(tab.link);
-      }
-    });
-
-    this.setState({ sheetTabs });
+  handleChangeActiveSheetTab = (index, tab) => {
+    PageService.changeUrlLink(tab.link, { rerenderPage: true, replaceHistory: true });
   };
 
   render() {
@@ -81,7 +80,9 @@ const mapDispatchToProps = dispatch => ({
   getTotalCounts: payload => dispatch(getTotalCounts(payload))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(RouteTypeTabs);
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(RouteTypeTabs)
+);

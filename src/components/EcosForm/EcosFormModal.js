@@ -161,10 +161,10 @@ export default class EcosFormModal extends React.Component {
     formOptions['formMode'] = recordData.formMode || formOptions['formMode'] || FORM_MODE_EDIT;
     formProps['options'] = formOptions;
 
-    formProps['onSubmit'] = (record, form) => {
+    formProps['onSubmit'] = (record, form, alias) => {
       this.hide();
       if (this.props.onSubmit) {
-        this.props.onSubmit(record, form);
+        this.props.onSubmit(record, form, alias);
       }
     };
 
@@ -196,7 +196,7 @@ export default class EcosFormModal extends React.Component {
           zIndex={9000}
         >
           {this.renderContentBefore()}
-          <EcosForm ref={this._formRef} onFormSubmitDone={this.onUpdateForm} {...formProps} initiator={{ type: 'modal' }} />
+          <EcosForm ref={this._formRef} onFormSubmitDone={this.onUpdateForm} initiator={{ type: 'modal' }} {...formProps} />
           {contentAfter}
         </EcosModal>
       </div>

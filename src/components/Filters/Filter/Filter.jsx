@@ -17,16 +17,21 @@ export default class Filter extends Component {
     super(props);
 
     this.state = {
-      value: get(props, 'filter.predicate.val', '')
+      value: get(props, 'filter.predicate.val', ''),
+      hasDataEntry: false
     };
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const prevValue = get(prevProps, 'filter.predicate.val', '');
     const currentValue = get(this.props, 'filter.predicate.val', '');
-    const { value } = this.state;
+    const { value, hasDataEntry } = this.state;
 
-    if (prevValue !== currentValue && currentValue !== value) {
+    if (hasDataEntry) {
+      return;
+    }
+
+    if (prevValue !== currentValue || currentValue !== value) {
       this.setState({ value: currentValue });
     }
   }
@@ -38,11 +43,12 @@ export default class Filter extends Component {
   predicatesWithoutValue = ParserPredicate.predicatesWithoutValue;
 
   changeValue = value => {
-    this.setState({ value }, this.handleChangeValue);
+    this.setState({ value, hasDataEntry: true }, this.handleChangeValue);
   };
 
   handleChangeValue = debounce(() => {
     trigger.call(this, 'onChangeValue', { val: this.state.value, index: this.props.index });
+    this.setState({ isInput: false });
   }, 350);
 
   changePredicate = predicate => {
@@ -112,15 +118,15 @@ export default class Filter extends Component {
               value={selectedPredicate}
               onChange={this.changePredicate}
             />,
-            <div className={'ecos-filter__value-wrapper'}>{isShow && <FilterValueComponent {...predicateProps} />}</div>,
-            <>
+            <div className="ecos-filter__value-wrapper">{isShow && <FilterValueComponent {...predicateProps} />}</div>,
+            <div className="ecos-filter__actions">
               <IcoBtn
                 icon={'icon-delete'}
                 className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
                 onClick={this.delete}
               />
-              <i className={classNames('ecos-btn__i', 'ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico')} />
-            </>
+              <i className="ecos-btn__i ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico" />
+            </div>
           ]}
         />
       </div>

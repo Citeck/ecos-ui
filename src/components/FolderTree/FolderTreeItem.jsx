@@ -4,8 +4,6 @@ import classNames from 'classnames';
 
 import EcosIcon from '../common/EcosIcon';
 
-import './FolderTree.scss';
-
 const FolderTreeItem = ({ children, item, isSelected, onSelect, onUnfold, onFold }) => {
   const { id, title, hasChildren, isUnfolded } = item;
   const _onSelect = () => typeof onSelect === 'function' && onSelect(id);
@@ -35,6 +33,7 @@ const FolderTreeItem = ({ children, item, isSelected, onSelect, onUnfold, onFold
             className={classNames('ecos-folder-tree__item-title', {
               'ecos-folder-tree__item-title_selected': isSelected
             })}
+            title={title}
           >
             {title}
           </span>
@@ -50,7 +49,8 @@ const FolderTreeItemPropTypes = {
   title: PropTypes.string.isRequired,
   parent: PropTypes.string,
   hasChildren: PropTypes.bool,
-  isUnfolded: PropTypes.bool
+  isUnfolded: PropTypes.bool,
+  isChildrenLoading: PropTypes.bool
 };
 
 FolderTreeItem.propTypes = {
