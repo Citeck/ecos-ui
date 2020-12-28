@@ -1,19 +1,6 @@
 export const Labels = {
   ADD_CATEGORY: 'bpmn-designer.add-category',
   TOTAL: 'bpmn-designer.total',
-  EMPTY_LIST: 'journals.menu.journal-list.empty',
-  Columns: {
-    CAN_WRITE: 'Can Write',
-    ID: 'ID',
-    LABEL: 'Label',
-    CREATED: 'Created',
-    CREATOR: 'Creator',
-    MODIFIED: 'Modified',
-    MODIFIER: 'Modifier',
-    DESCRIPTION: 'Description',
-    HAS_THUMBNAIL: 'Has Thumbnail',
-    CATEGORY: 'Category'
-  },
   CreateVariants: {
     CREATE_MODEL: 'bpmn-designer.create-model',
     IMPORT_MODEL: 'bpmn-designer.import-model'

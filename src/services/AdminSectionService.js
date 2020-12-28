@@ -1,22 +1,6 @@
 import isEqual from 'lodash/isEqual';
 
-import { Labels } from '../constants/adminSection';
-import { t } from '../helpers/export/util';
-
 export default class AdminSectionService {
-  static getCreateVariants() {
-    return [
-      {
-        id: 'bpmn-designer-create-model',
-        title: t(Labels.CreateVariants.CREATE_MODEL)
-      },
-      {
-        id: 'bpmn-designer-import-model',
-        title: t(Labels.CreateVariants.IMPORT_MODEL)
-      }
-    ];
-  }
-
   static getSelectedSectionIndex(list, active) {
     return list.findIndex(item => isEqual(item, active));
   }
