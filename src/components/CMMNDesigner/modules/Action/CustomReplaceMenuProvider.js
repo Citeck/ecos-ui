@@ -1,11 +1,10 @@
-import ReplaceMenuProvider from 'cmmn-js/lib/features/popup-menu/ReplaceMenuProvider';
-import { getEcosType } from './utils';
-
 import inherits from 'inherits';
+import ReplaceMenuProvider from 'cmmn-js/lib/features/popup-menu/ReplaceMenuProvider';
+import { isManualActivation, isRepeatable } from 'cmmn-js/lib/util/ModelUtil';
 
+import { getEcosType } from '../../utils';
 import actionTypes from './action-types.json';
-
-import { isRepeatable, isManualActivation } from 'cmmn-js/lib/util/ModelUtil';
+import { extractLabel } from '../../../../helpers/util';
 
 /**
  * This module is an element agnostic replace menu provider for the popup menu.
@@ -27,15 +26,15 @@ CustomReplaceMenuProvider.$inject = ['popupMenu', 'cmmnReplace', 'cmmnFactory', 
 
 CustomReplaceMenuProvider.prototype.getEntries = function(element) {
   const eventBus = this._eventBus;
-
   const ecosType = getEcosType(element);
+
   if (!ecosType) {
     return ReplaceMenuProvider.prototype.getEntries.call(this, element);
   }
+
   return actionTypes.map(actionType => ({
-    id: 'action_' + actionType.id,
-    // todo
-    label: actionType.name.en,
+    id: `action_${actionType.id}`,
+    label: extractLabel(actionType.name),
     action: function() {
       element.businessObject.definitionRef.set('ecos:cmmnType', actionType.id);
       eventBus.fire('element.changed', { element });
@@ -44,16 +43,16 @@ CustomReplaceMenuProvider.prototype.getEntries = function(element) {
 };
 
 CustomReplaceMenuProvider.prototype.getHeaderEntries = function(element) {
+  const self = this;
   const ecosType = getEcosType(element);
+
   if (!ecosType) {
     return ReplaceMenuProvider.prototype.getHeaderEntries.call(this, element);
   }
 
-  var self = this;
-
   function toggleControlEntry(control, type) {
     return function(event, entry) {
-      var value = {};
+      const value = {};
 
       if (entry.active) {
         value[control] = undefined;
@@ -64,8 +63,9 @@ CustomReplaceMenuProvider.prototype.getHeaderEntries = function(element) {
       self._modeling.updateControls(element, value);
     };
   }
-  var repeatable = isRepeatable(element),
-    manualActivation = isManualActivation(element);
+
+  const repeatable = isRepeatable(element);
+  const manualActivation = isManualActivation(element);
 
   return [
     {

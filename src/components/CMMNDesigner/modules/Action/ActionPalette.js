@@ -1,4 +1,17 @@
-import { createAction } from './utils';
+import { GROUP_CUSTOM } from '../../utils';
+
+function createAction(elementFactory, cmmnFactory) {
+  return elementFactory.createShape({
+    type: 'cmmn:PlanItem',
+    businessObject: (function() {
+      const definitionRef = cmmnFactory.create('cmmn:Task', {
+        'ecos:cmmnType': 'Action'
+      });
+
+      return cmmnFactory.create('cmmn:PlanItem', { definitionRef });
+    })()
+  });
+}
 
 export default class ActionPalette {
   constructor(create, elementFactory, palette, cmmnFactory) {
@@ -13,25 +26,15 @@ export default class ActionPalette {
     const { create, elementFactory, cmmnFactory } = this;
 
     function createServiceTask(event) {
-      // const shape = elementFactory.createPlanItemShape('cmmn:Task');
-      // const shape = elementFactory.createPlanItemShape('cmmn:Action');
-      // const shape = elementFactory.createCmmnElement('shape', { type: 'cmmn:Action' });
       const shape = createAction(elementFactory, cmmnFactory);
-      /*const shape = elementFactory.createShape({
-        type: 'cmmn:Task',
-        ecosType: 'action'
-      });*/
-
-      console.warn({ shape });
-
       create.start(event, shape);
     }
 
     return {
       'create.action': {
-        group: 'custom',
+        group: GROUP_CUSTOM,
         className: 'bpmn-icon-service-task',
-        title: 'Create action',
+        title: 'Create Action',
         action: {
           dragstart: createServiceTask,
           click: createServiceTask

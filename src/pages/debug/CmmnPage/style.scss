@@ -1,7 +1,7 @@
 .cmmn {
   &-page {
     padding: 20px;
-    height: 100vh;
+    height: 700px;
 
     &__xml-viewer {
       overflow: auto;
@@ -12,6 +12,10 @@
   &-editor {
     width: 100%;
     height: 100%;
-    min-height: 50vh;
   }
+}
+
+.ecos-cmmn-container {
+  width: 100%;
+  height: 100%;
 }

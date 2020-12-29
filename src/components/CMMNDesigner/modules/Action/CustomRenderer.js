@@ -1,31 +1,25 @@
 import BaseRenderer from 'diagram-js/lib/draw/BaseRenderer';
 import TextUtil from 'diagram-js/lib/util/Text';
-
+import { append as svgAppend, attr as svgAttr, classes as svgClasses, create as svgCreate } from 'tiny-svg';
 import { getName } from 'cmmn-js/lib/util/ModelUtil';
 
-import { getEcosType } from './utils';
-
-import { append as svgAppend, attr as svgAttr, classes as svgClasses, create as svgCreate, remove as svgRemove } from 'tiny-svg';
-
+import { getEcosType } from '../../utils';
 import actionTypes from './action-types.json';
 
 import 'bpmn-font/dist/css/bpmn.css';
 
-const HIGH_PRIORITY = 1500,
-  TASK_BORDER_RADIUS = 10;
-
-var LABEL_STYLE = {
+const HIGH_PRIORITY = 1500;
+const TASK_BORDER_RADIUS = 10;
+const LABEL_STYLE = {
   fontFamily: 'Arial, sans-serif',
   fontSize: '12px'
 };
-
 const DEFAULT_TYPES_TO_RENDER = ['Action'];
 
 export default class CustomRenderer extends BaseRenderer {
   constructor(eventBus, cmmnRenderer) {
     super(eventBus, HIGH_PRIORITY);
     this.cmmnRenderer = cmmnRenderer;
-
     this._actionTypesToRender = [...DEFAULT_TYPES_TO_RENDER, ...actionTypes.map(type => type.id)];
   }
 
@@ -34,27 +28,13 @@ export default class CustomRenderer extends BaseRenderer {
   }
 
   drawShape(parentNode, element, attrs) {
-    var rect = drawRect(parentNode, element.width, element.height, TASK_BORDER_RADIUS, attrs);
-    let ecosType = getEcosType(element);
-    renderLabel(parentNode, ecosType, {
-      box: element,
-      align: 'left-top',
-      padding: 5
-    });
+    const rect = drawRect(parentNode, element.width, element.height, TASK_BORDER_RADIUS, attrs);
+    const ecosType = getEcosType(element);
+
+    renderLabel(parentNode, ecosType, { box: element, align: 'left-top', padding: 5 });
     renderEmbeddedLabel(parentNode, element, 'center-middle');
     //attachTaskMarkers(p, element);
     return rect;
-
-    /*return task;
-
-    const shape = this.cmmnRenderer.drawShape(parentNode, element);
-    const rect = drawRect(parentNode, 30, 20, TASK_BORDER_RADIUS, '#cc0000');
-
-    svgAttr(rect, {
-      transform: 'translate(-20, -10)'
-    });
-
-    return shape;*/
   }
 
   getShapePath(shape) {
@@ -72,20 +52,18 @@ const textUtil = new TextUtil({
 });
 
 function renderLabel(parentGfx, label, options) {
-  var text = textUtil.createText(label || '', options);
+  const text = textUtil.createText(label || '', options);
+
   svgClasses(text).add('djs-label');
   svgAppend(parentGfx, text);
 
   return text;
 }
 
-function renderEmbeddedLabel(p, element, align) {
-  var name = getName(element);
-  return renderLabel(p, name, {
-    box: element,
-    align: align,
-    padding: 5
-  });
+function renderEmbeddedLabel(p, box, align) {
+  const name = getName(box);
+
+  return renderLabel(p, name, { box, align, padding: 5 });
 }
 
 // copied from https://github.com/bpmn-io/bpmn-js/blob/master/lib/draw/BpmnRenderer.js
@@ -93,8 +71,8 @@ function drawRect(parentNode, width, height, borderRadius, strokeColor) {
   const rect = svgCreate('rect');
 
   svgAttr(rect, {
-    width: width,
-    height: height,
+    width,
+    height,
     rx: borderRadius,
     ry: borderRadius,
     stroke: strokeColor || '#000',

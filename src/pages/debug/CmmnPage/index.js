@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
-import CmmnModeler from 'cmmn-js/lib/Modeler';
 import XMLViewer from 'react-xml-viewer';
 
 import { Btn } from '../../../components/common/btns';
 import { EcosModal } from '../../../components/common';
-
-import customModuleAction from './modules/action';
+import CMMNDesigner from '../../../components/CMMNDesigner';
 
 import 'cmmn-js/dist/assets/diagram-js.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
@@ -49,54 +47,27 @@ const res = `
 `;
 
 class CmmnPage extends Component {
-  containerRef = React.createRef();
-  _viewer = null;
-
   state = { xml: '', isOpen: false };
+  designer = null;
 
-  componentDidMount() {
-    this.initCmmn();
+  constructor(props) {
+    super(props);
+
+    this.designer = new CMMNDesigner();
   }
 
-  initCmmn = async () => {
-    const container = this.containerRef.current;
-
-    if (!container) {
-      return;
-    }
-
-    this._viewer = new CmmnModeler({
-      container,
-      additionalModules: [customModuleAction]
-    });
-
-    this._viewer.importXML(res, err => {
-      if (err) {
-        console.error('error rendering', err);
-      }
-    });
-  };
-
   handleClickViewXml = () => {
-    if (!this._viewer) {
+    if (!this.designer) {
       return;
     }
 
-    try {
-      this._viewer.saveXML({ format: true }, (error, xml) => {
-        if (error) {
-          console.error('error save XML', error);
-
-          return;
-        }
-
+    this.designer.saveXML({
+      callback: ({ xml }) => {
         if (xml) {
           this.setState({ xml, isOpen: true });
         }
-      });
-    } catch (err) {
-      console.error(err);
-    }
+      }
+    });
   };
 
   handleHideModal = () => {
@@ -112,7 +83,7 @@ class CmmnPage extends Component {
           View XML
         </Btn>
 
-        <div ref={this.containerRef} className="cmmn-editor" />
+        <this.designer.Component diagram={res} />
 
         <EcosModal title="XML" isOpen={isOpen} hideModal={this.handleHideModal}>
           <div className="cmmn-page__xml-viewer">{xml && <XMLViewer xml={xml} />}</div>
