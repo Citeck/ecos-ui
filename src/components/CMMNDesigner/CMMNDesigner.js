@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CmmnModeler from 'cmmn-js/lib/Modeler';
 import get from 'lodash/get';
-
-import { InfoText } from '../common';
 import additionalModules from './modules';
 
 import 'cmmn-js/dist/assets/diagram-js.css';
@@ -10,7 +8,7 @@ import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-codes.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-embedded.css';
 
-class CMMNDesigner {
+export default class CMMNDesigner {
   #isCustomContainer = false;
   #viewer = null;
 
@@ -55,11 +53,7 @@ class CMMNDesigner {
     }
   };
 
-  Component = ({ diagram }) => {
-    if (this.isCustomContainer) {
-      return <InfoText text="You can't use component Container, if you set CustomContainer ref" />;
-    }
-
+  Sheet = ({ diagram }) => {
     const [initialized, setInitialized] = useState(false);
     const containerRef = useRef(null);
 
@@ -78,5 +72,3 @@ class CMMNDesigner {
     this.#viewer.attachTo(container);
   };
 }
-
-export default CMMNDesigner;

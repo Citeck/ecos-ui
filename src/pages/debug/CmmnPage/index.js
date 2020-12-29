@@ -11,40 +11,7 @@ import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-codes.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-embedded.css';
 
 import './style.scss';
-
-const res = `
-<?xml version="1.0" encoding="UTF-8"?>
-<cmmn:definitions
-    xmlns:dc="http://www.omg.org/spec/CMMN/20151109/DC"
-    xmlns:cmmndi="http://www.omg.org/spec/CMMN/20151109/CMMNDI"
-    xmlns:cmmn="http://www.omg.org/spec/CMMN/20151109/MODEL"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecos="http://www.citeck.ru/ecos/cmmn"
-    id="Test"
-    targetNamespace="http://bpmn.io/schema/cmmn">
-
-  <cmmn:case id="Case_2">
-    <cmmn:casePlanModel id="CasePlanModel_2" name="Another CasePlanModel"/>
-  </cmmn:case>
-  <cmmn:case id="Case_1">
-    <cmmn:casePlanModel id="CasePlanModel_1" name="A CasePlanModel"/>
-  </cmmn:case>
-  <cmmndi:CMMNDI>
-    <cmmndi:CMMNDiagram id="Diagram_1">
-      <cmmndi:Size width="500" height="500"/>
-      <cmmndi:CMMNShape id="DI_CasePlanModel_1" cmmnElementRef="CasePlanModel_1">
-        <dc:Bounds x="138" y="44" width="525" height="381"/>
-      </cmmndi:CMMNShape>
-    </cmmndi:CMMNDiagram>
-    <cmmndi:CMMNDiagram id="Diagram_2">
-      <cmmndi:Size width="500" height="500"/>
-      <cmmndi:CMMNShape id="DI_CasePlanModel_2" cmmnElementRef="CasePlanModel_2">
-        <dc:Bounds x="50" y="50" width="400" height="250"/>
-      </cmmndi:CMMNShape>
-    </cmmndi:CMMNDiagram>
-  </cmmndi:CMMNDI>
-</cmmn:definitions>
-`;
+import { anotherDiagram, initialDiagram } from './testData';
 
 class CmmnPage extends Component {
   state = { xml: '', isOpen: false };
@@ -80,10 +47,19 @@ class CmmnPage extends Component {
     return (
       <div className="cmmn-page">
         <Btn className="ecos-btn_blue" onClick={this.handleClickViewXml}>
-          View XML
+          View current XML Diagram
+        </Btn>
+        {`  |  `}
+        <Btn className="ecos-btn_blue" onClick={() => this.designer.setDiagram(anotherDiagram)}>
+          Set another XML Diagram
+        </Btn>
+        {`  |  `}
+        <Btn className="ecos-btn_blue" onClick={() => this.designer.setCustomContainer('#ownSheet')}>
+          Set own Sheet
         </Btn>
 
-        <this.designer.Component diagram={res} />
+        <div id="ownSheet" />
+        <this.designer.Sheet diagram={initialDiagram} />
 
         <EcosModal title="XML" isOpen={isOpen} hideModal={this.handleHideModal}>
           <div className="cmmn-page__xml-viewer">{xml && <XMLViewer xml={xml} />}</div>
