@@ -29,6 +29,6 @@ export default class BPMNDesignerService {
         type: ViewTypes.LIST,
         title: Labels.Views.LIST
       }
-    ].filter(item => !item.hidden);
+    ];
   }
 }

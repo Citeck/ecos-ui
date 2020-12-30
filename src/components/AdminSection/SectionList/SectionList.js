@@ -7,7 +7,6 @@ import { setActiveSection } from '../../../actions/adminSection';
 import AdminSectionService from '../../../services/AdminSectionService';
 import { CollapsibleList } from '../../common';
 
-import '../style.scss';
 import './style.scss';
 
 function SectionList({ list = [], title = null, setActive, activeSection }) {

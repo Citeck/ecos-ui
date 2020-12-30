@@ -33,7 +33,7 @@ function* doFetchGroupSectionList({ api, logger }, action) {
   }
 }
 
-function* openActiveSection({ api, logger }, action) {
+export function* openActiveSection({ api, logger }, action) {
   try {
     const item = cloneDeep(action.payload);
     const sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
@@ -61,7 +61,9 @@ function* openActiveSection({ api, logger }, action) {
     }
 
     if (options.openInBackground || options.openNewTab) {
-      yield put(setActiveSection(AdminSectionService.getActiveSectionInGroups(sectionsGroup, i => i.type === SectionTypes.BPM)));
+      const redirectHome = AdminSectionService.getActiveSectionInGroups(sectionsGroup, i => i.type === SectionTypes.BPM);
+
+      yield put(setActiveSection(redirectHome));
     }
 
     PageService.changeUrlLink(href, options);
