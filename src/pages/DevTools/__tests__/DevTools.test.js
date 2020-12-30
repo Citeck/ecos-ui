@@ -1,6 +1,5 @@
 import React from 'react';
-import { configure, shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { shallow } from 'enzyme';
 
 import DevToolsConverter from '../../../dto/devTools';
 
@@ -17,8 +16,6 @@ import Build from '../Build';
 import DevModules from '../DevModules';
 import Commits from '../Commits';
 import Settings from '../Settings';
-
-configure({ adapter: new Adapter() });
 
 describe('DevTools tests', () => {
   describe('DevToolsConverter', () => {

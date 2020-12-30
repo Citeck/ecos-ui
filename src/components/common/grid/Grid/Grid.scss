@@ -82,6 +82,14 @@ $header-height: 52px;
 
   &__row {
   }
+
+  &__header {
+    &_columns-not-resizable {
+      .ecos-th__divider {
+        cursor: unset;
+      }
+    }
+  }
 }
 
 #{$selector-table} {

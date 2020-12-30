@@ -28,6 +28,7 @@ export const pagesWithOnlyContent = [
 export const SourcesId = {
   BUILD_INFO: 'uiserv/build-info',
   DASHBOARD: 'uiserv/dashboard',
+  DOCLIB: 'alfresco/doclib',
   EFORM: 'uiserv/eform',
   USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',
@@ -36,6 +37,8 @@ export const SourcesId = {
   PREDICATE: 'uiserv/predicate',
   THEME: 'uiserv/theme',
   META: 'uiserv/meta',
+  JOURNAL: 'uiserv/journal',
+  JOURNAL_V1: 'uiserv/journal_v1',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
   A_AUTHORITY: 'alfresco/authority',
@@ -137,7 +140,10 @@ export const JournalUrlParams = {
   JOURNAL_SETTING_ID: 'journalSettingId',
   USER_CONFIG_ID: 'userConfigId',
   SHOW_PREVIEW: 'showPreview',
-  SEARCH: 'search'
+  SEARCH: 'search',
+  VIEW_MODE: 'viewMode',
+  DOCLIB_FOLDER_ID: 'folderId',
+  DOCLIB_SEARCH: 'dlSearch'
 };
 
 export const SYSTEM_LIST = 'global-system';

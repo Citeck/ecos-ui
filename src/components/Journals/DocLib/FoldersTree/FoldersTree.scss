@@ -1,0 +1,16 @@
+@import '../../../../styles/constants';
+
+.document-library-folders {
+  position: relative;
+
+  &__container {
+    margin-right: -10px;
+    padding-right: 10px;
+    overflow-y: auto;
+    max-height: calc(100vh - 260px);
+
+    &_mobile {
+      max-height: calc(100vh - 200px);
+    }
+  }
+}
