@@ -85,9 +85,10 @@ const DropdownActions = ({ list, dashletId }) => {
  * _actionRules_ - are additional display rules:
  *  - orderedVisible array of icon keys - if there is a value, only the specified buttons are be displayed in the specified order
  *  - countShow - amount of displayed icon buttons. Default 4. Other - Dropdown.
- * @param actionConfig : object  ->
+ *
+ * @param actionConfig {Object}  ->
  *    {
- *      [ключ кнопки]: {
+ *      [icon key]: {
  *        icon {String} icon class,
  *        text {String} icon tip or text in Dropdown,
  *        onClick {Function}
@@ -99,9 +100,9 @@ const DropdownActions = ({ list, dashletId }) => {
  *        orderedVisible {Array} displayed ordered buttons
  *        countShow {Number} displayed icon buttons
  *    }
- * @param dashboardEditable the ability to edit the dashboard - define available actions > DashletActionService.uneditable
- * @param appEdition - app's version (ex. enterprise) - define available actions > DashletActionService.enterprise
- * @param isAdmin - define available actions > DashletActionService.administrative
+ * @param dashboardEditable {Boolean} - the ability to edit the dashboard - define available actions > DashletActionService.uneditable
+ * @param appEdition {String} - app's version (ex. enterprise) - define available actions > DashletActionService.enterprise
+ * @param isAdmin {Boolean} - define available actions > DashletActionService.administrative
  * @returns Elements
  */
 const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable, appEdition, isAdmin }) => {
