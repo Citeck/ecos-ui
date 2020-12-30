@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { changePhoto, getUserData } from '../../../actions/user';
+import { changePhoto, getUserData, updAppUserData } from '../../../actions/user';
 import { t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import { Avatar, BtnUpload } from '../../common';
@@ -58,6 +58,10 @@ class UserProfileDashlet extends BaseWidget {
   handleUpdate() {
     super.handleUpdate();
     this.props.getUserData();
+
+    if (this.props.isCurrentUser) {
+      this.props.updAppUserData();
+    }
   }
 
   render() {
@@ -144,6 +148,7 @@ const mapDispatchToProps = (dispatch, context) => {
 
   return {
     getUserData: () => dispatch(getUserData({ record, stateId })),
+    updAppUserData: () => dispatch(updAppUserData()),
     changePhoto: data => dispatch(changePhoto({ data, record, stateId }))
   };
 };

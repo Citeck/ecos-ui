@@ -39,7 +39,8 @@ export class UserApi extends CommonApi {
         fullName: 'fullName',
         uid: 'cm:name',
         isBpmAdmin: '.att(n:"authorities"){has(n:"GROUP_BPM_APP_ADMIN")}',
-        nodeRef: 'nodeRef?str'
+        nodeRef: 'nodeRef?str',
+        modified: '_modified?str'
       }
     ).then(resp => {
       if (resp.records.length < 1) {
