@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 
-import { createThumbnailUrl } from '../helpers/urls';
 import { getBool } from '../helpers/util';
+import UserService from '../services/UserService';
 
 export function getCommentForWeb(source) {
   if (isEmpty(source)) {
@@ -30,7 +30,7 @@ export function getCommentForWeb(source) {
   target.lastName = author.lastName || '';
   target.displayName = author.displayName || '';
   target.userName = author.userName || '';
-  target.avatar = createThumbnailUrl(author.id, { height: 150 });
+  target.avatar = UserService.getAvatarUrl(author.id, undefined, { height: 150 });
 
   target.canEdit = !!permissions.canEdit;
   target.canDelete = !!permissions.canDelete;
