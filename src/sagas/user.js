@@ -25,7 +25,7 @@ export function* initUser({ api, logger }, { payload }) {
 
     typeof payload.onSuccess === 'function' && payload.onSuccess();
   } catch (e) {
-    logger.error('[getUserData saga] error', e.message);
+    logger.error('[user/getUserData saga] error', e.message);
   }
 }
 
