@@ -9,6 +9,11 @@ describe('AdminSection Service', () => {
       const returnValue = AdminSectionService.getSelectedSectionIndex(groupSectionList[1].sections, BPM);
       expect(returnValue).toEqual(0);
     });
+
+    it('no active in section', () => {
+      const returnValue = AdminSectionService.getSelectedSectionIndex(groupSectionList[1].sections, undefined);
+      expect(returnValue).toEqual(-1);
+    });
   });
 
   describe('Method getActiveSectionInGroups', () => {
