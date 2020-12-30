@@ -1,12 +1,14 @@
-import cloneDeep from 'lodash/cloneDeep';
-import get from 'lodash/get';
+import _ from 'lodash';
 
 import { ActionModes } from '../../../constants';
 import RecordActions from '../../Records/actions';
 import journalsApi from './journalsServiceApi';
-import computedResolversRegistry from './computed';
 import journalColumnsResolver from './journalColumnsResolver';
 import journalDataLoader from './journalsDataLoader';
+import computedService from './computed/computedService';
+import { COMPUTED_ATT_PREFIX } from './util';
+
+const COLUMN_COMPUTED_PREFIX = 'column_';
 
 /**
  * @typedef SortBy
@@ -51,54 +53,22 @@ class JournalsService {
   async getJournalConfig(journalId = '') {
     const sourceDelimIdx = journalId.indexOf('@');
     const journalRecordId = sourceDelimIdx === -1 ? journalId : journalId.substring(sourceDelimIdx + 1);
-    const journalConfig = cloneDeep(await journalsApi.getJournalConfig(journalRecordId));
+    const journalConfig = _.cloneDeep(await journalsApi.getJournalConfig(journalRecordId));
 
     if (!journalConfig.columns || !journalConfig.columns.length) {
       return journalConfig;
     }
 
     journalConfig.columns = await this.resolveColumns(journalConfig.columns);
-    journalConfig.computed = await this.resolveComputedParams(journalConfig.computed);
+    journalConfig.configData = this._getAttsToLoadWithComputedAndUpdateConfigs(journalConfig);
+    journalConfig.configData.configComputed = await computedService.resolve(journalConfig.configData.configComputed);
     journalConfig.modelVersion = 1;
 
     if (!journalConfig.predicate) {
-      journalConfig.predicate = get(journalConfig, 'meta.predicate', {});
+      journalConfig.predicate = _.get(journalConfig, 'meta.predicate', {});
     }
 
     return journalConfig;
-  }
-
-  async resolveComputedParams(computedParams) {
-    if (!computedParams || !computedParams.length) {
-      return {};
-    }
-
-    const computedResult = await Promise.all(
-      computedParams.map(it => {
-        if (!it.name) {
-          console.error('Computed without name', it);
-          return null;
-        }
-        let resolver = computedResolversRegistry.getResolver(it.type);
-        return resolver
-          .resolve(it.config || {})
-          .catch(e => {
-            console.error('Computed parameter error', e, it);
-            return null;
-          })
-          .then(value => ({
-            name: it.name,
-            value
-          }));
-      })
-    );
-
-    const computedResMap = {};
-    for (let computed of computedResult) {
-      computedResMap[computed.name] = computed.value;
-    }
-
-    return computedResMap;
   }
 
   async resolveColumns(columns) {
@@ -122,11 +92,11 @@ class JournalsService {
   async getRecordActions(journalConfig, recordRefs) {
     let groupActions = journalConfig.groupActions;
     if (!groupActions) {
-      groupActions = get(journalConfig, 'meta.groupActions', []);
+      groupActions = _.get(journalConfig, 'meta.groupActions', []);
     }
     let journalActions = journalConfig.actions;
     if (!journalActions) {
-      journalActions = get(journalConfig, 'meta.actions', []);
+      journalActions = _.get(journalConfig, 'meta.actions', []);
     }
 
     const actionsContext = {
@@ -134,7 +104,7 @@ class JournalsService {
       scope: journalConfig.id
     };
     const convertedGroupActions = groupActions.map(a => {
-      const actionClone = cloneDeep(a);
+      const actionClone = _.cloneDeep(a);
       if (!actionClone.params) {
         actionClone.params = {};
       }
@@ -164,6 +134,104 @@ class JournalsService {
         forRecords
       };
     });
+  }
+
+  _getAttsToLoadWithComputedAndUpdateConfigs(journalConfig) {
+    const attributesToLoad = new Set();
+    const configComputed = [];
+    const recordComputed = [];
+
+    const processComputedList = (list, scope) => {
+      if (!list) {
+        return {};
+      }
+
+      const idMapping = {};
+
+      for (let computed of list) {
+        const attributesBefore = attributesToLoad.size;
+        this._fillTemplateAttsAndMapComputedScope(computed.config, attributesToLoad);
+
+        const computedList = attributesBefore !== attributesToLoad.size ? recordComputed : configComputed;
+        const newComputed = {
+          ...computed,
+          id: scope ? scope + '.' + computed.id : computed.id
+        };
+        computedList.push(newComputed);
+
+        if (newComputed.id !== computed.id) {
+          idMapping[computed.id] = newComputed.id;
+        }
+      }
+      return idMapping;
+    };
+
+    processComputedList(journalConfig.computed, '');
+
+    if (journalConfig.columns) {
+      for (let column of journalConfig.columns) {
+        let computedScopeByName = processComputedList(column.computed, COLUMN_COMPUTED_PREFIX + column.attribute);
+
+        ['formatter', 'editor', 'newFormatter', 'newEditor'].forEach(field => {
+          let newConfig = this._fillTemplateAttsAndMapComputedScope((column[field] || {}).config, attributesToLoad, computedScopeByName);
+          if (newConfig) {
+            column[field].config = newConfig;
+          }
+        });
+      }
+    }
+
+    return {
+      attributesToLoad: [...attributesToLoad],
+      configComputed,
+      recordComputed
+    };
+  }
+
+  _fillTemplateAttsAndMapComputedScope(value, attributes, computedIdMapping = {}) {
+    if (!value) {
+      return value;
+    }
+    if (_.isString(value)) {
+      let newValue = value;
+      let placeholderStart = value.indexOf('${');
+      while (placeholderStart >= 0) {
+        let placeholderEnd = value.indexOf('}', placeholderStart + 2);
+        if (placeholderEnd === -1) {
+          break;
+        }
+        let attribute = value.substring(placeholderStart + 2, placeholderEnd);
+        if (attribute && attribute !== 'recordRef') {
+          if (attribute.indexOf(COMPUTED_ATT_PREFIX) === 0) {
+            let localAtt = attribute.substring(COMPUTED_ATT_PREFIX.length);
+            let scope = computedIdMapping[localAtt];
+            if (scope) {
+              newValue = newValue.replace(`\${${attribute}}`, '${' + COMPUTED_ATT_PREFIX + scope + '}');
+            }
+          } else {
+            attributes.add(attribute);
+          }
+        }
+        placeholderStart = value.indexOf('${', placeholderEnd + 1);
+      }
+
+      return newValue;
+    } else if (_.isObject(value)) {
+      let newValue = {};
+      for (let key in value) {
+        if (value.hasOwnProperty(key)) {
+          let mapValue = value[key];
+          newValue[key] = this._fillTemplateAttsAndMapComputedScope(mapValue, attributes, computedIdMapping);
+        }
+      }
+      return newValue;
+    } else if (_.isArray(value)) {
+      let newValue = [];
+      for (let item of value) {
+        newValue.push(this._fillTemplateAttsAndMapComputedScope(item, attributes, computedIdMapping));
+      }
+      return newValue;
+    }
   }
 }
 

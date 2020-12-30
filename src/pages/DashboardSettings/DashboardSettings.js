@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import Settings, { mapStateToProps, mapDispatchToProps } from './Settings';
+import Settings, { mapDispatchToProps, mapStateToProps } from '../../components/DashboardSettings/Settings';
 
 export default connect(
   mapStateToProps,

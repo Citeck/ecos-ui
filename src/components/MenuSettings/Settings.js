@@ -8,6 +8,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { getAuthorityInfoByRefs, saveMenuSettings } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
 import { goToJournalsPage } from '../../helpers/urls';
+import { SYSTEM_LIST, SystemJournals } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import { EcosModal, Loader, Tabs } from '../common';
@@ -86,8 +87,8 @@ class Settings extends React.Component {
   handleGoJournal = () => {
     this.handleHideModal();
     goToJournalsPage({
-      journalId: 'ecos-menus',
-      journalsListId: 'global-system'
+      journalId: SystemJournals.MENUS,
+      journalsListId: SYSTEM_LIST
     });
   };
 

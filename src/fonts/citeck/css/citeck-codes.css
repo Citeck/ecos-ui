@@ -226,6 +226,9 @@
 .icon-eye-hide:before {
   content: '\e84e';
 } /* '' */
+.icon-folder:before {
+  content: '\e850';
+} /* '' */
 .icon-actual:before {
   content: '\e85a';
 } /* '' */

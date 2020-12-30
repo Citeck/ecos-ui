@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'citeck';
-  src: url('../font/citeck.eot?30125786');
-  src: url('../font/citeck.eot?30125786#iefix') format('embedded-opentype'), url('../font/citeck.woff2?30125786') format('woff2'),
-    url('../font/citeck.woff?30125786') format('woff'), url('../font/citeck.ttf?30125786') format('truetype'),
-    url('../font/citeck.svg?30125786#citeck') format('svg');
+  src: url('../font/citeck.eot?47359789');
+  src: url('../font/citeck.eot?47359789#iefix') format('embedded-opentype'), url('../font/citeck.woff2?47359789') format('woff2'),
+    url('../font/citeck.woff?47359789') format('woff'), url('../font/citeck.ttf?47359789') format('truetype'),
+    url('../font/citeck.svg?47359789#citeck') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -13,7 +13,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'citeck';
-    src: url('../font/citeck.svg?30125786#citeck') format('svg');
+    src: url('../font/citeck.svg?47359789#citeck') format('svg');
   }
 }
 */
@@ -23,7 +23,7 @@
   font-family: 'citeck';
   font-style: normal;
   font-weight: normal;
-  speak: none;
+  speak: never;
 
   display: inline-block;
   text-decoration: inherit;
@@ -282,6 +282,9 @@
 .icon-eye-hide:before {
   content: '\e84e';
 } /* '' */
+.icon-folder:before {
+  content: '\e850';
+} /* '' */
 .icon-actual:before {
   content: '\e85a';
 } /* '' */

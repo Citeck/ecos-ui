@@ -3,23 +3,19 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
 
-import { IcoBtn } from '../common/btns';
+import { Icon, Popper } from '../common';
 
 import './drag-item.scss';
-import { Tooltip, Icon, Popper } from '../common';
-import { prepareTooltipId } from '../../helpers/util';
 
 class DragItem extends React.Component {
   static propTypes = {
     draggableIndex: PropTypes.number,
     draggableId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     className: PropTypes.string,
-    tooltipClassName: PropTypes.string,
+    classNameActions: PropTypes.string,
     title: PropTypes.string,
-    alertTooltip: PropTypes.string,
     selected: PropTypes.bool,
-    canRemove: PropTypes.bool,
-    removeItem: PropTypes.func,
+    actionsComponent: PropTypes.element,
     // In order to get the adjustment of the position of the draggable element
     getPositionAdjustment: PropTypes.func,
     isDragDisabled: PropTypes.bool,
@@ -29,20 +25,13 @@ class DragItem extends React.Component {
   };
 
   static defaultProps = {
-    className: '',
-    tooltipClassName: '',
     title: '',
-    alertTooltip: '',
-    selected: false,
-    canRemove: false,
-    isDragDisabled: false,
-    isCloning: false,
+    className: '',
+    classNameActions: '',
     draggableIndex: 0,
     item: null,
-    removeItem: () => null,
-    getPositionAdjustment: () => ({ top: 0, left: 0 }),
     children: null,
-    isWrapper: false
+    getPositionAdjustment: () => ({ top: 0, left: 0 })
   };
 
   getDragItemStyle = (isDragging, draggableStyle) => {
@@ -66,41 +55,15 @@ class DragItem extends React.Component {
     this.props.removeItem({ item, draggable: { draggableId, draggableIndex } });
   };
 
-  renderAlert = () => {
-    const { alertTooltip, draggableId, tooltipClassName } = this.props;
-
-    if (!alertTooltip) {
-      return null;
-    }
-
-    const tooltipId = prepareTooltipId(`widget-tooltip-${draggableId}`);
-
-    return (
-      <Tooltip className={tooltipClassName} target={tooltipId} text={alertTooltip} placement="top" trigger="hover" uncontrolled autohide>
-        <Icon id={tooltipId} className={classNames('icon-alert ecos-drag-item__actions-item ecos-drag-item__actions-item-alert')} />
-      </Tooltip>
-    );
-  };
-
   renderActions() {
-    const { selected, canRemove } = this.props;
-    const _btn = `ecos-btn_width_auto ecos-btn_transparent`;
+    const { selected, actionsComponent, classNameActions } = this.props;
 
     return (
-      <div className="ecos-drag-item__actions">
-        {this.renderAlert()}
-        {canRemove && (
-          <IcoBtn
-            icon={'icon-small-close'}
-            className={classNames(_btn, 'ecos-drag-item__actions__btn-remove', { 'ecos-btn_grey5': selected })}
-            onClick={this.removeItem}
-          />
-        )}
-        <IcoBtn
-          icon={'icon-custom-drag-big'}
-          className={classNames(_btn, 'ecos-drag-item__actions__btn-move ecos-btn_focus_no', {
-            'ecos-btn_grey': selected,
-            'ecos-btn_grey4': !selected
+      <div className={classNames('ecos-drag-item__actions', classNameActions)}>
+        {actionsComponent}
+        <Icon
+          className={classNames('icon-custom-drag-big ecos-drag-item__actions-item_drag', {
+            'ecos-drag-item__actions-item_selected': selected
           })}
         />
       </div>
@@ -113,7 +76,6 @@ class DragItem extends React.Component {
     return (
       <>
         <Popper className="ecos-drag-item__title" popupClassName="ecos-drag-item__title-popper" showAsNeeded text={title} />
-
         {this.renderActions()}
       </>
     );

@@ -22,7 +22,7 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
   try {
     const { currentDate, status } = payload;
 
-    const requestList = yield api.timesheetVerification.getRequestListByStatus({
+    const requestList = yield call(api.timesheetVerification.getRequestListByStatus, {
       status,
       month: currentDate.getMonth(),
       year: currentDate.getFullYear()
@@ -30,9 +30,9 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
 
     const userNamesPure = CommonTimesheetService.getUserNameList(requestList.records);
 
-    const peopleList = yield api.timesheetCommon.getInfoPeopleList({ userNames: userNamesPure });
+    const peopleList = yield call(api.timesheetCommon.getInfoPeopleList, { userNames: userNamesPure });
 
-    const calendarEvents = yield api.timesheetCommon.getTimesheetCalendarEventsList({
+    const calendarEvents = yield call(api.timesheetCommon.getTimesheetCalendarEventsList, {
       month: currentDate.getMonth(),
       year: currentDate.getFullYear(),
       userNames: userNamesPure
@@ -94,7 +94,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
   yield put(setUpdatingEventDayHours(firstState));
 
   try {
-    yield api.timesheetCommon.modifyEventHours({ ...payload });
+    yield call(api.timesheetCommon.modifyEventHours, { ...payload });
 
     const updatingHoursState = yield select(selectTVerificationUpdatingHours);
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);

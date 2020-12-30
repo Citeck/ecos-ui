@@ -1,3 +1,4 @@
+import isArrayLike from 'lodash/isArrayLike';
 import { getBool, isExistValue } from '../helpers/util';
 
 export default class DisplayElementService {
@@ -16,5 +17,13 @@ export default class DisplayElementService {
 
   static checkResultCondition(result) {
     return isExistValue(result) ? getBool(result) : true;
+  }
+
+  static getModelAttributesLikeColumns(source) {
+    if (!source || !isArrayLike(source)) {
+      return [];
+    }
+
+    return Array.from(source).map(item => ({ ...item, text: item.name, attribute: item.id, type: item.type.toLowerCase() }));
   }
 }

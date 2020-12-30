@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 import { IcoBtn } from '../../common/btns';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { Well, Label, Select } from '../../common/form';
+import { Label, Select, Well } from '../../common/form';
 import { Filter, FiltersCondition } from '../';
 import { ParserPredicate } from '../predicates';
 import { t, trigger } from '../../../helpers/util';
@@ -90,7 +90,7 @@ export default class FiltersGroup extends Component {
   }
 
   render() {
-    const { className, columns, first, group, index, droppableIdPrefix = '_', sourceId, metaRecord } = this.props;
+    const { className, columns, first, group, index, droppableIdPrefix = '_', sourceId, metaRecord, textEmpty } = this.props;
     const groupConditions = ParserPredicate.getGroupConditions();
     const droppableId = `${droppableIdPrefix}${index}`;
 
@@ -164,7 +164,7 @@ export default class FiltersGroup extends Component {
 
         <Droppable droppableId={droppableId}>
           {provided => (
-            <ul {...provided.droppableProps} ref={provided.innerRef}>
+            <ul className="ecos-filters-group__droppable" {...provided.droppableProps} ref={provided.innerRef}>
               {dndFilters.map((item, index) => {
                 const draggableId = `${droppableId}_${index}`;
 
@@ -174,7 +174,9 @@ export default class FiltersGroup extends Component {
                       return snapshot.isDragging ? (
                         ReactDOM.createPortal(
                           <ListItem
-                            cssItemClasses={snapshot.isDragging && 'ecos-filters-group__draggable'}
+                            cssItemClasses={classNames('ecos-filters-group__item', {
+                              'ecos-filters-group__item_draggable': snapshot.isDragging
+                            })}
                             provided={provided}
                             item={item}
                           />,
@@ -187,7 +189,10 @@ export default class FiltersGroup extends Component {
                   </Draggable>
                 );
               })}
-              <div className={dndFilters.length ? '' : 'ecos-filters-group__empty'}>{provided.placeholder}</div>
+              <div className={classNames({ 'ecos-filters-group__empty': !dndFilters.length })}>
+                {provided.placeholder}
+                {!dndFilters.length && textEmpty}
+              </div>
             </ul>
           )}
         </Droppable>

@@ -121,12 +121,6 @@ class Search extends React.Component {
       searchResult.push(...setOutputParams(documents, Types.DOCUMENTS));
     }
 
-    // Cause https://citeck.atlassian.net/browse/ECOSUI-772
-    // if (!isEmpty(sites)) {
-    //   searchResult.push({ groupName: t('search.sites') });
-    //   searchResult.push(...setOutputParams(sites, Types.SITES));
-    // }
-
     if (!isEmpty(people)) {
       searchResult.push({ groupName: t('search.people') });
       searchResult.push(...setOutputParams(people, Types.PEOPLE));

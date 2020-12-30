@@ -1,0 +1,434 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FolderTree tests <FolderTree /> should render FolderTree component 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <FolderTree
+    items={Array []}
+  />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "checkPropTypes": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": Array [],
+      "className": "ecos-folder-tree",
+    },
+    "ref": null,
+    "rendered": Array [],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [],
+        "className": "ecos-folder-tree",
+      },
+      "ref": null,
+      "rendered": Array [],
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "legacyContextMode": "parent",
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getChildContext": Object {
+            "calledByRenderer": false,
+          },
+          "getDerivedStateFromError": true,
+          "getDerivedStateFromProps": Object {
+            "hasShouldComponentUpdateBug": false,
+          },
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+    Symbol(enzyme.__providerValues__): undefined,
+  },
+  Symbol(enzyme.__providerValues__): Map {},
+}
+`;
+
+exports[`FolderTree tests <FolderTreeItem /> should render FolderTreeItem component 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <FolderTreeItem
+    item={
+      Object {
+        "id": "",
+        "title": "",
+      }
+    }
+  />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "checkPropTypes": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": Array [
+        <div
+          className="ecos-folder-tree__fold-switch"
+        />,
+        <div>
+          <div
+            className="ecos-folder-tree__item-body"
+            onClick={[Function]}
+          >
+            <UNDEFINED
+              className="ecos-folder-tree__folder-image"
+              data={
+                Object {
+                  "value": "icon-folder",
+                }
+              }
+            />
+            <span
+              className="ecos-folder-tree__item-title"
+            >
+              
+            </span>
+          </div>
+          <div
+            className="ecos-folder-tree__item-children"
+          />
+        </div>,
+      ],
+      "className": "ecos-folder-tree__item",
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": undefined,
+          "className": "ecos-folder-tree__fold-switch",
+        },
+        "ref": null,
+        "rendered": null,
+        "type": "div",
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": Array [
+            <div
+              className="ecos-folder-tree__item-body"
+              onClick={[Function]}
+            >
+              <UNDEFINED
+                className="ecos-folder-tree__folder-image"
+                data={
+                  Object {
+                    "value": "icon-folder",
+                  }
+                }
+              />
+              <span
+                className="ecos-folder-tree__item-title"
+              >
+                
+              </span>
+            </div>,
+            <div
+              className="ecos-folder-tree__item-children"
+            />,
+          ],
+        },
+        "ref": null,
+        "rendered": Array [
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": Array [
+                <UNDEFINED
+                  className="ecos-folder-tree__folder-image"
+                  data={
+                    Object {
+                      "value": "icon-folder",
+                    }
+                  }
+                />,
+                <span
+                  className="ecos-folder-tree__item-title"
+                >
+                  
+                </span>,
+              ],
+              "className": "ecos-folder-tree__item-body",
+              "onClick": [Function],
+            },
+            "ref": null,
+            "rendered": Array [
+              Object {
+                "instance": null,
+                "key": undefined,
+                "nodeType": "function",
+                "props": Object {
+                  "className": "ecos-folder-tree__folder-image",
+                  "data": Object {
+                    "value": "icon-folder",
+                  },
+                },
+                "ref": null,
+                "rendered": null,
+                "type": Object {
+                  "$$typeof": Symbol(react.memo),
+                  "compare": null,
+                  "type": [Function],
+                },
+              },
+              Object {
+                "instance": null,
+                "key": undefined,
+                "nodeType": "host",
+                "props": Object {
+                  "children": "",
+                  "className": "ecos-folder-tree__item-title",
+                },
+                "ref": null,
+                "rendered": "",
+                "type": "span",
+              },
+            ],
+            "type": "div",
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": undefined,
+              "className": "ecos-folder-tree__item-children",
+            },
+            "ref": null,
+            "rendered": null,
+            "type": "div",
+          },
+        ],
+        "type": "div",
+      },
+    ],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          <div
+            className="ecos-folder-tree__fold-switch"
+          />,
+          <div>
+            <div
+              className="ecos-folder-tree__item-body"
+              onClick={[Function]}
+            >
+              <UNDEFINED
+                className="ecos-folder-tree__folder-image"
+                data={
+                  Object {
+                    "value": "icon-folder",
+                  }
+                }
+              />
+              <span
+                className="ecos-folder-tree__item-title"
+              >
+                
+              </span>
+            </div>
+            <div
+              className="ecos-folder-tree__item-children"
+            />
+          </div>,
+        ],
+        "className": "ecos-folder-tree__item",
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": undefined,
+            "className": "ecos-folder-tree__fold-switch",
+          },
+          "ref": null,
+          "rendered": null,
+          "type": "div",
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": Array [
+              <div
+                className="ecos-folder-tree__item-body"
+                onClick={[Function]}
+              >
+                <UNDEFINED
+                  className="ecos-folder-tree__folder-image"
+                  data={
+                    Object {
+                      "value": "icon-folder",
+                    }
+                  }
+                />
+                <span
+                  className="ecos-folder-tree__item-title"
+                >
+                  
+                </span>
+              </div>,
+              <div
+                className="ecos-folder-tree__item-children"
+              />,
+            ],
+          },
+          "ref": null,
+          "rendered": Array [
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": Array [
+                  <UNDEFINED
+                    className="ecos-folder-tree__folder-image"
+                    data={
+                      Object {
+                        "value": "icon-folder",
+                      }
+                    }
+                  />,
+                  <span
+                    className="ecos-folder-tree__item-title"
+                  >
+                    
+                  </span>,
+                ],
+                "className": "ecos-folder-tree__item-body",
+                "onClick": [Function],
+              },
+              "ref": null,
+              "rendered": Array [
+                Object {
+                  "instance": null,
+                  "key": undefined,
+                  "nodeType": "function",
+                  "props": Object {
+                    "className": "ecos-folder-tree__folder-image",
+                    "data": Object {
+                      "value": "icon-folder",
+                    },
+                  },
+                  "ref": null,
+                  "rendered": null,
+                  "type": Object {
+                    "$$typeof": Symbol(react.memo),
+                    "compare": null,
+                    "type": [Function],
+                  },
+                },
+                Object {
+                  "instance": null,
+                  "key": undefined,
+                  "nodeType": "host",
+                  "props": Object {
+                    "children": "",
+                    "className": "ecos-folder-tree__item-title",
+                  },
+                  "ref": null,
+                  "rendered": "",
+                  "type": "span",
+                },
+              ],
+              "type": "div",
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": undefined,
+                "className": "ecos-folder-tree__item-children",
+              },
+              "ref": null,
+              "rendered": null,
+              "type": "div",
+            },
+          ],
+          "type": "div",
+        },
+      ],
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "legacyContextMode": "parent",
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getChildContext": Object {
+            "calledByRenderer": false,
+          },
+          "getDerivedStateFromError": true,
+          "getDerivedStateFromProps": Object {
+            "hasShouldComponentUpdateBug": false,
+          },
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+    Symbol(enzyme.__providerValues__): undefined,
+  },
+  Symbol(enzyme.__providerValues__): Map {},
+}
+`;

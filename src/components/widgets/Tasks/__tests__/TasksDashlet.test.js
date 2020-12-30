@@ -1,12 +1,9 @@
 import React from 'react';
-import { configure, shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { shallow } from 'enzyme';
 import { unmountComponentAtNode } from 'react-dom';
 
 import TasksDashlet from '../TasksDashlet';
 import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../../constants';
-
-configure({ adapter: new Adapter() });
 
 let container = null;
 

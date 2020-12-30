@@ -16,8 +16,7 @@ import { EcosModal, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
 import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/Mapper';
-import EcosForm from '../../../EcosForm/EcosForm';
-import { FORM_MODE_EDIT } from '../../../EcosForm/constants';
+import FormManager from '../../../EcosForm/FormManager';
 import Records from '../../../Records';
 import { parseAttribute } from '../../../Records/utils/attStrUtils';
 
@@ -40,10 +39,6 @@ export default class SelectJournal extends Component {
   state = {
     isCollapsePanelOpen: false,
     isSelectModalOpen: false,
-    isCreateModalOpen: false,
-    isEditModalOpen: false,
-    editRecordId: null,
-    editRecordName: null,
     isJournalConfigFetched: false,
     journalConfig: {
       meta: {}
@@ -227,11 +222,10 @@ export default class SelectJournal extends Component {
     });
   };
 
-  refreshGridData = info => {
+  refreshGridData = () => {
     const getData = async resolve => {
       const { sortBy, queryData, customSourceId } = this.props;
       const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns } = this.state;
-      const recordId = get(info, 'record.id');
       const predicates = JournalsConverter.cleanUpPredicate([customPredicate, ...(filterPredicate || [])]);
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         sourceId: customSourceId,
@@ -245,15 +239,9 @@ export default class SelectJournal extends Component {
       const result = await JournalsService.getJournalData(journalConfig, settings);
       const fetchedGridData = JournalsConverter.getJournalDataWeb(result);
 
-      if (recordId) {
-        const recordData = await Records.get(recordId).load(fetchedGridData.attributes);
-        recordData.id = recordId;
-        fetchedGridData.recordData = recordData;
-      }
-
       fetchedGridData.columns = displayedColumns;
 
-      const mergedData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
+      const mergedData = await this.mergeFetchedDataWithInMemoryData(fetchedGridData);
 
       this.setState({
         gridData: { ...gridData, ...mergedData },
@@ -268,7 +256,7 @@ export default class SelectJournal extends Component {
     });
   };
 
-  mergeFetchedDataWithInMemoryData = fetchedGridData => {
+  mergeFetchedDataWithInMemoryData = async fetchedGridData => {
     const { gridData, pagination } = this.state;
     const { inMemoryData = [] } = gridData;
 
@@ -281,17 +269,17 @@ export default class SelectJournal extends Component {
     for (let i = 0; i < inMemoryData.length; i++) {
       const memoryRecord = inMemoryData[i];
       const exists = fetchedGridData.data.find(item => item.id === memoryRecord.id);
-      // если запись успела проиндексироваться, удаляем её из inMemoryData, иначе добаляем в fetchedData.data временную запись
       if (exists) {
+        // if the record has been indexed, remove it from inMemoryData
         newInMemoryData = newInMemoryData.filter(item => item.id !== memoryRecord.id);
       } else if (fetchedGridData.data.length < pagination.maxItems) {
-        let record = memoryRecord;
+        // otherwise, try to load absent attributes
+        const rec = Records.get(memoryRecord.id);
+        await rec.load(fetchedGridData.attributes);
+        const loadedAtts = rec.getRawAttributes();
 
-        if (memoryRecord.id === get(fetchedGridData, 'recordData.id')) {
-          newInMemoryData[i] = record = fetchedGridData.recordData;
-        }
-
-        fetchedGridData.data.push(record);
+        // add a temporary record to the fetchedData.data
+        fetchedGridData.data.push({ ...memoryRecord, ...loadedAtts });
       }
     }
 
@@ -312,18 +300,6 @@ export default class SelectJournal extends Component {
     if (typeof onCancel === 'function') {
       onCancel.call(this);
     }
-  };
-
-  toggleCreateModal = () => {
-    this.setState({
-      isCreateModalOpen: !this.state.isCreateModalOpen
-    });
-  };
-
-  toggleEditModal = () => {
-    this.setState({
-      isEditModalOpen: !this.state.isEditModalOpen
-    });
   };
 
   toggleCollapsePanel = () => {
@@ -539,57 +515,45 @@ export default class SelectJournal extends Component {
   onCreateFormSubmit = (record, form, alias) => {
     const { multiple } = this.props;
 
-    this.setState(
-      state => {
-        const prevSelected = state.gridData.selected || [];
-        const newSkipCount = Math.floor(state.gridData.total / state.pagination.maxItems) * state.pagination.maxItems;
-        const newPageNum = Math.ceil((state.gridData.total + 1) / state.pagination.maxItems);
+    this.setState(state => {
+      const prevSelected = state.gridData.selected || [];
+      const newSkipCount = Math.floor(state.gridData.total / state.pagination.maxItems) * state.pagination.maxItems;
+      const newPageNum = Math.ceil((state.gridData.total + 1) / state.pagination.maxItems);
 
-        return {
-          isCreateModalOpen: false,
-          gridData: {
-            ...state.gridData,
-            selected: multiple ? [...prevSelected, record.id] : [record.id],
-            inMemoryData: [
-              ...state.gridData.inMemoryData,
-              {
-                id: record.id,
-                ...alias.getRawAttributes()
-              }
-            ]
-          },
-          filterPredicate: [],
-          pagination: {
-            ...state.pagination,
-            skipCount: newSkipCount,
-            page: newPageNum
-          }
-        };
+      return {
+        gridData: {
+          ...state.gridData,
+          selected: multiple ? [...prevSelected, record.id] : [record.id],
+          inMemoryData: [
+            ...state.gridData.inMemoryData,
+            {
+              id: record.id,
+              ...alias.getRawAttributes()
+            }
+          ]
+        },
+        filterPredicate: [],
+        pagination: {
+          ...state.pagination,
+          skipCount: newSkipCount,
+          page: newPageNum
+        }
+      };
+    }, this.refreshGridData);
+  };
+
+  onValueEdit = record => {
+    FormManager.openFormModal({
+      record,
+      onSubmit: () => {
+        this.setValue(this.state.gridData.selected);
+        this.refreshGridData();
       },
-      () => this.refreshGridData({ record })
-    );
-  };
-
-  onEditFormSubmit = form => {
-    this.setState({
-      isEditModalOpen: false
+      initiator: {
+        type: 'form-component',
+        name: 'SelectJournal'
+      }
     });
-
-    this.setValue(this.state.gridData.selected);
-
-    this.refreshGridData();
-  };
-
-  onValueEdit = editRecordId => {
-    Records.get(editRecordId)
-      .load('.disp')
-      .then(disp => {
-        this.setState({
-          isEditModalOpen: true,
-          editRecordId: editRecordId,
-          editRecordName: disp
-        });
-      });
   };
 
   onValueDelete = id => {
@@ -656,12 +620,8 @@ export default class SelectJournal extends Component {
     const {
       isGridDataReady,
       isSelectModalOpen,
-      isEditModalOpen,
-      isCreateModalOpen,
       isCollapsePanelOpen,
       gridData,
-      editRecordId,
-      editRecordName,
       pagination,
       journalConfig,
       selectedRows,
@@ -705,13 +665,8 @@ export default class SelectJournal extends Component {
     });
 
     let selectModalTitle = t('select-journal.select-modal.title');
-    let editModalTitle = t('select-journal.edit-modal.title');
     if (journalConfig.meta.title) {
       selectModalTitle += `: ${journalConfig.meta.title}`;
-    }
-
-    if (editRecordName) {
-      editModalTitle += `: ${editRecordName}`;
     }
 
     const selectModalClasses = classNames('select-journal-select-modal', {
@@ -742,12 +697,7 @@ export default class SelectJournal extends Component {
                   </IcoBtn>
 
                   {hideCreateButton ? null : (
-                    <CreateVariants
-                      items={journalConfig.meta.createVariants}
-                      toggleCreateModal={this.toggleCreateModal}
-                      isCreateModalOpen={isCreateModalOpen}
-                      onCreateFormSubmit={this.onCreateFormSubmit}
-                    />
+                    <CreateVariants items={journalConfig.meta.createVariants} onCreateFormSubmit={this.onCreateFormSubmit} />
                   )}
                 </div>
                 <div className={'select-journal-collapse-panel__controls-right'}>
@@ -787,30 +737,6 @@ export default class SelectJournal extends Component {
             </div>
           </EcosModal>
         </FiltersProvider>
-
-        <EcosModal
-          reactstrapProps={{
-            backdrop: 'static'
-          }}
-          className="ecos-modal_width-lg"
-          isBigHeader
-          title={editModalTitle}
-          isOpen={isEditModalOpen}
-          hideModal={this.toggleEditModal}
-        >
-          <EcosForm
-            record={editRecordId}
-            onSubmit={this.onEditFormSubmit}
-            onFormCancel={this.toggleEditModal}
-            options={{
-              formMode: FORM_MODE_EDIT
-            }}
-            initiator={{
-              type: 'form-component',
-              name: 'SelectJournal'
-            }}
-          />
-        </EcosModal>
       </div>
     );
   }

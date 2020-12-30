@@ -82,6 +82,14 @@ $header-height: 52px;
 
   &__row {
   }
+
+  &__header {
+    &_columns-not-resizable {
+      .ecos-th__divider {
+        cursor: unset;
+      }
+    }
+  }
 }
 
 #{$selector-table} {
@@ -249,4 +257,10 @@ $header-height: 52px;
   width: 5px;
   border-right: 2px solid $color-gray-4;
   z-index: 10;
+}
+
+.ecos-info-text.ecos-info-text-cell_error {
+  display: inline-block;
+  font-weight: unset;
+  font-size: $font-size-small;
 }

@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { t } from '../../helpers/util';
-import { PointsLoader } from '../../components/common';
-import { Checkbox, Dropdown } from '../../components/common/form';
-import { Btn } from '../../components/common/btns';
-import DialogManager from '../../components/common/dialogs/Manager';
+import { t } from '../../../helpers/util';
+import { PointsLoader } from '../../../components/common';
+import { Checkbox, Dropdown } from '../../../components/common/form';
+import { Btn } from '../../../components/common/btns';
+import DialogManager from '../../../components/common/dialogs/Manager';
 
-import './style.scss';
+import '../style.scss';
 
 const Labels = {
   CONFIG_DEFAULT: 'dashboard-settings.config.default',
