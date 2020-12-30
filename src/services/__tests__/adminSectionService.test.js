@@ -14,6 +14,11 @@ describe('AdminSection Service', () => {
       const returnValue = AdminSectionService.getSelectedSectionIndex(groupSectionList[1].sections, undefined);
       expect(returnValue).toEqual(-1);
     });
+
+    it('no section', () => {
+      const returnValue = AdminSectionService.getSelectedSectionIndex(null, BPM);
+      expect(returnValue).toEqual(-1);
+    });
   });
 
   describe('Method getActiveSectionInGroups', () => {
@@ -24,6 +29,11 @@ describe('AdminSection Service', () => {
 
     it('unknown', () => {
       const returnValue = AdminSectionService.getActiveSectionInGroups(groupSectionList, i => i.type === null);
+      expect(returnValue).toBeUndefined();
+    });
+
+    it('no groups', () => {
+      const returnValue = AdminSectionService.getActiveSectionInGroups(null, i => i.type === null);
       expect(returnValue).toBeUndefined();
     });
   });
