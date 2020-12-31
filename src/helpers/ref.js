@@ -12,7 +12,7 @@ export const getRefWithAlfrescoPrefix = recordRef => {
   return recordRef;
 };
 
-export const getRefWithOutAlfrescoPrefix = recordRef => {
+export const getRefExceptAlfrescoPrefix = recordRef => {
   if (isEmpty(recordRef)) {
     return recordRef;
   }
