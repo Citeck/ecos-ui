@@ -24,7 +24,7 @@ import { selectIdentificationForSet } from '../selectors/dashboard';
 import { selectIsAdmin, selectUserName } from '../selectors/user';
 import { t } from '../helpers/util';
 import { getSearchParams } from '../helpers/urls';
-import { getRefWithAlfrescoPrefix, getRefWithOutAlfrescoPrefix } from '../helpers/ref';
+import { getRefExceptAlfrescoPrefix, getRefWithAlfrescoPrefix } from '../helpers/ref';
 import { RequestStatuses } from '../constants';
 import DashboardService from '../services/dashboard';
 import PageService from '../services/PageService';
@@ -64,7 +64,7 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
       webConfigs.identification.key = keyRef;
     }
 
-    const _recordRef = get(getSearchParams(), 'recordRef') || getRefWithOutAlfrescoPrefix(keyRef);
+    const _recordRef = get(getSearchParams(), 'recordRef') || getRefExceptAlfrescoPrefix(keyRef);
 
     yield put(setDashboardData({ key, recordRef: recordRef || _recordRef }));
     yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config, modelAttributes }));
