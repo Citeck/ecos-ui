@@ -2,13 +2,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
+import { getId } from '../../helpers/util';
 import { Icon } from '../common';
 
 import './style.scss';
 
 class ScenarioManager extends React.Component {
   state = {
-    propertiesOpen: false
+    propertiesOpen: false,
+    stateId: 'ecos-scenario-manager' + getId()
   };
 
   togglePropertiesOpen = () => {
@@ -16,7 +18,8 @@ class ScenarioManager extends React.Component {
   };
 
   render() {
-    const { propertiesOpen } = this.state;
+    const { propertiesOpen, stateId } = this.state;
+    const { record, formId } = this.props;
 
     return (
       <div className="ecos-scenario-manager">
@@ -25,7 +28,15 @@ class ScenarioManager extends React.Component {
           <div className="ecos-scenario-manager__properties-opener" onClick={this.togglePropertiesOpen}>
             <Icon className={classNames({ 'icon-small-left': !propertiesOpen, 'icon-small-right': propertiesOpen })} />
           </div>
-          {/*контейнер для формы*/}
+          {/*<EcosForm*/}
+          {/*  record={record}*/}
+          {/*  formId={formId}*/}
+          {/*  options={{*/}
+          {/*    viewAsHtml: true,*/}
+          {/*    formMode: FORM_MODE_EDIT,*/}
+          {/*    onInlineEditSave: true*/}
+          {/*  }}*/}
+          {/*/>*/}
         </div>
       </div>
     );
