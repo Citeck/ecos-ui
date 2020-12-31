@@ -15,6 +15,7 @@ const DelegatedTimesheetsPage = lazy(() => import('./Timesheet/DelegatedTimeshee
 
 const FormIOPage = lazy(() => import('./debug/FormIOPage'));
 const TreePage = lazy(() => import('./debug/Tree'));
+const ScenarioManagerPage = lazy(() => import('./debug/ScenarioManagerPage'));
 
 export default ({ pageKey, footer, ...props }) => {
   let Page = null;
@@ -54,6 +55,9 @@ export default ({ pageKey, footer, ...props }) => {
       break;
     case Pages.DEBUG_TREE:
       Page = TreePage;
+      break;
+    case Pages.DEBUG_SCENARIO_MANAGER:
+      Page = ScenarioManagerPage;
       break;
     default:
   }

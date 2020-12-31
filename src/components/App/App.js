@@ -310,6 +310,11 @@ class App extends Component {
               path={URL.TIMESHEET_IFRAME_DELEGATED}
               render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} footer={null} />}
             />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={'/v2/debug/scenario-manager'}
+              render={props => <Page pageKey={Pages.DEBUG_SCENARIO_MANAGER} {...props} {...basePageProps} footer={null} />}
+            />
 
             {/*temporary routes */}
             <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />

@@ -126,6 +126,7 @@ export const Pages = {
   LOGIN: 'login',
   DEBUG_FORMIO: 'debug-formio',
   DEBUG_TREE: 'debug-tree',
+  DEBUG_SCENARIO_MANAGER: 'debug-scenario-manager',
   DEV_TOOLS: 'dev-tools'
 };
 
