@@ -14,15 +14,17 @@ import {
   setAvailableWidgets,
   setCheckUpdatedDashboardConfig,
   setDashboardConfig,
+  setDashboardData,
   setDashboardKeys,
   setLoading,
   setLoadingKeys,
-  setRequestResultDashboard,
-  setDashboardData
+  setRequestResultDashboard
 } from '../actions/dashboardSettings';
 import { selectIdentificationForSet } from '../selectors/dashboard';
 import { selectIsAdmin, selectUserName } from '../selectors/user';
 import { t } from '../helpers/util';
+import { getSearchParams } from '../helpers/urls';
+import { getRefWithAlfrescoPrefix, getRefWithOutAlfrescoPrefix } from '../helpers/ref';
 import { RequestStatuses } from '../constants';
 import DashboardService from '../services/dashboard';
 import PageService from '../services/PageService';
@@ -30,7 +32,6 @@ import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { CONFIG_VERSION } from '../constants/dashboard';
 import { selectNewVersionConfig, selectOriginalConfig, selectRecordRef, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 import DashboardConverter from '../dto/dashboard';
-import { getRefWithAlfrescoPrefix, getSearchParams } from '../helpers/urls';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
@@ -41,18 +42,11 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 }
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
-  const { key } = payload;
+  const { key, recordRef } = payload;
 
   try {
-    yield put(setDashboardData({ key, recordRef: get(getSearchParams(), 'recordRef') }));
-
-    let { recordRef } = payload;
-
-    if (recordRef) {
-      recordRef = getRefWithAlfrescoPrefix(recordRef);
-    }
-
-    const { config, ...result } = yield call(api.dashboard.getDashboardByOneOf, { ...payload, recordRef });
+    let keyRef = recordRef ? getRefWithAlfrescoPrefix(recordRef) : null;
+    const { config, ...result } = yield call(api.dashboard.getDashboardByOneOf, { ...payload, recordRef: keyRef });
     const modelAttributes = yield call(api.dashboard.getModelAttributes, result.key);
     const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
     const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
@@ -60,15 +54,22 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
     const data = DashboardService.checkDashboardResult(result);
     const webConfigs = DashboardSettingsConverter.getSettingsForWeb(newConfig, widgetsById, migratedConfig.version);
 
-    webConfigs.identification = DashboardConverter.getKeyInfoDashboardForWeb(data).identification;
+    webConfigs.identification = DashboardConverter.getKeyInfoDashboardForWeb(data).identification || {};
 
-    if (recordRef && !webConfigs.identification.key) {
-      webConfigs.identification.key = recordRef;
+    if (!keyRef && result.appliedToRef) {
+      keyRef = result.appliedToRef;
     }
 
+    if (keyRef && !webConfigs.identification.key) {
+      webConfigs.identification.key = keyRef;
+    }
+
+    const _recordRef = get(getSearchParams(), 'recordRef') || getRefWithOutAlfrescoPrefix(keyRef);
+
+    yield put(setDashboardData({ key, recordRef: recordRef || _recordRef }));
     yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config, modelAttributes }));
     yield put(getAvailableWidgets({ type: data.type, key }));
-    yield put(getDashboardKeys(payload));
+    yield put(getDashboardKeys({ ...payload, recordRef: recordRef || _recordRef }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-config'), t('error'));
     logger.error('[dashboard-settings/ doGetDashboardConfigRequest saga] error', e.message);
