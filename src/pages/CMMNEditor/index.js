@@ -7,6 +7,6 @@ export default class CMMNEditorPage extends React.Component {
   render() {
     const { query } = queryString.parseUrl(window.location.href);
 
-    return <ModelEditor type={'cmmn:Stage'} record={query.recordRef} />;
+    return <ModelEditor type="cmmn:Stage" record={query.recordRef} />;
   }
 }
