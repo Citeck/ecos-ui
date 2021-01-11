@@ -213,7 +213,9 @@ export default class EcosFormUtils {
           formContainer: config.formContainer || null
         });
       } else {
-        fallback();
+        if (typeof fallback === 'function') {
+          fallback();
+        }
       }
     };
 

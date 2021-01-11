@@ -1,4 +1,4 @@
-import { PROXY_URI, URL_CONTEXT } from '../constants/alfresco';
+import { PROXY_URI } from '../constants/alfresco';
 import { SourcesId } from '../constants';
 import Records from '../components/Records';
 import { t } from '../helpers/util';
@@ -15,11 +15,6 @@ export class UserApi extends CommonApi {
 
       return data.props['ecos:photo'].size;
     });
-  };
-
-  checkIsAuthenticated = () => {
-    const url = `${URL_CONTEXT}service/modules/authenticated?noCache=${new Date().getTime()}&a=user`;
-    return this.getJson(url).catch(() => ({ success: false }));
   };
 
   getUserData = () => {

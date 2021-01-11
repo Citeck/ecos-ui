@@ -36,7 +36,7 @@ const shareProxyOptions = {
       }
       redirectLocation = redirectLocation.replace(new RegExp(PROXY_URL.SHARE, 'g'), '');
       if (redirectLocation === '/share') {
-        redirectLocation = '/share/page';
+        redirectLocation = '/v2/dashboard';
       }
       console.log('Redirect location changed to ' + redirectLocation);
 
@@ -65,7 +65,7 @@ const gatewayRecordsProxyOptions = {
 
 module.exports = function(app) {
   app.use(
-    proxy(['/share/api/records'], {
+    proxy(['/gateway/api/records', '/logout'], {
       ...gatewayRecordsProxyOptions
     })
   );
@@ -79,9 +79,9 @@ module.exports = function(app) {
   app.use(
     proxy(
       [
+        '/gateway/**',
         '/share/**',
-        /*'!**!/card-details',*/
-        '!/share/api/records/**',
+        '!/gateway/api/records/**',
         '!**/card-details-new',
         '!**/bpmn-designer',
         '!**/bpmn-designer/**',

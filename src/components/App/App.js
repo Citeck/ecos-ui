@@ -31,14 +31,11 @@ import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { MenuSettingsController } from '../MenuSettings';
 import { decodeLink, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
-import { selectActiveThemeImage } from '../../selectors/view';
-import { DefaultImages } from '../../constants/theme';
 
 import './App.scss';
 
 const allowedLinks = [
   URL.DASHBOARD,
-  '/share/page/bpmn-designer',
   URL.FORM_COMPONENTS,
   '/v2/debug/tree',
   '/v2/debug/cmmn',
@@ -239,12 +236,6 @@ class App extends Component {
           <CacheSwitch isCurrent={isCurrent} tabLink={tab.link}>
             <CacheRoute
               {...baseCacheRouteProps}
-              exact
-              path="/share/page/bpmn-designer"
-              render={() => <Redirect to={URL.BPMN_DESIGNER} />}
-            />
-            <CacheRoute
-              {...baseCacheRouteProps}
               path={URL.DASHBOARD_SETTINGS}
               render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} {...basePageProps} />}
             />
@@ -334,7 +325,6 @@ class App extends Component {
       <div className="ecos-main-content" style={this.wrapperStyle}>
         <Suspense fallback={null}>
           <Switch>
-            <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
             <Route
               path={URL.DASHBOARD_SETTINGS}
               render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} {...basePageProps} />}
@@ -396,7 +386,7 @@ class App extends Component {
   }
 
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, loginLogo } = this.props;
+    const { isInit, isInitFailure, isMobile } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -406,14 +396,6 @@ class App extends Component {
     if (isInitFailure) {
       // TODO: Crash app component
       return null;
-    }
-
-    if (!isAuthenticated) {
-      return (
-        <Suspense fallback={null}>
-          <Page pageKey={Pages.LOGIN} theme={theme} logo={loginLogo} />
-        </Suspense>
-      );
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile });
@@ -446,13 +428,10 @@ const mapStateToProps = state => ({
   isInit: get(state, ['app', 'isInit']),
   isInitFailure: get(state, ['app', 'isInitFailure']),
   isMobile: get(state, ['view', 'isMobile']),
-  theme: get(state, ['view', 'theme']),
-  isAuthenticated: get(state, ['user', 'isAuthenticated']),
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
   tabs: get(state, 'pageTabs.tabs', []),
   menuType: get(state, ['menu', 'type']),
-  footer: get(state, 'app.footer', null),
-  loginLogo: selectActiveThemeImage(state, DefaultImages.LOGIN_LOGO)
+  footer: get(state, 'app.footer', null)
 });
 
 const mapDispatchToProps = dispatch => ({

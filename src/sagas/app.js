@@ -25,36 +25,30 @@ import { detectMobileDevice } from '../actions/view';
 import { getMenuConfig, setMenuConfig } from '../actions/menu';
 import PageService from '../services/PageService';
 
-export function* initApp({ api, fakeApi, logger }, { payload }) {
+export function* initApp({ api, logger }, { payload }) {
   try {
     // --- Validate user ---
     let isAuthenticated = false;
     try {
-      const checkAuthResp = yield call(api.user.checkIsAuthenticated);
+      const resp = yield call(api.user.getUserData);
 
-      if (!checkAuthResp.success) {
+      if (!resp.success) {
         yield put(validateUserFailure());
       } else {
-        const resp = yield call(api.user.getUserData);
+        isAuthenticated = true;
+        yield put(validateUserSuccess(resp.payload));
 
-        if (!resp.success) {
-          yield put(validateUserFailure());
-        } else {
-          isAuthenticated = true;
-          yield put(validateUserSuccess(resp.payload));
-
-          // TODO remove in future: see src/helpers/util.js getCurrentUserName()
-          lodashSet(window, 'Alfresco.constants.USERNAME', lodashGet(resp.payload, 'userName'));
-        }
-
-        const isNewUIAvailable = yield call(api.user.checkNewUIAvailableStatus);
-
-        yield put(setNewUIAvailableStatus(isNewUIAvailable));
-
-        const isForceOldUserDashboardEnabled = yield call(api.app.isForceOldUserDashboardEnabled);
-
-        yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
+        // TODO remove in future: see src/helpers/util.js getCurrentUserName()
+        lodashSet(window, 'Alfresco.constants.USERNAME', lodashGet(resp.payload, 'userName'));
       }
+
+      const isNewUIAvailable = yield call(api.user.checkNewUIAvailableStatus);
+
+      yield put(setNewUIAvailableStatus(isNewUIAvailable));
+
+      const isForceOldUserDashboardEnabled = yield call(api.app.isForceOldUserDashboardEnabled);
+
+      yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
 
       const homeLink = yield call(api.app.getHomeLink);
 
@@ -75,7 +69,7 @@ export function* initApp({ api, fakeApi, logger }, { payload }) {
   }
 }
 
-export function* fetchAppSettings({ api, fakeApi, logger }, { payload }) {
+export function* fetchAppSettings({ logger }) {
   try {
     yield put(getMenuConfig());
     yield put(getDashboardEditable());

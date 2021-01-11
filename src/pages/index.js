@@ -2,7 +2,6 @@ import React, { lazy } from 'react';
 
 import { Pages } from '../constants';
 
-const LoginPage = lazy(() => import('../components/LoginForm'));
 const AdminPage = lazy(() => import('./AdminPage'));
 const DashboardPage = lazy(() => import('./Dashboard'));
 const DashboardSettingsPage = lazy(() => import('./DashboardSettings'));
@@ -21,8 +20,6 @@ export default ({ pageKey, footer, ...props }) => {
   let Page = null;
 
   switch (pageKey) {
-    case Pages.LOGIN:
-      return <LoginPage {...props} />;
     case Pages.BPMN:
       Page = AdminPage;
       break;

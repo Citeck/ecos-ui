@@ -25,7 +25,6 @@ import { setIsAuthenticated } from './actions/user';
 import { loadThemeRequest } from './actions/view';
 
 import { configureAPI } from './api';
-import { fakeApi } from './api/fakeApi';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
 
@@ -49,11 +48,7 @@ registerLocale('ru', datePickerLocaleRu);
 setDefaultLocale(currentLocale);
 
 const { api, setNotAuthCallback } = configureAPI();
-const store = configureStore({
-  api,
-  fakeApi,
-  logger
-});
+const store = configureStore({ api, logger });
 const history = getHistory();
 
 setNotAuthCallback(() => {
@@ -61,7 +56,7 @@ setNotAuthCallback(() => {
 });
 
 window.requirejs.config({
-  baseUrl: '/share/res',
+  baseUrl: '/share/res', // leave it for now
   urlArgs: 'b=' + preval`module.exports = new Date().getTime()`,
   paths: {
     ecosui: '/js/ecos/ecosui',
