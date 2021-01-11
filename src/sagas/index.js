@@ -33,6 +33,7 @@ import documents from './documents';
 import userProfile from './userProfile';
 import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
+import adminSection from './adminSection';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -69,6 +70,7 @@ export default function* rootSaga(extraArguments) {
     documents(extraArguments),
     userProfile(extraArguments),
     docConstructor(extraArguments),
-    iconSelect(extraArguments)
+    iconSelect(extraArguments),
+    adminSection(extraArguments)
   ]);
 }

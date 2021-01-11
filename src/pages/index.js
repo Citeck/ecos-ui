@@ -3,7 +3,7 @@ import React, { lazy } from 'react';
 import { Pages } from '../constants';
 
 const LoginPage = lazy(() => import('../components/LoginForm'));
-const BPMNDesignerPage = lazy(() => import('./BPMNDesignerPage'));
+const AdminPage = lazy(() => import('./AdminPage'));
 const DashboardPage = lazy(() => import('./Dashboard'));
 const DashboardSettingsPage = lazy(() => import('./DashboardSettings'));
 const JournalsPage = lazy(() => import('./JournalsPage'));
@@ -24,7 +24,7 @@ export default ({ pageKey, footer, ...props }) => {
     case Pages.LOGIN:
       return <LoginPage {...props} />;
     case Pages.BPMN:
-      Page = BPMNDesignerPage;
+      Page = AdminPage;
       break;
     case Pages.DASHBOARD_SETTINGS:
       Page = DashboardSettingsPage;

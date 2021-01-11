@@ -2,14 +2,14 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Row } from 'reactstrap';
 import moment from 'moment';
-import { URL_PAGECONTEXT, PROXY_URI } from '../../../constants/alfresco';
-import { VIEW_TYPE_LIST, VIEW_TYPE_CARDS, EDITOR_PAGE_CONTEXT } from '../../../constants/bpmn';
+
+import { PROXY_URI, URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { savePagePosition } from '../../../actions/bpmn';
+import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME, ViewTypes } from '../../../constants/bpmn';
 import { selectModelsByCategoryId } from '../../../selectors/bpmn';
 import CreateModelCard from '../CreateModelCard';
 import ModelCard from '../ModelCard';
 import ModelList from '../ModelList';
-import { savePagePosition } from '../../../actions/bpmn';
-import { LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME } from '../../../constants/bpmn';
 
 const mapStateToProps = (state, props) => ({
   viewType: state.bpmn.viewType,
@@ -44,7 +44,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEditLinkClick }) => {
-  const ModelComponent = viewType === VIEW_TYPE_LIST ? ModelList : ModelCard;
+  const ModelComponent = viewType === ViewTypes.LIST ? ModelList : ModelCard;
 
   const models = [];
   if (items) {
@@ -78,7 +78,7 @@ const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEd
   }
 
   let createModelComponent = null;
-  if (viewType === VIEW_TYPE_CARDS && !items.length && !searchText) {
+  if (viewType === ViewTypes.CARDS && !items.length && !searchText) {
     createModelComponent = <CreateModelCard categoryId={categoryId} />;
   }
 
