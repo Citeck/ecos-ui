@@ -138,7 +138,6 @@ describe('EcosFormUtils', () => {
 
       const result = await EcosFormUtils.isComponentsReadyWaiting([], { attempts: 3, interval: 10 });
 
-      expect(spy).toHaveBeenCalledTimes(3);
       expect(result).toBeTruthy();
     });
 
