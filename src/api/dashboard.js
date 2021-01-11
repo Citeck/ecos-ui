@@ -4,7 +4,7 @@ import isString from 'lodash/isString';
 
 import { getCurrentUserName, isExistValue, t } from '../helpers/util';
 import Cache from '../helpers/cache';
-import { getRefWithAlfrescoPrefix } from '../helpers/urls';
+import { getRefWithAlfrescoPrefix } from '../helpers/ref';
 import { EmodelTypes, SourcesId } from '../constants';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';
@@ -18,7 +18,8 @@ const defaultAttr = {
   user: 'authority',
   type: 'typeRef.inhDashboardType?str',
   key: 'typeRef?id',
-  id: 'id'
+  id: 'id',
+  appliedToRef: 'appliedToRef?str'
 };
 
 const cache = new Cache('_dashboardId');
