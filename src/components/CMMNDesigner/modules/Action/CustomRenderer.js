@@ -33,7 +33,7 @@ export default class CustomRenderer extends BaseRenderer {
 
     renderLabel(parentNode, ecosType, { box: element, align: 'left-top', padding: 5 });
     renderEmbeddedLabel(parentNode, element, 'center-middle');
-    //attachTaskMarkers(p, element);
+
     return rect;
   }
 
@@ -83,9 +83,4 @@ function drawRect(parentNode, width, height, borderRadius, strokeColor) {
   svgAppend(parentNode, rect);
 
   return rect;
-}
-
-// copied from https://github.com/bpmn-io/diagram-js/blob/master/lib/core/GraphicsFactory.js
-function prependTo(newNode, parentNode, siblingNode) {
-  parentNode.insertBefore(newNode, siblingNode || parentNode.firstChild);
 }
