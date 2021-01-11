@@ -15,6 +15,7 @@ export const PageTypes = {
   JOURNALS: 'journals',
   SETTINGS: 'dashboard/settings',
   BPMN_DESIGNER: 'bpmn-designer',
+  CMMN_EDITOR: 'cmmn-editor',
   DEV_TOOLS: 'dev-tools',
   TIMESHEET: 'timesheet'
 };
@@ -50,6 +51,7 @@ export default class PageService {
       case PageTypes.SETTINGS:
         return urlProps.query.dashboardId || '';
       case PageTypes.DASHBOARD:
+      case PageTypes.CMMN_EDITOR:
         return urlProps.query.recordRef || '';
       case PageTypes.JOURNALS:
         return urlProps.query.journalsListId || '';
@@ -65,8 +67,8 @@ export default class PageService {
 
     switch (_type) {
       case PageTypes.SETTINGS:
-        return urlProps.query.recordRef || '';
       case PageTypes.DASHBOARD:
+      case PageTypes.CMMN_EDITOR:
         return urlProps.query.recordRef || '';
       case PageTypes.JOURNALS:
         return urlProps.query.journalId || '';
@@ -125,6 +127,9 @@ export default class PageService {
     },
     [PageTypes.DEV_TOOLS]: {
       getTitle: () => staticTitle(TITLE[URL.DEV_TOOLS])
+    },
+    [PageTypes.CMMN_EDITOR]: {
+      getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.CMMN_EDITOR])} "${convertTitle(title)}"`)
     }
   });
 

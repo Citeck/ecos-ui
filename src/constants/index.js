@@ -6,6 +6,7 @@ export const URL = {
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
   MENU_SETTINGS: '/v2/menu-settings',
   BPMN_DESIGNER: '/v2/bpmn-designer',
+  CMMN_EDITOR: '/v2/cmmn-editor',
   DEV_TOOLS: '/v2/dev-tools',
   TIMESHEET: '/v2/timesheet',
   TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
@@ -126,7 +127,7 @@ export const Pages = {
   LOGIN: 'login',
   DEBUG_FORMIO: 'debug-formio',
   DEBUG_TREE: 'debug-tree',
-  DEBUG_SCENARIO_MANAGER: 'debug-scenario-manager',
+  CMMN_EDITOR: 'cmmn-editor',
   DEV_TOOLS: 'dev-tools'
 };
 

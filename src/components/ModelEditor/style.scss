@@ -1,11 +1,19 @@
 @import '../../styles/constants';
 
-.ecos-scenario-manager {
+.ecos-model-editor {
   display: flex;
   height: 100%;
 
   &__designer {
-    flex: auto;
+    &-content {
+      flex: auto;
+      margin: 20px;
+    }
+
+    &-child {
+      background: $color-white;
+      border-radius: $border-radius-large;
+    }
   }
 
   &__properties {
@@ -44,6 +52,17 @@
           color: $color-white;
         }
       }
+    }
+
+    &-content {
+      display: none;
+      padding: 20px;
+      background: $color-white;
+      height: 100%;
+    }
+
+    &_open > &-content {
+      display: block;
     }
   }
 }

@@ -8,6 +8,7 @@ const DashboardPage = lazy(() => import('./Dashboard'));
 const DashboardSettingsPage = lazy(() => import('./DashboardSettings'));
 const JournalsPage = lazy(() => import('./JournalsPage'));
 const DevToolsPage = lazy(() => import('./DevTools'));
+const CMMNEditorPage = lazy(() => import('./CMMNEditor'));
 const MyTimesheetPage = lazy(() => import('./Timesheet/MyTimesheetPage'));
 const SubordinatesTimesheetPage = lazy(() => import('./Timesheet/SubordinatesTimesheetPage'));
 const VerificationTimesheetPage = lazy(() => import('./Timesheet/VerificationTimesheetPage'));
@@ -15,7 +16,6 @@ const DelegatedTimesheetsPage = lazy(() => import('./Timesheet/DelegatedTimeshee
 
 const FormIOPage = lazy(() => import('./debug/FormIOPage'));
 const TreePage = lazy(() => import('./debug/Tree'));
-const ScenarioManagerPage = lazy(() => import('./debug/ScenarioManagerPage'));
 
 export default ({ pageKey, footer, ...props }) => {
   let Page = null;
@@ -56,8 +56,8 @@ export default ({ pageKey, footer, ...props }) => {
     case Pages.DEBUG_TREE:
       Page = TreePage;
       break;
-    case Pages.DEBUG_SCENARIO_MANAGER:
-      Page = ScenarioManagerPage;
+    case Pages.CMMN_EDITOR:
+      Page = CMMNEditorPage;
       break;
     default:
   }

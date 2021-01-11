@@ -45,6 +45,8 @@ const allowedLinks = [
   URL.BPMN_DESIGNER,
   URL.JOURNAL,
   URL.DEV_TOOLS,
+  URL.CMMN_EDITOR,
+
   URL.TIMESHEET,
   URL.TIMESHEET_SUBORDINATES,
   URL.TIMESHEET_FOR_VERIFICATION,
@@ -270,6 +272,12 @@ class App extends Component {
             />
             <CacheRoute
               {...baseCacheRouteProps}
+              path={URL.CMMN_EDITOR}
+              render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} {...basePageProps} footer={null} />}
+            />
+            {/* --- TIMESHEETs start */}
+            <CacheRoute
+              {...baseCacheRouteProps}
               path={URL.TIMESHEET}
               exact
               render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} />}
@@ -310,14 +318,10 @@ class App extends Component {
               path={URL.TIMESHEET_IFRAME_DELEGATED}
               render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} footer={null} />}
             />
-            <CacheRoute
-              {...baseCacheRouteProps}
-              path={'/v2/debug/scenario-manager'}
-              render={props => <Page pageKey={Pages.DEBUG_SCENARIO_MANAGER} {...props} {...basePageProps} footer={null} />}
-            />
+            {/* --- TIMESHEETs end */}
 
             {/*temporary routes */}
-            <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
+            <Route path={URL.FORM_COMPONENTS} render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
             <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} {...basePageProps} />} />
 
             {/* Redirect not working: https://github.com/CJY0208/react-router-cache-route/issues/72 */}
@@ -346,6 +350,8 @@ class App extends Component {
             <Route path={URL.BPMN_DESIGNER} render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />} />
             <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} {...basePageProps} />} />
             <Route path={URL.DEV_TOOLS} render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} {...basePageProps} />} />
+            <Route path={URL.CMMN_EDITOR} render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} {...basePageProps} />} />
+            {/* --- TIMESHEETs start */}
             <Route path={URL.TIMESHEET} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} />} />
             <Route
               path={URL.TIMESHEET_SUBORDINATES}
@@ -376,6 +382,7 @@ class App extends Component {
               path={URL.TIMESHEET_IFRAME_DELEGATED}
               render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} footer={null} />}
             />
+            {/* --- TIMESHEETs end */}
 
             {/* temporary routes */}
             <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
