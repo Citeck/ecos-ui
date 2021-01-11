@@ -4,7 +4,7 @@ import ecosFetch from '../../../../../../helpers/ecosFetch';
 import dialogManager from '../../../../../common/dialogs/Manager/DialogManager';
 import { t } from '../../../../../../helpers/export/util';
 
-export default class CaseRedirectAction extends ActionsExecutor {
+export default class CaseRequestAction extends ActionsExecutor {
   static ACTION_ID = 'REQUEST';
 
   async execForRecord(record, action, context) {

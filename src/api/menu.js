@@ -125,6 +125,7 @@ export class MenuApi extends CommonApi {
               }
             }
           },
+          // TODO: Migration to form required
           {
             id: 'HEADER_CREATE_WORKFLOW_CONFIRM',
             label: 'header.create-workflow-confirm.label',
@@ -236,7 +237,7 @@ export class MenuApi extends CommonApi {
     return cacheKey
       .then(key =>
         this.getJsonWithSessionCache({
-          url: `${PROXY_URI}citeck/menu/menu?username=${username}`,
+          url: `/gateway/uiserv/api/usermenu?username=${username}`,
           cacheKey: key,
           timeout: 14400000, //4h
           postProcess: menu => postProcessMenuConfig(menu)

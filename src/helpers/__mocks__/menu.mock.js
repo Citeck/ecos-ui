@@ -14,11 +14,9 @@ export const makeUserMenuConfigs = [
       {
         id: 'HEADER_USER_MENU_AVAILABILITY',
         label: 'header.make-notavailable.label',
-        targetUrl: '/share/page/components/deputy/make-available?available=false',
         control: {
-          type: 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE',
+          type: 'ECOS_EDIT_AVAILABILITY',
           payload: {
-            targetUrl: '/share/page/components/deputy/make-available?available=false',
             isAvailable: true
           }
         }
@@ -54,11 +52,9 @@ export const makeUserMenuConfigs = [
       {
         id: 'HEADER_USER_MENU_AVAILABILITY',
         label: 'header.make-notavailable.label',
-        targetUrl: '/share/page/components/deputy/make-available?available=false',
         control: {
-          type: 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE',
+          type: 'ECOS_EDIT_AVAILABILITY',
           payload: {
-            targetUrl: '/share/page/components/deputy/make-available?available=false',
             isAvailable: true
           }
         }
@@ -118,8 +114,7 @@ export const oldToNewMenu = [
       {
         id: 'HEADER_SITE_DASHBOARD',
         label: 'Главная страница сайта',
-        isLegacy: true,
-        targetUrl: '/share/page/site/cases/dashboard'
+        isLegacy: true
       },
       {
         id: 'HEADER_LEAVE_SITE',

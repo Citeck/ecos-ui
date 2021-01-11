@@ -2,6 +2,7 @@ import { CommonApi } from './common';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import ecosXhr from '../helpers/ecosXhr';
+import { PROXY_URI } from '../constants/alfresco';
 
 export class VersionsJournalApi extends CommonApi {
   getVersions = record => {
@@ -25,7 +26,7 @@ export class VersionsJournalApi extends CommonApi {
   };
 
   addNewVersion = ({ body, handleProgress }) => {
-    return ecosXhr('/share/proxy/alfresco/api/v2/citeck/upload', {
+    return ecosXhr(`${PROXY_URI}api/v2/citeck/upload`, {
       method: 'POST',
       body,
       handleProgress

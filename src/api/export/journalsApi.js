@@ -1,8 +1,8 @@
 import { URL } from '../../constants';
-import { isNewVersionPage } from '../../helpers/export/urls';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import Records from '../../components/Records';
 import ecosFetch from '../../helpers/ecosFetch';
+import { PROXY_URI } from '../../constants/alfresco';
 
 const prepareJournalLinkParams = params => {
   let listId = params.listId || params.journalsListId;
@@ -51,7 +51,7 @@ const getFirstJournalByList = listId => {
     return fromCache;
   }
 
-  let request = ecosFetch(`/share/proxy/alfresco/api/journals/list?journalsList=${listId}`)
+  let request = ecosFetch(`${PROXY_URI}api/journals/list?journalsList=${listId}`)
     .then(response => {
       if (response.status >= 200 && response.status < 300) {
         return response.json();
@@ -92,40 +92,6 @@ export const getNewPageUrl = params => {
   });
 };
 
-export const getOldPageUrl = params => {
-  const { journalId, siteId, listId, filterRef, settingsId, skipCount, maxItems } = params;
-
-  let targetUrl = '/share/page';
-  if (siteId) {
-    targetUrl += `/site/${siteId}`;
-  }
-  targetUrl += `/journals2/list/${listId}#`;
-
-  if (journalId) {
-    targetUrl += `journal=${journalId}`;
-  }
-
-  if (filterRef) {
-    targetUrl += `&filter=${filterRef}`;
-  } else {
-    targetUrl += `&filter=`;
-  }
-
-  if (settingsId) {
-    targetUrl += `&settings=${settingsId}`;
-  }
-
-  if (skipCount) {
-    targetUrl += `&skipCount=${skipCount}`;
-  }
-
-  if (maxItems) {
-    targetUrl += `&maxItems=${maxItems}`;
-  }
-
-  return targetUrl;
-};
-
 let uiTypeByJournalId = {};
 let uiTypeByJournalIdQueryBatch = null;
 
@@ -155,7 +121,7 @@ export const getJournalUIType = journalId => {
         const journalsList = Object.keys(uiTypeByJournalIdQueryBatch);
         uiTypeByJournalIdQueryBatch = null;
 
-        ecosFetch(`/share/proxy/alfresco/api/journals/journals-ui-type`, {
+        ecosFetch(`${PROXY_URI}api/journals/journals-ui-type`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -198,9 +164,5 @@ export const isNewJournalsPageEnable = () => {
 export const getJournalPageUrl = params => {
   const preparedParams = prepareJournalLinkParams(params);
 
-  if (isNewVersionPage()) {
-    isNewJournalsPageEnable().then(isNew => {
-      return isNew ? getNewPageUrl(preparedParams) : getOldPageUrl(preparedParams);
-    });
-  }
+  return getNewPageUrl(preparedParams);
 };

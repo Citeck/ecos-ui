@@ -8,7 +8,6 @@ import { connect } from 'react-redux';
 import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../actions/header';
 import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/urls';
-import { URL_PAGECONTEXT } from '../../constants/alfresco';
 import SearchService from '../../services/search';
 import PageService from '../../services/PageService';
 import { SearchSelect } from '../common';
@@ -71,10 +70,6 @@ class Search extends React.Component {
   openFullSearch = searchText => {
     const { searchPageUrl, hiddenSearchTerms } = this.props;
     let url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
-
-    if (!isNewVersionPage(url)) {
-      url = URL_PAGECONTEXT + url;
-    }
 
     if (!isNewVersionPage()) {
       return (window.location.href = url);

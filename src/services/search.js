@@ -5,8 +5,7 @@ import { createDocumentUrl, createProfileUrl } from '../helpers/urls';
 
 const Urls = {
   DASHBOARD: ref => createDocumentUrl(ref),
-  USER: login => createProfileUrl(login),
-  OTHER_DOC: (item, prefix) => `/share/page/${item.site ? `site/${item.site.shortName}/` : ''}${prefix}${encodeURIComponent(item.name)}`
+  USER: login => createProfileUrl(login)
 };
 
 export default class SearchService {
@@ -30,20 +29,7 @@ export default class SearchService {
       case Types.DOCUMENTS:
         const modifiedTimeParts = getRelativeTime(item.modifiedOn);
         const fileSize = formatFileSize(item.size);
-        let link;
-
-        switch (item.container) {
-          case 'wiki':
-            link = Urls.OTHER_DOC(item, 'wiki-page?title=');
-            break;
-          case 'blog':
-            link = Urls.OTHER_DOC(item, 'blog-postview?postId=');
-            item.name = item.title;
-            break;
-          default:
-            link = Urls.DASHBOARD(item.nodeRef);
-            break;
-        }
+        const link = Urls.DASHBOARD(item.nodeRef);
 
         data.icon = getIconFileByMimetype(item.mimetype);
         data.title = item.name;

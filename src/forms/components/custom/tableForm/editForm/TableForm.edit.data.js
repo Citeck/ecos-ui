@@ -1,3 +1,5 @@
+import { PROXY_URI } from '../../../../../constants/alfresco';
+
 const CUSTOM_CREATE_VARIANTS_FIELD = 'customCreateVariantsJs';
 const VALUE_FORM_KEY_FIELD = 'computed.valueFormKey';
 
@@ -349,7 +351,7 @@ export default [
             return [];
           }
           
-          return fetch('/share/proxy/alfresco/api/journals/config?journalId=' + data.journalId, {
+          return fetch('${PROXY_URI}api/journals/config?journalId=' + data.journalId, {
             credentials: 'include',
             headers: {
               'Content-type': 'application/json;charset=UTF-8'
