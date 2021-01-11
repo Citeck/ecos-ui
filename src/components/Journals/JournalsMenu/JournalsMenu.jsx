@@ -10,11 +10,12 @@ import { deleteJournalSetting, openSelectedJournal, openSelectedJournalSettings,
 import { CollapsibleList } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { Well } from '../../common/form';
-import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD, JOURNAL_VIEW_MODE } from '../constants';
+import { JOURNAL_VIEW_MODE } from '../constants';
 import FoldersTree from '../DocLib/FoldersTree';
-
 import { Labels } from './constants';
 import ListItem from './JournalsMenuListItem';
+import JournalSettings from './JournalSettings';
+
 import './JournalsMenu.scss';
 
 const mapStateToProps = (state, props) => {
@@ -64,34 +65,8 @@ class JournalsMenu extends React.Component {
     this.props.openSelectedJournal(journal.nodeRef);
   };
 
-  onJournalSettingsSelect = setting => {
-    this.props.openSelectedJournalSettings(setting[JOURNAL_SETTING_ID_FIELD]);
-  };
-
-  deleteJournalSettings = item => {
-    this.props.deleteJournalSetting(item[JOURNAL_SETTING_ID_FIELD]);
-  };
-
-  renameJournalSetting = options => {
-    this.props.renameJournalSetting(options);
-  };
-
   getMenuJournals = journals => {
     return journals.map(journal => <ListItem onClick={this.onJournalSelect} item={journal} titleField={'title'} />);
-  };
-
-  getMenuJournalSettings = (settings, selectedIndex) => {
-    return settings.map((setting, idx) => (
-      <ListItem
-        onClick={this.onJournalSettingsSelect}
-        onDelete={this.deleteJournalSettings}
-        onApply={this.renameJournalSetting}
-        removable
-        item={setting}
-        selected={idx === selectedIndex}
-        titleField={`${JOURNAL_SETTING_DATA_FIELD}.title`}
-      />
-    ));
   };
 
   getSelectedIndex = (source, value, field) => {
@@ -134,8 +109,6 @@ class JournalsMenu extends React.Component {
   render() {
     const {
       stateId,
-      journalSetting,
-      journalSettings,
       journals,
       open,
       journalConfig: {
@@ -149,9 +122,6 @@ class JournalsMenu extends React.Component {
     if (!open) {
       return null;
     }
-
-    const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
-    const menuJournalSettingsSelectedIndex = this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD);
 
     const isDocLibMode = viewMode === JOURNAL_VIEW_MODE.DOC_LIB;
 
@@ -191,18 +161,7 @@ class JournalsMenu extends React.Component {
               </CollapsibleList>
             </Well>
 
-            <Well className="ecos-journal-menu__presets">
-              <CollapsibleList
-                needScrollbar={false}
-                className="ecos-journal-menu__collapsible-list"
-                classNameList="ecos-list-group_mode_journal"
-                list={this.getMenuJournalSettings(journalSettings, menuJournalSettingsSelectedIndex)}
-                selected={menuJournalSettingsSelectedIndex}
-                emptyText={t(Labels.EMPTY_LIST)}
-              >
-                {t(Labels.TEMPLATES_TITLE)}
-              </CollapsibleList>
-            </Well>
+            <JournalSettings stateId={stateId} />
           </>
         )}
 

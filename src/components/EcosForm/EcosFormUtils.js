@@ -12,7 +12,7 @@ import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
 import uuidV4 from 'uuid/v4';
 
-import { AppEditions } from '../../constants';
+import { AppEditions, SourcesId } from '../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import { getCurrentUserName, t } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
@@ -320,7 +320,7 @@ export default class EcosFormUtils {
       }
 
       let query = {
-        sourceId: 'uiserv/eform',
+        sourceId: SourcesId.EFORM,
         query: {
           record: recordInstance.id,
           formKey: keys[idx]

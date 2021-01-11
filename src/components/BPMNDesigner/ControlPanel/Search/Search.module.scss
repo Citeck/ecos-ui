@@ -2,10 +2,11 @@
 
 .search {
   border-radius: $border-radius-standard;
-  padding: 9px 12px 9px 10px;
+  padding: 9px 12px 8px 10px;
   display: inline-block;
-  background-color: $color-gray-3;
-  width: calc(100% - 10px);
+  background-color: $color-white;
+  margin-left: 15px;
+  vertical-align: top;
 
   label {
     margin: 0;
@@ -23,14 +24,18 @@
   }
 
   input {
-    outline: none !important;
-    border: none !important;
+    outline: none;
+    border: none;
     color: $text-color-dark;
-    background-color: $color-gray-3;
+    background-color: $color-white;
     font-weight: $font-weight-semi-bold;
-    font-size: $font-size-standard !important;
+    font-size: $font-size-standard;
     margin-left: 2px;
     width: 100% !important;
+
+    &::placeholder {
+      color: $color-gray-5;
+    }
   }
 }
 

@@ -1,35 +1,36 @@
 import React from 'react';
 import { delay } from 'redux-saga';
-import { select, put, takeLatest, call } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
+import { t } from '../helpers/util';
 import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
 import ImportModelForm from '../components/BPMNDesigner/ImportModelForm';
 import {
-  initRequest,
-  setCategories,
-  setModels,
-  setIsReady,
-  saveCategoryRequest,
-  setCategoryData,
-  deleteCategoryRequest,
   deleteCategory,
-  saveProcessModelRequest,
-  showModelCreationForm,
-  showImportModelForm,
+  deleteCategoryRequest,
   importProcessModelRequest,
+  initRequest,
+  saveCategoryRequest,
   savePagePosition,
+  saveProcessModelRequest,
+  setCategories,
   setCategoryCollapseState,
-  setViewType
+  setCategoryData,
+  setIsReady,
+  setModels,
+  setViewType,
+  showImportModelForm,
+  showModelCreationForm
 } from '../actions/bpmn';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
-import { getPagePositionState, savePagePositionState, removePagePositionState } from '../helpers/bpmn';
-import { t } from '../helpers/util';
-import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
+import { getPagePositionState, removePagePositionState, savePagePositionState } from '../helpers/bpmn';
 
 function* doInitRequest({ api, logger }) {
   try {
     const categories = yield call(api.bpmn.fetchCategories);
     const models = yield call(api.bpmn.fetchProcessModels);
+
     yield put(setCategories(categories));
     yield put(setModels(models));
 

@@ -17,6 +17,7 @@
   background: $color-yellow;
   height: 35px;
   margin: 0 21px 0 21px;
+  border-radius: $border-radius-small;
 }
 
 .panel-bar__header_full {
@@ -44,6 +45,10 @@
   cursor: pointer;
   position: relative;
   width: 100%;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 
   &:before {
     content: '';
