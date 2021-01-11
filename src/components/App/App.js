@@ -41,6 +41,7 @@ const allowedLinks = [
   '/share/page/bpmn-designer',
   URL.FORM_COMPONENTS,
   '/v2/debug/tree',
+  '/v2/debug/cmmn',
   URL.DASHBOARD_SETTINGS,
   URL.BPMN_DESIGNER,
   URL.JOURNAL,
@@ -323,6 +324,7 @@ class App extends Component {
             {/*temporary routes */}
             <Route path={URL.FORM_COMPONENTS} render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
             <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} {...basePageProps} />} />
+            <Route path="/v2/debug/cmmn" render={props => <Page pageKey={Pages.DEBUG_CMMN} {...props} {...basePageProps} />} />
 
             {/* Redirect not working: https://github.com/CJY0208/react-router-cache-route/issues/72 */}
             <Redirect to={URL.DASHBOARD} />

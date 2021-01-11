@@ -28,11 +28,13 @@ import { VersionsJournalApi } from './versionsJournal';
 import { ViewApi } from './view';
 import { DocConstructorApi } from './docConstructor';
 import { CustomIconApi } from './customIcon';
+import { AdminSectionApi } from './adminSection';
 
 export function configureAPI() {
   const api = {};
 
   api.app = new AppApi();
+  api.adminSection = new AdminSectionApi();
   api.bpmn = new BpmnApi();
   api.menu = new MenuApi();
   api.orgStruct = new OrgStructApi();

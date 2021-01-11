@@ -71,7 +71,7 @@ export class AppApi extends CommonApi {
   };
 
   getFooter = () => {
-    return Records.get('uiserv/config@footer-content')
+    return Records.get(`${SourcesId.CONFIG}@footer-content`)
       .load('value?str')
       .catch(() => null);
   };
@@ -91,7 +91,7 @@ export class AppApi extends CommonApi {
    * @returns {Promise<Object<String,String>>}
    */
   static async getDictionaryServer(id) {
-    const cb = await Records.get('uiserv/meta@')
+    const cb = await Records.get(SourcesId.META + '@')
       .load('attributes.i18n-cache-key')
       .then(k => k || '0')
       .catch(_ => '0');

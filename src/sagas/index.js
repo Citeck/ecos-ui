@@ -33,6 +33,7 @@ import documents from './documents';
 import userProfile from './userProfile';
 import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
+import adminSection from './adminSection';
 import modelEditor from './modelEditor';
 
 export default function* rootSaga(extraArguments) {
@@ -71,6 +72,7 @@ export default function* rootSaga(extraArguments) {
     userProfile(extraArguments),
     docConstructor(extraArguments),
     iconSelect(extraArguments),
+    adminSection(extraArguments),
     modelEditor(extraArguments)
   ]);
 }

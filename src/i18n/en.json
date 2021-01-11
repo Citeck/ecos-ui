@@ -81,6 +81,13 @@
   "bpmn-designer.view-button": "View",
   "bpmn-designer.view-mode.cards": "Cards",
   "bpmn-designer.view-mode.list": "List",
+
+  "admin-section.sidebar.show": "Show menu",
+  "admin-section.sidebar.show-sm": "Menu",
+  "admin-section.sidebar.hide": "Hide menu",
+  "admin-section.sidebar.hide-sm": "Hide",
+  "admin-section.sidebar.list-empty": "No data",
+
   "button.close-modal": "Close",
   "button.export": "Export",
   "button.leave-site.cancel-label": "Cancel",
@@ -709,7 +716,7 @@
   "message.loginautherror": "Your authentication details have not been recognized or Alfresco may not be available at this time.",
   "message.request-join-success": "Request to join site \"{{site}}\" successfully sent. You'll now be returned to your personal dashboard.",
   "message.request-join-success-title": "Request Sent",
-  "page-tabs.bpmn-designer": "Business process editor",
+  "page-tabs.bpmn-designer": "Business process models",
   "page-tabs.dashboard-settings": "Settings",
   "page-tabs.home-page": "Home page",
   "page-tabs.journal": "Journal",

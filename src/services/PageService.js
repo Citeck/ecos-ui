@@ -113,13 +113,13 @@ export default class PageService {
     },
     [PageTypes.SETTINGS]: {
       getTitle: ({ recordRef, journalId }) => {
-        const prom = journalId
+        const promise = journalId
           ? pageApi.getJournalTitle(journalId)
           : recordRef
           ? pageApi.getRecordTitle(recordRef)
           : staticTitle(TITLE.HOMEPAGE);
 
-        return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${convertTitle(title)}"`);
+        return promise.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.TIMESHEET]: {
@@ -127,6 +127,11 @@ export default class PageService {
     },
     [PageTypes.DEV_TOOLS]: {
       getTitle: () => staticTitle(TITLE[URL.DEV_TOOLS])
+    },
+    [PageTypes.BPMN_DESIGNER]: {
+      getTitle: ({ journalId }) => {
+        return journalId ? PageService.pageTypes[PageTypes.JOURNALS].getTitle({ journalId }) : staticTitle(TITLE[URL.BPMN_DESIGNER]);
+      }
     },
     [PageTypes.CMMN_EDITOR]: {
       getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.CMMN_EDITOR])} "${convertTitle(title)}"`)

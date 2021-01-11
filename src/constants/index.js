@@ -27,6 +27,7 @@ export const pagesWithOnlyContent = [
 ];
 
 export const SourcesId = {
+  ADMIN_PAGE_SECTION: 'uiserv/admin-page-section',
   BUILD_INFO: 'uiserv/build-info',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'alfresco/doclib',
@@ -127,6 +128,7 @@ export const Pages = {
   LOGIN: 'login',
   DEBUG_FORMIO: 'debug-formio',
   DEBUG_TREE: 'debug-tree',
+  DEBUG_CMMN: 'debug-cmnne',
   CMMN_EDITOR: 'cmmn-editor',
   DEV_TOOLS: 'dev-tools'
 };

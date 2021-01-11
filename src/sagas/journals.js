@@ -289,7 +289,11 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
   if (sharedSettings) {
     journalSetting = sharedSettings;
   } else {
-    journalSettingId = journalSettingId || journalConfig.journalSettingId || api.journals.getLsJournalSettingId(journalConfig.id) || '';
+    journalSettingId = journalSettingId || journalConfig.journalSettingId;
+
+    if (!journalSettingId) {
+      journalSettingId = yield call(api.journals.getLsJournalSettingId, journalConfig.id);
+    }
 
     if (journalSettingId) {
       journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
@@ -584,7 +588,7 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
 
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
 
-    api.journals.setLsJournalSettingId(journalConfig.id, action.payload);
+    yield call(api.journals.setLsJournalSettingId, journalConfig.id, action.payload || '');
     PageService.changeUrlLink(url, { updateUrl: true });
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
@@ -598,8 +602,7 @@ function* sagaOnJournalSettingsSelect({ api, logger, stateId, w }, action) {
     const journalSettingId = action.payload;
     const { journalConfig } = yield select(selectJournalData, stateId);
 
-    api.journals.setLsJournalSettingId(journalConfig.id, journalSettingId);
-
+    yield call(api.journals.setLsJournalSettingId, journalConfig.id, journalSettingId);
     yield loadGrid(api, { journalSettingId, journalConfig, stateId }, w);
     yield put(setLoading(w(false)));
   } catch (e) {
@@ -865,7 +868,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     }
 
     if (filter) {
-      api.journals.setLsJournalSettingId(id, '');
+      yield call(api.journals.setLsJournalSettingId, id, '');
     }
 
     if (isNewVersionPage()) {

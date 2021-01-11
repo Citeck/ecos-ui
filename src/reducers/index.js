@@ -37,6 +37,7 @@ import documents from './documents';
 import userProfile from './userProfile';
 import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
+import adminSection from './adminSection';
 import modelEditor from './modelEditor';
 
 const reducers = {
@@ -76,6 +77,7 @@ const reducers = {
   userProfile,
   docConstructor,
   iconSelect,
+  adminSection,
   modelEditor
 };
 

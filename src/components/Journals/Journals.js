@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
+import pick from 'lodash/pick';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 
@@ -23,7 +25,7 @@ import {
 import { JournalUrlParams } from '../../constants';
 import { animateScrollTo, getBool, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
-import { selectIsDocLibEnabled, selectDocLibFolderTitle } from '../../selectors/docLib';
+import { selectDocLibFolderTitle, selectIsDocLibEnabled } from '../../selectors/docLib';
 import { wrapArgs } from '../../helpers/redux';
 import FormManager from '../EcosForm/FormManager';
 
@@ -81,6 +83,14 @@ const mapDispatchToProps = (dispatch, props) => {
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
     setUrl: urlParams => dispatch(setUrl(w(urlParams)))
   };
+};
+
+const defaultDisplayElements = {
+  menu: true,
+  header: true,
+  settings: true,
+  pagination: true,
+  groupActions: true
 };
 
 class Journals extends Component {
@@ -211,6 +221,19 @@ class Journals extends Component {
     return !isEmpty(groupActions);
   }
 
+  get displayElements() {
+    return {
+      ...defaultDisplayElements,
+      ...(this.props.displayElements || {})
+    };
+  }
+
+  get isDocLibMode() {
+    const { viewMode } = this.state;
+
+    return viewMode === JOURNAL_VIEW_MODE.DOC_LIB;
+  }
+
   setJournalRef = ref => {
     if (ref) {
       this._journalRef = ref;
@@ -245,7 +268,7 @@ class Journals extends Component {
     this.setState({ isForceUpdate: true }, () => this.setState({ isForceUpdate: false }));
   }, 250);
 
-  getSearch = () => {
+  getSearchText = () => {
     const { isActivePage, urlParams } = this.props;
 
     if (!isActivePage) {
@@ -376,7 +399,7 @@ class Journals extends Component {
     }
   };
 
-  onExecuteGroupAction(action) {
+  onExecuteGroupAction = action => {
     const { selectAllRecords } = this.props;
 
     if (!selectAllRecords) {
@@ -388,7 +411,7 @@ class Journals extends Component {
 
       this.props.execRecordsAction(query, action);
     }
-  }
+  };
 
   getJournalContentMaxHeight = () => {
     const journalMinHeight = 175;
@@ -418,36 +441,163 @@ class Journals extends Component {
     return height < journalMinHeight ? journalMinHeight : height;
   };
 
+  renderHeader = () => {
+    if (this.displayElements.header) {
+      const { menuOpen } = this.state;
+      const { isMobile, docLibFolderTitle } = this.props;
+      const title = this.isDocLibMode ? docLibFolderTitle : get(this.props, 'journalConfig.meta.title', '');
+
+      return (
+        <JournalsHead
+          toggleMenu={this.toggleMenu}
+          title={title}
+          menuOpen={menuOpen}
+          isMobile={isMobile}
+          hasBtnMenu={this.displayElements.menu}
+        />
+      );
+    }
+  };
+
+  renderSettings = () => {
+    if (this.displayElements.settings) {
+      const { stateId, journalConfig, grid, isMobile, selectedRecords, reloadGrid, isDocLibEnabled } = this.props;
+      const { showPreview, settingsVisible } = this.state;
+      const { id: journalId, columns = [], meta = {}, sourceId } = pick(this.props.journalConfig, ['id', 'columns', 'meta', 'sourceId']);
+      const visibleColumns = columns.filter(c => c.visible);
+
+      if (this.isDocLibMode) {
+        return <DocLibSettingsBar stateId={stateId} showGrid={this.showGrid} togglePreview={this.togglePreview} isMobile={isMobile} />;
+      }
+
+      return (
+        <>
+          <EcosModal
+            title={t('journals.action.setting-dialog-msg')}
+            isOpen={settingsVisible}
+            hideModal={() => this.toggleSettings(true)}
+            isBigHeader
+            className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
+          >
+            <Well className="ecos-journal__settings">
+              <EcosModalHeight>
+                {height => (
+                  <Scrollbars style={{ height }}>
+                    <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={get(meta, 'metaRecord')} />
+                    <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
+                    <JournalsGrouping stateId={stateId} columns={visibleColumns} />
+                  </Scrollbars>
+                )}
+              </EcosModalHeight>
+
+              <JournalsSettingsFooter
+                parentClass="ecos-journal__settings"
+                stateId={stateId}
+                journalId={journalId}
+                onApply={this.applySettings}
+                onCreate={this.toggleSettings}
+                onReset={this.resetSettings}
+              />
+            </Well>
+          </EcosModal>
+          <JournalsSettingsBar
+            grid={grid}
+            journalConfig={journalConfig}
+            stateId={stateId}
+            showPreview={showPreview}
+            toggleSettings={this.toggleSettings}
+            togglePreview={this.togglePreview}
+            showDocLibrary={this.showDocLibrary}
+            showGrid={this.showGrid}
+            refresh={reloadGrid}
+            onSearch={this.onSearch}
+            addRecord={this.addRecord}
+            isMobile={isMobile}
+            searchText={this.getSearchText()}
+            selectedRecords={selectedRecords}
+            isDocLibEnabled={isDocLibEnabled}
+          />
+        </>
+      );
+    }
+  };
+
+  renderGroupActions = () => {
+    if (this.displayElements.groupActions) {
+      const { stateId, grid, isMobile, selectedRecords, selectAllRecordsVisible, selectAllRecords } = this.props;
+
+      if (this.isDocLibMode) {
+        return <DocLibGroupActions isMobile={isMobile} stateId={stateId} />;
+      }
+
+      return (
+        <JournalsGroupActionsTools
+          isMobile={isMobile}
+          selectAllRecordsVisible={selectAllRecordsVisible}
+          selectAllRecords={selectAllRecords}
+          grid={grid}
+          selectedRecords={selectedRecords}
+          onExecuteAction={this.onExecuteGroupAction}
+          onGoTo={this.onGoTo}
+          onSelectAll={this.onSelectAllRecords}
+        />
+      );
+    }
+  };
+
+  renderPagination = () => {
+    if (this.displayElements.pagination) {
+      const { stateId, isMobile } = this.props;
+
+      if (this.isDocLibMode) {
+        return <DocLibPagination stateId={stateId} hasPageSize isMobile={isMobile} />;
+      }
+
+      return (
+        <JournalsDashletPagination
+          stateId={stateId}
+          hasPageSize
+          className={classNames('ecos-journal__pagination', { 'ecos-journal__pagination_mobile': isMobile })}
+        />
+      );
+    }
+  };
+
+  renderMenu = () => {
+    if (this.displayElements.menu) {
+      const { stateId, pageTabsIsShow, isMobile, isActivePage } = this.props;
+      const { menuOpen, menuOpenAnimate, height, viewMode } = this.state;
+
+      return (
+        <div
+          className={classNames('ecos-journal__menu', {
+            'ecos-journal__menu_with-tabs': pageTabsIsShow,
+            'ecos-journal__menu_mobile': isMobile,
+            'ecos-journal__menu_expanded': menuOpenAnimate,
+            'ecos-journal__menu_expanded-document-library': menuOpenAnimate && this.isDocLibMode
+          })}
+        >
+          <JournalsMenu
+            height={height}
+            forwardedRef={this.setJournalMenuRef}
+            stateId={stateId}
+            open={menuOpen}
+            onClose={this.toggleMenu}
+            isActivePage={isActivePage}
+            viewMode={viewMode}
+          />
+        </div>
+      );
+    }
+  };
+
   render() {
-    const {
-      stateId,
-      journalConfig,
-      pageTabsIsShow,
-      grid,
-      isMobile,
-      isActivePage,
-      selectedRecords,
-      selectAllRecordsVisible,
-      selectAllRecords,
-      reloadGrid,
-      isDocLibEnabled,
-      docLibFolderTitle
-    } = this.props;
-    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, height, viewMode } = this.state;
+    const { stateId, journalConfig, pageTabsIsShow, isMobile, isActivePage, bodyClassName } = this.props;
+    const { showPreview, height } = this.state;
 
-    if (!journalConfig) {
+    if (!journalConfig || !journalConfig.columns || !journalConfig.columns.length) {
       return null;
     }
-
-    const { id: journalId, columns = [], meta = {}, sourceId } = journalConfig;
-
-    if (!columns.length) {
-      return null;
-    }
-
-    const visibleColumns = columns.filter(c => c.visible);
-
-    const isDocLibMode = viewMode === JOURNAL_VIEW_MODE.DOC_LIB;
 
     return (
       <ReactResizeDetector handleHeight onResize={this.onResize}>
@@ -460,96 +610,20 @@ class Journals extends Component {
         >
           <div
             ref={this.setJournalBodyRef}
-            className={classNames('ecos-journal__body', {
+            className={classNames('ecos-journal__body', bodyClassName, {
               'ecos-journal__body_with-tabs': pageTabsIsShow,
               'ecos-journal__body_mobile': isMobile,
               'ecos-journal__body_with-preview': showPreview
             })}
           >
             <div className="ecos-journal__body-group" ref={this.setJournalBodyGroupRef}>
-              {isDocLibMode && <DocLibBreadcrumbs stateId={stateId} />}
-
-              <JournalsHead
-                toggleMenu={this.toggleMenu}
-                title={isDocLibMode ? docLibFolderTitle : get(meta, 'title')}
-                menuOpen={menuOpen}
-                isMobile={isMobile}
-              />
-
-              {isDocLibMode ? (
-                <DocLibSettingsBar stateId={stateId} showGrid={this.showGrid} togglePreview={this.togglePreview} isMobile={isMobile} />
-              ) : (
-                <JournalsSettingsBar
-                  grid={grid}
-                  journalConfig={journalConfig}
-                  stateId={stateId}
-                  showPreview={showPreview}
-                  viewMode={viewMode}
-                  toggleSettings={this.toggleSettings}
-                  togglePreview={this.togglePreview}
-                  showDocLibrary={this.showDocLibrary}
-                  showGrid={this.showGrid}
-                  refresh={reloadGrid}
-                  onSearch={this.onSearch}
-                  addRecord={this.addRecord}
-                  isMobile={isMobile}
-                  searchText={this.getSearch()}
-                  selectedRecords={selectedRecords}
-                  isDocLibEnabled={isDocLibEnabled}
-                />
-              )}
-
-              {isDocLibMode ? (
-                <DocLibGroupActions isMobile={isMobile} stateId={stateId} />
-              ) : (
-                <JournalsGroupActionsTools
-                  isMobile={isMobile}
-                  selectAllRecordsVisible={selectAllRecordsVisible}
-                  selectAllRecords={selectAllRecords}
-                  grid={grid}
-                  selectedRecords={selectedRecords}
-                  onExecuteAction={this.onExecuteGroupAction.bind(this)}
-                  onGoTo={this.onGoTo}
-                  onSelectAll={this.onSelectAllRecords}
-                />
-              )}
+              {this.isDocLibMode && <DocLibBreadcrumbs stateId={stateId} />}
+              {this.renderHeader()}
+              {this.renderSettings()}
+              {this.renderGroupActions()}
             </div>
 
-            <EcosModal
-              title={t('journals.action.setting-dialog-msg')}
-              isOpen={settingsVisible}
-              hideModal={() => this.toggleSettings(true)}
-              isBigHeader
-              className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
-            >
-              <Well className="ecos-journal__settings">
-                <EcosModalHeight>
-                  {height => (
-                    <Scrollbars style={{ height }}>
-                      <JournalsFilters
-                        stateId={stateId}
-                        columns={visibleColumns}
-                        sourceId={sourceId}
-                        metaRecord={get(meta, 'metaRecord')}
-                      />
-                      <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
-                      <JournalsGrouping stateId={stateId} columns={visibleColumns} />
-                    </Scrollbars>
-                  )}
-                </EcosModalHeight>
-
-                <JournalsSettingsFooter
-                  parentClass="ecos-journal__settings"
-                  stateId={stateId}
-                  journalId={journalId}
-                  onApply={this.applySettings}
-                  onCreate={this.toggleSettings}
-                  onReset={this.resetSettings}
-                />
-              </Well>
-            </EcosModal>
-
-            {isDocLibMode ? (
+            {this.isDocLibMode ? (
               <FilesViewer stateId={stateId} isMobile={isMobile} />
             ) : (
               <JournalsContent
@@ -561,43 +635,34 @@ class Journals extends Component {
             )}
 
             <div className="ecos-journal__footer" ref={this.setJournalFooterRef}>
-              {isDocLibMode ? (
-                <DocLibPagination stateId={stateId} hasPageSize isMobile={isMobile} />
-              ) : (
-                <JournalsDashletPagination
-                  stateId={stateId}
-                  hasPageSize
-                  className={classNames('ecos-journal__pagination', {
-                    'ecos-journal__pagination_mobile': isMobile
-                  })}
-                />
-              )}
+              {this.renderPagination()}
             </div>
           </div>
 
-          <div
-            className={classNames('ecos-journal__menu', {
-              'ecos-journal__menu_with-tabs': pageTabsIsShow,
-              'ecos-journal__menu_mobile': isMobile,
-              'ecos-journal__menu_expanded': menuOpenAnimate,
-              'ecos-journal__menu_expanded-document-library': menuOpenAnimate && isDocLibMode
-            })}
-          >
-            <JournalsMenu
-              height={height}
-              forwardedRef={this.setJournalMenuRef}
-              stateId={stateId}
-              open={menuOpen}
-              onClose={this.toggleMenu}
-              isActivePage={isActivePage}
-              viewMode={viewMode}
-            />
-          </div>
+          {this.renderMenu()}
         </div>
       </ReactResizeDetector>
     );
   }
 }
+
+Journals.propTypes = {
+  stateId: PropTypes.string,
+  bodyClassName: PropTypes.string,
+  isActivePage: PropTypes.bool,
+  displayElements: PropTypes.shape({
+    menu: PropTypes.bool,
+    header: PropTypes.bool,
+    settings: PropTypes.bool,
+    pagination: PropTypes.bool,
+    groupActions: PropTypes.bool
+  })
+};
+
+Journals.defaultProps = {
+  bodyClassName: '',
+  displayElements: { ...defaultDisplayElements }
+};
 
 export default connect(
   mapStateToProps,

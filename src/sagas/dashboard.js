@@ -4,7 +4,8 @@ import { NotificationManager } from 'react-notifications';
 
 import { RequestStatuses } from '../constants';
 import { t } from '../helpers/util';
-import { createOldVersionUrlDocument, getRefWithAlfrescoPrefix } from '../helpers/urls';
+import { createOldVersionUrlDocument } from '../helpers/urls';
+import { getRefWithAlfrescoPrefix } from '../helpers/ref';
 import {
   getDashboardConfig,
   getDashboardTitle,
