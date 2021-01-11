@@ -1,5 +1,19 @@
 import AdminSectionService from '../AdminSectionService';
-import { groupSectionList } from '../__mocks__/adminSection.mock';
+
+const groupSectionList = [
+  {
+    label: 'Управление системой',
+    sections: [{ label: 'Инструменты разработчика', type: 'DEV_TOOLS', config: {} }]
+  },
+  {
+    label: 'Управление процессами',
+    sections: [{ label: 'Модели бизнес-процессов', type: 'BPM', config: {} }]
+  },
+  {
+    label: 'Модель',
+    sections: [{ label: 'Типы данных', type: 'JOURNAL', config: { journalId: 'ecos-types' } }]
+  }
+];
 
 describe('AdminSection Service', () => {
   const BPM = { label: 'Модели бизнес-процессов', type: 'BPM', config: {} };
