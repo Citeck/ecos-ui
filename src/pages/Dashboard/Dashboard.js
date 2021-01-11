@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import ReactPlaceholder from 'react-placeholder';
-import { RectShape, RoundShape } from 'react-placeholder/lib/placeholders';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
@@ -36,6 +34,7 @@ import PageTabList from '../../services/pageTabs/PageTabList';
 import { selectDashboardByKey, selectDashboardConfig, selectDashboardConfigVersion } from '../../selectors/dashboard';
 import PageService from '../../services/PageService';
 import DialogManager from '../../components/common/dialogs/Manager';
+import TitlePageLoader from '../../components/common/TitlePageLoader';
 
 import './style.scss';
 
@@ -515,20 +514,10 @@ class Dashboard extends Component {
       case DashboardTypes.CASE_DETAILS:
         title = (
           <div className="ecos-dashboard__header-title" key="title">
-            <ReactPlaceholder
-              type="textRow"
-              ready={!!name}
-              showLoadingAnimation={true}
-              customPlaceholder={
-                <div className="ecos-dashboard__header-placeholder">
-                  <RectShape color="#b7b7b7" style={{ width: 150, height: 20, borderRadius: 10 }} />
-                  <RoundShape color="#b7b7b7" style={{ width: 32, height: 20 }} />
-                </div>
-              }
-            >
+            <TitlePageLoader isReady={!!name} withBadge>
               <div className="ecos-dashboard__header-name">{t(name)}</div>
               {version && <Badge text={version} size={isMobile ? 'small' : 'large'} />}
-            </ReactPlaceholder>
+            </TitlePageLoader>
           </div>
         );
         break;
