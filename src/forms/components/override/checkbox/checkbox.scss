@@ -96,8 +96,9 @@
               font-family: $font-family-citeck;
               margin-right: 10px;
               font-size: 16px;
-              position: absolute;
-              left: 4px;
+              line-height: 100%;
+              left: 0;
+              margin-left: 4px;
               top: 1px;
               color: white;
             }
