@@ -5,7 +5,7 @@ import isEqual from 'lodash/isEqual';
 import ecosFetch from '../../helpers/ecosFetch';
 
 import { getSourceId } from './utils/recordUtils';
-import { SOURCE_DELIMITER, APP_DELIMITER, QUERY_URL, DELETE_URL, MUTATE_URL, GATEWAY_URL_MAP } from './constants';
+import { APP_DELIMITER, DELETE_URL, GATEWAY_URL_MAP, MUTATE_URL, QUERY_URL, SOURCE_DELIMITER } from './constants';
 
 function isAnyWithAppName(records) {
   for (let i = 0; i < records.length; i++) {
@@ -22,9 +22,14 @@ function isRecordWithAppName(record) {
   if (isString(record.id)) {
     record = record.id;
   }
-  let sourceDelimIdx = record.indexOf(SOURCE_DELIMITER);
-  let appDelimIdx = record.indexOf(APP_DELIMITER);
-  return appDelimIdx > 0 && appDelimIdx < sourceDelimIdx;
+
+  if (isString(record)) {
+    const sourceDelimIdx = record.indexOf(SOURCE_DELIMITER);
+    const appDelimIdx = record.indexOf(APP_DELIMITER);
+    return appDelimIdx > 0 && appDelimIdx < sourceDelimIdx;
+  }
+
+  return '';
 }
 
 /**

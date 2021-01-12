@@ -110,11 +110,6 @@ export function createContentUrl({ value }) {
   return `${PROXY_URI}api/node/workspace/SpacesStore/${value}/content;cm:content`;
 }
 
-const getPredicateFilterParam = options => {
-  const filter = ParserPredicate.getRowPredicates(options);
-  return filter ? JSON.stringify(filter) : '';
-};
-
 const getCriteriaFilterParam = ({ row, columns, groupBy }) => {
   const criteria = [];
 
@@ -140,17 +135,24 @@ const getCriteriaFilterParam = ({ row, columns, groupBy }) => {
   return criteria.length ? JSON.stringify({ criteria }) : '';
 };
 
-export const getFilterUrlParam = options => {
-  return OLD_LINKS ? getCriteriaFilterParam(options) : getPredicateFilterParam(options);
+export const getFilterParam = options => {
+  return OLD_LINKS ? getCriteriaFilterParam(options) : ParserPredicate.getRowPredicates(options);
 };
 
-export const getJournalPageUrl = ({ journalsListId, journalId, journalSettingId, nodeRef, filter }) => {
-  const qString = queryString.stringify({
+export const getJournalPageUrl = ({ journalsListId, journalId, journalSettingId, nodeRef, filter, search }) => {
+  const qObj = {
     [JOURNALS_LIST_ID_KEY]: journalsListId,
     [JOURNAL_ID_KEY]: journalId,
-    [JOURNAL_SETTING_ID_KEY]: filter ? '' : journalSettingId,
-    [FILTER_KEY]: filter
-  });
+    [JOURNAL_SETTING_ID_KEY]: filter ? '' : journalSettingId
+  };
+
+  if (OLD_LINKS) {
+    qObj[FILTER_KEY] = filter;
+  } else {
+    qObj[SEARCH_KEY] = search || filter;
+  }
+
+  const qString = queryString.stringify(qObj);
   let url;
 
   if (OLD_LINKS) {

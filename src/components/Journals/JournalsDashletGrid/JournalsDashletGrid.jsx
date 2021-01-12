@@ -53,6 +53,25 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
+const HeightCalculation = props => {
+  const { minHeight, maxHeight, children, total, maxItems } = props;
+
+  if (minHeight !== undefined) {
+    return <div style={{ minHeight, maxHeight }}>{children}</div>;
+  }
+
+  let rowsNumber = total > maxItems ? maxItems : total;
+  if (rowsNumber < 1) {
+    rowsNumber = 1;
+  }
+
+  return (
+    <EmptyGrid maxItems={rowsNumber} minHeight={minHeight} maxHeight={maxHeight}>
+      {children}
+    </EmptyGrid>
+  );
+};
+
 class JournalsDashletGrid extends Component {
   selectedRow = {};
   scrollPosition = {};
@@ -124,20 +143,11 @@ class JournalsDashletGrid extends Component {
   };
 
   setSelectedRow(row) {
-    this.selectedRow = row;
-  }
-
-  getSelectedRow() {
-    return this.selectedRow;
-  }
-
-  clearSelectedRow() {
-    this.selectedRow = {};
+    this.selectedRow = row || {};
   }
 
   showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
-
     this.props.setGridInlineToolSettings({ actions: this.getCurrentRowInlineActions(), ...options });
   };
 
@@ -154,26 +164,21 @@ class JournalsDashletGrid extends Component {
       return [
         {
           title: t('grid.inline-tools.details'),
-          onClick: () => this.goToJournalPageWithFilter(),
+          onClick: () => this.props.goToJournalsPage(this.selectedRow),
           icon: 'icon-small-arrow-right'
         }
       ];
     }
 
-    const currentRow = this.getSelectedRow().id;
+    const currentRow = this.selectedRow.id;
     const recordActions = get(forRecord, currentRow, []);
 
     return recordActions.map(action => ({ ...action, onClick: () => execRecordsAction(currentRow, action) }));
   }
 
   hideGridInlineToolSettings = () => {
-    this.clearSelectedRow();
+    this.setSelectedRow();
     this.props.setGridInlineToolSettings(DEFAULT_INLINE_TOOL_SETTINGS);
-  };
-
-  goToJournalPageWithFilter = () => {
-    const selectedRow = this.getSelectedRow();
-    this.props.goToJournalsPage(selectedRow);
   };
 
   inlineTools = () => {
@@ -229,60 +234,41 @@ class JournalsDashletGrid extends Component {
 
     const filters = ParserPredicate.getFlatFilters(predicate);
 
-    const HeightCalculation = ({ children }) => {
-      if (minHeight !== undefined) {
-        return <div style={{ minHeight, maxHeight }}>{children}</div>;
-      }
-
-      let rowsNumber = total > maxItems ? maxItems : total;
-      if (rowsNumber < 1) {
-        rowsNumber = 1;
-      }
-
-      return (
-        <EmptyGrid maxItems={rowsNumber} minHeight={minHeight} maxHeight={maxHeight}>
-          {children}
-        </EmptyGrid>
-      );
-    };
-
     return (
       <>
         <div className="ecos-journal-dashlet__grid">
-          <HeightCalculation>
-            {loading ? (
-              <Loader />
-            ) : (
-              <Grid
-                data={data}
-                columns={columns}
-                className={className}
-                freezeCheckboxes
-                filterable
-                editable={editable}
-                editingRules={editingRules}
-                multiSelectable
-                sortBy={sortBy}
-                changeTrOptionsByRowClick={doInlineToolsOnRowClick}
-                filters={filters}
-                inlineTools={this.inlineTools}
-                onSort={this.onSort}
-                onFilter={this.onFilter}
-                onSelect={this.setSelectedRecords}
-                onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
-                onMouseLeave={!doInlineToolsOnRowClick ? this.hideGridInlineToolSettings : null}
-                onChangeTrOptions={this.showGridInlineToolSettings}
-                onScrolling={this.onScrolling}
-                onEdit={saveRecords}
-                selected={selectedRecords}
-                selectAll={selectAllRecords}
-                minHeight={minHeight}
-                maxHeight={maxHeight}
-                autoHeight={autoHeight}
-                scrollPosition={this.scrollPosition}
-                selectorContainer={selectorContainer}
-              />
-            )}
+          {loading && <Loader blur />}
+
+          <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
+            <Grid
+              data={data}
+              columns={columns}
+              className={className}
+              freezeCheckboxes
+              filterable
+              editable={editable}
+              editingRules={editingRules}
+              multiSelectable
+              sortBy={sortBy}
+              changeTrOptionsByRowClick={doInlineToolsOnRowClick}
+              filters={filters}
+              inlineTools={this.inlineTools}
+              onSort={this.onSort}
+              onFilter={this.onFilter}
+              onSelect={this.setSelectedRecords}
+              onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
+              onMouseLeave={!doInlineToolsOnRowClick ? this.hideGridInlineToolSettings : null}
+              onChangeTrOptions={this.showGridInlineToolSettings}
+              onScrolling={this.onScrolling}
+              onEdit={saveRecords}
+              selected={selectedRecords}
+              selectAll={selectAllRecords}
+              minHeight={minHeight}
+              maxHeight={maxHeight}
+              autoHeight={autoHeight}
+              scrollPosition={this.scrollPosition}
+              selectorContainer={selectorContainer}
+            />
           </HeightCalculation>
         </div>
       </>

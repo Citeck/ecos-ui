@@ -6,17 +6,18 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 
+import { getBase64Barcode, init } from '../../../actions/barcode';
 import { isMobileDevice, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
-import { getBase64Barcode, init } from '../../../actions/barcode';
-import Dashlet from '../../Dashlet';
+import { getBarcodePrintUrl } from '../../../helpers/urls';
+import { defaultSettings } from '../../../constants/barcode';
+import BarcodeConverter from '../../../dto/barcode';
 import DAction from '../../../services/DashletActionService';
+import PageTabList from '../../../services/pageTabs/PageTabList';
+import Dashlet from '../../Dashlet';
+import BaseWidget from '../BaseWidget';
 import Barcode from './Barcode';
 import Settings from './Settings';
-import BaseWidget from '../BaseWidget';
-import { getBarcodePrintUrl } from '../../../helpers/urls';
-import BarcodeConverter from '../../../dto/barcode';
-import { defaultSettings } from '../../../constants/barcode';
 
 import './style.scss';
 
@@ -126,7 +127,7 @@ class BarcodeDashlet extends BaseWidget {
   }
 
   renderSettings() {
-    const { allowedTypes } = this.props;
+    const { allowedTypes, modelAttributes } = this.props;
     const { isOpenSettings } = this.state;
 
     if (!isOpenSettings) {
@@ -138,6 +139,7 @@ class BarcodeDashlet extends BaseWidget {
         settings={this.settings}
         displayCondition={this.displayCondition}
         allowedTypes={allowedTypes}
+        modelAttributes={modelAttributes}
         onSave={this.handleSaveSettings}
         onCancel={this.handleToggleSettings}
       />
@@ -192,7 +194,8 @@ const mapStateToProps = (state, ownProps) => {
     isLoading: stateB.isLoading,
     allowedTypes: stateB.allowedTypes,
     settings: BarcodeConverter.getSettingsForWeb(get(stateB, 'config.settings')),
-    displayElements: stateB.displayElements
+    displayElements: stateB.displayElements,
+    modelAttributes: get(state, ['dashboard', PageTabList.activeTab.id, 'modelAttributes'])
   };
 };
 

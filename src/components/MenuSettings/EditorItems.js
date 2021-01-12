@@ -6,6 +6,7 @@ import classNames from 'classnames';
 
 import { extractLabel, t } from '../../helpers/util';
 import { treeMoveItem } from '../../helpers/arrayOfObjects';
+import { SystemJournals } from '../../constants';
 import { MenuSettings as ms } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import { addJournalMenuItems, setLastAddedItems, setMenuItems } from '../../actions/menuSettings';
@@ -65,7 +66,7 @@ class EditorItems extends React.Component {
         editItemInfo: {
           ...editItemInfo,
           several: true,
-          journalId: get(editItemInfo, 'type.key') === ms.ItemTypes.JOURNAL ? 'ecos-all-journals' : 'ecos-types'
+          journalId: get(editItemInfo, 'type.key') === ms.ItemTypes.JOURNAL ? SystemJournals.ALL_J : SystemJournals.TYPES
         }
       });
     } else {

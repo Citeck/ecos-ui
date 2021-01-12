@@ -14,6 +14,7 @@ import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/ut
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
+import { ErrorCell } from '../ErrorCell';
 
 import './Grid.scss';
 
@@ -46,6 +47,7 @@ const MAX_START_TH_WIDTH = 500;
 class Grid extends Component {
   #columnsSizes = {};
   #isAllSelected = false;
+  #gridRef = null;
 
   constructor(props) {
     super(props);
@@ -95,11 +97,10 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { forwardedRef, resizableColumns } = this.props;
+    const { resizableColumns } = this.props;
 
-    const grid = get(forwardedRef, 'current', null);
-    if (grid) {
-      this._tableDom = grid.querySelector('table');
+    if (this.#gridRef) {
+      this._tableDom = this.#gridRef.querySelector('table');
     }
 
     if (prevProps.resizableColumns !== resizableColumns) {
@@ -129,6 +130,20 @@ class Grid extends Component {
 
     return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
   }
+
+  setGridRef = ref => {
+    if (!ref) {
+      return;
+    }
+
+    const { forwarderRef } = this.props;
+
+    if (typeof forwarderRef === 'function') {
+      forwarderRef(ref);
+    }
+
+    this.#gridRef = ref;
+  };
 
   /**
    * Fixes loss of column sizes when redrawing a component
@@ -273,7 +288,7 @@ class Grid extends Component {
         column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false);
 
         if (column.customFormatter === undefined) {
-          column.formatter = this.initFormatter({ editable: props.editable, className: column.className });
+          column.formatter = this.initFormatter({ editable: props.editable, className: column.className, column });
         } else {
           column.formatter = column.customFormatter;
         }
@@ -475,15 +490,17 @@ class Grid extends Component {
       const errorAttribute = row.error;
 
       return (
-        <div
-          className={classNames('ecos-grid__td', {
-            'ecos-grid__td_editable': editable,
-            'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell,
-            [className]: !!className
-          })}
-        >
-          {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
-        </div>
+        <ErrorCell data={cell}>
+          <div
+            className={classNames('ecos-grid__td', {
+              'ecos-grid__td_editable': editable,
+              'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell,
+              [className]: !!className
+            })}
+          >
+            {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
+          </div>
+        </ErrorCell>
       );
     };
   };
@@ -1007,7 +1024,7 @@ class Grid extends Component {
       >
         {!!toolsVisible && this.tools(bootProps.selected)}
         <Scroll scrollable={bootProps.scrollable} refCallback={this.scrollRefCallback}>
-          <div ref={forwardedRef}>
+          <div ref={this.setGridRef}>
             <BootstrapTable
               {...bootProps}
               classes="ecos-grid__table"

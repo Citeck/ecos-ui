@@ -115,9 +115,17 @@ class FormManager {
   }
 
   static openFormModal(props) {
-    let form = React.createElement(EcosFormModal, { ...props, isModalOpen: true });
+    const container = document.createElement('div');
 
-    let container = document.createElement('div');
+    const form = React.createElement(EcosFormModal, {
+      ...props,
+      isModalOpen: true,
+      onHideModal: () => {
+        ReactDOM.unmountComponentAtNode(container);
+        document.body.removeChild(container);
+      }
+    });
+
     document.body.appendChild(container);
 
     ReactDOM.render(form, container);
@@ -139,7 +147,7 @@ class FormManager {
       onFormCancel && onFormCancel();
     };
 
-    modal.open(<EcosForm {...props} onSubmit={_onSubmit} onFormCancel={_onFormCancel} initiator={{ type: 'modal' }} />, { title });
+    modal.open(<EcosForm initiator={{ type: 'modal' }} {...props} onSubmit={_onSubmit} onFormCancel={_onFormCancel} />, { title });
 
     return modal;
   }

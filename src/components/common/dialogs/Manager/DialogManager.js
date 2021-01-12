@@ -364,22 +364,23 @@ const dialogs = {};
 
 const showDialog = (id, props = {}) => {
   const isVisible = isExistValue(props.isVisible) ? props.isVisible : true;
-  let dialog = dialogs[id];
+  const _id = props.instance ? `${id}-${props.instance}` : id;
+  let dialog = dialogs[_id];
 
   if (!dialog) {
     const dialogComponent = dialogsById[id];
 
     if (!dialogComponent) {
-      throw new Error(`Dialog with id ${id} is not registered`);
+      throw new Error(`Dialog with id ${id}  (instance ${props.instance}) is not registered`);
     }
 
     const container = document.createElement('div');
-    container.id = id;
+    container.id = _id;
     document.body.appendChild(container);
 
     dialog = ReactDOM.render(<DialogWrapper dialogComponent={dialogComponent} dialogProps={props} />, container);
 
-    dialogs[id] = dialog;
+    dialogs[_id] = dialog;
   } else {
     dialog.setProps(props);
   }
@@ -429,6 +430,12 @@ export default class DialogManager {
     const isVisible = props.isVisible || (dialogs[LOADER_DIALOG_ID] && dialogs[LOADER_DIALOG_ID].isVisible);
 
     return showDialog(LOADER_DIALOG_ID, { ...props, isVisible });
+  }
+
+  static hideAllDialogs() {
+    for (let id in dialogs) {
+      dialogs[id].hide && dialogs[id].hide();
+    }
   }
 }
 

@@ -1,7 +1,9 @@
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
 
-import { deepClone, isExistValue } from '../../../helpers/util';
+import { isExistValue } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
 import {
   datePredicateVariables,
@@ -57,39 +59,26 @@ export default class ParserPredicate {
 
   static getRowPredicates({ row, columns, groupBy }) {
     const val = [];
+    let _columns = [];
 
     if (groupBy.length) {
-      groupBy = groupBy[0].split('&');
-      columns = columns.filter(c => groupBy.filter(g => g === c.attribute)[0]);
+      const _groupBy = groupBy[0].split('&');
+      _columns = columns.filter(c => _groupBy.find(g => g === c.attribute));
     }
 
     for (const key in row) {
       const value = row[key];
-      const column = columns.filter(c => c.attribute === key && c.visible && c.default && c.searchable)[0] || {};
+      const column = _columns.find(c => c.attribute === key && c.visible && c.default && c.searchable) || {};
       const type = column.type;
       const predicate = EQUAL_PREDICATES_MAP[type];
 
       if (predicate) {
-        val.push(new Predicate({ att: key, t: predicate, val: column.formatExtraData.formatter.getFilterValue(value) }));
+        const getter = get(column, 'formatExtraData.formatter.getFilterValue');
+        val.push(new Predicate({ att: key, t: predicate, val: getter ? column.formatExtraData.formatter.getFilterValue(value) : value }));
       }
     }
 
-    return val.length
-      ? {
-          t: PREDICATE_OR,
-          val: [
-            {
-              t: PREDICATE_OR,
-              val: [
-                {
-                  t: PREDICATE_AND,
-                  val: val
-                }
-              ]
-            }
-          ]
-        }
-      : null;
+    return val;
   }
 
   static getDefaultPredicates(columns, extra) {
@@ -321,7 +310,7 @@ export default class ParserPredicate {
       return out;
     }
 
-    predicates = deepClone(predicates);
+    predicates = cloneDeep(predicates);
     predicates = isArray(predicates) ? predicates : predicates.val || [];
 
     const flat = arr => {
@@ -360,7 +349,7 @@ export default class ParserPredicate {
       return newPredicates;
     }
 
-    predicates = deepClone(predicates);
+    predicates = cloneDeep(predicates);
 
     const foreach = arr => {
       arr.forEach(item => {
@@ -379,5 +368,22 @@ export default class ParserPredicate {
     foreach(predicates.val || []);
 
     return predicates;
+  }
+
+  static getWrappedPredicate(value) {
+    return {
+      t: PREDICATE_OR,
+      val: [
+        {
+          t: PREDICATE_OR,
+          val: [
+            {
+              t: PREDICATE_AND,
+              val: value
+            }
+          ]
+        }
+      ]
+    };
   }
 }

@@ -3,15 +3,15 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
+import { Container } from 'reactstrap';
 
-import Settings, { getStateId, mapDispatchToProps, mapStateToProps } from './Settings';
+import { RequestStatuses } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { t } from '../../helpers/export/util';
 import DashboardService from '../../services/dashboard';
-import { Container } from 'reactstrap';
-import { RequestStatuses } from '../../constants';
 import { clearCache } from '../../components/ReactRouterCache';
 import { getDashboardConfig, resetAllDashboardsConfig } from '../../actions/dashboard';
+import Settings, { getStateId, mapDispatchToProps, mapStateToProps } from './Settings';
 
 class DashboardSettingsModal extends Settings {
   static propTypes = {
