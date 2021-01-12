@@ -37,7 +37,8 @@ const BUTTONS_TYPE = {
   BOLD: 'BOLD',
   ITALIC: 'ITALIC',
   UNDERLINE: 'UNDERLINE',
-  LIST: 'unordered-list-item'
+  LIST: 'unordered-list-item',
+  LINK: 'LINK'
 };
 const KEY_COMMANDS = {
   SEND: 'comment-send'
@@ -580,6 +581,12 @@ class Comments extends BaseWidget {
             onMouseDown={this.handleToggleBlockType.bind(this, BUTTONS_TYPE.LIST)}
             className={classNames('icon-items', 'ecos-comments__editor-button', 'ecos-comments__editor-button_list', {
               'ecos-comments__editor-button_active': this.blockType === BUTTONS_TYPE.LIST
+            })}
+          />
+          <IcoBtn
+            onMouseDown={this.handleToggleBlockType.bind(this, BUTTONS_TYPE.LINK)}
+            className={classNames('icon-link', 'ecos-comments__editor-button', 'ecos-comments__editor-button_link', {
+              'ecos-comments__editor-button_active': this.blockType === BUTTONS_TYPE.LINK
             })}
           />
         </div>

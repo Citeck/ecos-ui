@@ -206,6 +206,9 @@
 .icon-custom-drag-small {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe840;&nbsp;');
 }
+.icon-link {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe841;&nbsp;');
+}
 .icon-print {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe843;&nbsp;');
 }

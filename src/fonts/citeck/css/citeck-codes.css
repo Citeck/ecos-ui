@@ -193,6 +193,9 @@
 .icon-custom-drag-small:before {
   content: '\e840';
 } /* '' */
+.icon-link:before {
+  content: '\e841';
+} /* '' */
 .icon-print:before {
   content: '\e843';
 } /* '' */

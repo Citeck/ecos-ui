@@ -953,6 +953,12 @@
         "width": 1000
       },
       "search": ["eye-show"]
+    },
+    {
+      "uid": "815503841e980c848f55e0271deacead",
+      "css": "link",
+      "code": 59457,
+      "src": "entypo"
     }
   ]
 }
