@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CmmnModeler from 'cmmn-js/lib/Modeler';
 import get from 'lodash/get';
+
 import additionalModules from './modules';
+import { initialDiagram } from './utils';
 
 import 'cmmn-js/dist/assets/diagram-js.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
@@ -9,6 +11,8 @@ import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-codes.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-embedded.css';
 
 export default class CMMNDesigner {
+  static initialDiagram = initialDiagram;
+
   #isCustomContainer = false;
   #viewer = null;
 
@@ -42,14 +46,33 @@ export default class CMMNDesigner {
     try {
       this.#viewer.saveXML({ format: true }, (error, xml) => {
         if (error) {
-          console.error('Error saving XML', error);
+          throw error;
         }
 
         callback && callback({ error, xml });
       });
     } catch (error) {
-      console.error(error);
+      console.error('Error saving XML', error);
       callback && callback({ error, xml: null });
+    }
+  };
+
+  saveSVG = ({ callback }) => {
+    if (!this.#viewer) {
+      return;
+    }
+
+    try {
+      this.#viewer.saveSVG({ format: true }, (error, svg) => {
+        if (error) {
+          throw error;
+        }
+
+        callback && callback({ svg });
+      });
+    } catch (error) {
+      console.error('Error saving SVG', error);
+      callback && callback({ error, svg: null });
     }
   };
 

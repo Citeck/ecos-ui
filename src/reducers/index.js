@@ -38,7 +38,7 @@ import userProfile from './userProfile';
 import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
 import adminSection from './adminSection';
-import modelEditor from './modelEditor';
+import cmmnEditor from './cmmnEditor';
 
 const reducers = {
   app,
@@ -78,7 +78,7 @@ const reducers = {
   docConstructor,
   iconSelect,
   adminSection,
-  modelEditor
+  cmmnEditor
 };
 
 export default history =>

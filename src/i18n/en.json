@@ -728,7 +728,7 @@
   "page-tabs.timesheet": "Timesheet",
   "page-tabs.dev-tools": "Development tools",
   "page-tabs.form-components": "Form components",
-  "page-tabs.cmmn-editor": "CMMN Editor",
+  "page-tabs.cmmn-editor": "Scenario",
   "pagination.from": "from",
   "predicate.and": "And",
   "predicate.any": "Any",
@@ -1266,6 +1266,13 @@
   "icon-select.error.get-font-icons": "Font menu icons haven't received",
   "icon-select.error.upload-custom-icon": "Custom icon hasn't uploaded",
   "icon-select.error.delete-custom-icon": "Custom icon hasn't deleted",
+
+  "model-editor.error.no-record-ref": "Record's not found",
+  "model-editor.error.no-editor": "Editor's not installed",
+  "model-editor.btn.apply": "Apply",
+  "model-editor.btn.create": "Create",
+  "cmmn-editor.error.no-diagram": "Scenario's not set",
+  "cmmn-editor.error.can-not-save-diagram": "Scenario could not be saved",
 
   "go-to.home-page": "Go to home page"
 }

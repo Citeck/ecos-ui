@@ -727,7 +727,7 @@
   "page-tabs.timesheet": "Табель",
   "page-tabs.dev-tools": "Инструменты разработчика",
   "page-tabs.form-components": "Компоненты формы",
-  "page-tabs.cmmn-editor": "CMMN Редактор",
+  "page-tabs.cmmn-editor": "Сценарий",
   "pagination.from": "из",
   "predicate.and": "И",
   "predicate.any": "Любое значение",
@@ -1264,6 +1264,13 @@
   "icon-select.error.get-font-icons": "Шрифт-иконки не получены",
   "icon-select.error.upload-custom-icon": "Загузка иконки не удалась",
   "icon-select.error.delete-custom-icon": "Удаление иконки не удалось",
+
+  "model-editor.error.no-record-ref": "Запись не найдена",
+  "model-editor.error.no-editor": "Редактор не установлен",
+  "model-editor.btn.apply": "Применить",
+  "model-editor.btn.create": "Создать",
+  "cmmn-editor.error.no-diagram": "Сценарий не задан",
+  "cmmn-editor.error.can-not-save-diagram": "Сценарий не удалось сохранить",
 
   "go-to.home-page": "Перейти на домашнюю страницу"
 }

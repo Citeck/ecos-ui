@@ -10,27 +10,43 @@
   }
 
   &__designer {
-    &-content {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+    position: relative;
+
+    & > :nth-child(n):not(:last-child) {
+      margin-bottom: 10px;
+    }
+
+    &-work-zone {
+      background: $color-white;
+      border-radius: $border-radius-extra-large;
       flex: auto;
       display: flex;
       flex-direction: column;
-      margin: 20px;
       position: relative;
 
-      & :nth-child(n):not(:last-child) {
-        margin-bottom: 10px;
+      & a.bjs-powered-by {
+        bottom: 10px !important;
+        right: 10px !important;
       }
     }
 
     &-child {
-      background: $color-white;
-      border-radius: $border-radius-extra-large;
       flex: auto;
+
+      & .ecos-cmmn-container {
+        height: 100%;
+      }
     }
 
     &-buttons {
+      position: absolute;
+      bottom: 0;
       display: flex;
-      justify-content: flex-end;
+      padding: 10px;
 
       & :nth-child(n):not(:last-child) {
         margin-right: 10px;
@@ -42,6 +58,7 @@
     width: 30px;
     position: relative;
     box-shadow: -5px 0px 5px -5px rgba(0, 0, 0, 0.2);
+    transition: width 0.5s;
 
     &_open {
       width: 600px;
