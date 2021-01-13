@@ -607,8 +607,6 @@ class Comments extends BaseWidget {
       return;
     }
 
-    console.warn({ text: comment.text });
-
     try {
       convertedComment = JSON.parse(comment.text);
 
@@ -618,18 +616,14 @@ class Comments extends BaseWidget {
     } catch (e) {
       const blocksFromHTML = convertFromHTML(comment.text);
 
-      console.warn({ blocksFromHTML });
-
       convertedComment = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
     }
-
-    console.warn({ convertedComment });
 
     this.setState(
       {
         editableComment: id,
         isEdit: true,
-        comment: EditorState.moveFocusToEnd(EditorState.createWithContent(convertedComment))
+        comment: EditorState.moveFocusToEnd(EditorState.createWithContent(convertedComment, this.decorators))
       },
       this.updateEditorHeight
     );
