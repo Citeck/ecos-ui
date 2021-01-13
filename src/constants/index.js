@@ -1,8 +1,9 @@
+import { PROXY_URI } from './alfresco';
+
 export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
-  OLD_DASHBOARD: '/share/page',
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
   MENU_SETTINGS: '/v2/menu-settings',
   BPMN_DESIGNER: '/v2/bpmn-designer',
@@ -93,7 +94,7 @@ export const LoaderTypes = {
   POINTS: 'points'
 };
 
-export const IMAGE_URL_PATH = '/share/proxy/alfresco/citeck/ecos/image/thumbnail';
+export const IMAGE_URL_PATH = `${PROXY_URI}citeck/ecos/image/thumbnail`;
 
 export const DocScaleOptions = {
   AUTO: 'auto',

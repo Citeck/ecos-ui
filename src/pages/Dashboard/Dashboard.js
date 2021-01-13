@@ -12,7 +12,7 @@ import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import { DashboardTypes } from '../../constants/dashboard';
 import { isMobileAppWebView, t } from '../../helpers/util';
-import { decodeLink, getSortedUrlParams, isDashboard, isHomePage, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
+import { decodeLink, getSortedUrlParams, isDashboard, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -97,12 +97,6 @@ class Dashboard extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (isHomePage() && !props.redirectToNewUi) {
-      window.open(URL.OLD_DASHBOARD, '_self');
-
-      return null;
-    }
-
     const newState = {};
     const newUrlParams = getSortedUrlParams();
     const firstLayoutId = get(props.config, '[0].id');

@@ -6,7 +6,7 @@ import ecosFetch from '../helpers/ecosFetch';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
 import { SourcesId, URL } from '../constants';
-import { PROXY_URI } from '../constants/alfresco';
+import { PROXY_URI, UISERV_API } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
@@ -95,7 +95,7 @@ export class AppApi extends CommonApi {
       .load('attributes.i18n-cache-key')
       .then(k => k || '0')
       .catch(_ => '0');
-    const url = queryString.stringifyUrl({ url: `${PROXY_URI}citeck/micro/uiserv/api/messages/locale`, query: { id, cb } });
+    const url = queryString.stringifyUrl({ url: `${UISERV_API}messages/locale`, query: { id, cb } });
 
     return ecosFetch(url)
       .then(res => (res.ok ? res.json() : Promise.reject(res)))

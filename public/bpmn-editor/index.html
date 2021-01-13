@@ -12,7 +12,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Citeck ECOS &raquo; BPMN Editor</title>
     <!--link rel="icon" type="image/ico" href="favicon.ico"-->
-    <link rel="shortcut icon" href="/share/res/favicon.ico" type="image/vnd.microsoft.icon">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
     <meta name="description" content="">
     <meta name="viewport"
           content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, width=device-width">
@@ -298,41 +298,27 @@
   window.BPMN_DESIGNER_CONTEXT = '/v2/bpmn-designer';
   window.CARD_DETAILS_CONTEXT = '/share/page/card-details?nodeRef=workspace://SpacesStore/';
 
-  function redirectToBPMNDesignerPage() {
-    window.location.href = window.BPMN_DESIGNER_CONTEXT;
-  }
-
-  fetch('/share/service/modules/authenticated?noCache=${new Date().getTime()}&a=user', {
-    credentials: 'include'
-  }).then(function (response) {
-    if (response.status !== 200) {
-      redirectToBPMNDesignerPage();
-    }
-
-    require(['ecosui!header'], function(Header) {
-      Header.render('share-header', {
-        hideSiteMenu: true
-      }, () => {
-        require([
-          'ecosui!slide-menu'
-        ], function(SlideMenu) {
-          SlideMenu.render('slide-menu');
-        });
+  require(['ecosui!header'], function(Header) {
+    Header.render('share-header', {
+      hideSiteMenu: true
+    }, () => {
+      require([
+        'ecosui!slide-menu'
+      ], function(SlideMenu) {
+        SlideMenu.render('slide-menu');
       });
     });
+  });
 
-    require(['ecosui!idle-timer'], function(IdleTimer) {
-      const idleTimer = new IdleTimer.default();
-      idleTimer
-        .setCheckInterval(60000)
-        .setIdleTimeout(60000 * 60 * 3)
-        .setNoIdleCallback(() => {
-          fetch('/share/proxy/alfresco/citeck/ecos/touch', { credentials: 'include' });
-        })
-        .run();
-    });
-  }).catch(() => {
-    redirectToBPMNDesignerPage();
+  require(['ecosui!idle-timer'], function(IdleTimer) {
+    const idleTimer = new IdleTimer.default();
+    idleTimer
+      .setCheckInterval(60000)
+      .setIdleTimeout(60000 * 60 * 3)
+      .setNoIdleCallback(() => {
+        fetch('/gateway/alfresco/alfresco/s/citeck/ecos/touch', { credentials: 'include' });
+      })
+      .run();
   });
 </script>
 

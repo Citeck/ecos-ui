@@ -102,14 +102,6 @@ describe('Sidebar Service', () => {
         input: _.BPMN_DESIGNER,
         output: { targetUrl: `${URL.BPMN_DESIGNER}`, attributes }
       },
-      {
-        title: `Menu v0 - url for ${ATypes.PAGE_LINK}`,
-        input: _.PAGE_LINK,
-        output: {
-          targetUrl: `/share/page/${_.PAGE_LINK.action.params.pageId}`,
-          attributes: { [IGNORE_TABS_HANDLER_ATTR_NAME]: true }
-        }
-      },
       //**************
       {
         title: `Menu v1 - url for ${MITypes.JOURNAL}`,

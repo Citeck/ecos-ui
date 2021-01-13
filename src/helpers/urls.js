@@ -3,7 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
 import { JournalUrlParams, SourcesId, URL } from '../constants';
-import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
+import { PROXY_URI } from '../constants/alfresco';
 import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/Records/predicates/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import PageService from '../services/PageService';
@@ -53,24 +53,12 @@ const changeUrl = (url, opts = {}) => {
   }
 };
 
-export const createOldVersionUrlDocument = recordRef => {
-  return `/share/page/card-details?nodeRef=${recordRef}`;
-};
-
 export const createProfileUrl = userName => {
-  if (isNewVersionPage()) {
-    return `${URL.DASHBOARD}?recordRef=${SourcesId.PEOPLE}@${userName}`;
-  }
-
-  return `/share/page/user/${userName}/profile`;
+  return `${URL.DASHBOARD}?recordRef=${SourcesId.PEOPLE}@${userName}`;
 };
 
 export const createDocumentUrl = recordRef => {
-  if (isNewVersionPage()) {
-    return `${URL.DASHBOARD}?recordRef=${recordRef}`;
-  }
-
-  return createOldVersionUrlDocument(recordRef);
+  return `${URL.DASHBOARD}?recordRef=${recordRef}`;
 };
 
 export const createTaskUrl = (taskId, recordRef) => {
@@ -140,50 +128,18 @@ export const getFilterParam = options => {
 };
 
 export const getJournalPageUrl = ({ journalsListId, journalId, journalSettingId, nodeRef, filter, search }) => {
-  const qObj = {
+  const qString = queryString.stringify({
     [JOURNALS_LIST_ID_KEY]: journalsListId,
     [JOURNAL_ID_KEY]: journalId,
-    [JOURNAL_SETTING_ID_KEY]: filter ? '' : journalSettingId
-  };
+    [JOURNAL_SETTING_ID_KEY]: filter ? '' : journalSettingId,
+    [SEARCH_KEY]: search || filter
+  });
 
-  if (OLD_LINKS) {
-    qObj[FILTER_KEY] = filter;
-  } else {
-    qObj[SEARCH_KEY] = search || filter;
-  }
-
-  const qString = queryString.stringify(qObj);
-  let url;
-
-  if (OLD_LINKS) {
-    let partOfUrl;
-
-    if (journalsListId.indexOf('global-') !== -1) {
-      partOfUrl = journalsListId.replace('global-', 'journals2/list/');
-    } else {
-      partOfUrl = journalsListId.replace('site-', 'site/');
-      partOfUrl = partOfUrl.replace('-main', '/journals2/list/main');
-    }
-
-    url = `${URL_PAGECONTEXT}${partOfUrl}#journal=${nodeRef}&${FILTER_KEY}=${filter}&settings=&skipCount=0&maxItems=10`;
-  } else {
-    url = `${URL.JOURNAL}?${qString}`;
-  }
-
-  return url;
+  return `${URL.JOURNAL}?${qString}`;
 };
 
 export const getDownloadContentUrl = nodeRef => {
   return `${PROXY_URI}citeck/print/content?nodeRef=${nodeRef}`;
-};
-
-export const getCreateRecordUrl = ({ type, destination }) => {
-  const qString = queryString.stringify({
-    [TYPE_KEY]: type,
-    [DESTINATION_KEY]: destination
-  });
-
-  return `${URL_PAGECONTEXT}node-create-page-v2?${qString}&viewId=`;
 };
 
 export const getZipUrl = nodeRef => {
@@ -208,19 +164,11 @@ export const goToJournalsPage = options => {
   }
 };
 
-export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_self');
-
 export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
   const dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
 
-  if (isNewVersionPage()) {
-    changeUrl(dashboardLink, params);
-  } else {
-    window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
-  }
+  changeUrl(dashboardLink, params);
 };
-
-export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page-v2?nodeRef=${nodeRef}`, '_self');
 
 export const updateCurrentUrl = (params = {}) => {
   const query = getSearchParams();

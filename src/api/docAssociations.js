@@ -4,6 +4,7 @@ import ecosFetch from '../helpers/ecosFetch';
 import Records from '../components/Records';
 import { EmodelTypes } from '../constants';
 import { DocumentsApi } from './documents';
+import { PROXY_URI } from '../constants/alfresco';
 
 export class DocAssociationsApi extends DocumentsApi {
   #baseAssociationAttributes = 'id:assoc,modifierId:att(n:"cm:modifier"){disp},displayName:disp';
@@ -109,7 +110,7 @@ export class DocAssociationsApi extends DocumentsApi {
    * @returns {Promise<any | never>}
    */
   getJournalList = site => {
-    return ecosFetch(`/share/proxy/alfresco/api/journals/list?journalsList=site-${site}-main`, {
+    return ecosFetch(`${PROXY_URI}api/journals/list?journalsList=site-${site}-main`, {
       headers: { 'Content-type': 'application/json;charset=UTF-8' }
     }).then(response => response.json().then(response => response.journals));
   };

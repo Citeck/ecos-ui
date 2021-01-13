@@ -227,7 +227,7 @@ FLOWABLE.APP_URL = {
     },
 
     getProcessModelThumbnailUrl: function (modelId, version = null) {
-      return '/share/proxy/alfresco/citeck/ecos/image/thumbnail?nodeRef=workspace://SpacesStore/' + modelId + '&property=ecosbpm:thumbnail&cached=true'  + (version ? "&version=" + version : "");
+      return '/gateway/alfresco/alfresco/s/citeck/ecos/image/thumbnail?nodeRef=workspace://SpacesStore/' + modelId + '&property=ecosbpm:thumbnail&cached=true'  + (version ? "&version=" + version : "");
     },
 
     getModelThumbnailUrl: function (modelId, version) {

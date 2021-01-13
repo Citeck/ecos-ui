@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import debounce from 'lodash/debounce';
 
-import { goToCreateRecordPage } from '../../helpers/urls';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import Modal from '../common/EcosModal/CiteckEcosModal';
 import EcosFormUtils from './EcosFormUtils';
@@ -73,13 +72,10 @@ class FormManager {
             }
 
             this.openFormModal(props);
-          } else {
-            goToCreateRecordPage(variant);
           }
         })
         .catch(e => {
           console.error(e);
-          goToCreateRecordPage(variant);
         });
     },
     3000,

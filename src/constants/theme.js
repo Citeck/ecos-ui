@@ -1,4 +1,4 @@
-import { PROXY_URI } from './alfresco';
+import { UISERV_API } from './alfresco';
 
 export const DEFAULT_THEME = 'ecos';
 
@@ -9,7 +9,7 @@ export const DefaultImages = {
   MENU_LEFT_LOGO_SMALL: 'menu-left-logo-small'
 };
 
-export const THEME_URL_PATH = `${PROXY_URI}citeck/micro/uiserv/api/theme`;
+export const THEME_URL_PATH = `${UISERV_API}theme`;
 
 export const CACHE_KEY_RESOURCE_IMAGES = 'images';
 export const CACHE_KEY_RESOURCE_THEME = 'theme';
