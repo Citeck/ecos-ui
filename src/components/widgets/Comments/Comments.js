@@ -13,7 +13,8 @@ import {
   getDefaultKeyBinding,
   Modifier,
   RichUtils,
-  convertFromHTML
+  convertFromHTML,
+  CompositeDecorator
 } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import debounce from 'lodash/debounce';
@@ -26,8 +27,10 @@ import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
 import { Avatar, Loader, Popper } from '../../common/index';
+import { Input } from '../../common/form';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
+import ClickOutside from '../../ClickOutside';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
@@ -42,6 +45,26 @@ const BUTTONS_TYPE = {
 };
 const KEY_COMMANDS = {
   SEND: 'comment-send'
+};
+
+function findLinkEntities(contentBlock, callback, contentState) {
+  return contentBlock.findEntityRanges(character => {
+    const entityKey = character.getEntity();
+
+    return entityKey !== null && contentState.getEntity(entityKey).getType() === BUTTONS_TYPE.LINK;
+  }, callback);
+}
+
+const Link = props => {
+  const { url, label } = props.contentState.getEntity(props.entityKey).getData();
+
+  console.warn({ url, label });
+
+  return (
+    <a href={url} style={{ color: '#3b5998', textDecoration: 'underline' }}>
+      {label || props.children}
+    </a>
+  );
 };
 
 class Comments extends BaseWidget {
@@ -105,11 +128,18 @@ class Comments extends BaseWidget {
     setErrorMessage: () => {}
   };
 
+  #decorators = [];
+
   constructor(props) {
     super(props);
 
     this.contentRef = React.createRef();
     this._scroll = React.createRef();
+
+    this.#decorators.push({
+      strategy: findLinkEntities,
+      component: Link
+    });
 
     this.state = {
       ...this.state,
@@ -118,8 +148,15 @@ class Comments extends BaseWidget {
       editableComment: null,
       commentForDeletion: null,
       editorHeight: BASE_HEIGHT,
-      comment: EditorState.createEmpty()
+      comment: EditorState.createEmpty(this.decorators),
+      isOpenLinkDialog: false,
+      linkUrl: '',
+      linkText: ''
     };
+  }
+
+  get decorators() {
+    return new CompositeDecorator(this.#decorators);
   }
 
   componentDidMount() {
@@ -137,7 +174,7 @@ class Comments extends BaseWidget {
       this.setState({
         isEdit: false,
         editorHeight: BASE_HEIGHT,
-        comment: EditorState.createEmpty(),
+        comment: EditorState.createEmpty(this.decorators),
         editableComment: null,
         commentForDeletion: null
       });
@@ -248,6 +285,26 @@ class Comments extends BaseWidget {
       .getType();
   }
 
+  get isContainsLink() {
+    const { comment } = this.state;
+    const isLink = RichUtils.currentBlockContainsLink(comment);
+
+    if (isLink) {
+      return true;
+    }
+
+    const selection = comment.getSelection();
+    const contentState = comment.getCurrentContent();
+    const block = contentState.getBlockForKey(selection.getStartKey());
+    const entityAt = block.getEntityAt(selection.getStartOffset());
+
+    if (entityAt !== null) {
+      return contentState.getEntity(entityAt).getType() === BUTTONS_TYPE.LINK;
+    }
+
+    return false;
+  }
+
   get scrollbarHeight() {
     let height = this.props.commentListMaxHeight;
 
@@ -331,7 +388,7 @@ class Comments extends BaseWidget {
   handleShowEditor = () => {
     this.setState({
       isEdit: true,
-      comment: EditorState.createEmpty(),
+      comment: EditorState.createEmpty(this.decorators),
       editorHeight: BASE_HEIGHT
     });
   };
@@ -347,6 +404,8 @@ class Comments extends BaseWidget {
     const { editableComment, comment } = this.state;
     let text = '';
 
+    // console.warn({ dataStorageFormat })
+
     switch (dataStorageFormat) {
       case 'raw':
         text = JSON.stringify(convertToRaw(comment.getCurrentContent()));
@@ -360,13 +419,15 @@ class Comments extends BaseWidget {
         text = comment.getCurrentContent().getPlainText();
     }
 
+    console.warn({ text });
+
     editableComment ? updateComment({ text, id: editableComment }) : createComment(text);
   };
 
   handleCloseEditor = () => {
     this.setState({
       isEdit: false,
-      comment: EditorState.createEmpty(),
+      comment: EditorState.createEmpty(this.decorators),
       editorHeight: BASE_HEIGHT
     });
   };
@@ -406,6 +467,97 @@ class Comments extends BaseWidget {
     event.preventDefault();
     this.handleChangeComment(newComment, true);
   }
+
+  handleToggleLinkEditor = () => {
+    this.setState(state => ({ isOpenLinkDialog: !state.isOpenLinkDialog }));
+  };
+
+  handleSaveLink = event => {
+    const { comment, linkText, linkUrl } = this.state;
+    const contentState = comment.getCurrentContent();
+    const contentStateWithEntity = contentState.createEntity(BUTTONS_TYPE.LINK, 'MUTABLE', { url: linkUrl, label: linkText });
+
+    console.warn('contentState => ', contentState.toJS());
+
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    const newEditorState = EditorState.set(comment, { currentContent: contentStateWithEntity });
+    // const contentStateWithLink = Modifier.applyEntity(
+    //   contentStateWithEntity,
+    //   selectionState,
+    //   entityKey,
+    // );
+    const newComment = RichUtils.toggleLink(newEditorState, newEditorState.getSelection(), entityKey);
+
+    console.warn({ entityKey, newComment, RichUtils });
+
+    event.preventDefault();
+    this.handleChangeComment(newComment, true);
+
+    this.setState({
+      // comment: RichUtils.toggleLink(
+      //   newEditorState,
+      //   newEditorState.getSelection(),
+      //   entityKey
+      // ),
+      linkText: '',
+      linkUrl: '',
+      isOpenLinkDialog: false
+    });
+  };
+
+  get selectedText() {
+    const { comment } = this.state;
+    const selection = comment.getSelection();
+    const isCollapsed = selection.isCollapsed();
+
+    const contentState = comment.getCurrentContent();
+    const startKey = selection.getStartKey();
+    const startOffset = selection.getStartOffset();
+    const endOffset = selection.getEndOffset();
+    const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
+
+    // console.warn({ isCollapsed, text: blockWithLinkAtBeginning.getText().slice(startOffset, endOffset) });
+
+    if (isCollapsed) {
+      return '';
+    }
+
+    // const contentState = comment.getCurrentContent();
+    // const startKey = selection.getStartKey();
+    // const startOffset = selection.getStartOffset();
+    // const endOffset = selection.getEndOffset();
+    // const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
+
+    return blockWithLinkAtBeginning.getText().slice(startOffset, endOffset);
+  }
+
+  handleToggleLink = event => {
+    const { comment } = this.state;
+    const selection = comment.getSelection();
+
+    if (!selection.isCollapsed()) {
+      const contentState = comment.getCurrentContent();
+      const startKey = selection.getStartKey();
+      const startOffset = selection.getStartOffset();
+      const endOffset = selection.getEndOffset();
+      const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
+      const linkKey = blockWithLinkAtBeginning.getEntityAt(startOffset);
+
+      let url = '';
+
+      if (linkKey) {
+        const linkInstance = contentState.getEntity(linkKey);
+
+        url = linkInstance.getData().url;
+      }
+
+      // console.warn({ linkKey, url, text: blockWithLinkAtBeginning.getText().slice(startOffset, endOffset) });
+    }
+
+    // console.warn({ selection });
+
+    this.setState({ isOpenLinkDialog: true });
+  };
 
   handleKeyCommand = (command, editorState) => {
     const newComment = RichUtils.handleKeyCommand(editorState, command);
@@ -455,6 +607,8 @@ class Comments extends BaseWidget {
       return;
     }
 
+    console.warn({ text: comment.text });
+
     try {
       convertedComment = JSON.parse(comment.text);
 
@@ -464,8 +618,12 @@ class Comments extends BaseWidget {
     } catch (e) {
       const blocksFromHTML = convertFromHTML(comment.text);
 
+      console.warn({ blocksFromHTML });
+
       convertedComment = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
     }
+
+    console.warn({ convertedComment });
 
     this.setState(
       {
@@ -506,6 +664,41 @@ class Comments extends BaseWidget {
     this.handleReloadData();
   }
 
+  handleChangeLinkUrl = event => {
+    this.setState({ linkUrl: event.target.value });
+  };
+
+  handleChangeLinkText = event => {
+    this.setState({ linkText: event.target.value });
+  };
+
+  renderLinkEditor() {
+    const { isOpenLinkDialog } = this.state;
+
+    if (!isOpenLinkDialog) {
+      return null;
+    }
+
+    return (
+      <ClickOutside className="ecos-comments__editor-link-editor" handleClickOutside={this.handleToggleLinkEditor}>
+        <Input className="ecos-comments__editor-link-editor-input" placeholder="Ссылка" onChange={this.handleChangeLinkUrl} />
+        <Input
+          className="ecos-comments__editor-link-editor-input"
+          placeholder="Текст"
+          defaultValue={this.selectedText}
+          onChange={this.handleChangeLinkText}
+        />
+
+        <div className="ecos-comments__editor-link-editor-btns">
+          <Btn onClick={this.handleToggleLinkEditor}>Отмена</Btn>
+          <Btn className="ecos-btn_blue" onClick={this.handleSaveLink}>
+            Сохранить
+          </Btn>
+        </div>
+      </ClickOutside>
+    );
+  }
+
   renderHeader() {
     const { isEdit } = this.state;
 
@@ -539,6 +732,21 @@ class Comments extends BaseWidget {
     }
 
     return <div className="ecos-comments__editor-footer-error">{errorMessage}</div>;
+  }
+
+  renderLinkButton() {
+    return (
+      <div className="ecos-comments__editor-link-editor-container">
+        <IcoBtn
+          onMouseDown={this.handleToggleLinkEditor}
+          className={classNames('icon-link', 'ecos-comments__editor-button', 'ecos-comments__editor-button_link', {
+            'ecos-comments__editor-button_active': this.isContainsLink
+          })}
+        />
+
+        {this.renderLinkEditor()}
+      </div>
+    );
   }
 
   renderEditor() {
@@ -577,18 +785,15 @@ class Comments extends BaseWidget {
               'ecos-comments__editor-button_active': this.inlineStyles.has(BUTTONS_TYPE.UNDERLINE)
             })}
           />
+
           <IcoBtn
             onMouseDown={this.handleToggleBlockType.bind(this, BUTTONS_TYPE.LIST)}
             className={classNames('icon-items', 'ecos-comments__editor-button', 'ecos-comments__editor-button_list', {
               'ecos-comments__editor-button_active': this.blockType === BUTTONS_TYPE.LIST
             })}
           />
-          <IcoBtn
-            onMouseDown={this.handleToggleBlockType.bind(this, BUTTONS_TYPE.LINK)}
-            className={classNames('icon-link', 'ecos-comments__editor-button', 'ecos-comments__editor-button_link', {
-              'ecos-comments__editor-button_active': this.blockType === BUTTONS_TYPE.LINK
-            })}
-          />
+
+          {this.renderLinkButton()}
         </div>
         <div className="ecos-comments__editor-body" onClick={this.handleFocusEditor}>
           <Scrollbars style={{ height: '100%', minHeight }}>
