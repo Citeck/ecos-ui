@@ -21,7 +21,7 @@ const Labels = {
 class ModelEditor extends React.Component {
   static propTypes = {
     record: PropTypes.string,
-    type: PropTypes.string,
+    formId: PropTypes.string,
     onApply: PropTypes.func,
     onCreate: PropTypes.func
   };
@@ -38,17 +38,14 @@ class ModelEditor extends React.Component {
 
   render() {
     const { propertiesOpen } = this.state;
-    const { record, type, children, title, onApply, onCreate } = this.props;
+    const { record, formId, children, title, onApply, onCreate } = this.props;
     const elEditor = this.modelEditorRef.current;
     const indentation = elEditor ? elEditor.getBoundingClientRect().top : 100;
-    const formId = `uiserv/eform@proc-activity-${type}`;
 
     return (
       <div ref={this.modelEditorRef} className="ecos-model-editor" style={{ maxHeight: `calc(100vh - ${indentation}px)` }}>
         <div className="ecos-model-editor__designer">
-          <TitlePageLoader isReady={isExistValue(title)}>
-            <Caption normal>{title}</Caption>
-          </TitlePageLoader>
+          <TitlePageLoader isReady={isExistValue(title)}>{title && <Caption normal>{title}</Caption>}</TitlePageLoader>
 
           {!record && <InfoText className="ecos-model-editor__info" text={t(Labels.NO_RECORD)} />}
           {!children && <InfoText className="ecos-model-editor__info" text={t(Labels.NO_EDITOR)} />}

@@ -1269,8 +1269,8 @@
   "model-editor.error.no-editor": "Редактор не установлен",
   "model-editor.btn.apply": "Применить",
   "model-editor.btn.create": "Создать",
-  "cmmn-editor.error.no-diagram": "Сценарий не задан",
-  "cmmn-editor.error.can-not-save-diagram": "Сценарий не удалось сохранить",
+  "cmmn-editor.error.no-scenario": "Сценарий не задан",
+  "cmmn-editor.error.can-not-save-scenario": "Сценарий не удалось сохранить",
 
   "go-to.home-page": "Перейти на домашнюю страницу"
 }

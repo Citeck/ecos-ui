@@ -2,9 +2,10 @@ import React from 'react';
 import queryString from 'query-string';
 import { connect } from 'react-redux';
 
-import { initData, saveDiagram } from '../../actions/cmmnEditor';
+import { initData, saveScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
-import { InfoText } from '../../components/common';
+import { SourcesId } from '../../constants';
+import { InfoText, Loader } from '../../components/common';
 import ModelEditor from '../../components/ModelEditor';
 import CMMNDesigner from '../../components/CMMNDesigner';
 
@@ -13,6 +14,9 @@ import './style.scss';
 const getStateId = () => 'cmmn-' + queryString.parseUrl(window.location.href).query.recordRef;
 
 class CMMNEditorPage extends React.Component {
+  state = {
+    type: undefined
+  };
   designer = new CMMNDesigner();
   urlQuery = queryString.parseUrl(window.location.href).query;
 
@@ -35,26 +39,31 @@ class CMMNEditorPage extends React.Component {
     Promise.all([promiseXml, promiseImg])
       .then(([xml, img]) => {
         if (xml && img) {
-          this.props.saveDiagram(getStateId(), this.urlQuery.recordRef, xml, img);
+          this.props.saveScenario(getStateId(), this.urlQuery.recordRef, xml, img);
         } else throw new Error();
       })
-      .catch(() => this.props.saveDiagram(getStateId(), this.urlQuery.recordRef));
+      .catch(() => this.props.saveScenario(getStateId(), this.urlQuery.recordRef));
   };
 
   render() {
-    const { savedDiagram, title } = this.props;
+    const { savedScenario, title, isLoading } = this.props;
+    const { type } = this.state;
 
     return (
-      <ModelEditor
-        title={title}
-        type="cmmn:Stage"
-        record={this.urlQuery.recordRef}
-        onApply={this.handleSave}
-        displayButtons={{ apply: true }}
-      >
-        {savedDiagram && <this.designer.Sheet diagram={savedDiagram} />}
-        {!savedDiagram && <InfoText text={t('cmmn-editor.error.no-diagram')} />}
-      </ModelEditor>
+      <>
+        {!isLoading && !savedScenario && <InfoText text={t('cmmn-editor.error.no-scenario')} />}
+        {isLoading && <Loader height={100} width={100} />}
+        <ModelEditor
+          title={title}
+          formId={`${SourcesId.EFORM}@proc-activity-${type}`}
+          record={this.urlQuery.recordRef}
+          onApply={this.handleSave}
+          displayButtons={{ apply: true }}
+          formOptions={{ definition: savedScenario }}
+        >
+          {savedScenario && <this.designer.Sheet diagram={savedScenario} />}
+        </ModelEditor>
+      </>
     );
   }
 }
@@ -65,14 +74,15 @@ const mapStateToProps = (store, props) => {
   return {
     isMobile: store.view.isMobile,
     title: ownStore.title,
-    savedDiagram: ownStore.diagram
+    savedScenario: ownStore.scenario,
+    isLoading: ownStore.isLoading
   };
 };
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
     initData: (stateId, record) => dispatch(initData({ stateId, record })),
-    saveDiagram: (stateId, record, xml, img) => dispatch(saveDiagram({ stateId, record, xml, img }))
+    saveScenario: (stateId, record, xml, img) => dispatch(saveScenario({ stateId, record, xml, img }))
   };
 };
 
