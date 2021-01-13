@@ -1,6 +1,7 @@
 import React from 'react';
 import queryString from 'query-string';
 import { connect } from 'react-redux';
+import get from 'lodash/get';
 
 import { initData, saveScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
@@ -15,7 +16,7 @@ const getStateId = () => 'cmmn-' + queryString.parseUrl(window.location.href).qu
 
 class CMMNEditorPage extends React.Component {
   state = {
-    type: undefined
+    selectedElement: undefined
   };
   designer = new CMMNDesigner();
   urlQuery = queryString.parseUrl(window.location.href).query;
@@ -45,9 +46,23 @@ class CMMNEditorPage extends React.Component {
       .catch(() => this.props.saveScenario(getStateId(), this.urlQuery.recordRef));
   };
 
+  handleSelectItem = selectedElement => {
+    this.setState({ selectedElement });
+  };
+
+  handleChangeItem = element => {
+    const { selectedElement } = this.state;
+    if (element.id === selectedElement.id) {
+      this.setState({ selectedElement: element });
+    }
+  };
+
   render() {
     const { savedScenario, title, isLoading } = this.props;
-    const { type } = this.state;
+    const { selectedElement } = this.state;
+    const type = get(selectedElement, 'businessObject.$type');
+    const formTitle = get(selectedElement, 'businessObject.name');
+    const formId = type ? `${SourcesId.EFORM}@proc-activity-${type}` : null;
 
     return (
       <>
@@ -55,13 +70,17 @@ class CMMNEditorPage extends React.Component {
         {isLoading && <Loader height={100} width={100} />}
         <ModelEditor
           title={title}
-          formId={`${SourcesId.EFORM}@proc-activity-${type}`}
+          formId={formId}
+          formWarning={t('cmmn-editor.error.no-selected-element')}
+          formTitle={formTitle}
+          formOptions={get(selectedElement, 'businessObject')}
           record={this.urlQuery.recordRef}
           onApply={this.handleSave}
           displayButtons={{ apply: true }}
-          formOptions={{ definition: savedScenario }}
         >
-          {savedScenario && <this.designer.Sheet diagram={savedScenario} />}
+          {savedScenario && (
+            <this.designer.Sheet diagram={savedScenario} onClickElement={this.handleSelectItem} onChangeElement={this.handleChangeItem} />
+          )}
         </ModelEditor>
       </>
     );

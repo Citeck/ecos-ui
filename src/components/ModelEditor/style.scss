@@ -20,6 +20,12 @@
       margin-bottom: 10px;
     }
 
+    &-title {
+      &:empty {
+        display: none;
+      }
+    }
+
     &-work-zone {
       background: $color-white;
       border-radius: $border-radius-extra-large;
@@ -99,6 +105,7 @@
       background: $color-white;
       overflow: auto;
       height: 100%;
+      min-width: 550px;
     }
 
     &_open > &-content {

@@ -14,6 +14,7 @@ import './style.scss';
 const Labels = {
   NO_RECORD: 'model-editor.error.no-record-ref',
   NO_EDITOR: 'model-editor.error.no-editor',
+  NO_FORM: 'model-editor.error.no-form',
   APPLY: 'model-editor.btn.apply',
   CREATE: 'model-editor.btn.create'
 };
@@ -22,6 +23,9 @@ class ModelEditor extends React.Component {
   static propTypes = {
     record: PropTypes.string,
     formId: PropTypes.string,
+    formWarning: PropTypes.string,
+    formTitle: PropTypes.string,
+    formOptions: PropTypes.object,
     onApply: PropTypes.func,
     onCreate: PropTypes.func
   };
@@ -38,15 +42,18 @@ class ModelEditor extends React.Component {
 
   render() {
     const { propertiesOpen } = this.state;
-    const { record, formId, children, title, onApply, onCreate } = this.props;
+    const { record, formId, formWarning, formTitle, formOptions, children, title, onApply, onCreate } = this.props;
     const elEditor = this.modelEditorRef.current;
     const indentation = elEditor ? elEditor.getBoundingClientRect().top : 100;
 
     return (
       <div ref={this.modelEditorRef} className="ecos-model-editor" style={{ maxHeight: `calc(100vh - ${indentation}px)` }}>
         <div className="ecos-model-editor__designer">
-          <TitlePageLoader isReady={isExistValue(title)}>{title && <Caption normal>{title}</Caption>}</TitlePageLoader>
-
+          <TitlePageLoader isReady={isExistValue(title)}>
+            <Caption normal className="ecos-model-editor__designer-title">
+              {title}
+            </Caption>
+          </TitlePageLoader>
           {!record && <InfoText className="ecos-model-editor__info" text={t(Labels.NO_RECORD)} />}
           {!children && <InfoText className="ecos-model-editor__info" text={t(Labels.NO_EDITOR)} />}
           {children && (
@@ -67,7 +74,15 @@ class ModelEditor extends React.Component {
           <div className="ecos-model-editor__properties-opener" onClick={this.togglePropertiesOpen}>
             <Icon className={classNames({ 'icon-small-left': !propertiesOpen, 'icon-small-right': propertiesOpen })} />
           </div>
-          <div className="ecos-model-editor__properties-content">{record && <EcosForm formId={formId} record={record} options={{}} />}</div>
+          <div className="ecos-model-editor__properties-content">
+            {formTitle && (
+              <Caption className="mb-2" normal>
+                {formTitle}
+              </Caption>
+            )}
+            {!formId && <InfoText text={formWarning || t(Labels.NO_FORM)} />}
+            {record && formId && <EcosForm formId={formId} record={record} options={{ ...formOptions }} />}
+          </div>
         </div>
       </div>
     );
