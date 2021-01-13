@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import {
   ContentState,
+  SelectionState,
   convertFromRaw,
   convertToRaw,
   Editor,
@@ -56,13 +57,11 @@ function findLinkEntities(contentBlock, callback, contentState) {
 }
 
 const Link = props => {
-  const { url, label } = props.contentState.getEntity(props.entityKey).getData();
-
-  console.warn({ url, label });
+  const { url, title } = props.contentState.getEntity(props.entityKey).getData();
 
   return (
-    <a href={url} style={{ color: '#3b5998', textDecoration: 'underline' }}>
-      {label || props.children}
+    <a href={url} style={{ color: '#3b5998', textDecoration: 'underline' }} title={title}>
+      {props.children}
     </a>
   );
 };
@@ -474,31 +473,30 @@ class Comments extends BaseWidget {
 
   handleSaveLink = event => {
     const { comment, linkText, linkUrl } = this.state;
-    const contentState = comment.getCurrentContent();
-    const contentStateWithEntity = contentState.createEntity(BUTTONS_TYPE.LINK, 'MUTABLE', { url: linkUrl, label: linkText });
+    const originSelectionState = comment.getSelection();
+    const selectionState = new SelectionState({
+      anchorKey: originSelectionState.getAnchorKey(),
+      anchorOffset: originSelectionState.getAnchorOffset(),
+      focusKey: originSelectionState.getAnchorKey(),
+      focusOffset: originSelectionState.getAnchorOffset() + linkText.length,
+      isBackward: false
+    });
+    let contentState = comment.getCurrentContent();
 
-    console.warn('contentState => ', contentState.toJS());
+    contentState = Modifier.replaceText(contentState, comment.getSelection(), linkText);
 
+    const contentStateWithEntity = contentState.createEntity(BUTTONS_TYPE.LINK, 'MUTABLE', { url: linkUrl, title: linkText });
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-    const newEditorState = EditorState.set(comment, { currentContent: contentStateWithEntity });
-    // const contentStateWithLink = Modifier.applyEntity(
-    //   contentStateWithEntity,
-    //   selectionState,
-    //   entityKey,
-    // );
-    const newComment = RichUtils.toggleLink(newEditorState, newEditorState.getSelection(), entityKey);
+    let newEditorState = EditorState.set(comment, { currentContent: contentStateWithEntity });
 
-    console.warn({ entityKey, newComment, RichUtils });
+    newEditorState = EditorState.acceptSelection(newEditorState, selectionState);
+
+    const newComment = RichUtils.toggleLink(newEditorState, newEditorState.getSelection(), entityKey);
 
     event.preventDefault();
     this.handleChangeComment(newComment, true);
 
     this.setState({
-      // comment: RichUtils.toggleLink(
-      //   newEditorState,
-      //   newEditorState.getSelection(),
-      //   entityKey
-      // ),
       linkText: '',
       linkUrl: '',
       isOpenLinkDialog: false
