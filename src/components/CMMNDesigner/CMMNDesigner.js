@@ -3,7 +3,6 @@ import Modeler from 'cmmn-js/lib/Modeler';
 import get from 'lodash/get';
 
 import additionalModules from './modules';
-import { initialDiagram } from './utils';
 
 import 'cmmn-js/dist/assets/diagram-js.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
@@ -20,8 +19,6 @@ import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-embedded.css';
  * @param {Boolean} isCustomContainer - shows whose container is. You can set using setCustomContainer
  */
 export default class CMMNDesigner {
-  static initialDiagram = initialDiagram;
-
   #viewer = null;
   #events = null;
   #isCustomContainer = false;

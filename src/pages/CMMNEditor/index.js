@@ -2,13 +2,15 @@ import React from 'react';
 import queryString from 'query-string';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 
 import { initData, saveScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
 import { InfoText, Loader } from '../../components/common';
-import ModelEditor from '../../components/ModelEditor';
-import CMMNDesigner from '../../components/CMMNDesigner';
+import EcosForm from '../../components/EcosForm';
+import ModelEditorWrapper from '../../components/ModelEditorWrapper';
+import CMMNDesigner, { CmmnUtils } from '../../components/CMMNDesigner';
 
 import './style.scss';
 
@@ -20,9 +22,38 @@ class CMMNEditorPage extends React.Component {
   };
   designer = new CMMNDesigner();
   urlQuery = queryString.parseUrl(window.location.href).query;
+  modelEditorRef = React.createRef();
 
   componentDidMount() {
     this.props.initData(getStateId(), this.urlQuery.recordRef);
+  }
+
+  setHeight = () => {
+    const elEditor = this.modelEditorRef.current && this.modelEditorRef.current.querySelector('.ecos-cmmn-container');
+
+    if (elEditor) {
+      const indentation = elEditor.getBoundingClientRect().top;
+      elEditor.setAttribute('style', `height: calc(100vh - ${indentation}px)`);
+    }
+  };
+
+  get formType() {
+    const { selectedElement } = this.state;
+    const type = CmmnUtils.getType(selectedElement);
+    const ecosType = CmmnUtils.getEcosType(selectedElement);
+    console.log(type);
+    console.log(ecosType);
+
+    return ecosType || type;
+  }
+
+  get formTitle() {
+    const { selectedElement } = this.state;
+    return this.formType ? ModelUtil.getName(selectedElement) : null;
+  }
+
+  get formId() {
+    return this.formType ? `${SourcesId.EFORM}@proc-activity-${this.formType}` : null;
   }
 
   handleSave = () => {
@@ -52,37 +83,50 @@ class CMMNEditorPage extends React.Component {
 
   handleChangeItem = element => {
     const { selectedElement } = this.state;
-    if (element.id === selectedElement.id) {
+
+    if (element && selectedElement && element.id === selectedElement.id) {
       this.setState({ selectedElement: element });
     }
+  };
+
+  handleFormChange = qqq => {
+    console.log(qqq);
   };
 
   render() {
     const { savedScenario, title, isLoading } = this.props;
     const { selectedElement } = this.state;
-    const type = get(selectedElement, 'businessObject.$type');
-    const formTitle = get(selectedElement, 'businessObject.name');
-    const formId = type ? `${SourcesId.EFORM}@proc-activity-${type}` : null;
+
+    this.setHeight();
 
     return (
-      <>
+      <div className="ecos-cmmn-editor__page" ref={this.modelEditorRef}>
         {!isLoading && !savedScenario && <InfoText text={t('cmmn-editor.error.no-scenario')} />}
         {isLoading && <Loader height={100} width={100} />}
-        <ModelEditor
+        <ModelEditorWrapper
           title={title}
-          formId={formId}
-          formWarning={t('cmmn-editor.error.no-selected-element')}
-          formTitle={formTitle}
-          formOptions={get(selectedElement, 'businessObject')}
-          record={this.urlQuery.recordRef}
           onApply={this.handleSave}
           displayButtons={{ apply: true }}
-        >
-          {savedScenario && (
-            <this.designer.Sheet diagram={savedScenario} onClickElement={this.handleSelectItem} onChangeElement={this.handleChangeItem} />
-          )}
-        </ModelEditor>
-      </>
+          rightSidebarTitle={this.formTitle}
+          editor={
+            savedScenario && (
+              <this.designer.Sheet
+                diagram={savedScenario}
+                onSelectElement={this.handleSelectItem}
+                onChangeElement={this.handleChangeItem}
+              />
+            )
+          }
+          rightSidebar={
+            <EcosForm
+              formId={this.formId}
+              record={this.urlQuery.recordRef}
+              options={{ ...get(selectedElement, 'businessObject', null) }}
+              onFormChange={this.handleFormChange}
+            />
+          }
+        />
+      </div>
     );
   }
 }

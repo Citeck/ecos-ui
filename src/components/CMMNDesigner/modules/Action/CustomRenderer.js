@@ -3,7 +3,7 @@ import TextUtil from 'diagram-js/lib/util/Text';
 import { append as svgAppend, attr as svgAttr, classes as svgClasses, create as svgCreate } from 'tiny-svg';
 import { getName } from 'cmmn-js/lib/util/ModelUtil';
 
-import { getEcosType } from '../../utils';
+import { CmmnUtils } from '../../index';
 import actionTypes from './action-types.json';
 
 import 'bpmn-font/dist/css/bpmn.css';
@@ -24,12 +24,12 @@ export default class CustomRenderer extends BaseRenderer {
   }
 
   canRender(element) {
-    return this._actionTypesToRender.indexOf(getEcosType(element)) !== -1;
+    return this._actionTypesToRender.indexOf(CmmnUtils.getEcosType(element)) !== -1;
   }
 
   drawShape(parentNode, element, attrs) {
     const rect = drawRect(parentNode, element.width, element.height, TASK_BORDER_RADIUS, attrs);
-    const ecosType = getEcosType(element);
+    const ecosType = CmmnUtils.getEcosType(element);
 
     renderLabel(parentNode, ecosType, { box: element, align: 'left-top', padding: 5 });
     renderEmbeddedLabel(parentNode, element, 'center-middle');

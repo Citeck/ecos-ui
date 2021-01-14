@@ -3,6 +3,7 @@ import { NotificationManager } from 'react-notifications';
 
 import { getScenario, getTitle, initData, saveScenario, setScenario, setTitle } from '../actions/cmmnEditor';
 import { t } from '../helpers/export/util';
+import { CmmnUtils } from '../components/CMMNDesigner/index';
 
 function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
@@ -17,7 +18,7 @@ function* fetchScenario({ api, logger }, { payload: { stateId, record } }) {
   try {
     const scenario = yield call(api.cmmn.getDefinition, record);
 
-    yield put(setScenario({ stateId, scenario }));
+    yield put(setScenario({ stateId, scenario: CmmnUtils.initialDiagram }));
   } catch (e) {
     yield put(setScenario({ stateId, scenario: null }));
     logger.error('[cmmnEditor/fetchScenario saga] error', e.message);

@@ -1,0 +1,10 @@
+.ecos-cmmn-editor {
+  &__page {
+    height: 100%;
+
+    & a.bjs-powered-by {
+      bottom: 0 !important;
+      right: 10px !important;
+    }
+  }
+}
