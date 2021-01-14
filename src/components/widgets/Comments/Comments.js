@@ -27,7 +27,7 @@ import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
-import { Avatar, Loader, Popper } from '../../common/index';
+import { Avatar, Loader, Popper, Icon } from '../../common/index';
 import { Input } from '../../common/form';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
@@ -46,6 +46,12 @@ const BUTTONS_TYPE = {
 };
 const KEY_COMMANDS = {
   SEND: 'comment-send'
+};
+const Labels = {
+  BTN_DELETE: 'Удалить',
+  BTN_SAVE: 'Сохранить',
+  LINK: 'Ссылка',
+  TEXT: 'Текст для отображения'
 };
 
 function findLinkEntities(contentBlock, callback, contentState) {
@@ -478,15 +484,16 @@ class Comments extends BaseWidget {
     const contentState = comment.getCurrentContent();
     const block = contentState.getBlockForKey(selection.getStartKey());
     const entityAt = block.getEntityAt(selection.getStartOffset());
+    const isLink = entityAt ? contentState.getEntity(entityAt).getType() === BUTTONS_TYPE.LINK : false;
     let url = '';
 
-    if (entityAt && contentState.getEntity(entityAt).getType() === BUTTONS_TYPE.LINK) {
+    if (isLink) {
       ({ url } = contentState.getEntity(entityAt).getData());
     }
 
     if (isCollapsed) {
       newState.comment = this.getNewCommentStateWithAllBlockSelected();
-      newState.linkText = this.getSelectionText(newState.comment.getSelection());
+      newState.linkText = isLink ? this.getSelectionText(newState.comment.getSelection()) : '';
     } else {
       newState.linkText = this.getSelectionText(selection);
     }
@@ -505,7 +512,10 @@ class Comments extends BaseWidget {
     const contentState = comment.getCurrentContent();
     const block = contentState.getBlockForKey(startKey);
 
-    return block.getText().slice(startOffset, endOffset);
+    return block
+      .getText()
+      .slice(startOffset, endOffset)
+      .trim();
   };
 
   getNewCommentStateWithAllBlockSelected = () => {
@@ -554,6 +564,11 @@ class Comments extends BaseWidget {
 
   handleSaveLink = event => {
     const { comment, linkText, linkUrl } = this.state;
+
+    if (!linkText || !linkUrl) {
+      return;
+    }
+
     const originSelectionState = comment.getSelection();
     const selectionState = SelectionState.createEmpty(originSelectionState.getAnchorKey())
       .set('anchorOffset', originSelectionState.getAnchorOffset())
@@ -696,27 +711,39 @@ class Comments extends BaseWidget {
 
     return (
       <ClickOutside className="ecos-comments__editor-link-editor" handleClickOutside={this.handleToggleLinkEditor}>
-        <Input
-          className="ecos-comments__editor-link-editor-input"
-          placeholder="Ссылка"
-          value={linkUrl}
-          onChange={this.handleChangeLinkUrl}
-        />
-        <Input
-          className="ecos-comments__editor-link-editor-input"
-          placeholder="Текст"
-          value={linkText}
-          onChange={this.handleChangeLinkText}
-        />
+        <div className="ecos-comments__editor-link-editor-input-container">
+          <Icon className="icon-link ecos-comments__editor-link-editor-input-icon" title={t(Labels.LINK)} />
+          <Input
+            className="ecos-comments__editor-link-editor-input"
+            placeholder={t(Labels.LINK)}
+            value={linkUrl}
+            onChange={this.handleChangeLinkUrl}
+          />
+        </div>
+
+        <div className="ecos-comments__editor-link-editor-input-container">
+          <Icon className="icon-edit ecos-comments__editor-link-editor-input-icon" title={t(Labels.TEXT)} />
+          <Input
+            className="ecos-comments__editor-link-editor-input"
+            placeholder={t(Labels.TEXT)}
+            value={linkText}
+            onChange={this.handleChangeLinkText}
+          />
+        </div>
 
         <div className="ecos-comments__editor-link-editor-btns">
-          {linkUrl && (
+          {this.getSelectionText() && (
             <Btn className="ecos-btn_red" onClick={this.handleRemoveLink}>
-              Удалить
+              {t(Labels.BTN_DELETE)}
             </Btn>
           )}
-          <Btn className="ecos-btn_blue" onClick={this.handleSaveLink}>
-            Сохранить
+          <Btn
+            className={classNames('ecos-btn_blue ecos-comments__editor-link-editor-btns-save', {
+              'ecos-comments__editor-link-editor-btns-save_disabled': !linkText || !linkUrl
+            })}
+            onClick={this.handleSaveLink}
+          >
+            {t(Labels.BTN_SAVE)}
           </Btn>
         </div>
       </ClickOutside>

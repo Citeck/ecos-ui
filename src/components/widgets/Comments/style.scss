@@ -373,13 +373,31 @@
 
       &-input {
         margin-bottom: 5px;
+
+        &-container {
+          display: grid;
+          grid-template-columns: auto auto;
+          align-items: center;
+        }
+
+        &-icon {
+          color: $color-gray-6;
+        }
       }
 
       &-btns {
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-gap: 5px;
-        //padding:5px ;
+
+        &-save {
+          grid-column-start: 2;
+
+          &_disabled {
+            cursor: not-allowed !important;
+            opacity: 0.5;
+          }
+        }
       }
 
       &-container {
