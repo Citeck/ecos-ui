@@ -403,8 +403,6 @@ class Comments extends BaseWidget {
     const { editableComment, comment } = this.state;
     let text = '';
 
-    // console.warn({ dataStorageFormat })
-
     switch (dataStorageFormat) {
       case 'raw':
         text = JSON.stringify(convertToRaw(comment.getCurrentContent()));
@@ -417,8 +415,6 @@ class Comments extends BaseWidget {
       default:
         text = comment.getCurrentContent().getPlainText();
     }
-
-    console.warn({ text });
 
     editableComment ? updateComment({ text, id: editableComment }) : createComment(text);
   };
@@ -468,7 +464,41 @@ class Comments extends BaseWidget {
   }
 
   handleToggleLinkEditor = () => {
-    this.setState(state => ({ isOpenLinkDialog: !state.isOpenLinkDialog }));
+    const { isOpenLinkDialog } = this.state;
+    const newState = { isOpenLinkDialog: !isOpenLinkDialog };
+
+    if (isOpenLinkDialog) {
+      this.setState({ ...newState });
+      return;
+    }
+
+    const { comment } = this.state;
+    const selection = comment.getSelection();
+    const isCollapsed = selection.isCollapsed();
+    const contentState = comment.getCurrentContent();
+    const block = contentState.getBlockForKey(selection.getStartKey());
+    const entityAt = block.getEntityAt(selection.getStartOffset());
+    let url = '';
+    let title = '';
+
+    if (entityAt) {
+      ({ url, title } = contentState.getEntity(entityAt).getData());
+    }
+
+    if (isCollapsed) {
+      newState.linkText = title;
+    } else {
+      const startKey = selection.getStartKey();
+      const startOffset = selection.getStartOffset();
+      const endOffset = selection.getEndOffset();
+      const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
+
+      newState.linkText = blockWithLinkAtBeginning.getText().slice(startOffset, endOffset);
+    }
+
+    newState.linkUrl = url;
+
+    this.setState({ ...newState });
   };
 
   handleSaveLink = event => {
@@ -503,6 +533,35 @@ class Comments extends BaseWidget {
     });
   };
 
+  get selectedLink() {
+    const { comment } = this.state;
+    const selection = comment.getSelection();
+    const isCollapsed = selection.isCollapsed();
+    const contentState = comment.getCurrentContent();
+
+    if (isCollapsed) {
+      const block = contentState.getBlockForKey(selection.getStartKey());
+      const entityAt = block.getEntityAt(selection.getStartOffset());
+
+      if (entityAt !== null) {
+        return contentState.getEntity(entityAt).getData().url; // todo: check is exist data
+      }
+
+      return '';
+    }
+
+    const startKey = selection.getStartKey();
+    const startOffset = selection.getStartOffset();
+    const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
+    const linkKey = blockWithLinkAtBeginning.getEntityAt(startOffset);
+
+    if (!linkKey) {
+      return '';
+    }
+
+    return contentState.getEntity(linkKey).getData().url;
+  }
+
   get selectedText() {
     const { comment } = this.state;
     const selection = comment.getSelection();
@@ -514,48 +573,12 @@ class Comments extends BaseWidget {
     const endOffset = selection.getEndOffset();
     const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
 
-    // console.warn({ isCollapsed, text: blockWithLinkAtBeginning.getText().slice(startOffset, endOffset) });
-
     if (isCollapsed) {
       return '';
     }
 
-    // const contentState = comment.getCurrentContent();
-    // const startKey = selection.getStartKey();
-    // const startOffset = selection.getStartOffset();
-    // const endOffset = selection.getEndOffset();
-    // const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
-
     return blockWithLinkAtBeginning.getText().slice(startOffset, endOffset);
   }
-
-  handleToggleLink = event => {
-    const { comment } = this.state;
-    const selection = comment.getSelection();
-
-    if (!selection.isCollapsed()) {
-      const contentState = comment.getCurrentContent();
-      const startKey = selection.getStartKey();
-      const startOffset = selection.getStartOffset();
-      const endOffset = selection.getEndOffset();
-      const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
-      const linkKey = blockWithLinkAtBeginning.getEntityAt(startOffset);
-
-      let url = '';
-
-      if (linkKey) {
-        const linkInstance = contentState.getEntity(linkKey);
-
-        url = linkInstance.getData().url;
-      }
-
-      // console.warn({ linkKey, url, text: blockWithLinkAtBeginning.getText().slice(startOffset, endOffset) });
-    }
-
-    // console.warn({ selection });
-
-    this.setState({ isOpenLinkDialog: true });
-  };
 
   handleKeyCommand = (command, editorState) => {
     const newComment = RichUtils.handleKeyCommand(editorState, command);
@@ -665,7 +688,7 @@ class Comments extends BaseWidget {
   };
 
   renderLinkEditor() {
-    const { isOpenLinkDialog } = this.state;
+    const { isOpenLinkDialog, linkUrl, linkText } = this.state;
 
     if (!isOpenLinkDialog) {
       return null;
@@ -673,11 +696,18 @@ class Comments extends BaseWidget {
 
     return (
       <ClickOutside className="ecos-comments__editor-link-editor" handleClickOutside={this.handleToggleLinkEditor}>
-        <Input className="ecos-comments__editor-link-editor-input" placeholder="Ссылка" onChange={this.handleChangeLinkUrl} />
+        <Input
+          className="ecos-comments__editor-link-editor-input"
+          placeholder="Ссылка"
+          value={linkUrl}
+          // defaultValue={this.selectedLink}
+          onChange={this.handleChangeLinkUrl}
+        />
         <Input
           className="ecos-comments__editor-link-editor-input"
           placeholder="Текст"
-          defaultValue={this.selectedText}
+          value={linkText}
+          // defaultValue={this.selectedText}
           onChange={this.handleChangeLinkText}
         />
 
