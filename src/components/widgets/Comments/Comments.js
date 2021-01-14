@@ -479,21 +479,16 @@ class Comments extends BaseWidget {
     const block = contentState.getBlockForKey(selection.getStartKey());
     const entityAt = block.getEntityAt(selection.getStartOffset());
     let url = '';
-    let title = '';
 
     if (entityAt && contentState.getEntity(entityAt).getType() === BUTTONS_TYPE.LINK) {
-      ({ url, title } = contentState.getEntity(entityAt).getData());
+      ({ url } = contentState.getEntity(entityAt).getData());
     }
 
     if (isCollapsed) {
-      newState.linkText = title;
+      newState.comment = this.getNewCommentStateWithAllBlockSelected();
+      newState.linkText = this.getSelectionText(newState.comment.getSelection());
     } else {
-      const startKey = selection.getStartKey();
-      const startOffset = selection.getStartOffset();
-      const endOffset = selection.getEndOffset();
-      const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
-
-      newState.linkText = blockWithLinkAtBeginning.getText().slice(startOffset, endOffset);
+      newState.linkText = this.getSelectionText(selection);
     }
 
     newState.linkUrl = url;
@@ -501,7 +496,19 @@ class Comments extends BaseWidget {
     this.setState({ ...newState });
   };
 
-  handleRemoveLink = event => {
+  getSelectionText = defaultSelection => {
+    const { comment } = this.state;
+    const selection = defaultSelection || comment.getSelection();
+    const startKey = selection.getStartKey();
+    const startOffset = selection.getStartOffset();
+    const endOffset = selection.getEndOffset();
+    const contentState = comment.getCurrentContent();
+    const block = contentState.getBlockForKey(startKey);
+
+    return block.getText().slice(startOffset, endOffset);
+  };
+
+  getNewCommentStateWithAllBlockSelected = () => {
     const { comment } = this.state;
     const selection = comment.getSelection();
     const startKey = selection.getStartKey();
@@ -509,51 +516,48 @@ class Comments extends BaseWidget {
     const contentState = comment.getCurrentContent();
     const block = contentState.getBlockForKey(startKey);
     const linkKey = block.getEntityAt(startOffset);
-
-    console.warn(selection.toJS(), startKey);
+    let start = 0;
+    let end = 0;
 
     block.findEntityRanges(
       item => item.getEntity() === linkKey,
-      (start, end) => {
-        const newSelection = SelectionState.createEmpty(startKey)
-          .set('anchorOffset', start)
-          .set('focusOffset', end);
-
-        // console.warn({ newSelection });
-
-        const newEditorState = EditorState.acceptSelection(comment, newSelection);
-
-        console.warn(newEditorState.getSelection().toJS());
-
-        const newComment = RichUtils.toggleLink(newEditorState, newEditorState.getSelection(), null);
-
-        this.handleChangeComment(newComment, true);
+      (startOffset, endOffset) => {
+        start = startOffset;
+        end = endOffset;
       }
     );
 
-    // const { comment } = this.state;
-    // const selection = comment.getSelection();
-    // const contentState = comment.getCurrentContent();
-    // const block = contentState.getBlockForKey(selection.getStartKey());
-    // const entityAt = block.getEntityAt(selection.getStartOffset());
-    //
-    // if (selection.isCollapsed() && entityAt && contentState.getEntity(entityAt).getType() === BUTTONS_TYPE.LINK) {
-    //   console.warn({ entity: contentState.getEntity(entityAt), contentState, comment, SelectionState });
-    // }
+    if (start === end) {
+      return comment;
+    }
 
+    const newSelection = SelectionState.createEmpty(startKey)
+      .set('anchorOffset', start)
+      .set('focusOffset', end);
+
+    return EditorState.acceptSelection(comment, newSelection);
+  };
+
+  handleRemoveLink = event => {
+    const newEditorState = this.getNewCommentStateWithAllBlockSelected();
+    const newComment = RichUtils.toggleLink(newEditorState, newEditorState.getSelection(), null);
+
+    this.handleChangeComment(newComment, true);
     event.preventDefault();
+
+    this.setState({
+      linkText: '',
+      linkUrl: '',
+      isOpenLinkDialog: false
+    });
   };
 
   handleSaveLink = event => {
     const { comment, linkText, linkUrl } = this.state;
     const originSelectionState = comment.getSelection();
-    const selectionState = new SelectionState({
-      anchorKey: originSelectionState.getAnchorKey(),
-      anchorOffset: originSelectionState.getAnchorOffset(),
-      focusKey: originSelectionState.getAnchorKey(),
-      focusOffset: originSelectionState.getAnchorOffset() + linkText.length,
-      isBackward: false
-    });
+    const selectionState = SelectionState.createEmpty(originSelectionState.getAnchorKey())
+      .set('anchorOffset', originSelectionState.getAnchorOffset())
+      .set('focusOffset', originSelectionState.getAnchorOffset() + linkText.length);
     let contentState = comment.getCurrentContent();
 
     contentState = Modifier.replaceText(contentState, comment.getSelection(), linkText);
