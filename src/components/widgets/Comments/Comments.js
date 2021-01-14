@@ -481,7 +481,7 @@ class Comments extends BaseWidget {
     let url = '';
     let title = '';
 
-    if (entityAt) {
+    if (entityAt && contentState.getEntity(entityAt).getType() === BUTTONS_TYPE.LINK) {
       ({ url, title } = contentState.getEntity(entityAt).getData());
     }
 
@@ -499,6 +499,49 @@ class Comments extends BaseWidget {
     newState.linkUrl = url;
 
     this.setState({ ...newState });
+  };
+
+  handleRemoveLink = event => {
+    const { comment } = this.state;
+    const selection = comment.getSelection();
+    const startKey = selection.getStartKey();
+    const startOffset = selection.getStartOffset();
+    const contentState = comment.getCurrentContent();
+    const block = contentState.getBlockForKey(startKey);
+    const linkKey = block.getEntityAt(startOffset);
+
+    console.warn(selection.toJS(), startKey);
+
+    block.findEntityRanges(
+      item => item.getEntity() === linkKey,
+      (start, end) => {
+        const newSelection = SelectionState.createEmpty(startKey)
+          .set('anchorOffset', start)
+          .set('focusOffset', end);
+
+        // console.warn({ newSelection });
+
+        const newEditorState = EditorState.acceptSelection(comment, newSelection);
+
+        console.warn(newEditorState.getSelection().toJS());
+
+        const newComment = RichUtils.toggleLink(newEditorState, newEditorState.getSelection(), null);
+
+        this.handleChangeComment(newComment, true);
+      }
+    );
+
+    // const { comment } = this.state;
+    // const selection = comment.getSelection();
+    // const contentState = comment.getCurrentContent();
+    // const block = contentState.getBlockForKey(selection.getStartKey());
+    // const entityAt = block.getEntityAt(selection.getStartOffset());
+    //
+    // if (selection.isCollapsed() && entityAt && contentState.getEntity(entityAt).getType() === BUTTONS_TYPE.LINK) {
+    //   console.warn({ entity: contentState.getEntity(entityAt), contentState, comment, SelectionState });
+    // }
+
+    event.preventDefault();
   };
 
   handleSaveLink = event => {
@@ -532,53 +575,6 @@ class Comments extends BaseWidget {
       isOpenLinkDialog: false
     });
   };
-
-  get selectedLink() {
-    const { comment } = this.state;
-    const selection = comment.getSelection();
-    const isCollapsed = selection.isCollapsed();
-    const contentState = comment.getCurrentContent();
-
-    if (isCollapsed) {
-      const block = contentState.getBlockForKey(selection.getStartKey());
-      const entityAt = block.getEntityAt(selection.getStartOffset());
-
-      if (entityAt !== null) {
-        return contentState.getEntity(entityAt).getData().url; // todo: check is exist data
-      }
-
-      return '';
-    }
-
-    const startKey = selection.getStartKey();
-    const startOffset = selection.getStartOffset();
-    const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
-    const linkKey = blockWithLinkAtBeginning.getEntityAt(startOffset);
-
-    if (!linkKey) {
-      return '';
-    }
-
-    return contentState.getEntity(linkKey).getData().url;
-  }
-
-  get selectedText() {
-    const { comment } = this.state;
-    const selection = comment.getSelection();
-    const isCollapsed = selection.isCollapsed();
-
-    const contentState = comment.getCurrentContent();
-    const startKey = selection.getStartKey();
-    const startOffset = selection.getStartOffset();
-    const endOffset = selection.getEndOffset();
-    const blockWithLinkAtBeginning = contentState.getBlockForKey(startKey);
-
-    if (isCollapsed) {
-      return '';
-    }
-
-    return blockWithLinkAtBeginning.getText().slice(startOffset, endOffset);
-  }
 
   handleKeyCommand = (command, editorState) => {
     const newComment = RichUtils.handleKeyCommand(editorState, command);
@@ -700,19 +696,21 @@ class Comments extends BaseWidget {
           className="ecos-comments__editor-link-editor-input"
           placeholder="Ссылка"
           value={linkUrl}
-          // defaultValue={this.selectedLink}
           onChange={this.handleChangeLinkUrl}
         />
         <Input
           className="ecos-comments__editor-link-editor-input"
           placeholder="Текст"
           value={linkText}
-          // defaultValue={this.selectedText}
           onChange={this.handleChangeLinkText}
         />
 
         <div className="ecos-comments__editor-link-editor-btns">
-          <Btn onClick={this.handleToggleLinkEditor}>Отмена</Btn>
+          {linkUrl && (
+            <Btn className="ecos-btn_red" onClick={this.handleRemoveLink}>
+              Удалить
+            </Btn>
+          )}
           <Btn className="ecos-btn_blue" onClick={this.handleSaveLink}>
             Сохранить
           </Btn>
