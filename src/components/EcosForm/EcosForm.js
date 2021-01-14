@@ -234,9 +234,9 @@ class EcosForm extends React.Component {
 
           events.forEach(o => {
             if (o.event !== 'submit') {
-              form.on(o.event, () => {
+              form.on(o.event, data => {
                 const fun = self.props[o.prop];
-                typeof fun === 'function' && fun.apply(form, arguments);
+                typeof fun === 'function' && fun.apply(form, [...arguments, data]);
               });
             } else {
               console.warn('Please use onSubmit handler instead of onFormSubmit');

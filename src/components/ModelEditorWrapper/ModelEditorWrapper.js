@@ -27,15 +27,15 @@ class ModelEditorWrapper extends React.Component {
   };
 
   state = {
-    propertiesOpen: false
+    rightSidebarOpen: true
   };
 
   togglePropertiesOpen = () => {
-    this.setState(({ propertiesOpen }) => ({ propertiesOpen: !propertiesOpen }));
+    this.setState(({ rightSidebarOpen }) => ({ rightSidebarOpen: !rightSidebarOpen }));
   };
 
   render() {
-    const { propertiesOpen } = this.state;
+    const { rightSidebarOpen } = this.state;
     const { rightSidebarTitle, editor, rightSidebar, title, onApply, onCreate } = this.props;
 
     return (
@@ -61,9 +61,9 @@ class ModelEditorWrapper extends React.Component {
             </div>
           )}
         </div>
-        <div className={classNames('ecos-model-editor__sidebar-right', { 'ecos-model-editor__sidebar-right_open': propertiesOpen })}>
+        <div className={classNames('ecos-model-editor__sidebar-right', { 'ecos-model-editor__sidebar-right_open': rightSidebarOpen })}>
           <div className="ecos-model-editor__sidebar-right-opener" onClick={this.togglePropertiesOpen}>
-            <Icon className={classNames({ 'icon-small-left': !propertiesOpen, 'icon-small-right': propertiesOpen })} />
+            <Icon className={classNames({ 'icon-small-left': !rightSidebarOpen, 'icon-small-right': rightSidebarOpen })} />
           </div>
           <div className="ecos-model-editor__sidebar-right-content">
             {rightSidebarTitle && (

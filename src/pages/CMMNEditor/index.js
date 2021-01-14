@@ -1,10 +1,9 @@
 import React from 'react';
 import queryString from 'query-string';
 import { connect } from 'react-redux';
-import get from 'lodash/get';
 import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 
-import { initData, saveScenario } from '../../actions/cmmnEditor';
+import { initData, saveScenario, setScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
 import { InfoText, Loader } from '../../components/common';
@@ -38,18 +37,11 @@ class CMMNEditorPage extends React.Component {
   };
 
   get formType() {
-    const { selectedElement } = this.state;
-    const type = CmmnUtils.getType(selectedElement);
-    const ecosType = CmmnUtils.getEcosType(selectedElement);
-    console.log(type);
-    console.log(ecosType);
-
-    return ecosType || type;
+    return CmmnUtils.getEcosType(this.state.selectedElement) || CmmnUtils.getType(this.state.selectedElement);
   }
 
   get formTitle() {
-    const { selectedElement } = this.state;
-    return this.formType ? ModelUtil.getName(selectedElement) : null;
+    return this.formType ? ModelUtil.getName(this.state.selectedElement) : null;
   }
 
   get formId() {
@@ -87,10 +79,18 @@ class CMMNEditorPage extends React.Component {
     if (element && selectedElement && element.id === selectedElement.id) {
       this.setState({ selectedElement: element });
     }
+
+    this.designer.saveXML({ callback: ({ xml }) => xml && this.props.setScenario(xml) });
   };
 
-  handleFormChange = qqq => {
-    console.log(qqq);
+  handleFormChange = (...args) => {
+    const { selectedElement } = this.state;
+    const formData = args.pop() || {};
+    const data = formData.data;
+
+    for (let key in data) {
+      this.designer.updateProp(selectedElement, key, data[key]);
+    }
   };
 
   render() {
@@ -98,7 +98,7 @@ class CMMNEditorPage extends React.Component {
     const { selectedElement } = this.state;
 
     this.setHeight();
-
+    console.log(selectedElement);
     return (
       <div className="ecos-cmmn-editor__page" ref={this.modelEditorRef}>
         {!isLoading && !savedScenario && <InfoText text={t('cmmn-editor.error.no-scenario')} />}
@@ -121,7 +121,7 @@ class CMMNEditorPage extends React.Component {
             <EcosForm
               formId={this.formId}
               record={this.urlQuery.recordRef}
-              options={{ ...get(selectedElement, 'businessObject', null) }}
+              options={{ ...ModelUtil.getBusinessObject(selectedElement) }}
               onFormChange={this.handleFormChange}
             />
           }
@@ -142,12 +142,11 @@ const mapStateToProps = (store, props) => {
   };
 };
 
-const mapDispatchToProps = (dispatch, props) => {
-  return {
-    initData: (stateId, record) => dispatch(initData({ stateId, record })),
-    saveScenario: (stateId, record, xml, img) => dispatch(saveScenario({ stateId, record, xml, img }))
-  };
-};
+const mapDispatchToProps = (dispatch, props) => ({
+  initData: (stateId, record) => dispatch(initData({ stateId, record })),
+  saveScenario: (stateId, record, xml, img) => dispatch(saveScenario({ stateId, record, xml, img })),
+  setScenario: (stateId, scenario) => dispatch(setScenario({ stateId, scenario }))
+});
 
 export default connect(
   mapStateToProps,

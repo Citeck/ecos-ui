@@ -19,7 +19,7 @@ import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-embedded.css';
  * @param {Boolean} isCustomContainer - shows whose container is. You can set using setCustomContainer
  */
 export default class CMMNDesigner {
-  #viewer = null;
+  #modeler = null;
   #events = null;
   #isCustomContainer = false;
 
@@ -30,10 +30,10 @@ export default class CMMNDesigner {
    * @param {Object} events - any events you want to use.
    */
   #init = async ({ diagram, container, events }) => {
-    this.#viewer = new Modeler({ additionalModules });
+    this.#modeler = new Modeler({ additionalModules });
 
     if (container) {
-      this.#viewer.attachTo(container);
+      this.#modeler.attachTo(container);
     }
 
     this.setDiagram(diagram);
@@ -45,8 +45,8 @@ export default class CMMNDesigner {
   }
 
   setDiagram = diagram => {
-    if (this.#viewer && diagram) {
-      this.#viewer.importXML(diagram, error => error && console.error('Error rendering', error));
+    if (this.#modeler && diagram) {
+      this.#modeler.importXML(diagram, error => error && console.error('Error rendering', error));
     } else {
       console.warn('No diagram');
     }
@@ -55,23 +55,37 @@ export default class CMMNDesigner {
   setEvents = events => {
     // unsubscribe for added events in this.destroy below
 
-    if (this.#viewer && events) {
+    if (this.#modeler && events) {
       this.#events = events;
 
       events.onSelectElement &&
-        this.#viewer.on('selection.changed', e => {
+        this.#modeler.on('selection.changed', e => {
           if (get(e, 'newSelection.length', 0) < 2) {
             events.onSelectElement(get(e, 'newSelection[0]'));
           }
         });
-      events.onChangeElement && this.#viewer.on('element.changed', e => events.onChangeElement(get(e, 'element')));
-      events.onClickElement && this.#viewer.on('element.click', e => events.onClickElement(get(e, 'element')));
+      events.onChangeElement && this.#modeler.on('element.changed', e => events.onChangeElement(get(e, 'element')));
+      events.onClickElement && this.#modeler.on('element.click', e => events.onClickElement(get(e, 'element')));
     }
+  };
+
+  updateProp = (element, prop, value) => {
+    const modeling = this.#modeler.get('modeling');
+    modeling.updateProperties(element, {
+      [prop]: value
+    });
+    // if (prop === 'name') {
+    //   modeling.updateLabel(element, value);
+    // } else {
+    //   modeling.updateProperties(element, {
+    //     ['custom:' + prop]: value
+    //   });
+    // }
   };
 
   setCustomContainer = container => {
     this.#isCustomContainer = true;
-    this.#viewer.attachTo(container);
+    this.#modeler.attachTo(container);
   };
 
   /**
@@ -79,12 +93,12 @@ export default class CMMNDesigner {
    * @param callback - use it to get xml or error
    */
   saveXML = ({ callback }) => {
-    if (!this.#viewer) {
+    if (!this.#modeler) {
       return;
     }
 
     try {
-      this.#viewer.saveXML({ format: true }, (error, xml) => {
+      this.#modeler.saveXML({ format: true }, (error, xml) => {
         if (error) {
           throw error;
         }
@@ -102,12 +116,12 @@ export default class CMMNDesigner {
    * @param callback - use it to get svg or error
    */
   saveSVG = ({ callback }) => {
-    if (!this.#viewer) {
+    if (!this.#modeler) {
       return;
     }
 
     try {
-      this.#viewer.saveSVG({ format: true }, (error, svg) => {
+      this.#modeler.saveSVG({ format: true }, (error, svg) => {
         if (error) {
           throw error;
         }
@@ -147,7 +161,7 @@ export default class CMMNDesigner {
 
   destroy = () => {
     if (this.#events) {
-      this.#events.onSelectElement && this.#viewer.off('selection.changed', this.#events.onSelectElement);
+      this.#events.onSelectElement && this.#modeler.off('selection.changed', this.#events.onSelectElement);
     }
   };
 }

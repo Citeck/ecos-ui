@@ -4,18 +4,11 @@ export const GROUP_CUSTOM = 'custom';
 
 function getType(element) {
   const definition = ModelUtil.getDefinition(element);
-  console.log(definition);
-  const businessObject = ModelUtil.getBusinessObject(element);
-  console.log(businessObject);
-  console.log(businessObject.get('type'));
-  console.log(definition.get('type'));
-
   return definition && definition.$type;
 }
 
 function getEcosType(element) {
   const definition = ModelUtil.getDefinition(element);
-
   return definition && definition.get ? definition.get('ecos:cmmnType') : '';
 }
 
