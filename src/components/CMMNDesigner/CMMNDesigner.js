@@ -69,18 +69,18 @@ export default class CMMNDesigner {
     }
   };
 
-  updateProp = (element, prop, value) => {
-    const modeling = this.#modeler.get('modeling');
-    modeling.updateProperties(element, {
-      [prop]: value
-    });
-    // if (prop === 'name') {
-    //   modeling.updateLabel(element, value);
-    // } else {
-    //   modeling.updateProperties(element, {
-    //     ['custom:' + prop]: value
-    //   });
-    // }
+  updateProps = (element, properties) => {
+    const { name, ...data } = properties;
+
+    if (name) {
+      const labelEditingProvider = this.#modeler.get('labelEditingProvider');
+      labelEditingProvider.update(element, name);
+    }
+
+    if (data) {
+      const modeling = this.#modeler.get('modeling');
+      modeling.updateProperties(element, data);
+    }
   };
 
   setCustomContainer = container => {

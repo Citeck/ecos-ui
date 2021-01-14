@@ -17,7 +17,8 @@ const getStateId = () => 'cmmn-' + queryString.parseUrl(window.location.href).qu
 
 class CMMNEditorPage extends React.Component {
   state = {
-    selectedElement: undefined
+    selectedElement: undefined,
+    formFields: []
   };
   designer = new CMMNDesigner();
   urlQuery = queryString.parseUrl(window.location.href).query;
@@ -46,6 +47,27 @@ class CMMNEditorPage extends React.Component {
 
   get formId() {
     return this.formType ? `${SourcesId.EFORM}@proc-activity-${this.formType}` : null;
+  }
+
+  get formAttributes() {
+    const { selectedElement, formFields } = this.state;
+
+    if (!selectedElement) {
+      return {};
+    }
+
+    const _cmmnData_ = {};
+    const businessObject = ModelUtil.getBusinessObject(selectedElement);
+    console.log(businessObject);
+    formFields.forEach(key => {
+      if (key === 'name') {
+        _cmmnData_.name = ModelUtil.getName(selectedElement);
+      } else {
+        _cmmnData_[key] = businessObject.get(key);
+      }
+    });
+    console.log(_cmmnData_);
+    return { _cmmnData_ };
   }
 
   handleSave = () => {
@@ -80,25 +102,30 @@ class CMMNEditorPage extends React.Component {
       this.setState({ selectedElement: element });
     }
 
-    this.designer.saveXML({ callback: ({ xml }) => xml && this.props.setScenario(xml) });
+    this.designer.saveXML({ callback: ({ xml }) => xml && this.props.setScenario(getStateId(), xml) });
   };
 
   handleFormChange = (...args) => {
     const { selectedElement } = this.state;
     const formData = args.pop() || {};
-    const data = formData.data;
+    const { _cmmnData_, ...data } = formData.data;
 
-    for (let key in data) {
-      this.designer.updateProp(selectedElement, key, data[key]);
+    if (formData.changed) {
+      this.designer.updateProps(selectedElement, data);
     }
+  };
+
+  handleFormReady = (form = {}) => {
+    //todo check here
+    const { _cmmnData_, ...data } = form.data || {};
+    this.setState({ formFields: Object.keys(data) });
   };
 
   render() {
     const { savedScenario, title, isLoading } = this.props;
-    const { selectedElement } = this.state;
 
     this.setHeight();
-    console.log(selectedElement);
+
     return (
       <div className="ecos-cmmn-editor__page" ref={this.modelEditorRef}>
         {!isLoading && !savedScenario && <InfoText text={t('cmmn-editor.error.no-scenario')} />}
@@ -121,8 +148,9 @@ class CMMNEditorPage extends React.Component {
             <EcosForm
               formId={this.formId}
               record={this.urlQuery.recordRef}
-              options={{ ...ModelUtil.getBusinessObject(selectedElement) }}
+              attributes={this.formAttributes}
               onFormChange={this.handleFormChange}
+              onReady={this.handleFormReady}
             />
           }
         />
