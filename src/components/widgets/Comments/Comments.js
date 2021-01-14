@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import {
   ContentState,
-  SelectionState,
   convertFromRaw,
   convertToRaw,
   Editor,
@@ -27,50 +26,17 @@ import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
-import { Avatar, Loader, Popper, Icon } from '../../common/index';
-import { Input } from '../../common/form';
+import { Avatar, Loader, Popper } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
-import ClickOutside from '../../ClickOutside';
+import LinkEditor from './Editor/LinkEditor';
+import { BUTTONS_TYPE, KEY_COMMANDS } from './Editor/helpers';
+import linkDecorator from './Editor/LinkDecorator';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
 
 const BASE_HEIGHT = 21;
-const BUTTONS_TYPE = {
-  BOLD: 'BOLD',
-  ITALIC: 'ITALIC',
-  UNDERLINE: 'UNDERLINE',
-  LIST: 'unordered-list-item',
-  LINK: 'LINK'
-};
-const KEY_COMMANDS = {
-  SEND: 'comment-send'
-};
-const Labels = {
-  BTN_DELETE: 'Удалить',
-  BTN_SAVE: 'Сохранить',
-  LINK: 'Ссылка',
-  TEXT: 'Текст для отображения'
-};
-
-function findLinkEntities(contentBlock, callback, contentState) {
-  return contentBlock.findEntityRanges(character => {
-    const entityKey = character.getEntity();
-
-    return entityKey !== null && contentState.getEntity(entityKey).getType() === BUTTONS_TYPE.LINK;
-  }, callback);
-}
-
-const Link = props => {
-  const { url, title } = props.contentState.getEntity(props.entityKey).getData();
-
-  return (
-    <a href={url} style={{ color: '#3b5998', textDecoration: 'underline' }} title={title}>
-      {props.children}
-    </a>
-  );
-};
 
 class Comments extends BaseWidget {
   static propTypes = {
@@ -141,10 +107,7 @@ class Comments extends BaseWidget {
     this.contentRef = React.createRef();
     this._scroll = React.createRef();
 
-    this.#decorators.push({
-      strategy: findLinkEntities,
-      component: Link
-    });
+    this.#decorators.push(linkDecorator);
 
     this.state = {
       ...this.state,
@@ -288,26 +251,6 @@ class Comments extends BaseWidget {
       .getCurrentContent()
       .getBlockForKey(selection.getStartKey())
       .getType();
-  }
-
-  get isContainsLink() {
-    const { comment } = this.state;
-    const isLink = RichUtils.currentBlockContainsLink(comment);
-
-    if (isLink) {
-      return true;
-    }
-
-    const selection = comment.getSelection();
-    const contentState = comment.getCurrentContent();
-    const block = contentState.getBlockForKey(selection.getStartKey());
-    const entityAt = block.getEntityAt(selection.getStartOffset());
-
-    if (entityAt !== null) {
-      return contentState.getEntity(entityAt).getType() === BUTTONS_TYPE.LINK;
-    }
-
-    return false;
   }
 
   get scrollbarHeight() {
@@ -469,132 +412,6 @@ class Comments extends BaseWidget {
     this.handleChangeComment(newComment, true);
   }
 
-  handleToggleLinkEditor = () => {
-    const { isOpenLinkDialog } = this.state;
-    const newState = { isOpenLinkDialog: !isOpenLinkDialog };
-
-    if (isOpenLinkDialog) {
-      this.setState({ ...newState });
-      return;
-    }
-
-    const { comment } = this.state;
-    const selection = comment.getSelection();
-    const isCollapsed = selection.isCollapsed();
-    const contentState = comment.getCurrentContent();
-    const block = contentState.getBlockForKey(selection.getStartKey());
-    const entityAt = block.getEntityAt(selection.getStartOffset());
-    const isLink = entityAt ? contentState.getEntity(entityAt).getType() === BUTTONS_TYPE.LINK : false;
-    let url = '';
-
-    if (isLink) {
-      ({ url } = contentState.getEntity(entityAt).getData());
-    }
-
-    if (isCollapsed) {
-      newState.comment = this.getNewCommentStateWithAllBlockSelected();
-      newState.linkText = isLink ? this.getSelectionText(newState.comment.getSelection()) : '';
-    } else {
-      newState.linkText = this.getSelectionText(selection);
-    }
-
-    newState.linkUrl = url;
-
-    this.setState({ ...newState });
-  };
-
-  getSelectionText = defaultSelection => {
-    const { comment } = this.state;
-    const selection = defaultSelection || comment.getSelection();
-    const startKey = selection.getStartKey();
-    const startOffset = selection.getStartOffset();
-    const endOffset = selection.getEndOffset();
-    const contentState = comment.getCurrentContent();
-    const block = contentState.getBlockForKey(startKey);
-
-    return block
-      .getText()
-      .slice(startOffset, endOffset)
-      .trim();
-  };
-
-  getNewCommentStateWithAllBlockSelected = () => {
-    const { comment } = this.state;
-    const selection = comment.getSelection();
-    const startKey = selection.getStartKey();
-    const startOffset = selection.getStartOffset();
-    const contentState = comment.getCurrentContent();
-    const block = contentState.getBlockForKey(startKey);
-    const linkKey = block.getEntityAt(startOffset);
-    let start = 0;
-    let end = 0;
-
-    block.findEntityRanges(
-      item => item.getEntity() === linkKey,
-      (startOffset, endOffset) => {
-        start = startOffset;
-        end = endOffset;
-      }
-    );
-
-    if (start === end) {
-      return comment;
-    }
-
-    const newSelection = SelectionState.createEmpty(startKey)
-      .set('anchorOffset', start)
-      .set('focusOffset', end);
-
-    return EditorState.acceptSelection(comment, newSelection);
-  };
-
-  handleRemoveLink = event => {
-    const newEditorState = this.getNewCommentStateWithAllBlockSelected();
-    const newComment = RichUtils.toggleLink(newEditorState, newEditorState.getSelection(), null);
-
-    this.handleChangeComment(newComment, true);
-    event.preventDefault();
-
-    this.setState({
-      linkText: '',
-      linkUrl: '',
-      isOpenLinkDialog: false
-    });
-  };
-
-  handleSaveLink = event => {
-    const { comment, linkText, linkUrl } = this.state;
-
-    if (!linkText || !linkUrl) {
-      return;
-    }
-
-    const originSelectionState = comment.getSelection();
-    const selectionState = SelectionState.createEmpty(originSelectionState.getAnchorKey())
-      .set('anchorOffset', originSelectionState.getAnchorOffset())
-      .set('focusOffset', originSelectionState.getAnchorOffset() + linkText.length);
-    let contentState = comment.getCurrentContent();
-
-    contentState = Modifier.replaceText(contentState, comment.getSelection(), linkText);
-
-    const contentStateWithEntity = contentState.createEntity(BUTTONS_TYPE.LINK, 'MUTABLE', { url: linkUrl, title: linkText });
-    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-    let newEditorState = EditorState.set(comment, { currentContent: contentStateWithEntity });
-
-    newEditorState = EditorState.acceptSelection(newEditorState, selectionState);
-
-    const newComment = RichUtils.toggleLink(newEditorState, newEditorState.getSelection(), entityKey);
-
-    event.preventDefault();
-    this.handleChangeComment(newComment, true);
-
-    this.setState({
-      linkText: '',
-      linkUrl: '',
-      isOpenLinkDialog: false
-    });
-  };
-
   handleKeyCommand = (command, editorState) => {
     const newComment = RichUtils.handleKeyCommand(editorState, command);
 
@@ -694,62 +511,6 @@ class Comments extends BaseWidget {
     this.handleReloadData();
   }
 
-  handleChangeLinkUrl = event => {
-    this.setState({ linkUrl: event.target.value });
-  };
-
-  handleChangeLinkText = event => {
-    this.setState({ linkText: event.target.value });
-  };
-
-  renderLinkEditor() {
-    const { isOpenLinkDialog, linkUrl, linkText } = this.state;
-
-    if (!isOpenLinkDialog) {
-      return null;
-    }
-
-    return (
-      <ClickOutside className="ecos-comments__editor-link-editor" handleClickOutside={this.handleToggleLinkEditor}>
-        <div className="ecos-comments__editor-link-editor-input-container">
-          <Icon className="icon-link ecos-comments__editor-link-editor-input-icon" title={t(Labels.LINK)} />
-          <Input
-            className="ecos-comments__editor-link-editor-input"
-            placeholder={t(Labels.LINK)}
-            value={linkUrl}
-            onChange={this.handleChangeLinkUrl}
-          />
-        </div>
-
-        <div className="ecos-comments__editor-link-editor-input-container">
-          <Icon className="icon-edit ecos-comments__editor-link-editor-input-icon" title={t(Labels.TEXT)} />
-          <Input
-            className="ecos-comments__editor-link-editor-input"
-            placeholder={t(Labels.TEXT)}
-            value={linkText}
-            onChange={this.handleChangeLinkText}
-          />
-        </div>
-
-        <div className="ecos-comments__editor-link-editor-btns">
-          {this.getSelectionText() && (
-            <Btn className="ecos-btn_red" onClick={this.handleRemoveLink}>
-              {t(Labels.BTN_DELETE)}
-            </Btn>
-          )}
-          <Btn
-            className={classNames('ecos-btn_blue ecos-comments__editor-link-editor-btns-save', {
-              'ecos-comments__editor-link-editor-btns-save_disabled': !linkText || !linkUrl
-            })}
-            onClick={this.handleSaveLink}
-          >
-            {t(Labels.BTN_SAVE)}
-          </Btn>
-        </div>
-      </ClickOutside>
-    );
-  }
-
   renderHeader() {
     const { isEdit } = this.state;
 
@@ -783,21 +544,6 @@ class Comments extends BaseWidget {
     }
 
     return <div className="ecos-comments__editor-footer-error">{errorMessage}</div>;
-  }
-
-  renderLinkButton() {
-    return (
-      <div className="ecos-comments__editor-link-editor-container">
-        <IcoBtn
-          onMouseDown={this.handleToggleLinkEditor}
-          className={classNames('icon-link', 'ecos-comments__editor-button', 'ecos-comments__editor-button_link', {
-            'ecos-comments__editor-button_active': this.isContainsLink
-          })}
-        />
-
-        {this.renderLinkEditor()}
-      </div>
-    );
   }
 
   renderEditor() {
@@ -844,7 +590,7 @@ class Comments extends BaseWidget {
             })}
           />
 
-          {this.renderLinkButton()}
+          <LinkEditor editorState={comment} onChangeState={this.handleChangeComment} />
         </div>
         <div className="ecos-comments__editor-body" onClick={this.handleFocusEditor}>
           <Scrollbars style={{ height: '100%', minHeight }}>

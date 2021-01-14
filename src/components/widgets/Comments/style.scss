@@ -281,6 +281,12 @@
     width: 100%;
     min-width: 250px;
 
+    &-decorator {
+      &-link {
+        border-bottom: 1px $color-blue-dark dashed;
+      }
+    }
+
     &-header {
       background: $color-gray-6;
       padding: 10px 15px 10px 5px;
@@ -368,16 +374,15 @@
       border-radius: $border-radius-standard;
       box-shadow: $box-shadow-default;
       min-width: 250px;
-      left: calc(- (250px / 2) + 50%);
+      left: calc((-250px / 2) + 50%);
       top: calc(100% + 10px);
 
       &-input {
-        margin-bottom: 5px;
-
         &-container {
           display: grid;
-          grid-template-columns: auto auto;
+          grid-template-columns: 1fr auto;
           align-items: center;
+          margin-bottom: 5px;
         }
 
         &-icon {
