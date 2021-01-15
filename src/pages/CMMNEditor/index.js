@@ -29,6 +29,10 @@ class CMMNEditorPage extends React.Component {
     this.props.initData(getStateId(), this.recordRef);
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    this.setHeight();
+  }
+
   setHeight = () => {
     const elEditor = this.modelEditorRef.current && this.modelEditorRef.current.querySelector('.ecos-cmmn-container');
 
@@ -138,8 +142,6 @@ class CMMNEditorPage extends React.Component {
 
   render() {
     const { savedScenario, title, isLoading } = this.props;
-
-    this.setHeight();
 
     return (
       <div className="ecos-cmmn-editor__page" ref={this.modelEditorRef}>
