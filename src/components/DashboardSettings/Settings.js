@@ -514,7 +514,7 @@ class Settings extends Component {
 
   renderLayoutsBlock() {
     const {
-      identification: { type }
+      identification: { type, key }
     } = this.props;
     const setData = layout => {
       const { activeLayoutTabId, selectedWidgets, selectedLayout } = deepClone(this.state);
@@ -524,8 +524,16 @@ class Settings extends Component {
 
       this.setState({ selectedWidgets, selectedLayout });
     };
+    const typeByRecord = key && key.includes('workspace://SpacesStore/') ? key : null;
 
-    return <SetLayouts dashboardType={type} activeLayout={this.activeData.layout} setData={setData} isMobile={this.isSelectedMobileVer} />;
+    return (
+      <SetLayouts
+        dashboardType={type || typeByRecord}
+        activeLayout={this.activeData.layout}
+        setData={setData}
+        isMobile={this.isSelectedMobileVer}
+      />
+    );
   }
 
   handleRemoveMobileWidgets = (widgets = this.state.removedWidgets) => {
