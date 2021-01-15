@@ -58,6 +58,74 @@ export const getSelectionText = editorState => {
     .trim();
 };
 
+export const getSelectedBlocks = (contentState, startKey, endKey) => {
+  if (!contentState) {
+    console.warn('contentState is empty!');
+    return null;
+  }
+
+  const isSameBlock = startKey === endKey;
+  const startingBlock = contentState.getBlockForKey(startKey);
+  const selectedBlocks = [startingBlock];
+
+  if (!isSameBlock) {
+    let blockKey = startKey;
+
+    while (blockKey !== endKey) {
+      const nextBlock = contentState.getBlockAfter(blockKey);
+      selectedBlocks.push(nextBlock);
+      blockKey = nextBlock.getKey();
+    }
+  }
+
+  return selectedBlocks;
+};
+
+export const modifierSelectedBlocks = (editorState, modifier, ...args) => {
+  if (!editorState) {
+    console.warn('editorState is empty!');
+    return null;
+  }
+
+  const contentState = editorState.getCurrentContent();
+  const currentSelection = editorState.getSelection();
+
+  const startKey = currentSelection.getStartKey();
+  const endKey = currentSelection.getEndKey();
+  const startOffset = currentSelection.getStartOffset();
+  const endOffset = currentSelection.getEndOffset();
+
+  const isSameBlock = startKey === endKey;
+  const selectedBlocks = getSelectedBlocks(contentState, startKey, endKey);
+
+  let finalEditorState = editorState;
+
+  selectedBlocks.forEach(block => {
+    const currentBlockKey = block.getKey();
+    let selectionStart;
+    let selectionEnd;
+
+    if (currentBlockKey === startKey) {
+      selectionStart = startOffset;
+      selectionEnd = isSameBlock ? endOffset : block.getText().length;
+    } else if (currentBlockKey === endKey) {
+      selectionStart = isSameBlock ? startOffset : 0;
+      selectionEnd = endOffset;
+    } else {
+      selectionStart = 0;
+      selectionEnd = block.getText().length;
+    }
+
+    const selection = SelectionState.createEmpty(currentBlockKey)
+      .set('anchorOffset', selectionStart)
+      .set('focusOffset', selectionEnd);
+
+    finalEditorState = modifier(finalEditorState, selection, ...args);
+  });
+
+  return EditorState.forceSelection(finalEditorState, currentSelection);
+};
+
 export const BUTTONS_TYPE = {
   BOLD: 'BOLD',
   ITALIC: 'ITALIC',

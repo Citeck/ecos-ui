@@ -38,6 +38,19 @@ import './style.scss';
 
 const BASE_HEIGHT = 21;
 
+window.draft = {
+  ContentState,
+  convertFromRaw,
+  convertToRaw,
+  Editor,
+  EditorState,
+  getDefaultKeyBinding,
+  Modifier,
+  RichUtils,
+  convertFromHTML,
+  CompositeDecorator
+};
+
 class Comments extends BaseWidget {
   static propTypes = {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

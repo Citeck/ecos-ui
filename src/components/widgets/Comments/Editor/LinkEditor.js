@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { EditorState, Modifier, RichUtils, SelectionState } from 'draft-js';
+import { RichUtils } from 'draft-js';
 
 import { Btn, IcoBtn } from '../../../common/btns';
 import ClickOutside from '../../../ClickOutside';
 import { Icon } from '../../../common';
 import { t } from '../../../../helpers/export/util';
 import { Input } from '../../../common/form';
-import { getNewEditorStateWithAllBlockSelected, getSelectionText, BUTTONS_TYPE } from './helpers';
+import { getNewEditorStateWithAllBlockSelected, getSelectionText, modifierSelectedBlocks, BUTTONS_TYPE } from './helpers';
 
 const Labels = {
   BTN_DELETE: 'comments-widget.editor.link.delete',
@@ -95,11 +95,13 @@ class LinkEditor extends Component {
     this.setState({ ...newState });
   };
 
+  modifyLink = (state, selection, entityKey) => {
+    return RichUtils.toggleLink(state, selection, entityKey);
+  };
+
   handleRemoveLink = event => {
     const { editorState, onChangeState } = this.props;
-    let newEditorState = getNewEditorStateWithAllBlockSelected(editorState);
-
-    newEditorState = RichUtils.toggleLink(newEditorState, newEditorState.getSelection(), null);
+    const newEditorState = modifierSelectedBlocks(editorState, this.modifyLink, null);
 
     onChangeState(newEditorState, true);
     event.preventDefault();
@@ -127,21 +129,12 @@ class LinkEditor extends Component {
     }
 
     const { editorState, onChangeState } = this.props;
-
-    const originSelectionState = editorState.getSelection();
-    const selectionState = SelectionState.createEmpty(originSelectionState.getAnchorKey())
-      .set('anchorOffset', originSelectionState.getAnchorOffset())
-      .set('focusOffset', originSelectionState.getAnchorOffset() + linkText.length);
     let contentState = editorState.getCurrentContent();
 
-    contentState = Modifier.replaceText(contentState, editorState.getSelection(), linkText);
+    contentState = contentState.createEntity(BUTTONS_TYPE.LINK, 'MUTABLE', { url: linkUrl, title: linkUrl });
 
-    const contentStateWithEntity = contentState.createEntity(BUTTONS_TYPE.LINK, 'MUTABLE', { url: linkUrl, title: linkText });
-    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-    let newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
-
-    newEditorState = EditorState.acceptSelection(newEditorState, selectionState);
-    newEditorState = RichUtils.toggleLink(newEditorState, newEditorState.getSelection(), entityKey);
+    const entityKey = contentState.getLastCreatedEntityKey();
+    const newEditorState = modifierSelectedBlocks(editorState, this.modifyLink, entityKey);
 
     event.preventDefault();
     onChangeState(newEditorState, true);

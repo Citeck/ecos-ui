@@ -11,10 +11,10 @@ function findLinkEntities(contentBlock, callback, contentState) {
 }
 
 const Link = props => {
-  const { url, title } = props.contentState.getEntity(props.entityKey).getData();
+  const { title } = props.contentState.getEntity(props.entityKey).getData();
 
   return (
-    <a href={url} className="ecos-comments__editor-decorator-link" title={title}>
+    <a href="" className="ecos-comments__editor-decorator-link" title={title}>
       {props.children}
     </a>
   );
