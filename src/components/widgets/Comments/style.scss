@@ -291,7 +291,13 @@
 
     &-decorator {
       &-link {
+        color: $color-blue-dark;
         border-bottom: 1px $color-blue-dark solid;
+
+        &:hover {
+          color: darken($color-blue-dark, 20%);
+          border-color: unset;
+        }
       }
     }
 

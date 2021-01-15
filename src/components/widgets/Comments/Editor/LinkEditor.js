@@ -1,20 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { RichUtils, Modifier, SelectionState, EditorState } from 'draft-js';
+import { RichUtils, Modifier, SelectionState, EditorState, ContentState } from 'draft-js';
 
 import { Btn, IcoBtn } from '../../../common/btns';
 import ClickOutside from '../../../ClickOutside';
 import { Icon } from '../../../common';
 import { t } from '../../../../helpers/export/util';
 import { Input } from '../../../common/form';
-import {
-  getNewEditorStateWithAllBlockSelected,
-  getSelectionText,
-  modifierSelectedBlocks,
-  getSelectedBlocks,
-  BUTTONS_TYPE
-} from './helpers';
+import { getSelectionText, modifierSelectedBlocks, getSelectedBlocks, BUTTONS_TYPE } from '../../../../helpers/draft';
 
 const Labels = {
   BTN_DELETE: 'comments-widget.editor.link.delete',
@@ -77,15 +71,22 @@ class LinkEditor extends Component {
   }
 
   handleToggleLinkEditor = () => {
+    const { editorState, onChangeState } = this.props;
+
     const { isOpenLinkDialog } = this.state;
     const newState = { isOpenLinkDialog: !isOpenLinkDialog };
 
     if (isOpenLinkDialog) {
+      const newEditorState = EditorState.moveFocusToEnd(editorState);
+
+      if (typeof onChangeState === 'function') {
+        onChangeState(newEditorState, true);
+      }
+
       this.setState({ ...newState });
       return;
     }
 
-    const { editorState, onChangeState } = this.props;
     const selection = editorState.getSelection();
     const isCollapsed = selection.isCollapsed();
     const contentState = editorState.getCurrentContent();
@@ -99,7 +100,7 @@ class LinkEditor extends Component {
     }
 
     if (isCollapsed) {
-      const newEditorState = getNewEditorStateWithAllBlockSelected(editorState);
+      const newEditorState = editorState;
 
       newState.linkText = isLink ? getSelectionText(newEditorState) : '';
       onChangeState(newEditorState);
@@ -151,7 +152,7 @@ class LinkEditor extends Component {
     contentState = contentState.createEntity(BUTTONS_TYPE.LINK, 'MUTABLE', { url: linkUrl, title: linkUrl });
 
     const entityKey = contentState.getLastCreatedEntityKey();
-    let newEditorState; // = modifierSelectedBlocks(editorState, this.modifyLink, entityKey);
+    let newEditorState;
 
     if (this.selectedBlocks === 1) {
       const originSelectionState = editorState.getSelection();

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { BUTTONS_TYPE } from './helpers';
+import { BUTTONS_TYPE } from '../../../../helpers/draft';
 
 function findLinkEntities(contentBlock, callback, contentState) {
   return contentBlock.findEntityRanges(character => {
@@ -14,9 +14,9 @@ const Link = props => {
   const { title } = props.contentState.getEntity(props.entityKey).getData();
 
   return (
-    <a href="" className="ecos-comments__editor-decorator-link" title={title}>
+    <span className="ecos-comments__editor-decorator-link" title={title}>
       {props.children}
-    </a>
+    </span>
   );
 };
 

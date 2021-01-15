@@ -22,6 +22,7 @@ import ReactResizeDetector from 'react-resize-detector';
 
 import BaseWidget from '../BaseWidget';
 import { deepClone, num2str, t } from '../../../helpers/util';
+import { BUTTONS_TYPE, KEY_COMMANDS } from '../../../helpers/draft';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
@@ -30,26 +31,12 @@ import { Avatar, Loader, Popper } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
 import LinkEditor from './Editor/LinkEditor';
-import { BUTTONS_TYPE, KEY_COMMANDS } from './Editor/helpers';
 import linkDecorator from './Editor/LinkDecorator';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
 
 const BASE_HEIGHT = 21;
-
-window.draft = {
-  ContentState,
-  convertFromRaw,
-  convertToRaw,
-  Editor,
-  EditorState,
-  getDefaultKeyBinding,
-  Modifier,
-  RichUtils,
-  convertFromHTML,
-  CompositeDecorator
-};
 
 class Comments extends BaseWidget {
   static propTypes = {
