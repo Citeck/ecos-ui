@@ -1,7 +1,7 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 
-import { getScenario, getTitle, initData, saveScenario, setScenario, setTitle } from '../actions/cmmnEditor';
+import { getScenario, getTitle, initData, saveRecordData, saveScenario, setScenario, setTitle } from '../actions/cmmnEditor';
 import { t } from '../helpers/export/util';
 import { CmmnUtils } from '../components/CMMNDesigner/index';
 
@@ -41,6 +41,15 @@ function* runSaveScenario({ api, logger }, { payload: { stateId, record, xml, im
   }
 }
 
+function* runSaveRecord({ api, logger }, { payload: { record, data } }) {
+  try {
+    yield call(api.cmmn.saveRecordData, record, data);
+  } catch (e) {
+    NotificationManager.error(t('cmmn-editor.error.can-not-save-record-data'), t('error'));
+    logger.error('[cmmnEditor/runSaveRecord saga] error', e.message);
+  }
+}
+
 function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
   try {
     const title = yield call(api.page.getRecordTitle, record);
@@ -57,6 +66,7 @@ function* cmmnEditorSaga(ea) {
   yield takeEvery(getScenario().type, fetchScenario, ea);
   yield takeEvery(saveScenario().type, runSaveScenario, ea);
   yield takeEvery(getTitle().type, fetchTitle, ea);
+  yield takeEvery(saveRecordData().type, runSaveRecord, ea);
 }
 
 export default cmmnEditorSaga;

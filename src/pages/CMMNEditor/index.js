@@ -3,7 +3,7 @@ import queryString from 'query-string';
 import { connect } from 'react-redux';
 import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 
-import { initData, saveScenario, setScenario } from '../../actions/cmmnEditor';
+import { initData, saveRecordData, saveScenario, setScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
 import { InfoText, Loader } from '../../components/common';
@@ -18,14 +18,15 @@ const getStateId = () => 'cmmn-' + queryString.parseUrl(window.location.href).qu
 class CMMNEditorPage extends React.Component {
   state = {
     selectedElement: undefined,
-    formFields: []
+    formFields: [],
+    recordData: null
   };
   designer = new CMMNDesigner();
   urlQuery = queryString.parseUrl(window.location.href).query;
   modelEditorRef = React.createRef();
 
   componentDidMount() {
-    this.props.initData(getStateId(), this.urlQuery.recordRef);
+    this.props.initData(getStateId(), this.recordRef);
   }
 
   setHeight = () => {
@@ -33,7 +34,7 @@ class CMMNEditorPage extends React.Component {
 
     if (elEditor) {
       const indentation = elEditor.getBoundingClientRect().top;
-      elEditor.setAttribute('style', `height: calc(100vh - ${indentation}px)`);
+      elEditor.setAttribute('style', `height: calc(100vh - 20px - ${indentation}px)`);
     }
   };
 
@@ -49,7 +50,11 @@ class CMMNEditorPage extends React.Component {
     return this.formType ? `${SourcesId.EFORM}@proc-activity-${this.formType}` : null;
   }
 
-  get formAttributes() {
+  get recordRef() {
+    return this.urlQuery.recordRef;
+  }
+
+  get formOptions() {
     const { selectedElement, formFields } = this.state;
 
     if (!selectedElement) {
@@ -58,7 +63,7 @@ class CMMNEditorPage extends React.Component {
 
     const _cmmnData_ = {};
     const businessObject = ModelUtil.getBusinessObject(selectedElement);
-    console.log(businessObject);
+
     formFields.forEach(key => {
       if (key === 'name') {
         _cmmnData_.name = ModelUtil.getName(selectedElement);
@@ -66,11 +71,15 @@ class CMMNEditorPage extends React.Component {
         _cmmnData_[key] = businessObject.get(key);
       }
     });
-    console.log(_cmmnData_);
+
     return { _cmmnData_ };
   }
 
   handleSave = () => {
+    if (!this.formId && this.state.recordData) {
+      this.props.saveRecord(getStateId(), this.recordRef, this.state.recordData);
+    }
+
     if (!this.designer) {
       return;
     }
@@ -85,10 +94,10 @@ class CMMNEditorPage extends React.Component {
     Promise.all([promiseXml, promiseImg])
       .then(([xml, img]) => {
         if (xml && img) {
-          this.props.saveScenario(getStateId(), this.urlQuery.recordRef, xml, img);
+          this.props.saveScenario(getStateId(), this.recordRef, xml, img);
         } else throw new Error();
       })
-      .catch(() => this.props.saveScenario(getStateId(), this.urlQuery.recordRef));
+      .catch(() => this.props.saveScenario(getStateId(), this.recordRef));
   };
 
   handleSelectItem = selectedElement => {
@@ -106,19 +115,25 @@ class CMMNEditorPage extends React.Component {
   };
 
   handleFormChange = (...args) => {
-    const { selectedElement } = this.state;
     const formData = args.pop() || {};
-    const { _cmmnData_, ...data } = formData.data;
 
-    if (formData.changed) {
-      this.designer.updateProps(selectedElement, data);
+    if (this.formId) {
+      const { selectedElement } = this.state;
+      const { _cmmnData_, ...data } = formData.data;
+
+      if (formData.changed) {
+        this.designer.updateProps(selectedElement, data);
+      }
+    } else {
+      this.setState(state => ({ recordData: { ...state.recordData, ...formData.data } }));
     }
   };
 
   handleFormReady = (form = {}) => {
-    //todo check here
-    const { _cmmnData_, ...data } = form.data || {};
-    this.setState({ formFields: Object.keys(data) });
+    if (this.formId) {
+      const { _cmmnData_, ...data } = form.data || {};
+      this.setState({ formFields: Object.keys(data) });
+    }
   };
 
   render() {
@@ -129,7 +144,7 @@ class CMMNEditorPage extends React.Component {
     return (
       <div className="ecos-cmmn-editor__page" ref={this.modelEditorRef}>
         {!isLoading && !savedScenario && <InfoText text={t('cmmn-editor.error.no-scenario')} />}
-        {isLoading && <Loader height={100} width={100} />}
+        {isLoading && <Loader blur height={100} width={100} />}
         <ModelEditorWrapper
           title={title}
           onApply={this.handleSave}
@@ -147,8 +162,8 @@ class CMMNEditorPage extends React.Component {
           rightSidebar={
             <EcosForm
               formId={this.formId}
-              record={this.urlQuery.recordRef}
-              attributes={this.formAttributes}
+              record={this.recordRef}
+              options={this.formOptions}
               onFormChange={this.handleFormChange}
               onReady={this.handleFormReady}
             />
@@ -172,6 +187,7 @@ const mapStateToProps = (store, props) => {
 
 const mapDispatchToProps = (dispatch, props) => ({
   initData: (stateId, record) => dispatch(initData({ stateId, record })),
+  saveRecord: (stateId, record, data) => dispatch(saveRecordData({ stateId, record, data })),
   saveScenario: (stateId, record, xml, img) => dispatch(saveScenario({ stateId, record, xml, img })),
   setScenario: (stateId, scenario) => dispatch(setScenario({ stateId, scenario }))
 });

@@ -1275,6 +1275,7 @@
 
   "cmmn-editor.error.no-scenario": "Scenario's not set",
   "cmmn-editor.error.can-not-save-scenario": "Scenario could not be saved",
+  "cmmn-editor.error.can-not-save-record-data": "Record data has not saved",
   "cmmn-editor.error.no-selected-element": "You should select some element to edit it",
 
   "go-to.home-page": "Go to home page"

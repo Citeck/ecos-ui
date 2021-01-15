@@ -13,4 +13,14 @@ export default class CmmnApi {
 
     return rec.save();
   };
+
+  saveRecordData = (record, data) => {
+    const rec = Records.get(record);
+
+    Object.keys(data).forEach(key => {
+      rec.att(key, data[key]);
+    });
+
+    return rec.save();
+  };
 }
