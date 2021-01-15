@@ -49,4 +49,6 @@ export function replacePlaceholders(object, values) {
     }
     return newValue;
   }
+
+  return object;
 }
