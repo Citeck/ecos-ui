@@ -58,10 +58,21 @@ export const getSelectionText = editorState => {
     .trim();
 };
 
-export const getSelectedBlocks = (contentState, startKey, endKey) => {
-  if (!contentState) {
-    console.warn('contentState is empty!');
+export const getSelectedBlocks = (editorState, startKey, endKey) => {
+  if (!editorState) {
+    console.warn('editorState is empty!');
     return null;
+  }
+
+  const currentSelection = editorState.getSelection();
+  const contentState = editorState.getCurrentContent();
+
+  if (startKey === undefined) {
+    startKey = currentSelection.getStartKey();
+  }
+
+  if (endKey === undefined) {
+    endKey = currentSelection.getEndKey();
   }
 
   const isSameBlock = startKey === endKey;
@@ -73,6 +84,7 @@ export const getSelectedBlocks = (contentState, startKey, endKey) => {
 
     while (blockKey !== endKey) {
       const nextBlock = contentState.getBlockAfter(blockKey);
+
       selectedBlocks.push(nextBlock);
       blockKey = nextBlock.getKey();
     }
@@ -87,16 +99,18 @@ export const modifierSelectedBlocks = (editorState, modifier, ...args) => {
     return null;
   }
 
-  const contentState = editorState.getCurrentContent();
   const currentSelection = editorState.getSelection();
-
   const startKey = currentSelection.getStartKey();
   const endKey = currentSelection.getEndKey();
   const startOffset = currentSelection.getStartOffset();
   const endOffset = currentSelection.getEndOffset();
-
   const isSameBlock = startKey === endKey;
-  const selectedBlocks = getSelectedBlocks(contentState, startKey, endKey);
+  const selectedBlocks = getSelectedBlocks(editorState, startKey, endKey);
+
+  if (!selectedBlocks) {
+    console.warn('selectedBlocks is empty!');
+    return null;
+  }
 
   let finalEditorState = editorState;
 

@@ -1,14 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { RichUtils } from 'draft-js';
+import { RichUtils, Modifier, SelectionState, EditorState } from 'draft-js';
 
 import { Btn, IcoBtn } from '../../../common/btns';
 import ClickOutside from '../../../ClickOutside';
 import { Icon } from '../../../common';
 import { t } from '../../../../helpers/export/util';
 import { Input } from '../../../common/form';
-import { getNewEditorStateWithAllBlockSelected, getSelectionText, modifierSelectedBlocks, BUTTONS_TYPE } from './helpers';
+import {
+  getNewEditorStateWithAllBlockSelected,
+  getSelectionText,
+  modifierSelectedBlocks,
+  getSelectedBlocks,
+  BUTTONS_TYPE
+} from './helpers';
 
 const Labels = {
   BTN_DELETE: 'comments-widget.editor.link.delete',
@@ -31,6 +37,17 @@ class LinkEditor extends Component {
       linkText: props.linkText,
       isOpenLinkDialog: false
     };
+  }
+
+  get selectedBlocks() {
+    const { editorState } = this.props;
+    const blocks = getSelectedBlocks(editorState);
+
+    if (!blocks) {
+      return 0;
+    }
+
+    return blocks.length;
   }
 
   get selectionText() {
@@ -124,7 +141,7 @@ class LinkEditor extends Component {
   handleSaveLink = event => {
     const { linkText, linkUrl } = this.state;
 
-    if (!linkText || !linkUrl) {
+    if ((this.selectedBlocks === 1 && !linkText) || !linkUrl) {
       return;
     }
 
@@ -134,7 +151,22 @@ class LinkEditor extends Component {
     contentState = contentState.createEntity(BUTTONS_TYPE.LINK, 'MUTABLE', { url: linkUrl, title: linkUrl });
 
     const entityKey = contentState.getLastCreatedEntityKey();
-    const newEditorState = modifierSelectedBlocks(editorState, this.modifyLink, entityKey);
+    let newEditorState; // = modifierSelectedBlocks(editorState, this.modifyLink, entityKey);
+
+    if (this.selectedBlocks === 1) {
+      const originSelectionState = editorState.getSelection();
+      const selectionState = SelectionState.createEmpty(originSelectionState.getAnchorKey())
+        .set('anchorOffset', originSelectionState.getAnchorOffset())
+        .set('focusOffset', originSelectionState.getAnchorOffset() + linkText.length);
+
+      newEditorState = EditorState.set(editorState, {
+        currentContent: Modifier.replaceText(editorState.getCurrentContent(), editorState.getSelection(), linkText)
+      });
+      newEditorState = EditorState.acceptSelection(newEditorState, selectionState);
+      newEditorState = modifierSelectedBlocks(newEditorState, this.modifyLink, entityKey);
+    } else {
+      newEditorState = modifierSelectedBlocks(editorState, this.modifyLink, entityKey);
+    }
 
     event.preventDefault();
     onChangeState(newEditorState, true);
@@ -165,15 +197,17 @@ class LinkEditor extends Component {
           />
         </div>
 
-        <div className="ecos-comments__editor-link-editor-input-container">
-          <Icon className="icon-edit ecos-comments__editor-link-editor-input-icon" title={t(Labels.TEXT)} />
-          <Input
-            className="ecos-comments__editor-link-editor-input"
-            placeholder={t(Labels.TEXT)}
-            value={linkText}
-            onChange={this.handleChangeLinkText}
-          />
-        </div>
+        {this.selectedBlocks === 1 && (
+          <div className="ecos-comments__editor-link-editor-input-container">
+            <Icon className="icon-edit ecos-comments__editor-link-editor-input-icon" title={t(Labels.TEXT)} />
+            <Input
+              className="ecos-comments__editor-link-editor-input"
+              placeholder={t(Labels.TEXT)}
+              value={linkText}
+              onChange={this.handleChangeLinkText}
+            />
+          </div>
+        )}
 
         <div className="ecos-comments__editor-link-editor-btns">
           {this.selectionText && this.isContainsLink && (
@@ -183,7 +217,7 @@ class LinkEditor extends Component {
           )}
           <Btn
             className={classNames('ecos-btn_blue ecos-comments__editor-link-editor-btns-save', {
-              'ecos-comments__editor-link-editor-btns-save_disabled': !linkText || !linkUrl
+              'ecos-comments__editor-link-editor-btns-save_disabled': (this.selectedBlocks === 1 && !linkText) || !linkUrl
             })}
             onClick={this.handleSaveLink}
           >

@@ -273,6 +273,14 @@
         }
       }
     }
+
+    a {
+      border-bottom: 1px $color-blue-dark solid;
+
+      &:hover {
+        border-color: unset;
+      }
+    }
   }
 
   &__editor {
@@ -283,7 +291,7 @@
 
     &-decorator {
       &-link {
-        border-bottom: 1px $color-blue-dark dashed;
+        border-bottom: 1px $color-blue-dark solid;
       }
     }
 
