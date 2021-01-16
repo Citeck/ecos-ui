@@ -1,0 +1,72 @@
+@import '../../../styles/constants';
+
+.ecos-admin-menu {
+  width: 0;
+  transition: width 0.5s;
+  overflow: hidden;
+  padding-left: 25px;
+  height: 100%;
+
+  &_open {
+    width: 300px;
+  }
+
+  &-content {
+    background: $color-gray-3;
+    height: 100%;
+    min-width: 275px;
+    border-radius: $border-radius-extra-large 0 0 $border-radius-extra-large;
+    padding: 15px 25px 15px 15px;
+    overflow: auto;
+
+    & :nth-child(n) {
+      clear: both;
+    }
+
+    & .list-group-item {
+      cursor: pointer;
+    }
+  }
+
+  &__btn {
+    &-opener {
+      position: absolute !important;
+      right: 20px;
+      transition: opacity 0.2s, visibility 0s ease 0.2s;
+
+      &_hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    &-closer {
+      float: right;
+      margin-bottom: 15px;
+    }
+  }
+
+  &-section {
+    .panel-bar {
+      margin-bottom: 10px;
+      padding: 15px;
+    }
+
+    &-list {
+      .list-group-item {
+        padding: 0;
+        line-height: 1;
+      }
+    }
+
+    &-item {
+      font-weight: $font-weight-bold;
+      border-radius: $border-radius-standard;
+      font-size: $font-size-standard;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      padding: 13px 15px;
+    }
+  }
+}

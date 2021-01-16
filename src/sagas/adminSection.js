@@ -8,15 +8,7 @@ import { URL } from '../constants';
 import { SectionTypes, SectionURL } from '../constants/adminSection';
 import PageService from '../services/PageService';
 import AdminSectionService from '../services/AdminSectionService';
-import { fetchGroupSectionList, initAdminSection, setActiveSection, setGroupSectionList } from '../actions/adminSection';
-
-function* doInit({ api, logger }) {
-  try {
-    yield put(fetchGroupSectionList());
-  } catch (e) {
-    logger.error('[adminSection doInit saga] error', e.message);
-  }
-}
+import { fetchGroupSectionList, setActiveSection, setGroupSectionList } from '../actions/adminSection';
 
 function* doFetchGroupSectionList({ api, logger }, action) {
   try {
@@ -73,7 +65,6 @@ export function* openActiveSection({ api, logger }, action) {
 }
 
 function* saga(ea) {
-  yield takeLatest(initAdminSection().type, doInit, ea);
   yield takeLatest(fetchGroupSectionList().type, doFetchGroupSectionList, ea);
   yield takeEvery(setActiveSection().type, openActiveSection, ea);
 }
