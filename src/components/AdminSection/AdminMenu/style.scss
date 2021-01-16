@@ -52,14 +52,14 @@
       padding: 15px;
     }
 
-    &-list {
+    &__list {
       .list-group-item {
         padding: 0;
         line-height: 1;
       }
     }
 
-    &-item {
+    &__item {
       font-weight: $font-weight-bold;
       border-radius: $border-radius-standard;
       font-size: $font-size-standard;
