@@ -23,17 +23,17 @@ const AdminMenu = ({ isMobile, groupSectionList, children, toggle, open, getGrou
   }, [initialized]);
 
   useEffect(() => {
-    updActive();
-  }, [pathname]);
+    groupSectionList && updActive();
+  }, [pathname, groupSectionList]);
 
   useEffect(() => {
-    if (sidebarRef.current) {
+    if (open && sidebarRef.current) {
       const params = sidebarRef.current.getBoundingClientRect();
       const top = params.y + 20;
 
       topHeight !== top && setTopHeight(top);
     }
-  }, [sidebarRef]);
+  }, [sidebarRef, open]);
 
   return (
     <>

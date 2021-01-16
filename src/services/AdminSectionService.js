@@ -1,6 +1,6 @@
 import isEqual from 'lodash/isEqual';
 import queryString from 'query-string';
-import { SectionTypes } from '../constants/adminSection';
+import { SectionNewTab, SectionTypes } from '../constants/adminSection';
 import { URL } from '../constants';
 
 export default class AdminSectionService {
@@ -47,5 +47,13 @@ export default class AdminSectionService {
     }
 
     return type;
+  }
+
+  static getTabOptions(currentType, newType) {
+    const openNewTab =
+      currentType !== newType &&
+      (SectionNewTab.includes(newType) || (SectionNewTab.includes(currentType) && !SectionNewTab.includes(newType)));
+
+    return { updateUrl: !openNewTab, pushHistory: true, openNewTab };
   }
 }

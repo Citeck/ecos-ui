@@ -35,13 +35,12 @@ function* updateActiveSection({ api, logger }, action) {
 export function* openActiveSection({ api, logger }, action) {
   try {
     const item = cloneDeep(action.payload);
-    const currentPage = AdminSectionService.getActiveSectionType();
-    const newPage = get(item, 'type');
-    console.log(currentPage, newPage);
+    const currentType = AdminSectionService.getActiveSectionType();
+    const newType = get(item, 'type');
+    const options = AdminSectionService.getTabOptions(currentType, newType);
     let href = '';
-    let options = { updateUrl: true, pushHistory: true };
 
-    switch (newPage) {
+    switch (newType) {
       case SectionTypes.BPM: {
         href = SectionURL[SectionTypes.BPM];
         break;
@@ -52,7 +51,6 @@ export function* openActiveSection({ api, logger }, action) {
       }
       case SectionTypes.DEV_TOOLS: {
         href = SectionURL[SectionTypes.DEV_TOOLS];
-        options = { openNewTab: true };
         break;
       }
       default: {
