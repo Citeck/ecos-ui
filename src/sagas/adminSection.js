@@ -1,6 +1,5 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import queryString from 'query-string';
-import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
@@ -8,17 +7,25 @@ import { URL } from '../constants';
 import { SectionTypes, SectionURL } from '../constants/adminSection';
 import PageService from '../services/PageService';
 import AdminSectionService from '../services/AdminSectionService';
-import { fetchGroupSectionList, setActiveSection, setGroupSectionList } from '../actions/adminSection';
+import { fetchGroupSectionList, setActiveSection, setGroupSectionList, updActiveSection } from '../actions/adminSection';
 
 function* doFetchGroupSectionList({ api, logger }, action) {
   try {
     const sectionsGroup = yield call(api.adminSection.getGroupSectionList);
-    const query = queryString.parseUrl(window.location.href).query;
-    const activeSection =
-      (!isEmpty(query) && AdminSectionService.getActiveSectionInGroups(sectionsGroup, i => i.config.journalId === query.journalId)) ||
-      AdminSectionService.getActiveSectionInGroups(sectionsGroup, i => i.type === SectionTypes.BPM);
+    const activeSection = AdminSectionService.getActiveSectionInGroups(sectionsGroup);
 
     yield put(setGroupSectionList(sectionsGroup));
+    yield put(setActiveSection(activeSection));
+  } catch (e) {
+    logger.error('[adminSection doFetchGroupSectionList saga] error', e.message);
+  }
+}
+
+function* updateActiveSection({ api, logger }, action) {
+  try {
+    const sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
+    const activeSection = AdminSectionService.getActiveSectionInGroups(sectionsGroup);
+
     yield put(setActiveSection(activeSection));
   } catch (e) {
     logger.error('[adminSection doFetchGroupSectionList saga] error', e.message);
@@ -28,11 +35,13 @@ function* doFetchGroupSectionList({ api, logger }, action) {
 export function* openActiveSection({ api, logger }, action) {
   try {
     const item = cloneDeep(action.payload);
-    const sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
+    const currentPage = AdminSectionService.getActiveSectionType();
+    const newPage = get(item, 'type');
+    console.log(currentPage, newPage);
     let href = '';
     let options = { updateUrl: true, pushHistory: true };
 
-    switch (get(item, 'type')) {
+    switch (newPage) {
       case SectionTypes.BPM: {
         href = SectionURL[SectionTypes.BPM];
         break;
@@ -52,12 +61,6 @@ export function* openActiveSection({ api, logger }, action) {
       }
     }
 
-    if (options.openInBackground || options.openNewTab) {
-      const redirectHome = AdminSectionService.getActiveSectionInGroups(sectionsGroup, i => i.type === SectionTypes.BPM);
-
-      yield put(setActiveSection(redirectHome));
-    }
-
     PageService.changeUrlLink(href, options);
   } catch (e) {
     logger.error('[adminSection openActiveSection saga] error', e.message);
@@ -67,6 +70,7 @@ export function* openActiveSection({ api, logger }, action) {
 function* saga(ea) {
   yield takeLatest(fetchGroupSectionList().type, doFetchGroupSectionList, ea);
   yield takeEvery(setActiveSection().type, openActiveSection, ea);
+  yield takeEvery(updActiveSection().type, updateActiveSection, ea);
 }
 
 export default saga;
