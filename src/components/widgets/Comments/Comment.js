@@ -3,11 +3,14 @@ import PropTypes from 'prop-types';
 import { stateToHTML } from 'draft-js-export-html';
 import { convertFromRaw } from 'draft-js';
 import moment from 'moment';
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import { Avatar, Loader, Popper } from '../../common/index';
 import { t } from '../../../helpers/export/util';
 import { num2str } from '../../../helpers/util';
 import { Btn } from '../../common/btns';
+import { Badge } from '../../common/form';
 
 class Comment extends Component {
   static propTypes = {
@@ -168,6 +171,18 @@ class Comment extends Component {
     );
   }
 
+  renderTags() {
+    const tags = get(this.props, 'comment.tags', []);
+
+    if (isEmpty(tags)) {
+      return null;
+    }
+
+    return tags.map(tag => (
+      <Badge className="ecos-comments__comment-tag" popupClassName="ecos-comments__comment-tag-popper" text={tag} size="small" withPopup />
+    ));
+  }
+
   render() {
     const { comment } = this.props;
     const { id, avatar = '', firstName, lastName, middleName, displayName, canEdit = false, canDelete = false } = comment;
@@ -183,13 +198,16 @@ class Comment extends Component {
               className="ecos-comments__comment-avatar"
               classNameEmpty="ecos-comments__comment-avatar_empty"
             />
-            <div className="ecos-comments__comment-header-column">
+
+            <div className="ecos-comments__comment-header-column ecos-comments__comment-name-container">
               <div className="ecos-comments__comment-name">
                 {firstName} {middleName}
               </div>
               <div className="ecos-comments__comment-name">{lastName}</div>
               {this.renderCommentDate()}
             </div>
+
+            <div className="ecos-comments__comment-header-column ecos-comments__comment-tag-container">{this.renderTags()}</div>
           </div>
           <div className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions">
             {canEdit && (
