@@ -3,9 +3,8 @@ import { NotificationManager } from 'react-notifications';
 
 import { getScenario, getTitle, initData, saveRecordData, saveScenario, setScenario, setTitle } from '../actions/cmmnEditor';
 import { t } from '../helpers/export/util';
-import { CmmnUtils } from '../components/CMMNDesigner/index';
 
-function* init({ api, logger }, { payload: { stateId, record } }) {
+export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
     yield put(getTitle({ stateId, record }));
     yield put(getScenario({ stateId, record }));
@@ -14,24 +13,24 @@ function* init({ api, logger }, { payload: { stateId, record } }) {
   }
 }
 
-function* fetchScenario({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchScenario({ api, logger }, { payload: { stateId, record } }) {
   try {
     const scenario = yield call(api.cmmn.getDefinition, record);
 
-    yield put(setScenario({ stateId, scenario: CmmnUtils.initialDiagram }));
+    yield put(setScenario({ stateId, scenario }));
   } catch (e) {
     yield put(setScenario({ stateId, scenario: null }));
     logger.error('[cmmnEditor/fetchScenario saga] error', e.message);
   }
 }
 
-function* runSaveScenario({ api, logger }, { payload: { stateId, record, xml, img } }) {
+export function* runSaveScenario({ api, logger }, { payload: { stateId, record, xml, img } }) {
   try {
     if (xml && img) {
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
       const res = yield call(api.cmmn.saveDefinition, record, xml, base64);
 
-      if (res.id) {
+      if (res && res.id) {
         yield put(setScenario({ stateId, scenario: xml }));
       }
     } else throw new Error();
@@ -41,7 +40,7 @@ function* runSaveScenario({ api, logger }, { payload: { stateId, record, xml, im
   }
 }
 
-function* runSaveRecord({ api, logger }, { payload: { record, data } }) {
+export function* runSaveRecord({ api, logger }, { payload: { record, data } }) {
   try {
     yield call(api.cmmn.saveRecordData, record, data);
   } catch (e) {
@@ -50,7 +49,7 @@ function* runSaveRecord({ api, logger }, { payload: { record, data } }) {
   }
 }
 
-function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
   try {
     const title = yield call(api.page.getRecordTitle, record);
 
