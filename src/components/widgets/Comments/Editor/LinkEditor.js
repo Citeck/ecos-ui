@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { RichUtils, Modifier, SelectionState, EditorState, ContentState } from 'draft-js';
+import { RichUtils, Modifier, SelectionState, EditorState } from 'draft-js';
 
 import { Btn, IcoBtn } from '../../../common/btns';
 import ClickOutside from '../../../ClickOutside';

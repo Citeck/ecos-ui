@@ -1,9 +1,9 @@
-import { RecordService } from './recordService';
+import Records from '../components/Records';
 import { SourcesId } from '../constants';
 
-export class CommentsApi extends RecordService {
+export class CommentsApi {
   getAll = record => {
-    return window.Citeck.Records.query(
+    return Records.query(
       {
         query: {
           record
@@ -23,7 +23,7 @@ export class CommentsApi extends RecordService {
   };
 
   getByPage = ({ record, skipCount = 0, maxItems = 10 }) => {
-    return window.Citeck.Records.query(
+    return Records.query(
       {
         query: {
           record
@@ -41,13 +41,14 @@ export class CommentsApi extends RecordService {
         author: 'author?json',
         editor: 'editor?json',
         permissions: 'permissions?json',
-        edited: 'edited'
+        edited: 'edited',
+        tags: 'tags[].name'
       }
     ).then(response => response);
   };
 
   getCommentById = id => {
-    return window.Citeck.Records.get(id)
+    return Records.get(id)
       .load({
         text: 'text',
         createdAt: 'createdAt',
@@ -61,7 +62,7 @@ export class CommentsApi extends RecordService {
   };
 
   create = ({ text, record } = {}) => {
-    const comment = window.Citeck.Records.get('comment@');
+    const comment = Records.get('comment@');
 
     comment.att('text', text);
     comment.att('record', record);
@@ -70,7 +71,7 @@ export class CommentsApi extends RecordService {
   };
 
   update = ({ id, text } = {}) => {
-    const comment = window.Citeck.Records.get(id);
+    const comment = Records.get(id);
 
     comment.att('text', text);
 
@@ -78,6 +79,8 @@ export class CommentsApi extends RecordService {
   };
 
   delete = id => {
-    return window.Citeck.Records.remove([id]).then(response => response);
+    const ids = Array.isArray(id) ? id : [id];
+
+    return Records.remove(ids).then(response => response);
   };
 }
