@@ -1,7 +1,19 @@
 import { runSaga } from 'redux-saga';
 import { fetchScenario, fetchTitle, init, runSaveScenario } from '../cmmnEditor';
 import { setScenario, setTitle } from '../../actions/cmmnEditor';
-import api from '../../__mocks__/api.mock';
+
+const api = {
+  app: {
+    getBase64: () => 'base64'
+  },
+  page: {
+    getRecordTitle: () => 'title'
+  },
+  cmmn: {
+    getDefinition: () => 'xml',
+    saveDefinition: () => ({ id: 'id' })
+  }
+};
 
 const logger = { error: jest.fn() };
 
@@ -33,7 +45,7 @@ describe('CMMN Editor sagas tests', () => {
         dispatch: action => dispatched.push(action)
       },
       fetchScenario,
-      { api: api.happy, logger },
+      { api, logger },
       { payload: { stateId: 'stateId', record: 'record' } }
     ).done;
 
@@ -50,7 +62,7 @@ describe('CMMN Editor sagas tests', () => {
         dispatch: action => dispatched.push(action)
       },
       fetchTitle,
-      { api: api.happy, logger },
+      { api, logger },
       { payload: { stateId: 'stateId', record: 'record' } }
     ).done;
 
@@ -68,7 +80,7 @@ describe('CMMN Editor sagas tests', () => {
           dispatch: action => dispatched.push(action)
         },
         runSaveScenario,
-        { api: api.happy, logger },
+        { api, logger },
         { payload: { stateId: 'stateId', record: 'record', xml: 'xml', img: 'svg' } }
       ).done;
 
@@ -85,7 +97,7 @@ describe('CMMN Editor sagas tests', () => {
           dispatch: action => dispatched.push(action)
         },
         runSaveScenario,
-        { api: api.happy, logger },
+        { api, logger },
         { payload: { stateId: 'stateId', record: 'record' } }
       ).done;
 

@@ -2,9 +2,23 @@ import { runSaga } from 'redux-saga';
 
 import PageService from '../../services/PageService';
 import { openActiveSection } from '../adminSection';
-import { groupSectionList } from '../__mocks__/adminSection.mock';
 
 const logger = { error: jest.fn() };
+
+const groupSectionList = [
+  {
+    label: 'Управление системой',
+    sections: [{ label: 'Инструменты разработчика', type: 'DEV_TOOLS', config: {} }]
+  },
+  {
+    label: 'Управление процессами',
+    sections: [{ label: 'Модели бизнес-процессов', type: 'BPM', config: {} }]
+  },
+  {
+    label: 'Модель',
+    sections: [{ label: 'Типы данных', type: 'JOURNAL', config: { journalId: 'ecos-types' } }]
+  }
+];
 
 afterEach(() => {
   jest.clearAllMocks();
