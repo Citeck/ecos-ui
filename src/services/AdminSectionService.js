@@ -10,7 +10,7 @@ export default class AdminSectionService {
   }
 
   static getActiveSectionInGroups(groups) {
-    const { query, url } = queryString.parseUrl(window.location.href);
+    const { query } = queryString.parseUrl(window.location.href);
     let type = AdminSectionService.getActiveSectionType();
     let section;
     groups = groups || [];
