@@ -985,29 +985,6 @@ class Grid extends Component {
       scrollStyle = { ...scrollStyle, height: minHeight || '100%' };
     }
 
-    const Scroll = ({ scrollable, children, refCallback }) =>
-      scrollable ? (
-        <Scrollbars
-          ref={refCallback}
-          onScrollStart={this.onScrollStart}
-          onScrollFrame={this.onScrollFrame}
-          onScrollStop={this.onScrollStop}
-          style={scrollStyle}
-          autoHide={scrollAutoHide}
-          hideTracksWhenNotNeeded
-          renderView={props => <div {...props} className={tableViewClassName} />}
-          renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
-          renderTrackHorizontal={props => (
-            <div {...props} className={classNames('ecos-grid__h-scroll', { 'ecos-grid__h-scroll_higher': minHeight > maxHeight })} />
-          )}
-          {...scrollProps}
-        >
-          {children}
-        </Scrollbars>
-      ) : (
-        <>{children}</>
-      );
-
     return (
       <div
         ref={this._ref}
@@ -1023,7 +1000,22 @@ class Grid extends Component {
         onMouseEnter={this.onMouseEnter}
       >
         {!!toolsVisible && this.tools(bootProps.selected)}
-        <Scroll scrollable={bootProps.scrollable} refCallback={this.scrollRefCallback}>
+
+        <Scrollbars
+          ref={this.scrollRefCallback}
+          onScrollStart={this.onScrollStart}
+          onScrollFrame={this.onScrollFrame}
+          onScrollStop={this.onScrollStop}
+          style={scrollStyle}
+          autoHide={scrollAutoHide}
+          hideTracksWhenNotNeeded
+          renderView={props => <div {...props} className={tableViewClassName} />}
+          renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+          renderTrackHorizontal={props => (
+            <div {...props} className={classNames('ecos-grid__h-scroll', { 'ecos-grid__h-scroll_higher': minHeight > maxHeight })} />
+          )}
+          {...scrollProps}
+        >
           <div ref={this.setGridRef}>
             <BootstrapTable
               {...bootProps}
@@ -1035,7 +1027,8 @@ class Grid extends Component {
             />
           </div>
           {this.inlineTools()}
-        </Scroll>
+        </Scrollbars>
+
         {this.fixedHeader ? (
           <>
             <div className={ECOS_GRID_HEAD_SHADOW} />
