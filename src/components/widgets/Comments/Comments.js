@@ -32,6 +32,7 @@ import Dashlet from '../../Dashlet';
 import LinkEditor from './Editor/LinkEditor';
 import linkDecorator from './Editor/LinkDecorator';
 import Comment from './Comment';
+import { CommentInterface, IdInterface } from './propsInterfaces';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
@@ -40,26 +41,8 @@ const BASE_HEIGHT = 21;
 
 class Comments extends BaseWidget {
   static propTypes = {
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    comments: PropTypes.arrayOf(
-      PropTypes.shape({
-        avatar: PropTypes.string,
-        firstName: PropTypes.string,
-        lastName: PropTypes.string,
-        middleName: PropTypes.string,
-        displayName: PropTypes.string,
-        editorName: PropTypes.string,
-        editorUserName: PropTypes.string,
-        text: PropTypes.string.isRequired,
-        dateCreate: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]).isRequired,
-        dateModify: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]),
-        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-        canEdit: PropTypes.bool,
-        canDelete: PropTypes.bool,
-        edited: PropTypes.bool,
-        tags: PropTypes.arrayOf(PropTypes.string)
-      })
-    ),
+    id: IdInterface.isRequired,
+    comments: PropTypes.arrayOf(PropTypes.shape(CommentInterface)),
     dataStorageFormat: PropTypes.oneOf(['raw', 'html', 'plain-text']),
     maxLength: PropTypes.number,
     totalCount: PropTypes.number,

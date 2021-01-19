@@ -11,12 +11,12 @@ import { t } from '../../../helpers/export/util';
 import { num2str } from '../../../helpers/util';
 import { Btn } from '../../common/btns';
 import { Badge } from '../../common/form';
+import { CommentInterface } from './propsInterfaces';
 
 class Comment extends Component {
   static propTypes = {
-    comment: PropTypes.array,
+    comment: PropTypes.shape(CommentInterface),
     userName: PropTypes.string,
-    saveIsLoading: PropTypes.bool,
     actionFailed: PropTypes.bool,
     onEdit: PropTypes.func,
     onDelete: PropTypes.func
