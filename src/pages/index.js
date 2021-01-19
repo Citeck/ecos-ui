@@ -7,6 +7,7 @@ const DashboardPage = lazy(() => import('./Dashboard'));
 const DashboardSettingsPage = lazy(() => import('./DashboardSettings'));
 const JournalsPage = lazy(() => import('./JournalsPage'));
 const DevToolsPage = lazy(() => import('./DevTools'));
+const CMMNEditorPage = lazy(() => import('./CMMNEditor'));
 const MyTimesheetPage = lazy(() => import('./Timesheet/MyTimesheetPage'));
 const SubordinatesTimesheetPage = lazy(() => import('./Timesheet/SubordinatesTimesheetPage'));
 const VerificationTimesheetPage = lazy(() => import('./Timesheet/VerificationTimesheetPage'));
@@ -34,6 +35,9 @@ export default ({ pageKey, footer, ...props }) => {
       break;
     case Pages.JOURNAL:
       Page = JournalsPage;
+      break;
+    case Pages.CMMN_EDITOR:
+      Page = CMMNEditorPage;
       break;
     case Pages.TIMESHEET_MY:
       Page = MyTimesheetPage;

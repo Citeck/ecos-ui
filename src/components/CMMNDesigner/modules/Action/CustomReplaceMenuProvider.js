@@ -2,9 +2,9 @@ import inherits from 'inherits';
 import ReplaceMenuProvider from 'cmmn-js/lib/features/popup-menu/ReplaceMenuProvider';
 import { isManualActivation, isRepeatable } from 'cmmn-js/lib/util/ModelUtil';
 
-import { getEcosType } from '../../utils';
-import actionTypes from './action-types.json';
 import { extractLabel } from '../../../../helpers/util';
+import { CmmnUtils } from '../../index';
+import actionTypes from './action-types.json';
 
 /**
  * This module is an element agnostic replace menu provider for the popup menu.
@@ -26,7 +26,7 @@ CustomReplaceMenuProvider.$inject = ['popupMenu', 'cmmnReplace', 'cmmnFactory', 
 
 CustomReplaceMenuProvider.prototype.getEntries = function(element) {
   const eventBus = this._eventBus;
-  const ecosType = getEcosType(element);
+  const ecosType = CmmnUtils.getEcosType(element);
 
   if (!ecosType) {
     return ReplaceMenuProvider.prototype.getEntries.call(this, element);
@@ -44,7 +44,7 @@ CustomReplaceMenuProvider.prototype.getEntries = function(element) {
 
 CustomReplaceMenuProvider.prototype.getHeaderEntries = function(element) {
   const self = this;
-  const ecosType = getEcosType(element);
+  const ecosType = CmmnUtils.getEcosType(element);
 
   if (!ecosType) {
     return ReplaceMenuProvider.prototype.getHeaderEntries.call(this, element);
