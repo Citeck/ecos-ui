@@ -313,7 +313,7 @@ export class MenuApi extends CommonApi {
     const user = getCurrentUserName();
     const configVersion = await Records.get(`${SourcesId.ECOS_CONFIG}@default-ui-main-menu`).load('.str');
     const _ver = configVersion && configVersion.replace('left-v', '');
-    const version = _ver !== 'left' ? +_ver : 0;
+    const version = configVersion.includes('left-v') ? +_ver : 0;
     const id = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'id');
 
     return { version, configVersion, id };
