@@ -965,6 +965,12 @@
         "width": 1318
       },
       "search": ["folder"]
+    },
+    {
+      "uid": "815503841e980c848f55e0271deacead",
+      "css": "link",
+      "code": 59457,
+      "src": "entypo"
     }
   ]
 }
