@@ -1,4 +1,5 @@
 import AdminSectionService from '../AdminSectionService';
+import { NEW_VERSION_PREFIX } from '../../helpers/export/urls';
 
 const groupSectionList = [
   {
@@ -36,18 +37,25 @@ describe('AdminSection Service', () => {
   });
 
   describe('Method getActiveSectionInGroups', () => {
+    beforeEach(() => {
+      delete window.location;
+    });
+
     it('was found', () => {
-      const returnValue = AdminSectionService.getActiveSectionInGroups(groupSectionList, i => i.type === BPM.type);
+      window.location = { href: `${NEW_VERSION_PREFIX}/bpmn-designer` };
+      const returnValue = AdminSectionService.getActiveSectionInGroups(groupSectionList);
       expect(returnValue).toEqual(BPM);
     });
 
     it('unknown', () => {
-      const returnValue = AdminSectionService.getActiveSectionInGroups(groupSectionList, i => i.type === null);
+      window.location = { href: `${NEW_VERSION_PREFIX}/test` };
+      const returnValue = AdminSectionService.getActiveSectionInGroups(groupSectionList);
       expect(returnValue).toBeUndefined();
     });
 
     it('no groups', () => {
-      const returnValue = AdminSectionService.getActiveSectionInGroups(null, i => i.type === null);
+      window.location = { href: `${NEW_VERSION_PREFIX}/test` };
+      const returnValue = AdminSectionService.getActiveSectionInGroups(null);
       expect(returnValue).toBeUndefined();
     });
   });
