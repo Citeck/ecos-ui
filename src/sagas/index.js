@@ -34,6 +34,7 @@ import userProfile from './userProfile';
 import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
 import adminSection from './adminSection';
+import cmmnEditor from './cmmnEditor';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -71,6 +72,7 @@ export default function* rootSaga(extraArguments) {
     userProfile(extraArguments),
     docConstructor(extraArguments),
     iconSelect(extraArguments),
-    adminSection(extraArguments)
+    adminSection(extraArguments),
+    cmmnEditor(extraArguments)
   ]);
 }
