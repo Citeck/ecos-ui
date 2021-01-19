@@ -18,3 +18,5 @@ export const SectionURL = {
   [SectionTypes.BPM]: URL.BPMN_DESIGNER,
   [SectionTypes.DEV_TOOLS]: URL.DEV_TOOLS
 };
+
+export const SectionNewTab = [SectionTypes.DEV_TOOLS];

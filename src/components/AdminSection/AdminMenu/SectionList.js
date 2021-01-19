@@ -12,7 +12,7 @@ import './style.scss';
 function SectionList({ list = [], title = null, setActive, activeSection }) {
   const renderItems = () => {
     return list.map(item => (
-      <div className="ecos-admin-section__menu-block-item" key={item.label} onClick={() => setActive(item)}>
+      <div className="ecos-admin-menu-section__item" key={item.label} onClick={() => setActive(item)}>
         {t(item.label)}
       </div>
     ));
@@ -21,8 +21,8 @@ function SectionList({ list = [], title = null, setActive, activeSection }) {
 
   return (
     <CollapsibleList
-      className="ecos-admin-section__menu-block"
-      classNameList="ecos-admin-section__menu-block-list"
+      className="ecos-admin-menu-section"
+      classNameList="ecos-admin-menu-section__list"
       emptyText={t(Labels.EMPTY_LIST)}
       list={renderItems()}
       selected={selected}

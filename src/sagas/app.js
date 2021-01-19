@@ -54,6 +54,7 @@ export function* initApp({ api, logger }, { payload }) {
 
       yield put(setHomeLink(homeLink));
     } catch (e) {
+      logger.error('[initApp saga] error inner', e.message);
       yield put(validateUserFailure());
     }
 
