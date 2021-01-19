@@ -32,7 +32,7 @@ function* updateActiveSection({ api, logger }, action) {
   }
 }
 
-export function* openActiveSection({ api, logger }, action) {
+export function openActiveSection({ api, logger }, action) {
   try {
     const item = cloneDeep(action.payload);
     const currentType = AdminSectionService.getActiveSectionType();
