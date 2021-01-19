@@ -56,16 +56,26 @@ export default class CMMNDesigner {
     // unsubscribe for added events in this.destroy below
 
     if (this.#modeler && events) {
-      this.#events = events;
+      this.#events = {};
 
-      events.onSelectElement &&
-        this.#modeler.on('selection.changed', e => {
+      if (events.onSelectElement) {
+        this.#events.onSelectElement = e => {
           if (get(e, 'newSelection.length', 0) < 2) {
             events.onSelectElement(get(e, 'newSelection[0]'));
           }
-        });
-      events.onChangeElement && this.#modeler.on('element.changed', e => events.onChangeElement(get(e, 'element')));
-      events.onClickElement && this.#modeler.on('element.click', e => events.onClickElement(get(e, 'element')));
+        };
+        this.#modeler.on('selection.changed', this.#events.onSelectElement);
+      }
+
+      if (events.onChangeElement) {
+        this.#events.onChangeElement = e => events.onChangeElement(get(e, 'element'));
+        this.#modeler.on('element.changed', this.#events.onChangeElement);
+      }
+
+      if (events.onClickElement) {
+        this.#events.onClickElement = e => events.onClickElement(get(e, 'element'));
+        this.#modeler.on('element.click', this.#events.onClickElement);
+      }
     }
   };
 
@@ -162,6 +172,10 @@ export default class CMMNDesigner {
   destroy = () => {
     if (this.#events) {
       this.#events.onSelectElement && this.#modeler.off('selection.changed', this.#events.onSelectElement);
+      this.#events.onChangeElement && this.#modeler.on('element.changed', this.#events.onChangeElement);
+      this.#events.onClickElement && this.#modeler.on('element.click', this.#events.onClickElement);
     }
+
+    this.#modeler && this.#modeler._emit('diagram.destroy');
   };
 }

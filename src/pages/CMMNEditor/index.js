@@ -33,6 +33,10 @@ class CMMNEditorPage extends React.Component {
     this.setHeight();
   }
 
+  componentWillUnmount() {
+    this.designer && this.designer.destroy();
+  }
+
   setHeight = () => {
     const elEditor = this.modelEditorRef.current && this.modelEditorRef.current.querySelector('.ecos-cmmn-container');
 
@@ -140,35 +144,40 @@ class CMMNEditorPage extends React.Component {
     }
   };
 
+  renderEditor = () => {
+    const { savedScenario, isLoading } = this.props;
+
+    if (isLoading) {
+      return <Loader blur height={100} width={100} />;
+    } else if (savedScenario) {
+      return (
+        <this.designer.Sheet diagram={savedScenario} onSelectElement={this.handleSelectItem} onChangeElement={this.handleChangeItem} />
+      );
+    } else {
+      return <InfoText text={t('cmmn-editor.error.no-scenario')} />;
+    }
+  };
+
   render() {
-    const { savedScenario, title, isLoading } = this.props;
+    const { savedScenario, title } = this.props;
 
     return (
       <div className="ecos-cmmn-editor__page" ref={this.modelEditorRef}>
-        {!isLoading && !savedScenario && <InfoText text={t('cmmn-editor.error.no-scenario')} />}
-        {isLoading && <Loader blur height={100} width={100} />}
         <ModelEditorWrapper
           title={title}
-          onApply={this.handleSave}
-          displayButtons={{ apply: true }}
+          onApply={savedScenario && this.handleSave}
           rightSidebarTitle={this.formTitle}
-          editor={
-            savedScenario && (
-              <this.designer.Sheet
-                diagram={savedScenario}
-                onSelectElement={this.handleSelectItem}
-                onChangeElement={this.handleChangeItem}
-              />
-            )
-          }
+          editor={this.renderEditor()}
           rightSidebar={
-            <EcosForm
-              formId={this.formId}
-              record={this.recordRef}
-              options={this.formOptions}
-              onFormChange={this.handleFormChange}
-              onReady={this.handleFormReady}
-            />
+            this.recordRef ? (
+              <EcosForm
+                formId={this.formId}
+                record={this.recordRef}
+                options={this.formOptions}
+                onFormChange={this.handleFormChange}
+                onReady={this.handleFormReady}
+              />
+            ) : null
           }
         />
       </div>
