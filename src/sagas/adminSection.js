@@ -32,12 +32,12 @@ function* updateActiveSection({ api, logger }, action) {
   }
 }
 
-export function openActiveSection({ api, logger }, action) {
+export function* openActiveSection({ api, logger }, action) {
   try {
     const item = cloneDeep(action.payload);
-    const currentType = AdminSectionService.getActiveSectionType();
+    const currentType = yield call(AdminSectionService.getActiveSectionType);
     const newType = get(item, 'type');
-    const options = AdminSectionService.getTabOptions(currentType, newType);
+    const options = yield call(AdminSectionService.getTabOptions, currentType, newType);
     let href = '';
 
     switch (newType) {
@@ -59,7 +59,7 @@ export function openActiveSection({ api, logger }, action) {
       }
     }
 
-    PageService.changeUrlLink(href, options);
+    yield call(PageService.changeUrlLink, href, options);
   } catch (e) {
     logger.error('[adminSection openActiveSection saga] error', e.message);
   }
