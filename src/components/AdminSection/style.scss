@@ -1,13 +1,6 @@
 @import '../../styles/constants';
 
 .ecos-admin-section {
-  &__container_white {
-    background: $color-white;
-    border-radius: $border-radius-extra-large;
-    padding: 15px;
-    margin-bottom: 10px;
-  }
-
   &__bpmn-designer {
   }
 
@@ -32,35 +25,6 @@
     }
   }
 
-  &__menu {
-    width: 0;
-    transition: width 0.5s;
-    overflow: hidden;
-    padding-left: 25px;
-    height: 100%;
-
-    &_open {
-      width: 300px;
-    }
-
-    &-content {
-      background: $color-gray-3;
-      height: 100%;
-      min-width: 275px;
-      border-radius: $border-radius-extra-large 0 0 $border-radius-extra-large;
-      padding: 15px 25px 15px 15px;
-      overflow: auto;
-
-      & :nth-child(n) {
-        clear: both;
-      }
-
-      & .list-group-item {
-        cursor: pointer;
-      }
-    }
-  }
-
   &__header {
     padding-bottom: 20px;
     min-height: 26px;
@@ -69,19 +33,5 @@
       display: flex;
       justify-content: flex-end;
     }
-  }
-
-  &__btn-menu-opener {
-    transition: opacity 0.2s, visibility 0s ease 0.2s;
-
-    &_hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-  }
-
-  &__btn-menu-closer {
-    float: right;
-    margin-bottom: 15px;
   }
 }

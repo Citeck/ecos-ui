@@ -290,7 +290,6 @@ export class MenuApi extends CommonApi {
   getMenuConfig = (disabledCache = false) => {
     return Records.get(`${SourcesId.CONFIG}@menu-config`)
       .load('value?json', disabledCache)
-      .then(resp => resp)
       .catch(console.error);
   };
 
@@ -313,8 +312,7 @@ export class MenuApi extends CommonApi {
   getUserMenuConfig = async () => {
     const user = getCurrentUserName();
     const configVersion = await Records.get(`${SourcesId.ECOS_CONFIG}@default-ui-main-menu`).load('.str');
-    const _ver = configVersion.replace('left-v', '');
-    const version = _ver !== 'left' ? +_ver : 0;
+    const version = configVersion && configVersion.includes('left-v') ? +configVersion.replace('left-v', '') : 0;
     const id = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'id');
 
     return { version, configVersion, id };
