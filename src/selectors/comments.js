@@ -14,6 +14,7 @@ export const selectStateByNodeRef = (state, nodeRef) => {
     hasMore: ownState.hasMore,
     totalCount: ownState.totalCount,
     errorMessage: ownState.errorMessage,
-    comments: ownState.comments
+    comments: ownState.comments,
+    actionFailed: ownState.actionFailed
   };
 };

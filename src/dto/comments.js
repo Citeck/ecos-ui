@@ -31,6 +31,7 @@ export function getCommentForWeb(source) {
   target.displayName = author.displayName || '';
   target.userName = author.userName || '';
   target.avatar = UserService.getAvatarUrl(author.id, undefined, { height: 150 });
+  target.tags = Array.isArray(source.tags) ? source.tags : [];
 
   target.canEdit = !!permissions.canEdit;
   target.canDelete = !!permissions.canDelete;
