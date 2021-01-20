@@ -229,7 +229,7 @@ class LinkEditor extends Component {
         )}
 
         <div className="ecos-comments__editor-link-editor-btns">
-          {this.isContainsLink && (
+          {this.selectionText && this.isContainsLink && (
             <Btn className="ecos-btn_red" onClick={this.handleRemoveLink}>
               {t(Labels.BTN_DELETE)}
             </Btn>
