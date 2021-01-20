@@ -60,17 +60,17 @@ class JournalsDataLoader {
       recordsQuery.groupBy = groupBy;
     }
 
-    let sortBy = settings.sortBy || [];
+    let sortBy = Array.isArray(settings.sortBy)
+      ? settings.sortBy
+      : typeof settings.sortBy === 'object' && Object.keys(settings).length
+      ? [settings.sortBy]
+      : [];
+
     if (!sortBy.length) {
       sortBy = journalConfig.sortBy || [];
     }
     if (!sortBy.length && recordsQuery.sourceId === '') {
-      sortBy = [
-        {
-          attribute: Attributes.DBID,
-          ascending: false
-        }
-      ];
+      sortBy = [{ attribute: Attributes.DBID, ascending: false }];
     }
     recordsQuery.sortBy = sortBy;
 
