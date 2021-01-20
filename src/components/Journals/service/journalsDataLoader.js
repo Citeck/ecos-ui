@@ -62,17 +62,19 @@ class JournalsDataLoader {
       recordsQuery.groupBy = groupBy;
     }
 
-    let sortBy = settings.sortBy || [];
+    let sortBy = [];
+
+    if (Array.isArray(settings.sortBy)) {
+      sortBy = settings.sortBy;
+    } else if (typeof settings.sortBy === 'object' && Object.keys(settings).length) {
+      sortBy = [settings.sortBy];
+    }
+
     if (!sortBy.length) {
       sortBy = journalConfig.sortBy || [];
     }
     if (!sortBy.length && recordsQuery.sourceId === '') {
-      sortBy = [
-        {
-          attribute: Attributes.DBID,
-          ascending: false
-        }
-      ];
+      sortBy = [{ attribute: Attributes.DBID, ascending: false }];
     }
     recordsQuery.sortBy = sortBy;
 
