@@ -1,5 +1,44 @@
 import { EditorState, SelectionState } from 'draft-js';
 
+export const getNewEditorStateWithAllBlockSelected = editorState => {
+  if (!editorState) {
+    console.warn('editorState is empty!');
+    return null;
+  }
+
+  const selection = editorState.getSelection();
+  const startKey = selection.getStartKey();
+  const startOffset = selection.getStartOffset();
+  const contentState = editorState.getCurrentContent();
+  const block = contentState.getBlockForKey(startKey);
+  const linkKey = block.getEntityAt(startOffset);
+
+  if (linkKey === null) {
+    return editorState;
+  }
+
+  let start = 0;
+  let end = 0;
+
+  block.findEntityRanges(
+    item => item.getEntity() === linkKey,
+    (startOffset, endOffset) => {
+      start = startOffset;
+      end = endOffset;
+    }
+  );
+
+  if (start === end) {
+    return editorState;
+  }
+
+  const newSelection = SelectionState.createEmpty(startKey)
+    .set('anchorOffset', start)
+    .set('focusOffset', end);
+
+  return EditorState.acceptSelection(editorState, newSelection);
+};
+
 export const getSelectionText = editorState => {
   if (!editorState) {
     console.warn('editorState is empty!');
@@ -99,6 +138,31 @@ export const modifierSelectedBlocks = (editorState, modifier, ...args) => {
   });
 
   return EditorState.forceSelection(finalEditorState, currentSelection);
+};
+
+export const getFirstSelectedLink = editorState => {
+  if (!editorState) {
+    console.warn('editorState is empty!');
+    return '';
+  }
+
+  const selection = editorState.getSelection();
+  const contentState = editorState.getCurrentContent();
+  const firstLink = contentState
+    .getBlockForKey(selection.getAnchorKey())
+    .getCharacterList()
+    .slice(selection.getStartOffset(), selection.getEndOffset())
+    .find(v => {
+      const entity = v.getEntity();
+
+      return !!entity && contentState.getEntity(entity).getType() === 'LINK';
+    });
+
+  if (firstLink) {
+    return contentState.getEntity(firstLink.getEntity()).getData().url;
+  }
+
+  return '';
 };
 
 export const BUTTONS_TYPE = {

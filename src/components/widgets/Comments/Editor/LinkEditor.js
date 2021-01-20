@@ -8,7 +8,14 @@ import ClickOutside from '../../../ClickOutside';
 import { Icon } from '../../../common';
 import { t } from '../../../../helpers/export/util';
 import { Input } from '../../../common/form';
-import { getSelectionText, modifierSelectedBlocks, getSelectedBlocks, BUTTONS_TYPE } from '../../../../helpers/draft';
+import {
+  getNewEditorStateWithAllBlockSelected,
+  getSelectionText,
+  modifierSelectedBlocks,
+  getSelectedBlocks,
+  BUTTONS_TYPE,
+  getFirstSelectedLink
+} from '../../../../helpers/draft';
 
 const Labels = {
   BTN_DELETE: 'comments-widget.editor.link.delete',
@@ -99,6 +106,10 @@ class LinkEditor extends Component {
       ({ url } = contentState.getEntity(entityAt).getData());
     }
 
+    if (!url && this.isContainsLink) {
+      url = getFirstSelectedLink(editorState);
+    }
+
     if (isCollapsed) {
       const newEditorState = editorState;
 
@@ -119,7 +130,14 @@ class LinkEditor extends Component {
 
   handleRemoveLink = event => {
     const { editorState, onChangeState } = this.props;
-    const newEditorState = modifierSelectedBlocks(editorState, this.modifyLink, null);
+    const isCollapsed = editorState.getSelection().isCollapsed();
+    let newEditorState = editorState;
+
+    if (isCollapsed) {
+      newEditorState = getNewEditorStateWithAllBlockSelected(editorState);
+    }
+
+    newEditorState = modifierSelectedBlocks(newEditorState, this.modifyLink, null);
 
     onChangeState(newEditorState, true);
     event.preventDefault();

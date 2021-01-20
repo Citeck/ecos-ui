@@ -1,7 +1,15 @@
 import { RichUtils } from 'draft-js';
 
 import * as DraftHelpers from '../draft';
-import { getState, getStateWithSelectedText, modifier } from '../__mocks__/draft.mock';
+import {
+  getState,
+  getNewStateWithSelectedText,
+  modifier,
+  getStateWithSelectedText,
+  getStateWithAddedLinkBySelection
+} from '../__mocks__/draft.mock';
+
+console.warn = jest.fn();
 
 describe('Draft helpers', () => {
   describe('Method getSelectionText', () => {
@@ -11,7 +19,7 @@ describe('Draft helpers', () => {
       expect(state.getSelection().isCollapsed()).toEqual(true);
     });
 
-    const stateWithData = getStateWithSelectedText(0, 9);
+    const stateWithData = getNewStateWithSelectedText(0, 9);
 
     it('Text must be selected', () => {
       expect(stateWithData.getSelection().isCollapsed()).toEqual(false);
@@ -50,7 +58,7 @@ describe('Draft helpers', () => {
       expect(DraftHelpers.modifierSelectedBlocks()).toEqual(null);
     });
 
-    let stateWithData = getStateWithSelectedText(
+    let stateWithData = getNewStateWithSelectedText(
       0,
       10,
       `Work hard to get what you like, \r
@@ -72,6 +80,43 @@ describe('Draft helpers', () => {
       stateWithData = DraftHelpers.modifierSelectedBlocks(stateWithData, modifier, null);
 
       expect(RichUtils.currentBlockContainsLink(stateWithData)).toEqual(false);
+    });
+  });
+
+  describe('Method getFirstSelectedLink', () => {
+    it('editorState not transferred', () => {
+      expect(DraftHelpers.getFirstSelectedLink()).toEqual('');
+    });
+
+    let stateWithData = getNewStateWithSelectedText(
+      6,
+      10,
+      `Work hard to get what you like, \r
+        otherwise you\'ll be forced to just like what you get.\r
+        Work hard to get what you like, \r
+        otherwise you\'ll be forced to just like what you get.`
+    );
+
+    stateWithData = getStateWithAddedLinkBySelection(stateWithData, { url: '/v2/dashboard', title: 'dashboard' });
+
+    it('Received the first link with one added link', () => {
+      expect(DraftHelpers.getFirstSelectedLink(stateWithData)).toEqual('/v2/dashboard');
+    });
+
+    let secondState = getStateWithSelectedText(stateWithData, 13, 20);
+
+    secondState = getStateWithAddedLinkBySelection(secondState, { url: '/v2/debug', title: 'debug' });
+
+    it('Received the first link with two added link', () => {
+      expect(DraftHelpers.getFirstSelectedLink(secondState)).toEqual('/v2/debug');
+    });
+
+    let thirdState = getStateWithSelectedText(secondState, 1, 4);
+
+    thirdState = getStateWithAddedLinkBySelection(secondState, { url: '/first-link', title: 'first-link' });
+
+    it('Received the first link with three added link', () => {
+      expect(DraftHelpers.getFirstSelectedLink(thirdState)).toEqual('/first-link');
     });
   });
 });

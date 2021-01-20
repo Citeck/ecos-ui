@@ -6,6 +6,8 @@ import Comment from '../Comment';
 
 configure({ adapter: new Adapter() });
 
+console.error = jest.fn();
+
 describe('Comment tests', () => {
   const baseProps = {
     id: 'comment-id@1',
