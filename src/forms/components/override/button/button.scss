@@ -11,33 +11,36 @@
       margin: 0;
       padding: 9px 15px;
       text-align: center;
-      font-family: $font-family !important;
-      font-weight: $font-weight-semi-bold !important;
-      font-size: $font-size-standard !important;
-      color: $text-color-dark;
-      background-color: $color-gray-4;
+      font-family: $font-family;
+      font-weight: $font-weight-semi-bold;
+      font-size: $font-size-standard;
       border-radius: $border-radius-large;
       border: none;
       transition: background-color 0.15s ease-out;
-
       overflow: hidden;
       text-overflow: ellipsis;
 
-      &:hover {
-        background-color: $color-gray-1;
-      }
-
-      &:focus {
+      &:focus,
+      &:focus:active {
         box-shadow: none;
       }
 
-      &:active {
+      &.btn-default {
+        color: $text-color-dark;
         background-color: $color-gray-4;
-      }
 
-      &:disabled {
-        background-color: $color-gray-4;
-        color: $color-gray-5;
+        &:hover {
+          background-color: $color-gray-1;
+        }
+
+        &:active {
+          background-color: $color-gray-4;
+        }
+
+        &:disabled {
+          background-color: $color-gray-4;
+          color: $color-gray-5;
+        }
       }
 
       &.btn-primary {
