@@ -60,11 +60,13 @@ class JournalsDataLoader {
       recordsQuery.groupBy = groupBy;
     }
 
-    let sortBy = Array.isArray(settings.sortBy)
-      ? settings.sortBy
-      : typeof settings.sortBy === 'object' && Object.keys(settings).length
-      ? [settings.sortBy]
-      : [];
+    let sortBy = [];
+
+    if (Array.isArray(settings.sortBy)) {
+      sortBy = settings.sortBy;
+    } else if (typeof settings.sortBy === 'object' && Object.keys(settings).length) {
+      sortBy = [settings.sortBy];
+    }
 
     if (!sortBy.length) {
       sortBy = journalConfig.sortBy || [];
