@@ -947,6 +947,44 @@ class Grid extends Component {
     this._scrollRef = scroll;
   };
 
+  renderScrollableGrid() {
+    const { minHeight, autoHeight, scrollAutoHide, tableViewClassName, byContentHeight } = this.props;
+
+    let { maxHeight } = this.props;
+    let scrollStyle = {};
+    let scrollProps = {};
+
+    if (byContentHeight && this._scrollRef) {
+      maxHeight = this._scrollRef.getScrollHeight();
+    }
+
+    if (autoHeight) {
+      scrollProps = { ...scrollProps, autoHeight, autoHeightMax: maxHeight, autoHeightMin: minHeight };
+    } else {
+      scrollStyle = { ...scrollStyle, height: minHeight || '100%' };
+    }
+
+    return (
+      <Scrollbars
+        ref={this.scrollRefCallback}
+        onScrollStart={this.onScrollStart}
+        onScrollFrame={this.onScrollFrame}
+        onScrollStop={this.onScrollStop}
+        style={scrollStyle}
+        autoHide={scrollAutoHide}
+        hideTracksWhenNotNeeded
+        renderView={props => <div {...props} className={tableViewClassName} />}
+        renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+        renderTrackHorizontal={props => (
+          <div {...props} className={classNames('ecos-grid__h-scroll', { 'ecos-grid__h-scroll_higher': minHeight > maxHeight })} />
+        )}
+        {...scrollProps}
+      >
+        {this.renderGrid()}
+      </Scrollbars>
+    );
+  }
+
   renderGrid() {
     const { rowClassName, columns, rowEvents, resizableColumns } = this.props;
     const props = omit(this.props, [
@@ -984,38 +1022,13 @@ class Grid extends Component {
   }
 
   render() {
-    const {
-      minHeight,
-      autoHeight,
-      scrollAutoHide,
-      className,
-      tableViewClassName,
-      noTopBorder,
-      columns,
-      byContentHeight,
-      noHeader,
-      scrollable,
-      selected
-    } = this.props;
+    const { className, noTopBorder, columns, noHeader, scrollable, selected } = this.props;
 
     if (isEmpty(columns)) {
       return null;
     }
 
     const toolsVisible = this.toolsVisible();
-    let { maxHeight } = this.props;
-    let scrollStyle = {};
-    let scrollProps = {};
-
-    if (byContentHeight && this._scrollRef) {
-      maxHeight = this._scrollRef.getScrollHeight();
-    }
-
-    if (autoHeight) {
-      scrollProps = { ...scrollProps, autoHeight, autoHeightMax: maxHeight, autoHeightMin: minHeight };
-    } else {
-      scrollStyle = { ...scrollStyle, height: minHeight || '100%' };
-    }
 
     return (
       <div
@@ -1033,27 +1046,7 @@ class Grid extends Component {
       >
         {!!toolsVisible && this.tools(selected)}
 
-        {scrollable && (
-          <Scrollbars
-            ref={this.scrollRefCallback}
-            onScrollStart={this.onScrollStart}
-            onScrollFrame={this.onScrollFrame}
-            onScrollStop={this.onScrollStop}
-            style={scrollStyle}
-            autoHide={scrollAutoHide}
-            hideTracksWhenNotNeeded
-            renderView={props => <div {...props} className={tableViewClassName} />}
-            renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
-            renderTrackHorizontal={props => (
-              <div {...props} className={classNames('ecos-grid__h-scroll', { 'ecos-grid__h-scroll_higher': minHeight > maxHeight })} />
-            )}
-            {...scrollProps}
-          >
-            {this.renderGrid()}
-          </Scrollbars>
-        )}
-
-        {!scrollable && this.renderGrid()}
+        {scrollable ? this.renderScrollableGrid() : this.renderGrid()}
 
         {this.fixedHeader ? (
           <>
