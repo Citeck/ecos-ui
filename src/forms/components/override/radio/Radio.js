@@ -16,6 +16,7 @@ export default class RadioComponent extends FormIORadioComponent {
   }
 
   getView(value) {
+    value = typeof value === 'boolean' ? value.toString() : value;
     // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3153
     return this.t(super.getView(value));
   }
