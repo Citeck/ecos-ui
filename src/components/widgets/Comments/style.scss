@@ -125,6 +125,7 @@
 
       &-column {
         display: grid;
+        grid-auto-rows: max-content;
       }
     }
 
@@ -150,6 +151,10 @@
       line-height: 16px;
       color: $color-black;
       @extend %ellipsis;
+
+      &-container {
+        grid-template-columns: minmax(max-content, 1fr);
+      }
     }
 
     &-date {
@@ -279,6 +284,34 @@
 
       &:hover {
         border-color: unset;
+      }
+    }
+
+    &-tag {
+      border: 2px $color-gray-5 solid;
+      background: white;
+      color: $color-black;
+      padding: 5px;
+      margin-bottom: 5px;
+      max-width: 250px;
+
+      &:not(:last-of-type) {
+        margin-right: 5px;
+      }
+
+      &-container {
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+
+        margin-left: 5px;
+        margin-top: -7px;
+        max-width: 100%;
+      }
+
+      &-popper {
+        max-width: 300px;
+        padding: 5px;
       }
     }
   }
