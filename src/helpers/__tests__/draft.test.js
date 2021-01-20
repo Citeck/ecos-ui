@@ -9,6 +9,8 @@ import {
   getStateWithAddedLinkBySelection
 } from '../__mocks__/draft.mock';
 
+console.warn = jest.fn();
+
 describe('Draft helpers', () => {
   describe('Method getSelectionText', () => {
     it('No text should be selected (no text)', () => {
