@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { demoItems, item111, item1111 } from './__mocks__/FolderTree.mock';
+import { demoItems, item111, item1111 } from './__fixtures__/FolderTree.fixtures';
 import FolderTree from './FolderTree';
 
 export default {
