@@ -9,6 +9,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
+import omit from 'lodash/omit';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
@@ -946,31 +947,62 @@ class Grid extends Component {
     this._scrollRef = scroll;
   };
 
+  renderGrid() {
+    const { rowClassName, columns, rowEvents, resizableColumns } = this.props;
+    const props = omit(this.props, [
+      'minHeight',
+      'autoHeight',
+      'scrollAutoHide',
+      'className',
+      'rowClassName',
+      'tableViewClassName',
+      'forwardedRef',
+      'noTopBorder',
+      'columns',
+      'rowEvents',
+      'byContentHeight',
+      'noHeader',
+      'resizableColumns'
+    ]);
+    const bootProps = this.setBootstrapTableProps(props, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
+
+    return (
+      <>
+        <div ref={this.setGridRef}>
+          <BootstrapTable
+            {...bootProps}
+            classes="ecos-grid__table"
+            headerClasses={classNames('ecos-grid__header', {
+              'ecos-grid__header_columns-not-resizable': !resizableColumns
+            })}
+            rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
+          />
+        </div>
+        {this.inlineTools()}
+      </>
+    );
+  }
+
   render() {
     const {
       minHeight,
       autoHeight,
       scrollAutoHide,
       className,
-      rowClassName,
       tableViewClassName,
-      forwardedRef,
       noTopBorder,
       columns,
-      rowEvents,
       byContentHeight,
       noHeader,
-      resizableColumns,
-      ...otherProps
+      scrollable,
+      selected
     } = this.props;
 
     if (isEmpty(columns)) {
       return null;
     }
 
-    const bootProps = this.setBootstrapTableProps(otherProps, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
     const toolsVisible = this.toolsVisible();
-
     let { maxHeight } = this.props;
     let scrollStyle = {};
     let scrollProps = {};
@@ -999,35 +1031,29 @@ class Grid extends Component {
         onMouseLeave={this.onMouseLeave}
         onMouseEnter={this.onMouseEnter}
       >
-        {!!toolsVisible && this.tools(bootProps.selected)}
+        {!!toolsVisible && this.tools(selected)}
 
-        <Scrollbars
-          ref={this.scrollRefCallback}
-          onScrollStart={this.onScrollStart}
-          onScrollFrame={this.onScrollFrame}
-          onScrollStop={this.onScrollStop}
-          style={scrollStyle}
-          autoHide={scrollAutoHide}
-          hideTracksWhenNotNeeded
-          renderView={props => <div {...props} className={tableViewClassName} />}
-          renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
-          renderTrackHorizontal={props => (
-            <div {...props} className={classNames('ecos-grid__h-scroll', { 'ecos-grid__h-scroll_higher': minHeight > maxHeight })} />
-          )}
-          {...scrollProps}
-        >
-          <div ref={this.setGridRef}>
-            <BootstrapTable
-              {...bootProps}
-              classes="ecos-grid__table"
-              headerClasses={classNames('ecos-grid__header', {
-                'ecos-grid__header_columns-not-resizable': !resizableColumns
-              })}
-              rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
-            />
-          </div>
-          {this.inlineTools()}
-        </Scrollbars>
+        {scrollable && (
+          <Scrollbars
+            ref={this.scrollRefCallback}
+            onScrollStart={this.onScrollStart}
+            onScrollFrame={this.onScrollFrame}
+            onScrollStop={this.onScrollStop}
+            style={scrollStyle}
+            autoHide={scrollAutoHide}
+            hideTracksWhenNotNeeded
+            renderView={props => <div {...props} className={tableViewClassName} />}
+            renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+            renderTrackHorizontal={props => (
+              <div {...props} className={classNames('ecos-grid__h-scroll', { 'ecos-grid__h-scroll_higher': minHeight > maxHeight })} />
+            )}
+            {...scrollProps}
+          >
+            {this.renderGrid()}
+          </Scrollbars>
+        )}
+
+        {!scrollable && this.renderGrid()}
 
         {this.fixedHeader ? (
           <>
