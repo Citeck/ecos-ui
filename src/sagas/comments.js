@@ -11,6 +11,7 @@ import {
   getComments,
   sendingEnd,
   sendingStart,
+  setActionFailedStatus,
   setComments,
   setError,
   updateCommentRequest,
@@ -125,6 +126,7 @@ function* sagaDeleteComment({ api, logger }, { payload }) {
     const originMessage = getPureMessage(e.message);
 
     NotificationManager.error(originMessage || t('comments-widget.error'), t('error'));
+    yield put(setActionFailedStatus({ nodeRef: payload.nodeRef, status: true }));
 
     logger.error('[comments sagaDeleteComment saga error', e.message);
   } finally {
@@ -133,6 +135,8 @@ function* sagaDeleteComment({ api, logger }, { payload }) {
     if (payload.callback && typeof payload.callback === 'function') {
       payload.callback();
     }
+
+    yield put(setActionFailedStatus({ nodeRef: payload.nodeRef, status: false }));
   }
 }
 

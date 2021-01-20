@@ -20,3 +20,5 @@ export const fetchStart = createAction(prefix + 'FETCH_START');
 export const fetchEnd = createAction(prefix + 'FETCH_END');
 export const sendingStart = createAction(prefix + 'SENDING_START');
 export const sendingEnd = createAction(prefix + 'SENDING_END');
+
+export const setActionFailedStatus = createAction(prefix + 'SET_ACTION_FAILED_STATUS');

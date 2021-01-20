@@ -27,11 +27,12 @@ import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
 import { createCommentRequest, deleteCommentRequest, getComments, setError, updateCommentRequest } from '../../../actions/comments';
-import { Avatar, Loader, Popper } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
 import LinkEditor from './Editor/LinkEditor';
 import linkDecorator from './Editor/LinkDecorator';
+import Comment from './Comment';
+import { CommentInterface, IdInterface } from './propsInterfaces';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
@@ -40,25 +41,8 @@ const BASE_HEIGHT = 21;
 
 class Comments extends BaseWidget {
   static propTypes = {
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    comments: PropTypes.arrayOf(
-      PropTypes.shape({
-        avatar: PropTypes.string,
-        firstName: PropTypes.string,
-        lastName: PropTypes.string,
-        middleName: PropTypes.string,
-        displayName: PropTypes.string,
-        editorName: PropTypes.string,
-        editorUserName: PropTypes.string,
-        text: PropTypes.string.isRequired,
-        dateCreate: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]).isRequired,
-        dateModify: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string]),
-        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-        canEdit: PropTypes.bool,
-        canDelete: PropTypes.bool,
-        edited: PropTypes.bool
-      })
-    ),
+    id: IdInterface.isRequired,
+    comments: PropTypes.arrayOf(PropTypes.shape(CommentInterface)),
     dataStorageFormat: PropTypes.oneOf(['raw', 'html', 'plain-text']),
     maxLength: PropTypes.number,
     totalCount: PropTypes.number,
@@ -482,16 +466,8 @@ class Comments extends BaseWidget {
     );
   };
 
-  handleDeleteComment = commentForDeletion => {
-    this.setState({ commentForDeletion });
-  };
-
-  handleCancelDeletion = () => {
-    this.setState({ commentForDeletion: null });
-  };
-
-  handleConfirmDeletion = () => {
-    this.props.deleteComment(this.state.commentForDeletion, () => this.setState({ commentForDeletion: null }));
+  handleDeleteComment = id => {
+    this.props.deleteComment(id, () => this.setState({ commentForDeletion: null }));
   };
 
   handleReloadData = () => {
@@ -644,129 +620,8 @@ class Comments extends BaseWidget {
     );
   }
 
-  renderConfirmDelete(id) {
-    const { saveIsLoading } = this.props;
-    const { commentForDeletion } = this.state;
-
-    if (!commentForDeletion || commentForDeletion !== id) {
-      return null;
-    }
-
-    return (
-      <div className="ecos-comments__comment-confirm">
-        <div className="ecos-comments__comment-confirm-group">
-          <div className="ecos-comments__comment-confirm-title">{t('comments-widget.confirm.title')}?</div>
-
-          <div className="ecos-comments__comment-confirm-btns">
-            <Btn
-              className="ecos-btn_grey5 ecos-btn_hover_color-grey ecos-comments__comment-confirm-btn"
-              onClick={this.handleCancelDeletion}
-            >
-              {t('comments-widget.confirm.cancel')}
-            </Btn>
-            <Btn className="ecos-btn_red ecos-comments__comment-confirm-btn" onClick={this.handleConfirmDeletion}>
-              {t('comments-widget.confirm.delete')}
-            </Btn>
-          </div>
-        </div>
-
-        {saveIsLoading && <Loader blur />}
-      </div>
-    );
-  }
-
-  renderCommentDate(comment) {
-    const { userName } = this.props;
-    const { dateCreate = new Date(), edited = false, dateModify, editorName, editorUserName } = comment;
-
-    if (!edited) {
-      return <div className="ecos-comments__comment-date">{this.formatDate(dateCreate)}</div>;
-    }
-
-    const inMoment = moment(dateModify);
-    let title = t('comments-widget.edited-by');
-
-    if (userName === editorUserName) {
-      const now = moment();
-      const yesterday = now
-        .clone()
-        .subtract(1, 'days')
-        .startOf('day');
-
-      if (inMoment.isSame(yesterday, 'd')) {
-        title += ` ${inMoment.format('DD.MM.YYYY')}`;
-      }
-
-      title += ` ${t('comments-widget.edited-in')} ${inMoment.format('HH:mm')}`;
-
-      return <div className="ecos-comments__comment-date">{title}</div>;
-    }
-
-    const displayText = `${editorName} / ${inMoment.format('DD.MM.YYYY HH:mm')}`;
-    const popperContent = <div className="ecos-comments__comment-date-popper">{displayText}</div>;
-
-    return (
-      <div className="ecos-comments__comment-date">
-        <Popper text={title} className="ecos-comments__comment-date-pseudo-link" contentComponent={popperContent} />
-      </div>
-    );
-  }
-
-  renderComment = data => {
-    const { id, avatar = '', firstName, lastName, middleName, displayName, text, canEdit = false, canDelete = false } = data;
-    let convertedComment;
-
-    try {
-      convertedComment = stateToHTML(convertFromRaw(JSON.parse(text)));
-    } catch (e) {
-      convertedComment = text;
-    }
-
-    return (
-      <div className="ecos-comments__comment" key={id}>
-        <div className="ecos-comments__comment-header">
-          <div className="ecos-comments__comment-header-cell">
-            <Avatar
-              url={avatar}
-              userName={displayName}
-              noBorder
-              className="ecos-comments__comment-avatar"
-              classNameEmpty="ecos-comments__comment-avatar_empty"
-            />
-            <div className="ecos-comments__comment-header-column">
-              <div className="ecos-comments__comment-name">
-                {firstName} {middleName}
-              </div>
-              <div className="ecos-comments__comment-name">{lastName}</div>
-              {this.renderCommentDate(data)}
-            </div>
-          </div>
-          <div className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions">
-            {canEdit && (
-              <div
-                className="ecos-comments__comment-btn ecos-comments__comment-btn-edit icon-edit"
-                title={t('comments-widget.icon.edit')}
-                onClick={this.handleEditComment.bind(null, id)}
-              />
-            )}
-            {canDelete && (
-              <div
-                className="ecos-comments__comment-btn ecos-comments__comment-btn-delete icon-delete"
-                title={t('comments-widget.icon.delete')}
-                onClick={this.handleDeleteComment.bind(null, id)}
-              />
-            )}
-          </div>
-        </div>
-        <div className="ecos-comments__comment-text" dangerouslySetInnerHTML={{ __html: convertedComment }} />
-
-        {this.renderConfirmDelete(id)}
-      </div>
-    );
-  };
-
   renderComments() {
-    const { comments, isMobile } = this.props;
+    const { comments, isMobile, saveIsLoading, userName, actionFailed } = this.props;
 
     if (!comments.length) {
       return null;
@@ -774,7 +629,17 @@ class Comments extends BaseWidget {
 
     const renderCommentList = () => (
       <div className="ecos-comments__list" ref={this.contentRef}>
-        {comments.map(this.renderComment)}
+        {comments.map(comment => (
+          <Comment
+            key={comment.id}
+            comment={comment}
+            userName={userName}
+            saveIsLoading={saveIsLoading}
+            actionFailed={actionFailed}
+            onEdit={this.handleEditComment}
+            onDelete={this.handleDeleteComment}
+          />
+        ))}
       </div>
     );
 
