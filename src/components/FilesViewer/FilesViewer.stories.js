@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { demoItems, demoActions } from './__mocks__/FilesViewer.mock';
+import { demoItems, demoActions } from './__fixtures__/FilesViewer.fixtures';
 import FilesViewer from './FilesViewer';
 
 export default {

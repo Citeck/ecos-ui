@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { item1, item1111, item1112, demoItems } from '../__mocks__/FolderTree.mock';
+import { item1, item1111, item1112, demoItems } from '../__fixtures__/FolderTree.fixtures';
 import FolderTree from '../FolderTree';
 import FolderTreeItem from '../FolderTreeItem';
 
