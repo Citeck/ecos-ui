@@ -18,6 +18,7 @@ const originalCheckConditions = Base.prototype.checkConditions;
 const originalSetValue = Base.prototype.setValue;
 const originalT = Base.prototype.t;
 const originalApplyActions = Base.prototype.applyActions;
+const originalSetupValueElement = Base.prototype.setupValueElement;
 
 const INLINE_EDITING_CLASSNAME = 'inline-editing';
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
@@ -305,6 +306,7 @@ Base.prototype.createViewOnlyValue = function(container) {
   this.createInlineEditButton(container);
 
   const customClass = get(this, 'component.customClass');
+
   if (customClass) {
     container.classList.add(`${customClass}_view-mode`);
   }
@@ -538,6 +540,30 @@ Base.prototype.createWidget = function() {
   widget.on('redraw', () => this.redraw(), true);
   this._widget = widget;
   return widget;
+};
+
+Base.prototype.setUnreadableLabel = function(element) {
+  if (!element) {
+    return;
+  }
+
+  if (this.component.unreadable) {
+    element.innerHTML = t('ecos-form.value-unreadable');
+    element.className = 'ecos-form__value_unreadable';
+  }
+};
+
+Base.prototype.setupValueElement = function(element) {
+  if (!element) {
+    return;
+  }
+
+  if (this.component.unreadable) {
+    this.setUnreadableLabel(element);
+    return;
+  }
+
+  originalSetupValueElement.call(this, element);
 };
 
 export default Base;
