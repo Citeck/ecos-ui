@@ -5,6 +5,7 @@ import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import Base from 'formiojs/components/base/Base';
 
+import { t } from '../../../../helpers/util';
 import Widgets from '../../../widgets';
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
 
@@ -242,6 +243,10 @@ Base.prototype.addInputError = function(message, dirty) {
 
 // Cause: https://citeck.atlassian.net/browse/ECOSENT-832 - Add inline edit support in view mode to the ECOS forms
 Base.prototype.createInlineEditButton = function(container) {
+  if (this.component.unreadable) {
+    return;
+  }
+
   const isComponentDisabled = this.disabled || this.component.disabled;
 
   const isInlineEditDisabled = get(this, 'options.disableInlineEdit', false) || this.component.disableInlineEdit;

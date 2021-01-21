@@ -236,6 +236,12 @@ export default class SelectOrgstructComponent extends BaseComponent {
     this._getAuthorityRef(authority, callback);
   }
 
+  setupValueElement(element) {
+    if (this.component.unreadable) {
+      super.setupValueElement(element);
+    }
+  }
+
   setValue(value, flags) {
     if (
       this.pristine && // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3241
