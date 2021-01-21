@@ -143,10 +143,7 @@ class TaskDetails extends React.Component {
             formKey={details.formKey}
             onSubmit={this.onSubmitForm}
             saveOnSubmit
-            options={{
-              useNarrowButtons: true,
-              fullWidthColumns: isSmallMode
-            }}
+            options={{ fullWidthColumns: isSmallMode }}
             initiator={{
               type: 'widget',
               name: ComponentKeys.TASKS
