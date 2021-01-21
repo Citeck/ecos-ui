@@ -1,12 +1,37 @@
 import i18next from 'i18next';
 import assert from 'power-assert';
-import _ from 'lodash';
+import camelCase from 'lodash/camelCase';
+import each from 'lodash/each';
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import set from 'lodash/set';
+import merge from 'lodash/merge';
 import EventEmitter from 'eventemitter2';
 import i18Defaults from 'formiojs/i18n';
 import WebformBuilder from 'formiojs/WebformBuilder';
 
+import { getTextByLocale } from '../../helpers/util';
 import '../components';
 import './mocks';
+
+const originalUpdateComponent = WebformBuilder.prototype.updateComponent;
+
+WebformBuilder.prototype.updateComponent = function(component) {
+  let key =
+    component.component.key || (component.component.label || component.component.placeholder || component.component.type).toString();
+
+  if (key === {}.toString()) {
+    component.component.key = camelCase(
+      getTextByLocale(component.component.label || component.component.placeholder || component.component.type)
+    );
+  }
+
+  if (component.component.key) {
+    component.keyModified = true;
+  }
+
+  originalUpdateComponent.call(this, component);
+};
 
 let formBuilderElement = null;
 let formBuilder = null;
@@ -37,7 +62,7 @@ const Harness = {
   buildComponent(type) {
     // Get the builder sidebar component.
     let builderGroup = null;
-    _.each(formBuilder.groups, group => {
+    each(formBuilder.groups, group => {
       if (group.components[type]) {
         builderGroup = group.body;
         return false;
@@ -52,27 +77,35 @@ const Harness = {
   setComponentProperty(property, before, after, cb) {
     // console.log('setComponentProperty formBuilder.editForm', formBuilder.editForm);
 
-    const component = _.cloneDeep(formBuilder.editForm.submission);
-    assert.equal(_.get(component.data, property), before);
-    _.set(component.data, property, after);
+    const component = cloneDeep(formBuilder.editForm.submission);
+
+    assert.equal(get(component.data, property), before);
+    set(component.data, property, after);
     formBuilder.off('updateComponent');
     formBuilder.on('updateComponent', () => {
       const preview = formBuilder.componentPreview.innerHTML;
-      assert.equal(_.get(formBuilder.editForm.submission.data, property), after);
+
+      assert.equal(get(formBuilder.editForm.submission.data, property), after);
       cb(preview);
     });
     formBuilder.editForm.submission = component;
   },
 
-  testBuilderProperty(property, before, after, previewRegEx, cb) {
+  testBuilderProperty(property, before, after, previewRegEx, cb, afterInputValue = after) {
     Harness.testVisibility(formBuilder.editForm, `.formio-component-${property}`, true);
-    Harness.setComponentProperty(property, before, after, preview => {
-      if (previewRegEx) {
-        assert(preview.match(previewRegEx), `${property} not set correctly`);
-      }
-      Harness.getInputValue(formBuilder.editForm, `data[${property}]`, after);
-      cb();
-    });
+    Harness.setComponentProperty(
+      property,
+      before,
+      after,
+      preview => {
+        if (previewRegEx) {
+          assert(preview.match(previewRegEx), `${property} not set correctly`);
+        }
+        Harness.getInputValue(formBuilder.editForm, `data[${property}]`, afterInputValue);
+        cb();
+      },
+      afterInputValue
+    );
   },
 
   getDate() {
@@ -81,10 +114,10 @@ const Harness = {
     return new Date(timestamp * 1000).toISOString();
   },
   testCreate(Component, componentSettings, options = {}) {
-    const compSettings = _.cloneDeep(componentSettings);
+    const compSettings = cloneDeep(componentSettings);
     const component = new Component(
       compSettings,
-      _.merge(
+      merge(
         {
           events: new EventEmitter({
             wildcard: false,
@@ -176,7 +209,7 @@ const Harness = {
     return element;
   },
   testSetGet(component, value) {
-    const originValue = _.cloneDeep(value);
+    const originValue = cloneDeep(value);
     component.setValue(value);
     assert.deepEqual(component.getValue(), originValue);
     return component;
@@ -190,6 +223,7 @@ const Harness = {
   },
   getInputValue(component, name, value, selector = `[name="${name}"]`) {
     const element = component.element.querySelector(selector);
+
     assert(element, `${name} input not found`);
     assert.equal(value, element.value);
   },
@@ -222,7 +256,7 @@ const Harness = {
   },
   testErrors(form, submission, errors, done) {
     form.on('error', err => {
-      _.each(errors, (error, index) => {
+      each(errors, (error, index) => {
         error.component = form.getComponent(error.component).component;
         assert.deepEqual(err[index], error);
       });
@@ -262,7 +296,7 @@ const Harness = {
   testWizardPrevPage(form, errors, onPrevPage) {
     if (errors) {
       form.on('error', err => {
-        _.each(errors, (error, index) => {
+        each(errors, (error, index) => {
           error.component = form.getComponent(error.component).component;
           assert.deepEqual(err[index], error);
         });
@@ -276,7 +310,7 @@ const Harness = {
   testWizardNextPage(form, errors, onNextPage) {
     if (errors) {
       form.on('error', err => {
-        _.each(errors, (error, index) => {
+        each(errors, (error, index) => {
           error.component = form.getComponent(error.component).component;
           assert.deepEqual(err[index], error);
         });
@@ -288,7 +322,7 @@ const Harness = {
     return form.nextPage();
   },
   testNumberBlur(cmp, inv, outv, display, index = 0) {
-    const input = _.get(cmp, ['inputs', index], {});
+    const input = get(cmp, ['inputs', index], {});
     input.value = inv;
     input.dispatchEvent(new Event('blur'));
     assert.strictEqual(cmp.getValueAt(index), outv);
