@@ -42,6 +42,11 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   }
 
   setupValueElement(element) {
+    if (this.component.unreadable) {
+      this.setUnreadableLabel(element);
+      return;
+    }
+
     let value = this.getValue();
     element.innerHTML = value ? t('boolean.yes') : t('boolean.no');
   }

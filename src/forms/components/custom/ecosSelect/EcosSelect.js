@@ -1123,6 +1123,11 @@ export default class SelectComponent extends BaseComponent {
   }
 
   setupValueElement(element) {
+    if (this.component.unreadable) {
+      this.setUnreadableLabel(element);
+      return;
+    }
+
     element.innerHTML = this.asString();
   }
 

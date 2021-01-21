@@ -14,6 +14,7 @@ import {
 import { isNodeRef } from '../../../../helpers/util';
 import Records from '../../../../components/Records';
 import BaseComponent from '../base/BaseComponent';
+import UnreadableLabel from '../../UnreadableLabel';
 
 let authorityRefsByName = {};
 
@@ -136,6 +137,11 @@ export default class SelectOrgstructComponent extends BaseComponent {
       excludeAuthoritiesByType.length > 0 ? excludeAuthoritiesByType.split(',').map(item => item.trim()) : [];
 
     let renderControl = function() {
+      if (component.unreadable) {
+        ReactDOM.render(<UnreadableLabel />, self.reactContainer);
+        return;
+      }
+
       ReactDOM.render(
         <SelectOrgstruct
           defaultValue={self.dataValue}
@@ -234,12 +240,6 @@ export default class SelectOrgstructComponent extends BaseComponent {
     authorityRefsByName[authority] = Records.queryOne(query);
 
     this._getAuthorityRef(authority, callback);
-  }
-
-  setupValueElement(element) {
-    if (this.component.unreadable) {
-      super.setupValueElement(element);
-    }
   }
 
   setValue(value, flags) {
