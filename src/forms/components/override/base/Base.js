@@ -2,13 +2,18 @@ import isObject from 'lodash/isObject';
 import isBoolean from 'lodash/isBoolean';
 import clone from 'lodash/clone';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import set from 'lodash/set';
 import Base from 'formiojs/components/base/Base';
+import Tooltip from 'tooltip.js';
+import { getInputMask } from 'formiojs/utils/utils';
 
 import Widgets from '../../../widgets';
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
+import { getTextByLocale, getCurrentLocale } from '../../../../helpers/util';
+import { checkIsEmptyMlField } from '../../../utils';
 
-const originalCreateTooltip = Base.prototype.createTooltip;
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
 const originalBuild = Base.prototype.build;
 const originalCreateViewOnlyElement = Base.prototype.createViewOnlyElement;
@@ -17,6 +22,11 @@ const originalCheckConditions = Base.prototype.checkConditions;
 const originalSetValue = Base.prototype.setValue;
 const originalT = Base.prototype.t;
 const originalApplyActions = Base.prototype.applyActions;
+const originalSetInputMask = Base.prototype.setInputMask;
+const originalCreateLabel = Base.prototype.createLabel;
+const originalCreateViewOnlyLabel = Base.prototype.createViewOnlyLabel;
+const originalElementInfo = Base.prototype.elementInfo;
+const originalCreateDescription = Base.prototype.createDescription;
 
 const INLINE_EDITING_CLASSNAME = 'inline-editing';
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
@@ -211,7 +221,31 @@ Base.prototype.setValue = function(value, flags) {
 };
 
 Base.prototype.createTooltip = function(container, component, classes) {
-  originalCreateTooltip.call(this, container, component, classes);
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
+  if (this.tooltip) {
+    return;
+  }
+
+  component = component || this.component;
+  classes = classes || `${this.iconClass('question-sign')} text-muted`;
+
+  if (checkIsEmptyMlField(component.tooltip)) {
+    return;
+  }
+
+  const ttElement = this.ce('i', {
+    class: classes
+  });
+
+  container.appendChild(this.text(' '));
+  container.appendChild(ttElement);
+
+  this.tooltip = new Tooltip(ttElement, {
+    trigger: 'hover click',
+    placement: 'right',
+    html: true,
+    title: this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />')
+  });
 
   if (this.tooltip) {
     this.tooltip.updateTitleContent(this.t(this.tooltip.options.title));
@@ -533,6 +567,95 @@ Base.prototype.createWidget = function() {
   widget.on('redraw', () => this.redraw(), true);
   this._widget = widget;
   return widget;
+};
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
+Base.prototype.createLabel = function(container) {
+  originalCreateLabel.call(this, container);
+
+  if (!this.labelIsHidden()) {
+    this.labelElement.replaceChild(this.text(this.label), this.labelElement.childNodes[0]);
+    this.createTooltip(this.labelElement);
+  }
+};
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
+Base.prototype.createViewOnlyLabel = function(container) {
+  originalCreateViewOnlyLabel.call(this, container);
+
+  if (this.labelIsHidden()) {
+    return;
+  }
+
+  this.labelElement.replaceChild(this.text(this.label), this.labelElement.childNodes[0]);
+};
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
+Object.defineProperty(Base.prototype, 'label', {
+  set: function(value) {
+    if (typeof value === 'string') {
+      value = {
+        [getCurrentLocale()]: value
+      };
+    }
+
+    this.component.label = value;
+
+    if (this.labelElement) {
+      this.labelElement.innerText = getTextByLocale(value);
+    }
+  },
+
+  get: function() {
+    return getTextByLocale(this.component.label);
+  }
+});
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
+Object.defineProperty(Base.prototype, 'placeholder', {
+  get: function() {
+    return getTextByLocale(this.component.placeholder);
+  }
+});
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
+Object.defineProperty(Base.prototype, 'name', {
+  get: function() {
+    return this.t(this.label || this.placeholder || this.key);
+  }
+});
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
+Base.prototype.elementInfo = function() {
+  const info = originalElementInfo.call(this);
+
+  if (this.component.placeholder) {
+    set(info, 'attr.placeholder', this.t(this.placeholder));
+  }
+
+  return info;
+};
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
+Base.prototype.createDescription = function(container) {
+  originalCreateDescription.call(this, container);
+
+  if (!this.component.description) {
+    return;
+  }
+
+  this.description.innerHTML = this.t(getTextByLocale(this.component.description));
+};
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
+Base.prototype.setInputMask = function(input, inputMask) {
+  const result = originalSetInputMask.call(this, input, inputMask, !isEmpty(this.placeholder));
+
+  if (isEmpty(this.placeholder) && input && inputMask) {
+    input.setAttribute('placeholder', this.maskPlaceholder(getInputMask(inputMask)));
+  }
+
+  return result;
 };
 
 export default Base;

@@ -39,7 +39,7 @@ describe('TextField Builder', () => {
   });
 
   it('Should allow you to change the label', done => {
-    Harness.setComponentProperty('label', 'Text Field', 'First Name', preview => {
+    Harness.setComponentProperty('label', 'Text Field', { en: 'First Name' }, preview => {
       expect(!!preview.match(/label.*input/)).toBe(true);
       expect(preview.indexOf('<label class="control-label" style="" for="textField2">First Name</label>')).not.toBe(-1);
       done();
@@ -108,40 +108,50 @@ describe('TextField Builder', () => {
   });
 
   it('Should set the placeholder of the input', done => {
+    const value = 'Enter something here';
+
     Harness.setComponentProperty('labelPosition', 'right-right', 'top', () => {
       Harness.testBuilderProperty(
         'placeholder',
         '',
-        'Enter something here',
-        /input.*name="data\[firstName\].*placeholder="Enter something here"/,
-        done
+        { en: value },
+        /input.*name="data\[textField2\].*placeholder="Enter something here"/,
+        done,
+        value
       );
     });
   });
 
   it('Should set the description of the input', done => {
+    const value = 'This is a description';
+
     Harness.testBuilderProperty(
       'description',
       '',
-      'This is a description',
+      { en: value },
       /input.*div.*class="help-block">This is a description<\/div>/,
-      done
+      done,
+      value
     );
   });
 
   it('Should set the tooltip of the input', done => {
+    const value = 'This is something you should fill out.';
+
     Harness.testBuilderProperty(
       'tooltip',
       '',
-      'This is something you should fill out.',
+      // 'This is something you should fill out.',
+      { en: value },
       /label.*i.*class="glyphicon glyphicon-question-sign text-muted.*<\/label>/,
       () => {
         expect(!!builder.preview.tooltip).toBe(true);
         builder.preview.tooltip.show();
         const toolTipText = builder.preview.element.querySelector('.tooltip-inner');
-        expect(toolTipText.innerHTML).toBe('This is something you should fill out.');
+        expect(toolTipText.innerHTML).toBe(value);
         done();
-      }
+      },
+      value
     );
   });
 
