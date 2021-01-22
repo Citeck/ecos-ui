@@ -357,7 +357,7 @@
   "dropdown-filter.icon-button.label": "Filter",
   "dropdown-filter.item.placeholder": "Filter",
 
-  "ecos-form.value-unreadable": "Not readable",
+  "ecos-form.value-unreadable": "Field not available",
   "ecos-form.empty-form-data": "Error: form is not defined",
   "ecos-form.error-get-form": "Error: form is not loaded. Try to configure form",
   "ecos-form.error.clone-get-fields": "Cloned record hasn't received",

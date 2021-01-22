@@ -356,7 +356,7 @@
   "dropdown-filter.icon-button.label": "Фильтровать",
   "dropdown-filter.item.placeholder": "Фильтровать",
 
-  "ecos-form.value-unreadable": "Недоступно для чтения",
+  "ecos-form.value-unreadable": "Поле недоступно",
   "ecos-form.empty-form-data": "Ошибка: форма не определена",
   "ecos-form.error-get-form": "Ошибка: форма не загружена. Попробуйте настроить ее",
   "ecos-form.error.clone-get-fields": "Копия записи не получена",
