@@ -124,9 +124,9 @@
 
       display: flex;
       justify-content: space-between;
-      flex-wrap: wrap;
 
       &_small-mode {
+        flex-wrap: wrap;
         margin: 13px 0;
       }
 

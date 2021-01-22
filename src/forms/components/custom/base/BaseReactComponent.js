@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import get from 'lodash/get';
+import pick from 'lodash/pick';
 
 import BaseComponent from './BaseComponent';
 import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
@@ -75,6 +77,10 @@ export default class BaseReactComponent extends BaseComponent {
     this.attachRefreshOn();
     // this.autofocus();
     this.attachLogic();
+  }
+
+  get htmlAttributes() {
+    return pick(get(this, 'info.attr', {}), ['id', 'name', 'type']);
   }
 
   createViewOnlyValue(container) {

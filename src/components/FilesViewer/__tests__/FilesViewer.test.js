@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { file1, folder1, demoItems, demoActions } from '../__mocks__/FilesViewer.mock';
+import { file1, folder1, demoItems, demoActions } from '../__fixtures__/FilesViewer.fixtures';
 import FilesViewer from '../FilesViewer';
 import FilesViewerItem from '../FilesViewerItem';
 

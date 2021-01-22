@@ -57,7 +57,7 @@ export default React.memo(function JournalsGroupActionsTools(props) {
     />
   ));
 
-  if (forRecordsDropDownActions.length) {
+  if (forRecordsDropDownActions.length && selectedRecords.length > 1) {
     tools.push(
       <DropdownOuter
         className="ecos-journal__tool-group-dropdown grid-tools__item_left_5"

@@ -17,7 +17,7 @@ import {
   selectDocLibSearchText,
   selectDocLibGroupActions
 } from '../docLib';
-import { testState, testStateId, documentLibrary, sidebar, fileViewer, createVariants } from '../__mocks__/docLib.mock';
+import { testState, testStateId, documentLibrary, sidebar, fileViewer, createVariants } from '../__fixtures__/docLib.fixtures';
 
 describe('docLib selectors tests', () => {
   it('selectDocLib', () => {

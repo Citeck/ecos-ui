@@ -204,7 +204,9 @@ export function getTextByLocale(data, locale = getCurrentLocale()) {
 
       // get first translation, if for 'en' locale not found
       if (!text) {
-        text = data[Object.keys(data)[0]] || '';
+        const firstNotEmpty = Object.keys(data).find(key => !isEmpty(data[key]));
+
+        text = data[firstNotEmpty] || '';
       }
     }
 
