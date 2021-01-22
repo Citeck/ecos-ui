@@ -161,9 +161,11 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     }
 
     this.#beforeState = value;
-    this.input.checked = value;
-    this.input.value = value;
-    this.labelSpan.setAttribute('title', value);
+    if (this.input) {
+      this.input.checked = value;
+      this.input.value = value;
+    }
+    this.labelSpan && this.labelSpan.setAttribute('title', value);
   }
 
   setupValueElement(element) {

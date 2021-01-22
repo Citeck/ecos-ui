@@ -41,7 +41,7 @@
         & .close {
           position: static;
           margin-left: 15px;
-          min-width: 85px;
+          white-space: nowrap;
 
           .ecos-modal-close__icon {
             margin-left: 5px;

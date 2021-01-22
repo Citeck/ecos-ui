@@ -166,7 +166,7 @@ class EcosForm extends React.Component {
               input.component.disabled = true;
             }
 
-            if (!input.edge.unreadable) {
+            if (input.edge.unreadable) {
               input.component.disabled = true;
               input.component.unreadable = true;
             }
