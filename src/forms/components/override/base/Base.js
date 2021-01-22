@@ -185,6 +185,12 @@ Object.defineProperty(Base.prototype, 'hasSetValue', {
   }
 });
 
+Object.defineProperty(Base.prototype, 'viewOnly', {
+  get: function() {
+    return this.component.unreadable || (this.options.readOnly && this.options.viewAsHtml);
+  }
+});
+
 Base.prototype.isEmpty = function(value) {
   return value === undefined || value === null || value.length === 0 || isEqual(value, this.emptyValue);
 };
