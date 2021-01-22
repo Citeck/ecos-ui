@@ -52,7 +52,7 @@ export default () => {
     <div className="dev-tools-page">
       <div className={classNames('dev-tools-page__content', { 'dev-tools-page__content_full': !isOpenMenu })}>
         <DevToolsContextProvider activeTab={activeTab} setActiveTab={setActiveTab}>
-          <Container fluid className="p-0">
+          <Container className="p-0">
             <Row>
               <Col>
                 <Caption normal className="dev-tools-page__title">
