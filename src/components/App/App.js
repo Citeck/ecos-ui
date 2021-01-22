@@ -41,6 +41,7 @@ const allowedLinks = [
   '/v2/debug/cmmn',
   URL.DASHBOARD_SETTINGS,
   URL.BPMN_DESIGNER,
+  URL.ADMIN_PAGE,
   URL.JOURNAL,
   URL.DEV_TOOLS,
   URL.CMMN_EDITOR,
@@ -249,7 +250,7 @@ class App extends Component {
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.BPMN_DESIGNER}
+              path={URL.ADMIN_PAGE}
               render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />}
             />
             <CacheRoute
@@ -312,12 +313,12 @@ class App extends Component {
             />
             {/* --- TIMESHEETs end */}
 
-            {/*temporary routes */}
-            <Route path={URL.FORM_COMPONENTS} render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
+            {/* temporary routes */}
+            <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
             <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} {...basePageProps} />} />
-            <Route path="/v2/debug/cmmn" render={props => <Page pageKey={Pages.DEBUG_CMMN} {...props} {...basePageProps} />} />
-
-            {/* Redirect not working: https://github.com/CJY0208/react-router-cache-route/issues/72 */}
+            {/* >> old urls*/}
+            <Redirect from={URL.BPMN_DESIGNER} to={URL.ADMIN_PAGE} />
+            {/* old urls <<*/}
             <Redirect to={URL.DASHBOARD} />
           </CacheSwitch>
         </Suspense>
@@ -339,7 +340,7 @@ class App extends Component {
               render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} {...basePageProps} />}
             />
             <Route path={URL.DASHBOARD} exact render={props => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />} />
-            <Route path={URL.BPMN_DESIGNER} render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />} />
+            <Route path={URL.ADMIN_PAGE} render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />} />
             <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} {...basePageProps} />} />
             <Route path={URL.DEV_TOOLS} render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} {...basePageProps} />} />
             <Route path={URL.CMMN_EDITOR} render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} {...basePageProps} />} />
@@ -379,7 +380,9 @@ class App extends Component {
             {/* temporary routes */}
             <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
             <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} {...basePageProps} />} />
-
+            {/* >> old urls*/}
+            <Redirect from={URL.BPMN_DESIGNER} to={URL.ADMIN_PAGE} />
+            {/* old urls <<*/}
             <Redirect to={URL.DASHBOARD} />
           </Switch>
         </Suspense>

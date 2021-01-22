@@ -154,7 +154,7 @@ export function makeSiteMenu(params = {}) {
     {
       id: 'GO_ADMIN_PAGE',
       label: 'header.site-menu.admin-page',
-      targetUrl: URL.BPMN_DESIGNER,
+      targetUrl: URL.ADMIN_PAGE,
       targetUrlType: 'FULL_PATH'
     }
   ];

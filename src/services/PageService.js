@@ -3,6 +3,7 @@ import get from 'lodash/get';
 
 import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
+import { SectionTypes } from '../constants/adminSection';
 import { getCurrentUserName, t } from '../helpers/util';
 import { decodeLink, getLinkWithout, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
 import { getData, isExistLocalStorage, setData } from '../helpers/ls';
@@ -129,8 +130,14 @@ export default class PageService {
       getTitle: () => staticTitle(TITLE[URL.DEV_TOOLS])
     },
     [PageTypes.BPMN_DESIGNER]: {
-      getTitle: ({ journalId }) => {
-        return journalId ? PageService.pageTypes[PageTypes.JOURNALS].getTitle({ journalId }) : staticTitle(TITLE[URL.BPMN_DESIGNER]);
+      getTitle: ({ type, journalId }) => {
+        if (journalId && type === SectionTypes.JOURNAL) {
+          return PageService.pageTypes[PageTypes.JOURNALS].getTitle({ journalId });
+        }
+
+        if (type === SectionTypes.BPM) {
+          return staticTitle(TITLE.BPM);
+        }
       }
     },
     [PageTypes.CMMN_EDITOR]: {
