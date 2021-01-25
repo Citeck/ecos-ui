@@ -17,3 +17,5 @@ export const selectJournalUiType = createSelector(
   (journals, id) => journals.find(journal => journal.nodeRef === id),
   journal => get(journal, 'uiType')
 );
+
+export const selectJournalData = selectState;

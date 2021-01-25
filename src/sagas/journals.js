@@ -63,8 +63,9 @@ import { t } from '../helpers/util';
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
 import { getJournalUIType, getOldPageUrl } from '../api/export/journalsApi';
-import { selectJournals, selectJournalSettings, selectJournalUiType } from '../selectors/journals';
+import { selectJournalData, selectJournals, selectJournalSettings, selectJournalUiType } from '../selectors/journals';
 import { selectSearch } from '../selectors/router';
+import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -360,8 +361,21 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const pagination = userConfig ? userConfig.pagination : yield select(state => state.journals[stateId].grid.pagination);
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, userConfig, stateId }, w);
   const params = getGridParams({ journalConfig, journalSetting, pagination });
-  const searchPredicate = yield getSearchPredicate(w({ stateId }));
-  const gridData = yield getGridData(api, { ...params, searchPredicate }, stateId);
+  const search = yield select(state => state.journals[stateId].url.search);
+  let gridData = yield getGridData(api, { ...params }, stateId);
+  let searchData = {};
+
+  if (search) {
+    yield put(setGrid(w({ search })));
+    searchData = { search };
+  }
+
+  const searchPredicate = yield getSearchPredicate({ ...w({ stateId }), grid: { ...gridData, ...searchData } });
+
+  if (!isEmpty(searchPredicate)) {
+    gridData = yield getGridData(api, { ...params, searchPredicate }, stateId);
+  }
+
   const editingRules = yield getGridEditingRules(api, gridData);
   let selectedRecords = [];
   let isSelectAllRecords = false;
@@ -435,7 +449,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
 
     grid.columns = get(journalSetting, 'columns', []);
 
-    const params = { ...grid, ...(action.payload || {}), searchPredicate };
+    const params = { ...grid, ...(action.payload || {}), searchPredicate: get(action, 'payload.searchPredicate', searchPredicate) };
     const gridData = yield getGridData(api, params, stateId);
     const editingRules = yield getGridEditingRules(api, gridData);
     const selectAllRecords = yield select(state => state.journals[stateId].selectAllRecords);
@@ -749,12 +763,23 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
   }
 }
 
-function* getSearchPredicate({ logger, stateId }) {
+function* getSearchPredicate({ logger, stateId, grid }) {
   try {
-    const grid = yield select(state => state.journals[stateId].grid);
-    const fullSearch = yield select(state => get(state, ['journals', stateId, 'journalConfig', 'params', 'full-search-predicate']));
-    const { columns = [], groupBy = [], search } = grid;
+    const journalData = yield select(selectJournalData, stateId);
+    let { journalConfig, grid: gridData } = journalData;
+    const fullSearch = get(journalConfig, ['params', 'full-search-predicate']);
     let predicate;
+
+    if (!isEmpty(grid)) {
+      gridData = { ...gridData, ...grid };
+    }
+
+    const { groupBy = [], search } = gridData;
+    let { columns = [] } = gridData;
+
+    columns = columns.filter(item => {
+      return ![COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME].includes(item.type);
+    });
 
     if (fullSearch) {
       predicate = JSON.parse(fullSearch);
