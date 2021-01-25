@@ -26,7 +26,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         isSelectedValueAsText: false,
         isTableMode: false,
         sortAttribute: Attributes.DBID,
-        sortAscending: SortOrderOptions.ASC.value,
+        sortAscending: SortOrderOptions.DESC.value,
         source: {
           custom: {
             columns: []

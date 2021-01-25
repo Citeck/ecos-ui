@@ -289,7 +289,7 @@ class Journals extends Component {
   resetSettings = savedSetting => {
     const { predicate } = this.props;
 
-    this.setState({ savedSetting: { ...savedSetting, predicate }, isReset: true });
+    this.setState({ savedSetting: { ...savedSetting, predicate }, isReset: true }, () => this.setState({ isReset: false }));
   };
 
   applySettings = () => {
@@ -462,7 +462,7 @@ class Journals extends Component {
   renderSettings = () => {
     if (this.displayElements.settings) {
       const { stateId, journalConfig, grid, isMobile, selectedRecords, reloadGrid, isDocLibEnabled } = this.props;
-      const { showPreview, settingsVisible } = this.state;
+      const { showPreview, settingsVisible, isReset } = this.state;
       const { id: journalId, columns = [], meta = {}, sourceId } = pick(this.props.journalConfig, ['id', 'columns', 'meta', 'sourceId']);
       const visibleColumns = columns.filter(c => c.visible);
 
@@ -483,7 +483,13 @@ class Journals extends Component {
               <EcosModalHeight>
                 {height => (
                   <Scrollbars style={{ height }}>
-                    <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={get(meta, 'metaRecord')} />
+                    <JournalsFilters
+                      stateId={stateId}
+                      columns={visibleColumns}
+                      sourceId={sourceId}
+                      metaRecord={get(meta, 'metaRecord')}
+                      needUpdate={isReset}
+                    />
                     <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
                     <JournalsGrouping stateId={stateId} columns={visibleColumns} />
                   </Scrollbars>

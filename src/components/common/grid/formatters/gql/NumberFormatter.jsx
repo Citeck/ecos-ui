@@ -1,22 +1,51 @@
-import React, { Fragment } from 'react';
+import BigNumber from 'bignumber.js';
+import get from 'lodash/get';
+
 import DefaultGqlFormatter from './DefaultGqlFormatter';
+import { getNumberSeparators } from '../../../../../helpers/util';
 
 export default class NumberFormatter extends DefaultGqlFormatter {
-  static formatNumber(value) {
+  static formatNumber(value, params) {
+    if (value === undefined) {
+      return '';
+    }
+
     if (!value) {
       return value;
     }
 
     const number = parseFloat(value);
+
     if (isNaN(number)) {
       return value;
     }
 
-    return number.toLocaleString();
+    let maximumFractionDigits = get(params, 'maximumFractionDigits');
+
+    if (maximumFractionDigits === undefined) {
+      maximumFractionDigits = 16;
+    }
+
+    if (typeof value === 'number') {
+      return number.toLocaleString(undefined, { maximumFractionDigits });
+    }
+
+    if (typeof value === 'string') {
+      const separators = getNumberSeparators();
+
+      return new BigNumber(new BigNumber(value).toFixed(maximumFractionDigits)).toFormat({
+        decimalSeparator: separators.decimal,
+        groupSeparator: separators.thousand,
+        groupSize: 3
+      });
+    }
+
+    return value;
   }
 
   render() {
-    const { cell } = this.props;
-    return <Fragment>{NumberFormatter.formatNumber(cell)}</Fragment>;
+    const { cell, params } = this.props;
+
+    return NumberFormatter.formatNumber(cell, params);
   }
 }

@@ -64,11 +64,13 @@ class ListItem extends Component {
 
 export default class ColumnsSetup extends Component {
   getListItem = (column, props) => {
+    const { titleField } = this.props;
+
     return (
       <ListItem
         column={column}
         sortBy={props.sortBy}
-        titleField={this.props.titleField}
+        titleField={titleField}
         onChangeVisible={this.onChangeVisible}
         onChangeSortBy={this.onChangeSortBy}
       />
