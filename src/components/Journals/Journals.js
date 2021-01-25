@@ -244,7 +244,12 @@ class Journals extends Component {
   resetSettings = savedSetting => {
     const { predicate } = this.props;
 
-    this.setState({ savedSetting: { ...savedSetting, predicate }, isReset: true });
+    // if (this._settingsFiltersRef.current) {
+    //   console.warn(this._settingsFiltersRef);
+    //   this._settingsFiltersRef.current.update();
+    // }
+
+    this.setState({ savedSetting: { ...savedSetting, predicate }, isReset: true }, () => this.setState({ isReset: false }));
   };
 
   applySettings = () => {
@@ -405,7 +410,7 @@ class Journals extends Component {
       selectAllRecords,
       reloadGrid
     } = this.props;
-    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, height } = this.state;
+    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, height, isReset } = this.state;
 
     if (!journalConfig) {
       return null;
@@ -483,9 +488,10 @@ class Journals extends Component {
                         columns={visibleColumns}
                         sourceId={sourceId}
                         metaRecord={get(meta, 'metaRecord')}
+                        needUpdate={isReset}
                       />
-                      <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
-                      <JournalsGrouping stateId={stateId} columns={visibleColumns} />
+                      <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} needUpdate={isReset} />
+                      <JournalsGrouping stateId={stateId} columns={visibleColumns} needUpdate={isReset} />
                     </Scrollbars>
                   )}
                 </EcosModalHeight>

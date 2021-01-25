@@ -27,6 +27,10 @@ export default class Filter extends Component {
     const currentValue = get(this.props, 'filter.predicate.val', '');
     const { value, hasDataEntry } = this.state;
 
+    if (!prevProps.needUpdate && this.props.needUpdate && this.state.value !== currentValue) {
+      this.setState({ value: currentValue });
+    }
+
     if (hasDataEntry) {
       return;
     }
