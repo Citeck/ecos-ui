@@ -940,7 +940,7 @@ export const selectJournalCase = {
       isSelectedValueAsText: false,
       isTableMode: false,
       sortAttribute: 'sys:node-dbid',
-      sortAscending: 'asc',
+      sortAscending: 'desc',
       computed: {
         valueDisplayName: ''
       },
