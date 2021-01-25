@@ -3,7 +3,7 @@ import _merge from 'lodash/merge';
 import Harness from '../../../test/harness';
 import BaseComponent from './Base';
 
-import { comp1, comp2, multipleWithDraggableRows } from './fixtures';
+import { comp1, comp2, comp3, multipleWithDraggableRows } from './fixtures';
 
 let draggableRowsComponent;
 const draggableRowsComponentData = ['one', 'two', 'three'];
@@ -15,6 +15,25 @@ describe('Base Component', () => {
       for (let i = 0; i < inputs.length; i++) {
         expect(inputs[i].name).toBe(`data[${comp1.key}]`);
       }
+      done();
+    });
+  });
+
+  it('Should build a base component with ML fields', done => {
+    Harness.testCreate(BaseComponent, comp3).then(component => {
+      const inputs = Harness.testElements(component, 'input[type="text"]', 1);
+
+      for (let i = 0; i < inputs.length; i++) {
+        expect(inputs[i].name).toBe(`data[${comp3.key}]`);
+        expect(inputs[i].placeholder).toBe(comp3.placeholder.ru);
+      }
+
+      expect(component.label).toBe(comp3.label.en);
+      expect(component.element.querySelector('.help-block').innerHTML).toBe(comp3.description.en);
+
+      component.tooltip.show();
+      expect(component.tooltip.popperInstance.popper.querySelector('.tooltip-inner').innerHTML).toBe(comp3.tooltip.ru);
+
       done();
     });
   });
