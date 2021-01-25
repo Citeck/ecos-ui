@@ -2,9 +2,35 @@ import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { fetchGroupSectionList, setActiveSection, setGroupSectionList, updActiveSection } from '../actions/adminSection';
+import {
+  fetchGroupSectionList,
+  getIsAccessible,
+  initAdminSection,
+  setActiveSection,
+  setGroupSectionList,
+  setIsAccessible,
+  updActiveSection
+} from '../actions/adminSection';
 import PageService from '../services/PageService';
 import AdminSectionService from '../services/AdminSectionService';
+
+function* init({ api, logger }, action) {
+  try {
+    yield put(getIsAccessible());
+  } catch (e) {
+    logger.error('[adminSection init saga] error', e.message);
+  }
+}
+
+function* fetchIsAccessible({ api, logger }, action) {
+  try {
+    const isAccessible = yield call(api.devTools.getIsAccessiblePage);
+
+    yield put(setIsAccessible(isAccessible));
+  } catch (e) {
+    logger.error('[adminSection fetchIsAccessible saga] error', e.message);
+  }
+}
 
 function* doFetchGroupSectionList({ api, logger }, action) {
   try {
@@ -46,6 +72,8 @@ export function* openActiveSection({ api, logger }, action) {
 }
 
 function* saga(ea) {
+  yield takeLatest(initAdminSection().type, init, ea);
+  yield takeLatest(getIsAccessible().type, fetchIsAccessible, ea);
   yield takeLatest(fetchGroupSectionList().type, doFetchGroupSectionList, ea);
   yield takeEvery(setActiveSection().type, openActiveSection, ea);
   yield takeEvery(updActiveSection().type, updateActiveSection, ea);

@@ -87,6 +87,7 @@
   "admin-section.sidebar.hide": "Hide menu",
   "admin-section.sidebar.hide-sm": "Hide",
   "admin-section.sidebar.list-empty": "No data",
+  "admin-section.error.access-denied": "You don't have access to this page",
 
   "button.close-modal": "Close",
   "button.export": "Export",

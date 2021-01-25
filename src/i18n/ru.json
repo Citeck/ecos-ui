@@ -87,6 +87,7 @@
   "admin-section.sidebar.hide": "Скрыть меню",
   "admin-section.sidebar.hide-sm": "Скрыть",
   "admin-section.sidebar.list-empty": "Нет данных",
+  "admin-section.error.access-denied": "У Вас нет доступа к этой странице",
 
   "button.close-modal": "Закрыть",
   "button.export": "Экспорт",
