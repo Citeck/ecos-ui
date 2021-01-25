@@ -1,5 +1,5 @@
-import AdminSectionService from '../AdminSectionService';
 import { NEW_VERSION_PREFIX } from '../../helpers/export/urls';
+import AdminSectionService from '../AdminSectionService';
 
 const groupSectionList = [
   {
@@ -42,7 +42,7 @@ describe('AdminSection Service', () => {
     });
 
     it('was found', () => {
-      window.location = { href: `${NEW_VERSION_PREFIX}/bpmn-designer` };
+      window.location = { href: `${NEW_VERSION_PREFIX}/admin` };
       const returnValue = AdminSectionService.getActiveSectionInGroups(groupSectionList);
       expect(returnValue).toEqual(BPM);
     });
@@ -57,6 +57,47 @@ describe('AdminSection Service', () => {
       window.location = { href: `${NEW_VERSION_PREFIX}/test` };
       const returnValue = AdminSectionService.getActiveSectionInGroups(null);
       expect(returnValue).toBeUndefined();
+    });
+  });
+
+  describe.each([
+    ['default type - BPM', `${NEW_VERSION_PREFIX}/admin`, 'BPM'],
+    ['type - BPM', `${NEW_VERSION_PREFIX}/admin?type=BPM`, 'BPM'],
+    ['type - JOURNAL', `${NEW_VERSION_PREFIX}/admin?type=JOURNAL`, 'JOURNAL'],
+    ['type - DEV_TOOLS', `${NEW_VERSION_PREFIX}/dev-tools`, 'DEV_TOOLS'],
+    ['type - unknown', `${NEW_VERSION_PREFIX}/another-page`, undefined]
+  ])('Method getActiveSectionType > %s', (title, href, output) => {
+    beforeEach(() => {
+      delete window.location;
+    });
+
+    it(title, () => {
+      window.location = { href };
+      const returnValue = AdminSectionService.getActiveSectionType(groupSectionList);
+      expect(returnValue).toEqual(output);
+    });
+  });
+
+  describe.each([
+    ['BPM > JOURNAL', 'BPM', 'JOURNAL', { updateUrl: true, pushHistory: true, openNewTab: false }],
+    ['JOURNAL > BPM', 'JOURNAL', 'BPM', { updateUrl: true, pushHistory: true, openNewTab: false }],
+    ['JOURNAL > DEV_TOOLS', 'JOURNAL', 'DEV_TOOLS', { updateUrl: false, pushHistory: true, openNewTab: true }],
+    ['DEV_TOOLS > JOURNAL', 'DEV_TOOLS', 'JOURNAL', { updateUrl: false, pushHistory: true, openNewTab: true }]
+  ])('Method getTabOptions > %s', (title, a, b, output) => {
+    it(title, () => {
+      const returnValue = AdminSectionService.getTabOptions(a, b);
+      expect(returnValue).toEqual(output);
+    });
+  });
+
+  describe.each([
+    ['page models', { type: 'BPM' }, '/v2/admin?type=BPM'],
+    ['page some journal', { type: 'JOURNAL', config: { journalId: 'journalId' } }, '/v2/admin?journalId=journalId&type=JOURNAL'],
+    ['page dev tools', { type: 'DEV_TOOLS' }, '/v2/dev-tools']
+  ])('Method getURLSection > %s', (title, type, output) => {
+    it(title, () => {
+      const returnValue = AdminSectionService.getURLSection(type);
+      expect(returnValue).toEqual(output);
     });
   });
 });
