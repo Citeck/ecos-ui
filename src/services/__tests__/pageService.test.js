@@ -79,7 +79,7 @@ describe('Page Service', () => {
       '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       'dashboard/settings-034cbe25-098c-48be-ac21-d69e5c7abc79'
     ],
-    ['/v2/admin', 'bpmn-designer-'],
+    ['/v2/admin', 'admin-'],
     ['/v2/timesheet', 'timesheet-'],
     ['/v2/dashboard', 'test-type-', 'test-type'],
     ['/v2/dashboard', 'test-type-test-key', 'test-type', 'test-key']
