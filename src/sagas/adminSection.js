@@ -2,9 +2,9 @@ import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
+import { fetchGroupSectionList, setActiveSection, setGroupSectionList, updActiveSection } from '../actions/adminSection';
 import PageService from '../services/PageService';
 import AdminSectionService from '../services/AdminSectionService';
-import { fetchGroupSectionList, setActiveSection, setGroupSectionList, updActiveSection } from '../actions/adminSection';
 
 function* doFetchGroupSectionList({ api, logger }, action) {
   try {

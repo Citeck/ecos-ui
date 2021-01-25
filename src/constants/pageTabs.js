@@ -17,6 +17,7 @@ export const TITLE = {
   TIMESHEET: 'page-tabs.timesheet',
   JOURNAL: 'page-tabs.journal',
   BPM: 'page-tabs.bpmn-designer',
+  ADMIN_PAGE: 'page-tabs.admin-page',
   [URL.HOME]: 'header.site-menu.home-page',
   [URL.JOURNAL]: 'page-tabs.journal',
   [URL.CMMN_EDITOR]: 'page-tabs.cmmn-editor',

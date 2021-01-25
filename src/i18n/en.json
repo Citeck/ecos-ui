@@ -721,6 +721,7 @@
   "message.request-join-success": "Request to join site \"{{site}}\" successfully sent. You'll now be returned to your personal dashboard.",
   "message.request-join-success-title": "Request Sent",
   "page-tabs.bpmn-designer": "Business process models",
+  "page-tabs.admin-page": "Admin section",
   "page-tabs.dashboard-settings": "Settings",
   "page-tabs.home-page": "Home page",
   "page-tabs.journal": "Journal",

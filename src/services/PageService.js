@@ -15,7 +15,7 @@ export const PageTypes = {
   DASHBOARD: 'dashboard',
   JOURNALS: 'journals',
   SETTINGS: 'dashboard/settings',
-  BPMN_DESIGNER: 'bpmn-designer',
+  ADMIN_PAGE: 'admin',
   CMMN_EDITOR: 'cmmn-editor',
   DEV_TOOLS: 'dev-tools',
   TIMESHEET: 'timesheet'
@@ -129,7 +129,7 @@ export default class PageService {
     [PageTypes.DEV_TOOLS]: {
       getTitle: () => staticTitle(TITLE[URL.DEV_TOOLS])
     },
-    [PageTypes.BPMN_DESIGNER]: {
+    [PageTypes.ADMIN_PAGE]: {
       getTitle: ({ type, journalId }) => {
         if (journalId && type === SectionTypes.JOURNAL) {
           return PageService.pageTypes[PageTypes.JOURNALS].getTitle({ journalId });
@@ -138,6 +138,8 @@ export default class PageService {
         if (type === SectionTypes.BPM) {
           return staticTitle(TITLE.BPM);
         }
+
+        return staticTitle(TITLE.ADMIN_PAGE);
       }
     },
     [PageTypes.CMMN_EDITOR]: {
