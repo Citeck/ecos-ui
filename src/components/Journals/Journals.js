@@ -244,11 +244,6 @@ class Journals extends Component {
   resetSettings = savedSetting => {
     const { predicate } = this.props;
 
-    // if (this._settingsFiltersRef.current) {
-    //   console.warn(this._settingsFiltersRef);
-    //   this._settingsFiltersRef.current.update();
-    // }
-
     this.setState({ savedSetting: { ...savedSetting, predicate }, isReset: true }, () => this.setState({ isReset: false }));
   };
 
@@ -490,8 +485,8 @@ class Journals extends Component {
                         metaRecord={get(meta, 'metaRecord')}
                         needUpdate={isReset}
                       />
-                      <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} needUpdate={isReset} />
-                      <JournalsGrouping stateId={stateId} columns={visibleColumns} needUpdate={isReset} />
+                      <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
+                      <JournalsGrouping stateId={stateId} columns={visibleColumns} />
                     </Scrollbars>
                   )}
                 </EcosModalHeight>

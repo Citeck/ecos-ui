@@ -15,10 +15,6 @@ export default class Filters extends Component {
     dialogText: ''
   };
 
-  componentWillUnmount() {
-    console.warn('componentWillUnmount');
-  }
-
   onChangeFilter = ({ filter, index, groupIndex }) => {
     this.groups[groupIndex].filters[index] = filter;
     this.triggerChange(this.groups);
