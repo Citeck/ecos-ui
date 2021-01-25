@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
+
 import Filters from '../../Filters/Filters';
 import PanelBar from '../../common/PanelBar/PanelBar';
 import { setPredicate } from '../../../actions/journals';
@@ -30,7 +31,7 @@ class JournalsFilters extends Component {
   };
 
   render() {
-    const { predicate, columns, sourceId, metaRecord } = this.props;
+    const { predicate, columns, sourceId, metaRecord, needUpdate } = this.props;
 
     return (
       <PanelBar header={t('filter-list.panel-header')} css={{ headerClassName: 'panel-bar__header_upper' }}>
@@ -39,6 +40,7 @@ class JournalsFilters extends Component {
           columns={columns}
           sourceId={sourceId}
           metaRecord={metaRecord}
+          needUpdate={needUpdate}
           className="ecos-journals-filters"
           onChange={this.onChangeFilters}
         />
