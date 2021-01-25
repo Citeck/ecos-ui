@@ -48,7 +48,7 @@ class JournalsDataLoader {
     }
 
     const recordsQuery = {
-      sourceId: settings.customSourceId || journalConfig.sourceId,
+      sourceId: settings.customSourceId || journalConfig.sourceId || '',
       query,
       language,
       page: settings.page,
@@ -71,6 +71,7 @@ class JournalsDataLoader {
     if (!sortBy.length) {
       sortBy = journalConfig.sortBy || [];
     }
+
     if (!sortBy.length && recordsQuery.sourceId === '') {
       sortBy = [{ attribute: Attributes.DBID, ascending: false }];
     }
