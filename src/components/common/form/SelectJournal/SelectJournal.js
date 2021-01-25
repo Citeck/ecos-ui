@@ -286,7 +286,7 @@ export default class SelectJournal extends Component {
       if (exists) {
         newInMemoryData = newInMemoryData.filter(item => item.id !== memoryRecord.id);
       } else if (fetchedGridData.data.length < pagination.maxItems) {
-        const formatedAtts = {};
+        const formattedAtts = {};
         let record = cloneDeep(memoryRecord);
 
         if (memoryRecord.id === get(fetchedGridData, 'recordData.id')) {
@@ -307,11 +307,12 @@ export default class SelectJournal extends Component {
               newAttr = newAttr.substr(0, newAttr.indexOf('?'));
             }
 
-            formatedAtts[newAttr] = record[attr];
+            newAttr = newAttr.replace(':', '_');
+            formattedAtts[newAttr] = record[attr];
           }
         }
 
-        fetchedGridData.data.push({ ...record, ...formatedAtts });
+        fetchedGridData.data.push({ ...record, ...formattedAtts });
       }
     }
 
