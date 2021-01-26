@@ -1,6 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
+import FileIcon from '../../common/FileIcon';
+
 import { file1, folder1, demoItems, demoActions } from '../__fixtures__/FilesViewer.fixtures';
 import FilesViewer from '../FilesViewer';
 import FilesViewerItem from '../FilesViewerItem';
@@ -46,7 +48,7 @@ describe('FilesViewer tests', () => {
 
       it('should render file icon', () => {
         const component = shallow(<FilesViewerItem item={file1} />);
-        const icon = component.find({ data: { value: 'icon-custom-file-empty' } });
+        const icon = component.find(FileIcon);
         expect(icon).toHaveLength(1);
       });
     });

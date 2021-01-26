@@ -9,7 +9,7 @@ export const folder1 = {
 
 export const file1 = {
   id: 'file1',
-  title: 'File 1',
+  title: 'File 1.xls',
   type: NODE_TYPES.FILE,
   modified: '2020-12-10T15:29:00Z'
 };
@@ -61,7 +61,7 @@ export const demoItems = [
   file1,
   {
     id: 'file2',
-    title: 'File 2',
+    title: 'File 2.html',
     type: NODE_TYPES.FILE,
     modified: '2020-12-10T15:29:45Z'
   },
@@ -73,7 +73,7 @@ export const demoItems = [
   },
   {
     id: 'file4',
-    title: 'File 4 with a veeeeeeeeeeery looooooooong name',
+    title: 'File 4 with a veeeeeeeeeeery looooooooong name.msg',
     type: NODE_TYPES.FILE,
     modified: '2020-12-10T15:29:57Z'
   }

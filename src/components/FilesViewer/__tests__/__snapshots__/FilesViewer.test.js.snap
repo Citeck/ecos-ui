@@ -103,13 +103,9 @@ ShallowWrapper {
           <div
             className="ecos-files-viewer__item-icon-wrapper"
           >
-            <UNDEFINED
-              className="ecos-files-viewer__item-icon"
-              data={
-                Object {
-                  "value": "icon-custom-file-empty",
-                }
-              }
+            <FileIcon
+              className="ecos-files-viewer__item-file-icon"
+              format="blank"
             />
           </div>
           <span
@@ -148,13 +144,9 @@ ShallowWrapper {
             <div
               className="ecos-files-viewer__item-icon-wrapper"
             >
-              <UNDEFINED
-                className="ecos-files-viewer__item-icon"
-                data={
-                  Object {
-                    "value": "icon-custom-file-empty",
-                  }
-                }
+              <FileIcon
+                className="ecos-files-viewer__item-file-icon"
+                format="blank"
               />
             </div>,
             <span
@@ -173,13 +165,9 @@ ShallowWrapper {
             "key": undefined,
             "nodeType": "host",
             "props": Object {
-              "children": <UNDEFINED
-                className="ecos-files-viewer__item-icon"
-                data={
-                  Object {
-                    "value": "icon-custom-file-empty",
-                  }
-                }
+              "children": <FileIcon
+                className="ecos-files-viewer__item-file-icon"
+                format="blank"
               />,
               "className": "ecos-files-viewer__item-icon-wrapper",
             },
@@ -189,18 +177,12 @@ ShallowWrapper {
               "key": undefined,
               "nodeType": "function",
               "props": Object {
-                "className": "ecos-files-viewer__item-icon",
-                "data": Object {
-                  "value": "icon-custom-file-empty",
-                },
+                "className": "ecos-files-viewer__item-file-icon",
+                "format": "blank",
               },
               "ref": null,
               "rendered": null,
-              "type": Object {
-                "$$typeof": Symbol(react.memo),
-                "compare": null,
-                "type": [Function],
-              },
+              "type": [Function],
             },
             "type": "div",
           },
@@ -284,13 +266,9 @@ ShallowWrapper {
             <div
               className="ecos-files-viewer__item-icon-wrapper"
             >
-              <UNDEFINED
-                className="ecos-files-viewer__item-icon"
-                data={
-                  Object {
-                    "value": "icon-custom-file-empty",
-                  }
-                }
+              <FileIcon
+                className="ecos-files-viewer__item-file-icon"
+                format="blank"
               />
             </div>
             <span
@@ -329,13 +307,9 @@ ShallowWrapper {
               <div
                 className="ecos-files-viewer__item-icon-wrapper"
               >
-                <UNDEFINED
-                  className="ecos-files-viewer__item-icon"
-                  data={
-                    Object {
-                      "value": "icon-custom-file-empty",
-                    }
-                  }
+                <FileIcon
+                  className="ecos-files-viewer__item-file-icon"
+                  format="blank"
                 />
               </div>,
               <span
@@ -354,13 +328,9 @@ ShallowWrapper {
               "key": undefined,
               "nodeType": "host",
               "props": Object {
-                "children": <UNDEFINED
-                  className="ecos-files-viewer__item-icon"
-                  data={
-                    Object {
-                      "value": "icon-custom-file-empty",
-                    }
-                  }
+                "children": <FileIcon
+                  className="ecos-files-viewer__item-file-icon"
+                  format="blank"
                 />,
                 "className": "ecos-files-viewer__item-icon-wrapper",
               },
@@ -370,18 +340,12 @@ ShallowWrapper {
                 "key": undefined,
                 "nodeType": "function",
                 "props": Object {
-                  "className": "ecos-files-viewer__item-icon",
-                  "data": Object {
-                    "value": "icon-custom-file-empty",
-                  },
+                  "className": "ecos-files-viewer__item-file-icon",
+                  "format": "blank",
                 },
                 "ref": null,
                 "rendered": null,
-                "type": Object {
-                  "$$typeof": Symbol(react.memo),
-                  "compare": null,
-                  "type": [Function],
-                },
+                "type": [Function],
               },
               "type": "div",
             },
