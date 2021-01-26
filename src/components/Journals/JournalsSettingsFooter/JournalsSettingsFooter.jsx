@@ -108,7 +108,7 @@ class JournalsSettingsFooter extends Component {
   resetSettings = () => {
     const { resetJournalSettingData, journalSetting } = this.props;
 
-    resetJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD]);
+    resetJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD] || '');
     trigger.call(this, 'onReset', deepClone(journalSetting));
   };
 
