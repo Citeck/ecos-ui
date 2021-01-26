@@ -281,17 +281,38 @@ export default class SelectJournal extends Component {
     for (let i = 0; i < inMemoryData.length; i++) {
       const memoryRecord = inMemoryData[i];
       const exists = fetchedGridData.data.find(item => item.id === memoryRecord.id);
+
       // если запись успела проиндексироваться, удаляем её из inMemoryData, иначе добаляем в fetchedData.data временную запись
       if (exists) {
         newInMemoryData = newInMemoryData.filter(item => item.id !== memoryRecord.id);
       } else if (fetchedGridData.data.length < pagination.maxItems) {
-        let record = memoryRecord;
+        const formattedAtts = {};
+        let record = cloneDeep(memoryRecord);
 
         if (memoryRecord.id === get(fetchedGridData, 'recordData.id')) {
           newInMemoryData[i] = record = fetchedGridData.recordData;
+
+          for (let attr in record) {
+            if (!record.hasOwnProperty(attr)) {
+              continue;
+            }
+
+            let newAttr = attr;
+
+            if (newAttr.indexOf('(n:"') !== -1) {
+              newAttr = newAttr.substring(newAttr.indexOf('(n:"') + 4, newAttr.indexOf('")'));
+            }
+
+            if (newAttr.indexOf('?') !== -1) {
+              newAttr = newAttr.substr(0, newAttr.indexOf('?'));
+            }
+
+            newAttr = newAttr.replace(':', '_');
+            formattedAtts[newAttr] = record[attr];
+          }
         }
 
-        fetchedGridData.data.push(record);
+        fetchedGridData.data.push({ ...record, ...formattedAtts });
       }
     }
 
