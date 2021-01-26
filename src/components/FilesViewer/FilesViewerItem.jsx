@@ -6,6 +6,8 @@ import moment from 'moment';
 import { ActionPropTypes } from '../common/grid/InlineTools/constants';
 import { renderAction } from '../common/grid/InlineTools/helpers';
 import EcosIcon from '../common/EcosIcon';
+import FileIcon from '../common/FileIcon';
+import { detectFormat } from '../common/FileIcon/helpers';
 import { NODE_TYPES } from '../../constants/docLib';
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
@@ -37,10 +39,11 @@ const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, o
     >
       <div className="ecos-files-viewer__item-left">
         <div className="ecos-files-viewer__item-icon-wrapper">
-          <EcosIcon
-            className={classNames('ecos-files-viewer__item-icon')}
-            data={{ value: type === NODE_TYPES.DIR ? 'icon-folder' : 'icon-custom-file-empty' }}
-          />
+          {type === NODE_TYPES.DIR ? (
+            <EcosIcon className={classNames('ecos-files-viewer__item-icon')} data={{ value: 'icon-folder' }} />
+          ) : (
+            <FileIcon className={classNames('ecos-files-viewer__item-file-icon')} format={detectFormat(title)} />
+          )}
         </div>
         <span className="ecos-files-viewer__item-title" title={title}>
           {title}

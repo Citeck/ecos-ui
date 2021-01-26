@@ -23,8 +23,16 @@
       color: $color-blue-light2;
       &-wrapper {
         width: 50px;
-        text-align: center;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
+    }
+
+    &-file-icon {
+      width: 1.8em;
+      height: 100%;
     }
 
     &-left {
@@ -32,6 +40,7 @@
       grid-auto-flow: column;
       align-items: center;
       justify-content: left;
+      height: 100%;
     }
 
     &-right {
