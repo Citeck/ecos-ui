@@ -13,7 +13,8 @@ import {
   getDefaultKeyBinding,
   Modifier,
   RichUtils,
-  convertFromHTML
+  convertFromHTML,
+  CompositeDecorator
 } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import debounce from 'lodash/debounce';
@@ -21,6 +22,7 @@ import ReactResizeDetector from 'react-resize-detector';
 
 import BaseWidget from '../BaseWidget';
 import { deepClone, num2str, t } from '../../../helpers/util';
+import { BUTTONS_TYPE, KEY_COMMANDS } from '../../../helpers/draft';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import DAction from '../../../services/DashletActionService';
 import { selectStateByNodeRef } from '../../../selectors/comments';
@@ -28,20 +30,13 @@ import { createCommentRequest, deleteCommentRequest, getComments, setError, upda
 import { Avatar, Loader, Popper } from '../../common/index';
 import { Btn, IcoBtn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
+import LinkEditor from './Editor/LinkEditor';
+import linkDecorator from './Editor/LinkDecorator';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
 
 const BASE_HEIGHT = 21;
-const BUTTONS_TYPE = {
-  BOLD: 'BOLD',
-  ITALIC: 'ITALIC',
-  UNDERLINE: 'UNDERLINE',
-  LIST: 'unordered-list-item'
-};
-const KEY_COMMANDS = {
-  SEND: 'comment-send'
-};
 
 class Comments extends BaseWidget {
   static propTypes = {
@@ -104,11 +99,15 @@ class Comments extends BaseWidget {
     setErrorMessage: () => {}
   };
 
+  #decorators = [];
+
   constructor(props) {
     super(props);
 
     this.contentRef = React.createRef();
     this._scroll = React.createRef();
+
+    this.#decorators.push(linkDecorator);
 
     this.state = {
       ...this.state,
@@ -117,8 +116,15 @@ class Comments extends BaseWidget {
       editableComment: null,
       commentForDeletion: null,
       editorHeight: BASE_HEIGHT,
-      comment: EditorState.createEmpty()
+      comment: EditorState.createEmpty(this.decorators),
+      isOpenLinkDialog: false,
+      linkUrl: '',
+      linkText: ''
     };
+  }
+
+  get decorators() {
+    return new CompositeDecorator(this.#decorators);
   }
 
   componentDidMount() {
@@ -136,7 +142,7 @@ class Comments extends BaseWidget {
       this.setState({
         isEdit: false,
         editorHeight: BASE_HEIGHT,
-        comment: EditorState.createEmpty(),
+        comment: EditorState.createEmpty(this.decorators),
         editableComment: null,
         commentForDeletion: null
       });
@@ -330,7 +336,7 @@ class Comments extends BaseWidget {
   handleShowEditor = () => {
     this.setState({
       isEdit: true,
-      comment: EditorState.createEmpty(),
+      comment: EditorState.createEmpty(this.decorators),
       editorHeight: BASE_HEIGHT
     });
   };
@@ -365,7 +371,7 @@ class Comments extends BaseWidget {
   handleCloseEditor = () => {
     this.setState({
       isEdit: false,
-      comment: EditorState.createEmpty(),
+      comment: EditorState.createEmpty(this.decorators),
       editorHeight: BASE_HEIGHT
     });
   };
@@ -470,7 +476,7 @@ class Comments extends BaseWidget {
       {
         editableComment: id,
         isEdit: true,
-        comment: EditorState.moveFocusToEnd(EditorState.createWithContent(convertedComment))
+        comment: EditorState.moveFocusToEnd(EditorState.createWithContent(convertedComment, this.decorators))
       },
       this.updateEditorHeight
     );
@@ -576,12 +582,15 @@ class Comments extends BaseWidget {
               'ecos-comments__editor-button_active': this.inlineStyles.has(BUTTONS_TYPE.UNDERLINE)
             })}
           />
+
           <IcoBtn
             onMouseDown={this.handleToggleBlockType.bind(this, BUTTONS_TYPE.LIST)}
             className={classNames('icon-items', 'ecos-comments__editor-button', 'ecos-comments__editor-button_list', {
               'ecos-comments__editor-button_active': this.blockType === BUTTONS_TYPE.LIST
             })}
           />
+
+          <LinkEditor editorState={comment} onChangeState={this.handleChangeComment} />
         </div>
         <div className="ecos-comments__editor-body" onClick={this.handleFocusEditor}>
           <Scrollbars style={{ height: '100%', minHeight }}>
