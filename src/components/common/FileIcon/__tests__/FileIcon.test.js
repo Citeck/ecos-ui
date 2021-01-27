@@ -67,5 +67,9 @@ describe('FileIcon tests', () => {
     it('should return default format when unknown file extension', () => {
       expect(detectFormat('some file name.unknown')).toBe(blankFormat);
     });
+
+    it('should return format in lower case', () => {
+      expect(detectFormat('File.JPG')).toBe('jpg');
+    });
   });
 });

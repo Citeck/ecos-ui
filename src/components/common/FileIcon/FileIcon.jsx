@@ -7,12 +7,18 @@ import './font/file-icon-high-contrast.css';
 import './FileIcon.scss';
 
 const FileIcon = ({ format, className }) => {
-  const isCorrectFormat = Array.from(formats).includes(format);
+  let isCorrectFormat = false;
+  let lowerCaseFormat = format || '';
+  if (format && typeof format.toLowerCase === 'function') {
+    lowerCaseFormat = format.toLowerCase();
+    isCorrectFormat = Array.from(formats).includes(lowerCaseFormat);
+  }
+
   return (
     <span
       className={classNames('ecos-file-icon', 'fiv-hct', className, {
-        [`fiv-icon-${format}`]: isCorrectFormat,
-        'fiv-icon-blank': !isCorrectFormat || format === 'blank'
+        [`fiv-icon-${lowerCaseFormat}`]: isCorrectFormat,
+        'fiv-icon-blank': !isCorrectFormat || lowerCaseFormat === 'blank'
       })}
     />
   );
