@@ -613,6 +613,13 @@ Object.defineProperty(Base.prototype, 'label', {
 });
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
+Object.defineProperty(Base.prototype, 'errorLabel', {
+  get: function() {
+    return this.t(this.component.errorLabel || getTextByLocale(this.component.label) || this.component.placeholder || this.key);
+  }
+});
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
 Object.defineProperty(Base.prototype, 'placeholder', {
   get: function() {
     return getTextByLocale(this.component.placeholder);
