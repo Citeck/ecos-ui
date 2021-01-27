@@ -3,11 +3,10 @@ import queryString from 'query-string';
 import { connect } from 'react-redux';
 import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 
-import { initData, saveRecordData, saveScenario, setScenario } from '../../actions/cmmnEditor';
+import { getFormData, initData, saveScenario, setScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
 import { InfoText, Loader } from '../../components/common';
-import EcosForm from '../../components/EcosForm';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
 import CMMNDesigner, { CmmnUtils } from '../../components/CMMNDesigner';
 
@@ -109,7 +108,9 @@ class CMMNEditorPage extends React.Component {
   };
 
   handleSelectItem = selectedElement => {
-    this.setState({ selectedElement });
+    this.setState({ selectedElement }, () => {
+      this.props.getFormData(getStateId(), this.recordRef, this.formId);
+    });
   };
 
   handleChangeItem = element => {
@@ -198,9 +199,9 @@ const mapStateToProps = (store, props) => {
 
 const mapDispatchToProps = (dispatch, props) => ({
   initData: (stateId, record) => dispatch(initData({ stateId, record })),
-  saveRecord: (stateId, record, data) => dispatch(saveRecordData({ stateId, record, data })),
   saveScenario: (stateId, record, xml, img) => dispatch(saveScenario({ stateId, record, xml, img })),
-  setScenario: (stateId, scenario) => dispatch(setScenario({ stateId, scenario }))
+  setScenario: (stateId, scenario) => dispatch(setScenario({ stateId, scenario })),
+  getFormData: (stateId, record, formId) => dispatch(getFormData({ stateId, record, formId }))
 });
 
 export default connect(

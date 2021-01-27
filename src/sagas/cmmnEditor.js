@@ -1,8 +1,9 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 
-import { getScenario, getTitle, initData, saveRecordData, saveScenario, setScenario, setTitle } from '../actions/cmmnEditor';
+import { getFormData, getScenario, getTitle, initData, saveScenario, setLoading, setScenario, setTitle } from '../actions/cmmnEditor';
 import { t } from '../helpers/export/util';
+import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 
 export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
@@ -35,17 +36,9 @@ export function* runSaveScenario({ api, logger }, { payload: { stateId, record, 
       }
     } else throw new Error();
   } catch (e) {
+    yield put(setLoading({ stateId, isLoading: false }));
     NotificationManager.error(t('cmmn-editor.error.can-not-save-scenario'), t('error'));
     logger.error('[cmmnEditor/runSaveScenario  saga] error', e.message);
-  }
-}
-
-export function* runSaveRecord({ api, logger }, { payload: { record, data } }) {
-  try {
-    yield call(api.cmmn.saveRecordData, record, data);
-  } catch (e) {
-    NotificationManager.error(t('cmmn-editor.error.can-not-save-record-data'), t('error'));
-    logger.error('[cmmnEditor/runSaveRecord saga] error', e.message);
   }
 }
 
@@ -60,12 +53,26 @@ export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
   }
 }
 
+export function* fetchFormData({ api, logger }, { payload: { stateId, record, formId } }) {
+  try {
+    console.log(stateId, record, formId);
+    const form = yield call(EcosFormUtils.getFormById, formId, { definition: 'definition?json', i18n: 'i18n?json' });
+    console.log(form);
+    const inputs = EcosFormUtils.getFormInputs(form.definition);
+    const fields = inputs.map(inp => inp.attribute);
+    console.log(fields);
+  } catch (e) {
+    yield put(setTitle({ stateId, title: '' }));
+    logger.error('[cmmnEditor/fetchTitle saga] error', e.message);
+  }
+}
+
 function* cmmnEditorSaga(ea) {
   yield takeEvery(initData().type, init, ea);
   yield takeEvery(getScenario().type, fetchScenario, ea);
   yield takeEvery(saveScenario().type, runSaveScenario, ea);
   yield takeEvery(getTitle().type, fetchTitle, ea);
-  yield takeEvery(saveRecordData().type, runSaveRecord, ea);
+  yield takeEvery(getFormData().type, fetchFormData, ea);
 }
 
 export default cmmnEditorSaga;
