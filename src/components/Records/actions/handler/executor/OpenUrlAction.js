@@ -1,5 +1,7 @@
 import ActionsExecutor from '../ActionsExecutor';
 
+import PageService from '../../../../../services/PageService';
+
 export default class OpenUrlAction extends ActionsExecutor {
   static ACTION_ID = 'open-url';
 
@@ -13,7 +15,13 @@ export default class OpenUrlAction extends ActionsExecutor {
       throw new Error('URL is a mandatory parameter! Record: ' + record.id + ' Action: ' + action.id);
     }
 
-    window.open(url, config.target || '_blank');
+    if (config.withinEcosTab === true) {
+      PageService.changeUrlLink(url, {
+        openNewTab: config.openNewTab === true || (!config.target || config.target === '_blank')
+      });
+    } else {
+      window.open(url, config.target || '_blank');
+    }
   }
 
   getDefaultActionModel() {

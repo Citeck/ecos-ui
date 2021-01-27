@@ -27,6 +27,7 @@ const originalCreateLabel = Base.prototype.createLabel;
 const originalCreateViewOnlyLabel = Base.prototype.createViewOnlyLabel;
 const originalElementInfo = Base.prototype.elementInfo;
 const originalCreateDescription = Base.prototype.createDescription;
+const originalAddShortcutToLabel = Base.prototype.addShortcutToLabel;
 
 const INLINE_EDITING_CLASSNAME = 'inline-editing';
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
@@ -612,6 +613,13 @@ Object.defineProperty(Base.prototype, 'label', {
 });
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
+Object.defineProperty(Base.prototype, 'errorLabel', {
+  get: function() {
+    return this.t(this.component.errorLabel || getTextByLocale(this.component.label) || this.component.placeholder || this.key);
+  }
+});
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
 Object.defineProperty(Base.prototype, 'placeholder', {
   get: function() {
     return getTextByLocale(this.component.placeholder);
@@ -656,6 +664,15 @@ Base.prototype.setInputMask = function(input, inputMask) {
   }
 
   return result;
+};
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-829
+Base.prototype.addShortcutToLabel = function(label, shortcut) {
+  if (!label) {
+    label = this.label;
+  }
+
+  return originalAddShortcutToLabel.call(this, label, shortcut);
 };
 
 export default Base;

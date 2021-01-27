@@ -278,8 +278,29 @@ export default class SelectJournal extends Component {
         await rec.load(fetchedGridData.attributes);
         const loadedAtts = rec.getRawAttributes();
 
+        // Cause: https://citeck.atlassian.net/browse/ECOSUI-908
+        const formattedAtts = {};
+        for (let attr in loadedAtts) {
+          if (!loadedAtts.hasOwnProperty(attr)) {
+            continue;
+          }
+
+          let newAttr = attr;
+
+          if (newAttr.indexOf('(n:"') !== -1) {
+            newAttr = newAttr.substring(newAttr.indexOf('(n:"') + 4, newAttr.indexOf('")'));
+          }
+
+          if (newAttr.indexOf('?') !== -1) {
+            newAttr = newAttr.substr(0, newAttr.indexOf('?'));
+          }
+
+          newAttr = newAttr.replace(':', '_');
+          formattedAtts[newAttr] = loadedAtts[attr];
+        }
+
         // add a temporary record to the fetchedData.data
-        fetchedGridData.data.push({ ...memoryRecord, ...loadedAtts });
+        fetchedGridData.data.push({ ...memoryRecord, ...loadedAtts, ...formattedAtts });
       }
     }
 

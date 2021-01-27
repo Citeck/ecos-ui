@@ -16,6 +16,8 @@ const groupSectionList = [
   }
 ];
 
+console.warn = jest.fn();
+
 describe('AdminSection Service', () => {
   const BPM = { label: 'Модели бизнес-процессов', type: 'BPM', config: {} };
 

@@ -45,7 +45,7 @@ const mapStateToProps = (state, ownProps) => {
     editorMode: newState.editorMode,
     journalConfig: newState.journalConfig,
     config: newState.config,
-    isMobile: state.view.isMobile,
+    isMobile: (state.view || {}).isMobile === true,
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
     selectAllRecords: newState.selectAllRecords,
