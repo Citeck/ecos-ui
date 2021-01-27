@@ -88,6 +88,7 @@
   "admin-section.sidebar.hide": "Скрыть меню",
   "admin-section.sidebar.hide-sm": "Скрыть",
   "admin-section.sidebar.list-empty": "Нет данных",
+  "admin-section.error.access-denied": "У Вас нет доступа к этой странице",
 
   "button.close-modal": "Закрыть",
   "button.export": "Экспорт",
@@ -721,6 +722,7 @@
   "message.request-join-success": "Запрос на присоединение к сайту \"{{site}}\" отправлен. Сейчас будет выполнен обратный переход к вашей домашней странице.",
   "message.request-join-success-title": "Запрос отправлен",
   "page-tabs.bpmn-designer": "Модели бизнес процессов",
+  "page-tabs.admin-page": "Раздел администратора",
   "page-tabs.dashboard-settings": "Настройка",
   "page-tabs.home-page": "Домашняя страница",
   "page-tabs.journal": "Журнал",

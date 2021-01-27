@@ -6,6 +6,7 @@ export const URL = {
   DASHBOARD: '/v2/dashboard',
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
   MENU_SETTINGS: '/v2/menu-settings',
+  ADMIN_PAGE: '/v2/admin',
   BPMN_DESIGNER: '/v2/bpmn-designer',
   CMMN_EDITOR: '/v2/cmmn-editor',
   DEV_TOOLS: '/v2/dev-tools',

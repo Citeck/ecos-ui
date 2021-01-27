@@ -29,6 +29,7 @@ import { ViewApi } from './view';
 import { DocConstructorApi } from './docConstructor';
 import { CustomIconApi } from './customIcon';
 import { AdminSectionApi } from './adminSection';
+import { DevToolsApi } from './devTools';
 import CmmnApi from './cmmn';
 
 export function configureAPI() {
@@ -66,6 +67,7 @@ export function configureAPI() {
   api.docConstructor = new DocConstructorApi();
   api.customIcon = new CustomIconApi();
   api.cmmn = new CmmnApi();
+  api.devTools = new DevToolsApi();
 
   const setNotAuthCallback = function(cb) {
     for (let key in api) {
