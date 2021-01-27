@@ -1,7 +1,7 @@
 import * as util from '../../../../../../helpers/export/util';
 import en from '../../../../../../i18n/en';
 
-import ScriptFormatter from '../ScriptFormatter';
+import ScriptFormatter from './ScriptFormatter';
 
 const scriptFormatterInstance = new ScriptFormatter();
 

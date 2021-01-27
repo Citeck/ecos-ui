@@ -1,6 +1,6 @@
 import React from 'react';
 
-import BaseFormatter from './BaseFormatter';
+import BaseFormatter from '../BaseFormatter';
 
 /**
  * @typedef {FormatterProps} HtmlFormatterProps
