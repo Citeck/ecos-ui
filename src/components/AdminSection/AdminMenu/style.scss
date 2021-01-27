@@ -4,11 +4,12 @@
   width: 0;
   transition: width 0.5s;
   overflow: hidden;
-  padding-left: 25px;
+  //padding-left: 25px;
   height: 100%;
 
   &_open {
     width: 300px;
+    padding-left: 25px;
   }
 
   &-content {
