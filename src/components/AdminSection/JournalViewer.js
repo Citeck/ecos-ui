@@ -41,7 +41,7 @@ const JournalViewer = ({ hidden, isActivePage, initStateJournal, upStateId, ...p
 };
 
 const mapStateToProps = (store, props) => ({
-  isActivePage: !(props.tabId && !pageTabList.isActiveTab(props.tabId))
+  isActivePage: pageTabList.isActiveTab(props.tabId)
 });
 
 const mapDispatchToProps = dispatch => ({
