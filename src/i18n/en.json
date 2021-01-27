@@ -25,6 +25,7 @@
   "bpmn-card.go-back-to-list-button.text": "Back to list",
   "bpmn-card.open-editor-button.text": "Visual Editor",
   "bpmn-designer.add-category": "Create category",
+  "bpmn-designer.add-category.failure-message": "An error occurred while adding a new category",
   "bpmn-designer.category-action.access": "Access",
   "bpmn-designer.category-action.add-subcategory": "Add subcategory",
   "bpmn-designer.category-action.create-model": "Create model",
