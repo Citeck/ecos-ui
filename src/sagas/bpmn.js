@@ -1,6 +1,8 @@
 import React from 'react';
 import { delay } from 'redux-saga';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { NotificationManager } from 'react-notifications';
+
 import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
 import { t } from '../helpers/util';
 import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
@@ -85,6 +87,7 @@ function* doSaveCategoryRequest({ api, logger }, action) {
       })
     );
   } catch (e) {
+    NotificationManager.error(t('bpmn-designer.add-category.failure-message'));
     logger.error('[bpmn doSaveCategoryRequest saga] error', e.message);
   }
 }
