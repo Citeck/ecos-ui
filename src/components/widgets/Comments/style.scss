@@ -125,6 +125,7 @@
 
       &-column {
         display: grid;
+        grid-auto-rows: max-content;
       }
     }
 
@@ -150,6 +151,10 @@
       line-height: 16px;
       color: $color-black;
       @extend %ellipsis;
+
+      &-container {
+        grid-template-columns: minmax(max-content, 1fr);
+      }
     }
 
     &-date {
@@ -273,11 +278,61 @@
         }
       }
     }
+
+    a {
+      border-bottom: 1px $color-blue-dark solid;
+
+      &:hover {
+        border-color: unset;
+      }
+    }
+
+    &-tag {
+      border: 2px $color-gray-5 solid;
+      background: white;
+      color: $color-black;
+      padding: 5px;
+      margin-bottom: 5px;
+      max-width: 250px;
+
+      &:not(:last-of-type) {
+        margin-right: 5px;
+      }
+
+      &-container {
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+
+        margin-left: 5px;
+        margin-top: -7px;
+        max-width: 100%;
+      }
+
+      &-popper {
+        max-width: 300px;
+        padding: 5px;
+      }
+    }
   }
 
   &__editor {
+    $editor: &;
+
     width: 100%;
     min-width: 250px;
+
+    &-decorator {
+      &-link {
+        color: $color-blue-dark;
+        border-bottom: 1px $color-blue-dark solid;
+
+        &:hover {
+          color: darken($color-blue-dark, 20%);
+          border-color: unset;
+        }
+      }
+    }
 
     &-header {
       background: $color-gray-6;
@@ -328,28 +383,77 @@
       }
     }
 
-    &-button {
-      width: 32px !important;
-      padding: 5px !important;
-      height: 30px !important;
-      border-radius: 2px !important;
-      background-color: $color-gray-6 !important;
-      color: $color-white !important;
+    button.ecos-btn#{$editor}-button {
+      width: 32px;
+      padding: 5px;
+      height: 30px;
+      border-radius: 2px;
+      background-color: $color-gray-6;
+      color: $color-white;
 
       &:not(:last-child) {
         margin-right: 2px;
       }
 
       &:hover {
-        background-color: $color-gray-5 !important;
+        background-color: $color-gray-5;
       }
 
       &_list {
-        padding: 5px 7px 5px 3px !important;
+        padding: 5px 7px 5px 3px;
       }
 
       &_active {
-        background-color: $text-color-gray !important;
+        background-color: $text-color-gray;
+      }
+
+      &_link {
+        font-size: 20px;
+        padding: 5px 0;
+      }
+    }
+
+    &-link-editor {
+      position: absolute;
+      z-index: 2;
+      background: white;
+      padding: 10px 10px;
+      border-radius: $border-radius-standard;
+      box-shadow: $box-shadow-default;
+      min-width: 250px;
+      left: calc((-250px / 2) + 50%);
+      top: calc(100% + 10px);
+
+      &-input {
+        &-container {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          align-items: center;
+          margin-bottom: 5px;
+        }
+
+        &-icon {
+          color: $color-gray-6;
+        }
+      }
+
+      &-btns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 5px;
+
+        &-save {
+          grid-column-start: 2;
+
+          &_disabled {
+            cursor: not-allowed !important;
+            opacity: 0.5;
+          }
+        }
+      }
+
+      &-container {
+        position: relative;
       }
     }
   }

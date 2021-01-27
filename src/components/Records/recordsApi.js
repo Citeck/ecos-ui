@@ -64,11 +64,15 @@ function getRecognizableUrl(url, body) {
 }
 
 function recordsFetch(url, body) {
+  if (url.indexOf('mutate') >= 0) {
+    body.version = 1;
+  }
   url = getRecognizableUrl(url, body);
 
   return ecosFetch(url, { method: 'POST', body }).then(response => {
     return response.json().then(body => {
       if (response.ok) {
+        checkRespMessages(body.messages);
         return body;
       }
 
@@ -79,6 +83,29 @@ function recordsFetch(url, body) {
       }
     });
   });
+}
+
+function checkRespMessages(messages) {
+  if (!messages || messages.length === 0) {
+    return;
+  }
+
+  for (let message of messages) {
+    if (message.level === 'ERROR') {
+      let errorMessage = message.msg || 'Server error';
+      if (!isString(errorMessage)) {
+        if (message.type === 'records-error') {
+          errorMessage = errorMessage.msg;
+        } else {
+          errorMessage = JSON.stringify(errorMessage);
+        }
+      }
+      if (!errorMessage) {
+        errorMessage = 'Server error';
+      }
+      throw new Error(errorMessage);
+    }
+  }
 }
 
 export function recordsDeleteFetch(body) {

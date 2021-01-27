@@ -464,15 +464,3 @@ export const getUrlWithoutOrigin = (location = window.location) => {
 
   return `${pathname}${search}`;
 };
-
-export const getRefWithAlfrescoPrefix = recordRef => {
-  if (isEmpty(recordRef)) {
-    return recordRef;
-  }
-
-  if (recordRef.indexOf('workspace://') === 0) {
-    return `alfresco/@${recordRef}`;
-  }
-
-  return recordRef;
-};

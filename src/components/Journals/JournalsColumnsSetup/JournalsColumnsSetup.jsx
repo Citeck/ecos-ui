@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
+
 import ColumnsSetup from '../../ColumnsSetup/ColumnsSetup';
 import PanelBar from '../../common/PanelBar/PanelBar';
 import { setColumnsSetup } from '../../../actions/journals';
@@ -30,7 +31,9 @@ class JournalsColumnsSetup extends Component {
   };
 
   render() {
-    let { columns, sortBy } = this.props.columnsSetup;
+    const {
+      columnsSetup: { columns, sortBy }
+    } = this.props;
 
     return (
       <PanelBar

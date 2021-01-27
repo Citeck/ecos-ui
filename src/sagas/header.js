@@ -14,12 +14,11 @@ import {
   setUserMenuItems
 } from '../actions/header';
 import { setDashboardIdentification } from '../actions/dashboard';
-import { setUserThumbnail, validateUserSuccess } from '../actions/user';
+import { getAppUserThumbnail, validateUserSuccess } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
 import { setLeftMenuEditable } from '../actions/app';
 
 import { makeSiteMenu, makeUserMenuItems } from '../helpers/menu';
-import { createThumbnailUrl } from '../helpers/urls';
 import { hasInString } from '../helpers/util';
 import { URL } from '../constants';
 import { selectIdentificationForView } from '../selectors/dashboard';
@@ -48,24 +47,13 @@ function* fetchCreateCaseWidget({ api, logger }) {
 
 function* fetchUserMenu({ api, fakeApi, logger }) {
   try {
-    const userName = yield select(state => state.user.userName);
-    const isAvailable = yield select(state => state.user.isDeputyAvailable);
-    const isMutable = yield select(state => state.user.isMutable);
-
-    // TODO use real api
-    const isExternalAuthentication = yield call(fakeApi.getIsExternalAuthentication);
-
+    const userData = yield select(state => state.user);
+    const { userName, isDeputyAvailable: isAvailable, isMutable } = userData || {};
+    const isExternalAuthentication = yield call(fakeApi.getIsExternalAuthentication); // TODO use real api
     const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable, isExternalAuthentication));
-    yield put(setUserMenuItems(menuItems));
 
-    const userNodeRef = yield select(state => state.user.nodeRef);
-    if (userNodeRef) {
-      const userPhotoSize = yield call(api.user.getPhotoSize, userNodeRef);
-      if (userPhotoSize > 0) {
-        const photoUrl = createThumbnailUrl(userNodeRef);
-        yield put(setUserThumbnail(photoUrl));
-      }
-    }
+    yield put(setUserMenuItems(menuItems));
+    yield put(getAppUserThumbnail());
   } catch (e) {
     logger.error('[fetchUserMenu saga] error', e.message);
   }

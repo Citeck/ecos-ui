@@ -977,5 +977,27 @@ export function reverseString(str = '') {
     .join('');
 }
 
+/**
+ *
+ * @param locale
+ * @returns {{decimal: string, thousand: string}}
+ */
+export function getNumberSeparators(locale) {
+  const result = {
+    decimal: '.',
+    thousand: ''
+  };
+  const str = parseFloat(1234.56).toLocaleString(locale);
+
+  if (!str.match('1')) {
+    return result;
+  }
+
+  result.decimal = str.replace(/.*4(.*)5.*/, '$1');
+  result.thousand = str.replace(/.*1(.*)2.*/, '$1');
+
+  return result;
+}
+
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);

@@ -1,9 +1,9 @@
 import { handleActions } from 'redux-actions';
 import {
+  setAppUserThumbnail,
   setIsAuthenticated,
   setNewUIAvailableStatus,
   setUserPhoto,
-  setUserThumbnail,
   validateUserFailure,
   validateUserSuccess
 } from '../actions/user';
@@ -47,7 +47,7 @@ export default handleActions(
         ...state
       };
     },
-    [setUserThumbnail]: (state, action) => {
+    [setAppUserThumbnail]: (state, action) => {
       return {
         ...state,
         thumbnail: action.payload

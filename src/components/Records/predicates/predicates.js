@@ -297,6 +297,10 @@ export function getPredicateInput(field, sourceId, metaRecord, predicate = {}) {
               value = moment(value).format('YYYY-MM-DD');
             }
 
+            if (value && field.type === COLUMN_DATA_TYPE_DATETIME) {
+              value = moment(value).toISOString();
+            }
+
             changePredicateValue(`${value}`);
           },
           showTimeInput: field.type === COLUMN_DATA_TYPE_DATETIME

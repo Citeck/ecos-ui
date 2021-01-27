@@ -12,7 +12,8 @@ import {
   updateCommentSuccess,
   createCommentRequest,
   deleteCommentRequest,
-  deleteCommentSuccess
+  deleteCommentSuccess,
+  setActionFailedStatus
 } from '../actions/comments';
 
 export const initialState = {
@@ -21,6 +22,7 @@ export const initialState = {
   totalCount: 0,
   fetchIsLoading: false,
   sendingInProcess: false,
+  actionFailed: false,
   errorMessage: ''
 };
 
@@ -95,6 +97,7 @@ export default handleActions(
       ...state,
       [action.payload]: {
         ...state[action.payload],
+        actionFailed: false,
         fetchIsLoading: true
       }
     }),
@@ -109,6 +112,7 @@ export default handleActions(
       ...state,
       [action.payload]: {
         ...state[action.payload],
+        actionFailed: false,
         sendingInProcess: true
       }
     }),
@@ -117,6 +121,13 @@ export default handleActions(
       [action.payload]: {
         ...state[action.payload],
         sendingInProcess: false
+      }
+    }),
+    [setActionFailedStatus]: (state, { payload }) => ({
+      ...state,
+      [payload.nodeRef]: {
+        ...state[payload.nodeRef],
+        actionFailed: payload.status
       }
     })
   },
