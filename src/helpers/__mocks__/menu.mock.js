@@ -147,7 +147,7 @@ export const makeSiteMenuFromConfig = [
       {
         id: 'GO_ADMIN_PAGE',
         label: 'header.site-menu.admin-page',
-        targetUrl: '/v2/bpmn-designer',
+        targetUrl: '/v2/admin',
         targetUrlType: 'FULL_PATH'
       }
     ]
@@ -178,7 +178,7 @@ export const makeSiteMenuFromConfig = [
       {
         id: 'GO_ADMIN_PAGE',
         label: 'header.site-menu.admin-page',
-        targetUrl: '/v2/bpmn-designer',
+        targetUrl: '/v2/admin',
         targetUrlType: 'FULL_PATH'
       }
     ]
@@ -194,7 +194,7 @@ export const makeSiteMenuFromConfig = [
       {
         id: 'GO_ADMIN_PAGE',
         label: 'header.site-menu.admin-page',
-        targetUrl: '/v2/bpmn-designer',
+        targetUrl: '/v2/admin',
         targetUrlType: 'FULL_PATH'
       }
     ]

@@ -3,6 +3,7 @@ import get from 'lodash/get';
 
 import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
+import { SectionTypes } from '../constants/adminSection';
 import { getCurrentUserName, t } from '../helpers/util';
 import { decodeLink, getLinkWithout, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
 import { getData, isExistLocalStorage, setData } from '../helpers/ls';
@@ -14,7 +15,7 @@ export const PageTypes = {
   DASHBOARD: 'dashboard',
   JOURNALS: 'journals',
   SETTINGS: 'dashboard/settings',
-  BPMN_DESIGNER: 'bpmn-designer',
+  ADMIN_PAGE: 'admin',
   CMMN_EDITOR: 'cmmn-editor',
   DEV_TOOLS: 'dev-tools',
   TIMESHEET: 'timesheet'
@@ -128,9 +129,17 @@ export default class PageService {
     [PageTypes.DEV_TOOLS]: {
       getTitle: () => staticTitle(TITLE[URL.DEV_TOOLS])
     },
-    [PageTypes.BPMN_DESIGNER]: {
-      getTitle: ({ journalId }) => {
-        return journalId ? PageService.pageTypes[PageTypes.JOURNALS].getTitle({ journalId }) : staticTitle(TITLE[URL.BPMN_DESIGNER]);
+    [PageTypes.ADMIN_PAGE]: {
+      getTitle: ({ type, journalId }) => {
+        if (journalId && type === SectionTypes.JOURNAL) {
+          return PageService.pageTypes[PageTypes.JOURNALS].getTitle({ journalId });
+        }
+
+        if (type === SectionTypes.BPM) {
+          return staticTitle(TITLE.BPM);
+        }
+
+        return staticTitle(TITLE.ADMIN_PAGE);
       }
     },
     [PageTypes.CMMN_EDITOR]: {

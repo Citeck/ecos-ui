@@ -29,7 +29,7 @@ describe('Page Service', () => {
       '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       PageTypes.SETTINGS
     ],
-    ['/v2/bpmn-designer', PageTypes.BPMN_DESIGNER],
+    ['/v2/admin', PageTypes.ADMIN_PAGE],
     ['/v2/timesheet', PageTypes.TIMESHEET],
     ['/v2/cmmn-editor', PageTypes.CMMN_EDITOR]
   ])('Method getType', (input, output) => {
@@ -52,7 +52,7 @@ describe('Page Service', () => {
       '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       '034cbe25-098c-48be-ac21-d69e5c7abc79'
     ],
-    ['/v2/bpmn-designer', ''],
+    ['/v2/admin', ''],
     ['/v2/timesheet', ''],
     ['/v2/dashboard', '', 'test-type'],
     [
@@ -79,7 +79,7 @@ describe('Page Service', () => {
       '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       'dashboard/settings-034cbe25-098c-48be-ac21-d69e5c7abc79'
     ],
-    ['/v2/bpmn-designer', 'bpmn-designer-'],
+    ['/v2/admin', 'admin-'],
     ['/v2/timesheet', 'timesheet-'],
     ['/v2/dashboard', 'test-type-', 'test-type'],
     ['/v2/dashboard', 'test-type-test-key', 'test-type', 'test-key']
@@ -100,7 +100,7 @@ describe('Page Service', () => {
       '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       `page-tabs.dashboard-settings \"${TITLE}\"`
     ],
-    ['/v2/bpmn-designer', 'page-tabs.bpmn-designer'],
+    ['/v2/admin?type=BPM', 'page-tabs.bpmn-designer'],
     ['/v2/timesheet', 'page-tabs.timesheet'],
     ['/v2/cmmn-editor?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72', `page-tabs.cmmn-editor \"${TITLE}\"`]
   ])('Method getTitle by type', (link, output) => {

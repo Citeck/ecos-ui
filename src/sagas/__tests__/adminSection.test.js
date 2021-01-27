@@ -35,7 +35,7 @@ describe('adminSection sagas tests', () => {
   describe('openActiveSection saga', () => {
     it('open type BPM from alike type', async () => {
       const dispatched = [];
-      window.location = { href: `${NEW_VERSION_PREFIX}/bpmn-designer?journalId=000` };
+      window.location = { href: `${NEW_VERSION_PREFIX}/admin?journalId=000` };
 
       await runSaga(
         {
@@ -48,13 +48,13 @@ describe('adminSection sagas tests', () => {
       ).done;
 
       expect(_changeUrlLink).toHaveBeenCalled();
-      expect(_changeUrlLink).toHaveBeenCalledWith('/v2/bpmn-designer', { openNewTab: false, pushHistory: true, updateUrl: true });
+      expect(_changeUrlLink).toHaveBeenCalledWith('/v2/admin?type=BPM', { openNewTab: false, pushHistory: true, updateUrl: true });
       expect(dispatched.length).toEqual(0);
     });
 
     it('open type JOURNAL from alike type', async () => {
       const dispatched = [];
-      window.location = { href: `${NEW_VERSION_PREFIX}/bpmn-designer` };
+      window.location = { href: `${NEW_VERSION_PREFIX}/admin` };
 
       await runSaga(
         {
@@ -67,7 +67,7 @@ describe('adminSection sagas tests', () => {
       ).done;
 
       expect(_changeUrlLink).toHaveBeenCalled();
-      expect(_changeUrlLink).toHaveBeenCalledWith('/v2/bpmn-designer?journalId=test', {
+      expect(_changeUrlLink).toHaveBeenCalledWith('/v2/admin?journalId=test&type=JOURNAL', {
         openNewTab: false,
         pushHistory: true,
         updateUrl: true
@@ -96,7 +96,7 @@ describe('adminSection sagas tests', () => {
 
     it('open type DEV_TOOLS from diff type', async () => {
       const dispatched = [];
-      window.location = { href: `${NEW_VERSION_PREFIX}/bpmn-designer` };
+      window.location = { href: `${NEW_VERSION_PREFIX}/admin` };
 
       await runSaga(
         {
