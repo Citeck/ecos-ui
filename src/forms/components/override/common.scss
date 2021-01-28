@@ -10,6 +10,11 @@
 
 .formio-dialog-content .preview-panel,
 .formio-form {
+  .ecos-form__value_unreadable {
+    color: $color-gray-5;
+    font-weight: $font-weight-normal;
+  }
+
   .formio-component {
     &.formio-component_transparent-label {
       .control-label {
