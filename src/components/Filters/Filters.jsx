@@ -73,7 +73,7 @@ class Filters extends Component {
   };
 
   createGroup = (group, first, idx, sourceId, metaRecord) => {
-    const { classNameGroup, textEmpty, columns } = this.props;
+    const { classNameGroup, textEmpty, columns, needUpdate } = this.props;
 
     return (
       <FiltersGroup
@@ -84,6 +84,7 @@ class Filters extends Component {
         sourceId={sourceId}
         metaRecord={metaRecord}
         columns={columns}
+        needUpdate={needUpdate}
         onAddGroup={this.addGroup}
         onChangeFilter={this.onChangeFilter}
         onDeleteFilter={this.showDeleteFilterDialog}

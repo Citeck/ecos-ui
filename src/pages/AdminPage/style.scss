@@ -1,0 +1,9 @@
+@import '../../styles/constants';
+
+.admin-page {
+  &__access-denied {
+    margin: 20px;
+    padding: 20px;
+    font-weight: bold;
+  }
+}

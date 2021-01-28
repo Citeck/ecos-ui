@@ -289,7 +289,7 @@ class Journals extends Component {
   resetSettings = savedSetting => {
     const { predicate } = this.props;
 
-    this.setState({ savedSetting: { ...savedSetting, predicate }, isReset: true });
+    this.setState({ savedSetting: { ...savedSetting, predicate }, isReset: true }, () => this.setState({ isReset: false }));
   };
 
   applySettings = () => {
@@ -414,6 +414,7 @@ class Journals extends Component {
   };
 
   getJournalContentMaxHeight = () => {
+    const { additionalHeights } = this.props;
     const journalMinHeight = 175;
     let height = document.body.offsetHeight;
 
@@ -437,6 +438,10 @@ class Journals extends Component {
     }
 
     height -= getScrollbarWidth();
+
+    if (!Number.isNaN(additionalHeights)) {
+      height += additionalHeights;
+    }
 
     return height < journalMinHeight ? journalMinHeight : height;
   };
@@ -462,7 +467,7 @@ class Journals extends Component {
   renderSettings = () => {
     if (this.displayElements.settings) {
       const { stateId, journalConfig, grid, isMobile, selectedRecords, reloadGrid, isDocLibEnabled } = this.props;
-      const { showPreview, settingsVisible } = this.state;
+      const { showPreview, settingsVisible, isReset } = this.state;
       const { id: journalId, columns = [], meta = {}, sourceId } = pick(this.props.journalConfig, ['id', 'columns', 'meta', 'sourceId']);
       const visibleColumns = columns.filter(c => c.visible);
 
@@ -483,7 +488,13 @@ class Journals extends Component {
               <EcosModalHeight>
                 {height => (
                   <Scrollbars style={{ height }}>
-                    <JournalsFilters stateId={stateId} columns={visibleColumns} sourceId={sourceId} metaRecord={get(meta, 'metaRecord')} />
+                    <JournalsFilters
+                      stateId={stateId}
+                      columns={visibleColumns}
+                      sourceId={sourceId}
+                      metaRecord={get(meta, 'metaRecord')}
+                      needUpdate={isReset}
+                    />
                     <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
                     <JournalsGrouping stateId={stateId} columns={visibleColumns} />
                   </Scrollbars>
@@ -592,7 +603,7 @@ class Journals extends Component {
   };
 
   render() {
-    const { stateId, journalConfig, pageTabsIsShow, isMobile, isActivePage, bodyClassName } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, isMobile, isActivePage, className, bodyClassName } = this.props;
     const { showPreview, height } = this.state;
 
     if (!journalConfig || !journalConfig.columns || !journalConfig.columns.length) {
@@ -603,7 +614,7 @@ class Journals extends Component {
       <ReactResizeDetector handleHeight onResize={this.onResize}>
         <div
           ref={this.setJournalRef}
-          className={classNames('ecos-journal', {
+          className={classNames('ecos-journal', className, {
             'ecos-journal_mobile': isMobile,
             'ecos-journal_scroll': height <= JOURNAL_MIN_HEIGHT
           })}
@@ -648,7 +659,9 @@ class Journals extends Component {
 
 Journals.propTypes = {
   stateId: PropTypes.string,
+  className: PropTypes.string,
   bodyClassName: PropTypes.string,
+  additionalHeights: PropTypes.number,
   isActivePage: PropTypes.bool,
   displayElements: PropTypes.shape({
     menu: PropTypes.bool,
@@ -660,7 +673,9 @@ Journals.propTypes = {
 };
 
 Journals.defaultProps = {
+  className: '',
   bodyClassName: '',
+  additionalHeights: 0,
   displayElements: { ...defaultDisplayElements }
 };
 
