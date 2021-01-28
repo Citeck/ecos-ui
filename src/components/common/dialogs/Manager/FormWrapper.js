@@ -25,6 +25,13 @@ class FormWrapper extends React.Component {
     this.initForm();
   }
 
+  componentWillUnmount() {
+    if (this._form) {
+      this._form.destroy();
+      this._form = null;
+    }
+  }
+
   initForm() {
     if (this._form) {
       this._form.destroy();
@@ -62,19 +69,8 @@ class FormWrapper extends React.Component {
     const formPromise = Formio.createForm(containerElement, processedDefinition, options);
     formPromise.then(form => {
       this._form = form;
-      form.on('submit', submission => {
-        let res = onSubmit(submission);
-        if (res && res.catch) {
-          res.catch(e => {
-            form.showErrors(e, true);
-          });
-        }
-      });
-      if (this.props.onFormCancel) {
-        form.on('cancel', () => {
-          this.props.onFormCancel();
-        });
-      }
+      this.setEvents(form, { onSubmit });
+
       if (this.props.formData) {
         form.submission = {
           data: this.props.formData
@@ -83,10 +79,26 @@ class FormWrapper extends React.Component {
     });
   }
 
-  componentWillUnmount() {
-    if (this._form) {
-      this._form.destroy();
-      this._form = null;
+  setEvents(form, extra = {}) {
+    form.on('submit', submission => {
+      let res = extra.onSubmit(submission);
+      if (res && res.catch) {
+        res.catch(e => {
+          form.showErrors(e, true);
+        });
+      }
+    });
+
+    if (this.props.onFormCancel) {
+      form.on('cancel', () => {
+        this.props.onFormCancel();
+      });
+    }
+
+    if (this.props.onFormChange) {
+      form.on('change', (...args) => {
+        this.props.onFormChange(...args);
+      });
     }
   }
 
@@ -102,7 +114,8 @@ FormWrapper.propTypes = {
   formI18n: PropTypes.object,
   formData: PropTypes.object,
   onSubmit: PropTypes.func,
-  onFormCancel: PropTypes.func
+  onFormCancel: PropTypes.func,
+  onFormChange: PropTypes.func
 };
 
 export default FormWrapper;

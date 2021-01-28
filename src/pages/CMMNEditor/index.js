@@ -84,8 +84,6 @@ class CMMNEditorPage extends React.Component {
   };
 
   handleSelectItem = selectedElement => {
-    console.log(selectedElement);
-
     this.setState({ selectedElement }, () => {
       this.props.getFormData(getStateId(), this.recordRef, this.formId, selectedElement);
     });
@@ -93,27 +91,17 @@ class CMMNEditorPage extends React.Component {
 
   handleChangeItem = element => {
     const { selectedElement } = this.state;
-
+    //todo add check with form data
     if (element && selectedElement && element.id === selectedElement.id) {
       this.setState({ selectedElement: element });
     }
-
-    this.designer.saveXML({ callback: ({ xml }) => xml && this.props.setScenario(getStateId(), xml) });
   };
 
-  handleFormChange = (...args) => {
-    //todo doesn't work now
-    const formData = args.pop() || {};
+  handleFormChange = info => {
+    const { selectedElement } = this.state;
 
-    if (this.formId) {
-      const { selectedElement } = this.state;
-      const { _cmmnData_, ...data } = formData.data;
-
-      if (formData.changed) {
-        this.designer.updateProps(selectedElement, data);
-      }
-    } else {
-      this.setState(state => ({ recordData: { ...state.recordData, ...formData.data } }));
+    if (info.changed && selectedElement) {
+      this.designer.updateProps(selectedElement, info.data);
     }
   };
 
@@ -139,7 +127,7 @@ class CMMNEditorPage extends React.Component {
           onApply={savedScenario && this.handleSave}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
-          rightSidebar={<FormWrapper isVisible {...formProps} />}
+          rightSidebar={<FormWrapper isVisible {...formProps} onFormChange={this.handleFormChange} />}
         />
       </div>
     );
