@@ -165,6 +165,12 @@ class EcosForm extends React.Component {
             if (input.edge.protected) {
               input.component.disabled = true;
             }
+
+            if (input.edge.unreadable) {
+              input.component.disabled = true;
+              input.component.unreadable = true;
+            }
+
             if (input.edge.title) {
               attributesTitles[input.component.label] = input.edge.title;
             }

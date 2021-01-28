@@ -294,6 +294,11 @@ export default class FileComponent extends FormIOFileComponent {
   }
 
   setupValueElement(element) {
+    if (this.component.unreadable) {
+      this.setUnreadableLabel(element);
+      return;
+    }
+
     const value = this.getValue();
     const valueView = this.getView(value);
 

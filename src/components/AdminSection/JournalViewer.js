@@ -32,6 +32,8 @@ const JournalViewer = ({ hidden, isActivePage, initStateJournal, upStateId, ...p
             isActivePage={isActivePage}
             stateId={stateId}
             displayElements={{ menu: false, header: false }}
+            additionalHeights={props.additionalHeights}
+            className="ecos-admin-section__journal"
             bodyClassName="ecos-admin-section__journal-body"
           />
         </ErrorBoundary>

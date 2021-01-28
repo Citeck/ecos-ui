@@ -328,6 +328,16 @@ const Harness = {
     assert.strictEqual(cmp.getValueAt(index), outv);
     assert.strictEqual(input.value, display);
   },
+  testUnreadableField(component, done) {
+    const input = get(component, ['inputs', 0]);
+    const element = component.element.querySelector('.ecos-form__value_unreadable');
+
+    assert(component.viewOnly === true, 'Element must have mode - view only');
+    assert(input === undefined, 'Element must be nonexistent');
+    assert(element.textContent === 'ecos-form.value-unreadable', 'Unreadable label exists');
+    done();
+  },
   onNext
 };
+
 export default Harness;

@@ -414,6 +414,7 @@ class Journals extends Component {
   };
 
   getJournalContentMaxHeight = () => {
+    const { additionalHeights } = this.props;
     const journalMinHeight = 175;
     let height = document.body.offsetHeight;
 
@@ -437,6 +438,10 @@ class Journals extends Component {
     }
 
     height -= getScrollbarWidth();
+
+    if (!Number.isNaN(additionalHeights)) {
+      height += additionalHeights;
+    }
 
     return height < journalMinHeight ? journalMinHeight : height;
   };
@@ -598,7 +603,7 @@ class Journals extends Component {
   };
 
   render() {
-    const { stateId, journalConfig, pageTabsIsShow, isMobile, isActivePage, bodyClassName } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, isMobile, isActivePage, className, bodyClassName } = this.props;
     const { showPreview, height } = this.state;
 
     if (!journalConfig || !journalConfig.columns || !journalConfig.columns.length) {
@@ -609,7 +614,7 @@ class Journals extends Component {
       <ReactResizeDetector handleHeight onResize={this.onResize}>
         <div
           ref={this.setJournalRef}
-          className={classNames('ecos-journal', {
+          className={classNames('ecos-journal', className, {
             'ecos-journal_mobile': isMobile,
             'ecos-journal_scroll': height <= JOURNAL_MIN_HEIGHT
           })}
@@ -654,7 +659,9 @@ class Journals extends Component {
 
 Journals.propTypes = {
   stateId: PropTypes.string,
+  className: PropTypes.string,
   bodyClassName: PropTypes.string,
+  additionalHeights: PropTypes.number,
   isActivePage: PropTypes.bool,
   displayElements: PropTypes.shape({
     menu: PropTypes.bool,
@@ -666,7 +673,9 @@ Journals.propTypes = {
 };
 
 Journals.defaultProps = {
+  className: '',
   bodyClassName: '',
+  additionalHeights: 0,
   displayElements: { ...defaultDisplayElements }
 };
 
