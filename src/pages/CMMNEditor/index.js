@@ -3,10 +3,11 @@ import queryString from 'query-string';
 import { connect } from 'react-redux';
 import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 
-import { getFormData, initData, saveScenario, setScenario } from '../../actions/cmmnEditor';
+import { getFormProps, initData, saveScenario, setScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
 import { InfoText, Loader } from '../../components/common';
+import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
 import CMMNDesigner, { CmmnUtils } from '../../components/CMMNDesigner';
 
@@ -61,32 +62,7 @@ class CMMNEditorPage extends React.Component {
     return this.urlQuery.recordRef;
   }
 
-  get formOptions() {
-    const { selectedElement, formFields } = this.state;
-
-    if (!selectedElement) {
-      return {};
-    }
-
-    const _cmmnData_ = {};
-    const businessObject = ModelUtil.getBusinessObject(selectedElement);
-
-    formFields.forEach(key => {
-      if (key === 'name') {
-        _cmmnData_.name = ModelUtil.getName(selectedElement);
-      } else {
-        _cmmnData_[key] = businessObject.get(key);
-      }
-    });
-
-    return { _cmmnData_ };
-  }
-
   handleSave = () => {
-    if (!this.formId && this.state.recordData) {
-      this.props.saveRecord(getStateId(), this.recordRef, this.state.recordData);
-    }
-
     if (!this.designer) {
       return;
     }
@@ -108,8 +84,10 @@ class CMMNEditorPage extends React.Component {
   };
 
   handleSelectItem = selectedElement => {
+    console.log(selectedElement);
+
     this.setState({ selectedElement }, () => {
-      this.props.getFormData(getStateId(), this.recordRef, this.formId);
+      this.props.getFormData(getStateId(), this.recordRef, this.formId, selectedElement);
     });
   };
 
@@ -124,6 +102,7 @@ class CMMNEditorPage extends React.Component {
   };
 
   handleFormChange = (...args) => {
+    //todo doesn't work now
     const formData = args.pop() || {};
 
     if (this.formId) {
@@ -138,29 +117,20 @@ class CMMNEditorPage extends React.Component {
     }
   };
 
-  handleFormReady = (form = {}) => {
-    if (this.formId) {
-      const { _cmmnData_, ...data } = form.data || {};
-      this.setState({ formFields: Object.keys(data) });
-    }
-  };
-
   renderEditor = () => {
     const { savedScenario, isLoading } = this.props;
 
     if (isLoading) {
       return <Loader blur height={100} width={100} />;
     } else if (savedScenario) {
-      return (
-        <this.designer.Sheet diagram={savedScenario} onSelectElement={this.handleSelectItem} onChangeElement={this.handleChangeItem} />
-      );
+      return <this.designer.Sheet diagram={savedScenario} onClickElement={this.handleSelectItem} onChangeElement={this.handleChangeItem} />;
     } else {
       return <InfoText text={t('cmmn-editor.error.no-scenario')} />;
     }
   };
 
   render() {
-    const { savedScenario, title } = this.props;
+    const { savedScenario, title, formProps } = this.props;
 
     return (
       <div className="ecos-cmmn-editor__page" ref={this.modelEditorRef}>
@@ -169,17 +139,7 @@ class CMMNEditorPage extends React.Component {
           onApply={savedScenario && this.handleSave}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
-          rightSidebar={
-            this.recordRef ? (
-              <EcosForm
-                formId={this.formId}
-                record={this.recordRef}
-                options={this.formOptions}
-                onFormChange={this.handleFormChange}
-                onReady={this.handleFormReady}
-              />
-            ) : null
-          }
+          rightSidebar={<FormWrapper isVisible {...formProps} />}
         />
       </div>
     );
@@ -193,6 +153,7 @@ const mapStateToProps = (store, props) => {
     isMobile: store.view.isMobile,
     title: ownStore.title,
     savedScenario: ownStore.scenario,
+    formProps: ownStore.formProps,
     isLoading: ownStore.isLoading
   };
 };
@@ -201,7 +162,7 @@ const mapDispatchToProps = (dispatch, props) => ({
   initData: (stateId, record) => dispatch(initData({ stateId, record })),
   saveScenario: (stateId, record, xml, img) => dispatch(saveScenario({ stateId, record, xml, img })),
   setScenario: (stateId, scenario) => dispatch(setScenario({ stateId, scenario })),
-  getFormData: (stateId, record, formId) => dispatch(getFormData({ stateId, record, formId }))
+  getFormData: (stateId, record, formId, element) => dispatch(getFormProps({ stateId, record, formId, element }))
 });
 
 export default connect(

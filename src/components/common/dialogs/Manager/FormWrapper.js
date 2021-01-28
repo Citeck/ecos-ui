@@ -1,10 +1,12 @@
 import React from 'react';
 import uuidv4 from 'uuid/v4';
 import Formio from 'formiojs/Formio';
+import PropTypes from 'prop-types';
+
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 
-export default class FormWrapper extends React.Component {
+class FormWrapper extends React.Component {
   constructor(props) {
     super(props);
 
@@ -19,7 +21,7 @@ export default class FormWrapper extends React.Component {
     this.initForm();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     this.initForm();
   }
 
@@ -40,7 +42,7 @@ export default class FormWrapper extends React.Component {
       return;
     }
 
-    const onSubmit = this.props.onSubmit || (() => {});
+    const onSubmit = this.props.onSubmit || (() => undefined);
     const options = {
       ...(this.props.formOptions || {}),
       onSubmit
@@ -89,6 +91,18 @@ export default class FormWrapper extends React.Component {
   }
 
   render() {
-    return <div className={'formio-form'} id={this.state.containerId} />;
+    return <div className="formio-form" id={this.state.containerId} />;
   }
 }
+
+FormWrapper.propTypes = {
+  isVisible: PropTypes.bool,
+  formDefinition: PropTypes.object,
+  formOptions: PropTypes.object,
+  formI18n: PropTypes.object,
+  formData: PropTypes.object,
+  onSubmit: PropTypes.func,
+  onFormCancel: PropTypes.func
+};
+
+export default FormWrapper;

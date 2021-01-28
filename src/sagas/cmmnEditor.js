@@ -1,7 +1,18 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
+import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 
-import { getFormData, getScenario, getTitle, initData, saveScenario, setLoading, setScenario, setTitle } from '../actions/cmmnEditor';
+import {
+  getFormProps,
+  getScenario,
+  getTitle,
+  initData,
+  saveScenario,
+  setFormProps,
+  setLoading,
+  setScenario,
+  setTitle
+} from '../actions/cmmnEditor';
 import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 
@@ -53,17 +64,33 @@ export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
   }
 }
 
-export function* fetchFormData({ api, logger }, { payload: { stateId, record, formId } }) {
+export function* fetchFormProps({ api, logger }, { payload: { stateId, record, formId, element } }) {
   try {
-    console.log(stateId, record, formId);
-    const form = yield call(EcosFormUtils.getFormById, formId, { definition: 'definition?json', i18n: 'i18n?json' });
-    console.log(form);
-    const inputs = EcosFormUtils.getFormInputs(form.definition);
+    if (!formId) {
+      return;
+    }
+
+    const form = yield call(EcosFormUtils.getFormById, formId, { formDefinition: 'definition?json', formI18n: 'i18n?json' });
+    const inputs = EcosFormUtils.getFormInputs(form.formDefinition);
     const fields = inputs.map(inp => inp.attribute);
-    console.log(fields);
+    const formData = {};
+
+    if (element) {
+      const businessObject = ModelUtil.getBusinessObject(element);
+
+      fields.forEach(key => {
+        if (key === 'name') {
+          formData.name = ModelUtil.getName(element);
+        } else {
+          formData[key] = businessObject.get('ecos:' + key);
+        }
+      });
+    }
+
+    yield put(setFormProps({ stateId, formProps: { ...form, formData } }));
   } catch (e) {
-    yield put(setTitle({ stateId, title: '' }));
-    logger.error('[cmmnEditor/fetchTitle saga] error', e.message);
+    yield put(setFormProps({ stateId, formProps: {} }));
+    logger.error('[cmmnEditor/fetchFormProps saga] error', e.message);
   }
 }
 
@@ -72,7 +99,7 @@ function* cmmnEditorSaga(ea) {
   yield takeEvery(getScenario().type, fetchScenario, ea);
   yield takeEvery(saveScenario().type, runSaveScenario, ea);
   yield takeEvery(getTitle().type, fetchTitle, ea);
-  yield takeEvery(getFormData().type, fetchFormData, ea);
+  yield takeEvery(getFormProps().type, fetchFormProps, ea);
 }
 
 export default cmmnEditorSaga;

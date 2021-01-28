@@ -9,5 +9,5 @@ export const setTitle = createAction(prefix + 'SET_TITLE');
 export const getScenario = createAction(prefix + 'GET_SCENARIO');
 export const setScenario = createAction(prefix + 'SET_SCENARIO');
 export const saveScenario = createAction(prefix + 'SAVE_SCENARIO');
-export const getFormData = createAction(prefix + 'GET_FORM_DATA');
-export const setFormData = createAction(prefix + 'SET_FORM_DATA');
+export const getFormProps = createAction(prefix + 'GET_FORM_DATA');
+export const setFormProps = createAction(prefix + 'SET_FORM_DATA');
