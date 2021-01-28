@@ -1,4 +1,5 @@
 import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
+import { PREFIX_FIELD } from '../../constants/cmmn';
 
 export const GROUP_CUSTOM = 'custom';
 
@@ -10,6 +11,18 @@ function getType(element) {
 function getEcosType(element) {
   const definition = ModelUtil.getDefinition(element);
   return definition && definition.get ? definition.get('ecos:cmmnType') : '';
+}
+
+function getValue(element, key) {
+  if (!element || !key) {
+    return;
+  }
+
+  if (key === 'name') {
+    return ModelUtil.getName(element);
+  }
+
+  return ModelUtil.getBusinessObject(element).get(PREFIX_FIELD + key);
 }
 
 const initialDiagram = `<?xml version="1.0" encoding="UTF-8"?>
@@ -48,5 +61,6 @@ id="Definitions_0uso40t" targetNamespace="http://bpmn.io/schema/cmmn" exporter="
 export default {
   initialDiagram,
   getEcosType,
-  getType
+  getType,
+  getValue
 };

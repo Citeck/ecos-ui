@@ -1,6 +1,5 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
-import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 
 import {
   getFormProps,
@@ -15,7 +14,7 @@ import {
 } from '../actions/cmmnEditor';
 import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import { PREFIX_FIELD } from '../constants/cmmn';
+import { CmmnUtils } from '../components/CMMNDesigner';
 
 export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
@@ -77,14 +76,8 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, record, f
     const formData = {};
 
     if (element) {
-      const businessObject = ModelUtil.getBusinessObject(element);
-
       fields.forEach(key => {
-        if (key === 'name') {
-          formData.name = ModelUtil.getName(element);
-        } else {
-          formData[key] = businessObject.get(PREFIX_FIELD + key);
-        }
+        formData[key] = CmmnUtils.getValue(element, key);
       });
     }
 

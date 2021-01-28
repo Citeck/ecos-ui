@@ -2,6 +2,7 @@ import React from 'react';
 import uuidv4 from 'uuid/v4';
 import Formio from 'formiojs/Formio';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import { getCurrentLocale } from '../../../../helpers/export/util';
@@ -103,11 +104,12 @@ class FormWrapper extends React.Component {
   }
 
   render() {
-    return <div className="formio-form" id={this.state.containerId} />;
+    return <div className={classNames('formio-form', this.props.className)} id={this.state.containerId} />;
   }
 }
 
 FormWrapper.propTypes = {
+  className: PropTypes.string,
   isVisible: PropTypes.bool,
   formDefinition: PropTypes.object,
   formOptions: PropTypes.object,
