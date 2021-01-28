@@ -633,6 +633,29 @@ Object.defineProperty(Base.prototype, 'name', {
   }
 });
 
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-918
+Object.defineProperty(Base.prototype, 'component', {
+  get: function() {
+    return this._component;
+  },
+
+  set: function(component) {
+    const keys = ['label', 'placeholder', 'description', 'tooltip'];
+
+    this._component = component;
+
+    keys.forEach(key => {
+      Object.defineProperty(this._component, `${key}ByLocale`, {
+        get: function() {
+          return getTextByLocale(component[key]);
+        },
+        mutable: true,
+        configurable: true
+      });
+    });
+  }
+});
+
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
 Base.prototype.elementInfo = function() {
   const info = originalElementInfo.call(this);

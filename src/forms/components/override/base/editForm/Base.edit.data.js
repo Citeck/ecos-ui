@@ -9,4 +9,22 @@ BaseEditData.push({
   tooltip: 'Use it if you need refresh dependent components when this component CALCULATED value changed'
 });
 
+const refreshOn = BaseEditData.find(item => item.key === 'refreshOn');
+
+if (refreshOn) {
+  refreshOn.data = {
+    custom: `
+        values.push({label: 'Any Change', value: 'data'});
+        utils.eachComponent(instance.root.editForm.components, function(component, path) {
+          if (component.key !== data.key) {
+            values.push({
+              label: component.labelByLocale || component.label || component.key,
+              value: path
+            });
+          }
+        });
+      `
+  };
+}
+
 export default BaseEditData;

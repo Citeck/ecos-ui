@@ -38,6 +38,17 @@ describe('Base Component', () => {
     });
   });
 
+  it('Should return string value of ML fields', done => {
+    Harness.testCreate(BaseComponent, comp3).then(component => {
+      expect(component.component.placeholderByLocale).toBe(comp3.placeholder.ru);
+      expect(component.component.labelByLocale).toBe(comp3.label.en);
+      expect(component.component.descriptionByLocale).toBe(comp3.description.en);
+      expect(component.component.tooltipByLocale).toBe(comp3.tooltip.ru);
+
+      done();
+    });
+  });
+
   it('Should provide required validation', done => {
     Harness.testCreate(
       BaseComponent,
