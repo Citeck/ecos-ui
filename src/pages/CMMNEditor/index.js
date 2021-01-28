@@ -6,6 +6,7 @@ import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 import { getFormProps, initData, saveScenario, setScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
+import { PREFIX_FORM_ELM, ROOT_TYPE_ELM } from '../../constants/cmmn';
 import { InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
@@ -47,7 +48,11 @@ class CMMNEditorPage extends React.Component {
   };
 
   get formType() {
-    return CmmnUtils.getEcosType(this.state.selectedElement) || CmmnUtils.getType(this.state.selectedElement);
+    const { selectedElement } = this.state;
+
+    if (selectedElement) {
+      return CmmnUtils.getEcosType(selectedElement) || CmmnUtils.getType(selectedElement) || selectedElement.$type;
+    }
   }
 
   get formTitle() {
@@ -55,7 +60,7 @@ class CMMNEditorPage extends React.Component {
   }
 
   get formId() {
-    return this.formType ? `${SourcesId.EFORM}@proc-activity-${this.formType}` : null;
+    return this.formType ? `${SourcesId.EFORM}${PREFIX_FORM_ELM}${this.formType}` : null;
   }
 
   get recordRef() {
@@ -83,7 +88,13 @@ class CMMNEditorPage extends React.Component {
       .catch(() => this.props.saveScenario(getStateId(), this.recordRef));
   };
 
-  handleSelectItem = selectedElement => {
+  handleSelectItem = element => {
+    let selectedElement = element;
+
+    if (element && element.type === ROOT_TYPE_ELM) {
+      selectedElement = this.designer.elementDefinitions;
+    }
+
     this.setState({ selectedElement }, () => {
       this.props.getFormData(getStateId(), this.recordRef, this.formId, selectedElement);
     });

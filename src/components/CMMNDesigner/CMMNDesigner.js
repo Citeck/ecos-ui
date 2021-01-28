@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Modeler from 'cmmn-js/lib/Modeler';
+import ModelingUtil from 'cmmn-js/lib/features/modeling/util/ModelingUtil';
 import get from 'lodash/get';
 
 import additionalModules from './modules';
@@ -42,6 +43,12 @@ export default class CMMNDesigner {
 
   get isCustomContainer() {
     return this.#isCustomContainer;
+  }
+
+  get elementDefinitions() {
+    const cmmnSearchProvider = this.#modeler.get('cmmnSearch');
+    const root = cmmnSearchProvider._canvas.getRootElement();
+    return ModelingUtil.getParent(root.businessObject, 'cmmn:Definitions');
   }
 
   setDiagram = diagram => {

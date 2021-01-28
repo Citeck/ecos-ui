@@ -15,6 +15,7 @@ import {
 } from '../actions/cmmnEditor';
 import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
+import { PREFIX_FIELD } from '../constants/cmmn';
 
 export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
@@ -82,7 +83,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, record, f
         if (key === 'name') {
           formData.name = ModelUtil.getName(element);
         } else {
-          formData[key] = businessObject.get('ecos:' + key);
+          formData[key] = businessObject.get(PREFIX_FIELD + key);
         }
       });
     }
