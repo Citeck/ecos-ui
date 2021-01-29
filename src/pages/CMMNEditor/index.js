@@ -8,7 +8,7 @@ import isEmpty from 'lodash/isEmpty';
 import { getFormProps, initData, saveScenario, setScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
-import { PREFIX_FIELD, PREFIX_FORM_ELM, ROOT_TYPE_ELM } from '../../constants/cmmn';
+import { KEY_FIELDS, PREFIX_FIELD, PREFIX_FORM_ELM, ROOT_TYPE_ELM } from '../../constants/cmmn';
 import { InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
@@ -116,7 +116,10 @@ class CMMNEditorPage extends React.Component {
 
     if (info.changed && selectedElement) {
       const cmmnData = {};
-      Object.keys(info.data).forEach(key => (cmmnData[PREFIX_FIELD + key] = info.data[key]));
+      Object.keys(info.data).forEach(key => {
+        const cmmnKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
+        cmmnData[cmmnKey] = info.data[key];
+      });
       this.designer.updateProps(selectedElement, cmmnData);
     }
   };

@@ -1,5 +1,5 @@
 import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
-import { PREFIX_FIELD } from '../../constants/cmmn';
+import { KEY_FIELD_NAME, PREFIX_FIELD } from '../../constants/cmmn';
 
 export const GROUP_CUSTOM = 'custom';
 
@@ -18,7 +18,7 @@ function getValue(element, key) {
     return;
   }
 
-  if (key === 'name') {
+  if (key === KEY_FIELD_NAME) {
     return ModelUtil.getName(element);
   }
 
