@@ -55,7 +55,7 @@ export default class PageService {
       case PageTypes.CMMN_EDITOR:
         return urlProps.query.recordRef || '';
       case PageTypes.JOURNALS:
-        return urlProps.query.journalsListId || '';
+        return urlProps.query.journalId || '';
       default:
         return '';
     }

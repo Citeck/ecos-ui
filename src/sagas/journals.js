@@ -232,9 +232,10 @@ function* getJournalsList(api, w) {
 }
 
 function* getJournals(api, journalsListId, w) {
-  const journals = journalsListId
-    ? yield call(api.journals.getJournalsByJournalsList, journalsListId)
-    : yield call(api.journals.getJournals);
+  // const journals = journalsListId
+  //   ? yield call(api.journals.getJournalsByJournalsList, journalsListId)
+  //   : yield call(api.journals.getJournals);
+  const journals = yield call(api.journals.getJournals);
 
   yield Promise.all(
     journals.map(async journal => {
@@ -623,7 +624,7 @@ function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
 
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
 
-    PageService.changeUrlLink(url, { updateUrl: true, pushHistory: true });
+    PageService.changeUrlLink(url, { openNewTab: true, pushHistory: true });
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
   }
