@@ -122,11 +122,9 @@ class CMMNEditorPage extends React.Component {
   };
 
   renderEditor = () => {
-    const { savedScenario, isLoading } = this.props;
+    const { savedScenario } = this.props;
 
-    if (isLoading) {
-      return <Loader blur height={100} width={100} />;
-    } else if (savedScenario) {
+    if (savedScenario) {
       return <this.designer.Sheet diagram={savedScenario} onClickElement={this.handleSelectItem} onMounted={this.handleReadySheet} />;
     } else {
       return <InfoText text={t('cmmn-editor.error.no-scenario')} />;
@@ -134,11 +132,12 @@ class CMMNEditorPage extends React.Component {
   };
 
   render() {
-    const { savedScenario, title, formProps } = this.props;
+    const { savedScenario, title, formProps, isLoading } = this.props;
     const { selectedElement } = this.state;
 
     return (
       <div className="ecos-cmmn-editor__page" ref={this.modelEditorRef}>
+        {isLoading && <Loader blur height={100} width={100} />}
         <ModelEditorWrapper
           title={title}
           onApply={savedScenario && this.handleSave}
