@@ -62,7 +62,7 @@
     transition: width 0.5s;
 
     &_open {
-      width: 600px;
+      width: 370px;
     }
 
     &-opener {
@@ -100,7 +100,7 @@
       background: $color-white;
       overflow: auto;
       height: 100%;
-      min-width: 550px;
+      min-width: 320px;
     }
 
     &_open > &-content {
