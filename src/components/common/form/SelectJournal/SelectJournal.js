@@ -255,8 +255,6 @@ export default class SelectJournal extends Component {
 
       const mergedData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
 
-      console.warn({ gridData, mergedData });
-
       this.setState({
         gridData: { ...gridData, ...mergedData },
         isGridDataReady: true
