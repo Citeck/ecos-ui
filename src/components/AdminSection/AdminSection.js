@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Col, Container, Row } from 'reactstrap';
@@ -24,12 +24,29 @@ const AdminSection = ({ activeSection = {}, tabId }) => {
 
   const _setJournalStateId = id => id !== journalStateId && setJournalStateId(id);
 
+  useEffect(() => {
+    if (wrapperRef.current) {
+      const wrap = wrapperRef.current;
+      const header = wrap.querySelector('.ecos-admin-section__header');
+      const { paddingTop, paddingBottom } = window.getComputedStyle(wrap);
+      let heights = 0;
+
+      heights += parseInt(paddingTop, 10) + parseInt(paddingBottom, 10);
+
+      if (header) {
+        heights += header.offsetTop;
+      }
+
+      setAdditionalHeights(heights);
+    }
+  }, [wrapperRef, isOpenMenu, activeSection]);
+
   return (
-    <div className="ecos-admin-section__container">
+    <div className="ecos-admin-section__container" ref={wrapperRef}>
       <div className={classNames('ecos-admin-section__content', { 'ecos-admin-section__content_full': !isOpenMenu })}>
-        <Container fluid className="p-0">
-          <Row className="ecos-admin-section__header">
-            <Col>
+        <Container fluid className="px-4">
+          <Row className="ecos-admin-section__header m-0 px-0">
+            <Col className="m-0 p-0">
               <Caption normal>{t(activeSection.label)}</Caption>
             </Col>
           </Row>
