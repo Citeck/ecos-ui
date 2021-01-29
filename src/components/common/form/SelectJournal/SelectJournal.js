@@ -255,6 +255,8 @@ export default class SelectJournal extends Component {
 
       const mergedData = this.mergeFetchedDataWithInMemoryData(fetchedGridData);
 
+      console.warn({ gridData, mergedData });
+
       this.setState({
         gridData: { ...gridData, ...mergedData },
         isGridDataReady: true
@@ -285,35 +287,39 @@ export default class SelectJournal extends Component {
       // если запись успела проиндексироваться, удаляем её из inMemoryData, иначе добаляем в fetchedData.data временную запись
       if (exists) {
         newInMemoryData = newInMemoryData.filter(item => item.id !== memoryRecord.id);
-      } else if (fetchedGridData.data.length < pagination.maxItems) {
-        const formattedAtts = {};
-        let record = cloneDeep(memoryRecord);
 
+        continue;
+      }
+
+      const formattedAtts = {};
+      let record = cloneDeep(memoryRecord);
+
+      if (fetchedGridData.data.length < pagination.maxItems) {
         if (memoryRecord.id === get(fetchedGridData, 'recordData.id')) {
           newInMemoryData[i] = record = fetchedGridData.recordData;
+        }
+      }
 
-          for (let attr in record) {
-            if (!record.hasOwnProperty(attr)) {
-              continue;
-            }
-
-            let newAttr = attr;
-
-            if (newAttr.indexOf('(n:"') !== -1) {
-              newAttr = newAttr.substring(newAttr.indexOf('(n:"') + 4, newAttr.indexOf('")'));
-            }
-
-            if (newAttr.indexOf('?') !== -1) {
-              newAttr = newAttr.substr(0, newAttr.indexOf('?'));
-            }
-
-            newAttr = newAttr.replace(':', '_');
-            formattedAtts[newAttr] = record[attr];
-          }
+      for (let attr in record) {
+        if (!record.hasOwnProperty(attr)) {
+          continue;
         }
 
-        fetchedGridData.data.push({ ...record, ...formattedAtts });
+        let newAttr = attr;
+
+        if (newAttr.indexOf('(n:"') !== -1) {
+          newAttr = newAttr.substring(newAttr.indexOf('(n:"') + 4, newAttr.indexOf('")'));
+        }
+
+        if (newAttr.indexOf('?') !== -1) {
+          newAttr = newAttr.substr(0, newAttr.indexOf('?'));
+        }
+
+        newAttr = newAttr.replace(':', '_');
+        formattedAtts[newAttr] = record[attr];
       }
+
+      fetchedGridData.data.push({ ...record, ...formattedAtts });
     }
 
     return {
