@@ -1279,6 +1279,7 @@
   "model-editor.btn.apply": "Сохранить",
   "model-editor.btn.create": "Создать",
 
+  "cmmn-editor.success.scenario-saved": "Сценарий сохранен",
   "cmmn-editor.error.no-scenario": "Сценарий не задан",
   "cmmn-editor.error.can-not-save-scenario": "Сценарий не удалось сохранить",
   "cmmn-editor.error.can-not-save-record-data": "Данные записи не сохранены",

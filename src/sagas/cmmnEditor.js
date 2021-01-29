@@ -12,9 +12,11 @@ import {
   setScenario,
   setTitle
 } from '../actions/cmmnEditor';
+import { deleteTab } from '../actions/pageTabs';
 import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { CmmnUtils } from '../components/CMMNDesigner';
+import PageTabList from '../services/pageTabs/PageTabList';
 
 export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
@@ -42,8 +44,9 @@ export function* runSaveScenario({ api, logger }, { payload: { stateId, record, 
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
       const res = yield call(api.cmmn.saveDefinition, record, xml, base64);
 
-      if (res && res.id) {
-        yield put(setScenario({ stateId, scenario: xml }));
+      if (res.id) {
+        NotificationManager.success(t('cmmn-editor.success.scenario-saved'), t('success'));
+        yield put(deleteTab(PageTabList.activeTab));
       }
     } else throw new Error();
   } catch (e) {

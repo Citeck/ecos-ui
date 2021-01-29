@@ -5,10 +5,10 @@ import classNames from 'classnames';
 import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 import isEmpty from 'lodash/isEmpty';
 
-import { getFormProps, initData, saveScenario, setFormData, setScenario } from '../../actions/cmmnEditor';
+import { getFormProps, initData, saveScenario, setScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
-import { PREFIX_FORM_ELM, ROOT_TYPE_ELM } from '../../constants/cmmn';
+import { PREFIX_FIELD, PREFIX_FORM_ELM, ROOT_TYPE_ELM } from '../../constants/cmmn';
 import { InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
@@ -87,13 +87,11 @@ class CMMNEditorPage extends React.Component {
       this.designer.saveSVG({ callback: ({ error, svg }) => (svg ? resolve(svg) : reject(error)) })
     );
 
-    Promise.all([promiseXml, promiseImg])
-      .then(([xml, img]) => {
-        if (xml && img) {
-          this.props.saveScenario(getStateId(), this.recordRef, xml, img);
-        } else throw new Error();
-      })
-      .catch(() => this.props.saveScenario(getStateId(), this.recordRef));
+    Promise.all([promiseXml, promiseImg]).then(([xml, img]) => {
+      if (xml && img) {
+        this.props.saveScenario(getStateId(), this.recordRef, xml, img);
+      } else throw new Error();
+    });
   };
 
   handleSelectItem = element => {
@@ -113,29 +111,13 @@ class CMMNEditorPage extends React.Component {
     });
   };
 
-  handleChangeItem = element => {
-    const { selectedElement } = this.state;
-
-    if (element && selectedElement && element.id === selectedElement.id) {
-      const {
-        formProps: { formData }
-      } = this.props;
-
-      for (let key in formData) {
-        if (formData.hasOwnProperty(key) && CmmnUtils.getValue(element, key) !== formData[key]) {
-          this.setState({ selectedElement: element });
-          this.props.setFormData(getStateId(), { [key]: CmmnUtils.getValue(element, key) });
-          return;
-        }
-      }
-    }
-  };
-
   handleFormChange = info => {
     const { selectedElement } = this.state;
 
     if (info.changed && selectedElement) {
-      this.designer.updateProps(selectedElement, info.data);
+      const cmmnData = {};
+      Object.keys(info.data).forEach(key => (cmmnData[PREFIX_FIELD + key] = info.data[key]));
+      this.designer.updateProps(selectedElement, cmmnData);
     }
   };
 
@@ -145,14 +127,7 @@ class CMMNEditorPage extends React.Component {
     if (isLoading) {
       return <Loader blur height={100} width={100} />;
     } else if (savedScenario) {
-      return (
-        <this.designer.Sheet
-          diagram={savedScenario}
-          onClickElement={this.handleSelectItem}
-          onChangeElement={this.handleChangeItem}
-          onMounted={this.handleReadySheet}
-        />
-      );
+      return <this.designer.Sheet diagram={savedScenario} onClickElement={this.handleSelectItem} onMounted={this.handleReadySheet} />;
     } else {
       return <InfoText text={t('cmmn-editor.error.no-scenario')} />;
     }
@@ -160,6 +135,7 @@ class CMMNEditorPage extends React.Component {
 
   render() {
     const { savedScenario, title, formProps } = this.props;
+    const { selectedElement } = this.state;
 
     return (
       <div className="ecos-cmmn-editor__page" ref={this.modelEditorRef}>
@@ -170,7 +146,8 @@ class CMMNEditorPage extends React.Component {
           editor={this.renderEditor()}
           rightSidebar={
             <>
-              {isEmpty(formProps) && <Loader />}
+              {!!(isEmpty(formProps) && selectedElement) && <Loader />}
+              {!selectedElement && <InfoText text={t('cmmn-editor.error.no-selected-element')} />}
               <FormWrapper
                 isVisible
                 className={classNames('ecos-cmmn-editor-page', { 'd-none': isEmpty(formProps) })}
@@ -201,8 +178,7 @@ const mapDispatchToProps = (dispatch, props) => ({
   initData: (stateId, record) => dispatch(initData({ stateId, record })),
   saveScenario: (stateId, record, xml, img) => dispatch(saveScenario({ stateId, record, xml, img })),
   setScenario: (stateId, scenario) => dispatch(setScenario({ stateId, scenario })),
-  getFormProps: (stateId, record, formId, element) => dispatch(getFormProps({ stateId, record, formId, element })),
-  setFormData: (stateId, formData) => dispatch(setFormData({ stateId, formData }))
+  getFormProps: (stateId, record, formId, element) => dispatch(getFormProps({ stateId, record, formId, element }))
 });
 
 export default connect(

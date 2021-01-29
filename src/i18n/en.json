@@ -1281,6 +1281,7 @@
   "model-editor.btn.apply": "Save",
   "model-editor.btn.create": "Create",
 
+  "cmmn-editor.success.scenario-saved": "Scenario is saved",
   "cmmn-editor.error.no-scenario": "Scenario's not set",
   "cmmn-editor.error.can-not-save-scenario": "Scenario could not be saved",
   "cmmn-editor.error.can-not-save-record-data": "Record data has not saved",
