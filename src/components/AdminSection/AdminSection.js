@@ -19,8 +19,6 @@ const AdminSection = ({ activeSection = {}, tabId, isActivePage }) => {
   const [isOpenMenu, setOpenMenu] = useState(false);
   const [journalStateId, setJournalStateId] = useState(null);
   const [additionalHeights, setAdditionalHeights] = useState(0);
-  const displayBpm = activeSection.type === SectionTypes.BPM;
-  const displayJournal = activeSection.type === SectionTypes.JOURNAL;
 
   const _setJournalStateId = id => id !== journalStateId && setJournalStateId(id);
   const isHidden = type => !isActivePage || activeSection.type !== type;
