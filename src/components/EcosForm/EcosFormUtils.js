@@ -613,7 +613,7 @@ export default class EcosFormUtils {
       let innerAttSchema = getComponentInnerAttSchema(component);
       let schema = this.getSchemaForScopedAttribute(innerAttSchema, currentScope);
 
-      let edgeSchema = '.edge(n:"' + attribute + '"){protected,';
+      let edgeSchema = '.edge(n:"' + attribute + '"){protected,unreadable,';
 
       if (component.label === attribute) {
         edgeSchema += 'title}';

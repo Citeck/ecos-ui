@@ -1,6 +1,6 @@
 import { shallow } from 'enzyme';
 
-import HtmlFormatter from '../HtmlFormatter';
+import HtmlFormatter from './HtmlFormatter';
 
 console.error = jest.fn();
 

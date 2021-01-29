@@ -26,7 +26,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         isSelectedValueAsText: false,
         isTableMode: false,
         sortAttribute: Attributes.DBID,
-        sortAscending: SortOrderOptions.DESC.value,
+        sortAscending: SortOrderOptions.ASC.value,
         source: {
           custom: {
             columns: []
@@ -72,7 +72,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
     if (!_.isEqual(customPredicate, this.customPredicateValue)) {
       this.customPredicateValue = customPredicate;
-      this.updateReactComponent(component => component.setCustomPredicate(customPredicate));
+      this.updateReactComponent(component => component.setCustomPredicate && component.setCustomPredicate(customPredicate));
     }
 
     return result;

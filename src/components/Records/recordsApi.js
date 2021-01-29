@@ -64,7 +64,7 @@ function getRecognizableUrl(url, body) {
 }
 
 function recordsFetch(url, body) {
-  if (url.indexOf('mutate') >= 0) {
+  if (url.indexOf('mutate') >= 0 || url.indexOf('delete') >= 0) {
     body.version = 1;
   }
   url = getRecognizableUrl(url, body);

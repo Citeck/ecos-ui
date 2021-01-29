@@ -181,6 +181,12 @@ describe('Base Component', () => {
     });
   });
 
+  it("Shouldn't allow read value", done => {
+    Harness.testCreate(BaseComponent, _merge({}, comp1, { unreadable: true }), { readOnly: false }).then(component =>
+      Harness.testUnreadableField(component, done)
+    );
+  });
+
   describe('Draggable Rows Functionality', () => {
     it('Should populate Drag Info for each row', done => {
       Harness.testCreate(BaseComponent, multipleWithDraggableRows).then(component => {

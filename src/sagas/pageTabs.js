@@ -201,9 +201,9 @@ function* sagaUpdateTabs({ api, logger }, { payload }) {
 function* getTitle(tab) {
   try {
     const urlProps = queryString.parseUrl(tab.link);
-    const { recordRef: ref, nodeRef, journalId } = urlProps.query || {};
+    const { recordRef: ref, nodeRef, journalId, type } = urlProps.query || {};
     const recordRef = ref || nodeRef;
-    const title = yield PageService.getPage(tab).getTitle({ recordRef, journalId }, tab.link);
+    const title = yield PageService.getPage(tab).getTitle({ recordRef, journalId, type }, tab.link);
 
     return {
       title,

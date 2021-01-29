@@ -5,6 +5,11 @@
   }
 
   &__journal {
+    &.ecos-journal {
+      overflow-x: unset;
+      overflow-y: unset;
+    }
+
     &-body.ecos-journal__body {
       padding: 0;
     }
@@ -12,7 +17,7 @@
 
   &__container {
     display: flex;
-    padding: 17px 0 25px 25px;
+    padding: 17px 0 25px 0;
     height: 100%;
   }
 

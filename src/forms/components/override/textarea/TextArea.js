@@ -18,6 +18,16 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     );
   }
 
+  constructor(...args) {
+    super(...args);
+
+    overrideTriggerChange.call(this);
+  }
+
+  get defaultSchema() {
+    return TextAreaComponent.schema();
+  }
+
   setValue(value, flags) {
     const skipSetting = _.isEqual(value, this.getValue());
     value = value || '';
@@ -45,16 +55,6 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     return this.updateValue(flags); // Cause: ECOSUI-675 - Group list is not loaded in user info
   }
 
-  get defaultSchema() {
-    return TextAreaComponent.schema();
-  }
-
-  constructor(...args) {
-    super(...args);
-
-    overrideTriggerChange.call(this);
-  }
-
   createViewOnlyElement() {
     this.element = super.createViewOnlyElement();
 
@@ -71,6 +71,15 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (!this.isPlain) {
       this.valueElement.classList.add('dd-html');
     }
+  }
+
+  setupValueElement(element) {
+    if (this.component.unreadable) {
+      this.setUnreadableLabel(element);
+      return;
+    }
+
+    super.setupValueElement(element);
   }
 
   addCKE(element, settings, onChange) {

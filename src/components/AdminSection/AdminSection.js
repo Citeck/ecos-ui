@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Col, Container, Row } from 'reactstrap';
+import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../helpers/util';
 import { SectionTypes } from '../../constants/adminSection';
-import pageTabList from '../../services/pageTabs/PageTabList';
 import { Caption } from '../common/form';
 import BPMNDesigner from '../BPMNDesigner';
 import { JournalSettings } from '../Journals';
@@ -14,12 +14,15 @@ import { AdminMenu } from './';
 
 import './style.scss';
 
-const AdminSection = ({ activeSection = {}, tabId, isActivePage }) => {
+const AdminSection = ({ activeSection = {}, tabId }) => {
+  const wrapperRef = useRef(null);
   const [isOpenMenu, setOpenMenu] = useState(false);
   const [journalStateId, setJournalStateId] = useState(null);
+  const [additionalHeights, setAdditionalHeights] = useState(0);
+  const displayBpm = activeSection.type === SectionTypes.BPM;
+  const displayJournal = activeSection.type === SectionTypes.JOURNAL;
 
   const _setJournalStateId = id => id !== journalStateId && setJournalStateId(id);
-  const isHidden = type => !isActivePage || activeSection.type !== type;
 
   return (
     <div className="ecos-admin-section__container">
@@ -30,25 +33,31 @@ const AdminSection = ({ activeSection = {}, tabId, isActivePage }) => {
               <Caption normal>{t(activeSection.label)}</Caption>
             </Col>
           </Row>
-          <Row>
-            <Col md={12}>
-              <BPMNDesigner hidden={isHidden(SectionTypes.BPM)} />
-              <JournalViewer hidden={isHidden(SectionTypes.JOURNAL)} tabId={tabId} upStateId={_setJournalStateId} />
-            </Col>
-          </Row>
+          {!isEmpty(activeSection) && (
+            <Row className="m-0 p-0">
+              <Col className="m-0 p-0" md={12}>
+                <BPMNDesigner hidden={!displayBpm} />
+                <JournalViewer
+                  hidden={!displayJournal}
+                  tabId={tabId}
+                  upStateId={_setJournalStateId}
+                  additionalHeights={-additionalHeights}
+                />
+              </Col>
+            </Row>
+          )}
         </Container>
       </div>
       <AdminMenu open={isOpenMenu} toggle={setOpenMenu}>
-        {!isHidden(SectionTypes.JOURNAL) && journalStateId && <JournalSettings stateId={journalStateId} />}
+        {displayJournal && journalStateId && <JournalSettings stateId={journalStateId} />}
       </AdminMenu>
     </div>
   );
 };
 
-const mapStateToProps = (state, props) => ({
+const mapStateToProps = state => ({
   activeSection: state.adminSection.activeSection || {},
-  groupSectionList: state.adminSection.groupSectionList,
-  isActivePage: pageTabList.isActiveTab(props.tabId)
+  groupSectionList: state.adminSection.groupSectionList
 });
 
 export default connect(mapStateToProps)(AdminSection);

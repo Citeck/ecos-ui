@@ -26,6 +26,7 @@
   "bpmn-card.go-back-to-list-button.text": "Back to list",
   "bpmn-card.open-editor-button.text": "Visual Editor",
   "bpmn-designer.add-category": "Create category",
+  "bpmn-designer.add-category.failure-message": "An error occurred while adding a new category",
   "bpmn-designer.category-action.access": "Access",
   "bpmn-designer.category-action.add-subcategory": "Add subcategory",
   "bpmn-designer.category-action.create-model": "Create model",
@@ -87,6 +88,7 @@
   "admin-section.sidebar.hide": "Hide menu",
   "admin-section.sidebar.hide-sm": "Hide",
   "admin-section.sidebar.list-empty": "No data",
+  "admin-section.error.access-denied": "You don't have access to this page",
 
   "button.close-modal": "Close",
   "button.export": "Export",
@@ -357,6 +359,7 @@
   "dropdown-filter.icon-button.label": "Filter",
   "dropdown-filter.item.placeholder": "Filter",
 
+  "ecos-form.value-unreadable": "Field not available",
   "ecos-form.empty-form-data": "Error: form is not defined",
   "ecos-form.error-get-form": "Error: form is not loaded. Try to configure form",
   "ecos-form.error.clone-get-fields": "Cloned record hasn't received",
@@ -721,6 +724,7 @@
   "message.request-join-success": "Request to join site \"{{site}}\" successfully sent. You'll now be returned to your personal dashboard.",
   "message.request-join-success-title": "Request Sent",
   "page-tabs.bpmn-designer": "Business process models",
+  "page-tabs.admin-page": "Admin section",
   "page-tabs.dashboard-settings": "Settings",
   "page-tabs.home-page": "Home page",
   "page-tabs.journal": "Journal",
