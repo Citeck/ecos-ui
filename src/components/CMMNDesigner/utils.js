@@ -3,11 +3,6 @@ import { KEY_FIELD_NAME, PREFIX_FIELD } from '../../constants/cmmn';
 
 export const GROUP_CUSTOM = 'custom';
 
-function getType(element) {
-  const definition = ModelUtil.getDefinition(element);
-  return definition && definition.$type;
-}
-
 function getEcosType(element) {
   const definition = ModelUtil.getDefinition(element);
   return definition && definition.get ? definition.get('ecos:cmmnType') : '';
@@ -61,6 +56,5 @@ id="Definitions_0uso40t" targetNamespace="http://bpmn.io/schema/cmmn" exporter="
 export default {
   initialDiagram,
   getEcosType,
-  getType,
   getValue
 };

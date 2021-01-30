@@ -8,7 +8,17 @@ import isEmpty from 'lodash/isEmpty';
 import { getFormProps, initData, saveScenario, setScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
-import { KEY_FIELDS, PREFIX_FIELD, PREFIX_FORM_ELM, ROOT_TYPE_ELM } from '../../constants/cmmn';
+import {
+  KEY_FIELDS,
+  PREFIX_FIELD,
+  PREFIX_FORM_ELM,
+  TYPE_DI_DIAGRAM,
+  TYPE_ENTRY_CRITERION,
+  TYPE_EXIT_CRITERION,
+  TYPE_IF_PART,
+  TYPE_DI_EDGE,
+  TYPE_PLAN_ITEM
+} from '../../constants/cmmn';
 import { InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
@@ -53,7 +63,12 @@ class CMMNEditorPage extends React.Component {
     const { selectedElement } = this.state;
 
     if (selectedElement) {
-      return CmmnUtils.getEcosType(selectedElement) || CmmnUtils.getType(selectedElement) || selectedElement.$type;
+      const type = CmmnUtils.getEcosType(selectedElement) || selectedElement.$type || selectedElement.type;
+      if (!type) {
+        console.error('Type is not found for element', selectedElement);
+      } else {
+        return type;
+      }
     }
 
     return undefined;
@@ -98,8 +113,22 @@ class CMMNEditorPage extends React.Component {
     const { selectedElement: currentSelected } = this.state;
     let selectedElement = element;
 
-    if (element && element.type === ROOT_TYPE_ELM) {
-      selectedElement = this.designer.elementDefinitions;
+    if (element) {
+      if (element.type === TYPE_DI_DIAGRAM) {
+        selectedElement = this.designer.elementDefinitions;
+      } else if (element.type === TYPE_ENTRY_CRITERION || element.type === TYPE_EXIT_CRITERION) {
+        let sentry = element.businessObject.sentryRef;
+        if (!sentry.ifPart) {
+          const ifPart = this.designer.getCmmnFactory().create(TYPE_IF_PART);
+          ifPart.$parent = sentry;
+          sentry.ifPart = ifPart;
+        }
+        selectedElement = sentry.ifPart;
+      } else if (element.type === TYPE_DI_EDGE) {
+        selectedElement = element.businessObject.cmmnElementRef;
+      } else if (element.type === TYPE_PLAN_ITEM) {
+        selectedElement = element.businessObject.definitionRef;
+      }
     }
 
     if (selectedElement && currentSelected && selectedElement.id === currentSelected.id) {
@@ -107,20 +136,18 @@ class CMMNEditorPage extends React.Component {
     }
 
     this.setState({ selectedElement }, () => {
-      this.props.getFormProps(getStateId(), this.recordRef, this.formId, selectedElement);
+      this.props.getFormProps(getStateId(), this.formId, selectedElement);
     });
   };
 
-  handleFormChange = info => {
-    const { selectedElement } = this.state;
-
-    if (info.changed && selectedElement) {
+  handleFormChange = (element, info) => {
+    if (info.changed && element) {
       const cmmnData = {};
       Object.keys(info.data).forEach(key => {
         const cmmnKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
         cmmnData[cmmnKey] = info.data[key];
       });
-      this.designer.updateProps(selectedElement, cmmnData);
+      this.designer.updateProps(element, cmmnData);
     }
   };
 
@@ -137,6 +164,7 @@ class CMMNEditorPage extends React.Component {
   render() {
     const { savedScenario, title, formProps, isLoading } = this.props;
     const { selectedElement } = this.state;
+    const handleFormChange = info => this.handleFormChange(selectedElement, info);
 
     return (
       <div className="ecos-cmmn-editor__page" ref={this.modelEditorRef}>
@@ -154,7 +182,7 @@ class CMMNEditorPage extends React.Component {
                 isVisible
                 className={classNames('ecos-cmmn-editor-page', { 'd-none': isEmpty(formProps) })}
                 {...formProps}
-                onFormChange={this.handleFormChange}
+                onFormChange={handleFormChange}
               />
             </>
           }
@@ -180,7 +208,7 @@ const mapDispatchToProps = (dispatch, props) => ({
   initData: (stateId, record) => dispatch(initData({ stateId, record })),
   saveScenario: (stateId, record, xml, img) => dispatch(saveScenario({ stateId, record, xml, img })),
   setScenario: (stateId, scenario) => dispatch(setScenario({ stateId, scenario })),
-  getFormProps: (stateId, record, formId, element) => dispatch(getFormProps({ stateId, record, formId, element }))
+  getFormProps: (stateId, formId, element) => dispatch(getFormProps({ stateId, formId, element }))
 });
 
 export default connect(

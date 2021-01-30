@@ -57,6 +57,10 @@ export default class CMMNDesigner {
     return ModelingUtil.getParent(ModelUtil.getBusinessObject(root), 'cmmn:Definitions');
   }
 
+  getCmmnFactory() {
+    return this.#modeler.get('cmmnFactory');
+  }
+
   setDiagram = diagram => {
     if (this.#modeler && diagram) {
       this.#modeler.importXML(diagram, error => {

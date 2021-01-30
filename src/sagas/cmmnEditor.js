@@ -67,13 +67,17 @@ export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
   }
 }
 
-export function* fetchFormProps({ api, logger }, { payload: { stateId, record, formId, element } }) {
+export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, element } }) {
   try {
     if (!formId) {
       return;
     }
 
     const form = yield call(EcosFormUtils.getFormById, formId, { formDefinition: 'definition?json', formI18n: 'i18n?json' });
+    if (!form.formDefinition) {
+      console.error('Form is not found for id ' + formId);
+      return;
+    }
     const inputs = EcosFormUtils.getFormInputs(form.formDefinition);
     const fields = inputs.map(inp => inp.attribute);
     const formData = {};
