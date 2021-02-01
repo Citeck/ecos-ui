@@ -12,12 +12,15 @@ export default class AdminSectionService {
   }
 
   static getActiveSectionInGroups(groups) {
+    const { query } = queryString.parseUrl(window.location.href);
     let type = AdminSectionService.getActiveSectionType();
     let section;
     groups = groups || [];
 
     for (const group of groups) {
-      section = group.sections.find(sec => sec.type && sec.type === type);
+      section = group.sections.find(
+        sec => sec.type && (sec.type === SectionTypes.JOURNAL ? query.journalId === get(sec, 'config.journalId') : sec.type === type)
+      );
 
       if (section) {
         return section;

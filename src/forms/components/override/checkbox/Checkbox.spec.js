@@ -124,4 +124,10 @@ describe('Checkbox Component with three states', () => {
       done();
     });
   });
+
+  it('Should be unreadable value', done => {
+    const comp = Object.assign(cloneDeep(comp2), { unreadable: true });
+
+    Harness.testCreate(CheckBoxComponent, comp, { readOnly: false }).then(component => Harness.testUnreadableField(component, done));
+  });
 });
