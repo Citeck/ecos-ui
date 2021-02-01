@@ -65,7 +65,7 @@ const gatewayRecordsProxyOptions = {
 
 module.exports = function(app) {
   app.use(
-    proxy(['/gateway/api/records', '/logout'], {
+    proxy(['/gateway/api/records', '/logout', '/eis.json'], {
       ...gatewayRecordsProxyOptions
     })
   );
