@@ -16,9 +16,9 @@ if (refreshOn) {
     custom: `
         values.push({label: 'Any Change', value: 'data'});
         utils.eachComponent(instance.root.editForm.components, function(component, path) {
-          if (component.key !== data.key) {
+          if (component.key !== data.key) {          
             values.push({
-              label: component.labelByLocale || component.label || component.key,
+              label: component.labelByLocale || utils.getTextByLocale(component.label) || component.label || component.key,
               value: path
             });
           }
