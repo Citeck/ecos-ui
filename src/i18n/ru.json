@@ -1283,7 +1283,8 @@
   "cmmn-editor.error.no-scenario": "Сценарий не задан",
   "cmmn-editor.error.can-not-save-scenario": "Сценарий не удалось сохранить",
   "cmmn-editor.error.can-not-save-record-data": "Данные записи не сохранены",
-  "cmmn-editor.error.no-selected-element": "Следует выбрать элемент чтобы начать его редактирование",
+  "cmmn-editor.error.no-selected-element": "Следует выбрать элемент, чтобы начать его редактирование",
+  "cmmn-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
 
   "go-to.home-page": "Перейти на домашнюю страницу"
 }

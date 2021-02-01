@@ -44,11 +44,13 @@ export function* runSaveScenario({ api, logger }, { payload: { stateId, record, 
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
       const res = yield call(api.cmmn.saveDefinition, record, xml, base64);
 
-      if (res.id) {
-        NotificationManager.success(t('cmmn-editor.success.scenario-saved'), t('success'));
-        yield put(deleteTab(PageTabList.activeTab));
+      if (!res.id) {
+        throw new Error();
       }
-    } else throw new Error();
+
+      NotificationManager.success(t('cmmn-editor.success.scenario-saved'), t('success'));
+      yield put(deleteTab(PageTabList.activeTab));
+    }
   } catch (e) {
     yield put(setLoading({ stateId, isLoading: false }));
     NotificationManager.error(t('cmmn-editor.error.can-not-save-scenario'), t('error'));
@@ -74,10 +76,11 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     }
 
     const form = yield call(EcosFormUtils.getFormById, formId, { formDefinition: 'definition?json', formI18n: 'i18n?json' });
+
     if (!form.formDefinition) {
-      console.error('Form is not found for id ' + formId);
-      return;
+      throw new Error('Form is not found for id ' + formId);
     }
+
     const inputs = EcosFormUtils.getFormInputs(form.formDefinition);
     const fields = inputs.map(inp => inp.attribute);
     const formData = {};
@@ -91,6 +94,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     yield put(setFormProps({ stateId, formProps: { ...form, formData } }));
   } catch (e) {
     yield put(setFormProps({ stateId, formProps: {} }));
+    NotificationManager.error(t('cmmn-editor.error.form-not-found'), t('success'));
     logger.error('[cmmnEditor/fetchFormProps saga] error', e.message);
   }
 }
