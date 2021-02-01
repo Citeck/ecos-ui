@@ -1,15 +1,29 @@
 import React from 'react';
 import queryString from 'query-string';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
 import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 
-import { initData, saveRecordData, saveScenario, setScenario } from '../../actions/cmmnEditor';
+import { getFormProps, initData, saveScenario, setScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
+import {
+  KEY_FIELDS,
+  PREFIX_FIELD,
+  PREFIX_FORM_ELM,
+  TYPE_DI_DIAGRAM,
+  TYPE_ENTRY_CRITERION,
+  TYPE_EXIT_CRITERION,
+  TYPE_IF_PART,
+  TYPE_DI_EDGE,
+  TYPE_PLAN_ITEM
+} from '../../constants/cmmn';
 import { InfoText, Loader } from '../../components/common';
-import EcosForm from '../../components/EcosForm';
+import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
-import CMMNDesigner, { CmmnUtils } from '../../components/CMMNDesigner';
+import CMMNDesigner from '../../components/CMMNDesigner';
+import * as CmmnUtils from '../../components/CMMNDesigner/utils';
 
 import './style.scss';
 
@@ -47,7 +61,18 @@ class CMMNEditorPage extends React.Component {
   };
 
   get formType() {
-    return CmmnUtils.getEcosType(this.state.selectedElement) || CmmnUtils.getType(this.state.selectedElement);
+    const { selectedElement } = this.state;
+
+    if (selectedElement) {
+      const type = CmmnUtils.getEcosType(selectedElement) || selectedElement.$type || selectedElement.type;
+      if (!type) {
+        console.error('Type is not found for element', selectedElement);
+      } else {
+        return type;
+      }
+    }
+
+    return undefined;
   }
 
   get formTitle() {
@@ -55,39 +80,18 @@ class CMMNEditorPage extends React.Component {
   }
 
   get formId() {
-    return this.formType ? `${SourcesId.EFORM}@proc-activity-${this.formType}` : null;
+    return this.formType ? `${SourcesId.EFORM}${PREFIX_FORM_ELM}${this.formType}` : null;
   }
 
   get recordRef() {
     return this.urlQuery.recordRef;
   }
 
-  get formOptions() {
-    const { selectedElement, formFields } = this.state;
-
-    if (!selectedElement) {
-      return {};
-    }
-
-    const _cmmnData_ = {};
-    const businessObject = ModelUtil.getBusinessObject(selectedElement);
-
-    formFields.forEach(key => {
-      if (key === 'name') {
-        _cmmnData_.name = ModelUtil.getName(selectedElement);
-      } else {
-        _cmmnData_[key] = businessObject.get(key);
-      }
-    });
-
-    return { _cmmnData_ };
-  }
+  handleReadySheet = () => {
+    this.handleSelectItem(this.designer.elementDefinitions);
+  };
 
   handleSave = () => {
-    if (!this.formId && this.state.recordData) {
-      this.props.saveRecord(getStateId(), this.recordRef, this.state.recordData);
-    }
-
     if (!this.designer) {
       return;
     }
@@ -99,85 +103,89 @@ class CMMNEditorPage extends React.Component {
       this.designer.saveSVG({ callback: ({ error, svg }) => (svg ? resolve(svg) : reject(error)) })
     );
 
-    Promise.all([promiseXml, promiseImg])
-      .then(([xml, img]) => {
-        if (xml && img) {
-          this.props.saveScenario(getStateId(), this.recordRef, xml, img);
-        } else throw new Error();
-      })
-      .catch(() => this.props.saveScenario(getStateId(), this.recordRef));
+    Promise.all([promiseXml, promiseImg]).then(([xml, img]) => {
+      if (xml && img) {
+        this.props.saveScenario(getStateId(), this.recordRef, xml, img);
+      } else throw new Error();
+    });
   };
 
-  handleSelectItem = selectedElement => {
-    this.setState({ selectedElement });
-  };
+  handleSelectItem = element => {
+    const { selectedElement: currentSelected } = this.state;
+    let selectedElement = element;
 
-  handleChangeItem = element => {
-    const { selectedElement } = this.state;
-
-    if (element && selectedElement && element.id === selectedElement.id) {
-      this.setState({ selectedElement: element });
-    }
-
-    this.designer.saveXML({ callback: ({ xml }) => xml && this.props.setScenario(getStateId(), xml) });
-  };
-
-  handleFormChange = (...args) => {
-    const formData = args.pop() || {};
-
-    if (this.formId) {
-      const { selectedElement } = this.state;
-      const { _cmmnData_, ...data } = formData.data;
-
-      if (formData.changed) {
-        this.designer.updateProps(selectedElement, data);
+    if (element) {
+      if (element.type === TYPE_DI_DIAGRAM) {
+        selectedElement = this.designer.elementDefinitions;
+      } else if (element.type === TYPE_ENTRY_CRITERION || element.type === TYPE_EXIT_CRITERION) {
+        let sentry = element.businessObject.sentryRef;
+        if (!sentry.ifPart) {
+          const ifPart = this.designer.getCmmnFactory().create(TYPE_IF_PART);
+          ifPart.$parent = sentry;
+          sentry.ifPart = ifPart;
+        }
+        selectedElement = sentry.ifPart;
+      } else if (element.type === TYPE_DI_EDGE) {
+        selectedElement = element.businessObject.cmmnElementRef;
+      } else if (element.type === TYPE_PLAN_ITEM) {
+        selectedElement = element.businessObject.definitionRef;
       }
-    } else {
-      this.setState(state => ({ recordData: { ...state.recordData, ...formData.data } }));
     }
+
+    if (selectedElement && currentSelected && selectedElement.id === currentSelected.id) {
+      return;
+    }
+
+    this.setState({ selectedElement }, () => {
+      this.props.getFormProps(getStateId(), this.formId, selectedElement);
+    });
   };
 
-  handleFormReady = (form = {}) => {
-    if (this.formId) {
-      const { _cmmnData_, ...data } = form.data || {};
-      this.setState({ formFields: Object.keys(data) });
+  handleFormChange = (element, info) => {
+    if (info.changed && element) {
+      const cmmnData = {};
+      Object.keys(info.data).forEach(key => {
+        const cmmnKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
+        cmmnData[cmmnKey] = info.data[key];
+      });
+      this.designer.updateProps(element, cmmnData);
     }
   };
 
   renderEditor = () => {
-    const { savedScenario, isLoading } = this.props;
+    const { savedScenario } = this.props;
 
-    if (isLoading) {
-      return <Loader blur height={100} width={100} />;
-    } else if (savedScenario) {
-      return (
-        <this.designer.Sheet diagram={savedScenario} onSelectElement={this.handleSelectItem} onChangeElement={this.handleChangeItem} />
-      );
+    if (savedScenario) {
+      return <this.designer.Sheet diagram={savedScenario} onClickElement={this.handleSelectItem} onMounted={this.handleReadySheet} />;
     } else {
       return <InfoText text={t('cmmn-editor.error.no-scenario')} />;
     }
   };
 
   render() {
-    const { savedScenario, title } = this.props;
+    const { savedScenario, title, formProps, isLoading } = this.props;
+    const { selectedElement } = this.state;
+    const handleFormChange = info => this.handleFormChange(selectedElement, info);
 
     return (
       <div className="ecos-cmmn-editor__page" ref={this.modelEditorRef}>
+        {isLoading && <Loader blur height={100} width={100} />}
         <ModelEditorWrapper
           title={title}
           onApply={savedScenario && this.handleSave}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
           rightSidebar={
-            this.recordRef ? (
-              <EcosForm
-                formId={this.formId}
-                record={this.recordRef}
-                options={this.formOptions}
-                onFormChange={this.handleFormChange}
-                onReady={this.handleFormReady}
+            <>
+              {!!(isEmpty(formProps) && selectedElement) && <Loader />}
+              {!selectedElement && <InfoText text={t('cmmn-editor.error.no-selected-element')} />}
+              <FormWrapper
+                isVisible
+                className={classNames('ecos-cmmn-editor-page', { 'd-none': isEmpty(formProps) })}
+                {...formProps}
+                onFormChange={handleFormChange}
               />
-            ) : null
+            </>
           }
         />
       </div>
@@ -192,15 +200,16 @@ const mapStateToProps = (store, props) => {
     isMobile: store.view.isMobile,
     title: ownStore.title,
     savedScenario: ownStore.scenario,
+    formProps: ownStore.formProps,
     isLoading: ownStore.isLoading
   };
 };
 
 const mapDispatchToProps = (dispatch, props) => ({
   initData: (stateId, record) => dispatch(initData({ stateId, record })),
-  saveRecord: (stateId, record, data) => dispatch(saveRecordData({ stateId, record, data })),
   saveScenario: (stateId, record, xml, img) => dispatch(saveScenario({ stateId, record, xml, img })),
-  setScenario: (stateId, scenario) => dispatch(setScenario({ stateId, scenario }))
+  setScenario: (stateId, scenario) => dispatch(setScenario({ stateId, scenario })),
+  getFormProps: (stateId, formId, element) => dispatch(getFormProps({ stateId, formId, element }))
 });
 
 export default connect(

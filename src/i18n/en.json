@@ -1281,10 +1281,12 @@
   "model-editor.btn.apply": "Save",
   "model-editor.btn.create": "Create",
 
+  "cmmn-editor.success.scenario-saved": "Scenario is saved",
   "cmmn-editor.error.no-scenario": "Scenario's not set",
   "cmmn-editor.error.can-not-save-scenario": "Scenario could not be saved",
   "cmmn-editor.error.can-not-save-record-data": "Record data has not saved",
   "cmmn-editor.error.no-selected-element": "You should select some element to edit it",
+  "cmmn-editor.error.form-not-found": "Properties form has not found for this record",
 
   "go-to.home-page": "Go to home page"
 }
