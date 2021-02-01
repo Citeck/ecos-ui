@@ -2,8 +2,8 @@ import React from 'react';
 import queryString from 'query-string';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 import isEmpty from 'lodash/isEmpty';
+import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 
 import { getFormProps, initData, saveScenario, setScenario } from '../../actions/cmmnEditor';
 import { t } from '../../helpers/util';
@@ -22,7 +22,8 @@ import {
 import { InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
-import CMMNDesigner, { CmmnUtils } from '../../components/CMMNDesigner';
+import CMMNDesigner from '../../components/CMMNDesigner';
+import * as CmmnUtils from '../../components/CMMNDesigner/utils';
 
 import './style.scss';
 

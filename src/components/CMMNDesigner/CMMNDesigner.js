@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+import get from 'lodash/get';
 import Modeler from 'cmmn-js/lib/Modeler';
 import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 import ModelingUtil from 'cmmn-js/lib/features/modeling/util/ModelingUtil';
-import get from 'lodash/get';
 
 import additionalModules from './modules';
 

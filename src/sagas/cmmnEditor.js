@@ -15,7 +15,7 @@ import {
 import { deleteTab } from '../actions/pageTabs';
 import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import { CmmnUtils } from '../components/CMMNDesigner';
+import * as CmmnUtils from '../components/CMMNDesigner/utils';
 import PageTabList from '../services/pageTabs/PageTabList';
 
 export function* init({ api, logger }, { payload: { stateId, record } }) {

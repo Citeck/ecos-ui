@@ -1,6 +1,7 @@
 import { runSaga } from 'redux-saga';
 import { fetchScenario, fetchTitle, init, runSaveScenario } from '../cmmnEditor';
 import { setScenario, setTitle } from '../../actions/cmmnEditor';
+import { deleteTab } from '../../actions/pageTabs';
 
 const api = {
   app: {
@@ -85,8 +86,7 @@ describe('CMMN Editor sagas tests', () => {
       ).done;
 
       expect(dispatched.length).toEqual(1);
-      expect(dispatched[0].type).toEqual(setScenario().type);
-      expect(dispatched[0].payload.scenario).toEqual('xml');
+      expect(dispatched[0].type).toEqual(deleteTab().type);
     });
 
     it('Bad - there is no special data', async () => {
