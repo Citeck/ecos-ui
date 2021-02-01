@@ -11,7 +11,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import omit from 'lodash/omit';
 
-import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
+import { closest, getId, isExistValue, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
@@ -281,7 +281,7 @@ class Grid extends Component {
           column = this.setWidth(column);
         }
 
-        if (column.default !== undefined) {
+        if (isExistValue(column.default)) {
           column.hidden = !column.default;
         }
 
