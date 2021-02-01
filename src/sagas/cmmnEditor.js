@@ -72,13 +72,13 @@ export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
 export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, element } }) {
   try {
     if (!formId) {
-      return;
+      throw new Error('No form ID ' + formId);
     }
 
     const form = yield call(EcosFormUtils.getFormById, formId, { formDefinition: 'definition?json', formI18n: 'i18n?json' });
 
     if (!form.formDefinition) {
-      throw new Error('Form is not found for id ' + formId);
+      throw new Error('Form is not found for ID ' + formId);
     }
 
     const inputs = EcosFormUtils.getFormInputs(form.formDefinition);

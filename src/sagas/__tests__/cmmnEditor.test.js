@@ -1,7 +1,10 @@
 import { runSaga } from 'redux-saga';
-import { fetchScenario, fetchTitle, init, runSaveScenario } from '../cmmnEditor';
-import { setScenario, setTitle } from '../../actions/cmmnEditor';
+import { NotificationManager } from 'react-notifications';
+
+import { setFormProps, setScenario, setTitle } from '../../actions/cmmnEditor';
 import { deleteTab } from '../../actions/pageTabs';
+import EcosFormUtils from '../../components/EcosForm/EcosFormUtils';
+import { fetchFormProps, fetchScenario, fetchTitle, init, runSaveScenario } from '../cmmnEditor';
 
 const api = {
   app: {
@@ -102,6 +105,70 @@ describe('CMMN Editor sagas tests', () => {
       ).done;
 
       expect(dispatched.length).toEqual(0);
+    });
+  });
+
+  describe('fetchFormProps saga', () => {
+    it('Good - there is all data', async () => {
+      const dispatched = [];
+      const spyError = jest.spyOn(NotificationManager, 'error').mockResolvedValue(null);
+      const spyGetFormById = jest.spyOn(EcosFormUtils, 'getFormById').mockResolvedValue({ formDefinition: {}, formI18n: {} });
+
+      await runSaga(
+        {
+          dispatch: action => dispatched.push(action)
+        },
+        fetchFormProps,
+        { api, logger },
+        { payload: { formId: 'formId' } }
+      ).done;
+      expect(spyGetFormById).toHaveBeenCalledTimes(1);
+      expect(spyError).toHaveBeenCalledTimes(0);
+      expect(dispatched.length).toEqual(1);
+      expect(dispatched[0].type).toEqual(setFormProps().type);
+      expect(dispatched[0].payload.formProps).toEqual({ formData: {}, formDefinition: {}, formI18n: {} });
+    });
+
+    it('Bad - there is no formId', async () => {
+      const dispatched = [];
+      const spyError = jest.spyOn(NotificationManager, 'error').mockResolvedValue(null);
+      const spyGetFormById = jest.spyOn(EcosFormUtils, 'getFormById').mockResolvedValue({});
+
+      await runSaga(
+        {
+          dispatch: action => dispatched.push(action)
+        },
+        fetchFormProps,
+        { api, logger },
+        { payload: {} }
+      ).done;
+
+      expect(spyGetFormById).toHaveBeenCalledTimes(0);
+      expect(spyError).toHaveBeenCalledTimes(1);
+      expect(dispatched.length).toEqual(1);
+      expect(dispatched[0].type).toEqual(setFormProps().type);
+      expect(dispatched[0].payload.formProps).toEqual({});
+    });
+
+    it('Bad - there is no formDefinition', async () => {
+      const dispatched = [];
+      const spyError = jest.spyOn(NotificationManager, 'error').mockResolvedValue(null);
+      const spyGetFormById = jest.spyOn(EcosFormUtils, 'getFormById').mockResolvedValue({});
+
+      await runSaga(
+        {
+          dispatch: action => dispatched.push(action)
+        },
+        fetchFormProps,
+        { api, logger },
+        { payload: { formId: 'formId' } }
+      ).done;
+
+      expect(spyGetFormById).toHaveBeenCalledTimes(1);
+      expect(spyError).toHaveBeenCalledTimes(1);
+      expect(dispatched.length).toEqual(1);
+      expect(dispatched[0].type).toEqual(setFormProps().type);
+      expect(dispatched[0].payload.formProps).toEqual({});
     });
   });
 });
