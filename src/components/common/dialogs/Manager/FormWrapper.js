@@ -1,10 +1,13 @@
 import React from 'react';
 import uuidv4 from 'uuid/v4';
 import Formio from 'formiojs/Formio';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
+
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 
-export default class FormWrapper extends React.Component {
+class FormWrapper extends React.Component {
   constructor(props) {
     super(props);
 
@@ -19,8 +22,15 @@ export default class FormWrapper extends React.Component {
     this.initForm();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     this.initForm();
+  }
+
+  componentWillUnmount() {
+    if (this._form) {
+      this._form.destroy();
+      this._form = null;
+    }
   }
 
   initForm() {
@@ -40,7 +50,7 @@ export default class FormWrapper extends React.Component {
       return;
     }
 
-    const onSubmit = this.props.onSubmit || (() => {});
+    const onSubmit = this.props.onSubmit || (() => undefined);
     const options = {
       ...(this.props.formOptions || {}),
       onSubmit
@@ -60,19 +70,8 @@ export default class FormWrapper extends React.Component {
     const formPromise = Formio.createForm(containerElement, processedDefinition, options);
     formPromise.then(form => {
       this._form = form;
-      form.on('submit', submission => {
-        let res = onSubmit(submission);
-        if (res && res.catch) {
-          res.catch(e => {
-            form.showErrors(e, true);
-          });
-        }
-      });
-      if (this.props.onFormCancel) {
-        form.on('cancel', () => {
-          this.props.onFormCancel();
-        });
-      }
+      this.setEvents(form, { onSubmit });
+
       if (this.props.formData) {
         form.submission = {
           data: this.props.formData
@@ -81,14 +80,44 @@ export default class FormWrapper extends React.Component {
     });
   }
 
-  componentWillUnmount() {
-    if (this._form) {
-      this._form.destroy();
-      this._form = null;
+  setEvents(form, extra = {}) {
+    form.on('submit', submission => {
+      let res = extra.onSubmit(submission);
+      if (res && res.catch) {
+        res.catch(e => {
+          form.showErrors(e, true);
+        });
+      }
+    });
+
+    if (this.props.onFormCancel) {
+      form.on('cancel', () => {
+        this.props.onFormCancel();
+      });
+    }
+
+    if (this.props.onFormChange) {
+      form.on('change', (...args) => {
+        this.props.onFormChange(...args);
+      });
     }
   }
 
   render() {
-    return <div className={'formio-form'} id={this.state.containerId} />;
+    return <div className={classNames('formio-form', this.props.className)} id={this.state.containerId} />;
   }
 }
+
+FormWrapper.propTypes = {
+  className: PropTypes.string,
+  isVisible: PropTypes.bool,
+  formDefinition: PropTypes.object,
+  formOptions: PropTypes.object,
+  formI18n: PropTypes.object,
+  formData: PropTypes.object,
+  onSubmit: PropTypes.func,
+  onFormCancel: PropTypes.func,
+  onFormChange: PropTypes.func
+};
+
+export default FormWrapper;

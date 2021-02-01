@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Modeler from 'cmmn-js/lib/Modeler';
 import get from 'lodash/get';
+import Modeler from 'cmmn-js/lib/Modeler';
+import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
+import ModelingUtil from 'cmmn-js/lib/features/modeling/util/ModelingUtil';
 
 import additionalModules from './modules';
 
@@ -22,6 +24,7 @@ export default class CMMNDesigner {
   #modeler = null;
   #events = null;
   #isCustomContainer = false;
+  #isDiagramMounted = false;
 
   /**
    * @constructor
@@ -44,9 +47,29 @@ export default class CMMNDesigner {
     return this.#isCustomContainer;
   }
 
+  get isDiagramMounted() {
+    return this.#isDiagramMounted;
+  }
+
+  get elementDefinitions() {
+    const cmmnSearchProvider = this.#modeler.get('cmmnSearch');
+    const root = cmmnSearchProvider._canvas.getRootElement();
+    return ModelingUtil.getParent(ModelUtil.getBusinessObject(root), 'cmmn:Definitions');
+  }
+
+  getCmmnFactory() {
+    return this.#modeler.get('cmmnFactory');
+  }
+
   setDiagram = diagram => {
     if (this.#modeler && diagram) {
-      this.#modeler.importXML(diagram, error => error && console.error('Error rendering', error));
+      this.#modeler.importXML(diagram, error => {
+        if (error) {
+          console.error('Error rendering', error);
+        } else {
+          this.#isDiagramMounted = true;
+        }
+      });
     } else {
       console.warn('No diagram');
     }
@@ -150,8 +173,9 @@ export default class CMMNDesigner {
    * see available events
    * @return {ReactComponent}
    */
-  Sheet = ({ diagram, ...props }) => {
+  Sheet = ({ diagram, onMounted, ...props }) => {
     const [initialized, setInitialized] = useState(false);
+    const [mounted, setMounted] = useState(false);
     const containerRef = useRef(null);
     const events = {};
 
@@ -165,6 +189,13 @@ export default class CMMNDesigner {
         setInitialized(true);
       }
     }, [initialized, containerRef]);
+
+    useEffect(() => {
+      if (!mounted && initialized && this.isDiagramMounted) {
+        onMounted(true);
+        setMounted(true);
+      }
+    });
 
     return <div ref={containerRef} className="ecos-cmmn-container" />;
   };
