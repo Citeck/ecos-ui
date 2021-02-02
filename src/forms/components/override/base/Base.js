@@ -30,6 +30,7 @@ const originalElementInfo = Base.prototype.elementInfo;
 const originalCreateDescription = Base.prototype.createDescription;
 const originalSetupValueElement = Base.prototype.setupValueElement;
 const originalAddShortcutToLabel = Base.prototype.addShortcutToLabel;
+const originalEvalContext = Base.prototype.evalContext;
 // Methods <<<
 
 // >>> PropertyDescriptors
@@ -720,5 +721,91 @@ Base.prototype.setupValueElement = function(element) {
 
   originalSetupValueElement.call(this, element);
 };
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-918
+function empowerComponent(component) {
+  const fields = ['label', 'placeholder', 'description', 'tooltip'];
+  let extraParams = {};
+
+  fields.forEach(field => {
+    if (component.hasOwnProperty(`${field}ByLocale`)) {
+      return;
+    }
+
+    extraParams = {
+      ...extraParams,
+      get [`${field}ByLocale`]() {
+        return getTextByLocale(component[field]);
+      }
+    };
+  });
+
+  return { ...component, ...extraParams };
+}
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-918
+Object.defineProperty(Base.prototype, 'component', {
+  get: function() {
+    const keys = ['label', 'placeholder', 'description', 'tooltip'];
+
+    keys.forEach(key => {
+      if (this._component.hasOwnProperty(`${key}ByLocale`)) {
+        return;
+      }
+
+      Object.defineProperty(this._component, `${key}ByLocale`, {
+        get: function() {
+          return getTextByLocale(this[key]);
+        },
+        mutable: true,
+        configurable: true
+      });
+    });
+
+    return this._component;
+  },
+
+  set: function(component) {
+    const keys = ['label', 'placeholder', 'description', 'tooltip'];
+
+    keys.forEach(key => {
+      Object.defineProperty(component, `${key}ByLocale`, {
+        get: function() {
+          return getTextByLocale(this[key]);
+        },
+        mutable: true,
+        configurable: true
+      });
+    });
+
+    this._component = component;
+  }
+});
+
+Base.prototype.evalContext = function(additional) {
+  const context = originalEvalContext.call(this, additional);
+
+  return {
+    ...context,
+    utils: {
+      ...context.utils,
+      getTextByLocale
+    },
+    util: {
+      ...context.utils,
+      getTextByLocale
+    }
+  };
+};
+
+Object.defineProperty(Base.prototype, 'originalComponent', {
+  get: function() {
+    return this._originalComponent;
+  },
+
+  set: function(value) {
+    this._originalComponent = empowerComponent(value);
+  }
+});
 
 export default Base;
