@@ -13,3 +13,10 @@
     }
   }
 }
+
+.ecos-cmmn-editor-page {
+  &__xml-viewer {
+    overflow: auto;
+    max-height: 85vh;
+  }
+}
