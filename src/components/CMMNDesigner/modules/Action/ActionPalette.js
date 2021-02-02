@@ -5,7 +5,7 @@ function createAction(elementFactory, cmmnFactory) {
     type: 'cmmn:PlanItem',
     businessObject: (function() {
       const definitionRef = cmmnFactory.create('cmmn:Task', {
-        'ecos:cmmnType': 'Action'
+        'ecos:cmmnType': 'ecos:Action'
       });
 
       return cmmnFactory.create('cmmn:PlanItem', { definitionRef });

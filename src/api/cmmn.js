@@ -2,7 +2,7 @@ import Records from '../components/Records';
 
 export default class CmmnApi {
   getDefinition = record => {
-    return Records.get(record).load('definition?str');
+    return Records.get(record).load('definition?str', true);
   };
 
   saveDefinition = (record, xml, img) => {

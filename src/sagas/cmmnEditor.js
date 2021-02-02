@@ -48,10 +48,12 @@ export function* runSaveScenario({ api, logger }, { payload: { stateId, record, 
         NotificationManager.success(t('cmmn-editor.success.scenario-saved'), t('success'));
         yield put(deleteTab(PageTabList.activeTab));
       }
-    } else throw new Error();
+    } else {
+      throw new Error();
+    }
   } catch (e) {
     yield put(setLoading({ stateId, isLoading: false }));
-    NotificationManager.error(t('cmmn-editor.error.can-not-save-scenario'), t('error'));
+    NotificationManager.error(e.message || t('error'), t('cmmn-editor.error.can-not-save-scenario'));
     logger.error('[cmmnEditor/runSaveScenario  saga] error', e.message);
   }
 }
@@ -79,12 +81,22 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
       return;
     }
     const inputs = EcosFormUtils.getFormInputs(form.formDefinition);
-    const fields = inputs.map(inp => inp.attribute);
     const formData = {};
 
     if (element) {
-      fields.forEach(key => {
-        formData[key] = CmmnUtils.getValue(element, key);
+      inputs.forEach(input => {
+        const att = input.attribute;
+        let value = CmmnUtils.getValue(element, att);
+        const inputType = input.component && input.component.type;
+        const isMultiple = input.component && input.component.multiple;
+        if (
+          value != null &&
+          value !== '' &&
+          (isMultiple === true || inputType === 'mlText' || inputType === 'datamap' || inputType === 'container')
+        ) {
+          value = JSON.parse(value);
+        }
+        formData[att] = value;
       });
     }
 

@@ -1278,6 +1278,7 @@
   "model-editor.error.no-editor": "Редактор не установлен",
   "model-editor.btn.apply": "Сохранить",
   "model-editor.btn.create": "Создать",
+  "model-editor.btn.view-xml": "Посмотреть XML",
 
   "cmmn-editor.success.scenario-saved": "Сценарий сохранен",
   "cmmn-editor.error.no-scenario": "Сценарий не задан",

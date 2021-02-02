@@ -61,6 +61,10 @@ export default class CMMNDesigner {
     return this.#modeler.get('cmmnFactory');
   }
 
+  getEventBus() {
+    return this.#modeler.get('eventBus');
+  }
+
   setDiagram = diagram => {
     if (this.#modeler && diagram) {
       this.#modeler.importXML(diagram, error => {
