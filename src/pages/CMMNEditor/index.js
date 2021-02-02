@@ -3,13 +3,15 @@ import queryString from 'query-string';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
 
 import { getFormProps, initData, saveScenario, setScenario } from '../../actions/cmmnEditor';
-import { t } from '../../helpers/util';
+import { t, getTextByLocale } from '../../helpers/util';
 import { SourcesId } from '../../constants';
 import {
   KEY_FIELDS,
+  ML_POSTFIX,
   PREFIX_FIELD,
   PREFIX_FORM_ELM,
   TYPE_DI_DIAGRAM,
@@ -17,13 +19,15 @@ import {
   TYPE_EXIT_CRITERION,
   TYPE_IF_PART,
   TYPE_DI_EDGE,
+  TYPE_LABEL,
   TYPE_PLAN_ITEM
 } from '../../constants/cmmn';
-import { InfoText, Loader } from '../../components/common';
+import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
 import CMMNDesigner from '../../components/CMMNDesigner';
 import * as CmmnUtils from '../../components/CMMNDesigner/utils';
+import XMLViewer from 'react-xml-viewer';
 
 import './style.scss';
 
@@ -33,7 +37,9 @@ class CMMNEditorPage extends React.Component {
   state = {
     selectedElement: undefined,
     formFields: [],
-    recordData: null
+    recordData: null,
+    xmlViewerXml: '',
+    xmlViewerIsOpen: false
   };
   designer = new CMMNDesigner();
   urlQuery = queryString.parseUrl(window.location.href).query;
@@ -106,50 +112,90 @@ class CMMNEditorPage extends React.Component {
     Promise.all([promiseXml, promiseImg]).then(([xml, img]) => {
       if (xml && img) {
         this.props.saveScenario(getStateId(), this.recordRef, xml, img);
-      } else throw new Error();
+      } else {
+        console.error('Xml or Img is undefined', xml, img);
+        throw new Error('Xml or Img is undefined');
+      }
     });
   };
 
   handleSelectItem = element => {
     const { selectedElement: currentSelected } = this.state;
-    let selectedElement = element;
 
-    if (element) {
-      if (element.type === TYPE_DI_DIAGRAM) {
-        selectedElement = this.designer.elementDefinitions;
-      } else if (element.type === TYPE_ENTRY_CRITERION || element.type === TYPE_EXIT_CRITERION) {
-        let sentry = element.businessObject.sentryRef;
-        if (!sentry.ifPart) {
-          const ifPart = this.designer.getCmmnFactory().create(TYPE_IF_PART);
-          ifPart.$parent = sentry;
-          sentry.ifPart = ifPart;
-        }
-        selectedElement = sentry.ifPart;
-      } else if (element.type === TYPE_DI_EDGE) {
-        selectedElement = element.businessObject.cmmnElementRef;
-      } else if (element.type === TYPE_PLAN_ITEM) {
-        selectedElement = element.businessObject.definitionRef;
-      }
-    }
+    const selectedElement = this._getBusinessObjectByDiagramElement(element);
 
     if (selectedElement && currentSelected && selectedElement.id === currentSelected.id) {
       return;
     }
 
-    this.setState({ selectedElement }, () => {
-      this.props.getFormProps(getStateId(), this.formId, selectedElement);
-    });
+    this.setState(
+      {
+        selectedDiagramElement: element,
+        selectedElement
+      },
+      () => {
+        this.props.getFormProps(getStateId(), this.formId, selectedElement);
+      }
+    );
   };
 
-  handleFormChange = (element, info) => {
-    if (info.changed && element) {
+  _getBusinessObjectByDiagramElement(element) {
+    if (!element) {
+      return element;
+    }
+    if (element.type === TYPE_DI_DIAGRAM) {
+      element = this.designer.elementDefinitions;
+    } else if (element.type === TYPE_ENTRY_CRITERION || element.type === TYPE_EXIT_CRITERION) {
+      let sentry = element.businessObject.sentryRef;
+      if (!sentry.ifPart) {
+        const ifPart = this.designer.getCmmnFactory().create(TYPE_IF_PART);
+        ifPart.$parent = sentry;
+        sentry.ifPart = ifPart;
+      }
+      element = sentry.ifPart;
+    } else if (element.type === TYPE_DI_EDGE || element.type === TYPE_LABEL) {
+      element = element.businessObject.cmmnElementRef;
+    } else if (element.type === TYPE_PLAN_ITEM) {
+      element = element.businessObject.definitionRef;
+    }
+
+    return element;
+  }
+
+  handleFormChange = (selectedElement, selectedDiagramElement, info) => {
+    if (info.changed && selectedElement) {
       const cmmnData = {};
       Object.keys(info.data).forEach(key => {
         const cmmnKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
-        cmmnData[cmmnKey] = info.data[key];
+        const rawValue = info.data[key];
+        let valueAsText = rawValue;
+        if (valueAsText != null && !isString(valueAsText)) {
+          valueAsText = JSON.stringify(valueAsText);
+        }
+        cmmnData[cmmnKey] = valueAsText;
+        if (key.endsWith(ML_POSTFIX)) {
+          cmmnData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
+        }
       });
-      this.designer.updateProps(element, cmmnData);
+      this.designer.updateProps(selectedElement, cmmnData);
+      if (selectedDiagramElement) {
+        this.designer.getEventBus().fire('element.changed', { element: selectedDiagramElement });
+      }
     }
+  };
+
+  handleHideXmlViewerModal = () => {
+    this.setState({ xmlViewerIsOpen: false, xmlViewerXml: '' });
+  };
+
+  handleClickViewXml = () => {
+    this.designer.saveXML({
+      callback: ({ xml }) => {
+        if (xml) {
+          this.setState({ xmlViewerXml: xml, xmlViewerIsOpen: true });
+        }
+      }
+    });
   };
 
   renderEditor = () => {
@@ -164,8 +210,8 @@ class CMMNEditorPage extends React.Component {
 
   render() {
     const { savedScenario, title, formProps, isLoading } = this.props;
-    const { selectedElement } = this.state;
-    const handleFormChange = info => this.handleFormChange(selectedElement, info);
+    const { selectedElement, selectedDiagramElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
+    const handleFormChange = info => this.handleFormChange(selectedElement, selectedDiagramElement, info);
 
     return (
       <div className="ecos-cmmn-editor__page" ref={this.modelEditorRef}>
@@ -173,6 +219,7 @@ class CMMNEditorPage extends React.Component {
         <ModelEditorWrapper
           title={title}
           onApply={savedScenario && this.handleSave}
+          onViewXml={savedScenario && this.handleClickViewXml}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
           rightSidebar={
@@ -188,6 +235,9 @@ class CMMNEditorPage extends React.Component {
             </>
           }
         />
+        <EcosModal title="XML" modalSize="xl" isOpen={xmlViewerIsOpen} hideModal={this.handleHideXmlViewerModal}>
+          <div className="ecos-cmmn-editor-page__xml-viewer">{xmlViewerXml && <XMLViewer xml={xmlViewerXml} />}</div>
+        </EcosModal>
       </div>
     );
   }
