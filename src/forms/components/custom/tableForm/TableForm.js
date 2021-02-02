@@ -443,6 +443,9 @@ export default class TableFormComponent extends BaseReactComponent {
         };
       }
 
+      const placeholder = this.t(component.placeholder);
+      const customStringForConcatWithStaticTitle = this.t(component.customStringForConcatWithStaticTitle);
+
       return {
         createVariants: this._createVariants,
         columns,
@@ -450,11 +453,11 @@ export default class TableFormComponent extends BaseReactComponent {
         defaultValue: this.dataValue,
         isCompact: component.isCompact,
         multiple: component.multiple,
-        placeholder: component.placeholder,
+        placeholder,
         disabled: component.disabled,
         noColHeaders: component.noColHeaders,
         isStaticModalTitle: component.isStaticModalTitle,
-        customStringForConcatWithStaticTitle: this.t(component.customStringForConcatWithStaticTitle),
+        customStringForConcatWithStaticTitle,
         onChange: this.onReactValueChanged,
         isSelectableRows: component.isSelectableRows,
         onSelectRows: this._setSelectedRows,
