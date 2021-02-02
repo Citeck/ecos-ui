@@ -101,7 +101,7 @@ const runApp = () => {
   );
 };
 
-if (process.env.NODE_ENV === 'development' && !isMobileAppWebView()) {
+if (false /*process.env.NODE_ENV === 'development' && !isMobileAppWebView()*/) {
   authService.init().then(runApp);
 } else {
   runApp();

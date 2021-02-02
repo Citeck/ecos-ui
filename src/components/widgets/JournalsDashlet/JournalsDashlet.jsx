@@ -234,14 +234,13 @@ class JournalsDashlet extends BaseWidget {
     }
 
     if (!editorMode || isCollapsed) {
+      console.warn('renderEditor NULL');
       return null;
     }
 
-    return (
-      <Measurer>
-        <JournalsDashletEditor id={id} stateId={stateId} recordRef={this.recordRef} {...addProps} />
-      </Measurer>
-    );
+    console.warn('renderEditor Measurer');
+
+    return <JournalsDashletEditor id={id} stateId={stateId} recordRef={this.recordRef} {...addProps} />;
   }
 
   renderJournal() {

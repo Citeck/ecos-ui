@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 
 import { Caption, Checkbox, Field, Input, Select } from '../../common/form';
 import { Btn } from '../../common/btns';
@@ -25,6 +27,7 @@ import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import DashboardService from '../../../services/dashboard';
+import SelectJournal from '../../common/form/SelectJournal';
 
 import './JournalsDashletEditor.scss';
 
@@ -75,8 +78,18 @@ class JournalsDashletEditor extends Component {
     setJournalsItem: PropTypes.func
   };
 
+  state = {
+    selectedJournals: []
+  };
+
   componentDidMount() {
     const { config, getDashletEditorData } = this.props;
+
+    console.warn('componentDidMount');
+
+    if (isEmpty(this.state.selectedJournals) && !isEmpty(config.journalsListIds)) {
+      this.setState({ selectedJournals: config.journalsListIds });
+    }
 
     getDashletEditorData(config);
   }
@@ -103,6 +116,14 @@ class JournalsDashletEditor extends Component {
       setDashletConfigByParams(id, config);
       setEditorMode(false);
     }
+
+    if (!isEqual(prevConfig.journalsListIds, config.journalsListIds) && !isEmpty(config.journalsListIds)) {
+      this.setState({ selectedJournals: config.journalsListIds });
+    }
+  }
+
+  componentWillUnmount() {
+    console.warn('componentWillUnmount');
   }
 
   cancel = () => {
@@ -112,19 +133,24 @@ class JournalsDashletEditor extends Component {
   };
 
   save = () => {
-    let { config, id, recordRef, onSave, saveDashlet } = this.props;
+    const { config, id, recordRef, onSave, saveDashlet } = this.props;
+    const { selectedJournals } = this.state;
+    let newConfig;
 
     if (recordRef) {
-      config = config && config.onlyLinked === undefined ? { ...config, onlyLinked: true } : config;
-    }
-    if (config.customJournalMode === undefined) {
-      config.customJournalMode = false;
+      newConfig = config && config.onlyLinked === undefined ? { ...config, onlyLinked: true } : config;
     }
 
+    if (config.customJournalMode === undefined) {
+      newConfig.customJournalMode = false;
+    }
+
+    newConfig.journalsListIds = selectedJournals;
+
     if (onSave) {
-      onSave(id, { config });
+      onSave(id, { config: newConfig });
     } else {
-      saveDashlet(config, id);
+      saveDashlet(newConfig, id);
     }
   };
 
@@ -150,12 +176,25 @@ class JournalsDashletEditor extends Component {
     this.props.setCustomJournalMode(checked);
   };
 
+  get selectedJournals() {
+    const { journals, config } = this.props;
+    const selected = getSelectedValue(journals, 'nodeRef', get(config, 'journalId'), 'nodeRef');
+
+    console.warn({ selected });
+
+    return selected;
+  }
+
   render() {
     const { className, measurer, recordRef, journals, journalsList, journalSettings, setJournalsListItem, setJournalsItem } = this.props;
     const config = this.props.config || {};
     const isSmall = measurer && (measurer.xxs || measurer.xxxs);
     const checkSmall = isSmall => className => (isSmall ? className : '');
     const ifSmall = checkSmall(isSmall);
+
+    console.warn({ selectedFromRender: this.state.selectedJournals });
+
+    // console.warn(getSelectedValue(journalsList, 'id', config.journalsListId));
 
     return (
       <div className={classNames('ecos-journal-dashlet-editor', className)}>
@@ -164,17 +203,21 @@ class JournalsDashletEditor extends Component {
             {t('journals.action.edit-dashlet')}
           </Caption>
 
-          <Field label={t('journals.list.name')} isSmall={isSmall}>
-            <Select
-              className={'ecos-journal-dashlet-editor__select'}
-              placeholder={t('journals.action.select-journal-list')}
-              options={journalsList}
-              getOptionLabel={option => option.title}
-              getOptionValue={option => option.id}
-              onChange={setJournalsListItem}
-              value={getSelectedValue(journalsList, 'id', config.journalsListId)}
-            />
-          </Field>
+          {/*<Field label={t('journals.list.name')} isSmall={isSmall}>*/}
+          {/*  <Select*/}
+          {/*    className={'ecos-journal-dashlet-editor__select'}*/}
+          {/*    placeholder={t('journals.action.select-journal-list')}*/}
+          {/*    options={journalsList}*/}
+          {/*    getOptionLabel={option => option.title}*/}
+          {/*    getOptionValue={option => option.id}*/}
+          {/*    onChange={setJournalsListItem}*/}
+          {/*    value={getSelectedValue(journalsList, 'id', config.journalsListId)}*/}
+          {/*  />*/}
+          {/*</Field>*/}
+
+          {/*<Field label={t('journals.list.name')} isSmall={isSmall}>*/}
+
+          {/*</Field>*/}
 
           {config.customJournalMode ? (
             <Field label={t('journals.action.custom-journal')} isSmall={isSmall}>
@@ -183,15 +226,34 @@ class JournalsDashletEditor extends Component {
           ) : (
             <>
               <Field label={t('journals.name')} isSmall={isSmall}>
-                <Select
-                  className={'ecos-journal-dashlet-editor__select'}
-                  placeholder={t('journals.action.select-journal')}
-                  options={journals}
-                  getOptionLabel={option => option.title}
-                  getOptionValue={option => option.nodeRef}
-                  onChange={setJournalsItem}
-                  value={getSelectedValue(journals, 'nodeRef', config.journalId)}
+                <SelectJournal
+                  // journalId={this.selectedJournals}
+                  journalId={'ecos-journals'}
+                  // journalId={getSelectedValue(journalsList, 'id', config.journalsListId)}
+                  // isSelectModalOpen
+                  defaultValue={this.state.selectedJournals}
+                  multiple
+                  hideCreateButton
+                  // renderView={() => null}
+                  onChange={selectedJournals => {
+                    // setJournalsItem
+                    console.warn({ selectedJournals });
+                    this.setState({ selectedJournals });
+                  }}
+                  onCancel={() => {
+                    console.warn('onCancel');
+                    // this.setState({ journalId: '' });
+                  }}
                 />
+                {/*<Select*/}
+                {/*  className={'ecos-journal-dashlet-editor__select'}*/}
+                {/*  placeholder={t('journals.action.select-journal')}*/}
+                {/*  options={journals}*/}
+                {/*  getOptionLabel={option => option.title}*/}
+                {/*  getOptionValue={option => option.nodeRef}*/}
+                {/*  onChange={setJournalsItem}*/}
+                {/*  value={getSelectedValue(journals, 'nodeRef', config.journalId)}*/}
+                {/*/>*/}
               </Field>
 
               <Field label={t('journals.settings')} isSmall={isSmall}>

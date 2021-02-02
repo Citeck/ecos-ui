@@ -122,8 +122,16 @@ export function getPropByStringKey(obj, strKey) {
   return res;
 }
 
-export function getSelectedValue(source, field, value) {
-  return source.filter(option => option[field] === value);
+export function getSelectedValue(source, field, value, selectedField) {
+  const selected = source.filter(option => option[field] === value);
+
+  if (isEmpty(selectedField)) {
+    return selected;
+  }
+
+  return selected.map(item => {
+    return item[selectedField];
+  });
 }
 
 export function trigger(name, data) {

@@ -13,6 +13,7 @@ import FormManager from '../../EcosForm/FormManager';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { getCreateVariantKeyField } from '../service/util';
+import { selectJournalsListIds } from '../../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -23,7 +24,8 @@ const mapStateToProps = (state, props) => {
     journalSettings: newState.journalSettings,
     config: newState.config,
     grid: newState.grid,
-    selectedRecords: newState.selectedRecords
+    selectedRecords: newState.selectedRecords,
+    selectedJournals: selectJournalsListIds(state, props.stateId)
   };
 };
 
@@ -93,6 +95,7 @@ class JournalsDashletToolbar extends Component {
       stateId,
       journals,
       journalConfig,
+      selectedJournals,
       journalConfig: {
         meta: { nodeRef = '' }
       },
@@ -103,6 +106,8 @@ class JournalsDashletToolbar extends Component {
       config,
       selectedRecords
     } = this.props;
+
+    console.warn({ selectedJournals });
 
     return (
       <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
