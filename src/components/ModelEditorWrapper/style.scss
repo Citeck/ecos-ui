@@ -62,12 +62,12 @@
     transition: width 0.5s;
 
     &_open {
-      width: 600px;
+      width: 370px;
     }
 
     &-opener {
       position: absolute;
-      z-index: 900;
+      z-index: 905;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -100,7 +100,7 @@
       background: $color-white;
       overflow: auto;
       height: 100%;
-      min-width: 550px;
+      min-width: 320px;
     }
 
     &_open > &-content {

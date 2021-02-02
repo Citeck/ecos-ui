@@ -3,7 +3,7 @@ import ReplaceMenuProvider from 'cmmn-js/lib/features/popup-menu/ReplaceMenuProv
 import { isManualActivation, isRepeatable } from 'cmmn-js/lib/util/ModelUtil';
 
 import { extractLabel } from '../../../../helpers/util';
-import { CmmnUtils } from '../../index';
+import * as CmmnUtils from '../../utils';
 import actionTypes from './action-types.json';
 
 /**
