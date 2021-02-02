@@ -14,7 +14,7 @@ const LABEL_STYLE = {
   fontFamily: 'Arial, sans-serif',
   fontSize: '12px'
 };
-const DEFAULT_TYPES_TO_RENDER = ['Action'];
+const DEFAULT_TYPES_TO_RENDER = ['ecos:Action'];
 
 export default class CustomRenderer extends BaseRenderer {
   constructor(eventBus, cmmnRenderer) {
