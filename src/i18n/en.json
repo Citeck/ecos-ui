@@ -1280,6 +1280,7 @@
   "model-editor.error.no-editor": "Editor's not installed",
   "model-editor.btn.apply": "Save",
   "model-editor.btn.create": "Create",
+  "model-editor.btn.view-xml": "View XML",
 
   "cmmn-editor.success.scenario-saved": "Scenario is saved",
   "cmmn-editor.error.no-scenario": "Scenario's not set",

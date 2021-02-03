@@ -1,20 +1,6 @@
 [
   {
-    "id": "EmailAction",
-    "name": {
-      "en": "Email Action",
-      "ru": "Отправить Email"
-    }
-  },
-  {
-    "id": "ScriptAction",
-    "name": {
-      "en": "Script Action",
-      "ru": "Выполнить скрипт"
-    }
-  },
-  {
-    "id": "SetCaseStatusAction",
+    "id": "ecos:SetStatusAction",
     "name": {
       "en": "Set Case Status",
       "ru": "Установить статус кейса"
