@@ -954,7 +954,7 @@ export default class EcosFormUtils {
   }
 
   static getFormTitle(data) {
-    const displayName = data.displayName || '';
+    const displayName = data.typeName || data.displayName || '';
     const formMode = data.formMode || FORM_MODE_EDIT;
 
     const titleKey = 'eform.header.' + formMode + '.title';
