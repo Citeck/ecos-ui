@@ -73,6 +73,7 @@ import { hasInString } from '../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 import { JournalUrlParams } from '../constants';
 import { loadDocumentLibrarySettings } from './docLib';
+import { JOURNAL_DASHLET_CONFIG_VERSION } from '../constants/journals';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -160,9 +161,23 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
 
 function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
   try {
-    const config = action.payload.config || {};
+    const { config = {} } = action.payload;
+
+    if (isEmpty(config) || config.version !== JOURNAL_DASHLET_CONFIG_VERSION) {
+      yield put(setEditorMode(w(true)));
+      return;
+    }
+
     const recordRef = action.payload.recordRef;
-    const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config;
+    const {
+      // journalsListId,
+      journalId,
+      journalSettingId = '',
+      customJournal,
+      customJournalMode,
+      journalsListIds
+    } = config[JOURNAL_DASHLET_CONFIG_VERSION];
+    const journalsListId = get(journalsListIds, '0');
     let selectedJournals = [];
 
     if (!isEmpty(journalsListIds)) {

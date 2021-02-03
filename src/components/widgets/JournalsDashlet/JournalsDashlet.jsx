@@ -31,6 +31,7 @@ import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
 import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
 import { JournalsGroupActionsTools } from '../../Journals/JournalsTools';
 import BaseWidget from '../BaseWidget';
+import { selectDashletConfig } from '../../../selectors/journals';
 
 import './JournalsDashlet.scss';
 
@@ -44,7 +45,7 @@ const mapStateToProps = (state, ownProps) => {
     stateId: getKey(ownProps),
     editorMode: newState.editorMode,
     journalConfig: newState.journalConfig,
-    config: newState.config,
+    config: selectDashletConfig(state, getKey(ownProps)),
     isMobile: (state.view || {}).isMobile === true,
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,

@@ -28,6 +28,8 @@ import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import DashboardService from '../../../services/dashboard';
 import SelectJournal from '../../common/form/SelectJournal';
+import { JOURNAL_DASHLET_CONFIG_VERSION } from '../../../constants/journals';
+import { selectDashletConfig } from '../../../selectors/journals';
 
 import './JournalsDashletEditor.scss';
 
@@ -38,7 +40,7 @@ const mapStateToProps = (state, ownProps) => {
     journalsList: newState.journalsList,
     journals: newState.journals,
     journalSettings: newState.journalSettings,
-    config: newState.config,
+    config: selectDashletConfig(state, ownProps.stateId),
     initConfig: newState.initConfig,
     editorMode: newState.editorMode,
     resultDashboard: get(state, ['dashboard', DashboardService.key, 'requestResult'], {})
@@ -129,19 +131,26 @@ class JournalsDashletEditor extends Component {
   save = () => {
     const { config, id, recordRef, onSave, saveDashlet, setDashletConfig } = this.props;
     const { selectedJournals } = this.state;
-    let newConfig;
+    let newConfig = { ...get(config, [JOURNAL_DASHLET_CONFIG_VERSION], {}) };
 
     if (recordRef) {
-      newConfig = config && config.onlyLinked === undefined ? { ...config, onlyLinked: true } : config;
+      newConfig.onlyLinked = newConfig.onlyLinked === undefined ? true : newConfig.onlyLinked;
     }
 
-    if (config.customJournalMode === undefined) {
+    if (newConfig.customJournalMode === undefined) {
       newConfig.customJournalMode = false;
     }
 
     newConfig.journalsListIds = selectedJournals;
+    newConfig.journalsListId = get(selectedJournals, '0', '');
     newConfig.journalId = get(selectedJournals, '0', '');
     newConfig.journalType = '';
+
+    newConfig = {
+      ...config,
+      version: JOURNAL_DASHLET_CONFIG_VERSION,
+      [JOURNAL_DASHLET_CONFIG_VERSION]: newConfig
+    };
 
     if (onSave) {
       onSave(id, { config: newConfig });

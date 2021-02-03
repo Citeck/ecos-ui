@@ -1,0 +1,1 @@
+export const JOURNAL_DASHLET_CONFIG_VERSION = 'v2';

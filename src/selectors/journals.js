@@ -22,3 +22,8 @@ export const selectJournalUiType = createSelector(
 export const selectUrl = (state, id) => get(state, ['journals', id, 'url']) || {};
 
 export const selectJournalData = selectState;
+
+export const selectDashletConfig = createSelector(
+  selectState,
+  ownProps => get(ownProps, 'config', null)
+);
