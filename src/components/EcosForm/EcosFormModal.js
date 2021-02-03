@@ -42,15 +42,30 @@ export default class EcosFormModal extends React.Component {
   }
 
   componentDidMount() {
+    const { record, attributes = {} } = this.props;
+
     this.checkEditRights();
-    this.instanceRecord = Records.get(this.props.record);
+    this.instanceRecord = Records.get(record);
     this.instanceRecord
       .load({
         displayName: '.disp',
         formMode: '_formMode'
       })
       .then(recordData => {
-        this.setState({ recordData });
+        let typeNamePromise = Promise.resolve(null);
+        if (attributes._type) {
+          typeNamePromise = Records.get(attributes._type).load('name');
+        } else if (attributes._etype) {
+          typeNamePromise = Records.get(attributes._etype).load('name');
+        }
+
+        typeNamePromise.then(typeName => {
+          if (typeName) {
+            recordData.typeName = typeName;
+          }
+
+          this.setState({ recordData });
+        });
       });
     this.watcher = this.instanceRecord.watch(['.disp'], changed => {
       this.setState({
