@@ -181,4 +181,8 @@ export class JournalsApi extends RecordService {
       .load(`#${cell}?protected`)
       .catch(() => null);
   };
+
+  getJournalsByIds = (ids, attrs = '?json') => {
+    return Records.get(ids).load(attrs);
+  };
 }

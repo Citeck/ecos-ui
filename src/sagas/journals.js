@@ -51,6 +51,7 @@ import {
   setPreviewFileName,
   setPreviewUrl,
   setSelectAllRecordsVisible,
+  setSelectedJournals,
   setSelectedRecords,
   setUrl
 } from '../actions/journals';
@@ -143,9 +144,9 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
     const config = yield call(api.journals.getDashletConfig, action.payload);
 
     if (config) {
-      const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode } = config;
+      const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config;
 
-      yield put(setEditorMode(w(false)));
+      yield put(setEditorMode(w(isEmpty(journalsListIds))));
       yield put(setDashletConfig(w(config)));
       yield getJournals(api, journalsListId, w);
       yield put(initJournal(w({ journalId, journalSettingId, customJournal, customJournalMode })));
@@ -161,17 +162,24 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
   try {
     const config = action.payload.config || {};
     const recordRef = action.payload.recordRef;
-    const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode } = config;
+    const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config;
+    let selectedJournals = [];
+
+    if (!isEmpty(journalsListIds)) {
+      selectedJournals = yield call(api.journals.getJournalsByIds, journalsListIds, { id: 'id', title: '.disp' });
+    }
+
+    yield put(setSelectedJournals(w(selectedJournals)));
 
     if (journalsListId) {
-      yield put(setEditorMode(w(false)));
+      yield put(setEditorMode(w(isEmpty(journalsListIds))));
       yield put(setDashletConfig(w(config)));
       yield getJournals(api, journalsListId, w);
       if (customJournalMode && customJournal) {
         let resolvedCustomJournal = yield _resolveTemplate(recordRef, customJournal);
         yield put(initJournal(w({ journalId: resolvedCustomJournal })));
       } else {
-        yield put(initJournal(w({ journalId, journalSettingId })));
+        yield put(initJournal(w({ journalId: get(journalsListIds, '0', journalId), journalSettingId })));
       }
     } else {
       yield put(setEditorMode(w(true)));
@@ -635,6 +643,7 @@ function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
     const journalId = action.payload;
 
     yield put(setLoading(w(true)));
+
     const journalConfig = yield getJournalConfig(api, journalId, w);
 
     yield getJournalSettings(api, journalConfig.id, w);

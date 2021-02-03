@@ -18,6 +18,7 @@ export const setCustomJournalMode = createAction(prefix + 'SET_CUSTOM_JOURNAL_MO
 export const setCustomJournal = createAction(prefix + 'SET_CUSTOM_JOURNAL');
 export const setJournalsList = createAction(prefix + 'SET_JOURNALS_LIST');
 export const setJournals = createAction(prefix + 'SET_JOURNALS');
+export const setSelectedJournals = createAction(prefix + 'SET_SELECTED_JOURNALS');
 
 export const setJournalConfig = createAction(prefix + 'SET_JOURNAL_CONFIG');
 export const setGrid = createAction(prefix + 'SET_GRID');

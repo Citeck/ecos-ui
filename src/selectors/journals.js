@@ -1,6 +1,5 @@
 import { createSelector } from 'reselect';
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 
 import { defaultState } from '../reducers/journals';
 
@@ -23,19 +22,3 @@ export const selectJournalUiType = createSelector(
 export const selectUrl = (state, id) => get(state, ['journals', id, 'url']) || {};
 
 export const selectJournalData = selectState;
-
-export const selectJournalsListIds = createSelector(
-  selectState,
-  selectJournals,
-  (ownState, journals) => {
-    const journalsListIds = get(ownState, 'config.journalsListIds', []);
-
-    if (isEmpty(journals)) {
-      return [];
-    }
-
-    return journalsListIds.map(id => {
-      return journals.find(item => item.type === id.substr(id.indexOf('@') + 1));
-    });
-  }
-);

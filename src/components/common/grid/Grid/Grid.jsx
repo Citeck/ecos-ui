@@ -306,7 +306,7 @@ class Grid extends Component {
     if (props.editable) {
       options.cellEdit = this.setEditable(props.editable);
     } else {
-      options.cellEdit = undefined;
+      options.cellEdit = { options: {} };
     }
 
     options.rowEvents = {

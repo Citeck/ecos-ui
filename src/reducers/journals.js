@@ -29,7 +29,8 @@ import {
   setSelectAllRecordsVisible,
   setSelectedRecords,
   setSettingItem,
-  setUrl
+  setUrl,
+  setSelectedJournals
 } from '../actions/journals';
 import {
   setIsDocLibEnabled,
@@ -166,7 +167,9 @@ export const defaultState = {
       pagination: DEFAULT_DOCLIB_PAGINATION,
       hasError: false
     }
-  }
+  },
+
+  selectedJournals: []
 };
 
 const initialState = {};
@@ -907,6 +910,14 @@ export default handleActions(
             forQuery: handledAction.payload.forQuery || {}
           }
         }
+      });
+    },
+    [setSelectedJournals]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(action);
+
+      return handleState(state, stateId, {
+        selectedJournals: handledAction.payload
       });
     }
   },

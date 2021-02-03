@@ -13,7 +13,6 @@ import FormManager from '../../EcosForm/FormManager';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { getCreateVariantKeyField } from '../service/util';
-import { selectJournalsListIds } from '../../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -25,7 +24,7 @@ const mapStateToProps = (state, props) => {
     config: newState.config,
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
-    selectedJournals: selectJournalsListIds(state, props.stateId)
+    selectedJournals: newState.selectedJournals
   };
 };
 
@@ -47,7 +46,7 @@ class JournalsDashletToolbar extends Component {
     });
   };
 
-  onChangeJournal = journal => this.props.onJournalSelect(journal.nodeRef);
+  onChangeJournal = journal => this.props.onJournalSelect(journal.id);
 
   onChangeJournalSetting = setting => {
     this.props.onJournalSettingsSelect(setting[JOURNAL_SETTING_ID_FIELD]);
@@ -93,7 +92,6 @@ class JournalsDashletToolbar extends Component {
   render() {
     const {
       stateId,
-      journals,
       journalConfig,
       selectedJournals,
       journalConfig: {
@@ -107,25 +105,25 @@ class JournalsDashletToolbar extends Component {
       selectedRecords
     } = this.props;
 
-    console.warn({ selectedJournals });
-
     return (
       <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
         {this.renderCreateMenu()}
 
-        <Dropdown
-          hasEmpty
-          source={journals}
-          value={nodeRef}
-          valueField={'nodeRef'}
-          titleField={'title'}
-          className={classNames({
-            'ecos-journal-dashlet__toolbar-dropdown_small': isSmall
-          })}
-          onChange={this.onChangeJournal}
-        >
-          <IcoBtn invert icon={'icon-small-down'} className="ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10" />
-        </Dropdown>
+        {selectedJournals.length > 1 && (
+          <Dropdown
+            hasEmpty
+            source={selectedJournals}
+            value={nodeRef}
+            valueField={'id'}
+            titleField={'title'}
+            className={classNames({
+              'ecos-journal-dashlet__toolbar-dropdown_small': isSmall
+            })}
+            onChange={this.onChangeJournal}
+          >
+            <IcoBtn invert icon={'icon-small-down'} className="ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10" />
+          </Dropdown>
+        )}
 
         {!isSmall && (
           <Dropdown
