@@ -170,15 +170,8 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
       return;
     }
 
-    const recordRef = action.payload.recordRef;
-    const {
-      // journalsListId,
-      journalId,
-      journalSettingId = '',
-      customJournal,
-      customJournalMode,
-      journalsListIds
-    } = config[JOURNAL_DASHLET_CONFIG_VERSION];
+    const { recordRef, lsJournalId } = action.payload;
+    const { journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config[JOURNAL_DASHLET_CONFIG_VERSION];
     const journalsListId = get(journalsListIds, '0');
     let selectedJournals = [];
 
@@ -196,7 +189,7 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
         let resolvedCustomJournal = yield _resolveTemplate(recordRef, customJournal);
         yield put(initJournal(w({ journalId: resolvedCustomJournal })));
       } else {
-        yield put(initJournal(w({ journalId: get(journalsListIds, '0', journalId), journalSettingId })));
+        yield put(initJournal(w({ journalId: lsJournalId || get(journalsListIds, '0', journalId), journalSettingId })));
       }
     } else {
       yield put(setEditorMode(w(true)));

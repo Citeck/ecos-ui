@@ -47,7 +47,15 @@ class JournalsDashletToolbar extends Component {
     });
   };
 
-  onChangeJournal = journal => this.props.onJournalSelect(journal.id);
+  onChangeJournal = journal => {
+    const { onChangeSelectedJournal, onJournalSelect } = this.props;
+
+    onJournalSelect(journal.id);
+
+    if (typeof onChangeSelectedJournal === 'function') {
+      onChangeSelectedJournal(journal.id);
+    }
+  };
 
   onChangeJournalSetting = setting => {
     this.props.onJournalSettingsSelect(setting[JOURNAL_SETTING_ID_FIELD]);
@@ -103,7 +111,8 @@ class JournalsDashletToolbar extends Component {
       isSmall,
       grid,
       config,
-      selectedRecords
+      selectedRecords,
+      lsJournalId
     } = this.props;
 
     return (
@@ -114,7 +123,7 @@ class JournalsDashletToolbar extends Component {
           <Dropdown
             hasEmpty
             source={selectedJournals}
-            value={nodeRef}
+            value={lsJournalId || nodeRef}
             valueField={'id'}
             titleField={'title'}
             className={classNames({
