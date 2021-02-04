@@ -1,7 +1,10 @@
+import { AUTHORITY_TYPE_USER } from './constants';
+
 export function handleResponse(result) {
   return result.map(item => ({
     id: item.nodeRef,
     label: item.displayName,
+    extraLabel: item.authorityType === AUTHORITY_TYPE_USER ? item.shortName : null,
     hasChildren: !!item.groupType,
     isLoaded: false,
     isOpen: false,
@@ -22,6 +25,7 @@ export function converterUserList(source) {
   return source.map(item => ({
     id: item.id,
     label: item.fullName,
+    extraLabel: item.userName,
     attributes: item
   }));
 }
