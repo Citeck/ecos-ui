@@ -219,6 +219,15 @@ export const SelectOrgstructProvider = props => {
             return renderListItem(item);
           }
 
+          if (item.extraLabel) {
+            return (
+              <>
+                {item.label}
+                <span className="select-orgstruct__list-item-label-extra">({item.extraLabel})</span>
+              </>
+            );
+          }
+
           return item.label;
         },
 
