@@ -85,7 +85,7 @@ export default () => {
           </Container>
         </DevToolsContextProvider>
       </div>
-      <AdminMenu open={isOpenMenu} toggle={setOpenMenu} />
+      {hasAccess && <AdminMenu open={isOpenMenu} toggle={setOpenMenu} />}
     </div>
   );
 };
