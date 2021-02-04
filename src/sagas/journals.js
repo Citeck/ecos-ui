@@ -144,8 +144,6 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
   try {
     const config = yield call(api.journals.getDashletConfig, action.payload);
 
-    console.warn({ config });
-
     if (config) {
       const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config;
 
@@ -250,9 +248,6 @@ function* getJournalsList(api, w) {
 }
 
 function* getJournals(api, journalsListId, w) {
-  // const journals = journalsListId
-  //   ? yield call(api.journals.getJournalsByJournalsList, journalsListId)
-  //   : yield call(api.journals.getJournals);
   const journals = yield call(api.journals.getJournals);
 
   yield Promise.all(
