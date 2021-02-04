@@ -50,6 +50,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  &-extra {
+    color: $color-gray-5;
+    margin-left: 0.4em;
+  }
 }
 
 .select-orgstruct__list-item-label_clickable {
@@ -60,7 +65,7 @@
   margin-left: 10px;
 }
 
-.select-orgstruct__select-handler {
+.select-orgstruct__select-handler.icon {
   cursor: pointer;
   color: $color-white;
   border-radius: 50%;
