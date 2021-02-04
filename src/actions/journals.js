@@ -10,7 +10,6 @@ export const getDashletEditorData = createAction(prefix + 'GET_DASHLET_EDITOR_DA
 export const setEditorMode = createAction(prefix + 'SET_EDITOR_MODE');
 export const initJournal = createAction(prefix + 'INIT_JOURNAL');
 
-export const setJournalsListItem = createAction(prefix + 'SET_JOURNALS_LIST_ITEM');
 export const setJournalsItem = createAction(prefix + 'SET_JOURNALS_ITEM');
 export const setSettingItem = createAction(prefix + 'SET_SETTING_ITEM');
 export const setOnlyLinked = createAction(prefix + 'SET_ONLY_LINKED');

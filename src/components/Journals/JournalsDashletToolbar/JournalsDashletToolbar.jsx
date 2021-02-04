@@ -13,7 +13,7 @@ import FormManager from '../../EcosForm/FormManager';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { getCreateVariantKeyField } from '../service/util';
-import { selectDashletConfig } from '../../../selectors/journals';
+import { selectNewVersionDashletConfig } from '../../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -22,7 +22,7 @@ const mapStateToProps = (state, props) => {
     journals: newState.journals,
     journalConfig: newState.journalConfig,
     journalSettings: newState.journalSettings,
-    config: selectDashletConfig(state, props.stateId),
+    config: selectNewVersionDashletConfig(state, props.stateId),
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
     selectedJournals: newState.selectedJournals

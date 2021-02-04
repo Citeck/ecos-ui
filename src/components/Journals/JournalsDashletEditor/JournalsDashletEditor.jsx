@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 
@@ -16,7 +17,6 @@ import {
   setDashletConfigByParams,
   setEditorMode,
   setJournalsItem,
-  setJournalsListItem,
   setOnlyLinked,
   setCustomJournalMode,
   setCustomJournal,
@@ -25,11 +25,10 @@ import {
 
 import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
+import { JOURNAL_DASHLET_CONFIG_VERSION, JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import DashboardService from '../../../services/dashboard';
 import SelectJournal from '../../common/form/SelectJournal';
-import { JOURNAL_DASHLET_CONFIG_VERSION } from '../../../constants/journals';
-import { selectDashletConfig } from '../../../selectors/journals';
+import { selectDashletConfig, selectNewVersionDashletConfig } from '../../../selectors/journals';
 
 import './JournalsDashletEditor.scss';
 
@@ -40,7 +39,8 @@ const mapStateToProps = (state, ownProps) => {
     journalsList: newState.journalsList,
     journals: newState.journals,
     journalSettings: newState.journalSettings,
-    config: selectDashletConfig(state, ownProps.stateId),
+    generalConfig: selectDashletConfig(state, ownProps.stateId),
+    config: selectNewVersionDashletConfig(state, ownProps.stateId),
     initConfig: newState.initConfig,
     editorMode: newState.editorMode,
     resultDashboard: get(state, ['dashboard', DashboardService.key, 'requestResult'], {})
@@ -54,14 +54,13 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
     getDashletEditorData: config => dispatch(getDashletEditorData(w(config))),
     setDashletConfigByParams: (id, config) => dispatch(setDashletConfigByParams(w({ id, config }))),
-    setJournalsListItem: item => dispatch(setJournalsListItem(w(item))),
     setJournalsItem: item => dispatch(setJournalsItem(w(item))),
     setSettingItem: id => dispatch(setSettingItem(w(id))),
     setOnlyLinked: onlyLinked => dispatch(setOnlyLinked(w(onlyLinked))),
     setCustomJournal: text => dispatch(setCustomJournal(w(text))),
     setCustomJournalMode: onlyLinked => dispatch(setCustomJournalMode(w(onlyLinked))),
     setDashletConfig: config => dispatch(setDashletConfig(w(config))),
-    saveDashlet: (config, id) => dispatch(saveDashlet(w({ config: config, id: id })))
+    saveDashlet: (config, id) => dispatch(saveDashlet(w({ config, id })))
   };
 };
 
@@ -72,11 +71,11 @@ class JournalsDashletEditor extends Component {
     className: PropTypes.string,
     measurer: PropTypes.object,
     config: PropTypes.object,
+    generalConfig: PropTypes.object,
     journals: PropTypes.array,
     journalsList: PropTypes.array,
     journalSettings: PropTypes.array,
     onSave: PropTypes.func,
-    setJournalsListItem: PropTypes.func,
     setJournalsItem: PropTypes.func
   };
 
@@ -108,7 +107,7 @@ class JournalsDashletEditor extends Component {
       setEditorMode
     } = this.props;
 
-    if (config && (prevConfig.journalsListId !== config.journalsListId || prevConfig.journalId !== config.journalId)) {
+    if (config && prevConfig.journalId !== config.journalId) {
       getDashletEditorData(config);
     }
 
@@ -129,12 +128,17 @@ class JournalsDashletEditor extends Component {
   };
 
   save = () => {
-    const { config, id, recordRef, onSave, saveDashlet, setDashletConfig } = this.props;
+    const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, generalConfig } = this.props;
     const { selectedJournals } = this.state;
-    let newConfig = { ...get(config, [JOURNAL_DASHLET_CONFIG_VERSION], {}) };
+    const journalId = get(selectedJournals, '0', '');
+    let newConfig = omit(config, ['journalsListId', 'journalType']);
 
     if (recordRef) {
-      newConfig.onlyLinked = newConfig.onlyLinked === undefined ? true : newConfig.onlyLinked;
+      if (generalConfig.onlyLinked !== undefined && newConfig.onlyLinked === undefined) {
+        newConfig.onlyLinked = generalConfig.onlyLinked;
+      } else {
+        newConfig.onlyLinked = newConfig.onlyLinked === undefined ? true : newConfig.onlyLinked;
+      }
     }
 
     if (newConfig.customJournalMode === undefined) {
@@ -142,12 +146,10 @@ class JournalsDashletEditor extends Component {
     }
 
     newConfig.journalsListIds = selectedJournals;
-    newConfig.journalsListId = get(selectedJournals, '0', '');
-    newConfig.journalId = get(selectedJournals, '0', '');
-    newConfig.journalType = '';
+    newConfig.journalId = journalId.substr(journalId.indexOf('@') + 1);
 
     newConfig = {
-      ...config,
+      ...generalConfig,
       version: JOURNAL_DASHLET_CONFIG_VERSION,
       [JOURNAL_DASHLET_CONFIG_VERSION]: newConfig
     };

@@ -60,6 +60,7 @@ import {
   DEFAULT_INLINE_TOOL_SETTINGS,
   DEFAULT_JOURNALS_PAGINATION,
   DEFAULT_PAGINATION,
+  JOURNAL_DASHLET_CONFIG_VERSION,
   JOURNAL_SETTING_ID_FIELD
 } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
@@ -68,12 +69,11 @@ import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, remov
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
 import { getJournalUIType } from '../api/export/journalsApi';
-import { selectJournalData, selectUrl } from '../selectors/journals';
+import { selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
 import { hasInString } from '../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 import { JournalUrlParams } from '../constants';
 import { loadDocumentLibrarySettings } from './docLib';
-import { JOURNAL_DASHLET_CONFIG_VERSION } from '../constants/journals';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -143,6 +143,8 @@ function* sagaGetDashletEditorData({ api, logger, stateId, w }, action) {
 function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
   try {
     const config = yield call(api.journals.getDashletConfig, action.payload);
+
+    console.warn({ config });
 
     if (config) {
       const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config;
@@ -400,7 +402,8 @@ function* sagaRestoreJournalSettingData({ api, logger, stateId, w }, action) {
 }
 
 function* getGridData(api, params, stateId) {
-  const { recordRef, journalConfig, journalSetting, config } = yield select(selectJournalData, stateId);
+  const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+  const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
   const onlyLinked = get(config, 'onlyLinked');
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, ...forRequest } = params;

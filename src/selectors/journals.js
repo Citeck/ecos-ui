@@ -2,6 +2,7 @@ import { createSelector } from 'reselect';
 import get from 'lodash/get';
 
 import { defaultState } from '../reducers/journals';
+import { JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
 
@@ -22,6 +23,11 @@ export const selectJournalUiType = createSelector(
 export const selectUrl = (state, id) => get(state, ['journals', id, 'url']) || {};
 
 export const selectJournalData = selectState;
+
+export const selectNewVersionDashletConfig = createSelector(
+  selectState,
+  ownProps => get(ownProps, ['config', JOURNAL_DASHLET_CONFIG_VERSION], null)
+);
 
 export const selectDashletConfig = createSelector(
   selectState,
