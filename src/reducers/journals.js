@@ -18,8 +18,6 @@ import {
   setJournalSetting,
   setJournalSettings,
   setJournalsItem,
-  setJournalsList,
-  setJournalsListItem,
   setOnlyLinked,
   setPredicate,
   setPreviewFileName,
@@ -29,7 +27,8 @@ import {
   setSelectAllRecordsVisible,
   setSelectedRecords,
   setSettingItem,
-  setUrl
+  setUrl,
+  setSelectedJournals
 } from '../actions/journals';
 import {
   setIsDocLibEnabled,
@@ -65,6 +64,7 @@ import { handleAction, handleState } from '../helpers/redux';
 import {
   DEFAULT_INLINE_TOOL_SETTINGS,
   DEFAULT_PAGINATION,
+  JOURNAL_DASHLET_CONFIG_VERSION,
   JOURNAL_SETTING_DATA_FIELD,
   JOURNAL_SETTING_ID_FIELD
 } from '../components/Journals/constants';
@@ -166,10 +166,19 @@ export const defaultState = {
       pagination: DEFAULT_DOCLIB_PAGINATION,
       hasError: false
     }
-  }
+  },
+
+  selectedJournals: []
 };
 
 const initialState = {};
+const updateConfig = (config, data = {}) => ({
+  ...config,
+  [JOURNAL_DASHLET_CONFIG_VERSION]: {
+    ...get(config, [JOURNAL_DASHLET_CONFIG_VERSION], {}),
+    ...data
+  }
+});
 
 Object.freeze(initialState);
 Object.freeze(defaultState);
@@ -286,29 +295,6 @@ export default handleActions(
         previewFileName: get(action.payload, ['row', 'cm:title'], '')
       });
     },
-    [setJournalsListItem]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return stateId
-        ? {
-            ...state,
-            [stateId]: {
-              ...(state[stateId] || {}),
-              config: {
-                ...(state[stateId] || {}).config,
-                journalsListId: action.payload.id
-              }
-            }
-          }
-        : {
-            ...state,
-            config: {
-              ...state.config,
-              journalsListId: action.payload.id
-            }
-          };
-    },
     [setJournalsItem]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
@@ -318,24 +304,24 @@ export default handleActions(
             ...state,
             [stateId]: {
               ...(state[stateId] || {}),
-              config: {
-                ...(state[stateId] || {}).config,
+              config: updateConfig((state[stateId] || {}).config, {
                 journalId: action.payload.nodeRef,
                 journalType: action.payload.type
-              }
+              })
             }
           }
         : {
             ...state,
-            config: {
-              ...state.config,
+            config: updateConfig(state.config, {
               journalId: action.payload.nodeRef,
               journalType: action.payload.type
-            }
+            })
           };
     },
     [setSettingItem]: (state, action) => {
       const stateId = action.payload.stateId;
+      const config = get(state, [stateId, 'config'], {});
+
       action = handleAction(action);
 
       return stateId
@@ -343,18 +329,12 @@ export default handleActions(
             ...state,
             [stateId]: {
               ...(state[stateId] || {}),
-              config: {
-                ...(state[stateId] || {}).config,
-                journalSettingId: action.payload
-              }
+              config: updateConfig(config, { journalSettingId: action.payload })
             }
           }
         : {
             ...state,
-            config: {
-              ...state.config,
-              journalSettingId: action.payload
-            }
+            config: updateConfig(state.config, { journalSettingId: action.payload })
           };
     },
     [setCustomJournal]: (state, action) => {
@@ -366,22 +346,18 @@ export default handleActions(
             ...state,
             [stateId]: {
               ...(state[stateId] || {}),
-              config: {
-                ...(state[stateId] || {}).config,
-                customJournal: action.payload
-              }
+              config: updateConfig((state[stateId] || {}).config, { customJournal: action.payload })
             }
           }
         : {
             ...state,
-            config: {
-              ...state.config,
-              customJournal: action.payload
-            }
+            config: updateConfig(state.config, { customJournal: action.payload })
           };
     },
     [setOnlyLinked]: (state, action) => {
       const stateId = action.payload.stateId;
+      const config = get(state, [stateId, 'config'], {});
+
       action = handleAction(action);
 
       return stateId
@@ -389,22 +365,18 @@ export default handleActions(
             ...state,
             [stateId]: {
               ...(state[stateId] || {}),
-              config: {
-                ...(state[stateId] || {}).config,
-                onlyLinked: action.payload
-              }
+              config: updateConfig(config, { onlyLinked: action.payload })
             }
           }
         : {
             ...state,
-            config: {
-              ...state.config,
-              onlyLinked: action.payload
-            }
+            config: updateConfig(state.config, { onlyLinked: action.payload })
           };
     },
     [setCustomJournalMode]: (state, action) => {
       const stateId = action.payload.stateId;
+      const config = get(state, [stateId, 'config'], {});
+
       action = handleAction(action);
 
       return stateId
@@ -412,18 +384,12 @@ export default handleActions(
             ...state,
             [stateId]: {
               ...(state[stateId] || {}),
-              config: {
-                ...(state[stateId] || {}).config,
-                customJournalMode: action.payload
-              }
+              config: updateConfig(config, { customJournalMode: action.payload })
             }
           }
         : {
             ...state,
-            config: {
-              ...state.config,
-              customJournalMode: action.payload
-            }
+            config: updateConfig(state.config, { customJournalMode: action.payload })
           };
     },
     [setEditorMode]: (state, action) => {
@@ -431,12 +397,6 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { editorMode: action.payload });
-    },
-    [setJournalsList]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, { journalsList: action.payload });
     },
     [setJournals]: (state, action) => {
       const stateId = action.payload.stateId;
@@ -907,6 +867,14 @@ export default handleActions(
             forQuery: handledAction.payload.forQuery || {}
           }
         }
+      });
+    },
+    [setSelectedJournals]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(action);
+
+      return handleState(state, stateId, {
+        selectedJournals: handledAction.payload
       });
     }
   },

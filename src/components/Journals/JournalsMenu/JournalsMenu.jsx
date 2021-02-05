@@ -7,9 +7,7 @@ import get from 'lodash/get';
 import { getScrollbarWidth, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { deleteJournalSetting, openSelectedJournal, openSelectedJournalSettings, renameJournalSetting } from '../../../actions/journals';
-import { CollapsibleList } from '../../common';
 import { IcoBtn } from '../../common/btns';
-import { Well } from '../../common/form';
 import { JOURNAL_VIEW_MODE } from '../constants';
 import FoldersTree from '../DocLib/FoldersTree';
 import { Labels } from './constants';
@@ -107,17 +105,7 @@ class JournalsMenu extends React.Component {
   };
 
   render() {
-    const {
-      stateId,
-      journals,
-      open,
-      journalConfig: {
-        meta: { nodeRef }
-      },
-      pageTabsIsShow,
-      isMobile,
-      viewMode
-    } = this.props;
+    const { stateId, open, pageTabsIsShow, isMobile, viewMode } = this.props;
 
     if (!open) {
       return null;
@@ -146,24 +134,7 @@ class JournalsMenu extends React.Component {
           </IcoBtn>
         </div>
 
-        {!isDocLibMode && (
-          <>
-            <Well className="ecos-journal-menu__journals">
-              <CollapsibleList
-                needScrollbar={false}
-                className="ecos-journal-menu__collapsible-list"
-                classNameList="ecos-list-group_mode_journal"
-                list={this.getMenuJournals(journals)}
-                selected={this.getSelectedIndex(journals, nodeRef, 'nodeRef')}
-                emptyText={t(Labels.EMPTY_LIST)}
-              >
-                {t(Labels.JOURNALS_TITLE)}
-              </CollapsibleList>
-            </Well>
-
-            <JournalSettings stateId={stateId} />
-          </>
-        )}
+        {!isDocLibMode && <JournalSettings stateId={stateId} />}
 
         {isDocLibMode && <FoldersTree stateId={stateId} isMobile={isMobile} closeMenu={this.onClose} />}
       </div>

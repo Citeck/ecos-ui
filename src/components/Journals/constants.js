@@ -28,3 +28,5 @@ export const JOURNAL_MIN_HEIGHT = 300;
 export const JOURNAL_VIEW_MODE = {
   DOC_LIB: 'document-library'
 };
+
+export const JOURNAL_DASHLET_CONFIG_VERSION = 'v2';
