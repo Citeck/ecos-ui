@@ -36,8 +36,6 @@ const mapStateToProps = (state, ownProps) => {
   const newState = state.journals[ownProps.stateId] || {};
 
   return {
-    journalsList: newState.journalsList,
-    journals: newState.journals,
     journalSettings: newState.journalSettings,
     generalConfig: selectDashletConfig(state, ownProps.stateId),
     config: selectNewVersionDashletConfig(state, ownProps.stateId),
@@ -72,8 +70,6 @@ class JournalsDashletEditor extends Component {
     measurer: PropTypes.object,
     config: PropTypes.object,
     generalConfig: PropTypes.object,
-    journals: PropTypes.array,
-    journalsList: PropTypes.array,
     journalSettings: PropTypes.array,
     onSave: PropTypes.func,
     setJournalsItem: PropTypes.func

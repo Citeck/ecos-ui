@@ -46,7 +46,6 @@ import {
   setJournals,
   setJournalSetting,
   setJournalSettings,
-  setJournalsList,
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
@@ -132,8 +131,7 @@ function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = D
 function* sagaGetDashletEditorData({ api, logger, stateId, w }, action) {
   try {
     const config = action.payload || {};
-    yield getJournalsList(api, w);
-    yield getJournals(api, config.journalsListId, w);
+
     yield getJournalSettings(api, config.journalType, w);
   } catch (e) {
     logger.error('[journals sagaGetDashletEditorData saga error', e.message);
@@ -237,14 +235,6 @@ function* sagaGetJournalsData({ api, logger, stateId, w }) {
   } catch (e) {
     logger.error('[journals sagaGetJournalsData saga error', e.message);
   }
-}
-
-function* getJournalsList(api, w) {
-  const journalsList = yield call(api.journals.getJournalsList);
-
-  yield put(setJournalsList(w(journalsList)));
-
-  return journalsList;
 }
 
 function* getJournals(api, journalsListId, w) {

@@ -18,7 +18,6 @@ import {
   setJournalSetting,
   setJournalSettings,
   setJournalsItem,
-  setJournalsList,
   setOnlyLinked,
   setPredicate,
   setPreviewFileName,
@@ -398,12 +397,6 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { editorMode: action.payload });
-    },
-    [setJournalsList]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, { journalsList: action.payload });
     },
     [setJournals]: (state, action) => {
       const stateId = action.payload.stateId;
