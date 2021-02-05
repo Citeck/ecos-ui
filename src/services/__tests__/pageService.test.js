@@ -42,7 +42,7 @@ describe('Page Service', () => {
     ['/v2/dashboard', ''],
     [
       '/v2/journals?journalId=workspace://SpacesStore/journal-meta-j-active-tasks&journalSettingId=&journalsListId=global-global-tasks',
-      'global-global-tasks'
+      'workspace://SpacesStore/journal-meta-j-active-tasks'
     ],
     [
       '/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
@@ -69,7 +69,7 @@ describe('Page Service', () => {
     ['/v2/dashboard', 'dashboard-'],
     [
       '/v2/journals?journalId=workspace://SpacesStore/journal-meta-j-active-tasks&journalSettingId=&journalsListId=global-global-tasks',
-      'journals-global-global-tasks'
+      'journals-workspace://SpacesStore/journal-meta-j-active-tasks'
     ],
     [
       '/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',

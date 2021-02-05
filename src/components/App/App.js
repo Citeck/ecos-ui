@@ -64,7 +64,7 @@ class App extends Component {
 
     initAppSettings();
     document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
-    UserLocalSettingsService.checkDasletsUpdatedDate();
+    UserLocalSettingsService.checkDashletsUpdatedDate();
   }
 
   handleCustomEvent = event => {

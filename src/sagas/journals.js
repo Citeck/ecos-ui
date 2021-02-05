@@ -46,11 +46,11 @@ import {
   setJournals,
   setJournalSetting,
   setJournalSettings,
-  setJournalsList,
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
   setSelectAllRecordsVisible,
+  setSelectedJournals,
   setSelectedRecords,
   setUrl
 } from '../actions/journals';
@@ -59,6 +59,7 @@ import {
   DEFAULT_INLINE_TOOL_SETTINGS,
   DEFAULT_JOURNALS_PAGINATION,
   DEFAULT_PAGINATION,
+  JOURNAL_DASHLET_CONFIG_VERSION,
   JOURNAL_SETTING_ID_FIELD
 } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
@@ -67,7 +68,7 @@ import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, remov
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
 import { getJournalUIType } from '../api/export/journalsApi';
-import { selectJournalData, selectUrl } from '../selectors/journals';
+import { selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
 import { hasInString } from '../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 import { JournalUrlParams } from '../constants';
@@ -130,8 +131,7 @@ function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = D
 function* sagaGetDashletEditorData({ api, logger, stateId, w }, action) {
   try {
     const config = action.payload || {};
-    yield getJournalsList(api, w);
-    yield getJournals(api, config.journalsListId, w);
+
     yield getJournalSettings(api, config.journalType, w);
   } catch (e) {
     logger.error('[journals sagaGetDashletEditorData saga error', e.message);
@@ -143,9 +143,9 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
     const config = yield call(api.journals.getDashletConfig, action.payload);
 
     if (config) {
-      const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode } = config;
+      const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config;
 
-      yield put(setEditorMode(w(false)));
+      yield put(setEditorMode(w(isEmpty(journalsListIds))));
       yield put(setDashletConfig(w(config)));
       yield getJournals(api, journalsListId, w);
       yield put(initJournal(w({ journalId, journalSettingId, customJournal, customJournalMode })));
@@ -159,19 +159,33 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
 
 function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
   try {
-    const config = action.payload.config || {};
-    const recordRef = action.payload.recordRef;
-    const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode } = config;
+    const { config = {} } = action.payload;
+
+    if (isEmpty(config) || config.version !== JOURNAL_DASHLET_CONFIG_VERSION) {
+      yield put(setEditorMode(w(true)));
+      return;
+    }
+
+    const { recordRef, lsJournalId } = action.payload;
+    const { journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config[JOURNAL_DASHLET_CONFIG_VERSION];
+    const journalsListId = get(journalsListIds, '0');
+    let selectedJournals = [];
+
+    if (!isEmpty(journalsListIds)) {
+      selectedJournals = yield call(api.journals.getJournalsByIds, journalsListIds, { id: 'id', title: '.disp' });
+    }
+
+    yield put(setSelectedJournals(w(selectedJournals)));
 
     if (journalsListId) {
-      yield put(setEditorMode(w(false)));
+      yield put(setEditorMode(w(isEmpty(journalsListIds))));
       yield put(setDashletConfig(w(config)));
       yield getJournals(api, journalsListId, w);
       if (customJournalMode && customJournal) {
         let resolvedCustomJournal = yield _resolveTemplate(recordRef, customJournal);
         yield put(initJournal(w({ journalId: resolvedCustomJournal })));
       } else {
-        yield put(initJournal(w({ journalId, journalSettingId })));
+        yield put(initJournal(w({ journalId: lsJournalId || get(journalsListIds, '0', journalId), journalSettingId })));
       }
     } else {
       yield put(setEditorMode(w(true)));
@@ -223,18 +237,8 @@ function* sagaGetJournalsData({ api, logger, stateId, w }) {
   }
 }
 
-function* getJournalsList(api, w) {
-  const journalsList = yield call(api.journals.getJournalsList);
-
-  yield put(setJournalsList(w(journalsList)));
-
-  return journalsList;
-}
-
 function* getJournals(api, journalsListId, w) {
-  const journals = journalsListId
-    ? yield call(api.journals.getJournalsByJournalsList, journalsListId)
-    : yield call(api.journals.getJournals);
+  const journals = yield call(api.journals.getJournals);
 
   yield Promise.all(
     journals.map(async journal => {
@@ -376,7 +380,8 @@ function* sagaRestoreJournalSettingData({ api, logger, stateId, w }, action) {
 }
 
 function* getGridData(api, params, stateId) {
-  const { recordRef, journalConfig, journalSetting, config } = yield select(selectJournalData, stateId);
+  const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+  const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
   const onlyLinked = get(config, 'onlyLinked');
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, ...forRequest } = params;
@@ -623,7 +628,7 @@ function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
 
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
 
-    PageService.changeUrlLink(url, { updateUrl: true, pushHistory: true });
+    PageService.changeUrlLink(url, { openNewTab: true, pushHistory: true });
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
   }
@@ -634,6 +639,7 @@ function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
     const journalId = action.payload;
 
     yield put(setLoading(w(true)));
+
     const journalConfig = yield getJournalConfig(api, journalId, w);
 
     yield getJournalSettings(api, journalConfig.id, w);
