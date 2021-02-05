@@ -15,6 +15,7 @@ export default class AdminSectionService {
     const { query } = queryString.parseUrl(window.location.href);
     let type = AdminSectionService.getActiveSectionType();
     let section;
+
     groups = groups || [];
 
     for (const group of groups) {
@@ -26,10 +27,6 @@ export default class AdminSectionService {
         return section;
       }
     }
-
-    if (!section) {
-      console.warn('Unknown section');
-    }
   }
 
   static getActiveSectionType() {
@@ -40,10 +37,6 @@ export default class AdminSectionService {
       type = query.type || SectionTypes.BPM;
     } else if (url.includes(URL.DEV_TOOLS)) {
       type = SectionTypes.DEV_TOOLS;
-    }
-
-    if (!type) {
-      console.warn('Unknown section type');
     }
 
     return type;
@@ -71,7 +64,6 @@ export default class AdminSectionService {
         return URL.DEV_TOOLS;
       }
       default: {
-        console.warn('Unknown section');
         return;
       }
     }
