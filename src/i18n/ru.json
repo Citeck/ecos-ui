@@ -736,6 +736,7 @@
   "page-tabs.dev-tools": "Инструменты разработчика",
   "page-tabs.form-components": "Компоненты формы",
   "page-tabs.cmmn-editor": "Сценарий",
+  "page-tabs.bpmn-editor": "Модель",
   "pagination.from": "из",
   "predicate.and": "И",
   "predicate.any": "Любое значение",
@@ -1279,13 +1280,13 @@
   "model-editor.btn.apply": "Сохранить",
   "model-editor.btn.create": "Создать",
   "model-editor.btn.view-xml": "Посмотреть XML",
+  "model-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
 
   "cmmn-editor.success.scenario-saved": "Сценарий сохранен",
-  "cmmn-editor.error.no-scenario": "Сценарий не задан",
+  "cmmn-editor.error.no-model": "Сценарий не задан",
   "cmmn-editor.error.can-not-save-scenario": "Сценарий не удалось сохранить",
   "cmmn-editor.error.can-not-save-record-data": "Данные записи не сохранены",
   "cmmn-editor.error.no-selected-element": "Следует выбрать элемент, чтобы начать его редактирование",
-  "cmmn-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
 
   "go-to.home-page": "Перейти на домашнюю страницу"
 }

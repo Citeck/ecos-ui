@@ -31,3 +31,7 @@ export const PROCESS_MODEL_NODE_TYPE = 'ecosbpm:processModel';
 
 export const LOCAL_STORAGE_KEY_PAGE_POSITION = 'BpmnPagePosition';
 export const LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME = 'BpmnRefererPagePathName';
+
+/////
+
+export const PREFIX_FORM_ELM = '@bpmn-type-';

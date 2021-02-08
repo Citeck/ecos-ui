@@ -1,15 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import get from 'lodash/get';
-import Modeler from 'cmmn-js/lib/Modeler';
-import ModelUtil from 'cmmn-js/lib/util/ModelUtil';
-import ModelingUtil from 'cmmn-js/lib/features/modeling/util/ModelingUtil';
+import Modeler from 'bpmn-js/lib/Modeler';
 
 import additionalModules from './modules';
 
-import 'cmmn-js/dist/assets/diagram-js.css';
-import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
-import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-codes.css';
-import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-embedded.css';
+import 'bpmn-js/dist/assets/diagram-js.css';
+import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 
 /**
  * Expansion for Modeler
@@ -20,7 +16,7 @@ import 'cmmn-js/dist/assets/cmmn-font/css/cmmn-embedded.css';
  * Available events: onSelectElement, onChangeElement, onClickElement
  * @param {Boolean} isCustomContainer - shows whose container is. You can set using setCustomContainer
  */
-export default class CMMNDesigner {
+export default class BPMNModeler {
   #modeler = null;
   #events = null;
   #isCustomContainer = false;
@@ -51,11 +47,11 @@ export default class CMMNDesigner {
     return this.#isDiagramMounted;
   }
 
-  get elementDefinitions() {
-    const cmmnSearchProvider = this.#modeler.get('cmmnSearch');
-    const root = cmmnSearchProvider._canvas.getRootElement();
-    return ModelingUtil.getParent(ModelUtil.getBusinessObject(root), 'cmmn:Definitions');
-  }
+  // get elementDefinitions() {
+  //   const cmmnSearchProvider = this.#modeler.get('cmmnSearch');
+  //   const root = cmmnSearchProvider._canvas.getRootElement();
+  //   return ModelingUtil.getParent(ModelUtil.getBusinessObject(root), 'cmmn:Definitions');
+  // }
 
   getCmmnFactory() {
     return this.#modeler.get('cmmnFactory');

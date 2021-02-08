@@ -1,17 +1,7 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 
-import {
-  getFormProps,
-  getScenario,
-  getTitle,
-  initData,
-  saveScenario,
-  setFormProps,
-  setLoading,
-  setScenario,
-  setTitle
-} from '../actions/cmmnEditor';
+import { getFormProps, getModel, getTitle, initData, saveModel, setFormProps, setLoading, setModel, setTitle } from '../actions/bpmnEditor';
 import { deleteTab } from '../actions/pageTabs';
 import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
@@ -21,24 +11,24 @@ import PageTabList from '../services/pageTabs/PageTabList';
 export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
     yield put(getTitle({ stateId, record }));
-    yield put(getScenario({ stateId, record }));
+    yield put(getModel({ stateId, record }));
   } catch (e) {
-    logger.error('[cmmnEditor/init saga] error', e.message);
+    logger.error('[bpmnEditor/init saga] error', e.message);
   }
 }
 
-export function* fetchScenario({ api, logger }, { payload: { stateId, record } }) {
+export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
   try {
-    const scenario = yield call(api.cmmn.getDefinition, record);
+    const model = yield call(api.cmmn.getDefinition, record);
 
-    yield put(setScenario({ stateId, scenario }));
+    yield put(setModel({ stateId, model }));
   } catch (e) {
-    yield put(setScenario({ stateId, scenario: null }));
-    logger.error('[cmmnEditor/fetchScenario saga] error', e.message);
+    yield put(setModel({ stateId, model: null }));
+    logger.error('[bpmnEditor/fetchModel saga] error', e.message);
   }
 }
 
-export function* runSaveScenario({ api, logger }, { payload: { stateId, record, xml, img } }) {
+export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml, img } }) {
   try {
     if (xml && img) {
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
@@ -48,13 +38,16 @@ export function* runSaveScenario({ api, logger }, { payload: { stateId, record, 
         throw new Error();
       }
 
-      NotificationManager.success(t('cmmn-editor.success.scenario-saved'), t('success'));
+      // @todo add translation message
+      NotificationManager.success(t('bpmn-editor.success.model-saved'), t('success'));
       yield put(deleteTab(PageTabList.activeTab));
     }
   } catch (e) {
     yield put(setLoading({ stateId, isLoading: false }));
-    NotificationManager.error(e.message || t('error'), t('cmmn-editor.error.can-not-save-scenario'));
-    logger.error('[cmmnEditor/runSaveScenario  saga] error', e.message);
+
+    // @todo add translation message
+    NotificationManager.error(e.message || t('error'), t('bpmn-editor.error.can-not-save-model'));
+    logger.error('[bpmnEditor/runSaveModel saga] error', e.message);
   }
 }
 
@@ -65,7 +58,7 @@ export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
     yield put(setTitle({ stateId, title }));
   } catch (e) {
     yield put(setTitle({ stateId, title: '' }));
-    logger.error('[cmmnEditor/fetchTitle saga] error', e.message);
+    logger.error('[bpmnEditor/fetchTitle saga] error', e.message);
   }
 }
 
@@ -104,15 +97,16 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     yield put(setFormProps({ stateId, formProps: { ...form, formData } }));
   } catch (e) {
     yield put(setFormProps({ stateId, formProps: {} }));
+
     NotificationManager.error(t('model-editor.error.form-not-found'), t('success'));
-    logger.error('[cmmnEditor/fetchFormProps saga] error', e.message);
+    logger.error('[bpmnEditor/fetchFormProps saga] error', e.message);
   }
 }
 
 function* cmmnEditorSaga(ea) {
   yield takeEvery(initData().type, init, ea);
-  yield takeEvery(getScenario().type, fetchScenario, ea);
-  yield takeEvery(saveScenario().type, runSaveScenario, ea);
+  yield takeEvery(getModel().type, fetchModel, ea);
+  yield takeEvery(saveModel().type, runSaveModel, ea);
   yield takeEvery(getTitle().type, fetchTitle, ea);
   yield takeEvery(getFormProps().type, fetchFormProps, ea);
 }
