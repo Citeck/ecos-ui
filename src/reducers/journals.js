@@ -28,7 +28,8 @@ import {
   setSelectedRecords,
   setSettingItem,
   setUrl,
-  setSelectedJournals
+  setSelectedJournals,
+  onJournalSelect
 } from '../actions/journals';
 import {
   setIsDocLibEnabled,
@@ -486,6 +487,17 @@ export default handleActions(
         }
       });
     },
+    [onJournalSelect]: (state, action) => {
+      const stateId = action.payload.stateId;
+
+      return handleState(state, stateId, {
+        grid: {
+          ...(state[stateId] || {}).grid,
+          pagination: { ...DEFAULT_PAGINATION }
+        }
+      });
+    },
+
     [setIsDocLibEnabled]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
