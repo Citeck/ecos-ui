@@ -6,20 +6,7 @@ import isString from 'lodash/isString';
 import XMLViewer from 'react-xml-viewer';
 
 import { t, getTextByLocale } from '../../helpers/util';
-import { SourcesId } from '../../constants';
-import {
-  KEY_FIELDS,
-  ML_POSTFIX,
-  PREFIX_FIELD,
-  PREFIX_FORM_ELM,
-  TYPE_DI_DIAGRAM,
-  TYPE_ENTRY_CRITERION,
-  TYPE_EXIT_CRITERION,
-  TYPE_IF_PART,
-  TYPE_DI_EDGE,
-  TYPE_LABEL,
-  TYPE_PLAN_ITEM
-} from '../../constants/cmmn';
+import { KEY_FIELDS, ML_POSTFIX, PREFIX_FIELD } from '../../constants/cmmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
@@ -38,7 +25,7 @@ class ModelEditorPage extends React.Component {
     xmlViewerXml: '',
     xmlViewerIsOpen: false
   };
-  designer = null;
+  designer;
   urlQuery = queryString.parseUrl(window.location.href).query;
   modelEditorRef = React.createRef();
 
@@ -94,7 +81,7 @@ class ModelEditorPage extends React.Component {
   }
 
   get formId() {
-    return this.formType ? `${SourcesId.EFORM}${PREFIX_FORM_ELM}${this.formType}` : null;
+    return null;
   }
 
   get recordRef() {
@@ -117,14 +104,13 @@ class ModelEditorPage extends React.Component {
       this.designer.saveSVG({ callback: ({ error, svg }) => (svg ? resolve(svg) : reject(error)) })
     );
 
-    Promise.all([promiseXml, promiseImg]).then(([xml, img]) => {
-      if (xml && img) {
+    Promise.all([promiseXml, promiseImg])
+      .then(([xml, img]) => {
         this.props.saveModel(this.stateId, this.recordRef, xml, img);
-      } else {
-        console.error('Xml or Img is undefined', xml, img);
-        throw new Error('Xml or Img is undefined');
-      }
-    });
+      })
+      .catch(error => {
+        throw new Error(`Failure to save xml or image: ${error.message}`);
+      });
   };
 
   handleSelectItem = element => {
@@ -148,25 +134,6 @@ class ModelEditorPage extends React.Component {
   };
 
   _getBusinessObjectByDiagramElement(element) {
-    if (!element) {
-      return element;
-    }
-    if (element.type === TYPE_DI_DIAGRAM) {
-      element = this.designer.elementDefinitions;
-    } else if (element.type === TYPE_ENTRY_CRITERION || element.type === TYPE_EXIT_CRITERION) {
-      let sentry = element.businessObject.sentryRef;
-      if (!sentry.ifPart) {
-        const ifPart = this.designer.getCmmnFactory().create(TYPE_IF_PART);
-        ifPart.$parent = sentry;
-        sentry.ifPart = ifPart;
-      }
-      element = sentry.ifPart;
-    } else if (element.type === TYPE_DI_EDGE || element.type === TYPE_LABEL) {
-      element = element.businessObject.cmmnElementRef;
-    } else if (element.type === TYPE_PLAN_ITEM) {
-      element = element.businessObject.definitionRef;
-    }
-
     return element;
   }
 

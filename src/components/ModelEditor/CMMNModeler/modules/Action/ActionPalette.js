@@ -1,4 +1,4 @@
-import { GROUP_CUSTOM } from '../../../../constants/cmmn';
+import { GROUP_CUSTOM } from '../../../../../constants/cmmn';
 
 function createAction(elementFactory, cmmnFactory) {
   return elementFactory.createShape({

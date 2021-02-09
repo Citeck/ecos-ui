@@ -1,8 +1,8 @@
 import { getBusinessObject } from 'bpmn-js/lib/util/ModelUtil';
 
 import { SourcesId } from '../../../constants';
-import { PREFIX_FORM_ELM } from '../../../constants/bpmn';
-import BPMNModeler from '../../../components/BPMNModeler';
+import { PREFIX_FORM_ELM, TYPE_BPMN_PROCESS } from '../../../constants/bpmn';
+import BPMNModeler from '../../../components/ModelEditor/BPMNModeler';
 
 import ModelEditor from '../ModelEditor';
 
@@ -25,6 +25,14 @@ class BPMNEditorPage extends ModelEditor {
     const element = getBusinessObject(this.state.selectedElement);
 
     return element.$type;
+  }
+
+  _getBusinessObjectByDiagramElement(element) {
+    if (element && element.type === TYPE_BPMN_PROCESS) {
+      return this.designer.elementDefinitions;
+    }
+
+    return element;
   }
 }
 
