@@ -139,7 +139,7 @@ class JournalsService {
       postActionRef: cv.postActionRef,
       attributes: {
         _type: cv.typeRef,
-        ...cv.attributes
+        ...(cv.attributes || {})
       }
     };
   }
