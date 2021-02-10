@@ -3,6 +3,8 @@
   "success": "Успех",
   "warning": "Предупреждение",
   "waiting": "Ожидайте",
+  "load-data-error": "Ошибка загрузки данных",
+  "process-data-error": "Ошибка обработки данных",
   "actions.document.download": "Скачать",
   "aggregation.columns": "Колонка для агрегации",
   "aggregation.type": "Тип агрегации",
