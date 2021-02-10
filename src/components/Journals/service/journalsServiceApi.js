@@ -3,7 +3,7 @@ import { SourcesId } from '../../../constants';
 
 class JournalsServiceApi {
   async getJournalConfig(journalId) {
-    return Records.get(`${SourcesId.JOURNAL_V1}@${journalId}`)
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`)
       .load('.json')
       .then(resp => {
         const data = resp || { meta: {} };

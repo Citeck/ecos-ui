@@ -7,6 +7,7 @@ import journalColumnsResolver from './journalColumnsResolver';
 import journalDataLoader from './journalsDataLoader';
 import computedService from './computed/computedService';
 import { COMPUTED_ATT_PREFIX } from './util';
+import { getTextByLocale } from '../../../helpers/util';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
 
@@ -59,16 +60,88 @@ class JournalsService {
       return journalConfig;
     }
 
-    journalConfig.columns = await this.resolveColumns(journalConfig.columns);
     journalConfig.configData = this._getAttsToLoadWithComputedAndUpdateConfigs(journalConfig);
     journalConfig.configData.configComputed = await computedService.resolve(journalConfig.configData.configComputed);
-    journalConfig.modelVersion = 1;
 
-    if (!journalConfig.predicate) {
-      journalConfig.predicate = _.get(journalConfig, 'meta.predicate', {});
+    const legacyConfig = this.__mapNewJournalConfigToLegacy(journalConfig);
+
+    legacyConfig.columns = await this.resolveColumns(legacyConfig.columns);
+    legacyConfig.modelVersion = 1;
+
+    return legacyConfig;
+  }
+
+  // This conversion needed for backward compatibility with other code in UI.
+  // TODO: update other code with new journal config and remove this method
+  __mapNewJournalConfigToLegacy(config) {
+    const params = _.cloneDeep(config.properties || {});
+    if (config.sortBy && config.sortBy.length) {
+      params['defaultSortBy'] = config.sortBy.map(sort => {
+        return {
+          id: sort.attribute,
+          order: sort.ascending ? 'asc' : 'desc'
+        };
+      });
     }
 
-    return journalConfig;
+    if (config.editable === false) {
+      params['disableTableEditing'] = 'true';
+    }
+    config.params = params;
+
+    const meta = {};
+    meta.nodeRef = config.id;
+    meta.actions = config.actions || [];
+    meta.groupBy = config.groupBy;
+    meta.metaRecord = config.metaRecord;
+    meta.predicate = config.predicate || {};
+    meta.title = getTextByLocale(config.label);
+    meta.createVariants = (config.createVariants || []).map(cv => this.__mapNewCreateVariantToLegacy(cv));
+
+    config.meta = meta;
+
+    config.columns = config.columns.map(c => this.__mapNewColumnConfigToLegacy(c));
+
+    return config;
+  }
+
+  // This conversion needed for backward compatibility with other code in UI.
+  // TODO: update other code with new journal config and remove this method
+  __mapNewColumnConfigToLegacy(column) {
+    const result = {};
+
+    result.multiple = column.multiple;
+    result.newFormatter = column.formatter;
+    result.newEditor = column.editor;
+    result.computed = column.computed;
+    result.hidden = column.hidden === true;
+    result.text = getTextByLocale(column.label) || column.name;
+    result.attribute = column.name;
+    result.default = column.visible !== false;
+    result.groupable = column.groupable === true;
+    result.params = column.properties || {};
+    result.schema = column.attribute;
+    result.searchable = column.searchable !== false;
+    result.sortable = column.sortable === true;
+    result.type = column.type;
+    result.visible = column.hidden !== true;
+    result.editable = column.editable !== false;
+
+    return result;
+  }
+
+  __mapNewCreateVariantToLegacy(cv) {
+    return {
+      title: getTextByLocale(cv.name),
+      recordRef: cv.sourceId + '@',
+      formId: cv.formRef,
+      canCreate: true,
+      postActionRef: cv.postActionRef,
+      attributes: {
+        _type: cv.typeRef,
+        ...cv.attributes
+      }
+    };
   }
 
   async resolveColumns(columns) {
@@ -172,7 +245,7 @@ class JournalsService {
       for (let column of journalConfig.columns) {
         let computedScopeByName = processComputedList(column.computed, COLUMN_COMPUTED_PREFIX + column.attribute);
 
-        ['formatter', 'editor', 'newFormatter', 'newEditor'].forEach(field => {
+        ['formatter', 'editor'].forEach(field => {
           let newConfig = this._fillTemplateAttsAndMapComputedScope((column[field] || {}).config, attributesToLoad, computedScopeByName);
           if (newConfig) {
             column[field].config = newConfig;

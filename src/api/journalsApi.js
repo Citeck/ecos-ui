@@ -70,7 +70,7 @@ export class JournalsApi extends RecordService {
   getJournalsByJournalsList = journalsListId => {
     const journalsFromUiserv = Records.query(
       {
-        sourceId: 'uiserv/journal_v1',
+        sourceId: 'uiserv/rjournal',
         language: 'list-id',
         query: { listId: journalsListId }
       },
@@ -85,7 +85,7 @@ export class JournalsApi extends RecordService {
         let journalByType = {};
         result.forEach(j => (journalByType[j.type] = j));
         for (let journal of uiservJournals) {
-          let localId = journal.id.replace('uiserv/journal_v1@', '');
+          let localId = journal.id.replace('uiserv/rjournal@', '');
           let existingJournal = journalByType[localId];
           if (existingJournal != null) {
             existingJournal.nodeRef = localId;

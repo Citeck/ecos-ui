@@ -42,7 +42,7 @@ export const SourcesId = {
   THEME: 'uiserv/theme',
   META: 'uiserv/meta',
   JOURNAL: 'uiserv/journal',
-  JOURNAL_V1: 'uiserv/journal_v1',
+  RESOLVED_JOURNAL: 'uiserv/rjournal',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
   A_AUTHORITY: 'alfresco/authority',

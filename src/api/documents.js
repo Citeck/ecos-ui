@@ -41,7 +41,7 @@ export class DocumentsApi {
   getColumnsConfigByType = typeRef => {
     return Records.queryOne(
       {
-        sourceId: 'uiserv/journal_v1',
+        sourceId: 'uiserv/rjournal',
         query: { typeRef }
       },
       '.json'
