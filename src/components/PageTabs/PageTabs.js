@@ -30,9 +30,13 @@ import { replaceHistoryLink } from '../../helpers/urls';
 import { updateTabEmitter } from '../../services/pageTabs/PageTabList';
 
 import './style.scss';
+import DialogManager from '../common/dialogs/Manager';
 
 const Labels = {
-  GO_HOME: 'header.site-menu.go-home-page'
+  GO_HOME: 'header.site-menu.go-home-page',
+  CLOSE_ALL_TABS: 'header.site-menu.close-all-tabs',
+  CONFIRM_REMOVE_ALL_TABS_TITLE: 'header.site-menu.close-all-tabs-title',
+  CONFIRM_REMOVE_ALL_TABS_TEXT: 'header.site-menu.close-all-tabs-text'
 };
 
 class PageTabs extends React.Component {
@@ -246,6 +250,15 @@ class PageTabs extends React.Component {
     setTab({ data: { link: homepageLink, isActive: true }, params: { last: true } });
   };
 
+  handleCloseAllTabs = () => {
+    DialogManager.confirmDialog({
+      title: t(Labels.CONFIRM_REMOVE_ALL_TABS_TITLE),
+      text: t(Labels.CONFIRM_REMOVE_ALL_TABS_TEXT),
+      onYes: () => console.warn('yes'),
+      onNo: () => console.warn('no')
+    });
+  };
+
   handleScrollLeft = () => {
     const { isActiveLeftArrow } = this.state;
 
@@ -365,6 +378,22 @@ class PageTabs extends React.Component {
     );
   }
 
+  renderCloseAllTabsButton() {
+    const { tabs } = this.props;
+
+    if (tabs.length < 2) {
+      return null;
+    }
+
+    return (
+      <div
+        className="page-tab__tabs-btn page-tab__tabs-btn_close icon-small-close"
+        title={t(Labels.CLOSE_ALL_TABS)}
+        onClick={this.handleCloseAllTabs}
+      />
+    );
+  }
+
   renderRightButton() {
     const { isActiveRightArrow, needArrow } = this.state;
 
@@ -436,7 +465,8 @@ class PageTabs extends React.Component {
             {tabs.map(this.renderTabItem)}
           </div>
         </SortableContainer>
-        <div className="page-tab__tabs-add icon-small-plus" title={t(Labels.GO_HOME)} onClick={this.handleAddTab} />
+        <div className="page-tab__tabs-btn page-tab__tabs-btn_add icon-small-plus" title={t(Labels.GO_HOME)} onClick={this.handleAddTab} />
+        {this.renderCloseAllTabsButton()}
         {this.renderRightButton()}
         <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
       </ClickOutside>

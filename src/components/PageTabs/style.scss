@@ -109,8 +109,7 @@
       scrollbar-width: none;
     }
 
-    &-add {
-      font-size: 21px;
+    &-btn {
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -124,6 +123,15 @@
 
       &:before {
         margin: 0 !important;
+      }
+
+      &_add {
+        font-size: 21px;
+      }
+
+      &_close {
+        font-size: 19px;
+        margin-left: 4px;
       }
     }
 
