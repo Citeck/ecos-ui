@@ -16,7 +16,8 @@ import {
   setDisplayState,
   setTab,
   updateTab,
-  updateTabsFromStorage
+  updateTabsFromStorage,
+  closeTabs
 } from '../../actions/pageTabs';
 import { animateScrollTo, arrayCompare, getScrollbarWidth, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
@@ -254,9 +255,14 @@ class PageTabs extends React.Component {
     DialogManager.confirmDialog({
       title: t(Labels.CONFIRM_REMOVE_ALL_TABS_TITLE),
       text: t(Labels.CONFIRM_REMOVE_ALL_TABS_TEXT),
-      onYes: () => console.warn('yes'),
-      onNo: () => console.warn('no')
+      onYes: this.onCloseAllTabs
     });
+  };
+
+  onCloseAllTabs = () => {
+    const { closeTabs, tabs, homepageLink } = this.props;
+
+    closeTabs(tabs, homepageLink);
   };
 
   handleScrollLeft = () => {
@@ -532,6 +538,7 @@ const mapDispatchToProps = dispatch => ({
   setTab: params => dispatch(setTab(params)),
   updateTab: tab => dispatch(updateTab(tab)),
   deleteTab: tab => dispatch(deleteTab(tab)),
+  closeTabs: (tabs, homepageLink) => dispatch(closeTabs({ tabs, homepageLink })),
   updateTabs: () => dispatch(updateTabsFromStorage())
 });
 

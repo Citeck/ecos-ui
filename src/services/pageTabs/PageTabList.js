@@ -155,6 +155,11 @@ class PageTabList {
    * @returns {PageTab | undefined}
    */
   delete(tab) {
+    if (Array.isArray(tab)) {
+      this.#deleteTabs(tab);
+      return;
+    }
+
     tab = tab.uniqueKey ? tab : new PageTab(tab);
     const tabIndex = this.#tabs.findIndex(item => this.equals(tab, item));
 
@@ -175,7 +180,16 @@ class PageTabList {
     return deletedTab;
   }
 
-  add(tab, indexTo) {
+  #deleteTabs = tabs => {
+    const ids = tabs.map(tab => tab.id);
+
+    this.#tabs = this.#tabs.filter(tab => !ids.includes(tab.id));
+    console.warn({ tabs: this.#tabs });
+
+    this.setToStorage();
+  };
+
+  add(tab, indexTo = 0) {
     this.#tabs.splice(indexTo, 0, tab);
 
     if (this.#tabs.length < 2) {

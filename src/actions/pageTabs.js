@@ -16,3 +16,5 @@ export const deleteTab = createAction(prefix + 'DELETE_TAB');
 export const changeTab = createAction(prefix + 'CHANGE_TAB');
 export const updateTab = createAction(prefix + 'UPDATE_TAB');
 export const updateTabsFromStorage = createAction(prefix + 'UPDATE_TABS_FROM_STORAGE');
+
+export const closeTabs = createAction(prefix + 'CLOSE_TABS');

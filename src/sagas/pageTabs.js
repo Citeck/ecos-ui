@@ -7,6 +7,7 @@ import assign from 'lodash/assign';
 
 import {
   changeTab,
+  closeTabs,
   deleteTab,
   getTabs,
   initTabs,
@@ -139,6 +140,22 @@ function* sagaDeleteTab({ api, logger }, action) {
   }
 }
 
+function* sagaCloseTabs({ api, logger }, { payload }) {
+  try {
+    const { tabs, homepageLink } = payload;
+
+    PageTabList.delete(tabs);
+
+    if (homepageLink) {
+      PageService.changeUrlLink(homepageLink, { openNewTab: true });
+    }
+
+    yield put(setTabs(PageTabList.tabs, { reopen: true }));
+  } catch (e) {
+    logger.error('[pageTabs sagaCloseTabs saga error', e.message);
+  }
+}
+
 function* sagaChangeTabData({ api, logger }, { payload }) {
   try {
     const inited = yield select(selectInitStatus);
@@ -225,6 +242,7 @@ function* saga(ea) {
   yield takeEvery(moveTabs().type, sagaMoveTabs, ea);
   yield takeEvery(setTab().type, sagaSetOneTab, ea);
   yield takeEvery(deleteTab().type, sagaDeleteTab, ea);
+  yield takeEvery(closeTabs().type, sagaCloseTabs, ea);
   yield takeEvery(changeTab().type, sagaChangeTabData, ea);
   yield takeEvery(updateTab().type, sagaUpdateTabData, ea);
   yield takeEvery(updateTabsFromStorage().type, sagaUpdateTabs, ea);
