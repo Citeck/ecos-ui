@@ -308,6 +308,7 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
   }
 
   journalSetting = { ..._journalSetting, ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
+  journalSetting.columns = yield JournalsService.resolveColumns(journalSetting.columns);
 
   const predicate = journalSetting.predicate;
 
@@ -370,6 +371,7 @@ function* sagaRestoreJournalSettingData({ api, logger, stateId, w }, action) {
       const journalSettingId = get(_jSet, [JOURNAL_SETTING_ID_FIELD]) || '';
 
       journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
+      journalSetting.columns = yield JournalsService.resolveColumns(journalSetting.columns);
     }
 
     yield put(setJournalSetting(w(journalSetting)));

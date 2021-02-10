@@ -162,7 +162,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       });
 
       if (!user) {
-        throw new Error(' No user name');
+        throw new Error('No user name');
       }
 
       identificationData.user = user;
