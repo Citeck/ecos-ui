@@ -14,11 +14,11 @@ import {
   setAvailableWidgets,
   setCheckUpdatedDashboardConfig,
   setDashboardConfig,
+  setDashboardData,
   setDashboardKeys,
   setLoading,
   setLoadingKeys,
-  setRequestResultDashboard,
-  setDashboardData
+  setRequestResultDashboard
 } from '../actions/dashboardSettings';
 import { selectIdentificationForSet } from '../selectors/dashboard';
 import { selectIsAdmin, selectUserName } from '../selectors/user';
@@ -160,7 +160,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       });
 
       if (!user) {
-        throw new Error(' No user name');
+        throw new Error('No user name');
       }
 
       identificationData.user = user;
