@@ -4,6 +4,7 @@
   "warning": "Warning",
   "waiting": "Waiting",
   "load-data-error": "Failure to load data",
+  "process-data-error": "Failure to process data",
   "actions.document.download": "Download",
   "aggregation.columns": "Aggregation column",
   "aggregation.type": "Aggregation type",

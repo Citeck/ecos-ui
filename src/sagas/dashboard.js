@@ -115,7 +115,12 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
     }
 
     const forWeb = yield _parseConfig({ api, logger }, { config, recordRef: payload.recordRef });
-    const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification });
+    const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification, recordRef: payload.recordRef });
+
+    if (!dashboardResult || !dashboardResult.id) {
+      throw new Error('Incorrect result for saving');
+    }
+
     const res = DashboardService.parseRequestResult(dashboardResult);
     const isExistSettings = !!(yield select(state => get(state, ['dashboardSettings', res.dashboardId])));
 
@@ -136,6 +141,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
         key: payload.key
       })
     );
+
     yield put(
       setMobileDashboardConfig({
         config: get(forWeb, 'config.mobile', []),
