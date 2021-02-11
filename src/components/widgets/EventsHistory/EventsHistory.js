@@ -4,14 +4,12 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
-import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 
 import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../../actions/eventsHistory';
 import { selectDataEventsHistoryByStateId } from '../../../selectors/eventsHistory';
 import EventsHistoryService from '../../../services/eventsHistory';
 import { t } from '../../../helpers/util';
-import { getOptimalHeight } from '../../../helpers/layout';
 import { InfoText, Loader } from '../../common';
 import { Grid } from '../../common/grid';
 import EventsHistoryCard from './EventsHistoryCard';
@@ -124,20 +122,11 @@ class EventsHistory extends React.Component {
   }
 
   checkHeight(old) {
-    const { isLoading, height, minHeight, maxHeight, getContentHeight } = this.props;
-    const table = get(this.props, 'forwardedRef.current', null);
+    const { getContentHeight } = this.props;
     const contentHeight = this.contentHeight;
-    const filterHeight = get(this._filter, 'current.offsetHeight', 0);
-    const fixHeight = height ? height - filterHeight : null;
 
     if (contentHeight !== old.contentHeightOld) {
       getContentHeight(contentHeight);
-    }
-
-    if (contentHeight !== old.contentHeightOld || height !== old.height) {
-      const optimalHeight = getOptimalHeight(fixHeight, contentHeight, minHeight, maxHeight, isLoading || !contentHeight);
-
-      set(table, 'style.height', `${optimalHeight}px`);
     }
   }
 
