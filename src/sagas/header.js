@@ -19,7 +19,7 @@ import { changeTab } from '../actions/pageTabs';
 import { setLeftMenuEditable } from '../actions/app';
 
 import { makeSiteMenu, makeUserMenuItems } from '../helpers/menu';
-import { getCurrentUserName, getMLValue, hasInString, getTextByLocale } from '../helpers/util';
+import { getCurrentUserName, hasInString, getTextByLocale } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { selectIdentificationForView } from '../selectors/dashboard';
 import MenuService from '../services/MenuService';
