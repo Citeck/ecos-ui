@@ -132,7 +132,11 @@ export class DashboardApi {
     const _getDashboardByUserAndType = this.getDashboardByUserAndType;
 
     function* getDashboard() {
-      let { recType } = recordRef ? yield Records.get(recordRef).load({ recType: '_etype?id' }, true) : {};
+      let recType;
+
+      if (recordRef) {
+        recType = yield Records.get(recordRef.replace('alfresco/@', '')).load('_etype?id', true);
+      }
 
       if (!recType) {
         recType = recordRef ? EmodelTypes.BASE : EmodelTypes.USER_DASHBOARD;
