@@ -11,6 +11,20 @@ import { getTextByLocale } from '../../../helpers/util';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
 
+const COLUMN_TYPE_NEW_TO_LEGACY_MAPPING = {
+  ASSOC: 'assoc',
+  PERSON: 'person',
+  AUTHORITY_GROUP: 'authorityGroup',
+  AUTHORITY: 'authority',
+  TEXT: 'text',
+  MLTEXT: 'mltext',
+  NUMBER: 'double',
+  BOOLEAN: 'boolean',
+  DATE: 'date',
+  DATETIME: 'datetime',
+  CONTENT: 'content'
+};
+
 /**
  * @typedef SortBy
  * @field {String} attribute
@@ -123,7 +137,7 @@ class JournalsService {
     result.schema = column.attribute;
     result.searchable = column.searchable !== false;
     result.sortable = column.sortable === true;
-    result.type = column.type;
+    result.type = COLUMN_TYPE_NEW_TO_LEGACY_MAPPING[column.type] || 'text';
     result.visible = column.hidden !== true;
     result.editable = column.editable !== false;
 

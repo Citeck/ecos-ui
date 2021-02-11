@@ -66,7 +66,7 @@ class EditorItems extends React.Component {
         editItemInfo: {
           ...editItemInfo,
           several: true,
-          journalId: get(editItemInfo, 'type.key') === ms.ItemTypes.JOURNAL ? SystemJournals.ALL_J : SystemJournals.TYPES
+          journalId: get(editItemInfo, 'type.key') === ms.ItemTypes.JOURNAL ? SystemJournals.JOURNALS : SystemJournals.TYPES
         }
       });
     } else {

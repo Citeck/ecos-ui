@@ -37,6 +37,7 @@ export const SourcesId = {
   USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',
   MENU: 'uiserv/menu',
+  RESOLVED_MENU: 'uiserv/rmenu',
   ICON: 'uiserv/icon',
   PREDICATE: 'uiserv/predicate',
   THEME: 'uiserv/theme',
@@ -155,7 +156,7 @@ export const JournalUrlParams = {
 export const SYSTEM_LIST = 'global-system';
 
 export const SystemJournals = {
-  ALL_J: 'ecos-all-journals',
+  JOURNALS: 'ecos-journals',
   TYPES: 'ecos-types',
   MENUS: 'ecos-menus'
 };

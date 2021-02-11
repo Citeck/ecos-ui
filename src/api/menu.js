@@ -246,14 +246,16 @@ export class MenuApi extends CommonApi {
       .catch(() => ({}));
   };
 
-  getMenuItems = async ({ version, id }) => {
+  getMenuItems = async ({ version, id, resolved }) => {
     const user = getCurrentUserName();
     let config;
 
+    const sourceId = resolved === true ? SourcesId.RESOLVED_MENU : SourcesId.MENU;
+
     if (id) {
-      config = await Records.get(`${SourcesId.MENU}@${id}`).load('subMenu?json', true);
+      config = await Records.get(`${sourceId}@${id}`).load('subMenu?json', true);
     } else {
-      config = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'subMenu?json');
+      config = await Records.queryOne({ sourceId: sourceId, query: { user, version } }, 'subMenu?json');
     }
 
     return fetchExtraItemInfo(lodashGet(config, 'left.items') || [], {
@@ -411,10 +413,12 @@ async function fetchExtraItemInfo(data, attributes) {
   return Promise.all(
     data.map(async item => {
       const target = { ...item };
-      const journalRef = lodashGet(item, 'config.recordRef');
       const iconRef = lodashGet(item, 'icon');
+      let journalRef = lodashGet(item, 'config.recordRef');
 
       if (journalRef && [ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type)) {
+        journalRef = journalRef.replace('/journal@', '/rjournal@');
+        journalRef = journalRef.replace('/journal_all@', '/rjournal@');
         target._remoteData_ = await Records.get(journalRef).load(attributes);
       }
 
