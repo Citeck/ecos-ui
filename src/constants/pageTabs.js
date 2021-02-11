@@ -33,3 +33,5 @@ export const URL_MASK = {
   '^/v2/dashboard/([0-9A-Za-z-]*)/settings$': TITLE[URL.DASHBOARD_SETTINGS],
   '^/v2/dashboard/([0-9A-Za-z-]*)$': TITLE[URL.DASHBOARD]
 };
+
+export const MIN_CONTEXT_WIDTH = 210;

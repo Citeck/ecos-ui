@@ -4,6 +4,7 @@ import queryString from 'query-string';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
+import isEmpty from 'lodash/isEmpty';
 
 import {
   changeTab,
@@ -142,12 +143,17 @@ function* sagaDeleteTab({ api, logger }, action) {
 
 function* sagaCloseTabs({ api, logger }, { payload }) {
   try {
-    const { tabs, homepageLink } = payload;
+    const { tabs, homepageLink, tab } = payload;
 
     PageTabList.delete(tabs);
 
-    if (homepageLink) {
+    if (homepageLink && isEmpty(PageTabList.tabs)) {
       PageService.changeUrlLink(homepageLink, { openNewTab: true });
+    }
+
+    if (tab && !tab.isActive && !PageTabList.hasActiveTab) {
+      PageTabList.activate(tab);
+      PageService.changeUrlLink(tab.link, { openNewTab: true });
     }
 
     yield put(setTabs(PageTabList.tabs, { reopen: true }));

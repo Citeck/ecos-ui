@@ -1,6 +1,14 @@
 @import '../../styles/constants';
 
 .page-tab {
+  $tab-min-width: 150px;
+  $z-index: (
+    base: 4,
+    active: 3,
+    tab-item: 1,
+    context-menu: 1100
+  );
+
   height: 30px;
   background-color: $color-gray-6;
   display: flex;
@@ -12,7 +20,7 @@
     content: ' ';
     background: $color-gray-6;
     flex: 1;
-    z-index: 4;
+    z-index: map-get($z-index, base);
   }
 
   &_gradient {
@@ -25,7 +33,7 @@
         width: 40px;
         height: 100%;
         background: linear-gradient(90deg, #d0d0d0 0%, rgba(208, 208, 208, 0) 100%);
-        z-index: 4;
+        z-index: map-get($z-index, base);
         pointer-events: none;
       }
     }
@@ -33,13 +41,13 @@
     &-right {
       &:after {
         content: '';
-        right: 80px;
+        right: 60px;
         top: 0;
         position: absolute;
         width: 40px;
         height: 100%;
         background: linear-gradient(270deg, #d0d0d0 0%, rgba(208, 208, 208, 0) 100%);
-        z-index: 4;
+        z-index: map-get($z-index, base);
         pointer-events: none;
       }
     }
@@ -61,7 +69,7 @@
       display: flex;
       width: 40px;
       height: 100%;
-      z-index: 4;
+      z-index: map-get($z-index, base);
       background-color: $color-gray-6;
     }
 
@@ -115,7 +123,7 @@
       align-items: center;
       color: $text-color-gray;
       background-color: $color-gray-6;
-      z-index: 4;
+      z-index: map-get($z-index, base);
 
       &:hover {
         color: $text-color-dark;
@@ -137,16 +145,15 @@
 
     &-item {
       $item: &;
-      $min-width: 150px;
 
       position: relative;
-      min-width: #{$min-width};
+      min-width: #{$tab-min-width};
       width: auto;
       max-width: 300px;
       padding: 3px 5px 6px 10px;
       border-radius: 6px 6px 0 0;
       background-color: $color-gray-6;
-      z-index: 1;
+      z-index: map-get($z-index, tab-item);
       cursor: pointer;
       display: flex;
       align-items: flex-end;
@@ -169,7 +176,7 @@
         margin-left: 0;
         padding-left: 14px;
         padding-right: 5px;
-        min-width: calc(#{$min-width} + 4px);
+        min-width: calc(#{$tab-min-width} + 4px);
 
         &:before {
           content: '';
@@ -207,10 +214,10 @@
 
       &_active {
         background-color: $color-gray-4;
-        z-index: 3;
+        z-index: map-get($z-index, active);
         margin-left: 0;
         padding-left: 14px;
-        min-width: calc(#{$min-width} + 4px);
+        min-width: calc(#{$tab-min-width} + 4px);
 
         #{$item}-title {
           color: $text-color-dark;
@@ -320,5 +327,27 @@
     display: grid;
     grid-template-rows: 1fr auto;
     grid-template-columns: minmax(auto, 100%);
+  }
+
+  &__context-menu {
+    position: absolute;
+    min-width: 200px;
+    padding: 5px 0;
+    border-radius: $border-radius-standard;
+    box-shadow: $box-shadow-tooltip;
+    background: white;
+    z-index: map-get($z-index, context-menu);
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+
+    &-item {
+      cursor: pointer;
+      padding: 2px 10px;
+
+      &:hover {
+        background: $color-gray-4;
+      }
+    }
   }
 }

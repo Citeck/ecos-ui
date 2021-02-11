@@ -2,6 +2,7 @@ import isArray from 'lodash/isArray';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import isEmpty from 'lodash/isEmpty';
 import { EventEmitter2 } from 'eventemitter2';
 import * as queryString from 'query-string';
 
@@ -60,6 +61,10 @@ class PageTabList {
 
   get activeTabId() {
     return get(this.activeTab, 'id', null);
+  }
+
+  get hasActiveTab() {
+    return !isEmpty(this.#tabs.find(tab => tab.isActive));
   }
 
   pushCallback = callback => {
@@ -184,8 +189,6 @@ class PageTabList {
     const ids = tabs.map(tab => tab.id);
 
     this.#tabs = this.#tabs.filter(tab => !ids.includes(tab.id));
-    console.warn({ tabs: this.#tabs });
-
     this.setToStorage();
   };
 
