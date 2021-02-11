@@ -211,6 +211,7 @@ class JournalsDashletEditor extends Component {
                   defaultValue={this.state.selectedJournals}
                   multiple
                   hideCreateButton
+                  isSelectedValueAsText
                   onChange={this.setSelectedJournals}
                   onCancel={() => this.setSelectedJournals()}
                 />

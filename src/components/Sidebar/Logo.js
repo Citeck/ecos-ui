@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import { URL } from '../../constants';
 import { Icon } from '../common';
+import { t } from '../../helpers/export/util';
 
 const Logo = ({ logos, large = false, link }) => {
   const [isError, setIsError] = useState(false);
@@ -19,7 +20,7 @@ const Logo = ({ logos, large = false, link }) => {
         'ecos-sidebar-logo_large': large
       })}
     >
-      <a className="ecos-sidebar-logo__link" href={link}>
+      <a className="ecos-sidebar-logo__link" href={link} title={t('header.site-menu.go-home-page')}>
         <img
           className="ecos-sidebar-logo__img ecos-sidebar-logo__img_large"
           src={logos.large}

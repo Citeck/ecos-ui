@@ -21,7 +21,7 @@ class RemoveDialog extends Component {
   };
 
   render() {
-    const { className, bodyClassName, footerClassName, title, isOpen, text, isLoading } = this.props;
+    const { className, bodyClassName, footerClassName, title, isOpen, text, isLoading, cancelText, confirmText } = this.props;
 
     const cssClasses = classNames('ecos-remove-dialog', className, { 'ecos-modal_width-sm': !className.includes('ecos-modal_width-') });
     const bodyCssClasses = classNames('ecos-remove-dialog__body', bodyClassName);
@@ -32,10 +32,10 @@ class RemoveDialog extends Component {
         <div className={bodyCssClasses}>{text}</div>
 
         <div className={footerCssClasses}>
-          <Btn onClick={this.onCancel}>{t('journals.action.cancel')}</Btn>
+          <Btn onClick={this.onCancel}>{cancelText || t('journals.action.cancel')}</Btn>
 
           <Btn onClick={this.onDelete} className={'ecos-btn_red'}>
-            {t('journals.action.delete')}
+            {confirmText || t('journals.action.delete')}
           </Btn>
         </div>
       </EcosModal>

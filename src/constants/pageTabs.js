@@ -30,3 +30,5 @@ export const TITLE = {
   [URL.TIMESHEET_DELEGATED]: 'page-tabs.timesheet',
   [URL.FORM_COMPONENTS]: 'page-tabs.form-components'
 };
+
+export const MIN_CONTEXT_WIDTH = 210;
