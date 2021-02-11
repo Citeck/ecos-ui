@@ -103,7 +103,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
   }
 }
 
-function* cmmnEditorSaga(ea) {
+function* bpmnEditorSaga(ea) {
   yield takeEvery(initData().type, init, ea);
   yield takeEvery(getModel().type, fetchModel, ea);
   yield takeEvery(saveModel().type, runSaveModel, ea);
@@ -111,4 +111,4 @@ function* cmmnEditorSaga(ea) {
   yield takeEvery(getFormProps().type, fetchFormProps, ea);
 }
 
-export default cmmnEditorSaga;
+export default bpmnEditorSaga;

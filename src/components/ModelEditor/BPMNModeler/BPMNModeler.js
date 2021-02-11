@@ -1,21 +1,15 @@
 import Modeler from 'bpmn-js/lib/Modeler';
-import { getBusinessObject } from 'bpmn-js/lib/util/ModelUtil';
+// import from "cmmn-js" because ModelingUtil.getParent from "bpmn-js" package returns null
+import { getParent } from 'cmmn-js/lib/features/modeling/util/ModelingUtil';
+import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
 
 import BaseModeler from '../BaseModeler';
 import additionalModules from './modules';
+import './patches';
 
 import 'bpmn-js/dist/assets/diagram-js.css';
 import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 
-/**
- * Expansion for Modeler
- * @class
- *
- * @param {Modeler} viewer - shows whose container is. You can set using setCustomContainer
- * @param {Object} events - custom events for objects of model
- * Available events: onSelectElement, onChangeElement, onClickElement
- * @param {Boolean} isCustomContainer - shows whose container is. You can set using setCustomContainer
- */
 export default class BPMNModeler extends BaseModeler {
   initModelerInstance = () => {
     this.modeler = new Modeler({ additionalModules });
@@ -25,7 +19,7 @@ export default class BPMNModeler extends BaseModeler {
     const searchProvider = this.modeler.get('bpmnSearch');
     const root = searchProvider._canvas.getRootElement();
 
-    return getBusinessObject(root).$parent || null;
+    return getParent(getBusinessObject(root), 'bpmn:Definitions');
   }
 
   setDiagram = diagram => {
