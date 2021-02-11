@@ -11,10 +11,10 @@ export default class DashboardConverter {
     const target = {};
 
     if (!isEmpty(source)) {
-      const { key, type, user } = source;
+      const { key, type, user, appliedToRef } = source;
       const id = DashboardService.formShortId(source.id);
 
-      target.identification = { key, type, user, id };
+      target.identification = { key, type, user, id, appliedToRef };
     }
 
     return target;
