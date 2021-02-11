@@ -103,7 +103,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   yield put(setRequestResultDashboard({ key: payload.key }));
 
   try {
-    let config = payload.config;
+    let { config, recordRef } = payload;
     const identification = yield select(selectIdentificationForView);
 
     if (!get(config, 'version')) {
@@ -120,8 +120,15 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
       config = dashboardConfig;
     }
 
-    const forWeb = yield _parseConfig({ api, logger }, { config, recordRef: payload.recordRef });
-    const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification, recordRef: payload.recordRef });
+    const forWeb = yield _parseConfig({ api, logger }, { config, recordRef });
+
+    if (recordRef && identification.appliedToRef) {
+      recordRef = getRefWithAlfrescoPrefix(recordRef);
+    } else {
+      recordRef = '';
+    }
+
+    const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification, recordRef });
 
     if (!dashboardResult || !dashboardResult.id) {
       throw new Error('Incorrect result for saving');
