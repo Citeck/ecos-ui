@@ -1,8 +1,9 @@
 import Logger from 'logplease';
 
-Logger.setLogLevel(process.env.NODE_ENV === 'production' ? Logger.LogLevels.ERROR : Logger.LogLevels.DEBUG);
+const logLevel = process.env.NODE_ENV === 'development' ? Logger.LogLevels.DEBUG : Logger.LogLevels.ERROR;
+Logger.setLogLevel(logLevel);
 
-const logger = Logger.create('EcoS');
+const logger = Logger.create('ECOS');
 
 window.Citeck = window.Citeck || {};
 window.Citeck.logger = logger;
