@@ -38,12 +38,13 @@ export const SourcesId = {
   USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',
   MENU: 'uiserv/menu',
+  RESOLVED_MENU: 'uiserv/rmenu',
   ICON: 'uiserv/icon',
   PREDICATE: 'uiserv/predicate',
   THEME: 'uiserv/theme',
   META: 'uiserv/meta',
   JOURNAL: 'uiserv/journal',
-  JOURNAL_V1: 'uiserv/journal_v1',
+  RESOLVED_JOURNAL: 'uiserv/rjournal',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
   A_AUTHORITY: 'alfresco/authority',
@@ -157,7 +158,7 @@ export const JournalUrlParams = {
 export const SYSTEM_LIST = 'global-system';
 
 export const SystemJournals = {
-  ALL_J: 'ecos-all-journals',
+  JOURNALS: 'ecos-journals',
   TYPES: 'ecos-types',
   MENUS: 'ecos-menus'
 };

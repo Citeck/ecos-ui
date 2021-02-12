@@ -9,9 +9,11 @@ import './Field.scss';
 export default class Field extends Component {
   static propTypes = {
     isSmall: PropTypes.bool,
+    isRequired: PropTypes.bool,
     className: PropTypes.string,
     labelClassName: PropTypes.string,
     label: PropTypes.string,
+    labelPosition: PropTypes.string,
     labelFor: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
   };
@@ -22,7 +24,7 @@ export default class Field extends Component {
   };
 
   render() {
-    const { isSmall, className, labelClassName, label, children, labelFor } = this.props;
+    const { isSmall, className, labelClassName, label, children, labelFor, isRequired, labelPosition } = this.props;
 
     return (
       <div
@@ -34,7 +36,9 @@ export default class Field extends Component {
           <Label
             htmlFor={labelFor}
             className={classNames('ecos-field__label', labelClassName, {
-              'ecos-field__label_small': isSmall
+              'ecos-field__label_small': isSmall,
+              'ecos-field__label_required': isRequired,
+              [`ecos-field__label_align-${labelPosition}`]: labelPosition
             })}
           >
             {label}

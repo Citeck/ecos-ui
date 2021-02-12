@@ -15,7 +15,7 @@ class DocLibServiceApi {
   };
 
   async getTypeRef(journalId) {
-    return Records.get(`${SourcesId.JOURNAL}@${journalId}`).load('typeRef?id');
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('typeRef?id');
   }
 
   async isDocLibEnabled(typeRef) {

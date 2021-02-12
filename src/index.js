@@ -4,7 +4,6 @@ import './helpers/polyfills';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Logger from 'logplease';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import * as serviceWorker from './serviceWorker';
@@ -19,6 +18,7 @@ import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
 import { getCurrentLocale, isMobileAppWebView } from './helpers/util';
 
+import logger from './services/logger';
 import authService from './services/auth';
 import configureStore, { getHistory } from './store';
 import { initAppRequest } from './actions/app';
@@ -35,9 +35,6 @@ import './build-info';
 import './services/esign';
 import preval from 'preval.macro';
 import './services/EcosModules';
-
-const logger = Logger.create('EcoS');
-Logger.setLogLevel(Logger.LogLevels.DEBUG);
 
 /* set moment locale */
 const currentLocale = getCurrentLocale();

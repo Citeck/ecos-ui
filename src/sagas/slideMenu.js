@@ -24,7 +24,7 @@ function* fetchSlideMenu({ api, logger }, action) {
     let menuItems;
 
     if (id || version) {
-      menuItems = yield call(api.menu.getMenuItems, { id, version });
+      menuItems = yield call(api.menu.getMenuItems, { id, version, resolved: true });
     } else {
       const apiData = yield call(api.menu.getSlideMenuItems);
       menuItems = apiData.items;
