@@ -88,14 +88,14 @@ class JournalsService {
 
     const journalConfig = _.cloneDeep(config);
 
-    if (!journalConfig.columns || !journalConfig.columns.length) {
-      return journalConfig;
+    const legacyConfig = this.__mapNewJournalConfigToLegacy(journalConfig);
+
+    if (!legacyConfig.columns || !legacyConfig.columns.length) {
+      return legacyConfig;
     }
 
-    journalConfig.configData = this._getAttsToLoadWithComputedAndUpdateConfigs(journalConfig);
-    journalConfig.configData.configComputed = await computedService.resolve(journalConfig.configData.configComputed);
-
-    const legacyConfig = this.__mapNewJournalConfigToLegacy(journalConfig);
+    legacyConfig.configData = this._getAttsToLoadWithComputedAndUpdateConfigs(legacyConfig);
+    legacyConfig.configData.configComputed = await computedService.resolve(legacyConfig.configData.configComputed);
 
     legacyConfig.columns = await this.resolveColumns(legacyConfig.columns);
     legacyConfig.modelVersion = 1;
@@ -106,6 +106,10 @@ class JournalsService {
   // This conversion needed for backward compatibility with other code in UI.
   // TODO: update other code with new journal config and remove this method
   __mapNewJournalConfigToLegacy(config) {
+    if (!config || !config.id || !config.columns || !config.columns.length) {
+      return config;
+    }
+
     const params = _.cloneDeep(config.properties || {});
     if (config.sortBy && config.sortBy.length) {
       params['defaultSortBy'] = config.sortBy.map(sort => {
@@ -277,7 +281,7 @@ class JournalsService {
       for (let column of journalConfig.columns) {
         let computedScopeByName = processComputedList(column.computed, COLUMN_COMPUTED_PREFIX + column.attribute);
 
-        ['formatter', 'editor'].forEach(field => {
+        ['formatter', 'editor', 'newFormatter', 'newEditor'].forEach(field => {
           let newConfig = this._fillTemplateAttsAndMapComputedScope((column[field] || {}).config, attributesToLoad, computedScopeByName);
           if (newConfig) {
             column[field].config = newConfig;
