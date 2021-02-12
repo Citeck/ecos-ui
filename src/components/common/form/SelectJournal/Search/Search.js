@@ -2,7 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../../../helpers/util';
-import { COLUMN_DATA_TYPE_MLTEXT, COLUMN_DATA_TYPE_TEXT, PREDICATE_CONTAINS } from '../../../../Records/predicates/predicates';
+import {
+  COLUMN_DATA_TYPE_ASSOC,
+  COLUMN_DATA_TYPE_MLTEXT,
+  COLUMN_DATA_TYPE_TEXT,
+  PREDICATE_CONTAINS
+} from '../../../../Records/predicates/predicates';
 import Input from '../../Input/Input';
 import FiltersContext from '../Filters/FiltersContext';
 
@@ -13,8 +18,8 @@ class Search extends Component {
     if (e.key === 'Enter') {
       const { onApply, searchField } = this.props;
       const searchValue = e.target.value;
-
       let predicates = [];
+
       if (searchValue) {
         if (searchField) {
           predicates = [
@@ -26,9 +31,16 @@ class Search extends Component {
           ];
         } else {
           const { allFields } = this.context;
+
           const fieldsPredicates = allFields
             .filter(item => {
-              return item.default && (item.type === COLUMN_DATA_TYPE_TEXT || item.type === COLUMN_DATA_TYPE_MLTEXT || !item.type);
+              return (
+                item.default &&
+                (item.type === COLUMN_DATA_TYPE_TEXT ||
+                  item.type === COLUMN_DATA_TYPE_MLTEXT ||
+                  item.type === COLUMN_DATA_TYPE_ASSOC ||
+                  !item.type)
+              );
             })
             .map(item => {
               return {
@@ -37,6 +49,7 @@ class Search extends Component {
                 val: e.target.value
               };
             });
+
           if (fieldsPredicates.length > 0) {
             predicates = [
               {
