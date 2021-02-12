@@ -1,12 +1,16 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 import { withRouter } from 'react-router-dom';
+import copy from 'copy-to-clipboard';
 
 import {
   changeTab,
@@ -16,23 +20,42 @@ import {
   setDisplayState,
   setTab,
   updateTab,
-  updateTabsFromStorage
+  updateTabsFromStorage,
+  closeTabs
 } from '../../actions/pageTabs';
-import { animateScrollTo, arrayCompare, getScrollbarWidth, t } from '../../helpers/util';
+import { animateScrollTo, getScrollbarWidth, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { SortableContainer } from '../Drag-n-Drop';
 import ClickOutside from '../ClickOutside';
 import { dropByCacheKey } from '../ReactRouterCache';
 import Tab from './Tab';
-import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
+import { MIN_CONTEXT_WIDTH, PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { replaceHistoryLink } from '../../helpers/urls';
 import { updateTabEmitter } from '../../services/pageTabs/PageTabList';
+import DialogManager from '../common/dialogs/Manager';
 
 import './style.scss';
 
 const Labels = {
-  GO_HOME: 'header.site-menu.go-home-page'
+  GO_HOME: 'page-tabs.go-home-page',
+  CLOSE_ALL_TABS: 'page-tabs.close-all-tabs',
+  CONFIRM_REMOVE_ALL_TABS_TITLE: 'page-tabs.close-all-tabs-title',
+  CONFIRM_REMOVE_ALL_TABS_TEXT: 'page-tabs.close-all-tabs-text',
+  CONTEXT_COPY_LINK: 'page-tabs.context-menu.copy-link',
+  CONTEXT_CLOSE_SELF: 'page-tabs.context-menu.close-self',
+  CONTEXT_CLOSE_OTHER: 'page-tabs.context-menu.close-other',
+  CONTEXT_CLOSE_LEFT: 'page-tabs.context-menu.close-left',
+  CONTEXT_CLOSE_RIGHT: 'page-tabs.context-menu.close-right',
+  CONTEXT_CLOSE_ALL: 'page-tabs.context-menu.close-all'
+};
+const ContextMenuTypes = {
+  COPY_LINK: 'copy-link',
+  CLOSE_SELF: 'close-self',
+  CLOSE_LEFT: 'close-left',
+  CLOSE_RIGHT: 'close-right',
+  CLOSE_OTHER: 'close-other',
+  CLOSE_ALL: 'close-all'
 };
 
 class PageTabs extends React.Component {
@@ -45,12 +68,15 @@ class PageTabs extends React.Component {
     enableCache: PropTypes.bool
   };
 
+  #contextPortalElement;
+
   state = {
     isActiveLeftArrow: false,
     isActiveRightArrow: false,
     needArrow: false,
     enableCache: false,
-    draggableNode: null
+    draggableNode: null,
+    contextMenu: null
   };
 
   inited = false;
@@ -63,12 +89,15 @@ class PageTabs extends React.Component {
     this.checkUrl();
 
     updateTabEmitter.on('update', props.updateTabs);
+
+    this.#contextPortalElement = document.createElement('div');
   }
 
   componentDidMount() {
     const { initTabs } = this.props;
 
     initTabs();
+    document.body.appendChild(this.#contextPortalElement);
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -77,7 +106,7 @@ class PageTabs extends React.Component {
     const { draggableNode, ...newState } = nextState;
 
     return (
-      !arrayCompare(nextProps.tabs, tabs) ||
+      !isEqual(nextProps.tabs, tabs) ||
       JSON.stringify(nextProps.location) !== JSON.stringify(location) ||
       JSON.stringify(oldState) !== JSON.stringify(newState) ||
       nextProps.isShow !== isShow ||
@@ -101,7 +130,7 @@ class PageTabs extends React.Component {
       } else if (this.inited) {
         if (activeTab !== activeTabPrev && this.checkScrollPosition()) {
           this.handleScrollToActiveTab();
-        } else if (!arrayCompare(prevProps.tabs, tabs)) {
+        } else if (!isEqual(prevProps.tabs, tabs)) {
           this.checkNeedArrow();
         }
       }
@@ -110,6 +139,7 @@ class PageTabs extends React.Component {
 
   componentWillUnmount() {
     updateTabEmitter.off('update', this.props.updateTabs);
+    document.body.removeChild(this.#contextPortalElement);
   }
 
   get wrapper() {
@@ -232,6 +262,42 @@ class PageTabs extends React.Component {
     });
   };
 
+  handleClickContextMenuItem = type => {
+    const { tabs } = this.props;
+    const {
+      contextMenu: { tab, position }
+    } = this.state;
+
+    if (!tab) {
+      return;
+    }
+
+    switch (type) {
+      case ContextMenuTypes.COPY_LINK:
+        copy(`${window.location.origin}${tab.link}`);
+        break;
+      case ContextMenuTypes.CLOSE_ALL:
+        this.handleCloseAllTabs();
+        break;
+      case ContextMenuTypes.CLOSE_RIGHT:
+        this.handleCloseTabs(tabs.slice(position + 1), tab);
+        break;
+      case ContextMenuTypes.CLOSE_LEFT:
+        this.handleCloseTabs(tabs.slice(0, position), tab);
+        break;
+      case ContextMenuTypes.CLOSE_OTHER:
+        this.handleCloseTabs(tabs.filter(item => item.id !== tab.id), tab);
+        break;
+      case ContextMenuTypes.CLOSE_SELF:
+        this.handleCloseTab(tab);
+        break;
+      default:
+        console.error(`PageTabs:ContextMenuItem: Unknown type ${type}`);
+    }
+
+    this.handleCloseContextMenu();
+  };
+
   scrollToTop = () => {
     animateScrollTo(document.querySelectorAll(`.${PANEL_CLASS_NAME}`), { scrollTop: 0 });
   };
@@ -240,10 +306,18 @@ class PageTabs extends React.Component {
     this.props.updateTab({ tab });
   };
 
-  handleAddTab = () => {
-    const { setTab, homepageLink } = this.props;
+  handleCloseAllTabs = () => {
+    DialogManager.confirmDialog({
+      title: t(Labels.CONFIRM_REMOVE_ALL_TABS_TITLE),
+      text: t(Labels.CONFIRM_REMOVE_ALL_TABS_TEXT),
+      onYes: this.handleCloseTabs
+    });
+  };
 
-    setTab({ data: { link: homepageLink, isActive: true }, params: { last: true } });
+  handleCloseTabs = (tabs = this.props.tabs, tab) => {
+    const { closeTabs, homepageLink } = this.props;
+
+    closeTabs({ tabs, homepageLink, tab });
   };
 
   handleScrollLeft = () => {
@@ -339,6 +413,16 @@ class PageTabs extends React.Component {
     this.setState({ draggableNode: null });
   };
 
+  handleContextMenu = ({ tab, position, x, y }) => {
+    this.setState({
+      contextMenu: { tab, position, x, y }
+    });
+  };
+
+  handleCloseContextMenu = () => {
+    this.setState({ contextMenu: null });
+  };
+
   handleResize = debounce(() => {
     this.handleScrollToActiveTab();
     this.checkNeedArrow();
@@ -362,6 +446,22 @@ class PageTabs extends React.Component {
           <div className="page-tab__nav-btn-icon icon-small-left" />
         </div>
       </div>
+    );
+  }
+
+  renderCloseAllTabsButton() {
+    const { tabs } = this.props;
+
+    if (tabs.length < 2) {
+      return null;
+    }
+
+    return (
+      <div
+        className="page-tab__tabs-btn page-tab__tabs-btn_close icon-small-close"
+        title={t(Labels.CLOSE_ALL_TABS)}
+        onClick={this.handleCloseAllTabs}
+      />
     );
   }
 
@@ -399,6 +499,7 @@ class PageTabs extends React.Component {
         onMouseUp={this.handleMouseUp}
         onClose={this.handleCloseTab}
         onSortEnd={this.handleSortEnd}
+        onContextMenu={this.handleContextMenu}
         runUpdate={this.updateTab}
       />
     );
@@ -436,7 +537,7 @@ class PageTabs extends React.Component {
             {tabs.map(this.renderTabItem)}
           </div>
         </SortableContainer>
-        <div className="page-tab__tabs-add icon-small-plus" title={t(Labels.GO_HOME)} onClick={this.handleAddTab} />
+        {this.renderCloseAllTabsButton()}
         {this.renderRightButton()}
         <ReactResizeDetector handleWidth handleHeight onResize={this.handleResize} />
       </ClickOutside>
@@ -473,6 +574,81 @@ class PageTabs extends React.Component {
     );
   });
 
+  renderContextMenu() {
+    const { contextMenu } = this.state;
+
+    if (isEmpty(contextMenu)) {
+      return null;
+    }
+
+    const { tabs } = this.props;
+    const { position, x, y } = contextMenu;
+    const actions = [
+      {
+        title: t(Labels.CONTEXT_COPY_LINK),
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.COPY_LINK)
+      }
+    ];
+    const minLeft = MIN_CONTEXT_WIDTH + getScrollbarWidth();
+    let left = x;
+
+    if (document.body.offsetWidth < left + minLeft) {
+      left = document.body.offsetWidth - minLeft;
+    }
+
+    if (tabs.length > 1) {
+      actions.push({
+        title: t(Labels.CONTEXT_CLOSE_SELF),
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_SELF)
+      });
+    }
+
+    if (position !== tabs.length - 1 && position !== 0) {
+      actions.push({
+        title: t(Labels.CONTEXT_CLOSE_OTHER),
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_OTHER)
+      });
+    }
+
+    if (position > 0) {
+      actions.push({
+        title: t(Labels.CONTEXT_CLOSE_LEFT),
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_LEFT)
+      });
+    }
+
+    if (position !== tabs.length - 1) {
+      actions.push({
+        title: t(Labels.CONTEXT_CLOSE_RIGHT),
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_RIGHT)
+      });
+    }
+
+    if (tabs.length > 1) {
+      actions.push({
+        title: t(Labels.CONTEXT_CLOSE_ALL),
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_ALL)
+      });
+    }
+
+    return ReactDOM.createPortal(
+      <ClickOutside
+        // type="click"
+        className="page-tab__context-menu"
+        handleClickOutside={this.handleCloseContextMenu}
+        key="tab-context-menu"
+        style={{ top: y, left }}
+      >
+        {actions.map(action => (
+          <div key={action.title} className="page-tab__context-menu-item" onClick={action.onClick}>
+            {action.title}
+          </div>
+        ))}
+      </ClickOutside>,
+      this.#contextPortalElement
+    );
+  }
+
   render() {
     const { tabs, ContentComponent, location } = this.props;
 
@@ -482,6 +658,7 @@ class PageTabs extends React.Component {
         {ContentComponent && (
           <this.renderTabPanes url={location.pathname + location.search} tabs={tabs} ContentComponent={ContentComponent} />
         )}
+        {this.renderContextMenu()}
       </>
     );
   }
@@ -502,6 +679,7 @@ const mapDispatchToProps = dispatch => ({
   setTab: params => dispatch(setTab(params)),
   updateTab: tab => dispatch(updateTab(tab)),
   deleteTab: tab => dispatch(deleteTab(tab)),
+  closeTabs: data => dispatch(closeTabs(data)),
   updateTabs: () => dispatch(updateTabsFromStorage())
 });
 
