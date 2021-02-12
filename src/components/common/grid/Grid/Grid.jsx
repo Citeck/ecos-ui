@@ -1085,6 +1085,8 @@ Grid.propTypes = {
   className: PropTypes.string,
   rowClassName: PropTypes.string,
   tableViewClassName: PropTypes.string,
+  gridWrapperClassName: PropTypes.string,
+  hTrackClassName: PropTypes.string,
   keyField: PropTypes.string,
   dataField: PropTypes.string,
 
