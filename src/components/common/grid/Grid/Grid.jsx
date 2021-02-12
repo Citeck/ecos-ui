@@ -956,7 +956,15 @@ class Grid extends Component {
   };
 
   renderScrollableGrid() {
-    const { minHeight, autoHeight, scrollAutoHide, tableViewClassName, byContentHeight } = this.props;
+    const {
+      minHeight,
+      autoHeight,
+      scrollAutoHide,
+      tableViewClassName,
+      byContentHeight,
+      gridWrapperClassName,
+      hTrackClassName
+    } = this.props;
 
     let { maxHeight } = this.props;
     let scrollStyle = {};
@@ -981,10 +989,16 @@ class Grid extends Component {
         style={scrollStyle}
         autoHide={scrollAutoHide}
         hideTracksWhenNotNeeded
+        className={gridWrapperClassName}
         renderView={props => <div {...props} className={tableViewClassName} />}
         renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
         renderTrackHorizontal={props => (
-          <div {...props} className={classNames('ecos-grid__h-scroll', { 'ecos-grid__h-scroll_higher': minHeight > maxHeight })} />
+          <div
+            {...props}
+            className={classNames('ecos-grid__h-scroll', hTrackClassName, {
+              'ecos-grid__h-scroll_higher': minHeight > maxHeight
+            })}
+          />
         )}
         {...scrollProps}
       >
