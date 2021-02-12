@@ -41,7 +41,7 @@ export default class PageService {
       return PageTypes.TIMESHEET;
     }
 
-    if (type === PageTypes.BPMN_DESIGNER) {
+    if ([PageTypes.BPMN_DESIGNER, PageTypes.DEV_TOOLS].includes(type)) {
       return PageTypes.ADMIN_PAGE;
     }
 
@@ -62,6 +62,7 @@ export default class PageService {
       case PageTypes.JOURNALS:
         return urlProps.query.journalId || '';
       case PageTypes.BPMN_DESIGNER:
+      case PageTypes.DEV_TOOLS:
         return PageTypes.ADMIN_PAGE;
       default:
         return '';
