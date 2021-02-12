@@ -5,6 +5,7 @@ import Records from '../components/Records';
 import { EmodelTypes } from '../constants';
 import { DocumentsApi } from './documents';
 import { PROXY_URI } from '../constants/alfresco';
+import journalsService from '../components/Journals/service/journalsService';
 
 export class DocAssociationsApi extends DocumentsApi {
   #baseAssociationAttributes = 'id:assoc,modifierId:att(n:"cm:modifier"){disp},displayName:disp';
@@ -69,15 +70,7 @@ export class DocAssociationsApi extends DocumentsApi {
       });
     }
 
-    return Records.queryOne(
-      {
-        sourceId: 'uiserv/journal',
-        query: {
-          typeRef: association.target
-        }
-      },
-      '.json'
-    ).then(async columnsConfig => {
+    return journalsService.getJournalConfigByType(association.target).then(async columnsConfig => {
       const config = isEmpty(columnsConfig) ? baseColumnsConfig : columnsConfig;
       const columns = await this.getFormattedColumns(config);
 

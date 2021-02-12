@@ -266,13 +266,15 @@ export default class DocumentsConverter {
 
     return source
       .map(column => {
-        let { name, schema, attribute } = column;
+        let { name, schema, attribute, dataField } = column;
+
+        const alias = dataField || attribute || name;
 
         if (attribute && schema) {
           if (schema.charAt(0) === '.') {
-            return `${attribute}:${schema.slice(1)}`;
+            return `${alias}:${schema.slice(1)}`;
           }
-          return `${attribute}:att(n:"${schema}"){disp}`;
+          return `${alias}:att(n:"${schema}"){disp}`;
         }
 
         if (!attribute && !name) {
@@ -280,19 +282,19 @@ export default class DocumentsConverter {
         }
 
         if (!attribute) {
-          return `${name}:att(n:"${name}"){disp}`;
+          return `${alias}:att(n:"${name}"){disp}`;
         }
 
         if (attribute.charAt(0) === '.') {
-          return `${name}:${attribute.slice(1)}`;
+          return `${alias}:${attribute.slice(1)}`;
         }
 
         if (name) {
           if (attribute.includes('att(n:')) {
-            return `${name}:${attribute}`;
+            return `${alias}:${attribute}`;
           }
 
-          return `${name}:att(n:"${attribute}"){disp}`;
+          return `${alias}:att(n:"${attribute}"){disp}`;
         }
 
         return attribute || name;

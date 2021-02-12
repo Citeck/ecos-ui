@@ -7,8 +7,23 @@ import journalColumnsResolver from './journalColumnsResolver';
 import journalDataLoader from './journalsDataLoader';
 import computedService from './computed/computedService';
 import { COMPUTED_ATT_PREFIX } from './util';
+import { getTextByLocale } from '../../../helpers/util';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
+
+const COLUMN_TYPE_NEW_TO_LEGACY_MAPPING = {
+  ASSOC: 'assoc',
+  PERSON: 'person',
+  AUTHORITY_GROUP: 'authorityGroup',
+  AUTHORITY: 'authority',
+  TEXT: 'text',
+  MLTEXT: 'mltext',
+  NUMBER: 'double',
+  BOOLEAN: 'boolean',
+  DATE: 'date',
+  DATETIME: 'datetime',
+  CONTENT: 'content'
+};
 
 /**
  * @typedef SortBy
@@ -50,25 +65,119 @@ const COLUMN_COMPUTED_PREFIX = 'column_';
  * Service to work with journals.
  */
 class JournalsService {
+  async getJournalConfigByType(typeRef) {
+    if (!typeRef) {
+      return null;
+    }
+
+    let journal = await journalsApi.getJournalConfigByType(typeRef, '?json');
+    return this._convertJournalConfig(journal);
+  }
+
   async getJournalConfig(journalId = '') {
     const sourceDelimIdx = journalId.indexOf('@');
     const journalRecordId = sourceDelimIdx === -1 ? journalId : journalId.substring(sourceDelimIdx + 1);
-    const journalConfig = _.cloneDeep(await journalsApi.getJournalConfig(journalRecordId));
 
-    if (!journalConfig.columns || !journalConfig.columns.length) {
-      return journalConfig;
+    return this._convertJournalConfig(await journalsApi.getJournalConfig(journalRecordId));
+  }
+
+  async _convertJournalConfig(config) {
+    if (!config) {
+      return {};
     }
 
-    journalConfig.columns = await this.resolveColumns(journalConfig.columns);
-    journalConfig.configData = this._getAttsToLoadWithComputedAndUpdateConfigs(journalConfig);
-    journalConfig.configData.configComputed = await computedService.resolve(journalConfig.configData.configComputed);
-    journalConfig.modelVersion = 1;
+    const journalConfig = _.cloneDeep(config);
 
-    if (!journalConfig.predicate) {
-      journalConfig.predicate = _.get(journalConfig, 'meta.predicate', {});
+    const legacyConfig = this.__mapNewJournalConfigToLegacy(journalConfig);
+
+    if (!legacyConfig.columns || !legacyConfig.columns.length) {
+      return legacyConfig;
     }
 
-    return journalConfig;
+    legacyConfig.configData = this._getAttsToLoadWithComputedAndUpdateConfigs(legacyConfig);
+    legacyConfig.configData.configComputed = await computedService.resolve(legacyConfig.configData.configComputed);
+
+    legacyConfig.columns = await this.resolveColumns(legacyConfig.columns);
+    legacyConfig.modelVersion = 1;
+
+    return legacyConfig;
+  }
+
+  // This conversion needed for backward compatibility with other code in UI.
+  // TODO: update other code with new journal config and remove this method
+  __mapNewJournalConfigToLegacy(config) {
+    if (!config || !config.id || !config.columns || !config.columns.length) {
+      return config;
+    }
+
+    const params = _.cloneDeep(config.properties || {});
+    if (config.sortBy && config.sortBy.length) {
+      params['defaultSortBy'] = config.sortBy.map(sort => {
+        return {
+          id: sort.attribute,
+          order: sort.ascending ? 'asc' : 'desc'
+        };
+      });
+    }
+
+    if (config.editable === false) {
+      params['disableTableEditing'] = 'true';
+    }
+    config.params = params;
+
+    const meta = {};
+    meta.nodeRef = config.id;
+    meta.actions = config.actions || [];
+    meta.groupBy = config.groupBy;
+    meta.metaRecord = config.metaRecord;
+    meta.predicate = config.predicate || {};
+    meta.title = getTextByLocale(config.label);
+    meta.createVariants = (config.createVariants || []).map(cv => this.__mapNewCreateVariantToLegacy(cv));
+
+    config.meta = meta;
+
+    config.columns = config.columns.map(c => this.__mapNewColumnConfigToLegacy(c));
+
+    return config;
+  }
+
+  // This conversion needed for backward compatibility with other code in UI.
+  // TODO: update other code with new journal config and remove this method
+  __mapNewColumnConfigToLegacy(column) {
+    const result = {};
+
+    result.multiple = column.multiple;
+    result.newFormatter = column.formatter;
+    result.newEditor = column.editor;
+    result.computed = column.computed;
+    result.hidden = column.hidden === true;
+    result.text = getTextByLocale(column.label) || column.name;
+    result.attribute = column.name;
+    result.default = column.visible !== false;
+    result.groupable = column.groupable === true;
+    result.params = column.properties || {};
+    result.schema = column.attribute;
+    result.searchable = column.searchable !== false;
+    result.sortable = column.sortable === true;
+    result.type = COLUMN_TYPE_NEW_TO_LEGACY_MAPPING[column.type] || 'text';
+    result.visible = column.hidden !== true;
+    result.editable = column.editable !== false;
+
+    return result;
+  }
+
+  __mapNewCreateVariantToLegacy(cv) {
+    return {
+      title: getTextByLocale(cv.name),
+      recordRef: cv.sourceId + '@',
+      formId: cv.formRef,
+      canCreate: true,
+      postActionRef: cv.postActionRef,
+      attributes: {
+        _type: cv.typeRef,
+        ...(cv.attributes || {})
+      }
+    };
   }
 
   async resolveColumns(columns) {
