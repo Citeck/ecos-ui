@@ -65,10 +65,28 @@ const COLUMN_TYPE_NEW_TO_LEGACY_MAPPING = {
  * Service to work with journals.
  */
 class JournalsService {
+  async getJournalConfigByType(typeRef) {
+    if (!typeRef) {
+      return null;
+    }
+
+    let journal = await journalsApi.getJournalConfigByType(typeRef, '?json');
+    return this._convertJournalConfig(journal);
+  }
+
   async getJournalConfig(journalId = '') {
     const sourceDelimIdx = journalId.indexOf('@');
     const journalRecordId = sourceDelimIdx === -1 ? journalId : journalId.substring(sourceDelimIdx + 1);
-    const journalConfig = _.cloneDeep(await journalsApi.getJournalConfig(journalRecordId));
+
+    return this._convertJournalConfig(await journalsApi.getJournalConfig(journalRecordId));
+  }
+
+  async _convertJournalConfig(config) {
+    if (!config) {
+      return {};
+    }
+
+    const journalConfig = _.cloneDeep(config);
 
     if (!journalConfig.columns || !journalConfig.columns.length) {
       return journalConfig;

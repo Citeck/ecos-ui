@@ -101,11 +101,11 @@ const runApp = () => {
   );
 };
 
-//if (process.env.NODE_ENV === 'development' && !isMobileAppWebView()) {
-//authService.init().then(runApp);
-//} else {
-runApp();
-//}
+if (process.env.NODE_ENV === 'development' && !isMobileAppWebView()) {
+  authService.init().then(runApp);
+} else {
+  runApp();
+}
 
 const idleTimer = new IdleTimer();
 idleTimer

@@ -2,16 +2,19 @@ import Records from '../../Records/Records';
 import { SourcesId } from '../../../constants';
 
 class JournalsServiceApi {
+  async getJournalConfigByType(typeRef, attributes) {
+    return Records.queryOne(
+      {
+        sourceId: 'uiserv/rjournal',
+        query: { typeRef },
+        language: 'by-type'
+      },
+      attributes
+    );
+  }
+
   async getJournalConfig(journalId) {
-    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`)
-      .load('.json')
-      .then(resp => {
-        const data = resp || { meta: {} };
-        if (!data.columns || data.columns.length === 0) {
-          console.error("Journal without columns! ID: '" + journalId + "'", resp);
-        }
-        return data;
-      });
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('.json');
   }
 
   async queryData(query, attributes) {
