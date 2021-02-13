@@ -6,8 +6,20 @@ import set from 'lodash/set';
 import Base from '../base/Base';
 import { t } from '../../../../helpers/util';
 
-Object.defineProperty(FormIOCheckBoxComponent.prototype, 'dataValue', {
-  set: function(value) {
+export default class CheckBoxComponent extends FormIOCheckBoxComponent {
+  static schema(...extend) {
+    return FormIOCheckBoxComponent.schema(
+      {
+        defaultValue: false,
+        hasThreeStates: false
+      },
+      ...extend
+    );
+  }
+
+  #beforeState;
+
+  set dataValue(value) {
     if (!this.key) {
       return value;
     }
@@ -18,6 +30,8 @@ Object.defineProperty(FormIOCheckBoxComponent.prototype, 'dataValue', {
       } else {
         set(this.data, this.key, value);
       }
+
+      this.checkState(value);
 
       return value;
     }
@@ -36,10 +50,8 @@ Object.defineProperty(FormIOCheckBoxComponent.prototype, 'dataValue', {
 
     return value;
   }
-});
 
-Object.defineProperty(FormIOCheckBoxComponent.prototype, 'defaultValue', {
-  get: function() {
+  get defaultValue() {
     if (this.isRadioCheckbox) {
       return '';
     }
@@ -72,20 +84,26 @@ Object.defineProperty(FormIOCheckBoxComponent.prototype, 'defaultValue', {
 
     return defaultValue;
   }
-});
 
-export default class CheckBoxComponent extends FormIOCheckBoxComponent {
-  static schema(...extend) {
-    return FormIOCheckBoxComponent.schema(
-      {
-        defaultValue: false,
-        hasThreeStates: false
-      },
-      ...extend
-    );
+  get dataValue() {
+    let Value;
+
+    if (!this.key) {
+      Value = this.emptyValue;
+    }
+
+    if (!this.hasValue()) {
+      this.dataValue = this.component.multiple ? [] : this.emptyValue;
+    }
+
+    Value = get(this.data, this.key);
+
+    if (this.isRadioCheckbox) {
+      set(this.data, this.component.key, Value === this.component.value);
+    }
+
+    return Value;
   }
-
-  #beforeState;
 
   get defaultSchema() {
     return CheckBoxComponent.schema();
@@ -129,10 +147,10 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     super.build();
 
     this.createInlineEditSaveAndCancelButtons();
-    this.checkState();
+    this.checkState(this.defaultValue, true);
   }
 
-  checkState(state = this.defaultValue) {
+  checkState(state, needUpdate) {
     if (!this.hasThreeStates) {
       return;
     }
@@ -156,15 +174,17 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
         this.addClass(this.element, 'checkbox-checked checkbox-checked_cross');
     }
 
-    if (this.#beforeState === undefined && this.#beforeState !== state) {
+    if (needUpdate && this.#beforeState === undefined && this.#beforeState !== state) {
       this.dataValue = state;
     }
 
     this.#beforeState = value;
+
     if (this.input) {
       this.input.checked = value;
       this.input.value = value;
     }
+
     this.labelSpan && this.labelSpan.setAttribute('title', value);
   }
 
@@ -190,8 +210,10 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     if (this.hasThreeStates) {
       const newValue = this.getValueByString(value);
 
-      this.input.checked = newValue;
-      this.input.value = newValue;
+      if (this.input) {
+        this.input.checked = newValue;
+        this.input.value = newValue;
+      }
 
       return newValue;
     }
