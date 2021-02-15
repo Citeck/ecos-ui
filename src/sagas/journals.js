@@ -73,6 +73,7 @@ import { hasInString } from '../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 import { JournalUrlParams } from '../constants';
 import { loadDocumentLibrarySettings } from './docLib';
+import { emptyJournalConfig } from '../reducers/journals';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -224,14 +225,14 @@ function* _resolveTemplate(recordRef, template) {
   return template;
 }
 
-function* sagaGetJournalsData({ api, logger, stateId, w }) {
+function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
   try {
     const url = yield select(selectUrl, stateId);
     const { journalsListId, journalId, journalSettingId = '', userConfigId } = url;
 
     yield put(setGrid(w({ pagination: DEFAULT_JOURNALS_PAGINATION })));
     yield getJournals(api, journalsListId, w);
-    yield put(initJournal(w({ journalId, journalSettingId, userConfigId })));
+    yield put(initJournal(w({ journalId, journalSettingId, userConfigId, bySearch: payload })));
   } catch (e) {
     logger.error('[journals sagaGetJournalsData saga error', e.message);
   }
@@ -409,20 +410,30 @@ function* getGridData(api, params, stateId) {
   return { ...journalData, columns, actions };
 }
 
-function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w) {
+function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId, bySearch }, w) {
   const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
 
   if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
     sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
   }
 
-  const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
+  let { journalSetting } = yield select(selectJournalData, stateId);
+  let predicate = {};
+
+  if (!bySearch) {
+    journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
+  }
+
   const url = yield select(selectUrl, stateId);
   const journalData = yield select(selectJournalData, stateId);
 
   const pagination = get(sharedSettings, 'pagination') || get(journalData, 'grid.pagination') || {};
   const params = getGridParams({ journalConfig, journalSetting, pagination });
   const search = url.search || journalSetting.search;
+
+  if (bySearch) {
+    params.predicates = [predicate];
+  }
 
   let gridData = yield getGridData(api, { ...params }, stateId);
   let searchData = {};
@@ -555,12 +566,27 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
   try {
     yield put(setLoading(w(true)));
 
-    const { journalId, journalSettingId, userConfigId, customJournal, customJournalMode } = action.payload;
+    const { journalId, journalSettingId, userConfigId, customJournal, customJournalMode, bySearch } = action.payload;
     const id = !customJournalMode || !customJournal ? journalId : customJournal;
-    const journalConfig = yield getJournalConfig(api, id, w);
+    let { journalConfig } = yield select(selectJournalData, stateId);
+    const isEmptyConfig = isEqual(journalConfig, emptyJournalConfig);
 
-    yield getJournalSettings(api, journalConfig.id, w);
-    yield loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, (...data) => ({ ...w(...data), logger }));
+    if (!bySearch || isEmpty(journalConfig) || isEmptyConfig) {
+      journalConfig = yield getJournalConfig(api, id, w);
+      yield getJournalSettings(api, journalConfig.id, w);
+    }
+
+    yield loadGrid(
+      api,
+      {
+        journalSettingId,
+        journalConfig,
+        userConfigId,
+        stateId,
+        bySearch: bySearch && !isEmptyConfig
+      },
+      (...data) => ({ ...w(...data), logger })
+    );
     yield call(loadDocumentLibrarySettings, journalConfig.id, w);
 
     yield put(setLoading(w(false)));
@@ -573,13 +599,18 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
 function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
   try {
     const query = getSearchParams();
-    if (query[JournalUrlParams.JOURNAL_SETTING_ID] === (action.payload || undefined)) {
+
+    if (query[JournalUrlParams.JOURNAL_SETTING_ID] === undefined && action.payload === undefined) {
+      return;
+    }
+
+    const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+
+    if (journalSetting[JOURNAL_SETTING_ID_FIELD] === action.payload) {
       return;
     }
 
     yield put(setLoading(w(true)));
-
-    const { journalConfig } = yield select(selectJournalData, stateId);
 
     query[JournalUrlParams.JOURNAL_SETTING_ID] = action.payload || undefined;
     query[JournalUrlParams.USER_CONFIG_ID] = undefined;
