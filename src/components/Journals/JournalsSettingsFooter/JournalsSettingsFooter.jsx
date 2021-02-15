@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 
 import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
@@ -25,6 +26,7 @@ const mapStateToProps = (state, props) => {
 
   return {
     predicate: newState.predicate,
+    originPredicate: get(newState, 'grid.predicates'),
     columnsSetup: newState.columnsSetup,
     grouping: newState.grouping,
     journalSetting: newState.journalSetting,
@@ -89,20 +91,22 @@ class JournalsSettingsFooter extends Component {
 
   saveSetting = () => {
     const journalSetting = this.getSetting();
+
     this.props.saveJournalSetting(journalSetting[[JOURNAL_SETTING_ID_FIELD]], this.getSetting());
     trigger.call(this, 'onSave');
   };
 
   applySetting = () => {
-    const { setJournalSetting, reloadGrid, maxItems } = this.props;
+    const { setJournalSetting, reloadGrid, maxItems, originPredicate } = this.props;
     const journalSetting = this.getSetting();
     const { columns, groupBy, sortBy, predicate } = journalSetting;
     const predicates = predicate ? [predicate] : [];
     const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 
     setJournalSetting(journalSetting);
-    reloadGrid({ columns, groupBy, sortBy, predicates, pagination });
-    trigger.call(this, 'onApply');
+    reloadGrid({ columns, groupBy, sortBy, predicates, pagination, search: '' });
+
+    trigger.call(this, 'onApply', !isEqual(predicates, originPredicate));
   };
 
   resetSettings = () => {
@@ -113,7 +117,7 @@ class JournalsSettingsFooter extends Component {
   };
 
   getSetting = title => {
-    let { journalSetting, grouping, columnsSetup, predicate } = this.props;
+    const { journalSetting, grouping, columnsSetup, predicate } = this.props;
 
     return {
       ...journalSetting,

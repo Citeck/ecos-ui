@@ -18,6 +18,7 @@ export const PageTypes = {
   ADMIN_PAGE: 'admin',
   BPMN_EDITOR: 'bpmn-editor',
   CMMN_EDITOR: 'cmmn-editor',
+  BPMN_DESIGNER: 'bpmn-designer',
   DEV_TOOLS: 'dev-tools',
   TIMESHEET: 'timesheet'
 };
@@ -41,6 +42,10 @@ export default class PageService {
       return PageTypes.TIMESHEET;
     }
 
+    if ([PageTypes.BPMN_DESIGNER, PageTypes.DEV_TOOLS].includes(type)) {
+      return PageTypes.ADMIN_PAGE;
+    }
+
     return type;
   }
 
@@ -57,6 +62,9 @@ export default class PageService {
         return urlProps.query.recordRef || '';
       case PageTypes.JOURNALS:
         return urlProps.query.journalId || '';
+      case PageTypes.BPMN_DESIGNER:
+      case PageTypes.DEV_TOOLS:
+        return PageTypes.ADMIN_PAGE;
       default:
         return '';
     }
