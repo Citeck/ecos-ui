@@ -15,7 +15,7 @@ export class DocumentsApi {
         name: 'name',
         parent: 'parent?id',
         formId: 'form?id',
-        createVariants: 'createVariants?json',
+        createVariants: 'inhCreateVariants[]?json',
         actions: 'actions[]?id'
       }
     ).then(response => response);
