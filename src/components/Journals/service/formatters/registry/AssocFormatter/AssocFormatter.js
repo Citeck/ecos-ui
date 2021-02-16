@@ -11,14 +11,14 @@ export default class AssocFormatter extends BaseFormatter {
     const { cell, config = {} } = props;
 
     return cell.map(res => {
-      const link = createDocumentUrl(res.assoc);
+      const link = createDocumentUrl(res.value);
       const handler = e => {
         e.preventDefault();
         PageService.changeUrlLink(link, { openNewTab: !config.openInBackground });
       };
 
       return (
-        <a key={res.assoc} href={link} onClick={handler}>
+        <a key={res.value} href={link} onClick={handler}>
           {res.disp}
         </a>
       );

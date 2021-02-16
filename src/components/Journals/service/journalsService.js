@@ -6,24 +6,10 @@ import journalsApi from './journalsServiceApi';
 import journalColumnsResolver from './journalColumnsResolver';
 import journalDataLoader from './journalsDataLoader';
 import computedService from './computed/computedService';
-import { COMPUTED_ATT_PREFIX } from './util';
+import { COMPUTED_ATT_PREFIX, COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from './util';
 import { getTextByLocale } from '../../../helpers/util';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
-
-const COLUMN_TYPE_NEW_TO_LEGACY_MAPPING = {
-  ASSOC: 'assoc',
-  PERSON: 'person',
-  AUTHORITY_GROUP: 'authorityGroup',
-  AUTHORITY: 'authority',
-  TEXT: 'text',
-  MLTEXT: 'mltext',
-  NUMBER: 'double',
-  BOOLEAN: 'boolean',
-  DATE: 'date',
-  DATETIME: 'datetime',
-  CONTENT: 'content'
-};
 
 /**
  * @typedef SortBy
