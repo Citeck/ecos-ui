@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 
 import { generateSearchTerm, getCurrentUserName, t } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
-import { ActionTypes, CountableItems } from '../constants/sidebar';
+import { ActionTypes } from '../constants/sidebar';
 import { PROXY_URI } from '../constants/alfresco';
 import { LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
 import Records from '../components/Records';
@@ -136,75 +136,6 @@ export class MenuApi extends CommonApi {
     ]);
   };
 
-  getCreateVariantsForAllSites = () => {
-    const url = `${PROXY_URI}api/journals/create-variants/site/ALL`;
-
-    const allSites = this.getJson(url).catch(() => []);
-    const fromJournals = Records.query(
-      {
-        sourceId: 'uiserv/journal',
-        language: 'site-journals'
-      },
-      {
-        createVariants: 'createVariants[]{id,attributes:attributes?json,formRef:formRef?id,name,recordRef:recordRef?id}',
-        journalList: 'attributes.journalsListId'
-      }
-    )
-      .then(res => res.records || [])
-      .then(records => {
-        return records
-          .map(r => {
-            let listId = r.journalList;
-            if (!listId) {
-              return {};
-            }
-            let siteId = listId.substring('site-'.length, listId.length - '-main'.length);
-            let variants = (r.createVariants || []).map(v => {
-              return {
-                canCreate: true,
-                formId: v.formRef,
-                title: v.name,
-                ...v
-              };
-            });
-            return {
-              createVariants: variants,
-              siteId: siteId
-            };
-          })
-          .filter(r => r.createVariants && r.createVariants.length);
-      })
-      .catch(e => {
-        console.error(e);
-        return [];
-      });
-
-    return Promise.all([allSites, fromJournals])
-      .then(res => {
-        const [sitesVariants, journalsVariants] = res;
-        for (let journal of journalsVariants) {
-          if (!journal.siteId || !journal.createVariants || !journal.createVariants.length) {
-            continue;
-          }
-          let siteForJournal = null;
-          for (let site of sitesVariants) {
-            if (site.siteId === journal.siteId && !!site.createVariants) {
-              siteForJournal = site;
-              break;
-            }
-          }
-          if (siteForJournal) {
-            siteForJournal.createVariants = siteForJournal.createVariants.concat(journal.createVariants);
-          }
-        }
-        return sitesVariants;
-      })
-      .catch(e => {
-        console.error(e);
-        return [];
-      });
-  };
-
   getCustomCreateVariants = () => {
     return Records.get(`${SourcesId.CONFIG}@custom-create-buttons`)
       .load('value[]?json', true)
@@ -261,8 +192,7 @@ export class MenuApi extends CommonApi {
     return fetchExtraItemInfo(lodashGet(config, 'left.items') || [], {
       label: '.disp',
       journalId: 'id',
-      journalsListId: 'journalsListId',
-      createVariants: 'createVariants[]?json'
+      createVariants: 'inhCreateVariants[]?json'
     });
   };
 
@@ -275,18 +205,9 @@ export class MenuApi extends CommonApi {
   };
 
   getJournalTotalCount = journalId => {
-    //TODO: move this to a menu config / https://citeck.atlassian.net/browse/ECOSUI-101
-    if (CountableItems.includes(journalId)) {
-      const url = `${PROXY_URI}api/journals/records/count?journal=${journalId}`;
-      return this.getJson(url)
-        .then(resp => resp.recordsCount)
-        .catch(err => {
-          console.error(err);
-          return 0;
-        });
-    }
-
-    return Promise.resolve(0);
+    return Records.get('uiserv/rjournal@' + journalId)
+      .load('totalCount?num')
+      .then(res => res || 0);
   };
 
   getMenuConfig = (disabledCache = false) => {
@@ -347,7 +268,7 @@ export class MenuApi extends CommonApi {
     return Promise.all(
       records.map(recordRef =>
         Records.get(recordRef)
-          .load({ label: '.disp', createVariants: 'createVariants[]' })
+          .load({ label: '.disp', createVariants: 'inhCreateVariants[]' })
           .then(attributes => ({ ...attributes, config: { recordRef } }))
       )
     );
