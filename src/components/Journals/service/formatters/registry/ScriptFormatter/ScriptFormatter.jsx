@@ -20,14 +20,14 @@ export default class ScriptFormatter extends BaseFormatter {
    * @return {React.ReactNode}
    */
   format(props) {
-    const { config } = props;
+    const { config, cell } = props;
     if (!config.script) {
       throw new Error(`"script" is a mandatory parameter in the ScriptFormatter config. Current config: ${JSON.stringify(config)}`);
     }
     const vars = config.vars || {};
 
     /* eslint-disable-next-line */
-    const result = new Function('Records', '_', 't', 'vars', 'props', config.script)(Records, _, t, vars, props);
+    const result = new Function('Records', '_', 't', 'vars', 'cell', config.script)(Records, _, t, vars, cell);
 
     switch (typeof result) {
       case 'boolean':
