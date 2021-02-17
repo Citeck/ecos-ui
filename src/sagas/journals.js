@@ -229,10 +229,11 @@ function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
   try {
     const url = yield select(selectUrl, stateId);
     const { journalsListId, journalId, journalSettingId = '', userConfigId } = url;
+    const bySearch = get(payload, 'bySearch', false);
 
     yield put(setGrid(w({ pagination: DEFAULT_JOURNALS_PAGINATION })));
     yield getJournals(api, journalsListId, w);
-    yield put(initJournal(w({ journalId, journalSettingId, userConfigId, bySearch: payload })));
+    yield put(initJournal(w({ journalId, journalSettingId, userConfigId, bySearch })));
   } catch (e) {
     logger.error('[journals sagaGetJournalsData saga error', e.message);
   }
@@ -598,27 +599,28 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
 
 function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
   try {
+    const selectedId = action.payload;
     const query = getSearchParams();
 
-    if (query[JournalUrlParams.JOURNAL_SETTING_ID] === undefined && action.payload === undefined) {
+    if (query[JournalUrlParams.JOURNAL_SETTING_ID] === undefined && selectedId === undefined) {
       return;
     }
 
     const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
 
-    if (journalSetting[JOURNAL_SETTING_ID_FIELD] === action.payload) {
+    if (journalSetting[JOURNAL_SETTING_ID_FIELD] === selectedId) {
       return;
     }
 
     yield put(setLoading(w(true)));
 
-    query[JournalUrlParams.JOURNAL_SETTING_ID] = action.payload || undefined;
+    query[JournalUrlParams.JOURNAL_SETTING_ID] = selectedId || undefined;
     query[JournalUrlParams.USER_CONFIG_ID] = undefined;
 
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
 
-    yield call(api.journals.setLsJournalSettingId, journalConfig.id, action.payload || '');
-    PageService.changeUrlLink(url, { updateUrl: true });
+    yield call(api.journals.setLsJournalSettingId, journalConfig.id, selectedId || '');
+    yield call(PageService.changeUrlLink, url, { updateUrl: true });
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
   }
@@ -661,7 +663,7 @@ function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
 
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
 
-    PageService.changeUrlLink(url, { openNewTab: true, pushHistory: true });
+    yield call(PageService.changeUrlLink, url, { openNewTab: true, pushHistory: true });
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
   }
@@ -930,7 +932,7 @@ function* sagaSearch({ logger, w, stateId }, { payload }) {
 
     if (!isEqual(getSearchParams(), urlData.query)) {
       yield put(setLoading(w(true)));
-      PageService.changeUrlLink(decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
+      yield call(PageService.changeUrlLink, decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
     }
   } catch (e) {
     logger.error('[journals sagaSearch saga error', e.message);

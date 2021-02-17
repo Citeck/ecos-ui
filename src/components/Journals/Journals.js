@@ -8,7 +8,6 @@ import get from 'lodash/get';
 import pick from 'lodash/pick';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
 
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
@@ -150,7 +149,7 @@ class Journals extends Component {
     this.props.setUrl(getSearchParams());
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     const { urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl } = this.props;
     const { isActivePage: _isActivePage, urlParams: _urlParams } = prevProps;
 
@@ -161,28 +160,31 @@ class Journals extends Component {
 
     const otherActiveJournal =
       isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId);
-    const someUrlChanges =
-      isActivePage &&
-      _isActivePage &&
-      !equalsQueryUrls({
-        urls: [this.props._url, prevProps._url],
-        ignored: [
-          JournalUrlParams.SHOW_PREVIEW,
-          JournalUrlParams.VIEW_MODE,
-          JournalUrlParams.DOCLIB_FOLDER_ID,
-          JournalUrlParams.DOCLIB_SEARCH
-        ]
-      });
+
+    const isEqualQuery = equalsQueryUrls({
+      urls: [this.props._url, prevProps._url],
+      ignored: [
+        JournalUrlParams.SHOW_PREVIEW,
+        JournalUrlParams.VIEW_MODE,
+        JournalUrlParams.DOCLIB_FOLDER_ID,
+        JournalUrlParams.DOCLIB_SEARCH
+      ]
+    });
+
+    const someUrlChanges = isActivePage && _isActivePage && !isEqualQuery;
 
     if (someUrlChanges) {
       setUrl(getSearchParams());
     }
 
     if (someUrlChanges || otherActiveJournal || prevProps.stateId !== stateId) {
-      const isEqualSearchParams = equalsQueryUrls({ urls: [this.props._url, prevProps._url], compareBy: [JournalUrlParams.SEARCH] });
-      const isEqualSearchProps = isEqual(get(urlParams, 'search'), get(_urlParams, 'search'));
+      const isSameSettingId = equalsQueryUrls({
+        urls: [this.props._url, prevProps._url],
+        compareBy: [JournalUrlParams.JOURNAL_SETTING_ID]
+      });
+      const isSameSearchParam = equalsQueryUrls({ urls: [this.props._url, prevProps._url], compareBy: [JournalUrlParams.SEARCH] });
 
-      getJournalsData((!isEqualSearchParams || !isEqualSearchProps) && prevProps.stateId === stateId);
+      getJournalsData({ bySearch: !isSameSearchParam && isSameSettingId && prevProps.stateId === stateId });
     }
 
     if (isActivePage && this.state.isForceUpdate) {
@@ -281,7 +283,7 @@ class Journals extends Component {
       return '';
     }
 
-    return get(getSearchParams(), JournalUrlParams.SEARCH, get(urlParams, 'search', ''));
+    return get(getSearchParams(), JournalUrlParams.SEARCH, get(urlParams, JournalUrlParams.SEARCH, ''));
   };
 
   addRecord = createVariant => {
@@ -377,7 +379,7 @@ class Journals extends Component {
   };
 
   onSearch = text => {
-    if (text === get(this.props, 'urlParams.search', '')) {
+    if (text === get(this.props, ['urlParams', JournalUrlParams.SEARCH], '')) {
       return;
     }
 
