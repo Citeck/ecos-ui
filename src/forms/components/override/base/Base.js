@@ -728,14 +728,12 @@ function extendingOfComponent(component) {
     return component;
   }
 
-  if (component.hasOwnProperty('__expanded')) {
-    return component;
-  }
-
   const fields = ['label', 'placeholder', 'description', 'tooltip'];
 
   fields.forEach(key => {
-    const field = `_${key}`;
+    if (component.hasOwnProperty(`${key}ByLocale`)) {
+      return;
+    }
 
     Object.defineProperty(component, `${key}ByLocale`, {
       get: function() {
@@ -744,8 +742,24 @@ function extendingOfComponent(component) {
       mutable: true,
       configurable: true
     });
+  });
 
-    component[field] = component[key];
+  if (component.hasOwnProperty('__expanded')) {
+    return component;
+  }
+
+  fields.forEach(key => {
+    const descriptor = Object.getOwnPropertyDescriptor(component, key);
+
+    if (descriptor) {
+      const { get, set } = descriptor;
+
+      if (get || set) {
+        return;
+      }
+    }
+
+    const field = `__${key}`;
 
     component = {
       ...component,
@@ -771,7 +785,7 @@ function extendingOfComponent(component) {
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-918
 Object.defineProperty(Base.prototype, 'component', {
   get: function() {
-    return this._component;
+    return extendingOfComponent(this._component);
   },
 
   set: function(component) {
@@ -797,7 +811,7 @@ Base.prototype.evalContext = function(additional) {
 
 Object.defineProperty(Base.prototype, 'originalComponent', {
   get: function() {
-    return this._originalComponent;
+    return extendingOfComponent(this._originalComponent);
   },
 
   set: function(value) {
