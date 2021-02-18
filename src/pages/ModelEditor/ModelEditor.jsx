@@ -16,8 +16,6 @@ import './ModelEditor.scss';
 class ModelEditorPage extends React.Component {
   static modelType = '';
 
-  static getStateId = () => this.constructor.modelType + '-' + queryString.parseUrl(window.location.href).query.recordRef;
-
   state = {
     selectedElement: undefined,
     formFields: [],
@@ -31,7 +29,7 @@ class ModelEditorPage extends React.Component {
 
   componentDidMount() {
     this.initModeler();
-    this.props.initData(this.constructor.getStateId(), this.recordRef);
+    this.props.initData();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -52,10 +50,6 @@ class ModelEditorPage extends React.Component {
       elEditor.setAttribute('style', `height: calc(100vh - 20px - ${indentation}px)`);
     }
   };
-
-  get stateId() {
-    return this.constructor.getStateId();
-  }
 
   get modelType() {
     return this.constructor.modelType;
@@ -106,7 +100,7 @@ class ModelEditorPage extends React.Component {
 
     Promise.all([promiseXml, promiseImg])
       .then(([xml, img]) => {
-        this.props.saveModel(this.stateId, this.recordRef, xml, img);
+        this.props.saveModel(xml, img);
       })
       .catch(error => {
         throw new Error(`Failure to save xml or image: ${error.message}`);
@@ -128,7 +122,7 @@ class ModelEditorPage extends React.Component {
         selectedElement
       },
       () => {
-        this.props.getFormProps(this.stateId, this.formId, selectedElement);
+        this.props.getFormProps(this.formId, selectedElement);
       }
     );
   };
