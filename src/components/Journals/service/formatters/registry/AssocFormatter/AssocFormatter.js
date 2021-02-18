@@ -9,8 +9,17 @@ export default class AssocFormatter extends BaseFormatter {
 
   format(props) {
     const { cell, config = {} } = props;
+    let cellData = cell;
 
-    return cell.map(res => {
+    if (!cellData) {
+      return cellData;
+    }
+
+    if (!Array.isArray(cellData)) {
+      cellData = [cellData];
+    }
+
+    return cellData.map(res => {
       const link = createDocumentUrl(res.value);
       const handler = e => {
         e.preventDefault();
