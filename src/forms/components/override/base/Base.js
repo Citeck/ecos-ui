@@ -722,63 +722,60 @@ Base.prototype.setupValueElement = function(element) {
   originalSetupValueElement.call(this, element);
 };
 
-// Cause: https://citeck.atlassian.net/browse/ECOSUI-918
-function empowerComponent(component) {
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-963
+function extendingOfComponent(component) {
+  if (isEmpty(component)) {
+    return component;
+  }
+
+  if (component.hasOwnProperty('__expanded')) {
+    return component;
+  }
+
   const fields = ['label', 'placeholder', 'description', 'tooltip'];
-  let extraParams = {};
 
-  fields.forEach(field => {
-    if (component.hasOwnProperty(`${field}ByLocale`)) {
-      return;
-    }
+  fields.forEach(key => {
+    const field = `_${key}`;
 
-    extraParams = {
-      ...extraParams,
-      get [`${field}ByLocale`]() {
-        return getTextByLocale(component[field]);
+    Object.defineProperty(component, `${key}ByLocale`, {
+      get: function() {
+        return getTextByLocale(this[key]);
+      },
+      mutable: true,
+      configurable: true
+    });
+
+    component[field] = component[key];
+
+    component = {
+      ...component,
+      [field]: component[key],
+      get [key]() {
+        return getTextByLocale(this[field]);
+      },
+      set [key](value) {
+        this[field] = value;
       }
     };
   });
 
-  return { ...component, ...extraParams };
+  if (!isEmpty(component.components)) {
+    component.components = component.components.map(item => extendingOfComponent(item));
+  }
+
+  component.__expanded = true;
+
+  return component;
 }
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-918
 Object.defineProperty(Base.prototype, 'component', {
   get: function() {
-    const keys = ['label', 'placeholder', 'description', 'tooltip'];
-
-    keys.forEach(key => {
-      if (this._component.hasOwnProperty(`${key}ByLocale`)) {
-        return;
-      }
-
-      Object.defineProperty(this._component, `${key}ByLocale`, {
-        get: function() {
-          return getTextByLocale(this[key]);
-        },
-        mutable: true,
-        configurable: true
-      });
-    });
-
     return this._component;
   },
 
   set: function(component) {
-    const keys = ['label', 'placeholder', 'description', 'tooltip'];
-
-    keys.forEach(key => {
-      Object.defineProperty(component, `${key}ByLocale`, {
-        get: function() {
-          return getTextByLocale(this[key]);
-        },
-        mutable: true,
-        configurable: true
-      });
-    });
-
-    this._component = component;
+    this._component = extendingOfComponent(component);
   }
 });
 
@@ -804,7 +801,7 @@ Object.defineProperty(Base.prototype, 'originalComponent', {
   },
 
   set: function(value) {
-    this._originalComponent = empowerComponent(value);
+    this._originalComponent = extendingOfComponent(value);
   }
 });
 
