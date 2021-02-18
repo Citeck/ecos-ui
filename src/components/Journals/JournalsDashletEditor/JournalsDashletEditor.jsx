@@ -95,7 +95,7 @@ class JournalsDashletEditor extends Component {
     getDashletEditorData(config);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const prevConfig = prevProps.config || {};
     const prevResultDashboard = prevProps.resultDashboard || {};
     const {
@@ -124,12 +124,20 @@ class JournalsDashletEditor extends Component {
         this.setState({ selectedJournals: config.journalsListIds });
       }
 
-      if (config.customJournalMode && prevConfig.customJournal !== config.customJournal) {
+      if (
+        config.customJournalMode &&
+        isEqual(this.state.customJournal, prevState.customJournal) &&
+        !isEqual(config.customJournal, this.state.customJournal)
+      ) {
         this.setState({ customJournal: config.customJournal });
       }
 
       if (prevConfig.customJournalMode !== config.customJournalMode) {
         this.setState({ isCustomJournalMode: config.customJournalMode });
+      }
+
+      if (!prevConfig.editorMode && config.editorMode && config.customJournalMode && config.customJournal) {
+        this.setState({ customJournal: config.customJournal });
       }
     }
   }
@@ -193,9 +201,14 @@ class JournalsDashletEditor extends Component {
   };
 
   clear = () => {
-    const { initConfig, setDashletConfig } = this.props;
+    const { config, initConfig, setDashletConfig } = this.props;
 
     setDashletConfig(initConfig);
+    this.setState({
+      selectedJournals: config.journalsListIds,
+      customJournal: config.customJournal,
+      isCustomJournalMode: config.customJournalMode
+    });
   };
 
   setSettingItem = item => {
