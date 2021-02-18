@@ -2,7 +2,7 @@ import inherits from 'inherits';
 import ReplaceMenuProvider from 'cmmn-js/lib/features/popup-menu/ReplaceMenuProvider';
 import { isManualActivation, isRepeatable } from 'cmmn-js/lib/util/ModelUtil';
 
-import { extractLabel } from '../../../../helpers/util';
+import { extractLabel } from '../../../../../helpers/util';
 import * as CmmnUtils from '../../utils';
 import actionTypes from './action-types.json';
 

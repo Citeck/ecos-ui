@@ -44,6 +44,7 @@ const allowedLinks = [
   URL.ADMIN_PAGE,
   URL.JOURNAL,
   URL.DEV_TOOLS,
+  URL.BPMN_EDITOR,
   URL.CMMN_EDITOR,
 
   URL.TIMESHEET,
@@ -265,6 +266,11 @@ class App extends Component {
             />
             <CacheRoute
               {...baseCacheRouteProps}
+              path={URL.BPMN_EDITOR}
+              render={props => <Page pageKey={Pages.BPMN_EDITOR} {...props} {...basePageProps} footer={null} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
               path={URL.CMMN_EDITOR}
               render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} {...basePageProps} footer={null} />}
             />
@@ -343,6 +349,7 @@ class App extends Component {
             <Route path={URL.ADMIN_PAGE} render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />} />
             <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} {...basePageProps} />} />
             <Route path={URL.DEV_TOOLS} render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} {...basePageProps} />} />
+            <Route path={URL.BPMN_EDITOR} render={props => <Page pageKey={Pages.BPMN_EDITOR} {...props} {...basePageProps} />} />
             <Route path={URL.CMMN_EDITOR} render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} {...basePageProps} />} />
             {/* --- TIMESHEETs start */}
             <Route path={URL.TIMESHEET} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} />} />
