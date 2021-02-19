@@ -145,8 +145,6 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
     if (config) {
       const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config;
 
-      console.warn({ config });
-
       yield put(setEditorMode(w(isEmpty(journalsListIds))));
       yield put(setDashletConfig(w(config)));
       yield getJournals(api, journalsListId, w);
