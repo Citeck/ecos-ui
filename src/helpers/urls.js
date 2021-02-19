@@ -1,6 +1,8 @@
 import * as queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import pick from 'lodash/pick';
+import omit from 'lodash/omit';
 
 import { JournalUrlParams, SourcesId, URL } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
@@ -231,14 +233,14 @@ export const decodeLink = link => {
  * @param params {object}
  * - urls {array} - two compared url's
  * - ignored {array} - ignored for comparing params
- * - searchBy {array} - params for comparing
+ * - compareBy {array} - to compare only by set
  *
  * @returns {boolean}
  */
 export const equalsQueryUrls = params => {
   const { urls = [], ignored = [], compareBy = [] } = params;
 
-  if (!urls.length || (!ignored.length && compareBy.length)) {
+  if (!Array.isArray(urls) || urls.some(u => typeof u !== 'string' || !u.length)) {
     return false;
   }
 
@@ -251,26 +253,21 @@ export const equalsQueryUrls = params => {
     return false;
   }
 
-  ignored.forEach(param => {
-    delete firstParams[param];
-    delete secondParams[param];
-  });
+  if (ignored.some(key => compareBy.includes(key))) {
+    console.warn("List 'ignored' has key(s) from list 'compareBy'");
+  }
 
-  if (!compareBy.length) {
+  if (!ignored || !ignored.length) {
+    firstParams = omit(firstParams, ignored);
+    secondParams = omit(secondParams, ignored);
+  }
+
+  if (!compareBy || !compareBy.length) {
     return queryString.stringify(firstParams) === queryString.stringify(secondParams);
   }
 
-  for (let param in firstParams) {
-    if (!compareBy.includes(param)) {
-      delete firstParams[param];
-    }
-  }
-
-  for (let param in secondParams) {
-    if (!compareBy.includes(param)) {
-      delete secondParams[param];
-    }
-  }
+  firstParams = pick(firstParams, compareBy);
+  secondParams = pick(secondParams, compareBy);
 
   return queryString.stringify(firstParams) === queryString.stringify(secondParams);
 };
