@@ -62,7 +62,7 @@ const AdminSection = ({ activeSection = {}, tabId, isActivePage }) => {
           </Row>
         </Container>
       </div>
-      <AdminMenu open={isOpenMenu} toggle={setOpenMenu}>
+      <AdminMenu open={isOpenMenu} toggle={setOpenMenu} isActivePage={isActivePage}>
         {!isHidden(SectionTypes.JOURNAL) && journalStateId && <JournalSettings stateId={journalStateId} />}
       </AdminMenu>
     </div>

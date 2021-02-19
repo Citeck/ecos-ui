@@ -10,7 +10,7 @@ import SectionList from './SectionList';
 
 import './style.scss';
 
-const AdminMenu = ({ isMobile, groupSectionList, children, toggle, open, getGroupSectionList, pathname, updActive }) => {
+const AdminMenu = ({ isMobile, groupSectionList, children, toggle, open, getGroupSectionList, pathname, updActive, isActivePage }) => {
   const sidebarRef = useRef(null);
   const [topHeight, setTopHeight] = useState(500);
   const [initialized, setInitialized] = useState(false);
@@ -23,8 +23,10 @@ const AdminMenu = ({ isMobile, groupSectionList, children, toggle, open, getGrou
   }, [initialized]);
 
   useEffect(() => {
-    groupSectionList && updActive();
-  }, [pathname, groupSectionList]);
+    if (isActivePage && groupSectionList) {
+      updActive();
+    }
+  }, [pathname, groupSectionList, isActivePage]);
 
   useEffect(() => {
     if (open && sidebarRef.current) {
