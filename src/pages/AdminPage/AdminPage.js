@@ -10,8 +10,7 @@ import AdminSection from '../../components/AdminSection';
 import './style.scss';
 
 const mapStateToProps = state => ({
-  isAccessible: state.adminSection.isAccessible,
-  activeSection: state.adminSection.activeSection
+  isAccessible: state.adminSection.isAccessible
 });
 
 const mapDispatchToProps = dispatch => ({
