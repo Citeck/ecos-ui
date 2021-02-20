@@ -44,6 +44,10 @@ export const MenuSettings = {
     ARBITRARY: 'ARBITRARY',
     LINK_CREATE_CASE: 'LINK-CREATE-CASE',
     HEADER_DIVIDER: 'HEADER-DIVIDER'
+  },
+  CreateItemTypes: {
+    CREATE_IN_SECTION: 'CREATE_IN_SECTION',
+    EDIT_RECORD: 'EDIT_RECORD'
   }
 };
 

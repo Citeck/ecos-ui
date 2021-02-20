@@ -8,11 +8,12 @@ import {
   resetStore,
   saveMenuSettings,
   setAuthorities,
+  setCreateMenuItems,
   setGroupPriority,
-  setLastAddedItems,
+  setLastAddedLeftItems,
+  setLeftMenuItems,
   setLoading,
   setMenuIcons,
-  setMenuItems,
   setOpenMenuSettings
 } from '../actions/menuSettings';
 
@@ -49,12 +50,17 @@ export default handleActions(
       ...initialState,
       isOpenMenuSettings: payload
     }),
-    [setMenuItems]: (state, { payload }) => ({
+    [setLeftMenuItems]: (state, { payload }) => ({
       ...state,
       leftItems: treeSetDndIndex(payload),
       isLoading: false
     }),
-    [setLastAddedItems]: (state, { payload }) => ({
+    [setCreateMenuItems]: (state, { payload }) => ({
+      ...state,
+      createItems: treeSetDndIndex(payload),
+      isLoading: false
+    }),
+    [setLastAddedLeftItems]: (state, { payload }) => ({
       ...state,
       lastAddedLeftItems: payload
     }),

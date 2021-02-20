@@ -20,7 +20,7 @@ import EditorItemModal from './EditorItemModal';
 
 import './style.scss';
 
-class EditorLeftMenu extends React.Component {
+class EditorCreateMenu extends React.Component {
   state = {
     openAllMenuItems: false,
     editItemInfo: null,
@@ -274,7 +274,7 @@ class EditorLeftMenu extends React.Component {
 
   render() {
     const { openAllMenuItems } = this.state;
-    const { leftItems, disabledEdit } = this.props;
+    const { items, disabledEdit } = this.props;
 
     return (
       <div className="ecos-menu-settings-editor-items">
@@ -287,7 +287,7 @@ class EditorLeftMenu extends React.Component {
         </div>
         <div className="ecos-menu-settings-editor-items__tree-field" onScroll={this.handleScrollTree}>
           <Tree
-            data={leftItems}
+            data={items}
             prefixClassName="ecos-menu-settings-editor-items"
             openAll={openAllMenuItems}
             draggable={!disabledEdit}
@@ -309,9 +309,9 @@ class EditorLeftMenu extends React.Component {
 
 const mapStateToProps = state => ({
   disabledEdit: get(state, 'menuSettings.disabledEdit'),
-  leftItems: get(state, 'menuSettings.leftItems', []),
+  items: get(state, 'menuSettings.createItems', []),
   fontIcons: get(state, 'menuSettings.fontIcons', []),
-  lastAddedItems: get(state, 'menuSettings.lastAddedLeftItems', [])
+  lastAddedItems: get(state, 'menuSettings.lastAddedCreateItems', [])
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -323,4 +323,4 @@ const mapDispatchToProps = dispatch => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(EditorLeftMenu);
+)(EditorCreateMenu);

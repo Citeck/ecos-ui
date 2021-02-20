@@ -4,8 +4,9 @@ const prefix = 'menu-settings/';
 
 export const setOpenMenuSettings = createAction(prefix + 'SET_OPEN_SETTINGS');
 export const setLoading = createAction(prefix + 'SET_LOADING');
-export const setMenuItems = createAction(prefix + 'SET_MENU_ITEMS');
-export const setLastAddedItems = createAction(prefix + 'SET_LAST_ADDED_ITEMS');
+export const setLeftMenuItems = createAction(prefix + 'SET_LEFT_MENU_ITEMS');
+export const setCreateMenuItems = createAction(prefix + 'SET_CREATE_MENU_ITEMS');
+export const setLastAddedLeftItems = createAction(prefix + 'SET_LAST_ADDED_LEFT_ITEMS');
 export const setAuthorities = createAction(prefix + 'SET_AUTHORITIES');
 export const setGroupPriority = createAction(prefix + 'SET_GROUP_PRIORITY');
 export const setMenuIcons = createAction(prefix + 'SET_MENU_ICONS');

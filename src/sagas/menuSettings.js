@@ -11,11 +11,12 @@ import {
   getSettingsConfig,
   saveMenuSettings,
   setAuthorities,
+  setCreateMenuItems,
   setGroupPriority,
-  setLastAddedItems,
+  setLastAddedLeftItems,
+  setLeftMenuItems,
   setLoading,
-  setMenuIcons,
-  setMenuItems
+  setMenuIcons
 } from '../actions/menuSettings';
 import { initMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
@@ -27,7 +28,6 @@ function* fetchSettingsConfig({ api, logger }) {
   try {
     const type = yield select(state => state.menu.type);
     const id = yield select(state => state.menuSettings.editedId);
-    const keyType = MenuSettingsService.getConfigKeyByType(type);
 
     if (!id) {
       NotificationManager.error(t('menu-settings.error.no-id-config'), t('error'));
@@ -35,14 +35,16 @@ function* fetchSettingsConfig({ api, logger }) {
     }
 
     const { menu, authorities } = yield call(api.menu.getMenuSettingsConfig, { id });
-    const items = MenuConverter.getMenuItemsWeb(get(menu, [keyType, 'items']) || []);
+    const leftItems = MenuConverter.getMenuItemsWeb(get(menu, 'left.items') || []);
+    const createItems = MenuConverter.getMenuItemsWeb(get(menu, 'create.items') || []);
 
     const _font = yield import('../fonts/citeck-leftmenu/selection.json');
     const icons = get(_font, 'icons') || [];
     const prefix = get(_font, 'preferences.fontPref.prefix') || '';
     const font = icons.map(item => ({ value: `${prefix}${get(item, 'properties.name')}`, type: 'icon' }));
 
-    yield put(setMenuItems(items));
+    yield put(setLeftMenuItems(leftItems));
+    yield put(setCreateMenuItems(createItems));
     yield put(setAuthorities(authorities));
     yield put(setMenuIcons({ font }));
   } catch (e) {
@@ -139,8 +141,8 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
       );
     }
 
-    yield put(setMenuItems(result.items));
-    yield put(setLastAddedItems(result.newItems));
+    yield put(setLeftMenuItems(result.items));
+    yield put(setLastAddedLeftItems(result.newItems));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.set-items-from-journal'), t('error'));
