@@ -131,6 +131,12 @@
   padding: 21px 21px 0 21px;
 }
 
+button.ecos-btn.ecos-journal__settings-footer-action_reset {
+  &:focus {
+    background-color: $color-gray-4;
+  }
+}
+
 /*Grid*/
 .ecos-journal__footer {
   width: 100%;
