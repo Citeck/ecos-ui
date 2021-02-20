@@ -6,12 +6,9 @@ import { t } from '../../helpers/util';
 import { treeMoveItem, treeSetDndIndex } from '../../helpers/arrayOfObjects';
 import { getGroupPriority, setGroupPriority } from '../../actions/menuSettings';
 import { Loader, Tree } from '../common';
+import { Labels } from './utils';
 
 import './style.scss';
-
-const Labels = {
-  DESC: 'menu-settings.desc.editor-group-priority'
-};
 
 class EditorGroupPriority extends React.Component {
   componentDidMount() {

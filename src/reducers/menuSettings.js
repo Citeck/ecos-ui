@@ -18,13 +18,15 @@ import {
 
 const initialState = {
   editedId: undefined,
-  items: [],
+  leftItems: [],
+  createItems: [],
   authorities: [],
   groupPriority: [],
   isLoading: false,
   isLoadingPriority: false,
   isOpenMenuSettings: false,
-  lastAddedItems: [],
+  lastAddedLeftItems: [],
+  lastAddedCreateItems: [],
   fontIcons: []
 };
 
@@ -49,12 +51,12 @@ export default handleActions(
     }),
     [setMenuItems]: (state, { payload }) => ({
       ...state,
-      items: treeSetDndIndex(payload),
+      leftItems: treeSetDndIndex(payload),
       isLoading: false
     }),
     [setLastAddedItems]: (state, { payload }) => ({
       ...state,
-      lastAddedItems: payload
+      lastAddedLeftItems: payload
     }),
     [addJournalMenuItems]: state => ({
       ...state,

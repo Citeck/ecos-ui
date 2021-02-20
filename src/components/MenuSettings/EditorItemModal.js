@@ -11,28 +11,10 @@ import IconSelect from '../IconSelect';
 import { EcosIcon, EcosModal } from '../common';
 import { Checkbox, Input, MLText } from '../common/form';
 import { Btn } from '../common/btns';
+import { Labels } from './utils';
 import { Field } from './Field';
 
 import './style.scss';
-
-const Labels = {
-  FIELD_NAME_LABEL: 'menu-settings.editor-item.field.name.label',
-  FIELD_HIDE_NAME_LABEL: 'menu-settings.editor-item.field.checkbox.hide-name',
-  FIELD_URL_LABEL: 'menu-settings.editor-item.field.url.label',
-  FIELD_URL_DESC: 'menu-settings.editor-item.field.url.desc',
-  FIELD_URL_RESULT_ABSOLUTE: 'menu-settings.editor-item.field.url.result-absolute',
-  FIELD_URL_RESULT_WITH_SLASH: 'menu-settings.editor-item.field.url.result-relative-with-slash',
-  FIELD_URL_RESULT_WITHOUT_SLASH: 'menu-settings.editor-item.field.url.result-relative-without-slash',
-  FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',
-  FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',
-  FIELD_ICON_BTN_SELECT: 'menu-settings.editor-item.field.icon.btn.select',
-  FIELD_ICON_DESC: 'icon-select.custom.tip',
-  MODAL_TITLE_ADD: 'menu-settings.editor-item.title.add',
-  MODAL_TITLE_EDIT: 'menu-settings.editor-item.title.edit',
-  MODAL_BTN_CANCEL: 'menu-settings.editor-item.btn.cancel',
-  MODAL_BTN_ADD: 'menu-settings.editor-item.btn.add',
-  MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit'
-};
 
 function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcons }) {
   const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };

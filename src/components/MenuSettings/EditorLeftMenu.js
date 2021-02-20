@@ -15,19 +15,12 @@ import { Tree } from '../common';
 import { Btn } from '../common/btns';
 import { Badge, DropdownOuter, SelectJournal } from '../common/form';
 import DialogManager from '../common/dialogs/Manager';
+import { Labels } from './utils';
 import EditorItemModal from './EditorItemModal';
 
 import './style.scss';
 
-const Labels = {
-  BTN_ADD: 'menu-settings.editor-items.dropdown.add',
-  TIP_NO_ITEMS: 'menu-settings.editor-items.none',
-  TIP_DRAG_HERE: 'menu-settings.editor-items.drag-item-here',
-  BTN_EXPAND_ALL: 'menu-settings.editor-items.btn.expand-all',
-  BTN_COLLAPSE_ALL: 'menu-settings.editor-items.btn.collapse-all'
-};
-
-class EditorItems extends React.Component {
+class EditorLeftMenu extends React.Component {
   state = {
     openAllMenuItems: false,
     editItemInfo: null,
@@ -281,7 +274,7 @@ class EditorItems extends React.Component {
 
   render() {
     const { openAllMenuItems } = this.state;
-    const { items, disabledEdit } = this.props;
+    const { leftItems, disabledEdit } = this.props;
 
     return (
       <div className="ecos-menu-settings-editor-items">
@@ -294,7 +287,7 @@ class EditorItems extends React.Component {
         </div>
         <div className="ecos-menu-settings-editor-items__tree-field" onScroll={this.handleScrollTree}>
           <Tree
-            data={items}
+            data={leftItems}
             prefixClassName="ecos-menu-settings-editor-items"
             openAll={openAllMenuItems}
             draggable={!disabledEdit}
@@ -316,9 +309,9 @@ class EditorItems extends React.Component {
 
 const mapStateToProps = state => ({
   disabledEdit: get(state, 'menuSettings.disabledEdit'),
-  items: get(state, 'menuSettings.items', []),
+  leftItems: get(state, 'menuSettings.leftItems', []),
   fontIcons: get(state, 'menuSettings.fontIcons', []),
-  lastAddedItems: get(state, 'menuSettings.lastAddedItems', [])
+  lastAddedItems: get(state, 'menuSettings.lastAddedLeftItems', [])
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -330,4 +323,4 @@ const mapDispatchToProps = dispatch => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(EditorItems);
+)(EditorLeftMenu);

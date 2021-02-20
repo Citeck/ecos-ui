@@ -15,22 +15,12 @@ import { EcosModal, Loader, Tabs } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
 import { SelectOrgstruct } from '../common/form';
 import { GroupTypes, ViewModes } from '../common/form/SelectOrgstruct/constants';
-import EditorItems from './EditorItems';
+import EditorLeftMenu from './EditorLeftMenu';
 import EditorGroupPriority from './EditorGroupPriority';
+import EditorCreateMenu from './EditorCreateMenu';
 
 import './style.scss';
-
-const Labels = {
-  TITLE: 'menu-settings.header.title',
-  TITLE_ITEMS: 'menu-settings.editor-items.title',
-  TITLE_OWNERSHIP: 'menu-settings.editor-ownership.title',
-  TITLE_GROUP_PRIORITY: 'menu-settings.editor-group-priority.title',
-  GOTO_JOURNAL: 'menu-settings.header.btn.journal-menu-template',
-  GLOBAL_DESC: 'menu-settings.desc.global-config',
-  GLOBAL_TITLE: 'menu-settings.editor-global-settings.title',
-  BTN_CANCEL: 'menu-settings.button.cancel',
-  BTN_APPLY: 'menu-settings.button.apply'
-};
+import { Labels } from './utils';
 
 class Settings extends React.Component {
   constructor(props) {
@@ -70,8 +60,9 @@ class Settings extends React.Component {
 
   get mainTabs() {
     return [
-      { id: 'settings-menu-config', label: t('menu-settings.tabs.menu-config') },
-      { id: 'settings-global-config', label: t('menu-settings.tabs.global-config') }
+      { id: 'settings-menu-config', label: t(Labels.TAB_LEFT_MENU), _render: 'renderMenuConfigTab' },
+      { id: 'settings-global-config', label: t(Labels.TAB_GLOBAL), _render: 'renderGlobalConfigTab' },
+      { id: 'settings-menu-create-config', label: t(Labels.TAB_CREATE_MENU), _render: 'renderMenuCreateConfigTab' }
     ];
   }
 
@@ -120,20 +111,28 @@ class Settings extends React.Component {
     this.setState(newState);
   };
 
+  renderMenuInfo = () => {
+    const { editedId } = this.props;
+
+    return (
+      <div className="ecos-menu-settings__card ">
+        <div>
+          <span className="ecos-menu-settings__card-label">{t(Labels.MENU_ID)}:</span>
+          <span className="ecos-menu-settings__card-value">{editedId}</span>
+        </div>
+      </div>
+    );
+  };
+
   renderMenuConfigTab(key) {
-    const { disabledEdit, editedId } = this.props;
+    const { disabledEdit } = this.props;
 
     return (
       <div className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
-        <div className="ecos-menu-settings__card ">
-          <div>
-            <span className="ecos-menu-settings__card-label">{t('menu-settings.data.id')}:</span>
-            <span className="ecos-menu-settings__card-value">{editedId}</span>
-          </div>
-        </div>
+        {this.renderMenuInfo()}
         <div>
           <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
-          <EditorItems />
+          <EditorLeftMenu />
         </div>
         <div>
           <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
@@ -168,6 +167,18 @@ class Settings extends React.Component {
         <div>
           <div className="ecos-menu-settings__title">{t(Labels.GLOBAL_TITLE)}</div>
           <div className="ecos-menu-settings__explanation">{t(Labels.GLOBAL_DESC)}</div>
+        </div>
+      </div>
+    );
+  }
+
+  renderMenuCreateConfigTab(key) {
+    return (
+      <div className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
+        {this.renderMenuInfo()}
+        <div>
+          <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
+          <EditorCreateMenu />
         </div>
       </div>
     );
@@ -232,8 +243,7 @@ class Settings extends React.Component {
           narrow
         />
         <div className="ecos-menu-settings__content-container">
-          {loadedTabs[0] && this.renderMenuConfigTab(this.mainTabs[0].id)}
-          {loadedTabs[1] && this.renderGlobalConfigTab(this.mainTabs[1].id)}
+          {this.mainTabs.map((item, i) => loadedTabs[i] && this[item._render](item.id))}
         </div>
         {!disabledEdit && this.renderButtons()}
       </EcosModal>

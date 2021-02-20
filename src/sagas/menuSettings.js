@@ -75,7 +75,7 @@ function* runSaveMenuConfig({ api, logger }, action) {
     const config = yield select(state => state.menu);
     const id = yield select(state => state.menuSettings.editedId);
     const keyType = MenuSettingsService.getConfigKeyByType(config.type);
-    const items = yield select(state => state.menuSettings.items);
+    const items = yield select(state => state.menuSettings.leftItems);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
     const authorities = authoritiesInfo.map(item => item.name);
 
@@ -114,7 +114,7 @@ function* runSaveGlobalSettings({ api, logger }, action) {
 function* runAddJournalMenuItems({ api, logger }, { payload }) {
   try {
     const { records, id, type, level } = payload;
-    const items = yield select(state => state.menuSettings.items);
+    const items = yield select(state => state.menuSettings.leftItems);
     const infoList = yield call(api.menu.getItemInfoByRef, records);
     const excluded = [];
 
