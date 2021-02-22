@@ -137,8 +137,8 @@ class JournalsService {
     result.newEditor = column.editor;
     result.computed = column.computed;
     result.hidden = column.hidden === true;
-    result.text = getTextByLocale(column.label) || column.name;
-    result.attribute = column.name;
+    result.text = getTextByLocale(column.label || column.name);
+    result.attribute = column.id || column.name;
     result.default = column.visible !== false;
     result.groupable = column.groupable === true;
     result.params = column.properties || {};
