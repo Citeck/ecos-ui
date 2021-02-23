@@ -1,4 +1,5 @@
 import React from 'react';
+import isPlainObject from 'lodash/isPlainObject';
 
 import BaseFormatter from '../BaseFormatter';
 import { createDocumentUrl } from '../../../../../../helpers/urls';
@@ -10,18 +11,21 @@ export default class AssocFormatter extends BaseFormatter {
   format(props) {
     const { cell, config = {} } = props;
 
-    return cell.map(res => {
-      const link = createDocumentUrl(res.value);
-      const handler = e => {
-        e.preventDefault();
-        PageService.changeUrlLink(link, { openNewTab: !config.openInBackground });
-      };
+    let cellVal = cell;
+    if (!isPlainObject(cellVal)) {
+      cellVal = { value: cellVal, disp: cellVal };
+    }
 
-      return (
-        <a key={res.value} href={link} onClick={handler}>
-          {res.disp}
-        </a>
-      );
-    });
+    const link = createDocumentUrl(cellVal.value);
+    const handler = e => {
+      e.preventDefault();
+      PageService.changeUrlLink(link, { openNewTab: !config.openInBackground });
+    };
+
+    return (
+      <a key={cellVal.value} href={link} onClick={handler}>
+        {cellVal.disp}
+      </a>
+    );
   }
 }
