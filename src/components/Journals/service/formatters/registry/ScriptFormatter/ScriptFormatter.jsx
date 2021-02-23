@@ -20,7 +20,7 @@ export default class ScriptFormatter extends BaseFormatter {
    * @return {React.ReactNode}
    */
   format(props) {
-    const { config, cell } = props;
+    const { config, cell, format } = props;
     if (!config.script) {
       throw new Error(`"script" is a mandatory parameter in the ScriptFormatter config. Current config: ${JSON.stringify(config)}`);
     }
@@ -37,10 +37,8 @@ export default class ScriptFormatter extends BaseFormatter {
         return result;
       default:
         if (_.isPlainObject(result)) {
-          if (typeof _.get(config, '_extra.format') !== 'function') {
-            throw new Error(
-              `"_extra.format" should be injected in config. Please don't use ScriptFormatter directly, use FormatterService instead`
-            );
+          if (typeof format !== 'function') {
+            throw new Error(`"format" should be in props. Please don't use ScriptFormatter directly, use FormatterService instead`);
           }
           const newFormatter = _.omit(result, ['cell']);
           const newProps = _.clone(props);
@@ -48,7 +46,7 @@ export default class ScriptFormatter extends BaseFormatter {
             newProps.cell = result.cell;
           }
 
-          return config._extra.format(newProps, newFormatter);
+          return format(newProps, newFormatter);
         }
         break;
     }

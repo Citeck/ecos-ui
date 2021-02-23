@@ -10,18 +10,19 @@ export default class AssocFormatter extends BaseFormatter {
   format(props) {
     const { cell, config = {} } = props;
 
-    return cell.map(res => {
-      const link = createDocumentUrl(res.value);
-      const handler = e => {
-        e.preventDefault();
-        PageService.changeUrlLink(link, { openNewTab: !config.openInBackground });
-      };
+    const link = createDocumentUrl(cell.value);
+    const handler = e => {
+      e.preventDefault();
+      PageService.changeUrlLink(link, { openNewTab: !config.openInBackground });
+    };
+    return (
+      <a href={link} onClick={handler}>
+        {cell.disp}
+      </a>
+    );
+  }
 
-      return (
-        <a key={res.value} href={link} onClick={handler}>
-          {res.disp}
-        </a>
-      );
-    });
+  isCellExpectedAsObject() {
+    return true;
   }
 }
