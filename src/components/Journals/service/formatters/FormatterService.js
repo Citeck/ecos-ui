@@ -1,9 +1,12 @@
+import React from 'react';
+
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
 
 import { t } from '../../../../helpers/export/util';
 import { replacePlaceholders } from '../util';
 import formatterRegistry from './registry';
+import isPlainObject from 'lodash/isPlainObject';
 
 /**
  * @typedef {Object} FormatterConfig
@@ -67,14 +70,35 @@ class FormatterService {
     };
 
     if (Array.isArray(cell)) {
-      return cell.map(elem => FormatterService._formatSingleValueCellImpl(elem, formatProps, fmtInstance));
+      if (cell.length === 1) {
+        return FormatterService._formatSingleValueCellImpl(cell[0], formatProps, fmtInstance);
+      }
+      let idx = 0;
+      return cell.map(elem => {
+        return <div key={idx++}>{FormatterService._formatSingleValueCellImpl(elem, formatProps, fmtInstance)}</div>;
+      });
     } else {
       return FormatterService._formatSingleValueCellImpl(cell, formatProps, fmtInstance);
     }
   }
 
   static _formatSingleValueCellImpl(cell, formatProps, fmtInstance) {
-    formatProps.cell = cell;
+    let cellValue = cell;
+    if (fmtInstance.isCellExpectedAsObject()) {
+      if (!isPlainObject(cellValue)) {
+        cellValue = { value: cellValue, disp: cellValue };
+      } else {
+        cellValue = {
+          value: cellValue.value || null,
+          disp: cellValue.disp || cellValue.value || null
+        };
+      }
+    } else {
+      if (isPlainObject(cellValue) && cellValue.value) {
+        cellValue = cellValue.value;
+      }
+    }
+    formatProps.cell = cellValue;
     try {
       return fmtInstance.format(formatProps);
     } catch (e) {
