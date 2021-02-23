@@ -117,7 +117,7 @@ class JournalsService {
     meta.groupBy = config.groupBy;
     meta.metaRecord = config.metaRecord;
     meta.predicate = config.predicate || {};
-    meta.title = getTextByLocale(config.label);
+    meta.title = getTextByLocale(config.label || config.name);
     meta.createVariants = (config.createVariants || []).map(cv => this.__mapNewCreateVariantToLegacy(cv));
 
     config.meta = meta;
