@@ -97,7 +97,6 @@ class CurrentTaskList extends React.Component {
     const { currentTasks } = this.props;
     const formatTasks = currentTasks.map((task, i) => ({
       id: task.id,
-      recordRef: task.recordRef,
       [DC.title.key]: task[DC.title.key] || noData,
       [DC.actors.key]: (
         <React.Fragment key={uniqueId(cleanTaskId(task.id))}>
