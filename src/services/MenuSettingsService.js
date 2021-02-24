@@ -7,7 +7,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import { isExistValue, packInLabel, t } from '../helpers/util';
 import { getIconObjectWeb } from '../helpers/icon';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
-import { MenuSettings as ms, MenuTypes } from '../constants/menu';
+import { ConfigTypes, MenuSettings as ms, MenuTypes } from '../constants/menu';
 
 export default class MenuSettingsService {
   static emitter = new EventEmitter2();
@@ -172,7 +172,7 @@ export default class MenuSettingsService {
     return { items };
   };
 
-  static createOptions = [
+  static leftMenuCreateOptions = [
     {
       key: ms.ItemTypes.SECTION,
       label: 'menu-item.type.section',
@@ -200,8 +200,48 @@ export default class MenuSettingsService {
     }
   ];
 
-  static getAvailableCreateOptions = (item, params) => {
-    const array = cloneDeep(MenuSettingsService.createOptions);
+  static createMenuCreateOptions = [
+    {
+      key: ms.ItemTypes.SECTION,
+      label: 'menu-item.type.section',
+      when: { maxLevel: 0 }
+    },
+    {
+      key: ms.ItemTypes.CREATE_IN_SECTION,
+      label: 'menu-item.type.create-in-section',
+      when: { maxLevel: 0 }
+    },
+    {
+      key: ms.ItemTypes.EDIT_RECORD,
+      label: 'menu-item.type.edit-record',
+      when: { maxLevel: 0 }
+    },
+    {
+      key: ms.ItemTypes.ARBITRARY,
+      label: 'menu-item.type.arbitrary',
+      when: { minLevel: 0 }
+    },
+    {
+      key: ms.ItemTypes.LINK_CREATE_CASE,
+      label: 'menu-item.type.link-create-case',
+      when: { minLevel: 0 }
+    }
+  ];
+
+  static getCreateOptionsByType(type) {
+    if (type === ConfigTypes.LEFT) {
+      return MenuSettingsService.leftMenuCreateOptions;
+    }
+
+    if (type === ConfigTypes.CREATE) {
+      return MenuSettingsService.createMenuCreateOptions;
+    }
+
+    return [];
+  }
+
+  static getAvailableCreateOptions = (type, item, params) => {
+    const array = cloneDeep(MenuSettingsService.getCreateOptionsByType(type));
     const { level } = params || {};
 
     array.forEach(type => {

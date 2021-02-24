@@ -1271,6 +1271,8 @@
   "menu-item.type.arbitrary": "Произвольный пункт меню",
   "menu-item.type.link-create-case": "Ссылку на создание кейса",
   "menu-item.type.header-divider": "Разделяющий заголовок",
+  "menu-item.type.create-in-section": "Варианты создания из раздела",
+  "menu-item.type.edit-record": "Редактирование записи",
 
   "icon-select.title": "Выбор иконки",
   "icon-select.btn.upload-custom": "Загрузить",

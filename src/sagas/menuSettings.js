@@ -26,7 +26,6 @@ import { MenuSettings as ms } from '../constants/menu';
 
 function* fetchSettingsConfig({ api, logger }) {
   try {
-    const type = yield select(state => state.menu.type);
     const id = yield select(state => state.menuSettings.editedId);
 
     if (!id) {

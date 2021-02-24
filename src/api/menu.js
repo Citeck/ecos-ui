@@ -251,14 +251,16 @@ export class MenuApi extends CommonApi {
       },
       true
     );
-    const updItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
+    const updLeftItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
+    const updCreateItems = await fetchExtraItemInfo(lodashGet(config, 'menu.create.items') || [], { label: '.disp' });
     const filterAuthorities = (lodashGet(config, 'authorities') || []).filter(item => item !== LOWEST_PRIORITY);
 
     !filterAuthorities.length && filterAuthorities.push(getCurrentUserName());
 
     const updAuthorities = await this.getAuthoritiesInfoByName(filterAuthorities);
 
-    lodashSet(config, 'menu.left.items', updItems);
+    lodashSet(config, 'menu.left.items', updLeftItems);
+    lodashSet(config, 'menu.create.items', updCreateItems);
     lodashSet(config, 'authorities', updAuthorities);
 
     return config;
@@ -331,16 +333,18 @@ export class MenuApi extends CommonApi {
 }
 
 async function fetchExtraItemInfo(data, attributes) {
+  const { JOURNAL, LINK_CREATE_CASE, EDIT_RECORD } = ms.ItemTypes;
+
   return Promise.all(
     data.map(async item => {
       const target = { ...item };
       const iconRef = lodashGet(item, 'icon');
-      let journalRef = lodashGet(item, 'config.recordRef');
+      let ref = lodashGet(item, 'config.recordRef') || lodashGet(item, 'config.sectionId');
 
-      if (journalRef && [ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type)) {
-        journalRef = journalRef.replace('/journal@', '/rjournal@');
-        journalRef = journalRef.replace('/journal_all@', '/rjournal@');
-        target._remoteData_ = await Records.get(journalRef).load(attributes);
+      if (ref && [JOURNAL, LINK_CREATE_CASE, EDIT_RECORD].includes(item.type)) {
+        ref = ref.replace('/journal@', '/rjournal@');
+        ref = ref.replace('/journal_all@', '/rjournal@');
+        target._remoteData_ = await Records.get(ref).load(attributes);
       }
 
       if (iconRef && iconRef.includes(SourcesId.ICON)) {

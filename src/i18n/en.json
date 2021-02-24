@@ -1273,6 +1273,8 @@
   "menu-item.type.arbitrary": "Arbitrary menu item",
   "menu-item.type.link-create-case": "Link to create a case",
   "menu-item.type.header-divider": "Header Divider",
+  "menu-item.type.create-in-section": "Create in section options",
+  "menu-item.type.edit-record": "Editing a record",
 
   "icon-select.title": "Select Icon",
   "icon-select.btn.upload-custom": "Upload",

@@ -6,6 +6,11 @@ export const MenuTypes = {
   HIDDEN: 'HIDDEN'
 };
 
+export const ConfigTypes = {
+  LEFT: 'left',
+  CREATE: 'create'
+};
+
 export const MenuTypesView = [
   {
     position: 0,
@@ -43,9 +48,7 @@ export const MenuSettings = {
     JOURNAL: 'JOURNAL',
     ARBITRARY: 'ARBITRARY',
     LINK_CREATE_CASE: 'LINK-CREATE-CASE',
-    HEADER_DIVIDER: 'HEADER-DIVIDER'
-  },
-  CreateItemTypes: {
+    HEADER_DIVIDER: 'HEADER-DIVIDER',
     CREATE_IN_SECTION: 'CREATE_IN_SECTION',
     EDIT_RECORD: 'EDIT_RECORD'
   }

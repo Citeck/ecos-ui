@@ -15,12 +15,12 @@ import { EcosModal, Loader, Tabs } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
 import { SelectOrgstruct } from '../common/form';
 import { GroupTypes, ViewModes } from '../common/form/SelectOrgstruct/constants';
-import EditorLeftMenu from './EditorLeftMenu';
+import { Labels } from './utils';
+import EditorLeftMenu from './editorMenu/EditorLeftMenu';
+import EditorCreateMenu from './editorMenu/EditorCreateMenu';
 import EditorGroupPriority from './EditorGroupPriority';
-import EditorCreateMenu from './EditorCreateMenu';
 
 import './style.scss';
-import { Labels } from './utils';
 
 class Settings extends React.Component {
   constructor(props) {
@@ -61,8 +61,8 @@ class Settings extends React.Component {
   get mainTabs() {
     return [
       { id: 'settings-menu-config', label: t(Labels.TAB_LEFT_MENU), _render: 'renderMenuConfigTab' },
-      { id: 'settings-global-config', label: t(Labels.TAB_GLOBAL), _render: 'renderGlobalConfigTab' },
-      { id: 'settings-menu-create-config', label: t(Labels.TAB_CREATE_MENU), _render: 'renderMenuCreateConfigTab' }
+      { id: 'settings-menu-create-config', label: t(Labels.TAB_CREATE_MENU), _render: 'renderMenuCreateConfigTab' },
+      { id: 'settings-global-config', label: t(Labels.TAB_GLOBAL), _render: 'renderGlobalConfigTab' }
     ];
   }
 
@@ -124,11 +124,11 @@ class Settings extends React.Component {
     );
   };
 
-  renderMenuConfigTab(key) {
+  renderMenuConfigTab = key => {
     const { disabledEdit } = this.props;
 
     return (
-      <div className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
+      <div key={key} className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
         {this.renderMenuInfo()}
         <div>
           <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
@@ -151,11 +151,12 @@ class Settings extends React.Component {
         </div>
       </div>
     );
-  }
+  };
 
-  renderGlobalConfigTab(key) {
+  renderGlobalConfigTab = key => {
     return (
       <div
+        key={key}
         className={classNames(`ecos-menu-settings__tab-content ecos-menu-settings__tab-content_two-cols tab--${key}`, {
           'd-none': this.activeTabId !== key
         })}
@@ -170,11 +171,11 @@ class Settings extends React.Component {
         </div>
       </div>
     );
-  }
+  };
 
-  renderMenuCreateConfigTab(key) {
+  renderMenuCreateConfigTab = key => {
     return (
-      <div className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
+      <div key={key} className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
         {this.renderMenuInfo()}
         <div>
           <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
@@ -182,7 +183,7 @@ class Settings extends React.Component {
         </div>
       </div>
     );
-  }
+  };
 
   renderButtons() {
     const { editedId, authorities } = this.props;

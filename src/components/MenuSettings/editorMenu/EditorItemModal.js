@@ -3,18 +3,18 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
-import { extractLabel, packInLabel, t } from '../../helpers/util';
-import { TMP_ICON_EMPTY } from '../../constants';
-import { MenuSettings as MS } from '../../constants/menu';
-import MenuSettingsService from '../../services/MenuSettingsService';
-import IconSelect from '../IconSelect';
-import { EcosIcon, EcosModal } from '../common';
-import { Checkbox, Input, MLText } from '../common/form';
-import { Btn } from '../common/btns';
-import { Labels } from './utils';
-import { Field } from './Field';
+import { extractLabel, packInLabel, t } from '../../../helpers/util';
+import { TMP_ICON_EMPTY } from '../../../constants';
+import { MenuSettings as MS } from '../../../constants/menu';
+import MenuSettingsService from '../../../services/MenuSettingsService';
+import IconSelect from '../../IconSelect';
+import { EcosIcon, EcosModal } from '../../common';
+import { Checkbox, Input, MLText } from '../../common/form';
+import { Btn } from '../../common/btns';
+import { Labels } from './../utils';
+import { Field } from './../Field';
 
-import './style.scss';
+import '../style.scss';
 
 function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcons }) {
   const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
