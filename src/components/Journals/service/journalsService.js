@@ -185,50 +185,13 @@ class JournalsService {
    * @return {Promise<RecordsActionsRes>}
    */
   async getRecordActions(journalConfig, recordRefs) {
-    let groupActions = journalConfig.groupActions;
-    if (!groupActions) {
-      groupActions = _.get(journalConfig, 'meta.groupActions', []);
-    }
     let journalActions = journalConfig.actions;
-    if (!journalActions) {
-      journalActions = _.get(journalConfig, 'meta.actions', []);
-    }
-
     const actionsContext = {
       mode: ActionModes.JOURNAL,
       scope: journalConfig.id
     };
-    const convertedGroupActions = groupActions.map(a => {
-      const actionClone = _.cloneDeep(a);
-      if (!actionClone.params) {
-        actionClone.params = {};
-      }
-      if (!actionClone.params.actionId) {
-        actionClone.params.actionId = actionClone.id;
-      }
-      return {
-        name: a.title,
-        pluralName: a.title,
-        type: 'server-group-action',
-        config: actionClone
-      };
-    });
 
-    return RecordActions.getActionsForRecords(recordRefs, journalActions, actionsContext).then(actionsForRecords => {
-      const forRecords = {
-        ...actionsForRecords.forRecords,
-        actions: [...actionsForRecords.forRecords.actions, ...convertedGroupActions.filter(a => a.config.type === 'selected')]
-      };
-      const forQuery = {
-        ...actionsForRecords.forQuery,
-        actions: [...actionsForRecords.forQuery.actions, ...convertedGroupActions.filter(a => a.config.type === 'filtered')]
-      };
-      return {
-        ...actionsForRecords,
-        forQuery,
-        forRecords
-      };
-    });
+    return RecordActions.getActionsForRecords(recordRefs, journalActions, actionsContext);
   }
 
   _getAttsToLoadWithComputedAndUpdateConfigs(journalConfig) {

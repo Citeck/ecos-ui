@@ -3,6 +3,7 @@ import React from 'react';
 import BaseFormatter from '../BaseFormatter';
 import { createDocumentUrl } from '../../../../../../helpers/urls';
 import PageService from '../../../../../../services/PageService';
+import CellType from '../../CellType';
 
 export default class AssocFormatter extends BaseFormatter {
   static TYPE = 'assoc';
@@ -22,7 +23,7 @@ export default class AssocFormatter extends BaseFormatter {
     );
   }
 
-  isCellExpectedAsObject() {
-    return true;
+  getSupportedCellType() {
+    return CellType.VALUE_WITH_DISP;
   }
 }

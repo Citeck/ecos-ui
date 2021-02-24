@@ -1,3 +1,5 @@
+import CellType from '../../CellType';
+
 export default class BaseFormatter {
   static TYPE = '';
 
@@ -18,7 +20,7 @@ export default class BaseFormatter {
     return this.constructor.TYPE || BaseFormatter.TYPE;
   }
 
-  isCellExpectedAsObject() {
-    return false;
+  getSupportedCellType() {
+    return CellType.SCALAR;
   }
 }
