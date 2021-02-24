@@ -7,6 +7,7 @@ import { t } from '../../../../helpers/export/util';
 import { replacePlaceholders } from '../util';
 import formatterRegistry from './registry';
 import isPlainObject from 'lodash/isPlainObject';
+import CellType from './CellType';
 
 /**
  * @typedef {Object} FormatterConfig
@@ -84,7 +85,7 @@ class FormatterService {
 
   static _formatSingleValueCellImpl(cell, formatProps, fmtInstance) {
     let cellValue = cell;
-    if (fmtInstance.isCellExpectedAsObject()) {
+    if (fmtInstance.getSupportedCellType() === CellType.VALUE_WITH_DISP) {
       if (!isPlainObject(cellValue)) {
         cellValue = { value: cellValue, disp: cellValue };
       } else {
@@ -93,7 +94,7 @@ class FormatterService {
           disp: cellValue.disp || cellValue.value || null
         };
       }
-    } else {
+    } else if (fmtInstance.getSupportedCellType() === CellType.SCALAR) {
       if (isPlainObject(cellValue) && cellValue.value) {
         cellValue = cellValue.value;
       }

@@ -1,10 +1,7 @@
 import isFunction from 'lodash/isFunction';
 import isObject from 'lodash/isObject';
-import cloneDeep from 'lodash/cloneDeep';
 
 import { getTextByLocale, t } from '../../../helpers/util';
-import Mapper from '../../common/grid/mapping/Mapper';
-import formatterStore from '../../common/grid/formatters/formatterStore';
 import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from './util';
 
 import {
@@ -61,7 +58,7 @@ class JournalColumnsResolver {
     return columns.map((c, i) => this._resolveColumn(c, i));
   }
 
-  _resolveColumn(column, index) {
+  _resolveColumn(column) {
     const type = column.type || 'text';
     const name = column.name || column.attribute;
     const label = this._getLabel(column);
@@ -100,12 +97,20 @@ class JournalColumnsResolver {
       default: defaultValue
     };
 
-    const formatterOptions = updColumn.formatter || Mapper.getFormatterOptions(cloneDeep(updColumn), index);
-    const formatterData = this._getFormatter(formatterOptions);
+    updColumn.formatExtraData = { createVariants: updColumn.createVariants };
+    updColumn.filterValue = cell => {
+      let res = cell || '';
+      if (res.disp) {
+        res = res.disp;
+      }
+      return res;
+    };
 
-    updColumn.formatExtraData = { ...formatterData, createVariants: updColumn.createVariants };
-    updColumn.filterValue = (cell, row) => formatterData.formatter.getFilterValue(cell, row, formatterData.params);
-    updColumn.editorRenderer = formatterData.formatter.getEditor;
+    if (!updColumn.newFormatter || !updColumn.newFormatter.type) {
+      updColumn.newFormatter = {
+        type: 'default'
+      };
+    }
 
     return updColumn;
   }
@@ -130,25 +135,6 @@ class JournalColumnsResolver {
     }
     label = label || column.text || column.name;
     return label ? t(label) : t('journal.cell.no-label');
-  }
-
-  _getFormatter(column) {
-    let name;
-    let params;
-    let defaultFormatter = formatterStore.DefaultGqlFormatter;
-
-    if (column) {
-      ({ name, params } = column);
-    }
-
-    let formatter = formatterStore[name || column] || defaultFormatter;
-
-    params = params || {};
-
-    return {
-      formatter,
-      params
-    };
   }
 }
 
