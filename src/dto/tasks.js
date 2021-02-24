@@ -1,8 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
 import get from 'lodash/get';
-
-import { deepClone } from '../helpers/util';
+import cloneDeep from 'lodash/cloneDeep';
 
 import TasksService from '../services/tasks';
 
@@ -36,7 +35,7 @@ export default class TasksConverter {
       return target;
     }
 
-    const actors = deepClone(source.actors, []);
+    const actors = cloneDeep(source.actors) || [];
 
     target.id = source.id || '';
     target.title = source.title || '';
