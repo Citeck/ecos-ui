@@ -319,7 +319,7 @@ class Journals extends Component {
   };
 
   showDocLibrary = () => {
-    this.setState(() => ({ viewMode: JOURNAL_VIEW_MODE.DOC_LIB }));
+    this.setState(() => ({ viewMode: JOURNAL_VIEW_MODE.DOC_LIB, showPreview: false }));
   };
 
   showGrid = () => {
