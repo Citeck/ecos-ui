@@ -17,6 +17,7 @@ const JournalViewer = ({ hidden, isActivePage, initStateJournal, upStateId, ...p
   useEffect(() => {
     if (isActivePage && !hidden && !initialized) {
       const id = getStateId({ tabId: props.tabId, id: getId() });
+
       initStateJournal(id);
       setStateId(id);
       upStateId(id);
@@ -29,6 +30,7 @@ const JournalViewer = ({ hidden, isActivePage, initStateJournal, upStateId, ...p
       {!hidden && initialized && (
         <ErrorBoundary>
           <Journals
+            doNotChangeUrl
             isActivePage={isActivePage}
             stateId={stateId}
             displayElements={{ menu: false, header: false }}

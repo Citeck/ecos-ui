@@ -2,8 +2,8 @@ import isFunction from 'lodash/isFunction';
 import isObject from 'lodash/isObject';
 
 import { getTextByLocale, t } from '../../../helpers/util';
+import EditorService from '../service/editors/EditorService';
 import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from './util';
-
 import {
   COLUMN_DATA_TYPE_ASSOC,
   COLUMN_DATA_TYPE_AUTHORITY,
@@ -112,8 +112,18 @@ class JournalColumnsResolver {
       };
     }
 
+    if (updColumn.newEditor) {
+      updColumn.editorRenderer = this._initEditorRenderer(updColumn.newEditor);
+    }
+
     return updColumn;
   }
+
+  _initEditorRenderer = newEditor => {
+    return (editorProps, value, row, column, rowIndex, columnIndex) => {
+      return EditorService.initEditor({ editorProps, value, row, column, rowIndex, columnIndex, newEditor });
+    };
+  };
 
   _getInnerSchema(columnType) {
     if (ASSOC_TYPES.indexOf(columnType) !== -1) {

@@ -16,6 +16,8 @@
   }
 
   &__content {
+    overflow: auto;
+    max-height: calc(100vh - 275px);
   }
 
   &__add-category {
