@@ -2,10 +2,11 @@ import isEmpty from 'lodash/isEmpty';
 
 import ecosFetch from '../helpers/ecosFetch';
 import Records from '../components/Records';
-import { EmodelTypes } from '../constants';
+import { DataFormatTypes, EmodelTypes } from '../constants';
 import { DocumentsApi } from './documents';
 import { PROXY_URI } from '../constants/alfresco';
 import journalsService from '../components/Journals/service/journalsService';
+import { getOutputFormat } from '../helpers/util';
 
 export class DocAssociationsApi extends DocumentsApi {
   #baseAssociationAttributes = 'id:assoc,modifierId:att(n:"cm:modifier"){disp},displayName:disp';
@@ -45,8 +46,8 @@ export class DocAssociationsApi extends DocumentsApi {
           name: 'displayName',
           type: 'text',
           attributes: {},
-          params: {
-            formatter: 'сardDetailsLink'
+          newFormatter: {
+            type: 'сardDetailsLink'
           }
         },
         {
@@ -54,14 +55,23 @@ export class DocAssociationsApi extends DocumentsApi {
           label: { ru: 'Дата создания', en: 'Create time' },
           name: 'created',
           type: 'datetime',
-          attributes: {}
+          attributes: {},
+          newFormatter: {
+            type: 'script',
+            config: {
+              script: 'return cell ? extraProps.formatDate(cell) : "";',
+              extraProps: {
+                formatDate: cell => getOutputFormat(DataFormatTypes.DATE, cell)
+              }
+            }
+          }
         }
       ]
     };
 
     if (association.target === EmodelTypes.BASE) {
       return new Promise(async resolve => {
-        const columns = await this.getFormattedColumns(baseColumnsConfig);
+        let columns = await journalsService.resolveColumns(baseColumnsConfig.columns);
 
         resolve({
           ...association,
@@ -72,11 +82,12 @@ export class DocAssociationsApi extends DocumentsApi {
 
     return journalsService.getJournalConfigByType(association.target).then(async columnsConfig => {
       const config = isEmpty(columnsConfig) ? baseColumnsConfig : columnsConfig;
-      const columns = await this.getFormattedColumns(config);
+
+      console.warn(config);
 
       return {
         ...association,
-        columnsConfig: { ...config, columns }
+        columnsConfig: { ...config }
       };
     });
   }

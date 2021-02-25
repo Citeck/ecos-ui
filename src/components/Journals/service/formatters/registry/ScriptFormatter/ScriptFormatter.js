@@ -27,7 +27,14 @@ export default class ScriptFormatter extends BaseFormatter {
     const vars = config.vars || {};
 
     /* eslint-disable-next-line */
-    const result = new Function('Records', '_', 't', 'vars', 'cell', config.script)(Records, _, t, vars, cell);
+    const result = new Function('Records', '_', 't', 'vars', 'cell', 'extraProps', config.script)(
+      Records,
+      _,
+      t,
+      vars,
+      cell,
+      config.extraProps || {}
+    );
 
     switch (typeof result) {
       case 'boolean':

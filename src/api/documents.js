@@ -1,8 +1,6 @@
 import Records from '../components/Records';
 import { DEFAULT_REF, documentFields } from '../constants/documents';
-import { Permissions, SourcesId } from '../constants';
-import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
-import { PROXY_URI } from '../constants/alfresco';
+import { SourcesId } from '../constants';
 import journalsService from '../components/Journals/service/journalsService';
 
 export class DocumentsApi {
@@ -89,56 +87,5 @@ export class DocumentsApi {
       .load('createVariants?json')
       .then(response => response || {})
       .catch(() => null);
-  };
-
-  getFormattedColumns = async config => {
-    const { columns = [], sourceId } = config;
-    let { predicate = {} } = config;
-
-    if (predicate.t !== 'and') {
-      predicate = {
-        t: 'and',
-        val: [predicate]
-      };
-    }
-
-    let queryPredicates = predicate.val || [];
-
-    if (!Array.isArray(queryPredicates)) {
-      queryPredicates = [queryPredicates];
-    }
-
-    const bodyQuery = {
-      query: {
-        t: 'and',
-        val: queryPredicates.filter(item => {
-          return item.val !== '' && item.val !== null;
-        })
-      },
-      language: 'predicate',
-      consistency: 'EVENTUAL'
-    };
-
-    if (sourceId) {
-      bodyQuery['sourceId'] = sourceId;
-    }
-    /***
-     * @todo use JournalsService
-     */
-    const dataSource = new GqlDataSource({
-      url: `${PROXY_URI}citeck/ecos/records`,
-      dataSourceName: 'GqlDataSource',
-      ajax: {
-        body: {
-          query: bodyQuery
-        }
-      },
-      columns: columns || [],
-      permissions: [Permissions.Write]
-    });
-
-    await dataSource.load();
-
-    return dataSource.getColumns();
   };
 }
