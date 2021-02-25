@@ -59,8 +59,8 @@ export class DocAssociationsApi extends DocumentsApi {
           newFormatter: {
             type: 'script',
             config: {
-              script: 'return cell ? extraProps.formatDate(cell) : "";',
-              extraProps: {
+              script: 'return cell ? vars.formatDate(cell) : "";',
+              vars: {
                 formatDate: cell => getOutputFormat(DataFormatTypes.DATETIME, cell)
               }
             }
