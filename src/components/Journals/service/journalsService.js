@@ -117,7 +117,7 @@ class JournalsService {
     meta.groupBy = config.groupBy;
     meta.metaRecord = config.metaRecord;
     meta.predicate = config.predicate || {};
-    meta.title = getTextByLocale(config.label);
+    meta.title = getTextByLocale(config.label || config.name);
     meta.createVariants = (config.createVariants || []).map(cv => this.__mapNewCreateVariantToLegacy(cv));
 
     config.meta = meta;
@@ -137,13 +137,14 @@ class JournalsService {
     result.newEditor = column.editor;
     result.computed = column.computed;
     result.hidden = column.hidden === true;
-    result.text = getTextByLocale(column.label) || column.name;
-    result.attribute = column.name;
+    result.text = getTextByLocale(column.label || column.name);
+    result.attribute = column.id || column.name;
     result.default = column.visible !== false;
     result.groupable = column.groupable === true;
     result.params = column.properties || {};
     result.schema = column.attribute;
     result.searchable = column.searchable !== false;
+    result.searchableByText = column.searchableByText !== false;
     result.sortable = column.sortable === true;
     result.type = COLUMN_TYPE_NEW_TO_LEGACY_MAPPING[column.type] || 'text';
     result.visible = column.hidden !== true;
@@ -185,50 +186,13 @@ class JournalsService {
    * @return {Promise<RecordsActionsRes>}
    */
   async getRecordActions(journalConfig, recordRefs) {
-    let groupActions = journalConfig.groupActions;
-    if (!groupActions) {
-      groupActions = _.get(journalConfig, 'meta.groupActions', []);
-    }
     let journalActions = journalConfig.actions;
-    if (!journalActions) {
-      journalActions = _.get(journalConfig, 'meta.actions', []);
-    }
-
     const actionsContext = {
       mode: ActionModes.JOURNAL,
       scope: journalConfig.id
     };
-    const convertedGroupActions = groupActions.map(a => {
-      const actionClone = _.cloneDeep(a);
-      if (!actionClone.params) {
-        actionClone.params = {};
-      }
-      if (!actionClone.params.actionId) {
-        actionClone.params.actionId = actionClone.id;
-      }
-      return {
-        name: a.title,
-        pluralName: a.title,
-        type: 'server-group-action',
-        config: actionClone
-      };
-    });
 
-    return RecordActions.getActionsForRecords(recordRefs, journalActions, actionsContext).then(actionsForRecords => {
-      const forRecords = {
-        ...actionsForRecords.forRecords,
-        actions: [...actionsForRecords.forRecords.actions, ...convertedGroupActions.filter(a => a.config.type === 'selected')]
-      };
-      const forQuery = {
-        ...actionsForRecords.forQuery,
-        actions: [...actionsForRecords.forQuery.actions, ...convertedGroupActions.filter(a => a.config.type === 'filtered')]
-      };
-      return {
-        ...actionsForRecords,
-        forQuery,
-        forRecords
-      };
-    });
+    return RecordActions.getActionsForRecords(recordRefs, journalActions, actionsContext);
   }
 
   _getAttsToLoadWithComputedAndUpdateConfigs(journalConfig) {

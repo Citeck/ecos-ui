@@ -34,7 +34,7 @@ export const SourcesId = {
   BUILD_INFO: 'uiserv/build-info',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'alfresco/doclib',
-  EFORM: 'uiserv/eform',
+  EFORM: 'uiserv/form',
   USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',
   MENU: 'uiserv/menu',

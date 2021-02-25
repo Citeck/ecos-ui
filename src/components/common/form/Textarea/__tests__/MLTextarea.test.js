@@ -4,6 +4,8 @@ import { shallow, mount } from 'enzyme';
 import MLTextarea from '../MLTextarea';
 import { LANGUAGE_RU, LANGUAGE_EN } from '../../../../../constants/lang';
 
+global.getSelection = () => '';
+
 describe('<MLTextarea />', () => {
   it('renders without crashing', () => {
     shallow(<MLTextarea />);

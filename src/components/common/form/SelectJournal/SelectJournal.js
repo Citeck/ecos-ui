@@ -80,7 +80,11 @@ export default class SelectJournal extends Component {
     if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
       initValue = [...defaultValue];
     } else if (!multiple && !!defaultValue) {
-      initValue = [defaultValue];
+      if (Array.isArray(defaultValue)) {
+        initValue = defaultValue;
+      } else {
+        initValue = [defaultValue];
+      }
     }
 
     if (initValue) {
@@ -113,7 +117,11 @@ export default class SelectJournal extends Component {
     if (multiple && Array.isArray(value) && value.length > 0) {
       newValue = [...value];
     } else if (!multiple && !!value) {
-      newValue = [value];
+      if (Array.isArray(value)) {
+        newValue = value;
+      } else {
+        newValue = [value];
+      }
     }
 
     this.setValue(newValue, shouldTriggerOnChange);
