@@ -3,21 +3,17 @@ import {
   collapseAllItems,
   setInitExpandableItems,
   setIsReady,
-  setLargeLogo,
   setScrollTop,
   setSelectedId,
   setSiteDashboardEnable,
   setSlideMenuExpandableItems,
   setSlideMenuItems,
-  setSmallLogo,
   toggleExpanded,
   toggleIsOpen
 } from '../actions/slideMenu';
 import SidebarService from '../services/sidebar';
 
 const initialState = {
-  smallLogo: null,
-  largeLogo: null,
   selectedId: null,
   items: [],
   expandableItems: [],
@@ -35,18 +31,6 @@ export default handleActions(
       return {
         ...state,
         selectedId: action.payload
-      };
-    },
-    [setSmallLogo]: (state, action) => {
-      return {
-        ...state,
-        smallLogo: action.payload
-      };
-    },
-    [setLargeLogo]: (state, action) => {
-      return {
-        ...state,
-        largeLogo: action.payload
       };
     },
     [setSlideMenuItems]: (state, action) => {

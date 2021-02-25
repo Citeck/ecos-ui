@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import get from 'lodash/get';
 
 import { ResizeBoxes } from '../../common';
@@ -51,6 +51,7 @@ class JournalsContent extends Component {
   render() {
     const { stateId, showPreview, maxHeight } = this.props;
     const { recordId } = this.state;
+
     const grid = (
       <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} autoHeight minHeight={468} />
     );

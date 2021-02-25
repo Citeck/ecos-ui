@@ -1,0 +1,20 @@
+@import '../../../../styles/constants';
+
+.grid-error-cell {
+  &__header {
+    background: unset;
+    height: auto;
+    margin: 0;
+  }
+
+  &__label {
+    font-weight: $font-weight-normal;
+    margin: 0;
+    color: $color-yellow-30 !important;
+  }
+
+  &__details {
+    font-weight: $font-weight-normal;
+    color: $text-color-gray;
+  }
+}

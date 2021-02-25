@@ -244,6 +244,8 @@ class JournalsDashletGrid extends Component {
               data={data}
               columns={columns}
               className={className}
+              gridWrapperClassName={'ecos-journal-dashlet__grid-wrapper'}
+              hTrackClassName="ecos-journal-dashlet__grid-track ecos-journal-dashlet__grid-track_h"
               freezeCheckboxes
               filterable
               editable={editable}

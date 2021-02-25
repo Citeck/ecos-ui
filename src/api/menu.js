@@ -125,6 +125,7 @@ export class MenuApi extends CommonApi {
               }
             }
           },
+          // TODO: Migration to form required
           {
             id: 'HEADER_CREATE_WORKFLOW_CONFIRM',
             label: 'header.create-workflow-confirm.label',
@@ -229,14 +230,14 @@ export class MenuApi extends CommonApi {
 
   getSlideMenuItems = () => {
     const username = getCurrentUserName();
-    const cacheKey = Records.get('uiserv/meta@')
+    const cacheKey = Records.get(SourcesId.META + '@')
       .load('attributes.menu-cache-key')
       .catch(() => '0');
 
     return cacheKey
       .then(key =>
         this.getJsonWithSessionCache({
-          url: `${PROXY_URI}citeck/menu/menu?username=${username}`,
+          url: `/gateway/uiserv/api/usermenu?username=${username}`,
           cacheKey: key,
           timeout: 14400000, //4h
           postProcess: menu => postProcessMenuConfig(menu)
@@ -289,7 +290,6 @@ export class MenuApi extends CommonApi {
   getMenuConfig = (disabledCache = false) => {
     return Records.get(`${SourcesId.CONFIG}@menu-config`)
       .load('value?json', disabledCache)
-      .then(resp => resp)
       .catch(console.error);
   };
 
@@ -312,8 +312,7 @@ export class MenuApi extends CommonApi {
   getUserMenuConfig = async () => {
     const user = getCurrentUserName();
     const configVersion = await Records.get(`${SourcesId.ECOS_CONFIG}@default-ui-main-menu`).load('.str');
-    const _ver = configVersion.replace('left-v', '');
-    const version = _ver !== 'left' ? +_ver : 0;
+    const version = configVersion && configVersion.includes('left-v') ? +configVersion.replace('left-v', '') : 0;
     const id = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'id');
 
     return { version, configVersion, id };

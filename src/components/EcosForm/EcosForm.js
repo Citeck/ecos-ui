@@ -54,10 +54,9 @@ class EcosForm extends React.Component {
     this.initForm();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.formId !== this.props.formId || !isEqual(prevProps.options, this.props.options)) {
-      this.setState({ ...this.initState });
-      this.initForm();
+      this.setState({ ...this.initState }, this.initForm);
     }
   }
 
@@ -166,6 +165,12 @@ class EcosForm extends React.Component {
             if (input.edge.protected) {
               input.component.disabled = true;
             }
+
+            if (input.edge.unreadable) {
+              input.component.disabled = true;
+              input.component.unreadable = true;
+            }
+
             if (input.edge.title) {
               attributesTitles[input.component.label] = input.edge.title;
             }
@@ -235,9 +240,9 @@ class EcosForm extends React.Component {
 
           events.forEach(o => {
             if (o.event !== 'submit') {
-              form.on(o.event, () => {
+              form.on(o.event, data => {
                 const fun = self.props[o.prop];
-                typeof fun === 'function' && fun.apply(form, arguments);
+                typeof fun === 'function' && fun.apply(form, [...arguments, data]);
               });
             } else {
               console.warn('Please use onSubmit handler instead of onFormSubmit');

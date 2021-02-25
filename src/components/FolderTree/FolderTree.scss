@@ -17,6 +17,7 @@
     grid-gap: 5px;
     cursor: pointer;
     height: 40px;
+    user-select: none;
 
     &:hover {
       opacity: 0.7;
@@ -27,6 +28,7 @@
     font-size: $font-size-standard;
     font-weight: $font-weight-semi-bold;
     color: $text-color-dark;
+    @extend %ellipsis;
 
     &_selected {
       font-weight: $font-weight-bold;

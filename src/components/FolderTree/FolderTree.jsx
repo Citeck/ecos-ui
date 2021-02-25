@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Loader from '../common/Loader/Loader';
+
 import FolderTreeItem, { FolderTreeItemPropTypes } from './FolderTreeItem';
 import './FolderTree.scss';
 
@@ -15,6 +17,18 @@ const FolderTree = ({ items, selected, onSelect, onUnfold, onFold }) => {
         return item.parent === parent;
       })
       .map(item => {
+        let renderChildren = () => {
+          if (!item.hasChildren || !item.isUnfolded) {
+            return null;
+          }
+
+          if (item.isChildrenLoading) {
+            return <Loader type="points" style={{ margin: 0 }} />;
+          }
+
+          return renderLevel(item.id);
+        };
+
         return (
           <FolderTreeItem
             key={item.id}
@@ -24,7 +38,7 @@ const FolderTree = ({ items, selected, onSelect, onUnfold, onFold }) => {
             onUnfold={onUnfold}
             onFold={onFold}
           >
-            {item.hasChildren && item.isUnfolded && renderLevel(item.id)}
+            {renderChildren()}
           </FolderTreeItem>
         );
       });

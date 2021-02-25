@@ -4,7 +4,6 @@ import { NotificationManager } from 'react-notifications';
 
 import { RequestStatuses } from '../constants';
 import { t } from '../helpers/util';
-import { createOldVersionUrlDocument } from '../helpers/urls';
 import { getRefWithAlfrescoPrefix } from '../helpers/ref';
 import {
   getDashboardConfig,
@@ -22,7 +21,6 @@ import { setDashboardConfig as setDashboardSettingsConfig } from '../actions/das
 import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
-import PageService from '../services/PageService';
 import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 
 function* _parseConfig({ api, logger }, { recordRef, config }) {
@@ -37,13 +35,6 @@ function* _parseConfig({ api, logger }, { recordRef, config }) {
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
     const { recordRef } = payload;
-    const redirect = yield call(api.dashboard.isRedirectOld, recordRef);
-
-    if (redirect) {
-      PageService.changeUrlLink(createOldVersionUrlDocument(recordRef), { reopenBrowserTab: true });
-      return;
-    }
-
     const recordIsExist = yield call(api.app.recordIsExist, recordRef, true);
 
     if (!recordIsExist) {
@@ -106,7 +97,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   yield put(setRequestResultDashboard({ key: payload.key }));
 
   try {
-    let config = payload.config;
+    let { config, recordRef } = payload;
     const identification = yield select(selectIdentificationForView);
 
     if (!get(config, 'version')) {
@@ -123,8 +114,20 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
       config = dashboardConfig;
     }
 
-    const forWeb = yield _parseConfig({ api, logger }, { config, recordRef: payload.recordRef });
-    const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification });
+    const forWeb = yield _parseConfig({ api, logger }, { config, recordRef });
+
+    if (recordRef && identification.appliedToRef) {
+      recordRef = getRefWithAlfrescoPrefix(recordRef);
+    } else {
+      recordRef = '';
+    }
+
+    const dashboardResult = yield call(api.dashboard.saveDashboardConfig, { config, identification, recordRef });
+
+    if (!dashboardResult || !dashboardResult.id) {
+      throw new Error('Incorrect result for saving');
+    }
+
     const res = DashboardService.parseRequestResult(dashboardResult);
     const isExistSettings = !!(yield select(state => get(state, ['dashboardSettings', res.dashboardId])));
 
@@ -145,6 +148,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
         key: payload.key
       })
     );
+
     yield put(
       setMobileDashboardConfig({
         config: get(forWeb, 'config.mobile', []),

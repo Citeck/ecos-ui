@@ -136,19 +136,19 @@ export default class Export extends Component {
   };
 
   getSelectionUrl = () => {
-    const { dashletConfig } = this.props;
+    const { dashletConfig, journalConfig } = this.props;
     const { href, host } = window.location;
 
-    if (dashletConfig) {
-      const { journalId, journalsListId } = dashletConfig;
+    if (journalConfig) {
+      const journalId = get(journalConfig, 'meta.nodeRef', get(dashletConfig, 'journalId'), '');
 
-      return decodeLink(`${host}${URL.JOURNAL}?${queryString.stringify({ journalId, journalsListId })}`);
+      return decodeLink(`${host}${URL.JOURNAL}?${queryString.stringify({ journalId })}`);
     }
 
     const objectUrl = queryString.parseUrl(href);
-    const { journalId, journalsListId } = objectUrl.query;
+    const { journalId } = objectUrl.query;
 
-    return `${objectUrl.url}?${queryString.stringify({ journalId, journalsListId })}`;
+    return `${objectUrl.url}?${queryString.stringify({ journalId })}`;
   };
 
   onCopyUrl = () => {

@@ -12,7 +12,7 @@ import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
 import uuidV4 from 'uuid/v4';
 
-import { AppEditions } from '../../constants';
+import { AppEditions, SourcesId } from '../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import { getCurrentUserName, t } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
@@ -213,7 +213,9 @@ export default class EcosFormUtils {
           formContainer: config.formContainer || null
         });
       } else {
-        fallback();
+        if (typeof fallback === 'function') {
+          fallback();
+        }
       }
     };
 
@@ -320,7 +322,7 @@ export default class EcosFormUtils {
       }
 
       let query = {
-        sourceId: 'uiserv/eform',
+        sourceId: SourcesId.EFORM,
         query: {
           record: recordInstance.id,
           formKey: keys[idx]
@@ -611,7 +613,7 @@ export default class EcosFormUtils {
       let innerAttSchema = getComponentInnerAttSchema(component);
       let schema = this.getSchemaForScopedAttribute(innerAttSchema, currentScope);
 
-      let edgeSchema = '.edge(n:"' + attribute + '"){protected,';
+      let edgeSchema = '.edge(n:"' + attribute + '"){protected,unreadable,';
 
       if (component.label === attribute) {
         edgeSchema += 'title}';

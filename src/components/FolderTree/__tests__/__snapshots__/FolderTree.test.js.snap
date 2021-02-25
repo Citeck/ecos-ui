@@ -114,6 +114,7 @@ ShallowWrapper {
             />
             <span
               className="ecos-folder-tree__item-title"
+              title=""
             >
               
             </span>
@@ -159,6 +160,7 @@ ShallowWrapper {
               />
               <span
                 className="ecos-folder-tree__item-title"
+                title=""
               >
                 
               </span>
@@ -186,6 +188,7 @@ ShallowWrapper {
                 />,
                 <span
                   className="ecos-folder-tree__item-title"
+                  title=""
                 >
                   
                 </span>,
@@ -220,6 +223,7 @@ ShallowWrapper {
                 "props": Object {
                   "children": "",
                   "className": "ecos-folder-tree__item-title",
+                  "title": "",
                 },
                 "ref": null,
                 "rendered": "",
@@ -271,6 +275,7 @@ ShallowWrapper {
               />
               <span
                 className="ecos-folder-tree__item-title"
+                title=""
               >
                 
               </span>
@@ -316,6 +321,7 @@ ShallowWrapper {
                 />
                 <span
                   className="ecos-folder-tree__item-title"
+                  title=""
                 >
                   
                 </span>
@@ -343,6 +349,7 @@ ShallowWrapper {
                   />,
                   <span
                     className="ecos-folder-tree__item-title"
+                    title=""
                   >
                     
                   </span>,
@@ -377,6 +384,7 @@ ShallowWrapper {
                   "props": Object {
                     "children": "",
                     "className": "ecos-folder-tree__item-title",
+                    "title": "",
                   },
                   "ref": null,
                   "rendered": "",

@@ -6,9 +6,7 @@ import get from 'lodash/get';
 
 import {
   collapseAllItems,
-  fetchLargeLogoSrc,
   fetchSlideMenuItems,
-  fetchSmallLogoSrc,
   getSiteDashboardEnable,
   setInitExpandableItems,
   toggleIsOpen
@@ -31,8 +29,6 @@ class Sidebar extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchSmallLogoSrc();
-    this.props.fetchLargeLogoSrc();
     this.props.getSiteDashboardEnable();
     this.fetchItems();
 
@@ -126,8 +122,6 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
-  fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
-  fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
   setInitExpandableItems: () => dispatch(setInitExpandableItems()),

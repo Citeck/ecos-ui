@@ -2,12 +2,12 @@ import React, { lazy } from 'react';
 
 import { Pages } from '../constants';
 
-const LoginPage = lazy(() => import('../components/LoginForm'));
-const BPMNDesignerPage = lazy(() => import('./BPMNDesignerPage'));
+const AdminPage = lazy(() => import('./AdminPage'));
 const DashboardPage = lazy(() => import('./Dashboard'));
 const DashboardSettingsPage = lazy(() => import('./DashboardSettings'));
 const JournalsPage = lazy(() => import('./JournalsPage'));
 const DevToolsPage = lazy(() => import('./DevTools'));
+const CMMNEditorPage = lazy(() => import('./CMMNEditor'));
 const MyTimesheetPage = lazy(() => import('./Timesheet/MyTimesheetPage'));
 const SubordinatesTimesheetPage = lazy(() => import('./Timesheet/SubordinatesTimesheetPage'));
 const VerificationTimesheetPage = lazy(() => import('./Timesheet/VerificationTimesheetPage'));
@@ -15,15 +15,14 @@ const DelegatedTimesheetsPage = lazy(() => import('./Timesheet/DelegatedTimeshee
 
 const FormIOPage = lazy(() => import('./debug/FormIOPage'));
 const TreePage = lazy(() => import('./debug/Tree'));
+const CmmnPage = lazy(() => import('./debug/CmmnPage'));
 
 export default ({ pageKey, footer, ...props }) => {
   let Page = null;
 
   switch (pageKey) {
-    case Pages.LOGIN:
-      return <LoginPage {...props} />;
     case Pages.BPMN:
-      Page = BPMNDesignerPage;
+      Page = AdminPage;
       break;
     case Pages.DASHBOARD_SETTINGS:
       Page = DashboardSettingsPage;
@@ -36,6 +35,9 @@ export default ({ pageKey, footer, ...props }) => {
       break;
     case Pages.JOURNAL:
       Page = JournalsPage;
+      break;
+    case Pages.CMMN_EDITOR:
+      Page = CMMNEditorPage;
       break;
     case Pages.TIMESHEET_MY:
       Page = MyTimesheetPage;
@@ -54,6 +56,9 @@ export default ({ pageKey, footer, ...props }) => {
       break;
     case Pages.DEBUG_TREE:
       Page = TreePage;
+      break;
+    case Pages.DEBUG_CMMN:
+      Page = CmmnPage;
       break;
     default:
   }

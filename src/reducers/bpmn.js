@@ -1,25 +1,25 @@
 import { handleActions } from 'redux-actions';
 import {
-  setViewType,
-  setActiveSortFilter,
-  setSearchText,
-  setIsReady,
-  setCategories,
-  setModels,
-  createCategory,
   cancelEditCategory,
-  setIsEditable,
-  setCategoryData,
+  createCategory,
   deleteCategory,
-  setCategoryCollapseState
+  setActiveSortFilter,
+  setCategories,
+  setCategoryCollapseState,
+  setCategoryData,
+  setIsEditable,
+  setIsReady,
+  setModels,
+  setSearchText,
+  setViewType
 } from '../actions/bpmn';
-import { VIEW_TYPE_CARDS, SORT_FILTER_LAST_MODIFIED } from '../constants/bpmn';
+import { SORT_FILTER_LAST_MODIFIED, ViewTypes } from '../constants/bpmn';
 
 const initialState = {
   isReady: false,
   categories: [],
   models: [],
-  viewType: VIEW_TYPE_CARDS,
+  viewType: ViewTypes.CARDS,
   sortFilter: SORT_FILTER_LAST_MODIFIED,
   searchText: ''
 };

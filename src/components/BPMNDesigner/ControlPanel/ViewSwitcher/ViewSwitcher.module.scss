@@ -8,12 +8,12 @@
 
 .item {
   display: inline-block;
-  margin-left: 2px;
+  margin-left: 10px;
   cursor: pointer;
   color: $color-gray-5;
 
   &:before {
-    font-size: 18px;
+    font-size: $font-size-extra-large;
     color: inherit;
   }
 

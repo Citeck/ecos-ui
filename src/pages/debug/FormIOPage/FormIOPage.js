@@ -66,10 +66,8 @@ class FormIOPage extends React.Component {
     // });
 
     const formBuilder = new FormBuilder(document.getElementById('builder'), {});
-    // console.log(formBuilder);
-    formBuilder.render().then(form => {
-      // console.log(form);
 
+    formBuilder.render().then(form => {
       // Everytime the form changes, this will fire.
       form.on('change', function(changed) {
         console.log('Builder form was changed', changed);

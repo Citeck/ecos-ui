@@ -72,7 +72,7 @@ describe('Urls helpers', () => {
     });
   });
 
-  describe.each([['/v2/journals', false], ['/v2/dashboard', true], ['/v2/dashboard/settings', false], ['/share/page', false]])(
+  describe.each([['/v2/journals', false], ['/v2/dashboard', true], ['/v2/dashboard/settings', false]])(
     'fun isDashboard %s',
     (url, expected) => {
       beforeEach(() => {

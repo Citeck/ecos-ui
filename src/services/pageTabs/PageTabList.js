@@ -2,13 +2,12 @@ import isArray from 'lodash/isArray';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import isEmpty from 'lodash/isEmpty';
 import { EventEmitter2 } from 'eventemitter2';
-import * as queryString from 'query-string';
 
 import * as storage from '../../helpers/ls';
 import { equalsQueryUrls, IgnoredUrlParams } from '../../helpers/urls';
 import { t } from '../../helpers/util';
-import { JournalUrlParams } from '../../constants';
 import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
 import PageService from '../PageService';
@@ -60,6 +59,10 @@ class PageTabList {
 
   get activeTabId() {
     return get(this.activeTab, 'id', null);
+  }
+
+  get hasActiveTab() {
+    return !isEmpty(this.#tabs.find(tab => tab.isActive));
   }
 
   pushCallback = callback => {
@@ -155,6 +158,11 @@ class PageTabList {
    * @returns {PageTab | undefined}
    */
   delete(tab) {
+    if (Array.isArray(tab)) {
+      this.#deleteTabs(tab);
+      return;
+    }
+
     tab = tab.uniqueKey ? tab : new PageTab(tab);
     const tabIndex = this.#tabs.findIndex(item => this.equals(tab, item));
 
@@ -175,7 +183,14 @@ class PageTabList {
     return deletedTab;
   }
 
-  add(tab, indexTo) {
+  #deleteTabs = tabs => {
+    const ids = tabs.map(tab => tab.id);
+
+    this.#tabs = this.#tabs.filter(tab => !ids.includes(tab.id));
+    this.setToStorage();
+  };
+
+  add(tab, indexTo = 0) {
     this.#tabs.splice(indexTo, 0, tab);
 
     if (this.#tabs.length < 2) {
@@ -271,15 +286,7 @@ class PageTabList {
 
     if (!this.#isDuplicateAllowed) {
       tabs = tabs.reduce((result, item) => {
-        const found = result.find(tab => {
-          const parsedItemUrl = queryString.parseUrl(item.link);
-          const parsedCurrentTabUrl = queryString.parseUrl(tab.link);
-          const isJournalExist =
-            get(parsedItemUrl, ['query', JournalUrlParams.JOURNALS_LIST_ID]) ===
-            get(parsedCurrentTabUrl, ['query', JournalUrlParams.JOURNALS_LIST_ID], null);
-
-          return PageTab.equals(tab, item) || isJournalExist;
-        });
+        const found = result.find(tab => PageTab.equals(tab, item));
 
         if (!found) {
           result.push(item);

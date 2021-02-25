@@ -13,6 +13,7 @@ import FormManager from '../../EcosForm/FormManager';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { getCreateVariantKeyField } from '../service/util';
+import { selectNewVersionDashletConfig } from '../../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -21,9 +22,10 @@ const mapStateToProps = (state, props) => {
     journals: newState.journals,
     journalConfig: newState.journalConfig,
     journalSettings: newState.journalSettings,
-    config: newState.config,
+    config: selectNewVersionDashletConfig(state, props.stateId),
     grid: newState.grid,
-    selectedRecords: newState.selectedRecords
+    selectedRecords: newState.selectedRecords,
+    selectedJournals: newState.selectedJournals
   };
 };
 
@@ -45,7 +47,15 @@ class JournalsDashletToolbar extends Component {
     });
   };
 
-  onChangeJournal = journal => this.props.onJournalSelect(journal.nodeRef);
+  onChangeJournal = journal => {
+    const { onChangeSelectedJournal, onJournalSelect } = this.props;
+
+    onJournalSelect(journal.id);
+
+    if (typeof onChangeSelectedJournal === 'function') {
+      onChangeSelectedJournal(journal.id);
+    }
+  };
 
   onChangeJournalSetting = setting => {
     this.props.onJournalSettingsSelect(setting[JOURNAL_SETTING_ID_FIELD]);
@@ -91,8 +101,8 @@ class JournalsDashletToolbar extends Component {
   render() {
     const {
       stateId,
-      journals,
       journalConfig,
+      selectedJournals,
       journalConfig: {
         meta: { nodeRef = '' }
       },
@@ -101,26 +111,29 @@ class JournalsDashletToolbar extends Component {
       isSmall,
       grid,
       config,
-      selectedRecords
+      selectedRecords,
+      lsJournalId
     } = this.props;
 
     return (
       <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
         {this.renderCreateMenu()}
 
-        <Dropdown
-          hasEmpty
-          source={journals}
-          value={nodeRef}
-          valueField={'nodeRef'}
-          titleField={'title'}
-          className={classNames({
-            'ecos-journal-dashlet__toolbar-dropdown_small': isSmall
-          })}
-          onChange={this.onChangeJournal}
-        >
-          <IcoBtn invert icon={'icon-small-down'} className="ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10" />
-        </Dropdown>
+        {selectedJournals.length > 1 && (
+          <Dropdown
+            hasEmpty
+            source={selectedJournals}
+            value={lsJournalId || nodeRef}
+            valueField={'id'}
+            titleField={'title'}
+            className={classNames({
+              'ecos-journal-dashlet__toolbar-dropdown_small': isSmall
+            })}
+            onChange={this.onChangeJournal}
+          >
+            <IcoBtn invert icon={'icon-small-down'} className="ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10" />
+          </Dropdown>
+        )}
 
         {!isSmall && (
           <Dropdown

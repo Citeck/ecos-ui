@@ -43,7 +43,7 @@ function getRecognizableUrl(url, body) {
   let withAppName = false;
 
   if (body.query) {
-    urlKey = 'q_' + (body.query.sourceId ? body.query.sourceId : JSON.stringify(body.query.query).substring(0, 15));
+    urlKey = 'q_' + (body.query.sourceId ? body.query.sourceId : (JSON.stringify(body.query.query) || '').substring(0, 15));
     withAppName = lodashGet(body, 'query.sourceId', '').indexOf(APP_DELIMITER) > -1;
   } else if (body.record) {
     urlKey = `rec_${body.record}`;
@@ -64,7 +64,7 @@ function getRecognizableUrl(url, body) {
 }
 
 function recordsFetch(url, body) {
-  if (url.indexOf('mutate') >= 0) {
+  if (url.indexOf('mutate') >= 0 || url.indexOf('delete') >= 0) {
     body.version = 1;
   }
   url = getRecognizableUrl(url, body);

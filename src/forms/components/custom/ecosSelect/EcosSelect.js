@@ -88,10 +88,8 @@ export default class SelectComponent extends BaseComponent {
   createViewOnlyValue(container) {
     if (this.component.dataSrc === 'url') {
       this.updateItems('', !this.active, () => {
-        super.createViewOnlyValue(container);
+        super.updateViewOnlyValue();
       });
-
-      return;
     }
 
     super.createViewOnlyValue(container);
@@ -1123,6 +1121,11 @@ export default class SelectComponent extends BaseComponent {
   }
 
   setupValueElement(element) {
+    if (this.component.unreadable) {
+      this.setUnreadableLabel(element);
+      return;
+    }
+
     element.innerHTML = this.asString();
   }
 

@@ -20,7 +20,7 @@ import {
   simpleCaseOptimized,
   tableFormCase,
   tableFormCaseOptimized
-} from '../__mocks__/EcosFormUtils.mock';
+} from '../__fixtures__/EcosFormUtils.fixtures';
 
 function runTests(tests, method) {
   tests.forEach(item => {

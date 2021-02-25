@@ -16,11 +16,13 @@ export const TITLE = {
   NO_NAME: 'page-tabs.no-name',
   TIMESHEET: 'page-tabs.timesheet',
   JOURNAL: 'page-tabs.journal',
+  BPM: 'page-tabs.bpmn-designer',
+  ADMIN_PAGE: 'page-tabs.admin-page',
   [URL.HOME]: 'header.site-menu.home-page',
   [URL.JOURNAL]: 'page-tabs.journal',
+  [URL.CMMN_EDITOR]: 'page-tabs.cmmn-editor',
   [URL.DASHBOARD]: 'header.site-menu.home-page',
   [URL.DASHBOARD_SETTINGS]: 'page-tabs.dashboard-settings',
-  [URL.BPMN_DESIGNER]: 'page-tabs.bpmn-designer',
   [URL.DEV_TOOLS]: 'page-tabs.dev-tools',
   [URL.TIMESHEET]: 'page-tabs.timesheet',
   [URL.TIMESHEET_SUBORDINATES]: 'page-tabs.timesheet',
@@ -29,7 +31,4 @@ export const TITLE = {
   [URL.FORM_COMPONENTS]: 'page-tabs.form-components'
 };
 
-export const URL_MASK = {
-  '^/v2/dashboard/([0-9A-Za-z-]*)/settings$': TITLE[URL.DASHBOARD_SETTINGS],
-  '^/v2/dashboard/([0-9A-Za-z-]*)$': TITLE[URL.DASHBOARD]
-};
+export const MIN_CONTEXT_WIDTH = 210;

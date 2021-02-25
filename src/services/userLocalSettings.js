@@ -165,7 +165,7 @@ export default class UserLocalSettingsService {
     });
   }
 
-  static checkDasletsUpdatedDate({ token, count } = DateStorageTime) {
+  static checkDashletsUpdatedDate({ token, count } = DateStorageTime) {
     const keys = getFilteredKeys(Prefixes.DASHLET);
 
     keys.forEach(key => {

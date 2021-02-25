@@ -3,6 +3,7 @@ import get from 'lodash/get';
 
 import { URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
+import { SectionTypes } from '../constants/adminSection';
 import { getCurrentUserName, t } from '../helpers/util';
 import { decodeLink, getLinkWithout, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
 import { getData, isExistLocalStorage, setData } from '../helpers/ls';
@@ -14,6 +15,8 @@ export const PageTypes = {
   DASHBOARD: 'dashboard',
   JOURNALS: 'journals',
   SETTINGS: 'dashboard/settings',
+  ADMIN_PAGE: 'admin',
+  CMMN_EDITOR: 'cmmn-editor',
   BPMN_DESIGNER: 'bpmn-designer',
   DEV_TOOLS: 'dev-tools',
   TIMESHEET: 'timesheet'
@@ -38,6 +41,10 @@ export default class PageService {
       return PageTypes.TIMESHEET;
     }
 
+    if ([PageTypes.BPMN_DESIGNER, PageTypes.DEV_TOOLS].includes(type)) {
+      return PageTypes.ADMIN_PAGE;
+    }
+
     return type;
   }
 
@@ -50,9 +57,13 @@ export default class PageService {
       case PageTypes.SETTINGS:
         return urlProps.query.dashboardId || '';
       case PageTypes.DASHBOARD:
+      case PageTypes.CMMN_EDITOR:
         return urlProps.query.recordRef || '';
       case PageTypes.JOURNALS:
-        return urlProps.query.journalsListId || '';
+        return urlProps.query.journalId || '';
+      case PageTypes.BPMN_DESIGNER:
+      case PageTypes.DEV_TOOLS:
+        return PageTypes.ADMIN_PAGE;
       default:
         return '';
     }
@@ -65,8 +76,8 @@ export default class PageService {
 
     switch (_type) {
       case PageTypes.SETTINGS:
-        return urlProps.query.recordRef || '';
       case PageTypes.DASHBOARD:
+      case PageTypes.CMMN_EDITOR:
         return urlProps.query.recordRef || '';
       case PageTypes.JOURNALS:
         return urlProps.query.journalId || '';
@@ -111,13 +122,13 @@ export default class PageService {
     },
     [PageTypes.SETTINGS]: {
       getTitle: ({ recordRef, journalId }) => {
-        const prom = journalId
+        const promise = journalId
           ? pageApi.getJournalTitle(journalId)
           : recordRef
           ? pageApi.getRecordTitle(recordRef)
           : staticTitle(TITLE.HOMEPAGE);
 
-        return prom.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${convertTitle(title)}"`);
+        return promise.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.TIMESHEET]: {
@@ -125,6 +136,22 @@ export default class PageService {
     },
     [PageTypes.DEV_TOOLS]: {
       getTitle: () => staticTitle(TITLE[URL.DEV_TOOLS])
+    },
+    [PageTypes.ADMIN_PAGE]: {
+      getTitle: ({ type, journalId }) => {
+        if (journalId && type === SectionTypes.JOURNAL) {
+          return PageService.pageTypes[PageTypes.JOURNALS].getTitle({ journalId });
+        }
+
+        if (type === SectionTypes.BPM) {
+          return staticTitle(TITLE.BPM);
+        }
+
+        return staticTitle(TITLE.ADMIN_PAGE);
+      }
+    },
+    [PageTypes.CMMN_EDITOR]: {
+      getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.CMMN_EDITOR])} "${convertTitle(title)}"`)
     }
   });
 

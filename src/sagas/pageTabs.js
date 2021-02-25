@@ -4,9 +4,11 @@ import queryString from 'query-string';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
+import isEmpty from 'lodash/isEmpty';
 
 import {
   changeTab,
+  closeTabs,
   deleteTab,
   getTabs,
   initTabs,
@@ -139,6 +141,27 @@ function* sagaDeleteTab({ api, logger }, action) {
   }
 }
 
+function* sagaCloseTabs({ api, logger }, { payload }) {
+  try {
+    const { tabs, homepageLink, tab } = payload;
+
+    PageTabList.delete(tabs);
+
+    if (homepageLink && isEmpty(PageTabList.tabs)) {
+      PageService.changeUrlLink(homepageLink, { openNewTab: true });
+    }
+
+    if (tab && !tab.isActive && !PageTabList.hasActiveTab) {
+      PageTabList.activate(tab);
+      PageService.changeUrlLink(tab.link, { openNewTab: true });
+    }
+
+    yield put(setTabs(PageTabList.tabs, { reopen: true }));
+  } catch (e) {
+    logger.error('[pageTabs sagaCloseTabs saga error', e.message);
+  }
+}
+
 function* sagaChangeTabData({ api, logger }, { payload }) {
   try {
     const inited = yield select(selectInitStatus);
@@ -201,16 +224,16 @@ function* sagaUpdateTabs({ api, logger }, { payload }) {
 function* getTitle(tab) {
   try {
     const urlProps = queryString.parseUrl(tab.link);
-    const { recordRef: ref, nodeRef, journalId } = urlProps.query || {};
+    const { recordRef: ref, nodeRef, journalId, type } = urlProps.query || {};
     const recordRef = ref || nodeRef;
-    const title = yield PageService.getPage(tab).getTitle({ recordRef, journalId }, tab.link);
+    const title = yield PageService.getPage(tab).getTitle({ recordRef, journalId, type }, tab.link);
 
     return {
       title,
       isLoading: false
     };
   } catch (e) {
-    console.error('[getTitle]', e);
+    console.error('[pageTabs getTitle]', e);
     return {
       title: TITLE.NO_NAME,
       isLoading: false
@@ -225,6 +248,7 @@ function* saga(ea) {
   yield takeEvery(moveTabs().type, sagaMoveTabs, ea);
   yield takeEvery(setTab().type, sagaSetOneTab, ea);
   yield takeEvery(deleteTab().type, sagaDeleteTab, ea);
+  yield takeEvery(closeTabs().type, sagaCloseTabs, ea);
   yield takeEvery(changeTab().type, sagaChangeTabData, ea);
   yield takeEvery(updateTab().type, sagaUpdateTabData, ea);
   yield takeEvery(updateTabsFromStorage().type, sagaUpdateTabs, ea);

@@ -1,11 +1,10 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { PROXY_URI, URL_EIS_CONFIG, URL_PAGECONTEXT, URL_RESCONTEXT, URL_SERVICECONTEXT } from '../constants/alfresco';
-import { getCurrentUserName, loadScript, t } from '../helpers/util';
+import { PROXY_URI, URL_EIS_CONFIG } from '../constants/alfresco';
+import { getCurrentUserName, t } from '../helpers/util';
 import { goToCardDetailsPage } from '../helpers/urls';
-import { SourcesId } from '../constants';
-import { requireShareAssets } from '../legacy/share';
+import { SourcesId, URL } from '../constants';
 import FormManager from '../components/EcosForm/FormManager';
 import dialogManager from '../components/common/dialogs/Manager';
 import DialogManager from '../components/common/dialogs/Manager/DialogManager';
@@ -13,10 +12,10 @@ import Records from '../components/Records/Records';
 import { ActionTypes } from '../components/Records/actions';
 import RecordActions from '../components/Records/actions/recordActions';
 import ecosFetch from './ecosFetch';
+import { CommonApi } from '../api/common';
 
 export const HandleControlTypes = {
   ALF_DOLOGOUT: 'ALF_DOLOGOUT',
-  ALF_SHOW_MODAL_MAKE_UNAVAILABLE: 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE',
   ALF_NAVIGATE_TO_PAGE: 'ALF_NAVIGATE_TO_PAGE',
   ALF_CREATE_SITE: 'ALF_CREATE_SITE',
   ALF_EDIT_SITE: 'ALF_EDIT_SITE',
@@ -25,18 +24,30 @@ export const HandleControlTypes = {
   ALF_BECOME_SITE_MANAGER: 'ALF_BECOME_SITE_MANAGER',
   ALF_REQUEST_SITE_MEMBERSHIP: 'ALF_REQUEST_SITE_MEMBERSHIP',
   ECOS_CREATE_VARIANT: 'ECOS_CREATE_VARIANT',
-  ECOS_EDIT_PASSWORD: 'ECOS_EDIT_PASSWORD'
+  ECOS_EDIT_PASSWORD: 'ECOS_EDIT_PASSWORD',
+  ECOS_EDIT_AVAILABILITY: 'ECOS_EDIT_AVAILABILITY'
 };
 
 const HCT = HandleControlTypes;
 
-const LOGOUT_URL_DEFAULT = `${URL_SERVICECONTEXT}dologout`;
+const LOGOUT_URL_DEFAULT = '/logout';
 
-export const toggleUnavailableStatus = payload => {
+export const toggleAvailabilityStatus = payload => {
+  const commonApi = new CommonApi();
+  const fetch = () => {
+    return commonApi
+      .postJson(`${PROXY_URI}api/availability/make-available`, {
+        isAvailable: !payload.isAvailable
+      })
+      .then(() => {
+        window.location.reload();
+      })
+      .catch(() => '');
+  };
+
   if (!payload.isAvailable) {
-    ecosFetch(`${URL_PAGECONTEXT}components/deputy/make-available?available=true`).then(() => {
-      window.location.reload();
-    });
+    fetch();
+
     return;
   }
 
@@ -113,9 +124,7 @@ export const toggleUnavailableStatus = payload => {
         });
 
       if (!isEmpty(result)) {
-        await ecosFetch(`${URL_PAGECONTEXT}components/deputy/make-available?available=false`).then(() => {
-          window.location.reload();
-        });
+        await fetch();
       }
     }
   });
@@ -129,21 +138,24 @@ export default function handleControl(type, payload) {
           window.location.reload();
         });
       };
+
       ecosFetch(URL_EIS_CONFIG)
         .then(r => r.json())
         .then(config => {
           const EIS_LOGOUT_URL_DEFAULT_VALUE = 'LOGOUT_URL';
-          const { logoutUrl = EIS_LOGOUT_URL_DEFAULT_VALUE } = config || {};
-          if (logoutUrl !== EIS_LOGOUT_URL_DEFAULT_VALUE) {
-            return logoutHandler(logoutUrl);
+          let { logoutUrl = EIS_LOGOUT_URL_DEFAULT_VALUE } = config || {};
+
+          if (logoutUrl === EIS_LOGOUT_URL_DEFAULT_VALUE) {
+            logoutUrl = LOGOUT_URL_DEFAULT;
           }
-          return logoutHandler();
+
+          return logoutHandler(logoutUrl);
         })
         .catch(() => logoutHandler());
       break;
 
-    case HCT.ALF_SHOW_MODAL_MAKE_UNAVAILABLE:
-      return toggleUnavailableStatus(payload);
+    case HCT.ECOS_EDIT_AVAILABILITY:
+      return toggleAvailabilityStatus(payload);
 
     case HCT.ALF_NAVIGATE_TO_PAGE:
       // TODO improve it
@@ -155,31 +167,10 @@ export default function handleControl(type, payload) {
       }
       break;
 
-    case HCT.ALF_CREATE_SITE:
-      if (window.Alfresco && window.Alfresco.module && typeof window.Alfresco.module.getCreateSiteInstance === 'function') {
-        window.Alfresco.module.getCreateSiteInstance().show();
-      } else {
-        const createSiteScript = `${URL_RESCONTEXT}modules/create-site${process.env.NODE_ENV === 'development' ? '.js' : '-min.js'}`;
-        requireShareAssets().then(() => {
-          loadScript(createSiteScript, function() {
-            window.Alfresco.module.getCreateSiteInstance().show();
-          });
-        });
-      }
-
-      break;
-
     case HCT.ALF_EDIT_SITE:
       if (window.Alfresco && window.Alfresco.module && typeof window.Alfresco.module.getEditSiteInstance === 'function') {
         window.Alfresco.module.getEditSiteInstance().show({
           shortName: payload.site
-        });
-      } else {
-        const legacyEditSiteResource = URL_RESCONTEXT + 'modules/edit-site' + (process.env.NODE_ENV === 'development' ? '.js' : '-min.js');
-        window.require([legacyEditSiteResource], function() {
-          window.Alfresco.module.getEditSiteInstance().show({
-            shortName: payload.site
-          });
         });
       }
 
@@ -207,7 +198,7 @@ export default function handleControl(type, payload) {
                   text: t('message.leaving', { userFullName, siteTitle })
                 });
 
-                window.location.href = URL_PAGECONTEXT + 'user/' + encodeURIComponent(user) + '/dashboard';
+                window.location.href = URL.DASHBOARD;
               })
               .catch(err => {
                 console.log('error', err);
@@ -305,7 +296,7 @@ export default function handleControl(type, payload) {
               title: t('message.request-join-success-title'),
               text: t('message.request-join-success', { site: siteTitle || site }),
               onClose: () => {
-                window.location.href = URL_PAGECONTEXT + 'user/' + encodeURIComponent(user) + '/dashboard';
+                window.location.href = URL.DASHBOARD;
               }
             });
           })

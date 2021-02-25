@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
@@ -14,7 +15,7 @@ import {
   saveJournalSetting,
   setJournalSetting
 } from '../../../actions/journals';
-import { closest, deepClone, t, trigger } from '../../../helpers/util';
+import { closest, t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
@@ -106,10 +107,10 @@ class JournalsSettingsFooter extends Component {
   };
 
   resetSettings = () => {
-    const { resetJournalSettingData, journalSetting } = this.props;
+    const { onReset, resetJournalSettingData, journalSetting } = this.props;
 
     resetJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD] || '');
-    trigger.call(this, 'onReset', deepClone(journalSetting));
+    onReset(cloneDeep(journalSetting));
   };
 
   getSetting = title => {
@@ -159,17 +160,17 @@ class JournalsSettingsFooter extends Component {
     return (
       <>
         <Columns
-          className={'ecos-journal__settings-footer'}
+          className="ecos-journal__settings-footer"
           cols={[
             <>
-              <Btn className={'ecos-btn_x-step_10'} onClick={this.openDialog}>
+              <Btn className="ecos-btn_x-step_10" onClick={this.openDialog}>
                 {t('journals.action.create-template')}
               </Btn>
               {journalSetting[JOURNAL_SETTING_ID_FIELD] && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
             </>,
 
             <>
-              <Btn className={'ecos-btn_x-step_10'} onClick={this.resetSettings}>
+              <Btn className="ecos-btn_x-step_10 ecos-journal__settings-footer-action_reset" onClick={this.resetSettings}>
                 {t('journals.action.reset')}
               </Btn>
               <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.applySetting}>

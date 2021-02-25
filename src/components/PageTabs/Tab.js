@@ -61,6 +61,18 @@ class Tab extends Component {
     this.props.onMouseUp(this.props.tab, isWheelButton);
   };
 
+  handleContextMenu = event => {
+    const { tab, position, onContextMenu } = this.props;
+
+    if (typeof onContextMenu !== 'function') {
+      return;
+    }
+
+    event.preventDefault();
+
+    onContextMenu({ tab, position, x: event.clientX, y: event.clientY });
+  };
+
   handleCloseTab = event => {
     event.stopPropagation();
     this.props.onClose(this.props.tab);
@@ -110,6 +122,7 @@ class Tab extends Component {
             })}
             onClick={this.handleClickTab}
             onMouseUp={this.handleMouseUp}
+            onContextMenu={this.handleContextMenu}
           >
             <span className="page-tab__tabs-item-title">
               {this.renderLoader()}

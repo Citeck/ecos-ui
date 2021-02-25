@@ -24,6 +24,20 @@ export default class HeaderFormatter extends Component {
   }
 
   componentDidMount() {
+    this._setFilterValue();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.filterValue !== this.props.filterValue) {
+      this._setFilterValue();
+    }
+  }
+
+  componentWillUnmount() {
+    this.fetchValue = false;
+  }
+
+  _setFilterValue = () => {
     const { column, filterValue } = this.props;
     const formatter = get(column, 'formatExtraData.formatter.getDisplayText', null);
     const value = formatter && formatter(filterValue);
@@ -39,11 +53,7 @@ export default class HeaderFormatter extends Component {
     } else {
       this.setState({ text: filterValue, first: filterValue });
     }
-  }
-
-  componentWillUnmount() {
-    this.fetchValue = false;
-  }
+  };
 
   get activeFilter() {
     const { text, open } = this.state;
