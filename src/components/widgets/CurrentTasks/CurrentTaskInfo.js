@@ -26,13 +26,16 @@ class CurrentTaskInfo extends React.Component {
     isOpenActions: false
   };
 
-  constructor(props) {
-    super(props);
+  get tooltipTitleId() {
+    const id = get(this.props, 'task.id');
 
-    const id = props.task.id;
+    return prepareTooltipId(`tooltip-title-${id}`);
+  }
 
-    this.tooltipTitleId = prepareTooltipId(`tooltip-title-${id}`);
-    this.tooltipUsersId = prepareTooltipId(`tooltip-users-${id}`);
+  get tooltipUsersId() {
+    const id = get(this.props, 'task.id');
+
+    return prepareTooltipId(`tooltip-users-${id}`);
   }
 
   renderLabel = key => <div className="ecos-current-task-info-label">{DC[key].label}</div>;
