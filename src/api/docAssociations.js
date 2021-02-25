@@ -61,7 +61,7 @@ export class DocAssociationsApi extends DocumentsApi {
             config: {
               script: 'return cell ? extraProps.formatDate(cell) : "";',
               extraProps: {
-                formatDate: cell => getOutputFormat(DataFormatTypes.DATE, cell)
+                formatDate: cell => getOutputFormat(DataFormatTypes.DATETIME, cell)
               }
             }
           }
@@ -82,8 +82,6 @@ export class DocAssociationsApi extends DocumentsApi {
 
     return journalsService.getJournalConfigByType(association.target).then(async columnsConfig => {
       const config = isEmpty(columnsConfig) ? baseColumnsConfig : columnsConfig;
-
-      console.warn(config);
 
       return {
         ...association,
