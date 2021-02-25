@@ -1,6 +1,7 @@
 import { all } from 'redux-saga/effects';
 import app from './app';
 import bpmn from './bpmn';
+import bpmnEditor from './bpmnEditor';
 import docLib from './docLib';
 import header from './header';
 import journals from './journals';
@@ -40,6 +41,7 @@ export default function* rootSaga(extraArguments) {
   yield all([
     app(extraArguments),
     bpmn(extraArguments),
+    bpmnEditor(extraArguments),
     docLib(extraArguments),
     header(extraArguments),
     journals(extraArguments),

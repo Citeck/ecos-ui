@@ -185,8 +185,8 @@ describe('JournalsService', () => {
 
     const config = await journalsService.getJournalConfig(JOURNAL_CONFIG.id);
 
-    expect(config.columns[0].formatter.config.url).toBe('http://host/v2/dashboard?recordRef=${$computed.column_Name1.test-computed}');
-    expect(config.columns[1].formatter.config.url).toBe('http://host/v2/dashboard?recordRef=${$computed.test-computed}');
+    expect(config.columns[0].newFormatter.config.url).toBe('http://host/v2/dashboard?recordRef=${$computed.column_Name1.test-computed}');
+    expect(config.columns[1].newFormatter.config.url).toBe('http://host/v2/dashboard?recordRef=${$computed.test-computed}');
 
     const journalData = await journalsService.getJournalData(config, {});
 

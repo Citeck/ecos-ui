@@ -33,4 +33,4 @@ export const DisplayedColumns = {
 
 export const noData = <span className="ecos-current-task_no-data">{t('current-tasks-widget.no-data')}</span>;
 
-export const cleanTaskId = taskId => taskId.replace(/[$@]/g, '');
+export const cleanTaskId = taskId => taskId.replace(/[^\d\w-]/g, '');

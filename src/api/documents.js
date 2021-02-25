@@ -3,6 +3,7 @@ import { DEFAULT_REF, documentFields } from '../constants/documents';
 import { Permissions, SourcesId } from '../constants';
 import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
 import { PROXY_URI } from '../constants/alfresco';
+import journalsService from '../components/Journals/service/journalsService';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
@@ -14,7 +15,7 @@ export class DocumentsApi {
         name: 'name',
         parent: 'parent?id',
         formId: 'form?id',
-        createVariants: 'createVariants?json',
+        createVariants: 'inhCreateVariants[]?json',
         actions: 'actions[]?id'
       }
     ).then(response => response);
@@ -35,17 +36,8 @@ export class DocumentsApi {
     );
   };
 
-  /***
-   * @todo use JournalsService
-   */
   getColumnsConfigByType = typeRef => {
-    return Records.queryOne(
-      {
-        sourceId: 'uiserv/journal_v1',
-        query: { typeRef }
-      },
-      '.json'
-    ).then(response => response);
+    return journalsService.getJournalConfigByType(typeRef);
   };
 
   getFormIdByType = type => {
@@ -100,7 +92,16 @@ export class DocumentsApi {
   };
 
   getFormattedColumns = async config => {
-    const { predicate = {}, columns = [], sourceId } = config;
+    const { columns = [], sourceId } = config;
+    let { predicate = {} } = config;
+
+    if (predicate.t !== 'and') {
+      predicate = {
+        t: 'and',
+        val: [predicate]
+      };
+    }
+
     let queryPredicates = predicate.val || [];
 
     if (!Array.isArray(queryPredicates)) {

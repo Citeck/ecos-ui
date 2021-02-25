@@ -7,7 +7,8 @@ export const URL = {
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
   MENU_SETTINGS: '/v2/menu-settings',
   ADMIN_PAGE: '/v2/admin',
-  BPMN_DESIGNER: '/v2/bpmn-designer',
+  BPMN_DESIGNER: '/v2/bpmn-designer', // @deprecated
+  BPMN_EDITOR: '/v2/bpmn-editor',
   CMMN_EDITOR: '/v2/cmmn-editor',
   DEV_TOOLS: '/v2/dev-tools',
   TIMESHEET: '/v2/timesheet',
@@ -33,16 +34,17 @@ export const SourcesId = {
   BUILD_INFO: 'uiserv/build-info',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'alfresco/doclib',
-  EFORM: 'uiserv/eform',
+  EFORM: 'uiserv/form',
   USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',
   MENU: 'uiserv/menu',
+  RESOLVED_MENU: 'uiserv/rmenu',
   ICON: 'uiserv/icon',
   PREDICATE: 'uiserv/predicate',
   THEME: 'uiserv/theme',
   META: 'uiserv/meta',
   JOURNAL: 'uiserv/journal',
-  JOURNAL_V1: 'uiserv/journal_v1',
+  RESOLVED_JOURNAL: 'uiserv/rjournal',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
   A_AUTHORITY: 'alfresco/authority',
@@ -132,6 +134,7 @@ export const Pages = {
   DEBUG_TREE: 'debug-tree',
   DEBUG_CMMN: 'debug-cmnne',
   CMMN_EDITOR: 'cmmn-editor',
+  BPMN_EDITOR: 'bpmn-editor',
   DEV_TOOLS: 'dev-tools'
 };
 
@@ -155,7 +158,7 @@ export const JournalUrlParams = {
 export const SYSTEM_LIST = 'global-system';
 
 export const SystemJournals = {
-  ALL_J: 'ecos-all-journals',
+  JOURNALS: 'ecos-journals',
   TYPES: 'ecos-types',
   MENUS: 'ecos-menus'
 };

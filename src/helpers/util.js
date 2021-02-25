@@ -630,7 +630,9 @@ export function removeItemFromArray(array = [], item = '', byKey = '') {
 }
 
 export function isNodeRef(str) {
-  return typeof str === 'string' && str.indexOf('workspace://SpacesStore/') === 0;
+  return (
+    typeof str === 'string' && (str.indexOf('workspace://SpacesStore/') === 0 || str.indexOf('alfresco/@workspace://SpacesStore/') === 0)
+  );
 }
 
 /**

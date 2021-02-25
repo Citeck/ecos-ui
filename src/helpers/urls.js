@@ -4,7 +4,6 @@ import get from 'lodash/get';
 
 import { JournalUrlParams, SourcesId, URL } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
-import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/Records/predicates/predicates';
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
@@ -98,33 +97,8 @@ export function createContentUrl({ value }) {
   return `${PROXY_URI}api/node/workspace/SpacesStore/${value}/content;cm:content`;
 }
 
-const getCriteriaFilterParam = ({ row, columns, groupBy }) => {
-  const criteria = [];
-
-  if (groupBy.length) {
-    groupBy = groupBy[0].split('&');
-    columns = columns.filter(c => groupBy.filter(g => g === c.attribute)[0]);
-  }
-
-  for (const key in row) {
-    const value = row[key];
-    const type = (columns.filter(c => c.attribute === key && c.visible && c.default && c.searchable)[0] || {}).type;
-    const predicate = ALFRESCO_EQUAL_PREDICATES_MAP[type];
-
-    if (predicate) {
-      criteria.push({
-        field: key,
-        predicate: predicate,
-        persistedValue: value
-      });
-    }
-  }
-
-  return criteria.length ? JSON.stringify({ criteria }) : '';
-};
-
 export const getFilterParam = options => {
-  return OLD_LINKS ? getCriteriaFilterParam(options) : ParserPredicate.getRowPredicates(options);
+  return ParserPredicate.getRowPredicates(options);
 };
 
 export const getJournalPageUrl = ({ journalsListId, journalId, journalSettingId, nodeRef, filter, search }) => {

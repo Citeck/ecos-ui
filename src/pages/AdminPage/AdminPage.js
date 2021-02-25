@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { initAdminSection } from '../../actions/adminSection';
+import { initAdminSection, updActiveSection } from '../../actions/adminSection';
 import { isExistValue, t } from '../../helpers/util';
 import { Loader } from '../../components/common';
 import { Well } from '../../components/common/form';
@@ -14,12 +14,19 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  initAdminSection: () => dispatch(initAdminSection())
+  initAdminSection: () => dispatch(initAdminSection()),
+  updateActiveSection: () => dispatch(updActiveSection())
 });
 
 class AdminPage extends React.Component {
   componentDidMount() {
     this.props.initAdminSection();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.tabLink !== this.props.tabLink) {
+      this.props.updateActiveSection();
+    }
   }
 
   render() {

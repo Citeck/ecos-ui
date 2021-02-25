@@ -3,7 +3,7 @@ import { CommonApi } from './common';
 
 export class PageApi extends CommonApi {
   getJournalTitle = journalId => {
-    return Records.get('uiserv/journal_v1@' + journalId)
+    return Records.get('uiserv/rjournal@' + journalId)
       .load('.disp')
       .then(res => res || '')
       .catch(() => '');
