@@ -119,9 +119,9 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     yield all(
       combinedTypes.map(function*(item) {
         const journalConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
-        const _columns = DocumentsConverter.getColumnsForGrid(journalConfig.columns);
-        DocumentsConverter.setDefaultFormatters(_columns);
-        const columns = yield call(api.documents.getFormattedColumns, { ...journalConfig, columns: _columns });
+        const columns = DocumentsConverter.getColumnsForGrid(journalConfig.columns);
+
+        DocumentsConverter.setDefaultFormatters(columns);
         item.columns = DocumentsConverter.getColumnForWeb(columns);
         return item;
       })
