@@ -48,7 +48,7 @@ class CreateInSection extends Base {
 
     return (
       <this.wrapperModal>
-        <Field label={t(Labels.FIELD_SECTION_ID)}>
+        <Field label={t(Labels.FIELD_SECTION_ID)} required>
           <Select
             value={availableSections.find(item => item.id === sectionId)}
             onChange={this.setSection}

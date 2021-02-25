@@ -155,7 +155,7 @@ export default class MenuConverter {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
         const { dndIdx, locked, draggable, icon, ...newData } = sItem;
-        const oldData = treeFindFirstItem({ items: source.originalItems, value: sItem.id, key: 'id' }) || {};
+        const oldData = treeFindFirstItem({ items: source.originalItems || [], value: sItem.id, key: 'id' }) || {};
         const tItem = { ...oldData, ...newData, items: [] };
 
         tItem.icon = getIconRef(icon);

@@ -75,18 +75,20 @@ function* runSaveMenuSettings(props, action) {
 
 function* runSaveMenuConfig({ api, logger }, action) {
   try {
-    const config = yield select(state => state.menu);
     const id = yield select(state => state.menuSettings.editedId);
-    const keyType = MenuSettingsService.getConfigKeyByType(config.type);
-    const items = yield select(state => state.menuSettings.leftItems);
+    const result = yield select(state => state.menuSettings.originalConfig);
+    const leftItems = yield select(state => state.menuSettings.leftItems);
+    const createItems = yield select(state => state.menuSettings.createItems);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
     const authorities = authoritiesInfo.map(item => item.name);
+    const newLeftItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.left.items'), items: leftItems });
+    const newCreateItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.create.items'), items: createItems });
+    const subMenu = {};
 
-    const result = yield select(state => state.menu.originalConfig);
-    const originalItems = get(result, ['menu', keyType, 'items'], []);
-    const newItems = MenuConverter.getMenuItemsServer({ originalItems, items });
+    set(subMenu, 'left.items', newLeftItems);
+    set(subMenu, 'create.items', newCreateItems);
 
-    set(result, ['subMenu', keyType, 'items'], newItems);
+    //todo
 
     return yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities, version: result.version });
   } catch (e) {
