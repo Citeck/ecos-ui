@@ -30,7 +30,7 @@ const AdminSection = ({ activeSection = {}, tabId, isActivePage }) => {
       const { paddingTop, paddingBottom } = window.getComputedStyle(wrap);
       let heights = 0;
 
-      heights += parseInt(paddingTop, 10) + parseInt(paddingBottom, 10);
+      heights += parseInt(paddingTop, 10) + parseInt(paddingBottom, 10) - 2;
 
       if (header) {
         heights += header.offsetTop;
@@ -43,7 +43,7 @@ const AdminSection = ({ activeSection = {}, tabId, isActivePage }) => {
   return (
     <div className="ecos-admin-section__container" ref={wrapperRef}>
       <div className={classNames('ecos-admin-section__content', { 'ecos-admin-section__content_full': !isOpenMenu })}>
-        <Container fluid className="px-4">
+        <Container fluid className="p-0">
           <Row className="ecos-admin-section__header m-0 px-0">
             <Col className="m-0 p-0">
               <Caption normal>{t(activeSection.label)}</Caption>

@@ -61,6 +61,7 @@ class BaseMLField extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { cursorPosition } = this.state;
+    const isSelectedText = !isEmpty(window.getSelection().toString());
 
     if (this.value === undefined && !isEqual(this.props.value, prevProps.value)) {
       const selectedLang = this.getLocaleWithValue(this.props.value);
@@ -86,7 +87,7 @@ class BaseMLField extends Component {
       }
     }
 
-    if (this._inputRef && prevState.isFocus && this.state.isFocus && cursorPosition !== null) {
+    if (!isSelectedText && this._inputRef && prevState.isFocus && this.state.isFocus && cursorPosition !== null) {
       this._inputRef.setSelectionRange(cursorPosition, cursorPosition);
     }
   }

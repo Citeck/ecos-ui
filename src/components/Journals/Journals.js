@@ -150,7 +150,7 @@ class Journals extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl } = this.props;
+    const { urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl, doNotChangeUrl } = this.props;
     const { isActivePage: _isActivePage, urlParams: _urlParams } = prevProps;
 
     const _journalId = get(_urlParams, JournalUrlParams.JOURNAL_ID);
@@ -173,7 +173,7 @@ class Journals extends Component {
 
     const someUrlChanges = isActivePage && _isActivePage && !isEqualQuery;
 
-    if (someUrlChanges) {
+    if (someUrlChanges && !doNotChangeUrl) {
       setUrl(getSearchParams());
     }
 
@@ -336,7 +336,7 @@ class Journals extends Component {
   };
 
   showDocLibrary = () => {
-    this.setState(() => ({ viewMode: JOURNAL_VIEW_MODE.DOC_LIB }));
+    this.setState(() => ({ viewMode: JOURNAL_VIEW_MODE.DOC_LIB, showPreview: false }));
   };
 
   showGrid = () => {
@@ -679,6 +679,7 @@ Journals.propTypes = {
   bodyClassName: PropTypes.string,
   additionalHeights: PropTypes.number,
   isActivePage: PropTypes.bool,
+  doNotChangeUrl: PropTypes.bool,
   displayElements: PropTypes.shape({
     menu: PropTypes.bool,
     header: PropTypes.bool,
