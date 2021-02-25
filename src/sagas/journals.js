@@ -11,6 +11,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import JournalsConverter from '../dto/journals';
 import Records from '../components/Records';
 import JournalsService from '../components/Journals/service';
+import EditorService from '../components/Journals/service/editors/EditorService';
 import {
   createJournalSetting,
   deleteJournalSetting,
@@ -166,8 +167,16 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
       return;
     }
 
-    const { recordRef, lsJournalId } = action.payload;
     const { journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config[JOURNAL_DASHLET_CONFIG_VERSION];
+
+    if (customJournalMode && customJournal) {
+      yield put(setEditorMode(w(false)));
+      yield put(setDashletConfig(w(config)));
+      yield put(initJournal(w({ journalId: customJournal })));
+      return;
+    }
+
+    const { recordRef, lsJournalId } = action.payload;
     const journalsListId = get(journalsListIds, '0');
     let selectedJournals = [];
 
@@ -705,25 +714,30 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
     const attribute = Object.keys(attributes)[0];
     const value = attributes[attribute];
     const tempAttributes = {};
-    let formatter;
 
-    yield call(api.journals.saveRecords, { id, attributes });
+    const currentColumn = grid.columns.find(item => item.attribute === attribute);
+    const newEditor = currentColumn.newEditor || {};
+
+    const valueToSave = EditorService.getValueToSave(newEditor, value, currentColumn.multiple);
+
+    yield call(api.journals.saveRecords, {
+      id,
+      attributes: {
+        [attribute]: valueToSave
+      }
+    });
 
     grid.columns.forEach(c => {
-      tempAttributes[c.attribute] = c.formatExtraData.formatter.getQueryString(c.attribute);
-
-      if (c.attribute === attribute) {
-        formatter = c.formatExtraData.formatter;
-      }
+      tempAttributes[c.attribute] = c.attSchema;
     });
 
     const savedRecord = yield call(api.journals.getRecord, { id, attributes: tempAttributes, noCache: true });
 
     grid.data = grid.data.map(record => {
       if (record.id === id) {
-        const savedValue = formatter ? formatter.getId(savedRecord[attribute]) : savedRecord[attribute];
+        const savedValue = EditorService.getValueToSave(newEditor, savedRecord[attribute], currentColumn.multiple);
 
-        if (savedValue !== value) {
+        if (!isEqual(savedValue, valueToSave)) {
           savedRecord.error = attribute;
         }
 

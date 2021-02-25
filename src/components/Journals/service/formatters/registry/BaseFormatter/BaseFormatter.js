@@ -1,11 +1,12 @@
+import CellType from '../../CellType';
+
 export default class BaseFormatter {
   static TYPE = '';
 
   /**
    * @param {FormatterProps} props
    * @field {Object}   config
-   * @field {Object}   config._extra          - extra arguments, injected by FormatterService
-   * @field {function} config._extra.format   - alias for FormatterService.format
+   * @field {function} format   - alias for FormatterService.format
    * @return {React.ReactNode}
    */
   format(props) {
@@ -17,5 +18,9 @@ export default class BaseFormatter {
    */
   getType() {
     return this.constructor.TYPE || BaseFormatter.TYPE;
+  }
+
+  getSupportedCellType() {
+    return CellType.SCALAR;
   }
 }

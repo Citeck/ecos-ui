@@ -62,7 +62,7 @@ class EcosForm extends React.Component {
 
   get initState() {
     return {
-      formId: 'eform@',
+      formId: 'form@',
       error: null,
       formDefinition: {}
     };

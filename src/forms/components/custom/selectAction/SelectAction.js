@@ -36,6 +36,10 @@ export default class SelectActionComponent extends BaseReactComponent {
     return SelectActionComponent.schema();
   }
 
+  get items() {
+    return get(this, 'component.source.items', []).map(item => ({ ...item, title: this.t(item.name) }));
+  }
+
   getComponentToRender() {
     return Dropdown;
   }
@@ -76,12 +80,13 @@ export default class SelectActionComponent extends BaseReactComponent {
       `formio-select-action__dropdown_theme-${theme}`,
       `formio-select-action__dropdown_size-${size}`
     ];
+    const placeholder = this.t(component.placeholder);
     const resolveProps = () => ({
-      source: get(component, 'source.items', []),
+      source: this.items,
       valueField: 'name',
-      titleField: 'name',
+      titleField: 'title',
       hasEmpty: true,
-      placeholder: component.placeholder,
+      placeholder,
       className: classNames.join(' '),
       toggleClassName: 'formio-select-action__dropdown-toggle',
       menuClassName: 'formio-select-action__dropdown-menu',

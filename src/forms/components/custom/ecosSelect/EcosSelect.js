@@ -88,10 +88,8 @@ export default class SelectComponent extends BaseComponent {
   createViewOnlyValue(container) {
     if (this.component.dataSrc === 'url') {
       this.updateItems('', !this.active, () => {
-        super.createViewOnlyValue(container);
+        super.updateViewOnlyValue();
       });
-
-      return;
     }
 
     super.createViewOnlyValue(container);

@@ -738,7 +738,7 @@
   "page-tabs.dev-tools": "Development tools",
   "page-tabs.form-components": "Form components",
   "page-tabs.cmmn-editor": "Scenario",
-  "page-tabs.bpmn-editor": "Model",
+  "page-tabs.bpmn-editor": "Process",
   "page-tabs.close-all-tabs": "Close all tabs",
   "page-tabs.close-all-tabs-title": "Close all tabs",
   "page-tabs.close-all-tabs-text": "Are you sure you want to close all tabs?",
@@ -1293,6 +1293,9 @@
   "model-editor.btn.create": "Create",
   "model-editor.btn.view-xml": "View XML",
   "model-editor.error.form-not-found": "Properties form has not found for this record",
+
+  "bpmn-editor.error.no-model": "Process's not set",
+  "bpmn-editor.error.no-selected-element": "You should select some element to edit it",
 
   "cmmn-editor.success.scenario-saved": "Scenario is saved",
   "cmmn-editor.error.no-model": "Scenario's not set",
