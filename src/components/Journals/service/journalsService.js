@@ -144,6 +144,7 @@ class JournalsService {
     result.params = column.properties || {};
     result.schema = column.attribute;
     result.searchable = column.searchable !== false;
+    result.searchableByText = column.searchableByText !== false;
     result.sortable = column.sortable === true;
     result.type = COLUMN_TYPE_NEW_TO_LEGACY_MAPPING[column.type] || 'text';
     result.visible = column.hidden !== true;
