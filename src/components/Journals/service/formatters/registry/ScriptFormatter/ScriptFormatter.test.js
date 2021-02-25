@@ -58,11 +58,9 @@ describe('ScriptFormatter', () => {
               },
               cell: '${modifiedCell}'
             };
-          `,
-          _extra: {
-            format: formatFunc
-          }
-        }
+          `
+        },
+        format: formatFunc
       });
       expect(formatFunc).toHaveBeenCalled();
 
