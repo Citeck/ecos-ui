@@ -16,7 +16,8 @@ import {
   setLastAddedLeftItems,
   setLeftMenuItems,
   setLoading,
-  setMenuIcons
+  setMenuIcons,
+  setOriginalConfig
 } from '../actions/menuSettings';
 import { initMenuConfig } from '../actions/menu';
 import { t } from '../helpers/util';
@@ -33,18 +34,19 @@ function* fetchSettingsConfig({ api, logger }) {
       throw new Error('User Menu Ref has not received');
     }
 
-    const { menu, authorities } = yield call(api.menu.getMenuSettingsConfig, { id });
-    const leftItems = MenuConverter.getMenuItemsWeb(get(menu, 'left.items') || []);
-    const createItems = MenuConverter.getMenuItemsWeb(get(menu, 'create.items') || []);
+    const config = yield call(api.menu.getMenuSettingsConfig, { id });
+    const leftItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.left.items') || []);
+    const createItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.create.items') || []);
 
     const _font = yield import('../fonts/citeck-leftmenu/selection.json');
     const icons = get(_font, 'icons') || [];
     const prefix = get(_font, 'preferences.fontPref.prefix') || '';
     const font = icons.map(item => ({ value: `${prefix}${get(item, 'properties.name')}`, type: 'icon' }));
 
+    yield put(setOriginalConfig(config));
     yield put(setLeftMenuItems(leftItems));
     yield put(setCreateMenuItems(createItems));
-    yield put(setAuthorities(authorities));
+    yield put(setAuthorities(config.authorities));
     yield put(setMenuIcons({ font }));
   } catch (e) {
     yield put(setLoading(false));
@@ -80,7 +82,7 @@ function* runSaveMenuConfig({ api, logger }, action) {
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
     const authorities = authoritiesInfo.map(item => item.name);
 
-    const result = yield call(api.menu.getMenuSettingsConfig, { id });
+    const result = yield select(state => state.menu.originalConfig);
     const originalItems = get(result, ['menu', keyType, 'items'], []);
     const newItems = MenuConverter.getMenuItemsServer({ originalItems, items });
 

@@ -14,12 +14,16 @@ import {
   setLeftMenuItems,
   setLoading,
   setMenuIcons,
-  setOpenMenuSettings
+  setOpenMenuSettings,
+  setOriginalConfig
 } from '../actions/menuSettings';
+import MenuConverter from '../dto/menu';
 
 const initialState = {
   editedId: undefined,
+  originalConfig: {},
   leftItems: [],
+  availableSections: [],
   createItems: [],
   authorities: [],
   groupPriority: [],
@@ -50,11 +54,20 @@ export default handleActions(
       ...initialState,
       isOpenMenuSettings: payload
     }),
-    [setLeftMenuItems]: (state, { payload }) => ({
+    [setOriginalConfig]: (state, { payload }) => ({
       ...state,
-      leftItems: treeSetDndIndex(payload),
-      isLoading: false
+      originalConfig: payload
     }),
+    [setLeftMenuItems]: (state, { payload }) => {
+      const leftItems = treeSetDndIndex(payload);
+
+      return {
+        ...state,
+        leftItems,
+        availableSections: MenuConverter.getAllSectionsFlat(leftItems),
+        isLoading: false
+      };
+    },
     [setCreateMenuItems]: (state, { payload }) => ({
       ...state,
       createItems: treeSetDndIndex(payload),

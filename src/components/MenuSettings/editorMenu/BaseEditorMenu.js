@@ -6,6 +6,7 @@ import classNames from 'classnames';
 
 import { extractLabel, t } from '../../../helpers/util';
 import { treeMoveItem } from '../../../helpers/arrayOfObjects';
+import { SystemJournals } from '../../../constants';
 import { MenuSettings as ms } from '../../../constants/menu';
 import MenuSettingsService from '../../../services/MenuSettingsService';
 import IconSelect from '../../IconSelect';
@@ -14,6 +15,7 @@ import { Btn } from '../../common/btns';
 import { Badge, DropdownOuter } from '../../common/form';
 import DialogManager from '../../common/dialogs/Manager';
 import { Labels } from './../utils';
+import EditorItemModal from './EditorItemModal';
 
 import '../style.scss';
 
@@ -23,6 +25,10 @@ export default class BaseEditorMenu extends React.Component {
     editItemInfo: null,
     editItemIcon: null
   };
+
+  componentDidMount() {
+    this.handleChooseOption.bind(this);
+  }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { lastAddedItems } = this.props;
@@ -50,7 +56,19 @@ export default class BaseEditorMenu extends React.Component {
     this.setState(({ openAllMenuItems }) => ({ openAllMenuItems: !openAllMenuItems }));
   };
 
-  handleChooseOption = () => null;
+  handleChooseOption(editItemInfo = {}) {
+    if ([ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(get(editItemInfo, 'type.key'))) {
+      this.setState({
+        editItemInfo: {
+          ...editItemInfo,
+          several: true,
+          journalId: get(editItemInfo, 'type.key') === ms.ItemTypes.JOURNAL ? SystemJournals.JOURNALS : SystemJournals.TYPES
+        }
+      });
+    } else {
+      this.setState({ editItemInfo });
+    }
+  }
 
   handleActionItem = ({ action, item, level }) => {
     const { items, setMenuItems } = this.props;
@@ -58,7 +76,7 @@ export default class BaseEditorMenu extends React.Component {
     if (action === ms.ActionTypes.DELETE) {
       DialogManager.showRemoveDialog({
         title: '',
-        text: t('menu-settings.message.delete-item', { name: extractLabel(item.label) }),
+        text: t(Labels.MSG_DELETE_ITEM, { name: extractLabel(item.label) }),
         onDelete: () => {
           const result = MenuSettingsService.processAction({ action, id: item.id, items });
           setMenuItems(result.items);
@@ -68,7 +86,7 @@ export default class BaseEditorMenu extends React.Component {
     }
 
     if (action === ms.ActionTypes.EDIT) {
-      const type = MenuSettingsService.createOptions.find(o => o.key === item.type);
+      const type = MenuSettingsService.getCreateOptionsByType(this.type).find(o => o.key === item.type);
 
       type && this.handleChooseOption({ type, item, action, level });
       return;
@@ -112,7 +130,59 @@ export default class BaseEditorMenu extends React.Component {
     );
   };
 
-  renderEditorItem = () => null;
+  renderEditorItem() {
+    const { editItemInfo } = this.state;
+    const { items, setMenuItems, addJournalMenuItems, setLastAddedItems, fontIcons } = this.props;
+
+    if (!editItemInfo) {
+      return null;
+    }
+
+    const handleHideModal = () => {
+      this.setState({ editItemInfo: null });
+    };
+
+    const handleSave = data => {
+      const result = MenuSettingsService.processAction({
+        action: editItemInfo.action,
+        items,
+        id: get(editItemInfo, 'item.id'),
+        data: { ...data, type: get(editItemInfo, 'type.key') },
+        level: editItemInfo.level
+      });
+      setMenuItems(result.items);
+      setLastAddedItems(result.newItems);
+      handleHideModal();
+    };
+
+    const handleSaveJournal = records => {
+      addJournalMenuItems({
+        records,
+        id: get(editItemInfo, 'item.id'),
+        type: get(editItemInfo, 'type.key'),
+        level: editItemInfo.level
+      });
+      handleHideModal();
+    };
+
+    if (editItemInfo.several) {
+      return (
+        <EditorItemModal type={editItemInfo.type} journalId={editItemInfo.journalId} onSave={handleSaveJournal} onClose={handleHideModal} />
+      );
+    }
+
+    return (
+      <EditorItemModal
+        item={editItemInfo.item}
+        type={editItemInfo.type}
+        onClose={handleHideModal}
+        onSave={handleSave}
+        action={editItemInfo.action}
+        params={{ level: editItemInfo.level }}
+        fontIcons={fontIcons}
+      />
+    );
+  }
 
   renderEditorIcon = () => {
     const { editItemIcon } = this.state;

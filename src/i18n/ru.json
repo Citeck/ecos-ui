@@ -1242,6 +1242,7 @@
   "menu-settings.editor-item.field.url.result-absolute": "Результат: {{value}}",
   "menu-settings.editor-item.field.url.result-relative-with-slash": "Результат: {{origin}}{{value}}",
   "menu-settings.editor-item.field.url.result-relative-without-slash": "Результат: {{origin}}{{pathname}}{{value}}",
+  "menu-settings.editor-item.field.section.title": "Раздел",
   "menu-settings.editor-item.field.icon.label": "Иконка",
   "menu-settings.editor-item.field.icon.btn.cancel": "Сбросить",
   "menu-settings.editor-item.field.icon.btn.select": "Выбрать",

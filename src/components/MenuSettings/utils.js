@@ -19,7 +19,14 @@ export const Labels = {
   TIP_DRAG_HERE: 'menu-settings.editor-items.drag-item-here',
   BTN_EXPAND_ALL: 'menu-settings.editor-items.btn.expand-all',
   BTN_COLLAPSE_ALL: 'menu-settings.editor-items.btn.collapse-all',
+  MSG_DELETE_ITEM: 'menu-settings.message.delete-item',
   //editor item
+  MODAL_TITLE_ADD: 'menu-settings.editor-item.title.add',
+  MODAL_TITLE_EDIT: 'menu-settings.editor-item.title.edit',
+  MODAL_BTN_CANCEL: 'menu-settings.editor-item.btn.cancel',
+  MODAL_BTN_ADD: 'menu-settings.editor-item.btn.add',
+  MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit',
+
   FIELD_NAME_LABEL: 'menu-settings.editor-item.field.name.label',
   FIELD_HIDE_NAME_LABEL: 'menu-settings.editor-item.field.checkbox.hide-name',
   FIELD_URL_LABEL: 'menu-settings.editor-item.field.url.label',
@@ -27,15 +34,12 @@ export const Labels = {
   FIELD_URL_RESULT_ABSOLUTE: 'menu-settings.editor-item.field.url.result-absolute',
   FIELD_URL_RESULT_WITH_SLASH: 'menu-settings.editor-item.field.url.result-relative-with-slash',
   FIELD_URL_RESULT_WITHOUT_SLASH: 'menu-settings.editor-item.field.url.result-relative-without-slash',
+  FIELD_SECTION_ID: 'menu-settings.editor-item.field.section.title',
+
   FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',
   FIELD_ICON_BTN_SELECT: 'menu-settings.editor-item.field.icon.btn.select',
   FIELD_ICON_DESC: 'icon-select.custom.tip',
-  MODAL_TITLE_ADD: 'menu-settings.editor-item.title.add',
-  MODAL_TITLE_EDIT: 'menu-settings.editor-item.title.edit',
-  MODAL_BTN_CANCEL: 'menu-settings.editor-item.btn.cancel',
-  MODAL_BTN_ADD: 'menu-settings.editor-item.btn.add',
-  MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit',
   //editor priority
   DESC: 'menu-settings.desc.editor-group-priority',
   //top

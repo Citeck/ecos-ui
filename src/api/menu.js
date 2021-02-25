@@ -7,6 +7,7 @@ import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
 import { PROXY_URI } from '../constants/alfresco';
 import { LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
+import MenuConverter from '../dto/menu';
 import Records from '../components/Records';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
 import { getJournalUIType } from './export/journalsApi';
@@ -253,6 +254,7 @@ export class MenuApi extends CommonApi {
     );
     const updLeftItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
     const updCreateItems = await fetchExtraItemInfo(lodashGet(config, 'menu.create.items') || [], { label: '.disp' });
+    setSectionTitles(updCreateItems, updLeftItems);
     const filterAuthorities = (lodashGet(config, 'authorities') || []).filter(item => item !== LOWEST_PRIORITY);
 
     !filterAuthorities.length && filterAuthorities.push(getCurrentUserName());
@@ -378,4 +380,19 @@ async function fetchExtraGroupItemInfo(data) {
       return target;
     })
   );
+}
+
+function setSectionTitles(createItems, leftItems) {
+  const flatSections = MenuConverter.getAllSectionsFlat(leftItems);
+
+  (function processItems(items) {
+    items.forEach(item => {
+      if (item.type === ms.ItemTypes.CREATE_IN_SECTION) {
+        const section = flatSections.find(li => li.id === lodashGet(item, 'config.sectionId')) || {};
+
+        item.label = section.label;
+        Array.isArray(item.items) && processItems(item.items);
+      }
+    });
+  })(createItems);
 }

@@ -214,7 +214,7 @@ export default class MenuSettingsService {
     {
       key: ms.ItemTypes.EDIT_RECORD,
       label: 'menu-item.type.edit-record',
-      when: { maxLevel: 0 }
+      when: { minLevel: 0 }
     },
     {
       key: ms.ItemTypes.ARBITRARY,

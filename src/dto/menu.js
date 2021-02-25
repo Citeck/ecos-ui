@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { CreateMenuTypes, MenuTypes } from '../constants/menu';
+import { CreateMenuTypes, MenuTypes, MenuSettings } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
 import { extractLabel } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
@@ -197,6 +197,25 @@ export default class MenuConverter {
         tItems.push(tItem);
       }
     })(source, target);
+
+    return target;
+  }
+
+  static getAllSectionsFlat(source) {
+    const target = [];
+
+    (function prepareTree(sItems, breadcrumbs = '') {
+      for (let i = 0; i < sItems.length; i++) {
+        const { items, ...sItem } = sItems[i];
+
+        if (sItem.type === MenuSettings.ItemTypes.SECTION) {
+          const item = cloneDeep(sItem);
+          item.breadcrumbs = breadcrumbs + extractLabel(item.label);
+          target.push(item);
+          Array.isArray(items) && prepareTree(items, item.breadcrumbs + ' / ');
+        }
+      }
+    })(source);
 
     return target;
   }
