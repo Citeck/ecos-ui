@@ -952,7 +952,7 @@ export default class EcosFormUtils {
   }
 
   static isFormId(formId = '') {
-    return formId && /^uiserv\/eform@/.test(formId);
+    return formId && /^uiserv\/form@/.test(formId);
   }
 
   static getFormTitle(data) {

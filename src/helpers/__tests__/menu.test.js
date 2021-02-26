@@ -88,15 +88,34 @@ describe('Menu helpers', () => {
     let spyFetch;
 
     beforeEach(() => {
-      spyFetch = jest.spyOn(global, 'fetch').mockImplementation(url => {
+      spyFetch = jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
+        const body = JSON.parse(request.body);
+
+        const resolvedRecords = body.records.map(rec => {
+          switch (rec) {
+            case 'uiserv/config@custom-feedback-url':
+              return {
+                id: 'uiserv/config@custom-feedback-url',
+                attributes: {
+                  'value?str': 'https://www.citeck.ru/feedback'
+                }
+              };
+            case 'uiserv/config@custom-report-issue-url':
+              return {
+                id: 'uiserv/config@custom-feedback-url',
+                attributes: {
+                  'value?str':
+                    'mailto:support@citeck.ru?subject=Ошибка в работе Citeck ECOS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.'
+                }
+              };
+          }
+        });
+
         return Promise.resolve({
           ok: true,
           json: () =>
             Promise.resolve({
-              records: [
-                'https://www.citeck.ru/feedback',
-                'mailto:support@citeck.ru?subject=Ошибка в работе Citeck ECOS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.'
-              ]
+              records: resolvedRecords
             })
         });
       });

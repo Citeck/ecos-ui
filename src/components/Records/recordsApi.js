@@ -6,6 +6,7 @@ import ecosFetch from '../../helpers/ecosFetch';
 
 import { getSourceId } from './utils/recordUtils';
 import { DELETE_URL, MUTATE_URL, QUERY_URL } from './constants';
+import { t } from '../../helpers/util';
 
 /**
  * Request identification
@@ -132,19 +133,22 @@ export function loadAttribute(recordId, attribute) {
         }
       });
 
-      let body = { attributes: attsKeys };
-      if (records.length > 1) {
-        body.records = records;
-      } else {
-        body.record = recordId;
-      }
+      const body = {
+        records,
+        attributes: attsKeys
+      };
 
       recordsQueryFetch(body)
         .then(result => {
-          const resultRecords = records.length > 1 ? result.records || [] : [result];
-          resultRecords.forEach((rec, idx) => {
+          const resultRecords = result.records;
+          if (!resultRecords || resultRecords.length !== records.length) {
+            const errorCode = 'R-API-QB-0';
+            console.error('Server Error. Code: ' + errorCode, body, result);
+            throw new Error(t('server-error-occurred-with-code', { code: errorCode }));
+          }
+          records.forEach((recordId, idx) => {
+            let rec = resultRecords[idx];
             let attributes = rec.attributes || {};
-            const recordId = records[idx];
             for (let attKey of attsKeys) {
               sourceBuffer[recordId][attKey].resolve(attributes[attKey]);
               delete sourceBuffer[recordId][attKey];

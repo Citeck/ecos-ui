@@ -29,26 +29,24 @@ const BPMNDesigner = ({ createCategory, hidden, isReady, initSection }) => {
   }, [initialized, hidden]);
 
   return (
-    <>
-      {
-        <div className={classNames('ecos-bpmn-designer', { 'd-none': hidden })}>
-          <ControlPanel />
-          {isReady && (
-            <div className="ecos-bpmn-designer__content">
-              <Categories categoryId={ROOT_CATEGORY_NODE_REF} />
-              <div className="ecos-bpmn-designer__add-category" onClick={createCategory}>
-                {t(Labels.ADD_CATEGORY)}
-              </div>
-            </div>
-          )}
-          {!isReady && (
-            <div className="ecos-bpmn-designer-common__container_white ecos-bpmn-designer-common__loader">
-              <Loader />
-            </div>
-          )}
+    <div className={classNames('ecos-bpmn-designer', { 'd-none': hidden })}>
+      <ControlPanel />
+      {isReady && (
+        <>
+          <div className="ecos-bpmn-designer__content">
+            <Categories categoryId={ROOT_CATEGORY_NODE_REF} />
+          </div>
+          <div className="ecos-bpmn-designer__add-category" onClick={createCategory}>
+            {t(Labels.ADD_CATEGORY)}
+          </div>
+        </>
+      )}
+      {!isReady && (
+        <div className="ecos-bpmn-designer-common__container_white ecos-bpmn-designer-common__loader">
+          <Loader />
         </div>
-      }
-    </>
+      )}
+    </div>
   );
 };
 
