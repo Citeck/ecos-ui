@@ -8,6 +8,7 @@ import { Icon } from '../../common';
 import ClickOutside from '../../ClickOutside';
 
 import './style.scss';
+import { cleanTaskId } from './utils';
 
 export default class BtnTooltipInfo extends React.Component {
   static propTypes = {
@@ -48,7 +49,7 @@ export default class BtnTooltipInfo extends React.Component {
 
   render() {
     const { id, iconClass, isShow, noTooltip, text, children, count, isActive } = this.props;
-    const domId = `ecos-current-task-${id}`;
+    const domId = cleanTaskId(`ecos-current-task-${id}`);
 
     if (!isShow || (!text && !children)) {
       return null;

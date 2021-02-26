@@ -12,7 +12,7 @@ import PageService from '../../../../../services/PageService';
 
 export default class AssocFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
-    return `.atts(n:"${attribute}"){disp,assoc}`;
+    return `.atts(n:"${attribute}"){disp,value:assoc}`;
   }
 
   static getEditor(editorProps, value, row, column) {

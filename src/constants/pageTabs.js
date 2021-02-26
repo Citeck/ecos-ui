@@ -20,6 +20,7 @@ export const TITLE = {
   ADMIN_PAGE: 'page-tabs.admin-page',
   [URL.HOME]: 'header.site-menu.home-page',
   [URL.JOURNAL]: 'page-tabs.journal',
+  [URL.BPMN_EDITOR]: 'page-tabs.bpmn-editor',
   [URL.CMMN_EDITOR]: 'page-tabs.cmmn-editor',
   [URL.DASHBOARD]: 'header.site-menu.home-page',
   [URL.DASHBOARD_SETTINGS]: 'page-tabs.dashboard-settings',

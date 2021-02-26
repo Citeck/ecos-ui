@@ -1,5 +1,6 @@
 export const Labels = {
   HIDE_MENU: 'journals.action.hide-menu',
+  HIDE_FOLDER_TREE: 'journals.action.hide-folder-tree',
   HIDE_MENU_sm: 'journals.action.hide-menu_sm',
   EMPTY_LIST: 'journals.menu.journal-list.empty',
   JOURNALS_TITLE: 'journals.menu.journal-list.title',

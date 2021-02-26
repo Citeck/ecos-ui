@@ -21,6 +21,7 @@ import Tabs from './override/tabs';
 import TextArea from './override/textarea';
 import TextField from './override/textfield';
 import Url from './override/url';
+import Hidden from './override/hidden';
 
 import AsyncData from './custom/asyncData';
 import DataGridAssoc from './custom/datagridAssoc';
@@ -67,7 +68,8 @@ Components.setComponents({
   taskOutcome: TaskOutcome,
   textarea: TextArea,
   textfield: TextField,
-  url: Url
+  url: Url,
+  hidden: Hidden
 });
 
 export { Components };

@@ -8,22 +8,26 @@ export default class EditTaskAssignee extends ActionsExecutor {
 
   async execForRecord(record, action, context) {
     const { actionOfAssignment } = action;
-
     const taskId = record.id;
-
     const actorsPromise = TasksApi.getTask(taskId, 'actors[]?id');
 
     const _selectPromise = defaultValue =>
       new Promise(resolve => WidgetService.openSelectOrgstructModal({ defaultValue, onSelect: resolve }));
 
-    const _assignPromise = owner =>
-      owner === false
+    const _assignPromise = owner => {
+      // Temporary fix for https://citeck.atlassian.net/browse/ECOSUI-976
+      if (owner && owner.indexOf('alfresco/@') === 0) {
+        owner = owner.slice(owner.indexOf('alfresco/@') + 'alfresco/@'.length);
+      }
+
+      return owner === false
         ? Promise.resolve({ cancel: true })
         : TasksApi.staticChangeAssigneeTask({
             taskId,
             owner,
             action: actionOfAssignment
           });
+    };
 
     return actorsPromise
       .then(_selectPromise)
