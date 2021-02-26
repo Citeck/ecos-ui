@@ -16,6 +16,8 @@
   "btn.create.label": "Создать",
   "btn.apply.label": "Применить",
 
+  "server-error-occurred-with-code": "Произошла ошибка на сервере. Код ошибки: {{code}}",
+
   "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",
   "page.error-loading.message": "Попробуйте перезагрузить страницу. Если ошибка повториться, обратитесь к администратору ",
   "page.error-loading.log": "Журнал ошибки",
