@@ -16,6 +16,8 @@
   "btn.create.label": "Create",
   "btn.apply.label": "Apply",
 
+  "server-error-occurred-with-code": "Server error occurred. Error code: {{code}}",
+
   "page.error-loading.title": "The error occurred while loading the page",
   "page.error-loading.message": "Try reloading the page. If the error persists, contact your administrator",
   "page.error-loading.log": "Error log",
