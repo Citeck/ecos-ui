@@ -26,6 +26,7 @@ import { selectTypeStatus } from '../../../selectors/documents';
 import Settings from './parts/Settings';
 
 import './style.scss';
+import { getAvailableTypes } from '../../../actions/documents';
 
 class BaseDocuments extends BaseWidget {
   scrollPosition = {};
@@ -346,6 +347,13 @@ class BaseDocuments extends BaseWidget {
   };
 
   handleToggleTypesSettings = event => {
+    const { availableTypes, getAvailableTypes } = this.props;
+    const { isOpenSettings } = this.state;
+
+    if (isEmpty(availableTypes) && !isOpenSettings) {
+      getAvailableTypes();
+    }
+
     event.stopPropagation();
     this.setState(state => ({
       isOpenSettings: !state.isOpenSettings,
@@ -492,7 +500,7 @@ class BaseDocuments extends BaseWidget {
   }
 
   renderSettings() {
-    const { isLoadingSettings, isLoadChecklist, typeSettings, isLoadingTypeSettings } = this.props;
+    const { isLoadingSettings, isLoadChecklist, typeSettings, isLoadingTypeSettings, isLoadingAvailableTypes } = this.props;
     const { isOpenSettings } = this.state;
 
     return (
@@ -501,7 +509,7 @@ class BaseDocuments extends BaseWidget {
         title={t(Labels.SETTINGS)}
         types={this.availableTypes}
         typeSettings={typeSettings}
-        isLoading={isLoadingSettings}
+        isLoading={isLoadingSettings || isLoadingAvailableTypes}
         isLoadChecklist={isLoadChecklist}
         isLoadingTypeSettings={isLoadingTypeSettings}
         onCancel={this.handleCancelSettings}

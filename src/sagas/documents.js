@@ -57,7 +57,7 @@ import { DEFAULT_REF, documentActions, documentFields } from '../constants/docum
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
     yield put(setConfig({ ...payload }));
-    yield* sagaGetAvailableTypes({ api, logger }, { payload: payload.key });
+    // yield* sagaGetAvailableTypes({ api, logger }, { payload: payload.key });
     yield* sagaGetDynamicTypes({ api, logger }, { payload: { ...payload } });
     yield put(initSuccess(payload.key));
   } catch (e) {
@@ -89,6 +89,12 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     const dynamicTypeKeys = combinedTypes.map(record => record.type);
     const { records: documents, errors: documentsErrors } = yield call(api.documents.getDocumentsByTypes, payload.record, dynamicTypeKeys);
     const countByTypes = documents.map(record => record.documents);
+    const additionalTypeInfo = yield call(api.documents.getTypeInfo, dynamicTypeKeys);
+
+    combinedTypes = combinedTypes.map((type, index) => ({
+      ...type,
+      ...get(additionalTypeInfo, [index], {})
+    }));
 
     if (documentsErrors.length) {
       throw new Error(documentsErrors.map(item => item.msg || item).join(', '));
@@ -115,6 +121,8 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     });
 
     combinedTypes = combinedTypes.filter(item => item !== null);
+
+    console.warn({ combinedTypes });
 
     yield all(
       combinedTypes.map(function*(item) {

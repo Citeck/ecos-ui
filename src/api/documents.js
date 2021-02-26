@@ -11,15 +11,30 @@ export class DocumentsApi {
       },
       {
         name: 'name',
-        parent: 'parent?id',
-        formId: 'form?id',
-        createVariants: 'inhCreateVariants[]?json',
-        actions: 'actions[]?id'
+        parent: 'parent?id'
+        // formId: 'form?id',
+        // createVariants: 'inhCreateVariants[]?json',
+        // actions: 'actions[]?id'
       }
     ).then(response => response);
   };
 
+  getTypeInfo = (id, loadData) => {
+    const types = Array.isArray(id) ? id : [id];
+
+    return Records.get(types)
+      .load(
+        loadData || {
+          name: 'name',
+          formId: 'form?id'
+        }
+      )
+      .then(response => response);
+  };
+
   getDynamicTypes = recordRef => {
+    console.warn({ recordRef });
+
     return Records.query(
       {
         sourceId: 'alfresco/documents',
