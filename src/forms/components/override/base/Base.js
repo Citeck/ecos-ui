@@ -744,40 +744,9 @@ function extendingOfComponent(component) {
     });
   });
 
-  if (component.hasOwnProperty('__expanded')) {
-    return component;
-  }
-
-  fields.forEach(key => {
-    const descriptor = Object.getOwnPropertyDescriptor(component, key);
-
-    if (descriptor) {
-      const { get, set } = descriptor;
-
-      if (get || set) {
-        return;
-      }
-    }
-
-    const field = `__${key}`;
-
-    component = {
-      ...component,
-      [field]: component[key],
-      get [key]() {
-        return getTextByLocale(this[field]);
-      },
-      set [key](value) {
-        this[field] = value;
-      }
-    };
-  });
-
   if (!isEmpty(component.components)) {
     component.components = component.components.map(item => extendingOfComponent(item));
   }
-
-  component.__expanded = true;
 
   return component;
 }
