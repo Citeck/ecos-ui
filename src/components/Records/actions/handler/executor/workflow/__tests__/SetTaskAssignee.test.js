@@ -7,7 +7,7 @@ import SetTaskAssignee from '../SetTaskAssignee';
 jest.spyOn(global, 'fetch').mockImplementation(() => {
   return Promise.resolve({
     ok: true,
-    json: () => Promise.resolve({ id: '', attributes: {} })
+    json: () => Promise.resolve({ records: [{ id: '', attributes: {} }] })
   });
 });
 
