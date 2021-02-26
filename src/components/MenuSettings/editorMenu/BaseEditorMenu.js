@@ -20,6 +20,8 @@ import EditorItem from '../editorItem/EditorItem';
 import '../style.scss';
 
 export default class BaseEditorMenu extends React.Component {
+  type = undefined;
+
   state = {
     openAllMenuItems: false,
     editItemInfo: null,
@@ -178,7 +180,7 @@ export default class BaseEditorMenu extends React.Component {
         onClose={handleHideModal}
         onSave={handleSave}
         action={editItemInfo.action}
-        params={{ level: editItemInfo.level }}
+        params={{ level: editItemInfo.level, configType: this.type }}
         fontIcons={fontIcons}
       />
     );

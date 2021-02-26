@@ -66,7 +66,7 @@ class IconSelect extends React.Component {
 
   get disabledDelete() {
     const { customIcons } = this.props;
-    const { icon } = this.state;
+    const { icon = {} } = this.state;
 
     return !customIcons || icon.value === TMP_ICON_EMPTY || !customIcons.find(i => i.value === icon.value);
   }

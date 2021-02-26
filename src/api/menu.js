@@ -316,7 +316,7 @@ export class MenuApi extends CommonApi {
 
     !authorities.length && authorities.push(LOWEST_PRIORITY);
 
-    rec.att('subMenu', subMenu);
+    rec.att('subMenu?json', subMenu);
     rec.att('authorities[]?str', authorities);
     rec.att('version', version);
 

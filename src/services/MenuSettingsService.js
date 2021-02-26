@@ -30,7 +30,7 @@ export default class MenuSettingsService {
   }
 
   static getItemParams = (data, params) => {
-    const permissions = MenuSettingsService.getActionPermissions(data, params);
+    const permissions = MenuSettingsService.getPowers(data, params);
 
     return {
       id: data.id || uuidV4(),
@@ -52,7 +52,7 @@ export default class MenuSettingsService {
 
   static getAvailableActions = item => {
     const actions = [];
-    const permissions = MenuSettingsService.getActionPermissions(item);
+    const permissions = MenuSettingsService.getPowers(item);
 
     permissions.editable &&
       actions.push({
@@ -86,9 +86,9 @@ export default class MenuSettingsService {
     return Object.values(ms.ItemTypes).includes(type);
   }
 
-  static getActionPermissions(item, params) {
+  static getPowers(item, params) {
     const knownType = MenuSettingsService.isKnownType(item.type);
-    const { level } = params || {};
+    const { level, configType } = params || {};
 
     return {
       editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
@@ -97,7 +97,7 @@ export default class MenuSettingsService {
       hideable: ![].includes(item.type),
       hasIcon: ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level),
       hasUrl: [ms.ItemTypes.ARBITRARY].includes(item.type),
-      hideableLabel: [ms.ItemTypes.SECTION].includes(item.type) && [0].includes(level)
+      hideableLabel: [ms.ItemTypes.SECTION].includes(item.type) && [ConfigTypes.LEFT].includes(configType) && [0].includes(level)
     };
   }
 
@@ -210,10 +210,11 @@ export default class MenuSettingsService {
       key: ms.ItemTypes.CREATE_IN_SECTION,
       label: 'menu-item.type.create-in-section'
     },
-    {
-      key: ms.ItemTypes.EDIT_RECORD,
-      label: 'menu-item.type.edit-record'
-    },
+    // todo for next revision, see task comment https://citeck.atlassian.net/browse/ECOSUI-959
+    // {
+    //   key: ms.ItemTypes.EDIT_RECORD,
+    //   label: 'menu-item.type.edit-record'
+    // },
     {
       key: ms.ItemTypes.ARBITRARY,
       label: 'menu-item.type.arbitrary'

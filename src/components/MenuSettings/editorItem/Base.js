@@ -49,7 +49,7 @@ class Base extends React.Component {
 
   get permissions() {
     const { item, type, params } = this.props;
-    return MenuSettingsService.getActionPermissions({ ...item, type: type.key }, params);
+    return MenuSettingsService.getPowers({ ...item, type: type.key }, params);
   }
 
   handleCancel() {
@@ -73,7 +73,7 @@ class Base extends React.Component {
   }
 
   wrapperModal = React.memo((props, context) => {
-    const { icon, isOpenSelectIcon } = this.state;
+    const { icon = defaultIcon, isOpenSelectIcon } = this.state;
     const { item, fontIcons, onClose } = this.props;
     const { hasIcon } = this.permissions;
 
@@ -83,7 +83,7 @@ class Base extends React.Component {
         {hasIcon && (
           <Field label={t(Labels.FIELD_ICON_LABEL)} description={t(Labels.FIELD_ICON_DESC)}>
             <div className="ecos-menu-editor-item__field-icon">
-              <EcosIcon data={icon || defaultIcon} />
+              <EcosIcon data={icon} />
               <div className="ecos--flex-space" />
               <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => this.handleApplyIcon(defaultIcon)}>
                 {t(Labels.FIELD_ICON_BTN_CANCEL)}

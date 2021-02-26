@@ -24,6 +24,7 @@ import { t } from '../helpers/util';
 import MenuConverter from '../dto/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import { MenuSettings as ms } from '../constants/menu';
+import { fetchCreateCaseWidgetData } from '../actions/header';
 
 function* fetchSettingsConfig({ api, logger }) {
   try {
@@ -65,6 +66,7 @@ function* runSaveMenuSettings(props, action) {
 
     if (get(resultMenu, 'id') && get(resultMenu, 'id').includes(id)) {
       yield put(initMenuConfig());
+      yield put(fetchCreateCaseWidgetData());
     }
 
     NotificationManager.success(t('menu-settings.success.save-all-menu-settings'), t('success'));
@@ -88,9 +90,7 @@ function* runSaveMenuConfig({ api, logger }, action) {
     set(subMenu, 'left.items', newLeftItems);
     set(subMenu, 'create.items', newCreateItems);
 
-    //todo
-
-    return yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities, version: result.version });
+    return yield call(api.menu.saveMenuSettingsConfig, { id, subMenu, authorities, version: result.version });
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.save-config'), t('error'));
     logger.error('[menu-settings / runSaveMenuSettings]', e.message);
