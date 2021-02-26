@@ -1,14 +1,16 @@
 import React from 'react';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 
 import { t } from '../../../helpers/util';
+import { SystemJournals } from '../../../constants';
 import { MenuSettings } from '../../../constants/menu';
+import { Input, SelectJournal, Textarea } from '../../common/form';
 import { Labels } from './../utils';
 import { Field } from './../Field';
+import Records from '../../Records';
 import Base from './Base';
-import { Input, SelectJournal, Textarea } from '../../common/form';
-import { SystemJournals } from '../../../constants';
 
 class EditRecord extends Base {
   type = MenuSettings.ItemTypes.EDIT_RECORD;
@@ -38,9 +40,16 @@ class EditRecord extends Base {
     return !recordRef || !formRef;
   }
 
+  setLabel = ref => {
+    Records.get(ref)
+      .load('.disp')
+      .then(label => this && this.setState({ label }));
+  };
+
   setRecordRef = event => {
     const recordRef = get(event, 'target.value', '');
     this.setState({ recordRef });
+    debounce(this.setLabel, 600)(recordRef);
   };
 
   setFormRef = formRef => {
@@ -53,11 +62,11 @@ class EditRecord extends Base {
   };
 
   render() {
-    const { recordRef, formRef, attributes } = this.state;
+    const { recordRef, formRef, attributes, label } = this.state;
 
     return (
       <this.wrapperModal>
-        <Field label={t(Labels.FIELD_RECORD_REF)} required>
+        <Field label={t(Labels.FIELD_RECORD_REF)} required description={`${t(Labels.FIELD_NAME_LABEL)}: ${label || '—'}`}>
           <Input value={recordRef} onChange={this.setRecordRef} />
         </Field>
         <Field label={t(Labels.FIELD_FORM_REF)} required>
