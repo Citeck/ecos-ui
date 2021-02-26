@@ -57,7 +57,6 @@ import { DEFAULT_REF, documentActions, documentFields } from '../constants/docum
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
     yield put(setConfig({ ...payload }));
-    // yield* sagaGetAvailableTypes({ api, logger }, { payload: payload.key });
     yield* sagaGetDynamicTypes({ api, logger }, { payload: { ...payload } });
     yield put(initSuccess(payload.key));
   } catch (e) {
@@ -121,8 +120,6 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     });
 
     combinedTypes = combinedTypes.filter(item => item !== null);
-
-    console.warn({ combinedTypes });
 
     yield all(
       combinedTypes.map(function*(item) {

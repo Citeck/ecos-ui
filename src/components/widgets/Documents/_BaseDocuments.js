@@ -26,7 +26,6 @@ import { selectTypeStatus } from '../../../selectors/documents';
 import Settings from './parts/Settings';
 
 import './style.scss';
-import { getAvailableTypes } from '../../../actions/documents';
 
 class BaseDocuments extends BaseWidget {
   scrollPosition = {};

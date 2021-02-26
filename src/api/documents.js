@@ -33,8 +33,6 @@ export class DocumentsApi {
   };
 
   getDynamicTypes = recordRef => {
-    console.warn({ recordRef });
-
     return Records.query(
       {
         sourceId: 'alfresco/documents',
