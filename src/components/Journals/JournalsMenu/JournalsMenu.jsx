@@ -130,7 +130,7 @@ class JournalsMenu extends React.Component {
             invert
             className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest"
           >
-            {isMobile ? t(Labels.HIDE_MENU_sm) : t(Labels.HIDE_MENU)}
+            {isMobile ? t(Labels.HIDE_MENU_sm) : isDocLibMode ? t(Labels.HIDE_FOLDER_TREE) : t(Labels.HIDE_MENU)}
           </IcoBtn>
         </div>
 

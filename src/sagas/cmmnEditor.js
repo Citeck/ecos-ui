@@ -15,7 +15,7 @@ import {
 import { deleteTab } from '../actions/pageTabs';
 import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import * as CmmnUtils from '../components/CMMNDesigner/utils';
+import * as CmmnUtils from '../components/ModelEditor/CMMNModeler/utils';
 import PageTabList from '../services/pageTabs/PageTabList';
 
 export function* init({ api, logger }, { payload: { stateId, record } }) {
@@ -104,7 +104,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     yield put(setFormProps({ stateId, formProps: { ...form, formData } }));
   } catch (e) {
     yield put(setFormProps({ stateId, formProps: {} }));
-    NotificationManager.error(t('cmmn-editor.error.form-not-found'), t('success'));
+    NotificationManager.error(t('model-editor.error.form-not-found'), t('success'));
     logger.error('[cmmnEditor/fetchFormProps saga] error', e.message);
   }
 }

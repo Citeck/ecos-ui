@@ -8,6 +8,7 @@ import get from 'lodash/get';
 import pick from 'lodash/pick';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
 
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
@@ -18,6 +19,7 @@ import {
   reloadGrid,
   restoreJournalSettingData,
   runSearch,
+  setGrid,
   setSelectAllRecords,
   setSelectedRecords,
   setUrl
@@ -80,6 +82,7 @@ const mapDispatchToProps = (dispatch, props) => {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: () => dispatch(reloadGrid(w({}))),
     runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
+    clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
     setUrl: urlParams => dispatch(setUrl(w(urlParams)))
   };
@@ -148,7 +151,7 @@ class Journals extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl } = this.props;
+    const { urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl, doNotChangeUrl } = this.props;
     const { isActivePage: _isActivePage, urlParams: _urlParams } = prevProps;
 
     const _journalId = get(_urlParams, JournalUrlParams.JOURNAL_ID);
@@ -171,12 +174,15 @@ class Journals extends Component {
         ]
       });
 
-    if (someUrlChanges) {
+    if (someUrlChanges && !doNotChangeUrl) {
       setUrl(getSearchParams());
     }
 
     if (someUrlChanges || otherActiveJournal || prevProps.stateId !== stateId) {
-      getJournalsData();
+      const isEqualSearchParams = equalsQueryUrls({ urls: [this.props._url, prevProps._url], compareBy: [JournalUrlParams.SEARCH] });
+      const isEqualSearchProps = isEqual(get(urlParams, 'search'), get(_urlParams, 'search'));
+
+      getJournalsData((!isEqualSearchParams || !isEqualSearchProps) && prevProps.stateId === stateId);
     }
 
     if (isActivePage && this.state.isForceUpdate) {
@@ -287,15 +293,22 @@ class Journals extends Component {
   };
 
   resetSettings = savedSetting => {
-    const { predicate } = this.props;
+    const { predicate, journalConfig } = this.props;
 
-    this.setState({ savedSetting: { ...savedSetting, predicate }, isReset: true }, () => this.setState({ isReset: false }));
+    this.setState({ savedSetting: { ...savedSetting, predicate, columns: get(journalConfig, 'columns', []) }, isReset: true }, () =>
+      this.setState({ isReset: false })
+    );
   };
 
-  applySettings = () => {
-    const url = removeUrlSearchParams(window.location.href, JournalUrlParams.SEARCH);
+  applySettings = isChangedPredicates => {
+    if (isChangedPredicates) {
+      const { clearSearch } = this.props;
+      const url = removeUrlSearchParams(window.location.href, JournalUrlParams.SEARCH);
 
-    window.history.replaceState({ path: url }, '', url);
+      window.history.replaceState({ path: url }, '', url);
+      clearSearch();
+    }
+
     this.toggleSettings();
   };
 
@@ -304,7 +317,9 @@ class Journals extends Component {
     const { savedSetting, settingsVisible, isReset } = this.state;
 
     if (savedSetting && settingsVisible) {
-      this.props.restoreJournalSettingData({ ...savedSetting, predicate: get(savedSetting, 'predicate', {}), isReset });
+      const predicate = isReset ? get(this.props, 'predicate', {}) : get(savedSetting, 'predicate', {});
+
+      this.props.restoreJournalSettingData({ ...savedSetting, predicate, isReset });
     }
 
     if (!savedSetting && settingsVisible && isCancel) {
@@ -319,7 +334,7 @@ class Journals extends Component {
   };
 
   showDocLibrary = () => {
-    this.setState(() => ({ viewMode: JOURNAL_VIEW_MODE.DOC_LIB }));
+    this.setState(() => ({ viewMode: JOURNAL_VIEW_MODE.DOC_LIB, showPreview: false }));
   };
 
   showGrid = () => {
@@ -370,7 +385,6 @@ class Journals extends Component {
       ...getSearchParams(),
       search: text
     };
-
     this.props.setUrl(searchParams);
     this.props.runSearch(text);
   };
@@ -448,14 +462,21 @@ class Journals extends Component {
 
   renderHeader = () => {
     if (this.displayElements.header) {
-      const { menuOpen } = this.state;
+      const { menuOpen, viewMode } = this.state;
       const { isMobile, docLibFolderTitle } = this.props;
       const title = this.isDocLibMode ? docLibFolderTitle : get(this.props, 'journalConfig.meta.title', '');
+      let showLabel = isMobile ? t('journals.action.show-menu_sm') : t('journals.action.show-menu');
+
+      if (this.isDocLibMode) {
+        showLabel = isMobile ? t('journals.action.show-folder-tree_sm') : t('journals.action.show-folder-tree');
+      }
 
       return (
         <JournalsHead
           toggleMenu={this.toggleMenu}
           title={title}
+          showLabel={showLabel}
+          viewMode={viewMode}
           menuOpen={menuOpen}
           isMobile={isMobile}
           hasBtnMenu={this.displayElements.menu}
@@ -663,6 +684,7 @@ Journals.propTypes = {
   bodyClassName: PropTypes.string,
   additionalHeights: PropTypes.number,
   isActivePage: PropTypes.bool,
+  doNotChangeUrl: PropTypes.bool,
   displayElements: PropTypes.shape({
     menu: PropTypes.bool,
     header: PropTypes.bool,

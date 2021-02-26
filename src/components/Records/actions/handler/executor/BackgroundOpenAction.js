@@ -1,4 +1,5 @@
 import ViewAction from './ViewAction';
+import { isMobileDevice } from '../../../../../helpers/util';
 
 export default class BackgroundOpenAction extends ViewAction {
   static ACTION_ID = 'open-in-background';
@@ -17,7 +18,8 @@ export default class BackgroundOpenAction extends ViewAction {
   getDefaultActionModel() {
     return {
       name: 'record-action.name.open-in-background',
-      icon: 'icon-new-tab'
+      icon: 'icon-new-tab',
+      hidden: isMobileDevice()
     };
   }
 }

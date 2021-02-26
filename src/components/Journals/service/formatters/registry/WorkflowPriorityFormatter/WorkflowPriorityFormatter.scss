@@ -1,0 +1,23 @@
+@import '../../../../../../styles/constants';
+
+.workflow-priority-formatter {
+  font-size: $font-size-extra-small;
+  font-weight: $font-weight-normal;
+  padding: 4px 15px;
+  height: 20px;
+  display: inline-block;
+  border-radius: $border-radius-extra-large;
+  line-height: 1;
+}
+
+.workflow-priority-formatter_high {
+  background: $color-pink;
+}
+
+.workflow-priority-formatter_medium {
+  background: $color-yellow2;
+}
+
+.workflow-priority-formatter_low {
+  background: $color-green;
+}

@@ -14,40 +14,36 @@ const RecordIds = {
 
 jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
   const body = JSON.parse(request.body);
+  const records = body.records;
 
-  switch (body.record) {
-    case RecordIds.TASK_REF:
-      return Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: RecordIds.TASK_REF,
-            attributes: {
-              'cm:name?str': RecordIds.TASK_ID
-            }
-          })
-      });
-    case 'ecos-config@default-ui-main-menu':
-      return Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: RecordIds.TASK_REF,
-            attributes: {
-              '.str': 'left'
-            }
-          })
-      });
-    default:
-      return Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e',
-            attributes: {}
-          })
-      });
-  }
+  const resolvedRecords = records.map(rec => {
+    switch (rec) {
+      case RecordIds.TASK_REF:
+        return {
+          id: RecordIds.TASK_REF,
+          attributes: {
+            'cm:name?str': RecordIds.TASK_ID
+          }
+        };
+      case 'ecos-config@default-ui-main-menu':
+        return {
+          id: RecordIds.TASK_REF,
+          attributes: {
+            '.str': 'left'
+          }
+        };
+      default:
+        return {
+          id: 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e',
+          attributes: {}
+        };
+    }
+  });
+
+  return Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve({ records: resolvedRecords })
+  });
 });
 
 describe('Edit Action', () => {

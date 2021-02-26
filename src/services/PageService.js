@@ -16,6 +16,7 @@ export const PageTypes = {
   JOURNALS: 'journals',
   SETTINGS: 'dashboard/settings',
   ADMIN_PAGE: 'admin',
+  BPMN_EDITOR: 'bpmn-editor',
   CMMN_EDITOR: 'cmmn-editor',
   BPMN_DESIGNER: 'bpmn-designer',
   DEV_TOOLS: 'dev-tools',
@@ -149,6 +150,9 @@ export default class PageService {
 
         return staticTitle(TITLE.ADMIN_PAGE);
       }
+    },
+    [PageTypes.BPMN_EDITOR]: {
+      getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.BPMN_EDITOR])} "${convertTitle(title)}"`)
     },
     [PageTypes.CMMN_EDITOR]: {
       getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.CMMN_EDITOR])} "${convertTitle(title)}"`)

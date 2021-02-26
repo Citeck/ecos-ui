@@ -71,6 +71,10 @@ import {
 } from '../components/Journals/constants';
 import { DEFAULT_DOCLIB_PAGINATION } from '../constants/docLib';
 
+export const emptyJournalConfig = Object.freeze({
+  meta: { createVariants: [] }
+});
+
 export const defaultState = {
   loading: true,
   editorMode: false,
@@ -97,9 +101,7 @@ export const defaultState = {
 
   config: null,
   initConfig: null,
-  journalConfig: {
-    meta: { createVariants: [] }
-  },
+  journalConfig: emptyJournalConfig,
   recordRef: null,
 
   predicate: null,
@@ -120,7 +122,6 @@ export const defaultState = {
     predicate: null,
     permissions: {
       Write: true
-      // Delete: true
     }
   },
 
@@ -272,10 +273,6 @@ export default handleActions(
               journalSetting: {
                 ...(state[stateId] || {}).journalSetting,
                 ...action.payload
-              },
-              grid: {
-                ...(state[stateId] || {}).grid,
-                search: ''
               }
             }
           }
@@ -477,8 +474,6 @@ export default handleActions(
         grid: {
           ...(state[stateId] || {}).grid,
           search: action.payload.text,
-          sortBy: [],
-          groupBy: [],
           pagination: {
             ...(state[stateId] || {}).grid.pagination,
             skipCount: 0,

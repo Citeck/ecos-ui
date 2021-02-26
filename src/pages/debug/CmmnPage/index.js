@@ -3,7 +3,7 @@ import XMLViewer from 'react-xml-viewer';
 
 import { Btn } from '../../../components/common/btns';
 import { EcosModal } from '../../../components/common';
-import CMMNDesigner from '../../../components/CMMNDesigner';
+import CMMNModeler from '../../../components/ModelEditor/CMMNModeler';
 
 import 'cmmn-js/dist/assets/diagram-js.css';
 import 'cmmn-js/dist/assets/cmmn-font/css/cmmn.css';
@@ -20,7 +20,7 @@ class CmmnPage extends Component {
   constructor(props) {
     super(props);
 
-    this.designer = new CMMNDesigner();
+    this.designer = new CMMNModeler();
   }
 
   handleClickViewXml = () => {

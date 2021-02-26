@@ -5,32 +5,8 @@ import isEqual from 'lodash/isEqual';
 import ecosFetch from '../../helpers/ecosFetch';
 
 import { getSourceId } from './utils/recordUtils';
-import { APP_DELIMITER, DELETE_URL, GATEWAY_URL_MAP, MUTATE_URL, QUERY_URL, SOURCE_DELIMITER } from './constants';
-
-function isAnyWithAppName(records) {
-  for (let i = 0; i < records.length; i++) {
-    if (isRecordWithAppName(records[i])) {
-      return true;
-    }
-  }
-}
-
-function isRecordWithAppName(record) {
-  if (!record) {
-    return false;
-  }
-  if (isString(record.id)) {
-    record = record.id;
-  }
-
-  if (isString(record)) {
-    const sourceDelimIdx = record.indexOf(SOURCE_DELIMITER);
-    const appDelimIdx = record.indexOf(APP_DELIMITER);
-    return appDelimIdx > 0 && appDelimIdx < sourceDelimIdx;
-  }
-
-  return '';
-}
+import { DELETE_URL, MUTATE_URL, QUERY_URL } from './constants';
+import { t } from '../../helpers/util';
 
 /**
  * Request identification
@@ -40,22 +16,14 @@ function isRecordWithAppName(record) {
  */
 function getRecognizableUrl(url, body) {
   let urlKey = '';
-  let withAppName = false;
 
   if (body.query) {
     urlKey = 'q_' + (body.query.sourceId ? body.query.sourceId : (JSON.stringify(body.query.query) || '').substring(0, 15));
-    withAppName = lodashGet(body, 'query.sourceId', '').indexOf(APP_DELIMITER) > -1;
   } else if (body.record) {
     urlKey = `rec_${body.record}`;
-    withAppName = isRecordWithAppName(body.record);
   } else if (body.records) {
     const sourceId = getSourceId(lodashGet(body, 'records[0]', ''));
     urlKey = `recs_count_${(body.records || []).length}_${sourceId}`;
-    withAppName = isAnyWithAppName(body.records);
-  }
-
-  if (withAppName) {
-    url = GATEWAY_URL_MAP[url];
   }
 
   url += '?k=' + encodeURIComponent(urlKey);
@@ -165,19 +133,22 @@ export function loadAttribute(recordId, attribute) {
         }
       });
 
-      let body = { attributes: attsKeys };
-      if (records.length > 1) {
-        body.records = records;
-      } else {
-        body.record = recordId;
-      }
+      const body = {
+        records,
+        attributes: attsKeys
+      };
 
       recordsQueryFetch(body)
         .then(result => {
-          const resultRecords = records.length > 1 ? result.records || [] : [result];
-          resultRecords.forEach((rec, idx) => {
+          const resultRecords = result.records;
+          if (!resultRecords || resultRecords.length !== records.length) {
+            const errorCode = 'R-API-QB-0';
+            console.error('Server Error. Code: ' + errorCode, body, result);
+            throw new Error(t('server-error-occurred-with-code', { code: errorCode }));
+          }
+          records.forEach((recordId, idx) => {
+            let rec = resultRecords[idx];
             let attributes = rec.attributes || {};
-            const recordId = records[idx];
             for (let attKey of attsKeys) {
               sourceBuffer[recordId][attKey].resolve(attributes[attKey]);
               delete sourceBuffer[recordId][attKey];
