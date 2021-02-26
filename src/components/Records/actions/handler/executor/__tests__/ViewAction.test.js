@@ -17,64 +17,51 @@ const RecordIds = {
 
 jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
   const body = JSON.parse(request.body);
+  const resolvedRecords = body.records.map(rec => {
+    switch (rec) {
+      case RecordIds.TASK_1:
+        return {
+          id: RecordIds.TASK_1,
+          attributes: {
+            'wfm:document?id': RecordIds.TASK_1
+          }
+        };
+      case RecordIds.TASK_2:
+        return {
+          id: RecordIds.TASK_2,
+          attributes: {
+            'wfm:document?id': RecordIds.TASK_2
+          }
+        };
+      case RecordIds.TASK_3:
+        return {
+          id: RecordIds.TASK_3,
+          attributes: {
+            'cm:name?str': RecordIds.TASK_id
+          }
+        };
+      case RecordIds.TASK_id:
+        return {
+          id: RecordIds.TASK_3,
+          attributes: {
+            'workflow?id': RecordIds.TASK_3
+          }
+        };
+      default:
+        return {
+          id: 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e',
+          attributes: {}
+        };
+    }
+  });
 
-  switch (body.record) {
-    case RecordIds.TASK_1:
-      return Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: RecordIds.TASK_1,
-            attributes: {
-              'wfm:document?id': RecordIds.TASK_1
-            }
-          })
-      });
-    case RecordIds.TASK_2:
-      return Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: RecordIds.TASK_2,
-            attributes: {
-              'wfm:document?id': RecordIds.TASK_2
-            }
-          })
-      });
-    case RecordIds.TASK_3:
-      return Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: RecordIds.TASK_3,
-            attributes: {
-              'cm:name?str': RecordIds.TASK_id
-            }
-          })
-      });
-
-    case RecordIds.TASK_id:
-      return Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: RecordIds.TASK_3,
-            attributes: {
-              'workflow?id': RecordIds.TASK_3
-            }
-          })
-      });
-
-    default:
-      return Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            id: 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e',
-            attributes: {}
-          })
-      });
-  }
+  return Promise.resolve({
+    ok: true,
+    json: () =>
+      Promise.resolve({
+        records: resolvedRecords
+      })
+  });
 });
 
 describe('View Action', () => {
