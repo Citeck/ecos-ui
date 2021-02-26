@@ -9,10 +9,14 @@ jest.spyOn(global, 'fetch').mockImplementation(() => {
     ok: true,
     json: () =>
       Promise.resolve({
-        id: 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e',
-        attributes: {
-          '.disp': TITLE
-        }
+        records: [
+          {
+            id: 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e',
+            attributes: {
+              '.disp': TITLE
+            }
+          }
+        ]
       })
   });
 });
