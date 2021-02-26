@@ -1,26 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import isEqual from 'lodash/isEqual';
 
-import { TMP_ICON_EMPTY } from '../../../../constants';
-import { MenuSettings as MS } from '../../../../constants/menu';
-import { t } from '../../../../helpers/export/util';
-import { extractLabel } from '../../../../helpers/util';
-import { EcosModal } from '../../../common';
-import { Btn } from '../../../common/btns';
-import EcosIcon from '../../../common/EcosIcon';
-import MenuSettingsService from '../../../../services/MenuSettingsService';
-import IconSelect from '../../../IconSelect';
-import { Labels } from '../../utils';
-import { Field } from '../../Field';
+import { TMP_ICON_EMPTY } from '../../../constants';
+import { MenuSettings as MS } from '../../../constants/menu';
+import { t } from '../../../helpers/export/util';
+import { extractLabel } from '../../../helpers/util';
+import { EcosModal } from '../../common';
+import { Btn } from '../../common/btns';
+import EcosIcon from '../../common/EcosIcon';
+import MenuSettingsService from '../../../services/MenuSettingsService';
+import IconSelect from '../../IconSelect';
+import { Labels } from '../utils';
+import { Field } from '../Field';
 
-import '../../style.scss';
+import '../style.scss';
 
 const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
 
 class Base extends React.Component {
   state = {
-    icon: '',
+    icon: defaultIcon,
     isOpenSelectIcon: false
   };
 
@@ -84,7 +83,7 @@ class Base extends React.Component {
         {hasIcon && (
           <Field label={t(Labels.FIELD_ICON_LABEL)} description={t(Labels.FIELD_ICON_DESC)}>
             <div className="ecos-menu-editor-item__field-icon">
-              <EcosIcon data={icon} />
+              <EcosIcon data={icon || defaultIcon} />
               <div className="ecos--flex-space" />
               <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => this.handleApplyIcon(defaultIcon)}>
                 {t(Labels.FIELD_ICON_BTN_CANCEL)}

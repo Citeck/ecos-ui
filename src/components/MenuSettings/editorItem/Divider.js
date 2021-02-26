@@ -1,11 +1,11 @@
 import React from 'react';
 import isEqual from 'lodash/isEqual';
 
-import { packInLabel, t } from '../../../../helpers/util';
-import { MenuSettings } from '../../../../constants/menu';
-import { MLText } from '../../../common/form';
-import { Labels } from './../../utils';
-import { Field } from './../../Field';
+import { packInLabel, t } from '../../../helpers/util';
+import { MenuSettings } from '../../../constants/menu';
+import { MLText } from '../../common/form';
+import { Labels } from './../utils';
+import { Field } from './../Field';
 import Base from './Base';
 
 export default class Divider extends Base {

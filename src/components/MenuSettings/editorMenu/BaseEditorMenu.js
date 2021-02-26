@@ -15,7 +15,7 @@ import { Btn } from '../../common/btns';
 import { Badge, DropdownOuter } from '../../common/form';
 import DialogManager from '../../common/dialogs/Manager';
 import { Labels } from './../utils';
-import EditorItemModal from './EditorItemModal';
+import EditorItem from '../editorItem/EditorItem';
 
 import '../style.scss';
 
@@ -167,13 +167,13 @@ export default class BaseEditorMenu extends React.Component {
 
     if (editItemInfo.several) {
       return (
-        <EditorItemModal type={editItemInfo.type} journalId={editItemInfo.journalId} onSave={handleSaveJournal} onClose={handleHideModal} />
+        <EditorItem type={editItemInfo.type} journalId={editItemInfo.journalId} onSave={handleSaveJournal} onClose={handleHideModal} />
       );
     }
 
     return (
-      <EditorItemModal
-        item={editItemInfo.item}
+      <EditorItem
+        item={editItemInfo.action === ms.ActionTypes.EDIT ? editItemInfo.item : {}}
         type={editItemInfo.type}
         onClose={handleHideModal}
         onSave={handleSave}

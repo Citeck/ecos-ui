@@ -208,23 +208,19 @@ export default class MenuSettingsService {
     },
     {
       key: ms.ItemTypes.CREATE_IN_SECTION,
-      label: 'menu-item.type.create-in-section',
-      when: { maxLevel: 0 }
+      label: 'menu-item.type.create-in-section'
     },
     {
       key: ms.ItemTypes.EDIT_RECORD,
-      label: 'menu-item.type.edit-record',
-      when: { minLevel: 0 }
+      label: 'menu-item.type.edit-record'
     },
     {
       key: ms.ItemTypes.ARBITRARY,
-      label: 'menu-item.type.arbitrary',
-      when: { minLevel: 0 }
+      label: 'menu-item.type.arbitrary'
     },
     {
       key: ms.ItemTypes.LINK_CREATE_CASE,
-      label: 'menu-item.type.link-create-case',
-      when: { minLevel: 0 }
+      label: 'menu-item.type.link-create-case'
     }
   ];
 

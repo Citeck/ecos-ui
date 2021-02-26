@@ -4,14 +4,16 @@ import get from 'lodash/get';
 
 import { MenuSettings as MS } from '../../../constants/menu';
 import { SelectJournal } from '../../common/form';
-import Section from './editorItem/Section';
-import Arbitrary from './editorItem/Arbitrary';
-import Divider from './editorItem/Divider';
-import CreateInSection from './editorItem/CreateInSection';
+
+import Section from './Section';
+import Arbitrary from './Arbitrary';
+import Divider from './Divider';
+import CreateInSection from './CreateInSection';
+import EditRecord from './EditRecord';
 
 import '../style.scss';
 
-export default class EditorItemModal extends React.Component {
+export default class EditorItem extends React.Component {
   static propTypes = {
     fontIcons: PropTypes.array,
     type: PropTypes.object,
@@ -31,7 +33,7 @@ export default class EditorItemModal extends React.Component {
       case MS.ItemTypes.CREATE_IN_SECTION:
         return <CreateInSection {...this.props} />;
       case MS.ItemTypes.EDIT_RECORD:
-        return <Section {...this.props} />;
+        return <EditRecord {...this.props} />;
       case MS.ItemTypes.LINK_CREATE_CASE:
       case MS.ItemTypes.JOURNAL: {
         const { onSave, onClose, journalId } = this.props;

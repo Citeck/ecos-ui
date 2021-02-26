@@ -1,14 +1,13 @@
 import React from 'react';
-import isEqual from 'lodash/isEqual';
+import { connect } from 'react-redux';
 import set from 'lodash/set';
 import get from 'lodash/get';
-import { connect } from 'react-redux';
 
-import { extractLabel, t } from '../../../../helpers/util';
-import { MenuSettings } from '../../../../constants/menu';
-import { Select } from '../../../common/form';
-import { Labels } from './../../utils';
-import { Field } from './../../Field';
+import { extractLabel, t } from '../../../helpers/util';
+import { MenuSettings } from '../../../constants/menu';
+import { Select } from '../../common/form';
+import { Labels } from './../utils';
+import { Field } from './../Field';
 import Base from './Base';
 
 class CreateInSection extends Base {

@@ -35,6 +35,9 @@ export const Labels = {
   FIELD_URL_RESULT_WITH_SLASH: 'menu-settings.editor-item.field.url.result-relative-with-slash',
   FIELD_URL_RESULT_WITHOUT_SLASH: 'menu-settings.editor-item.field.url.result-relative-without-slash',
   FIELD_SECTION_ID: 'menu-settings.editor-item.field.section.title',
+  FIELD_RECORD_REF: 'menu-settings.editor-item.field.record-ref.title',
+  FIELD_FORM_REF: 'menu-settings.editor-item.field.form-ref.title',
+  FIELD_ATTRIBUTES: 'menu-settings.editor-item.field.attributes.title',
 
   FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',
