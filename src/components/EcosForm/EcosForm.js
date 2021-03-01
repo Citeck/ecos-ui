@@ -141,7 +141,7 @@ class EcosForm extends React.Component {
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
-      const isDebugModeOn = localStorage.getItem('enableLoggerForNewForms');
+      const isDebugModeOn = localStorage.getItem('enableLoggerForNewForms') === 'true';
 
       let canWritePromise = false;
 
