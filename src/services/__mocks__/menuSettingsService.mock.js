@@ -2,6 +2,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings } from '../../constants/menu';
+import MenuSettingsService from '../MenuSettingsService';
 
 export const ITEMS_INPUT = [
   {
@@ -221,6 +222,24 @@ export const PERMISSIONS_BY_TYPE = {
     draggable: true,
     editable: true,
     hasIcon: false,
+    hasUrl: false,
+    hideable: true,
+    removable: true,
+    hideableLabel: false
+  },
+  [MenuSettings.ItemTypes.CREATE_IN_SECTION]: {
+    draggable: true,
+    editable: true,
+    hasIcon: true,
+    hasUrl: false,
+    hideable: true,
+    removable: true,
+    hideableLabel: false
+  },
+  [MenuSettings.ItemTypes.EDIT_RECORD]: {
+    draggable: true,
+    editable: true,
+    hasIcon: true,
     hasUrl: false,
     hideable: true,
     removable: true,
@@ -6362,27 +6381,52 @@ export const ACTIONS_ON_MENU_ITEMS = {
   ]
 };
 
-export const CREATE_OPTIONS = [
-  { key: 'SECTION', label: 'menu-item.type.section', when: { maxLevel: 0 } },
-  { key: 'HEADER-DIVIDER', label: 'menu-item.type.header-divider', when: { maxLevel: 0, minLevel: 0 } },
-  { key: 'JOURNAL', label: 'menu-item.type.journal', when: { minLevel: 0 } },
-  { key: 'ARBITRARY', label: 'menu-item.type.arbitrary', when: { minLevel: 0 } },
-  { key: 'LINK-CREATE-CASE', label: 'menu-item.type.link-create-case', when: { minLevel: 0 } }
-];
-
-function _getAvailableOptions(items) {
-  return (items || cloneDeep(CREATE_OPTIONS)).map(item => ({ ...item, id: item.label }));
+function _getMCOs(items) {
+  return cloneDeep(items).map(item => ({ ...item, id: item.label }));
 }
 
 export const AVAILABLE_CREATE_OPTIONS = [
-  [undefined, undefined, _getAvailableOptions()],
-  [undefined, { level: -1 }, _getAvailableOptions([CREATE_OPTIONS[0]])],
-  [{ type: 'SECTION' }, { level: -1 }, _getAvailableOptions([CREATE_OPTIONS[0]])],
-  [undefined, { level: 0 }, _getAvailableOptions()],
-  [{ type: 'item' }, { level: 0 }, []],
-  [{ type: 'SECTION' }, { level: 0 }, _getAvailableOptions()],
-  [undefined, { level: 2 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
-  [{ type: 'SECTION' }, { level: 1 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
-  [{ type: 'ARBITRARY' }, { level: 3 }, []],
-  [{ type: 'JOURNAL' }, { level: 2 }, []]
+  [undefined, undefined, undefined, []],
+  ['left', undefined, { level: -1 }, _getMCOs([MenuSettingsService.leftMenuCreateOptions[0]])],
+  ['left', { type: 'SECTION' }, { level: -1 }, _getMCOs([MenuSettingsService.leftMenuCreateOptions[0]])],
+  ['left', undefined, { level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
+  ['left', { type: 'item' }, { level: 0 }, []],
+  ['left', { type: 'SECTION' }, { level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
+  [
+    'left',
+    undefined,
+    { level: 2 },
+    _getMCOs([
+      MenuSettingsService.leftMenuCreateOptions[2],
+      MenuSettingsService.leftMenuCreateOptions[3],
+      MenuSettingsService.leftMenuCreateOptions[4]
+    ])
+  ],
+  [
+    'left',
+    { type: 'SECTION' },
+    { level: 1 },
+    _getMCOs([
+      MenuSettingsService.leftMenuCreateOptions[2],
+      MenuSettingsService.leftMenuCreateOptions[3],
+      MenuSettingsService.leftMenuCreateOptions[4]
+    ])
+  ],
+  ['left', { type: 'ARBITRARY' }, { level: 3 }, []],
+  ['left', { type: 'JOURNAL' }, { level: 2 }, []],
+  ['create', { type: 'JOURNAL' }, { level: -1 }, []],
+  ['create', undefined, { level: -1 }, _getMCOs(MenuSettingsService.createMenuCreateOptions)],
+  ['create', { type: 'SECTION' }, { level: 0 }, _getMCOs(MenuSettingsService.createMenuCreateOptions)],
+  [
+    'create',
+    { type: 'SECTION' },
+    { level: 1 },
+    _getMCOs([
+      MenuSettingsService.createMenuCreateOptions[1],
+      MenuSettingsService.createMenuCreateOptions[2],
+      MenuSettingsService.createMenuCreateOptions[3]
+    ])
+  ],
+  ['create', { type: 'CREATE_IN_SECTION' }, { level: 0 }, []],
+  ['create', { type: 'EDIT_RECORD' }, { level: 0 }, []]
 ];

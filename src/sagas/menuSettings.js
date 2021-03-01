@@ -4,6 +4,10 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
+import { t } from '../helpers/util';
+import { MenuSettings as ms } from '../constants/menu';
+import MenuConverter from '../dto/menu';
+import MenuSettingsService from '../services/MenuSettingsService';
 import {
   addJournalMenuItems,
   getAuthorityInfoByRefs,
@@ -20,10 +24,6 @@ import {
   setOriginalConfig
 } from '../actions/menuSettings';
 import { initMenuConfig } from '../actions/menu';
-import { t } from '../helpers/util';
-import MenuConverter from '../dto/menu';
-import MenuSettingsService from '../services/MenuSettingsService';
-import { MenuSettings as ms } from '../constants/menu';
 import { fetchCreateCaseWidgetData } from '../actions/header';
 
 function* fetchSettingsConfig({ api, logger }) {

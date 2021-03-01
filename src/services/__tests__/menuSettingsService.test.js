@@ -5,7 +5,6 @@ import {
   ACTIONS_BY_TYPE,
   ACTIONS_ON_MENU_ITEMS,
   AVAILABLE_CREATE_OPTIONS,
-  CREATE_OPTIONS,
   ITEM_PARAMS_OUTPUT,
   ITEMS_INPUT,
   PERMISSIONS_BY_TYPE
@@ -146,13 +145,19 @@ describe('Menu Settings Service', () => {
     check(data, 'getAvailableActions');
   });
 
-  describe('Method getActionPermissions', () => {
+  describe('Method getPowers', () => {
     const data = [
       {
         title: `Type ${ms.ItemTypes.SECTION} no icon `,
         input: { type: ms.ItemTypes.SECTION },
         output: { ...PERMISSIONS_BY_TYPE[ms.ItemTypes.SECTION], hasIcon: false, hideableLabel: true },
-        params: { level: 0 }
+        params: { level: 0, configType: 'left' }
+      },
+      {
+        title: `Type ${ms.ItemTypes.SECTION} no icon `,
+        input: { type: ms.ItemTypes.SECTION },
+        output: { ...PERMISSIONS_BY_TYPE[ms.ItemTypes.SECTION], hasIcon: false, hideableLabel: false },
+        params: { level: 0, configType: 'create' }
       },
       {
         title: `Type ${ms.ItemTypes.SECTION} no hideable label`,
@@ -189,10 +194,22 @@ describe('Menu Settings Service', () => {
         input: { type: ms.ItemTypes.HEADER_DIVIDER },
         output: PERMISSIONS_BY_TYPE[ms.ItemTypes.HEADER_DIVIDER],
         params: { level: 1 }
+      },
+      {
+        title: `Type ${ms.ItemTypes.CREATE_IN_SECTION} has all permissions, except edit and hasIcon`,
+        input: { type: ms.ItemTypes.CREATE_IN_SECTION },
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.CREATE_IN_SECTION],
+        params: { level: 1 }
+      },
+      {
+        title: `Type ${ms.ItemTypes.EDIT_RECORD} has all permissions, except edit and hasIcon`,
+        input: { type: ms.ItemTypes.EDIT_RECORD },
+        output: PERMISSIONS_BY_TYPE[ms.ItemTypes.EDIT_RECORD],
+        params: { level: 1 }
       }
     ];
 
-    check(data, 'getActionPermissions');
+    check(data, 'getPowers');
   });
 
   describe('Method getActiveActions (default hidden = true)', () => {
@@ -259,24 +276,10 @@ describe('Menu Settings Service', () => {
     check(data, 'processAction');
   });
 
-  describe('Property createOptions', () => {
-    const data = [
-      {
-        title: `Create options: ${CREATE_OPTIONS.length} items`,
-        input: null,
-        output: CREATE_OPTIONS
-      }
-    ];
-
-    check(data, 'createOptions');
-  });
-
   describe('Method getAvailableCreateOptions', () => {
-    const data = AVAILABLE_CREATE_OPTIONS.map(([input, params, output]) => {
-      const title = `Type: ${input && input.type} Level:  ${params && params.level} Available create options count: ${output.length}`;
-      return { title, input, params, output };
+    describe.each(AVAILABLE_CREATE_OPTIONS)('%# %s %o %o', (configType, input, params, output) => {
+      const result = MenuSettingsService.getAvailableCreateOptions(configType, input, params);
+      expect(result).toEqual(output);
     });
-
-    check(data, 'getAvailableCreateOptions');
   });
 });
