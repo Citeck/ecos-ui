@@ -16,7 +16,7 @@ describe('FormatterService', () => {
         {
           type: FORMATTER_TYPE_SCRIPT,
           config: {
-            script: 'return "OK"'
+            fn: 'return "OK"'
           }
         }
       );
@@ -37,7 +37,7 @@ describe('FormatterService', () => {
           type: FORMATTER_TYPE_SCRIPT,
           config: {
             /* eslint-disable-next-line */
-            script: 'return ${a} + ${b}'
+            fn: 'return ${a} + ${b}'
           }
         }
       );
