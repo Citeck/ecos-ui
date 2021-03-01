@@ -12,9 +12,6 @@ export class DocumentsApi {
       {
         name: 'name',
         parent: 'parent?id'
-        // formId: 'form?id',
-        // createVariants: 'inhCreateVariants[]?json',
-        // actions: 'actions[]?id'
       }
     ).then(response => response);
   };
@@ -26,7 +23,9 @@ export class DocumentsApi {
       .load(
         loadData || {
           name: 'name',
-          formId: 'form?id'
+          formId: 'form?id',
+          createVariants: 'inhCreateVariants[]?json',
+          actions: 'actions[]?id'
         }
       )
       .then(response => response);
