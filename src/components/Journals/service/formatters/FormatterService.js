@@ -60,7 +60,7 @@ class FormatterService {
 
     const fmtInstance = formatterRegistry.getFormatter(type);
     if (!fmtInstance || typeof fmtInstance.format !== 'function') {
-      console.error('[FormattersService.format] invalid formatter', fmtInstance);
+      console.error('[FormattersService.format] invalid formatter with type: ' + type, fmtInstance);
       return FormatterService.errorMessage;
     }
 
