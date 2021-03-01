@@ -3,7 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import { CreateMenuTypes, MenuTypes, MenuSettings } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
-import { extractLabel } from '../helpers/util';
+import { extractLabel, getTextByLocale } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { getIconRef } from '../helpers/icon';
 import MenuSettingsService from '../services/MenuSettingsService';
@@ -85,6 +85,70 @@ export default class MenuConverter {
     }
 
     return target;
+  }
+
+  static getMainMenuCreateItems(source = []) {
+    const ITs = MenuSettings.ItemTypes;
+
+    const r = (function recursion(items) {
+      return (items || []).map(item => {
+        let option = {
+          ___type: item.type,
+          id: item.id,
+          label: getTextByLocale(item.label)
+        };
+
+        if (item.type === ITs.CREATE_IN_SECTION) {
+          option.siteId = item.id;
+          option.items = (item.items || []).map(MenuConverter.getLinkCreateCase);
+
+          return option;
+        }
+
+        if (item.type === ITs.LINK_CREATE_CASE) {
+          return MenuConverter.getLinkCreateCase(item);
+        }
+
+        if (item.type === ITs.ARBITRARY) {
+          console.log(item);
+          return {
+            targetUrl: '/v2/admin',
+            targetUrlType: 'FULL_PATH'
+          };
+        }
+
+        option.items = recursion(item.items);
+
+        return option;
+      });
+    })(source);
+
+    console.log(r);
+
+    return r;
+  }
+
+  static getLinkCreateCase(data) {
+    const cv = get(data, 'config.variant') || {};
+
+    return {
+      id: cv.id,
+      label: getTextByLocale(data.label),
+      control: {
+        type: HandleControlTypes.ECOS_CREATE_VARIANT,
+        payload: {
+          title: getTextByLocale(cv.label),
+          recordRef: cv.sourceId + '@',
+          formId: cv.formRef,
+          canCreate: true,
+          postActionRef: cv.postActionRef,
+          attributes: {
+            _type: cv.typeRef,
+            ...cv.attributes
+          }
+        }
+      }
+    };
   }
 
   static getCreateCustomItems(source = []) {

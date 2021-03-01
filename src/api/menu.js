@@ -137,6 +137,11 @@ export class MenuApi extends CommonApi {
     ]);
   };
 
+  getMainMenuCreateVariants = () => {
+    const user = getCurrentUserName();
+    return Records.queryOne({ sourceId: SourcesId.RESOLVED_MENU, query: { user, version: 1 } }, 'subMenu.create?json');
+  };
+
   getCustomCreateVariants = () => {
     return Records.get(`${SourcesId.CONFIG}@custom-create-buttons`)
       .load('value[]?json', true)
