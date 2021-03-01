@@ -98,12 +98,14 @@ class JournalsService {
 
     const params = _.cloneDeep(config.properties || {});
     if (config.sortBy && config.sortBy.length) {
-      params['defaultSortBy'] = config.sortBy.map(sort => {
-        return {
-          id: sort.attribute,
-          order: sort.ascending ? 'asc' : 'desc'
-        };
-      });
+      params['defaultSortBy'] = JSON.stringify(
+        config.sortBy.map(sort => {
+          return {
+            id: sort.attribute,
+            order: sort.ascending ? 'asc' : 'desc'
+          };
+        })
+      );
     }
 
     if (config.editable === false) {
@@ -134,6 +136,7 @@ class JournalsService {
 
     result.multiple = column.multiple;
     result.newFormatter = column.formatter;
+    result.attSchema = column.attSchema;
     result.newEditor = column.editor;
     result.computed = column.computed;
     result.hidden = column.hidden === true;

@@ -462,14 +462,21 @@ class Journals extends Component {
 
   renderHeader = () => {
     if (this.displayElements.header) {
-      const { menuOpen } = this.state;
+      const { menuOpen, viewMode } = this.state;
       const { isMobile, docLibFolderTitle } = this.props;
       const title = this.isDocLibMode ? docLibFolderTitle : get(this.props, 'journalConfig.meta.title', '');
+      let showLabel = isMobile ? t('journals.action.show-menu_sm') : t('journals.action.show-menu');
+
+      if (this.isDocLibMode) {
+        showLabel = isMobile ? t('journals.action.show-folder-tree_sm') : t('journals.action.show-folder-tree');
+      }
 
       return (
         <JournalsHead
           toggleMenu={this.toggleMenu}
           title={title}
+          showLabel={showLabel}
+          viewMode={viewMode}
           menuOpen={menuOpen}
           isMobile={isMobile}
           hasBtnMenu={this.displayElements.menu}

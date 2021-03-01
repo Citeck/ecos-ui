@@ -65,7 +65,7 @@ class JournalColumnsResolver {
     const multiple = column.multiple === true;
 
     const attribute = column.schema || column.attribute || column.name;
-    const attSchema = `${attribute}${multiple ? '[]' : ''}${this._getInnerSchema(type)}`;
+    const attSchema = `${attribute}${multiple ? '[]' : ''}${this._getInnerSchema(type, column.attSchema)}`;
 
     const editable = attribute === column.name && getBoolOrElse(column.editable, true);
     const searchable = getBoolOrElse(column.searchable, () => attribute === name);
@@ -125,7 +125,10 @@ class JournalColumnsResolver {
     };
   };
 
-  _getInnerSchema(columnType) {
+  _getInnerSchema(columnType, attSchema) {
+    if (attSchema) {
+      return attSchema;
+    }
     if (ASSOC_TYPES.indexOf(columnType) !== -1) {
       return '{disp:?disp,value:?assoc}';
     }
