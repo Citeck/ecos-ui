@@ -17,17 +17,20 @@ import {
   setDashletConfigByParams,
   setEditorMode,
   setOnlyLinked,
-  setSettingItem
+  setSettingItem,
+  checkConfig
 } from '../../../actions/journals';
+import { setLoading } from '../../../actions/loader';
 
 import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_DASHLET_CONFIG_VERSION, JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import DashboardService from '../../../services/dashboard';
 import SelectJournal from '../../common/form/SelectJournal';
-import { selectDashletConfig, selectNewVersionDashletConfig } from '../../../selectors/journals';
+import { selectDashletConfig, selectIsNotExistsJournal, selectNewVersionDashletConfig } from '../../../selectors/journals';
 
 import './JournalsDashletEditor.scss';
+import { Loader } from '../../common';
 
 const mapStateToProps = (state, ownProps) => {
   const newState = state.journals[ownProps.stateId] || {};
@@ -38,7 +41,9 @@ const mapStateToProps = (state, ownProps) => {
     config: selectNewVersionDashletConfig(state, ownProps.stateId),
     initConfig: newState.initConfig,
     editorMode: newState.editorMode,
-    resultDashboard: get(state, ['dashboard', DashboardService.key, 'requestResult'], {})
+    resultDashboard: get(state, ['dashboard', DashboardService.key, 'requestResult'], {}),
+    isLoading: newState.loading,
+    isNotExistsJournal: selectIsNotExistsJournal(state, ownProps.stateId)
   };
 };
 
@@ -52,7 +57,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     setSettingItem: id => dispatch(setSettingItem(w(id))),
     setOnlyLinked: onlyLinked => dispatch(setOnlyLinked(w(onlyLinked))),
     setDashletConfig: config => dispatch(setDashletConfig(w(config))),
-    saveDashlet: (config, id) => dispatch(saveDashlet(w({ config, id })))
+    saveDashlet: (config, id) => dispatch(saveDashlet(w({ config, id }))),
+    checkConfig: config => dispatch(checkConfig(w(config))),
+    setLoading: isLoading => dispatch(setLoading(w(isLoading)))
   };
 };
 
@@ -163,10 +170,12 @@ class JournalsDashletEditor extends Component {
   };
 
   save = () => {
-    const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, generalConfig } = this.props;
+    const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, generalConfig, setLoading, checkConfig } = this.props;
     const { selectedJournals, isCustomJournalMode, customJournal } = this.state;
     const journalId = get(selectedJournals, '0', '');
     let newConfig = omit(config, ['journalsListId', 'journalType']);
+
+    setLoading(true);
 
     if (recordRef) {
       if (generalConfig.onlyLinked !== undefined && newConfig.onlyLinked === undefined) {
@@ -198,6 +207,7 @@ class JournalsDashletEditor extends Component {
     }
 
     setDashletConfig(newConfig);
+    checkConfig(newConfig);
   };
 
   clear = () => {
@@ -236,7 +246,7 @@ class JournalsDashletEditor extends Component {
   };
 
   render() {
-    const { className, measurer, recordRef, journalSettings } = this.props;
+    const { className, measurer, recordRef, journalSettings, isLoading, isNotExistsJournal } = this.props;
     const { customJournal, isCustomJournalMode } = this.state;
     const config = this.props.config || {};
     const isSmall = measurer && (measurer.xxs || measurer.xxxs);
@@ -245,6 +255,8 @@ class JournalsDashletEditor extends Component {
 
     return (
       <div className={classNames('ecos-journal-dashlet-editor', className)}>
+        {isLoading && <Loader blur rounded />}
+
         <div className={classNames('ecos-journal-dashlet-editor__body', ifSmall('ecos-journal-dashlet-editor__body_small'))}>
           <Caption middle className="ecos-journal-dashlet-editor__caption">
             {t('journals.action.edit-dashlet')}
@@ -294,7 +306,7 @@ class JournalsDashletEditor extends Component {
         <div className={classNames('ecos-journal-dashlet-editor__actions', { 'ecos-journal-dashlet-editor__actions_small': isSmall })}>
           <Btn onClick={this.clear}>{t('journals.action.reset-settings')}</Btn>
           <div className="ecos-journal-dashlet-editor__actions-diver" />
-          <Btn onClick={this.cancel}>{t('journals.action.cancel')}</Btn>
+          {!isNotExistsJournal && <Btn onClick={this.cancel}>{t('journals.action.cancel')}</Btn>}
           <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.save} disabled={this.isDisabled}>
             {t('journals.action.save')}
           </Btn>

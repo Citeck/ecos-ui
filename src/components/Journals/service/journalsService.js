@@ -51,6 +51,10 @@ const COLUMN_COMPUTED_PREFIX = 'column_';
  * Service to work with journals.
  */
 class JournalsService {
+  async isNotExistsJournal(journalId) {
+    return await journalsApi.isNotExistsJournal(journalId);
+  }
+
   async getJournalConfigByType(typeRef) {
     if (!typeRef) {
       return null;

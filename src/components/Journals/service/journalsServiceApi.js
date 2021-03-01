@@ -17,6 +17,10 @@ class JournalsServiceApi {
     return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('.json');
   }
 
+  async isNotExistsJournal(journalId) {
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('_notExists');
+  }
+
   async queryData(query, attributes) {
     let result;
     if (!attributes) {

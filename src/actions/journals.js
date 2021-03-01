@@ -19,6 +19,8 @@ export const setJournals = createAction(prefix + 'SET_JOURNALS');
 export const setSelectedJournals = createAction(prefix + 'SET_SELECTED_JOURNALS');
 
 export const setJournalConfig = createAction(prefix + 'SET_JOURNAL_CONFIG');
+export const checkConfig = createAction(prefix + 'CHECK_JOURNAL_CONFIG');
+export const setJournalExistStatus = createAction(prefix + 'SET_JOURNAL_EXIST_STATUS');
 export const setGrid = createAction(prefix + 'SET_GRID');
 export const reloadGrid = createAction(prefix + 'RELOAD_GRID');
 export const reloadTreeGrid = createAction(prefix + 'RELOAD_TREE_GRID');
