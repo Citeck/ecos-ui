@@ -6,6 +6,7 @@ import WorkflowPriorityFormatter from './WorkflowPriorityFormatter';
 import AssocFormatter from './AssocFormatter';
 import DefaultFormatter from './DefaultFormatter';
 import CardDetailsLinkFormatter from './CardDetailsLinkFormatter';
+import ColoredFormatter from './ColoredFormatter';
 
 const formatterRegistry = new FormatterRegistry();
 
@@ -16,5 +17,6 @@ formatterRegistry.register(new ScriptFormatter());
 formatterRegistry.register(new WorkflowPriorityFormatter());
 formatterRegistry.register(new AssocFormatter());
 formatterRegistry.register(new CardDetailsLinkFormatter());
+formatterRegistry.register(new ColoredFormatter());
 
 export default formatterRegistry;
