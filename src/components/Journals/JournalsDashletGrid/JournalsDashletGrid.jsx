@@ -4,7 +4,6 @@ import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
 
 import { ParserPredicate } from '../../Filters/predicates';
-import { Loader } from '../../common';
 import { EmptyGrid, Grid, InlineTools } from '../../common/grid';
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
@@ -26,7 +25,6 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
-    loading: newState.loading,
     grid: newState.grid,
     isMobile: (state.view || {}).isMobile === true,
     predicate: newState.predicate,
@@ -207,7 +205,6 @@ class JournalsDashletGrid extends Component {
       selectAllRecords,
       saveRecords,
       className,
-      loading,
       grid: {
         data,
         columns,
@@ -237,8 +234,6 @@ class JournalsDashletGrid extends Component {
     return (
       <>
         <div className="ecos-journal-dashlet__grid">
-          {loading && <Loader blur />}
-
           <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
               data={data}

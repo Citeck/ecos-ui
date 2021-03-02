@@ -30,7 +30,8 @@ import {
   setUrl,
   setSelectedJournals,
   onJournalSelect,
-  setJournalExistStatus
+  setJournalExistStatus,
+  setCheckLoading
 } from '../actions/journals';
 import {
   setIsDocLibEnabled,
@@ -892,6 +893,14 @@ export default handleActions(
 
       return handleState(state, stateId, {
         isExistJournal: Boolean(handledAction.payload)
+      });
+    },
+    [setCheckLoading]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(action);
+
+      return handleState(state, stateId, {
+        isCheckLoading: Boolean(handledAction.payload)
       });
     }
   },

@@ -37,6 +37,7 @@ import {
   saveDashlet,
   saveJournalSetting,
   saveRecords,
+  setCheckLoading,
   setColumnsSetup,
   setDashletConfig,
   setDashletConfigByParams,
@@ -961,17 +962,17 @@ function* sagaSearch({ logger, w, stateId }, { payload }) {
 
 function* sagaCheckConfig({ logger, w, stateId }, { payload }) {
   try {
-    yield put(setLoading(w(true)));
+    yield put(setCheckLoading(w(true)));
 
     const config = get(payload, get(payload, 'version'));
     const customJournalMode = get(config, 'customJournalMode');
-    const id = get(config, customJournalMode ? 'journalId' : 'customJournal', '');
+    const id = get(config, customJournalMode ? 'customJournal' : 'journalId', '');
     const isCalculated = id.indexOf('${') !== -1;
     const isNotExistsJournal = yield call([JournalsService, JournalsService.isNotExistsJournal], id);
     const passedCheck = !(isEmpty(id) || isCalculated || isNotExistsJournal);
 
     yield put(setJournalExistStatus(w(passedCheck)));
-    yield put(setLoading(w(false)));
+    yield put(setCheckLoading(w(false)));
     yield put(setEditorMode(w(!passedCheck)));
   } catch (e) {
     logger.error('[journals sagaCheckConfig saga error', e.message);

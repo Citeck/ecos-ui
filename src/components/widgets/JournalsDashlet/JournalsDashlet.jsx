@@ -52,6 +52,7 @@ const mapStateToProps = (state, ownProps) => {
     selectedRecords: newState.selectedRecords,
     selectAllRecords: newState.selectAllRecords,
     selectAllRecordsVisible: newState.selectAllRecordsVisible,
+    isLoading: newState.isCheckLoading || newState.loading,
     isNotExistsJournal: selectIsNotExistsJournal(state, getKey(ownProps))
   };
 };
@@ -250,20 +251,14 @@ class JournalsDashlet extends BaseWidget {
   };
 
   renderEditor() {
-    const { editorMode, id, config, stateId, isNotExistsJournal } = this.props;
+    const { editorMode, id, config, stateId } = this.props;
     const { isCollapsed } = this.state;
 
     if (!editorMode || isCollapsed) {
       return null;
     }
 
-    return (
-      <>
-        {isNotExistsJournal && <div className="alert alert-warning mb-0">{t('journal.not-exists.warning')}</div>}
-
-        <JournalsDashletEditor id={id} stateId={stateId} recordRef={this.recordRef} config={config} onSave={this.handleSaveConfig} />
-      </>
-    );
+    return <JournalsDashletEditor id={id} stateId={stateId} recordRef={this.recordRef} config={config} onSave={this.handleSaveConfig} />;
   }
 
   renderJournal() {

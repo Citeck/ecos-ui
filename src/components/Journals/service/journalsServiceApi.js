@@ -18,7 +18,17 @@ class JournalsServiceApi {
   }
 
   async isNotExistsJournal(journalId) {
-    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('_notExists');
+    let id = journalId;
+
+    if (id.indexOf(SourcesId.RESOLVED_JOURNAL) !== -1) {
+      id = id.slice(id.indexOf(SourcesId.RESOLVED_JOURNAL) + SourcesId.RESOLVED_JOURNAL.length + 1);
+    }
+
+    if (id.indexOf(SourcesId.JOURNAL) === -1) {
+      id = `${SourcesId.JOURNAL}@${id}`;
+    }
+
+    return Records.get(id).load('_notExists?bool');
   }
 
   async queryData(query, attributes) {
