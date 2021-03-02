@@ -27,7 +27,6 @@ import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_DASHLET_CONFIG_VERSION, JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import DashboardService from '../../../services/dashboard';
 import SelectJournal from '../../common/form/SelectJournal';
-import { Loader } from '../../common';
 import { selectDashletConfig, selectIsNotExistsJournal, selectNewVersionDashletConfig } from '../../../selectors/journals';
 
 import './JournalsDashletEditor.scss';
@@ -42,7 +41,6 @@ const mapStateToProps = (state, ownProps) => {
     initConfig: newState.initConfig,
     editorMode: newState.editorMode,
     resultDashboard: get(state, ['dashboard', DashboardService.key, 'requestResult'], {}),
-    isCheckLoading: newState.isCheckLoading,
     isNotExistsJournal: selectIsNotExistsJournal(state, ownProps.stateId)
   };
 };
@@ -246,7 +244,7 @@ class JournalsDashletEditor extends Component {
   };
 
   render() {
-    const { className, measurer, recordRef, journalSettings, isCheckLoading, isNotExistsJournal } = this.props;
+    const { className, measurer, recordRef, journalSettings, isNotExistsJournal } = this.props;
     const { customJournal, isCustomJournalMode } = this.state;
     const config = this.props.config || {};
     const isSmall = measurer && (measurer.xxs || measurer.xxxs);
@@ -255,8 +253,6 @@ class JournalsDashletEditor extends Component {
 
     return (
       <div className={classNames('ecos-journal-dashlet-editor', className)}>
-        {isCheckLoading && <Loader blur rounded />}
-
         <div className={classNames('ecos-journal-dashlet-editor__body', ifSmall('ecos-journal-dashlet-editor__body_small'))}>
           <Caption middle className="ecos-journal-dashlet-editor__caption">
             {t('journals.action.edit-dashlet')}

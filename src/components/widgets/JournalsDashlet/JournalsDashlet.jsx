@@ -251,14 +251,20 @@ class JournalsDashlet extends BaseWidget {
   };
 
   renderEditor() {
-    const { editorMode, id, config, stateId } = this.props;
+    const { editorMode, id, config, stateId, isNotExistsJournal } = this.props;
     const { isCollapsed } = this.state;
 
     if (!editorMode || isCollapsed) {
       return null;
     }
 
-    return <JournalsDashletEditor id={id} stateId={stateId} recordRef={this.recordRef} config={config} onSave={this.handleSaveConfig} />;
+    return (
+      <>
+        {isNotExistsJournal && <div className="alert alert-warning mb-0">{t('journal.not-exists.warning')}</div>}
+
+        <JournalsDashletEditor id={id} stateId={stateId} recordRef={this.recordRef} config={config} onSave={this.handleSaveConfig} />
+      </>
+    );
   }
 
   renderJournal() {
