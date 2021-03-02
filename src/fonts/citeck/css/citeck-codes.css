@@ -232,6 +232,18 @@
 .icon-folder:before {
   content: '\e850';
 } /* '' */
+.icon-restore:before {
+  content: '\e853';
+} /* '' */
+.icon-backup:before {
+  content: '\e854';
+} /* '' */
+.icon-redo:before {
+  content: '\e855';
+} /* '' */
+.icon-undo:before {
+  content: '\e856';
+} /* '' */
 .icon-actual:before {
   content: '\e85a';
 } /* '' */
