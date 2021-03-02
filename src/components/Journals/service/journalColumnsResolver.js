@@ -12,6 +12,7 @@ import {
   COLUMN_DATA_TYPE_NODEREF,
   COLUMN_DATA_TYPE_TEXT
 } from '../../Records/predicates/predicates';
+import EditorScope from './editors/EditorScope';
 
 const NOT_SORTABLE_TYPES = [
   COLUMN_DATA_TYPE_ASSOC,
@@ -120,8 +121,13 @@ class JournalColumnsResolver {
   }
 
   _initEditorRenderer = newEditor => {
-    return (editorProps, value, row, column, rowIndex, columnIndex) => {
-      return EditorService.initEditor({ editorProps, value, row, column, rowIndex, columnIndex, newEditor });
+    return (editorProps, value) => {
+      return EditorService.getEditorControl({
+        value,
+        type: newEditor.type,
+        config: newEditor.config,
+        scope: EditorScope.CELL
+      });
     };
   };
 

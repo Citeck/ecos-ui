@@ -1,11 +1,11 @@
 import BaseEditor from '../BaseEditor';
-import JournalEditorView from './JournalEditorView';
+import JournalEditorControl from './JournalEditorControl';
 
 export default class JournalEditor extends BaseEditor {
   static TYPE = 'journal';
 
-  get viewComponent() {
-    return JournalEditorView;
+  getEditorControl() {
+    return JournalEditorControl;
   }
 
   getRecordValue(record) {

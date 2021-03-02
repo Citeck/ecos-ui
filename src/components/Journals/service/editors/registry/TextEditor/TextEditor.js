@@ -1,10 +1,10 @@
 import BaseEditor from '../BaseEditor';
-import TextEditorView from './TextEditorView';
+import TextEditorControl from './TextEditorControl';
 
 export default class TextEditor extends BaseEditor {
   static TYPE = 'text';
 
-  get viewComponent() {
-    return TextEditorView;
+  getEditorControl() {
+    return TextEditorControl;
   }
 }

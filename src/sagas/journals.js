@@ -68,7 +68,6 @@ import { ActionTypes } from '../components/Records/actions';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
-import { getJournalUIType } from '../api/export/journalsApi';
 import { selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
 import { hasInString } from '../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
@@ -251,8 +250,7 @@ function* getJournals(api, journalsListId, w) {
 
   yield Promise.all(
     journals.map(async journal => {
-      const uiType = await getJournalUIType(journal.type);
-
+      const uiType = 'react';
       return (journal.uiType = uiType);
     })
   );

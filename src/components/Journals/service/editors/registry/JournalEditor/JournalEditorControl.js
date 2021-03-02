@@ -1,13 +1,12 @@
 import React from 'react';
 import omit from 'lodash/omit';
-import get from 'lodash/get';
 
 import SelectJournal from '../../../../../common/form/SelectJournal';
 
-import BaseEditorView from '../BaseEditor/BaseEditorView';
+import BaseEditorControl from '../BaseEditor/BaseEditorControl';
 import { getCellValue } from '../../util';
 
-class JournalEditorView extends BaseEditorView {
+class JournalEditorControl extends BaseEditorControl {
   handleChange = (value, selected) => {
     const { onUpdate } = this.props;
 
@@ -22,16 +21,14 @@ class JournalEditorView extends BaseEditorView {
   };
 
   render() {
-    const { extraProps } = this.props;
+    const { value, config } = this.props;
     const props = omit(this.props, ['extraProps', 'onUpdate']);
 
-    const { value } = extraProps;
     const multiple = this.isMultiple;
-    const journalId = get(extraProps, 'config.journalId', '');
+    const journalId = config.journalId;
 
     return (
       <SelectJournal
-        {...props}
         multiple={multiple}
         autoFocus
         isCompact
@@ -45,4 +42,4 @@ class JournalEditorView extends BaseEditorView {
   }
 }
 
-export default JournalEditorView;
+export default JournalEditorControl;

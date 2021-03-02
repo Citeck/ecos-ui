@@ -5,9 +5,9 @@ import omit from 'lodash/omit';
 import get from 'lodash/get';
 
 import { Input } from '../../../../../common/form';
-import { EDITOR_SCOPE } from '../../constants';
+import EditorScope from '../../EditorScope';
 
-class BaseEditorView extends React.Component {
+class BaseEditorControl extends React.Component {
   constructor(props) {
     super(props);
     this._value = get(this.props, 'extraProps.value', props.defaultValue);
@@ -38,7 +38,7 @@ class BaseEditorView extends React.Component {
   }
 }
 
-BaseEditorView.propTypes = {
+BaseEditorControl.propTypes = {
   className: PropTypes.string,
   defaultValue: PropTypes.any,
   extraProps: PropTypes.shape({
@@ -52,7 +52,7 @@ BaseEditorView.propTypes = {
       newEditor: PropTypes.object
     }),
     value: PropTypes.any,
-    scope: PropTypes.oneOf(Object.values(EDITOR_SCOPE)),
+    scope: PropTypes.oneOf(Object.values(EditorScope)),
     config: PropTypes.object
   }),
   onBlur: PropTypes.func,
@@ -61,4 +61,4 @@ BaseEditorView.propTypes = {
   style: PropTypes.object
 };
 
-export default BaseEditorView;
+export default BaseEditorControl;
