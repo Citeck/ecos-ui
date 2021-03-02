@@ -160,12 +160,14 @@ export default class BaseEditorMenu extends React.Component {
     };
 
     const handleSaveJournal = records => {
-      addJournalMenuItems({
-        records,
-        id: get(editItemInfo, 'item.id'),
-        type: get(editItemInfo, 'type.key'),
-        level: editItemInfo.level
-      });
+      addJournalMenuItems &&
+        addJournalMenuItems({
+          records,
+          id: get(editItemInfo, 'item.id'),
+          type: get(editItemInfo, 'type.key'),
+          level: editItemInfo.level,
+          configType: this.configType
+        });
       handleHideModal();
     };
 

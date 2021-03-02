@@ -17,12 +17,14 @@ import {
   setAuthorities,
   setCreateMenuItems,
   setGroupPriority,
+  setLastAddedCreateItems,
   setLastAddedLeftItems,
   setLeftMenuItems,
   setLoading,
   setMenuIcons,
   setOriginalConfig
 } from '../actions/menuSettings';
+import { selectMenuByType } from '../selectors/menu';
 
 function* fetchSettingsConfig({ api, logger }) {
   try {
@@ -110,8 +112,8 @@ function* runSaveGlobalSettings({ api, logger }, action) {
 
 function* runAddJournalMenuItems({ api, logger }, { payload }) {
   try {
-    const { records, id, type, level } = payload;
-    const items = yield select(state => state.menuSettings.leftItems);
+    const { records, id, type, level, configType } = payload;
+    const items = yield select(state => selectMenuByType(state, configType));
     const infoList = yield call(api.menu.getItemInfoByRef, records);
     const excluded = [];
 
@@ -136,8 +138,15 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
       );
     }
 
-    yield put(setLeftMenuItems(result.items));
-    yield put(setLastAddedLeftItems(result.newItems));
+    if (configType === ConfigTypes.LEFT) {
+      yield put(setLeftMenuItems(result.items));
+      yield put(setLastAddedLeftItems(result.newItems));
+    }
+
+    if (configType === ConfigTypes.CREATE) {
+      yield put(setCreateMenuItems(result.items));
+      yield put(setLastAddedCreateItems(result.newItems));
+    }
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.set-items-from-journal'), t('error'));
