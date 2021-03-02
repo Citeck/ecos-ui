@@ -20,7 +20,7 @@ import EditorItem from '../editorItem/EditorItem';
 import '../style.scss';
 
 export default class BaseEditorMenu extends React.Component {
-  type = undefined;
+  configType = undefined;
 
   state = {
     openAllMenuItems: false,
@@ -30,6 +30,10 @@ export default class BaseEditorMenu extends React.Component {
 
   componentDidMount() {
     this.handleChooseOption.bind(this);
+
+    if (!this.configType) {
+      console.warn('Yon should define type of menu config');
+    }
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -79,22 +83,19 @@ export default class BaseEditorMenu extends React.Component {
       DialogManager.showRemoveDialog({
         title: '',
         text: t(Labels.MSG_DELETE_ITEM, { name: extractLabel(item.label) }),
-        onDelete: () => {
-          const result = MenuSettingsService.processAction({ action, id: item.id, items });
-          setMenuItems(result.items);
-        }
+        onDelete: () => setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, configType: this.configType }).items)
       });
       return;
     }
 
     if (action === ms.ActionTypes.EDIT) {
-      const type = MenuSettingsService.getCreateOptionsByType(this.type).find(o => o.key === item.type);
+      const type = MenuSettingsService.getCreateOptionsByType(this.configType).find(o => o.key === item.type);
 
       type && this.handleChooseOption({ type, item, action, level });
       return;
     }
 
-    setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, level }).items);
+    setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, level, configType: this.configType }).items);
   };
 
   handleClickIcon = item => {
@@ -150,7 +151,8 @@ export default class BaseEditorMenu extends React.Component {
         items,
         id: get(editItemInfo, 'item.id'),
         data: { ...data, type: get(editItemInfo, 'type.key') },
-        level: editItemInfo.level
+        level: editItemInfo.level,
+        configType: this.configType
       });
       setMenuItems(result.items);
       setLastAddedItems(result.newItems);
@@ -180,7 +182,7 @@ export default class BaseEditorMenu extends React.Component {
         onClose={handleHideModal}
         onSave={handleSave}
         action={editItemInfo.action}
-        params={{ level: editItemInfo.level, configType: this.type }}
+        params={{ level: editItemInfo.level, configType: this.configType }}
         fontIcons={fontIcons}
       />
     );
@@ -200,7 +202,8 @@ export default class BaseEditorMenu extends React.Component {
         items,
         id: editItemIcon.id,
         data: { icon },
-        level: editItemIcon.level
+        level: editItemIcon.level,
+        configType: this.configType
       });
 
       setMenuItems(result.items);
@@ -221,10 +224,10 @@ export default class BaseEditorMenu extends React.Component {
   renderExtraComponents = ({ item, level = -1, isOpen }) => {
     const { disabledEdit } = this.props;
     const components = [];
-    const id = get(item, 'id') || uniqueId(this.type);
+    const id = get(item, 'id') || uniqueId(this.configType);
 
     if (!item || (!item.hidden && !MenuSettingsService.isChildless(item))) {
-      const createOptions = MenuSettingsService.getAvailableCreateOptions(this.type, item, { level });
+      const createOptions = MenuSettingsService.getAvailableCreateOptions(item, { level, configType: this.configType });
 
       !disabledEdit &&
         createOptions.length &&

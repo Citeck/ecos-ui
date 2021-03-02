@@ -110,7 +110,7 @@ class DropdownMenuItem extends React.Component {
 
   render() {
     const { data, iconRight } = this.props;
-    const { id, img, label, target } = data;
+    const { id, img, label, target, disabled } = data;
     const extra = {};
 
     if (!isNewVersionPage(this.url)) {
@@ -119,7 +119,7 @@ class DropdownMenuItem extends React.Component {
 
     return (
       <li>
-        <a href={this.url} target={target} id={id} onClick={this.handlerClick} {...extra}>
+        <a href={this.url} target={target} id={id} onClick={this.handlerClick} {...extra} disabled={disabled}>
           {this.iconLeft && <i className={this.iconLeft} />}
           {img && this.renderImg()}
           {label && t(label)}

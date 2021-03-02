@@ -3,6 +3,10 @@
 .ecos-dropdown-menu {
   $dropdown: &;
 
+  li a[disabled] {
+    color: $color-gray-5;
+  }
+
   &__cascade {
     $cascade: &;
 

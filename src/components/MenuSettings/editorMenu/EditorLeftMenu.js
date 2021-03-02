@@ -7,7 +7,7 @@ import { addJournalMenuItems, setLastAddedLeftItems, setLeftMenuItems } from '..
 import BaseEditorMenu from './BaseEditorMenu';
 
 class EditorLeftMenu extends BaseEditorMenu {
-  type = ConfigTypes.LEFT;
+  configType = ConfigTypes.LEFT;
 }
 
 const mapStateToProps = state => ({

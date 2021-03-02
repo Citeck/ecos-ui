@@ -277,8 +277,8 @@ describe('Menu Settings Service', () => {
   });
 
   describe('Method getAvailableCreateOptions', () => {
-    describe.each(AVAILABLE_CREATE_OPTIONS)('%# %s %o %o', (configType, input, params, output) => {
-      const result = MenuSettingsService.getAvailableCreateOptions(configType, input, params);
+    describe.each(AVAILABLE_CREATE_OPTIONS)('%# %o %o', (input, params, output) => {
+      const result = MenuSettingsService.getAvailableCreateOptions(input, params);
       expect(result).toEqual(output);
     });
   });

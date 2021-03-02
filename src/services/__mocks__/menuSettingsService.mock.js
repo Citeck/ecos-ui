@@ -6386,16 +6386,15 @@ function _getMCOs(items) {
 }
 
 export const AVAILABLE_CREATE_OPTIONS = [
-  [undefined, undefined, undefined, []],
-  ['left', undefined, { level: -1 }, _getMCOs([MenuSettingsService.leftMenuCreateOptions[0]])],
-  ['left', { type: 'SECTION' }, { level: -1 }, _getMCOs([MenuSettingsService.leftMenuCreateOptions[0]])],
-  ['left', undefined, { level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
-  ['left', { type: 'item' }, { level: 0 }, []],
-  ['left', { type: 'SECTION' }, { level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
+  [undefined, undefined, []],
+  [undefined, { configType: 'left', level: -1 }, _getMCOs([MenuSettingsService.leftMenuCreateOptions[0]])],
+  [{ type: 'SECTION' }, { configType: 'left', level: -1 }, _getMCOs([MenuSettingsService.leftMenuCreateOptions[0]])],
+  [undefined, { configType: 'left', level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
+  [{ type: 'item' }, { configType: 'left', level: 0 }, []],
+  [{ type: 'SECTION' }, { configType: 'left', level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
   [
-    'left',
     undefined,
-    { level: 2 },
+    { configType: 'left', level: 2 },
     _getMCOs([
       MenuSettingsService.leftMenuCreateOptions[2],
       MenuSettingsService.leftMenuCreateOptions[3],
@@ -6403,30 +6402,28 @@ export const AVAILABLE_CREATE_OPTIONS = [
     ])
   ],
   [
-    'left',
     { type: 'SECTION' },
-    { level: 1 },
+    { configType: 'left', level: 1 },
     _getMCOs([
       MenuSettingsService.leftMenuCreateOptions[2],
       MenuSettingsService.leftMenuCreateOptions[3],
       MenuSettingsService.leftMenuCreateOptions[4]
     ])
   ],
-  ['left', { type: 'ARBITRARY' }, { level: 3 }, []],
-  ['left', { type: 'JOURNAL' }, { level: 2 }, []],
-  ['create', { type: 'JOURNAL' }, { level: -1 }, []],
-  ['create', undefined, { level: -1 }, _getMCOs(MenuSettingsService.createMenuCreateOptions)],
-  ['create', { type: 'SECTION' }, { level: 0 }, _getMCOs(MenuSettingsService.createMenuCreateOptions)],
+  [{ type: 'ARBITRARY' }, { configType: 'left', level: 3 }, []],
+  [{ type: 'JOURNAL' }, { configType: 'left', level: 2 }, []],
+  [{ type: 'JOURNAL' }, { configType: 'create', level: -1 }, []],
+  [undefined, { configType: 'create', level: -1 }, _getMCOs(MenuSettingsService.createMenuCreateOptions)],
+  [{ type: 'SECTION' }, { configType: 'create', level: 0 }, _getMCOs(MenuSettingsService.createMenuCreateOptions)],
   [
-    'create',
     { type: 'SECTION' },
-    { level: 1 },
+    { configType: 'create', level: 1 },
     _getMCOs([
       MenuSettingsService.createMenuCreateOptions[1],
       MenuSettingsService.createMenuCreateOptions[2],
       MenuSettingsService.createMenuCreateOptions[3]
     ])
   ],
-  ['create', { type: 'CREATE_IN_SECTION' }, { level: 0 }, []],
-  ['create', { type: 'EDIT_RECORD' }, { level: 0 }, []]
+  [{ type: 'CREATE_IN_SECTION' }, { configType: 'create', level: 0 }, []],
+  [{ type: 'EDIT_RECORD' }, { configType: 'create', level: 0 }, []]
 ];

@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../helpers/util';
-import { MenuSettings as ms } from '../constants/menu';
+import { ConfigTypes, MenuSettings as ms } from '../constants/menu';
 import MenuConverter from '../dto/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import {
@@ -23,8 +23,6 @@ import {
   setMenuIcons,
   setOriginalConfig
 } from '../actions/menuSettings';
-import { initMenuConfig } from '../actions/menu';
-import { fetchCreateCaseWidgetData } from '../actions/header';
 
 function* fetchSettingsConfig({ api, logger }) {
   try {
@@ -36,8 +34,8 @@ function* fetchSettingsConfig({ api, logger }) {
     }
 
     const config = yield call(api.menu.getMenuSettingsConfig, { id });
-    const leftItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.left.items') || []);
-    const createItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.create.items') || []);
+    const leftItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.left.items') || [], { configType: ConfigTypes.LEFT });
+    const createItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.create.items') || [], { configType: ConfigTypes.CREATE });
 
     const _font = yield import('../fonts/citeck-leftmenu/selection.json');
     const icons = get(_font, 'icons') || [];
@@ -63,12 +61,6 @@ function* runSaveMenuSettings(props, action) {
 
   if (![resultMenu, resultGlobal].includes(false)) {
     MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
-
-    if (get(resultMenu, 'id') && get(resultMenu, 'id').includes(id)) {
-      yield put(initMenuConfig());
-      yield put(fetchCreateCaseWidgetData());
-    }
-
     NotificationManager.success(t('menu-settings.success.save-all-menu-settings'), t('success'));
   }
 

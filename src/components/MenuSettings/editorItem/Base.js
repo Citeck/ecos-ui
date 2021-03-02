@@ -22,7 +22,7 @@ class Base extends React.Component {
     icon: defaultIcon,
     isOpenSelectIcon: false
   };
-
+  type = undefined;
   data = {};
 
   constructor(props) {
@@ -37,6 +37,10 @@ class Base extends React.Component {
   componentDidMount() {
     const { icon } = this.props.item || {};
     this.setState({ icon });
+
+    if (!this.type) {
+      console.warn('Yon should define type of menu item');
+    }
   }
 
   get title() {

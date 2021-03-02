@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { CreateMenuTypes, MenuTypes, MenuSettings } from '../constants/menu';
+import { CreateMenuTypes, MenuSettings, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
 import { extractLabel, getTextByLocale } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
@@ -90,42 +90,27 @@ export default class MenuConverter {
   static getMainMenuCreateItems(source = []) {
     const ITs = MenuSettings.ItemTypes;
 
-    const r = (function recursion(items) {
+    return (function recursion(items) {
       return (items || []).map(item => {
-        let option = {
-          ___type: item.type,
-          id: item.id,
+        const option = {
+          ...item,
           label: getTextByLocale(item.label)
         };
 
-        if (item.type === ITs.CREATE_IN_SECTION) {
-          option.siteId = item.id;
-          option.items = (item.items || []).map(MenuConverter.getLinkCreateCase);
-
-          return option;
-        }
-
         if (item.type === ITs.LINK_CREATE_CASE) {
-          return MenuConverter.getLinkCreateCase(item);
+          return { ...option, ...MenuConverter.getLinkCreateCase(item) };
         }
 
         if (item.type === ITs.ARBITRARY) {
-          console.log(item);
-          return {
-            targetUrl: '/v2/admin',
-            targetUrlType: 'FULL_PATH'
-          };
+          return { ...option, ...MenuConverter.getLinkMove(item) };
         }
 
         option.items = recursion(item.items);
+        option.disabled = !option.items.length;
 
         return option;
       });
     })(source);
-
-    console.log(r);
-
-    return r;
   }
 
   static getLinkCreateCase(data) {
@@ -133,7 +118,6 @@ export default class MenuConverter {
 
     return {
       id: cv.id,
-      label: getTextByLocale(data.label),
       control: {
         type: HandleControlTypes.ECOS_CREATE_VARIANT,
         payload: {
@@ -146,6 +130,21 @@ export default class MenuConverter {
             _type: cv.typeRef,
             ...cv.attributes
           }
+        }
+      }
+    };
+  }
+
+  static getLinkMove(data) {
+    const targetUrl = get(data, 'config.url') || {};
+
+    return {
+      targetUrl,
+      control: {
+        type: HandleControlTypes.ALF_NAVIGATE_TO_PAGE,
+        payload: {
+          url: targetUrl,
+          target: targetUrl.includes('http') ? '_blank' : '_self'
         }
       }
     };
@@ -190,13 +189,13 @@ export default class MenuConverter {
   }
 
   /* menu settings */
-  static getMenuItemsWeb(source) {
+  static getMenuItemsWeb(source, params = {}) {
     const target = [];
 
     (function prepareTree(sItems, tItems, level) {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
-        const tItem = MenuSettingsService.getItemParams(sItem, { level });
+        const tItem = MenuSettingsService.getItemParams(sItem, { level, ...params });
 
         tItem.items = [];
         tItem.config = { ...sItem.config };

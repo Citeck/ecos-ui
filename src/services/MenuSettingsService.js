@@ -95,9 +95,9 @@ export default class MenuSettingsService {
       draggable: knownType && ![].includes(item.type),
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),
-      hasIcon: ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level),
+      hasIcon: [ConfigTypes.LEFT].includes(configType) && ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level),
       hasUrl: [ms.ItemTypes.ARBITRARY].includes(item.type),
-      hideableLabel: [ms.ItemTypes.SECTION].includes(item.type) && [ConfigTypes.LEFT].includes(configType) && [0].includes(level)
+      hideableLabel: [ConfigTypes.LEFT].includes(configType) && [ms.ItemTypes.SECTION].includes(item.type) && [0].includes(level)
     };
   }
 
@@ -124,7 +124,7 @@ export default class MenuSettingsService {
     return item;
   }
 
-  static processAction = ({ items: original, action, id, data, level }) => {
+  static processAction = ({ items: original, action, id, data, level, configType }) => {
     const items = cloneDeep(original) || [];
     const foundItem = treeFindFirstItem({ items, key: 'id', value: id });
 
@@ -141,9 +141,9 @@ export default class MenuSettingsService {
         let newItems;
 
         if (Array.isArray(data)) {
-          newItems = data.map(d => MenuSettingsService.getItemParams(d, { level }));
+          newItems = data.map(d => MenuSettingsService.getItemParams(d, { level, configType }));
         } else {
-          newItems = [MenuSettingsService.getItemParams(data, { level })];
+          newItems = [MenuSettingsService.getItemParams(data, { level, configType })];
         }
 
         if (path) {
@@ -225,21 +225,21 @@ export default class MenuSettingsService {
     }
   ];
 
-  static getCreateOptionsByType(type) {
-    if (type === ConfigTypes.LEFT) {
+  static getCreateOptionsByType(configType) {
+    if (configType === ConfigTypes.LEFT) {
       return MenuSettingsService.leftMenuCreateOptions;
     }
 
-    if (type === ConfigTypes.CREATE) {
+    if (configType === ConfigTypes.CREATE) {
       return MenuSettingsService.createMenuCreateOptions;
     }
 
     return [];
   }
 
-  static getAvailableCreateOptions = (type, item, params) => {
-    const array = cloneDeep(MenuSettingsService.getCreateOptionsByType(type));
-    const { level } = params || {};
+  static getAvailableCreateOptions = (item, params) => {
+    const { configType, level } = params || {};
+    const array = cloneDeep(MenuSettingsService.getCreateOptionsByType(configType));
 
     array.forEach(type => {
       type.id = type.id || type.label;

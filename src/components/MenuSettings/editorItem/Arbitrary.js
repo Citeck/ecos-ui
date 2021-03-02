@@ -1,5 +1,6 @@
 import React from 'react';
 import get from 'lodash/get';
+import set from 'lodash/set';
 
 import { packInLabel, t } from '../../../helpers/util';
 import { MenuSettings } from '../../../constants/menu';
@@ -25,7 +26,7 @@ export default class Arbitrary extends Base {
     const { label, url } = this.state;
 
     this.data.label = label;
-    this.data.url = url;
+    set(this.data, 'config.url', url);
 
     onSave(this.data);
   }

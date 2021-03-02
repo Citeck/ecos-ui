@@ -1,5 +1,6 @@
 import { handleActions } from 'redux-actions';
 import {
+  fetchCreateCaseWidgetData,
   resetSearchAutocompleteItems,
   runSearchAutocompleteItems,
   setCreateCaseWidgetIsCascade,
@@ -33,6 +34,12 @@ Object.freeze(initialState);
 
 export default handleActions(
   {
+    [fetchCreateCaseWidgetData]: (state, action) => {
+      return {
+        ...state,
+        createCaseWidget: { ...initialState.createCaseWidget }
+      };
+    },
     [setCreateCaseWidgetItems]: (state, action) => {
       return {
         ...state,

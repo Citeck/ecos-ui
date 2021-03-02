@@ -2,12 +2,12 @@ import React from 'react';
 import get from 'lodash/get';
 import { connect } from 'react-redux';
 
-import { setCreateMenuItems, setLastAddedCreateItems } from '../../../actions/menuSettings';
+import { addJournalMenuItems, setCreateMenuItems, setLastAddedCreateItems } from '../../../actions/menuSettings';
 import { ConfigTypes } from '../../../constants/menu';
 import BaseEditorMenu from './BaseEditorMenu';
 
 class EditorCreateMenu extends BaseEditorMenu {
-  type = ConfigTypes.CREATE;
+  configType = ConfigTypes.CREATE;
 }
 
 const mapStateToProps = state => ({
@@ -20,7 +20,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   setMenuItems: items => dispatch(setCreateMenuItems(items)),
-  setLastAddedItems: items => dispatch(setLastAddedCreateItems(items))
+  setLastAddedItems: items => dispatch(setLastAddedCreateItems(items)),
+  addJournalMenuItems: data => dispatch(addJournalMenuItems(data))
 });
 
 export default connect(

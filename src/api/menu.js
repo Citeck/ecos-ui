@@ -325,7 +325,11 @@ export class MenuApi extends CommonApi {
     rec.att('authorities[]?str', authorities);
     rec.att('version', version);
 
-    return rec.save();
+    return rec.save().then(res => {
+      Records.get(`${SourcesId.MENU}@${id}`).update();
+      Records.get(`${SourcesId.RESOLVED_MENU}@${id}`).update();
+      return res;
+    });
   };
 
   saveGroupPriority = ({ groupPriority }) => {

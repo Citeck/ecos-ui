@@ -21,10 +21,9 @@ export default class Divider extends Base {
     super.handleApply();
 
     const { onSave } = this.props;
-    const { label, url } = this.state;
+    const { label } = this.state;
 
     this.data.label = label;
-    this.data.url = url;
 
     onSave(this.data);
   }
