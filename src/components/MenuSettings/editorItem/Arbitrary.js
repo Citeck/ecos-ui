@@ -2,7 +2,7 @@ import React from 'react';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
-import { packInLabel, t } from '../../../helpers/util';
+import { t } from '../../../helpers/util';
 import { MenuSettings } from '../../../constants/menu';
 import { Input, MLText } from '../../common/form';
 import { Labels } from './../utils';
@@ -31,11 +31,10 @@ export default class Arbitrary extends Base {
     onSave(this.data);
   }
 
-  isNotValid() {
-    const { label, url } = this.state;
-    const _label = packInLabel(label);
+  isInvalidForm() {
+    const { url } = this.state;
 
-    return Object.values(_label).every(val => !val) || !url;
+    return this.isInvalidLabel || !url;
   }
 
   setLabel = label => {

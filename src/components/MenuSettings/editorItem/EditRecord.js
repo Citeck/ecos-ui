@@ -34,7 +34,7 @@ class EditRecord extends Base {
     onSave(this.data);
   }
 
-  isNotValid() {
+  isInvalidForm() {
     const { recordRef, formRef } = this.state;
 
     return !recordRef || !formRef;

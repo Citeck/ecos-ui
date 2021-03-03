@@ -128,7 +128,7 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
         return info;
       });
 
-    const result = MenuSettingsService.processAction({ action: ms.ActionTypes.CREATE, items, id, data, level });
+    const result = MenuSettingsService.processAction({ action: ms.ActionTypes.CREATE, items, id, data, level, configType });
 
     if (excluded.length) {
       NotificationManager.warning(

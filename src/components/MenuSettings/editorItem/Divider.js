@@ -1,7 +1,6 @@
 import React from 'react';
-import isEqual from 'lodash/isEqual';
 
-import { packInLabel, t } from '../../../helpers/util';
+import { t } from '../../../helpers/util';
 import { MenuSettings } from '../../../constants/menu';
 import { MLText } from '../../common/form';
 import { Labels } from './../utils';
@@ -28,11 +27,8 @@ export default class Divider extends Base {
     onSave(this.data);
   }
 
-  isNotValid() {
-    const { label } = this.state;
-    const _label = packInLabel(label);
-
-    return Object.values(_label).every(val => !val);
+  isInvalidForm() {
+    return this.isInvalidLabel;
   }
 
   setLabel = label => {
@@ -44,7 +40,7 @@ export default class Divider extends Base {
 
     return (
       <this.wrapperModal>
-        <Field label={t(Labels.FIELD_NAME_LABEL)}>
+        <Field label={t(Labels.FIELD_NAME_LABEL)} required>
           <MLText onChange={this.setLabel} value={label} />
         </Field>
       </this.wrapperModal>

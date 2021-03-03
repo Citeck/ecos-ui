@@ -31,7 +31,7 @@ class CreateInSection extends Base {
     onSave(this.data);
   }
 
-  isNotValid() {
+  isInvalidForm() {
     const { sectionId } = this.state;
 
     return !sectionId;

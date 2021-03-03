@@ -1,7 +1,7 @@
 import React from 'react';
 import set from 'lodash/set';
 
-import { packInLabel, t } from '../../../helpers/util';
+import { t } from '../../../helpers/util';
 import { MenuSettings } from '../../../constants/menu';
 import { Checkbox, MLText } from '../../common/form';
 import { Labels } from './../utils';
@@ -30,11 +30,10 @@ export default class Section extends Base {
     onSave(this.data);
   }
 
-  isNotValid() {
-    const { label, hiddenLabel } = this.state;
-    const _label = packInLabel(label);
+  isInvalidForm() {
+    const { hiddenLabel } = this.state;
 
-    return !hiddenLabel && Object.values(_label).every(val => !val);
+    return !hiddenLabel && this.isInvalidLabel;
   }
 
   setLabel = label => {

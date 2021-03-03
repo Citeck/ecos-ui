@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { TMP_ICON_EMPTY } from '../../../constants';
 import { MenuSettings as MS } from '../../../constants/menu';
 import { t } from '../../../helpers/export/util';
-import { extractLabel } from '../../../helpers/util';
+import { extractLabel, packInLabel } from '../../../helpers/util';
 import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
 import EcosIcon from '../../common/EcosIcon';
@@ -31,7 +31,7 @@ class Base extends React.Component {
     this.handleApplyIcon = this.handleApplyIcon.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.handleApply = this.handleApply.bind(this);
-    this.isNotValid = this.isNotValid.bind(this);
+    this.isInvalidForm = this.isInvalidForm.bind(this);
   }
 
   componentDidMount() {
@@ -72,8 +72,15 @@ class Base extends React.Component {
     this.setState({ icon, isOpenSelectIcon: false });
   }
 
-  isNotValid() {
+  isInvalidForm() {
     return false;
+  }
+
+  get isInvalidLabel() {
+    const { label } = this.state;
+    const _label = packInLabel(label);
+
+    return Object.values(_label).every(val => !val);
   }
 
   wrapperModal = React.memo((props, context) => {
@@ -109,7 +116,7 @@ class Base extends React.Component {
         )}
         <div className="ecos-menu-editor-item__buttons">
           <Btn onClick={this.handleCancel}>{t(Labels.MODAL_BTN_CANCEL)}</Btn>
-          <Btn onClick={this.handleApply} className="ecos-btn_blue ecos-btn_hover_light-blue" disabled={this.isNotValid()}>
+          <Btn onClick={this.handleApply} className="ecos-btn_blue ecos-btn_hover_light-blue" disabled={this.isInvalidForm()}>
             {!!item ? t(Labels.MODAL_BTN_EDIT) : t(Labels.MODAL_BTN_ADD)}
           </Btn>
         </div>
