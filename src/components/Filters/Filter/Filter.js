@@ -102,7 +102,7 @@ export default class Filter extends Component {
       if (get(column, 'newEditor.type') === 'journal') {
         // todo: use EditorService for all filter types
         filterValueControl = EditorService.getEditorControl({
-          ...column.newEditor,
+          editor: column.newEditor,
           value,
           scope: EditorScope.FILTER,
           onUpdate: this.changeValue

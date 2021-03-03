@@ -714,9 +714,8 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
     const tempAttributes = {};
 
     const currentColumn = grid.columns.find(item => item.attribute === attribute);
-    const newEditor = currentColumn.newEditor || {};
 
-    const valueToSave = EditorService.getValueToSave(newEditor, value, currentColumn.multiple);
+    const valueToSave = EditorService.getValueToSave(value, currentColumn.multiple);
 
     yield call(api.journals.saveRecords, {
       id,
@@ -733,7 +732,7 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
 
     grid.data = grid.data.map(record => {
       if (record.id === id) {
-        const savedValue = EditorService.getValueToSave(newEditor, savedRecord[attribute], currentColumn.multiple);
+        const savedValue = EditorService.getValueToSave(savedRecord[attribute], currentColumn.multiple);
 
         if (!isEqual(savedValue, valueToSave)) {
           savedRecord.error = attribute;

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import BaseEditorControl from './BaseEditorControl';
 
 /**
@@ -12,7 +10,7 @@ import BaseEditorControl from './BaseEditorControl';
 export default class BaseEditor {
   static TYPE = '';
 
-  getControl(config) {
+  getControl(config, scope) {
     return BaseEditorControl;
   }
 
@@ -23,7 +21,11 @@ export default class BaseEditor {
     return this.constructor.TYPE;
   }
 
-  getDisplayName(value, config) {
+  getDisplayName(value, config, scope) {
     return null;
+  }
+
+  isStatelessControl(config, scope) {
+    return false;
   }
 }

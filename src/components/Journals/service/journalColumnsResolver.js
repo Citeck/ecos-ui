@@ -66,7 +66,7 @@ class JournalColumnsResolver {
     const multiple = column.multiple === true;
 
     const attribute = column.schema || column.attribute || column.name;
-    const attSchema = `${attribute}${multiple ? '[]' : ''}${this._getInnerSchema(type, column.attSchema)}`;
+    const attSchema = `${attribute}${multiple ? '[]' : ''}${this._getInnerSchema(type, column.newAttSchema)}`;
 
     const editable = attribute === column.name && getBoolOrElse(column.editable, true);
     const searchable = getBoolOrElse(column.searchable, () => attribute === name);
@@ -114,18 +114,22 @@ class JournalColumnsResolver {
     }
 
     if (updColumn.newEditor) {
-      updColumn.editorRenderer = this._initEditorRenderer(updColumn.newEditor);
+      updColumn.editorRenderer = this._initEditorRenderer(updColumn);
     }
 
     return updColumn;
   }
 
-  _initEditorRenderer = newEditor => {
+  _initEditorRenderer = column => {
     return (editorProps, value) => {
       return EditorService.getEditorControl({
         value,
-        type: newEditor.type,
-        config: newEditor.config,
+        ref: editorProps.ref,
+        onUpdate: editorProps.onUpdate,
+        onKeyDown: editorProps.onKeyDown,
+        onBlur: editorProps.onBlur,
+        editor: column.newEditor,
+        multiple: column.multiple,
         scope: EditorScope.CELL
       });
     };

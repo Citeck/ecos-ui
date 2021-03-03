@@ -1,14 +1,29 @@
 import BaseEditor from '../BaseEditor';
-import JournalEditorControl from './JournalEditorControl';
+import Records from '../../../../../Records/Records';
+import SelectJournal from '../../../../../common/form/SelectJournal';
+import React from 'react';
 
 export default class JournalEditor extends BaseEditor {
   static TYPE = 'journal';
 
-  getEditorControl() {
-    return JournalEditorControl;
+  getControl(config, scope) {
+    const journalId = config.journalId;
+
+    return ({ value, onUpdate, onCancel, multiple }) => (
+      <SelectJournal
+        multiple={multiple}
+        autoFocus
+        isCompact
+        inputViewClass="select-journal__input-view_extra-compact"
+        journalId={journalId}
+        defaultValue={value}
+        onChange={onUpdate}
+        onCancel={onCancel}
+      />
+    );
   }
 
-  getRecordValue(record) {
-    return record.value;
+  getDisplayName(value, config, scope) {
+    return Records.get(value).load('?disp');
   }
 }
