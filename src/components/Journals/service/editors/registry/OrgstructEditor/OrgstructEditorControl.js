@@ -4,10 +4,10 @@ import get from 'lodash/get';
 
 import SelectOrgstruct from '../../../../../common/form/SelectOrgstruct';
 
-import BaseEditorView from '../BaseEditor/BaseEditorView';
+import BaseEditorControl from '../BaseEditor/BaseEditorControl';
 import { getCellValue } from '../../util';
 
-class OrgstructEditorView extends BaseEditorView {
+class OrgstructEditorControl extends BaseEditorControl {
   handleChange = value => {
     const selected = Array.isArray(value) ? value : [value];
     const { onUpdate } = this.props;
@@ -47,4 +47,4 @@ class OrgstructEditorView extends BaseEditorView {
   }
 }
 
-export default OrgstructEditorView;
+export default OrgstructEditorControl;

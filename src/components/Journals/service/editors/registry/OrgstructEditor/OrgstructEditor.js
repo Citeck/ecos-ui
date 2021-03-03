@@ -1,11 +1,11 @@
 import BaseEditor from '../BaseEditor';
-import OrgstructEditorView from './OrgstructEditorView';
+import OrgstructEditorControl from './OrgstructEditorControl';
 
 export default class OrgstructEditor extends BaseEditor {
   static TYPE = 'orgstruct';
 
-  get viewComponent() {
-    return OrgstructEditorView;
+  getEditorControl() {
+    return OrgstructEditorControl;
   }
 
   getRecordValue(record) {

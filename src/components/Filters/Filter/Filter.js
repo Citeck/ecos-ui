@@ -9,8 +9,10 @@ import { IcoBtn } from '../../common/btns/index';
 import { Label, Select } from '../../common/form';
 import { getPredicateInput, getPredicates } from '../../Records/predicates/predicates';
 import ParserPredicate from '../predicates/ParserPredicate';
+import EditorService from '../../Journals/service/editors/EditorService';
 
 import './Filter.scss';
+import EditorScope from '../../Journals/service/editors/EditorScope';
 
 export default class Filter extends Component {
   constructor(props) {
@@ -92,15 +94,34 @@ export default class Filter extends Component {
     const { value } = this.state;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
-    const predicateInput = getPredicateInput(column, sourceId, metaRecord, predicate);
-    const predicateProps = predicateInput.getProps({
-      predicateValue: value,
-      changePredicateValue: this.changeValue,
-      datePickerWrapperClasses: 'ecos-filter_width_full',
-      selectClassName: 'select_width_full'
-    });
-    const FilterValueComponent = predicateInput.component;
+
     const isShow = !this.predicatesWithoutValue.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
+
+    let filterValueControl = '';
+    if (isShow) {
+      if (get(column, 'newEditor.type') === 'journal') {
+        // todo: use EditorService for all filter types
+        filterValueControl = EditorService.getEditorControl({
+          editor: column.newEditor,
+          value,
+          scope: EditorScope.FILTER,
+          onUpdate: this.changeValue
+        });
+      } else {
+        const predicateInput = getPredicateInput(column, sourceId, metaRecord, predicate);
+
+        const predicateProps = predicateInput.getProps({
+          predicateValue: value,
+          changePredicateValue: this.changeValue,
+          datePickerWrapperClasses: 'ecos-filter_width_full',
+          selectClassName: 'select_width_full'
+        });
+
+        const FilterValueComponent = predicateInput.component;
+
+        filterValueControl = <FilterValueComponent {...predicateProps} />;
+      }
+    }
 
     return (
       <div className={classNames('ecos-filter', className)}>
@@ -122,7 +143,7 @@ export default class Filter extends Component {
               value={selectedPredicate}
               onChange={this.changePredicate}
             />,
-            <div className="ecos-filter__value-wrapper">{isShow && <FilterValueComponent {...predicateProps} />}</div>,
+            <div className="ecos-filter__value-wrapper">{filterValueControl}</div>,
             <div className="ecos-filter__actions">
               <IcoBtn
                 icon={'icon-delete'}

@@ -1,6 +1,5 @@
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
-import debounce from 'lodash/debounce';
 
 import { generateSearchTerm, getCurrentUserName, t } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
@@ -9,7 +8,6 @@ import { PROXY_URI } from '../constants/alfresco';
 import { LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
 import Records from '../components/Records';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
-import { getJournalUIType } from './export/journalsApi';
 import { CommonApi } from './common';
 
 const postProcessMenuItemChildren = items => {
@@ -25,7 +23,7 @@ const postProcessMenuConfig = item => {
   const siteName = lodashGet(item, 'action.params.siteName');
 
   const items = postProcessMenuItemChildren(item.items);
-  const journalUiType = type === ActionTypes.JOURNAL_LINK && journalRef ? getJournalUIType(journalRef) : '';
+  const journalUiType = type === ActionTypes.JOURNAL_LINK && journalRef ? 'react' : '';
   const siteUiType = type === ActionTypes.SITE_LINK && siteName ? MenuApi.getSiteUiType(siteName) : '';
 
   return Promise.all([items, journalUiType, siteUiType]).then(itemsAndUIType => {
@@ -40,42 +38,6 @@ const postProcessMenuConfig = item => {
 };
 
 export class MenuApi extends CommonApi {
-  static getSiteUiType = siteName => {
-    if (!siteName) {
-      return Promise.resolve();
-    }
-
-    let uiType = MenuApi.uiTypeBySiteName[siteName];
-
-    if (uiType) {
-      return uiType.typePromise;
-    }
-
-    uiType = {};
-    uiType.typePromise = new Promise(resolve => {
-      uiType.resolve = resolve;
-    });
-
-    MenuApi.uiTypeBySiteName[siteName] = uiType;
-    MenuApi.getSiteUiTypes();
-
-    return uiType.typePromise;
-  };
-
-  static uiTypeBySiteName = {};
-
-  static getSiteUiTypes = debounce(() => {
-    const records = Object.keys(MenuApi.uiTypeBySiteName).map(key => `site@${key}`);
-
-    Records.get(records)
-      .load({ id: '.id', type: 'uiType' }, true)
-      .then(result => {
-        result.forEach(data => {
-          MenuApi.uiTypeBySiteName[data.id].resolve(data.type);
-        });
-      });
-  }, 300);
-
   getNewJournalPageUrl = params => {
     let listId = params.listId;
     let siteId = params.siteName;
