@@ -23,7 +23,7 @@ const JOURNAL_CONFIG = {
       id: SCRIPT_COMPUTED_NAME,
       type: 'script',
       config: {
-        script: 'return new Promise(resolve => setTimeout(() => { resolve("' + SCRIPT_COMPUTED_RES + '"); }, 100));'
+        fn: 'return new Promise(resolve => setTimeout(() => { resolve("' + SCRIPT_COMPUTED_RES + '"); }, 100));'
       }
     },
     {
@@ -62,7 +62,7 @@ const JOURNAL_CONFIG = {
             vars: {
               key: 'prefix-${Name1}'
             },
-            script: 'return vars.key;'
+            fn: 'return vars.key;'
           }
         }
       ],

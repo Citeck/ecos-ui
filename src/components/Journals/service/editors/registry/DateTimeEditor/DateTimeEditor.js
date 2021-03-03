@@ -1,10 +1,10 @@
 import DateEditor from '../DateEditor';
-import DateTimeEditorView from './DateTimeEditorView';
+import DateTimeEditorControl from './DateTimeEditorControl';
 
 export default class DateTimeEditor extends DateEditor {
   static TYPE = 'datetime';
 
-  get viewComponent() {
-    return DateTimeEditorView;
+  getEditorControl() {
+    return DateTimeEditorControl;
   }
 }

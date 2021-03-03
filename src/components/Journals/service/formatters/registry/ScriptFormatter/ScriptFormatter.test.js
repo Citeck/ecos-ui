@@ -15,7 +15,7 @@ describe('ScriptFormatter', () => {
     it('should return Yes if the script result is boolean (true)', () => {
       const result = scriptFormatterInstance.format({
         config: {
-          script: 'return true;'
+          fn: 'return true;'
         }
       });
       expect(result).toBe('Yes');
@@ -23,7 +23,7 @@ describe('ScriptFormatter', () => {
     it('should return No if the script result is boolean (false)', () => {
       const result = scriptFormatterInstance.format({
         config: {
-          script: 'return false;'
+          fn: 'return false;'
         }
       });
       expect(result).toBe('No');
@@ -31,7 +31,7 @@ describe('ScriptFormatter', () => {
     it('should return number if the script result is number', () => {
       const result = scriptFormatterInstance.format({
         config: {
-          script: 'return 1 + 2;'
+          fn: 'return 1 + 2;'
         }
       });
       expect(result).toBe(3);
@@ -39,7 +39,7 @@ describe('ScriptFormatter', () => {
     it('should return string if the script result is string', () => {
       const result = scriptFormatterInstance.format({
         config: {
-          script: 'return "Test";'
+          fn: 'return "Test";'
         }
       });
       expect(result).toBe('Test');
@@ -50,7 +50,7 @@ describe('ScriptFormatter', () => {
       scriptFormatterInstance.format({
         cell: 'Original cell',
         config: {
-          script: `
+          fn: `
             return {
               type: 'html',
               config: {
@@ -77,14 +77,14 @@ describe('ScriptFormatter', () => {
       returnVariants.forEach(item => {
         const result = scriptFormatterInstance.format({
           config: {
-            script: `return ${item}`
+            fn: `return ${item}`
           }
         });
         expect(result).toBe(null);
       });
       const result = scriptFormatterInstance.format({
         config: {
-          script: `/* no return operator */`
+          fn: `/* no return operator */`
         }
       });
       expect(result).toBe(null);

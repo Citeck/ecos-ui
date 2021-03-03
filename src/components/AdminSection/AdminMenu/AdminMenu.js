@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-import { fetchGroupSectionList, updActiveSection } from '../../../actions/adminSection';
+import { fetchGroupSectionList } from '../../../actions/adminSection';
 import { t } from '../../../helpers/util';
 import { Labels } from '../../../constants/adminSection';
 import { IcoBtn } from '../../common/btns';
@@ -10,7 +10,7 @@ import SectionList from './SectionList';
 
 import './style.scss';
 
-const AdminMenu = ({ isMobile, groupSectionList, children, toggle, open, getGroupSectionList, pathname, updActive }) => {
+const AdminMenu = ({ isMobile, groupSectionList, children, toggle, open, getGroupSectionList }) => {
   const sidebarRef = useRef(null);
   const [topHeight, setTopHeight] = useState(500);
   const [initialized, setInitialized] = useState(false);
@@ -21,10 +21,6 @@ const AdminMenu = ({ isMobile, groupSectionList, children, toggle, open, getGrou
       setInitialized(true);
     }
   }, [initialized]);
-
-  useEffect(() => {
-    groupSectionList && updActive();
-  }, [pathname, groupSectionList]);
 
   useEffect(() => {
     if (open && sidebarRef.current) {
@@ -73,13 +69,11 @@ const AdminMenu = ({ isMobile, groupSectionList, children, toggle, open, getGrou
 
 const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
-  pathname: state.router.location.pathname,
   groupSectionList: state.adminSection.groupSectionList
 });
 
 const mapDispatchToProps = dispatch => ({
-  getGroupSectionList: () => dispatch(fetchGroupSectionList()),
-  updActive: () => dispatch(updActiveSection())
+  getGroupSectionList: () => dispatch(fetchGroupSectionList())
 });
 
 export default connect(
