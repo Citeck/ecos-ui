@@ -1,11 +1,11 @@
 import BaseEditor from '../BaseEditor';
-import SelectEditorView from './SelectEditorView';
+import SelectEditorControl from './SelectEditorControl';
 
 export default class SelectEditor extends BaseEditor {
   static TYPE = 'select';
 
-  get viewComponent() {
-    return SelectEditorView;
+  getEditorControl() {
+    return SelectEditorControl;
   }
 
   getRecordValue(record) {

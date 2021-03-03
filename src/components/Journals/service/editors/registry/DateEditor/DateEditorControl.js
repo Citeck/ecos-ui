@@ -4,13 +4,11 @@ import moment from 'moment';
 
 import { DatePicker } from '../../../../../common/form';
 
-import BaseEditorView from '../BaseEditor/BaseEditorView';
-
 const EDITOR_FORMAT = 'dd.MM.YYYY';
 
-export default class DateEditorView extends BaseEditorView {
+export default class DateEditorControl /*extends BaseEditorControl*/ {
   constructor(props) {
-    super(props);
+    //super(props);
     this.portal = this.createDateEditorContainer();
   }
 

@@ -4,9 +4,7 @@ import get from 'lodash/get';
 
 import { Select } from '../../../../../common/form';
 
-import BaseEditorView from '../BaseEditor/BaseEditorView';
-
-class SelectEditorView extends BaseEditorView {
+class SelectEditorControl /*extends BaseEditorControl*/ {
   handleChange = value => {
     const selected = Array.isArray(value) ? value : [value];
 
@@ -53,4 +51,4 @@ class SelectEditorView extends BaseEditorView {
   }
 }
 
-export default SelectEditorView;
+export default SelectEditorControl;

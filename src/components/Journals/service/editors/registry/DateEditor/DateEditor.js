@@ -1,10 +1,10 @@
 import BaseEditor from '../BaseEditor';
-import DateEditorView from './DateEditorView';
+import DateEditorControl from './DateEditorControl';
 
 export default class DateEditor extends BaseEditor {
   static TYPE = 'date';
 
-  get viewComponent() {
-    return DateEditorView;
+  getEditorControl() {
+    return DateEditorControl;
   }
 }
