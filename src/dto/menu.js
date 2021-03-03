@@ -91,35 +91,37 @@ export default class MenuConverter {
     const ITs = MenuSettings.ItemTypes;
 
     return (function recursion(items) {
-      return (items || []).map(item => {
-        const option = {
-          ...item,
-          label: getTextByLocale(item.label)
-        };
+      return (items || [])
+        .map(item => {
+          const option = {
+            ...item,
+            label: getTextByLocale(item.label)
+          };
 
-        if (item.type === ITs.LINK_CREATE_CASE) {
-          const createVariants = get(item, '_remoteData_.createVariants') || [];
+          if (item.type === ITs.LINK_CREATE_CASE) {
+            const createVariants = get(item, '_remoteData_.createVariants') || [];
 
-          if (createVariants.length) {
-            return {
-              ...option,
-              type: ITs.SECTION,
-              items: recursion(MenuConverter.prepareCreateVariants(createVariants))
-            };
+            if (createVariants.length) {
+              return {
+                ...option,
+                type: ITs.SECTION,
+                items: recursion(MenuConverter.prepareCreateVariants(createVariants))
+              };
+            }
+
+            return { ...option, ...MenuConverter.getLinkCreateCase(item) };
           }
 
-          return { ...option, ...MenuConverter.getLinkCreateCase(item) };
-        }
+          if (item.type === ITs.ARBITRARY) {
+            return { ...option, ...MenuConverter.getLinkMove(item) };
+          }
 
-        if (item.type === ITs.ARBITRARY) {
-          return { ...option, ...MenuConverter.getLinkMove(item) };
-        }
+          option.items = recursion(item.items);
+          option.disabled = !option.items.length;
 
-        option.items = recursion(item.items);
-        option.disabled = !option.items.length;
-
-        return option;
-      });
+          return option;
+        })
+        .filter(item => !item.hidden);
     })(source);
   }
 
