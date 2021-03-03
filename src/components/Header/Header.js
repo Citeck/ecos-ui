@@ -44,12 +44,15 @@ class Header extends React.Component {
     this.props.fetchCreateCaseWidgetData();
     this.props.fetchUserMenuData();
     this.props.fetchSiteMenuData();
+  }
 
-    this.recordMenu = Records.get(`${SourcesId.RESOLVED_MENU}@${this.props.menuId}`);
-
-    this.updateWatcher = this.recordMenu.watch('subMenu.create?json', () => {
-      this.props.fetchCreateCaseWidgetData();
-    });
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.menuId && this.props.menuId) {
+      this.recordMenu = Records.get(`${SourcesId.RESOLVED_MENU}@${this.props.menuId}`);
+      this.updateWatcher = this.recordMenu.watch('subMenu.create?json', () => {
+        this.props.fetchCreateCaseWidgetData();
+      });
+    }
   }
 
   componentWillUnmount() {

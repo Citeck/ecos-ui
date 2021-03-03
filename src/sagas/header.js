@@ -30,8 +30,8 @@ function* fetchCreateCaseWidget({ api, logger }) {
   try {
     const workflowVars = yield call(api.menu.getCreateWorkflowVariants);
     //todo: temp solution to get create variants from menu config
-    const menuConfig = yield call(api.menu.getMainMenuCreateVariants);
-    const _sites = MenuConverter.getMainMenuCreateItems(menuConfig.items);
+    const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
+    const _sites = MenuConverter.getMainMenuCreateItems(menuConfigItems);
     const customVars = yield call(api.menu.getCustomCreateVariants);
     const _customs = MenuConverter.getCreateCustomItems(customVars);
     const { sites, customs } = MenuConverter.mergeCustomsAndSites(_customs, _sites);

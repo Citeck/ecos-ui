@@ -101,7 +101,12 @@ export class MenuApi extends CommonApi {
 
   getMainMenuCreateVariants = () => {
     const user = getCurrentUserName();
-    return Records.queryOne({ sourceId: SourcesId.RESOLVED_MENU, query: { user, version: 1 } }, 'subMenu.create?json');
+
+    return Records.queryOne({ sourceId: SourcesId.RESOLVED_MENU, query: { user, version: 1 } }, 'subMenu.create?json').then(res =>
+      fetchExtraItemInfo(lodashGet(res, 'items') || [], item =>
+        lodashGet(item, 'config.variant') ? undefined : { createVariants: 'inhCreateVariants[]?json' }
+      )
+    );
   };
 
   getCustomCreateVariants = () => {
@@ -312,12 +317,13 @@ async function fetchExtraItemInfo(data, attributes) {
     data.map(async item => {
       const target = { ...item };
       const iconRef = lodashGet(item, 'icon');
+      const attrs = typeof attributes === 'function' ? attributes(item) : attributes;
       let ref = lodashGet(item, 'config.recordRef') || lodashGet(item, 'config.sectionId');
 
-      if (ref && [JOURNAL, LINK_CREATE_CASE, EDIT_RECORD].includes(item.type)) {
+      if (attrs && ref && [JOURNAL, LINK_CREATE_CASE, EDIT_RECORD].includes(item.type)) {
         ref = ref.replace('/journal@', '/rjournal@');
         ref = ref.replace('/journal_all@', '/rjournal@');
-        target._remoteData_ = await Records.get(ref).load(attributes);
+        target._remoteData_ = await Records.get(ref).load(attrs);
       }
 
       if (iconRef && iconRef.includes(SourcesId.ICON)) {

@@ -98,6 +98,16 @@ export default class MenuConverter {
         };
 
         if (item.type === ITs.LINK_CREATE_CASE) {
+          const createVariants = get(item, '_remoteData_.createVariants') || [];
+
+          if (createVariants.length) {
+            return {
+              ...option,
+              type: ITs.SECTION,
+              items: recursion(MenuConverter.prepareCreateVariants(createVariants))
+            };
+          }
+
           return { ...option, ...MenuConverter.getLinkCreateCase(item) };
         }
 
@@ -113,22 +123,30 @@ export default class MenuConverter {
     })(source);
   }
 
+  static prepareCreateVariants(createVariants) {
+    return createVariants.map(variant => ({
+      type: MenuSettings.ItemTypes.LINK_CREATE_CASE,
+      label: getTextByLocale(variant.name),
+      config: { variant }
+    }));
+  }
+
   static getLinkCreateCase(data) {
-    const cv = get(data, 'config.variant') || {};
+    const variant = get(data, 'config.variant') || {};
 
     return {
-      id: cv.id,
+      id: variant.id,
       control: {
         type: HandleControlTypes.ECOS_CREATE_VARIANT,
         payload: {
-          title: getTextByLocale(cv.label),
-          recordRef: cv.sourceId + '@',
-          formId: cv.formRef,
+          title: getTextByLocale(variant.label),
+          recordRef: variant.sourceId + '@',
+          formId: variant.formRef,
           canCreate: true,
-          postActionRef: cv.postActionRef,
+          postActionRef: variant.postActionRef,
           attributes: {
-            _type: cv.typeRef,
-            ...cv.attributes
+            _type: variant.typeRef,
+            ...variant.attributes
           }
         }
       }
