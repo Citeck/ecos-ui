@@ -7,7 +7,9 @@ export class DocumentsApi {
   getDocumentTypes = () => {
     return Records.query(
       {
-        sourceId: SourcesId.TYPE
+        sourceId: SourcesId.TYPE,
+        query: {},
+        language: 'predicate'
       },
       {
         name: 'name',
