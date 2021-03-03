@@ -37,7 +37,7 @@ class FormatterService {
    */
   static format(props = {}, formatter = {}) {
     try {
-      return this._formatImpl(props, formatter);
+      return FormatterService._formatImpl(props, formatter);
     } catch (e) {
       console.error('[FormattersService.format] error', e);
       return FormatterService.errorMessage;
