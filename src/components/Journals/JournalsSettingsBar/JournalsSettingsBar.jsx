@@ -25,7 +25,8 @@ const JournalsSettingsBar = ({
   grid,
   isMobile,
   searchText,
-  selectedRecords
+  selectedRecords,
+  createIsLoading
 }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
@@ -41,7 +42,9 @@ const JournalsSettingsBar = ({
     if (createVariants.length === 1) {
       return (
         <IcoBtn
-          icon={'icon-small-plus'}
+          loading={createIsLoading}
+          colorLoader="light-blue"
+          icon="icon-small-plus"
           className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
           onClick={() => addRecord(createVariants[0])}
         />

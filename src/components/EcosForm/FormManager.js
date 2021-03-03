@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import debounce from 'lodash/debounce';
 
 import { goToCreateRecordPage } from '../../helpers/urls';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
@@ -10,84 +9,77 @@ import EcosFormModal from './EcosFormModal';
 import EcosForm from './EcosForm';
 
 class FormManager {
-  static createRecordByVariant = debounce(
-    (variant, options = {}) => {
-      if (!variant) {
-        console.error("Create variant is undefined. Record creation can't be preformed");
-        return;
-      }
-
-      let recordRef = variant.recordRef || (variant.type ? 'dict@' + variant.type : '');
-      let formId = variant.formId;
-      let isNewFormShouldBeUsed = variant.formKey || !variant.type;
-      let isNewFormCanBeUsed = isNewFormShouldBeUsed || !!recordRef;
-
-      if (isNewFormCanBeUsed && !isNewFormShouldBeUsed) {
-        if (recordRef) {
-          if (localStorage.forceEnableNewForms === 'true') {
-            isNewFormShouldBeUsed = Promise.resolve(true);
-          } else {
-            isNewFormShouldBeUsed = EcosFormUtils.isNewFormsEnabled();
-          }
-
-          const shouldDisplayNewFormsForUser = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
-          isNewFormShouldBeUsed = Promise.all([isNewFormShouldBeUsed, shouldDisplayNewFormsForUser])
-            .then(function(values) {
-              if (values.includes(true)) {
-                return !!formId || EcosFormUtils.hasForm(recordRef, variant.formKey);
-              }
-              return false;
-            })
-            .catch(function(e) {
-              console.error(e);
-              return false;
-            });
-        } else {
-          isNewFormShouldBeUsed = Promise.resolve(false);
-        }
-      } else {
-        isNewFormShouldBeUsed = Promise.resolve(true);
-      }
-
-      isNewFormShouldBeUsed
-        .then(value => {
-          if (value) {
-            let attributes = variant.attributes || {};
-
-            if (variant.destination && !attributes['_parent']) {
-              attributes['_parent'] = variant.destination;
-            }
-
-            const props = {
-              record: recordRef,
-              formKey: variant.formKey,
-              attributes,
-              options: {
-                params: this.parseCreateArguments(variant.createArguments)
-              },
-              ...options
-            };
-
-            if (EcosFormUtils.isFormId(variant.formId)) {
-              props.formId = variant.formId;
-            }
-
-            this.openFormModal(props);
-          } else {
-            goToCreateRecordPage(variant);
-          }
-        })
-        .catch(e => {
-          console.error(e);
-          goToCreateRecordPage(variant);
-        });
-    },
-    3000,
-    {
-      leading: true,
-      trailing: false
+  static createRecordByVariant = (variant, options = {}) => {
+    if (!variant) {
+      console.error("Create variant is undefined. Record creation can't be preformed");
+      return;
     }
-  );
+
+    let recordRef = variant.recordRef || (variant.type ? 'dict@' + variant.type : '');
+    let formId = variant.formId;
+    let isNewFormShouldBeUsed = variant.formKey || !variant.type;
+    let isNewFormCanBeUsed = isNewFormShouldBeUsed || !!recordRef;
+
+    if (isNewFormCanBeUsed && !isNewFormShouldBeUsed) {
+      if (recordRef) {
+        if (localStorage.forceEnableNewForms === 'true') {
+          isNewFormShouldBeUsed = Promise.resolve(true);
+        } else {
+          isNewFormShouldBeUsed = EcosFormUtils.isNewFormsEnabled();
+        }
+
+        const shouldDisplayNewFormsForUser = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
+        isNewFormShouldBeUsed = Promise.all([isNewFormShouldBeUsed, shouldDisplayNewFormsForUser])
+          .then(function(values) {
+            if (values.includes(true)) {
+              return !!formId || EcosFormUtils.hasForm(recordRef, variant.formKey);
+            }
+            return false;
+          })
+          .catch(function(e) {
+            console.error(e);
+            return false;
+          });
+      } else {
+        isNewFormShouldBeUsed = Promise.resolve(false);
+      }
+    } else {
+      isNewFormShouldBeUsed = Promise.resolve(true);
+    }
+
+    isNewFormShouldBeUsed
+      .then(value => {
+        if (value) {
+          let attributes = variant.attributes || {};
+
+          if (variant.destination && !attributes['_parent']) {
+            attributes['_parent'] = variant.destination;
+          }
+
+          const props = {
+            record: recordRef,
+            formKey: variant.formKey,
+            attributes,
+            options: {
+              params: this.parseCreateArguments(variant.createArguments)
+            },
+            ...options
+          };
+
+          if (EcosFormUtils.isFormId(variant.formId)) {
+            props.formId = variant.formId;
+          }
+
+          this.openFormModal(props);
+        } else {
+          goToCreateRecordPage(variant);
+        }
+      })
+      .catch(e => {
+        console.error(e);
+        goToCreateRecordPage(variant);
+      });
+  };
 
   static parseCreateArguments(createArgs) {
     if (!createArgs) {

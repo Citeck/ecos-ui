@@ -92,6 +92,7 @@ class Journals extends Component {
       isForceUpdate: false,
       menuOpenAnimate: false,
       settingsVisible: false,
+      createIsLoading: false,
       savedSetting: null,
       showPreview: getBool(get(getSearchParams(), JournalUrlParams.SHOW_PREVIEW))
     };
@@ -234,9 +235,23 @@ class Journals extends Component {
   };
 
   addRecord = createVariant => {
+    const { createIsLoading } = this.state;
+
+    if (createIsLoading) {
+      return;
+    }
+
+    this.setState({ createIsLoading: true });
+
     FormManager.createRecordByVariant(createVariant, {
       onSubmit: record => {
         goToCardDetailsPage(record.id);
+      },
+      onReady: () => {
+        this.setState({ createIsLoading: false });
+      },
+      onAfterHideModal: () => {
+        this.setState({ createIsLoading: false });
       }
     });
   };
@@ -405,7 +420,7 @@ class Journals extends Component {
       selectAllRecords,
       reloadGrid
     } = this.props;
-    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, height, isReset } = this.state;
+    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, height, isReset, createIsLoading } = this.state;
 
     if (!journalConfig) {
       return null;
@@ -453,6 +468,7 @@ class Journals extends Component {
                 isMobile={isMobile}
                 searchText={this.getSearch()}
                 selectedRecords={selectedRecords}
+                createIsLoading={createIsLoading}
               />
 
               <JournalsGroupActionsTools

@@ -41,20 +41,6 @@ export default class EcosFormModal extends React.Component {
     }
   }
 
-  hide() {
-    const { onHideModal } = this.props;
-
-    if (typeof onHideModal === 'function') {
-      onHideModal();
-    } else {
-      this.setState({
-        isModalOpen: false
-      });
-    }
-
-    window.removeEventListener('beforeunload', this._onbeforeunload);
-  }
-
   componentDidMount() {
     this.checkEditRights();
     this.instanceRecord = Records.get(this.props.record);
@@ -80,6 +66,28 @@ export default class EcosFormModal extends React.Component {
     window.removeEventListener('beforeunload', this._onbeforeunload);
 
     this.instanceRecord.unwatch(this.watcher);
+  }
+
+  hide() {
+    const { onHideModal, onAfterHideModal } = this.props;
+
+    if (typeof onHideModal === 'function') {
+      onHideModal();
+    } else {
+      this.setState(
+        {
+          isModalOpen: false,
+          recordData: null
+        },
+        () => {
+          if (typeof onAfterHideModal === 'function') {
+            onAfterHideModal();
+          }
+        }
+      );
+    }
+
+    window.removeEventListener('beforeunload', this._onbeforeunload);
   }
 
   checkEditRights() {
@@ -215,6 +223,7 @@ EcosFormModal.propTypes = {
   onSubmit: PropTypes.func,
   onReady: PropTypes.func,
   onHideModal: PropTypes.func,
+  onAfterHideModal: PropTypes.func,
   title: PropTypes.string,
   contentBefore: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
   contentAfter: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
