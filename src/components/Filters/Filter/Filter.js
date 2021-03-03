@@ -99,7 +99,8 @@ export default class Filter extends Component {
 
     let filterValueControl = '';
     if (isShow) {
-      if (get(column, 'newEditor.type') === 'journal') {
+      const editorType = get(column, 'newEditor.type');
+      if (editorType === 'journal' || editorType === 'text') {
         // todo: use EditorService for all filter types
         filterValueControl = EditorService.getEditorControl({
           editor: column.newEditor,

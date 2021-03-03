@@ -4,9 +4,7 @@ import get from 'lodash/get';
 
 import { Select } from '../../../../../common/form';
 
-import BaseEditorControl from '../BaseEditor/BaseEditorControl';
-
-class SelectEditorControl extends BaseEditorControl {
+class SelectEditorControl /*extends BaseEditorControl*/ {
   handleChange = value => {
     const selected = Array.isArray(value) ? value : [value];
 

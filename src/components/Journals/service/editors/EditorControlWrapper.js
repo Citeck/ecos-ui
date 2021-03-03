@@ -1,5 +1,4 @@
 import React from 'react';
-import TextEditorControl from './registry/TextEditor/TextEditorControl';
 
 import { normalizeEditorValue, getEditorValue } from './editorUtils';
 
@@ -13,19 +12,15 @@ export default class EditorControlWrapper extends React.Component {
       richValue: props.value,
       editorValue,
       initEditorValue: editorValue,
-      control: props.control || TextEditorControl
+      control: props.control
     };
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (this.props.statelessControl) {
-      return nextState.editorValue !== this.state.editorValue;
-    } else {
-      return nextState.initEditorValue !== this.state.initEditorValue;
-    }
+    return nextState.initEditorValue !== this.state.initEditorValue;
   }
 
-  _setRichValue(value, changeTime) {
+  _setRichValue(value, changeTime, resolve) {
     this.setState(
       {
         richValue: value,
@@ -37,11 +32,12 @@ export default class EditorControlWrapper extends React.Component {
         } else {
           console.warn('CHANGED TIME IS NOT MATCH', this.state, changeTime, value);
         }
+        resolve();
       }
     );
   }
 
-  _handleChange(value) {
+  _handleChange(value, resolve) {
     this.setState({
       editorValue: value
     });
@@ -50,12 +46,12 @@ export default class EditorControlWrapper extends React.Component {
     const correctValue = normalizeEditorValue(value, this.props.multiple);
 
     if (!this.props.getDisplayName) {
-      this._setRichValue(correctValue, changedTime);
+      this._setRichValue(correctValue, changedTime, resolve);
       return;
     }
 
     if (correctValue == null) {
-      this._setRichValue(correctValue, changedTime);
+      this._setRichValue(correctValue, changedTime, resolve);
     }
 
     let richValue;
@@ -72,10 +68,10 @@ export default class EditorControlWrapper extends React.Component {
 
     if (richValue.then) {
       richValue.then(res => {
-        this._setRichValue(res, changedTime);
+        this._setRichValue(res, changedTime, resolve);
       });
     } else {
-      this._setRichValue(richValue, changedTime);
+      this._setRichValue(richValue, changedTime, resolve);
     }
   }
 
@@ -101,7 +97,13 @@ export default class EditorControlWrapper extends React.Component {
   }
 
   render() {
-    const { onKeyDown = () => {}, onBlur = () => {}, statelessControl, multiple } = this.props;
+    const { onKeyDown = () => {}, multiple } = this.props;
+
+    const onBlur = () => {
+      if (this.props.onBlur != null) {
+        this.props.onBlur();
+      }
+    };
 
     let onCancel = this.props.onCancel;
     if (onCancel == null) {
@@ -111,11 +113,13 @@ export default class EditorControlWrapper extends React.Component {
     }
 
     const onUpdate = v => {
-      this._handleChange(v);
+      return new Promise(resolve => {
+        this._handleChange(v, resolve);
+      });
     };
 
     const Control = this.props.control;
-    const value = statelessControl === true ? this.state.editorValue : this.state.initEditorValue;
+    const value = this.state.initEditorValue;
     return (
       <Control value={value} multiple={multiple === true} onCancel={onCancel} onUpdate={onUpdate} onKeyDown={onKeyDown} onBlur={onBlur} />
     );

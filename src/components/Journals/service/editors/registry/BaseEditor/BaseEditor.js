@@ -1,5 +1,3 @@
-import BaseEditorControl from './BaseEditorControl';
-
 /**
  * @typedef {Object} EditorProps
  * @field {Any}                 value     - cell value
@@ -11,7 +9,7 @@ export default class BaseEditor {
   static TYPE = '';
 
   getControl(config, scope) {
-    return BaseEditorControl;
+    return null;
   }
 
   /**
@@ -23,9 +21,5 @@ export default class BaseEditor {
 
   getDisplayName(value, config, scope) {
     return null;
-  }
-
-  isStatelessControl(config, scope) {
-    return false;
   }
 }
