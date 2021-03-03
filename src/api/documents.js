@@ -7,16 +7,30 @@ export class DocumentsApi {
   getDocumentTypes = () => {
     return Records.query(
       {
-        sourceId: SourcesId.TYPE
+        sourceId: SourcesId.TYPE,
+        query: {},
+        language: 'predicate'
       },
       {
         name: 'name',
-        parent: 'parent?id',
-        formId: 'form?id',
-        createVariants: 'inhCreateVariants[]?json',
-        actions: 'actions[]?id'
+        parent: 'parent?id'
       }
     ).then(response => response);
+  };
+
+  getTypeInfo = (id, loadData) => {
+    const types = Array.isArray(id) ? id : [id];
+
+    return Records.get(types)
+      .load(
+        loadData || {
+          name: 'name',
+          formId: 'form?id',
+          createVariants: 'inhCreateVariants[]?json',
+          actions: 'actions[]?id'
+        }
+      )
+      .then(response => response);
   };
 
   getDynamicTypes = recordRef => {
