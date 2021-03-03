@@ -66,6 +66,14 @@ export const ITEMS_INPUT = [
     hidden: true,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
     config: {}
+  },
+  {
+    id: 'CREATE_IN_SECTION',
+    label: 'menu.header.create',
+    type: 'CREATE_IN_SECTION',
+    hidden: false,
+    icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
+    config: {}
   }
 ];
 
@@ -230,7 +238,7 @@ export const PERMISSIONS_BY_TYPE = {
   [MenuSettings.ItemTypes.CREATE_IN_SECTION]: {
     draggable: true,
     editable: true,
-    hasIcon: true,
+    hasIcon: false,
     hasUrl: false,
     hideable: true,
     removable: true,
@@ -239,7 +247,7 @@ export const PERMISSIONS_BY_TYPE = {
   [MenuSettings.ItemTypes.EDIT_RECORD]: {
     draggable: true,
     editable: true,
-    hasIcon: true,
+    hasIcon: false,
     hasUrl: false,
     hideable: true,
     removable: true,
@@ -737,7 +745,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
       data: [
         { id: 'c111aeed-77be-4675-828d-2d4b20432910', label: 'Тестовый', config: { recordRef: 'uiserv/journal@Test' }, type: 'JOURNAL' }
       ],
-      level: 1
+      level: 1,
+      configType: 'left'
     },
     {
       items: [
@@ -1747,7 +1756,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
         }
       ],
       action: 'DELETE',
-      id: 'c111aeed-77be-4675-828d-2d4b20432910'
+      id: 'c111aeed-77be-4675-828d-2d4b20432910',
+      configType: 'left'
     },
     {
       items: [
@@ -2746,7 +2756,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
         }
       ],
       action: 'DISPLAY_COUNT',
-      id: '73faa604-38c5-405d-ba60-9748e590f34d'
+      id: '73faa604-38c5-405d-ba60-9748e590f34d',
+      configType: 'left'
     },
     {
       items: [
@@ -3793,7 +3804,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
             'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWdvbiBwb2ludHM9IjEyIDIgMTUuMDkgOC4yNiAyMiA5LjI3IDE3IDE0LjE0IDE4LjE4IDIxLjAyIDEyIDE3Ljc3IDUuODIgMjEuMDIgNyAxNC4xNCAyIDkuMjcgOC45MSA4LjI2IDEyIDIiPjwvcG9seWdvbj48L3N2Zz4='
         },
         type: 'SECTION'
-      }
+      },
+      configType: 'left'
     },
     {
       items: [
@@ -4873,7 +4885,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
         config: { url: 'https://2gis.ru/kostroma?m=40.934715%2C57.766496%2F15' },
         icon: { value: 'icon-empty', type: 'icon' },
         type: 'ARBITRARY'
-      }
+      },
+      configType: 'left'
     },
     {
       items: [
@@ -5878,7 +5891,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
         config: { url: 'https://2gis.ru/kostroma?m=40.934715%2C57.766496%2F15' },
         icon: { value: 'icon-empty', type: 'icon' },
         type: 'ARBITRARY'
-      }
+      },
+      configType: 'left'
     },
     {
       items: [
