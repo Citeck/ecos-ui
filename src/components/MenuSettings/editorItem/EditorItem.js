@@ -42,6 +42,8 @@ export default class EditorItem extends React.Component {
           <SelectJournal onChange={onSave} onCancel={onClose} journalId={journalId} renderView={() => null} isSelectModalOpen multiple />
         );
       }
+      default:
+        return null;
     }
   }
 }

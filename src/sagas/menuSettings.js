@@ -57,7 +57,6 @@ function* fetchSettingsConfig({ api, logger }) {
 }
 
 function* runSaveMenuSettings(props, action) {
-  const id = yield select(state => state.menu.id);
   const resultMenu = yield runSaveMenuConfig(props, action);
   const resultGlobal = yield runSaveGlobalSettings(props, action);
 

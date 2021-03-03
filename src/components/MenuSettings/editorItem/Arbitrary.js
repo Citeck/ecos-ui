@@ -46,7 +46,7 @@ export default class Arbitrary extends Base {
   };
 
   render() {
-    const { label, url } = this.state;
+    const { label, url = '' } = this.state;
     const urlInfo = {
       origin: window.location.origin,
       pathname: window.location.pathname,
