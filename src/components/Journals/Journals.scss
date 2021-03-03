@@ -210,3 +210,8 @@ button.ecos-btn.ecos-journal__settings-footer-action_reset {
     margin-left: 15px;
   }
 }
+
+.journal__config-json-viewer {
+  overflow: auto;
+  max-height: 85vh;
+}

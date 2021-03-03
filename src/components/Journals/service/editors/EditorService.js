@@ -1,11 +1,17 @@
+import React from 'react';
+
 import { t } from '../../../../helpers/export/util';
 import logger from '../../../../services/logger';
 
 import editorRegistry from './registry';
-import { EDITOR_SCOPE } from './constants';
+import EditorScope from './EditorScope';
+import { getEditorValue } from './editorUtils';
+
+import EditorControlWrapper from './EditorControlWrapper';
 
 /**
  * @typedef {Object} EditorServiceProps
+ * @param {EditorScope} scope
  * @field {Object}      editorProps
  * @field {Any}         value
  * @field {Object}      row
@@ -20,50 +26,41 @@ class EditorService {
     return `#${t('error').toUpperCase()}`;
   }
 
-  /**
-   * @param {EditorServiceProps} props
-   * @param {EditorScope} scope
-   * @return {React.ReactNode}
-   */
-  static initEditor(props = {}, scope = EDITOR_SCOPE.CELL) {
-    const { newEditor } = props;
-
-    const { type, config } = newEditor;
-
+  static getEditorControl({ ref, value, multiple, editor, onUpdate, onKeyDown, onBlur, onCancel, scope = EditorScope.OTHER }) {
     try {
-      const editor = editorRegistry.getEditor(type);
+      let editorConfig = editor.config || {};
+      let editorInstance = editorRegistry.getEditor(editor.type);
+      if (!editorInstance) {
+        console.error('Editor is not found: "' + editor.type + '"', editor);
+        editorInstance = editorRegistry.getEditor('text');
+        editorConfig = {};
+      }
 
-      const editorProps = {
-        editorServiceProps: props,
-        value: props.value,
-        scope,
-        config
-      };
+      const getDisplayName = scope === EditorScope.CELL ? v => editorInstance.getDisplayName(v, editorConfig, scope) : null;
+      const multipleProp = scope === EditorScope.CELL ? multiple === true : false;
 
-      return editor.getControl(props, editorProps);
+      return (
+        <EditorControlWrapper
+          ref={ref}
+          value={value}
+          config={editorConfig}
+          onUpdate={onUpdate}
+          onKeyDown={onKeyDown}
+          onBlur={onBlur}
+          onCancel={onCancel}
+          control={editorInstance.getControl(editorConfig, scope)}
+          getDisplayName={getDisplayName}
+          multiple={multipleProp}
+        />
+      );
     } catch (e) {
       logger.error('[EditorService.initEditor] error', e);
       return EditorService.errorMessage;
     }
   }
 
-  static getValueToSave(newEditor, value, isMultiple = false) {
-    const { type } = newEditor;
-
-    try {
-      const editor = editorRegistry.getEditor(type);
-
-      const valueToSave = editor.getValueToSave(value);
-
-      if (Array.isArray(valueToSave) && !isMultiple) {
-        return valueToSave[0];
-      }
-
-      return valueToSave;
-    } catch (e) {
-      logger.error('[EditorService.getValueToSave] error', e);
-      return value;
-    }
+  static getValueToSave(value, multiple) {
+    return getEditorValue(value, multiple);
   }
 }
 

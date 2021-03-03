@@ -136,7 +136,7 @@ class JournalsService {
 
     result.multiple = column.multiple;
     result.newFormatter = column.formatter;
-    result.attSchema = column.attSchema;
+    result.newAttSchema = column.attSchema;
     result.newEditor = column.editor;
     result.computed = column.computed;
     result.hidden = column.hidden === true;
