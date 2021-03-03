@@ -28,29 +28,29 @@ class EditorService {
 
   static getEditorControl({ ref, value, multiple, editor, onUpdate, onKeyDown, onBlur, onCancel, scope = EditorScope.OTHER }) {
     try {
-      const editorInstance = editorRegistry.getEditor(editor.type);
+      let editorConfig = editor.config || {};
+      let editorInstance = editorRegistry.getEditor(editor.type);
       if (!editorInstance) {
         console.error('Editor is not found: "' + editor.type + '"', editor);
-        return EditorService.errorMessage;
+        editorInstance = editorRegistry.getEditor('text');
+        editorConfig = {};
       }
 
-      const getDisplayName = scope === EditorScope.CELL ? v => editorInstance.getDisplayName(v, editor.config, scope) : null;
+      const getDisplayName = scope === EditorScope.CELL ? v => editorInstance.getDisplayName(v, editorConfig, scope) : null;
       const multipleProp = scope === EditorScope.CELL ? multiple === true : false;
-      const statelessControl = editorInstance.isStatelessControl(editor.config, scope);
 
       return (
         <EditorControlWrapper
           ref={ref}
           value={value}
-          config={editor.config}
+          config={editorConfig}
           onUpdate={onUpdate}
           onKeyDown={onKeyDown}
           onBlur={onBlur}
           onCancel={onCancel}
-          control={editorInstance.getControl(editor.config, scope)}
+          control={editorInstance.getControl(editorConfig, scope)}
           getDisplayName={getDisplayName}
           multiple={multipleProp}
-          statelessControl={statelessControl}
         />
       );
     } catch (e) {
