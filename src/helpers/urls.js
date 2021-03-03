@@ -207,7 +207,7 @@ export const decodeLink = link => {
  * @param params {object}
  * - urls {array} - two compared url's
  * - ignored {array} - ignored for comparing params
- * - searchBy {array} - params for comparing
+ * - compareBy {array} - to compare only by set
  *
  * @returns {boolean}
  */

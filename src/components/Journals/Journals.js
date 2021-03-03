@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
@@ -48,6 +48,7 @@ import DocLibGroupActions from './DocLib/DocLibGroupActions';
 import FilesViewer from './DocLib/FilesViewer';
 
 import './Journals.scss';
+import JSONPretty from 'react-json-pretty';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -464,18 +465,48 @@ class Journals extends Component {
 
   renderHeader = () => {
     if (this.displayElements.header) {
-      const { menuOpen } = this.state;
-      const { isMobile, docLibFolderTitle } = this.props;
+      const { menuOpen, viewMode, showJournalConfig } = this.state;
+      const { isMobile, docLibFolderTitle, journalConfig } = this.props;
       const title = this.isDocLibMode ? docLibFolderTitle : get(this.props, 'journalConfig.meta.title', '');
+      let showLabel = isMobile ? t('journals.action.show-menu_sm') : t('journals.action.show-menu');
+
+      if (this.isDocLibMode) {
+        showLabel = isMobile ? t('journals.action.show-folder-tree_sm') : t('journals.action.show-folder-tree');
+      }
+
+      const displayConfigPopup = event => {
+        if (event.ctrlKey && event.shiftKey) {
+          event.stopPropagation();
+          this.setState({ showJournalConfig: true });
+        }
+      };
+      const hideConfigPopup = () => {
+        this.setState({ showJournalConfig: false });
+      };
+
+      const showConfigPopup = showJournalConfig === true && !!journalConfig;
 
       return (
-        <JournalsHead
-          toggleMenu={this.toggleMenu}
-          title={title}
-          menuOpen={menuOpen}
-          isMobile={isMobile}
-          hasBtnMenu={this.displayElements.menu}
-        />
+        <Fragment>
+          <div onClick={displayConfigPopup}>
+            <JournalsHead
+              toggleMenu={this.toggleMenu}
+              title={title}
+              showLabel={showLabel}
+              viewMode={viewMode}
+              menuOpen={menuOpen}
+              isMobile={isMobile}
+              hasBtnMenu={this.displayElements.menu}
+            />
+          </div>
+          {showConfigPopup && (
+            <EcosModal title="Journal Config" modalSize="xl" isOpen={showConfigPopup} hideModal={hideConfigPopup}>
+              <div className="journal__config-json-viewer">
+                <JSONPretty data={journalConfig} />
+              </div>
+            </EcosModal>
+          )}
+        </Fragment>
       );
     }
   };

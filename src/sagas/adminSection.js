@@ -13,6 +13,7 @@ import {
 } from '../actions/adminSection';
 import PageService from '../services/PageService';
 import AdminSectionService from '../services/AdminSectionService';
+import { equalsQueryUrls } from '../helpers/urls';
 
 function* init({ api, logger }, action) {
   try {
@@ -62,8 +63,9 @@ export function* openActiveSection({ api, logger }, action) {
     const newType = get(item, 'type');
     const options = yield call(AdminSectionService.getTabOptions, currentType, newType);
     const href = yield call(AdminSectionService.getURLSection, item);
+    const isSameLink = equalsQueryUrls({ urls: [href, window.location.href], compareBy: ['type', 'journalId'] });
 
-    if (href) {
+    if (!isSameLink && href) {
       yield call(PageService.changeUrlLink, href, options);
     }
   } catch (e) {

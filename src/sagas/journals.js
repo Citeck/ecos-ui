@@ -13,6 +13,7 @@ import Records from '../components/Records';
 import JournalsService from '../components/Journals/service';
 import EditorService from '../components/Journals/service/editors/EditorService';
 import {
+  checkConfig,
   createJournalSetting,
   deleteJournalSetting,
   execRecordsAction,
@@ -36,6 +37,7 @@ import {
   saveDashlet,
   saveJournalSetting,
   saveRecords,
+  setCheckLoading,
   setColumnsSetup,
   setDashletConfig,
   setDashletConfigByParams,
@@ -44,6 +46,7 @@ import {
   setGridInlineToolSettings,
   setGrouping,
   setJournalConfig,
+  setJournalExistStatus,
   setJournals,
   setJournalSetting,
   setJournalSettings,
@@ -68,8 +71,7 @@ import { ActionTypes } from '../components/Records/actions';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
-import { getJournalUIType } from '../api/export/journalsApi';
-import { selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
+import { selectIsNotExistsJournal, selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
 import { hasInString } from '../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 import { JournalUrlParams } from '../constants';
@@ -88,13 +90,11 @@ const getDefaultSortBy = config => {
 };
 
 function getDefaultJournalSetting(journalConfig) {
-  const {
-    meta: { groupBy, title },
-    columns
-  } = journalConfig;
+  const { groupBy, title } = get(journalConfig, 'meta', {});
+  const columns = get(journalConfig, 'columns', []);
 
   return {
-    title: title,
+    title,
     sortBy: getDefaultSortBy(journalConfig).map(sort => ({ ...sort })),
     groupBy: groupBy ? Array.from(groupBy) : [],
     columns: columns.map(col => ({ ...col })),
@@ -103,11 +103,8 @@ function getDefaultJournalSetting(journalConfig) {
 }
 
 function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = DEFAULT_PAGINATION }) {
-  const {
-    meta: { createVariants, predicate, actions: journalActions, groupActions },
-    sourceId,
-    id: journalId
-  } = journalConfig;
+  const { createVariants, actions: journalActions, groupActions } = get(journalConfig, 'meta', {});
+  const { sourceId, id: journalId } = journalConfig;
   const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
   const predicates = isArray(journalSettingPredicate)
     ? journalSettingPredicate
@@ -120,7 +117,6 @@ function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = D
     journalId,
     journalActions,
     createVariants,
-    predicate,
     sourceId,
     sortBy: sortBy.map(sort => ({ ...sort })),
     columns: columns.map(col => ({ ...col })),
@@ -253,8 +249,7 @@ function* getJournals(api, journalsListId, w) {
 
   yield Promise.all(
     journals.map(async journal => {
-      const uiType = await getJournalUIType(journal.type);
-
+      const uiType = 'react';
       return (journal.uiType = uiType);
     })
   );
@@ -264,7 +259,9 @@ function* getJournals(api, journalsListId, w) {
 
 function* getJournalSettings(api, journalId, w) {
   const settings = yield call(api.journals.getJournalSettings, journalId);
+
   yield put(setJournalSettings(w(settings)));
+
   return settings;
 }
 
@@ -578,11 +575,17 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
 
     const { journalId, journalSettingId, userConfigId, customJournal, customJournalMode, bySearch } = action.payload;
     const id = !customJournalMode || !customJournal ? journalId : customJournal;
+
     let { journalConfig } = yield select(selectJournalData, stateId);
+
     const isEmptyConfig = isEqual(journalConfig, emptyJournalConfig);
+    const isNotExistsJournal = yield call([JournalsService, JournalsService.isNotExistsJournal], id);
+
+    yield put(setJournalExistStatus(w(isNotExistsJournal !== true)));
 
     if (!bySearch || isEmpty(journalConfig) || isEmptyConfig) {
       journalConfig = yield getJournalConfig(api, id, w);
+
       yield getJournalSettings(api, journalConfig.id, w);
     }
 
@@ -600,6 +603,10 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
     yield call(loadDocumentLibrarySettings, journalConfig.id, w);
 
     yield put(setLoading(w(false)));
+
+    if (yield select(state => selectIsNotExistsJournal(state, stateId))) {
+      yield put(setEditorMode(w(true)));
+    }
   } catch (e) {
     yield put(setLoading(w(false)));
     logger.error('[journals sagaInitJournal saga error', e.message);
@@ -719,9 +726,8 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
     const tempAttributes = {};
 
     const currentColumn = grid.columns.find(item => item.attribute === attribute);
-    const newEditor = currentColumn.newEditor || {};
 
-    const valueToSave = EditorService.getValueToSave(newEditor, value, currentColumn.multiple);
+    const valueToSave = EditorService.getValueToSave(value, currentColumn.multiple);
 
     yield call(api.journals.saveRecords, {
       id,
@@ -738,7 +744,7 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
 
     grid.data = grid.data.map(record => {
       if (record.id === id) {
-        const savedValue = EditorService.getValueToSave(newEditor, savedRecord[attribute], currentColumn.multiple);
+        const savedValue = EditorService.getValueToSave(savedRecord[attribute], currentColumn.multiple);
 
         if (!isEqual(savedValue, valueToSave)) {
           savedRecord.error = attribute;
@@ -953,6 +959,25 @@ function* sagaSearch({ logger, w, stateId }, { payload }) {
   }
 }
 
+function* sagaCheckConfig({ logger, w, stateId }, { payload }) {
+  try {
+    yield put(setCheckLoading(w(true)));
+
+    const config = get(payload, get(payload, 'version'));
+    const customJournalMode = get(config, 'customJournalMode');
+    const id = get(config, customJournalMode ? 'customJournal' : 'journalId', '');
+    const isCalculated = id.indexOf('${') !== -1;
+    const isNotExistsJournal = yield call([JournalsService, JournalsService.isNotExistsJournal], id);
+    const passedCheck = !(isEmpty(id) || isCalculated || isNotExistsJournal);
+
+    yield put(setJournalExistStatus(w(passedCheck)));
+    yield put(setCheckLoading(w(false)));
+    yield put(setEditorMode(w(!passedCheck)));
+  } catch (e) {
+    logger.error('[journals sagaCheckConfig saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(setDashletConfigByParams().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
@@ -983,6 +1008,7 @@ function* saga(ea) {
   yield takeEvery(initPreview().type, wrapSaga, { ...ea, saga: sagaInitPreview });
   yield takeEvery(goToJournalsPage().type, wrapSaga, { ...ea, saga: sagaGoToJournalsPage });
   yield takeEvery(runSearch().type, wrapSaga, { ...ea, saga: sagaSearch });
+  yield takeEvery(checkConfig().type, wrapSaga, { ...ea, saga: sagaCheckConfig });
 }
 
 export default saga;

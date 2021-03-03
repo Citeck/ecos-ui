@@ -1,14 +1,13 @@
 import React from 'react';
 import classNames from 'classnames';
 
-import { t } from '../../../helpers/util';
 import { Caption } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
 import TitlePageLoader from '../../common/TitlePageLoader';
 
 import './JournalsHead.scss';
 
-const JournalsHead = ({ menuOpen, toggleMenu, title, isMobile, hasBtnMenu }) => {
+const JournalsHead = ({ menuOpen, toggleMenu, title, isMobile, hasBtnMenu, showLabel }) => {
   return (
     <div className="journals-head">
       <TitlePageLoader isReady={!!title}>
@@ -23,7 +22,7 @@ const JournalsHead = ({ menuOpen, toggleMenu, title, isMobile, hasBtnMenu }) => 
             icon={'icon-small-arrow-left'}
             className={'ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standart ecos-btn_r_biggest'}
           >
-            {isMobile ? t('journals.action.show-menu_sm') : t('journals.action.show-menu')}
+            {showLabel}
           </IcoBtn>
         </div>
       )}

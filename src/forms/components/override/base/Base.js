@@ -722,63 +722,43 @@ Base.prototype.setupValueElement = function(element) {
   originalSetupValueElement.call(this, element);
 };
 
-// Cause: https://citeck.atlassian.net/browse/ECOSUI-918
-function empowerComponent(component) {
-  const fields = ['label', 'placeholder', 'description', 'tooltip'];
-  let extraParams = {};
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-963
+function extendingOfComponent(component) {
+  if (isEmpty(component)) {
+    return component;
+  }
 
-  fields.forEach(field => {
-    if (component.hasOwnProperty(`${field}ByLocale`)) {
+  const fields = ['label', 'placeholder', 'description', 'tooltip'];
+
+  fields.forEach(key => {
+    if (component.hasOwnProperty(`${key}ByLocale`)) {
       return;
     }
 
-    extraParams = {
-      ...extraParams,
-      get [`${field}ByLocale`]() {
-        return getTextByLocale(component[field]);
-      }
-    };
+    Object.defineProperty(component, `${key}ByLocale`, {
+      get: function() {
+        return getTextByLocale(this[key]);
+      },
+      mutable: true,
+      configurable: true
+    });
   });
 
-  return { ...component, ...extraParams };
+  if (!isEmpty(component.components)) {
+    component.components = component.components.map(item => extendingOfComponent(item));
+  }
+
+  return component;
 }
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-918
 Object.defineProperty(Base.prototype, 'component', {
   get: function() {
-    const keys = ['label', 'placeholder', 'description', 'tooltip'];
-
-    keys.forEach(key => {
-      if (this._component.hasOwnProperty(`${key}ByLocale`)) {
-        return;
-      }
-
-      Object.defineProperty(this._component, `${key}ByLocale`, {
-        get: function() {
-          return getTextByLocale(this[key]);
-        },
-        mutable: true,
-        configurable: true
-      });
-    });
-
-    return this._component;
+    return extendingOfComponent(this._component);
   },
 
   set: function(component) {
-    const keys = ['label', 'placeholder', 'description', 'tooltip'];
-
-    keys.forEach(key => {
-      Object.defineProperty(component, `${key}ByLocale`, {
-        get: function() {
-          return getTextByLocale(this[key]);
-        },
-        mutable: true,
-        configurable: true
-      });
-    });
-
-    this._component = component;
+    this._component = extendingOfComponent(component);
   }
 });
 
@@ -800,11 +780,11 @@ Base.prototype.evalContext = function(additional) {
 
 Object.defineProperty(Base.prototype, 'originalComponent', {
   get: function() {
-    return this._originalComponent;
+    return extendingOfComponent(this._originalComponent);
   },
 
   set: function(value) {
-    this._originalComponent = empowerComponent(value);
+    this._originalComponent = extendingOfComponent(value);
   }
 });
 

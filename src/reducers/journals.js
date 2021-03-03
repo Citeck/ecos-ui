@@ -29,7 +29,9 @@ import {
   setSettingItem,
   setUrl,
   setSelectedJournals,
-  onJournalSelect
+  onJournalSelect,
+  setJournalExistStatus,
+  setCheckLoading
 } from '../actions/journals';
 import {
   setIsDocLibEnabled,
@@ -103,6 +105,7 @@ export const defaultState = {
   initConfig: null,
   journalConfig: emptyJournalConfig,
   recordRef: null,
+  isExistJournal: true,
 
   predicate: null,
   columnsSetup: {
@@ -882,6 +885,22 @@ export default handleActions(
 
       return handleState(state, stateId, {
         selectedJournals: handledAction.payload
+      });
+    },
+    [setJournalExistStatus]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(action);
+
+      return handleState(state, stateId, {
+        isExistJournal: Boolean(handledAction.payload)
+      });
+    },
+    [setCheckLoading]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(action);
+
+      return handleState(state, stateId, {
+        isCheckLoading: Boolean(handledAction.payload)
       });
     }
   },

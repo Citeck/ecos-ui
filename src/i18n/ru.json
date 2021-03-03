@@ -16,6 +16,8 @@
   "btn.create.label": "Создать",
   "btn.apply.label": "Применить",
 
+  "server-error-occurred-with-code": "Произошла ошибка на сервере. Код ошибки: {{code}}",
+
   "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",
   "page.error-loading.message": "Попробуйте перезагрузить страницу. Если ошибка повториться, обратитесь к администратору ",
   "page.error-loading.log": "Журнал ошибки",
@@ -666,6 +668,7 @@
   "journal.task.statistics.perform_time_ration.title": "Ожидаемое время / Время выполнения",
   "journal.task.statistics.task_type.title": "Тип задачи",
   "journal.title": "Журнал",
+  "journal.not-exists.warning": "Указанного журнала не существует, проверьте настройки",
   "journal.cell.no-label": "(Нет наименования)",
   "journals-selector.assocs-load-error": "Ошибка загрузки связей",
   "journals-selector.create-button.label": "Добавить связь",
@@ -698,6 +701,9 @@
   "journals.action.setting-dialog-msg": "Настройки таблицы",
   "journals.action.show-menu": "Показать меню",
   "journals.action.show-menu_sm": "Меню",
+  "journals.action.show-folder-tree": "Показать дерево папок",
+  "journals.action.show-folder-tree_sm": "Дерево папок",
+  "journals.action.hide-folder-tree": "Скрыть дерево папок",
   "journals.action.confirm.title": "Подтверждение действия",
   "journals.action.change-value.message": "В документе \"{{name}}\" значение равно {{value}}. Желаете его заменить?",
   "journals.columns-setup.header": "Настройка колонок",
@@ -737,7 +743,7 @@
   "page-tabs.dev-tools": "Инструменты разработчика",
   "page-tabs.form-components": "Компоненты формы",
   "page-tabs.cmmn-editor": "Сценарий",
-  "page-tabs.bpmn-editor": "Модель",
+  "page-tabs.bpmn-editor": "Процесс",
   "page-tabs.close-all-tabs": "Закрыть все вкладки",
   "page-tabs.close-all-tabs-title": "Закрытие всех вкладок",
   "page-tabs.close-all-tabs-text": "Вы действительно хотите закрыть все вкладки?",
@@ -1290,13 +1296,16 @@
   "model-editor.btn.apply": "Сохранить",
   "model-editor.btn.create": "Создать",
   "model-editor.btn.view-xml": "Посмотреть XML",
-  "model-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
+
+  "bpmn-editor.error.no-model": "Процесс не задан",
+  "bpmn-editor.error.no-selected-element": "Выберите элемент для его редактирования",
 
   "cmmn-editor.success.scenario-saved": "Сценарий сохранен",
   "cmmn-editor.error.no-model": "Сценарий не задан",
   "cmmn-editor.error.can-not-save-scenario": "Сценарий не удалось сохранить",
   "cmmn-editor.error.can-not-save-record-data": "Данные записи не сохранены",
-  "cmmn-editor.error.no-selected-element": "Следует выбрать элемент, чтобы начать его редактирование",
+  "cmmn-editor.error.no-selected-element": "Выберите элемент для его редактирования",
+  "cmmn-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
 
   "go-to.home-page": "Перейти на домашнюю страницу"
 }

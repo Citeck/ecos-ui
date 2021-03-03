@@ -10,7 +10,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   static schema(...extend) {
     return FormIOCheckBoxComponent.schema(
       {
-        defaultValue: false,
+        defaultValue: undefined,
         hasThreeStates: false
       },
       ...extend
@@ -59,9 +59,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     let defaultValue = this.emptyValue;
 
     if (this.hasThreeStates) {
-      if (this.component.defaultValue !== undefined) {
-        defaultValue = this.getValueByString(get(this.component, 'defaultValue', null));
-      }
+      defaultValue = this.getValueByString(get(this.component, 'defaultValue', null));
 
       if (this.component.customDefaultValue) {
         const customDefaultValue = this.evaluate(this.component.customDefaultValue, {}, 'value');

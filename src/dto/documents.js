@@ -272,9 +272,9 @@ export default class DocumentsConverter {
 
         if (attribute && schema) {
           if (schema.charAt(0) === '.') {
-            return `${alias}:${schema.slice(1)}`;
+            return `"${alias}":${schema.slice(1)}`;
           }
-          return `${alias}:att(n:"${schema}"){disp}`;
+          return `"${alias}":att(n:"${schema}"){disp}`;
         }
 
         if (!attribute && !name) {
@@ -282,19 +282,19 @@ export default class DocumentsConverter {
         }
 
         if (!attribute) {
-          return `${alias}:att(n:"${name}"){disp}`;
+          return `"${alias}":att(n:"${name}"){disp}`;
         }
 
         if (attribute.charAt(0) === '.') {
-          return `${alias}:${attribute.slice(1)}`;
+          return `"${alias}":${attribute.slice(1)}`;
         }
 
         if (name) {
           if (attribute.includes('att(n:')) {
-            return `${alias}:${attribute}`;
+            return `"${alias}":${attribute}`;
           }
 
-          return `${alias}:att(n:"${attribute}"){disp}`;
+          return `"${alias}":att(n:"${attribute}"){disp}`;
         }
 
         return attribute || name;

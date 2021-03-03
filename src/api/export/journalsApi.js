@@ -92,68 +92,6 @@ export const getNewPageUrl = params => {
   });
 };
 
-let uiTypeByJournalId = {};
-let uiTypeByJournalIdQueryBatch = null;
-
-export const getJournalUIType = journalId => {
-  let uiType = uiTypeByJournalId[journalId];
-  if (uiType) {
-    return uiType.typePromise;
-  }
-
-  if (!uiType) {
-    let queryRequired = false;
-    if (uiTypeByJournalIdQueryBatch == null) {
-      queryRequired = true;
-      uiTypeByJournalIdQueryBatch = {};
-    }
-
-    uiTypeByJournalIdQueryBatch[journalId] = true;
-
-    uiType = {};
-    uiType.typePromise = new Promise(resolve => {
-      uiType.resolve = resolve;
-    });
-    uiTypeByJournalId[journalId] = uiType;
-
-    if (queryRequired) {
-      setTimeout(() => {
-        const journalsList = Object.keys(uiTypeByJournalIdQueryBatch);
-        uiTypeByJournalIdQueryBatch = null;
-
-        ecosFetch(`${PROXY_URI}api/journals/journals-ui-type`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: {
-            journals: journalsList
-          }
-        })
-          .then(response => {
-            if (response.status >= 200 && response.status < 300) {
-              return response.json();
-            }
-            return {};
-          })
-          .catch(e => {
-            console.error(e);
-            return {};
-          })
-          .then(res => {
-            for (let journalId of journalsList) {
-              let journalIdCache = uiTypeByJournalId[journalId];
-              if (journalIdCache && journalIdCache.resolve) {
-                journalIdCache.resolve(res[journalId] || '');
-              }
-            }
-          });
-      }, 100);
-    }
-  }
-  return uiType.typePromise;
-};
-
 export const isNewJournalsPageEnable = () => {
   const isNewJournalPageEnable = Records.get('ecos-config@new-journals-page-enable').load('.bool');
   const isJournalAvailableForUser = checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
