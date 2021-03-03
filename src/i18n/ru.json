@@ -668,6 +668,7 @@
   "journal.task.statistics.perform_time_ration.title": "Ожидаемое время / Время выполнения",
   "journal.task.statistics.task_type.title": "Тип задачи",
   "journal.title": "Журнал",
+  "journal.not-exists.warning": "Указанного журнала не существует, проверьте настройки",
   "journal.cell.no-label": "(Нет наименования)",
   "journals-selector.assocs-load-error": "Ошибка загрузки связей",
   "journals-selector.create-button.label": "Добавить связь",

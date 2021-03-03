@@ -1,7 +1,9 @@
 import { createSelector } from 'reselect';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 
-import { defaultState } from '../reducers/journals';
+import { defaultState, emptyJournalConfig } from '../reducers/journals';
 import { JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
 import cloneDeep from 'lodash/cloneDeep';
@@ -34,6 +36,27 @@ export const selectNewVersionDashletConfig = createSelector(
 export const selectDashletConfig = createSelector(
   selectState,
   ownProps => get(ownProps, 'config', null)
+);
+
+export const selectIsNotExistsJournal = createSelector(
+  selectState,
+  ownProps => {
+    const journalConfig = get(ownProps, 'journalConfig');
+    const isExistJournal = get(ownProps, 'isExistJournal');
+
+    if (!isExistJournal) {
+      return true;
+    }
+
+    let isEmptyConfig = isEqual(journalConfig, emptyJournalConfig);
+
+    if (!isEmptyConfig) {
+      isEmptyConfig =
+        isEmpty(get(journalConfig, 'createVariants')) && isEmpty(get(journalConfig, 'columns')) && isEmpty(get(journalConfig, 'meta'));
+    }
+
+    return isEmptyConfig;
+  }
 );
 
 export const selectColumnsSetup = createSelector(
