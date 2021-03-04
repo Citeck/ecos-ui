@@ -1252,6 +1252,8 @@
   "menu-settings.editor-item.field.icon.label": "Icon",
   "menu-settings.editor-item.field.icon.btn.cancel": "Reset",
   "menu-settings.editor-item.field.icon.btn.select": "Select",
+  "menu-settings.editor-item.field.allowed-for.label": "Allowed for",
+  "menu-settings.editor-item.field.allowed-for.placeholder": "everyone",
   "menu-settings.editor-item.title.add": "Create: {{type}}",
   "menu-settings.editor-item.title.edit": "Edit: {{type}} \"{{name}}\"",
   "menu-settings.editor-item.btn.cancel": "Cancel",

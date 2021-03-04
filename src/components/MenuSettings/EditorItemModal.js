@@ -9,9 +9,10 @@ import { MenuSettings as MS } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import IconSelect from '../IconSelect';
 import { EcosIcon, EcosModal } from '../common';
-import { Checkbox, Input, MLText } from '../common/form';
+import { Checkbox, Input, MLText, SelectOrgstruct } from '../common/form';
 import { Btn } from '../common/btns';
 import { Field } from './Field';
+import { GroupTypes } from '../common/form/SelectOrgstruct/constants';
 
 import './style.scss';
 
@@ -27,6 +28,8 @@ const Labels = {
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',
   FIELD_ICON_BTN_SELECT: 'menu-settings.editor-item.field.icon.btn.select',
   FIELD_ICON_DESC: 'icon-select.custom.tip',
+  FIELD_ALLOWED_FOR_LABEL: 'menu-settings.editor-item.field.allowed-for.label',
+  FIELD_ALLOWED_FOR_PLACEHOLDER: 'menu-settings.editor-item.field.allowed-for.placeholder',
   MODAL_TITLE_ADD: 'menu-settings.editor-item.title.add',
   MODAL_TITLE_EDIT: 'menu-settings.editor-item.title.edit',
   MODAL_BTN_CANCEL: 'menu-settings.editor-item.btn.cancel',
@@ -42,6 +45,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
   const [icon, setIcon] = useState(defaultIcon);
   const [hiddenLabel, setHiddenLabel] = useState(false);
   const [isOpenSelectIcon, setOpenSelectIcon] = useState(false);
+  const [allowedFor, setAllowedFor] = useState([]);
 
   useEffect(() => {
     if (action === MS.ActionTypes.EDIT) {
@@ -49,6 +53,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
       hasUrl && setUrl(get(item, 'config.url'));
       hasIcon && setIcon(item.icon);
       hideableLabel && setHiddenLabel(get(item, 'config.hiddenLabel'));
+      setAllowedFor(get(item, 'allowedFor', []));
     }
   }, [item]);
 
@@ -64,6 +69,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
     hasUrl && set(data, 'config.url', url);
     hasIcon && (data.icon = icon);
     hideableLabel && set(data, 'config.hiddenLabel', hiddenLabel);
+    set(data, 'allowedFor', allowedFor);
 
     onSave(data);
   };
@@ -141,6 +147,19 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
               myFontIcons={fontIcons}
             />
           )}
+        </Field>
+      )}
+      {type.key === MS.ItemTypes.SECTION && (
+        <Field label={t(Labels.FIELD_ALLOWED_FOR_LABEL)}>
+          <SelectOrgstruct
+            defaultValue={allowedFor}
+            multiple
+            isSelectedValueAsText
+            isIncludedAdminGroup
+            placeholder={t(Labels.FIELD_ALLOWED_FOR_PLACEHOLDER)}
+            allowedGroupTypes={Object.values(GroupTypes)}
+            onChange={data => setAllowedFor(data)}
+          />
         </Field>
       )}
 
