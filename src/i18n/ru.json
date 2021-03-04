@@ -670,6 +670,8 @@
   "journal.title": "Журнал",
   "journal.not-exists.warning": "Указанного журнала не существует, проверьте настройки",
   "journal.cell.no-label": "(Нет наименования)",
+  "journal.error.fail-get-settings-template": "Шаблон настроек не получен",
+
   "journals-selector.assocs-load-error": "Ошибка загрузки связей",
   "journals-selector.create-button.label": "Добавить связь",
   "journals.action.apply": "Применить",

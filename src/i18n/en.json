@@ -671,6 +671,8 @@
   "journal.title": "Journal",
   "journal.not-exists.warning": "The specified Journal does not exist, check the settings",
   "journal.cell.no-label": "(Missing Label)",
+  "journal.error.fail-get-settings-template": "Settings template not received",
+
   "journals-selector.assocs-load-error": "Connection loading error",
   "journals-selector.create-button.label": "Add Connection",
   "journals.action.apply": "Apply",
