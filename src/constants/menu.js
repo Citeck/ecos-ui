@@ -56,4 +56,4 @@ export const MenuSettings = {
 
 export const BASE_LEFT_MENU_ID = 'ecos-left-menu-id';
 
-export const EDITOR_VERSION = 1;
+export const MENU_VERSION = 1;
