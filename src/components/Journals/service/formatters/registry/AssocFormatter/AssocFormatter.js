@@ -11,7 +11,21 @@ export default class AssocFormatter extends BaseFormatter {
   format(props) {
     const { cell, config = {} } = props;
 
-    const link = createDocumentUrl(cell.value);
+    if (!cell || !cell.value) {
+      return '';
+    }
+
+    let value = cell.value;
+    const sourceId = config.sourceId;
+    if (sourceId) {
+      const localSourceIdDelimIdx = value.indexOf('@');
+      if (localSourceIdDelimIdx >= 0 && localSourceIdDelimIdx < value.length - 1) {
+        value = value.substring(localSourceIdDelimIdx + 1);
+      }
+      value = sourceId + '@' + value;
+    }
+
+    const link = createDocumentUrl(value);
     const handler = e => {
       e.preventDefault();
       PageService.changeUrlLink(link, { openNewTab: !config.openInBackground });

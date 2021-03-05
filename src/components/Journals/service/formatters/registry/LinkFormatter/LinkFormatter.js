@@ -4,8 +4,8 @@ import BaseFormatter from '../BaseFormatter';
 import { createDocumentUrl } from '../../../../../../helpers/urls';
 import { REMOTE_TITLE_ATTR_NAME } from '../../../../../../constants/pageTabs';
 
-export default class CardDetailsLinkFormatter extends BaseFormatter {
-  static TYPE = 'сardDetailsLink';
+export default class LinkFormatter extends BaseFormatter {
+  static TYPE = 'link';
 
   format(props) {
     const { row = {}, cell } = props;
@@ -16,5 +16,9 @@ export default class CardDetailsLinkFormatter extends BaseFormatter {
         {cell}
       </a>
     );
+  }
+
+  getAliases() {
+    return ['сardDetailsLink'];
   }
 }

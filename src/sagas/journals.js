@@ -8,6 +8,8 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 
+import { NotificationManager } from 'react-notifications';
+
 import JournalsConverter from '../dto/journals';
 import Records from '../components/Records';
 import JournalsService from '../components/Journals/service';
@@ -72,7 +74,7 @@ import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, remov
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
 import { selectIsNotExistsJournal, selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
-import { hasInString } from '../helpers/util';
+import { hasInString, t } from '../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 import { JournalUrlParams } from '../constants';
 import { loadDocumentLibrarySettings } from './docLib';
@@ -161,19 +163,23 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
 
     if (isEmpty(config) || config.version !== JOURNAL_DASHLET_CONFIG_VERSION) {
       yield put(setEditorMode(w(true)));
+      yield put(setLoading(w(false)));
       return;
     }
 
     const { journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config[JOURNAL_DASHLET_CONFIG_VERSION];
+    const { recordRef } = action.payload;
 
     if (customJournalMode && customJournal) {
+      let resolvedCustomJournal = yield _resolveTemplate(recordRef, customJournal);
+
       yield put(setEditorMode(w(false)));
       yield put(setDashletConfig(w(config)));
-      yield put(initJournal(w({ journalId: customJournal })));
+      yield put(initJournal(w({ journalId: resolvedCustomJournal })));
       return;
     }
 
-    const { recordRef, lsJournalId } = action.payload;
+    const { lsJournalId } = action.payload;
     const journalsListId = get(journalsListIds, '0');
     let selectedJournals = [];
 
@@ -841,9 +847,16 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
 
     if (id === 'event-lines-stat') {
       //todo: move to journal config
-      let eventRef = row['groupBy_skifem:eventTypeAssoc'];
-      let eventTypeId = yield call(api.journals.getRecord, { id: eventRef, attributes: 'skifdm:eventTypeId?str' });
-      id = 'event-lines-' + eventTypeId;
+      let eventTypeId = row['groupBy__type'];
+      if (eventTypeId) {
+        eventTypeId = eventTypeId.replace('emodel/type@line-', '');
+        id = 'event-lines-' + eventTypeId;
+        NotificationManager.info('', t('notification.journal-will-be-opened-soon'), 1000);
+        PageService.changeUrlLink('/v2/journals?journalId=' + id, { updateUrl: true });
+        return;
+      } else {
+        console.error("Target journal can't be resolved", row);
+      }
     } else {
       const journalType = (criteria[0] || {}).value || predicate.val;
 

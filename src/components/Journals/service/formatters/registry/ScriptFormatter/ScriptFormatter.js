@@ -3,6 +3,7 @@ import Records from '../../../../../Records';
 import { t } from '../../../../../../helpers/export/util';
 
 import BaseFormatter from '../BaseFormatter';
+import CellType from '../../CellType';
 
 /**
  * @typedef {FormatterProps} ScriptFormatterProps
@@ -53,5 +54,9 @@ export default class ScriptFormatter extends BaseFormatter {
     }
 
     return null;
+  }
+
+  getSupportedCellType() {
+    return CellType.ANY;
   }
 }
