@@ -11,6 +11,10 @@ export default class AssocFormatter extends BaseFormatter {
   format(props) {
     const { cell, config = {} } = props;
 
+    if (!cell || !cell.value) {
+      return '';
+    }
+
     let value = cell.value;
     const sourceId = config.sourceId;
     if (sourceId) {
