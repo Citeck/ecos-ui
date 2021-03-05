@@ -152,69 +152,63 @@ class Journals extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    const { _url, urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl, onJournalSettingsSelect } = this.props;
     const {
-      _url,
-      urlParams,
-      stateId,
-      isActivePage,
-      isLoading,
-      doNotChangeUrl,
-      getJournalsData,
-      reloadGrid,
-      setUrl,
-      onJournalSettingsSelect
-    } = this.props;
-    const { _url: pp__url, urlParams: pp_urlParams, stateId: pp_stateId, isActivePage: pp_isActivePage } = prevProps;
-    const { journalId: s_journalId, showPreview: s_showPreview, viewMode: s_viewMode, isForceUpdate: s_isForceUpdate } = this.state;
+      journalId: stateJournalId,
+      showPreview: stateShowPreview,
+      viewMode: stateViewMode,
+      isForceUpdate: stateIsForceUpdate
+    } = this.state;
 
-    const pp_journalId = get(pp_urlParams, JUP.JOURNAL_ID);
-    const np_journalId = get(urlParams, JUP.JOURNAL_ID);
-    const u_showPreview = getBool(get(getSearchParams(), JUP.SHOW_PREVIEW));
-    const u_viewMode = get(getSearchParams(), JUP.VIEW_MODE);
+    const prevJournalId = get(prevProps.urlParams, JUP.JOURNAL_ID);
+    const newJournalId = get(urlParams, JUP.JOURNAL_ID);
+    const urlShowPreview = getBool(get(getSearchParams(), JUP.SHOW_PREVIEW));
+    const urlViewMode = get(getSearchParams(), JUP.VIEW_MODE);
 
     let newState;
     let newUrl;
 
     const isNewJournalOnActive =
-      isActivePage && ((pp_isActivePage && np_journalId && np_journalId !== pp_journalId) || s_journalId !== prevState.journalId);
+      isActivePage &&
+      ((prevProps.isActivePage && newJournalId && newJournalId !== prevJournalId) || stateJournalId !== prevState.journalId);
 
     const isEqualQuery = equalsQueryUrls({
-      urls: [_url, pp__url],
+      urls: [_url, prevProps._url],
       ignored: [JUP.SHOW_PREVIEW, JUP.VIEW_MODE, JUP.DOCLIB_FOLDER_ID, JUP.DOCLIB_SEARCH]
     });
 
-    const isActiveChanged = isActivePage && pp_isActivePage && !isEqualQuery;
+    const isActiveChanged = isActivePage && prevProps.isActivePage && !isEqualQuery;
 
-    if (isActiveChanged && !doNotChangeUrl) {
+    if (isActiveChanged || prevProps.stateId !== stateId) {
       setUrl(getSearchParams());
     }
 
-    if (isNewJournalOnActive || pp_stateId !== stateId) {
+    if (isNewJournalOnActive || prevProps.stateId !== stateId) {
       getJournalsData();
     }
 
-    const isSameSettingId = equalsQueryUrls({ urls: [_url, pp__url], compareBy: [JUP.JOURNAL_SETTING_ID] });
-    const isSameSearchParam = equalsQueryUrls({ urls: [_url, pp__url], compareBy: [JUP.SEARCH] });
+    const isSameSettingId = equalsQueryUrls({ urls: [_url, prevProps._url], compareBy: [JUP.JOURNAL_SETTING_ID] });
+    const isSameSearchParam = equalsQueryUrls({ urls: [_url, prevProps._url], compareBy: [JUP.SEARCH] });
 
     if (isActiveChanged && !isSameSettingId) {
       onJournalSettingsSelect(get(getSearchParams(), JUP.JOURNAL_SETTING_ID) || '');
     }
 
-    if ((isActivePage && s_isForceUpdate) || (isActiveChanged && !isSameSearchParam)) {
+    if ((isActivePage && stateIsForceUpdate) || (isActiveChanged && !isSameSearchParam)) {
       newState = merge(newState, { isForceUpdate: false });
       reloadGrid();
     }
 
-    if (pp_isActivePage && !isActivePage && isLoading) {
+    if (prevProps.isActivePage && !isActivePage && isLoading) {
       newState = merge(newState, { isForceUpdate: true });
     }
 
-    if (isActivePage && u_showPreview !== s_showPreview) {
-      newUrl = merge(newUrl, { showPreview: s_showPreview });
+    if (isActivePage && urlShowPreview !== stateShowPreview) {
+      newUrl = merge(newUrl, { showPreview: stateShowPreview });
     }
 
-    if (isActivePage && u_viewMode !== s_viewMode) {
-      newUrl = merge(newUrl, { viewMode: s_viewMode });
+    if (isActivePage && urlViewMode !== stateViewMode) {
+      newUrl = merge(newUrl, { viewMode: stateViewMode });
     }
 
     newState && this.setState(newState);
@@ -725,7 +719,6 @@ Journals.propTypes = {
   bodyClassName: PropTypes.string,
   additionalHeights: PropTypes.number,
   isActivePage: PropTypes.bool,
-  doNotChangeUrl: PropTypes.bool,
   displayElements: PropTypes.shape({
     menu: PropTypes.bool,
     header: PropTypes.bool,
