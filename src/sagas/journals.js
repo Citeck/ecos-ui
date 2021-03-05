@@ -163,6 +163,7 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
 
     if (isEmpty(config) || config.version !== JOURNAL_DASHLET_CONFIG_VERSION) {
       yield put(setEditorMode(w(true)));
+      yield put(setLoading(w(false)));
       return;
     }
 
