@@ -84,6 +84,9 @@ class FormatterService {
   }
 
   static _formatSingleValueCellImpl(cell, formatProps, fmtInstance) {
+    if (cell == null) {
+      return '';
+    }
     let cellValue = cell;
     if (fmtInstance.getSupportedCellType() === CellType.VALUE_WITH_DISP) {
       if (!isPlainObject(cellValue)) {
