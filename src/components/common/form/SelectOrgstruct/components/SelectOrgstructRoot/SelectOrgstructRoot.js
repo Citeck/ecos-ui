@@ -3,11 +3,12 @@ import classNames from 'classnames';
 import InputView from '../InputView';
 import SelectModal from '../SelectModal';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
+import { Loader } from '../../../../index';
 
 const SelectOrgstructRoot = () => {
   const context = useContext(SelectOrgstructContext);
   const { controlProps } = context;
-  const { isCompact, viewOnly, className } = controlProps;
+  const { isCompact, viewOnly, className, isLoading } = controlProps;
 
   const wrapperClasses = classNames('select-orgstruct', className, {
     'select-orgstruct_compact': isCompact,
@@ -16,6 +17,7 @@ const SelectOrgstructRoot = () => {
 
   return (
     <div className={wrapperClasses}>
+      {isLoading && <Loader blur />}
       <InputView />
       {viewOnly ? null : <SelectModal />}
     </div>

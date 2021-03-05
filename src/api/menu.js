@@ -236,10 +236,12 @@ export class MenuApi extends CommonApi {
     );
   };
 
-  getAuthoritiesInfoByName = authorities => {
+  getAuthoritiesInfoByName = MenuApi.getAuthoritiesInfoByName;
+
+  static getAuthoritiesInfoByName = (authorities, attributes = { name: '.str', ref: 'nodeRef' }) => {
     const _authorities = authorities.map(auth => `${SourcesId.A_AUTHORITY}@${auth}`);
 
-    return Records.get(_authorities).load({ name: '.str', ref: 'nodeRef' });
+    return Records.get(_authorities).load(attributes);
   };
 
   getAuthoritiesInfoByRef = refs => {

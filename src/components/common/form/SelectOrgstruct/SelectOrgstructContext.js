@@ -93,7 +93,7 @@ export const SelectOrgstructProvider = props => {
       }
     }
 
-    valuePromise.then(value => typeof onChange === 'function' && onChange(value));
+    valuePromise.then(value => typeof onChange === 'function' && onChange(value, selectedList));
   };
 
   // fetch root group list
