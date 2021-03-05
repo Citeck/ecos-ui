@@ -31,10 +31,10 @@ import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
 import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
 import { JournalsGroupActionsTools } from '../../Journals/JournalsTools';
 import BaseWidget from '../BaseWidget';
-import { selectDashletConfig } from '../../../selectors/journals';
+import { selectDashletConfig, selectIsNotExistsJournal } from '../../../selectors/journals';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 
 import './JournalsDashlet.scss';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
 
 const getKey = ({ tabId = '', stateId, id }) =>
   (stateId || '').includes(tabId) && stateId === tabId ? stateId : getStateId({ tabId, id: stateId || id });
@@ -51,7 +51,9 @@ const mapStateToProps = (state, ownProps) => {
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
     selectAllRecords: newState.selectAllRecords,
-    selectAllRecordsVisible: newState.selectAllRecordsVisible
+    selectAllRecordsVisible: newState.selectAllRecordsVisible,
+    isLoading: newState.isCheckLoading || newState.loading,
+    isNotExistsJournal: selectIsNotExistsJournal(state, getKey(ownProps))
   };
 };
 
@@ -249,21 +251,27 @@ class JournalsDashlet extends BaseWidget {
   };
 
   renderEditor() {
-    const { editorMode, id, config, stateId } = this.props;
+    const { editorMode, id, config, stateId, isNotExistsJournal } = this.props;
     const { isCollapsed } = this.state;
 
     if (!editorMode || isCollapsed) {
       return null;
     }
 
-    return <JournalsDashletEditor id={id} stateId={stateId} recordRef={this.recordRef} config={config} onSave={this.handleSaveConfig} />;
+    return (
+      <>
+        {isNotExistsJournal && <div className="alert alert-warning mb-0">{t('journal.not-exists.warning')}</div>}
+
+        <JournalsDashletEditor id={id} stateId={stateId} recordRef={this.recordRef} config={config} onSave={this.handleSaveConfig} />
+      </>
+    );
   }
 
   renderJournal() {
-    const { editorMode, stateId } = this.props;
+    const { editorMode, stateId, isNotExistsJournal } = this.props;
     const { width, isCollapsed, journalId } = this.state;
 
-    if (editorMode || isCollapsed) {
+    if (editorMode || isCollapsed || isNotExistsJournal) {
       return null;
     }
 
@@ -335,7 +343,7 @@ class JournalsDashlet extends BaseWidget {
         className={classNames('ecos-journal-dashlet', className)}
         bodyClassName="ecos-journal-dashlet__body"
         style={{ minWidth: `${MIN_WIDTH_DASHLET_SMALL}px` }}
-        title={journalConfig.meta.title || t('journal.title')}
+        title={get(journalConfig, 'meta.title') || t('journal.title')}
         onGoTo={this.goToJournalsPage}
         needGoTo={width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config)}
         actionConfig={actions}

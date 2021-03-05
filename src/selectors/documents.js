@@ -43,6 +43,7 @@ export const selectStateByKey = createSelector(
       isLoadingSettings: ownState.isLoadingSettings,
       isLoadingTableData: ownState.isLoadingTableData,
       isLoadingTypeSettings: ownState.isLoadingTypeSettings,
+      isLoadingAvailableTypes: ownState.isLoadingAvailableTypes,
       isLoadChecklist,
 
       uploadError: ownState.uploadError,

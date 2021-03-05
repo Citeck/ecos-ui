@@ -20,6 +20,10 @@ export default class BaseFormatter {
     return this.constructor.TYPE || BaseFormatter.TYPE;
   }
 
+  getAliases() {
+    return [];
+  }
+
   getSupportedCellType() {
     return CellType.SCALAR;
   }

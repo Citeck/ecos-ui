@@ -22,6 +22,7 @@ import TextArea from './override/textarea';
 import TextField from './override/textfield';
 import Url from './override/url';
 import Hidden from './override/hidden';
+import DataGrid from './override/datagrid';
 
 import AsyncData from './custom/asyncData';
 import DataGridAssoc from './custom/datagridAssoc';
@@ -69,7 +70,8 @@ Components.setComponents({
   textarea: TextArea,
   textfield: TextField,
   url: Url,
-  hidden: Hidden
+  hidden: Hidden,
+  datagrid: DataGrid
 });
 
 export { Components };

@@ -17,6 +17,7 @@ import DropZone from './parts/DropZone';
 import DocumentsConverter from '../../../dto/documents';
 import {
   execRecordsAction,
+  getAvailableTypes,
   getDocumentsByType,
   getTypeSettings,
   initStore,
@@ -834,7 +835,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     setError: (type, message = '') => dispatch(setError({ ...baseParams, type, message })),
     execRecordsAction: data => dispatch(execRecordsAction({ ...baseParams, ...data })),
     setInlineTools: tools => dispatch(setInlineTools({ ...baseParams, tools })),
-    getTypeSettings: type => dispatch(getTypeSettings({ ...baseParams, type }))
+    getTypeSettings: type => dispatch(getTypeSettings({ ...baseParams, type })),
+    getAvailableTypes: () => dispatch(getAvailableTypes(baseParams.key))
   };
 };
 

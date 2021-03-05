@@ -16,6 +16,8 @@
   "btn.create.label": "Create",
   "btn.apply.label": "Apply",
 
+  "server-error-occurred-with-code": "Server error occurred. Error code: {{code}}",
+
   "page.error-loading.title": "The error occurred while loading the page",
   "page.error-loading.message": "Try reloading the page. If the error persists, contact your administrator",
   "page.error-loading.log": "Error log",
@@ -667,6 +669,7 @@
   "journal.task.statistics.perform_time_ration.title": "Expected lead time / Lead time",
   "journal.task.statistics.task_type.title": "Task type",
   "journal.title": "Journal",
+  "journal.not-exists.warning": "The specified Journal does not exist, check the settings",
   "journal.cell.no-label": "(Missing Label)",
   "journals-selector.assocs-load-error": "Connection loading error",
   "journals-selector.create-button.label": "Add Connection",
@@ -699,6 +702,9 @@
   "journals.action.setting-dialog-msg": "Table settings",
   "journals.action.show-menu": "Show menu",
   "journals.action.show-menu_sm": "Menu",
+  "journals.action.show-folder-tree": "Show folder tree",
+  "journals.action.show-folder-tree_sm": "Folder tree",
+  "journals.action.hide-folder-tree": "Hide folder tree",
   "journals.action.confirm.title": "Confirmation",
   "journals.action.change-value.message": "In the document \"{{name}}\" the value is {{value}}. Do you want to replace it?",
   "journals.columns-setup.header": "Columns setup",
@@ -1303,5 +1309,6 @@
   "cmmn-editor.error.can-not-save-record-data": "Record data has not saved",
   "cmmn-editor.error.no-selected-element": "You should select some element to edit it",
 
-  "go-to.home-page": "Go to home page"
+  "go-to.home-page": "Go to home page",
+  "notification.journal-will-be-opened-soon": "Journal will be opened soon"
 }

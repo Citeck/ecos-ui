@@ -37,7 +37,7 @@ class FormatterService {
    */
   static format(props = {}, formatter = {}) {
     try {
-      return this._formatImpl(props, formatter);
+      return FormatterService._formatImpl(props, formatter);
     } catch (e) {
       console.error('[FormattersService.format] error', e);
       return FormatterService.errorMessage;
@@ -60,7 +60,7 @@ class FormatterService {
 
     const fmtInstance = formatterRegistry.getFormatter(type);
     if (!fmtInstance || typeof fmtInstance.format !== 'function') {
-      console.error('[FormattersService.format] invalid formatter', fmtInstance);
+      console.error('[FormattersService.format] invalid formatter with type: ' + type, fmtInstance);
       return FormatterService.errorMessage;
     }
 
@@ -84,6 +84,9 @@ class FormatterService {
   }
 
   static _formatSingleValueCellImpl(cell, formatProps, fmtInstance) {
+    if (cell == null) {
+      return '';
+    }
     let cellValue = cell;
     if (fmtInstance.getSupportedCellType() === CellType.VALUE_WITH_DISP) {
       if (!isPlainObject(cellValue)) {

@@ -16,6 +16,8 @@
   "btn.create.label": "Создать",
   "btn.apply.label": "Применить",
 
+  "server-error-occurred-with-code": "Произошла ошибка на сервере. Код ошибки: {{code}}",
+
   "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",
   "page.error-loading.message": "Попробуйте перезагрузить страницу. Если ошибка повториться, обратитесь к администратору ",
   "page.error-loading.log": "Журнал ошибки",
@@ -666,6 +668,7 @@
   "journal.task.statistics.perform_time_ration.title": "Ожидаемое время / Время выполнения",
   "journal.task.statistics.task_type.title": "Тип задачи",
   "journal.title": "Журнал",
+  "journal.not-exists.warning": "Указанного журнала не существует, проверьте настройки",
   "journal.cell.no-label": "(Нет наименования)",
   "journals-selector.assocs-load-error": "Ошибка загрузки связей",
   "journals-selector.create-button.label": "Добавить связь",
@@ -698,6 +701,9 @@
   "journals.action.setting-dialog-msg": "Настройки таблицы",
   "journals.action.show-menu": "Показать меню",
   "journals.action.show-menu_sm": "Меню",
+  "journals.action.show-folder-tree": "Показать дерево папок",
+  "journals.action.show-folder-tree_sm": "Дерево папок",
+  "journals.action.hide-folder-tree": "Скрыть дерево папок",
   "journals.action.confirm.title": "Подтверждение действия",
   "journals.action.change-value.message": "В документе \"{{name}}\" значение равно {{value}}. Желаете его заменить?",
   "journals.columns-setup.header": "Настройка колонок",
@@ -1301,5 +1307,6 @@
   "cmmn-editor.error.no-selected-element": "Выберите элемент для его редактирования",
   "cmmn-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
 
-  "go-to.home-page": "Перейти на домашнюю страницу"
+  "go-to.home-page": "Перейти на домашнюю страницу",
+  "notification.journal-will-be-opened-soon": "Журнал будет скоро открыт"
 }

@@ -45,7 +45,7 @@ export default class ModuleCopyAction extends ActionsExecutor {
           record.att('moduleId', submission.data.moduleId);
           record
             .save()
-            .then(resolve)
+            .then(() => resolve(true))
             .catch(reject);
         }
       });
