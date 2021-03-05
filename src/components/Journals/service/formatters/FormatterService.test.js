@@ -12,7 +12,7 @@ describe('FormatterService', () => {
       const scriptFormatterInstance = formatterRegistry.getFormatter(FORMATTER_TYPE_SCRIPT);
       const spy = jest.spyOn(scriptFormatterInstance, 'format');
       const result = FormatterService.format(
-        {},
+        { cell: 'abc' },
         {
           type: FORMATTER_TYPE_SCRIPT,
           config: {
@@ -26,6 +26,7 @@ describe('FormatterService', () => {
     it('should replace placeholders in the config fields', () => {
       const result = FormatterService.format(
         {
+          cell: 'abc',
           row: {
             rawAttributes: {
               a: 5,
@@ -51,7 +52,7 @@ describe('FormatterService', () => {
     });
     it('should display error message when formatter throws an Error', () => {
       // ScriptFormatter throws Error because config.script is not specified
-      expect(FormatterService.format({}, { type: FORMATTER_TYPE_SCRIPT })).toBe(FormatterService.errorMessage);
+      expect(FormatterService.format({ cell: 'abc' }, { type: FORMATTER_TYPE_SCRIPT })).toBe(FormatterService.errorMessage);
     });
   });
 });
