@@ -11,16 +11,16 @@ import { Caption, Checkbox, Field, Input, Select } from '../../common/form';
 import { Btn } from '../../common/btns';
 
 import {
+  checkConfig,
   getDashletEditorData,
   saveDashlet,
   setDashletConfig,
   setDashletConfigByParams,
   setEditorMode,
+  setLoading,
   setOnlyLinked,
-  setSettingItem,
-  checkConfig
+  setSettingItem
 } from '../../../actions/journals';
-import { setLoading } from '../../../actions/loader';
 
 import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';

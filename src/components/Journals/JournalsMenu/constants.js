@@ -7,7 +7,7 @@ export const Labels = {
   TEMPLATES_TITLE: 'journals.tpl.defaults',
   TEMPLATE_CANCEL: 'journals.action.cancel-rename-tpl-msg',
   TEMPLATE_RENAME: 'journals.action.rename-tpl-msg',
-  TEMPLATE_REMOVE: 'journals.action.remove-tpl-msg',
+  TEMPLATE_REMOVE: 'journals.action.delete-tpl-msg',
   TEMPLATE_REMOVE_TITLE: 'journals.action.delete-tpl-msg',
   TEMPLATE_REMOVE_TEXT: 'journals.action.remove-tpl-msg'
 };

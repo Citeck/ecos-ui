@@ -2,6 +2,7 @@ import { createAction } from 'redux-actions';
 
 const prefix = 'journals/';
 
+export const setLoading = createAction(prefix + 'SET_LOADING');
 export const getDashletConfig = createAction(prefix + 'GET_DASHLET_CONFIG');
 export const setDashletConfig = createAction(prefix + 'SET_DASHLET_CONFIG');
 export const setDashletConfigByParams = createAction(prefix + 'SET_DASHLET_CONFIG_BY_PARAMS');

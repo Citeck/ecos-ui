@@ -8,7 +8,8 @@ import get from 'lodash/get';
 import pick from 'lodash/pick';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
+import merge from 'lodash/merge';
+import JSONPretty from 'react-json-pretty';
 
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
@@ -16,6 +17,7 @@ import { Well } from '../common/form';
 import {
   execRecordsAction,
   getJournalsData,
+  onJournalSettingsSelect,
   reloadGrid,
   restoreJournalSettingData,
   runSearch,
@@ -24,7 +26,7 @@ import {
   setSelectedRecords,
   setUrl
 } from '../../actions/journals';
-import { JournalUrlParams } from '../../constants';
+import { JournalUrlParams as JUP } from '../../constants';
 import { animateScrollTo, getBool, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
 import { selectDocLibFolderTitle, selectIsDocLibEnabled } from '../../selectors/docLib';
@@ -49,7 +51,6 @@ import DocLibGroupActions from './DocLib/DocLibGroupActions';
 import FilesViewer from './DocLib/FilesViewer';
 
 import './Journals.scss';
-import JSONPretty from 'react-json-pretty';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -85,7 +86,8 @@ const mapDispatchToProps = (dispatch, props) => {
     runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
     clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
-    setUrl: urlParams => dispatch(setUrl(w(urlParams)))
+    setUrl: urlParams => dispatch(setUrl(w(urlParams))),
+    onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id)))
   };
 };
 
@@ -115,17 +117,17 @@ class Journals extends Component {
       menuOpenAnimate: false,
       settingsVisible: false,
       savedSetting: null,
-      showPreview: getBool(get(getSearchParams(), JournalUrlParams.SHOW_PREVIEW)),
-      viewMode: getBool(get(getSearchParams(), JournalUrlParams.VIEW_MODE))
+      showPreview: getBool(get(getSearchParams(), JUP.SHOW_PREVIEW)),
+      viewMode: getBool(get(getSearchParams(), JUP.VIEW_MODE))
     };
   }
 
   static getDerivedStateFromProps(props, state) {
-    const newState = {};
-    const journalId = get(props, ['urlParams', JournalUrlParams.JOURNAL_ID]);
+    let newState = {};
+    const journalId = get(props, ['urlParams', JUP.JOURNAL_ID]);
 
     if (props.isActivePage && journalId !== state.journalId) {
-      newState.journalId = journalId;
+      newState = merge(newState, { journalId });
     }
 
     if (
@@ -134,13 +136,11 @@ class Journals extends Component {
       state.savedSetting &&
       !objectCompare(props.predicate, get(state, 'savedSetting.predicate', {}))
     ) {
-      newState.savedSetting = {
-        ...state.savedSetting,
-        predicate: props.predicate
-      };
+      const savedSetting = merge(state.savedSetting, { predicate: props.predicate });
+      newState = merge(newState, { savedSetting });
     }
 
-    if (!Object.keys(newState).length) {
+    if (!newState) {
       return null;
     }
 
@@ -151,57 +151,68 @@ class Journals extends Component {
     this.props.setUrl(getSearchParams());
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl, doNotChangeUrl } = this.props;
-    const { isActivePage: _isActivePage, urlParams: _urlParams } = prevProps;
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { _url, urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl, onJournalSettingsSelect } = this.props;
+    const {
+      journalId: stateJournalId,
+      showPreview: stateShowPreview,
+      viewMode: stateViewMode,
+      isForceUpdate: stateIsForceUpdate
+    } = this.state;
 
-    const _journalId = get(_urlParams, JournalUrlParams.JOURNAL_ID);
-    const journalId = get(urlParams, JournalUrlParams.JOURNAL_ID);
-    const showPreview = getBool(get(getSearchParams(), JournalUrlParams.SHOW_PREVIEW));
-    const viewMode = get(getSearchParams(), JournalUrlParams.VIEW_MODE);
+    const prevJournalId = get(prevProps.urlParams, JUP.JOURNAL_ID);
+    const newJournalId = get(urlParams, JUP.JOURNAL_ID);
+    const urlShowPreview = getBool(get(getSearchParams(), JUP.SHOW_PREVIEW));
+    const urlViewMode = get(getSearchParams(), JUP.VIEW_MODE);
 
-    const otherActiveJournal =
-      isActivePage && ((_isActivePage && journalId && journalId !== _journalId) || this.state.journalId !== prevState.journalId);
-    const someUrlChanges =
+    let newState;
+    let newUrl;
+
+    const isNewJournalOnActive =
       isActivePage &&
-      _isActivePage &&
-      !equalsQueryUrls({
-        urls: [this.props._url, prevProps._url],
-        ignored: [
-          JournalUrlParams.SHOW_PREVIEW,
-          JournalUrlParams.VIEW_MODE,
-          JournalUrlParams.DOCLIB_FOLDER_ID,
-          JournalUrlParams.DOCLIB_SEARCH
-        ]
-      });
+      ((prevProps.isActivePage && newJournalId && newJournalId !== prevJournalId) || stateJournalId !== prevState.journalId);
 
-    if (someUrlChanges && !doNotChangeUrl) {
+    const isEqualQuery = equalsQueryUrls({
+      urls: [_url, prevProps._url],
+      ignored: [JUP.SHOW_PREVIEW, JUP.VIEW_MODE, JUP.DOCLIB_FOLDER_ID, JUP.DOCLIB_SEARCH]
+    });
+
+    const isActiveChanged = isActivePage && prevProps.isActivePage && !isEqualQuery;
+
+    if (isActiveChanged || prevProps.stateId !== stateId) {
       setUrl(getSearchParams());
     }
 
-    if (someUrlChanges || otherActiveJournal || prevProps.stateId !== stateId) {
-      const isEqualSearchParams = equalsQueryUrls({ urls: [this.props._url, prevProps._url], compareBy: [JournalUrlParams.SEARCH] });
-      const isEqualSearchProps = isEqual(get(urlParams, 'search'), get(_urlParams, 'search'));
-
-      getJournalsData((!isEqualSearchParams || !isEqualSearchProps) && prevProps.stateId === stateId);
+    if (isNewJournalOnActive || prevProps.stateId !== stateId) {
+      getJournalsData();
     }
 
-    if (isActivePage && this.state.isForceUpdate) {
-      this.setState({ isForceUpdate: false });
+    const isSameSettingId = equalsQueryUrls({ urls: [_url, prevProps._url], compareBy: [JUP.JOURNAL_SETTING_ID] });
+    const isSameSearchParam = equalsQueryUrls({ urls: [_url, prevProps._url], compareBy: [JUP.SEARCH] });
+
+    if (isActiveChanged && !isSameSettingId) {
+      onJournalSettingsSelect(get(getSearchParams(), JUP.JOURNAL_SETTING_ID) || '');
+    }
+
+    if ((isActivePage && stateIsForceUpdate) || (isActiveChanged && !isSameSearchParam)) {
+      newState = merge(newState, { isForceUpdate: false });
       reloadGrid();
     }
 
-    if (_isActivePage && !isActivePage && isLoading) {
-      this.setState({ isForceUpdate: true });
+    if (prevProps.isActivePage && !isActivePage && isLoading) {
+      newState = merge(newState, { isForceUpdate: true });
     }
 
-    if (isActivePage && showPreview !== this.state.showPreview) {
-      updateCurrentUrl({ showPreview: this.state.showPreview });
+    if (isActivePage && urlShowPreview !== stateShowPreview) {
+      newUrl = merge(newUrl, { showPreview: stateShowPreview });
     }
 
-    if (isActivePage && viewMode !== this.state.viewMode) {
-      updateCurrentUrl({ viewMode: this.state.viewMode });
+    if (isActivePage && urlViewMode !== stateViewMode) {
+      newUrl = merge(newUrl, { viewMode: stateViewMode });
     }
+
+    newState && this.setState(newState);
+    newUrl && updateCurrentUrl(newUrl);
   }
 
   componentWillUnmount() {
@@ -282,7 +293,7 @@ class Journals extends Component {
       return '';
     }
 
-    return get(getSearchParams(), JournalUrlParams.SEARCH, get(urlParams, 'search', ''));
+    return get(getSearchParams(), JUP.SEARCH, get(urlParams, JUP.SEARCH, ''));
   };
 
   addRecord = createVariant => {
@@ -304,7 +315,7 @@ class Journals extends Component {
   applySettings = isChangedPredicates => {
     if (isChangedPredicates) {
       const { clearSearch } = this.props;
-      const url = removeUrlSearchParams(window.location.href, JournalUrlParams.SEARCH);
+      const url = removeUrlSearchParams(window.location.href, JUP.SEARCH);
 
       window.history.replaceState({ path: url }, '', url);
       clearSearch();
@@ -378,7 +389,7 @@ class Journals extends Component {
   };
 
   onSearch = text => {
-    if (text === get(this.props, 'urlParams.search', '')) {
+    if (text === get(this.props, ['urlParams', JUP.SEARCH], '')) {
       return;
     }
 
@@ -708,7 +719,6 @@ Journals.propTypes = {
   bodyClassName: PropTypes.string,
   additionalHeights: PropTypes.number,
   isActivePage: PropTypes.bool,
-  doNotChangeUrl: PropTypes.bool,
   displayElements: PropTypes.shape({
     menu: PropTypes.bool,
     header: PropTypes.bool,

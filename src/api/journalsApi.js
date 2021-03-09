@@ -76,7 +76,10 @@ export class JournalsApi extends RecordService {
   };
 
   getJournalSetting = id => {
-    return this.getJson(`${MICRO_URI}api/journalprefs?id=${id}`).catch(() => null);
+    return this.getJson(`${MICRO_URI}api/journalprefs?id=${id}`).catch(error => {
+      console.error(error);
+      return { error };
+    });
   };
 
   saveJournalSetting = ({ id, settings }) => {
