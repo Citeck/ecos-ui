@@ -1,3 +1,5 @@
+import _get from 'lodash/get';
+
 import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
 import JournalsConverter from '../../../dto/journals';
@@ -172,7 +174,8 @@ class JournalsDataLoader {
       }
     }
 
-    const additionalAttributes = journalConfig.configData.attributesToLoad;
+    const additionalAttributes = _get(journalConfig, 'configData.attributesToLoad');
+
     if (additionalAttributes) {
       for (let att of additionalAttributes) {
         attributesSet.add(att);

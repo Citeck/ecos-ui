@@ -36,6 +36,10 @@ const paginationInitState = {
   page: 1
 };
 
+const emptyJournalConfig = Object.freeze({
+  meta: {}
+});
+
 export default class SelectJournal extends Component {
   state = {
     isCollapsePanelOpen: false,
@@ -45,9 +49,7 @@ export default class SelectJournal extends Component {
     editRecordId: null,
     editRecordName: null,
     isJournalConfigFetched: false,
-    journalConfig: {
-      meta: {}
-    },
+    journalConfig: { ...emptyJournalConfig },
     isGridDataReady: false,
     gridData: {
       total: 0,
@@ -146,11 +148,16 @@ export default class SelectJournal extends Component {
     }
   };
 
+  isEmptyJournalConfig(config) {
+    return isEmpty(config) || isEqual(config, emptyJournalConfig);
+  }
+
   shouldResetValue = () => {
     return new Promise(async resolve => {
-      const { customPredicate, journalConfig, pagination, filterPredicate } = this.state;
+      const { customPredicate, pagination, filterPredicate } = this.state;
       const { selectedRows } = this.state;
       const { sortBy, disableResetOnApplyCustomPredicate } = this.props;
+      let { journalConfig } = this.state;
 
       if (disableResetOnApplyCustomPredicate || selectedRows.length < 1) {
         return resolve({ shouldReset: false });
@@ -176,6 +183,13 @@ export default class SelectJournal extends Component {
         predicates: JournalsConverter.cleanUpPredicate([customPredicate, selectedRowsPredicate, ...(filterPredicate || [])]),
         permissions: { [Permissions.Write]: true }
       });
+
+      if (this.isEmptyJournalConfig()) {
+        await this.getJournalConfig();
+
+        ({ journalConfig } = this.state);
+      }
+
       const result = await JournalsService.getJournalData(journalConfig, settings);
       const gridData = JournalsConverter.getJournalDataWeb(result);
 
