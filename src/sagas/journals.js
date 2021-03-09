@@ -1,6 +1,5 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import * as queryString from 'query-string';
-import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import has from 'lodash/has';
