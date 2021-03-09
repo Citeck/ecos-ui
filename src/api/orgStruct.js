@@ -15,7 +15,7 @@ export class OrgStructApi extends RecordService {
   _loadedGroups = {};
 
   getUsers = (searchText = '') => {
-    let url = `${PROXY_URI}/api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false&group=false&user=true&recurse=true&excludeAuthorities=all_users`;
+    let url = `${PROXY_URI}api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false&group=false&user=true&recurse=true&excludeAuthorities=all_users`;
     if (searchText) {
       url += `&filter=${searchText}`;
     }
@@ -43,7 +43,7 @@ export class OrgStructApi extends RecordService {
     }
 
     const url = queryString.stringifyUrl({
-      url: `${PROXY_URI}/api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true`,
+      url: `${PROXY_URI}api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true`,
       query: urlQuery
     });
 
@@ -79,7 +79,8 @@ export class OrgStructApi extends RecordService {
       return Promise.resolve(this._loadedAuthorities[nodeRef]);
     }
 
-    let url = `${PROXY_URI}/api/orgstruct/authority?nodeRef=${nodeRef}`;
+    let url = `${PROXY_URI}api/orgstruct/authority?nodeRef=${nodeRef}`;
+
     return this.getJson(url)
       .then(result => {
         this._loadedAuthorities[nodeRef] = result;

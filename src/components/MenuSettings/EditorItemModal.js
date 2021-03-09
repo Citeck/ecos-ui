@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 
 import { extractLabel, packInLabel, t } from '../../helpers/util';
 import { TMP_ICON_EMPTY } from '../../constants';
@@ -9,9 +11,12 @@ import { MenuSettings as MS } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import IconSelect from '../IconSelect';
 import { EcosIcon, EcosModal } from '../common';
-import { Checkbox, Input, MLText } from '../common/form';
+import { Checkbox, Input, MLText, SelectOrgstruct } from '../common/form';
 import { Btn } from '../common/btns';
 import { Field } from './Field';
+import { GroupTypes } from '../common/form/SelectOrgstruct/constants';
+import { usePrevious } from '../../hooks/usePrevious';
+import { MenuApi } from '../../api/menu';
 
 import './style.scss';
 
@@ -27,6 +32,8 @@ const Labels = {
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',
   FIELD_ICON_BTN_SELECT: 'menu-settings.editor-item.field.icon.btn.select',
   FIELD_ICON_DESC: 'icon-select.custom.tip',
+  FIELD_ALLOWED_FOR_LABEL: 'menu-settings.editor-item.field.allowed-for.label',
+  FIELD_ALLOWED_FOR_PLACEHOLDER: 'menu-settings.editor-item.field.allowed-for.placeholder',
   MODAL_TITLE_ADD: 'menu-settings.editor-item.title.add',
   MODAL_TITLE_EDIT: 'menu-settings.editor-item.title.edit',
   MODAL_BTN_CANCEL: 'menu-settings.editor-item.btn.cancel',
@@ -42,6 +49,10 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
   const [icon, setIcon] = useState(defaultIcon);
   const [hiddenLabel, setHiddenLabel] = useState(false);
   const [isOpenSelectIcon, setOpenSelectIcon] = useState(false);
+  const [allowedRefs, setAllowedRefs] = useState([]);
+  const [allowedNames, setAllowedNames] = useState(get(item, 'allowedFor', []));
+  const [isFetchingInfo, setFetchingStatus] = useState(false);
+  const prevItem = usePrevious(item);
 
   useEffect(() => {
     if (action === MS.ActionTypes.EDIT) {
@@ -49,6 +60,14 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
       hasUrl && setUrl(get(item, 'config.url'));
       hasIcon && setIcon(item.icon);
       hideableLabel && setHiddenLabel(get(item, 'config.hiddenLabel'));
+
+      if (!isEqual(item, prevItem) && !isEmpty(get(item, 'allowedFor'))) {
+        setFetchingStatus(true);
+        MenuApi.getAuthoritiesInfoByName(get(item, 'allowedFor'), 'nodeRef').then(refs => {
+          setFetchingStatus(false);
+          setAllowedRefs(refs);
+        });
+      }
     }
   }, [item]);
 
@@ -64,8 +83,14 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
     hasUrl && set(data, 'config.url', url);
     hasIcon && (data.icon = icon);
     hideableLabel && set(data, 'config.hiddenLabel', hiddenLabel);
+    set(data, 'allowedFor', allowedNames);
 
     onSave(data);
+  };
+
+  const handleSelect = (refs, items) => {
+    setAllowedRefs(refs);
+    setAllowedNames(items.map(item => get(item, 'attributes.fullName')));
   };
 
   const handleApplyIcon = newIcon => {
@@ -141,6 +166,20 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
               myFontIcons={fontIcons}
             />
           )}
+        </Field>
+      )}
+      {type.key === MS.ItemTypes.SECTION && (
+        <Field label={t(Labels.FIELD_ALLOWED_FOR_LABEL)}>
+          <SelectOrgstruct
+            isLoading={isFetchingInfo}
+            defaultValue={allowedRefs}
+            multiple
+            isSelectedValueAsText
+            isIncludedAdminGroup
+            placeholder={t(Labels.FIELD_ALLOWED_FOR_PLACEHOLDER)}
+            allowedGroupTypes={Object.values(GroupTypes)}
+            onChange={handleSelect}
+          />
         </Field>
       )}
 
