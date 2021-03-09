@@ -160,7 +160,8 @@ export const SYSTEM_LIST = 'global-system';
 export const SystemJournals = {
   JOURNALS: 'ecos-journals',
   TYPES: 'ecos-types',
-  MENUS: 'ecos-menus'
+  MENUS: 'ecos-menus',
+  FORMS: 'ecos-forms'
 };
 
 window.Citeck = window.Citeck || {};
