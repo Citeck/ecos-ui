@@ -179,7 +179,14 @@ class Comment extends Component {
     }
 
     return tags.map(tag => (
-      <Badge className="ecos-comments__comment-tag" popupClassName="ecos-comments__comment-tag-popper" text={tag} size="small" withPopup />
+      <Badge
+        key={tag}
+        className="ecos-comments__comment-tag"
+        popupClassName="ecos-comments__comment-tag-popper"
+        text={tag}
+        size="small"
+        withPopup
+      />
     ));
   }
 
