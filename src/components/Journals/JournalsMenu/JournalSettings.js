@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import isEqual from 'lodash/isEqual';
 
 import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
@@ -23,36 +24,42 @@ class JournalSettings extends React.Component {
     this.props.renameJournalSetting(options);
   };
 
-  getList = (settings, selectedIndex) => {
-    return settings.map((setting, idx) => (
+  get selected() {
+    const { journalSetting, journalSettings } = this.props;
+    const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
+
+    return journalSettings && journalSettings.findIndex(item => item[JOURNAL_SETTING_ID_FIELD] === journalSettingId);
+  }
+
+  get renderList() {
+    const { journalSettings } = this.props;
+
+    return journalSettings.map((setting, idx) => <this.renderItem item={setting} selected={idx === this.selected} />);
+  }
+
+  renderItem = React.memo(
+    ({ item, selected }) => (
       <ListItem
         onClick={this.onSelect}
         onDelete={this.onDelete}
         onApply={this.onRename}
         removable
-        item={setting}
-        selected={idx === selectedIndex}
+        item={item}
+        selected={selected}
         titleField={`${JOURNAL_SETTING_DATA_FIELD}.title`}
       />
-    ));
-  };
-
-  get selected() {
-    const { journalSetting, journalSettings } = this.props;
-    const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
-    return journalSettings && journalSettings.findIndex(item => item[JOURNAL_SETTING_ID_FIELD] === journalSettingId);
-  }
+    ),
+    (prevProps, nextProps) => isEqual(prevProps.item, nextProps.item) && prevProps.selected === nextProps.selected
+  );
 
   render() {
-    const { journalSettings } = this.props;
-
     return (
       <Well className="ecos-journal-menu__presets">
         <CollapsibleList
           needScrollbar={false}
           className="ecos-journal-menu__collapsible-list"
           classNameList="ecos-list-group_mode_journal"
-          list={this.getList(journalSettings, this.selected)}
+          list={this.renderList}
           selected={this.selected}
           emptyText={t(Labels.EMPTY_LIST)}
         >

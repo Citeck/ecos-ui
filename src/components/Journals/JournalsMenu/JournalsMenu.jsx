@@ -5,38 +5,18 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 
 import { getScrollbarWidth, t } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
-import { deleteJournalSetting, openSelectedJournal, openSelectedJournalSettings, renameJournalSetting } from '../../../actions/journals';
 import { IcoBtn } from '../../common/btns';
 import { JOURNAL_VIEW_MODE } from '../constants';
 import FoldersTree from '../DocLib/FoldersTree';
 import { Labels } from './constants';
-import ListItem from './JournalsMenuListItem';
 import JournalSettings from './JournalSettings';
 
 import './JournalsMenu.scss';
 
 const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
-
   return {
     isMobile: state.view.isMobile,
-    pageTabsIsShow: state.pageTabs.isShow,
-    journals: newState.journals,
-    journalSettings: newState.journalSettings,
-    journalSetting: newState.journalSetting,
-    journalConfig: newState.journalConfig
-  };
-};
-
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId);
-
-  return {
-    deleteJournalSetting: id => dispatch(deleteJournalSetting(w(id))),
-    renameJournalSetting: options => dispatch(renameJournalSetting(w(options))),
-    openSelectedJournalSettings: journalSettingId => dispatch(openSelectedJournalSettings(w(journalSettingId))),
-    openSelectedJournal: journalId => dispatch(openSelectedJournal(w(journalId)))
+    pageTabsIsShow: state.pageTabs.isShow
   };
 };
 
@@ -57,23 +37,6 @@ class JournalsMenu extends React.Component {
     if (typeof onClose === 'function') {
       onClose.call(this);
     }
-  };
-
-  onJournalSelect = journal => {
-    this.props.openSelectedJournal(journal.nodeRef);
-  };
-
-  getMenuJournals = journals => {
-    return journals.map(journal => <ListItem onClick={this.onJournalSelect} item={journal} titleField={'title'} />);
-  };
-
-  getSelectedIndex = (source, value, field) => {
-    for (let i = 0, count = source.length; i < count; i++) {
-      if (source[i][field] === value) {
-        return i;
-      }
-    }
-    return undefined;
   };
 
   getMaxMenuHeight = () => {
@@ -142,7 +105,4 @@ class JournalsMenu extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsMenu);
+export default connect(mapStateToProps)(JournalsMenu);
