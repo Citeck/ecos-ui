@@ -11,7 +11,8 @@ export const ITEMS_INPUT = [
     type: 'item',
     hidden: false,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'HEADER_ORGSTRUCT',
@@ -19,7 +20,8 @@ export const ITEMS_INPUT = [
     type: 'item',
     hidden: false,
     icon: 'ui/icon@icon-empty',
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'HEADER-DIVIDER',
@@ -27,7 +29,8 @@ export const ITEMS_INPUT = [
     icon: '',
     type: 'HEADER-DIVIDER',
     hidden: false,
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'ARBITRARY',
@@ -35,7 +38,8 @@ export const ITEMS_INPUT = [
     type: 'item',
     icon: '',
     hidden: false,
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'HEADER_TASKS',
@@ -43,21 +47,24 @@ export const ITEMS_INPUT = [
     type: 'SECTION',
     hidden: false,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'HEADER_TASKS',
     label: 'menu.header.tasks',
     type: 'SECTION',
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'JOURNAL_1',
     label: 'menu.header.tasks',
     type: 'JOURNAL',
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'JOURNAL_2',
@@ -65,7 +72,8 @@ export const ITEMS_INPUT = [
     type: 'JOURNAL',
     hidden: true,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'CREATE_IN_SECTION',
@@ -73,7 +81,8 @@ export const ITEMS_INPUT = [
     type: 'CREATE_IN_SECTION',
     hidden: false,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-    config: {}
+    config: {},
+    allowedFor: []
   }
 ];
 
@@ -90,7 +99,8 @@ export const ITEM_PARAMS_OUTPUT = [
     config: { ...ITEMS_INPUT[0].config },
     items: [],
     locked: !!ITEMS_INPUT[0].hidden,
-    draggable: false
+    draggable: false,
+    allowedFor: []
   },
   {
     id: ITEMS_INPUT[1].id,
@@ -104,7 +114,8 @@ export const ITEM_PARAMS_OUTPUT = [
     config: { ...ITEMS_INPUT[1].config },
     items: [],
     locked: !!ITEMS_INPUT[1].hidden,
-    draggable: false
+    draggable: false,
+    allowedFor: []
   },
   {
     id: ITEMS_INPUT[2].id,
@@ -115,7 +126,8 @@ export const ITEM_PARAMS_OUTPUT = [
     config: { ...ITEMS_INPUT[2].config },
     items: [],
     locked: !!ITEMS_INPUT[2].hidden,
-    draggable: true
+    draggable: true,
+    allowedFor: []
   },
   {
     id: ITEMS_INPUT[3].id,
@@ -126,7 +138,8 @@ export const ITEM_PARAMS_OUTPUT = [
     config: { ...ITEMS_INPUT[3].config },
     items: [],
     locked: !!ITEMS_INPUT[3].hidden,
-    draggable: false
+    draggable: false,
+    allowedFor: []
   },
   {
     config: {},
@@ -137,7 +150,8 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     label: 'menu.header.tasks',
     locked: false,
-    type: 'SECTION'
+    type: 'SECTION',
+    allowedFor: []
   },
   {
     config: {},
@@ -148,7 +162,8 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     label: 'menu.header.tasks',
     locked: false,
-    type: 'SECTION'
+    type: 'SECTION',
+    allowedFor: []
   }
 ];
 
@@ -290,22 +305,26 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 300
+                      dndIdx: 300,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 200
+                  dndIdx: 200,
+                  allowedFor: []
                 }
               ],
               locked: false,
               draggable: true,
-              dndIdx: 100
+              dndIdx: 100,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 0
+          dndIdx: 0,
+          allowedFor: []
         },
         {
           id: 'HEADER_SITES',
@@ -352,17 +371,20 @@ export const ACTIONS_ON_MENU_ITEMS = {
                               items: [],
                               locked: false,
                               draggable: true,
-                              dndIdx: 5100000
+                              dndIdx: 5100000,
+                              allowedFor: []
                             }
                           ],
                           locked: false,
                           draggable: true,
-                          dndIdx: 410000
+                          dndIdx: 410000,
+                          allowedFor: []
                         }
                       ],
                       locked: false,
                       draggable: true,
-                      dndIdx: 31000
+                      dndIdx: 31000,
+                      allowedFor: []
                     },
                     {
                       id: 'SITE_DOCUMENT_LIBRARY',
@@ -373,7 +395,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 31001
+                      dndIdx: 31001,
+                      allowedFor: []
                     },
                     {
                       id: 'SITE_CALENDAR',
@@ -384,17 +407,20 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 31002
+                      dndIdx: 31002,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 2100
+                  dndIdx: 2100,
+                  allowedFor: []
                 }
               ],
               locked: false,
               draggable: true,
-              dndIdx: 110
+              dndIdx: 110,
+              allowedFor: []
             },
             {
               id: 'HEADER_SITES_SEARCH',
@@ -406,7 +432,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 111
+              dndIdx: 111,
+              allowedFor: []
             },
             {
               id: 'HEADER_SITES_CREATE',
@@ -418,12 +445,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 112
+              dndIdx: 112,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 1
+          dndIdx: 1,
+          allowedFor: []
         },
         {
           id: 'HEADER_ORGSTRUCT',
@@ -443,12 +472,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 120
+              dndIdx: 120,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 2
+          dndIdx: 2,
+          allowedFor: []
         },
         {
           id: 'HEADER_MORE_MY_GROUP',
@@ -468,7 +499,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 130
+              dndIdx: 130,
+              allowedFor: []
             },
             {
               id: 'HEADER_COMPLETED_WORKFLOWS',
@@ -480,7 +512,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 131
+              dndIdx: 131,
+              allowedFor: []
             },
             {
               id: 'HEADER_MY_CONTENT',
@@ -492,7 +525,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 132
+              dndIdx: 132,
+              allowedFor: []
             },
             {
               id: 'HEADER_MY_SITES',
@@ -504,7 +538,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 133
+              dndIdx: 133,
+              allowedFor: []
             },
             {
               id: 'HEADER_MY_FILES',
@@ -516,7 +551,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 134
+              dndIdx: 134,
+              allowedFor: []
             },
             {
               id: 'HEADER_DATA_LISTS',
@@ -543,12 +579,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 33500
+                      dndIdx: 33500,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 2350
+                  dndIdx: 2350,
+                  allowedFor: []
                 },
                 {
                   id: 'USER_SITES_REFERENCES',
@@ -573,27 +611,32 @@ export const ACTIONS_ON_MENU_ITEMS = {
                           items: [],
                           locked: false,
                           draggable: true,
-                          dndIdx: 435100
+                          dndIdx: 435100,
+                          allowedFor: []
                         }
                       ],
                       locked: false,
                       draggable: true,
-                      dndIdx: 33510
+                      dndIdx: 33510,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 2351
+                  dndIdx: 2351,
+                  allowedFor: []
                 }
               ],
               locked: false,
               draggable: true,
-              dndIdx: 135
+              dndIdx: 135,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 3
+          dndIdx: 3,
+          allowedFor: []
         },
         {
           id: 'HEADER_MORE_TOOLS_GROUP',
@@ -613,7 +656,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 140
+              dndIdx: 140,
+              allowedFor: []
             },
             {
               id: 'HEADER_APPLICATION',
@@ -625,7 +669,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 141
+              dndIdx: 141,
+              allowedFor: []
             },
             {
               id: 'HEADER_FLOWABLE_MODELER',
@@ -637,7 +682,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 142
+              dndIdx: 142,
+              allowedFor: []
             },
             {
               id: 'HEADER_GROUPS',
@@ -649,7 +695,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 143
+              dndIdx: 143,
+              allowedFor: []
             },
             {
               id: 'HEADER_USERS',
@@ -661,7 +708,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 144
+              dndIdx: 144,
+              allowedFor: []
             },
             {
               id: 'HEADER_TYPES',
@@ -673,7 +721,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 145
+              dndIdx: 145,
+              allowedFor: []
             },
             {
               id: 'HEADER_SYSTEM_JOURNALS',
@@ -685,7 +734,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 146
+              dndIdx: 146,
+              allowedFor: []
             },
             {
               id: 'HEADER_META_JOURNALS',
@@ -697,7 +747,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 147
+              dndIdx: 147,
+              allowedFor: []
             },
             {
               id: 'HEADER_TEMPLATES',
@@ -709,7 +760,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 148
+              dndIdx: 148,
+              allowedFor: []
             },
             {
               id: 'HEADER_DEV_TOOLS',
@@ -721,7 +773,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 149
+              dndIdx: 149,
+              allowedFor: []
             },
             {
               id: 'HEADER_MORE',
@@ -733,12 +786,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 1410
+              dndIdx: 1410,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 4
+          dndIdx: 4,
+          allowedFor: []
         }
       ],
       action: 'CREATE',
@@ -781,22 +836,26 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 300
+                      dndIdx: 300,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 200
+                  dndIdx: 200,
+                  allowedFor: []
                 }
               ],
               locked: false,
               draggable: true,
-              dndIdx: 100
+              dndIdx: 100,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 0
+          dndIdx: 0,
+          allowedFor: []
         },
         {
           id: 'HEADER_SITES',
@@ -843,17 +902,20 @@ export const ACTIONS_ON_MENU_ITEMS = {
                               items: [],
                               locked: false,
                               draggable: true,
-                              dndIdx: 5100000
+                              dndIdx: 5100000,
+                              allowedFor: []
                             }
                           ],
                           locked: false,
                           draggable: true,
-                          dndIdx: 410000
+                          dndIdx: 410000,
+                          allowedFor: []
                         }
                       ],
                       locked: false,
                       draggable: true,
-                      dndIdx: 31000
+                      dndIdx: 31000,
+                      allowedFor: []
                     },
                     {
                       id: 'SITE_DOCUMENT_LIBRARY',
@@ -864,7 +926,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 31001
+                      dndIdx: 31001,
+                      allowedFor: []
                     },
                     {
                       id: 'SITE_CALENDAR',
@@ -875,17 +938,20 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 31002
+                      dndIdx: 31002,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 2100
+                  dndIdx: 2100,
+                  allowedFor: []
                 }
               ],
               locked: false,
               draggable: true,
-              dndIdx: 110
+              dndIdx: 110,
+              allowedFor: []
             },
             {
               id: 'HEADER_SITES_SEARCH',
@@ -897,7 +963,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 111
+              dndIdx: 111,
+              allowedFor: []
             },
             {
               id: 'HEADER_SITES_CREATE',
@@ -909,12 +976,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 112
+              dndIdx: 112,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 1
+          dndIdx: 1,
+          allowedFor: []
         },
         {
           id: 'HEADER_ORGSTRUCT',
@@ -934,12 +1003,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 120
+              dndIdx: 120,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 2
+          dndIdx: 2,
+          allowedFor: []
         },
         {
           id: 'HEADER_MORE_MY_GROUP',
@@ -959,7 +1030,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 130
+              dndIdx: 130,
+              allowedFor: []
             },
             {
               id: 'HEADER_COMPLETED_WORKFLOWS',
@@ -971,7 +1043,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 131
+              dndIdx: 131,
+              allowedFor: []
             },
             {
               id: 'HEADER_MY_CONTENT',
@@ -983,7 +1056,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 132
+              dndIdx: 132,
+              allowedFor: []
             },
             {
               id: 'HEADER_MY_SITES',
@@ -995,7 +1069,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 133
+              dndIdx: 133,
+              allowedFor: []
             },
             {
               id: 'HEADER_MY_FILES',
@@ -1007,7 +1082,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 134
+              dndIdx: 134,
+              allowedFor: []
             },
             {
               id: 'HEADER_DATA_LISTS',
@@ -1034,12 +1110,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 33500
+                      dndIdx: 33500,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 2350
+                  dndIdx: 2350,
+                  allowedFor: []
                 },
                 {
                   id: 'USER_SITES_REFERENCES',
@@ -1064,27 +1142,32 @@ export const ACTIONS_ON_MENU_ITEMS = {
                           items: [],
                           locked: false,
                           draggable: true,
-                          dndIdx: 435100
+                          dndIdx: 435100,
+                          allowedFor: []
                         }
                       ],
                       locked: false,
                       draggable: true,
-                      dndIdx: 33510
+                      dndIdx: 33510,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 2351
+                  dndIdx: 2351,
+                  allowedFor: []
                 }
               ],
               locked: false,
               draggable: true,
-              dndIdx: 135
+              dndIdx: 135,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 3
+          dndIdx: 3,
+          allowedFor: []
         },
         {
           id: 'HEADER_MORE_TOOLS_GROUP',
@@ -1104,7 +1187,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 140
+              dndIdx: 140,
+              allowedFor: []
             },
             {
               id: 'HEADER_APPLICATION',
@@ -1116,7 +1200,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 141
+              dndIdx: 141,
+              allowedFor: []
             },
             {
               id: 'HEADER_FLOWABLE_MODELER',
@@ -1128,7 +1213,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 142
+              dndIdx: 142,
+              allowedFor: []
             },
             {
               id: 'HEADER_GROUPS',
@@ -1140,7 +1226,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 143
+              dndIdx: 143,
+              allowedFor: []
             },
             {
               id: 'HEADER_USERS',
@@ -1152,7 +1239,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 144
+              dndIdx: 144,
+              allowedFor: []
             },
             {
               id: 'HEADER_TYPES',
@@ -1164,7 +1252,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 145
+              dndIdx: 145,
+              allowedFor: []
             },
             {
               id: 'HEADER_SYSTEM_JOURNALS',
@@ -1176,7 +1265,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 146
+              dndIdx: 146,
+              allowedFor: []
             },
             {
               id: 'HEADER_META_JOURNALS',
@@ -1188,7 +1278,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 147
+              dndIdx: 147,
+              allowedFor: []
             },
             {
               id: 'HEADER_TEMPLATES',
@@ -1200,7 +1291,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 148
+              dndIdx: 148,
+              allowedFor: []
             },
             {
               id: 'HEADER_DEV_TOOLS',
@@ -1212,7 +1304,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 149
+              dndIdx: 149,
+              allowedFor: []
             },
             {
               id: 'HEADER_MORE',
@@ -1224,12 +1317,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 1410
+              dndIdx: 1410,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 4
+          dndIdx: 4,
+          allowedFor: []
         },
         {
           id: 'c111aeed-77be-4675-828d-2d4b20432910',
@@ -1240,7 +1335,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
           config: { recordRef: 'uiserv/journal@Test' },
           items: [],
           locked: false,
-          draggable: true
+          draggable: true,
+          allowedFor: []
         }
       ],
       newItems: [
@@ -1253,7 +1349,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
           config: { recordRef: 'uiserv/journal@Test' },
           items: [],
           locked: false,
-          draggable: true
+          draggable: true,
+          allowedFor: []
         }
       ]
     }

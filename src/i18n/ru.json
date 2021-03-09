@@ -1257,6 +1257,8 @@
   "menu-settings.editor-item.field.icon.label": "Иконка",
   "menu-settings.editor-item.field.icon.btn.cancel": "Сбросить",
   "menu-settings.editor-item.field.icon.btn.select": "Выбрать",
+  "menu-settings.editor-item.field.allowed-for.label": "Доступно для",
+  "menu-settings.editor-item.field.allowed-for.placeholder": "всех",
   "menu-settings.editor-item.title.add": "Создать: {{type}}",
   "menu-settings.editor-item.title.edit": "Редактировать: {{type}} \"{{name}}\"",
   "menu-settings.editor-item.btn.cancel": "Отмена",
