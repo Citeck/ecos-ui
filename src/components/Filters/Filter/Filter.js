@@ -103,6 +103,8 @@ export default class Filter extends Component {
       if (editorType === 'journal' || editorType === 'text') {
         // todo: use EditorService for all filter types
         filterValueControl = EditorService.getEditorControl({
+          recordRef: metaRecord,
+          attribute: column.attribute,
           editor: column.newEditor,
           value,
           scope: EditorScope.FILTER,

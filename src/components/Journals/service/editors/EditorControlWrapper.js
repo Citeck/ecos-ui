@@ -37,7 +37,7 @@ export default class EditorControlWrapper extends React.Component {
     );
   }
 
-  _handleChange(value, resolve) {
+  _handleChange(value, state, resolve) {
     this.setState({
       editorValue: value
     });
@@ -56,9 +56,9 @@ export default class EditorControlWrapper extends React.Component {
 
     let richValue;
     if (Array.isArray(correctValue)) {
-      richValue = Promise.all(correctValue.map(v => this._enrichSingleValue(v)));
+      richValue = Promise.all(correctValue.map(v => this._enrichSingleValue(v, state)));
     } else {
-      richValue = this._enrichSingleValue(correctValue);
+      richValue = this._enrichSingleValue(correctValue, state);
     }
 
     if (richValue == null) {
@@ -75,8 +75,8 @@ export default class EditorControlWrapper extends React.Component {
     }
   }
 
-  _enrichSingleValue(value) {
-    const dispValue = this.props.getDisplayName(value);
+  _enrichSingleValue(value, state) {
+    const dispValue = this.props.getDisplayName(value, state);
     if (dispValue == null) {
       return value;
     }
@@ -97,7 +97,7 @@ export default class EditorControlWrapper extends React.Component {
   }
 
   render() {
-    const { onKeyDown = () => {}, multiple } = this.props;
+    const { onKeyDown = () => {}, multiple, attribute, recordRef } = this.props;
 
     const onBlur = () => {
       if (this.props.onBlur != null) {
@@ -112,16 +112,25 @@ export default class EditorControlWrapper extends React.Component {
       };
     }
 
-    const onUpdate = v => {
+    const onUpdate = (v, state) => {
       return new Promise(resolve => {
-        this._handleChange(v, resolve);
+        this._handleChange(v, state, resolve);
       });
     };
 
     const Control = this.props.control;
     const value = this.state.initEditorValue;
     return (
-      <Control value={value} multiple={multiple === true} onCancel={onCancel} onUpdate={onUpdate} onKeyDown={onKeyDown} onBlur={onBlur} />
+      <Control
+        recordRef={recordRef}
+        attribute={attribute}
+        value={value}
+        multiple={multiple === true}
+        onCancel={onCancel}
+        onUpdate={onUpdate}
+        onKeyDown={onKeyDown}
+        onBlur={onBlur}
+      />
     );
   }
 }

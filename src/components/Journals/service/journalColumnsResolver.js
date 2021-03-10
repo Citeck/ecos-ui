@@ -56,7 +56,7 @@ class JournalColumnsResolver {
     if (!columns) {
       columns = [];
     }
-    return columns.map((c, i) => this._resolveColumn(c, i));
+    return columns.map(c => this._resolveColumn(c));
   }
 
   _resolveColumn(column) {
@@ -121,9 +121,11 @@ class JournalColumnsResolver {
   }
 
   _initEditorRenderer = column => {
-    return (editorProps, value) => {
+    return (editorProps, value, row) => {
       return EditorService.getEditorControl({
         value,
+        recordRef: row.id,
+        attribute: column.attribute,
         ref: editorProps.ref,
         onUpdate: editorProps.onUpdate,
         onKeyDown: editorProps.onKeyDown,
