@@ -119,6 +119,9 @@ class FormManager {
       onHideModal: () => {
         ReactDOM.unmountComponentAtNode(container);
         document.body.removeChild(container);
+        if (props.onHideModal) {
+          props.onHideModal();
+        }
       }
     });
 
