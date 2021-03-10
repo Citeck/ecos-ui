@@ -26,7 +26,19 @@ class EditorService {
     return `#${t('error').toUpperCase()}`;
   }
 
-  static getEditorControl({ ref, value, multiple, editor, onUpdate, onKeyDown, onBlur, onCancel, scope = EditorScope.OTHER }) {
+  static getEditorControl({
+    ref,
+    value,
+    attribute,
+    recordRef,
+    multiple,
+    editor,
+    onUpdate,
+    onKeyDown,
+    onBlur,
+    onCancel,
+    scope = EditorScope.OTHER
+  }) {
     try {
       let editorConfig = editor.config || {};
       let editorInstance = editorRegistry.getEditor(editor.type);
@@ -36,12 +48,19 @@ class EditorService {
         editorConfig = {};
       }
 
-      const getDisplayName = scope === EditorScope.CELL ? v => editorInstance.getDisplayName(v, editorConfig, scope) : null;
+      const getDisplayName =
+        scope === EditorScope.CELL
+          ? (v, state) => {
+              return editorInstance.getDisplayName(v, editorConfig, scope, state || {});
+            }
+          : null;
       const multipleProp = scope === EditorScope.CELL ? multiple === true : false;
 
       return (
         <EditorControlWrapper
           ref={ref}
+          recordRef={recordRef}
+          attribute={attribute}
           value={value}
           config={editorConfig}
           onUpdate={onUpdate}

@@ -23,7 +23,7 @@ export default class JournalEditor extends BaseEditor {
     );
   }
 
-  getDisplayName(value, config, scope) {
+  getDisplayName(value, config, scope, state) {
     return Records.get(value).load('?disp');
   }
 }
