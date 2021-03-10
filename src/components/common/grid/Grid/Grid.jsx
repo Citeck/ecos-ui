@@ -266,7 +266,7 @@ class Grid extends Component {
     });
   };
 
-  setBootstrapTableProps(props, extra) {
+  getBootstrapTableProps(props, extra) {
     const options = {
       keyField: this._keyField,
       bootstrap4: true,
@@ -1025,14 +1025,16 @@ class Grid extends Component {
       'resizableColumns'
     ]);
 
-    const { rowClassName, resizableColumns, ...extraProps } = pick(this.props, [
+    const { rowClassName, resizableColumns, columns, ...extraProps } = pick(this.props, [
       'rowClassName',
       'resizableColumns',
       'columns',
       'rowEvents'
     ]);
 
-    const bootProps = this.setBootstrapTableProps(props, extraProps);
+    extraProps.columns = columns.filter(col => !col.hidden);
+
+    const bootProps = this.getBootstrapTableProps(props, extraProps);
 
     return (
       <>
