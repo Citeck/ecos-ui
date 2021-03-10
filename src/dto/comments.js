@@ -1,7 +1,20 @@
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import { getBool } from '../helpers/util';
+import { t } from '../helpers/export/util';
 import UserService from '../services/UserService';
+
+export const getTag = data => {
+  const type = get(data, 'type');
+  const name = get(data, 'name');
+
+  if (!type) {
+    return t(name);
+  }
+
+  return `${t(type)}: ${t(name)}`;
+};
 
 export function getCommentForWeb(source) {
   if (isEmpty(source)) {
@@ -31,7 +44,7 @@ export function getCommentForWeb(source) {
   target.displayName = author.displayName || '';
   target.userName = author.userName || '';
   target.avatar = UserService.getAvatarUrl(author.id, undefined, { height: 150 });
-  target.tags = Array.isArray(source.tags) ? source.tags : [];
+  target.tags = Array.isArray(source.tags) ? source.tags.filter(item => !isEmpty(item)).map(getTag) : [];
 
   target.canEdit = !!permissions.canEdit;
   target.canDelete = !!permissions.canDelete;
