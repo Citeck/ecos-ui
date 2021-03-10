@@ -8,8 +8,8 @@ export default class PointsLoader extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     color: PropTypes.oneOf(['white', 'light-blue']),
-    width: PropTypes.number,
-    height: PropTypes.number
+    width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   };
 
   static defaultProps = {
