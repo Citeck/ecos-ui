@@ -44,7 +44,7 @@ export function getCommentForWeb(source) {
   target.displayName = author.displayName || '';
   target.userName = author.userName || '';
   target.avatar = UserService.getAvatarUrl(author.id, undefined, { height: 150 });
-  target.tags = Array.isArray(source.tags) ? source.tags.map(getTag) : [];
+  target.tags = Array.isArray(source.tags) ? source.tags.filter(item => !isEmpty(item)).map(getTag) : [];
 
   target.canEdit = !!permissions.canEdit;
   target.canDelete = !!permissions.canDelete;
