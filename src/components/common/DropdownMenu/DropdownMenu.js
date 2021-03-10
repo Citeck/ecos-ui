@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import cloneDeep from 'lodash/cloneDeep';
 
 import Loader from '../Loader/Loader';
 import DropdownMenuCascade from './DropdownMenuCascade';
 import DropdownMenuGroup from './DropdownMenuGroup';
 import { DropdownMenuItem } from './index';
-import { deepClone } from '../../../helpers/util';
 
 import './style.scss';
 import '../form/Dropdown/Dropdown.scss';
@@ -54,7 +54,7 @@ export default class DropdownMenu extends React.Component {
       return <Loader type="points" height={40} width={38} />;
     }
 
-    let menu = deepClone(items, []);
+    let menu = cloneDeep(items || []);
 
     if (!menu.length && emptyMessage) {
       return <div className="ecos-dropdown-menu__empty">{emptyMessage}</div>;

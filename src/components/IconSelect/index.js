@@ -61,12 +61,12 @@ class IconSelect extends React.Component {
     deleteCustomIcon(this.state.icon);
   };
 
-  selected = item => !!item.value && item.value === this.state.icon.value;
+  selected = item => !!item.value && item.value === get(this.state, 'icon.value');
   prevSelected = item => !!item.value && item.value === get(this.props, 'selectedIcon.value');
 
   get disabledDelete() {
     const { customIcons } = this.props;
-    const { icon } = this.state;
+    const { icon = {} } = this.state;
 
     return !customIcons || icon.value === TMP_ICON_EMPTY || !customIcons.find(i => i.value === icon.value);
   }

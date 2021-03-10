@@ -343,6 +343,13 @@
       }
     }
   }
+
+  &__modal {
+    .select-orgstruct__values-list {
+      max-height: 200px;
+      overflow: auto;
+    }
+  }
 }
 
 .ecos-field-col {

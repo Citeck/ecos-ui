@@ -67,6 +67,9 @@ const showFormIfRequired = groupAction => {
         action.params.attributes = rec.getAttributesToSave();
 
         resolve(action);
+      },
+      onHideModal: () => {
+        resolve(null);
       }
     });
   });
@@ -80,8 +83,13 @@ export default class ServerGroupAction extends ActionsExecutor {
     const selectedRecords = records.map(r => r.id);
     const groupAction = cloneDeep(action.config);
     groupAction.type = 'selected';
-    const groupActionWithData = isExistValue(groupAction.formKey) ? await showFormIfRequired(groupAction) : undefined;
-
+    let groupActionWithData;
+    if (isExistValue(groupAction.formKey)) {
+      groupActionWithData = await showFormIfRequired(groupAction);
+      if (!groupActionWithData) {
+        return false;
+      }
+    }
     if (get(groupActionWithData, ['params', 'form_option_batch-edit-attribute'])) {
       result = await prepareBatchEditAction({
         groupAction: groupActionWithData,

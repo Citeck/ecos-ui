@@ -7,7 +7,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import { isExistValue, packInLabel, t } from '../helpers/util';
 import { getIconObjectWeb } from '../helpers/icon';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
-import { MenuSettings as ms, MenuTypes } from '../constants/menu';
+import { ConfigTypes, MenuSettings as ms, MenuTypes } from '../constants/menu';
 
 export default class MenuSettingsService {
   static emitter = new EventEmitter2();
@@ -30,7 +30,7 @@ export default class MenuSettingsService {
   }
 
   static getItemParams = (data, params) => {
-    const permissions = MenuSettingsService.getActionPermissions(data, params);
+    const permissions = MenuSettingsService.getPowers(data, params);
 
     return {
       id: data.id || uuidV4(),
@@ -40,6 +40,7 @@ export default class MenuSettingsService {
       icon: permissions.hasIcon ? getIconObjectWeb(data.icon) : undefined,
       config: { ...data.config },
       items: [],
+      allowedFor: get(data, 'allowedFor', []),
       //only for ui, tree
       locked: !!data.hidden,
       draggable: permissions.draggable
@@ -52,7 +53,7 @@ export default class MenuSettingsService {
 
   static getAvailableActions = item => {
     const actions = [];
-    const permissions = MenuSettingsService.getActionPermissions(item);
+    const permissions = MenuSettingsService.getPowers(item);
 
     permissions.editable &&
       actions.push({
@@ -86,18 +87,18 @@ export default class MenuSettingsService {
     return Object.values(ms.ItemTypes).includes(type);
   }
 
-  static getActionPermissions(item, params) {
+  static getPowers(item, params) {
     const knownType = MenuSettingsService.isKnownType(item.type);
-    const { level } = params || {};
+    const { level, configType } = params || {};
 
     return {
       editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
       draggable: knownType && ![].includes(item.type),
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),
-      hasIcon: ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level),
+      hasIcon: [ConfigTypes.LEFT].includes(configType) && ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level),
       hasUrl: [ms.ItemTypes.ARBITRARY].includes(item.type),
-      hideableLabel: [ms.ItemTypes.SECTION].includes(item.type) && [0].includes(level)
+      hideableLabel: [ConfigTypes.LEFT].includes(configType) && [ms.ItemTypes.SECTION].includes(item.type) && [0].includes(level)
     };
   }
 
@@ -124,7 +125,7 @@ export default class MenuSettingsService {
     return item;
   }
 
-  static processAction = ({ items: original, action, id, data, level }) => {
+  static processAction = ({ items: original, action, id, data, level, configType }) => {
     const items = cloneDeep(original) || [];
     const foundItem = treeFindFirstItem({ items, key: 'id', value: id });
 
@@ -141,9 +142,9 @@ export default class MenuSettingsService {
         let newItems;
 
         if (Array.isArray(data)) {
-          newItems = data.map(d => MenuSettingsService.getItemParams(d, { level }));
+          newItems = data.map(d => MenuSettingsService.getItemParams(d, { level, configType }));
         } else {
-          newItems = [MenuSettingsService.getItemParams(data, { level })];
+          newItems = [MenuSettingsService.getItemParams(data, { level, configType })];
         }
 
         if (path) {
@@ -172,7 +173,7 @@ export default class MenuSettingsService {
     return { items };
   };
 
-  static createOptions = [
+  static leftMenuCreateOptions = [
     {
       key: ms.ItemTypes.SECTION,
       label: 'menu-item.type.section',
@@ -200,9 +201,46 @@ export default class MenuSettingsService {
     }
   ];
 
+  static createMenuCreateOptions = [
+    {
+      key: ms.ItemTypes.SECTION,
+      label: 'menu-item.type.section',
+      when: { maxLevel: 0 }
+    },
+    {
+      key: ms.ItemTypes.CREATE_IN_SECTION,
+      label: 'menu-item.type.create-in-section'
+    },
+    // todo for next revision, see task comment https://citeck.atlassian.net/browse/ECOSUI-959
+    // {
+    //   key: ms.ItemTypes.EDIT_RECORD,
+    //   label: 'menu-item.type.edit-record'
+    // },
+    {
+      key: ms.ItemTypes.ARBITRARY,
+      label: 'menu-item.type.arbitrary'
+    },
+    {
+      key: ms.ItemTypes.LINK_CREATE_CASE,
+      label: 'menu-item.type.link-create-case'
+    }
+  ];
+
+  static getCreateOptionsByType(configType) {
+    if (configType === ConfigTypes.LEFT) {
+      return MenuSettingsService.leftMenuCreateOptions;
+    }
+
+    if (configType === ConfigTypes.CREATE) {
+      return MenuSettingsService.createMenuCreateOptions;
+    }
+
+    return [];
+  }
+
   static getAvailableCreateOptions = (item, params) => {
-    const array = cloneDeep(MenuSettingsService.createOptions);
-    const { level } = params || {};
+    const { configType, level } = params || {};
+    const array = cloneDeep(MenuSettingsService.getCreateOptionsByType(configType));
 
     array.forEach(type => {
       type.id = type.id || type.label;

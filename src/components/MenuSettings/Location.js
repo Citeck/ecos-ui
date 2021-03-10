@@ -7,10 +7,6 @@ import { MenuLayoutItem } from '../Layout';
 
 import './style.scss';
 
-const Labels = {
-  TITLE: 'menu-settings.location.title'
-};
-
 class Location extends React.Component {
   static propTypes = {
     selectedType: PropTypes.string,
@@ -34,7 +30,7 @@ class Location extends React.Component {
 
     return (
       <>
-        <h5 className="ecos-menu-settings__title">{t(Labels.TITLE)}</h5>
+        <h5 className="ecos-menu-settings__title">{t(Labels.TITLE_LOCATION)}</h5>
         <div className="ecos-menu-settings-location__group">
           {MenuTypesView.map(menu => (
             <MenuLayoutItem
