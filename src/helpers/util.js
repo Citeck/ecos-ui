@@ -1011,17 +1011,34 @@ export function getNumberSeparators(locale) {
   return result;
 }
 
-export function getCodesSumOfString(string) {
-  return [...string].reduce((prev, next) => prev + next.codePointAt(0), 0);
+export function getCodesSumOfString(string = '') {
+  return [...`${string}`].reduce((prev, next) => prev + next.codePointAt(0), 0);
 }
 
 export function getColorByString(string = '') {
+  string = `${string}`;
+
   let codesSum = getCodesSumOfString(string);
 
   codesSum += getCodesSumOfString(string.slice(1));
   codesSum += getCodesSumOfString(string.slice(-1));
 
-  return `#${codesSum.toString(16)}`;
+  let hexNumber = codesSum.toString(16);
+
+  switch (hexNumber.toString().length) {
+    case 1:
+      hexNumber = new Array(6).fill(hexNumber).join('');
+      break;
+    case 2:
+      hexNumber = new Array(3).fill(hexNumber).join('');
+      break;
+    case 3:
+      hexNumber = new Array(2).fill(hexNumber).join('');
+      break;
+    default:
+  }
+
+  return `#${hexNumber}`;
 }
 
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);

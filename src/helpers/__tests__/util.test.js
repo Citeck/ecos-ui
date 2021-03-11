@@ -202,4 +202,63 @@ describe('Util helpers', () => {
 
     check(data, 'reverseString');
   });
+
+  describe('function getCodesSumOfString', () => {
+    const data = [
+      {
+        title: 'Without arguments',
+        input: [],
+        output: 0
+      },
+      {
+        title: 'Argument - number (converting number to string)',
+        input: [123],
+        output: 150
+      },
+      {
+        title: 'Argument - object 9converting object to string -> [object Object]',
+        input: [{}],
+        output: 1446
+      },
+      {
+        title: 'Argument - string',
+        input: ['type'],
+        output: 450
+      }
+    ];
+
+    check(data, 'getCodesSumOfString');
+  });
+
+  describe('function getColorByString', () => {
+    const data = [
+      {
+        title: 'Without arguments - will generate black color',
+        input: [],
+        output: '#000000'
+      },
+      {
+        title: 'Argument - number',
+        input: [123],
+        output: '#12e12e'
+      },
+      {
+        title: 'Argument - string',
+        input: ['type'],
+        output: '#375375'
+      },
+      {
+        title: 'Argument - object',
+        input: [{}],
+        output: '#b4eb4e'
+      },
+      {
+        title: 'Argument - null',
+        input: [{}],
+        output: '#374374'
+      }
+    ];
+
+    check(data, 'getColorByString');
+  });
 });
