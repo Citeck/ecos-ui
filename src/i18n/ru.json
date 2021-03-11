@@ -1321,5 +1321,7 @@
   "go-to.home-page": "Перейти на домашнюю страницу",
   "notification.journal-will-be-opened-soon": "Журнал будет скоро открыт",
   "task": "Задача",
-  "action": "Действие"
+  "action": "Действие",
+  "TASK": "Задача",
+  "ACTION": "Действие"
 }

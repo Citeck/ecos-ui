@@ -1323,5 +1323,7 @@
   "go-to.home-page": "Go to home page",
   "notification.journal-will-be-opened-soon": "Journal will be opened soon",
   "task": "Task",
-  "action": "Action"
+  "action": "Action",
+  "TASK": "Task",
+  "ACTION": "Action"
 }
