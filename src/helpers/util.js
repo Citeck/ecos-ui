@@ -1011,5 +1011,18 @@ export function getNumberSeparators(locale) {
   return result;
 }
 
+export function getCodesSumOfString(string) {
+  return [...string].reduce((prev, next) => prev + next.codePointAt(0), 0);
+}
+
+export function getColorByString(string = '') {
+  let codesSum = getCodesSumOfString(string);
+
+  codesSum += getCodesSumOfString(string.slice(1));
+  codesSum += getCodesSumOfString(string.slice(-1));
+
+  return `#${codesSum.toString(16)}`;
+}
+
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);

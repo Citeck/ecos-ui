@@ -1,19 +1,23 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
-import { getBool } from '../helpers/util';
+import { getBool, getColorByString } from '../helpers/util';
 import { t } from '../helpers/export/util';
 import UserService from '../services/UserService';
+import { AllowedTagTypes, TagColorByType } from '../constants/comments';
 
 export const getTag = data => {
   const type = get(data, 'type');
   const name = get(data, 'name');
 
-  if (!type) {
-    return t(name);
+  if (!type || typeof type !== 'string' || !AllowedTagTypes.includes(type.toLowerCase())) {
+    return { title: t(name) };
   }
 
-  return `${t(type)}: ${t(name)}`;
+  return {
+    title: `${t(type)}: ${t(name)}`,
+    color: TagColorByType[type.toUpperCase()] || getColorByString(type.toLowerCase())
+  };
 };
 
 export function getCommentForWeb(source) {
