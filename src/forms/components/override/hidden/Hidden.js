@@ -12,4 +12,8 @@ export default class HiddenComponent extends FormIOHiddenComponent {
   get visible() {
     return false;
   }
+
+  set visible(value) {
+    this._visible = false;
+  }
 }

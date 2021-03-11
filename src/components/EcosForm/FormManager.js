@@ -72,10 +72,13 @@ class FormManager {
             }
 
             this.openFormModal(props);
+          } else {
+            goToCreateRecordPage(variant);
           }
         })
         .catch(e => {
           console.error(e);
+          goToCreateRecordPage(variant);
         });
     },
     3000,
