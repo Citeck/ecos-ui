@@ -254,7 +254,7 @@ describe('Util helpers', () => {
       },
       {
         title: 'Argument - null',
-        input: [{}],
+        input: [null],
         output: '#374374'
       }
     ];
