@@ -9,6 +9,7 @@ import LinkFormatter from './LinkFormatter';
 import ColoredFormatter from './ColoredFormatter';
 import DateFormatter from './DateFormatter';
 import DateTimeFormatter from './DateTimeFormatter';
+import BooleanFormatter from './BooleanFormatter';
 
 const formatterRegistry = new FormatterRegistry();
 
@@ -22,5 +23,6 @@ formatterRegistry.register(new LinkFormatter());
 formatterRegistry.register(new ColoredFormatter());
 formatterRegistry.register(new DateFormatter());
 formatterRegistry.register(new DateTimeFormatter());
+formatterRegistry.register(new BooleanFormatter());
 
 export default formatterRegistry;
