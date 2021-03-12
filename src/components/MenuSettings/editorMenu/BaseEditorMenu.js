@@ -63,7 +63,7 @@ export default class BaseEditorMenu extends React.Component {
   };
 
   handleChooseOption(editItemInfo = {}) {
-    if ([ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(get(editItemInfo, 'type.key'))) {
+    if ([ms.ItemTypes.JOURNAL /*, ms.ItemTypes.LINK_CREATE_CASE*/].includes(get(editItemInfo, 'type.key'))) {
       this.setState({
         editItemInfo: {
           ...editItemInfo,
@@ -170,6 +170,8 @@ export default class BaseEditorMenu extends React.Component {
         });
       handleHideModal();
     };
+
+    console.warn({ editItemInfo });
 
     if (editItemInfo.several) {
       return (

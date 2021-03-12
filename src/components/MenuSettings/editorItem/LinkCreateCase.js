@@ -18,8 +18,23 @@ export default class LinkCreateCase extends Base {
   state = {
     ...super.state,
     typeRef: '',
+    createVariants: [],
+    variantId: '',
     error: false
   };
+
+  componentDidMount() {
+    const { item } = this.props;
+    const typeRef = get(item, 'config.recordRef') || get(item, 'config.typeRef');
+
+    super.componentDidMount();
+
+    this.setState({ typeRef });
+
+    if (typeRef) {
+      this.getCreateVariants(typeRef);
+    }
+  }
 
   get title() {
     const { item, type, action } = this.props;
@@ -29,24 +44,56 @@ export default class LinkCreateCase extends Base {
       : t(Labels.MODAL_TITLE_EDIT, { type: t(type.label), name: extractLabel(get(item, 'label')) });
   }
 
-  isInvalidForm() {
-    const { error, typeRef } = this.state;
+  getCreateVariants(typeRef) {
+    if (!typeRef) {
+      return;
+    }
 
-    return Boolean(error) || !Boolean(typeRef);
+    const resolvedType = typeRef.replace(SourceId.TYPE, SourceId.RESOLVED_TYPE);
+
+    this.setState({ isLoading: true });
+
+    Records.get(resolvedType)
+      .load('createVariants[]{id,name}')
+      .then(createVariants => {
+        console.warn({ createVariants });
+
+        this.setState({
+          isLoading: false,
+          error: isEmpty(createVariants),
+          createVariants
+        });
+
+        if (!isEmpty(createVariants) && createVariants.length === 1) {
+          this.setState({ variantId: get(createVariants, '[0].id') });
+        }
+      });
+  }
+
+  isInvalidForm() {
+    const { error, typeRef, variantId } = this.state;
+
+    return Boolean(error) || !Boolean(typeRef) || !Boolean(variantId);
+  }
+
+  clearData() {
+    this.setState({
+      typeRef: '',
+      createVariants: [],
+      variantId: ''
+    });
   }
 
   handleSelectType = typeRef => {
     console.warn({ typeRef });
 
-    this.setState({ isLoading: true, typeRef });
+    if (!typeRef) {
+      this.clearData();
+      return;
+    }
 
-    Records.get(typeRef.replace(SourceId.TYPE, SourceId.RESOLVED_TYPE))
-      .load('createVariants[]{id,name}')
-      .then(result => {
-        console.warn({ result });
-
-        this.setState({ isLoading: false, error: isEmpty(result) });
-      });
+    this.setState({ typeRef });
+    this.getCreateVariants(typeRef);
   };
 
   renderErrorMessage() {
@@ -65,15 +112,17 @@ export default class LinkCreateCase extends Base {
 
   render() {
     const { onSave, onClose, journalId } = this.props;
+    const { typeRef } = this.state;
 
     return (
       <this.wrapperModal>
         {this.renderErrorMessage()}
         <Field label={t('Тип данных')} required>
           <SelectJournal
+            defaultValue={typeRef}
             onChange={this.handleSelectType}
             // onCancel={onClose}
-            journalId={journalId}
+            journalId={SystemJournals.TYPES}
             isSelectedValueAsText
             // renderView={() => null}
             // isSelectModalOpen
