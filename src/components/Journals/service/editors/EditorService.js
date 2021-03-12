@@ -5,9 +5,9 @@ import logger from '../../../../services/logger';
 
 import editorRegistry from './registry';
 import EditorScope from './EditorScope';
-import { getEditorValue } from './editorUtils';
-
 import EditorControlWrapper from './EditorControlWrapper';
+import { getEditorValue } from './editorUtils';
+import { DEFAULT_EDITOR_TYPE } from './constants';
 
 /**
  * @typedef {Object} EditorServiceProps
@@ -44,7 +44,7 @@ class EditorService {
       let editorInstance = editorRegistry.getEditor(editor.type);
       if (!editorInstance) {
         console.error('Editor is not found: "' + editor.type + '"', editor);
-        editorInstance = editorRegistry.getEditor('text');
+        editorInstance = editorRegistry.getEditor(DEFAULT_EDITOR_TYPE);
         editorConfig = {};
       }
 
