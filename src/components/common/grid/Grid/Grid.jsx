@@ -1025,14 +1025,12 @@ class Grid extends Component {
       'resizableColumns'
     ]);
 
-    const { rowClassName, resizableColumns, columns, ...extraProps } = pick(this.props, [
+    const { rowClassName, resizableColumns, ...extraProps } = pick(this.props, [
       'rowClassName',
       'resizableColumns',
       'columns',
       'rowEvents'
     ]);
-
-    extraProps.columns = columns.filter(col => !col.hidden);
 
     const bootProps = this.getBootstrapTableProps(props, extraProps);
 
