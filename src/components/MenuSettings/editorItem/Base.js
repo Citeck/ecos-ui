@@ -20,7 +20,8 @@ const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
 class Base extends React.Component {
   state = {
     icon: defaultIcon,
-    isOpenSelectIcon: false
+    isOpenSelectIcon: false,
+    isLoading: false
   };
   type = undefined;
   data = {};
@@ -84,12 +85,18 @@ class Base extends React.Component {
   }
 
   wrapperModal = React.memo((props, context) => {
-    const { icon = defaultIcon, isOpenSelectIcon } = this.state;
+    const { icon = defaultIcon, isOpenSelectIcon, isLoading } = this.state;
     const { item, fontIcons, onClose } = this.props;
     const { hasIcon } = this.permissions;
 
     return (
-      <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-sm" isOpen hideModal={onClose} title={this.title}>
+      <EcosModal
+        className="ecos-menu-editor-item__modal ecos-modal_width-sm"
+        isOpen
+        isLoading={isLoading}
+        hideModal={onClose}
+        title={this.title}
+      >
         {props.children}
         {hasIcon && (
           <Field label={t(Labels.FIELD_ICON_LABEL)} description={t(Labels.FIELD_ICON_DESC)}>

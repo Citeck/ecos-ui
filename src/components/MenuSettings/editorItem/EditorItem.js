@@ -10,6 +10,7 @@ import Arbitrary from './Arbitrary';
 import Divider from './Divider';
 import CreateInSection from './CreateInSection';
 import EditRecord from './EditRecord';
+import LinkCreateCase from './LinkCreateCase';
 
 import '../style.scss';
 
@@ -23,6 +24,8 @@ export default class EditorItem extends React.Component {
   };
 
   render() {
+    console.warn({ props: this.props });
+
     switch (get(this, 'props.type.key')) {
       case MS.ItemTypes.SECTION:
         return <Section {...this.props} />;
@@ -34,7 +37,9 @@ export default class EditorItem extends React.Component {
         return <CreateInSection {...this.props} />;
       case MS.ItemTypes.EDIT_RECORD:
         return <EditRecord {...this.props} />;
-      case MS.ItemTypes.LINK_CREATE_CASE:
+      case MS.ItemTypes.LINK_CREATE_CASE: {
+        return <LinkCreateCase {...this.props} />;
+      }
       case MS.ItemTypes.JOURNAL: {
         const { onSave, onClose, journalId } = this.props;
 
