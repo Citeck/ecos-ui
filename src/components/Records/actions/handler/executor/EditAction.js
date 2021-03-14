@@ -68,7 +68,7 @@ function runEditTask(record, config) {
     }
 
     const taskRecordId = `${SourcesId.TASK}@${taskId}`;
-    const contentBefore = () => <TaskAssignmentPanel narrow executeRequest taskId={taskRecordId} />;
+    const contentBefore = () => <TaskAssignmentPanel narrow taskId={taskRecordId} />;
 
     return new Promise(resolve => {
       EcosFormUtils.editRecord({

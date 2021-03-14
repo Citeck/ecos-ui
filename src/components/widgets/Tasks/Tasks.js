@@ -26,7 +26,7 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     getTaskList: () => dispatch(getTaskList({ stateId, record })),
-    changeTaskAssignee: payload => dispatch(changeTaskAssignee({ stateId, ...payload })),
+    changeTaskAssignee: payload => dispatch(changeTaskAssignee({ stateId, record, ...payload })),
     resetTaskList: () => dispatch(resetTaskList({ stateId }))
   };
 };

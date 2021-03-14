@@ -162,7 +162,7 @@ export default class EcosFormModal extends React.Component {
     const { record, contentBefore } = this.props;
 
     if (!contentBefore && record.includes(SourcesId.TASK)) {
-      return <TaskAssignmentPanel narrow executeRequest taskId={record} />;
+      return <TaskAssignmentPanel narrow taskId={record} />;
     }
 
     return contentBefore;
