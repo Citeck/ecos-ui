@@ -418,7 +418,9 @@ class RecordActions {
 
     RecordActions._updateRecords(record);
 
-    if (!isBoolean(actResult)) {
+    const noResultModal = get(action, 'config.noResultModal');
+
+    if (!isBoolean(actResult) && !noResultModal) {
       await DetailActionResult.showResult(actResult, { title: getActionResultTitle(action) });
     }
 

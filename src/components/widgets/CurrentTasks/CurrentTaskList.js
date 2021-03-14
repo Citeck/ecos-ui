@@ -47,8 +47,9 @@ class CurrentTaskList extends React.Component {
 
   getActions({ id: taskId }) {
     const { actions, executeAction } = this.props;
+    const upAct = action => ({ ...action, config: { ...action.config, noResultModal: true } });
 
-    return isEmpty(actions) ? [] : actions.map(act => ({ ...act, onClick: () => executeAction(act, { taskId }) }));
+    return isEmpty(actions) ? [] : actions.map(act => ({ ...act, onClick: () => executeAction(upAct(act), { taskId }) }));
   }
 
   handleHoverRow = data => {
