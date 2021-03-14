@@ -59,7 +59,7 @@ export default class SetTaskAssignee extends ActionsExecutor {
       })
       .catch(e => {
         console.error(e);
-        notifyFailure(get(recAction, 'errorMsg') || '');
+        notifyFailure(get(recAction, 'config.errorMsg') || '');
         return false;
       });
   }
