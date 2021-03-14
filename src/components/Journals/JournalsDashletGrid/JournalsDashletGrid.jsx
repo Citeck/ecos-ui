@@ -20,10 +20,12 @@ import {
   setSelectAllRecordsVisible,
   setSelectedRecords
 } from '../../../actions/journals';
+import { selectJournalData, selectViewColumns } from '../../../selectors/journals';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION } from '../constants';
 
 const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+  const newState = selectJournalData(state, props.stateId);
+  const viewColumns = selectViewColumns(state, props.stateId);
 
   return {
     loading: newState.loading,
@@ -32,7 +34,8 @@ const mapStateToProps = (state, props) => {
     predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords
+    selectAllRecords: newState.selectAllRecords,
+    viewColumns
   };
 };
 
@@ -211,7 +214,6 @@ class JournalsDashletGrid extends Component {
       isWidget,
       grid: {
         data,
-        columns,
         sortBy,
         pagination: { maxItems = 0 },
         groupBy,
@@ -224,7 +226,8 @@ class JournalsDashletGrid extends Component {
       autoHeight,
       predicate,
       journalConfig: { params = {} },
-      selectorContainer
+      selectorContainer,
+      viewColumns
     } = this.props;
 
     let editable = true;
@@ -243,7 +246,7 @@ class JournalsDashletGrid extends Component {
           <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
               data={data}
-              columns={columns}
+              columns={viewColumns}
               className={className}
               gridWrapperClassName={'ecos-journal-dashlet__grid-wrapper'}
               hTrackClassName="ecos-journal-dashlet__grid-track ecos-journal-dashlet__grid-track_h"

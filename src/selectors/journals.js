@@ -14,6 +14,7 @@ export const selectJournalSettings = createSelector(
   selectState,
   ownState => get(ownState, 'journalSetting', defaultState.journalSetting)
 );
+
 export const selectJournals = createSelector(
   selectState,
   ownState => get(ownState, 'journals', [])
@@ -97,5 +98,13 @@ export const selectColumnsByGroupable = createSelector(
         default: fields.includes(item[compareField])
       };
     });
+  }
+);
+
+export const selectViewColumns = createSelector(
+  selectState,
+  ownProps => {
+    const columns = get(ownProps, 'grid.columns') || [];
+    return columns.filter(col => col.default);
   }
 );
