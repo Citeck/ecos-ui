@@ -9,7 +9,7 @@ export default class DownloadAction extends ActionsExecutor {
     const fileName = config.filename || config.fileName;
 
     if (config.downloadType === 'base64') {
-      record.load(config.attribute || 'data').then(data => {
+      record.load(config.attribute || 'data', true).then(data => {
         let filename = fileName;
         if (!filename) {
           filename = record.id;
