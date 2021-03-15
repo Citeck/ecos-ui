@@ -7,16 +7,15 @@ import BaseEditor from '../BaseEditor';
 
 export default class TextEditor extends BaseEditor {
   static TYPE = 'text';
+  inputType = TextEditor.TYPE;
 
   getControl(config, scope) {
     const isCell = scope === EditorScope.CELL;
 
     return ({ value, onUpdate }) => {
       const [data, setData] = useState(value || '');
-      const onInputBlur = () => {
-        onUpdate(data);
-      };
       let inputOnUpdate;
+
       if (isCell) {
         inputOnUpdate = setData;
       } else {
@@ -25,15 +24,24 @@ export default class TextEditor extends BaseEditor {
           onUpdate(value);
         };
       }
+
+      const onInputBlur = () => {
+        onUpdate(data);
+      };
+
+      const onInputChange = e => {
+        inputOnUpdate(e.target.value);
+      };
+
       return (
         <Input
-          type="text"
-          value={data}
+          type={this.inputType}
+          defaultValue={data}
           className={classNames({
             'ecos-input_grid-editor': isCell,
             'ecos-input_narrow': !isCell
           })}
-          onChange={e => inputOnUpdate(e.target.value)}
+          onChange={onInputChange}
           onBlur={onInputBlur}
           autoFocus
         />

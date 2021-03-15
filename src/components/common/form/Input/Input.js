@@ -19,14 +19,16 @@ export default class Input extends Component {
   }
 
   componentDidMount() {
-    const { getInputRef, autoFocus, autoSelect, value } = this.props;
+    const { getInputRef, autoFocus, autoSelect, value, type } = this.props;
 
     if (autoFocus) {
       this.inputRef.current.focus();
       /**
        * Set caret to end of string (fix for IE)
        */
-      this.inputRef.current.setSelectionRange(`${value}`.length, `${value}`.length);
+      if (!['number'].includes(type)) {
+        this.inputRef.current.setSelectionRange(`${value}`.length, `${value}`.length);
+      }
     }
 
     if (autoSelect) {
