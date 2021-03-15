@@ -419,7 +419,6 @@ export default class DialogManager {
   }
 
   static showFormDialog(props) {
-    console.warn({ props });
     return showDialog(FORM_DIALOG_ID, props);
   }
 

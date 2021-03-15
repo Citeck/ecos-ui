@@ -24,8 +24,6 @@ export default class EditorItem extends React.Component {
   };
 
   render() {
-    console.warn({ props: this.props });
-
     switch (get(this, 'props.type.key')) {
       case MS.ItemTypes.SECTION:
         return <Section {...this.props} />;
