@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+
 import { t } from '../../../../helpers/util';
+
 import '../Input/Input.scss';
 import './DatePicker.scss';
 
@@ -14,6 +17,21 @@ class CustomInput extends Component {
 }
 
 export default class extends Component {
+  static propTypes = {
+    className: PropTypes.string,
+    dateFormat: PropTypes.string,
+    selected: PropTypes.instanceOf(Date),
+    showIcon: PropTypes.bool,
+    showTimeInput: PropTypes.bool,
+    wrapperClasses: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
+  };
+
+  static defaultProps = {
+    className: '',
+    dateFormat: 'P',
+    selected: null
+  };
+
   render() {
     const { className, showIcon, dateFormat = 'P', wrapperClasses, ...otherProps } = this.props;
     const cssClasses = classNames('ecos-input', className);

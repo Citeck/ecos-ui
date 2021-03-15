@@ -1,14 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
+import get from 'lodash/get';
 
 import { DatePicker } from '../../../../../common/form';
 
 const EDITOR_FORMAT = 'dd.MM.YYYY';
 
-export default class DateEditorControl /*extends BaseEditorControl*/ {
+export default class DateEditorControl extends React.Component {
   constructor(props) {
-    //super(props);
+    super(props);
     this.portal = this.createDateEditorContainer();
   }
 
@@ -17,7 +18,12 @@ export default class DateEditorControl /*extends BaseEditorControl*/ {
   }
 
   get extraProps() {
-    return {};
+    return { ...get(this, 'props.extraProps', null) };
+  }
+
+  get selected() {
+    const value = get(this, 'props.value');
+    return moment(value || undefined).toDate();
   }
 
   createDateEditorContainer = () => {
@@ -36,30 +42,23 @@ export default class DateEditorControl /*extends BaseEditorControl*/ {
     this.removeDateEditorContainer();
   }
 
-  handleChange = value => {
-    this.setValue(
-      moment(value)
-        .utc()
-        .format()
-    );
-  };
-
-  onSelect = () => {
-    this.props.onBlur && this.props.onBlur();
+  onUpdate = value => {
+    this.props.onUpdate &&
+      this.props.onUpdate(
+        moment(value)
+          .utc()
+          .format()
+      );
   };
 
   render() {
-    const { extraProps, onUpdate, ...rest } = this.props;
-    const { value } = extraProps;
-
     return (
       <DatePicker
-        {...rest}
+        {...this.props}
         className="ecos-input_grid-editor"
-        onChange={this.handleChange}
-        onSelect={this.onSelect}
+        onChange={this.onUpdate}
         autoFocus
-        selected={moment(value || undefined).toDate()}
+        selected={this.selected}
         dateFormat={this.dateFormat}
         popperPlacement={'top'}
         popperContainer={({ children }) => ReactDOM.createPortal(children, this.portal)}

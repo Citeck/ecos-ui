@@ -42,6 +42,7 @@ class EditorService {
     try {
       let editorConfig = editor.config || {};
       let editorInstance = editorRegistry.getEditor(editor.type);
+
       if (!editorInstance) {
         console.error('Editor is not found: "' + editor.type + '"', editor);
         editorInstance = editorRegistry.getEditor(DEFAULT_EDITOR_TYPE);
@@ -49,12 +50,13 @@ class EditorService {
       }
 
       const getDisplayName =
-        scope === EditorScope.CELL
-          ? (v, state) => {
-              return editorInstance.getDisplayName(v, editorConfig, scope, state || {});
-            }
-          : null;
+        scope === EditorScope.CELL ? (v, state) => editorInstance.getDisplayName(v, editorConfig, scope, state || {}) : null;
       const multipleProp = scope === EditorScope.CELL ? multiple === true : false;
+      const control = editorInstance.getControl(editorConfig, scope);
+
+      if (!control) {
+        return <div className="text-warning">{t('generated-field.editor.not-exist')}</div>;
+      }
 
       return (
         <EditorControlWrapper
@@ -67,7 +69,7 @@ class EditorService {
           onKeyDown={onKeyDown}
           onBlur={onBlur}
           onCancel={onCancel}
-          control={editorInstance.getControl(editorConfig, scope)}
+          control={control}
           getDisplayName={getDisplayName}
           multiple={multipleProp}
         />

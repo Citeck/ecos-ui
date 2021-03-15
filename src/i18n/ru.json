@@ -1311,6 +1311,8 @@
   "cmmn-editor.error.no-selected-element": "Выберите элемент для его редактирования",
   "cmmn-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
 
+  "generated-field.editor.not-exist": "Редактора не существует",
+
   "go-to.home-page": "Перейти на домашнюю страницу",
   "notification.journal-will-be-opened-soon": "Журнал будет скоро открыт",
   "task": "Задача",
