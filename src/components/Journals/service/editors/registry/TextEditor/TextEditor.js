@@ -1,15 +1,15 @@
-import BaseEditor from '../BaseEditor';
-
 import React, { useState } from 'react';
+import classNames from 'classnames';
+
 import { Input } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
-import classNames from 'classnames';
+import BaseEditor from '../BaseEditor';
 
 export default class TextEditor extends BaseEditor {
   static TYPE = 'text';
 
   getControl(config, scope) {
-    const inputClassNames = scope === EditorScope.CELL ? classNames('ecos-input_grid-editor') : classNames('ecos-input_narrow');
+    const isCell = scope === EditorScope.CELL;
 
     return ({ value, onUpdate }) => {
       const [data, setData] = useState(value || '');
@@ -17,7 +17,7 @@ export default class TextEditor extends BaseEditor {
         onUpdate(data);
       };
       let inputOnUpdate;
-      if (scope === EditorScope.CELL) {
+      if (isCell) {
         inputOnUpdate = setData;
       } else {
         inputOnUpdate = value => {
@@ -29,7 +29,10 @@ export default class TextEditor extends BaseEditor {
         <Input
           type="text"
           value={data}
-          className={inputClassNames}
+          className={classNames({
+            'ecos-input_grid-editor': isCell,
+            'ecos-input_narrow': !isCell
+          })}
           onChange={e => inputOnUpdate(e.target.value)}
           onBlur={onInputBlur}
           autoFocus
