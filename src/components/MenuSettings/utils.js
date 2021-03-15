@@ -50,5 +50,9 @@ export const Labels = {
   //location
   TITLE_LOCATION: 'menu-settings.location.title',
   //controller
-  WARN_EDITOR_OPEN: 'menu-settings.warn.editor-already-open'
+  WARN_EDITOR_OPEN: 'menu-settings.warn.editor-already-open',
+
+  TYPE_NOT_CREATED: 'menu-settings.error.type-not-created',
+  FIELD_CREATE_METHOD: 'menu-settings.editor-item.field.create-variant.title',
+  FIELD_DATA_TYPE: 'menu-settings.editor-item.field.data-type.title'
 };

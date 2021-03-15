@@ -122,7 +122,7 @@ export default class LinkCreateCase extends Base {
 
     return (
       <div className="alert alert-danger" role="alert">
-        {t('выбранный тип создать нельзя ')}
+        {t(Labels.TYPE_NOT_CREATED)}
       </div>
     );
   }
@@ -135,7 +135,7 @@ export default class LinkCreateCase extends Base {
     }
 
     return (
-      <Field label={t('Способ создания')} required>
+      <Field label={t(Labels.FIELD_CREATE_METHOD)} required>
         <Dropdown
           value={variantId}
           source={createVariants}
@@ -156,7 +156,7 @@ export default class LinkCreateCase extends Base {
       <this.wrapperModal>
         {this.renderErrorMessage()}
 
-        <Field label={t('Тип данных')} required>
+        <Field label={t(Labels.FIELD_DATA_TYPE)} required>
           <SelectJournal defaultValue={typeRef} onChange={this.handleSelectType} journalId={SystemJournals.TYPES} isSelectedValueAsText />
         </Field>
 
