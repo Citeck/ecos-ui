@@ -5,12 +5,15 @@ import get from 'lodash/get';
 
 import { DatePicker } from '../../../../../common/form';
 
-const EDITOR_FORMAT = 'dd.MM.YYYY';
+const EDITOR_FORMAT = 'DD.MM.YYYY';
 
 export default class DateEditorControl extends React.Component {
   constructor(props) {
     super(props);
     this.portal = this.createDateEditorContainer();
+    this.state = {
+      date: props.value
+    };
   }
 
   get dateFormat() {
@@ -22,8 +25,7 @@ export default class DateEditorControl extends React.Component {
   }
 
   get selected() {
-    const value = get(this, 'props.value');
-    return moment(value || undefined).toDate();
+    return moment(this.state.date || undefined).toDate();
   }
 
   createDateEditorContainer = () => {
@@ -42,13 +44,22 @@ export default class DateEditorControl extends React.Component {
     this.removeDateEditorContainer();
   }
 
-  onUpdate = value => {
-    this.props.onUpdate &&
-      this.props.onUpdate(
-        moment(value)
-          .utc()
-          .format()
-      );
+  onChange = value => {
+    const date = moment(value)
+      .utc()
+      .format();
+    this.setState({ date });
+  };
+
+  onKeyDown = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      this.onClickOutside();
+    }
+  };
+
+  onClickOutside = () => {
+    this.props.onUpdate && this.props.onUpdate(this.state.date);
   };
 
   render() {
@@ -56,11 +67,15 @@ export default class DateEditorControl extends React.Component {
       <DatePicker
         {...this.props}
         className="ecos-input_grid-editor"
-        onChange={this.onUpdate}
+        onChange={this.onChange}
+        onClickOutside={this.onClickOutside}
+        onKeyDown={this.onKeyDown}
+        shouldCloseOnSelect={false}
         autoFocus
         selected={this.selected}
+        value={this.state.date || null}
         dateFormat={this.dateFormat}
-        popperPlacement={'top'}
+        popperPlacement="top"
         popperContainer={({ children }) => ReactDOM.createPortal(children, this.portal)}
         {...this.extraProps}
       />

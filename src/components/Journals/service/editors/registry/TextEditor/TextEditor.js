@@ -33,6 +33,13 @@ export default class TextEditor extends BaseEditor {
         inputOnUpdate(e.target.value);
       };
 
+      const onKeyPress = e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          onUpdate(data);
+        }
+      };
+
       return (
         <Input
           type={this.inputType}
@@ -43,6 +50,7 @@ export default class TextEditor extends BaseEditor {
           })}
           onChange={onInputChange}
           onBlur={onInputBlur}
+          onKeyPress={onKeyPress}
           autoFocus
         />
       );
