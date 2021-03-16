@@ -23,11 +23,12 @@ export default class BooleanEditor extends BaseEditor {
           { value: true, label: t('react-select.value-true.label') },
           { value: false, label: t('react-select.value-false.label') }
         ];
+        const selected = options.filter(opt => opt.value === _value) || options[0];
 
         return (
           <Select
             options={options}
-            defaultValue={options.filter(item => item.value === _value) || options[0]}
+            defaultValue={selected}
             onChange={item => onUpdate(item.value)}
             isSearchable={false}
             className="select_narrow"
