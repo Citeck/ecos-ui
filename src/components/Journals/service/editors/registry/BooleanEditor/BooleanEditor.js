@@ -12,7 +12,7 @@ export default class BooleanEditor extends BaseEditor {
 
   getControl(config, scope) {
     return ({ value, onUpdate }) => {
-      const mode = Modes.select;
+      const mode = config.mode || Modes.select;
       const _value = getBool(value);
 
       if (mode === Modes.checkbox) {
