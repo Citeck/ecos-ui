@@ -6,10 +6,8 @@ import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '.
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import TasksConverter from '../dto/tasks';
-import TasksService from '../services/tasks';
 import SidebarService from '../services/sidebar';
 import Records from '../components/Records';
-import { ActionTypes } from '../components/Records/actions';
 
 function* sagaGetTasks({ api, logger }, { payload }) {
   try {
