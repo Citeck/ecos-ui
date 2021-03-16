@@ -108,9 +108,15 @@ class JournalColumnsResolver {
     };
 
     if (!updColumn.newFormatter || !updColumn.newFormatter.type) {
-      updColumn.newFormatter = {
-        type: 'default'
-      };
+      if (updColumn.type === 'boolean') {
+        updColumn.newFormatter = {
+          type: 'bool'
+        };
+      } else {
+        updColumn.newFormatter = {
+          type: 'default'
+        };
+      }
     }
 
     if (updColumn.newEditor) {

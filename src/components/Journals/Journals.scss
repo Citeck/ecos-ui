@@ -87,7 +87,9 @@
   }
 
   &_expanded {
+    z-index: 1;
     width: 273px;
+
     &-document-library {
       width: 400px;
     }

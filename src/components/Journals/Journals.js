@@ -116,6 +116,7 @@ class Journals extends Component {
       isForceUpdate: false,
       menuOpenAnimate: false,
       settingsVisible: false,
+      createIsLoading: false,
       savedSetting: null,
       showPreview: getBool(get(getSearchParams(), JUP.SHOW_PREVIEW)),
       viewMode: getBool(get(getSearchParams(), JUP.VIEW_MODE))
@@ -297,9 +298,23 @@ class Journals extends Component {
   };
 
   addRecord = createVariant => {
+    const { createIsLoading } = this.state;
+
+    if (createIsLoading) {
+      return;
+    }
+
+    this.setState({ createIsLoading: true });
+
     FormManager.createRecordByVariant(createVariant, {
       onSubmit: record => {
         goToCardDetailsPage(record.id);
+      },
+      onReady: () => {
+        this.setState({ createIsLoading: false });
+      },
+      onAfterHideModal: () => {
+        this.setState({ createIsLoading: false });
       }
     });
   };

@@ -405,7 +405,7 @@ export default class TableFormComponent extends BaseReactComponent {
               }
 
               if (formatters.hasOwnProperty(col.attribute)) {
-                col.formatter = formatters[col.attribute];
+                col.newFormatter = formatters[col.attribute];
               }
             }
 

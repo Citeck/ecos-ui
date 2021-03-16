@@ -178,9 +178,25 @@ class Comment extends Component {
       return null;
     }
 
-    return tags.map(tag => (
-      <Badge className="ecos-comments__comment-tag" popupClassName="ecos-comments__comment-tag-popper" text={tag} size="small" withPopup />
-    ));
+    return tags.map(tag => {
+      const style = {};
+
+      if (tag.color) {
+        style.borderColor = tag.color;
+      }
+
+      return (
+        <Badge
+          key={tag.title}
+          className="ecos-comments__comment-tag"
+          popupClassName="ecos-comments__comment-tag-popper"
+          text={tag.title}
+          size="small"
+          withPopup
+          style={style}
+        />
+      );
+    });
   }
 
   render() {

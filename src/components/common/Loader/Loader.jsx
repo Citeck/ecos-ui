@@ -9,8 +9,8 @@ import './Loader.scss';
 
 export default class Loader extends Component {
   static propTypes = {
-    height: PropTypes.number,
-    width: PropTypes.number,
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     zIndex: PropTypes.number,
     className: PropTypes.string,
     color: PropTypes.oneOf(['white', 'light-blue']),
