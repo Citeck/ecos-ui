@@ -103,9 +103,11 @@ class Base extends React.Component {
             <div className="ecos-menu-editor-item__field-icon">
               <EcosIcon data={icon} />
               <div className="ecos--flex-space" />
-              <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => this.handleApplyIcon(defaultIcon)}>
-                {t(Labels.FIELD_ICON_BTN_CANCEL)}
-              </Btn>
+              {icon !== defaultIcon && (
+                <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => this.handleApplyIcon(defaultIcon)}>
+                  {t(Labels.FIELD_ICON_BTN_CANCEL)}
+                </Btn>
+              )}
               <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => this.setState({ isOpenSelectIcon: true })}>
                 {t(Labels.FIELD_ICON_BTN_SELECT)}
               </Btn>

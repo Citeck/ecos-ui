@@ -18,21 +18,20 @@ export default class LinkCreateCase extends Base {
     ...super.state,
     typeRef: '',
     createVariants: [],
-    variantId: '',
+    selectedVariant: {},
     error: false
   };
 
   componentDidMount() {
     const { item } = this.props;
     const typeRef = get(item, 'config.recordRef') || get(item, 'config.typeRef');
-    const variantId = get(item, 'config.variantId');
 
     super.componentDidMount();
 
-    this.setState({ typeRef, variantId });
+    this.setState({ typeRef });
 
     if (typeRef) {
-      this.getCreateVariants(typeRef, variantId);
+      this.getCreateVariants(typeRef, get(item, 'config.variantId'), get(item, 'config.variantTypeRef'));
     }
   }
 
@@ -44,7 +43,7 @@ export default class LinkCreateCase extends Base {
       : t(Labels.MODAL_TITLE_EDIT, { type: t(type.label), name: extractLabel(get(item, 'label')) });
   }
 
-  getCreateVariants(typeRef, defaultVariantId) {
+  getCreateVariants(typeRef, variantId, variantTypeRef) {
     if (!typeRef) {
       return;
     }
@@ -54,47 +53,58 @@ export default class LinkCreateCase extends Base {
     this.setState({ isLoading: true });
 
     Records.get(resolvedType)
-      .load('createVariants[]{id,name}')
-      .then(createVariants => {
-        this.setState({
-          isLoading: false,
-          error: isEmpty(createVariants),
-          createVariants
-        });
-
-        if (!isEmpty(createVariants) && !defaultVariantId) {
-          this.setState({ variantId: get(createVariants, '[0].id') });
-        }
-      });
+      .load('createVariants[]{id,mlName:name?json,name,typeRef:typeRef?id}')
+      .then(result => this.handleSetVariants(result, variantId, variantTypeRef));
   }
 
   isInvalidForm() {
-    const { error, typeRef, variantId } = this.state;
+    const { error, typeRef, selectedVariant } = this.state;
 
-    return Boolean(error) || !Boolean(typeRef) || !Boolean(variantId);
+    return Boolean(error) || !Boolean(typeRef) || isEmpty(selectedVariant);
   }
 
   clearData() {
     this.setState({
       typeRef: '',
       createVariants: [],
-      variantId: ''
+      selectedVariant: {}
     });
   }
+
+  handleSetVariants = (result, variantId, variantTypeRef) => {
+    const createVariants = result.map(item => ({
+      ...item,
+      uniqueKey: `${item.typeRef}.${item.id}`
+    }));
+    this.setState({
+      isLoading: false,
+      error: isEmpty(createVariants),
+      createVariants
+    });
+
+    if (!isEmpty(createVariants)) {
+      this.setState({
+        selectedVariant: variantId
+          ? createVariants.find(item => item.id === variantId && item.typeRef === variantTypeRef)
+          : get(createVariants, '[0]')
+      });
+    }
+  };
 
   handleApply() {
     super.handleApply();
 
     const { onSave } = this.props;
-    const { typeRef, variantId, createVariants } = this.state;
+    const { typeRef, selectedVariant } = this.state;
 
     set(this.data, 'config.typeRef', typeRef);
-    set(this.data, 'config.variantId', variantId);
-    set(this.data, 'type.key', variantId);
+    set(this.data, 'config.variantId', selectedVariant.id);
+    set(this.data, 'config.variantTypeRef', selectedVariant.typeRef);
+    set(this.data, 'type.key', selectedVariant);
 
     // todo: for getting dynamic label, need to save ref or add needed
     //  attribute into fetchExtraItemInfo api/menu.js
-    set(this.data, 'label', get(createVariants.find(item => item.id === variantId), 'name'));
+    set(this.data, 'label', get(selectedVariant, 'mlName'));
 
     onSave(this.data);
   }
@@ -109,8 +119,8 @@ export default class LinkCreateCase extends Base {
     this.getCreateVariants(typeRef);
   };
 
-  handleSelectVariant = variant => {
-    this.setState({ variantId: variant.id });
+  handleSelectVariant = selectedVariant => {
+    this.setState({ selectedVariant });
   };
 
   renderErrorMessage() {
@@ -128,7 +138,7 @@ export default class LinkCreateCase extends Base {
   }
 
   renderSelectVariant() {
-    const { createVariants, variantId } = this.state;
+    const { createVariants, selectedVariant } = this.state;
 
     if (isEmpty(createVariants) || createVariants.length < 2) {
       return null;
@@ -137,9 +147,9 @@ export default class LinkCreateCase extends Base {
     return (
       <Field label={t(Labels.FIELD_CREATE_METHOD)} required>
         <Dropdown
-          value={variantId}
+          value={get(selectedVariant, 'uniqueKey')}
           source={createVariants}
-          valueField="id"
+          valueField="uniqueKey"
           titleField="name"
           controlClassName="ecos-btn_drop-down ecos-btn_white2"
           hideSelected
