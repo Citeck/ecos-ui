@@ -385,8 +385,10 @@
   "ecos-table-form.error.no-journal-id": "The \"journal ID\" config is required!",
   "ecos-table-form.error.no-journal-config": "Journal config hasn't gotten",
   "ecos-table-form.error.source": "Invalid source type",
+
   "ecos-ui.select.loading-message": "Loading...",
   "ecos-ui.select.no-options-message": "No options",
+  "ecos-ui.select.placeholder": "Select",
   "ecos.forms.Drop files to attach, or": "Drop files to attach, or",
   "ecos.forms.File Name": "File Name",
   "ecos.forms.Size": "Size",
@@ -830,7 +832,7 @@
   "properties-widget.settings.default-form": "Default",
   "properties-widget.settings.form-not-existed-in-list": "Chosen form does not exist in list",
   "properties-widget.settings.title-as-form-name": "Widget title as form name",
-  "react-select.default-value.label": "Select",
+  "react-select.default-value.label": "Default",
   "react-select.value-false.label": "No",
   "react-select.value-true.label": "Yes",
 
