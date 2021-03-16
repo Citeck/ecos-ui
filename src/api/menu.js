@@ -319,7 +319,7 @@ async function fetchExtraItemInfo(data, attributes) {
     data.map(async item => {
       const target = { ...item };
       const iconRef = lodashGet(item, 'icon');
-      const attrs = typeof attributes === 'function' ? attributes(item) : attributes;
+      let attrs = typeof attributes === 'function' ? attributes(item) : attributes;
       let ref = lodashGet(item, 'config.recordRef') || lodashGet(item, 'config.sectionId');
 
       if (attrs && ref && [JOURNAL, EDIT_RECORD].includes(item.type)) {
@@ -329,9 +329,18 @@ async function fetchExtraItemInfo(data, attributes) {
       }
 
       if (item.type === LINK_CREATE_CASE) {
+        const variantId = lodashGet(item, 'config.variantId');
+
         ref = lodashGet(item, 'config.variantTypeRef', '');
         ref = ref.replace(SourcesId.TYPE, SourcesId.RESOLVED_TYPE);
-        attrs.label = `createVariantsById.${lodashGet(item, 'config.variantId')}.name{ru,en}}`;
+
+        if (variantId) {
+          if (attrs === undefined) {
+            attrs = {};
+          }
+
+          lodashSet(attrs, 'label', `createVariantsById.${lodashGet(item, 'config.variantId')}.name{ru,en}}`);
+        }
 
         target._remoteData_ = await Records.get(ref).load(attrs);
       }
