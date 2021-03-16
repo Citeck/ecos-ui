@@ -101,9 +101,6 @@ export default class LinkCreateCase extends Base {
     set(this.data, 'config.variantId', selectedVariant.id);
     set(this.data, 'config.variantTypeRef', selectedVariant.typeRef);
     set(this.data, 'type.key', selectedVariant);
-
-    // todo: for getting dynamic label, need to save ref or add needed
-    //  attribute into fetchExtraItemInfo api/menu.js
     set(this.data, 'label', get(selectedVariant, 'mlName'));
 
     onSave(this.data);
