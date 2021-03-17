@@ -69,7 +69,7 @@ export default class SelectEditor extends BaseEditor {
             isMulti={multiple}
             autoFocus
             onChange={onSelectUpdate}
-            className="select_extra-narrow"
+            className="select_extra-narrow select_width_full"
             getOptionLabel={option => option.label || option}
             getOptionValue={option => option.value || option}
             options={options}

@@ -100,7 +100,7 @@ export default class Filter extends Component {
     let filterValueControl = '';
     if (isShow) {
       const editorType = get(column, 'newEditor.type');
-      if (editorType === 'journal' || editorType === 'text') {
+      if (EditorService.isUnknownType(editorType)) {
         // todo: use EditorService for all filter types
         filterValueControl = EditorService.getEditorControl({
           recordRef: metaRecord,
