@@ -2,8 +2,9 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { PROXY_URI, URL_EIS_CONFIG } from '../constants/alfresco';
-import { getCurrentUserName, t } from '../helpers/util';
-import { goToCardDetailsPage } from '../helpers/urls';
+import { NEW_VERSION_PREFIX } from './export/urls';
+import { getCurrentUserName, t } from './util';
+import { goToCardDetailsPage } from './urls';
 import { SourcesId, URL } from '../constants';
 import FormManager from '../components/EcosForm/FormManager';
 import dialogManager from '../components/common/dialogs/Manager';
@@ -13,6 +14,7 @@ import { ActionTypes } from '../components/Records/actions';
 import RecordActions from '../components/Records/actions/recordActions';
 import ecosFetch from './ecosFetch';
 import { CommonApi } from '../api/common';
+import PageService from '../services/PageService';
 
 export const HandleControlTypes = {
   ALF_DOLOGOUT: 'ALF_DOLOGOUT',
@@ -158,6 +160,13 @@ export default function handleControl(type, payload) {
       return toggleAvailabilityStatus(payload);
 
     case HCT.ALF_NAVIGATE_TO_PAGE:
+      if (payload.url.indexOf(NEW_VERSION_PREFIX) !== -1) {
+        console.warn({ payload });
+
+        PageService.changeUrlLink(payload.url, { openNewTab: payload.target === '_blank' });
+        return;
+      }
+
       // TODO improve it
       // if (payload.targetUrlType === 'FULL_PATH')
       if (payload.target && payload.target === '_blank') {
