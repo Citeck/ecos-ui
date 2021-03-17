@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import DatePicker from 'react-datepicker';
+import ReactDatePicker from 'react-datepicker';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -18,7 +18,7 @@ class CustomInput extends Component {
   }
 }
 
-export default class extends Component {
+export default class DatePicker extends Component {
   static propTypes = {
     className: PropTypes.string,
     dateFormat: PropTypes.string,
@@ -76,7 +76,7 @@ export default class extends Component {
 
     return (
       <div className={classNames('ecos-datepicker', { 'ecos-datepicker_show-icon': showIcon }, wrapperClasses)}>
-        <DatePicker
+        <ReactDatePicker
           {...otherProps}
           {...this.additionalProps}
           customInput={<CustomInput dateFormat={dateFormatInput} getRef={el => (this.datePickerInput = el)} />}

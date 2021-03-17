@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import logger from '../../../../../../services/logger';
 import { t } from '../../../../../../helpers/export/util';
 import { Select } from '../../../../../common/form';
-import ClickOutside from '../../../../../ClickOutside';
 
 export default class SelectEditor extends BaseEditor {
   static TYPE = 'select';
@@ -66,33 +65,31 @@ export default class SelectEditor extends BaseEditor {
         return <div className="text-dark">{t('ecos-ui.select.loading-message')}</div>;
       } else {
         return (
-          <ClickOutside handleClickOutside={() => onSelectUpdate(selected)}>
-            <Select
-              isMulti={multiple}
-              autoFocus
-              onChange={onSelectUpdate}
-              className="select_extra-narrow"
-              getOptionLabel={option => option.label || option}
-              getOptionValue={option => option.value || option}
-              options={options}
-              value={selected}
-              styles={{
-                menu: css => ({
-                  ...css,
-                  zIndex: 11,
-                  width: 'auto'
-                }),
-                dropdownIndicator: css => ({
-                  ...css,
-                  padding: '0 !important'
-                }),
-                valueContainer: css => ({
-                  ...css,
-                  paddingLeft: '3px !important'
-                })
-              }}
-            />
-          </ClickOutside>
+          <Select
+            isMulti={multiple}
+            autoFocus
+            onChange={onSelectUpdate}
+            className="select_extra-narrow"
+            getOptionLabel={option => option.label || option}
+            getOptionValue={option => option.value || option}
+            options={options}
+            value={selected}
+            styles={{
+              menu: css => ({
+                ...css,
+                zIndex: 11,
+                width: 'auto'
+              }),
+              dropdownIndicator: css => ({
+                ...css,
+                padding: '0 !important'
+              }),
+              valueContainer: css => ({
+                ...css,
+                paddingLeft: '3px !important'
+              })
+            }}
+          />
         );
       }
     };
