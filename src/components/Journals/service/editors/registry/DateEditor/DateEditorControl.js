@@ -73,7 +73,7 @@ export default class DateEditorControl extends React.Component {
         shouldCloseOnSelect={false}
         autoFocus
         selected={this.selected}
-        value={this.state.date || null}
+        value={this.selected}
         dateFormat={this.dateFormat}
         popperPlacement="top"
         popperContainer={({ children }) => ReactDOM.createPortal(children, this.portal)}

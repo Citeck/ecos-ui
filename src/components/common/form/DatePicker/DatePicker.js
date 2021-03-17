@@ -12,9 +12,9 @@ import './DatePicker.scss';
 class CustomInput extends Component {
   render() {
     const { getRef, dateFormat, value, ...otherProps } = this.props;
-    const val = moment(value).format(dateFormat);
+    const val = value ? moment(value).format(dateFormat) : '';
 
-    return <input ref={el => typeof getRef === 'function' && getRef(el)} value={val} {...otherProps} />;
+    return <input ref={el => typeof getRef === 'function' && getRef(el)} defaultValue={val} {...otherProps} />;
   }
 }
 
