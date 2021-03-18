@@ -51,7 +51,7 @@ export default class TextEditor extends BaseEditor {
           onChange={onInputChange}
           onBlur={onInputBlur}
           onKeyPress={onKeyPress}
-          autoFocus
+          autoFocus={isCell}
         />
       );
     };

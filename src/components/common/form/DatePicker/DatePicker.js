@@ -12,9 +12,8 @@ import './DatePicker.scss';
 class CustomInput extends Component {
   render() {
     const { getRef, dateFormat, value, ...otherProps } = this.props;
-    const val = value ? moment(value).format(dateFormat) : '';
 
-    return <input ref={el => typeof getRef === 'function' && getRef(el)} defaultValue={val} {...otherProps} />;
+    return <input ref={el => typeof getRef === 'function' && getRef(el)} {...otherProps} />;
   }
 }
 
@@ -23,7 +22,7 @@ export default class DatePicker extends Component {
     className: PropTypes.string,
     dateFormat: PropTypes.string,
     dateFormatInput: PropTypes.string,
-    selected: PropTypes.instanceOf(Date),
+    selected: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
     showIcon: PropTypes.bool,
     showTimeInput: PropTypes.bool,
     wrapperClasses: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
@@ -35,7 +34,7 @@ export default class DatePicker extends Component {
     selected: null
   };
 
-  get additionalProps() {
+  get timeProps() {
     const additionalProps = {};
 
     if (this.props.showTimeInput) {
@@ -78,7 +77,7 @@ export default class DatePicker extends Component {
       <div className={classNames('ecos-datepicker', { 'ecos-datepicker_show-icon': showIcon }, wrapperClasses)}>
         <ReactDatePicker
           {...otherProps}
-          {...this.additionalProps}
+          {...this.timeProps}
           customInput={<CustomInput dateFormat={dateFormatInput} getRef={el => (this.datePickerInput = el)} />}
           dateFormat={dateFormat}
           selected={this.selected}

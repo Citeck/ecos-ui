@@ -119,7 +119,7 @@ export default class FiltersGroup extends Component {
     ));
 
     return (
-      <Well className={`ecos-well_full ecos-well_shadow ecos-well_radius_6 ${classNames('ecos-filters-group', className)}`}>
+      <Well className={classNames('ecos-well_full ecos-well_border ecos-well_radius_6 ecos-filters-group', className)}>
         <div className={'ecos-filters-group__head'}>
           {!first && (
             <FiltersCondition onClick={this.changeGroupFilterCondition} condition={group.getCondition()} conditions={groupConditions} />
@@ -130,9 +130,10 @@ export default class FiltersGroup extends Component {
             </Label>
 
             <Select
-              className={`ecos-filters-group__select ecos-filters-group__tools_step select_narrow ${
-                first ? 'ecos-select_blue' : 'ecos-select_grey'
-              }`}
+              className={classNames('ecos-filters-group__select ecos-filters-group__tools_step select_narrow', {
+                'ecos-select_blue': first,
+                'ecos-select_grey': !first
+              })}
               placeholder={t('filter-list.criterion')}
               options={columns}
               getOptionLabel={option => option.text}
@@ -155,7 +156,8 @@ export default class FiltersGroup extends Component {
               <IcoBtn
                 icon={'icon-delete'}
                 className={
-                  'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height ecos-btn_hover_t_red ecos-btn_x-step_10 ecos-filters-group__delete-btn'
+                  'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height ' +
+                  'ecos-btn_hover_t_red ecos-btn_x-step_10 ecos-filters-group__delete-btn'
                 }
                 onClick={this.deleteGroup}
               />

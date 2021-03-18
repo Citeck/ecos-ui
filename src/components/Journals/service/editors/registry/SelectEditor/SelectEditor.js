@@ -1,10 +1,11 @@
-import BaseEditor from '../BaseEditor';
-import Records from '../../../../../Records';
 import React, { useEffect, useState } from 'react';
 
 import logger from '../../../../../../services/logger';
 import { t } from '../../../../../../helpers/export/util';
+import Records from '../../../../../Records';
 import { Select } from '../../../../../common/form';
+import EditorScope from '../../EditorScope';
+import BaseEditor from '../BaseEditor';
 
 export default class SelectEditor extends BaseEditor {
   static TYPE = 'select';
@@ -67,9 +68,9 @@ export default class SelectEditor extends BaseEditor {
         return (
           <Select
             isMulti={multiple}
-            autoFocus
+            autoFocus={scope === EditorScope.CELL}
             onChange={onSelectUpdate}
-            className="select_extra-narrow select_width_full"
+            className="select_narrow select_width_full"
             getOptionLabel={option => option.label || option}
             getOptionValue={option => option.value || option}
             options={options}
@@ -78,7 +79,8 @@ export default class SelectEditor extends BaseEditor {
               menu: css => ({
                 ...css,
                 zIndex: 11,
-                width: 'auto'
+                width: 'auto',
+                minWidth: '100%'
               }),
               dropdownIndicator: css => ({
                 ...css,

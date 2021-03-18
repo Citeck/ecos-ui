@@ -1,4 +1,5 @@
 import React from 'react';
+import isEqual from 'lodash/isEqual';
 
 import { normalizeEditorValue, getEditorValue } from './editorUtils';
 
@@ -16,8 +17,14 @@ export default class EditorControlWrapper extends React.Component {
     };
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return nextState.initEditorValue !== this.state.initEditorValue;
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    const editorValue = getEditorValue(nextProps.value, nextProps.multiple);
+    return !isEqual(nextState.initEditorValue, this.state.initEditorValue) || !isEqual(editorValue, nextState.editorValue);
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const editorValue = getEditorValue(this.props.value, this.props.multiple);
+    !isEqual(editorValue, this.state.editorValue) && this.setState({ editorValue });
   }
 
   _setRichValue(value, changeTime, resolve) {
@@ -119,7 +126,8 @@ export default class EditorControlWrapper extends React.Component {
     };
 
     const Control = this.props.control;
-    const value = this.state.initEditorValue;
+    const value = this.state.editorValue;
+    console.log(2, value);
     return (
       <Control
         recordRef={recordRef}
