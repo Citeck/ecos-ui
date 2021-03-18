@@ -18,13 +18,7 @@ export default class EditorControlWrapper extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    const editorValue = getEditorValue(nextProps.value, nextProps.multiple);
-    return !isEqual(nextState.initEditorValue, this.state.initEditorValue) || !isEqual(editorValue, nextState.editorValue);
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const editorValue = getEditorValue(this.props.value, this.props.multiple);
-    !isEqual(editorValue, this.state.editorValue) && this.setState({ editorValue });
+    return !isEqual(nextProps.value, this.props.value);
   }
 
   _setRichValue(value, changeTime, resolve) {
@@ -44,13 +38,11 @@ export default class EditorControlWrapper extends React.Component {
     );
   }
 
-  _handleChange(value, state, resolve) {
-    this.setState({
-      editorValue: value
-    });
+  _handleChange(editorValue, state, resolve) {
+    this.setState({ editorValue });
 
     const changedTime = Date.now();
-    const correctValue = normalizeEditorValue(value, this.props.multiple);
+    const correctValue = normalizeEditorValue(editorValue, this.props.multiple);
 
     if (!this.props.getDisplayName) {
       this._setRichValue(correctValue, changedTime, resolve);
@@ -83,20 +75,17 @@ export default class EditorControlWrapper extends React.Component {
   }
 
   _enrichSingleValue(value, state) {
-    const dispValue = this.props.getDisplayName(value, state);
-    if (dispValue == null) {
+    const disp = this.props.getDisplayName(value, state);
+
+    if (disp == null) {
       return value;
     }
 
-    if (dispValue.then) {
-      return dispValue.then(disp => {
-        return { disp, value };
-      });
+    if (disp.then) {
+      return disp.then(disp => ({ disp, value }));
     }
-    return {
-      value,
-      disp: dispValue
-    };
+
+    return { disp, value };
   }
 
   getValue() {
@@ -104,7 +93,7 @@ export default class EditorControlWrapper extends React.Component {
   }
 
   render() {
-    const { onKeyDown = () => {}, multiple, attribute, recordRef } = this.props;
+    const { onKeyDown = _ => _, multiple, attribute, recordRef } = this.props;
 
     const onBlur = () => {
       if (this.props.onBlur != null) {
