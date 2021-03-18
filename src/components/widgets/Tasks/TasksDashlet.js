@@ -45,7 +45,7 @@ class TasksDashlet extends BaseWidget {
       isLoading: true
     };
 
-    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'tasks.active-hash'])];
+    this.observableFieldsToUpdate = [...new Set(['tasks.active-hash'])];
   }
 
   get stateId() {

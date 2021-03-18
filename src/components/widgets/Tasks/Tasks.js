@@ -25,7 +25,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const { record, stateId } = props;
 
   return {
-    getTaskList: () => dispatch(getTaskList({ stateId, record })),
+    getTaskList: rec => dispatch(getTaskList({ stateId, record: rec || record })),
     changeTaskAssignee: payload => dispatch(changeTaskAssignee({ stateId, record, ...payload })),
     resetTaskList: () => dispatch(resetTaskList({ stateId }))
   };
@@ -111,7 +111,6 @@ class Tasks extends React.Component {
 
     const childProps = {
       tasks,
-      height,
       isLoading,
       isSmallMode,
       onAssignClick: this.onAssignClick,
