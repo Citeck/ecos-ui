@@ -26,7 +26,7 @@ class EditorService {
     return `#${t('error').toUpperCase()}`;
   }
 
-  static isUnknownType(type) {
+  static isRegistered(type) {
     return !!editorRegistry.getEditor(type);
   }
 

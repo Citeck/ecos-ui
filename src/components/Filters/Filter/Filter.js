@@ -94,14 +94,13 @@ export default class Filter extends Component {
     const { value } = this.state;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
-
     const isShow = !this.predicatesWithoutValue.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
-
     let filterValueControl = '';
+
     if (isShow) {
       const editorType = get(column, 'newEditor.type');
-      if (EditorService.isUnknownType(editorType)) {
-        // todo: use EditorService for all filter types
+
+      if (EditorService.isRegistered(editorType)) {
         filterValueControl = EditorService.getEditorControl({
           recordRef: metaRecord,
           attribute: column.attribute,
@@ -111,6 +110,7 @@ export default class Filter extends Component {
           onUpdate: this.changeValue
         });
       } else {
+        /** @see {@link EditorService} use it for all filter types*/
         const predicateInput = getPredicateInput(column, sourceId, metaRecord, predicate);
 
         const predicateProps = predicateInput.getProps({
