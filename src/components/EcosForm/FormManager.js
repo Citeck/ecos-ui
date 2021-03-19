@@ -12,12 +12,21 @@ class FormManager {
   static createRecordByVariant = debounce(
     (variant, options = {}) => {
       if (!variant) {
-        console.error("Create variant is undefined. Record creation can't be preformed");
+        console.error("[FormManager createRecordByVariant] Create variant is undefined. Record creation can't be preformed");
         return;
       }
 
-      let recordRef = variant.recordRef || (variant.type ? 'dict@' + variant.type : '');
-      let formId = variant.formId;
+      let recordRef = variant.recordRef;
+
+      if (!recordRef) {
+        recordRef = variant.type ? `dict@${variant.type}` : '';
+      }
+
+      if (!recordRef) {
+        recordRef = variant.sourceId ? `${variant.sourceId}@` : '';
+      }
+
+      let formId = variant.formId || variant.formRef;
       let isNewFormShouldBeUsed = variant.formKey || !variant.type;
       let isNewFormCanBeUsed = isNewFormShouldBeUsed || !!recordRef;
 
@@ -30,6 +39,7 @@ class FormManager {
           }
 
           const shouldDisplayNewFormsForUser = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
+
           isNewFormShouldBeUsed = Promise.all([isNewFormShouldBeUsed, shouldDisplayNewFormsForUser])
             .then(function(values) {
               if (values.includes(true)) {
@@ -67,15 +77,15 @@ class FormManager {
               ...options
             };
 
-            if (EcosFormUtils.isFormId(variant.formId)) {
-              props.formId = variant.formId;
+            if (EcosFormUtils.isFormId(formId)) {
+              props.formId = formId;
             }
 
             this.openFormModal(props);
           }
         })
         .catch(e => {
-          console.error(e);
+          console.error('[FormManager createRecordByVariant]', e);
         });
     },
     3000,
