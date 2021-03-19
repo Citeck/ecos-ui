@@ -1,14 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
 
 import { TMP_ICON_EMPTY } from '../../../constants';
 import { MenuSettings as MS } from '../../../constants/menu';
 import { t } from '../../../helpers/export/util';
 import { extractLabel, packInLabel } from '../../../helpers/util';
+import MenuSettingsService from '../../../services/MenuSettingsService';
 import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
 import EcosIcon from '../../common/EcosIcon';
-import MenuSettingsService from '../../../services/MenuSettingsService';
 import IconSelect from '../../IconSelect';
 import { Labels } from '../utils';
 import { Field } from '../Field';
@@ -49,7 +50,7 @@ class Base extends React.Component {
 
     return action === MS.ActionTypes.CREATE
       ? t(Labels.MODAL_TITLE_ADD, { type: t(type.label) })
-      : t(Labels.MODAL_TITLE_EDIT, { type: t(type.label), name: extractLabel(item.label) });
+      : t(Labels.MODAL_TITLE_EDIT, { type: t(type.label), name: extractLabel(get(item, 'label')) });
   }
 
   get permissions() {

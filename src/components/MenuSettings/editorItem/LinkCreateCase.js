@@ -5,13 +5,11 @@ import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../helpers/export/util';
 import { SourcesId as SourceId, SystemJournals } from '../../../constants';
-import { MenuSettings as MS } from '../../../constants/menu';
-import { SelectJournal, Dropdown } from '../../common/form';
+import { Dropdown, SelectJournal } from '../../common/form';
 import { Labels } from '../utils';
 import { Field } from '../Field';
 import Records from '../../Records';
 import Base from './Base';
-import { extractLabel } from '../../../helpers/util';
 
 export default class LinkCreateCase extends Base {
   state = {
@@ -33,14 +31,6 @@ export default class LinkCreateCase extends Base {
     if (typeRef) {
       this.getCreateVariants(typeRef, get(item, 'config.variantId'), get(item, 'config.variantTypeRef'));
     }
-  }
-
-  get title() {
-    const { item, type, action } = this.props;
-
-    return action === MS.ActionTypes.CREATE
-      ? t(Labels.MODAL_TITLE_ADD, { type: t(type.label) })
-      : t(Labels.MODAL_TITLE_EDIT, { type: t(type.label), name: extractLabel(get(item, 'label')) });
   }
 
   getCreateVariants(typeRef, variantId, variantTypeRef) {
