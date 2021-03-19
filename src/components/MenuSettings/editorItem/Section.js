@@ -62,11 +62,12 @@ export default class Section extends Base {
     super.handleApply();
 
     const { onSave } = this.props;
-    const { label, hiddenLabel } = this.state;
+    const { label, hiddenLabel, allowedNames } = this.state;
     const { hideableLabel } = this.permissions;
 
     this.data.label = label;
     hideableLabel && set(this.data, 'config.hiddenLabel', hiddenLabel);
+    allowedNames && set(this.data, 'allowedFor', allowedNames);
 
     onSave(this.data);
   }
@@ -74,7 +75,7 @@ export default class Section extends Base {
   handleSelectAllowed = (allowedRefs, items) => {
     this.setState({
       allowedRefs,
-      allowedNames: items.map(item => get(item, 'attributes.fullName'))
+      allowedNames: (items || []).map(item => get(item, 'attributes.fullName'))
     });
   };
 
