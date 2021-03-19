@@ -66,8 +66,8 @@ export default class Section extends Base {
     const { hideableLabel } = this.permissions;
 
     this.data.label = label;
+    this.data.allowedFor = allowedNames;
     hideableLabel && set(this.data, 'config.hiddenLabel', hiddenLabel);
-    allowedNames && set(this.data, 'allowedFor', allowedNames);
 
     onSave(this.data);
   }
