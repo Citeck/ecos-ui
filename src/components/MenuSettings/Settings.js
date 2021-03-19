@@ -15,6 +15,7 @@ import { EcosModal, Loader, Tabs } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
 import { SelectOrgstruct } from '../common/form';
 import { GroupTypes, ViewModes } from '../common/form/SelectOrgstruct/constants';
+import { ErrorBoundary } from '../ErrorBoundary';
 import { Labels } from './utils';
 import EditorLeftMenu from './editorMenu/EditorLeftMenu';
 import EditorCreateMenu from './editorMenu/EditorCreateMenu';
@@ -128,28 +129,30 @@ class Settings extends React.Component {
     const { disabledEdit } = this.props;
 
     return (
-      <div key={key} className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
-        {this.renderMenuInfo()}
-        <div>
-          <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
-          <EditorLeftMenu />
-        </div>
-        <div>
-          <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
-          <div className="ecos-menu-settings-ownership">
-            <SelectOrgstruct
-              defaultValue={this.authorityRefs}
-              multiple
-              onChange={this.handleSelectOrg}
-              isSelectedValueAsText
-              viewOnly={disabledEdit}
-              viewModeType={ViewModes.LINE_SEPARATED}
-              allowedGroupTypes={Object.values(GroupTypes)}
-              isIncludedAdminGroup
-            />
+      <ErrorBoundary className="ecos-menu-settings__error" title={t(Labels.ERROR_BOUNDARY_TITLE)} message={t(Labels.ERROR_BOUNDARY_MSG)}>
+        <div key={key} className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
+          {this.renderMenuInfo()}
+          <div>
+            <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
+            <EditorLeftMenu />
+          </div>
+          <div>
+            <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
+            <div className="ecos-menu-settings-ownership">
+              <SelectOrgstruct
+                defaultValue={this.authorityRefs}
+                multiple
+                onChange={this.handleSelectOrg}
+                isSelectedValueAsText
+                viewOnly={disabledEdit}
+                viewModeType={ViewModes.LINE_SEPARATED}
+                allowedGroupTypes={Object.values(GroupTypes)}
+                isIncludedAdminGroup
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </ErrorBoundary>
     );
   };
 

@@ -26,7 +26,7 @@ export const Labels = {
   MODAL_BTN_CANCEL: 'menu-settings.editor-item.btn.cancel',
   MODAL_BTN_ADD: 'menu-settings.editor-item.btn.add',
   MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit',
-
+  //fields
   FIELD_NAME_LABEL: 'menu-settings.editor-item.field.name.label',
   FIELD_HIDE_NAME_LABEL: 'menu-settings.editor-item.field.checkbox.hide-name',
   FIELD_URL_LABEL: 'menu-settings.editor-item.field.url.label',
@@ -53,5 +53,8 @@ export const Labels = {
   WARN_EDITOR_OPEN: 'menu-settings.warn.editor-already-open',
 
   FIELD_ALLOWED_FOR_LABEL: 'menu-settings.editor-item.field.allowed-for.label',
-  FIELD_ALLOWED_FOR_PLACEHOLDER: 'menu-settings.editor-item.field.allowed-for.placeholder'
+  FIELD_ALLOWED_FOR_PLACEHOLDER: 'menu-settings.editor-item.field.allowed-for.placeholder',
+
+  ERROR_BOUNDARY_MSG: 'menu-settings.error-boundary.msg',
+  ERROR_BOUNDARY_TITLE: 'menu-settings.error-boundary.title'
 };
