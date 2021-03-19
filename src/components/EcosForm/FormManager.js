@@ -15,29 +15,28 @@ class FormManager {
         return;
       }
 
-      let recordRef = variant.recordRef;
+      let { recordRef: record = '', type, sourceId, formId, formRef, formKey, attributes = {}, destination, createArguments } = variant;
 
-      if (!recordRef) {
-        recordRef = variant.type ? `dict@${variant.type}` : '';
+      if (!record && type) {
+        record = `dict@${variant.type}`;
       }
 
-      if (!recordRef) {
-        recordRef = variant.sourceId ? `${variant.sourceId}@` : '';
+      if (!record && sourceId) {
+        record = `${variant.sourceId}@`;
       }
 
-      let formId = variant.formId || variant.formRef;
-      let attributes = variant.attributes || {};
-
-      if (variant.destination && !attributes['_parent']) {
-        attributes['_parent'] = variant.destination;
+      if (destination && !attributes['_parent']) {
+        attributes['_parent'] = destination;
       }
+
+      formId = formId || formRef;
 
       const props = {
-        record: recordRef,
-        formKey: variant.formKey,
+        record,
+        formKey,
         attributes,
         options: {
-          params: this.parseCreateArguments(variant.createArguments)
+          params: this.parseCreateArguments(createArguments)
         },
         ...options
       };
