@@ -63,6 +63,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
 
       if (!isEqual(item, prevItem) && !isEmpty(get(item, 'allowedFor'))) {
         setFetchingStatus(true);
+
         MenuApi.getAuthoritiesInfoByName(get(item, 'allowedFor'), 'nodeRef').then(refs => {
           setFetchingStatus(false);
           setAllowedRefs(refs);
@@ -71,9 +72,7 @@ function EditorItemModal({ item, type, onClose, onSave, action, params, fontIcon
     }
   }, [item]);
 
-  const handleCancel = () => {
-    onClose();
-  };
+  const handleCancel = () => onClose();
 
   const handleApply = () => {
     const data = {};

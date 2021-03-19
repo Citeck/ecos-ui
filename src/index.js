@@ -24,6 +24,7 @@ import configureStore, { getHistory } from './store';
 import { initAppRequest } from './actions/app';
 import { setIsAuthenticated } from './actions/user';
 import { loadThemeRequest } from './actions/view';
+import { NotificationManager } from 'react-notifications';
 
 import { configureAPI } from './api';
 import App from './components/App';
@@ -71,6 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 });
+
+if (!window.Citeck) {
+  window.Citeck = {};
+}
+window.Citeck.NotificationManager = NotificationManager;
 
 const runApp = () => {
   store.dispatch(

@@ -6,6 +6,7 @@ import debounce from 'lodash/debounce';
 
 import { TasksApi } from '../../api/tasks';
 import { RecordActionsApi } from '../../api/recordActions';
+import SidebarService from '../../services/sidebar';
 import { AssignTo } from '../../constants/tasks';
 import { t } from '../../helpers/util';
 import { StateAssignPropTypes } from '../widgets/Tasks/utils';
@@ -23,9 +24,8 @@ class TaskAssignmentPanel extends Component {
     stateAssign: PropTypes.shape(StateAssignPropTypes),
     wrapperClassName: PropTypes.string,
     className: PropTypes.string,
-    onClick: PropTypes.func,
-    narrow: PropTypes.bool,
-    executeRequest: PropTypes.bool
+    onAfterExecute: PropTypes.func,
+    narrow: PropTypes.bool
   };
 
   static defaultProps = {
@@ -33,8 +33,7 @@ class TaskAssignmentPanel extends Component {
     wrapperClassName: '',
     className: '',
     stateAssign: {},
-    narrow: false,
-    executeRequest: false
+    narrow: false
   };
 
   state = {
@@ -90,7 +89,7 @@ class TaskAssignmentPanel extends Component {
     });
   };
 
-  get infoButtons() {
+  get btnSettings() {
     const {
       stateAssign,
       stateAssign: { claimable, releasable, reassignable, assignable }
@@ -152,10 +151,17 @@ class TaskAssignmentPanel extends Component {
   };
 
   handleChangeTaskAssignee = async sentData => {
-    const { taskId } = this.props;
+    const { taskId, noResultModal, errorMsg, onAfterExecute } = this.props;
     const { assignTo } = sentData;
 
-    await actionApi.executeAction({ records: taskId, action: { type: ActionTypes.SET_TASK_ASSIGNEE, assignTo } });
+    const result = await actionApi.executeAction({
+      records: taskId,
+      action: { type: ActionTypes.SET_TASK_ASSIGNEE, assignTo, config: { noResultModal, errorMsg } }
+    });
+
+    if (typeof onAfterExecute === 'function') {
+      onAfterExecute({ ...sentData, taskId, result });
+    }
 
     const documentRef = await TasksApi.getDocument(taskId);
 
@@ -164,32 +170,24 @@ class TaskAssignmentPanel extends Component {
     }
 
     await Records.get(documentRef).update();
+    SidebarService.emitter.emit(SidebarService.UPDATE_EVENT);
   };
 
   handleClickButton = sentData => {
-    const { onClick, executeRequest } = this.props;
-
     this.toggleLoading();
-
-    if (executeRequest) {
-      this.handleChangeTaskAssignee(sentData).finally(this.getStateAssign);
-    }
-
-    if (typeof onClick === 'function') {
-      onClick(sentData);
-    }
+    this.handleChangeTaskAssignee(sentData).finally(this.getStateAssign);
   };
 
-  renderBtn(settings, index) {
-    const { narrow, className } = this.props;
+  renderBtn = (settings, index) => {
+    const { narrow, className, taskId } = this.props;
     const { isLoading } = this.state;
-    const keyBtn = `assignment-panel-${index}-${new Date().getTime()}`;
+    const keyBtn = `assignment-panel-${taskId}-${index}`;
 
     return (
       <Btn
         key={keyBtn}
         loading={isLoading}
-        className={classNames('assign-panel__item', className, {
+        className={classNames('task-assign-panel__item', className, {
           'ecos-btn_narrow-t_standart': narrow,
           [settings.className]: !className
         })}
@@ -198,12 +196,12 @@ class TaskAssignmentPanel extends Component {
         {settings.label}
       </Btn>
     );
-  }
+  };
 
   render() {
     const { wrapperClassName } = this.props;
 
-    return <div className={classNames('assign-panel', wrapperClassName)}>{this.infoButtons.map((btn, i) => this.renderBtn(btn, i))}</div>;
+    return <div className={classNames('task-assign-panel', wrapperClassName)}>{this.btnSettings.map(this.renderBtn)}</div>;
   }
 }
 
