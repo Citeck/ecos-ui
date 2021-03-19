@@ -129,8 +129,13 @@ class Settings extends React.Component {
     const { disabledEdit } = this.props;
 
     return (
-      <ErrorBoundary className="ecos-menu-settings__error" title={t(Labels.ERROR_BOUNDARY_TITLE)} message={t(Labels.ERROR_BOUNDARY_MSG)}>
-        <div key={key} className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
+      <ErrorBoundary
+        key={key}
+        className="ecos-menu-settings__error"
+        title={t(Labels.ERROR_BOUNDARY_TITLE)}
+        message={t(Labels.ERROR_BOUNDARY_MSG)}
+      >
+        <div className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
           {this.renderMenuInfo()}
           <div>
             <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
