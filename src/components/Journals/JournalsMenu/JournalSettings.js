@@ -28,7 +28,7 @@ class JournalSettings extends React.Component {
     const { journalSetting, journalSettings } = this.props;
     const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
 
-    return journalSettings && journalSettings.findIndex(item => item[JOURNAL_SETTING_ID_FIELD] === journalSettingId);
+    return journalSettings && journalSettings.findIndex(item => (item[JOURNAL_SETTING_ID_FIELD] || '') === (journalSettingId || ''));
   }
 
   get renderList() {

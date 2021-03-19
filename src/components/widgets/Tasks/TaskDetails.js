@@ -107,6 +107,9 @@ class TaskDetails extends React.Component {
     return (
       <TaskAssignmentPanel
         narrow
+        noResultModal
+        taskId={details.id}
+        errorMsg={t('tasks-widget.error.failed-assign-task')}
         wrapperClassName={classNames('ecos-task__assign-btn__wrapper', {
           'ecos-task__assign-btn__wrapper_small-mode': isSmallMode
         })}
@@ -114,9 +117,7 @@ class TaskDetails extends React.Component {
           'ecos-task__assign-btn_small-mode': isSmallMode
         })}
         stateAssign={details.stateAssign}
-        onClick={res => {
-          onAssignClick({ taskId: details.id, ...res });
-        }}
+        onAfterExecute={onAssignClick}
       />
     );
   }

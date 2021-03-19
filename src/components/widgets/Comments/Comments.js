@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import moment from 'moment';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import {
@@ -33,11 +32,10 @@ import LinkEditor from './Editor/LinkEditor';
 import linkDecorator from './Editor/LinkDecorator';
 import Comment from './Comment';
 import { CommentInterface, IdInterface } from './propsInterfaces';
+import { BASE_HEIGHT } from '../../../constants/comments';
 
 import 'draft-js/dist/Draft.css';
 import './style.scss';
-
-const BASE_HEIGHT = 21;
 
 class Comments extends BaseWidget {
   static propTypes = {
@@ -135,40 +133,6 @@ class Comments extends BaseWidget {
     if (id !== nextProps.id) {
       getComments();
     }
-  }
-
-  formatDate(date = new Date()) {
-    const inMoment = moment(date);
-    const now = moment();
-    const duration = moment.duration(now.diff(inMoment));
-    const seconds = Math.floor(duration.asSeconds());
-    const minutes = Math.floor(duration.asMinutes());
-    const hours = Math.floor(duration.asHours());
-    const days = Math.floor(duration.asDays());
-
-    if (days > 0) {
-      return inMoment.format('DD.MM.YYYY HH:mm');
-    }
-
-    if (hours > 0) {
-      return `${hours} ${t(num2str(hours, ['comments-widget.hour-form1', 'comments-widget.hour-form2', 'comments-widget.hour-form3']))} ${t(
-        'comments-widget.time-ago'
-      )}`;
-    }
-
-    if (minutes > 0) {
-      return `${minutes} ${t(
-        num2str(minutes, ['comments-widget.minute-form1', 'comments-widget.minute-form2', 'comments-widget.minute-form3'])
-      )} ${t('comments-widget.time-ago')}`;
-    }
-
-    if (seconds > 0) {
-      return `${seconds} ${t(
-        num2str(seconds, ['comments-widget.second-form1', 'comments-widget.second-form2', 'comments-widget.second-form3'])
-      )} ${t('comments-widget.time-ago')}`;
-    }
-
-    return t('comments-widget.now');
   }
 
   get editorPlaceholder() {

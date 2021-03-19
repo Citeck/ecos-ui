@@ -59,4 +59,8 @@ export default class ScriptFormatter extends BaseFormatter {
   getSupportedCellType() {
     return CellType.ANY;
   }
+
+  getAliases() {
+    return ['FunctionFormatterV2', 'FunctionFormatter'];
+  }
 }

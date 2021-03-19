@@ -7,16 +7,17 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import omit from 'lodash/omit';
+import pick from 'lodash/pick';
 
 import { closest, getId, isExistValue, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
-import { ErrorCell } from '../ErrorCell';
+import ErrorCell from '../ErrorCell';
+import ErrorTable from '../ErrorTable';
 
 import './Grid.scss';
 
@@ -98,7 +99,7 @@ class Grid extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     const { resizableColumns } = this.props;
 
     if (this.#gridRef) {
@@ -265,7 +266,7 @@ class Grid extends Component {
     });
   };
 
-  setBootstrapTableProps(props, extra) {
+  getBootstrapTableProps(props, extra) {
     const options = {
       keyField: this._keyField,
       bootstrap4: true,
@@ -1008,7 +1009,6 @@ class Grid extends Component {
   }
 
   renderGrid() {
-    const { rowClassName, columns, rowEvents, resizableColumns } = this.props;
     const props = omit(this.props, [
       'minHeight',
       'autoHeight',
@@ -1024,19 +1024,29 @@ class Grid extends Component {
       'noHeader',
       'resizableColumns'
     ]);
-    const bootProps = this.setBootstrapTableProps(props, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
+
+    const { rowClassName, resizableColumns, ...extraProps } = pick(this.props, [
+      'rowClassName',
+      'resizableColumns',
+      'columns',
+      'rowEvents'
+    ]);
+
+    const bootProps = this.getBootstrapTableProps(props, extraProps);
 
     return (
       <>
         <div ref={this.setGridRef}>
-          <BootstrapTable
-            {...bootProps}
-            classes="ecos-grid__table"
-            headerClasses={classNames('ecos-grid__header', {
-              'ecos-grid__header_columns-not-resizable': !resizableColumns
-            })}
-            rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
-          />
+          <ErrorTable>
+            <BootstrapTable
+              {...bootProps}
+              classes="ecos-grid__table"
+              headerClasses={classNames('ecos-grid__header', {
+                'ecos-grid__header_columns-not-resizable': !resizableColumns
+              })}
+              rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
+            />
+          </ErrorTable>
         </div>
         {this.inlineTools()}
       </>

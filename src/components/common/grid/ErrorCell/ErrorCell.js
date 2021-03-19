@@ -15,10 +15,7 @@ export default class ErrorCell extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.warn(error, errorInfo);
-    this.setState({
-      error: error,
-      errorInfo: errorInfo
-    });
+    this.setState({ error, errorInfo });
   }
 
   render() {

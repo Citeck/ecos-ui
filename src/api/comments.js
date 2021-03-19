@@ -2,6 +2,19 @@ import Records from '../components/Records';
 import { SourcesId } from '../constants';
 
 export class CommentsApi {
+  get commentFields() {
+    return {
+      text: 'text',
+      createdAt: 'createdAt',
+      modifiedAt: 'modifiedAt',
+      author: 'author?json',
+      editor: 'editor?json',
+      permissions: 'permissions?json',
+      edited: 'edited',
+      tags: 'tags[]{type,name}'
+    };
+  }
+
   getAll = record => {
     return Records.query(
       {
@@ -10,15 +23,7 @@ export class CommentsApi {
         },
         sourceId: SourcesId.COMMENT
       },
-      {
-        text: 'text',
-        createdAt: 'createdAt',
-        modifiedAt: 'modifiedAt',
-        author: 'author?json',
-        editor: 'editor?json',
-        permissions: 'permissions?json',
-        edited: 'edited'
-      }
+      this.commentFields
     ).then(response => response);
   };
 
@@ -34,30 +39,13 @@ export class CommentsApi {
         },
         sourceId: SourcesId.COMMENT
       },
-      {
-        text: 'text',
-        createdAt: 'createdAt',
-        modifiedAt: 'modifiedAt',
-        author: 'author?json',
-        editor: 'editor?json',
-        permissions: 'permissions?json',
-        edited: 'edited',
-        tags: 'tags[].name'
-      }
+      this.commentFields
     ).then(response => response);
   };
 
   getCommentById = id => {
     return Records.get(id)
-      .load({
-        text: 'text',
-        createdAt: 'createdAt',
-        modifiedAt: 'modifiedAt',
-        author: 'author?json',
-        editor: 'editor?json',
-        permissions: 'permissions?json',
-        edited: 'edited'
-      })
+      .load(this.commentFields)
       .then(response => response);
   };
 
