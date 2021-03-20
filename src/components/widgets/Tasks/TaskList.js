@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
+import classNames from 'classnames';
 
 import { t } from '../../../helpers/util';
 import { InfoText, Loader } from '../../common/index';
@@ -11,7 +12,6 @@ class TaskList extends React.Component {
   static propTypes = {
     tasks: PropTypes.arrayOf(PropTypes.shape(TaskPropTypes)).isRequired,
     className: PropTypes.string,
-    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     isLoading: PropTypes.bool,
     isSmallMode: PropTypes.bool,
     onAssignClick: PropTypes.func,
@@ -22,7 +22,6 @@ class TaskList extends React.Component {
   static defaultProps = {
     tasks: [],
     className: '',
-    height: '100%',
     isLoading: false,
     isSmallMode: false,
     onAssignClick: () => {},
@@ -32,13 +31,13 @@ class TaskList extends React.Component {
   contentRef = React.createRef();
 
   renderLoader() {
-    const { isLoading, height } = this.props;
+    const { isLoading } = this.props;
 
     if (!isLoading) {
       return null;
     }
 
-    return <Loader className="ecos-task-list__loader" style={{ height: `${height}px` }} />;
+    return <Loader blur />;
   }
 
   renderEmptyInfo() {
@@ -52,9 +51,9 @@ class TaskList extends React.Component {
   }
 
   renderTaskDetailsList() {
-    const { tasks, onAssignClick, onSubmitForm, className, isLoading, isSmallMode } = this.props;
+    const { tasks, onAssignClick, onSubmitForm, className, isSmallMode } = this.props;
 
-    if (isLoading || isEmpty(tasks)) {
+    if (isEmpty(tasks)) {
       return null;
     }
 
@@ -72,8 +71,15 @@ class TaskList extends React.Component {
   }
 
   render() {
+    const { isLoading } = this.props;
+
     return (
-      <div ref={this.props.forwardedRef}>
+      <div
+        ref={this.props.forwardedRef}
+        className={classNames('ecos-task-list__container', {
+          'ecos-task-list__container_min-height': isLoading
+        })}
+      >
         {this.renderLoader()}
         {this.renderEmptyInfo()}
         {this.renderTaskDetailsList()}

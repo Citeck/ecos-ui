@@ -23,9 +23,10 @@
       }
     }
 
-    &__loader {
-      min-height: 60px;
-      position: relative;
+    &__container {
+      &_min-height {
+        min-height: 60px;
+      }
     }
   }
 
