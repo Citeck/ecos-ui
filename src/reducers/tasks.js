@@ -18,7 +18,7 @@ const updateState = (state, stateId, newData = {}) => ({
 
 export default handleActions(
   {
-    [getTaskList]: (state, { payload: { stateId } }) => updateState(state, stateId, { ...initialState, isLoading: true }),
+    [getTaskList]: (state, { payload: { stateId } }) => updateState(state, stateId, { isLoading: true }),
     [changeTaskAssignee]: (state, { payload: { stateId } }) => updateState(state, stateId, { isLoading: true }),
     [setTaskList]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, { ...data, isLoading: false }),
     [setTaskAssignee]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, { ...data, isLoading: false }),

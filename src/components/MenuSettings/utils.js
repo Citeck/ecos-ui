@@ -26,7 +26,7 @@ export const Labels = {
   MODAL_BTN_CANCEL: 'menu-settings.editor-item.btn.cancel',
   MODAL_BTN_ADD: 'menu-settings.editor-item.btn.add',
   MODAL_BTN_EDIT: 'menu-settings.editor-item.btn.edit',
-
+  //fields
   FIELD_NAME_LABEL: 'menu-settings.editor-item.field.name.label',
   FIELD_HIDE_NAME_LABEL: 'menu-settings.editor-item.field.checkbox.hide-name',
   FIELD_URL_LABEL: 'menu-settings.editor-item.field.url.label',
@@ -38,6 +38,10 @@ export const Labels = {
   FIELD_RECORD_REF: 'menu-settings.editor-item.field.record-ref.title',
   FIELD_FORM_REF: 'menu-settings.editor-item.field.form-ref.title',
   FIELD_ATTRIBUTES: 'menu-settings.editor-item.field.attributes.title',
+  FIELD_ALLOWED_FOR_LABEL: 'menu-settings.editor-item.field.allowed-for.label',
+  FIELD_ALLOWED_FOR_PLACEHOLDER: 'menu-settings.editor-item.field.allowed-for.placeholder',
+  FIELD_CREATE_METHOD: 'menu-settings.editor-item.field.create-variant.title',
+  FIELD_DATA_TYPE: 'menu-settings.editor-item.field.data-type.title',
 
   FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',
@@ -51,8 +55,7 @@ export const Labels = {
   TITLE_LOCATION: 'menu-settings.location.title',
   //controller
   WARN_EDITOR_OPEN: 'menu-settings.warn.editor-already-open',
-
   TYPE_NOT_CREATED: 'menu-settings.error.type-not-created',
-  FIELD_CREATE_METHOD: 'menu-settings.editor-item.field.create-variant.title',
-  FIELD_DATA_TYPE: 'menu-settings.editor-item.field.data-type.title'
+  ERROR_BOUNDARY_MSG: 'menu-settings.error-boundary.msg',
+  ERROR_BOUNDARY_TITLE: 'menu-settings.error-boundary.title'
 };

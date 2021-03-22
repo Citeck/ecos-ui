@@ -1269,6 +1269,8 @@
   "menu-settings.editor-ownership.title": "Группы или пользователи",
   "menu-settings.editor-global-settings.title": "Описание",
   "menu-settings.editor-group-priority.title": "Приоритет групп",
+  "menu-settings.error-boundary.title": "Ошибка",
+  "menu-settings.error-boundary.msg": "Попробуйте закрыть и открыть настройки повторно. Если ошибка повторится, обратитесь к администратору",
 
   "menu-settings.error.no-id-config": "Идентификатор пользовательского меню отсутствует",
   "menu-settings.error.get-config": "Конфигурация настроек меню не получена",
