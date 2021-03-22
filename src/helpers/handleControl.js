@@ -161,8 +161,6 @@ export default function handleControl(type, payload) {
 
     case HCT.ALF_NAVIGATE_TO_PAGE:
       if (payload.url.indexOf(NEW_VERSION_PREFIX) !== -1) {
-        console.warn({ payload });
-
         PageService.changeUrlLink(payload.url, { openNewTab: payload.target === '_blank' });
         return;
       }
