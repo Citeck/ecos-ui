@@ -108,7 +108,8 @@ export class OrgStructApi extends RecordService {
   }
 
   static async getUserList(searchText, extraFields = []) {
-    const val = searchText.trim();
+    const valRaw = searchText.trim();
+    const val = valRaw.split(' ');
 
     const queryVal = [
       {
@@ -155,14 +156,53 @@ export class OrgStructApi extends RecordService {
         addExtraFields(extraFields);
       }
 
-      queryVal.push({
-        t: 'or',
-        val: searchFields.map(att => ({
-          t: 'contains',
-          att,
-          val
-        }))
-      });
+      if (val.length < 2) {
+
+        queryVal.push({
+          t: 'or',
+          val: searchFields.map(att => ({
+            t: 'contains',
+            att: att,
+            val: val[0]
+          }))
+        });
+
+      } else {
+
+        const firstLast = {
+          t: 'and',
+          val: [{
+            t: 'contains',
+            att: 'cm:firstName',
+            val: val[0]
+          }, {
+            t: 'contains',
+            att: 'cm:lastName',
+            val: val[1]
+          }]
+        };
+
+        const lastFirst = {
+          t: 'and',
+          val: [{
+            t: 'contains',
+            att: 'cm:lastName',
+            val: val[0]
+          }, {
+            t: 'contains',
+            att: 'cm:firstName',
+            val: val[1]
+          }]
+        };
+
+        queryVal.push({
+          t: 'or',
+          val: [
+            firstLast,
+            lastFirst
+          ]
+        });
+      }
     }
 
     return Records.query(
