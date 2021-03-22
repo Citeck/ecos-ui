@@ -1,10 +1,8 @@
 import DateEditorControl from '../DateEditor/DateEditorControl';
 
-const EDITOR_FORMAT = 'dd.MM.YYYY HH:mm';
-
 export default class DateTimeEditorControl extends DateEditorControl {
   get dateFormat() {
-    return EDITOR_FORMAT;
+    return 'dd.MM.yyyy hh:mm';
   }
 
   get extraProps() {

@@ -8,8 +8,6 @@ import debounce from 'lodash/debounce';
 import { DatePicker } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
 
-const EDITOR_FORMAT = 'dd.MM.YYYY';
-
 export default class DateEditorControl extends React.Component {
   constructor(props) {
     super(props);
@@ -20,7 +18,7 @@ export default class DateEditorControl extends React.Component {
   }
 
   get dateFormat() {
-    return EDITOR_FORMAT;
+    return 'dd.MM.yyyy';
   }
 
   get extraProps() {
@@ -48,7 +46,10 @@ export default class DateEditorControl extends React.Component {
 
   componentWillUnmount() {
     this.removeDateEditorContainer();
+    this.debounceUpdate.cancel();
   }
+
+  debounceUpdate = this.props.onUpdate ? debounce(this.props.onUpdate, 3000) : _ => _;
 
   onChange = value => {
     const date = moment(value)
@@ -56,11 +57,23 @@ export default class DateEditorControl extends React.Component {
       .format();
 
     this.setState({ date });
-    this.props.onUpdate && this.props.onUpdate(date);
+    this.debounceUpdate(date);
+  };
+
+  onBlur = () => {
+    this.props.onUpdate && this.props.onUpdate(this.state.date);
+    this.debounceUpdate.cancel();
+  };
+
+  onKeyDown = e => {
+    if (e.key === 'Enter') {
+      e.stopPropagation();
+      this.onBlur();
+    }
   };
 
   render() {
-    const { scope, onBlur, onKeyDown } = this.props;
+    const { scope } = this.props;
     const isCell = scope === EditorScope.CELL;
 
     return (
@@ -73,8 +86,8 @@ export default class DateEditorControl extends React.Component {
           'ecos-filter_width_full': !isCell
         })}
         onChange={this.onChange}
-        onBlur={onBlur}
-        onKeyDown={onKeyDown}
+        onBlur={this.onBlur}
+        onKeyDown={this.onKeyDown}
         autoFocus={isCell}
         showIcon={!isCell}
         selected={this.selected}
