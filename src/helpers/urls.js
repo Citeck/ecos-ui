@@ -140,6 +140,17 @@ export const goToJournalsPage = options => {
   }
 };
 
+export const goToAdminPage = options => {
+  const params = queryString.stringify(options);
+  let link = URL.ADMIN_PAGE;
+
+  if (params) {
+    link += `?${params}`;
+  }
+
+  changeUrl(link, { openNewTab: true });
+};
+
 export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
   const dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
 

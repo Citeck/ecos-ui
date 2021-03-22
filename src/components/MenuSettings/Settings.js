@@ -7,14 +7,15 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import { getAuthorityInfoByRefs, saveMenuSettings } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
-import { goToJournalsPage } from '../../helpers/urls';
-import { SYSTEM_LIST, SystemJournals } from '../../constants';
-import { MenuTypes } from '../../constants/menu';
+import { goToAdminPage } from '../../helpers/urls';
+import { SystemJournals } from '../../constants';
+import { MenuSettings, MenuTypes } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import { EcosModal, Loader, Tabs } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
 import { SelectOrgstruct } from '../common/form';
 import { GroupTypes, ViewModes } from '../common/form/SelectOrgstruct/constants';
+import { ErrorBoundary } from '../ErrorBoundary';
 import { Labels } from './utils';
 import EditorLeftMenu from './editorMenu/EditorLeftMenu';
 import EditorCreateMenu from './editorMenu/EditorCreateMenu';
@@ -77,9 +78,9 @@ class Settings extends React.Component {
 
   handleGoJournal = () => {
     this.handleHideModal();
-    goToJournalsPage({
+    goToAdminPage({
       journalId: SystemJournals.MENUS,
-      journalsListId: SYSTEM_LIST
+      type: MenuSettings.ItemTypes.JOURNAL
     });
   };
 
@@ -128,28 +129,35 @@ class Settings extends React.Component {
     const { disabledEdit } = this.props;
 
     return (
-      <div key={key} className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
-        {this.renderMenuInfo()}
-        <div>
-          <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
-          <EditorLeftMenu />
-        </div>
-        <div>
-          <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
-          <div className="ecos-menu-settings-ownership">
-            <SelectOrgstruct
-              defaultValue={this.authorityRefs}
-              multiple
-              onChange={this.handleSelectOrg}
-              isSelectedValueAsText
-              viewOnly={disabledEdit}
-              viewModeType={ViewModes.LINE_SEPARATED}
-              allowedGroupTypes={Object.values(GroupTypes)}
-              isIncludedAdminGroup
-            />
+      <ErrorBoundary
+        key={key}
+        className="ecos-menu-settings__error"
+        title={t(Labels.ERROR_BOUNDARY_TITLE)}
+        message={t(Labels.ERROR_BOUNDARY_MSG)}
+      >
+        <div className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
+          {this.renderMenuInfo()}
+          <div>
+            <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
+            <EditorLeftMenu />
+          </div>
+          <div>
+            <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
+            <div className="ecos-menu-settings-ownership">
+              <SelectOrgstruct
+                defaultValue={this.authorityRefs}
+                multiple
+                onChange={this.handleSelectOrg}
+                isSelectedValueAsText
+                viewOnly={disabledEdit}
+                viewModeType={ViewModes.LINE_SEPARATED}
+                allowedGroupTypes={Object.values(GroupTypes)}
+                isIncludedAdminGroup
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </ErrorBoundary>
     );
   };
 
