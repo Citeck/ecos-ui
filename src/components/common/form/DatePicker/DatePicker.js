@@ -37,7 +37,7 @@ export default class DatePicker extends Component {
 
     if (this.props.showTimeInput) {
       additionalProps.timeInputLabel = `${t('ecos-forms.datepicker.time-input-label')}:`;
-      additionalProps.dateFormat = 'P HH:mm';
+      additionalProps.dateFormat = 'P hh:mm';
     }
 
     return additionalProps;
@@ -64,7 +64,7 @@ export default class DatePicker extends Component {
   };
 
   render() {
-    const { className, showIcon, dateFormat = 'P', wrapperClasses, value, ...otherProps } = this.props;
+    const { className, showIcon, dateFormat, wrapperClasses, value, ...otherProps } = this.props;
 
     return (
       <div className={classNames('ecos-datepicker', { 'ecos-datepicker_show-icon': showIcon }, wrapperClasses)}>
