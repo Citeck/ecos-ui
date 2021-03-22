@@ -7,9 +7,9 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import { getAuthorityInfoByRefs, saveMenuSettings } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
-import { goToJournalsPage } from '../../helpers/urls';
-import { SYSTEM_LIST, SystemJournals } from '../../constants';
-import { MenuTypes } from '../../constants/menu';
+import { goToAdminPage } from '../../helpers/urls';
+import { SystemJournals } from '../../constants';
+import { MenuSettings, MenuTypes } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import { EcosModal, Loader, Tabs } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
@@ -78,9 +78,9 @@ class Settings extends React.Component {
 
   handleGoJournal = () => {
     this.handleHideModal();
-    goToJournalsPage({
+    goToAdminPage({
       journalId: SystemJournals.MENUS,
-      journalsListId: SYSTEM_LIST
+      type: MenuSettings.ItemTypes.JOURNAL
     });
   };
 
