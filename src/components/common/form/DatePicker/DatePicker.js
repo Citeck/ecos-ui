@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import ReactDatePicker from 'react-datepicker';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 
 import { t } from '../../../../helpers/util';
 
@@ -11,7 +10,7 @@ import './DatePicker.scss';
 
 class CustomInput extends Component {
   render() {
-    const { getRef, dateFormat, value, ...otherProps } = this.props;
+    const { getRef, ...otherProps } = this.props;
 
     return <input ref={el => typeof getRef === 'function' && getRef(el)} {...otherProps} />;
   }
@@ -21,7 +20,6 @@ export default class DatePicker extends Component {
   static propTypes = {
     className: PropTypes.string,
     dateFormat: PropTypes.string,
-    dateFormatInput: PropTypes.string,
     selected: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
     showIcon: PropTypes.bool,
     showTimeInput: PropTypes.bool,
@@ -46,7 +44,7 @@ export default class DatePicker extends Component {
   }
 
   get selected() {
-    let selected = this.props.selected || null;
+    let selected = this.props.selected || this.props.value || null;
 
     if (selected && !(selected instanceof Date)) {
       selected = new Date(selected);
@@ -61,24 +59,19 @@ export default class DatePicker extends Component {
 
   renderIcon = () => {
     return this.props.showIcon ? (
-      <span
-        className="icon icon-calendar ecos-datepicker__icon"
-        onClick={() => {
-          this.datePickerInput && this.datePickerInput.click();
-        }}
-      />
+      <span className="icon icon-calendar ecos-datepicker__icon" onClick={() => this.datePickerInput && this.datePickerInput.click()} />
     ) : null;
   };
 
   render() {
-    const { className, showIcon, dateFormat = 'P', wrapperClasses, dateFormatInput = dateFormat, ...otherProps } = this.props;
+    const { className, showIcon, dateFormat = 'P', wrapperClasses, value, ...otherProps } = this.props;
 
     return (
       <div className={classNames('ecos-datepicker', { 'ecos-datepicker_show-icon': showIcon }, wrapperClasses)}>
         <ReactDatePicker
           {...otherProps}
           {...this.timeProps}
-          customInput={<CustomInput dateFormat={dateFormatInput} getRef={el => (this.datePickerInput = el)} />}
+          customInput={<CustomInput getRef={el => (this.datePickerInput = el)} />}
           dateFormat={dateFormat}
           selected={this.selected}
           className={classNames('ecos-input', className)}

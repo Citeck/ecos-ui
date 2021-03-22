@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import classNames from 'classnames';
+import debounce from 'lodash/debounce';
 
 import { Input } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
@@ -14,28 +15,30 @@ export default class TextEditor extends BaseEditor {
 
     return ({ value, onUpdate }) => {
       const [data, setData] = useState(value || '');
-      let inputOnUpdate;
+      const [debounceUpdate, setDebounceUpdate] = useState();
 
-      if (isCell) {
-        inputOnUpdate = setData;
-      } else {
-        inputOnUpdate = value => {
-          setData(value);
-          onUpdate(value);
-        };
-      }
+      useEffect(() => {
+        if (!isCell) {
+          setDebounceUpdate(debounce(onUpdate, 500));
+        }
+      }, []);
+
+      let onInputOnUpdate = value => {
+        setData(value);
+        debounceUpdate && debounceUpdate(value);
+      };
 
       const onInputBlur = () => {
         onUpdate(data);
       };
 
       const onInputChange = e => {
-        inputOnUpdate(e.target.value);
+        onInputOnUpdate(e.target.value);
       };
 
       const onKeyPress = e => {
         if (e.key === 'Enter') {
-          e.preventDefault();
+          e.stopPropagation();
           onUpdate(data);
         }
       };

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import moment from 'moment';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 
 import { DatePicker } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
@@ -59,12 +60,11 @@ export default class DateEditorControl extends React.Component {
   };
 
   render() {
-    const { scope, ...props } = this.props;
+    const { scope, onBlur, onKeyDown } = this.props;
     const isCell = scope === EditorScope.CELL;
 
     return (
       <DatePicker
-        {...props}
         className={classNames({
           'ecos-input_grid-editor': isCell,
           'ecos-input_narrow': !isCell
@@ -73,6 +73,8 @@ export default class DateEditorControl extends React.Component {
           'ecos-filter_width_full': !isCell
         })}
         onChange={this.onChange}
+        onBlur={onBlur}
+        onKeyDown={onKeyDown}
         autoFocus={isCell}
         showIcon={!isCell}
         selected={this.selected}
