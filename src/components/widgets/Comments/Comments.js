@@ -320,6 +320,7 @@ class Comments extends BaseWidget {
     this.setState({
       isEdit: false,
       comment: EditorState.createEmpty(this.decorators),
+      editableComment: null,
       editorHeight: BASE_HEIGHT
     });
   };
