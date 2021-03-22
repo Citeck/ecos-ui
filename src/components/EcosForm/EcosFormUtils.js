@@ -37,6 +37,8 @@ const getComponentInnerAttSchema = component => {
 
   if (dataType === 'json') {
     return 'json';
+  } else if (dataType === 'bool') {
+    return 'bool';
   }
 
   switch (component.type) {
