@@ -92,7 +92,7 @@ export default class MenuSettingsService {
     const { level, configType } = params || {};
 
     return {
-      editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(item.type),
+      editable: knownType && ![ms.ItemTypes.JOURNAL].includes(item.type),
       draggable: knownType && ![].includes(item.type),
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),

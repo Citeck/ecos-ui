@@ -11,29 +11,55 @@ class FormManager {
   static createRecordByVariant = debounce(
     (variant, options = {}) => {
       if (!variant) {
-        console.error("Create variant is undefined. Record creation can't be preformed");
+        console.error("[FormManager createRecordByVariant] Create variant is undefined. Record creation can't be preformed");
         return;
       }
 
-      let recordRef = variant.recordRef || (variant.type ? 'dict@' + variant.type : '');
-      let attributes = variant.attributes || {};
+      let {
+        recordRef: record = '',
+        type,
+        sourceId,
+        formId,
+        formRef,
+        formKey,
+        attributes = {},
+        destination,
+        typeRef,
+        createArguments,
+        formOptions = {}
+      } = variant;
 
-      if (variant.destination && !attributes['_parent']) {
-        attributes['_parent'] = variant.destination;
+      formId = formRef || formId;
+
+      if (!record && sourceId) {
+        record = `${variant.sourceId}@`;
+      }
+
+      if (!record && type) {
+        record = `dict@${variant.type}`;
+      }
+
+      if (destination && !attributes._parent) {
+        attributes._parent = destination;
+      }
+
+      if (typeRef && !attributes._type) {
+        attributes._type = typeRef;
       }
 
       const props = {
-        record: recordRef,
-        formKey: variant.formKey,
+        record,
+        formKey,
         attributes,
         options: {
-          params: this.parseCreateArguments(variant.createArguments)
+          params: this.parseCreateArguments(createArguments),
+          ...formOptions
         },
         ...options
       };
 
-      if (EcosFormUtils.isFormId(variant.formId)) {
-        props.formId = variant.formId;
+      if (EcosFormUtils.isFormId(formId)) {
+        props.formId = formId;
       }
 
       this.openFormModal(props);

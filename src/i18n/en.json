@@ -1261,6 +1261,8 @@
   "menu-settings.editor-item.field.icon.btn.select": "Select",
   "menu-settings.editor-item.field.allowed-for.label": "Allowed for",
   "menu-settings.editor-item.field.allowed-for.placeholder": "everyone",
+  "menu-settings.editor-item.field.create-variant.title": "Create method",
+  "menu-settings.editor-item.field.data-type.title": "Data type",
   "menu-settings.editor-item.title.add": "Create: {{type}}",
   "menu-settings.editor-item.title.edit": "Edit: {{type}} \"{{name}}\"",
   "menu-settings.editor-item.btn.cancel": "Cancel",
@@ -1283,6 +1285,7 @@
   "menu-settings.error.get-group-priority": "Group priority hasn't received",
   "menu-settings.error.save-group-priority": "Group priority hasn't saved",
   "menu-settings.success.save-group-priority": "Group priority has saved",
+  "menu-settings.error.type-not-created": "The selected type cannot be created",
 
   "menu-item.type.section": "Section",
   "menu-item.type.journal": "Journal",

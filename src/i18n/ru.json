@@ -1259,6 +1259,8 @@
   "menu-settings.editor-item.field.icon.btn.select": "Выбрать",
   "menu-settings.editor-item.field.allowed-for.label": "Доступно для",
   "menu-settings.editor-item.field.allowed-for.placeholder": "всех",
+  "menu-settings.editor-item.field.create-variant.title": "Способ создания",
+  "menu-settings.editor-item.field.data-type.title": "Тип данных",
   "menu-settings.editor-item.title.add": "Создать: {{type}}",
   "menu-settings.editor-item.title.edit": "Редактировать: {{type}} \"{{name}}\"",
   "menu-settings.editor-item.btn.cancel": "Отмена",
@@ -1281,6 +1283,7 @@
   "menu-settings.error.get-group-priority": "Приоритеты групп не получены",
   "menu-settings.error.save-group-priority": "Приоритеты групп не сохранены",
   "menu-settings.success.save-group-priority": "Приоритеты групп сохранены",
+  "menu-settings.error.type-not-created": "Выбранный тип создать нельзя",
 
   "menu-item.type.section": "Раздел",
   "menu-item.type.journal": "Журнал",

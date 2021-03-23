@@ -157,7 +157,6 @@ export class OrgStructApi extends RecordService {
       }
 
       if (val.length < 2) {
-
         queryVal.push({
           t: 'or',
           val: searchFields.map(att => ({
@@ -166,41 +165,42 @@ export class OrgStructApi extends RecordService {
             val: val[0]
           }))
         });
-
       } else {
-
         const firstLast = {
           t: 'and',
-          val: [{
-            t: 'contains',
-            att: 'cm:firstName',
-            val: val[0]
-          }, {
-            t: 'contains',
-            att: 'cm:lastName',
-            val: val[1]
-          }]
+          val: [
+            {
+              t: 'contains',
+              att: 'cm:firstName',
+              val: val[0]
+            },
+            {
+              t: 'contains',
+              att: 'cm:lastName',
+              val: val[1]
+            }
+          ]
         };
 
         const lastFirst = {
           t: 'and',
-          val: [{
-            t: 'contains',
-            att: 'cm:lastName',
-            val: val[0]
-          }, {
-            t: 'contains',
-            att: 'cm:firstName',
-            val: val[1]
-          }]
+          val: [
+            {
+              t: 'contains',
+              att: 'cm:lastName',
+              val: val[0]
+            },
+            {
+              t: 'contains',
+              att: 'cm:firstName',
+              val: val[1]
+            }
+          ]
         };
 
         queryVal.push({
           t: 'or',
-          val: [
-            firstLast,
-            lastFirst
-          ]
+          val: [firstLast, lastFirst]
         });
       }
     }

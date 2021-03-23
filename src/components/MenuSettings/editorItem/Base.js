@@ -1,14 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
 
 import { TMP_ICON_EMPTY } from '../../../constants';
 import { MenuSettings as MS } from '../../../constants/menu';
 import { t } from '../../../helpers/export/util';
 import { extractLabel, packInLabel } from '../../../helpers/util';
+import MenuSettingsService from '../../../services/MenuSettingsService';
 import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
 import EcosIcon from '../../common/EcosIcon';
-import MenuSettingsService from '../../../services/MenuSettingsService';
 import IconSelect from '../../IconSelect';
 import { Labels } from '../utils';
 import { Field } from '../Field';
@@ -20,7 +21,8 @@ const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
 class Base extends React.Component {
   state = {
     icon: defaultIcon,
-    isOpenSelectIcon: false
+    isOpenSelectIcon: false,
+    isLoading: false
   };
   type = undefined;
   data = {};
@@ -48,7 +50,7 @@ class Base extends React.Component {
 
     return action === MS.ActionTypes.CREATE
       ? t(Labels.MODAL_TITLE_ADD, { type: t(type.label) })
-      : t(Labels.MODAL_TITLE_EDIT, { type: t(type.label), name: extractLabel(item.label) });
+      : t(Labels.MODAL_TITLE_EDIT, { type: t(type.label), name: extractLabel(get(item, 'label')) });
   }
 
   get permissions() {
@@ -84,21 +86,29 @@ class Base extends React.Component {
   }
 
   wrapperModal = React.memo((props, context) => {
-    const { icon = defaultIcon, isOpenSelectIcon } = this.state;
+    const { icon = defaultIcon, isOpenSelectIcon, isLoading } = this.state;
     const { item, fontIcons, onClose } = this.props;
     const { hasIcon } = this.permissions;
 
     return (
-      <EcosModal className="ecos-menu-editor-item__modal ecos-modal_width-sm" isOpen hideModal={onClose} title={this.title}>
+      <EcosModal
+        className="ecos-menu-editor-item__modal ecos-modal_width-sm"
+        isOpen
+        isLoading={isLoading}
+        hideModal={onClose}
+        title={this.title}
+      >
         {props.children}
         {hasIcon && (
           <Field label={t(Labels.FIELD_ICON_LABEL)} description={t(Labels.FIELD_ICON_DESC)}>
             <div className="ecos-menu-editor-item__field-icon">
               <EcosIcon data={icon} />
               <div className="ecos--flex-space" />
-              <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => this.handleApplyIcon(defaultIcon)}>
-                {t(Labels.FIELD_ICON_BTN_CANCEL)}
-              </Btn>
+              {icon !== defaultIcon && (
+                <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => this.handleApplyIcon(defaultIcon)}>
+                  {t(Labels.FIELD_ICON_BTN_CANCEL)}
+                </Btn>
+              )}
               <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => this.setState({ isOpenSelectIcon: true })}>
                 {t(Labels.FIELD_ICON_BTN_SELECT)}
               </Btn>
