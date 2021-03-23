@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
 
 import { t } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
@@ -97,49 +96,52 @@ export default class Filter extends Component {
     return predicates.filter(p => p.value === predicate.t)[0] || predicates[0];
   };
 
-  ValueControl = React.memo((props, context) => {
-    const {
-      value,
-      filter: {
-        meta: { column },
-        predicate
-      },
-      sourceId,
-      metaRecord
-    } = props;
-    const predicates = getPredicates(column);
-    const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
-    const isShow = !this.predicatesWithoutValue.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
+  ValueControl = React.memo(
+    (props, context) => {
+      const {
+        value,
+        filter: {
+          meta: { column },
+          predicate
+        },
+        sourceId,
+        metaRecord
+      } = props;
+      const predicates = getPredicates(column);
+      const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
+      const isShow = !this.predicatesWithoutValue.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
 
-    if (isShow) {
-      const editorType = get(column, 'newEditor.type');
+      if (isShow) {
+        const editorType = get(column, 'newEditor.type');
 
-      if (EditorService.isRegistered(editorType)) {
-        return EditorService.getEditorControl({
-          recordRef: metaRecord,
-          attribute: column.attribute,
-          editor: column.newEditor,
-          value,
-          scope: EditorScope.FILTER,
-          onUpdate: this.onChangeValue
+        if (EditorService.isRegistered(editorType)) {
+          return EditorService.getEditorControl({
+            recordRef: metaRecord,
+            attribute: column.attribute,
+            editor: column.newEditor,
+            value,
+            scope: EditorScope.FILTER,
+            onUpdate: this.onChangeValue
+          });
+        }
+
+        /** @see {@link EditorService} use it for all filter types*/
+        const predicateInput = getPredicateInput(column, sourceId, metaRecord, predicate);
+
+        const predicateProps = predicateInput.getProps({
+          predicateValue: value,
+          changePredicateValue: this.onChangeValue,
+          datePickerWrapperClasses: 'ecos-filter_width_full',
+          selectClassName: 'select_width_full'
         });
+
+        const FilterValueComponent = predicateInput.component;
+
+        return <FilterValueComponent {...predicateProps} />;
       }
-
-      /** @see {@link EditorService} use it for all filter types*/
-      const predicateInput = getPredicateInput(column, sourceId, metaRecord, predicate);
-
-      const predicateProps = predicateInput.getProps({
-        predicateValue: value,
-        changePredicateValue: this.onChangeValue,
-        datePickerWrapperClasses: 'ecos-filter_width_full',
-        selectClassName: 'select_width_full'
-      });
-
-      const FilterValueComponent = predicateInput.component;
-
-      return <FilterValueComponent {...predicateProps} />;
-    }
-  });
+    },
+    () => true
+  );
 
   render() {
     const btnClasses = 'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height';
