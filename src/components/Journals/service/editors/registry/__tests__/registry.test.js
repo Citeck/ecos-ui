@@ -75,8 +75,8 @@ describe('editors registry', () => {
   describe.each([
     ['boolean', { config: { mode: 'checkbox' }, value: true, checked: true }],
     ['boolean', { config: { mode: 'checkbox' }, value: false, checked: false }],
-    ['date', { showTimeSelect: undefined, dateFormat: 'DD.MM.YYYY' }, WRAPPER],
-    ['datetime', { showTimeSelect: true, dateFormat: 'DD.MM.YYYY HH:mm' }, WRAPPER],
+    ['date', { showTimeSelect: undefined, dateFormat: 'dd.MM.yyyy' }, WRAPPER],
+    ['datetime', { showTimeSelect: true, dateFormat: 'dd.MM.yyyy hh:mm' }, WRAPPER],
     ['journal', { config: { journalId: '1' }, journalId: '1' }],
     ['orgstruct', { config: { allowedAuthorityTypes: 'USER' }, allowedAuthorityTypes: ['USER'] }, WRAPPER],
     ['number', { type: 'number' }],
