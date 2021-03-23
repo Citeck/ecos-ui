@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import moment from 'moment';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import debounce from 'lodash/debounce';
 
 import { DatePicker } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
@@ -51,10 +50,7 @@ export default class DateEditorControl extends React.Component {
 
   componentWillUnmount() {
     this.removeDateEditorContainer();
-    this.debounceUpdate.cancel();
   }
-
-  debounceUpdate = debounce(this.props.onUpdate || (_ => _), 3000);
 
   onChange = value => {
     const date = moment(value)
@@ -62,18 +58,16 @@ export default class DateEditorControl extends React.Component {
       .format();
 
     this.setState({ date });
-    !this.isCell && this.debounceUpdate(date);
   };
 
-  onBlur = () => {
+  sendData = () => {
     this.props.onUpdate && this.props.onUpdate(this.state.date);
-    this.debounceUpdate.cancel();
   };
 
   onKeyDown = e => {
     if (e.key === 'Enter') {
       e.stopPropagation();
-      this.onBlur();
+      this.sendData();
     }
   };
 
@@ -88,7 +82,7 @@ export default class DateEditorControl extends React.Component {
           'ecos-filter_width_full': !this.isCell
         })}
         onChange={this.onChange}
-        onBlur={this.onBlur}
+        onBlur={this.sendData}
         onKeyDown={this.onKeyDown}
         autoFocus={this.isCell}
         showIcon={!this.isCell}

@@ -6,7 +6,11 @@ import './Input.scss';
 
 export default class Input extends Component {
   static propTypes = {
-    align: PropTypes.oneOf(['left', 'center', 'right'])
+    align: PropTypes.oneOf(['left', 'center', 'right']),
+    forwardedRef: PropTypes.func,
+    type: PropTypes.string,
+    autoFocus: PropTypes.bool,
+    autoSelect: PropTypes.string
   };
 
   static defaultProps = {

@@ -4,15 +4,13 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../../helpers/util';
+import Input from '../Input';
 
-import '../Input/Input.scss';
 import './DatePicker.scss';
 
 class CustomInput extends Component {
   render() {
-    const { getRef, ...otherProps } = this.props;
-
-    return <input ref={el => typeof getRef === 'function' && getRef(el)} {...otherProps} />;
+    return <Input {...this.props} />;
   }
 }
 
@@ -75,10 +73,10 @@ export default class DatePicker extends Component {
         <ReactDatePicker
           {...otherProps}
           {...this.timeProps}
-          customInput={<CustomInput getRef={el => (this.datePickerInput = el)} />}
+          customInput={<CustomInput forwardedRef={el => (this.datePickerInput = el)} />}
           dateFormat={dateFormat}
           selected={this.selected}
-          className={classNames('ecos-input', className)}
+          className={classNames('ecos-input_hover', className)}
           calendarClassName="ecos-datepicker__calendar"
           onSelect={this.setInputFocus}
         />
