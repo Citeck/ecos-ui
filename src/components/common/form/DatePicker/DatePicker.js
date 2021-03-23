@@ -57,6 +57,10 @@ export default class DatePicker extends Component {
     return selected;
   }
 
+  setInputFocus = () => {
+    !this.props.disabled && !this.props.readOnly && this.datePickerInput && this.datePickerInput.focus();
+  };
+
   renderIcon = () => {
     return this.props.showIcon ? (
       <span className="icon icon-calendar ecos-datepicker__icon" onClick={() => this.datePickerInput && this.datePickerInput.click()} />
@@ -76,6 +80,7 @@ export default class DatePicker extends Component {
           selected={this.selected}
           className={classNames('ecos-input', className)}
           calendarClassName="ecos-datepicker__calendar"
+          onSelect={this.setInputFocus}
         />
         {this.renderIcon()}
       </div>

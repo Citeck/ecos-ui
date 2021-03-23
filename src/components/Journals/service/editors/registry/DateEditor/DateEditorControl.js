@@ -17,6 +17,11 @@ export default class DateEditorControl extends React.Component {
     };
   }
 
+  get isCell() {
+    const { scope } = this.props;
+    return scope === EditorScope.CELL;
+  }
+
   get dateFormat() {
     return 'dd.MM.yyyy';
   }
@@ -49,7 +54,7 @@ export default class DateEditorControl extends React.Component {
     this.debounceUpdate.cancel();
   }
 
-  debounceUpdate = this.props.onUpdate ? debounce(this.props.onUpdate, 3000) : _ => _;
+  debounceUpdate = debounce(this.props.onUpdate || (_ => _), 3000);
 
   onChange = value => {
     const date = moment(value)
@@ -57,7 +62,7 @@ export default class DateEditorControl extends React.Component {
       .format();
 
     this.setState({ date });
-    this.debounceUpdate(date);
+    !this.isCell && this.debounceUpdate(date);
   };
 
   onBlur = () => {
@@ -73,23 +78,20 @@ export default class DateEditorControl extends React.Component {
   };
 
   render() {
-    const { scope } = this.props;
-    const isCell = scope === EditorScope.CELL;
-
     return (
       <DatePicker
         className={classNames({
-          'ecos-input_grid-editor': isCell,
-          'ecos-input_narrow': !isCell
+          'ecos-input_grid-editor': this.isCell,
+          'ecos-input_narrow': !this.isCell
         })}
         wrapperClasses={classNames({
-          'ecos-filter_width_full': !isCell
+          'ecos-filter_width_full': !this.isCell
         })}
         onChange={this.onChange}
         onBlur={this.onBlur}
         onKeyDown={this.onKeyDown}
-        autoFocus={isCell}
-        showIcon={!isCell}
+        autoFocus={this.isCell}
+        showIcon={!this.isCell}
         selected={this.selected}
         dateFormat={this.dateFormat}
         popperPlacement="top"
