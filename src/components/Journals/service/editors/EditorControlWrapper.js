@@ -15,10 +15,16 @@ export default class EditorControlWrapper extends React.Component {
       initEditorValue: editorValue,
       control: props.control
     };
+
+    this.exist = true;
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     return !isEqual(nextProps.value, this.props.value);
+  }
+
+  componentWillUnmount() {
+    this.exist = false;
   }
 
   _setRichValue(value, changeTime, resolve) {
@@ -67,7 +73,9 @@ export default class EditorControlWrapper extends React.Component {
 
     if (richValue.then) {
       richValue.then(res => {
-        this._setRichValue(res, changedTime, resolve);
+        if (this.exist) {
+          this._setRichValue(res, changedTime, resolve);
+        }
       });
     } else {
       this._setRichValue(richValue, changedTime, resolve);
@@ -110,13 +118,15 @@ export default class EditorControlWrapper extends React.Component {
 
     const onUpdate = (v, state) => {
       return new Promise(resolve => {
-        this._handleChange(v, state, resolve);
+        if (this.exist) {
+          this._handleChange(v, state, resolve);
+        }
       });
     };
 
     const Control = this.props.control;
     const value = this.state.editorValue;
-    console.log(2, value);
+
     return (
       <Control
         recordRef={recordRef}

@@ -6,6 +6,10 @@ import { Input } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
 import BaseEditor from '../BaseEditor';
 
+const debounceUpdater = debounce(update => {
+  update && update();
+}, 500);
+
 export default class TextEditor extends BaseEditor {
   static TYPE = 'text';
   inputType = TextEditor.TYPE;
@@ -15,20 +19,13 @@ export default class TextEditor extends BaseEditor {
 
     return ({ value, onUpdate }) => {
       const [data, setData] = useState(value || '');
-      const [debounceUpdate, setDebounceUpdate] = useState();
 
-      useEffect(() => {
-        if (!isCell) {
-          setDebounceUpdate(debounce(onUpdate, 500));
-        }
-      }, []);
-
-      let onInputOnUpdate = value => {
+      const onInputOnUpdate = value => {
         setData(value);
-        debounceUpdate && debounceUpdate(value);
+        !isCell && debounceUpdater(sendDate);
       };
 
-      const onInputBlur = () => {
+      const sendDate = () => {
         onUpdate(data);
       };
 
@@ -39,7 +36,7 @@ export default class TextEditor extends BaseEditor {
       const onKeyPress = e => {
         if (e.key === 'Enter') {
           e.stopPropagation();
-          onUpdate(data);
+          sendDate();
         }
       };
 
@@ -52,7 +49,7 @@ export default class TextEditor extends BaseEditor {
             'ecos-input_narrow': !isCell
           })}
           onChange={onInputChange}
-          onBlur={onInputBlur}
+          onBlur={sendDate}
           onKeyPress={onKeyPress}
           autoFocus={isCell}
         />
