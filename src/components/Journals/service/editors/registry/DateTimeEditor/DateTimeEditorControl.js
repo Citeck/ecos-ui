@@ -8,7 +8,7 @@ export default class DateTimeEditorControl extends DateEditorControl {
   get extraProps() {
     return {
       ...super.extraProps,
-      showTimeSelect: true
+      showTimeInput: true
     };
   }
 }

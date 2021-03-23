@@ -31,14 +31,22 @@ export default class DatePicker extends Component {
   };
 
   get timeProps() {
-    const additionalProps = {};
-
-    if (this.props.showTimeInput) {
-      additionalProps.timeInputLabel = `${t('ecos-forms.datepicker.time-input-label')}:`;
-      additionalProps.dateFormat = 'P hh:mm';
+    if (this.props.showTimeInput || this.props.showTimeSelect) {
+      return {
+        timeInputLabel: `${t('ecos-forms.datepicker.time-label')}:`,
+        timeCaption: `${t('ecos-forms.datepicker.time-label')}`,
+        dateFormat: 'P hh:mm'
+      };
     }
 
-    return additionalProps;
+    return {};
+  }
+
+  get monthProps() {
+    return {
+      previousMonthButtonLabel: t('ecos-forms.datepicker.month-prev-label'),
+      nextMonthButtonLabel: t('ecos-forms.datepicker.month-next-label')
+    };
   }
 
   get selected() {
@@ -73,6 +81,7 @@ export default class DatePicker extends Component {
         <ReactDatePicker
           {...otherProps}
           {...this.timeProps}
+          {...this.monthProps}
           customInput={<CustomInput forwardedRef={el => (this.datePickerInput = el)} />}
           dateFormat={dateFormat}
           selected={this.selected}

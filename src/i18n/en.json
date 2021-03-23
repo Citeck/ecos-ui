@@ -369,7 +369,9 @@
   "ecos-form.error.clone-record": "Record hasn't cloned",
   "ecos-form.success.clone-record": "Record has cloned",
 
-  "ecos-forms.datepicker.time-input-label": "Time",
+  "ecos-forms.datepicker.time-label": "Time",
+  "ecos-forms.datepicker.month-prev-label": "Previous Month",
+  "ecos-forms.datepicker.month-next-label": "Next Month",
   "ecos-table-form.create-button": "Create",
   "ecos-table-form.import-button": "Import",
   "ecos-table-form.create-modal.title": "Create",

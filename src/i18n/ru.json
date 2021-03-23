@@ -368,7 +368,9 @@
   "ecos-form.error.clone-record": "Клонирование записи не удалось",
   "ecos-form.success.clone-record": "Запись склонирована",
 
-  "ecos-forms.datepicker.time-input-label": "Время",
+  "ecos-forms.datepicker.time-label": "Время",
+  "ecos-forms.datepicker.month-prev-label": "Предыдущий месяц",
+  "ecos-forms.datepicker.month-next-label": "Следующий месяц",
   "ecos-table-form.create-button": "Создать",
   "ecos-table-form.import-button": "Импорт",
   "ecos-table-form.create-modal.title": "Создать",
