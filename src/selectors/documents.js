@@ -52,6 +52,7 @@ export const selectStateByKey = createSelector(
   }
 );
 
+const getDynamicTypes = state => get(state, 'dynamicTypes', []);
 const getDocumentsByTypes = state => get(state, 'documentsByTypes');
 const dynamicTypesIds = state => getDynamicTypes(state).map(item => item.type);
 
@@ -75,25 +76,32 @@ const selectActions = createSelector(
   ownProps => get(ownProps, 'actions', {})
 );
 
+export const selectDynamicTypes = createSelector(
+  selectState,
+  getDynamicTypes
+);
+
+// todo: Истина где-то рядом!
 export const selectDocumentsByTypes = createSelector(
   selectDocuments,
-  selectAvailableTypesById,
+  selectDynamicTypes,
   selectActions,
   (documents, types, actions) => {
-    return types.reduce(
-      (result, type) => ({
+    console.warn({ documents, types, actions });
+
+    return types.reduce((result, item) => {
+      return {
         ...result,
-        [type.id]: {
-          ...omit(type, ['actions']),
-          documents: get(documents, type.id, []).map(doc => ({
+        [item.type]: {
+          ...omit(item, ['actions']),
+          documents: get(documents, item.type, []).map(doc => ({
             ...doc,
             [documentFields.modified]: getOutputFormat(DataFormatTypes.DATE, doc[documentFields.modified]),
             actions: get(actions, doc[documentFields.id], [])
           }))
         }
-      }),
-      {}
-    );
+      };
+    }, {});
   }
 );
 
@@ -120,7 +128,6 @@ export const selectMobileStateByKey = createSelector(
 );
 
 const getAvailableTypes = state => get(state, 'availableTypes', []);
-const getDynamicTypes = state => get(state, 'dynamicTypes', []);
 
 export const selectIsLoadChecklist = createSelector(
   selectState,
@@ -156,11 +163,6 @@ export const selectTypeNames = createSelector(
 );
 
 export const selectTypeById = (state, key, id) => get(selectState(state, key), 'availableTypes', []).find(type => type.id === id);
-
-export const selectDynamicTypes = createSelector(
-  selectState,
-  getDynamicTypes
-);
 
 export const selectDynamicType = (state, key, id) => {
   const types = selectDynamicTypes(state, key);
