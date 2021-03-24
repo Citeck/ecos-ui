@@ -3815,11 +3815,8 @@ ShallowWrapper {
                 popupClassName="ecos-comments__comment-tag-popper"
                 size="small"
                 state="info"
-                text={
-                  Object {
-                    "name": "Tester",
-                  }
-                }
+                style={Object {}}
+                text=""
                 withPopup={true}
               />
               <Badge
@@ -3827,12 +3824,8 @@ ShallowWrapper {
                 popupClassName="ecos-comments__comment-tag-popper"
                 size="small"
                 state="info"
-                text={
-                  Object {
-                    "name": "№1 (01.01.2021)",
-                    "type": "task",
-                  }
-                }
+                style={Object {}}
+                text=""
                 withPopup={true}
               />
               <Badge
@@ -3840,12 +3833,8 @@ ShallowWrapper {
                 popupClassName="ecos-comments__comment-tag-popper"
                 size="small"
                 state="info"
-                text={
-                  Object {
-                    "name": "№22 (09.02.2021)",
-                    "type": "action",
-                  }
-                }
+                style={Object {}}
+                text=""
                 withPopup={true}
               />
             </div>
@@ -3913,11 +3902,8 @@ ShallowWrapper {
                   popupClassName="ecos-comments__comment-tag-popper"
                   size="small"
                   state="info"
-                  text={
-                    Object {
-                      "name": "Tester",
-                    }
-                  }
+                  style={Object {}}
+                  text=""
                   withPopup={true}
                 />
                 <Badge
@@ -3925,12 +3911,8 @@ ShallowWrapper {
                   popupClassName="ecos-comments__comment-tag-popper"
                   size="small"
                   state="info"
-                  text={
-                    Object {
-                      "name": "№1 (01.01.2021)",
-                      "type": "task",
-                    }
-                  }
+                  style={Object {}}
+                  text=""
                   withPopup={true}
                 />
                 <Badge
@@ -3938,12 +3920,8 @@ ShallowWrapper {
                   popupClassName="ecos-comments__comment-tag-popper"
                   size="small"
                   state="info"
-                  text={
-                    Object {
-                      "name": "№22 (09.02.2021)",
-                      "type": "action",
-                    }
-                  }
+                  style={Object {}}
+                  text=""
                   withPopup={true}
                 />
               </div>
@@ -3998,11 +3976,8 @@ ShallowWrapper {
                     popupClassName="ecos-comments__comment-tag-popper"
                     size="small"
                     state="info"
-                    text={
-                      Object {
-                        "name": "Tester",
-                      }
-                    }
+                    style={Object {}}
+                    text=""
                     withPopup={true}
                   />
                   <Badge
@@ -4010,12 +3985,8 @@ ShallowWrapper {
                     popupClassName="ecos-comments__comment-tag-popper"
                     size="small"
                     state="info"
-                    text={
-                      Object {
-                        "name": "№1 (01.01.2021)",
-                        "type": "task",
-                      }
-                    }
+                    style={Object {}}
+                    text=""
                     withPopup={true}
                   />
                   <Badge
@@ -4023,12 +3994,8 @@ ShallowWrapper {
                     popupClassName="ecos-comments__comment-tag-popper"
                     size="small"
                     state="info"
-                    text={
-                      Object {
-                        "name": "№22 (09.02.2021)",
-                        "type": "action",
-                      }
-                    }
+                    style={Object {}}
+                    text=""
                     withPopup={true}
                   />
                 </div>,
@@ -4138,11 +4105,8 @@ ShallowWrapper {
                       popupClassName="ecos-comments__comment-tag-popper"
                       size="small"
                       state="info"
-                      text={
-                        Object {
-                          "name": "Tester",
-                        }
-                      }
+                      style={Object {}}
+                      text=""
                       withPopup={true}
                     />,
                     <Badge
@@ -4150,12 +4114,8 @@ ShallowWrapper {
                       popupClassName="ecos-comments__comment-tag-popper"
                       size="small"
                       state="info"
-                      text={
-                        Object {
-                          "name": "№1 (01.01.2021)",
-                          "type": "task",
-                        }
-                      }
+                      style={Object {}}
+                      text=""
                       withPopup={true}
                     />,
                     <Badge
@@ -4163,12 +4123,8 @@ ShallowWrapper {
                       popupClassName="ecos-comments__comment-tag-popper"
                       size="small"
                       state="info"
-                      text={
-                        Object {
-                          "name": "№22 (09.02.2021)",
-                          "type": "action",
-                        }
-                      }
+                      style={Object {}}
+                      text=""
                       withPopup={true}
                     />,
                   ],
@@ -4178,16 +4134,15 @@ ShallowWrapper {
                 "rendered": Array [
                   Object {
                     "instance": null,
-                    "key": "[object Object]",
+                    "key": undefined,
                     "nodeType": "class",
                     "props": Object {
                       "className": "ecos-comments__comment-tag",
                       "popupClassName": "ecos-comments__comment-tag-popper",
                       "size": "small",
                       "state": "info",
-                      "text": Object {
-                        "name": "Tester",
-                      },
+                      "style": Object {},
+                      "text": "",
                       "withPopup": true,
                     },
                     "ref": null,
@@ -4196,17 +4151,15 @@ ShallowWrapper {
                   },
                   Object {
                     "instance": null,
-                    "key": "[object Object]",
+                    "key": undefined,
                     "nodeType": "class",
                     "props": Object {
                       "className": "ecos-comments__comment-tag",
                       "popupClassName": "ecos-comments__comment-tag-popper",
                       "size": "small",
                       "state": "info",
-                      "text": Object {
-                        "name": "№1 (01.01.2021)",
-                        "type": "task",
-                      },
+                      "style": Object {},
+                      "text": "",
                       "withPopup": true,
                     },
                     "ref": null,
@@ -4215,17 +4168,15 @@ ShallowWrapper {
                   },
                   Object {
                     "instance": null,
-                    "key": "[object Object]",
+                    "key": undefined,
                     "nodeType": "class",
                     "props": Object {
                       "className": "ecos-comments__comment-tag",
                       "popupClassName": "ecos-comments__comment-tag-popper",
                       "size": "small",
                       "state": "info",
-                      "text": Object {
-                        "name": "№22 (09.02.2021)",
-                        "type": "action",
-                      },
+                      "style": Object {},
+                      "text": "",
                       "withPopup": true,
                     },
                     "ref": null,
@@ -4326,11 +4277,8 @@ ShallowWrapper {
                   popupClassName="ecos-comments__comment-tag-popper"
                   size="small"
                   state="info"
-                  text={
-                    Object {
-                      "name": "Tester",
-                    }
-                  }
+                  style={Object {}}
+                  text=""
                   withPopup={true}
                 />
                 <Badge
@@ -4338,12 +4286,8 @@ ShallowWrapper {
                   popupClassName="ecos-comments__comment-tag-popper"
                   size="small"
                   state="info"
-                  text={
-                    Object {
-                      "name": "№1 (01.01.2021)",
-                      "type": "task",
-                    }
-                  }
+                  style={Object {}}
+                  text=""
                   withPopup={true}
                 />
                 <Badge
@@ -4351,12 +4295,8 @@ ShallowWrapper {
                   popupClassName="ecos-comments__comment-tag-popper"
                   size="small"
                   state="info"
-                  text={
-                    Object {
-                      "name": "№22 (09.02.2021)",
-                      "type": "action",
-                    }
-                  }
+                  style={Object {}}
+                  text=""
                   withPopup={true}
                 />
               </div>
@@ -4424,11 +4364,8 @@ ShallowWrapper {
                     popupClassName="ecos-comments__comment-tag-popper"
                     size="small"
                     state="info"
-                    text={
-                      Object {
-                        "name": "Tester",
-                      }
-                    }
+                    style={Object {}}
+                    text=""
                     withPopup={true}
                   />
                   <Badge
@@ -4436,12 +4373,8 @@ ShallowWrapper {
                     popupClassName="ecos-comments__comment-tag-popper"
                     size="small"
                     state="info"
-                    text={
-                      Object {
-                        "name": "№1 (01.01.2021)",
-                        "type": "task",
-                      }
-                    }
+                    style={Object {}}
+                    text=""
                     withPopup={true}
                   />
                   <Badge
@@ -4449,12 +4382,8 @@ ShallowWrapper {
                     popupClassName="ecos-comments__comment-tag-popper"
                     size="small"
                     state="info"
-                    text={
-                      Object {
-                        "name": "№22 (09.02.2021)",
-                        "type": "action",
-                      }
-                    }
+                    style={Object {}}
+                    text=""
                     withPopup={true}
                   />
                 </div>
@@ -4509,11 +4438,8 @@ ShallowWrapper {
                       popupClassName="ecos-comments__comment-tag-popper"
                       size="small"
                       state="info"
-                      text={
-                        Object {
-                          "name": "Tester",
-                        }
-                      }
+                      style={Object {}}
+                      text=""
                       withPopup={true}
                     />
                     <Badge
@@ -4521,12 +4447,8 @@ ShallowWrapper {
                       popupClassName="ecos-comments__comment-tag-popper"
                       size="small"
                       state="info"
-                      text={
-                        Object {
-                          "name": "№1 (01.01.2021)",
-                          "type": "task",
-                        }
-                      }
+                      style={Object {}}
+                      text=""
                       withPopup={true}
                     />
                     <Badge
@@ -4534,12 +4456,8 @@ ShallowWrapper {
                       popupClassName="ecos-comments__comment-tag-popper"
                       size="small"
                       state="info"
-                      text={
-                        Object {
-                          "name": "№22 (09.02.2021)",
-                          "type": "action",
-                        }
-                      }
+                      style={Object {}}
+                      text=""
                       withPopup={true}
                     />
                   </div>,
@@ -4649,11 +4567,8 @@ ShallowWrapper {
                         popupClassName="ecos-comments__comment-tag-popper"
                         size="small"
                         state="info"
-                        text={
-                          Object {
-                            "name": "Tester",
-                          }
-                        }
+                        style={Object {}}
+                        text=""
                         withPopup={true}
                       />,
                       <Badge
@@ -4661,12 +4576,8 @@ ShallowWrapper {
                         popupClassName="ecos-comments__comment-tag-popper"
                         size="small"
                         state="info"
-                        text={
-                          Object {
-                            "name": "№1 (01.01.2021)",
-                            "type": "task",
-                          }
-                        }
+                        style={Object {}}
+                        text=""
                         withPopup={true}
                       />,
                       <Badge
@@ -4674,12 +4585,8 @@ ShallowWrapper {
                         popupClassName="ecos-comments__comment-tag-popper"
                         size="small"
                         state="info"
-                        text={
-                          Object {
-                            "name": "№22 (09.02.2021)",
-                            "type": "action",
-                          }
-                        }
+                        style={Object {}}
+                        text=""
                         withPopup={true}
                       />,
                     ],
@@ -4689,16 +4596,15 @@ ShallowWrapper {
                   "rendered": Array [
                     Object {
                       "instance": null,
-                      "key": "[object Object]",
+                      "key": undefined,
                       "nodeType": "class",
                       "props": Object {
                         "className": "ecos-comments__comment-tag",
                         "popupClassName": "ecos-comments__comment-tag-popper",
                         "size": "small",
                         "state": "info",
-                        "text": Object {
-                          "name": "Tester",
-                        },
+                        "style": Object {},
+                        "text": "",
                         "withPopup": true,
                       },
                       "ref": null,
@@ -4707,17 +4613,15 @@ ShallowWrapper {
                     },
                     Object {
                       "instance": null,
-                      "key": "[object Object]",
+                      "key": undefined,
                       "nodeType": "class",
                       "props": Object {
                         "className": "ecos-comments__comment-tag",
                         "popupClassName": "ecos-comments__comment-tag-popper",
                         "size": "small",
                         "state": "info",
-                        "text": Object {
-                          "name": "№1 (01.01.2021)",
-                          "type": "task",
-                        },
+                        "style": Object {},
+                        "text": "",
                         "withPopup": true,
                       },
                       "ref": null,
@@ -4726,17 +4630,15 @@ ShallowWrapper {
                     },
                     Object {
                       "instance": null,
-                      "key": "[object Object]",
+                      "key": undefined,
                       "nodeType": "class",
                       "props": Object {
                         "className": "ecos-comments__comment-tag",
                         "popupClassName": "ecos-comments__comment-tag-popper",
                         "size": "small",
                         "state": "info",
-                        "text": Object {
-                          "name": "№22 (09.02.2021)",
-                          "type": "action",
-                        },
+                        "style": Object {},
+                        "text": "",
                         "withPopup": true,
                       },
                       "ref": null,

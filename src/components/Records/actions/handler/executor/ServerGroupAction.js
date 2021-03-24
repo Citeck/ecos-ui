@@ -68,7 +68,7 @@ const showFormIfRequired = groupAction => {
 
         resolve(action);
       },
-      onHideModal: () => {
+      onFormCancel: () => {
         resolve(null);
       }
     });

@@ -292,7 +292,7 @@
       color: $color-black;
       padding: 5px;
       margin-bottom: 5px;
-      max-width: 250px;
+      display: inline-block;
 
       &:not(:last-of-type) {
         margin-right: 5px;
@@ -300,14 +300,15 @@
 
       &-container {
         display: inline-block;
+        max-width: calc(100% - 60px);
 
         margin-left: 5px;
         margin-top: -7px;
-        max-width: 100%;
+        margin-right: 50px;
       }
 
       &-popper {
-        max-width: 300px;
+        max-width: 60vw;
         padding: 5px;
       }
     }
