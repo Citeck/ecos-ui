@@ -20,7 +20,6 @@ export default class DataMapComponent extends FormIODataMapComponent {
   }
 
   static optimizeSchema(comp) {
-    console.log(comp);
     const optimizedComponent = { ...comp };
     const valueComponent = comp.valueComponent;
 
