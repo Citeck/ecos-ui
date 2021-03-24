@@ -54,22 +54,9 @@ export const selectStateByKey = createSelector(
 
 const getDynamicTypes = state => get(state, 'dynamicTypes', []);
 const getDocumentsByTypes = state => get(state, 'documentsByTypes');
-const dynamicTypesIds = state => getDynamicTypes(state).map(item => item.type);
-
 const selectDocuments = createSelector(
   selectState,
   getDocumentsByTypes
-);
-const selectTypeIds = createSelector(
-  selectState,
-  dynamicTypesIds
-);
-const selectAvailableTypesById = createSelector(
-  selectState,
-  selectTypeIds,
-  (ownProps, typesIds) => {
-    return getAvailableTypes(ownProps).filter(type => typesIds.includes(type.id));
-  }
 );
 const selectActions = createSelector(
   selectState,
@@ -81,16 +68,13 @@ export const selectDynamicTypes = createSelector(
   getDynamicTypes
 );
 
-// todo: Истина где-то рядом!
 export const selectDocumentsByTypes = createSelector(
   selectDocuments,
   selectDynamicTypes,
   selectActions,
-  (documents, types, actions) => {
-    console.warn({ documents, types, actions });
-
-    return types.reduce((result, item) => {
-      return {
+  (documents, types, actions) =>
+    types.reduce(
+      (result, item) => ({
         ...result,
         [item.type]: {
           ...omit(item, ['actions']),
@@ -100,9 +84,9 @@ export const selectDocumentsByTypes = createSelector(
             actions: get(actions, doc[documentFields.id], [])
           }))
         }
-      };
-    }, {});
-  }
+      }),
+      {}
+    )
 );
 
 export const selectMobileStateByKey = createSelector(
@@ -201,7 +185,7 @@ export const selectGroupedAvailableTypes = createSelector(
   getDynamicTypes,
   (availableTypes, dynamicTypes) => {
     const selectedTypes = dynamicTypes.map(item => item.type);
-    const getChilds = (filtered = [], types = filtered) => {
+    const getChildren = (filtered = [], types = filtered) => {
       return filtered.map(item => {
         const dType = dynamicTypes.find(i => i.type === item.id);
         const dTypeParams = {
@@ -222,7 +206,7 @@ export const selectGroupedAvailableTypes = createSelector(
           ...item,
           ...dTypeParams,
           isSelected: selectedTypes.includes(item.id),
-          items: getChilds(types.filter(type => type.parent && type.parent === item.id), types)
+          items: getChildren(types.filter(type => type.parent && type.parent === item.id), types)
         };
       });
     };
@@ -241,7 +225,7 @@ export const selectGroupedAvailableTypes = createSelector(
           ...item,
           ...dTypeParams,
           isSelected: selectedTypes.includes(item.id),
-          items: getChilds(availableTypes.filter(type => type.parent === item.id), availableTypes)
+          items: getChildren(availableTypes.filter(type => type.parent === item.id), availableTypes)
         };
       });
   }
