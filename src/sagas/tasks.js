@@ -6,10 +6,8 @@ import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '.
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import TasksConverter from '../dto/tasks';
-import TasksService from '../services/tasks';
 import SidebarService from '../services/sidebar';
 import Records from '../components/Records';
-import { ActionTypes } from '../components/Records/actions';
 
 function* sagaGetTasks({ api, logger }, { payload }) {
   try {
@@ -38,25 +36,10 @@ function* sagaGetTasks({ api, logger }, { payload }) {
 
 function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
   try {
-    const { taskId, stateId, assignTo } = payload;
+    const { record, stateId } = payload;
 
-    const result = yield call(api.recordActions.executeAction, {
-      records: taskId,
-      action: { type: ActionTypes.SET_TASK_ASSIGNEE, assignTo, errorMsg: t('tasks-widget.error.failed-assign-task') }
-    });
-
-    if (result.cancel) {
-      yield put(setTaskAssignee({ stateId }));
-    } else {
-      const updatedFields = yield call(api.tasks.getTaskStateAssign, { taskId });
-      const data = yield TasksService.updateList({ stateId, taskId, updatedFields, ownerUserName: result });
-      const documentRef = yield call(api.tasks.getDocumentByTaskId, taskId);
-
-      yield put(setTaskAssignee({ stateId, ...data }));
-      yield Records.get(documentRef).update();
-
-      SidebarService.emitter.emit(SidebarService.UPDATE_EVENT);
-    }
+    yield put(setTaskAssignee({ stateId }));
+    yield Records.get(record).update();
   } catch (e) {
     yield put(setNotificationMessage(t('tasks-widget.error.assign-task')));
     logger.error('[tasks/sagaChangeAssigneeTask saga] error', e.message);
