@@ -174,29 +174,25 @@ class MobileDocuments extends BaseDocuments {
       return null;
     }
 
-    return this.filteredDynamicTypes.map(item => {
-      // console.warn({ item });
-
-      return (
-        <TypeItem
-          key={item.type}
-          type={item}
-          canUploaded={!isUploadingFile}
-          onUpload={this.handleToggleUploadModalByType}
-          tooltip={this.renderCountStatus(item, 'type')}
-          uploadPercent={get(selectedTypeForLoading, 'type') === item.type ? uploadPercent : null}
-        >
-          {get(documentsByTypes, [item.type, 'documents'], []).map(document => (
-            <DocumentItem
-              canUploaded={!isLoadingUploadingModal}
-              key={document[documentFields.id]}
-              {...document}
-              onClickAction={this.handleClickAction}
-            />
-          ))}
-        </TypeItem>
-      );
-    });
+    return this.filteredDynamicTypes.map(item => (
+      <TypeItem
+        key={item.type}
+        type={item}
+        canUploaded={!isUploadingFile}
+        onUpload={this.handleToggleUploadModalByType}
+        tooltip={this.renderCountStatus(item, 'type')}
+        uploadPercent={get(selectedTypeForLoading, 'type') === item.type ? uploadPercent : null}
+      >
+        {get(documentsByTypes, [item.type, 'documents'], []).map(document => (
+          <DocumentItem
+            canUploaded={!isLoadingUploadingModal}
+            key={document[documentFields.id]}
+            {...document}
+            onClickAction={this.handleClickAction}
+          />
+        ))}
+      </TypeItem>
+    ));
   }
 
   render() {
