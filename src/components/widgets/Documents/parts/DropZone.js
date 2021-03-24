@@ -8,9 +8,9 @@ import { t } from '../../../../helpers/util';
 import { FileStatuses } from '../../../../helpers/ecosXhr';
 
 const Labels = {
-  DROPZONE_PLACEHOLDER: 'versions-journal-widget.modal.dropzone_placeholder',
-  DROPZONE_BUTTON_SELECT: 'versions-journal-widget.modal.dropzone_button_select',
-  DROPZONE_BUTTON_CANCEL: 'versions-journal-widget.modal.dropzone_button_cancel',
+  DROPZONE_PLACEHOLDER: 'dropzone.modal.dropzone_placeholder',
+  DROPZONE_BUTTON_SELECT: 'dropzone.modal.dropzone_button_select',
+  DROPZONE_BUTTON_CANCEL: 'dropzone.modal.dropzone_button_cancel',
 
   Messages: {
     ERROR_FILE_SIZE_MIN: 'versions-journal-widget.modal.error-file-size',
