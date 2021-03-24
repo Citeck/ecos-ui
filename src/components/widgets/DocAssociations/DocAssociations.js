@@ -287,6 +287,7 @@ class DocAssociations extends BaseWidget {
         </DropdownToggle>
         <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade ecos-doc-associations__menu">
           <Menu
+            cascadeClassName="ecos-doc-associations__menu-cascade"
             emptyMessage={t(LABELS.EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE)}
             items={menu}
             mode="cascade"

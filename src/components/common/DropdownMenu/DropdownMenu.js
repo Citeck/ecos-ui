@@ -30,6 +30,7 @@ export default class DropdownMenu extends React.Component {
     }),
     isLoading: PropTypes.bool,
     emptyMessage: PropTypes.string,
+    cascadeClassName: PropTypes.string,
     onClick: PropTypes.func
   };
 
@@ -72,7 +73,7 @@ export default class DropdownMenu extends React.Component {
 
     switch (mode) {
       case MenuModes.CASCADE:
-        return <DropdownMenuCascade groups={menu} onClick={onClick} />;
+        return <DropdownMenuCascade className={someProps.cascadeClassName} groups={menu} onClick={onClick} />;
       case MenuModes.GROUP: {
         const { showGroupName, showSeparator } = setGroup;
 

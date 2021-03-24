@@ -21,6 +21,11 @@
     .ecos-dropdown__menu_cascade[x-placement='left-start'] {
       left: -5px !important;
     }
+
+    &-cascade {
+      max-height: calc(100vh - 20px);
+      overflow: auto;
+    }
   }
 
   &__headline {

@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
@@ -8,6 +9,7 @@ import DropdownMenuItem from './DropdownMenuItem';
 export default class DropdownMenuCascade extends React.Component {
   static propTypes = {
     groups: PropTypes.array,
+    className: PropTypes.string,
     onClick: PropTypes.func
   };
 
@@ -15,9 +17,25 @@ export default class DropdownMenuCascade extends React.Component {
     groups: []
   };
 
+  #portalElement;
+
   state = {
     openedItem: null
   };
+
+  constructor(props) {
+    super(props);
+
+    this.#portalElement = document.createElement('div');
+  }
+
+  componentDidMount() {
+    document.body.appendChild(this.#portalElement);
+  }
+
+  componentWillUnmount() {
+    document.body.removeChild(this.#portalElement);
+  }
 
   toggle = key => {
     this.setState({ openedItem: key });
@@ -32,7 +50,7 @@ export default class DropdownMenuCascade extends React.Component {
   };
 
   render() {
-    const { groups, onClick } = this.props;
+    const { groups, onClick, className } = this.props;
     const { openedItem } = this.state;
 
     return groups.map((item, i) => {
@@ -56,9 +74,20 @@ export default class DropdownMenuCascade extends React.Component {
             <DropdownMenuItem data={item} iconRight={iconRight} onClick={item.items ? () => null : onClick} />
           </DropdownToggle>
 
-          <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_cascade">
-            {item.items ? <DropdownMenuCascade groups={item.items} onClick={onClick} /> : <ul>{this.renderMenuItems(items)}</ul>}
-          </DropdownMenu>
+          {ReactDOM.createPortal(
+            <DropdownMenu
+              className={classNames('ecos-dropdown__menu ecos-dropdown__menu_cascade', className)}
+              modifiers={{
+                preventOverflow: {
+                  boundariesElement: 'viewport',
+                  escapeWithReference: false
+                }
+              }}
+            >
+              {item.items ? <DropdownMenuCascade groups={item.items} onClick={onClick} /> : <ul>{this.renderMenuItems(items)}</ul>}
+            </DropdownMenu>,
+            this.#portalElement
+          )}
         </Dropdown>
       );
     });
