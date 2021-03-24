@@ -1,4 +1,6 @@
 import FormIOTextFieldComponent from 'formiojs/components/textfield/TextField';
+
+import { t } from '../../../../helpers/export/util';
 import { overrideTriggerChange } from '../misc';
 
 export default class TextFieldComponent extends FormIOTextFieldComponent {
@@ -26,7 +28,8 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
           minWords: '',
           maxWords: '',
           pattern: ''
-        }
+        },
+        addAnother: t('ecos.forms.btn.add-another')
       },
       ...extend
     );
