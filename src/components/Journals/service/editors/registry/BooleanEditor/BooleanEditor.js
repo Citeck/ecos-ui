@@ -3,6 +3,7 @@ import React from 'react';
 import { t } from '../../../../../../helpers/export/util';
 import { getBool } from '../../../../../../helpers/util';
 import { Checkbox, Select } from '../../../../../common/form';
+import EditorScope from '../../EditorScope';
 import BaseEditor from '../BaseEditor';
 
 const Modes = { select: 'select', checkbox: 'checkbox' };
@@ -29,9 +30,10 @@ export default class BooleanEditor extends BaseEditor {
           <Select
             options={options}
             defaultValue={selected}
+            autoFocus={scope === EditorScope.CELL}
             onChange={item => onUpdate(item.value)}
             isSearchable={false}
-            className="select_narrow"
+            className="select_narrow select_width_full"
           />
         );
       }
