@@ -385,6 +385,7 @@
   "ecos.forms.pattern": "{{field}} не совпадает с паттерном {{pattern}}",
   "ecos.forms.previous": "Назад",
   "ecos.forms.required": "Поле {{field}} не может быть пустым",
+  "ecos.forms.btn.add-another": "Добавить ещё",
   "edit_site_details.label": "Изменить сведения о сайте",
   "eform.file.on-click-confirmation": "Действие может привести к закрытию формы. Продолжить?",
   "eform.header.CREATE.title": "Создать",

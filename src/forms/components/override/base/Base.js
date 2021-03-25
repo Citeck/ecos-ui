@@ -7,6 +7,7 @@ import Base from 'formiojs/components/base/Base';
 
 import Widgets from '../../../widgets';
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
+import { t } from '../../../../helpers/export/util';
 
 const originalCreateTooltip = Base.prototype.createTooltip;
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
@@ -48,7 +49,8 @@ Base.schema = (...extend) => {
         required: false,
         custom: '',
         customPrivate: false
-      }
+      },
+      addAnother: t('ecos.forms.btn.add-another')
     },
     ...extend
   );

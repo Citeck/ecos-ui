@@ -3,7 +3,22 @@ import omitBy from 'lodash/omitBy';
 import Components from 'formiojs/components/Components';
 import FormIODataMapComponent from 'formiojs/components/datamap/DataMap';
 
+import { t } from '../../../../helpers/export/util';
+
 export default class DataMapComponent extends FormIODataMapComponent {
+  static schema(...extend) {
+    return FormIODataMapComponent.schema(
+      {
+        addAnother: t('ecos.forms.btn.add-another')
+      },
+      ...extend
+    );
+  }
+
+  get defaultSchema() {
+    return DataMapComponent.schema();
+  }
+
   static optimizeSchema(comp) {
     const optimizedComponent = { ...comp };
     const valueComponent = comp.valueComponent;
