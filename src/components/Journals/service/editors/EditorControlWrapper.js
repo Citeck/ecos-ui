@@ -20,7 +20,7 @@ export default class EditorControlWrapper extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return !isEqual(nextProps.value, this.props.value);
+    return !isEqual(nextProps.deps, this.props.deps);
   }
 
   componentWillUnmount() {

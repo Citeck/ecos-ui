@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom';
 import moment from 'moment';
 import classNames from 'classnames';
 import get from 'lodash/get';
-
+import { PREDICATE_TIME_INTERVAL } from '../../../../../Records/predicates/predicates';
 import { DatePicker } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
+import TextEditor from '../TextEditor';
 
 export default class DateEditorControl extends React.Component {
   constructor(props) {
@@ -72,6 +73,11 @@ export default class DateEditorControl extends React.Component {
   };
 
   render() {
+    if ([get(this.props, 'predicate.t'), get(this.props, 'predicate.value')].includes(PREDICATE_TIME_INTERVAL)) {
+      const Text = new TextEditor().getControl(this.props.config, this.props.scope);
+      return <Text {...this.props} />;
+    }
+
     return (
       <DatePicker
         className={classNames({

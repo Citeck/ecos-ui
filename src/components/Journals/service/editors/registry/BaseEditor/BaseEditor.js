@@ -8,7 +8,7 @@
 export default class BaseEditor {
   static TYPE = '';
 
-  getControl(config, scope) {
+  getControl(config, scope, params) {
     return null;
   }
 

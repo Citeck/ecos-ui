@@ -5,7 +5,7 @@ import React from 'react';
 export default class DateTimeEditor extends DateEditor {
   static TYPE = 'datetime';
 
-  getControl(config, scope) {
-    return props => <DateTimeEditorControl {...props} />;
+  getControl(config, scope, params) {
+    return props => <DateTimeEditorControl {...props} {...params} />;
   }
 }

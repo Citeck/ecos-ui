@@ -41,7 +41,8 @@ class EditorService {
     onKeyDown,
     onBlur,
     onCancel,
-    scope = EditorScope.OTHER
+    scope = EditorScope.OTHER,
+    predicate
   }) {
     try {
       let editorConfig = editor.config || {};
@@ -56,7 +57,7 @@ class EditorService {
       const getDisplayName =
         scope === EditorScope.CELL ? (v, state) => editorInstance.getDisplayName(v, editorConfig, scope, state || {}) : null;
       const multipleProp = scope === EditorScope.CELL ? multiple === true : false;
-      const control = editorInstance.getControl(editorConfig, scope);
+      const control = editorInstance.getControl(editorConfig, scope, { predicate });
 
       if (!control) {
         return <div className="text-warning">{t('generated-field.editor.not-exist')}</div>;
@@ -76,6 +77,7 @@ class EditorService {
           control={control}
           getDisplayName={getDisplayName}
           multiple={multipleProp}
+          deps={{ value, predicate }}
         />
       );
     } catch (e) {

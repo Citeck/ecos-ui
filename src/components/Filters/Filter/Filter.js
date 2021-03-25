@@ -105,7 +105,7 @@ export default class Filter extends Component {
       value,
       filter: {
         meta: { column },
-        predicate
+        predicate = {}
       },
       sourceId,
       metaRecord
@@ -124,7 +124,8 @@ export default class Filter extends Component {
           editor: column.newEditor,
           value,
           scope: EditorScope.FILTER,
-          onUpdate: this.onChangeValue
+          onUpdate: this.onChangeValue,
+          predicate
         });
       }
 
@@ -142,6 +143,8 @@ export default class Filter extends Component {
 
       return <FilterValueComponent {...predicateProps} />;
     }
+
+    return null;
   });
 
   render() {

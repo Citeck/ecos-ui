@@ -9,10 +9,6 @@ export class ErrorCell extends React.Component {
     text: PropTypes.string
   };
 
-  static defaultProps = {
-    text: t('load-data-error')
-  };
-
   state = { error: null, errorInfo: null };
 
   componentDidCatch(error, errorInfo) {
@@ -30,7 +26,7 @@ export class ErrorCell extends React.Component {
     if (errorInfo) {
       return (
         <div>
-          <InfoText noIndents text={text} type="error" className="ecos-info-text-cell_error" />
+          <InfoText noIndents text={text || t('load-data-error')} type="error" className="ecos-info-text-cell_error" />
           <InfoText noIndents text={JSON.stringify(data)} type="info" className="ecos-info-text-cell_error" />
         </div>
       );

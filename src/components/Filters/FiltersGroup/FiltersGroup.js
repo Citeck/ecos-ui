@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
-
-import { IcoBtn } from '../../common/btns';
+import cloneDeep from 'lodash/cloneDeep';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { Label, Select, Well } from '../../common/form';
-import { Filter, FiltersCondition } from '../';
-import { ParserPredicate } from '../predicates';
+
 import { t, trigger } from '../../../helpers/util';
+import { IcoBtn } from '../../common/btns';
+import { Label, Select, Well } from '../../common/form';
 import { getPredicate, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
+import { ParserPredicate } from '../predicates';
+import { Filter, FiltersCondition } from '../';
 
 import './FiltersGroup.scss';
 
@@ -32,22 +33,27 @@ export default class FiltersGroup extends Component {
     this.portal = this.createDraggableContainer();
   }
 
+  get cloneFilters() {
+    return cloneDeep(this.props.group.filters);
+  }
+
   onChangeFilterValue = ({ val, index }) => {
-    const filter = this.props.group.filters[index];
+    const filter = this.cloneFilters[index];
     filter.predicate.setVal(val);
-    trigger.call(this, 'onChangeFilter', { filter, index, groupIndex: this.props.index });
+
+    this.props.onChangeFilter({ filter, index, groupIndex: this.props.index });
   };
 
   onChangeFilterPredicate = ({ predicate, index }) => {
-    const filter = this.props.group.filters[index];
+    const filter = this.cloneFilters[index];
     const predicateData = getPredicate(predicate);
 
     if (PREDICATE_LIST_WITH_CLEARED_VALUES.includes(filter.predicate.t) || PREDICATE_LIST_WITH_CLEARED_VALUES.includes(predicate)) {
       filter.predicate.setVal(predicateData.fixedValue || '');
     }
-
     filter.predicate.setT(predicate);
-    trigger.call(this, 'onChangeFilter', { filter, index, groupIndex: this.props.index });
+
+    this.props.onChangeFilter({ filter, index, groupIndex: this.props.index });
   };
 
   deleteFilter = index => {
