@@ -108,4 +108,18 @@
   &_loading {
     height: 40px;
   }
+
+  &__portal {
+    .ecos-dropdown__menu_cascade {
+      z-index: 1001;
+
+      &[x-placement='left-start'] {
+        left: -5px !important;
+      }
+
+      &[x-placement='right-start'] {
+        left: 5px !important;
+      }
+    }
+  }
 }

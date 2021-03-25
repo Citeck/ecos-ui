@@ -23,6 +23,11 @@
       top: 100% !important;
     }
 
+    &_cascade {
+      max-height: calc(100vh - 20px);
+      overflow: auto;
+    }
+
     &.dropdown-menu {
       border-radius: $border-radius-standard;
       box-shadow: $box-shadow-default;

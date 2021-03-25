@@ -30,7 +30,8 @@ export default class DropdownMenu extends React.Component {
     }),
     isLoading: PropTypes.bool,
     emptyMessage: PropTypes.string,
-    cascadeClassName: PropTypes.string,
+    childrenCascadeClassName: PropTypes.string,
+    portalClassName: PropTypes.string,
     onClick: PropTypes.func
   };
 
@@ -49,7 +50,18 @@ export default class DropdownMenu extends React.Component {
   };
 
   renderMode() {
-    const { mode, items, setGroup, setCascade, onClick, isLoading, emptyMessage, ...someProps } = this.props;
+    const {
+      mode,
+      items,
+      setGroup,
+      setCascade,
+      onClick,
+      isLoading,
+      emptyMessage,
+      childrenCascadeClassName,
+      portalClassName,
+      ...someProps
+    } = this.props;
 
     if (isLoading) {
       return <Loader type="points" height={40} width={38} />;
@@ -73,7 +85,14 @@ export default class DropdownMenu extends React.Component {
 
     switch (mode) {
       case MenuModes.CASCADE:
-        return <DropdownMenuCascade className={someProps.cascadeClassName} groups={menu} onClick={onClick} />;
+        return (
+          <DropdownMenuCascade
+            cascadeClassName={childrenCascadeClassName}
+            portalClassName={portalClassName}
+            groups={menu}
+            onClick={onClick}
+          />
+        );
       case MenuModes.GROUP: {
         const { showGroupName, showSeparator } = setGroup;
 
