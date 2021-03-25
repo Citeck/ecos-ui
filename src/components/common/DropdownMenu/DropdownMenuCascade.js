@@ -61,8 +61,6 @@ export default class DropdownMenuCascade extends React.Component {
       const key = `key-${i}-${id}`;
       const iconRight = classNames({ 'icon-small-right ecos-dropdown-menu__cascade-arrow': !isEmpty(items) });
 
-      console.warn({ portalClassName });
-
       return (
         <Dropdown
           className="ecos-dropdown ecos-dropdown-menu__cascade"
