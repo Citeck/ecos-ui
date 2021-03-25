@@ -26,11 +26,13 @@ class FormManager {
         record: recordRef,
         formKey: variant.formKey,
         attributes,
-        options: {
-          params: this.parseCreateArguments(variant.createArguments)
-        },
+        options: {},
         ...options
       };
+
+      if (variant.typeRef) {
+        props.options.typeRef = variant.typeRef;
+      }
 
       if (EcosFormUtils.isFormId(variant.formId)) {
         props.formId = variant.formId;
@@ -44,31 +46,6 @@ class FormManager {
       trailing: false
     }
   );
-
-  static parseCreateArguments(createArgs) {
-    if (!createArgs) {
-      return {};
-    }
-    let params = {};
-    try {
-      let args = createArgs.split('&');
-      for (let i = 0; i < args.length; i++) {
-        let keyValue = (args[i] || '').split('=');
-        if (keyValue.length === 2) {
-          let key = keyValue[0] || '';
-          let value = keyValue[1] || '';
-          if (key.indexOf('param_') === 0) {
-            params[key.substring('param_'.length)] = value;
-          }
-        }
-      }
-    } catch (e) {
-      //protection for hotfix
-      //todo: remove it in develop
-      console.error(e);
-    }
-    return params;
-  }
 
   static openFormModal(props) {
     const container = document.createElement('div');

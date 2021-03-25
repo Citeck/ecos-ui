@@ -64,8 +64,8 @@ function* fetchCreateCaseWidget({ api, logger }) {
                 formId: cv.formRef,
                 canCreate: true,
                 postActionRef: cv.postActionRef,
+                typeRef: cv.typeRef,
                 attributes: {
-                  _type: cv.typeRef,
                   ...cv.attributes
                 }
               }
