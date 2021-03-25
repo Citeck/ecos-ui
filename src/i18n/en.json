@@ -407,6 +407,7 @@
   "ecos.forms.pattern": "{{field}} does not match the pattern {{pattern}}",
   "ecos.forms.previous": "Previous",
   "ecos.forms.required": "{{field}} is required",
+  "ecos.forms.btn.add-another": "Add another",
   "edit_site_details.label": "Edit Project Details",
   "eform.file.on-click-confirmation": "The form will be closed. Are you sure you want to continue?",
   "eform.header.CREATE.title": "Create",
