@@ -15,19 +15,7 @@ class FormManager {
         return;
       }
 
-      let {
-        recordRef: record = '',
-        type,
-        sourceId,
-        formId,
-        formRef,
-        formKey,
-        attributes = {},
-        destination,
-        typeRef,
-        createArguments,
-        formOptions = {}
-      } = variant;
+      let { recordRef: record = '', type, sourceId, formId, formRef, formKey, attributes = {}, destination, formOptions = {} } = variant;
 
       formId = formRef || formId;
 
@@ -41,10 +29,6 @@ class FormManager {
 
       if (destination && !attributes._parent) {
         attributes._parent = destination;
-      }
-
-      if (typeRef && !attributes._type) {
-        attributes._type = typeRef;
       }
 
       const props = {

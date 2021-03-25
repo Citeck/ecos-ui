@@ -146,8 +146,8 @@ export default class MenuConverter {
           formId: variant.formRef,
           canCreate: true,
           postActionRef: variant.postActionRef,
+          typeRef: variant.typeRef,
           attributes: {
-            _type: variant.typeRef,
             ...variant.attributes
           }
         }
