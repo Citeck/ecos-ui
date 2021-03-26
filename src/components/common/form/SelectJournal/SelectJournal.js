@@ -162,7 +162,7 @@ export default class SelectJournal extends Component {
   };
 
   isEmptyJournalConfig(config) {
-    const isEmptyEachItem = !Object.entries(config)
+    const isEmptyEachItem = !Object.entries(config || {})
       .map(item => isEmpty(item[1]))
       .includes(false);
 
