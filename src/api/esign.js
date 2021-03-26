@@ -48,9 +48,9 @@ class EsignApi {
 
   async getCertificates(thumbprints) {
     if (Array.isArray(thumbprints) && thumbprints.length > 0) {
-      return await thumbprints.map(this.cadespluginApi.getCert);
+      return await Promise.all(thumbprints.map(this.cadespluginApi.getCert));
     } else if (typeof thumbprints === 'string' || thumbprints instanceof String) {
-      return [await this.cadespluginApi.getCert(thumbprints)];
+      return await Promise.all(this.cadespluginApi.getCert(thumbprints));
     } else {
       return await this.cadespluginApi.getValidCertificates();
     }
