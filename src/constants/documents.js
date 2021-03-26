@@ -82,8 +82,8 @@ export const fieldFormatters = {
   displayName: {
     schema: 'disp',
     formatter: {
-      name: 'ActionFormatter',
-      params: { type: 'content-preview-modal' }
+      type: 'action',
+      config: { type: 'content-preview-modal' }
     }
   }
 };
