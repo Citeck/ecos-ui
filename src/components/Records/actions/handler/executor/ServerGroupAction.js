@@ -68,7 +68,7 @@ const showFormIfRequired = groupAction => {
 
         resolve(action);
       },
-      onFormCancel: () => {
+      onModalCancel: () => {
         resolve(null);
       }
     });
@@ -84,12 +84,15 @@ export default class ServerGroupAction extends ActionsExecutor {
     const groupAction = cloneDeep(action.config);
     groupAction.type = 'selected';
     let groupActionWithData;
+
     if (isExistValue(groupAction.formKey)) {
       groupActionWithData = await showFormIfRequired(groupAction);
+
       if (!groupActionWithData) {
         return false;
       }
     }
+
     if (get(groupActionWithData, ['params', 'form_option_batch-edit-attribute'])) {
       result = await prepareBatchEditAction({
         groupAction: groupActionWithData,
@@ -110,7 +113,6 @@ export default class ServerGroupAction extends ActionsExecutor {
     let groupAction = cloneDeep(action.config);
     groupAction.type = 'filtered';
     groupAction = await showFormIfRequired(groupAction);
-
     executeAction({ groupAction, query }).then(() => notifyStart());
   }
 
