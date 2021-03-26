@@ -10,7 +10,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
-import { getCurrentLocale, isMobileDevice, t } from '../../helpers/util';
+import { getCurrentLocale, getMLValue, isMobileDevice, t } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
@@ -172,7 +172,7 @@ class EcosForm extends React.Component {
             }
 
             if (input.edge.title) {
-              attributesTitles[input.component.label] = input.edge.title;
+              attributesTitles[getMLValue(input.component.label)] = input.edge.title;
             }
           }
         }
