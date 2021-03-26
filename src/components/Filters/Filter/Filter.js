@@ -106,41 +106,23 @@ export default class Filter extends Component {
         meta: { column },
         predicate = {}
       },
-      sourceId,
       metaRecord
     } = props;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
     const isShow = !WITHOUT_VAL.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
+    const editorType = get(column, 'newEditor.type');
 
-    if (isShow) {
-      const editorType = get(column, 'newEditor.type');
-
-      if (EditorService.isRegistered(editorType)) {
-        return EditorService.getEditorControl({
-          recordRef: metaRecord,
-          attribute: column.attribute,
-          editor: column.newEditor,
-          value,
-          scope: EditorScope.FILTER,
-          onUpdate: this.onChangeValue,
-          predicate
-        });
-      }
-
-      /** @see {@link EditorService} use it for all filter types*/
-      const predicateInput = getPredicateInput(column, sourceId, metaRecord, predicate);
-
-      const predicateProps = predicateInput.getProps({
-        predicateValue: value,
-        changePredicateValue: this.onChangeValue,
-        datePickerWrapperClasses: 'ecos-filter_width_full',
-        selectClassName: 'select_width_full'
+    if (isShow && EditorService.isRegistered(editorType)) {
+      return EditorService.getEditorControl({
+        recordRef: metaRecord,
+        attribute: column.attribute,
+        editor: column.newEditor,
+        value,
+        scope: EditorScope.FILTER,
+        onUpdate: this.onChangeValue,
+        predicate
       });
-
-      const FilterValueComponent = predicateInput.component;
-
-      return <FilterValueComponent {...predicateProps} />;
     }
 
     return null;
