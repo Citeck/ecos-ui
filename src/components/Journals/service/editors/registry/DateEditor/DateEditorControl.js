@@ -7,6 +7,7 @@ import { PREDICATE_TIME_INTERVAL } from '../../../../../Records/predicates/predi
 import { DatePicker } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
 import TextEditor from '../TextEditor';
+import editorRegistry from '../';
 
 export default class DateEditorControl extends React.Component {
   constructor(props) {
@@ -20,6 +21,11 @@ export default class DateEditorControl extends React.Component {
   get isCell() {
     const { scope } = this.props;
     return scope === EditorScope.CELL;
+  }
+
+  get isFilter() {
+    const { scope } = this.props;
+    return scope === EditorScope.FILTER;
   }
 
   get dateFormat() {
@@ -73,9 +79,11 @@ export default class DateEditorControl extends React.Component {
   };
 
   render() {
-    if ([get(this.props, 'predicate.t'), get(this.props, 'predicate.value')].includes(PREDICATE_TIME_INTERVAL)) {
-      const Text = new TextEditor().getControl(this.props.config, this.props.scope);
-      return <Text {...this.props} />;
+    if (this.isFilter && [get(this.props, 'predicate.t'), get(this.props, 'predicate.value')].includes(PREDICATE_TIME_INTERVAL)) {
+      let editorInstance = editorRegistry.getEditor(TextEditor.TYPE);
+      const Control = editorInstance.getControl(this.props.config, this.props.scope);
+
+      return <Control {...this.props} />;
     }
 
     return (

@@ -121,7 +121,7 @@ export default class Filter extends Component {
         value,
         scope: EditorScope.FILTER,
         onUpdate: this.onChangeValue,
-        predicate
+        controlProps: { predicate }
       });
     }
 
