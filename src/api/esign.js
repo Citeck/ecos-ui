@@ -50,7 +50,7 @@ class EsignApi {
     if (Array.isArray(thumbprints) && thumbprints.length > 0) {
       return await Promise.all(thumbprints.map(this.cadespluginApi.getCert));
     } else if (typeof thumbprints === 'string' || thumbprints instanceof String) {
-      return await Promise.all(this.cadespluginApi.getCert(thumbprints));
+      return [await this.cadespluginApi.getCert(thumbprints)];
     } else {
       return await this.cadespluginApi.getValidCertificates();
     }
