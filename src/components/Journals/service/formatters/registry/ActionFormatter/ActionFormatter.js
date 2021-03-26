@@ -29,4 +29,8 @@ export default class ActionFormatter extends BaseFormatter {
       </div>
     );
   }
+
+  getAliases() {
+    return ['ActionFormatter'];
+  }
 }
