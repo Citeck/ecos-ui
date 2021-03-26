@@ -8,7 +8,7 @@ import { t } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns';
 import { Label, Select } from '../../common/form';
-import { getPredicateInput, getPredicates } from '../../Records/predicates/predicates';
+import { getPredicates } from '../../Records/predicates/predicates';
 import EditorService from '../../Journals/service/editors/EditorService';
 import EditorScope from '../../Journals/service/editors/EditorScope';
 import ParserPredicate from '../predicates/ParserPredicate';
