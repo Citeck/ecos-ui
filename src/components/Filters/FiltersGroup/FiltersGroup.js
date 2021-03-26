@@ -38,13 +38,15 @@ export default class FiltersGroup extends Component {
   }
 
   onChangeFilterValue = ({ val, index }) => {
+    const groupIndex = this.props.index;
     const filter = this.cloneFilters[index];
     filter.predicate.setVal(val);
 
-    this.props.onChangeFilter({ filter, index, groupIndex: this.props.index });
+    this.props.onChangeFilter({ filter, index, groupIndex });
   };
 
   onChangeFilterPredicate = ({ predicate, index }) => {
+    const groupIndex = this.props.index;
     const filter = this.cloneFilters[index];
     const predicateData = getPredicate(predicate);
 
@@ -53,7 +55,7 @@ export default class FiltersGroup extends Component {
     }
     filter.predicate.setT(predicate);
 
-    this.props.onChangeFilter({ filter, index, groupIndex: this.props.index });
+    this.props.onChangeFilter({ filter, index, groupIndex });
   };
 
   deleteFilter = index => {
@@ -65,7 +67,11 @@ export default class FiltersGroup extends Component {
   };
 
   addFilter = column => {
-    const filter = ParserPredicate.createFilter({ att: column.attribute, columns: this.props.columns, column });
+    const filter = ParserPredicate.createFilter({
+      att: column.attribute,
+      columns: cloneDeep(this.props.columns),
+      column: cloneDeep(column)
+    });
     trigger.call(this, 'onAddFilter', { filter, groupIndex: this.props.index });
   };
 

@@ -6,14 +6,16 @@ import debounce from 'lodash/debounce';
 
 import { t } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
-import { IcoBtn } from '../../common/btns/index';
+import { IcoBtn } from '../../common/btns';
 import { Label, Select } from '../../common/form';
 import { getPredicateInput, getPredicates } from '../../Records/predicates/predicates';
-import ParserPredicate from '../predicates/ParserPredicate';
 import EditorService from '../../Journals/service/editors/EditorService';
 import EditorScope from '../../Journals/service/editors/EditorScope';
+import ParserPredicate from '../predicates/ParserPredicate';
 
 import './Filter.scss';
+
+const WITHOUT_VAL = ParserPredicate.predicatesWithoutValue;
 
 export default class Filter extends Component {
   static propTypes = {
@@ -44,7 +46,7 @@ export default class Filter extends Component {
     const currentValue = get(this.props, 'filter.predicate.val', '');
     const { value, hasDataEntry } = this.state;
 
-    if (!prevProps.needUpdate && this.props.needUpdate && this.state.value !== currentValue) {
+    if (!prevProps.needUpdate && this.props.needUpdate && value !== currentValue) {
       this.setState({ value: currentValue });
     }
 
@@ -61,15 +63,16 @@ export default class Filter extends Component {
     this.handleChangeValue.cancel();
   }
 
-  predicatesWithoutValue = ParserPredicate.predicatesWithoutValue;
-
   onChangeValue = value => {
     this.setState({ value, hasDataEntry: true }, this.handleChangeValue);
   };
 
   handleChangeValue = debounce(
     () => {
-      this.props.onChangeValue({ val: this.state.value, index: this.props.index });
+      const { value: val } = this.state;
+      const { index } = this.props;
+
+      this.props.onChangeValue({ val, index });
       this.setState({ isInput: false });
     },
     350,
@@ -79,17 +82,13 @@ export default class Filter extends Component {
   onChangePredicate = ({ fixedValue, value: predicate }) => {
     const { index } = this.props;
 
-    if (fixedValue !== undefined) {
-      this.props.onChangePredicate({ predicate, index });
-      this.onChangeValue(predicate.fixedValue);
-      return;
-    }
+    this.props.onChangePredicate({ predicate, index });
 
-    if (this.predicatesWithoutValue.includes(predicate)) {
+    if (fixedValue !== undefined) {
+      this.onChangeValue(fixedValue);
+    } else if (WITHOUT_VAL.includes(predicate)) {
       this.onChangeValue('');
     }
-
-    this.props.onChangePredicate({ predicate, index });
   };
 
   onDeletePredicate = () => {
@@ -112,7 +111,7 @@ export default class Filter extends Component {
     } = props;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
-    const isShow = !this.predicatesWithoutValue.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
+    const isShow = !WITHOUT_VAL.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
 
     if (isShow) {
       const editorType = get(column, 'newEditor.type');
