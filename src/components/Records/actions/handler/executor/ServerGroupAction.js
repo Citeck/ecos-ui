@@ -15,15 +15,14 @@ const executeAction = async ({ groupAction, selected = [], resolved, query = nul
 
   if (params.js_action) {
     const actionFunction = new Function('records', 'parameters', params.js_action); //eslint-disable-line
-    actionFunction(selected, params);
+    const result = await actionFunction(selected, params);
 
-    return Promise.resolve([]);
+    return Promise.resolve(result);
   }
 
   const exAction = await actionsApi.executeServerGroupAction({ action: groupAction, query, nodes: selected });
 
   if (exAction.error) {
-    console.warn(exAction, groupAction, selected, resolved, query);
     return { error: get(exAction, 'error.message') || '-' };
   }
 
