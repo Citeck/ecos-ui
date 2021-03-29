@@ -1,9 +1,5 @@
 @import '../../../styles/constants';
 
-%opened-item {
-  background: $color-gray-4;
-}
-
 .ecos-doc-associations {
   $root: &;
 
@@ -18,34 +14,12 @@
     }
   }
 
-  .ecos-dropdown-menu__cascade {
-    &-toggle {
-      &[aria-expanded='true'] {
-        @extend %opened-item;
-      }
-    }
-  }
-
   &__menu {
     z-index: 1001;
     left: -13px !important;
 
-    .ecos-dropdown__menu_cascade {
-      z-index: 1001;
-
-      &[x-placement='left-start'] {
-        left: -5px !important;
-      }
-    }
-
-    &-portal {
-      .ecos-dropdown-menu__cascade {
-        &-toggle {
-          &[aria-expanded='true'] {
-            @extend %opened-item;
-          }
-        }
-      }
+    .ecos-dropdown__menu_cascade[x-placement='left-start'] {
+      left: -5px !important;
     }
   }
 
