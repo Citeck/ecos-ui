@@ -60,21 +60,31 @@ class FormManager {
 
   static openFormModal(props) {
     const container = document.createElement('div');
+    const handleUnmount = () => {
+      ReactDOM.unmountComponentAtNode(container);
+      document.body.removeChild(container);
+    };
 
     const form = React.createElement(EcosFormModal, {
       ...props,
       isModalOpen: true,
       onHideModal: () => {
-        ReactDOM.unmountComponentAtNode(container);
-        document.body.removeChild(container);
+        handleUnmount();
+
         if (props.onHideModal) {
           props.onHideModal();
+        }
+      },
+      onCancelModal: () => {
+        handleUnmount();
+
+        if (typeof props.onModalCancel === 'function') {
+          props.onModalCancel();
         }
       }
     });
 
     document.body.appendChild(container);
-
     ReactDOM.render(form, container);
 
     return container;

@@ -454,7 +454,7 @@ export default class DocumentsConverter {
       const findIndex = columns.findIndex(col => col.schema && col.schema.includes(info.schema));
 
       if (findIndex >= 0 && !columns[findIndex].formatter) {
-        columns[findIndex].formatter = info.formatter;
+        columns[findIndex].newFormatter = info.formatter;
       }
     }
   }

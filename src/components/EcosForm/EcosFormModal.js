@@ -83,6 +83,19 @@ export default class EcosFormModal extends React.Component {
     this.instanceRecord.unwatch(this.watcher);
   }
 
+  handleCancel = () => {
+    const { onCancelModal } = this.props;
+
+    if (typeof onCancelModal === 'function') {
+      onCancelModal();
+    }
+
+    this.setState({
+      isModalOpen: false,
+      recordData: null
+    });
+  };
+
   hide() {
     const { onHideModal, onAfterHideModal } = this.props;
 
@@ -192,7 +205,8 @@ export default class EcosFormModal extends React.Component {
     };
 
     formProps['onFormCancel'] = (record, form) => {
-      this.hide();
+      this.handleCancel();
+
       if (this.props.onFormCancel) {
         this.props.onFormCancel(record, form);
       }
@@ -214,7 +228,7 @@ export default class EcosFormModal extends React.Component {
           isBigHeader={isBigHeader}
           title={modalTitle}
           isOpen={isModalOpen}
-          hideModal={() => this.hide()}
+          hideModal={this.handleCancel}
           customButtons={[this.renderConstructorButton()]}
           zIndex={9000}
         >
@@ -235,6 +249,7 @@ EcosFormModal.propTypes = {
   isBigHeader: PropTypes.bool,
   options: PropTypes.object,
   onFormCancel: PropTypes.func,
+  onCancelModal: PropTypes.func,
   onSubmit: PropTypes.func,
   onReady: PropTypes.func,
   onHideModal: PropTypes.func,

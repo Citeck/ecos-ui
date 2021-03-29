@@ -10,6 +10,7 @@ import ColoredFormatter from './ColoredFormatter';
 import DateFormatter from './DateFormatter';
 import DateTimeFormatter from './DateTimeFormatter';
 import BooleanFormatter from './BooleanFormatter';
+import ActionFormatter from './ActionFormatter';
 
 const formatterRegistry = new FormatterRegistry();
 
@@ -24,5 +25,6 @@ formatterRegistry.register(new ColoredFormatter());
 formatterRegistry.register(new DateFormatter());
 formatterRegistry.register(new DateTimeFormatter());
 formatterRegistry.register(new BooleanFormatter());
+formatterRegistry.register(new ActionFormatter());
 
 export default formatterRegistry;
