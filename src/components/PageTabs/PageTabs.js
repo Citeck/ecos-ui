@@ -10,7 +10,6 @@ import isEqual from 'lodash/isEqual';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 import { withRouter } from 'react-router-dom';
-import copy from 'copy-to-clipboard';
 
 import {
   changeTab,
@@ -23,7 +22,7 @@ import {
   updateTabsFromStorage,
   closeTabs
 } from '../../actions/pageTabs';
-import { animateScrollTo, getScrollbarWidth, t } from '../../helpers/util';
+import { animateScrollTo, copyToClipboard, getScrollbarWidth, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { SortableContainer } from '../Drag-n-Drop';
@@ -274,7 +273,7 @@ class PageTabs extends React.Component {
 
     switch (type) {
       case ContextMenuTypes.COPY_LINK:
-        copy(`${window.location.origin}${tab.link}`);
+        copyToClipboard(`${window.location.origin}${tab.link}`);
         break;
       case ContextMenuTypes.CLOSE_ALL:
         this.handleCloseAllTabs();
