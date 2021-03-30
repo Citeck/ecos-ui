@@ -26,6 +26,7 @@ import Filters from './Filters';
 import Search from './Search';
 import CreateVariants from './CreateVariants';
 import FiltersProvider from './Filters/FiltersProvider';
+import { DialogManager } from '../../dialogs';
 
 import './SelectJournal.scss';
 
@@ -38,6 +39,15 @@ const paginationInitState = {
 const emptyJournalConfig = Object.freeze({
   meta: {}
 });
+
+const Labels = {
+  NO_JOURNAL_ID_ERROR: 'select-journal.error.no-journal-id',
+  NO_JOURNAL_CONFIG_ERROR: 'select-journal.error.no-journal-config',
+  DEFAULT_TITLE: 'select-journal.select-modal.title',
+  FILTER_BUTTON: 'select-journal.select-modal.filter-button',
+  CANCEL_BUTTON: 'select-journal.select-modal.cancel-button',
+  SAVE_BUTTON: 'select-journal.select-modal.ok-button'
+};
 
 export default class SelectJournal extends Component {
   state = {
@@ -143,7 +153,7 @@ export default class SelectJournal extends Component {
     const { journalId, onError } = this.props;
 
     if (!journalId) {
-      const error = new Error(t('select-journal.error.no-journal-id'));
+      const error = new Error(t(Labels.NO_JOURNAL_ID_ERROR));
       typeof onError === 'function' && onError(error);
       this.setState({ error });
     } else {
@@ -152,7 +162,11 @@ export default class SelectJournal extends Component {
   };
 
   isEmptyJournalConfig(config) {
-    return isEmpty(config) || isEqual(config, emptyJournalConfig);
+    const isEmptyEachItem = !Object.entries(config || {})
+      .map(item => isEmpty(item[1]))
+      .includes(false);
+
+    return isEmpty(config) || isEqual(config, emptyJournalConfig) || isEmptyEachItem;
   }
 
   shouldResetValue = () => {
@@ -187,7 +201,7 @@ export default class SelectJournal extends Component {
         permissions: { [Permissions.Write]: true }
       });
 
-      if (this.isEmptyJournalConfig()) {
+      if (this.isEmptyJournalConfig(journalConfig)) {
         await this.getJournalConfig();
 
         ({ journalConfig } = this.state);
@@ -231,14 +245,19 @@ export default class SelectJournal extends Component {
         displayedColumns = displayedColumns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
       }
 
+      if (this.isEmptyJournalConfig(journalConfig)) {
+        this.showWarningMessage();
+      }
+
       this.setState(
-        {
+        state => ({
           filterPredicate: presetFilterPredicates || [],
           displayedColumns,
           journalConfig,
-          isJournalConfigFetched: true
+          isJournalConfigFetched: true,
+          isSelectModalOpen: state.isSelectModalOpen && this.isEmptyJournalConfig(journalConfig) ? false : state.isSelectModalOpen
           // isCollapsePanelOpen: Array.isArray(presetFilterPredicates) && presetFilterPredicates.length > 0
-        },
+        }),
         resolve
       );
     });
@@ -542,11 +561,17 @@ export default class SelectJournal extends Component {
   };
 
   openSelectModal = () => {
-    const { isJournalConfigFetched, isGridDataReady } = this.state;
+    const { isJournalConfigFetched, isGridDataReady, journalConfig } = this.state;
 
-    this.setState({
-      isSelectModalOpen: true
-    });
+    if (this.isEmptyJournalConfig(journalConfig) && isJournalConfigFetched && isGridDataReady) {
+      this.setState({ isSelectModalOpen: false });
+
+      this.showWarningMessage();
+
+      return;
+    }
+
+    this.setState({ isSelectModalOpen: true });
 
     if (!isJournalConfigFetched) {
       this.getJournalConfig().then(this.refreshGridData);
@@ -639,14 +664,93 @@ export default class SelectJournal extends Component {
     });
   };
 
+  showWarningMessage = () => {
+    DialogManager.showInfoDialog({
+      text: t(Labels.NO_JOURNAL_CONFIG_ERROR, { journalId: this.props.journalId })
+    });
+  };
+
+  renderSelectModal() {
+    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal } = this.props;
+    const { isGridDataReady, isSelectModalOpen, isCollapsePanelOpen, gridData, journalConfig, pagination } = this.state;
+
+    let selectModalTitle = t(Labels.DEFAULT_TITLE);
+
+    if (get(journalConfig, 'meta.title')) {
+      selectModalTitle += `: ${journalConfig.meta.title}`;
+    }
+
+    const selectModalClasses = classNames('select-journal-select-modal', {
+      'ecos-modal_width-lg': !isFullScreenWidthModal,
+      'ecos-modal_width-full': isFullScreenWidthModal
+    });
+
+    const gridClasses = classNames('select-journal__grid', {
+      'select-journal__grid_transparent': !isGridDataReady
+    });
+
+    return (
+      <EcosModal title={selectModalTitle} isOpen={isSelectModalOpen} hideModal={this.hideSelectModal} className={selectModalClasses}>
+        <div className={'select-journal-collapse-panel'}>
+          <div className={'select-journal-collapse-panel__controls'}>
+            <div className={'select-journal-collapse-panel__controls-left'}>
+              <IcoBtn
+                invert
+                icon={isCollapsePanelOpen ? 'icon-small-up' : 'icon-small-down'}
+                className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
+                onClick={this.toggleCollapsePanel}
+              >
+                {t(Labels.FILTER_BUTTON)}
+              </IcoBtn>
+
+              {hideCreateButton ? null : (
+                <CreateVariants items={get(journalConfig, 'meta.createVariants')} onCreateFormSubmit={this.onCreateFormSubmit} />
+              )}
+            </div>
+            <div className={'select-journal-collapse-panel__controls-right'}>
+              <Search searchField={searchField} onApply={this.onApplyFilters} />
+            </div>
+          </div>
+
+          <Collapse isOpen={isCollapsePanelOpen}>
+            {journalConfig.columns ? <Filters columns={journalConfig.columns} onApply={this.onApplyFilters} /> : null}
+          </Collapse>
+        </div>
+
+        <div className={'select-journal__grid-container'}>
+          {!isGridDataReady ? <Loader /> : null}
+
+          <Grid
+            {...gridData}
+            singleSelectable={!multiple}
+            multiSelectable={multiple}
+            onSelect={this.onSelectGridItem}
+            selectAllRecords={null}
+            selectAllRecordsVisible={null}
+            className={gridClasses}
+            scrollable={false}
+          />
+
+          <Pagination className={'select-journal__pagination'} total={gridData.total} {...pagination} onChange={this.onChangePage} />
+        </div>
+
+        <div className="select-journal-select-modal__buttons">
+          <Btn className={'select-journal-select-modal__buttons-cancel'} onClick={this.onCancelSelect}>
+            {t(Labels.CANCEL_BUTTON)}
+          </Btn>
+          <Btn className={'ecos-btn_blue select-journal-select-modal__buttons-ok'} onClick={this.onSelectFromJournalPopup}>
+            {t(Labels.SAVE_BUTTON)}
+          </Btn>
+        </div>
+      </EcosModal>
+    );
+  }
+
   render() {
     const {
       multiple,
       isCompact,
       viewOnly,
-      hideCreateButton,
-      searchField,
-      isFullScreenWidthModal,
       presetFilterPredicates,
       placeholder,
       disabled,
@@ -660,16 +764,7 @@ export default class SelectJournal extends Component {
       isInlineEditingMode,
       viewMode
     } = this.props;
-    const {
-      isGridDataReady,
-      isSelectModalOpen,
-      isCollapsePanelOpen,
-      gridData,
-      pagination,
-      journalConfig,
-      selectedRows,
-      error
-    } = this.state;
+    const { journalConfig, selectedRows, error } = this.state;
     const inputViewProps = {
       disabled,
       isCompact,
@@ -707,78 +802,12 @@ export default class SelectJournal extends Component {
       'select-journal_view-only': viewOnly
     });
 
-    let selectModalTitle = t('select-journal.select-modal.title');
-    if (journalConfig.meta.title) {
-      selectModalTitle += `: ${journalConfig.meta.title}`;
-    }
-
-    const selectModalClasses = classNames('select-journal-select-modal', {
-      'ecos-modal_width-lg': !isFullScreenWidthModal,
-      'ecos-modal_width-full': isFullScreenWidthModal
-    });
-
-    const gridClasses = classNames('select-journal__grid', {
-      'select-journal__grid_transparent': !isGridDataReady
-    });
-
     return (
       <div className={wrapperClasses}>
         {typeof renderView === 'function' ? renderView(inputViewProps) : defaultView}
 
         <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} presetFilterPredicates={presetFilterPredicates}>
-          <EcosModal title={selectModalTitle} isOpen={isSelectModalOpen} hideModal={this.hideSelectModal} className={selectModalClasses}>
-            <div className={'select-journal-collapse-panel'}>
-              <div className={'select-journal-collapse-panel__controls'}>
-                <div className={'select-journal-collapse-panel__controls-left'}>
-                  <IcoBtn
-                    invert
-                    icon={isCollapsePanelOpen ? 'icon-small-up' : 'icon-small-down'}
-                    className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
-                    onClick={this.toggleCollapsePanel}
-                  >
-                    {t('select-journal.select-modal.filter-button')}
-                  </IcoBtn>
-
-                  {hideCreateButton ? null : (
-                    <CreateVariants items={journalConfig.meta.createVariants} onCreateFormSubmit={this.onCreateFormSubmit} />
-                  )}
-                </div>
-                <div className={'select-journal-collapse-panel__controls-right'}>
-                  <Search searchField={searchField} onApply={this.onApplyFilters} />
-                </div>
-              </div>
-
-              <Collapse isOpen={isCollapsePanelOpen}>
-                {journalConfig.columns ? <Filters columns={journalConfig.columns} onApply={this.onApplyFilters} /> : null}
-              </Collapse>
-            </div>
-
-            <div className={'select-journal__grid-container'}>
-              {!isGridDataReady ? <Loader /> : null}
-
-              <Grid
-                {...gridData}
-                singleSelectable={!multiple}
-                multiSelectable={multiple}
-                onSelect={this.onSelectGridItem}
-                selectAllRecords={null}
-                selectAllRecordsVisible={null}
-                className={gridClasses}
-                scrollable={false}
-              />
-
-              <Pagination className={'select-journal__pagination'} total={gridData.total} {...pagination} onChange={this.onChangePage} />
-            </div>
-
-            <div className="select-journal-select-modal__buttons">
-              <Btn className={'select-journal-select-modal__buttons-cancel'} onClick={this.onCancelSelect}>
-                {t('select-journal.select-modal.cancel-button')}
-              </Btn>
-              <Btn className={'ecos-btn_blue select-journal-select-modal__buttons-ok'} onClick={this.onSelectFromJournalPopup}>
-                {t('select-journal.select-modal.ok-button')}
-              </Btn>
-            </div>
-          </EcosModal>
+          {this.renderSelectModal()}
         </FiltersProvider>
       </div>
     );

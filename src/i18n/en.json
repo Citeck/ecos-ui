@@ -882,6 +882,7 @@
   "select-journal.select-modal.ok-button": "OK",
   "select-journal.select-modal.title": "Select",
   "select-journal.error.no-journal-id": "The \"journal ID\" config is required!",
+  "select-journal.error.no-journal-config": "The journal with ID {{journalId}} was not found. \n Contact your system administrator",
   "select-member-dialog.form-field.button": "Select",
   "select-member-dialog.form-field.label": "Employees",
   "select-member-dialog.listmem.title": "Selected employees",

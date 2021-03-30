@@ -881,6 +881,7 @@
   "select-journal.select-modal.ok-button": "OK",
   "select-journal.select-modal.title": "Выбрать",
   "select-journal.error.no-journal-id": "Конфигурация \"ID журнала\" обязательна!",
+  "select-journal.error.no-journal-config": "Журнал с идентификатором {{journalId}} не найден. \n Обратитесь к системному администратору",
   "select-member-dialog.form-field.button": "Выбрать",
   "select-member-dialog.form-field.label": "Сотрудники",
   "select-member-dialog.listmem.title": "Выбранные сотрудники",
