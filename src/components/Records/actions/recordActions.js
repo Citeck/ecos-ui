@@ -237,24 +237,39 @@ class RecordActions {
   }
 
   static async _preProcessAction({ records, action, context }, nameFunction) {
-    const result = { preProcessed: false, configMerged: false };
+    const result = { preProcessed: false, configMerged: false, hasError: false };
 
     if (action.preActionModule) {
       const userHandler = await getModule(action.preActionModule)
         .then(module => module[nameFunction])
-        .catch(() => notifyFailure());
+        .catch(() => (result.hasError = true));
+
       if (typeof userHandler === 'function') {
-        const response = await userHandler(records, action, context);
+        try {
+          const response = await userHandler(records, action, context);
+          result.preProcessed = true;
 
-        result.preProcessed = true;
-        result.results = get(response, 'results');
-        !isEmpty(result.results) && (result.preProcessedRecords = result.results.map(res => res.recordRef));
+          if (Array.isArray(get(response, 'results'))) {
+            result.results = response.results;
+            result.preProcessedRecords = result.results.map(res => res.recordRef);
+          }
 
-        if (!isEmpty(get(response, 'config'))) {
-          action.config = merge(action.config, response.config);
-          result.configMerged = true;
+          if (!isEmpty(get(response, 'config'))) {
+            result.config = { ...action.config, ...response.config };
+            result.configMerged = true;
+          }
+        } catch (e) {
+          console.error(e);
+          result.hasError = true;
         }
       }
+    } else {
+      console.error(nameFunction, 'This is not function. Check preActionModule');
+      result.hasError = true;
+    }
+
+    if (result.hasError) {
+      notifyFailure();
     }
 
     return result;
@@ -442,7 +457,14 @@ class RecordActions {
       config
     };
 
-    await RecordActions._preProcessAction({ records: [Records.get(record)], action: actionToExec, context }, 'execForRecord');
+    const preResult = await RecordActions._preProcessAction(
+      { records: [Records.get(record)], action: actionToExec, context },
+      'execForRecord'
+    );
+
+    if (preResult.configMerged) {
+      action.config = preResult.config;
+    }
 
     const result = handler.execForRecord(Records.get(record), actionToExec, execContext);
     const actResult = await RecordActions._wrapResultIfRequired(result);
@@ -525,6 +547,10 @@ class RecordActions {
       const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
       const execContext = { ...actionContext, ...context };
       const preResult = await RecordActions._preProcessAction({ records: allowedRecords, action, context }, 'execForRecords');
+
+      if (preResult.configMerged) {
+        action.config = preResult.config;
+      }
 
       const filteredRecords = preResult.preProcessedRecords
         ? allowedRecords.filter(rec => preResult.preProcessedRecords.includes(rec.id))
