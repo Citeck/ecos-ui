@@ -1041,5 +1041,18 @@ export function getColorByString(string = '') {
   return `#${hexNumber}`;
 }
 
+export function getModule(srcModule) {
+  return new Promise((resolve, reject) => {
+    window.require(
+      [srcModule],
+      module => resolve(module),
+      error => {
+        console.error(error);
+        reject(error);
+      }
+    );
+  });
+}
+
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
