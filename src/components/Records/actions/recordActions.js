@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
+import merge from 'lodash/merge';
 
 import { extractLabel, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
@@ -78,7 +79,8 @@ export const DEFAULT_MODEL = {
   config: {},
   confirm: null,
   result: null,
-  features: {}
+  features: {},
+  preActionModule: ''
 };
 
 class RecordActions {
@@ -234,6 +236,34 @@ class RecordActions {
     });
   }
 
+  static async preProcessAction({ record, action, context }, nameFunction) {
+    const result = { preProcessed: false, configMerged: false };
+
+    if (action.preActionModule) {
+      const userHandler = await import(action.preActionModule)
+        .then(module => module[nameFunction])
+        .catch(error => {
+          console.error(error);
+          notifyFailure();
+        });
+
+      if (typeof userHandler === 'function') {
+        const response = await userHandler(record, action, context);
+
+        result.preProcessed = true;
+        result.results = get(response, 'results');
+        !isEmpty(result.results) && (result.preProcessedRecords = result.results.map(res => res.recordRef));
+
+        if (!isEmpty(get(response, 'config'))) {
+          action.config = merge(action.config, response.config);
+          result.configMerged = true;
+        }
+      }
+    }
+
+    return result;
+  }
+
   /**
    * Fill values by attributes mapping (change properties of action)
    *
@@ -385,6 +415,7 @@ class RecordActions {
       notifyFailure();
       return false;
     }
+
     const handler = RecordActions._getActionsExecutor(action);
 
     if (handler == null) {
@@ -392,6 +423,7 @@ class RecordActions {
       console.error('No handler. Action: ', action);
       return false;
     }
+
     const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
     const execContext = {
       ...actionContext,
@@ -413,6 +445,9 @@ class RecordActions {
       ...action,
       config
     };
+
+    await RecordActions.preProcessAction({ record, action: actionToExec, context }, 'execForRecord');
+
     const result = handler.execForRecord(Records.get(record), actionToExec, execContext);
     const actResult = await RecordActions._wrapResultIfRequired(result);
 
@@ -491,8 +526,18 @@ class RecordActions {
 
       const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
       const execContext = { ...actionContext, ...context };
-      const result = handler.execForRecords(allowedRecords, action, execContext);
+      const preResult = await RecordActions.preProcessAction({ records: allowedRecords, action, context }, 'execForRecords');
+
+      const filteredRecords = preResult.preProcessedRecords
+        ? allowedRecords.filter(rec => preResult.preProcessedRecords.includes(rec.id))
+        : allowedRecords;
+
+      const result = handler.execForRecords(filteredRecords, action, execContext);
       const actResult = await RecordActions._wrapResultIfRequired(result);
+
+      if (!isBoolean(actResult) && preResult.preProcessedRecords) {
+        actResult.results = [...(actResult.results || []), ...(preResult.results || [])];
+      }
 
       RecordActions._updateRecords(allowedRecords, true);
 
