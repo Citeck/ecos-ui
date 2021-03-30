@@ -19,64 +19,20 @@ import { changeTab } from '../actions/pageTabs';
 import { setLeftMenuEditable } from '../actions/app';
 
 import { makeSiteMenu, makeUserMenuItems } from '../helpers/menu';
-import { getCurrentUserName, hasInString, getTextByLocale } from '../helpers/util';
-import { SourcesId, URL } from '../constants';
+import { hasInString } from '../helpers/util';
+import { URL } from '../constants';
 import { selectIdentificationForView } from '../selectors/dashboard';
 import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import MenuConverter from '../dto/menu';
-import Records from '../components/Records';
-
-import { HandleControlTypes } from '../helpers/handleControl';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
     const workflowVars = yield call(api.menu.getCreateWorkflowVariants);
-
-    const user = getCurrentUserName();
-
     //todo: temp solution to get create variants from menu config
-    const menuConfig = yield Records.queryOne(
-      {
-        sourceId: SourcesId.RESOLVED_MENU,
-        query: { user, version: 1 }
-      },
-      'subMenu.create?json'
-    );
-
-    // const siteVars = yield call(api.menu.getCreateVariantsForAllSites);
-    // map to legacy create variants
-    const _sites = (menuConfig.items || []).map(section => {
-      return {
-        id: section.id,
-        siteId: section.id,
-        label: getTextByLocale(section.label),
-        items: (section.items || []).map(cvItem => {
-          const cv = (cvItem.config || {}).variant || {};
-          return {
-            id: cv.id,
-            label: getTextByLocale(cvItem.label),
-            control: {
-              type: HandleControlTypes.ECOS_CREATE_VARIANT,
-              payload: {
-                title: getTextByLocale(cv.label),
-                recordRef: cv.sourceId + '@',
-                formId: cv.formRef,
-                canCreate: true,
-                postActionRef: cv.postActionRef,
-                attributes: {
-                  _type: cv.typeRef,
-                  ...cv.attributes
-                }
-              }
-            }
-          };
-        })
-      };
-    });
-
+    const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
+    const _sites = MenuConverter.getMainMenuCreateItems(menuConfigItems);
     const customVars = yield call(api.menu.getCustomCreateVariants);
-
     const _customs = MenuConverter.getCreateCustomItems(customVars);
     const { sites, customs } = MenuConverter.mergeCustomsAndSites(_customs, _sites);
 

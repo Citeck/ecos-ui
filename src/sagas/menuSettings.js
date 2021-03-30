@@ -4,6 +4,10 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
+import { t } from '../helpers/util';
+import { ConfigTypes, MenuSettings as ms } from '../constants/menu';
+import MenuConverter from '../dto/menu';
+import MenuSettingsService from '../services/MenuSettingsService';
 import {
   addJournalMenuItems,
   getAuthorityInfoByRefs,
@@ -11,39 +15,39 @@ import {
   getSettingsConfig,
   saveMenuSettings,
   setAuthorities,
+  setCreateMenuItems,
   setGroupPriority,
-  setLastAddedItems,
+  setLastAddedCreateItems,
+  setLastAddedLeftItems,
+  setLeftMenuItems,
   setLoading,
   setMenuIcons,
-  setMenuItems
+  setOriginalConfig
 } from '../actions/menuSettings';
-import { initMenuConfig } from '../actions/menu';
-import { t } from '../helpers/util';
-import MenuConverter from '../dto/menu';
-import MenuSettingsService from '../services/MenuSettingsService';
-import { MenuSettings as ms } from '../constants/menu';
+import { selectMenuByType } from '../selectors/menu';
 
 function* fetchSettingsConfig({ api, logger }) {
   try {
-    const type = yield select(state => state.menu.type);
     const id = yield select(state => state.menuSettings.editedId);
-    const keyType = MenuSettingsService.getConfigKeyByType(type);
 
     if (!id) {
       NotificationManager.error(t('menu-settings.error.no-id-config'), t('error'));
       throw new Error('User Menu Ref has not received');
     }
 
-    const { menu, authorities } = yield call(api.menu.getMenuSettingsConfig, { id });
-    const items = MenuConverter.getMenuItemsWeb(get(menu, [keyType, 'items']) || []);
+    const config = yield call(api.menu.getMenuSettingsConfig, { id });
+    const leftItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.left.items') || [], { configType: ConfigTypes.LEFT });
+    const createItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.create.items') || [], { configType: ConfigTypes.CREATE });
 
     const _font = yield import('../fonts/citeck-leftmenu/selection.json');
     const icons = get(_font, 'icons') || [];
     const prefix = get(_font, 'preferences.fontPref.prefix') || '';
     const font = icons.map(item => ({ value: `${prefix}${get(item, 'properties.name')}`, type: 'icon' }));
 
-    yield put(setMenuItems(items));
-    yield put(setAuthorities(authorities));
+    yield put(setOriginalConfig(config));
+    yield put(setLeftMenuItems(leftItems));
+    yield put(setCreateMenuItems(createItems));
+    yield put(setAuthorities(config.authorities));
     yield put(setMenuIcons({ font }));
   } catch (e) {
     yield put(setLoading(false));
@@ -53,17 +57,11 @@ function* fetchSettingsConfig({ api, logger }) {
 }
 
 function* runSaveMenuSettings(props, action) {
-  const id = yield select(state => state.menu.id);
   const resultMenu = yield runSaveMenuConfig(props, action);
   const resultGlobal = yield runSaveGlobalSettings(props, action);
 
   if (![resultMenu, resultGlobal].includes(false)) {
     MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
-
-    if (get(resultMenu, 'id') && get(resultMenu, 'id').includes(id)) {
-      yield put(initMenuConfig());
-    }
-
     NotificationManager.success(t('menu-settings.success.save-all-menu-settings'), t('success'));
   }
 
@@ -72,20 +70,20 @@ function* runSaveMenuSettings(props, action) {
 
 function* runSaveMenuConfig({ api, logger }, action) {
   try {
-    const config = yield select(state => state.menu);
     const id = yield select(state => state.menuSettings.editedId);
-    const keyType = MenuSettingsService.getConfigKeyByType(config.type);
-    const items = yield select(state => state.menuSettings.items);
+    const result = yield select(state => state.menuSettings.originalConfig);
+    const leftItems = yield select(state => state.menuSettings.leftItems);
+    const createItems = yield select(state => state.menuSettings.createItems);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
     const authorities = authoritiesInfo.map(item => item.name);
+    const newLeftItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.left.items'), items: leftItems });
+    const newCreateItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.create.items'), items: createItems });
+    const subMenu = {};
 
-    const result = yield call(api.menu.getMenuSettingsConfig, { id });
-    const originalItems = get(result, ['menu', keyType, 'items'], []);
-    const newItems = MenuConverter.getMenuItemsServer({ originalItems, items });
+    set(subMenu, 'left.items', newLeftItems);
+    set(subMenu, 'create.items', newCreateItems);
 
-    set(result, ['subMenu', keyType, 'items'], newItems);
-
-    return yield call(api.menu.saveMenuSettingsConfig, { id, subMenu: result.subMenu, authorities, version: result.version });
+    return yield call(api.menu.saveMenuSettingsConfig, { id, subMenu, authorities, version: result.version });
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.save-config'), t('error'));
     logger.error('[menu-settings / runSaveMenuSettings]', e.message);
@@ -113,8 +111,8 @@ function* runSaveGlobalSettings({ api, logger }, action) {
 
 function* runAddJournalMenuItems({ api, logger }, { payload }) {
   try {
-    const { records, id, type, level } = payload;
-    const items = yield select(state => state.menuSettings.items);
+    const { records, id, type, level, configType } = payload;
+    const items = yield select(state => selectMenuByType(state, configType));
     const infoList = yield call(api.menu.getItemInfoByRef, records);
     const excluded = [];
 
@@ -129,7 +127,7 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
         return info;
       });
 
-    const result = MenuSettingsService.processAction({ action: ms.ActionTypes.CREATE, items, id, data, level });
+    const result = MenuSettingsService.processAction({ action: ms.ActionTypes.CREATE, items, id, data, level, configType });
 
     if (excluded.length) {
       NotificationManager.warning(
@@ -139,8 +137,15 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
       );
     }
 
-    yield put(setMenuItems(result.items));
-    yield put(setLastAddedItems(result.newItems));
+    if (configType === ConfigTypes.LEFT) {
+      yield put(setLeftMenuItems(result.items));
+      yield put(setLastAddedLeftItems(result.newItems));
+    }
+
+    if (configType === ConfigTypes.CREATE) {
+      yield put(setCreateMenuItems(result.items));
+      yield put(setLastAddedCreateItems(result.newItems));
+    }
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.set-items-from-journal'), t('error'));

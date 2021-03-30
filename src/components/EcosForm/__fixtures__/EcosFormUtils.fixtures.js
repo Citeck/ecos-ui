@@ -809,7 +809,8 @@ export const datamapCaseOptimized = {
       keyLabel: '',
       key: 'dataMap2',
       type: 'datamap',
-      input: true
+      input: true,
+      addAnother: 'Add Another'
     }
   ]
 };

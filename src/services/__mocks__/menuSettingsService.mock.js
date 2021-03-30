@@ -2,6 +2,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings } from '../../constants/menu';
+import MenuSettingsService from '../MenuSettingsService';
 
 export const ITEMS_INPUT = [
   {
@@ -70,6 +71,15 @@ export const ITEMS_INPUT = [
     label: 'menu.header.tasks',
     type: 'JOURNAL',
     hidden: true,
+    icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
+    config: {},
+    allowedFor: []
+  },
+  {
+    id: 'CREATE_IN_SECTION',
+    label: 'menu.header.create',
+    type: 'CREATE_IN_SECTION',
+    hidden: false,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
     config: {},
     allowedFor: []
@@ -189,7 +199,7 @@ export const ACTIONS_BY_TYPE = {
   [MenuSettings.ItemTypes.SECTION]: [ACTIONS.EDIT, ACTIONS.DELETE, ACTIONS.ACTIVE_ON],
   [MenuSettings.ItemTypes.JOURNAL]: [ACTIONS.DELETE, ACTIONS.ACTIVE_ON],
   [MenuSettings.ItemTypes.ARBITRARY]: [ACTIONS.EDIT, ACTIONS.DELETE, ACTIONS.ACTIVE_ON],
-  [MenuSettings.ItemTypes.LINK_CREATE_CASE]: [ACTIONS.DELETE, ACTIONS.ACTIVE_OFF],
+  [MenuSettings.ItemTypes.LINK_CREATE_CASE]: [ACTIONS.EDIT, ACTIONS.DELETE, ACTIONS.ACTIVE_OFF],
   [MenuSettings.ItemTypes.HEADER_DIVIDER]: [ACTIONS.EDIT, ACTIONS.DELETE, ACTIONS.ACTIVE_OFF],
   EMPTY_TYPE: [ACTIONS.DELETE, ACTIONS.ACTIVE_ON]
 };
@@ -224,7 +234,7 @@ export const PERMISSIONS_BY_TYPE = {
   },
   [MenuSettings.ItemTypes.LINK_CREATE_CASE]: {
     draggable: true,
-    editable: false,
+    editable: true,
     hasIcon: true,
     hasUrl: false,
     hideable: true,
@@ -232,6 +242,24 @@ export const PERMISSIONS_BY_TYPE = {
     hideableLabel: false
   },
   [MenuSettings.ItemTypes.HEADER_DIVIDER]: {
+    draggable: true,
+    editable: true,
+    hasIcon: false,
+    hasUrl: false,
+    hideable: true,
+    removable: true,
+    hideableLabel: false
+  },
+  [MenuSettings.ItemTypes.CREATE_IN_SECTION]: {
+    draggable: true,
+    editable: true,
+    hasIcon: false,
+    hasUrl: false,
+    hideable: true,
+    removable: true,
+    hideableLabel: false
+  },
+  [MenuSettings.ItemTypes.EDIT_RECORD]: {
     draggable: true,
     editable: true,
     hasIcon: false,
@@ -772,7 +800,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
       data: [
         { id: 'c111aeed-77be-4675-828d-2d4b20432910', label: 'Тестовый', config: { recordRef: 'uiserv/journal@Test' }, type: 'JOURNAL' }
       ],
-      level: 1
+      level: 1,
+      configType: 'left'
     },
     {
       items: [
@@ -1824,7 +1853,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
         }
       ],
       action: 'DELETE',
-      id: 'c111aeed-77be-4675-828d-2d4b20432910'
+      id: 'c111aeed-77be-4675-828d-2d4b20432910',
+      configType: 'left'
     },
     {
       items: [
@@ -2823,7 +2853,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
         }
       ],
       action: 'DISPLAY_COUNT',
-      id: '73faa604-38c5-405d-ba60-9748e590f34d'
+      id: '73faa604-38c5-405d-ba60-9748e590f34d',
+      configType: 'left'
     },
     {
       items: [
@@ -3870,7 +3901,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
             'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWdvbiBwb2ludHM9IjEyIDIgMTUuMDkgOC4yNiAyMiA5LjI3IDE3IDE0LjE0IDE4LjE4IDIxLjAyIDEyIDE3Ljc3IDUuODIgMjEuMDIgNyAxNC4xNCAyIDkuMjcgOC45MSA4LjI2IDEyIDIiPjwvcG9seWdvbj48L3N2Zz4='
         },
         type: 'SECTION'
-      }
+      },
+      configType: 'left'
     },
     {
       items: [
@@ -4950,7 +4982,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
         config: { url: 'https://2gis.ru/kostroma?m=40.934715%2C57.766496%2F15' },
         icon: { value: 'icon-empty', type: 'icon' },
         type: 'ARBITRARY'
-      }
+      },
+      configType: 'left'
     },
     {
       items: [
@@ -5955,7 +5988,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
         config: { url: 'https://2gis.ru/kostroma?m=40.934715%2C57.766496%2F15' },
         icon: { value: 'icon-empty', type: 'icon' },
         type: 'ARBITRARY'
-      }
+      },
+      configType: 'left'
     },
     {
       items: [
@@ -6458,27 +6492,49 @@ export const ACTIONS_ON_MENU_ITEMS = {
   ]
 };
 
-export const CREATE_OPTIONS = [
-  { key: 'SECTION', label: 'menu-item.type.section', when: { maxLevel: 0 } },
-  { key: 'HEADER-DIVIDER', label: 'menu-item.type.header-divider', when: { maxLevel: 0, minLevel: 0 } },
-  { key: 'JOURNAL', label: 'menu-item.type.journal', when: { minLevel: 0 } },
-  { key: 'ARBITRARY', label: 'menu-item.type.arbitrary', when: { minLevel: 0 } },
-  { key: 'LINK-CREATE-CASE', label: 'menu-item.type.link-create-case', when: { minLevel: 0 } }
-];
-
-function _getAvailableOptions(items) {
-  return (items || cloneDeep(CREATE_OPTIONS)).map(item => ({ ...item, id: item.label }));
+function _getMCOs(items) {
+  return cloneDeep(items).map(item => ({ ...item, id: item.label }));
 }
 
 export const AVAILABLE_CREATE_OPTIONS = [
-  [undefined, undefined, _getAvailableOptions()],
-  [undefined, { level: -1 }, _getAvailableOptions([CREATE_OPTIONS[0]])],
-  [{ type: 'SECTION' }, { level: -1 }, _getAvailableOptions([CREATE_OPTIONS[0]])],
-  [undefined, { level: 0 }, _getAvailableOptions()],
-  [{ type: 'item' }, { level: 0 }, []],
-  [{ type: 'SECTION' }, { level: 0 }, _getAvailableOptions()],
-  [undefined, { level: 2 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
-  [{ type: 'SECTION' }, { level: 1 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
-  [{ type: 'ARBITRARY' }, { level: 3 }, []],
-  [{ type: 'JOURNAL' }, { level: 2 }, []]
+  [undefined, undefined, []],
+  [undefined, { configType: 'left', level: -1 }, _getMCOs([MenuSettingsService.leftMenuCreateOptions[0]])],
+  [{ type: 'SECTION' }, { configType: 'left', level: -1 }, _getMCOs([MenuSettingsService.leftMenuCreateOptions[0]])],
+  [undefined, { configType: 'left', level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
+  [{ type: 'item' }, { configType: 'left', level: 0 }, []],
+  [{ type: 'SECTION' }, { configType: 'left', level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
+  [
+    undefined,
+    { configType: 'left', level: 2 },
+    _getMCOs([
+      MenuSettingsService.leftMenuCreateOptions[2],
+      MenuSettingsService.leftMenuCreateOptions[3],
+      MenuSettingsService.leftMenuCreateOptions[4]
+    ])
+  ],
+  [
+    { type: 'SECTION' },
+    { configType: 'left', level: 1 },
+    _getMCOs([
+      MenuSettingsService.leftMenuCreateOptions[2],
+      MenuSettingsService.leftMenuCreateOptions[3],
+      MenuSettingsService.leftMenuCreateOptions[4]
+    ])
+  ],
+  [{ type: 'ARBITRARY' }, { configType: 'left', level: 3 }, []],
+  [{ type: 'JOURNAL' }, { configType: 'left', level: 2 }, []],
+  [{ type: 'JOURNAL' }, { configType: 'create', level: -1 }, []],
+  [undefined, { configType: 'create', level: -1 }, _getMCOs(MenuSettingsService.createMenuCreateOptions)],
+  [{ type: 'SECTION' }, { configType: 'create', level: 0 }, _getMCOs(MenuSettingsService.createMenuCreateOptions)],
+  [
+    { type: 'SECTION' },
+    { configType: 'create', level: 1 },
+    _getMCOs([
+      MenuSettingsService.createMenuCreateOptions[1],
+      MenuSettingsService.createMenuCreateOptions[2],
+      MenuSettingsService.createMenuCreateOptions[3]
+    ])
+  ],
+  [{ type: 'CREATE_IN_SECTION' }, { configType: 'create', level: 0 }, []],
+  [{ type: 'EDIT_RECORD' }, { configType: 'create', level: 0 }, []]
 ];

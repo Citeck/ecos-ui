@@ -10,7 +10,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
-import { getCurrentLocale, isMobileDevice, t } from '../../helpers/util';
+import { getCurrentLocale, getMLValue, isMobileDevice, t } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
@@ -172,7 +172,7 @@ class EcosForm extends React.Component {
             }
 
             if (input.edge.title) {
-              attributesTitles[input.component.label] = input.edge.title;
+              attributesTitles[getMLValue(input.component.label)] = input.edge.title;
             }
           }
         }
@@ -222,6 +222,7 @@ class EcosForm extends React.Component {
 
           form.submission = {
             data: {
+              ...self._evalOptionsInitAttributes(recordData.inputs, options),
               ...(self.props.attributes || {}),
               ...recordData.submission
             }
@@ -269,6 +270,27 @@ class EcosForm extends React.Component {
         });
       });
     }, onFormLoadingFailure);
+  }
+
+  _evalOptionsInitAttributes(inputs, options) {
+    const typeRef = options.typeRef;
+    if (!typeRef) {
+      return {};
+    }
+
+    let hasTypeField = false;
+    for (let input of inputs) {
+      if (input.attribute === 'tk:kind' || input.attribute === '_type') {
+        hasTypeField = true;
+        break;
+      }
+    }
+    if (!hasTypeField) {
+      return {
+        _type: typeRef
+      };
+    }
+    return {};
   }
 
   _recoverComponentsProperties(formDefinition) {

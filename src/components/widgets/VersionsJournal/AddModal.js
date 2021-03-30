@@ -15,9 +15,9 @@ import Btn from '../../common/btns/Btn/Btn';
 import './style.scss';
 
 const Labels = {
-  DROPZONE_PLACEHOLDER: 'versions-journal-widget.modal.dropzone_placeholder',
-  DROPZONE_BUTTON_SELECT: 'versions-journal-widget.modal.dropzone_button_select',
-  DROPZONE_BUTTON_CANCEL: 'versions-journal-widget.modal.dropzone_button_cancel',
+  DROPZONE_PLACEHOLDER: 'dropzone.modal.dropzone_placeholder',
+  DROPZONE_BUTTON_SELECT: 'dropzone.modal.dropzone_button_select',
+  DROPZONE_BUTTON_CANCEL: 'dropzone.modal.dropzone_button_cancel',
 
   CANCEL: 'versions-journal-widget.modal.cancel',
   ADD: 'versions-journal-widget.modal.add',

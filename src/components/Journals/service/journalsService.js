@@ -125,7 +125,7 @@ class JournalsService {
     meta.metaRecord = config.metaRecord;
     meta.predicate = config.predicate || {};
     meta.title = getTextByLocale(config.label || config.name);
-    meta.createVariants = (config.createVariants || []).map(cv => this.__mapNewCreateVariantToLegacy(cv));
+    meta.createVariants = (config.createVariants || []).map(cv => this.__mapCreateVariant(cv));
 
     config.meta = meta;
 
@@ -161,17 +161,11 @@ class JournalsService {
     return result;
   }
 
-  __mapNewCreateVariantToLegacy(cv) {
+  __mapCreateVariant(cv) {
     return {
+      ...cv,
       title: getTextByLocale(cv.name),
-      recordRef: cv.sourceId + '@',
-      formId: cv.formRef,
-      canCreate: true,
-      postActionRef: cv.postActionRef,
-      attributes: {
-        _type: cv.typeRef,
-        ...(cv.attributes || {})
-      }
+      canCreate: true
     };
   }
 

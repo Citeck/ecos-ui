@@ -786,7 +786,7 @@ function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
     const { journalConfig } = yield select(selectJournalData, stateId);
 
     yield getJournalSettings(api, journalConfig.id, w);
-    yield put(onJournalSettingsSelect(w(journalSettingId)));
+    yield put(openSelectedJournalSettings(w(journalSettingId)));
   } catch (e) {
     logger.error('[journals sagaCreateJournalSetting saga error', e.message);
   }
@@ -794,12 +794,11 @@ function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
 
 function* sagaDeleteJournalSetting({ api, logger, stateId, w }, action) {
   try {
-    yield call(api.journals.deleteJournalSetting, action.payload);
-
     const { journalConfig } = yield select(selectJournalData, stateId);
 
+    yield call(api.journals.deleteJournalSetting, action.payload);
     yield getJournalSettings(api, journalConfig.id, w);
-    yield loadGrid(api, { journalConfig, stateId }, w);
+    yield put(openSelectedJournalSettings(''));
   } catch (e) {
     logger.error('[journals sagaCreateJournalSetting saga error', e.message);
   }

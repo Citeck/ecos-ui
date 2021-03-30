@@ -14,6 +14,7 @@ import './style.scss';
 class EsignComponent extends Component {
   static propTypes = {
     recordRefs: PropTypes.arrayOf(PropTypes.string).isRequired,
+    thumbprints: PropTypes.arrayOf(PropTypes.string),
     /**
      * callback function upon successful signing of a document
      */
@@ -63,18 +64,26 @@ class EsignComponent extends Component {
     });
   };
 
-  getCertificates() {
-    Esign.getCertificates()
+  getCertificates(thumbprints) {
+    Esign.getCertificates(thumbprints)
+      .then(this.signDefault)
       .then(this.setCertificates)
       .catch(this.setError);
   }
+
+  signDefault = certificates => {
+    if (Array.isArray(certificates) && certificates.length === 1) {
+      this.handleSignDocument(certificates[0].id);
+    }
+    return certificates;
+  };
 
   setCertificates = certificates => {
     this.setState({ certificates });
   };
 
   serviceInitialized = cadespluginApi => {
-    this.getCertificates();
+    this.getCertificates(this.props.thumbprints);
     this.setState({
       isFetchingApi: false,
       isLoading: false,
@@ -168,7 +177,7 @@ class EsignComponent extends Component {
         {this.renderViewElement()}
 
         <EsignModal
-          isOpen={Boolean(isOpen && cadespluginApi && !this.hasErrors)}
+          isOpen={Boolean(isOpen && cadespluginApi && !this.hasErrors && !(Array.isArray(certificates) && certificates.length === 1))}
           isLoading={isLoading}
           title={t(Labels.MODAL_TITLE)}
           onHideModal={this.handleCloseModal}

@@ -11,29 +11,42 @@ class FormManager {
   static createRecordByVariant = debounce(
     (variant, options = {}) => {
       if (!variant) {
-        console.error("Create variant is undefined. Record creation can't be preformed");
+        console.error("[FormManager createRecordByVariant] Create variant is undefined. Record creation can't be preformed");
         return;
       }
 
-      let recordRef = variant.recordRef || (variant.type ? 'dict@' + variant.type : '');
-      let attributes = variant.attributes || {};
+      let { recordRef: record = '', type, sourceId, formId, formRef, formKey, attributes = {}, destination, formOptions = {} } = variant;
 
-      if (variant.destination && !attributes['_parent']) {
-        attributes['_parent'] = variant.destination;
+      formId = formRef || formId;
+
+      if (!record && sourceId) {
+        record = `${variant.sourceId}@`;
+      }
+
+      if (!record && type) {
+        record = `dict@${variant.type}`;
+      }
+
+      if (destination && !attributes._parent) {
+        attributes._parent = destination;
       }
 
       const props = {
-        record: recordRef,
-        formKey: variant.formKey,
+        record,
+        formKey,
         attributes,
         options: {
-          params: this.parseCreateArguments(variant.createArguments)
+          ...formOptions
         },
         ...options
       };
 
-      if (EcosFormUtils.isFormId(variant.formId)) {
-        props.formId = variant.formId;
+      if (variant.typeRef) {
+        props.options.typeRef = variant.typeRef;
+      }
+
+      if (EcosFormUtils.isFormId(formId)) {
+        props.formId = formId;
       }
 
       this.openFormModal(props);
@@ -45,48 +58,33 @@ class FormManager {
     }
   );
 
-  static parseCreateArguments(createArgs) {
-    if (!createArgs) {
-      return {};
-    }
-    let params = {};
-    try {
-      let args = createArgs.split('&');
-      for (let i = 0; i < args.length; i++) {
-        let keyValue = (args[i] || '').split('=');
-        if (keyValue.length === 2) {
-          let key = keyValue[0] || '';
-          let value = keyValue[1] || '';
-          if (key.indexOf('param_') === 0) {
-            params[key.substring('param_'.length)] = value;
-          }
-        }
-      }
-    } catch (e) {
-      //protection for hotfix
-      //todo: remove it in develop
-      console.error(e);
-    }
-    return params;
-  }
-
   static openFormModal(props) {
     const container = document.createElement('div');
+    const handleUnmount = () => {
+      ReactDOM.unmountComponentAtNode(container);
+      document.body.removeChild(container);
+    };
 
     const form = React.createElement(EcosFormModal, {
       ...props,
       isModalOpen: true,
       onHideModal: () => {
-        ReactDOM.unmountComponentAtNode(container);
-        document.body.removeChild(container);
+        handleUnmount();
+
         if (props.onHideModal) {
           props.onHideModal();
+        }
+      },
+      onCancelModal: () => {
+        handleUnmount();
+
+        if (typeof props.onModalCancel === 'function') {
+          props.onModalCancel();
         }
       }
     });
 
     document.body.appendChild(container);
-
     ReactDOM.render(form, container);
 
     return container;

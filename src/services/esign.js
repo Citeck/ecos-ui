@@ -88,14 +88,14 @@ class Esign {
     }
   };
 
-  static getCertificates = async () => {
+  static getCertificates = async thumbprints => {
     try {
       if (!api.cadespluginApi) {
         throw new Error('cadespluginApi is null');
       }
 
       const certificates = await Promise.all(
-        (await api.getCertificates()).map(async function(certificate) {
+        (await api.getCertificates(thumbprints)).map(async function(certificate) {
           return await EsignConverter.getCertificateForModal(certificate);
         })
       );

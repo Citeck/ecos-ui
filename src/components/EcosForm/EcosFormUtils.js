@@ -14,7 +14,7 @@ import uuidV4 from 'uuid/v4';
 
 import { AppEditions, SourcesId } from '../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
-import { getCurrentUserName, t } from '../../helpers/util';
+import { getCurrentUserName, t, getMLValue } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import { UserApi } from '../../api/user';
 import { AppApi } from '../../api/app';
@@ -37,6 +37,8 @@ const getComponentInnerAttSchema = component => {
 
   if (dataType === 'json') {
     return 'json';
+  } else if (dataType === 'bool') {
+    return 'bool';
   }
 
   switch (component.type) {
@@ -615,7 +617,7 @@ export default class EcosFormUtils {
 
       let edgeSchema = '.edge(n:"' + attribute + '"){protected,unreadable,';
 
-      if (component.label === attribute) {
+      if (getMLValue(component.label) === attribute) {
         edgeSchema += 'title}';
       } else {
         // Type is not used. Just to add more than 1 field in result to avoid simplifying

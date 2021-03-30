@@ -7,7 +7,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { t } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import Records from '../../Records';
-import { getBool } from '../../../../helpers/util';
+import { getBool, extractLabel } from '../../../../helpers/util';
 import DialogManager from '../../../common/dialogs/Manager';
 import ExecuteInfoAction from '../components/ExecuteInfoAction';
 
@@ -117,7 +117,7 @@ export function packedActionStatus(status = '') {
 }
 
 export function getActionResultTitle(action) {
-  return t(Labels.RESULT_TITLE, { action: get(action, 'config.title') || action.name });
+  return t(Labels.RESULT_TITLE, { action: extractLabel(get(action, 'config.title') || action.name) });
 }
 
 export function setDisplayDataRecord(record, status = '', message = '') {

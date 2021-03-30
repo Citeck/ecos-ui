@@ -1,9 +1,9 @@
 import React from 'react';
 
-import BaseFormatter from '../BaseFormatter';
 import { createDocumentUrl } from '../../../../../../helpers/urls';
 import PageService from '../../../../../../services/PageService';
 import CellType from '../../CellType';
+import BaseFormatter from '../BaseFormatter';
 
 export default class AssocFormatter extends BaseFormatter {
   static TYPE = 'assoc';
@@ -15,10 +15,12 @@ export default class AssocFormatter extends BaseFormatter {
       return '';
     }
 
-    let value = cell.value;
     const sourceId = config.sourceId;
+    let value = cell.value;
+
     if (sourceId) {
       const localSourceIdDelimIdx = value.indexOf('@');
+
       if (localSourceIdDelimIdx >= 0 && localSourceIdDelimIdx < value.length - 1) {
         value = value.substring(localSourceIdDelimIdx + 1);
       }
@@ -30,6 +32,7 @@ export default class AssocFormatter extends BaseFormatter {
       e.preventDefault();
       PageService.changeUrlLink(link, { openNewTab: !config.openInBackground });
     };
+
     return (
       <a href={link} onClick={handler}>
         {cell.disp}

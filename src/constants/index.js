@@ -45,6 +45,7 @@ export const SourcesId = {
   META: 'uiserv/meta',
   JOURNAL: 'uiserv/journal',
   RESOLVED_JOURNAL: 'uiserv/rjournal',
+  RESOLVED_TYPE: 'emodel/rtype',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
   A_AUTHORITY: 'alfresco/authority',
@@ -160,7 +161,8 @@ export const SYSTEM_LIST = 'global-system';
 export const SystemJournals = {
   JOURNALS: 'ecos-journals',
   TYPES: 'ecos-types',
-  MENUS: 'ecos-menus'
+  MENUS: 'ecos-menus',
+  FORMS: 'ecos-forms'
 };
 
 window.Citeck = window.Citeck || {};

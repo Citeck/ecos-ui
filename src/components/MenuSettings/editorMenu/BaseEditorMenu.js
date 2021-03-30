@@ -1,38 +1,40 @@
 import React from 'react';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import { connect } from 'react-redux';
+import uniqueId from 'lodash/uniqueId';
 import classNames from 'classnames';
 
-import { extractLabel, t } from '../../helpers/util';
-import { treeMoveItem } from '../../helpers/arrayOfObjects';
-import { SystemJournals } from '../../constants';
-import { MenuSettings as ms } from '../../constants/menu';
-import MenuSettingsService from '../../services/MenuSettingsService';
-import { addJournalMenuItems, setLastAddedItems, setMenuItems } from '../../actions/menuSettings';
-import IconSelect from '../IconSelect';
-import { Tree } from '../common';
-import { Btn } from '../common/btns';
-import { Badge, DropdownOuter, SelectJournal } from '../common/form';
-import DialogManager from '../common/dialogs/Manager';
-import EditorItemModal from './EditorItemModal';
+import { extractLabel, t } from '../../../helpers/util';
+import { treeMoveItem } from '../../../helpers/arrayOfObjects';
+import { SystemJournals } from '../../../constants';
+import { MenuSettings as ms } from '../../../constants/menu';
+import MenuSettingsService from '../../../services/MenuSettingsService';
+import IconSelect from '../../IconSelect';
+import { Tree } from '../../common';
+import { Btn } from '../../common/btns';
+import { Badge, DropdownOuter } from '../../common/form';
+import DialogManager from '../../common/dialogs/Manager';
+import { Labels } from './../utils';
+import EditorItem from '../editorItem/EditorItem';
 
-import './style.scss';
+import '../style.scss';
 
-const Labels = {
-  BTN_ADD: 'menu-settings.editor-items.dropdown.add',
-  TIP_NO_ITEMS: 'menu-settings.editor-items.none',
-  TIP_DRAG_HERE: 'menu-settings.editor-items.drag-item-here',
-  BTN_EXPAND_ALL: 'menu-settings.editor-items.btn.expand-all',
-  BTN_COLLAPSE_ALL: 'menu-settings.editor-items.btn.collapse-all'
-};
+export default class BaseEditorMenu extends React.Component {
+  configType = undefined;
 
-class EditorItems extends React.Component {
   state = {
     openAllMenuItems: false,
     editItemInfo: null,
     editItemIcon: null
   };
+
+  componentDidMount() {
+    this.handleChooseOption.bind(this);
+
+    if (!this.configType) {
+      console.warn('Yon should define type of menu config');
+    }
+  }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { lastAddedItems } = this.props;
@@ -60,8 +62,8 @@ class EditorItems extends React.Component {
     this.setState(({ openAllMenuItems }) => ({ openAllMenuItems: !openAllMenuItems }));
   };
 
-  handleChooseOption = (editItemInfo = {}) => {
-    if ([ms.ItemTypes.JOURNAL, ms.ItemTypes.LINK_CREATE_CASE].includes(get(editItemInfo, 'type.key'))) {
+  handleChooseOption(editItemInfo = {}) {
+    if ([ms.ItemTypes.JOURNAL].includes(get(editItemInfo, 'type.key'))) {
       this.setState({
         editItemInfo: {
           ...editItemInfo,
@@ -72,7 +74,7 @@ class EditorItems extends React.Component {
     } else {
       this.setState({ editItemInfo });
     }
-  };
+  }
 
   handleActionItem = ({ action, item, level }) => {
     const { items, setMenuItems } = this.props;
@@ -80,23 +82,20 @@ class EditorItems extends React.Component {
     if (action === ms.ActionTypes.DELETE) {
       DialogManager.showRemoveDialog({
         title: '',
-        text: t('menu-settings.message.delete-item', { name: extractLabel(item.label) }),
-        onDelete: () => {
-          const result = MenuSettingsService.processAction({ action, id: item.id, items });
-          setMenuItems(result.items);
-        }
+        text: t(Labels.MSG_DELETE_ITEM, { name: extractLabel(item.label) }),
+        onDelete: () => setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, configType: this.configType }).items)
       });
       return;
     }
 
     if (action === ms.ActionTypes.EDIT) {
-      const type = MenuSettingsService.createOptions.find(o => o.key === item.type);
+      const type = MenuSettingsService.getCreateOptionsByType(this.configType).find(o => o.key === item.type);
 
       type && this.handleChooseOption({ type, item, action, level });
       return;
     }
 
-    setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, level }).items);
+    setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, level, configType: this.configType }).items);
   };
 
   handleClickIcon = item => {
@@ -134,7 +133,7 @@ class EditorItems extends React.Component {
     );
   };
 
-  renderEditorItem = () => {
+  renderEditorItem() {
     const { editItemInfo } = this.state;
     const { items, setMenuItems, addJournalMenuItems, setLastAddedItems, fontIcons } = this.props;
 
@@ -152,7 +151,8 @@ class EditorItems extends React.Component {
         items,
         id: get(editItemInfo, 'item.id'),
         data: { ...data, type: get(editItemInfo, 'type.key') },
-        level: editItemInfo.level
+        level: editItemInfo.level,
+        configType: this.configType
       });
       setMenuItems(result.items);
       setLastAddedItems(result.newItems);
@@ -160,40 +160,35 @@ class EditorItems extends React.Component {
     };
 
     const handleSaveJournal = records => {
-      addJournalMenuItems({
-        records,
-        id: get(editItemInfo, 'item.id'),
-        type: get(editItemInfo, 'type.key'),
-        level: editItemInfo.level
-      });
+      addJournalMenuItems &&
+        addJournalMenuItems({
+          records,
+          id: get(editItemInfo, 'item.id'),
+          type: get(editItemInfo, 'type.key'),
+          level: editItemInfo.level,
+          configType: this.configType
+        });
       handleHideModal();
     };
 
     if (editItemInfo.several) {
       return (
-        <SelectJournal
-          journalId={editItemInfo.journalId}
-          isSelectModalOpen
-          multiple
-          renderView={() => null}
-          onChange={handleSaveJournal}
-          onCancel={handleHideModal}
-        />
+        <EditorItem type={editItemInfo.type} journalId={editItemInfo.journalId} onSave={handleSaveJournal} onClose={handleHideModal} />
       );
     }
 
     return (
-      <EditorItemModal
-        item={editItemInfo.item}
+      <EditorItem
+        item={editItemInfo.action === ms.ActionTypes.EDIT ? editItemInfo.item : {}}
         type={editItemInfo.type}
         onClose={handleHideModal}
         onSave={handleSave}
         action={editItemInfo.action}
-        params={{ level: editItemInfo.level }}
+        params={{ level: editItemInfo.level, configType: this.configType }}
         fontIcons={fontIcons}
       />
     );
-  };
+  }
 
   renderEditorIcon = () => {
     const { editItemIcon } = this.state;
@@ -209,7 +204,8 @@ class EditorItems extends React.Component {
         items,
         id: editItemIcon.id,
         data: { icon },
-        level: editItemIcon.level
+        level: editItemIcon.level,
+        configType: this.configType
       });
 
       setMenuItems(result.items);
@@ -230,10 +226,10 @@ class EditorItems extends React.Component {
   renderExtraComponents = ({ item, level = -1, isOpen }) => {
     const { disabledEdit } = this.props;
     const components = [];
-    const id = get(item, 'id');
+    const id = get(item, 'id') || uniqueId(this.configType);
 
     if (!item || (!item.hidden && !MenuSettingsService.isChildless(item))) {
-      const createOptions = MenuSettingsService.getAvailableCreateOptions(item, { level });
+      const createOptions = MenuSettingsService.getAvailableCreateOptions(item, { level, configType: this.configType });
 
       !disabledEdit &&
         createOptions.length &&
@@ -313,21 +309,3 @@ class EditorItems extends React.Component {
     );
   }
 }
-
-const mapStateToProps = state => ({
-  disabledEdit: get(state, 'menuSettings.disabledEdit'),
-  items: get(state, 'menuSettings.items', []),
-  fontIcons: get(state, 'menuSettings.fontIcons', []),
-  lastAddedItems: get(state, 'menuSettings.lastAddedItems', [])
-});
-
-const mapDispatchToProps = dispatch => ({
-  setMenuItems: items => dispatch(setMenuItems(items)),
-  setLastAddedItems: items => dispatch(setLastAddedItems(items)),
-  addJournalMenuItems: data => dispatch(addJournalMenuItems(data))
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(EditorItems);

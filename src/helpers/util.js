@@ -1046,5 +1046,36 @@ export function getColorByString(string = '') {
   return `#${hexNumber}`;
 }
 
+/**
+ * Copy to clipboard
+ *
+ * @param text
+ * @returns {boolean|*}
+ */
+export function copyToClipboard(text) {
+  if (window.clipboardData && window.clipboardData.setData) {
+    return window.clipboardData.setData('Text', text);
+  }
+
+  if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
+    const textarea = document.createElement('textarea');
+
+    textarea.textContent = text;
+    textarea.style.position = 'fixed';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      return document.execCommand('copy');
+    } catch (error) {
+      console.error('Copy to clipboard failed.', error);
+      return false;
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  }
+
+  return false;
+}
+
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
