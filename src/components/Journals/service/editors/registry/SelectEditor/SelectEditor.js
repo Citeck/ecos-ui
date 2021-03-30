@@ -1,29 +1,56 @@
-import BaseEditor from '../BaseEditor';
+import React, { useEffect, useState } from 'react';
+
+import logger from '../../../../../../services/logger';
+import { t } from '../../../../../../helpers/export/util';
 import Records from '../../../../../Records';
-import React, { useState } from 'react';
 import { Select } from '../../../../../common/form';
+import EditorScope from '../../EditorScope';
+import BaseEditor from '../BaseEditor';
 
 export default class SelectEditor extends BaseEditor {
   static TYPE = 'select';
 
   getControl(config, scope) {
     return ({ value, attribute, recordRef, multiple, onUpdate }) => {
-      const [options, setOptions] = useState(config.options);
+      const [options, setOptions] = useState([]);
+      const [isLoading, setLoading] = useState(false);
 
-      if (!options) {
-        const optionsAtt = config.optionsAtt || `_edge.${attribute}.options{value:?str,label:?disp}`;
-        Records.get(recordRef)
-          .load(optionsAtt)
-          .then(res => {
-            if (!res) {
-              setOptions([value]);
-            } else if (Array.isArray(res)) {
-              setOptions(res);
-            } else {
-              setOptions([res]);
-            }
-          });
-      }
+      useEffect(() => {
+        let propOptions = config.options;
+
+        if (config.options && typeof config.options === 'string') {
+          try {
+            propOptions = JSON.parse(config.options);
+          } catch (e) {
+            logger.error('[SelectEditor config.options] error', e);
+            propOptions = [];
+          }
+        }
+
+        setOptions(propOptions);
+      }, []);
+
+      useEffect(() => {
+        if (!options && !isLoading) {
+          const optionsAtt = config.optionsAtt || `_edge.${attribute}.options{value:?str,label:?disp}`;
+
+          setLoading(true);
+          Records.get(recordRef)
+            .load(optionsAtt)
+            .then(res => {
+              let opts;
+              if (!res) {
+                opts = [value];
+              } else if (Array.isArray(res)) {
+                opts = res;
+              } else {
+                opts = [res];
+              }
+              setOptions(opts);
+              setLoading(false);
+            });
+        }
+      }, [options]);
 
       const onSelectUpdate = value => {
         if (Array.isArray(value)) {
@@ -33,25 +60,27 @@ export default class SelectEditor extends BaseEditor {
         }
       };
 
+      const selected = options ? options.filter(opt => (opt.value || opt) === value) : null;
+
       if (!options) {
-        return 'Loading...';
+        return <div className="text-dark">{t('ecos-ui.select.loading-message')}</div>;
       } else {
         return (
           <Select
             isMulti={multiple}
-            autoFocus
+            autoFocus={scope === EditorScope.CELL}
             onChange={onSelectUpdate}
-            className="select_extra-narrow"
-            placeholder=""
+            className="select_narrow select_width_full"
             getOptionLabel={option => option.label || option}
             getOptionValue={option => option.value || option}
             options={options}
-            value={value}
+            value={selected}
             styles={{
               menu: css => ({
                 ...css,
                 zIndex: 11,
-                width: 'auto'
+                width: 'auto',
+                minWidth: '100%'
               }),
               dropdownIndicator: css => ({
                 ...css,

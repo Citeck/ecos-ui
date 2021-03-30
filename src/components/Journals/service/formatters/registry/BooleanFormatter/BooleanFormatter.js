@@ -1,15 +1,16 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 
-import BaseFormatter from '../BaseFormatter';
 import { t } from '../../../../../../helpers/export/util';
+import { getBool } from '../../../../../../helpers/util';
+import BaseFormatter from '../BaseFormatter';
 
 export default class BooleanFormatter extends BaseFormatter {
   static TYPE = 'bool';
 
   format(props) {
-    let cell = props.cell;
-    cell = cell === true || cell === 'true' ? t('boolean.yes') : t('boolean.no');
-    return <Fragment>{cell}</Fragment>;
+    const text = getBool(props.cell) ? t('boolean.yes') : t('boolean.no');
+
+    return <>{text}</>;
   }
 
   getAliases() {

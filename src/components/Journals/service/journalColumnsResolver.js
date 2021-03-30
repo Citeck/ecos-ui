@@ -13,6 +13,7 @@ import {
   COLUMN_DATA_TYPE_TEXT
 } from '../../Records/predicates/predicates';
 import EditorScope from './editors/EditorScope';
+import { DEFAULT_TYPE } from './constants';
 
 const NOT_SORTABLE_TYPES = [
   COLUMN_DATA_TYPE_ASSOC,
@@ -60,7 +61,7 @@ class JournalColumnsResolver {
   }
 
   _resolveColumn(column) {
-    const type = column.type || 'text';
+    const type = column.type || DEFAULT_TYPE;
     const name = column.name || column.attribute;
     const label = this._getLabel(column);
     const multiple = column.multiple === true;

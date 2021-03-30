@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
-
-import { IcoBtn } from '../../common/btns';
+import cloneDeep from 'lodash/cloneDeep';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
-import { Label, Select, Well } from '../../common/form';
-import { Filter, FiltersCondition } from '../';
-import { ParserPredicate } from '../predicates';
+
 import { t, trigger } from '../../../helpers/util';
+import { IcoBtn } from '../../common/btns';
+import { Label, Select, Well } from '../../common/form';
 import { getPredicate, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
+import { ParserPredicate } from '../predicates';
+import { Filter, FiltersCondition } from '../';
 
 import './FiltersGroup.scss';
 
@@ -32,22 +33,29 @@ export default class FiltersGroup extends Component {
     this.portal = this.createDraggableContainer();
   }
 
+  get cloneFilters() {
+    return cloneDeep(this.props.group.filters);
+  }
+
   onChangeFilterValue = ({ val, index }) => {
-    const filter = this.props.group.filters[index];
+    const groupIndex = this.props.index;
+    const filter = this.cloneFilters[index];
     filter.predicate.setVal(val);
-    trigger.call(this, 'onChangeFilter', { filter, index, groupIndex: this.props.index });
+
+    this.props.onChangeFilter({ filter, index, groupIndex });
   };
 
   onChangeFilterPredicate = ({ predicate, index }) => {
-    const filter = this.props.group.filters[index];
+    const groupIndex = this.props.index;
+    const filter = this.cloneFilters[index];
     const predicateData = getPredicate(predicate);
 
     if (PREDICATE_LIST_WITH_CLEARED_VALUES.includes(filter.predicate.t) || PREDICATE_LIST_WITH_CLEARED_VALUES.includes(predicate)) {
       filter.predicate.setVal(predicateData.fixedValue || '');
     }
-
     filter.predicate.setT(predicate);
-    trigger.call(this, 'onChangeFilter', { filter, index, groupIndex: this.props.index });
+
+    this.props.onChangeFilter({ filter, index, groupIndex });
   };
 
   deleteFilter = index => {
@@ -59,7 +67,11 @@ export default class FiltersGroup extends Component {
   };
 
   addFilter = column => {
-    const filter = ParserPredicate.createFilter({ att: column.attribute, columns: this.props.columns, column });
+    const filter = ParserPredicate.createFilter({
+      att: column.attribute,
+      columns: cloneDeep(this.props.columns),
+      column: cloneDeep(column)
+    });
     trigger.call(this, 'onAddFilter', { filter, groupIndex: this.props.index });
   };
 
@@ -119,7 +131,7 @@ export default class FiltersGroup extends Component {
     ));
 
     return (
-      <Well className={`ecos-well_full ecos-well_shadow ecos-well_radius_6 ${classNames('ecos-filters-group', className)}`}>
+      <Well className={classNames('ecos-well_full ecos-well_border ecos-well_radius_6 ecos-filters-group', className)}>
         <div className={'ecos-filters-group__head'}>
           {!first && (
             <FiltersCondition onClick={this.changeGroupFilterCondition} condition={group.getCondition()} conditions={groupConditions} />
@@ -130,9 +142,10 @@ export default class FiltersGroup extends Component {
             </Label>
 
             <Select
-              className={`ecos-filters-group__select ecos-filters-group__tools_step select_narrow ${
-                first ? 'ecos-select_blue' : 'ecos-select_grey'
-              }`}
+              className={classNames('ecos-filters-group__select ecos-filters-group__tools_step select_narrow', {
+                'ecos-select_blue': first,
+                'ecos-select_grey': !first
+              })}
               placeholder={t('filter-list.criterion')}
               options={columns}
               getOptionLabel={option => option.text}
@@ -155,7 +168,8 @@ export default class FiltersGroup extends Component {
               <IcoBtn
                 icon={'icon-delete'}
                 className={
-                  'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height ecos-btn_hover_t_red ecos-btn_x-step_10 ecos-filters-group__delete-btn'
+                  'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height ' +
+                  'ecos-btn_hover_t_red ecos-btn_x-step_10 ecos-filters-group__delete-btn'
                 }
                 onClick={this.deleteGroup}
               />

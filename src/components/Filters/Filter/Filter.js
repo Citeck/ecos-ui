@@ -1,20 +1,37 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 
-import { t, trigger } from '../../../helpers/util';
+import { t } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
-import { IcoBtn } from '../../common/btns/index';
+import { IcoBtn } from '../../common/btns';
 import { Label, Select } from '../../common/form';
-import { getPredicateInput, getPredicates } from '../../Records/predicates/predicates';
-import ParserPredicate from '../predicates/ParserPredicate';
+import { getPredicates } from '../../Records/predicates/predicates';
 import EditorService from '../../Journals/service/editors/EditorService';
+import EditorScope from '../../Journals/service/editors/EditorScope';
+import ParserPredicate from '../predicates/ParserPredicate';
 
 import './Filter.scss';
-import EditorScope from '../../Journals/service/editors/EditorScope';
+
+const WITHOUT_VAL = ParserPredicate.predicatesWithoutValue;
 
 export default class Filter extends Component {
+  static propTypes = {
+    filter: PropTypes.object,
+    needUpdate: PropTypes.bool,
+    onChangeValue: PropTypes.func,
+    onChangePredicate: PropTypes.func,
+    onDelete: PropTypes.func
+  };
+
+  static defaultProps = {
+    onChangeValue: _ => _,
+    onChangePredicate: _ => _,
+    onDelete: _ => _
+  };
+
   constructor(props) {
     super(props);
 
@@ -29,7 +46,7 @@ export default class Filter extends Component {
     const currentValue = get(this.props, 'filter.predicate.val', '');
     const { value, hasDataEntry } = this.state;
 
-    if (!prevProps.needUpdate && this.props.needUpdate && this.state.value !== currentValue) {
+    if (!prevProps.needUpdate && this.props.needUpdate && value !== currentValue) {
       this.setState({ value: currentValue });
     }
 
@@ -46,38 +63,70 @@ export default class Filter extends Component {
     this.handleChangeValue.cancel();
   }
 
-  predicatesWithoutValue = ParserPredicate.predicatesWithoutValue;
-
-  changeValue = value => {
+  onChangeValue = value => {
     this.setState({ value, hasDataEntry: true }, this.handleChangeValue);
   };
 
-  handleChangeValue = debounce(() => {
-    trigger.call(this, 'onChangeValue', { val: this.state.value, index: this.props.index });
-    this.setState({ isInput: false });
-  }, 350);
+  handleChangeValue = debounce(
+    () => {
+      const { value: val } = this.state;
+      const { index } = this.props;
 
-  changePredicate = predicate => {
-    if (predicate.fixedValue !== undefined) {
-      trigger.call(this, 'onChangePredicate', { predicate: predicate.value, index: this.props.index });
-      this.changeValue(predicate.fixedValue);
-      return;
+      this.props.onChangeValue({ val, index });
+      this.setState({ isInput: false });
+    },
+    350,
+    { leading: true, trailing: false }
+  );
+
+  onChangePredicate = ({ fixedValue, value: predicate }) => {
+    const { index } = this.props;
+
+    this.props.onChangePredicate({ predicate, index });
+
+    if (fixedValue !== undefined) {
+      this.onChangeValue(fixedValue);
+    } else if (WITHOUT_VAL.includes(predicate)) {
+      this.onChangeValue('');
     }
-
-    if (this.predicatesWithoutValue.includes(predicate.value)) {
-      this.changeValue('');
-    }
-
-    trigger.call(this, 'onChangePredicate', { predicate: predicate.value, index: this.props.index });
   };
 
-  delete = () => {
-    trigger.call(this, 'onDelete', this.props.index);
+  onDeletePredicate = () => {
+    this.props.onDelete(this.props.index);
   };
 
   getSelectedPredicate = (predicates, predicate) => {
     return predicates.filter(p => p.value === predicate.t)[0] || predicates[0];
   };
+
+  ValueControl = React.memo((props, context) => {
+    const {
+      value,
+      filter: {
+        meta: { column },
+        predicate = {}
+      },
+      metaRecord
+    } = props;
+    const predicates = getPredicates(column);
+    const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
+    const isShow = !WITHOUT_VAL.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
+    const editorType = get(column, 'newEditor.type');
+
+    if (isShow && EditorService.isRegistered(editorType)) {
+      return EditorService.getEditorControl({
+        recordRef: metaRecord,
+        attribute: column.attribute,
+        editor: column.newEditor,
+        value,
+        scope: EditorScope.FILTER,
+        onUpdate: this.onChangeValue,
+        controlProps: { predicate }
+      });
+    }
+
+    return null;
+  });
 
   render() {
     const btnClasses = 'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height';
@@ -87,44 +136,11 @@ export default class Filter extends Component {
       filter: {
         meta: { column },
         predicate
-      },
-      sourceId,
-      metaRecord
+      }
     } = this.props;
     const { value } = this.state;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
-
-    const isShow = !this.predicatesWithoutValue.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
-
-    let filterValueControl = '';
-    if (isShow) {
-      const editorType = get(column, 'newEditor.type');
-      if (editorType === 'journal' || editorType === 'text') {
-        // todo: use EditorService for all filter types
-        filterValueControl = EditorService.getEditorControl({
-          recordRef: metaRecord,
-          attribute: column.attribute,
-          editor: column.newEditor,
-          value,
-          scope: EditorScope.FILTER,
-          onUpdate: this.changeValue
-        });
-      } else {
-        const predicateInput = getPredicateInput(column, sourceId, metaRecord, predicate);
-
-        const predicateProps = predicateInput.getProps({
-          predicateValue: value,
-          changePredicateValue: this.changeValue,
-          datePickerWrapperClasses: 'ecos-filter_width_full',
-          selectClassName: 'select_width_full'
-        });
-
-        const FilterValueComponent = predicateInput.component;
-
-        filterValueControl = <FilterValueComponent {...predicateProps} />;
-      }
-    }
 
     return (
       <div className={classNames('ecos-filter', className)}>
@@ -144,14 +160,16 @@ export default class Filter extends Component {
               getOptionLabel={option => option.label}
               getOptionValue={option => option.value}
               value={selectedPredicate}
-              onChange={this.changePredicate}
+              onChange={this.onChangePredicate}
             />,
-            <div className="ecos-filter__value-wrapper">{filterValueControl}</div>,
+            <div className="ecos-filter__value-wrapper">
+              <this.ValueControl {...this.props} value={value} />
+            </div>,
             <div className="ecos-filter__actions">
               <IcoBtn
                 icon={'icon-delete'}
                 className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
-                onClick={this.delete}
+                onClick={this.onDeletePredicate}
               />
               <i className="ecos-btn__i ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico" />
             </div>

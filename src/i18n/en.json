@@ -369,7 +369,9 @@
   "ecos-form.error.clone-record": "Record hasn't cloned",
   "ecos-form.success.clone-record": "Record has cloned",
 
-  "ecos-forms.datepicker.time-input-label": "Time",
+  "ecos-forms.datepicker.time-label": "Time",
+  "ecos-forms.datepicker.month-prev-label": "Previous Month",
+  "ecos-forms.datepicker.month-next-label": "Next Month",
   "ecos-table-form.create-button": "Create",
   "ecos-table-form.import-button": "Import",
   "ecos-table-form.create-modal.title": "Create",
@@ -385,8 +387,10 @@
   "ecos-table-form.error.no-journal-id": "The \"journal ID\" config is required!",
   "ecos-table-form.error.no-journal-config": "Journal config hasn't gotten",
   "ecos-table-form.error.source": "Invalid source type",
+
   "ecos-ui.select.loading-message": "Loading...",
   "ecos-ui.select.no-options-message": "No options",
+  "ecos-ui.select.placeholder": "Select",
   "ecos.forms.Drop files to attach, or": "Drop files to attach, or",
   "ecos.forms.File Name": "File Name",
   "ecos.forms.Size": "Size",
@@ -831,7 +835,7 @@
   "properties-widget.settings.default-form": "Default",
   "properties-widget.settings.form-not-existed-in-list": "Chosen form does not exist in list",
   "properties-widget.settings.title-as-form-name": "Widget title as form name",
-  "react-select.default-value.label": "Select",
+  "react-select.default-value.label": "Default",
   "react-select.value-false.label": "No",
   "react-select.value-true.label": "Yes",
 
@@ -1325,6 +1329,8 @@
   "cmmn-editor.error.can-not-save-scenario": "Scenario could not be saved",
   "cmmn-editor.error.can-not-save-record-data": "Record data has not saved",
   "cmmn-editor.error.no-selected-element": "You should select some element to edit it",
+
+  "generated-field.editor.not-exist": "Editor doesn't exist",
 
   "go-to.home-page": "Go to home page",
   "notification.journal-will-be-opened-soon": "Journal will be opened soon",

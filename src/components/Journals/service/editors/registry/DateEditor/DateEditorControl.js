@@ -1,23 +1,46 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
-
+import classNames from 'classnames';
+import get from 'lodash/get';
+import { PREDICATE_TIME_INTERVAL } from '../../../../../Records/predicates/predicates';
 import { DatePicker } from '../../../../../common/form';
+import EditorScope from '../../EditorScope';
+import TextEditor from '../TextEditor';
+import editorRegistry from '../';
 
-const EDITOR_FORMAT = 'dd.MM.YYYY';
-
-export default class DateEditorControl /*extends BaseEditorControl*/ {
+export default class DateEditorControl extends React.Component {
   constructor(props) {
-    //super(props);
+    super(props);
     this.portal = this.createDateEditorContainer();
+    this.state = {
+      date: props.value
+    };
+  }
+
+  get isCell() {
+    const { scope } = this.props;
+    return scope === EditorScope.CELL;
+  }
+
+  get isFilter() {
+    const { scope } = this.props;
+    return scope === EditorScope.FILTER;
   }
 
   get dateFormat() {
-    return EDITOR_FORMAT;
+    return 'dd.MM.yyyy';
   }
 
   get extraProps() {
-    return {};
+    return { ...get(this, 'props.extraProps', null) };
+  }
+
+  get selected() {
+    const date = moment(this.state.date)
+      .utc()
+      .format();
+    return this.state.date ? moment(date).toDate() : undefined;
   }
 
   createDateEditorContainer = () => {
@@ -36,32 +59,50 @@ export default class DateEditorControl /*extends BaseEditorControl*/ {
     this.removeDateEditorContainer();
   }
 
-  handleChange = value => {
-    this.setValue(
-      moment(value)
-        .utc()
-        .format()
-    );
+  onChange = value => {
+    const date = moment(value)
+      .utc()
+      .format();
+
+    this.setState({ date });
   };
 
-  onSelect = () => {
-    this.props.onBlur && this.props.onBlur();
+  sendData = () => {
+    this.props.onUpdate && this.props.onUpdate(this.state.date);
+  };
+
+  onKeyDown = e => {
+    if (e.key === 'Enter') {
+      e.stopPropagation();
+      this.sendData();
+    }
   };
 
   render() {
-    const { extraProps, onUpdate, ...rest } = this.props;
-    const { value } = extraProps;
+    if (this.isFilter && [get(this.props, 'predicate.t'), get(this.props, 'predicate.value')].includes(PREDICATE_TIME_INTERVAL)) {
+      let editorInstance = editorRegistry.getEditor(TextEditor.TYPE);
+      const Control = editorInstance.getControl(this.props.config, this.props.scope);
+
+      return <Control {...this.props} />;
+    }
 
     return (
       <DatePicker
-        {...rest}
-        className="ecos-input_grid-editor"
-        onChange={this.handleChange}
-        onSelect={this.onSelect}
-        autoFocus
-        selected={moment(value || undefined).toDate()}
+        className={classNames({
+          'ecos-input_grid-editor': this.isCell,
+          'ecos-input_narrow': !this.isCell
+        })}
+        wrapperClasses={classNames({
+          'ecos-filter_width_full': !this.isCell
+        })}
+        onChange={this.onChange}
+        onBlur={this.sendData}
+        onKeyDown={this.onKeyDown}
+        autoFocus={this.isCell}
+        showIcon={!this.isCell}
+        selected={this.selected}
         dateFormat={this.dateFormat}
-        popperPlacement={'top'}
+        popperPlacement="top"
         popperContainer={({ children }) => ReactDOM.createPortal(children, this.portal)}
         {...this.extraProps}
       />

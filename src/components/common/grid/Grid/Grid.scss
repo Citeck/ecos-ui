@@ -117,6 +117,13 @@ $header-height: 52px;
     & td {
       border-top: 2px solid $color-gray-4;
     }
+
+    &:hover td {
+      border: 2px solid $color-brown-2;
+      border-right: none;
+      border-left: none;
+      z-index: 10;
+    }
   }
 
   th {
@@ -242,6 +249,7 @@ $header-height: 52px;
     @extend %shadow-h-line;
     top: 0;
   }
+
   &::after {
     @extend %shadow-h-line;
     bottom: -1px;

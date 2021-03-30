@@ -1,4 +1,5 @@
 import React from 'react';
+import isEqual from 'lodash/isEqual';
 
 import { normalizeEditorValue, getEditorValue } from './editorUtils';
 
@@ -14,10 +15,16 @@ export default class EditorControlWrapper extends React.Component {
       initEditorValue: editorValue,
       control: props.control
     };
+
+    this.exist = true;
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return nextState.initEditorValue !== this.state.initEditorValue;
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    return !isEqual(nextProps.deps, this.props.deps);
+  }
+
+  componentWillUnmount() {
+    this.exist = false;
   }
 
   _setRichValue(value, changeTime, resolve) {
@@ -37,13 +44,11 @@ export default class EditorControlWrapper extends React.Component {
     );
   }
 
-  _handleChange(value, state, resolve) {
-    this.setState({
-      editorValue: value
-    });
+  _handleChange(editorValue, state, resolve) {
+    this.setState({ editorValue });
 
     const changedTime = Date.now();
-    const correctValue = normalizeEditorValue(value, this.props.multiple);
+    const correctValue = normalizeEditorValue(editorValue, this.props.multiple);
 
     if (!this.props.getDisplayName) {
       this._setRichValue(correctValue, changedTime, resolve);
@@ -68,7 +73,9 @@ export default class EditorControlWrapper extends React.Component {
 
     if (richValue.then) {
       richValue.then(res => {
-        this._setRichValue(res, changedTime, resolve);
+        if (this.exist) {
+          this._setRichValue(res, changedTime, resolve);
+        }
       });
     } else {
       this._setRichValue(richValue, changedTime, resolve);
@@ -76,20 +83,17 @@ export default class EditorControlWrapper extends React.Component {
   }
 
   _enrichSingleValue(value, state) {
-    const dispValue = this.props.getDisplayName(value, state);
-    if (dispValue == null) {
+    const disp = this.props.getDisplayName(value, state);
+
+    if (disp == null) {
       return value;
     }
 
-    if (dispValue.then) {
-      return dispValue.then(disp => {
-        return { disp, value };
-      });
+    if (disp.then) {
+      return disp.then(disp => ({ disp, value }));
     }
-    return {
-      value,
-      disp: dispValue
-    };
+
+    return { disp, value };
   }
 
   getValue() {
@@ -97,7 +101,7 @@ export default class EditorControlWrapper extends React.Component {
   }
 
   render() {
-    const { onKeyDown = () => {}, multiple, attribute, recordRef } = this.props;
+    const { onKeyDown = _ => _, multiple, attribute, recordRef } = this.props;
 
     const onBlur = () => {
       if (this.props.onBlur != null) {
@@ -114,12 +118,15 @@ export default class EditorControlWrapper extends React.Component {
 
     const onUpdate = (v, state) => {
       return new Promise(resolve => {
-        this._handleChange(v, state, resolve);
+        if (this.exist) {
+          this._handleChange(v, state, resolve);
+        }
       });
     };
 
     const Control = this.props.control;
-    const value = this.state.initEditorValue;
+    const value = this.state.editorValue;
+
     return (
       <Control
         recordRef={recordRef}

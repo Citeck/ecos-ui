@@ -134,6 +134,11 @@ export function getSelectedValue(source, field, value, selectedField) {
   });
 }
 
+/**
+ * @deprecated use this.props.[handler]
+ * @param name - handler name from props
+ * @param data
+ */
 export function trigger(name, data) {
   const callback = this.props[name];
 

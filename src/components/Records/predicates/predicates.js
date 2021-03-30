@@ -150,7 +150,7 @@ const getAllPredicates = function() {
     { value: PREDICATE_LT, label: t('predicate.lt'), needValue: true },
     { value: PREDICATE_AND, label: t('predicate.and'), needValue: true },
     { value: PREDICATE_OR, label: t('predicate.or'), needValue: true },
-    { value: PREDICATE_TODAY, label: t('predicate.today'), needValue: false, fixedValue: '$TODAY' },
+    { value: PREDICATE_TODAY, label: t('predicate.today'), needValue: false, fixedValue: datePredicateVariables.TODAY },
     { value: PREDICATE_TIME_INTERVAL, label: t('predicate.time-interval'), needValue: true }
   ];
 };
@@ -229,6 +229,7 @@ export function getPredicates(field) {
   }
 }
 
+/** @deprecated. use src/components/Journals/service/editors */
 export function getPredicateInput(field, sourceId, metaRecord, predicate = {}) {
   const defaultValue = {
     label: t('react-select.default-value.label'),

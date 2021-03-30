@@ -5,9 +5,9 @@ import logger from '../../../../services/logger';
 
 import editorRegistry from './registry';
 import EditorScope from './EditorScope';
-import { getEditorValue } from './editorUtils';
-
 import EditorControlWrapper from './EditorControlWrapper';
+import { getEditorValue } from './editorUtils';
+import { DEFAULT_EDITOR_TYPE } from './constants';
 
 /**
  * @typedef {Object} EditorServiceProps
@@ -26,6 +26,10 @@ class EditorService {
     return `#${t('error').toUpperCase()}`;
   }
 
+  static isRegistered(type) {
+    return !!editorRegistry.getEditor(type);
+  }
+
   static getEditorControl({
     ref,
     value,
@@ -37,24 +41,27 @@ class EditorService {
     onKeyDown,
     onBlur,
     onCancel,
-    scope = EditorScope.OTHER
+    scope = EditorScope.OTHER,
+    controlProps
   }) {
     try {
       let editorConfig = editor.config || {};
       let editorInstance = editorRegistry.getEditor(editor.type);
+
       if (!editorInstance) {
         console.error('Editor is not found: "' + editor.type + '"', editor);
-        editorInstance = editorRegistry.getEditor('text');
+        editorInstance = editorRegistry.getEditor(DEFAULT_EDITOR_TYPE);
         editorConfig = {};
       }
 
       const getDisplayName =
-        scope === EditorScope.CELL
-          ? (v, state) => {
-              return editorInstance.getDisplayName(v, editorConfig, scope, state || {});
-            }
-          : null;
+        scope === EditorScope.CELL ? (v, state) => editorInstance.getDisplayName(v, editorConfig, scope, state || {}) : null;
       const multipleProp = scope === EditorScope.CELL ? multiple === true : false;
+      const control = editorInstance.getControl(editorConfig, scope, controlProps);
+
+      if (!control) {
+        return <div className="text-warning">{t('generated-field.editor.not-exist')}</div>;
+      }
 
       return (
         <EditorControlWrapper
@@ -67,9 +74,10 @@ class EditorService {
           onKeyDown={onKeyDown}
           onBlur={onBlur}
           onCancel={onCancel}
-          control={editorInstance.getControl(editorConfig, scope)}
+          control={control}
           getDisplayName={getDisplayName}
           multiple={multipleProp}
+          deps={{ value, ...controlProps }}
         />
       );
     } catch (e) {

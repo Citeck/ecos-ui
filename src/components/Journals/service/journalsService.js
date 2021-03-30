@@ -1,13 +1,14 @@
 import _ from 'lodash';
 
 import { ActionModes } from '../../../constants';
+import { getTextByLocale } from '../../../helpers/util';
 import RecordActions from '../../Records/actions';
 import journalsApi from './journalsServiceApi';
 import journalColumnsResolver from './journalColumnsResolver';
 import journalDataLoader from './journalsDataLoader';
 import computedService from './computed/computedService';
 import { COMPUTED_ATT_PREFIX, COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from './util';
-import { getTextByLocale } from '../../../helpers/util';
+import { DEFAULT_TYPE } from './constants';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
 
@@ -153,7 +154,7 @@ class JournalsService {
     result.searchable = column.searchable !== false;
     result.searchableByText = column.searchableByText !== false;
     result.sortable = column.sortable === true;
-    result.type = COLUMN_TYPE_NEW_TO_LEGACY_MAPPING[column.type] || 'text';
+    result.type = COLUMN_TYPE_NEW_TO_LEGACY_MAPPING[column.type] || DEFAULT_TYPE;
     result.visible = column.hidden !== true;
     result.editable = column.editable !== false;
 

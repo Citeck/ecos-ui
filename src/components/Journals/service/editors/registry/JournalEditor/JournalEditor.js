@@ -1,7 +1,9 @@
-import BaseEditor from '../BaseEditor';
+import React from 'react';
+
 import Records from '../../../../../Records/Records';
 import SelectJournal from '../../../../../common/form/SelectJournal';
-import React from 'react';
+import EditorScope from '../../EditorScope';
+import BaseEditor from '../BaseEditor';
 
 export default class JournalEditor extends BaseEditor {
   static TYPE = 'journal';
@@ -12,7 +14,7 @@ export default class JournalEditor extends BaseEditor {
     return ({ value, onUpdate, onCancel, multiple }) => (
       <SelectJournal
         multiple={multiple}
-        autoFocus
+        autoFocus={scope === EditorScope.CELL}
         isCompact
         inputViewClass="select-journal__input-view_extra-compact"
         journalId={journalId}

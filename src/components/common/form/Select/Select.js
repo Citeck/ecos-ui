@@ -51,18 +51,18 @@ export default class Select extends Component {
 
   render() {
     const { loadOptions, ...props } = this.props;
-    const cssClasses = classNames('ecos-select', props.className);
     const SelectComponent = !loadOptions ? ReactSelect : AsyncSelect;
 
     return (
       <SelectComponent
+        placeholder={t('ecos-ui.select.placeholder')}
         loadingMessage={this.selectLoadingMessage}
         noOptionsMessage={this.selectNoOptionsMessage}
         blurInputOnSelect={true}
         {...props}
         loadOptions={this.loadOptions}
         value={this.state.value}
-        className={cssClasses}
+        className={classNames('ecos-select', props.className)}
         classNamePrefix="select"
       />
     );

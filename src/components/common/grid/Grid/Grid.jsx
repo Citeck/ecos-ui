@@ -461,8 +461,8 @@ class Grid extends Component {
     const { scrollLeft = 0 } = this._scrollValues;
 
     const style = {
-      height: tr.offsetHeight,
-      top: tr.offsetTop,
+      height: tr.offsetHeight + 2,
+      top: tr.offsetTop - 1,
       left: scrollLeft
     };
 

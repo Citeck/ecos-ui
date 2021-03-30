@@ -368,7 +368,9 @@
   "ecos-form.error.clone-record": "Клонирование записи не удалось",
   "ecos-form.success.clone-record": "Запись склонирована",
 
-  "ecos-forms.datepicker.time-input-label": "Время",
+  "ecos-forms.datepicker.time-label": "Время",
+  "ecos-forms.datepicker.month-prev-label": "Предыдущий месяц",
+  "ecos-forms.datepicker.month-next-label": "Следующий месяц",
   "ecos-table-form.create-button": "Создать",
   "ecos-table-form.import-button": "Импорт",
   "ecos-table-form.create-modal.title": "Создать",
@@ -384,8 +386,10 @@
   "ecos-table-form.error.no-journal-id": "Конфигурация \"ID журнала\" обязательна!",
   "ecos-table-form.error.no-journal-config": "Конфигурация журнала не получена",
   "ecos-table-form.error.source": "Неверный тип источника",
+
   "ecos-ui.select.loading-message": "Загрузка...",
   "ecos-ui.select.no-options-message": "Не найдено",
+  "ecos-ui.select.placeholder": "Выбрать",
   "ecos.forms.Drop files to attach, or": "Перетащите файлы для прикрепления, или",
   "ecos.forms.File Name": "Имя файла",
   "ecos.forms.Size": "Размер",
@@ -830,7 +834,7 @@
   "properties-widget.settings.default-form": "По-умолчанию",
   "properties-widget.settings.form-not-existed-in-list": "В списке нет установленой формы",
   "properties-widget.settings.title-as-form-name": "Использовать имя формы в качестве заголовка виджета",
-  "react-select.default-value.label": "Выбрать",
+  "react-select.default-value.label": "По умолчанию",
   "react-select.value-false.label": "Нет",
   "react-select.value-true.label": "Да",
 
@@ -1323,6 +1327,8 @@
   "cmmn-editor.error.can-not-save-record-data": "Данные записи не сохранены",
   "cmmn-editor.error.no-selected-element": "Выберите элемент для его редактирования",
   "cmmn-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
+
+  "generated-field.editor.not-exist": "Редактора не существует",
 
   "go-to.home-page": "Перейти на домашнюю страницу",
   "notification.journal-will-be-opened-soon": "Журнал будет скоро открыт",
