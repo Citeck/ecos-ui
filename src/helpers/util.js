@@ -630,7 +630,9 @@ export function removeItemFromArray(array = [], item = '', byKey = '') {
 }
 
 export function isNodeRef(str) {
-  return typeof str === 'string' && str.indexOf('workspace://SpacesStore/') === 0;
+  return (
+    typeof str === 'string' && (str.indexOf('workspace://SpacesStore/') === 0 || str.indexOf('alfresco/@workspace://SpacesStore/') === 0)
+  );
 }
 
 /**
@@ -1007,6 +1009,49 @@ export function getNumberSeparators(locale) {
   result.thousand = str.replace(/.*1(.*)2.*/, '$1');
 
   return result;
+}
+
+export function getCodesSumOfString(string = '') {
+  return [...`${string}`].reduce((prev, next) => prev + next.codePointAt(0), 0);
+}
+
+export function getColorByString(string = '') {
+  string = `${string}`;
+
+  let codesSum = getCodesSumOfString(string);
+
+  codesSum += getCodesSumOfString(string.slice(1));
+  codesSum += getCodesSumOfString(string.slice(-1));
+
+  let hexNumber = codesSum.toString(16);
+
+  switch (hexNumber.toString().length) {
+    case 1:
+      hexNumber = new Array(6).fill(hexNumber).join('');
+      break;
+    case 2:
+      hexNumber = new Array(3).fill(hexNumber).join('');
+      break;
+    case 3:
+      hexNumber = new Array(2).fill(hexNumber).join('');
+      break;
+    default:
+  }
+
+  return `#${hexNumber}`;
+}
+
+export function getModule(srcModule) {
+  return new Promise((resolve, reject) => {
+    window.require(
+      [srcModule],
+      module => resolve(module),
+      error => {
+        console.error(error);
+        reject(error);
+      }
+    );
+  });
 }
 
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);

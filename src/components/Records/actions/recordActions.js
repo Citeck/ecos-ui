@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
 import merge from 'lodash/merge';
 
-import { extractLabel, t } from '../../../helpers/util';
+import { extractLabel, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
 import Records from '../Records';
 import { DialogManager } from '../../common/dialogs';
@@ -236,19 +236,15 @@ class RecordActions {
     });
   }
 
-  static async preProcessAction({ record, action, context }, nameFunction) {
+  static async _preProcessAction({ records, action, context }, nameFunction) {
     const result = { preProcessed: false, configMerged: false };
 
     if (action.preActionModule) {
-      const userHandler = await import(action.preActionModule)
+      const userHandler = await getModule(action.preActionModule)
         .then(module => module[nameFunction])
-        .catch(error => {
-          console.error(error);
-          notifyFailure();
-        });
-
+        .catch(() => notifyFailure());
       if (typeof userHandler === 'function') {
-        const response = await userHandler(record, action, context);
+        const response = await userHandler(records, action, context);
 
         result.preProcessed = true;
         result.results = get(response, 'results');
@@ -446,7 +442,7 @@ class RecordActions {
       config
     };
 
-    await RecordActions.preProcessAction({ record, action: actionToExec, context }, 'execForRecord');
+    await RecordActions._preProcessAction({ records: [Records.get(record)], action: actionToExec, context }, 'execForRecord');
 
     const result = handler.execForRecord(Records.get(record), actionToExec, execContext);
     const actResult = await RecordActions._wrapResultIfRequired(result);
@@ -526,7 +522,7 @@ class RecordActions {
 
       const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
       const execContext = { ...actionContext, ...context };
-      const preResult = await RecordActions.preProcessAction({ records: allowedRecords, action, context }, 'execForRecords');
+      const preResult = await RecordActions._preProcessAction({ records: allowedRecords, action, context }, 'execForRecords');
 
       const filteredRecords = preResult.preProcessedRecords
         ? allowedRecords.filter(rec => preResult.preProcessedRecords.includes(rec.id))
