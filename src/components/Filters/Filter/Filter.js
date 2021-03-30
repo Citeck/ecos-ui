@@ -8,7 +8,7 @@ import { t } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns';
 import { Label, Select } from '../../common/form';
-import { getPredicates } from '../../Records/predicates/predicates';
+import { getPredicates, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
 import EditorService from '../../Journals/service/editors/EditorService';
 import EditorScope from '../../Journals/service/editors/EditorScope';
 import ParserPredicate from '../predicates/ParserPredicate';
@@ -86,7 +86,7 @@ export default class Filter extends Component {
 
     if (fixedValue !== undefined) {
       this.onChangeValue(fixedValue);
-    } else if (WITHOUT_VAL.includes(predicate)) {
+    } else if (WITHOUT_VAL.includes(predicate) || PREDICATE_LIST_WITH_CLEARED_VALUES.includes(predicate)) {
       this.onChangeValue('');
     }
   };
@@ -141,6 +141,10 @@ export default class Filter extends Component {
     const { value } = this.state;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
+
+    if (column.label === 'Дата начала') {
+      console.warn('IN RENDER => ', { value });
+    }
 
     return (
       <div className={classNames('ecos-filter', className)}>
