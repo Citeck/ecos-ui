@@ -114,16 +114,26 @@ export const getJournalPageUrl = ({ journalsListId, journalId, journalSettingId,
   return `${URL.JOURNAL}?${qString}`;
 };
 
+function getValidNodeRef(nodeRef) {
+  if (!nodeRef) {
+    return nodeRef;
+  }
+  if (nodeRef.indexOf('alfresco/@') === 0) {
+    nodeRef = nodeRef.replace('alfresco/@', '');
+  }
+  return nodeRef;
+}
+
 export const getDownloadContentUrl = nodeRef => {
-  return `${PROXY_URI}citeck/print/content?nodeRef=${nodeRef}`;
+  return `${PROXY_URI}citeck/print/content?nodeRef=${getValidNodeRef(nodeRef)}`;
 };
 
 export const getZipUrl = nodeRef => {
-  return `${PROXY_URI}api/node/content/${nodeRef.replace(':/', '')}/Archive.zip`;
+  return `${PROXY_URI}api/node/content/${getValidNodeRef(nodeRef).replace(':/', '')}/Archive.zip`;
 };
 
 export const getTemplateUrl = nodeRef => {
-  return `${PROXY_URI}citeck/case/template?nodeRef=${nodeRef}`;
+  return `${PROXY_URI}citeck/case/template?nodeRef=${getValidNodeRef(nodeRef)}`;
 };
 
 export const getBarcodePrintUrl = (record, settings = 'barcodeType=code-128&scale=5.0&margins=20,200,20,500') => {
