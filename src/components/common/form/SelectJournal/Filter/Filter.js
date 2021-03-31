@@ -4,7 +4,8 @@ import get from 'lodash/get';
 
 import { t } from '../../../../../helpers/util';
 import Select from '../../../../common/form/Select';
-import { getPredicateInput } from '../../../../Records/predicates/predicates';
+import EditorService from '../../../../Journals/service/editors/EditorService';
+import EditorScope from '../../../../Journals/service/editors/EditorScope';
 
 import './Filter.scss';
 
@@ -20,13 +21,17 @@ const Filter = ({
   applyFilters,
   item
 }) => {
-  const predicateInput = getPredicateInput(item, idx, null, selectedPredicate);
-  const predicateProps = get(item, 'input', predicateInput).getProps({
-    predicateValue,
-    changePredicateValue,
-    applyFilters
+  const isShow = get(selectedPredicate, 'needValue', true);
+  const FilterValueComponent = React.memo(({ item }) => {
+    return EditorService.getEditorControl({
+      attribute: item.attribute,
+      editor: item.newEditor,
+      value: predicateValue,
+      scope: EditorScope.FILTER,
+      onUpdate: changePredicateValue,
+      onKeyDown: applyFilters
+    });
   });
-  const FilterValueComponent = predicateInput.component;
 
   return (
     <li className="select-journal-filter">
@@ -42,9 +47,7 @@ const Filter = ({
             data-idx={idx}
             onChange={changePredicate}
           />
-          <div className="select-journal-filter__predicate-control">
-            {selectedPredicate.needValue ? <FilterValueComponent {...predicateProps} /> : null}
-          </div>
+          <div className="select-journal-filter__predicate-control">{isShow && <FilterValueComponent item={item} />}</div>
         </div>
         <span data-idx={idx} className={'icon icon-delete select-journal-filter__remove-btn'} onClick={onRemove} />
       </div>
