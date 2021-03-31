@@ -142,10 +142,6 @@ export default class Filter extends Component {
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
 
-    if (column.label === 'Дата начала') {
-      console.warn('IN RENDER => ', { value });
-    }
-
     return (
       <div className={classNames('ecos-filter', className)}>
         {children}
