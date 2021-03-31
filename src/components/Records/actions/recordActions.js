@@ -3,7 +3,6 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
-import merge from 'lodash/merge';
 
 import { extractLabel, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';

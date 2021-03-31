@@ -80,6 +80,7 @@ describe('RecordActions service', () => {
         })
       );
       const response = await recordActions.constructor._preProcessAction({ action }, 'execForRecord');
+      expect(action.config).toEqual({ A: 'A' });
       expect(response.config).toBeUndefined();
       expect(response.configMerged).toBeFalsy();
       expect(response.preProcessed).toBeTruthy();
