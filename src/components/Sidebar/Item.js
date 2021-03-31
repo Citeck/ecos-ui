@@ -53,6 +53,14 @@ class Item extends React.Component {
     return !isEmpty(get(this.props, 'data.items'));
   }
 
+  get hasBadge() {
+    const {
+      styleProps: { noBadge, isSeparator }
+    } = this.props;
+
+    return !noBadge && !isSeparator;
+  }
+
   get collapsible() {
     const collapsible = get(this.props, 'data.params.collapsible');
 
@@ -108,7 +116,7 @@ class Item extends React.Component {
         {!noIcon && (
           <EcosIcon family="menu-items" data={iconData} className="ecos-sidebar-item__icon" code={iconCode} title={isOpen ? '' : label} />
         )}
-        <div className="ecos-sidebar-item__label" title={label}>
+        <div className={classNames('ecos-sidebar-item__label', { 'ecos-sidebar-item__label_with-badge': this.hasBadge })} title={label}>
           {label}
         </div>
       </>
@@ -144,13 +152,9 @@ class Item extends React.Component {
   }
 
   renderBadge() {
-    const {
-      isOpen,
-      data,
-      styleProps: { noBadge, isSeparator }
-    } = this.props;
+    const { isOpen, data } = this.props;
 
-    return !noBadge && !isSeparator ? <RemoteBadge data={data} isOpen={isOpen} /> : null;
+    return this.hasBadge ? <RemoteBadge data={data} isOpen={isOpen} /> : null;
   }
 
   renderToggle() {
