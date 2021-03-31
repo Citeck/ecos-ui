@@ -368,6 +368,10 @@ class EcosForm extends React.Component {
       if (submission.state) {
         sRecord.att('_state', submission.state);
       }
+      const { typeRef = '' } = form.options;
+      if (typeRef) {
+        sRecord.att('_formOptions', { typeRef });
+      }
 
       for (const key in submission.data) {
         if (submission.data.hasOwnProperty(key)) {
