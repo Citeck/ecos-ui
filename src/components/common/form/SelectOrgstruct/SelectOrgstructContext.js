@@ -152,7 +152,6 @@ export const SelectOrgstructProvider = props => {
 
   // set default value
   useEffect(() => {
-    let isSubscribed = true;
     if (isSelectedFetched) {
       return;
     }
@@ -175,7 +174,6 @@ export const SelectOrgstructProvider = props => {
       const promises = initValue.map(item => orgStructApi.fetchAuthority(dataType, item));
 
       Promise.all(promises)
-        .then(data => (isSubscribed ? data : Promise.reject()))
         .then(handleResponse)
         .then(items => items.map(prepareSelected))
         .then(selectedItems => {
@@ -189,8 +187,6 @@ export const SelectOrgstructProvider = props => {
         })
         .catch(_ => _);
     }
-
-    return () => (isSubscribed = false);
   }, [isSelectedFetched]);
 
   useEffect(() => {
