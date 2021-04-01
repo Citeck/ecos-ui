@@ -238,32 +238,37 @@ class RecordActions {
   static async _preProcessAction({ records, action, context }, nameFunction) {
     const result = { preProcessed: false, configMerged: false, hasError: false };
 
-    if (action.preActionModule) {
-      const userHandler = await getModule(action.preActionModule)
-        .then(module => module[nameFunction])
-        .catch(() => (result.hasError = true));
+    if (!action.preActionModule) {
+      return result;
+    }
 
-      if (typeof userHandler === 'function') {
-        try {
-          const response = await userHandler(records, action, context);
-          result.preProcessed = true;
+    const preActionHandler = await getModule(action.preActionModule)
+      .then(module => module[nameFunction])
+      .catch(e => {
+        console.error('Error while pre process module loading', e);
+        result.hasError = true;
+      });
 
-          if (Array.isArray(get(response, 'results'))) {
-            result.results = response.results;
-            result.preProcessedRecords = result.results.map(res => res.recordRef);
-          }
+    if (typeof preActionHandler === 'function') {
+      try {
+        const response = await preActionHandler(records, action, context);
+        result.preProcessed = true;
 
-          if (!isEmpty(get(response, 'config'))) {
-            result.config = { ...action.config, ...response.config };
-            result.configMerged = true;
-          }
-        } catch (e) {
-          console.error(e);
-          result.hasError = true;
+        if (Array.isArray(get(response, 'results'))) {
+          result.results = response.results;
+          result.preProcessedRecords = result.results.map(res => res.recordRef);
         }
+
+        if (!isEmpty(get(response, 'config'))) {
+          result.config = { ...action.config, ...response.config };
+          result.configMerged = true;
+        }
+      } catch (e) {
+        console.error('Error while pre process module loading', e, preActionHandler);
+        result.hasError = true;
       }
     } else {
-      console.error(nameFunction, 'This is not function. Check preActionModule');
+      console.error(nameFunction, 'This is not function. Check preActionModule', preActionHandler);
       result.hasError = true;
     }
 
