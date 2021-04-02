@@ -5,6 +5,7 @@ import { t } from '../../../../../helpers/util';
 import {
   COLUMN_DATA_TYPE_ASSOC,
   COLUMN_DATA_TYPE_MLTEXT,
+  COLUMN_DATA_TYPE_OPTIONS,
   COLUMN_DATA_TYPE_TEXT,
   PREDICATE_CONTAINS
 } from '../../../../Records/predicates/predicates';
@@ -39,6 +40,7 @@ class Search extends Component {
                 (item.type === COLUMN_DATA_TYPE_TEXT ||
                   item.type === COLUMN_DATA_TYPE_MLTEXT ||
                   item.type === COLUMN_DATA_TYPE_ASSOC ||
+                  item.type === COLUMN_DATA_TYPE_OPTIONS ||
                   !item.type)
               );
             })

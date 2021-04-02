@@ -76,6 +76,31 @@
         border-radius: $border-radius-standard;
         font-size: $font-size-small;
       }
+
+      &.btn-xs {
+        height: 18px;
+        padding: 0 5px;
+        border-radius: $border-radius-small;
+        font-size: $font-size-extra-small;
+      }
+
+      &.btn-sm {
+        height: 26px;
+        padding: 0 10px;
+        border-radius: $border-radius-standard;
+        font-size: $font-size-small;
+      }
+
+      &.btn-md {
+        border-radius: $border-radius-standard;
+      }
+
+      &.btn-lg {
+        height: 48px;
+        padding: 0 20px;
+        font-size: $font-size-large;
+        border-radius: $border-radius-large;
+      }
     }
   }
 }
