@@ -5,7 +5,14 @@ import isBoolean from 'lodash/isBoolean';
 import { RecordActionsApi } from '../../../../../api/recordActions';
 import { isExistValue } from '../../../../../helpers/util';
 import FormManager from '../../../../EcosForm/FormManager';
-import { notifyStart, prepareBatchEditAction, prepareResult, ResultTypes } from '../../util/actionUtils';
+import {
+  notifyStart,
+  prepareBatchEditAction,
+  prepareResult,
+  removeNotify,
+  ResultTypes,
+  showDetailActionResult
+} from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
 
 const actionsApi = new RecordActionsApi();
@@ -29,8 +36,12 @@ const executeAction = async ({ groupAction, selected = [], resolved, query = nul
 
   const result = prepareResult(exAction.results || exAction);
 
-  if (!isBoolean(result) && get(resolved, 'length') && result.type === ResultTypes.RESULTS) {
-    result.data.results = [...(result.data.results || []), ...resolved];
+  console.warn({ exAction, result });
+
+  if (!isBoolean(result) && get(resolved, 'length')) {
+    if (result.type === ResultTypes.RESULTS || result.type === ResultTypes.LINK) {
+      result.data.results = [...(result.data.results || []), ...resolved];
+    }
   }
 
   return result;
@@ -103,7 +114,15 @@ export default class ServerGroupAction extends ActionsExecutor {
     groupAction.type = 'filtered';
     groupAction = await showFormIfRequired(groupAction);
 
-    executeAction({ groupAction, query }).then(() => notifyStart());
+    const notify = notifyStart('', 0);
+
+    executeAction({ groupAction, query }).then(result => {
+      removeNotify(notify);
+
+      showDetailActionResult(result, {
+        title: 'group-action.label.result'
+      });
+    });
   }
 
   isActionConfigCheckingRequired(action) {

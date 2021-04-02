@@ -515,6 +515,7 @@
   "group-action.label.fetch-data": "Fetching data",
   "group-action.message.started": "Started",
   "group-action.message.in-progress": "In progress",
+  "group-action.label.result": "The result of performing a group operation",
 
   "batch-edit.header.edit-attribute": "Edit attribute",
   "batch-edit.header.results": "Result edit attribute",

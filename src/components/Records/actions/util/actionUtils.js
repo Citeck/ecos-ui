@@ -3,6 +3,7 @@ import { NotificationManager } from 'react-notifications';
 import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import difference from 'lodash/difference';
 
 import { t } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
@@ -10,6 +11,8 @@ import Records from '../../Records';
 import { getBool } from '../../../../helpers/util';
 import DialogManager from '../../../common/dialogs/Manager';
 import ExecuteInfoAction from '../components/ExecuteInfoAction';
+
+window.NotificationManager = NotificationManager;
 
 const Labels = {
   MSG_SUCCESS: 'record-action.msg.success.text',
@@ -32,7 +35,7 @@ function getRef(record) {
   return record.id || record.recordRef || record.nodeRef;
 }
 
-function showDetailActionResult(info, options) {
+export function showDetailActionResult(info, options = {}) {
   const { callback, title, withConfirm, ...opt } = options;
   let buttons = [];
 
@@ -72,16 +75,30 @@ export const ResultTypes = {
   ERROR: 'error'
 };
 
-export function notifySuccess(msg) {
-  NotificationManager.success(msg || t(Labels.MSG_SUCCESS), t(Labels.TITLE_SUCCESS));
+export function notifySuccess(msg, timeOut = 5000, ...extra) {
+  NotificationManager.success(t(msg || Labels.MSG_SUCCESS), t(Labels.TITLE_SUCCESS), timeOut, ...extra);
 }
 
-export function notifyFailure(msg) {
-  NotificationManager.error(msg || t(Labels.MSG_ERR), t(Labels.TITLE_ERR), 5000);
+export function notifyFailure(msg, timeOut = 5000, ...extra) {
+  NotificationManager.error(t(msg || Labels.MSG_ERR), t(Labels.TITLE_ERR), timeOut, ...extra);
 }
 
-export function notifyStart(msg) {
-  NotificationManager.info(msg || t(Labels.MSG_START), t(Labels.TITLE_START), 5000);
+export function notifyStart(msg, timeOut = 5000, ...extra) {
+  const before = cloneDeep(NotificationManager.listNotify);
+
+  NotificationManager.info(t(msg || Labels.MSG_START), t(Labels.TITLE_START), timeOut, ...extra);
+
+  const diff = difference(NotificationManager.listNotify, before);
+
+  if (diff.length > 1) {
+    return NotificationManager.listNotify[NotificationManager.listNotify.length - 1];
+  }
+
+  return diff[0];
+}
+
+export function removeNotify(notify) {
+  NotificationManager.remove(notify);
 }
 
 export function showForm(recordRef, params, className = '') {
