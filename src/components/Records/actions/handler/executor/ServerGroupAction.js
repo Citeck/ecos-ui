@@ -5,14 +5,7 @@ import isBoolean from 'lodash/isBoolean';
 import { RecordActionsApi } from '../../../../../api/recordActions';
 import { isExistValue } from '../../../../../helpers/util';
 import FormManager from '../../../../EcosForm/FormManager';
-import {
-  notifyStart,
-  prepareBatchEditAction,
-  prepareResult,
-  removeNotify,
-  ResultTypes,
-  showDetailActionResult
-} from '../../util/actionUtils';
+import { notifyStart, prepareBatchEditAction, prepareResult, removeNotify, ResultTypes } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
 
 const actionsApi = new RecordActionsApi();
@@ -113,14 +106,11 @@ export default class ServerGroupAction extends ActionsExecutor {
     groupAction = await showFormIfRequired(groupAction);
 
     const notify = notifyStart('', 0);
+    const result = await executeAction({ groupAction, query });
 
-    executeAction({ groupAction, query }).then(result => {
-      removeNotify(notify);
+    removeNotify(notify);
 
-      showDetailActionResult(result, {
-        title: 'group-action.label.result'
-      });
-    });
+    return result || false;
   }
 
   isActionConfigCheckingRequired(action) {
