@@ -551,6 +551,7 @@
   "batch-edit.message.CANCELLED": "Cancelled by user",
   "batch-edit.message.ALLOWED": "Allowed",
   "batch-edit.message.NOT_ALLOWED": "Not Allowed",
+  "batch-edit.message.no-status": "No status",
 
   "grid.inline-tools.details": "Details",
   "grid.no-data-indication": "No items in the list",

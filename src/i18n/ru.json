@@ -550,6 +550,7 @@
   "batch-edit.message.CANCELLED": "Обработка отменена пользователем",
   "batch-edit.message.ALLOWED": "Разрешено",
   "batch-edit.message.NOT_ALLOWED": "Не разрешено",
+  "batch-edit.message.no-status": "Нет статуса",
 
   "grid.inline-tools.details": "Детальная информация",
   "grid.no-data-indication": "Нет элементов в списке",
