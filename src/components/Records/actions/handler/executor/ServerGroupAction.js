@@ -36,8 +36,6 @@ const executeAction = async ({ groupAction, selected = [], resolved, query = nul
 
   const result = prepareResult(exAction.results || exAction);
 
-  console.warn({ exAction, result });
-
   if (!isBoolean(result) && get(resolved, 'length')) {
     if (result.type === ResultTypes.RESULTS || result.type === ResultTypes.LINK) {
       result.data.results = [...(result.data.results || []), ...resolved];

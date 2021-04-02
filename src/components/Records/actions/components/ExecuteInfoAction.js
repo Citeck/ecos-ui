@@ -35,8 +35,6 @@ const ExecuteInfoAction = React.memo((props = {}) => {
     }
   ];
 
-  console.warn({ props });
-
   switch (get(props, 'type')) {
     case ResultTypes.ERROR: {
       keyField = 'status';

@@ -76,11 +76,31 @@ export const ResultTypes = {
 };
 
 export function notifySuccess(msg, timeOut = 5000, ...extra) {
+  const before = cloneDeep(NotificationManager.listNotify);
+
   NotificationManager.success(t(msg || Labels.MSG_SUCCESS), t(Labels.TITLE_SUCCESS), timeOut, ...extra);
+
+  const diff = difference(NotificationManager.listNotify, before);
+
+  if (diff.length > 1) {
+    return NotificationManager.listNotify[NotificationManager.listNotify.length - 1];
+  }
+
+  return diff[0];
 }
 
 export function notifyFailure(msg, timeOut = 5000, ...extra) {
+  const before = cloneDeep(NotificationManager.listNotify);
+
   NotificationManager.error(t(msg || Labels.MSG_ERR), t(Labels.TITLE_ERR), timeOut, ...extra);
+
+  const diff = difference(NotificationManager.listNotify, before);
+
+  if (diff.length > 1) {
+    return NotificationManager.listNotify[NotificationManager.listNotify.length - 1];
+  }
+
+  return diff[0];
 }
 
 export function notifyStart(msg, timeOut = 5000, ...extra) {
