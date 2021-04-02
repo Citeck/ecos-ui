@@ -38,10 +38,24 @@ export default class Input extends Component {
     }
   }
 
+  setRef = ref => {
+    if (!ref) {
+      return;
+    }
+
+    const { forwardedRef } = this.props;
+
+    this.inputRef = { current: ref };
+
+    if (typeof forwardedRef === 'function') {
+      forwardedRef(ref);
+    }
+  };
+
   render() {
     const { getInputRef, className, autoSelect, forwardedRef, align, ...props } = this.props;
     const cssClasses = classNames('ecos-input', className, `ecos-input_${align}`);
 
-    return <input ref={forwardedRef || this.inputRef} {...props} className={cssClasses} />;
+    return <input ref={this.setRef} {...props} className={cssClasses} />;
   }
 }

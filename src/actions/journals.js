@@ -2,6 +2,7 @@ import { createAction } from 'redux-actions';
 
 const prefix = 'journals/';
 
+export const setLoading = createAction(prefix + 'SET_LOADING');
 export const getDashletConfig = createAction(prefix + 'GET_DASHLET_CONFIG');
 export const setDashletConfig = createAction(prefix + 'SET_DASHLET_CONFIG');
 export const setDashletConfigByParams = createAction(prefix + 'SET_DASHLET_CONFIG_BY_PARAMS');
@@ -10,16 +11,18 @@ export const getDashletEditorData = createAction(prefix + 'GET_DASHLET_EDITOR_DA
 export const setEditorMode = createAction(prefix + 'SET_EDITOR_MODE');
 export const initJournal = createAction(prefix + 'INIT_JOURNAL');
 
-export const setJournalsListItem = createAction(prefix + 'SET_JOURNALS_LIST_ITEM');
 export const setJournalsItem = createAction(prefix + 'SET_JOURNALS_ITEM');
 export const setSettingItem = createAction(prefix + 'SET_SETTING_ITEM');
 export const setOnlyLinked = createAction(prefix + 'SET_ONLY_LINKED');
 export const setCustomJournalMode = createAction(prefix + 'SET_CUSTOM_JOURNAL_MODE');
 export const setCustomJournal = createAction(prefix + 'SET_CUSTOM_JOURNAL');
-export const setJournalsList = createAction(prefix + 'SET_JOURNALS_LIST');
 export const setJournals = createAction(prefix + 'SET_JOURNALS');
+export const setSelectedJournals = createAction(prefix + 'SET_SELECTED_JOURNALS');
 
 export const setJournalConfig = createAction(prefix + 'SET_JOURNAL_CONFIG');
+export const checkConfig = createAction(prefix + 'CHECK_JOURNAL_CONFIG');
+export const setCheckLoading = createAction(prefix + 'SET_CHECK_JOURNAL_LOADING');
+export const setJournalExistStatus = createAction(prefix + 'SET_JOURNAL_EXIST_STATUS');
 export const setGrid = createAction(prefix + 'SET_GRID');
 export const reloadGrid = createAction(prefix + 'RELOAD_GRID');
 export const reloadTreeGrid = createAction(prefix + 'RELOAD_TREE_GRID');

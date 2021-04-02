@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import ReactPlaceholder from 'react-placeholder';
-import { RectShape, RoundShape } from 'react-placeholder/lib/placeholders';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
@@ -14,7 +12,7 @@ import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import { DashboardTypes } from '../../constants/dashboard';
 import { isMobileAppWebView, t } from '../../helpers/util';
-import { decodeLink, getSortedUrlParams, isDashboard, isHomePage, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
+import { decodeLink, getSortedUrlParams, isDashboard, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import {
   getDashboardConfig,
   getDashboardTitle,
@@ -36,6 +34,7 @@ import PageTabList from '../../services/pageTabs/PageTabList';
 import { selectDashboardByKey, selectDashboardConfig, selectDashboardConfigVersion } from '../../selectors/dashboard';
 import PageService from '../../services/PageService';
 import DialogManager from '../../components/common/dialogs/Manager';
+import TitlePageLoader from '../../components/common/TitlePageLoader';
 
 import './style.scss';
 
@@ -98,12 +97,6 @@ class Dashboard extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (isHomePage() && !props.redirectToNewUi) {
-      window.open(URL.OLD_DASHBOARD, '_self');
-
-      return null;
-    }
-
     const newState = {};
     const newUrlParams = getSortedUrlParams();
     const firstLayoutId = get(props.config, '[0].id');
@@ -515,20 +508,10 @@ class Dashboard extends Component {
       case DashboardTypes.CASE_DETAILS:
         title = (
           <div className="ecos-dashboard__header-title" key="title">
-            <ReactPlaceholder
-              type="textRow"
-              ready={!!name}
-              showLoadingAnimation={true}
-              customPlaceholder={
-                <div className="ecos-dashboard__header-placeholder">
-                  <RectShape color="#b7b7b7" style={{ width: 150, height: 20, borderRadius: 10 }} />
-                  <RoundShape color="#b7b7b7" style={{ width: 32, height: 20 }} />
-                </div>
-              }
-            >
+            <TitlePageLoader isReady={!!name} withBadge>
               <div className="ecos-dashboard__header-name">{t(name)}</div>
               {version && <Badge text={version} size={isMobile ? 'small' : 'large'} />}
-            </ReactPlaceholder>
+            </TitlePageLoader>
           </div>
         );
         break;

@@ -6,12 +6,6 @@ import { getUserData, setNewUIAvailableStatus, validateUserSuccess } from '../ac
 
 export function* initUser({ api, logger }, { payload }) {
   try {
-    const checkAuthResp = yield call(api.user.checkIsAuthenticated);
-
-    if (!checkAuthResp.success) {
-      return;
-    }
-
     const resp = yield call(api.user.getUserData);
 
     if (resp.success) {

@@ -1,10 +1,11 @@
 import * as queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import pick from 'lodash/pick';
+import omit from 'lodash/omit';
 
 import { JournalUrlParams, SourcesId, URL } from '../constants';
-import { PROXY_URI, URL_PAGECONTEXT } from '../constants/alfresco';
-import { ALFRESCO_EQUAL_PREDICATES_MAP } from '../components/Records/predicates/predicates';
+import { PROXY_URI } from '../constants/alfresco';
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
@@ -53,24 +54,12 @@ const changeUrl = (url, opts = {}) => {
   }
 };
 
-export const createOldVersionUrlDocument = recordRef => {
-  return `/share/page/card-details?nodeRef=${recordRef}`;
-};
-
 export const createProfileUrl = userName => {
-  if (isNewVersionPage()) {
-    return `${URL.DASHBOARD}?recordRef=${SourcesId.PEOPLE}@${userName}`;
-  }
-
-  return `/share/page/user/${userName}/profile`;
+  return `${URL.DASHBOARD}?recordRef=${SourcesId.PEOPLE}@${userName}`;
 };
 
 export const createDocumentUrl = recordRef => {
-  if (isNewVersionPage()) {
-    return `${URL.DASHBOARD}?recordRef=${recordRef}`;
-  }
-
-  return createOldVersionUrlDocument(recordRef);
+  return `${URL.DASHBOARD}?recordRef=${recordRef}`;
 };
 
 export const createTaskUrl = (taskId, recordRef) => {
@@ -110,88 +99,41 @@ export function createContentUrl({ value }) {
   return `${PROXY_URI}api/node/workspace/SpacesStore/${value}/content;cm:content`;
 }
 
-const getCriteriaFilterParam = ({ row, columns, groupBy }) => {
-  const criteria = [];
-
-  if (groupBy.length) {
-    groupBy = groupBy[0].split('&');
-    columns = columns.filter(c => groupBy.filter(g => g === c.attribute)[0]);
-  }
-
-  for (const key in row) {
-    const value = row[key];
-    const type = (columns.filter(c => c.attribute === key && c.visible && c.default && c.searchable)[0] || {}).type;
-    const predicate = ALFRESCO_EQUAL_PREDICATES_MAP[type];
-
-    if (predicate) {
-      criteria.push({
-        field: key,
-        predicate: predicate,
-        persistedValue: value
-      });
-    }
-  }
-
-  return criteria.length ? JSON.stringify({ criteria }) : '';
-};
-
 export const getFilterParam = options => {
-  return OLD_LINKS ? getCriteriaFilterParam(options) : ParserPredicate.getRowPredicates(options);
+  return ParserPredicate.getRowPredicates(options);
 };
 
 export const getJournalPageUrl = ({ journalsListId, journalId, journalSettingId, nodeRef, filter, search }) => {
-  const qObj = {
+  const qString = queryString.stringify({
     [JOURNALS_LIST_ID_KEY]: journalsListId,
     [JOURNAL_ID_KEY]: journalId,
-    [JOURNAL_SETTING_ID_KEY]: filter ? '' : journalSettingId
-  };
-
-  if (OLD_LINKS) {
-    qObj[FILTER_KEY] = filter;
-  } else {
-    qObj[SEARCH_KEY] = search || filter;
-  }
-
-  const qString = queryString.stringify(qObj);
-  let url;
-
-  if (OLD_LINKS) {
-    let partOfUrl;
-
-    if (journalsListId.indexOf('global-') !== -1) {
-      partOfUrl = journalsListId.replace('global-', 'journals2/list/');
-    } else {
-      partOfUrl = journalsListId.replace('site-', 'site/');
-      partOfUrl = partOfUrl.replace('-main', '/journals2/list/main');
-    }
-
-    url = `${URL_PAGECONTEXT}${partOfUrl}#journal=${nodeRef}&${FILTER_KEY}=${filter}&settings=&skipCount=0&maxItems=10`;
-  } else {
-    url = `${URL.JOURNAL}?${qString}`;
-  }
-
-  return url;
-};
-
-export const getDownloadContentUrl = nodeRef => {
-  return `${PROXY_URI}citeck/print/content?nodeRef=${nodeRef}`;
-};
-
-export const getCreateRecordUrl = ({ type, destination }) => {
-  const qString = queryString.stringify({
-    [TYPE_KEY]: type,
-    [DESTINATION_KEY]: destination
+    [JOURNAL_SETTING_ID_KEY]: filter ? '' : journalSettingId,
+    [SEARCH_KEY]: search || filter
   });
 
-  return `${URL_PAGECONTEXT}node-create-page-v2?${qString}&viewId=`;
+  return `${URL.JOURNAL}?${qString}`;
+};
+
+function getValidNodeRef(nodeRef) {
+  if (!nodeRef) {
+    return nodeRef;
+  }
+  if (nodeRef.indexOf('alfresco/@') === 0) {
+    nodeRef = nodeRef.replace('alfresco/@', '');
+  }
+  return nodeRef;
+}
+
+export const getDownloadContentUrl = nodeRef => {
+  return `${PROXY_URI}citeck/print/content?nodeRef=${getValidNodeRef(nodeRef)}`;
 };
 
 export const getZipUrl = nodeRef => {
-  return `${PROXY_URI}api/node/content/${nodeRef.replace(':/', '')}/Archive.zip`;
+  return `${PROXY_URI}api/node/content/${getValidNodeRef(nodeRef).replace(':/', '')}/Archive.zip`;
 };
 
 export const getTemplateUrl = nodeRef => {
-  return `${PROXY_URI}citeck/case/template?nodeRef=${nodeRef}`;
+  return `${PROXY_URI}citeck/case/template?nodeRef=${getValidNodeRef(nodeRef)}`;
 };
 
 export const getBarcodePrintUrl = (record, settings = 'barcodeType=code-128&scale=5.0&margins=20,200,20,500') => {
@@ -208,19 +150,11 @@ export const goToJournalsPage = options => {
   }
 };
 
-export const goToCreateRecordPage = createVariants => window.open(getCreateRecordUrl(createVariants), '_self');
-
 export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
   const dashboardLink = `${URL.DASHBOARD}?recordRef=${nodeRef}`;
 
-  if (isNewVersionPage()) {
-    changeUrl(dashboardLink, params);
-  } else {
-    window.open(`${URL_PAGECONTEXT}card-details?nodeRef=${nodeRef}`, '_blank');
-  }
+  changeUrl(dashboardLink, params);
 };
-
-export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page-v2?nodeRef=${nodeRef}`, '_self');
 
 export const updateCurrentUrl = (params = {}) => {
   const query = getSearchParams();
@@ -283,14 +217,14 @@ export const decodeLink = link => {
  * @param params {object}
  * - urls {array} - two compared url's
  * - ignored {array} - ignored for comparing params
- * - searchBy {array} - params for comparing
+ * - compareBy {array} - to compare only by set
  *
  * @returns {boolean}
  */
 export const equalsQueryUrls = params => {
   const { urls = [], ignored = [], compareBy = [] } = params;
 
-  if (!urls.length || (!ignored.length && compareBy.length)) {
+  if (!Array.isArray(urls) || urls.some(u => typeof u !== 'string' || !u.length)) {
     return false;
   }
 
@@ -303,26 +237,21 @@ export const equalsQueryUrls = params => {
     return false;
   }
 
-  ignored.forEach(param => {
-    delete firstParams[param];
-    delete secondParams[param];
-  });
+  if (ignored.some(key => compareBy.includes(key))) {
+    console.warn("List 'ignored' has key(s) from list 'compareBy'");
+  }
 
-  if (!compareBy.length) {
+  if (!ignored || !ignored.length) {
+    firstParams = omit(firstParams, ignored);
+    secondParams = omit(secondParams, ignored);
+  }
+
+  if (!compareBy || !compareBy.length) {
     return queryString.stringify(firstParams) === queryString.stringify(secondParams);
   }
 
-  for (let param in firstParams) {
-    if (!compareBy.includes(param)) {
-      delete firstParams[param];
-    }
-  }
-
-  for (let param in secondParams) {
-    if (!compareBy.includes(param)) {
-      delete secondParams[param];
-    }
-  }
+  firstParams = pick(firstParams, compareBy);
+  secondParams = pick(secondParams, compareBy);
 
   return queryString.stringify(firstParams) === queryString.stringify(secondParams);
 };

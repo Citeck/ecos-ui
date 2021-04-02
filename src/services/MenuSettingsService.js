@@ -40,6 +40,7 @@ export default class MenuSettingsService {
       icon: permissions.hasIcon ? getIconObjectWeb(data.icon) : undefined,
       config: { ...data.config },
       items: [],
+      allowedFor: get(data, 'allowedFor', []),
       //only for ui, tree
       locked: !!data.hidden,
       draggable: permissions.draggable

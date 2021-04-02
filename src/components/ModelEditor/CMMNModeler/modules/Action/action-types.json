@@ -1,0 +1,9 @@
+[
+  {
+    "id": "ecos:SetStatusAction",
+    "name": {
+      "en": "Set Case Status",
+      "ru": "Установить статус кейса"
+    }
+  }
+]

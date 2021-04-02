@@ -5,33 +5,8 @@ import isEqual from 'lodash/isEqual';
 import ecosFetch from '../../helpers/ecosFetch';
 
 import { getSourceId } from './utils/recordUtils';
-import { APP_DELIMITER, DELETE_URL, GATEWAY_URL_MAP, MUTATE_URL, QUERY_URL, SOURCE_DELIMITER } from './constants';
+import { DELETE_URL, MUTATE_URL, QUERY_URL } from './constants';
 import { t } from '../../helpers/util';
-
-function isAnyWithAppName(records) {
-  for (let i = 0; i < records.length; i++) {
-    if (isRecordWithAppName(records[i])) {
-      return true;
-    }
-  }
-}
-
-function isRecordWithAppName(record) {
-  if (!record) {
-    return false;
-  }
-  if (isString(record.id)) {
-    record = record.id;
-  }
-
-  if (isString(record)) {
-    const sourceDelimIdx = record.indexOf(SOURCE_DELIMITER);
-    const appDelimIdx = record.indexOf(APP_DELIMITER);
-    return appDelimIdx > 0 && appDelimIdx < sourceDelimIdx;
-  }
-
-  return '';
-}
 
 /**
  * Request identification
@@ -41,22 +16,14 @@ function isRecordWithAppName(record) {
  */
 function getRecognizableUrl(url, body) {
   let urlKey = '';
-  let withAppName = false;
 
   if (body.query) {
     urlKey = 'q_' + (body.query.sourceId ? body.query.sourceId : (JSON.stringify(body.query.query) || '').substring(0, 15));
-    withAppName = lodashGet(body, 'query.sourceId', '').indexOf(APP_DELIMITER) > -1;
   } else if (body.record) {
     urlKey = `rec_${body.record}`;
-    withAppName = isRecordWithAppName(body.record);
   } else if (body.records) {
     const sourceId = getSourceId(lodashGet(body, 'records[0]', ''));
     urlKey = `recs_count_${(body.records || []).length}_${sourceId}`;
-    withAppName = isAnyWithAppName(body.records);
-  }
-
-  if (withAppName) {
-    url = GATEWAY_URL_MAP[url];
   }
 
   url += '?k=' + encodeURIComponent(urlKey);
@@ -65,11 +32,15 @@ function getRecognizableUrl(url, body) {
 }
 
 function recordsFetch(url, body) {
+  if (url.indexOf('mutate') >= 0 || url.indexOf('delete') >= 0) {
+    body.version = 1;
+  }
   url = getRecognizableUrl(url, body);
 
   return ecosFetch(url, { method: 'POST', body }).then(response => {
     return response.json().then(body => {
       if (response.ok) {
+        checkRespMessages(body.messages);
         return body;
       }
 
@@ -80,6 +51,29 @@ function recordsFetch(url, body) {
       }
     });
   });
+}
+
+function checkRespMessages(messages) {
+  if (!messages || messages.length === 0) {
+    return;
+  }
+
+  for (let message of messages) {
+    if (message.level === 'ERROR') {
+      let errorMessage = message.msg || 'Server error';
+      if (!isString(errorMessage)) {
+        if (message.type === 'records-error') {
+          errorMessage = errorMessage.msg;
+        } else {
+          errorMessage = JSON.stringify(errorMessage);
+        }
+      }
+      if (!errorMessage) {
+        errorMessage = 'Server error';
+      }
+      throw new Error(errorMessage);
+    }
+  }
 }
 
 export function recordsDeleteFetch(body) {

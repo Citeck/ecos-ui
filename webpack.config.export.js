@@ -463,6 +463,7 @@ module.exports = {
             exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
             options: {
               name: 'ecosui/export/ecos/[name]/media/[name].[hash:8].[ext]',
+              esModule: false
             },
           },
           // ** STOP ** Are you adding a new loader?

@@ -19,38 +19,82 @@ import { changeTab } from '../actions/pageTabs';
 import { setLeftMenuEditable } from '../actions/app';
 
 import { makeSiteMenu, makeUserMenuItems } from '../helpers/menu';
-import { hasInString } from '../helpers/util';
-import { URL } from '../constants';
+import { getCurrentUserName, hasInString, getTextByLocale } from '../helpers/util';
+import { SourcesId, URL } from '../constants';
 import { selectIdentificationForView } from '../selectors/dashboard';
 import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import MenuConverter from '../dto/menu';
+import Records from '../components/Records';
+
+import { HandleControlTypes } from '../helpers/handleControl';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
     const workflowVars = yield call(api.menu.getCreateWorkflowVariants);
-    const siteVars = yield call(api.menu.getCreateVariantsForAllSites);
+
+    const user = getCurrentUserName();
+
+    //todo: temp solution to get create variants from menu config
+    const menuConfig = yield Records.queryOne(
+      {
+        sourceId: SourcesId.RESOLVED_MENU,
+        query: { user, version: 1 }
+      },
+      'subMenu.create?json'
+    );
+
+    // const siteVars = yield call(api.menu.getCreateVariantsForAllSites);
+    // map to legacy create variants
+    const _sites = (menuConfig.items || []).map(section => {
+      return {
+        id: section.id,
+        siteId: section.id,
+        label: getTextByLocale(section.label),
+        items: (section.items || []).map(cvItem => {
+          const cv = (cvItem.config || {}).variant || {};
+          return {
+            id: cv.id,
+            label: getTextByLocale(cvItem.label),
+            control: {
+              type: HandleControlTypes.ECOS_CREATE_VARIANT,
+              payload: {
+                title: getTextByLocale(cv.label),
+                recordRef: cv.sourceId + '@',
+                formId: cv.formRef,
+                canCreate: true,
+                postActionRef: cv.postActionRef,
+                typeRef: cv.typeRef,
+                attributes: {
+                  ...cv.attributes
+                }
+              }
+            }
+          };
+        })
+      };
+    });
+
     const customVars = yield call(api.menu.getCustomCreateVariants);
 
-    const _sites = MenuConverter.getCreateSiteItems(siteVars);
     const _customs = MenuConverter.getCreateCustomItems(customVars);
     const { sites, customs } = MenuConverter.mergeCustomsAndSites(_customs, _sites);
 
     yield put(setCreateCaseWidgetItems([].concat(customs, workflowVars, sites)));
 
     const isCascadeMenu = yield call(api.app.getEcosConfig, 'default-ui-create-menu');
+
     yield put(setCreateCaseWidgetIsCascade(isCascadeMenu === 'cascad'));
   } catch (e) {
     logger.error('[fetchCreateCaseWidget saga] error', e.message);
   }
 }
 
-function* fetchUserMenu({ api, fakeApi, logger }) {
+function* fetchUserMenu({ logger }) {
   try {
     const userData = yield select(state => state.user);
     const { userName, isDeputyAvailable: isAvailable, isMutable } = userData || {};
-    const isExternalAuthentication = yield call(fakeApi.getIsExternalAuthentication); // TODO use real api
-    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable, isExternalAuthentication));
+    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable));
 
     yield put(setUserMenuItems(menuItems));
     yield put(getAppUserThumbnail());
@@ -67,7 +111,7 @@ function* fetchInfluentialParams() {
   return { isAdmin, dashboardEditable, leftMenuEditable };
 }
 
-function* fetchSiteMenu({ api, fakeApi, logger }) {
+function* fetchSiteMenu({ logger }) {
   try {
     const params = yield fetchInfluentialParams();
     const url = document.location.href;
@@ -108,7 +152,7 @@ function* filterSiteMenu({ api, logger }, { payload = {} }) {
   }
 }
 
-function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
+function* goToPageSiteMenu({ api, logger }, { payload }) {
   try {
     const dashboard = yield select(selectIdentificationForView);
     const link = yield MenuService.getSiteMenuLink(payload, dashboard);
@@ -119,7 +163,7 @@ function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
   }
 }
 
-function* sagaRunSearchAutocomplete({ api, fakeApi, logger }, { payload }) {
+function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
   try {
     const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
     const sites = yield api.menu.getLiveSearchSites(payload);

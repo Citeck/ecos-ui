@@ -2,8 +2,11 @@ import isEmpty from 'lodash/isEmpty';
 
 import ecosFetch from '../helpers/ecosFetch';
 import Records from '../components/Records';
-import { EmodelTypes } from '../constants';
+import { DataFormatTypes, EmodelTypes } from '../constants';
 import { DocumentsApi } from './documents';
+import { PROXY_URI } from '../constants/alfresco';
+import journalsService from '../components/Journals/service/journalsService';
+import { getOutputFormat } from '../helpers/util';
 
 export class DocAssociationsApi extends DocumentsApi {
   #baseAssociationAttributes = 'id:assoc,modifierId:att(n:"cm:modifier"){disp},displayName:disp';
@@ -43,8 +46,8 @@ export class DocAssociationsApi extends DocumentsApi {
           name: 'displayName',
           type: 'text',
           attributes: {},
-          params: {
-            formatter: 'сardDetailsLink'
+          newFormatter: {
+            type: 'сardDetailsLink'
           }
         },
         {
@@ -52,14 +55,23 @@ export class DocAssociationsApi extends DocumentsApi {
           label: { ru: 'Дата создания', en: 'Create time' },
           name: 'created',
           type: 'datetime',
-          attributes: {}
+          attributes: {},
+          newFormatter: {
+            type: 'script',
+            config: {
+              script: 'return cell ? vars.formatDate(cell) : "";',
+              vars: {
+                formatDate: cell => getOutputFormat(DataFormatTypes.DATETIME, cell)
+              }
+            }
+          }
         }
       ]
     };
 
     if (association.target === EmodelTypes.BASE) {
       return new Promise(async resolve => {
-        const columns = await this.getFormattedColumns(baseColumnsConfig);
+        let columns = await journalsService.resolveColumns(baseColumnsConfig.columns);
 
         resolve({
           ...association,
@@ -68,21 +80,12 @@ export class DocAssociationsApi extends DocumentsApi {
       });
     }
 
-    return Records.queryOne(
-      {
-        sourceId: 'uiserv/journal',
-        query: {
-          typeRef: association.target
-        }
-      },
-      '.json'
-    ).then(async columnsConfig => {
+    return journalsService.getJournalConfigByType(association.target).then(async columnsConfig => {
       const config = isEmpty(columnsConfig) ? baseColumnsConfig : columnsConfig;
-      const columns = await this.getFormattedColumns(config);
 
       return {
         ...association,
-        columnsConfig: { ...config, columns }
+        columnsConfig: { ...config }
       };
     });
   }
@@ -109,7 +112,7 @@ export class DocAssociationsApi extends DocumentsApi {
    * @returns {Promise<any | never>}
    */
   getJournalList = site => {
-    return ecosFetch(`/share/proxy/alfresco/api/journals/list?journalsList=site-${site}-main`, {
+    return ecosFetch(`${PROXY_URI}api/journals/list?journalsList=site-${site}-main`, {
       headers: { 'Content-type': 'application/json;charset=UTF-8' }
     }).then(response => response.json().then(response => response.journals));
   };

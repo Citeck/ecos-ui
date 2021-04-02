@@ -1,6 +1,3 @@
-import Adapter from 'enzyme-adapter-react-16';
-import { configure } from 'enzyme';
-
 import { mountWithContext } from '../../../helpers/tests';
 
 import { switchTypePerm } from '../helpers/switchTypePerm';
@@ -9,8 +6,6 @@ import { TypePermissionsEditorContext } from '../TypePermissionsEditor/TypePermi
 import TypePermissionsEditor from '../TypePermissionsEditor/TypePermissionsEditor';
 import TypePermissionsGrid from '../TypePermissionsEditor/TypePermissionsGrid';
 import ButtonsPanel from '../TypePermissionsEditor/ButtonsPanel';
-
-configure({ adapter: new Adapter() });
 
 describe('TypePermissions tests', () => {
   describe('switchDocPerm helper', () => {

@@ -77,34 +77,36 @@ const DropdownActions = ({ list, dashletId }) => {
 };
 
 /**
- * Actions - ряд иконочных кнопок (для шапки дашлета).
- * Если кнопок более (по-умолчанию) 4, 4ая кнопка - дропдаун с остальными действиями.
- * Если не переданы настройки, будут отображены только базовые кнопки, но только те, у которых есть событие.
- * Базовые кнопки можно переобределить, но следует ограничется переоределением только события и текста
- * Перечень кнопок (или их переопределений) передаются параметром actionConfig (формат ниже)
- * В actionRules дополнительные правила отображения кнопок
- *  - orderedVisible массив ключей кнопок - если значение задано выведутся только указнные кнопки в указанном порядке.
- *  - countShow - кол-во отображаемых иконочных кнопок. По-умолчанию 4. Остальные уйдут в Dropdown.
- * @param actionConfig : object  ->
+ * Actions - dashlet header's icon buttons.
+ * If buttons are more _countShow_ , next buttons are in dropdown.
+ * If settings aren't passed, only basic buttons are displayed, but only those have events.
+ * Basic buttons can be overridden, but should be limited to overriding only the event and text
+ * The list of buttons (or their overrides) are given by the _actionConfig_ parameter (format is below)
+ * _actionRules_ - are additional display rules:
+ *  - orderedVisible array of icon keys - if there is a value, only the specified buttons are be displayed in the specified order
+ *  - countShow - amount of displayed icon buttons. Default 4. Other - Dropdown.
+ *
+ * @param actionConfig {Object}  ->
  *    {
- *      [ключ кнопки]: {
- *        icon: [string | класс иконки],
- *        text: [string | подсказказка/текст кнопки в Dropdown],
- *        onClick: [func | событие]
+ *      [icon key]: {
+ *        icon {String} icon class,
+ *        text {String} icon tip or text in Dropdown,
+ *        onClick {Function}
  *       }
  *    }
- * @param dashletId
- * @param actionRules : object  ->
+ * @param dashletId {String}
+ * @param actionRules {Object} are additional display rules  ->
  *    {
- *        orderedVisible: [array | отображаемые упорядоченные кнопки],
- *        countShow: [number | кол-во видимых кнопок]
+ *        orderedVisible {Array} displayed ordered buttons
+ *        countShow {Number} displayed icon buttons
  *    }
- * @param dashboardEditable the ability to edit the dashboard - define available actions > DashletActionService.uneditable
- * @param appEdition - app's version (ex. enterprise) - define available actions > DashletActionService.enterprise
+ * @param dashboardEditable {Boolean} - the ability to edit the dashboard - define available actions > DashletActionService.uneditable
+ * @param appEdition {String} - app's version (ex. enterprise) - define available actions > DashletActionService.enterprise
+ * @param isAdmin {Boolean} - define available actions > DashletActionService.administrative
  * @returns Elements
  */
-const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable, appEdition }) => {
-  const isAvailable = key => DashletActionService.isAvailable(key, { dashboardEditable, appEdition });
+const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable, appEdition, isAdmin }) => {
+  const isAvailable = key => DashletActionService.isAvailable(key, { dashboardEditable, appEdition, isAdmin });
   const baseOrderActions = DashletActionService.baseOrder;
   const { orderedVisible, countShow = 4 } = actionRules || {};
   const outputActions = [];

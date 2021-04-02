@@ -65,15 +65,15 @@
   margin-bottom: 15px;
 }
 
-.ecos-journal-menu__journals {
-  background: $color-white;
+.ecos-journal-menu__journals,
+.ecos-journal-menu__presets,
+.ecos-journal-menu__folders-tree {
   padding: 15px;
-  margin-bottom: 10px;
+  background: $color-white;
 }
 
-.ecos-journal-menu__presets {
-  padding: 15px;
-  background: $color-white;
+.ecos-journal-menu__journals {
+  margin-bottom: 10px;
 }
 
 .ecos-btn.ecos-journal-menu {

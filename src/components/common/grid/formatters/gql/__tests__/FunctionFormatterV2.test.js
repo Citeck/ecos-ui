@@ -1,11 +1,8 @@
 import React from 'react';
-import { configure, mount } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { mount } from 'enzyme';
 import { unmountComponentAtNode } from 'react-dom';
 
 import formatterStore from '../../formatterStore';
-
-configure({ adapter: new Adapter() });
 
 const { FunctionFormatterV2 } = formatterStore;
 

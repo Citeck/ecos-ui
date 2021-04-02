@@ -25,7 +25,6 @@ export default class SidebarConverter {
 
         if (ms.ItemTypes.JOURNAL === item.type) {
           set(targetItem, 'params.journalId', get(item, '_remoteData_.journalId'));
-          set(targetItem, 'params.journalsListId', get(item, '_remoteData_.journalsListId'));
         } else if (ms.ItemTypes.LINK_CREATE_CASE === item.type) {
           const createVariants = get(item, '_remoteData_.createVariants') || [];
 

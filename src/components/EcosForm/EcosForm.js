@@ -10,7 +10,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
-import { getCurrentLocale, isMobileDevice, t } from '../../helpers/util';
+import { getCurrentLocale, getMLValue, isMobileDevice, t } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
@@ -54,16 +54,15 @@ class EcosForm extends React.Component {
     this.initForm();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.formId !== this.props.formId || !isEqual(prevProps.options, this.props.options)) {
-      this.setState({ ...this.initState });
-      this.initForm();
+      this.setState({ ...this.initState }, this.initForm);
     }
   }
 
   get initState() {
     return {
-      formId: 'eform@',
+      formId: 'form@',
       error: null,
       formDefinition: {}
     };
@@ -142,7 +141,7 @@ class EcosForm extends React.Component {
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
-      const isDebugModeOn = localStorage.getItem('enableLoggerForNewForms');
+      const isDebugModeOn = localStorage.getItem('enableLoggerForNewForms') === 'true';
 
       let canWritePromise = false;
 
@@ -166,8 +165,14 @@ class EcosForm extends React.Component {
             if (input.edge.protected) {
               input.component.disabled = true;
             }
+
+            if (input.edge.unreadable) {
+              input.component.disabled = true;
+              input.component.unreadable = true;
+            }
+
             if (input.edge.title) {
-              attributesTitles[input.component.label] = input.edge.title;
+              attributesTitles[getMLValue(input.component.label)] = input.edge.title;
             }
           }
         }
@@ -217,6 +222,7 @@ class EcosForm extends React.Component {
 
           form.submission = {
             data: {
+              ...self._evalOptionsInitAttributes(recordData.inputs, options),
               ...(self.props.attributes || {}),
               ...recordData.submission
             }
@@ -235,9 +241,9 @@ class EcosForm extends React.Component {
 
           events.forEach(o => {
             if (o.event !== 'submit') {
-              form.on(o.event, () => {
+              form.on(o.event, data => {
                 const fun = self.props[o.prop];
-                typeof fun === 'function' && fun.apply(form, arguments);
+                typeof fun === 'function' && fun.apply(form, [...arguments, data]);
               });
             } else {
               console.warn('Please use onSubmit handler instead of onFormSubmit');
@@ -264,6 +270,27 @@ class EcosForm extends React.Component {
         });
       });
     }, onFormLoadingFailure);
+  }
+
+  _evalOptionsInitAttributes(inputs, options) {
+    const typeRef = options.typeRef;
+    if (!typeRef) {
+      return {};
+    }
+
+    let hasTypeField = false;
+    for (let input of inputs) {
+      if (input.attribute === 'tk:kind' || input.attribute === '_type') {
+        hasTypeField = true;
+        break;
+      }
+    }
+    if (!hasTypeField) {
+      return {
+        _type: typeRef
+      };
+    }
+    return {};
   }
 
   _recoverComponentsProperties(formDefinition) {

@@ -71,7 +71,7 @@ class CurrentTaskList extends React.Component {
     return (
       <div className="ecos-current-task-list_view-enum" ref={forwardedRef}>
         {currentTasks.map((item, i) => (
-          <React.Fragment key={item.id}>
+          <React.Fragment key={cleanTaskId(item.id)}>
             <CurrentTaskInfo task={item} isMobile={isMobile} actions={this.getActions(item)} />
             {!isLastItem(currentTasks, i) && <Separator noIndents />}
           </React.Fragment>

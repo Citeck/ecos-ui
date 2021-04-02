@@ -208,6 +208,7 @@ class JournalsDashletGrid extends Component {
       saveRecords,
       className,
       loading,
+      isWidget,
       grid: {
         data,
         columns,
@@ -237,13 +238,15 @@ class JournalsDashletGrid extends Component {
     return (
       <>
         <div className="ecos-journal-dashlet__grid">
-          {loading && <Loader blur />}
+          {!isWidget && loading && <Loader blur />}
 
           <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
               data={data}
               columns={columns}
               className={className}
+              gridWrapperClassName={'ecos-journal-dashlet__grid-wrapper'}
+              hTrackClassName="ecos-journal-dashlet__grid-track ecos-journal-dashlet__grid-track_h"
               freezeCheckboxes
               filterable
               editable={editable}

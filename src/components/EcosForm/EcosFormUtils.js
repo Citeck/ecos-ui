@@ -12,9 +12,9 @@ import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
 import uuidV4 from 'uuid/v4';
 
-import { AppEditions } from '../../constants';
+import { AppEditions, SourcesId } from '../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
-import { getCurrentUserName, t } from '../../helpers/util';
+import { getCurrentUserName, t, getMLValue } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import { UserApi } from '../../api/user';
 import { AppApi } from '../../api/app';
@@ -37,6 +37,8 @@ const getComponentInnerAttSchema = component => {
 
   if (dataType === 'json') {
     return 'json';
+  } else if (dataType === 'bool') {
+    return 'bool';
   }
 
   switch (component.type) {
@@ -59,8 +61,8 @@ const getComponentInnerAttSchema = component => {
 };
 
 export default class EcosFormUtils {
-  static #apiApp = new AppApi();
-  static #apiUser = new UserApi();
+  static _apiApp = new AppApi();
+  static _apiUser = new UserApi();
 
   static isCurrentUserInGroup(group) {
     const currentPersonName = getCurrentUserName();
@@ -99,13 +101,13 @@ export default class EcosFormUtils {
 
     formParams['options'] = configParams.options || {};
 
-    formParams['onSubmit'] = function(record, form) {
+    formParams['onSubmit'] = function(record, form, alias) {
       if (modal) {
         modal.close();
       }
 
       if (configParams.onSubmit) {
-        configParams.onSubmit(record, form);
+        configParams.onSubmit(record, form, alias);
       }
     };
 
@@ -213,7 +215,9 @@ export default class EcosFormUtils {
           formContainer: config.formContainer || null
         });
       } else {
-        fallback();
+        if (typeof fallback === 'function') {
+          fallback();
+        }
       }
     };
 
@@ -320,7 +324,7 @@ export default class EcosFormUtils {
       }
 
       let query = {
-        sourceId: 'uiserv/eform',
+        sourceId: SourcesId.EFORM,
         query: {
           record: recordInstance.id,
           formKey: keys[idx]
@@ -611,9 +615,9 @@ export default class EcosFormUtils {
       let innerAttSchema = getComponentInnerAttSchema(component);
       let schema = this.getSchemaForScopedAttribute(innerAttSchema, currentScope);
 
-      let edgeSchema = '.edge(n:"' + attribute + '"){protected,';
+      let edgeSchema = '.edge(n:"' + attribute + '"){protected,unreadable,';
 
-      if (component.label === attribute) {
+      if (getMLValue(component.label) === attribute) {
         edgeSchema += 'title}';
       } else {
         // Type is not used. Just to add more than 1 field in result to avoid simplifying
@@ -950,11 +954,11 @@ export default class EcosFormUtils {
   }
 
   static isFormId(formId = '') {
-    return formId && /^uiserv\/eform@/.test(formId);
+    return formId && /^uiserv\/form@/.test(formId);
   }
 
   static getFormTitle(data) {
-    const displayName = data.displayName || '';
+    const displayName = data.typeName || data.displayName || '';
     const formMode = data.formMode || FORM_MODE_EDIT;
 
     const titleKey = 'eform.header.' + formMode + '.title';
@@ -978,13 +982,13 @@ export default class EcosFormUtils {
   }
 
   static async isConfigurableForm() {
-    const edition = await EcosFormUtils.#apiApp.getAppEdition();
+    const edition = await EcosFormUtils._apiApp.getAppEdition();
 
     if (edition !== AppEditions.ENTERPRISE) {
       return false;
     }
 
-    return EcosFormUtils.#apiUser.isUserAdmin();
+    return EcosFormUtils._apiUser.isUserAdmin();
   }
 
   static isComponentsReady(components, options = {}) {

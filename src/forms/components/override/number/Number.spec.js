@@ -323,4 +323,10 @@ describe('Number Component', () => {
       done();
     });
   });
+
+  it('Should be unreadable value', done => {
+    const comp = Object.assign(_.cloneDeep(comp2), { unreadable: true });
+
+    Harness.testCreate(NumberComponent, comp, { readOnly: false }).then(component => Harness.testUnreadableField(component, done));
+  });
 });

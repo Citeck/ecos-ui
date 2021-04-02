@@ -59,48 +59,8 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getJournalsList = () => {
-    return this.getJson(`${PROXY_URI}api/journals/lists`).then(resp => resp.journalsLists || []);
-  };
-
   getJournals = () => {
     return this.getJson(`${PROXY_URI}api/journals/all`).then(resp => resp.journals || []);
-  };
-
-  getJournalsByJournalsList = journalsListId => {
-    const journalsFromUiserv = Records.query(
-      {
-        sourceId: 'uiserv/journal_v1',
-        language: 'list-id',
-        query: { listId: journalsListId }
-      },
-      { title: 'meta.title' }
-    )
-      .then(res => res.records)
-      .catch(() => []);
-
-    return this.getJson(`${PROXY_URI}api/journals/list?journalsList=${journalsListId}`).then(resp => {
-      return journalsFromUiserv.then(uiservJournals => {
-        let result = [...(resp.journals || [])];
-        let journalByType = {};
-        result.forEach(j => (journalByType[j.type] = j));
-        for (let journal of uiservJournals) {
-          let localId = journal.id.replace('uiserv/journal_v1@', '');
-          let existingJournal = journalByType[localId];
-          if (existingJournal != null) {
-            existingJournal.nodeRef = localId;
-          } else {
-            result.push({
-              nodeRef: localId,
-              title: journal.title,
-              type: localId
-            });
-          }
-        }
-
-        return result;
-      });
-    });
   };
 
   getDashletConfig = id => {
@@ -116,7 +76,10 @@ export class JournalsApi extends RecordService {
   };
 
   getJournalSetting = id => {
-    return this.getJson(`${MICRO_URI}api/journalprefs?id=${id}`).catch(() => null);
+    return this.getJson(`${MICRO_URI}api/journalprefs?id=${id}`).catch(error => {
+      console.error(error);
+      return { error };
+    });
   };
 
   saveJournalSetting = ({ id, settings }) => {
@@ -180,5 +143,9 @@ export class JournalsApi extends RecordService {
     return Records.get(recordRef)
       .load(`#${cell}?protected`)
       .catch(() => null);
+  };
+
+  getJournalsByIds = (ids, attrs = '?json') => {
+    return Records.get(ids).load(attrs);
   };
 }

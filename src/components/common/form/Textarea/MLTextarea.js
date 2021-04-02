@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 
 import Textarea from './Textarea';
 import BaseMLField from '../BaseMLField';
@@ -14,16 +13,9 @@ class MlTextarea extends BaseMLField {
     inputClassName: 'textarea__ml-input'
   };
 
-  render() {
-    const { className, style } = this.props;
-
-    return (
-      <div style={style} className={classNames('ecos-ml-text', className)}>
-        <Textarea {...this.inputProps} value={this.value} onChange={this.handleChangeText} />
-        {this.renderLang()}
-      </div>
-    );
-  }
+  renderInputElement = () => {
+    return <Textarea {...this.inputProps} value={this.value} onChange={this.handleChangeText} />;
+  };
 }
 
 export default MlTextarea;

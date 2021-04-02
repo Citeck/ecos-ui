@@ -172,3 +172,10 @@ $scroll-z-index: 30;
   vertical-align: middle;
   padding-top: 3px;
 }
+
+:export {
+  colors: {
+    primary: $primary;
+    success: $success;
+  }
+}
