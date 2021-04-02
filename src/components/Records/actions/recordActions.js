@@ -561,7 +561,7 @@ class RecordActions {
       }
 
       const filteredRecords = preResult.preProcessedRecords
-        ? allowedRecords.filter(rec => preResult.preProcessedRecords.includes(rec.id))
+        ? allowedRecords.filter(rec => !preResult.preProcessedRecords.includes(rec.id))
         : allowedRecords;
 
       const result = handler.execForRecords(filteredRecords, action, execContext);
