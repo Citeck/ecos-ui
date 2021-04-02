@@ -12,8 +12,6 @@ import { getBool } from '../../../../helpers/util';
 import DialogManager from '../../../common/dialogs/Manager';
 import ExecuteInfoAction from '../components/ExecuteInfoAction';
 
-window.NotificationManager = NotificationManager;
-
 const Labels = {
   MSG_SUCCESS: 'record-action.msg.success.text',
   TITLE_SUCCESS: 'record-action.msg.success.title',
