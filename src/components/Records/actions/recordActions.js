@@ -515,6 +515,10 @@ class RecordActions {
         return false;
       }
 
+      if (!isEmpty(confirmed)) {
+        RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
+      }
+
       popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => r.id), resultOptions);
 
       const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
@@ -652,6 +656,10 @@ class RecordActions {
 
     if (!confirmed) {
       return;
+    }
+
+    if (!isEmpty(confirmed)) {
+      RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
     }
 
     const result = handler.execForQuery(query, action, execContext);
