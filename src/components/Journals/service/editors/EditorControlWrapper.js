@@ -1,9 +1,23 @@
 import React from 'react';
-import isEqual from 'lodash/isEqual';
 
 import { normalizeEditorValue, getEditorValue } from './editorUtils';
 
-export default class EditorControlWrapper extends React.Component {
+export default class EditorControlWrapper extends React.PureComponent {
+  static getDerivedStateFromProps(props, state) {
+    const newState = {};
+    const editorValue = getEditorValue(props.value, props.multiple);
+
+    if (editorValue !== state.editorValue) {
+      newState.editorValue = editorValue;
+    }
+
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    return newState;
+  }
+
   constructor(props) {
     super(props);
 
@@ -17,10 +31,6 @@ export default class EditorControlWrapper extends React.Component {
     };
 
     this.exist = true;
-  }
-
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return !isEqual(nextProps.deps, this.props.deps);
   }
 
   componentWillUnmount() {
