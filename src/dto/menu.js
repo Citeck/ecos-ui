@@ -6,6 +6,7 @@ import { HandleControlTypes } from '../helpers/handleControl';
 import { extractLabel, getTextByLocale } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { getIconRef } from '../helpers/icon';
+import MenuConverterExport from './export/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 
 const getId = unique => `HEADER_${unique.replace(/-/g, '_').toUpperCase()}`;
@@ -285,21 +286,6 @@ export default class MenuConverter {
   }
 
   static getAllSectionsFlat(source) {
-    const target = [];
-
-    (function prepareTree(sItems, breadcrumbs = '') {
-      for (let i = 0; i < sItems.length; i++) {
-        const { items, ...sItem } = sItems[i];
-
-        if (sItem.type === MenuSettings.ItemTypes.SECTION) {
-          const item = cloneDeep(sItem);
-          item.breadcrumbs = breadcrumbs + extractLabel(item.label);
-          target.push(item);
-          Array.isArray(items) && prepareTree(items, item.breadcrumbs + ' / ');
-        }
-      }
-    })(source);
-
-    return target;
+    return MenuConverterExport.getAllSectionsFlat(source);
   }
 }

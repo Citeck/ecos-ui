@@ -6,7 +6,7 @@ import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
 import { PROXY_URI } from '../constants/alfresco';
 import { MENU_VERSION, LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
-import MenuConverter from '../dto/menu';
+import MenuConverter from '../dto/export/menu';
 import Records from '../components/Records';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
