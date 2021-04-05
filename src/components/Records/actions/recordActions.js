@@ -568,7 +568,7 @@ class RecordActions {
       const actResult = await RecordActions._wrapResultIfRequired(result);
 
       if (!isBoolean(actResult) && preResult.preProcessedRecords) {
-        actResult.results = [...(actResult.results || []), ...(preResult.results || [])];
+        actResult.data.results = [...(actResult.data.results || []), ...(preResult.results || [])];
       }
 
       RecordActions._updateRecords(allowedRecords, true);

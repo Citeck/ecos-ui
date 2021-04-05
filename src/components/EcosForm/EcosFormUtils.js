@@ -5,6 +5,7 @@ import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
+import isPlainObject from 'lodash/isPlainObject';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
@@ -428,7 +429,16 @@ export default class EcosFormUtils {
             continue;
           }
           let value = component[key];
-          if (isString(value) && value[0] === '$') {
+          if (key === 'label' && isPlainObject(value)) {
+            for (let labelKey in value) {
+              if (value.hasOwnProperty(labelKey)) {
+                const langValue = value[labelKey];
+                if (isString(langValue) && langValue.length && langValue[0] === '$') {
+                  value[labelKey] = EcosFormUtils._replaceOptionValuePlaceholder(langValue, formOptions);
+                }
+              }
+            }
+          } else if (isString(value) && value[0] === '$') {
             component[key] = EcosFormUtils._replaceOptionValuePlaceholder(value, formOptions);
           }
         }
