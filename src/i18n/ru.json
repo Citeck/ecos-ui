@@ -535,6 +535,7 @@
   "group-action.label.fetch-data": "Получение информации",
   "group-action.message.started": "Запущено",
   "group-action.message.in-progress": "В процессе",
+  "group-action.label.result": "Результат выполнения групповой операции",
 
   "batch-edit.header.edit-attribute": "Изменение атрибута",
   "batch-edit.header.results": "Результат редактирования атрибута",
