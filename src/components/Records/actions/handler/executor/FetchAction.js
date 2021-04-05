@@ -15,11 +15,11 @@ export default class FetchAction extends ActionsExecutor {
     const fullUrl = `${url}?${queryString.stringify({ ...args })}`;
 
     return ecosFetch(fullUrl, options)
-      .then(response => (response.ok ? response : Promise.reject({ message: response.statusText })))
+      .then(response => (response && response.ok ? response : Promise.reject({ message: response.statusText })))
       .then(response => {
         notifySuccess();
-
-        if (response.headers.get('Content-Type').includes('json')) {
+        const type = response.headers.get('Content-Type') || '';
+        if (type.includes('json')) {
           return response.json();
         }
 
