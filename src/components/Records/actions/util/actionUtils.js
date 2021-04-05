@@ -227,6 +227,10 @@ export const DetailActionResult = {
     DetailActionResult.options = { ...DetailActionResult.options, ...options, isLoading: false };
     const res = prepareResult(cloneDeep(result));
 
+    if (!Object.values(ResultTypes).includes(get(res, 'type'))) {
+      return;
+    }
+
     if (get(res, 'data.results')) {
       const needNames = res.data.results.filter(r => !r.disp);
       if (needNames.length) {
