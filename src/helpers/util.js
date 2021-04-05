@@ -8,8 +8,9 @@ import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 import cloneDeep from 'lodash/cloneDeep';
+import ClipboardJS from 'clipboard';
 
-import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
+import { CLIPBOARD_CONTAINER, DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 
 import { getCurrentLocale, t } from './export/util';
 
@@ -998,6 +999,163 @@ export function getNumberSeparators(locale) {
 
   return result;
 }
+
+export function ctc(text) {
+  const simulateClick = function(elem) {
+    // Create our event (with options)
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    });
+    // If cancelled, don't dispatch our event
+    const canceled = !elem.dispatchEvent(event);
+  };
+  const elem = document.getElementById('copy-clipboard-container');
+
+  elem.setAttribute('data-clipboard-text', text);
+
+  window.Citeck.Dialogs.showCustomDialog({
+    title: 'Ссылка сформирована',
+    text: 'Чтобы поместить ссылку в буфер обмена, нажмите на Ок',
+    buttons: [
+      {
+        id: 'xxx',
+        label: 'Ok',
+        onMouseDown: () => {
+          const clipboard = new ClipboardJS('#xxx');
+
+          clipboard.on('success', function(e) {
+            console.info(e);
+          });
+
+          clipboard.on('error', function(e) {
+            console.error(e);
+          });
+
+          console.warn({ clipboard });
+        },
+        'data-clipboard-text': text
+      }
+    ]
+  });
+
+  if (document.createEvent) {
+    const event = new Event('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    });
+
+    elem.dispatchEvent(event);
+  } else {
+    elem.click();
+  }
+
+  // elem.click();
+  // clipboard.destroy();
+}
+
+function select(element) {
+  var selectedText;
+
+  if (element.nodeName === 'SELECT') {
+    element.focus();
+
+    selectedText = element.value;
+  } else if (element.nodeName === 'INPUT' || element.nodeName === 'TEXTAREA') {
+    var isReadOnly = element.hasAttribute('readonly');
+
+    if (!isReadOnly) {
+      element.setAttribute('readonly', '');
+    }
+
+    element.select();
+    element.setSelectionRange(0, element.value.length);
+
+    if (!isReadOnly) {
+      element.removeAttribute('readonly');
+    }
+
+    selectedText = element.value;
+  } else {
+    if (element.hasAttribute('contenteditable')) {
+      element.focus();
+    }
+
+    var selection = window.getSelection();
+    var range = document.createRange();
+
+    range.selectNodeContents(element);
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    selectedText = selection.toString();
+  }
+
+  return selectedText;
+}
+
+/**
+ * Copy to clipboard
+ *
+ * @param text
+ * @returns {boolean|*}
+ */
+export function copyToClipboard(text) {
+  if (window.clipboardData && window.clipboardData.setData) {
+    return window.clipboardData.setData('Text', text);
+  }
+
+  if (copyByTextarea(text)) {
+    return true;
+  }
+
+  if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
+    const container = document.querySelector('#copy-clipboard-container');
+    const range = document.createRange();
+
+    console.warn({ container });
+
+    container.style.display = 'block';
+    container.textContent = text;
+    container.focus();
+    container.select();
+    range.selectNode(container);
+    window.getSelection().addRange(range);
+
+    try {
+      return document.execCommand('copy');
+    } catch (error) {
+      console.error('Copy to clipboard failed.', error);
+      return false;
+    } finally {
+      // container.innerHTML = '';
+      container.style.display = 'none';
+    }
+  }
+
+  return false;
+}
+
+function copyByTextarea(text) {
+  const textarea = document.createElement('textarea');
+
+  textarea.textContent = text;
+  textarea.style.position = 'fixed';
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    return document.execCommand('copy');
+  } catch (error) {
+    console.error('Copy to clipboard failed.', error);
+    return false;
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+window.ClipboardJS = ClipboardJS;
 
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);

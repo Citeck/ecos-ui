@@ -21,7 +21,7 @@ import { ErrorBoundary } from '../ErrorBoundary';
 
 import { initAppSettings } from '../../actions/app';
 import { setTab, updateTab } from '../../actions/pageTabs';
-import { Pages, pagesWithOnlyContent, URL } from '../../constants';
+import { CLIPBOARD_CONTAINER, Pages, pagesWithOnlyContent, URL } from '../../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../../constants/menu';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';

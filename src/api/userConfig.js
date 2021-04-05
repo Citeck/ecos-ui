@@ -4,7 +4,7 @@ import get from 'lodash/get';
 
 import { CommonApi } from './common';
 import Records from '../components/Records';
-import { t } from '../helpers/util';
+import { copyToClipboard, ctc, t } from '../helpers/util';
 import { SourcesId } from '../constants';
 
 const context = SourcesId.USER_CONF + '@';
@@ -42,11 +42,13 @@ export class UserConfigApi extends CommonApi {
     NotificationManager.info('', t('export-component.notice.buffer-link-preparation'));
 
     this.saveConfig({ data })
-      .then(response => {
+      .then(async response => {
         const fullId = get(response, 'id');
         const shortId = fullId && get(fullId.split(context), '[1]');
+        const text = `${url}&userConfigId=${shortId}`;
+        const copied = ctc(text);
 
-        if (shortId && copy(`${url}&userConfigId=${shortId}`)) {
+        if (shortId && copied) {
           NotificationManager.success(t('export-component.notice.buffer-link-done'), t('success'), 3000);
         } else {
           NotificationManager.warning(t('export-component.notice.buffer-link-err'));

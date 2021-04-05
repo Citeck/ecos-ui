@@ -235,6 +235,7 @@ const dialogsById = {
           <div className="ecos-dialog__buttons">
             {buttons.map(b => (
               <Btn
+                {...b}
                 className={b.className}
                 key={b.key || b.label}
                 onClick={() => {
