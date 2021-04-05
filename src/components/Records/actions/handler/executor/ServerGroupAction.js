@@ -13,14 +13,13 @@ const actionsApi = new RecordActionsApi();
 const executeAction = async ({ groupAction, selected = [], resolved, query = null }) => {
   const { params } = groupAction;
 
+  let exAction;
   if (params.js_action) {
     const actionFunction = new Function('records', 'parameters', params.js_action); //eslint-disable-line
-    actionFunction(selected, params);
-
-    return Promise.resolve([]);
+    exAction = actionFunction(selected, params) || [];
+  } else {
+    exAction = await actionsApi.executeServerGroupAction({ action: groupAction, query, nodes: selected });
   }
-
-  const exAction = await actionsApi.executeServerGroupAction({ action: groupAction, query, nodes: selected });
 
   if (exAction.error) {
     console.warn(exAction, groupAction, selected, resolved, query);
