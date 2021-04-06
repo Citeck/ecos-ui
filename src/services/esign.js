@@ -51,6 +51,37 @@ class Esign {
     document.body.appendChild(container);
   }
 
+  /* document will be signed by the first found certificate */
+  async silentSign(recordRefs, componentProps = {}, queryParams = false) {
+    if (!recordRefs) {
+      return new Error(`The "recordRefs" argument is required`);
+    }
+
+    let params;
+
+    switch (typeof queryParams) {
+      case 'boolean':
+        params = { isApprovementSignature: queryParams };
+        break;
+      case 'object':
+        params = queryParams instanceof Array ? {} : queryParams;
+        break;
+      default:
+        params = '';
+    }
+
+    Esign.#queryParams = deepClone(params, {});
+
+    if (!Array.isArray(recordRefs)) {
+      recordRefs = [recordRefs];
+    }
+
+    return Esign.init(recordRefs)
+      .then(api => Esign.getCertificates(componentProps.thumbprints))
+      .then(certs => Esign.signDocument(recordRefs, certs[0]))
+      .catch(this.setError);
+  }
+
   #onClose = container => {
     ReactDOM.unmountComponentAtNode(container);
     document.body.removeChild(container);
