@@ -1,5 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
+import get from 'lodash/get';
 
 import { t } from '../../helpers/util';
 import { Icon } from '../common';
@@ -19,14 +21,16 @@ const Header = React.forwardRef(
       actionDrag,
       measurer,
       titleClassName,
-      isMobile,
       isCollapsed,
       badgeText,
       actionConfig,
       actionRules,
       noActions,
+
+      isMobile,
       dashboardEditable,
-      appEdition
+      appEdition,
+      isAdmin
     },
     ref
   ) => {
@@ -84,6 +88,7 @@ const Header = React.forwardRef(
               dashletId={dashletId}
               dashboardEditable={dashboardEditable}
               appEdition={appEdition}
+              isAdmin={isAdmin}
             />
           )}
           {dragBtn}
@@ -93,4 +98,11 @@ const Header = React.forwardRef(
   }
 );
 
-export default Header;
+const mapStateToProps = state => ({
+  isMobile: get(state, 'view.isMobile'),
+  dashboardEditable: get(state, 'app.dashboardEditable'),
+  appEdition: get(state, 'app.appEdition'),
+  isAdmin: get(state, 'user.isAdmin', false)
+});
+
+export default connect(mapStateToProps)(Header);

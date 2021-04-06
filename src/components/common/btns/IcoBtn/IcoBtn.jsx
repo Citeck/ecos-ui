@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import PointsLoader from '../../PointsLoader/PointsLoader';
+
+import Loader from '../../Loader/Loader';
 
 export default class IcoBtn extends Component {
   static propTypes = {
@@ -9,13 +10,15 @@ export default class IcoBtn extends Component {
     loading: PropTypes.bool,
     className: PropTypes.string,
     colorLoader: PropTypes.string,
-    icon: PropTypes.string
+    icon: PropTypes.string,
+    loaderType: PropTypes.string
   };
 
   static defaultProps = {
     invert: false,
     loading: false,
     className: '',
+    loaderType: 'points',
     icon: ''
   };
 
@@ -27,7 +30,7 @@ export default class IcoBtn extends Component {
   }
 
   render() {
-    const { className, invert, children, loading, colorLoader, ...props } = this.props;
+    const { className, invert, children, loading, colorLoader, loaderType, ...props } = this.props;
     const cssClasses = classNames('ecos-btn', className);
 
     const text = children ? <span className={'ecos-btn__text'}>{children}</span> : null;
@@ -36,7 +39,7 @@ export default class IcoBtn extends Component {
 
     return (
       <button {...props} className={cssClasses}>
-        {loading && <PointsLoader color={colorLoader} />}
+        {loading && <Loader color={colorLoader} type={loaderType} width="80%" height="100%" />}
         {!loading && first}
         {!loading && second}
       </button>

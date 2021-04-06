@@ -6,7 +6,7 @@ import { setIsMobile, loadThemeRequest } from '../actions/view';
 import { applyTheme, isMobileDevice, loadStylesheet } from '../helpers/util';
 import { selectActiveThemeStylesheet } from '../selectors/view';
 
-export function* doDetectMobileDevice({ api, fakeApi, logger }) {
+export function* doDetectMobileDevice({ logger }) {
   try {
     yield put(setIsMobile(isMobileDevice()));
   } catch (e) {
@@ -14,7 +14,7 @@ export function* doDetectMobileDevice({ api, fakeApi, logger }) {
   }
 }
 
-export function* loadTheme({ api, fakeApi, logger }, { payload }) {
+export function* loadTheme({ api, logger }, { payload }) {
   try {
     const { isAuthenticated, onSuccess } = payload;
     const id = yield call(api.view.getActiveThemeId);

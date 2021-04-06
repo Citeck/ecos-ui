@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
+import get from 'lodash/get';
 
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
@@ -11,7 +12,7 @@ import EcosModal from '../common/EcosModal';
 import TaskAssignmentPanel from '../TaskAssignmentPanel';
 import EcosFormUtils from './EcosFormUtils';
 import EcosForm from './EcosForm';
-import { FORM_MODE_EDIT } from './constants';
+import { FORM_MODE_CREATE, FORM_MODE_EDIT } from './constants';
 
 import './EcosFormModal.scss';
 
@@ -41,30 +42,37 @@ export default class EcosFormModal extends React.Component {
     }
   }
 
-  hide() {
-    const { onHideModal } = this.props;
-
-    if (typeof onHideModal === 'function') {
-      onHideModal();
-    } else {
-      this.setState({
-        isModalOpen: false
-      });
-    }
-
-    window.removeEventListener('beforeunload', this._onbeforeunload);
-  }
-
   componentDidMount() {
+    const { record } = this.props;
+
     this.checkEditRights();
-    this.instanceRecord = Records.get(this.props.record);
+    this.instanceRecord = Records.get(record);
     this.instanceRecord
       .load({
-        displayName: '.disp',
-        formMode: '_formMode'
+        displayName: '.disp'
       })
       .then(recordData => {
-        this.setState({ recordData });
+        let typeNamePromise;
+        const typeRef = get(this.props, 'options.typeRef');
+        if (typeRef) {
+          typeNamePromise = Records.get(typeRef).load('name');
+        } else {
+          typeNamePromise = Promise.resolve(null);
+        }
+        const baseRecordId = this.instanceRecord.getBaseRecord().id;
+        if (baseRecordId[baseRecordId.length - 1] === '@') {
+          recordData.formMode = FORM_MODE_CREATE;
+        } else {
+          recordData.formMode = FORM_MODE_EDIT;
+        }
+
+        typeNamePromise.then(typeName => {
+          if (typeName) {
+            recordData.typeName = typeName;
+          }
+
+          this.setState({ recordData });
+        });
       });
     this.watcher = this.instanceRecord.watch(['.disp'], changed => {
       this.setState({
@@ -80,6 +88,41 @@ export default class EcosFormModal extends React.Component {
     window.removeEventListener('beforeunload', this._onbeforeunload);
 
     this.instanceRecord.unwatch(this.watcher);
+  }
+
+  handleCancel = () => {
+    const { onCancelModal } = this.props;
+
+    if (typeof onCancelModal === 'function') {
+      onCancelModal();
+    }
+
+    this.setState({
+      isModalOpen: false,
+      recordData: null
+    });
+  };
+
+  hide() {
+    const { onHideModal, onAfterHideModal } = this.props;
+
+    if (typeof onHideModal === 'function') {
+      onHideModal();
+    } else {
+      this.setState(
+        {
+          isModalOpen: false,
+          recordData: null
+        },
+        () => {
+          if (typeof onAfterHideModal === 'function') {
+            onAfterHideModal();
+          }
+        }
+      );
+    }
+
+    window.removeEventListener('beforeunload', this._onbeforeunload);
   }
 
   checkEditRights() {
@@ -161,15 +204,16 @@ export default class EcosFormModal extends React.Component {
     formOptions['formMode'] = recordData.formMode || formOptions['formMode'] || FORM_MODE_EDIT;
     formProps['options'] = formOptions;
 
-    formProps['onSubmit'] = (record, form) => {
+    formProps['onSubmit'] = (record, form, alias) => {
       this.hide();
       if (this.props.onSubmit) {
-        this.props.onSubmit(record, form);
+        this.props.onSubmit(record, form, alias);
       }
     };
 
     formProps['onFormCancel'] = (record, form) => {
-      this.hide();
+      this.handleCancel();
+
       if (this.props.onFormCancel) {
         this.props.onFormCancel(record, form);
       }
@@ -191,12 +235,12 @@ export default class EcosFormModal extends React.Component {
           isBigHeader={isBigHeader}
           title={modalTitle}
           isOpen={isModalOpen}
-          hideModal={() => this.hide()}
+          hideModal={this.handleCancel}
           customButtons={[this.renderConstructorButton()]}
           zIndex={9000}
         >
           {this.renderContentBefore()}
-          <EcosForm ref={this._formRef} onFormSubmitDone={this.onUpdateForm} {...formProps} initiator={{ type: 'modal' }} />
+          <EcosForm ref={this._formRef} onFormSubmitDone={this.onUpdateForm} initiator={{ type: 'modal' }} {...formProps} />
           {contentAfter}
         </EcosModal>
       </div>
@@ -212,9 +256,11 @@ EcosFormModal.propTypes = {
   isBigHeader: PropTypes.bool,
   options: PropTypes.object,
   onFormCancel: PropTypes.func,
+  onCancelModal: PropTypes.func,
   onSubmit: PropTypes.func,
   onReady: PropTypes.func,
   onHideModal: PropTypes.func,
+  onAfterHideModal: PropTypes.func,
   title: PropTypes.string,
   contentBefore: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
   contentAfter: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])

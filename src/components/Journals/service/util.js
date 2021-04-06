@@ -2,6 +2,20 @@ import _ from 'lodash';
 
 export const COMPUTED_ATT_PREFIX = '$computed.';
 
+export const COLUMN_TYPE_NEW_TO_LEGACY_MAPPING = {
+  ASSOC: 'assoc',
+  PERSON: 'person',
+  AUTHORITY_GROUP: 'authorityGroup',
+  AUTHORITY: 'authority',
+  TEXT: 'text',
+  MLTEXT: 'mltext',
+  NUMBER: 'double',
+  BOOLEAN: 'boolean',
+  DATE: 'date',
+  DATETIME: 'datetime',
+  CONTENT: 'content'
+};
+
 export function getCreateVariantKeyField(createVariant) {
   return Object.keys(createVariant).filter(key => !!createVariant[key] && typeof createVariant[key] === 'string');
 }
@@ -49,4 +63,6 @@ export function replacePlaceholders(object, values) {
     }
     return newValue;
   }
+
+  return object;
 }

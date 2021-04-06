@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import cn from 'classnames';
+
 import { selectCategoriesByParentId, selectIsParentHasNotModels } from '../../../selectors/bpmn';
 import Category from '../Category';
 import Models from '../Models';

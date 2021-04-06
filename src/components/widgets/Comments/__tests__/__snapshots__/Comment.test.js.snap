@@ -3730,3 +3730,993 @@ ShallowWrapper {
   Symbol(enzyme.__childContext__): null,
 }
 `;
+
+exports[`Comment tests <Comment /> should render Comment component with tags 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <Comment
+    comment={
+      Object {
+        "firstName": "Admin",
+        "lastName": "Administratorov",
+        "middleName": "Adminovich",
+        "tags": Array [
+          Object {
+            "name": "Tester",
+          },
+          Object {
+            "name": "№1 (01.01.2021)",
+            "type": "task",
+          },
+          Object {
+            "name": "№22 (09.02.2021)",
+            "type": "action",
+          },
+        ],
+        "text": "Comment",
+      }
+    }
+    id="comment-id@1"
+  />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "checkPropTypes": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": Array [
+        <div
+          className="ecos-comments__comment-header"
+        >
+          <div
+            className="ecos-comments__comment-header-cell"
+          >
+            <Avatar
+              className="ecos-comments__comment-avatar"
+              classNameEmpty="ecos-comments__comment-avatar_empty"
+              noBorder={true}
+              url=""
+              userName=""
+            />
+            <div
+              className="ecos-comments__comment-header-column ecos-comments__comment-name-container"
+            >
+              <div
+                className="ecos-comments__comment-name"
+              >
+                Admin
+                 
+                Adminovich
+              </div>
+              <div
+                className="ecos-comments__comment-name"
+              >
+                Administratorov
+              </div>
+              <div
+                className="ecos-comments__comment-date"
+              >
+                comments-widget.now
+              </div>
+            </div>
+            <div
+              className="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
+            >
+              <Badge
+                className="ecos-comments__comment-tag"
+                popupClassName="ecos-comments__comment-tag-popper"
+                size="small"
+                state="info"
+                style={Object {}}
+                text=""
+                withPopup={true}
+              />
+              <Badge
+                className="ecos-comments__comment-tag"
+                popupClassName="ecos-comments__comment-tag-popper"
+                size="small"
+                state="info"
+                style={Object {}}
+                text=""
+                withPopup={true}
+              />
+              <Badge
+                className="ecos-comments__comment-tag"
+                popupClassName="ecos-comments__comment-tag-popper"
+                size="small"
+                state="info"
+                style={Object {}}
+                text=""
+                withPopup={true}
+              />
+            </div>
+          </div>
+          <div
+            className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
+          />
+        </div>,
+        <div
+          className="ecos-comments__comment-text"
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "Comment",
+            }
+          }
+        />,
+        null,
+      ],
+      "className": "ecos-comments__comment",
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": Array [
+            <div
+              className="ecos-comments__comment-header-cell"
+            >
+              <Avatar
+                className="ecos-comments__comment-avatar"
+                classNameEmpty="ecos-comments__comment-avatar_empty"
+                noBorder={true}
+                url=""
+                userName=""
+              />
+              <div
+                className="ecos-comments__comment-header-column ecos-comments__comment-name-container"
+              >
+                <div
+                  className="ecos-comments__comment-name"
+                >
+                  Admin
+                   
+                  Adminovich
+                </div>
+                <div
+                  className="ecos-comments__comment-name"
+                >
+                  Administratorov
+                </div>
+                <div
+                  className="ecos-comments__comment-date"
+                >
+                  comments-widget.now
+                </div>
+              </div>
+              <div
+                className="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
+              >
+                <Badge
+                  className="ecos-comments__comment-tag"
+                  popupClassName="ecos-comments__comment-tag-popper"
+                  size="small"
+                  state="info"
+                  style={Object {}}
+                  text=""
+                  withPopup={true}
+                />
+                <Badge
+                  className="ecos-comments__comment-tag"
+                  popupClassName="ecos-comments__comment-tag-popper"
+                  size="small"
+                  state="info"
+                  style={Object {}}
+                  text=""
+                  withPopup={true}
+                />
+                <Badge
+                  className="ecos-comments__comment-tag"
+                  popupClassName="ecos-comments__comment-tag-popper"
+                  size="small"
+                  state="info"
+                  style={Object {}}
+                  text=""
+                  withPopup={true}
+                />
+              </div>
+            </div>,
+            <div
+              className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
+            />,
+          ],
+          "className": "ecos-comments__comment-header",
+        },
+        "ref": null,
+        "rendered": Array [
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": Array [
+                <Avatar
+                  className="ecos-comments__comment-avatar"
+                  classNameEmpty="ecos-comments__comment-avatar_empty"
+                  noBorder={true}
+                  url=""
+                  userName=""
+                />,
+                <div
+                  className="ecos-comments__comment-header-column ecos-comments__comment-name-container"
+                >
+                  <div
+                    className="ecos-comments__comment-name"
+                  >
+                    Admin
+                     
+                    Adminovich
+                  </div>
+                  <div
+                    className="ecos-comments__comment-name"
+                  >
+                    Administratorov
+                  </div>
+                  <div
+                    className="ecos-comments__comment-date"
+                  >
+                    comments-widget.now
+                  </div>
+                </div>,
+                <div
+                  className="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
+                >
+                  <Badge
+                    className="ecos-comments__comment-tag"
+                    popupClassName="ecos-comments__comment-tag-popper"
+                    size="small"
+                    state="info"
+                    style={Object {}}
+                    text=""
+                    withPopup={true}
+                  />
+                  <Badge
+                    className="ecos-comments__comment-tag"
+                    popupClassName="ecos-comments__comment-tag-popper"
+                    size="small"
+                    state="info"
+                    style={Object {}}
+                    text=""
+                    withPopup={true}
+                  />
+                  <Badge
+                    className="ecos-comments__comment-tag"
+                    popupClassName="ecos-comments__comment-tag-popper"
+                    size="small"
+                    state="info"
+                    style={Object {}}
+                    text=""
+                    withPopup={true}
+                  />
+                </div>,
+              ],
+              "className": "ecos-comments__comment-header-cell",
+            },
+            "ref": null,
+            "rendered": Array [
+              Object {
+                "instance": null,
+                "key": undefined,
+                "nodeType": "class",
+                "props": Object {
+                  "className": "ecos-comments__comment-avatar",
+                  "classNameEmpty": "ecos-comments__comment-avatar_empty",
+                  "noBorder": true,
+                  "url": "",
+                  "userName": "",
+                },
+                "ref": null,
+                "rendered": null,
+                "type": [Function],
+              },
+              Object {
+                "instance": null,
+                "key": undefined,
+                "nodeType": "host",
+                "props": Object {
+                  "children": Array [
+                    <div
+                      className="ecos-comments__comment-name"
+                    >
+                      Admin
+                       
+                      Adminovich
+                    </div>,
+                    <div
+                      className="ecos-comments__comment-name"
+                    >
+                      Administratorov
+                    </div>,
+                    <div
+                      className="ecos-comments__comment-date"
+                    >
+                      comments-widget.now
+                    </div>,
+                  ],
+                  "className": "ecos-comments__comment-header-column ecos-comments__comment-name-container",
+                },
+                "ref": null,
+                "rendered": Array [
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": Array [
+                        "Admin",
+                        " ",
+                        "Adminovich",
+                      ],
+                      "className": "ecos-comments__comment-name",
+                    },
+                    "ref": null,
+                    "rendered": Array [
+                      "Admin",
+                      " ",
+                      "Adminovich",
+                    ],
+                    "type": "div",
+                  },
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": "Administratorov",
+                      "className": "ecos-comments__comment-name",
+                    },
+                    "ref": null,
+                    "rendered": "Administratorov",
+                    "type": "div",
+                  },
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": "comments-widget.now",
+                      "className": "ecos-comments__comment-date",
+                    },
+                    "ref": null,
+                    "rendered": "comments-widget.now",
+                    "type": "div",
+                  },
+                ],
+                "type": "div",
+              },
+              Object {
+                "instance": null,
+                "key": undefined,
+                "nodeType": "host",
+                "props": Object {
+                  "children": Array [
+                    <Badge
+                      className="ecos-comments__comment-tag"
+                      popupClassName="ecos-comments__comment-tag-popper"
+                      size="small"
+                      state="info"
+                      style={Object {}}
+                      text=""
+                      withPopup={true}
+                    />,
+                    <Badge
+                      className="ecos-comments__comment-tag"
+                      popupClassName="ecos-comments__comment-tag-popper"
+                      size="small"
+                      state="info"
+                      style={Object {}}
+                      text=""
+                      withPopup={true}
+                    />,
+                    <Badge
+                      className="ecos-comments__comment-tag"
+                      popupClassName="ecos-comments__comment-tag-popper"
+                      size="small"
+                      state="info"
+                      style={Object {}}
+                      text=""
+                      withPopup={true}
+                    />,
+                  ],
+                  "className": "ecos-comments__comment-header-column ecos-comments__comment-tag-container",
+                },
+                "ref": null,
+                "rendered": Array [
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "class",
+                    "props": Object {
+                      "className": "ecos-comments__comment-tag",
+                      "popupClassName": "ecos-comments__comment-tag-popper",
+                      "size": "small",
+                      "state": "info",
+                      "style": Object {},
+                      "text": "",
+                      "withPopup": true,
+                    },
+                    "ref": null,
+                    "rendered": null,
+                    "type": [Function],
+                  },
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "class",
+                    "props": Object {
+                      "className": "ecos-comments__comment-tag",
+                      "popupClassName": "ecos-comments__comment-tag-popper",
+                      "size": "small",
+                      "state": "info",
+                      "style": Object {},
+                      "text": "",
+                      "withPopup": true,
+                    },
+                    "ref": null,
+                    "rendered": null,
+                    "type": [Function],
+                  },
+                  Object {
+                    "instance": null,
+                    "key": undefined,
+                    "nodeType": "class",
+                    "props": Object {
+                      "className": "ecos-comments__comment-tag",
+                      "popupClassName": "ecos-comments__comment-tag-popper",
+                      "size": "small",
+                      "state": "info",
+                      "style": Object {},
+                      "text": "",
+                      "withPopup": true,
+                    },
+                    "ref": null,
+                    "rendered": null,
+                    "type": [Function],
+                  },
+                ],
+                "type": "div",
+              },
+            ],
+            "type": "div",
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": Array [
+                false,
+                false,
+              ],
+              "className": "ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions",
+            },
+            "ref": null,
+            "rendered": Array [
+              false,
+              false,
+            ],
+            "type": "div",
+          },
+        ],
+        "type": "div",
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "className": "ecos-comments__comment-text",
+          "dangerouslySetInnerHTML": Object {
+            "__html": "Comment",
+          },
+        },
+        "ref": null,
+        "rendered": null,
+        "type": "div",
+      },
+      null,
+    ],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          <div
+            className="ecos-comments__comment-header"
+          >
+            <div
+              className="ecos-comments__comment-header-cell"
+            >
+              <Avatar
+                className="ecos-comments__comment-avatar"
+                classNameEmpty="ecos-comments__comment-avatar_empty"
+                noBorder={true}
+                url=""
+                userName=""
+              />
+              <div
+                className="ecos-comments__comment-header-column ecos-comments__comment-name-container"
+              >
+                <div
+                  className="ecos-comments__comment-name"
+                >
+                  Admin
+                   
+                  Adminovich
+                </div>
+                <div
+                  className="ecos-comments__comment-name"
+                >
+                  Administratorov
+                </div>
+                <div
+                  className="ecos-comments__comment-date"
+                >
+                  comments-widget.now
+                </div>
+              </div>
+              <div
+                className="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
+              >
+                <Badge
+                  className="ecos-comments__comment-tag"
+                  popupClassName="ecos-comments__comment-tag-popper"
+                  size="small"
+                  state="info"
+                  style={Object {}}
+                  text=""
+                  withPopup={true}
+                />
+                <Badge
+                  className="ecos-comments__comment-tag"
+                  popupClassName="ecos-comments__comment-tag-popper"
+                  size="small"
+                  state="info"
+                  style={Object {}}
+                  text=""
+                  withPopup={true}
+                />
+                <Badge
+                  className="ecos-comments__comment-tag"
+                  popupClassName="ecos-comments__comment-tag-popper"
+                  size="small"
+                  state="info"
+                  style={Object {}}
+                  text=""
+                  withPopup={true}
+                />
+              </div>
+            </div>
+            <div
+              className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
+            />
+          </div>,
+          <div
+            className="ecos-comments__comment-text"
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Comment",
+              }
+            }
+          />,
+          null,
+        ],
+        "className": "ecos-comments__comment",
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": Array [
+              <div
+                className="ecos-comments__comment-header-cell"
+              >
+                <Avatar
+                  className="ecos-comments__comment-avatar"
+                  classNameEmpty="ecos-comments__comment-avatar_empty"
+                  noBorder={true}
+                  url=""
+                  userName=""
+                />
+                <div
+                  className="ecos-comments__comment-header-column ecos-comments__comment-name-container"
+                >
+                  <div
+                    className="ecos-comments__comment-name"
+                  >
+                    Admin
+                     
+                    Adminovich
+                  </div>
+                  <div
+                    className="ecos-comments__comment-name"
+                  >
+                    Administratorov
+                  </div>
+                  <div
+                    className="ecos-comments__comment-date"
+                  >
+                    comments-widget.now
+                  </div>
+                </div>
+                <div
+                  className="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
+                >
+                  <Badge
+                    className="ecos-comments__comment-tag"
+                    popupClassName="ecos-comments__comment-tag-popper"
+                    size="small"
+                    state="info"
+                    style={Object {}}
+                    text=""
+                    withPopup={true}
+                  />
+                  <Badge
+                    className="ecos-comments__comment-tag"
+                    popupClassName="ecos-comments__comment-tag-popper"
+                    size="small"
+                    state="info"
+                    style={Object {}}
+                    text=""
+                    withPopup={true}
+                  />
+                  <Badge
+                    className="ecos-comments__comment-tag"
+                    popupClassName="ecos-comments__comment-tag-popper"
+                    size="small"
+                    state="info"
+                    style={Object {}}
+                    text=""
+                    withPopup={true}
+                  />
+                </div>
+              </div>,
+              <div
+                className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
+              />,
+            ],
+            "className": "ecos-comments__comment-header",
+          },
+          "ref": null,
+          "rendered": Array [
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": Array [
+                  <Avatar
+                    className="ecos-comments__comment-avatar"
+                    classNameEmpty="ecos-comments__comment-avatar_empty"
+                    noBorder={true}
+                    url=""
+                    userName=""
+                  />,
+                  <div
+                    className="ecos-comments__comment-header-column ecos-comments__comment-name-container"
+                  >
+                    <div
+                      className="ecos-comments__comment-name"
+                    >
+                      Admin
+                       
+                      Adminovich
+                    </div>
+                    <div
+                      className="ecos-comments__comment-name"
+                    >
+                      Administratorov
+                    </div>
+                    <div
+                      className="ecos-comments__comment-date"
+                    >
+                      comments-widget.now
+                    </div>
+                  </div>,
+                  <div
+                    className="ecos-comments__comment-header-column ecos-comments__comment-tag-container"
+                  >
+                    <Badge
+                      className="ecos-comments__comment-tag"
+                      popupClassName="ecos-comments__comment-tag-popper"
+                      size="small"
+                      state="info"
+                      style={Object {}}
+                      text=""
+                      withPopup={true}
+                    />
+                    <Badge
+                      className="ecos-comments__comment-tag"
+                      popupClassName="ecos-comments__comment-tag-popper"
+                      size="small"
+                      state="info"
+                      style={Object {}}
+                      text=""
+                      withPopup={true}
+                    />
+                    <Badge
+                      className="ecos-comments__comment-tag"
+                      popupClassName="ecos-comments__comment-tag-popper"
+                      size="small"
+                      state="info"
+                      style={Object {}}
+                      text=""
+                      withPopup={true}
+                    />
+                  </div>,
+                ],
+                "className": "ecos-comments__comment-header-cell",
+              },
+              "ref": null,
+              "rendered": Array [
+                Object {
+                  "instance": null,
+                  "key": undefined,
+                  "nodeType": "class",
+                  "props": Object {
+                    "className": "ecos-comments__comment-avatar",
+                    "classNameEmpty": "ecos-comments__comment-avatar_empty",
+                    "noBorder": true,
+                    "url": "",
+                    "userName": "",
+                  },
+                  "ref": null,
+                  "rendered": null,
+                  "type": [Function],
+                },
+                Object {
+                  "instance": null,
+                  "key": undefined,
+                  "nodeType": "host",
+                  "props": Object {
+                    "children": Array [
+                      <div
+                        className="ecos-comments__comment-name"
+                      >
+                        Admin
+                         
+                        Adminovich
+                      </div>,
+                      <div
+                        className="ecos-comments__comment-name"
+                      >
+                        Administratorov
+                      </div>,
+                      <div
+                        className="ecos-comments__comment-date"
+                      >
+                        comments-widget.now
+                      </div>,
+                    ],
+                    "className": "ecos-comments__comment-header-column ecos-comments__comment-name-container",
+                  },
+                  "ref": null,
+                  "rendered": Array [
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": Array [
+                          "Admin",
+                          " ",
+                          "Adminovich",
+                        ],
+                        "className": "ecos-comments__comment-name",
+                      },
+                      "ref": null,
+                      "rendered": Array [
+                        "Admin",
+                        " ",
+                        "Adminovich",
+                      ],
+                      "type": "div",
+                    },
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": "Administratorov",
+                        "className": "ecos-comments__comment-name",
+                      },
+                      "ref": null,
+                      "rendered": "Administratorov",
+                      "type": "div",
+                    },
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "host",
+                      "props": Object {
+                        "children": "comments-widget.now",
+                        "className": "ecos-comments__comment-date",
+                      },
+                      "ref": null,
+                      "rendered": "comments-widget.now",
+                      "type": "div",
+                    },
+                  ],
+                  "type": "div",
+                },
+                Object {
+                  "instance": null,
+                  "key": undefined,
+                  "nodeType": "host",
+                  "props": Object {
+                    "children": Array [
+                      <Badge
+                        className="ecos-comments__comment-tag"
+                        popupClassName="ecos-comments__comment-tag-popper"
+                        size="small"
+                        state="info"
+                        style={Object {}}
+                        text=""
+                        withPopup={true}
+                      />,
+                      <Badge
+                        className="ecos-comments__comment-tag"
+                        popupClassName="ecos-comments__comment-tag-popper"
+                        size="small"
+                        state="info"
+                        style={Object {}}
+                        text=""
+                        withPopup={true}
+                      />,
+                      <Badge
+                        className="ecos-comments__comment-tag"
+                        popupClassName="ecos-comments__comment-tag-popper"
+                        size="small"
+                        state="info"
+                        style={Object {}}
+                        text=""
+                        withPopup={true}
+                      />,
+                    ],
+                    "className": "ecos-comments__comment-header-column ecos-comments__comment-tag-container",
+                  },
+                  "ref": null,
+                  "rendered": Array [
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "class",
+                      "props": Object {
+                        "className": "ecos-comments__comment-tag",
+                        "popupClassName": "ecos-comments__comment-tag-popper",
+                        "size": "small",
+                        "state": "info",
+                        "style": Object {},
+                        "text": "",
+                        "withPopup": true,
+                      },
+                      "ref": null,
+                      "rendered": null,
+                      "type": [Function],
+                    },
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "class",
+                      "props": Object {
+                        "className": "ecos-comments__comment-tag",
+                        "popupClassName": "ecos-comments__comment-tag-popper",
+                        "size": "small",
+                        "state": "info",
+                        "style": Object {},
+                        "text": "",
+                        "withPopup": true,
+                      },
+                      "ref": null,
+                      "rendered": null,
+                      "type": [Function],
+                    },
+                    Object {
+                      "instance": null,
+                      "key": undefined,
+                      "nodeType": "class",
+                      "props": Object {
+                        "className": "ecos-comments__comment-tag",
+                        "popupClassName": "ecos-comments__comment-tag-popper",
+                        "size": "small",
+                        "state": "info",
+                        "style": Object {},
+                        "text": "",
+                        "withPopup": true,
+                      },
+                      "ref": null,
+                      "rendered": null,
+                      "type": [Function],
+                    },
+                  ],
+                  "type": "div",
+                },
+              ],
+              "type": "div",
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": Array [
+                  false,
+                  false,
+                ],
+                "className": "ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions",
+              },
+              "ref": null,
+              "rendered": Array [
+                false,
+                false,
+              ],
+              "type": "div",
+            },
+          ],
+          "type": "div",
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "className": "ecos-comments__comment-text",
+            "dangerouslySetInnerHTML": Object {
+              "__html": "Comment",
+            },
+          },
+          "ref": null,
+          "rendered": null,
+          "type": "div",
+        },
+        null,
+      ],
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "legacyContextMode": "parent",
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getChildContext": Object {
+            "calledByRenderer": false,
+          },
+          "getDerivedStateFromError": true,
+          "getDerivedStateFromProps": Object {
+            "hasShouldComponentUpdateBug": false,
+          },
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+    Symbol(enzyme.__providerValues__): undefined,
+  },
+  Symbol(enzyme.__providerValues__): Map {},
+  Symbol(enzyme.__childContext__): null,
+}
+`;

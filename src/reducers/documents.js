@@ -51,6 +51,7 @@ export const initialState = {
   isUploadingFile: false,
   isLoadingSettings: false,
   isLoadingTypeSettings: false,
+  isLoadingAvailableTypes: false,
   countFilesError: '',
   uploadError: '',
   tools: { ...emptyTools },
@@ -98,14 +99,16 @@ export default handleActions(
     [getAvailableTypes]: (state, { payload }) => ({
       ...state,
       [payload]: {
-        ...state[payload]
+        ...state[payload],
+        isLoadingAvailableTypes: true
       }
     }),
     [setAvailableTypes]: (state, { payload }) => ({
       ...state,
       [payload.key]: {
         ...state[payload.key],
-        availableTypes: payload.types
+        availableTypes: payload.types,
+        isLoadingAvailableTypes: false
       }
     }),
 

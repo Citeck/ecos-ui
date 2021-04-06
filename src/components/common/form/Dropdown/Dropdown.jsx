@@ -146,7 +146,7 @@ export default class Dropdown extends Component {
           label={controlLabel}
           className={classNames('ecos-dropdown__toggle_static', controlClassName)}
         >
-          <span className="ecos-dropdown__toggle-label">{controlLabel}</span>
+          {controlLabel && <span className="ecos-dropdown__toggle-label">{controlLabel}</span>}
         </TwoIcoBtn>
       );
     }

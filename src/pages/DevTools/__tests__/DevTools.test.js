@@ -1,13 +1,12 @@
 import React from 'react';
-import { configure, shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { shallow } from 'enzyme';
 
 import DevToolsConverter from '../../../dto/devTools';
 
 import { TABS } from '../constants';
 import { JIRA } from '../Commits/constants';
 import { getRepoProject, parseTasksLinks } from '../Commits/helpers';
-import { input1, output1, input2, output2, input3_4, output3, output4 } from '../__mocks__/DevTools.mock';
+import { input1, output1, input2, output2, input3_4, output3, output4 } from '../__fixtures__/DevTools.fixtures';
 import * as DevToolsContext from '../DevToolsContext';
 import ErrorText from '../ErrorText';
 import Loader from '../Loader';
@@ -17,8 +16,6 @@ import Build from '../Build';
 import DevModules from '../DevModules';
 import Commits from '../Commits';
 import Settings from '../Settings';
-
-configure({ adapter: new Adapter() });
 
 describe('DevTools tests', () => {
   describe('DevToolsConverter', () => {

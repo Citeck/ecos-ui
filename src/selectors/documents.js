@@ -43,6 +43,7 @@ export const selectStateByKey = createSelector(
       isLoadingSettings: ownState.isLoadingSettings,
       isLoadingTableData: ownState.isLoadingTableData,
       isLoadingTypeSettings: ownState.isLoadingTypeSettings,
+      isLoadingAvailableTypes: ownState.isLoadingAvailableTypes,
       isLoadChecklist,
 
       uploadError: ownState.uploadError,
@@ -51,40 +52,33 @@ export const selectStateByKey = createSelector(
   }
 );
 
+const getDynamicTypes = state => get(state, 'dynamicTypes', []);
 const getDocumentsByTypes = state => get(state, 'documentsByTypes');
-const dynamicTypesIds = state => getDynamicTypes(state).map(item => item.type);
-
 const selectDocuments = createSelector(
   selectState,
   getDocumentsByTypes
-);
-const selectTypeIds = createSelector(
-  selectState,
-  dynamicTypesIds
-);
-const selectAvailableTypesById = createSelector(
-  selectState,
-  selectTypeIds,
-  (ownProps, typesIds) => {
-    return getAvailableTypes(ownProps).filter(type => typesIds.includes(type.id));
-  }
 );
 const selectActions = createSelector(
   selectState,
   ownProps => get(ownProps, 'actions', {})
 );
 
+export const selectDynamicTypes = createSelector(
+  selectState,
+  getDynamicTypes
+);
+
 export const selectDocumentsByTypes = createSelector(
   selectDocuments,
-  selectAvailableTypesById,
+  selectDynamicTypes,
   selectActions,
-  (documents, types, actions) => {
-    return types.reduce(
-      (result, type) => ({
+  (documents, types, actions) =>
+    types.reduce(
+      (result, item) => ({
         ...result,
-        [type.id]: {
-          ...omit(type, ['actions']),
-          documents: get(documents, type.id, []).map(doc => ({
+        [item.type]: {
+          ...omit(item, ['actions']),
+          documents: get(documents, item.type, []).map(doc => ({
             ...doc,
             [documentFields.modified]: getOutputFormat(DataFormatTypes.DATE, doc[documentFields.modified]),
             actions: get(actions, doc[documentFields.id], [])
@@ -92,8 +86,7 @@ export const selectDocumentsByTypes = createSelector(
         }
       }),
       {}
-    );
-  }
+    )
 );
 
 export const selectMobileStateByKey = createSelector(
@@ -119,7 +112,6 @@ export const selectMobileStateByKey = createSelector(
 );
 
 const getAvailableTypes = state => get(state, 'availableTypes', []);
-const getDynamicTypes = state => get(state, 'dynamicTypes', []);
 
 export const selectIsLoadChecklist = createSelector(
   selectState,
@@ -155,11 +147,6 @@ export const selectTypeNames = createSelector(
 );
 
 export const selectTypeById = (state, key, id) => get(selectState(state, key), 'availableTypes', []).find(type => type.id === id);
-
-export const selectDynamicTypes = createSelector(
-  selectState,
-  getDynamicTypes
-);
 
 export const selectDynamicType = (state, key, id) => {
   const types = selectDynamicTypes(state, key);
@@ -198,7 +185,7 @@ export const selectGroupedAvailableTypes = createSelector(
   getDynamicTypes,
   (availableTypes, dynamicTypes) => {
     const selectedTypes = dynamicTypes.map(item => item.type);
-    const getChilds = (filtered = [], types = filtered) => {
+    const getChildren = (filtered = [], types = filtered) => {
       return filtered.map(item => {
         const dType = dynamicTypes.find(i => i.type === item.id);
         const dTypeParams = {
@@ -219,7 +206,7 @@ export const selectGroupedAvailableTypes = createSelector(
           ...item,
           ...dTypeParams,
           isSelected: selectedTypes.includes(item.id),
-          items: getChilds(types.filter(type => type.parent && type.parent === item.id), types)
+          items: getChildren(types.filter(type => type.parent && type.parent === item.id), types)
         };
       });
     };
@@ -238,7 +225,7 @@ export const selectGroupedAvailableTypes = createSelector(
           ...item,
           ...dTypeParams,
           isSelected: selectedTypes.includes(item.id),
-          items: getChilds(availableTypes.filter(type => type.parent === item.id), availableTypes)
+          items: getChildren(availableTypes.filter(type => type.parent === item.id), availableTypes)
         };
       });
   }

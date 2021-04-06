@@ -1,10 +1,7 @@
 import React from 'react';
-import { shallow, configure, mount } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { shallow, mount } from 'enzyme';
 
 import Comment from '../Comment';
-
-configure({ adapter: new Adapter() });
 
 console.error = jest.fn();
 
@@ -47,6 +44,20 @@ describe('Comment tests', () => {
 
       component.setState({ isOpenConfirmDialog: true, isLoading: true });
       component.setProps({ ...baseProps, actionFailed: true });
+
+      expect(component).toMatchSnapshot();
+    });
+
+    it('should render Comment component with tags', () => {
+      const component = shallow(
+        <Comment
+          {...baseProps}
+          comment={{
+            ...baseProps.comment,
+            tags: [{ name: 'Tester' }, { type: 'task', name: '№1 (01.01.2021)' }, { type: 'action', name: '№22 (09.02.2021)' }]
+          }}
+        />
+      );
 
       expect(component).toMatchSnapshot();
     });

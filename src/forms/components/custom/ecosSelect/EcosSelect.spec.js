@@ -76,5 +76,11 @@ describe('EcosSelect Component', () => {
         done();
       });
     });
+
+    it('Should be unreadable value', done => {
+      const comp = Object.assign(cloneDeep(comp2), { unreadable: true });
+
+      Harness.testCreate(EcosSelectComponent, comp, { readOnly: false }).then(component => Harness.testUnreadableField(component, done));
+    });
   });
 });

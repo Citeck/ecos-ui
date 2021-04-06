@@ -1,6 +1,7 @@
 import React from 'react';
+
 import DefaultGqlFormatter from './DefaultGqlFormatter';
-import { URL_PAGECONTEXT } from '../../../../../constants/alfresco';
+import { URL } from '../../../../../constants';
 
 export default class RejectionSignTaskFormatter extends DefaultGqlFormatter {
   render() {
@@ -13,7 +14,7 @@ export default class RejectionSignTaskFormatter extends DefaultGqlFormatter {
 
     return (
       <a
-        href={`${URL_PAGECONTEXT}task-edit?taskId=activiti$${cell}`}
+        href={`${URL.DASHBOARD}?recordRef=alfresco/wftask@activiti$${cell}`}
         target="_blank"
         rel="noopener noreferrer"
         onClick={e => {

@@ -208,7 +208,7 @@ flowableModeler
 
             // Main navigation
             $rootScope.mainNavigation = [];
-            fetch('/share/proxy/alfresco/citeck/ecos/records/query', {
+            fetch('/gateway/alfresco/alfresco/s/citeck/ecos/records/query', {
               credentials: 'include',
               method: 'post',
               headers: {

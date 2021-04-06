@@ -102,15 +102,33 @@ export default class SidebarService {
               listId = params.listId || 'main';
             }
 
-            let uiType = params.uiType || '';
-            let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
+            targetUrl = getJournalPageUrl({
+              journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
+              journalId: params.journalRef,
+              journalSettingId: '', // TODO?
+              nodeRef: params.journalRef,
+              filter: params.filterRef
+            });
 
-            // Cause: https://citeck.atlassian.net/browse/ECOSUI-499
-            if (!uiType) {
-              isNewUILink = extraParams.isNewUIAvailable;
-            }
+            ignoreTabHandler = false;
+            attributes.rel = 'noopener noreferrer';
+          }
+          break;
+        case ATypes.SITE_LINK:
+          ignoreTabHandler = false;
+          attributes.rel = 'noopener noreferrer';
 
-            if (isNewUILink) {
+          if (!extraParams.isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
+            const journalLink = item.items.find(item => {
+              return item.action.type === 'JOURNAL_LINK';
+            });
+
+            if (journalLink) {
+              const params = journalLink.action.params;
+              let listId = 'tasks';
+              if (params.siteName) {
+                listId = params.listId || 'main';
+              }
               targetUrl = getJournalPageUrl({
                 journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
                 journalId: params.journalRef,
@@ -118,88 +136,12 @@ export default class SidebarService {
                 nodeRef: params.journalRef,
                 filter: params.filterRef
               });
-
-              ignoreTabHandler = false;
-              attributes.rel = 'noopener noreferrer';
-            } else {
-              targetUrl = PAGE_PREFIX;
-              if (params.siteName) {
-                targetUrl += `/site/${params.siteName}`;
-              }
-              targetUrl += `/journals2/list/${listId}#`;
-
-              if (params.journalRef) {
-                targetUrl += `journal=${params.journalRef}`;
-              }
-
-              if (params.filterRef) {
-                targetUrl += `&filter=${params.filterRef}`;
-              } else {
-                targetUrl += `&filter=`;
-              }
-
-              if (params.settings) {
-                targetUrl += `&settings=${params.settings}`;
-              }
-
-              if (params.skipCount) {
-                targetUrl += `&skipCount=${params.skipCount}`;
-              }
-
-              if (params.maxItems) {
-                targetUrl += `&maxItems=${params.maxItems}`;
-              }
-            }
-          }
-          break;
-        case ATypes.PAGE_LINK:
-          let sectionPostfix = params.section ? params.section : '';
-
-          targetUrl = `${PAGE_PREFIX}/${params.pageId}${sectionPostfix}`;
-          break;
-        case ATypes.SITE_LINK:
-          {
-            let uiType = params.uiType || '';
-            let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
-
-            // Cause: https://citeck.atlassian.net/browse/ECOSUI-499
-            if (!uiType) {
-              isNewUILink = extraParams.isNewUIAvailable;
-            }
-
-            if (isNewUILink) {
-              ignoreTabHandler = false;
-              attributes.rel = 'noopener noreferrer';
-
-              if (!extraParams.isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
-                const journalLink = item.items.find(item => {
-                  return item.action.type === 'JOURNAL_LINK';
-                });
-
-                if (journalLink) {
-                  const params = journalLink.action.params;
-                  let listId = 'tasks';
-                  if (params.siteName) {
-                    listId = params.listId || 'main';
-                  }
-                  targetUrl = getJournalPageUrl({
-                    journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
-                    journalId: params.journalRef,
-                    journalSettingId: '', // TODO?
-                    nodeRef: params.journalRef,
-                    filter: params.filterRef
-                  });
-                  break;
-                }
-              }
-
-              attributes[REMOTE_TITLE_ATTR_NAME] = true;
-              targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
               break;
-            } else {
-              targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
             }
           }
+
+          attributes[REMOTE_TITLE_ATTR_NAME] = true;
+          targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
           break;
         case ATypes.STATIC_LINK: {
           targetUrl = params.url;
@@ -295,4 +237,3 @@ export default class SidebarService {
 
 const ATypes = ActionTypes;
 const MITypes = MenuSettings.ItemTypes;
-const PAGE_PREFIX = '/share/page';

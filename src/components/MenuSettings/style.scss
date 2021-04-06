@@ -30,6 +30,11 @@
     z-index: 10000;
   }
 
+  &__error {
+    margin: 0px;
+    box-shadow: none;
+  }
+
   &__tabs {
     margin-bottom: 15px;
     padding-right: 2px;
@@ -341,6 +346,13 @@
       &:last-child {
         margin-left: 25px;
       }
+    }
+  }
+
+  &__modal {
+    .select-orgstruct__values-list {
+      max-height: 200px;
+      overflow: auto;
     }
   }
 }

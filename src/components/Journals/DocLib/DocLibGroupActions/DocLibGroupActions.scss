@@ -1,0 +1,17 @@
+@import '../../../../styles/constants';
+
+.ecos-doclib__group-actions {
+  position: relative;
+  left: unset;
+  top: unset;
+  right: unset;
+  bottom: unset;
+  margin-bottom: 10px;
+}
+
+.ecos-doclib__group-actions-loader {
+  margin-bottom: 10px;
+  background-color: $color-white;
+  border-radius: $border-radius-extra-large;
+  padding: 15px 20px;
+}

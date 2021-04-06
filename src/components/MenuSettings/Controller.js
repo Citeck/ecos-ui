@@ -5,6 +5,7 @@ import { NotificationManager } from 'react-notifications';
 import { getSettingsConfig, resetStore, setOpenMenuSettings } from '../../actions/menuSettings';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import { t } from '../../helpers/export/util';
+import { Labels } from './utils';
 
 class Controller extends React.Component {
   state = {
@@ -14,7 +15,7 @@ class Controller extends React.Component {
 
   onShow = (params = {}, callback) => {
     if (this.state.isOpen) {
-      NotificationManager.warning(t('menu-settings.warn.editor-already-open'), t('warning'), 5000);
+      NotificationManager.warning(t(Labels.WARN_EDITOR_OPEN), t('warning'), 5000);
     } else {
       this.setState({ isOpen: true, callback }, () => {
         const id = (params.recordId || this.props.myId || '').split('@').pop();
