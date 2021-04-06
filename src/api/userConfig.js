@@ -42,7 +42,7 @@ export class UserConfigApi extends CommonApi {
     NotificationManager.info('', t('export-component.notice.buffer-link-preparation'));
 
     this.saveConfig({ data })
-      .then(async response => {
+      .then(response => {
         const fullId = get(response, 'id');
         const shortId = fullId && get(fullId.split(context), '[1]');
         const text = `${url}&userConfigId=${shortId}`;
