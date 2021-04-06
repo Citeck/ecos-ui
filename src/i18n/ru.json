@@ -1264,5 +1264,9 @@
   "icon-select.error.upload-custom-icon": "Загузка иконки не удалась",
   "icon-select.error.delete-custom-icon": "Удаление иконки не удалось",
 
-  "go-to.home-page": "Перейти на домашнюю страницу"
+  "go-to.home-page": "Перейти на домашнюю страницу",
+
+  "copy-to-clipboard.modal.title": "Копирование",
+  "copy-to-clipboard.modal.description": "Для того, чтобы скопировать текст, нажмите кнопку ниже",
+  "copy-to-clipboard.btn.copy": "Скопировать"
 }

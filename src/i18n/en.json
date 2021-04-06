@@ -1266,5 +1266,9 @@
   "icon-select.error.upload-custom-icon": "Custom icon hasn't uploaded",
   "icon-select.error.delete-custom-icon": "Custom icon hasn't deleted",
 
-  "go-to.home-page": "Go to home page"
+  "go-to.home-page": "Go to home page",
+
+  "copy-to-clipboard.modal.title": "Copy",
+  "copy-to-clipboard.modal.description": "To copy the text, click the button below",
+  "copy-to-clipboard.btn.copy": "Copy"
 }

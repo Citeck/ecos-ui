@@ -148,8 +148,6 @@ export const SystemJournals = {
   MENUS: 'ecos-menus'
 };
 
-export const CLIPBOARD_CONTAINER = 'copy-clipboard-container';
-
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};
 window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };
