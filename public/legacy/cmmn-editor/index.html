@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="private">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Citeck ECOS &raquo; CMMN Editor</title>
+  <!--link rel="icon" type="image/ico" href="favicon.ico"-->
+  <link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
+  <meta name="description" content="">
+  <meta name="viewport"
+        content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, width=device-width">
+
+  <script type="text/javascript" src="/share/service/messages.js?locale=ru"></script>
+
+  <style type="text/css" media="screen">
+    @import url("/share/res/css/yui-fonts-grids.css");
+    @import url("/share/res/yui/columnbrowser/assets/columnbrowser.css");
+    @import url("/share/res/yui/columnbrowser/assets/skins/default/columnbrowser-skin.css");
+    @import url("/share/res/themes/citeckTheme/yui/assets/skin.css");
+    @import url("/share/res/css/base.css");
+    @import url("/share/res/css/yui-layout.css");
+    @import url("/share/res/themes/citeckTheme/presentation.css");
+    @import url("/share/res/modules/create-site.css");
+    @import url("/legacy/cmmn-editor/case-activities.css");
+  </style>
+
+  <style type="text/css" media="screen">
+    @import url("/share/res/components/form/form_2912bd6700da67b8ca6974dca52b6ebe.css");
+  </style>
+
+  <style type="text/css" media="screen">
+    @import url("/share/res/js/lib/dojo-1.10.4/dijit/themes/claro/claro_cca50166019f5e7251eadfc9247b6551.css");
+  </style>
+
+  <!-- Icons -->
+  <link rel="shortcut icon" href="/share/res/favicon.ico" type="image/vnd.microsoft.icon"/>
+  <link rel="icon" href="/share/res/favicon.ico" type="image/vnd.microsoft.icon"/>
+
+  <!-- Alfresco web framework common resources -->
+  <script type="text/javascript" src="/share/res/modules/editors/tinymce/tinymce.min.js"></script>
+  <style type="text/css">
+    @font-face {
+      font-family: 'Open Sans';
+      font-style: normal;
+      font-weight: 400;
+      src: url(/share/res/js/aikau/1.0.63/alfresco/core/css/opensans.woff) format('woff');
+    }
+
+    @font-face {
+      font-family: 'Open Sans Bold';
+      font-style: normal;
+      font-weight: 600;
+      src: url(/share/res/js/aikau/1.0.63/alfresco/core/css/opensansbold.woff) format('woff');
+    }
+
+    @font-face {
+      font-family: 'Open Sans Condensed';
+      font-style: normal;
+      font-weight: 300;
+      src: url(/share/res/js/aikau/1.0.63/alfresco/core/css/opensanscondensed.woff) format('woff');
+    }
+
+    .alfresco-share .alfresco-header-SearchBox .alfresco-header-SearchBox-clear {
+      background-image: url(/share/res/js/aikau/1.0.63/alfresco/css/images/Delete.PNG);
+    }
+  </style>
+
+</head>
+<body id="Share" class="yui-skin-citeckTheme alfresco-share  claro ">
+
+<script type="html/template" id="add-activity"></script>
+
+<script type="html/template" id="activities">
+  <ul data-bind="DDTarget: { data: $data }, css: { open: opened }" class="activity-list">
+    <!-- ko foreach: activities -->
+    <li class="activity"
+        data-bind="css: { opened: opened, composite: composite, started: started, stopped: stopped }, DDList: { index: $index(), data: $data, parent: $parent }">
+      <div class="activity-info">
+        <div class="left">
+          <span class="twister" data-bind="css: { opened: opened }, click: toggle, clickBubble: false"/>
+          <span class="title"
+                data-bind="text: title, attr: { title: description }, event: { dblclick: function() { console.log($data) } }"/>
+        </div>
+        <div class="right">
+          <span class="type" data-bind="text: typeTitle, attr: { title: typeTitle }"/>
+          <span class="start" data-bind="text: startDateText, attr: { title: startTimeText }"/>
+          <span class="end" data-bind="text: endDateText, attr: { title: endTimeText }"/>
+          <span class="sla" data-bind="text: expectedPerformTime, attr: { title: expectedPerformTime }"/>
+
+          <!-- ko if: startable -->
+          <!--<a class="action start" title="START" data-bind="click: start, clickBubble: false">&nbsp;</a>-->
+          <!-- /ko -->
+          <!-- ko if: stoppable -->
+          <!--<a class="action stop" title="STOP" data-bind="click: stop, clickBubble: false">&nbsp;</a>-->
+          <!-- /ko -->
+
+          <!-- ko template: { name: 'add-activity' } --><!-- /ko -->
+
+          <!-- ko if: editable -->
+          <a class="action edit" title="EDIT" data-bind="click: edit, clickBubble: false">&nbsp;</a>
+          <!-- /ko -->
+          <!-- ko if: removable -->
+          <a class="action remove" title="REMOVE" data-bind="click: $parent.remove.bind($parent, $data), clickBubble: false">&nbsp;</a>
+          <!-- /ko -->
+        </div>
+      </div>
+
+      <!-- ko template: 'activities' --><!-- /ko -->
+    </li>
+    <!-- /ko -->
+
+    <!-- ko ifnot: activities.loaded() -->
+    <li class="message loading-message">Загрузка</li>
+    <!-- /ko -->
+
+    <!-- ko if: activities.loaded() && !hasActivities() -->
+    <li class="message empty-message">Нет активностей</li>
+    <!-- /ko -->
+  </ul>
+</script>
+
+<div id="cmmn-editor-page-root">
+  <div class="sticky-wrapper">
+    <div id="doc3">
+      <div id="alf-hd">
+        <div id="share-header"></div>
+      </div>
+      <div id="bd" class="ecos-main-area">
+        <div class="cardlet" data-available-in-mobile="true" data-position-index-in-mobile="0">
+          <div>
+            <div class="node-header">
+              <div class="node-info">
+                <h1 id="page-node-info-label" class="thin dark">Редактирование</h1>
+                <div class="clear"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="card-mode-legacy-cmmn-editor" class="card-mode-documents">
+          <div class="card-details-mode-body active">
+            <div class="yui-gc">
+              <div class="yui-u first">
+                <div class="cardlet" data-available-in-mobile="false" data-position-index-in-mobile="-1">
+                  <div id="cardlet-remote-case-tasks-container">
+                    <div class="case-activities document-details-panel">
+                      <div id="legacy-cmmn-editor"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="/js/lib/require.js"></script>
+<script type="text/javascript">
+  window.requirejs.config({
+    baseUrl: '/share/res',
+    urlArgs: 'b=' + new Date().getTime(),
+    paths: {
+      ecosui: 'js/citeck/ecosui/ecosui',
+      css: '/js/lib/require-css',
+      xstyle: 'js/citeck/lib/xstyle/css',
+      underscore: 'lib/underscore',
+      jquery: 'jquery/jquery'
+    }
+  });
+</script>
+
+<script type="text/javascript" src="/share/res/js/citeck/lib/polyfill/babel-polyfill.min.js"></script>
+<script type="text/javascript" src="/share/res/js/citeck/lib/polyfill/fetch.min.js"></script>
+
+<script type="text/javascript" src="/share/res/js/yui-common.js"></script>
+<script type="text/javascript" src="/share/res/yui/history/history.js"></script>
+<script type="text/javascript" src="/share/res/js/bubbling.v2.1.js"></script>
+
+<script type="text/javascript" src="/share/res/js/flash/AC_OETags.js"></script>
+<script type="text/javascript" src="/share/res/js/alfresco.js"></script>
+<script type="text/javascript" src="/share/res/modules/editors/tiny_mce.js"></script>
+<script type="text/javascript" src="/share/res/modules/editors/yui_editor.js"></script>
+<script type="text/javascript" src="/share/res/js/forms-runtime.js"></script>
+
+<script type="text/javascript">
+
+  Alfresco.constants = (Alfresco.constants || {});
+  Alfresco.constants.PROXY_URI = "/share/proxy/alfresco/";
+  Alfresco.constants.URL_SERVICECONTEXT = "/share/service/";
+
+  function getElementHeight(element) {
+    var style = window.getComputedStyle(element);
+    return element.clientHeight + parseInt(style['margin-top'], 10) + parseInt(style['margin-bottom'], 10);
+  }
+
+  function getBaseContainerHeight() {
+    var height = [];
+    var alfrescoHeader = document.querySelector('#alf-hd');
+    if (alfrescoHeader) {
+      height.push(getElementHeight(alfrescoHeader));
+    }
+    var alfrescoFooter = document.querySelector('#alf-ft');
+    if (alfrescoFooter) {
+      height.push(getElementHeight(alfrescoFooter));
+    }
+
+    if (!height.length) {
+      return '100%';
+    }
+
+    var addPx = function(i) {
+      return i + 'px';
+    };
+
+    return 'calc(100vh - (' + height.map(addPx).join(' + ') + '))';
+  }
+
+  require(['ecosui!header', 'ecosui!ecos-records'], function (Header) {
+
+    Header.render('share-header', {
+      hideSiteMenu: true,
+      legacySiteMenuItems: []
+    }, function () {
+      var basePageContainer = document.createElement('div');
+      basePageContainer.classList.add('ecos-base-page');
+      basePageContainer.style.height = getBaseContainerHeight();
+
+      var slideMenuContainer = document.createElement('div');
+      slideMenuContainer.setAttribute('id', 'slide-menu');
+
+      var bd = document.querySelector('#bd');
+      bd.classList.add('ecos-main-area');
+
+      var alfHd = document.querySelector('#alf-hd');
+
+      alfHd.after(basePageContainer);
+      basePageContainer.prepend(slideMenuContainer);
+      basePageContainer.appendChild(bd);
+
+      require([
+        'ecosui!slide-menu'
+      ], function (SlideMenu) {
+        SlideMenu.render('slide-menu');
+      });
+    });
+
+    loadUserData().then(function (userData) {
+
+      Alfresco.constants.USER = userData.userName;
+      Alfresco.constants.USERNAME = userData.userName;
+
+      require(['ecosui!legacy-cmmn-editor'], function (editor) {
+        editor.default.renderEditor('legacy-cmmn-editor');
+      });
+    });
+  });
+
+  function loadUserData() {
+
+    return Citeck.Records.query(
+      {
+        sourceId: 'alfresco/people'
+      },
+      {
+        userName: 'userName',
+        isAvailable: 'isAvailable?bool',
+        isDeputyAvailable: 'deputy:available?bool',
+        isMutable: 'isMutable?bool',
+        firstName: 'cm:firstName',
+        lastName: 'cm:lastName',
+        middleName: 'cm:middleName',
+        isAdmin: 'isAdmin?bool',
+        fullName: 'fullName',
+        uid: 'cm:name',
+        isBpmAdmin: '.att(n:"authorities"){has(n:"GROUP_BPM_APP_ADMIN")}',
+        nodeRef: 'nodeRef?str',
+        modified: '_modified?str'
+      }
+    ).then(resp => {
+      if (resp.records.length === 0) {
+        throw new Error("User data can't be received");
+      }
+      return resp.records[0];
+    });
+  }
+</script>
+
+</body>
+</html>
