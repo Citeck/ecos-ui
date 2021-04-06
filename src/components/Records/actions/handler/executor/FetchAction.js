@@ -1,9 +1,10 @@
-import ActionsExecutor from '../ActionsExecutor';
 import * as queryString from 'query-string';
+
 import ecosFetch from '../../../../../helpers/ecosFetch';
-import dialogManager from '../../../../common/dialogs/Manager/DialogManager';
 import { t } from '../../../../../helpers/export/util';
+import dialogManager from '../../../../common/dialogs/Manager/DialogManager';
 import { notifySuccess, notifyFailure } from '../../util/actionUtils';
+import ActionsExecutor from '../ActionsExecutor';
 
 export default class FetchAction extends ActionsExecutor {
   static ACTION_ID = 'fetch';
@@ -14,13 +15,15 @@ export default class FetchAction extends ActionsExecutor {
     const fullUrl = `${url}?${queryString.stringify({ ...args })}`;
 
     return ecosFetch(fullUrl, options)
-      .then(response => (response.ok ? response : Promise.reject({ message: response.statusText })))
-      .then(result => {
+      .then(response => (response && response.ok ? response : Promise.reject({ message: response.statusText })))
+      .then(response => {
         notifySuccess();
-        // todo: record updating should be in RecordActions after all actions without additional logic in concrete action
-        this.updateRecords(record);
+        const type = response.headers.get('Content-Type') || '';
+        if (type.includes('json')) {
+          return response.json();
+        }
 
-        return result;
+        return true;
       })
       .catch(e => {
         notifyFailure();
