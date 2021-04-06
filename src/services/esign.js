@@ -61,7 +61,7 @@ class Esign {
 
     switch (typeof queryParams) {
       case 'boolean':
-        params = { isApprovmentSignature: queryParams };
+        params = { isApprovementSignature: queryParams };
         break;
       case 'object':
         params = queryParams instanceof Array ? {} : queryParams;
