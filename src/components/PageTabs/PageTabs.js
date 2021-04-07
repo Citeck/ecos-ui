@@ -22,7 +22,7 @@ import {
   updateTabsFromStorage,
   closeTabs
 } from '../../actions/pageTabs';
-import { animateScrollTo, copyToClipboard, getScrollbarWidth, t } from '../../helpers/util';
+import { animateScrollTo, getScrollbarWidth, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { SortableContainer } from '../Drag-n-Drop';
@@ -33,6 +33,7 @@ import { MIN_CONTEXT_WIDTH, PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { replaceHistoryLink } from '../../helpers/urls';
 import { updateTabEmitter } from '../../services/pageTabs/PageTabList';
 import DialogManager from '../common/dialogs/Manager';
+import CopyToClipboard from '../../helpers/copyToClipboard';
 
 import './style.scss';
 
@@ -273,7 +274,7 @@ class PageTabs extends React.Component {
 
     switch (type) {
       case ContextMenuTypes.COPY_LINK:
-        copyToClipboard(`${window.location.origin}${tab.link}`);
+        CopyToClipboard.copy(`${window.location.origin}${tab.link}`);
         break;
       case ContextMenuTypes.CLOSE_ALL:
         this.handleCloseAllTabs();

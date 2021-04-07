@@ -539,6 +539,7 @@
   "group-action.label.fetch-data": "Получение информации",
   "group-action.message.started": "Запущено",
   "group-action.message.in-progress": "В процессе",
+  "group-action.label.result": "Результат выполнения групповой операции",
 
   "batch-edit.header.edit-attribute": "Изменение атрибута",
   "batch-edit.header.results": "Результат редактирования атрибута",
@@ -1337,5 +1338,9 @@
   "task": "Задача",
   "action": "Действие",
   "TASK": "Задача",
-  "ACTION": "Действие"
+  "ACTION": "Действие",
+
+  "copy-to-clipboard.modal.title": "Копирование",
+  "copy-to-clipboard.modal.description": "Для того, чтобы скопировать текст, нажмите кнопку ниже",
+  "copy-to-clipboard.btn.copy": "Скопировать"
 }

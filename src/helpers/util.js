@@ -746,6 +746,18 @@ export function prepareTooltipId(id = uuidV4()) {
   return `${id}`.replace(/[^\d\w-]/g, '');
 }
 
+export function prepareReactKey({ id = uuidV4(), prefix = 'key', postfix = '' } = {}) {
+  const parts = [];
+
+  if (!isNaN(id[0])) {
+    parts.push(prefix || 'id');
+  }
+
+  parts.push(id, postfix);
+
+  return `${parts.join('-')}`.replace(/[^\d\w-]/g, '');
+}
+
 export function arrayFlat({ data = [], depth = Infinity, byField = '', withParent = false }) {
   if (!data.length) {
     return [];
