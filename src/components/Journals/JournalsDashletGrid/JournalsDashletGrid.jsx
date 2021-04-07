@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
-import debounce from 'lodash/debounce';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { Loader } from '../../common';
 import { EmptyGrid, Grid, InlineTools } from '../../common/grid';
-import { t, trigger } from '../../../helpers/util';
+import { t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import {
   execRecordsAction,
@@ -90,7 +89,7 @@ class JournalsDashletGrid extends Component {
     }
   }
 
-  handleSetInlineTools = debounce(this.props.setGridInlineToolSettings, 300);
+  handleSetInlineTools = this.props.setGridInlineToolSettings;
 
   setSelectedRecords = e => {
     const props = this.props;
@@ -193,7 +192,11 @@ class JournalsDashletGrid extends Component {
   };
 
   onRowClick = row => {
-    trigger.call(this, 'onRowClick', row);
+    const { onRowClick } = this.props;
+
+    if (typeof onRowClick === 'function') {
+      onRowClick(row);
+    }
   };
 
   onDelete = () => null;
