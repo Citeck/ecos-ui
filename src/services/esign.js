@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 
 import api from '../api/esign';
 import EsignComponent from '../components/Esign';
 import EsignConverter from '../dto/esign';
 import { ErrorTypes, Labels } from '../constants/esign';
-import { deepClone, t } from '../helpers/util';
+import { t } from '../helpers/util';
 
 class Esign {
   static #queryParams = {};
@@ -26,10 +27,10 @@ class Esign {
         params = queryParams instanceof Array ? {} : queryParams;
         break;
       default:
-        params = '';
+        params = {};
     }
 
-    Esign.#queryParams = deepClone(params, {});
+    Esign.#queryParams = cloneDeep(params);
 
     if (!Array.isArray(recordRefs)) {
       recordRefs = [recordRefs];
@@ -67,17 +68,17 @@ class Esign {
         params = queryParams instanceof Array ? {} : queryParams;
         break;
       default:
-        params = '';
+        params = {};
     }
 
-    Esign.#queryParams = deepClone(params, {});
+    Esign.#queryParams = cloneDeep(params);
 
     if (!Array.isArray(recordRefs)) {
       recordRefs = [recordRefs];
     }
 
     return Esign.init(recordRefs)
-      .then(api => Esign.getCertificates(componentProps.thumbprints))
+      .then(() => Esign.getCertificates(componentProps.thumbprints))
       .then(certs => Esign.signDocument(recordRefs, certs[0]))
       .catch(this.setError);
   }
