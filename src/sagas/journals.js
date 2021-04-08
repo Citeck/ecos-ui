@@ -327,39 +327,25 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
   try {
     const { journalSetting, predicate } = action.payload;
     const { journalConfig } = yield select(selectJournalData, stateId);
+    const columnsSetup = {
+      columns: (journalSetting.groupBy.length ? journalConfig.columns : journalSetting.columns).map(c => ({ ...c })),
+      sortBy: journalSetting.sortBy.map(s => ({ ...s }))
+    };
+    const grouping = {
+      columns: (journalSetting.groupBy.length ? journalSetting.columns : []).map(c => ({ ...c })),
+      groupBy: journalSetting.groupBy.map(g => ({ ...g }))
+    };
 
     yield put(setPredicate(w(predicate || journalSetting.predicate)));
-
-    yield put(
-      setColumnsSetup(
-        w({
-          columns: (journalSetting.groupBy.length ? journalConfig.columns : journalSetting.columns).map(c => ({ ...c })),
-          sortBy: journalSetting.sortBy.map(s => ({ ...s }))
-        })
-      )
-    );
-
-    yield put(
-      setGrouping(
-        w({
-          columns: (journalSetting.groupBy.length ? journalSetting.columns : []).map(c => ({ ...c })),
-          groupBy: journalSetting.groupBy.map(g => ({ ...g }))
-        })
-      )
-    );
+    yield put(setColumnsSetup(w(columnsSetup)));
+    yield put(setGrouping(w(grouping)));
 
     yield put(
       setOriginGridSettings(
         w({
           predicate: predicate || journalSetting.predicate,
-          columnsSetup: {
-            columns: (journalSetting.groupBy.length ? journalConfig.columns : journalSetting.columns).map(c => ({ ...c })),
-            sortBy: journalSetting.sortBy.map(s => ({ ...s }))
-          },
-          grouping: {
-            columns: (journalSetting.groupBy.length ? journalSetting.columns : []).map(c => ({ ...c })),
-            groupBy: journalSetting.groupBy.map(g => ({ ...g }))
-          }
+          columnsSetup,
+          grouping
         })
       )
     );
