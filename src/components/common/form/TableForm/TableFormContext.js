@@ -150,17 +150,25 @@ export const TableFormContextProvider = props => {
 
     record.toJsonAsync().then(res => {
       const attributes = cloneDeep(res.attributes);
+      const restAttrs = Object.keys(attributes);
 
-      for (let att in res.attributes) {
-        if (res.attributes.hasOwnProperty(att)) {
-          const col = columns.find(item => item.attribute !== att && item.attribute.includes(att));
-
-          if (col) {
-            attributes[col.attribute] = attributes[att];
-            delete attributes[att];
-          }
+      const unresolvedCols = columns.filter(item => {
+        if (item.attribute in res.attributes) {
+          const index = restAttrs.findIndex(value => value === item.attribute);
+          restAttrs.splice(index, 1);
+          return false;
         }
-      }
+
+        return true;
+      });
+
+      unresolvedCols.forEach(col => {
+        const similarAttr = restAttrs.find(att => col.attribute.includes(att));
+
+        if (similarAttr) {
+          attributes[col.attribute] = attributes[similarAttr];
+        }
+      });
 
       const newGridRows = [
         ...gridRows,
