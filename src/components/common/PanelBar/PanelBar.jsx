@@ -24,13 +24,15 @@ export default class PanelBar extends Component {
 
     return (
       <div className={classNames('panel-bar', className, { 'panel-bar_open': panelVisible })}>
-        <div className={classNames('panel-bar__header', css.headerClassName)}>
-          <h3 className={classNames('panel-bar__header-label', css.headerLabelClassName)} onClick={this.showPanel}>
-            {header}
-          </h3>
+        {header && (
+          <div className={classNames('panel-bar__header', css.headerClassName)}>
+            <h3 className={classNames('panel-bar__header-label', css.headerLabelClassName)} onClick={this.showPanel}>
+              {header}
+            </h3>
 
-          <div className="panel-bar__actions" />
-        </div>
+            <div className="panel-bar__actions" />
+          </div>
+        )}
 
         <Collapse isOpened={panelVisible} theme={collapseTheme}>
           <div className={classNames('panel-bar__content', css.contentClassName)}>{children}</div>

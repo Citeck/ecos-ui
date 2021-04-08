@@ -19,5 +19,10 @@ export const CommentInterface = {
   canEdit: PropTypes.bool,
   canDelete: PropTypes.bool,
   edited: PropTypes.bool,
-  tags: PropTypes.arrayOf(PropTypes.string)
+  tags: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string,
+      color: PropTypes.string
+    })
+  )
 };

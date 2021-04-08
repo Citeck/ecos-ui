@@ -12,8 +12,6 @@ import { Provider } from 'react-redux';
 import Sidebar from '../Sidebar';
 
 import { configureAPI } from '../../../api';
-import { fakeApi } from '../../../api/fakeApi';
-
 import { detectMobileDevice, loadThemeRequest } from '../../../actions/view';
 import { initMenuConfig } from '../../../actions/menu';
 import { getUserData } from '../../../actions/user';
@@ -27,7 +25,6 @@ Logger.setLogLevel(Logger.LogLevels.DEBUG);
 const { api } = configureAPI();
 const store = configureStore({
   api,
-  fakeApi,
   logger
 });
 

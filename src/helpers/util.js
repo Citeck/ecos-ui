@@ -122,10 +122,23 @@ export function getPropByStringKey(obj, strKey) {
   return res;
 }
 
-export function getSelectedValue(source, field, value) {
-  return source.filter(option => option[field] === value);
+export function getSelectedValue(source, field, value, selectedField) {
+  const selected = source.filter(option => option[field] === value);
+
+  if (isEmpty(selectedField)) {
+    return selected;
+  }
+
+  return selected.map(item => {
+    return item[selectedField];
+  });
 }
 
+/**
+ * @deprecated use this.props.[handler]
+ * @param name - handler name from props
+ * @param data
+ */
 export function trigger(name, data) {
   const callback = this.props[name];
 
@@ -204,7 +217,9 @@ export function getTextByLocale(data, locale = getCurrentLocale()) {
 
       // get first translation, if for 'en' locale not found
       if (!text) {
-        text = data[Object.keys(data)[0]] || '';
+        const firstNotEmpty = Object.keys(data).find(key => !isEmpty(data[key]));
+
+        text = data[firstNotEmpty] || '';
       }
     }
 
@@ -620,7 +635,9 @@ export function removeItemFromArray(array = [], item = '', byKey = '') {
 }
 
 export function isNodeRef(str) {
-  return typeof str === 'string' && str.indexOf('workspace://SpacesStore/') === 0;
+  return (
+    typeof str === 'string' && (str.indexOf('workspace://SpacesStore/') === 0 || str.indexOf('alfresco/@workspace://SpacesStore/') === 0)
+  );
 }
 
 /**
@@ -727,6 +744,18 @@ export function prepareTooltipId(id = uuidV4()) {
   }
 
   return `${id}`.replace(/[^\d\w-]/g, '');
+}
+
+export function prepareReactKey({ id = uuidV4(), prefix = 'key', postfix = '' } = {}) {
+  const parts = [];
+
+  if (!isNaN(id[0])) {
+    parts.push(prefix || 'id');
+  }
+
+  parts.push(id, postfix);
+
+  return `${parts.join('-')}`.replace(/[^\d\w-]/g, '');
 }
 
 export function arrayFlat({ data = [], depth = Infinity, byField = '', withParent = false }) {
@@ -997,6 +1026,80 @@ export function getNumberSeparators(locale) {
   result.thousand = str.replace(/.*1(.*)2.*/, '$1');
 
   return result;
+}
+
+export function getCodesSumOfString(string = '') {
+  return [...`${string}`].reduce((prev, next) => prev + next.codePointAt(0), 0);
+}
+
+export function getColorByString(string = '') {
+  string = `${string}`;
+
+  let codesSum = getCodesSumOfString(string);
+
+  codesSum += getCodesSumOfString(string.slice(1));
+  codesSum += getCodesSumOfString(string.slice(-1));
+
+  let hexNumber = codesSum.toString(16);
+
+  switch (hexNumber.toString().length) {
+    case 1:
+      hexNumber = new Array(6).fill(hexNumber).join('');
+      break;
+    case 2:
+      hexNumber = new Array(3).fill(hexNumber).join('');
+      break;
+    case 3:
+      hexNumber = new Array(2).fill(hexNumber).join('');
+      break;
+    default:
+  }
+
+  return `#${hexNumber}`;
+}
+
+/**
+ * Copy to clipboard
+ *
+ * @param text
+ * @returns {boolean|*}
+ */
+export function copyToClipboard(text) {
+  if (window.clipboardData && window.clipboardData.setData) {
+    return window.clipboardData.setData('Text', text);
+  }
+
+  if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
+    const textarea = document.createElement('textarea');
+
+    textarea.textContent = text;
+    textarea.style.position = 'fixed';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      return document.execCommand('copy');
+    } catch (error) {
+      console.error('Copy to clipboard failed.', error);
+      return false;
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  }
+
+  return false;
+}
+
+export function getModule(srcModule) {
+  return new Promise((resolve, reject) => {
+    window.require(
+      [srcModule],
+      module => resolve(module),
+      error => {
+        console.error(error);
+        reject(error);
+      }
+    );
+  });
 }
 
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);

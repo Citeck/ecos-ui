@@ -2,13 +2,14 @@ import React from 'react';
 import { NotificationManager } from 'react-notifications';
 import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import difference from 'lodash/difference';
 
 import { t } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import Records from '../../Records';
-import { getBool } from '../../../../helpers/util';
+import { getBool, extractLabel, isNodeRef } from '../../../../helpers/util';
 import DialogManager from '../../../common/dialogs/Manager';
 import ExecuteInfoAction from '../components/ExecuteInfoAction';
 
@@ -30,7 +31,7 @@ const Labels = {
 };
 
 function getRef(record) {
-  return record.id || record.recordRef || record.nodeRef;
+  return isNodeRef(record) ? record : record.id || record.recordRef || record.nodeRef;
 }
 
 export function showDetailActionResult(info, options = {}) {
@@ -148,11 +149,15 @@ export function prepareResult(result) {
 }
 
 export function packedActionStatus(status = '') {
+  if (isEmpty(status)) {
+    return t('batch-edit.message.no-status');
+  }
+
   return t(`batch-edit.message.${status}`);
 }
 
 export function getActionResultTitle(action) {
-  return t(Labels.RESULT_TITLE, { action: get(action, 'config.title') || action.name });
+  return t(Labels.RESULT_TITLE, { action: extractLabel(get(action, 'config.title') || action.name) });
 }
 
 export function setDisplayDataRecord(record, status = '', message = '') {
@@ -276,8 +281,10 @@ export const DetailActionResult = {
               .then(disp => ({ disp, id: getRef(r) }))
           )
         );
+
         res.data.results.forEach(r => {
-          const name = names.find(({ disp, id }) => id === getRef(r));
+          const name = names.find(({ id }) => id === getRef(r));
+
           name && (r.disp = name.disp);
         });
       }

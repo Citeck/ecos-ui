@@ -11,8 +11,6 @@ import { Provider } from 'react-redux';
 import Header from '../Header';
 
 import { configureAPI } from '../../../api';
-import { fakeApi } from '../../../api/fakeApi';
-
 import { initAppRequest } from '../../../actions/app';
 import { initMenuConfig } from '../../../actions/menu';
 import { fetchUserMenuData } from '../../../actions/header';
@@ -25,11 +23,7 @@ const logger = Logger.create('Header');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
 
 const { api } = configureAPI();
-const store = configureStore({
-  api,
-  fakeApi,
-  logger
-});
+const store = configureStore({ api, logger });
 
 const render = (elementId, props, callback) => {
   store.dispatch(

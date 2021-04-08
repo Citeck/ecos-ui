@@ -48,7 +48,7 @@ export default class Loader extends Component {
     const { height, width, type, color } = this.props;
 
     if (type === 'points') {
-      return <PointsLoader color={color} width={width} height={height} />;
+      return <PointsLoader color={color} width={width} height={height} style={this.style} />;
     }
 
     const { className, blur, darkened, rounded } = this.props;

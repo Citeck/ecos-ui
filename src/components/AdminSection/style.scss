@@ -1,0 +1,42 @@
+@import '../../styles/constants';
+
+.ecos-admin-section {
+  &__bpmn-designer {
+  }
+
+  &__journal {
+    &.ecos-journal {
+      overflow-x: unset;
+      overflow-y: unset;
+    }
+
+    &-body.ecos-journal__body {
+      padding: 0;
+    }
+  }
+
+  &__container {
+    display: flex;
+    padding: 17px 26px 0 24px;
+    height: 100%;
+  }
+
+  &__content {
+    transition: width 0.5s;
+    width: calc(100% - 300px);
+
+    &_full {
+      width: 100%;
+    }
+  }
+
+  &__header {
+    padding-bottom: 23px;
+    min-height: 26px;
+
+    &-right {
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+}

@@ -13,6 +13,8 @@ export default class DashletActionService {
 
   static enterprise = [DashletActionService.Actions.BUILDER];
 
+  static administrative = [DashletActionService.Actions.BUILDER];
+
   static baseOrder = [
     DashletActionService.Actions.EDIT,
     DashletActionService.Actions.HELP,
@@ -28,10 +30,11 @@ export default class DashletActionService {
     return true;
   }
 
-  static isAvailable(key, { dashboardEditable, appEdition }) {
+  static isAvailable(key, { dashboardEditable, appEdition, isAdmin }) {
     const available = DashletActionService.checkForEdition(appEdition, key);
     const editable = dashboardEditable || !DashletActionService.uneditable.includes(key);
+    const administrative = isAdmin || !DashletActionService.administrative.includes(key);
 
-    return available && editable;
+    return available && editable && administrative;
   }
 }

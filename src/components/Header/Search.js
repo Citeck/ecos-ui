@@ -8,7 +8,6 @@ import { connect } from 'react-redux';
 import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../actions/header';
 import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/urls';
-import { URL_PAGECONTEXT } from '../../constants/alfresco';
 import SearchService from '../../services/search';
 import PageService from '../../services/PageService';
 import { SearchSelect } from '../common';
@@ -72,10 +71,6 @@ class Search extends React.Component {
     const { searchPageUrl, hiddenSearchTerms } = this.props;
     let url = searchPageUrl || 'hdp/ws/faceted-search#searchTerm=' + generateSearchTerm(searchText, hiddenSearchTerms) + '&scope=repo';
 
-    if (!isNewVersionPage(url)) {
-      url = URL_PAGECONTEXT + url;
-    }
-
     if (!isNewVersionPage()) {
       return (window.location.href = url);
     }
@@ -120,12 +115,6 @@ class Search extends React.Component {
       searchResult.push({ groupName: t('search.documents') });
       searchResult.push(...setOutputParams(documents, Types.DOCUMENTS));
     }
-
-    // Cause https://citeck.atlassian.net/browse/ECOSUI-772
-    // if (!isEmpty(sites)) {
-    //   searchResult.push({ groupName: t('search.sites') });
-    //   searchResult.push(...setOutputParams(sites, Types.SITES));
-    // }
 
     if (!isEmpty(people)) {
       searchResult.push({ groupName: t('search.people') });

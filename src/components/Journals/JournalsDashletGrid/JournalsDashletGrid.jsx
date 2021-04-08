@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { Loader } from '../../common';
@@ -20,10 +21,12 @@ import {
   setSelectAllRecordsVisible,
   setSelectedRecords
 } from '../../../actions/journals';
+import { selectJournalData, selectViewColumns } from '../../../selectors/journals';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION } from '../constants';
 
 const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+  const newState = selectJournalData(state, props.stateId);
+  const viewColumns = selectViewColumns(state, props.stateId);
 
   return {
     loading: newState.loading,
@@ -32,7 +35,8 @@ const mapStateToProps = (state, props) => {
     predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords
+    selectAllRecords: newState.selectAllRecords,
+    viewColumns
   };
 };
 
@@ -85,6 +89,8 @@ class JournalsDashletGrid extends Component {
       this.scrollPosition.scrollTop = 0;
     }
   }
+
+  handleSetInlineTools = debounce(this.props.setGridInlineToolSettings, 300);
 
   setSelectedRecords = e => {
     const props = this.props;
@@ -148,7 +154,7 @@ class JournalsDashletGrid extends Component {
 
   showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
-    this.props.setGridInlineToolSettings({ actions: this.getCurrentRowInlineActions(), ...options });
+    this.handleSetInlineTools({ actions: this.getCurrentRowInlineActions(), ...options });
   };
 
   getCurrentRowInlineActions() {
@@ -178,7 +184,7 @@ class JournalsDashletGrid extends Component {
 
   hideGridInlineToolSettings = () => {
     this.setSelectedRow();
-    this.props.setGridInlineToolSettings(DEFAULT_INLINE_TOOL_SETTINGS);
+    this.handleSetInlineTools(DEFAULT_INLINE_TOOL_SETTINGS);
   };
 
   inlineTools = () => {
@@ -208,9 +214,9 @@ class JournalsDashletGrid extends Component {
       saveRecords,
       className,
       loading,
+      isWidget,
       grid: {
         data,
-        columns,
         sortBy,
         pagination: { maxItems = 0 },
         groupBy,
@@ -223,7 +229,8 @@ class JournalsDashletGrid extends Component {
       autoHeight,
       predicate,
       journalConfig: { params = {} },
-      selectorContainer
+      selectorContainer,
+      viewColumns
     } = this.props;
 
     let editable = true;
@@ -237,13 +244,15 @@ class JournalsDashletGrid extends Component {
     return (
       <>
         <div className="ecos-journal-dashlet__grid">
-          {loading && <Loader blur />}
+          {!isWidget && loading && <Loader blur />}
 
           <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
               data={data}
-              columns={columns}
+              columns={viewColumns}
               className={className}
+              gridWrapperClassName={'ecos-journal-dashlet__grid-wrapper'}
+              hTrackClassName="ecos-journal-dashlet__grid-track ecos-journal-dashlet__grid-track_h"
               freezeCheckboxes
               filterable
               editable={editable}

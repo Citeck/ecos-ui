@@ -10,7 +10,6 @@ import isEqual from 'lodash/isEqual';
 import ReactResizeDetector from 'react-resize-detector';
 import classNames from 'classnames';
 import { withRouter } from 'react-router-dom';
-import copy from 'copy-to-clipboard';
 
 import {
   changeTab,
@@ -34,6 +33,7 @@ import { MIN_CONTEXT_WIDTH, PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { replaceHistoryLink } from '../../helpers/urls';
 import { updateTabEmitter } from '../../services/pageTabs/PageTabList';
 import DialogManager from '../common/dialogs/Manager';
+import CopyToClipboard from '../../helpers/copyToClipboard';
 
 import './style.scss';
 
@@ -274,7 +274,7 @@ class PageTabs extends React.Component {
 
     switch (type) {
       case ContextMenuTypes.COPY_LINK:
-        copy(`${window.location.origin}${tab.link}`);
+        CopyToClipboard.copy(`${window.location.origin}${tab.link}`);
         break;
       case ContextMenuTypes.CLOSE_ALL:
         this.handleCloseAllTabs();

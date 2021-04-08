@@ -23,7 +23,7 @@ const JOURNAL_CONFIG = {
       id: SCRIPT_COMPUTED_NAME,
       type: 'script',
       config: {
-        script: 'return new Promise(resolve => setTimeout(() => { resolve("' + SCRIPT_COMPUTED_RES + '"); }, 100));'
+        fn: 'return new Promise(resolve => setTimeout(() => { resolve("' + SCRIPT_COMPUTED_RES + '"); }, 100));'
       }
     },
     {
@@ -62,7 +62,7 @@ const JOURNAL_CONFIG = {
             vars: {
               key: 'prefix-${Name1}'
             },
-            script: 'return vars.key;'
+            fn: 'return vars.key;'
           }
         }
       ],
@@ -185,8 +185,8 @@ describe('JournalsService', () => {
 
     const config = await journalsService.getJournalConfig(JOURNAL_CONFIG.id);
 
-    expect(config.columns[0].formatter.config.url).toBe('http://host/v2/dashboard?recordRef=${$computed.column_Name1.test-computed}');
-    expect(config.columns[1].formatter.config.url).toBe('http://host/v2/dashboard?recordRef=${$computed.test-computed}');
+    expect(config.columns[0].newFormatter.config.url).toBe('http://host/v2/dashboard?recordRef=${$computed.column_Name1.test-computed}');
+    expect(config.columns[1].newFormatter.config.url).toBe('http://host/v2/dashboard?recordRef=${$computed.test-computed}');
 
     const journalData = await journalsService.getJournalData(config, {});
 

@@ -93,7 +93,7 @@ export const SelectOrgstructProvider = props => {
       }
     }
 
-    valuePromise.then(value => typeof onChange === 'function' && onChange(value));
+    valuePromise.then(value => typeof onChange === 'function' && onChange(value, selectedList));
   };
 
   // fetch root group list
@@ -175,9 +175,7 @@ export const SelectOrgstructProvider = props => {
 
       Promise.all(promises)
         .then(handleResponse)
-        .then(items => {
-          return items.map(item => prepareSelected(item));
-        })
+        .then(items => items.map(prepareSelected))
         .then(selectedItems => {
           setTabItems({
             ...tabItems,
@@ -186,7 +184,8 @@ export const SelectOrgstructProvider = props => {
             [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => setSelectedItem(item, selectedItems))
           });
           setSelectedRows([...selectedItems]);
-        });
+        })
+        .catch(_ => _);
     }
   }, [isSelectedFetched]);
 

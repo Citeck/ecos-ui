@@ -1,4 +1,5 @@
 import _get from 'lodash/get';
+import _filter from 'lodash/filter';
 
 import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
@@ -13,7 +14,8 @@ import { COMPUTED_ATT_PREFIX } from './util';
 class JournalsDataLoader {
   async load(journalConfig, settings = {}) {
     const columns = journalConfig.columns || [];
-    let predicates = [journalConfig.predicate, settings.predicate, ...(settings.filter || [])];
+    const predicateFilter = convertAttributeValues(_filter(settings.filter, p => !!p), columns);
+    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter];
 
     if (settings.onlyLinked && settings.recordRef) {
       predicates.push({
@@ -32,10 +34,8 @@ class JournalsDataLoader {
 
     let language = 'predicate';
     let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
-
-    query = convertAttributeValues(query, columns);
-
     let queryData = null;
+
     if (journalConfig.queryData || settings.queryData) {
       queryData = {
         ...(journalConfig.queryData || {}),
@@ -168,6 +168,7 @@ class JournalsDataLoader {
     }
 
     const attributesSet = new Set();
+
     for (let key in attributesMap) {
       if (attributesMap.hasOwnProperty(key)) {
         attributesSet.add(attributesMap[key]);

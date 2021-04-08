@@ -5,6 +5,7 @@ import { DragDropContext } from 'react-beautiful-dnd';
 
 import { t, trigger } from '../../helpers/util';
 import { RemoveDialog } from '../common/dialogs';
+import { ErrorBoundary } from '../ErrorBoundary';
 import { ParserPredicate } from './predicates';
 import { FiltersGroup } from './';
 
@@ -212,27 +213,29 @@ class Filters extends Component {
     const lastIdx = length ? length - 1 : 0;
 
     return (
-      <div className={classNames('ecos-filters', className)}>
-        <DragDropContext onDragEnd={this.onDragEnd}>
-          {groups.map((group, idx) => {
-            if (idx > 0) {
-              return this.createSubGroup(group, lastIdx !== idx, idx, sourceId, metaRecord);
-            } else {
-              return this.createGroup(group, true, idx, sourceId, metaRecord);
-            }
-          })}
-        </DragDropContext>
+      <ErrorBoundary>
+        <div className={classNames('ecos-filters', className)}>
+          <DragDropContext onDragEnd={this.onDragEnd}>
+            {groups.map((group, idx) => {
+              if (idx > 0) {
+                return this.createSubGroup(group, lastIdx !== idx, idx, sourceId, metaRecord);
+              } else {
+                return this.createGroup(group, true, idx, sourceId, metaRecord);
+              }
+            })}
+          </DragDropContext>
 
-        <RemoveDialog
-          isOpen={isDialogShow}
-          title={dialogTitle}
-          text={dialogText}
-          className="ecos-modal_width-xs"
-          onDelete={this.delete}
-          onCancel={this.closeDialog}
-          onClose={this.closeDialog}
-        />
-      </div>
+          <RemoveDialog
+            isOpen={isDialogShow}
+            title={dialogTitle}
+            text={dialogText}
+            className="ecos-modal_width-xs"
+            onDelete={this.delete}
+            onCancel={this.closeDialog}
+            onClose={this.closeDialog}
+          />
+        </div>
+      </ErrorBoundary>
     );
   }
 }

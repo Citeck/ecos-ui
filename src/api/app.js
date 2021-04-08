@@ -6,7 +6,7 @@ import ecosFetch from '../helpers/ecosFetch';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
 import { SourcesId, URL } from '../constants';
-import { PROXY_URI } from '../constants/alfresco';
+import { PROXY_URI, UISERV_API } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
@@ -71,7 +71,7 @@ export class AppApi extends CommonApi {
   };
 
   getFooter = () => {
-    return Records.get('uiserv/config@footer-content')
+    return Records.get(`${SourcesId.CONFIG}@footer-content`)
       .load('value?str')
       .catch(() => null);
   };
@@ -91,11 +91,11 @@ export class AppApi extends CommonApi {
    * @returns {Promise<Object<String,String>>}
    */
   static async getDictionaryServer(id) {
-    const cb = await Records.get('uiserv/meta@')
+    const cb = await Records.get(SourcesId.META + '@')
       .load('attributes.i18n-cache-key')
       .then(k => k || '0')
       .catch(_ => '0');
-    const url = queryString.stringifyUrl({ url: `${PROXY_URI}citeck/micro/uiserv/api/messages/locale`, query: { id, cb } });
+    const url = queryString.stringifyUrl({ url: `${UISERV_API}messages/locale`, query: { id, cb } });
 
     return ecosFetch(url)
       .then(res => (res.ok ? res.json() : Promise.reject(res)))

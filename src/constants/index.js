@@ -1,11 +1,15 @@
+import { PROXY_URI } from './alfresco';
+
 export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
-  OLD_DASHBOARD: '/share/page',
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
   MENU_SETTINGS: '/v2/menu-settings',
-  BPMN_DESIGNER: '/v2/bpmn-designer',
+  ADMIN_PAGE: '/v2/admin',
+  BPMN_DESIGNER: '/v2/bpmn-designer', // @deprecated
+  BPMN_EDITOR: '/v2/bpmn-editor',
+  CMMN_EDITOR: '/v2/cmmn-editor',
   DEV_TOOLS: '/v2/dev-tools',
   TIMESHEET: '/v2/timesheet',
   TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
@@ -26,16 +30,22 @@ export const pagesWithOnlyContent = [
 ];
 
 export const SourcesId = {
+  ADMIN_PAGE_SECTION: 'uiserv/admin-page-section',
   BUILD_INFO: 'uiserv/build-info',
   DASHBOARD: 'uiserv/dashboard',
-  EFORM: 'uiserv/eform',
+  DOCLIB: 'alfresco/doclib',
+  EFORM: 'uiserv/form',
   USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',
   MENU: 'uiserv/menu',
+  RESOLVED_MENU: 'uiserv/rmenu',
   ICON: 'uiserv/icon',
   PREDICATE: 'uiserv/predicate',
   THEME: 'uiserv/theme',
   META: 'uiserv/meta',
+  JOURNAL: 'uiserv/journal',
+  RESOLVED_JOURNAL: 'uiserv/rjournal',
+  RESOLVED_TYPE: 'emodel/rtype',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
   A_AUTHORITY: 'alfresco/authority',
@@ -88,7 +98,7 @@ export const LoaderTypes = {
   POINTS: 'points'
 };
 
-export const IMAGE_URL_PATH = '/share/proxy/alfresco/citeck/ecos/image/thumbnail';
+export const IMAGE_URL_PATH = `${PROXY_URI}citeck/ecos/image/thumbnail`;
 
 export const DocScaleOptions = {
   AUTO: 'auto',
@@ -123,6 +133,9 @@ export const Pages = {
   LOGIN: 'login',
   DEBUG_FORMIO: 'debug-formio',
   DEBUG_TREE: 'debug-tree',
+  DEBUG_CMMN: 'debug-cmnne',
+  CMMN_EDITOR: 'cmmn-editor',
+  BPMN_EDITOR: 'bpmn-editor',
   DEV_TOOLS: 'dev-tools'
 };
 
@@ -137,15 +150,19 @@ export const JournalUrlParams = {
   JOURNAL_SETTING_ID: 'journalSettingId',
   USER_CONFIG_ID: 'userConfigId',
   SHOW_PREVIEW: 'showPreview',
-  SEARCH: 'search'
+  SEARCH: 'search',
+  VIEW_MODE: 'viewMode',
+  DOCLIB_FOLDER_ID: 'folderId',
+  DOCLIB_SEARCH: 'dlSearch'
 };
 
 export const SYSTEM_LIST = 'global-system';
 
 export const SystemJournals = {
-  ALL_J: 'ecos-all-journals',
+  JOURNALS: 'ecos-journals',
   TYPES: 'ecos-types',
-  MENUS: 'ecos-menus'
+  MENUS: 'ecos-menus',
+  FORMS: 'ecos-forms'
 };
 
 window.Citeck = window.Citeck || {};

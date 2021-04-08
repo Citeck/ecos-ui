@@ -1,10 +1,10 @@
 import { NotificationManager } from 'react-notifications';
-import copy from 'copy-to-clipboard';
 import get from 'lodash/get';
 
 import { CommonApi } from './common';
 import Records from '../components/Records';
 import { t } from '../helpers/util';
+import CopyToClipboard from '../helpers/copyToClipboard';
 import { SourcesId } from '../constants';
 
 const context = SourcesId.USER_CONF + '@';
@@ -45,10 +45,12 @@ export class UserConfigApi extends CommonApi {
       .then(response => {
         const fullId = get(response, 'id');
         const shortId = fullId && get(fullId.split(context), '[1]');
+        const text = `${url}&userConfigId=${shortId}`;
+        const copied = CopyToClipboard.copy(text);
 
-        if (shortId && copy(`${url}&userConfigId=${shortId}`)) {
+        if (shortId && copied) {
           NotificationManager.success(t('export-component.notice.buffer-link-done'), t('success'), 3000);
-        } else {
+        } else if (copied !== undefined) {
           NotificationManager.warning(t('export-component.notice.buffer-link-err'));
         }
       })

@@ -57,7 +57,6 @@ import { DEFAULT_REF, documentActions, documentFields } from '../constants/docum
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
     yield put(setConfig({ ...payload }));
-    yield* sagaGetAvailableTypes({ api, logger }, { payload: payload.key });
     yield* sagaGetDynamicTypes({ api, logger }, { payload: { ...payload } });
     yield put(initSuccess(payload.key));
   } catch (e) {
@@ -89,6 +88,12 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     const dynamicTypeKeys = combinedTypes.map(record => record.type);
     const { records: documents, errors: documentsErrors } = yield call(api.documents.getDocumentsByTypes, payload.record, dynamicTypeKeys);
     const countByTypes = documents.map(record => record.documents);
+    const additionalTypeInfo = yield call(api.documents.getTypeInfo, dynamicTypeKeys);
+
+    combinedTypes = combinedTypes.map((type, index) => ({
+      ...type,
+      ...get(additionalTypeInfo, [index], {})
+    }));
 
     if (documentsErrors.length) {
       throw new Error(documentsErrors.map(item => item.msg || item).join(', '));
@@ -119,9 +124,9 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     yield all(
       combinedTypes.map(function*(item) {
         const journalConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
-        const _columns = DocumentsConverter.getColumnsForGrid(journalConfig.columns);
-        DocumentsConverter.setDefaultFormatters(_columns);
-        const columns = yield call(api.documents.getFormattedColumns, { ...journalConfig, columns: _columns });
+        const columns = DocumentsConverter.getColumnsForGrid(journalConfig.columns);
+
+        DocumentsConverter.setDefaultFormatters(columns);
         item.columns = DocumentsConverter.getColumnForWeb(columns);
         return item;
       })

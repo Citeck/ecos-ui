@@ -11,14 +11,15 @@ export default class ErrorCell extends React.Component {
     text: PropTypes.string
   };
 
+  static defaultProps = {
+    text: t('load-data-error')
+  };
+
   state = { error: null, errorInfo: null };
 
   componentDidCatch(error, errorInfo) {
     console.warn(error, errorInfo);
-    this.setState({
-      error: error,
-      errorInfo: errorInfo
-    });
+    this.setState({ error, errorInfo });
   }
 
   render() {

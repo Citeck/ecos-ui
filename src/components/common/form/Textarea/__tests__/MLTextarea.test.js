@@ -1,11 +1,10 @@
 import React from 'react';
-import { configure, shallow, mount } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { shallow, mount } from 'enzyme';
 
 import MLTextarea from '../MLTextarea';
 import { LANGUAGE_RU, LANGUAGE_EN } from '../../../../../constants/lang';
 
-configure({ adapter: new Adapter() });
+global.getSelection = () => '';
 
 describe('<MLTextarea />', () => {
   it('renders without crashing', () => {
