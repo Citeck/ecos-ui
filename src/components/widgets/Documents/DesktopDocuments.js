@@ -103,7 +103,7 @@ class DesktopDocuments extends BaseDocuments {
     };
 
     this._tablePanel = React.createRef();
-    this._tableRef = React.createRef();
+    this._tableRef = null;
     this._typesList = React.createRef();
     this._emptyStubRef = React.createRef();
     this._counterRef = React.createRef();
@@ -140,7 +140,7 @@ class DesktopDocuments extends BaseDocuments {
   }
 
   get tableHeight() {
-    return get(this._tableRef, 'current.offsetHeight', 0);
+    return get(this._tableRef, 'offsetHeight', 0);
   }
 
   get tableWidth() {
@@ -260,6 +260,12 @@ class DesktopDocuments extends BaseDocuments {
     }
 
     return cloneDeep(type);
+  };
+
+  setTableRef = ref => {
+    if (ref) {
+      this._tableRef = ref;
+    }
   };
 
   refreshGrid() {
@@ -687,7 +693,7 @@ class DesktopDocuments extends BaseDocuments {
           sortable={false}
           fixedHeader
           scrollAutoHide={autoHide}
-          forwardedRef={this._tableRef}
+          forwardedRef={this.setTableRef}
           autoHeight
           maxHeight={this.tableMaxHeight}
           keyField={documentFields.id}
@@ -756,7 +762,7 @@ class DesktopDocuments extends BaseDocuments {
           selectedType={selectedType}
           autoHide={autoHide}
           isHoverLastRow={isHoverLastRow}
-          forwardedRef={this._tableRef}
+          forwardedRef={this.setTableRef}
           scrollPosition={this.scrollPosition}
           tableData={this.tableData}
           countFormatter={this.countFormatter}
