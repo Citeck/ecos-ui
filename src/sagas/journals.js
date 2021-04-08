@@ -52,7 +52,8 @@ import {
   setPreviewUrl,
   setSelectAllRecordsVisible,
   setSelectedRecords,
-  setUrl
+  setUrl,
+  setOriginGridSettings
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import {
@@ -346,6 +347,22 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
         })
       )
     );
+
+    yield put(
+      setOriginGridSettings(
+        w({
+          predicate: predicate || journalSetting.predicate,
+          columnsSetup: {
+            columns: (journalSetting.groupBy.length ? journalConfig.columns : journalSetting.columns).map(c => ({ ...c })),
+            sortBy: journalSetting.sortBy.map(s => ({ ...s }))
+          },
+          grouping: {
+            columns: (journalSetting.groupBy.length ? journalSetting.columns : []).map(c => ({ ...c })),
+            groupBy: journalSetting.groupBy.map(g => ({ ...g }))
+          }
+        })
+      )
+    );
   } catch (e) {
     logger.error('[journals sagaInitJournalSettingData saga error', e.message);
   }
@@ -353,8 +370,17 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
 
 function* sagaResetJournalSettingData({ api, logger, stateId, w }, action) {
   try {
+    const { journalConfig, originGridSettings, predicate, columnsSetup, grouping } = yield select(selectJournalData, stateId);
+
+    if (!isEqual(originGridSettings, { predicate, columnsSetup, grouping })) {
+      yield put(setPredicate(w(originGridSettings.predicate)));
+      yield put(setColumnsSetup(w(originGridSettings.columnsSetup)));
+      yield put(setGrouping(w(originGridSettings.grouping)));
+
+      return;
+    }
+
     const journalSettingId = action.payload;
-    const { journalConfig } = yield select(selectJournalData, stateId);
 
     yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
   } catch (e) {
