@@ -1333,6 +1333,15 @@
   "cmmn-editor.error.can-not-save-record-data": "Record data has not saved",
   "cmmn-editor.error.no-selected-element": "You should select some element to edit it",
 
+  "legacy-cmmn-editor.header": "Edit scenario",
+  "legacy-cmmn-editor.header2": "CMMN Editor",
+  "legacy-cmmn-editor.loading.error.title": "Loading error",
+  "legacy-cmmn-editor.loading.error.text": "Template loading error. Contact your system administrator.",
+  "legacy-cmmn-editor.save.error.title": "Error while saving",
+  "legacy-cmmn-editor.save.error.text": "Error while saving. Contact your system administrator.",
+  "legacy-cmmn-editor.button.save.label": "Save",
+  "legacy-cmmn-editor.button.cancel.label": "Cancel",
+
   "generated-field.editor.not-exist": "Editor doesn't exist",
 
   "go-to.home-page": "Go to home page",

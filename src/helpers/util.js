@@ -72,18 +72,6 @@ export const debounce = (func, ms = 0) => {
   };
 };
 
-export const queryByCriteria = criteria => {
-  let query = {};
-
-  (criteria || []).forEach((criterion, idx) => {
-    query['field_' + idx] = criterion.field;
-    query['predicate_' + idx] = criterion.predicate;
-    query['value_' + idx] = criterion.value;
-  });
-
-  return query;
-};
-
 export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
 
 export function closest(node = null, selector) {
@@ -407,6 +395,8 @@ export function isPDFbyStr(str) {
 }
 
 /**
+ * todo: translate to english
+ *
  * Реализация скачивания файла с добавлением в dom элемента и его удалением после скрипт-нажатия
  * @param link ссылка на файл для скачивания
  */
@@ -423,6 +413,8 @@ export function fileDownload(link) {
 }
 
 /**
+ * todo: translate to english
+ *
  * Варианты масштабирования объекта на странице
  * @returns {Array}
  */
@@ -444,6 +436,8 @@ export function getScaleModes() {
 }
 
 /**
+ * todo: translate to english
+ *
  * Вычисление масштабирования для строковых режимов
  * @param scale {Number|String} - режим см getScaleModes
  * @param paramsContainer {Object} - ширина и высота объекта масштабирования
@@ -512,6 +506,8 @@ export function isLastItem(array, idx) {
 }
 
 /**
+ * todo: translate to english
+ *
  * Функция склонения слов в зависимости от числительного
  *
  * @param n - числительное

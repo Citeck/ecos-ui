@@ -5,6 +5,7 @@ import { modules } from '../../src/services/EcosModules';
 
 export default {
   ...modules,
+  'legacy-cmmn-editor': () => import('../../src/legacy/cmmn-editor/LegacyCmmnEditor'),
   'reactstrap': () => import('reactstrap'),
   'react-custom-scrollbars': () => import('react-custom-scrollbars'),
   'journals-dashlet': () => import('../../src/components/widgets/JournalsDashlet/export'),

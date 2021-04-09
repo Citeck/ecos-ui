@@ -20,7 +20,10 @@ export default class DownloadAction extends ActionsExecutor {
             filename = filename.substring(filename.indexOf('$') + 1);
           }
           if (config.extension) {
-            filename += '.' + config.extension;
+            const extPostfix = '.' + config.extension;
+            if (!filename.endsWith(extPostfix)) {
+              filename += extPostfix;
+            }
           }
         }
         DownloadAction._downloadBase64(data, filename);
