@@ -109,17 +109,11 @@ export default class EcosFormModal extends React.Component {
     if (typeof onHideModal === 'function') {
       onHideModal();
     } else {
-      this.setState(
-        {
-          isModalOpen: false,
-          recordData: null
-        },
-        () => {
-          if (typeof onAfterHideModal === 'function') {
-            onAfterHideModal();
-          }
+      this.setState({ isModalOpen: false }, () => {
+        if (typeof onAfterHideModal === 'function') {
+          onAfterHideModal();
         }
-      );
+      });
     }
 
     window.removeEventListener('beforeunload', this._onbeforeunload);
