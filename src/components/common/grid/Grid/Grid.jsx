@@ -8,6 +8,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import cloneDeep from 'lodash/cloneDeep';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 
@@ -1032,7 +1033,7 @@ class Grid extends Component {
       'rowEvents'
     ]);
 
-    const bootProps = this.getBootstrapTableProps(props, extraProps);
+    const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
 
     return (
       <>
