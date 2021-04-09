@@ -1,14 +1,34 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import ReactDOM from 'react-dom';
 import ecosFetch from '../../helpers/ecosFetch';
 import Records from '../../components/Records';
+import { getSearchParams, t } from '../../helpers/util';
+import DialogManager from '../../components/common/dialogs/Manager';
+import EcosModal from '../../components/common/EcosModal';
+import { i18nInit } from '../../i18n';
+
+const EDITOR_REC_SOURCE_PREFIX = 'alfresco/cmmn-legacy-editor@';
+
+let savingInProgress = false;
 
 export default class LegacyCmmnEditor extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: true
+    };
+  }
+
   componentDidMount() {
+    this._initEditorHeader();
+
     const { editorRootId } = this.props;
     const createVarsPromise = this._initCreateVariants();
+    const templateNodeRefPromise = this._initNodeRefToEdit();
 
-    document.getElementById('page-node-info-label').innerText = 'Редактирование процесса №1';
+    const cancelBtn = document.getElementById('legacy-cmmn-editor-cancel-btn');
+    cancelBtn.onclick = () => this._onCancelButtonClick();
+    cancelBtn.innerText = t('legacy-cmmn-editor.button.cancel.label');
 
     window.require(
       [
@@ -19,25 +39,112 @@ export default class LegacyCmmnEditor extends React.Component {
         '/legacy/cmmn-editor/case-activities.js'
       ],
       (ko, koutils) => {
-        createVarsPromise.then(() => {
-          var Activity = koutils.koclass('cases.activities.Activity');
-          var activity = new Activity({
-            nodeRef: 'workspace://SpacesStore/5cd2e7f7-4c3f-411f-9b53-b23908ec8220',
-            startable: false,
-            stoppable: false,
-            editable: true,
-            removable: false,
-            composite: true
-          });
+        Promise.all([createVarsPromise, templateNodeRefPromise])
+          .then(([, templateNodeRef]) => {
+            const Activity = koutils.koclass('cases.activities.Activity');
+            const activity = new Activity({
+              nodeRef: templateNodeRef,
+              startable: false,
+              stoppable: false,
+              editable: true,
+              removable: false,
+              composite: true
+            });
 
-          ko.applyBindings(activity, document.getElementById(editorRootId));
-          window.Alfresco.util.createTwister(`${editorRootId}-heading`, 'case-activities', { panel: `${editorRootId}-body` });
-          window.YAHOO.Bubbling.on('metadataRefresh', function() {
-            activity.reload(true);
+            ko.applyBindings(activity, document.getElementById(editorRootId));
+            window.Alfresco.util.createTwister(`${editorRootId}-heading`, 'case-activities', { panel: `${editorRootId}-body` });
+            window.YAHOO.Bubbling.on('metadataRefresh', function() {
+              activity.reload(true);
+            });
+
+            const saveBtn = document.getElementById('legacy-cmmn-editor-save-btn');
+            saveBtn.onclick = () => this._onSaveButtonClick();
+            saveBtn.innerText = t('legacy-cmmn-editor.button.save.label');
+            saveBtn.removeAttribute('hidden');
+
+            this.setState({
+              isLoading: false,
+              templateNodeRef
+            });
+          })
+          .catch(e => {
+            console.log('CMMN template loading error', e);
+            this.setState({
+              isLoading: false
+            });
+            DialogManager.showInfoDialog({
+              title: 'legacy-cmmn-editor.loading.error.title',
+              text: 'legacy-cmmn-editor.loading.error.text'
+            });
           });
-        });
       }
     );
+  }
+
+  async _onCancelButtonClick() {
+    if (this.state.templateNodeRef) {
+      try {
+        await Records.remove(EDITOR_REC_SOURCE_PREFIX + this.state.templateNodeRef);
+      } catch (e) {
+        // successful deleting of temp node is not mandatory condition to close editor
+      }
+    }
+    this._closeEditor();
+  }
+
+  async _onSaveButtonClick() {
+    if (savingInProgress) {
+      return;
+    }
+    savingInProgress = true;
+
+    this.setState({ isLoading: true });
+
+    try {
+      const templateRecordRef = EDITOR_REC_SOURCE_PREFIX + this.state.templateNodeRef;
+      const record = Records.get(templateRecordRef);
+      record.att('save', true);
+      await record.save();
+      this._closeEditor();
+    } catch (e) {
+      console.log('CMMN template save error', e);
+      this.setState({
+        isLoading: false
+      });
+      DialogManager.showInfoDialog({
+        title: 'legacy-cmmn-editor.save.error.title',
+        text: 'legacy-cmmn-editor.save.error.text'
+      });
+    } finally {
+      savingInProgress = false;
+    }
+  }
+
+  _closeEditor() {
+    window.close();
+    // redirect to CMMN processes journal if tab can't be closed
+    window.location = '/v2/admin?journalId=cmmn-process-def&type=JOURNAL';
+  }
+
+  async _initEditorHeader() {
+    const { templateRef } = this.props;
+    const displayName = (await Records.get(templateRef).load('?disp')) || '';
+
+    let header = t('legacy-cmmn-editor.header');
+    if (displayName) {
+      header += " '" + displayName + "'";
+    }
+    document.getElementById('page-node-info-label').innerText = header;
+  }
+
+  async _initNodeRefToEdit() {
+    const { templateRef } = this.props;
+
+    const rec = Records.get(EDITOR_REC_SOURCE_PREFIX);
+    rec.att('templateRef', templateRef);
+
+    const tempRefId = (await rec.save()).id;
+    return tempRefId.substring(tempRefId.indexOf('@') + 1);
   }
 
   async _initCreateVariants() {
@@ -120,14 +227,17 @@ export default class LegacyCmmnEditor extends React.Component {
 
   render() {
     const { editorRootId } = this.props;
+    const { isLoading } = this.state;
 
     return (
-      <div
-        id={editorRootId}
-        dangerouslySetInnerHTML={{
-          __html: `
+      <>
+        <EcosModal isOpen={isLoading} isLoading={true} />
+        <div
+          id={editorRootId}
+          dangerouslySetInnerHTML={{
+            __html: `
         <h2 id="${editorRootId}-heading" class="thin dark">
-          Редактор CMMN процесса
+          ${t('legacy-cmmn-editor.header2')}
           <span class="alfresco-twister-actions">
             <!-- ko template: { name: 'add-activity' } --><!-- /ko -->
           </span>
@@ -143,15 +253,25 @@ export default class LegacyCmmnEditor extends React.Component {
             <!-- ko template: { name: 'activities' } --><!-- /ko -->
           </div>
         </div>
-      </div>
     `
-        }}
-      />
+          }}
+        />
+      </>
     );
   }
 
-  static renderEditor(containerId) {
+  static async renderEditor(containerId) {
+    await i18nInit({});
+
+    const { templateRef } = getSearchParams();
     const editorRootId = containerId + '-legacy-editor-root-id';
-    ReactDOM.render(React.createElement(LegacyCmmnEditor, { editorRootId }), document.getElementById(containerId));
+
+    ReactDOM.render(
+      React.createElement(LegacyCmmnEditor, {
+        editorRootId,
+        templateRef
+      }),
+      document.getElementById(containerId)
+    );
   }
 }
