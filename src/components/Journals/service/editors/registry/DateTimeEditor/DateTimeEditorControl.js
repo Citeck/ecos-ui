@@ -1,9 +1,7 @@
 import DateEditorControl from '../DateEditor/DateEditorControl';
 
 export default class DateTimeEditorControl extends DateEditorControl {
-  get dateFormat() {
-    return 'dd.MM.yyyy hh:mm';
-  }
+  dateFormat = 'dd.MM.yyyy HH:mm';
 
   get extraProps() {
     return {
