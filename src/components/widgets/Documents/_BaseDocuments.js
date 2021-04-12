@@ -247,7 +247,7 @@ class BaseDocuments extends BaseWidget {
     this.setState({ typesFilter: filter.toLowerCase() });
   };
 
-  getformId = (type = {}) => {
+  getFormId = (type = {}) => {
     const createVariants = this.getFormCreateVariants(type);
 
     return type.formId || createVariants.formRef;
@@ -319,7 +319,7 @@ class BaseDocuments extends BaseWidget {
   handleSelectUploadFiles = (files, callback) => {
     const { selectedTypeForLoading } = this.state;
 
-    if (this.getformId(selectedTypeForLoading)) {
+    if (this.getFormId(selectedTypeForLoading)) {
       this.props.onUploadFiles({ files, type: selectedTypeForLoading.type, openForm: this.openForm, callback });
 
       return;
