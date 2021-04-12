@@ -39,6 +39,7 @@ export default class SelectEditor extends BaseEditor {
             .load(optionsAtt)
             .then(res => {
               let opts;
+
               if (!res) {
                 opts = [value];
               } else if (Array.isArray(res)) {
@@ -46,6 +47,7 @@ export default class SelectEditor extends BaseEditor {
               } else {
                 opts = [res];
               }
+
               setOptions(opts);
               setLoading(false);
             });
@@ -62,8 +64,10 @@ export default class SelectEditor extends BaseEditor {
 
       const selected = options ? options.filter(opt => (opt.value || opt) === value) : null;
 
-      if (!options) {
+      if (isLoading) {
         return <div className="text-dark">{t('ecos-ui.select.loading-message')}</div>;
+      } else if (!options || !options.length) {
+        return <div className="text-dark">{t('ecos-ui.select.no-options-message')}</div>;
       } else {
         return (
           <Select
@@ -73,7 +77,7 @@ export default class SelectEditor extends BaseEditor {
             className="select_narrow select_width_full"
             getOptionLabel={option => option.label || option}
             getOptionValue={option => option.value || option}
-            options={options}
+            options={[{ value: null, label: t('react-select.select-value.label') }, ...options]}
             value={selected}
             styles={{
               menu: css => ({

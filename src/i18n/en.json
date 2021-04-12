@@ -838,6 +838,7 @@
   "properties-widget.settings.form-not-existed-in-list": "Chosen form does not exist in list",
   "properties-widget.settings.title-as-form-name": "Widget title as form name",
   "react-select.default-value.label": "Default",
+  "react-select.select-value.label": "Select",
   "react-select.value-false.label": "No",
   "react-select.value-true.label": "Yes",
 
