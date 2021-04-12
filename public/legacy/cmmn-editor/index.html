@@ -13,6 +13,14 @@
   <meta name="viewport"
         content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, width=device-width">
 
+  <script type="text/javascript" src="/share/res/js/citeck/lib/polyfill/babel-polyfill.min.js"></script>
+  <script type="text/javascript" src="/share/res/js/citeck/lib/polyfill/fetch.min.js"></script>
+
+  <script type="text/javascript">
+    // messages.js doesn't load until we load any share page
+    fetch('/share/page/dev-tools');
+  </script>
+
   <script type="text/javascript" src="/share/service/messages.js?locale=ru"></script>
 
   <style type="text/css" media="screen">
@@ -179,9 +187,6 @@
     }
   });
 </script>
-
-<script type="text/javascript" src="/share/res/js/citeck/lib/polyfill/babel-polyfill.min.js"></script>
-<script type="text/javascript" src="/share/res/js/citeck/lib/polyfill/fetch.min.js"></script>
 
 <script type="text/javascript" src="/share/res/js/yui-common.js"></script>
 <script type="text/javascript" src="/share/res/yui/history/history.js"></script>
