@@ -28,14 +28,17 @@ export default class EcosFormModal extends React.Component {
 
     this.state = {
       isModalOpen: false,
-      isConfigurableForm: false
+      isConfigurableForm: false,
+      addedListener: false
     };
   }
 
   componentWillUpdate(nextProps, nextState) {
     if (nextProps.isModalOpen !== this.state.isModalOpen) {
-      if (nextProps.isModalOpen) {
+      if (nextProps.isModalOpen && !nextState.addedListener) {
         window.addEventListener('beforeunload', this._onbeforeunload);
+
+        this.setState({ addedListener: true });
       }
 
       this.setState({ isModalOpen: nextProps.isModalOpen });
@@ -97,10 +100,7 @@ export default class EcosFormModal extends React.Component {
       onCancelModal();
     }
 
-    this.setState({
-      isModalOpen: false,
-      recordData: null
-    });
+    this.setState({ isModalOpen: false });
   };
 
   hide() {
@@ -109,17 +109,11 @@ export default class EcosFormModal extends React.Component {
     if (typeof onHideModal === 'function') {
       onHideModal();
     } else {
-      this.setState(
-        {
-          isModalOpen: false,
-          recordData: null
-        },
-        () => {
-          if (typeof onAfterHideModal === 'function') {
-            onAfterHideModal();
-          }
+      this.setState({ isModalOpen: false }, () => {
+        if (typeof onAfterHideModal === 'function') {
+          onAfterHideModal();
         }
-      );
+      });
     }
 
     window.removeEventListener('beforeunload', this._onbeforeunload);
@@ -132,6 +126,10 @@ export default class EcosFormModal extends React.Component {
   }
 
   _onbeforeunload = e => {
+    if (!this.state.isModalOpen) {
+      return;
+    }
+
     // https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event#Examples
     e.preventDefault();
     e.returnValue = '';
