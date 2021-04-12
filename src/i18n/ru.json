@@ -1339,6 +1339,7 @@
   "legacy-cmmn-editor.save.error.text": "Сохранение не удалось. Обратитесь к системному администратору.",
   "legacy-cmmn-editor.button.save.label": "Сохранить",
   "legacy-cmmn-editor.button.cancel.label": "Отменить",
+  "legacy-cmmn-editor.button.copy-tmpl-node-ref.label": "Скопировать ID временного кейса",
 
   "generated-field.editor.not-exist": "Редактора не существует",
 

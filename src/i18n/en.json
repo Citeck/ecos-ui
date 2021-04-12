@@ -1341,6 +1341,7 @@
   "legacy-cmmn-editor.save.error.text": "Error while saving. Contact your system administrator.",
   "legacy-cmmn-editor.button.save.label": "Save",
   "legacy-cmmn-editor.button.cancel.label": "Cancel",
+  "legacy-cmmn-editor.button.copy-tmpl-node-ref.label": "Copy temporary case ID",
 
   "generated-field.editor.not-exist": "Editor doesn't exist",
 

@@ -6,6 +6,7 @@ import { getSearchParams, t } from '../../helpers/util';
 import DialogManager from '../../components/common/dialogs/Manager';
 import EcosModal from '../../components/common/EcosModal';
 import { i18nInit } from '../../i18n';
+import CopyToClipboard from '../../helpers/copyToClipboard';
 
 const EDITOR_REC_SOURCE_PREFIX = 'alfresco/cmmn-legacy-editor@';
 
@@ -62,6 +63,11 @@ export default class LegacyCmmnEditor extends React.Component {
             saveBtn.innerText = t('legacy-cmmn-editor.button.save.label');
             saveBtn.removeAttribute('hidden');
 
+            const copyTemplateNodeRefBtn = document.getElementById('legacy-cmmn-editor-copy-tmpl-node-ref-btn');
+            copyTemplateNodeRefBtn.onclick = () => this._onCopyTemplateNodeRefButtonClick();
+            copyTemplateNodeRefBtn.innerText = t('legacy-cmmn-editor.button.copy-tmpl-node-ref.label');
+            copyTemplateNodeRefBtn.removeAttribute('hidden');
+
             this.setState({
               isLoading: false,
               templateNodeRef
@@ -79,6 +85,11 @@ export default class LegacyCmmnEditor extends React.Component {
           });
       }
     );
+  }
+
+  async _onCopyTemplateNodeRefButtonClick() {
+    const { templateNodeRef } = this.state;
+    CopyToClipboard.copy(templateNodeRef);
   }
 
   async _onCancelButtonClick() {
@@ -128,11 +139,13 @@ export default class LegacyCmmnEditor extends React.Component {
 
   async _initEditorHeader() {
     const { templateRef } = this.props;
-    const displayName = (await Records.get(templateRef).load('?disp')) || '';
-
+    let displayName = (await Records.get(templateRef).load('?disp')) || '';
+    if (!displayName) {
+      displayName = templateRef.substring(templateRef.indexOf('@') + 1);
+    }
     let header = t('legacy-cmmn-editor.header');
     if (displayName) {
-      header += " '" + displayName + "'";
+      header += ' - ' + displayName;
     }
     document.getElementById('page-node-info-label').innerText = header;
   }
