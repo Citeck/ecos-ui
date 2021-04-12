@@ -73,7 +73,7 @@ class EsignComponent extends Component {
 
   signDefault = certificates => {
     if (Array.isArray(certificates) && certificates.length === 1) {
-      this.handleSignDocument(certificates[0].id);
+      this.handleSignDocument(certificates[0]);
     }
     return certificates;
   };
