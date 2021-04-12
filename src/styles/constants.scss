@@ -125,6 +125,10 @@ $scroll-size: 6px;
 $scroll-border-radius: 3px;
 $scroll-z-index: 30;
 
+$z-index: (
+  document-widget-resizer: auto
+);
+
 %v-scroll {
   position: absolute;
   width: $scroll-size;
