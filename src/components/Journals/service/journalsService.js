@@ -250,8 +250,8 @@ class JournalsService {
   }
 
   _fillTemplateAttsAndMapComputedScope(value, attributes, computedIdMapping = {}) {
-    if (!value) {
-      return value;
+    if (value === null || value === undefined) {
+      return null;
     }
     if (_.isString(value)) {
       let newValue = value;
@@ -293,6 +293,7 @@ class JournalsService {
       }
       return newValue;
     }
+    return value;
   }
 }
 
