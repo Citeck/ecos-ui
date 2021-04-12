@@ -17,16 +17,17 @@ const WRAPPER = true;
 function getEditorComponent({ type, config, value, wrapper }) {
   const editorInstance = editorRegistry.getEditor(type);
   const Control = editorInstance.getControl(config, {});
-  const shallow1 = shallow(<Control config={config} value={value} />);
+  const shallowCtrl = shallow(<Control config={config} value={value} />);
+
   let ReactComp;
 
   if (wrapper) {
-    ReactComp = shallow1
+    ReactComp = shallowCtrl
       .first()
       .dive()
       .getElement();
   } else {
-    ReactComp = shallow1.getElement();
+    ReactComp = shallowCtrl.getElement();
   }
 
   return ReactComp;
@@ -45,7 +46,7 @@ describe('editors registry', () => {
     [undefined, TextEditor],
     ['unknown', TextEditor]
   ])('type > editor class', (type, editorClass) => {
-    test(`${type} expects ${editorClass.name}`, () => {
+    test(`type "${type}" expects editor "${editorClass.name}"`, () => {
       const editorInstance = editorRegistry.getEditor(type);
       expect(editorInstance instanceof editorClass).toBeTruthy();
     });
@@ -59,7 +60,7 @@ describe('editors registry', () => {
     ['datetime', 'DatePicker', {}, WRAPPER],
     ['journal', 'SelectJournal'],
     ['orgstruct', 'SelectOrgstruct', {}, WRAPPER],
-    ['select', 'Select'],
+    ['select', 'div', {}],
     ['number', 'Input'],
     ['text', 'Input'],
     [undefined, 'Input'],
@@ -67,8 +68,8 @@ describe('editors registry', () => {
   ])('type > expected element', (type, controlClassName, config = {}, wrapper) => {
     const ReactComp = getEditorComponent({ type, config, wrapper });
 
-    test(`${type} expects ${controlClassName}`, () => {
-      expect(ReactComp.type.name).toEqual(controlClassName);
+    test(`type "${type}" expects control - "${controlClassName}"`, () => {
+      expect(ReactComp.type.name || ReactComp.type).toEqual(controlClassName);
     });
   });
 
@@ -76,7 +77,7 @@ describe('editors registry', () => {
     ['boolean', { config: { mode: 'checkbox' }, value: true, checked: true }],
     ['boolean', { config: { mode: 'checkbox' }, value: false, checked: false }],
     ['date', { showTimeInput: undefined, dateFormat: 'dd.MM.yyyy' }, WRAPPER],
-    ['datetime', { showTimeInput: true, dateFormat: 'dd.MM.yyyy hh:mm' }, WRAPPER],
+    ['datetime', { showTimeInput: true, dateFormat: 'dd.MM.yyyy HH:mm' }, WRAPPER],
     ['journal', { config: { journalId: '1' }, journalId: '1' }],
     ['orgstruct', { config: { allowedAuthorityTypes: 'USER' }, allowedAuthorityTypes: ['USER'] }, WRAPPER],
     ['number', { type: 'number' }],
@@ -86,7 +87,7 @@ describe('editors registry', () => {
     const ReactComp = getEditorComponent({ type, config, value, wrapper });
 
     for (let prop in props) {
-      test(`${type} expects ${prop} = ${props[prop]}`, () => {
+      test(`type "${type}" expects prop: ${prop} = ${props[prop]}`, () => {
         expect(ReactComp.props[prop]).toEqual(props[prop]);
       });
     }
