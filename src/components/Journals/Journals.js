@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
@@ -99,7 +99,7 @@ const defaultDisplayElements = {
   groupActions: true
 };
 
-class Journals extends Component {
+class Journals extends React.Component {
   _journalRef = null;
   _journalBodyRef = null;
   _beforeJournalBlockRef = null;
@@ -511,7 +511,7 @@ class Journals extends Component {
       const showConfigPopup = showJournalConfig === true && !!journalConfig;
 
       return (
-        <Fragment>
+        <>
           <div onClick={displayConfigPopup}>
             <JournalsHead
               toggleMenu={this.toggleMenu}
@@ -530,7 +530,7 @@ class Journals extends Component {
               </div>
             </EcosModal>
           )}
-        </Fragment>
+        </>
       );
     }
   };

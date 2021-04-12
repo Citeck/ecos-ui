@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import moment from 'moment';
 import classNames from 'classnames';
 import get from 'lodash/get';
+
 import { PREDICATE_TIME_INTERVAL } from '../../../../../Records/predicates/predicates';
 import { DatePicker } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
@@ -28,18 +29,14 @@ export default class DateEditorControl extends React.Component {
     return scope === EditorScope.FILTER;
   }
 
-  get dateFormat() {
-    return 'dd.MM.yyyy';
-  }
+  dateFormat = 'dd.MM.yyyy';
 
   get extraProps() {
     return { ...get(this, 'props.extraProps', null) };
   }
 
   get selected() {
-    const date = moment(this.state.date)
-      .utc()
-      .format();
+    const date = moment(this.state.date).toISOString(true);
     return this.state.date ? moment(date).toDate() : undefined;
   }
 
@@ -60,9 +57,13 @@ export default class DateEditorControl extends React.Component {
   }
 
   onChange = value => {
-    const date = moment(value)
-      .utc()
-      .format();
+    let date = moment(value);
+
+    if (this.extraProps.showTimeInput) {
+      date = date.toISOString(true);
+    } else {
+      date = date.format('YYYY-MM-DD');
+    }
 
     this.setState({ date });
   };
