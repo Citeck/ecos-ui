@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 
 import api from '../api/esign';
 import EsignComponent from '../components/Esign';
 import EsignConverter from '../dto/esign';
 import { ErrorTypes, Labels } from '../constants/esign';
-import { deepClone, t } from '../helpers/util';
+import { t } from '../helpers/util';
 
 class Esign {
   static #queryParams = {};
@@ -26,10 +27,10 @@ class Esign {
         params = queryParams instanceof Array ? {} : queryParams;
         break;
       default:
-        params = '';
+        params = {};
     }
 
-    Esign.#queryParams = deepClone(params, {});
+    Esign.#queryParams = cloneDeep(params);
 
     if (!Array.isArray(recordRefs)) {
       recordRefs = [recordRefs];
@@ -49,6 +50,37 @@ class Esign {
     );
 
     document.body.appendChild(container);
+  }
+
+  /* document will be signed by the first found certificate */
+  async silentSign(recordRefs, componentProps = {}, queryParams = false) {
+    if (!recordRefs) {
+      return new Error(`The "recordRefs" argument is required`);
+    }
+
+    let params;
+
+    switch (typeof queryParams) {
+      case 'boolean':
+        params = { isApprovementSignature: queryParams };
+        break;
+      case 'object':
+        params = queryParams instanceof Array ? {} : queryParams;
+        break;
+      default:
+        params = {};
+    }
+
+    Esign.#queryParams = cloneDeep(params);
+
+    if (!Array.isArray(recordRefs)) {
+      recordRefs = [recordRefs];
+    }
+
+    return Esign.init(recordRefs)
+      .then(() => Esign.getCertificates(componentProps.thumbprints))
+      .then(certs => Esign.signDocument(recordRefs, certs[0]))
+      .catch(this.setError);
   }
 
   #onClose = container => {
