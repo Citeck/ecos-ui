@@ -477,7 +477,7 @@ class RecordActions {
 
     const noResultModal = get(action, 'config.noResultModal');
 
-    if (!isBoolean(actResult) && !noResultModal) {
+    if (!noResultModal) {
       await DetailActionResult.showResult(actResult, { title: getActionResultTitle(action) });
     }
 

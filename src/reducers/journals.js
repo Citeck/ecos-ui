@@ -24,6 +24,7 @@ import {
   setLoading,
   setOnlyLinked,
   setPredicate,
+  setOriginGridSettings,
   setPreviewFileName,
   setPreviewUrl,
   setRecordRef,
@@ -108,6 +109,19 @@ export const defaultState = {
   isExistJournal: true,
 
   predicate: null,
+
+  originGridSettings: {
+    predicate: null,
+    columnsSetup: {
+      columns: [],
+      sortBy: []
+    },
+    grouping: {
+      columns: [],
+      groupBy: []
+    }
+  },
+
   columnsSetup: {
     columns: [],
     sortBy: []
@@ -224,6 +238,12 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { predicate: action.payload });
+    },
+    [setOriginGridSettings]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { originGridSettings: action.payload });
     },
     [setPreviewUrl]: (state, action) => {
       const stateId = action.payload.stateId;
