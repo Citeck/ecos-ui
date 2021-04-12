@@ -91,14 +91,16 @@ class JournalColumnsResolver {
       default: defaultValue
     };
 
-    const formatterOptions = updColumn.formatter || Mapper.getFormatterOptions(cloneDeep(updColumn), index);
-    const formatterData = this._getFormatter(formatterOptions);
-    const formatAttSchema = formatterData.formatter.getQueryString(attribute);
+    if (!column) {
+      const formatterOptions = updColumn.formatter || Mapper.getFormatterOptions(cloneDeep(updColumn), index);
+      const formatterData = this._getFormatter(formatterOptions);
+      const formatAttSchema = formatterData.formatter.getQueryString(attribute);
 
-    formatAttSchema && !updColumn.innerSchema && (updColumn.attSchema = formatAttSchema);
-    updColumn.formatExtraData = { ...formatterData, createVariants: updColumn.createVariants };
-    updColumn.filterValue = (cell, row) => formatterData.formatter.getFilterValue(cell, row, formatterData.params);
-    updColumn.editorRenderer = formatterData.formatter.getEditor;
+      formatAttSchema && !updColumn.innerSchema && (updColumn.attSchema = formatAttSchema);
+      updColumn.formatExtraData = { ...formatterData, createVariants: updColumn.createVariants };
+      updColumn.filterValue = (cell, row) => formatterData.formatter.getFilterValue(cell, row, formatterData.params);
+      updColumn.editorRenderer = formatterData.formatter.getEditor;
+    }
 
     return updColumn;
   }
