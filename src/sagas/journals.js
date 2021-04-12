@@ -52,7 +52,8 @@ import {
   setPreviewUrl,
   setSelectAllRecordsVisible,
   setSelectedRecords,
-  setUrl
+  setUrl,
+  setOriginGridSettings
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import {
@@ -326,23 +327,25 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
   try {
     const { journalSetting, predicate } = action.payload;
     const { journalConfig } = yield select(selectJournalData, stateId);
+    const columnsSetup = {
+      columns: (journalSetting.groupBy.length ? journalConfig.columns : journalSetting.columns).map(c => ({ ...c })),
+      sortBy: journalSetting.sortBy.map(s => ({ ...s }))
+    };
+    const grouping = {
+      columns: (journalSetting.groupBy.length ? journalSetting.columns : []).map(c => ({ ...c })),
+      groupBy: journalSetting.groupBy.map(g => ({ ...g }))
+    };
 
     yield put(setPredicate(w(predicate || journalSetting.predicate)));
+    yield put(setColumnsSetup(w(columnsSetup)));
+    yield put(setGrouping(w(grouping)));
 
     yield put(
-      setColumnsSetup(
+      setOriginGridSettings(
         w({
-          columns: (journalSetting.groupBy.length ? journalConfig.columns : journalSetting.columns).map(c => ({ ...c })),
-          sortBy: journalSetting.sortBy.map(s => ({ ...s }))
-        })
-      )
-    );
-
-    yield put(
-      setGrouping(
-        w({
-          columns: (journalSetting.groupBy.length ? journalSetting.columns : []).map(c => ({ ...c })),
-          groupBy: journalSetting.groupBy.map(g => ({ ...g }))
+          predicate: predicate || journalSetting.predicate,
+          columnsSetup,
+          grouping
         })
       )
     );
@@ -353,8 +356,17 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
 
 function* sagaResetJournalSettingData({ api, logger, stateId, w }, action) {
   try {
+    const { journalConfig, originGridSettings, predicate, columnsSetup, grouping } = yield select(selectJournalData, stateId);
+
+    if (!isEqual(originGridSettings, { predicate, columnsSetup, grouping })) {
+      yield put(setPredicate(w(originGridSettings.predicate)));
+      yield put(setColumnsSetup(w(originGridSettings.columnsSetup)));
+      yield put(setGrouping(w(originGridSettings.grouping)));
+
+      return;
+    }
+
     const journalSettingId = action.payload;
-    const { journalConfig } = yield select(selectJournalData, stateId);
 
     yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
   } catch (e) {
