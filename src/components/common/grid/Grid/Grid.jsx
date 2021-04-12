@@ -140,10 +140,10 @@ class Grid extends Component {
       return;
     }
 
-    const { forwarderRef } = this.props;
+    const { forwardedRef } = this.props;
 
-    if (typeof forwarderRef === 'function') {
-      forwarderRef(ref);
+    if (typeof forwardedRef === 'function') {
+      forwardedRef(ref);
     }
 
     this.#gridRef = ref;

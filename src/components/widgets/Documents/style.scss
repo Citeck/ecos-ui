@@ -606,7 +606,7 @@
 
   &__resizer {
     top: 11px;
-    z-index: 999;
+    z-index: map-get($z-index, document-widget-resizer);
   }
 
   &__empty-stub {
