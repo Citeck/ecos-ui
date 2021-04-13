@@ -211,7 +211,7 @@ export default class LegacyCmmnEditor extends React.Component {
   }
 
   async _initCreateVariants() {
-    const variants = await ecosFetch('/alfresco/s/citeck/activity-create-variants').then(res => res.json());
+    const variants = await ecosFetch('/gateway/alfresco/alfresco/s/citeck/activity-create-variants').then(res => res.json());
     const createMenu = this._formatMenu(variants, null, {});
     const createMenuHtml = this._formatCreateMenuHtml(createMenu);
 
