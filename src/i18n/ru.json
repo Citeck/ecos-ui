@@ -963,6 +963,7 @@
   "timesheets.allForms.statuses.approved": "Согласованные",
   "timesheets.allForms.statuses.onManagerApproval": "На согласовании менеджера",
   "timesheets.allForms.statuses.approvedByManager": "Согласованы менеджером",
+  "timesheets.allForms.statuses.sentToAccountingSystem": "Отправлено в бухг. систему",
   "timesheets.allForms.filter.people": "По людям",
   "timesheets.allForms.filter.events": "По событиям",
   "timesheets.allForms.filter.companies": "По компаниям",
