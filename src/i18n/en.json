@@ -967,6 +967,7 @@
   "timesheets.allForms.statuses.approved": "Approved",
   "timesheets.allForms.statuses.onManagerApproval": "On Manager Approval",
   "timesheets.allForms.statuses.approvedByManager": "Approved by manager",
+  "timesheets.allForms.statuses.sentToAccountingSystem": "Sent to Payroll System",
   "timesheets.allForms.status.action.fillIn": "Fill In",
   "timesheets.allForms.status.action.approve": "Approve",
   "timesheets.allForms.eventType.dayTimeWork": "Daytime work",
