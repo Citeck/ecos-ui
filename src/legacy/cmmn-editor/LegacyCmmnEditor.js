@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import ecosFetch from '../../helpers/ecosFetch';
 import Records from '../../components/Records';
@@ -24,67 +24,117 @@ export default class LegacyCmmnEditor extends React.Component {
     this._initEditorHeader();
 
     const { editorRootId } = this.props;
-    const createVarsPromise = this._initCreateVariants();
-    const templateNodeRefPromise = this._initNodeRefToEdit();
 
     const cancelBtn = document.getElementById('legacy-cmmn-editor-cancel-btn');
     cancelBtn.onclick = () => this._onCancelButtonClick();
     cancelBtn.innerText = t('legacy-cmmn-editor.button.cancel.label');
 
-    window.require(
-      [
-        'lib/knockout',
-        'citeck/utils/knockout.utils',
-        'citeck/utils/knockout.yui',
-        'citeck/components/form/constraints',
-        '/legacy/cmmn-editor/case-activities.js'
-      ],
-      (ko, koutils) => {
-        Promise.all([createVarsPromise, templateNodeRefPromise])
-          .then(([, templateNodeRef]) => {
-            const Activity = koutils.koclass('cases.activities.Activity');
-            const activity = new Activity({
-              nodeRef: templateNodeRef,
-              startable: false,
-              stoppable: false,
-              editable: true,
-              removable: false,
-              composite: true
-            });
+    this._initEditorRequirements()
+      .then(({ ko, koutils, templateNodeRef }) => {
+        const Activity = koutils.koclass('cases.activities.Activity');
+        const activity = new Activity({
+          nodeRef: templateNodeRef,
+          startable: false,
+          stoppable: false,
+          editable: true,
+          removable: false,
+          composite: true
+        });
 
-            ko.applyBindings(activity, document.getElementById(editorRootId));
-            window.Alfresco.util.createTwister(`${editorRootId}-heading`, 'case-activities', { panel: `${editorRootId}-body` });
-            window.YAHOO.Bubbling.on('metadataRefresh', function() {
-              activity.reload(true);
-            });
+        ko.applyBindings(activity, document.getElementById(editorRootId));
+        window.Alfresco.util.createTwister(`${editorRootId}-heading`, 'case-activities', { panel: `${editorRootId}-body` });
+        window.YAHOO.Bubbling.on('metadataRefresh', function() {
+          activity.reload(true);
+        });
 
-            const saveBtn = document.getElementById('legacy-cmmn-editor-save-btn');
-            saveBtn.onclick = () => this._onSaveButtonClick();
-            saveBtn.innerText = t('legacy-cmmn-editor.button.save.label');
-            saveBtn.removeAttribute('hidden');
+        const saveBtn = document.getElementById('legacy-cmmn-editor-save-btn');
+        saveBtn.onclick = () => this._onSaveButtonClick();
+        saveBtn.innerText = t('legacy-cmmn-editor.button.save.label');
+        saveBtn.removeAttribute('hidden');
 
-            const copyTemplateNodeRefBtn = document.getElementById('legacy-cmmn-editor-copy-tmpl-node-ref-btn');
-            copyTemplateNodeRefBtn.onclick = () => this._onCopyTemplateNodeRefButtonClick();
-            copyTemplateNodeRefBtn.innerText = t('legacy-cmmn-editor.button.copy-tmpl-node-ref.label');
-            copyTemplateNodeRefBtn.removeAttribute('hidden');
+        const copyTemplateNodeRefBtn = document.getElementById('legacy-cmmn-editor-copy-tmpl-node-ref-btn');
+        copyTemplateNodeRefBtn.onclick = () => this._onCopyTemplateNodeRefButtonClick();
+        copyTemplateNodeRefBtn.innerText = t('legacy-cmmn-editor.button.copy-tmpl-node-ref.label');
 
-            this.setState({
-              isLoading: false,
-              templateNodeRef
-            });
-          })
-          .catch(e => {
-            console.log('CMMN template loading error', e);
-            this.setState({
-              isLoading: false
-            });
-            DialogManager.showInfoDialog({
-              title: 'legacy-cmmn-editor.loading.error.title',
-              text: 'legacy-cmmn-editor.loading.error.text'
-            });
+        this.setState({
+          isLoading: false,
+          templateNodeRef
+        });
+      })
+      .catch(e => {
+        console.log('CMMN template loading error', e);
+        this.setState({
+          isLoading: false
+        });
+        DialogManager.showInfoDialog({
+          title: 'legacy-cmmn-editor.loading.error.title',
+          text: 'legacy-cmmn-editor.loading.error.text'
+        });
+      });
+  }
+
+  async _initEditorRequirements() {
+    const createVarsPromise = this._initCreateVariants();
+    const templateNodeRefPromise = this._initNodeRefToEdit();
+
+    return new Promise((resolve, reject) => {
+      // messages.js doesn't load until we load any share page
+      ecosFetch('/share/page/dev-tools')
+        .then(r => r.text())
+        .then(() => {
+          const scripts = [
+            '/share/service/messages.js?locale=ru',
+            '/share/res/js/alfresco.js',
+            '/share/res/modules/editors/tiny_mce.js',
+            '/share/res/modules/editors/yui_editor.js',
+            '/share/res/js/forms-runtime.js'
+          ];
+
+          const scriptsPromise = new Promise((resolve, reject) => {
+            const requireScriptByIdx = idx => {
+              if (idx >= scripts.length) {
+                resolve();
+              } else {
+                window.require(
+                  [scripts[idx]],
+                  () => {
+                    requireScriptByIdx(idx + 1);
+                  },
+                  e => reject(e)
+                );
+              }
+            };
+            requireScriptByIdx(0);
           });
-      }
-    );
+
+          scriptsPromise
+            .then(() => {
+              window.require(
+                [
+                  'lib/knockout',
+                  'citeck/utils/knockout.utils',
+                  'citeck/utils/knockout.yui',
+                  'citeck/components/form/constraints',
+                  '/legacy/cmmn-editor/case-activities.js'
+                ],
+                (ko, koutils) => {
+                  Promise.all([templateNodeRefPromise, createVarsPromise])
+                    .then(([templateNodeRef]) => {
+                      resolve({
+                        ko,
+                        koutils,
+                        templateNodeRef
+                      });
+                    })
+                    .catch(e => reject(e));
+                },
+                e => reject(e)
+              );
+            })
+            .catch(e => reject(e));
+        })
+        .catch(e => reject(e));
+    });
   }
 
   async _onCopyTemplateNodeRefButtonClick() {
