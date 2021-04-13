@@ -30,7 +30,8 @@ const Header = React.forwardRef(
       isMobile,
       dashboardEditable,
       appEdition,
-      isAdmin
+      isAdmin,
+      customActions
     },
     ref
   ) => {
@@ -91,6 +92,7 @@ const Header = React.forwardRef(
               isAdmin={isAdmin}
             />
           )}
+          {customActions}
           {dragBtn}
         </div>
       </div>

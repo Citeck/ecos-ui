@@ -238,7 +238,8 @@ class Dashlet extends Component {
       actionRules,
       noActions,
       children,
-      isCollapsed
+      isCollapsed,
+      customActions
     } = this.props;
 
     return (
@@ -270,6 +271,7 @@ class Dashlet extends Component {
                   actionConfig={actionConfig}
                   actionRules={actionRules}
                   noActions={noActions}
+                  customActions={customActions}
                 />
               </Measurer>
             )
