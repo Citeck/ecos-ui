@@ -141,6 +141,7 @@ export default handleActions(
       ...state,
       [payload.key]: {
         ...state[payload.key],
+        isLoading: false,
         isLoadingTableData: false
       }
     }),
