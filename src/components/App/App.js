@@ -61,56 +61,9 @@ class App extends Component {
   _footerRef = null;
 
   componentDidMount() {
-    const { initAppSettings } = this.props;
-
-    initAppSettings();
-    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
+    this.props.initAppSettings();
     UserLocalSettingsService.checkDashletsUpdatedDate();
   }
-
-  handleCustomEvent = event => {
-    const {
-      params: { link = '', rerenderPage, replaceHistory }
-    } = event;
-    const { isShowTabs, isMobile, replace, setTab, updateTab } = this.props;
-
-    if (!(isShowTabs && !this.isOnlyContent && !isMobile) || (rerenderPage && replaceHistory)) {
-      const { url, query } = queryString.parseUrl(link);
-
-      pushHistoryLink(window, {
-        pathname: url,
-        search: decodeLink(queryString.stringify(query))
-      });
-
-      replace(link);
-
-      return;
-    }
-
-    const { reopen, closeActiveTab, updates, pushHistory, ...data } = PageService.parseEvent({ event }) || {};
-
-    if (updates) {
-      const { link } = updates;
-
-      if (link) {
-        if (pushHistory) {
-          const { url, query } = queryString.parseUrl(link);
-
-          pushHistoryLink(window, {
-            pathname: url,
-            search: decodeLink(queryString.stringify(query))
-          });
-        } else {
-          replaceHistoryLink(window, link);
-        }
-      }
-
-      updateTab({ updates });
-
-      return;
-    }
-    setTab({ data, params: { reopen, closeActiveTab } });
-  };
 
   get isOnlyContent() {
     const url = get(this.props, ['history', 'location', 'pathname'], '/');

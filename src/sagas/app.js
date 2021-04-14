@@ -4,6 +4,7 @@ import lodashGet from 'lodash/get';
 
 import { URL } from '../constants';
 import { getCurrentUserName } from '../helpers/util';
+import PageService from '../services/PageService';
 import {
   backPageFromTransitionsHistory,
   getAppEdition,
@@ -23,7 +24,7 @@ import {
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
 import { getMenuConfig, setMenuConfig } from '../actions/menu';
-import PageService from '../services/PageService';
+import { registerEventListeners } from '../actions/customEvent';
 
 export function* initApp({ api, logger }, { payload }) {
   try {
@@ -76,6 +77,7 @@ export function* fetchAppSettings({ logger }) {
     yield put(getDashboardEditable());
     yield put(getAppEdition());
     yield put(getFooter());
+    yield put(registerEventListeners());
   } catch (e) {
     logger.error('[fetchAppSettings saga] error', e.message);
   }
