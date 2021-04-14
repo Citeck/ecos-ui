@@ -7,7 +7,6 @@ import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
 import { NotificationContainer } from 'react-notifications';
 import { replace } from 'connected-react-router';
-import * as queryString from 'query-string';
 
 import CacheRoute, { CacheSwitch } from '../ReactRouterCache';
 
@@ -25,12 +24,10 @@ import { Pages, pagesWithOnlyContent, URL } from '../../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../../constants/menu';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';
-import PageService, { Events } from '../../services/PageService';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { MenuSettingsController } from '../MenuSettings';
-import { decodeLink, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 
 import './App.scss';
 
