@@ -1,8 +1,8 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import DropdownMenuItem from './DropdownMenuItem';
@@ -34,7 +34,7 @@ export default class DropdownMenuCascade extends React.Component {
   };
 
   render() {
-    const { groups, onClick, modifiers, popperProps } = this.props;
+    const { groups, onClick, modifiers } = this.props;
     const { openedItem } = this.state;
 
     return groups.map((item, i) => {
@@ -58,9 +58,9 @@ export default class DropdownMenuCascade extends React.Component {
             <DropdownMenuItem data={item} iconRight={iconRight} onClick={item.items ? () => null : onClick} />
           </DropdownToggle>
 
-          <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_cascade" modifiers={modifiers} {...popperProps}>
+          <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_cascade" modifiers={modifiers}>
             {item.items ? (
-              <DropdownMenuCascade groups={item.items} onClick={onClick} modifiers={modifiers} popperProps={popperProps} />
+              <DropdownMenuCascade groups={item.items} onClick={onClick} modifiers={get(modifiers, 'onlyFirstParent') ? {} : modifiers} />
             ) : (
               <ul>{this.renderMenuItems(items)}</ul>
             )}

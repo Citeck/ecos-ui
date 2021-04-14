@@ -49,6 +49,7 @@ class Dashlet extends Component {
     actionRules: PropTypes.object,
     noActions: PropTypes.bool,
     isLoading: PropTypes.bool,
+    customActions: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
 
     setRef: PropTypes.func
   };
