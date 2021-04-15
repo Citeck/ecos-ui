@@ -538,7 +538,7 @@ class Journals extends React.Component {
   renderSettings = () => {
     if (this.displayElements.settings) {
       const { stateId, journalConfig, grid, isMobile, selectedRecords, reloadGrid, isDocLibEnabled } = this.props;
-      const { showPreview, settingsVisible, isReset } = this.state;
+      const { showPreview, settingsVisible, isReset, createIsLoading } = this.state;
       const { id: journalId, columns = [], meta = {}, sourceId } = pick(this.props.journalConfig, ['id', 'columns', 'meta', 'sourceId']);
       const visibleColumns = columns.filter(c => c.visible);
 
@@ -598,6 +598,7 @@ class Journals extends React.Component {
             searchText={this.getSearchText()}
             selectedRecords={selectedRecords}
             isDocLibEnabled={isDocLibEnabled}
+            createIsLoading={createIsLoading}
           />
         </>
       );

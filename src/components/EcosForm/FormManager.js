@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import debounce from 'lodash/debounce';
 
 import Modal from '../common/EcosModal/CiteckEcosModal';
 import EcosFormUtils from './EcosFormUtils';
@@ -8,55 +7,48 @@ import EcosFormModal from './EcosFormModal';
 import EcosForm from './EcosForm';
 
 class FormManager {
-  static createRecordByVariant = debounce(
-    (variant, options = {}) => {
-      if (!variant) {
-        console.error("[FormManager createRecordByVariant] Create variant is undefined. Record creation can't be preformed");
-        return;
-      }
-
-      let { recordRef: record = '', type, sourceId, formId, formRef, formKey, attributes = {}, destination, formOptions = {} } = variant;
-
-      formId = formRef || formId;
-
-      if (!record && sourceId) {
-        record = `${variant.sourceId}@`;
-      }
-
-      if (!record && type) {
-        record = `dict@${variant.type}`;
-      }
-
-      if (destination && !attributes._parent) {
-        attributes._parent = destination;
-      }
-
-      const props = {
-        record,
-        formKey,
-        attributes,
-        options: {
-          ...formOptions
-        },
-        ...options
-      };
-
-      if (variant.typeRef) {
-        props.options.typeRef = variant.typeRef;
-      }
-
-      if (EcosFormUtils.isFormId(formId)) {
-        props.formId = formId;
-      }
-
-      this.openFormModal(props);
-    },
-    3000,
-    {
-      leading: true,
-      trailing: false
+  static createRecordByVariant = (variant, options = {}) => {
+    if (!variant) {
+      console.error("[FormManager createRecordByVariant] Create variant is undefined. Record creation can't be preformed");
+      return;
     }
-  );
+
+    let { recordRef: record = '', type, sourceId, formId, formRef, formKey, attributes = {}, destination, formOptions = {} } = variant;
+
+    formId = formRef || formId;
+
+    if (!record && sourceId) {
+      record = `${variant.sourceId}@`;
+    }
+
+    if (!record && type) {
+      record = `dict@${variant.type}`;
+    }
+
+    if (destination && !attributes._parent) {
+      attributes._parent = destination;
+    }
+
+    const props = {
+      record,
+      formKey,
+      attributes,
+      options: {
+        ...formOptions
+      },
+      ...options
+    };
+
+    if (variant.typeRef) {
+      props.options.typeRef = variant.typeRef;
+    }
+
+    if (EcosFormUtils.isFormId(formId)) {
+      props.formId = formId;
+    }
+
+    this.openFormModal(props);
+  };
 
   static openFormModal(props) {
     const container = document.createElement('div');
