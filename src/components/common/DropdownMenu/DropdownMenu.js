@@ -48,7 +48,7 @@ export default class DropdownMenu extends React.Component {
   };
 
   renderMode() {
-    const { mode, items, setGroup, setCascade, onClick, isLoading, emptyMessage, ...someProps } = this.props;
+    const { mode, items, setGroup, setCascade, onClick, isLoading, emptyMessage, modifiers, ...someProps } = this.props;
 
     if (isLoading) {
       return <Loader type="points" height={40} width={38} />;
@@ -72,7 +72,7 @@ export default class DropdownMenu extends React.Component {
 
     switch (mode) {
       case MenuModes.CASCADE:
-        return <DropdownMenuCascade groups={menu} onClick={onClick} />;
+        return <DropdownMenuCascade groups={menu} onClick={onClick} modifiers={modifiers} />;
       case MenuModes.GROUP: {
         const { showGroupName, showSeparator } = setGroup;
 

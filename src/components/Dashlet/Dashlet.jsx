@@ -49,6 +49,7 @@ class Dashlet extends Component {
     actionRules: PropTypes.object,
     noActions: PropTypes.bool,
     isLoading: PropTypes.bool,
+    customActions: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
 
     setRef: PropTypes.func
   };
@@ -238,7 +239,8 @@ class Dashlet extends Component {
       actionRules,
       noActions,
       children,
-      isCollapsed
+      isCollapsed,
+      customActions
     } = this.props;
 
     return (
@@ -270,6 +272,7 @@ class Dashlet extends Component {
                   actionConfig={actionConfig}
                   actionRules={actionRules}
                   noActions={noActions}
+                  customActions={customActions}
                 />
               </Measurer>
             )
