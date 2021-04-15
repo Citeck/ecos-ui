@@ -34,6 +34,7 @@ import SelectAction from './custom/selectAction';
 import SelectOrgstruct from './custom/selectOrgstruct';
 import TableForm from './custom/tableForm';
 import TaskOutcome from './custom/taskOutcome/index';
+import ImportButton from './custom/importButton';
 
 Components.setComponents({
   ...DefaultComponents,
@@ -69,7 +70,8 @@ Components.setComponents({
   textarea: TextArea,
   textfield: TextField,
   url: Url,
-  hidden: Hidden
+  hidden: Hidden,
+  importButton: ImportButton
 });
 
 export { Components };
