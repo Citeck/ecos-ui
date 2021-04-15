@@ -53,6 +53,7 @@ import { getFirstNonEmpty, isExistValue, t } from '../helpers/util';
 import recordActions, { ActionTypes } from '../components/Records/actions';
 
 import { DEFAULT_REF, documentActions, documentFields } from '../constants/documents';
+import { selectIsMobile } from '../selectors/view';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
@@ -463,7 +464,9 @@ function* sagaGetTypeSettings({ api, logger }, { payload }) {
 }
 
 function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
-  if (isExistValue(payload.loadTypesForAll) && !payload.loadTypesForAll) {
+  const isMobile = yield select(selectIsMobile);
+
+  if ((isExistValue(payload.loadTypesForAll) && !payload.loadTypesForAll) || !isMobile) {
     return;
   }
 
