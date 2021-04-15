@@ -40,7 +40,7 @@ class SiteMenu extends React.Component {
     }));
   };
 
-  handelItem = data => {
+  handleClickItem = data => {
     this.toggle();
 
     if (data.onClick) {
@@ -80,7 +80,7 @@ class SiteMenu extends React.Component {
           </IcoBtn>
         </DropdownToggle>
         <DropdownMenu className="ecos-header-site__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
-          <Menu items={menuItems} onClick={this.handelItem} />
+          <Menu items={menuItems} onClick={this.handleClickItem} />
         </DropdownMenu>
       </Dropdown>
     );

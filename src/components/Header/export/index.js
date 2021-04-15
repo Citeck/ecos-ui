@@ -33,7 +33,6 @@ const render = (elementId, props, callback) => {
             isAuthenticated,
             onSuccess: () => {
               store.dispatch(initAppSettings());
-              store.dispatch(fetchUserMenuData());
 
               i18nInit({ debug: false }).then(() => {
                 ReactDOM.render(
