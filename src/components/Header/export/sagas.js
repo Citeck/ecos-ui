@@ -6,6 +6,7 @@ import iconSelect from '../../../sagas/iconSelect';
 import menu from '../../../sagas/menu';
 import menuSettings from '../../../sagas/menuSettings';
 import view from '../../../sagas/view';
+import user from '../../../sagas/user';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -14,6 +15,7 @@ export default function* rootSaga(extraArguments) {
     iconSelect(extraArguments),
     menu(extraArguments),
     menuSettings(extraArguments),
-    view(extraArguments)
+    view(extraArguments),
+    user(extraArguments)
   ]);
 }

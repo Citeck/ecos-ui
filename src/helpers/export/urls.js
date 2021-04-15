@@ -6,5 +6,5 @@ export const isNewVersionPage = (link = window.location.pathname) => {
 };
 
 export const isNewVersionSharePage = (link = window.location.pathname) => {
-  return /share\/.+-page-v2.*/.test(link || '');
+  return /(share\/.+-page-v2.*)|(legacy.*)/.test(link || '');
 };

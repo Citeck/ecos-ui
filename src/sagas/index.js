@@ -36,6 +36,7 @@ import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
 import adminSection from './adminSection';
 import cmmnEditor from './cmmnEditor';
+import customEvent from './customEvent';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -75,6 +76,7 @@ export default function* rootSaga(extraArguments) {
     docConstructor(extraArguments),
     iconSelect(extraArguments),
     adminSection(extraArguments),
-    cmmnEditor(extraArguments)
+    cmmnEditor(extraArguments),
+    customEvent(extraArguments)
   ]);
 }

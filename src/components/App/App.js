@@ -7,7 +7,6 @@ import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
 import { NotificationContainer } from 'react-notifications';
 import { replace } from 'connected-react-router';
-import * as queryString from 'query-string';
 
 import CacheRoute, { CacheSwitch } from '../ReactRouterCache';
 
@@ -25,12 +24,10 @@ import { Pages, pagesWithOnlyContent, URL } from '../../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../../constants/menu';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';
-import PageService, { Events } from '../../services/PageService';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { MenuSettingsController } from '../MenuSettings';
-import { decodeLink, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 
 import './App.scss';
 
@@ -61,56 +58,9 @@ class App extends Component {
   _footerRef = null;
 
   componentDidMount() {
-    const { initAppSettings } = this.props;
-
-    initAppSettings();
-    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
+    this.props.initAppSettings();
     UserLocalSettingsService.checkDashletsUpdatedDate();
   }
-
-  handleCustomEvent = event => {
-    const {
-      params: { link = '', rerenderPage, replaceHistory }
-    } = event;
-    const { isShowTabs, isMobile, replace, setTab, updateTab } = this.props;
-
-    if (!(isShowTabs && !this.isOnlyContent && !isMobile) || (rerenderPage && replaceHistory)) {
-      const { url, query } = queryString.parseUrl(link);
-
-      pushHistoryLink(window, {
-        pathname: url,
-        search: decodeLink(queryString.stringify(query))
-      });
-
-      replace(link);
-
-      return;
-    }
-
-    const { reopen, closeActiveTab, updates, pushHistory, ...data } = PageService.parseEvent({ event }) || {};
-
-    if (updates) {
-      const { link } = updates;
-
-      if (link) {
-        if (pushHistory) {
-          const { url, query } = queryString.parseUrl(link);
-
-          pushHistoryLink(window, {
-            pathname: url,
-            search: decodeLink(queryString.stringify(query))
-          });
-        } else {
-          replaceHistoryLink(window, link);
-        }
-      }
-
-      updateTab({ updates });
-
-      return;
-    }
-    setTab({ data, params: { reopen, closeActiveTab } });
-  };
 
   get isOnlyContent() {
     const url = get(this.props, ['history', 'location', 'pathname'], '/');

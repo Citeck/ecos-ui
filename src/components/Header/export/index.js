@@ -10,14 +10,13 @@ import { Provider } from 'react-redux';
 
 import Header from '../Header';
 
-import { configureAPI } from '../../../api';
-import { initAppRequest } from '../../../actions/app';
-import { initMenuConfig } from '../../../actions/menu';
+import { initAppRequest, initAppSettings } from '../../../actions/app';
 import { fetchUserMenuData } from '../../../actions/header';
 import { loadThemeRequest } from '../../../actions/view';
 
-import configureStore from './store';
+import { configureAPI } from '../../../api';
 import { i18nInit } from '../../../i18n';
+import configureStore from './store';
 
 const logger = Logger.create('Header');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
@@ -33,8 +32,7 @@ const render = (elementId, props, callback) => {
           loadThemeRequest({
             isAuthenticated,
             onSuccess: () => {
-              store.dispatch(initMenuConfig());
-              store.dispatch(fetchUserMenuData());
+              store.dispatch(initAppSettings());
 
               i18nInit({ debug: false }).then(() => {
                 ReactDOM.render(
