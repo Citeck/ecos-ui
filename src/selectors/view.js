@@ -30,3 +30,5 @@ export const selectActiveThemeStylesheet = createSelector(
   [selectThemeCacheKey, themeFileName],
   (cacheKey, file) => `${THEME_URL_PATH}/active/style/${file}?cacheKey=${cacheKey}`
 );
+
+export const selectIsMobile = state => get(state, 'view.isMobile');
