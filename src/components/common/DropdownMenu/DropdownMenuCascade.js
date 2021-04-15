@@ -44,7 +44,7 @@ export default class DropdownMenuCascade extends React.Component {
 
       return (
         <Dropdown
-          className="ecos-dropdown ecos-dropdown-menu__cascade cascade-test"
+          className="ecos-dropdown ecos-dropdown-menu__cascade"
           key={key}
           isOpen={openedItem === key}
           toggle={() => null}
