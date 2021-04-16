@@ -7,6 +7,8 @@ import get from 'lodash/get';
 import { t } from '../../../../helpers/util';
 import { FileStatuses } from '../../../../helpers/ecosXhr';
 
+import '../dropzone.scss';
+
 const Labels = {
   DROPZONE_PLACEHOLDER: 'dropzone.modal.dropzone_placeholder',
   DROPZONE_BUTTON_SELECT: 'dropzone.modal.dropzone_button_select',

@@ -73,11 +73,11 @@ export default class ImportButtonComponent extends BaseReactComponent {
 
   createLabel() {}
 
-  handleChange = fileList => {
+  handleChange = (fileList, callback) => {
     console.warn({ fileList, self: this });
 
     for (let i = 0; i < fileList.length; i++) {
-      this.uploadFile(fileList.item(i));
+      this.uploadFile(fileList[i]);
     }
   };
 

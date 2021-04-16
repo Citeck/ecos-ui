@@ -1,0 +1,109 @@
+@import '../../../styles/constants';
+
+.ecos-dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  background: $color-gray-4;
+  border: 2px dashed $color-gray-5;
+  border-radius: 6px;
+  height: 160px;
+  flex-direction: column;
+
+  &:focus {
+    outline: none;
+  }
+
+  &_disabled {
+    opacity: 0.8;
+    pointer-events: none;
+  }
+
+  &_active {
+    background: $color-gray-3;
+  }
+
+  &_loading {
+    border: none;
+  }
+
+  &__uploading {
+    width: 190px;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  &__label {
+    color: $text-color-dark;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 22px;
+    text-align: center;
+    width: 190px;
+
+    &-part {
+      &:not(:last-child) {
+        margin-bottom: 15px;
+      }
+    }
+  }
+
+  &__button {
+    cursor: pointer;
+    max-width: 190px;
+    width: 100%;
+    height: 40px;
+    background: $color-blue-dark;
+    color: $color-white;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 8px;
+
+    &:hover {
+      background: $color-blue-light;
+    }
+  }
+
+  &__progress-bar {
+    border: 0;
+    height: 6px;
+    border-radius: 3px;
+    background-color: $color-blue-dark;
+    width: 244px;
+    margin-bottom: 20px;
+
+    &:only-child {
+      margin: auto;
+    }
+
+    &::-webkit-progress-bar {
+      background-color: $color-gray-6;
+      border: 0;
+      height: 6px;
+      border-radius: 3px;
+    }
+
+    &::-webkit-progress-value {
+      transition: width 1s ease-out;
+      border: 0;
+      height: 6px;
+      border-radius: 3px;
+      background-color: $color-blue-dark;
+    }
+
+    &::-moz-progress-bar {
+      background-color: $color-gray-6;
+      border: 0;
+      height: 6px;
+      border-radius: 3px;
+    }
+  }
+}
