@@ -30,7 +30,8 @@ export default class Section extends Base {
 
     this.#unmounted = false;
 
-    const { label, hiddenLabel, allowedFor: allowedNames } = this.props.item || {};
+    const { label, allowedFor: allowedNames, config } = this.props.item || {};
+    const hiddenLabel = get(config, 'hiddenLabel');
 
     this.setState({ label, hiddenLabel, allowedNames });
     this.getAuthoritiesInfoByName();
