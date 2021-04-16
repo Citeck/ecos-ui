@@ -336,6 +336,10 @@ export default class SelectJournal extends Component {
             newAttr = newAttr.substr(0, newAttr.indexOf('?'));
           }
 
+          if (newAttr.indexOf('{') !== -1 && newAttr.indexOf('}') !== -1) {
+            newAttr = newAttr.substring(0, newAttr.indexOf('{'));
+          }
+
           newAttr = newAttr.replace(':', '_');
           formattedAtts[newAttr] = loadedAtts[attr];
         }
