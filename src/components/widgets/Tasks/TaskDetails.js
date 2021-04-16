@@ -61,8 +61,23 @@ class TaskDetails extends React.Component {
     }
   ];
 
+  state = {
+    runUpdateForm: false,
+    dateUpdate: undefined
+  };
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.runUpdate && !prevProps.runUpdate && this.state.runUpdateForm) {
+      this.setState({ dateUpdate: Date.now(), runUpdateForm: false });
+    }
+  }
+
   onSubmitForm = () => {
     this.props.onSubmitForm();
+  };
+
+  addToUpdate = () => {
+    this.setState({ runUpdateForm: true });
   };
 
   renderDetailsGrid() {
@@ -124,6 +139,7 @@ class TaskDetails extends React.Component {
 
   render() {
     const { details, className, isSmallMode } = this.props;
+    const { dateUpdate } = this.state;
 
     return (
       <div className={classNames('ecos-task-ins', className)}>
@@ -143,10 +159,12 @@ class TaskDetails extends React.Component {
             record={details.id}
             formKey={details.formKey}
             onSubmit={this.onSubmitForm}
+            onFormsubmitButton={this.addToUpdate}
             saveOnSubmit
             options={{
               useNarrowButtons: true,
-              fullWidthColumns: isSmallMode
+              fullWidthColumns: isSmallMode,
+              dateUpdate
             }}
             initiator={{
               type: 'widget',

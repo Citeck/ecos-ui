@@ -107,12 +107,13 @@ class Tasks extends React.Component {
   };
 
   renderTaskList = () => {
-    const { tasks, isLoading, isSmallMode, forwardedRef } = this.props;
+    const { tasks, isLoading, isSmallMode, forwardedRef, runUpdate } = this.props;
 
     const childProps = {
       tasks,
       isLoading,
       isSmallMode,
+      runUpdate,
       onAssignClick: this.onAssignClick,
       onSubmitForm: this.onSubmitForm
     };

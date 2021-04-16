@@ -230,7 +230,7 @@ class EcosForm extends React.Component {
             .filter(key => key.startsWith(handlersPrefix))
             .map(prop => ({
               prop,
-              event: prop.replace(handlersPrefix, '').replace(/[^a-z\s]/, f => f.toLowerCase())
+              event: prop.replace(handlersPrefix, '').replace(/[^{1}]/, f => f.toLowerCase())
             }));
 
           events.forEach(o => {
