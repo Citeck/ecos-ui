@@ -63,12 +63,12 @@ class TaskDetails extends React.Component {
 
   state = {
     runUpdateForm: false,
-    dateUpdateTask: undefined
+    _dateUpdateDashlet: undefined
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.props.runUpdate && !prevProps.runUpdate && this.state.runUpdateForm) {
-      this.setState({ dateUpdateTask: Date.now(), runUpdateForm: false });
+      this.setState({ _dateUpdateDashlet: Date.now(), runUpdateForm: false });
     }
   }
 
@@ -139,7 +139,7 @@ class TaskDetails extends React.Component {
 
   render() {
     const { details, className, isSmallMode } = this.props;
-    const { dateUpdateTask } = this.state;
+    const { _dateUpdateDashlet } = this.state;
 
     return (
       <div className={classNames('ecos-task-ins', className)}>
@@ -164,7 +164,7 @@ class TaskDetails extends React.Component {
             options={{
               useNarrowButtons: true,
               fullWidthColumns: isSmallMode,
-              dateUpdateTask
+              _dateUpdateDashlet
             }}
             initiator={{
               type: 'widget',
