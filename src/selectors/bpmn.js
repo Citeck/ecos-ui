@@ -1,4 +1,6 @@
 import { createSelector } from 'reselect';
+import endsWith from 'lodash/endsWith';
+
 import { isCategoryHasChildren, compareLastModified, compareOld, compareAZ, compareZA } from '../helpers/bpmn';
 import { SORT_FILTER_LAST_MODIFIED, SORT_FILTER_OLD, SORT_FILTER_AZ, SORT_FILTER_ZA, ROOT_CATEGORY_NODE_REF } from '../constants/bpmn';
 
@@ -55,7 +57,7 @@ export const selectCategoriesByParentId = createSelector(
         return !item.parentId;
       }
 
-      if (!item.parentId.endsWith(parentId)) {
+      if (!endsWith(item.parentId, parentId)) {
         return false;
       }
 
