@@ -1,3 +1,4 @@
+import endsWith from 'lodash/endsWith';
 import { LOCAL_STORAGE_KEY_PAGE_POSITION } from '../constants/bpmn';
 
 export function getPagePositionState() {
@@ -16,7 +17,7 @@ export function isCategoryHasChildren(categoryId, categories, models) {
   const hasModels = models.findIndex(item => item.categoryId === categoryId) !== -1;
   const hasNotEmptySubcategories =
     categories.findIndex(item => {
-      return item.parentId === categoryId && isCategoryHasChildren(item.id, categories, models);
+      return endsWith(item.parentId, categoryId) && isCategoryHasChildren(item.id, categories, models);
     }) !== -1;
 
   return hasModels || hasNotEmptySubcategories;

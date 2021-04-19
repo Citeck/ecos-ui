@@ -2,6 +2,7 @@ import React from 'react';
 import { delay } from 'redux-saga';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
+import endsWith from 'lodash/endsWith';
 
 import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
 import { t } from '../helpers/util';
@@ -100,8 +101,8 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
     const allModels = yield select(selectAllModels);
 
     const isCategoryHasChildren =
-      allCategories.findIndex(item => item.parentId === categoryId) !== -1 ||
-      allModels.findIndex(item => item.categoryId === categoryId) !== -1;
+      allCategories.findIndex(item => endsWith(item.parentId, categoryId)) !== -1 ||
+      allModels.findIndex(item => item.categoryId.includes(categoryId)) !== -1;
 
     if (isCategoryHasChildren) {
       yield delay(100);
