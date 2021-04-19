@@ -1,8 +1,9 @@
 import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
 
 import BaseReactComponent from '../base/BaseReactComponent';
 import { t } from '../../../../helpers/export/util';
-import ecosFetch from '../../../../helpers/ecosFetch';
+import ecosXhr from '../../../../helpers/ecosXhr';
 import DialogManager from '../../../../components/common/dialogs/Manager';
 import Button from './Button';
 
@@ -34,15 +35,11 @@ export default class ImportButtonComponent extends BaseReactComponent {
     };
   }
 
+  #isOpenModal = false;
+
   get defaultSchema() {
     return ImportButtonComponent.schema();
   }
-
-  // build() {
-  //   super.build();
-  //
-  //   this.addEventListener(this.buttonElement, 'click', this.handleClick);
-  // }
 
   get buttonClassName() {
     const { theme = 'default', size, block, customClass } = this.component;
@@ -60,7 +57,8 @@ export default class ImportButtonComponent extends BaseReactComponent {
   getInitialReactProps() {
     return {
       className: this.buttonClassName,
-      onChange: this.handleChange,
+      onSelect: this.handleSelect,
+      toggleModal: this.handleToggleModal,
       isDisabled: this.disabled,
       label: this.labelIsHidden() ? '' : this.component.label,
       multiple: this.component.multipleFiles
@@ -73,50 +71,73 @@ export default class ImportButtonComponent extends BaseReactComponent {
 
   createLabel() {}
 
-  handleChange = (fileList, callback) => {
-    console.warn({ fileList, self: this });
+  showConfirmModal() {
+    DialogManager.confirmDialog({
+      title: t('Удаление старых записей'),
+      text: t('Перед загрузкой строк из файла - шаблона, текущие строки будут удалены. Вы хотите продолжить действие?'),
+      onYes: this.handleConfirmRemove
+    });
+  }
 
+  handleConfirmRemove = () => {
+    this.handleToggleModal(true);
+  };
+
+  handleSelect = (fileList, callback) => {
     for (let i = 0; i < fileList.length; i++) {
-      this.uploadFile(fileList[i]);
+      this.uploadFile(fileList[i], callback);
     }
   };
 
-  uploadFile = async file => {
+  handleToggleModal = confirmed => {
+    if (!this.#isOpenModal && !isEmpty(this.dataValue) && !confirmed) {
+      this.showConfirmModal();
+      return;
+    }
+
+    this.setReactProps({ isOpen: !this.#isOpenModal });
+    this.#isOpenModal = !this.#isOpenModal;
+  };
+
+  uploadFile = async (file, handleProgress) => {
     const { uploadUrl, responseHandler } = this.component;
 
     if (!responseHandler) {
       return this.showErrorMessage(t('ecos-table-form.error.no-response-handler'));
     }
 
+    this.setReactProps({
+      isLoading: true
+    });
+
     const formData = new FormData();
 
     formData.append(file.name, file);
 
     try {
-      const response = await ecosFetch(uploadUrl, {
+      let result = await ecosXhr(uploadUrl, {
         method: 'POST',
-        body: formData
+        body: formData,
+        handleProgress
       });
-      const result = await response.json();
+
+      if (result.json) {
+        result = await result.json();
+      }
+
       const handledResult = this.evaluate(responseHandler, { response: result, resp: result }, 'result', true);
 
       if (handledResult instanceof Error) {
         return this.showErrorMessage(handledResult.message);
       }
 
-      const currentValue = this.getValue();
-      let newValue;
-
-      if (Array.isArray(handledResult)) {
-        newValue = currentValue.concat(handledResult);
-      } else {
-        newValue = [...currentValue, handledResult];
-      }
-
-      this.updateValue({}, newValue);
+      this.updateValue({}, handledResult);
     } catch (e) {
-      console.error('TableForm error. Failure to upload file: ', e.message);
-      this.showErrorMessage(t('ecos-table-form.error.failure-to-import'));
+      console.error('Import error. Failure to upload file: ', e.message);
+      this.showErrorMessage(t('Не удалось загрузить файл'));
+    } finally {
+      this.setReactProps({ isLoading: false });
+      this.handleToggleModal();
     }
   };
 

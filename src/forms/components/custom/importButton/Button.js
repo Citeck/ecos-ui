@@ -1,61 +1,41 @@
 import React from 'react';
-import get from 'lodash/get';
 
 import { Btn } from '../../../../components/common/btns';
-import { t } from '../../../../helpers/export/util';
 import DropZone from '../../../../components/widgets/Documents/parts/DropZone';
 import { EcosModal } from '../../../../components/common';
+import { t } from '../../../../helpers/export/util';
 
 class Button extends React.Component {
   fileRef = React.createRef();
 
-  state = {
-    isOpenModal: false
-  };
+  handleSelect = (...params) => {
+    const { onSelect } = this.props;
 
-  handleClick = () => {
-    const input = get(this.fileRef, 'current');
-
-    if (input) {
-      input.value = '';
-      input.click();
-    }
-  };
-
-  handleChange = () => {
-    const { onChange } = this.props;
-    const files = get(this.fileRef, 'current.files');
-
-    if (typeof onChange === 'function') {
-      onChange(files);
+    if (typeof onSelect === 'function') {
+      onSelect(...params);
     }
   };
 
   handleToggleModal = () => {
-    this.setState(state => ({ isOpenModal: !state.isOpenModal }));
+    const { toggleModal } = this.props;
+
+    if (typeof toggleModal === 'function') {
+      toggleModal();
+    }
   };
 
   renderModal() {
-    const { onChange, className, isDisabled, label, multiple } = this.props;
-    const { isOpenModal } = this.state;
+    const { label, multiple, isLoading, isOpen } = this.props;
 
     return (
-      <EcosModal
-        title={label}
-        isOpen={isOpenModal}
-        // isLoading={isLoadingUploadingModal}
-        // className="ecos-docs__modal-upload"
-        hideModal={this.handleToggleModal}
-        size="md"
-        // noHeader
-      >
-        <DropZone multiple={multiple} onSelect={onChange} />
+      <EcosModal title={label} isOpen={isOpen} hideModal={this.handleToggleModal} size="md">
+        <DropZone immediateUploading isLoading={isLoading} multiple={multiple} onSelect={this.handleSelect} />
       </EcosModal>
     );
   }
 
   render() {
-    const { onChange, className, isDisabled, label, multiple } = this.props;
+    const { className, isDisabled, label } = this.props;
 
     return (
       <>
@@ -66,30 +46,6 @@ class Button extends React.Component {
       </>
     );
   }
-
-  // render() {
-  //   const { onChange, className, isDisabled, label, multiple } = this.props;
-  //
-  //   return (
-  //     <>
-  //       <input
-  //         type="file"
-  //         tabIndex="-1"
-  //         onChange={onChange}
-  //         style={{
-  //           position: 'absolute',
-  //           opacity: 0,
-  //           width: 0
-  //         }}
-  //         ref={this.fileRef}
-  //         multiple={multiple}
-  //       />
-  //       <Btn className={className} onClick={this.handleClick} disabled={isDisabled} withoutBaseClassName>
-  //         {t(label)}
-  //       </Btn>
-  //     </>
-  //   );
-  // }
 }
 
 export default Button;
