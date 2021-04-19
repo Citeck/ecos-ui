@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import isEmpty from 'lodash/isEmpty';
 
 import BaseReactComponent from '../base/BaseReactComponent';
 import { t } from '../../../../helpers/export/util';
@@ -19,7 +18,8 @@ export default class ImportButtonComponent extends BaseReactComponent {
         theme: 'primary',
         size: 'sm',
         defaultValue: {},
-        multipleFiles: false
+        multipleFiles: false,
+        confirmBeforeUpload: false
       },
       ...extend
     );
@@ -73,8 +73,11 @@ export default class ImportButtonComponent extends BaseReactComponent {
 
   showConfirmModal() {
     DialogManager.confirmDialog({
-      title: t('Удаление старых записей'),
-      text: t('Перед загрузкой строк из файла - шаблона, текущие строки будут удалены. Вы хотите продолжить действие?'),
+      title: t(this.component.confirm.title || 'Удаление старых записей'),
+      text: t(
+        this.component.confirm.description ||
+          'Перед загрузкой строк из файла - шаблона, текущие строки будут удалены. Вы хотите продолжить действие?'
+      ),
       onYes: this.handleConfirmRemove
     });
   }
@@ -90,7 +93,7 @@ export default class ImportButtonComponent extends BaseReactComponent {
   };
 
   handleToggleModal = confirmed => {
-    if (!this.#isOpenModal && !isEmpty(this.dataValue) && !confirmed) {
+    if (!this.#isOpenModal && this.component.confirmBeforeUpload && !confirmed) {
       this.showConfirmModal();
       return;
     }
