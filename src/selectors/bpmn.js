@@ -112,7 +112,7 @@ export const selectIsParentHasNotModels = createSelector(
 export const selectCaseSensitiveCategories = state => {
   return state.bpmn.categories.map(item => {
     let label = item.label;
-    if (item.parentId.endsWith(ROOT_CATEGORY_NODE_REF)) {
+    if (endsWith(item.parentId, ROOT_CATEGORY_NODE_REF)) {
       label = label.toUpperCase();
     }
 
