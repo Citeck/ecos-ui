@@ -38,6 +38,10 @@ const Preview = ({ stateId, recordId }) => (
 class JournalsContent extends Component {
   state = {};
 
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    return nextProps.isActivePage;
+  }
+
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.journalId !== this.props.journalId && this.state.recordId) {
       this.setState({ recordId: '' });
