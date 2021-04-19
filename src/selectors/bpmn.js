@@ -28,8 +28,8 @@ export const selectCategoriesByParentId = createSelector(
   [selectAllCategories, selectCategoryId, selectSortFilter, selectSearchText, selectModelsBySearchText],
   (allCategories, parentId, currentSortFilter, searchText, searchedModels) => {
     let categories = [...allCategories];
+    let compareFunction;
 
-    let compareFunction = compareLastModified;
     switch (currentSortFilter) {
       case SORT_FILTER_AZ:
         compareFunction = compareAZ;
@@ -55,7 +55,7 @@ export const selectCategoriesByParentId = createSelector(
         return !item.parentId;
       }
 
-      if (item.parentId !== parentId) {
+      if (!item.parentId.endsWith(parentId)) {
         return false;
       }
 
@@ -110,7 +110,7 @@ export const selectIsParentHasNotModels = createSelector(
 export const selectCaseSensitiveCategories = state => {
   return state.bpmn.categories.map(item => {
     let label = item.label;
-    if (item.parentId === ROOT_CATEGORY_NODE_REF) {
+    if (item.parentId.endsWith(ROOT_CATEGORY_NODE_REF)) {
       label = label.toUpperCase();
     }
 

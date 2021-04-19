@@ -100,8 +100,8 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
     const allModels = yield select(selectAllModels);
 
     const isCategoryHasChildren =
-      allCategories.findIndex(item => item.parentId === categoryId) !== -1 ||
-      allModels.findIndex(item => item.categoryId === categoryId) !== -1;
+      allCategories.findIndex(item => item.parentId.endsWith(categoryId)) !== -1 ||
+      allModels.findIndex(item => item.categoryId.includes(categoryId)) !== -1;
 
     if (isCategoryHasChildren) {
       yield delay(100);
