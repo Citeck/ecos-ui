@@ -11,6 +11,7 @@ import CreateModelCard from '../CreateModelCard';
 import ModelCard from '../ModelCard';
 import ModelList from '../ModelList';
 import PageService from '../../../services/PageService';
+import recordActions from '../../../components/Records/actions/recordActions';
 
 import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
 
@@ -52,10 +53,22 @@ const mapDispatchToProps = dispatch => ({
       recordRef: modelId,
       onSubmit: () => dispatch(updateModels())
     });
+  },
+  onDeleteModelClick: (e, modelId) => {
+    e.preventDefault();
+    recordActions
+      .execForRecord(modelId, {
+        type: 'delete'
+      })
+      .then(res => {
+        if (res) {
+          dispatch(updateModels());
+        }
+      });
   }
 });
 
-const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEditLinkClick, onEditMetaClick }) => {
+const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEditLinkClick, onDeleteModelClick, onEditMetaClick }) => {
   const ModelComponent = viewType === ViewTypes.LIST ? ModelList : ModelCard;
 
   const models = [];
@@ -81,6 +94,7 @@ const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEd
           editLink={editLink}
           onViewLinkClick={onViewLinkClick}
           onEditLinkClick={onEditLinkClick}
+          onDeleteModelClick={e => onDeleteModelClick(e, item.id)}
           onEditMetaClick={e => onEditMetaClick(e, item.id)}
           label={item.label}
           author={item.creator}

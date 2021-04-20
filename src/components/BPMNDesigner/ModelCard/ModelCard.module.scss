@@ -54,6 +54,24 @@
   }
 }
 
+.cardDeleteModelButton {
+  background: #2a446c;
+  border-radius: 4px;
+  position: absolute;
+  right: 80px;
+  top: 10px;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+
+  span:before {
+    color: $color-white;
+    font-size: 15px;
+  }
+}
+
 .cardEditMetaButton {
   background: #2a446c;
   border-radius: 4px;

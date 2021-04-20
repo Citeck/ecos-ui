@@ -6,22 +6,51 @@ import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
 import { t } from '../../../helpers/util';
 import styles from './ModelList.module.scss';
 
-const ModelList = ({ label, author, datetime, viewLink, editLink, onViewLinkClick, onEditLinkClick, onEditMetaClick, canWrite }) => {
+const ModelList = ({
+  label,
+  author,
+  datetime,
+  viewLink,
+  editLink,
+  onViewLinkClick,
+  onEditLinkClick,
+  onEditMetaClick,
+  onDeleteModelClick,
+  canWrite
+}) => {
   const dragNDropIconClasses = cn('icon-custom-drag-big', styles.dndActionIcon, styles.hiddenIcon);
 
-  let editButton = <div className={styles.emptyActionIcon} />;
-  let editMetaButton = null;
+  let buttons = [<div key={'empty-actions'} className={styles.emptyActionIcon} />];
   if (canWrite) {
-    editMetaButton = (
-      <a href={'/'} className={styles.editActionIcon} onClick={onEditMetaClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
+    buttons = [
+      <a
+        href={'/'}
+        key={'delete'}
+        className={styles.editActionIcon}
+        onClick={onDeleteModelClick}
+        {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
+      >
+        <span className={'icon-delete'} />
+      </a>,
+      <a
+        href={'/'}
+        key={'settings'}
+        className={styles.editActionIcon}
+        onClick={onEditMetaClick}
+        {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
+      >
         <span className={'icon-settings'} />
-      </a>
-    );
-    editButton = (
-      <a href={editLink} className={styles.editActionIcon} onClick={onEditLinkClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
+      </a>,
+      <a
+        href={editLink}
+        key={'edit'}
+        className={styles.editActionIcon}
+        onClick={onEditLinkClick}
+        {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
+      >
         <span className={'icon-edit'} />
       </a>
-    );
+    ];
   }
 
   return (
@@ -42,8 +71,7 @@ const ModelList = ({ label, author, datetime, viewLink, editLink, onViewLinkClic
           <a href={viewLink} onClick={onViewLinkClick} className={styles.viewCard} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
             {t('bpmn-designer.view-button')}
           </a>
-          {editMetaButton}
-          {editButton}
+          {buttons}
           <span className={dragNDropIconClasses} />
         </div>
       </div>
