@@ -102,7 +102,7 @@ export class BpmnApi extends RecordService {
     const { title, processKey, description, categoryId, author, owner, reviewers, validFrom, validTo } = data;
     // console.log(data);
     const attributes = {
-      _type: 'ecosbpm:processModel',
+      type: 'ecosbpm:processModel',
       'ecosbpm:processId': processKey,
       'cm:title': title,
       'cm:description': description,
@@ -135,7 +135,7 @@ export class BpmnApi extends RecordService {
     const { content, categoryId, author, owner, reviewers, validFrom, validTo } = data;
 
     const attributes = {
-      _type: 'ecosbpm:processModel',
+      type: 'ecosbpm:processModel',
       'cm:content': content,
       'ecosbpm:category': categoryId,
       'ecosbpm:processAuthorAssoc': author,

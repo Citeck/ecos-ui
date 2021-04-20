@@ -3,13 +3,14 @@ import { connect } from 'react-redux';
 import { Row } from 'reactstrap';
 import moment from 'moment';
 
-import { PROXY_URI, URL_PAGECONTEXT } from '../../../constants/alfresco';
+import { PROXY_URI } from '../../../constants/alfresco';
 import { savePagePosition } from '../../../actions/bpmn';
 import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME, ViewTypes } from '../../../constants/bpmn';
 import { selectModelsByCategoryId } from '../../../selectors/bpmn';
 import CreateModelCard from '../CreateModelCard';
 import ModelCard from '../ModelCard';
 import ModelList from '../ModelList';
+import PageService from '../../../services/PageService';
 
 const mapStateToProps = (state, props) => ({
   viewType: state.bpmn.viewType,
@@ -24,7 +25,9 @@ const mapDispatchToProps = dispatch => ({
     dispatch(
       savePagePosition({
         callback: () => {
-          window.location.href = e.currentTarget.href;
+          PageService.changeUrlLink(e.currentTarget.href, {
+            openNewTab: true
+          });
         }
       })
     );
@@ -51,13 +54,14 @@ const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEd
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       const dt = moment(item.created).calendar();
-      const recordId = item.id.replace('workspace://SpacesStore/', '');
+      const itemNodeRef = item.id.replace('alfresco/@', '');
+      const recordId = itemNodeRef.replace('workspace://SpacesStore/', '');
       const editLink = `${EDITOR_PAGE_CONTEXT}#/editor/${recordId}`;
-      const viewLink = `${URL_PAGECONTEXT}card-details?nodeRef=${item.id}`;
+      const viewLink = `/v2/dashboard?recordRef=${item.id}`;
       let image = null;
       if (item.hasThumbnail) {
         // prettier-ignore
-        image = `${PROXY_URI}/citeck/ecos/image/thumbnail?nodeRef=${item.id}&property=ecosbpm:thumbnail&cached=true&modified=${item.modified}`;
+        image = `${PROXY_URI}/citeck/ecos/image/thumbnail?nodeRef=${itemNodeRef}&property=ecosbpm:thumbnail&cached=true&modified=${item.modified}`;
       }
 
       models.push(
