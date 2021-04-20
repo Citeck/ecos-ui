@@ -4,13 +4,15 @@ import { Row } from 'reactstrap';
 import moment from 'moment';
 
 import { PROXY_URI } from '../../../constants/alfresco';
-import { savePagePosition } from '../../../actions/bpmn';
+import { savePagePosition, updateModels } from '../../../actions/bpmn';
 import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME, ViewTypes } from '../../../constants/bpmn';
 import { selectModelsByCategoryId } from '../../../selectors/bpmn';
 import CreateModelCard from '../CreateModelCard';
 import ModelCard from '../ModelCard';
 import ModelList from '../ModelList';
 import PageService from '../../../services/PageService';
+
+import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
 
 const mapStateToProps = (state, props) => ({
   viewType: state.bpmn.viewType,
@@ -43,10 +45,17 @@ const mapDispatchToProps = dispatch => ({
         }
       })
     );
+  },
+  onEditMetaClick: (e, modelId) => {
+    e.preventDefault();
+    EcosFormUtils.editRecord({
+      recordRef: modelId,
+      onSubmit: () => dispatch(updateModels())
+    });
   }
 });
 
-const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEditLinkClick }) => {
+const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEditLinkClick, onEditMetaClick }) => {
   const ModelComponent = viewType === ViewTypes.LIST ? ModelList : ModelCard;
 
   const models = [];
@@ -72,6 +81,7 @@ const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEd
           editLink={editLink}
           onViewLinkClick={onViewLinkClick}
           onEditLinkClick={onEditLinkClick}
+          onEditMetaClick={e => onEditMetaClick(e, item.id)}
           label={item.label}
           author={item.creator}
           datetime={dt}

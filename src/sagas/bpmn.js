@@ -6,9 +6,9 @@ import endsWith from 'lodash/endsWith';
 
 import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
 import { t } from '../helpers/util';
-import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
 import ImportModelForm from '../components/BPMNDesigner/ImportModelForm';
 import {
+  updateModels,
   deleteCategory,
   deleteCategoryRequest,
   importProcessModelRequest,
@@ -28,6 +28,8 @@ import {
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
 import { getPagePositionState, removePagePositionState, savePagePositionState } from '../helpers/bpmn';
+import FormManager from '../components/EcosForm/FormManager';
+import Records from '../components/Records/Records';
 
 function* doInitRequest({ api, logger }) {
   try {
@@ -162,9 +164,9 @@ function* doImportProcessModelRequest({ api, logger }, action) {
 
 function* doShowModelCreationForm({ api, logger }, action) {
   try {
-    const allCategories = yield select(selectAllCategories);
+    let createVariants = yield Records.get('emodel/rtype@cat-doc-type-ecos-bpm-process').load('createVariants[]?json');
 
-    if (!allCategories.length) {
+    if (!createVariants || !createVariants.length) {
       yield put(
         showModal({
           title: t('bpmn-designer.create-bpm-dialog.failure-title'),
@@ -177,16 +179,25 @@ function* doShowModelCreationForm({ api, logger }, action) {
           ]
         })
       );
-
       return;
     }
 
-    yield put(
-      showModal({
-        title: t('bpmn-designer.create-bpm-dialog.title'),
-        content: <ModelCreationForm categoryId={action.payload} />
-      })
-    );
+    const attributes = {};
+    if (action.payload) {
+      attributes['ecosbpm_category'] = action.payload;
+    }
+
+    const saved = yield new Promise(resolve => {
+      FormManager.createRecordByVariant(createVariants[0], {
+        attributes,
+        onSubmit: () => resolve(true),
+        onFormCancel: () => resolve(false)
+      });
+    });
+    if (saved) {
+      const models = yield call(api.bpmn.fetchProcessModels);
+      yield put(setModels(models));
+    }
   } catch (e) {
     logger.error('[bpmn doShowModelCreationForm saga] error', e.message);
   }
@@ -248,8 +259,18 @@ function* doSavePagePosition({ api, logger }, action) {
   }
 }
 
+function* doUpdateModels({ api, logger }) {
+  try {
+    const models = yield call(api.bpmn.fetchProcessModels);
+    yield put(setModels(models));
+  } catch (e) {
+    logger.error('[bpmn doUpdateModels saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initRequest().type, doInitRequest, ea);
+  yield takeLatest(updateModels().type, doUpdateModels, ea);
   yield takeLatest(saveCategoryRequest().type, doSaveCategoryRequest, ea);
   yield takeLatest(deleteCategoryRequest().type, doDeleteCategoryRequest, ea);
   yield takeLatest(saveProcessModelRequest().type, doSaveProcessModelRequest, ea);

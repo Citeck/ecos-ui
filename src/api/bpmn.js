@@ -71,7 +71,8 @@ export class BpmnApi extends RecordService {
       query: {
         query: 'TYPE:"ecosbpm:processModel"',
         language: 'fts-alfresco',
-        sortBy: [{ attribute: 'ecosbpm:index', ascending: true }]
+        sortBy: [{ attribute: 'ecosbpm:index', ascending: true }],
+        consistency: 'TRANSACTIONAL'
       },
       attributes: {
         index: 'ecosbpm:index',

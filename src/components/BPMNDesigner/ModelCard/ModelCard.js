@@ -1,12 +1,11 @@
 import React from 'react';
-// import { NavLink } from 'react-router-dom';
 import { Col } from 'reactstrap';
 import cn from 'classnames';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../constants/pageTabs';
 import { t } from '../../../helpers/util';
 import styles from './ModelCard.module.scss';
 
-const ModelCard = ({ label, author, datetime, viewLink, editLink, onViewLinkClick, onEditLinkClick, image, canWrite }) => {
+const ModelCard = ({ label, author, datetime, viewLink, editLink, onViewLinkClick, onEditLinkClick, onEditMetaClick, image, canWrite }) => {
   const dragNDropIconClasses = cn('icon-custom-drag-big', styles.dndActionIcon, styles.hiddenIcon);
 
   let cardTopBgStyle = null;
@@ -17,7 +16,13 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink, onViewLinkClic
   }
 
   let editButton = null;
+  let editMetaButton = null;
   if (canWrite) {
+    editMetaButton = (
+      <a href={'/'} className={styles.cardEditMetaButton} onClick={onEditMetaClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
+        <span className={'icon-settings'} />
+      </a>
+    );
     editButton = (
       <a href={editLink} className={styles.cardEditButton} onClick={onEditLinkClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
         <span className={'icon-edit'} />
@@ -30,6 +35,7 @@ const ModelCard = ({ label, author, datetime, viewLink, editLink, onViewLinkClic
       <div className={styles.card}>
         <div className={styles.cardTop} style={cardTopBgStyle}>
           <div className={styles.cardTopHover}>
+            {editMetaButton}
             {editButton}
             <div className={styles.cardTopButton}>
               {/*<NavLink to={viewLink}>{t('bpmn-designer.view-button')}</NavLink>*/}
