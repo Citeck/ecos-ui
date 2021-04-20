@@ -1,4 +1,6 @@
 import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import BaseReactComponent from '../base/BaseReactComponent';
 import { t } from '../../../../helpers/export/util';
@@ -7,6 +9,14 @@ import DialogManager from '../../../../components/common/dialogs/Manager';
 import Button from './Button';
 
 import '../../override/button/button.scss';
+
+const Labels = {
+  DEFAULT_CONFIRM_TITLE: 'ecos-form.import-button.confirm.default-title',
+  DEFAULT_CONFIRM_DESCRIPTION: 'ecos-form.import-button.confirm.default-description',
+  FAILED_UPLOADING_DESCRIPTION: 'ecos-form.import-button.failed-uploading.description',
+  FAILED_UPLOADING_TITLE: 'ecos-form.import-button.failed-uploading.title',
+  RESPONSE_HANDLER_ERROR: 'ecos-form.import-button.error.no-response-handler'
+};
 
 export default class ImportButtonComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -19,7 +29,8 @@ export default class ImportButtonComponent extends BaseReactComponent {
         size: 'sm',
         defaultValue: {},
         multipleFiles: false,
-        confirmBeforeUpload: false
+        confirmBeforeUpload: false,
+        isShowUploadedFile: false
       },
       ...extend
     );
@@ -61,7 +72,8 @@ export default class ImportButtonComponent extends BaseReactComponent {
       toggleModal: this.handleToggleModal,
       isDisabled: this.disabled,
       label: this.labelIsHidden() ? '' : this.component.label,
-      multiple: this.component.multipleFiles
+      multiple: this.component.multipleFiles,
+      isShowUploadedFile: this.component.isShowUploadedFile
     };
   }
 
@@ -73,11 +85,8 @@ export default class ImportButtonComponent extends BaseReactComponent {
 
   showConfirmModal() {
     DialogManager.confirmDialog({
-      title: t(this.component.confirm.title || 'Удаление старых записей'),
-      text: t(
-        this.component.confirm.description ||
-          'Перед загрузкой строк из файла - шаблона, текущие строки будут удалены. Вы хотите продолжить действие?'
-      ),
+      title: t(this.component.confirm.title || Labels.DEFAULT_CONFIRM_TITLE),
+      text: t(this.component.confirm.description || Labels.DEFAULT_CONFIRM_DESCRIPTION),
       onYes: this.handleConfirmRemove
     });
   }
@@ -87,9 +96,23 @@ export default class ImportButtonComponent extends BaseReactComponent {
   };
 
   handleSelect = (fileList, callback) => {
-    for (let i = 0; i < fileList.length; i++) {
-      this.uploadFile(fileList[i], callback);
-    }
+    Promise.allSettled(fileList.map(file => this.uploadFile(file, callback))).then(result => {
+      const uploadedFilesInfo = (result || []).reduce((res, current) => {
+        const fileName = get(current, 'value');
+
+        if (!isEmpty(fileName)) {
+          res.push(fileName);
+        }
+
+        return res;
+      }, []);
+
+      this.setReactProps({
+        isLoading: false,
+        uploadedFilesInfo
+      });
+      this.handleToggleModal();
+    });
   };
 
   handleToggleModal = confirmed => {
@@ -106,7 +129,7 @@ export default class ImportButtonComponent extends BaseReactComponent {
     const { uploadUrl, responseHandler } = this.component;
 
     if (!responseHandler) {
-      return this.showErrorMessage(t('ecos-table-form.error.no-response-handler'));
+      return this.showErrorMessage(t(Labels.RESPONSE_HANDLER_ERROR));
     }
 
     this.setReactProps({
@@ -135,18 +158,17 @@ export default class ImportButtonComponent extends BaseReactComponent {
       }
 
       this.updateValue({}, handledResult);
+
+      return file.name;
     } catch (e) {
       console.error('Import error. Failure to upload file: ', e.message);
-      this.showErrorMessage(t('Не удалось загрузить файл'));
-    } finally {
-      this.setReactProps({ isLoading: false });
-      this.handleToggleModal();
+      this.showErrorMessage(t(Labels.FAILED_UPLOADING_TITLE));
     }
   };
 
   showErrorMessage = text => {
     DialogManager.showInfoDialog({
-      title: t('ecos-table-form.error-dialog.title'),
+      title: t(Labels.FAILED_UPLOADING_DESCRIPTION),
       text
     });
   };
