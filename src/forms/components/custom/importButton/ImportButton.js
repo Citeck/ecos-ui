@@ -85,8 +85,8 @@ export default class ImportButtonComponent extends BaseReactComponent {
 
   showConfirmModal() {
     DialogManager.confirmDialog({
-      title: t(this.component.confirm.title || Labels.DEFAULT_CONFIRM_TITLE),
-      text: t(this.component.confirm.description || Labels.DEFAULT_CONFIRM_DESCRIPTION),
+      title: t(get(this.component, 'confirm.title') || Labels.DEFAULT_CONFIRM_TITLE),
+      text: t(get(this.component, 'confirm.description') || Labels.DEFAULT_CONFIRM_DESCRIPTION),
       onYes: this.handleConfirmRemove
     });
   }
