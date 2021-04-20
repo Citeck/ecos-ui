@@ -36,7 +36,7 @@ export class BpmnApi extends RecordService {
       record: {
         attributes: {
           _parent: parent,
-          _type: 'cm:category',
+          type: 'cm:category',
           'cm:title': title
         }
       }
