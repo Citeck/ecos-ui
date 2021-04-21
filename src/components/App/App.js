@@ -39,8 +39,6 @@ import './App.scss';
 const allowedLinks = [
   URL.DASHBOARD,
   '/share/page/bpmn-designer',
-  URL.FORM_COMPONENTS,
-  '/v2/debug/tree',
   URL.DASHBOARD_SETTINGS,
   URL.BPMN_DESIGNER,
   URL.JOURNAL,
@@ -54,6 +52,10 @@ const allowedLinks = [
   URL.TIMESHEET_IFRAME_FOR_VERIFICATION,
   URL.TIMESHEET_IFRAME_DELEGATED
 ];
+
+if (process.env.NODE_ENV === 'development') {
+  allowedLinks.push(URL.FORM_COMPONENTS, '/v2/debug/tree');
+}
 
 class App extends Component {
   _footerRef = null;
