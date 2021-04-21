@@ -40,6 +40,7 @@ export const SelectOrgstructProvider = props => {
   const [isRootGroupsFetched, setIsRootGroupsFetched] = useState(false);
   const [isAllUsersGroupsFetched, setIsAllUsersGroupFetched] = useState(false);
   const [isAllUsersGroupsExists, setIsAllUsersGroupsExists] = useState(undefined);
+  const [isSearching, setIsSearching] = useState(false);
   const [targetId, setTargetId] = useState(undefined);
   const [tabItems, setTabItems] = useState({
     [TabTypes.LEVELS]: [],
@@ -49,8 +50,8 @@ export const SelectOrgstructProvider = props => {
   const prevDefaultValue = usePrevious(defaultValue);
 
   const onSubmitSearchForm = () => {
-    setIsRootGroupsFetched(false);
-    setIsAllUsersGroupFetched(false);
+    currentTab === TabTypes.LEVELS && setIsRootGroupsFetched(false);
+    currentTab === TabTypes.USERS && setIsAllUsersGroupFetched(false);
   };
 
   const liveSearchDebounce = debounce(onSubmitSearchForm, 500);
@@ -101,6 +102,7 @@ export const SelectOrgstructProvider = props => {
     const trimSearchText = (searchText || '').trim();
 
     if (!isRootGroupsFetched && isSelectModalOpen && currentTab === TabTypes.LEVELS) {
+      setIsSearching(true);
       orgStructApi
         .fetchGroup({
           query: {
@@ -122,6 +124,7 @@ export const SelectOrgstructProvider = props => {
 
           checkIsAllUsersGroupExists();
           setIsRootGroupsFetched(true);
+          setIsSearching(false);
         });
     }
   }, [isRootGroupsFetched, isSelectModalOpen, currentTab]);
@@ -129,6 +132,7 @@ export const SelectOrgstructProvider = props => {
   // fetch "all" group list (all users)
   useEffect(() => {
     if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.USERS) {
+      setIsSearching(true);
       OrgStructApi.getUserList(searchText, userSearchExtraFields).then(items => {
         setTabItems({
           ...tabItems,
@@ -137,6 +141,7 @@ export const SelectOrgstructProvider = props => {
 
         checkIsAllUsersGroupExists();
         setIsAllUsersGroupFetched(true);
+        setIsSearching(false);
       });
     }
   }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]);
@@ -212,6 +217,7 @@ export const SelectOrgstructProvider = props => {
         liveSearch,
         hideTabSwitcher,
         targetId,
+        isSearching,
 
         renderListItem: item => {
           if (typeof renderListItem === 'function') {
@@ -292,6 +298,11 @@ export const SelectOrgstructProvider = props => {
           if (liveSearch) {
             liveSearchDebounce();
           }
+        },
+
+        resetSearchText: e => {
+          updateSearchText('');
+          liveSearchDebounce();
         },
 
         onSelect: () => {
