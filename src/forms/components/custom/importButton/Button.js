@@ -2,11 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 import { CardSubtitle } from 'reactstrap';
+import classNames from 'classnames';
 
 import { Btn } from '../../../../components/common/btns';
 import DropZone from '../../../../components/widgets/Documents/parts/DropZone';
 import { EcosModal } from '../../../../components/common';
 import { t } from '../../../../helpers/export/util';
+
+import '../../override/button/button.scss';
 
 class Button extends React.Component {
   static propTypes = {
@@ -68,13 +71,35 @@ class Button extends React.Component {
     );
   }
 
+  renderLeftIcon() {
+    const { leftIcon } = this.props;
+
+    if (!leftIcon) {
+      return null;
+    }
+
+    return <i className={classNames('mr-1', leftIcon)} />;
+  }
+
+  renderRightIcon() {
+    const { rightIcon } = this.props;
+
+    if (!rightIcon) {
+      return null;
+    }
+
+    return <i className={classNames('ml-1', rightIcon)} />;
+  }
+
   render() {
     const { className, isDisabled, label } = this.props;
 
     return (
       <>
         <Btn className={className} onClick={this.handleToggleModal} disabled={isDisabled} withoutBaseClassName>
+          {this.renderLeftIcon()}
           {t(label)}
+          {this.renderRightIcon()}
         </Btn>
         {this.renderUploadedFile()}
         {this.renderModal()}

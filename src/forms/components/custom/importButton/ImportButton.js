@@ -73,7 +73,9 @@ export default class ImportButtonComponent extends BaseReactComponent {
       isDisabled: this.disabled,
       label: this.labelIsHidden() ? '' : this.component.label,
       multiple: this.component.multipleFiles,
-      isShowUploadedFile: this.component.isShowUploadedFile
+      isShowUploadedFile: this.component.isShowUploadedFile,
+      leftIcon: this.component.leftIcon,
+      rightIcon: this.component.rightIcon
     };
   }
 
