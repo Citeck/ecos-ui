@@ -44,7 +44,7 @@ export const selectCategoriesByParentId = createSelector(
         break;
       case SORT_FILTER_LAST_MODIFIED:
       default:
-        compareFunction = compareLastModified;
+        compareFunction = (a, b) => compareLastModified(a, b, true);
         break;
     }
 

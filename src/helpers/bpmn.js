@@ -35,13 +35,13 @@ export function compareOld(a, b) {
   return 0;
 }
 
-export function compareLastModified(a, b) {
+export function compareLastModified(a, b, asc = false) {
   if (a.modified < b.modified) {
-    return 1;
+    return asc ? -1 : 1;
   }
 
   if (a.modified > b.modified) {
-    return -1;
+    return asc ? 1 : -1;
   }
 
   return 0;

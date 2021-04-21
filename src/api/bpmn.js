@@ -1,5 +1,6 @@
 import { RecordService } from './recordService';
 import { ROOT_CATEGORY_NODE_REF } from '../constants/bpmn';
+import Records from '../components/Records';
 
 export class BpmnApi extends RecordService {
   fetchCategories = () => {
@@ -31,16 +32,11 @@ export class BpmnApi extends RecordService {
   };
 
   createCategory = (title, parent = ROOT_CATEGORY_NODE_REF) => {
-    //todo: replace to using Records.js
-    return this.mutate({
-      record: {
-        attributes: {
-          _parent: parent,
-          type: 'cm:category',
-          'cm:title': title
-        }
-      }
-    });
+    let rec = Records.get('alfresco/@');
+    rec.att('_parent', parent);
+    rec.att('type', 'cm:category');
+    rec.att('cm:title', title);
+    return rec.save();
   };
 
   updateCategory = (id, { title }) => {
