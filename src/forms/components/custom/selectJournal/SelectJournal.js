@@ -257,6 +257,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
   getInitialReactProps() {
     let resolveProps = (journalId, columns = []) => {
       const component = this.component;
+      const isModalMode = !!(this.element && this.element.closest('.modal'));
+
       let presetFilterPredicates = null;
 
       if (component.presetFilterPredicatesJs) {
@@ -282,6 +284,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         isSelectedValueAsText: component.isSelectedValueAsText,
         isFullScreenWidthModal: component.isFullScreenWidthModal,
         isInlineEditingMode: this._isInlineEditingMode,
+        isModalMode,
         presetFilterPredicates,
         searchField: component.searchField,
         sortBy: {

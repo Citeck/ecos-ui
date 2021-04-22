@@ -1354,5 +1354,11 @@
 
   "copy-to-clipboard.modal.title": "Копирование",
   "copy-to-clipboard.modal.description": "Для того, чтобы скопировать текст, нажмите кнопку ниже",
-  "copy-to-clipboard.btn.copy": "Скопировать"
+  "copy-to-clipboard.btn.copy": "Скопировать",
+
+  "ecos-form.import-button.confirm.default-title": "Удаление ранее добавленных записей",
+  "ecos-form.import-button.confirm.default-description": "Перед загрузкой строк из файла - шаблона, текущие строки будут удалены. Вы хотите продолжить действие?",
+  "ecos-form.import-button.failed-uploading.description": "Не удалось загрузить файл",
+  "ecos-form.import-button.failed-uploading.title": "Ошибка",
+  "ecos-form.import-button.error.no-response-handler": "Необходимо указать настройку \"Response handler\""
 }

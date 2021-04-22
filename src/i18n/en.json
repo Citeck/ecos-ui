@@ -1356,5 +1356,11 @@
 
   "copy-to-clipboard.modal.title": "Copy",
   "copy-to-clipboard.modal.description": "To copy the text, click the button below",
-  "copy-to-clipboard.btn.copy": "Copy"
+  "copy-to-clipboard.btn.copy": "Copy",
+
+  "ecos-form.import-button.confirm.default-title": "Removing previously added entries",
+  "ecos-form.import-button.confirm.default-description": "Before loading lines from the template file, the current lines will be deleted. Do you want to continue the action?",
+  "ecos-form.import-button.failed-uploading.description": "Не удалось загрузить файл",
+  "ecos-form.import-button.failed-uploading.title": "Error",
+  "ecos-form.import-button.error.no-response-handler": "You must set \"Response handler\" setting"
 }

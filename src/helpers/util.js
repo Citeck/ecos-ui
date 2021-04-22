@@ -1098,5 +1098,23 @@ export function getModule(srcModule) {
   });
 }
 
+/**
+ * splice for string
+ * @param string
+ * @param start
+ * @param deleteCount
+ * @param addString
+ * @returns string
+ */
+export function strSplice(string, start, deleteCount, ...addString) {
+  if (isString(string)) {
+    const arr = string.split('');
+    arr.splice(start, deleteCount, addString);
+    return arr.join('');
+  }
+
+  return string;
+}
+
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);

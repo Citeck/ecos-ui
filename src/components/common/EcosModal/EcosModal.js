@@ -113,7 +113,7 @@ export default class EcosModal extends Component {
   }
 
   render() {
-    const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, zIndex, modalSize } = this.props;
+    const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, zIndex, size } = this.props;
     const { isOpen, level, draggableState } = this.state;
 
     const modalZIndex = (zIndex || DEFAULT_Z_INDEX) + level;
@@ -149,7 +149,7 @@ export default class EcosModal extends Component {
         isLoading={isLoading}
         toggle={hideModal}
         zIndex={modalZIndex}
-        size={modalSize || 'lg'}
+        size={size}
         className={modalClassName}
         {...reactstrapProps}
         getDialogRef={el => (this._dialog = el)}
@@ -166,6 +166,7 @@ export default class EcosModal extends Component {
 
 EcosModal.propTypes = {
   children: PropTypes.node,
+  size: PropTypes.string,
   className: PropTypes.string,
   classNameHeader: PropTypes.string,
   classNameBody: PropTypes.string,
@@ -186,6 +187,7 @@ EcosModal.propTypes = {
 
 EcosModal.defaultProps = {
   className: '',
+  size: 'lg',
   classNameHeader: '',
   classNameBody: '',
   reactstrapProps: {},

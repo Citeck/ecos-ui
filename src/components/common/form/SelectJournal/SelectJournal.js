@@ -766,9 +766,22 @@ export default class SelectJournal extends Component {
       renderView,
       isSelectedValueAsText,
       isInlineEditingMode,
+      isModalMode,
       viewMode
     } = this.props;
-    const { journalConfig, selectedRows, error } = this.state;
+    const {
+      isGridDataReady,
+      isSelectModalOpen,
+      isCreateModalOpen,
+      isCollapsePanelOpen,
+      gridData,
+      editRecordName,
+      pagination,
+      journalConfig,
+      selectedRows,
+      error
+    } = this.state;
+
     const inputViewProps = {
       disabled,
       isCompact,
@@ -786,6 +799,7 @@ export default class SelectJournal extends Component {
       hideDeleteRowButton,
       isSelectedValueAsText,
       isInlineEditingMode,
+      isModalMode,
       viewMode,
       gridData: {
         columns: this.getColumns(),
@@ -801,13 +815,14 @@ export default class SelectJournal extends Component {
       }
     };
     const defaultView = viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />;
-    const wrapperClasses = classNames('select-journal', {
-      'select-journal_compact': isCompact,
-      'select-journal_view-only': viewOnly
-    });
 
     return (
-      <div className={wrapperClasses}>
+      <div
+        className={classNames('select-journal', {
+          'select-journal_compact': isCompact,
+          'select-journal_view-only': viewOnly
+        })}
+      >
         {typeof renderView === 'function' ? renderView(inputViewProps) : defaultView}
 
         <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} presetFilterPredicates={presetFilterPredicates}>
