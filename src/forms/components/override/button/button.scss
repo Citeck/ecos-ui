@@ -2,7 +2,8 @@
 
 .formio-dialog-content .preview-panel,
 .formio-form {
-  .formio-component-button {
+  .formio-component-button,
+  .formio-component-importButton {
     .btn:not(.btn-xxs) {
       cursor: pointer;
       display: inline-block;
@@ -82,6 +83,14 @@
         padding: 0 5px;
         border-radius: $border-radius-small;
         font-size: $font-size-extra-small;
+
+        .fa,
+        .icon {
+          height: 100%;
+          vertical-align: middle;
+          font-size: 1em;
+          display: inline;
+        }
       }
 
       &.btn-sm {
@@ -89,6 +98,14 @@
         padding: 0 10px;
         border-radius: $border-radius-standard;
         font-size: $font-size-small;
+
+        .fa,
+        .icon {
+          height: 100%;
+          vertical-align: middle;
+          font-size: 1em;
+          display: inline;
+        }
       }
 
       &.btn-md {

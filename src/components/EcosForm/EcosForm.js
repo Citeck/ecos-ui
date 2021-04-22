@@ -10,7 +10,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
-import { getCurrentLocale, isMobileDevice, t } from '../../helpers/util';
+import { getCurrentLocale, isMobileDevice, strSplice, t } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
 import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
@@ -228,10 +228,10 @@ class EcosForm extends React.Component {
 
           const events = Object.keys(self.props)
             .filter(key => key.startsWith(handlersPrefix))
-            .map(prop => ({
-              prop,
-              event: prop.replace(handlersPrefix, '').replace(/[^a-z\s]/, f => f.toLowerCase())
-            }));
+            .map(prop => {
+              const str = prop.replace(handlersPrefix, '');
+              return { prop, event: strSplice(str, 0, 1, str[0].toLowerCase()) };
+            });
 
           events.forEach(o => {
             if (o.event !== 'submit') {

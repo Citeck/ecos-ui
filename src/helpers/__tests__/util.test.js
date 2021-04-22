@@ -202,4 +202,15 @@ describe('Util helpers', () => {
 
     check(data, 'reverseString');
   });
+
+  describe.each([
+    ['str undefined', undefined, 1, 0, '1', undefined],
+    ['first symbol changes', 'string', 0, 1, 'S', 'String'],
+    ['add prefix', 'string', 0, 0, 'prefix_', 'prefix_string'],
+    ['empty str s0', '', 0, 0, 'begin', 'begin'],
+    ['empty str s2', '', 2, 0, 'new', 'new'],
+    ['obj', {}, 0, 0, 'prefix_', {}]
+  ])('fun strSplice %s', (title, input, start, del, str, output) => {
+    it(input + '>' + output, () => expect(Util.strSplice(input, start, del, str)).toEqual(output));
+  });
 });

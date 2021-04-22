@@ -1264,5 +1264,11 @@
   "icon-select.error.upload-custom-icon": "Загузка иконки не удалась",
   "icon-select.error.delete-custom-icon": "Удаление иконки не удалось",
 
-  "go-to.home-page": "Перейти на домашнюю страницу"
+  "go-to.home-page": "Перейти на домашнюю страницу",
+
+  "ecos-form.import-button.confirm.default-title": "Удаление ранее добавленных записей",
+  "ecos-form.import-button.confirm.default-description": "Перед загрузкой строк из файла - шаблона, текущие строки будут удалены. Вы хотите продолжить действие?",
+  "ecos-form.import-button.failed-uploading.description": "Не удалось загрузить файл",
+  "ecos-form.import-button.failed-uploading.title": "Ошибка",
+  "ecos-form.import-button.error.no-response-handler": "Необходимо указать настройку \"Response handler\""
 }
