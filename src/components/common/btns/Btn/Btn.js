@@ -17,11 +17,11 @@ export default class Btn extends Component {
   }
 
   render() {
-    const { children, className, disabled, loading, ...htmlAttr } = this.props;
+    const { children, className, disabled, loading, withoutBaseClassName, ...htmlAttr } = this.props;
 
     const cssClasses = classNames(
-      'ecos-btn',
       {
+        'ecos-btn': !withoutBaseClassName,
         'ecos-btn_disabled': disabled
       },
       className
@@ -46,5 +46,6 @@ Btn.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
   disabled: PropTypes.bool,
-  loading: PropTypes.bool
+  loading: PropTypes.bool,
+  withoutBaseClassName: PropTypes.bool
 };
