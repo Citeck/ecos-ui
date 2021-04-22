@@ -524,7 +524,7 @@ class Journals extends React.Component {
             />
           </div>
           {showConfigPopup && (
-            <EcosModal title="Journal Config" modalSize="xl" isOpen={showConfigPopup} hideModal={hideConfigPopup}>
+            <EcosModal title="Journal Config" size="xl" isOpen={showConfigPopup} hideModal={hideConfigPopup}>
               <div className="journal__config-json-viewer">
                 <JSONPretty data={journalConfig} />
               </div>

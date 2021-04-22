@@ -1322,6 +1322,7 @@
   "model-editor.btn.apply": "Сохранить",
   "model-editor.btn.create": "Создать",
   "model-editor.btn.view-xml": "Посмотреть XML",
+  "model-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
 
   "bpmn-editor.error.no-model": "Процесс не задан",
   "bpmn-editor.error.no-selected-element": "Выберите элемент для его редактирования",
