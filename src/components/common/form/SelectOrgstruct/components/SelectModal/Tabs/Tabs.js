@@ -43,7 +43,7 @@ const Tabs = () => {
           }
         };
       })}
-      className={'ecos-tabs_mt-10 ecos-tabs_width-full'}
+      className="ecos-tabs_mt-10 ecos-tabs_width-full"
     />
   );
 };
