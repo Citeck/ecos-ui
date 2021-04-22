@@ -42,6 +42,8 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
+  console.warn('JournalsDashletGrid=> ', props.stateId);
+
   return {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     saveRecords: ({ id, attributes }) => dispatch(saveRecords(w({ id, attributes }))),

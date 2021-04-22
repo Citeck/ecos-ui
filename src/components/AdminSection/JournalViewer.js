@@ -10,11 +10,10 @@ import { ErrorBoundary } from '../ErrorBoundary';
 import { Journals } from '../Journals';
 import { getSearchParams } from '../../helpers/urls';
 
-const JournalViewer = ({ hidden, isActivePage, initStateJournal, upStateId, ...props }) => {
+const JournalViewer = ({ hidden, isActivePage, initStateJournal, upStateId, stateId, ...props }) => {
   const tableCont = useRef(null);
   const [initialized, setInitialized] = useState(false);
   const [prefixStateId, setPrefixStateId] = useState('');
-  const [journalStateId, setJournalStateId] = useState('');
 
   useEffect(() => {
     if (isActivePage && !hidden && !initialized) {
@@ -29,8 +28,7 @@ const JournalViewer = ({ hidden, isActivePage, initStateJournal, upStateId, ...p
     const journalId = getSearchParams().journalId;
     const _journalStateId = journalId ? prefixStateId + '-[' + journalId + ']' : undefined;
 
-    if (isActivePage && !hidden && initialized && journalId && _journalStateId !== journalStateId) {
-      setJournalStateId(_journalStateId);
+    if (isActivePage && !hidden && initialized && journalId && _journalStateId !== stateId) {
       initStateJournal(_journalStateId);
       upStateId(_journalStateId);
     }
@@ -38,11 +36,11 @@ const JournalViewer = ({ hidden, isActivePage, initStateJournal, upStateId, ...p
 
   return (
     <div ref={tableCont} className={classNames('ecos-admin-section__journal', { 'd-none': hidden })}>
-      {!hidden && initialized && journalStateId && (
+      {!hidden && initialized && stateId && (
         <ErrorBoundary>
           <Journals
             isActivePage={isActivePage}
-            stateId={journalStateId}
+            stateId={stateId}
             displayElements={{ menu: false, header: false }}
             additionalHeights={props.additionalHeights}
             className="ecos-admin-section__journal"
