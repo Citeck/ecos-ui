@@ -40,7 +40,7 @@ timestamps {
 
       buildTools.notifyBuildStarted(repoUrl, project_version, env)
 
-      if ((env.BRANCH_NAME != "master") && (!package_props.version.contains('snapshot')))  {
+      if ((env.BRANCH_NAME != "master") && (env.BRANCH_NAME != "master1") && (!package_props.version.contains('snapshot')))  {
         echo "Assembly of release artifacts is allowed only from the master branch!"
         //currentBuild.result = 'FAILURE'
         //return
