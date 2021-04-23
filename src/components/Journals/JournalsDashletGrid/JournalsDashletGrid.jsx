@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
-import debounce from 'lodash/debounce';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { Loader } from '../../common';
@@ -90,7 +89,7 @@ class JournalsDashletGrid extends Component {
     }
   }
 
-  handleSetInlineTools = debounce(this.props.setGridInlineToolSettings, 0);
+  handleSetInlineTools = this.props.setGridInlineToolSettings;
 
   setSelectedRecords = e => {
     const props = this.props;
