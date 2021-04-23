@@ -17,7 +17,7 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const Grid = ({ showPreview, ...props }) => (
+const Grid = React.memo(({ showPreview, ...props }) => (
   <Well className="ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden">
     <JournalsDashletGrid
       noTopBorder
@@ -27,7 +27,7 @@ const Grid = ({ showPreview, ...props }) => (
       {...props}
     />
   </Well>
-);
+));
 
 const Preview = ({ stateId, recordId }) => (
   <Well className="ecos-well_full ecos-journals-content__preview-well">

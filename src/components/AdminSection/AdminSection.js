@@ -11,6 +11,7 @@ import BPMNDesigner from '../BPMNDesigner';
 import { JournalSettings } from '../Journals';
 import JournalViewer from './JournalViewer';
 import { AdminMenu } from './';
+import { usePrevious } from '../../hooks/usePrevious';
 
 import './style.scss';
 
@@ -19,8 +20,13 @@ const AdminSection = ({ activeSection = {}, tabId, isActivePage }) => {
   const [isOpenMenu, setOpenMenu] = useState(false);
   const [journalStateId, setJournalStateId] = useState(null);
   const [additionalHeights, setAdditionalHeights] = useState(0);
+  const prevJournalStateId = usePrevious(journalStateId);
 
-  const _setJournalStateId = id => id !== journalStateId && setJournalStateId(id);
+  const _setJournalStateId = id => {
+    if (id !== journalStateId) {
+      setJournalStateId(id);
+    }
+  };
   const isHidden = type => !isActivePage || activeSection.type !== type;
 
   useEffect(() => {
@@ -57,6 +63,7 @@ const AdminSection = ({ activeSection = {}, tabId, isActivePage }) => {
                 tabId={tabId}
                 upStateId={_setJournalStateId}
                 additionalHeights={-additionalHeights}
+                stateId={prevJournalStateId && prevJournalStateId !== journalStateId ? null : journalStateId}
               />
             </Col>
           </Row>
