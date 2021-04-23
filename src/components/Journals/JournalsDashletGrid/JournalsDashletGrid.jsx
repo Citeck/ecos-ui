@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { Loader } from '../../common';
@@ -41,8 +42,6 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
-
-  console.warn('JournalsDashletGrid=> ', props.stateId);
 
   return {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
@@ -91,7 +90,7 @@ class JournalsDashletGrid extends Component {
     }
   }
 
-  handleSetInlineTools = this.props.setGridInlineToolSettings;
+  handleSetInlineTools = debounce(this.props.setGridInlineToolSettings, 0);
 
   setSelectedRecords = e => {
     const props = this.props;
