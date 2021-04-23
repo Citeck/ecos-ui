@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
-import { connect } from 'react-redux';
 
 import { resetSearchAutocompleteItems, runSearchAutocompleteItems } from '../../actions/header';
 import { generateSearchTerm, isLastItem, t } from '../../helpers/util';
@@ -112,12 +112,12 @@ class Search extends React.Component {
     const searchResult = [];
 
     if (!isEmpty(documents)) {
-      searchResult.push({ groupName: t('search.documents') });
+      searchResult.push({ groupName: t('header.search.documents') });
       searchResult.push(...setOutputParams(documents, Types.DOCUMENTS));
     }
 
     if (!isEmpty(people)) {
-      searchResult.push({ groupName: t('search.people') });
+      searchResult.push({ groupName: t('header.search.people') });
       searchResult.push(...setOutputParams(people, Types.PEOPLE));
     }
 
