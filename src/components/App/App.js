@@ -33,9 +33,6 @@ import './App.scss';
 
 const allowedLinks = [
   URL.DASHBOARD,
-  URL.FORM_COMPONENTS,
-  '/v2/debug/tree',
-  '/v2/debug/cmmn',
   URL.DASHBOARD_SETTINGS,
   URL.BPMN_DESIGNER,
   URL.ADMIN_PAGE,
@@ -53,6 +50,10 @@ const allowedLinks = [
   URL.TIMESHEET_IFRAME_FOR_VERIFICATION,
   URL.TIMESHEET_IFRAME_DELEGATED
 ];
+
+if (process.env.NODE_ENV === 'development') {
+  allowedLinks.push(URL.FORM_COMPONENTS, '/v2/debug/cmmn', '/v2/debug/tree');
+}
 
 class App extends Component {
   _footerRef = null;

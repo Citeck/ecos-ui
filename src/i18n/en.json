@@ -1334,6 +1334,7 @@
   "cmmn-editor.error.can-not-save-scenario": "Scenario could not be saved",
   "cmmn-editor.error.can-not-save-record-data": "Record data has not saved",
   "cmmn-editor.error.no-selected-element": "You should select some element to edit it",
+  "cmmn-editor.error.form-not-found": "No property form found for this entry",
 
   "legacy-cmmn-editor.header": "Edit scenario",
   "legacy-cmmn-editor.header2": "CMMN Editor",
@@ -1356,5 +1357,11 @@
 
   "copy-to-clipboard.modal.title": "Copy",
   "copy-to-clipboard.modal.description": "To copy the text, click the button below",
-  "copy-to-clipboard.btn.copy": "Copy"
+  "copy-to-clipboard.btn.copy": "Copy",
+
+  "ecos-form.import-button.confirm.default-title": "Removing previously added entries",
+  "ecos-form.import-button.confirm.default-description": "Before loading lines from the template file, the current lines will be deleted. Do you want to continue the action?",
+  "ecos-form.import-button.failed-uploading.description": "Не удалось загрузить файл",
+  "ecos-form.import-button.failed-uploading.title": "Error",
+  "ecos-form.import-button.error.no-response-handler": "You must set \"Response handler\" setting"
 }

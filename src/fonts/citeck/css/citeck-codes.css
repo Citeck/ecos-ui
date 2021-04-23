@@ -196,6 +196,9 @@
 .icon-link:before {
   content: '\e841';
 } /* '' */
+.icon-doc:before {
+  content: '\e842';
+} /* '' */
 .icon-print:before {
   content: '\e843';
 } /* '' */
@@ -211,6 +214,9 @@
 .icon-exit:before {
   content: '\e847';
 } /* '' */
+.icon-document-download:before {
+  content: '\e848';
+} /* '' */
 .icon-notify:before {
   content: '\e849';
 } /* '' */
@@ -229,6 +235,9 @@
 .icon-eye-hide:before {
   content: '\e84e';
 } /* '' */
+.icon-document-view:before {
+  content: '\e84f';
+} /* '' */
 .icon-folder:before {
   content: '\e850';
 } /* '' */

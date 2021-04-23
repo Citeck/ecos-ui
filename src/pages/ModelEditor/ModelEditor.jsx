@@ -204,7 +204,7 @@ class ModelEditorPage extends React.Component {
             </>
           }
         />
-        <EcosModal title="XML" modalSize="xl" isOpen={xmlViewerIsOpen} hideModal={this.handleHideXmlViewerModal}>
+        <EcosModal title="XML" size="xl" isOpen={xmlViewerIsOpen} hideModal={this.handleHideXmlViewerModal}>
           <div className="ecos-model-editor-page__xml-viewer">{xmlViewerXml && <XMLViewer xml={xmlViewerXml} />}</div>
         </EcosModal>
       </div>
