@@ -684,20 +684,19 @@ export default class SelectJournal extends Component {
       selectModalTitle += `: ${journalConfig.meta.title}`;
     }
 
-    const selectModalClasses = classNames('select-journal-select-modal', {
-      'ecos-modal_width-lg': !isFullScreenWidthModal,
-      'ecos-modal_width-full': isFullScreenWidthModal
-    });
-
-    const gridClasses = classNames('select-journal__grid', {
-      'select-journal__grid_transparent': !isGridDataReady
-    });
-
     return (
-      <EcosModal title={selectModalTitle} isOpen={isSelectModalOpen} hideModal={this.hideSelectModal} className={selectModalClasses}>
-        <div className={'select-journal-collapse-panel'}>
-          <div className={'select-journal-collapse-panel__controls'}>
-            <div className={'select-journal-collapse-panel__controls-left'}>
+      <EcosModal
+        title={selectModalTitle}
+        isOpen={isSelectModalOpen}
+        hideModal={this.hideSelectModal}
+        className={classNames('select-journal-select-modal', {
+          'ecos-modal_width-lg': !isFullScreenWidthModal,
+          'ecos-modal_width-full': isFullScreenWidthModal
+        })}
+      >
+        <div className="select-journal-collapse-panel">
+          <div className="select-journal-collapse-panel__controls">
+            <div className="select-journal-collapse-panel__controls-left">
               <IcoBtn
                 invert
                 icon={isCollapsePanelOpen ? 'icon-small-up' : 'icon-small-down'}
@@ -711,7 +710,7 @@ export default class SelectJournal extends Component {
                 <CreateVariants items={get(journalConfig, 'meta.createVariants')} onCreateFormSubmit={this.onCreateFormSubmit} />
               )}
             </div>
-            <div className={'select-journal-collapse-panel__controls-right'}>
+            <div className="select-journal-collapse-panel__controls-right">
               <Search searchField={searchField} onApply={this.onApplyFilters} />
             </div>
           </div>
@@ -722,7 +721,7 @@ export default class SelectJournal extends Component {
         </div>
 
         <div className={'select-journal__grid-container'}>
-          {!isGridDataReady ? <Loader /> : null}
+          {!isGridDataReady && <Loader />}
 
           <Grid
             {...gridData}
@@ -731,7 +730,7 @@ export default class SelectJournal extends Component {
             onSelect={this.onSelectGridItem}
             selectAllRecords={null}
             selectAllRecordsVisible={null}
-            className={gridClasses}
+            className={classNames('select-journal__grid', { 'select-journal__grid_transparent': !isGridDataReady })}
             scrollable={false}
           />
 
@@ -739,10 +738,10 @@ export default class SelectJournal extends Component {
         </div>
 
         <div className="select-journal-select-modal__buttons">
-          <Btn className={'select-journal-select-modal__buttons-cancel'} onClick={this.onCancelSelect}>
+          <Btn className="select-journal-select-modal__buttons-cancel" onClick={this.onCancelSelect}>
             {t(Labels.CANCEL_BUTTON)}
           </Btn>
-          <Btn className={'ecos-btn_blue select-journal-select-modal__buttons-ok'} onClick={this.onSelectFromJournalPopup}>
+          <Btn className="ecos-btn_blue select-journal-select-modal__buttons-ok" onClick={this.onSelectFromJournalPopup}>
             {t(Labels.SAVE_BUTTON)}
           </Btn>
         </div>
@@ -766,9 +765,11 @@ export default class SelectJournal extends Component {
       renderView,
       isSelectedValueAsText,
       isInlineEditingMode,
+      isModalMode,
       viewMode
     } = this.props;
     const { journalConfig, selectedRows, error } = this.state;
+
     const inputViewProps = {
       disabled,
       isCompact,
@@ -786,6 +787,7 @@ export default class SelectJournal extends Component {
       hideDeleteRowButton,
       isSelectedValueAsText,
       isInlineEditingMode,
+      isModalMode,
       viewMode,
       gridData: {
         columns: this.getColumns(),
@@ -801,13 +803,14 @@ export default class SelectJournal extends Component {
       }
     };
     const defaultView = viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />;
-    const wrapperClasses = classNames('select-journal', {
-      'select-journal_compact': isCompact,
-      'select-journal_view-only': viewOnly
-    });
 
     return (
-      <div className={wrapperClasses}>
+      <div
+        className={classNames('select-journal', {
+          'select-journal_compact': isCompact,
+          'select-journal_view-only': viewOnly
+        })}
+      >
         {typeof renderView === 'function' ? renderView(inputViewProps) : defaultView}
 
         <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} presetFilterPredicates={presetFilterPredicates}>

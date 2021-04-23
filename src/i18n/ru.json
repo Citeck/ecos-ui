@@ -1322,6 +1322,7 @@
   "model-editor.btn.apply": "Сохранить",
   "model-editor.btn.create": "Создать",
   "model-editor.btn.view-xml": "Посмотреть XML",
+  "model-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
 
   "bpmn-editor.error.no-model": "Процесс не задан",
   "bpmn-editor.error.no-selected-element": "Выберите элемент для его редактирования",
@@ -1354,5 +1355,11 @@
 
   "copy-to-clipboard.modal.title": "Копирование",
   "copy-to-clipboard.modal.description": "Для того, чтобы скопировать текст, нажмите кнопку ниже",
-  "copy-to-clipboard.btn.copy": "Скопировать"
+  "copy-to-clipboard.btn.copy": "Скопировать",
+
+  "ecos-form.import-button.confirm.default-title": "Удаление ранее добавленных записей",
+  "ecos-form.import-button.confirm.default-description": "Перед загрузкой строк из файла - шаблона, текущие строки будут удалены. Вы хотите продолжить действие?",
+  "ecos-form.import-button.failed-uploading.description": "Не удалось загрузить файл",
+  "ecos-form.import-button.failed-uploading.title": "Ошибка",
+  "ecos-form.import-button.error.no-response-handler": "Необходимо указать настройку \"Response handler\""
 }
