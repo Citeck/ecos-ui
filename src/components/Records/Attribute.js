@@ -1,5 +1,7 @@
 import _ from 'lodash';
+
 import { mapValueToScalar } from './utils/attStrUtils';
+import Records from './Records';
 
 const convertToFullAttributeName = (name, scalar, multiple) => {
   if (multiple) {
@@ -169,6 +171,24 @@ export default class Attribute {
 
   getValue(scalar, multiple, withLoading, forceReload) {
     if (this._wasChanged) {
+      if (this._newValueScalar === 'str' /* && withLoading*/) {
+        if (typeof this._newValue === 'string' && this._newValue.includes('workspace://') && !this._newValue.includes('alias')) {
+          return Records.get(this._newValue).load('.disp');
+        }
+
+        if (Array.isArray(this._newValue)) {
+          return Promise.all(
+            this._newValue.map(item => {
+              if (item.includes('workspace://') && !item.includes('alias')) {
+                return Records.get(item).load('.disp');
+              }
+
+              return item;
+            })
+          );
+        }
+      }
+
       return this._newValue;
     } else {
       return this.getPersistedValue(scalar, multiple, withLoading, forceReload);
