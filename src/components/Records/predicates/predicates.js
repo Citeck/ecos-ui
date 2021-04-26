@@ -229,7 +229,10 @@ export function getPredicates(field) {
   }
 }
 
-/** @deprecated. use src/components/Journals/service/editors */
+/**
+ * @deprecated
+ * use {@link src/components/Journals/service/editors}
+ */
 export function getPredicateInput(field, sourceId, metaRecord, predicate = {}) {
   const defaultValue = {
     label: t('react-select.default-value.label'),

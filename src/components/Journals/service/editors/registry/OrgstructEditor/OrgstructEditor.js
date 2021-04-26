@@ -1,5 +1,6 @@
 import React from 'react';
 
+import Records from '../../../../../Records';
 import BaseEditor from '../BaseEditor';
 import OrgstructEditorControl from './OrgstructEditorControl';
 
@@ -10,7 +11,7 @@ export default class OrgstructEditor extends BaseEditor {
     return props => <OrgstructEditorControl config={config} {...props} />;
   }
 
-  getRecordValue(record) {
-    return record.value;
+  getDisplayName(value, config, scope, state) {
+    return Records.get(value).load('?disp');
   }
 }
