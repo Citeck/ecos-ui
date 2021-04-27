@@ -88,7 +88,7 @@ export const TableFormContextProvider = props => {
           if (isEmpty(get(record.toJson(), 'attributes'))) {
             promise = record.load(atts);
           } else {
-            promise = record.toJsonAsync(true).then(result => result.attributes);
+            promise = record.toJsonAsync(true).then(result => get(result, 'attributes', {}));
           }
 
           return promise.then(result => {
