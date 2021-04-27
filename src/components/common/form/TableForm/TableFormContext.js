@@ -148,11 +148,7 @@ export const TableFormContextProvider = props => {
     setIsModalFormOpen(false);
     setClonedRecord(null);
 
-    columns.forEach(column => {
-      record.att(column.attribute);
-    });
-
-    record.toJsonAsync().then(res => {
+    record.toJsonAsync(true).then(res => {
       const attributes = cloneDeep(res.attributes);
       const restAttrs = Object.keys(attributes);
       const unresolvedCols = columns.filter(item => {
