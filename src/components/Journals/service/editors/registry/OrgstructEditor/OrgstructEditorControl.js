@@ -5,18 +5,6 @@ import SelectOrgstruct from '../../../../../common/form/SelectOrgstruct';
 import { getCellValue } from '../../util';
 
 class OrgstructEditorControl extends React.Component {
-  onChange = value => {
-    const selected = Array.isArray(value) ? value : [value];
-    const { onUpdate } = this.props;
-
-    onUpdate(
-      selected.map(item => ({
-        value: item.id,
-        disp: item.label || item.disp
-      }))
-    );
-  };
-
   render() {
     const { value, config, extraProps, onBlur, onUpdate, ...props } = this.props;
     const multiple = get(config, 'multiple') || false;
@@ -28,11 +16,10 @@ class OrgstructEditorControl extends React.Component {
         {...props}
         multiple={multiple}
         isCompact
-        getFullData
         inputViewClass="select-orgstruct__input-view_сompact-extra"
         defaultValue={getCellValue(value)}
         allowedAuthorityTypes={allowedAuthorityTypes}
-        onChange={this.onChange}
+        onChange={onUpdate}
         onCancelSelect={onBlur}
       />
     );
