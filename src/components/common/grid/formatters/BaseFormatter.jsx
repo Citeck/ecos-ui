@@ -28,6 +28,10 @@ export default class BaseFormatter extends Component {
   tooltipRef = React.createRef();
 
   value(cell) {
+    if (Array.isArray(cell)) {
+      return cell.join(', ');
+    }
+
     return cell || '';
   }
 

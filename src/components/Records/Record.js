@@ -54,7 +54,7 @@ export default class Record {
     return this._baseRecord || this;
   }
 
-  toJson() {
+  toJson(withDisplayNames) {
     let attributes = {};
 
     if (this._baseRecord) {
@@ -66,13 +66,38 @@ export default class Record {
       }
     }
 
+    const isPersistedAssocValue = value => {
+      return value && typeof value === 'string' && value.includes('workspace://') && !value.includes('alias');
+    };
+
     let recId = this.id;
     for (let att in this._attributes) {
       if (this._attributes.hasOwnProperty(att)) {
         if (att === '_att_id') {
           recId = this._attributes[att].getValue();
         } else {
-          attributes[att] = this._attributes[att].getValue();
+          const value = this._attributes[att].getValue();
+          if (value && withDisplayNames) {
+            if (Array.isArray(value)) {
+              let hasPromises = false;
+              let mappedValues = value.map(it => {
+                if (isPersistedAssocValue(it)) {
+                  hasPromises = true;
+                  return this._records.get(it).load('.disp');
+                }
+                return it;
+              });
+              attributes[att] = hasPromises ? Promise.all(mappedValues) : mappedValues;
+            } else {
+              if (isPersistedAssocValue(value)) {
+                attributes[att] = this._records.get(value).load('.disp');
+              } else {
+                attributes[att] = value;
+              }
+            }
+          } else {
+            attributes[att] = value;
+          }
         }
       }
     }
@@ -92,10 +117,10 @@ export default class Record {
     return { id: recId, attributes };
   }
 
-  async toJsonAsync() {
+  async toJsonAsync(withDisplayNames) {
     await this._getWhenReadyToSave();
 
-    const json = this.toJson();
+    const json = this.toJson(withDisplayNames);
 
     const keys = Object.keys(json.attributes);
     const promises = [];
