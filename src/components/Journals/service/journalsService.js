@@ -112,6 +112,7 @@ class JournalsService {
         actionClone.params.actionId = actionClone.id;
       }
       return {
+        generatedAction: true,
         name: a.title,
         pluralName: a.title,
         type: 'server-group-action',
