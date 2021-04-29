@@ -141,4 +141,10 @@
     width: 100%;
     font-size: $font-size-small;
   }
+
+  &-datepicker {
+    input {
+      height: 26px;
+    }
+  }
 }

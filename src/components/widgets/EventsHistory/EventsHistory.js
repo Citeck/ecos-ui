@@ -147,6 +147,31 @@ class EventsHistory extends React.Component {
     getEventsHistory({ stateId, record, columns });
   };
 
+  get filteredGridData() {
+    const { list, columns } = this.props;
+    const { filters } = this.state;
+
+    return list.filter((item, index) => {
+      return filters.every(filter => {
+        const column = columns.find(column => column.attribute === filter.att || column.dataField === filter.att);
+        const formatter = get(column, 'formatExtraData.formatter');
+
+        if (formatter && formatter.getFilterValue) {
+          const value = formatter.getFilterValue(item[filter.att], item, get(column, 'formatExtraData.params'), index) || '';
+
+          console.warn({
+            value,
+            filter
+          });
+
+          return value.toLowerCase().includes((filter.val || '').toLowerCase());
+        }
+
+        return item[filter.att].includes(filter.val);
+      });
+    });
+  }
+
   onFilter = predicates => {
     const { filterEventsHistory, record, stateId, columns } = this.props;
 
@@ -179,17 +204,25 @@ class EventsHistory extends React.Component {
 
   renderTable() {
     const { list, columns, isMobile, maxHeight } = this.props;
+    const { filters } = this.state;
+
+    // console.warn({ filters, list });
 
     return (
       <Grid
         fixedHeader
-        data={list}
+        // data={list}
+        data={this.filteredGridData}
         columns={columns}
         scrollable={!isMobile}
         noTopBorder
         className="ecos-event-history-list ecos-event-history-list_view-table"
         maxHeight={maxHeight}
         autoHeight
+        filterable
+        filterDate
+        filters={filters}
+        onFilter={this.onGridFilter}
       />
     );
   }
