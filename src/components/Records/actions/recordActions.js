@@ -316,7 +316,7 @@ class RecordActions {
         actions: ctxActions.filter(a => {
           const { records } = resolvedActions;
 
-          if (a.features.execForRecords !== true || isEmpty(records)) {
+          if (!a.features.execForRecords || isEmpty(records)) {
             return false;
           }
 
