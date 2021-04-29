@@ -315,15 +315,12 @@ class RecordActions {
       forRecords: {
         actions: ctxActions.filter(a => {
           const { records } = resolvedActions;
-          const forRecords = a.features.execForRecords === true;
 
-          if (!forRecords) {
+          if (a.features.execForRecords !== true || isEmpty(records)) {
             return false;
           }
 
-          const forNobody = isEmpty(records) ? true : !records.some(mask => (mask & a[ACTION_CONTEXT_KEY].recordMask) !== 0);
-
-          return forRecords && !forNobody;
+          return records.some(mask => (mask & a[ACTION_CONTEXT_KEY].recordMask) !== 0);
         }),
         records: actionsMaskByRecordRef
       },
