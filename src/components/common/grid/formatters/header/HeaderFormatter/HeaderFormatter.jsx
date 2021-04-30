@@ -12,8 +12,6 @@ import { Icon, Tooltip as EcosTooltip } from '../../../../';
 import { Input } from '../../../../form';
 
 import './HeaderFormatter.scss';
-import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../../../Records/predicates/predicates';
-import DatePicker from '../../../../form/DatePicker';
 
 export default class HeaderFormatter extends Component {
   constructor(props) {
@@ -133,12 +131,7 @@ export default class HeaderFormatter extends Component {
     );
   }
 
-  renderDateSelector() {
-    return <DatePicker wrapperClasses="ecos-th__filter-tooltip-datepicker" />;
-  }
-
   renderFilter = () => {
-    const { canFilterDate, column } = this.props;
     const { open } = this.state;
     const filterIcon = document.getElementById(this.id);
 
@@ -155,9 +148,7 @@ export default class HeaderFormatter extends Component {
         arrowClassName="ecos-th__filter-tooltip-marker"
       >
         <ClickOutside handleClickOutside={e => this.state.open && this.onToggle(e)} excludeElements={[filterIcon]}>
-          {canFilterDate && [COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME].includes(column.type)
-            ? this.renderDateSelector()
-            : this.renderInput()}
+          {this.renderInput()}
           <Icon className="ecos-th__filter-tooltip-close icon-small-close icon_small" onClick={this.onClear} />
         </ClickOutside>
       </Tooltip>

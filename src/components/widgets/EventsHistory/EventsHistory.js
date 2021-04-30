@@ -203,15 +203,12 @@ class EventsHistory extends React.Component {
   }
 
   renderTable() {
-    const { list, columns, isMobile, maxHeight } = this.props;
+    const { columns, isMobile, maxHeight } = this.props;
     const { filters } = this.state;
-
-    // console.warn({ filters, list });
 
     return (
       <Grid
         fixedHeader
-        // data={list}
         data={this.filteredGridData}
         columns={columns}
         scrollable={!isMobile}
@@ -220,7 +217,6 @@ class EventsHistory extends React.Component {
         maxHeight={maxHeight}
         autoHeight
         filterable
-        filterDate
         filters={filters}
         onFilter={this.onGridFilter}
       />

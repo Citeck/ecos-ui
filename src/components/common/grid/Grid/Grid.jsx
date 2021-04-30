@@ -274,12 +274,7 @@ class Grid extends Component {
           column.hidden = !column.default;
         }
 
-        const filterable =
-          column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME
-            ? props.filterDate
-              ? props.filterDate
-              : false
-            : props.filterable;
+        const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
 
         column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false);
 
@@ -511,7 +506,7 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable) => {
-    const { filters, filterDate, sortBy, onSort, onFilter } = this.props;
+    const { filters, sortBy, onSort, onFilter } = this.props;
     const isFilterable = filterable && typeof onFilter === 'function';
     const isSortable = sortable && typeof onSort === 'function';
 
@@ -530,7 +525,6 @@ class Grid extends Component {
           ascending={ascending}
           column={column}
           colIndex={colIndex}
-          canFilterDate={filterDate}
           onDividerMouseDown={this.getStartDividerPosition}
         />
       );
